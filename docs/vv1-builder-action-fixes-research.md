@@ -93,3 +93,17 @@ counting up to each target (hut 9 250, hut 10 400, hut 11 600).
 
 The gate and its wrapper are gone; the three calls are the stock calls to the
 hut gate `0x442090` again. The food-level discriminator above is unchanged.
+
+## About three times in four
+
+The owner: the patch should "increase the LIKELIHOOD of villagers doing that
+action, not 100% replace them" -- 75%, once per decision. The cave at raw
+`0x568A0` (now 65 bytes, to `0x568E1`) keeps the Building-job test and sends
+the villager to the preferred-job attempt only when the top two bits of
+`rdtsc * 0x9E3779B9` are not both clear -- three quarters of all values, since
+multiplying by an odd constant permutes them; eax and edx are pushed and
+popped around it, and no game routine or RNG is called. With Builders Fix Huts
+When Idle selected, its companion verifies this row's exact jmp at `0x48336`
+and cave bytes and points the jmp at its own equivalent stub, which asks the
+decision's shared roll, so one decision rolls once. See "About three times in
+four, once per decision" in `docs/builders-fix-huts.md`.

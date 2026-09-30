@@ -65,14 +65,31 @@ def _stock(game: str, va: int, n: int) -> bytes:
     return STOCK[game].read_bytes()[pe.get_offset_from_rva(va - 0x400000):][:n]
 
 
+IMPORTS = 0x7C000000          # kernel32 stand-ins, answered by the Run hook
+ROLL_FN = 0x7D000000          # a scripted VvfpFixHutsRoll: counts its calls
+ROLL_COUNT = ROLL_FN + 0x80
+FIX_HUTS_BASE = 0x10000000    # "VVFP Fix Huts.dll", when it is loaded
+STDCALL_BYTES = {"GetModuleHandleA": 4, "GetProcAddress": 8}
+
+
 def _emulator():
     pe = pefile.PE(str(TEST_DLL))
     base = pe.OPTIONAL_HEADER.ImageBase
     exports = {e.name.decode(): base + e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
-    image = pe.get_memory_mapped_image()
+    image = bytearray(pe.get_memory_mapped_image())
+    stubs = {}
+    for k, imp in enumerate(i for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports):
+        name = imp.name.decode() if imp.name else f"#{imp.ordinal}"
+        stubs[name] = IMPORTS + 16 * k
+        struct.pack_into("<I", image, imp.address - base, IMPORTS + 16 * k)
+    exports["__imports__"] = stubs
     mu = Uc(UC_ARCH_X86, UC_MODE_32)
     mu.mem_map(base, (len(image) + 0xFFFF) & ~0xFFFF)
-    mu.mem_write(base, image)
+    mu.mem_write(base, bytes(image))
+    mu.mem_map(IMPORTS, 0x10000)
+    for name, stub in stubs.items():
+        n = STDCALL_BYTES.get(name)
+        mu.mem_write(stub, b"\xC2" + struct.pack("<H", n) if n is not None else b"\xF4")
     mu.mem_map(STACK - 0x10000, 0x20000)
     mu.mem_map(VILLAGE, 0x1000000)
     mu.mem_map(STATE, 0x100000)
@@ -94,10 +111,21 @@ def _probe(game_no: int):
 
 
 class Run:
-    def __init__(self, game: str, food: int, state9: int, cont_result: int):
+    """fix_huts: None -- "VVFP Fix Huts.dll" is not loaded, so the companion
+    draws its own roll (forced by `own`: 1 pass, 2 fail); else the answer of
+    the loaded companion's VvfpFixHutsRoll (scripted, counted)."""
+
+    def __init__(self, game: str, food: int, state9: int, cont_result: int, fix_huts=None, own: int = 1):
         g = G[game]
         stub = _probe(g["no"])[4]
-        mu, _ = _emulator()
+        mu, ex = _emulator()
+        self.imports = {v: k for k, v in ex["__imports__"].items()}
+        self.fix_huts, self.looked_up = fix_huts, []
+        mu.mem_write(ex["VvfpHealersStudyRollTest"], struct.pack("<ii", own, 0))
+        self.own_at = ex["VvfpHealersStudyRollTest"] + 4
+        mu.mem_map(ROLL_FN, 0x1000)
+        mu.mem_write(ROLL_FN, b"\xFF\x05" + struct.pack("<I", ROLL_COUNT) + b"\xB8"
+                     + struct.pack("<I", fix_huts or 0) + b"\xC3")
         if game == "vv1":
             mu.mem_write(STATE + 0xA2EC, struct.pack("<i", food))
             mu.mem_write(VILLAGE + INDEX * g["stride"] + 0x3B8, struct.pack("<i", state9))
@@ -123,6 +151,22 @@ class Run:
 
     def _hook(self, mu, address, size, user_data):
         g = self.g
+        name = self.imports.get(address)
+        if name is not None:
+            sp = mu.reg_read(UC_X86_REG_ESP)
+            text = lambda va: bytes(mu.mem_read(va, 64)).split(b"\0")[0].decode()
+            if name == "GetModuleHandleA":
+                module = text(struct.unpack("<I", mu.mem_read(sp + 4, 4))[0])
+                self.looked_up.append(module)
+                loaded = self.fix_huts is not None and module == "VVFP Fix Huts.dll"
+                mu.reg_write(UC_X86_REG_EAX, FIX_HUTS_BASE if loaded else 0)
+            elif name == "GetProcAddress":
+                handle, proc = struct.unpack("<2I", mu.mem_read(sp + 4, 8))
+                self.looked_up.append(text(proc))
+                mu.reg_write(UC_X86_REG_EAX, ROLL_FN if handle == FIX_HUTS_BASE and text(proc) == "VvfpFixHutsRoll" else 0)
+            else:
+                raise AssertionError(f"unexpected import {name}")
+            return
         if address in (g["cont"], g["picker"]):             # thiscall(idx, arg), ret 8
             sp = mu.reg_read(UC_X86_REG_ESP)
             ret, a, b = struct.unpack("<3I", mu.mem_read(sp, 12))
@@ -134,6 +178,12 @@ class Run:
         elif address in (g["resume"], g["done"]):
             self.exit = address
             mu.emu_stop()
+
+    def own_rolls(self) -> int:
+        return struct.unpack("<i", self.mu.mem_read(self.own_at, 4))[0]
+
+    def shared_rolls(self) -> int:
+        return struct.unpack("<I", self.mu.mem_read(ROLL_COUNT, 4))[0]
 
 
 class HealersStudyTests(unittest.TestCase):
@@ -186,6 +236,45 @@ class HealersStudyTests(unittest.TestCase):
                     self.assertEqual(r.mu.reg_read(UC_X86_REG_ESI), VILLAGE)
                     expect_cont = food >= g["threshold"] and state == 9
                     self.assertEqual([c[0] for c in r.calls].count("cont"), 1 if expect_cont else 0)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_about_three_in_four_the_roll_decides(self):
+        # The owner: more likely, not always.  A studying healer at high food
+        # continues the study only when the decision's roll passes; when it
+        # fails, the stock selection runs, exactly as below.
+        for game, g in G.items():
+            with self.subTest(game=game, own_roll="fails"):
+                r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, own=2)
+                self.assertEqual(r.exit, g["resume"])
+                self.assertEqual(r.calls, [("picker", INDEX, 0, VILLAGE)], "no continuation: the stock pick")
+                self.assertEqual(r.mu.reg_read(UC_X86_REG_EAX), PICK)
+                self.assertEqual(r.mu.reg_read(UC_X86_REG_ESP), r.esp_before)
+                self.assertEqual(r.own_rolls(), 1)
+            with self.subTest(game=game, own_roll="passes"):
+                r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, own=1)
+                self.assertEqual(r.exit, g["done"])
+                self.assertEqual(r.own_rolls(), 1)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_with_fix_huts_loaded_its_roll_is_shared(self):
+        # One decision, one roll: with "VVFP Fix Huts.dll" loaded (Builders Fix
+        # Huts When Idle selected), its VvfpFixHutsRoll decides -- the roll of
+        # the scheduler run it already wraps -- and this companion draws none.
+        for game, g in G.items():
+            for answer, exit_key in ((1, "done"), (0, "resume")):
+                with self.subTest(game=game, answer=answer):
+                    r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, fix_huts=answer, own=1)
+                    self.assertEqual(r.exit, g[exit_key])
+                    self.assertEqual((r.shared_rolls(), r.own_rolls()), (1, 0))
+                    self.assertEqual(r.looked_up[:2], ["VVFP Fix Huts.dll", "VvfpFixHutsRoll"])
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_no_roll_where_the_patch_would_not_act(self):
+        for game, g in G.items():
+            for food, state in ((g["threshold"] - 1, 9), (g["threshold"] + 1000, 8)):
+                with self.subTest(game=game, food=food, state=state):
+                    r = Run(game, food, state, 1, fix_huts=1)
+                    self.assertEqual((r.shared_rolls(), r.own_rolls(), r.looked_up), (0, 0, []))
 
     def test_the_rows_are_registered_bundled_and_the_bridge_is_shipped(self):
         import vv_fun_patcher as vfp

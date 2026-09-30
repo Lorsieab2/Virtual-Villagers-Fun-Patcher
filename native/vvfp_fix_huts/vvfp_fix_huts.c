@@ -44,11 +44,18 @@
      VV4 site 0x463F8A: the same.
      VV5 site 0x46CADA: the same.
 
+   Everything this companion changes happens about three times in four:
+   one roll per decision of the idle scheduler, shared with Builders and
+   Healers Work First, Healers Study and Builder Action Fixes (see "About
+   three times in four" below); when it fails, every site runs the stock
+   code.
+
    Installed at run time by VvfpFixHutsInstall(game) from a companion that
    already runs every frame in that game; the stock bytes at the site are
    verified first, and any other build installs nothing. */
 #include <windows.h>
 #include <string.h>
+#include <intrin.h>
 
 /* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
    tests/test_dlls/): the shipped DLL carries no counters and no probe. */
@@ -91,6 +98,138 @@ static int pick(unsigned int mask) {
         return -1;
     }
     return candidates[next_random() % (unsigned int)n];
+}
+
+/* ---- About three times in four: one roll per decision -------------------- */
+/* The owner: "For all 5 games there should still be a chance of doing other
+   things too like stock.  The 'Fix Huts' and 'Builder Action Fixes' patch
+   (and any other patch that increases certain behaviors) should increase the
+   LIKELIHOOD of villagers doing that action, not 100% replaces them" -- 75%,
+   once per decision: each time the game chooses what a builder or healer
+   does, one roll decides whether the patches step in at all; if it passes
+   they act together (own work first, construction before a fix, the hut fix
+   when idle, the food bypasses), and if it fails the stock game decides that
+   turn unchanged.
+
+   A decision is one run of the game's idle scheduler for one villager, which
+   this companion wraps (SCHED_SITES below):
+
+     VV1 0x448220, VV2 0x461850   thiscall(index), ret 4
+     VV3 0x45BFE0                 thiscall(record), ret 4
+     VV4 0x465840, VV5 0x46F070   thiscall(), ret
+
+   The Secret City, The Tree of Life and New Believers call their scheduler
+   only from their "choose the next job" routine, in a retry loop that runs it
+   again, at most ten times, while the villager still has no job: VV3 0x45C388
+   (counter ebx), VV4 0x465B1A and VV5 0x46F3DA (counter edi) -- each counter
+   is zeroed immediately before its loop and incremented by one after each
+   call, and nothing else runs between the calls.  That loop is one decision:
+   a call from it whose counter is not 0 and is one more than the previous
+   scheduler call's, from the same loop for the same villager, continues the
+   previous call's decision.  Every other scheduler call starts a new one.
+
+   A New Home and The Lost Children make one call per decision in play
+   (0x4487C8, 0x464E9C); their only retry loop is a once-per-load placement
+   pass (0x448488, 0x464498) whose counter is NOT zeroed per villager, so a
+   continuation there could not be told from the villager's next pass -- each
+   of those calls is its own decision.
+
+   The roll is drawn lazily, the first time a patched site asks within the
+   decision, from a generator of this companion's own (never the game's RNG,
+   so the stock random stream is unchanged).  A patched site reached outside
+   any scheduler run -- the Building dispatcher called from elsewhere -- is its
+   own decision and draws its own roll; it is reached at most once per call. */
+#define VVFP_CHANCE_PERCENT 75u
+
+static unsigned int roll_state;
+
+#ifdef VVFP_TEST
+/* force: 0 = the real roll, 1 = always pass, 2 = always fail.  draws: rolls
+   drawn.  TEST build only. */
+struct vvfp_fix_huts_roll { int force; int draws; };
+__declspec(dllexport) struct vvfp_fix_huts_roll VvfpFixHutsRollTest = { 0, 0 };
+#endif
+
+static int draw_roll(void) {
+    unsigned int x = roll_state;
+    if (x == 0) {
+        x = (unsigned int)__rdtsc() ^ 0x6C8E9CF5u;
+        if (x == 0) {
+            x = 0x6C8E9CF5u;
+        }
+    }
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    roll_state = x;
+#ifdef VVFP_TEST
+    ++VvfpFixHutsRollTest.draws;
+    if (VvfpFixHutsRollTest.force == 1) return 1;
+    if (VvfpFixHutsRollTest.force == 2) return 0;
+#endif
+    return x % 100u < VVFP_CHANCE_PERCENT;
+}
+
+struct decision {
+    unsigned int ret;          /* the scheduler's return address */
+    unsigned int counter;      /* the caller's retry counter at the call */
+    unsigned int key;          /* the villager: index, record or object */
+    int roll;                  /* -1 not drawn yet, 0 stock, 1 the patches act */
+};
+#define DECISION_DEPTH 8
+static struct decision decisions[DECISION_DEPTH];
+static int decision_depth;                 /* scheduler runs in progress */
+static struct decision last_decision;      /* the most recent run to finish */
+static int last_valid;
+
+/* The retry loop's return address per game (0: none that continues). */
+static const unsigned int LOOP_RETURN[6] = { 0, 0, 0, 0x45C38Du, 0x465B1Fu, 0x46F3DFu };
+
+static void __cdecl decision_enter(int game, unsigned int ret, unsigned int counter, unsigned int key) {
+    struct decision d;
+    d.ret = ret;
+    d.counter = counter;
+    d.key = key;
+    d.roll = -1;
+    if (game >= 1 && game <= 5 && LOOP_RETURN[game] != 0 && ret == LOOP_RETURN[game]
+        && last_valid && last_decision.ret == ret && last_decision.key == key
+        && counter != 0 && counter == last_decision.counter + 1) {
+        d.roll = last_decision.roll;        /* the same loop's next attempt */
+    }
+    if (decision_depth >= 0 && decision_depth < DECISION_DEPTH) {
+        decisions[decision_depth] = d;
+    }
+    ++decision_depth;
+}
+
+static void __cdecl decision_exit(void) {
+    if (decision_depth > 0) {
+        --decision_depth;
+    }
+    if (decision_depth < DECISION_DEPTH) {
+        last_decision = decisions[decision_depth];
+        last_valid = 1;
+    } else {
+        last_valid = 0;
+    }
+}
+
+/* 1: the patches step in for this decision; 0: the stock game decides. */
+static int __cdecl decision_roll(void) {
+    if (decision_depth > 0 && decision_depth <= DECISION_DEPTH) {
+        struct decision *d = &decisions[decision_depth - 1];
+        if (d->roll < 0) {
+            d->roll = draw_roll();
+        }
+        return d->roll;
+    }
+    return draw_roll();
+}
+
+/* For the other behaviour companions ("VVFP Work First.dll", "VVFP Healers
+   Study.dll"), so a decision they share with this one rolls once. */
+__declspec(dllexport) int __cdecl VvfpFixHutsRoll(void) {
+    return decision_roll();
 }
 
 /* ---- VV1 --------------------------------------------------------------- */
@@ -256,9 +395,16 @@ static unsigned int __cdecl vv1_construction(const unsigned char *village) {
     return 0;
 }
 
+/* The decision's roll first: when it fails (a quarter of the decisions) the
+   displaced skip roll runs and the stock branch carries on unchanged. */
 static __declspec(naked) void vv1_stub(void) {
     __asm {
-        pushad                         ; construction first, whatever the roll
+        pushad
+        call decision_roll
+        test eax, eax
+        popad
+        jz stock_decides
+        pushad                         ; construction first, whatever the stock roll
         push esi
         call vv1_construction
         add esp, 4
@@ -299,6 +445,11 @@ static __declspec(naked) void vv1_stub(void) {
         cmp eax, 0x14
         jle vv1_nothing                ; skipped: "nothing", not a false "started"
         jmp dword ptr [vv1_hut_pick]   ; every hut complete: the stock random hut
+    stock_decides:
+        push 0x64                      ; the displaced bytes, then the stock code
+        call dword ptr [vv1_rand]
+        add esp, 4
+        jmp dword ptr [vv1_resume]
     }
 }
 
@@ -310,11 +461,13 @@ static __declspec(naked) void vv1_stub(void) {
 #define VV1_LEVEL_SITE   0x44765Eu
 static const unsigned char VV1_LEVEL_STOCK[6] = { 0x8B, 0x96, 0x10, 0xE0, 0x03, 0x00 };
 static const unsigned int vv1_level_resume = 0x447671u;
+static const unsigned int vv1_level_stock = 0x447664u;   /* the stock cmp / jl, after the displaced mov */
 /* Below level 3 a builder fixes any complete population hut -- the owner:
    "below level 3, at all food levels, villagers will fix huts if at least
    one is built and there are no other building projects available" -- and
    with none built, "nothing".  Never the stock random pick the gate used to
-   skip (Codex on #463). */
+   skip (Codex on #463).  Only when the decision's roll passes; otherwise the
+   stock compare gives up as it always did. */
 static __declspec(naked) void vv1_level_stub(void) {
     __asm {
         mov edx, dword ptr [esi + 0x3E010]
@@ -322,7 +475,14 @@ static __declspec(naked) void vv1_level_stub(void) {
         jl below
         jmp dword ptr [vv1_level_resume]
     below:
-        pushad                         ; construction first, whatever the rolls
+        pushad
+        call decision_roll
+        test eax, eax
+        popad
+        jnz below_patched
+        jmp dword ptr [vv1_level_stock]
+    below_patched:
+        pushad                         ; construction first, whatever the stock rolls
         push esi
         call vv1_construction
         add esp, 4
@@ -412,10 +572,23 @@ static int __cdecl vv2_choose_any(const unsigned char *village) {
    reads 383/0 while being built and 24/1 once built.  So a failed roll could
    send a builder to fix a hut -- this companion's fix or the stock one --
    while a hut or project the stock game would build was right there.  This
-   is the same test without the rolls: while it holds, the hut site and the
-   level gate give "nothing" (al = 0, the stock gate's own target), so the
-   builder is never sent to fix a hut and the next attempt rolls for the
-   construction again.  Population: 0x425860, thiscall on the state. */
+   is the same test without the rolls, in the same order, and it answers
+   with the stock code that builds the first one it finds: when the
+   decision's roll passes, the hut site and the level gate go STRAIGHT INTO
+   that construction (the owner's option A, as A New Home does) instead of a
+   hut fix.  Each entry is the instruction just after that construction's own
+   test in the Building branch, so the jump always starts it:
+
+     own task 11..20  the task table's handler (0x460550), eax = &record+0x7E0
+                      (the handler clears the task only if its project is
+                      complete, which the test here excludes)
+     project 1        0x4600A7    hut 24 0x45FF0B   hut 25 0x45FF38
+     hut 26           0x45FF65    project 17 0x460171   project 8 0x4601A9
+     project 5        0x45FF92    project 12 0x46023D   project 11 0x46028C
+
+   Every handler returns "started" (al = bl = 1; ebx is 1 at both sites) and
+   pops the dispatcher's frame, which is the frame both sites run in.
+   Population: 0x425860, thiscall on the state. */
 static int vv2_population(const unsigned char *state) {
     int n;
     __asm {
@@ -430,38 +603,48 @@ static int vv2_population(const unsigned char *state) {
 #define VV2_PROGRESS(state, id) (*(const int *)((state) + 0x2E754 + (id) * 8))
 #define VV2_DONE(state, id) ((state)[0x2E758 + (id) * 8])
 
-static int __cdecl vv2_construction_available(const unsigned char *village, unsigned int index) {
+/* The stock entry of the first construction available, or 0 for none. */
+static unsigned int __cdecl vv2_construction(const unsigned char *village, unsigned int index) {
     /* [record+0x7E0] task 11..20 -> the project whose flag the stock handler
-       tests (jump table 0x460550). */
+       tests, and that handler (jump table 0x460550). */
     static const unsigned char task_project[10] = { 24, 25, 26, 5, 7, 8, 1, 17, 12, 11 };
+    static const unsigned int task_handler[10] = {
+        0x45FEF2u, 0x45FF1Fu, 0x45FF4Cu, 0x45FF79u, 0x45FFA6u,
+        0x460036u, 0x45FECDu, 0x45FFD3u, 0x45FFF4u, 0x460015u };
     const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
     int task = *(const int *)(village + index * 0xE48Cu + 0x7E0u);
     int level = *(const int *)(state + 0x2EA84);
-    if (task >= 11 && task <= 20 && VV2_DONE(state, task_project[task - 11]) == 0) return 1;
-    if (VV2_DONE(state, 1) != 1 && VV2_PROGRESS(state, 1) > 0 && task == 0) return 1;
-    if (VV2_DONE(state, 24) != 1) return 1;
-    if (VV2_DONE(state, 25) != 1 && VV2_PROGRESS(state, 25) >= 2 && vv2_population(state) > 22) return 1;
-    if (VV2_DONE(state, 26) != 1 && VV2_PROGRESS(state, 26) >= 2 && vv2_population(state) > 45) return 1;
+    if (task >= 11 && task <= 20 && VV2_DONE(state, task_project[task - 11]) == 0) return task_handler[task - 11];
+    if (VV2_DONE(state, 1) != 1 && VV2_PROGRESS(state, 1) > 0 && task == 0) return 0x4600A7u;
+    if (VV2_DONE(state, 24) != 1) return 0x45FF0Bu;
+    if (VV2_DONE(state, 25) != 1 && VV2_PROGRESS(state, 25) >= 2 && vv2_population(state) > 22) return 0x45FF38u;
+    if (VV2_DONE(state, 26) != 1 && VV2_PROGRESS(state, 26) >= 2 && vv2_population(state) > 45) return 0x45FF65u;
     if (level < 2) return 0;
-    if (VV2_DONE(state, 9) != 0 && VV2_PROGRESS(state, 17) > 0 && VV2_DONE(state, 17) == 0) return 1;
-    if (VV2_DONE(state, 8) != 1 && VV2_PROGRESS(state, 8) > 0) return 1;
-    if (VV2_DONE(state, 5) != 1 && VV2_PROGRESS(state, 5) >= 2 && *(const int *)(state + 0x2EA8C) >= 3) return 1;
+    if (VV2_DONE(state, 9) != 0 && VV2_PROGRESS(state, 17) > 0 && VV2_DONE(state, 17) == 0) return 0x460171u;
+    if (VV2_DONE(state, 8) != 1 && VV2_PROGRESS(state, 8) > 0) return 0x4601A9u;
+    if (VV2_DONE(state, 5) != 1 && VV2_PROGRESS(state, 5) >= 2 && *(const int *)(state + 0x2EA8C) >= 3) return 0x45FF92u;
     if (level < 3) return 0;
-    if (VV2_PROGRESS(state, 12) >= 1 && VV2_DONE(state, 12) == 0 && *(const int *)(state + 0x2EA74) >= 3) return 1;
+    if (VV2_PROGRESS(state, 12) >= 1 && VV2_DONE(state, 12) == 0 && *(const int *)(state + 0x2EA74) >= 3) return 0x46023Du;
     if (VV2_PROGRESS(state, 11) >= 1 && VV2_DONE(state, 11) == 0 && VV2_DONE(state, 9) != 0
-        && *(const int *)(state + 0x2EA74) >= 3) return 1;
+        && *(const int *)(state + 0x2EA74) >= 3) return 0x46028Cu;
     return 0;
 }
 
 static const unsigned int vv2_rand = VV2_RAND, vv2_resume = VV2_RESUME;
 static const unsigned int vv2_examine = VV2_EXAMINE, vv2_started = VV2_STARTED;
-static const unsigned int vv2_nothing = 0x46004Cu;   /* pop edi/ebp/ebx; al = 0; pop esi; ret 8 */
+/* The decision's roll first: when it fails the displaced skip roll runs and
+   the stock branch carries on unchanged. */
 static __declspec(naked) void vv2_stub(void) {
     __asm {
         pushad
+        call decision_roll
+        test eax, eax
+        popad
+        jz stock
+        pushad
         push edi                       ; the villager's index
         push esi
-        call vv2_construction_available
+        call vv2_construction
         add esp, 8
         mov [esp + 0x1C], eax
         popad
@@ -489,7 +672,11 @@ static __declspec(naked) void vv2_stub(void) {
         add esp, 4
         jmp dword ptr [vv2_resume]
     build_first:
-        jmp dword ptr [vv2_nothing]
+        mov edx, eax                   ; the construction's stock entry
+        mov eax, edi
+        imul eax, eax, 0xE48C
+        lea eax, [eax + esi + 0x7E0]   ; &record+0x7E0, as the task handlers expect
+        jmp edx
     }
 }
 
@@ -517,14 +704,19 @@ static __declspec(naked) void vv2_level_stub(void) {
         jmp dword ptr [vv2_level_resume]
     below:
         pushad
+        call decision_roll
+        test eax, eax
+        popad
+        jz nothing                     ; the roll failed: the stock jl's "nothing"
+        pushad
         push edi                       ; the villager's index
         push esi
-        call vv2_construction_available
+        call vv2_construction
         add esp, 8
         mov [esp + 0x1C], eax
         popad
         test eax, eax
-        jnz nothing                    ; construction first: never a hut fix
+        jnz build_first                ; construction first: never a hut fix
         pushad
         push esi
         call vv2_choose_any
@@ -544,6 +736,12 @@ static __declspec(naked) void vv2_level_stub(void) {
         jmp dword ptr [vv2_started]
     nothing:
         jmp dword ptr [vv2_level_nothing]
+    build_first:
+        mov edx, eax                   ; the construction's stock entry
+        mov eax, edi
+        imul eax, eax, 0xE48C
+        lea eax, [eax + esi + 0x7E0]
+        jmp edx
     }
 }
 
@@ -684,14 +882,20 @@ static void later_start(const struct later_game *g, unsigned int esi, int hut) {
        the list came out empty (this companion then fixed a hut) or held only
        option 9 while a hut or project was there to build.
 
-   So option 9 is taken out of any list that has construction in it, and a
-   list emptied by those rolls while construction stands gives the stock
-   "nothing" -- the next attempt rolls for the construction again, exactly as
-   the stock game does; the villager is never sent to a hut instead.  Only
-   when there is no construction at all is a hut fixed: the stock option 9
-   when every hut is built, or this companion's pick among the built huts
-   when some are not.  The Secret City has no such rolls, so there the
-   filter only drops option 9 from a mixed list. */
+   So, when the decision's roll passes, option 9 is taken out of any list
+   that has construction in it, and a list those rolls left without
+   construction (empty, or only option 9) while construction stands is given
+   that construction back -- every option the dislike rolls removed, by the
+   dispatcher's own tests in its own order -- so the stock pick goes STRAIGHT
+   INTO it (the owner's option A, as A New Home does); the villager is never
+   sent to a hut instead.  Each of those options' handlers starts its job
+   unconditionally (VV4 table 0x4642C0, VV5 0x46CE2C), so the rebuilt list
+   always starts construction.  Only when there is no construction at all is
+   a hut fixed: the stock option 9 when every hut is built, or this
+   companion's pick among the built huts when some are not.  The Secret City
+   has no such rolls, so there the filter only drops option 9 from a mixed
+   list.  When the roll fails, the list is left exactly as the stock code
+   built it. */
 #define FIX_A_HUT_OPTION 9
 
 /* thiscall(arg) -> eax, and thiscall() -> eax, on a game object. */
@@ -717,60 +921,100 @@ static int call_count(unsigned int fn, unsigned int obj) {
 }
 
 /* The options the dislike rolls can remove, without the rolls: the game's
-   own tests, in the dispatcher's order. */
-static int vv4_rolled_construction(void) {
-    static const int projects[7] = { 19, 20, 21, 23, 22, 25, 24 };  /* options 1-4, 8, 10, 11 */
-    int i;
-    for (i = 0; i < 7; ++i) {
-        if (call_state(0x438980u, 0x4D8BF8u, projects[i]) >= 1
-            && !later_complete(&VV4, projects[i] - 19)) {
-            return 1;
+   own tests, in the dispatcher's order, written to `out` (at most 8).
+   Returns how many. */
+#define ROLLED_OPTION_6 0
+static int vv4_rolled_construction(int *out) {
+    /* options 1-4, 6, 8, 10, 11 in list order; 0 = option 6's own test */
+    static const int options[8] = { 1, 2, 3, 4, 6, 8, 10, 11 };
+    static const int projects[8] = { 19, 20, 21, 23, ROLLED_OPTION_6, 22, 25, 24 };
+    int i, n = 0;
+    for (i = 0; i < 8; ++i) {
+        int open;
+        if (projects[i] == ROLLED_OPTION_6) {
+            /* 0x4396D0(0x4D86A8) < 2 and 0x421570(0x4D86A8) < 100 */
+            open = call_count(0x4396D0u, 0x4D86A8u) < 2 && call_count(0x421570u, 0x4D86A8u) < 100;
+        } else {
+            /* state >= 1 (0x438980) and not complete (0x438960) */
+            open = call_state(0x438980u, 0x4D8BF8u, projects[i]) >= 1
+                && !later_complete(&VV4, projects[i] - 19);
+        }
+        if (open) {
+            out[n++] = options[i];
         }
     }
-    /* option 6: 0x4396D0(0x4D86A8) < 2 and 0x421570(0x4D86A8) < 100 */
-    return call_count(0x4396D0u, 0x4D86A8u) < 2 && call_count(0x421570u, 0x4D86A8u) < 100;
+    return n;
 }
 
-static int vv5_rolled_construction(void) {
-    static const int projects[6] = { 19, 20, 21, 23, 22, 24 };      /* options 1-4, 8, 11 */
-    int i, n;
-    for (i = 0; i < 6; ++i) {
-        if (call_state(0x43AEA0u, 0x51E008u, projects[i]) > 1
-            && !later_complete(&VV5, projects[i] - 19)) {
-            return 1;
+static int vv5_rolled_construction(int *out) {
+    /* options 1-4, 6, 8, 11 in list order */
+    static const int options[7] = { 1, 2, 3, 4, 6, 8, 11 };
+    static const int projects[7] = { 19, 20, 21, 23, ROLLED_OPTION_6, 22, 24 };
+    int i, n = 0, count;
+    for (i = 0; i < 7; ++i) {
+        int open;
+        if (projects[i] == ROLLED_OPTION_6) {
+            /* 0 < 0x4388D0(0x51DE40) < 100 */
+            count = call_count(0x4388D0u, 0x51DE40u);
+            open = count > 0 && count < 100;
+        } else {
+            /* state > 1 (0x43AEA0) and not complete (0x43AE80) */
+            open = call_state(0x43AEA0u, 0x51E008u, projects[i]) > 1
+                && !later_complete(&VV5, projects[i] - 19);
+        }
+        if (open) {
+            out[n++] = options[i];
         }
     }
-    /* option 6: 0 < 0x4388D0(0x51DE40) < 100 */
-    n = call_count(0x4388D0u, 0x51DE40u);
-    return n > 0 && n < 100;
+    return n;
 }
 
 /* The filter.  -1: a hut fix was started (take the stock "started"
-   epilogue); otherwise the new option count (0: the stock "nothing"). */
-static int later_filter(const struct later_game *g, int (*rolled)(void), unsigned int esi,
+   epilogue); otherwise the new option count (0: the stock "nothing").  The
+   decision's roll is asked only where the list would change; when it fails,
+   the list and the count are returned exactly as the stock code built them. */
+static int later_filter(const struct later_game *g, int (*rolled)(int *), unsigned int esi,
                         int *list, int count) {
-    int i, fix_at = -1, construction;
+    int i, fix_at = -1;
     for (i = 0; i < count; ++i) {
         if (list[i] == FIX_A_HUT_OPTION) {
             fix_at = i;
         }
     }
-    construction = count - (fix_at >= 0 ? 1 : 0) > 0 || (rolled != NULL && rolled());
-    if (construction) {
-        if (fix_at >= 0) {
-            for (i = fix_at; i + 1 < count; ++i) {
-                list[i] = list[i + 1];
-            }
-            list[--count] = 0;
+    if (count - (fix_at >= 0 ? 1 : 0) > 0) {
+        /* Construction in the list: only a stock option 9 beside it changes. */
+        if (fix_at < 0 || !decision_roll()) {
+            return count;
         }
+        for (i = fix_at; i + 1 < count; ++i) {
+            list[i] = list[i + 1];
+        }
+        list[--count] = 0;
         return count;
+    }
+    if (rolled != NULL) {
+        int taken[8];
+        int n = rolled(taken);
+        if (n > 0) {
+            /* The dislike rolls took every construction option away. */
+            if (!decision_roll()) {
+                return count;
+            }
+            for (i = 0; i < n; ++i) {
+                list[i] = taken[i];
+            }
+            for (; i < count; ++i) {
+                list[i] = 0;
+            }
+            return n;                  /* option A: straight into that construction */
+        }
     }
     if (count > 0) {
         return count;                  /* only option 9: the stock fix, every hut built */
     }
     {
         int hut = later_choose(g);
-        if (hut < 0) {
+        if (hut < 0 || !decision_roll()) {
             return 0;
         }
         later_start(g, esi, hut);
@@ -862,8 +1106,9 @@ __declspec(dllexport) int __cdecl VvfpFixHutsDecide(int game_id, unsigned int es
    (VV3-VV5) -- takes the path the stock game gives it when food is
    plentiful (VV3-VV5) or scarce (VV1/VV2), only while not every population
    hut is complete; everyone else, and every village whose huts are all
-   built, runs the stock code.  A different build, or VV1 with Builder
-   Action Fixes already owning 0x448336, installs nothing here. */
+   built, runs the stock code -- and only when the decision's roll passes.
+   A different build installs nothing here; in VV1 with Builder Action Fixes
+   owning 0x448336 its gate is taken over instead (see vv1_baf_stub). */
 
 static int vv1_huts_incomplete(const unsigned char *village) {
     const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
@@ -911,8 +1156,11 @@ static int vv2_builder_has_hut_work(const unsigned char *village) {
         && (state[0x2E818] == 1 || state[0x2E820] == 1 || state[0x2E828] == 1);
 }
 
+/* Each bypass asks the decision's roll last, once it would act; a failed
+   roll takes the stock path. */
 static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int index) {
-    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_builder_has_hut_work(village)) {
+    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_builder_has_hut_work(village)
+        || !decision_roll()) {
         return 0;
     }
     FIX_HUTS_COUNT_BYPASS;
@@ -920,7 +1168,8 @@ static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int 
 }
 
 static int __cdecl vv2_builder_first(const unsigned char *village, const unsigned char *record) {
-    if (*(const int *)(record + 0x7F8u) != 5 || !vv2_builder_has_hut_work(village)) {
+    if (*(const int *)(record + 0x7F8u) != 5 || !vv2_builder_has_hut_work(village)
+        || !decision_roll()) {
         return 0;
     }
     FIX_HUTS_COUNT_BYPASS;
@@ -942,6 +1191,9 @@ static int __cdecl later_builder_first(const struct later_game *g, int pick) {
        huts at all". */
     (void)g;
     if (pick != 4 && !(pick == 2 && work_first_present())) {
+        return 0;
+    }
+    if (!decision_roll()) {
         return 0;
     }
     FIX_HUTS_COUNT_BYPASS;
@@ -967,7 +1219,8 @@ static const unsigned int vv4_food_dispatch = 0x465A0Fu, vv4_food_resume = 0x465
 static const unsigned int vv5_food_dispatch = 0x46F2CEu, vv5_food_resume = 0x46F277u;
 
 /* VV1: the displaced compare, then low food or a builder -> the preferred
-   attempt; else the stock high-food jump. */
+   attempt; else the stock high-food jump, with every register as the stock
+   code has it. */
 static __declspec(naked) void vv1_food_stub(void) {
     __asm {
         cmp dword ptr [ebp + 0xA2EC], 400
@@ -977,9 +1230,8 @@ static __declspec(naked) void vv1_food_stub(void) {
         push esi
         call vv1_builder_first
         add esp, 8
-        mov [esp + 0x1C], eax
+        test eax, eax                  ; every register the stock code has, kept
         popad
-        test eax, eax
         jnz low_path
         jmp dword ptr [vv1_food_high]
     low_path:
@@ -996,13 +1248,58 @@ static __declspec(naked) void vv2_food_stub(void) {
         push esi
         call vv2_builder_first
         add esp, 8
-        mov [esp + 0x1C], eax
+        test eax, eax                  ; every register the stock code has, kept
         popad
-        test eax, eax
         jnz low_path
         jmp dword ptr [vv2_food_high]
     low_path:
         jmp dword ptr [vv2_food_low]
+    }
+}
+
+/* Builder Action Fixes (A New Home, an executable-only row) owns the same
+   400-food gate: its jmp at 0x448336 leads to a cave at 0x4568A0 that sends
+   every villager whose selected job is Building to the preferred-job attempt
+   at 400+ food -- about three times in four, by a roll of the cave's own
+   (the processor's time-stamp counter, hashed), since without this companion
+   nothing else rolls for the decision.  With this companion loaded the two
+   would roll separately for one decision, so the companion takes the gate
+   over: after verifying the row's exact jmp and cave bytes it points the jmp
+   at this stub, which makes the same Building test and asks the decision's
+   own roll.  Any other bytes there install nothing. */
+#define VV1_BAF_CAVE_VA 0x4568A0u
+static const unsigned char VV1_BAF_JUMP[12] = {
+    0xE9, 0x65, 0xE5, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+static const unsigned char VV1_BAF_CAVE[65] = {
+    0x81, 0xBD, 0xEC, 0xA2, 0x00, 0x00, 0x90, 0x01, 0x00, 0x00, 0x0F, 0x8C, 0x92, 0x1A, 0xFF, 0xFF,
+    0x50, 0x52, 0x89, 0xF8, 0x69, 0xC0, 0xD8, 0x03, 0x00, 0x00, 0x83, 0xBC, 0x30, 0xD0, 0x03, 0x00,
+    0x00, 0x04, 0x75, 0x16, 0x0F, 0x31, 0x69, 0xC0, 0xB9, 0x79, 0x37, 0x9E, 0x3D, 0x00, 0x00, 0x00,
+    0x40, 0x72, 0x07, 0x5A, 0x58, 0xE9, 0x68, 0x1A, 0xFF, 0xFF, 0x5A, 0x58, 0xE9, 0x8E, 0x1A, 0xFF,
+    0xFF };
+
+static int __cdecl vv1_baf_first(const unsigned char *village, unsigned int index) {
+    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !decision_roll()) {
+        return 0;
+    }
+    FIX_HUTS_COUNT_BYPASS;
+    return 1;
+}
+
+static __declspec(naked) void vv1_baf_stub(void) {
+    __asm {
+        cmp dword ptr [ebp + 0xA2EC], 400
+        jl low_path
+        pushad
+        push edi
+        push esi
+        call vv1_baf_first
+        add esp, 8
+        test eax, eax
+        popad
+        jnz low_path
+        jmp dword ptr [vv1_food_high]
+    low_path:
+        jmp dword ptr [vv1_food_low]
     }
 }
 
@@ -1077,13 +1374,137 @@ static int work_first_present(void) {
 
 static void work_first_bridge(int game_id) {
     int (__stdcall *install)(int);
+    void (__stdcall *set_roll)(int (__cdecl *)(void));
     if (work_first_installed[game_id] != 0 || !work_first_present()) {
         return;
     }
     work_first_installed[game_id] = -1;
+    /* The addendum acts inside the same decisions: it asks this companion's
+       roll, so one decision rolls once. */
+    set_roll = (void (__stdcall *)(int (__cdecl *)(void)))GetProcAddress(work_first_module, "VvfpWorkFirstSetRoll");
+    if (set_roll != NULL) {
+        set_roll(VvfpFixHutsRoll);
+    }
     install = (int (__stdcall *)(int))GetProcAddress(work_first_module, "VvfpWorkFirstInstall");
     if (install != NULL && install(game_id)) {
         work_first_installed[game_id] = 1;
+    }
+}
+
+/* ---- The decision: wrapping the idle scheduler ---------------------------- */
+/* Each game's scheduler entry jumps here; the wrapper opens the decision
+   (decision_enter: the return address, the caller's retry counter and the
+   villager), runs the stock scheduler -- the displaced prologue, then its
+   body -- with the same argument, closes the decision and returns as the
+   scheduler does.  Every register the scheduler receives is the caller's;
+   eax, which it returns, is passed back. */
+static const unsigned int vv1_sched_body = 0x448228u, vv2_sched_body = 0x461858u;
+static const unsigned int vv3_sched_body = 0x45BFE6u, vv4_sched_body = 0x465846u;
+static const unsigned int vv5_sched_body = 0x46F075u;
+
+/* VV1/VV2: push ebx; push ebp; push esi; push edi; mov edi, [esp+0x14]. */
+static __declspec(naked) void vv1_sched_original(void) {
+    __asm {
+        push ebx
+        push ebp
+        push esi
+        push edi
+        mov edi, dword ptr [esp + 0x14]
+        jmp dword ptr [vv1_sched_body]
+    }
+}
+static __declspec(naked) void vv2_sched_original(void) {
+    __asm {
+        push ebx
+        push ebp
+        push esi
+        push edi
+        mov edi, dword ptr [esp + 0x14]
+        jmp dword ptr [vv2_sched_body]
+    }
+}
+/* VV3: push ecx; push esi; mov esi, [esp+0xC]. */
+static __declspec(naked) void vv3_sched_original(void) {
+    __asm {
+        push ecx
+        push esi
+        mov esi, dword ptr [esp + 0xC]
+        jmp dword ptr [vv3_sched_body]
+    }
+}
+/* VV4: sub esp, 8; push esi; mov esi, ecx.  VV5: sub esp, 8; push ebx; push esi. */
+static __declspec(naked) void vv4_sched_original(void) {
+    __asm {
+        sub esp, 8
+        push esi
+        mov esi, ecx
+        jmp dword ptr [vv4_sched_body]
+    }
+}
+static __declspec(naked) void vv5_sched_original(void) {
+    __asm {
+        sub esp, 8
+        push ebx
+        push esi
+        jmp dword ptr [vv5_sched_body]
+    }
+}
+
+/* One argument ([esp+4]: VV1/VV2 the index, VV3 the record, the key), ret 4;
+   the caller's retry counter is ebx (only VV3's is ever continued). */
+#define SCHED_STUB_ARG(NAME, GAME)                                            \
+    static __declspec(naked) void NAME##_sched_stub(void) {                   \
+        __asm {                                                              \
+            __asm pushad                                                     \
+            __asm push dword ptr [esp + 0x24]      /* the villager */        \
+            __asm push ebx                         /* the retry counter */   \
+            __asm push dword ptr [esp + 0x28]      /* the return address */  \
+            __asm push GAME                                                  \
+            __asm call decision_enter                                        \
+            __asm add esp, 16                                                \
+            __asm popad                                                      \
+            __asm push dword ptr [esp + 4]                                   \
+            __asm call NAME##_sched_original                                 \
+            __asm push eax                                                   \
+            __asm call decision_exit                                         \
+            __asm pop eax                                                    \
+            __asm ret 4                                                      \
+        }                                                                    \
+    }
+
+/* No argument (ecx, the villager object, is the key), plain ret; the retry
+   counter is edi. */
+#define SCHED_STUB_OBJECT(NAME, GAME)                                         \
+    static __declspec(naked) void NAME##_sched_stub(void) {                   \
+        __asm {                                                              \
+            __asm pushad                                                     \
+            __asm push ecx                         /* the villager */        \
+            __asm push edi                         /* the retry counter */   \
+            __asm push dword ptr [esp + 0x28]      /* the return address */  \
+            __asm push GAME                                                  \
+            __asm call decision_enter                                        \
+            __asm add esp, 16                                                \
+            __asm popad                                                      \
+            __asm call NAME##_sched_original                                 \
+            __asm push eax                                                   \
+            __asm call decision_exit                                         \
+            __asm pop eax                                                    \
+            __asm ret                                                        \
+        }                                                                    \
+    }
+
+SCHED_STUB_ARG(vv1, 1)
+SCHED_STUB_ARG(vv2, 2)
+SCHED_STUB_ARG(vv3, 3)
+SCHED_STUB_OBJECT(vv4, 4)
+SCHED_STUB_OBJECT(vv5, 5)
+
+/* The Secret City has no per-frame companion to write a detour from, so its
+   row's page carries a stub at the scheduler entry that resolves this export
+   once and jumps to it with the stack and every register untouched. */
+__declspec(dllexport) __declspec(naked) void VvfpFixHutsScheduler3(void) {
+    __asm {
+        jmp vv3_sched_stub
     }
 }
 
@@ -1147,6 +1568,34 @@ static const struct site LEVEL_SITES[6] = {
 };
 static int level_install_state[6];
 
+/* The scheduler entries (The Secret City's is executable-side). */
+static const unsigned char VV1_SCHED_STOCK[8] = { 0x53, 0x55, 0x56, 0x57, 0x8B, 0x7C, 0x24, 0x14 };
+static const unsigned char VV2_SCHED_STOCK[8] = { 0x53, 0x55, 0x56, 0x57, 0x8B, 0x7C, 0x24, 0x14 };
+static const unsigned char VV4_SCHED_STOCK[6] = { 0x83, 0xEC, 0x08, 0x56, 0x8B, 0xF1 };
+static const unsigned char VV5_SCHED_STOCK[5] = { 0x83, 0xEC, 0x08, 0x53, 0x56 };
+static const struct site SCHED_SITES[6] = {
+    { 0 },
+    { 0x448220u, VV1_SCHED_STOCK, sizeof VV1_SCHED_STOCK, vv1_sched_stub },
+    { 0x461850u, VV2_SCHED_STOCK, sizeof VV2_SCHED_STOCK, vv2_sched_stub },
+    { 0 },
+    { 0x465840u, VV4_SCHED_STOCK, sizeof VV4_SCHED_STOCK, vv4_sched_stub },
+    { 0x46F070u, VV5_SCHED_STOCK, sizeof VV5_SCHED_STOCK, vv5_sched_stub },
+};
+static int sched_install_state[6];
+
+/* A New Home's 400-food gate as Builder Action Fixes leaves it. */
+static const struct site VV1_BAF_SITE = { VV1_FOOD_SITE, VV1_BAF_JUMP, sizeof VV1_BAF_JUMP, vv1_baf_stub };
+
+static int baf_cave_is_ours(void) {
+    MEMORY_BASIC_INFORMATION info;
+    const void *at = (const void *)(uintptr_t)VV1_BAF_CAVE_VA;
+    if (VirtualQuery(at, &info, sizeof(info)) != sizeof(info) || info.State != MEM_COMMIT
+        || !(info.Protect & (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY))) {
+        return 0;
+    }
+    return memcmp(at, VV1_BAF_CAVE, sizeof VV1_BAF_CAVE) == 0;
+}
+
 
 /* Verify the stock bytes, then write the jmp.  1 on success. */
 static int install_site(const struct site *s) {
@@ -1168,11 +1617,20 @@ static int install_site(const struct site *s) {
 }
 
 /* Called by a companion that runs every frame in the game.  Idempotent.
-   The hut site and the food site are independent: either may be absent
-   (another patch owns its bytes) without holding back the other.  Returns
-   whether the hut site is installed, as before. */
+   The scheduler wrapper goes in first and everything else only after it:
+   without it a decision could not be told apart, so nothing else is
+   installed (the stock game runs).  After it, the hut site and the food site
+   are independent: either may be absent (another patch owns its bytes)
+   without holding back the other.  Returns whether the hut site is
+   installed, as before. */
 __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
     if (game_id < 1 || game_id > 5) {
+        return 0;
+    }
+    if (sched_install_state[game_id] == 0) {
+        sched_install_state[game_id] = install_site(&SCHED_SITES[game_id]) ? 1 : -1;
+    }
+    if (sched_install_state[game_id] != 1) {
         return 0;
     }
     if (level_install_state[game_id] == 0) {
@@ -1180,6 +1638,10 @@ __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
     }
     if (food_install_state[game_id] == 0) {
         food_install_state[game_id] = install_site(&FOOD_SITES[game_id]) ? 1 : -1;
+        if (food_install_state[game_id] != 1 && game_id == 1 && baf_cave_is_ours()
+            && install_site(&VV1_BAF_SITE)) {
+            food_install_state[game_id] = 2;       /* Builder Action Fixes' gate, taken over */
+        }
     }
     work_first_bridge(game_id);
     if (install_state[game_id] != 0) {
@@ -1230,6 +1692,53 @@ __declspec(dllexport) int __stdcall VvfpFixHutsProbeFoodSite(int game_id, unsign
     site_bytes(s, patched);
     *stub_va = (unsigned int)(uintptr_t)s->stub;
     return s->length;
+}
+
+/* For the test build only: a site table entry, its bytes, what it becomes,
+   the stub.  which: 0 the scheduler entry, 1 Builder Action Fixes' gate. */
+__declspec(dllexport) int __stdcall VvfpFixHutsProbeDecisionSite(int game_id, int which, unsigned int *va,
+                                                                  unsigned char *stock,
+                                                                  unsigned char *patched,
+                                                                  unsigned int *stub_va) {
+    const struct site *s;
+    if (game_id < 1 || game_id > 5) {
+        return 0;
+    }
+    if (which == 1) {
+        if (game_id != 1) return 0;
+        s = &VV1_BAF_SITE;
+    } else {
+        s = &SCHED_SITES[game_id];
+    }
+    if (s->va == 0) {
+        return 0;
+    }
+    *va = s->va;
+    memcpy(stock, s->stock, (size_t)s->length);
+    site_bytes(s, patched);
+    *stub_va = (unsigned int)(uintptr_t)s->stub;
+    return s->length;
+}
+
+/* For the test build only: open / close a decision as the scheduler wrapper
+   does, seed the roll's generator, and read the decision state. */
+__declspec(dllexport) void __stdcall VvfpFixHutsProbeEnter(int game_id, unsigned int ret, unsigned int counter,
+                                                           unsigned int key) {
+    decision_enter(game_id, ret, counter, key);
+}
+
+__declspec(dllexport) void __stdcall VvfpFixHutsProbeExit(void) {
+    decision_exit();
+}
+
+__declspec(dllexport) void __stdcall VvfpFixHutsProbeSeedRoll(unsigned int seed) {
+    roll_state = seed;
+    decision_depth = 0;
+    last_valid = 0;
+}
+
+__declspec(dllexport) int __stdcall VvfpFixHutsProbeDepth(void) {
+    return decision_depth;
 }
 
 /* For the test build only: the site, its stock bytes, what it becomes,

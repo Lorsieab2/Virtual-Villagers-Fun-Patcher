@@ -22,9 +22,18 @@ outcome (seeded sweeps plus the all-low and all-high extremes).
   * a started project (or, with every hut built, any project) -> it is
     continued, never a hut fixed;
   * the stock rolls that skip construction (VV2's 80% rolls, VV4/VV5's
-    dislike roll) -> "nothing", never a hut fix;
+    dislike roll) -> straight into that construction (the owner's option A),
+    never a hut fix and never "nothing";
   * nothing to build -> a built hut is fixed (the companion's pick, or the
     stock fix-a-hut option once every hut is built).
+
+All of that is what the patches do when the decision's 75% roll passes; the
+dispatcher is run here on its own (outside a scheduler run, so each patched
+site would draw its own roll), with the companion's test-build roll forced to
+pass (VvfpFixHutsRollTest.force = 1).  With it forced to fail, the same runs
+give exactly the stock executable's answer (StockWhenTheRollFailsTests).  The
+roll itself, and running all of this from the games' own callers, are pinned
+in tests/test_builders_decision_roll.py.
 """
 from __future__ import annotations
 
@@ -93,6 +102,15 @@ def _probe_stub(mu, exports, export: str, game_no: int) -> tuple[int, bytes]:
     return va, bytes(mu.mem_read(buf + 0x40, n))
 
 
+def _call(mu, va: int, *args: int) -> int:
+    esp = STACK_TOP - 0x9000
+    mu.mem_write(RETURN, b"\xF4")
+    mu.mem_write(esp, struct.pack(f"<{1 + len(args)}I", RETURN, *args))
+    mu.reg_write(UC_X86_REG_ESP, esp)
+    mu.emu_start(va, RETURN, count=10000)
+    return mu.reg_read(UC_X86_REG_EAX)
+
+
 def _rendered_vv3() -> bytes:
     import vv_fun_patcher as vfp
     build = next(b for b in vfp.load_builds() if b.id == "vv3")
@@ -114,18 +132,26 @@ class Dispatcher:
     """Run one game's real Building dispatcher once."""
 
     def __init__(self, game: str, leaves: dict[int, Leaf], entry: int, args: tuple[int, ...],
-                 ecx: int, setup, work_first: bool = False, companion_missing: bool = False):
+                 ecx: int, setup, work_first: bool = False, companion_missing: bool = False,
+                 roll: int = 1):
+        """roll: 1 the decision's roll forced to pass, 2 forced to fail, None
+        the stock executable with nothing installed."""
         self.mu = mu = Uc(UC_ARCH_X86, UC_MODE_32)
-        if game == "vv3":
+        stock = roll is None
+        if game == "vv3" and not stock:
             _map_pe(mu, game, 0x400000, lambda: pefile.PE(data=_rendered_vv3()))
         else:
-            _map_pe(mu, game, 0x400000, lambda: pefile.PE(str(STOCK[game])))
+            _map_pe(mu, game + "-stock", 0x400000, lambda: pefile.PE(str(STOCK[game])))
         self.ex = _map_pe(mu, "fix_huts", 0x10000000, lambda: pefile.PE(str(TEST_DLL)))
+        if not stock:
+            mu.mem_write(self.ex["VvfpFixHutsRollTest"], struct.pack("<ii", roll, 0))
         mu.mem_map(STACK_TOP - 0x20000, 0x20000)
         mu.mem_map(RETURN, 0x1000)
         mu.mem_map(VILLAGE, 0x1000000)
         mu.mem_map(STATE, 0x100000)
-        if game == "vv3":
+        if stock:
+            pass
+        elif game == "vv3":
             # The row's page stub resolves the companion once and caches the
             # export at 0x6E0FF8; the Work First cache at 0x6E0FF0 = 1 (absent).
             # companion_missing: the cache says the resolution failed (1).
@@ -142,6 +168,9 @@ class Dispatcher:
             wex = _map_pe(mu, "work_first", WORK_FIRST_BASE, lambda: pefile.PE(str(WORK_FIRST_TEST_DLL)))
             va, patched = _probe_stub(mu, wex, "VvfpWorkFirstProbeSite", GAME_NO[game])
             mu.mem_write(va, patched)
+            # What the fix-huts bridge does before installing it: hand over
+            # the decision's roll.
+            _call(mu, wex["VvfpWorkFirstSetRoll"], self.ex["VvfpFixHutsRoll"])
         setup(mu)
         self.leaves, self.calls = leaves, []
         self.ret = args[0]
@@ -197,7 +226,7 @@ V2_CONTINUE = {0x44AB90: 1, 0x45FBE0: 17, 0x45BA20: 8, 0x45A000: 12, 0x45F410: 1
 
 
 def run_vv2(seed, level=3, huts=((24, 1), (0, 0), (0, 0)), projects=None, population=10, task=0,
-            ea74=3, ea8c=3):
+            ea74=3, ea8c=3, roll=1):
     """huts: (progress, complete) for 24/25/26; projects: {id: (progress,
     complete)}, every other project complete."""
     projects = projects or {}
@@ -222,7 +251,7 @@ def run_vv2(seed, level=3, huts=((24, 1), (0, 0), (0, 0)), projects=None, popula
     }
     for va in V2_CONTINUE:
         leaves[va] = Leaf(1, lambda mu, a, c: 1)
-    return Dispatcher("vv2", leaves, 0x45FBF0, (RETURN, INDEX, 5), VILLAGE, setup)
+    return Dispatcher("vv2", leaves, 0x45FBF0, (RETURN, INDEX, 5), VILLAGE, setup, roll=roll)
 
 
 def vv2_outcome(d: Dispatcher):
@@ -251,40 +280,50 @@ class LostChildrenTests(unittest.TestCase):
         for level in (3, 2, 1):
             with self.subTest(level=level):
                 seen = self.outcomes(level=level, huts=((24, 1), (2, 0), (0, 0)), population=30)
-                self.assertIn(("build", 25), seen)
-                self.assertTrue(seen <= {("build", 25), ("nothing",)}, seen)
+                # Every roll outcome, the stock skip rolls included: straight
+                # into the new hut (option A).
+                self.assertEqual(seen, {("build", 25)})
 
     def test_hut_24_under_construction_is_built_first(self):
         # The owner's own save: hut 24 at progress 383, not complete, level 1.
         seen = self.outcomes(level=1, huts=((383, 0), (0, 0), (0, 0)))
-        self.assertTrue(seen <= {("build", 24), ("nothing",)}, seen)
-        self.assertIn(("build", 24), seen)
+        self.assertEqual(seen, {("build", 24)})
 
     def test_a_started_project_is_continued_never_a_hut_fixed(self):
         for level, huts in ((3, ((24, 1), (700, 1), (11, 1))), (3, ((24, 1), (0, 0), (0, 0))),
                             (2, ((24, 1), (0, 0), (0, 0)))):
             with self.subTest(level=level, huts=huts):
                 seen = self.outcomes(level=level, huts=huts, projects={8: (5, 0)})
-                self.assertIn(("continue", 8), seen)
-                self.assertTrue(seen <= {("continue", 8), ("nothing",)}, seen)
+                self.assertEqual(seen, {("continue", 8)})
 
     def test_level_3_projects_are_continued_never_a_hut_fixed(self):
         seen = self.outcomes(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={12: (1, 0)})
-        self.assertIn(("continue", 12), seen)
-        self.assertTrue(seen <= {("continue", 12), ("nothing",)}, seen)
+        self.assertEqual(seen, {("continue", 12)})
 
     def test_the_villagers_own_build_task_comes_before_a_fix(self):
         # [record+0x7E0] = 15: project 7, not complete.
         seen = self.outcomes(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={7: (40, 0)}, task=15)
-        self.assertTrue(seen <= {("build", 7), ("nothing",)}, seen)
-        self.assertIn(("build", 7), seen)
+        self.assertEqual(seen, {("build", 7)})
 
-    def test_every_roll_failing_gives_nothing_not_a_fix(self):
-        for kw in (dict(level=3, huts=((24, 1), (2, 0), (0, 0)), population=30),
-                   dict(level=2, huts=((24, 1), (0, 0), (0, 0)), projects={8: (5, 0)}),
-                   dict(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={5: (2, 0)})):
+    def test_every_stock_roll_failing_goes_straight_into_the_construction(self):
+        # Option A: where the stock rolls all say "not this time", the builder
+        # goes straight into the construction they skipped -- never "nothing",
+        # never a hut fix.
+        for kw, want in ((dict(level=3, huts=((24, 1), (2, 0), (0, 0)), population=30), ("build", 25)),
+                         (dict(level=1, huts=((24, 1), (2, 0), (0, 0)), population=30), ("build", 25)),
+                         (dict(level=2, huts=((24, 1), (0, 0), (0, 0)), projects={8: (5, 0)}), ("continue", 8)),
+                         (dict(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={5: (2, 0)}), ("build", 5)),
+                         (dict(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={1: (3, 0)}), ("continue", 1)),
+                         (dict(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={11: (1, 0), 9: (5, 1)}),
+                          ("continue", 11)),
+                         (dict(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={17: (1, 0), 9: (5, 1)}),
+                          ("continue", 17)),
+                         (dict(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={7: (40, 0)}, task=15),
+                          ("build", 7)),
+                         (dict(level=1, huts=((24, 1), (700, 1), (2, 0)), population=50), ("build", 26)),
+                         (dict(level=1, huts=((500, 0), (0, 0), (0, 0))), ("build", 24))):
             with self.subTest(**{k: str(v) for k, v in kw.items()}):
-                self.assertEqual(vv2_outcome(run_vv2("low", **kw)), ("nothing",))
+                self.assertEqual(vv2_outcome(run_vv2("low", **kw)), want)
 
     def test_nothing_to_build_a_built_hut_is_fixed(self):
         # Hut 25 not yet open (progress 0 / population 10): nothing to build.
@@ -315,7 +354,7 @@ BUILD_ARG = {"vv4": {19: 0, 20: 1, 21: 2, 23: 4, 22: 3, 25: 6, 24: 5},
              "vv5": {19: 0, 20: 1, 21: 2, 23: 4, 22: 3, 24: 5}}
 
 
-def run_later(game, seed, built=(19,), open_=(), dislikes=False, work_first=False):
+def run_later(game, seed, built=(19,), open_=(), dislikes=False, work_first=False, roll=1):
     """built: complete projects (huts 19-22 and others); open_: projects the
     game offers to build (state test passes, not complete)."""
     g = LATER[game]
@@ -349,8 +388,9 @@ def run_later(game, seed, built=(19,), open_=(), dislikes=False, work_first=Fals
         # Called from the adult scheduler's farming attempt (job 1) for a
         # villager whose selected job is Building.
         call_site_return = 0x4659D2
-        return Dispatcher(game, leaves, g["entry"], (call_site_return, 1), VILLAGE, setup, work_first=True)
-    return Dispatcher(game, leaves, g["entry"], (RETURN, 4), VILLAGE, setup)
+        return Dispatcher(game, leaves, g["entry"], (call_site_return, 1), VILLAGE, setup, work_first=True,
+                          roll=roll)
+    return Dispatcher(game, leaves, g["entry"], (RETURN, 4), VILLAGE, setup, roll=roll)
 
 
 def later_outcome(game, d: Dispatcher):
@@ -379,9 +419,9 @@ class TreeOfLifeNewBelieversTests(unittest.TestCase):
             for dislikes in (False, True):
                 with self.subTest(game=game, dislikes=dislikes):
                     seen = self.outcomes(game, built=(19,), open_=(20,), dislikes=dislikes)
-                    self.assertIn(("build", 1), seen)
-                    allowed = {("build", 1)} | ({("nothing",)} if dislikes else set())
-                    self.assertTrue(seen <= allowed, seen)
+                    # With the dislike roll taking the option away: straight
+                    # back into it (option A).
+                    self.assertEqual(seen, {("build", 1)})
 
     def test_with_every_hut_built_a_project_comes_before_the_stock_fix(self):
         for game in LATER:
@@ -390,10 +430,7 @@ class TreeOfLifeNewBelieversTests(unittest.TestCase):
                     with self.subTest(game=game, project=project, dislikes=dislikes):
                         seen = self.outcomes(game, built=(19, 20, 21, 22), open_=(project,), dislikes=dislikes)
                         want = ("build", BUILD_ARG[game][project])
-                        self.assertIn(want, seen)
-                        self.assertTrue(seen <= {want, ("nothing",)}, seen)
-                        if not dislikes:
-                            self.assertEqual(seen, {want})
+                        self.assertEqual(seen, {want})
 
     def test_nothing_to_build_a_built_hut_is_fixed(self):
         for game in LATER:
@@ -425,7 +462,7 @@ V3 = dict(state=0x432210, done=0x4321F0, pstate=0x4358F0, pdone=0x4358D0, rand=0
           likes=0x4547B0, other=0x45EF30)
 
 
-def run_vv3(seed, huts_built=(0,), huts_open=(), projects_open=(), companion_missing=False):
+def run_vv3(seed, huts_built=(0,), huts_open=(), projects_open=(), companion_missing=False, roll=1):
     def setup(mu):
         pass
 
@@ -440,7 +477,7 @@ def run_vv3(seed, huts_built=(0,), huts_open=(), projects_open=(), companion_mis
         V3["other"]: Leaf(0, lambda mu, a, c: 0),
     }
     return Dispatcher("vv3", leaves, 0x45AF00, (RETURN, VILLAGE, 4), 0x12345678, setup,
-                      companion_missing=companion_missing)
+                      companion_missing=companion_missing, roll=roll)
 
 
 def vv3_outcome(d: Dispatcher):
@@ -485,6 +522,41 @@ class SecretCityTests(unittest.TestCase):
         self.assertIn(("job", 0x7F), seen)
         self.assertTrue(any(o[0] == "fix" for o in seen), seen)
         self.assertEqual(self.outcomes(huts_built=(0,), companion_missing=True), {("nothing",)})
+
+
+# ---- The roll failed: exactly the stock answer ----------------------------------
+@unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+class StockWhenTheRollFailsTests(unittest.TestCase):
+    """With the decision's roll forced to fail, every seeded sweep gives, run
+    by run, exactly what the stock executable (nothing installed) gives."""
+
+    def test_the_lost_children(self):
+        for kw in (dict(level=3, huts=((24, 1), (2, 0), (0, 0)), population=30),
+                   dict(level=1, huts=((24, 1), (0, 0), (0, 0))),
+                   dict(level=2, huts=((24, 1), (700, 1), (11, 1))),
+                   dict(level=3, huts=((24, 1), (700, 1), (11, 1)), projects={7: (40, 0)}, task=15)):
+            for seed in SWEEP[:20]:
+                with self.subTest(seed=seed, **{k: str(v) for k, v in kw.items()}):
+                    failed, stock = run_vv2(seed, roll=2, **kw), run_vv2(seed, roll=None, **kw)
+                    self.assertEqual(vv2_outcome(failed), vv2_outcome(stock))
+                    self.assertEqual([c for c in failed.calls if c[0] == 0x4031A0],
+                                     [c for c in stock.calls if c[0] == 0x4031A0], "the same rolls drawn")
+
+    def test_the_tree_of_life_and_new_believers(self):
+        for game in LATER:
+            for kw in (dict(built=(19,), open_=(20,), dislikes=True), dict(built=(19,)),
+                       dict(built=(19, 20, 21, 22), open_=(23,))):
+                for seed in SWEEP[:12]:
+                    with self.subTest(game=game, seed=seed, **{k: str(v) for k, v in kw.items()}):
+                        failed, stock = run_later(game, seed, roll=2, **kw), run_later(game, seed, roll=None, **kw)
+                        self.assertEqual(later_outcome(game, failed), later_outcome(game, stock))
+
+    def test_the_secret_city(self):
+        for kw in (dict(huts_built=(0,)), dict(huts_built=(0, 1, 2, 3), projects_open=(6,))):
+            for seed in SWEEP[:12]:
+                with self.subTest(seed=seed, **{k: str(v) for k, v in kw.items()}):
+                    failed, stock = run_vv3(seed, roll=2, **kw), run_vv3(seed, roll=None, **kw)
+                    self.assertEqual(vv3_outcome(failed), vv3_outcome(stock))
 
 
 if __name__ == "__main__":

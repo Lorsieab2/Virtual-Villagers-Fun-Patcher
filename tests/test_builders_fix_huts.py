@@ -94,6 +94,16 @@ def _probe_site(game_no: int):
     return n, va, bytes(mu.mem_read(buf + 0x10, n)), bytes(mu.mem_read(buf + 0x30, n)), stub
 
 
+def _probe_decision_site(game_no: int, which: int):
+    """which: 0 the scheduler entry, 1 Builder Action Fixes' gate (VV1)."""
+    mu, ex = _emulator()
+    buf = STACK + 0x4000
+    n = _call(mu, ex["VvfpFixHutsProbeDecisionSite"], game_no, which, buf, buf + 0x20, buf + 0x60, buf + 0xA0)
+    va, = struct.unpack("<I", mu.mem_read(buf, 4))
+    stub, = struct.unpack("<I", mu.mem_read(buf + 0xA0, 4))
+    return n, va, bytes(mu.mem_read(buf + 0x20, n)), bytes(mu.mem_read(buf + 0x60, n)), stub
+
+
 class RuntimeSiteTests(unittest.TestCase):
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_each_runtime_sites_stock_bytes_match_and_the_jmp_lands_on_the_stub(self):
@@ -102,8 +112,9 @@ class RuntimeSiteTests(unittest.TestCase):
             # The hut site first; the food-gate site second (its own tests
             # are in tests/test_builders_regardless_of_food.py); in A New Home
             # and The Lost Children the Building-level gate third
-            # (tests/test_builders_level_gate.py).
-            self.assertEqual(len(manifest["runtime_detours"]), 3 if game in ("vv1", "vv2") else 2, game)
+            # (tests/test_builders_level_gate.py); last, the scheduler entry
+            # that opens each decision (tests/test_builders_decision_roll.py).
+            self.assertEqual(len(manifest["runtime_detours"]), 4 if game in ("vv1", "vv2") else 3, game)
             site = manifest["runtime_detours"][0]
             n, va, stock, patched, stub = _probe_site(GAME_NO[game])
             self.assertEqual(va, int(site["va"], 16), game)
@@ -113,6 +124,59 @@ class RuntimeSiteTests(unittest.TestCase):
             rel, = struct.unpack("<i", patched[1:5])
             self.assertEqual((va + 5 + rel) & 0xFFFFFFFF, stub, game)
             self.assertEqual(patched[5:], b"\x90" * (n - 5), game)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_the_scheduler_entries_are_the_stock_prologues_and_the_jmp_lands_on_the_wrapper(self):
+        # About three times in four, once per decision: the companion wraps
+        # each game's idle scheduler (VvfpFixHutsInstall installs it first and
+        # nothing else without it).  The displaced prologue is what the stock
+        # executable holds; the manifest names the same bytes.
+        prologues = {"vv1": (0x448220, "535556578B7C2414"), "vv2": (0x461850, "535556578B7C2414"),
+                     "vv4": (0x465840, "83EC08568BF1"), "vv5": (0x46F070, "83EC085356")}
+        for game, (va_want, stock_hex) in prologues.items():
+            with self.subTest(game=game):
+                n, va, stock, patched, stub = _probe_decision_site(GAME_NO[game], 0)
+                self.assertEqual((va, stock.hex().upper()), (va_want, stock_hex))
+                self.assertEqual(_stock(game, va, n), stock)
+                rel, = struct.unpack("<i", patched[1:5])
+                self.assertEqual((patched[0], (va + 5 + rel) & 0xFFFFFFFF), (0xE9, stub))
+                self.assertEqual(patched[5:], b"\x90" * (n - 5))
+                manifest = json.loads(MANIFESTS[game].read_text(encoding="utf-8"))
+                self.assertEqual(manifest["runtime_detours"][-1]["va"].upper(), f"0X{va_want:X}")
+                self.assertEqual(manifest["runtime_detours"][-1]["stock_bytes"], stock_hex)
+        # Every call of each scheduler is one of the callers the decision
+        # bookkeeping knows (A New Home, The Lost Children: a per-frame call and
+        # a load-time retry loop; the later games: one retry loop).
+        callers = {"vv1": {0x448488, 0x4487C8}, "vv2": {0x464498, 0x464E9C}, "vv3": {0x45C388, 0x45C4E3},
+                   "vv4": {0x465B1A}, "vv5": {0x46F3DA}}
+        entries = {"vv1": 0x448220, "vv2": 0x461850, "vv3": 0x45BFE0, "vv4": 0x465840, "vv5": 0x46F070}
+        for game, want in callers.items():
+            with self.subTest(game=game, callers=True):
+                data = STOCK[game].read_bytes()
+                pe = pefile.PE(str(STOCK[game]), fast_load=True)
+                found = set()
+                for sec in pe.sections:
+                    if not sec.Characteristics & 0x20000000:
+                        continue
+                    raw = data[sec.PointerToRawData:sec.PointerToRawData + sec.SizeOfRawData]
+                    base = 0x400000 + sec.VirtualAddress
+                    i = raw.find(b"\xE8")
+                    while i >= 0:
+                        if i + 5 <= len(raw) and base + i + 5 + struct.unpack_from("<i", raw, i + 1)[0] == entries[game]:
+                            found.add(base + i)
+                        i = raw.find(b"\xE8", i + 1)
+                self.assertEqual(found, want)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_builder_action_fixes_gate_is_taken_over_only_as_that_row_writes_it(self):
+        n, va, stock, patched, stub = _probe_decision_site(1, 1)
+        builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+        row = next(f for f in builds["fun_patches"] if f["id"] == "vv1_builder_action_fixes")
+        jump = next(q for q in row["patches"] if q["offset"] == "0x48336")
+        self.assertEqual(va, 0x448336)
+        self.assertEqual(stock, bytes.fromhex(jump["after"]), "the row's own jmp is what is verified")
+        rel, = struct.unpack("<i", patched[1:5])
+        self.assertEqual((va + 5 + rel) & 0xFFFFFFFF, stub)
 
     def test_the_sites_are_the_dispatcher_points_the_source_describes(self):
         # VV1/VV2: the skip roll `push 100; call rand; add esp,4` right before
@@ -164,7 +228,15 @@ class SecretCityTests(unittest.TestCase):
     def test_the_site_patch_replaces_the_exact_stock_test(self):
         # The hut site, the food site and the dispatcher site for the Builders
         # and Healers Work First addendum (tests/test_work_first.py).
-        self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]], ["0x5B39E", "0x5C229", "0x5AF00"])
+        self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]],
+                         ["0x5B39E", "0x5C229", "0x5AF00", "0x5BFE0"])
+        sched = self.overlay["hook_patches"][3]
+        self.assertEqual(_stock("vv3", 0x45BFE0, 6), bytes.fromhex(sched["before"]))
+        self.assertEqual(bytes.fromhex(sched["before"]), bytes.fromhex("51568B74240C"))
+        after = bytes.fromhex(sched["after"])
+        rel, = struct.unpack("<i", after[1:5])
+        self.assertEqual(0x45BFE0 + 5 + rel, int(self.overlay["page_virtual_address"], 16) + 0x300)
+        self.assertEqual(after[5:], b"\x90")
         patch = self.overlay["hook_patches"][0]
         self.assertEqual(int(patch["offset"], 16), 0x45B39E - 0x400000)
         self.assertEqual(_stock("vv3", 0x45B39E, 8), bytes.fromhex(patch["before"]))
@@ -205,8 +277,87 @@ class SecretCityTests(unittest.TestCase):
         self.assertEqual(imports[b"LoadLibraryA"], 0x47C124)
         self.assertEqual(imports[b"GetProcAddress"], 0x47C128)
 
+    def _run_sched_stub(self, answer, cached=0):
+        """The scheduler-entry stub at page+0x300, entered as `call 0x45BFE0`
+        lands there.  answer: None = the companion is missing, else the
+        export's address.  Returns (exit address, registers, stack, calls)."""
+        from unicorn import UC_HOOK_CODE
+        from unicorn.x86_const import (UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI,
+                                       UC_X86_REG_EDX, UC_X86_REG_ESI)
+        page = bytes.fromhex(self.overlay["append_bytes"])
+        base = int(self.overlay["page_virtual_address"], 16)
+        mu = Uc(UC_ARCH_X86, UC_MODE_32)
+        mu.mem_map(base & ~0xFFF, 0x2000)          # through .vv3md's cache slots
+        mu.mem_write(base, page[:0x400])
+        mu.mem_write(0x6E0FEC, struct.pack("<I", cached))
+        mu.mem_map(0x47C000, 0x1000)
+        for iat, fn in ((0x47C074, 0x7A000000), (0x47C124, 0x7A000010), (0x47C128, 0x7A000020)):
+            mu.mem_write(iat, struct.pack("<I", fn))
+        mu.mem_map(0x7A000000, 0x1000)
+        mu.mem_write(0x7A000000, b"\xC2\x04\x00" + b"\x90" * 13 + b"\xC2\x04\x00" + b"\x90" * 13 + b"\xC2\x08\x00")
+        mu.mem_map(0x45B000, 0x2000)
+        mu.mem_map(0x7B000000, 0x1000)
+        mu.mem_map(STACK, 0x10000)
+        esp = STACK + 0x8000
+        mu.mem_write(esp, struct.pack("<3I", 0x45C38D, 0x12345678, 0xCAFEBABE))   # [ret][record]
+        regs = {UC_X86_REG_EAX: 0xA1A1A1A1, UC_X86_REG_EBX: 3, UC_X86_REG_ECX: 0x12345678,
+                UC_X86_REG_EDX: 0xD1D1D1D1, UC_X86_REG_ESI: 0x51515151, UC_X86_REG_EDI: 0x12345678,
+                UC_X86_REG_EBP: 0xB0B0B0B0, UC_X86_REG_ESP: esp}
+        for r, v in regs.items():
+            mu.reg_write(r, v)
+        state = {"exit": None, "calls": []}
+        exits = {0x45BFE6, 0x7B000000}
+
+        def hook(mu, address, size, user_data):
+            if address in (0x7A000000, 0x7A000010, 0x7A000020):
+                sp = mu.reg_read(UC_X86_REG_ESP)
+                state["calls"].append(address)
+                if address == 0x7A000020:
+                    name = bytes(mu.mem_read(struct.unpack("<I", mu.mem_read(sp + 8, 4))[0], 32)).split(b"\0")[0]
+                    state["calls"].append(name)
+                    mu.reg_write(UC_X86_REG_EAX, 0 if answer is None else answer)
+                else:
+                    mu.reg_write(UC_X86_REG_EAX, 0 if answer is None else 0x10000000)
+            elif address in exits:
+                state["exit"] = address
+                mu.emu_stop()
+
+        mu.hook_add(UC_HOOK_CODE, hook)
+        mu.emu_start(base + 0x300, 0, count=10000)
+        out = {r: mu.reg_read(r) for r in regs}
+        stack = struct.unpack("<5I", mu.mem_read(mu.reg_read(UC_X86_REG_ESP), 20))
+        return state, regs, out, stack, struct.unpack("<I", mu.mem_read(0x6E0FEC, 4))[0]
+
+    def test_the_scheduler_stub_jumps_to_the_companion_with_nothing_touched(self):
+        from unicorn.x86_const import UC_X86_REG_ESP as ESP
+        state, regs, out, stack, slot = self._run_sched_stub(0x7B000000)
+        self.assertEqual(state["exit"], 0x7B000000, "the companion's VvfpFixHutsScheduler3")
+        self.assertIn(b"VvfpFixHutsScheduler3", state["calls"])
+        self.assertEqual(out, regs, "every register the scheduler would have received")
+        self.assertEqual(stack[:2], (0x45C38D, 0x12345678), "[ret][record], as the caller left them")
+        self.assertEqual(slot, 0x7B000000, "resolved once, cached")
+        # Cached: no lookup at all.
+        state, regs, out, stack, slot = self._run_sched_stub(None, cached=0x7B000000)
+        self.assertEqual((state["exit"], state["calls"]), (0x7B000000, []))
+        self.assertEqual(out, regs)
+
+    def test_without_the_companion_the_scheduler_stub_runs_the_stock_prologue(self):
+        from unicorn.x86_const import UC_X86_REG_ESI as ESI, UC_X86_REG_ESP as ESP
+        for cached in (0, 1):
+            with self.subTest(cached=cached):
+                state, regs, out, stack, slot = self._run_sched_stub(None, cached=cached)
+                self.assertEqual(state["exit"], 0x45BFE6, "the stock body after the displaced bytes")
+                self.assertEqual(slot, 1, "the failure is remembered")
+                # push ecx; push esi; mov esi, [esp+0xC] -- as the stock prologue.
+                self.assertEqual(out[ESP], regs[ESP] - 8)
+                self.assertEqual(stack[:4], (0x51515151, 0x12345678, 0x45C38D, 0x12345678))
+                self.assertEqual(out[ESI], 0x12345678, "esi = the record argument")
+                self.assertEqual({r: v for r, v in out.items() if r not in (ESP, ESI)},
+                                 {r: v for r, v in regs.items() if r not in (ESP, ESI)})
+
     def test_the_cache_slot_is_unclaimed(self):
-        """0x6E0FF8 in .vv3md: Origins' and parentage's pages reference nothing there."""
+        """0x6E0FEC..0x6E0FFF in .vv3md (this row's four cache slots and
+        lesson-cap's): Origins' and parentage's pages reference nothing there."""
         for path, key in ((ROOT / "data" / "vv3_origins_feature.json", None),
                           (ROOT / "data" / "vv3_parentage_feature.json", "vv3_write_parentage_log")):
             d = json.loads(path.read_text(encoding="utf-8"))
@@ -221,7 +372,7 @@ class SecretCityTests(unittest.TestCase):
                 for b in blobs:
                     for i in range(len(b) - 3):
                         v = struct.unpack_from("<I", b, i)[0]
-                        self.assertFalse(0x6E0FF0 <= v < 0x6E1000, f"{path.name} references {v:#x}")
+                        self.assertFalse(0x6E0FEC <= v < 0x6E1000, f"{path.name} references {v:#x}")
 
     def test_the_composed_image_renders_in_every_mode_with_the_stub_in_place(self):
         import vv_fun_patcher as vfp

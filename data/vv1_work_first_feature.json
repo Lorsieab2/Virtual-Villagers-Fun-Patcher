@@ -5,13 +5,14 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Builders and Healers Work First",
-  "description": "Builders and healers do their own work first, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, whose stub does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
+  "description": "Builders and healers are more likely to do their own work first, at any food level -- about three times in four each time the game chooses what they do; the rest of the time the game chooses exactly as it always has, and the one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. When it steps in: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, whose stub does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
   "output_tag": "Work First",
   "dependencies": [
     "vv1_builders_fix_huts"
   ],
   "behavior_changes": [
-    "Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job 5), or Building (job 4) while it has hut work (a population hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt."
+    "Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job 5), or Building (job 4) while it has hut work (a population hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
+    "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the scheduler's own request runs alone, exactly as the stock game."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the fix-huts companion loads the DLL, which detours the work dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -23,7 +24,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "4E07DBFECA46BDE435533B67E905910A559EBE3F36526DF45F47CD9F55D944E9"
+      "sha256": "F71224248D3AB44FA3367397B127F4A1336B56F488A8A65BADAE346953F37460"
     }
   ],
   "patches": [],

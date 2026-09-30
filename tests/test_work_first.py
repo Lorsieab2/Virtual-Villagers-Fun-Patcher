@@ -24,6 +24,12 @@ Pinned here:
   with VvfpWorkFirstFirst scripted, and with the DLL missing.
 * The five rows depend on Builders Fix Huts When Idle, ship and pin the DLL,
   and the fix-huts companion loads it by full path.
+* About three times in four: the stubs ask the decision's roll -- the
+  fix-huts companion's VvfpFixHutsRoll, handed over through
+  VvfpWorkFirstSetRoll (scripted here) -- only when they would act, and when
+  it fails the scheduler's own request runs alone (RollTests).  The roll and
+  these stubs reached from the games' own callers are pinned in
+  tests/test_builders_decision_roll.py.
 """
 from __future__ import annotations
 
@@ -94,6 +100,21 @@ def _emulator():
     return mu, exports
 
 
+ROLL_FN = 0x7D000000        # a scripted VvfpFixHutsRoll: counts its calls, answers ROLL_FN+0x40
+ROLL_COUNT = ROLL_FN + 0x80
+
+
+def _set_roll(mu, ex, answer: int) -> None:
+    """What the fix-huts bridge does: VvfpWorkFirstSetRoll(its roll)."""
+    mu.mem_map(ROLL_FN, 0x1000)
+    mu.mem_write(ROLL_FN, b"\xFF\x05" + struct.pack("<I", ROLL_COUNT) + b"\xB8" + struct.pack("<I", answer) + b"\xC3")
+    ret, esp = STACK - 0x100, STACK - 0x300
+    mu.mem_write(ret, b"\xF4")
+    mu.mem_write(esp, struct.pack("<2I", ret, ROLL_FN))
+    mu.reg_write(UC_X86_REG_ESP, esp)
+    mu.emu_start(ex["VvfpWorkFirstSetRoll"], ret, count=1000)
+
+
 def _probe(game_no: int):
     mu, ex = _emulator()
     buf, ret, esp = STACK - 0x8000, STACK - 0x100, STACK - 0x200
@@ -113,10 +134,11 @@ class DispatchRun:
     the job it was asked for and answers `starts(job)`."""
 
     def __init__(self, game: str, call_site: int, selected: int, requested: int,
-                 huts_done: bool, starts, level: int = 3):
+                 huts_done: bool, starts, level: int = 3, roll: int = 1):
         g = G[game]
         stub = _probe(GAME_NO[game])[4]
-        mu, _ = _emulator()
+        mu, ex = _emulator()
+        _set_roll(mu, ex, roll)
         if game == "vv1":
             mu.mem_write(VILLAGE + 0x3E010, struct.pack("<I", STATE))
             for off in (0x9FE8, 0x9FF0, 0x9FF8):
@@ -190,6 +212,9 @@ class DispatchRun:
 
     def reg(self, r):
         return self.mu.reg_read(r)
+
+    def rolls(self) -> int:
+        return struct.unpack("<I", self.mu.mem_read(ROLL_COUNT, 4))[0]
 
 
 class SiteTests(unittest.TestCase):
@@ -297,6 +322,57 @@ class DispatcherStubTests(unittest.TestCase):
                     r = DispatchRun(game, call, selected, requested, huts_done, starts=lambda job: True)
                     self.assertEqual(r.asked, [requested])
                     self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 4 + g["ret"])
+
+
+class RollTests(unittest.TestCase):
+    GAMES = ("vv1", "vv2", "vv4", "vv5")
+
+    def other_job(self, g):
+        return next(j for j in range(0, 6) if j not in (g["building"], g["healing"]))
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_a_failed_roll_runs_the_stock_request_alone(self):
+        for game in self.GAMES:
+            g = G[game]
+            for own, huts_done in ((g["building"], False), (g["healing"], True)):
+                for call in g["calls"]:
+                    with self.subTest(game=game, own=own, call=hex(call)):
+                        requested = self.other_job(g)
+                        r = DispatchRun(game, call, own, requested, huts_done=huts_done,
+                                        starts=lambda job: job in (own, requested), roll=0)
+                        self.assertEqual(r.asked, [requested], "the scheduler's own request, alone")
+                        self.assertEqual(r.rolls(), 1)
+                        self.assertEqual(r.stock_frame, (call + 5, VILLAGE))
+                        self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 4 + g["ret"])
+                        self.assertEqual((r.reg(UC_X86_REG_EBX), r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EDI)),
+                                         (0x11111111, 0x22222222, 0x33333333))
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_the_roll_is_asked_once_and_only_where_the_stub_would_act(self):
+        for game in self.GAMES:
+            g = G[game]
+            other = self.other_job(g)
+            with self.subTest(game=game, acts=True):
+                r = DispatchRun(game, g["calls"][0], g["building"], other, huts_done=False,
+                                starts=lambda job: False)
+                self.assertEqual((r.asked, r.rolls()), ([g["building"], other], 1))
+            for call, selected, requested, huts_done in (
+                    (g["calls"][0], g["building"], other, True),
+                    (g["calls"][0], other, g["building"], False),
+                    (g["calls"][0], g["building"], g["building"], False),
+                    (0x401000, g["healing"], other, False)):
+                with self.subTest(game=game, call=hex(call), selected=selected, requested=requested):
+                    r = DispatchRun(game, call, selected, requested, huts_done, starts=lambda job: True)
+                    self.assertEqual(r.rolls(), 0)
+
+    def test_the_bridge_hands_over_the_fix_huts_roll_before_installing(self):
+        source = (ROOT / "native/vvfp_fix_huts/vvfp_fix_huts.c").read_text(encoding="utf-8")
+        bridge = source.split("static void work_first_bridge(int game_id) {", 1)[1].split("\n}\n", 1)[0]
+        self.assertLess(bridge.index('"VvfpWorkFirstSetRoll"'), bridge.index('"VvfpWorkFirstInstall"'))
+        self.assertIn("set_roll(VvfpFixHutsRoll);", bridge)
+        own = (ROOT / "native/vvfp_work_first/vvfp_work_first.c").read_text(encoding="utf-8")
+        self.assertIn('GetModuleHandleA("VVFP Fix Huts.dll")', own, "The Secret City: looked up by name")
+        self.assertIn('"VvfpFixHutsRoll"', own)
 
 
 class SecretCityTests(unittest.TestCase):

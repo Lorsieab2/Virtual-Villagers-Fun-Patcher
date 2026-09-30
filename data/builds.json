@@ -1192,7 +1192,7 @@
       "id": "vv1_builder_action_fixes",
       "game_id": "vv1",
       "name": "Builder Action Fixes",
-      "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level. What they build, and in what order, is the stock game's: a new population hut first (project IDs 9, 10, and 11, started from nothing as the stock game does), then the projects already under way; the project gates and the manual, existing-work, and repair routes remain stock.",
+      "description": "Villagers whose selected job is Building are more likely to try the stock construction dispatcher when food is plentiful: at 400 food or more, about three times in four each time the game chooses what such a villager does, they get the construction attempt the stock game gives only below 400; the rest of the time the game chooses exactly as it always has. What they build, and in what order, is the stock game's: a new population hut first (project IDs 9, 10, and 11, started from nothing as the stock game does), then the projects already under way; the project gates and the manual, existing-work, and repair routes remain stock. On its own this patch draws its roll from the processor's time-stamp counter, never the game's random numbers. With Builders Fix Huts When Idle also selected, that patch's companion takes over this gate so both share its one roll per choice.",
       "output_tag": "Builder Action Fixes",
       "patches": [
         {
@@ -1203,9 +1203,9 @@
         },
         {
           "offset": "0x568A0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "81BDECA20000900100000F8C921AFFFF89F869C0D803000083BC30D0030000040F847C1AFFFFE9A41AFFFF",
-          "purpose": "preserve the stock low-food path, let Building-job villagers try the stock construction dispatcher at high food, and preserve every other job's high-food behavior"
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "81BDECA20000900100000F8C921AFFFF505289F869C0D803000083BC30D00300000475160F3169C0B979379E3D0000004072075A58E9681AFFFF5A58E98E1AFFFF",
+          "purpose": "preserve the stock low-food path; at high food let Building-job villagers try the stock construction dispatcher about three times in four (the top two bits of the time-stamp counter times 0x9E3779B9 not both zero), eax and edx preserved; otherwise, and for every other job, the stock high-food target"
         }
       ]
     },

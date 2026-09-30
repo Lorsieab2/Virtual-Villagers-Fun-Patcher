@@ -152,17 +152,24 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
     # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
     # the only differing bytes are the PE CheckSum.
+    # Re-pinned when Builders Fix Huts When Idle began wrapping the idle
+    # scheduler (one 75% roll per decision, the owner's "about three times in
+    # four"). Justified BEFORE re-pinning: this branch's previous tip
+    # reproduces the previous pins, and in all three modes the only differing
+    # bytes are the PE CheckSum (0x160), the scheduler entry 0x45BFE0 (file
+    # 0x5BFE0, 6 bytes) and the new stub and export name inside the fix-huts
+    # overlay (0xCBB00..0xCBBD6).
     "stock": (
-        "571ADE8E71BBB0DEBFFB3CA1CF597050E56F10C91311A619A74FA73FE6627367",
-        "D5380D00",
+        "969F147DAA29A4BF2111B4039E9D6AA670526CD4E5E40188F70FB353FA87A503",
+        "836E0D00",
     ),
     "collection_progression": (
-        "2BC3085F3A2B5B7E429852A723B69ADA0FE1278A91BFAAB9C61483C80AA03D3A",
-        "D5510D00",
+        "7722CB13AED16DA1313DC34224FCC0DB4E34C9571B2F3C39EB2C31BF548069A6",
+        "83870D00",
     ),
     "immediate_fixed": (
-        "13B3561006F09169AD663702EC24A5A5B443F62F84FDEC2262E14E64F934FB12",
-        "D3930D00",
+        "D19D2ECF3B8C064FD72B71FC92BCA046219A6235F6358FCA783034D2C67D1302",
+        "81C90D00",
     ),
 }
 

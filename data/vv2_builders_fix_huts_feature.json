@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Builders Fix Huts When Idle",
-  "description": "Builders fix huts when no building projects are present. When no building project is available to be worked on and at least one population hut stands -- while another is unbuilt, and below Building level 3 even once every one is built -- a builder with nothing to do examines and fixes one of the huts that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Whenever there is hut work to do, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). Applies in live play and during catch-up. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL (in The Secret City, a small stub in the page the base appends does); if the DLL cannot be loaded, the stock scheduler runs unchanged.",
+  "description": "Builders fix huts when no building projects are present, and build first. This makes builders more likely to do their building work, not certain: each time the game chooses what a builder does, the patch steps in about three times in four, and the rest of the time the game chooses exactly as it always has. When it steps in, construction always comes first -- a builder goes straight into a new hut or building project the game would let it build, even when the game's own random roll would have skipped it this time, and never fixes a hut while there is one. When no building project is available to be worked on and at least one population hut stands -- while another is unbuilt, and below Building level 3 even once every one is built -- a builder with nothing to do examines and fixes one of the huts that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Whenever there is hut work to do, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). Builders and Healers Work First and Healers Study Plants Regardless of Food use the same roll when selected with it, so one choice is either all patched or all stock. Applies in live play and during catch-up. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL (in The Secret City, a small stub in the page the base appends does); if the DLL cannot be loaded, the stock scheduler runs unchanged.",
   "output_tag": "Fix Huts",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"
@@ -14,7 +14,8 @@
     "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
     "Whenever a builder has hut work to do, its work attempt no longer depends on the food supply: at 300 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 300. Every other villager keeps the stock food behaviour.",
     "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut (never building 5) whenever at least one is built and no other building project is available (every hut built included).",
-    "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the population allows, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one); the builder gets 'nothing' and the next attempt rolls for the construction again."
+    "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the population allows, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one): the builder goes straight into the first of them, in the branch's own order, through the branch's own code for it.",
+    "Every change above happens about three times in four, not always: each time the game's idle scheduler chooses what a villager does (one run of 0x461850), one 75% roll from the companion's own generator -- never the game's random numbers -- decides whether the patches step in. If it passes, they act together; if it fails, every patched place runs the stock code for that choice, exactly as the unpatched game. The roll is drawn the first time a patched place asks and shared by every patch the choice reaches -- Builders and Healers Work First and Healers Study Plants Regardless of Food included."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -26,7 +27,7 @@
     {
       "source": "assets/fix_huts/VVFP Fix Huts.dll",
       "destination": "VVFP Fix Huts.dll",
-      "sha256": "D0ACE4F5B661E2BE06CF074E9D3D52C520465FBC3D9D07E5D4F0AD29AB59B0AB"
+      "sha256": "B8806F98A4AB3911F763DFE85D4BB4E7EAE7EE904C8631AD93427AC9524D7907"
     }
   ],
   "patches": [],
@@ -48,6 +49,12 @@
       "stock_bytes": "83BA84EA0200030F8C4DFEFFFF",
       "routine": "the Building dispatcher's level-3 gate before the hut (0x45FBF0)",
       "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"
+    },
+    {
+      "va": "0x461850",
+      "stock_bytes": "535556578B7C2414",
+      "routine": "the idle scheduler's entry (0x461850): wrapped to open and close one decision",
+      "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (first; nothing else installs without it)"
     }
   ]
 }
