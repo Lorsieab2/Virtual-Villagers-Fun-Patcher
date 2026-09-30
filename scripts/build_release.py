@@ -235,6 +235,37 @@ def _assert_no_executable_members(members: list[str]) -> None:
 SOURCE_NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}-source.zip"
 
 
+def _refuse_dirty_tree() -> bool:
+    """Raise if a tracked file has uncommitted changes; False if git is absent.
+
+    Both archives depend on this: ``main`` calls it BEFORE writing anything,
+    because the patcher ZIP is packed from the working tree. It used to be
+    checked only inside ``_build_source_archive``, which ``main`` reaches after
+    it has already published the patcher ZIP under its final release name --
+    so a dirty tree exited 1 with "refusing to build" while leaving behind a
+    release ZIP full of the uncommitted content, which reads as a valid
+    artifact.
+
+    Returns True when git reported a clean tree and False when git could not
+    be asked (no source archive is possible then, and the patcher ZIP is still
+    built, as before).
+    """
+    try:
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=ROOT, check=True, capture_output=True, text=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return False
+    if dirty:
+        raise RuntimeError(
+            "refusing to build the release from a dirty tree -- the patcher "
+            "archive is built from the working tree and the source archive from HEAD, so they "
+            "would not match. Commit or stash first:\n" + dirty
+        )
+    return True
+
+
 def _build_source_archive() -> dict | None:
     """Write the full tracked source tree beside the release archive.
 
@@ -267,19 +298,8 @@ def _build_source_archive() -> dict | None:
     patcher archive is the deliverable, and a missing source zip should not
     block it.
     """
-    try:
-        dirty = subprocess.run(
-            ["git", "status", "--porcelain", "--untracked-files=no"],
-            cwd=ROOT, check=True, capture_output=True, text=True,
-        ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
+    if not _refuse_dirty_tree():
         return None
-    if dirty:
-        raise RuntimeError(
-            "refusing to build a source archive from a dirty tree -- the patcher "
-            "archive is built from the working tree and this from HEAD, so they "
-            "would not match. Commit or stash first:\n" + dirty
-        )
     target = OUTPUTS / SOURCE_NAME
     temp = OUTPUTS / (SOURCE_NAME + ".tmp")
     temp.unlink(missing_ok=True)
@@ -330,29 +350,50 @@ def _build_source_archive() -> dict | None:
 
 def main() -> int:
     _assert_no_executable_members(FILES)
+    # Refuse a dirty tree before anything is written: see _refuse_dirty_tree.
+    _refuse_dirty_tree()
     OUTPUTS.mkdir(exist_ok=True)
     target = OUTPUTS / NAME
     temp = OUTPUTS / (NAME + ".tmp")
+    # The manifest names this build's ZIP; a failed build must not leave an
+    # older one behind describing a ZIP that is no longer there.
+    manifest_path = OUTPUTS / f"{target.stem}.manifest.json"
     temp.unlink(missing_ok=True)
-    with zipfile.ZipFile(temp, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
-        for relative in FILES:
-            path = ROOT / relative
-            archive.write(path, relative)
+    # Validate the TEMP file and publish it only once it has passed, as the
+    # source archive does; a rejected build removes both the temp file and any
+    # earlier build still sitting under this release name.
+    try:
+        with zipfile.ZipFile(temp, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+            for relative in FILES:
+                path = ROOT / relative
+                archive.write(path, relative)
+        with zipfile.ZipFile(temp) as archive:
+            members = archive.namelist()
+            _assert_no_executable_members(members)
+            if sorted(members) != sorted(FILES):
+                raise RuntimeError("release archive manifest mismatch")
+            bad = archive.testzip()
+            if bad:
+                raise RuntimeError(f"release archive CRC failure: {bad}")
+    except BaseException:
+        temp.unlink(missing_ok=True)
+        target.unlink(missing_ok=True)
+        manifest_path.unlink(missing_ok=True)
+        raise
     temp.replace(target)
-    with zipfile.ZipFile(target) as archive:
-        members = archive.namelist()
-        _assert_no_executable_members(members)
-        if sorted(members) != sorted(FILES):
-            raise RuntimeError("release archive manifest mismatch")
-        bad = archive.testzip()
-        if bad:
-            raise RuntimeError(f"release archive CRC failure: {bad}")
     digest = hashlib.sha256(target.read_bytes()).hexdigest().upper()
     manifest = {"file":target.name,"size":target.stat().st_size,"sha256":digest,"entries":FILES}
-    source = _build_source_archive()
+    try:
+        source = _build_source_archive()
+    except BaseException:
+        # The tree was clean a moment ago; if it is not now, or the source
+        # archive is rejected, do not leave the patcher ZIP looking released.
+        target.unlink(missing_ok=True)
+        manifest_path.unlink(missing_ok=True)
+        raise
     if source is not None:
         manifest["source_archive"] = source
-    (OUTPUTS / f"{target.stem}.manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     print(json.dumps(manifest, indent=2))
     return 0
 

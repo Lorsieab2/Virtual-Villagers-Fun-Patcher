@@ -33,11 +33,14 @@ become:
 
 This detours to guarded padding at file offset `0x94400`. The detour first
 preserves the original `[villager+0x1CFC] == 0x0D` Retired Chief predicate. If
-that predicate is false, it checks both of the stock villager fields used by the
-details screen:
+that predicate is false, it checks one stock villager field used by the details
+screen:
 
-- `[villager+0x1C74] == 5`, meaning Devotion is the selected preferred job.
 - `[villager+0x1C70] > 0`, meaning the villager has positive Devotion skill.
+
+The selected preferred job (`[villager+0x1C74] == 5`, Devotion) is NOT checked:
+the seven bytes after the Retired Chief test are a `jmp` over NOP padding, so
+no job comparison executes (disassembled at 0x494400-0x494429).
 
 A Retired Chief jumps directly back to the original timing and
 Honoring-or-Spreading code at `0x46F1E6`. The patch does not replace or

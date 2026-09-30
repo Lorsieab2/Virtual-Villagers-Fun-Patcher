@@ -22,6 +22,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "healers_study" / "VVFP Healers Study.dll"
 
@@ -52,8 +56,9 @@ def main() -> None:
             f"who was studying {row['plant']} carries on studying when the village has "
             f"{t} food or more, exactly as the stock game already does below {t}; "
             f"plentiful food no longer makes a healer stop. Applies in live play and "
-            f"during catch-up. **Requires Enable Origins-Exclusive Features**, whose "
-            f"companion loads this one; without it the stock scheduler runs unchanged."
+            f"during catch-up. {ORIGINS_BASE_SENTENCE} That base's companion loads "
+            f"this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs "
+            f"unchanged."
         )
         manifest = {
             "id": f"{game}_healers_study_regardless_of_food",

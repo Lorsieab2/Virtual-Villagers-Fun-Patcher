@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Watering the Field Trains Building",
-  "description": "\"Watering the field\" now gives Building skill, but only when it makes progress towards the garden puzzle (after the lagoon puzzle is complete). Each watering that advances the garden ends with one ordinary Building practice roll, exactly like every other Building job; once the garden is restored, watering gives nothing extra. \"Watering crops\" and \"Trying to water strange patch\" are unchanged. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock game runs unchanged.",
+  "description": "\"Watering the field\" now gives Building skill, but only when it makes progress towards the garden puzzle (after the lagoon puzzle is complete). Each watering that advances the garden ends with one ordinary Building practice roll, exactly like every other Building job; once the garden is restored, watering gives nothing extra. \"Watering crops\" and \"Trying to water strange patch\" are unchanged. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock game runs unchanged.",
   "output_tag": "Watering Builds",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"

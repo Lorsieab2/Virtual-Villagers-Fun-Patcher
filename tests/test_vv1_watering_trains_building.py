@@ -205,7 +205,8 @@ class RowTests(unittest.TestCase):
         pinned = {f["destination"]: f["sha256"].upper() for f in manifest["companion_files"]}
         self.assertEqual(pinned, {"VVFP VV1 Watering Builds.dll":
                                   hashlib.sha256(DLL.read_bytes()).hexdigest().upper()})
-        self.assertIn("**Requires Enable Origins-Exclusive Features**", manifest["description"])
+        self.assertIn("**Runs on the Origins-exclusive base, which the patcher installs automatically with it**", manifest["description"])
+        self.assertNotIn("Enable Origins-Exclusive Features", manifest["description"])
 
     def test_the_origins_companion_loads_and_installs_it(self):
         source = ORIGINS_C.read_text(encoding="utf-8")

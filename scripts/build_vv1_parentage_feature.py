@@ -78,9 +78,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 import keystone
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from parentage_log_text import PLAYER_LOG_DESCRIPTION  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research" / "stock-executables"
@@ -837,13 +841,10 @@ def build() -> dict:
                 "name": "Write Births and Conceptions Log to Text File",
                 "output_tag": "Births and Conceptions Log Text Export",
                 "description": (
-                    "On each new pregnancy, appends both parents' names, "
-                    "both parents' ages at conception, both head and body "
-                    "values, both parents' likes and dislikes, and the number "
-                    "of babies to 'Virtual "
-                    "Villagers 1 Births and Conceptions Log N.txt' beside the game "
-                    "executable. The mother's age determines the child's "
-                    "age, and the father's age is recorded too. VV1 "
+                    PLAYER_LOG_DESCRIPTION.format(game_number=1)
+                    + "A New Home stores no parents on any villager record, "
+                    "so both parents are captured at conception; they "
+                    "cannot be recovered from the child afterwards. VV1 "
                     "stores nothing about the father in the mother's "
                     "record -- not his name, and no id that could find "
                     "him -- so his details, his age included, are "
@@ -851,11 +852,10 @@ def build() -> dict:
                     "call sites, where the game holds it briefly. A birth "
                     "that reaches delivery without such a capture reports "
                     "the father as not captured for that birth, rather "
-                    "than naming the wrong villager. "
-                    "Parentage is not stored in any villager record, so "
-                    "both parents are captured at conception; they cannot "
-                    "be recovered from the child afterwards. Rolls to a "
-                    "new numbered file every 256 records."
+                    "than naming the wrong villager. **The Birth records "
+                    "are written by Show Parents in Details Screen, which "
+                    "sees every birth; with it off, only Conception "
+                    "records are written.**"
                 ),
                 # The "Birth" records come from Show Parents' companion, which
                 # sees every birth; conceptions are logged without it.
@@ -863,7 +863,7 @@ def build() -> dict:
                     {
                         "id": "vv1_write_village_statistics",
                         "for": (
-                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                            "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without it, records are still written correctly, just unlabelled, and the log first appears with its first record)"
                         ),
                     },
                     {
