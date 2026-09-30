@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "57CB5CB99566884ECB95EF9B96EFCDFA912E28B8FE9E3F8592CF28EE4382D6DB",
+  "companion_sha256": "A6827F8CECDA8FBFACE2972A44CE1D9A356E94F4CD6AC542564F27F530E950AC",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -18,7 +18,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "57CB5CB99566884ECB95EF9B96EFCDFA912E28B8FE9E3F8592CF28EE4382D6DB"
+          "sha256": "A6827F8CECDA8FBFACE2972A44CE1D9A356E94F4CD6AC542564F27F530E950AC"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -59,7 +59,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "57CB5CB99566884ECB95EF9B96EFCDFA912E28B8FE9E3F8592CF28EE4382D6DB"
+          "sha256": "A6827F8CECDA8FBFACE2972A44CE1D9A356E94F4CD6AC542564F27F530E950AC"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -110,6 +110,12 @@
           "before": "FF8724E50200",
           "after": "E91685020090",
           "purpose": "remove the twins over-count for a birth promoted to triplets, so twins counts twins only"
+        },
+        {
+          "offset": "0x63742",
+          "before": "01B8FCE40200",
+          "after": "909090909090",
+          "purpose": "Points Earned: remove the second add of the same research award (0x426290 already counted it)"
         }
       ]
     },
@@ -124,7 +130,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "57CB5CB99566884ECB95EF9B96EFCDFA912E28B8FE9E3F8592CF28EE4382D6DB"
+          "sha256": "A6827F8CECDA8FBFACE2972A44CE1D9A356E94F4CD6AC542564F27F530E950AC"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -169,6 +175,12 @@
           "before": "C7410C00000000",
           "after": "E9A88F01009090",
           "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x5B968",
+          "before": "7407",
+          "after": "740D",
+          "purpose": "People Cured: a failed healing roll skips the increment, so only an actual cure is counted"
         }
       ]
     },
@@ -183,7 +195,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "57CB5CB99566884ECB95EF9B96EFCDFA912E28B8FE9E3F8592CF28EE4382D6DB"
+          "sha256": "A6827F8CECDA8FBFACE2972A44CE1D9A356E94F4CD6AC542564F27F530E950AC"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -240,6 +252,12 @@
           "before": "C7410C00000000",
           "after": "E9FCE301009090",
           "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x65179",
+          "before": "7407",
+          "after": "740E",
+          "purpose": "People Cured: a failed healing roll skips the increment, so only an actual cure is counted"
         }
       ]
     },
@@ -254,7 +272,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "57CB5CB99566884ECB95EF9B96EFCDFA912E28B8FE9E3F8592CF28EE4382D6DB"
+          "sha256": "A6827F8CECDA8FBFACE2972A44CE1D9A356E94F4CD6AC542564F27F530E950AC"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -305,6 +323,12 @@
           "before": "C7410C00000000",
           "after": "E936F201009090",
           "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x6E1F9",
+          "before": "7407",
+          "after": "740E",
+          "purpose": "People Cured: a failed healing roll skips the increment, so only an actual cure is counted"
         }
       ]
     }

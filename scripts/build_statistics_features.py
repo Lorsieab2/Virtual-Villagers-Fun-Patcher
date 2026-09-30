@@ -936,6 +936,58 @@ def build_game(
             }
         )
 
+    if game_id == "vv2":
+        # Points Earned counted one research path twice. On the path taken
+        # when [container+0x2EA7C] == 3 the research routine calls the award
+        # routine 0x426290 -- which already adds the amount to both the
+        # spendable tech total (+0x2EADC) and the Points Earned statistic
+        # (+0x2E4FC) -- and then adds the same EDI to +0x2E4FC again at
+        # 0x463742. Every other path, and every other game, adds once. The
+        # second add is removed; spendable tech is unaffected.
+        double_add_file = 0x63742
+        double_add = bytes.fromhex("01B8FCE40200")   # add dword ptr [eax+0x2E4FC], edi
+        if source[double_add_file : double_add_file + 6] != double_add:
+            raise RuntimeError("vv2 Points Earned double-add guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{double_add_file:X}",
+                "before": double_add.hex().upper(),
+                "after": "90" * 6,
+                "purpose": (
+                    "Points Earned: remove the second add of the same research "
+                    "award (0x426290 already counted it)"
+                ),
+            }
+        )
+
+    if game_id in ("vv3", "vv4", "vv5"):
+        # People Cured counted failed healing attempts. After the healer's
+        # treatment roll (call ...; test al, al), a success clears the sick
+        # flag and falls into the +1, but the failure branch `je` jumps
+        # straight to that same +1. Retargeting the `je` past the increment
+        # makes only an actual cure count; the failure path then continues
+        # exactly where the stock code goes after the increment.
+        #   (je site, stock rel8 -> the +1, fixed rel8 -> the next instruction)
+        je_site, stock_rel, fixed_rel = {
+            "vv3": (0x45B968, 0x07, 0x0D),   # +1 at 0x45B971 (inc [0x5824B0]); next 0x45B977
+            "vv4": (0x465179, 0x07, 0x0E),   # +1 at 0x465182 (add [0x4D6DF0],1); next 0x465189
+            "vv5": (0x46E1F9, 0x07, 0x0E),   # +1 at 0x46E202 (add [0x51D368],1); next 0x46E209
+        }[game_id]
+        je_file = je_site - 0x400000
+        if source[je_file : je_file + 2] != bytes([0x74, stock_rel]):
+            raise RuntimeError(f"{game_id} People Cured branch guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{je_file:X}",
+                "before": bytes([0x74, stock_rel]).hex().upper(),
+                "after": bytes([0x74, fixed_rel]).hex().upper(),
+                "purpose": (
+                    "People Cured: a failed healing roll skips the increment, "
+                    "so only an actual cure is counted"
+                ),
+            }
+        )
+
     hook_file = int(config["hook_file"])
     hook_va = int(config["hook_va"])
     stock_call = rel32_call(hook_va, int(config["writer_va"]))

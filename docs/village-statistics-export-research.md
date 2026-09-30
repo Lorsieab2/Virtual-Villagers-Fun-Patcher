@@ -264,9 +264,15 @@ earliest-successful-skeleton-pickup contract.
 - VV4 calls predicate RVA `0x38960` with puzzle manager RVA `0xD8BF8`, IDs
   0 through 15.
 - VV5 stores progress at `manager+0x16D20+8*id`, with thresholds at RVA
-  `0x11DF30`. Stock counts IDs 1 through 16. When the Heathen Parent patch
-  marker at RVA `0x8F16` is active, the exporter counts ID 17 and reports a
-  denominator of 17.
+  `0x11DF30` (filled at startup by `register(handler, id, threshold)` at
+  0x43ABB0). Stock counts IDs 1 through 16. When the Heathen Mommy patch is
+  active -- its own jump at RVA `0x48F16` reads `E9` (stock `B9`) -- the
+  exporter counts IDs 1 through 17 and reports a denominator of 17. ID 17 is
+  `CHeathenMommyPuzzle`, registered at 0x439C8E with threshold **1**; it
+  completes when stat 0xC1 reaches 3 by advancing its progress once (0 -> 1).
+  Until v1.35.40 the exporter tested RVA `0x8F16` (0x24 in every build) and
+  required progress >= 3, so puzzle 17 was never counted and the total was
+  always 16.
 
 ## Safe update points
 

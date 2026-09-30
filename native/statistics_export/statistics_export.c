@@ -37,6 +37,12 @@ static void write_int(unsigned char *manager, unsigned int offset, int value) {
    The constant is arbitrary but distinctive, so a slot that happens to hold a
    small integer for some other reason does not read as initialised. */
 #define BURIAL_BASELINE_MARKER 0x56425331 /* 'VBS1' */
+/* A New Home's seed until v1.35.40 read each grave's occupancy at the wrong
+   offset (grave base 0xA340 plus +0x1C lands in the NEXT grave's name, which
+   is always zero there), so every VV1 save it stamped was seeded with 0. A
+   second marker makes each VV1 save seed once more from the right field; the
+   seed only ever raises the counter, so a re-seed never loses a pickup. */
+#define BURIAL_BASELINE_MARKER_VV1 0x56425332 /* 'VBS2' */
 #define ROBING_BASELINE_MARKER 0x56433131 /* 'VC11' */
 #define ELDER_BASELINE_MARKER 0x56453431 /* 'VE41' */
 
@@ -394,17 +400,18 @@ static int seeded_burial_total(
     unsigned int marker_offset,
     const unsigned char *graves,
     unsigned int graves_stride,
-    unsigned int graves_capacity
+    unsigned int graves_capacity,
+    int marker_value
 ) {
     int stored = read_int(manager, counter_offset);
-    if (read_int(manager, marker_offset) != (int)BURIAL_BASELINE_MARKER) {
+    if (read_int(manager, marker_offset) != marker_value) {
         int baseline = count_occupied_graves(
             graves, graves_stride, 0x1Cu, graves_capacity);
         if (baseline > stored) {
             stored = baseline;
             write_int(manager, counter_offset, stored);
         }
-        write_int(manager, marker_offset, (int)BURIAL_BASELINE_MARKER);
+        write_int(manager, marker_offset, marker_value);
     }
     return stored;
 }
@@ -439,7 +446,8 @@ static int write_memorial_row(
                 marker_offset,
                 module + graves_rva,
                 graves_stride,
-                graves_capacity
+                graves_capacity,
+                (int)BURIAL_BASELINE_MARKER
             )
         ) >= 0;
     }
@@ -506,6 +514,23 @@ static int real_hours(int game_id, const unsigned char *manager) {
     return ((real_hours_function)(module + rva))(manager, NULL);
 }
 
+/* PENDING-IMPLEMENTATION: A New Home's Village Elders (the owner's
+   definition: one villager with Master status in any 3 distinct skills).
+   tests/test_statistics_no_placeholders.py fails while this marker exists,
+   so a placeholder can never ship. */
+static int vv1_village_elders(const unsigned char *manager) {
+    (void)manager;
+    return -1;
+}
+
+/* PENDING-IMPLEMENTATION: unique stew combinations (VV2 Total Stews Found,
+   VV3/VV4 Stews Found), from the per-save .dat discovery file. */
+static int stews_found(int game_id, const char *village) {
+    (void)game_id;
+    (void)village;
+    return -1;
+}
+
 static int write_vv1(
     FILE *file,
     unsigned char *manager,
@@ -517,48 +542,53 @@ static int write_vv1(
         0xA000, 0xA008, 0xA050, 0xA058,
         0xA080, 0xA088, 0xA090, 0xA098
     };
+    /* Rows and their order are the owner's directive
+       (docs/village-statistics-directive.md, section II). */
+    int buried;
+    int elders;
+    /* Seeded once from the 50-slot memorial, then advanced only by the
+       pickup wrapper. Each grave is 0x2C bytes from manager+0xA31C with its
+       occupancy dword at +0x24 = manager+0xA340+i*0x2C -- the exact field
+       the game's own recount 0x41CF10 tests ([ecx-0x2C] with
+       ecx = manager+0xA36C). The shared walk adds +0x1C, so the base passed
+       is 0xA340-0x1C = 0xA324. */
+    buried = seeded_burial_total(manager, 0x9E84u, 0x9E88u,
+                                 manager + 0xA324u, 0x2Cu, 50u,
+                                 (int)BURIAL_BASELINE_MARKER_VV1);
+    elders = vv1_village_elders(manager);
     return fprintf(
         file,
         "Virtual Villagers - A New Home\n"
         "Village Statistics\n"
         "%s\n"
         "Real Hours Played: %d\n"
-        "Tech Points Earned: %d\n"
-        "Babies Made: %d\n"
         "Food Gathered: %d\n"
+        "Tech Points Earned: %d\n"
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
         "Highest Population: %d\n"
-        /* Read from the patch-added lifetime counter at manager+0x9E84, not
-           the stock manager+0x9E38. That field has two writers image-wide and
-           both are stores -- 0x41C3DF zero-inits it and 0x42F191 stores the
-           return of sub_41CF10, an unrolled 5x10 sweep that recounts occupied
-           grave slots -- so it stops rising at the 50-slot capacity. The
-           counter is incremented by a cave wrapper on the skeleton-pickup
-           latch clear at 0x448F65, and sits inside the manager+8 .. +0xABE4
-           range that the full save writes at 0x41BF63, so it persists. */
-        "Villagers Buried: %d\n"
+        "Village Elders: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
+        "Babies Made: %d\n"
         "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
-        "Puzzles Solved: %d of 16\n",
+        "Villagers Buried: %d\n"
+        "Puzzles Solved: %d out of 16\n",
         village,
         real_hours(GAME_VV1, manager),
-        read_int(manager, 0x9E20),
-        read_int(manager, 0x9E24),
         read_int(manager, 0x9E28),
+        read_int(manager, 0x9E20),
         read_int(manager, 0x9E2C),
         read_int(manager, 0x9E30),
         read_int(manager, 0x9E34),
-        /* Seeded once from the 50-slot memorial at manager+0xA340, then
-           advanced only by the pickup wrapper. */
-        seeded_burial_total(manager, 0x9E84u, 0x9E88u,
-                            manager + 0xA340u, 0x2Cu, 50u),
+        elders,
         read_int(manager, 0x9E3C),
         read_int(manager, 0x9E40),
+        read_int(manager, 0x9E24),
         read_int(manager, 0x9E44),
         read_int(manager, 0x9E48),
+        buried,
         count_flags(manager, puzzle_offsets, 16)
     ) >= 0;
 }
@@ -595,61 +625,62 @@ static int write_vv2(
         0x2E7A8, 0x2E7B0, 0x2E7B8, 0x2E7C0,
         0x2E7C8, 0x2E7D8, 0x2E7E0, 0x2E7E8
     };
+    /* Rows and their order are the owner's directive
+       (docs/village-statistics-directive.md, section III).
+
+       Villagers Buried: The Lost Children has no stock burial statistic.
+       This reads the patch-added lifetime counter at manager+0x2E5D4,
+       incremented by a cave wrapper on the skeleton-pickup latch clear at
+       0x46503B, seeded once from the 50-slot memorial (the manager this
+       exporter receives IS the container the allocator 0x464CD0 indexes:
+       records at +0x2EB0C, stride 0x7C, occupancy at record+0x74).
+
+       Twins Birthed: The Lost Children counts triplets natively at
+       +0x2E524 but has no twins counter (its childbirth routine is
+       cumulative: the twins branch at 0x44BA82 falls through into the
+       triplets test). This reads the patch-added counter at +0x2E5D8.
+
+       Special Stews Found: the game's own +0x2E520, +1 the first time each
+       of its 18 recipes is cooked (0x4260DC). */
+    int buried = vv2_seeded_burial_total(manager);
     return fprintf(
         file,
         "Virtual Villagers - The Lost Children\n"
         "Village Statistics\n"
         "%s\n"
         "Real Hours Played: %d\n"
-        "Tech Points Earned: %d\n"
-        "Babies Made: %d\n"
         "Food Gathered: %d\n"
+        "Tech Points Earned: %d\n"
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
         "Highest Population: %d\n"
         "Village Elders: %d\n"
-        /* The Lost Children has no stock burial statistic. This reads the
-           patch-added lifetime counter at manager+0x2E5D4, incremented by a
-           cave wrapper on the skeleton-pickup latch clear at 0x46503B. The
-           slot sits in a 27-dword run with no stock reference, clear of the
-           puzzle flags at +0x2E768 and the discovered-recipe set at +0x2EAAC,
-           and inside the manager+8 .. +0x30378 range the full save writes at
-           0x424BF3, so it persists. */
-        "Villagers Buried: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
-        "Special Stews Found: %d\n"
-        /* The Lost Children counts triplets natively at manager+0x2E524 but
-           has no twins counter: its childbirth routine is cumulative, so the
-           twins branch at 0x44BA82 sets litter 2 and falls through into the
-           triplets test, and a twins-only birth returns without counting.
-           This reads the patch-added counter at manager+0x2E5D8, incremented
-           by a wrapper on that branch. */
+        "Babies Made: %d\n"
         "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
-        "Puzzles Solved: %d of 16\n",
+        "Villagers Buried: %d\n"
+        "Puzzles Solved: %d out of 16\n"
+        "Special Stews Found: %d\n"
+        "Total Stews Found: %d\n",
         village,
         real_hours(GAME_VV2, manager),
-        read_int(manager, 0x2E4FC),
-        read_int(manager, 0x2E500),
         read_int(manager, 0x2E504),
+        read_int(manager, 0x2E4FC),
         read_int(manager, 0x2E508),
         read_int(manager, 0x2E50C),
         read_int(manager, 0x2E510),
         read_int(manager, 0x2E514),
-        /* Seeded once from the 50-slot memorial. The Lost Children reaches
-           its grave records through a container pointer rather than a fixed
-           offset -- the allocator at 0x464CD0 loads [esi+0xE574D4] and then
-           indexes +0x2EB0C at stride 0x7C -- and the manager this exporter
-           receives IS that container, so the records sit at manager+0x2EB0C
-           with the occupancy dword at record+0x74. */
-        vv2_seeded_burial_total(manager),
         read_int(manager, 0x2E518),
         read_int(manager, 0x2E51C),
-        read_int(manager, 0x2E520),
+        read_int(manager, 0x2E500),
         read_int(manager, 0x2E5D8),
         read_int(manager, 0x2E524),
-        count_flags(manager, puzzle_offsets, 16)
+        buried,
+        count_flags(manager, puzzle_offsets, 16),
+        read_int(manager, 0x2E520),
+        stews_found(GAME_VV2, village)
     ) >= 0;
 }
 
@@ -734,32 +765,31 @@ static int count_vv5_puzzles(
     const unsigned char *module,
     int *puzzle_total
 ) {
-    int solved = count_saved_puzzles(
+    /*
+     * The owner: "X out of Y" -- 16 puzzles, and 17 when the Heathen Mommy
+     * patch is active.
+     *
+     * Puzzle 17 is the game's own CHeathenMommyPuzzle, registered at
+     * 0x439C8E as register(handler, 0x11, 1): its threshold is 1, like most
+     * puzzles, and the game's IsComplete (0x43AE80) is the same
+     * progress >= threshold test count_saved_puzzles makes. It completes when
+     * stat 0xC1 reaches 3 by advancing the puzzle once (0 -> 1); that 3 is a
+     * stat counter, not the puzzle's progress, which never exceeds 1. (Until
+     * v1.35.40 this required progress >= 3, so puzzle 17 was never counted.)
+     *
+     * The patch is detected by its own jump at file offset/RVA 0x48F16 (E9
+     * with the patch, B9 stock). (Until v1.35.40 this read 0x8F16, which is
+     * 0x24 in every build, so the total was always 16.)
+     */
+    int bonus_enabled = module != NULL && module[0x48F16u] == 0xE9;
+    *puzzle_total = bonus_enabled ? 17 : 16;
+    return count_saved_puzzles(
         manager,
         0x16D20u,
         0x11DF30u,
         1,
-        16
+        *puzzle_total
     );
-    int bonus_progress = read_int(manager, 0x16D20u + 17u * 8u);
-    int bonus_enabled = module != NULL && module[0x8F16u] == 0xE9;
-
-    /*
-     * Puzzle 17 is a current-save state, not a lifetime counter.  The
-     * restoration patch keeps the same progress slot and completes it at 3.
-     * Recognize that slot even when the exporter is attached to an already
-     * completed save, so existing saves are reported accurately on the first
-     * export rather than being forced to 16/16.
-     */
-    if (bonus_enabled || bonus_progress >= 3) {
-        *puzzle_total = 17;
-        if (bonus_progress >= 3) {
-            ++solved;
-        }
-    } else {
-        *puzzle_total = 16;
-    }
-    return solved;
 }
 
 static int write_later_game(
@@ -846,7 +876,9 @@ static int write_later_game(
        Zero for the games whose burial writer already stores the owner's
        predicate, which need no migration. */
     unsigned int grave_elder_seed_offset,
-    unsigned int elder_marker_offset
+    unsigned int elder_marker_offset,
+    /* The game, for its Stews Found row. */
+    int game_id
 ) {
     unsigned char *statistics = (unsigned char *)manager + statistics_offset;
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
@@ -859,40 +891,39 @@ static int write_later_game(
             module + graves_rva, graves_stride, graves_capacity,
             0x1Cu, grave_elder_seed_offset, grave_elder_offset);
     }
+    /* Rows and their order are the owner's directive
+       (docs/village-statistics-directive.md, sections IV and V): the
+       fourteen common rows, Villagers Buried and Puzzles Solved last among
+       them, then the game's own rows.
+
+       +0x28 is Twins Birthed, not a stew count: it is incremented inside the
+       childbirth routine on the twins branch -- VV3 0x455BE7 after
+       `mov [litter], 2`, VV4 0x45E8DD likewise -- mutually exclusive with
+       the +0x2C triplets write that follows `mov [litter], 3`. The games'
+       own (unreachable) statistics page labels it "Special Stews Found"
+       through the eTwinsBirthed entry; the counting code is the evidence. */
     if (fprintf(
         file,
         "%s\n"
         "Village Statistics\n"
         "%s\n"
         "Real Hours Played: %d\n"
-        "Tech Points Earned: %d\n"
-        "Babies Made: %d\n"
         "Food Gathered: %d\n"
+        "Tech Points Earned: %d\n"
         "People Cured: %d\n"
         "%s: %d\n"
         "Highest Population: %d\n"
         "Village Elders: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
-        /* +0x28 is Twins Birthed, not a stew count. The field is incremented
-           inside the childbirth routine on the twins branch -- VV3 0x455BE7
-           after `mov [litter], 2`, VV4 0x45E8DD likewise -- mutually exclusive
-           with the +0x2C triplets write that follows `mov [litter], 3`.
-           Every neighbouring label matches the shape of the code that writes
-           it and only this one did not, in two games with two different
-           encodings. The stale "Special Stews Found" string came from the
-           enum-name mapping recorded in the research document; the
-           requirements ask for Twins Birthed in all five games and for
-           Special Stews Found in The Lost Children alone. */
+        "Babies Made: %d\n"
         "Twins Birthed: %d\n"
-        "Triplets Birthed: %d\n"
-        "Puzzles Solved: %d of %d\n",
+        "Triplets Birthed: %d\n",
         title,
         village,
         later_game_hours(manager, clock_rva, statistics_offset),
-        read_int(statistics, 0x04),
-        read_int(statistics, 0x08),
         read_int(statistics, 0x0C),
+        read_int(statistics, 0x04),
         read_int(statistics, 0x10),
         collection_label,
         read_int(statistics, 0x14),
@@ -921,11 +952,17 @@ static int write_later_game(
             graves_stride, graves_capacity, 0x1Cu, grave_elder_offset),
         read_int(statistics, 0x20),
         read_int(statistics, 0x24),
+        read_int(statistics, 0x08),
         read_int(statistics, 0x28),
-        read_int(statistics, 0x2C),
-        puzzles_solved,
-        puzzle_total
+        read_int(statistics, 0x2C)
     ) < 0) {
+        return 0;
+    }
+    if (!write_memorial_row(
+            file, graves_rva, graves_stride, graves_capacity,
+            live != NULL ? live : statistics, buried_offset, marker_offset)
+        || fprintf(file, "Puzzles Solved: %d out of %d\n",
+                   puzzles_solved, puzzle_total) < 0) {
         return 0;
     }
     /* Chiefs Robed, for the one game that has a chief.
@@ -961,9 +998,7 @@ static int write_later_game(
                             second_extra_offset)) < 0) {
         return 0;
     }
-    return write_memorial_row(
-        file, graves_rva, graves_stride, graves_capacity,
-        live != NULL ? live : statistics, buried_offset, marker_offset);
+    return fprintf(file, "Stews Found: %d\n", stews_found(game_id, village)) >= 0;
 }
 
 /* New Believers' live statistics block, or the saved copy if the module
@@ -986,38 +1021,36 @@ static int write_vv5(
     /* Village Elders reads the villager container and the memorial, both of
        which are fixed globals rather than reachable from the manager. */
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    /* Patch-added counters are incremented in the LIVE block; the saved copy
+       only catches up on the next stock save. */
+    unsigned char *live = module == NULL ? statistics : module + 0x11D358u;
+    /* Rows and their order are the owner's directive
+       (docs/village-statistics-directive.md, section VI). +0x28 is Twins
+       Birthed (see write_later_game): New Believers shares the later-game
+       block layout, and its own increments sit at 0x465F2D (twins) and
+       0x465F1A (triplets). Villagers Died was removed at the owner's
+       instruction; its counter is still incremented, only the row is gone. */
     if (fprintf(
         file,
         "Virtual Villagers - New Believers\n"
         "Village Statistics\n"
         "%s\n"
         "Real Hours Played: %d\n"
-        "Tech Points Earned: %d\n"
-        "Babies Made: %d\n"
         "Food Gathered: %d\n"
+        "Tech Points Earned: %d\n"
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
         "Highest Population: %d\n"
         "Village Elders: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
-        /* +0x28 is Twins Birthed. See the note in write_later_game: New
-           Believers shares the later-game block layout, and its own
-           increments sit at 0x465F2D (twins) and 0x465F1A (triplets). */
+        "Babies Made: %d\n"
         "Twins Birthed: %d\n"
-        "Triplets Birthed: %d\n"
-        "Heathens Converted: %d\n"
-        /* Villagers Died was removed at the owner's instruction --
-           Villagers Buried is the kept statistic, because it stays
-           meaningful once the graveyard fills. The counter itself is left
-           in place and still incremented by its wrappers; only the row is
-           gone. */
-        "Puzzles Solved: %d of %d\n",
+        "Triplets Birthed: %d\n",
         village,
         later_game_hours(manager, 0x36E0u, 0x7B4u),
-        read_int(statistics, 0x04),
-        read_int(statistics, 0x08),
         read_int(statistics, 0x0C),
+        read_int(statistics, 0x04),
         read_int(statistics, 0x10),
         read_int(statistics, 0x14),
         read_int(statistics, 0x18),
@@ -1045,11 +1078,9 @@ static int write_vv5(
             0x5Cu, 500u, 0x1Cu, 0x31u),
         read_int(statistics, 0x20),
         read_int(statistics, 0x24),
+        read_int(statistics, 0x08),
         read_int(statistics, 0x28),
-        read_int(statistics, 0x2C),
-        read_int(statistics, 0x34),
-        puzzles_solved,
-        puzzle_total
+        read_int(statistics, 0x2C)
     ) < 0) {
         return 0;
     }
@@ -1060,12 +1091,11 @@ static int write_vv5(
        pickup wrapper increments the live block, and the stock save copies it
        out wholesale afterwards; seeding the saved copy alone would be
        overwritten by the still-unseeded live values on the next save. */
-    {
-        unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
-        unsigned char *live = module == NULL ? statistics : module + 0x11D358u;
-        return write_memorial_row(
-            file, 0x1481A8u, 0x5Cu, 500u, live, 0x38u, 0x3Cu);
-    }
+    return write_memorial_row(
+               file, 0x1481A8u, 0x5Cu, 500u, live, 0x38u, 0x3Cu)
+        && fprintf(file, "Puzzles Solved: %d out of %d\n",
+                   puzzles_solved, puzzle_total) >= 0
+        && fprintf(file, "Heathens Converted: %d\n", read_int(live, 0x34)) >= 0;
 }
 
 /* Invoke the Village Population companion, if it is present.
@@ -1263,7 +1293,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0x29u,
             /* The Secret City's burial writer already stores the
                three-or-more verdict, so there is nothing to migrate. */
-            0u, 0u
+            0u, 0u,
+            GAME_VV3
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -1330,7 +1361,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0x37u,
             /* Seed +0x37 once from the stock all-five flag at +0x31, marked
                at statistics+0x4C (0x4D6E2C, zero references image-wide). */
-            0x31u, 0x4Cu
+            0x31u, 0x4Cu,
+            GAME_VV4
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);
