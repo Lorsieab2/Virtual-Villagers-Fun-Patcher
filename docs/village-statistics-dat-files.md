@@ -133,9 +133,10 @@ reloading an older backup of the save cannot add it twice.
 * Every write goes to `<name>.tmp` and replaces the file with
   `MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH)`, and every new stew file is
   the union of the old set and the new discoveries.
-* Start Over clears the slot's statistics and stew files, their `.tmp`, and the
-  "Village Statistics v2" log through the tribe-delete reset
-  (native/shared/save_reset.c).
+* Start Over on the main menu, and deleting the tribe on the save-slot menu,
+  clear the slot's statistics and stew files, their `.tmp`, and the
+  "Village Statistics v2" log through the Start Over reset
+  (native/shared/save_reset.c; docs/start-over-reset-hook.md).
 
 ## Limitations
 
@@ -150,9 +151,11 @@ reloading an older backup of the save cannot add it twice.
   them back.
 * The flush happens before the stock writer. If the writer then fails, the
   flushed events stay counted; they happened.
-* The tribe-delete reset ships with the features that carry its hook (Origins
-  and the parentage logs). Without it a new village started in the same slot
-  after Start Over continues the old village's totals and discoveries.
+* The Start Over reset ships whenever Origins, the Births and Conceptions log
+  or this log is selected. It finds the Births and Conceptions log by the
+  village header this log publishes when the village is saved, so a Start Over
+  in a session in which that village was never saved leaves that log alone;
+  the slot-addressed statistics files go either way.
 
 ## Verification
 

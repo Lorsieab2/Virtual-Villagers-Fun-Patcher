@@ -126,8 +126,43 @@ and load and cannot distinguish Start Over from ordinary play. Hooking it to
 delete anything would destroy state during normal use.
 
 Neither function is the reset. Both run during ordinary play, so both would
-destroy persistence rather than reset it. The reset event is still unlocated;
-see the correction above.
+destroy persistence rather than reset it.
+
+## The two reset events, located
+
+Both ways to reset a tribe are hooked, and each calls
+`ResetDeletedTribe(game, slot)` in `VVFP Save Reset.dll` before the game acts.
+
+**Deleting the tribe on the save-slot menu.** The menu handler's own
+`push edi; call <thunk>` to `deleteSave`, with edi the raw slot the player
+chose (file offsets VV1 `0x13E07`, VV2 `0x14E77`, VV3 `0x1B5D3`, VV4 `0x18CD5`,
+VV5 `0x193F5`). The backup rotation above calls `deleteSave` directly and never
+passes through it.
+
+**Start Over on the main menu.** This path never calls `deleteSave` -- a live
+VV2 test showed the Births and Conceptions log surviving two Start Overs while
+only the save-slot hook existed. The main-menu button handler shows the
+`eSayConfirmRestart` dialog ("Are you sure you want to restart the current
+game?") and, on OK, runs `mov ecx,[esi+0xC]; call Restart`. `Restart` is a
+thiscall on the village object with no other caller: it keeps the tribe name,
+re-creates the village with the game's new-village routine and saves it into
+the same slot, whose number it reads from the village's current-slot field --
+the field the save-slot menu compares against a deleted slot.
+
+| game | call site (file) | `Restart` | slot field | string id |
+|---|---|---|---|---|
+| VV1 | `0x26F68` | `0x41C7C0` | `+0xABE4` | `0x3E` |
+| VV2 | `0x32AF4` | `0x4255E0` | `+0x30378` | `0x5E` |
+| VV3 | `0x6B7E4` | `0x4283C0` | `+0x12F24` | `0x6B` |
+| VV4 | `0x44647` | `0x41F3E0` | `+0x17114` | `0xAE` |
+| VV5 | `0x47797` | `0x424930` | `+0x17D80` | `0xA3` |
+
+The call is rewritten to a stub that calls
+`ResetDeletedTribe(game, [ecx + slot field])` and tail-jumps to `Restart` with
+every register and the stack as the call left them, so the old village is
+still in memory -- and its published header still recallable -- when the files
+go. `src/vv_fun_patcher.py` (`MAIN_MENU_START_OVER`) places it; see
+`tests/test_main_menu_start_over_reset.py`.
 
 ## Hooking space
 

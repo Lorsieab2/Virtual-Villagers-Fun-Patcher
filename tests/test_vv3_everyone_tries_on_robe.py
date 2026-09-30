@@ -148,17 +148,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
     # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
     # the only differing bytes are the PE CheckSum.
+    # Re-pinned when Origins began carrying the main-menu Start Over reset
+    # (2026-09-30). Justified BEFORE re-pinning: origin/main reproduces the
+    # previous pins (26E20313.../2CC59D13.../DC755117...); the only differing
+    # bytes are 0x6B7E5..0x6B7E8 (the rewritten call's rel32), the stub at
+    # 0xA3F90..0xA3FFA (.rdata tail, which Origins maps as code) and the PE
+    # CheckSum at 0x160..0x162.
     "stock": (
-        "26E203135581EF8CDBF9DE83B14B36C621D9F1E3A8D90EC347E16A15C3809237",
-        "ADE20C00",
+        "8AED8952AD2DA29347633B5A3E8A02A43FF264997973E669ED4B5909A6672AFE",
+        "FFFE0C00",
     ),
     "collection_progression": (
-        "2CC59D137060A79AC8C97C4B471E67236EB08CDEBFCDE9546902D2F1ACA6A915",
-        "ADFB0C00",
+        "46C3719BF43CF20C78ADEE5872D6B5D7A87CF42C683BC5BF0F361FC8ED76F59C",
+        "FF170D00",
     ),
     "immediate_fixed": (
-        "DC7551178BF924A37612FBEF2426467018432EA127E8516E0F660BAAE037871C",
-        "AB3D0D00",
+        "0330EFB3E7CDCBDA38B200F39AE5438CC7E6E3FB3DCC478D951375DE708DCD2D",
+        "FD590D00",
     ),
 }
 

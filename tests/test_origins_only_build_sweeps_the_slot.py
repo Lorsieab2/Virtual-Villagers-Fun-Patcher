@@ -85,6 +85,21 @@ GAMES = {
 HAVE_STOCK = all((STOCK / spec["exe"]).is_file() for spec in GAMES.values())
 
 
+def _delete_block(data: bytes) -> int:
+    """Offset of the tribe-delete block, or -1.
+
+    The main-menu Start Over stub carries the same two names
+    (tests/test_main_menu_start_over_reset.py); the tribe-delete block is the
+    one whose code pushes edi, the raw slot, at +0x2F.
+    """
+    at = data.find(DLL_NAME)
+    while at != -1:
+        if data[at + 0x28 + 0x2F : at + 0x28 + 0x31] == b"\x57\x6a":
+            return at
+        at = data.find(DLL_NAME, at + 1)
+    return -1
+
+
 def _sections(data: bytes) -> list[tuple[str, int, int, int, int]]:
     pe = struct.unpack_from("<I", data, 0x3C)[0]
     count = struct.unpack_from("<H", data, pe + 6)[0]
@@ -178,7 +193,7 @@ class OriginsOnlyBuildSweepsTheSlotTests(unittest.TestCase):
         for game, (folder, _log) in sorted(self.builds.items()):
             with self.subTest(game=game):
                 data = next(folder.glob("*Modded.exe")).read_bytes()
-                at = data.find(DLL_NAME)
+                at = _delete_block(data)
                 self.assertGreaterEqual(
                     at, 0, f"{game}: the stub is not in the built image"
                 )
@@ -209,7 +224,7 @@ class OriginsOnlyBuildSweepsTheSlotTests(unittest.TestCase):
             spec = GAMES[game]
             with self.subTest(game=game):
                 data = next(folder.glob("*Modded.exe")).read_bytes()
-                at = data.find(DLL_NAME)
+                at = _delete_block(data)
                 section = _owning_section(data, at)
                 assert section is not None
                 _name, va, _rsz, ro, _chars = section
@@ -241,7 +256,7 @@ class OriginsOnlyBuildSweepsTheSlotTests(unittest.TestCase):
             spec = GAMES[game]
             with self.subTest(game=game):
                 data = next(folder.glob("*Modded.exe")).read_bytes()
-                at = data.find(DLL_NAME)
+                at = _delete_block(data)
                 section = _owning_section(data, at)
                 assert section is not None
                 _name, va, _rsz, ro, _chars = section
