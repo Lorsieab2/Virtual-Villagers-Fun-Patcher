@@ -53,6 +53,34 @@ Owner decisions that shape the rows:
 | VV4 | Stews Found | success path 0x42EE5F, herbs + fresh/salt water, .dat | a new unique herb+water combination | .dat | harness stew tests A–G incl. G fresh/salt + emu over every triple and both waters | OK |
 | VV5 | Heathens Converted | conversion entry 0x4668B0 (+2 Heathen Mommy tag 0x11, else +1) | each conversion | slot .dat | code | OK (now in the slot's Village Statistics .dat; old save field frozen, migrated once; harness: +1, flush, zero, no double count on reload) |
 
+## New Believers: Heathens are not villagers
+
+The owner (2026-09-30): Heathens never count as villagers in any row unless
+the row explicitly asks for them; a converted Heathen counts like any villager
+from the moment of conversion, never before. Heathens Converted is the one
+Heathen row. The game keeps its Heathens in the villager array beside the
+tribe; the record's faction byte `+0x1CEC` is 0 for a believer (the game's own
+population count 0x4713F0 counts only 0; conversion 0x4668B0 clears it at
+0x46697D; The Spa and The Cracked Mask set it at 0x415D0C/0x416C5B; a live read
+found the Heathen Chief at 1; in the owner's 65 village saves it is only ever 0
+or 1).
+
+| Row | Can a Heathen reach the counter? | Change |
+|---|---|---|
+| Oldest Villager | **Yes, observed live** (v1.35.41 new village read 50 = a Heathen at age 1000). 0x470077 skips a Heathen's aging but falls into the maximum at 0x47008D. | The skip now jumps to 0x4700B9, past the maximum (0x47007F `75 0C` → `75 38`). A village saved before this build keeps the value its save already holds. |
+| People Cured | **Yes, by code.** The drag-a-healer cure 0x468C10 finds its patient with 0x4706F0, which has no faction test; The Missing Kids makes a Heathen child sick (0x416203; the child is picked Heathen-only at 0x415E80), and the purple Heathen (type 12) is "cured", which converts it, before the +1. The auto-cure 0x46E020 picks through 0x470B40, which requires a believer. | The patient's faction is captured when the cure begins (0x468C3C) and the +1 (0x468D4D) is skipped for a patient who began as a Heathen. |
+| Babies Made, Twins Birthed, Triplets Birthed | **Yes, by code.** Counted in the conception routine 0x465E00 on its mother, with no faction test; Abandoned Infants (0x471A50) takes every living woman, and the partner finder 0x4705D0 has no faction test. | Each +1 (0x465F1A, 0x465F2D, 0x465F3E) is skipped for a Heathen mother. A Heathen conceived before converting is not counted later: these rows count at conception. |
+| Highest Population | No. 0x4713F0 counts only faction-0 records. | none |
+| Villagers Buried | **Yes, by code, never observed.** A Heathen does not age (0x47007F) and the health/hunger pass skips it (0x472CB7), so nothing restores its health -- but The Missing Kids takes 5 from its Heathen child on every bad outcome (0x4161F0). Every other event that harms a villager picks with Heathens excluded (0x471870's arguments decoded at all 27 call sites) or never starts (Innovation in Farming and Child in the Tree return false from 0x415B10). Every Heathen in the owner's 65 village saves has health 90 or 100. | The patch's own pickup counter (0x473F8F wrapper, now at cave+0x1E0) skips a Heathen corpse; the corpse is still cleared. |
+| Village Elders | Living half: already believers only (village_elders.c). Dead half (graves the game flagged): only a Heathen child can die (above), and a child has no masteries. | none |
+| Food Gathered, Tech Points Earned, Mushrooms Found | No path found. Villager awards come from jobs the player assigns by picking a villager up, which excludes Heathens (0x4702B1); turning Heathen resets the villager's actions (0x4669E0 → 0x473440); an idle Heathen only plays its idle animation (0x473563). | none |
+| Real Hours, Island Events, Puzzles | Not villager counts. | none |
+
+Tests: tests/test_vv5_statistics_believers_only.py runs the wrappers from the
+manifest's cave bytes (CI) and, with the stock executable, the whole patched
+and stock routines with a Heathen, a believer and a converted Heathen; the
+stock routines still credit the Heathen, and each guard was mutation-checked.
+
 ## Not verified live
 
 Nothing in this matrix has been observed in a running game. The deciding
