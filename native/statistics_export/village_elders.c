@@ -18,14 +18,15 @@
 
        VVFP VILLAGE ELDERS v1 game=<1..5>
        graves_seen=<memorial entries already examined>
-       E<TAB>slot<TAB>name<TAB>father<TAB>mother<TAB>gone
-       G<TAB>-1<TAB>name<TAB><TAB><TAB>1
+       E<TAB>slot<TAB>name<TAB>father<TAB>mother<TAB>gone<TAB>open
+       G<TAB>-1<TAB>name<TAB><TAB><TAB>1<TAB>0
 
-   One line per elder. "E" = seen alive holding the status (slot index in the
-   villager array, the villager's name, and -- where the record stores them --
-   both parents' names; none of these change during a life, unlike age,
-   skills, appearance or likes). "gone" = 1 once that villager has been
-   matched to their grave. "G" = an elder known only from a grave the game
+   One line per elder. "E" = seen alive holding the status: the slot index in
+   the villager array plus the latest name and parents' names seen there.
+   "open" = 1 while every save still finds an elder in that slot -- the line
+   IS that villager, followed through renames (identity is slot continuity,
+   never the name). "gone" = 1 once that villager has been matched to their
+   grave. "G" = an elder known only from a grave the game
    flagged. The row prints the number of lines.
 
    UPDATE, after every successful save:
@@ -73,6 +74,8 @@ struct elder {
     char father[NAME_MAX_CHARS];
     char mother[NAME_MAX_CHARS];
     int gone;
+    int open;                       /* the slot still holds this elder */
+    int seen;                       /* working flag for the current save */
 };
 
 static struct elder g_elders[ELDERS_MAX];
@@ -115,12 +118,6 @@ static int mastered_skills(const unsigned char *record, const struct elders_layo
     return mastered;
 }
 
-static int same_identity(const struct elder *e, int slot, const char *name,
-                         const char *father, const char *mother) {
-    return e->kind == 'E' && e->slot == slot && strcmp(e->name, name) == 0
-        && strcmp(e->father, father) == 0 && strcmp(e->mother, mother) == 0;
-}
-
 static int path_for(int save_id, wchar_t *path, const wchar_t *suffix) {
     wchar_t folder[MAX_PATH];
     if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Elders", 64)) {
@@ -154,7 +151,7 @@ static int load(int game_id, const wchar_t *path) {
     }
     while (fgets(line, sizeof(line), f) != NULL) {
         struct elder e;
-        char *fields[6];
+        char *fields[7];
         char *cursor = line;
         int n = 0;
         size_t len = strlen(line);
@@ -165,14 +162,14 @@ static int load(int game_id, const wchar_t *path) {
             continue;
         }
         fields[n++] = cursor;
-        while (*cursor != '\0' && n < 6) {
+        while (*cursor != '\0' && n < 7) {
             if (*cursor == '\t') {
                 *cursor = '\0';
                 fields[n++] = cursor + 1;
             }
             ++cursor;
         }
-        if (n != 6 || (fields[0][0] != 'E' && fields[0][0] != 'G') || fields[0][1] != '\0'
+        if (n != 7 || (fields[0][0] != 'E' && fields[0][0] != 'G') || fields[0][1] != '\0'
             || g_count >= ELDERS_MAX) {
             fclose(f);
             g_count = 0;
@@ -185,6 +182,7 @@ static int load(int game_id, const wchar_t *path) {
         strncpy_s(e.father, sizeof(e.father), fields[3], _TRUNCATE);
         strncpy_s(e.mother, sizeof(e.mother), fields[4], _TRUNCATE);
         e.gone = atoi(fields[5]) != 0;
+        e.open = atoi(fields[6]) != 0;
         g_elders[g_count++] = e;
     }
     fclose(f);
@@ -194,13 +192,15 @@ static int load(int game_id, const wchar_t *path) {
 static int save(int game_id, const wchar_t *path, const wchar_t *temporary) {
     FILE *f;
     int i;
-    if (_wfopen_s(&f, temporary, L"wb") != 0 || f == NULL) {
+    /* Text mode: the C runtime writes the Windows line endings. */
+    if (_wfopen_s(&f, temporary, L"w") != 0 || f == NULL) {
         return 0;
     }
-    fprintf(f, "VVFP VILLAGE ELDERS v1 game=%d\r\ngraves_seen=%d\r\n", game_id, g_graves_seen);
+    fprintf(f, "VVFP VILLAGE ELDERS v1 game=%d\ngraves_seen=%d\n", game_id, g_graves_seen);
     for (i = 0; i < g_count; ++i) {
         const struct elder *e = &g_elders[i];
-        fprintf(f, "%c\t%d\t%s\t%s\t%s\t%d\r\n", e->kind, e->slot, e->name, e->father, e->mother, e->gone);
+        fprintf(f, "%c\t%d\t%s\t%s\t%s\t%d\t%d\n", e->kind, e->slot, e->name, e->father, e->mother, e->gone,
+                e->open);
     }
     if (fflush(f) != 0 || fclose(f) != 0) {
         DeleteFileW(temporary);
@@ -229,21 +229,6 @@ static int add(char kind, int slot, const char *name, const char *father, const 
     return 1;
 }
 
-/* Is the villager an E line describes still alive in its slot? */
-static int still_alive(const struct elder *e, const struct elders_layout *l) {
-    const unsigned char *record;
-    char name[NAME_MAX_CHARS];
-    if (l->villagers == NULL || e->slot < 0 || (unsigned int)e->slot >= l->slots) {
-        return 0;
-    }
-    record = l->villagers + l->record_base + (unsigned int)e->slot * l->stride;
-    if (record[l->active] != 1) {
-        return 0;
-    }
-    copy_name(name, record + l->name, l->name_capacity);
-    return strcmp(name, e->name) == 0;
-}
-
 static int grave_occupied(const struct elders_layout *l, unsigned int index) {
     int occupancy;
     memcpy(&occupancy, l->graves + index * l->grave_stride + l->grave_occupied, sizeof(occupancy));
@@ -262,9 +247,16 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
     }
     if (!load(game_id, path)) {
         /* Unreadable: keep it, never overwrite it, take nothing from it. */
-        if (_snwprintf_s(aside, MAX_PATH, _TRUNCATE, L"%ls.unreadable-%llu.dat", path,
-                         (unsigned long long)GetTickCount64()) <= 0
-            || !MoveFileExW(path, aside, 0)) {
+        int n;
+        int moved = 0;
+        for (n = 0; n < 1000 && !moved; ++n) {
+            if (_snwprintf_s(aside, MAX_PATH, _TRUNCATE, L"%ls.unreadable-%llu-%d.dat", path,
+                             (unsigned long long)GetTickCount64(), n) <= 0) {
+                break;
+            }
+            moved = MoveFileExW(path, aside, 0);   /* never replaces an existing file */
+        }
+        if (!moved) {
             return -1;                /* cannot preserve it: leave it and report nothing */
         }
         g_count = 0;
@@ -279,27 +271,51 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
         }
     }
 
-    /* 1. Living elders. */
+    /* 1. Living elders, identified by SLOT CONTINUITY, not by name (players
+       rename villagers). An E line stays "open" while every save finds an
+       elder in its slot; that is the same villager, whatever it is now
+       called, so the line follows the new name. A slot is only reused after
+       its occupant dies, and a newborn cannot master three skills before the
+       next save, so a save always sees the slot empty or holding a
+       non-elder in between: the line closes then, and a later elder in that
+       slot is a new villager. */
     if (l->villagers != NULL) {
         unsigned int slot;
+        int i;
+        for (i = 0; i < g_count; ++i) {
+            g_elders[i].seen = 0;
+        }
         for (slot = 0; slot < l->slots; ++slot) {
             const unsigned char *record = l->villagers + l->record_base + slot * l->stride;
             char name[NAME_MAX_CHARS];
             char father[NAME_MAX_CHARS];
             char mother[NAME_MAX_CHARS];
-            int i;
-            int known = 0;
+            struct elder *line = NULL;
             if (record[l->active] != 1 || mastered_skills(record, l) < 3) {
                 continue;
             }
             copy_name(name, record + l->name, l->name_capacity);
             copy_name(father, l->father_name ? record + l->father_name : NULL, l->parent_name_capacity);
             copy_name(mother, l->mother_name ? record + l->mother_name : NULL, l->parent_name_capacity);
-            for (i = 0; i < g_count && !known; ++i) {
-                known = same_identity(&g_elders[i], (int)slot, name, father, mother);
+            for (i = 0; i < g_count && line == NULL; ++i) {
+                if (g_elders[i].kind == 'E' && g_elders[i].open && g_elders[i].slot == (int)slot) {
+                    line = &g_elders[i];
+                }
             }
-            if (!known) {
-                add('E', (int)slot, name, father, mother, 0);
+            if (line != NULL) {
+                /* the same villager: keep the line current through renames */
+                strncpy_s(line->name, sizeof(line->name), name, _TRUNCATE);
+                strncpy_s(line->father, sizeof(line->father), father, _TRUNCATE);
+                strncpy_s(line->mother, sizeof(line->mother), mother, _TRUNCATE);
+                line->seen = 1;
+            } else if (add('E', (int)slot, name, father, mother, 0)) {
+                g_elders[g_count - 1].open = 1;
+                g_elders[g_count - 1].seen = 1;
+            }
+        }
+        for (i = 0; i < g_count; ++i) {
+            if (g_elders[i].kind == 'E' && g_elders[i].open && !g_elders[i].seen) {
+                g_elders[i].open = 0;   /* the slot no longer holds this elder */
             }
         }
     }
@@ -319,7 +335,7 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
             if (!fresh) {
                 for (i = 0; i < g_count && !matched; ++i) {
                     struct elder *e = &g_elders[i];
-                    if (e->kind == 'E' && !e->gone && strcmp(e->name, name) == 0 && !still_alive(e, l)) {
+                    if (e->kind == 'E' && !e->gone && !e->open && strcmp(e->name, name) == 0) {
                         e->gone = 1;
                         matched = 1;
                     }

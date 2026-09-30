@@ -71,6 +71,8 @@ class VillageEldersHarnessTests(unittest.TestCase):
                      "D: any three distinct skills qualify",
                      "E: great age alone is not an elder",
                      "F: the count survives a reload of the .dat",
+                     "a renamed elder is not counted again",
+                     "a buried elder is matched to their line, not counted twice",
                      "a new .dat counts the elders the game flagged on existing graves",
                      "a file for another game is not read"):
             with self.subTest(case=case):

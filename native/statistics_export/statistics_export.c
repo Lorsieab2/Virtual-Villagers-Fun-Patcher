@@ -1140,33 +1140,85 @@ typedef int (__fastcall *save_writer)(void *manager, void *unused,
    LIVING ROSTER, and by overlap -- any villager in common means the same
    village, because births and deaths change the roster during play.
 
-   Each save records the living villagers (slot and name) in
-   "Village Roster - Save N.dat". If the next save's living roster shares no
-   villager with the recorded one, the slot now holds a different village:
-   the three .dat files are moved aside as "... .previous-village-<ticks>.dat"
-   (never deleted) and tracking starts fresh. An empty recorded roster never
-   triggers this. */
+   Each save records the living villagers in "Village Roster - Save N.dat":
+   slot, name, and a fingerprint of what renaming does not change -- the
+   likes and dislikes arrays and, where the record stores them, the parents'
+   names. A recorded villager and a living one are the same when they share
+   the slot AND either the name or the fingerprint, so a player renaming
+   villagers never looks like a new village. If the next save's living
+   roster shares no villager with the recorded one, the slot now holds a
+   different village: the three .dat files are moved aside as
+   "... .previous-village-<ticks>-<n>.dat" (never deleted, never over an
+   existing file) and tracking starts fresh. If a move fails, nothing is
+   flushed for that save, so a new village's events can never merge into the
+   old village's files. An empty recorded roster never triggers this. */
 struct roster_layout {
     unsigned int villagers_rva;
     int rva_is_pointer;
     unsigned int record_base, stride, slots, active, name, name_capacity;
+    /* rename-proof fingerprint: likes[n], dislikes[n] (i32), parents' names */
+    unsigned int likes, dislikes, preference_slots;
+    unsigned int father_name, mother_name, parent_name_capacity;
 };
 
 static const struct roster_layout ROSTER_LAYOUTS[6] = {
     { 0 },
-    { 0x8B614u, 1, 0u, 0x3D8u, 256u, 0x28u, 0x370u, 0x1Cu },     /* VV1 */
-    { 0x99F24u, 1, 0u, 0xE48Cu, 256u, 0x30u, 0x564u, 0x18u },    /* VV2 */
-    { 0x19E110u, 0, 0x14u, 0x1F8Cu, 150u, 0xF10u, 0xDD4u, 0x19u },   /* VV3 */
-    { 0x10E568u, 0, 0x44u, 0x2E3Cu, 150u, 0x1CC4u, 0x1B9Cu, 0x19u }, /* VV4 */
-    { 0x154148u, 0, 0x48u, 0x2F44u, 150u, 0x1CD4u, 0x1B9Cu, 0x19u }, /* VV5 */
+    { 0x8B614u, 1, 0u, 0x3D8u, 256u, 0x28u, 0x370u, 0x1Cu,
+      0x398u, 0x3A8u, 4u, 0u, 0u, 0u },                                  /* VV1 */
+    { 0x99F24u, 1, 0u, 0xE48Cu, 256u, 0x30u, 0x564u, 0x18u,
+      0x5F0u, 0x6E8u, 62u, 0x57Du, 0x596u, 0x18u },                      /* VV2 */
+    { 0x19E110u, 0, 0x14u, 0x1F8Cu, 150u, 0xF10u, 0xDD4u, 0x19u,
+      0xFB4u, 0xFC0u, 3u, 0xDF8u, 0xE11u, 0x19u },                       /* VV3 */
+    { 0x10E568u, 0, 0x44u, 0x2E3Cu, 150u, 0x1CC4u, 0x1B9Cu, 0x19u,
+      0x1E60u, 0x1E6Cu, 3u, 0x1BC0u, 0x1BD9u, 0x19u },                   /* VV4 */
+    { 0x154148u, 0, 0x48u, 0x2F44u, 150u, 0x1CD4u, 0x1B9Cu, 0x19u,
+      0x1F5Cu, 0x1F68u, 3u, 0x1BC0u, 0x1BD9u, 0x19u },                   /* VV5 */
 };
 
 #define ROSTER_MAX 256
 #define ROSTER_NAME 32
-static char g_roster_now[ROSTER_MAX][ROSTER_NAME + 8];
-static char g_roster_was[ROSTER_MAX][ROSTER_NAME + 8];
+#define ROSTER_ROW (ROSTER_NAME + 24)
+static char g_roster_now[ROSTER_MAX][ROSTER_ROW];
+static char g_roster_was[ROSTER_MAX][ROSTER_ROW];
 
-static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_NAME + 8]) {
+static unsigned int fnv(unsigned int h, const unsigned char *p, unsigned int n) {
+    unsigned int i;
+    for (i = 0; i < n; ++i) {
+        h = (h ^ p[i]) * 16777619u;
+    }
+    return h;
+}
+
+static unsigned int bounded_len(const unsigned char *p, unsigned int capacity) {
+    unsigned int n = 0;
+    while (n < capacity && p[n] != 0) {
+        ++n;
+    }
+    return n;
+}
+
+/* "slot<TAB>name<TAB>fingerprint" rows: same villager = same slot and
+   (same name or same fingerprint). A row without a fingerprint (none is ever
+   written without one) matches by name only. */
+static int same_villager(const char *a, const char *b) {
+    const char *ta = strchr(a, '\t');
+    const char *tb = strchr(b, '\t');
+    const char *fa, *fb;
+    if (ta == NULL || tb == NULL || ta - a != tb - b || strncmp(a, b, (size_t)(ta - a)) != 0) {
+        return 0;                                  /* different slot */
+    }
+    fa = strchr(ta + 1, '\t');
+    fb = strchr(tb + 1, '\t');
+    if (fa != NULL && fb != NULL && strcmp(fa, fb) == 0) {
+        return 1;                                  /* same fingerprint */
+    }
+    if (fa == NULL || fb == NULL) {
+        return fa == NULL && fb == NULL ? strcmp(ta, tb) == 0 : 0;
+    }
+    return fa - ta == fb - tb && strncmp(ta, tb, (size_t)(fa - ta)) == 0;   /* same name */
+}
+
+static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
     const struct roster_layout *r = &ROSTER_LAYOUTS[game_id];
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     const unsigned char *villagers;
@@ -1191,23 +1243,47 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_NAME + 8]) {
             name[i] = (record[r->name + i] == '\t' || record[r->name + i] < 0x20) ? ' ' : (char)record[r->name + i];
         }
         name[i] = '\0';
-        _snprintf_s(rows[count], ROSTER_NAME + 8, _TRUNCATE, "%u\t%s", slot, name);
+        {
+            unsigned int h = 2166136261u;
+            h = fnv(h, record + r->likes, r->preference_slots * 4u);
+            h = fnv(h, record + r->dislikes, r->preference_slots * 4u);
+            if (r->father_name != 0u) {
+                h = fnv(h, record + r->father_name, bounded_len(record + r->father_name, r->parent_name_capacity));
+                h = fnv(h, (const unsigned char *)"|", 1u);
+                h = fnv(h, record + r->mother_name, bounded_len(record + r->mother_name, r->parent_name_capacity));
+            }
+            _snprintf_s(rows[count], ROSTER_ROW, _TRUNCATE, "%u\t%s\t%08X", slot, name, h);
+        }
         ++count;
     }
     return count;
 }
 
-static void move_aside(const wchar_t *path, unsigned long long stamp) {
+/* 1 = moved (or nothing to move), 0 = the file is still in place. Never
+   replaces an existing file: tries -0, -1, ... until a name is free. */
+static int move_aside(const wchar_t *path, unsigned long long stamp) {
     wchar_t aside[MAX_PATH];
+    int n;
     if (path == NULL || path[0] == L'\0' || GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
-        return;
+        return 1;
     }
-    if (_snwprintf_s(aside, MAX_PATH, _TRUNCATE, L"%ls.previous-village-%llu.dat", path, stamp) > 0) {
-        MoveFileExW(path, aside, 0);
+    for (n = 0; n < 1000; ++n) {
+        if (_snwprintf_s(aside, MAX_PATH, _TRUNCATE, L"%ls.previous-village-%llu-%d.dat", path, stamp, n) <= 0) {
+            return 0;
+        }
+        if (MoveFileExW(path, aside, 0)) {
+            return 1;
+        }
+        if (GetFileAttributesW(aside) == INVALID_FILE_ATTRIBUTES) {
+            return 0;          /* the name was free and the move still failed */
+        }
     }
+    return 0;
 }
 
-static void start_fresh_if_new_village(int game_id, int save_id) {
+/* 1 = tracking may be flushed; 0 = a new village was detected and its old
+   files could not all be moved aside, so this save must not flush. */
+static int start_fresh_if_new_village(int game_id, int save_id) {
     wchar_t folder[MAX_PATH], roster[MAX_PATH], temporary[MAX_PATH], elders[MAX_PATH], elders_folder[MAX_PATH];
     FILE *f;
     char line[128];
@@ -1217,11 +1293,11 @@ static void start_fresh_if_new_village(int game_id, int save_id) {
     if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
         || _snwprintf_s(roster, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) <= 0
         || _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.tmp", folder, save_id) <= 0) {
-        return;
+        return 1;
     }
     if (_wfopen_s(&f, roster, L"rb") == 0 && f != NULL) {
         if (fgets(line, sizeof(line), f) != NULL && strncmp(line, "VVFP VILLAGE ROSTER v1", 22) == 0) {
-            while (was < ROSTER_MAX && fgets(g_roster_was[was], ROSTER_NAME + 8, f) != NULL) {
+            while (was < ROSTER_MAX && fgets(g_roster_was[was], ROSTER_ROW, f) != NULL) {
                 size_t len = strlen(g_roster_was[was]);
                 while (len > 0 && (g_roster_was[was][len - 1] == '\n' || g_roster_was[was][len - 1] == '\r')) {
                     g_roster_was[was][--len] = '\0';
@@ -1234,21 +1310,26 @@ static void start_fresh_if_new_village(int game_id, int save_id) {
         fclose(f);
     }
     if (now == 0) {
-        return;                       /* nothing to compare or record */
+        return 1;                     /* nothing to compare or record */
     }
     for (i = 0; i < was && !shared; ++i) {
         for (j = 0; j < now && !shared; ++j) {
-            shared = strcmp(g_roster_was[i], g_roster_now[j]) == 0;
+            shared = same_villager(g_roster_was[i], g_roster_now[j]);
         }
     }
     if (was > 0 && !shared) {
         unsigned long long stamp = (unsigned long long)GetTickCount64();
-        move_aside(g_store_counters, stamp);
-        move_aside(g_store_stews, stamp);
+        int moved = move_aside(g_store_counters, stamp);
+        moved = move_aside(g_store_stews, stamp) && moved;
         if (vv_save_subfolder_w(elders_folder, L"Virtual Villagers Fun Patcher Data\\Village Elders", 64)
             && _snwprintf_s(elders, MAX_PATH, _TRUNCATE, L"%ls\\Village Elders - Save %d.dat",
                             elders_folder, save_id) > 0) {
-            move_aside(elders, stamp);
+            moved = move_aside(elders, stamp) && moved;
+        } else {
+            moved = 0;
+        }
+        if (!moved) {
+            return 0;                 /* keep the recorded roster: retry next save */
         }
     }
     /* Text mode: the C runtime writes the Windows line endings, as for every
@@ -1262,6 +1343,7 @@ static void start_fresh_if_new_village(int game_id, int save_id) {
             MoveFileExW(temporary, roster, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
         }
     }
+    return 1;
 }
 
 __declspec(dllexport) int __stdcall SaveVillageStatistics(
@@ -1278,8 +1360,9 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
         && game_id >= GAME_VV1 && game_id <= GAME_VV5;
     if (primary) {
         bind_store(game_id, manager, save_id);
-        start_fresh_if_new_village(game_id, save_id);
-        vvs_flush(&g_store);
+        if (start_fresh_if_new_village(game_id, save_id)) {
+            vvs_flush(&g_store);
+        }
     }
     result = ((save_writer)writer)(manager_pointer, NULL, buffer, size, save_id);
     if (primary && (result & 0xFF) != 0) {

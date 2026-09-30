@@ -143,11 +143,19 @@ int wmain(int argc, wchar_t **argv) {
     check(file_contains(dat, "E\t0\tTana") && file_contains(dat, "E\t1\tKiri"),
           "F: both elders are stored in the .dat by identity");
 
-    /* Lifetime: an elder dies and is buried with the game's flag -> still 2. */
+    /* Renaming is normal play: a renamed elder is the same elder. */
+    strncpy_s((char *)rec(1) + NAME, 0x10, "Kirra", _TRUNCATE);
+    check(vv_village_elders_file(4, dat, tmp, &l) == 2, "a renamed elder is not counted again");
+    check(file_contains(dat, "E\t1\tKirra"), "the elder's line follows the new name");
+    strncpy_s((char *)rec(0) + NAME, 0x10, "Tanu", _TRUNCATE);
+    check(vv_village_elders_file(4, dat, tmp, &l) == 2, "a second rename adds nothing either");
+
+    /* Lifetime: an elder dies and is buried (under the latest name) with the
+       game's flag -> still 2. */
     rec(0)[ACTIVE] = 0;
-    bury(0, "Tana", 1);
+    bury(0, "Tanu", 1);
     check(vv_village_elders_file(4, dat, tmp, &l) == 2, "a buried elder is matched to their line, not counted twice");
-    check(file_contains(dat, "E\t0\tTana\t\t\t1"), "the matched line is marked gone");
+    check(file_contains(dat, "E\t0\tTanu\t\t\t1\t0"), "the matched line is marked gone and closed");
 
     /* An elder who qualified and died between two saves: known only by the
        game's grave flag -> counted once. */
