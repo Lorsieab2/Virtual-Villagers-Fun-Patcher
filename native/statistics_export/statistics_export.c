@@ -284,10 +284,10 @@ static int g_elders_value;
 
 static int village_elders_for(int game_id) {
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    struct elders_layout l;
     if (g_elders_ready) {
         return g_elders_value;
     }
-    struct elders_layout l;
     if (module == NULL) {
         return -1;
     }
@@ -1318,42 +1318,77 @@ static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
         && _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.tmp", folder, save_id) > 0;
 }
 
-/* BEFORE the save: does the slot now hold a different village? Reads only;
-   changes nothing on disk. 1 = a new village (the recorded roster and the
-   living one share no villager), 0 = the same village or nothing to compare. */
+/* BEFORE the save: what does the slot hold? Reads only; changes nothing on
+   disk.
+     ROSTER_SAME     the same village, or nothing to compare yet (the roster
+                     file does not exist: the first save with this build)
+     ROSTER_NEW      a different village: a strict MAJORITY of the smaller
+                     roster fails to match. One coincidental same-slot name
+                     (names come from fixed pools) is not enough, and births
+                     and deaths between two saves never approach half.
+     ROSTER_DAMAGED  the roster exists but is not a valid roster: identity is
+                     unknown, so it is handled as a new village -- the old
+                     files are archived, never merged into
+     ROSTER_LOCKED   the roster exists but cannot be opened: identity is
+                     unknown and nothing can be committed; this save neither
+                     flushes nor commits, and the next save retries */
+enum { ROSTER_SAME = 0, ROSTER_NEW = 1, ROSTER_DAMAGED = 2, ROSTER_LOCKED = 3 };
+
 static int village_changed(int game_id, int save_id) {
     wchar_t roster[MAX_PATH], temporary[MAX_PATH];
     FILE *f;
     char line[128];
+    char used[ROSTER_MAX];
     int was = 0;
-    int i, j, shared = 0;
+    int i, j, matched = 0, smaller;
     g_roster_now_count = living_roster(game_id, g_roster_now);
     if (!roster_paths(save_id, roster, temporary)) {
-        return 0;
+        return ROSTER_LOCKED;
     }
-    if (_wfopen_s(&f, roster, L"rb") == 0 && f != NULL) {
-        if (fgets(line, sizeof(line), f) != NULL && strncmp(line, "VVFP VILLAGE ROSTER v1", 22) == 0) {
-            while (was < ROSTER_MAX && fgets(g_roster_was[was], ROSTER_ROW, f) != NULL) {
-                size_t len = strlen(g_roster_was[was]);
-                while (len > 0 && (g_roster_was[was][len - 1] == '\n' || g_roster_was[was][len - 1] == '\r')) {
-                    g_roster_was[was][--len] = '\0';
-                }
-                if (len > 0) {
-                    ++was;
-                }
+    if (GetFileAttributesW(roster) == INVALID_FILE_ATTRIBUTES) {
+        return ROSTER_SAME;           /* no roster yet: the first save with this build */
+    }
+    if (_wfopen_s(&f, roster, L"rb") != 0 || f == NULL) {
+        return ROSTER_LOCKED;
+    }
+    if (fgets(line, sizeof(line), f) == NULL || strncmp(line, "VVFP VILLAGE ROSTER v1", 22) != 0) {
+        fclose(f);
+        return ROSTER_DAMAGED;
+    }
+    while (was < ROSTER_MAX && fgets(g_roster_was[was], ROSTER_ROW, f) != NULL) {
+        size_t len = strlen(g_roster_was[was]);
+        int tabs = 0;
+        while (len > 0 && (g_roster_was[was][len - 1] == '\n' || g_roster_was[was][len - 1] == '\r')) {
+            g_roster_was[was][--len] = '\0';
+        }
+        if (len == 0) {
+            continue;
+        }
+        for (i = 0; g_roster_was[was][i] != '\0'; ++i) {
+            tabs += g_roster_was[was][i] == '\t';
+        }
+        if (tabs != 2) {              /* every row is slot<TAB>name<TAB>fingerprint */
+            fclose(f);
+            return ROSTER_DAMAGED;
+        }
+        ++was;
+    }
+    fclose(f);
+    if (was == 0 || g_roster_now_count == 0) {
+        return ROSTER_SAME;           /* nothing to compare */
+    }
+    memset(used, 0, sizeof(used));
+    for (j = 0; j < g_roster_now_count; ++j) {
+        for (i = 0; i < was; ++i) {
+            if (!used[i] && same_villager(g_roster_was[i], g_roster_now[j])) {
+                used[i] = 1;
+                ++matched;
+                break;
             }
         }
-        fclose(f);
     }
-    if (was == 0 || g_roster_now_count == 0) {
-        return 0;
-    }
-    for (i = 0; i < was && !shared; ++i) {
-        for (j = 0; j < g_roster_now_count && !shared; ++j) {
-            shared = same_villager(g_roster_was[i], g_roster_now[j]);
-        }
-    }
-    return !shared;
+    smaller = was < g_roster_now_count ? was : g_roster_now_count;
+    return matched * 2 > smaller ? ROSTER_SAME : ROSTER_NEW;
 }
 
 /* AFTER the stock save succeeded: for a new village, move the slot's three
@@ -1363,7 +1398,7 @@ static int village_changed(int game_id, int save_id) {
    again and retries -- and, because a detected change suppresses that
    save's flush, nothing is ever merged into the wrong village's files or
    reset in a loop. */
-static int commit_roster(int save_id, int changed) {
+static int commit_roster(int save_id, int changed, int damaged) {
     wchar_t roster[MAX_PATH], temporary[MAX_PATH], elders[MAX_PATH], elders_folder[MAX_PATH];
     FILE *f;
     int j;
@@ -1381,6 +1416,12 @@ static int commit_roster(int save_id, int changed) {
             ok = move_aside(elders, stamp) && ok;
         } else {
             ok = 0;
+        }
+        /* A roster that could not be read is moved aside, never overwritten,
+           and only once everything else has moved: until then it keeps the
+           next save treating the slot as unknown. */
+        if (ok && damaged) {
+            ok = move_aside(roster, stamp);
         }
         if (!ok) {
             return 0;                 /* keep the recorded roster: retry next save */
@@ -1427,14 +1468,20 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
            into fresh files by the next save, once the rollover is committed.
            A failed save therefore changes nothing on disk. */
         changed = village_changed(game_id, save_id);
-        if (!changed) {
+        if (changed == ROSTER_SAME) {
             vvs_flush(&g_store);
         }
     }
     result = ((save_writer)writer)(manager_pointer, NULL, buffer, size, save_id);
-    if (primary && (result & 0xFF) != 0) {
-        commit_roster(save_id, changed);
-        WriteVillageStatistics(game_id, manager_pointer, save_id);
+    if (primary && (result & 0xFF) != 0 && changed != ROSTER_LOCKED) {
+        int is_new = changed == ROSTER_NEW || changed == ROSTER_DAMAGED;
+        int committed = commit_roster(save_id, is_new, changed == ROSTER_DAMAGED);
+        /* After a rollover that did not fully commit, the files on disk may
+           still be the previous village's: write nothing (no elder update,
+           no log) until the next save completes it. */
+        if (!is_new || committed) {
+            WriteVillageStatistics(game_id, manager_pointer, save_id);
+        }
     }
     return result;
 }

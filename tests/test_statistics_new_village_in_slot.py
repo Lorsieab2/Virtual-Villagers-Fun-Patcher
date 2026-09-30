@@ -61,12 +61,16 @@ class NewVillageInSlotTests(unittest.TestCase):
         decide = body.index("changed = village_changed(game_id, save_id);")
         flush = body.index("vvs_flush(&g_store);")
         write = body.index("result = ((save_writer)writer)(")
-        commit = body.index("commit_roster(save_id, changed);")
+        commit = body.index("int committed = commit_roster(save_id, is_new, changed == ROSTER_DAMAGED);")
         self.assertLess(decide, flush)
         self.assertLess(flush, write)
         self.assertLess(write, commit)
-        self.assertRegex(body, r"if \(!changed\) \{\s*vvs_flush\(&g_store\);")
-        self.assertRegex(body, r"if \(primary && \(result & 0xFF\) != 0\) \{\s*commit_roster\(save_id, changed\);")
+        self.assertRegex(body, r"if \(changed == ROSTER_SAME\) \{\s*vvs_flush\(&g_store\);")
+        self.assertRegex(body, r"if \(primary && \(result & 0xFF\) != 0 && changed != ROSTER_LOCKED\) \{")
+        self.assertIn("int is_new = changed == ROSTER_NEW || changed == ROSTER_DAMAGED;", body)
+        # Codex round 3: nothing is exported after a rollover that did not commit
+        self.assertRegex(body[commit:], r"if \(!is_new \|\| committed\) \{\s*WriteVillageStatistics\(")
+        self.assertEqual(body.count("WriteVillageStatistics("), 1)
         check = EXPORTER[EXPORTER.index("static int village_changed("):]
         check = check[:check.index("\n}\n")]
         for writes in ("MoveFileExW", "DeleteFileW", "_wfopen_s(&f, temporary", '"w"'):
@@ -106,7 +110,33 @@ class NewVillageInSlotTests(unittest.TestCase):
         body = body[:body.index("\n}\n")]
         self.assertIn("same fingerprint", body)
         self.assertIn("same name", body)
-        self.assertIn("shared = same_villager(g_roster_was[i], g_roster_now[j]);", EXPORTER)
+        self.assertIn("same_villager(g_roster_was[i], g_roster_now[j])", EXPORTER)
+
+    def test_one_coincidental_name_is_not_the_same_village(self):
+        """Codex (PR #467, round 3): names come from fixed pools, so one
+        same-slot name match must not preserve the old statistics; a strict
+        majority of the smaller roster must match, each old row used once."""
+        check = EXPORTER[EXPORTER.index("static int village_changed("):]
+        check = check[:check.index("\n}\n")]
+        self.assertIn("if (!used[i] && same_villager(g_roster_was[i], g_roster_now[j])) {", check)
+        self.assertIn("used[i] = 1;", check)
+        self.assertIn("smaller = was < g_roster_now_count ? was : g_roster_now_count;", check)
+        self.assertIn("return matched * 2 > smaller ? ROSTER_SAME : ROSTER_NEW;", check)
+
+    def test_an_unreadable_roster_is_never_the_same_village(self):
+        """Codex (PR #467, round 3): only a MISSING roster is a first run. A
+        locked roster skips flush, commit and log; a damaged one is a new
+        village whose roster is moved aside, never overwritten."""
+        check = EXPORTER[EXPORTER.index("static int village_changed("):]
+        check = check[:check.index("\n}\n")]
+        self.assertRegex(check, r"GetFileAttributesW\(roster\) == INVALID_FILE_ATTRIBUTES\) \{\s*return ROSTER_SAME;")
+        self.assertRegex(check, r'_wfopen_s\(&f, roster, L"rb"\) != 0 \|\| f == NULL\) \{\s*return ROSTER_LOCKED;')
+        self.assertRegex(check, r'"VVFP VILLAGE ROSTER v1", 22\) != 0\) \{\s*fclose\(f\);\s*return ROSTER_DAMAGED;')
+        self.assertRegex(check, r"if \(tabs != 2\) \{[^}]*return ROSTER_DAMAGED;")
+        commit = EXPORTER[EXPORTER.index("static int commit_roster("):]
+        commit = commit[:commit.index("\n}\n")]
+        self.assertRegex(commit, r"if \(ok && damaged\) \{\s*ok = move_aside\(roster, stamp\);")
+        self.assertLess(commit.index("move_aside(elders, stamp)"), commit.index("move_aside(roster, stamp)"))
 
 
 if __name__ == "__main__":

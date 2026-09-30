@@ -252,12 +252,12 @@ class VillageEldersIsTrackedInADatFileTests(unittest.TestCase):
 
     def test_master_thresholds_are_the_games_own(self) -> None:
         body = self.exporter[self.exporter.index("static int village_elders_for(int game_id)"):]
-        body = body[:body.index("return vv_village_elders(")]
+        body = body[:body.index("g_elders_value = vv_village_elders(")]
         self.assertIn("l.master_int = 0x58;", body)          # VV3 sub_462570
         self.assertEqual(body.count("l.master_float = 88.0f;"), 2)   # VV4 sub_46AD00, VV5 sub_475610
         self.assertIn("l.skill_count = 6u;", body)          # VV5 has six skills
         vv1 = self.exporter[self.exporter.index("static int vv1_village_elders("):]
-        self.assertIn("l.master_int = 90;", vv1[:vv1.index("return vv_village_elders(")])   # VV1 0x41FC16
+        self.assertIn("l.master_int = 90;", vv1[:vv1.index("g_elders_value = vv_village_elders(")])   # VV1 0x41FC16
 
 
 class RequirementsStillGovernTests(unittest.TestCase):
