@@ -305,23 +305,13 @@ static void site_bytes(const struct site *s, unsigned char *out) {
     }
 }
 
-static int write_site(const struct site *s) {
-    unsigned char bytes[16];
-    unsigned char *at = (unsigned char *)(uintptr_t)s->va;
-    DWORD old;
-    site_bytes(s, bytes);
-    if (!VirtualProtect(at, (SIZE_T)s->length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)s->length);
-    VirtualProtect(at, (SIZE_T)s->length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
-    return 1;
-}
-
-/* All of a game's sites, or none: each is verified before any is written. */
+/* All of a game's sites, or none: each is verified as stock and made
+   writable before any is written, so a VirtualProtect failure at a later site
+   leaves every site stock (the loader ignores the export's result). */
 static int install(int game_id) {
-    int i;
+    DWORD old[MAX_SITES];
+    unsigned char bytes[16];
+    int i, unlocked = 0;
     if (install_state[game_id] != 0) {
         return install_state[game_id] == 1;
     }
@@ -334,11 +324,27 @@ static int install(int game_id) {
             return 0;
         }
     }
-    active_game = game_id;
-    for (i = 0; i < MAX_SITES; ++i) {
-        if (SITES[game_id][i].va != 0 && !write_site(&SITES[game_id][i])) {
+    for (; unlocked < MAX_SITES && SITES[game_id][unlocked].va != 0; ++unlocked) {
+        const struct site *s = &SITES[game_id][unlocked];
+        if (!VirtualProtect((void *)(uintptr_t)s->va, (SIZE_T)s->length, PAGE_EXECUTE_READWRITE,
+                            &old[unlocked])) {
+            while (unlocked-- > 0) {
+                const struct site *r = &SITES[game_id][unlocked];
+                DWORD ignored;
+                VirtualProtect((void *)(uintptr_t)r->va, (SIZE_T)r->length, old[unlocked], &ignored);
+            }
             return 0;
         }
+    }
+    active_game = game_id;
+    for (i = 0; i < unlocked; ++i) {
+        const struct site *s = &SITES[game_id][i];
+        unsigned char *at = (unsigned char *)(uintptr_t)s->va;
+        DWORD ignored;
+        site_bytes(s, bytes);
+        memcpy(at, bytes, (size_t)s->length);
+        VirtualProtect(at, (SIZE_T)s->length, old[i], &ignored);
+        FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
     }
     install_state[game_id] = 1;
     return 1;

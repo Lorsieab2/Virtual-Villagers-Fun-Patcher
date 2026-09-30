@@ -134,6 +134,8 @@ class Machine:
         self.image_present, self.loads = image_present, loads
         self.calls: list = []
         self.writes: list = []
+        self.protects: list = []           # (address, length, requested protection) per call
+        self.fail_protect_call: int | None = None  # index of a VirtualProtect call to fail
         self.stop_at: set[int] = set()
         self.stopped = None
         mu.hook_add(UC_HOOK_CODE, self._hook)
@@ -178,8 +180,13 @@ class Machine:
                 self._ret(28, 3)
             elif name == "VirtualProtect":
                 a, n, new, old = self._args(4)
+                if len(self.protects) == self.fail_protect_call:
+                    self.protects.append((a, n, new, "failed"))
+                    self._ret(0, 4)
+                    return
                 mu.mem_write(old, struct.pack("<I", 0x20))
                 self.writes.append((a, n))
+                self.protects.append((a, n, new))
                 self._ret(1, 4)
             elif name == "FlushInstructionCache":
                 self._ret(1, 3)
@@ -303,7 +310,11 @@ class InstallTests(unittest.TestCase):
                 self.assertEqual(m.export(game), 1)
                 for va, stock, patched, _ in probed:
                     self.assertEqual(bytes(m.mu.mem_read(va, len(patched))), patched)
-                self.assertEqual(sorted(m.writes[::2]), sorted((va, len(p)) for va, _, p, _ in probed))
+                unlocks = [(a, n) for a, n, prot in m.protects if prot == 0x40]
+                relocks = [(a, n) for a, n, prot in m.protects if prot == 0x20]
+                want = sorted((va, len(p)) for va, _, p, _ in probed)
+                self.assertEqual(sorted(unlocks), want, "each site made writable once")
+                self.assertEqual(sorted(relocks), want, "and its old protection restored")
                 before = len(m.writes)
                 self.assertEqual(m.export(game), 1, "a second call reports installed")
                 self.assertEqual(len(m.writes), before, "and writes nothing")
@@ -319,6 +330,24 @@ class InstallTests(unittest.TestCase):
                 self.assertEqual(m.writes, [])
                 for va, stock, _, _ in probed[:-1]:
                     self.assertEqual(bytes(m.mu.mem_read(va, len(stock))), stock)
+
+    def test_a_site_that_cannot_be_made_writable_leaves_every_site_stock(self):
+        # Codex (PR #466): A New Home has two sites; if VirtualProtect fails at
+        # the second after the first was written, the feature is half-installed
+        # (the loader ignores the export's result).  Every site is now unlocked
+        # before any is written, and a failure re-locks what was unlocked.
+        m = Machine(1)
+        probed = [p for p in (m.probe(0), m.probe(1)) if p]
+        self.assertEqual(len(probed), 2)
+        m.fail_protect_call = 1
+        self.assertEqual(m.export(1), 0)
+        for va, stock, _, _ in probed:
+            self.assertEqual(bytes(m.mu.mem_read(va, len(stock))), stock, hex(va))
+        first = (probed[0][0], len(probed[0][2]))
+        self.assertEqual(m.protects[0][:3], (*first, 0x40))
+        self.assertEqual(m.protects[1][3:], ("failed",))
+        self.assertEqual(m.protects[2:], [(*first, 0x20)], "the first site is re-locked")
+        self.assertEqual(m.export(1), 0, "and it stays refused")
 
     def test_a_different_game_installs_nothing(self):
         m = Machine(3)
