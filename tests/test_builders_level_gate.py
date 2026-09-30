@@ -104,6 +104,10 @@ VV1_PROJECT_BLOCKS = {3: 0x4475A8, 2: 0x4475F8, 4: 0x447635, 8: 0x447685, 7: 0x4
 VV1_CONSTRUCTION = {VV1_HUT_SECTION, *VV1_PROJECT_BLOCKS.values()}
 VV1_POPULATION = 0x41CF90
 VV1_HUT9_CALL = 0x44753C
+# The stock bytes there: call 0x442090, the hut gate.  A constant rather than
+# a read of the exe, so these emulator tests also run where the stock
+# executables are absent (CI); test_patcher.py pins them against the exe.
+VV1_HUT9_CALL_STOCK = bytes.fromhex("E84FABFFFF")
 
 
 class Run:
@@ -134,7 +138,7 @@ class Run:
                 mu.mem_map(VV1_HUT9_CALL & ~0xFFF, 0x1000)
             except Exception:
                 pass
-            mu.mem_write(VV1_HUT9_CALL, hut_call if hut_call is not None else _stock("vv1", VV1_HUT9_CALL, 5))
+            mu.mem_write(VV1_HUT9_CALL, hut_call if hut_call is not None else VV1_HUT9_CALL_STOCK)
         exits = [g["resume"], g["examine"], g["started"], g["rand"]] + [g[k] for k in ("hut_pick", "hut_resume", "nothing") if k in g]
         if game == "vv1":
             exits += [VV1_POPULATION] + list(VV1_CONSTRUCTION)
@@ -310,15 +314,15 @@ class NewHomeBuildFirstTests(unittest.TestCase):
         self.sites = {"skip roll": _probe("VvfpFixHutsProbeSite", 1)[4],
                       "level gate": _probe("VvfpFixHutsProbeLevelSite", 1)[4]}
 
-    def _each_site(self, level_for_skip=3, level_for_gate=2):
-        for name, stub in self.sites.items():
-            with self.subTest(site=name):
-                yield stub, (level_for_skip if name == "skip roll" else level_for_gate)
+    def _sites(self, level_for_skip=3, level_for_gate=2):
+        return [(name, stub, level_for_skip if name == "skip roll" else level_for_gate)
+                for name, stub in self.sites.items()]
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_an_unlocked_new_hut_is_built_not_a_fix(self):
         # Hut 9 built, hut 10 unbuilt and unlocked (population above 22).
-        for stub, level in self._each_site():
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
             r = Run("vv1", stub, level=level, huts=(1, 0, 0), population=23)
             self.assertIsNone(r.examined, "no hut fix while a new hut can be built")
             self.assertEqual(r.exit, VV1_HUT_SECTION)
@@ -326,7 +330,8 @@ class NewHomeBuildFirstTests(unittest.TestCase):
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_population_thresholds_are_the_stock_ones(self):
-        for stub, level in self._each_site():
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
             # Hut 10 opens above 22, hut 11 above 45; at the threshold, still locked.
             self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=22).examined)
             self.assertEqual(Run("vv1", stub, level=level, huts=(1, 0, 1), population=23).exit, VV1_HUT_SECTION)
@@ -338,7 +343,8 @@ class NewHomeBuildFirstTests(unittest.TestCase):
         # Every hut built; one project under way.  Level 3 opens projects 8/7/5,
         # level 2 only 3/2/4 -- the stock branch's own level gates.
         for pid, block in VV1_PROJECT_BLOCKS.items():
-            for stub, level in self._each_site(level_for_skip=3, level_for_gate=2):
+            for site, stub, level in self._sites(level_for_skip=3, level_for_gate=2):
+              with self.subTest(site=site):
                 with self.subTest(project=pid, level=level):
                     r = Run("vv1", stub, level=level, huts=(1, 1, 1), projects={pid: (5, 0)})
                     if pid in (8, 7, 5) and level < 3:
@@ -349,7 +355,8 @@ class NewHomeBuildFirstTests(unittest.TestCase):
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_unstarted_or_finished_projects_are_not_construction(self):
-        for stub, level in self._each_site():
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
             for record in ((0, 0), (-3, 0), (5, 1)):
                 with self.subTest(record=record):
                     r = Run("vv1", stub, level=level, huts=(1, 1, 1), projects={3: record, 2: record})
@@ -363,7 +370,8 @@ class NewHomeBuildFirstTests(unittest.TestCase):
         # If a progress gate still owns the new-hut calls, a zero-progress hut
         # is not something the hut section would build, so it is not claimed.
         gated = b"\xE8" + struct.pack("<i", 0x4568D0 - (VV1_HUT9_CALL + 5))
-        for stub, level in self._each_site():
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
             r = Run("vv1", stub, level=level, huts=(1, 0, 1), population=30, hut_call=gated)
             self.assertIsNotNone(r.examined, "the gate would skip it: the fix, not a loop")
             r = Run("vv1", stub, level=level, huts=(1, 0, 1), population=30, hut_call=gated,
