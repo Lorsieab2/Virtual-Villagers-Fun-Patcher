@@ -106,7 +106,7 @@ class DllStorageContractTests(unittest.TestCase):
             "g_sidecar_loaded = vv_read_mask_sidecar();" in self.c,
             "the latch is set without regard to whether the load settled",
         )
-        self.assertIn('WriteFile(h, "VVMK", 4', self.c)   # magic + versioned header
+        self.assertIn('parts[0] = "VVMK";            sizes[0] = 4;', self.c)   # magic + versioned header
         # Read validates magic + version + count before trusting the file.
         read = self.c.split("static int vv_read_mask_sidecar(void) {", 1)[1].split("\n}", 1)[0]
         # A REFUSED PATH LEAVES THE LOAD PENDING. The builder refuses when
@@ -116,9 +116,15 @@ class DllStorageContractTests(unittest.TestCase):
         # overwrote it. Found in review.
         refusal = read.split("vv_build_sidecar_path(path, g_current_slot))", 1)
         self.assertEqual(len(refusal), 2, "the path guard moved")
-        self.assertIn("return 0;", refusal[1][:400])
-        self.assertIn("VV_SIDECAR_VERSION", read)
-        self.assertIn("VV_MAX_VILLAGERS", read)
+        refused = refusal[1][:refusal[1].index("\n    }")]
+        self.assertIn("vv_sidecar_gate_block(&g_mask_gate);", refused)
+        self.assertIn("return 0;", refused)
+        # The magic/version/count check is the validator vv_sidecar_load runs.
+        self.assertIn("vv_mask_sidecar_valid, NULL);", read)
+        valid = self.c.split("static int vv_mask_sidecar_valid(", 1)[1].split("\n}", 1)[0]
+        self.assertIn("VV_SIDECAR_VERSION", valid)
+        self.assertIn("VV_MAX_VILLAGERS", valid)
+        self.assertIn("data[0] == 'V' && data[1] == 'V' && data[2] == 'M' && data[3] == 'K'", valid)
 
     def test_save_slot_namespaces_and_resets_sidecar_state(self) -> None:
         self.assertIn("#define VV4_MASK_SAVE_SLOT_VA 0x728FCCu", self.c)
@@ -135,42 +141,30 @@ class DllStorageContractTests(unittest.TestCase):
         write = self.c.split("static void vv_write_mask_sidecar(void) {", 1)[1].split(
             "static int vv_read_mask_sidecar(void) {", 1
         )[0]
-        # A near-limit final path remains usable for reads, but publication gets
-        # its own bounded path budget for the fixed temporary suffix.
-        self.assertIn("char tmp[MAX_PATH];", write)
-        self.assertIn('lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH', write)
-        self.assertIn("lstrcpyA(tmp, path);", write)
-        self.assertIn('lstrcatA(tmp, ".tmp");', write)
-        self.assertIn(
-            "CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,", write
-        )
-        # The format remains magic, header, mask table, fingerprint table: four
-        # complete writes, each checked for both API success and byte count.
-        self.assertEqual(write.count("WriteFile("), 4)
+        # The temp-file / checked-write / flush / replace sequence now lives in
+        # native/shared/sidecar_io.h, shared by all five games and exercised
+        # against real files by tests/test_mask_sidecar_durability.py.  Here:
+        # the format remains magic, header, mask table, fingerprint table --
+        # four parts, published in one atomic call.
         for expected in (
-            'WriteFile(h, "VVMK", 4, &wr, NULL) || wr != 4',
-            "WriteFile(h, header, sizeof(header), &wr, NULL) ||",
-            "wr != sizeof(header)",
-            "WriteFile(h, g_mask_by_index, VV_MAX_VILLAGERS, &wr, NULL) ||",
-            "wr != VV_MAX_VILLAGERS)",
-            "WriteFile(h, g_mask_fp,",
-            "wr != VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int)",
+            'parts[0] = "VVMK";            sizes[0] = 4;',
+            "parts[1] = header;            sizes[1] = sizeof(header);",
+            "parts[2] = g_mask_by_index;   sizes[2] = VV_MAX_VILLAGERS;",
+            "parts[3] = g_mask_fp;         sizes[3] = VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int);",
+            "vv_sidecar_publish(&g_mask_gate, path, parts, sizes, 4);",
         ):
             self.assertIn(expected, write)
-        self.assertIn("FlushFileBuffers(h)", write)
-        self.assertIn("if (!CloseHandle(h))", write)
-        self.assertEqual(write.count("DeleteFileA(tmp);"), 2)
-        self.assertNotIn("DeleteFileA(path);", write)
-
-        # No final-name publication can occur before all writes, flush, and close.
-        writes_done = write.rindex("WriteFile(h, g_mask_fp,")
-        flush = write.index("FlushFileBuffers(h)")
-        close = write.index("if (!CloseHandle(h))")
-        publish = write.index("MoveFileExA(tmp, path,")
-        self.assertLess(writes_done, flush)
-        self.assertLess(flush, close)
-        self.assertLess(close, publish)
-        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", write)
+        for raw in ("CreateFileA", "WriteFile(", "MoveFileExA", "DeleteFileA(path);"):
+            self.assertNotIn(raw, write)
+        # Never before this slot's load settled.
+        self.assertLess(write.index("vv_sidecar_gate_ready(&g_mask_gate, g_current_slot)"),
+                        write.index("vv_build_sidecar_path(path, g_current_slot)"))
+        header = (DLL_SOURCE.parent.parent / "shared" / "sidecar_io.h").read_text(encoding="utf-8")
+        publish = header[header.index("static int vv_sidecar_publish("):]
+        self.assertIn('lstrcatA(tmp, ".tmp");', publish)
+        self.assertIn("|| wrote != sizes[i]) {", publish)
+        self.assertLess(publish.index("FlushFileBuffers(h)"), publish.index("MoveFileExA(tmp, path,"))
+        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", publish)
 
     def test_sidecar_path_checks_the_complete_max_path_budget_before_appending(self) -> None:
         builder = self.c.split("static int vv_build_sidecar_path(char *out, int slot)", 1)[1].split(
