@@ -3448,30 +3448,31 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv3_rare_collectible_retries_rejected_random_choices(self) -> None:
         feature_id = "vv3_rare_collectible_retry"
         feature = get_fun_patch(feature_id)
-        self.assertIn("rerolled until", feature.description)
-        self.assertIn("eligible rare collectible", feature.description)
+        self.assertIn("run again, up to 20 times", feature.description)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         stock = source.read_bytes()
-        self.assertEqual(bytes(stock[0x2DC4F:0x2DC51]), bytes.fromhex("752C"))
-        self.assertEqual(bytes(stock[0x2DC5E:0x2DC60]), bytes.fromhex("751D"))
-        self.assertEqual(
-            bytes(stock[0x2DC85:0x2DC8A]), bytes.fromhex("9090909090")
-        )
+        self.assertEqual(bytes(stock[0x6217F:0x62184]), bytes.fromhex("E8ACB9FCFF"))
+        self.assertEqual(bytes(stock[0x7B371:0x7B380]), bytes(15))
+        self.assertEqual(bytes(stock[0x7B3D1:0x7B3DE]), bytes(13))
         for mode in MODES:
             with self.subTest(mode=mode):
                 rendered, _ = render_patched_bytes(
                     source, build, mode, [feature_id]
                 )
+                # The stock placement routine itself is never modified; its
+                # behaviour is covered by test_vv3_rare_collectible_retry.py.
                 self.assertEqual(
-                    bytes(rendered[0x2DC4F:0x2DC51]), bytes.fromhex("7534")
+                    bytes(rendered[0x2DB30:0x2DC90]), bytes(stock[0x2DB30:0x2DC90])
                 )
                 self.assertEqual(
-                    bytes(rendered[0x2DC5E:0x2DC60]), bytes.fromhex("7525")
+                    bytes(rendered[0x6217F:0x62184]), bytes.fromhex("E8ED910100")
                 )
                 self.assertEqual(
-                    bytes(rendered[0x2DC85:0x2DC8A]),
-                    bytes.fromhex("E9E6FEFFFF"),
+                    bytes(rendered[0x7B371:0x7B380]), bytes.fromhex("6A145FB928F45800E8B227FBFFEB51")
+                )
+                self.assertEqual(
+                    bytes(rendered[0x7B3D1:0x7B3DE]), bytes.fromhex("803D2CF458000075034F7597C3")
                 )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
