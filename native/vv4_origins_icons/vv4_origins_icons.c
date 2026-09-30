@@ -1,5 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -713,106 +714,94 @@ static int vv_build_sidecar_path(char *out, int slot) {
     return 1;
 }
 
+/* The load/publish gate for the mask sidecar (native/shared/sidecar_io.h),
+   keyed by save slot: a write is refused until this slot's file has loaded,
+   been found missing, or -- present but invalid -- been moved aside intact. */
+static vv_sidecar_gate g_mask_gate;
+
+#define VV4_MASK_SIDECAR_BYTES \
+    (4 + 2 * sizeof(unsigned int) + VV_MAX_VILLAGERS \
+     + VV_MAX_VILLAGERS * sizeof(unsigned int))
+
+static unsigned int vv_sidecar_u32(const unsigned char *p) {
+    return (unsigned int)p[0] | ((unsigned int)p[1] << 8)
+         | ((unsigned int)p[2] << 16) | ((unsigned int)p[3] << 24);
+}
+
+static int vv_mask_sidecar_valid(const unsigned char *data, DWORD len,
+                                 void *ctx) {
+    (void)ctx;
+    return len >= VV4_MASK_SIDECAR_BYTES
+        && data[0] == 'V' && data[1] == 'V' && data[2] == 'M' && data[3] == 'K'
+        && vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION
+        && vv_sidecar_u32(data + 8) == VV_MAX_VILLAGERS;
+}
+
 static void vv_write_mask_sidecar(void) {
     char path[MAX_PATH];
-    char tmp[MAX_PATH];
-    HANDLE h;
-    DWORD wr;
     unsigned int header[2];
-    BOOL ok = TRUE;
+    const void *parts[4];
+    DWORD sizes[4];
     vv_prepare_mask_state();
+    /* NEVER BEFORE THE LOAD SETTLED.  This used to write whatever the load
+       had left: a present file that could not be opened, or one that failed
+       the magic/version check, was read as an empty table and then replaced
+       by it.  Checked before the path is built, so a blocked slot costs no
+       file I/O. */
+    if (!g_sidecar_loaded || !vv_sidecar_gate_ready(&g_mask_gate, g_current_slot)) {
+        return;
+    }
     if (!vv_build_sidecar_path(path, g_current_slot)) {
-        return;
-    }
-    /* Keep the existing final sidecar untouched until the complete payload is
-       durable.  The suffix check includes the terminating NUL and is separate
-       from the final-path check above: a valid near-MAX_PATH final can still
-       be read, while its temporary publication path fails closed. */
-    if (lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH) {
-        return;
-    }
-    lstrcpyA(tmp, path);
-    lstrcatA(tmp, ".tmp");
-    h = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-                    FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) {
         return;
     }
     header[0] = VV_SIDECAR_VERSION;
     header[1] = VV_MAX_VILLAGERS;
-    if (!WriteFile(h, "VVMK", 4, &wr, NULL) || wr != 4) {
-        ok = FALSE;
-    }
-    if (ok && (!WriteFile(h, header, sizeof(header), &wr, NULL) ||
-               wr != sizeof(header))) {
-        ok = FALSE;
-    }
-    if (ok && (!WriteFile(h, g_mask_by_index, VV_MAX_VILLAGERS, &wr, NULL) ||
-               wr != VV_MAX_VILLAGERS)) {
-        ok = FALSE;
-    }
-    if (ok && (!WriteFile(h, g_mask_fp,
-                          VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int),
-                          &wr, NULL) ||
-               wr != VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int))) {
-        ok = FALSE;
-    }
-    if (ok && !FlushFileBuffers(h)) {
-        ok = FALSE;
-    }
-    if (!CloseHandle(h)) {
-        ok = FALSE;
-    }
-    if (!ok) {
-        /* Only the exact temporary path is ever removed on a failed write;
-           the previously published final remains byte-for-byte untouched. */
-        DeleteFileA(tmp);
-        return;
-    }
-    /* The final name is published only after all four writes, flush, and close
-       succeed.  REPLACE_EXISTING also publishes correctly when final is absent. */
-    if (!MoveFileExA(tmp, path,
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileA(tmp);
-    }
+    /* Written to "<path>.tmp", every write checked, flushed, then moved over
+       the published file, which stays byte-for-byte intact on any failure. */
+    parts[0] = "VVMK";            sizes[0] = 4;
+    parts[1] = header;            sizes[1] = sizeof(header);
+    parts[2] = g_mask_by_index;   sizes[2] = VV_MAX_VILLAGERS;
+    parts[3] = g_mask_fp;         sizes[3] = VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int);
+    (void)vv_sidecar_publish(&g_mask_gate, path, parts, sizes, 4);
 }
 
 static int vv_read_mask_sidecar(void) {
     char path[MAX_PATH];
-    HANDLE h;
     DWORD rd;
-    char magic[4];
-    unsigned int header[2];
-    unsigned char masks[VV_MAX_VILLAGERS];
-    unsigned int fps[VV_MAX_VILLAGERS];
+    unsigned char file[VV4_MASK_SIDECAR_BYTES];
+    const unsigned char *masks = file + 12;
+    const unsigned char *fps = file + 12 + VV_MAX_VILLAGERS;
     int i;
+    int status;
+    vv_sidecar_gate_bind(&g_mask_gate, g_current_slot);
+    if (vv_sidecar_gate_throttled(&g_mask_gate)) {
+        return 0;                  /* blocked a moment ago: no I/O until the retry */
+    }
     if (!vv_build_sidecar_path(path, g_current_slot)) {
         /* THE LOAD IS NOT SETTLED. The path builder refuses when a legacy
            sidecar exists and will not move, so the masks are still on disk
            under the old name. Latching here would leave an empty table
            marked as loaded, and the next write would migrate the real file
            and overwrite it. Found in review. */
+        vv_sidecar_gate_block(&g_mask_gate);
         return 0;
     }
-    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) {
-        /* A fresh slot legitimately has no sidecar. That IS settled:
-           retrying every frame would repeat a read that cannot succeed. */
-        return 1;                                /* no file yet -> unmasked */
+    /* Only a genuinely missing file is settled-and-empty (a fresh slot has
+       none).  A present file that cannot be opened keeps the load PENDING --
+       it is neither read nor written until a later retry opens it.  A present
+       file that fails the magic, version or length check is moved aside
+       intact before any write may replace it. */
+    status = vv_sidecar_load(&g_mask_gate, path, file, sizeof(file), &rd,
+                             vv_mask_sidecar_valid, NULL);
+    if (status == VV_SIDECAR_LOAD_BLOCKED) {
+        return 0;
     }
-    if (ReadFile(h, magic, 4, &rd, NULL) && rd == 4 &&
-        magic[0] == 'V' && magic[1] == 'V' && magic[2] == 'M' && magic[3] == 'K' &&
-        ReadFile(h, header, sizeof(header), &rd, NULL) && rd == sizeof(header) &&
-        header[0] == VV_SIDECAR_VERSION && header[1] == VV_MAX_VILLAGERS &&
-        ReadFile(h, masks, VV_MAX_VILLAGERS, &rd, NULL) && rd == VV_MAX_VILLAGERS &&
-        ReadFile(h, fps, sizeof(fps), &rd, NULL) && rd == sizeof(fps)) {
+    if (status == VV_SIDECAR_LOAD_VALID) {
         for (i = 0; i < VV_MAX_VILLAGERS; i++) {
             g_mask_by_index[i] = (masks[i] < VV_MASK_COUNT) ? masks[i] : 0;
-            g_mask_fp[i] = fps[i];
+            g_mask_fp[i] = vv_sidecar_u32(fps + i * 4);
         }
     }
-    CloseHandle(h);
     return 1;
 }
 

@@ -384,10 +384,14 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # bytes when the mask sidecar's village identity became the living
         # roster (Vv5MaskSync and the roster snapshot/compare), replacing a tag
         # read from the wrong object that had stopped masks persisting at all.
-        self.assertEqual(vv5_companion["size"], 1774592)
+        # Grew by 2,048 bytes when the mask sidecar moved onto
+        # native/shared/sidecar_io.h: WriteMaskSidecar no longer truncates the
+        # real file in place, an invalid sidecar is set aside rather than
+        # overwritten, and an unopenable one is left untouched.
+        self.assertEqual(vv5_companion["size"], 1776640)
         self.assertEqual(
             vv5_companion["sha256"],
-            "6F0068B7D9F06C89C0D7925AB67F42C6EFC83C2AD70EBC604005CC1C5AA286C0",
+            "0438619A56DC4336B1FD2C2D3ED35C4E2F3B92C1645595DCEBC3A3C8F0188820",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

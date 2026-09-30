@@ -40,8 +40,13 @@ FOUNDATION_OUTPUT = (
 # removed: nothing read them, and no debug state may ship. The previous
 # source (A58ADFAD...) rebuilds byte-identically under /Brepro, so this
 # change is the only difference.
-SOURCE_SHA256 = "5BB3EA4AABE492D470EF6D093482B1B305F196E809A4BE31B8463B74B81A4D34"
-SOURCE_SIZE = 1902080
+# Recertified when the mask sidecar moved onto native/shared/sidecar_io.h: a
+# present-but-invalid file is now moved aside instead of being loaded as an
+# empty table and overwritten, and one that cannot be opened is neither read
+# nor written until a throttled retry opens it. (Built from the source with
+# both changes: the debug logs removed and the shared sidecar I/O.)
+SOURCE_SHA256 = "152209A2C64DE115B12C1F72D1E0E69371D01BA91A38A4DE7C1132C1D5AC0790"
+SOURCE_SIZE = 1903104
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
