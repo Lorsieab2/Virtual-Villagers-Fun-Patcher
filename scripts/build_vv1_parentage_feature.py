@@ -431,10 +431,11 @@ EXPORT_NAME_OFFSET = 0x140
 # page, so emitting it in the standalone pass made that pass claim bytes that
 # are not there, which the patcher's overlap guard rejected.
 #
-# So the reset is emitted for the composed layout only. Every shipped build
-# has Origins selected -- all patches ship enabled by default -- and a
-# standalone parentage build simply keeps the pre-existing behaviour of not
-# sweeping on tribe delete, rather than crashing.
+# So the reset is emitted for the composed layout only. (Origins now carries
+# the reset itself, and a parentage build WITHOUT Origins is handed the same
+# stub at render time by _attach_start_over_reset in src/vv_fun_patcher.py,
+# in a .text cave that exists only when Origins is absent -- so a standalone
+# parentage build sweeps on tribe delete too.)
 RESET_CAVE_FILE = 0x0008EB8C
 RESET_CAVE_VA = 0x00490B8C
 RESET_CAVE_SIZE = 0x74

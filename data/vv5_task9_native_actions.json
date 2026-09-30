@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "7E395526CFFA7C61F6B34E20D839C49589B699202C8AA9FDF37EF94FAD19E809",
-      "size": 130048
+      "sha256": "7A3CE67E22E65383D131B90DF847A0AFC8F1FC7C199D2635C80CC74CF5FF51DF",
+      "size": 130560
     }
   ],
   "doubler_evidence": {
@@ -495,8 +495,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26",
-  "base_file_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26",
+  "base_source_text_sha256": "81E7D71B691219D8131C50F63440201C84F9DDB8F490CDE07C027D9FC6CD09C5",
+  "base_file_sha256": "81E7D71B691219D8131C50F63440201C84F9DDB8F490CDE07C027D9FC6CD09C5",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -506,7 +506,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "0D118BE516801B86CED2D1305871838F95B2D256B49E03E6F34F3D830B2EDF82"
+      "source_text_sha256": "5BA6F2D0841761963316A4946738DD67FAA8223F955272AEA19134666034F667"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -534,7 +534,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26"
+      "source_text_sha256": "81E7D71B691219D8131C50F63440201C84F9DDB8F490CDE07C027D9FC6CD09C5"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -790,5 +790,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "83C2D919916D234DAE26742794BA27BB6C8134811EFDE4A773745D674951292C"
+  "task9_map_canonical_sha256": "07A597645DD873488BDFE951354A070D500DE1D12D687660A720588A21BA23C2"
 }

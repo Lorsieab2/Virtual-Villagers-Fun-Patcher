@@ -3529,9 +3529,21 @@ class StockIntegrationTests(unittest.TestCase):
                         digest(companion),
                         feature.raw["companion_files"][0]["sha256"],
                     )
-                    # Two: the statistics exporter and the Village
-                    # Population roster it calls after a successful save.
-                    self.assertEqual(len(log["companion_files"]), 2)
+                    # Three: the statistics exporter, the Village Population
+                    # roster it calls after a successful save, and -- with no
+                    # Origins in this build -- the Save Reset DLL the Start
+                    # Over hook the statistics feature carries resolves.
+                    self.assertEqual(
+                        sorted(
+                            Path(item["path"]).name
+                            for item in log["companion_files"]
+                        ),
+                        [
+                            "VVFP Population Export.dll",
+                            "VVFP Save Reset.dll",
+                            "VVFP Statistics Export.dll",
+                        ],
+                    )
                     roster = output.parent / "VVFP Population Export.dll"
                     self.assertTrue(
                         roster.is_file(),
