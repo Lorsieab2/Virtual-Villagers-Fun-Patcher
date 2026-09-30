@@ -1395,7 +1395,7 @@ class App(tk.Tk):
                 )
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
-                        f"Village Statistics - Save N.txt: {save_folder / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics."
+                        f"Village Statistics v2 - Save N.txt: {save_folder / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics (the earlier 'Village Statistics - Save N.txt' is kept as it was)."
                     )
                 if f"{build.id}_write_parentage_log" in selected:
                     # The game number comes from the build. The condition above

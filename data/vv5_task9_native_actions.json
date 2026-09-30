@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "7E395526CFFA7C61F6B34E20D839C49589B699202C8AA9FDF37EF94FAD19E809",
-      "size": 130048
+      "sha256": "9C009CB5E95C9949D13923B1150653FDBF263107E1A4500E1FD0A143ACE3EDED",
+      "size": 130560
     }
   ],
   "doubler_evidence": {
@@ -495,8 +495,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26",
-  "base_file_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26",
+  "base_source_text_sha256": "3723167219401800BB2FBE066638C0D769AAA4E4CBDF2715B1D5DE4F18B25BF3",
+  "base_file_sha256": "3723167219401800BB2FBE066638C0D769AAA4E4CBDF2715B1D5DE4F18B25BF3",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -506,7 +506,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "0D118BE516801B86CED2D1305871838F95B2D256B49E03E6F34F3D830B2EDF82"
+      "source_text_sha256": "F9B8C77C4C661E768E8AA8EF11714700A03A6323830495D604A965ABD1EDEBD2"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -534,7 +534,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26"
+      "source_text_sha256": "3723167219401800BB2FBE066638C0D769AAA4E4CBDF2715B1D5DE4F18B25BF3"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -790,5 +790,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "7346DA8782A50CB8C4657DF3F6D7871B8B8B355F09511A99030C9C3B79F873D2"
+  "task9_map_canonical_sha256": "044D09B76714047A749655DE432EEDFED58A745B9F861148FCA8928FD76A5200"
 }

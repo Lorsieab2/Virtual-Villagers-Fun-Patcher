@@ -1,3 +1,4 @@
 LIBRARY "VVFP Statistics Export"
 EXPORTS
     WriteVillageStatistics=_WriteVillageStatistics@12
+    SaveVillageStatistics=_SaveVillageStatistics@24
