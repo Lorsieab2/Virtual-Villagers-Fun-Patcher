@@ -46,7 +46,11 @@ class VV5StatisticsFeatureTests(unittest.TestCase):
         )
         source = SOURCE.read_text(encoding="utf-8")
         self.assertIn('"Heathens Converted: %d\\n"', source)
-        self.assertIn("read_int(statistics, 0x34)", source)
+        # The total lives in the slot's statistics .dat; the frozen field
+        # +0x34 an earlier build counted into is its one-time start.
+        self.assertIn("store_counter(VVS_HEATHENS)", source)
+        store = (ROOT / "native/statistics_export/statistics_store.c").read_text(encoding="utf-8")
+        self.assertIn('{ VVS_HEATHENS, "heathens_converted", 0x4Cu, 0x34u, 0 }', store)
         self.assertIn("write_vv5(", source)
 
     def test_conversion_hook_is_exactly_guarded(self) -> None:
@@ -63,8 +67,8 @@ class VV5StatisticsFeatureTests(unittest.TestCase):
     def test_conversion_wrapper_counts_tag_17_as_two_and_others_as_one(self) -> None:
         wrapper = self.cave[0x130:0x160]
         self.assertIn(bytes.fromhex("83B9FC1C000011"), wrapper)
-        self.assertIn(bytes.fromhex("83058CD3510002"), wrapper)
-        self.assertIn(bytes.fromhex("FF058CD35100"), wrapper)
+        self.assertIn(bytes.fromhex("8305A4D3510002"), wrapper)
+        self.assertIn(bytes.fromhex("FF05A4D35100"), wrapper)
         self.assertIn(bytes.fromhex("83EC105689CE"), wrapper)
 
     def test_statistics_and_origins_saved_fields_do_not_overlap(self) -> None:
