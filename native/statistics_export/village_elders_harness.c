@@ -22,6 +22,7 @@
 #define NAME 0x04u            /* 16 bytes, +0x04..+0x13 */
 #define SKILLS 0x20u          /* 5 floats, +0x20..+0x33 */
 #define AGE 0x34u
+#define TRIBE 0x38u           /* u8, 0 = the player's villager */
 
 static unsigned char villagers[SLOTS * STRIDE];
 static unsigned char graves[GRAVES * GRAVE_STRIDE];
@@ -176,6 +177,18 @@ int wmain(int argc, wchar_t **argv) {
     /* Slot reuse: a different villager (different name) in a dead elder's slot. */
     set_villager(0, "Sefa", "", "", 3, 100);
     check(vv_village_elders_file(4, dat, tmp, &l) == 5, "a new elder in a reused slot counts");
+
+    /* New Believers: a heathen (tribe byte != 0) is not one of the player's
+       villagers, however skilled -- the Heathen Chief has every skill at 100.
+       Converted, the same villager is in the tribe and counts. */
+    l.tribe = TRIBE;
+    set_villager(7, "Chief", "", "", 5, 900);
+    rec(7)[TRIBE] = 1;
+    check(vv_village_elders_file(4, dat, tmp, &l) == 5, "a heathen with every skill mastered is not a Village Elder");
+    rec(7)[TRIBE] = 0;
+    check(vv_village_elders_file(4, dat, tmp, &l) == 6, "the same villager, converted, is one Village Elder");
+    memset(rec(7), 0, STRIDE);
+    l.tribe = 0;
 
     /* Retroactive baseline: a brand-new .dat over a memorial that already
        holds flagged graves counts them, and nothing else is invented. */

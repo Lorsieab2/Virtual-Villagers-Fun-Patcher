@@ -256,6 +256,9 @@ class VillageEldersIsTrackedInADatFileTests(unittest.TestCase):
         self.assertIn("l.master_int = 0x58;", body)          # VV3 sub_462570
         self.assertEqual(body.count("l.master_float = 88.0f;"), 2)   # VV4 sub_46AD00, VV5 sub_475610
         self.assertIn("l.skill_count = 6u;", body)          # VV5 has six skills
+        # VV5 keeps heathens in the villager array; only the tribe (+0x1CEC == 0)
+        # can hold Village Elders (live read: the Heathen Chief has all 100s)
+        self.assertEqual(body.count("l.tribe = 0x1CECu;"), 1)
         vv1 = self.exporter[self.exporter.index("static int vv1_village_elders("):]
         self.assertIn("l.master_int = 90;", vv1[:vv1.index("g_elders_value = vv_village_elders(")])   # VV1 0x41FC16
 
