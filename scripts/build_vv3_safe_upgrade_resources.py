@@ -35,8 +35,12 @@ FOUNDATION_OUTPUT = (
 # empty mask table was then published there, and because the destination now
 # existed, migration was skipped forever and the real masks were lost. Found
 # in review.
-SOURCE_SHA256 = "A58ADFAD54EA5E6F51D11DFD43A2B8BA445642183D9A299393E9DF05AAAFE362"
-SOURCE_SIZE = 1902592
+# Recertified when the mask sidecar moved onto native/shared/sidecar_io.h: a
+# present-but-invalid file is now moved aside instead of being loaded as an
+# empty table and overwritten, and one that cannot be opened is neither read
+# nor written until a throttled retry opens it.
+SOURCE_SHA256 = "598F67DF38CF5AE2E6923886AA9964058460F60A6B15A0317BA72F681257E2D6"
+SOURCE_SIZE = 1903104
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

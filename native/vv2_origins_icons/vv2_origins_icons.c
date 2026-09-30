@@ -1586,36 +1586,60 @@ static int vv2_roster_equal(const unsigned int *a, const unsigned int *b) {
    has never been identified writes nothing: an unsnapshotted file could never
    be matched, and writing one would recreate the very bleed this exists to
    stop. */
+/* The load/publish gate for this slot's sidecar (native/shared/sidecar_io.h):
+   a write is refused until the slot's file has loaded, been found missing,
+   or -- when present but invalid -- been moved aside intact. */
+static vv_sidecar_gate g_vv2_mask_gate;
+
+#define VV2_MASK_SIDECAR_BYTES \
+    (4 + sizeof(g_vv2_roster) + VV2_MASK_TABLE_BYTES)
+
+static int vv2_mask_sidecar_valid(const unsigned char *data, DWORD len,
+                                  void *ctx) {
+    unsigned int m;
+    (void)ctx;
+    if (len < VV2_MASK_SIDECAR_BYTES) return 0;
+    memcpy(&m, data, 4);
+    return m == VV2_MASK_SIDECAR_MAGIC;
+}
+
 static void vv2_mask_sidecar_save(void) {
     char path[MAX_PATH];
-    HANDLE f;
-    DWORD w;
     unsigned int m = VV2_MASK_SIDECAR_MAGIC;
+    const void *parts[3];
+    DWORD sizes[3];
     if (!vv2_mask_table_ok()) return;          /* no .mtab -> nothing to persist */
     if (!g_vv2_have_roster) return;            /* unknown village -> do not write */
+    /* Never before this slot's load settled: a file that is present but
+       could not be opened still holds the masks this empty table lacks. */
+    if (!vv_sidecar_gate_ready(&g_vv2_mask_gate, VV2_MASK_SLOT)) return;
     if (!vv2_mask_sidecar_path(path)) return;
-    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (f == INVALID_HANDLE_VALUE) return;
-    WriteFile(f, &m, 4, &w, NULL);
-    WriteFile(f, g_vv2_roster, sizeof(g_vv2_roster), &w, NULL); /* binds the file to its village */
-    WriteFile(f, VV2_MASK_TABLE, VV2_MASK_TABLE_BYTES, &w, NULL);
-    CloseHandle(f);
+    /* ATOMIC: this used to CREATE_ALWAYS the real file -- truncating it at
+       once -- and ignore every WriteFile, so a crash or a full disk left a
+       short file the loader rejected, and every mask was lost.  Now the
+       payload goes to "<path>.tmp", each write is checked, and only a
+       complete, flushed file replaces the published one. */
+    parts[0] = &m;               sizes[0] = 4;
+    parts[1] = g_vv2_roster;     sizes[1] = sizeof(g_vv2_roster); /* binds the file to its village */
+    parts[2] = VV2_MASK_TABLE;   sizes[2] = VV2_MASK_TABLE_BYTES;
+    (void)vv_sidecar_publish(&g_vv2_mask_gate, path, parts, sizes, 3);
 }
 
 /* Load the table for the village whose living roster is `live`.  Clears
    first, so every failure path -- no file, short read, wrong magic, a file
    from a village that shares no villager with this one -- leaves NO masks,
    which is exactly what a village that never chose any sees. */
-/* 1 when the load settled (read, or legitimately absent), 0 when the
-   path was refused and the load must stay pending. */
+/* 1 when the load settled (read, legitimately absent, or an invalid file
+   moved aside), 0 when it must stay pending: the path was refused, or the
+   file is present but cannot be opened.  Pending never permits a write. */
 static int vv2_mask_sidecar_load(const unsigned int *live) {
     char path[MAX_PATH];
-    HANDLE f;
     DWORD g;
-    unsigned int m = 0;
     unsigned int filesnap[VV2_RECORD_COUNT];
+    unsigned char file[VV2_MASK_SIDECAR_BYTES];
     unsigned char buf[VV2_MASK_TABLE_BYTES];
     int i;
+    int status;
     /* FAIL CLOSED: the clear precedes EVERY exit, so a load that does not
        complete cannot leave the PREVIOUS village's masks on screen. That
        outranks preserving a locked legacy sidecar: showing one village's
@@ -1626,9 +1650,19 @@ static int vv2_mask_sidecar_load(const unsigned int *live) {
        roster and adopt an empty table as this village's state. */
     if (vv2_mask_table_ok())
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
-    if (!vv2_mask_sidecar_path(path)) return 0;
-    f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (f == INVALID_HANDLE_VALUE) {
+    vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT);
+    if (vv_sidecar_gate_throttled(&g_vv2_mask_gate)) return 0; /* retry window: no I/O */
+    if (!vv2_mask_sidecar_path(path)) {
+        vv_sidecar_gate_block(&g_vv2_mask_gate);
+        return 0;
+    }
+    /* Only a genuinely missing file is "no masks".  A present file that fails
+       the magic or is short is moved aside intact before anything may be
+       written; one that cannot be opened at all keeps the load pending. */
+    status = vv_sidecar_load(&g_vv2_mask_gate, path, file, sizeof(file), &g,
+                             vv2_mask_sidecar_valid, NULL);
+    if (status == VV_SIDECAR_LOAD_BLOCKED) return 0;
+    if (status != VV_SIDECAR_LOAD_VALID) {
         /* NO FALLBACK. A village with no sidecar of its own has no masks.
 
            Two fallbacks used to live here and both bled state between villages.
@@ -1648,11 +1682,12 @@ static int vv2_mask_sidecar_load(const unsigned int *live) {
        the previous village is exactly what a Start Over or a
        delete-and-recreate leaves behind.  Its snapshot shares at most a
        coincidence or two with the village on screen -- never a majority -- so
-       it is ignored, and the table was already cleared above. */
-    if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
-        && ReadFile(f, filesnap, sizeof(filesnap), &g, NULL) && g == sizeof(filesnap)
-        && vv2_roster_same(filesnap, live)
-        && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
+       it is ignored, and the table was already cleared above.  That is a
+       VALID file of another village, not a damaged one: it is left in place,
+       as before, for this village's first write to replace. */
+    memcpy(filesnap, file + 4, sizeof(filesnap));
+    memcpy(buf, file + 4 + sizeof(filesnap), sizeof(buf));
+    if (vv2_roster_same(filesnap, live)) {
         /* Sidecars are user-writable and older builds did not constrain every
            byte. Normalize before publishing anything to the render thunks:
            only 0 (none) through 5 (the five atlas rows) are valid. */
@@ -1661,7 +1696,6 @@ static int vv2_mask_sidecar_load(const unsigned int *live) {
         }
         if (vv2_mask_table_ok()) memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
     }
-    CloseHandle(f);
     return 1;
 }
 
