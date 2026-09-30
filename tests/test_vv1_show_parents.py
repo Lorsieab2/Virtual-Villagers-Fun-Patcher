@@ -371,7 +371,9 @@ class WiringTests(unittest.TestCase):
         self.assertIn("**Show Parents in Details Screen**", readme)
         self.assertIn("- Patch ID: `vv1_show_parents`", readme)
         self.assertIn("SHOW PARENTS IN DETAILS SCREEN (A NEW HOME)", how)
-        self.assertIn("vv1_parents_<slot>.dat      A New Home", how)
+        # The name the companion writes (vv1_parentage.c), not the retired
+        # vv1_parents_<slot>.dat that older builds used.
+        self.assertIn("Virtual Villagers 1 Parentage Records - Save <slot>.dat     A New Home", how)
 
 
 if __name__ == "__main__":

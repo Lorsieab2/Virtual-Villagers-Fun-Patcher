@@ -279,7 +279,10 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # fingerprint is what catches the cave's body changing underneath it.
     #
     #   * The body is four instructions: load the manager from [edi+0x3E010],
-    #     increment the counter at [eax+0x9E84], replay the stolen
+    #     increment the counter at [eax+0x9E9C] (the pending field flushed to
+    #     the slot's .dat before each save; re-reviewed 2026-09-29 when it
+    #     moved from +0x9E84, which is now frozen -- the instruction shapes,
+    #     registers and re-entry are identical), replay the stolen
     #     `mov byte [ecx+edi+0x28], 0` byte-identically, and jump back. No push,
     #     no pop, no call, so ESP at re-entry equals ESP at the splice -- the
     #     stack is untouched rather than merely balanced.
@@ -299,7 +302,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     (
         "vv1_write_village_statistics",
         "0x48F65",
-    ): "02508335BD2CD30D6BB49EB3DDFB8C9BBF7F236EC07AC525DA03D2EC1E0EA9B5",
+    ): "301E87535820D00A3E1C8983249BADE939957DFF12CF19939ED69C7639D1A30F",
     # Re-reviewed when the companion gained a game id, so one DLL can serve
     # all five games the way the statistics companion already does. Each
     # trampoline grew a single `push <game id>` before the call and the
@@ -308,111 +311,70 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # the callee is still __stdcall and now cleans twelve bytes instead of
     # eight, so all three exit paths still converge on the same esp before
     # popad, and no additional register is read or written.
-    # The parentage tracker's two success-tail trampolines. Both are the same
-    # body differing only in where they rejoin, and both sit at a point the
-    # routine reaches ONLY on a successful conception -- 0x43BCA2 is the
+    # The parentage tracker's two success-tail trampolines. Both sit at a point
+    # the routine reaches ONLY on a successful conception -- 0x43BCA2 is the
     # triplets tail and 0x43BCBA the twins tail. The rejection path jumps to
     # 0x43BCC7 and reaches neither, which is the whole reason the hook moved
     # here from the routine's head.
     #
+    # RE-REVIEWED when the father capture was rebuilt (the earlier design is
+    # recorded below because it shipped and was wrong). Each trampoline is now
+    #
+    #     pushad ; call <shared log body> ; popad ;
+    #     mov edi,[edi+0x3E010] ; jmp <tail+6>
+    #
     # Register contract, and why nothing stock can observe the detour:
     #
-    #   * The entire body is bracketed by pushad/popad, so every general
-    #     register the stock tail relies on is restored before control returns
-    #     to it. The three loader calls (GetModuleHandleA, LoadLibraryA,
-    #     GetProcAddress) and the companion call are free to clobber whatever
-    #     they like inside that bracket.
-    #   * The two arguments are read from the pushad frame, NOT from live
-    #     registers: saved edi at esp+0x00 (the record array) and saved esi at
-    #     esp+0x04 (the mother's record). Reading them live would be wrong --
-    #     ecx and eax are caller-saved and the loader calls destroy them, so an
-    #     earlier draft that pushed live ecx handed the companion a garbage base
-    #     to index records from. That produces plausible wrong output rather
-    #     than a crash, which is why it is called out here.
-    #   * RE-REVIEWED when VV1 gained the father capture. The companion entry
-    #     point is now WriteParentageRecordWithFather, __stdcall with FOUR
-    #     arguments, so it cleans its own sixteen bytes. Three
-    #     properties were re-checked against the disassembled cave rather than
-    #     assumed:
-    #
-    #       - Every failure branch (GetModuleHandleA/LoadLibraryA returning
-    #         null, GetProcAddress returning null) jumps straight to popad,
-    #         BEFORE any of the four argument pushes. So no failure path can
-    #         leave arguments stranded on the stack.
-    #       - The success path pushes exactly four and the callee removes
-    #         exactly four, so all three paths still converge on one esp at
-    #         popad and the stock frame is untouched.
-    #       - The two frame reads moved from [esp+0x04] to [esp+0x08] because
-    #         the father is pushed first. Saved esi sat at esp+0x04 and saved
-    #         edi at esp+0x00; one push drops esp by four, so they are at
-    #         esp+0x08 and (after the next push) esp+0x08 again. Getting this
-    #         wrong would hand the companion the wrong record array, which
-    #         produces plausible wrong output rather than a crash.
-    #
-    #     RE-REVIEWED AGAIN when the father moved off a cave slot and onto
-    #     the stack. The first version kept his pointer at a fixed cave
-    #     address, and Codex correctly rejected it: the cave is in .text
-    #     (0x60000020, R-X), so the very first conception would have written a
-    #     read-only page and access-violated. Nothing in this audit could have
-    #     caught that -- the cave bytes were well-formed and every rejoin was
-    #     correct -- which is why the placement reasoning is recorded here now.
-    #
-    #     He travels instead in the conception routine's SECOND stack
-    #     argument. sub_43BBC0 ends in `ret 0x10` and takes four; disassembling
-    #     every esp-based memory operand in the whole routine finds reads of
-    #     [esp+0x08], [esp+0x10] and [esp+0x14] and NONE of [esp+0x0C]. So the
-    #     stubs overwrite that dead argument in the caller's own frame, which
-    #     is always writable, and these trampolines read it back.
-    #
-    #     WHICH argument that is, stated carefully, because getting it wrong
-    #     is exactly what shipped broken in v1.35.3. Anchor at the call: when
-    #     `call 0x43BBC0` transfers control, esp points at the return address
-    #     and the four arguments follow at +0x04, +0x08, +0x0C and +0x10.
-    #     Undoing the routine's own `push edi`, its reads of [esp+0x08],
-    #     [esp+0x10] and [esp+0x14] are arg1, arg3 and arg4 -- leaving arg2,
-    #     at entry-esp +0x08, as the one it never touches.
-    #
-    #     This prose previously said "third argument" and recorded the
-    #     displacements below as 0x14 and 0x0C, which are arg3's. Every
-    #     emitted trampoline therefore read a skill selector and the owner's
-    #     log reported "(not captured for this birth)" on every conception.
-    #     An audit that records the defective contract is worse than none:
-    #     a later reviewer consulting it would restore the bug.
-    #
-    #     The displacement is PER-TAIL and is measured from the routine's own
-    #     stack adjustments:
-    #
-    #         0x43BBC0  push edi      +4
-    #         0x43BBF0  push esi      +8
-    #         0x43BCAF  pop esi       +4
-    #         0x43BCB6  pop edi       +0
-    #
-    #     The triplets tail and both singleton branches are inside that pair,
-    #     so the father sits at 0x20+0x08+8 = 0x20+0x10 from their post-pushal
-    #     esp; the twins tail is past both pops and reads at 0x20+0x08. The
-    #     two `push 0x64` / `add esp,4` pairs in between are balanced and do
-    #     not shift it.
-    #
-    #     Nothing can go stale now: the value lives in this call's own frame,
-    #     so a pregnancy reaching a tail without a patched call site reads
-    #     whatever the stock caller pushed -- his +0x36C scalar, a small
-    #     integer that fails the companion's record validation and logs
-    #     "(not captured for this birth)". A wrong parent is unrecoverable
-    #     once written; an absent one is merely incomplete.
-    #
-    #     One site needs a register the others do not. At 0x447238 the father
-    #     is loaded into ecx, but 0x44722E then does `mov ecx,esi` -- esi is
-    #     the `this` pointer, the mother -- so that stub passes eax instead,
-    #     loaded at 0x447229 from the same stack slot and not written again
-    #     before the call. The rule is the register that SURVIVES to the call,
-    #     not the one that loaded him.
+    #   * The shared body runs entirely inside the pushad/popad bracket, so
+    #     every general register the stock tail relies on is restored before
+    #     control returns to it. It may clobber anything; it ends in a plain
+    #     `ret`, and every one of its paths returns with esp unchanged:
+    #     every failure branch (GetModuleHandleA/LoadLibraryA or
+    #     GetProcAddress returning null) jumps to that ret BEFORE any argument
+    #     push, and the success path pushes exactly four arguments to
+    #     WriteParentageRecordWithFather, which is __stdcall and removes them.
+    #   * It WRITES NO MEMORY other than its own pushes. In particular it never
+    #     stores into any of sub_43BBC0's arguments. The earlier design did:
+    #     stubs at the six call sites overwrote the second argument with the
+    #     father's record pointer, believing it unread. It is read -- 0x43BC00
+    #     `mov edx,[esp+0x10]` comes after the `push esi` at 0x43BBF0, so it is
+    #     entry+0x08, arg2, and 0x43BC04 stores it into the mother's +0x394,
+    #     which delivery compares with 0xC7 at 0x42EF39. That design put a
+    #     pointer (and at 0x447238 the mother's own index) into a field the
+    #     game acts on. No call site is patched any more.
+    #   * The records and the mother are read from the pushad frame (saved
+    #     edi, the record array, and saved esi, the mother's record), not from
+    #     live registers the loader calls destroy. After the father is pushed,
+    #     both are at [esp+0x0C] in turn.
+    #   * The father is found in the CALLER's frame, which is intact above the
+    #     routine's. Every tail -- and the singleton route -- is inside the
+    #     routine's push edi / push esi pair (0x43BCBA is reached only by jumps
+    #     from 0x43BC71/0x43BC7B/0x43BC8A, before the pops at 0x43BCAF/0x43BCB6
+    #     or 0x43BCC6/0x43BCC7), so the routine's entry esp E is the body's
+    #     entry esp +0x04+0x20+0x08 = +0x2C. [E] is the return address, which
+    #     names the call site:
+    #         0x43DD38 / 0x43DD59   father = [E+0x2C]   (the slot 0x43DD20 /
+    #                               0x43DD41 load his +0x36C through)
+    #         0x43DD80 / 0x43DD99   father = ebp        (never written by the
+    #                               routine or its callees; live after pushad)
+    #         0x447036 / 0x44723D   A = [E+0x24]; if [A+0x350] == 2 the father
+    #                               is [E+0x2C] - 0x348 (the scan cursor),
+    #                               else A -- the caller's own branch at
+    #                               0x446FE6 / 0x4471EB, re-evaluated
+    #     anything else leaves him null. Every address dereferenced there is
+    #     one the stock caller itself just dereferenced (A, or the cursor
+    #     through [cursor+0x24]), so no new read can fault.
+    #     This contract is also executed, not only read: see
+    #     tests/test_vv1_parentage_conception_emulation.py, which runs every
+    #     call site and branch through the rendered bytes and compares the
+    #     villager array, the game state and the caller's registers with stock.
     #   * The stolen six bytes are `mov edi, [edi+0x3E010]`, replayed verbatim
     #     after popad and before the rejoin, so edi holds the manager pointer
     #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
     #
     # esi and edi are read only; neither is written outside the pushad bracket.
-    ("vv1_write_parentage_log", "0x3BCA2"): "DB48428E6AD12FA29BE76276073491148BF63ABF668CCCC0ED98FCCD74946C51",
-    ("vv1_write_parentage_log", "0x3BCBA"): "37C1AE2B24AA726A9D8C88ACFF7620AC371D52F7A19717852B4DAFFE5AC52E16",
+    ("vv1_write_parentage_log", "0x3BCA2"): "51A716AFF0CC4919EB47745F0BFEB9C6526521CD6232DB6A2109709413D6885C",
+    ("vv1_write_parentage_log", "0x3BCBA"): "35061D4FA265CD537E4C9B2E8799DED92954FE5FEB8EE3EF68BBB8595F1214AA",
     # The singleton route. This one steals nothing: the two branches that
     # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
     # two-byte short jge) are RETARGETED at their existing widths, so no
@@ -423,7 +385,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
-    ("vv1_write_parentage_log", "0x3BCCB"): "7C2BCE507A162C9EB2D9FEFF3F3E75CCF54644DDCB5D8ED7412CC4B813D3C401",
+    ("vv1_write_parentage_log", "0x3BCCB"): "1D49E2E120DFD76DA7D18AF3243E8147C9593F1AA452D9B4B43E6C07BA6BFD1E",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "6BCFB1B986B25AC430D1B9E30D36DB58CC87B19CCB326384E0D74087842F7FDE",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "2A7F6BCAFF096282681EA63DCA4CC89377EE5F32C236B5D1FEA2BB49FEC65562",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.

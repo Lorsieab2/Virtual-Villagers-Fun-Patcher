@@ -36,6 +36,10 @@ from pathlib import Path
 
 import keystone
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "lesson_cap" / "VVFP Lesson Cap.dll"
 STOCK_VV3 = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
@@ -55,9 +59,9 @@ ROWS = {
         "output_tag": "School Stops at 50",
         "lesson_row": "vv1_school_lessons_grant_skill",
         "description": RULE.format(lesson="the Going to school activity") + (
-            "**Requires School Lessons Grant Skill** (the lesson it caps) **and Enable "
-            "Origins-Exclusive Features**, whose companion loads this one; without "
-            "either, lessons train to 100 as before."),
+            "**Requires School Lessons Grant Skill** (the lesson it caps). "
+            + ORIGINS_BASE_SENTENCE
+            + " That base's companion loads this patch's DLL."),
         "va": "0x4566E0", "stock_bytes": "837C24087F753F608BF1",
         "routine": "School Lessons Grant Skill's callback-127 cave (its cmp [esp+8], 7Fh; jne; pushad; mov esi, ecx)",
     },
@@ -68,9 +72,9 @@ ROWS = {
         "output_tag": "Teaching Stops at 50",
         "lesson_row": "vv2_teaching_children_grants_skill",
         "description": RULE.format(lesson="a Teaching Children lesson (Attending lessons)") + (
-            "**Requires Teaching Children Grants Skill** (the lesson it caps) **and Enable "
-            "Origins-Exclusive Features**, whose companion loads this one; without "
-            "either, lessons train to 100 as before."),
+            "**Requires Teaching Children Grants Skill** (the lesson it caps). "
+            + ORIGINS_BASE_SENTENCE
+            + " That base's companion loads this patch's DLL."),
         "va": "0x473D80", "stock_bytes": "837C24087F753F608BF1",
         "routine": "the shared private callback dispatcher cave (Teaching Children's callback 127; Hospital Recovery's callback 126 stays the cave's own)",
     },
@@ -81,9 +85,8 @@ VV3_DESCRIPTION = (
     "The Tribal Chief's lessons stop at 50. " + RULE.format(lesson="a lesson")
     + "The Secret City has no companion that runs every frame, so this row "
     "diverts the lesson award's first seven bytes into a small stub in the page "
-    "Origins appends, which calls \"VVFP Lesson Cap.dll\". **Requires Enable "
-    "Origins-Exclusive Features**, whose page holds the stub; without it the "
-    "stock lesson runs and trains to 100."
+    "Origins appends, which calls \"VVFP Lesson Cap.dll\"; if the DLL cannot "
+    "be loaded, the stock lesson runs and trains to 100. " + ORIGINS_BASE_SENTENCE
 )
 
 # The callback-42 case (the Leadership-2 Tribal Chief's lesson award).

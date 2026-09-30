@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "81E7D71B691219D8131C50F63440201C84F9DDB8F490CDE07C027D9FC6CD09C5"
-ACTIVE_SOURCE_TEXT_SHA256 = "81E7D71B691219D8131C50F63440201C84F9DDB8F490CDE07C027D9FC6CD09C5"
+ACTIVE_SHA256 = "E584CEC3286C3A9231F2D235BF5BE7C656CCB3E1A8FEA932DC28424477E3C619"
+ACTIVE_SOURCE_TEXT_SHA256 = "E584CEC3286C3A9231F2D235BF5BE7C656CCB3E1A8FEA932DC28424477E3C619"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -4189,8 +4189,18 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # and keeps this routine byte-for-byte what it was.
     slot_capture = put(page, page_va, "slot_capture", f"""
         mov eax, dword ptr [esp + 4]
-        test eax, eax
-        jz sc_skip
+        # Village slots 1..5 only, as in The Secret City and The Tree of
+        # Life. The stock file writer (0x403940) builds the BACKUP path
+        # first, through this same builder with slot+0x14 (0x403982), and
+        # only then the slot's own path (0x40399F, 0x4039B7). Without the
+        # range gate every save looked like two slot changes (N -> N+20 ->
+        # N) and cleared the Origins ownership word below: doublers the
+        # player paid for were gone from memory after the first save and
+        # from the save file after the next. Slot 0 is the meta file.
+        cmp eax, 1
+        jb sc_skip
+        cmp eax, 5
+        ja sc_skip
         cmp eax, dword ptr [0x{SLOT_SCRATCH:X}]
         je sc_skip
         mov dword ptr [0x{SLOT_SCRATCH:X}], eax

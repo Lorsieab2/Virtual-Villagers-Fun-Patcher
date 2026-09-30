@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv3",
   "name": "Builders Fix Huts When Idle",
-  "description": "Builders fix huts when no building projects are present. When no building project is available to be worked on and at least one population hut stands -- while another is unbuilt, and below Building level 3 even once every one is built -- a builder with nothing to do examines and fixes one of the huts that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Whenever there is hut work to do, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.",
+  "description": "Builders fix huts when no building projects are present. When no building project is available to be worked on and at least one population hut stands -- while another is unbuilt, and below Building level 3 even once every one is built -- a builder with nothing to do examines and fixes one of the huts that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Whenever there is hut work to do, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). Applies in live play and during catch-up. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL (in The Secret City, a small stub in the page the base appends does); if the DLL cannot be loaded, the stock scheduler runs unchanged.",
   "output_tag": "Fix Huts",
   "dependencies": [
     "vv3_enable_origins_exclusive_features"
@@ -38,7 +38,7 @@
       "offset": "0x5C229",
       "before": "83BEAC0E0000147C12",
       "after": "E9D22E280090909090",
-      "purpose": "Divert the idle scheduler's low-food farming test (cmp [esi+0xEAC], 20; jl at 0x45C229) into the food stub, which sends a builder straight to the stock dispatch-with-pick while not every population hut is complete, and otherwise replays the test."
+      "purpose": "Divert the idle scheduler's low-food farming test (cmp [esi+0xEAC], 20; jl at 0x45C229) into the food stub, which asks the companion's VvfpFixHutsBuilderFirst whether to send the pick straight to the stock dispatch-with-pick -- always for a Building pick, and for a Healing pick while \"VVFP Work First.dll\" is shipped; there is no hut check, because a builder always has hut work (fixing an unbuilt hut, or the stock fix-a-hut option once every one is built) -- and otherwise replays the test."
     },
     {
       "offset": "0x5AF00",
@@ -156,7 +156,7 @@
             "offset": "0x5C229",
             "before": "83BEAC0E0000147C12",
             "after": "E9D236280090909090",
-            "purpose": "Divert the idle scheduler's low-food farming test (cmp [esi+0xEAC], 20; jl at 0x45C229) into the food stub, which sends a builder straight to the stock dispatch-with-pick while not every population hut is complete, and otherwise replays the test."
+            "purpose": "Divert the idle scheduler's low-food farming test (cmp [esi+0xEAC], 20; jl at 0x45C229) into the food stub, which asks the companion's VvfpFixHutsBuilderFirst whether to send the pick straight to the stock dispatch-with-pick -- always for a Building pick, and for a Healing pick while \"VVFP Work First.dll\" is shipped; there is no hut check, because a builder always has hut work (fixing an unbuilt hut, or the stock fix-a-hut option once every one is built) -- and otherwise replays the test."
           },
           {
             "offset": "0x5AF00",

@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Improved Pathfinding",
-  "description": "Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! When a villager's next step toward a task is blocked, a route round the obstacle is planned on the game's own walkability grid and followed, the way The Secret City does it, instead of the villager giving up and dropping the task. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock walk runs unchanged.",
+  "description": "Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! When a villager's next step toward a task is blocked, a route round the obstacle is planned on the game's own walkability grid and followed, the way The Secret City does it, instead of the villager giving up and dropping the task. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock walk runs unchanged.",
   "output_tag": "Pathfinding",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"

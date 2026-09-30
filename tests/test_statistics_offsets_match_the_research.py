@@ -113,7 +113,11 @@ class StatisticsOffsetsMatchTheResearchTests(unittest.TestCase):
         """
         offsets = [int(value, 16) for value in _read_offsets(_function_body("write_later_game"))]
         self.assertTrue(offsets, "no statistics reads found in write_later_game")
-        self.assertEqual(offsets, sorted(offsets), "rows are not in ascending offset order")
+        # Rows are printed in the owner's directive order
+        # (docs/village-statistics-directive.md), not offset order; the
+        # contiguity check below is on the set of offsets read.
+        self.assertEqual(len(offsets), len(set(offsets)), "an offset is read twice")
+        offsets = sorted(offsets)
         expected = [
             offset
             for offset in range(

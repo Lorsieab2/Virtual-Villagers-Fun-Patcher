@@ -18,6 +18,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "watering" / "VVFP VV1 Watering Builds.dll"
 OUT = ROOT / "data" / "vv1_watering_trains_building_feature.json"
@@ -39,8 +43,9 @@ def main() -> None:
             "practice roll, exactly like every other Building job; once the garden is "
             "restored, watering gives nothing extra. \"Watering crops\" and \"Trying to "
             "water strange patch\" are unchanged. "
-            "**Requires Enable Origins-Exclusive Features**, whose companion loads this "
-            "one; without it the stock game runs unchanged."
+            + ORIGINS_BASE_SENTENCE
+            + " That base's companion loads this patch's DLL; if the DLL cannot be "
+            "loaded, the stock game runs unchanged."
         ),
         "output_tag": "Watering Builds",
         "dependencies": ["vv1_enable_origins_exclusive_features"],

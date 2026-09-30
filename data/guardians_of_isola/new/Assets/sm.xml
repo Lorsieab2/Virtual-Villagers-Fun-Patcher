@@ -629,7 +629,7 @@ Untrained
 <Text id="eSayNovice">
 Novice 
 </Text>
-<Text id="eSayApprentice">
+<Text id="eSayApprentice	">
 Apprentice 
 </Text>
 <Text id="eSayTrainee">
@@ -2054,7 +2054,7 @@ With a trembling hand, he reaches out, at last opening his heart to the kindness
 <Text id="eReplayTutorialInstruction">
 Replay Tutorial Instruction
 </Text>
-<Text id="eTTipInstruct1">
+<Text id="eTTipInstruct1					">
 Let's explore the area...\n
 Click and hold the mouse button \n
 anywhere on the ground and drag the \n

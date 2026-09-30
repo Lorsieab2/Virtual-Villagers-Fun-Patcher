@@ -69,8 +69,13 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertIn("vv1_mask_clear_state();", self.source)
         self.assertIn("memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);", self.source)
         self.assertIn("memset(vv1_mask_seen_alive, 0, sizeof(vv1_mask_seen_alive));", self.source)
-        self.assertIn("if (!vv1_mask_prepare_slot())", self.source)
-        self.assertIn("if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot))", self.source)
+        # The tick and the loader both fail closed before the slot is captured.
+        self.assertIn("slot = vv1_mask_prepare_slot();\n    if (!slot) {", self.source)
+        load = self.source.split("static void vv1_mask_sidecar_load(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertLess(load.index("memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);"),
+                        load.index("if (!slot) {"))
+        self.assertLess(load.index("if (!slot) {"),
+                        load.index("vv1_mask_sidecar_path(path, sizeof(path), slot)"))
 
     def test_dead_sweep_still_persists_clears(self) -> None:
         self.assertIn("swept = vv1_mask_sweep_dead();", self.source)
@@ -154,7 +159,9 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         end = self.source.index("static HINSTANCE module_instance;", start)
         tick = self.source[start:end]
         for token in (
-            "if (!vv1_mask_prepare_slot())",
+            "slot = vv1_mask_prepare_slot();\n    if (!slot) {",
+            # nothing is swept or persisted until this slot's load settled
+            "if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {",
             "swept = vv1_mask_sweep_dead();",
             "if (swept || birth_dirty)",
             "if (vv1_mask_sidecar_save())",
@@ -243,33 +250,26 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         write = self.source.split("static int vv1_mask_sidecar_save(void) {", 1)[1].split(
             "static void vv1_mask_sidecar_load(void) {", 1
         )[0]
-        self.assertIn("char tmp[MAX_PATH];", write)
-        self.assertIn('lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)', write)
-        self.assertIn("lstrcpyA(tmp, path);", write)
-        self.assertIn('lstrcatA(tmp, ".tmp");', write)
-        self.assertIn(
-            "CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,", write
-        )
-        self.assertEqual(write.count("WriteFile("), 2)
-        self.assertIn("WriteFile(file, &magic, sizeof(magic), &wrote, NULL)", write)
-        self.assertIn("wrote != sizeof(magic)", write)
-        self.assertIn(
-            "WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL)",
-            write,
-        )
-        self.assertIn("wrote != VV_MASK_TABLE_BYTES", write)
-        self.assertIn("FlushFileBuffers(file)", write)
-        self.assertIn("if (!CloseHandle(file))", write)
-        self.assertEqual(write.count("DeleteFileA(tmp);"), 2)
-        self.assertNotIn("DeleteFileA(path);", write)
-        writes_done = write.rindex("WriteFile(file, VV_MASK_TABLE")
-        flush = write.index("FlushFileBuffers(file)")
-        close = write.index("if (!CloseHandle(file))")
-        publish = write.index("MoveFileExA(tmp, path,")
-        self.assertLess(writes_done, flush)
-        self.assertLess(flush, close)
-        self.assertLess(close, publish)
-        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", write)
+        # The temp-file / checked-write / flush / replace sequence now lives in
+        # native/shared/sidecar_io.h and is exercised against real files by
+        # tests/test_mask_sidecar_durability.py.  The format is unchanged:
+        # the 'VM01' magic, then the 128-byte table.
+        for expected in (
+            "parts[0] = &magic;\n    sizes[0] = sizeof(magic);",
+            "parts[1] = VV_MASK_TABLE;\n    sizes[1] = VV_MASK_TABLE_BYTES;",
+            "return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 2);",
+        ):
+            self.assertIn(expected, write)
+        for raw in ("CreateFileA", "WriteFile(", "MoveFileExA", "DeleteFileA(path);"):
+            self.assertNotIn(raw, write)
+        self.assertLess(write.index("vv_sidecar_gate_ready(&vv1_mask_gate, slot)"),
+                        write.index("vv1_mask_sidecar_path(path, sizeof(path), slot)"))
+        header = (ROOT / "native/shared/sidecar_io.h").read_text(encoding="utf-8")
+        publish = header[header.index("static int vv_sidecar_publish("):]
+        self.assertIn('lstrcatA(tmp, ".tmp");', publish)
+        self.assertIn("|| wrote != sizes[i]) {", publish)
+        self.assertLess(publish.index("FlushFileBuffers(h)"), publish.index("MoveFileExA(tmp, path,"))
+        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", publish)
 
     def test_rebuilt_dll_imports_transactional_sidecar_apis(self) -> None:
         import pefile

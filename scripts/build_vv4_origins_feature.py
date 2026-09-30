@@ -258,8 +258,14 @@ MASK_DETAILS_ROWDY_TABLE = (0, 2, 0, 2, 0)
 MASK_DETAILS_SCALE_MUL = 3
 MASK_DETAILS_SCALE_SHIFT = 1           # native head scale * 1.5, matching VV5
 MASK_DETAILS_LIFT = 0x32               # native tuple y - 50, matching VV5
-MASK_DETAILS_ROW = 0x728A50            # runtime scratch, after the 16-byte table
-MASK_DETAILS_COL = 0x728A54
+# Runtime scratch in the unclaimed gap after VV4_DETAIL_RECORD_VA (0x728D44..
+# 0x728D5F). NOT 0x728A50: the Barrel/Island requeue routine
+# (BARREL_ISLAND_REQUEUE_VA) is code there, and every masked Details portrait
+# overwrote its first 8 bytes, so the next purchased Barrel executed garbage.
+# tests/test_vv4_runtime_scratch_is_unclaimed.py keeps every scratch slot off
+# claimed bytes.
+MASK_DETAILS_ROW = 0x728D48
+MASK_DETAILS_COL = 0x728D4C
 # head-cave scratch (saved across the native head draw; single-threaded render,
 # non-reentrant):
 MASK_S_ECX = 0x728D74

@@ -36,6 +36,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research" / "stock-executables"
 VV1 = STOCK / "Virtual Villagers - A New Home.exe"
@@ -114,8 +118,9 @@ def vv1() -> dict:
             "digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the "
             "view is scrolled or a villager is dragged mid-glide -- press another number key to change course. "
             "Adds the loading-screen tip \"You can zip "
-            "around the island with your numeric keys.\" Requires Enable Origins-Exclusive Features, whose "
-            "companion loads this one."
+            "around the island with your numeric keys.\" "
+            + ORIGINS_BASE_SENTENCE
+            + " That base's companion loads this patch's DLL."
         ),
         "output_tag": "Numeric Keys",
         "dependencies": ["vv1_enable_origins_exclusive_features"],

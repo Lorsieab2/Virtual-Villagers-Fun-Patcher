@@ -30,7 +30,8 @@ PC VV2 Fastest Runner can naturally create duplicate Running Likes through
 atomic behavior: any Running Like skips the entire villager with zero
 preference writes, preserving every duplicate Like and every Dislike.
 Otherwise preflight the first physical `-1` before removing any Running
-Dislike; full Likes causes no mutation; with a destination, insert Running
+Dislike; full Likes add no Like but still clear every Running Dislike (the
+OFFICIAL Origins Upgrade Prompts edge case); with a destination, insert Running
 once and clear every Running Dislike while preserving unrelated slots and
 ordering. VV5 current faction `+0x1CEC != 0` must be
 rejected before any preference access or count, and `+0x1CE1` is not an

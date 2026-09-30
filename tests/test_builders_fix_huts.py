@@ -238,7 +238,9 @@ class RowTests(unittest.TestCase):
             m = json.loads(MANIFESTS[game].read_text(encoding="utf-8"))
             self.assertEqual(m["dependencies"], [f"{game}_enable_origins_exclusive_features"])
             self.assertEqual([c["sha256"] for c in m["companion_files"]], [sha])
-            self.assertIn("**Requires Enable Origins-Exclusive Features**", m["description"])
+            self.assertIn("**Runs on the Origins-exclusive base, which the patcher installs automatically with it**", m["description"])
+            self.assertIn("adds the Origins Upgrades buttons", m["description"])
+            self.assertNotIn("Enable Origins-Exclusive Features", m["description"])
             if game != "vv3":
                 self.assertEqual(m["patches"], [])
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

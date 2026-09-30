@@ -131,8 +131,12 @@ subfolder, including the stock EXE, and adds "(Game name) - Modded.exe" and its
 verification log. Applying another population mode refreshes the same short Modded
 folder in place after confirmation. If a Modded output location was selected,
 these folders are created beneath that chosen parent instead of beside the
-original. The patcher does not create temporary
-game copies or replacement-backup folders.
+original. The copy is built in a hidden temporary folder beside it
+(".<Modded folder name>.staging-<id>") and renamed into place only once it
+has been verified. When a Modded folder is refreshed, the previous one is
+moved aside to a hidden ".backup-<id>" folder until the new one verifies,
+then deleted -- or renamed back if anything fails. Anything that cannot be
+restored automatically is kept in a ".recovery-<id>" folder, never deleted.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
 patcher remembers the selected population mode, output parent, single-game EXE path, and
 all five folder paths. Vanilla and Modded links open their respective folders.
@@ -347,9 +351,12 @@ village is on screen. It also adds the loading-screen tip "You can zip around
 the island with your numeric keys."
 
 The feature is its own companion, VVFP VV1 Number Keys.dll, which the Origins
-companion loads once per game session, so the row requires Enable
-Origins-Exclusive Features; unticking that unticks this. No executable space
-is claimed for the tip: its text replaces the unused demo-version message.
+companion loads once per game session. So the row runs on the
+Origins-exclusive base, which the patcher installs automatically with it:
+there is no separate box to tick, and selecting this row also adds the
+Origins Upgrades buttons to the Tech and Villager Details screens. No
+executable space is claimed for the tip: its text replaces the unused
+demo-version message.
 
 The Lost Children's matching tip is reworded from "keypad" to "numeric keys"
 by its own small row, Tip Wording: Numeric Keys.
@@ -371,13 +378,15 @@ recorded: founders, and anyone born before the row was on.
 
 How it is recorded. At conception the father's name, head and body are set
 aside against the mother (this is the same moment the parentage log's hook
-fires, and it is that hook that supplies him, so with Write Parentage Log
-unticked only the mother is recorded). At the birth the game's own child-
+fires, and it is that hook that supplies him, so with Write Births and
+Conceptions Log to Text File unticked only the mother is recorded). At the birth the game's own child-
 creation routine hands the named child and its mother to the companion --
 so births that happen while the game catches up on time you were away are
 recorded just the same -- both parents are written to the child's entry,
 the birth is appended to the parentage log at once as a "Birth" record,
-and then the entry is saved to vv1_parents_<slot>.dat beside the save.
+and then the entry is saved to "Virtual Villagers 1 Parentage Records -
+Save <slot>.dat" in the "Virtual Villagers Fun Patcher Data" folder beside
+the saves.
 Nothing is written into a villager record or the save.
 
 An entry is never erased. Death leaves it; growing up hides the figures but
@@ -389,8 +398,10 @@ The Village Population roster shows the same record as a "Parents:" block
 on each A New Home villager whose parents are known.
 
 The feature is its own companion, VVFP VV1 Parentage.dll, which the Origins
-companion loads once per game session, so the row requires Enable
-Origins-Exclusive Features; unticking that unticks this.
+companion loads once per game session. So the row runs on the
+Origins-exclusive base, which the patcher installs automatically with it:
+there is no separate box to tick, and selecting this row also adds the
+Origins Upgrades buttons to the Tech and Villager Details screens.
 
 MOVE THE "PLAYING IN THE DIRT" SPOT (NEW BELIEVERS)
 
@@ -421,24 +432,34 @@ other way (the strip, the village) starts the arrows from that villager.
 
 Nothing is saved: the order lasts for the session, as in the later games.
 The feature is its own companion, VVFP VV1 Sort By.dll, which the Origins
-companion loads once per game session, so the row requires Enable
-Origins-Exclusive Features; unticking that unticks this.
+companion loads once per game session. So the row runs on the
+Origins-exclusive base, which the patcher installs automatically with it:
+there is no separate box to tick, and selecting this row also adds the
+Origins Upgrades buttons to the Tech and Villager Details screens.
 
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,
-in Documents\LDW\<game folder>\ -- the same folder as the .ldw files.
+in Documents\LDW\<game folder>\ -- the same folder as the .ldw files -- or in
+its "Virtual Villagers Fun Patcher Data" and "Virtual Villagers Fun Patcher
+Logs" subfolders.
 
-Masks, one file per save slot:
+Masks, one file per save slot, in Virtual Villagers Fun Patcher Data\:
 
-    vv1_masks_<slot>.dat        A New Home
-    vv2_masks_<slot>.dat        The Lost Children
-    vvfp_masks_<slot>.dat       The Secret City, The Tree of Life,
-                                New Believers
+    Virtual Villagers 1 Village Masks - Save <slot>.dat     A New Home
+    Virtual Villagers 2 Village Masks - Save <slot>.dat     The Lost Children
+    Village Masks - Save <slot>.dat                         The Secret City,
+                                                            The Tree of Life,
+                                                            New Believers
 
-Parents, one file per save slot (Show Parents in Details Screen):
+Parents, one file per save slot (Show Parents in Details Screen), in
+Virtual Villagers Fun Patcher Data\:
 
-    vv1_parents_<slot>.dat      A New Home
+    Virtual Villagers 1 Parentage Records - Save <slot>.dat     A New Home
+
+(Older builds wrote these as vv1_masks_<slot>.dat, vv2_masks_<slot>.dat,
+vvfp_masks_<slot>.dat and vv1_parents_<slot>.dat directly beside the saves;
+this build moves such a file to its new name the first time it needs it.)
 
 Retired -- written by older builds of A New Home only, never by this one, and
 removed by this one once the save has taken over (see below):
@@ -447,7 +468,8 @@ removed by this one once the save has taken over (see below):
 
 Exported logs:
 
-    <Game> Parentage Log <n>.txt
+    Virtual Villagers Fun Patcher Logs\Births and Conceptions\
+        Virtual Villagers <N> Births and Conceptions Log <n>.txt
     Village Statistics - Save <slot>.txt
     Village Population <slot>.txt
 
@@ -463,11 +485,13 @@ deleted one simply reappears, complete and up to date, after you next save.
 
 Two of them are worth knowing about before you delete them.
 
-The parentage log is built up over time, one record per conception (and, in A
-New Home with Show Parents in Details Screen, one per birth), so deleting
-it does not lose the feature -- the file is recreated with a fresh village
-header at the next birth -- but the older conception records in it are not
-recoverable. Keep a copy if you want that history.
+The Births and Conceptions log is built up over time, one record per
+conception and one per birth (in A New Home the Birth records need Show
+Parents in Details Screen), so deleting it does not lose the feature -- the
+file is recreated with a fresh village header at the next save when Write
+Village Statistics to Text File is on, or with its next record, unlabelled,
+when it is off -- but the older records in it are not recoverable. Keep a
+copy if you want that history.
 
 The A New Home doubler file is retired. Older builds wrote it to record which
 Origins tech and food point doublers a village had bought, because the save did

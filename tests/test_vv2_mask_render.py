@@ -626,7 +626,9 @@ def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
 
     save = source[source.index("static void vv2_mask_sidecar_save("):]
     save = save[:save.index(chr(10) + "}" + chr(10)) + 3]
-    assert "WriteFile(f, g_vv2_roster, sizeof(g_vv2_roster), &w, NULL);" in save, (
+    # Published atomically through native/shared/sidecar_io.h (see
+    # tests/test_mask_sidecar_durability.py); the roster is still part two.
+    assert "parts[1] = g_vv2_roster;     sizes[1] = sizeof(g_vv2_roster);" in save, (
         "the sidecar is written without its roster snapshot, so it can never "
         "be matched against the village that wrote it")
     assert "if (!g_vv2_have_roster) return;" in save, (

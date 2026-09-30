@@ -760,24 +760,24 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "8940D0D9266EE1DE482CF09B0BF1B85641AAC54FA5074D8E5487D29F020978E5",
-    "map": "37B7891C0F465385E9734D67C0F79BF8238D044F4A81DA1F9D033F885247E287",
+    "manifest": "121D2F9CF32D7B1C65F0203A4140F24BB7D2F1BACC61192AA29B9F41134C564C",
+    "map": "540DACF742723B7683C3F88C6C9C6BC46E70A85B30829F9FF077ED5C87267D1A",
 }
-VV5_TASK9_DLL_SHA256 = "6F0068B7D9F06C89C0D7925AB67F42C6EFC83C2AD70EBC604005CC1C5AA286C0"
+VV5_TASK9_DLL_SHA256 = "0438619A56DC4336B1FD2C2D3ED35C4E2F3B92C1645595DCEBC3A3C8F0188820"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "7A3CE67E22E65383D131B90DF847A0AFC8F1FC7C199D2635C80CC74CF5FF51DF"
-VV5_TASK9_SAVE_RESET_SIZE = 130560
+VV5_TASK9_SAVE_RESET_SHA256 = "2DD00AA6C918C083775D5E275D6D75FC4BD0BB60700FF7022538C63D4F568721"
+VV5_TASK9_SAVE_RESET_SIZE = 131072
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "86441019FB4C0AD8C4B5D49AECFBFFE72DAB8D04774976EE1F3D97013C8557BA",
-    "immediate_fixed": "86441019FB4C0AD8C4B5D49AECFBFFE72DAB8D04774976EE1F3D97013C8557BA",
+    "collection_progression": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
+    "immediate_fixed": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
     "experimental_expanded_256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
     "experimental_expanded_256_progression": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "81E7D71B691219D8131C50F63440201C84F9DDB8F490CDE07C027D9FC6CD09C5"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "E584CEC3286C3A9231F2D235BF5BE7C656CCB3E1A8FEA932DC28424477E3C619"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -1360,8 +1360,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "EAE2DADD60B30C93C21FFB47CC0C9A379591BA89D2ECB12A58069AA1DE68800B",
-    "task9_builder": "5BA6F2D0841761963316A4946738DD67FAA8223F955272AEA19134666034F667",
+    "builder": "D5995D4000DC84983ADFBBD2462BF88F84ACCEF019B257F4A9D1338E009D5F80",
+    "task9_builder": "21BBCAF1F3D34FDDBBC6F34F68A56FDCD48032709C03C46722BFD49B87F02EB7",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1373,8 +1373,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "6D3F826E21817D089190C7251B385857D0B069B203C3C7B2A2AADA1522697DEB",
-        "map": "8183576878E1073C0A3ABB50C407BF04629C3D06ACB64C926D6F616F79C88464",
+        "manifest": "B2291639469027EE34A4E408DBDB9828D0B8F5FAC0344E1B872FB2E14EDBC2E5",
+        "map": "69B0D99A8E11A7715A82B16AC9C5B6679BE8B56C8632ABE4921A3B3CF16DFD58",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -2796,7 +2796,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1774592,
+        "size": 1776640,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3151,7 +3151,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1774592,
+        "size": 1776640,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -9390,6 +9390,56 @@ def _copy_companion_files(
     return copied
 
 
+def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]:
+    """Casefolded relative paths of every companion the patcher may install.
+
+    Two sources, so nothing the patcher put there can masquerade as a user
+    file on overwrite: every companion destination in this game's catalog
+    (public and internal records), and every companion the earlier install's
+    own patch log recorded -- which also covers a feature that has since been
+    retired from the catalog.
+
+    The Expanded-only Time Warp records are deliberately not loaded: the
+    release archive does not ship their artifacts (loading them raises there),
+    and the Expanded modes they belong to are no longer public. Anything such
+    a build installed is still named in its own patch log.
+    """
+    owned: set[str] = set()
+    for feature in _load_fun_patch_records():
+        if feature.raw.get("game_id") != build.id:
+            continue
+        for item in feature.raw.get("companion_files", []):
+            try:
+                destination = _safe_companion_destination(item.get("destination"))
+            except PatcherError:
+                continue
+            owned.add(destination.as_posix().casefold())
+    for log_path in output_folder.glob("*.patch-log.json"):
+        try:
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+            records = log.get("companion_files", [])
+        except (OSError, ValueError, AttributeError):
+            continue
+        # The log records absolute paths. Resolve them against the folder the
+        # log itself says it was published to, so an install moved since then
+        # (both folders relocated together) still names its own companions.
+        bases = [output_folder]
+        recorded = log.get("output_path")
+        if isinstance(recorded, str) and recorded:
+            bases.insert(0, Path(recorded).parent)
+        for record in records if isinstance(records, list) else ():
+            for base in bases:
+                try:
+                    _, key = _companion_relative_destination(
+                        Path(record["path"]), base
+                    )
+                except (PatcherError, KeyError, TypeError):
+                    continue
+                owned.add(key)
+                break
+    return owned
+
+
 def _companion_relative_destination(path: Path, output_folder: Path) -> tuple[Path, str]:
     """Return a normalized full relative destination and its comparison key.
 
@@ -10939,12 +10989,19 @@ def apply_patch(
             if not overwrite:
                 raise PatcherError(f"Modified game folder appeared before publish: {output_folder}")
             # Preserve user-created files in an overwrite transaction while
-            # still replacing the certified EXE/DLL pair as one tree.
+            # still replacing the certified EXE/DLL pair as one tree. Files the
+            # patcher itself installed are NOT user files: a companion DLL left
+            # behind by an earlier, larger selection keeps its feature running
+            # (most companions switch on merely by being present), so only the
+            # companions the new selection staged may survive.
             original_records = _capture_tree_records(output_folder)
+            owned = _patcher_owned_companion_keys(build, output_folder)
             for prior in output_folder.rglob("*"):
                 if not prior.is_file():
                     continue
                 relative = prior.relative_to(output_folder)
+                if relative.as_posix().casefold() in owned:
+                    continue
                 target = staging_folder / relative
                 if target.exists():
                     continue
