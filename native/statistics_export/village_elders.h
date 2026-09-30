@@ -10,6 +10,8 @@ struct elders_layout {
     unsigned int stride;
     unsigned int slots;
     unsigned int active;               /* u8, == 1 when the slot is live */
+    unsigned int tribe;                /* u8, 0 = one of the player's villagers; offset 0 = every
+                                          live record is (VV5 keeps its heathens in the same array) */
     unsigned int name;
     unsigned int name_capacity;
     unsigned int father_name;          /* the villager's own parents, 0 = not stored */

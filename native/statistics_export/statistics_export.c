@@ -316,6 +316,7 @@ static int village_elders_for(int game_id) {
         l.slots = 150u; l.active = 0x1CD4u; l.name = 0x1B9Cu;
         l.father_name = 0x1BC0u; l.mother_name = 0x1BD9u;
         l.skills = 0x1C5Cu; l.skill_count = 6u; l.skills_are_float = 1; l.master_float = 88.0f;
+        l.tribe = 0x1CECu;              /* 0 = believer; heathens (the chief has all 100s) are not villagers */
         l.graves = module + 0x1481A8u; l.grave_stride = 0x5Cu; l.grave_elder_flag = 0x31u;
     } else {
         return -1;

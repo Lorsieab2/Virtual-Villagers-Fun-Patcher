@@ -307,6 +307,13 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
             if (record[l->active] != 1 || mastered_skills(record, l) < 3) {
                 continue;
             }
+            /* Only the player's own villagers: New Believers keeps its
+               heathens in the same array, and the Heathen Chief is born with
+               every skill at 100 -- a live read showed him as the village's
+               only "elder". A converted heathen joins the tribe and counts. */
+            if (l->tribe != 0u && record[l->tribe] != 0) {
+                continue;
+            }
             copy_name(name, record + l->name, l->name_capacity);
             copy_name(father, l->father_name ? record + l->father_name : NULL, l->parent_name_capacity);
             copy_name(mother, l->mother_name ? record + l->mother_name : NULL, l->parent_name_capacity);
