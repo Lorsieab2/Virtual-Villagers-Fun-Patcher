@@ -121,9 +121,16 @@
    not read: nothing in them ever survived a session.
 
    Everything fails closed.  No village on screen, no slot captured, a file
-   from another village, a short or foreign file: the table is cleared and
-   nothing is written.  File I/O happens only inside the exports, never in
-   DllMain. */
+   from another village: the table is cleared and nothing is written.  A file
+   that is THERE but cannot be opened or read (a sharing violation, a denied
+   read, a OneDrive or scanner lock) is neither read nor replaced: the
+   companion answers "nothing known" and tries it again a strike window
+   later.  A file that reads but is not a sidecar (short, foreign magic,
+   another slot's) is first moved aside to an unused
+   "<name>.unreadable-<ticks>-<n>" and only then treated as absent; if it
+   cannot be moved, nothing is written.  The game cannot rebuild parents, so
+   a sidecar that is overwritten is lost for good.  File I/O happens only
+   inside the exports, never in DllMain. */
 #include <windows.h>
 #include <shlobj.h>
 #include <string.h>
@@ -242,6 +249,15 @@ static unsigned char g_spend[VV1_RECORD_COUNT];   /* a delivery ended this frame
 static int g_have_prev;
 static vv1_birth g_births[VV1_RECORD_COUNT];  /* births seen by the last tick */
 static int g_birth_count;
+static int g_blocked_slot;                    /* the slot whose sidecar is there but could not be read */
+static int g_blocked_wait;                    /* sync calls before that sidecar is tried again */
+static int g_may_replace;                     /* the file at the path is one this table may replace */
+
+/* What an attempt to load the sidecar found. */
+#define VV1_LOAD_NONE      0      /* no file (or an invalid one, now set aside): nothing to lose */
+#define VV1_LOAD_MATCHED   1      /* this village's file: loaded */
+#define VV1_LOAD_OTHER     2      /* a sound file whose roster shares nobody with the village */
+#define VV1_LOAD_BLOCKED (-1)     /* a file is there and could not be read or set aside: touch nothing */
 
 /* ---- game state ------------------------------------------------------- */
 
@@ -476,19 +492,31 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
 
 /* Write the table for the slot, with the roster as it stands.  Temporary-
    then-rename, so a crash mid-write can never leave a half-written file in
-   place. */
-static int vv1_parents_save(int slot) {
+   place.
+
+   The rename replaces an existing file only when this table was loaded
+   from it, superseded it as another village's, or wrote it itself
+   (g_may_replace).  A table started empty because there was NO file must
+   not replace one that has appeared since (OneDrive restoring it, a lock
+   that hid it clearing): that file is read first, on the next sync. */
+static int vv1_parents_save(int slot, const unsigned char *records) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
     HANDLE file;
     DWORD wrote;
+    DWORD error;
     unsigned int header[3];
-    const unsigned char *records = vv1_records();
     BOOL ok = TRUE;
-    if (records == NULL || !vv1_parents_path(path, sizeof(path), slot)) {
+    if (records == NULL) {
         return 0;
     }
+    /* The roster is taken before the path, so a save that cannot proceed
+       (a legacy file that will not migrate) is not retried every frame by
+       the roster comparison in vv1_parents_sync_core. */
     vv1_take_roster(records, g_roster);
+    if (!vv1_parents_path(path, sizeof(path), slot)) {
+        return 0;
+    }
     if (lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
         return 0;
     }
@@ -520,66 +548,144 @@ static int vv1_parents_save(int slot) {
         DeleteFileA(tmp);
         return 0;
     }
-    if (!MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+    if (!MoveFileExA(tmp, path, MOVEFILE_WRITE_THROUGH
+                     | (g_may_replace ? MOVEFILE_REPLACE_EXISTING : 0u))) {
+        error = GetLastError();
         DeleteFileA(tmp);
+        if (!g_may_replace && (error == ERROR_ALREADY_EXISTS || error == ERROR_FILE_EXISTS)) {
+            /* A file appeared where there was none.  Read it before anything
+               else: the slot is loaded again from scratch. */
+            g_loaded_slot = 0;
+            g_strikes = 0;
+            g_have_prev = 0;
+        }
         return 0;
     }
+    g_may_replace = 1;            /* the file there is now this table's own */
     return 1;
 }
 
-/* Load the slot's table for the village on screen.  Clears first, so every
-   failure -- no file, a short file, wrong magic, another slot's file, a
-   roster sharing nobody with the living -- leaves no parents, which is
-   exactly what a village never recorded has.  A file whose roster is empty
-   has nothing to contradict and is taken. */
+/* 1 when all n bytes were read, 0 when the file ended first (it is not a
+   sidecar), -1 when the read itself failed (a lock: try again later). */
+static int vv1_read_exact(HANDLE file, void *out, DWORD n) {
+    DWORD got = 0;
+    if (!ReadFile(file, out, n, &got, NULL)) {
+        return -1;
+    }
+    return got == n ? 1 : 0;
+}
+
+/* Move a file that is not a sidecar out of the way, to
+   "<path>.unreadable-<ticks>-<n>", never replacing anything already there.
+   1 when it was moved, 0 when it is still in place. */
+static int vv1_set_aside(const char *path) {
+    char aside[MAX_PATH];
+    DWORD ticks = GetTickCount();
+    DWORD error;
+    int n;
+    if ((size_t)lstrlenA(path) + sizeof(".unreadable-4294967295-999") > sizeof(aside)) {
+        return 0;
+    }
+    for (n = 0; n < 1000; ++n) {
+        wsprintfA(aside, "%s.unreadable-%lu-%d", path, (unsigned long)ticks, n);
+        if (MoveFileExA(path, aside, MOVEFILE_WRITE_THROUGH)) {
+            return 1;
+        }
+        error = GetLastError();
+        if (error != ERROR_ALREADY_EXISTS && error != ERROR_FILE_EXISTS) {
+            return 0;             /* could not move it at all */
+        }
+    }
+    return 0;
+}
+
+/* Load the slot's table for the village on screen.  Returns what it found
+   (VV1_LOAD_*).  Only a file that does not exist is "no history": one that
+   exists and cannot be opened or read is VV1_LOAD_BLOCKED, and the caller
+   must neither empty the table nor write.  One that reads but is not a
+   sidecar -- short, wrong magic, another slot's -- is set aside first and
+   then counts as absent; if it cannot be set aside it is BLOCKED too.  A
+   file whose roster is empty has nothing to contradict and is taken. */
 static int vv1_parents_load(int slot, const unsigned char *records) {
     char path[MAX_PATH];
     HANDLE file;
-    DWORD got;
+    DWORD error;
     unsigned int header[3];
     static vv1_occupant roster[VV1_RECORD_COUNT];
     static vv1_parent_entry buf[VV1_RECORD_COUNT];
     int i;
-    int matched = 0;
+    int sound;
     /* Nothing is cleared here.  This function is an ATTEMPT: the slot-change
        path calls it every frame while it waits for the village to appear, and
        a failed attempt must leave the table it could not replace exactly as it
        was.  Emptying the table is vv1_parents_reset's job, and the caller does
        it only when it commits to a slot with no matching file. */
     if (!vv1_parents_path(path, sizeof(path), slot)) {
-        return 0;
+        /* No path (a legacy file that would not migrate, among others): its
+           records may be on disk under the old name.  Not "no history". */
+        return VV1_LOAD_BLOCKED;
     }
     file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
-        /* No file for this slot.  Nothing matched, and the caller must still
-           wait for the array to settle before binding a table to this slot:
-           a village whose file has not been written yet looks exactly like
-           one whose villagers have not loaded yet. */
-        return 0;
+        error = GetLastError();
+        if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND) {
+            /* No file for this slot.  Nothing matched, and the caller must
+               still wait for the array to settle before binding a table to
+               this slot: a village whose file has not been written yet looks
+               exactly like one whose villagers have not loaded yet. */
+            return VV1_LOAD_NONE;
+        }
+        /* The file is there and will not open: a sharing violation, a
+           denied read, a OneDrive or scanner lock.  Its parents are still in
+           it, and the game can never rebuild them. */
+        return VV1_LOAD_BLOCKED;
     }
-    if (ReadFile(file, header, sizeof(header), &got, NULL) && got == sizeof(header)
-        && header[0] == VV1_PARENTS_MAGIC && header[2] == (unsigned int)slot
-        && ReadFile(file, roster, sizeof(roster), &got, NULL) && got == sizeof(roster)
-        && ReadFile(file, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
-        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-            roster[i].name[VV1_NAME_CAPACITY - 1] = '\0';
-        }
-        if (vv1_roster_overlap(records, roster) != 0) {
-            matched = 1;
-            memset(g_entries, 0, sizeof(g_entries));
-            memcpy(g_roster, roster, sizeof(g_roster));
-            memcpy(g_entries, buf, sizeof(buf));
-            /* Names are printed and drawn: whatever the file holds, every
-               name ends inside its own buffer. */
-            for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-                g_entries[i].father_name[VV1_NAME_CAPACITY - 1] = '\0';
-                g_entries[i].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
-                g_entries[i].stash_name[VV1_NAME_CAPACITY - 1] = '\0';
-            }
-        }
+    sound = vv1_read_exact(file, header, sizeof(header));
+    if (sound == 1 && (header[0] != VV1_PARENTS_MAGIC || header[2] != (unsigned int)slot)) {
+        sound = 0;
+    }
+    if (sound == 1) {
+        sound = vv1_read_exact(file, roster, sizeof(roster));
+    }
+    if (sound == 1) {
+        sound = vv1_read_exact(file, buf, sizeof(buf));
     }
     CloseHandle(file);
-    return matched;
+    if (sound < 0) {
+        return VV1_LOAD_BLOCKED;
+    }
+    if (sound == 0) {
+        /* Not a sidecar this build can read.  Keep it, out of the way, before
+           anything new is written at its name; if it will not move, write
+           nothing. */
+        return vv1_set_aside(path) ? VV1_LOAD_NONE : VV1_LOAD_BLOCKED;
+    }
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        roster[i].name[VV1_NAME_CAPACITY - 1] = '\0';
+    }
+    if (vv1_roster_overlap(records, roster) == 0) {
+        return VV1_LOAD_OTHER;
+    }
+    memset(g_entries, 0, sizeof(g_entries));
+    memcpy(g_roster, roster, sizeof(g_roster));
+    memcpy(g_entries, buf, sizeof(buf));
+    /* Names are printed and drawn: whatever the file holds, every
+       name ends inside its own buffer. */
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        g_entries[i].father_name[VV1_NAME_CAPACITY - 1] = '\0';
+        g_entries[i].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
+        g_entries[i].stash_name[VV1_NAME_CAPACITY - 1] = '\0';
+    }
+    return VV1_LOAD_MATCHED;
+}
+
+/* The slot's sidecar is there and could not be read: touch nothing, and try
+   it again only after a strike window's worth of calls, not every frame. */
+static void vv1_parents_blocked(int slot) {
+    g_blocked_slot = slot;
+    g_blocked_wait = VV1_NEW_VILLAGE_STRIKES;
+    g_strikes = 0;
+    g_have_prev = 0;
 }
 
 /* Empty the table: this slot holds a village we have no record of. */
@@ -624,6 +730,7 @@ static int vv1_anyone_living(const unsigned char *records) {
 
 static int vv1_parents_sync_core(int slot, const unsigned char *records) {
     static vv1_occupant now[VV1_RECORD_COUNT];
+    int result;
     if (!slot || records == NULL) {
         return 0;
     }
@@ -644,17 +751,34 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
            after VV1_NEW_VILLAGE_STRIKES frames it is accepted as new with an
            empty table -- which is the correct answer for it. */
         g_have_prev = 0;          /* a different village: no delivery can be inferred yet */
-        if (vv1_parents_load(slot, records)) {
+        /* A sidecar that is there but unreadable is not "no file": it is
+           neither read nor replaced, and it is tried again a strike window
+           later rather than every frame. */
+        if (g_blocked_wait > 0 && g_blocked_slot == slot) {
+            --g_blocked_wait;
+            return 0;
+        }
+        g_blocked_wait = 0;
+        result = vv1_parents_load(slot, records);
+        if (result == VV1_LOAD_MATCHED) {
             g_loaded_slot = slot;   /* the file is this village's: it is loaded */
             g_strikes = 0;
+            g_may_replace = 1;
             return slot;
+        }
+        if (result == VV1_LOAD_BLOCKED) {
+            vv1_parents_blocked(slot);
+            return 0;
         }
         if (++g_strikes >= VV1_NEW_VILLAGE_STRIKES) {
             /* Long enough: this slot really does hold a village the file does
-               not describe.  Commit to it with an empty table. */
+               not describe.  Commit to it with an empty table.  Another
+               village's sound file is superseded (Start Over keeps the slot);
+               with no file, a file that appears later is read, not replaced. */
             vv1_parents_reset();
             g_loaded_slot = slot;
             g_strikes = 0;
+            g_may_replace = (result == VV1_LOAD_OTHER);
             return slot;
         }
         return 0;                 /* still settling: the table is untouched */
@@ -665,16 +789,23 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
         if (++g_strikes < VV1_NEW_VILLAGE_STRIKES) {
             return 0;             /* unsettled: nobody touches the table */
         }
-        if (!vv1_parents_load(slot, records)) {
+        g_strikes = 0;
+        result = vv1_parents_load(slot, records);
+        if (result == VV1_LOAD_BLOCKED) {
+            /* The file cannot be read to tell whose it is: keep the table and
+               the file as they are, and ask again a strike window later. */
+            return 0;
+        }
+        if (result != VV1_LOAD_MATCHED) {
             vv1_parents_reset();  /* another village in this slot: start empty */
         }
-        g_strikes = 0;
+        g_may_replace = (result != VV1_LOAD_NONE);
         break;
     case 1:
         g_strikes = 0;
         vv1_take_roster(records, now);
         if (memcmp(now, g_roster, sizeof(now)) != 0) {
-            vv1_parents_save(slot);   /* takes the roster; a death or an arrival is rare */
+            vv1_parents_save(slot, records);   /* takes the roster; a death or an arrival is rare */
         }
         break;
     default:
@@ -1191,7 +1322,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageConceived(const void *records_po
                   (const unsigned char *)father_pointer) < 0) {
         return 0;
     }
-    return vv1_parents_save(slot);
+    return vv1_parents_save(slot, records);
 }
 
 /* From the executable's birth hook, through the Origins companion's Vv1Born:
@@ -1216,7 +1347,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
     birth.child = c;
     birth.mother = (int)(((const unsigned char *)mother_pointer - records) / VV1_RECORD_STRIDE);
     vv1_log_birth(records, &birth);   /* the log first, before anything is flushed */
-    vv1_parents_save(slot);
+    vv1_parents_save(slot, records);
     return 1;
 }
 
@@ -1228,7 +1359,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
         return 0;
     }
     if (vv1_frame(vv1_records(), 1)) {
-        vv1_parents_save(slot);
+        vv1_parents_save(slot, vv1_records());
     }
     return 1;
 }

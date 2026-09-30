@@ -375,16 +375,16 @@ On each new pregnancy, appends both parents' names, both parents' ages at concep
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
-- Guarded executable edits when its required base is also selected: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
-After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 **Needs Show Parents in Details Screen on for the "Parents:" lines in the Village Population roster. Needed by Write Births and Conceptions Log to Text File for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
 
-- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -622,15 +622,15 @@ Records both parents at conception in a plain text log: their names, both parent
 
 #### Write Village Statistics to Text File (`vv2_write_village_statistics`)
 
-After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 **Requires no other patch to be ticked. Needed by Write Births and Conceptions Log to Text File for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
 
-- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 21; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Virtual Villagers - The Secret City
 
@@ -759,11 +759,11 @@ Nature level 3 shifts every ordinary villager's complete mortality curve seven d
 
 #### Pointing Out a Rare Collectible Always Works (`vv3_rare_collectible_retry`)
 
-When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
+When the Tribal Chief completes Pointing out a rare collectible and the stock game rejects its random choice (a collectible a villager is already after, or a special one already collected), the whole stock selection is run again, up to 20 times in all, stopping as soon as a collectible is placed. In practice a collectible almost always appears instead of the stock cooldown being spent for nothing; if every attempt is refused (for example, when every special collectible has already been found), nothing is placed, exactly as in the stock game. The original rare categories, collectible IDs, collection rules and placement logic are unchanged.
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
+- Behavior changes: When the Tribal Chief completes Pointing out a rare collectible and the stock game rejects its random choice (a collectible a villager is already after, or a special one already collected), the whole stock selection is run again, up to 20 times in all, stopping as soon as a collectible is placed. In practice a collectible almost always appears instead of the stock cooldown being spent for nothing; if every attempt is refused (for example, when every special collectible has already been found), nothing is placed, exactly as in the stock game. The original rare categories, collectible IDs, collection rules and placement logic are unchanged.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -823,21 +823,21 @@ Records both parents at conception in a plain text log: their names, both parent
 
 #### Write Village Statistics to Text File (`vv3_write_village_statistics`)
 
-After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 **Requires no other patch to be ticked. Needed by Write Births and Conceptions Log to Text File for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
 
-- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Virtual Villagers - The Tree of Life
 
 ### Automatic population and safety changes
 
-Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 11 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 12 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
 
@@ -969,15 +969,15 @@ On each new pregnancy, appends the mother's and father's names, both parents' ag
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
-After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 **Requires no other patch to be ticked. Needed by Write Births and Conceptions Log to Text File for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
 
-- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Virtual Villagers - New Believers
 
@@ -1179,15 +1179,15 @@ On each new pregnancy, appends the mother's and father's names, both parents' ag
 
 #### Write Village Statistics to Text File (`vv5_write_village_statistics`)
 
-After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 **Requires no other patch to be ticked. Needed by Write Births and Conceptions Log to Text File for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
 
-- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the 'Virtual Villagers Fun Patcher Logs\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Transparency and validation boundaries
 

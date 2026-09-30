@@ -132,23 +132,33 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the new rows, 16/16/17 differing bytes per mode, every one inside the
     # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
     # 0x160..0x163; the length is unchanged.
-    # Re-pinned when Village-wide Running began clearing a full-Like
-    # villager's Running Dislike. Justified BEFORE re-pinning: main (fa80eb93)
-    # renders exactly the previous pin (1BF2BC70.../C2D11051.../0878A273...);
-    # the branch differs in 3 bytes per mode, the village-wide payload's
-    # full-Like jmp displacement at 0x7B8F0 (24 -> 03) and two bytes of the
-    # PE CheckSum at 0x160..0x161; the length is unchanged.
+    # Re-pinned when Origins "Cure all" moved its People Cured increment from
+    # the statistics block's save-time copy [edi+0x4FC] to the live counter
+    # [0x5824B0] (2026-09-30). Justified BEFORE re-pinning: with the previous
+    # vv3_origins_feature.json the render is exactly the previous pin
+    # (D4C10313.../D3BD1ECB.../91599ED3...); with the new one, the only
+    # differing bytes in every mode are 0x7B752..0x7B755 (that instruction's
+    # ModRM and operand) and the PE CheckSum at 0x160..0x161.
+    # Re-pinned for the Nature honey refill (#468) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the honey-refill patch records or the PE CheckSum.
+    # Re-pinned for the rare collectible retry (#470) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the rare-collectible patch records or the PE CheckSum.
+    # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
+    # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
+    # the only differing bytes are the PE CheckSum.
     "stock": (
-        "E9A096666B1FFB44ED613A447848648094324270920AA6EF5DBD5932178AB5C0",
-        "F5780D00",
+        "26E203135581EF8CDBF9DE83B14B36C621D9F1E3A8D90EC347E16A15C3809237",
+        "ADE20C00",
     ),
     "collection_progression": (
-        "3E564CD75FE1D32E821AD07E7D6FE2208F5250545E42CE0315A77A0E31A2E426",
-        "F5910D00",
+        "2CC59D137060A79AC8C97C4B471E67236EB08CDEBFCDE9546902D2F1ACA6A915",
+        "ADFB0C00",
     ),
     "immediate_fixed": (
-        "F935214A154DC9BFDFE2E374A189A0ADC28F975C7F4462E762CFBA9C3ECC1762",
-        "F4D30C00",
+        "DC7551178BF924A37612FBEF2426467018432EA127E8516E0F660BAAE037871C",
+        "AB3D0D00",
     ),
 }
 

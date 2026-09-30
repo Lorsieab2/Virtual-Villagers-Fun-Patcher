@@ -150,6 +150,53 @@ int main(void) {
     check(exists(stats2), "SLOT 2 STATISTICS SURVIVES (was destroyed before the fix)");
     check(exists(pop2), "SLOT 2 POPULATION SURVIVES (was destroyed before the fix)");
 
+    /* The statistics companion's per-slot data: the counters, the stew
+       discoveries and the elders, each a .dat addressed by slot, plus the
+       current "v2" statistics log. Start Over must clear slot 1's and leave
+       slot 2's. The reset is run as The Secret City, one of the three games
+       that make stews, and then as A New Home, which does not. */
+    {
+        char dat_dir[MAX_PATH], stew_dir[MAX_PATH], elder_dir[MAX_PATH], log_dir[MAX_PATH];
+        char s1[MAX_PATH], s2[MAX_PATH], st1[MAX_PATH], st2[MAX_PATH];
+        char e1[MAX_PATH], e2[MAX_PATH], tmp1[MAX_PATH], aside1[MAX_PATH];
+        char v2log1[MAX_PATH], v2log2[MAX_PATH];
+        if (!vv_save_subfolder(dat_dir, "Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
+            || !vv_save_subfolder(stew_dir, "Virtual Villagers Fun Patcher Data\\Stew Discoveries", 64)
+            || !vv_save_subfolder(elder_dir, "Virtual Villagers Fun Patcher Data\\Village Elders", 64)
+            || !vv_save_subfolder(log_dir, "Virtual Villagers Fun Patcher Logs\\Village Statistics", 64)) {
+            printf("could not resolve the data subfolders\n");
+            return 2;
+        }
+        wsprintfA(s1, "%s\\Village Statistics - Save 1.dat", dat_dir);
+        wsprintfA(s2, "%s\\Village Statistics - Save 2.dat", dat_dir);
+        wsprintfA(tmp1, "%s\\Village Statistics - Save 1.dat.tmp", dat_dir);
+        wsprintfA(st1, "%s\\Stew Discoveries - Save 1.dat", stew_dir);
+        wsprintfA(st2, "%s\\Stew Discoveries - Save 2.dat", stew_dir);
+        wsprintfA(aside1, "%s\\Stew Discoveries - Save 1.dat.unreadable", stew_dir);
+        wsprintfA(e1, "%s\\Village Elders - Save 1.dat", elder_dir);
+        wsprintfA(e2, "%s\\Village Elders - Save 2.dat", elder_dir);
+        wsprintfA(v2log1, "%s\\Village Statistics v2 - Save 1.txt", log_dir);
+        wsprintfA(v2log2, "%s\\Village Statistics v2 - Save 2.txt", log_dir);
+        touch(s1); touch(s2); touch(tmp1); touch(st1); touch(st2); touch(aside1);
+        touch(e1); touch(e2); touch(v2log1); touch(v2log2);
+        check(exists(s1) && exists(st1) && exists(e1) && exists(tmp1) && exists(v2log1),
+              "statistics data files exist before the reset (nonzero denominator)");
+        vv_reset_slot_state(3, 1, VILLAGE);
+        check(!exists(s1), "slot 1 Village Statistics .dat deleted");
+        check(!exists(tmp1), "slot 1 Village Statistics .dat.tmp deleted");
+        check(!exists(st1), "slot 1 Stew Discoveries .dat deleted");
+        check(!exists(e1), "slot 1 Village Elders .dat deleted");
+        check(!exists(v2log1), "slot 1 Village Statistics v2 log deleted");
+        check(exists(s2) && exists(st2) && exists(e2) && exists(v2log2),
+              "SLOT 2 statistics data SURVIVES");
+        check(exists(aside1), "a file set aside as unreadable is left alone");
+        touch(st1);
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(exists(st1), "A New Home, which makes no stews, leaves a stew file alone");
+        DeleteFileA(s2); DeleteFileA(st1); DeleteFileA(st2); DeleteFileA(aside1);
+        DeleteFileA(e2); DeleteFileA(v2log2);
+    }
+
     /* Parentage logs roll over by count, so they are matched by header. */
     check(!exists(log1), "parentage log of the erased village deleted");
     check(exists(log_other), "ANOTHER VILLAGE'S PARENTAGE LOG SURVIVES (header mismatch)");

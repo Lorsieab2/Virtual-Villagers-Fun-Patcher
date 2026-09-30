@@ -1675,7 +1675,11 @@ def main() -> None:
             cmp byte ptr [esi + 0xE89], 0
             je cure_next
             mov byte ptr [esi + 0xE89], 0
-            inc dword ptr [edi + 0x4FC]
+            # People Cured is the LIVE statistics block's +0x10, exactly as
+            # the stock cure (0x45B971). [manager+0x4FC] is only the block's
+            # save-time copy (manager+0x4EC+0x10), overwritten from the live
+            # block on every save, so a cure counted there was never shown.
+            inc dword ptr [0x5824B0]
             inc ebp
         cure_next:
             mov edx, esi
