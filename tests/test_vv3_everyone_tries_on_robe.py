@@ -132,17 +132,24 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the new rows, 16/16/17 differing bytes per mode, every one inside the
     # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
     # 0x160..0x163; the length is unchanged.
+    # Re-pinned when Origins "Cure all" moved its People Cured increment from
+    # the statistics block's save-time copy [edi+0x4FC] to the live counter
+    # [0x5824B0] (2026-09-30). Justified BEFORE re-pinning: with the previous
+    # vv3_origins_feature.json the render is exactly the previous pin
+    # (D4C10313.../D3BD1ECB.../91599ED3...); with the new one, the only
+    # differing bytes in every mode are 0x7B752..0x7B755 (that instruction's
+    # ModRM and operand) and the PE CheckSum at 0x160..0x161.
     "stock": (
-        "D4C10313262167320C50EC0BAE7567F0D9CC09C67975774D41182A681E82D419",
-        "4A7E0D00",
+        "6CCDE108C48937C64D4AD9290D525F8DAA02E684201DBF475B00D3B89657B647",
+        "E8890D00",
     ),
     "collection_progression": (
-        "D3BD1ECB899531918C573C407B0CEC8A82CFE233DDD37095D286FC41F85844C2",
-        "4A970D00",
+        "E53C7AB5EEE06D0C2B13837B7F58020B4C5B69879B67A0A5FD6DE24C42726CF1",
+        "E8A20D00",
     ),
     "immediate_fixed": (
-        "91599ED32D36459B58962BC9B6041C655C911D8B535B933AF3D5E684ED79C543",
-        "49D90C00",
+        "5CC58FD274B3CF4CDF3C0A79F2AE8539C97EEAD068772D92EE8D4193E8BCB7D8",
+        "E7E40C00",
     ),
 }
 
