@@ -115,5 +115,33 @@ class PeopleCuredTests(unittest.TestCase):
                 self.assertEqual(self.run_branch(game, False, cured=False)[0], 1)
 
 
+class SecretCityOriginsCureCountsTests(unittest.TestCase):
+    """The Secret City's Origins "Cure all" credits People Cured where the
+    stock cure does: the live statistics block (0x5824A0) +0x10. It used to
+    increment [manager+0x4FC], the block's save-time copy (manager+0x4EC),
+    which every save overwrites from the live block -- so Origins cures were
+    never counted (corruption audit, 2026-09-30)."""
+
+    LIVE_INC = bytes.fromhex("FF05B0245800")      # inc dword ptr [0x5824B0]
+    COPY_INC = bytes.fromhex("FF87FC040000")      # inc dword ptr [edi+0x4FC]
+
+    def test_the_stock_cure_increments_the_same_live_counter(self):
+        path = STOCK / "Virtual Villagers - The Secret City.exe"
+        if not path.exists():
+            self.skipTest("stock executable not available")
+        pe = pefile.PE(str(path), fast_load=True)
+        off = pe.get_offset_from_rva(0x45B971 - pe.OPTIONAL_HEADER.ImageBase)
+        self.assertEqual(pe.__data__[off:off + 6], self.LIVE_INC)
+
+    def test_the_origins_cure_increments_the_live_counter(self):
+        import json
+        manifest = json.loads((ROOT / "data" / "vv3_origins_feature.json").read_text(encoding="utf-8"))
+        cure = [bytes.fromhex(p["after"]) for p in manifest["patches"] if "clear sickness" in p.get("purpose", "")]
+        self.assertEqual(len(cure), 1)
+        self.assertEqual(cure[0].count(self.LIVE_INC), 1)
+        for patch in manifest["patches"]:
+            self.assertNotIn(self.COPY_INC, bytes.fromhex(patch["after"]), patch.get("purpose"))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -6,6 +6,7 @@
    Built and run by tests/test_village_elders.py. Prints one PASS/FAIL line
    per check and exits non-zero on any failure. */
 #include <windows.h>
+#include <sddl.h>
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
@@ -183,6 +184,40 @@ int wmain(int argc, wchar_t **argv) {
     memset(graves, 0, sizeof(graves));
     bury(0, "Ata", 1); bury(1, "Bea", 0); bury(2, "Cai", 1);
     check(vv_village_elders_file(3, dat, tmp, &l) == 2, "a new .dat counts the elders the game flagged on existing graves");
+
+    /* Locked file (a sync client, scanner or permission problem): not
+       treated as missing -- nothing is read, nothing replaces it, and the
+       history is intact once it can be read again. Modelled with an ACL that
+       denies only reading the data while still allowing the file to be
+       replaced: exactly the case that used to lose the history (open failed
+       -> empty history -> the real file replaced). A handle held open cannot
+       model it, because Windows refuses to replace any file with an open
+       handle. */
+    {
+        HANDLE h2;
+        PSECURITY_DESCRIPTOR deny = NULL, allow = NULL;
+        char before[4096], after[4096];
+        DWORD before_n = 0, after_n = 0;
+        h2 = CreateFileW(dat, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        ReadFile(h2, before, sizeof(before), &before_n, NULL);
+        CloseHandle(h2);
+        check(ConvertStringSecurityDescriptorToSecurityDescriptorW(L"D:(D;;0x1;;;WD)(A;;FA;;;WD)", SDDL_REVISION_1,
+                                                                   &deny, NULL)
+              && ConvertStringSecurityDescriptorToSecurityDescriptorW(L"D:(A;;FA;;;WD)", SDDL_REVISION_1, &allow, NULL)
+              && SetFileSecurityW(dat, DACL_SECURITY_INFORMATION, deny),
+              "the harness can make the elders file unreadable");
+        bury(3, "Dov", 1);
+        check(vv_village_elders_file(3, dat, tmp, &l) == -1, "a locked elders file reports nothing");
+        SetFileSecurityW(dat, DACL_SECURITY_INFORMATION, allow);
+        LocalFree(deny);
+        LocalFree(allow);
+        h2 = CreateFileW(dat, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        ReadFile(h2, after, sizeof(after), &after_n, NULL);
+        CloseHandle(h2);
+        check(before_n > 0 && before_n == after_n && memcmp(before, after, before_n) == 0,
+              "... and the locked file is left byte-for-byte unchanged");
+        check(vv_village_elders_file(3, dat, tmp, &l) == 3, "once readable, the history continues from the file");
+    }
 
     /* Corrupt / foreign file: preserved, never overwritten, nothing taken. */
     {

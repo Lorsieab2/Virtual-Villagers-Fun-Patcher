@@ -45,7 +45,7 @@ class VillageEldersHarnessTests(unittest.TestCase):
                str(ROOT / "native" / "shared" / "save_folder.c"),
                f"/Fe{exe}", f"/Fo{cls.work}\\",
                "/link", f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
-               f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}", "shell32.lib", "ole32.lib", "user32.lib"]
+               f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}", "shell32.lib", "ole32.lib", "user32.lib", "advapi32.lib"]
         build = subprocess.run(cmd, capture_output=True, text=True, cwd=cls.work)
         if build.returncode != 0:
             raise AssertionError(build.stdout[-2000:] + build.stderr[-2000:])
@@ -74,7 +74,10 @@ class VillageEldersHarnessTests(unittest.TestCase):
                      "a renamed elder is not counted again",
                      "a buried elder is matched to their line, not counted twice",
                      "a new .dat counts the elders the game flagged on existing graves",
-                     "a file for another game is not read"):
+                     "a file for another game is not read",
+                     "a locked elders file reports nothing",
+                     "... and the locked file is left byte-for-byte unchanged",
+                     "once readable, the history continues from the file"):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
 

@@ -57,6 +57,7 @@
    - A grave is matched to an E line by name; two dead elders sharing a name
      between two saves could be taken for one. */
 #include <windows.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
@@ -127,15 +128,21 @@ static int path_for(int save_id, wchar_t *path, const wchar_t *suffix) {
                         folder, save_id, suffix) > 0;
 }
 
-/* 1 = loaded (or absent: empty history), 0 = unreadable (moved aside). */
+/* 1 = loaded (or absent: empty history), 0 = unreadable (moved aside),
+   -1 = present but cannot be opened (locked by a sync client or scanner):
+   neither read nor written this time. */
 static int load(int game_id, const wchar_t *path) {
     FILE *f;
     char line[512];
     char header[64];
+    errno_t opened;
     g_count = 0;
     g_graves_seen = -1;               /* -1: no history yet */
-    if (_wfopen_s(&f, path, L"rb") != 0 || f == NULL) {
-        return 1;                     /* missing file: new, empty history */
+    opened = _wfopen_s(&f, path, L"rb");
+    if (opened != 0 || f == NULL) {
+        /* Only a file that is not there is a new, empty history. Anything
+           else would start from nothing and then replace the real file. */
+        return opened == ENOENT ? 1 : -1;
     }
     _snprintf_s(header, sizeof(header), _TRUNCATE, "VVFP VILLAGE ELDERS v1 game=%d", game_id);
     if (fgets(line, sizeof(line), f) == NULL || strncmp(line, header, strlen(header)) != 0
@@ -242,10 +249,15 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
     unsigned int index;
     unsigned int occupied = 0;
     int fresh;
+    int loaded;
     if (l == NULL || path == NULL || temporary == NULL) {
         return -1;
     }
-    if (!load(game_id, path)) {
+    loaded = load(game_id, path);
+    if (loaded < 0) {
+        return -1;                    /* locked: leave it untouched, retry next save */
+    }
+    if (loaded == 0) {
         /* Unreadable: keep it, never overwrite it, take nothing from it. */
         int n;
         int moved = 0;

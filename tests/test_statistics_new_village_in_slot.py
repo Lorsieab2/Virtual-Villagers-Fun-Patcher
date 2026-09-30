@@ -102,26 +102,9 @@ class NewVillageInSlotTests(unittest.TestCase):
         self.assertIn("vv1_village_elders(manager);", body[update:opened])
         self.assertIn("village_elders_for(game_id);", body[update:opened])
 
-    def test_renaming_never_looks_like_a_new_village(self):
-        """Codex (PR #467): renaming every living villager must not discard
-        the slot's tracking. Same slot AND (same name OR same fingerprint of
-        likes, dislikes and parents' names)."""
-        body = EXPORTER[EXPORTER.index("static int same_villager("):]
-        body = body[:body.index("\n}\n")]
-        self.assertIn("same fingerprint", body)
-        self.assertIn("same name", body)
-        self.assertIn("same_villager(g_roster_was[i], g_roster_now[j])", EXPORTER)
-
-    def test_one_coincidental_name_is_not_the_same_village(self):
-        """Codex (PR #467, round 3): names come from fixed pools, so one
-        same-slot name match must not preserve the old statistics; a strict
-        majority of the smaller roster must match, each old row used once."""
-        check = EXPORTER[EXPORTER.index("static int village_changed("):]
-        check = check[:check.index("\n}\n")]
-        self.assertIn("if (!used[i] && same_villager(g_roster_was[i], g_roster_now[j])) {", check)
-        self.assertIn("used[i] = 1;", check)
-        self.assertIn("smaller = was < g_roster_now_count ? was : g_roster_now_count;", check)
-        self.assertIn("return matched * 2 > smaller ? ROSTER_SAME : ROSTER_NEW;", check)
+    # Which rosters are the same village (renames, a lone coincidental name,
+    # a tiny village's birth and death) is tested against the real C in
+    # tests/test_roster_match.py.
 
     def test_an_unreadable_roster_is_never_the_same_village(self):
         """Codex (PR #467, round 3): only a MISSING roster is a first run. A

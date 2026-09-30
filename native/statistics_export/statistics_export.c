@@ -6,6 +6,7 @@
 #include "village_identity.h"
 #include "save_folder.h"
 #include "village_elders.h"
+#include "roster_match.h"
 #include "statistics_store.h"
 
 enum {
@@ -1203,7 +1204,7 @@ static const struct roster_layout ROSTER_LAYOUTS[6] = {
       0x1F5Cu, 0x1F68u, 3u, 0x1BC0u, 0x1BD9u, 0x19u },                   /* VV5 */
 };
 
-#define ROSTER_MAX 256
+#define ROSTER_MAX VV_ROSTER_MAX
 #define ROSTER_NAME 32
 #define ROSTER_ROW (ROSTER_NAME + 24)
 static char g_roster_now[ROSTER_MAX][ROSTER_ROW];
@@ -1223,27 +1224,6 @@ static unsigned int bounded_len(const unsigned char *p, unsigned int capacity) {
         ++n;
     }
     return n;
-}
-
-/* "slot<TAB>name<TAB>fingerprint" rows: same villager = same slot and
-   (same name or same fingerprint). A row without a fingerprint (none is ever
-   written without one) matches by name only. */
-static int same_villager(const char *a, const char *b) {
-    const char *ta = strchr(a, '\t');
-    const char *tb = strchr(b, '\t');
-    const char *fa, *fb;
-    if (ta == NULL || tb == NULL || ta - a != tb - b || strncmp(a, b, (size_t)(ta - a)) != 0) {
-        return 0;                                  /* different slot */
-    }
-    fa = strchr(ta + 1, '\t');
-    fb = strchr(tb + 1, '\t');
-    if (fa != NULL && fb != NULL && strcmp(fa, fb) == 0) {
-        return 1;                                  /* same fingerprint */
-    }
-    if (fa == NULL || fb == NULL) {
-        return fa == NULL && fb == NULL ? strcmp(ta, tb) == 0 : 0;
-    }
-    return fa - ta == fb - tb && strncmp(ta, tb, (size_t)(fa - ta)) == 0;   /* same name */
 }
 
 static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
@@ -1322,10 +1302,16 @@ static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
    disk.
      ROSTER_SAME     the same village, or nothing to compare yet (the roster
                      file does not exist: the first save with this build)
-     ROSTER_NEW      a different village: a strict MAJORITY of the smaller
-                     roster fails to match. One coincidental same-slot name
-                     (names come from fixed pools) is not enough, and births
-                     and deaths between two saves never approach half.
+     ROSTER_NEW      a different village: no living villager is shared. A
+                     villager is shared when it has the same slot and the
+                     same fingerprint (the owner's rule: any overlap is the
+                     same village, so a two-villager village where one died
+                     and one was born is still itself). A same-slot NAME
+                     alone is weaker -- names come from fixed pools, so a new
+                     village's founders coincide with the old roster's names
+                     routinely -- and name-only matches decide it only as a
+                     strict majority of the smaller roster (a survivor whose
+                     likes changed).
      ROSTER_DAMAGED  the roster exists but is not a valid roster: identity is
                      unknown, so it is handled as a new village -- the old
                      files are archived, never merged into
@@ -1338,9 +1324,8 @@ static int village_changed(int game_id, int save_id) {
     wchar_t roster[MAX_PATH], temporary[MAX_PATH];
     FILE *f;
     char line[128];
-    char used[ROSTER_MAX];
     int was = 0;
-    int i, j, matched = 0, smaller;
+    int i;
     g_roster_now_count = living_roster(game_id, g_roster_now);
     if (!roster_paths(save_id, roster, temporary)) {
         return ROSTER_LOCKED;
@@ -1377,18 +1362,8 @@ static int village_changed(int game_id, int save_id) {
     if (was == 0 || g_roster_now_count == 0) {
         return ROSTER_SAME;           /* nothing to compare */
     }
-    memset(used, 0, sizeof(used));
-    for (j = 0; j < g_roster_now_count; ++j) {
-        for (i = 0; i < was; ++i) {
-            if (!used[i] && same_villager(g_roster_was[i], g_roster_now[j])) {
-                used[i] = 1;
-                ++matched;
-                break;
-            }
-        }
-    }
-    smaller = was < g_roster_now_count ? was : g_roster_now_count;
-    return matched * 2 > smaller ? ROSTER_SAME : ROSTER_NEW;
+    return vv_roster_same_village(&g_roster_was[0][0], was, &g_roster_now[0][0], g_roster_now_count,
+                                  ROSTER_ROW) ? ROSTER_SAME : ROSTER_NEW;
 }
 
 /* AFTER the stock save succeeded: for a new village, move the slot's three
