@@ -155,6 +155,7 @@ class TestBuildsStayOutOfTheRelease(unittest.TestCase):
         """`git archive` (the release source zip) honours export-ignore, so the
         test builds never reach a release, source or patcher zip."""
         rules = (ROOT / ".gitattributes").read_text(encoding="utf-8").splitlines()
+        self.assertIn("/tests/test_dlls export-ignore", rules)
         self.assertIn("/tests/test_dlls/** export-ignore", rules)
 
     @unittest.skipUnless((ROOT / ".git").exists(), "not a git checkout")
@@ -168,7 +169,7 @@ class TestBuildsStayOutOfTheRelease(unittest.TestCase):
         self.assertEqual(sorted(Path(t).name for t in tracked),
                          sorted(name for name, _ in TEST_BUILDS.values()))
 
-    @unittest.skipUnless(TEST_DLLS.is_dir(), "test builds are not in the release source archive (tests/test_dlls)")
+    @unittest.skipUnless(any(TEST_DLLS.glob("*.test.dll")), "test builds are not in the release source archive (tests/test_dlls)")
     def test_each_test_build_is_the_shipped_dll_plus_its_hooks(self):
         for shipped, (test_name, native) in TEST_BUILDS.items():
             with self.subTest(dll=shipped):
