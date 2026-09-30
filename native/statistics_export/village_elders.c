@@ -16,7 +16,8 @@
    FILE. "<save folder>\Virtual Villagers Fun Patcher Data\Village Elders\
    Village Elders - Save N.dat", plain text, deterministic:
 
-       VVFP VILLAGE ELDERS v1 game=<1..5>
+       VVFP VILLAGE ELDERS v2 game=<1..5>     (v1 had no "open" field and is
+                                              never read: moved aside, kept)
        graves_seen=<memorial entries already examined>
        E<TAB>slot<TAB>name<TAB>father<TAB>mother<TAB>gone<TAB>open
        G<TAB>-1<TAB>name<TAB><TAB><TAB>1<TAB>0
@@ -144,7 +145,7 @@ static int load(int game_id, const wchar_t *path) {
            else would start from nothing and then replace the real file. */
         return opened == ENOENT ? 1 : -1;
     }
-    _snprintf_s(header, sizeof(header), _TRUNCATE, "VVFP VILLAGE ELDERS v1 game=%d", game_id);
+    _snprintf_s(header, sizeof(header), _TRUNCATE, "VVFP VILLAGE ELDERS v2 game=%d", game_id);
     if (fgets(line, sizeof(line), f) == NULL || strncmp(line, header, strlen(header)) != 0
         || (line[strlen(header)] != '\r' && line[strlen(header)] != '\n')) {
         fclose(f);
@@ -203,7 +204,7 @@ static int save(int game_id, const wchar_t *path, const wchar_t *temporary) {
     if (_wfopen_s(&f, temporary, L"w") != 0 || f == NULL) {
         return 0;
     }
-    fprintf(f, "VVFP VILLAGE ELDERS v1 game=%d\ngraves_seen=%d\n", game_id, g_graves_seen);
+    fprintf(f, "VVFP VILLAGE ELDERS v2 game=%d\ngraves_seen=%d\n", game_id, g_graves_seen);
     for (i = 0; i < g_count; ++i) {
         const struct elder *e = &g_elders[i];
         fprintf(f, "%c\t%d\t%s\t%s\t%s\t%d\t%d\n", e->kind, e->slot, e->name, e->father, e->mother, e->gone,

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "92D1368738CA84F008AD3F6A27CB6B1B49CF3543A39DB4D1C7957418E91977ED",
+  "companion_sha256": "6A085555C37BB5AD2549C22C7581AE30B61E56F9DC0DB9A2F5C2E103D0A5C2CB",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -18,7 +18,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "92D1368738CA84F008AD3F6A27CB6B1B49CF3543A39DB4D1C7957418E91977ED"
+          "sha256": "6A085555C37BB5AD2549C22C7581AE30B61E56F9DC0DB9A2F5C2E103D0A5C2CB"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -59,7 +59,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "92D1368738CA84F008AD3F6A27CB6B1B49CF3543A39DB4D1C7957418E91977ED"
+          "sha256": "6A085555C37BB5AD2549C22C7581AE30B61E56F9DC0DB9A2F5C2E103D0A5C2CB"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -208,7 +208,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "92D1368738CA84F008AD3F6A27CB6B1B49CF3543A39DB4D1C7957418E91977ED"
+          "sha256": "6A085555C37BB5AD2549C22C7581AE30B61E56F9DC0DB9A2F5C2E103D0A5C2CB"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -279,7 +279,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "92D1368738CA84F008AD3F6A27CB6B1B49CF3543A39DB4D1C7957418E91977ED"
+          "sha256": "6A085555C37BB5AD2549C22C7581AE30B61E56F9DC0DB9A2F5C2E103D0A5C2CB"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -356,7 +356,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "92D1368738CA84F008AD3F6A27CB6B1B49CF3543A39DB4D1C7957418E91977ED"
+          "sha256": "6A085555C37BB5AD2549C22C7581AE30B61E56F9DC0DB9A2F5C2E103D0A5C2CB"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",

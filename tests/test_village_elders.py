@@ -77,7 +77,9 @@ class VillageEldersHarnessTests(unittest.TestCase):
                      "a file for another game is not read",
                      "a locked elders file reports nothing",
                      "... and the locked file is left byte-for-byte unchanged",
-                     "once readable, the history continues from the file"):
+                     "once readable, the history continues from the file",
+                     "a v1 elders file is not read as v2",
+                     "... and it is kept aside beside the earlier one"):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
 

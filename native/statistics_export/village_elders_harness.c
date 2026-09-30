@@ -223,7 +223,7 @@ int wmain(int argc, wchar_t **argv) {
     {
         FILE *f;
         _wfopen_s(&f, dat, L"wb");
-        fputs("VVFP VILLAGE ELDERS v1 game=5\r\ngraves_seen=0\r\nE\t0\tX\t\t\t0\r\n", f);   /* wrong game */
+        fputs("VVFP VILLAGE ELDERS v2 game=5\r\ngraves_seen=0\r\nE\t0\tX\t\t\t0\t1\r\n", f);   /* wrong game */
         fclose(f);
     }
     memset(graves, 0, sizeof(graves));
@@ -236,6 +236,26 @@ int wmain(int argc, wchar_t **argv) {
         FindClose(h);
     }
     check(GetFileAttributesW(tmp) == INVALID_FILE_ATTRIBUTES, "no temporary file is left behind");
+
+    /* The earlier v1 format (no "open" field) is never read as v2: kept
+       aside, never overwritten, nothing taken from it. */
+    {
+        FILE *f;
+        int aside = 0;
+        _wfopen_s(&f, dat, L"wb");
+        fputs("VVFP VILLAGE ELDERS v1 game=3\r\ngraves_seen=0\r\nE\t0\tX\t\t\t0\r\n", f);
+        fclose(f);
+        memset(graves, 0, sizeof(graves));
+        check(vv_village_elders_file(3, dat, tmp, &l) == 0, "a v1 elders file is not read as v2");
+        h = FindFirstFileW(pattern, &found);
+        if (h != INVALID_HANDLE_VALUE) {
+            do {
+                ++aside;
+            } while (FindNextFileW(h, &found));
+            FindClose(h);
+        }
+        check(aside == 2, "... and it is kept aside beside the earlier one");
+    }
 
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
