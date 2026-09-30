@@ -366,7 +366,10 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         self.assertEqual(self.by_off[MASK_DY_FILE_OFFSET]["after"], "2222222222")
         self.assertEqual(
             hashlib.sha256(bytes.fromhex(self.by_off[MASK_HEAD_FILE_OFFSET]["after"])).hexdigest().upper(),
-            "1DE3116F95E410366A44109FF914C43AB6FC60E9C964B09189EAB5C1D33FBF73",
+            # Re-pinned when MASK_DETAILS_ROW/COL moved off the Barrel/Island requeue
+            # code (0x728A50/54 -> 0x728D48/4C): the only changed bytes are those six
+            # absolute operands; geometry and routes are byte-identical.
+            "F7BFA0280E880ADC7E3A07FFF29BC178E1D3CAC009BD0CE6D35B3A38C4D9AA98",
         )
 
     def test_confirmed_details_head_is_redirected_to_the_head_cave(self) -> None:
