@@ -8867,19 +8867,27 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
             owned.add(destination.as_posix().casefold())
     for log_path in output_folder.glob("*.patch-log.json"):
         try:
-            records = json.loads(log_path.read_text(encoding="utf-8")).get(
-                "companion_files", []
-            )
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+            records = log.get("companion_files", [])
         except (OSError, ValueError, AttributeError):
             continue
+        # The log records absolute paths. Resolve them against the folder the
+        # log itself says it was published to, so an install moved since then
+        # (both folders relocated together) still names its own companions.
+        bases = [output_folder]
+        recorded = log.get("output_path")
+        if isinstance(recorded, str) and recorded:
+            bases.insert(0, Path(recorded).parent)
         for record in records if isinstance(records, list) else ():
-            try:
-                _, key = _companion_relative_destination(
-                    Path(record["path"]), output_folder
-                )
-            except (PatcherError, KeyError, TypeError):
-                continue
-            owned.add(key)
+            for base in bases:
+                try:
+                    _, key = _companion_relative_destination(
+                        Path(record["path"]), base
+                    )
+                except (PatcherError, KeyError, TypeError):
+                    continue
+                owned.add(key)
+                break
     return owned
 
 

@@ -103,6 +103,28 @@ class OverwriteDropsUnselectedCompanionsTests(unittest.TestCase):
         self._apply(out, (), overwrite=True)
         self.assertFalse(retired.exists())
 
+    def test_a_moved_install_still_drops_its_logged_companions(self):
+        # The log's paths are absolute. When the modded folder is moved before
+        # the next overwrite, they must still be resolved against the folder
+        # the log was published to, not silently kept as player files.
+        old_root = self.base / "old"
+        folder = self._apply(old_root, (), overwrite=False)
+        retired = folder / "VVFP Retired Feature.dll"
+        retired.write_bytes(b"MZ")
+        log = next(folder.glob("*.patch-log.json"))
+        data = json.loads(log.read_text(encoding="utf-8"))
+        data["companion_files"] = [
+            {"feature": "vv1_retired", "path": str(retired), "sha256": "00"}
+        ]
+        log.write_text(json.dumps(data), encoding="utf-8")
+        new_root = self.base / "moved"
+        new_root.mkdir()
+        moved = new_root / folder.name
+        shutil.move(str(folder), str(moved))
+        self.assertTrue((moved / retired.name).exists())
+        self._apply(new_root, (), overwrite=True)
+        self.assertFalse((moved / retired.name).exists())
+
 
 if __name__ == "__main__":
     unittest.main()
