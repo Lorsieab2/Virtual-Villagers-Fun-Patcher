@@ -377,17 +377,23 @@ class NewHomeBuildFirstTests(unittest.TestCase):
             self._assert_builds(r, 10)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_an_untouched_hut_is_never_started_whatever_the_population(self):
-        # Progress 0, or the drawing routine's scaffold mark 1: not
-        # construction at any population, above the stock 22 / 45 included.
+    def test_an_untouched_hut_is_started_only_above_the_stock_numbers(self):
+        # Progress 0, or the drawing routine's scaffold mark 1: construction
+        # only above 22 (hut 10) / 45 (hut 11), as in the stock game.
         for site, stub, level in self._sites():
           with self.subTest(site=site):
             for progress in (0, 1):
-                for population in (10, 15, 23, 60):
+                for population in (10, 15, 22):
                     self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=population,
                                              projects={10: (progress, 0)}).examined)
+                for population in (10, 28, 45):
                     self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 1, 0), population=population,
                                              projects={11: (progress, 0)}).examined)
+                # Above 22 / 45 an untouched hut is construction, as in the stock game.
+                self._assert_builds(Run("vv1", stub, level=level, huts=(1, 0, 1), population=23,
+                                        projects={10: (progress, 0)}), 10)
+                self._assert_builds(Run("vv1", stub, level=level, huts=(1, 1, 0), population=46,
+                                        projects={11: (progress, 0)}), 11)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_started_hut_is_built_whatever_the_population(self):

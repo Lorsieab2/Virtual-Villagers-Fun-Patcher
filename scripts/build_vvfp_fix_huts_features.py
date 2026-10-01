@@ -95,7 +95,11 @@ HUTS = {
         "but its builders will not work on the second hut until there are more than 22 villagers, nor on "
         "the third until there are more than 45 -- and above those numbers they start one on their own, "
         "while a hut they have already started is abandoned whenever the population falls back to 22 (or "
-        "45) or below." + _MANUAL + " Builder Action Fixes makes the same change in the executable."
+        "45) or below. With this patch, at or below 22 (or 45) villagers builders only work on the "
+        "second or third population hut once you have dropped a villager on it at least once, and from then "
+        "on they finish it whatever the population; above that, as in the original game, they may start it "
+        "themselves. This holds every time the game chooses, not only three times in four. Builder Action "
+        "Fixes makes the same change in the executable."
     ),
     "vv2": (
         " The new population huts also change. The normal game has a hidden rule here: it shows the "
@@ -107,13 +111,13 @@ HUTS = {
     ),
 }
 HUT_GATE_BEHAVIOR = {
-    "vv1": "The Building branch's new-hut test (0x44754A) is replaced: hut 10 and hut 11 are built while they are not complete and their progress is 2 or more, whatever the population (stock: more than 22 / more than 45 villagers, whatever the progress). The village drawing routine marks a shown scaffold with progress 1 (0x414B0C, 0x414BF1); a villager the player drops on it works it past that. So builders never start one of these huts by themselves and always finish one the player has started. Hut 9, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
+    "vv1": "The Building branch's new-hut test (0x44754A) is extended: hut 10 and hut 11 are built while they are not complete and either their progress is 2 or more, at any population, or the population is above 22 / 45 as in the stock game (stock: only the population, whatever the progress). The village drawing routine marks a shown scaffold with progress 1 (0x414B0C, 0x414BF1); a villager the player drops on it works it past that. So at or below 22 / 45 builders never start one of these huts by themselves and always finish one the player has started; above, they may start it as the stock game does. Hut 9, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
     "vv2": "The Building branch's new-hut test (0x4600DE) is replaced: hut 25 and hut 26 are built while they are not complete and their progress is 2 or more, whatever the population (stock: also more than 22 / more than 45 villagers). The village drawing routine marks a shown scaffold with progress 1 (0x419702, 0x41977D); a villager the player drops on it works it past that. So builders never start one of these huts by themselves and always finish one the player has started. Hut 24, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
 }
 GATE_RUNTIME = {
     "vv1": {"va": "0x44754A",
             "stock_bytes": "E8415AFDFF83F8167E228B9610E00300389AF09F00007414536A0A558BCEE823ABFFFF5F5D8AC35B5EC208008B8E10E00300E80F5AFDFF83F82D7E4B8B8610E003003898F89F0000743D",
-            "routine": "the Building dispatcher's new-hut test for huts 10 and 11 (0x4472C0), replaced by not complete and progress >= 2; Builder Action Fixes' identical bytes are accepted as already in place"},
+            "routine": "the Building dispatcher's new-hut test for huts 10 and 11 (0x4472C0), replaced by not complete and (progress >= 2 or population above 22 / 45); Builder Action Fixes' identical bytes are accepted as already in place"},
 }
 # The Lost Children's companion is installed only once the village is first
 # drawn, after the load-time catch-up of a session has already run, so its new-
@@ -176,7 +180,7 @@ LEVEL_BEHAVIOR = {
 # goes straight into that construction).  See "Build first, fix last" and
 # "About three times in four" in the companion's source.
 BUILD_FIRST_BEHAVIOR = {
-    "vv1": "Construction always comes first: where the Building branch reaches the hut fix although it has a new hut to build (hut 9, or hut 10 or 11 once the player has worked on it) or a started project open at this Building level -- after its 20% 'not this time' roll, or at the level-3 gate -- the builder goes straight into that construction through the branch's own code for it, and a hut is fixed only when there is nothing to build.",
+    "vv1": "Construction always comes first: where the Building branch reaches the hut fix although it has a new hut to build (hut 9, or hut 10 or 11 once the player has worked on it or the population is above 22 / 45) or a started project open at this Building level -- after its 20% 'not this time' roll, or at the level-3 gate -- the builder goes straight into that construction through the branch's own code for it, and a hut is fixed only when there is nothing to build.",
     "vv2": "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the player has worked on it, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one): the builder goes straight into the first of them, in the branch's own order, through the branch's own code for it.",
     "vv3": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, so a builder fixes a hut only when there is no construction to choose. The Secret City's Building branch has no random roll that skips construction, so there is nothing to go straight into.",
     "vv4": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), the options it took are put back, by the branch's own tests and in its own order, and the stock pick goes straight into one of them; a hut is fixed only when there is no construction at all.",
