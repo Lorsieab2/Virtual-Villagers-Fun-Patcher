@@ -370,23 +370,24 @@ class NewHomeBuildFirstTests(unittest.TestCase):
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_an_unlocked_new_hut_is_built_not_a_fix(self):
-        # Hut 9 built, hut 10 unbuilt and its scaffold standing (population 23).
+        # Hut 9 built, hut 10 unbuilt and worked on by the player (progress 5).
         for site, stub, level in self._sites():
           with self.subTest(site=site):
-            r = Run("vv1", stub, level=level, huts=(1, 0, 0), population=23)
+            r = Run("vv1", stub, level=level, huts=(1, 0, 0), population=23, projects={10: (5, 0)})
             self._assert_builds(r, 10)
-            self.assertEqual(r.population_asked, STATE, "the game's own counter, on the village state")
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_population_thresholds_are_the_scaffolds(self):
-        # The scaffold shows at 15 (hut 10) and 28 (hut 11), or with any
-        # progress; below, an unstarted hut is not construction.
+    def test_an_untouched_hut_is_never_started_whatever_the_population(self):
+        # Progress 0, or the drawing routine's scaffold mark 1: not
+        # construction at any population, above the stock 22 / 45 included.
         for site, stub, level in self._sites():
           with self.subTest(site=site):
-            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=14).examined)
-            self._assert_builds(Run("vv1", stub, level=level, huts=(1, 0, 1), population=15), 10)
-            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 1, 0), population=27).examined)
-            self._assert_builds(Run("vv1", stub, level=level, huts=(1, 1, 0), population=28), 11)
+            for progress in (0, 1):
+                for population in (10, 15, 23, 60):
+                    self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=population,
+                                             projects={10: (progress, 0)}).examined)
+                    self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 1, 0), population=population,
+                                             projects={11: (progress, 0)}).examined)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_started_hut_is_built_whatever_the_population(self):
@@ -395,7 +396,7 @@ class NewHomeBuildFirstTests(unittest.TestCase):
         # scaffold.  A complete hut is never built again.
         for site, stub, level in self._sites():
           with self.subTest(site=site):
-            for progress in (12, 1):
+            for progress in (12, 2):
                 self._assert_builds(Run("vv1", stub, level=level, huts=(1, 0, 1), population=5,
                                         projects={10: (progress, 0)}), 10)
                 self._assert_builds(Run("vv1", stub, level=level, huts=(1, 1, 0), population=5,
@@ -440,7 +441,7 @@ class NewHomeBuildFirstTests(unittest.TestCase):
             r = Run("vv1", stub, level=level, huts=(1, 0, 1), population=30, hut_call=gated)
             self.assertIsNotNone(r.examined, "the gate would skip it: the fix, not a loop")
             r = Run("vv1", stub, level=level, huts=(1, 0, 1), population=30, hut_call=gated,
-                    projects={10: (4, 0)})
+                    projects={10: (4, 0)})  # worked on by the player
             self._assert_builds(r, 10)
 
 

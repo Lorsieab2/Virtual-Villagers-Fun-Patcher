@@ -766,14 +766,15 @@ def _low(game):
 SCENARIOS = {
     "vv1": [
         ("idle hut fix", dict(huts=(1, 0, 0)), [("examine", 9)], {V1["hut_site"], V1["level_site"]}),
-        ("option A at the skip roll", dict(huts=(1, 0, 0), population=23, rolls=lambda: Rolls(
+        ("option A at the skip roll", dict(huts=(1, 0, 0), projects={10: (5, 0)}, population=23, rolls=lambda: Rolls(
             {V1["gate_roll"]: 99, V1["first_roll"]: 0})), [("build hut", 10)], {V1["hut_site"]}),
-        ("option A at the level gate", dict(huts=(1, 0, 0), population=23, level=2, rolls=lambda: Rolls(
+        ("option A at the level gate", dict(huts=(1, 0, 0), projects={10: (5, 0)}, population=23, level=2, rolls=lambda: Rolls(
             {V1["gate_roll"]: 99, V1["first_roll"]: 0})), [("build hut", 10)], {V1["level_site"]}),
         ("below level 3, every hut built", dict(huts=(1, 1, 1), level=2), [("examine", 11)], {V1["level_site"]}),
         ("food bypass", dict(huts=(1, 0, 0), food=500), [("examine", 9)], {V1["food_site"], V1["low"]}),
         ("healer keeps studying", dict(pref=5, activity=9, food=500, cont=1), [("continue",)], {V1["high"]}),
-        ("work first", dict(preferred_pick=0, huts=(1, 0, 0), population=23), [("build hut", 10)],
+        ("work first", dict(preferred_pick=0, huts=(1, 0, 0), projects={10: (5, 0)}, population=23),
+         [("build hut", 10)],
          {V1["disp"]}),
     ],
     "vv2": [

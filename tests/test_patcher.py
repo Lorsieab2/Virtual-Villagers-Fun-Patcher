@@ -2667,8 +2667,8 @@ class StockIntegrationTests(unittest.TestCase):
                 call = bytes(rendered[offset : offset + 5])
                 self.assertEqual(call, bytes(baseline[offset : offset + 5]))
                 self.assertEqual(offset + 5 + struct.unpack_from("<i", call, 1)[0], 0x42090)
-        self.assertEqual(bytes(rendered[0x47565:0x4756A]), bytes.fromhex("536A0AEBCF"))
-        self.assertEqual(0x4756A + struct.unpack_from("<b", rendered, 0x47569)[0], 0x47539)
+        self.assertEqual(bytes(rendered[0x4755B:0x47560]), bytes.fromhex("536A0AEBD9"))
+        self.assertEqual(0x47560 + struct.unpack_from("<b", rendered, 0x4755F)[0], 0x47539)
         self.assertEqual(bytes(rendered[0x568E1:0x56900]), bytes(0x1F))
 
         # The other shared stock gate users cover manual/existing and repair paths.
