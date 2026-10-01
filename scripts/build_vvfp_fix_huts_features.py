@@ -45,7 +45,14 @@ DLL = ROOT / "assets" / "fix_huts" / "VVFP Fix Huts.dll"
 STOCK_VV3 = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 
 DESCRIPTION = (
-    "Builders fix huts when no building projects are present. When no building "
+    "Builders fix huts when no building projects are present, and build first. "
+    "This makes builders more likely to do their building work, not certain: "
+    "each time the game chooses what a builder does, the patch steps in about "
+    "three times in four, and the rest of the time the game chooses exactly as "
+    "it always has. When it steps in, construction always comes first -- a "
+    "builder goes straight into a new hut or building project the game would "
+    "let it build, even when the game's own random roll would have skipped it "
+    "this time, and never fixes a hut while there is one. When no building "
     "project is available to be worked on and at least one population hut "
     "stands -- while another is unbuilt, and below Building level 3 even once "
     "every one is built -- a builder with nothing to do examines and fixes one "
@@ -56,12 +63,26 @@ DESCRIPTION = (
     "this regardless of the food supply: plentiful food no longer skips "
     "the builder's work attempt (A New Home, The Lost Children), and scarce "
     "food no longer sends the builder to farm or gather first (The Secret City, "
-    "The Tree of Life, New Believers). Applies in live play and during catch-up. "
+    "The Tree of Life, New Believers). {share} Applies in live play and during "
+    "catch-up. "
     + ORIGINS_BASE_SENTENCE
     + " That base's companion loads this patch's DLL (in The Secret City, a "
     "small stub in the page the base appends does); if the DLL cannot be "
     "loaded, the stock scheduler runs unchanged."
 )
+# The other behaviour patches of each game that share the one roll per choice.
+SHARE = {
+    "vv1": "Builders and Healers Work First, Healers Study Plants Regardless of Food and Builder Action Fixes use the same roll when selected with it,",
+    "vv2": "Builders and Healers Work First and Healers Study Plants Regardless of Food use the same roll when selected with it,",
+    "vv3": "Builders and Healers Work First uses the same roll when selected with it,",
+    "vv4": "Builders and Healers Work First uses the same roll when selected with it,",
+    "vv5": "Builders and Healers Work First uses the same roll when selected with it,",
+}
+
+
+def describe(game: str) -> str:
+    return DESCRIPTION.replace("{share}", SHARE[game] + " so one choice is either all patched or all stock.")
+
 
 # The Building-level gates before the hut (A New Home, The Lost Children):
 # below Building level 3 the stock Building branch gave up before the hut fix.
@@ -76,7 +97,7 @@ LEVEL_RUNTIME = {
 # native/vvfp_fix_huts/vvfp_fix_huts.c).  VV3's is executable-side.
 FOOD_RUNTIME = {
     "vv1": {"va": "0x448336", "stock_bytes": "81BDECA2000090010000" "7D2D",
-            "routine": "the idle scheduler's 400-food gate (0x448220); installs only while Builder Action Fixes, which owns the same bytes, is off"},
+            "routine": "the idle scheduler's 400-food gate (0x448220); with Builder Action Fixes, which owns the same bytes, selected too, its exact jmp E965E5000090909090909090 and cave at 0x4568A0 are verified and the jmp is pointed at the companion's equivalent of that cave, which asks the decision's roll"},
     "vv2": {"va": "0x4619E9", "stock_bytes": "81B9A4EA02002C010000" "7D2D",
             "routine": "the idle scheduler's 300-food gate (0x461850)"},
     "vv4": {"va": "0x4659B0", "stock_bytes": "8B8E881B0000",
@@ -87,6 +108,52 @@ FOOD_RUNTIME = {
 LEVEL_BEHAVIOR = {
     "vv1": "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut whenever at least one is built and no other building project is available (every hut built included). And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work.",
     "vv2": "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut (never building 5) whenever at least one is built and no other building project is available (every hut built included).",
+}
+# Build first, fix last (the owner: builders "should build new stuff first,
+# then fix huts"), and straight into it (the owner's option A: where a stock
+# random roll says "not this time" but construction is available, the builder
+# goes straight into that construction).  See "Build first, fix last" and
+# "About three times in four" in the companion's source.
+BUILD_FIRST_BEHAVIOR = {
+    "vv1": "Construction always comes first: where the Building branch reaches the hut fix although it has a new hut to build (hut 9, hut 10 above 22 villagers, hut 11 above 45) or a started project open at this Building level -- after its 20% 'not this time' roll, or at the level-3 gate -- the builder goes straight into that construction through the branch's own code for it, and a hut is fixed only when there is nothing to build.",
+    "vv2": "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the population allows, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one): the builder goes straight into the first of them, in the branch's own order, through the branch's own code for it.",
+    "vv3": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, so a builder fixes a hut only when there is no construction to choose. The Secret City's Building branch has no random roll that skips construction, so there is nothing to go straight into.",
+    "vv4": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), the options it took are put back, by the branch's own tests and in its own order, and the stock pick goes straight into one of them; a hut is fixed only when there is no construction at all.",
+    "vv5": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), the options it took are put back, by the branch's own tests and in its own order, and the stock pick goes straight into one of them; a hut is fixed only when there is no construction at all.",
+}
+# About three times in four, once per decision.
+ROLL_BEHAVIOR = (
+    "Every change above happens about three times in four, not always: each time the game's idle "
+    "scheduler chooses what a villager does (one run of {sched}{loop}), one 75% roll from the "
+    "companion's own generator -- never the game's random numbers -- decides whether the patches "
+    "step in. If it passes, they act together; if it fails, every patched place runs the stock "
+    "code for that choice, exactly as the unpatched game. The roll is drawn the first time a "
+    "patched place asks and shared by every patch the choice reaches{share}."
+)
+ROLL_SCHED = {
+    "vv1": ("0x448220", ""),
+    "vv2": ("0x461850", ""),
+    "vv3": ("0x45BFE0", ", including the choose-the-next-job routine's retries of it for the same villager (0x45C388, up to ten)"),
+    "vv4": ("0x465840", ", including the choose-the-next-job routine's retries of it for the same villager (0x465B1A, up to ten)"),
+    "vv5": ("0x46F070", ", including the choose-the-next-job routine's retries of it for the same villager (0x46F3DA, up to ten)"),
+}
+ROLL_SHARE = {
+    "vv1": " -- Builders and Healers Work First, Healers Study Plants Regardless of Food and Builder Action Fixes included",
+    "vv2": " -- Builders and Healers Work First and Healers Study Plants Regardless of Food included",
+    "vv3": " -- Builders and Healers Work First included",
+    "vv4": " -- Builders and Healers Work First included",
+    "vv5": " -- Builders and Healers Work First included",
+}
+# The scheduler entries the companion wraps to open and close each decision.
+SCHED_RUNTIME = {
+    "vv1": {"va": "0x448220", "stock_bytes": "535556578B7C2414",
+            "routine": "the idle scheduler's entry (0x448220): wrapped to open and close one decision"},
+    "vv2": {"va": "0x461850", "stock_bytes": "535556578B7C2414",
+            "routine": "the idle scheduler's entry (0x461850): wrapped to open and close one decision"},
+    "vv4": {"va": "0x465840", "stock_bytes": "83EC08568BF1",
+            "routine": "the idle scheduler's entry (0x465840): wrapped to open and close one decision"},
+    "vv5": {"va": "0x46F070", "stock_bytes": "83EC085356",
+            "routine": "the idle scheduler's entry (0x46F070): wrapped to open and close one decision"},
 }
 FOOD_BEHAVIOR = (
     "Whenever a builder has hut work to do, its work attempt no longer depends "
@@ -104,7 +171,11 @@ FOOD_HOW = {
 # ---- The addendum: Builders and Healers Work First -------------------------
 WORK_FIRST_DLL = ROOT / "assets" / "work_first" / "VVFP Work First.dll"
 WORK_FIRST_DESCRIPTION = (
-    "Builders and healers do their own work first, at any food level: whenever "
+    "Builders and healers are more likely to do their own work first, at any "
+    "food level -- about three times in four each time the game chooses what "
+    "they do; the rest of the time the game chooses exactly as it always has, "
+    "and the one roll is shared with Builders Fix Huts When Idle, so a choice "
+    "is either all patched or all stock. When it steps in: whenever "
     "the game looks for something for a villager whose selected job is Building "
     "to do, it first tries building work (a project, or fixing a hut) while not "
     "every population hut is built -- and, in A New Home and The Lost Children "
@@ -136,6 +207,7 @@ def work_first_row(game: str, sha: str) -> dict:
     building, healing = JOB_NUMBERS[game]
     behavior = [
         f"Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job {healing}), or Building (job {building}) while it has hut work (a population hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
+        "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the scheduler's own request runs alone, exactly as the stock game.",
     ]
     if game in ("vv3", "vv4", "vv5"):
         behavior.append("At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders.")
@@ -194,7 +266,8 @@ VV3_GET_MODULE_HANDLE_IAT = 0x47C074
 VV3_GET_PROC_ADDRESS_IAT = 0x47C128
 VV3_CACHE_SLOT = 0x6E0FF8          # .vv3md (R/W), unused by Origins and parentage
 VV3_DLL_NAME = b"VVFP Fix Huts.dll\0"
-VV3_EXPORT_NAME = b"VvfpFixHutsDecide\0"
+VV3_EXPORT_NAME = b"VvfpFixHutsFilter\0"
+VV3_LIST_OFFSET = 0x64             # the dispatcher's option list, [esp+0x64] at the site
 VV3_NAME_OFFSET = 0x80
 VV3_EXPORT_OFFSET = 0xA0
 
@@ -240,6 +313,24 @@ VV3_WORK_FIRST_NAME_OFFSET = 0x1A0
 VV3_PRIORITY_EXPORT_OFFSET = 0x1C0
 VV3_PRIORITY_CODE_OFFSET = 0x200
 
+# About three times in four, once per decision (see "About three times in
+# four" in native/vvfp_fix_huts/vvfp_fix_huts.c): the companion wraps each
+# game's idle scheduler so every patch in one decision shares one 75% roll.
+# The Secret City's scheduler entry (0x45BFE0: push ecx; push esi; mov esi,
+# [esp+0xC]) jumps to a fourth stub, which resolves the companion's
+# VvfpFixHutsScheduler3 once and jumps to it with the stack and every
+# register untouched; the companion runs the displaced bytes and the stock
+# scheduler inside the decision.  With the DLL missing, the stub runs the
+# displaced bytes and the stock scheduler.
+VV3_SCHED_VA = 0x45BFE0
+VV3_SCHED_FILE = VV3_SCHED_VA - 0x400000
+VV3_SCHED_STOCK = bytes.fromhex("51568B74240C")   # push ecx; push esi; mov esi, [esp+0xC]
+VV3_SCHED_BODY = 0x45BFE6
+VV3_SCHED_CACHE_SLOT = 0x6E0FEC    # .vv3md; work-first 0x6E0FF0, lesson-cap 0x6E0FF4
+VV3_SCHED_EXPORT_NAME = b"VvfpFixHutsScheduler3\0"
+VV3_SCHED_CODE_OFFSET = 0x300
+VV3_SCHED_EXPORT_OFFSET = 0x3C0
+
 # Origins' appended pages: .vv3mc (R-X) at 0x6DF000 / file 0xCB000, whose own
 # content ends at 0x3A0; the parentage overlay takes 0x400..0x800; this one
 # takes 0x800..0xC00.
@@ -267,10 +358,12 @@ def vv3_build_page(base_va: int) -> bytes:
     """The stub, re-assembled for the address it will live at."""
     name_va = base_va + VV3_NAME_OFFSET
     export_va = base_va + VV3_EXPORT_OFFSET
+    # Build first, fix last: the companion's VvfpFixHutsFilter(3, esi, list,
+    # count) sees every option list, drops the stock "fix a hut" option 9
+    # from a list that holds construction, and on an empty list may start a
+    # hut fix (-1).  Its answer replaces edi before the stock test.
     code = assemble(
         f"""
-        cmp edi, ebx
-        jne 0x{VV3_RESUME:X}
         pushad
         mov eax, dword ptr [0x{VV3_CACHE_SLOT:X}]
         cmp eax, 1
@@ -292,19 +385,27 @@ def vv3_build_page(base_va: int) -> bytes:
         je mark_failed
         mov dword ptr [0x{VV3_CACHE_SLOT:X}], eax
     call_it:
+        lea ecx, [esp + 0x{0x20 + VV3_LIST_OFFSET:X}]
+        push edi
+        push ecx
         push esi
         push 3
         call eax
-        add esp, 8
-        test eax, eax
-        popad
-        je 0x{VV3_NOTHING:X}
-        jmp 0x{VV3_STARTED:X}
+        add esp, 16
+        cmp eax, -1
+        je started
+        mov dword ptr [esp], eax
+        jmp give_up
     mark_failed:
         mov dword ptr [0x{VV3_CACHE_SLOT:X}], 1
     give_up:
         popad
-        jmp 0x{VV3_NOTHING:X}
+        cmp edi, ebx
+        je 0x{VV3_NOTHING:X}
+        jmp 0x{VV3_RESUME:X}
+    started:
+        popad
+        jmp 0x{VV3_STARTED:X}
         """,
         base_va,
     )
@@ -422,6 +523,47 @@ def vv3_build_page(base_va: int) -> bytes:
         raise RuntimeError("the Work First DLL name runs into the export name")
     page[VV3_PRIORITY_EXPORT_OFFSET : VV3_PRIORITY_EXPORT_OFFSET + len(VV3_PRIORITY_EXPORT_NAME)] = VV3_PRIORITY_EXPORT_NAME
     page[VV3_PRIORITY_CODE_OFFSET : VV3_PRIORITY_CODE_OFFSET + len(priority)] = priority
+    if VV3_PRIORITY_CODE_OFFSET + len(priority) > VV3_SCHED_CODE_OFFSET:
+        raise RuntimeError("the work-first stub runs into the scheduler stub")
+    sched = assemble(
+        f"""
+        cmp dword ptr [0x{VV3_SCHED_CACHE_SLOT:X}], 1
+        ja go
+        je stock
+        pushad
+        push 0x{name_va:X}
+        call dword ptr [0x{VV3_GET_MODULE_HANDLE_IAT:X}]
+        test eax, eax
+        jne have_module
+        push 0x{name_va:X}
+        call dword ptr [0x{VV3_LOAD_LIBRARY_IAT:X}]
+        test eax, eax
+        je mark_failed
+    have_module:
+        push 0x{base_va + VV3_SCHED_EXPORT_OFFSET:X}
+        push eax
+        call dword ptr [0x{VV3_GET_PROC_ADDRESS_IAT:X}]
+        test eax, eax
+        je mark_failed
+        mov dword ptr [0x{VV3_SCHED_CACHE_SLOT:X}], eax
+        popad
+    go:
+        jmp dword ptr [0x{VV3_SCHED_CACHE_SLOT:X}]
+    mark_failed:
+        mov dword ptr [0x{VV3_SCHED_CACHE_SLOT:X}], 1
+        popad
+    stock:
+        push ecx
+        push esi
+        mov esi, dword ptr [esp + 0xC]
+        jmp 0x{VV3_SCHED_BODY:X}
+        """,
+        base_va + VV3_SCHED_CODE_OFFSET,
+    )
+    page[VV3_SCHED_CODE_OFFSET : VV3_SCHED_CODE_OFFSET + len(sched)] = sched
+    if VV3_SCHED_CODE_OFFSET + len(sched) > VV3_SCHED_EXPORT_OFFSET:
+        raise RuntimeError("the scheduler stub runs into its export name")
+    page[VV3_SCHED_EXPORT_OFFSET : VV3_SCHED_EXPORT_OFFSET + len(VV3_SCHED_EXPORT_NAME)] = VV3_SCHED_EXPORT_NAME
     if any(page[VV3_OVERLAY_LENGTH:]):
         raise RuntimeError("the VV3 stub must fit in the 0x400 overlay")
     return bytes(page)
@@ -435,10 +577,12 @@ def vv3_site_patch(page_va: int) -> dict:
         "before": VV3_SITE_STOCK.hex().upper(),
         "after": entry.hex().upper(),
         "purpose": (
-            "Divert the Building dispatcher's empty-option-list test (cmp edi, ebx; "
-            "je nothing at 0x45B39E) into the fix-huts stub, which replays the test, "
-            "asks the companion whether to fix a hut, and resumes at the stock "
-            "'job started' or 'nothing' path."
+            "Divert the Building dispatcher's option-list test (cmp edi, ebx; "
+            "je nothing at 0x45B39E) into the fix-huts stub, which hands the option "
+            "list to the companion's VvfpFixHutsFilter -- the stock 'fix a hut' "
+            "option is dropped from a list that holds construction, and an empty "
+            "list may start a hut fix -- then replays the test on the answer and "
+            "resumes at the stock pick, 'job started' or 'nothing' path."
         ),
     }
 
@@ -483,6 +627,26 @@ def vv3_picker_site_patch(page_va: int) -> dict:
     }
 
 
+def vv3_sched_site_patch(page_va: int) -> dict:
+    target = page_va + VV3_SCHED_CODE_OFFSET
+    entry = b"\xE9" + int(target - (VV3_SCHED_VA + 5)).to_bytes(4, "little", signed=True)
+    entry += b"\x90" * (len(VV3_SCHED_STOCK) - len(entry))
+    return {
+        "offset": f"0x{VV3_SCHED_FILE:X}",
+        "before": VV3_SCHED_STOCK.hex().upper(),
+        "after": entry.hex().upper(),
+        "purpose": (
+            "Divert the idle scheduler's entry (push ecx; push esi; mov esi, [esp+0xC] at "
+            "0x45BFE0) into the decision stub, which resolves the companion's "
+            "VvfpFixHutsScheduler3 once and jumps to it with the stack and registers "
+            "untouched: the companion opens one decision (one 75% roll shared by every "
+            "patch in it, the whole retry loop of the game's choose-the-next-job routine), "
+            "runs the displaced bytes and the stock scheduler, and closes it. Without the "
+            "DLL the stub runs the displaced bytes and the stock scheduler."
+        ),
+    }
+
+
 def vv3_section_header() -> bytes:
     header = bytearray(40)
     header[0:8] = VV3_SECTION_NAME
@@ -505,10 +669,12 @@ def vv3_transaction(stock: bytes) -> tuple[list[dict], dict, list[dict]]:
         raise RuntimeError("stock bytes at 0x45C229 are not the expected farming test")
     if stock[VV3_PICKER_FILE : VV3_PICKER_FILE + len(VV3_PICKER_STOCK)] != VV3_PICKER_STOCK:
         raise RuntimeError("stock bytes at 0x45AF00 are not the expected dispatcher prologue")
+    if stock[VV3_SCHED_FILE : VV3_SCHED_FILE + len(VV3_SCHED_STOCK)] != VV3_SCHED_STOCK:
+        raise RuntimeError("stock bytes at 0x45BFE0 are not the expected scheduler prologue")
     patches = [vv3_site_patch(VV3_PAGE_VA), vv3_food_site_patch(VV3_PAGE_VA),
-               vv3_picker_site_patch(VV3_PAGE_VA)]
+               vv3_picker_site_patch(VV3_PAGE_VA), vv3_sched_site_patch(VV3_PAGE_VA)]
     overlay_patches = [vv3_site_patch(VV3_OVERLAY_VA), vv3_food_site_patch(VV3_OVERLAY_VA),
-                       vv3_picker_site_patch(VV3_OVERLAY_VA)]
+                       vv3_picker_site_patch(VV3_OVERLAY_VA), vv3_sched_site_patch(VV3_OVERLAY_VA)]
     layout = {
         "original_file_size": f"0x{VV3_STOCK_FILE_SIZE:X}",
         "append_offset": f"0x{VV3_PAGE_FILE:X}",
@@ -558,7 +724,7 @@ def main() -> None:
     sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
     common_non_changes = [
         "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
-        "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
+        "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built and no construction available, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
         "Nothing is written to a villager record, the save or any file.",
     ]
     for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):
@@ -569,13 +735,16 @@ def main() -> None:
             "catalog_hidden": False,
             "game_id": game,
             "name": "Builders Fix Huts When Idle",
-            "description": DESCRIPTION,
+            "description": describe(game),
             "output_tag": "Fix Huts",
             "dependencies": [f"{game}_enable_origins_exclusive_features"],
             "behavior_changes": [
                 "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
                 FOOD_BEHAVIOR.format(how=FOOD_HOW[game]),
-            ] + ([LEVEL_BEHAVIOR[game]] if game in LEVEL_BEHAVIOR else []),
+            ] + ([LEVEL_BEHAVIOR[game]] if game in LEVEL_BEHAVIOR else [])
+              + ([BUILD_FIRST_BEHAVIOR[game]] if game in BUILD_FIRST_BEHAVIOR else [])
+              + [ROLL_BEHAVIOR.format(sched=ROLL_SCHED[game][0], loop=ROLL_SCHED[game][1],
+                                      share=ROLL_SHARE[game])],
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
                 {"source": "assets/fix_huts/VVFP Fix Huts.dll",
@@ -590,11 +759,13 @@ def main() -> None:
                 {**RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},
                 {**FOOD_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},
             ] + ([{**LEVEL_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"}]
-                 if game in LEVEL_RUNTIME else [])
+                 if game in LEVEL_RUNTIME else []) + [
+                {**SCHED_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (first; nothing else installs without it)"},
+            ]
         else:
             patches, transaction, _overlay_patches = vv3_transaction(STOCK_VV3.read_bytes())
             manifest["explicit_non_changes"].insert(0,
-                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path and the work dispatcher's ten-byte entry into three stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher stub serves the Builders and Healers Work First addendum and does nothing unless \"VVFP Work First.dll\" is shipped.")
+                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path, the work dispatcher's ten-byte entry and the idle scheduler's six-byte entry into four stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher stub serves the Builders and Healers Work First addendum and does nothing unless \"VVFP Work First.dll\" is shipped.")
             manifest["patches"] = patches
             manifest["pe_append_transaction"] = transaction
         out = ROOT / "data" / f"{game}_builders_fix_huts_feature.json"

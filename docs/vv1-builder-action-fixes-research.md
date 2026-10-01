@@ -73,3 +73,37 @@ scheduler is used during ordinary play and elapsed-time catch-up; only IDs 9,
 
 The executable size is unchanged, every original byte is guarded, and the PE
 checksum is recomputed after patching.
+
+## Removed: the new-hut progress gate (v1.35.42)
+
+The owner: "The builders will prioritize fixing huts OVER building the new huts
+or other projects, when in fact they should build new stuff first, then fix
+huts."
+
+The earlier version of this patch also routed the three new-hut calls (IDs 9,
+10 and 11, raw `0x4753C`, `0x47568`, `0x4759A`) through a wrapper at raw
+`0x568D0` that allowed them only once the hut's signed progress was greater
+than zero. That was modelled on the other projects, which the stock branch only
+*continues* once started -- but the new huts are the one construction the stock
+branch deliberately *starts* from nothing (hut 9 while incomplete, hut 10 above
+22 villagers, hut 11 above 45). With the gate a builder could never start a new
+hut; finding nothing else, Builders Fix Huts sent it to fix a built hut instead.
+The owner's saves show the project records plainly: `(progress, complete)`
+counting up to each target (hut 9 250, hut 10 400, hut 11 600).
+
+The gate and its wrapper are gone; the three calls are the stock calls to the
+hut gate `0x442090` again. The food-level discriminator above is unchanged.
+
+## About three times in four
+
+The owner: the patch should "increase the LIKELIHOOD of villagers doing that
+action, not 100% replace them" -- 75%, once per decision. The cave at raw
+`0x568A0` (now 65 bytes, to `0x568E1`) keeps the Building-job test and sends
+the villager to the preferred-job attempt only when the top two bits of
+`rdtsc * 0x9E3779B9` are not both clear -- three quarters of all values, since
+multiplying by an odd constant permutes them; eax and edx are pushed and
+popped around it, and no game routine or RNG is called. With Builders Fix Huts
+When Idle selected, its companion verifies this row's exact jmp at `0x48336`
+and cave bytes and points the jmp at its own equivalent stub, which asks the
+decision's shared roll, so one decision rolls once. See "About three times in
+four, once per decision" in `docs/builders-fix-huts.md`.

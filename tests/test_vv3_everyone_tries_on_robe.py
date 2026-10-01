@@ -154,17 +154,25 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # bytes are 0x6B7E5..0x6B7E8 (the rewritten call's rel32), the stub at
     # 0xA3F90..0xA3FFA (.rdata tail, which Origins maps as code) and the PE
     # CheckSum at 0x160..0x162.
+    # Re-pinned when Builders Fix Huts When Idle began wrapping the idle
+    # scheduler (one 75% roll per decision) and handing every option list to
+    # VvfpFixHutsFilter (build first, fix last), merged on top of the Start Over
+    # pins above. Justified BEFORE re-pinning: rendering the complete catalog
+    # with main (1a63dd73) and with the merged branch, the only differing bytes
+    # in all three modes are the PE CheckSum (0x160..0x162), the scheduler entry
+    # 0x5BFE0..0x5BFE5 and the fix-huts overlay (0xCB800..0xCB8B0, the stub and
+    # export name at 0xCBB00..0xCBBD4).
     "stock": (
-        "8AED8952AD2DA29347633B5A3E8A02A43FF264997973E669ED4B5909A6672AFE",
-        "FFFE0C00",
+        "934B816711DB43C86B2A80C03E1F705D52C849A53683D2A8EA5B7DDBC250EFC8",
+        "D58A0D00",
     ),
     "collection_progression": (
-        "46C3719BF43CF20C78ADEE5872D6B5D7A87CF42C683BC5BF0F361FC8ED76F59C",
-        "FF170D00",
+        "4E7BB424192DB52D1DE552E67B6F7B6783A620294A9B28D7F34E93BBCE2A0935",
+        "D5A30D00",
     ),
     "immediate_fixed": (
-        "0330EFB3E7CDCBDA38B200F39AE5438CC7E6E3FB3DCC478D951375DE708DCD2D",
-        "FD590D00",
+        "4B91F76A07069738066EDB2BDF306877A47F76EB3D0023913142379954B289F0",
+        "D4E50C00",
     ),
 }
 

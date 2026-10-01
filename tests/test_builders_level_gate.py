@@ -25,6 +25,12 @@ Pinned here, running the DLL's stubs in an emulator:
 * A New Home's hut stub: no hut standing -> "nothing" (al = 0) with the
   dispatcher's own pops; every hut complete -> the stock 20% skip now says
   "nothing", otherwise the stock random hut.
+
+All of that is what the stubs do when the decision's 75% roll passes (the
+companion's test-build roll is forced to pass here); with it forced to fail
+each stub runs exactly the stock code (RollFailedTests).  The roll, and these
+stubs reached from the games' own callers, are pinned in
+tests/test_builders_decision_roll.py.
 """
 from __future__ import annotations
 
@@ -35,7 +41,7 @@ from pathlib import Path
 import pefile
 from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
 from unicorn.x86_const import (
-    UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_EDI, UC_X86_REG_EDX,
+    UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EDX,
     UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
 )
 
@@ -89,25 +95,72 @@ def _probe(export: str, game_no: int):
 
 G = {
     "vv1": dict(no=1, state_ptr=0x3E010, level=0xA2CC, huts=(0x9FE8, 0x9FF0, 0x9FF8), first_hut=9,
-                resume=0x447671, examine=0x446600, started=0x4477A6, rand=0x402F10, hut_pick=0x447737),
+                resume=0x447671, examine=0x446600, started=0x4477A6, rand=0x402F10, hut_pick=0x447737,
+                hut_resume=0x44772E, level_stock=0x447664),
     "vv2": dict(no=2, state_ptr=0xE574D4, level=0x2EA84, huts=(0x2E818, 0x2E820, 0x2E828), first_hut=24,
                 resume=0x4601FF, examine=0x45F7C0, started=0x4602E5, rand=0x4031A0, hut_resume=0x4602A7,
                 nothing=0x46004C),
 }
 
 
+# A New Home's stock construction entries, the "build first" targets: the new-hut
+# section (huts 9/10/11), then each started project's check block after its
+# random roll.  The construction check enters one of these instead of a fix.
+VV1_HUT_SECTION = 0x447528
+VV1_PROJECT_BLOCKS = {3: 0x4475A8, 2: 0x4475F8, 4: 0x447635, 8: 0x447685, 7: 0x4476C2, 5: 0x4476FB}
+VV1_CONSTRUCTION = {VV1_HUT_SECTION, *VV1_PROJECT_BLOCKS.values()}
+VV1_POPULATION = 0x41CF90
+VV1_HUT9_CALL = 0x44753C
+# The stock bytes there: call 0x442090, the hut gate.  A constant rather than
+# a read of the exe, so these emulator tests also run where the stock
+# executables are absent (CI); test_patcher.py pins them against the exe.
+VV1_HUT9_CALL_STOCK = bytes.fromhex("E84FABFFFF")
+# The Lost Children's construction entries (option A): each handler just after
+# its own test in the Building branch -- huts 24/25/26, projects 1, 17, 8, 5,
+# 12, 11, and the own-task handlers of jump table 0x460550.
+VV2_CONSTRUCTION = {0x45FF0B, 0x45FF38, 0x45FF65, 0x4600A7, 0x460171, 0x4601A9, 0x45FF92, 0x46023D, 0x46028C,
+                    0x45FEF2, 0x45FF1F, 0x45FF4C, 0x45FF79, 0x45FFA6, 0x460036, 0x45FECD, 0x45FFD3, 0x45FFF4,
+                    0x460015}
+ROLL_PASS, ROLL_FAIL = 1, 2
+
+
 class Run:
     """Enter a stub with the dispatcher's saves (esi, ebx, ebp, edi pushed by
     its prologue) under the return address, as the game has them."""
 
-    def __init__(self, game: str, stub: int, level: int, huts: tuple[int, int, int], roll: int = 50):
+    def __init__(self, game: str, stub: int, level: int, huts: tuple[int, int, int], roll: int = 50,
+                 population: int = 10, projects: dict[int, tuple[int, int]] | None = None,
+                 hut_call: bytes | None = None, force: int = ROLL_PASS):
         g = G[game]
-        mu, _ = _emulator()
+        mu, ex = _emulator()
+        # The decision's roll (VvfpFixHutsRollTest: force, draws), forced.
+        mu.mem_write(ex["VvfpFixHutsRollTest"], struct.pack("<ii", force, 0))
+        self.draws_at = ex["VvfpFixHutsRollTest"] + 4
         mu.mem_write(VILLAGE + g["state_ptr"], struct.pack("<I", STATE))
         mu.mem_write(STATE + g["level"], struct.pack("<i", level))
         for off, done in zip(g["huts"], huts):
             mu.mem_write(STATE + off, bytes([done]))
-        exits = [g["resume"], g["examine"], g["started"], g["rand"]] + [g[k] for k in ("hut_pick", "hut_resume", "nothing") if k in g]
+        self.population = population
+        if game == "vv1":
+            # Project record i: (signed progress dword, complete flag byte) at
+            # state + 0x9F9C + 8*i.  The new huts start at zero progress.
+            for pid, (progress, done) in (projects or {}).items():
+                mu.mem_write(STATE + 0x9F9C + 8 * pid, struct.pack("<iB", progress, done))
+            for pid, done in zip((9, 10, 11), huts):
+                if pid not in (projects or {}):
+                    mu.mem_write(STATE + 0x9F9C + 8 * pid, struct.pack("<iB", 0, done))
+            # The stock new-hut call the construction check reads (or a caller's
+            # substitute), and the game's population counter it calls.
+            try:
+                mu.mem_map(VV1_HUT9_CALL & ~0xFFF, 0x1000)
+            except Exception:
+                pass
+            mu.mem_write(VV1_HUT9_CALL, hut_call if hut_call is not None else VV1_HUT9_CALL_STOCK)
+        exits = [g["resume"], g["examine"], g["started"], g["rand"]] + [g[k] for k in ("hut_pick", "hut_resume", "nothing", "level_stock") if k in g]
+        if game == "vv1":
+            exits += [VV1_POPULATION] + list(VV1_CONSTRUCTION)
+        else:
+            exits += list(VV2_CONSTRUCTION)
         for va in exits:
             try:
                 mu.mem_map(va & ~0xFFF, 0x1000)
@@ -132,6 +185,18 @@ class Run:
 
     def _hook(self, mu, address, size, user_data):
         g = self.g
+        if address == VV1_POPULATION and self.g["no"] == 1:
+            sp = mu.reg_read(UC_X86_REG_ESP)
+            ret, = struct.unpack("<I", mu.mem_read(sp, 4))
+            self.population_asked = mu.reg_read(UC_X86_REG_ECX)
+            mu.reg_write(UC_X86_REG_EAX, self.population)
+            mu.reg_write(UC_X86_REG_ESP, sp + 4)
+            mu.reg_write(UC_X86_REG_EIP, ret)
+            return
+        if (self.g["no"] == 1 and address in VV1_CONSTRUCTION) or (self.g["no"] == 2 and address in VV2_CONSTRUCTION):
+            self.exit = address
+            mu.emu_stop()
+            return
         if address == g["rand"]:
             sp = mu.reg_read(UC_X86_REG_ESP)
             self.rolled.append(struct.unpack("<I", mu.mem_read(sp + 4, 4))[0])
@@ -145,12 +210,15 @@ class Run:
             self.examined = (a, b)
             mu.reg_write(UC_X86_REG_ESP, sp + 12)
             mu.reg_write(UC_X86_REG_EIP, ret)
-        elif address in (g["resume"], g["started"], self.ret) or address in [g.get("hut_pick"), g.get("hut_resume"), g.get("nothing")]:
+        elif address in (g["resume"], g["started"], self.ret) or address in [g.get("hut_pick"), g.get("hut_resume"), g.get("nothing"), g.get("level_stock")]:
             self.exit = address
             mu.emu_stop()
 
     def reg(self, r):
         return self.mu.reg_read(r)
+
+    def draws(self) -> int:
+        return struct.unpack("<i", self.mu.mem_read(self.draws_at, 4))[0]
 
 
 class LevelGateTests(unittest.TestCase):
@@ -212,28 +280,133 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_only_built_huts_are_chosen(self):
+        # A New Home: hut 9 unbuilt is construction (built first, never passed
+        # over for a fix), so its cases keep hut 9 built; population 10 leaves
+        # huts 10 and 11 locked.
+        # The Lost Children builds hut 24 whenever it is unbuilt, as A New Home
+        # builds hut 9, so each game keeps its first hut built here.
+        cases = {"vv1": (((1, 1, 0), {0, 1}), ((1, 0, 1), {0, 2})),
+                 "vv2": (((1, 1, 0), {0, 1}), ((1, 0, 1), {0, 2}))}
         for game, g in G.items():
             stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
-            for huts, allowed in (((0, 1, 0), {1}), ((1, 0, 1), {0, 2})):
+            for huts, allowed in cases[game]:
                 with self.subTest(game=game, huts=huts):
                     seen = {Run(game, stub, level=2, huts=huts).examined[1] - self.HUTS[game][0]
                             for _ in range(6)}
                     self.assertTrue(seen <= allowed, seen)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_no_hut_built_keeps_the_gates_nothing(self):
-        for game, g in G.items():
-            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
-            with self.subTest(game=game):
-                r = Run(game, stub, level=2, huts=(0, 0, 0))
-                self.assertIsNone(r.examined, "nothing examined")
-                self.assertEqual(r.rolled, [], "the stock random pick is never reached")
-                if game == "vv2":
-                    self.assertEqual(r.exit, 0x46004C, "the stock gate's own target (al = 0)")
-                else:
-                    self.assertEqual(r.exit, r.ret)
-                    self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 0)
-                    self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 7 * 4)
+    def test_lost_children_hut_24_unbuilt_is_built_first_never_a_fix(self):
+        # Build first, fix last (tests/test_builders_build_before_fixing.py
+        # runs the whole dispatcher): hut 24 unbuilt is construction the
+        # stock branch always offers, so the level gate goes straight into
+        # the branch's own hut-24 code (option A), with what it expects.
+        stub = _probe("VvfpFixHutsProbeLevelSite", 2)[4]
+        r = Run("vv2", stub, level=2, huts=(0, 1, 0))
+        self.assertIsNone(r.examined)
+        self.assertEqual(r.exit, 0x45FF0B, "push ebx; push 0x18: build hut 24")
+        self.assertEqual(r.reg(UC_X86_REG_EBX), 0, "this harness's ebx (the game's is 1 here), untouched")
+        self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before, "the dispatcher's frame, untouched")
+        self.assertEqual(r.reg(UC_X86_REG_EAX), VILLAGE + INDEX * 0xE48C + 0x7E0, "&record+0x7E0")
+        self.assertEqual((r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EDI)), (VILLAGE, INDEX))
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_no_hut_built_builds_hut_24(self):
+        # Nothing stands to fix, but hut 24 is there to build (at any
+        # progress), which the stock rolls skipped this time: straight into it
+        # (option A), as A New Home builds hut 9.
+        stub = _probe("VvfpFixHutsProbeLevelSite", G["vv2"]["no"])[4]
+        r = Run("vv2", stub, level=2, huts=(0, 0, 0))
+        self.assertIsNone(r.examined, "nothing examined")
+        self.assertEqual(r.rolled, [], "the stock random pick is never reached")
+        self.assertEqual(r.exit, 0x45FF0B, "the branch's own hut-24 code")
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_new_home_no_hut_built_builds_hut_9(self):
+        # Hut 9 has no population gate: with none built, a builder builds it.
+        stub = _probe("VvfpFixHutsProbeLevelSite", G["vv1"]["no"])[4]
+        r = Run("vv1", stub, level=2, huts=(0, 0, 0))
+        self.assertIsNone(r.examined, "nothing examined")
+        self.assertEqual(r.exit, VV1_HUT_SECTION)
+        self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before, "the dispatcher's frame, untouched")
+        self.assertEqual((r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EBP), r.reg(UC_X86_REG_EBX) & 0xFF),
+                         (VILLAGE, INDEX, 1), "what the stock hut section expects")
+
+
+class NewHomeBuildFirstTests(unittest.TestCase):
+    """The owner: "The builders will prioritize fixing huts OVER building the
+    new huts or other projects, when in fact they should build new stuff first,
+    then fix huts."  Both A New Home fix sites -- the 20% skip roll and the
+    level-below-3 gate -- first enter the stock construction code whenever
+    there is construction to do, exactly as the stock branch judges it."""
+
+    def setUp(self):
+        self.sites = {"skip roll": _probe("VvfpFixHutsProbeSite", 1)[4],
+                      "level gate": _probe("VvfpFixHutsProbeLevelSite", 1)[4]}
+
+    def _sites(self, level_for_skip=3, level_for_gate=2):
+        return [(name, stub, level_for_skip if name == "skip roll" else level_for_gate)
+                for name, stub in self.sites.items()]
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_an_unlocked_new_hut_is_built_not_a_fix(self):
+        # Hut 9 built, hut 10 unbuilt and unlocked (population above 22).
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
+            r = Run("vv1", stub, level=level, huts=(1, 0, 0), population=23)
+            self.assertIsNone(r.examined, "no hut fix while a new hut can be built")
+            self.assertEqual(r.exit, VV1_HUT_SECTION)
+            self.assertEqual(r.population_asked, STATE, "the game's own counter, on the village state")
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_population_thresholds_are_the_stock_ones(self):
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
+            # Hut 10 opens above 22, hut 11 above 45; at the threshold, still locked.
+            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=22).examined)
+            self.assertEqual(Run("vv1", stub, level=level, huts=(1, 0, 1), population=23).exit, VV1_HUT_SECTION)
+            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 1, 0), population=45).examined)
+            self.assertEqual(Run("vv1", stub, level=level, huts=(1, 1, 0), population=46).exit, VV1_HUT_SECTION)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_a_started_project_is_continued_not_a_fix(self):
+        # Every hut built; one project under way.  Level 3 opens projects 8/7/5,
+        # level 2 only 3/2/4 -- the stock branch's own level gates.
+        for pid, block in VV1_PROJECT_BLOCKS.items():
+            for site, stub, level in self._sites(level_for_skip=3, level_for_gate=2):
+              with self.subTest(site=site):
+                with self.subTest(project=pid, level=level):
+                    r = Run("vv1", stub, level=level, huts=(1, 1, 1), projects={pid: (5, 0)})
+                    if pid in (8, 7, 5) and level < 3:
+                        self.assertIsNotNone(r.examined, "not open below level 3: the fix")
+                    else:
+                        self.assertIsNone(r.examined)
+                        self.assertEqual(r.exit, block)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_unstarted_or_finished_projects_are_not_construction(self):
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
+            for record in ((0, 0), (-3, 0), (5, 1)):
+                with self.subTest(record=record):
+                    r = Run("vv1", stub, level=level, huts=(1, 1, 1), projects={3: record, 2: record})
+                    self.assertNotIn(r.exit, VV1_CONSTRUCTION, "nothing to build: no construction entered")
+                    # Every hut built: the level gate fixes one itself; the skip
+                    # roll hands it to the stock random-hut pick.
+                    self.assertTrue(r.examined is not None or r.exit == G["vv1"]["hut_pick"], r.exit)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_an_older_progress_gate_is_mirrored(self):
+        # If a progress gate still owns the new-hut calls, a zero-progress hut
+        # is not something the hut section would build, so it is not claimed.
+        gated = b"\xE8" + struct.pack("<i", 0x4568D0 - (VV1_HUT9_CALL + 5))
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
+            r = Run("vv1", stub, level=level, huts=(1, 0, 1), population=30, hut_call=gated)
+            self.assertIsNotNone(r.examined, "the gate would skip it: the fix, not a loop")
+            r = Run("vv1", stub, level=level, huts=(1, 0, 1), population=30, hut_call=gated,
+                    projects={10: (4, 0)})
+            self.assertEqual(r.exit, VV1_HUT_SECTION, "started: the gate lets it through")
 
 
 class NewHomeNothingTests(unittest.TestCase):
@@ -248,8 +421,19 @@ class NewHomeNothingTests(unittest.TestCase):
                          (0xE0E0E0E0, 0xB0B0B0B0, 0xB1B1B1B1, 0x51515151), "the dispatcher's own pops, in order")
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_no_hut_standing_is_nothing(self):
+    def test_no_hut_standing_builds_hut_9(self):
+        # No hut stands, so there is nothing to fix -- but hut 9 is there to
+        # build, and building comes first.
         r = Run("vv1", self.stub, level=3, huts=(0, 0, 0))
+        self.assertIsNone(r.examined)
+        self.assertEqual(r.exit, VV1_HUT_SECTION)
+        self.assertEqual(r.rolled, [])
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_nothing_to_build_and_nothing_standing_is_nothing(self):
+        # Only reachable with a progress gate holding hut 9 at zero progress.
+        gated = b"\xE8" + struct.pack("<i", 0x4568D0 - (VV1_HUT9_CALL + 5))
+        r = Run("vv1", self.stub, level=3, huts=(0, 0, 0), hut_call=gated)
         self._assert_nothing(r)
         self.assertEqual(r.rolled, [])
 
@@ -261,6 +445,54 @@ class NewHomeNothingTests(unittest.TestCase):
         r = Run("vv1", self.stub, level=3, huts=(1, 1, 1), roll=21)
         self.assertEqual(r.exit, G["vv1"]["hut_pick"], "the stock rand(3) hut pick")
 
+
+class RollFailedTests(unittest.TestCase):
+    """The decision's roll failed (a quarter of the decisions): each stub runs
+    the stock code, exactly -- the displaced instructions, then the stock
+    continuation with the registers and stack the stock code has there."""
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_below_level_3_the_stock_gate_gives_up(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            for huts in ((1, 0, 0), (1, 1, 1), (0, 1, 0)):
+                with self.subTest(game=game, huts=huts):
+                    r = Run(game, stub, level=2, huts=huts, population=30, force=ROLL_FAIL)
+                    self.assertIsNone(r.examined)
+                    self.assertEqual(r.rolled, [])
+                    self.assertEqual(r.draws(), 1)
+                    self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before)
+                    if game == "vv1":
+                        # mov edx, [esi+0x3E010] done; on to the stock cmp / jl.
+                        self.assertEqual(r.exit, g["level_stock"])
+                        self.assertEqual(r.reg(UC_X86_REG_EDX), STATE)
+                    else:
+                        self.assertEqual(r.exit, g["nothing"], "the stock jl's own target")
+                    self.assertEqual((r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EDI), r.reg(UC_X86_REG_EBP)),
+                                     (VILLAGE, INDEX, INDEX))
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_level_3_asks_no_roll(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            with self.subTest(game=game):
+                r = Run(game, stub, level=3, huts=(1, 0, 0), force=ROLL_FAIL)
+                self.assertEqual(r.exit, g["resume"])
+                self.assertEqual(r.draws(), 0, "the stock code: nothing to decide")
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_the_hut_site_runs_the_displaced_skip_roll(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeSite", g["no"])[4]
+            for huts, population in (((1, 0, 0), 10), ((1, 0, 0), 30), ((1, 1, 1), 10), ((0, 0, 0), 10)):
+                with self.subTest(game=game, huts=huts, population=population):
+                    r = Run(game, stub, level=3, huts=huts, population=population, roll=37, force=ROLL_FAIL)
+                    self.assertEqual(r.rolled, [100], "push 0x64; call rand -- the displaced bytes")
+                    self.assertEqual(r.exit, g["hut_resume"], "then the stock cmp eax, 0x14")
+                    self.assertEqual(r.reg(UC_X86_REG_EAX), 37, "the roll's result in eax")
+                    self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before, "add esp, 4 done")
+                    self.assertIsNone(r.examined)
+                    self.assertEqual(r.draws(), 1)
 
 
 if __name__ == "__main__":

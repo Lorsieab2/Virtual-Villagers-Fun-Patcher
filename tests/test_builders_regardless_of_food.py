@@ -20,6 +20,12 @@ Pinned here:
   scripted VvfpFixHutsBuilderFirst.
 * A New Home's Builder Action Fixes compares the selected job with 4
   (Building) -- the picker's own switch maps 1 to Farming.
+
+The bypasses happen when the decision's 75% roll passes (forced to pass here
+through the test build's VvfpFixHutsRollTest); forced to fail, each stub takes
+exactly the stock path (RollFailedTests).  The roll itself, and these sites
+reached from the games' own callers, are pinned in
+tests/test_builders_decision_roll.py.
 """
 from __future__ import annotations
 
@@ -116,9 +122,12 @@ class StubRun:
     address in `exits`; game helpers in `predicates` answer per call."""
 
     def __init__(self, game: str, regs: dict, exits: set[int], setup, predicates=None,
-                 work_first: bool = False):
+                 work_first: bool = False, force: int = 1):
         _, _, _, _, stub = _probe_food_site(GAME_NO[game])
-        mu, _ = _new_emulator()
+        mu, ex = _new_emulator()
+        # The decision's roll (VvfpFixHutsRollTest: force, draws): 1 pass, 2 fail.
+        mu.mem_write(ex["VvfpFixHutsRollTest"], struct.pack("<ii", force, 0))
+        self.draws_at = ex["VvfpFixHutsRollTest"] + 4
         setup(mu)
         self.work_first = work_first
         self.loaded: list[str] = []
@@ -141,6 +150,7 @@ class StubRun:
         self.regs = {r: mu.reg_read(r) for r in (UC_X86_REG_EAX, UC_X86_REG_EBX, UC_X86_REG_ECX,
                                                  UC_X86_REG_EDI, UC_X86_REG_ESI, UC_X86_REG_EBP,
                                                  UC_X86_REG_ESP)}
+        self.draws = struct.unpack("<i", mu.mem_read(self.draws_at, 4))[0]
 
     def _hook(self, mu, address, size, user_data):
         if address == IMPORT_STUBS.get("GetModuleFileNameA"):
@@ -188,7 +198,8 @@ VV12 = {
 LEVEL_OFF = {"vv1": 0xA2CC, "vv2": 0x2EA84}
 
 
-def _run_vv12(game: str, food: int, preference: int, huts: tuple[int, int, int], level: int = 3):
+def _run_vv12(game: str, food: int, preference: int, huts: tuple[int, int, int], level: int = 3,
+              force: int = 1):
     g = VV12[game]
     index = 7
 
@@ -209,7 +220,7 @@ def _run_vv12(game: str, food: int, preference: int, huts: tuple[int, int, int],
     else:
         regs[UC_X86_REG_ECX] = STATE
         regs[UC_X86_REG_EBP] = RECORD
-    return StubRun(game, regs, {g["low"], g["high"]}, setup)
+    return StubRun(game, regs, {g["low"], g["high"]}, setup, force=force)
 
 
 class HighFoodGateTests(unittest.TestCase):
@@ -284,7 +295,8 @@ LATER = {
 }
 
 
-def _run_later(game: str, pick: int, huts: tuple[int, int, int, int], work_first: bool = False):
+def _run_later(game: str, pick: int, huts: tuple[int, int, int, int], work_first: bool = False,
+               force: int = 1):
     g = LATER[game]
     villager = 0x0BADF00D
 
@@ -295,7 +307,7 @@ def _run_later(game: str, pick: int, huts: tuple[int, int, int, int], work_first
             UC_X86_REG_ECX: 0x66666666}
     done = lambda arg: huts[arg - g["base"]] == 1
     r = StubRun(game, regs, {g["dispatch"], g["resume"]}, setup, {g["complete"]: done},
-                work_first=work_first)
+                work_first=work_first, force=force)
     r.villager = villager
     return r
 
@@ -365,6 +377,49 @@ class LowFoodPathTests(unittest.TestCase):
                     self.assertEqual(r.regs[UC_X86_REG_EAX], pick, "eax (the pick) untouched")
                     self.assertEqual(r.regs[UC_X86_REG_EDI], 0x55555555)
                     self.assertEqual(r.regs[UC_X86_REG_ESP], r.esp_before)
+
+
+class RollFailedTests(unittest.TestCase):
+    """The decision's roll failed: the stock food path, exactly -- the high
+    jump at plentiful food (A New Home, The Lost Children), the displaced
+    mov ecx, [esi+0x1B88] and on into the stock farming test (The Tree of
+    Life, New Believers) -- with the registers the stock code has there.  A
+    villager the bypass would not act for draws no roll at all."""
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_plentiful_food_takes_the_stock_jump(self):
+        for game, g in VV12.items():
+            for huts, level in (((1, 0, 1), 3), ((1, 1, 1), 2)):
+                with self.subTest(game=game, huts=huts, level=level):
+                    r = _run_vv12(game, food=g["threshold"] + 5000, preference=g["builder"], huts=huts,
+                                  level=level, force=2)
+                    self.assertEqual(r.exit, g["high"])
+                    self.assertEqual(r.draws, 1)
+                    self.assertEqual(r.regs[UC_X86_REG_ESP], r.esp_before)
+                    self.assertEqual((r.regs[UC_X86_REG_ESI], r.regs[UC_X86_REG_EDI], r.regs[UC_X86_REG_EAX]),
+                                     (VILLAGE, 7, 0x1234ABCD), "untouched")
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_scarce_food_keeps_the_stock_farming_test(self):
+        for game, g in LATER.items():
+            with self.subTest(game=game):
+                r = _run_later(game, pick=4, huts=(1, 1, 1, 0), force=2)
+                self.assertEqual(r.exit, g["resume"])
+                self.assertEqual(r.regs[UC_X86_REG_ECX], r.villager, "the displaced mov ecx, [esi+0x1B88]")
+                self.assertEqual(r.regs[UC_X86_REG_EAX], 4, "the pick in eax, untouched")
+                self.assertEqual(r.regs[UC_X86_REG_EDI], 0x55555555)
+                self.assertEqual(r.regs[UC_X86_REG_ESP], r.esp_before)
+                self.assertEqual(r.draws, 1)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_no_roll_is_drawn_where_the_bypass_would_not_act(self):
+        for game, g in VV12.items():
+            for food, pref in ((g["threshold"] - 1, g["builder"]), (g["threshold"] + 5000, 1)):
+                with self.subTest(game=game, food=food, pref=pref):
+                    self.assertEqual(_run_vv12(game, food, pref, (1, 0, 1)).draws, 0)
+        for game in LATER:
+            with self.subTest(game=game):
+                self.assertEqual(_run_later(game, pick=3, huts=(1, 1, 1, 0)).draws, 0)
 
 
 # ---- The Secret City: the executable-side stub ----------------------------
