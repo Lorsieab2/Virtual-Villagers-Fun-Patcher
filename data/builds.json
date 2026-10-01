@@ -1081,21 +1081,22 @@
       "description": "**Works the same with or without Birth Control: the 50-and-over refusal it lifts is The Lost Children's own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.",
       "output_tag": "Manual Drop-Breeding",
       "behavior_changes": [
-        "After the stock conception roll succeeds, the manual pairing handler at VA 0x44F610 checked the carrier: it returned without calling the pregnancy writer when the woman was at internal age 1000 (50) or older. File 0x4F7C8 now jumps straight to the stock accept at 0x44F7FF, so she conceives on a passing roll like any other woman."
+        "After the stock conception roll succeeds, the pairing handler at VA 0x44F610 (step 12) checks the woman: it returns without calling the pregnancy writer when she is at internal age 1000 (50) or older. The player's drop and villagers pairing up on their own both reach this handler through 0x45D510, so the refusal block at file 0x4F7C8 is re-encoded to skip it only for the drop: when the drop's return address 0x430F63 sits at [esp+0x30] -- the depth the drop's own call chain (0x430F5E -> 0x45D510 -> 0x44FBB0 -> 0x44F610) puts it, because the drop queues step 12 on an emptied queue and the handler runs inside that call -- it continues at the stock accept 0x44F7FF, so she conceives on a passing roll like any other woman. Every other entry runs the stock check unchanged.",
+        "Autonomous pairing (0x46044C) queues a walk to the partner before step 12, so its handler runs later from the walk's arrival (0x449380) and never with the drop's call on the stack: an initiating woman of 50 or older is still refused after the stock roll, exactly as stock."
       ],
       "explicit_non_changes": [
         "Birth Control's two candidate-scan blocks and its chooser change are not touched and do not overlap this patch.",
         "Every other stock manual-drop rule is unchanged and still refuses the drop: same sex, either villager under internal age 360 (18), either villager dead or ill, a woman already expecting or nursing, and the game's own food and population checks.",
         "The stock Parenting skill-attempt roll and the stock conception roll (RNG(300) against Parenting skill and technology) are unchanged and still decide; a drop can fail at either one.",
-        "Autonomous pairing, the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
+        "Autonomous pairing keeps the stock woman-aged-50-or-older refusal in the shared handler; the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
       ],
-      "evidence_status": "implemented from exact-build disassembly; the stock and patched manual pairing handlers are emulated from their entry in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
+      "evidence_status": "implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own step queue and dispatcher into the handler in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
       "patches": [
         {
           "offset": "0x4F7C8",
-          "before": "8B8F38050000",
-          "after": "EB3590909090",
-          "purpose": "skip the manual pairing's woman-aged-50-or-older refusal (0x44F7C8..0x44F7FE) and continue at the stock accept 0x44F7FF after the stock conception roll has passed"
+          "before": "8B8F38050000B8020000003BC8750C81BF30050000E80300007C1C3983380500000F856D03000081BB30050000E80300000F8D5D030000",
+          "after": "817C2430630F4300742DB8E803000083BF380500000275083987300500007C1783BB380500000275083983300500007C06E95E03000090",
+          "purpose": "re-encode the pairing handler's woman-aged-50-or-older refusal (0x44F7C8..0x44F7FE) with the same stock test, preceded by the drop test: the player's drop (its return address 0x430F63 at [esp+0x30]) continues at the stock accept 0x44F7FF; every other entry, autonomous pairing included, is refused exactly as stock"
         }
       ]
     },
@@ -1662,21 +1663,28 @@
       "description": "**Works the same with or without Birth Control: the 50-and-over refusal it lifts is The Secret City's own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.",
       "output_tag": "Manual Drop-Breeding",
       "behavior_changes": [
-        "After the stock conception roll succeeds, the manual pairing handler at VA 0x4584B0 returned without calling the pregnancy writer when either participant was a woman at internal age 1000 (50) or older. File 0x586F3 now jumps straight to the stock writer call at 0x45871C, so she conceives on a passing roll like any other woman."
+        "After the stock conception roll succeeds, the pairing handler at VA 0x4584B0 (step 13) returns without calling the pregnancy writer when either participant is a woman at internal age 1000 (50) or older. The player's drop and villagers pairing up on their own both reach this handler through action 4 (0x44A680), so the refusal is skipped only for the drop: file 0x586F3 jumps to the unused padding at 0x458741, which continues at the stock writer call 0x45871C when the drop's return address 0x4669D6 sits at [esp+0x48] -- the depth the drop's own call chain (0x4669D1 -> 0x455570 -> 0x441170 -> 0x44A680 -> 0x461BF0 -> 0x4584B0) puts it, because the drop queues step 13 on an emptied queue and the handler runs inside that call -- so she conceives on a passing roll like any other woman. Every other entry returns to the stock check, re-encoded in place with the same comparisons.",
+        "Autonomous pairing (0x45B674) queues a walk to the partner before step 13, so its handler runs later from the walk's arrival (0x460F20) and never with the drop's call on the stack: a woman of 50 or older is still refused after the stock roll, exactly as stock."
       ],
       "explicit_non_changes": [
         "Birth Control's five candidate-selector edits and its chooser change are not touched and do not overlap this patch.",
         "Every other stock manual-drop rule is unchanged and still refuses the drop: same sex, either villager under internal age 360 (18), either villager dead or ill, a woman already expecting or nursing, and the game's own food and population checks.",
         "The stock Parenting skill-attempt roll and the stock conception roll (RNG(300) against Parenting skill and technology) are unchanged and still decide; a drop can fail at either one.",
-        "Autonomous pairing, the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
+        "Autonomous pairing keeps the stock woman-aged-50-or-older refusal in the shared handler; the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
       ],
-      "evidence_status": "implemented from exact-build disassembly; the stock and patched manual pairing handlers are emulated from their entry in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
+      "evidence_status": "implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own action table, step queue and dispatcher into the handler in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
       "patches": [
         {
           "offset": "0x586F3",
-          "before": "8B8EC40D0000",
-          "after": "EB2790909090",
-          "purpose": "skip the manual pairing's woman-aged-50-or-older refusal (0x4586F3..0x45871B) and continue at the stock pregnancy-writer call 0x45871C after the stock conception roll has passed"
+          "before": "8B8EC40D0000B8E80300003BC8",
+          "after": "EB4CB8E80300003986C40D0000",
+          "purpose": "send the pairing handler's woman-aged-50-or-older check (0x4586F3) to the drop test at 0x458741 first; the test returns to 0x4586F5, where the stock first comparison is re-encoded with the same operands (mov eax,0x3E8 / cmp [esi+0xDC4],eax) so the stock check from 0x458700 on is untouched"
+        },
+        {
+          "offset": "0x58741",
+          "before": "909090909090909090909090",
+          "after": "817C2448D669460074D1EBA8",
+          "purpose": "drop test in the unused padding after the handler: when the player's drop called it (return address 0x4669D6 at [esp+0x48]) continue at the stock pregnancy-writer call 0x45871C; otherwise return to the stock check at 0x4586F5"
         }
       ]
     },
@@ -1697,20 +1705,33 @@
       "description": "**Needs no other patch: the 50-and-over refusal it lifts is The Tree of Life's own; this game has no Birth Control patch.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food, love-shack and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.",
       "output_tag": "Manual Drop-Breeding",
       "behavior_changes": [
-        "After the stock conception roll succeeds, the manual pairing handler at VA 0x460C10 returned without calling the pregnancy writer when either participant was a woman at internal age 1000 (50) or older. File 0x60E67 now jumps straight to the stock writer call at 0x460E8E, so she conceives on a passing roll like any other woman."
+        "After the stock conception roll succeeds, the pairing handler at VA 0x460C10 (step 15 of the dispatcher 0x46A030) returns without calling the pregnancy writer when either participant is a woman at internal age 1000 (50) or older. The player's drop and villagers pairing up on their own (the live Embracing route) both reach this handler through action 3 (0x455420), so the refusal is skipped only for the drop: file 0x60E67 jumps to the unused padding at 0x460EB3, which continues at the stock writer call 0x460E8E when the drop's return address 0x440EF2 sits at [esp+0x40] -- the depth the drop's own call chain (0x440EED -> 0x45DEC0 -> 0x44F720 -> 0x455420 -> 0x46A030 -> 0x460C10) puts it, because the drop queues step 15 on an emptied queue and the handler runs inside that call -- so she conceives on a passing roll like any other woman. Every other entry runs the stock check unchanged (its first instruction, mov eax,0x3E8, is replayed in the padding at 0x460EC5).",
+        "Autonomous pairing (0x463FC3, from the category chooser 0x4639B0) queues a walk to the partner before step 15, so its handler runs later from the walk's arrival (0x468C10) and never with the drop's call on the stack: an initiating woman of 50 or older is still refused after the stock roll, exactly as stock. Catch-up conceives through its own step executor (0x464FA0) and never reaches this handler."
       ],
       "explicit_non_changes": [
         "Every other stock manual-drop rule is unchanged and still refuses the drop: same sex, either villager under internal age 360 (18), either villager dead or ill, a woman already expecting or nursing, and the game's own food, love-shack and population checks.",
         "The stock Parenting skill-attempt roll and the stock conception roll (RNG(300) against Parenting skill and technology) are unchanged and still decide; a drop can fail at either one.",
-        "Autonomous pairing, the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
+        "Autonomous pairing keeps the stock woman-aged-50-or-older refusal in the shared handler; the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
       ],
-      "evidence_status": "implemented from exact-build disassembly; the stock and patched manual pairing handlers are emulated from their entry in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
+      "evidence_status": "implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own action table, step queue and dispatcher into the handler in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
       "patches": [
         {
           "offset": "0x60E67",
           "before": "B8E8030000",
-          "after": "EB25909090",
-          "purpose": "skip the manual pairing's woman-aged-50-or-older refusal (0x460E67..0x460E8D) and continue at the stock pregnancy-writer call 0x460E8E after the stock conception roll has passed"
+          "after": "E947000000",
+          "purpose": "send the pairing handler's woman-aged-50-or-older check (0x460E67) to the drop test at 0x460EB3 first"
+        },
+        {
+          "offset": "0x60EB3",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "817C2440F20E440074D1EB06",
+          "purpose": "drop test in the unused padding after the handler: when the player's drop called it (return address 0x440EF2 at [esp+0x40]) continue at the stock pregnancy-writer call 0x460E8E; otherwise go on to 0x460EC5"
+        },
+        {
+          "offset": "0x60EC5",
+          "before": "CCCCCCCCCCCCCC",
+          "after": "B8E8030000EBA0",
+          "purpose": "replay the stock mov eax,0x3E8 the jump displaced and return to the stock check at 0x460E6C, unchanged"
         }
       ]
     },
@@ -1893,23 +1914,24 @@
       "description": "**In A New Home this only changes anything when Birth Control is also ticked: A New Home itself never refuses a woman aged 50 or older on a manual drop. Birth Control adds that refusal, and with both ticked this patch takes it back out for manual drops only; the rest of Birth Control is unchanged.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.",
       "output_tag": "Manual Drop-Breeding",
       "behavior_changes": [
-        "The block that picks the embrace duration just before the manual pairing's carrier branch (file 0x3DCD8..0x3DD02, VA 0x43DCD8) is rewritten to compute the same duration with the same RNG(3)+5 re-roll rule, perform the stock category-2 comparison itself and continue at the stock push/branch at 0x43DD0A. The manual pairing therefore never enters 0x43DD03.",
-        "Without Birth Control, 0x43DD03 holds the stock comparison this block now performs, so nothing about the drop changes: stock A New Home has no manual age limit.",
-        "With Birth Control ticked, 0x43DD03 is Birth Control's manual hook into its .vv1bc page, which refuses a category-2 woman at internal age 1000 (50) or older; this patch steps around that hook, so a manual drop is no longer refused for her age. Birth Control's own bytes, its other five edits and its page are not touched."
+        "The block that picks the embrace duration just before the pairing handler's carrier branch (file 0x3DCD8..0x3DD02, VA 0x43DCD8, in the step-9 handler 0x43DAD0) is rewritten to compute the same duration with the same RNG(3)+5 re-roll rule and then test for the player's drop: when the drop's return address 0x4252BE sits at [esp+0x30] -- the depth the drop's own call chain (0x4252B9 -> 0x445510 -> 0x43DEF0 -> 0x43DAD0) puts it, because the drop queues step 9 on an emptied queue and the handler runs inside that call -- the block performs the stock category-2 comparison itself and continues at the stock push/branch at 0x43DD0A, so the drop never enters 0x43DD03. Every other entry continues into 0x43DD03 exactly as stock.",
+        "The player's drop and villagers pairing up on their own both reach this handler through 0x445510. Autonomous pairing (0x447886) queues a walk to the partner before step 9, so its handler runs later from the walk's arrival (0x445C50) and never with the drop's call on the stack: it always passes through 0x43DD03.",
+        "Without Birth Control, 0x43DD03 holds the stock comparison this block performs for the drop, so nothing changes: stock A New Home has no age limit on pairing.",
+        "With Birth Control ticked, 0x43DD03 is Birth Control's hook into its .vv1bc page, which refuses a category-2 woman at internal age 1000 (50) or older; this patch steps around that hook for the player's drop only, so a manual drop is no longer refused for her age while villagers pairing up on their own are still refused by Birth Control. Birth Control's own bytes, its other five edits and its page are not touched."
       ],
       "explicit_non_changes": [
-        "Birth Control's bytes are not modified: its manual hook at 0x3DD03, its action-9, planner and chooser hooks, and its .vv1bc page stay exactly as Birth Control writes them; only the manual drop stops reaching the 0x3DD03 hook.",
+        "Birth Control's bytes are not modified: its hook at 0x3DD03, its action-9, planner and chooser hooks, and its .vv1bc page stay exactly as Birth Control writes them; only the manual drop stops reaching the 0x3DD03 hook.",
         "Every other stock manual-drop rule is unchanged and still refuses the drop: same sex, either villager under internal age 360 (18), either villager dead or ill, a woman already expecting or nursing, and the game's own food and population checks.",
         "The stock Parenting skill-attempt roll and the stock conception roll (RNG(300) against Parenting skill and technology) are unchanged and still decide; a drop can fail at either one.",
-        "Autonomous pairing, the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
+        "Autonomous pairing still goes through 0x43DD03 (Birth Control's refusal when it is ticked); the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
       ],
-      "evidence_status": "implemented from exact-build disassembly; the stock and patched manual pairing handlers are emulated from their entry in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
+      "evidence_status": "implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own step queue and dispatcher into the handler, with and without Birth Control, in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
       "patches": [
         {
           "offset": "0x3DCD8",
           "before": "8BF88B44241883C40483C70585C0741B8B4C241085C974133BC8750F6A03E81552FCFF8BF883C40483C705",
-          "after": "598D78058B4424148B4C24103BC8750F85C0740B6A03E81D52FCFF598D780583BD5003000002EB0A909090",
-          "purpose": "recompute the manual embrace duration (RNG(3)+5 with the stock re-roll rule), perform the stock category-2 comparison and resume at 0x43DD0A, so the manual drop never enters 0x43DD03 (Birth Control's manual age hook when Birth Control is ticked)"
+          "after": "598B4C2414E30E3B4C241075086A03E82452FCFF598D7805817C2430BE524200750983BD5003000002EB07",
+          "purpose": "recompute the embrace duration (RNG(3)+5 with the stock re-roll rule); for the player's drop (return address 0x4252BE at [esp+0x30]) perform the stock category-2 comparison and resume at 0x43DD0A, so the drop never enters 0x43DD03 (Birth Control's age hook when Birth Control is ticked); every other entry continues into 0x43DD03"
         }
       ]
     },
@@ -2658,20 +2680,27 @@
       "description": "**Needs no other patch: the 50-and-over refusal it lifts is New Believers' own; this game has no Birth Control patch.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food, love-shack and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.",
       "output_tag": "Manual Drop-Breeding",
       "behavior_changes": [
-        "After the stock conception roll succeeds, the manual pairing handler at VA 0x4689A0 returned without calling the pregnancy writer when either participant was a woman at internal age 1000 (50) or older. File 0x68BC4 now jumps straight to the stock writer call at 0x468BEB, so she conceives on a passing roll like any other woman."
+        "After the stock conception roll succeeds, the pairing handler at VA 0x4689A0 (step 16 of the dispatcher 0x473590) returns without calling the pregnancy writer when either participant is a woman at internal age 1000 (50) or older. The player's drop and villagers pairing up on their own (the live Embracing route) both reach this handler through action 5 (0x45D010), so the refusal is skipped only for the drop: file 0x68BC4 jumps to unused .text padding at 0x494BC0, which continues at the stock writer call 0x468BEB when the drop's return address 0x44402D sits at [esp+0x4C] -- the depth the drop's own call chain (0x444028 -> 0x465580 -> 0x452BD0 -> 0x45D010 -> 0x473590 -> 0x4689A0) puts it, because the drop queues step 16 on an emptied queue and the handler runs inside that call -- so she conceives on a passing roll like any other woman. Every other entry replays the displaced mov eax,0x3E8 and returns to the stock check at 0x468BC9, unchanged.",
+        "Autonomous pairing (0x46CB1E) queues a walk to the partner before step 16, so its handler runs later from the walk's arrival (0x4733F0) and never with the drop's call on the stack: an initiating woman of 50 or older is still refused after the stock roll, exactly as stock. Catch-up conceives through its own step executor (0x46E020) and never reaches this handler."
       ],
       "explicit_non_changes": [
         "Every other stock manual-drop rule is unchanged and still refuses the drop: same sex, either villager under internal age 360 (18), either villager dead or ill, a woman already expecting or nursing, and the game's own food, love-shack and population checks.",
         "The stock Parenting skill-attempt roll and the stock conception roll (RNG(300) against Parenting skill and technology) are unchanged and still decide; a drop can fail at either one.",
-        "Autonomous pairing, the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
+        "Autonomous pairing keeps the stock woman-aged-50-or-older refusal in the shared handler; the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."
       ],
-      "evidence_status": "implemented from exact-build disassembly; the stock and patched manual pairing handlers are emulated from their entry in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
+      "evidence_status": "implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own action table, step queue and dispatcher into the handler in tests/test_manual_drop_breeding.py; runtime/player confirmation pending",
       "patches": [
         {
           "offset": "0x68BC4",
           "before": "B8E8030000",
-          "after": "EB25909090",
-          "purpose": "skip the manual pairing's woman-aged-50-or-older refusal (0x468BC4..0x468BEA) and continue at the stock pregnancy-writer call 0x468BEB after the stock conception roll has passed"
+          "after": "E9F7BF0200",
+          "purpose": "send the pairing handler's woman-aged-50-or-older check (0x468BC4) to the drop test at 0x494BC0 first"
+        },
+        {
+          "offset": "0x94BC0",
+          "before": "000000000000000000000000000000000000000000000000",
+          "after": "817C244C2D4044000F841D40FDFFB8E8030000E9F13FFDFF",
+          "purpose": "drop test in unused .text padding: when the player's drop called it (return address 0x44402D at [esp+0x4C]) continue at the stock pregnancy-writer call 0x468BEB; otherwise replay the displaced mov eax,0x3E8 and return to the stock check at 0x468BC9, unchanged"
         }
       ]
     }
