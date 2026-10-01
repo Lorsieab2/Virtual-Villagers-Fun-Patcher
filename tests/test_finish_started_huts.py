@@ -408,6 +408,45 @@ class CatchUpTests(unittest.TestCase):
                     self.assertIn(V2["disp"], m.seen)
 
 
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class NewHomeInstallsBeforeAnyCatchUpTests(unittest.TestCase):
+    """Why A New Home's companion-written new-hut test is in place before the
+    first catch-up (Codex on #492): it is installed from Vv1MaskTick, which the
+    Origins row calls from the engine's frame tick at 0x40913C -- the only path
+    to the present call 0x403830 -- so it runs on the very first presented
+    frame (the title and save-slot screens included), before a village is
+    chosen, loaded and caught up.  (The Lost Children's companion installs
+    from the village compositor only, hence its row's executable record.)"""
+
+    def test_every_presented_frame_runs_the_hooked_tick(self):
+        import pefile
+        import struct
+        data = STOCK["vv1"].read_bytes()
+        pe = pefile.PE(str(STOCK["vv1"]), fast_load=True)
+        callers = set()
+        for sec in pe.sections:
+            if not sec.Characteristics & 0x20000000:
+                continue
+            raw = data[sec.PointerToRawData:sec.PointerToRawData + sec.SizeOfRawData]
+            base = 0x400000 + sec.VirtualAddress
+            i = raw.find(b"\xE8")
+            while i >= 0:
+                if i + 5 <= len(raw) and base + i + 5 + struct.unpack_from("<i", raw, i + 1)[0] == 0x403830:
+                    callers.add(base + i)
+                i = raw.find(b"\xE8", i + 1)
+        self.assertEqual(callers, {0x409145}, "one present call, in the frame tick")
+        self.assertEqual(_stock("vv1", 0x40913C, 6), bytes.fromhex("8B4E30518BCE"))
+        import vv_fun_patcher as vfp
+        build = next(b for b in vfp.load_builds() if b.id == "vv1")
+        rendered, _ = vfp.render_patched_bytes(STOCK["vv1"], build, "stock", list(ROWS["vv1"]))
+        self.assertEqual(rendered[0x913C], 0xE9, "the Origins row's frame hook")
+
+    def test_the_tick_installs_fix_huts_before_any_village_check(self):
+        source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
+        tick = source.split("__declspec(dllexport) void __stdcall Vv1MaskTick(void) {", 1)[1]
+        self.assertLess(tick.index("vvfp_fix_huts_bridge(1);"), tick.index("vv1_mask_prepare_slot()"))
+
+
 class DescriptionTests(unittest.TestCase):
     def test_builder_action_fixes(self):
         text = _builds_row("vv1_builder_action_fixes")["description"]
