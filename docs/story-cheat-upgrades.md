@@ -1,11 +1,11 @@
-# Story / Cheat Upgrades (part 1)
+# Story / Cheat Upgrades
 
 The owner's patch for custom stories, experiments, sandbox play and cheats,
 in all five games, **off by default** and left off by Owner's Defaults. It
 requires the Origins upgrades row (Enable Origins Tech, Details, and
-Village-Wide Upgrades). Part 1 is: every Origins upgrade costs 0 tech points,
-and a new Origins upgrade, **Pick Island Event**. (Custom Island Event is part
-2 and is not in this build.)
+Village-Wide Upgrades). Part 1: every Origins upgrade costs 0 tech points,
+and a new Origins upgrade, **Pick Island Event**. Part 2: **Custom Island
+Event** and custom villager titles (below).
 
 Evidence level: static analysis of the exact executables, and emulation of
 the rendered executables with the companion mapped beside them
@@ -132,3 +132,150 @@ Life 44, New Believers 45 (the full lists, with descriptions, are in
   check (Time Warp to force events quickly).
 * Some event conditions' meanings (which a "not possible right now" line
   names) were read from code and are described generically where unverified.
+
+## Custom Island Event (part 2)
+
+The owner: "Custom Island Event -- Allows the player to create and trigger a
+custom Island Event for storytelling, testing, sandbox play, or cheats ...
+available options must be determined separately for VV1, VV2, VV3, VV4, and
+VV5 from each game's actual executable/data structures ... Unsupported
+properties should be omitted or disabled rather than approximated."
+
+Evidence level: static analysis of the exact executables (five per-game
+traces), and emulation of the rendered executables with the companion mapped
+beside them (`tests/test_story_custom_island_event.py`), plus native
+harnesses on real files for the .dat (`tests/test_custom_titles_persistence.py`).
+**Not yet confirmed in a running game**: the dialogs, the popup's look, the
+pose of a male carrier, and the in-game timing all need a live check (Time
+Warp forces the event quickly).
+
+### How it is used
+
+A **Custom Island Event (0 tech points)...** button sits beside Pick Island
+Event on the Origins Tech menu. Its plain Windows dialogs:
+
+* **Custom Island Event**: the event's title (one line) and description, the
+  village changes (food and tech points: add, subtract or set to 0; refill the
+  food sources; the game's village and puzzle changes), the new villagers, and
+  the villager changes. **Not in this game...** lists what the game does not
+  offer and why.
+* **Villager changes**: the villagers in a list with standard extended
+  selection (Ctrl+click toggles one, Shift+click selects a range) and five
+  group toggles named exactly **All Adult Women**, **All Adult Men**, **All
+  Females**, **All Males**, **All Children** ("adult" is each game's own
+  boundary, 14 years). Toggles and picks combine; a villager matched more than
+  once counts once; changes added for a villager twice are merged (the later
+  value wins), so changes can be set per villager.
+* **New villagers**: how many, sex, age, name, head and body, likes and
+  dislikes, skills, custom title, mask.
+* **Parents**: the parentage data of the chosen villagers.
+
+Every value is checked when a dialog closes and a value the game does not
+accept is refused with its valid range. Buying the event (0 tech points)
+makes the island event due **exactly as the Island Event purchase does** -- the
+same lock as Pick Island Event: one island event, pick or custom event at a
+time, refused while one is queued. An undelivered event lapses after ten
+minutes.
+
+### Delivery
+
+When the game's own scheduler fires the island event (it has already
+rescheduled the next one, played its sound and counted it), the changes are
+made and the game's own island-event popup shows the custom title and
+description, followed by the food / tech lines in the game's own wording and a
+line for anything the village had no room for.
+
+| Game | Where | How |
+| --- | --- | --- |
+| A New Home | 0x428777, the island event's chooser call | the replacement writes the text into the event's own buffer (+0x277F) and makes the changes; the trigger's family rolls send it to the island family |
+| The Lost Children | 0x4349B2, the single-result event's chooser call | the same (+0x277F); the family rolls send it to family C |
+| The Secret City | 0x419BDB (the Pick Island Event site) | the presenter gets a custom event object: The Fog's vtable with the title / body ids 0x4CB / 0x4CC (string-table slots the game leaves empty) |
+| The Tree of Life | 0x4180F7 | the event base vtable, ids 0x32A / 0x32B (The Salty Air's, no event object) |
+| New Believers | 0x41895B | Blessings Day's vtable, ids 0x3AD / 0x3AE (empty slots) |
+
+The Origins Barrel always reaches the game's own code. A New Home's and The
+Lost Children's first island event of a village is always the other family,
+so a custom event is refused until it has happened.
+
+### What each game offers
+
+| Option | A New Home | The Lost Children | The Secret City | The Tree of Life | New Believers |
+| --- | --- | --- | --- | --- | --- |
+| Title and description | yes | yes | yes | yes | yes |
+| Food / tech points | yes | yes | yes | yes | yes |
+| Refill food sources | berries; crops once the farm produces | coconut trees; crops while planted (not fish / soil: puzzle-gated) | fruit trees (0x4340A0) | berry bushes | noni bushes; crops once built |
+| New villagers | creator 0x43C350 | 0x44F580 | 0x45FF50 | 0x467D10 | believers, 0x471E20 |
+| Dies (skeleton) | health 0 | health 0 | 0x462670(0, -1) | stop + 0x46AF00(0, -1) | stop + SetHealth(0, 2) |
+| Disappears (no skeleton) | as "a closer look" (0x41979D) | as A Dangerous Mission | as the Tsunami (0x45D990) | as The Sealed Box | **omitted**: no stock way to remove a living villager |
+| Falls sick | yes | yes | yes | yes | believers only (Heathens are cured every moment) |
+| Pregnant (baby / twins / triplets, either sex) | adults 18+ | adults 18+ | adults 18+ | adults 18+ (0x45E7B0, forced) | adult believers (0x465E00, forced; Heathens never deliver) |
+| Likes / dislikes | 46 of 47 words | 62 words | 79 words | 79 words | 79 words |
+| Appearance | heads / bodies 0-19 | 0-29 | 0-29 | 0-29 | 0-29 |
+| Skills | 5 | 5 | 5 | 5 | 6 |
+| Parents | with Show Parents (its sidecar) | on the record | on the record | on the record | on the record |
+| Custom title | yes | yes | yes | yes | yes |
+| Mask | yes | yes | yes | yes | yes |
+| Faction / status | -- | Esteemed Elder (0x44D190, with its totem); totem art 1-8 | -- (Tribal Chief omitted) | -- | believer / Heathen (the game's conversions; puzzle Heathens refused) |
+| Behaviours | stop, dance, swim, relax, recover | stop, swim, celebrate, visit graves, sneeze, recover | stop, recover | stop, recover | stop, recover |
+| Village / puzzle | Isola Day, Blessings Day, the dirty beach (as The Big Wave) | -- | -- | rain, clear weather | -- |
+
+Each is the game's own routine or the fields its own code writes for the same
+effect (the per-game files `native/vvfp_story_upgrades/story_c1.inc` ..
+`story_c5.inc` cite the sites). A villager is changed only while its record
+still holds the same living villager as when the event was queued. Each new
+villager and each baby is made only while the game's own room predicate says
+the village has room (and a record is free), so the population cap of the
+installed mode is never passed -- run in all three modes in the tests.
+
+A pregnancy writes what each game's conception writes (and counts Babies
+Made, twins and triplets as the game does); with **Write Births and
+Conceptions Log to Text File** ticked it is logged through the same
+`WriteParentageRecordWithFather` call the game's own conceptions use. No
+game's conception or delivery checks the carrier's sex, so a man can carry
+(the Heathen Mommy works the same way); an unknown father is "Unknown" with
+the carrier's own looks. How a male carrier's pose looks is not verified.
+
+### Custom titles
+
+A villager's title can be replaced by the player's text (1-31 letters,
+numbers, spaces and . , ! ? : - '). It is kept per save slot in
+
+    <save folder>\Virtual Villagers Fun Patcher Data\Custom Titles\Custom Titles - Save N.dat
+
+(`native/shared/custom_titles.h`), never in the save, and shown in the
+villager panel (VV1 0x41FD75, VV2 0x429DE3, VV3 0x468FC8, VV4 0x4404D9, VV5
+0x44319E) and as "Custom title:" in the Village Population roster and the
+Village History. No game's Details screen shows a title. A title belongs to
+its record only while the record holds the villager whose name it was set
+for; it is dropped when the villager dies or the record is reused. Start Over
+deletes the slot's file, and a table that sees its file gone forgets the old
+village instead of writing it back.
+
+### Not offered, and why
+
+* A New Home: the Golden Child (only its puzzle makes one; the creator's
+  family 0xC7 forces sex, age and looks); puzzle completion (no callable
+  completion routine); the 47th like word (the game never uses it and its
+  list reader can overrun on it).
+* The Lost Children: puzzle states; fish and soil refills.
+* The Secret City: Tribal Chief (only the robe puzzle; a second chief is a
+  known defect); the beehive refill (tied to its puzzle); puzzle states.
+* The Tree of Life: fruit-tree and fishing refills (no game routine); weather
+  types other than rain and clear (not identified); puzzle states.
+* New Believers: disappearing; new Heathens (the creator's arguments are not
+  all understood); puzzle states (prerequisites unproven); the puzzles' own
+  Heathens keep their faction.
+
+### Found in passing (not changed here)
+
+* A New Home: 0x43A200 returns the first corpse, not a free record (the
+  emulation of the population-cap test showed it); the companion scans for a
+  free record itself.
+* Static only: VV1's twin/triplet slot guards in builds.json compare lifetime
+  Babies Made with 256; VV1's like list has no comma after its last word;
+  VV1's "Read the book" removal leaves a stale selection; VV2's Equal
+  Division labels the job codes differently from the game's title table;
+  VV2's renders' clamped slot scan can reuse record 255; VV3's physical guard
+  ignores pending litters; `vv4_origins_icons.c` describes its sex values in
+  reverse; `settle_vv5_identity_chain.py` can leave
+  `VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256` behind (set by hand here).

@@ -54,10 +54,103 @@ DESCRIPTION = (
     "relying on random selection. Opening this upgrade displays a list of the game's "
     "official Island Event titles, each with a brief description. Selecting an event "
     "causes that specific event to occur through the game's Island Event system. "
+    "Custom Island Event -- Allows the player to create and trigger a custom Island "
+    "Event for storytelling, testing, sandbox play, or cheats. The player may customize "
+    "supported event properties, including: Title and description; Food gained or lost; "
+    "Tech Points gained or lost; Villagers spawned; Spawned-villager details, including "
+    "supported appearance, age, sex, name, likes/dislikes, skills, and other valid "
+    "villager attributes; Villager behavior or state changes; Village-state changes; "
+    "Puzzle-state changes; Other game-specific values that can be safely and reliably "
+    "manipulated. Custom events should appear and behave as closely as practical to "
+    "ordinary Island Events, while clearly allowing player-defined outcomes. Only what "
+    "this game's own code supports is offered; the rest is shown as not available in "
+    "this game. A custom title is kept per save slot in a file beside the saves and is "
+    "removed by Start Over. "
     "Off by default. **Requires Enable Origins Tech, Details, and Village-Wide "
     "Upgrades: ticking this ticks it, and without it there are no Origins Upgrades "
-    "to make free and no Pick Island Event.**"
+    "to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a "
+    "custom event starts is written to the Births and Conceptions log only with Write "
+    "Births and Conceptions Log to Text File ticked.**"
 )
+# A New Home keeps parents only in the Show Parents companion's file.
+VV1_PARENTS_NOTE = (
+    " **In A New Home a custom event can change a villager's parents only with Show "
+    "Parents in Details Screen ticked (its file is where A New Home's parents are kept).**"
+)
+
+# What each game's Custom Island Event offers and leaves out, with the reason
+# (docs/story-cheat-upgrades.md has the evidence).
+CUSTOM_OFFERED = {
+    "vv1": ["title and description", "food and tech points (add, subtract, set to 0)",
+            "refill: berry bushes, and the crops once the farm produces", "new villagers",
+            "dies (leaves a skeleton)", "disappears (no skeleton)", "falls sick",
+            "pregnant with a baby, twins or triplets (adults 18+, either sex)",
+            "likes and dislikes", "appearance (heads and bodies 0-19)", "skills",
+            "parents (with Show Parents in Details Screen)", "custom title", "mask",
+            "behaviours: stops what they are doing, dances, goes swimming, relaxes, recovers fully",
+            "village: Isola Day celebration, Blessings Day celebration, the beach dirty again "
+            "(as The Big Wave leaves it)"],
+    "vv2": ["title and description", "food and tech points (add, subtract, set to 0)",
+            "refill: coconut trees, and the crops while planted", "new villagers",
+            "dies (leaves a skeleton)", "disappears (no skeleton)", "falls sick",
+            "pregnant with a baby, twins or triplets (adults 18+, either sex)",
+            "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
+            "custom title", "mask", "becomes an Esteemed Elder (with a totem)",
+            "Esteemed Elder's totem type (eight carvings)",
+            "behaviours: stops what they are doing, cools off with a swim, celebrates, visits "
+            "the graves, sneezes, recovers fully"],
+    "vv3": ["title and description", "food and tech points (add, subtract, set to 0)",
+            "refill: fruit trees", "new villagers", "dies (leaves a skeleton)",
+            "disappears (no skeleton)", "falls sick",
+            "pregnant with a baby, twins or triplets (adults 18+, either sex)",
+            "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
+            "custom title", "mask", "behaviours: stops what they are doing, recovers fully"],
+    "vv4": ["title and description", "food and tech points (add, subtract, set to 0)",
+            "refill: berry bushes", "new villagers", "dies (leaves a skeleton)",
+            "disappears (no skeleton)", "falls sick",
+            "pregnant with a baby, twins or triplets (adults 18+, either sex)",
+            "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
+            "custom title", "mask", "behaviours: stops what they are doing, recovers fully",
+            "village: rain begins, the weather clears"],
+    "vv5": ["title and description", "food and tech points (add, subtract, set to 0)",
+            "refill: noni bushes, and the crops once the farm is built", "new villagers (believers)",
+            "dies (leaves a remains)", "falls sick (believers)",
+            "pregnant with a baby, twins or triplets (adult believers, either sex)",
+            "likes and dislikes", "appearance (heads and bodies 0-29)", "skills (six)", "parents",
+            "custom title", "mask", "becomes a believer / becomes a Heathen",
+            "behaviours: stops what they are doing, recovers fully"],
+}
+CUSTOM_OMITTED = {
+    "vv1": [{"option": "Golden Child", "reason": "only the game's own puzzle makes one; the creator's "
+             "family 0xC7 forces sex, age and looks, and the puzzle's own state would no longer agree"},
+            {"option": "puzzle solved", "reason": "no completion routine that can be called on its own"},
+            {"option": "the 47th like word (sleeping)", "reason": "the game never uses it and its "
+             "list reader can overrun on it"},
+            {"option": "faction, chief, elders, totems", "reason": "A New Home has none"}],
+    "vv2": [{"option": "puzzle solved", "reason": "each puzzle is tied to its objects and goal messages; "
+             "no completion routine that can be called on its own"},
+            {"option": "refill fish and farm soil", "reason": "depleted by design and restored only "
+             "by their puzzles"},
+            {"option": "Golden Child, chief, faction", "reason": "The Lost Children has none"}],
+    "vv3": [{"option": "Tribal Chief", "reason": "only the robe puzzle makes one; a second chief is a "
+             "known defect"},
+            {"option": "Esteemed Elder", "reason": "worked out from three mastered skills, not stored"},
+            {"option": "puzzle solved", "reason": "the puzzles create the objects they need"},
+            {"option": "refill the beehive", "reason": "its refill is tied to its puzzle"}],
+    "vv4": [{"option": "refill fruit trees and fishing", "reason": "the game has no refill for them"},
+            {"option": "special statuses", "reason": "Scholar and Elderly are worked out; Tribal "
+             "Chief is never shown"},
+            {"option": "other weather", "reason": "the other weather types are not identified"},
+            {"option": "puzzle solved", "reason": "only the collections have a completion route"}],
+    "vv5": [{"option": "disappears (no skeleton)", "reason": "the game has no way of removing a "
+             "living villager; only an unburied corpse disappears"},
+            {"option": "new Heathens", "reason": "the Heathen creator's arguments are not all understood"},
+            {"option": "the puzzles' own Heathens' faction", "reason": "their puzzles depend on them"},
+            {"option": "sickness or pregnancy for Heathens", "reason": "the game cures Heathens every "
+             "moment and Heathens never give birth"},
+            {"option": "puzzle solved", "reason": "the completion routine needs world state that is "
+             "not proven"}],
+}
 
 # Every price the Origins rows charge, in any game.
 PRICES = (5000, 30000, 40000, 50000, 75000, 100000, 450000, 500000, 1000000)
@@ -446,7 +539,7 @@ def build() -> None:
             "enabled": True,
             "game_id": game,
             "name": NAME,
-            "description": DESCRIPTION,
+            "description": DESCRIPTION + (VV1_PARENTS_NOTE if game == "vv1" else ""),
             "output_tag": "Story Cheat Upgrades",
             "dependencies": [f"{game}_origins_village_wide_upgrades"],
             "behavior_changes": [
@@ -464,13 +557,29 @@ def build() -> None:
                 "amounts.",
                 f"Offers {len(events)} island events; events that can never run in this game are "
                 "not offered.",
+                "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an "
+                "event (title, description, village changes, new villagers, per-villager changes "
+                "for a list with extended selection and the group toggles All Adult Women, All "
+                "Adult Men, All Females, All Males and All Children).  It is queued exactly as the "
+                "Island Event upgrade queues one (the same lock), and when the game's own scheduler "
+                "fires it, the game's own island-event popup shows the custom title and description "
+                "and the changes are made through the game's own routines.",
+                "New villagers and babies are made only while the game's own room predicate says "
+                "the village has room, so the population cap of the installed mode is never passed.",
+                "A custom title replaces a villager's title in the villager panel and is printed in "
+                "the Village Population and Village History logs; it is kept per save slot in "
+                "Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and "
+                "deleted by Start Over.",
             ],
             "explicit_non_changes": [
                 "No executable byte is patched; the companion writes the listed sites at run time "
                 "after verifying every one of them, and writes nothing if any differs.",
-                "No event is emulated: the picked event is created, shown and resolved by the "
-                "game's own code.",
-                "Tech points are never added, and nothing is written to the save.",
+                "No stock event is emulated: a picked event is created, shown and resolved by the "
+                "game's own code; a custom event is shown by the game's own island-event popup.",
+                "Pick Island Event adds no tech points and writes nothing to the save; a custom "
+                "event changes only what the player chose, through the game's own routines and "
+                "fields, and the game saves the village as usual.",
+                "No custom title is written into a villager record.",
             ],
             "evidence_status": (
                 "static exact-build verification and emulation of the rendered executables and the "
@@ -486,6 +595,10 @@ def build() -> None:
                 for e in events
             ],
             "excluded_island_events": story_island_events.EXCLUDED[game],
+            "custom_island_event": {
+                "offered": CUSTOM_OFFERED[game],
+                "omitted": CUSTOM_OMITTED[game],
+            },
             "patches": [],
         }
         path = ROOT / "data" / f"vv{number}_story_cheat_upgrades_feature.json"

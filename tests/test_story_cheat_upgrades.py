@@ -146,7 +146,21 @@ class RowTests(unittest.TestCase):
                 self.assertIn("Off by default", text)
                 self.assertIn("**Requires Enable Origins Tech, Details, and Village-Wide Upgrades", text)
                 self.assertEqual(text.count("**") % 2, 0)
-                self.assertNotIn("Custom Island Event", text, "part 2 is not available yet")
+                # Part 2, in the owner's own words.
+                self.assertIn("Custom Island Event -- Allows the player to create and trigger a "
+                              "custom Island Event for storytelling, testing, sandbox play, or "
+                              "cheats.", text)
+                self.assertIn("Custom events should appear and behave as closely as practical to "
+                              "ordinary Island Events, while clearly allowing player-defined "
+                              "outcomes.", text)
+                self.assertIn("**A pregnancy a custom event starts is written to the Births and "
+                              "Conceptions log only with Write Births and Conceptions Log to Text "
+                              "File ticked.**", text)
+                if game == "vv1":
+                    self.assertIn("only with Show Parents in Details Screen ticked", text)
+                self.assertTrue(row.raw["custom_island_event"]["offered"])
+                for omitted in row.raw["custom_island_event"]["omitted"]:
+                    self.assertTrue(omitted["reason"], omitted)
                 self.assertEqual(row.raw["dependencies"], [f"{game}_origins_village_wide_upgrades"])
 
     def test_off_by_default_and_not_ticked_by_owners_defaults(self):

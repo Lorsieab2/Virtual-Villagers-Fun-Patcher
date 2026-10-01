@@ -595,7 +595,8 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
         wsprintfA(text, "%d-%d years", (a->min_spawn_age + 19) / 20, a->max_spawn_age / 20);
         SetDlgItemTextA(window, IDC_SP_AGE_RANGE, text);
         SetDlgItemInt(window, IDC_SP_AGE, (UINT)((a->adult_age + 19) / 20 + 4), FALSE);
-        SendDlgItemMessageA(window, IDC_SP_NAME, EM_LIMITTEXT, (WPARAM)(a->name_bytes - 1), 0);
+        SendDlgItemMessageA(window, IDC_SP_NAME, EM_LIMITTEXT,
+                            (WPARAM)((a->name_bytes < CE_NAME_BYTES ? a->name_bytes : CE_NAME_BYTES) - 1), 0);
         wsprintfA(text, "0-%d / 0-%d", a->head_count - 1, a->body_count - 1);
         SetDlgItemTextA(window, IDC_SP_LOOK_RANGE, text);
         for (i = 0; i < CE_SPAWN_PREFS; ++i) {
@@ -895,7 +896,9 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             return TRUE;
         }
         if (id == IDCANCEL) {
-            ui_read_main(window);      /* keep what was typed for next time */
+            /* Keep the words typed for next time; nothing is checked. */
+            GetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title, sizeof ui.draft.title);
+            GetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text, sizeof ui.draft.text);
             EndDialog(window, IDCANCEL);
             return TRUE;
         }

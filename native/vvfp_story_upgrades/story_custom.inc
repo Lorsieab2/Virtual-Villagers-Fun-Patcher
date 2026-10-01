@@ -439,7 +439,8 @@ static int ce_compose(const ce_adapter *a, const ce_event *e, const ce_result *r
             wsprintfA(line, delta < 0 ? a->tech_loss : a->tech_gain, delta < 0 ? -delta : delta);
             ce_line(&w, line);
         }
-        if ((r->no_room_spawns > 0 || r->no_room_babies > 0 || r->skipped > 0) && first) {
+        if ((r->no_room_spawns > 0 || r->no_room_babies > 0 || r->skipped > 0 || r->refused > 0)
+            && first) {
             ce_newline(&w);
         }
         if (r->no_room_spawns > 0 || r->no_room_babies > 0) {
@@ -449,6 +450,14 @@ static int ce_compose(const ce_adapter *a, const ce_event *e, const ce_result *r
         }
         if (r->skipped > 0) {
             wsprintfA(line, "%d of the chosen villagers were no longer here.", r->skipped);
+            ce_line(&w, line);
+        }
+        if (r->refused > 0) {
+            /* What the game's own rules did not allow: a full likes list, a
+               villager too young or already expecting, an Esteemed Elder
+               who has no totem, ... */
+            wsprintfA(line, r->refused == 1 ? "1 change could not be made."
+                                            : "%d changes could not be made.", r->refused);
             ce_line(&w, line);
         }
     }
@@ -650,12 +659,9 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         for (i = 0; i < e->spawn_groups && i < CE_MAX_SPAWN_GROUPS; ++i) {
             const ce_spawn *s = &e->spawns[i];
             for (j = 0; j < s->count && j < CE_MAX_SPAWN_COUNT; ++j) {
-                int index;
-                if (!a->room()) {
-                    r->no_room_spawns += s->count - j;
-                    break;
-                }
-                index = a->spawn(s);
+                /* Each game's spawn asks the game's own room predicate (and
+                   for a free record) first and makes nobody without room. */
+                int index = a->spawn(s);
                 if (index < 0) {
                     r->no_room_spawns += s->count - j;
                     break;

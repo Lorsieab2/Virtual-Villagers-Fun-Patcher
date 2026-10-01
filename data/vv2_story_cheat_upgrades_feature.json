@@ -3,7 +3,7 @@
   "enabled": true,
   "game_id": "vv2",
   "name": "Story / Cheat Upgrades",
-  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.**",
   "output_tag": "Story Cheat Upgrades",
   "dependencies": [
     "vv2_origins_village_wide_upgrades"
@@ -12,19 +12,23 @@
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 53 island events; events that can never run in this game are not offered."
+    "Offers 53 island events; events that can never run in this game are not offered.",
+    "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
+    "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
+    "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
   ],
   "explicit_non_changes": [
     "No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs.",
-    "No event is emulated: the picked event is created, shown and resolved by the game's own code.",
-    "Tech points are never added, and nothing is written to the save."
+    "No stock event is emulated: a picked event is created, shown and resolved by the game's own code; a custom event is shown by the game's own island-event popup.",
+    "Pick Island Event adds no tech points and writes nothing to the save; a custom event changes only what the player chose, through the game's own routines and fields, and the game saves the village as usual.",
+    "No custom title is written into a villager record."
   ],
   "evidence_status": "static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending",
   "companion_files": [
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "959178A1C676894D5CAD37A1F6F0C10392CE605607263EDBDA8A80D9392EA84D"
+      "sha256": "5E8DAF23CA61DE0C6B31D71E047ECC12A0016820C09ED82E9212C18DA5CCDFF1"
     }
   ],
   "runtime_detours": [
@@ -497,5 +501,40 @@
       "reason": "case 26: the selector's condition table maps it to the never-valid entry 0x434824"
     }
   ],
+  "custom_island_event": {
+    "offered": [
+      "title and description",
+      "food and tech points (add, subtract, set to 0)",
+      "refill: coconut trees, and the crops while planted",
+      "new villagers",
+      "dies (leaves a skeleton)",
+      "disappears (no skeleton)",
+      "falls sick",
+      "pregnant with a baby, twins or triplets (adults 18+, either sex)",
+      "likes and dislikes",
+      "appearance (heads and bodies 0-29)",
+      "skills",
+      "parents",
+      "custom title",
+      "mask",
+      "becomes an Esteemed Elder (with a totem)",
+      "Esteemed Elder's totem type (eight carvings)",
+      "behaviours: stops what they are doing, cools off with a swim, celebrates, visits the graves, sneezes, recovers fully"
+    ],
+    "omitted": [
+      {
+        "option": "puzzle solved",
+        "reason": "each puzzle is tied to its objects and goal messages; no completion routine that can be called on its own"
+      },
+      {
+        "option": "refill fish and farm soil",
+        "reason": "depleted by design and restored only by their puzzles"
+      },
+      {
+        "option": "Golden Child, chief, faction",
+        "reason": "The Lost Children has none"
+      }
+    ]
+  },
   "patches": []
 }

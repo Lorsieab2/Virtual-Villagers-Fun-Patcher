@@ -35,6 +35,7 @@ from __future__ import annotations
 import functools
 import json
 import os
+import re
 import struct
 import sys
 import unittest
@@ -1593,3 +1594,194 @@ class ModeParityTests(unittest.TestCase):
                 ok, r, _ = story.apply(Event(spawns=[Spawn(count=10, sex=1, age=400)]))
                 with self.subTest(game=game, mode=mode, cap=cap):
                     self.assertEqual((r["born"], r["no_room_spawns"]), (3, 7))
+
+
+@emulated
+class RecordLimitTests(unittest.TestCase):
+    """A corpse keeps its record until it is buried, so in the modes whose
+    cap is the whole record array the game's own predicate (which counts the
+    living) can say yes while no record is free; the creator must never be
+    called then (A New Home's scans with no bound)."""
+
+    def test_corpses_holding_the_last_records_refuse_new_villagers(self):
+        limits = {"vv1": 256, "vv3": 150, "vv4": 150, "vv5": 150}
+        for game, records in limits.items():
+            if not have_stock(game):
+                continue
+            story = Story(game, "immediate_fixed")
+            ModeParityTests._real_room(None, story)
+            v = story.village
+            for i in range(records - 6):
+                v.put(i, sex="m" if i % 2 else "f", years=20, name=f"V{i}")
+            for i in range(records - 6, records):
+                v.put(i, sex="m", years=20, name=f"Dead{i}", health=0)
+            ok, r, _ = story.apply(Event(spawns=[Spawn(count=3, sex=1, age=400)]))
+            creator = {"vv1": 0x43C350, "vv3": 0x45FF50, "vv4": 0x467D10, "vv5": 0x471E20}[game]
+            with self.subTest(game=game):
+                self.assertEqual((r["born"], r["no_room_spawns"]), (0, 3))
+                self.assertNotIn(creator, story.calls, "the creator is never asked without a free record")
+                p = story.proc
+                room_va = {"vv1": 0x43A1A0, "vv3": 0x45FE30, "vv4": 0x468350, "vv5": 0x472BD0}[game]
+                this = v.base if game == "vv1" else {"vv3": 0x59E110, "vv4": 0x50E568, "vv5": 0x554148}[game]
+                # Only New Believers' renders count the
+                # records themselves (0x4944C0, corpses included).
+                self.assertEqual(p.call(room_va, [], ecx=this) & 0xFF, 0 if game == "vv5" else 1,
+                                 "the game's own predicate alone")
+
+
+@emulated
+class LockStaysWhileArmedTests(unittest.TestCase):
+    """Pick Island Event and Custom Island Event exclude each other for as
+    long as one is armed -- even once the game's own pending state no longer
+    shows it (the game rescheduled its countdown without running it)."""
+
+    def test_the_lock_is_the_armed_event_not_only_the_games_countdown(self):
+        lock = CustomLockTests()
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            n = int(game[2:])
+            with self.subTest(game=game, armed="custom"):
+                proc = Process(render(game, "collection_progression"), TEST_DLL)
+                lock._world(proc, game)
+                proc.write(EVENT_BUF, Event(game=n).pack())
+                proc.export("VvfpStoryProbeQueueCustom", n, EVENT_BUF, 0)
+                lock._world(proc, game)                 # the game's pending state is clear again
+                self.assertEqual(proc.export("VvfpStoryProbePending", n), 0)
+                self.assertEqual(proc.export("VvfpStoryPickIslandEvent", n, 0), 0)
+                self.assertIn("already queued", proc.messages[-1])
+            with self.subTest(game=game, armed="pick"):
+                proc = Process(render(game, "collection_progression"), TEST_DLL)
+                lock._world(proc, game)
+                proc.export("VvfpStoryProbeArm", n, 0, 0)
+                lock._world(proc, game)
+                self.assertEqual(proc.export("VvfpStoryProbePending", n), 0)
+                self.assertEqual(proc.export("VvfpStoryCustomIslandEvent", n, 0), 0)
+                self.assertIn("already queued", proc.messages[-1])
+
+
+@emulated
+class RefusedChangeTextTests(unittest.TestCase):
+    def test_the_popup_says_how_many_changes_the_game_did_not_allow(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            story.village.put(4, sex="f", years=8, name="Child")
+            ok, r, text = story.apply(Event(changes=[story.change(4, litter=1)]))
+            with self.subTest(game=game):
+                self.assertEqual(r["refused"], 1)
+                self.assertIn("1 change could not be made.", text)
+
+
+# ---------------------------------------------------------------------------
+# The dialogs: every control the code drives exists in the shipped DLL
+# ---------------------------------------------------------------------------
+
+def _sz_or_ord(data, at):
+    if struct.unpack_from("<H", data, at)[0] == 0xFFFF:
+        return struct.unpack_from("<H", data, at + 2)[0], at + 4
+    end = at
+    while struct.unpack_from("<H", data, end)[0] != 0:
+        end += 2
+    return data[at:end].decode("utf-16-le"), end + 2
+
+
+def _dialogs(dll_path):
+    """{dialog id: (caption, {control id: (class, text, style)})} from the
+    DLL's RT_DIALOG resources (DLGTEMPLATEEX)."""
+    import pefile as pe_module
+
+    pe = pe_module.PE(str(dll_path))
+    out = {}
+    for kind in pe.DIRECTORY_ENTRY_RESOURCE.entries:
+        if kind.id != 5:                      # RT_DIALOG
+            continue
+        for entry in kind.directory.entries:
+            leaf = entry.directory.entries[0].data.struct
+            data = pe.get_data(leaf.OffsetToData, leaf.Size)
+            version, signature = struct.unpack_from("<HH", data, 0)
+            assert (version, signature) == (1, 0xFFFF)
+            style = struct.unpack_from("<I", data, 12)[0]
+            count = struct.unpack_from("<H", data, 16)[0]
+            at = 26
+            _, at = _sz_or_ord(data, at)        # menu
+            _, at = _sz_or_ord(data, at)        # class
+            caption, at = _sz_or_ord(data, at)
+            if style & 0x40:                    # DS_SETFONT
+                at += 6
+                _, at = _sz_or_ord(data, at)
+            controls = {}
+            for _ in range(count):
+                at = (at + 3) & ~3
+                ctl_style = struct.unpack_from("<I", data, at + 8)[0]
+                ctl_id = struct.unpack_from("<i", data, at + 20)[0]
+                at += 24
+                cls, at = _sz_or_ord(data, at)
+                text, at = _sz_or_ord(data, at)
+                extra = struct.unpack_from("<H", data, at)[0]
+                at += 2 + extra
+                controls[ctl_id] = (cls, text, ctl_style)
+            out[entry.id] = (caption, controls)
+    return out
+
+
+class DialogResourceTests(unittest.TestCase):
+    DLL = ROOT / "assets" / "story_upgrades" / "VVFP Story Upgrades.dll"
+
+    def test_every_control_the_dialogs_drive_is_in_the_shipped_dialog(self):
+        if not HAVE_EMULATOR:
+            self.skipTest("pefile not installed")
+        dialogs = _dialogs(self.DLL)
+        ui = (SOURCE / "story_custom_ui.inc").read_text(encoding="utf-8")
+        ids = dict(re.findall(r"(IDC_[A-Z_]+) = (\d+)", ui))
+        owner = {"IDC_CE_": 302, "IDC_CH_": 303, "IDC_SP_": 304, "IDC_PA_": 305}
+        for name, value in ids.items():
+            dialog = next(d for prefix, d in owner.items() if name.startswith(prefix))
+            span = {"IDC_CH_TOGGLE_FIRST": 5, "IDC_CH_SKILL_FIRST": 6, "IDC_CH_SKILL_LABEL_FIRST": 6,
+                    "IDC_SP_LIKE_FIRST": 3, "IDC_SP_DISLIKE_FIRST": 3, "IDC_SP_SKILL_FIRST": 6,
+                    "IDC_SP_SKILL_LABEL_FIRST": 6}.get(name, 1)
+            for k in range(span):
+                with self.subTest(control=name, k=k):
+                    self.assertIn(int(value) + k, dialogs[dialog][1])
+
+    def test_the_target_list_and_the_toggles_are_what_the_owner_named(self):
+        if not HAVE_EMULATOR:
+            self.skipTest("pefile not installed")
+        caption, controls = _dialogs(self.DLL)[303]
+        LBS_EXTENDEDSEL = 0x0800
+        self.assertTrue(controls[2001][2] & LBS_EXTENDEDSEL, "Ctrl+click / Shift+click selection")
+        self.assertEqual([controls[2002 + k][1] for k in range(5)],
+                         ["All Adult Women", "All Adult Men", "All Females", "All Males", "All Children"])
+        self.assertEqual(_dialogs(self.DLL)[302][0], "Custom Island Event")
+
+    def test_the_tech_menu_offers_custom_island_event(self):
+        bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
+        self.assertIn('"Custom Island Event (0 tech points)..."', bridge)
+        self.assertIn("#define VVFP_STORY_CUSTOM_ID 4091", bridge)
+        for game, path in {
+            "vv1": ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c",
+            "vv2": ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c",
+            "vv3": ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c",
+            "vv4": ROOT / "native" / "vv4_origins_icons" / "vv4_origins_icons.c",
+            "vv5": ROOT / "native" / "vv5_task9_origins" / "vv5_task9_origins.c",
+        }.items():
+            source = path.read_text(encoding="utf-8")
+            with self.subTest(game=game):
+                self.assertIn("command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID", source)
+                body = source[source.index("command == VVFP_STORY_CUSTOM_ID"):][:700]
+                self.assertIn("ISLAND", body, "the custom event shares the Island Event row's lock")
+                self.assertIn("vvfp_story_host_table(void)", source)
+        vv3 = (ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c").read_text(
+            encoding="utf-8")
+        draw = vv3[vv3.index("void __stdcall VV3WorldMaskDrawAt(void *record, int *args)\n{"):][:900]
+        self.assertIn("vvfp_story_bridge(3);", draw, "The Secret City installs from its per-frame draw")
+
+    def test_the_shipped_dll_carries_no_probe(self):
+        if not HAVE_EMULATOR:
+            self.skipTest("pefile not installed")
+        import pefile as pe_module
+
+        names = {e.name.decode() for e in pe_module.PE(str(self.DLL)).DIRECTORY_ENTRY_EXPORT.symbols if e.name}
+        self.assertTrue({"VvfpStoryCustomIslandEvent", "VvfpStoryAttachHost"} <= names)
+        self.assertFalse({n for n in names if "Probe" in n or "Stats" in n})
