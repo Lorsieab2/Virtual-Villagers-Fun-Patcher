@@ -110,6 +110,10 @@ VV1_HUT_SECTION = 0x447528
 VV1_PROJECT_BLOCKS = {3: 0x4475A8, 2: 0x4475F8, 4: 0x447635, 8: 0x447685, 7: 0x4476C2, 5: 0x4476FB}
 VV1_CONSTRUCTION = {VV1_HUT_SECTION, *VV1_PROJECT_BLOCKS.values()}
 VV1_POPULATION = 0x41CF90
+VV2_POPULATION = 0x425860
+# The hut section's build tail (push ebp; mov ecx, esi; call 0x442090): huts
+# 10 and 11 are entered here with the hut pushed (tests/test_finish_started_huts.py).
+VV1_HUT_TAIL = 0x447539
 VV1_HUT9_CALL = 0x44753C
 # The stock bytes there: call 0x442090, the hut gate.  A constant rather than
 # a read of the exe, so these emulator tests also run where the stock
@@ -158,9 +162,9 @@ class Run:
             mu.mem_write(VV1_HUT9_CALL, hut_call if hut_call is not None else VV1_HUT9_CALL_STOCK)
         exits = [g["resume"], g["examine"], g["started"], g["rand"]] + [g[k] for k in ("hut_pick", "hut_resume", "nothing", "level_stock") if k in g]
         if game == "vv1":
-            exits += [VV1_POPULATION] + list(VV1_CONSTRUCTION)
+            exits += [VV1_POPULATION, VV1_HUT_TAIL] + list(VV1_CONSTRUCTION)
         else:
-            exits += list(VV2_CONSTRUCTION)
+            exits += [VV2_POPULATION] + list(VV2_CONSTRUCTION)
         for va in exits:
             try:
                 mu.mem_map(va & ~0xFFF, 0x1000)
@@ -179,13 +183,21 @@ class Run:
         mu.reg_write(UC_X86_REG_EDI, INDEX)
         mu.reg_write(UC_X86_REG_EDX, STATE)
         self.g, self.roll, self.exit, self.examined, self.rolled = g, roll, None, None, []
+        self.built = None             # the hut pushed at the hut section's build tail
         mu.hook_add(UC_HOOK_CODE, self._hook)
         mu.emu_start(stub, 0, count=100000)
         self.mu, self.esp_before = mu, esp
 
     def _hook(self, mu, address, size, user_data):
         g = self.g
-        if address == VV1_POPULATION and self.g["no"] == 1:
+        if address == VV1_HUT_TAIL and self.g["no"] == 1:
+            sp = mu.reg_read(UC_X86_REG_ESP)
+            hut, flag = struct.unpack("<2I", mu.mem_read(sp, 8))
+            self.built = (hut, flag, sp)
+            self.exit = address
+            mu.emu_stop()
+            return
+        if (address == VV1_POPULATION and self.g["no"] == 1) or (address == VV2_POPULATION and self.g["no"] == 2):
             sp = mu.reg_read(UC_X86_REG_ESP)
             ret, = struct.unpack("<I", mu.mem_read(sp, 4))
             self.population_asked = mu.reg_read(UC_X86_REG_ECX)
@@ -348,25 +360,48 @@ class NewHomeBuildFirstTests(unittest.TestCase):
         return [(name, stub, level_for_skip if name == "skip roll" else level_for_gate)
                 for name, stub in self.sites.items()]
 
+    def _assert_builds(self, r, hut):
+        self.assertIsNone(r.examined, "no hut fix while a new hut can be built")
+        self.assertEqual(r.exit, VV1_HUT_TAIL, "the hut section's own build tail")
+        self.assertEqual(r.built[:2], (hut, 1), "push ebx (1); push the hut")
+        self.assertEqual(r.built[2], r.esp_before - 8, "the dispatcher's frame, two pushes deep")
+        self.assertEqual((r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EBP)), (VILLAGE, INDEX),
+                         "what the build tail expects")
+
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_an_unlocked_new_hut_is_built_not_a_fix(self):
-        # Hut 9 built, hut 10 unbuilt and unlocked (population above 22).
+        # Hut 9 built, hut 10 unbuilt and its scaffold standing (population 23).
         for site, stub, level in self._sites():
           with self.subTest(site=site):
             r = Run("vv1", stub, level=level, huts=(1, 0, 0), population=23)
-            self.assertIsNone(r.examined, "no hut fix while a new hut can be built")
-            self.assertEqual(r.exit, VV1_HUT_SECTION)
+            self._assert_builds(r, 10)
             self.assertEqual(r.population_asked, STATE, "the game's own counter, on the village state")
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_population_thresholds_are_the_stock_ones(self):
+    def test_population_thresholds_are_the_scaffolds(self):
+        # The scaffold shows at 15 (hut 10) and 28 (hut 11), or with any
+        # progress; below, an unstarted hut is not construction.
         for site, stub, level in self._sites():
           with self.subTest(site=site):
-            # Hut 10 opens above 22, hut 11 above 45; at the threshold, still locked.
-            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=22).examined)
-            self.assertEqual(Run("vv1", stub, level=level, huts=(1, 0, 1), population=23).exit, VV1_HUT_SECTION)
-            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 1, 0), population=45).examined)
-            self.assertEqual(Run("vv1", stub, level=level, huts=(1, 1, 0), population=46).exit, VV1_HUT_SECTION)
+            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=14).examined)
+            self._assert_builds(Run("vv1", stub, level=level, huts=(1, 0, 1), population=15), 10)
+            self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 1, 0), population=27).examined)
+            self._assert_builds(Run("vv1", stub, level=level, huts=(1, 1, 0), population=28), 11)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_a_started_hut_is_built_whatever_the_population(self):
+        # The owner's village (v1.35.42): population 17, hut 10 at progress
+        # 12.  Progress 1 is the mark the drawing routine leaves on a shown
+        # scaffold.  A complete hut is never built again.
+        for site, stub, level in self._sites():
+          with self.subTest(site=site):
+            for progress in (12, 1):
+                self._assert_builds(Run("vv1", stub, level=level, huts=(1, 0, 1), population=5,
+                                        projects={10: (progress, 0)}), 10)
+                self._assert_builds(Run("vv1", stub, level=level, huts=(1, 1, 0), population=5,
+                                        projects={11: (progress, 0)}), 11)
+            r = Run("vv1", stub, level=level, huts=(1, 1, 0), population=5, projects={10: (12, 1)})
+            self.assertIsNotNone(r.examined, "hut 10 complete, hut 11 unstarted below 28: a fix")
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_started_project_is_continued_not_a_fix(self):
@@ -406,7 +441,7 @@ class NewHomeBuildFirstTests(unittest.TestCase):
             self.assertIsNotNone(r.examined, "the gate would skip it: the fix, not a loop")
             r = Run("vv1", stub, level=level, huts=(1, 0, 1), population=30, hut_call=gated,
                     projects={10: (4, 0)})
-            self.assertEqual(r.exit, VV1_HUT_SECTION, "started: the gate lets it through")
+            self._assert_builds(r, 10)
 
 
 class NewHomeNothingTests(unittest.TestCase):

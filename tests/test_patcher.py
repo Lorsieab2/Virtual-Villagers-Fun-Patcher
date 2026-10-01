@@ -2602,7 +2602,7 @@ class StockIntegrationTests(unittest.TestCase):
             [patch.id],
         )
         rows = {int(row["offset"], 0): row for row in patch.patches}
-        self.assertEqual(set(rows), {0x48336, 0x568A0})
+        self.assertEqual(set(rows), {0x48336, 0x568A0, 0x4754A})
         ordered_ranges = sorted(
             (offset, offset + len(bytes.fromhex(row["after"])))
             for offset, row in rows.items()
@@ -2656,14 +2656,19 @@ class StockIntegrationTests(unittest.TestCase):
                          "the companion's take-over check matches the shipped cave")
 
         # The owner: builders "should build new stuff first, then fix huts".
-        # The three new-hut calls stay the stock calls to the hut gate
-        # 0x442090, so a builder starts a new hut from zero progress exactly
-        # as the stock game does; nothing is left in the old wrapper's range.
-        for offset in (0x4753C, 0x47568, 0x4759A):
+        # The new-hut builds stay the stock calls to the hut gate 0x442090,
+        # so a builder starts a new hut from zero progress exactly as the
+        # stock game does; nothing is left in the old wrapper's range.  Hut 9
+        # (0x4753C) and hut 11 (0x4759A) keep their own calls; hut 10, whose
+        # test the row rewrites (tests/test_finish_started_huts.py), pushes
+        # ebx and 10 and enters hut 9's call at 0x47539.
+        for offset in (0x4753C, 0x4759A):
             with self.subTest(new_hut_call=hex(offset)):
                 call = bytes(rendered[offset : offset + 5])
                 self.assertEqual(call, bytes(baseline[offset : offset + 5]))
                 self.assertEqual(offset + 5 + struct.unpack_from("<i", call, 1)[0], 0x42090)
+        self.assertEqual(bytes(rendered[0x47565:0x4756A]), bytes.fromhex("536A0AEBCF"))
+        self.assertEqual(0x4756A + struct.unpack_from("<b", rendered, 0x47569)[0], 0x47539)
         self.assertEqual(bytes(rendered[0x568E1:0x56900]), bytes(0x1F))
 
         # The other shared stock gate users cover manual/existing and repair paths.

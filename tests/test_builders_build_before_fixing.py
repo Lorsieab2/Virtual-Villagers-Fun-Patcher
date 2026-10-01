@@ -330,8 +330,25 @@ class LostChildrenTests(unittest.TestCase):
         for level in (3, 2, 1):
             with self.subTest(level=level):
                 self.assertEqual(self.outcomes(level=level, huts=((24, 1), (0, 0), (0, 0))), {("fix", 24)})
-        # Hut 25 would be open but the population is not above 22 yet.
-        self.assertEqual(self.outcomes(level=3, huts=((24, 1), (2, 0), (0, 0)), population=22), {("fix", 24)})
+        # Hut 25 unstarted and its scaffold not shown yet (population below 21).
+        self.assertEqual(self.outcomes(level=3, huts=((24, 1), (0, 0), (0, 0)), population=20), {("fix", 24)})
+
+    def test_a_started_hut_or_a_shown_scaffold_is_built_not_a_fix(self):
+        # The stock test wanted more than 22 villagers and progress 2; the
+        # scaffold's own test (tests/test_finish_started_huts.py) is any
+        # progress, or 21 villagers (hut 25) / 46 (hut 26).
+        for kw, want in ((dict(huts=((24, 1), (2, 0), (0, 0)), population=22), ("build", 25)),
+                         (dict(huts=((24, 1), (12, 0), (0, 0)), population=5), ("build", 25)),
+                         (dict(huts=((24, 1), (1, 0), (0, 0)), population=5), ("build", 25)),
+                         (dict(huts=((24, 1), (0, 0), (0, 0)), population=21), ("build", 25)),
+                         (dict(huts=((24, 1), (700, 1), (3, 0)), population=5), ("build", 26)),
+                         (dict(huts=((24, 1), (700, 1), (0, 0)), population=46), ("build", 26))):
+            for level in (3, 1):
+                with self.subTest(level=level, **{k: str(v) for k, v in kw.items()}):
+                    self.assertEqual(self.outcomes(level=level, **kw), {want})
+        # Hut 26 unstarted below 46: not construction, a built hut is fixed.
+        seen = self.outcomes(level=3, huts=((24, 1), (700, 1), (0, 0)), population=45)
+        self.assertTrue(seen and seen <= {("fix", 24), ("fix", 25)}, seen)
 
     def test_every_hut_built_nothing_to_build_keeps_the_stock_fix(self):
         seen = self.outcomes(level=3, huts=((24, 1), (700, 1), (11, 1)))
