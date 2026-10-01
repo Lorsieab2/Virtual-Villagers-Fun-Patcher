@@ -337,7 +337,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # sidecar is set aside and an unopenable one is never overwritten.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "23C546757DC639489121D9DBB50C89456E4E8A6B88E1B6162D6CA8DC0DAADF6E",
+            "20333021F7C490BCF3DC1724730A998A66068FD483E54C6D145BB60261E7C2E1",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

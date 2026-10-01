@@ -108,7 +108,7 @@ def _rows(game):
 
 def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1, starts=None,
           food=1000, farming=10, huts_done=False, task=0, task_done=0, cont=0, rolls=None,
-          modules=None, warm_vv3=True) -> Worker:
+          modules=None, warm_vv3=True, install=True, exe=None) -> Worker:
     """A machine ready to run `game`'s catch-up worker for one adult.
     starts: job -> whether the dispatcher starts something (default: every
     job but 0... except that the picker's 0 is 'nothing' in A New Home)."""
@@ -117,7 +117,7 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
     if modules is None:
         modules = ("fix_huts", "work_first", "healers") if game in ("vv1", "vv2") else ("fix_huts", "work_first")
     starts = starts or (lambda job: job != 0)
-    m = Worker(game, rendered(game, tuple(rows)), starts, modules=modules if runtime else ())
+    m = Worker(game, rendered(game, tuple(rows)) if exe is None else exe, starts, modules=modules if runtime else ())
     m.real.add(g["disp"])                 # its entry runs (stock or hooked); its body is scripted
     rolls = rolls or Rolls()
     m.rand = rolls
@@ -216,10 +216,11 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
         if game == "vv5":
             m.leaves[0x472BD0] = Leaf(0, lambda m, a, c, r: 1, name="research open")
         m.plan(g["worker"], HALT, {UC_X86_REG_ECX: OBJ}, stack=(HALT,))
-    if runtime:
+    if runtime and install:
         m.install_runtime()
         if game == "vv3" and warm_vv3:
             _vv3_first_dispatch(m)
+    if runtime:
         m.roll_force(force)
     return m
 
