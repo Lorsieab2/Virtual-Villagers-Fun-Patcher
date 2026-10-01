@@ -128,14 +128,24 @@ autonomous interpretation; they do not supply a numeric Breeding threshold.
 The historical VV4 Birth Control candidate is rejected/superseded. VV4 is the
 untouched vanilla Breeding and Embracing reference: its stock manual conception
 and autonomous selection mechanics, older-mother behavior, and lack of a male
-upper-age gate must remain unchanged. No VV4 executable edits are shipped or
-selectable.
+upper-age gate must remain unchanged. No VV4 Birth Control executable edits are
+shipped or selectable.
+
+One later exception, added at the owner's request: the optional,
+default-off "Manual Drop-Breeding overrides Birth Control" patch
+(`vv4_manual_drop_breeding_overrides_birth_control`). When it is selected, the
+manual drop's woman-aged-50-or-older refusal after the stock conception roll
+(file `0x60E67`) jumps to the stock pregnancy-writer call at `0x460E8E`. Every
+other manual rule, both stock chance rolls, autonomous selection and the male
+age behavior stay stock. With that patch unselected, VV4 is exactly the
+reference described above. VV5 has the same optional patch at file `0x68BC4`.
 
 VV1, VV2, and VV3 now have independent exact-build records. Their static
 coverage is separate rather than a shared copied predicate; runtime/player
 confirmation remains pending. VV3 remains ON HOLD for runtime/player
 interpretation. VV5 is also a native no-patch reference: its exact-build audit
-matches VV4's requested Birth Control/Breeding behavior.
+matches VV4's requested Birth Control/Breeding behavior (apart from the
+optional Manual Drop-Breeding exception above, when it is selected).
 
 ### VV1 exact-build implementation
 

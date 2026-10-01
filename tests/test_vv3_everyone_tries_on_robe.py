@@ -162,17 +162,22 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # in all three modes are the PE CheckSum (0x160..0x162), the scheduler entry
     # 0x5BFE0..0x5BFE5 and the fix-huts overlay (0xCB800..0xCB8B0, the stub and
     # export name at 0xCBB00..0xCBBD4).
+    # Re-pinned when Manual Drop-Breeding overrides Birth Control joined the
+    # catalog. Justified BEFORE re-pinning: rendering the complete catalog with
+    # main (29a88fff) and with the merged branch, the only differing bytes in all
+    # three modes are the patch's own 0x586F3..0x586F8 and the PE CheckSum
+    # (0x160..0x162).
     "stock": (
-        "934B816711DB43C86B2A80C03E1F705D52C849A53683D2A8EA5B7DDBC250EFC8",
-        "D58A0D00",
+        "575CC08120339AB08811A1CFDDF263E98F120CCD56E9DB7D1F7DF4C9B9270875",
+        "82470D00",
     ),
     "collection_progression": (
-        "4E7BB424192DB52D1DE552E67B6F7B6783A620294A9B28D7F34E93BBCE2A0935",
-        "D5A30D00",
+        "CA59010E94B4D0459ED7CE6991EB4F294D6FEC3818298EFE84BBECA228A82304",
+        "82600D00",
     ),
     "immediate_fixed": (
-        "4B91F76A07069738066EDB2BDF306877A47F76EB3D0023913142379954B289F0",
-        "D4E50C00",
+        "871DD4982772B783B3FCF10F788806BE8B444D5C65E850E2387636FD0B3BD07C",
+        "80A20D00",
     ),
 }
 

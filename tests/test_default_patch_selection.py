@@ -94,7 +94,17 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self.assertEqual(
             off, {p for p in ids if "learning_never_fails" in p
                   or p.endswith("_everyone_collects_like_vv1")
-                  or p.endswith("_super_secret_golden_mushroom")})
+                  or p.endswith("_super_secret_golden_mushroom")
+                  or p.endswith("_manual_drop_breeding_overrides_birth_control")})
+
+    def test_manual_drop_breeding_is_off_by_default_in_all_five(self) -> None:
+        """The owner: "Default-OFF. Owner's-Defaults ON." -- all five games."""
+        ids = fun_patch_ids()
+        for game in range(1, 6):
+            patch_id = "vv%d_manual_drop_breeding_overrides_birth_control" % game
+            with self.subTest(patch=patch_id):
+                self.assertIn(patch_id, ids)
+                self.assertFalse(default_fun_patch_selection(patch_id))
 
     def test_everyone_collects_is_off_by_default_in_vv2_to_vv5(self) -> None:
         """The owner: "I would like a DEFAULT OFF patch for VV2-VV5"."""
