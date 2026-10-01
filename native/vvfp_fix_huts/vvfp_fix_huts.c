@@ -5,9 +5,12 @@
    to increase their skill (just makes it able to be autonomously chosen;
    applies during catch-up time and live playing)."  All five games.
 
-   WHAT THE STOCK GAMES DO, read from the executables.  Every game has one
-   Building dispatcher that the idle scheduler calls, live and in catch-up,
-   with the villager's preferred job:
+   WHAT THE STOCK GAMES DO, read from the executables.   Every game has one
+   Building dispatcher, called with the villager's preferred job by the idle
+   scheduler in live play and directly by the catch-up worker (A New Home
+   0x42E790, The Lost Children 0x43B4D0, The Secret City 0x45BF00, The Tree
+   of Life 0x465750, New Believers 0x46E8E0), which never runs the idle
+   scheduler:
 
      game  dispatcher   fix-a-hut route
      VV1   0x4472C0     after every project check fails: rand(100) <= 20 ->
@@ -49,9 +52,10 @@
    Healers Work First, Healers Study and Builder Action Fixes (see "About
    three times in four" below); when it fails, every site runs the stock
    code.  One change is not a choice and holds on every decision: in A New
-   Home and The Lost Children a population hut counts as construction once
-   its scaffold stands, and a started hut until it is finished (see
-   "Started huts are finished" below).
+   Home (at or below its population numbers) and The Lost Children the second
+   and third population hut count as construction only once the player has
+   worked on them, and then until they
+   are finished (see "Huts need a manual start" below).
 
    Installed at run time by VvfpFixHutsInstall(game) from a companion that
    already runs every frame in that game; the stock bytes at the site are
@@ -318,12 +322,13 @@ static const unsigned int vv1_hut_pick = VV1_RESUME + 9;   /* 0x447737: push 3; 
    judges it, and if so enters that construction's own stock code:
 
      new huts: hut 9 while incomplete (entry 0x447528, the stock hut
-       section); hut 10 and hut 11 while incomplete and their scaffold stands
-       -- see "Started huts are finished" below -- each entered through
+       section); hut 10 and hut 11 while incomplete and progress >= 2 or the
+       population above 22 / 45 -- see "Huts need a manual start" below --
+       population from the game's own counter 0x41CF90 (ecx = village state),
+       as the stock checks call it -- each entered through
        vv1_build_hut10 / vv1_build_hut11, which push the hut and run the
        section's own build tail (0x447539: push ebp; mov ecx, esi; call
-       0x442090; the started epilogue) -- population from the game's own
-       counter 0x41CF90 (ecx = village state), as the stock checks call it;
+       0x442090; the started epilogue);
      started projects, each at the check block after its random roll:
        project 3 (0x4475A8) at any level, 2 (0x4475F8) and 4 (0x447635) from
        Building level 2, 8 (0x447685), 7 (0x4476C2) and 5 (0x4476FB) from 3 --
@@ -338,7 +343,6 @@ static const unsigned int vv1_hut_pick = VV1_RESUME + 9;   /* 0x447737: push 3; 
 #define VV1_HUT_SECTION  0x447528u
 #define VV1_HUT9_CALL    0x44753Cu   /* stock: call 0x442090, the hut gate */
 #define VV1_HUT_GATE     0x442090u
-static const unsigned int vv1_population_fn = VV1_POPULATION;
 
 static const struct { unsigned int id; int min_level; unsigned int block; } VV1_PROJECTS[] = {
     { 3, 0, 0x4475A8u }, { 2, 2, 0x4475F8u }, { 4, 2, 0x447635u },
@@ -353,6 +357,7 @@ static int vv1_complete(const unsigned char *state, unsigned int id) {
     return state[0x9F9C + 8 * id + 4] == 1;
 }
 
+static const unsigned int vv1_population_fn = VV1_POPULATION;
 static int vv1_population(const unsigned char *state) {
     int n;
     __asm {
@@ -372,28 +377,27 @@ static int vv1_huts_need_progress(void) {
     return VV1_HUT9_CALL + 5 + *(const int *)(call + 1) != VV1_HUT_GATE;
 }
 
-/* STARTED HUTS ARE FINISHED; A HUT IS BUILT ONCE ITS SCAFFOLD SHOWS.  The
-   stock hut section (0x447528) builds hut 10 only while the population is
-   above 22 and hut 11 only above 45 (0x44754F, 0x447581), whatever the hut's
-   progress -- but the game draws a hut's scaffold much earlier, and keeps
-   it: the village drawing routine (0x414AE2, 0x414BC7) shows hut 10's
-   scaffold once the population reaches 15 and hut 11's at 28, or whenever
-   the hut has any progress, and writes progress 1 when it first shows it.
-   So a builder never worked on a scaffold standing in the village between
-   15 and 22 villagers, and abandoned a hut it had started whenever the
-   population fell back to its number (the owner's village, v1.35.42:
-   population 17, hut 10 at progress 12, its builders fixing huts instead).
-   The owner: a population hut is built as soon as the game shows its
-   scaffold, and a started hut is always finished.  So hut 10 and hut 11
-   count as construction exactly while the scaffold stands -- progress > 0,
-   or the population at the scaffold's number -- and are not complete; hut 9
-   has no gate, as in the stock game.  The stock section itself is lifted to
-   the same test (VV1_GATE below; Builder Action Fixes writes the same bytes
-   into the executable), so the stock path and this one agree. */
-static int vv1_hut_buildable(const unsigned char *state, unsigned int id, int population, int need_progress) {
-    static const int scaffold_population[3] = { 0, 15, 28 };
+/* HUTS NEED A MANUAL START.  The stock hut section (0x447528) builds hut 10
+   only while the population is above 22 and hut 11 only above 45 (0x44754F,
+   0x447581), whatever the hut's progress, although the village drawing
+   routine (0x414AE2, 0x414BC7) shows their scaffolds at 15 and 28 villagers
+   (or with any progress) and writes progress 1 when it first shows one.  So
+   builders started a hut on their own above those numbers and abandoned a
+   started one whenever the population fell back (the owner's village,
+   v1.35.42: population 17, hut 10 at progress 12, its builders fixing huts).
+   The owner: at or below 22 / 45 villagers builders only work on one of
+   those huts once the player has dropped a villager on it at least once, and
+   then finish it whatever the population; above 22 / 45 they may start it
+   themselves, as the stock game does.  A drop works the hut past the drawing
+   routine's mark, so hut 10 and hut 11 count as construction exactly while
+   they are not complete and their progress is 2 or more or the population is
+   above 22 (hut 10) / 45 (hut 11).  Hut 9 has no gate, as in the stock
+   game.  The stock section itself is lifted to the
+   same test (VV1_GATE below; Builder Action Fixes writes the same bytes into
+   the executable), so the stock path and this one agree. */
+static int vv1_hut_buildable(const unsigned char *state, unsigned int id, int need_progress) {
     if (vv1_complete(state, id)) return 0;
-    if (vv1_progress(state, id) <= 0 && population < scaffold_population[id - 9]) return 0;
+    if (id != 9 && vv1_progress(state, id) < 2 && vv1_population(state) <= (id == 10 ? 22 : 45)) return 0;
     return !need_progress || vv1_progress(state, id) > 0;
 }
 
@@ -422,11 +426,8 @@ static unsigned int __cdecl vv1_construction(const unsigned char *village) {
     const int level = *(const int *)(state + 0xA2CC);
     const int need_progress = vv1_huts_need_progress();
     unsigned int i;
-    int population = -1;
     for (i = 9; i <= 11; ++i) {
-        if (vv1_complete(state, i)) continue;
-        if (population < 0) population = vv1_population(state);
-        if (vv1_hut_buildable(state, i, population, need_progress)) {
+        if (vv1_hut_buildable(state, i, need_progress)) {
             if (i == 9) return VV1_HUT_SECTION;
             return (unsigned int)(uintptr_t)(i == 10 ? vv1_build_hut10 : vv1_build_hut11);
         }
@@ -605,9 +606,8 @@ static int __cdecl vv2_choose_any(const unsigned char *village) {
         that project's complete flag is still 0;
      2. project 1 (progress > 0, not complete) when the villager has no task;
      3. new huts: hut 24 while incomplete (at any progress); hut 25 and hut
-        26 while incomplete and their scaffold stands (stock: hut 25 only
-        with population > 22 and progress >= 2, hut 26 with population > 45
-        and progress >= 2 -- see "Started huts are finished" below);
+        26 while incomplete and progress >= 2 (stock: also population > 22 /
+        > 45 -- see "Huts need a manual start" below);
      4. Building level >= 2: project 17 (project 9 complete), project 8
         (progress > 0), project 5 (progress >= 2, [state+0x2EA8C] >= 3);
      5. Building level >= 3: project 12 and project 11 (progress >= 1, not
@@ -633,18 +633,7 @@ static int __cdecl vv2_choose_any(const unsigned char *village) {
      project 5        0x45FF92    project 12 0x46023D   project 11 0x46028C
 
    Every handler returns "started" (al = bl = 1; ebx is 1 at both sites) and
-   pops the dispatcher's frame, which is the frame both sites run in.
-   Population: 0x425860, thiscall on the state. */
-static int vv2_population(const unsigned char *state) {
-    int n;
-    __asm {
-        mov ecx, state
-        mov eax, 0x425860
-        call eax
-        mov n, eax
-    }
-    return n;
-}
+   pops the dispatcher's frame, which is the frame both sites run in. */
 
 #define VV2_PROGRESS(state, id) (*(const int *)((state) + 0x2E754 + (id) * 8))
 #define VV2_DONE(state, id) ((state)[0x2E758 + (id) * 8])
@@ -663,9 +652,9 @@ static unsigned int __cdecl vv2_construction(const unsigned char *village, unsig
     if (task >= 11 && task <= 20 && VV2_DONE(state, task_project[task - 11]) == 0) return task_handler[task - 11];
     if (VV2_DONE(state, 1) != 1 && VV2_PROGRESS(state, 1) > 0 && task == 0) return 0x4600A7u;
     if (VV2_DONE(state, 24) != 1) return 0x45FF0Bu;
-    /* The scaffold test of the lifted gate (VV2_GATE below). */
-    if (VV2_DONE(state, 25) != 1 && (VV2_PROGRESS(state, 25) > 0 || vv2_population(state) >= 21)) return 0x45FF38u;
-    if (VV2_DONE(state, 26) != 1 && (VV2_PROGRESS(state, 26) > 0 || vv2_population(state) >= 46)) return 0x45FF65u;
+    /* The executable's new-hut test (this row's record): worked on by the player. */
+    if (VV2_DONE(state, 25) != 1 && VV2_PROGRESS(state, 25) >= 2) return 0x45FF38u;
+    if (VV2_DONE(state, 26) != 1 && VV2_PROGRESS(state, 26) >= 2) return 0x45FF65u;
     if (level < 2) return 0;
     if (VV2_DONE(state, 9) != 0 && VV2_PROGRESS(state, 17) > 0 && VV2_DONE(state, 17) == 0) return 0x460171u;
     if (VV2_DONE(state, 8) != 1 && VV2_PROGRESS(state, 8) > 0) return 0x4601A9u;
@@ -1133,7 +1122,8 @@ __declspec(dllexport) int __cdecl VvfpFixHutsDecide(int game_id, unsigned int es
 /* The owner: "Builders fix huts regardless of the food supply when not all
    population huts are built."  Every game's idle scheduler reads the food
    total before it reaches the Building dispatcher (one scheduler, reached
-   from both the live per-frame caller and the catch-up loop):
+   from the live per-frame caller only -- the catch-up worker calls the
+   Building dispatcher directly, so this bypass is live-only):
 
      VV1 0x448336  cmp [ebp+0xA2EC], 400; jge -> at 400+ food the preferred
                    job attempt (and the continue-assigned-job step) is
@@ -1555,37 +1545,43 @@ __declspec(dllexport) __declspec(naked) void VvfpFixHutsScheduler3(void) {
     }
 }
 
-/* ---- Started huts are finished: the stock hut gates ---------------------- */
+/* ---- Huts need a manual start: the stock hut gates ---------------------- */
 /* A New Home and The Lost Children decide in their Building branch whether a
-   builder may work on the second and third population hut, and the test is
-   the population alone, never the scaffold the game draws:
+   builder may work on the second and third population hut:
 
      A New Home     0x44754A  hut 10: population > 22; hut 11 (0x447576):
-                              population > 45.  The scaffold shows at 15 and
-                              28 (drawing routine 0x414AE2, 0x414BC7), or with
-                              any progress.
+                              population > 45 -- progress never tested; now
+                              also progress >= 2 at any population.  The
+                              scaffold shows at 15 and 28 (drawing routine
+                              0x414AE2, 0x414BC7), or with any progress, and
+                              gets progress 1 when it first shows.
      The Lost Children
                     0x4600DE  hut 25: population > 22 and progress >= 2;
                               hut 26 (0x460102): population > 45 and
                               progress >= 2.  The scaffold shows at 21 and 46
                               (0x4196E8, 0x419763), or with any progress, and
-                              the game writes progress 1 when it first shows
-                              it -- so >= 2 kept builders off every scaffold
-                              nobody had worked on yet.
+                              gets progress 1 when it first shows.
 
-   The owner: a population hut is built as soon as the game shows its
-   scaffold, and a started hut is always finished, whatever the population.
-   This replaces each test with the scaffold's own -- not complete, and
-   progress > 0 or the population at the scaffold's number -- in the stock
-   bytes, so every decision uses it (it decides WHICH huts are construction;
-   how often a builder builds is untouched).  Hut 9 / hut 24 and every other
-   test in the branch are unchanged; ecx is the village state on entry, bl 1,
-   and the builds are the branch's own (A New Home: push ebx; push 10 into the
-   hut-9 tail 0x447539, hut 11 into its own block 0x447594; The Lost
-   Children: its hut-25 / hut-26 blocks 0x45FF38 / 0x45FF65).  The nine
-   int3 bytes in A New Home's are never reached.  Builder Action Fixes writes
-   the same A New Home bytes into the executable (data/builds.json), so they
-   are accepted as already in place.  Any other bytes: nothing is written. */
+   The owner: builders start work on those huts only once the player has
+   dropped a villager on one at least once, and then finish it whatever the
+   population.  Progress 1 is the drawing routine's mark; a villager's work
+   takes it past that.  So each test becomes: not complete and progress >= 2,
+   with no population test -- in the stock bytes, so every decision uses it
+   (it decides WHICH huts are construction; how often a builder builds is
+   untouched).  Hut 9 / hut 24 and every other test in the branch are
+   unchanged; ecx is the village state on entry, bl 1, and the builds are the
+   branch's own (A New Home: push ebx; push 10 into the hut-9 tail 0x447539,
+   hut 11 into its own block 0x447594; The Lost Children: its hut-25 / hut-26
+   blocks 0x45FF38 / 0x45FF65).  The int3 bytes are never reached.
+
+   Only A New Home's is written here (Builder Action Fixes writes the same
+   bytes into the executable, data/builds.json, so they are accepted as
+   already in place; any other bytes: nothing is written).  The Lost
+   Children's companion is installed only once the village is first drawn,
+   after the session's load-time catch-up has run, so its test is written
+   into the executable by the Builders Fix Huts When Idle row itself
+   (scripts/build_vvfp_fix_huts_features.py, GATE_PATCHES) and
+   vv2_construction mirrors it. */
 struct gate {
     unsigned int va;
     const unsigned char *stock;
@@ -1599,28 +1595,15 @@ static const unsigned char VV1_GATE_STOCK[74] = {
     0x03, 0x00, 0xE8, 0x0F, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x2D, 0x7E, 0x4B, 0x8B, 0x86, 0x10, 0xE0,
     0x03, 0x00, 0x38, 0x98, 0xF8, 0x9F, 0x00, 0x00, 0x74, 0x3D };
 static const unsigned char VV1_GATE_LIFTED[74] = {
-    0x38, 0x99, 0xF0, 0x9F, 0x00, 0x00, 0x74, 0x21, 0x83, 0xB9, 0xEC, 0x9F, 0x00, 0x00, 0x00, 0x7F,
-    0x0A, 0xE8, 0x30, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x0E, 0x7E, 0x0E, 0x53, 0x6A, 0x0A, 0xEB, 0xCF,
+    0x38, 0x99, 0xF0, 0x9F, 0x00, 0x00, 0x74, 0x21, 0x83, 0xB9, 0xEC, 0x9F, 0x00, 0x00, 0x01, 0x7F,
+    0x0A, 0xE8, 0x30, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x16, 0x7E, 0x0E, 0x53, 0x6A, 0x0A, 0xEB, 0xCF,
     0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0x8B, 0x8E, 0x10, 0xE0, 0x03, 0x00, 0x38,
-    0x99, 0xF8, 0x9F, 0x00, 0x00, 0x74, 0x50, 0x83, 0xB9, 0xF4, 0x9F, 0x00, 0x00, 0x00, 0x7F, 0x0A,
-    0xE8, 0x01, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x1B, 0x7E, 0x3D };
-static const unsigned char VV2_GATE_STOCK[78] = {
-    0xE8, 0x7D, 0x57, 0xFC, 0xFF, 0x83, 0xF8, 0x16, 0x7E, 0x1A, 0x8B, 0x86, 0xD4, 0x74, 0xE5, 0x00,
-    0x38, 0x98, 0x20, 0xE8, 0x02, 0x00, 0x74, 0x0C, 0x39, 0xA8, 0x1C, 0xE8, 0x02, 0x00, 0x0F, 0x8D,
-    0x36, 0xFE, 0xFF, 0xFF, 0x8B, 0x8E, 0xD4, 0x74, 0xE5, 0x00, 0xE8, 0x53, 0x57, 0xFC, 0xFF, 0x83,
-    0xF8, 0x2D, 0x7E, 0x1A, 0x8B, 0x86, 0xD4, 0x74, 0xE5, 0x00, 0x38, 0x98, 0x28, 0xE8, 0x02, 0x00,
-    0x74, 0x0C, 0x39, 0xA8, 0x24, 0xE8, 0x02, 0x00, 0x0F, 0x8D, 0x39, 0xFE, 0xFF, 0xFF };
-static const unsigned char VV2_GATE_LIFTED[78] = {
-    0x38, 0x99, 0x20, 0xE8, 0x02, 0x00, 0x74, 0x1B, 0x83, 0xB9, 0x1C, 0xE8, 0x02, 0x00, 0x00, 0x0F,
-    0x8F, 0x45, 0xFE, 0xFF, 0xFF, 0xE8, 0x68, 0x57, 0xFC, 0xFF, 0x83, 0xF8, 0x14, 0x0F, 0x8F, 0x37,
-    0xFE, 0xFF, 0xFF, 0x8B, 0x8E, 0xD4, 0x74, 0xE5, 0x00, 0x38, 0x99, 0x28, 0xE8, 0x02, 0x00, 0x74,
-    0x1D, 0x83, 0xB9, 0x24, 0xE8, 0x02, 0x00, 0x00, 0x0F, 0x8F, 0x49, 0xFE, 0xFF, 0xFF, 0xE8, 0x3F,
-    0x57, 0xFC, 0xFF, 0x83, 0xF8, 0x2D, 0x0F, 0x8F, 0x3B, 0xFE, 0xFF, 0xFF, 0x66, 0x90 };
+    0x99, 0xF8, 0x9F, 0x00, 0x00, 0x74, 0x50, 0x83, 0xB9, 0xF4, 0x9F, 0x00, 0x00, 0x01, 0x7F, 0x0A,
+    0xE8, 0x01, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x2D, 0x7E, 0x3D };
 static const struct gate GATES[6] = {
     { 0 },
     { 0x44754Au, VV1_GATE_STOCK, VV1_GATE_LIFTED, sizeof VV1_GATE_STOCK },
-    { 0x4600DEu, VV2_GATE_STOCK, VV2_GATE_LIFTED, sizeof VV2_GATE_STOCK },
-    { 0 }, { 0 }, { 0 },
+    { 0 }, { 0 }, { 0 }, { 0 },
 };
 static int gate_install_state[6];
 
