@@ -215,6 +215,13 @@ def capture_is_guarded(rendered: bytes, entry: int, entry_va: int) -> str | None
             slot_destination = parsed[0]
             break
     if slot_destination is None:
+        # A cave that writes NO fixed address captures nothing, so there is no
+        # slot to guard: New Believers' stock-mode stock_save_path only calls
+        # the companion install and replays the prologue (checked below by
+        # cave_replays_and_resumes).  A cave that writes something but never
+        # the argument is still a broken capture.
+        if not any(fixed_store(instruction) for instruction in instructions):
+            return None
         return "capture never publishes the save-builder argument"
 
     saw_conditional = False

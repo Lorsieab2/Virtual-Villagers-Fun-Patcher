@@ -4,11 +4,11 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "003A541669BE0F18729AF151714393BF477BE2C753B437DE3B94C626034F3CC0"
+      "source_text_sha256": "0D47BA5656D6C8141C42CD69775184E28D127F31A44A03ADC70314BD44C5DC60"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "9DC21D68F888F6D06AAFAB49F4806F1E780E52886F58E4B835D59F6CE7CFA0AE"
+      "source_text_sha256": "81DA87D5DE09E8780FEA6AE8460B0BB18589DD04D30FA0A9C1CFD18671526A79"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -34,7 +34,7 @@
   "page_rva": "0x504000",
   "page_va": "0x904000",
   "layout": {
-    "stock_page_sha256": "088ED72A8E881722AEC9C94B9797A2937F2A2220920DB72A9C1689C2541DCB42",
+    "stock_page_sha256": "91611DBAF5B2FB5749AAA3D3030B9E88C37DC90CA3D670342B0C627F6258A457",
     "expanded_baseline_page_sha256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
     "expanded_time_warp_page_sha256": "AA4F8C466D4516EE80EC9FAEA9EA9D8E76D72B014310073D6DDB5AAE17FA29B6",
     "age_length": 652,

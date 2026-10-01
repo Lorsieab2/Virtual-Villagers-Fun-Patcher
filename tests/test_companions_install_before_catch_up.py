@@ -99,25 +99,36 @@ class EarlyWorker(Worker):
             super()._import(name)
 
 
-_DEFAULT_EXE: dict[str, bytes] = {}
+_DEFAULT_EXE: dict[tuple, bytes] = {}
+# The population modes.  New Believers' Task9 page hooks -- slot_capture among
+# them -- belong to the collection-progression and immediate-fixed modes; the
+# stock mode carries the page but only the install-only stock_save_path
+# detour.  The Lost Children's init hook is part of the Origins base in every
+# mode.
+MODES = ("stock", "collection_progression", "immediate_fixed")
+SETUPS = [("vv2", "collection_progression")] + [("vv5", mode) for mode in MODES]
+SLOT_SCRATCH, OWNERSHIP = 0x7B1D7C, 0x51D388
+
+
+def mode_exe(game: str, mode: str) -> bytes:
+    """The executable the patcher writes in `mode` for the rows."""
+    if (game, mode) not in _DEFAULT_EXE:
+        import vv_fun_patcher as vfp
+        build = next(b for b in vfp.load_builds() if b.id == game)
+        data, _ = vfp.render_patched_bytes(STOCK[game], build, mode, list(ROWS[game]))
+        _DEFAULT_EXE[(game, mode)] = bytes(data)
+    return _DEFAULT_EXE[(game, mode)]
 
 
 def default_mode_exe(game: str) -> bytes:
-    """The executable the patcher writes by default (DEFAULT_PATCH_MODE): New
-    Believers' Task9 page hooks, slot_capture among them, are part of the
-    collection-progression and immediate-fixed modes."""
-    if game not in _DEFAULT_EXE:
-        import vv_fun_patcher as vfp
-        build = next(b for b in vfp.load_builds() if b.id == game)
-        data, _ = vfp.render_patched_bytes(STOCK[game], build, vfp.DEFAULT_PATCH_MODE, list(ROWS[game]))
-        _DEFAULT_EXE[game] = bytes(data)
-    return _DEFAULT_EXE[game]
+    import vv_fun_patcher as vfp
+    return mode_exe(game, vfp.DEFAULT_PATCH_MODE)
 
 
-def early_world(game: str, **kw) -> Worker:
+def early_world(game: str, mode: str | None = None, **kw) -> Worker:
     key = ORIGINS[game][0]
     base = ("fix_huts", "work_first", "healers") if game == "vv2" else ("fix_huts", "work_first")
-    exe = default_mode_exe(game)
+    exe = default_mode_exe(game) if mode is None else mode_exe(game, mode)
     m = world(game, modules=base + (key,), install=False, exe=exe, **kw)
     # The pages the Origins base appends run for real (their routines call
     # each other).
@@ -180,36 +191,55 @@ class CompanionsInstallBeforeCatchUp(unittest.TestCase):
         self.assertEqual(stock("vv5", 0x403600, 6).hex().upper(), "81EC04010000")
 
     def test_before_the_hook_nothing_is_installed(self):
-        for game in ORIGINS:
-            m = early_world(game)
+        for game, mode in SETUPS:
+            m = early_world(game, mode)
             for va, what in DETOURS[game].items():
-                with self.subTest(game=game, site=what):
+                with self.subTest(game=game, mode=mode, site=what):
                     self.assertNotEqual(code(m, va), b"\xE9")
 
     def test_the_hook_installs_every_detour(self):
-        for game in ORIGINS:
-            m = early_world(game)
+        for game, mode in SETUPS:
+            m = early_world(game, mode)
             HOOK[game](m)
             loaded = [c[1] for c in m.calls if c[0] == "LoadLibraryA"]
             for va, what in DETOURS[game].items():
-                with self.subTest(game=game, site=what):
+                with self.subTest(game=game, mode=mode, site=what):
                     self.assertEqual(code(m, va), b"\xE9", f"{what} not installed; loaded {loaded}")
 
     def test_the_first_catch_up_is_already_boosted(self):
-        for game in ORIGINS:
+        for game, mode in SETUPS:
             g = G[game]
-            with self.subTest(game=game):
-                m = early_world(game, selected=g["healing"], pick=g["other"])
+            with self.subTest(game=game, mode=mode):
+                m = early_world(game, mode, selected=g["healing"], pick=g["other"])
                 HOOK[game](m)
                 m.roll_force(1)
                 decide(m)
                 self.assertEqual(jobs(m), [g["healing"]])
                 # ... and the research pick, through the catch-up site.
-                m = early_world(game, selected=g["healing"], pick=g["research"])
+                m = early_world(game, mode, selected=g["healing"], pick=g["research"])
                 HOOK[game](m)
                 m.roll_force(1)
                 decide(m)
                 self.assertEqual(jobs(m), [g["healing"]])
+
+    def test_new_believers_stock_mode_only_installs(self):
+        """The stock mode's buildSavePath detour installs and nothing else:
+        no slot is stashed and the Origins ownership word is never cleared,
+        whatever slots are built (the mask modes do both)."""
+        m = early_world("vv5", "stock")
+        m.w32(OWNERSHIP, 0x3)
+        for slot in (1, 3, 3 + 0x14, 0, 2):
+            HOOK["vv5"](m, slot)
+            self.assertEqual(m.u32(SLOT_SCRATCH), 0)
+            self.assertEqual(m.u32(OWNERSHIP), 0x3)
+        self.assertEqual(code(m, 0x403600, 6)[0], 0xE9)
+        # The mask modes, for contrast: the slot is captured and a slot
+        # change clears the word.
+        m = early_world("vv5", "collection_progression")
+        HOOK["vv5"](m, 1)
+        m.w32(OWNERSHIP, 0x3)
+        HOOK["vv5"](m, 3)
+        self.assertEqual((m.u32(SLOT_SCRATCH), m.u32(OWNERSHIP)), (3, 0))
 
     def test_the_lost_children_healer_studies_in_the_first_catch_up(self):
         m = early_world("vv2", selected=1, pick=1, task=9, cont=1)
@@ -219,9 +249,9 @@ class CompanionsInstallBeforeCatchUp(unittest.TestCase):
         self.assertEqual([c[1] for c in m.calls if c[0] == "continue"], [(harness.INDEX, 40)])
 
     def test_hooking_again_installs_nothing_twice(self):
-        for game in ORIGINS:
-            with self.subTest(game=game):
-                m = early_world(game)
+        for game, mode in SETUPS:
+            with self.subTest(game=game, mode=mode):
+                m = early_world(game, mode)
                 HOOK[game](m)
                 image = {va: code(m, va, 5) for va in DETOURS[game]}
                 m.calls = []
