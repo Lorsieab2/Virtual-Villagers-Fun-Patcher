@@ -72,11 +72,9 @@ QUEUED_GLOBALS = {
     "vv1": {
         "BARREL_PENDING": (0x48D700, 1),
         "BARREL_DELAY_COUNTER": (0x48D704, 4),
-        "BARREL_UPGRADE_FLAG": (0x48D708, 1),
     },
     "vv2": {
         "BARREL_PENDING": (0x49C700, 1),
-        "BARREL_UPGRADE_FLAG": (0x49C704, 1),
         "BARREL_CUE_COUNTER": (0x49C708, 4),
     },
     "vv3": {

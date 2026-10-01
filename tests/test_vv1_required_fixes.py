@@ -499,12 +499,18 @@ class VV1RequiredFixTests(unittest.TestCase):
         call_targets = [int(i.op_str, 16) for i in calls]
 
         self.assertIn(0x4286B0, call_targets, "constructor call is missing")
+        # The event is heap-allocated (operator new 0x44AF03), so since
+        # v1.35.45 it is released through its own class's scalar deleting
+        # destructor sub_427A00 (vtable off_459AE4 slot 0), which runs
+        # sub_427620 and then frees the block; sub_427620 alone leaked it.
         self.assertIn(
-            0x427620,
+            0x427A00,
             call_targets,
-            "helper must tear down the sub_4286B0 object with its own "
-            "matching destructor (sub_427620), not an unrelated method",
+            "helper must tear down AND free the sub_4286B0 object with its "
+            "own class's deleting destructor (sub_427A00), not an unrelated method",
         )
+        self.assertNotIn(0x427620, call_targets,
+                         "the plain destructor alone leaks the 0x50F0-byte event")
         self.assertNotIn(
             0x42AB60,
             call_targets,
@@ -512,16 +518,15 @@ class VV1RequiredFixTests(unittest.TestCase):
             "corrupts the heap when called on it",
         )
 
-        # sub_427620 is a plain thiscall with no stack arguments (its own
-        # disassembly ends in a bare `ret`, not `ret N`) -- the call site
-        # must not push an argument for it first.
-        dtor_call = next(i for i in calls if int(i.op_str, 16) == 0x427620)
+        # sub_427A00 is thiscall with ONE stack argument, the delete flag
+        # (`ret 4`): the call must be preceded by `push 1` and `mov ecx, ebx`
+        # (the constructed object).
+        dtor_call = next(i for i in calls if int(i.op_str, 16) == 0x427A00)
         preceding = [i for i in insns if i.address < dtor_call.address]
-        self.assertNotEqual(
-            preceding[-1].mnemonic if preceding else None,
-            "push",
-            "sub_427620 takes no stack arguments; a stray push before "
-            "the call would unbalance the stack",
+        self.assertEqual(
+            [(i.mnemonic, i.op_str) for i in preceding[-2:]],
+            [("push", "1"), ("mov", "ecx, ebx")],
+            "the deleting destructor needs flag 1 and the object in ecx",
         )
 
     def test_vv1_doublers_exclude_story_puzzle_and_milestone_rewards(self) -> None:

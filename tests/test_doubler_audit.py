@@ -311,11 +311,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # manifest diff against the parent commit is exactly two added caves
         # (0x9A4A0 silent gate stub, 0x9A745 glue) and the main helper at
         # 0x9A780 that calls them -- nothing in any doubler region.
+        # Re-pinned for v1.35.45: the Sack/Vial roll detour 0x37ADC and its
+        # cave 0x9A4F0 are removed (the old "three children" flag never
+        # reached the barrel), 0x9A780 loses the flag's arming store, and
+        # 0x45B50's rel32 follows the sweep stub 7 bytes earlier in the
+        # appended page -- nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "327782ADF86C2491E3B35CB72B35F4AFAA608642319EA0D90F435828C7272D7C",
+            "76A219E37CBB8E91F6B25013DC184A3FBDACE5311235675F866D70F0D2B5ACED",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
