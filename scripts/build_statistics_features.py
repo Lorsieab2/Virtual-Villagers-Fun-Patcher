@@ -366,14 +366,6 @@ GAMES = {
         # +0x30 holds the Origins saved bit flags and +0x34 the Heathens
         # Converted total, so this game's first free reserve dword is +0x38.
         "burial_stat_va": 0x51D39C,  # pending +0x44 (old +0x38 frozen)
-        # A Heathen corpse is not counted (faction byte +0x1CEC; see
-        # vv5_believers_only). The Heathen never ages and the health pass
-        # skips it, but The Missing Kids takes 5 health from its Heathen
-        # child on every bad outcome (0x4161F0), which nothing restores. The
-        # guarded wrapper is 27 bytes, too long for 0x190 (the death wrapper
-        # follows at 0x1A8), so it takes the free tail at 0x1E0.
-        "burial_faction_offset": 0x1CEC,
-        "burial_slot": 0x1E0,
         # Same two-arbiter shape as The Secret City; see that note.
         "death_stat_va": 0x51D3A0,  # pending +0x48 (old +0x40 frozen)
         "death_cause_offset": 0x10,
@@ -928,16 +920,6 @@ def build_game(
                 f"inc dword ptr [0x{int(config['burial_stat_va']):X}]"
             )
             burial_slot = 0x190
-            if "burial_faction_offset" in config:
-                # New Believers: a Heathen's skeleton is not a villager's.
-                # The corpse is ESI; the replayed clear follows either way.
-                burial_body = (
-                    f"cmp byte ptr [esi + 0x{int(config['burial_faction_offset']):X}], 0\n"
-                    f"                jne heathen_corpse\n"
-                    f"                {burial_body}\n"
-                    f"            heathen_corpse:"
-                )
-                burial_slot = int(config["burial_slot"])
         else:
             burial_body = (
                 f"{config['burial_manager']}\n"

@@ -19,8 +19,9 @@ VV5_BELIEVER_GUARDS and vv5_believers_only):
 * Babies Made (+0x08), Twins Birthed (+0x28), Triplets Birthed (+0x2C): counted
   inside the conception routine 0x465E00 on its mother, with no faction test; a
   Heathen mother's conception is not counted.
-* Villagers Buried (the patch's own pickup counter, 0x473F8F): a Heathen's
-  skeleton is not counted.
+
+Villagers Buried needs no guard: the owner rules that a Heathen grave is never
+made (2026-09-30), so a Heathen-corpse check could never fire.
 
 Two layers. The first runs the wrappers straight from the manifest's cave bytes
 and needs no game file, so it runs in CI. The second executes the patched game
@@ -186,20 +187,6 @@ class CaveWrapperTests(unittest.TestCase):
                     step = (litter or 1) if counted else 0
                     self.assertEqual(rd(mu, counter), 7 + step)
                     self.assertEqual(mu.reg_read(UC_X86_REG_ESI), HEAP)
-
-    def test_villagers_buried_counts_only_a_believers_skeleton(self):
-        # The Missing Kids takes 5 health from its Heathen child on every bad
-        # outcome (0x4161F0) and nothing restores a Heathen's health, so a
-        # Heathen skeleton can exist; it is not a villager's.
-        for faction, counted in ((BELIEVER, 1), (HEATHEN, 0)):
-            with self.subTest(faction=faction):
-                mu = self.machine()
-                self.record(mu, faction)
-                mu.mem_write(HEAP + 0x1CD4, b"\x01")
-                self.assertEqual(self.run_wrapper(mu, jump_target(0x73F8F), (0x473F96,)), 0x473F96)
-                self.assertEqual(rd(mu, BLOCK + 0x44), counted)          # the pending burial count
-                self.assertEqual(mu.mem_read(HEAP + 0x1CD4, 1)[0], 0,
-                                 "the stolen clear of the corpse's active byte must still run")
 
 
 # ---------------------------------------------------------------------------
