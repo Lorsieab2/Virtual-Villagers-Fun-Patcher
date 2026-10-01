@@ -57,6 +57,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_everyone_collects_like_vv1" % game for game in range(2, 6)]
     # The owner: Super-Secret Golden Mushroom (all five games) is default-off.
     + ["vv%d_super_secret_golden_mushroom" % game for game in range(1, 6)]
+    # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
+    # is "Default-OFF. Owner's-Defaults ON."
+    + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
 )
 
 

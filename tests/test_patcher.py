@@ -1174,8 +1174,11 @@ class ManifestTests(unittest.TestCase):
         # (vv2_everyone_collects_like_vv1), two jumps in the pickup callbacks;
         # 18 with Super-Secret Golden Mushroom (vv2_super_secret_golden_mushroom),
         # the mushroom spawn roll and pickup in .text slack; 19 with Faster
-        # Village-Scrolling (vv2_faster_village_scrolling), in-place camera edits.
-        self.assertEqual(len(feature_ids), 19)
+        # Village-Scrolling (vv2_faster_village_scrolling), in-place camera edits;
+        # 20 with Manual Drop-Breeding overrides Birth Control
+        # (vv2_manual_drop_breeding_overrides_birth_control), one short jump in
+        # the manual pairing handler.
+        self.assertEqual(len(feature_ids), 20)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4007,6 +4010,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_everyone_collects_like_vv1",
                 "vv2_super_secret_golden_mushroom",
                 "vv2_faster_village_scrolling",
+                "vv2_manual_drop_breeding_overrides_birth_control",
                 "vv2_numeric_keys_tip_wording",
             },
         )

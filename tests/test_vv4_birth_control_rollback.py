@@ -160,8 +160,11 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
         text = (ROOT / "docs" / "villager-breeding-overhaul-research.md").read_text(encoding="utf-8")
         self.assertIn("historical VV4 Birth Control candidate is rejected/superseded", text)
         self.assertIn("untouched vanilla Breeding and Embracing reference", text)
-        self.assertIn("No VV4 executable edits are shipped or", text)
-        self.assertIn("selectable.", text)
+        self.assertIn("No VV4 Birth Control executable edits are", text)
+        self.assertIn("shipped or selectable.", text)
+        # The one selectable VV4 breeding edit is recorded as an exception.
+        self.assertIn('"Manual Drop-Breeding overrides Birth Control" patch', text)
+        self.assertIn("(file `0x60E67`)", text)
 
 
 if __name__ == "__main__":
