@@ -27,6 +27,9 @@ One Isola Year at Normal game speed equals:
 Display and track Real Hours Played, not merely Isola Years.
 Use the game's actual passage-of-time mechanics.
 Verify relevant behavior across normal gameplay, game-speed changes, time catch-up and time warp where applicable.
+
+> **Owner decision (2026-09-29, re-confirmed 2026-09-30) -- this is the rule the patcher implements:** Real Hours Played is the number of **real-world hours since the village was founded**, i.e. the wall clock from the village's creation to the moment the log is written. It includes time the game was closed. It is NOT Isola years converted at 2 hours per year, and NOT only the time the game was open. The owner, re-confirming: "I want the hours since the village was founded." The "2 real-life hours" wording above is superseded; the directive text is kept as written for the record.
+
 2. Food Gathered
 Track total food gathered.
 3. Tech Points Earned

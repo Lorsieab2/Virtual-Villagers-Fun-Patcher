@@ -62,10 +62,6 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
-    # Re-pinned when Builders Fix Huts When Idle's page stub began handing
-    # every option list to VvfpFixHutsFilter (build first, fix last): against
-    # v1.35.41 only the checksum word at 0x160 and bytes inside the fix-huts
-    # overlay (0xCB800, length 0x400) differ.
     # Re-pinned again when the parentage feature gained the birth hook:
     # three site rewrites, plus a body, export name and stubs placed in
     # the feature's own overlay. Verified before re-pinning that every
@@ -152,24 +148,31 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
     # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
     # the only differing bytes are the PE CheckSum.
+    # Re-pinned when Origins began carrying the main-menu Start Over reset
+    # (2026-09-30). Justified BEFORE re-pinning: origin/main reproduces the
+    # previous pins (26E20313.../2CC59D13.../DC755117...); the only differing
+    # bytes are 0x6B7E5..0x6B7E8 (the rewritten call's rel32), the stub at
+    # 0xA3F90..0xA3FFA (.rdata tail, which Origins maps as code) and the PE
+    # CheckSum at 0x160..0x162.
     # Re-pinned when Builders Fix Huts When Idle began wrapping the idle
-    # scheduler (one 75% roll per decision, the owner's "about three times in
-    # four"). Justified BEFORE re-pinning: this branch's previous tip
-    # reproduces the previous pins, and in all three modes the only differing
-    # bytes are the PE CheckSum (0x160), the scheduler entry 0x45BFE0 (file
-    # 0x5BFE0, 6 bytes) and the new stub and export name inside the fix-huts
-    # overlay (0xCBB00..0xCBBD6).
+    # scheduler (one 75% roll per decision) and handing every option list to
+    # VvfpFixHutsFilter (build first, fix last), merged on top of the Start Over
+    # pins above. Justified BEFORE re-pinning: rendering the complete catalog
+    # with main (1a63dd73) and with the merged branch, the only differing bytes
+    # in all three modes are the PE CheckSum (0x160..0x162), the scheduler entry
+    # 0x5BFE0..0x5BFE5 and the fix-huts overlay (0xCB800..0xCB8B0, the stub and
+    # export name at 0xCBB00..0xCBBD4).
     "stock": (
-        "969F147DAA29A4BF2111B4039E9D6AA670526CD4E5E40188F70FB353FA87A503",
-        "836E0D00",
+        "934B816711DB43C86B2A80C03E1F705D52C849A53683D2A8EA5B7DDBC250EFC8",
+        "D58A0D00",
     ),
     "collection_progression": (
-        "7722CB13AED16DA1313DC34224FCC0DB4E34C9571B2F3C39EB2C31BF548069A6",
-        "83870D00",
+        "4E7BB424192DB52D1DE552E67B6F7B6783A620294A9B28D7F34E93BBCE2A0935",
+        "D5A30D00",
     ),
     "immediate_fixed": (
-        "D19D2ECF3B8C064FD72B71FC92BCA046219A6235F6358FCA783034D2C67D1302",
-        "81C90D00",
+        "4B91F76A07069738066EDB2BDF306877A47F76EB3D0023913142379954B289F0",
+        "D4E50C00",
     ),
 }
 
