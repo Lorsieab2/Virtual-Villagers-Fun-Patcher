@@ -62,13 +62,6 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
-    # Re-pinned when the fix-huts page gained the catch-up research-pick stub
-    # for Builders and Healers Work First (The Secret City's catch-up worker,
-    # 0x45BF52). Justified BEFORE re-pinning by rendering the full catalog at
-    # the preceding commit and on the change and diffing byte for byte: in
-    # every mode the only differences are the PE CheckSum (0x160..0x163), the
-    # five-byte site at 0x5BF52 and the stub inside the fix-huts overlay
-    # (0xCBA8A..0xCBAFF); nothing else moved and the length is unchanged.
     # Re-pinned again when the parentage feature gained the birth hook:
     # three site rewrites, plus a body, export name and stubs placed in
     # the feature's own overlay. Verified before re-pinning that every
@@ -174,17 +167,28 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # main (29a88fff) and with the merged branch, the only differing bytes in all
     # three modes are the patch's own 0x586F3..0x586F8 and the PE CheckSum
     # (0x160..0x162).
+    # Re-pinned when Manual Drop-Breeding stopped lifting the refusal for
+    # villagers pairing up on their own (the drop test). Justified BEFORE
+    # re-pinning: rendering the complete catalog with main (dc9a9b31) and with
+    # the branch, the only differing bytes in all three modes are the patch's
+    # own 0x586F4..0x586FF and 0x58741..0x5874C and the PE CheckSum
+    # (0x160..0x162).
+    # Re-pinned when The Secret City's catch-up research pick moved into an exe-side
+    # stub, merged on top of main fa2e87af. Justified BEFORE re-pinning: rendering the
+    # complete catalog with main and with the merged branch, the only differing bytes in
+    # all three modes are the PE CheckSum (0x160..0x161), the site 0x5BF52..0x5BF56 and the
+    # stub at 0xCBA8A..0xCBAFE.
     "stock": (
-        "51C0D189C33A1E4D193B75BCC66D9E355E94CA08CAB1CA3BDDF356583271285F",
-        "E1CD0D00",
+        "C20E000C108A409C829DC6DF0B9A02995440A4B6D6A65E9BA6D96B16862F25CF",
+        "ED370D00",
     ),
     "collection_progression": (
-        "2979E75839C0C112DEEBF4A61D35B8BE6EE4F32C9815270D88CE961029337B34",
-        "E2E60C00",
+        "785D53D246D3E9881F86DADB71946C2DDF7C43A25E54E4011107978E430C11DD",
+        "ED500D00",
     ),
     "immediate_fixed": (
-        "77050D168A01212D5945B96BF28D51DBABBEA81D9F3A04C6BBC2199AA62EB1C7",
-        "E0280D00",
+        "50AC888DCBBAA655C154F51A9ABD040B89127F662E80AB38DFA9B5F474844DCE",
+        "EB920D00",
     ),
 }
 
