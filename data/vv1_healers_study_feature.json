@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Healers Study Plants Regardless of Food",
-  "description": "Healers are more likely to keep studying plants regardless of the food supply. A villager who was studying the plant it was dropped on (the medical cactus) carries on studying when the village has 400 food or more, exactly as the stock game already does below 400 -- about three times in four each time the game chooses what the healer does; the rest of the time the game chooses exactly as it always has. With Builders Fix Huts When Idle also selected, the two share that one roll per choice. Applies in live play and during catch-up. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.",
+  "description": "Healers are more likely to keep studying plants regardless of the food supply. A villager who was studying the plant it was dropped on (the medical cactus) carries on studying when the village has 400 food or more, exactly as the stock game already does below 400 -- about three times in four each time the game chooses what the healer does; the rest of the time the game chooses exactly as it always has. With Builders Fix Huts When Idle also selected, the two share that one roll per choice. During catch-up -- the time that passes while the game is closed, and Time Warp -- A New Home already keeps a healer's plant study going by itself whenever it gives the healer healing work and no one needs healing (with Builders and Healers Work First, at least three times in four), so this patch changes nothing there. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.",
   "output_tag": "Healers Study",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"
@@ -19,13 +19,14 @@
     "Below 400 food nothing changes: the stock code has already made the call.",
     "Only villagers already studying a plant (state 9, set when the player drops a villager on a plant) are affected; every other villager's selection is the stock one.",
     "What the study does -- which plant, its animation, its Healing practice -- is the game's own.",
-    "Nothing is written to a villager record, the save or any file."
+    "Nothing is written to a villager record, the save or any file.",
+    "Catch-up is unchanged: A New Home's catch-up worker (0x42E790) dispatches the picked job, and the dispatcher's Healing case already continues plant study (activity 9 -> 0x443270, at 0x4478EF)."
   ],
   "companion_files": [
     {
       "source": "assets/healers_study/VVFP Healers Study.dll",
       "destination": "VVFP Healers Study.dll",
-      "sha256": "7B7D71DA3D909B48836B73C8F5D78D35951F1993BD83538CC6669D5C50122D4B"
+      "sha256": "03A76507062AB9FF66F56B9821F33A74D960B100711D67085A21D3D09313DA7B"
     }
   ],
   "patches": [],

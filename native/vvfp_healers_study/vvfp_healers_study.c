@@ -7,8 +7,9 @@
    total on the way to their medicine study (and VV4/VV5 already require the
    Hospital), so only A New Home and The Lost Children need this.
 
-   WHAT THE STOCK GAMES DO, read from the executables.  One idle scheduler,
-   reached from both the live per-frame caller and the catch-up loop:
+   WHAT THE STOCK GAMES DO, read from the executables.  The idle scheduler,
+   reached from the live per-frame caller only (catch-up has its own worker;
+   see CATCH-UP below):
 
      VV1 0x448220  cmp [state+0xA2EC], 400; jge 0x44836F.  Below 400 it tries
                    the preferred job and then 0x447CD0(index, 60), which
@@ -33,9 +34,15 @@
    made the call), for every other state, and when the continuation starts
    nothing, the displaced instructions run and the stock selection continues.
 
+   CATCH-UP.  The scheduler is never run for time that passed while the game
+   was closed, or for Time Warp.  A New Home's catch-up already continues a
+   healer's plant study through its dispatcher's Healing case; The Lost
+   Children's never does, so it gets a second site in its catch-up worker
+   (see "VV2 catch-up" below).
+
    Installed at run time by VvfpHealersStudyInstall(game) from the Origins
-   companion, which runs every frame; the stock bytes at the site are verified
-   first, and any other build installs nothing. */
+   companion, which runs every frame; the stock bytes at each site are
+   verified first, and any other build installs nothing. */
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
@@ -216,6 +223,77 @@ static __declspec(naked) void vv2_stub(void) {
     }
 }
 
+/* ---- VV2 catch-up ---------------------------------------------------------- */
+/* Time passing while the game was closed, and Time Warp, never run the idle
+   scheduler: The Lost Children's catch-up worker (0x43B4D0) takes the stock
+   picker's job, runs the task-state continuation 0x461580 for a nonzero
+   state -- whose plant-study case (state 9) starts nothing -- and dispatches
+   the pick (0x43B583), whose Healing case does nothing when no one is sick.
+   So a healer's plant study never continues in catch-up.  The owner: Lost
+   Children healers continue plant study during catch-up, as this patch's
+   catch-up behaviour (A New Home's catch-up already continues it through its
+   dispatcher's Healing case, 0x4478EF).
+
+   The site is the worker's pick dispatch, `push ebp; push edi; call
+   0x45FBF0` (0x43B581, seven bytes), which both the state-0 path and a failed
+   0x461580 reach -- so the order is the live scheduler's: the task-state
+   continuation, then plant study, then the pick.  A villager in state 9, on
+   the decision's roll (any food level: the stock catch-up never makes the
+   call), gets the scheduler's own continuation 0x460590(index, 40); if it
+   starts a job the worker's "done" runs (0x43B588, its queue processor).
+   Otherwise the pick is dispatched exactly as the stock call would, with
+   the stock return address 0x43B588 pushed, so a dispatcher hook that
+   recognises the worker's call (Builders and Healers Work First) still does.
+   The worker's research pick (job 2) never reaches this site: catch-up gives
+   it its own research step, as in the stock game.
+   ebx = the worker, [ebx+4] = village, edi = index, ebp = the pick; ecx =
+   village. */
+#define VV2_CU_SITE      0x43B581u
+#define VV2_CU_DONE      0x43B588u
+#define VV2_DISPATCHER   0x45FBF0u
+static const unsigned char VV2_CU_STOCK[7] = { 0x55, 0x57, 0xE8, 0x68, 0x46, 0x02, 0x00 };
+
+static int __cdecl vv2_catch_up_studying(const unsigned char *village, unsigned int index) {
+    if (*(const int *)(village + index * 0xE48Cu + 0x7E0u) != 9) {
+        return 0;
+    }
+    if (!decision_roll()) {
+        return 0;                                  /* the stock pick this decision */
+    }
+    HEALERS_COUNT_CHECK;
+    return 1;
+}
+
+static const unsigned int vv2_cu_done = VV2_CU_DONE, vv2_dispatcher = VV2_DISPATCHER;
+static __declspec(naked) void vv2_cu_stub(void) {
+    __asm {
+        pushad
+        push edi
+        push dword ptr [ebx + 4]
+        call vv2_catch_up_studying
+        add esp, 8
+        test eax, eax
+        popad
+        jz pick
+        push 0x28
+        push edi
+        mov ecx, dword ptr [ebx + 4]
+        call dword ptr [vv2_continue]
+        mov ecx, dword ptr [ebx + 4]
+        test eax, eax
+        jz pick
+#ifdef VVFP_TEST
+        inc dword ptr [VvfpHealersStudyStats + 4]
+#endif
+        jmp dword ptr [vv2_cu_done]
+    pick:
+        push ebp
+        push edi
+        push dword ptr [vv2_cu_done]
+        jmp dword ptr [vv2_dispatcher]
+    }
+}
+
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
     unsigned int va;
@@ -229,6 +307,13 @@ static const struct site SITES[3] = {
     { VV2_SITE, VV2_STOCK, sizeof VV2_STOCK, vv2_stub },
 };
 static int install_state[3];
+/* The catch-up sites (The Lost Children only). */
+static const struct site CU_SITES[3] = {
+    { 0 },
+    { 0 },
+    { VV2_CU_SITE, VV2_CU_STOCK, sizeof VV2_CU_STOCK, vv2_cu_stub },
+};
+static int cu_install_state[3];
 
 static int site_is_stock(const struct site *s) {
     MEMORY_BASIC_INFORMATION info;
@@ -252,21 +337,12 @@ static void site_bytes(const struct site *s, unsigned char *out) {
     }
 }
 
-/* Called by a companion that runs every frame in the game.  Idempotent. */
-__declspec(dllexport) int __stdcall VvfpHealersStudyInstall(int game_id) {
-    const struct site *s;
+/* Verify the stock bytes, then write the jmp.  1 on success. */
+static int install_site(const struct site *s) {
     unsigned char bytes[16];
     unsigned char *at;
     DWORD old;
-    if (game_id < 1 || game_id > 2) {
-        return 0;
-    }
-    if (install_state[game_id] != 0) {
-        return install_state[game_id] == 1;
-    }
-    install_state[game_id] = -1;
-    s = &SITES[game_id];
-    if (!site_is_stock(s)) {
+    if (s->va == 0 || !site_is_stock(s)) {
         return 0;
     }
     at = (unsigned char *)(uintptr_t)s->va;
@@ -277,8 +353,23 @@ __declspec(dllexport) int __stdcall VvfpHealersStudyInstall(int game_id) {
     memcpy(at, bytes, (size_t)s->length);
     VirtualProtect(at, (SIZE_T)s->length, old, &old);
     FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
-    install_state[game_id] = 1;
     return 1;
+}
+
+/* Called by a companion that runs every frame in the game.  Idempotent: the
+   scheduler site and (The Lost Children) the catch-up site, each tried once
+   and independently.  Returns whether the scheduler site is installed. */
+__declspec(dllexport) int __stdcall VvfpHealersStudyInstall(int game_id) {
+    if (game_id < 1 || game_id > 2) {
+        return 0;
+    }
+    if (cu_install_state[game_id] == 0) {
+        cu_install_state[game_id] = install_site(&CU_SITES[game_id]) ? 1 : -1;
+    }
+    if (install_state[game_id] == 0) {
+        install_state[game_id] = install_site(&SITES[game_id]) ? 1 : -1;
+    }
+    return install_state[game_id] == 1;
 }
 
 #ifdef VVFP_TEST
@@ -293,6 +384,26 @@ __declspec(dllexport) int __stdcall VvfpHealersStudyProbeSite(int game_id, unsig
         return 0;
     }
     s = &SITES[game_id];
+    *va = s->va;
+    memcpy(stock, s->stock, (size_t)s->length);
+    site_bytes(s, patched);
+    *stub_va = (unsigned int)(uintptr_t)s->stub;
+    return s->length;
+}
+
+/* For the test build only: the catch-up site, the same way (0: none). */
+__declspec(dllexport) int __stdcall VvfpHealersStudyProbeCatchUpSite(int game_id, unsigned int *va,
+                                                                      unsigned char *stock,
+                                                                      unsigned char *patched,
+                                                                      unsigned int *stub_va) {
+    const struct site *s;
+    if (game_id < 1 || game_id > 2) {
+        return 0;
+    }
+    s = &CU_SITES[game_id];
+    if (s->va == 0) {
+        return 0;
+    }
     *va = s->va;
     memcpy(stock, s->stock, (size_t)s->length);
     site_bytes(s, patched);

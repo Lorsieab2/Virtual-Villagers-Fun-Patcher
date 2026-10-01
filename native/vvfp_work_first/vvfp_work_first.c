@@ -31,9 +31,44 @@
    job), ret 8.  VV4/VV5: thiscall(job), ret 4, ecx = the villager object.
    The result is in al.  Every other caller of a dispatcher is untouched.
 
+   CATCH-UP.  Time passing while the game was closed, and Time Warp, never run
+   the idle scheduler: each game has a catch-up worker, called a few times per
+   age unit for each adult (14+, health >= 20, not busy), which takes the
+   stock picker's job and dispatches it itself.  The owner: in catch-up too, a
+   villager whose selected job is Building or Healing -- and in New Believers
+   Devotion, which only catch-up boosts ("the patch is only meant to boost
+   skill gain and progress in jobs that kind of lack that natively") -- does
+   that job about three times in four, one roll per worker decision; otherwise
+   the stock pick runs.  The worker reaches the dispatcher by one of two
+   routes, and both are covered:
+
+     game  worker    pick dispatch (return)  research pick: site, bytes      research path  done
+     VV1   0x42E790  0x42E81C (0x42E821)     0x42E7E0 cmp eax,2; jne   (5)   0x42E7E5       0x42E821
+     VV2   0x43B4D0  0x43B583 (0x43B588)     0x43B52D cmp ebp,2; jne   (5)   0x43B532       0x43B588
+     VV3   0x45BF00  0x45BFC0 (0x45BFC5)     0x45BF52 cmp ebx,1; jne   (5)   0x45BF57       0x45BFC5
+     VV4   0x465750  0x465827 (0x46582C)     0x46579F cmp edi,1; jne   (5)   0x4657A4       0x46582C
+     VV5   0x46E8E0  0x46E9C9 (0x46E9CE)     0x46E92F cmp edi,1; jne   (5)   0x46E934       0x46E9CE
+
+   * The pick dispatch: its return address is one of the dispatcher stub's
+     callers, so it acts exactly as for the live scheduler (own job first;
+     nothing of theirs to do -> the pick).  In The Lost Children, The Tree of
+     Life and New Believers the worker's task-state continuation runs before
+     it, as the live scheduler's does.
+   * The research pick (VV1/VV2 job 2, VV3-VV5 job 1) never reaches the
+     dispatcher: the worker gives it its own 5% research step.  The site above
+     tests for it; a research pick of a builder, healer (or devotee) asks the
+     same question and, if the own job starts something, goes to the worker's
+     own "done" (its queue processor); otherwise the stock research step runs.
+     Any other pick continues to the stock code unchanged.
+   * The low-food safety net: at 250 food or less with Farming 20 or more,
+     The Secret City, The Tree of Life and New Believers dispatch Farming from
+     a third call (returns 0x45BFB0, 0x46580F, 0x46E9B1) and then finish; that
+     call is not one of the stub's callers, so Farming still wins.
+
    Loaded by "VVFP Fix Huts.dll" (VvfpFixHutsInstall, from a companion that
    runs every frame) by full path; The Secret City's hook is a stub in the
-   fix-huts page that resolves VvfpWorkFirstFirst.  Not shipped: nothing is
+   fix-huts page that resolves VvfpWorkFirstFirst, and its catch-up site is
+   installed by the first VvfpWorkFirstFirst call.  Not shipped: nothing is
    loaded, and every hook falls through to the stock code. */
 #include <windows.h>
 #include <string.h>
@@ -183,12 +218,16 @@ __declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0 };
    they can study medicine"; whether they can (a patient, the Medicine tech,
    the Hospital) is the game's own healing dispatcher's decision, and when it
    starts nothing the scheduler's own request runs.  All of it only when the
-   decision's roll passes; otherwise the stock request alone. */
-static int own_first(int selected, int requested, int building, int healing, int huts_incomplete) {
+   decision's roll passes; otherwise the stock request alone.  devotion: New
+   Believers' Devotion job in catch-up (always first, like Healing; whether
+   there is anything to honour is the dispatcher's decision), else -1. */
+static int own_first(int selected, int requested, int building, int healing, int devotion,
+                     int huts_incomplete) {
     if (selected == requested) {
         return -1;
     }
-    if (selected == building ? !huts_incomplete : selected != healing) {
+    if (selected == building ? !huts_incomplete
+                             : selected != healing && (devotion < 0 || selected != devotion)) {
         return -1;
     }
     if (!decision_roll()) {
@@ -206,46 +245,95 @@ static int is_one_of(unsigned int ret, const unsigned int *sites, int n) {
     return 0;
 }
 
-static const unsigned int VV1_CALLS[] = { 0x448355u, 0x448382u };
-static const unsigned int VV2_CALLS[] = { 0x461A08u, 0x461A35u };
-static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu };
-static const unsigned int VV4_CALLS[] = { 0x4659D2u, 0x465A17u, 0x465A2Au };
-static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu };
+/* The adult scheduler's calls, then the catch-up worker's pick dispatch (the
+   last entry of each list; see CATCH-UP above).  The worker's low-food
+   Farming dispatch in VV3-VV5 is deliberately absent. */
+static const unsigned int VV1_CALLS[] = { 0x448355u, 0x448382u, 0x42E821u };
+static const unsigned int VV2_CALLS[] = { 0x461A08u, 0x461A35u, 0x43B588u };
+static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu, 0x45BFC5u };
+static const unsigned int VV4_CALLS[] = { 0x4659D2u, 0x465A17u, 0x465A2Au, 0x46582Cu };
+static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu, 0x46E9CEu };
+#define VV5_CATCH_UP_CALL 0x46E9CEu
+#define VV5_DEVOTION 5
 
-static int __cdecl vv1_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
-    if (!is_one_of(ret, VV1_CALLS, 2)) return -1;
-    return own_first(*(const int *)(village + index * 0x3D8u + 0x3D0u), job, 4, 5,
+/* The decision for one villager.  catch_up: New Believers' Devotion counts
+   only there. */
+static int vv1_decide(const unsigned char *village, unsigned int index, int job) {
+    return own_first(*(const int *)(village + index * 0x3D8u + 0x3D0u), job, 4, 5, -1,
                      vv1_builder_has_hut_work(village));
 }
 
-static int __cdecl vv2_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
-    if (!is_one_of(ret, VV2_CALLS, 2)) return -1;
-    return own_first(*(const int *)(village + index * 0xE48Cu + 0x7F8u), job, 5, 3,
+static int vv2_decide(const unsigned char *village, unsigned int index, int job) {
+    return own_first(*(const int *)(village + index * 0xE48Cu + 0x7F8u), job, 5, 3, -1,
                      vv2_builder_has_hut_work(village));
 }
 
+static int vv3_decide(const unsigned char *record, int job) {
+    return own_first(*(const int *)(record + 0xEC0u), job, 4, 2, -1, later_huts_incomplete(&VV3));
+}
+
+static int vv4_decide(const unsigned char *object, int job) {
+    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
+    return own_first(*(const int *)(record + 0x1C70u), job, 4, 2, -1, later_huts_incomplete(&VV4));
+}
+
+static int vv5_decide(const unsigned char *object, int job, int catch_up) {
+    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
+    return own_first(*(const int *)(record + 0x1C74u), job, 4, 2, catch_up ? VV5_DEVOTION : -1,
+                     later_huts_incomplete(&VV5));
+}
+
+static int __cdecl vv1_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
+    if (!is_one_of(ret, VV1_CALLS, 3)) return -1;
+    return vv1_decide(village, index, job);
+}
+
+static int __cdecl vv2_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
+    if (!is_one_of(ret, VV2_CALLS, 3)) return -1;
+    return vv2_decide(village, index, job);
+}
+
 static int __cdecl vv4_first(unsigned int ret, const unsigned char *object, int job) {
-    const unsigned char *record;
-    if (!is_one_of(ret, VV4_CALLS, 3)) return -1;
-    record = *(const unsigned char *const *)(object + 0x1B88u);
-    return own_first(*(const int *)(record + 0x1C70u), job, 4, 2, later_huts_incomplete(&VV4));
+    if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
+    return vv4_decide(object, job);
 }
 
 static int __cdecl vv5_first(unsigned int ret, const unsigned char *object, int job) {
-    const unsigned char *record;
-    if (!is_one_of(ret, VV5_CALLS, 3)) return -1;
-    record = *(const unsigned char *const *)(object + 0x1B88u);
-    return own_first(*(const int *)(record + 0x1C74u), job, 4, 2, later_huts_incomplete(&VV5));
+    if (!is_one_of(ret, VV5_CALLS, 4)) return -1;
+    return vv5_decide(object, job, ret == VV5_CATCH_UP_CALL);
 }
+
+/* The catch-up worker's research pick (the sites' stubs below): the job to
+   try first, or -1. */
+static int __cdecl vv1_research_first(const unsigned char *village, unsigned int index, int pick) {
+    return vv1_decide(village, index, pick);
+}
+static int __cdecl vv2_research_first(const unsigned char *village, unsigned int index, int pick) {
+    return vv2_decide(village, index, pick);
+}
+static int __cdecl vv3_research_first(const unsigned char *record, int pick) {
+    return vv3_decide(record, pick);
+}
+static int __cdecl vv4_research_first(const unsigned char *object, int pick) {
+    return vv4_decide(object, pick);
+}
+static int __cdecl vv5_research_first(const unsigned char *object, int pick) {
+    return vv5_decide(object, pick, 1);
+}
+
+static void install_catch_up(int game_id);
 
 /* For The Secret City's executable-side stub at the dispatcher's entry: the
    scheduler's return address, the record and the requested job.  The job to
-   try first, or -1.  A started job is counted by the stub's caller. */
+   try first, or -1.  A started job is counted by the stub's caller.  The
+   first call also installs The Secret City's catch-up site (its research
+   pick): nothing else in that game calls VvfpWorkFirstInstall. */
 __declspec(dllexport) int __cdecl VvfpWorkFirstFirst(int game_id, unsigned int ret,
                                                      const unsigned char *record, int job) {
     if (game_id != 3 || record == NULL) return -1;
-    if (!is_one_of(ret, VV3_CALLS, 3)) return -1;
-    return own_first(*(const int *)(record + 0xEC0u), job, 4, 2, later_huts_incomplete(&VV3));
+    install_catch_up(3);
+    if (!is_one_of(ret, VV3_CALLS, 4)) return -1;
+    return vv3_decide(record, job);
 }
 
 /* ---- The stubs ------------------------------------------------------------ */
@@ -353,6 +441,146 @@ VV12_STUB(vv2)
 LATER_STUB(vv4)
 LATER_STUB(vv5)
 
+/* ---- Catch-up: the research pick ------------------------------------------ */
+/* Each site is the worker's `cmp pick, research; jne` (five bytes) right
+   after the stock picker.  The stub replays it: any other pick jumps where
+   the jne went.  A research pick asks NAME_research_first; a job back is
+   dispatched (the stock dispatcher, with the worker's own arguments); if it
+   starts something the worker's "done" runs (its queue processor), else --
+   and for -1 -- the stock research step.  Every register the worker keeps is
+   untouched; the dispatcher, like the stock call, may change eax/ecx/edx,
+   which neither continuation reads before setting. */
+static const unsigned int vv1_cu_other = 0x42E817u, vv1_cu_research = 0x42E7E5u, vv1_cu_done = 0x42E821u;
+static const unsigned int vv2_cu_other = 0x43B566u, vv2_cu_research = 0x43B532u, vv2_cu_done = 0x43B588u;
+static const unsigned int vv3_cu_other = 0x45BF7Bu, vv3_cu_research = 0x45BF57u, vv3_cu_done = 0x45BFC5u;
+static const unsigned int vv4_cu_other = 0x4657C3u, vv4_cu_research = 0x4657A4u, vv4_cu_done = 0x46582Cu;
+static const unsigned int vv5_cu_other = 0x46E965u, vv5_cu_research = 0x46E934u, vv5_cu_done = 0x46E9CEu;
+/* The Secret City's dispatcher is called at its entry, whatever is there:
+   the fix-huts page's stub (which leaves this caller to the stock code) or
+   the stock bytes. */
+static const unsigned int vv3_dispatcher = 0x45AF00u;
+
+/* VV1: eax = pick, esi = index, edi = the worker, [edi+4] = village. */
+static __declspec(naked) void vv1_cu_stub(void) {
+    __asm {
+        cmp eax, 2
+        jne other
+        pushad
+        push eax
+        push esi
+        push dword ptr [edi + 4]
+        call vv1_research_first
+        add esp, 12
+        mov [esp + 0x1C], eax
+        popad
+        cmp eax, -1
+        je research
+        mov ecx, dword ptr [edi + 4]
+        push eax
+        push esi
+        call vv1_original
+        test al, al
+        jz research
+        WORK_FIRST_COUNT_STARTED
+        jmp dword ptr [vv1_cu_done]
+    research:
+        jmp dword ptr [vv1_cu_research]
+    other:
+        jmp dword ptr [vv1_cu_other]
+    }
+}
+
+/* VV2: ebp = pick, edi = index, ebx = the worker, [ebx+4] = village. */
+static __declspec(naked) void vv2_cu_stub(void) {
+    __asm {
+        cmp ebp, 2
+        jne other
+        pushad
+        push ebp
+        push edi
+        push dword ptr [ebx + 4]
+        call vv2_research_first
+        add esp, 12
+        mov [esp + 0x1C], eax
+        popad
+        cmp eax, -1
+        je research
+        mov ecx, dword ptr [ebx + 4]
+        push eax
+        push edi
+        call vv2_original
+        test al, al
+        jz research
+        WORK_FIRST_COUNT_STARTED
+        jmp dword ptr [vv2_cu_done]
+    research:
+        jmp dword ptr [vv2_cu_research]
+    other:
+        jmp dword ptr [vv2_cu_other]
+    }
+}
+
+/* VV3: ebx = pick, esi = record, edi = village. */
+static __declspec(naked) void vv3_cu_stub(void) {
+    __asm {
+        cmp ebx, 1
+        jne other
+        pushad
+        push ebx
+        push esi
+        call vv3_research_first
+        add esp, 8
+        mov [esp + 0x1C], eax
+        popad
+        cmp eax, -1
+        je research
+        mov ecx, edi
+        push eax
+        push esi
+        call dword ptr [vv3_dispatcher]
+        test al, al
+        jz research
+        WORK_FIRST_COUNT_STARTED
+        jmp dword ptr [vv3_cu_done]
+    research:
+        jmp dword ptr [vv3_cu_research]
+    other:
+        jmp dword ptr [vv3_cu_other]
+    }
+}
+
+/* VV4/VV5: edi = pick, esi = the villager object. */
+#define LATER_CU_STUB(NAME)                                                   \
+    static __declspec(naked) void NAME##_cu_stub(void) {                      \
+        __asm {                                                              \
+            __asm cmp edi, 1                                                 \
+            __asm jne other                                                  \
+            __asm pushad                                                     \
+            __asm push edi                                                   \
+            __asm push esi                                                   \
+            __asm call NAME##_research_first                                 \
+            __asm add esp, 8                                                 \
+            __asm mov [esp + 0x1C], eax                                      \
+            __asm popad                                                      \
+            __asm cmp eax, -1                                                \
+            __asm je research                                                \
+            __asm mov ecx, esi                                               \
+            __asm push eax                                                   \
+            __asm call NAME##_original                                       \
+            __asm test al, al                                                \
+            __asm jz research                                                \
+            WORK_FIRST_COUNT_STARTED                                         \
+            __asm jmp dword ptr [NAME##_cu_done]                             \
+            __asm research:                                                  \
+            __asm jmp dword ptr [NAME##_cu_research]                         \
+            __asm other:                                                     \
+            __asm jmp dword ptr [NAME##_cu_other]                            \
+        }                                                                    \
+    }
+
+LATER_CU_STUB(vv4)
+LATER_CU_STUB(vv5)
+
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
     unsigned int va;
@@ -370,6 +598,22 @@ static const struct site SITES[6] = {
     { VV5_DISPATCHER, VV5_STOCK, sizeof VV5_STOCK, vv5_stub },
 };
 static int install_state[6];
+
+/* The catch-up worker's research-pick sites (see CATCH-UP above). */
+static const unsigned char VV1_CU_STOCK[5] = { 0x83, 0xF8, 0x02, 0x75, 0x32 };
+static const unsigned char VV2_CU_STOCK[5] = { 0x83, 0xFD, 0x02, 0x75, 0x34 };
+static const unsigned char VV3_CU_STOCK[5] = { 0x83, 0xFB, 0x01, 0x75, 0x24 };
+static const unsigned char VV4_CU_STOCK[5] = { 0x83, 0xFF, 0x01, 0x75, 0x1F };
+static const unsigned char VV5_CU_STOCK[5] = { 0x83, 0xFF, 0x01, 0x75, 0x31 };
+static const struct site CU_SITES[6] = {
+    { 0 },
+    { 0x42E7E0u, VV1_CU_STOCK, sizeof VV1_CU_STOCK, vv1_cu_stub },
+    { 0x43B52Du, VV2_CU_STOCK, sizeof VV2_CU_STOCK, vv2_cu_stub },
+    { 0x45BF52u, VV3_CU_STOCK, sizeof VV3_CU_STOCK, vv3_cu_stub },
+    { 0x46579Fu, VV4_CU_STOCK, sizeof VV4_CU_STOCK, vv4_cu_stub },
+    { 0x46E92Fu, VV5_CU_STOCK, sizeof VV5_CU_STOCK, vv5_cu_stub },
+};
+static int cu_install_state[6];
 
 static int site_is_stock(const struct site *s) {
     MEMORY_BASIC_INFORMATION info;
@@ -393,20 +637,11 @@ static void site_bytes(const struct site *s, unsigned char *out) {
     }
 }
 
-/* Called by the fix-huts companion from its per-frame install.  Idempotent. */
-__declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
-    const struct site *s;
+/* Verify the stock bytes, then write the jmp.  1 on success. */
+static int install_site(const struct site *s) {
     unsigned char bytes[16];
     unsigned char *at;
     DWORD old;
-    if (game_id < 1 || game_id > 5) {
-        return 0;
-    }
-    if (install_state[game_id] != 0) {
-        return install_state[game_id] == 1;
-    }
-    install_state[game_id] = -1;
-    s = &SITES[game_id];
     if (s->va == 0 || !site_is_stock(s)) {
         return 0;
     }
@@ -418,7 +653,35 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
     memcpy(at, bytes, (size_t)s->length);
     VirtualProtect(at, (SIZE_T)s->length, old, &old);
     FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
+    return 1;
+}
+
+/* The catch-up worker's research-pick site, once.  A New Home, The Lost
+   Children, The Tree of Life and New Believers call this only once their
+   dispatcher hook is in (VvfpWorkFirstInstall), since the site's stub calls
+   the dispatcher through the replayed stock bytes that hook verified; The
+   Secret City (VvfpWorkFirstFirst) calls its dispatcher's entry. */
+static void install_catch_up(int game_id) {
+    if (cu_install_state[game_id] == 0) {
+        cu_install_state[game_id] = install_site(&CU_SITES[game_id]) ? 1 : -1;
+    }
+}
+
+/* Called by the fix-huts companion from its per-frame install.  Idempotent:
+   the dispatcher hook and then the catch-up site, each tried once. */
+__declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
+    if (game_id < 1 || game_id > 5) {
+        return 0;
+    }
+    if (install_state[game_id] != 0) {
+        return install_state[game_id] == 1;
+    }
+    install_state[game_id] = -1;
+    if (!install_site(&SITES[game_id])) {
+        return 0;
+    }
     install_state[game_id] = 1;
+    install_catch_up(game_id);
     return 1;
 }
 
@@ -437,6 +700,23 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, unsigned
     if (s->va == 0) {
         return 0;
     }
+    *va = s->va;
+    memcpy(stock, s->stock, (size_t)s->length);
+    site_bytes(s, patched);
+    *stub_va = (unsigned int)(uintptr_t)s->stub;
+    return s->length;
+}
+
+/* For the test build only: the catch-up research-pick site, the same way. */
+__declspec(dllexport) int __stdcall VvfpWorkFirstProbeCatchUpSite(int game_id, unsigned int *va,
+                                                                   unsigned char *stock,
+                                                                   unsigned char *patched,
+                                                                   unsigned int *stub_va) {
+    const struct site *s;
+    if (game_id < 1 || game_id > 5) {
+        return 0;
+    }
+    s = &CU_SITES[game_id];
     *va = s->va;
     memcpy(stock, s->stock, (size_t)s->length);
     site_bytes(s, patched);
