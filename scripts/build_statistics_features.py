@@ -515,6 +515,159 @@ def stew_routine(stew: dict[str, object]) -> list[tuple[str, ...]]:
     return items
 
 
+# New Believers keeps its Heathens in the same villager array as the tribe.
+# The record's faction byte +0x1CEC is 0 for a believer and nonzero for a
+# Heathen: the game's own population count 0x4713F0 counts only records whose
+# byte is 0, the conversion routine 0x4668B0 clears it (0x46697D), and the
+# events that turn a believer into a Heathen set it (0x415D0C, 0x416C5B).
+#
+# THE OWNER (2026-09-30): Heathens never count as villagers anywhere in the
+# statistics log unless a row explicitly asks for them; a converted Heathen
+# counts like any villager from the moment of conversion, never before. These
+# are the stock counters that could credit a Heathen, each guarded on that
+# byte at the moment the stock code counts. Every other row was traced and
+# needs no guard (see docs/village-statistics-verification.md).
+VV5_FACTION = 0x1CEC
+VV5_BELIEVER_GUARDS = (
+    # Oldest Villager. The per-villager update 0x46FE90 skips AGING for a
+    # Heathen (0x470077 cmp [esi+0x1CEC],bl / jne 0x47008D) but then falls
+    # into the Oldest Villager maximum at 0x47008D regardless -- so a Heathen
+    # spawned at internal age 1000 set the row to 50 on a new village's first
+    # frame (observed live, v1.35.41). Retargeting that jne past the maximum
+    # (0x4700B9, where both paths rejoin) keeps the Heathen unaged exactly as
+    # before and leaves the maximum to believers.
+    {
+        "va": 0x47007F,
+        "before": "750C",
+        "after": "7538",
+        "purpose": (
+            "Oldest Villager: a Heathen, which the game already never ages, "
+            "no longer enters the Oldest Villager maximum either"
+        ),
+    },
+)
+
+
+def vv5_believers_only(
+    source: bytes,
+    payload: bytearray,
+    cave_va: int,
+    cave_size: int,
+) -> list[dict[str, object]]:
+    """New Believers: the statistics counters that could credit a Heathen.
+
+    Each detour is a whole stolen instruction (or pair) replaced by a jump and
+    NOPs; each wrapper tests the faction byte and either counts exactly as the
+    stock instruction did or skips only the count, then resumes where the stock
+    instruction would have continued. No wrapper writes a register.
+    """
+    patches: list[dict[str, object]] = []
+    for guard in VV5_BELIEVER_GUARDS:
+        site = int(guard["va"]) - 0x400000
+        before = bytes.fromhex(str(guard["before"]))
+        if source[site : site + len(before)] != before:
+            raise RuntimeError(f"vv5 guard at {guard['va']:#x} does not match")
+        patches.append({
+            "offset": f"0x{site:X}",
+            "before": before.hex().upper(),
+            "after": str(guard["after"]),
+            "purpose": str(guard["purpose"]),
+        })
+
+    def place(slot: int, source_text: str, limit: int) -> int:
+        wrapper = assemble(source_text, cave_va + slot)
+        if slot + len(wrapper) > limit or slot + len(wrapper) > cave_size:
+            raise RuntimeError(f"vv5 believer wrapper at cave+{slot:#x} overruns its gap")
+        if any(payload[slot : slot + len(wrapper)]):
+            raise RuntimeError(f"vv5 believer wrapper at cave+{slot:#x} would overwrite the cave")
+        payload[slot : slot + len(wrapper)] = wrapper
+        return cave_va + slot
+
+    def detour(site_va: int, stolen_hex: str, wrapper_va: int, purpose: str) -> None:
+        site = site_va - 0x400000
+        stolen = bytes.fromhex(stolen_hex)
+        if source[site : site + len(stolen)] != stolen:
+            raise RuntimeError(f"vv5 detour site {site_va:#x} does not match")
+        patches.append({
+            "offset": f"0x{site:X}",
+            "before": stolen.hex().upper(),
+            "after": (rel32_jump(site_va, wrapper_va)
+                      + b"\x90" * (len(stolen) - 5)).hex().upper(),
+            "purpose": purpose,
+        })
+
+    # People Cured, the drag-a-healer cure 0x468C10 (the auto-cure 0x46E020
+    # picks its patient through 0x470B40, which already requires +0x1CEC == 0).
+    # Its patient finder 0x4706F0 has no faction test, and a Heathen reaches it
+    # in play two ways: The Missing Kids' bad outcome (0x416120) makes its
+    # second child -- picked Heathen-only at 0x415E80 -- sick, and the purple
+    # Heathen (+0x1CFC == 12) is cured without being sick, which is also how it
+    # is converted (0x468D0D, before the +1 at 0x468D4D). The faction is
+    # therefore captured when the cure BEGINS, at the sickness test 0x468C3C
+    # (reached only with a patient), into the local dword [esp+0x18]: the
+    # second half of the position the routine passed by value to 0x4706F0 and
+    # never reads again. push/pop move the whole dword without a register.
+    # Every path from there to the +1 is balanced (each callee cleans its own
+    # arguments), so [esp+0x18] addresses the same slot at 0x468D4D.
+    capture_va = place(0xEC, """
+        push dword ptr [esi + 0x1CEC]
+        pop dword ptr [esp + 0x18]
+        cmp byte ptr [esi + 0x1C48], bl
+        jne 0x468C61
+        jmp 0x468C44
+    """, 0x108)
+    detour(0x468C3C, "389E481C0000751D", capture_va,
+           "People Cured: note whether the healer's patient was a Heathen when "
+           "the cure began, then run the stock sickness test unchanged")
+    cured_va = place(0xB4, """
+        cmp byte ptr [esp + 0x18], 0
+        jne heathen_patient
+        add dword ptr [0x51D368], 1
+    heathen_patient:
+        jmp 0x468D54
+    """, 0xD0)
+    detour(0x468D4D, "830568D3510001", cured_va,
+           "People Cured: a patient who was a Heathen when the cure began is "
+           "not counted; a believer, or a converted Heathen, counts as before")
+
+    # Babies Made, Twins Birthed, Triplets Birthed: all counted inside the
+    # conception routine 0x465E00 (ESI = the mother), which has no faction
+    # test and is reached with a Heathen mother by Abandoned Infants
+    # (0x471A50 picks every living woman) and by a believer paired with a
+    # Heathen through the partner finder 0x4705D0. Each +1 is guarded on the
+    # mother. The saturation guards (0x465F10/0x465F23) resume at the first
+    # two of these sites and the parentage trampoline at the third, so each is
+    # still entered exactly where they expect.
+    triplets_va = place(0x108, """
+        cmp byte ptr [esi + 0x1CEC], 0
+        jne heathen_mother
+        add dword ptr [0x51D384], 1
+    heathen_mother:
+        jmp 0x465F21
+    """, 0x130)
+    detour(0x465F1A, "830584D3510001", triplets_va,
+           "Triplets Birthed: a Heathen mother's triplets are not counted")
+    twins_va = place(0x154, """
+        cmp byte ptr [esi + 0x1CEC], 0
+        jne heathen_mother
+        add dword ptr [0x51D380], 1
+    heathen_mother:
+        jmp 0x465F34
+    """, 0x190)
+    detour(0x465F2D, "830580D3510001", twins_va,
+           "Twins Birthed: a Heathen mother's twins are not counted")
+    babies_va = place(0x16C, """
+        cmp byte ptr [esi + 0x1CEC], 0
+        jne heathen_mother
+        add dword ptr [0x51D360], ecx
+    heathen_mother:
+        jmp 0x465F44
+    """, 0x190)
+    detour(0x465F3E, "010D60D35100", babies_va,
+           "Babies Made: a Heathen mother's babies are not counted")
+    return patches
+
+
 def build_game(
     game_id: str,
     config: dict[str, object],
@@ -1211,6 +1364,9 @@ def build_game(
                 ),
             }
         )
+
+    if game_id == "vv5":
+        extra_patches += vv5_believers_only(source, payload, cave_va, cave_size)
 
     hook_file = int(config["hook_file"])
     hook_va = int(config["hook_va"])
