@@ -21,15 +21,34 @@
    Clear of every control id the Origins dialogs use (buttons 1000+row,
    badges 1100+row, pickers 2000-2023, bitmaps 3000s). */
 #define VVFP_STORY_PICK_ID 4090
+/* The Custom Island Event button, beside it. */
+#define VVFP_STORY_CUSTOM_ID 4091
+
+/* What the story companion asks of the Origins companion that hosts it: the
+   save slot this companion keys its own sidecars by, and its own mask store
+   (the Heathen masks are the Origins companion's, never game data).  Each
+   Origins companion defines vvfp_story_host_table() after including this
+   header. */
+typedef struct {
+    int size;                                          /* sizeof(vvfp_story_host) */
+    int (__stdcall *slot)(void);                       /* 1..5, 0 = no village slot yet */
+    int (__stdcall *mask_get)(void *record);           /* 0 = none, 1..5 */
+    int (__stdcall *mask_set)(void *record, int mask); /* stored and persisted: 1 */
+    void (__stdcall *preferences_changing)(int after); /* NULL, or bracket a likes/dislikes write */
+} vvfp_story_host;
+static const vvfp_story_host *vvfp_story_host_table(void);
 
 typedef int (__stdcall *vvfp_story_install_fn)(int game);
 typedef int (__stdcall *vvfp_story_active_fn)(int game);
 typedef int (__stdcall *vvfp_story_pick_fn)(int game, HWND owner);
+typedef int (__stdcall *vvfp_story_attach_fn)(int game, const vvfp_story_host *host);
 
 static int vvfp_story_state;     /* 0 = not tried, 1 = loaded, -1 = unavailable */
 static vvfp_story_install_fn vvfp_story_install;
 static vvfp_story_active_fn vvfp_story_active;
 static vvfp_story_pick_fn vvfp_story_pick;
+static vvfp_story_pick_fn vvfp_story_custom;
+static vvfp_story_attach_fn vvfp_story_attach;
 
 static int vvfp_story_load(void) {
     char path[MAX_PATH];
@@ -56,17 +75,27 @@ static int vvfp_story_load(void) {
     vvfp_story_install = (vvfp_story_install_fn)GetProcAddress(module, "VvfpStoryInstall");
     vvfp_story_active = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryActive");
     vvfp_story_pick = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryPickIslandEvent");
-    if (vvfp_story_install == NULL || vvfp_story_active == NULL || vvfp_story_pick == NULL) {
+    vvfp_story_custom = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryCustomIslandEvent");
+    vvfp_story_attach = (vvfp_story_attach_fn)GetProcAddress(module, "VvfpStoryAttachHost");
+    if (vvfp_story_install == NULL || vvfp_story_active == NULL || vvfp_story_pick == NULL
+        || vvfp_story_custom == NULL || vvfp_story_attach == NULL) {
         return 0;
     }
     vvfp_story_state = 1;
     return 1;
 }
 
-/* Load and install for `game`, once; then whether the upgrades are free. */
+/* Load and install for `game`, once (handing it this companion's slot and
+   mask store); then whether the upgrades are free.  Called every frame from
+   the companion's per-frame path, which is also the story companion's tick. */
 static int vvfp_story_bridge(int game) {
+    static int attached;
     if (!vvfp_story_load()) {
         return 0;
+    }
+    if (!attached) {
+        attached = 1;
+        vvfp_story_attach(game, vvfp_story_host_table());
     }
     return vvfp_story_install(game) != 0;
 }
@@ -149,53 +178,75 @@ static void vvfp_story_relabel(int game, HWND dialog) {
     }
 }
 
-/* Adds the Pick Island Event button to a Tech menu, to the left of its
-   Cancel button (IDCANCEL), while the row is active. */
+/* Adds the Pick Island Event and Custom Island Event buttons to a Tech
+   menu, to the left of its Cancel button (IDCANCEL), while the row is
+   active. */
+static HWND vvfp_story_button(HWND dialog, const char *text, int id, int x, int y, int width,
+                              int height) {
+    HWND button = CreateWindowExA(0, "BUTTON", text, WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+                                  x, y, width, height, dialog, (HMENU)(INT_PTR)id, NULL, NULL);
+    if (button != NULL) {
+        SendMessageA(button, WM_SETFONT, SendMessageA(dialog, WM_GETFONT, 0, 0), TRUE);
+    }
+    return button;
+}
+
 static void vvfp_story_add_pick_button(int game, HWND dialog) {
     HWND cancel = GetDlgItem(dialog, IDCANCEL);
     RECT rc;
     RECT unit = { 0, 0, 120, 4 };
-    HWND button;
+    RECT client;
+    int width;
+    int gap;
+    int x;
+    int height;
     if (!vvfp_story_free(game) || cancel == NULL || GetDlgItem(dialog, VVFP_STORY_PICK_ID) != NULL) {
         return;
     }
     GetWindowRect(cancel, &rc);
     MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
     MapDialogRect(dialog, &unit);
-    {
-        /* Left of Cancel; in a narrow dialog with no room there, right of
-           it, as wide as the dialog allows. */
-        RECT client;
-        int width = unit.right;
-        int x = rc.left - width - unit.bottom * 2;
-        GetClientRect(dialog, &client);
-        if (x < unit.bottom) {
-            x = rc.right + unit.bottom * 2;
-            if (x + width > client.right - unit.bottom) {
-                width = client.right - unit.bottom - x;
-            }
+    GetClientRect(dialog, &client);
+    width = unit.right;
+    gap = unit.bottom * 2;
+    height = rc.bottom - rc.top;
+    /* Left of Cancel, side by side; in a dialog with no room for both there,
+       stacked above Cancel's row on the right, as wide as the dialog allows. */
+    x = rc.left - 2 * (width + gap);
+    if (x >= unit.bottom) {
+        vvfp_story_button(dialog, "Custom Island Event (0 tech points)...", VVFP_STORY_CUSTOM_ID,
+                          x, rc.top, width, height);
+        vvfp_story_button(dialog, "Pick Island Event (0 tech points)...", VVFP_STORY_PICK_ID,
+                          x + width + gap, rc.top, width, height);
+        return;
+    }
+    x = rc.left - width - gap;
+    if (x < unit.bottom) {
+        x = rc.right + gap;
+        if (x + width > client.right - unit.bottom) {
+            width = client.right - unit.bottom - x;
         }
-        button = CreateWindowExA(0, "BUTTON", "Pick Island Event (0 tech points)...",
-                                 WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-                                 x, rc.top, width, rc.bottom - rc.top, dialog,
-                                 (HMENU)(INT_PTR)VVFP_STORY_PICK_ID, NULL, NULL);
     }
-    if (button != NULL) {
-        SendMessageA(button, WM_SETFONT, SendMessageA(dialog, WM_GETFONT, 0, 0), TRUE);
-    }
+    vvfp_story_button(dialog, "Pick Island Event (0 tech points)...", VVFP_STORY_PICK_ID,
+                      x, rc.top, width, height);
+    vvfp_story_button(dialog, "Custom Island Event (0 tech points)...", VVFP_STORY_CUSTOM_ID,
+                      x, rc.top - height - unit.bottom, width, height);
 }
 
-/* The Pick Island Event button was clicked.  `blocked_reason` is the text
-   the Island Event row would show for its own lock, or NULL when it is not
-   locked: the pick shares that lock.  Returns 1 when an event is now on its
-   way (the caller closes the menu). */
-static int vvfp_story_pick_clicked(int game, HWND dialog, const char *blocked_reason) {
+/* The Pick Island Event or Custom Island Event button (`command`) was
+   clicked.  `blocked_reason` is the text the Island Event row would show for
+   its own lock, or NULL when it is not locked: both share that lock.
+   Returns 1 when an event is now on its way (the caller closes the menu). */
+static int vvfp_story_pick_clicked(int game, HWND dialog, int command, const char *blocked_reason) {
     if (!vvfp_story_free(game)) {
         return 0;
     }
     if (blocked_reason != NULL) {
         MessageBoxA(dialog, blocked_reason, "Not right now", MB_OK | MB_ICONINFORMATION);
         return 0;
+    }
+    if (command == VVFP_STORY_CUSTOM_ID) {
+        return vvfp_story_custom(game, dialog) == 1;
     }
     return vvfp_story_pick(game, dialog) == 1;
 }

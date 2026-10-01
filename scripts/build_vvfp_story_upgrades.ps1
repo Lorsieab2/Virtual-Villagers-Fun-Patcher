@@ -34,6 +34,7 @@ function Build-Story([string]$defines, [string]$def, [string]$out) {
         "/I", (Join-Path $sdkRoot "Include\$sdkVersion\shared"),
         "/I", (Join-Path $sdkRoot "Include\$sdkVersion\ucrt"),
         (Join-Path $nativeRoot "vvfp_story_upgrades.c"),
+        (Join-Path $projectRoot "native\shared\save_folder.c"),
         (Join-Path $outputRoot "vvfp_story_upgrades.res"),
         "/link", "/Brepro",
         ("/DEF:" + (Join-Path $nativeRoot $def)),
@@ -42,7 +43,7 @@ function Build-Story([string]$defines, [string]$def, [string]$out) {
         ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")),
         ("/OUT:" + $out),
         "/RELEASE",
-        "kernel32.lib", "user32.lib"
+        "kernel32.lib", "user32.lib", "shell32.lib"
     )
     & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") @arguments
     if ($LASTEXITCODE -ne 0) {
@@ -62,6 +63,7 @@ Build-Story "/DVVFP_TEST" "vvfp_story_upgrades_test.def" (Join-Path $testRoot "V
 @(
     (Join-Path $outputRoot "vvfp_story_upgrades.res"),
     (Join-Path $projectRoot "vvfp_story_upgrades.obj"),
+    (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "vvfp_story_upgrades.exp"),
     (Join-Path $projectRoot "vvfp_story_upgrades.lib"),
     (Join-Path $outputRoot "VVFP Story Upgrades.exp"),

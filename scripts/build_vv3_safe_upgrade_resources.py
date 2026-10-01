@@ -49,8 +49,13 @@ FOUNDATION_OUTPUT = (
 # (native/shared/story_bridge.h): it loads "VVFP Story Upgrades.dll" when
 # shipped, shows and charges 0 while that row is active, and adds the Pick
 # Island Event button to the Tech menu.  Without the row nothing changes.
-SOURCE_SHA256 = "D994DA92E4164DD03EAC844D64B936014C766C31691D92D56768A67408D9F284"
-SOURCE_SIZE = 1906176
+# Recertified when the companion learned Custom Island Event (Story / Cheat
+# Upgrades part 2): the Tech menu's second button, the host table it hands
+# "VVFP Story Upgrades.dll" (save slot, mask store, the Grant Running bracket)
+# and the story bridge called from the world mask draw, the game's per-frame
+# path.  Without the row nothing changes.
+SOURCE_SHA256 = "EBD83589014210E4380C4B2891A19ED59BF549F164BC66D80C465796B8084491"
+SOURCE_SIZE = 1906688
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

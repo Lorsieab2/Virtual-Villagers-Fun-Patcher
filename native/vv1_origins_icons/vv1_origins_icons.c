@@ -2016,10 +2016,11 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID) {
-            /* Pick Island Event shares the Island Event row's lock. */
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
             if (vvfp_story_pick_clicked(
-                    VV_STORY_GAME, window,
+                    VV_STORY_GAME, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
                         ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
                         : NULL)) {
@@ -2052,6 +2053,37 @@ static INT_PTR CALLBACK upgrade_dialog(
     }
     return FALSE;
 }
+
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The story companion's view of this companion: the save slot the mask
+   sidecar is keyed by, and a single villager's mask, set exactly as the
+   Change Appearance chooser commits one (the nibble table, then the
+   sidecar).  The Lost Children textually includes this file and defines its
+   own host after the include. */
+#if VV_STORY_GAME == 1
+static int __stdcall vv1_story_slot(void) {
+    return vv1_mask_current_slot();
+}
+
+static int __stdcall vv1_story_mask_get(void *record) {
+    return vv1_mask_get((unsigned char *)record);
+}
+
+static int __stdcall vv1_story_mask_set(void *record, int mask) {
+    if (mask < 0 || mask >= VV_MASK_COUNT || vv1_mask_index((unsigned char *)record) < 0) {
+        return 0;
+    }
+    vv1_mask_set((unsigned char *)record, (unsigned char)mask);
+    return vv1_mask_get((unsigned char *)record) == mask && vv1_mask_sidecar_save();
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL
+    };
+    return &host;
+}
+#endif
 
 static int show_upgrade_menu(int villager_menu, int dialog_state) {
     int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;

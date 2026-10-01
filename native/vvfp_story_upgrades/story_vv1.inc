@@ -24,7 +24,11 @@
    fallback is the exception, not the route.  The trigger, magnitude, text,
    sound, event counter and rescheduling all run as stock.
 
-   A pick stores (family << 6) | index as its slot. */
+   A pick stores (family << 6) | index as its slot.
+
+   An armed Custom Island Event (story_c1.inc) answers the two family rolls
+   with the island family; its own delivery is the island event's chooser
+   call, so the case roll is never reached for it. */
 
 #define VV1_FAMILY_ISLAND 0
 #define VV1_FAMILY_ENCOUNTER 1
@@ -52,9 +56,18 @@ static int vv1_peek(void) {
     return pick_slot;
 }
 
+/* The family an armed pick or custom event needs, as a slot, or -1. */
+static int vv1_route(void) {
+    int slot = vv1_peek();
+    if (slot < 0 && ce_pending(1)) {
+        slot = (VV1_FAMILY_ISLAND << 6) | 0x3F;
+    }
+    return slot;
+}
+
 /* 0x423818: rand(100), < 20 is an encounter. */
 static int __cdecl vv1_family_roll(int bound) {
-    int slot = vv1_peek();
+    int slot = vv1_route();
     if (slot < 0) {
         return VV1_RAND(bound);
     }
@@ -63,7 +76,7 @@ static int __cdecl vv1_family_roll(int bound) {
 
 /* 0x42383A: rand(100), < 50 is the island events, otherwise a crate. */
 static int __cdecl vv1_island_or_crate_roll(int bound) {
-    int slot = vv1_peek();
+    int slot = vv1_route();
     if (slot < 0) {
         return VV1_RAND(bound);
     }

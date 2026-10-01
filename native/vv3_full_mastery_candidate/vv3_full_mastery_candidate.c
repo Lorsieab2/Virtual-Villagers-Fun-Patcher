@@ -748,11 +748,12 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID) {
-            /* Pick Island Event shares the Island Event row's lock. */
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
             int island = vv3_row_block_reason(0, VV3_PENDING_ROW_ISLAND);
             if (vvfp_story_pick_clicked(
-                    3, window,
+                    3, window, (int)command,
                     island != VV3_BLOCK_NONE
                         ? vv3_block_reason_text(island, VV3_PENDING_ROW_ISLAND)
                         : NULL)) {
@@ -1567,6 +1568,34 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
 #define VV3_DETAILS_MASK_X_NUDGE_PX (-11)
 #define VV3_DETAILS_MASK_Y_NUDGE_PX (-1)
 
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The save slot the mask sidecar is keyed by; one villager's mask through
+   the same commit the Change Appearance chooser uses; and the Grant Running
+   bracket around a likes/dislikes write, because this game's mask
+   fingerprint includes both lists. */
+static int __stdcall vv3_story_slot(void) {
+    return vv3_mask_captured_slot();
+}
+
+static int __stdcall vv3_story_mask_get(void *record) {
+    return VV3_GetMaskForRecord(record);
+}
+
+static int __stdcall vv3_story_mask_set(void *record, int mask) {
+    if (mask < 0 || mask > VV3_MASK_MAX) {
+        return 0;
+    }
+    return VV3_SetMaskForRecord(record, mask);
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv3_story_slot, vv3_story_mask_get, vv3_story_mask_set,
+        VV3RunningMaskBoundary
+    };
+    return &host;
+}
+
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     void *record, void *sprite_obj, const int *args)
 {
@@ -1699,6 +1728,10 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     int mask, facing, mask_args[6], i;
     int arg0, arg1, arg2, arg3, arg4, arg5;
     float scale;
+    /* Story / Cheat Upgrades: the world draw is The Secret City's per-frame
+       path, so the story companion is installed (custom titles shown, Custom
+       Island Event delivered) without waiting for the Origins menu. */
+    vvfp_story_bridge(3);
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;

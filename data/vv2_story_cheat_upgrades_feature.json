@@ -24,7 +24,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "4D6312B319D5861F103C87AA2C13C81FB3015A9B88BA9C0B3D7A9CE21EED628B"
+      "sha256": "959178A1C676894D5CAD37A1F6F0C10392CE605607263EDBDA8A80D9392EA84D"
     }
   ],
   "runtime_detours": [
@@ -91,6 +91,18 @@
       "va": "0x437B0E",
       "stock_bytes": "E88DB6FCFF",
       "routine": "rand(8) choosing the sack or vial (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4349B2",
+      "stock_bytes": "E8B9FBFFFF",
+      "routine": "the island event's chooser call 0x434570 (Custom Island Event delivery)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x429DE3",
+      "stock_bytes": "E82827FEFF",
+      "routine": "the villager panel's title label call 0x40C510 (custom titles)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     }
   ],

@@ -74,6 +74,10 @@ static const unsigned char VV1_ROLL_ISLAND_OR_CRATE_BYTES[5] = { 0xE8, 0xD1, 0xF
 static const unsigned char VV1_ROLL_ISLAND_CASE_BYTES[5] = { 0xE8, 0x30, 0xAA, 0xFD, 0xFF };
 static const unsigned char VV1_ROLL_ENCOUNTER_BYTES[5] = { 0xE8, 0xD9, 0xA5, 0xFE, 0xFF };
 static const unsigned char VV1_ROLL_CRATE_BYTES[5] = { 0xE8, 0xCD, 0x7E, 0xFD, 0xFF };
+static const unsigned char VV1_CUSTOM_CHOOSE_BYTES[5] = { 0xE8, 0xF4, 0xFC, 0xFF, 0xFF };
+static const unsigned char VV1_TITLE_SITE_BYTES[5] = { 0x8D, 0x54, 0x24, 0x24, 0x52 };
+#define VV1_PARENTAGE_SITE 0x43BC39u
+static const unsigned char VV1_PARENTAGE_STOCK[5] = { 0x0F, 0x84, 0x87, 0x00, 0x00 };
 static const story_event VV1_EVENTS[] = {
     { 0, "The Bad Little Monkey", "", "A monkey ransacks the research table: the tribe loses tech points.", "nothing beyond an island event being possible" },
     { 2, "The Plague of Parrots", "", "A flock of wild parrots eats many of the berries.", "nothing beyond an island event being possible" },
@@ -139,6 +143,10 @@ static const unsigned char VV2_ROLL_C_OR_B_BYTES[5] = { 0xE8, 0x51, 0x42, 0xFD, 
 static const unsigned char VV2_ROLL_CASE_C_BYTES[5] = { 0xE8, 0x94, 0xEB, 0xFC, 0xFF };
 static const unsigned char VV2_ROLL_EVENT_A_BYTES[5] = { 0xE8, 0xFE, 0x3B, 0xFE, 0xFF };
 static const unsigned char VV2_ROLL_EVENT_B_BYTES[5] = { 0xE8, 0x8D, 0xB6, 0xFC, 0xFF };
+static const unsigned char VV2_CUSTOM_CHOOSE_BYTES[5] = { 0xE8, 0xB9, 0xFB, 0xFF, 0xFF };
+static const unsigned char VV2_TITLE_SITE_BYTES[5] = { 0xE8, 0x28, 0x27, 0xFE, 0xFF };
+#define VV2_PARENTAGE_SITE 0x44BAD8u
+static const unsigned char VV2_PARENTAGE_STOCK[5] = { 0x5E, 0x5F, 0xC2, 0x1C, 0x00 };
 static const story_event VV2_EVENTS[] = {
     { 0, "The Obnoxious Parrot", "", "A parrot keeps startling the researchers: the tribe loses tech points.", "nothing beyond an island event being possible" },
     { 1, "The Flash Flood", "", "A flash flood soaks the food bin: only the top layer of food stays edible.", "nothing beyond an island event being possible" },
@@ -230,6 +238,9 @@ static const story_write VV3_WRITES[] = {
 };
 #define VV3_WRITE_COUNT 10
 static const unsigned char VV3_PICK_SITE_BYTES[7] = { 0x8B, 0x14, 0xB5, 0x78, 0x3C, 0x4B, 0x00 };
+static const unsigned char VV3_TITLE_SITE_BYTES[6] = { 0x8B, 0x8D, 0xE4, 0x00, 0x00, 0x00 };
+#define VV3_PARENTAGE_SITE 0x455BF3u
+static const unsigned char VV3_PARENTAGE_STOCK[5] = { 0x01, 0x0D, 0xA8, 0x24, 0x58 };
 static const story_event VV3_EVENTS[] = {
     { 1, "The Tsunami", "", "A tsunami crashes into the village, destroying structures and sweeping villagers away.", "the game's own condition for the tsunami (two or more of the villagers it checks)" },
     { 2, "The Plague Of Ants", "", "Ants infest the granary: some food is lost.", "nothing beyond an island event being possible" },
@@ -322,6 +333,9 @@ static const story_write VV4_WRITES[] = {
 };
 #define VV4_WRITE_COUNT 9
 static const unsigned char VV4_PICK_SITE_BYTES[7] = { 0x8B, 0x04, 0xB5, 0x28, 0xCA, 0x4C, 0x00 };
+static const unsigned char VV4_TITLE_SITE_BYTES[5] = { 0x8D, 0x4C, 0x24, 0x28, 0x51 };
+#define VV4_PARENTAGE_SITE 0x45E8E4u
+static const unsigned char VV4_PARENTAGE_STOCK[5] = { 0x84, 0xDB, 0x75, 0x3A, 0x8B };
 static const story_event VV4_EVENTS[] = {
     { 2, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 3, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },
@@ -602,6 +616,9 @@ static const story_write VV5_WRITES[] = {
 };
 #define VV5_WRITE_COUNT 76
 static const unsigned char VV5_PICK_SITE_BYTES[7] = { 0x8B, 0x04, 0xB5, 0x50, 0xC8, 0x4D, 0x00 };
+static const unsigned char VV5_TITLE_SITE_BYTES[6] = { 0x8B, 0x8D, 0xE0, 0x00, 0x00, 0x00 };
+#define VV5_PARENTAGE_SITE 0x465F34u
+static const unsigned char VV5_PARENTAGE_STOCK[5] = { 0x84, 0xDB, 0x75, 0x0C, 0x8B };
 static const story_event VV5_EVENTS[] = {
     { 1, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 2, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },

@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 29331,
-    "file_sha256": "8C032A1154518FDA8CA8CAD262BA941FEFC0E9D2CDF49A60735665A5C7402EA5",
-    "source_text_sha256": "8C032A1154518FDA8CA8CAD262BA941FEFC0E9D2CDF49A60735665A5C7402EA5"
+    "file_sha256": "475DF39492F67F26281F4AA239BF54A7E4ADF4F5BBA0C91789D441192F31A025",
+    "source_text_sha256": "475DF39492F67F26281F4AA239BF54A7E4ADF4F5BBA0C91789D441192F31A025"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,11 +18,11 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "2FFB404257C84E80E3DAD81CFF1941FBE0865FE4E9D868BA39BCC390767D6F0E"
+      "source_text_sha256": "C4090E41F6397D18C367CE0F1A85715A29F42116948471E1314AC2BC9E8C3E40"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "1CA2AE05CFF92F89F2135893F2F870FB28E1B2A3F1F74407EB6CE424CFB84028"
+      "source_text_sha256": "D80DD6C7ECCF9AFEB29618FBE93785D7269A9896BFE1A7AF08D204A28B8C4535"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "8C032A1154518FDA8CA8CAD262BA941FEFC0E9D2CDF49A60735665A5C7402EA5"
+      "source_text_sha256": "475DF39492F67F26281F4AA239BF54A7E4ADF4F5BBA0C91789D441192F31A025"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1779200,
-    "sha256": "B37C5AC4920E0A797F5FC3652B751AA8CA2E00D4B01CB4A97F823330A6EA453D"
+    "size": 1780224,
+    "sha256": "989AA1E16854526D74FB044AD58BD6E36091D655055C9CD1F069115F7285FD00"
   },
   "payload": {
     "sha256": "6841261759F7D16B632AD8F19B7D770329DB94EBBDB46FC8EFB2C7C182B240DE",

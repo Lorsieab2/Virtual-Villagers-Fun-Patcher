@@ -70,6 +70,11 @@ class Process:
         self.tick = 0
         self.stubs: dict[int, Callable[["Process"], tuple[int, int]]] = {}
         self.calls: list[tuple[int, list[int]]] = []
+        # A test can answer an API itself: name -> fn(proc) -> (eax, popped).
+        self.api_handlers: dict[str, Callable[["Process"], tuple[int, int]]] = {}
+        self.api_calls: list[str] = []
+        self.exe_path = b"C:\\Games\\Village\\Game.exe"
+        self.loaded = []
         self._map_pe(pefile.PE(data=exe))
         self.mu.mem_map(STACK_TOP - STACK_SIZE, STACK_SIZE)
         self.mu.mem_map(HEAP, HEAP_SIZE)
@@ -170,6 +175,11 @@ class Process:
         name = getattr(self, "api_names", {}).get(address)
         if name is None:
             return
+        self.api_calls.append(name)
+        if name in self.api_handlers:
+            value, pop = self.api_handlers[name](self)
+            self._return(value, pop)
+            return
         handler = getattr(self, "_api_" + name, None)
         if handler is None:
             mu.emu_stop()
@@ -207,6 +217,83 @@ class Process:
     def _api_MessageBoxA(self):
         self.messages.append(self.cstring(self.arg(1)))
         return self.message_answer, 16
+
+    # The companion resolves the game's own folder and the optional
+    # companions beside it; by default nothing else is shipped.
+    def _api_GetModuleFileNameA(self):
+        buffer, size = self.arg(1), self.arg(2)
+        path = self.exe_path[: size - 1]
+        self.write(buffer, path + b"\0")
+        return len(path), 12
+
+    def _api_LoadLibraryA(self):
+        self.loaded.append(self.cstring(self.arg(0)))
+        return 0, 4
+
+    def _api_GetLastError(self):
+        return 2, 0                     # ERROR_FILE_NOT_FOUND
+
+    # The user32/kernel32 string helpers the companion formats text with.
+    def _api_wsprintfA(self):
+        out, fmt = self.arg(0), self.cstring(self.arg(1))
+        index = 2
+        text = ""
+        i = 0
+        while i < len(fmt):
+            c = fmt[i]
+            if c != "%":
+                text += c
+                i += 1
+                continue
+            spec = fmt[i + 1]
+            i += 2
+            if spec == "%":
+                text += "%"
+                continue
+            value = self.arg(index)
+            index += 1
+            if spec in "di":
+                text += str(value - (1 << 32) if value & 0x80000000 else value)
+            elif spec == "u":
+                text += str(value)
+            elif spec == "s":
+                text += self.cstring(value)
+            elif spec == "c":
+                text += chr(value & 0xFF)
+            else:
+                raise EmulationError(f"wsprintfA: unsupported %{spec}")
+        raw = text.encode("latin-1")
+        self.write(out, raw + b"\0")
+        return len(raw), 0
+
+    def _api_lstrcpynA(self):
+        out, source, size = self.arg(0), self.arg(1), self.arg(2)
+        raw = self.cstring(source).encode("latin-1")[: max(size - 1, 0)]
+        if size > 0:
+            self.write(out, raw + b"\0")
+        return out, 12
+
+    def _api_lstrcpyA(self):
+        self.write(self.arg(0), self.cstring(self.arg(1)).encode("latin-1") + b"\0")
+        return self.arg(0), 8
+
+    def _api_lstrcatA(self):
+        joined = self.cstring(self.arg(0)) + self.cstring(self.arg(1))
+        self.write(self.arg(0), joined.encode("latin-1") + b"\0")
+        return self.arg(0), 8
+
+    def _api_lstrlenA(self):
+        return len(self.cstring(self.arg(0))), 4
+
+    def _api_lstrcmpiA(self):
+        a, b = self.cstring(self.arg(0)).lower(), self.cstring(self.arg(1)).lower()
+        return (0 if a == b else (1 if a > b else 0xFFFFFFFF)), 8
+
+    def _api_lstrcmpA(self):
+        a, b = self.cstring(self.arg(0)), self.cstring(self.arg(1))
+        return (0 if a == b else (1 if a > b else 0xFFFFFFFF)), 8
+
+    loaded: list = []
 
     def cstring(self, va: int, limit: int = 2048) -> str:
         out = bytearray()

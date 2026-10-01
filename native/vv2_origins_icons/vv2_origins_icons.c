@@ -163,10 +163,11 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID) {
-            /* Pick Island Event shares the Island Event row's lock. */
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
             if (vvfp_story_pick_clicked(
-                    2, window,
+                    2, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
                         ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
                         : NULL)) {
@@ -1852,6 +1853,54 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) {
 }
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
+
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The save slot the mask sidecar is keyed by, and one villager's mask, set
+   exactly as the per-villager Change Appearance commits one (the .mtab
+   table by record index, then the sidecar). */
+static int vv2_story_index(void *record) {
+    unsigned char *pool = *(unsigned char **)(UINT_PTR)0x00499F24u;
+    unsigned int delta;
+    if (pool == NULL || (unsigned char *)record < pool) {
+        return -1;
+    }
+    delta = (unsigned int)((unsigned char *)record - pool);
+    if (delta % 0xE48Cu != 0 || delta / 0xE48Cu >= VV2_MASK_TABLE_BYTES) {
+        return -1;
+    }
+    return (int)(delta / 0xE48Cu);
+}
+
+static int __stdcall vv2_story_slot(void) {
+    int slot = VV2_MASK_SLOT;
+    return slot >= 1 && slot <= 5 ? slot : 0;
+}
+
+static int __stdcall vv2_story_mask_get(void *record) {
+    int index = vv2_story_index(record);
+    if (index < 0 || !vv2_mask_table_ok()) {
+        return 0;
+    }
+    return VV2_MASK_TABLE[index] < VV_MASK_COUNT ? VV2_MASK_TABLE[index] : 0;
+}
+
+static int __stdcall vv2_story_mask_set(void *record, int mask) {
+    int index = vv2_story_index(record);
+    if (index < 0 || mask < 0 || mask >= VV_MASK_COUNT || !vv2_mask_table_ok()) {
+        return 0;
+    }
+    VV2_MASK_TABLE[index] = (unsigned char)mask;
+    vv2_mask_sidecar_save();
+    return 1;
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL
+    };
+    return &host;
+}
+
 
 /* Earlier VV2 mask builds bundled four distinct 320x440 atlases. Those exact
    files are the only existing files this migration is allowed to replace.

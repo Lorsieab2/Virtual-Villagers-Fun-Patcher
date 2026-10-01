@@ -141,6 +141,39 @@ PICK_SITE_ROUTINES = {
     "VV5_PICK_SITE_BYTES": "the island-event selector, after it has chosen",
 }
 
+# The Custom Island Event's own sites (VV3-VV5 deliver at their pick site):
+# the island event's chooser call it replaces (VV1, VV2) and the villager
+# panel's title (all five).  name -> (VA, length).
+CUSTOM_SITES = {
+    "vv1": {
+        "VV1_CUSTOM_CHOOSE_BYTES": (0x428777, 5),
+        "VV1_TITLE_SITE_BYTES": (0x41FD75, 5),
+    },
+    "vv2": {
+        "VV2_CUSTOM_CHOOSE_BYTES": (0x4349B2, 5),
+        "VV2_TITLE_SITE_BYTES": (0x429DE3, 5),
+    },
+    "vv3": {"VV3_TITLE_SITE_BYTES": (0x468FC8, 6)},
+    "vv4": {"VV4_TITLE_SITE_BYTES": (0x4404D9, 5)},
+    "vv5": {"VV5_TITLE_SITE_BYTES": (0x44319E, 6)},
+}
+CUSTOM_SITE_ROUTINES = {
+    "VV1_CUSTOM_CHOOSE_BYTES": "the island event's chooser call 0x428470 (Custom Island Event delivery)",
+    "VV1_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
+    "VV2_CUSTOM_CHOOSE_BYTES": "the island event's chooser call 0x434570 (Custom Island Event delivery)",
+    "VV2_TITLE_SITE_BYTES": "the villager panel's title label call 0x40C510 (custom titles)",
+    "VV3_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
+    "VV4_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
+    "VV5_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
+}
+
+# Each game's Parentage row conception hook: the companion logs a custom
+# pregnancy's conception only when this site no longer holds the stock bytes
+# (the row is ticked).  game -> VA; the stock bytes are read from the stock
+# executable and emitted with it.
+PARENTAGE_SITES = {"vv1": 0x43BC39, "vv2": 0x44BAD8, "vv3": 0x455BF3, "vv4": 0x45E8E4,
+                   "vv5": 0x465F34}
+
 # Addresses the companion reads or calls, per game (emitted as #defines).
 CONSTANTS = {
     "VV3_EVENT_TABLE": 0x4B3C78, "VV3_EVENT_GETTER": 0x419AC0,
@@ -340,10 +373,15 @@ def build() -> None:
         stock_image = Image((ROOT / "inputs" / f"{game}-stock-copy" /
                              {b.id: b for b in patcher.load_builds()}[game].input_name).read_bytes())
         sites = {}
-        for name, (va, n) in PICK_SITES[game].items():
+        for name, (va, n) in list(PICK_SITES[game].items()) + list(CUSTOM_SITES[game].items()):
             sites[name] = (va, image.read(va, n))
             if stock_image.read(va, n) != sites[name][1]:
                 raise SystemExit(f"{game}: {name} at 0x{va:X} is not the stock code")
+        parentage_va = PARENTAGE_SITES[game]
+        parentage_stock = stock_image.read(parentage_va, 5)
+        full_render = Image(_render(patcher, game, "collection_progression", full))
+        if full_render.read(parentage_va, 5) == parentage_stock:
+            raise SystemExit(f"{game}: the Parentage row's conception hook is not at 0x{parentage_va:X}")
         for data in renders:
             other = Image(data)
             for w in writes:
@@ -364,6 +402,8 @@ def build() -> None:
         lines.append(f"#define {tag}_WRITE_COUNT {len(writes)}")
         for name, (va, expect) in sites.items():
             lines.append(_c_bytes(name, expect))
+        lines.append(f"#define {tag}_PARENTAGE_SITE 0x{parentage_va:X}u")
+        lines.append(_c_bytes(f"{tag}_PARENTAGE_STOCK", parentage_stock))
         events = story_island_events.EVENTS[game]
         lines.append(f"static const story_event {tag}_EVENTS[] = {{")
         for e in events:
@@ -395,7 +435,8 @@ def build() -> None:
             {
                 "va": f"0x{va:X}",
                 "stock_bytes": expect.hex().upper(),
-                "routine": PICK_SITE_ROUTINES[name] + " (Pick Island Event)",
+                "routine": PICK_SITE_ROUTINES[name] + " (Pick Island Event)"
+                if name in PICK_SITE_ROUTINES else CUSTOM_SITE_ROUTINES[name],
                 "installed_by": f"{DLL_NAME}, VvfpStoryInstall",
             }
             for name, (va, expect) in sites.items()

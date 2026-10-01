@@ -928,6 +928,33 @@ static void vvfp_fix_huts_bridge(void) {
     }
 }
 
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The save slot the mask sidecar is keyed by, and one villager's mask, set
+   exactly as the Change Appearance picker commits one. */
+static int __stdcall vv4_story_slot(void) {
+    return vv_captured_save_slot();
+}
+
+static int __stdcall vv4_story_mask_get(void *record) {
+    return vv_peek_mask((const unsigned char *)record);
+}
+
+static int __stdcall vv4_story_mask_set(void *record, int mask) {
+    if (mask < 0 || mask >= VV_MASK_COUNT || vv_villager_index((const unsigned char *)record) < 0) {
+        return 0;
+    }
+    vv_set_mask((unsigned char *)record, mask);
+    vv_write_mask_sidecar();
+    return 1;
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL
+    };
+    return &host;
+}
+
 __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
@@ -1528,10 +1555,11 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID) {
-            /* Pick Island Event shares the Island Event row's lock. */
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
             if (vvfp_story_pick_clicked(
-                    4, window,
+                    4, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
                         ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
                         : NULL)) {

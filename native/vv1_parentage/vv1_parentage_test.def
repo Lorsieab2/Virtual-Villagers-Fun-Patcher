@@ -6,6 +6,7 @@ EXPORTS
     Vv1ParentageDrawPortrait=_Vv1ParentageDrawPortrait@16
     Vv1ParentageQuery=_Vv1ParentageQuery@8
     Vv1ParentageQueryNames=_Vv1ParentageQueryNames@16
+    Vv1ParentageSetParents=_Vv1ParentageSetParents@28
     Vv1ParentageProbeReset=_Vv1ParentageProbeReset@0
     Vv1ParentageProbeConceive=_Vv1ParentageProbeConceive@12
     Vv1ParentageProbeTick=_Vv1ParentageProbeTick@4

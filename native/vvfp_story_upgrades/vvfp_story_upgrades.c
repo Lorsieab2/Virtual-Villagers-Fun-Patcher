@@ -5,7 +5,9 @@
    sandbox play, and cheats.  ...  When enabled, all Origins Upgrades cost 0
    Tech Points.  Also adds ... Pick Island Event -- Allows the player to
    directly choose which stock Island Event occurs instead of relying on
-   random selection."
+   random selection.  ...  Custom Island Event -- Allows the player to
+   create and trigger a custom Island Event for storytelling, testing,
+   sandbox play, or cheats."
 
    WHAT THIS COMPANION DOES.
 
@@ -34,14 +36,37 @@
       its own random outcomes, choices and amounts; nothing about the event
       itself is emulated here.
 
+   3. Custom Island Event (story_custom*.inc, story_c1..5.inc).  The player
+      builds an event -- its title and description, village changes, new
+      villagers, per-villager changes -- in plain dialogs; it is armed like a
+      pick (the same lock: one pick or custom event at a time) and, when the
+      game's own scheduler fires the island event, the game's own island
+      event popup shows the custom title and description and the changes are
+      made through each game's own routines.  Only what each game's own code
+      was traced to support is offered in that game.
+
+   4. Custom titles (story_titles.inc, native/shared/custom_titles.h): a
+      villager's title replaced by the player's text in the villager panel,
+      kept per save slot in a .dat file beside the saves.
+
    Installed at run time by VvfpStoryInstall(game) from the Origins
    companion (once it runs in the game process, outside DllMain).  The stock
    or Origins bytes at every site are verified first. */
 #include <windows.h>
 #include <string.h>
 #include <intrin.h>
+#include <stddef.h>
+
+/* Each game's adapter table is declared before the functions that name it
+   and defined after them (a tentative definition, standard C). */
+#pragma warning(disable : 4132)
 
 #include "story_tables.h"
+#include "../shared/custom_titles.h"
+#include "../shared/sidecar_io.h"
+#include "../shared/save_folder.h"
+#include "story_targets.h"
+#include "story_custom.h"
 
 enum {
     IDD_PICK = 301,
@@ -51,6 +76,7 @@ enum {
 
 #define PICK_TIMEOUT_MS (10u * 60u * 1000u)   /* an undelivered pick lapses after 10 minutes */
 #define CAN_FIRE_TRIES 16                      /* see can_fire_with_retries */
+#define TICK_MS 250u                           /* the custom titles' sweep, at most this often */
 
 static HINSTANCE module_instance;
 static int install_state[6];      /* 0 = not tried, 1 = active, -1 = refused */
@@ -68,9 +94,9 @@ static const story_event *last_failed_event;
 #ifdef VVFP_TEST
 /* Counters the tests read.  Compiled only into the TEST build. */
 struct vvfp_story_stats {
-    int delivered;      /* a picked event replaced the game's random choice */
+    int delivered;      /* a picked or custom event replaced the game's own */
     int refused;        /* the picked event's own condition did not hold */
-    int lapsed;         /* an armed pick was dropped as too old */
+    int lapsed;         /* an armed pick or custom event was dropped as too old */
 };
 __declspec(dllexport) struct vvfp_story_stats VvfpStoryStats = { 0 };
 #define STORY_COUNT(field) (++VvfpStoryStats.field)
@@ -81,6 +107,11 @@ static DWORD test_tick;
 #define STORY_TICK() (GetTickCount())
 #endif
 
+/* Defined with the Custom Island Event (story_custom.inc), used earlier. */
+static int ce_pending(int game);
+static void *c3_custom_object(void);
+static void *c4_custom_object(void);
+static void *c5_custom_object(void);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -205,28 +236,48 @@ static int choose_from_table(int game, unsigned int table, int current) {
 
 /* The Secret City.  0x419BDB `mov edx, [esi*4 + 0x4B3C78]` is where the
    selector 0x419B30 has settled on `esi` (after its own random pick and its
-   rescue override) and is about to build the event dialog.
+   rescue override) and is about to build the event dialog.  A custom event
+   armed for this game is presented here instead (story_c3.inc); otherwise
+   an armed pick replaces the choice.
 
    The Origins Barrel of Babies delivers its barrel by calling the same
-   selector with EVERY slot pointing at the barrel object (0x47B3E0); a pick
-   is never consumed there, because what would run is the barrel, not the
-   pick.  All slots equal is that state and never the game's own. */
-static int __cdecl vv3_choose(int current) {
+   selector with EVERY slot pointing at the barrel object (0x47B3E0); neither
+   a pick nor a custom event is consumed there, because what would run is
+   the barrel.  All slots equal is that state and never the game's own.
+
+   Returns the object to present instead of the table's, or NULL (and the
+   slot the selector should use in *slot). */
+static void *__cdecl vv3_select(int *slot) {
+    void *custom;
     if (read_u32(VV3_EVENT_TABLE + 4) == read_u32(VV3_EVENT_TABLE + 8)) {
-        return current;
+        return NULL;
     }
-    return choose_from_table(3, VV3_EVENT_TABLE, current);
+    custom = c3_custom_object();
+    if (custom != NULL) {
+        return custom;
+    }
+    *slot = choose_from_table(3, VV3_EVENT_TABLE, *slot);
+    return NULL;
 }
 
+/* pushad stores EDI, ESI, EBP, ESP, EBX, EDX, ECX, EAX from [esp] up, so the
+   saved ESI is [esp+4] and the saved EAX [esp+0x1C]. */
 __declspec(naked) static void vv3_stub(void) {
     __asm {
         pushad
-        push esi
-        call vv3_choose
+        lea eax, [esp + 4]
+        push eax
+        call vv3_select
         add esp, 4
-        mov dword ptr [esp + 4], eax      /* the saved ESI in the pushad frame */
+        mov dword ptr [esp + 0x1C], eax
         popad
+        test eax, eax
+        jnz custom
         mov edx, dword ptr [esi * 4 + 0x4B3C78]
+        push 0x419BE2
+        ret
+    custom:
+        mov edx, eax
         push 0x419BE2
         ret
     }
@@ -236,19 +287,28 @@ __declspec(naked) static void vv3_stub(void) {
    0x418000 has settled on `esi` (after the random pick and the rescue
    override) and is about to present it.  The Origins Barrel delivers through
    0x418190 instead, which never passes here. */
-static int __cdecl vv4_choose(int current) {
-    return choose_from_table(4, VV4_EVENT_TABLE, current);
+static void *__cdecl vv4_select(int *slot) {
+    void *custom = c4_custom_object();
+    if (custom != NULL) {
+        return custom;
+    }
+    *slot = choose_from_table(4, VV4_EVENT_TABLE, *slot);
+    return NULL;
 }
 
 __declspec(naked) static void vv4_stub(void) {
     __asm {
         pushad
-        push esi
-        call vv4_choose
+        lea eax, [esp + 4]
+        push eax
+        call vv4_select
         add esp, 4
-        mov dword ptr [esp + 4], eax
+        mov dword ptr [esp + 0x1C], eax
         popad
+        test eax, eax
+        jnz custom
         mov eax, dword ptr [esi * 4 + 0x4CCA28]
+    custom:
         push 0x4180FE
         ret
     }
@@ -256,20 +316,31 @@ __declspec(naked) static void vv4_stub(void) {
 
 /* New Believers.  0x41895B `mov eax, [esi*4 + 0x4DC850]`: after the Origins
    selector stub (0x41890F, the purchased Barrel) and the stock Chutes Without
-   Ladders override, so nothing later can replace the pick. */
-static int __cdecl vv5_choose(int current) {
-    return choose_from_table(5, VV5_EVENT_TABLE, current);
+   Ladders override, so nothing later can replace the pick.  A purchased
+   Barrel shares the Island Event lock, so it is never armed together with a
+   custom event. */
+static void *__cdecl vv5_select(int *slot) {
+    void *custom = c5_custom_object();
+    if (custom != NULL) {
+        return custom;
+    }
+    *slot = choose_from_table(5, VV5_EVENT_TABLE, *slot);
+    return NULL;
 }
 
 __declspec(naked) static void vv5_stub(void) {
     __asm {
         pushad
-        push esi
-        call vv5_choose
+        lea eax, [esp + 4]
+        push eax
+        call vv5_select
         add esp, 4
-        mov dword ptr [esp + 4], eax
+        mov dword ptr [esp + 0x1C], eax
         popad
+        test eax, eax
+        jnz custom
         mov eax, dword ptr [esi * 4 + 0x4DC850]
+    custom:
         push 0x418962
         ret
     }
@@ -370,6 +441,74 @@ static int vv5_possible(const story_event *e) {
     return table_event_possible(VV5_EVENT_TABLE, (getter_fn)(uintptr_t)VV5_EVENT_GETTER, e->slot);
 }
 
+/* ---- Custom Island Event -------------------------------------------------- */
+
+/* The record helpers the custom titles use (story_titles.inc), defined with
+   the adapters below. */
+static int story_record_count(int game);
+static unsigned char *story_record(int game, int index);
+static int story_record_index(int game, const unsigned char *record);
+static int story_record_alive(int game, const unsigned char *record);
+static unsigned int story_name_fingerprint(int game, const unsigned char *record);
+static const char *titles_lookup(int game, const unsigned char *record);
+static int titles_set(int game, int index, const char *text);
+
+#include "story_common.inc"
+#include "story_custom.inc"
+#include "story_objects.inc"
+#include "story_c1.inc"
+#include "story_c2.inc"
+#include "story_c3.inc"
+#include "story_c4.inc"
+#include "story_c5.inc"
+
+static const ce_adapter *ce_adapter_for(int game) {
+    switch (game) {
+    case 1: return &C1_ADAPTER;
+    case 2: return &C2_ADAPTER;
+    case 3: return &C3_ADAPTER;
+    case 4: return &C4_ADAPTER;
+    case 5: return &C5_ADAPTER;
+    default: return NULL;
+    }
+}
+
+static int story_record_count(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL ? a->record_count : 0;
+}
+
+static unsigned char *story_record(int game, int index) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL ? a->record(index) : NULL;
+}
+
+static int story_record_index(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int i;
+    if (a == NULL || record == NULL) {
+        return -1;
+    }
+    for (i = 0; i < a->record_count; ++i) {
+        if (a->record(i) == record) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static int story_record_alive(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL && record != NULL && a->listed(record);
+}
+
+static unsigned int story_name_fingerprint(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL ? ce_fingerprint(a, record) : 0;
+}
+
+#include "story_titles.inc"
+
 /* ---- The per-game table ---------------------------------------------------- */
 
 typedef struct {
@@ -377,6 +516,8 @@ typedef struct {
     int write_count;
     const story_detour *detours;
     int detour_count;
+    const story_detour *more_detours;   /* VV1 / VV2: the custom event's own sites */
+    int more_detour_count;
     const story_event *events;
     int event_count;
     int (*possible)(const story_event *event);
@@ -384,31 +525,57 @@ typedef struct {
     int (*arm)(void);
 } story_game;
 
+/* The Custom Island Event's own sites follow each game's pick sites: its
+   delivery (VV1 / VV2: the island event's chooser call; VV3-VV5: the pick
+   site itself) and the villager panel's title (story_c*.inc). */
+static story_detour vv1_custom_detours[] = {
+    { 0x428777u, 5, VV1_CUSTOM_CHOOSE_BYTES, 1, (void *)c1_choose },
+    { 0x41FD75u, 5, VV1_TITLE_SITE_BYTES, 0, (void *)c1_title_stub },
+};
+static story_detour vv2_custom_detours[] = {
+    { 0x4349B2u, 5, VV2_CUSTOM_CHOOSE_BYTES, 1, (void *)c2_choose },
+    { 0x429DE3u, 5, VV2_TITLE_SITE_BYTES, 1, (void *)c2_title },
+};
 static story_detour vv3_detours[] = {
     { VV3_PICK_SITE, 7, VV3_PICK_SITE_BYTES, 0, (void *)vv3_stub },
+    { 0x468FC8u, 6, VV3_TITLE_SITE_BYTES, 0, (void *)c3_title_stub },
 };
 static story_detour vv4_detours[] = {
     { VV4_PICK_SITE, 7, VV4_PICK_SITE_BYTES, 0, (void *)vv4_stub },
+    { 0x4404D9u, 5, VV4_TITLE_SITE_BYTES, 0, (void *)c4_title_stub },
 };
 static story_detour vv5_detours[] = {
     { VV5_PICK_SITE, 7, VV5_PICK_SITE_BYTES, 0, (void *)vv5_stub },
+    { 0x44319Eu, 6, VV5_TITLE_SITE_BYTES, 0, (void *)c5_title_stub },
 };
 
 static const story_game GAMES[6] = {
     { 0 },
     { VV1_WRITES, VV1_WRITE_COUNT, vv1_detours, sizeof vv1_detours / sizeof vv1_detours[0],
+      vv1_custom_detours, 2,
       VV1_EVENTS, VV1_EVENT_COUNT, vv1_possible, vv1_island_pending, vv1_arm },
     { VV2_WRITES, VV2_WRITE_COUNT, vv2_detours, sizeof vv2_detours / sizeof vv2_detours[0],
+      vv2_custom_detours, 2,
       VV2_EVENTS, VV2_EVENT_COUNT, vv2_possible, vv2_island_pending, vv2_arm },
-    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, 1,
+    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, 2, NULL, 0,
       VV3_EVENTS, VV3_EVENT_COUNT, vv3_possible, vv3_island_pending, vv3_arm },
-    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, 1,
+    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, 2, NULL, 0,
       VV4_EVENTS, VV4_EVENT_COUNT, vv4_possible, vv4_island_pending, vv4_arm },
-    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, 1,
+    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, 2, NULL, 0,
       VV5_EVENTS, VV5_EVENT_COUNT, vv5_possible, vv5_island_pending, vv5_arm },
 };
 
 /* ---- Installing ------------------------------------------------------------ */
+
+/* The detour `index` of this game: its pick sites, then the custom
+   event's own. */
+static int game_detour_count(const story_game *g) {
+    return g->detour_count + g->more_detour_count;
+}
+
+static const story_detour *game_detour(const story_game *g, int index) {
+    return index < g->detour_count ? &g->detours[index] : &g->more_detours[index - g->detour_count];
+}
 
 /* Verify every site of this game, then write every one -- or write nothing. */
 static int install(int game) {
@@ -420,9 +587,9 @@ static int install(int game) {
             return 0;
         }
     }
-    for (i = 0; i < g->detour_count; ++i) {
-        if (g->detours[i].length > (int)sizeof bytes
-            || !mem_matches(g->detours[i].va, g->detours[i].expect, g->detours[i].length)) {
+    for (i = 0; i < game_detour_count(g); ++i) {
+        const story_detour *d = game_detour(g, i);
+        if (d->length > (int)sizeof bytes || !mem_matches(d->va, d->expect, d->length)) {
             return 0;
         }
     }
@@ -431,9 +598,10 @@ static int install(int game) {
             return 0;
         }
     }
-    for (i = 0; i < g->detour_count; ++i) {
-        detour_bytes(&g->detours[i], bytes);
-        if (!mem_write(g->detours[i].va, bytes, g->detours[i].length)) {
+    for (i = 0; i < game_detour_count(g); ++i) {
+        const story_detour *d = game_detour(g, i);
+        detour_bytes(d, bytes);
+        if (!mem_write(d->va, bytes, d->length)) {
             return 0;
         }
     }
@@ -449,6 +617,17 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     }
     if (install_state[game] == 0) {
         install_state[game] = install(game) ? 1 : -1;
+    }
+    if (install_state[game] == 1) {
+        /* The Origins companion calls this from its per-frame path: the
+           custom titles' tick (bind to the save slot, notice a Start Over,
+           forget the titles of villagers who are gone). */
+        static DWORD last_tick;
+        DWORD now = GetTickCount();
+        if (now - last_tick >= TICK_MS) {
+            last_tick = now;
+            titles_tick(game);
+        }
     }
     return install_state[game] == 1;
 }
@@ -578,7 +757,8 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
     }
     g = &GAMES[game];
     drop_lapsed_pick();
-    if (pick_slot >= 0 || g->island_pending()) {
+    ce_drop_lapsed();
+    if (pick_slot >= 0 || ce_armed || g->island_pending()) {
         /* New Believers' Island Event and Barrel of Babies share one queue
            (either blocks both purchases); the pick shares it too. */
         MessageBoxA(owner,
@@ -628,7 +808,7 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
         return 0;
     }
     /* The village may have moved on while the boxes were open. */
-    if (g->island_pending() || !g->possible(event) || !arm_pick(game, event)) {
+    if (ce_armed || g->island_pending() || !g->possible(event) || !arm_pick(game, event)) {
         MessageBoxA(owner, "That island event can not happen right now. No tech points have been deducted.",
                     "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
@@ -639,12 +819,13 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
     return 1;
 }
 
-/* Whether a pick is armed and not yet delivered (the Origins companion uses
-   it to explain the locked Island Event row). */
+/* Whether a pick or a custom event is armed and not yet delivered. */
 __declspec(dllexport) int __stdcall VvfpStoryPickPending(int game) {
     drop_lapsed_pick();
-    return pick_slot >= 0 && pick_game == game;
+    return (pick_slot >= 0 && pick_game == game) || ce_pending(game);
 }
+
+#include "story_custom_ui.inc"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -676,11 +857,12 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSite(int game, int index, unsi
         return g->writes[index].length;
     }
     index -= g->write_count;
-    if (index < g->detour_count) {
-        *va = g->detours[index].va;
-        memcpy(expect, g->detours[index].expect, (size_t)g->detours[index].length);
-        detour_bytes(&g->detours[index], replace);
-        return g->detours[index].length;
+    if (index < game_detour_count(g)) {
+        const story_detour *d = game_detour(g, index);
+        *va = d->va;
+        memcpy(expect, d->expect, (size_t)d->length);
+        detour_bytes(d, replace);
+        return d->length;
     }
     return 0;
 }
@@ -736,5 +918,128 @@ __declspec(dllexport) int __stdcall VvfpStoryProbePossible(int game, int positio
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeArmedSlot(void) {
     return pick_slot;
+}
+
+/* Arms `event` for `game` exactly as the dialog's purchase does, without
+   any dialog or check, at test tick `tick`.  1 on success. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeQueueCustom(int game, const ce_event *event,
+                                                              DWORD tick) {
+    if (game < 1 || game > 5) {
+        return 0;
+    }
+    test_tick = tick;
+    install_state[game] = 1;
+    return ce_arm(game, event);
+}
+
+/* Arms `event` WITHOUT making the island event due (the delivery tests
+   drive the game's own code directly). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_event *event,
+                                                            DWORD tick) {
+    ce_armed_event = *event;
+    ce_armed_event.game = game;
+    ce_armed = 1;
+    ce_armed_tick = tick;
+    return 1;
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryProbeCustomPending(int game) {
+    return ce_pending(game);
+}
+
+__declspec(dllexport) void __stdcall VvfpStoryProbeResult(ce_result *out) {
+    *out = ce_last_result;
+}
+
+/* The engine on its own: apply `event` now and compose the popup text. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeApply(int game, const ce_event *event,
+                                                        ce_result *result, char *text, int size) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL) {
+        return 0;
+    }
+    ce_apply(a, event, result);
+    return ce_compose(a, event, result, text, size);
+}
+
+/* Why `event` can not be queued in `game` now (a string), or NULL. */
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeRefusal(int game, const ce_event *event) {
+    return ce_refusal(game, event);
+}
+
+/* The dialog's target list: the roster with `picked` (per roster position)
+   and `toggles` combined; writes record indices, returns the count. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeTargets(int game, const unsigned char *picked,
+                                                          unsigned int toggles, int *out, int cap) {
+    static story_member roster[UI_ROSTER_MAX];
+    const ce_adapter *a = ce_adapter_for(game);
+    int n;
+    if (a == NULL) {
+        return -1;
+    }
+    n = ce_roster(a, roster, UI_ROSTER_MAX);
+    return story_resolve_targets(roster, n, picked, toggles, a->adult_age, out, cap);
+}
+
+/* The dialog's merge of one villager's changes into an event. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMerge(ce_event *event, const ce_change *change,
+                                                        int index, unsigned int fingerprint) {
+    return ce_merge(event, change, index, fingerprint);
+}
+
+__declspec(dllexport) void __stdcall VvfpStoryProbeInitChange(ce_change *change) {
+    ce_change_init(change);
+}
+
+/* Custom titles without the file: bind the table to `slot` as loaded, with
+   no entries; then VvfpStoryProbeTitleSet adds one without publishing. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeTitlesLoaded(int game, int slot, const char *path) {
+    titles_forget();
+    titles.game = game;
+    titles.slot = slot;
+    titles.loaded = 1;
+    titles.file_present = 0;
+    lstrcpynA(titles.path, path, MAX_PATH);
+    vv_sidecar_gate_bind(&titles.gate, game * 16 + slot);
+    lstrcpynA(titles.gate.path, path, MAX_PATH);
+    titles.gate.state = VV_SIDECAR_SETTLED;     /* as a load that found no file */
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryProbeTitleSet(int game, int index, const char *text) {
+    const unsigned char *record = story_record(game, index);
+    if (record == NULL || titles.count >= VV_TITLES_MAX) {
+        return 0;
+    }
+    titles.entries[titles.count].index = (unsigned int)index;
+    titles.entries[titles.count].fingerprint = story_name_fingerprint(game, record);
+    lstrcpynA(titles.entries[titles.count].title, text, VV_TITLE_BYTES);
+    titles.seen[titles.count] = 0;
+    ++titles.count;
+    return 1;
+}
+
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeTitleOf(int game, const unsigned char *record) {
+    return titles_lookup(game, record);
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryProbeTitleCount(void) {
+    return titles.count;
+}
+
+/* The layout the tests pack events in: sizes of ce_event, ce_spawn,
+   ce_change, ce_result, then the offsets of ce_event.spawns, .change_count
+   and .changes. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSizes(int *out) {
+    out[0] = (int)sizeof(ce_event);
+    out[1] = (int)sizeof(ce_spawn);
+    out[2] = (int)sizeof(ce_change);
+    out[3] = (int)sizeof(ce_result);
+    out[4] = (int)offsetof(ce_event, spawns);
+    out[5] = (int)offsetof(ce_event, change_count);
+    out[6] = (int)offsetof(ce_event, changes);
+}
+
+__declspec(dllexport) const void *__stdcall VvfpStoryProbeObject(void) {
+    return &ce_object;
 }
 #endif

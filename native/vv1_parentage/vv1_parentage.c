@@ -1465,6 +1465,44 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryNames(int index, char *fath
     return 1;
 }
 
+/* Write access for the Story / Cheat Upgrades Custom Island Event, the
+   owner's "alter the parents' attributes" (A New Home keeps them only in
+   this sidecar): the parents recorded for the villager in record `index`.
+   An empty or NULL name, or an appearance below 0, leaves that value as it
+   is; an appearance is 0..VV1_APPEARANCE_MAX.  The entry is the record's
+   current occupant's (the roster is written with it), and the table is
+   persisted like every other change.  Returns 1 when stored and persisted. */
+__declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char *father,
+                                                           int father_head, int father_body,
+                                                           const char *mother,
+                                                           int mother_head, int mother_body) {
+    const unsigned char *records = vv1_records();
+    int slot;
+    vv1_parent_entry *e;
+    if (records == NULL || index < 0 || index >= VV1_RECORD_COUNT
+        || !records[(unsigned int)index * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET]
+        || father_head > VV1_APPEARANCE_MAX || father_body > VV1_APPEARANCE_MAX
+        || mother_head > VV1_APPEARANCE_MAX || mother_body > VV1_APPEARANCE_MAX) {
+        return 0;
+    }
+    slot = vv1_parents_sync();
+    if (!slot) {
+        return 0;
+    }
+    e = &g_entries[index];
+    if (father != NULL && father[0] != '\0') {
+        lstrcpynA(e->father_name, father, VV1_NAME_CAPACITY);
+    }
+    if (mother != NULL && mother[0] != '\0') {
+        lstrcpynA(e->mother_name, mother, VV1_NAME_CAPACITY);
+    }
+    if (father_head >= 0) e->father_head = vv1_plus_one(father_head);
+    if (father_body >= 0) e->father_body = vv1_plus_one(father_body);
+    if (mother_head >= 0) e->mother_head = vv1_plus_one(mother_head);
+    if (mother_body >= 0) e->mother_body = vv1_plus_one(mother_body);
+    return vv1_parents_save(slot, records);
+}
+
 /* ---- exports (test seams: same logic, caller-supplied records, no files)
    TEST build only (VVFP_TEST, tests/test_dlls/): the shipped DLL exports
    none of the Vv1ParentageProbe* seams. */

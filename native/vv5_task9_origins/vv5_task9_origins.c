@@ -1652,6 +1652,54 @@ static void vv5_format_cost(int value, char *out) {
         only dialog one Time Warp click may produce;
      1  applied, and already paid for;
      2  refused, with the reason already shown, and nothing charged. */
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The save slot the mask sidecar is keyed by, and one villager's mask, set
+   exactly as Change Appearance for All commits one (the nibble table, then
+   the sidecar). */
+static int vv5_story_index(void *record) {
+    unsigned int delta;
+    if ((unsigned int)(UINT_PTR)record < VV5_REC_BASE) {
+        return -1;
+    }
+    delta = (unsigned int)(UINT_PTR)record - VV5_REC_BASE;
+    if (delta % VV5_REC_STRIDE != 0 || delta / VV5_REC_STRIDE >= VV5_REC_COUNT) {
+        return -1;
+    }
+    return (int)(delta / VV5_REC_STRIDE);
+}
+
+static int __stdcall vv5_story_slot(void) {
+    int slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    return slot >= 1 && slot <= 5 ? slot : 0;
+}
+
+static int __stdcall vv5_story_mask_get(void *record) {
+    int index = vv5_story_index(record);
+    int mask;
+    if (index < 0) {
+        return 0;
+    }
+    mask = caf_get_mask(index);
+    return mask < APPEARANCE_MASK_COUNT ? mask : 0;
+}
+
+static int __stdcall vv5_story_mask_set(void *record, int mask) {
+    int index = vv5_story_index(record);
+    if (index < 0 || mask < 0 || mask >= APPEARANCE_MASK_COUNT) {
+        return 0;
+    }
+    caf_set_mask(index, mask);
+    WriteMaskSidecar((const unsigned char *)VV5_MASK_TABLE);
+    return 1;
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL
+    };
+    return &host;
+}
+
 __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
     char message[448];
@@ -1895,10 +1943,11 @@ static INT_PTR CALLBACK upgrade_dialog(
     }
     if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID) {
-            /* Pick Island Event shares the Island Event row's lock. */
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
             if (vvfp_story_pick_clicked(
-                    5, window,
+                    5, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
                         ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
                         : NULL)) {

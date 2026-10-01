@@ -17,12 +17,12 @@
     {
       "source": "assets/origins/VVFP VV2 Origins Icons.dll",
       "destination": "VVFP VV2 Origins Icons.dll",
-      "sha256": "A762EE0702FA9207054CB73DAB1B9360BEA50412D6FDE961B66D0141A1C40D8B"
+      "sha256": "0D20CE13AC0D70C6947C6F2314F830BCEF3B3A930DF6499664F98679C6E609AC"
     },
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "866A7EFDCA1282F18CD3964CC4451DC9ED659BC5667F91F1390FFA9368CED95E"
+      "sha256": "8B2BB5B7BD607E4355F0814937FB56DE3A464090974E8A472BB5A14B8F1FB85E"
     }
   ],
   "pe_append_transaction": {

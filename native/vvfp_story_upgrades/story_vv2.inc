@@ -23,7 +23,11 @@
    signature that returns the stock random value whenever no pick is armed for
    that roll.
 
-   A pick of family A, B or C stores (family << 6) | index as its slot. */
+   A pick of family A, B or C stores (family << 6) | index as its slot.
+
+   An armed Custom Island Event (story_c2.inc) answers the two family rolls
+   with family C; its own delivery is family C's chooser call, so the case
+   roll is never reached for it. */
 
 #define VV2_FAMILY_C 0
 #define VV2_FAMILY_A 1
@@ -43,9 +47,18 @@ static int vv2_peek(void) {
     return pick_slot;
 }
 
+/* The family an armed pick or custom event needs, as a slot, or -1. */
+static int vv2_route(void) {
+    int slot = vv2_peek();
+    if (slot < 0 && ce_pending(2)) {
+        slot = (VV2_FAMILY_C << 6) | 0x3F;
+    }
+    return slot;
+}
+
 /* 0x42EF28: rand(100), < 20 is family A. */
 static int __cdecl vv2_family_roll(int bound) {
-    int slot = vv2_peek();
+    int slot = vv2_route();
     if (slot < 0) {
         return VV2_RAND(bound);
     }
@@ -54,7 +67,7 @@ static int __cdecl vv2_family_roll(int bound) {
 
 /* 0x42EF4A: rand(100), < 50 is family C, otherwise family B. */
 static int __cdecl vv2_c_or_b_roll(int bound) {
-    int slot = vv2_peek();
+    int slot = vv2_route();
     if (slot < 0) {
         return VV2_RAND(bound);
     }
