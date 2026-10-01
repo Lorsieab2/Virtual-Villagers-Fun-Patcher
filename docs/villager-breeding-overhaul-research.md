@@ -43,13 +43,29 @@ The preserved VV4 IDA analysis covers `Virtual Villagers - The Tree of Life.exe`
 `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`).
 The relevant routines are:
 
-- `sub_460C10`: player/manual “Embracing” route;
+- `sub_460C10`: the live pairing (“Embracing”) handler, step 15 of the
+  villager step dispatcher `sub_46A030`, shared by the player's drop and by
+  villagers pairing up on their own (see below);
 - `sub_461CC0`: autonomous action/category chooser;
 - `sub_466DA0`: action-15 mate selector;
 - `sub_464FA0`: action-15 conception formula;
 - `sub_468430`: per-villager life/catch-up loop.
 
-### Manual route
+### Manual and live autonomous route
+
+Two live routes reach `sub_460C10`, both through action 3 (`sub_455420`,
+which queues step 15): the player's drop (`0x440EED`, inside the drop handler
+`sub_440C60`) and live autonomous pairing (`0x463FC3`, from the category
+chooser's Children branch at `0x464181`, which first queues a walk to the
+partner). The drop clears the dropped villager's steps, so the handler runs
+at once inside the drop's call; the autonomous initiator's handler runs later,
+when its walk arrives (`sub_468C10`). Catch-up executes the same step 15 in
+its own executor (`sub_464FA0`) and never reaches this handler. VV5 has the
+same shape: action 5 (`sub_45D010`, step 16) from the drop at `0x444028` and
+from autonomous pairing at `0x46CB1E`; VV1, VV2 and VV3 likewise share their
+pairing handlers between the drop and autonomous pairing (VV1 `0x4252B9` and
+`0x447886` into `sub_445510`; VV2 `0x430F5E` and `0x46044C` into
+`sub_45D510`; VV3 `0x4669D1` and `0x45B674` into action 4).
 
 `sub_460C10` first applies the ordinary eligibility checks: both ages at least
 `360` internal units (18 displayed years), opposite sex/category, positive
@@ -64,9 +80,10 @@ the conception roll succeeds when R <= T
 
 The same routine has an additional explicit age gate after that roll. If either
 participant is age `>=1000` (50 displayed years) and has the female category,
-the routine returns without calling the conception writer. Therefore the
-ordinary player-drag/manual route does **not** provide the reported over-50
-mother behavior, even when the skill roll would otherwise succeed.
+the routine returns without calling the conception writer. Therefore neither
+the ordinary player-drag/manual route nor live autonomous pairing provides the
+reported over-50 mother behavior, even when the skill roll would otherwise
+succeed.
 
 ### Autonomous choice and the preference fallback
 
@@ -134,11 +151,16 @@ shipped or selectable.
 One later exception, added at the owner's request: the optional,
 default-off "Manual Drop-Breeding overrides Birth Control" patch
 (`vv4_manual_drop_breeding_overrides_birth_control`). When it is selected, the
-manual drop's woman-aged-50-or-older refusal after the stock conception roll
-(file `0x60E67`) jumps to the stock pregnancy-writer call at `0x460E8E`. Every
-other manual rule, both stock chance rolls, autonomous selection and the male
-age behavior stay stock. With that patch unselected, VV4 is exactly the
-reference described above. VV5 has the same optional patch at file `0x68BC4`.
+woman-aged-50-or-older refusal after the stock conception roll (file `0x60E67`)
+first tests for the player's drop -- its return address `0x440EF2` at
+`[esp+0x40]`, where the drop's own call chain puts it -- and only then jumps to
+the stock pregnancy-writer call at `0x460E8E`. Because live autonomous pairing
+runs the same handler later, from its walk's arrival, it never matches and
+keeps the stock refusal (the patch's first version skipped the refusal for
+both). Every other manual rule, both stock chance rolls, autonomous pairing and
+selection and the male age behavior stay stock. With that patch unselected,
+VV4 is exactly the reference described above. VV5 has the same optional patch
+at file `0x68BC4` (drop return address `0x44402D` at `[esp+0x4C]`).
 
 VV1, VV2, and VV3 now have independent exact-build records. Their static
 coverage is separate rather than a shared copied predicate; runtime/player

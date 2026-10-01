@@ -1176,8 +1176,8 @@ class ManifestTests(unittest.TestCase):
         # the mushroom spawn roll and pickup in .text slack; 19 with Faster
         # Village-Scrolling (vv2_faster_village_scrolling), in-place camera edits;
         # 20 with Manual Drop-Breeding overrides Birth Control
-        # (vv2_manual_drop_breeding_overrides_birth_control), one short jump in
-        # the manual pairing handler.
+        # (vv2_manual_drop_breeding_overrides_birth_control), the pairing
+        # handler's woman-50 refusal re-encoded in place behind a drop test.
         self.assertEqual(len(feature_ids), 20)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.

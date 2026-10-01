@@ -167,17 +167,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # main (29a88fff) and with the merged branch, the only differing bytes in all
     # three modes are the patch's own 0x586F3..0x586F8 and the PE CheckSum
     # (0x160..0x162).
+    # Re-pinned when Manual Drop-Breeding stopped lifting the refusal for
+    # villagers pairing up on their own (the drop test). Justified BEFORE
+    # re-pinning: rendering the complete catalog with main (dc9a9b31) and with
+    # the branch, the only differing bytes in all three modes are the patch's
+    # own 0x586F4..0x586FF and 0x58741..0x5874C and the PE CheckSum
+    # (0x160..0x162).
     "stock": (
-        "575CC08120339AB08811A1CFDDF263E98F120CCD56E9DB7D1F7DF4C9B9270875",
-        "82470D00",
+        "CA6A22AD3CA1312FF5A5523387F37DFC4C8C35E79DBAA0D513DE891018540CE9",
+        "8DB10D00",
     ),
     "collection_progression": (
-        "CA59010E94B4D0459ED7CE6991EB4F294D6FEC3818298EFE84BBECA228A82304",
-        "82600D00",
+        "E0AD863B497536180AF7F59B95DE537390AF36FCF4C8E70E19E707D53AB3B568",
+        "8DCA0D00",
     ),
     "immediate_fixed": (
-        "871DD4982772B783B3FCF10F788806BE8B444D5C65E850E2387636FD0B3BD07C",
-        "80A20D00",
+        "90AF952271BFA8789BFFE22FB3349868624829AA851DA40280C9A214E2384A0E",
+        "8C0C0D00",
     ),
 }
 

@@ -39,7 +39,8 @@ REMAINING = {
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",
-    # one short jump in the manual pairing handler; owns no Origins bytes
+    # the pairing handler's woman-50 refusal, re-encoded in place behind a
+    # drop test; owns no Origins bytes
     "vv2_manual_drop_breeding_overrides_birth_control",
     "vv2_write_village_statistics",
     # one string pointer and dead storage; owns no Origins bytes
