@@ -63,8 +63,7 @@ DESCRIPTION = (
     "this regardless of the food supply: plentiful food no longer skips "
     "the builder's work attempt (A New Home, The Lost Children), and scarce "
     "food no longer sends the builder to farm or gather first (The Secret City, "
-    "The Tree of Life, New Believers).{huts} {share} Applies in live play and during "
-    "catch-up. "
+    "The Tree of Life, New Believers).{huts} {share} {catchup} "
     + ORIGINS_BASE_SENTENCE
     + " That base's companion loads this patch's DLL (in The Secret City, a "
     "small stub in the page the base appends does); if the DLL cannot be "
@@ -80,52 +79,73 @@ SHARE = {
 }
 
 
-# Started huts are finished (A New Home, The Lost Children): the stock
+# Huts need a manual start (A New Home, The Lost Children): the stock
 # Building branch lets builders work on the second and third population hut
-# only above a population, never by the scaffold the game draws; see
-# "Started huts are finished" in native/vvfp_fix_huts/vvfp_fix_huts.c.
+# by population alone; see "Huts need a manual start" in
+# native/vvfp_fix_huts/vvfp_fix_huts.c.
+_MANUAL = (
+    " With this patch builders start the second or third population hut only after you have dropped "
+    "a villager on it at least once, and from then on they finish it whatever the population. This "
+    "holds every time the game chooses, not only three times in four."
+)
 HUTS = {
     "vv1": (
-        " Builders also finish the population huts they can see. The normal game has a hidden rule "
-        "here: it shows the scaffold of the second population hut once the village has 15 villagers and "
-        "of the third at 28, but its builders will not work on the second hut until there are more than "
-        "22 villagers, nor on the third until there are more than 45 -- and a hut they have already "
-        "started is abandoned whenever the population falls back to 22 (or 45) or below. With this patch "
-        "a hut is building work as soon as the game shows its scaffold: builders start it from 15 (or 28) "
-        "villagers, and a hut that has already been started is finished even if the population drops "
-        "back to or below that number. A hut whose scaffold the game does not show yet still waits. This "
-        "holds every time the game chooses, not only three times in four. Builder Action Fixes makes the "
-        "same change in the executable."
+        " The new population huts also change. The normal game has a hidden rule here: it shows the "
+        "scaffold of the second population hut once the village has 15 villagers and of the third at 28, "
+        "but its builders will not work on the second hut until there are more than 22 villagers, nor on "
+        "the third until there are more than 45 -- and above those numbers they start one on their own, "
+        "while a hut they have already started is abandoned whenever the population falls back to 22 (or "
+        "45) or below. With this patch, at or below 22 (or 45) villagers builders only work on the "
+        "second or third population hut once you have dropped a villager on it at least once, and from then "
+        "on they finish it whatever the population; above that, as in the original game, they may start it "
+        "themselves. This holds every time the game chooses, not only three times in four. Builder Action "
+        "Fixes makes the same change in the executable."
     ),
     "vv2": (
-        " Builders also finish the population huts they can see. The normal game has a hidden rule "
-        "here: it shows the scaffold of the second population hut once the village has 21 villagers and "
-        "of the third at 46, but its builders will not work on the second hut until there are more than "
-        "22 villagers, nor on the third until there are more than 45, and even then only on a hut "
-        "someone has already worked on -- so they never start either hut by themselves, and a hut they "
-        "have already started is abandoned whenever the population falls back to 22 (or 45) or below. "
-        "With this patch a hut is building work as soon as the game shows its scaffold: builders start "
-        "it from 21 (or 46) villagers, and a hut that has already been started is finished even if the "
-        "population drops back to or below that number. A hut whose scaffold the game does not show yet "
-        "still waits. This holds every time the game chooses, not only three times in four."
+        " The new population huts also change. The normal game has a hidden rule here: it shows the "
+        "scaffold of the second population hut once the village has 21 villagers and of the third at 46, "
+        "but its builders will not work on the second hut until there are more than 22 villagers, nor on "
+        "the third until there are more than 45, and then only on a hut someone has already worked on -- "
+        "and a hut they have already started is abandoned whenever the population falls back to 22 (or "
+        "45) or below." + _MANUAL
     ),
 }
 HUT_GATE_BEHAVIOR = {
-    "vv1": "The Building branch's new-hut test (0x44754A) is replaced by the scaffold's own: hut 10 is built while it is not complete and has any progress or the population is 15 or more (stock: more than 22, whatever its progress), hut 11 the same at 28 (stock: more than 45) -- the numbers at which the village drawing routine shows each scaffold (0x414AE2, 0x414BC7), which writes progress 1 when it first does. So a builder starts a hut as soon as its scaffold shows and finishes a started hut whatever the population. Hut 9, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
-    "vv2": "The Building branch's new-hut test (0x4600DE) is replaced by the scaffold's own: hut 25 is built while it is not complete and has any progress or the population is 21 or more (stock: more than 22 and progress 2 or more), hut 26 the same at 46 (stock: more than 45 and progress 2 or more) -- the numbers at which the village drawing routine shows each scaffold (0x4196E8, 0x419763), which writes progress 1 when it first does, so the stock test never let a builder start one. So a builder starts a hut as soon as its scaffold shows and finishes a started hut whatever the population. Hut 24, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
+    "vv1": "The Building branch's new-hut test (0x44754A) is extended: hut 10 and hut 11 are built while they are not complete and either their progress is 2 or more, at any population, or the population is above 22 / 45 as in the stock game (stock: only the population, whatever the progress). The village drawing routine marks a shown scaffold with progress 1 (0x414B0C, 0x414BF1); a villager the player drops on it works it past that. So at or below 22 / 45 builders never start one of these huts by themselves and always finish one the player has started; above, they may start it as the stock game does. Hut 9, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
+    "vv2": "The Building branch's new-hut test (0x4600DE) is replaced: hut 25 and hut 26 are built while they are not complete and their progress is 2 or more, whatever the population (stock: also more than 22 / more than 45 villagers). The village drawing routine marks a shown scaffold with progress 1 (0x419702, 0x41977D); a villager the player drops on it works it past that. So builders never start one of these huts by themselves and always finish one the player has started. Hut 24, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
 }
 GATE_RUNTIME = {
     "vv1": {"va": "0x44754A",
             "stock_bytes": "E8415AFDFF83F8167E228B9610E00300389AF09F00007414536A0A558BCEE823ABFFFF5F5D8AC35B5EC208008B8E10E00300E80F5AFDFF83F82D7E4B8B8610E003003898F89F0000743D",
-            "routine": "the Building dispatcher's new-hut test for huts 10 and 11 (0x4472C0), replaced by the scaffold's test; Builder Action Fixes' identical bytes are accepted as already in place"},
-    "vv2": {"va": "0x4600DE",
-            "stock_bytes": "E87D57FCFF83F8167E1A8B86D474E500389820E80200740C39A81CE802000F8D36FEFFFF8B8ED474E500E85357FCFF83F82D7E1A8B86D474E500389828E80200740C39A824E802000F8D39FEFFFF",
-            "routine": "the Building dispatcher's new-hut test for huts 25 and 26 (0x45FBF0), replaced by the scaffold's test"},
+            "routine": "the Building dispatcher's new-hut test for huts 10 and 11 (0x4472C0), replaced by not complete and (progress >= 2 or population above 22 / 45); Builder Action Fixes' identical bytes are accepted as already in place"},
 }
+# The Lost Children's companion is installed only once the village is first
+# drawn, after the load-time catch-up of a session has already run, so its new-
+# hut test is written into the executable by this row instead.
+GATE_PATCHES = {
+    "vv2": [{
+        "offset": "0x600DE",
+        "before": "E87D57FCFF83F8167E1A8B86D474E500389820E80200740C39A81CE802000F8D36FEFFFF8B8ED474E500E85357FCFF83F82D7E1A8B86D474E500389828E80200740C39A824E802000F8D39FEFFFF",
+        "after": "389920E80200740D83B91CE80200010F8F45FEFFFF8B8ED474E500389928E80200742B83B924E80200010F8F57FEFFFFEB1CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "purpose": "the Building branch's new-hut test (0x4600DE): build hut 25 / hut 26 while it is not complete and its progress is 2 or more -- worked on past the drawing routine's progress-1 scaffold mark, which a player's drop does -- whatever the population, instead of only above 22 / 45 villagers; the int3 bytes after the jmp are never reached",
+    }],
+}
+# Catch-up (time passing while the game was closed, and Time Warp) runs each
+# game's own worker -- A New Home 0x42E790, The Lost Children 0x43B4D0, The
+# Secret City 0x45BF00, The Tree of Life 0x465750, New Believers 0x46E8E0 --
+# which picks the job with the stock picker and calls the Building dispatcher
+# directly, never the idle scheduler.  Everything inside the dispatcher acts
+# there; the food bypass, which lives in the scheduler, does not.
+CATCHUP = (
+    "The food bypass acts only while you play. During catch-up (time passing while the game was "
+    "closed, and Time Warp) each villager does the job the stock game picks, and when that job is "
+    "building, the same build-first and hut-fixing rules apply{huts}."
+)
 
 
 def describe(game: str) -> str:
     return (DESCRIPTION.replace("{huts}", HUTS.get(game, ""))
+            .replace("{catchup}", CATCHUP.format(huts=", and so does the new-hut rule" if game in HUTS else ""))
             .replace("{share}", SHARE[game] + " so one choice is either all patched or all stock."))
 
 
@@ -160,8 +180,8 @@ LEVEL_BEHAVIOR = {
 # goes straight into that construction).  See "Build first, fix last" and
 # "About three times in four" in the companion's source.
 BUILD_FIRST_BEHAVIOR = {
-    "vv1": "Construction always comes first: where the Building branch reaches the hut fix although it has a new hut to build (hut 9, or hut 10 or 11 once its scaffold stands) or a started project open at this Building level -- after its 20% 'not this time' roll, or at the level-3 gate -- the builder goes straight into that construction through the branch's own code for it, and a hut is fixed only when there is nothing to build.",
-    "vv2": "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once its scaffold stands, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one): the builder goes straight into the first of them, in the branch's own order, through the branch's own code for it.",
+    "vv1": "Construction always comes first: where the Building branch reaches the hut fix although it has a new hut to build (hut 9, or hut 10 or 11 once the player has worked on it or the population is above 22 / 45) or a started project open at this Building level -- after its 20% 'not this time' roll, or at the level-3 gate -- the builder goes straight into that construction through the branch's own code for it, and a hut is fixed only when there is nothing to build.",
+    "vv2": "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the player has worked on it, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one): the builder goes straight into the first of them, in the branch's own order, through the branch's own code for it.",
     "vv3": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, so a builder fixes a hut only when there is no construction to choose. The Secret City's Building branch has no random roll that skips construction, so there is nothing to go straight into.",
     "vv4": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), the options it took are put back, by the branch's own tests and in its own order, and the stock pick goes straight into one of them; a hut is fixed only when there is no construction at all.",
     "vv5": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), the options it took are put back, by the branch's own tests and in its own order, and the stock pick goes straight into one of them; a hut is fixed only when there is no construction at all.",
@@ -791,7 +811,7 @@ def main() -> None:
               + ([BUILD_FIRST_BEHAVIOR[game]] if game in BUILD_FIRST_BEHAVIOR else [])
               + [ROLL_BEHAVIOR.format(sched=ROLL_SCHED[game][0], loop=ROLL_SCHED[game][1],
                                       share=ROLL_SHARE[game])
-                   + (" The scaffold test for huts above is not part of the roll: it holds on every choice."
+                   + (" The new-hut test above is not part of the roll: it holds on every choice."
                       if game in HUT_GATE_BEHAVIOR else "")],
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
@@ -801,8 +821,13 @@ def main() -> None:
             "patches": [],
         }
         if game in RUNTIME:
-            manifest["explicit_non_changes"].insert(0,
-                "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.")
+            if game in GATE_PATCHES:
+                manifest["patches"] = GATE_PATCHES[game]
+                manifest["explicit_non_changes"].insert(0,
+                    "This row changes one test in the executable, the Building branch's new-hut test, so it holds from the first catch-up of a session; everything else is detoured at run time by the DLL, which a companion that already runs every frame loads and which installs only after verifying the stock bytes; a different build of the game installs nothing.")
+            else:
+                manifest["explicit_non_changes"].insert(0,
+                    "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.")
             manifest["runtime_detours"] = [
                 {**RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},
                 {**FOOD_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},

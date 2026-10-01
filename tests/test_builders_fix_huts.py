@@ -115,7 +115,7 @@ class RuntimeSiteTests(unittest.TestCase):
             # (tests/test_builders_level_gate.py) and the lifted new-hut test
             # fourth (tests/test_finish_started_huts.py); last, the scheduler
             # entry that opens each decision (tests/test_builders_decision_roll.py).
-            self.assertEqual(len(manifest["runtime_detours"]), 5 if game in ("vv1", "vv2") else 3, game)
+            self.assertEqual(len(manifest["runtime_detours"]), {"vv1": 5, "vv2": 4}.get(game, 3), game)
             site = manifest["runtime_detours"][0]
             n, va, stock, patched, stub = _probe_site(GAME_NO[game])
             self.assertEqual(va, int(site["va"], 16), game)
@@ -407,7 +407,10 @@ class RowTests(unittest.TestCase):
             self.assertIn("**Runs on the Origins-exclusive base, which the patcher installs automatically with it**", m["description"])
             self.assertIn("adds the Origins Upgrades buttons", m["description"])
             self.assertNotIn("Enable Origins-Exclusive Features", m["description"])
-            if game != "vv3":
+            if game == "vv2":
+                # The new-hut test only (tests/test_finish_started_huts.py).
+                self.assertEqual([q["offset"] for q in m["patches"]], ["0x600DE"])
+            elif game != "vv3":
                 self.assertEqual(m["patches"], [])
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         self.assertIn("assets/fix_huts/VVFP Fix Huts.dll", release)

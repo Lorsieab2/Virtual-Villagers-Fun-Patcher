@@ -12,8 +12,10 @@ five games, `research/stock-executables`).
 
 ## What the stock games do
 
-Each game has one Building dispatcher the idle scheduler calls, live and in
-catch-up, with the villager's preferred job. Examining a hut leads to fixing
+Each game has one Building dispatcher, called with the villager's preferred
+job by the idle scheduler in live play and directly by the catch-up worker
+(VV1 `0x42E790`, VV2 `0x43B4D0`, VV3 `0x45BF00`, VV4 `0x465750`, VV5
+`0x46E8E0`), which never runs the idle scheduler. Examining a hut leads to fixing
 it 30% of the time, and the fix ends with a practice-Building roll.
 
 | game | dispatcher | how "fix a hut" is reached stock |
@@ -74,8 +76,9 @@ started" epilogue. Otherwise the stock code runs unchanged.
 
 The owner: "Builders fix huts regardless of the food supply when not all
 population huts are built." Every game's idle scheduler reads the food total
-before the Building dispatcher -- one scheduler, reached from both the live
-per-frame caller and the catch-up loop:
+before the Building dispatcher -- one scheduler, reached from the live
+per-frame caller only (catch-up calls the dispatcher directly, so this bypass
+is live-only):
 
 | Game | Stock gate | Builder bypass (while any population hut is unbuilt) |
 | --- | --- | --- |

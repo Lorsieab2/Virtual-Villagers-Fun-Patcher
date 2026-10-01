@@ -67,8 +67,9 @@ the caller's `ECX` receiver and nonvolatile registers are preserved.
 
 The patch does not select a construction target itself. It reuses the stock
 preferred-job selector, Building dispatcher, action queues, progress logic,
-skill awards, project requirements, and completion handlers. The shared idle
-scheduler is used during ordinary play and elapsed-time catch-up; only IDs 9,
+skill awards, project requirements, and completion handlers. The idle scheduler is
+used during ordinary play; elapsed-time catch-up calls the Building dispatcher
+directly from its worker (0x42E790), so the 400-food gate is live-only; only IDs 9,
 10, and 11 gain the signed-positive progress eligibility check.
 
 The executable size is unchanged, every original byte is guarded, and the PE
