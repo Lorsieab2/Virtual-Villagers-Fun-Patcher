@@ -39,6 +39,7 @@
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
+#include <intrin.h>
 
 /* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
    tests/test_dlls/): the shipped DLL carries no counters and no probe. */
@@ -52,6 +53,57 @@ __declspec(dllexport) struct vvfp_healers_stats VvfpHealersStudyStats = { 0 };
 #else
 #define HEALERS_COUNT_CHECK ((void)0)
 #endif
+
+/* ---- About three times in four ------------------------------------------------ */
+/* The owner: the behaviour patches "should increase the LIKELIHOOD of
+   villagers doing that action, not 100% replace them" -- 75%, one roll per
+   decision shared by every patch in it.  A decision is one run of the idle
+   scheduler (A New Home 0x448220, The Lost Children 0x461850), which "VVFP
+   Fix Huts.dll" (Builders Fix Huts When Idle) wraps; when that DLL is loaded
+   this companion asks its VvfpFixHutsRoll, so a healer's decision that also
+   meets Builders and Healers Work First rolls once.  Without it (this row
+   ticked alone) there is nothing else in the decision to share with, and
+   this site is reached at most once per scheduler run: it draws a 75% roll
+   of its own each time it would act.  Neither roll touches the game's RNG. */
+static int (__cdecl *shared_roll)(void);
+static unsigned int own_roll_state;
+
+#ifdef VVFP_TEST
+/* force: 0 = the real own roll, 1 = pass, 2 = fail; draws: own rolls drawn.
+   TEST build only. */
+struct vvfp_own_roll_test { int force; int draws; };
+__declspec(dllexport) struct vvfp_own_roll_test VvfpHealersStudyRollTest = { 0, 0 };
+#endif
+
+static int own_roll(void) {
+    unsigned int x = own_roll_state;
+    if (x == 0) {
+        x = (unsigned int)__rdtsc() ^ 0x1B873593u;
+        if (x == 0) x = 0x1B873593u;
+    }
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    own_roll_state = x;
+#ifdef VVFP_TEST
+    ++VvfpHealersStudyRollTest.draws;
+    if (VvfpHealersStudyRollTest.force == 1) return 1;
+    if (VvfpHealersStudyRollTest.force == 2) return 0;
+#endif
+    return x % 100u < 75u;
+}
+
+static int decision_roll(void) {
+    if (shared_roll == NULL) {
+        /* Looked up each time until found: the fix-huts DLL may be loaded
+           after this one. */
+        HMODULE fix_huts = GetModuleHandleA("VVFP Fix Huts.dll");
+        if (fix_huts != NULL) {
+            shared_roll = (int (__cdecl *)(void))GetProcAddress(fix_huts, "VvfpFixHutsRoll");
+        }
+    }
+    return shared_roll != NULL ? shared_roll() : own_roll();
+}
 
 /* ---- VV1 --------------------------------------------------------------- */
 /* ebp = state, esi = village (villager array), edi = the villager's index. */
@@ -68,6 +120,9 @@ static int __cdecl vv1_studying(const unsigned char *state, const unsigned char 
     }
     if (*(const int *)(village + index * 0x3D8u + 0x3B8u) != 9) {
         return 0;
+    }
+    if (!decision_roll()) {
+        return 0;                                  /* the stock selection this decision */
     }
     HEALERS_COUNT_CHECK;
     return 1;
@@ -122,6 +177,9 @@ static int __cdecl vv2_studying(const unsigned char *village, const unsigned cha
     }
     if (*(const int *)(record + 0x7E0u) != 9) {
         return 0;
+    }
+    if (!decision_roll()) {
+        return 0;                                  /* the stock selection this decision */
     }
     HEALERS_COUNT_CHECK;
     return 1;

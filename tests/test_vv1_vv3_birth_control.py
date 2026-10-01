@@ -51,10 +51,17 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # 0x150-0x151 (PE checksum), 0x8B7CD-0x8B89D (inside the Equal Division
     # cave, which ends at its table at 0x8B8A0) and 0x8BC00-0x8BCFE (inside the
     # 256-byte Set Age preflight).
+    #
+    # Re-pinned when Origins began carrying the main-menu Start Over reset
+    # (2026-09-30). Justified BEFORE re-pinning: origin/main renders exactly
+    # the previous pins (2BF82EF8.../FD9C9BE4.../FD9C9BE4...); the branch differs
+    # only at 0x26F69..0x26F6C (the rewritten call's rel32), inside the stub at
+    # 0x8BB70..0x8BBDA (.shr, which Origins maps as code), and at the PE
+    # CheckSum 0x150..0x151. The length is unchanged.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "2BF82EF8B40DE2C160AF1EC7EADAC820353BF14439D00342CC774225C350B890",
-        "collection_progression": "FD9C9BE436C1FFB6BBD1E81CFF5CC090A61ECA5AD7D56961964F5DC88778EABF",
-        "immediate_fixed": "FD9C9BE436C1FFB6BBD1E81CFF5CC090A61ECA5AD7D56961964F5DC88778EABF",
+        "stock": "C5083455666A861C9D47EBA379A28A3BD7EB70161F8CAD60471FC9FFCE78C44A",
+        "collection_progression": "6688B35CE4484E6F068B388FEC0EA47E93BCCEEAD741AAF63DFEE82F5B370381",
+        "immediate_fixed": "6688B35CE4484E6F068B388FEC0EA47E93BCCEEAD741AAF63DFEE82F5B370381",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

@@ -354,7 +354,14 @@ class RenderedBuildTests(unittest.TestCase):
                 blocks = []
                 at = data.find(DLL_NAME)
                 while at != -1:
-                    if data[at + 0x14 : at + 0x14 + len(EXPORT_NAME)] == EXPORT_NAME:
+                    # The main-menu Start Over stub carries the same two names
+                    # (tests/test_main_menu_start_over_reset.py); the
+                    # tribe-delete block is the one that pushes edi, the raw
+                    # slot, at code +0x2F.
+                    if (
+                        data[at + 0x14 : at + 0x14 + len(EXPORT_NAME)] == EXPORT_NAME
+                        and data[at + 0x28 + 0x2F : at + 0x28 + 0x31] == b"\x57\x6a"
+                    ):
                         blocks.append(at)
                     at = data.find(DLL_NAME, at + 1)
                 if not subset:

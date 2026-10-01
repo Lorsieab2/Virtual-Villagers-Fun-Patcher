@@ -618,13 +618,9 @@ class ManifestTests(unittest.TestCase):
             DEFAULT_PATCH_MODE,
             feature_ids,
         )
-        self.assertEqual(
-            bytes(rendered[0x568D0:0x56900]),
-            bytes.fromhex(
-                "8B8110E003008B5424088D14D59C9F0000833C10007F12"
-                "8B0424837C24080B750383C03283C410FFE0E992B7FEFF0000"
-            ),
-        )
+        # The former new-hut progress wrapper's range stays empty: builders
+        # start a new hut from nothing, as the stock game does.
+        self.assertEqual(bytes(rendered[0x568E1:0x56900]), bytes(0x1F))
         self.assertEqual(
             bytes(rendered[0x56900:0x56904]),
             bytes.fromhex("837C2404"),
@@ -2586,8 +2582,11 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")
-        self.assertIn("construction dispatcher at every food level", patch.description)
+        self.assertIn("construction dispatcher when food is plentiful", patch.description)
+        self.assertIn("about three times in four", patch.description)
+        self.assertIn("never the game's random numbers", patch.description)
         self.assertIn("project IDs 9, 10, and 11", patch.description)
+        self.assertIn("started from nothing", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
         source = STOCK / build.input_name
         baseline, _ = render_patched_bytes(
@@ -2603,7 +2602,7 @@ class StockIntegrationTests(unittest.TestCase):
             [patch.id],
         )
         rows = {int(row["offset"], 0): row for row in patch.patches}
-        self.assertEqual(set(rows), {0x48336, 0x568A0, 0x4753C, 0x47568, 0x4759A, 0x568D0})
+        self.assertEqual(set(rows), {0x48336, 0x568A0})
         ordered_ranges = sorted(
             (offset, offset + len(bytes.fromhex(row["after"])))
             for offset, row in rows.items()
@@ -2617,79 +2616,55 @@ class StockIntegrationTests(unittest.TestCase):
             self.assertEqual(bytes(baseline[offset : offset + len(before)]), before)
             self.assertEqual(bytes(rendered[offset : offset + len(after)]), after)
 
-        # The scheduler hook and its 43-byte cave. The selected-job compare
+        # The scheduler hook and its 65-byte cave. The selected-job compare
         # is against 4, Building: the picker 0x439AE0 maps preference 1 to
         # Farming (+0x3C4), 2 Parenting, 3 Research, 4 Building (+0x3C0) and
         # 5 Healing through its switch at 0x439CAC, and dispatcher 0x4472C0's
         # case 4 is the Building branch (it holds the fix-huts site
         # 0x447724). The cave shipped comparing with 1 until v1.35.35, which
         # gave the high-food bypass to Farming-preferring villagers.
+        # The owner: the patch should "increase the LIKELIHOOD ... not 100%
+        # replace" -- 75%: a Building-job villager at 400+ food takes the
+        # attempt unless the top two bits of rdtsc * 0x9E3779B9 are both clear
+        # (a quarter of all values, since the odd multiplier permutes them);
+        # eax and edx are pushed and popped around the roll.  The fix-huts
+        # companion verifies these exact bytes before taking the gate over
+        # (VV1_BAF_CAVE in native/vvfp_fix_huts/vvfp_fix_huts.c).
         self.assertEqual(
             bytes(rendered[0x48336:0x48342]),
             bytes.fromhex("E965E5000090909090909090"),
         )
-        cave = bytes(rendered[0x568A0:0x568CB])
+        cave = bytes(rendered[0x568A0:0x568E1])
         self.assertEqual(
             cave,
             bytes.fromhex(
                 "81BDECA20000900100000F8C921AFFFF"
-                "89F869C0D803000083BC30D003000004"
-                "0F847C1AFFFFE9A41AFFFF"
+                "505289F869C0D803000083BC30D00300"
+                "000475160F3169C0B979379E3D000000"
+                "4072075A58E9681AFFFF5A58E98E1AFF"
+                "FF"
             ),
         )
         self.assertIn(bytes.fromhex("83BC30D003000004"), cave)
         self.assertNotIn(bytes.fromhex("83BC30D003000001"), cave)
+        self.assertIn(bytes.fromhex("0F31"), cave, "rdtsc: never the game's rand()")
+        self.assertNotIn(bytes.fromhex("E8"), cave[:0x30], "no call: no game routine, no RNG stream")
+        source = (ROOT / "native" / "vvfp_fix_huts" / "vvfp_fix_huts.c").read_text(encoding="utf-8")
+        self.assertIn("static const unsigned char VV1_BAF_CAVE[65]", source)
+        listed = source.split("static const unsigned char VV1_BAF_CAVE[65] = {", 1)[1].split("};", 1)[0]
+        self.assertEqual(bytes(int(b, 16) for b in listed.replace(",", " ").split()), cave,
+                         "the companion's take-over check matches the shipped cave")
 
-        wrapper = bytes(rendered[0x568D0:0x56900])
-        self.assertEqual(
-            wrapper,
-            bytes.fromhex(
-                "8B8110E003008B5424088D14D59C9F0000833C10007F12"
-                "8B0424837C24080B750383C03283C410FFE0E992B7FEFF0000"
-            ),
-        )
-        hooks = {9: 0x4753C, 10: 0x47568, 11: 0x4759A}
-        continuations = {9: 0x4754A, 10: 0x47576, 11: 0x475D1}
-        self.assertEqual(wrapper[17:23], bytes.fromhex("833C10007F12"))
-        self.assertEqual(
-            wrapper[23:41],
-            bytes.fromhex("8B0424837C24080B750383C03283C410FFE0"),
-        )
-        self.assertEqual(wrapper[41:46], bytes.fromhex("E992B7FEFF"))
-        self.assertEqual(wrapper[46:], b"\0\0")
-
-        def modeled_target(project_id: int, raw_progress: int) -> int:
-            signed_progress = (
-                raw_progress - 2**32
-                if raw_progress & 0x80000000
-                else raw_progress
-            )
-            if signed_progress > 0:
-                return 0x42090
-            caller_return = hooks[project_id] + 5
-            return caller_return + 9 + (0x29 if project_id == 11 else 0)
-
-        for project_id, offset in hooks.items():
-            call = bytes(rendered[offset : offset + 5])
-            self.assertEqual(call[0], 0xE8)
-            self.assertEqual(
-                offset + 5 + struct.unpack_from("<i", call, 1)[0],
-                0x568D0,
-            )
-            for raw_progress in (0, 0xFFFFFFFF, 0x80000000):
-                with self.subTest(project_id=project_id, progress=hex(raw_progress)):
-                    self.assertEqual(
-                        modeled_target(project_id, raw_progress),
-                        continuations[project_id],
-                    )
-            for raw_progress in (1, 0x7FFFFFFF):
-                with self.subTest(project_id=project_id, progress=hex(raw_progress)):
-                    self.assertEqual(modeled_target(project_id, raw_progress), 0x42090)
-        self.assertEqual(set(range(3, 9)) & set(hooks), set())
-        self.assertEqual(
-            0x568F9 + 5 + struct.unpack_from("<i", wrapper, 42)[0],
-            0x42090,
-        )
+        # The owner: builders "should build new stuff first, then fix huts".
+        # The three new-hut calls stay the stock calls to the hut gate
+        # 0x442090, so a builder starts a new hut from zero progress exactly
+        # as the stock game does; nothing is left in the old wrapper's range.
+        for offset in (0x4753C, 0x47568, 0x4759A):
+            with self.subTest(new_hut_call=hex(offset)):
+                call = bytes(rendered[offset : offset + 5])
+                self.assertEqual(call, bytes(baseline[offset : offset + 5]))
+                self.assertEqual(offset + 5 + struct.unpack_from("<i", call, 1)[0], 0x42090)
+        self.assertEqual(bytes(rendered[0x568E1:0x56900]), bytes(0x1F))
 
         # The other shared stock gate users cover manual/existing and repair paths.
         unchanged_shared_calls = {
