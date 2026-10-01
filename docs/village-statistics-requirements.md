@@ -4,6 +4,8 @@ The text exporter must track these lifetime statistics separately for every
 save in all five games:
 
 - Real Hours Played
+  (real-world hours since the village was founded, including time the game was closed --
+  the owner's decision; not Isola years x 2. See village-statistics-directive.md.)
 - Points Earned
 - Babies Made
 - Food Gathered
