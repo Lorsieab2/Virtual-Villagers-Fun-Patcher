@@ -1545,6 +1545,126 @@ __declspec(dllexport) __declspec(naked) void VvfpFixHutsScheduler3(void) {
     }
 }
 
+/* ---- The decision in catch-up: wrapping the catch-up worker --------------- */
+/* Time passing while the game was closed, and Time Warp, never run the idle
+   scheduler: each game's catch-up worker picks a job and dispatches it
+   itself, and several patches can act on that one choice -- Builders and
+   Healers Work First at the pick dispatch or the research pick, this
+   companion's own sites inside the Building dispatcher, and in The Lost
+   Children Healers Study's plant-study continuation.  Outside a decision
+   each of them used to draw its own roll, so a villager could get an
+   intervention far more often than three times in four (Codex on #494: a
+   plant-studying healer about 94%).  So the worker is a decision too: its
+   entry opens one (decision_enter, never a continuation), every patch the
+   choice reaches asks this companion's roll and shares it, and the exit
+   closes it.  One worker call is one decision.
+
+     VV1 0x42E790  push esi; mov esi, [esp+8]; push edi        thiscall(index), ret 4
+     VV2 0x43B4D0  push ebx; push esi; push edi; mov edi, [esp+0x10]   (index), ret 4
+     VV3 0x45BF00  push esi; mov esi, [esp+8]; push edi        (record), ret 4 -- the
+                   row's page stub resolves VvfpFixHutsCatchUp3
+     VV4 0x465750  push esi; mov esi, ecx; call 0x468C60       thiscall(), ret
+     VV5 0x46E8E0  push esi; mov esi, ecx; call 0x473440       thiscall(), ret */
+static const unsigned int vv1_cu_body = 0x42E796u, vv2_cu_body = 0x43B4D7u, vv3_cu_body = 0x45BF06u;
+static const unsigned int vv4_cu_body = 0x465758u, vv5_cu_body = 0x46E8E8u;
+static const unsigned int vv4_cu_prep = 0x468C60u, vv5_cu_prep = 0x473440u;
+
+static __declspec(naked) void vv1_cu_original(void) {
+    __asm {
+        push esi
+        mov esi, dword ptr [esp + 8]
+        push edi
+        jmp dword ptr [vv1_cu_body]
+    }
+}
+static __declspec(naked) void vv2_cu_original(void) {
+    __asm {
+        push ebx
+        push esi
+        push edi
+        mov edi, dword ptr [esp + 0x10]
+        jmp dword ptr [vv2_cu_body]
+    }
+}
+static __declspec(naked) void vv3_cu_original(void) {
+    __asm {
+        push esi
+        mov esi, dword ptr [esp + 8]
+        push edi
+        jmp dword ptr [vv3_cu_body]
+    }
+}
+static __declspec(naked) void vv4_cu_original(void) {
+    __asm {
+        push esi
+        mov esi, ecx
+        call dword ptr [vv4_cu_prep]
+        jmp dword ptr [vv4_cu_body]
+    }
+}
+static __declspec(naked) void vv5_cu_original(void) {
+    __asm {
+        push esi
+        mov esi, ecx
+        call dword ptr [vv5_cu_prep]
+        jmp dword ptr [vv5_cu_body]
+    }
+}
+
+#define CU_STUB_ARG(NAME, GAME)                                               \
+    static __declspec(naked) void NAME##_cu_stub(void) {                      \
+        __asm {                                                              \
+            __asm pushad                                                     \
+            __asm push dword ptr [esp + 0x24]      /* the villager */        \
+            __asm push 0                           /* no retry counter */    \
+            __asm push dword ptr [esp + 0x28]      /* the return address */  \
+            __asm push GAME                                                  \
+            __asm call decision_enter                                        \
+            __asm add esp, 16                                                \
+            __asm popad                                                      \
+            __asm push dword ptr [esp + 4]                                   \
+            __asm call NAME##_cu_original                                    \
+            __asm push eax                                                   \
+            __asm call decision_exit                                         \
+            __asm pop eax                                                    \
+            __asm ret 4                                                      \
+        }                                                                    \
+    }
+
+#define CU_STUB_OBJECT(NAME, GAME)                                            \
+    static __declspec(naked) void NAME##_cu_stub(void) {                      \
+        __asm {                                                              \
+            __asm pushad                                                     \
+            __asm push ecx                         /* the villager */        \
+            __asm push 0                           /* no retry counter */    \
+            __asm push dword ptr [esp + 0x28]      /* the return address */  \
+            __asm push GAME                                                  \
+            __asm call decision_enter                                        \
+            __asm add esp, 16                                                \
+            __asm popad                                                      \
+            __asm call NAME##_cu_original                                    \
+            __asm push eax                                                   \
+            __asm call decision_exit                                         \
+            __asm pop eax                                                    \
+            __asm ret                                                        \
+        }                                                                    \
+    }
+
+CU_STUB_ARG(vv1, 1)
+CU_STUB_ARG(vv2, 2)
+CU_STUB_ARG(vv3, 3)
+CU_STUB_OBJECT(vv4, 4)
+CU_STUB_OBJECT(vv5, 5)
+
+/* The Secret City: the row's page carries a stub at the worker's entry that
+   resolves this export once and jumps to it with the stack and every
+   register untouched. */
+__declspec(dllexport) __declspec(naked) void VvfpFixHutsCatchUp3(void) {
+    __asm {
+        jmp vv3_cu_stub
+    }
+}
+
 /* ---- Huts need a manual start: the stock hut gates ---------------------- */
 /* A New Home and The Lost Children decide in their Building branch whether a
    builder may work on the second and third population hut:
@@ -1711,6 +1831,21 @@ static const struct site SCHED_SITES[6] = {
 };
 static int sched_install_state[6];
 
+/* The catch-up workers' entries (The Secret City's is executable-side). */
+static const unsigned char VV1_CU_STOCK[6] = { 0x56, 0x8B, 0x74, 0x24, 0x08, 0x57 };
+static const unsigned char VV2_CU_STOCK[7] = { 0x53, 0x56, 0x57, 0x8B, 0x7C, 0x24, 0x10 };
+static const unsigned char VV4_CU_STOCK[8] = { 0x56, 0x8B, 0xF1, 0xE8, 0x08, 0x35, 0x00, 0x00 };
+static const unsigned char VV5_CU_STOCK[8] = { 0x56, 0x8B, 0xF1, 0xE8, 0x58, 0x4B, 0x00, 0x00 };
+static const struct site CU_SITES[6] = {
+    { 0 },
+    { 0x42E790u, VV1_CU_STOCK, sizeof VV1_CU_STOCK, vv1_cu_stub },
+    { 0x43B4D0u, VV2_CU_STOCK, sizeof VV2_CU_STOCK, vv2_cu_stub },
+    { 0 },
+    { 0x465750u, VV4_CU_STOCK, sizeof VV4_CU_STOCK, vv4_cu_stub },
+    { 0x46E8E0u, VV5_CU_STOCK, sizeof VV5_CU_STOCK, vv5_cu_stub },
+};
+static int cu_install_state[6];
+
 /* A New Home's 400-food gate as Builder Action Fixes leaves it. */
 static const struct site VV1_BAF_SITE = { VV1_FOOD_SITE, VV1_BAF_JUMP, sizeof VV1_BAF_JUMP, vv1_baf_stub };
 
@@ -1773,6 +1908,9 @@ __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
             && install_site(&VV1_BAF_SITE)) {
             food_install_state[game_id] = 2;       /* Builder Action Fixes' gate, taken over */
         }
+    }
+    if (cu_install_state[game_id] == 0) {
+        cu_install_state[game_id] = install_site(&CU_SITES[game_id]) ? 1 : -1;
     }
     work_first_bridge(game_id);
     if (install_state[game_id] != 0) {

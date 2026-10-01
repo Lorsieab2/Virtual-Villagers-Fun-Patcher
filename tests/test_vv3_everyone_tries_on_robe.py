@@ -62,6 +62,13 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned when the fix-huts page gained the catch-up worker's decision
+    # stub (one roll per catch-up decision, Codex on #494). Justified BEFORE
+    # re-pinning by rendering the full catalog at the preceding commit and on
+    # the change and diffing byte for byte: in every mode only the PE CheckSum
+    # (0x160..0x161), the six-byte worker entry at 0x5BF00 and the stub and its
+    # export name inside the fix-huts overlay (0xCBB60..0xCBBEB) differ; nothing
+    # else moved and the length is unchanged.
     # Re-pinned again when the parentage feature gained the birth hook:
     # three site rewrites, plus a body, export name and stubs placed in
     # the feature's own overlay. Verified before re-pinning that every
@@ -179,16 +186,16 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # all three modes are the PE CheckSum (0x160..0x161), the site 0x5BF52..0x5BF56 and the
     # stub at 0xCBA8A..0xCBAFE.
     "stock": (
-        "C20E000C108A409C829DC6DF0B9A02995440A4B6D6A65E9BA6D96B16862F25CF",
-        "ED370D00",
+        "6891D23B94A565C71DA337DD3B1FF05706FF12703739433E4C56A1D605B69D95",
+        "005E0D00",
     ),
     "collection_progression": (
-        "785D53D246D3E9881F86DADB71946C2DDF7C43A25E54E4011107978E430C11DD",
-        "ED500D00",
+        "C3B6F19C7325E4E75024947F7C179E1FCEAAA54E5E2C6EB392FFF4DB4ECE057D",
+        "00770D00",
     ),
     "immediate_fixed": (
-        "50AC888DCBBAA655C154F51A9ABD040B89127F662E80AB38DFA9B5F474844DCE",
-        "EB920D00",
+        "29483D145E853BEF1B7F6326FF9C332A00DACCA712C5BECAA170D281EBE263A3",
+        "FEB80D00",
     ),
 }
 

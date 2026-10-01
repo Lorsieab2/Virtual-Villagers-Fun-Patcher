@@ -220,6 +220,25 @@ SCHED_RUNTIME = {
     "vv5": {"va": "0x46F070", "stock_bytes": "83EC085356",
             "routine": "the idle scheduler's entry (0x46F070): wrapped to open and close one decision"},
 }
+# The catch-up workers' entries, wrapped the same way: one worker call is one
+# decision, so every patch the catch-up choice reaches shares one roll.
+CU_RUNTIME = {
+    "vv1": {"va": "0x42E790", "stock_bytes": "568B74240857",
+            "routine": "the catch-up worker's entry (0x42E790): wrapped to open and close one decision"},
+    "vv2": {"va": "0x43B4D0", "stock_bytes": "535657" "8B7C2410",
+            "routine": "the catch-up worker's entry (0x43B4D0): wrapped to open and close one decision"},
+    "vv4": {"va": "0x465750", "stock_bytes": "568BF1E808350000",
+            "routine": "the catch-up worker's entry (0x465750): wrapped to open and close one decision"},
+    "vv5": {"va": "0x46E8E0", "stock_bytes": "568BF1E8584B0000",
+            "routine": "the catch-up worker's entry (0x46E8E0): wrapped to open and close one decision"},
+}
+CU_ROLL_BEHAVIOR = (
+    "Catch-up -- time that passed while the game was closed, and Time Warp -- never runs the idle "
+    "scheduler; its worker ({worker}) makes the choice instead, and one run of it is one decision "
+    "too: the patches it reaches (this one's sites in the Building dispatcher, Builders and Healers "
+    "Work First{healers}) share one 75% roll, never one each."
+)
+CU_WORKER = {"vv1": "0x42E790", "vv2": "0x43B4D0", "vv3": "0x45BF00", "vv4": "0x465750", "vv5": "0x46E8E0"}
 FOOD_BEHAVIOR = (
     "Whenever a builder has hut work to do, its work attempt no longer depends "
     "on the food supply: {how}. Every other villager keeps the stock food "
@@ -322,7 +341,7 @@ def work_first_row(game: str, sha: str) -> dict:
     behavior = [
         f"Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job {healing}), or Building (job {building}) while it has hut work (a population hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
         "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the scheduler's own request runs alone, exactly as the stock game.",
-        f"Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker ({cu['worker']}) dispatches the stock picker's job itself. Its pick dispatch ({cu['call']}, returning to {cu['ret']}) is treated as the scheduler's calls are -- own job first, then the pick -- and its research pick (job {cu['research']}), which never reaches the dispatcher, is tested at {cu['site']}: for a builder or healer the own job is dispatched first and, if it starts something, the worker's own finish (its queue processor) runs instead of the stock research step. One 75% roll per catch-up decision (no idle-scheduler decision is open, so VvfpFixHutsRoll draws a fresh one); when it fails, or there is nothing of theirs to do, the worker's stock code runs.",
+        f"Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker ({cu['worker']}) dispatches the stock picker's job itself. Its pick dispatch ({cu['call']}, returning to {cu['ret']}) is treated as the scheduler's calls are -- own job first, then the pick -- and its research pick (job {cu['research']}), which never reaches the dispatcher, is tested at {cu['site']}: for a builder or healer the own job is dispatched first and, if it starts something, the worker's own finish (its queue processor) runs instead of the stock research step. One 75% roll per catch-up decision: Builders Fix Huts When Idle wraps the worker as one decision, so VvfpFixHutsRoll gives every patch that decision reaches the same roll; when it fails, or there is nothing of theirs to do, the worker's stock code runs.",
     ]
     if game == "vv5":
         behavior.append("In catch-up only, Devotion (job 5) is a third own job, put first like Healing: the dispatcher's Devotion case (0x46CDB6) queues Honoring when project 14 is complete or 0x4271C0 answers 1 or 2, and otherwise starts nothing, so the pick runs. The live scheduler's calls never put Devotion first.")
@@ -475,6 +494,22 @@ VV3_SCHED_CACHE_SLOT = 0x6E0FEC    # .vv3md; work-first 0x6E0FF0, lesson-cap 0x6
 VV3_SCHED_EXPORT_NAME = b"VvfpFixHutsScheduler3\0"
 VV3_SCHED_CODE_OFFSET = 0x300
 VV3_SCHED_EXPORT_OFFSET = 0x3C0
+
+# One roll per catch-up decision too (see "The decision in catch-up" in
+# native/vvfp_fix_huts/vvfp_fix_huts.c): the catch-up worker's entry
+# (0x45BF00: push esi; mov esi, [esp+8]; push edi) jumps to a sixth stub,
+# which resolves the companion's VvfpFixHutsCatchUp3 once and jumps to it with
+# the stack and every register untouched; the companion opens a decision, runs
+# the displaced bytes and the stock worker, and closes it.  Without the DLL
+# the stub runs the displaced bytes and the stock worker.
+VV3_CU_VA = 0x45BF00
+VV3_CU_FILE = VV3_CU_VA - 0x400000
+VV3_CU_STOCK = bytes.fromhex("568B74240857")   # push esi; mov esi, [esp+8]; push edi
+VV3_CU_BODY = 0x45BF06
+VV3_CU_CACHE_SLOT = 0x6E0FE8       # .vv3md; scheduler 0x6E0FEC, work-first 0x6E0FF0
+VV3_CU_EXPORT_NAME = b"VvfpFixHutsCatchUp3\0"
+VV3_CU_CODE_OFFSET = 0x360
+VV3_CU_EXPORT_OFFSET = 0x3D8
 
 # Origins' appended pages: .vv3mc (R-X) at 0x6DF000 / file 0xCB000, whose own
 # content ends at 0x3A0; the parentage overlay takes 0x400..0x800; this one
@@ -757,9 +792,45 @@ def vv3_build_page(base_va: int) -> bytes:
         base_va + VV3_SCHED_CODE_OFFSET,
     )
     page[VV3_SCHED_CODE_OFFSET : VV3_SCHED_CODE_OFFSET + len(sched)] = sched
-    if VV3_SCHED_CODE_OFFSET + len(sched) > VV3_SCHED_EXPORT_OFFSET:
-        raise RuntimeError("the scheduler stub runs into its export name")
+    if VV3_SCHED_CODE_OFFSET + len(sched) > VV3_CU_CODE_OFFSET:
+        raise RuntimeError("the scheduler stub runs into the catch-up stub")
+    catch_up = assemble(
+        f"""
+        cmp dword ptr [0x{VV3_CU_CACHE_SLOT:X}], 1
+        ja go
+        je stock
+        pushad
+        push 0x{name_va:X}
+        call dword ptr [0x{VV3_LOAD_LIBRARY_IAT:X}]
+        test eax, eax
+        je mark_failed
+        push 0x{base_va + VV3_CU_EXPORT_OFFSET:X}
+        push eax
+        call dword ptr [0x{VV3_GET_PROC_ADDRESS_IAT:X}]
+        test eax, eax
+        je mark_failed
+        mov dword ptr [0x{VV3_CU_CACHE_SLOT:X}], eax
+        popad
+    go:
+        jmp dword ptr [0x{VV3_CU_CACHE_SLOT:X}]
+    mark_failed:
+        mov dword ptr [0x{VV3_CU_CACHE_SLOT:X}], 1
+        popad
+    stock:
+        push esi
+        mov esi, dword ptr [esp + 8]
+        push edi
+        jmp 0x{VV3_CU_BODY:X}
+        """,
+        base_va + VV3_CU_CODE_OFFSET,
+    )
+    page[VV3_CU_CODE_OFFSET : VV3_CU_CODE_OFFSET + len(catch_up)] = catch_up
+    if VV3_CU_CODE_OFFSET + len(catch_up) > VV3_SCHED_EXPORT_OFFSET:
+        raise RuntimeError("the catch-up stub runs into the scheduler export name")
     page[VV3_SCHED_EXPORT_OFFSET : VV3_SCHED_EXPORT_OFFSET + len(VV3_SCHED_EXPORT_NAME)] = VV3_SCHED_EXPORT_NAME
+    if VV3_SCHED_EXPORT_OFFSET + len(VV3_SCHED_EXPORT_NAME) > VV3_CU_EXPORT_OFFSET:
+        raise RuntimeError("the scheduler export name runs into the catch-up export name")
+    page[VV3_CU_EXPORT_OFFSET : VV3_CU_EXPORT_OFFSET + len(VV3_CU_EXPORT_NAME)] = VV3_CU_EXPORT_NAME
     if any(page[VV3_OVERLAY_LENGTH:]):
         raise RuntimeError("the VV3 stub must fit in the 0x400 overlay")
     return bytes(page)
@@ -841,6 +912,26 @@ def vv3_research_site_patch(page_va: int) -> dict:
     }
 
 
+def vv3_cu_site_patch(page_va: int) -> dict:
+    target = page_va + VV3_CU_CODE_OFFSET
+    entry = b"\xE9" + int(target - (VV3_CU_VA + 5)).to_bytes(4, "little", signed=True)
+    entry += b"\x90" * (len(VV3_CU_STOCK) - len(entry))
+    return {
+        "offset": f"0x{VV3_CU_FILE:X}",
+        "before": VV3_CU_STOCK.hex().upper(),
+        "after": entry.hex().upper(),
+        "purpose": (
+            "Divert the catch-up worker's entry (push esi; mov esi, [esp+8]; push edi at "
+            "0x45BF00) into the catch-up decision stub, which resolves the companion's "
+            "VvfpFixHutsCatchUp3 once and jumps to it with the stack and registers "
+            "untouched: the companion opens one decision for the worker's choice (one 75% "
+            "roll shared by every patch it reaches), runs the displaced bytes and the stock "
+            "worker, and closes it. Without the DLL the stub runs the displaced bytes and "
+            "the stock worker."
+        ),
+    }
+
+
 def vv3_sched_site_patch(page_va: int) -> dict:
     target = page_va + VV3_SCHED_CODE_OFFSET
     entry = b"\xE9" + int(target - (VV3_SCHED_VA + 5)).to_bytes(4, "little", signed=True)
@@ -887,12 +978,14 @@ def vv3_transaction(stock: bytes) -> tuple[list[dict], dict, list[dict]]:
         raise RuntimeError("stock bytes at 0x45BFE0 are not the expected scheduler prologue")
     if stock[VV3_RESEARCH_FILE : VV3_RESEARCH_FILE + len(VV3_RESEARCH_STOCK)] != VV3_RESEARCH_STOCK:
         raise RuntimeError("stock bytes at 0x45BF52 are not the expected research-pick test")
+    if stock[VV3_CU_FILE : VV3_CU_FILE + len(VV3_CU_STOCK)] != VV3_CU_STOCK:
+        raise RuntimeError("stock bytes at 0x45BF00 are not the expected catch-up worker prologue")
     patches = [vv3_site_patch(VV3_PAGE_VA), vv3_food_site_patch(VV3_PAGE_VA),
                vv3_picker_site_patch(VV3_PAGE_VA), vv3_sched_site_patch(VV3_PAGE_VA),
-               vv3_research_site_patch(VV3_PAGE_VA)]
+               vv3_research_site_patch(VV3_PAGE_VA), vv3_cu_site_patch(VV3_PAGE_VA)]
     overlay_patches = [vv3_site_patch(VV3_OVERLAY_VA), vv3_food_site_patch(VV3_OVERLAY_VA),
                        vv3_picker_site_patch(VV3_OVERLAY_VA), vv3_sched_site_patch(VV3_OVERLAY_VA),
-                       vv3_research_site_patch(VV3_OVERLAY_VA)]
+                       vv3_research_site_patch(VV3_OVERLAY_VA), vv3_cu_site_patch(VV3_OVERLAY_VA)]
     layout = {
         "original_file_size": f"0x{VV3_STOCK_FILE_SIZE:X}",
         "append_offset": f"0x{VV3_PAGE_FILE:X}",
@@ -965,7 +1058,10 @@ def main() -> None:
               + [ROLL_BEHAVIOR.format(sched=ROLL_SCHED[game][0], loop=ROLL_SCHED[game][1],
                                       share=ROLL_SHARE[game])
                    + (" The new-hut test above is not part of the roll: it holds on every choice."
-                      if game in HUT_GATE_BEHAVIOR else "")],
+                      if game in HUT_GATE_BEHAVIOR else "")]
+              + [CU_ROLL_BEHAVIOR.format(worker=CU_WORKER[game],
+                                         healers=(" and Healers Study Plants Regardless of Food"
+                                                  if game == "vv2" else ""))],
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
                 {"source": "assets/fix_huts/VVFP Fix Huts.dll",
@@ -988,12 +1084,13 @@ def main() -> None:
                  if game in LEVEL_RUNTIME else []) + (
                 [{**GATE_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"}]
                  if game in GATE_RUNTIME else []) + [
+                {**CU_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (before Builders and Healers Work First)"},
                 {**SCHED_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (first; nothing else installs without it)"},
             ]
         else:
             patches, transaction, _overlay_patches = vv3_transaction(STOCK_VV3.read_bytes())
             manifest["explicit_non_changes"].insert(0,
-                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path, the work dispatcher's ten-byte entry, the idle scheduler's six-byte entry and the catch-up worker's five-byte research-pick test into five stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher and research-pick stubs serve the Builders and Healers Work First addendum and do nothing unless \"VVFP Work First.dll\" is shipped.")
+                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path, the work dispatcher's ten-byte entry, the idle scheduler's six-byte entry, the catch-up worker's six-byte entry and its five-byte research-pick test into six stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher and research-pick stubs serve the Builders and Healers Work First addendum and do nothing unless \"VVFP Work First.dll\" is shipped.")
             manifest["patches"] = patches
             manifest["pe_append_transaction"] = transaction
         out = ROOT / "data" / f"{game}_builders_fix_huts_feature.json"

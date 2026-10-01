@@ -65,8 +65,11 @@ __declspec(dllexport) struct vvfp_healers_stats VvfpHealersStudyStats = { 0 };
 /* The owner: the behaviour patches "should increase the LIKELIHOOD of
    villagers doing that action, not 100% replace them" -- 75%, one roll per
    decision shared by every patch in it.  A decision is one run of the idle
-   scheduler (A New Home 0x448220, The Lost Children 0x461850), which "VVFP
-   Fix Huts.dll" (Builders Fix Huts When Idle) wraps; when that DLL is loaded
+   scheduler (A New Home 0x448220, The Lost Children 0x461850) or, in
+   catch-up, of the catch-up worker (The Lost Children 0x43B4D0), both of
+   which "VVFP Fix Huts.dll" (Builders Fix Huts When Idle) wraps -- so the
+   catch-up site below and Builders and Healers Work First's hook on the
+   pick it then dispatches share one roll (Codex on #494); when that DLL is loaded
    this companion asks its VvfpFixHutsRoll, so a healer's decision that also
    meets Builders and Healers Work First rolls once.  Without it (this row
    ticked alone) there is nothing else in the decision to share with, and

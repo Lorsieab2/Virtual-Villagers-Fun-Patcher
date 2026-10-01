@@ -74,6 +74,7 @@ G = {
 }
 GAMES = tuple(G)
 FARMING = 0
+SEED = 0x9E3779B9                  # the roll generator's state for the share measurements
 LATER = ("vv3", "vv4", "vv5")
 
 
@@ -81,13 +82,35 @@ class Worker(Machine):
     """A Machine whose work dispatcher body is scripted: it records (return
     address of the dispatcher call, job) and answers starts(job)."""
 
+    # Where a scripted Building dispatch returns from asking the fix-huts
+    # companion's roll (inside the HALT page, which holds a hlt at +0).
+    ASKED = HALT + 0x10
+
     def __init__(self, game, exe, starts, modules, loaded=None):
         super().__init__(game, exe, modules=modules, loaded=loaded)
         self.g = G[game]
         self.starts = starts
         self.asked: list[tuple[int, int]] = []
+        # When set, a Building dispatch asks VvfpFixHutsRoll first, as the
+        # companion's own sites inside the Building dispatcher do; the answers
+        # are recorded in building_rolls.
+        self.building_asks = False
+        self.building_rolls: list[int] = []
+        self._pending = None
+
+    def _answer(self, mu, frame, job):
+        ret, = struct.unpack("<I", mu.mem_read(frame, 4))
+        mu.reg_write(UC_X86_REG_EAX, 1 if self.starts(job) else 0)
+        mu.reg_write(UC_X86_REG_ESP, frame + 4 + self.g["argbytes"])
+        mu.reg_write(UC_X86_REG_EIP, ret)
 
     def _hook(self, mu, address, size, user_data):
+        if address == self.ASKED and self._pending is not None:
+            frame, job = self._pending
+            self._pending = None
+            self.building_rolls.append(mu.reg_read(UC_X86_REG_EAX) & 0xFF)
+            self._answer(mu, frame, job)
+            return
         if address == self.g["body"] and address != self.stop_at:
             sp = mu.reg_read(UC_X86_REG_ESP)
             frame = sp + self.g["shift"]
@@ -95,9 +118,13 @@ class Worker(Machine):
             job, = struct.unpack("<i", mu.mem_read(frame + self.g["argbytes"], 4))
             self.asked.append((ret, job))
             self.calls.append(("dispatch", (job,), 0))
-            mu.reg_write(UC_X86_REG_EAX, 1 if self.starts(job) else 0)
-            mu.reg_write(UC_X86_REG_ESP, frame + 4 + self.g["argbytes"])
-            mu.reg_write(UC_X86_REG_EIP, ret)
+            if self.building_asks and job == self.g["building"] and "fix_huts" in self.exports:
+                self._pending = (frame, job)
+                mu.mem_write(sp - 4, struct.pack("<I", self.ASKED))
+                mu.reg_write(UC_X86_REG_ESP, sp - 4)
+                mu.reg_write(UC_X86_REG_EIP, self.exports["fix_huts"]["VvfpFixHutsRoll"])
+                return
+            self._answer(mu, frame, job)
             return
         super()._hook(mu, address, size, user_data)
 
@@ -376,6 +403,7 @@ class ThreeTimesInFour(unittest.TestCase):
 
     def _share(self, game, own, pick):
         m = world(game, selected=own, pick=pick, force=FORCE_REAL)
+        m.seed(SEED)                      # the companion's real generator, from a fixed state
         own_first = 0
         for _ in range(self.N):
             draws = m.draws("fix_huts")
@@ -395,6 +423,76 @@ class ThreeTimesInFour(unittest.TestCase):
                         print(f"catch-up share {game} {who} {route}: {share:.3f}")
                         self.assertGreater(share, 0.70)
                         self.assertLess(share, 0.80)
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class OneRollPerCatchUpDecision(unittest.TestCase):
+    """Codex on #494: with several patches ticked, each catch-up hook used to
+    draw its own roll (a plant-studying healer got an intervention ~94% of
+    the time).  Builders Fix Huts When Idle now wraps every game's catch-up
+    worker as one decision, so with all the patches ticked every hook the
+    worker's choice reaches -- Work First's pick and research routes, the
+    companion's own sites in the Building dispatcher (modelled here by the
+    scripted Building dispatch asking VvfpFixHutsRoll, as they do), and The
+    Lost Children's plant study -- shares exactly one roll."""
+
+    N = 1000
+
+    def _measure(self, m, intervened):
+        hits = 0
+        for _ in range(self.N):
+            draws = m.draws("fix_huts")
+            m.building_rolls = []
+            decide(m)
+            self.assertEqual(m.draws("fix_huts") - draws, 1, "one roll per catch-up decision")
+            self.assertEqual(m.call_export("fix_huts", "VvfpFixHutsProbeDepth"), 0, "the decision is closed")
+            hits += bool(intervened(m))
+        return hits / self.N
+
+    def test_builders_share_the_roll_with_the_building_dispatcher(self):
+        for game in GAMES:
+            g = G[game]
+            for route, pick in (("pick", g["other"]), ("research", g["research"]), ("own", g["building"])):
+                with self.subTest(game=game, route=route):
+                    m = world(game, selected=g["building"], pick=pick, force=FORCE_REAL)
+                    m.building_asks = True
+                    m.seed(SEED)
+
+                    def intervened(m):
+                        rolls = set(m.building_rolls)
+                        self.assertLessEqual(len(rolls), 1, "the Building dispatch saw two rolls")
+                        if jobs(m)[:1] == [g["building"]] and pick != g["building"]:
+                            # Work First stepped in: the dispatcher sees the same pass.
+                            self.assertEqual(rolls, {1})
+                        return rolls == {1} or (jobs(m)[:1] == [g["building"]] and pick != g["building"])
+                    share = self._measure(m, intervened)
+                    print(f"catch-up combined {game} builder {route}: {share:.3f}")
+                    self.assertGreater(share, 0.70)
+                    self.assertLess(share, 0.80)
+
+    def test_the_lost_children_studying_healer_rolls_once(self):
+        # The healer's plant study starts nothing, so the pick is dispatched
+        # through Work First's hook: before, a second roll; now the same one.
+        m = world("vv2", selected=G["vv2"]["healing"], pick=1, task=9, cont=0, force=FORCE_REAL)
+        m.seed(SEED)
+
+        def intervened(m):
+            studied = any(c[0] == "continue" for c in m.calls)
+            first = jobs(m)[:1] == [G["vv2"]["healing"]]
+            self.assertEqual(studied, first, "plant study and Work First disagree on the roll")
+            return studied or first
+        share = self._measure(m, intervened)
+        print(f"catch-up combined vv2 studying healer: {share:.3f}")
+        self.assertGreater(share, 0.70)
+        self.assertLess(share, 0.80)
+
+    def test_the_workers_are_wrapped(self):
+        entries = {"vv1": 0x42E790, "vv2": 0x43B4D0, "vv3": 0x45BF00, "vv4": 0x465750, "vv5": 0x46E8E0}
+        for game, va in entries.items():
+            with self.subTest(game=game):
+                m = world(game)
+                self.assertEqual(m.mu.mem_read(va, 1)[0], 0xE9)
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
@@ -564,6 +662,7 @@ class LostChildrenHealersStudyInCatchUp(unittest.TestCase):
 
     def test_the_share_is_about_three_in_four(self):
         m = world("vv2", selected=1, pick=1, task=9, cont=1, force=FORCE_REAL)
+        m.seed(SEED)
         n, hits = 1000, 0
         for _ in range(n):
             decide(m)
