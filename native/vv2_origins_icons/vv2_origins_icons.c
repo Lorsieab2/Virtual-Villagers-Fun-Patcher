@@ -15,6 +15,7 @@
    must not drag left. */
 #define VV_DETAILS_MASK_Y_NUDGE_PX 3
 #define VV_DETAILS_MASK_X_NUDGE_PX 4
+#define VV_STORY_GAME 2   /* Story / Cheat Upgrades: this is The Lost Children */
 #include "../vv1_origins_icons/vv1_origins_icons.c"
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 #include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */
@@ -152,10 +153,27 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
             }
             EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
         }
+        /* Story / Cheat Upgrades: every price reads 0, and the Tech menu
+           gains Pick Island Event. */
+        vvfp_story_relabel(2, window);
+        if (!villager_menu) {
+            vvfp_story_add_pick_button(2, window);
+        }
         vv2_surface_dialog(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VVFP_STORY_PICK_ID) {
+            /* Pick Island Event shares the Island Event row's lock. */
+            if (vvfp_story_pick_clicked(
+                    2, window,
+                    block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
+                        ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
+                        : NULL)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command >= ID_BUY_FIRST && command <= ID_VV2_BUY_LAST) {
             int clicked = (int)(command - ID_BUY_FIRST);
             if (clicked >= 0 && clicked < ROW_STATE_MAX
@@ -185,6 +203,7 @@ __declspec(dllexport) int __stdcall ShowVV2UpgradeMenuState(
     int dialog_state
 ) {
     int resource = villager_menu ? IDD_VV2_VILLAGER : IDD_VV2_TECH;
+    vvfp_story_bridge(2);   /* before any price is shown or charged */
     vv2_prep_fullscreen();
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
@@ -618,10 +637,10 @@ static const char *const vv2_detail_action_costs[] = {
 
 static const char *vv2_action_cost(int action) {
     if (action >= 0 && action <= VV2_ACT_APPEARANCE_ALL) {
-        return vv2_tech_action_costs[action];
+        return vvfp_story_price_text(2, vv2_tech_action_costs[action]);
     }
     if (action >= VV2_ACT_DETAIL_YOUTH && action <= VV2_ACT_DETAIL_APPEARANCE) {
-        return vv2_detail_action_costs[action - VV2_ACT_DETAIL_YOUTH];
+        return vvfp_story_price_text(2, vv2_detail_action_costs[action - VV2_ACT_DETAIL_YOUTH]);
     }
     return "0";
 }
@@ -1276,6 +1295,7 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
 ) {
     (void)lparam;
     if (message == WM_INITDIALOG) {
+        vvfp_story_relabel(2, window);   /* "OK deducts 0 tech points" */
         vv2_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -1775,6 +1795,7 @@ __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_fix_huts_bridge(2);    /* fix-huts companion: once, fail-open */
     vvfp_lesson_cap_bridge(2);  /* lesson-cap companion: once, fail-open */
     vvfp_healers_study_bridge(2); /* healers-study companion: once, fail-open */
+    vvfp_story_bridge(2);       /* story / cheat upgrades companion: once, fail-open */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }
@@ -1963,6 +1984,7 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     vvfp_fix_huts_bridge(2);
     vvfp_lesson_cap_bridge(2);
     vvfp_healers_study_bridge(2);
+    vvfp_story_bridge(2);
     n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
     for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
@@ -2083,11 +2105,11 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
             return 0;
         }
     }
-    if (*tech < VV2_APPEARANCE_COST_DLL) {
+    if (*tech < vvfp_story_price(2, VV2_APPEARANCE_COST_DLL)) {
         ShowVV2UpgradeResult(VV2_ACT_DETAIL_APPEARANCE, VV2_RES_INSUFFICIENT, 0, 0, 0, 0);
         return 0;
     }
-    *tech -= VV2_APPEARANCE_COST_DLL;
+    *tech -= vvfp_story_price(2, VV2_APPEARANCE_COST_DLL);
     *(int *)(record + VV2_HEAD_OFFSET) = vv2_appearance_head;
     *(int *)(record + VV2_BODY_OFFSET) = vv2_appearance_body;
     if (vv2_mask_table_ok()) VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
@@ -2221,6 +2243,7 @@ static void caf_set_body_mode(HWND w, int sel) {
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     (void)lp;
     if (msg == WM_INITDIALOG) {
+        vvfp_story_relabel(2, w);     /* "OK deducts 0 tech points" */
         caf_set_head_mode(w, 3250);   /* defaults: all three groups Off */
         caf_set_body_mode(w, 3260);
         caf_set_mask_mode(w, 3230);
@@ -2491,7 +2514,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
         return 0;
     }
 
-    if (tech && *tech < VV2_CAF_COST) {
+    if (tech && *tech < vvfp_story_price(2, VV2_CAF_COST)) {
         MessageBoxA(GetForegroundWindow(),
                     "Not enough tech points. This upgrade costs 450,000.",
                     "Change Appearance for All",
@@ -2521,7 +2544,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    if (tech) *tech -= VV2_CAF_COST;
+    if (tech) *tech -= vvfp_story_price(2, VV2_CAF_COST);
     vv2_mask_sidecar_save();
     MessageBoxA(GetForegroundWindow(),
                 "Change Appearance for All applied to every villager.",

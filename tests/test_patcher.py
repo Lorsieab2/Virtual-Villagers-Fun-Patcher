@@ -1177,8 +1177,10 @@ class ManifestTests(unittest.TestCase):
         # Village-Scrolling (vv2_faster_village_scrolling), in-place camera edits;
         # 20 with Manual Drop-Breeding overrides Birth Control
         # (vv2_manual_drop_breeding_overrides_birth_control), the pairing
-        # handler's woman-50 refusal re-encoded in place behind a drop test.
-        self.assertEqual(len(feature_ids), 20)
+        # handler's woman-50 refusal re-encoded in place behind a drop test;
+        # 21 with Story / Cheat Upgrades (vv2_story_cheat_upgrades), which
+        # patches no executable byte -- its companion writes at run time.
+        self.assertEqual(len(feature_ids), 21)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -2565,6 +2567,8 @@ class StockIntegrationTests(unittest.TestCase):
             not in {
                 "vv1_enable_origins_exclusive_features",
                 "vv1_origins_village_wide_upgrades",
+                # Requires the Origins upgrades row excluded above.
+                "vv1_story_cheat_upgrades",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -4017,6 +4021,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_faster_village_scrolling",
                 "vv2_manual_drop_breeding_overrides_birth_control",
                 "vv2_numeric_keys_tip_wording",
+                "vv2_story_cheat_upgrades",
             },
         )
         for mode in ALL_MODES:

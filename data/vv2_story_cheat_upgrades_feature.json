@@ -1,0 +1,489 @@
+{
+  "id": "vv2_story_cheat_upgrades",
+  "enabled": true,
+  "game_id": "vv2",
+  "name": "Story / Cheat Upgrades",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**",
+  "output_tag": "Story Cheat Upgrades",
+  "dependencies": [
+    "vv2_origins_village_wide_upgrades"
+  ],
+  "behavior_changes": [
+    "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
+    "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
+    "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
+    "Offers 53 island events; events that can never run in this game are not offered."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs.",
+    "No event is emulated: the picked event is created, shown and resolved by the game's own code.",
+    "Tech points are never added, and nothing is written to the save."
+  ],
+  "evidence_status": "static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
+      "destination": "VVFP Story Upgrades.dll",
+      "sha256": "4D6312B319D5861F103C87AA2C13C81FB3015A9B88BA9C0B3D7A9CE21EED628B"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x494F90",
+      "stock_bytes": "50C3000030750000F824010020A1070020A107003075000050C30000A0860100409C000050C30000",
+      "written_bytes": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "routine": "the Origins price table (10 prices)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49471C",
+      "stock_bytes": "81BFDCEA020040420F00",
+      "written_bytes": "81BFDCEA020000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49473C",
+      "stock_bytes": "81AFDCEA020040420F00",
+      "written_bytes": "81AFDCEA020000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49C5EF",
+      "stock_bytes": "81BFDCEA020030750000",
+      "written_bytes": "81BFDCEA020000000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49C655",
+      "stock_bytes": "81AFDCEA020030750000",
+      "written_bytes": "81AFDCEA020000000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42EF28",
+      "stock_bytes": "E87342FDFF",
+      "routine": "rand(100) choosing the two-choice family (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42EF4A",
+      "stock_bytes": "E85142FDFF",
+      "routine": "rand(100) choosing single-result event or sack (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434607",
+      "stock_bytes": "E894EBFCFF",
+      "routine": "rand(28) choosing the single-result event (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41F59D",
+      "stock_bytes": "E8FE3BFEFF",
+      "routine": "rand(22) choosing the two-choice event (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x437B0E",
+      "stock_bytes": "E88DB6FCFF",
+      "routine": "rand(8) choosing the sack or vial (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    }
+  ],
+  "island_events": [
+    {
+      "slot": 0,
+      "title": "The Obnoxious Parrot",
+      "variant": "",
+      "description": "A parrot keeps startling the researchers: the tribe loses tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 1,
+      "title": "The Flash Flood",
+      "variant": "",
+      "description": "A flash flood soaks the food bin: only the top layer of food stays edible.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 2,
+      "title": "The Dense Fog",
+      "variant": "food lost",
+      "description": "After a thick fog the food bin is missing food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 3,
+      "title": "The Dense Fog",
+      "variant": "tech lost",
+      "description": "After a thick fog things are missing from the research table: tech points lost.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 5,
+      "title": "The East Wind",
+      "variant": "",
+      "description": "A scorching east wind parches the island and slows the villagers' work.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 6,
+      "title": "The Heat Wave",
+      "variant": "",
+      "description": "A heat wave: the villagers stop working to seek relief until it passes.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 7,
+      "title": "Isola Day Celebration",
+      "variant": "",
+      "description": "The villagers celebrate their arrival on Isola with dancing and feasts.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 8,
+      "title": "Day of Honor",
+      "variant": "",
+      "description": "The villagers honor those who have passed.",
+      "requires": "someone in the village to have died"
+    },
+    {
+      "slot": 9,
+      "title": "Day of Elders",
+      "variant": "",
+      "description": "The villagers celebrate the wise elders of the village.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 10,
+      "title": "Blessings Day Celebration",
+      "variant": "first version",
+      "description": "The villagers give thanks with dancing, ceremonies and a feast.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 11,
+      "title": "The Epidemic",
+      "variant": "",
+      "description": "A disease spreads from a sick parrot through the village: every doctor is needed.",
+      "requires": "the village's later technologies (the game's own advanced-village check)"
+    },
+    {
+      "slot": 12,
+      "title": "Blessings Day Celebration",
+      "variant": "second version",
+      "description": "The villagers give thanks with dancing, ceremonies and a feast.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 13,
+      "title": "The Spring Allergies",
+      "variant": "",
+      "description": "Spring pollen gives most of the villagers allergies.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 14,
+      "title": "Rats!",
+      "variant": "",
+      "description": "Hundreds of rats swarm through the village, biting villagers and fouling it.",
+      "requires": "the village's later technologies (the game's own advanced-village check)"
+    },
+    {
+      "slot": 15,
+      "title": "Where Are The Infants?",
+      "variant": "",
+      "description": "The village's infants are carried off during the night.",
+      "requires": "a mother with an infant, and the village's later technologies"
+    },
+    {
+      "slot": 16,
+      "title": "A Dangerous Mission",
+      "variant": "",
+      "description": "Eight of the youngest, strongest adults sail off for the south shore and leave the village.",
+      "requires": "a population of more than 60"
+    },
+    {
+      "slot": 17,
+      "title": "The  Foul Passing",
+      "variant": "",
+      "description": "Something foul passes through: crops, coconuts and the food bin are ruined.",
+      "requires": "the village's later technologies (the game's own advanced-village check)"
+    },
+    {
+      "slot": 19,
+      "title": "The Friendly Parrot",
+      "variant": "",
+      "description": "A friendly parrot drops nuts into the food bin: the tribe gains food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 21,
+      "title": "The Barrel O` Babies",
+      "variant": "",
+      "description": "A barrel of babies washes up and they join the village (more of them in a bigger village).",
+      "requires": "room in the village for new villagers"
+    },
+    {
+      "slot": 22,
+      "title": "The West Wind",
+      "variant": "",
+      "description": "A cool, moist wind refreshes the crops and coconut trees.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 23,
+      "title": "The Dense Fog",
+      "variant": "tech gained",
+      "description": "After a thick fog, useful formulae are found on the research table: tech points gained.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 24,
+      "title": "The Dense Fog",
+      "variant": "food gained",
+      "description": "After a thick fog, the food bin holds more food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 25,
+      "title": "Old Friends",
+      "variant": "",
+      "description": "A couple from the south shore finds the village and joins it.",
+      "requires": "room in the village for new villagers"
+    },
+    {
+      "slot": 27,
+      "title": "The Mother Parrot",
+      "variant": "",
+      "description": "The children watch a mother parrot and learn about parenting.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 64,
+      "title": "The Ancient Gold Coin",
+      "variant": "",
+      "description": "A villager finds a gold coin: wear it as an ornament, or give it to the scientists.",
+      "requires": "the gold-coin fashion not to have caught on already"
+    },
+    {
+      "slot": 65,
+      "title": "The Cursed Idol",
+      "variant": "",
+      "description": "A villager finds a cursed statuette: destroy it, or offer food to lift the curse.",
+      "requires": "at least 250 food"
+    },
+    {
+      "slot": 66,
+      "title": "The Prettiest Tribe Girl",
+      "variant": "",
+      "description": "A young woman wants to be declared the prettiest in the tribe.",
+      "requires": "at least one adult woman"
+    },
+    {
+      "slot": 67,
+      "title": "The Strange Request",
+      "variant": "",
+      "description": "Biggles wants to be left alone at the research table: allow it, or refuse.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 68,
+      "title": "The Savage Child",
+      "variant": "",
+      "description": "A wild boy is found at the research table: lure him in with food, or chase him away.",
+      "requires": "room in the village for a new villager"
+    },
+    {
+      "slot": 69,
+      "title": "The Voices In The Brush",
+      "variant": "",
+      "description": "A villager hears voices in the brush: investigate (risky), or head back.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 70,
+      "title": "For The Birds",
+      "variant": "",
+      "description": "A child sees sea birds leaving fish on the rocks: taste the fish, or leave it.",
+      "requires": "at least one living child"
+    },
+    {
+      "slot": 71,
+      "title": "The Fastest Runner",
+      "variant": "",
+      "description": "A villager brags about being the fastest: hold a race, or agree.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 72,
+      "title": "The Nightmare",
+      "variant": "",
+      "description": "A villager thrashes in a nightmare: wake them, or let them sleep.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 73,
+      "title": "A Bump On The Head",
+      "variant": "",
+      "description": "A villager falls from a tree and loses their memory: another bump, or rest.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 74,
+      "title": "The Child Prodigy",
+      "variant": "",
+      "description": "A gifted child builds amazing models: let them play, or apprentice them to the researchers.",
+      "requires": "at least one living child"
+    },
+    {
+      "slot": 75,
+      "title": "The Swarm Of Dragonflies",
+      "variant": "",
+      "description": "Dragonflies gather at the pond: chase them away, or ignore them.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 76,
+      "title": "The Black Seeds",
+      "variant": "",
+      "description": "A villager finds strange black seeds: eat them, or plant them.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 77,
+      "title": "The Crystal Ball",
+      "variant": "",
+      "description": "A villager finds a strange ball: keep it, or give it to the children.",
+      "requires": "at least one adult"
+    },
+    {
+      "slot": 78,
+      "title": "The Silver Mirror",
+      "variant": "",
+      "description": "A villager finds a silver mirror and must speak one of two words written on it.",
+      "requires": "at least two villagers"
+    },
+    {
+      "slot": 79,
+      "title": "The Huge Coconut",
+      "variant": "",
+      "description": "A giant coconut falls: soften it in the pond, or hurl it from the diving rock.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 80,
+      "title": "The Falling Star",
+      "variant": "",
+      "description": "A villager sees a falling star: wish for themselves, or for the village.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 81,
+      "title": "The Hole In The Sand",
+      "variant": "",
+      "description": "A villager finds a strange hole on the beach: investigate it, or fill it in.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 82,
+      "title": "The Spyglass",
+      "variant": "",
+      "description": "A villager finds a spyglass: keep it, or give it to the scientists.",
+      "requires": "the spyglass not to have been kept already"
+    },
+    {
+      "slot": 83,
+      "title": "The Love Note",
+      "variant": "",
+      "description": "A man finds a love note from a secret admirer: write a poem, or hide to catch the poet.",
+      "requires": "at least one adult man and one adult woman"
+    },
+    {
+      "slot": 84,
+      "title": "The White Pearl",
+      "variant": "",
+      "description": "A villager finds a huge white pearl: keep it, or show it to the tribe.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 128,
+      "title": "A Mysterious Sack",
+      "variant": "thick plastic",
+      "description": "A thick plastic sack washes up: opening it gives food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 129,
+      "title": "A Mysterious Sack",
+      "variant": "carefully sealed",
+      "description": "A carefully sealed sack washes up: opening it gives tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 130,
+      "title": "A Mysterious Sack",
+      "variant": "somewhat compromised",
+      "description": "A somewhat compromised sack washes up: old tools give tech points, but villagers fall ill.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 131,
+      "title": "A Mysterious Sack",
+      "variant": "thick canvas",
+      "description": "A thick canvas sack washes up: starving mice inside bite the villagers.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 132,
+      "title": "A Mysterious Sack",
+      "variant": "stained, heavy burlap",
+      "description": "A stained burlap sack washes up: fire ants inside sting the villager who opens it.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 133,
+      "title": "A Mysterious Vial",
+      "variant": "green",
+      "description": "A vial of green liquid: drinking it changes the villager's looks.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 134,
+      "title": "A Mysterious Vial",
+      "variant": "orange",
+      "description": "A vial of orange liquid: drinking it raises one of the villager's skills.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 135,
+      "title": "A Mysterious Vial",
+      "variant": "fragrant",
+      "description": "A vial of fragrant liquid: drinking it lowers all of the villager's skills.",
+      "requires": "nothing beyond an island event being possible"
+    }
+  ],
+  "excluded_island_events": [
+    {
+      "title": "(case 4 of 0x433600)",
+      "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry"
+    },
+    {
+      "title": "The Mosquito Swarm",
+      "reason": "case 18: the selector's condition table maps it to the never-valid entry 0x434824"
+    },
+    {
+      "title": "The Dragonfly Migration",
+      "reason": "case 20: the selector's condition table maps it to the never-valid entry 0x434824"
+    },
+    {
+      "title": "Science Awareness Day",
+      "reason": "case 26: the selector's condition table maps it to the never-valid entry 0x434824"
+    }
+  ],
+  "patches": []
+}

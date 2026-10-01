@@ -1,6 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
+#include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -930,6 +931,7 @@ static void vvfp_fix_huts_bridge(void) {
 __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
+    vvfp_story_bridge(4);       /* story / cheat upgrades companion: once, fail-open */
     g_dest_surface = surface;
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
@@ -1269,9 +1271,11 @@ static const char *vv4_row_cost(int villager_menu, int row) {
         return "";
     }
     if (villager_menu) {
-        return row < VV4_ARRAY_LEN(g_villager_costs) ? g_villager_costs[row] : "";
+        return row < VV4_ARRAY_LEN(g_villager_costs)
+            ? vvfp_story_price_text(4, g_villager_costs[row]) : "";
     }
-    return row < VV4_ARRAY_LEN(g_tech_costs) ? g_tech_costs[row] : "";
+    return row < VV4_ARRAY_LEN(g_tech_costs)
+        ? vvfp_story_price_text(4, g_tech_costs[row]) : "";
 }
 static int g_villager_menu;  /* set at WM_INITDIALOG; menus are modal/one-at-a-time */
 /* The full state bitmask handed to the villager menu at open time (low bits:
@@ -1514,10 +1518,27 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
         }
+        /* Story / Cheat Upgrades: every price reads 0, and the Tech menu
+           gains Pick Island Event. */
+        vvfp_story_relabel(4, window);
+        if (!villager_menu) {
+            vvfp_story_add_pick_button(4, window);
+        }
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VVFP_STORY_PICK_ID) {
+            /* Pick Island Event shares the Island Event row's lock. */
+            if (vvfp_story_pick_clicked(
+                    4, window,
+                    block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
+                        ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
+                        : NULL)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int row = (int)(command - ID_BUY_FIRST);
             char label[16];
@@ -1618,6 +1639,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 
 static int show_upgrade_menu(int villager_menu, int dialog_state) {
     int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
+    vvfp_story_bridge(4);   /* before any price is shown or charged */
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
@@ -1654,6 +1676,7 @@ static INT_PTR CALLBACK appearance_dialog(
     LPARAM lparam
 ) {
     if (message == WM_INITDIALOG) {
+        vvfp_story_relabel(4, window);   /* "OK deducts 0 tech points" */
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
            live head/body/mask fields directly. Show the current mask name. */
@@ -2049,6 +2072,7 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
                                       WPARAM wparam, LPARAM lparam) {
     (void)lparam;
     if (message == WM_INITDIALOG) {
+        vvfp_story_relabel(4, window);   /* "OK deducts 0 tech points" */
         forall_state.male_head = forall_state.male_body = forall_state.male_mask =
             FA_NOCHANGE;
         forall_state.female_head = forall_state.female_body =
@@ -2137,12 +2161,14 @@ static int fa_nothing_selected(void) {
 
 __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
     int affected;
+    int delta = -vvfp_story_price(4, 450000);   /* 0 under Story / Cheat Upgrades */
     HWND owner = GetForegroundWindow();
     vv4_prep_fullscreen();
     /* Buy-confirm before the dialog (parity wording across all 5 games). */
     if (MessageBoxA(owner,
-            "Do you want to buy Change Appearance for All for 450,000 tech "
-            "points?\r\nPress OK to confirm, or Cancel.",
+            vvfp_story_text(4,
+                "Do you want to buy Change Appearance for All for 450,000 tech "
+                "points?\r\nPress OK to confirm, or Cancel."),
             "Change Appearance for All",
             MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {
         return 0;
@@ -2157,7 +2183,7 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
             "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
         return 0;
     }
-    if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < 450000u) {
+    if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < (unsigned int)-delta) {
         MessageBoxA(owner,
             "Not enough tech points. This upgrade costs 450,000.",
             "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
@@ -2184,11 +2210,13 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
             "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
         return 0;
     }
-    __asm {
-        push -450000
-        mov  ecx, 0x4D6F88
-        mov  eax, 0x41E300
-        call eax
+    if (delta != 0) {
+        __asm {
+            push delta
+            mov  ecx, 0x4D6F88
+            mov  eax, 0x41E300
+            call eax
+        }
     }
     MessageBoxA(owner, "Change Appearance for All applied to every villager.",
                 "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
@@ -2988,8 +3016,9 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
-            "Do you want to buy Grant Running to All Villagers for 1,000,000 "
-            "tech points?\r\nPress OK to confirm, or Cancel.",
+            vvfp_story_text(4,
+                "Do you want to buy Grant Running to All Villagers for 1,000,000 "
+                "tech points?\r\nPress OK to confirm, or Cancel."),
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     if (command == 7) {
@@ -3002,8 +3031,9 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
-            "Do you want to buy Grant Full Mastery to All Villagers for "
-            "1,000,000 tech points?\r\nPress OK to confirm, or Cancel.",
+            vvfp_story_text(4,
+                "Do you want to buy Grant Full Mastery to All Villagers for "
+                "1,000,000 tech points?\r\nPress OK to confirm, or Cancel."),
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     if (command == 8) {
@@ -3015,8 +3045,9 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
-            "Do you want to buy All Villagers are Exactly 18 for 1,000,000 tech "
-            "points?\r\nPress OK to confirm, or Cancel.",
+            vvfp_story_text(4,
+                "Do you want to buy All Villagers are Exactly 18 for 1,000,000 tech "
+                "points?\r\nPress OK to confirm, or Cancel."),
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     return 1;

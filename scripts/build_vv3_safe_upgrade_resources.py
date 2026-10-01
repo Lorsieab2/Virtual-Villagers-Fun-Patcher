@@ -45,8 +45,12 @@ FOUNDATION_OUTPUT = (
 # empty table and overwritten, and one that cannot be opened is neither read
 # nor written until a throttled retry opens it. (Built from the source with
 # both changes: the debug logs removed and the shared sidecar I/O.)
-SOURCE_SHA256 = "152209A2C64DE115B12C1F72D1E0E69371D01BA91A38A4DE7C1132C1D5AC0790"
-SOURCE_SIZE = 1903104
+# Recertified when the companion learned the Story / Cheat Upgrades row
+# (native/shared/story_bridge.h): it loads "VVFP Story Upgrades.dll" when
+# shipped, shows and charges 0 while that row is active, and adds the Pick
+# Island Event button to the Tech menu.  Without the row nothing changes.
+SOURCE_SHA256 = "D994DA92E4164DD03EAC844D64B936014C766C31691D92D56768A67408D9F284"
+SOURCE_SIZE = 1906176
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

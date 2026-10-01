@@ -159,7 +159,7 @@ Researchers keep choosing the stock research action and earning tech points afte
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen's Food and Tech Point Doublers do not double Island Event, Duplicate Collectible or Golden Child tech gains.
 
-**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically. Needed by Story / Cheat Upgrades: unticking this unticks it.**
 
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -341,6 +341,18 @@ Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, un
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Story / Cheat Upgrades (`vv1_story_cheat_upgrades`)
+
+Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**
+
+**Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and unticking it unticks this.**
+
+- Behavior changes: Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0. Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every "nothing to change" check. Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts. Offers 38 island events; events that can never run in this game are not offered.
+- Explicit non-changes/exclusions: No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs. No event is emulated: the picked event is created, shown and resolved by the game's own code. Tech points are never added, and nothing is written to the save.
+- Dependencies: vv1_origins_village_wide_upgrades
+- Evidence status: static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Super-Secret Golden Mushroom (`vv1_super_secret_golden_mushroom`)
 
 Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
@@ -462,7 +474,7 @@ Healers and villagers who prefer Healing study plants when no sick villager need
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers, the Villager Details screen grants Youth, Full Mastery, Running, and Set Age to 18, and the Heathen mask cosmetics are included. The point doublers do not double Island Event, Duplicate Collectible or Gong of Wonder tech gains.
 
-**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically. Needed by Story / Cheat Upgrades: unticking this unticks it.**
 
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 62 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -571,6 +583,18 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 - Dependencies: none
 - Evidence status: implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own step queue and dispatcher into the handler in tests/test_manual_drop_breeding.py; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Story / Cheat Upgrades (`vv2_story_cheat_upgrades`)
+
+Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**
+
+**Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and unticking it unticks this.**
+
+- Behavior changes: Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0. Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every "nothing to change" check. Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts. Offers 53 island events; events that can never run in this game are not offered.
+- Explicit non-changes/exclusions: No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs. No event is emulated: the picked event is created, shown and resolved by the game's own code. Tech points are never added, and nothing is written to the save.
+- Dependencies: vv2_origins_village_wide_upgrades
+- Evidence status: static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Super-Secret Golden Mushroom (`vv2_super_secret_golden_mushroom`)
 
@@ -706,7 +730,7 @@ Builders fix huts when no building projects are present, and build first. This m
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Food and Tech Point Doublers, Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The point doublers do not double Island Event or Duplicate Collectible tech gains.
 
-**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically. Needed by Story / Cheat Upgrades: unticking this unticks it.**
 
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -804,6 +828,18 @@ When the Tribal Chief completes Pointing out a rare collectible and the stock ga
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Story / Cheat Upgrades (`vv3_story_cheat_upgrades`)
+
+Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**
+
+**Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and unticking it unticks this.**
+
+- Behavior changes: Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0. Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every "nothing to change" check. Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts. Offers 57 island events; events that can never run in this game are not offered.
+- Explicit non-changes/exclusions: No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs. No event is emulated: the picked event is created, shown and resolved by the game's own code. Tech points are never added, and nothing is written to the save.
+- Dependencies: vv3_origins_village_wide_upgrades
+- Evidence status: static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Super-Secret Golden Mushroom (`vv3_super_secret_golden_mushroom`)
 
@@ -917,7 +953,7 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance, and the Heathen mask cosmetics are included. The point doublers do not double Island Event or Duplicate Collectible tech gains.
 
-**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically. Needed by Story / Cheat Upgrades: unticking this unticks it.**
 
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers uses the native Float32 skill writer for each changed skill and postverifies exact 100.0 values. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -976,6 +1012,18 @@ Replaces some in-game text with wording consistent with the other Virtual Villag
 - Explicit non-changes/exclusions: No executable bytes are patched. No gameplay, stats, collectibles, or save data are affected.
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Story / Cheat Upgrades (`vv4_story_cheat_upgrades`)
+
+Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**
+
+**Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and unticking it unticks this.**
+
+- Behavior changes: Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0. Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every "nothing to change" check. Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts. Offers 44 island events; events that can never run in this game are not offered.
+- Explicit non-changes/exclusions: No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs. No event is emulated: the picked event is created, shown and resolved by the game's own code. Tech points are never added, and nothing is written to the save.
+- Dependencies: vv4_origins_village_wide_upgrades
+- Evidence status: static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Super-Secret Golden Mushroom (`vv4_super_secret_golden_mushroom`)
@@ -1087,7 +1135,7 @@ Villagers with positive Devotion skill can spontaneously use the stock Honoring 
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, Equal Division of Labor with and without Parenting, and Change Appearance for All, the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance, and the Heathen mask cosmetics are included. The point doublers do not double Island Event or Duplicate Collectible tech gains. The Village-Wide Running, Full Mastery and Make Villagers Young Adults process only Believers and skip Heathens; Change Appearance for All changes every villager, Heathens included.
 
-**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically. Needed by Story / Cheat Upgrades: unticking this unticks it.**
 
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
@@ -1186,6 +1234,18 @@ Dropping a villager on a completed statue gives Polishing the Statue or Honoring
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Story / Cheat Upgrades (`vv5_story_cheat_upgrades`)
+
+Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**
+
+**Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and unticking it unticks this.**
+
+- Behavior changes: Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0. Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every "nothing to change" check. Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts. Offers 45 island events; events that can never run in this game are not offered.
+- Explicit non-changes/exclusions: No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs. No event is emulated: the picked event is created, shown and resolved by the game's own code. Tech points are never added, and nothing is written to the save.
+- Dependencies: vv5_origins_village_wide_upgrades
+- Evidence status: static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Super-Secret Golden Mushroom (`vv5_super_secret_golden_mushroom`)
 

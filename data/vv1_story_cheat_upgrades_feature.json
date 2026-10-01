@@ -1,0 +1,425 @@
+{
+  "id": "vv1_story_cheat_upgrades",
+  "enabled": true,
+  "game_id": "vv1",
+  "name": "Story / Cheat Upgrades",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event.**",
+  "output_tag": "Story Cheat Upgrades",
+  "dependencies": [
+    "vv1_origins_village_wide_upgrades"
+  ],
+  "behavior_changes": [
+    "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
+    "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
+    "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
+    "Offers 38 island events; events that can never run in this game are not offered."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs.",
+    "No event is emulated: the picked event is created, shown and resolved by the game's own code.",
+    "Tech points are never added, and nothing is written to the save."
+  ],
+  "evidence_status": "static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
+      "destination": "VVFP Story Upgrades.dll",
+      "sha256": "4D6312B319D5861F103C87AA2C13C81FB3015A9B88BA9C0B3D7A9CE21EED628B"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x485FC0",
+      "stock_bytes": "50C3000030750000F824010020A1070020A107003075000050C30000A0860100409C000050C3000088130000",
+      "written_bytes": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "routine": "the Origins price table (11 prices)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x456AD3",
+      "stock_bytes": "81BFFCA2000040420F00",
+      "written_bytes": "81BFFCA2000000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48D59D",
+      "stock_bytes": "81A8FCA2000040420F00",
+      "written_bytes": "81A8FCA2000000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48D5D5",
+      "stock_bytes": "81A8FCA2000040420F00",
+      "written_bytes": "81A8FCA2000000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48D61E",
+      "stock_bytes": "81A8FCA2000040420F00",
+      "written_bytes": "81A8FCA2000000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48D6EB",
+      "stock_bytes": "81AFFCA2000030750000",
+      "written_bytes": "81AFFCA2000000000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48DA80",
+      "stock_bytes": "81BFFCA2000088130000",
+      "written_bytes": "81BFFCA2000000000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48DAB5",
+      "stock_bytes": "81AFFCA2000088130000",
+      "written_bytes": "81AFFCA2000000000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48DB10",
+      "stock_bytes": "BAD0DD0600",
+      "written_bytes": "BA00000000",
+      "routine": "an Origins charge, check or refund of 450,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48DB1C",
+      "stock_bytes": "BA40420F00",
+      "written_bytes": "BA00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48DD3E",
+      "stock_bytes": "81BFFCA2000040420F00",
+      "written_bytes": "81BFFCA2000000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48DD90",
+      "stock_bytes": "81AFFCA2000040420F00",
+      "written_bytes": "81AFFCA2000000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x423818",
+      "stock_bytes": "E8F3F6FDFF",
+      "routine": "rand(100) choosing the encounter family (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42383A",
+      "stock_bytes": "E8D1F6FDFF",
+      "routine": "rand(100) choosing island event or crate (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4284DB",
+      "stock_bytes": "E830AAFDFF",
+      "routine": "rand(15) choosing the island event (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418932",
+      "stock_bytes": "E8D9A5FEFF",
+      "routine": "rand(16) choosing the villager encounter (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B03E",
+      "stock_bytes": "E8CD7EFDFF",
+      "routine": "rand(9) choosing the crate or vial (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    }
+  ],
+  "island_events": [
+    {
+      "slot": 0,
+      "title": "The Bad Little Monkey",
+      "variant": "",
+      "description": "A monkey ransacks the research table: the tribe loses tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 2,
+      "title": "The Plague of Parrots",
+      "variant": "",
+      "description": "A flock of wild parrots eats many of the berries.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 3,
+      "title": "A Plague of Locusts",
+      "variant": "",
+      "description": "Locusts devour the crops in the field.",
+      "requires": "crops growing in the farm field"
+    },
+    {
+      "slot": 4,
+      "title": "The Measles Epidemic",
+      "variant": "",
+      "description": "Every child in the village falls ill with measles.",
+      "requires": "at least one living child"
+    },
+    {
+      "slot": 5,
+      "title": "The South Wind",
+      "variant": "",
+      "description": "A hot wind withers the berries, scorches the crops and spoils some stored food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 6,
+      "title": "The Heat Wave",
+      "variant": "",
+      "description": "A heat wave: the villagers stop working to seek relief until it passes.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 7,
+      "title": "Isola Day Celebration",
+      "variant": "",
+      "description": "The villagers celebrate their arrival on Isola with a feast (uses some food).",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 8,
+      "title": "Blessings Day Celebration",
+      "variant": "",
+      "description": "The villagers give thanks with dancing, ceremonies and a feast (uses some food).",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 9,
+      "title": "The Big Wave",
+      "variant": "",
+      "description": "A giant wave covers the cleaned-up beach with debris again.",
+      "requires": "the beach to have been cleaned up completely"
+    },
+    {
+      "slot": 10,
+      "title": "The Good Little Monkey",
+      "variant": "",
+      "description": "A monkey stumbles on useful discoveries at the research table: the tribe gains tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 11,
+      "title": "The Greedy Little Monkey",
+      "variant": "",
+      "description": "Chasing a food thief, the villagers find a cache of bananas: the tribe gains food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 12,
+      "title": "The Barrel O` Babies",
+      "variant": "",
+      "description": "A barrel of babies washes up and they join the village (more of them in a bigger village).",
+      "requires": "room in the village for new villagers"
+    },
+    {
+      "slot": 13,
+      "title": "The North Wind",
+      "variant": "",
+      "description": "A cool, moist wind refreshes the crops and the berry bush.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 14,
+      "title": "The Helpful Honeybees",
+      "variant": "",
+      "description": "Honeybees pollinate the berry bush and it thrives.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 64,
+      "title": "The Trapped Whale",
+      "variant": "",
+      "description": "A villager finds a stranded whale: free it, or harvest it for food.",
+      "requires": "the whale event to have happened fewer than three times"
+    },
+    {
+      "slot": 65,
+      "title": "The Strange Berries",
+      "variant": "",
+      "description": "A villager finds strange berries: taste them (risky) or leave them.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 66,
+      "title": "The Old Drum",
+      "variant": "",
+      "description": "A villager finds a heavy old drum: cut it open, or keep it.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 67,
+      "title": "The Mysterious Face",
+      "variant": "",
+      "description": "A villager sees a face in the trees: take a closer look (risky), or back away.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 68,
+      "title": "The Visitor",
+      "variant": "",
+      "description": "A stranger in a boat asks for plants and seeds: help him, or refuse.",
+      "requires": "the visitor to have come fewer than three times"
+    },
+    {
+      "slot": 70,
+      "title": "A Mysterious Vial",
+      "variant": "red liquid",
+      "description": "A villager finds a vial of oily red liquid: drink it (risky), or pour it out.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 71,
+      "title": "The Troubled Child",
+      "variant": "",
+      "description": "An unusually bright child needs direction: farming, or research.",
+      "requires": "at least one living child"
+    },
+    {
+      "slot": 72,
+      "title": "A Mysterious Vial",
+      "variant": "blue liquid",
+      "description": "A villager finds a vial of oily blue liquid: drink it, or pour it out.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 73,
+      "title": "The Suspicious Monkey",
+      "variant": "",
+      "description": "A monkey hangs around the food bin: chase it away, or wait and see.",
+      "requires": "at least one living child"
+    },
+    {
+      "slot": 74,
+      "title": "The Wild Mushroom",
+      "variant": "",
+      "description": "A villager picks a mushroom the monkeys eat: taste it (risky), or discard it.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 75,
+      "title": "The Black Pearl",
+      "variant": "",
+      "description": "A villager finds a stunning black pearl: share it, or keep it.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 76,
+      "title": "The Dream",
+      "variant": "",
+      "description": "A villager dreams of two caves: enter the right cave, or the left.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 77,
+      "title": "The Moth",
+      "variant": "",
+      "description": "A villager finds a moth struggling out of its cocoon: help it, or leave it.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 78,
+      "title": "The Book",
+      "variant": "",
+      "description": "A villager finds a book, The Island of Pearls: read it, or give it to the researchers.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 79,
+      "title": "The Brass Compass",
+      "variant": "",
+      "description": "A villager finds a brass compass: use it to mash berries, or give it to the researchers.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 128,
+      "title": "A Mysterious Crate",
+      "variant": "wooden",
+      "description": "A wooden crate washes up: opening it gives food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 129,
+      "title": "A Mysterious Crate",
+      "variant": "carefully sealed",
+      "description": "A carefully sealed crate washes up: opening it gives tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 130,
+      "title": "A Mysterious Crate",
+      "variant": "badly weathered",
+      "description": "A badly weathered crate washes up: rusty tools give tech points, but villagers fall ill.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 131,
+      "title": "A Mysterious Crate",
+      "variant": "rotting",
+      "description": "A rotting crate washes up: angry rats bite and spread disease.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 132,
+      "title": "A Mysterious Crate",
+      "variant": "watertight",
+      "description": "A watertight crate washes up: babies inside join the village if there is room.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 133,
+      "title": "A Mysterious Crate",
+      "variant": "old fruit",
+      "description": "An old fruit crate washes up: giant spiders badly injure the villager who opens it.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 134,
+      "title": "A Mysterious Vial",
+      "variant": "red, from the sea",
+      "description": "A vial washes up: drinking it changes the villager's appearance.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 135,
+      "title": "A Mysterious Vial",
+      "variant": "blue, from the sea",
+      "description": "A vial washes up: drinking it raises one of the villager's skills.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 136,
+      "title": "A Mysterious Vial",
+      "variant": "fizzy, from the sea",
+      "description": "A vial washes up: drinking it lowers all of the villager's skills.",
+      "requires": "nothing beyond an island event being possible"
+    }
+  ],
+  "excluded_island_events": [
+    {
+      "title": "A Mighty Storm",
+      "reason": "island case 1: its condition class (byte 5 at 0x4286A1) always re-rolls, so the selector never runs it"
+    },
+    {
+      "title": "The Furry Food",
+      "reason": "encounter variant 5: its condition class (byte 4 at 0x4189A9) always re-rolls"
+    }
+  ],
+  "patches": []
+}

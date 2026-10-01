@@ -616,7 +616,7 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
         entry = self.c.split("ShowVv4AppearanceForAll(void) {", 1)[1].split("\n}", 1)[0]
         apply_at = entry.index("affected = vv4_apply_for_all()")
         guard_at = entry.index("if (affected == 0)", apply_at)
-        charge_at = entry.index("push -450000", guard_at)
+        charge_at = entry.index("push delta", guard_at)
         self.assertLess(apply_at, guard_at)
         self.assertLess(guard_at, charge_at)
         self.assertIn("No occupied villagers matched", entry)

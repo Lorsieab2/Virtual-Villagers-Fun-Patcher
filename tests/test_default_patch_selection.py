@@ -30,9 +30,16 @@ GUI = ROOT / "src" / "vv_fun_patcher_gui.py"
 
 
 def fun_patch_ids() -> set[str]:
+    """Every patch a player can tick: builds.json's rows and the generated
+    manifests the patcher loads beside them (Story / Cheat Upgrades lives in
+    its own five data/*_story_cheat_upgrades_feature.json files)."""
+    import vv_fun_patcher as patcher
+
     builds = json.loads(
         (ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
-    return {str(patch["id"]) for patch in builds.get("fun_patches", [])}
+    return {str(patch["id"]) for patch in builds.get("fun_patches", [])} | {
+        patch.id for patch in patcher.load_public_fun_patches()
+    }
 
 
 class DefaultPatchSelectionTests(unittest.TestCase):
@@ -95,7 +102,18 @@ class DefaultPatchSelectionTests(unittest.TestCase):
             off, {p for p in ids if "learning_never_fails" in p
                   or p.endswith("_everyone_collects_like_vv1")
                   or p.endswith("_super_secret_golden_mushroom")
-                  or p.endswith("_manual_drop_breeding_overrides_birth_control")})
+                  or p.endswith("_manual_drop_breeding_overrides_birth_control")
+                  or p.endswith("_story_cheat_upgrades")})
+
+    def test_story_cheat_upgrades_is_off_by_default_in_all_five(self) -> None:
+        """The owner: Story / Cheat Upgrades is a default-off patch."""
+        ids = fun_patch_ids()
+        for game in range(1, 6):
+            patch_id = "vv%d_story_cheat_upgrades" % game
+            with self.subTest(patch=patch_id):
+                self.assertIn(patch_id, ids)
+                self.assertIn(patch_id, DEFAULT_OFF_FUN_PATCH_IDS)
+                self.assertFalse(default_fun_patch_selection(patch_id))
 
     def test_manual_drop_breeding_is_off_by_default_in_all_five(self) -> None:
         """The owner: "Default-OFF. Owner's-Defaults ON." -- all five games."""

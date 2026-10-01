@@ -335,9 +335,13 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # VV2's own writer became atomic (temp file, checked writes, flush,
         # replace), and in both VV2's and the shared VV1 source an invalid
         # sidecar is set aside and an unopenable one is never overwritten.
+        # Re-pinned when it learned Story / Cheat Upgrades
+        # (native/shared/story_bridge.h): it loads "VVFP Story Upgrades.dll"
+        # when shipped and, only while that row is active, shows and charges
+        # 0 and offers Pick Island Event.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "20333021F7C490BCF3DC1724730A998A66068FD483E54C6D145BB60261E7C2E1",
+            "A762EE0702FA9207054CB73DAB1B9360BEA50412D6FDE961B66D0141A1C40D8B",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

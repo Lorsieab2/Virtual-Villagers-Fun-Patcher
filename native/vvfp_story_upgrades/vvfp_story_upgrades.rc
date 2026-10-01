@@ -1,0 +1,27 @@
+/* The "Pick Island Event" chooser: a plain Windows dialog (the owner's
+   explicit choice -- not game art).  A list of the game's island events by
+   their official titles, the selected event's one-line description under it,
+   OK and Cancel.  The list is filled at run time from story_tables.h. */
+#define DS_MODALFRAME 0x0080L
+#define DS_SETFONT 0x0040L
+#define WS_POPUP 0x80000000L
+#define WS_CAPTION 0x00C00000L
+#define WS_SYSMENU 0x00080000L
+#define WS_VSCROLL 0x00200000L
+#define WS_TABSTOP 0x00010000L
+#define WS_BORDER 0x00800000L
+#define LBS_NOTIFY 0x0001L
+#define LBS_NOINTEGRALHEIGHT 0x0100L
+#define SS_LEFT 0x0000L
+
+301 DIALOGEX 0, 0, 330, 236
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Pick Island Event"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Choose the island event that will happen next:", -1, 8, 6, 314, 10
+    LISTBOX     3001, 8, 18, 314, 150, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LTEXT       "", 3002, 8, 172, 314, 36, SS_LEFT
+    DEFPUSHBUTTON "OK", 1, 186, 214, 64, 15
+    PUSHBUTTON  "Cancel", 2, 258, 214, 64, 15
+END
