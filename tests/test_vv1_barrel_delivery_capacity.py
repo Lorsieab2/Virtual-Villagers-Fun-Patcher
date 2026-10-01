@@ -188,30 +188,19 @@ class BarrelDeliveryCapacityTests(unittest.TestCase):
         ]
         self.assertEqual(cleared, [])
 
-    def test_three_child_override_is_armed_only_on_the_dispatch_path(self):
-        """A natural barrel must not consume the one-shot while ours waits."""
-        main_arms = [
-            i
-            for i in self.main
-            if i.mnemonic == "mov" and hex(BARREL_UPGRADE_FLAG) in i.op_str.lower()
-        ]
-        self.assertEqual(
-            main_arms,
-            [],
-            "the flag must be armed inside the room check, past the refusal",
-        )
-        room_arms = [
-            i
-            for i in self.room
-            if i.mnemonic == "mov" and hex(BARREL_UPGRADE_FLAG) in i.op_str.lower()
-        ]
-        self.assertEqual(len(room_arms), 1)
-        returns = [i.address for i in self.room if i.mnemonic == "ret"]
-        self.assertTrue(
-            any(address > room_arms[0].address for address in returns),
-            "arming must be followed by a return, not fall into the refusal",
-        )
+    def test_nothing_arms_a_three_child_flag(self):
+        """There is no three-child flag (removed in v1.35.45).
 
+        The purchased barrel's three children come from its magnitude 10; the
+        old flag was consumed by the Mysterious Crate's roll at 0x42B00C, so it
+        forced the next crate instead.  Neither the room check nor the helper
+        may write the old flag byte.
+        """
+        for code in (self.main, self.room):
+            writes = [
+                i for i in code if hex(BARREL_UPGRADE_FLAG) in i.op_str.lower()
+            ]
+            self.assertEqual(writes, [])
 
 if __name__ == "__main__":
     unittest.main()

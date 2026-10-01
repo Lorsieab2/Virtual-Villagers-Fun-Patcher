@@ -85,14 +85,12 @@ RESETS = {
         "globals": {
             0x48D700: "Barrel pending flag",
             0x48D704: "Barrel delay counter",
-            0x48D708: "three-child one-shot",
         },
     },
     "vv2": {
         "detour_at": 0x403160,
         "globals": {
             0x49C700: "Barrel pending flag",
-            0x49C704: "three-child one-shot",
             0x49C708: "Barrel cue counter",
         },
     },

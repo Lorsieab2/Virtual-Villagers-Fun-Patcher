@@ -390,11 +390,13 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # overwritten, and an unopenable one is left untouched.
         # Grew again when it learned Story / Cheat Upgrades
         # (native/shared/story_bridge.h): 0 prices and Pick Island Event,
-        # only while that row's companion is installed.
-        self.assertEqual(vv5_companion["size"], 1779200)
+        # only while that row's companion is installed. Grew again by 1,024
+        # bytes for Custom Island Event: the second Tech-menu button and the
+        # host table (save slot, mask store) it hands the story companion.
+        self.assertEqual(vv5_companion["size"], 1780224)
         self.assertEqual(
             vv5_companion["sha256"],
-            "B37C5AC4920E0A797F5FC3652B751AA8CA2E00D4B01CB4A97F823330A6EA453D",
+            "989AA1E16854526D74FB044AD58BD6E36091D655055C9CD1F069115F7285FD00",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

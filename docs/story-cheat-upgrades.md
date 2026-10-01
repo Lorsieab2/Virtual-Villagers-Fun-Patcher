@@ -108,17 +108,22 @@ Offered: A New Home 38, The Lost Children 53, The Secret City 57, The Tree of
 Life 44, New Believers 45 (the full lists, with descriptions, are in
 `scripts/story_island_events.py` and each row's `island_events`).
 
-## Found in passing (not changed here)
+## Found in passing (fixed in v1.35.45)
 
-* A New Home and The Lost Children: the Origins Barrel's three-child flag is
+* A New Home and The Lost Children: the Origins Barrel's three-child flag was
   consumed by the next Mysterious Crate / Sack roll, not by the barrel (whose
   count comes from its magnitude 10), so the next crate after a purchased
-  barrel is forced to its strongest outcome.
-* `docs/duplicate-purchase-guards.md` says the Island Event purchase zeroes the
-  countdown in VV1, VV2 and VV4; it writes clock + 5.
-* New Believers: the stock Chutes Without Ladders override (0x41893D) runs
-  after the Origins barrel stub, so a purchased Barrel can come out as Chutes
-  in a very small village.
+  barrel was forced to its strongest outcome. The flag and its detours are
+  removed; the barrel still gets three children from its magnitude.
+* A New Home: the deferred barrel helper destroyed its heap event with the
+  plain destructor and never freed the block. It now calls the class's
+  deleting destructor (0x427A00, flag 1).
+* `docs/duplicate-purchase-guards.md` said the Island Event purchase zeroes the
+  countdown in VV1, VV2 and VV4; it writes clock + 5. Corrected.
+* New Believers: the stock Chutes Without Ladders override (0x41893D) ran
+  after the Origins barrel stub, so a purchased Barrel could come out as
+  Chutes in a very small village. A purchased Barrel now goes straight to the
+  presenter; natural events keep the override.
 
 ## Not verified
 

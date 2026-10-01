@@ -230,18 +230,6 @@
       "purpose": "mark the Tech menu's Island Event and Barrel of Babies rows Unavailable while one of each is already pending, so a second purchase cannot be clicked and cannot be charged for"
     },
     {
-      "offset": "0x8B962",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000",
-      "after": "6A64E8A755F7FF83C404803D08D7480000740CC60508D7480000B863000000C3",
-      "purpose": "give the purchased Barrel of Babies its full three children, leaving natural barrels on the stock random count"
-    },
-    {
-      "offset": "0x2B00C",
-      "before": "E8FF7EFDFF",
-      "after": "E851290600",
-      "purpose": "route the barrel's baby-count roll through the purchased-barrel override"
-    },
-    {
       "offset": "0x8BF80",
       "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "68995D4800FF151070450085C0742068EF5E480050FF15D470450085C074108B0DC05F480051FF742408FFD0C20400C20400",
@@ -381,9 +369,9 @@
     },
     {
       "offset": "0x8E820",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "9C608B44242883F805775F83F801725A3B05F41149007452A3F4114900C605A811490000C7059810490000000000C705B4114900FFFFFFFFC60500D7480000C70504D7480000000000C60508D748000031C0BF00104900B920000000F3ABBFD0114900B908000000F3AB619D8B4424048B11E93F26F7FF",
-      "purpose": "capture the exact VV1 numbered village save-slot argument at 0x402ED0 into .vv1md and reset the restore/frame/table state AND the queued Barrel/Island event state (pending flag, delay counter, three-child one-shot) on a real slot change, so a purchase made in one village cannot leave the next village's row reading Unavailable or deliver into a save that never paid for it; slot zero (the meta file) and out-of-range values leave the live capture and mask tables untouched"
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "9C608B44242883F805775883F80172533B05F4114900744BA3F4114900C605A811490000C7059810490000000000C705B4114900FFFFFFFFC60500D7480000C70504D748000000000031C0BF00104900B920000000F3ABBFD0114900B908000000F3AB619D8B4424048B11E94626F7FF",
+      "purpose": "capture the exact VV1 numbered village save-slot argument at 0x402ED0 into .vv1md and reset the restore/frame/table state AND the queued Barrel/Island event state (pending flag, delay counter) on a real slot change, so a purchase made in one village cannot leave the next village's row reading Unavailable or deliver into a save that never paid for it; slot zero (the meta file) and out-of-range values leave the live capture and mask tables untouched"
     },
     {
       "offset": "0x8E6C0",
@@ -596,21 +584,15 @@
       "purpose": "reserve the process-local VV1 Barrel event delay counter: the main-village update owner is a genuine per-frame tick, so the queued event now waits 180 ticks after the Tech screen closes instead of firing on the very next one, giving the purchase confirmation time to be read first"
     },
     {
-      "offset": "0x8EB80",
-      "before": "000000000000000000000000",
-      "after": "C60508D7480000E9FECBFFFF",
-      "purpose": "clear the purchased Barrel's three-child override when the event object cannot be constructed, so a failed dispatch does not leave the one-shot armed for whichever barrel arrives next"
-    },
-    {
       "offset": "0x8EB00",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "51E88AC4F8FF5983F80C762E80B9E89F000001753283F816762080B9F09F000001752483F82F761280B9F89F0000017516E8CAD1FFFF85C0740DC60508D7480001B801000000C331C0C3",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "51E88AC4F8FF5983F80C762E80B9E89F000001752B83F816762080B9F09F000001751D83F82F761280B9F89F000001750FE8CAD1FFFF85C07406B801000000C331C0C3",
       "purpose": "recheck at delivery, not only at purchase, that the village still has room for three more children before the deferred Barrel of Babies is consumed; with no room the paid event is held and retried on a later tick instead of being spent on a short count"
     },
     {
       "offset": "0x8B710",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "E8EBAEFBFF803D00D7480002756DFF0504D74800813D04D74800B4000000725B608B7424048B4E10E8C333000085C0744968F0500000E8B8D7FBFF83C40485C00F842A34000089C3682C1A4B7F6A0189D9E84AAFF9FF6A005689D9E84043F7FF89D9E8A99EF9FFC60500D7480000C70504D7480000000000EB0061E9B468F9FF",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "E8EBAEFBFF803D00D74800027569FF0504D74800813D04D74800B40000007257608B7424048B4E10E8C333000085C0744568F0500000E8B8D7FBFF83C40485C0743489C3682C1A4B7F6A0189D9E84EAFF9FF6A005689D9E84443F7FF6A0189D9E88BA2F9FFC60500D7480000C70504D748000000000061E9B868F9FF",
       "purpose": "consume the deferred VV1 Barrel token from the stock main-village update owner, waiting 180 of its own per-frame ticks after the Tech screen closes before actually showing the event"
     },
     {
