@@ -66,6 +66,14 @@ Special Stews logic skips. For VV4 the water is salt exactly when flag 0xA
 (byte `0x704F00`) is set - the game's own rule in `0x42ECA0` - and fresh
 otherwise.
 
+VV4's four herbs are 0x1F spicy, 0x20 sweet, 0x21 soapy and 0x22 pulpy vines.
+The pulpy vines a villager cuts for cloth are that same item 0x22 (job 0x7A
+ends `push 0x22 ; call 0x4697C0` at `0x436B98`): the herb pile beside the pot
+takes them in all three slots, the cook carries each pile slot into the pot,
+and a player who swaps one or two of them for other herbs makes an ordinary
+mixed stew. Every such stew, and the all-vine salt-water cloth pulp (stock
+recipe 0xB), completes through `0x42EE5F` and is recorded like any other.
+
 The hook records the **ordered** triple in the pending bitset,
 `((h1*n)+h2)*n+h3` (VV4: `*2 + salt`), after range-checking each herb, so a
 value the game never produces records nothing. The companion normalises each
