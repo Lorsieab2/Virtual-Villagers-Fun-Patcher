@@ -264,7 +264,14 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # 4 (Building; 1 is Farming in the picker's own switch at 0x439CAC).
     # One immediate byte; the registers read, the flags consumed and both
     # re-entry targets (0x448342, 0x44836F) are unchanged.
-    ("vv1_builder_action_fixes", "0x48336"): "83E41508B3B44724B871B148EDEDB57130092392AC26005013AE744A5147CE32",
+    # Re-reviewed for the 75% roll (the owner: "about three times in four"):
+    # the Building test now pushes eax and edx, takes rdtsc * 0x9E3779B9 and
+    # keeps the builder's attempt unless the top two bits are clear.  Both
+    # exits pop edx and eax first, so every register and ESP reach the two
+    # unchanged re-entry targets (0x448342, 0x44836F) as the stock code has
+    # them; neither target reads the flags (push 1 / push 0 come first); no
+    # memory is written and no routine called.
+    ("vv1_builder_action_fixes", "0x48336"): "60AE61F4D74B9E7536D25AAD53748B190CAEB96A72D500BA13BC125CA5B216A6",
     # The statistics tracker's lifetime burial counter, spliced over the
     # skeleton-pickup latch clear at 0x448F65 in sub_448600's case 20. That
     # instruction IS the pickup: it clears the corpse's exists-flag before the

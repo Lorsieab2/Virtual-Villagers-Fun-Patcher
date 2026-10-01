@@ -148,17 +148,31 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
     # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
     # the only differing bytes are the PE CheckSum.
+    # Re-pinned when Origins began carrying the main-menu Start Over reset
+    # (2026-09-30). Justified BEFORE re-pinning: origin/main reproduces the
+    # previous pins (26E20313.../2CC59D13.../DC755117...); the only differing
+    # bytes are 0x6B7E5..0x6B7E8 (the rewritten call's rel32), the stub at
+    # 0xA3F90..0xA3FFA (.rdata tail, which Origins maps as code) and the PE
+    # CheckSum at 0x160..0x162.
+    # Re-pinned when Builders Fix Huts When Idle began wrapping the idle
+    # scheduler (one 75% roll per decision) and handing every option list to
+    # VvfpFixHutsFilter (build first, fix last), merged on top of the Start Over
+    # pins above. Justified BEFORE re-pinning: rendering the complete catalog
+    # with main (1a63dd73) and with the merged branch, the only differing bytes
+    # in all three modes are the PE CheckSum (0x160..0x162), the scheduler entry
+    # 0x5BFE0..0x5BFE5 and the fix-huts overlay (0xCB800..0xCB8B0, the stub and
+    # export name at 0xCBB00..0xCBBD4).
     "stock": (
-        "26E203135581EF8CDBF9DE83B14B36C621D9F1E3A8D90EC347E16A15C3809237",
-        "ADE20C00",
+        "934B816711DB43C86B2A80C03E1F705D52C849A53683D2A8EA5B7DDBC250EFC8",
+        "D58A0D00",
     ),
     "collection_progression": (
-        "2CC59D137060A79AC8C97C4B471E67236EB08CDEBFCDE9546902D2F1ACA6A915",
-        "ADFB0C00",
+        "4E7BB424192DB52D1DE552E67B6F7B6783A620294A9B28D7F34E93BBCE2A0935",
+        "D5A30D00",
     ),
     "immediate_fixed": (
-        "DC7551178BF924A37612FBEF2426467018432EA127E8516E0F660BAAE037871C",
-        "AB3D0D00",
+        "4B91F76A07069738066EDB2BDF306877A47F76EB3D0023913142379954B289F0",
+        "D4E50C00",
     ),
 }
 

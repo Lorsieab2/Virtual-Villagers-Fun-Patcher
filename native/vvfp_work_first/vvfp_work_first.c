@@ -38,6 +38,7 @@
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
+#include <intrin.h>
 
 /* ---- Population huts ------------------------------------------------------ */
 /* The same tests the fix-huts companion makes (native/vvfp_fix_huts). */
@@ -104,6 +105,62 @@ static int later_huts_incomplete(const struct later_game *g) {
     return 0;
 }
 
+/* ---- About three times in four ------------------------------------------------ */
+/* The owner: the behaviour patches "should increase the LIKELIHOOD of
+   villagers doing that action, not 100% replace them" -- 75%, one roll per
+   decision shared by every patch in it.  The decision and its roll belong to
+   "VVFP Fix Huts.dll", which wraps each game's idle scheduler (see "About
+   three times in four" there) and hands this companion its VvfpFixHutsRoll
+   through VvfpWorkFirstSetRoll before installing it; in The Secret City,
+   where the fix-huts page stub loads that DLL, the export is looked up by
+   module name.  This companion acts only for the scheduler's own calls, so
+   it always asks within a decision.  If the fix-huts DLL cannot be found at
+   all (it loads this one, so that does not happen in play) each ask draws a
+   75% roll of this companion's own. */
+static int (__cdecl *shared_roll)(void);
+static int shared_roll_state;          /* 0 = not looked up, 1 = found, -1 = absent */
+static unsigned int own_roll_state;
+
+#ifdef VVFP_TEST
+/* force: 0 = the real own roll, 1 = pass, 2 = fail; draws: own rolls drawn.
+   TEST build only. */
+struct vvfp_own_roll_test { int force; int draws; };
+__declspec(dllexport) struct vvfp_own_roll_test VvfpWorkFirstRollTest = { 0, 0 };
+#endif
+
+__declspec(dllexport) void __stdcall VvfpWorkFirstSetRoll(int (__cdecl *roll)(void)) {
+    shared_roll = roll;
+    shared_roll_state = roll != NULL ? 1 : 0;
+}
+
+static int own_roll(void) {
+    unsigned int x = own_roll_state;
+    if (x == 0) {
+        x = (unsigned int)__rdtsc() ^ 0x2545F491u;
+        if (x == 0) x = 0x2545F491u;
+    }
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    own_roll_state = x;
+#ifdef VVFP_TEST
+    ++VvfpWorkFirstRollTest.draws;
+    if (VvfpWorkFirstRollTest.force == 1) return 1;
+    if (VvfpWorkFirstRollTest.force == 2) return 0;
+#endif
+    return x % 100u < 75u;
+}
+
+static int decision_roll(void) {
+    if (shared_roll_state == 0) {
+        HMODULE fix_huts = GetModuleHandleA("VVFP Fix Huts.dll");
+        shared_roll = fix_huts != NULL
+            ? (int (__cdecl *)(void))GetProcAddress(fix_huts, "VvfpFixHutsRoll") : NULL;
+        shared_roll_state = shared_roll != NULL ? 1 : -1;
+    }
+    return shared_roll_state == 1 ? shared_roll() : own_roll();
+}
+
 /* ---- The decision ---------------------------------------------------------- */
 /* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
    tests/test_dlls/): the shipped DLL carries no counters and no probe. */
@@ -125,12 +182,16 @@ __declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0 };
    owner: "For healers, they should study medicine at all food levels, when
    they can study medicine"; whether they can (a patient, the Medicine tech,
    the Hospital) is the game's own healing dispatcher's decision, and when it
-   starts nothing the scheduler's own request runs. */
+   starts nothing the scheduler's own request runs.  All of it only when the
+   decision's roll passes; otherwise the stock request alone. */
 static int own_first(int selected, int requested, int building, int healing, int huts_incomplete) {
     if (selected == requested) {
         return -1;
     }
     if (selected == building ? !huts_incomplete : selected != healing) {
+        return -1;
+    }
+    if (!decision_roll()) {
         return -1;
     }
     WORK_FIRST_COUNT_TRIED;

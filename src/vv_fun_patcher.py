@@ -760,8 +760,8 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "121D2F9CF32D7B1C65F0203A4140F24BB7D2F1BACC61192AA29B9F41134C564C",
-    "map": "540DACF742723B7683C3F88C6C9C6BC46E70A85B30829F9FF077ED5C87267D1A",
+    "manifest": "697DDF12C65A37654655703A1FE033E06865908783DD759F06CA01073B4DB822",
+    "map": "5C251946100FCCD524181FF73297623C29946326C6068C2B5060D02018ECEFF0",
 }
 VV5_TASK9_DLL_SHA256 = "0438619A56DC4336B1FD2C2D3ED35C4E2F3B92C1645595DCEBC3A3C8F0188820"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
@@ -769,15 +769,15 @@ VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A406986
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "2DD00AA6C918C083775D5E275D6D75FC4BD0BB60700FF7022538C63D4F568721"
-VV5_TASK9_SAVE_RESET_SIZE = 131072
+VV5_TASK9_SAVE_RESET_SHA256 = "866A7EFDCA1282F18CD3964CC4451DC9ED659BC5667F91F1390FFA9368CED95E"
+VV5_TASK9_SAVE_RESET_SIZE = 134144
 VV5_TASK9_PAGE_SHA256 = {
     "collection_progression": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
     "immediate_fixed": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
     "experimental_expanded_256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
     "experimental_expanded_256_progression": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "E584CEC3286C3A9231F2D235BF5BE7C656CCB3E1A8FEA932DC28424477E3C619"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "8C032A1154518FDA8CA8CAD262BA941FEFC0E9D2CDF49A60735665A5C7402EA5"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -1127,6 +1127,21 @@ def _start_over_reset_from_origins(
 def _attach_start_over_reset(
     build_id: str, fun_patches: list[FunPatch]
 ) -> list[FunPatch]:
+    """Install both Start Over resets on the selection, each exactly once.
+
+    The tribe-delete reset (the save-slot menu) and the main-menu Start Over
+    reset are both needed whenever a file-owning feature is selected; see
+    _attach_tribe_delete_reset and _attach_main_menu_start_over_reset. Both
+    are no-ops when already attached, so a second call changes nothing.
+    """
+    return _attach_main_menu_start_over_reset(
+        build_id, _attach_tribe_delete_reset(build_id, fun_patches)
+    )
+
+
+def _attach_tribe_delete_reset(
+    build_id: str, fun_patches: list[FunPatch]
+) -> list[FunPatch]:
     """Hand the Start Over reset to exactly one selected file-owning feature.
 
     Nothing changes when no file-owning feature is selected, or when a selected
@@ -1173,6 +1188,417 @@ def _attach_start_over_reset(
     raw["companion_files"] = companion_files
     raw["_start_over_reset_carrier"] = True
     return [Record(raw) if feature is carrier else feature for feature in fun_patches]
+
+
+# THE MAIN MENU'S START OVER NEVER REACHED THE RESET.
+#
+# Live, VV2 v1.35.41 with every public patch: a village saved, back to the
+# main menu, Start Over -> "Are you sure you want to restart the current
+# game?" -> OK. A marker named exactly as VVFP Save Reset.dll deletes it
+# survived, and so did the Births and Conceptions log -- through two Start
+# Overs. The tribe-delete hook above is on the SAVE-SLOT menu's delete; the
+# main menu's Start Over never goes near deleteSave.
+#
+# In all five games the main-menu button handler shows that confirmation
+# (string eSayConfirmRestart) and, on OK, runs `mov ecx,[esi+0xC]; call
+# Restart`. Restart is a thiscall on the village object and has no other
+# caller: it keeps the tribe name, re-creates the village with the game's own
+# new-village routine, and saves it into the SAME slot (its save routine reads
+# the current slot from the field below and rotates the old save into the
+# slot's backup). The slot field is the one the save-slot menu itself compares
+# against the slot it just deleted.
+#
+#                site (file)  Restart    current-slot field
+#     VV1        0x26F68      0x41C7C0   +0xABE4
+#     VV2        0x32AF4      0x4255E0   +0x30378
+#     VV3        0x6B7E4      0x4283C0   +0x12F24
+#     VV4        0x44647      0x41F3E0   +0x17114
+#     VV5        0x47797      0x424930   +0x17D80
+#
+# The hook rewrites that one call to a stub which, before Restart runs --
+# the old village still in memory and its published header still recallable
+# -- calls ResetDeletedTribe(game, [village+slot]) and then tail-jumps to
+# Restart with every register and the stack exactly as the call left them. A
+# missing DLL or export skips the call and still restarts. Nothing on an
+# ordinary save or the backup rotation passes through here, and the button
+# runs Restart once per OK, so the reset runs once per Start Over.
+#
+# PLACEMENT. Every .text tail is full, so the stub (its own names and loader,
+# 0x6B bytes, sharing nothing with the tribe-delete block) needs a different
+# home depending on whether Origins is selected, exactly like the tribe-delete
+# carrier:
+#   * Origins selected: Origins carries it, in space Origins itself maps as
+#     executable (VV1/VV4 .shr, VV2/VV3 .rdata tail);
+#   * otherwise: the tribe-delete carrier (parentage first, else statistics)
+#     carries it, right after its own block (VV2 in the .shr page that
+#     carrier maps).
+# VV5 has one address free in both. Each was measured free -- zero, claimed by
+# nothing, and executable -- in every render with Origins (resp. without it)
+# in all three modes, with the executable-name crash guard applied, and render
+# re-checks the final image: the hook, the block and its mapping are verified
+# on the bytes that ship.
+MAIN_MENU_START_OVER = {
+    "vv1": {"site": 0x26F68, "restart": 0x41C7C0, "slot": 0xABE4},
+    "vv2": {"site": 0x32AF4, "restart": 0x4255E0, "slot": 0x30378},
+    "vv3": {"site": 0x6B7E4, "restart": 0x4283C0, "slot": 0x12F24},
+    "vv4": {"site": 0x44647, "restart": 0x41F3E0, "slot": 0x17114},
+    "vv5": {"site": 0x47797, "restart": 0x424930, "slot": 0x17D80},
+}
+MAIN_MENU_START_OVER_CAVE = {
+    "vv1": {
+        "origins": {"file": 0x8BB70, "va": 0x48DB70},
+        "carrier": {"file": 0x56B70, "va": 0x456B70},
+    },
+    "vv2": {
+        "origins": {"file": 0x90790, "va": 0x490790},
+        "carrier": {"file": 0x9A080, "va": 0x49C080},
+    },
+    "vv3": {
+        "origins": {"file": 0xA3F90, "va": 0x4A3F90},
+        "carrier": {"file": 0x7B870, "va": 0x47B870},
+    },
+    "vv4": {
+        "origins": {"file": 0xCC950, "va": 0x728950},
+        "carrier": {"file": 0x89470, "va": 0x489470},
+    },
+    "vv5": {
+        "origins": {"file": 0x94670, "va": 0x494670},
+        "carrier": {"file": 0x94670, "va": 0x494670},
+    },
+}
+MAIN_MENU_START_OVER_BLOCK_SIZE = 0x6B
+# The stock site: `mov ecx, [esi+0xC]` then the call this hook rewrites.
+MAIN_MENU_START_OVER_SITE_PREFIX = b"\x8b\x4e\x0c"
+
+
+def _main_menu_start_over_block(
+    block_va: int,
+    get_module_handle_iat: int,
+    load_library_iat: int,
+    get_proc_address_iat: int,
+    game_number: int,
+    slot_offset: int,
+    restart_va: int,
+) -> bytes:
+    """The main-menu Start Over stub: names, then the loader and the call.
+
+    Entered by `call` in place of `call Restart`, with ecx the village.
+    pushad; resolve the DLL (GetModuleHandleA, else LoadLibraryA);
+    GetProcAddress("ResetDeletedTribe"); ecx is reloaded from the pushad copy
+    (the API calls clobber the live one) and the call is
+    ResetDeletedTribe(game, [ecx+slot]), stdcall; popad; jmp Restart. Every
+    failure skips straight to popad, so the restart always happens.
+    """
+    def u32(value: int) -> bytes:
+        return struct.pack("<I", value & 0xFFFFFFFF)
+
+    code = bytearray()
+    code += b"\x60\x68" + u32(block_va) + b"\xff\x15" + u32(get_module_handle_iat)
+    code += b"\x85\xc0\x75\x0f"
+    code += b"\x68" + u32(block_va) + b"\xff\x15" + u32(load_library_iat)
+    code += b"\x85\xc0\x74\x1e"
+    code += b"\x68" + u32(block_va + START_OVER_RESET_EXPORT_OFFSET)
+    code += b"\x50\xff\x15" + u32(get_proc_address_iat)
+    code += b"\x85\xc0\x74\x0e"
+    # pushad stored ecx at [esp+0x18]; the stack is balanced again here.
+    code += b"\x8b\x4c\x24\x18"
+    code += b"\xff\xb1" + u32(slot_offset)
+    code += b"\x6a" + bytes([game_number]) + b"\xff\xd0"
+    code += b"\x61\xe9"
+    jump_end = block_va + START_OVER_RESET_CODE_OFFSET + len(code) + 4
+    code += u32(restart_va - jump_end)
+    names = bytearray(START_OVER_RESET_CODE_OFFSET)
+    names[: len(START_OVER_RESET_DLL_NAME)] = START_OVER_RESET_DLL_NAME
+    names[
+        START_OVER_RESET_EXPORT_OFFSET : START_OVER_RESET_EXPORT_OFFSET
+        + len(START_OVER_RESET_EXPORT_NAME)
+    ] = START_OVER_RESET_EXPORT_NAME
+    block = bytes(names + code)
+    if len(block) != MAIN_MENU_START_OVER_BLOCK_SIZE:
+        raise PatcherError("Internal error: the main-menu Start Over block changed size.")
+    return block
+
+
+def _main_menu_start_over_patches(
+    build_id: str, placement: str
+) -> list[dict[str, str]]:
+    """The block and the hook for one placement ("origins" or "carrier").
+
+    The three import slots are read from the tribe-delete block that
+    _start_over_reset_from_origins has already matched against its template,
+    so the stub calls exactly the imports the proven block calls.
+    """
+    spec = MAIN_MENU_START_OVER[build_id]
+    cave = MAIN_MENU_START_OVER_CAVE[build_id][placement]
+    reset_patches, _companion = _start_over_reset_from_origins(build_id)
+    reset_block = next(
+        _patch_bytes(patch, "after")
+        for patch in reset_patches
+        if len(_patch_bytes(patch, "after")) == START_OVER_RESET_BLOCK_SIZE
+    )
+    code = START_OVER_RESET_CODE_OFFSET
+    block = _main_menu_start_over_block(
+        cave["va"],
+        struct.unpack_from("<I", reset_block, code + 8)[0],
+        struct.unpack_from("<I", reset_block, code + 0x17)[0],
+        struct.unpack_from("<I", reset_block, code + 0x27)[0],
+        int(build_id.removeprefix("vv")),
+        spec["slot"],
+        spec["restart"],
+    )
+    site = spec["site"]
+    site_va = START_OVER_RESET_TEXT_BASE + site
+    before = b"\xe8" + struct.pack("<i", spec["restart"] - (site_va + 5))
+    after = b"\xe8" + struct.pack(
+        "<i", cave["va"] + START_OVER_RESET_CODE_OFFSET - (site_va + 5)
+    )
+    return [
+        {
+            "offset": f"0x{cave['file']:X}",
+            "before": "00" * MAIN_MENU_START_OVER_BLOCK_SIZE,
+            "after": block.hex().upper(),
+            "purpose": (
+                "the main-menu Start Over reset stub and its companion and export "
+                "names: ResetDeletedTribe(game, current slot), then the game's own "
+                "restart"
+            ),
+        },
+        {
+            "offset": f"0x{site:X}",
+            "before": before.hex().upper(),
+            "after": after.hex().upper(),
+            "purpose": (
+                "route the main menu's confirmed Start Over through the reset stub "
+                "before the village is re-created in the same slot, so the new "
+                "village does not inherit the old one's logs and data files"
+            ),
+        },
+    ]
+
+
+def _main_menu_start_over_owners(build_id: str) -> tuple[str, ...]:
+    """File-owning features in carrier priority: Origins, parentage, statistics."""
+    return (
+        f"{build_id}_enable_origins_exclusive_features",
+        *START_OVER_RESET_FILE_OWNERS.get(build_id, ()),
+    )
+
+
+def _attach_main_menu_start_over_reset(
+    build_id: str, fun_patches: list[FunPatch]
+) -> list[FunPatch]:
+    """Hand the main-menu Start Over reset to exactly one file-owning feature.
+
+    The same one-carrier rule as the tribe-delete reset, over Origins,
+    parentage and statistics in that order: Origins carries it at the address
+    Origins maps, otherwise the first of the other two carries it beside the
+    tribe-delete block. Nothing changes when none is selected or when a
+    selected feature already writes the site, so the hook is written exactly
+    once whenever it is needed and a second call is a no-op. The carrier is a
+    copy marked `_main_menu_start_over_carrier`; no catalog record changes.
+    """
+    fun_patches = list(fun_patches)
+    if build_id not in MAIN_MENU_START_OVER:
+        return fun_patches
+    selected = {feature.id: feature for feature in fun_patches}
+    carrier_id = next(
+        (owner for owner in _main_menu_start_over_owners(build_id) if owner in selected),
+        None,
+    )
+    if carrier_id is None:
+        return fun_patches
+    site = MAIN_MENU_START_OVER[build_id]["site"]
+    if any(_feature_writes_offset(feature, site) for feature in fun_patches):
+        return fun_patches
+    placement = (
+        "origins"
+        if carrier_id == f"{build_id}_enable_origins_exclusive_features"
+        else "carrier"
+    )
+    patches = _main_menu_start_over_patches(build_id, placement)
+    carrier = selected[carrier_id]
+    raw = dict(carrier.raw)
+    raw["patches"] = [*raw.get("patches", []), *patches]
+    companion_files = list(raw.get("companion_files", []))
+    if not any(
+        item.get("destination") == START_OVER_RESET_COMPANION_DESTINATION
+        for item in companion_files
+    ):
+        # Unreachable while the tribe-delete reset is attached first, which
+        # always ships the DLL with the same carrier; kept so the stub never
+        # ships without the DLL it loads.
+        _patches, companion = _start_over_reset_from_origins(build_id)
+        companion_files.append(companion)
+    raw["companion_files"] = companion_files
+    raw["_main_menu_start_over_carrier"] = placement
+    return [Record(raw) if feature is carrier else feature for feature in fun_patches]
+
+
+def _validate_main_menu_start_over(
+    data: bytes | bytearray, build_id: str, required: bool = False
+) -> None:
+    """Check the main-menu hook in the FINAL image, when one is installed.
+
+    The stub's executability depends on other features' header patches
+    (Origins' mapping, or the tribe-delete carrier's in VV2), so the check is
+    made on the bytes that ship: the site must call a block that is exactly
+    the template for its address, in a mapped executable section, and the
+    site must be either stock or that call -- never anything else.
+    """
+    spec = MAIN_MENU_START_OVER.get(build_id)
+    if spec is None:
+        return
+    site = spec["site"]
+    site_va = START_OVER_RESET_TEXT_BASE + site
+    stock_call = b"\xe8" + struct.pack("<i", spec["restart"] - (site_va + 5))
+    if bytes(data[site - 3 : site]) != MAIN_MENU_START_OVER_SITE_PREFIX:
+        raise PatcherError("Main-menu Start Over: the site is not the stock button call.")
+    current = bytes(data[site : site + 5])
+    if current == stock_call:
+        if required:
+            raise PatcherError(
+                "Main-menu Start Over: a carrier was attached but the site is stock."
+            )
+        return
+    matches = [
+        placement
+        for placement in ("origins", "carrier")
+        if _patches_present(data, _main_menu_start_over_patches(build_id, placement))
+    ]
+    if not matches:
+        raise PatcherError(
+            "Main-menu Start Over: the site calls something other than the reset stub."
+        )
+    cave = MAIN_MENU_START_OVER_CAVE[build_id][matches[0]]
+    pe = struct.unpack_from("<I", data, 0x3C)[0]
+    count = struct.unpack_from("<H", data, pe + 6)[0]
+    optional_size = struct.unpack_from("<H", data, pe + 20)[0]
+    for offset, length, va in (
+        (site, 5, site_va),
+        (cave["file"], MAIN_MENU_START_OVER_BLOCK_SIZE, cave["va"]),
+    ):
+        placed = False
+        for index in range(count):
+            header = pe + 24 + optional_size + 40 * index
+            virtual_size, virtual_address, raw_size, raw_pointer = struct.unpack_from(
+                "<IIII", data, header + 8
+            )
+            characteristics = struct.unpack_from("<I", data, header + 36)[0]
+            mapped_end = raw_pointer + ((virtual_size + 0xFFF) & ~0xFFF)
+            if (
+                characteristics & 0x20000000
+                and raw_pointer <= offset
+                and offset + length <= min(raw_pointer + raw_size, mapped_end)
+                and START_OVER_RESET_TEXT_BASE + virtual_address + offset - raw_pointer
+                == va
+            ):
+                placed = True
+        if not placed:
+            raise PatcherError(
+                f"Main-menu Start Over: 0x{offset:X} is not mapped executable code "
+                f"at its assembled address in this {build_id.upper()} build."
+            )
+
+
+def _rebalance_main_menu_start_over(
+    work: bytearray, feature: FunPatch
+) -> list[dict[str, str]]:
+    """Keep the main-menu reset rule true after removing one feature.
+
+    Like _rebalance_start_over_reset: the result must be the image rendering
+    the remaining selection would produce. Removing Origins moves the stub
+    to the carrier placement when parentage or statistics is still installed;
+    removing the last file-owning feature takes it away; anything else keeps it.
+    """
+    game_id = feature.raw.get("game_id")
+    if game_id not in MAIN_MENU_START_OVER:
+        return []
+    owners = _main_menu_start_over_owners(game_id)
+    if feature.id not in owners:
+        return []
+    origins_id = owners[0]
+    placements = {
+        placement: _main_menu_start_over_patches(game_id, placement)
+        for placement in ("origins", "carrier")
+    }
+    current = next(
+        (name for name, patches in placements.items() if _patches_present(work, patches)),
+        None,
+    )
+    if current is None:
+        return []
+    reset_offsets = {
+        int(patch["offset"], 0)
+        for patches in placements.values()
+        for patch in patches
+    }
+    reset_offsets.update(
+        int(patch["offset"], 0) for patch in _start_over_reset_from_origins(game_id)[0]
+    )
+
+    def installed(owner_id: str) -> bool:
+        if owner_id == feature.id:
+            return False
+        own = [
+            patch
+            for patch in get_fun_patch(owner_id).raw.get("patches", [])
+            if int(patch["offset"], 0) not in reset_offsets
+            and _patch_bytes(patch, "after") != _patch_bytes(patch, "before")
+        ]
+        return bool(own) and _patches_present(work, own)
+
+    if installed(origins_id):
+        wanted = "origins"
+    elif any(installed(owner_id) for owner_id in owners[1:]):
+        wanted = "carrier"
+    else:
+        wanted = None
+    if wanted is not None and placements[wanted] == placements[current]:
+        return []
+    carrier_id = (
+        origins_id
+        if wanted == "origins"
+        else next((o for o in owners[1:] if installed(o)), None)
+    )
+    records: list[dict[str, str]] = []
+    for patch in reversed(placements[current]):
+        offset = int(patch["offset"], 0)
+        before = _patch_bytes(patch, "before")
+        after = _patch_bytes(patch, "after")
+        work[offset : offset + len(before)] = before
+        records.append(
+            {
+                "offset": patch["offset"],
+                "before": after.hex().upper(),
+                "after": before.hex().upper(),
+                "purpose": f"remove the main-menu Start Over reset with {feature.id}: "
+                + patch["purpose"],
+                "owner": f"feature:{feature.id}",
+            }
+        )
+    if wanted is None:
+        return records
+    for patch in placements[wanted]:
+        offset = int(patch["offset"], 0)
+        before = _patch_bytes(patch, "before")
+        after = _patch_bytes(patch, "after")
+        if bytes(work[offset : offset + len(before)]) != before:
+            raise PatcherError(
+                f"Main-menu Start Over: cannot hand the reset to {carrier_id}; "
+                f"0x{offset:X} is not stock."
+            )
+        work[offset : offset + len(after)] = after
+        records.append(
+            {
+                "offset": patch["offset"],
+                "before": before.hex().upper(),
+                "after": after.hex().upper(),
+                "purpose": f"hand the main-menu Start Over reset to {carrier_id}: "
+                + patch["purpose"],
+                "owner": f"feature:{carrier_id}",
+            }
+        )
+    return records
 
 
 def _start_over_reset_hook_live(data: bytes | bytearray, build_id: str) -> bool:
@@ -1361,7 +1787,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
     "builder": "D5995D4000DC84983ADFBBD2462BF88F84ACCEF019B257F4A9D1338E009D5F80",
-    "task9_builder": "21BBCAF1F3D34FDDBBC6F34F68A56FDCD48032709C03C46722BFD49B87F02EB7",
+    "task9_builder": "057FDE380CA85541907D8C24A6A1D3E8E03517ECB3D795C36766AA9E1B01D1AB",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1373,8 +1799,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "B2291639469027EE34A4E408DBDB9828D0B8F5FAC0344E1B872FB2E14EDBC2E5",
-        "map": "69B0D99A8E11A7715A82B16AC9C5B6679BE8B56C8632ABE4921A3B3CF16DFD58",
+        "manifest": "6F242E20820B5A5F18D8485D51E0B786ACE678639E628981DB10C5E3387D94C2",
+        "map": "7AC9EDCA49D62EB7BCAA1E43271B20A5BFD87B4AD67657E8CBDB0E70318C15BB",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -5683,6 +6109,7 @@ def _remove_feature_bytes(
             }
         )
     reset_records = _rebalance_start_over_reset(work, feature)
+    reset_records += _rebalance_main_menu_start_over(work, feature)
     removed.extend(reset_records)
     checksum_offset, _ = _pe_checksum_layout(work)
     struct.pack_into("<I", work, checksum_offset, 0)
@@ -8874,6 +9301,13 @@ def render_patched_bytes(
             raise PatcherError(
                 "VV3 Origins output village mask append fingerprint is not certified."
             )
+    _validate_main_menu_start_over(
+        data,
+        build.id,
+        required=any(
+            feature.raw.get("_main_menu_start_over_carrier") for feature in fun_patches
+        ),
+    )
     return data, applied
 
 

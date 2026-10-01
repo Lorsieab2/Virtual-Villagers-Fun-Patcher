@@ -52,10 +52,13 @@ def main() -> None:
     for game, row in ROWS.items():
         t = row["threshold"]
         description = (
-            f"Healers keep studying plants regardless of the food supply. A villager "
-            f"who was studying {row['plant']} carries on studying when the village has "
-            f"{t} food or more, exactly as the stock game already does below {t}; "
-            f"plentiful food no longer makes a healer stop. Applies in live play and "
+            f"Healers are more likely to keep studying plants regardless of the food "
+            f"supply. A villager who was studying {row['plant']} carries on studying "
+            f"when the village has {t} food or more, exactly as the stock game already "
+            f"does below {t} -- about three times in four each time the game chooses "
+            f"what the healer does; the rest of the time the game chooses exactly as "
+            f"it always has. With Builders Fix Huts When Idle also selected, the two "
+            f"share that one roll per choice. Applies in live play and "
             f"during catch-up. {ORIGINS_BASE_SENTENCE} That base's companion loads "
             f"this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs "
             f"unchanged."
@@ -72,6 +75,7 @@ def main() -> None:
             "dependencies": [f"{game}_enable_origins_exclusive_features"],
             "behavior_changes": [
                 f"At {t} food or more, a villager in plant-study state 9 gets the stock continue-last-activity call {row['call']} that the stock scheduler makes only below {t}; if it starts a job, the scheduler's own done epilogue runs.",
+                "About three times in four, not always: when Builders Fix Huts When Idle is loaded the companion asks its roll for the decision (VvfpFixHutsRoll, one 75% roll per run of the idle scheduler, shared by every patch the run reaches); without it, this site -- reached at most once per run -- draws a 75% roll of its own. Neither touches the game's random numbers. When the roll fails the stock selection runs.",
             ],
             "explicit_non_changes": [
                 "This row changes no executable bytes: the Origins companion loads the DLL, which detours the scheduler at run time only after verifying the stock bytes; a different build of the game installs nothing.",
