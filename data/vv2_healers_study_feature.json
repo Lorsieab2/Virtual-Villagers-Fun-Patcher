@@ -5,14 +5,15 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Healers Study Plants Regardless of Food",
-  "description": "Healers are more likely to keep studying plants regardless of the food supply. A villager who was studying a plant (the same four-plant roll the stock game makes) carries on studying when the village has 300 food or more, exactly as the stock game already does below 300 -- about three times in four each time the game chooses what the healer does; the rest of the time the game chooses exactly as it always has. With Builders Fix Huts When Idle also selected, the two share that one roll per choice. Applies in live play and during catch-up. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.",
+  "description": "Healers are more likely to keep studying plants regardless of the food supply. A villager who was studying a plant (the same four-plant roll the stock game makes) carries on studying when the village has 300 food or more, exactly as the stock game already does below 300 -- about three times in four each time the game chooses what the healer does; the rest of the time the game chooses exactly as it always has. With Builders Fix Huts When Idle also selected, the two share that one roll per choice. During catch-up -- the time that passes while the game is closed, and Time Warp -- the normal game never continues plant study at all; with this patch a villager who was studying a plant carries on there too, at any food level, about three times in four each time catch-up chooses what they do (otherwise catch-up's own choice stands). **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.",
   "output_tag": "Healers Study",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"
   ],
   "behavior_changes": [
     "At 300 food or more, a villager in plant-study state 9 gets the stock continue-last-activity call 0x460590(index, 40) that the stock scheduler makes only below 300; if it starts a job, the scheduler's own done epilogue runs.",
-    "About three times in four, not always: when Builders Fix Huts When Idle is loaded the companion asks its roll for the decision (VvfpFixHutsRoll, one 75% roll per run of the idle scheduler, shared by every patch the run reaches); without it, this site -- reached at most once per run -- draws a 75% roll of its own. Neither touches the game's random numbers. When the roll fails the stock selection runs."
+    "About three times in four, not always: when Builders Fix Huts When Idle is loaded the companion asks its roll for the decision (VvfpFixHutsRoll, one 75% roll per run of the idle scheduler, shared by every patch the run reaches); without it, this site -- reached at most once per run -- draws a 75% roll of its own. Neither touches the game's random numbers. When the roll fails the stock selection runs.",
+    "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick. At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the Origins companion loads the DLL, which detours the scheduler at run time only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -25,7 +26,7 @@
     {
       "source": "assets/healers_study/VVFP Healers Study.dll",
       "destination": "VVFP Healers Study.dll",
-      "sha256": "7B7D71DA3D909B48836B73C8F5D78D35951F1993BD83538CC6669D5C50122D4B"
+      "sha256": "117A442A91CF01CB54848E665FB020AAD88417C2767441E6E1423FD54907E5F8"
     }
   ],
   "patches": [],
@@ -34,6 +35,12 @@
       "va": "0x461A22",
       "stock_bytes": "6A00578BCEE83482FEFF",
       "routine": "the idle scheduler's general selection (0x461850), the target of its 300-food jump",
+      "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"
+    },
+    {
+      "va": "0x43B581",
+      "stock_bytes": "5557E868460200",
+      "routine": "the catch-up worker's pick dispatch (0x43B4D0: push ebp; push edi; call 0x45FBF0)",
       "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"
     }
   ]

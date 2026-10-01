@@ -18,15 +18,15 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "057FDE380CA85541907D8C24A6A1D3E8E03517ECB3D795C36766AA9E1B01D1AB"
+      "source_text_sha256": "2FFB404257C84E80E3DAD81CFF1941FBE0865FE4E9D868BA39BCC390767D6F0E"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "6A562E0BE5914506BA4A5BDCA1C859B19270CEE9A48210251B70ECAEECC1DD92"
+      "source_text_sha256": "9B782B4537706ED5207D690E97DF284E4CE3BC458EB98029DBA14F9926A27F58"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "66E19536483FB7E86A2C42CA8657F34F1C304FD8209FCAC447CF2916B139BDAE"
+      "source_text_sha256": "24EF234E8496CFFE7495859B0638042283F61EA9419F712101015E839392A305"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -68,7 +68,7 @@
   },
   "companion": {
     "size": 1776640,
-    "sha256": "0438619A56DC4336B1FD2C2D3ED35C4E2F3B92C1645595DCEBC3A3C8F0188820"
+    "sha256": "5C8BCCEE3F640DA8BD1FC70BCED34A347FAD450D133D9738AD81E1BC1E87BDC9"
   },
   "payload": {
     "sha256": "6841261759F7D16B632AD8F19B7D770329DB94EBBDB46FC8EFB2C7C182B240DE",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
+      "page_sha256": "088ED72A8E881722AEC9C94B9797A2937F2A2220920DB72A9C1689C2541DCB42",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -148,8 +148,9 @@
         "mask_load_once": "C858A6B30910437E644527A9113A2FC5A6265A89C35EB0B266D4086F60138B14",
         "mask_sync": "521CFCC45BB35C904A1B3886CEEB74A6346311D30741D9D45EF9E7C2B16A9573",
         "bighead_mask": "150A2B84F7C70FF2473301CB83FB360B8A4E9C4BB03DE18C9EC3FB6D8799FA3F",
-        "slot_capture": "527F9412BA3C2AAC1558F6FDC6378F09FCF3EE842ADCBF7F6CDA32F127768568",
-        "mask_birth_clear": "8E22CBDA8F223E8732159616675CDDC845CED768A3C5344214FCB1F8245E5DB4"
+        "slot_capture": "9CB92E2CF6F693C19FEAAC112E62CE269DACE3171CC1CA58DBBAE194B46389D9",
+        "mask_birth_clear": "8E22CBDA8F223E8732159616675CDDC845CED768A3C5344214FCB1F8245E5DB4",
+        "companion_install": "B86D946C3158BD0EAFA7703B4432C623C74F9167D6B5506FBDC3049ADBA1508E"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -191,8 +192,9 @@
         "mask_load_once": 39,
         "mask_sync": 65,
         "bighead_mask": 287,
-        "slot_capture": 58,
-        "mask_birth_clear": 30
+        "slot_capture": 63,
+        "mask_birth_clear": 30,
+        "companion_install": 38
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -253,13 +255,14 @@
         "bb_pending": "0x7D0957",
         "bb_success": "0x7D09A5",
         "bb_charge_unknown": "0x7D09C1",
-        "bb_queue_unknown": "0x7D0A43"
+        "bb_queue_unknown": "0x7D0A43",
+        "install_export": "0x7D0A90"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
+      "page_sha256": "088ED72A8E881722AEC9C94B9797A2937F2A2220920DB72A9C1689C2541DCB42",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -300,8 +303,9 @@
         "mask_load_once": "C858A6B30910437E644527A9113A2FC5A6265A89C35EB0B266D4086F60138B14",
         "mask_sync": "521CFCC45BB35C904A1B3886CEEB74A6346311D30741D9D45EF9E7C2B16A9573",
         "bighead_mask": "150A2B84F7C70FF2473301CB83FB360B8A4E9C4BB03DE18C9EC3FB6D8799FA3F",
-        "slot_capture": "527F9412BA3C2AAC1558F6FDC6378F09FCF3EE842ADCBF7F6CDA32F127768568",
-        "mask_birth_clear": "8E22CBDA8F223E8732159616675CDDC845CED768A3C5344214FCB1F8245E5DB4"
+        "slot_capture": "9CB92E2CF6F693C19FEAAC112E62CE269DACE3171CC1CA58DBBAE194B46389D9",
+        "mask_birth_clear": "8E22CBDA8F223E8732159616675CDDC845CED768A3C5344214FCB1F8245E5DB4",
+        "companion_install": "B86D946C3158BD0EAFA7703B4432C623C74F9167D6B5506FBDC3049ADBA1508E"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -343,8 +347,9 @@
         "mask_load_once": 39,
         "mask_sync": 65,
         "bighead_mask": 287,
-        "slot_capture": 58,
-        "mask_birth_clear": 30
+        "slot_capture": 63,
+        "mask_birth_clear": 30,
+        "companion_install": 38
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -405,7 +410,8 @@
         "bb_pending": "0x7D0957",
         "bb_success": "0x7D09A5",
         "bb_charge_unknown": "0x7D09C1",
-        "bb_queue_unknown": "0x7D0A43"
+        "bb_queue_unknown": "0x7D0A43",
+        "install_export": "0x7D0A90"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"

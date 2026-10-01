@@ -36,6 +36,13 @@ ROWS = {
         "site": {"va": "0x44836F", "stock_bytes": "6A00578BCEE86717FFFF",
                  "routine": "the idle scheduler's general selection (0x448220), the target of its 400-food jump"},
         "call": "0x447CD0(index, 60)",
+        "catch_up": (
+            "During catch-up -- the time that passes while the game is closed, "
+            "and Time Warp -- A New Home already keeps a healer's plant study "
+            "going by itself whenever it gives the healer healing work and no "
+            "one needs healing (with Builders and Healers Work First, at least "
+            "three times in four), so this patch changes nothing there."
+        ),
     },
     "vv2": {
         "threshold": 300,
@@ -43,6 +50,16 @@ ROWS = {
         "site": {"va": "0x461A22", "stock_bytes": "6A00578BCEE83482FEFF",
                  "routine": "the idle scheduler's general selection (0x461850), the target of its 300-food jump"},
         "call": "0x460590(index, 40)",
+        "catch_up": (
+            "During catch-up -- the time that passes while the game is closed, "
+            "and Time Warp -- the normal game never continues plant study at "
+            "all; with this patch a villager who was studying a plant carries "
+            "on there too, at any food level, about three times in four each "
+            "time catch-up chooses what they do (otherwise catch-up's own choice "
+            "stands)."
+        ),
+        "catch_up_site": {"va": "0x43B581", "stock_bytes": "5557E868460200",
+                          "routine": "the catch-up worker's pick dispatch (0x43B4D0: push ebp; push edi; call 0x45FBF0)"},
     },
 }
 
@@ -58,8 +75,8 @@ def main() -> None:
             f"does below {t} -- about three times in four each time the game chooses "
             f"what the healer does; the rest of the time the game chooses exactly as "
             f"it always has. With Builders Fix Huts When Idle also selected, the two "
-            f"share that one roll per choice. Applies in live play and "
-            f"during catch-up. {ORIGINS_BASE_SENTENCE} That base's companion loads "
+            f"share that one roll per choice. {row['catch_up']} "
+            f"{ORIGINS_BASE_SENTENCE} That base's companion loads "
             f"this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs "
             f"unchanged."
         )
@@ -91,6 +108,14 @@ def main() -> None:
             "patches": [],
             "runtime_detours": [{**row["site"], "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"}],
         }
+        if "catch_up_site" in row:
+            manifest["behavior_changes"].append(
+                "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick. At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.")
+            manifest["runtime_detours"].append(
+                {**row["catch_up_site"], "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"})
+        else:
+            manifest["explicit_non_changes"].append(
+                "Catch-up is unchanged: A New Home's catch-up worker (0x42E790) dispatches the picked job, and the dispatcher's Healing case already continues plant study (activity 9 -> 0x443270, at 0x4478EF).")
         out = ROOT / "data" / f"{game}_healers_study_feature.json"
         out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
         print("wrote", out.relative_to(ROOT), sha)

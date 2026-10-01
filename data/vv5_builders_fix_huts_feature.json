@@ -14,7 +14,8 @@
     "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
     "Whenever a builder has hut work to do, its work attempt no longer depends on the food supply: at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action. Every other villager keeps the stock food behaviour.",
     "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), the options it took are put back, by the branch's own tests and in its own order, and the stock pick goes straight into one of them; a hut is fixed only when there is no construction at all.",
-    "Every change above happens about three times in four, not always: each time the game's idle scheduler chooses what a villager does (one run of 0x46F070, including the choose-the-next-job routine's retries of it for the same villager (0x46F3DA, up to ten)), one 75% roll from the companion's own generator -- never the game's random numbers -- decides whether the patches step in. If it passes, they act together; if it fails, every patched place runs the stock code for that choice, exactly as the unpatched game. The roll is drawn the first time a patched place asks and shared by every patch the choice reaches -- Builders and Healers Work First included."
+    "Every change above happens about three times in four, not always: each time the game's idle scheduler chooses what a villager does (one run of 0x46F070, including the choose-the-next-job routine's retries of it for the same villager (0x46F3DA, up to ten)), one 75% roll from the companion's own generator -- never the game's random numbers -- decides whether the patches step in. If it passes, they act together; if it fails, every patched place runs the stock code for that choice, exactly as the unpatched game. The roll is drawn the first time a patched place asks and shared by every patch the choice reaches -- Builders and Healers Work First included.",
+    "Catch-up -- time that passed while the game was closed, and Time Warp -- never runs the idle scheduler; its worker (0x46E8E0) makes the choice instead, and one run of it is one decision too: the patches it reaches (this one's sites in the Building dispatcher, Builders and Healers Work First) share one 75% roll, never one each."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -26,7 +27,7 @@
     {
       "source": "assets/fix_huts/VVFP Fix Huts.dll",
       "destination": "VVFP Fix Huts.dll",
-      "sha256": "940BDC8506227C15F6F83181A2DC48E6688122BAA349A974299C1CCFEAC44B8E"
+      "sha256": "26A445C104558D95F15937F817363D0B65D2C78A4FD78852B1C2D1D3A96E2F4E"
     }
   ],
   "patches": [],
@@ -42,6 +43,12 @@
       "stock_bytes": "8B8E881B0000",
       "routine": "the idle scheduler's low-food path, after the pick (0x46F070)",
       "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"
+    },
+    {
+      "va": "0x46E8E0",
+      "stock_bytes": "568BF1E8584B0000",
+      "routine": "the catch-up worker's entry (0x46E8E0): wrapped to open and close one decision",
+      "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (before Builders and Healers Work First)"
     },
     {
       "va": "0x46F070",

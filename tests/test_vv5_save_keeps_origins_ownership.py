@@ -37,6 +37,7 @@ PAGE_VA = 0x7C9000
 OWNERSHIP = 0x51D388
 RESUME = 0x403606
 STACK = 0x10000000
+STUBS = 0x7E000000
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
 
 
@@ -50,14 +51,37 @@ class SlotCapture:
         self.uc.mem_map(0x7B1000, 0x1000)
         self.uc.mem_map(0x403000, 0x1000)
         self.uc.mem_map(STACK, 0x10000)
+        # kernel32 through the stock IAT (companion_install, which every path
+        # build calls): LoadLibraryA answers `module` (0: the companion is not
+        # shipped), GetProcAddress the scripted export, which counts its calls.
+        self.uc.mem_map(0x495000, 0x1000)
+        self.uc.mem_map(STUBS, 0x1000)
+        self.uc.mem_write(STUBS, b"\xA1" + struct.pack("<I", STUBS + 0x800) + b"\xC2\x04\x00")   # LoadLibraryA
+        self.uc.mem_write(STUBS + 0x10, b"\xB8" + struct.pack("<I", STUBS + 0x20) + b"\xC2\x08\x00")  # GetProcAddress
+        self.uc.mem_write(STUBS + 0x20, b"\xFF\x05" + struct.pack("<I", STUBS + 0x804) + b"\x31\xC0\x31\xC9\x31\xD2\xC3")
+        self.uc.mem_write(0x4951E0, struct.pack("<I", STUBS))
+        self.uc.mem_write(0x4951DC, struct.pack("<I", STUBS + 0x10))
+        self.module = 0
         self.entry = PAGE_VA + t9.OFF["slot_capture"]
         self.uc.hook_add(UC_HOOK_CODE, lambda uc, addr, size, _: uc.emu_stop() if addr == RESUME else None)
+
+    @property
+    def module(self) -> int:
+        return struct.unpack("<I", self.uc.mem_read(STUBS + 0x800, 4))[0]
+
+    @module.setter
+    def module(self, value: int) -> None:
+        self.uc.mem_write(STUBS + 0x800, struct.pack("<I", value))
+
+    @property
+    def installs(self) -> int:
+        return struct.unpack("<I", self.uc.mem_read(STUBS + 0x804, 4))[0]
 
     def build_path(self, slot: int) -> None:
         esp = STACK + 0x8000
         self.uc.mem_write(esp, struct.pack("<II", 0x403999, slot))   # return address, slot
         self.uc.reg_write(UC_X86_REG_ESP, esp)
-        self.uc.emu_start(self.entry, RESUME, count=200)
+        self.uc.emu_start(self.entry, RESUME, count=400)
         assert self.uc.reg_read(UC_X86_REG_EIP) == RESUME
         assert self.uc.reg_read(UC_X86_REG_ESP) == esp - 0x104         # displaced prologue replayed
 
@@ -102,6 +126,27 @@ class NewBelieversSaveKeepsOriginsOwnershipTests(unittest.TestCase):
         game.owned = 0x1
         game.build_path(0)
         self.assertEqual((game.owned, game.captured), (0x1, 4))
+
+    def test_every_path_build_asks_the_companion_to_install(self) -> None:
+        """The runtime companions are installed from here, before the
+        village-entry catch-up (see companion_install); the companion's
+        bridge installs once, so asking on every build is harmless.  The
+        thiscall's registers reach the stock prologue unchanged."""
+        from unicorn.x86_const import (UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI,
+                                       UC_X86_REG_EDX, UC_X86_REG_ESI)
+        game = SlotCapture()
+        game.build_path(2)                 # no companion shipped: nothing to ask
+        self.assertEqual(game.installs, 0)
+        game.module = 0x12340000
+        regs = {UC_X86_REG_ECX: 0x11, UC_X86_REG_EDX: 0x22, UC_X86_REG_EBX: 0x33, UC_X86_REG_ESI: 0x44,
+                UC_X86_REG_EDI: 0x55, UC_X86_REG_EBP: 0x66}
+        for slot in (0, 2, 2 + 0x14, 3):
+            for reg, value in regs.items():
+                game.uc.reg_write(reg, value)
+            game.build_path(slot)
+            for reg, value in regs.items():
+                self.assertEqual(game.uc.reg_read(reg), value)
+        self.assertEqual(game.installs, 4)
 
     def test_switching_villages_still_drops_the_old_ownership(self) -> None:
         game = SlotCapture()

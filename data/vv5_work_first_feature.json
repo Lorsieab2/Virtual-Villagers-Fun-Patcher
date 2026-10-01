@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Builders and Healers Work First",
-  "description": "Builders and healers are more likely to do their own work first, at any food level -- about three times in four each time the game chooses what they do; the rest of the time the game chooses exactly as it always has, and the one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. When it steps in: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, whose stub does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
+  "description": "Builders and healers are more likely to do their own work first, at any food level -- about three times in four each time the game chooses what they do; the rest of the time the game chooses exactly as it always has, and the one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. When it steps in: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. This also applies during catch-up -- the time that passes while the game is closed, and Time Warp: each time catch-up chooses work for a builder or healer, about three times in four they are first given their own job (a builder only while it has hut work, as above), so they keep gaining skill while you are away; the rest of the time, and whenever there is nothing of theirs to do, catch-up's own choice stands. Villagers with any other job are untouched. Catch-up's low-food rule still wins: at 250 food or less a villager with Farming 20 or more farms, whatever their job. In catch-up only, devotees (selected job Devotion) get the same boost: about three times in four they first try Honoring, whenever the game's own Devotion work would allow it. While you play, this patch leaves devotees to the game. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, whose stub does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
   "output_tag": "Work First",
   "dependencies": [
     "vv5_builders_fix_huts"
@@ -13,19 +13,22 @@
   "behavior_changes": [
     "Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job 2), or Building (job 4) while it has hut work (a population hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
     "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the scheduler's own request runs alone, exactly as the stock game.",
+    "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x46E8E0) dispatches the stock picker's job itself. Its pick dispatch (0x46E9C9, returning to 0x46E9CE) is treated as the scheduler's calls are -- own job first, then the pick -- and its research pick (job 1), which never reaches the dispatcher, is tested at 0x46E92F: for a builder or healer the own job is dispatched first and, if it starts something, the worker's own finish (its queue processor) runs instead of the stock research step. One 75% roll per catch-up decision: Builders Fix Huts When Idle wraps the worker as one decision, so VvfpFixHutsRoll gives every patch that decision reaches the same roll; when it fails, or there is nothing of theirs to do, the worker's stock code runs.",
+    "In catch-up only, Devotion (job 5) is a third own job, put first like Healing: the dispatcher's Devotion case (0x46CDB6) queues Honoring when project 14 is complete or 0x4271C0 answers 1 or 2, and otherwise starts nothing, so the pick runs. The live scheduler's calls never put Devotion first.",
     "At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders."
   ],
   "explicit_non_changes": [
-    "This row changes no executable bytes: the fix-huts companion loads the DLL, which detours the work dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
+    "This row changes no executable bytes: the fix-huts companion loads the DLL, which detours the work dispatcher and the catch-up worker's research-pick test at run time only after verifying the stock bytes; a different build of the game installs nothing.",
     "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher and every other selected job are untouched. A builder is put first only while it has hut work (a hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built); a healer always.",
     "What the work does -- which project, which hut, which patient or study -- is the game's own dispatcher's choice.",
+    "In catch-up, the worker's low-food Farming dispatch (0x46E9AC: 250 food or less and Farming 20 or more) is not one of the calls the hook acts on, so Farming wins exactly as in the stock game.",
     "Nothing is written to a villager record, the save or any file."
   ],
   "companion_files": [
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "F71224248D3AB44FA3367397B127F4A1336B56F488A8A65BADAE346953F37460"
+      "sha256": "F0FB1104023518DB111F4032B73D6043A91758AC30DBF372C24B04FC96FC6085"
     }
   ],
   "patches": [],
@@ -35,6 +38,12 @@
       "stock_bytes": "81EC94000000",
       "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x46F291, 0x46F2D6, 0x46F2EA)",
       "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x46E92F",
+      "stock_bytes": "83FF017531",
+      "routine": "the catch-up worker's research-pick test (0x46E8E0: cmp pick, 1; jne)",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall (after the dispatcher)"
     }
   ]
 }

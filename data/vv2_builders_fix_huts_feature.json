@@ -16,7 +16,8 @@
     "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut (never building 5) whenever at least one is built and no other building project is available (every hut built included).",
     "The Building branch's new-hut test (0x4600DE) is replaced: hut 25 and hut 26 are built while they are not complete and their progress is 2 or more, whatever the population (stock: also more than 22 / more than 45 villagers). The village drawing routine marks a shown scaffold with progress 1 (0x419702, 0x41977D); a villager the player drops on it works it past that. So builders never start one of these huts by themselves and always finish one the player has started. Hut 24, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
     "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the player has worked on it, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one): the builder goes straight into the first of them, in the branch's own order, through the branch's own code for it.",
-    "Every change above happens about three times in four, not always: each time the game's idle scheduler chooses what a villager does (one run of 0x461850), one 75% roll from the companion's own generator -- never the game's random numbers -- decides whether the patches step in. If it passes, they act together; if it fails, every patched place runs the stock code for that choice, exactly as the unpatched game. The roll is drawn the first time a patched place asks and shared by every patch the choice reaches -- Builders and Healers Work First and Healers Study Plants Regardless of Food included. The new-hut test above is not part of the roll: it holds on every choice."
+    "Every change above happens about three times in four, not always: each time the game's idle scheduler chooses what a villager does (one run of 0x461850), one 75% roll from the companion's own generator -- never the game's random numbers -- decides whether the patches step in. If it passes, they act together; if it fails, every patched place runs the stock code for that choice, exactly as the unpatched game. The roll is drawn the first time a patched place asks and shared by every patch the choice reaches -- Builders and Healers Work First and Healers Study Plants Regardless of Food included. The new-hut test above is not part of the roll: it holds on every choice.",
+    "Catch-up -- time that passed while the game was closed, and Time Warp -- never runs the idle scheduler; its worker (0x43B4D0) makes the choice instead, and one run of it is one decision too: the patches it reaches (this one's sites in the Building dispatcher, Builders and Healers Work First and Healers Study Plants Regardless of Food) share one 75% roll, never one each."
   ],
   "explicit_non_changes": [
     "This row changes one test in the executable, the Building branch's new-hut test, so it holds from the first catch-up of a session; everything else is detoured at run time by the DLL, which a companion that already runs every frame loads and which installs only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -28,7 +29,7 @@
     {
       "source": "assets/fix_huts/VVFP Fix Huts.dll",
       "destination": "VVFP Fix Huts.dll",
-      "sha256": "940BDC8506227C15F6F83181A2DC48E6688122BAA349A974299C1CCFEAC44B8E"
+      "sha256": "26A445C104558D95F15937F817363D0B65D2C78A4FD78852B1C2D1D3A96E2F4E"
     }
   ],
   "patches": [
@@ -57,6 +58,12 @@
       "stock_bytes": "83BA84EA0200030F8C4DFEFFFF",
       "routine": "the Building dispatcher's level-3 gate before the hut (0x45FBF0)",
       "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"
+    },
+    {
+      "va": "0x43B4D0",
+      "stock_bytes": "5356578B7C2410",
+      "routine": "the catch-up worker's entry (0x43B4D0): wrapped to open and close one decision",
+      "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (before Builders and Healers Work First)"
     },
     {
       "va": "0x461850",

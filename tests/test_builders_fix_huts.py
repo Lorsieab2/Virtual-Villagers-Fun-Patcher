@@ -113,9 +113,16 @@ class RuntimeSiteTests(unittest.TestCase):
             # are in tests/test_builders_regardless_of_food.py); in A New Home
             # and The Lost Children the Building-level gate third
             # (tests/test_builders_level_gate.py) and the lifted new-hut test
-            # fourth (tests/test_finish_started_huts.py); last, the scheduler
-            # entry that opens each decision (tests/test_builders_decision_roll.py).
-            self.assertEqual(len(manifest["runtime_detours"]), {"vv1": 5, "vv2": 4}.get(game, 3), game)
+            # fourth (tests/test_finish_started_huts.py); then the catch-up
+            # worker's entry, which opens one decision per catch-up choice
+            # (tests/test_catch_up_work_first.py); last, the scheduler entry
+            # that opens each decision (tests/test_builders_decision_roll.py).
+            self.assertEqual(len(manifest["runtime_detours"]), {"vv1": 6, "vv2": 5}.get(game, 4), game)
+            catch_up = manifest["runtime_detours"][-2]
+            self.assertEqual(int(catch_up["va"], 16),
+                             {"vv1": 0x42E790, "vv2": 0x43B4D0, "vv4": 0x465750, "vv5": 0x46E8E0}[game])
+            self.assertEqual(_stock(game, int(catch_up["va"], 16), len(bytes.fromhex(catch_up["stock_bytes"]))),
+                             bytes.fromhex(catch_up["stock_bytes"]))
             site = manifest["runtime_detours"][0]
             n, va, stock, patched, stub = _probe_site(GAME_NO[game])
             self.assertEqual(va, int(site["va"], 16), game)
@@ -228,9 +235,23 @@ class SecretCityTests(unittest.TestCase):
 
     def test_the_site_patch_replaces_the_exact_stock_test(self):
         # The hut site, the food site and the dispatcher site for the Builders
-        # and Healers Work First addendum (tests/test_work_first.py).
+        # and Healers Work First addendum (tests/test_work_first.py), the
+        # scheduler entry, and the addendum's catch-up research-pick site
+        # (tests/test_catch_up_work_first.py).
         self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]],
-                         ["0x5B39E", "0x5C229", "0x5AF00", "0x5BFE0"])
+                         ["0x5B39E", "0x5C229", "0x5AF00", "0x5BFE0", "0x5BF52", "0x5BF00"])
+        # The catch-up worker's entry: one decision per catch-up choice.
+        catch_up = self.overlay["hook_patches"][5]
+        self.assertEqual(_stock("vv3", 0x45BF00, 6), bytes.fromhex(catch_up["before"]))
+        self.assertEqual(bytes.fromhex(catch_up["before"]), bytes.fromhex("568B74240857"))
+        rel, = struct.unpack("<i", bytes.fromhex(catch_up["after"])[1:5])
+        self.assertEqual(0x45BF00 + 5 + rel, int(self.overlay["page_virtual_address"], 16) + 0x360)
+        self.assertEqual(bytes.fromhex(catch_up["after"])[5:], b"\x90")
+        research = self.overlay["hook_patches"][4]
+        self.assertEqual(_stock("vv3", 0x45BF52, 5), bytes.fromhex(research["before"]))
+        self.assertEqual(bytes.fromhex(research["before"]), bytes.fromhex("83FB017524"))
+        rel, = struct.unpack("<i", bytes.fromhex(research["after"])[1:5])
+        self.assertEqual(0x45BF52 + 5 + rel, int(self.overlay["page_virtual_address"], 16) + 0x28A)
         sched = self.overlay["hook_patches"][3]
         self.assertEqual(_stock("vv3", 0x45BFE0, 6), bytes.fromhex(sched["before"]))
         self.assertEqual(bytes.fromhex(sched["before"]), bytes.fromhex("51568B74240C"))

@@ -1434,7 +1434,7 @@
       "id": "vv5_easier_devotee_training",
       "game_id": "vv5",
       "name": "Easier Devotee Training",
-      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.",
+      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor. This acts only while you play: time that passes while the game is closed, and Time Warp, run the game's own catch-up, which this patch does not change (Builders and Healers Work First gives devotees their own catch-up boost).",
       "output_tag": "Easier Devotee",
       "patches": [
         {

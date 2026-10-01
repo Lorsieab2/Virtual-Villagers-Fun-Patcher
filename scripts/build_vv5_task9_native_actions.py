@@ -249,6 +249,7 @@ OFF = {
     "division_no_parenting": 0x6200,
     "apply_division": 0x6400,
     "appearance_all": 0x6500,
+    "companion_install": 0x6600,
     "mask_flip": 0x6800,
     "mask_restore": 0x6A00,
     "mask_unflip": 0x6B00,
@@ -295,6 +296,7 @@ SIZES = {
     "division_no_parenting": 0x200,
     "apply_division": 0x80,
     "appearance_all": 0x100,
+    "companion_install": 0x60,
     "mask_flip": 0x200,
     "mask_restore": 0x80,
     "mask_unflip": 0x180,
@@ -412,6 +414,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("bb_success", b"Barrel of Babies completed.\0"),
         ("bb_charge_unknown", b"The final tech-point balance did not match the exact 75,000-point deduction. The charge outcome is unknown; no barrel was queued.\0"),
         ("bb_queue_unknown", b"The 75,000-point deduction was verified, but the barrel could not be queued.\0"),
+        ("install_export", b"Vv5InstallCompanions\0"),
     )
     if page_va == 0x7C9000:
         values = values + time_warp_values
@@ -4234,8 +4237,37 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         # previous village's bits cannot be read in the meantime.
         mov dword ptr [0x51D388], 0
     sc_skip:
+        call 0x{page_va + OFF['companion_install']:X}
         sub esp, 0x104
         jmp 0x403606
+    """)
+    # companion_install: the runtime companions (Builders Fix Huts When Idle,
+    # which loads Builders and Healers Work First) are installed by the
+    # companion's bridge, which Vv5MaskSync reaches only on a villager head
+    # draw -- after the village-entry catch-up of the time that passed while
+    # the game was closed.  buildSavePath runs before that catch-up (the
+    # village's save has to be read before its clock can be caught up), so
+    # slot_capture asks the companion's Vv5InstallCompanions here, on every
+    # save and load path build; the bridge installs once, so every later call
+    # is a no-op.  Every register and the flags of the thiscall are kept
+    # (pushad/pushfd); a missing DLL or export does nothing.
+    install = put(page, page_va, "companion_install", f"""
+        pushfd
+        pushad
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        je ci_ret
+        push 0x{s['install_export']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        je ci_ret
+        call eax
+    ci_ret:
+        popad
+        popfd
+        ret
     """)
     # mask_birth_clear: detour target for the villager BIRTH function sub_4687F0
     # (thiscall, ecx = the newborn record; it copies parent fields + sets active
@@ -4270,6 +4302,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         "mask_flip": flip, "mask_restore": restore, "mask_unflip": unflip, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "mask_sync": sync, "bighead_mask": bighead,
         "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
+        "companion_install": install,
     }
 
 
@@ -4725,6 +4758,15 @@ def main() -> None:
             "after": rec.hex().upper(),
             "purpose": "Register bigheads_masks.png as sprite id 0x155 (free slot) so the Details portrait mask blit uses the dedicated bighead atlas",
         })
+    # The stock population mode appends the very same page (the patcher maps
+    # it to the collection-progression layout), so it takes the same eight
+    # hooks -- Barrel close-arm, the mask render and portrait detours, the
+    # sprite record, slot_capture (which also installs the runtime companions
+    # before the first catch-up) and the newborn clear.  Without them a Barrel
+    # charged and never arrived, a queued Island/Barrel locked both rows, and
+    # no runtime companion was ever installed.  The barrel's capacity probe
+    # reads whichever cap bytes the mode installed (stock: 90 + the bonus).
+    result["patch_mode_overrides"]["stock"] = deepcopy(result["patch_mode_overrides"]["collection_progression"])
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {

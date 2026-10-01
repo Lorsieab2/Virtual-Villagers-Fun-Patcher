@@ -559,6 +559,19 @@ static void vvfp_fix_huts_bridge(void) {
     }
 }
 
+/* The runtime companions, installed before the first catch-up.  Vv5MaskSync
+   runs only on a villager head draw, and New Believers catches up the time
+   that passed while it was closed when it enters the village (0x425E30, from
+   the village screen's entry), before any head is drawn -- so the companions'
+   detours were missing for that first catch-up.  The Task9 page's
+   slot_capture, the detour on buildSavePath (0x403600), calls this export:
+   the game builds the slot's save path to load the village, and only the
+   loaded village has a clock to catch up.  Install-once (the bridge's own
+   state); every later save and load makes it a no-op. */
+__declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
+    vvfp_fix_huts_bridge();
+}
+
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     unsigned int cur[VV5_RECORD_COUNT];
     unsigned char *table = (unsigned char *)VV5_MASK_TABLE;

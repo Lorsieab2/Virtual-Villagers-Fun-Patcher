@@ -62,6 +62,13 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned when the fix-huts page gained the catch-up worker's decision
+    # stub (one roll per catch-up decision, Codex on #494). Justified BEFORE
+    # re-pinning by rendering the full catalog at the preceding commit and on
+    # the change and diffing byte for byte: in every mode only the PE CheckSum
+    # (0x160..0x161), the six-byte worker entry at 0x5BF00 and the stub and its
+    # export name inside the fix-huts overlay (0xCBB60..0xCBBEB) differ; nothing
+    # else moved and the length is unchanged.
     # Re-pinned again when the parentage feature gained the birth hook:
     # three site rewrites, plus a body, export name and stubs placed in
     # the feature's own overlay. Verified before re-pinning that every
@@ -173,17 +180,22 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the branch, the only differing bytes in all three modes are the patch's
     # own 0x586F4..0x586FF and 0x58741..0x5874C and the PE CheckSum
     # (0x160..0x162).
+    # Re-pinned when The Secret City's catch-up research pick moved into an exe-side
+    # stub, merged on top of main fa2e87af. Justified BEFORE re-pinning: rendering the
+    # complete catalog with main and with the merged branch, the only differing bytes in
+    # all three modes are the PE CheckSum (0x160..0x161), the site 0x5BF52..0x5BF56 and the
+    # stub at 0xCBA8A..0xCBAFE.
     "stock": (
-        "CA6A22AD3CA1312FF5A5523387F37DFC4C8C35E79DBAA0D513DE891018540CE9",
-        "8DB10D00",
+        "6891D23B94A565C71DA337DD3B1FF05706FF12703739433E4C56A1D605B69D95",
+        "005E0D00",
     ),
     "collection_progression": (
-        "E0AD863B497536180AF7F59B95DE537390AF36FCF4C8E70E19E707D53AB3B568",
-        "8DCA0D00",
+        "C3B6F19C7325E4E75024947F7C179E1FCEAAA54E5E2C6EB392FFF4DB4ECE057D",
+        "00770D00",
     ),
     "immediate_fixed": (
-        "90AF952271BFA8789BFFE22FB3349868624829AA851DA40280C9A214E2384A0E",
-        "8C0C0D00",
+        "29483D145E853BEF1B7F6326FF9C332A00DACCA712C5BECAA170D281EBE263A3",
+        "FEB80D00",
     ),
 }
 

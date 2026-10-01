@@ -3,5 +3,6 @@ EXPORTS
     VvfpWorkFirstInstall=_VvfpWorkFirstInstall@4
     VvfpWorkFirstSetRoll=_VvfpWorkFirstSetRoll@4
     VvfpWorkFirstProbeSite=_VvfpWorkFirstProbeSite@20
+    VvfpWorkFirstProbeCatchUpSite=_VvfpWorkFirstProbeCatchUpSite@20
     VvfpWorkFirstStats DATA
     VvfpWorkFirstRollTest DATA

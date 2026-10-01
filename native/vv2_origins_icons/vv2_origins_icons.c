@@ -1936,7 +1936,18 @@ done:
    exact obsolete 320x440 bundled atlases above.  Current/custom art is left
    untouched.  Uses the EXE's own directory (not cwd), so it works under any
    launch dir / renamed exe.  Called by the exe's init hook BEFORE it loads the
-   atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
+   atlas — at startup, outside the loader lock.  CRT-less (Win32 only).
+
+   It is also where the runtime companions are installed first.  The init hook
+   (0x44C5E6) is the tail of the village object's constructor (0x44C1B0,
+   reached only from the singleton getter 0x44F4E0), and the catch-up worker
+   (0x43B4D0, from 0x43B690) works on that object's villager records, so this
+   call precedes the first catch-up of every session.  The compositor's
+   Vv2MaskSweep, where the bridges used to run first, need not: the frame
+   0x42D2A0 runs the life update (0x42EBBC, which catches up the time that
+   passed while the game was closed) ahead of the compositor (0x42FAD0).
+   Each bridge installs once; the sweep keeps calling them, a no-op after
+   this. */
 __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
@@ -1948,6 +1959,10 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     HANDLE f;
     BOOL ok;
     BOOL replace_legacy = FALSE;
+    vvfp_pathfinding_bridge(2); /* the runtime companions: before the first catch-up */
+    vvfp_fix_huts_bridge(2);
+    vvfp_lesson_cap_bridge(2);
+    vvfp_healers_study_bridge(2);
     n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
     for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
