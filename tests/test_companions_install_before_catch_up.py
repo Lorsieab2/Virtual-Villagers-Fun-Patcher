@@ -222,24 +222,20 @@ class CompanionsInstallBeforeCatchUp(unittest.TestCase):
                 decide(m)
                 self.assertEqual(jobs(m), [g["healing"]])
 
-    def test_new_believers_stock_mode_only_installs(self):
-        """The stock mode's buildSavePath detour installs and nothing else:
-        no slot is stashed and the Origins ownership word is never cleared,
-        whatever slots are built (the mask modes do both)."""
-        m = early_world("vv5", "stock")
-        m.w32(OWNERSHIP, 0x3)
-        for slot in (1, 3, 3 + 0x14, 0, 2):
-            HOOK["vv5"](m, slot)
-            self.assertEqual(m.u32(SLOT_SCRATCH), 0)
-            self.assertEqual(m.u32(OWNERSHIP), 0x3)
-        self.assertEqual(code(m, 0x403600, 6)[0], 0xE9)
-        # The mask modes, for contrast: the slot is captured and a slot
-        # change clears the word.
-        m = early_world("vv5", "collection_progression")
-        HOOK["vv5"](m, 1)
-        m.w32(OWNERSHIP, 0x3)
-        HOOK["vv5"](m, 3)
-        self.assertEqual((m.u32(SLOT_SCRATCH), m.u32(OWNERSHIP)), (3, 0))
+    def test_new_believers_slot_capture_is_the_same_in_every_mode(self):
+        """Every population mode carries slot_capture whole: the slot is
+        captured (village slots only), a save's backup path keeps it, and only
+        a real village switch clears the Origins ownership word."""
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                m = early_world("vv5", mode)
+                HOOK["vv5"](m, 1)
+                m.w32(OWNERSHIP, 0x3)
+                for slot in (1 + 0x14, 1, 0):          # a save of village 1, the meta file
+                    HOOK["vv5"](m, slot)
+                    self.assertEqual((m.u32(SLOT_SCRATCH), m.u32(OWNERSHIP)), (1, 0x3))
+                HOOK["vv5"](m, 3)                       # another village
+                self.assertEqual((m.u32(SLOT_SCRATCH), m.u32(OWNERSHIP)), (3, 0))
 
     def test_the_lost_children_healer_studies_in_the_first_catch_up(self):
         m = early_world("vv2", selected=1, pick=1, task=9, cont=1)

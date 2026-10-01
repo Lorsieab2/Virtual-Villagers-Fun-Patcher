@@ -250,7 +250,6 @@ OFF = {
     "apply_division": 0x6400,
     "appearance_all": 0x6500,
     "companion_install": 0x6600,
-    "stock_save_path": 0x6680,
     "mask_flip": 0x6800,
     "mask_restore": 0x6A00,
     "mask_unflip": 0x6B00,
@@ -298,7 +297,6 @@ SIZES = {
     "apply_division": 0x80,
     "appearance_all": 0x100,
     "companion_install": 0x60,
-    "stock_save_path": 0x20,
     "mask_flip": 0x200,
     "mask_restore": 0x80,
     "mask_unflip": 0x180,
@@ -4271,17 +4269,6 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         popfd
         ret
     """)
-    # stock_save_path: the "stock" population mode carries this page but none
-    # of the mask hooks -- not the head draw that reaches Vv5MaskSync, and not
-    # slot_capture with its slot stash and slot-change ownership clearing -- so
-    # it never installed the runtime companions at all.  Its buildSavePath
-    # detour comes here instead: companion_install, then the displaced
-    # prologue.  Install only; nothing else changes in that mode.
-    stock_save_path = put(page, page_va, "stock_save_path", f"""
-        call 0x{page_va + OFF['companion_install']:X}
-        sub esp, 0x104
-        jmp 0x403606
-    """)
     # mask_birth_clear: detour target for the villager BIRTH function sub_4687F0
     # (thiscall, ecx = the newborn record; it copies parent fields + sets active
     # +0x1CD4=1). A newborn reuses a freed record slot, so without this it would
@@ -4316,7 +4303,6 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         "mask_load_once": load_once, "mask_sync": sync, "bighead_mask": bighead,
         "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
         "companion_install": install,
-        "stock_save_path": stock_save_path,
     }
 
 
@@ -4729,15 +4715,6 @@ def main() -> None:
             "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
             "purpose": "Per-slot mask sidecar: capture the current save slot from buildSavePath so the companion DLL keys vvfp_masks_<slot>.dat per village (fixes cross-slot mask bleed)",
         })
-    # The stock population mode: the same page (0x7C9000), an install-only
-    # detour (stock_save_path) -- no slot capture, no ownership clearing.
-    rel = (LAYOUTS["collection_progression"]["page_va"] + OFF["stock_save_path"]) - (slot_site + 5)
-    result["patch_mode_overrides"].setdefault("stock", []).append({
-        "offset": f"0x{slot_site - 0x400000:X}",
-        "before": slot_preimage,
-        "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
-        "purpose": "Runtime companions: install Builders Fix Huts When Idle (and what it loads) from buildSavePath, before the village's catch-up; install only, with none of the mask modes' slot capture",
-    })
     # Slot-reuse guard: clear a newborn's mask nibble at birth. A dead villager
     # frees its record slot; the next newborn reuses that index and would inherit
     # the dead one's persisted mask. sub_4687F0 is the villager BIRTH ctor (thiscall,
@@ -4781,6 +4758,15 @@ def main() -> None:
             "after": rec.hex().upper(),
             "purpose": "Register bigheads_masks.png as sprite id 0x155 (free slot) so the Details portrait mask blit uses the dedicated bighead atlas",
         })
+    # The stock population mode appends the very same page (the patcher maps
+    # it to the collection-progression layout), so it takes the same eight
+    # hooks -- Barrel close-arm, the mask render and portrait detours, the
+    # sprite record, slot_capture (which also installs the runtime companions
+    # before the first catch-up) and the newborn clear.  Without them a Barrel
+    # charged and never arrived, a queued Island/Barrel locked both rows, and
+    # no runtime companion was ever installed.  The barrel's capacity probe
+    # reads whichever cap bytes the mode installed (stock: 90 + the bonus).
+    result["patch_mode_overrides"]["stock"] = deepcopy(result["patch_mode_overrides"]["collection_progression"])
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {

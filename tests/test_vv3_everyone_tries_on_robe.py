@@ -62,6 +62,13 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned when the fix-huts page gained the catch-up research-pick stub
+    # for Builders and Healers Work First (The Secret City's catch-up worker,
+    # 0x45BF52). Justified BEFORE re-pinning by rendering the full catalog at
+    # the preceding commit and on the change and diffing byte for byte: in
+    # every mode the only differences are the PE CheckSum (0x160..0x163), the
+    # five-byte site at 0x5BF52 and the stub inside the fix-huts overlay
+    # (0xCBA8A..0xCBAFF); nothing else moved and the length is unchanged.
     # Re-pinned again when the parentage feature gained the birth hook:
     # three site rewrites, plus a body, export name and stubs placed in
     # the feature's own overlay. Verified before re-pinning that every
@@ -168,16 +175,16 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # three modes are the patch's own 0x586F3..0x586F8 and the PE CheckSum
     # (0x160..0x162).
     "stock": (
-        "575CC08120339AB08811A1CFDDF263E98F120CCD56E9DB7D1F7DF4C9B9270875",
-        "82470D00",
+        "51C0D189C33A1E4D193B75BCC66D9E355E94CA08CAB1CA3BDDF356583271285F",
+        "E1CD0D00",
     ),
     "collection_progression": (
-        "CA59010E94B4D0459ED7CE6991EB4F294D6FEC3818298EFE84BBECA228A82304",
-        "82600D00",
+        "2979E75839C0C112DEEBF4A61D35B8BE6EE4F32C9815270D88CE961029337B34",
+        "E2E60C00",
     ),
     "immediate_fixed": (
-        "871DD4982772B783B3FCF10F788806BE8B444D5C65E850E2387636FD0B3BD07C",
-        "80A20D00",
+        "77050D168A01212D5945B96BF28D51DBABBEA81D9F3A04C6BBC2199AA62EB1C7",
+        "E0280D00",
     ),
 }
 

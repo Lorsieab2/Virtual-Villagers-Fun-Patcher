@@ -366,10 +366,7 @@ def work_first_row(game: str, sha: str) -> dict:
         ]
     else:
         row["explicit_non_changes"].insert(0,
-            "This row changes no executable bytes: The Secret City's hook is the dispatcher stub that Builders Fix Huts When Idle places in the page Origins appends, which resolves this DLL's VvfpWorkFirstFirst; without this row the DLL is not shipped and the stub runs the stock dispatcher. The first VvfpWorkFirstFirst call detours the catch-up worker's research-pick test at run time after verifying the stock bytes.")
-        row["runtime_detours"] = [
-            {**catch_up_detour, "installed_by": "VVFP Work First.dll, at the first VvfpWorkFirstFirst call"},
-        ]
+            "This row changes no executable bytes: The Secret City's hooks are the dispatcher stub and the catch-up research-pick stub (0x45BF52) that Builders Fix Huts When Idle places in the page Origins appends, each of which resolves this DLL's VvfpWorkFirstFirst itself -- so the research pick is covered from the first catch-up decision, before any dispatch; without this row the DLL is not shipped and the stubs run the stock code.")
     return row
 
 
@@ -442,6 +439,24 @@ VV3_WORK_FIRST_DLL_NAME = b"VVFP Work First.dll\0"
 VV3_WORK_FIRST_NAME_OFFSET = 0x1A0
 VV3_PRIORITY_EXPORT_OFFSET = 0x1C0
 VV3_PRIORITY_CODE_OFFSET = 0x200
+
+# The addendum's catch-up research pick (see CATCH-UP in
+# native/vvfp_work_first/vvfp_work_first.c): the catch-up worker's
+# `cmp ebx, 1; jne 0x45BF7B` at 0x45BF52 jumps to a fifth stub.  A research
+# pick (job 1) asks the same cached VvfpWorkFirstFirst, with 0x45BF57 -- the
+# research step -- standing in for the caller; a job back is dispatched through
+# the dispatcher's entry (which leaves this caller to the stock code) and, if
+# it starts something, the worker's own finish (0x45BFC5) runs instead of the
+# research step.  It resolves the DLL itself, so it acts from the very first
+# catch-up decision, before any dispatch; without the DLL, or for any other
+# pick, the stock test is replayed.
+VV3_RESEARCH_VA = 0x45BF52
+VV3_RESEARCH_FILE = VV3_RESEARCH_VA - 0x400000
+VV3_RESEARCH_STOCK = bytes.fromhex("83FB017524")   # cmp ebx, 1; jne 0x45BF7B
+VV3_RESEARCH_STEP = 0x45BF57
+VV3_RESEARCH_OTHER = 0x45BF7B
+VV3_RESEARCH_DONE = 0x45BFC5
+VV3_RESEARCH_CODE_OFFSET = 0x28A      # straight after the work-first stub (0x200..0x28A)
 
 # About three times in four, once per decision (see "About three times in
 # four" in native/vvfp_fix_huts/vvfp_fix_huts.c): the companion wraps each
@@ -653,8 +668,59 @@ def vv3_build_page(base_va: int) -> bytes:
         raise RuntimeError("the Work First DLL name runs into the export name")
     page[VV3_PRIORITY_EXPORT_OFFSET : VV3_PRIORITY_EXPORT_OFFSET + len(VV3_PRIORITY_EXPORT_NAME)] = VV3_PRIORITY_EXPORT_NAME
     page[VV3_PRIORITY_CODE_OFFSET : VV3_PRIORITY_CODE_OFFSET + len(priority)] = priority
-    if VV3_PRIORITY_CODE_OFFSET + len(priority) > VV3_SCHED_CODE_OFFSET:
-        raise RuntimeError("the work-first stub runs into the scheduler stub")
+    if VV3_PRIORITY_CODE_OFFSET + len(priority) > VV3_RESEARCH_CODE_OFFSET:
+        raise RuntimeError("the work-first stub runs into the research stub")
+    research = assemble(
+        f"""
+        cmp ebx, 1
+        jne other
+        pushad
+        mov eax, dword ptr [0x{VV3_PRIORITY_CACHE_SLOT:X}]
+        cmp eax, 1
+        ja call_it
+        je give_up
+        push 0x{work_first_name_va:X}
+        call dword ptr [0x{VV3_LOAD_LIBRARY_IAT:X}]
+        test eax, eax
+        je mark_failed
+        push 0x{base_va + VV3_PRIORITY_EXPORT_OFFSET:X}
+        push eax
+        call dword ptr [0x{VV3_GET_PROC_ADDRESS_IAT:X}]
+        test eax, eax
+        je mark_failed
+        mov dword ptr [0x{VV3_PRIORITY_CACHE_SLOT:X}], eax
+    call_it:
+        push ebx
+        push esi
+        push 0x{VV3_RESEARCH_STEP:X}
+        push 3
+        call eax
+        add esp, 16
+        cmp eax, -1
+        je give_up
+        mov dword ptr [esp + 0x1C], eax
+        popad
+        mov ecx, edi
+        push eax
+        push esi
+        call 0x{VV3_PICKER_VA:X}
+        test al, al
+        jz step
+        jmp 0x{VV3_RESEARCH_DONE:X}
+    mark_failed:
+        mov dword ptr [0x{VV3_PRIORITY_CACHE_SLOT:X}], 1
+    give_up:
+        popad
+    step:
+        jmp 0x{VV3_RESEARCH_STEP:X}
+    other:
+        jmp 0x{VV3_RESEARCH_OTHER:X}
+        """,
+        base_va + VV3_RESEARCH_CODE_OFFSET,
+    )
+    page[VV3_RESEARCH_CODE_OFFSET : VV3_RESEARCH_CODE_OFFSET + len(research)] = research
+    if VV3_RESEARCH_CODE_OFFSET + len(research) > VV3_SCHED_CODE_OFFSET:
+        raise RuntimeError("the research stub runs into the scheduler stub")
     sched = assemble(
         f"""
         cmp dword ptr [0x{VV3_SCHED_CACHE_SLOT:X}], 1
@@ -757,6 +823,24 @@ def vv3_picker_site_patch(page_va: int) -> dict:
     }
 
 
+def vv3_research_site_patch(page_va: int) -> dict:
+    target = page_va + VV3_RESEARCH_CODE_OFFSET
+    entry = b"\xE9" + int(target - (VV3_RESEARCH_VA + 5)).to_bytes(4, "little", signed=True)
+    return {
+        "offset": f"0x{VV3_RESEARCH_FILE:X}",
+        "before": VV3_RESEARCH_STOCK.hex().upper(),
+        "after": entry.hex().upper(),
+        "purpose": (
+            "Divert the catch-up worker's research-pick test (cmp ebx, 1; jne at "
+            "0x45BF52) into the research stub for the Builders and Healers Work First "
+            "addendum, which resolves \"VVFP Work First.dll\" itself and, for a research "
+            "pick of a builder or healer on the decision's roll, dispatches their own job "
+            "first and runs the worker's finish if it starts something; otherwise, and "
+            "without that DLL, the stock research step or the stock pick path runs."
+        ),
+    }
+
+
 def vv3_sched_site_patch(page_va: int) -> dict:
     target = page_va + VV3_SCHED_CODE_OFFSET
     entry = b"\xE9" + int(target - (VV3_SCHED_VA + 5)).to_bytes(4, "little", signed=True)
@@ -801,10 +885,14 @@ def vv3_transaction(stock: bytes) -> tuple[list[dict], dict, list[dict]]:
         raise RuntimeError("stock bytes at 0x45AF00 are not the expected dispatcher prologue")
     if stock[VV3_SCHED_FILE : VV3_SCHED_FILE + len(VV3_SCHED_STOCK)] != VV3_SCHED_STOCK:
         raise RuntimeError("stock bytes at 0x45BFE0 are not the expected scheduler prologue")
+    if stock[VV3_RESEARCH_FILE : VV3_RESEARCH_FILE + len(VV3_RESEARCH_STOCK)] != VV3_RESEARCH_STOCK:
+        raise RuntimeError("stock bytes at 0x45BF52 are not the expected research-pick test")
     patches = [vv3_site_patch(VV3_PAGE_VA), vv3_food_site_patch(VV3_PAGE_VA),
-               vv3_picker_site_patch(VV3_PAGE_VA), vv3_sched_site_patch(VV3_PAGE_VA)]
+               vv3_picker_site_patch(VV3_PAGE_VA), vv3_sched_site_patch(VV3_PAGE_VA),
+               vv3_research_site_patch(VV3_PAGE_VA)]
     overlay_patches = [vv3_site_patch(VV3_OVERLAY_VA), vv3_food_site_patch(VV3_OVERLAY_VA),
-                       vv3_picker_site_patch(VV3_OVERLAY_VA), vv3_sched_site_patch(VV3_OVERLAY_VA)]
+                       vv3_picker_site_patch(VV3_OVERLAY_VA), vv3_sched_site_patch(VV3_OVERLAY_VA),
+                       vv3_research_site_patch(VV3_OVERLAY_VA)]
     layout = {
         "original_file_size": f"0x{VV3_STOCK_FILE_SIZE:X}",
         "append_offset": f"0x{VV3_PAGE_FILE:X}",
@@ -905,7 +993,7 @@ def main() -> None:
         else:
             patches, transaction, _overlay_patches = vv3_transaction(STOCK_VV3.read_bytes())
             manifest["explicit_non_changes"].insert(0,
-                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path, the work dispatcher's ten-byte entry and the idle scheduler's six-byte entry into four stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher stub serves the Builders and Healers Work First addendum and does nothing unless \"VVFP Work First.dll\" is shipped.")
+                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path, the work dispatcher's ten-byte entry, the idle scheduler's six-byte entry and the catch-up worker's five-byte research-pick test into five stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher and research-pick stubs serve the Builders and Healers Work First addendum and do nothing unless \"VVFP Work First.dll\" is shipped.")
             manifest["patches"] = patches
             manifest["pe_append_transaction"] = transaction
         out = ROOT / "data" / f"{game}_builders_fix_huts_feature.json"

@@ -17,7 +17,7 @@
     "At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders."
   ],
   "explicit_non_changes": [
-    "This row changes no executable bytes: The Secret City's hook is the dispatcher stub that Builders Fix Huts When Idle places in the page Origins appends, which resolves this DLL's VvfpWorkFirstFirst; without this row the DLL is not shipped and the stub runs the stock dispatcher. The first VvfpWorkFirstFirst call detours the catch-up worker's research-pick test at run time after verifying the stock bytes.",
+    "This row changes no executable bytes: The Secret City's hooks are the dispatcher stub and the catch-up research-pick stub (0x45BF52) that Builders Fix Huts When Idle places in the page Origins appends, each of which resolves this DLL's VvfpWorkFirstFirst itself -- so the research pick is covered from the first catch-up decision, before any dispatch; without this row the DLL is not shipped and the stubs run the stock code.",
     "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher and every other selected job are untouched. A builder is put first only while it has hut work (a hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built); a healer always.",
     "What the work does -- which project, which hut, which patient or study -- is the game's own dispatcher's choice.",
     "In catch-up, the worker's low-food Farming dispatch (0x45BFAB: 250 food or less and Farming 20 or more) is not one of the calls the hook acts on, so Farming wins exactly as in the stock game.",
@@ -27,16 +27,8 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "86289925FA7B0F7EA2629FF8F685D54E508F750F490EC28456A2C9CDD79A09FE"
+      "sha256": "F0FB1104023518DB111F4032B73D6043A91758AC30DBF372C24B04FC96FC6085"
     }
   ],
-  "patches": [],
-  "runtime_detours": [
-    {
-      "va": "0x45BF52",
-      "stock_bytes": "83FB017524",
-      "routine": "the catch-up worker's research-pick test (0x45BF00: cmp pick, 1; jne)",
-      "installed_by": "VVFP Work First.dll, at the first VvfpWorkFirstFirst call"
-    }
-  ]
+  "patches": []
 }

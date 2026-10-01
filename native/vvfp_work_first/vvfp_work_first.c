@@ -59,7 +59,11 @@
      tests for it; a research pick of a builder, healer (or devotee) asks the
      same question and, if the own job starts something, goes to the worker's
      own "done" (its queue processor); otherwise the stock research step runs.
-     Any other pick continues to the stock code unchanged.
+     Any other pick continues to the stock code unchanged.  In The Secret City
+     the site is an executable-side stub in the fix-huts page (it resolves
+     this DLL itself, so it acts from the first catch-up decision), which asks
+     VvfpWorkFirstFirst with the research step 0x45BF57 as the caller; the
+     other four games' sites are runtime detours from this DLL.
    * The low-food safety net: at 250 food or less with Farming 20 or more,
      The Secret City, The Tree of Life and New Believers dispatch Farming from
      a third call (returns 0x45BFB0, 0x46580F, 0x46E9B1) and then finish; that
@@ -245,12 +249,13 @@ static int is_one_of(unsigned int ret, const unsigned int *sites, int n) {
     return 0;
 }
 
-/* The adult scheduler's calls, then the catch-up worker's pick dispatch (the
-   last entry of each list; see CATCH-UP above).  The worker's low-food
+/* The adult scheduler's calls, then the catch-up worker's pick dispatch (and,
+   in The Secret City, its research step, which the fix-huts page's research
+   stub passes as the caller; see CATCH-UP above).  The worker's low-food
    Farming dispatch in VV3-VV5 is deliberately absent. */
 static const unsigned int VV1_CALLS[] = { 0x448355u, 0x448382u, 0x42E821u };
 static const unsigned int VV2_CALLS[] = { 0x461A08u, 0x461A35u, 0x43B588u };
-static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu, 0x45BFC5u };
+static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu, 0x45BFC5u, 0x45BF57u };
 static const unsigned int VV4_CALLS[] = { 0x4659D2u, 0x465A17u, 0x465A2Au, 0x46582Cu };
 static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu, 0x46E9CEu };
 #define VV5_CATCH_UP_CALL 0x46E9CEu
@@ -311,9 +316,6 @@ static int __cdecl vv1_research_first(const unsigned char *village, unsigned int
 static int __cdecl vv2_research_first(const unsigned char *village, unsigned int index, int pick) {
     return vv2_decide(village, index, pick);
 }
-static int __cdecl vv3_research_first(const unsigned char *record, int pick) {
-    return vv3_decide(record, pick);
-}
 static int __cdecl vv4_research_first(const unsigned char *object, int pick) {
     return vv4_decide(object, pick);
 }
@@ -321,18 +323,15 @@ static int __cdecl vv5_research_first(const unsigned char *object, int pick) {
     return vv5_decide(object, pick, 1);
 }
 
-static void install_catch_up(int game_id);
-
 /* For The Secret City's executable-side stub at the dispatcher's entry: the
    scheduler's return address, the record and the requested job.  The job to
-   try first, or -1.  A started job is counted by the stub's caller.  The
-   first call also installs The Secret City's catch-up site (its research
-   pick): nothing else in that game calls VvfpWorkFirstInstall. */
+   try first, or -1.  A started job is counted by the stub's caller.  Also
+   asked by the page's catch-up research stub, with the research step
+   0x45BF57 as the caller. */
 __declspec(dllexport) int __cdecl VvfpWorkFirstFirst(int game_id, unsigned int ret,
                                                      const unsigned char *record, int job) {
     if (game_id != 3 || record == NULL) return -1;
-    install_catch_up(3);
-    if (!is_one_of(ret, VV3_CALLS, 4)) return -1;
+    if (!is_one_of(ret, VV3_CALLS, 5)) return -1;
     return vv3_decide(record, job);
 }
 
@@ -452,14 +451,8 @@ LATER_STUB(vv5)
    which neither continuation reads before setting. */
 static const unsigned int vv1_cu_other = 0x42E817u, vv1_cu_research = 0x42E7E5u, vv1_cu_done = 0x42E821u;
 static const unsigned int vv2_cu_other = 0x43B566u, vv2_cu_research = 0x43B532u, vv2_cu_done = 0x43B588u;
-static const unsigned int vv3_cu_other = 0x45BF7Bu, vv3_cu_research = 0x45BF57u, vv3_cu_done = 0x45BFC5u;
 static const unsigned int vv4_cu_other = 0x4657C3u, vv4_cu_research = 0x4657A4u, vv4_cu_done = 0x46582Cu;
 static const unsigned int vv5_cu_other = 0x46E965u, vv5_cu_research = 0x46E934u, vv5_cu_done = 0x46E9CEu;
-/* The Secret City's dispatcher is called at its entry, whatever is there:
-   the fix-huts page's stub (which leaves this caller to the stock code) or
-   the stock bytes. */
-static const unsigned int vv3_dispatcher = 0x45AF00u;
-
 /* VV1: eax = pick, esi = index, edi = the worker, [edi+4] = village. */
 static __declspec(naked) void vv1_cu_stub(void) {
     __asm {
@@ -520,35 +513,6 @@ static __declspec(naked) void vv2_cu_stub(void) {
     }
 }
 
-/* VV3: ebx = pick, esi = record, edi = village. */
-static __declspec(naked) void vv3_cu_stub(void) {
-    __asm {
-        cmp ebx, 1
-        jne other
-        pushad
-        push ebx
-        push esi
-        call vv3_research_first
-        add esp, 8
-        mov [esp + 0x1C], eax
-        popad
-        cmp eax, -1
-        je research
-        mov ecx, edi
-        push eax
-        push esi
-        call dword ptr [vv3_dispatcher]
-        test al, al
-        jz research
-        WORK_FIRST_COUNT_STARTED
-        jmp dword ptr [vv3_cu_done]
-    research:
-        jmp dword ptr [vv3_cu_research]
-    other:
-        jmp dword ptr [vv3_cu_other]
-    }
-}
-
 /* VV4/VV5: edi = pick, esi = the villager object. */
 #define LATER_CU_STUB(NAME)                                                   \
     static __declspec(naked) void NAME##_cu_stub(void) {                      \
@@ -602,14 +566,13 @@ static int install_state[6];
 /* The catch-up worker's research-pick sites (see CATCH-UP above). */
 static const unsigned char VV1_CU_STOCK[5] = { 0x83, 0xF8, 0x02, 0x75, 0x32 };
 static const unsigned char VV2_CU_STOCK[5] = { 0x83, 0xFD, 0x02, 0x75, 0x34 };
-static const unsigned char VV3_CU_STOCK[5] = { 0x83, 0xFB, 0x01, 0x75, 0x24 };
 static const unsigned char VV4_CU_STOCK[5] = { 0x83, 0xFF, 0x01, 0x75, 0x1F };
 static const unsigned char VV5_CU_STOCK[5] = { 0x83, 0xFF, 0x01, 0x75, 0x31 };
 static const struct site CU_SITES[6] = {
     { 0 },
     { 0x42E7E0u, VV1_CU_STOCK, sizeof VV1_CU_STOCK, vv1_cu_stub },
     { 0x43B52Du, VV2_CU_STOCK, sizeof VV2_CU_STOCK, vv2_cu_stub },
-    { 0x45BF52u, VV3_CU_STOCK, sizeof VV3_CU_STOCK, vv3_cu_stub },
+    { 0 },                              /* The Secret City: the fix-huts page's research stub */
     { 0x46579Fu, VV4_CU_STOCK, sizeof VV4_CU_STOCK, vv4_cu_stub },
     { 0x46E92Fu, VV5_CU_STOCK, sizeof VV5_CU_STOCK, vv5_cu_stub },
 };
@@ -656,11 +619,9 @@ static int install_site(const struct site *s) {
     return 1;
 }
 
-/* The catch-up worker's research-pick site, once.  A New Home, The Lost
-   Children, The Tree of Life and New Believers call this only once their
-   dispatcher hook is in (VvfpWorkFirstInstall), since the site's stub calls
-   the dispatcher through the replayed stock bytes that hook verified; The
-   Secret City (VvfpWorkFirstFirst) calls its dispatcher's entry. */
+/* The catch-up worker's research-pick site, once, after the dispatcher hook
+   (VvfpWorkFirstInstall): the site's stub calls the dispatcher through the
+   replayed stock bytes that hook verified.  The Secret City has none here. */
 static void install_catch_up(int game_id) {
     if (cu_install_state[game_id] == 0) {
         cu_install_state[game_id] = install_site(&CU_SITES[game_id]) ? 1 : -1;

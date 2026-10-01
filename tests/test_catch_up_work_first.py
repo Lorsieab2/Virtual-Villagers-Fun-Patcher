@@ -108,7 +108,7 @@ def _rows(game):
 
 def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1, starts=None,
           food=1000, farming=10, huts_done=False, task=0, task_done=0, cont=0, rolls=None,
-          modules=None, warm_vv3=True, install=True, exe=None) -> Worker:
+          modules=None, install=True, exe=None) -> Worker:
     """A machine ready to run `game`'s catch-up worker for one adult.
     starts: job -> whether the dispatcher starts something (default: every
     job but 0... except that the picker's 0 is 'nothing' in A New Home)."""
@@ -218,21 +218,9 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
         m.plan(g["worker"], HALT, {UC_X86_REG_ECX: OBJ}, stack=(HALT,))
     if runtime and install:
         m.install_runtime()
-        if game == "vv3" and warm_vv3:
-            _vv3_first_dispatch(m)
     if runtime:
         m.roll_force(force)
     return m
-
-
-def _vv3_first_dispatch(m: Worker) -> None:
-    """The Secret City has no per-frame install: its dispatcher stub loads
-    "VVFP Work First.dll" at the first dispatch, and that first
-    VvfpWorkFirstFirst call installs the catch-up site.  One dispatch from an
-    unrelated caller (the stub then runs the stock request alone)."""
-    other_ret = 0x45BFB0                  # the worker's farming call: never acted on
-    m.run(G["vv3"]["disp"], other_ret, {UC_X86_REG_ECX: VILLAGE}, stack=(other_ret, RECORD, 0))
-    m.asked.clear()
 
 
 def decide(m: Worker) -> Worker:
@@ -287,14 +275,25 @@ class CatchUpSites(unittest.TestCase):
                 code = bytes(m.mu.mem_read(g["cu_site"], 5))
                 self.assertEqual(code[0], 0xE9, f"{game}: catch-up site not installed")
                 target = (g["cu_site"] + 5 + struct.unpack("<i", code[1:])[0]) & 0xFFFFFFFF
-                self.assertGreaterEqual(target, 0x11000000)    # into "VVFP Work First.dll"
-                self.assertLess(target, 0x12000000)
+                if game == "vv3":
+                    # The Secret City: the fix-huts row's research stub in the
+                    # page Origins appends, in the executable from the start.
+                    self.assertTrue(0x6DF800 <= target < 0x6DFC00, hex(target))
+                else:
+                    self.assertGreaterEqual(target, 0x11000000)    # into "VVFP Work First.dll"
+                    self.assertLess(target, 0x12000000)
 
-    def test_the_secret_city_installs_at_its_first_dispatch(self):
-        m = world("vv3", warm_vv3=False)
-        self.assertEqual(bytes(m.mu.mem_read(G["vv3"]["cu_site"], 5)).hex().upper(), G["vv3"]["cu_stock"])
-        _vv3_first_dispatch(m)
-        self.assertEqual(m.mu.mem_read(G["vv3"]["cu_site"], 1)[0], 0xE9)
+    def test_the_secret_city_acts_before_any_dispatch(self):
+        """The research stub resolves "VVFP Work First.dll" itself: on a fresh
+        machine, before any dispatcher call has loaded it, the very first
+        catch-up decision -- a research pick -- already puts a healer first."""
+        g = G["vv3"]
+        m = world("vv3", selected=g["healing"], pick=g["research"])
+        self.assertNotIn(("LoadLibraryA", "VVFP Work First.dll"), m.calls)
+        decide(m)
+        self.assertEqual(jobs(m), [g["healing"]])
+        self.assertIn(("LoadLibraryA", "VVFP Work First.dll"), m.calls)
+        self.assertNotIn("research step", [c[0] for c in m.calls])
 
     def test_the_lost_children_healers_site(self):
         self.assertEqual(_stock_bytes_at("vv2", 0x43B581, 7).hex().upper(), "5557E868460200")
@@ -483,6 +482,40 @@ class OtherJobsUntouched(unittest.TestCase):
                 m.asked = []
                 m.run(G["vv5"]["disp"], ret, {UC_X86_REG_ECX: OBJ}, stack=(ret, 3))
                 self.assertEqual(jobs(m), [2])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class EveryPopulationMode(unittest.TestCase):
+    """The tests above run the executable rendered in the "stock" population
+    mode; the catch-up behaviour must hold in the other two as well (the
+    owner: every patch works in all three modes)."""
+
+    _EXE: dict = {}
+
+    def exe(self, game, mode):
+        if (game, mode) not in self._EXE:
+            import vv_fun_patcher as vfp
+            from test_builders_decision_roll import STOCK
+            build = next(b for b in vfp.load_builds() if b.id == game)
+            self._EXE[(game, mode)] = bytes(vfp.render_patched_bytes(STOCK[game], build, mode,
+                                                                      list(_rows(game)))[0])
+        return self._EXE[(game, mode)]
+
+    def test_own_job_first_and_the_farming_net(self):
+        for mode in ("collection_progression", "immediate_fixed"):
+            for game in GAMES:
+                g = G[game]
+                exe = self.exe(game, mode)
+                for pick in (g["other"], g["research"]):
+                    with self.subTest(mode=mode, game=game, pick=pick):
+                        m = decide(world(game, exe=exe, selected=g["healing"], pick=pick))
+                        self.assertEqual(jobs(m), [g["healing"]])
+                if game in LATER:
+                    with self.subTest(mode=mode, game=game, farming=True):
+                        m = decide(world(game, exe=exe, selected=g["healing"], pick=g["other"],
+                                         food=250, farming=20))
+                        self.assertEqual(m.asked, [(g["farm_ret"], FARMING)])
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

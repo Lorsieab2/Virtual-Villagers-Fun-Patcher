@@ -228,9 +228,16 @@ class SecretCityTests(unittest.TestCase):
 
     def test_the_site_patch_replaces_the_exact_stock_test(self):
         # The hut site, the food site and the dispatcher site for the Builders
-        # and Healers Work First addendum (tests/test_work_first.py).
+        # and Healers Work First addendum (tests/test_work_first.py), the
+        # scheduler entry, and the addendum's catch-up research-pick site
+        # (tests/test_catch_up_work_first.py).
         self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]],
-                         ["0x5B39E", "0x5C229", "0x5AF00", "0x5BFE0"])
+                         ["0x5B39E", "0x5C229", "0x5AF00", "0x5BFE0", "0x5BF52"])
+        research = self.overlay["hook_patches"][4]
+        self.assertEqual(_stock("vv3", 0x45BF52, 5), bytes.fromhex(research["before"]))
+        self.assertEqual(bytes.fromhex(research["before"]), bytes.fromhex("83FB017524"))
+        rel, = struct.unpack("<i", bytes.fromhex(research["after"])[1:5])
+        self.assertEqual(0x45BF52 + 5 + rel, int(self.overlay["page_virtual_address"], 16) + 0x28A)
         sched = self.overlay["hook_patches"][3]
         self.assertEqual(_stock("vv3", 0x45BFE0, 6), bytes.fromhex(sched["before"]))
         self.assertEqual(bytes.fromhex(sched["before"]), bytes.fromhex("51568B74240C"))
