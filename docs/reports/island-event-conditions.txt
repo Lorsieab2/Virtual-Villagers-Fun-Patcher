@@ -1,523 +1,2359 @@
-VIRTUAL VILLAGERS - ISLAND EVENT CONDITIONS
-============================================
-What each event needs before the game will let it happen.
-"Always possible" = nothing beyond an island event being due.
-Read from each game's own code (Story / Cheat Upgrades research).
+VIRTUAL VILLAGERS - ISLAND EVENT CONDITIONS (DETAILED)
+=======================================================
 
-A NEW HOME
-----------
-  The Bad Little Monkey
-      needs: Always possible
-  The Plague of Parrots
-      needs: Always possible
-  A Plague of Locusts
-      needs: crops growing in the farm field
-  The Measles Epidemic
-      needs: at least one living child
-  The South Wind
-      needs: Always possible
-  The Heat Wave
-      needs: Always possible
-  Isola Day Celebration
-      needs: Always possible
-  Blessings Day Celebration
-      needs: Always possible
-  The Big Wave
-      needs: the beach to have been cleaned up completely
-  The Good Little Monkey
-      needs: Always possible
-  The Greedy Little Monkey
-      needs: Always possible
-  The Barrel O` Babies
-      needs: room in the village for new villagers
-  The North Wind
-      needs: Always possible
-  The Helpful Honeybees
-      needs: Always possible
-  The Trapped Whale
-      needs: the whale event to have happened fewer than three times
-  The Strange Berries
-      needs: Always possible
-  The Old Drum
-      needs: Always possible
-  The Mysterious Face
-      needs: Always possible
-  The Visitor
-      needs: the visitor to have come fewer than three times
-  A Mysterious Vial (red liquid)
-      needs: Always possible
-  The Troubled Child
-      needs: at least one living child
-  A Mysterious Vial (blue liquid)
-      needs: Always possible
-  The Suspicious Monkey
-      needs: at least one living child
-  The Wild Mushroom
-      needs: Always possible
-  The Black Pearl
-      needs: Always possible
-  The Dream
-      needs: Always possible
-  The Moth
-      needs: Always possible
-  The Book
-      needs: Always possible
-  The Brass Compass
-      needs: Always possible
-  A Mysterious Crate (wooden)
-      needs: Always possible
-  A Mysterious Crate (carefully sealed)
-      needs: Always possible
-  A Mysterious Crate (badly weathered)
-      needs: Always possible
-  A Mysterious Crate (rotting)
-      needs: Always possible
-  A Mysterious Crate (watertight)
-      needs: Always possible
-  A Mysterious Crate (old fruit)
-      needs: Always possible
-  A Mysterious Vial (red, from the sea)
-      needs: Always possible
-  A Mysterious Vial (blue, from the sea)
-      needs: Always possible
-  A Mysterious Vial (fizzy, from the sea)
-      needs: Always possible
-  Never possible in the shipping game (developer-dead):
-      A Mighty Storm - island case 1: its condition class (byte 5 at 0x4286A1) always re-rolls, so the selector never runs it
-      The Furry Food - encounter variant 5: its condition class (byte 4 at 0x4189A9) always re-rolls
+What every island event in the five games needs before it can happen, what it then does and to whom,
+read from the five stock executables (research/stock-executables). Every clause cites the code that
+makes it.
 
-THE LOST CHILDREN
------------------
-  The Obnoxious Parrot
-      needs: Always possible
-  The Flash Flood
-      needs: Always possible
-  The Dense Fog (food lost)
-      needs: Always possible
-  The Dense Fog (tech lost)
-      needs: Always possible
-  The East Wind
-      needs: Always possible
-  The Heat Wave
-      needs: Always possible
-  Isola Day Celebration
-      needs: Always possible
-  Day of Honor
-      needs: someone in the village to have died
-  Day of Elders
-      needs: Always possible
-  Blessings Day Celebration (first version)
-      needs: Always possible
-  The Epidemic
-      needs: the village's later technologies (the game's own advanced-village check)
-  Blessings Day Celebration (second version)
-      needs: Always possible
-  The Spring Allergies
-      needs: Always possible
-  Rats!
-      needs: the village's later technologies (the game's own advanced-village check)
-  Where Are The Infants?
-      needs: a mother with an infant, and the village's later technologies
-  A Dangerous Mission
-      needs: a population of more than 60
-  The  Foul Passing
-      needs: the village's later technologies (the game's own advanced-village check)
-  The Friendly Parrot
-      needs: Always possible
-  The Barrel O` Babies
-      needs: room in the village for new villagers
-  The West Wind
-      needs: Always possible
-  The Dense Fog (tech gained)
-      needs: Always possible
-  The Dense Fog (food gained)
-      needs: Always possible
-  Old Friends
-      needs: room in the village for new villagers
-  The Mother Parrot
-      needs: Always possible
-  The Ancient Gold Coin
-      needs: the gold-coin fashion not to have caught on already
-  The Cursed Idol
-      needs: at least 250 food
-  The Prettiest Tribe Girl
-      needs: at least one adult woman
-  The Strange Request
-      needs: Always possible
-  The Savage Child
-      needs: room in the village for a new villager
-  The Voices In The Brush
-      needs: Always possible
-  For The Birds
-      needs: at least one living child
-  The Fastest Runner
-      needs: Always possible
-  The Nightmare
-      needs: Always possible
-  A Bump On The Head
-      needs: Always possible
-  The Child Prodigy
-      needs: at least one living child
-  The Swarm Of Dragonflies
-      needs: Always possible
-  The Black Seeds
-      needs: Always possible
-  The Crystal Ball
-      needs: at least one adult
-  The Silver Mirror
-      needs: at least two villagers
-  The Huge Coconut
-      needs: Always possible
-  The Falling Star
-      needs: Always possible
-  The Hole In The Sand
-      needs: Always possible
-  The Spyglass
-      needs: the spyglass not to have been kept already
-  The Love Note
-      needs: at least one adult man and one adult woman
-  The White Pearl
-      needs: Always possible
-  A Mysterious Sack (thick plastic)
-      needs: Always possible
-  A Mysterious Sack (carefully sealed)
-      needs: Always possible
-  A Mysterious Sack (somewhat compromised)
-      needs: Always possible
-  A Mysterious Sack (thick canvas)
-      needs: Always possible
-  A Mysterious Sack (stained, heavy burlap)
-      needs: Always possible
-  A Mysterious Vial (green)
-      needs: Always possible
-  A Mysterious Vial (orange)
-      needs: Always possible
-  A Mysterious Vial (fragrant)
-      needs: Always possible
-  Never possible in the shipping game (developer-dead):
-      (case 4 of 0x433600) - no event body: both tables point it at the shared epilogue / a never-valid entry
-      The Mosquito Swarm - case 18: the selector's condition table maps it to the never-valid entry 0x434824
-      The Dragonfly Migration - case 20: the selector's condition table maps it to the never-valid entry 0x434824
-      Science Awareness Day - case 26: the selector's condition table maps it to the never-valid entry 0x434824
+Evidence level: static analysis of the exact stock executables (disassembly). NOT yet confirmed in a
+running game. Where a field's meaning could not be established it is named as an internal field with
+its address and "meaning not determined", never guessed.
 
-THE SECRET CITY
----------------
-  The Tsunami
-      needs: the game's own condition for the tsunami (two or more of the villagers it checks)
-  The Plague Of Ants
-      needs: Always possible
-  The Science Fair
-      needs: at least three children
-  The Allergy Season
-      needs: Always possible
-  Isola Day Celebration
-      needs: Always possible
-  Day of Honor
-      needs: at least two graves
-  The Canoe from the Other Side
-      needs: room in the village for a new villager
-  The Mysterious Fog (food gained)
-      needs: Always possible
-  The Mysterious Fog (food lost)
-      needs: Always possible
-  The Mysterious Fog (tech gained)
-      needs: Always possible
-  The Mysterious Fog (tech lost)
-      needs: Always possible
-  Blessings Day Celebration
-      needs: Always possible
-  The Miraculous Bloom
-      needs: the game's own condition for the bloom
-  The Reflection in the Water
-      needs: Always possible
-  The Daredevil
-      needs: a villager the event can be about
-  The Ghostly Dream (nature or healing)
-      needs: a villager the event can be about
-  The Ghostly Dream (research or architecture)
-      needs: a villager the event can be about
-  The Crystal of Reflections
-      needs: a villager the event can be about
-  The Bitter Brown Beans (taste or dye)
-      needs: a villager the event can be about
-  The Bitter Brown Beans (brew or fertilizer)
-      needs: a villager the event can be about
-  The Ancient Tablet (laundry or decoration)
-      needs: a villager the event can be about
-  The Ancient Tablet (research or display)
-      needs: a villager the event can be about
-  The Low Tide
-      needs: a child the event can be about (the game also rolls a chance)
-  The Ants and the Granary
-      needs: a child the event can be about
-  The Green Pearl
-      needs: a villager the event can be about
-  The Blue Pearl
-      needs: a villager the event can be about
-  The Lazy Apprentice
-      needs: an apprentice the event can be about
-  The Omen in the Clouds
-      needs: a villager the event can be about
-  The Playful Otters
-      needs: a child the event can be about
-  The Ant Hill
-      needs: a child the event can be about
-  The Red Starfish
-      needs: a villager the event can be about
-  The Blue Starfish
-      needs: a villager the event can be about
-  Bed Bugs
-      needs: a villager the event can be about
-  The Lovers (her gift)
-      needs: a woman the event can be about
-  The Lovers (his gift)
-      needs: a man the event can be about
-  The Medical Emergency
-      needs: a villager the event can be about
-  The Mysterious Vial (quartz)
-      needs: a villager the event can be about
-  The Mysterious Vial (obsidian)
-      needs: a villager the event can be about
-  The Mysterious Vial (amber)
-      needs: a villager the event can be about
-  The Mango and the Papaya
-      needs: a villager the event can be about (the game also rolls a chance)
-  The Mysterious Crate
-      needs: a villager the event can be about
-  Vanity and the Bee
-      needs: a woman the event can be about
-  The Noisy Bird
-      needs: a villager the event can be about
-  The Hole in the Hut
-      needs: a villager the event can be about
-  The Royal Jelly
-      needs: a villager the event can be about
-  The Shooting Star
-      needs: a child the event can be about
-  The Chief's Address
-      needs: a tribal chief
-  The Rainy Season
-      needs: Always possible
-  The Cold Snap
-      needs: the game's own condition for the cold snap
-  The Salty Air
-      needs: Always possible
-  The Oppressive Humidity
-      needs: Always possible
-  "Thick as Pea Soup"
-      needs: Always possible
-  The Stinging Jellyfish
-      needs: Always possible
-  The Mushroom Celebration
-      needs: 500 mushrooms collected
-  The Yellow Geckos
-      needs: Always possible
-  The Return of Biggles
-      needs: a villager the event can be about
-  Another One of Those Barrels 
-      needs: room in the village for new villagers
-  Never possible in the shipping game (developer-dead):
-      The Swarm of Bees - strings only (ids 765/766): no event object and no slot in the registry
-      The Drought--completely wrong - strings only (ids 934-937): no event object and no slot in the registry
+How to read an entry
+  [slot N] the value Pick Island Event uses (scripts/story_island_events.py). In A New Home and The
+           Lost Children it is family x 64 + index (A New Home: 0 Island, 1 Encounter, 2 Crate; The
+           Lost Children: 0 Single-result, 1 Two-choice, 2 Sack); in the other three games it is the
+           index in the game's own event table.
+  Needs:   every condition, all of which must hold at the moment the game picks the event. Clauses
+           that pick the villager the event is about ("the subject") are included -- if no villager
+           fits, the event cannot be picked.
+  Then:    what the event does and to whom.
+  Repeat:  shown only when special. No island event in any of the five games is limited to once per
+           village and none has a cooldown of its own; only the shared timer between island events
+           (in each game's rules) spaces them out.
+  Code:    the condition function and the addresses behind each clause.
 
-THE TREE OF LIFE
-----------------
-  The Creeping Mold
-      needs: Always possible
-  The Allergy Season
-      needs: Always possible
-  Isola Day Celebration
-      needs: Always possible
-  Day of Honor
-      needs: the game's own condition for the day of honor (graves)
-  The Mysterious Footprints (food gained)
-      needs: Always possible
-  The Mysterious Footprints (food lost)
-      needs: Always possible
-  The Mysterious Footprints (tech gained)
-      needs: Always possible
-  The Mysterious Footprints (tech lost)
-      needs: Always possible
-  Blessings Day Celebration
-      needs: Always possible
-  A Closer Look
-      needs: a villager the event can be about
-  The Arc of Brilliant Colors
-      needs: a villager the event can be about
-  The Robber Crab
-      needs: a villager the event can be about
-  The Phosphorescent Fungi
-      needs: a villager the event can be about
-  The Rainy Season
-      needs: Always possible
-  The Cold Snap
-      needs: a lit village fire
-  "A Monsoon!"
-      needs: Always possible
-  The Stinging Wasps
-      needs: Always possible
-  The Festival of the Banyan
-      needs: 500 mushrooms collected and a healthy Tree of Life
-  The Pure Sea Air
-      needs: Always possible
-  Daredevil Barrel...of Babies! 
-      needs: room in the village for new villagers, and the game's own barrel conditions
-  The State of the Tree (glum)
-      needs: the Tree of Life still in a poor state
-  The State of the Tree (rejuvenated)
-      needs: a healthy Tree of Life
-  The Abandoned Infants 
-      needs: the game's own condition for abandoned infants
-  The Pink Shell
-      needs: a villager the event can be about
-  The Calabash Instrument
-      needs: a villager the event can be about
-  The Climber
-      needs: a villager the event can be about
-  The Mosquito Larvae
-      needs: a villager the event can be about, and the game's own technology conditions
-  Faces in the Night
-      needs: a villager the event can be about
-  The Screaming Baby
-      needs: a villager the event can be about
-  The Sealed Box
-      needs: a villager the event can be about
-  The Wet Book
-      needs: a villager the event can be about
-  The Lie
-      needs: a villager the event can be about
-  The Aspiring Doctor (algae)
-      needs: a villager the event can be about
-  The Aspiring Doctor (sea water)
-      needs: a villager the event can be about
-  The Aspiring Doctor (mushrooms)
-      needs: a villager the event can be about
-  The Aspiring Doctor (bark)
-      needs: a villager the event can be about
-  The Aspiring Doctor (fasting)
-      needs: a villager the event can be about
-  The Aspiring Doctor (cut leg)
-      needs: a villager the event can be about
-  The Aspiring Scientist
-      needs: a villager the event can be about
-  Innovation in Construction
-      needs: a villager the event can be about
-  Innovation in Farming
-      needs: a villager the event can be about, and the game's own technology condition
-  Tough Lessons
-      needs: a child and an adult the event can be about
-  The Pretty Shell
-      needs: at least two children
-  The Legendary Stranger
-      needs: a villager the event can be about
-  Never possible in the shipping game (developer-dead):
-      The Tsunami - slot 1: condition 0x4146E0 always returns false
-      The Canoe from the Other Side - slot 6: condition 0x4146E0 always returns false
-      The Medical Emergency - slot 16: condition 0x4146E0 always returns false
-      The Salty Air - slot 19: strings only, no event object
-      The Return of Biggles - slot 24: condition 0x4146E0 always returns false
+Units and words
+  * Ages: the games store 20 age units per displayed year (280 = 14 years, 360 = 18, 1000 = 50).
+  * "Living" = the record is in use and health is above 0 (each game's exact fields are in its rules).
+  * "Pregnant or nursing" is one state in all five games (the record's pregnancy field is non-zero).
+  * Technology "level": the value the game's own technology getter returns (0 = nothing researched).
+  * Population caps: "90" is the stock cap; the patcher's population modes (Collection Progression,
+    Immediate Fixed) change that base number and everything else stays as described.
+  * Pick Island Event (the patcher's Origins upgrade) uses exactly these conditions: an event whose
+    Needs do not hold cannot be delivered.
 
-NEW BELIEVERS
--------------
-  The Creeping Mold
-      needs: Always possible
-  The Allergy Season
-      needs: Always possible
-  Isola Day Celebration
-      needs: Always possible
-  Day of Honor
-      needs: at least two graves
-  The Vision
-      needs: a villager the event can be about
-  The Mysterious Footprints (food gained)
-      needs: Always possible
-  The Mysterious Footprints (food lost)
-      needs: Always possible
-  The Mysterious Footprints (tech gained)
-      needs: Always possible
-  The Mysterious Footprints (tech lost)
-      needs: Always possible
-  Blessings Day Celebration
-      needs: Always possible
-  The Bed Bugs
-      needs: a villager the event can be about
-  The Mask
-      needs: a villager the event can be about
-  The Heathen Toy
-      needs: a child the event can be about
-  The Daredevil Jump
-      needs: a villager the event can be about
-  The Cold Snap
-      needs: a lit village fire
-  Army Ants!
-      needs: the game's own progress condition for crop events
-  Aphid Infestation!
-      needs: the game's own progress condition for crop events
-  The Strange Crystals
-      needs: Always possible
-  The Especially Offensive Cloud
-      needs: Always possible
-  The Bottle of Spicy Juice
-      needs: Always possible
-  The River Breaks Its Banks
-      needs: the game's own progress condition for crop events
-  The Clumsy Heathen
-      needs: Always possible
-  The Pesky Critter
-      needs: the game's own progress condition for the lab
-  Mushroom Day!
-      needs: a child the event can be about
-  Barrel O' Babies! (believers)
-      needs: room in the village for new villagers
-  Barrel O' Babies! (heathens)
-      needs: room in the village for new villagers
-  The Salty Air
-      needs: Always possible
-  Chutes Without Ladders
-      needs: room in the village for new villagers
-  News From Another Tribe (a newcomer)
-      needs: room in the village for a new villager
-  News From Another Tribe (a message)
-      needs: Always possible
-  The Spa
-      needs: a villager the event can be about
-  Doubt
-      needs: a villager the event can be about
-  Spying on the Heathens
-      needs: a child the event can be about
-  You're Doing It Wrong!
-      needs: a villager the event can be about
-  The Missing Kids
-      needs: a child the event can be about
-  Outreach?
-      needs: a villager the event can be about
-  The Advanced Artifacts
-      needs: the game's own progress condition for the artifacts
-  Trick Or Trade
-      needs: at least 100 food
-  The Migrating Fruit Bats
-      needs: a villager the event can be about
-  The Aphids in the Noni Bush
-      needs: a villager the event can be about
-  The Defector
-      needs: a heathen the event can be about (the game also rolls a chance)
-  The Straw Hat
-      needs: a villager the event can be about
-  The Strange Nectar
-      needs: a villager the event can be about
-  The Cracked Mask
-      needs: a villager the event can be about
-  Innovation in Farming (the mysterious storyteller)
-      needs: a child the event can be about, and the game's own progress condition
-  Never possible in the shipping game (developer-dead):
-      The Stinging Wasps - slot 25: condition 0x415B10 always returns false
-      The Return of Biggles - slot 29: condition 0x415B10 always returns false
-      The Abandoned Infants - slot 33: condition 0x415B10 always returns false
-      The Smelly Vial - slot 48: condition 0x415B10 always returns false
-      The Floral Vial - slot 49: condition 0x415B10 always returns false
-      The Invisible Vial - slot 50: condition 0x415B10 always returns false
-      Innovation in Farming - slot 51: condition 0x415B10 always returns false
-      Tough Lessons - slot 52: condition 0x415B10 always returns false
-      The Pretty Shell - slot 53: condition 0x415B10 always returns false
-      The Legendary Stranger - slot 54: condition 0x415B10 always returns false
-      The Tsunami, The Canoe from the Other Side, The Rainy Season, The Festival of the Banyan, Daredevil Barrel...Of Babies!, The State of the Tree, A Closer Look - strings only: no event class and no slot in the event table
+====================================================================================================
+A NEW HOME  (VV1)
+====================================================================================================
+
+Rules for all island events in this game:
+  * Island family (body 0x427CA0): the case is rand(15) at 0x4284DB, re-rolled until its check
+    passes. Its strength (magnitude) is the population (with carried babies) divided by 3, kept
+    between 1 and 10 (0x4239AD).
+  * Encounter family (body 0x4189E0): the variant is rand(16) at 0x418932, re-rolled until its class
+    check passes.
+  * Crate family (0x42D0E0 -> 0x42B000): one rand(9) at 0x42B03E, no re-roll and no conditions; a
+    strength roll rand(100) at 0x42B00C gives 1 (below 33), 2 (33-66) or 3 (67+).
+  * Timing: the next island event time is world+0xA300 in game-clock seconds (clock 0x402F70). A new
+    village sets it to 15 minutes after creation (0x41C4A9: +0x384). When a village is loaded and an
+    internal value world+0xA318 is 999 or more (meaning not determined), the time since world+0xA304
+    is added (0x42E90A-0x42E930).
+  * When the time has come (0x4237BD), an event is attempted only if the population (0x41CF90) is
+    above 0 and a living villager aged 14 or over exists (0x43BCD0(1)); that randomly drawn
+    villager's age (+0x348) must also equal its field +0x34C (named 'Nursing' in the owner's Cheat
+    Engine table; why the check uses it was not determined). If either fails, nothing is rescheduled
+    and the trigger tries again on its next update.
+  * Family weights (0x423818, 0x42383A): if the village's Island Events Seen counter (world+0x9E40,
+    saved) is 0, the event is always an Encounter. Otherwise a first rand(100) below 20 gives an
+    Encounter (20%); else a second rand(100) below 50 gives an Island event (40%), and 50 or more
+    gives a Crate (40%). (The extra branch guarded by 0x41D110 never runs: it always returns 0.)
+  * Delay to the next event: after the village's first event, 30 minutes (+0x708); after any other
+    event, 12 to 23 hours ((rand(12)+12) x 3600 s). The counter world+0x9E40 goes up by 1 each time.
+  * Retries inside a family: the Island chooser (0x4284D6) and the Encounter chooser (0x418930) re-
+    roll without limit until a case passes its check (both always have unconditional cases, so they
+    always end). The Crate chooser rolls once.
+  * No event is limited to once per village and there is no per-event cooldown.
+  * Ages: 20 age units = 1 displayed year; children are under 14 (280 units). Records: present
+    +0x28, health +0x344, age +0x348.
+  * Room check (used by the events that add villagers): room for new villagers, by the game's own
+    room check 0x43A1A0: the population (living villagers plus babies being carried, as 0x41CF90
+    counts them) must be below 90 in the stock game (the patcher's population modes change this
+    cap); 15-24 people need the first small hut built (world+0x9FE8), 25-49 need the second
+    (+0x9FF0), 50 or more need the third (+0x9FF8); under 15 needs none.
+
+  Note: Technology fields: the Technologies screen draws its six rows from world+0xA2E4, +0xA2D4,
+        +0xA2DC, +0xA2CC, +0xA2C4, +0xA2BC (0x433BE6-0x433CA3) and its six labels in the order
+        Farming, Medicine, Fertility, Construction, Science, Spirituality (strings 0x8D-0x92,
+        0x435849-0x4358C6). Pairing them in order gives +0xA2BC = Spirituality, +0xA2D4 = Medicine,
+        +0xA2E4 = Farming; +0xA2D4 is corroborated by its lifespan use at 0x42EDFC. The earlier
+        description of The Trapped Whale and The Visitor as 'happened fewer than three times' is
+        wrong: both compare a technology level with 3.
+
+----------------------------------------------------------------------------------------------------
+EVENTS THE GAME CAN RUN
+----------------------------------------------------------------------------------------------------
+
+[slot 0] The Bad Little Monkey
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: A monkey ransacks the research table: the tribe loses magnitude x 900 tech points.
+  Code: island chooser 0x428470, case 0: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 2] The Plague of Parrots
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: Parrots eat many of the berries.
+  Code: island chooser 0x428470, case 2: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 3] A Plague of Locusts
+  Needs:
+    - Family: Island.
+    - Farming technology at level 2 or higher (world+0xA2E4, the top row of the Technologies screen
+      -- see notes).
+  Then: Locusts devour the crops.
+  Code: island chooser 0x428470, case 3: byte 0x4286A3 -> handler 0x428610: [world+0xA2E4] >= 2
+
+[slot 4] The Measles Epidemic
+  Needs:
+    - Family: Island.
+    - At least one living child under 14 (present, health above 0, age below 280 units).
+  Then: Every child in the village falls ill with measles.
+  Code: island chooser 0x428470, case 4: handler 0x4284FA: scans 256 records (stride 0x3D8) for
+        +0x28 set, +0x344 > 0, +0x348 < 0x118
+
+[slot 5] The South Wind
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: A hot wind withers the berries, scorches the crops and spoils some stored food.
+  Code: island chooser 0x428470, case 5: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 6] The Heat Wave
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: The villagers stop working to seek relief until it passes.
+  Code: island chooser 0x428470, case 6: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 7] Isola Day Celebration
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: Everyone celebrates with a feast (uses some food).
+  Code: island chooser 0x428470, case 7: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 8] Blessings Day Celebration
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: Everyone celebrates with a feast (uses some food).
+  Code: island chooser 0x428470, case 8: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 9] The Big Wave
+  Needs:
+    - Family: Island.
+    - The beach cleaned up completely (the cleaned-beach flag world+0x9FB8 equals 1).
+  Then: A giant wave covers the cleaned beach with debris again (the flag is cleared).
+  Code: island chooser 0x428470, case 9: handler 0x428637: byte [world+0x9FB8] == 1
+
+[slot 10] The Good Little Monkey
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: The tribe gains tech points.
+  Code: island chooser 0x428470, case 10: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 11] The Greedy Little Monkey
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: The tribe gains food.
+  Code: island chooser 0x428470, case 11: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 12] The Barrel O` Babies
+  Needs:
+    - Family: Island.
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: A barrel of babies joins the village (more in a bigger village), each only while there is
+        room.
+  Code: island chooser 0x428470, case 12: handler 0x42865E: 0x43A1A0 (cap 0x5A, huts
+        0x9FE8/0x9FF0/0x9FF8 at 15/25/50)
+
+[slot 13] The North Wind
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: The crops and the berry bush are refreshed.
+  Code: island chooser 0x428470, case 13: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 14] The Helpful Honeybees
+  Needs:
+    - Family: Island.
+    - No other condition.
+  Then: The berry bush thrives.
+  Code: island chooser 0x428470, case 14: byte table 0x4286A0 -> 0x428671 (no check)
+
+[slot 64] The Trapped Whale
+  Needs:
+    - Family: Encounter.
+    - Spirituality technology below level 3 (world+0xA2BC; the sixth row of the Technologies screen
+      -- see notes).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject frees the whale or harvests it for food.
+  Code: encounter chooser 0x418920, variant 0: class 0 -> 0x41894F: [world+0xA2BC] < 3
+
+[slot 65] The Strange Berries
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject tastes the berries (risky) or leaves them.
+  Code: encounter chooser 0x418920, variant 1: class 1 -> 0x418987 (no check)
+
+[slot 66] The Old Drum
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject cuts the drum open or keeps it.
+  Code: encounter chooser 0x418920, variant 2: class 1 -> 0x418987 (no check)
+
+[slot 67] The Mysterious Face
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject takes a closer look (risky; can vanish, or a newcomer can join) or backs away.
+  Code: encounter chooser 0x418920, variant 3: class 1 -> 0x418987 (no check)
+
+[slot 68] The Visitor
+  Needs:
+    - Family: Encounter.
+    - Medicine technology below level 3 (world+0xA2D4; the field the game uses to lengthen lifespans
+      at 0x42EDFC).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject helps the stranger with plants and seeds, or refuses.
+  Code: encounter chooser 0x418920, variant 4: class 2 -> 0x418963: [world+0xA2D4] < 3
+
+[slot 70] A Mysterious Vial  (red liquid)
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject drinks the oily red liquid (risky) or pours it out.
+  Code: encounter chooser 0x418920, variant 6: class 1 -> 0x418987 (no check)
+
+[slot 71] The Troubled Child
+  Needs:
+    - Family: Encounter.
+    - At least one living child under 14; one is picked at random as the subject (0x43BE70).
+  Then: The child is directed toward farming or research.
+  Code: encounter chooser 0x418920, variant 7: class 3 -> 0x418977: 0x43BE70 != -1; case body
+        0x418DBE picks the child with 0x43BE70
+
+[slot 72] A Mysterious Vial  (blue liquid)
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject drinks the oily blue liquid or pours it out.
+  Code: encounter chooser 0x418920, variant 8: class 1 -> 0x418987 (no check)
+
+[slot 73] The Suspicious Monkey
+  Needs:
+    - Family: Encounter.
+    - At least one living child under 14 (checked by 0x43BE70; the subject itself is any villager).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject chases the monkey away or waits and sees.
+  Code: encounter chooser 0x418920, variant 9: class 3 -> 0x418977: 0x43BE70 != -1
+
+[slot 74] The Wild Mushroom
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject tastes the mushroom (risky) or discards it.
+  Code: encounter chooser 0x418920, variant 10: class 1 -> 0x418987 (no check)
+
+[slot 75] The Black Pearl
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject shares the pearl or keeps it.
+  Code: encounter chooser 0x418920, variant 11: class 1 -> 0x418987 (no check)
+
+[slot 76] The Dream
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject enters the right cave or the left.
+  Code: encounter chooser 0x418920, variant 12: class 1 -> 0x418987 (no check)
+
+[slot 77] The Moth
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject helps the moth or leaves it.
+  Code: encounter chooser 0x418920, variant 13: class 1 -> 0x418987 (no check)
+
+[slot 78] The Book
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject reads the book (can vanish) or gives it to the researchers.
+  Code: encounter chooser 0x418920, variant 14: class 1 -> 0x418987 (no check)
+
+[slot 79] The Brass Compass
+  Needs:
+    - Family: Encounter.
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject mashes berries with it or gives it to the researchers.
+  Code: encounter chooser 0x418920, variant 15: class 1 -> 0x418987 (no check)
+
+[slot 128] A Mysterious Crate  (wooden)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Opening it gives food.
+  Code: crate chooser 0x42B03E, case 0 (table 0x42B71C)
+
+[slot 129] A Mysterious Crate  (carefully sealed)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Opening it gives tech points.
+  Code: crate chooser 0x42B03E, case 1 (table 0x42B71C)
+
+[slot 130] A Mysterious Crate  (badly weathered)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Rusty tools give tech points, but villagers fall ill.
+  Code: crate chooser 0x42B03E, case 2 (table 0x42B71C)
+
+[slot 131] A Mysterious Crate  (rotting)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Angry rats bite and spread disease.
+  Code: crate chooser 0x42B03E, case 3 (table 0x42B71C)
+
+[slot 132] A Mysterious Crate  (watertight)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Babies inside join the village, each only while there is
+        room (no room check before the event is chosen).
+  Code: crate chooser 0x42B03E, case 4 (table 0x42B71C)
+
+[slot 133] A Mysterious Crate  (old fruit)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Giant spiders badly injure the villager who opens it.
+  Code: crate chooser 0x42B03E, case 5 (table 0x42B71C)
+
+[slot 134] A Mysterious Vial  (red, from the sea)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Drinking it changes the subject's appearance.
+  Code: crate chooser 0x42B03E, case 6 (table 0x42B71C)
+
+[slot 135] A Mysterious Vial  (blue, from the sea)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Drinking it raises one of the subject's skills.
+  Code: crate chooser 0x42B03E, case 7 (table 0x42B71C)
+
+[slot 136] A Mysterious Vial  (fizzy, from the sea)
+  Needs:
+    - Family: Crate.
+    - No condition of its own (see the Crate family rule).
+    - Subject: a random living villager of any age (0x43BCD0(0)).
+  Then: The subject opens it or leaves it. Drinking it lowers all of the subject's skills.
+  Code: crate chooser 0x42B03E, case 8 (table 0x42B71C)
+
+----------------------------------------------------------------------------------------------------
+EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
+----------------------------------------------------------------------------------------------------
+
+[slot 1] A Mighty Storm
+  Needs:
+    - Can never happen: island case 1 maps to handler 0x4284D6, which is the re-roll itself, so this
+      case is always rejected.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: byte 0x4286A1 = 5 -> 0x4284D6 (jmp back to rand)
+
+[slot 69] The Furry Food
+  Needs:
+    - Can never happen: encounter variant 5 has class 4, whose handler 0x418930 is the re-roll
+      itself.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: byte 0x4189A9 = 4 -> 0x418930
+
+====================================================================================================
+THE LOST CHILDREN  (VV2)
+====================================================================================================
+
+Rules for all island events in this game:
+  * Single-result family (body 0x433600): the case is rand(28) at 0x434607, up to 10 draws (see
+    retries). Its strength (magnitude) is the population divided by 3, kept between 1 and 10
+    (0x42F09E).
+  * Two-choice family (case bodies, table 0x420454): rand(22) at 0x41F59D; 21 is always rejected.
+  * Sack family (0x437AC0): one rand(8) at 0x437B0E, no re-roll and no conditions; a strength roll
+    rand(100) at 0x437ADC gives 1 (below 33), 2 (33-66) or 3 (67+).
+  * Timing: the next island event time is world+0x2EAE0 in game-clock seconds (clock 0x403200). A
+    new village sets it to 15 minutes after creation (0x42529B: +0x384). When a village is loaded
+    and an internal value world+0x2EB08 is 999 or more (meaning not determined), the time since
+    world+0x2EAE4 is added (0x43B690-0x43B6C8). A stock routine at 0x44EC85 (which spawns 20
+    objects) also sets the next event to 60 seconds later (0x44ECE1).
+  * When the time has come (0x42EECD), an event is attempted only if the population (0x425860) is
+    above 0 and a living villager aged 14 or over exists (0x44BAE0(1)); that randomly drawn
+    villager's age (+0x530) must also equal its field +0x534 (named 'Nursing Timer' in the owner's
+    Cheat Engine table; why the check uses it was not determined). If either fails, nothing is
+    rescheduled and the trigger tries again on its next update.
+  * Family weights (0x42EF28, 0x42EF4A): if the village's Island Events Seen counter (world+0x2E51C,
+    saved) is 0, the event is always from the two-choice family. Otherwise rand(100) below 20 gives
+    a two-choice event (20%); else a second rand(100) below 50 gives a single-result event (40%) and
+    50 or more a Sack/Vial (40%). (The branch guarded by 0x426110 never runs: it always returns 0.)
+  * Delay to the next event: after the village's first event, 30 minutes (+0x708); after any other,
+    10 to 19 hours ((rand(10)+10) x 3600 s). The counter world+0x2E51C goes up by 1 each time.
+  * Retries inside a family: the single-result chooser draws up to 10 times and, if none passes,
+    runs Blessings Day Celebration (first version, case 10). The two-choice chooser draws up to 10
+    times and, if none passes, runs The Voices In The Brush (case 5). The Sack chooser rolls once.
+  * No event is limited to once per village and there is no per-event cooldown.
+  * Ages: 20 age units = 1 displayed year; children are under 14 (280 units). Records: present
+    +0x30, health +0x52C, age +0x530, gender +0x538 (1 male, 2 female).
+  * Room check (used by the events that add villagers): room for new villagers, by the game's own
+    room check 0x44B310: the population (living villagers that are not totems -- record +0x558 clear
+    -- plus babies being carried, 0x425860) must be below the cap -- 90 in the stock game (the
+    patcher's population modes change this number) plus 5 for each of the four children's
+    collections completed (12 pieces each, 0x426120; all four give 25) -- and 15-24 people need 1
+    hut built (world+0x2E818), 25-49 need 2, 50 or more need all 3 (+0x2E820, +0x2E828); under 15
+    needs none.
+
+  Note: Technology fields: the Technologies screen draws its rows from world+0x2EA9C, +0x2EA8C,
+        +0x2EA94, +0x2EA84, +0x2EA7C, +0x2EA74 (0x4418F6-0x4419B3) and its labels in the order
+        Farming, Medicine, Exploration, Engineering, Science, Culture (strings 0xC9-0xCE). Pairing
+        them in order gives +0x2EA74 = Culture and +0x2EA94 = Exploration; +0x2EA84 = Engineering is
+        corroborated by the hut-building gate (docs/builders-fix-huts.md). The earlier descriptions
+        'the gold-coin fashion not to have caught on already' and 'the spyglass not to have been
+        kept already' were wrong: both compare a technology level with 2.
+  Note: 'The village's later technologies' in the earlier description of The Epidemic, Rats!, The
+        Foul Passing and Where Are The Infants? is wrong: the check 0x4261D0 requires all 16 puzzles
+        solved.
+
+----------------------------------------------------------------------------------------------------
+EVENTS THE GAME CAN RUN
+----------------------------------------------------------------------------------------------------
+
+[slot 0] The Obnoxious Parrot
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: A parrot keeps startling the researchers: the tribe loses tech points.
+  Code: single-result chooser 0x434570, case 0: table 0x434868[0] -> 0x434822
+
+[slot 1] The Flash Flood
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: A flash flood soaks the food bin: only the top layer of food stays edible.
+  Code: single-result chooser 0x434570, case 1: table 0x434868[1] -> 0x434822
+
+[slot 2] The Dense Fog  (food lost)
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: After a thick fog the food bin is missing food.
+  Code: single-result chooser 0x434570, case 2: table 0x434868[2] -> 0x434822
+
+[slot 3] The Dense Fog  (tech lost)
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: After a thick fog things are missing from the research table: tech points lost.
+  Code: single-result chooser 0x434570, case 3: table 0x434868[3] -> 0x434822
+
+[slot 5] The East Wind
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: A scorching east wind parches the island and slows the villagers' work.
+  Code: single-result chooser 0x434570, case 5: table 0x434868[5] -> 0x434822
+
+[slot 6] The Heat Wave
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: A heat wave: the villagers stop working to seek relief until it passes.
+  Code: single-result chooser 0x434570, case 6: table 0x434868[6] -> 0x434822
+
+[slot 7] Isola Day Celebration
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: The villagers celebrate their arrival on Isola with dancing and feasts.
+  Code: single-result chooser 0x434570, case 7: table 0x434868[7] -> 0x434822
+
+[slot 8] Day of Honor
+  Needs:
+    - Family: Single-result.
+    - At least one occupied slot in the 50-slot memorial of the dead (record +0x74 of the memorial
+      at world+0x2EB0C, stride 0x7C; 0x426160), i.e. someone has died and been memorialised.
+  Then: The villagers honor those who have passed.
+  Code: single-result chooser 0x434570, case 8: table 0x434868[8] -> 0x4347C0 -> 0x426160
+
+[slot 9] Day of Elders
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: The villagers celebrate the wise elders of the village.
+  Code: single-result chooser 0x434570, case 9: table 0x434868[9] -> 0x434822
+
+[slot 10] Blessings Day Celebration  (first version)
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: The villagers give thanks with dancing, ceremonies and a feast.
+  Code: single-result chooser 0x434570, case 10: table 0x434868[10] -> 0x434822
+
+[slot 11] The Epidemic
+  Needs:
+    - Family: Single-result.
+    - All 16 puzzles solved: every one of the 16 puzzle flags world+0x2E768..+0x2E7E8 that the
+      Puzzles Solved statistic counts must be set (0x4261D0).
+  Then: A disease spreads from a sick parrot through the village: every doctor is needed.
+  Code: single-result chooser 0x434570, case 11: table 0x434868[11] -> 0x4347E5 -> 0x4261D0
+
+[slot 12] Blessings Day Celebration  (second version)
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: The villagers give thanks with dancing, ceremonies and a feast.
+  Code: single-result chooser 0x434570, case 12: table 0x434868[12] -> 0x434822
+
+[slot 13] The Spring Allergies
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: Spring pollen gives most of the villagers allergies.
+  Code: single-result chooser 0x434570, case 13: table 0x434868[13] -> 0x434822
+
+[slot 14] Rats!
+  Needs:
+    - Family: Single-result.
+    - All 16 puzzles solved: every one of the 16 puzzle flags world+0x2E768..+0x2E7E8 that the
+      Puzzles Solved statistic counts must be set (0x4261D0).
+  Then: Hundreds of rats swarm through the village, biting villagers and fouling it.
+  Code: single-result chooser 0x434570, case 14: table 0x434868[14] -> 0x4347E5 -> 0x4261D0
+
+[slot 15] Where Are The Infants?
+  Needs:
+    - Family: Single-result.
+    - A living villager aged 18 or over (360 units) whose record +0x540 (named 'Nursing' in the
+      owner's table: pregnant or nursing) is above 0.
+    - All 16 puzzles solved: every one of the 16 puzzle flags world+0x2E768..+0x2E7E8 that the
+      Puzzles Solved statistic counts must be set (0x4261D0).
+  Then: The village's infants are carried off during the night.
+  Code: single-result chooser 0x434570, case 15: table 0x434868[15] -> 0x434639: scan +0x30,
+        +0x52C>0, +0x530>=0x168, +0x540>0; then 0x4261D0
+
+[slot 16] A Dangerous Mission
+  Needs:
+    - Family: Single-result.
+    - A population of more than 60 (61 or more, counted by 0x425860: non-totem living villagers plus
+      carried babies).
+  Then: Eight of the youngest, strongest adults sail off for the south shore and leave the village.
+  Code: single-result chooser 0x434570, case 16: table 0x434868[16] -> 0x4347D2: 0x425860 > 0x3C
+
+[slot 17] The  Foul Passing
+  Needs:
+    - Family: Single-result.
+    - All 16 puzzles solved: every one of the 16 puzzle flags world+0x2E768..+0x2E7E8 that the
+      Puzzles Solved statistic counts must be set (0x4261D0).
+  Then: Something foul passes through: crops, coconuts and the food bin are ruined.
+  Code: single-result chooser 0x434570, case 17: table 0x434868[17] -> 0x4347E5 -> 0x4261D0
+
+[slot 19] The Friendly Parrot
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: A friendly parrot drops nuts into the food bin: the tribe gains food.
+  Code: single-result chooser 0x434570, case 19: table 0x434868[19] -> 0x434822
+
+[slot 21] The Barrel O` Babies
+  Needs:
+    - Family: Single-result.
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: A barrel of babies washes up and they join the village (more of them in a bigger village).
+  Code: single-result chooser 0x434570, case 21: table 0x434868[21] -> 0x434809 -> 0x44B310
+
+[slot 22] The West Wind
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: A cool, moist wind refreshes the crops and coconut trees.
+  Code: single-result chooser 0x434570, case 22: table 0x434868[22] -> 0x434822
+
+[slot 23] The Dense Fog  (tech gained)
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: After a thick fog, useful formulae are found on the research table: tech points gained.
+  Code: single-result chooser 0x434570, case 23: table 0x434868[23] -> 0x434822
+
+[slot 24] The Dense Fog  (food gained)
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: After a thick fog, the food bin holds more food.
+  Code: single-result chooser 0x434570, case 24: table 0x434868[24] -> 0x434822
+
+[slot 25] Old Friends
+  Needs:
+    - Family: Single-result.
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: A couple from the south shore finds the village and joins it.
+  Code: single-result chooser 0x434570, case 25: table 0x434868[25] -> 0x4347F7 -> 0x44B310
+
+[slot 27] The Mother Parrot
+  Needs:
+    - Family: Single-result.
+    - No other condition.
+  Then: The children watch a mother parrot and learn about parenting.
+  Code: single-result chooser 0x434570, case 27: table 0x434868[27] -> 0x434822
+
+[slot 64] The Ancient Gold Coin
+  Needs:
+    - Family: Two-choice.
+    - Culture technology below level 2 (world+0x2EA74 -- see notes).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds a gold coin: wear it as an ornament, or give it to the scientists.
+  Code: two-choice chooser 0x41F570, case 0: table 0x41F6C8[0] -> 0x41F5B9: [world+0x2EA74] < 2
+
+[slot 65] The Cursed Idol
+  Needs:
+    - Family: Two-choice.
+    - At least 250 food in the food bin (world+0x2EAA4, the stored-food field the builder code also
+      reads).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds a cursed statuette: destroy it, or offer food to lift the curse.
+  Code: two-choice chooser 0x41F570, case 1: table 0x41F6C8[1] -> 0x41F5CD: [world+0x2EAA4] >= 0xFA
+
+[slot 66] The Prettiest Tribe Girl
+  Needs:
+    - Family: Two-choice.
+    - At least one living woman aged 14 or over (0x44BC80(1, female)). The body then picks the
+      subject with 0x44BC80(0, female), so the young woman named can be any living female, including
+      a girl under 14.
+  Then: A young woman wants to be declared the prettiest in the tribe.
+  Code: two-choice chooser 0x41F570, case 2: table 0x41F6C8[2] -> 0x41F5E5: 0x44BC80(1,2); body
+        0x41F8BB: 0x44BC80(0,2)
+
+[slot 67] The Strange Request
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - No subject is picked: the event creates its own figure (0x44F580 at 0x41F944).
+  Then: Biggles wants to be left alone at the research table: allow it, or refuse.
+  Code: two-choice chooser 0x41F570, case 3: table 0x41F6C8[3] -> 0x41F694
+
+[slot 68] The Savage Child
+  Needs:
+    - Family: Two-choice.
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A wild boy is found at the research table: lure him in with food, or chase him away.
+  Code: two-choice chooser 0x41F570, case 4: table 0x41F6C8[4] -> 0x41F5FE -> 0x44B310
+
+[slot 69] The Voices In The Brush
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager hears voices in the brush: investigate (risky), or head back.
+  Code: two-choice chooser 0x41F570, case 5: table 0x41F6C8[5] -> 0x41F694
+
+[slot 70] For The Birds
+  Needs:
+    - Family: Two-choice.
+    - At least one living child under 14; one is picked at random as the subject (0x44C030).
+  Then: A child sees sea birds leaving fish on the rocks: taste the fish, or leave it.
+  Code: two-choice chooser 0x41F570, case 6: table 0x41F6C8[6] -> 0x41F613: 0x44C030 != -1
+
+[slot 71] The Fastest Runner
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager brags about being the fastest: hold a race, or agree.
+  Code: two-choice chooser 0x41F570, case 7: table 0x41F6C8[7] -> 0x41F694
+
+[slot 72] The Nightmare
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager thrashes in a nightmare: wake them, or let them sleep.
+  Code: two-choice chooser 0x41F570, case 8: table 0x41F6C8[8] -> 0x41F694
+
+[slot 73] A Bump On The Head
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager falls from a tree and loses their memory: another bump, or rest.
+  Code: two-choice chooser 0x41F570, case 9: table 0x41F6C8[9] -> 0x41F694
+
+[slot 74] The Child Prodigy
+  Needs:
+    - Family: Two-choice.
+    - At least one living child under 14; one is picked at random as the subject (0x44C030).
+  Then: A gifted child builds amazing models: let them play, or apprentice them to the researchers.
+  Code: two-choice chooser 0x41F570, case 10: table 0x41F6C8[10] -> 0x41F613: 0x44C030 != -1
+
+[slot 75] The Swarm Of Dragonflies
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: Dragonflies gather at the pond: chase them away, or ignore them.
+  Code: two-choice chooser 0x41F570, case 11: table 0x41F6C8[11] -> 0x41F694
+
+[slot 76] The Black Seeds
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds strange black seeds: eat them, or plant them.
+  Code: two-choice chooser 0x41F570, case 12: table 0x41F6C8[12] -> 0x41F694
+
+[slot 77] The Crystal Ball
+  Needs:
+    - Family: Two-choice.
+    - At least one living villager aged 14 or over (0x44BAE0(1)); the subject itself is any
+      villager.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds a strange ball: keep it, or give it to the children.
+  Code: two-choice chooser 0x41F570, case 13: table 0x41F6C8[13] -> 0x41F626
+
+[slot 78] The Silver Mirror
+  Needs:
+    - Family: Two-choice.
+    - A population of at least 2 (0x425860).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds a silver mirror and must speak one of two words written on it.
+  Code: two-choice chooser 0x41F570, case 14: table 0x41F6C8[14] -> 0x41F63B: 0x425860 >= 2
+
+[slot 79] The Huge Coconut
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A giant coconut falls: soften it in the pond, or hurl it from the diving rock.
+  Code: two-choice chooser 0x41F570, case 15: table 0x41F6C8[15] -> 0x41F694
+
+[slot 80] The Falling Star
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager sees a falling star: wish for themselves, or for the village.
+  Code: two-choice chooser 0x41F570, case 16: table 0x41F6C8[16] -> 0x41F694
+
+[slot 81] The Hole In The Sand
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds a strange hole on the beach: investigate it, or fill it in.
+  Code: two-choice chooser 0x41F570, case 17: table 0x41F6C8[17] -> 0x41F694
+
+[slot 82] The Spyglass
+  Needs:
+    - Family: Two-choice.
+    - Exploration technology below level 2 (world+0x2EA94 -- see notes).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds a spyglass: keep it, or give it to the scientists.
+  Code: two-choice chooser 0x41F570, case 18: table 0x41F6C8[18] -> 0x41F64D: [world+0x2EA94] < 2
+
+[slot 83] The Love Note
+  Needs:
+    - Family: Two-choice.
+    - At least one living woman aged 18 or over AND at least one living man aged 18 or over
+      (0x44BE70(360, sex)); the man is the subject.
+  Then: A man finds a love note from a secret admirer: write a poem, or hide to catch the poet.
+  Code: two-choice chooser 0x41F570, case 19: table 0x41F6C8[19] -> 0x41F65E: 0x44BE70(0x168,2) and
+        0x44BE70(0x168,1); body 0x4202D1 picks the man
+
+[slot 84] The White Pearl
+  Needs:
+    - Family: Two-choice.
+    - No other condition.
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A villager finds a huge white pearl: keep it, or show it to the tribe.
+  Code: two-choice chooser 0x41F570, case 20: table 0x41F6C8[20] -> 0x41F694
+
+[slot 128] A Mysterious Sack  (thick plastic)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A thick plastic sack washes up: opening it gives food.
+  Code: sack chooser 0x437B0E, case 0 (table 0x438138)
+
+[slot 129] A Mysterious Sack  (carefully sealed)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A carefully sealed sack washes up: opening it gives tech points.
+  Code: sack chooser 0x437B0E, case 1 (table 0x438138)
+
+[slot 130] A Mysterious Sack  (somewhat compromised)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A somewhat compromised sack washes up: old tools give tech points, but villagers fall ill.
+  Code: sack chooser 0x437B0E, case 2 (table 0x438138)
+
+[slot 131] A Mysterious Sack  (thick canvas)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A thick canvas sack washes up: starving mice inside bite the villagers.
+  Code: sack chooser 0x437B0E, case 3 (table 0x438138)
+
+[slot 132] A Mysterious Sack  (stained, heavy burlap)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A stained burlap sack washes up: fire ants inside sting the villager who opens it.
+  Code: sack chooser 0x437B0E, case 4 (table 0x438138)
+
+[slot 133] A Mysterious Vial  (green)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A vial of green liquid: drinking it changes the villager's looks.
+  Code: sack chooser 0x437B0E, case 5 (table 0x438138)
+
+[slot 134] A Mysterious Vial  (orange)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A vial of orange liquid: drinking it raises one of the villager's skills.
+  Code: sack chooser 0x437B0E, case 6 (table 0x438138)
+
+[slot 135] A Mysterious Vial  (fragrant)
+  Needs:
+    - Family: Sack.
+    - No condition of its own (see the Sack family rule).
+    - Subject: a random living villager of any age (0x44BAE0(0)).
+  Then: A vial of fragrant liquid: drinking it lowers all of the villager's skills.
+  Code: sack chooser 0x437B0E, case 7 (table 0x438138)
+
+----------------------------------------------------------------------------------------------------
+EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
+----------------------------------------------------------------------------------------------------
+
+[slot 4] (case 4: no title, no body)
+  Needs:
+    - Can never happen: single-result case 4 maps to the never-valid entry 0x434824 of the condition
+      table 0x434868, so the draw is always rejected.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: chooser 0x434570: table 0x434868[4] = 0x434824 (bl stays 0)
+
+[slot 18] The Mosquito Swarm
+  Needs:
+    - Can never happen: single-result case 18 maps to the never-valid entry 0x434824 of the
+      condition table 0x434868, so the draw is always rejected.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: chooser 0x434570: table 0x434868[18] = 0x434824 (bl stays 0)
+
+[slot 20] The Dragonfly Migration
+  Needs:
+    - Can never happen: single-result case 20 maps to the never-valid entry 0x434824 of the
+      condition table 0x434868, so the draw is always rejected.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: chooser 0x434570: table 0x434868[20] = 0x434824 (bl stays 0)
+
+[slot 26] Science Awareness Day
+  Needs:
+    - Can never happen: single-result case 26 maps to the never-valid entry 0x434824 of the
+      condition table 0x434868, so the draw is always rejected.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: chooser 0x434570: table 0x434868[26] = 0x434824 (bl stays 0)
+
+====================================================================================================
+THE SECRET CITY  (VV3)
+====================================================================================================
+
+Rules for all island events in this game:
+  * Timing: the next island event time is kept at manager+0x12EF4 in game-clock seconds (clock
+    0x403330). A new village sets it to 15 minutes after creation (0x4280B2: +0x384). When the time
+    has come, the event is attempted only if the population (living villagers plus babies being
+    carried, 0x45E8F0) is above 0.
+  * Before every attempt the scheduler draws a random villager aged 14 or over (0x45C9D0(1)); there
+    must be one, and an internal check must pass: that villager's age (+0xDC4) must equal its
+    internal field +0xE74 (meaning not determined; the game writes both together, e.g.
+    0x417440/0x417449). If the check fails nothing is rescheduled and the scheduler tries again on
+    its next update (0x468750-0x468792).
+  * Delay to the next event: the first island event after the game is started (in-memory counter
+    0x5824C4, not saved) schedules the next one 30 minutes later (+0x708); every later one schedules
+    the next 8 to 15 hours later ((rand(8)+8) x 3600 s). The extra rand(100) rolls at 0x468798 and
+    0x4687B8 do not change this (0x402200 always returns 0).
+  * When a village is loaded and an internal value manager+0x12F20 is 999 or more (meaning not
+    determined), the time the game was closed is added to the next-event time (0x428C60-0x428C8B).
+  * Choice (selector 0x419B30): every one of the 57 slots whose own condition holds is collected,
+    and one is picked uniformly at random. No retries: if none qualifies, nothing happens and the
+    next event is still rescheduled. Calling the conditions also picks the subject villagers.
+  * Rescue rule (0x419B85-0x419BD9), applied after the pick: if (there are more men than women and
+    at most 2 women), or (men do not outnumber women and there are at most 2 men) -- counting living
+    villagers of all ages (0x45EA80) -- or the population including carried babies is below 3, then
+    with a 15% chance the choice is replaced WITHOUT checking that event's own condition: a first
+    roll below 30 gives The Crystal of Reflections (slot 18), 30-59 gives The Canoe from the Other
+    Side (slot 7), 60 or more gives Another One of Those Barrels (slot 57).
+  * No event in this game is limited to once per village: the selector's per-slot 'shown' bytes at
+    0x4B3C3C+slot (written at 0x419C22) are never read.
+  * Ages: 20 age units = 1 displayed year. 'Child' = under 14 (280), 'adult' in the picker = 18-49
+    (360-999), 'elder' = 50+ (1000). The picker 0x45D460 counts only villagers alive (health +0xE78
+    > 0) and present (+0xF10). Its 'adult' class also requires +0xE8C (pregnant/nursing) to be 0.
+    Its optional exclusion skips the Tribal Chief (+0xE80).
+  * Room check (used by the events that add villagers): room for a new villager, by the game's own
+    room check: the population (living villagers plus babies still being carried) must be below the
+    cap -- 90 in the stock game (the patcher's population modes change this number) plus 5 for each
+    of the four children's collections completed (Turtle Shell, Coral, Tablet, Feather; all four
+    give 25), plus 10 once Magic technology is level 3 or higher -- AND enough huts must have been
+    rebuilt: a population of 10-16 needs at least 1 rebuilt hut, 17-34 needs 2, 35 or more needs all
+    3 (under 10 needs none). Code: 0x45FE30; population 0x45E8F0; base 90 at 0x45FEE3; collections
+    0x42DE40(0x34/0x40/0x4C/0x58), 20->25 at 0x45FE91; Magic 0x426FC0(6) >= 3 +10; huts
+    0x4321F0(0..2).
+
+  Note: Skill order on the VV3 record (measured, native/population_export): Farming, Parenting,
+        Healing, Research, Building. Tech indices (label = 0x404 + index, tech screen 0x464EEB): 0
+        Science, 1 Medicine, 2 Alchemy, 3 Restoration, 4 Leadership, 5 Nature, 6 Magic.
+
+----------------------------------------------------------------------------------------------------
+EVENTS THE GAME CAN RUN
+----------------------------------------------------------------------------------------------------
+
+[slot 1] The Tsunami
+  Needs:
+    - At least 2 living female villagers of any age.
+    - At least 2 living male villagers of any age who are not the Tribal Chief.
+    - At least 15 of the 16 story puzzles solved (the same 16 the Puzzles screen and 'Puzzles
+      Solved' count: progress of puzzle ids 0-15 at or above each one's threshold).
+  Then: Every living villager (any age, either sex) independently has a 15% chance of being swept
+        away (disappears without a grave).
+  Code: cond 0x414AC0: 0x45D460(7,1,0)>=2 females; 0x45D460(7,0,1)>=2 males; 0x435920 (count of
+        0x4358D0(0..15)) >= 15; apply 0x414B30 -> 0x45D990(15,-1)
+
+[slot 2] The Plague Of Ants
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: Ants infest the granary: the village loses some food.
+  Code: cond 0x403390 (mov al,1); apply 0x414B70
+
+[slot 3] The Science Fair
+  Needs:
+    - At least 3 living children under 14 (either sex; the chief rule does not apply).
+  Then: The children hold a science fair; no single villager is picked.
+  Code: cond 0x414BC0: 0x45D460(1,-1,0) count >= 3; apply 0x414BF0
+
+[slot 4] The Allergy Season
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: Many villagers suffer hay fever.
+  Code: cond 0x403390; apply 0x414C40
+
+[slot 5] Isola Day Celebration
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: A village celebration; no single villager is picked.
+  Code: cond 0x403390
+
+[slot 6] Day of Honor
+  Needs:
+    - At least 2 grave plots in use (0x454B10 counts the filled leading entries of the 50-plot table
+      in the graveyard container 0x5973F0).
+  Then: The villagers pay their respects to the dead; no single villager is picked.
+  Code: cond 0x414FC0: 0x454B10 on 0x5973F0 >= 2
+
+[slot 7] The Canoe from the Other Side
+  Needs:
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: A newcomer adult (a builder) arrives and joins the village.
+  Code: cond 0x414D80 -> room check 0x45FE30 (see rules); also forced by the selector's rescue rule
+        (see rules)
+
+[slot 8] The Mysterious Fog  (food gained)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: After a fog, honeycombs appear: the village gains food; no villager is picked.
+  Code: cond 0x403390
+
+[slot 9] The Mysterious Fog  (food lost)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: After a fog, some food is stolen; no villager is picked.
+  Code: cond 0x403390
+
+[slot 10] The Mysterious Fog  (tech gained)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: After a fog, instruments appear: the village gains tech points; no villager is picked.
+  Code: cond 0x403390
+
+[slot 11] The Mysterious Fog  (tech lost)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: After a fog, research tools are stolen: the village loses tech points; no villager is
+        picked.
+  Code: cond 0x403390
+
+[slot 12] Blessings Day Celebration
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: A village celebration; no single villager is picked.
+  Code: cond 0x403390
+
+[slot 13] The Miraculous Bloom
+  Needs:
+    - The Bee Hive puzzle solved (puzzle id 1: the bees calmed with smoke). Puzzle 1's handler
+      object is the honey resource 0x5945D0 and the Bee Hive tip (string 0x2BC) is shown from that
+      class; the repository's statistics research calls puzzle 1 the Tribal Chief, but the chief-
+      making routine 0x45FBC0 is called only beside puzzle 0's advance (0x431FEA, tip 0x2BF 'The
+      First Chief', AdvancePuzzle(0) at 0x432031).
+  Then: Flowers bloom and the bees make a lot of honey: the village gains food.
+  Code: cond 0x415030: 0x4358D0(1) on puzzle table 0x594990 (progress >= threshold 0x49D230[1]=1)
+
+[slot 14] The Reflection in the Water
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: A one-popup event; no villager is picked.
+  Code: cond 0x403390
+
+[slot 15] The Daredevil
+  Needs:
+    - A living man aged 18 or over (he is the subject, picked at random; the Tribal Chief may be
+      picked).
+    - At least 2 living women aged 18 or over (women aged 18-49 must not be pregnant or nursing).
+  Then: The picked man either swims with the sharks or rethinks his plan.
+  Code: cond 0x415420: subject 0x45D460(6,0,0); women 0x45D460(6,1,0) count > 1
+
+[slot 16] The Ghostly Dream  (nature or healing)
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject, picked at random).
+    - Nature technology at level 1 or higher (tech index 5).
+  Then: The subject studies nature (gains Farming) or the healing arts (gains Healing).
+  Code: cond 0x4154F0: 0x45D460(6,-1,1); 0x426FC0(5) > 0 on tech manager 0x582618 (index 5 = label
+        0x409 Nature)
+
+[slot 17] The Ghostly Dream  (research or architecture)
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject).
+    - Magic technology at level 1 or higher (tech index 6).
+  Then: The subject studies research (gains Research) or architecture (gains Building).
+  Code: cond 0x415630: 0x45D460(6,-1,1); 0x426FC0(6) > 0 (index 6 = label 0x40A Magic)
+
+[slot 18] The Crystal of Reflections
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies; the subject; the Tribal Chief may be picked).
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: If the crystal is kept, a copy of the subject (a new villager cloned from the subject) joins
+        the village; disposing of it changes nothing.
+  Code: cond 0x415750: 0x45D460(6,-1,0); tail-jump 0x45FE30 (room check 0x45FE30, see rules); also
+        forced by the rescue rule
+
+[slot 19] The Bitter Brown Beans  (taste or dye)
+  Needs:
+    - A living villager aged 18 to 49 (a woman must not be pregnant or nursing; the subject; chief
+      may be picked).
+    - Science technology below level 2 (level 0 or 1; tech index 0).
+  Then: The subject tastes the beans or uses them for dye.
+  Code: cond 0x4157E0: 0x45D460(2,-1,0); 0x426FC0(0) < 2
+
+[slot 20] The Bitter Brown Beans  (brew or fertilizer)
+  Needs:
+    - A living villager aged 18 to 49 (a woman must not be pregnant or nursing; the subject).
+    - Science technology at level 2 or higher.
+  Then: The subject brews the beans or uses them as fertilizer (fruit trees).
+  Code: cond 0x4159B0: 0x45D460(2,-1,0); 0x426FC0(0) > 1
+
+[slot 21] The Ancient Tablet  (laundry or decoration)
+  Needs:
+    - A living villager aged 18 to 49 (a woman must not be pregnant or nursing; the subject).
+    - Science technology below level 2.
+  Then: The subject uses the tablet for laundry or for decoration.
+  Code: cond 0x4157E0 (shared with slot 19): 0x45D460(2,-1,0); 0x426FC0(0) < 2
+
+[slot 22] The Ancient Tablet  (research or display)
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies; the subject).
+    - Alchemy technology below level 3 (tech index 2).
+    - Science technology at level 2 or higher.
+  Then: Research is focused on the tablet, or it is put on display.
+  Code: cond 0x415C40: 0x45D460(6,-1,0); 0x426FC0(2) < 3; 0x426FC0(0) >= 2
+
+[slot 23] The Low Tide
+  Needs:
+    - At least 8 living villagers of any age who are not the Tribal Chief; one of them is the
+      subject, picked at random.
+  Then: The subject grabs the stranded fish or moves to high ground; grabbing can sweep villagers
+        away (20% each). The condition also rolls a 50% coin that decides the grab result -- it is
+        not a requirement.
+  Code: cond 0x415DB0: rand(100)>=50 -> [this+0x10] (outcome only); 0x45D460(7,-1,1) count >= 8
+
+[slot 24] The Ants and the Granary
+  Needs:
+    - A living child under 14 who is not the Tribal Chief (the subject, picked at random).
+  Then: The child sweeps the ants away, or lets them be (gains Farming).
+  Code: cond 0x416A10 (shared by slots 24, 29, 30, 46): 0x45D460(1,-1,1) != 0
+
+[slot 29] The Playful Otters
+  Needs:
+    - A living child under 14 who is not the Tribal Chief (the subject, picked at random).
+  Then: The child throws the otters food (food lost) or keeps watching.
+  Code: cond 0x416A10 (shared by slots 24, 29, 30, 46): 0x45D460(1,-1,1) != 0
+
+[slot 30] The Ant Hill
+  Needs:
+    - A living child under 14 who is not the Tribal Chief (the subject, picked at random).
+  Then: The child pokes the ant hill (bitten) or drops food (food lost).
+  Code: cond 0x416A10 (shared by slots 24, 29, 30, 46): 0x45D460(1,-1,1) != 0
+
+[slot 46] The Shooting Star
+  Needs:
+    - A living child under 14 who is not the Tribal Chief (the subject, picked at random).
+  Then: The child tells the others or stays to watch the sky.
+  Code: cond 0x416A10 (shared by slots 24, 29, 30, 46): 0x45D460(1,-1,1) != 0
+
+[slot 25] The Green Pearl
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject, picked at random).
+  Then: The subject grinds the pearl into powder or wears it on a bracelet.
+  Code: cond 0x416CD0 (shared by slots 25, 31, 32, 33, 45): 0x45D460(6,-1,1) != 0
+
+[slot 31] The Red Starfish
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject, picked at random).
+  Then: If the subject picks it up, one of the subject's skills drops.
+  Code: cond 0x416CD0 (shared by slots 25, 31, 32, 33, 45): 0x45D460(6,-1,1) != 0
+
+[slot 32] The Blue Starfish
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject, picked at random).
+  Then: If the subject picks it up, one of the subject's skills rises.
+  Code: cond 0x416CD0 (shared by slots 25, 31, 32, 33, 45): 0x45D460(6,-1,1) != 0
+
+[slot 33] Bed Bugs
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject, picked at random).
+  Then: The subject swats the bug (falls sick) or has a closer look.
+  Code: cond 0x416CD0 (shared by slots 25, 31, 32, 33, 45): 0x45D460(6,-1,1) != 0
+
+[slot 45] The Royal Jelly
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject, picked at random).
+  Then: The subject tries the royal jelly from a clear vial or a dark vial.
+  Code: cond 0x416CD0 (shared by slots 25, 31, 32, 33, 45): 0x45D460(6,-1,1) != 0
+
+[slot 26] The Blue Pearl
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies; the subject; chief may be picked).
+    - The Alchemy Lab puzzle solved (puzzle id 2: all scattered pieces recovered; tip 0x2BD is shown
+      from the same class that advances puzzle 2 at 0x42FCAE).
+  Then: The subject grinds the pearl (inspired to work in the lab) or examines it.
+  Code: cond 0x416270: 0x45D460(6,-1,0); 0x4358D0(2) on 0x594990 (threshold 5)
+
+[slot 27] The Lazy Apprentice
+  Needs:
+    - A living child under 14 who is not the Tribal Chief (the apprentice, picked at random).
+    - A living villager aged 18 or over (no pregnancy check here) with a Research skill of at least
+      30 (the game's 0-100 skill value; record +0xEB8, measured as Research; the teacher, picked at
+      random).
+  Then: The child stays with the current teacher or finds a new one (the picked teacher).
+  Code: cond 0x4163B0: 0x45D460(1,-1,1); 0x45E610(skill 3, min 30, mask 6, sex -1) -> [this+0xC]
+
+[slot 28] The Omen in the Clouds
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the subject).
+  Then: The subject warns the villagers or performs a dance; the condition also rolls which omen
+        (1-4), not a requirement.
+  Code: cond 0x416550: 0x45D460(6,-1,1); rand(4)+1 -> [this+0x10]
+
+[slot 34] The Lovers  (her gift)
+  Needs:
+    - A living woman aged 18 to 49 who is not pregnant or nursing and not the Tribal Chief (she is
+      the subject).
+    - A living man aged 18 to 49 who is not the Tribal Chief (her partner).
+  Then: The woman courts the man with a carved knife or a shark-tooth necklace.
+  Code: cond 0x416ED0: 0x45D460(2,1,1) -> [this+4]; 0x45D460(2,0,1) -> [this+0xC]
+
+[slot 35] The Lovers  (his gift)
+  Needs:
+    - A living man aged 18 to 49 who is not the Tribal Chief (the subject).
+    - A living woman aged 18 to 49 who is not pregnant or nursing and not the Tribal Chief (his
+      partner).
+  Then: The man courts the woman with a shell necklace or flowers (flowers start the romance).
+  Code: cond 0x417050: 0x45D460(2,0,1) -> [this+4]; 0x45D460(2,1,1) -> [this+0xC]
+
+[slot 36] The Medical Emergency
+  Needs:
+    - A living villager of any age who is not the Tribal Chief (the patient).
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies) who is not the Tribal Chief (the healer; may be the same villager
+      as the patient -- nothing prevents it).
+    - Medicine technology at level 2 or higher (tech index 1).
+  Then: The healer attempts the procedure on the patient (it can succeed or fail) or lets the
+        illness run its course.
+  Code: cond 0x4171D0: 0x45D460(7,-1,1) -> [this+4]; 0x45D460(6,-1,1) -> [this+0xC]; 0x426FC0(1) >=
+        2
+
+[slot 37] The Mysterious Vial  (quartz)
+  Needs:
+    - Any living villager of any age (the subject; chief may be picked).
+  Then: If tasted: a child becomes an elder (age 50), an older villager becomes a child (age 10).
+  Code: cond 0x417390: 0x45D460(7,-1,0) != 0; apply 0x417400
+
+[slot 38] The Mysterious Vial  (obsidian)
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies; the subject; chief may be picked).
+  Then: If tasted, the subject's skills or health change at random.
+  Code: cond 0x417590 (shared by slots 38, 39): 0x45D460(6,-1,0) != 0
+
+[slot 39] The Mysterious Vial  (amber)
+  Needs:
+    - A living villager aged 18 or over (a woman aged 18-49 must also not be pregnant or nursing;
+      anyone 50 or over qualifies; the subject; chief may be picked).
+  Then: If tasted, the subject's skills or health change at random.
+  Code: cond 0x417590 (shared by slots 38, 39): 0x45D460(6,-1,0) != 0
+
+[slot 40] The Mango and the Papaya
+  Needs:
+    - A living villager aged 18 to 49 (a woman must not be pregnant or nursing; the subject; chief
+      may be picked).
+  Then: The subject swims for the papaya or keeps the mango; the condition also rolls a 50% coin
+        that decides the swim result -- not a requirement.
+  Code: cond 0x4178B0: rand(100)>=50 -> [this+0x10]; 0x45D460(2,-1,0) != 0
+
+[slot 41] The Mysterious Crate
+  Needs:
+    - At least 3 living villagers aged 18 to 49 (women among them not pregnant or nursing); one of
+      them (the Tribal Chief may be picked) is the subject.
+  Then: The subject opens the crate (random result) or shoves it back out to sea.
+  Code: cond 0x417A80: 0x45D460(2,-1,0) count >= 3
+
+[slot 42] Vanity and the Bee
+  Needs:
+    - A living woman aged 18 to 49 who is not pregnant or nursing and not the Tribal Chief (the
+      subject).
+  Then: She runs to the water or swats at the bee (stung).
+  Code: cond 0x417D10 (shared by slots 42, 43): 0x45D460(2,1,1) != 0
+
+[slot 43] The Noisy Bird
+  Needs:
+    - A living woman aged 18 to 49 who is not pregnant or nursing and not the Tribal Chief (the
+      subject).
+  Then: She scares the bird away or leaves it alone (the two choices have the same effect).
+  Code: cond 0x417D10 (shared with slot 42): 0x45D460(2,1,1) != 0
+
+[slot 44] The Hole in the Hut
+  Needs:
+    - A living villager aged 18 to 49 (a woman not pregnant or nursing) who is not the Tribal Chief
+      (the subject).
+    - The Bee Hive puzzle solved (puzzle id 1; see The Miraculous Bloom).
+  Then: The subject patches the hut with beeswax or tree sap.
+  Code: cond 0x417F30: 0x45D460(2,-1,1); 0x4358D0(1) on 0x594990
+
+[slot 47] The Chief's Address
+  Needs:
+    - A living Tribal Chief (the first villager in the array who is alive, present and has the chief
+      flag record +0xE80 set; that chief is the subject).
+  Then: The chief gives the State of the Village address.
+  Code: cond 0x415090: 0x45EF30 (first rec with +0xF10, +0xE78>0, +0xE80) -> [this+4]; +0xE80 set by
+        chief-maker 0x45FBC0
+
+[slot 48] The Rainy Season
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: Heavy rain (weather) for 180-359 clock units.
+  Code: cond 0x403390
+
+[slot 49] The Cold Snap
+  Needs:
+    - The village fire must be burning: the fire pit's burn timer (object 0x5946D8, timer at +0xC)
+      has not yet run out.
+  Then: A cold spell (weather) for 180-359 clock units; the villagers huddle by the fire.
+  Code: cond 0x415100: 0x4337A0 = !0x426870(0x5946E4) (timer expired? deadline < clock 0x403330);
+        fire-pit tips 0x283/0x285/0x287 in that class
+
+[slot 50] The Salty Air
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: A salty wind; the villagers hide until it settles.
+  Code: cond 0x403390
+
+[slot 51] The Oppressive Humidity
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: Hot, humid weather slows work.
+  Code: cond 0x403390
+
+[slot 52] "Thick as Pea Soup"
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: Thick fog (weather) for 180-359 clock units.
+  Code: cond 0x403390
+
+[slot 53] The Stinging Jellyfish
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: Jellyfish sting many villagers.
+  Code: cond 0x403390
+
+[slot 54] The Mushroom Celebration
+  Needs:
+    - An internal pickup counter (global 0x5824B4) must be at least 500. It goes up by 1 at 0x42E07E
+      each time an item that is not a collection piece is delivered (item ids below 0x34, and
+      0x64-0x66 at the drop-off spot); the event's own text calls this the 500th mushroom. Which
+      item ids are mushrooms was not determined.
+  Then: The children are celebrated; no single villager is picked.
+  Repeat: Not limited by a flag, but the counter only rises, so once it is reached the event stays
+          possible.
+  Not fully resolved: Exact item ids that count (mushrooms vs. other non-collection items) not
+                      established.
+  Code: cond 0x415290: cmp [0x5824B4], 0x1F4; increment 0x42E07E-0x42E087
+
+[slot 55] The Yellow Geckos
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x403390 always returns true).
+  Then: Geckos clear the huts of bugs.
+  Code: cond 0x403390
+
+[slot 56] The Return of Biggles
+  Needs:
+    - A living villager of any age who is not the Tribal Chief (the subject).
+  Then: The subject confronts the figure (forgets own name, gains science insight) or watches him
+        work (tech points).
+  Code: cond 0x4182F0: 0x45D460(7,-1,1) != 0
+
+[slot 57] Another One of Those Barrels
+  Needs:
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: A barrel of babies washes up and they join the village (each further baby only while there
+        is room).
+  Code: cond 0x415310 -> 0x45FE30 (room check 0x45FE30, see rules); also forced by the rescue rule
+
+----------------------------------------------------------------------------------------------------
+EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
+----------------------------------------------------------------------------------------------------
+
+[no slot] The Swarm of Bees
+  Needs:
+    - Can never happen: the title and text exist only as strings; no event object exists in the
+      selector's table of 57 slots.
+  Then: Nothing.
+  Repeat: Never.
+  Code: registry 0x418630 fills slots 1-57 of 0x4B3C78; no slot points at these strings
+
+[no slot] The Drought--completely wrong
+  Needs:
+    - Can never happen: the title and text exist only as strings; no event object exists in the
+      selector's table of 57 slots.
+  Then: Nothing.
+  Repeat: Never.
+  Code: registry 0x418630 fills slots 1-57 of 0x4B3C78; no slot points at these strings
+
+====================================================================================================
+THE TREE OF LIFE  (VV4)
+====================================================================================================
+
+Rules for all island events in this game:
+  * Timing: the next island event time is kept at manager+0x170E0 in game-clock seconds (clock
+    0x403750). A new village sets it to 15 minutes after creation (0x41F31B: +0x384). When the time
+    has come, the event is attempted only if the population (living villagers plus babies being
+    carried, 0x467610) is above 0.
+  * Before every attempt the scheduler draws one random living villager of any age (0x4679B0 with no
+    filters); its age (+0x1B8C) must equal its age clock (+0x1C3C, the field the conception code
+    copies) -- if not, nothing is rescheduled and the scheduler tries again on its next update
+    (0x43FA5B-0x43FA95). Why the two can differ was not determined.
+  * Delay to the next event: the first island event after the game is started (in-memory counter
+    0x4D6E04, not saved) schedules the next one 30 minutes later (+0x708); every later one schedules
+    the next 8 to 15 hours later ((rand(8)+8) x 3600 s). The other rand(100) rolls at
+    0x43FA9B/0x43FABA/0x43FACD do not change this (0x416EB0 always returns 0).
+  * When a village is loaded and an internal value manager+0x17110 is 999 or more (meaning not
+    determined), the time since the last save is added to the next-event time (0x420330-0x420359).
+  * Choice (selector 0x418000): every slot 1-49 whose own condition holds is collected and one is
+    picked uniformly at random. No retries: if none qualifies nothing happens (the next event was
+    already rescheduled).
+  * Rescue rule (0x4180A5-0x4180F2): if (men outnumber women and there are at most 2 women), or (men
+    do not outnumber women and there are at most 2 men) -- living villagers of all ages, 0x467650 --
+    or the population including carried babies is below 3, then with a 15% chance, if the first roll
+    was 30-59, the choice is replaced by Daredevil Barrel...of Babies! (slot 25) WITHOUT checking
+    its condition.
+  * No event in this game is limited to once per village: the per-slot 'shown' bytes at
+    0x4CC9F4+slot (written at 0x418136) are never read.
+  * Ages: 20 age units = 1 displayed year. The picker 0x4679B0(minAge, maxAge, sex, allowPregnant,
+    allowSick, skill, minSkill, mustBePregnant, mustBeSick, &count) counts only villagers present
+    (+0x1CC4), not marked dead (+0x1CC7) and with health above 0 (+0x1C40). 'Child' = under 14 (280
+    units), 'adult' = 14 or over. There is no Tribal Chief exclusion in this game.
+  * Room check (used by the events that add villagers): room for new villagers, by the game's own
+    room check: the population (living villagers plus babies still being carried) must be below the
+    cap -- 90 in the stock game (the patcher's population modes change this number) plus 5 for each
+    of the four children's collections completed (Fish Scale, Lab Equipment, Mausoleum Mural, Wind
+    Flute; all four give 25) -- AND enough huts rebuilt: a population of 10-16 needs at least 1
+    rebuilt hut, 17-34 needs 2, 35 or more needs all 3 (under 10 needs none).
+
+  Note: Puzzle ids (from each puzzle's registration call to 0x4386A0 and the tip its class shows): 0
+        Cutting Tools, 1 The Stream, 2 Boiling Water, 3 Soap, 4 Butterflies, 5 Frog Rescue, 6
+        Cooking Pit, 7 Cloth, 8 Nursery School, 9 Mossy Rocks, 11 Fishing Nets, 12 Pruning the Tree,
+        13 Honoring the Tree, 14 Purify Tree, 15 Decorating the Tree, 16 Grand Feast, 19-25
+        hut/building projects (threshold 2000).
+
+----------------------------------------------------------------------------------------------------
+EVENTS THE GAME CAN RUN
+----------------------------------------------------------------------------------------------------
+
+[slot 2] The Creeping Mold
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Toxic mold spoils some of the food in the food bin.
+  Code: cond 0x414920
+
+[slot 3] The Allergy Season
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Many villagers suffer hay fever.
+  Code: cond 0x414920
+
+[slot 4] Isola Day Celebration
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: A village celebration; no single villager is picked.
+  Code: cond 0x414920
+
+[slot 5] Day of Honor
+  Needs:
+    - At least 2 entries in the Roster of the Dead (graves held; 0x45D670 counts the occupied
+      leading records of the roster at 0x5025C8, occupied = record+0x1C non-zero).
+  Then: The villagers pay their respects to the dead; no single villager is picked.
+  Code: cond 0x414AD0: 0x45D670 on 0x5025C8 >= 2
+
+[slot 7] The Mysterious Footprints  (food gained)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Footprints appear overnight; honeycombs appear: the village gains food.
+  Code: cond 0x414920
+
+[slot 8] The Mysterious Footprints  (food lost)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Footprints appear overnight; food is stolen.
+  Code: cond 0x414920
+
+[slot 9] The Mysterious Footprints  (tech gained)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Footprints appear overnight; instruments appear: tech points gained.
+  Code: cond 0x414920
+
+[slot 10] The Mysterious Footprints  (tech lost)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Footprints appear overnight; research tools are stolen: tech points lost.
+  Code: cond 0x414920
+
+[slot 11] Blessings Day Celebration
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: A village celebration.
+  Code: cond 0x414920
+
+[slot 12] A Closer Look
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject.
+  Then: The subject finds overlooked berries: more berries are left on the bushes.
+  Code: cond 0x415E00: picker 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) != 0
+
+[slot 13] The Arc of Brilliant Colors
+  Needs:
+    - A living villager of any age and either sex who is NOT pregnant or nursing (sick villagers
+      included); picked at random as the subject.
+  Then: The subject looks for the rainbow's end on the left or right side (one side can hurt the
+        subject, the other finds rare mushrooms).
+  Code: cond 0x415020: 0x4679B0(-1,-1,-1,0,1,...) (p4=0: pregnancy +0x1C4C must be 0)
+
+[slot 14] The Robber Crab
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject.
+  Then: The subject cuts off the crab's tail or lets it go.
+  Code: cond 0x415E00
+
+[slot 15] The Phosphorescent Fungi
+  Needs:
+    - At least one living child under 14 (either sex; sick children included); picked at random as
+      the subject.
+  Then: The child throws the mushroom into the ocean (Research skill gain) or admires it from afar.
+  Code: cond 0x415F50: 0x4679B0(-1,280,-1,1,1,...)
+
+[slot 17] The Rainy Season
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Heavy rain (weather).
+  Code: cond 0x414920
+
+[slot 18] The Cold Snap
+  Needs:
+    - The village fire must be burning: the fire pit's burn timer (object 0x4D867C, timer at +0xC)
+      has not run out.
+  Then: A cold, wet wind puts the village fire out.
+  Code: cond 0x414BC0: 0x432600 = !0x41DE70(0x4D8688) (deadline < clock 0x403750 = expired); fire
+        tips 0x2B4/0x2B6/0x2B8 in that class
+
+[slot 20] "A Monsoon!"
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: A sudden heavy rain (weather) makes chores hard.
+  Code: cond 0x414920
+
+[slot 21] The Stinging Wasps
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Wasps sting many villagers.
+  Code: cond 0x414920
+
+[slot 22] The Festival of the Banyan
+  Needs:
+    - An internal delivery counter (global 0x4D6DF4) at 500 or more. It goes up by 1 at 0x414665
+      each time a child delivers an item that is not a collection piece (each such delivery adds 35
+      food, or 6 for item 0x76); the event's own text calls this the 500th mushroom.
+    - The Tree of Life healthy: at least 3 of the 5 tree puzzles Stream (1), Pruning the Tree (12),
+      Honoring the Tree (13), Purify Tree (14), Decorating the Tree (15) solved (0x41F570).
+  Then: The children are celebrated; no single villager is picked.
+  Repeat: Not limited by a flag; once both hold, it stays possible.
+  Not fully resolved: Which delivered item ids are mushrooms (vs. other non-collection items) not
+                      established.
+  Code: cond 0x414CB0: [0x4D6DF4] >= 0x1F4; 0x41F570(0x41FE70()) >= 3
+
+[slot 23] The Pure Sea Air
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x414920 always returns true).
+  Then: Clean air clears everyone's lungs.
+  Code: cond 0x414920
+
+[slot 25] Daredevil Barrel...of Babies!
+  Needs:
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+    - The Stream puzzle solved (puzzle id 1, 'The Stream: your villagers have restored the normal
+      flow').
+    - The stream must be flowing: the stream object's internal flag (0x4D8CF0+4) must be set
+      (meaning not determined) and its obstruction percentage (+0x14, the 'Stream obstruction
+      percentage' the game displays) must be 95 or less (0x4396E0 returns 1 or 2).
+  Then: A barrel of babies (three, any mix of boys and girls) comes down and they join the village
+        while there is room.
+  Code: cond 0x414D50: room 0x468350: population 0x467610; base 90 at 0x4683EF; collections
+        0x4143F0(0x46/0x52/0x5E/0x6A) +5 each, 20->25; huts = puzzles 19/20/21 via 0x438960;
+        thresholds 0x23/0x11/0xA vs 3/2/1; 0x438960(1); 0x4396E0 on 0x4D8CF0 >= 1; also forced by
+        the rescue rule
+
+[slot 26] The State of the Tree  (glum)
+  Needs:
+    - The Tree of Life still unwell: fewer than 3 of the 5 tree puzzles Stream (1), Pruning the Tree
+      (12), Honoring the Tree (13), Purify Tree (14), Decorating the Tree (15) solved.
+  Then: The sickly tree makes the villagers glum and moody.
+  Code: cond 0x414E90: 0x41F570 < 3
+
+[slot 27] The State of the Tree  (rejuvenated)
+  Needs:
+    - The Tree of Life recovering: at least 3 of the 5 tree puzzles Stream (1), Pruning the Tree
+      (12), Honoring the Tree (13), Purify Tree (14), Decorating the Tree (15) solved.
+  Then: The recovering tree rejuvenates the villagers.
+  Code: cond 0x414F00: 0x41F570 >= 3
+
+[slot 28] The Abandoned Infants
+  Needs:
+    - At least 6 living women aged 14 or over who are not pregnant or nursing and not sick.
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: Babies are found and the first eligible women (up to six) become mothers to them (each a
+        single baby, twins or triplets).
+  Code: cond 0x414F60: 0x4679B0(280,-1,1,0,0,...) count >= 6; room 0x468350: population 0x467610;
+        base 90 at 0x4683EF; collections 0x4143F0(0x46/0x52/0x5E/0x6A) +5 each, 20->25; huts =
+        puzzles 19/20/21 via 0x438960; thresholds 0x23/0x11/0xA vs 3/2/1
+
+[slot 29] The Pink Shell
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject.
+  Then: The subject listens inside the shell or admires it.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 30] The Calabash Instrument
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject.
+  Then: The subject fills the tube to the first notch or to the top.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 36] The Wet Book
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject.
+  Then: The subject reads each page or brings it to the lab (everyone's Parenting can rise).
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 38] The Aspiring Doctor  (algae)
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject. The text calls the subject a healer, but
+      the condition does not check skills, age or health.
+  Then: The healer eats the algae or decides better not.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 39] The Aspiring Doctor  (sea water)
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject. The text calls the subject a healer, but
+      the condition does not check skills, age or health.
+  Then: The healer drinks sea water or decides better not.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 40] The Aspiring Doctor  (mushrooms)
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject. The text calls the subject a healer, but
+      the condition does not check skills, age or health.
+  Then: The healer eats a bit of the forbidden mushrooms or decides better not.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 41] The Aspiring Doctor  (bark)
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject. The text calls the subject a healer, but
+      the condition does not check skills, age or health.
+  Then: The healer eats a bit of the bark or decides better not.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 42] The Aspiring Doctor  (fasting)
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject. The text calls the subject a healer, but
+      the condition does not check skills, age or health.
+  Then: The healer fasts or eats.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 43] The Aspiring Doctor  (cut leg)
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject. The text calls the subject a healer, but
+      the condition does not check skills, age or health.
+  Then: The healer treats the cut leg with bark or mushrooms.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 44] The Aspiring Scientist
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject.
+  Then: The subject tries the white salts or the dried algae.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 49] The Legendary Stranger
+  Needs:
+    - At least one living villager of any age and either sex (pregnant/nursing and sick villagers
+      included); one is picked at random as the subject.
+  Then: The subject asks Biggles how to care for the people or for the tree.
+  Code: cond 0x415E00 (shared by 12, 14, 29, 30, 36, 38-44, 49): 0x4679B0(-1,-1,-1,1,1,-1,0,0,0) !=
+        0
+
+[slot 31] The Climber
+  Needs:
+    - At least one living child under 14 (either sex; sick children included); picked at random as
+      the subject.
+  Then: The child, stuck at the top of the Tree of Life, tries to find a way down or yells for help.
+  Code: cond 0x415F50 (shared by 15, 31, 37): 0x4679B0(-1,280,...)
+
+[slot 32] The Mosquito Larvae
+  Needs:
+    - At least one living villager aged 14 or over (either sex; pregnant/nursing and sick villagers
+      included); picked at random as the subject.
+    - The Soap puzzle solved (puzzle id 3, 'Soap Invented').
+    - The Stream puzzle solved (puzzle id 1).
+    - The stream must be flowing: the stream object's internal flag (0x4D8CF0+4) must be set
+      (meaning not determined) and its obstruction percentage (+0x14, the 'Stream obstruction
+      percentage' the game displays) must be 95 or less (0x4396E0 returns 1 or 2).
+  Then: The subject puts soap or oil in the pond.
+  Code: cond 0x4159C0: 0x4679B0(280,-1,-1,1,1,...); 0x438960(3); 0x438960(1); 0x4396E0 >= 1
+
+[slot 33] Faces in the Night
+  Needs:
+    - At least one living villager aged 14 or over (either sex; pregnant/nursing and sick villagers
+      included); picked at random as the subject.
+  Then: The subject informs the tribe or ignores the glowing faces.
+  Code: cond 0x415AD0: 0x4679B0(280,-1,-1,1,1,...)
+
+[slot 34] The Screaming Baby
+  Needs:
+    - At least one living woman aged 14 or over who IS pregnant or nursing and is not sick; picked
+      at random as the subject (the mother).
+  Then: The mother leaves the baby alone or takes it to the beach.
+  Code: cond 0x415BD0: 0x4679B0(280,-1,1,1,0,-1,0,1,0) (p8=1: +0x1C4C must be non-zero; p5=0: sick
+        +0x1C48 must be 0)
+
+[slot 35] The Sealed Box
+  Needs:
+    - At least one living villager aged 14 or over who is not pregnant or nursing (sick villagers
+      included); picked at random as the subject.
+  Then: The subject swims back with the box (+5000 tech points, or is swept away and lost) or lets
+        it go. The condition also rolls a 50% coin that decides the swim -- not a requirement.
+  Code: cond 0x415CF0: rand(100)>=50 -> [this+0x10]; 0x4679B0(280,-1,-1,0,1,...)
+
+[slot 37] The Lie
+  Needs:
+    - At least one living child under 14 (either sex; sick children included); picked at random as
+      the subject.
+  Then: The child lies or tells the truth about the eaten mushroom.
+  Code: cond 0x415F50
+
+[slot 45] Innovation in Construction
+  Needs:
+    - At least one living villager aged 14 or over who is not pregnant or nursing and not sick;
+      picked at random as the subject (the builder).
+  Then: The builder tries the technique (Building skill up, or falls and is badly hurt) or calls it
+        too dangerous. The condition also rolls a 40% chance that decides the try -- not a
+        requirement.
+  Code: cond 0x416780: rand(100)>=60 -> [this+0x10]; 0x4679B0(280,-1,-1,0,0,...)
+
+[slot 46] Innovation in Farming
+  Needs:
+    - At least one living villager aged 14 or over who is not pregnant or nursing and not sick;
+      picked at random as the subject.
+    - The Cooking Pit puzzle solved (puzzle id 6, 'The Cooking Pit restored').
+  Then: The subject tries to speed up cooking (Farming skill up, or slips onto the hot coals) or
+        calls it too dangerous. The condition also rolls a 40% chance that decides the try -- not a
+        requirement.
+  Code: cond 0x4168A0: rand(100)>=60 -> [this+0x10]; 0x4679B0(280,-1,-1,0,0,...); 0x438960(6)
+
+[slot 47] Tough Lessons
+  Needs:
+    - At least one living child under 14 (either sex; sick children included; the child stuck in the
+      tree).
+    - At least one living villager aged 14 or over (either sex; pregnant/nursing and sick villagers
+      included; the adult who decides).
+  Then: The adult climbs the tree to rescue the child or leaves the child to learn.
+  Code: cond 0x4169D0: 0x4679B0(-1,280,...) -> [this+0xC]; 0x4679B0(280,-1,...) -> [this+4]; both
+        non-zero
+
+[slot 48] The Pretty Shell
+  Needs:
+    - At least 2 living villagers aged 14 or over (either sex; pregnant/nursing and sick included).
+      The event's text is about two children, but the code counts villagers aged 14 and over
+      (minimum age 280 units).
+  Then: The subject teaches the children sharing or negotiation.
+  Code: cond 0x416AE0: 0x4679B0(280,-1,-1,1,1,...) count >= 2
+
+----------------------------------------------------------------------------------------------------
+EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
+----------------------------------------------------------------------------------------------------
+
+[slot 1] The Tsunami
+  Needs:
+    - Can never happen: its condition function 0x4146E0 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs). Its body 0x4146F0 would sweep villagers away.
+  Repeat: Never.
+  Code: vt 0x48C534 +0x04 = 0x4146E0 (xor al,al; ret)
+
+[slot 6] The Canoe from the Other Side
+  Needs:
+    - Can never happen: its condition function 0x4146E0 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: vt +0x04 = 0x4146E0
+
+[slot 16] The Medical Emergency
+  Needs:
+    - Can never happen: its condition function 0x4146E0 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: vt +0x04 = 0x4146E0
+
+[slot 19] The Salty Air
+  Needs:
+    - Can never happen: the title and text exist only as strings; slot 19 of the event table is
+      empty (no event object).
+  Then: Nothing.
+  Repeat: Never.
+  Code: table 0x4CCA28[19] = 0; selector skips null slots (0x418059)
+
+[slot 24] The Return of Biggles
+  Needs:
+    - Can never happen: its condition function 0x4146E0 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: vt +0x04 = 0x4146E0
+
+====================================================================================================
+NEW BELIEVERS  (VV5)
+====================================================================================================
+
+Rules for all island events in this game:
+  * Timing: the next island event time is kept at manager+0x17D3C in game-clock seconds (clock
+    0x4036E0). A new village sets it to 15 minutes after creation (0x424854: +0x384). When the time
+    has come, the event is attempted only if the believer population (living believers plus babies
+    they carry, 0x4713F0) is above 0 AND an internal global 0x51D5A4 equals -1 (meaning not
+    determined; the stock code only ever writes -1 to it, at 0x44356F in a message handler, and
+    0x446131 makes the same test elsewhere).
+  * Before every attempt the scheduler draws one random living believer of any age (picker with no
+    other filters); its age (+0x1B8C) must equal its age clock (+0x1C3C) -- if not, nothing is
+    rescheduled and the scheduler tries again on its next update (0x442715-0x442754). Why the two
+    can differ was not determined.
+  * Delay to the next event: the first island event after the game is started (in-memory counter
+    0x51D37C) schedules the next one 30 minutes later (+0x708); every later one schedules the next 8
+    to 15 hours later ((rand(8)+8) x 3600 s). The other rand(100) rolls at
+    0x44275A/0x442771/0x442784 only pick between code paths that all end the same way (0x417650
+    always returns 0).
+  * When a village is loaded and an internal value manager+0x17D7C is 999 or more (meaning not
+    determined), the time since the last save is added to the next-event time (0x425E36-0x425E54).
+  * Choice (selector 0x418870): every slot 1-55 whose own condition holds is collected and one is
+    picked uniformly at random. No retries: if none qualifies nothing happens.
+  * Rescue rule (0x418913-0x418956): if (men outnumber women and there are at most 2 women) or (men
+    do not outnumber women and there are at most 2 men) -- 0x472B80 -- or the believer population is
+    below 3, then with a 15% chance, if the first roll was 30-59, the choice is replaced by Chutes
+    Without Ladders (slot 30) WITHOUT checking its condition.
+  * No event in this game is limited to once per village: the per-slot 'shown' bytes at
+    0x4DC814+slot (written at 0x41899A) are never read.
+  * Ages: 20 age units = 1 displayed year; 'child' = under 14 (280), 'adult' = 14 or over. The
+    picker 0x471870 counts only villagers present (+0x1CD4), with an internal flag +0x1CE1 clear
+    (meaning not determined) and health above 0. Unless an event asks for Heathens, Heathens
+    (+0x1CEC set) are skipped. Every event's picker also skips villagers whose status +0x1CFC is
+    12-17 (13 is the Retired Chief and 17 the Heathen Mommy; 12 is the purple-mask rank; 14-16 not
+    determined).
+  * Room check (used by the events that add villagers): room for new villagers, by the game's own
+    room check: the believer population (living believers plus babies they are carrying -- Heathens
+    are not counted) must be below the cap -- 90 in the stock game (the patcher's population modes
+    change this number) plus 5 for each of the two children's collections completed (Relics and Lab
+    Equipment; both give 15) -- AND enough huts rebuilt: a population of 10-16 needs at least 1
+    rebuilt hut, 17-34 needs 2, 35 or more needs all 3 (under 10 needs none).
+
+  Note: Tech indices (labels 0x44D+index): 0 Science, 1 Medicine, 2 Learning, 3 Construction, 4 Food
+        Mastery, 5 Spirituality; levels read with 0x423600 on 0x51D5CC.
+  Note: Puzzle ids (from each puzzle's registration call to 0x43ABB0 and the tip its class shows)
+        used here: 4 The Knowing Totem, 5 The Hydroponic Farm, 13 The Heathen Scientist, 19-21 huts.
+
+----------------------------------------------------------------------------------------------------
+EVENTS THE GAME CAN RUN
+----------------------------------------------------------------------------------------------------
+
+[slot 1] The Creeping Mold
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Toxic mold ruins some of the food.
+  Code: cond 0x408470
+
+[slot 2] The Allergy Season
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Many villagers suffer hay fever.
+  Code: cond 0x408470
+
+[slot 3] Isola Day Celebration
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: A village celebration.
+  Code: cond 0x408470
+
+[slot 4] Day of Honor
+  Needs:
+    - At least 2 entries in the Roster of the Dead (graves held; 0x464E90 counts the occupied
+      leading records of the roster at 0x5481A8).
+  Then: The villagers pay their respects to the dead.
+  Code: cond 0x414DB0: 0x464E90 on 0x5481A8 >= 2
+
+[slot 5] The Vision
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included); one is picked at random as the subject.
+  Then: The subject sees a stranger at the forest's edge and gains faith.
+  Code: cond 0x414B90 (shared by 5, 12, 35, 43, 45): picker
+        0x471870(-1,-1,-1,1,1,-1,0,0,0,0,0,1,0,0) != 0
+
+[slot 6] The Mysterious Footprints  (food gained)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Footprints appear overnight; honeycombs appear: food gained.
+  Code: cond 0x408470
+
+[slot 7] The Mysterious Footprints  (food lost)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Footprints appear overnight; food is stolen.
+  Code: cond 0x408470
+
+[slot 8] The Mysterious Footprints  (tech gained)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Footprints appear overnight; instruments appear: tech points gained.
+  Code: cond 0x408470
+
+[slot 9] The Mysterious Footprints  (tech lost)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Footprints appear overnight; research tools stolen: tech points lost.
+  Code: cond 0x408470
+
+[slot 10] Blessings Day Celebration
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: A village celebration.
+  Code: cond 0x408470
+
+[slot 11] The Bed Bugs
+  Needs:
+    - At least one living believer of any age and either sex who is NOT pregnant or nursing (sick
+      included); picked at random as the subject.
+  Then: The subject decides what to do about the bed bugs.
+  Code: cond 0x415640: picker 0x471870(-1,-1,-1,0,1,...) (p4=0: +0x1C4C must be 0)
+
+[slot 12] The Mask
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included); one is picked at random as the subject.
+  Then: The subject finds a Heathen mask and puts it on or not.
+  Code: cond 0x414B90 (shared by 5, 12, 35, 43, 45): picker
+        0x471870(-1,-1,-1,1,1,-1,0,0,0,0,0,1,0,0) != 0
+
+[slot 13] The Heathen Toy
+  Needs:
+    - At least one living believer child under 14 (either sex; sick included; the subject).
+    - At least one living Heathen child under 14 who is not sick (the toy's owner).
+  Then: The believer child keeps the toy or returns it to the Heathen child.
+  Code: cond 0x415820: picker 0x471870(-1,280,-1,1,1,...) -> [this+4]; picker
+        0x471870(-1,280,-1,1,0,-1,0,0,0,&n,heathenOnly=1,...) -> [this+0xC]; both non-zero
+
+[slot 14] The Daredevil Jump
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included; the jumper).
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included; a second villager; may be the same one -- nothing prevents it).
+  Then: The subject jumps off the bridge tethered by vines, or not.
+  Code: cond 0x415960: picker 0x471870(any believer) -> [this+4]; same filters -> [this+0xC]
+
+[slot 15] The Cold Snap
+  Needs:
+    - The village fire must be burning: the fire object's burn timer (0x51DE80, timer at +0xC) has
+      not run out.
+  Then: A cold, wet wind (weather type 4) puts the village fire out.
+  Code: cond 0x414E10: 0x438EC0 = !0x41F090(0x51DE8C) (deadline < clock = expired); apply 0x414E20
+        weather 0x477060(4) then 0x438E30 on the same object
+
+[slot 16] Army Ants!
+  Needs:
+    - The Hydroponic Farm puzzle solved (puzzle id 5, 'your villagers have restored an advanced
+      hydroponic farm'; threshold 30).
+  Then: Army ants devour the crops.
+  Code: cond 0x414E60 (shared by 16, 17, 21): 0x43AE80(5) on puzzle manager 0x51E008
+
+[slot 17] Aphid Infestation!
+  Needs:
+    - The Hydroponic Farm puzzle solved (puzzle id 5, 'your villagers have restored an advanced
+      hydroponic farm'; threshold 30).
+  Then: Aphids ruin much of the food.
+  Code: cond 0x414E60 (shared by 16, 17, 21): 0x43AE80(5) on puzzle manager 0x51E008
+
+[slot 21] The River Breaks Its Banks
+  Needs:
+    - The Hydroponic Farm puzzle solved (puzzle id 5, 'your villagers have restored an advanced
+      hydroponic farm'; threshold 30).
+  Then: A flood leaves fertile silt over the crops.
+  Code: cond 0x414E60 (shared by 16, 17, 21): 0x43AE80(5) on puzzle manager 0x51E008
+
+[slot 18] The Strange Crystals
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Green crystals are found: the tribe gains tech points.
+  Code: cond 0x408470
+
+[slot 19] The Especially Offensive Cloud
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Foul gas from a Heathen experiment: everyone hides.
+  Code: cond 0x408470
+
+[slot 20] The Bottle of Spicy Juice
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: Hot sauce ends up in the food.
+  Code: cond 0x408470
+
+[slot 22] The Clumsy Heathen
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: A spilled potion makes the noni bush bear more fruit.
+  Code: cond 0x408470
+
+[slot 23] The Pesky Critter
+  Needs:
+    - The Knowing Totem puzzle solved (puzzle id 4: the enemy totem torn down, giving access to the
+      lab).
+  Then: A noisy lemur distracts the researchers: tech points lost.
+  Code: cond 0x415050: 0x43AE80(4)
+
+[slot 24] Mushroom Day!
+  Needs:
+    - At least one living believer child under 14 (either sex; sick included); picked at random as
+      the subject.
+  Then: The villagers celebrate mushrooms, with cake for the children.
+  Code: cond 0x4150B0: picker 0x471870(-1,280,-1,1,1,...) != 0
+
+[slot 26] Barrel O' Babies!  (believers)
+  Needs:
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: A barrel of babies floats down the stream and the believers adopt them (up to three).
+  Code: cond 0x4151C0 (shared by 26, 27, 30, 31): room 0x472BD0: population 0x4713F0 (believers
+        only, +litter); base 90 at 0x472C49; collections 0x414690(0x68/0x50) +5 each, 10->15; huts =
+        puzzles 19/20/21 via 0x43AE80; thresholds 0x23/0x11/0xA vs 3/2/1
+
+[slot 27] Barrel O' Babies!  (heathens)
+  Needs:
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+    - (The room check counts believers even though these babies become Heathens.)
+  Then: A barrel of babies floats down the stream and the Heathens adopt them (up to three).
+  Code: cond 0x4151C0: room 0x472BD0: population 0x4713F0 (believers only, +litter); base 90 at
+        0x472C49; collections 0x414690(0x68/0x50) +5 each, 10->15; huts = puzzles 19/20/21 via
+        0x43AE80; thresholds 0x23/0x11/0xA vs 3/2/1
+
+[slot 28] The Salty Air
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: A salty wind: the villagers hide until it settles.
+  Code: cond 0x408470
+
+[slot 30] Chutes Without Ladders
+  Needs:
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: Toddlers shoot out of the bushes into the hot springs and join the tribe (up to three).
+  Code: cond 0x4151C0: room 0x472BD0: population 0x4713F0 (believers only, +litter); base 90 at
+        0x472C49; collections 0x414690(0x68/0x50) +5 each, 10->15; huts = puzzles 19/20/21 via
+        0x43AE80; thresholds 0x23/0x11/0xA vs 3/2/1; also forced by the rescue rule
+
+[slot 31] News From Another Tribe  (a newcomer)
+  Needs:
+    - Room for new villagers: the game's room check (see the rules above) must pass.
+  Then: A respected master from another tribe joins the village.
+  Code: cond 0x4151C0: room 0x472BD0: population 0x4713F0 (believers only, +litter); base 90 at
+        0x472C49; collections 0x414690(0x68/0x50) +5 each, 10->15; huts = puzzles 19/20/21 via
+        0x43AE80; thresholds 0x23/0x11/0xA vs 3/2/1
+
+[slot 32] News From Another Tribe  (a message)
+  Needs:
+    - Nothing beyond the rules for all island events (its condition 0x408470 always returns true).
+  Then: A message from another village: tech points gained.
+  Code: cond 0x408470
+
+[slot 34] The Spa
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included; the subject).
+    - At least one living Heathen child under 14 who is not sick (the second villager the event
+      names).
+  Then: The believer sneaks into the Heathens' five pools.
+  Code: cond 0x415C40 (shared by 34, 47): picker 0x471870(any believer) -> [this+4]; picker
+        0x471870(-1,280,-1,1,0,...,heathenOnly=1) -> [this+0xC]; both non-zero
+
+[slot 47] The Cracked Mask
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included; the subject).
+    - At least one living Heathen child under 14 who is not sick (the second villager the event
+      names).
+  Then: The believer helps glue the Heathen's broken mask, or not.
+  Code: cond 0x415C40 (shared by 34, 47): picker 0x471870(any believer) -> [this+4]; picker
+        0x471870(-1,280,-1,1,0,...,heathenOnly=1) -> [this+0xC]; both non-zero
+
+[slot 35] Doubt
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included); one is picked at random as the subject.
+  Then: The subject doubts the Guiding Hand and demands a sign.
+  Code: cond 0x414B90 (shared by 5, 12, 35, 43, 45): picker
+        0x471870(-1,-1,-1,1,1,-1,0,0,0,0,0,1,0,0) != 0
+
+[slot 36] Spying on the Heathens
+  Needs:
+    - At least one living believer child under 14 (either sex; sick included; the subject).
+    - At least one living Heathen child under 14 who is not sick (the Heathen child the event
+      names).
+  Then: The believer child spies on the Heathens and gets caught.
+  Code: cond 0x415E20 (shared by 36, 38): picker 0x471870(-1,280,...) -> [this+4]; picker
+        0x471870(-1,280,-1,1,0,...,heathenOnly=1, allowHeathen=1) -> [this+0xC]
+
+[slot 38] The Missing Kids
+  Needs:
+    - At least one living believer child under 14 (either sex; sick included; the subject).
+    - At least one living Heathen child under 14 who is not sick (the Heathen child the event
+      names).
+  Then: A child is missing and a Heathen is suspected.
+  Code: cond 0x415E20 (shared by 36, 38): picker 0x471870(-1,280,...) -> [this+4]; picker
+        0x471870(-1,280,-1,1,0,...,heathenOnly=1, allowHeathen=1) -> [this+0xC]
+
+[slot 37] You're Doing It Wrong!
+  Needs:
+    - At least one living believer aged 14 or over (either sex; pregnant/nursing and sick included;
+      the subject).
+    - At least one living Heathen child under 14 who is not sick (the Heathen the event names).
+    - Science technology below level 2 (tech index 0).
+  Then: The believer steps in while the Heathens trash the lab, or not. The condition also rolls a
+        50% coin that decides the result -- not a requirement.
+  Code: cond 0x415F60: picker 0x471870(280,-1,...) -> [this+4]; heathen child -> [this+0xC];
+        0x423600(0) on 0x51D5CC < 2; rand(100)>=50 -> [this+0x10]
+
+[slot 39] Outreach?
+  Needs:
+    - At least one living believer aged 14 or over (either sex; pregnant/nursing and sick included;
+      the believer).
+    - At least one living Heathen aged 14 or over who is not sick (the envoy; the subject).
+  Then: A Heathen envoy asks for a tour of the believers' camp.
+  Code: cond 0x416280: picker 0x471870(280,-1,...) -> [this+0xC]; picker
+        0x471870(280,-1,-1,1,0,...,heathenOnly=1) -> [this+4]
+
+[slot 40] The Advanced Artifacts
+  Needs:
+    - Science technology at exactly level 2 (at least 2 and below 3).
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included); picked at random as the subject (the researcher).
+  Then: The subject investigates the artifacts alone or with help. The condition also rolls a 50%
+        coin that decides the result -- not a requirement.
+  Code: cond 0x416430: 0x423600(0) >= 2; rand(100)>=50 -> [this+0x10]; picker 0x471870(any
+        believer); 0x423600(0) < 3
+
+[slot 41] Trick Or Trade
+  Needs:
+    - At least 100 food in the food bin ([0x51D34C], the food store FOOD_ADD 0x41EB40 uses).
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included); picked at random as the subject.
+  Then: The believers trade for the Heathens' scrolls or trick them.
+  Code: cond 0x4165D0: cmp [0x51D34C], 0x64; picker 0x471870(any believer)
+
+[slot 42] The Migrating Fruit Bats
+  Needs:
+    - At least one living believer child under 14 (either sex; sick included); picked at random as
+      the subject.
+    - Food Mastery technology below level 2 (tech index 4).
+  Then: The child scares the fruit bats away or studies them.
+  Code: cond 0x4166F0: picker 0x471870(-1,280,...); 0x423600(4) < 2
+
+[slot 43] The Aphids in the Noni Bush
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included); one is picked at random as the subject.
+  Then: The subject deals with the bugs on the crops.
+  Code: cond 0x414B90 (shared by 5, 12, 35, 43, 45): picker
+        0x471870(-1,-1,-1,1,1,-1,0,0,0,0,0,1,0,0) != 0
+
+[slot 44] The Defector
+  Needs:
+    - At least one living Heathen of any age who is not sick; picked at random as the subject.
+  Then: The Heathen asks to join the believers: accept or refuse. The condition also rolls a 50%
+        coin that decides the result -- not a requirement.
+  Code: cond 0x416900: rand(100)>=50 -> [this+0x10]; picker 0x471870(-1,-1,-1,1,0,...,heathenOnly=1)
+        -> [this+4]
+
+[slot 45] The Straw Hat
+  Needs:
+    - At least one living believer (not a Heathen) of any age and either sex (pregnant/nursing and
+      sick included); one is picked at random as the subject.
+  Then: The subject decides whether the woven reed thing is a hat or a strainer.
+  Code: cond 0x414B90 (shared by 5, 12, 35, 43, 45): picker
+        0x471870(-1,-1,-1,1,1,-1,0,0,0,0,0,1,0,0) != 0
+
+[slot 46] The Strange Nectar
+  Needs:
+    - At least one living believer aged 18 or over (either sex; pregnant/nursing and sick included);
+      picked at random as the subject.
+  Then: The subject finds a rare blossom full of nectar.
+  Code: cond 0x416AB0: picker 0x471870(360,-1,...)
+
+[slot 55] Innovation in Farming  (the mysterious storyteller)
+  Needs:
+    - The Heathen Scientist puzzle solved (puzzle id 13: the Heathen scientist convinced to join the
+      believers).
+    - At least one living believer child under 14 (either sex; sick included); picked at random as
+      the subject.
+  Then: A mysterious storyteller from the older parts of the island appears.
+  Code: cond 0x416FA0: 0x43AE80(13); picker 0x471870(-1,280,...)
+
+----------------------------------------------------------------------------------------------------
+EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
+----------------------------------------------------------------------------------------------------
+
+[slot 25] The Stinging Wasps
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 29] The Return of Biggles
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 33] The Abandoned Infants
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 48] The Smelly Vial
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 49] The Floral Vial
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 50] The Invisible Vial
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 51] Innovation in Farming
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 52] Tough Lessons
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 53] The Pretty Shell
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[slot 54] The Legendary Stranger
+  Needs:
+    - Can never happen: its condition function 0x415B10 is 'xor al,al; ret' (always false), so the
+      selector never collects it.
+  Then: Nothing (never runs).
+  Repeat: Never.
+  Code: cond 0x415B10
+
+[no slot] The Tsunami, The Canoe from the Other Side, The Rainy Season, The Festival of the Banyan,
+          Daredevil Barrel...of Babies!, The State of the Tree, A Closer Look
+  Needs:
+    - Can never happen: these titles and texts exist only as strings carried over from earlier
+      games; no event class or slot exists for them.
+  Then: Nothing.
+  Repeat: Never.
+  Code: slot table 0x4DC850[1..55] holds no object for these titles
+
+====================================================================================================
+NOT FULLY RESOLVED
+====================================================================================================
+  * The Secret City "The Mushroom Celebration" and The Tree of Life "The Festival of the Banyan": the
+    500 counter is exact, but which delivered item ids count as mushrooms (as opposed to other
+    non-collection items) was not established.
+  * Internal fields whose meaning was not determined (their required value is stated exactly): the
+    per-attempt "age equals +0x34C / +0x534 / +0xE74 / +0x1C3C" check in all five games; VV1/VV2/
+    VV3/VV4/VV5 load-time value (999 or more) that adds offline time; New Believers global 0x51D5A4
+    (must be -1); New Believers picker flag +0x1CE1 (must be clear) and statuses 14-16 of +0x1CFC;
+    The Tree of Life stream flag 0x4D8CF0+4.
+  * Technology names for A New Home (+0xA2BC Spirituality, +0xA2D4 Medicine, +0xA2E4 Farming) and
+    The Lost Children (+0x2EA74 Culture, +0x2EA94 Exploration) come from pairing the Technologies
+    screen's row order with its label order; Medicine (VV1) and Engineering (VV2) are independently
+    corroborated, the others are not.
+  * The Secret City "Day of Honor" counts a 50-entry table at 0x5973F0 (not the Roster of the Dead,
+    which is counted by 0x454BC0); that its entries are graves is inferred from the event and from
+    an idle-task chooser that uses the same count (0x45A151), not proven.
+
+====================================================================================================
+FOUND IN PASSING (recorded, not changed)
+====================================================================================================
+  * The current "requires" texts in scripts/story_island_events.py are wrong in several places, e.g.
+    VV1 The Trapped Whale / The Visitor ("happened fewer than three times" -- they compare a
+    technology level with 3); VV2 The Ancient Gold Coin / The Spyglass ("fashion caught on" / "kept
+    already" -- they compare a technology level with 2); VV2 The Epidemic, Rats!, The Foul Passing,
+    Where Are The Infants? ("later technologies" -- the check is all 16 puzzles solved); VV3 Vanity
+    and the Bee / The Noisy Bird ("a villager" -- it must be a woman 18-49 not pregnant); VV3 The Low
+    Tide ("a child" -- any 8 villagers); VV4 The Pretty Shell (the code counts villagers 14 and over,
+    not children); VV5 Spa / Cracked Mask / Spying / Missing Kids / You're Doing It Wrong also need a
+    Heathen child.
+  * docs/village-statistics-export-research.md and tests/test_vv3_chief_puzzle_is_a_one_shot_latch.py
+    call VV3 puzzle id 1 the Tribal Chief robe puzzle. The evidence here points elsewhere: puzzle 1's
+    handler object (0x4B0D88[1]) is the honey resource 0x5945D0 (The Bee Hive), and the chief-making
+    routine 0x45FBC0 is called only at 0x431FEA, beside the "The First Chief" tip (0x2BF) and
+    AdvancePuzzle(0) at 0x432031 -- so the chief is puzzle 0. Not re-verified live.
+  * docs/mask-identity-safeguard.md lists VV3 skills at +0xEB0 Building / +0xEB4 Research /
+    +0xEB8 Healing; native/population_export (measured live) gives Farming, Parenting, Healing,
+    Research, Building. This file uses the measured order.
+  * The stock rescue overrides in The Secret City, The Tree of Life and New Believers replace the
+    chosen event without asking the replacement's own condition (so, for example, Another One of
+    Those Barrels can be chosen in a village with no room; in the stock game its first baby is
+    added regardless and later ones only while there is room -- docs/island-event-population-
+    research.md).
