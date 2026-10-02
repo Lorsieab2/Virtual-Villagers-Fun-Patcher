@@ -28,7 +28,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "63A47524CFADC106F60ADE032DB4DC1976B26182285A992380B287DF86DC0443"
+      "sha256": "157D7810100E791D3D96311AA060EA945FA65CB6A70364099C228413698BB6CD"
     }
   ],
   "runtime_detours": [
@@ -95,6 +95,18 @@
       "va": "0x437B0E",
       "stock_bytes": "E88DB6FCFF",
       "routine": "rand(8) choosing the sack or vial (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434617",
+      "stock_bytes": "81FDAD020000",
+      "routine": "the single-result event's condition check after its roll (unlocked picks)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41F5A5",
+      "stock_bytes": "83F81489442414",
+      "routine": "the two-choice event's condition check after its roll (unlocked picks)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {

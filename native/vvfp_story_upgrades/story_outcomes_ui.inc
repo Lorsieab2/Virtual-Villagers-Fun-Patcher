@@ -19,7 +19,8 @@ enum {
     IDC_PICK_AMOUNT = 3005,
     IDC_PICK_RANGE = 3006,
     IDC_PICK_WHO = 3007,
-    IDC_PICK_NOTE = 3009
+    IDC_PICK_NOTE = 3009,
+    IDC_PICK_HEADING = 3010
 };
 
 #define OC_AMOUNT_TYPED (-2)        /* "Type a number": the edit box holds it */
@@ -37,6 +38,7 @@ static struct {
     int current;                        /* the event shown, or -1 */
     int row;                            /* the settings row being edited, or -1 */
     int filling;                        /* the editor is being filled (ignore its notifications) */
+    int gong;                           /* the dialog picks the Gong of Wonder's outcome */
     oc_settings settings[STORY_MAX_EVENTS];
     story_member roster[OC_ROSTER_MAX];
     char names[OC_ROSTER_MAX][CE_NAME_BYTES];
@@ -589,6 +591,11 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
             SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
         }
         SendDlgItemMessageA(window, IDC_PICK_AMOUNT, EM_LIMITTEXT, 12, 0);
+        if (chooser.gong) {
+            SetWindowTextA(window, "Pick Gong of Wonder Outcome");
+            SetDlgItemTextA(window, IDC_PICK_HEADING, "What the Gong of Wonder does the next time it is rung:");
+            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETCURSEL, 0, 0);
+        }
         chooser.current = -1;
         chooser.row = -1;
         chooser_show(window);
@@ -694,4 +701,118 @@ static int chooser_run(int game, const story_game *g, HWND owner) {
         return -1;
     }
     return chooser.chosen;
+}
+
+/* ---- The Lost Children: Pick Gong of Wonder Outcome --------------------------
+
+   The owner: a separate upgrade, cost 0, that lets the player pick which
+   outcome the NEXT use of the Gong of Wonder produces, defaulting to
+   "Random (original game)", every possible outcome offered.  The settings
+   are the Gong's own rolls (scripts/story_outcomes_gong.py), answered only
+   inside the gong's own use (the call at 0x461B8E that runs its outcome
+   routine 0x44E8A0) and ended when that use returns -- one use.  An armed
+   choice also ends after ten minutes without a ring and when the village's
+   save slot changes; the next opening says so. */
+
+static const story_event OC_GONG_EVENTS[1] = {
+    { OC_GONG_SLOT, "The Gong of Wonder", "",
+      "The next time a villager rings the Gong of Wonder, it does what you set here; "
+      "anything left Random is the game's own choice. The Gong rests about a day after each "
+      "ring; your choice waits for the next ring for ten minutes, in this save slot.", "" },
+};
+
+static int oc_gong_possible(const story_event *event) {
+    (void)event;
+    return 1;
+}
+
+static const story_game OC_GONG_GAME = {
+    NULL, 0, NULL, 0, NULL, 0, OC_GONG_EVENTS, 1, oc_gong_possible, NULL, NULL
+};
+
+static int oc_gong_lapsed_note;     /* 1 = lapsed (ten minutes), 2 = the save slot changed */
+
+/* Ends an armed gong choice that is too old or belongs to another slot. */
+static void oc_gong_check(void) {
+    if (oc_gong.state != OC_ARMED) {
+        return;
+    }
+    if (STORY_TICK() - oc_gong.tick > PICK_TIMEOUT_MS) {
+        oc_arm_clear(&oc_gong);
+        oc_gong_lapsed_note = 1;
+    } else if (story_current_slot(2) != oc_gong.save_slot) {
+        oc_arm_clear(&oc_gong);
+        oc_gong_lapsed_note = 2;
+    }
+}
+
+/* Whether the Gong of Wonder is resting now (village +0x2EAC8 is the time
+   it can next be rung, on the game's clock 0x403200). */
+static int oc_gong_resting(void) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
+    if (world == NULL) {
+        return 0;
+    }
+    return *(unsigned int *)(world + 0x2EAC8)
+           >= (unsigned int)((clock_fn)(uintptr_t)VV2_CLOCK)(world, NULL);
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryPickGongOutcome(int game, HWND owner) {
+    const oc_settings *settings;
+    char summary[1200];
+    char message[1600];
+    if (game != 2 || !VvfpStoryActive(2)) {
+        return 0;
+    }
+    oc_gong_check();
+    if (oc_gong_lapsed_note) {
+        MessageBoxA(owner,
+                    oc_gong_lapsed_note == 1
+                        ? "The Gong of Wonder outcome you picked last was not used within ten "
+                          "minutes, so it was cancelled."
+                        : "The Gong of Wonder outcome you picked last was for another village, so "
+                          "it was cancelled.",
+                    "Pick Gong of Wonder Outcome",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        oc_gong_lapsed_note = 0;
+    }
+    if (oc_gong.state != OC_IDLE
+        && MessageBoxA(owner,
+                       "A Gong of Wonder outcome is already picked for the next ring.\r\n\r\n"
+                       "Press OK to pick a new one instead, or Cancel to keep it.",
+                       "Pick Gong of Wonder Outcome",
+                       MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+        return 0;
+    }
+    chooser.gong = 1;
+    if (chooser_run(2, &OC_GONG_GAME, owner) != 0) {
+        chooser.gong = 0;
+        return 0;
+    }
+    chooser.gong = 0;
+    settings = &chooser.settings[0];
+    if (!oc_settings_any(oc_find_event(2, OC_GONG_SLOT), settings)) {
+        MessageBoxA(owner, "Every setting is Random (original game): nothing to pick.",
+                    "Pick Gong of Wonder Outcome",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    chooser_summary(0, summary, sizeof summary);
+    wsprintfA(message,
+              "Do you want to buy Pick Gong of Wonder Outcome for 0 tech points?\r\n%s\r\n\r\n"
+              "Press OK to confirm, or Cancel.", summary);
+    if (MessageBoxA(owner, message, "Origins Upgrades",
+                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+        return 0;
+    }
+    oc_arm_set(&oc_gong, 2, OC_GONG_SLOT, settings);
+    oc_gong.save_slot = story_current_slot(2);
+    MessageBoxA(owner,
+                oc_gong_resting()
+                    ? "Picked. The Gong of Wonder is resting now; the next time a villager rings "
+                      "it after it is ready (within ten minutes), it does what you picked."
+                    : "Picked. The next time a villager rings the Gong of Wonder (within ten "
+                      "minutes), it does what you picked.",
+                "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return 1;
 }

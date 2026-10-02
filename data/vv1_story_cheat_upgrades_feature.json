@@ -28,7 +28,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "63A47524CFADC106F60ADE032DB4DC1976B26182285A992380B287DF86DC0443"
+      "sha256": "157D7810100E791D3D96311AA060EA945FA65CB6A70364099C228413698BB6CD"
     }
   ],
   "runtime_detours": [
@@ -144,6 +144,18 @@
       "va": "0x42B03E",
       "stock_bytes": "E8CD7EFDFF",
       "routine": "rand(9) choosing the crate or vial (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4284EC",
+      "stock_bytes": "0FB68FA0864200",
+      "routine": "the island event's condition check after its roll (unlocked picks)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418941",
+      "stock_bytes": "0FB687A4894100",
+      "routine": "the villager encounter's condition check after its roll (unlocked picks)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
