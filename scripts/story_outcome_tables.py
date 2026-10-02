@@ -273,3 +273,31 @@ def manifest_rows(game: str, info: dict, found: dict, dll_name: str) -> list[dic
                          kind, "a call in an island event's own code (Pick Island Event outcomes)"),
                      "installed_by": f"{dll_name}, VvfpStoryInstall"})
     return rows
+
+
+def manifest_settings(game: str) -> dict:
+    """What each offered event's settings are, for the row's manifest."""
+    out = {}
+    for slot, cs in data.CONTROLS.get(game, {}).items():
+        out[str(slot)] = [
+            {"label": plain(c["label"]) or c["label"], "kind": c["kind"],
+             **({"options": [plain(o["label"]) or o["label"] for o in c["options"]]}
+                if c["kind"] == "enum" else {}),
+             **({"values": f"{c['base']} to {c['base'] + c['step'] * (c['bound'] - 1)}"}
+                if c["kind"] == "amount" else {})}
+            for c in cs
+        ]
+    for slot, kind in data.STRENGTH.get(game, {}).items():
+        out.setdefault(str(slot), []).append(
+            {"label": "Strength", "kind": "strength",
+             "values": "1 to 10" if kind == "linear" else "1-4, 5-7, 8-10"})
+    result = {"events": out,
+              "unlocked": sorted(s for s in data.UNLOCKED.get(game, {}) if s not in data.DEAD_NOTES.get(game, {})),
+              "developer_dead_offered": sorted(data.DEAD_NOTES.get(game, {}))}
+    if data.GONG_CONTROLS.get(game):
+        result["gong_of_wonder"] = [
+            {"label": plain(c["label"]) or c["label"], "kind": c["kind"],
+             **({"options": [plain(o["label"]) or o["label"] for o in c["options"]]}
+                if c["kind"] == "enum" else {})}
+            for c in data.GONG_CONTROLS[game]]
+    return result

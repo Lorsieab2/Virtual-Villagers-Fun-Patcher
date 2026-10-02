@@ -3,7 +3,7 @@
   "enabled": true,
   "game_id": "vv2",
   "name": "Story / Cheat Upgrades",
-  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.**",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Pick Island Event also lets the player set how the picked event turns out. Each setting starts at \"Random (original game)\" and offers only what that event's own code can produce in this game: its result (for a two-choice event, the result of each choice -- the popup still appears and the player still clicks), every amount it can roll, who a roll it makes for each villager hits (nobody, everyone, or the villagers chosen), which villager it is about, and each baby's details; in A New Home and The Lost Children also its strength (normally a third of the population, 1 to 10). A setting whose condition does not hold right now can not be bought. An event whose own condition is only a matter of timing or story can be picked anyway, and developer-dead events proven to work are offered as never happening in the original game; events that need something the village lacks, or room for new villagers, stay locked with the reason. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.** Also adds Pick Gong of Wonder Outcome (0 Tech Points): the player picks what the next ring of the Gong of Wonder does -- any result the Gong can give, with its amounts and who falls sick -- defaulting to \"Random (original game)\"; the choice is used for one ring, in this save slot, within ten minutes.",
   "output_tag": "Story Cheat Upgrades",
   "dependencies": [
     "vv2_origins_village_wide_upgrades"
@@ -15,6 +15,8 @@
     "Offers 56 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
+    "Pick Island Event's settings: each offered event can carry its result, every amount it rolls, who a per-villager roll hits, which villager it is about and each baby's details (A New Home and The Lost Children: also its strength), each defaulting to Random (original game).  The companion points the event's own rand() calls at a stub that answers the chosen value only in that roll's phase (before the popup, the popup, or the event's apply), for the clicked choice, and -- in a routine other code shares -- only inside the event's own call to it; the outcome ends when the event's apply returns, on refusal and on lapse, so no chosen value reaches a natural event.",
+    "Unlocked picks: an event whose own condition is only timing or story (proven by running its popup and apply with the condition false) can be picked anyway; its condition is passed for that one delivery only.  Developer-dead events proven to work are offered as never happening in the original game.",
     "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
   ],
   "explicit_non_changes": [
@@ -1104,6 +1106,659 @@
       "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry"
     }
   ],
+  "island_event_settings": {
+    "events": {
+      "11": [
+        {
+          "label": "Who falls sick",
+          "kind": "loop"
+        }
+      ],
+      "14": [
+        {
+          "label": "Who is bitten (falls sick, -60 health)",
+          "kind": "loop"
+        }
+      ],
+      "21": [
+        {
+          "label": "Toddler 1: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "Toddler 1: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Toddler 1: head",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "Toddler 1: body",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "Toddler 2: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "Toddler 2: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Toddler 2: head",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "Toddler 2: body",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "Toddler 3: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "Toddler 3: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Toddler 3: head",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "Toddler 3: body",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1-4, 5-7, 8-10"
+        }
+      ],
+      "25": [
+        {
+          "label": "The man: age",
+          "kind": "amount",
+          "values": "400 to 599"
+        },
+        {
+          "label": "The man: special skill",
+          "kind": "enum",
+          "options": [
+            "Farming",
+            "Parenting",
+            "Healing",
+            "Research",
+            "Building"
+          ]
+        },
+        {
+          "label": "The man: special skill level",
+          "kind": "amount",
+          "values": "30 to 49"
+        },
+        {
+          "label": "The man: head",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "The man: body",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "The woman: age",
+          "kind": "amount",
+          "values": "400 to 599"
+        },
+        {
+          "label": "The woman: special skill",
+          "kind": "enum",
+          "options": [
+            "Farming",
+            "Parenting",
+            "Healing",
+            "Research",
+            "Building"
+          ]
+        },
+        {
+          "label": "The woman: special skill level",
+          "kind": "amount",
+          "values": "30 to 49"
+        },
+        {
+          "label": "The woman: head",
+          "kind": "amount",
+          "values": "0 to 29"
+        },
+        {
+          "label": "The woman: body",
+          "kind": "amount",
+          "values": "0 to 29"
+        }
+      ],
+      "27": [
+        {
+          "label": "Which children learn parenting",
+          "kind": "loop"
+        },
+        {
+          "label": "Parenting gained by each child who learns",
+          "kind": "amount",
+          "values": "7 to 17"
+        }
+      ],
+      "65": [
+        {
+          "label": "Which villager finds the idol",
+          "kind": "victim"
+        }
+      ],
+      "66": [
+        {
+          "label": "Which girl",
+          "kind": "victim"
+        },
+        {
+          "label": "If looks aren't everything: parenting gained",
+          "kind": "amount",
+          "values": "20 to 39"
+        }
+      ],
+      "69": [
+        {
+          "label": "Which villager hears the voices",
+          "kind": "victim"
+        },
+        {
+          "label": "If you investigate the voices",
+          "kind": "enum",
+          "options": [
+            "It's harmless: food +700 (times k)",
+            "The villager is never seen again"
+          ]
+        }
+      ],
+      "70": [
+        {
+          "label": "Which child finds the fish",
+          "kind": "victim"
+        }
+      ],
+      "71": [
+        {
+          "label": "Which villager claims to be fastest",
+          "kind": "victim"
+        }
+      ],
+      "72": [
+        {
+          "label": "Which villager has the nightmare",
+          "kind": "victim"
+        }
+      ],
+      "73": [
+        {
+          "label": "Which villager is bumped",
+          "kind": "victim"
+        },
+        {
+          "label": "If you bonk them on the head",
+          "kind": "enum",
+          "options": [
+            "Every skill +30 (and -10 health)",
+            "Every skill -30 (and -10 health)"
+          ]
+        }
+      ],
+      "74": [
+        {
+          "label": "Which child is the prodigy",
+          "kind": "victim"
+        }
+      ],
+      "75": [
+        {
+          "label": "If you chase the dragonflies: who falls sick",
+          "kind": "loop"
+        }
+      ],
+      "77": [
+        {
+          "label": "Which villager finds the ball (the keeper)",
+          "kind": "victim"
+        },
+        {
+          "label": "If you keep the ball: who swaps with the keeper",
+          "kind": "victim"
+        }
+      ],
+      "78": [
+        {
+          "label": "Which villager finds the mirror",
+          "kind": "victim"
+        }
+      ],
+      "80": [
+        {
+          "label": "Which villager sees the star",
+          "kind": "victim"
+        },
+        {
+          "label": "If they wish for themselves: which skill",
+          "kind": "enum",
+          "options": [
+            "Parenting",
+            "Building",
+            "Farming",
+            "Research",
+            "Healing"
+          ]
+        },
+        {
+          "label": "Wish for self: parenting gained",
+          "kind": "amount",
+          "values": "10 to 20"
+        },
+        {
+          "label": "Wish for self: building gained",
+          "kind": "amount",
+          "values": "10 to 20"
+        },
+        {
+          "label": "Wish for self: farming gained",
+          "kind": "amount",
+          "values": "10 to 20"
+        },
+        {
+          "label": "Wish for self: research gained",
+          "kind": "amount",
+          "values": "10 to 20"
+        },
+        {
+          "label": "Wish for self: healing gained",
+          "kind": "amount",
+          "values": "10 to 20"
+        },
+        {
+          "label": "If they wish for the village",
+          "kind": "enum",
+          "options": [
+            "Food",
+            "Tech points"
+          ]
+        },
+        {
+          "label": "Wish for the village: food (before the population factor)",
+          "kind": "amount",
+          "values": "100 to 299"
+        },
+        {
+          "label": "Wish for the village: tech points (before the population factor)",
+          "kind": "amount",
+          "values": "1000 to 2999"
+        }
+      ],
+      "81": [
+        {
+          "label": "Which villager finds the hole",
+          "kind": "victim"
+        },
+        {
+          "label": "If you investigate the hole",
+          "kind": "enum",
+          "options": [
+            "Brass tools: tech +1000 (times k)",
+            "A cache of nuts: food +300 (times k)",
+            "Baby snakes: the villager falls sick, and others may too",
+            "Putrid slime: the villager falls sick",
+            "A golden pocket watch: tech +1000 (times k)",
+            "Ants raid the food bin: food -150 (times k, not below 0)"
+          ]
+        },
+        {
+          "label": "Baby snakes: who else falls sick",
+          "kind": "loop"
+        }
+      ],
+      "83": [
+        {
+          "label": "Which man finds the note",
+          "kind": "victim"
+        },
+        {
+          "label": "If he hides to catch the poet: who wrote the note (she conceives)",
+          "kind": "victim"
+        },
+        {
+          "label": "If he hides to catch the poet: how many babies",
+          "kind": "enum",
+          "options": [
+            "One baby",
+            "Twins",
+            "Triplets"
+          ]
+        }
+      ],
+      "84": [
+        {
+          "label": "Which villager finds the pearl",
+          "kind": "victim"
+        },
+        {
+          "label": "If kept: farming gained",
+          "kind": "amount",
+          "values": "10 to 29"
+        },
+        {
+          "label": "If kept: research gained",
+          "kind": "amount",
+          "values": "10 to 29"
+        },
+        {
+          "label": "If kept: parenting gained",
+          "kind": "amount",
+          "values": "10 to 29"
+        },
+        {
+          "label": "If kept: building gained",
+          "kind": "amount",
+          "values": "10 to 29"
+        },
+        {
+          "label": "If kept: healing gained",
+          "kind": "amount",
+          "values": "10 to 29"
+        }
+      ],
+      "128": [
+        {
+          "label": "If you open it: what is inside",
+          "kind": "enum",
+          "options": [
+            "Coconuts (+500 food)",
+            "Golden, ripe bananas (+1000 food)",
+            "Preserved meat (+1500 food)"
+          ]
+        }
+      ],
+      "129": [
+        {
+          "label": "If you open it: what is inside",
+          "kind": "enum",
+          "options": [
+            "A few cogs and springs (+1000 tech)",
+            "Several (+2000 tech)",
+            "A great many (+3000 tech)"
+          ]
+        }
+      ],
+      "130": [
+        {
+          "label": "If you open it: what is inside",
+          "kind": "enum",
+          "options": [
+            "A few ancient-looking cogs (+500 tech; 15% sickness chance each)",
+            "Several (+1000 tech; 20% each)",
+            "A great many (+1500 tech; 25% each)"
+          ]
+        },
+        {
+          "label": "If you open it: who falls sick",
+          "kind": "loop"
+        }
+      ],
+      "131": [
+        {
+          "label": "If you open it: what is inside",
+          "kind": "enum",
+          "options": [
+            "A few handfuls of mice (20% bitten each, -10 health)",
+            "Several handfuls (30% each, -15 health)",
+            "A great many (45% each, -20 health)"
+          ]
+        },
+        {
+          "label": "If you open it: who is bitten (falls sick, loses health)",
+          "kind": "loop"
+        },
+        {
+          "label": "Who finds the sack (if opened: falls sick, -15 health)",
+          "kind": "victim"
+        }
+      ],
+      "132": [
+        {
+          "label": "If you open it: what is inside",
+          "kind": "enum",
+          "options": [
+            "A few fire ants (the finder loses 40 health)",
+            "Several fire ants (loses 70)",
+            "A great many fire ants (loses 110)"
+          ]
+        },
+        {
+          "label": "Who finds the sack (if opened: stung, loses health)",
+          "kind": "victim"
+        }
+      ],
+      "133": [
+        {
+          "label": "If they drink it: their new head",
+          "kind": "enum",
+          "options": [
+            "Head 0",
+            "Head 1",
+            "Head 2",
+            "Head 3",
+            "Head 4",
+            "Head 5",
+            "Head 6",
+            "Head 7",
+            "Head 8",
+            "Head 9",
+            "Head 10",
+            "Head 11",
+            "Head 12",
+            "Head 13",
+            "Head 14",
+            "Head 15",
+            "Head 16",
+            "Head 17",
+            "Head 18",
+            "Head 19",
+            "Head 20",
+            "Head 21",
+            "Head 22",
+            "Head 23",
+            "Head 24",
+            "Head 25",
+            "Head 26",
+            "Head 27",
+            "Head 28",
+            "Head 29"
+          ]
+        },
+        {
+          "label": "Who finds the vial (if they drink it: new head)",
+          "kind": "victim"
+        }
+      ],
+      "134": [
+        {
+          "label": "If you open it: what is inside",
+          "kind": "enum",
+          "options": [
+            "A small vial (+50 to the skill)",
+            "A vial (+75)",
+            "A large vial (+100)"
+          ]
+        },
+        {
+          "label": "If they drink it: which skill improves",
+          "kind": "enum",
+          "options": [
+            "Farming",
+            "Building (the game says 'engineering')",
+            "Parenting",
+            "Healing",
+            "Research"
+          ]
+        },
+        {
+          "label": "Who finds the vial (if they drink it: a skill improves)",
+          "kind": "victim"
+        }
+      ],
+      "135": [
+        {
+          "label": "If you open it: what is inside",
+          "kind": "enum",
+          "options": [
+            "A small vial (-30 in every skill)",
+            "A vial (-50 in every skill)",
+            "A large vial (-70 in every skill)"
+          ]
+        },
+        {
+          "label": "Who finds the vial (if they drink it: every skill drops)",
+          "kind": "victim"
+        }
+      ],
+      "5": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ],
+      "22": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ]
+    },
+    "unlocked": [
+      8,
+      11,
+      14,
+      17,
+      78
+    ],
+    "developer_dead_offered": [
+      18,
+      20,
+      26
+    ],
+    "gong_of_wonder": [
+      {
+        "label": "What the Gong does",
+        "kind": "enum",
+        "options": [
+          "Grants vision",
+          "Grants food: +1000 food, plant store = 800, coconut trees = 30 (+30 with Coconuts Fix)",
+          "Grants technology: +20000..59999 tech (see 'Technology gained (big)')",
+          "Takes food: food, plant store and coconut trees all set to 0",
+          "Grants life: every woman aged 18-49, not pregnant, gets full health, is cured and becomes pregnant (population cap permitting)",
+          "Takes life: the villager who rang it dies (health 0)",
+          "Takes health: each villager may fall sick (30%, see 'Who falls sick')",
+          "Grants luck",
+          "Grants technology: +10000..29999 tech (see 'Technology gained (medium)')",
+          "Grants food: +1000..2999 food (see 'Food gained (big)')",
+          "Takes health: the villager who rang it loses 90 health (to 0 at most)",
+          "Takes food: the plant store set to 0",
+          "Takes food: coconut trees set to 0",
+          "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer)",
+          "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer)",
+          "Grants health: every villager healed to 100 and cured",
+          "Grants food: +200..999 food (see 'Food gained (small)')",
+          "Grants food: plant store set to 800",
+          "Grants food: coconut trees set to 30 (+30 with Coconuts Fix)",
+          "Grants technology: +3000..12999 tech (see 'Technology gained (small)')",
+          "Takes technology: -3000..12999 tech (see 'Technology lost')",
+          "Takes health: each villager may fall sick (15%, see 'Who falls sick')",
+          "Grants wisdom: one skill of the villager who rang it set to 100 (see 'Skill')"
+        ]
+      },
+      {
+        "label": "Technology gained (big, 'Grants technology' tier A)",
+        "kind": "amount"
+      },
+      {
+        "label": "Technology gained (medium, tier B)",
+        "kind": "amount"
+      },
+      {
+        "label": "Technology gained (small, tier C)",
+        "kind": "amount"
+      },
+      {
+        "label": "Technology lost (tier C)",
+        "kind": "amount"
+      },
+      {
+        "label": "Food gained (big, tier B)",
+        "kind": "amount"
+      },
+      {
+        "label": "Food gained (small, tier C)",
+        "kind": "amount"
+      },
+      {
+        "label": "Who falls sick ('Takes health', 30%, tier B)",
+        "kind": "loop"
+      },
+      {
+        "label": "Who falls sick ('Takes health', 15%, tier C)",
+        "kind": "loop"
+      },
+      {
+        "label": "Skill raised to 100 ('Grants wisdom')",
+        "kind": "enum",
+        "options": [
+          "Parenting",
+          "Building",
+          "Healing",
+          "Research",
+          "Farming"
+        ]
+      },
+      {
+        "label": "Babies per pregnancy ('Grants life')",
+        "kind": "enum",
+        "options": [
+          "One baby",
+          "Twins",
+          "Triplets"
+        ]
+      }
+    ]
+  },
   "custom_island_event": {
     "offered": [
       "title and description",

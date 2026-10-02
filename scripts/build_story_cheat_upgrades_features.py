@@ -67,11 +67,29 @@ DESCRIPTION = (
     "this game's own code supports is offered; the rest is shown as not available in "
     "this game. A custom title is kept per save slot in a file beside the saves and is "
     "removed by Start Over. "
+    "Pick Island Event also lets the player set how the picked event turns out. Each setting "
+    "starts at \"Random (original game)\" and offers only what that event's own code can "
+    "produce in this game: its result (for a two-choice event, the result of each choice -- the "
+    "popup still appears and the player still clicks), every amount it can roll, who a roll it "
+    "makes for each villager hits (nobody, everyone, or the villagers chosen), which villager it is "
+    "about, and each baby's details; in A New Home and The Lost Children also its strength "
+    "(normally a third of the population, 1 to 10). A setting whose condition does not hold right "
+    "now can not be bought. An event whose own condition is only a matter of timing or story can "
+    "be picked anyway, and developer-dead events proven to work are offered as never happening in "
+    "the original game; events that need something the village lacks, or room for new villagers, "
+    "stay locked with the reason. "
     "Off by default. **Requires Enable Origins Tech, Details, and Village-Wide "
     "Upgrades: ticking this ticks it, and without it there are no Origins Upgrades "
     "to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a "
     "custom event starts is written to the Births and Conceptions log only with Write "
     "Births and Conceptions Log to Text File ticked.**"
+)
+# The Lost Children's separate Gong of Wonder upgrade.
+VV2_GONG_NOTE = (
+    " Also adds Pick Gong of Wonder Outcome (0 Tech Points): the player picks what the next ring "
+    "of the Gong of Wonder does -- any result the Gong can give, with its amounts and who falls "
+    "sick -- defaulting to \"Random (original game)\"; the choice is used for one ring, in "
+    "this save slot, within ten minutes."
 )
 # A New Home keeps parents only in the Show Parents companion's file.
 VV1_PARENTS_NOTE = (
@@ -568,7 +586,8 @@ def build() -> None:
             "enabled": True,
             "game_id": game,
             "name": NAME,
-            "description": DESCRIPTION + (VV1_PARENTS_NOTE if game == "vv1" else ""),
+            "description": DESCRIPTION + (VV1_PARENTS_NOTE if game == "vv1" else "")
+            + (VV2_GONG_NOTE if game == "vv2" else ""),
             "output_tag": "Story Cheat Upgrades",
             "dependencies": [f"{game}_origins_village_wide_upgrades"],
             "behavior_changes": [
@@ -595,6 +614,19 @@ def build() -> None:
                 "and the changes are made through the game's own routines.",
                 "New villagers and babies are made only while the game's own room predicate says "
                 "the village has room, so the population cap of the installed mode is never passed.",
+                "Pick Island Event's settings: each offered event can carry its result, every "
+                "amount it rolls, who a per-villager roll hits, which villager it is about and each "
+                "baby's details (A New Home and The Lost Children: also its strength), each "
+                "defaulting to Random (original game).  The companion points the event's own "
+                "rand() calls at a stub that answers the chosen value only in that roll's phase "
+                "(before the popup, the popup, or the event's apply), for the clicked choice, and "
+                "-- in a routine other code shares -- only inside the event's own call to it; the "
+                "outcome ends when the event's apply returns, on refusal and on lapse, so no "
+                "chosen value reaches a natural event.",
+                "Unlocked picks: an event whose own condition is only timing or story (proven by "
+                "running its popup and apply with the condition false) can be picked anyway; its "
+                "condition is passed for that one delivery only.  Developer-dead events proven to "
+                "work are offered as never happening in the original game.",
                 "A custom title replaces a villager's title in the villager panel and is printed in "
                 "the Village Population and Village History logs; it is kept per save slot in "
                 "Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and "
@@ -624,6 +656,7 @@ def build() -> None:
                 for e in events
             ],
             "excluded_island_events": story_island_events.EXCLUDED[game],
+            "island_event_settings": story_outcome_tables.manifest_settings(game),
             "custom_island_event": {
                 "offered": CUSTOM_OFFERED[game],
                 "omitted": CUSTOM_OMITTED[game],
