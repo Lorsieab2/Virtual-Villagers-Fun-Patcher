@@ -714,9 +714,10 @@ static const ce_adapter C1_ADAPTER = {
     0, 0x358,
     /* The villager encounters' popup (0x41A460): lines of 49 characters,
        15 lines (the longest and tallest stock encounter texts, at its 450
-       pixels); the result replaces the whole text, title included; labels
-       of 34 characters (the longest stock label). */
-    49, 15, 49, 15, 1, 34, c1_rand_below
+       pixels) less the two the villager's picture adds under the title
+       (story_c1.inc, "Two choices"); the result replaces the whole text,
+       title included; labels of 34 characters (the longest stock label). */
+    49, 13, 49, 13, 1, 34, c1_rand_below, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -760,7 +761,9 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
 
    The setup detour fills those fields for the asked question: the question
    padded to the tallest result either button can show (the popup is never
-   resized), the labels, no villager, the stock width, and a variant out of
+   resized), the labels, the villager shown (the player's pick or a random
+   living one, selected as the stock setup selects its villager), the stock
+   width, and a variant out of
    range (16+: the stock resolve's jump-table bound returns without writing,
    so a missed dispatch changes nothing).  The resolve call is an outcomes
    scope call (story_outcomes.inc); oc_scope_enter hands it to
@@ -785,10 +788,31 @@ static void *c1_choice_dialog;
 static char c1_choice_title[CE_TITLE_BYTES];
 
 /* The asked question of `game` into a VV1 / VV2 two-choice dialog: the
-   question padded to the tallest result, the two labels.  The title is kept
-   for a result that can not be written. */
+   question padded to the tallest result, the two labels, and the villager
+   shown (`featured`, a record index, or -1: none).  A villager's picture is
+   drawn under the title (three lines down, 0x4187E0 / 0x41F430), so the text
+   then leaves five empty lines there as every stock encounter does -- two
+   more than the plain layout, in the question and in the result (whose line
+   limits leave room for them).  The title is kept for a result that can not
+   be written. */
+#define CHOICE_PICTURE_LINES 2
+
+static void choice_open_gap(char *text, int size) {
+    char *rest = text;
+    int n = lstrlenA(text);
+    while (*rest != '\0' && *rest != '\n') {
+        ++rest;
+    }
+    if (*rest == '\0' || n + CHOICE_PICTURE_LINES + 1 > size) {
+        return;
+    }
+    memmove(rest + CHOICE_PICTURE_LINES, rest, (size_t)(n - (rest - text)) + 1);
+    memset(rest, '\n', CHOICE_PICTURE_LINES);
+}
+
 static void choice_fill_dialog(int game, unsigned char *dialog, unsigned int question,
-                               unsigned int first_label, unsigned int second_label, char *title) {
+                               unsigned int first_label, unsigned int second_label, char *title,
+                               int featured) {
     static char tallest[4096];
     int lines = ce_choice_tallest(game, 0, tallest, sizeof tallest);
     int other = ce_choice_tallest(game, 1, tallest, sizeof tallest);
@@ -797,6 +821,10 @@ static void choice_fill_dialog(int game, unsigned char *dialog, unsigned int que
     const char *named = ce_choice_title(game);
     if (other > lines) {
         lines = other;
+    }
+    if (featured >= 0) {
+        choice_open_gap((char *)dialog + question, C1_DLG_TEXT_BYTES);
+        lines += CHOICE_PICTURE_LINES;
     }
     ce_pad_lines((char *)dialog + question, C1_DLG_TEXT_BYTES, lines);
     lstrcpynA((char *)dialog + first_label, first != NULL ? first : "", C1_DLG_LABEL_BYTES);
@@ -808,15 +836,22 @@ static void choice_fill_dialog(int game, unsigned char *dialog, unsigned int que
    arguments, AL = keep the dialog). */
 static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     unsigned char *d = (unsigned char *)dialog;
+    void *villagers = *(void **)(d + 0x50A8u);   /* the ctor's villager array (0x41A4EE) */
+    int featured;
     (void)unused_edx;
     if (!ce_choice_begin(1, (char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
         c1_choice_dialog = NULL;
         return (char)TC0(0x4189E0u, dialog);
     }
-    choice_fill_dialog(1, d, C1_DLG_QUESTION, C1_DLG_LABEL_FIRST, C1_DLG_LABEL_SECOND, c1_choice_title);
+    featured = ce_choice_featured(1);
+    choice_fill_dialog(1, d, C1_DLG_QUESTION, C1_DLG_LABEL_FIRST, C1_DLG_LABEL_SECOND, c1_choice_title,
+                       featured);
     *(int *)(d + C1_DLG_VARIANT) = CHOICE_VARIANT_NONE;
-    *(int *)(d + C1_DLG_SUBJECT) = -1;
+    *(int *)(d + C1_DLG_SUBJECT) = featured;
     *(int *)(d + C1_DLG_WIDTH) = C1_ENCOUNTER_WIDTH;
+    if (featured >= 0 && villagers != NULL) {
+        TC1(0x43A160u, villagers, featured);       /* selected, as the stock setup does */
+    }
     d[C1_DLG_RESULT] = '\0';
     c1_choice_dialog = dialog;
     return 1;
@@ -832,6 +867,8 @@ static void __fastcall c1_choice_resolve(void *dialog, void *unused_edx) {
                            C1_DLG_TEXT_BYTES)) {
         /* Another village by now, or nothing asked: the title alone. */
         lstrcpynA((char *)d + C1_DLG_RESULT, c1_choice_title, C1_DLG_TEXT_BYTES);
+    } else if (*(int *)(d + C1_DLG_SUBJECT) >= 0) {
+        choice_open_gap((char *)d + C1_DLG_RESULT, C1_DLG_TEXT_BYTES);
     }
 }
 

@@ -707,7 +707,7 @@ static const ce_adapter C5_ADAPTER = {
        question and 17 for a result (the tallest stock question and result:
        Innovation in Farming's), the title above the result, labels of 38
        characters (the longest stock). */
-    48, 11, 48, 17, 0, 38, c5_rand_below
+    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -739,10 +739,10 @@ static void *c5_custom_object(void) {
 }
 
 /* A question (story_objects.inc): a copy of the first two-choice event's
-   vtable (0x497D34) with the custom ids, featuring a living believer. */
+   vtable (0x497D34) with the custom ids, featuring the picked or a random living believer. */
 static void *c5_choice_object(void) {
     return choice_object(5, C5_STRING_TABLE, C5_TITLE_ID, C5_BODY_ID, 0, 0x497D34u,
-                         (void *)c5_title_id, c5_believer);
+                         (void *)c5_title_id);
 }
 
 /* ---- Title ---------------------------------------------------------------

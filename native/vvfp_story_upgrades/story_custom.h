@@ -190,6 +190,11 @@ typedef struct {
     char labels[2][CE_BUTTON_BYTES];
     int outcome_count[2];                /* 1..CE_MAX_OUTCOMES each */
     ce_outcome outcomes[2][CE_MAX_OUTCOMES];
+    /* The villager in the popup's picture: record index + 1 (0 = a random
+       living villager) and that villager's ce_identity, taken when the event
+       is queued; the pick is shown only while the record still holds them. */
+    int featured_record;
+    unsigned int featured_identity;
 } ce_choice;
 
 /* What the delivery did, for the popup's closing lines and the tests. */

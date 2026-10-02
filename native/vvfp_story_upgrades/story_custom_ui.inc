@@ -16,7 +16,7 @@ enum {
     IDD_CHOICES = 310,
     IDC_CC_LABEL_FIRST = 3701, IDC_CC_LIST_FIRST = 3711, IDC_CC_ADD_FIRST = 3721,
     IDC_CC_EDIT_FIRST = 3731, IDC_CC_REMOVE_FIRST = 3741, IDC_CC_CHANCE_FIRST = 3751,
-    IDC_CC_NOTE_FIRST = 3761, IDC_CC_LIMIT = 3771,
+    IDC_CC_NOTE_FIRST = 3761, IDC_CC_LIMIT = 3771, IDC_CC_FEATURED = 3781, IDC_CC_FEATURED_NOTE = 3782,
     IDC_VA_LIST = 3301, IDC_VA_AMOUNT = 3302, IDC_VA_NOTE = 3303, IDC_VA_SET = 3304,
     IDC_VA_KEEP = 3305,
     IDC_PZ_LIST = 3401, IDC_PZ_SOLVE = 3402, IDC_PZ_UNSOLVE = 3403, IDC_PZ_KEEP = 3404,
@@ -1594,9 +1594,41 @@ static int ui_choice_selection(HWND window, int button) {
 
 static void ui_choice_read_labels(HWND window) {
     int b;
+    int featured = ui_combo_data(window, IDC_CC_FEATURED);
     for (b = 0; b < 2; ++b) {
         GetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b], CE_BUTTON_BYTES);
     }
+    /* The villager in the picture: record index + 1, 0 = a random one (its
+       identity is taken again when the event is queued). */
+    ui.choice.featured_record = featured > 0 ? featured : 0;
+    ui.choice.featured_identity = featured > 0 ? ce_identity(ui.a, ui.a->record(featured - 1)) : 0;
+}
+
+/* "Villager in the picture": a random living villager, or one of the
+   villagers the game may show (New Believers: believers only). */
+static void ui_choice_fill_featured(HWND window) {
+    char text[128];
+    char years[16];
+    int i;
+    ui_load_roster();
+    ui_combo_add(window, IDC_CC_FEATURED, "Random (a living villager)", 0);
+    for (i = 0; i < ui.roster_count; ++i) {
+        const unsigned char *record = ui.a->record(ui.roster[i].index);
+        if (!ce_choice_may_show(ui.a, record)) {
+            continue;
+        }
+        wsprintfA(text, "%s (%s, %s)", ui.names[i], ui.roster[i].sex == STORY_SEX_MALE ? "male" : "female",
+                  ui_years(ui.roster[i].age, years));
+        ui_combo_add(window, IDC_CC_FEATURED, text, ui.roster[i].index + 1);
+    }
+    SendDlgItemMessageA(window, IDC_CC_FEATURED, CB_SETCURSEL, 0, 0);
+    ui_select_data(window, IDC_CC_FEATURED, ui.choice.featured_record);
+    SetDlgItemTextA(window, IDC_CC_FEATURED_NOTE,
+                    ui.a->featurable != NULL
+                        ? "Shown in the question's picture (believers only); if they are gone, a "
+                          "random living believer is."
+                        : "Shown in the question's picture; if they are gone, a random living "
+                          "villager is.");
 }
 
 static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
@@ -1617,6 +1649,7 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
         wsprintfA(text, "A label is up to %d characters in %s. A chance is 1-100: each outcome's "
                         "share is its chance out of the button's total.", width, ui.a->game_name);
         SetDlgItemTextA(window, IDC_CC_LIMIT, text);
+        ui_choice_fill_featured(window);
         return TRUE;
     }
     if (message == WM_COMMAND) {
