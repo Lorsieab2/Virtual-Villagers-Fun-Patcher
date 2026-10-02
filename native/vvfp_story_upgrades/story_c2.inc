@@ -768,9 +768,10 @@ static const ce_adapter C2_ADAPTER = {
     0, 0x540,
     /* Family A's popup (0x422380): lines of 46 characters (the plain
        popup's; stock family A lines reach 48 at its 450 pixels), 18 lines
-       (the tallest stock family A text); the result replaces the whole
+       (the tallest stock family A text) less the two the villager's
+       picture adds under the title; the result replaces the whole
        text, title included; labels of 30 characters (the longest stock). */
-    46, 18, 46, 18, 1, 30, c2_rand_below
+    46, 16, 46, 16, 1, 30, c2_rand_below, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -809,15 +810,22 @@ static char c2_choice_title[CE_TITLE_BYTES];
 /* The replacement for `call 0x41F780` at 0x42244A (thiscall, AL). */
 static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
     unsigned char *d = (unsigned char *)dialog;
+    void *villagers = *(void **)(d + 0x50B0u);   /* the ctor's villager pool (0x42240E) */
+    int featured;
     (void)unused_edx;
     if (!ce_choice_begin(2, (char *)d + C2_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
         c2_choice_dialog = NULL;
         return (char)TC0(0x41F780u, dialog);
     }
-    choice_fill_dialog(2, d, C2_DLG_QUESTION, C2_DLG_LABEL_FIRST, C2_DLG_LABEL_SECOND, c2_choice_title);
+    featured = ce_choice_featured(2);
+    choice_fill_dialog(2, d, C2_DLG_QUESTION, C2_DLG_LABEL_FIRST, C2_DLG_LABEL_SECOND, c2_choice_title,
+                       featured);
     *(int *)(d + C2_DLG_VARIANT) = CHOICE_VARIANT_NONE;
-    *(int *)(d + C2_DLG_SUBJECT) = -1;
+    *(int *)(d + C2_DLG_SUBJECT) = featured;
     *(int *)(d + C1_DLG_WIDTH) = C1_ENCOUNTER_WIDTH;
+    if (featured >= 0 && villagers != NULL) {
+        TC1(0x44B2D0u, villagers, featured);       /* selected, as the stock setup does */
+    }
     d[C2_DLG_RESULT] = '\0';
     c2_choice_dialog = dialog;
     return 1;
@@ -831,6 +839,8 @@ static void __fastcall c2_choice_resolve(void *dialog, void *unused_edx) {
     if (!ce_choice_resolve(2, *(int *)(d + C2_DLG_CHOICE) - 1, (char *)d + C2_DLG_RESULT,
                            C1_DLG_TEXT_BYTES)) {
         lstrcpynA((char *)d + C2_DLG_RESULT, c2_choice_title, C1_DLG_TEXT_BYTES);
+    } else if (*(int *)(d + C2_DLG_SUBJECT) >= 0) {
+        choice_open_gap((char *)d + C2_DLG_RESULT, C1_DLG_TEXT_BYTES);
     }
 }
 

@@ -147,6 +147,8 @@ typedef struct {
     int label_width;               /* a button label's characters (0 = CE_LABEL_DEFAULT_WIDTH) */
     int (*rand_below)(int n);      /* the game's own random routine, 0..n-1 (NULL = the
                                       companion's own generator) */
+    int (*featurable)(const unsigned char *record);   /* a listed villager the question's
+                                      picture may show (NULL = any) */
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
@@ -1309,6 +1311,75 @@ static void ce_store_choice(int game, const ce_choice *c) {
             ce_choice_store[ce_armed_store].outcomes[b][k].effects.game = game;
         }
     }
+    {
+        /* The picked villager's identity as the event is queued. */
+        ce_choice *stored = &ce_choice_store[ce_armed_store];
+        const ce_adapter *a = ce_adapter_for(game);
+        unsigned char *record = NULL;
+        if (a != NULL && stored->featured_record > 0) {
+            record = a->record(stored->featured_record - 1);
+        }
+        if (record != NULL && a->listed(record)) {
+            stored->featured_identity = ce_identity(a, record);
+        } else {
+            stored->featured_record = 0;
+            stored->featured_identity = 0;
+        }
+    }
+}
+
+/* The choice of `game` being delivered: the armed one, or the asked one. */
+static const ce_choice *ce_choice_current(int game) {
+    if (ce_choice_pending(game)) {
+        return &ce_choice_store[ce_armed_store];
+    }
+    if (ce_asked && ce_asked_game == game) {
+        return &ce_choice_store[ce_asked_store];
+    }
+    return NULL;
+}
+
+/* A villager the question's picture may show: listed and accepted by the
+   game (New Believers: a believer). */
+static int ce_choice_may_show(const ce_adapter *a, const unsigned char *record) {
+    return record != NULL && a->listed(record) && (a->featurable == NULL || a->featurable(record));
+}
+
+/* The record index of the villager the question of `game` shows: the
+   player's pick while its record still holds that same villager (the
+   identity taken when queued) and the game may show them; otherwise a
+   random living one (the game's own random routine); -1 when nobody can be
+   shown. */
+static int ce_choice_featured(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    const ce_choice *c = ce_choice_current(game);
+    int count = 0;
+    int pick;
+    int i;
+    if (a == NULL || c == NULL) {
+        return -1;
+    }
+    if (c->featured_record > 0) {
+        unsigned char *record = a->record(c->featured_record - 1);
+        if (ce_choice_may_show(a, record) && ce_identity(a, record) == c->featured_identity) {
+            return c->featured_record - 1;
+        }
+    }
+    for (i = 0; i < a->record_count; ++i) {
+        if (ce_choice_may_show(a, a->record(i))) {
+            ++count;
+        }
+    }
+    if (count == 0) {
+        return -1;
+    }
+    pick = ce_random_below(a, count);
+    for (i = 0; i < a->record_count; ++i) {
+        if (ce_choice_may_show(a, a->record(i)) && pick-- == 0) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /* Roll one of `button`'s outcomes of `c`. */

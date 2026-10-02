@@ -620,7 +620,7 @@ static const ce_adapter C3_ADAPTER = {
        one, 11 lines for the tallest of the question and the results (the
        tallest stock two-choice text; the popup also shows the villager);
        the title stays above the result; labels of 32 characters. */
-    48, 11, 48, 11, 0, 32, c3_rand_below
+    48, 11, 48, 11, 0, 32, c3_rand_below, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -653,10 +653,10 @@ static void *c3_custom_object(void) {
 }
 
 /* A question (story_objects.inc): a copy of the first two-choice event's
-   vtable (0x47EA40) with the custom ids, featuring any living villager. */
+   vtable (0x47EA40) with the custom ids, featuring the picked or a random living villager. */
 static void *c3_choice_object(void) {
     return choice_object(3, C3_STRING_TABLE, C3_TITLE_ID, C3_BODY_ID, 0, 0x47EA40u,
-                         (void *)c3_title_id, NULL);
+                         (void *)c3_title_id);
 }
 
 /* ---- Title ---------------------------------------------------------------
