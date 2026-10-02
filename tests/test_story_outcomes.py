@@ -1186,6 +1186,32 @@ class ChooserTests(unittest.TestCase):
         self.assertEqual(self._text(g, 0, 2)[1], "")
 
 
+class DocAndCompanionTests(unittest.TestCase):
+    def test_the_settings_document_is_generated_from_the_tables(self):
+        import build_story_outcomes_doc as doc
+
+        self.assertEqual((ROOT / "docs" / "story-island-outcomes.md").read_text(encoding="utf-8"),
+                         doc.build())
+
+    def test_the_lost_childrens_tech_menu_offers_the_gong(self):
+        bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
+        self.assertIn('GetProcAddress(module, "VvfpStoryPickGongOutcome")', bridge)
+        self.assertIn("game == 2 && vvfp_story_gong != NULL", bridge)
+        source = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(encoding="utf-8")
+        body = source[source.index("command == VVFP_STORY_GONG_ID"):][:300]
+        self.assertIn("vvfp_story_pick_clicked(2, window, (int)command, NULL)", body, "no island lock")
+        binary = (ROOT / "assets" / "origins" / "VVFP VV2 Origins Icons.dll").read_bytes()
+        self.assertIn(b"VvfpStoryPickGongOutcome", binary)
+        shipped = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.def").read_text()
+        self.assertIn("VvfpStoryPickGongOutcome=_VvfpStoryPickGongOutcome@8", shipped)
+
+    def test_player_facing_texts_carry_no_code(self):
+        tables = (ROOT / "native" / "vvfp_story_upgrades" / "story_tables.h").read_text(encoding="utf-8")
+        import re
+        for text in re.findall(r'"((?:[^"\\]|\\.)*)"', tables):
+            self.assertNotRegex(text, r"0x[0-9A-Fa-f]|\+0x", text)
+
+
 def story_index(g: Game, record: int) -> int:
     if record == 0:
         return -1

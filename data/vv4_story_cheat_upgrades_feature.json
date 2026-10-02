@@ -3,7 +3,7 @@
   "enabled": true,
   "game_id": "vv4",
   "name": "Story / Cheat Upgrades",
-  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.**",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Pick Island Event also lets the player set how the picked event turns out. Each setting starts at \"Random (original game)\" and offers only what that event's own code can produce in this game: its result (for a two-choice event, the result of each choice -- the popup still appears and the player still clicks), every amount it can roll, who a roll it makes for each villager hits (nobody, everyone, or the villagers chosen), which villager it is about, and each baby's details; in A New Home and The Lost Children also its strength (normally a third of the population, 1 to 10). A setting whose condition does not hold right now can not be bought. An event whose own condition is only a matter of timing or story can be picked anyway, and developer-dead events proven to work are offered as never happening in the original game; events that need something the village lacks, or room for new villagers, stay locked with the reason. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.**",
   "output_tag": "Story Cheat Upgrades",
   "dependencies": [
     "vv4_origins_village_wide_upgrades"
@@ -15,6 +15,8 @@
     "Offers 45 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
+    "Pick Island Event's settings: each offered event can carry its result, every amount it rolls, who a per-villager roll hits, which villager it is about and each baby's details (A New Home and The Lost Children: also its strength), each defaulting to Random (original game).  The companion points the event's own rand() calls at a stub that answers the chosen value only in that roll's phase (before the popup, the popup, or the event's apply), for the clicked choice, and -- in a routine other code shares -- only inside the event's own call to it; the outcome ends when the event's apply returns, on refusal and on lapse, so no chosen value reaches a natural event.",
+    "Unlocked picks: an event whose own condition is only timing or story (proven by running its popup and apply with the condition false) can be picked anyway; its condition is passed for that one delivery only.  Developer-dead events proven to work are offered as never happening in the original game.",
     "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
   ],
   "explicit_non_changes": [
@@ -833,6 +835,456 @@
       "reason": "slot 24: condition 0x4146E0 always returns false and never picks the villager the event is about, so no popup opens and its apply reads a null villager"
     }
   ],
+  "island_event_settings": {
+    "events": {
+      "7": [
+        {
+          "label": "How long the fog lasts (game-clock units)",
+          "kind": "amount",
+          "values": "180 to 359"
+        }
+      ],
+      "8": [
+        {
+          "label": "How long the fog lasts (game-clock units)",
+          "kind": "amount",
+          "values": "180 to 359"
+        }
+      ],
+      "12": [
+        {
+          "label": "Which villager finds the berries",
+          "kind": "victim"
+        }
+      ],
+      "13": [
+        {
+          "label": "Which villager sees the rainbow",
+          "kind": "victim"
+        },
+        {
+          "label": "If they run to the right side: what happens",
+          "kind": "enum",
+          "options": [
+            "Falls from the cliff and is hurt",
+            "Finds rare mushrooms (+300 food)"
+          ]
+        },
+        {
+          "label": "If they run to the right side and fall: health lost",
+          "kind": "amount",
+          "values": "25 to 44"
+        },
+        {
+          "label": "How long the rainbow lasts (game-clock units)",
+          "kind": "amount",
+          "values": "180 to 359"
+        }
+      ],
+      "14": [
+        {
+          "label": "Which villager spots the crab",
+          "kind": "victim"
+        },
+        {
+          "label": "If they cut off its tail: who gains Healing",
+          "kind": "loop"
+        },
+        {
+          "label": "If they cut off its tail: Healing gained by each",
+          "kind": "amount",
+          "values": "5 to 9"
+        }
+      ],
+      "15": [
+        {
+          "label": "Which child finds the fungi",
+          "kind": "victim"
+        },
+        {
+          "label": "If they throw it into the ocean: Research gained",
+          "kind": "amount",
+          "values": "40 to 49"
+        },
+        {
+          "label": "If they throw it into the ocean: health lost",
+          "kind": "amount",
+          "values": "15 to 19"
+        },
+        {
+          "label": "If they admire it from afar: who falls sick",
+          "kind": "loop"
+        }
+      ],
+      "17": [
+        {
+          "label": "How long the rain lasts (game-clock units)",
+          "kind": "amount",
+          "values": "180 to 359"
+        }
+      ],
+      "18": [
+        {
+          "label": "How long the cold-snap weather (type 4) lasts (game-clock units)",
+          "kind": "amount",
+          "values": "180 to 359"
+        }
+      ],
+      "20": [
+        {
+          "label": "How long the rain lasts (game-clock units)",
+          "kind": "amount",
+          "values": "180 to 359"
+        }
+      ],
+      "21": [
+        {
+          "label": "Who loses health to the stings",
+          "kind": "loop"
+        },
+        {
+          "label": "Health lost by each stung villager",
+          "kind": "amount",
+          "values": "10 to 19"
+        }
+      ],
+      "25": [
+        {
+          "label": "Baby 1: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Baby 1: which skill it starts with",
+          "kind": "enum",
+          "options": [
+            "Farming",
+            "Parenting",
+            "Healing",
+            "Research",
+            "Building"
+          ]
+        },
+        {
+          "label": "Baby 1: starting level of that skill",
+          "kind": "amount",
+          "values": "5 to 9"
+        },
+        {
+          "label": "Baby 2 (if there is room): boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Baby 2 (if there is room): which skill it starts with",
+          "kind": "enum",
+          "options": [
+            "Farming",
+            "Parenting",
+            "Healing",
+            "Research",
+            "Building"
+          ]
+        },
+        {
+          "label": "Baby 2 (if there is room): starting level of that skill",
+          "kind": "amount",
+          "values": "5 to 9"
+        },
+        {
+          "label": "Baby 3 (if there is room): boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Baby 3 (if there is room): which skill it starts with",
+          "kind": "enum",
+          "options": [
+            "Farming",
+            "Parenting",
+            "Healing",
+            "Research",
+            "Building"
+          ]
+        },
+        {
+          "label": "Baby 3 (if there is room): starting level of that skill",
+          "kind": "amount",
+          "values": "5 to 9"
+        }
+      ],
+      "26": [
+        {
+          "label": "Who loses health",
+          "kind": "loop"
+        },
+        {
+          "label": "Health lost by each villager it hits",
+          "kind": "amount",
+          "values": "5 to 14"
+        },
+        {
+          "label": "Who falls sick",
+          "kind": "loop"
+        }
+      ],
+      "28": [
+        {
+          "label": "Which woman the event shows (the babies still go to the first six eligible women)",
+          "kind": "victim"
+        },
+        {
+          "label": "Which mothers have more than one baby",
+          "kind": "loop"
+        },
+        {
+          "label": "Of those, which have triplets (the others have twins)",
+          "kind": "loop"
+        }
+      ],
+      "29": [
+        {
+          "label": "Which villager finds the shell",
+          "kind": "victim"
+        },
+        {
+          "label": "If they pick it up and listen: health lost (pinch)",
+          "kind": "amount",
+          "values": "5 to 10"
+        }
+      ],
+      "30": [
+        {
+          "label": "Which villager finds the tube",
+          "kind": "victim"
+        }
+      ],
+      "31": [
+        {
+          "label": "Which child gets stuck",
+          "kind": "victim"
+        }
+      ],
+      "32": [
+        {
+          "label": "Which adult finds the larvae",
+          "kind": "victim"
+        },
+        {
+          "label": "If they put soap in the pond: who falls sick",
+          "kind": "loop"
+        }
+      ],
+      "33": [
+        {
+          "label": "Which adult sees the faces",
+          "kind": "victim"
+        }
+      ],
+      "34": [
+        {
+          "label": "Which mother",
+          "kind": "victim"
+        }
+      ],
+      "35": [
+        {
+          "label": "Which adult finds the box",
+          "kind": "victim"
+        },
+        {
+          "label": "If they swim back with the box: what happens",
+          "kind": "enum",
+          "options": [
+            "Makes it back (+5000 tech)",
+            "Swept away by a wave (the villager is lost)"
+          ]
+        }
+      ],
+      "36": [
+        {
+          "label": "Which villager finds the book",
+          "kind": "victim"
+        },
+        {
+          "label": "If they bring it to the lab: everyone's Parenting gain",
+          "kind": "amount",
+          "values": "5 to 10"
+        }
+      ],
+      "37": [
+        {
+          "label": "Which child ate the mushroom",
+          "kind": "victim"
+        },
+        {
+          "label": "If they lie: health lost",
+          "kind": "amount",
+          "values": "25 to 50"
+        },
+        {
+          "label": "If they tell the truth: everyone's Parenting gain",
+          "kind": "amount",
+          "values": "5 to 10"
+        },
+        {
+          "label": "If they tell the truth: the child's Farming gain",
+          "kind": "amount",
+          "values": "10 to 20"
+        }
+      ],
+      "38": [
+        {
+          "label": "Which villager is the healer (stock does not require them to be sick)",
+          "kind": "victim"
+        }
+      ],
+      "39": [
+        {
+          "label": "Which villager is the healer (stock does not require them to be sick)",
+          "kind": "victim"
+        }
+      ],
+      "40": [
+        {
+          "label": "Which villager is the healer (stock does not require them to be sick)",
+          "kind": "victim"
+        },
+        {
+          "label": "If they eat a bit: health lost",
+          "kind": "amount",
+          "values": "15 to 34"
+        }
+      ],
+      "41": [
+        {
+          "label": "Which villager is the healer (stock does not require them to be sick)",
+          "kind": "victim"
+        }
+      ],
+      "42": [
+        {
+          "label": "Which villager is the healer (stock does not require them to be sick)",
+          "kind": "victim"
+        },
+        {
+          "label": "If they fast: health lost",
+          "kind": "amount",
+          "values": "20 to 30"
+        }
+      ],
+      "43": [
+        {
+          "label": "Which villager is the healer (stock does not require them to be sick)",
+          "kind": "victim"
+        },
+        {
+          "label": "If they use bark: health lost",
+          "kind": "amount",
+          "values": "10 to 15"
+        },
+        {
+          "label": "If they use mushrooms: health lost",
+          "kind": "amount",
+          "values": "10 to 15"
+        }
+      ],
+      "44": [
+        {
+          "label": "Which villager experiments",
+          "kind": "victim"
+        },
+        {
+          "label": "If they try the salts: health lost",
+          "kind": "amount",
+          "values": "35 to 75"
+        }
+      ],
+      "45": [
+        {
+          "label": "Which builder tries it",
+          "kind": "victim"
+        },
+        {
+          "label": "If they try the technique: what happens",
+          "kind": "enum",
+          "options": [
+            "The technique works (Building skill up)",
+            "Falls from the scaffolding (badly hurt)"
+          ]
+        },
+        {
+          "label": "If they try the technique and get hurt: health lost",
+          "kind": "amount",
+          "values": "75 to 149"
+        }
+      ],
+      "46": [
+        {
+          "label": "Which villager tries it",
+          "kind": "victim"
+        },
+        {
+          "label": "If they try standing on fruit: what happens",
+          "kind": "enum",
+          "options": [
+            "The fruit cooks faster (Farming skill up)",
+            "Slips onto the hot coals (badly hurt)"
+          ]
+        },
+        {
+          "label": "If they try standing on fruit and get hurt: health lost",
+          "kind": "amount",
+          "values": "75 to 149"
+        }
+      ],
+      "47": [
+        {
+          "label": "Which adult",
+          "kind": "victim"
+        },
+        {
+          "label": "Which child is stuck (shown in the dialog only)",
+          "kind": "victim"
+        }
+      ],
+      "48": [
+        {
+          "label": "Which adult teaches the children",
+          "kind": "victim"
+        }
+      ],
+      "49": [
+        {
+          "label": "Which villager meets the stranger",
+          "kind": "victim"
+        }
+      ]
+    },
+    "unlocked": [
+      5,
+      22,
+      25,
+      26,
+      27,
+      28,
+      32,
+      46,
+      48
+    ],
+    "developer_dead_offered": [
+      6
+    ]
+  },
   "custom_island_event": {
     "offered": [
       "title and description",
