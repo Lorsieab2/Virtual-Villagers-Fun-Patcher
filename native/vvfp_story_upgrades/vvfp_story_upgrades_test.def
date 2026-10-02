@@ -7,6 +7,7 @@ EXPORTS
     VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8
     VvfpStoryAttachHost=_VvfpStoryAttachHost@8
     VvfpStoryVillageReset=_VvfpStoryVillageReset@8
+    VvfpStoryPickGongOutcome=_VvfpStoryPickGongOutcome@8
     VvfpStoryProbeQueueCustom=_VvfpStoryProbeQueueCustom@12
     VvfpStoryProbeSetCustom=_VvfpStoryProbeSetCustom@12
     VvfpStoryProbeCustomPending=_VvfpStoryProbeCustomPending@4
@@ -30,4 +31,17 @@ EXPORTS
     VvfpStoryProbePending=_VvfpStoryProbePending@4
     VvfpStoryProbePossible=_VvfpStoryProbePossible@8
     VvfpStoryProbeArmedSlot=_VvfpStoryProbeArmedSlot@0
+    VvfpStoryProbeOutcomeArm=_VvfpStoryProbeOutcomeArm@28
+    VvfpStoryProbeOutcomeState=_VvfpStoryProbeOutcomeState@4
+    VvfpStoryProbeOutcomeFields=_VvfpStoryProbeOutcomeFields@4
+    VvfpStoryProbeOutcomeDisarm=_VvfpStoryProbeOutcomeDisarm@0
+    VvfpStoryProbeOutcomeForce=_VvfpStoryProbeOutcomeForce@16
+    VvfpStoryProbeOutcomeScope=_VvfpStoryProbeOutcomeScope@12
+    VvfpStoryProbeGongForce=_VvfpStoryProbeGongForce@8
+    VvfpStoryProbeChooserOpen=_VvfpStoryProbeChooserOpen@8
+    VvfpStoryProbeChooserSet=_VvfpStoryProbeChooserSet@20
+    VvfpStoryProbeChooserText=_VvfpStoryProbeChooserText@16
+    VvfpStoryProbeOutcomeEvent=_VvfpStoryProbeOutcomeEvent@12
+    VvfpStoryProbeOutcomeControl=_VvfpStoryProbeOutcomeControl@16
     VvfpStoryStats DATA
+    VvfpStoryOutcomeStats DATA

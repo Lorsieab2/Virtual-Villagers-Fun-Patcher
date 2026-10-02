@@ -10,6 +10,10 @@
        toggles, and the changes for them.
    304 New villagers: one kind of new villager and how many.
    305 Parents: the parentage data of the chosen villagers.
+   306 Food sources: set a food source or store to an amount.
+   307 Puzzles: mark puzzles solved or unsolved.
+   308 Revive: skeletons brought back to life.
+   309 The unborn baby's father.
    Controls a game cannot support are disabled at run time and say why. */
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
@@ -34,19 +38,26 @@
 #define CBS_DROPDOWNLIST 0x0003L
 #define BS_AUTOCHECKBOX 0x0003L
 
-301 DIALOGEX 0, 0, 330, 236
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+301 DIALOGEX 0, 0, 480, 300
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Pick Island Event"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Choose the island event that will happen next:", -1, 8, 6, 314, 10
-    LISTBOX     3001, 8, 18, 314, 150, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
-    LTEXT       "", 3002, 8, 172, 314, 36, SS_LEFT
-    DEFPUSHBUTTON "OK", 1, 186, 214, 64, 15
-    PUSHBUTTON  "Cancel", 2, 258, 214, 64, 15
+    LTEXT       "Choose the island event that will happen next:", 3010, 8, 6, 210, 10
+    LISTBOX     3001, 8, 18, 210, 254, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LTEXT       "", 3002, 226, 18, 246, 44, SS_LEFT
+    LTEXT       "How it turns out (Random is the original game's own choice):", -1, 226, 64, 246, 10
+    LISTBOX     3003, 226, 76, 246, 78, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LTEXT       "", 3009, 226, 157, 246, 18, SS_LEFT
+    COMBOBOX    3004, 226, 177, 246, 160, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT    3005, 226, 194, 80, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "", 3006, 312, 196, 160, 10
+    LISTBOX     3007, 226, 194, 246, 78, LBS_NOTIFY | LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    DEFPUSHBUTTON "OK", 1, 336, 278, 64, 15
+    PUSHBUTTON  "Cancel", 2, 408, 278, 64, 15
 END
 
-302 DIALOGEX 0, 0, 420, 352
+302 DIALOGEX 0, 0, 420, 416
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Custom Island Event"
 FONT 9, "Segoe UI"
@@ -80,13 +91,20 @@ BEGIN
     PUSHBUTTON  "Add...", 1122, 324, 252, 80, 14, WS_TABSTOP
     PUSHBUTTON  "Remove", 1123, 324, 270, 80, 14, WS_TABSTOP
 
-    PUSHBUTTON  "Not in this game...", 1114, 8, 330, 80, 15, WS_TABSTOP
-    LTEXT       "It happens shortly, as a bought Island Event does.", -1, 94, 333, 178, 12
-    DEFPUSHBUTTON "Queue event", 1, 276, 330, 64, 15
-    PUSHBUTTON  "Cancel", 2, 348, 330, 64, 15
+    GROUPBOX    "Food sources, puzzles and revivals", -1, 8, 328, 404, 62
+    LISTBOX     1131, 16, 340, 300, 46, LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    PUSHBUTTON  "Food sources...", 1132, 324, 338, 80, 11, WS_TABSTOP
+    PUSHBUTTON  "Puzzles...", 1133, 324, 350, 80, 11, WS_TABSTOP
+    PUSHBUTTON  "Revive...", 1134, 324, 362, 80, 11, WS_TABSTOP
+    PUSHBUTTON  "Remove", 1135, 324, 374, 80, 11, WS_TABSTOP
+
+    PUSHBUTTON  "Not in this game...", 1114, 8, 394, 80, 15, WS_TABSTOP
+    LTEXT       "It happens shortly, as a bought Island Event does.", -1, 94, 397, 178, 12
+    DEFPUSHBUTTON "Queue event", 1, 276, 394, 64, 15
+    PUSHBUTTON  "Cancel", 2, 348, 394, 64, 15
 END
 
-303 DIALOGEX 0, 0, 460, 330
+303 DIALOGEX 0, 0, 460, 346
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager changes"
 FONT 9, "Segoe UI"
@@ -143,10 +161,12 @@ BEGIN
     COMBOBOX    2074, 280, 256, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON  "Parents...", 2080, 280, 274, 80, 14, WS_TABSTOP
     LTEXT       "", 2081, 364, 276, 88, 12
+    PUSHBUTTON  "Baby's father...", 2082, 280, 290, 80, 14, WS_TABSTOP
+    LTEXT       "", 2083, 364, 292, 88, 12
 
-    LTEXT       "", 2090, 8, 294, 444, 12
-    DEFPUSHBUTTON "Add to event", 1, 316, 310, 64, 15
-    PUSHBUTTON  "Cancel", 2, 388, 310, 64, 15
+    LTEXT       "", 2090, 8, 306, 444, 20
+    DEFPUSHBUTTON "Add to event", 1, 316, 326, 64, 15
+    PUSHBUTTON  "Cancel", 2, 388, 326, 64, 15
 END
 
 304 DIALOGEX 0, 0, 300, 250
@@ -218,4 +238,67 @@ BEGIN
     LTEXT       "", 3207, 172, 46, 100, 40
     DEFPUSHBUTTON "OK", 1, 136, 108, 64, 15
     PUSHBUTTON  "Cancel", 2, 208, 108, 64, 15
+END
+
+306 DIALOGEX 0, 0, 380, 220
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Food sources"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Choose one, type its new amount and press Set:", -1, 8, 6, 364, 10
+    LISTBOX     3301, 8, 18, 364, 110, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LTEXT       "", 3303, 8, 132, 364, 30
+    LTEXT       "New amount:", -1, 8, 168, 50, 10
+    EDITTEXT    3302, 62, 166, 60, 13, ES_NUMBER | WS_TABSTOP
+    PUSHBUTTON  "Set", 3304, 128, 165, 60, 14, WS_TABSTOP
+    PUSHBUTTON  "No change", 3305, 194, 165, 60, 14, WS_TABSTOP
+    DEFPUSHBUTTON "OK", 1, 236, 198, 64, 15
+    PUSHBUTTON  "Cancel", 2, 308, 198, 64, 15
+END
+
+307 DIALOGEX 0, 0, 380, 260
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Puzzles"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Choose puzzles (Ctrl+click for more than one), then mark them:", -1, 8, 6, 364, 10
+    LISTBOX     3401, 8, 18, 364, 160, LBS_NOTIFY | LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LTEXT       "", 3405, 8, 182, 364, 30
+    PUSHBUTTON  "Mark solved", 3402, 8, 216, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "Mark unsolved", 3403, 94, 216, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "No change", 3404, 180, 216, 80, 14, WS_TABSTOP
+    DEFPUSHBUTTON "OK", 1, 236, 238, 64, 15
+    PUSHBUTTON  "Cancel", 2, 308, 238, 64, 15
+END
+
+308 DIALOGEX 0, 0, 300, 250
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Revive"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Skeletons, oldest first (Ctrl+click for more than one):", -1, 8, 6, 284, 10
+    LISTBOX     3501, 8, 18, 284, 120, LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    PUSHBUTTON  "Choose all", 3505, 8, 142, 70, 14, WS_TABSTOP
+    LTEXT       "Health (1-100):", -1, 8, 162, 60, 10
+    EDITTEXT    3502, 72, 160, 40, 13, ES_NUMBER | WS_TABSTOP
+    AUTOCHECKBOX "Also cure them", 3503, 120, 162, 120, 10, WS_TABSTOP
+    LTEXT       "", 3504, 8, 178, 284, 44
+    DEFPUSHBUTTON "OK", 1, 156, 228, 64, 15
+    PUSHBUTTON  "Cancel", 2, 228, 228, 64, 15
+END
+
+309 DIALOGEX 0, 0, 280, 104
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "The unborn baby's father"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Blank = no change. The baby is born to this father: he is the father it records, and its looks come from both parents.", -1, 8, 6, 264, 26
+    LTEXT       "Father's name:", -1, 8, 38, 70, 10
+    EDITTEXT    3601, 82, 36, 110, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Head / body:", -1, 8, 54, 70, 10
+    EDITTEXT    3602, 82, 52, 40, 13, ES_NUMBER | WS_TABSTOP
+    EDITTEXT    3603, 126, 52, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3604, 172, 54, 100, 20
+    DEFPUSHBUTTON "OK", 1, 136, 82, 64, 15
+    PUSHBUTTON  "Cancel", 2, 208, 82, 64, 15
 END

@@ -17,6 +17,35 @@ typedef int (__fastcall *tc7_fn)(void *self, void *unused_edx, int a, int b, int
 #define TC7(va, self, a, b, c, d, e, f, g) \
     ((tc7_fn)(uintptr_t)(va))((void *)(self), NULL, (int)(a), (int)(b), (int)(c), (int)(d), \
                               (int)(e), (int)(f), (int)(g))
+typedef int (__fastcall *tc9_fn)(void *self, void *unused_edx, int a, int b, int c, int d, int e,
+                                 int f, int g, int h, int i);
+#define TC9(va, self, a, b, c, d, e, f, g, h, i) \
+    ((tc9_fn)(uintptr_t)(va))((void *)(self), NULL, (int)(a), (int)(b), (int)(c), (int)(d), \
+                              (int)(e), (int)(f), (int)(g), (int)(h), (int)(i))
+
+/* ---- Behaviours ------------------------------------------------------------
+
+   One "make them do it" choice: the game's own starter of that action, as a
+   stock caller starts it (the research's catalogue of every villager action,
+   docs/story-cheat-upgrades.md).  The villager's current activity is
+   stopped first with the game's own stop routine, as stock callers do, so the
+   action starts now instead of after what they were doing. */
+enum {
+    ACT_STOP,        /* the stop routine alone */
+    ACT_RECOVER,     /* cured, full health (each game's own way) */
+    ACT_CALL,        /* VV1 / VV2: routine(villager index) on the array / pool */
+    ACT_CALL_ARG,    /* VV1 / VV2: routine(villager index, arg) */
+    ACT_DO,          /* VV3-VV5: the game's do-action routine with action id `arg` */
+    ACT_EFFECT       /* VV1 / VV2: routine(villager index) WITHOUT a stop (an effect
+                        such as a sneeze, not an activity) */
+};
+
+typedef struct {
+    const char *label;
+    int kind;
+    unsigned int routine;
+    int arg;
+} ce_action;
 
 /* ---- The host (the game's Origins companion) ----------------------------- */
 

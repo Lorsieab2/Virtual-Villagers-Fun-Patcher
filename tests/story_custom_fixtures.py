@@ -243,6 +243,14 @@ class Change:
     father_body: int = KEEP
     mother_head: int = KEEP
     mother_body: int = KEEP
+    unborn_set: int = 0
+    unborn_name: str = ""
+    unborn_head: int = KEEP
+    unborn_body: int = KEEP
+    unborn_skill: int = KEEP
+    unborn_skill_value: int = KEEP
+
+    SIZE = 236
 
     def pack(self) -> bytes:
         return (struct.pack("<iIiiiiI", self.index, self.fingerprint, self.fate, self.sick, self.litter,
@@ -254,7 +262,10 @@ class Change:
                 + struct.pack("<4i", self.mask, self.status, self.behaviour, self.parents_set)
                 + _s(self.father_name, 24) + _s(self.mother_name, 24)
                 + struct.pack("<4i", self.father_head, self.father_body, self.mother_head,
-                              self.mother_body))
+                              self.mother_body)
+                + struct.pack("<i", self.unborn_set) + _s(self.unborn_name, 24)
+                + struct.pack("<4i", self.unborn_head, self.unborn_body, self.unborn_skill,
+                              self.unborn_skill_value))
 
 
 @dataclass
@@ -270,8 +281,12 @@ class Event:
     village: int = 0
     spawns: list = field(default_factory=list)
     changes: list = field(default_factory=list)
+    values: list = field(default_factory=list)      # (which, amount)
+    puzzles: list = field(default_factory=list)     # (which, solved)
+    revives: list = field(default_factory=list)     # (index, identity, health, cure)
 
-    SIZE = 4 + 48 + 600 + 4 * 7 + 8 * 136 + 4 + 256 * 192
+    SIZE = (4 + 48 + 600 + 4 * 7 + 8 * 136 + 4 + 256 * Change.SIZE
+            + 4 + 16 * 8 + 4 + 32 * 8 + 4 + 256 * 16)
 
     def pack(self) -> bytes:
         out = struct.pack("<i", self.game) + _s(self.title, 48) + _s(self.text, 600)
@@ -281,17 +296,25 @@ class Event:
         out += spawns + bytes(8 * 136 - len(spawns))
         out += struct.pack("<i", len(self.changes))
         changes = b"".join(c.pack() for c in self.changes)
-        out += changes + bytes(256 * 192 - len(changes))
+        out += changes + bytes(256 * Change.SIZE - len(changes))
+        values = b"".join(struct.pack("<2i", *v) for v in self.values)
+        out += struct.pack("<i", len(self.values)) + values + bytes(16 * 8 - len(values))
+        puzzles = b"".join(struct.pack("<2i", *p) for p in self.puzzles)
+        out += struct.pack("<i", len(self.puzzles)) + puzzles + bytes(32 * 8 - len(puzzles))
+        revives = b"".join(struct.pack("<iIii", *r) for r in self.revives)
+        out += struct.pack("<i", len(self.revives)) + revives + bytes(256 * 16 - len(revives))
         assert len(out) == self.SIZE
         return out
 
 
 RESULT_FIELDS = ("changed", "skipped", "died", "vanished", "conceived", "no_room_babies", "born",
-                 "no_room_spawns", "refused", "food_before", "food_after", "tech_before", "tech_after")
+                 "no_room_spawns", "refused", "food_before", "food_after", "tech_before", "tech_after",
+                 "revived", "no_room_revives")
+RESULT_SIZE = 4 * len(RESULT_FIELDS)
 
 
 def unpack_result(raw: bytes) -> dict:
-    return dict(zip(RESULT_FIELDS, struct.unpack("<13i", raw)))
+    return dict(zip(RESULT_FIELDS, struct.unpack(f"<{len(RESULT_FIELDS)}i", raw)))
 
 
 class MemoryFiles:

@@ -45,6 +45,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 
 import vv_fun_patcher as patcher  # noqa: E402
 import story_island_events  # noqa: E402
+import story_island_outcomes as outcomes  # noqa: E402
 from vv_fun_patcher_gui import (  # noqa: E402
     DEFAULT_OFF_FUN_PATCH_IDS,
     default_fun_patch_selection,
@@ -970,11 +971,13 @@ class EventListTests(unittest.TestCase):
                 self.assertEqual([e["slot"] for e in row["island_events"]],
                                  [e["slot"] for e in story_island_events.EVENTS[game]])
                 self.assertEqual(row["excluded_island_events"], story_island_events.EXCLUDED[game])
-                self.assertTrue(row["excluded_island_events"])
 
 
 class DeadEventTests(unittest.TestCase):
-    """The excluded events can never run in the shipping game, read from it."""
+    """The developer-dead events can never run in the shipping game, read from
+    it.  Since v1.35.46 those proven to work are offered, marked as never
+    happening in the original game (scripts/story_island_outcomes.py
+    DEAD_NOTES), and the rest stay excluded with the reason."""
 
     def _image(self, game):
         data = stock_path(game).read_bytes()
@@ -999,11 +1002,13 @@ class DeadEventTests(unittest.TestCase):
         encounter_jump = struct.unpack("<5I", self._read("vv1", 0x418990, 20))
         self.assertEqual(encounter_jump[encounter_class[5]], 0x418930, "variant 5 -> the re-roll")
         offered = {e["slot"] for e in story_island_events.EVENTS["vv1"]}
-        self.assertNotIn(1, offered)
-        self.assertNotIn((1 << 6) | 5, offered)
-        # Every other case and variant is offered.
-        self.assertEqual({s for s in offered if s >> 6 == 0}, set(range(15)) - {1})
-        self.assertEqual({s & 0x3F for s in offered if s >> 6 == 1}, set(range(16)) - {5})
+        # Both are offered, as never happening in the original game.
+        for dead in (1, (1 << 6) | 5):
+            self.assertIn(dead, offered)
+            self.assertIn(dead, outcomes.DEAD_NOTES["vv1"])
+            self.assertIn(dead, outcomes.UNLOCKED["vv1"])
+        self.assertEqual({s for s in offered if s >> 6 == 0}, set(range(15)))
+        self.assertEqual({s & 0x3F for s in offered if s >> 6 == 1}, set(range(16)))
         self.assertEqual({s & 0x3F for s in offered if s >> 6 == 2}, set(range(9)))
 
     @unittest.skipUnless(HAVE_EMULATOR, "pefile not installed")
@@ -1014,7 +1019,12 @@ class DeadEventTests(unittest.TestCase):
         never = {i for i, target in enumerate(table) if target == 0x434824}
         self.assertEqual(never, {4, 18, 20, 26})
         offered = {e["slot"] for e in story_island_events.EVENTS["vv2"] if e["slot"] >> 6 == 0}
-        self.assertEqual(offered, set(range(28)) - never)
+        # Case 4 has no body; the other three work and are offered as never
+        # happening in the original game.
+        self.assertEqual(offered, set(range(28)) - {4})
+        for dead in (18, 20, 26):
+            self.assertIn(dead, outcomes.DEAD_NOTES["vv2"])
+            self.assertIn(dead, outcomes.UNLOCKED["vv2"])
         self.assertEqual({e["slot"] & 0x3F for e in story_island_events.EVENTS["vv2"] if e["slot"] >> 6 == 1},
                          set(range(21)))
         self.assertEqual({e["slot"] & 0x3F for e in story_island_events.EVENTS["vv2"] if e["slot"] >> 6 == 2},
@@ -1040,12 +1050,19 @@ class DeadEventTests(unittest.TestCase):
             dead = {s for s, vt in vtables.items() if image.u32(vt + 4) == 0x415B10}
             self.assertEqual(dead, {25, 29, 33, 48, 49, 50, 51, 52, 53, 54})
             offered = {e["slot"] for e in story_island_events.EVENTS["vv5"]}
-            self.assertEqual(offered, set(slots) - dead)
+            # The Stinging Wasps and The Abandoned Infants work: offered as
+            # never happening in the original game; the rest stay excluded.
+            self.assertEqual(offered, set(slots) - (dead - {25, 33}))
+            for slot in (25, 33):
+                self.assertIn(slot, outcomes.DEAD_NOTES["vv5"])
 
     def test_vv3_and_vv4_offer_every_live_slot(self):
         self.assertEqual({e["slot"] for e in story_island_events.EVENTS["vv3"]}, set(range(1, 58)))
+        # The Canoe from the Other Side (6) works and is offered as never
+        # happening in the original game.
         self.assertEqual({e["slot"] for e in story_island_events.EVENTS["vv4"]},
-                         set(range(1, 50)) - {1, 6, 16, 19, 24})
+                         set(range(1, 50)) - {1, 16, 19, 24})
+        self.assertIn(6, outcomes.DEAD_NOTES["vv4"])
 
 
 # ---------------------------------------------------------------------------

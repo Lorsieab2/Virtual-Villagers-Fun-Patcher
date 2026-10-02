@@ -93,24 +93,193 @@ the story companion through VvfpStoryVillageReset), so it can never replace
 another village's event or change its villagers.
 
 No event is emulated; the picked event is created, shown and resolved by the
-game's own code, with its own choices, random outcomes and amounts.
+game's own code, with its own choices, random outcomes and amounts -- except
+the outcomes the player sets (below), which are the game's own rolls answered
+with the chosen value.
 
 ### Events not offered (developer-dead)
 
-| Game | Excluded | Why |
-| --- | --- | --- |
-| A New Home | A Mighty Storm | island case 1: its condition class (0x4286A1 = 5) always re-rolls |
-| A New Home | The Furry Food | encounter variant 5: its class (0x4189A9 = 4) always re-rolls |
-| The Lost Children | case 4 (no body), The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day | the selector's condition table maps them to the never-valid entry 0x434824 |
-| The Secret City | The Swarm of Bees, The Drought | strings only; no event object |
-| The Tree of Life | The Tsunami, The Canoe from the Other Side, The Medical Emergency, The Return of Biggles | condition 0x4146E0 is `xor al,al; ret` |
-| The Tree of Life | The Salty Air | strings only (slot 19 is empty) |
-| New Believers | The Stinging Wasps, The Return of Biggles, The Abandoned Infants, The Smelly/Floral/Invisible Vial, Innovation in Farming, Tough Lessons, The Pretty Shell, The Legendary Stranger | condition 0x415B10 is `xor al,al; ret` |
-| New Believers | The Tsunami, The Canoe..., The Rainy Season, The Festival of the Banyan, Daredevil Barrel, The State of the Tree, A Closer Look | strings only; no event class |
+Since v1.35.46 a developer-dead event is offered when it was **proven to work**:
+its event object (or case), its title, description and choice strings exist, and
+its popup and apply run completely in emulation with nothing half-finished. It is
+listed as "(never happens in the original game)" and delivered past its
+always-false condition for that one pick. The rest stay excluded:
 
-Offered: A New Home 38, The Lost Children 53, The Secret City 57, The Tree of
-Life 44, New Believers 45 (the full lists, with descriptions, are in
+| Game | Offered as never happening in the original game | Still excluded, and why |
+| --- | --- | --- |
+| A New Home | A Mighty Storm (island case 1), The Furry Food (encounter 5) | -- |
+| The Lost Children | The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day | case 4: no event body, title or text |
+| The Secret City | -- | The Swarm of Bees, The Drought: strings only, no event object (The Drought is also unfinished) |
+| The Tree of Life | The Canoe from the Other Side (needs room) | The Tsunami: half-finished (its text destroys structures, its apply never touches one and skips the drowning's death step); The Medical Emergency, The Return of Biggles: the condition never picks the villager, so no popup opens and the apply reads a null villager; The Salty Air: strings only |
+| New Believers | The Stinging Wasps, The Abandoned Infants (needs room) | The Return of Biggles and slots 48-54: no villager is ever picked, the apply reads a null villager; the strings-only group |
+
+Offered: A New Home 40, The Lost Children 56, The Secret City 57, The Tree of
+Life 45, New Believers 47 (the full lists, with descriptions, are in
 `scripts/story_island_events.py` and each row's `island_events`).
+
+## Pick Island Event: outcomes, strength and unlocks (v1.35.46)
+
+The owner: "In general I want all possible outcomes for events that have them to
+be possible." Every offered event that has anything to decide gets settings in the
+Pick Island Event dialog (the event list on the left; the event's settings on the
+right, one row each, with the selected row's dropdown, a number box for an amount
+with a wide range, and a villager list with Ctrl/Shift extended selection for
+"Choose who"). Every setting starts at **Random (original game)**. The full list,
+per game and event, is `docs/story-island-outcomes.md` (generated); the evidence
+for each (the code it was traced in) is in `scripts/story_outcomes_vv1.py` ...
+`story_outcomes_vv5.py`.
+
+| Game | Events with settings | Settings | Result options | Amounts | Each-villager | Which-villager | Strength events |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| A New Home | 26 | 89 | 73 | 39 | 4 | 24 | 8 |
+| The Lost Children | 28 | 79 | 92 | 31 | 7 | 21 | 3 |
+| The Secret City | 42 | 117 | 79 | 55 | 7 | 32 | -- |
+| The Tree of Life | 34 | 72 | 29 | 27 | 8 | 27 | -- |
+| New Believers | 29 | 69 | 91 | 21 | -- | 24 | -- |
+
+What can be set, where the event's own code rolls for it:
+
+* **The result** -- one of the event's own results. A two-choice event's popup
+  still appears and the player still clicks; the setting decides the result of
+  the choice it is labelled with.
+* **Every amount** the event can roll (food, tech points, health, skill gains,
+  faith, ages, weather lengths), over its whole range: every value is listed, or
+  typed when the range is wide (it must be a value the game itself can roll).
+* **Each villager** -- a roll the game makes for every villager in turn (who falls
+  sick, is stung, is swept away, learns): nobody, everyone, or the villagers
+  chosen. "Everyone" where it could end the tribe (The Secret City's tsunami and
+  low-tide wave) asks for confirmation first.
+* **Which villager** the event is about, where the game picks one with a roll
+  among candidates; a villager the game itself would not pick leaves the choice
+  to the game.
+* **Each baby's** sex, skill, level, age and looks, where rolled.
+* **Strength** (A New Home, The Lost Children): the magnitude the game normally
+  takes from the population (a third of it, 1 to 10), only for the events whose
+  code uses it -- every value where it is linear, 1-4 / 5-7 / 8-10 for the Barrel
+  O` Babies (one, two or three babies; the count still stops at the village's
+  room).
+
+A setting whose condition fails right now (a newcomer or a copy needs room; the
+Gong's rarer results need its tiers open) says so and can not be bought.
+
+### How a roll is answered
+
+Each setting names the game's own `call rand` instructions that decide it (the
+generator checks every one is an `E8 rel32` call to that game's rand, holding the
+stock bytes in every render). The companion points each at one stub that hands
+the call's registers to the outcome engine (`story_outcomes.inc`), which returns
+the chosen value only when **all** of these hold, and the game's own rand
+otherwise:
+
+* the armed pick has a setting for that roll;
+* the roll's **phase** is current: "select" (before the event is shown -- the
+  condition method the selector asks on every pass, A New Home's crate and The
+  Lost Children's sack set-up before the variant roll) answers from the moment
+  the pick is armed; "build" (the popup's text methods, which the popup calls at
+  build time and again at the click) answers once the pick is delivered;
+  "apply" answers only while that very event's apply runs;
+* for a routine other code reaches too (the weather setter, a skill helper, a
+  villager picker, a per-villager loop), only **inside the event's own call to
+  it**: that call runs bracketed by a second stub;
+* for a setting of one choice, only when **that choice was clicked**;
+* for a baby, only at **that baby's** call of the creator's roll (the creator
+  calls belong to the Origins rows, which patch them to count births, so babies
+  are told apart by their order in the apply).
+
+The armed outcome ends when the event's apply returns (The Secret City, The Tree
+of Life, New Believers: the popup's OK handler, 0x419A29/0x419A41,
+0x417EC9/0x417EE5, 0x418749/0x418765, whose apply calls the companion
+replaces; A New Home / The Lost Children: the resolve calls 0x41A444, 0x42D0C4,
+0x422364, 0x439DB4, 0x43483D, and A New Home's island chooser call 0x428777,
+inside which its single-result events run), when the pick is refused or
+lapses, and when the game starts choosing another island event while an old
+delivered outcome is still held. A forced value therefore never reaches a
+natural event, nor another event sharing the routine. The apply calls are
+matched to the delivered event object, so the Origins Barrel or a custom event
+shown by the same popup is never forced.
+
+Strength: A New Home substitutes the magnitude in the island chooser call
+0x428777 (only for an armed island pick whose condition holds, never for the
+Origins Barrel's call); The Lost Children in the case body call 0x43483D, after
+the case roll.
+
+### Unlocked picks
+
+For each offered event with a condition, the condition was classified: a timing
+or story condition (already happened, a level, a season, a puzzle state, a
+population floor the code does not need) is passed for one delivery once the
+event's popup and apply were run in emulation with the condition false and
+completed coherently; a condition the event's code needs (a villager of some
+kind, crops, a chief) keeps it locked with the reason, and room for new
+villagers is never overridden. An unlocked event is listed as "(normally not
+possible right now)".
+
+| Game | Unlocked | Locked with the reason | Developer-dead offered | Still excluded |
+| --- | --- | --- | --- | --- |
+| A New Home | 2 | 6 | 2 | 0 |
+| The Lost Children | 5 | 13 | 3 | 1 |
+| The Secret City | 18 | 24 | 0 | 2 |
+| The Tree of Life | 9 | 23 | 1 | 4 |
+| New Believers | 5 | 26 | 2 | 9 |
+
+A New Home and The Lost Children pass the check right after the event roll, once
+(0x4284EC, 0x418941; 0x434617, 0x41F5A5). The other three deliver the picked
+object although its condition method returns false -- after that method has run
+(it picks the villager the event is about before the failing check), only if it
+picked the villager the event needs **this time** (the field is cleared first),
+and, for an event that makes villagers, only while the game's own room test
+passes.
+
+The Secret City's Tsunami and Low Tide are unlocked below their population
+floors: in a very small village their sweep can, as in stock, take every villager.
+
+## Pick Gong of Wonder Outcome (The Lost Children)
+
+A separate upgrade in The Lost Children's Tech menu (0 tech points; not an island
+event, so not under the Island Event lock). The player picks what the **next**
+ring of the Gong of Wonder does: any of its 23 results (tier A and B results only
+once a tier-C result has opened them, as in the game), the amounts of tech and
+food, who falls sick, which skill "grants wisdom" raises, and one baby, twins or
+triplets for "grants life" (twins and triplets need breeding mastered, as in the
+game). A gong use is the call 0x461B8E into its outcome routine 0x44E8A0 (its
+only caller); the settings are answered only inside it and end when it returns,
+so they are used for one ring. An armed choice also ends after ten minutes
+without a ring and when the save slot changes. The Gong rests about a day after
+each ring; a choice waits for the next real ring. It works with the Gong of Wonder
+Coconuts Fix ticked or not (none of its sites overlap the fix's bytes; with the
+fix, the coconut results add 30 instead of setting 30).
+
+## Stock behaviour found in passing (reported, not changed)
+
+The owner's rule: no original-game behaviour is changed without being reported
+first. These are offered exactly as the game produces them:
+
+* The Secret City's Royal Jelly: the clear vial's text says the jelly spoiled, yet it is the clear vial
+  that cures and raises Healing; the dark vial's text says it worked, yet it
+  changes nothing.
+* The Lost Children's Gong "Takes youth" / "Grants youth" write fixed villager
+  slots 6 and 15, not the villager who rang it.
+* Several health losses have no floor (A New Home's old-fruit crate finder and
+  rotting-crate finder, The Lost Children's fire ants and mice finder), and A New
+  Home's Mysterious Face stranger's farming can reach 106.
+* The Secret City's quartz vial: at age exactly 280 the text promises one result
+  and the apply takes the other; its body-change branch can never run.
+* The Lost Children's Prettiest Girl: the selector asks for an adult woman, the
+  pick accepts a girl of any age.
+* The Tree of Life's healer events do not require the healer to be sick.
+* New Believers' Abandoned Infants (never in stock) does not filter by faction.
+* The part-1 condition texts for A New Home's whale and visitor, The Lost
+  Children's gold coin and spyglass, The Secret City's Daredevil and Low Tide and
+  The Tree of Life's Pretty Shell were wrong and are corrected (patcher text only).
+
+## Not verified (outcomes)
+
+* Nothing here has run in a live game yet: the dialog, every setting's effect in
+  play, the unlocked and dead events, and the Gong.
+* The weather lengths are in the game's own clock units; their real-time length
+  was not established.
+* A setting's label describes the code it was traced in; the in-game text is the
+  game's own.
 
 ## Found in passing (fixed in v1.35.45)
 

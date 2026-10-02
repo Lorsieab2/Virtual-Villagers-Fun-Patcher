@@ -98,6 +98,58 @@ static void vv2_prep_fullscreen(void) {
    message (no charge) when there is nothing to do, so no row is hidden or
    disabled. The checkmark glyph is informational: it marks an already-
    satisfied row. */
+/* Story / Cheat Upgrades, The Lost Children only: the Pick Gong of Wonder
+   Outcome button, above the Pick Island Event button, while the row is
+   active.  It calls "VVFP Story Upgrades.dll"'s VvfpStoryPickGongOutcome
+   (already loaded by vvfp_story_bridge, by full path); an older story
+   companion without that export gets no button.  Not an island event, so
+   not under the Island Event row's lock. */
+#define VV2_STORY_GONG_ID 4092
+
+typedef int (__stdcall *vv2_story_gong_fn)(int game, HWND owner);
+
+static vv2_story_gong_fn vv2_story_gong(void) {
+    HMODULE module;
+    if (!vvfp_story_free(2)) {
+        return NULL;
+    }
+    module = GetModuleHandleA(VVFP_STORY_DLL);
+    return module != NULL ? (vv2_story_gong_fn)GetProcAddress(module, "VvfpStoryPickGongOutcome") : NULL;
+}
+
+static void vv2_story_add_gong_button(HWND dialog) {
+    HWND pick = GetDlgItem(dialog, VVFP_STORY_PICK_ID);
+    RECT rc;
+    RECT unit = { 0, 0, 4, 4 };
+    int height;
+    if (pick == NULL || vv2_story_gong() == NULL || GetDlgItem(dialog, VV2_STORY_GONG_ID) != NULL) {
+        return;
+    }
+    GetWindowRect(pick, &rc);
+    MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
+    MapDialogRect(dialog, &unit);
+    height = rc.bottom - rc.top;
+    /* Above whichever story button is highest in Pick Island Event's column. */
+    {
+        HWND custom = GetDlgItem(dialog, VVFP_STORY_CUSTOM_ID);
+        RECT cr;
+        if (custom != NULL) {
+            GetWindowRect(custom, &cr);
+            MapWindowPoints(NULL, dialog, (POINT *)&cr, 2);
+            if (cr.left == rc.left && cr.top < rc.top) {
+                rc.top = cr.top;
+            }
+        }
+    }
+    vvfp_story_button(dialog, "Pick Gong of Wonder Outcome (0 tech points)...", VV2_STORY_GONG_ID,
+                      rc.left, rc.top - height - unit.bottom, rc.right - rc.left, height);
+}
+
+static int vv2_story_gong_clicked(HWND dialog) {
+    vv2_story_gong_fn fn = vv2_story_gong();
+    return fn != NULL && fn(2, dialog) == 1;
+}
+
 static INT_PTR CALLBACK vv2_upgrade_dialog(
     HWND window,
     UINT message,
@@ -158,11 +210,19 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         vvfp_story_relabel(2, window);
         if (!villager_menu) {
             vvfp_story_add_pick_button(2, window);
+            vv2_story_add_gong_button(window);
         }
         vv2_surface_dialog(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VV2_STORY_GONG_ID) {
+            /* Pick Gong of Wonder Outcome: not an island event, no lock. */
+            if (vv2_story_gong_clicked(window)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
             /* Pick Island Event and Custom Island Event share the Island
                Event row's lock. */

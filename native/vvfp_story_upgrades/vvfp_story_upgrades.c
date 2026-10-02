@@ -135,6 +135,18 @@ static DWORD test_tick;
 
 /* Defined with the Custom Island Event (story_custom.inc), used earlier. */
 static int ce_pending(int game);
+/* Defined with the outcomes (story_outcomes.inc), used earlier. */
+static void oc_new_choice(int game);
+static void oc_delivered(int game, void *object);
+static void oc_lapsed(void);
+static void oc_refused(int game);
+static void oc_reroll(int game);
+static int oc_unlocked(int game, int slot);
+static int oc_unlock_ready(int game, int slot, const void *object);
+static void oc_unlock_prepare(int game, int slot, void *object);
+static void oc_island_begin(int game);
+static void oc_island_end(int game);
+static int vv1_island_strength(void);
 static void *c3_custom_object(void);
 static void *c4_custom_object(void);
 static void *c5_custom_object(void);
@@ -232,6 +244,7 @@ static int drop_lapsed_pick(void) {
     }
     if (pick_slot >= 0 && STORY_TICK() - pick_tick > PICK_TIMEOUT_MS) {
         pick_slot = -1;
+        oc_lapsed();
         last_failed_event = pick_event;
         last_failed_lapsed = 1;
         STORY_COUNT(lapsed);
@@ -265,12 +278,18 @@ static int choose_from_table(int game, unsigned int table, int current) {
         return current;
     }
     object = *(void **)(uintptr_t)(table + 4u * (unsigned int)slot);
-    if (object != NULL && can_fire_with_retries(object)) {
+    if (object != NULL && oc_unlocked(game, slot)) {
+        oc_unlock_prepare(game, slot, object);
+    }
+    if (object != NULL && (can_fire_with_retries(object)
+                           || (oc_unlocked(game, slot) && oc_unlock_ready(game, slot, object)))) {
         STORY_COUNT(delivered);
         last_failed_event = NULL;
+        oc_delivered(game, object);
         return slot;
     }
     STORY_COUNT(refused);
+    oc_refused(game);
     last_failed_event = event;
     last_failed_lapsed = 0;
     return current;
@@ -291,6 +310,7 @@ static int choose_from_table(int game, unsigned int table, int current) {
    slot the selector should use in *slot). */
 static void *__cdecl vv3_select(int *slot) {
     void *custom;
+    oc_new_choice(3);
     if (read_u32(VV3_EVENT_TABLE + 4) == read_u32(VV3_EVENT_TABLE + 8)) {
         return NULL;
     }
@@ -330,7 +350,9 @@ __declspec(naked) static void vv3_stub(void) {
    override) and is about to present it.  The Origins Barrel delivers through
    0x418190 instead, which never passes here. */
 static void *__cdecl vv4_select(int *slot) {
-    void *custom = c4_custom_object();
+    void *custom;
+    oc_new_choice(4);
+    custom = c4_custom_object();
     if (custom != NULL) {
         return custom;
     }
@@ -362,7 +384,9 @@ __declspec(naked) static void vv4_stub(void) {
    Barrel shares the Island Event lock, so it is never armed together with a
    custom event. */
 static void *__cdecl vv5_select(int *slot) {
-    void *custom = c5_custom_object();
+    void *custom;
+    oc_new_choice(5);
+    custom = c5_custom_object();
     if (custom != NULL) {
         return custom;
     }
@@ -490,7 +514,7 @@ static int vv5_possible(const story_event *e) {
 static int story_record_count(int game);
 static unsigned char *story_record(int game, int index);
 static int story_record_index(int game, const unsigned char *record);
-static int story_record_alive(int game, const unsigned char *record);
+static int story_record_present(int game, const unsigned char *record);
 static unsigned int story_title_identity(int game, const unsigned char *record);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
@@ -540,9 +564,13 @@ static int story_record_index(int game, const unsigned char *record) {
     return -1;
 }
 
-static int story_record_alive(int game, const unsigned char *record) {
+/* A villager is still here: living, or a skeleton not yet buried or
+   crumbled away (a revive can bring them back, so their custom title stays
+   until the record is freed or holds someone else). */
+static int story_record_present(int game, const unsigned char *record) {
     const ce_adapter *a = ce_adapter_for(game);
-    return a != NULL && record != NULL && a->listed(record);
+    return a != NULL && record != NULL
+        && (a->listed(record) || (a->skeleton != NULL && a->skeleton(record)));
 }
 
 static unsigned int story_title_identity(int game, const unsigned char *record) {
@@ -552,6 +580,7 @@ static unsigned int story_title_identity(int game, const unsigned char *record) 
 }
 
 #include "story_titles.inc"
+#include "story_outcomes.inc"
 
 /* ---- The per-game table ---------------------------------------------------- */
 
@@ -583,14 +612,20 @@ static story_detour vv2_custom_detours[] = {
 static story_detour vv3_detours[] = {
     { VV3_PICK_SITE, 7, VV3_PICK_SITE_BYTES, 0, (void *)vv3_stub },
     { 0x468FC8u, 6, VV3_TITLE_SITE_BYTES, 0, (void *)c3_title_stub },
+    { 0x419A29u, 12, VV3_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv3_choice_stub },
+    { 0x419A41u, 5, VV3_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv3_simple_stub },
 };
 static story_detour vv4_detours[] = {
     { VV4_PICK_SITE, 7, VV4_PICK_SITE_BYTES, 0, (void *)vv4_stub },
     { 0x4404D9u, 5, VV4_TITLE_SITE_BYTES, 0, (void *)c4_title_stub },
+    { 0x417EC9u, 16, VV4_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv4_choice_stub },
+    { 0x417EE5u, 9, VV4_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv4_simple_stub },
 };
 static story_detour vv5_detours[] = {
     { VV5_PICK_SITE, 7, VV5_PICK_SITE_BYTES, 0, (void *)vv5_stub },
     { 0x44319Eu, 6, VV5_TITLE_SITE_BYTES, 0, (void *)c5_title_stub },
+    { 0x418749u, 16, VV5_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv5_choice_stub },
+    { 0x418765u, 9, VV5_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv5_simple_stub },
 };
 
 static const story_game GAMES[6] = {
@@ -601,11 +636,11 @@ static const story_game GAMES[6] = {
     { VV2_WRITES, VV2_WRITE_COUNT, vv2_detours, sizeof vv2_detours / sizeof vv2_detours[0],
       vv2_custom_detours, 2,
       VV2_EVENTS, VV2_EVENT_COUNT, vv2_possible, vv2_island_pending, vv2_arm },
-    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, 2, NULL, 0,
+    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, 4, NULL, 0,
       VV3_EVENTS, VV3_EVENT_COUNT, vv3_possible, vv3_island_pending, vv3_arm },
-    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, 2, NULL, 0,
+    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, 4, NULL, 0,
       VV4_EVENTS, VV4_EVENT_COUNT, vv4_possible, vv4_island_pending, vv4_arm },
-    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, 2, NULL, 0,
+    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, 4, NULL, 0,
       VV5_EVENTS, VV5_EVENT_COUNT, vv5_possible, vv5_island_pending, vv5_arm },
 };
 
@@ -651,6 +686,9 @@ static int install(int game) {
             return 0;
         }
     }
+    if (!oc_verify(game)) {
+        return 0;
+    }
     for (i = 0; i < g->write_count; ++i) {
         if (!mem_write(g->writes[i].va, g->writes[i].replace, g->writes[i].length)) {
             install_undo(g, i, 0);
@@ -664,6 +702,10 @@ static int install(int game) {
             install_undo(g, g->write_count, i);
             return 0;
         }
+    }
+    if (!oc_install(game)) {
+        install_undo(g, g->write_count, game_detour_count(g));
+        return 0;
     }
     return 1;
 }
@@ -700,93 +742,23 @@ __declspec(dllexport) int __stdcall VvfpStoryActive(int game) {
 
 /* ---- The chooser ----------------------------------------------------------- */
 
-static struct {
-    const story_game *game;
-    int possible[STORY_MAX_EVENTS];
-    int chosen;
-} chooser;
-
+/* "Title (variant)"; a title the game itself ends with a space (The Tree
+   of Life's "The Abandoned Infants ") keeps one space before the bracket. */
 static void label_of(const story_event *e, char *out, size_t size) {
+    int n;
+    lstrcpynA(out, e->title, (int)size);
     if (e->variant != NULL && e->variant[0] != '\0') {
-        wsprintfA(out, "%s (%s)", e->title, e->variant);
-    } else {
-        lstrcpynA(out, e->title, (int)size);
+        n = lstrlenA(out);
+        while (n > 0 && out[n - 1] == ' ') {
+            out[--n] = '\0';
+        }
+        if ((size_t)n + (size_t)lstrlenA(e->variant) + 4 <= size) {
+            wsprintfA(out + n, " (%s)", e->variant);
+        }
     }
 }
 
-static void chooser_show(HWND window) {
-    int sel = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETCURSEL, 0, 0);
-    int index;
-    char text[512];
-    if (sel < 0) {
-        SetDlgItemTextA(window, IDC_PICK_DESC, "");
-        EnableWindow(GetDlgItem(window, IDOK), FALSE);
-        return;
-    }
-    index = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0);
-    if (chooser.possible[index]) {
-        lstrcpynA(text, chooser.game->events[index].description, sizeof text);
-    } else {
-        wsprintfA(text, "%s\r\n\r\nNot possible right now: %s",
-                  chooser.game->events[index].description,
-                  chooser.game->events[index].requires);
-    }
-    SetDlgItemTextA(window, IDC_PICK_DESC, text);
-    EnableWindow(GetDlgItem(window, IDOK), chooser.possible[index]);
-}
-
-static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
-    (void)lparam;
-    if (message == WM_INITDIALOG) {
-        int i;
-        char label[160];
-        for (i = 0; i < chooser.game->event_count; ++i) {
-            int row;
-            label_of(&chooser.game->events[i], label, sizeof label);
-            if (!chooser.possible[i]) {
-                lstrcatA(label, " - not possible right now");
-            }
-            row = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)label);
-            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
-        }
-        chooser_show(window);
-        return TRUE;
-    }
-    if (message == WM_COMMAND) {
-        if (LOWORD(wparam) == IDC_PICK_LIST && HIWORD(wparam) == LBN_SELCHANGE) {
-            chooser_show(window);
-            return TRUE;
-        }
-        if (LOWORD(wparam) == IDC_PICK_LIST && HIWORD(wparam) == LBN_DBLCLK) {
-            if (IsWindowEnabled(GetDlgItem(window, IDOK))) {
-                PostMessageA(window, WM_COMMAND, IDOK, 0);
-            }
-            return TRUE;
-        }
-        if (LOWORD(wparam) == IDOK) {
-            int sel = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETCURSEL, 0, 0);
-            int index;
-            if (sel < 0) {
-                return TRUE;
-            }
-            index = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0);
-            if (!chooser.possible[index]) {
-                return TRUE;
-            }
-            chooser.chosen = index;
-            EndDialog(window, IDOK);
-            return TRUE;
-        }
-        if (LOWORD(wparam) == IDCANCEL) {
-            EndDialog(window, IDCANCEL);
-            return TRUE;
-        }
-    } else if (message == WM_CLOSE) {
-        EndDialog(window, IDCANCEL);
-        return TRUE;
-    }
-    return FALSE;
-}
+#include "story_outcomes_ui.inc"
 
 /* Arms `event` for `game`: makes the island event due and remembers the
    pick.  1 on success. */
@@ -819,9 +791,13 @@ __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
 __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owner) {
     const story_game *g;
     const story_event *event;
+    const oc_settings *settings;
+    const char *warning;
     char label[160];
-    char message[512];
-    int i;
+    char summary[1200];
+    char message[1800];
+    int chosen;
+    int possible_now;
     if (!VvfpStoryActive(game)) {
         return 0;
     }
@@ -858,31 +834,36 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         last_failed_event = NULL;
     }
-    chooser.game = g;
-    chooser.chosen = -1;
-    for (i = 0; i < g->event_count && i < STORY_MAX_EVENTS; ++i) {
-        chooser.possible[i] = g->possible(&g->events[i]);
-    }
-    if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_PICK), owner, chooser_dialog, 0)
-            != IDOK
-        || chooser.chosen < 0) {
+    chosen = chooser_run(game, g, owner);
+    if (chosen < 0) {
         return 0;
     }
-    event = &g->events[chooser.chosen];
+    event = &g->events[chosen];
+    settings = &chooser.settings[chosen];
     label_of(event, label, sizeof label);
+    chooser_summary(chosen, summary, sizeof summary);
     wsprintfA(message,
-              "Do you want to buy Pick Island Event (%s) for 0 tech points?\r\n"
-              "Press OK to confirm, or Cancel.", label);
+              "Do you want to buy Pick Island Event (%s) for 0 tech points?%s%s\r\n\r\n"
+              "Press OK to confirm, or Cancel.", label, summary[0] ? "\r\n" : "", summary);
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
     }
+    warning = chooser_warning(chosen);
+    if (warning != NULL
+        && MessageBoxA(owner, warning, "Pick Island Event",
+                       MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST | MB_SETFOREGROUND)
+               != IDOK) {
+        return 0;
+    }
     /* The village may have moved on while the boxes were open. */
-    if (ce_armed || g->island_pending() || !g->possible(event) || !arm_pick(game, event)) {
+    possible_now = g->possible(event) || (settings->unlocked && oc_unlock_possible(game, event));
+    if (ce_armed || g->island_pending() || !possible_now || !arm_pick(game, event)) {
         MessageBoxA(owner, "That island event can not happen right now. No tech points have been deducted.",
                     "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
+    oc_arm(game, event->slot, settings);
     wsprintfA(message, "%s is on its way.", label);
     MessageBoxA(owner, message, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -934,7 +915,8 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSite(int game, int index, unsi
         detour_bytes(d, replace);
         return d->length;
     }
-    return 0;
+    index -= game_detour_count(g);
+    return oc_probe_site(game, index, va, expect, replace);
 }
 
 /* Arms a pick by its position in this game's event table without any

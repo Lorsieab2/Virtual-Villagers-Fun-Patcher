@@ -170,22 +170,170 @@ static int c4_conceive(int index, int litter, int father, ce_result *result) {
     return babies;
 }
 
-static const char *const C4_BEHAVIOURS[] = {
-    "Stops what they are doing", "Recovers fully (cured, full health)"
+/* Every action is started by the game's do-action 0x45DEC0 (thiscall on
+   the record: action id, a pointer to its parameter; ret 8) after the stop
+   0x468C60, exactly as the game's own group starter 0x4671A0 does; these
+   read no parameter.  Offered: the ones that only look or end by
+   themselves; the jobs that give food, tech or skill practice say so.
+   Never: puzzle actions, burial, pickups, new clothes, cooking, building,
+   games that stop other villagers, or an action no stock code starts. */
+static const ce_action C4_BEHAVIOURS[] = {
+    { "Stops what they are doing", ACT_STOP, 0, 0 },
+    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
+    { "Dances", ACT_DO, 0, 0x7 },
+    { "Dances (another dance)", ACT_DO, 0, 0x2D },
+    { "Rain dancing", ACT_DO, 0, 0xA },
+    { "Celebrates Isola Day", ACT_DO, 0, 0x28 },
+    { "Celebrates the Banyan Festival", ACT_DO, 0, 0xC1 },
+    { "Relaxes", ACT_DO, 0, 0xB },
+    { "Relaxes at the beach", ACT_DO, 0, 0x16 },
+    { "Reflects", ACT_DO, 0, 0x17 },
+    { "Watches the clouds", ACT_DO, 0, 0x13 },
+    { "Enjoys the pond", ACT_DO, 0, 0x18 },
+    { "Swims in the ocean", ACT_DO, 0, 0xC3 },
+    { "Takes a shower", ACT_DO, 0, 0xB9 },
+    { "Cools their feet in the stream", ACT_DO, 0, 0x14 },
+    { "Drinks from the stream", ACT_DO, 0, 0x86 },
+    { "Gets a drink", ACT_DO, 0, 0x15 },
+    { "Drinks the rain", ACT_DO, 0, 0x24 },
+    { "Gets out of the rain", ACT_DO, 0, 0x44 },
+    { "Cleans up after the rain", ACT_DO, 0, 0x62 },
+    { "Washes the laundry", ACT_DO, 0, 0x25 },
+    { "Honors the dead", ACT_DO, 0, 0x9 },
+    { "Admires a lei in the tree", ACT_DO, 0, 0x9E },
+    { "Wanders around", ACT_DO, 0, 0x30 },
+    { "Unsure what to do", ACT_DO, 0, 0x42 },
+    { "Jumpy!", ACT_DO, 0, 0x32 },
+    { "Nature is calling!", ACT_DO, 0, 0x33 },
+    { "A little bit lonely", ACT_DO, 0, 0x3A },
+    { "Sits", ACT_DO, 0, 0x22 },
+    { "Shakes their head", ACT_DO, 0, 0x20 },
+    { "Not feeling well (only looks it)", ACT_DO, 0, 0x1B },
+    { "Feels faint (only looks it)", ACT_DO, 0, 0x48 },
+    { "Tries to get warm", ACT_DO, 0, 0x49 },
+    { "Tries to cool off", ACT_DO, 0, 0x4A },
+    { "Itchy", ACT_DO, 0, 0x4B },
+    { "Needs to lie down", ACT_DO, 0, 0x4E },
+    { "Needs to sit down", ACT_DO, 0, 0x4F },
+    { "Has an epiphany", ACT_DO, 0, 0x50 },
+    { "In a trance", ACT_DO, 0, 0x51 },
+    { "Hic!", ACT_DO, 0, 0x5A },
+    { "That tasted soapy!", ACT_DO, 0, 0x59 },
+    { "Runs away from wasps!", ACT_DO, 0, 0xC6 },
+    { "Curious about the carvings", ACT_DO, 0, 0xC8 },
+    { "Curious about the majestic fish statue", ACT_DO, 0, 0xCA },
+    { "Curious about the hole in the tree", ACT_DO, 0, 0xC7 },
+    { "Tells a story", ACT_DO, 0, 0x34 },
+    { "Listens to a story (children)", ACT_DO, 0, 0x35 },
+    { "Watches people work (children)", ACT_DO, 0, 0x3D },
+    { "Runs around (children)", ACT_DO, 0, 0x46 },
+    { "Plays in puddles (children)", ACT_DO, 0, 0x58 },
+    { "Plays in the dirt (children)", ACT_DO, 0, 0x5F },
+    { "Makes sandcastles (children)", ACT_DO, 0, 0x61 },
+    { "Races! (children)", ACT_DO, 0, 0xBF },
+    { "Researches (Research practice, tech points)", ACT_DO, 0, 0x2 },
+    { "Harvests blackberries (Farming practice, food)", ACT_DO, 0, 0x63 },
+    { "Does exercise (Building practice)", ACT_DO, 0, 0x47 },
+    { "Eats (uses food)", ACT_DO, 0, 0x2C },
 };
 
-/* The stop routine 0x468C60 (thiscall on the record); the Origins Full
-   Heal's cure: sick 0 and 0x46AF00(100, -1). */
+/* The stop routine 0x468C60 (thiscall on the record), then the action; the
+   Origins Full Heal's cure: sick 0 and 0x46AF00(100, -1). */
 static int c4_behave(int index, int behaviour) {
+    static const int no_parameter[8];
     unsigned char *r = c4_record(index);
-    switch (behaviour) {
-    case 0: TC0(0x468C60u, r); return 1;
-    case 1:
+    const ce_action *act;
+    if (behaviour < 0 || behaviour >= (int)(sizeof C4_BEHAVIOURS / sizeof C4_BEHAVIOURS[0])) {
+        return 0;
+    }
+    act = &C4_BEHAVIOURS[behaviour];
+    if (act->kind == ACT_RECOVER) {
         r[0x1C48] = 0;
         TC2(0x46AF00u, r + 0x1C34, 100, -1);
-        return 1;
-    default: return 0;
     }
+    TC0(0x468C60u, r);
+    if (act->kind == ACT_DO) {
+        TC2(0x45DEC0u, r, act->arg, (int)(uintptr_t)no_parameter);
+    }
+    return 1;
+}
+
+/* ---- Pregnancy: none, a different number of babies, the father --------- */
+
+/* "0 babies": the pregnancy +0x1C4C and its litter +0x1C50 cleared, then
+   the stop 0x468C60, which also releases the place the pregnancy held
+   (0x45ED50(-1)), as the delivery does.  Babies Made is left as counted. */
+static int c4_cancel(int index) {
+    unsigned char *r = c4_record(index);
+    if (*(int *)(r + 0x1C4C) == 0) {
+        return 0;
+    }
+    *(int *)(r + 0x1C4C) = 0;
+    *(int *)(r + 0x1C50) = 0;
+    TC0(0x468C60u, r);
+    return 1;
+}
+
+/* The litter +0x1C50 (0 or 1 one baby, 2, 3: the delivery 0x4688CD tests
+   > 1 and == 3); each added baby only while there is room. */
+static int c4_relitter(int index, int litter, ce_result *result) {
+    unsigned char *r = c4_record(index);
+    int field = *(int *)(r + 0x1C50);
+    int babies = field >= 3 ? 3 : field == 2 ? 2 : 1;
+    int added = 0;
+    if (litter < babies) {
+        *(int *)(r + 0x1C50) = litter;
+        return 0;
+    }
+    while (babies < litter && c4_room()) {
+        ++babies;
+        ++added;
+        *(int *)(r + 0x1C50) = babies;
+    }
+    result->no_room_babies += litter - babies;
+    return added;
+}
+
+/* The father the delivery hands the creator: name +0x1C10 (0x18 bytes),
+   head +0x1C30, body +0x1C2C. */
+static int c4_unborn(int index, const ce_change *c) {
+    unsigned char *r = c4_record(index);
+    if ((c->unborn_head != CE_KEEP && (c->unborn_head < 0 || c->unborn_head >= 30))
+        || (c->unborn_body != CE_KEEP && (c->unborn_body < 0 || c->unborn_body >= 30))) {
+        return 0;
+    }
+    if (c->unborn_name[0] != '\0') {
+        ce_write_name(r + 0x1C10, 0x18, c->unborn_name);
+    }
+    if (c->unborn_head != CE_KEEP) *(int *)(r + 0x1C30) = c->unborn_head;
+    if (c->unborn_body != CE_KEEP) *(int *)(r + 0x1C2C) = c->unborn_body;
+    return 1;
+}
+
+/* ---- Revive ------------------------------------------------------------- */
+
+/* A skeleton: present, not a mausoleum ghost (+0x1CC7, which the game's own
+   burial and decay skip), health 0 or less. */
+static int c4_skeleton(const unsigned char *r) {
+    return r[0x1CC4] != 0 && r[0x1CC7] == 0 && *(const int *)(r + 0x1C40) <= 0;
+}
+
+/* Health through the game's own arbiter 0x46AF00 (cause back to -1), the
+   last-update time +0x1C38 to the game clock 0x403750 (on 0x41FE70()),
+   then the stop.  Only while the room predicate 0x468350 says there is
+   room. */
+static int c4_revive(int index, int health, int cure) {
+    unsigned char *r = c4_record(index);
+    if (!(TC0(0x468350u, C4_MANAGER) & 0xFF)) {
+        return -1;
+    }
+    TC2(0x46AF00u, r + 0x1C34, health, -1);
+    *(int *)(r + 0x1C38) = TC0(0x403750u, ((getter_fn)(uintptr_t)0x41FE70u)());
+    if (cure) {
+        r[0x1C48] = 0;
+    }
+    TC0(0x468C60u, r);
+    return 1;
 }
 
 static const char *const C4_VILLAGE[] = {
@@ -234,6 +382,164 @@ static int c4_refill(void) {
     return 1;
 }
 
+/* ---- Food sources and stores --------------------------------------------- */
+
+/* The blackberries [world+0x170F8] (the game keeps them 0..1000; seen live:
+   the bushes follow within a second), the cutting tools [0x4D8618] (the
+   tool object's count, 0..6 as making and using them keep it) and the bars
+   of soap [0x4D8D98] (the soap object's count; making adds 3 with no cap,
+   99 here).  Both counts are saved by their objects and redrawn every
+   frame. */
+static const ce_value_def C4_VALUES[] = {
+    { "Blackberries", 0, 1000,
+      "One store for every bush; the game's own ceiling is 1000. The fruit trees and "
+      "fishing have no store: they never run out." },
+    { "Cutting tools", 0, 6,
+      "The game keeps 0-6. Whether villagers use them before The Cutting Tool is solved "
+      "was not seen in play." },
+    { "Bars of soap", 0, 99,
+      "Making soap adds 3 at a time. Whether villagers use it before Soap Invented is "
+      "solved was not seen in play." },
+};
+
+static unsigned char *c4_world(void) {
+    return *(unsigned char **)(uintptr_t)VV4_WORLD_GLOBAL;
+}
+
+static int c4_value_get(int which) {
+    unsigned char *world = c4_world();
+    switch (which) {
+    case 0: return world != NULL ? *(int *)(world + 0x170F8) : -1;
+    case 1: return *(int *)(uintptr_t)0x4D8618u;
+    case 2: return *(int *)(uintptr_t)0x4D8D98u;
+    default: return -1;
+    }
+}
+
+static int c4_value_set(int which, int amount) {
+    if (c4_value_get(which) < 0) {
+        return 0;
+    }
+    switch (which) {
+    case 0: *(int *)(c4_world() + 0x170F8) = amount; return 1;
+    case 1: *(int *)(uintptr_t)0x4D8618u = amount; return 1;
+    case 2: *(int *)(uintptr_t)0x4D8D98u = amount; return 1;
+    default: return 0;
+    }
+}
+
+/* ---- Puzzles ---------------------------------------------------------------
+
+   Puzzle i is {progress, solve time} at 0x4D8BF8 + 8i, solved at the
+   threshold 0x4D8B20[i] (filled when the game starts).  Solved goes through
+   the game's own Advance 0x438A30 (thiscall on 0x4D8BF8, the id; ret 4) from
+   one short of the threshold, as the puzzle's last step does: it stamps the
+   solve time and runs the puzzle object's completion (its trophies too);
+   where the object keeps its own state, that state is written first as the
+   puzzle's steps leave it (seen live for The Stream: written alone, the
+   stream stays dry).  Unsolved is the game's own Reset 0x438710 (progress 0
+   and the object's own reset) and the solve time 0, with the terrain
+   rebuilt (0x46D090 on 0x705148) where the puzzle shapes it. */
+#define C4P_REFRESH 1
+
+static const ce_puzzle_def C4_PUZZLE_DEFS[] = {
+    { "The Cutting Tool", 1, 1, "Unsolved, the tools made are gone too." },
+    { "The Stream", 1, 1, NULL },
+    { "Boiling Water", 1, 1, NULL },
+    { "Soap Invented", 1, 1, "Unsolved, the soap made is gone too." },
+    { "The Butterflies", 1, 1, "Solving it again needs The Stream solved." },
+    { "The Frog Rescue", 1, 1,
+      "Unsolved, frogs already out may stay until the village is loaded again." },
+    { "The Cooking Pit", 1, 0,
+      "Not offered as unsolved: the game's reset leaves the fruit drawn on the pits and "
+      "never puts the vines back." },
+    { "Cloth Invented", 1, 1, "Unsolved, the cloth made is gone too." },
+    { "The Nursery School", 1, 1, NULL },
+    { "The Mossy Rocks", 1, 1, NULL },
+    { "The Grand Feast", 1, 1, NULL },
+    { "Fishing Nets", 1, 1, NULL },
+    { "Pruning the Tree", 1, 1, NULL },
+    { "Honoring the Tree", 1, 1, NULL },
+    { "Purify Tree", 1, 1, NULL },
+    { "Decorating the Tree", 1, 1, NULL },
+};
+
+#define C4_PUZZLE_COUNT ((int)(sizeof C4_PUZZLE_DEFS / sizeof C4_PUZZLE_DEFS[0]))
+#define C4_PUZZLE_ENTRY(id) ((int *)(uintptr_t)(0x4D8BF8u + 8u * (unsigned int)(id)))
+#define C4_THRESHOLD(id) (*(int *)(uintptr_t)(0x4D8B20u + 4u * (unsigned int)(id)))
+
+static int c4_puzzle_solved(int which) {
+    if (which < 0 || which >= C4_PUZZLE_COUNT) {
+        return 0;
+    }
+    /* An empty table (before the game fills it) reads as unsolved, so the
+       write that follows is refused rather than skipped as done. */
+    return C4_THRESHOLD(which) >= 1 && C4_PUZZLE_ENTRY(which)[0] >= C4_THRESHOLD(which);
+}
+
+/* What each puzzle's own steps leave on its object before the last one. */
+static void c4_puzzle_objects(int which) {
+    int f;
+    switch (which) {
+    case 1:                            /* The Stream: debris cleared, flowing */
+        *(int *)(uintptr_t)0x4D8CF4u = 1;
+        *(int *)(uintptr_t)0x4D8D04u = 0;
+        break;
+    case 4:                            /* The Butterflies: the last stage */
+        *(int *)(uintptr_t)0x4D8CD0u = 3;
+        break;
+    case 6:                            /* The Cooking Pit: dug, vines cleared */
+        *(int *)(uintptr_t)0x4D8A8Cu = 0;
+        *(unsigned char *)(uintptr_t)0x4D8A89u = 1;
+        *(unsigned char *)(uintptr_t)0x4D8A8Au = 1;
+        *(unsigned char *)(uintptr_t)0x4D8A8Bu = 1;
+        for (f = 0x14; f <= 0x17; ++f) {
+            TC1(0x46D610u, 0x705148u, f);
+        }
+        *(int *)(uintptr_t)0x4D8724u = 3;
+        break;
+    case 11:                           /* Fishing Nets: mended */
+        *(int *)(uintptr_t)0x4D86B0u = 0;
+        *(int *)(uintptr_t)0x4D86B4u = 6;
+        *(int *)(uintptr_t)0x4D86ACu = 4;
+        break;
+    case 12:                           /* Pruning the Tree: the last stage */
+        *(int *)(uintptr_t)0x4D8AF4u = 3;
+        break;
+    default:
+        break;
+    }
+}
+
+static int c4_puzzle_set(int which, int solved) {
+    int *entry;
+    int threshold;
+    if (which < 0 || which >= C4_PUZZLE_COUNT) {
+        return 0;
+    }
+    entry = C4_PUZZLE_ENTRY(which);
+    threshold = C4_THRESHOLD(which);
+    if (threshold < 1) {
+        return 0;                      /* the table is not filled yet */
+    }
+    if (solved) {
+        c4_puzzle_objects(which);
+        entry[0] = threshold - 1;
+        TC1(0x438A30u, 0x4D8BF8u, which);
+        if (which == 6) {
+            TC0(0x433D80u, 0x4D8720u);     /* the fruit placed on the pits now */
+        }
+        return entry[0] >= threshold;
+    }
+    TC1(0x438710u, 0x4D8BF8u, which);
+    entry[0] = 0;
+    entry[1] = 0;
+    if (which == 1 || which == 11) {
+        TC0(0x46D090u, 0x705148u);
+    }
+    return 1;
+}
+
 static int c4_parents_supported(void) {
     return 1;
 }
@@ -248,7 +554,8 @@ static const char *const C4_SKILLS[] = { "Farming", "Parenting", "Healing", "Res
 static const ce_adapter C4_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
-        | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY,
+        | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE,
     "The Tree of Life",
     0x118, 40, 1100,
     C4_COUNT, 0x19,
@@ -260,14 +567,21 @@ static const ce_adapter C4_ADAPTER = {
     5, 1, C4_SKILLS,
     0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
     NULL, 0,
-    C4_BEHAVIOURS, 2,
+    C4_BEHAVIOURS, (int)(sizeof C4_BEHAVIOURS / sizeof C4_BEHAVIOURS[0]),
     C4_VILLAGE, 2,
     "Not in The Tree of Life:\r\n\r\n"
-    "- Refill: only the berry bushes have a store the game refills; the fruit trees "
-    "and fishing have no refill the game can make.\r\n"
+    "- Refill and amounts: the fruit trees and fishing have no store (they never run "
+    "out).\r\n"
     "- Special statuses: Scholar and Elderly are worked out from skills and age, and "
     "\"Tribal Chief\" is never shown, so there is none to give.\r\n"
-    "- Puzzle states: only the collections have a completion route (the Origins rows).\r\n"
+    "- The Cooking Pit as unsolved (see its note), and the stew pot, the cooks, the fire "
+    "and the huts as puzzles (they are not puzzles).\r\n"
+    "- The unborn baby's starting skill: what the baby does with it at birth was not "
+    "traced to the end, so only the father's name and looks are offered.\r\n"
+    "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
+    "cooking, building and games that stop other villagers.\r\n"
+    "- Revive: the mausoleum's ghosts, buried villagers (their record is gone) and "
+    "skeletons that have already crumbled away.\r\n"
     "- Weather other than rain and clear: the other types are not identified.\r\n"
     "- Golden Child, faction, totems: The Tree of Life has none.",
     48, 14, 30, 1, 360,
@@ -276,7 +590,12 @@ static const ce_adapter C4_ADAPTER = {
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
     c4_record, c4_listed, c4_arm_refusal, c4_room, c4_spawn, c4_kill, c4_vanish, c4_sicken,
     c4_conceive, NULL, c4_behave, c4_village, c4_food, c4_tech, c4_change_food, c4_change_tech,
-    c4_refill, c4_parents_supported, c4_set_parents
+    c4_refill, c4_parents_supported, c4_set_parents,
+    C4_VALUES, 3, c4_value_get, c4_value_set,
+    C4_PUZZLE_DEFS, C4_PUZZLE_COUNT, c4_puzzle_solved, c4_puzzle_set,
+    c4_cancel, c4_relitter, c4_unborn,
+    c4_skeleton, c4_revive,
+    0, 0x1C4C
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

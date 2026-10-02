@@ -5,6 +5,12 @@
 typedef struct { unsigned int va; int length; const unsigned char *expect; const unsigned char *replace; } story_write;
 typedef struct { unsigned int va; int length; const unsigned char *expect; int is_call; void *stub; } story_detour;
 typedef struct { int slot; const char *title; const char *variant; const char *description; const char *requires; } story_event;
+typedef struct { unsigned int va; const unsigned char *expect; } oc_site;
+typedef struct { unsigned int va; const unsigned char *expect; unsigned char kind; signed char choice_arg; signed char choice_bias; int choice_off; signed char strength_arg; } oc_scope;
+typedef struct { unsigned short site; int value; } oc_force;
+typedef struct { const char *label; const char *condition; unsigned short force_first; unsigned short force_count; unsigned char cond; } oc_option;
+typedef struct { const char *label; const char *text; const char *warn; signed char branch; unsigned char kind; unsigned char phase; signed char scope; signed char scope2; short site; unsigned short option_first; unsigned short option_count; int bound; int base; int step; int everyone; int nobody; signed char reg; unsigned char mem; int mem_disp; int disp; unsigned char elem; signed char elem_size; int elem_disp; unsigned char cond; const char *note; unsigned short xsite_first; unsigned short xsite_count; unsigned char occurrence; } oc_control;
+typedef struct { int slot; unsigned short control_first; unsigned short control_count; unsigned char strength; unsigned char unlock; unsigned char unlock_need; const char *dead_note; } oc_event;
 
 #define VV3_EVENT_TABLE 0x4B3C78u
 #define VV3_EVENT_GETTER 0x419AC0u
@@ -74,12 +80,501 @@ static const unsigned char VV1_ROLL_ISLAND_OR_CRATE_BYTES[5] = { 0xE8, 0xD1, 0xF
 static const unsigned char VV1_ROLL_ISLAND_CASE_BYTES[5] = { 0xE8, 0x30, 0xAA, 0xFD, 0xFF };
 static const unsigned char VV1_ROLL_ENCOUNTER_BYTES[5] = { 0xE8, 0xD9, 0xA5, 0xFE, 0xFF };
 static const unsigned char VV1_ROLL_CRATE_BYTES[5] = { 0xE8, 0xCD, 0x7E, 0xFD, 0xFF };
+static const unsigned char VV1_UNLOCK_ISLAND_BYTES[7] = { 0x0F, 0xB6, 0x8F, 0xA0, 0x86, 0x42, 0x00 };
+static const unsigned char VV1_UNLOCK_ENCOUNTER_BYTES[7] = { 0x0F, 0xB6, 0x87, 0xA4, 0x89, 0x41, 0x00 };
 static const unsigned char VV1_CUSTOM_CHOOSE_BYTES[5] = { 0xE8, 0xF4, 0xFC, 0xFF, 0xFF };
 static const unsigned char VV1_TITLE_SITE_BYTES[5] = { 0x8D, 0x54, 0x24, 0x24, 0x52 };
 #define VV1_PARENTAGE_SITE 0x43BC39u
 static const unsigned char VV1_PARENTAGE_STOCK[5] = { 0x0F, 0x84, 0x87, 0x00, 0x00 };
+static const unsigned char VV1_OCS_4188ED[5] = { 0xE8, 0x1E, 0xA6, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_4194B6[5] = { 0xE8, 0x55, 0x9A, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_4196ED[5] = { 0xE8, 0x1E, 0x98, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_419953[5] = { 0xE8, 0xB8, 0x95, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_419C50[5] = { 0xE8, 0xBB, 0x92, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_419E74[5] = { 0xE8, 0x97, 0x90, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_419EFB[5] = { 0xE8, 0x10, 0x90, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_419F65[5] = { 0xE8, 0xA6, 0x8F, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_41A05F[5] = { 0xE8, 0xAC, 0x8E, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_41A2E0[5] = { 0xE8, 0x2B, 0x8C, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_41A35F[5] = { 0xE8, 0xAC, 0x8B, 0xFE, 0xFF };
+static const unsigned char VV1_OCS_428052[5] = { 0xE8, 0xB9, 0xAE, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_428248[5] = { 0xE8, 0xC3, 0xAC, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_4282AB[5] = { 0xE8, 0x60, 0xAC, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_4282CD[5] = { 0xE8, 0x3E, 0xAC, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_428321[5] = { 0xE8, 0xEA, 0xAB, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_428343[5] = { 0xE8, 0xC8, 0xAB, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_428360[5] = { 0xE8, 0xAB, 0xAB, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42AAEC[5] = { 0xE8, 0x1F, 0x84, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42B00C[5] = { 0xE8, 0xFF, 0x7E, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C3D5[5] = { 0xE8, 0x36, 0x6B, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C3F6[5] = { 0xE8, 0x15, 0x6B, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C417[5] = { 0xE8, 0xF4, 0x6A, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C495[5] = { 0xE8, 0x76, 0x6A, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C4B6[5] = { 0xE8, 0x55, 0x6A, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C534[5] = { 0xE8, 0xD7, 0x69, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C92F[5] = { 0xE8, 0xDC, 0x65, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C9CB[5] = { 0xE8, 0x40, 0x65, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42C9F8[5] = { 0xE8, 0x13, 0x65, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42CA25[5] = { 0xE8, 0xE6, 0x64, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_42CA61[5] = { 0xE8, 0xAA, 0x64, 0xFD, 0xFF };
+static const unsigned char VV1_OCS_43BE53[5] = { 0xE8, 0xB8, 0x70, 0xFC, 0xFF };
+static const unsigned char VV1_OCS_43BFD1[5] = { 0xE8, 0x3A, 0x6F, 0xFC, 0xFF };
+static const unsigned char VV1_OCS_43C5F3[5] = { 0xE8, 0x18, 0x69, 0xFC, 0xFF };
+static const unsigned char VV1_OCS_43C75A[5] = { 0xE8, 0xB1, 0x67, 0xFC, 0xFF };
+static const unsigned char VV1_OCS_43C76F[5] = { 0xE8, 0x9C, 0x67, 0xFC, 0xFF };
+static const unsigned char VV1_OCS_43C784[5] = { 0xE8, 0x87, 0x67, 0xFC, 0xFF };
+static const unsigned char VV1_OCS_43C799[5] = { 0xE8, 0x72, 0x67, 0xFC, 0xFF };
+static const unsigned char VV1_OCC_418A1C[5] = { 0xE8, 0xAF, 0x32, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418AA3[5] = { 0xE8, 0x28, 0x32, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418B2A[5] = { 0xE8, 0xA1, 0x31, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418BB1[5] = { 0xE8, 0x1A, 0x31, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418C38[5] = { 0xE8, 0x93, 0x30, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418D46[5] = { 0xE8, 0x85, 0x2F, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418DCB[5] = { 0xE8, 0xA0, 0x30, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418E9E[5] = { 0xE8, 0x2D, 0x2E, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418F25[5] = { 0xE8, 0xA6, 0x2D, 0x02, 0x00 };
+static const unsigned char VV1_OCC_418FAC[5] = { 0xE8, 0x1F, 0x2D, 0x02, 0x00 };
+static const unsigned char VV1_OCC_419033[5] = { 0xE8, 0x98, 0x2C, 0x02, 0x00 };
+static const unsigned char VV1_OCC_4190BA[5] = { 0xE8, 0x11, 0x2C, 0x02, 0x00 };
+static const unsigned char VV1_OCC_419141[5] = { 0xE8, 0x8A, 0x2B, 0x02, 0x00 };
+static const unsigned char VV1_OCC_4191C8[5] = { 0xE8, 0x03, 0x2B, 0x02, 0x00 };
+static const unsigned char VV1_OCC_41924F[5] = { 0xE8, 0x7C, 0x2A, 0x02, 0x00 };
+static const unsigned char VV1_OCC_41974A[5] = { 0xE8, 0x01, 0x2C, 0x02, 0x00 };
+static const unsigned char VV1_OCC_41988D[5] = { 0xE8, 0x1E, 0xF0, 0xFF, 0xFF };
+static const unsigned char VV1_OCC_41A444[5] = { 0xE8, 0x37, 0xEF, 0xFF, 0xFF };
+static const unsigned char VV1_OCC_42B06B[5] = { 0xE8, 0x60, 0x0C, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B11E[5] = { 0xE8, 0xAD, 0x0B, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B1D1[5] = { 0xE8, 0xFA, 0x0A, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B22B[5] = { 0xE8, 0xA0, 0x0A, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B2DE[5] = { 0xE8, 0xED, 0x09, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B391[5] = { 0xE8, 0x3A, 0x09, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B444[5] = { 0xE8, 0x87, 0x08, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B51C[5] = { 0xE8, 0xAF, 0x07, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42B5C7[5] = { 0xE8, 0x04, 0x07, 0x01, 0x00 };
+static const unsigned char VV1_OCC_42C272[5] = { 0xE8, 0x29, 0xE8, 0xFF, 0xFF };
+static const unsigned char VV1_OCC_42D0C4[5] = { 0xE8, 0x77, 0xE6, 0xFF, 0xFF };
+static const unsigned char VV1_OCC_42D19F[5] = { 0xE8, 0x4C, 0xDE, 0xFF, 0xFF };
+static const oc_site VV1_OC_SITES[] = {
+    { 0x4188EDu, VV1_OCS_4188ED },
+    { 0x4194B6u, VV1_OCS_4194B6 },
+    { 0x4196EDu, VV1_OCS_4196ED },
+    { 0x419953u, VV1_OCS_419953 },
+    { 0x419C50u, VV1_OCS_419C50 },
+    { 0x419E74u, VV1_OCS_419E74 },
+    { 0x419EFBu, VV1_OCS_419EFB },
+    { 0x419F65u, VV1_OCS_419F65 },
+    { 0x41A05Fu, VV1_OCS_41A05F },
+    { 0x41A2E0u, VV1_OCS_41A2E0 },
+    { 0x41A35Fu, VV1_OCS_41A35F },
+    { 0x428052u, VV1_OCS_428052 },
+    { 0x428248u, VV1_OCS_428248 },
+    { 0x4282ABu, VV1_OCS_4282AB },
+    { 0x4282CDu, VV1_OCS_4282CD },
+    { 0x428321u, VV1_OCS_428321 },
+    { 0x428343u, VV1_OCS_428343 },
+    { 0x428360u, VV1_OCS_428360 },
+    { 0x42AAECu, VV1_OCS_42AAEC },
+    { 0x42B00Cu, VV1_OCS_42B00C },
+    { 0x42C3D5u, VV1_OCS_42C3D5 },
+    { 0x42C3F6u, VV1_OCS_42C3F6 },
+    { 0x42C417u, VV1_OCS_42C417 },
+    { 0x42C495u, VV1_OCS_42C495 },
+    { 0x42C4B6u, VV1_OCS_42C4B6 },
+    { 0x42C534u, VV1_OCS_42C534 },
+    { 0x42C92Fu, VV1_OCS_42C92F },
+    { 0x42C9CBu, VV1_OCS_42C9CB },
+    { 0x42C9F8u, VV1_OCS_42C9F8 },
+    { 0x42CA25u, VV1_OCS_42CA25 },
+    { 0x42CA61u, VV1_OCS_42CA61 },
+    { 0x43BE53u, VV1_OCS_43BE53 },
+    { 0x43BFD1u, VV1_OCS_43BFD1 },
+    { 0x43C5F3u, VV1_OCS_43C5F3 },
+    { 0x43C75Au, VV1_OCS_43C75A },
+    { 0x43C76Fu, VV1_OCS_43C76F },
+    { 0x43C784u, VV1_OCS_43C784 },
+    { 0x43C799u, VV1_OCS_43C799 },
+};
+#define VV1_OC_SITE_COUNT 38
+static const oc_scope VV1_OC_SCOPES[] = {
+    { 0x418A1Cu, VV1_OCC_418A1C, 0, -1, 0, 0, -1 },
+    { 0x418AA3u, VV1_OCC_418AA3, 0, -1, 0, 0, -1 },
+    { 0x418B2Au, VV1_OCC_418B2A, 0, -1, 0, 0, -1 },
+    { 0x418BB1u, VV1_OCC_418BB1, 0, -1, 0, 0, -1 },
+    { 0x418C38u, VV1_OCC_418C38, 0, -1, 0, 0, -1 },
+    { 0x418D46u, VV1_OCC_418D46, 0, -1, 0, 0, -1 },
+    { 0x418DCBu, VV1_OCC_418DCB, 0, -1, 0, 0, -1 },
+    { 0x418E9Eu, VV1_OCC_418E9E, 0, -1, 0, 0, -1 },
+    { 0x418F25u, VV1_OCC_418F25, 0, -1, 0, 0, -1 },
+    { 0x418FACu, VV1_OCC_418FAC, 0, -1, 0, 0, -1 },
+    { 0x419033u, VV1_OCC_419033, 0, -1, 0, 0, -1 },
+    { 0x4190BAu, VV1_OCC_4190BA, 0, -1, 0, 0, -1 },
+    { 0x419141u, VV1_OCC_419141, 0, -1, 0, 0, -1 },
+    { 0x4191C8u, VV1_OCC_4191C8, 0, -1, 0, 0, -1 },
+    { 0x41924Fu, VV1_OCC_41924F, 0, -1, 0, 0, -1 },
+    { 0x41974Au, VV1_OCC_41974A, 0, -1, 0, 0, -1 },
+    { 0x41988Du, VV1_OCC_41988D, 0, -1, 0, 0, -1 },
+    { 0x41A444u, VV1_OCC_41A444, 1, -2, -1, 20636, -1 },
+    { 0x42B06Bu, VV1_OCC_42B06B, 0, -1, 0, 0, -1 },
+    { 0x42B11Eu, VV1_OCC_42B11E, 0, -1, 0, 0, -1 },
+    { 0x42B1D1u, VV1_OCC_42B1D1, 0, -1, 0, 0, -1 },
+    { 0x42B22Bu, VV1_OCC_42B22B, 0, -1, 0, 0, -1 },
+    { 0x42B2DEu, VV1_OCC_42B2DE, 0, -1, 0, 0, -1 },
+    { 0x42B391u, VV1_OCC_42B391, 0, -1, 0, 0, -1 },
+    { 0x42B444u, VV1_OCC_42B444, 0, -1, 0, 0, -1 },
+    { 0x42B51Cu, VV1_OCC_42B51C, 0, -1, 0, 0, -1 },
+    { 0x42B5C7u, VV1_OCC_42B5C7, 0, -1, 0, 0, -1 },
+    { 0x42C272u, VV1_OCC_42C272, 0, -1, 0, 0, -1 },
+    { 0x42D0C4u, VV1_OCC_42D0C4, 1, -2, -1, 20636, -1 },
+    { 0x42D19Fu, VV1_OCC_42D19F, 0, -1, 0, 0, -1 },
+};
+#define VV1_OC_SCOPE_COUNT 30
+static const oc_force VV1_OC_FORCES[] = {
+    { 13, 0 },
+    { 15, 0 },
+    { 33, 0 },
+    { 33, 99 },
+    { 16, 0 },
+    { 33, 0 },
+    { 33, 99 },
+    { 33, 0 },
+    { 33, 99 },
+    { 1, 0 },
+    { 1, 99 },
+    { 2, 99 },
+    { 2, 0 },
+    { 33, 0 },
+    { 33, 99 },
+    { 3, 0 },
+    { 3, 99 },
+    { 4, 0 },
+    { 4, 99 },
+    { 5, 0 },
+    { 5, 99 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+    { 23, 0 },
+    { 20, 0 },
+    { 33, 0 },
+    { 33, 99 },
+    { 21, 0 },
+    { 33, 0 },
+    { 33, 99 },
+    { 33, 0 },
+    { 33, 99 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+    { 26, 0 },
+    { 27, 0 },
+    { 28, 0 },
+    { 29, 0 },
+    { 26, 1 },
+    { 27, 1 },
+    { 28, 1 },
+    { 29, 1 },
+    { 26, 2 },
+    { 27, 2 },
+    { 28, 2 },
+    { 29, 2 },
+    { 26, 3 },
+    { 27, 3 },
+    { 28, 3 },
+    { 29, 3 },
+    { 26, 4 },
+    { 27, 4 },
+    { 28, 4 },
+    { 29, 4 },
+    { 26, 5 },
+    { 27, 5 },
+    { 28, 5 },
+    { 29, 5 },
+    { 26, 6 },
+    { 27, 6 },
+    { 28, 6 },
+    { 29, 6 },
+    { 26, 7 },
+    { 27, 7 },
+    { 28, 7 },
+    { 29, 7 },
+    { 26, 8 },
+    { 27, 8 },
+    { 28, 8 },
+    { 29, 8 },
+    { 26, 9 },
+    { 27, 9 },
+    { 28, 9 },
+    { 29, 9 },
+    { 26, 10 },
+    { 27, 10 },
+    { 28, 10 },
+    { 29, 10 },
+    { 26, 11 },
+    { 27, 11 },
+    { 28, 11 },
+    { 29, 11 },
+    { 26, 12 },
+    { 27, 12 },
+    { 28, 12 },
+    { 29, 12 },
+    { 26, 13 },
+    { 27, 13 },
+    { 28, 13 },
+    { 29, 13 },
+    { 26, 14 },
+    { 27, 14 },
+    { 28, 14 },
+    { 29, 14 },
+    { 26, 15 },
+    { 27, 15 },
+    { 28, 15 },
+    { 29, 15 },
+    { 26, 16 },
+    { 27, 16 },
+    { 28, 16 },
+    { 29, 16 },
+    { 26, 17 },
+    { 27, 17 },
+    { 28, 17 },
+    { 29, 17 },
+    { 26, 18 },
+    { 27, 18 },
+    { 28, 18 },
+    { 29, 18 },
+    { 28, 19 },
+    { 29, 19 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+    { 30, 0 },
+    { 30, 1 },
+    { 30, 2 },
+    { 30, 3 },
+    { 30, 4 },
+    { 19, 0 },
+    { 19, 50 },
+    { 19, 99 },
+};
+static const oc_option VV1_OC_OPTIONS[] = {
+    { "Boy", NULL, 2, 1, 0 },
+    { "Girl", NULL, 3, 1, 0 },
+    { "Boy", NULL, 5, 1, 0 },
+    { "Girl", NULL, 6, 1, 0 },
+    { "Boy", NULL, 7, 1, 0 },
+    { "Girl", NULL, 8, 1, 0 },
+    { "The villager feels young again (age set to 250 = 12.5 years)", NULL, 9, 1, 0 },
+    { "The villager dies", NULL, 10, 1, 0 },
+    { "A lost stranger joins the village (adult, farming 100)", "its condition", 11, 1, 1 },
+    { "The villager is never seen again", NULL, 12, 1, 0 },
+    { "Boy", NULL, 13, 1, 0 },
+    { "Girl", NULL, 14, 1, 0 },
+    { "A red vapour makes everyone else sick", NULL, 15, 1, 0 },
+    { "The drinker gains complete healing knowledge (healing 100)", NULL, 16, 1, 0 },
+    { "The drinker turns back into a toddler (age 80 = 4 years; any pregnancy ends)", NULL, 17, 1, 0 },
+    { "The drinker gets silly and dances (no lasting effect)", NULL, 18, 1, 0 },
+    { "Delicious: farming +65 and food gained", NULL, 19, 1, 0 },
+    { "Poisoned: sick and loses health", NULL, 20, 1, 0 },
+    { "Coconuts: +500 food", NULL, 21, 1, 0 },
+    { "Golden ripe bananas: +1000 food", NULL, 22, 1, 0 },
+    { "Juicy steaks: +1500 food", NULL, 23, 1, 0 },
+    { "A few tools: +1000 tech points", NULL, 24, 1, 0 },
+    { "Several tools: +2000 tech points", NULL, 25, 1, 0 },
+    { "A great many tools: +3000 tech points", NULL, 26, 1, 0 },
+    { "A few rusty tools: +500 tech, 15% sickness chance each", NULL, 27, 1, 0 },
+    { "Several rusty tools: +1000 tech, 20% sickness chance each", NULL, 28, 1, 0 },
+    { "A great many rusty tools: +1500 tech, 25% sickness chance each", NULL, 29, 1, 0 },
+    { "A few rats: 20% chance each to be bitten (sick, -10 health)", NULL, 30, 1, 0 },
+    { "Several rats: 30% chance each (sick, -15 health)", NULL, 31, 1, 0 },
+    { "A great many rats: 45% chance each (sick, -20 health)", NULL, 32, 1, 0 },
+    { "One giggling infant", NULL, 33, 1, 0 },
+    { "A pair of infants", NULL, 34, 1, 0 },
+    { "A trio of infants", NULL, 35, 1, 0 },
+    { "Boy", NULL, 38, 1, 0 },
+    { "Girl", NULL, 39, 1, 0 },
+    { "Boy", NULL, 41, 1, 0 },
+    { "Girl", NULL, 42, 1, 0 },
+    { "Boy", NULL, 43, 1, 0 },
+    { "Girl", NULL, 44, 1, 0 },
+    { "A few spiders: the finder loses 40 health", NULL, 45, 1, 0 },
+    { "Several spiders: the finder loses 70 health", NULL, 46, 1, 0 },
+    { "A great many spiders: the finder loses 110 health", NULL, 47, 1, 0 },
+    { "Head row 0", NULL, 48, 4, 0 },
+    { "Head row 1", NULL, 52, 4, 0 },
+    { "Head row 2", NULL, 56, 4, 0 },
+    { "Head row 3", NULL, 60, 4, 0 },
+    { "Head row 4", NULL, 64, 4, 0 },
+    { "Head row 5", NULL, 68, 4, 0 },
+    { "Head row 6", NULL, 72, 4, 0 },
+    { "Head row 7", NULL, 76, 4, 0 },
+    { "Head row 8", NULL, 80, 4, 0 },
+    { "Head row 9", NULL, 84, 4, 0 },
+    { "Head row 10", NULL, 88, 4, 0 },
+    { "Head row 11", NULL, 92, 4, 0 },
+    { "Head row 12", NULL, 96, 4, 0 },
+    { "Head row 13", NULL, 100, 4, 0 },
+    { "Head row 14", NULL, 104, 4, 0 },
+    { "Head row 15", NULL, 108, 4, 0 },
+    { "Head row 16", NULL, 112, 4, 0 },
+    { "Head row 17", NULL, 116, 4, 0 },
+    { "Head row 18", NULL, 120, 4, 0 },
+    { "Head row 19 (women only)", "the drinker is female; men's heads are rand(19) = rows 0-18, so a man stays random", 124, 2, 0 },
+    { "+50", NULL, 126, 1, 0 },
+    { "+75", NULL, 127, 1, 0 },
+    { "+100", NULL, 128, 1, 0 },
+    { "Farming", NULL, 129, 1, 0 },
+    { "Research", NULL, 130, 1, 0 },
+    { "Building", NULL, 131, 1, 0 },
+    { "Healing", NULL, 132, 1, 0 },
+    { "Breeding / parenting", NULL, 133, 1, 0 },
+    { "Lose 30 in every skill", NULL, 134, 1, 0 },
+    { "Lose 50 in every skill", NULL, 135, 1, 0 },
+    { "Lose 70 in every skill", NULL, 136, 1, 0 },
+};
+static const oc_control VV1_OC_CONTROLS[] = {
+    { "Who goes swimming (everyone else relaxes)", "goes swimming instead of relaxing", NULL, -1, 3, 3, -1, -1, 11, 0, 0, 100, 0, 0, 0, 99, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Baby 1: age", "age units (20 units = 1 year; 70-89 = 3.5-4.45 years)", NULL, -1, 2, 3, -1, -1, 12, 0, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 0, 2, 0 },
+    { "Baby 1: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 0, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Baby 1: research bonus", "research skill points", NULL, -1, 2, 3, -1, -1, 34, 2, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Baby 1: building bonus", "building skill points", NULL, -1, 2, 3, -1, -1, 35, 2, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Baby 1: healing bonus", "healing skill points", NULL, -1, 2, 3, -1, -1, 36, 2, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Baby 1: farming bonus", "farming skill points", NULL, -1, 2, 3, -1, -1, 37, 2, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Baby 2: age", "age units (20 units = 1 year; 70-89 = 3.5-4.45 years)", NULL, -1, 2, 3, -1, -1, 14, 2, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 4, 1, 0 },
+    { "Baby 2: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 2, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Baby 2: research bonus", "research skill points", NULL, -1, 2, 3, -1, -1, 34, 4, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Baby 2: building bonus", "building skill points", NULL, -1, 2, 3, -1, -1, 35, 4, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Baby 2: healing bonus", "healing skill points", NULL, -1, 2, 3, -1, -1, 36, 4, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Baby 2: farming bonus", "farming skill points", NULL, -1, 2, 3, -1, -1, 37, 4, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Baby 3: age", "age units (20 units = 1 year; 70-89 = 3.5-4.45 years)", NULL, -1, 2, 3, -1, -1, 17, 4, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 7, 0, 0 },
+    { "Baby 3: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 4, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "Baby 3: research bonus", "research skill points", NULL, -1, 2, 3, -1, -1, 34, 6, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "Baby 3: building bonus", "building skill points", NULL, -1, 2, 3, -1, -1, 35, 6, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "Baby 3: healing bonus", "healing skill points", NULL, -1, 2, 3, -1, -1, 36, 6, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "Baby 3: farming bonus", "farming skill points", NULL, -1, 2, 3, -1, -1, 37, 6, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "Which villager finds the whale", "any living villager, children too", NULL, -1, 4, 2, 0, -1, 31, 6, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 9, 0, 0 },
+    { "If you taste the berries", NULL, NULL, 0, 1, 3, -1, -1, -1, 6, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "250 is below the 280 child-age threshold the conditions use; a pregnant taster keeps the pregnancy offset. Stock does both at 51%/49%.", 11, 0, 0 },
+    { "Which villager finds the berries", "any living villager, children too", NULL, -1, 4, 2, 1, -1, 31, 8, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 11, 0, 0 },
+    { "Which villager finds the drum", "any living villager, children too", NULL, -1, 4, 2, 2, -1, 31, 8, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 11, 0, 0 },
+    { "If you take a closer look", NULL, NULL, 0, 1, 3, -1, -1, -1, 8, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 13, 0, 0 },
+    { "If a stranger joins: the stranger's sex", NULL, NULL, 0, 1, 3, 15, -1, -1, 10, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "the 'stranger joins' result", 15, 0, 0 },
+    { "If a stranger joins: research bonus", "research skill points", NULL, 0, 2, 3, 15, -1, 34, 12, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "farming is first set to 100, so the farming bonus can take it to 106; stock has no clamp here", 15, 0, 0 },
+    { "If a stranger joins: building bonus", "building skill points", NULL, 0, 2, 3, 15, -1, 35, 12, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "farming is first set to 100, so the farming bonus can take it to 106; stock has no clamp here", 15, 0, 0 },
+    { "If a stranger joins: healing bonus", "healing skill points", NULL, 0, 2, 3, 15, -1, 36, 12, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "farming is first set to 100, so the farming bonus can take it to 106; stock has no clamp here", 15, 0, 0 },
+    { "If a stranger joins: farming bonus", "farming skill points", NULL, 0, 2, 3, 15, -1, 37, 12, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "farming is first set to 100, so the farming bonus can take it to 106; stock has no clamp here", 15, 0, 0 },
+    { "Which villager sees the face", "any living villager, children too", NULL, -1, 4, 2, 3, -1, 31, 12, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 15, 0, 0 },
+    { "If you tell the stranger to leave: who falls sick", "falls sick", NULL, 1, 3, 3, 16, -1, 0, 12, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, "the villager who met the stranger is made sick first whatever is chosen here.", 15, 0, 0 },
+    { "Which villager meets the stranger", "any living villager, children too", NULL, -1, 4, 2, 4, -1, 31, 12, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 15, 0, 0 },
+    { "If you drink the red liquid", NULL, NULL, 0, 1, 3, -1, -1, -1, 12, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 17, 0, 0 },
+    { "Which villager finds the vial", "any living villager, children too", NULL, -1, 4, 2, 5, -1, 31, 14, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 17, 0, 0 },
+    { "Which child it is", "the living children", NULL, -1, 4, 2, 6, -1, 32, 14, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 17, 0, 0 },
+    { "If you drink the blue liquid", NULL, NULL, 0, 1, 3, -1, -1, -1, 14, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 0 },
+    { "Which villager finds the vial", "any living villager, children too", NULL, -1, 4, 2, 7, -1, 31, 16, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 19, 0, 0 },
+    { "Which villager sees the monkey", "any living villager, children too", NULL, -1, 4, 2, 8, -1, 31, 16, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 19, 0, 0 },
+    { "If you taste the mushroom", NULL, NULL, 0, 1, 3, -1, -1, -1, 16, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 21, 0, 0 },
+    { "If you taste it (delicious): food gained", "food", NULL, 0, 2, 3, -1, -1, 6, 18, 0, 200, 300, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "the 'Delicious' result", 21, 0, 0 },
+    { "If you taste it (poisoned): health lost", "health lost", NULL, 0, 2, 3, -1, -1, 7, 18, 0, 25, 25, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "the 'Poisoned' result", 21, 0, 0 },
+    { "Which villager picks the mushroom", "any living villager, children too", NULL, -1, 4, 2, 9, -1, 31, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 21, 0, 0 },
+    { "If you share the pearl: health each villager gains", "health per villager", NULL, 0, 2, 3, -1, -1, 8, 18, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 21, 0, 0 },
+    { "Which villager finds the pearl", "any living villager, children too", NULL, -1, 4, 2, 10, -1, 31, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 21, 0, 0 },
+    { "Which villager has the dream", "any living villager, children too", NULL, -1, 4, 2, 11, -1, 31, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 21, 0, 0 },
+    { "Which villager finds the moth", "any living villager, children too", NULL, -1, 4, 2, 12, -1, 31, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 21, 0, 0 },
+    { "Which villager finds the book", "any living villager, children too", NULL, -1, 4, 2, 13, -1, 31, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 21, 0, 0 },
+    { "If you mash berries: farming each villager gains", "farming per villager", NULL, 0, 2, 3, -1, -1, 9, 18, 0, 10, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 21, 0, 0 },
+    { "If you give it to the researchers: tech points gained", "tech points", NULL, 1, 2, 3, -1, -1, 10, 18, 0, 3000, 2000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 21, 0, 0 },
+    { "Which villager finds the compass", "any living villager, children too", NULL, -1, 4, 2, 14, -1, 31, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 21, 0, 0 },
+    { "If you open it", NULL, NULL, 0, 1, 1, 29, -1, -1, 18, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 24, 0, 0 },
+    { "Which villager finds the crate", "any living villager, children too", NULL, -1, 4, 2, 18, -1, 31, 21, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 24, 0, 0 },
+    { "If you open it", NULL, NULL, 0, 1, 1, 29, -1, -1, 21, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 27, 0, 0 },
+    { "Which villager finds the crate", "any living villager, children too", NULL, -1, 4, 2, 19, -1, 31, 24, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 27, 0, 0 },
+    { "If you open it", NULL, NULL, 0, 1, 1, 29, -1, -1, 24, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 30, 0, 0 },
+    { "If you open it: who falls sick", "falls sick", NULL, 0, 3, 3, 28, -1, 18, 27, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 30, 0, 0 },
+    { "Which villager finds the crate", "any living villager, children too", NULL, -1, 4, 2, 20, -1, 31, 27, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 30, 0, 0 },
+    { "If you open it", NULL, NULL, 0, 1, 1, 29, -1, -1, 27, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 33, 0, 0 },
+    { "If you open it: who is bitten", "is bitten: falls sick and loses 10/15/20 health by level (floored at 0)", "everyone bitten: every villager loses 10/15/20 health; villagers at or below that health drop to 0", 0, 3, 3, 27, -1, 18, 30, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, "the finder is then made sick and loses 15 health with no floor whatever is chosen.", 33, 0, 0 },
+    { "Which villager finds the crate", "any living villager, children too", NULL, -1, 4, 2, 21, -1, 31, 30, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 33, 0, 0 },
+    { "If you open it", NULL, NULL, 0, 1, 1, 29, -1, -1, 30, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 36, 0, 0 },
+    { "If you open it, infant 1: age", "age units (20 units = 1 year; 70-89 = 3.5-4.45 years)", NULL, 0, 2, 3, -1, -1, 25, 33, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 36, 2, 0 },
+    { "If you open it, infant 1: boy or girl", NULL, NULL, 0, 1, 3, -1, -1, -1, 33, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 40, 0, 1 },
+    { "If you open it, infant 1: research bonus", "research skill points", NULL, 0, 2, 3, -1, -1, 34, 35, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 40, 0, 1 },
+    { "If you open it, infant 1: building bonus", "building skill points", NULL, 0, 2, 3, -1, -1, 35, 35, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 40, 0, 1 },
+    { "If you open it, infant 1: healing bonus", "healing skill points", NULL, 0, 2, 3, -1, -1, 36, 35, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 40, 0, 1 },
+    { "If you open it, infant 1: farming bonus", "farming skill points", NULL, 0, 2, 3, -1, -1, 37, 35, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 40, 0, 1 },
+    { "If you open it, infant 2: age", "age units (20 units = 1 year; 70-89 = 3.5-4.45 years)", NULL, 0, 2, 3, -1, -1, 24, 35, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 40, 1, 0 },
+    { "If you open it, infant 2: boy or girl", NULL, NULL, 0, 1, 3, -1, -1, -1, 35, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 43, 0, 2 },
+    { "If you open it, infant 2: research bonus", "research skill points", NULL, 0, 2, 3, -1, -1, 34, 37, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 43, 0, 2 },
+    { "If you open it, infant 2: building bonus", "building skill points", NULL, 0, 2, 3, -1, -1, 35, 37, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 43, 0, 2 },
+    { "If you open it, infant 2: healing bonus", "healing skill points", NULL, 0, 2, 3, -1, -1, 36, 37, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 43, 0, 2 },
+    { "If you open it, infant 2: farming bonus", "farming skill points", NULL, 0, 2, 3, -1, -1, 37, 37, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 43, 0, 2 },
+    { "If you open it, infant 3: age", "age units (20 units = 1 year; 70-89 = 3.5-4.45 years)", NULL, 0, 2, 3, -1, -1, 22, 37, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 43, 0, 0 },
+    { "If you open it, infant 3: boy or girl", NULL, NULL, 0, 1, 3, -1, -1, -1, 37, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 45, 0, 3 },
+    { "If you open it, infant 3: research bonus", "research skill points", NULL, 0, 2, 3, -1, -1, 34, 39, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 45, 0, 3 },
+    { "If you open it, infant 3: building bonus", "building skill points", NULL, 0, 2, 3, -1, -1, 35, 39, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 45, 0, 3 },
+    { "If you open it, infant 3: healing bonus", "healing skill points", NULL, 0, 2, 3, -1, -1, 36, 39, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 45, 0, 3 },
+    { "If you open it, infant 3: farming bonus", "farming skill points", NULL, 0, 2, 3, -1, -1, 37, 39, 0, 7, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 45, 0, 3 },
+    { "Which villager finds the crate", "any living villager, children too", NULL, -1, 4, 2, 22, -1, 31, 39, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 45, 0, 0 },
+    { "If you open it", NULL, NULL, 0, 1, 1, 29, -1, -1, 39, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "no floor: a finder with health at or below the loss ends at 0 or less (stock at every level).", 48, 0, 0 },
+    { "Which villager finds the crate", "any living villager, children too", NULL, -1, 4, 2, 23, -1, 31, 42, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 48, 0, 0 },
+    { "If you drink it: the drinker's new head", NULL, NULL, 0, 1, 3, -1, -1, -1, 42, 20, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only the drinker is female; men's heads are rand(19) = rows 0-18, so a man stays random", 126, 0, 0 },
+    { "Which villager finds the vial", "any living villager, children too", NULL, -1, 4, 2, 24, -1, 31, 62, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 126, 0, 0 },
+    { "If you drink it: how much the skill rises", NULL, NULL, 0, 1, 1, 29, -1, -1, 62, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 129, 0, 0 },
+    { "If you drink it: which skill rises", NULL, NULL, 0, 1, 3, -1, -1, -1, 65, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 134, 0, 0 },
+    { "Which villager finds the vial", "any living villager, children too", NULL, -1, 4, 2, 25, -1, 31, 70, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 134, 0, 0 },
+    { "If you drink it", NULL, NULL, 0, 1, 1, 29, -1, -1, 70, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 137, 0, 0 },
+    { "Which villager finds the vial", "any living villager, children too", NULL, -1, 4, 2, 26, -1, 31, 73, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 137, 0, 0 },
+};
+static const oc_event VV1_OC_EVENTS[] = {
+    { 0, 0, 0, 1, 0, 0, NULL },
+    { 1, 0, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 2, 0, 0, 1, 0, 0, NULL },
+    { 5, 0, 0, 1, 0, 0, NULL },
+    { 6, 0, 1, 0, 0, 0, NULL },
+    { 9, 1, 0, 0, 1, 0, NULL },
+    { 10, 1, 0, 1, 0, 0, NULL },
+    { 11, 1, 0, 1, 0, 0, NULL },
+    { 12, 1, 18, 2, 0, 0, NULL },
+    { 13, 19, 0, 1, 0, 0, NULL },
+    { 14, 19, 0, 1, 0, 0, NULL },
+    { 64, 19, 1, 0, 0, 0, NULL },
+    { 65, 20, 2, 0, 0, 0, NULL },
+    { 66, 22, 1, 0, 0, 0, NULL },
+    { 67, 23, 7, 0, 0, 0, NULL },
+    { 68, 30, 2, 0, 0, 0, NULL },
+    { 69, 32, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 70, 32, 2, 0, 0, 0, NULL },
+    { 71, 34, 1, 0, 0, 0, NULL },
+    { 72, 35, 2, 0, 0, 0, NULL },
+    { 73, 37, 1, 0, 1, 0, NULL },
+    { 74, 38, 4, 0, 0, 0, NULL },
+    { 75, 42, 2, 0, 0, 0, NULL },
+    { 76, 44, 1, 0, 0, 0, NULL },
+    { 77, 45, 1, 0, 0, 0, NULL },
+    { 78, 46, 1, 0, 0, 0, NULL },
+    { 79, 47, 3, 0, 0, 0, NULL },
+    { 128, 50, 2, 0, 0, 0, NULL },
+    { 129, 52, 2, 0, 0, 0, NULL },
+    { 130, 54, 3, 0, 0, 0, NULL },
+    { 131, 57, 3, 0, 0, 0, NULL },
+    { 132, 60, 20, 0, 0, 0, NULL },
+    { 133, 80, 2, 0, 0, 0, NULL },
+    { 134, 82, 2, 0, 0, 0, NULL },
+    { 135, 84, 3, 0, 0, 0, NULL },
+    { 136, 87, 2, 0, 0, 0, NULL },
+};
+#define VV1_OC_EVENT_COUNT 36
 static const story_event VV1_EVENTS[] = {
     { 0, "The Bad Little Monkey", "", "A monkey ransacks the research table: the tribe loses tech points.", "nothing beyond an island event being possible" },
+    { 1, "A Mighty Storm", "", "A typhoon strikes in the night and washes away all of the stored food.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 2, "The Plague of Parrots", "", "A flock of wild parrots eats many of the berries.", "nothing beyond an island event being possible" },
     { 3, "A Plague of Locusts", "", "Locusts devour the crops in the field.", "crops growing in the farm field" },
     { 4, "The Measles Epidemic", "", "Every child in the village falls ill with measles.", "at least one living child" },
@@ -93,11 +588,12 @@ static const story_event VV1_EVENTS[] = {
     { 12, "The Barrel O` Babies", "", "A barrel of babies washes up and they join the village (more of them in a bigger village).", "room in the village for new villagers" },
     { 13, "The North Wind", "", "A cool, moist wind refreshes the crops and the berry bush.", "nothing beyond an island event being possible" },
     { 14, "The Helpful Honeybees", "", "Honeybees pollinate the berry bush and it thrives.", "nothing beyond an island event being possible" },
-    { 64, "The Trapped Whale", "", "A villager finds a stranded whale: free it, or harvest it for food.", "the whale event to have happened fewer than three times" },
+    { 64, "The Trapped Whale", "", "A villager finds a stranded whale: free it, or harvest it for food.", "the tribe's spirituality below its highest level (freeing the whale raises it)" },
     { 65, "The Strange Berries", "", "A villager finds strange berries: taste them (risky) or leave them.", "nothing beyond an island event being possible" },
     { 66, "The Old Drum", "", "A villager finds a heavy old drum: cut it open, or keep it.", "nothing beyond an island event being possible" },
     { 67, "The Mysterious Face", "", "A villager sees a face in the trees: take a closer look (risky), or back away.", "nothing beyond an island event being possible" },
-    { 68, "The Visitor", "", "A stranger in a boat asks for plants and seeds: help him, or refuse.", "the visitor to have come fewer than three times" },
+    { 68, "The Visitor", "", "A stranger in a boat asks for plants and seeds: help him, or refuse.", "the tribe's medicine below its highest level (the visitor raises it)" },
+    { 69, "The Furry Food", "", "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 70, "A Mysterious Vial", "red liquid", "A villager finds a vial of oily red liquid: drink it (risky), or pour it out.", "nothing beyond an island event being possible" },
     { 71, "The Troubled Child", "", "An unusually bright child needs direction: farming, or research.", "at least one living child" },
     { 72, "A Mysterious Vial", "blue liquid", "A villager finds a vial of oily blue liquid: drink it, or pour it out.", "nothing beyond an island event being possible" },
@@ -118,7 +614,7 @@ static const story_event VV1_EVENTS[] = {
     { 135, "A Mysterious Vial", "blue, from the sea", "A vial washes up: drinking it raises one of the villager's skills.", "nothing beyond an island event being possible" },
     { 136, "A Mysterious Vial", "fizzy, from the sea", "A vial washes up: drinking it lowers all of the villager's skills.", "nothing beyond an island event being possible" },
 };
-#define VV1_EVENT_COUNT 38
+#define VV1_EVENT_COUNT 40
 
 static const unsigned char VV2_W0_E[40] = { 0x50, 0xC3, 0x00, 0x00, 0x30, 0x75, 0x00, 0x00, 0xF8, 0x24, 0x01, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x30, 0x75, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0xA0, 0x86, 0x01, 0x00, 0x40, 0x9C, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00 };
 static const unsigned char VV2_W0_R[40] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -143,10 +639,735 @@ static const unsigned char VV2_ROLL_C_OR_B_BYTES[5] = { 0xE8, 0x51, 0x42, 0xFD, 
 static const unsigned char VV2_ROLL_CASE_C_BYTES[5] = { 0xE8, 0x94, 0xEB, 0xFC, 0xFF };
 static const unsigned char VV2_ROLL_EVENT_A_BYTES[5] = { 0xE8, 0xFE, 0x3B, 0xFE, 0xFF };
 static const unsigned char VV2_ROLL_EVENT_B_BYTES[5] = { 0xE8, 0x8D, 0xB6, 0xFC, 0xFF };
+static const unsigned char VV2_UNLOCK_C_BYTES[6] = { 0x81, 0xFD, 0xAD, 0x02, 0x00, 0x00 };
+static const unsigned char VV2_UNLOCK_A_BYTES[7] = { 0x83, 0xF8, 0x14, 0x89, 0x44, 0x24, 0x14 };
 static const unsigned char VV2_CUSTOM_CHOOSE_BYTES[5] = { 0xE8, 0xB9, 0xFB, 0xFF, 0xFF };
 static const unsigned char VV2_TITLE_SITE_BYTES[5] = { 0xE8, 0x28, 0x27, 0xFE, 0xFF };
 #define VV2_PARENTAGE_SITE 0x44BAD8u
 static const unsigned char VV2_PARENTAGE_STOCK[5] = { 0x5E, 0x5F, 0xC2, 0x1C, 0x00 };
+static const unsigned char VV2_OCS_41F53D[5] = { 0xE8, 0x5E, 0x3C, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_42071F[5] = { 0xE8, 0x7C, 0x2A, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_420A78[5] = { 0xE8, 0x23, 0x27, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_420E5F[5] = { 0xE8, 0x3C, 0x23, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_42147B[5] = { 0xE8, 0x20, 0x1D, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421942[5] = { 0xE8, 0x59, 0x18, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421975[5] = { 0xE8, 0x26, 0x18, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_4219BF[5] = { 0xE8, 0xDC, 0x17, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421A09[5] = { 0xE8, 0x92, 0x17, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421A53[5] = { 0xE8, 0x48, 0x17, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421A9D[5] = { 0xE8, 0xFE, 0x16, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421B08[5] = { 0xE8, 0x93, 0x16, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421B1A[5] = { 0xE8, 0x81, 0x16, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421B51[5] = { 0xE8, 0x4A, 0x16, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_421B97[5] = { 0xE8, 0x04, 0x16, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_422071[5] = { 0xE8, 0x2A, 0x11, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_4220C3[5] = { 0xE8, 0xD8, 0x10, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_422115[5] = { 0xE8, 0x86, 0x10, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_42216C[5] = { 0xE8, 0x2F, 0x10, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_4221BE[5] = { 0xE8, 0xDD, 0x0F, 0xFE, 0xFF };
+static const unsigned char VV2_OCS_43333C[5] = { 0xE8, 0x5F, 0xFE, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_43344C[5] = { 0xE8, 0x4F, 0xFD, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_433513[5] = { 0xE8, 0x88, 0xFC, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_4340E8[5] = { 0xE8, 0xB3, 0xF0, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434188[5] = { 0xE8, 0x13, 0xF0, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_4341A9[5] = { 0xE8, 0xF2, 0xEF, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434248[5] = { 0xE8, 0x53, 0xEF, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434269[5] = { 0xE8, 0x32, 0xEF, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_43428A[5] = { 0xE8, 0x11, 0xEF, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434435[5] = { 0xE8, 0x66, 0xED, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434447[5] = { 0xE8, 0x54, 0xED, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434455[5] = { 0xE8, 0x46, 0xED, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434471[5] = { 0xE8, 0x2A, 0xED, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434483[5] = { 0xE8, 0x18, 0xED, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_434491[5] = { 0xE8, 0x0A, 0xED, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_4375BC[5] = { 0xE8, 0xDF, 0xBB, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_437ADC[5] = { 0xE8, 0xBF, 0xB6, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_4395EF[5] = { 0xE8, 0xAC, 0x9B, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_439691[5] = { 0xE8, 0x0A, 0x9B, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_4396BE[5] = { 0xE8, 0xDD, 0x9A, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_4396EB[5] = { 0xE8, 0xB0, 0x9A, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_439727[5] = { 0xE8, 0x74, 0x9A, 0xFC, 0xFF };
+static const unsigned char VV2_OCS_44BA75[5] = { 0xE8, 0x26, 0x77, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44BAA9[5] = { 0xE8, 0xF2, 0x76, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44BC63[5] = { 0xE8, 0x38, 0x75, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44BE4D[5] = { 0xE8, 0x4E, 0x73, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44C014[5] = { 0xE8, 0x87, 0x71, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44C191[5] = { 0xE8, 0x0A, 0x70, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44CB88[5] = { 0xE8, 0x13, 0x66, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44CC27[5] = { 0xE8, 0x74, 0x65, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44CC37[5] = { 0xE8, 0x64, 0x65, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44E8A8[5] = { 0xE8, 0xF3, 0x48, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44E8CF[5] = { 0xE8, 0xCC, 0x48, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44EA19[5] = { 0xE8, 0x82, 0x47, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44EBC0[5] = { 0xE8, 0xDB, 0x45, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44EBE5[5] = { 0xE8, 0xB6, 0x45, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44EC67[5] = { 0xE8, 0x34, 0x45, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44ED39[5] = { 0xE8, 0x62, 0x44, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44EDA0[5] = { 0xE8, 0xFB, 0x43, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44EFE4[5] = { 0xE8, 0xB7, 0x41, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44F0C0[5] = { 0xE8, 0xDB, 0x40, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44F1E9[5] = { 0xE8, 0xB2, 0x3F, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44F257[5] = { 0xE8, 0x44, 0x3F, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44F2E7[5] = { 0xE8, 0xB4, 0x3E, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44F35E[5] = { 0xE8, 0x3D, 0x3E, 0xFB, 0xFF };
+static const unsigned char VV2_OCS_44F3CB[5] = { 0xE8, 0xD0, 0x3D, 0xFB, 0xFF };
+static const unsigned char VV2_OCC_41F843[5] = { 0xE8, 0x98, 0xC2, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41F8CC[5] = { 0xE8, 0xAF, 0xC3, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41FAB7[5] = { 0xE8, 0x24, 0xC0, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41FB3C[5] = { 0xE8, 0xEF, 0xC4, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41FC0F[5] = { 0xE8, 0xCC, 0xBE, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41FC95[5] = { 0xE8, 0x46, 0xBE, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41FD3A[5] = { 0xE8, 0xA1, 0xBD, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41FE04[5] = { 0xE8, 0x27, 0xC2, 0x02, 0x00 };
+static const unsigned char VV2_OCC_41FFB7[5] = { 0xE8, 0x24, 0xBB, 0x02, 0x00 };
+static const unsigned char VV2_OCC_42003E[5] = { 0xE8, 0x9D, 0xBA, 0x02, 0x00 };
+static const unsigned char VV2_OCC_42014C[5] = { 0xE8, 0x8F, 0xB9, 0x02, 0x00 };
+static const unsigned char VV2_OCC_4201D2[5] = { 0xE8, 0x09, 0xB9, 0x02, 0x00 };
+static const unsigned char VV2_OCC_4202E5[5] = { 0xE8, 0x86, 0xBB, 0x02, 0x00 };
+static const unsigned char VV2_OCC_42036B[5] = { 0xE8, 0x70, 0xB7, 0x02, 0x00 };
+static const unsigned char VV2_OCC_421349[5] = { 0xE8, 0xB2, 0xE1, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_421CAD[5] = { 0xE8, 0x4E, 0xD8, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_421F1B[5] = { 0xE8, 0x50, 0x9F, 0x02, 0x00 };
+static const unsigned char VV2_OCC_422006[5] = { 0xE8, 0x75, 0x99, 0x02, 0x00 };
+static const unsigned char VV2_OCC_422364[5] = { 0xE8, 0x47, 0xE1, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_433D17[5] = { 0xE8, 0xD4, 0xF5, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_433DFB[5] = { 0xE8, 0xF0, 0xF4, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_4344E8[5] = { 0xE8, 0xC3, 0xEE, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_43483D[5] = { 0xE8, 0xBE, 0xED, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_437CFB[5] = { 0xE8, 0xE0, 0x3D, 0x01, 0x00 };
+static const unsigned char VV2_OCC_437DAE[5] = { 0xE8, 0x2D, 0x3D, 0x01, 0x00 };
+static const unsigned char VV2_OCC_437E61[5] = { 0xE8, 0x7A, 0x3C, 0x01, 0x00 };
+static const unsigned char VV2_OCC_437F39[5] = { 0xE8, 0xA2, 0x3B, 0x01, 0x00 };
+static const unsigned char VV2_OCC_437FE4[5] = { 0xE8, 0xF7, 0x3A, 0x01, 0x00 };
+static const unsigned char VV2_OCC_439DB4[5] = { 0xE8, 0xA7, 0xE3, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_44EB3E[5] = { 0xE8, 0x3D, 0xCE, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_461B8E[5] = { 0xE8, 0x0D, 0xCD, 0xFE, 0xFF };
+static const oc_site VV2_OC_SITES[] = {
+    { 0x41F53Du, VV2_OCS_41F53D },
+    { 0x42071Fu, VV2_OCS_42071F },
+    { 0x420A78u, VV2_OCS_420A78 },
+    { 0x420E5Fu, VV2_OCS_420E5F },
+    { 0x42147Bu, VV2_OCS_42147B },
+    { 0x421942u, VV2_OCS_421942 },
+    { 0x421975u, VV2_OCS_421975 },
+    { 0x4219BFu, VV2_OCS_4219BF },
+    { 0x421A09u, VV2_OCS_421A09 },
+    { 0x421A53u, VV2_OCS_421A53 },
+    { 0x421A9Du, VV2_OCS_421A9D },
+    { 0x421B08u, VV2_OCS_421B08 },
+    { 0x421B1Au, VV2_OCS_421B1A },
+    { 0x421B51u, VV2_OCS_421B51 },
+    { 0x421B97u, VV2_OCS_421B97 },
+    { 0x422071u, VV2_OCS_422071 },
+    { 0x4220C3u, VV2_OCS_4220C3 },
+    { 0x422115u, VV2_OCS_422115 },
+    { 0x42216Cu, VV2_OCS_42216C },
+    { 0x4221BEu, VV2_OCS_4221BE },
+    { 0x43333Cu, VV2_OCS_43333C },
+    { 0x43344Cu, VV2_OCS_43344C },
+    { 0x433513u, VV2_OCS_433513 },
+    { 0x4340E8u, VV2_OCS_4340E8 },
+    { 0x434188u, VV2_OCS_434188 },
+    { 0x4341A9u, VV2_OCS_4341A9 },
+    { 0x434248u, VV2_OCS_434248 },
+    { 0x434269u, VV2_OCS_434269 },
+    { 0x43428Au, VV2_OCS_43428A },
+    { 0x434435u, VV2_OCS_434435 },
+    { 0x434447u, VV2_OCS_434447 },
+    { 0x434455u, VV2_OCS_434455 },
+    { 0x434471u, VV2_OCS_434471 },
+    { 0x434483u, VV2_OCS_434483 },
+    { 0x434491u, VV2_OCS_434491 },
+    { 0x4375BCu, VV2_OCS_4375BC },
+    { 0x437ADCu, VV2_OCS_437ADC },
+    { 0x4395EFu, VV2_OCS_4395EF },
+    { 0x439691u, VV2_OCS_439691 },
+    { 0x4396BEu, VV2_OCS_4396BE },
+    { 0x4396EBu, VV2_OCS_4396EB },
+    { 0x439727u, VV2_OCS_439727 },
+    { 0x44BA75u, VV2_OCS_44BA75 },
+    { 0x44BAA9u, VV2_OCS_44BAA9 },
+    { 0x44BC63u, VV2_OCS_44BC63 },
+    { 0x44BE4Du, VV2_OCS_44BE4D },
+    { 0x44C014u, VV2_OCS_44C014 },
+    { 0x44C191u, VV2_OCS_44C191 },
+    { 0x44CB88u, VV2_OCS_44CB88 },
+    { 0x44CC27u, VV2_OCS_44CC27 },
+    { 0x44CC37u, VV2_OCS_44CC37 },
+    { 0x44E8A8u, VV2_OCS_44E8A8 },
+    { 0x44E8CFu, VV2_OCS_44E8CF },
+    { 0x44EA19u, VV2_OCS_44EA19 },
+    { 0x44EBC0u, VV2_OCS_44EBC0 },
+    { 0x44EBE5u, VV2_OCS_44EBE5 },
+    { 0x44EC67u, VV2_OCS_44EC67 },
+    { 0x44ED39u, VV2_OCS_44ED39 },
+    { 0x44EDA0u, VV2_OCS_44EDA0 },
+    { 0x44EFE4u, VV2_OCS_44EFE4 },
+    { 0x44F0C0u, VV2_OCS_44F0C0 },
+    { 0x44F1E9u, VV2_OCS_44F1E9 },
+    { 0x44F257u, VV2_OCS_44F257 },
+    { 0x44F2E7u, VV2_OCS_44F2E7 },
+    { 0x44F35Eu, VV2_OCS_44F35E },
+    { 0x44F3CBu, VV2_OCS_44F3CB },
+};
+#define VV2_OC_SITE_COUNT 66
+static const oc_scope VV2_OC_SCOPES[] = {
+    { 0x41F843u, VV2_OCC_41F843, 0, -1, 0, 0, -1 },
+    { 0x41F8CCu, VV2_OCC_41F8CC, 0, -1, 0, 0, -1 },
+    { 0x41FAB7u, VV2_OCC_41FAB7, 0, -1, 0, 0, -1 },
+    { 0x41FB3Cu, VV2_OCC_41FB3C, 0, -1, 0, 0, -1 },
+    { 0x41FC0Fu, VV2_OCC_41FC0F, 0, -1, 0, 0, -1 },
+    { 0x41FC95u, VV2_OCC_41FC95, 0, -1, 0, 0, -1 },
+    { 0x41FD3Au, VV2_OCC_41FD3A, 0, -1, 0, 0, -1 },
+    { 0x41FE04u, VV2_OCC_41FE04, 0, -1, 0, 0, -1 },
+    { 0x41FFB7u, VV2_OCC_41FFB7, 0, -1, 0, 0, -1 },
+    { 0x42003Eu, VV2_OCC_42003E, 0, -1, 0, 0, -1 },
+    { 0x42014Cu, VV2_OCC_42014C, 0, -1, 0, 0, -1 },
+    { 0x4201D2u, VV2_OCC_4201D2, 0, -1, 0, 0, -1 },
+    { 0x4202E5u, VV2_OCC_4202E5, 0, -1, 0, 0, -1 },
+    { 0x42036Bu, VV2_OCC_42036B, 0, -1, 0, 0, -1 },
+    { 0x421349u, VV2_OCC_421349, 0, -1, 0, 0, -1 },
+    { 0x421CADu, VV2_OCC_421CAD, 0, -1, 0, 0, -1 },
+    { 0x421F1Bu, VV2_OCC_421F1B, 0, -1, 0, 0, -1 },
+    { 0x422006u, VV2_OCC_422006, 0, -1, 0, 0, -1 },
+    { 0x422364u, VV2_OCC_422364, 1, -2, -1, 20644, -1 },
+    { 0x433D17u, VV2_OCC_433D17, 0, -1, 0, 0, -1 },
+    { 0x433DFBu, VV2_OCC_433DFB, 0, -1, 0, 0, -1 },
+    { 0x4344E8u, VV2_OCC_4344E8, 0, -1, 0, 0, -1 },
+    { 0x43483Du, VV2_OCC_43483D, 1, -1, 0, 0, 1 },
+    { 0x437CFBu, VV2_OCC_437CFB, 0, -1, 0, 0, -1 },
+    { 0x437DAEu, VV2_OCC_437DAE, 0, -1, 0, 0, -1 },
+    { 0x437E61u, VV2_OCC_437E61, 0, -1, 0, 0, -1 },
+    { 0x437F39u, VV2_OCC_437F39, 0, -1, 0, 0, -1 },
+    { 0x437FE4u, VV2_OCC_437FE4, 0, -1, 0, 0, -1 },
+    { 0x439DB4u, VV2_OCC_439DB4, 1, -2, -1, 20636, -1 },
+    { 0x44EB3Eu, VV2_OCC_44EB3E, 0, -1, 0, 0, -1 },
+    { 0x461B8Eu, VV2_OCC_461B8E, 2, -1, 0, 0, -1 },
+};
+#define VV2_OC_SCOPE_COUNT 31
+static const oc_force VV2_OC_FORCES[] = {
+    { 24, 0 },
+    { 26, 0 },
+    { 48, 0 },
+    { 48, 99 },
+    { 27, 0 },
+    { 48, 0 },
+    { 48, 99 },
+    { 48, 0 },
+    { 48, 99 },
+    { 31, 0 },
+    { 31, 1 },
+    { 31, 2 },
+    { 31, 3 },
+    { 31, 4 },
+    { 34, 0 },
+    { 34, 1 },
+    { 34, 2 },
+    { 34, 3 },
+    { 34, 4 },
+    { 2, 0 },
+    { 2, 99 },
+    { 3, 0 },
+    { 3, 99 },
+    { 5, 0 },
+    { 5, 1 },
+    { 5, 2 },
+    { 5, 3 },
+    { 5, 4 },
+    { 11, 0 },
+    { 11, 99 },
+    { 14, 0 },
+    { 14, 1 },
+    { 14, 2 },
+    { 14, 3 },
+    { 14, 4 },
+    { 14, 5 },
+    { 42, 99 },
+    { 42, 0 },
+    { 43, 99 },
+    { 42, 0 },
+    { 43, 0 },
+    { 36, 0 },
+    { 36, 50 },
+    { 36, 99 },
+    { 36, 0 },
+    { 36, 50 },
+    { 36, 99 },
+    { 36, 0 },
+    { 36, 50 },
+    { 36, 99 },
+    { 36, 0 },
+    { 36, 50 },
+    { 36, 99 },
+    { 36, 0 },
+    { 36, 50 },
+    { 36, 99 },
+    { 37, 0 },
+    { 38, 0 },
+    { 39, 0 },
+    { 40, 0 },
+    { 37, 1 },
+    { 38, 1 },
+    { 39, 1 },
+    { 40, 1 },
+    { 37, 2 },
+    { 38, 2 },
+    { 39, 2 },
+    { 40, 2 },
+    { 37, 3 },
+    { 38, 3 },
+    { 39, 3 },
+    { 40, 3 },
+    { 37, 4 },
+    { 38, 4 },
+    { 39, 4 },
+    { 40, 4 },
+    { 37, 5 },
+    { 38, 5 },
+    { 39, 5 },
+    { 40, 5 },
+    { 37, 6 },
+    { 38, 6 },
+    { 39, 6 },
+    { 40, 6 },
+    { 37, 7 },
+    { 38, 7 },
+    { 39, 7 },
+    { 40, 7 },
+    { 37, 8 },
+    { 38, 8 },
+    { 39, 8 },
+    { 40, 8 },
+    { 37, 9 },
+    { 38, 9 },
+    { 39, 9 },
+    { 40, 9 },
+    { 37, 10 },
+    { 38, 10 },
+    { 39, 10 },
+    { 40, 10 },
+    { 37, 11 },
+    { 38, 11 },
+    { 39, 11 },
+    { 40, 11 },
+    { 37, 12 },
+    { 38, 12 },
+    { 39, 12 },
+    { 40, 12 },
+    { 37, 13 },
+    { 38, 13 },
+    { 39, 13 },
+    { 40, 13 },
+    { 37, 14 },
+    { 38, 14 },
+    { 39, 14 },
+    { 40, 14 },
+    { 37, 15 },
+    { 38, 15 },
+    { 39, 15 },
+    { 40, 15 },
+    { 37, 16 },
+    { 38, 16 },
+    { 39, 16 },
+    { 40, 16 },
+    { 37, 17 },
+    { 38, 17 },
+    { 39, 17 },
+    { 40, 17 },
+    { 37, 18 },
+    { 38, 18 },
+    { 39, 18 },
+    { 40, 18 },
+    { 37, 19 },
+    { 38, 19 },
+    { 39, 19 },
+    { 40, 19 },
+    { 37, 20 },
+    { 38, 20 },
+    { 39, 20 },
+    { 40, 20 },
+    { 37, 21 },
+    { 38, 21 },
+    { 39, 21 },
+    { 40, 21 },
+    { 37, 22 },
+    { 38, 22 },
+    { 39, 22 },
+    { 40, 22 },
+    { 37, 23 },
+    { 38, 23 },
+    { 39, 23 },
+    { 40, 23 },
+    { 37, 24 },
+    { 38, 24 },
+    { 39, 24 },
+    { 40, 24 },
+    { 37, 25 },
+    { 38, 25 },
+    { 39, 25 },
+    { 40, 25 },
+    { 37, 26 },
+    { 38, 26 },
+    { 39, 26 },
+    { 40, 26 },
+    { 37, 27 },
+    { 38, 27 },
+    { 39, 27 },
+    { 40, 27 },
+    { 37, 28 },
+    { 38, 28 },
+    { 39, 28 },
+    { 40, 28 },
+    { 37, 29 },
+    { 38, 29 },
+    { 39, 29 },
+    { 40, 29 },
+    { 36, 0 },
+    { 36, 50 },
+    { 36, 99 },
+    { 41, 0 },
+    { 41, 1 },
+    { 41, 2 },
+    { 41, 3 },
+    { 41, 4 },
+    { 36, 0 },
+    { 36, 50 },
+    { 36, 99 },
+    { 51, 0 },
+    { 52, 0 },
+    { 51, 0 },
+    { 52, 1 },
+    { 51, 0 },
+    { 52, 2 },
+    { 51, 0 },
+    { 52, 3 },
+    { 51, 0 },
+    { 52, 4 },
+    { 51, 0 },
+    { 52, 5 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 0 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 1 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 2 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 3 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 4 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 5 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 6 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 7 },
+    { 51, 99 },
+    { 54, 0 },
+    { 55, 8 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 0 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 1 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 2 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 3 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 4 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 5 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 6 },
+    { 51, 99 },
+    { 54, 99 },
+    { 59, 7 },
+    { 64, 0 },
+    { 65, 0 },
+    { 64, 1 },
+    { 65, 1 },
+    { 64, 2 },
+    { 65, 2 },
+    { 64, 3 },
+    { 65, 3 },
+    { 64, 4 },
+    { 65, 4 },
+    { 42, 99 },
+    { 42, 0 },
+    { 43, 99 },
+    { 42, 0 },
+    { 43, 0 },
+};
+static const oc_option VV2_OC_OPTIONS[] = {
+    { "Boy", NULL, 2, 1, 0 },
+    { "Girl", NULL, 3, 1, 0 },
+    { "Boy", NULL, 5, 1, 0 },
+    { "Girl", NULL, 6, 1, 0 },
+    { "Boy", NULL, 7, 1, 0 },
+    { "Girl", NULL, 8, 1, 0 },
+    { "Farming", NULL, 9, 1, 0 },
+    { "Parenting", NULL, 10, 1, 0 },
+    { "Healing", NULL, 11, 1, 0 },
+    { "Research", NULL, 12, 1, 0 },
+    { "Building", NULL, 13, 1, 0 },
+    { "Farming", NULL, 14, 1, 0 },
+    { "Parenting", NULL, 15, 1, 0 },
+    { "Healing", NULL, 16, 1, 0 },
+    { "Research", NULL, 17, 1, 0 },
+    { "Building", NULL, 18, 1, 0 },
+    { "It's harmless: food +700 (times k)", NULL, 19, 1, 0 },
+    { "The villager is never seen again", NULL, 20, 1, 0 },
+    { "Every skill +30 (and -10 health)", NULL, 21, 1, 0 },
+    { "Every skill -30 (and -10 health)", NULL, 22, 1, 0 },
+    { "Parenting", NULL, 23, 1, 0 },
+    { "Building", NULL, 24, 1, 0 },
+    { "Farming", NULL, 25, 1, 0 },
+    { "Research", NULL, 26, 1, 0 },
+    { "Healing", NULL, 27, 1, 0 },
+    { "Food", NULL, 28, 1, 0 },
+    { "Tech points", NULL, 29, 1, 0 },
+    { "Brass tools: tech +1000 (times k)", NULL, 30, 1, 0 },
+    { "A cache of nuts: food +300 (times k)", NULL, 31, 1, 0 },
+    { "Baby snakes: the villager falls sick, and others may too", NULL, 32, 1, 0 },
+    { "Putrid slime: the villager falls sick", NULL, 33, 1, 0 },
+    { "A golden pocket watch: tech +1000 (times k)", NULL, 34, 1, 0 },
+    { "Ants raid the food bin: food -150 (times k, not below 0)", NULL, 35, 1, 0 },
+    { "One baby", NULL, 36, 1, 0 },
+    { "Twins", NULL, 37, 2, 0 },
+    { "Triplets", NULL, 39, 2, 0 },
+    { "Coconuts (+500 food)", NULL, 41, 1, 0 },
+    { "Golden, ripe bananas (+1000 food)", NULL, 42, 1, 0 },
+    { "Preserved meat (+1500 food)", NULL, 43, 1, 0 },
+    { "A few cogs and springs (+1000 tech)", NULL, 44, 1, 0 },
+    { "Several (+2000 tech)", NULL, 45, 1, 0 },
+    { "A great many (+3000 tech)", NULL, 46, 1, 0 },
+    { "A few ancient-looking cogs (+500 tech; 15% sickness chance each)", NULL, 47, 1, 0 },
+    { "Several (+1000 tech; 20% each)", NULL, 48, 1, 0 },
+    { "A great many (+1500 tech; 25% each)", NULL, 49, 1, 0 },
+    { "A few handfuls of mice (20% bitten each, -10 health)", NULL, 50, 1, 0 },
+    { "Several handfuls (30% each, -15 health)", NULL, 51, 1, 0 },
+    { "A great many (45% each, -20 health)", NULL, 52, 1, 0 },
+    { "A few fire ants (the finder loses 40 health)", NULL, 53, 1, 0 },
+    { "Several fire ants (loses 70)", NULL, 54, 1, 0 },
+    { "A great many fire ants (loses 110)", NULL, 55, 1, 0 },
+    { "Head 0", NULL, 56, 4, 0 },
+    { "Head 1", NULL, 60, 4, 0 },
+    { "Head 2", NULL, 64, 4, 0 },
+    { "Head 3", NULL, 68, 4, 0 },
+    { "Head 4", NULL, 72, 4, 0 },
+    { "Head 5", NULL, 76, 4, 0 },
+    { "Head 6", NULL, 80, 4, 0 },
+    { "Head 7", NULL, 84, 4, 0 },
+    { "Head 8", NULL, 88, 4, 0 },
+    { "Head 9", NULL, 92, 4, 0 },
+    { "Head 10", NULL, 96, 4, 0 },
+    { "Head 11", NULL, 100, 4, 0 },
+    { "Head 12", NULL, 104, 4, 0 },
+    { "Head 13", NULL, 108, 4, 0 },
+    { "Head 14", NULL, 112, 4, 0 },
+    { "Head 15", NULL, 116, 4, 0 },
+    { "Head 16", NULL, 120, 4, 0 },
+    { "Head 17", NULL, 124, 4, 0 },
+    { "Head 18", NULL, 128, 4, 0 },
+    { "Head 19", NULL, 132, 4, 0 },
+    { "Head 20", NULL, 136, 4, 0 },
+    { "Head 21", NULL, 140, 4, 0 },
+    { "Head 22", NULL, 144, 4, 0 },
+    { "Head 23", NULL, 148, 4, 0 },
+    { "Head 24", NULL, 152, 4, 0 },
+    { "Head 25", NULL, 156, 4, 0 },
+    { "Head 26", NULL, 160, 4, 0 },
+    { "Head 27", NULL, 164, 4, 0 },
+    { "Head 28", NULL, 168, 4, 0 },
+    { "Head 29", "the finder is female: a male's roll is rand(29)", 172, 4, 0 },
+    { "A small vial (+50 to the skill)", NULL, 176, 1, 0 },
+    { "A vial (+75)", NULL, 177, 1, 0 },
+    { "A large vial (+100)", NULL, 178, 1, 0 },
+    { "Farming", NULL, 179, 1, 0 },
+    { "Building (the game says 'engineering')", NULL, 180, 1, 0 },
+    { "Parenting", NULL, 181, 1, 0 },
+    { "Healing", NULL, 182, 1, 0 },
+    { "Research", NULL, 183, 1, 0 },
+    { "A small vial (-30 in every skill)", NULL, 184, 1, 0 },
+    { "A vial (-50 in every skill)", NULL, 185, 1, 0 },
+    { "A large vial (-70 in every skill)", NULL, 186, 1, 0 },
+    { "Grants vision", "its condition", 187, 2, 2 },
+    { "Grants food: +1000 food, plant store = 800, coconut trees = 30 (+30 with Coconuts Fix)", "its condition", 189, 2, 2 },
+    { "Grants technology: +20000..59999 tech (see 'Technology gained (big)')", "its condition", 191, 2, 2 },
+    { "Takes food: food, plant store and coconut trees all set to 0", "its condition", 193, 2, 2 },
+    { "Grants life: every woman aged 18-49, not pregnant, gets full health, is cured and becomes pregnant (population cap permitting)", "its condition", 195, 2, 2 },
+    { "Takes life: the villager who rang it dies (health 0)", "its condition", 197, 2, 2 },
+    { "Takes health: each villager may fall sick (30%, see 'Who falls sick')", "its condition", 199, 3, 2 },
+    { "Grants luck", "its condition", 202, 3, 2 },
+    { "Grants technology: +10000..29999 tech (see 'Technology gained (medium)')", "its condition", 205, 3, 2 },
+    { "Grants food: +1000..2999 food (see 'Food gained (big)')", "its condition", 208, 3, 2 },
+    { "Takes health: the villager who rang it loses 90 health (to 0 at most)", "its condition", 211, 3, 2 },
+    { "Takes food: the plant store set to 0", "its condition", 214, 3, 2 },
+    { "Takes food: coconut trees set to 0", "its condition", 217, 3, 2 },
+    { "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer)", "its condition", 220, 3, 2 },
+    { "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer)", "its condition", 223, 3, 2 },
+    { "Grants health: every villager healed to 100 and cured", NULL, 226, 3, 0 },
+    { "Grants food: +200..999 food (see 'Food gained (small)')", NULL, 229, 3, 0 },
+    { "Grants food: plant store set to 800", NULL, 232, 3, 0 },
+    { "Grants food: coconut trees set to 30 (+30 with Coconuts Fix)", NULL, 235, 3, 0 },
+    { "Grants technology: +3000..12999 tech (see 'Technology gained (small)')", NULL, 238, 3, 0 },
+    { "Takes technology: -3000..12999 tech (see 'Technology lost')", NULL, 241, 3, 0 },
+    { "Takes health: each villager may fall sick (15%, see 'Who falls sick')", NULL, 244, 3, 0 },
+    { "Grants wisdom: one skill of the villager who rang it set to 100 (see 'Skill')", NULL, 247, 3, 0 },
+    { "Parenting", NULL, 250, 2, 0 },
+    { "Building", NULL, 252, 2, 0 },
+    { "Healing", NULL, 254, 2, 0 },
+    { "Research", NULL, 256, 2, 0 },
+    { "Farming", NULL, 258, 2, 0 },
+    { "One baby", NULL, 260, 1, 0 },
+    { "Twins", "its condition", 261, 2, 3 },
+    { "Triplets", "its condition", 263, 2, 3 },
+};
+static const oc_control VV2_OC_CONTROLS[] = {
+    { "Who falls sick", "falls sick", NULL, -1, 3, 3, 20, -1, 20, 0, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Who is bitten (falls sick, -60 health)", "is bitten: falls sick and loses 60 health, floored at 0", "Every living villager loses 60 health; anyone at 60 or less is left at 0 health.", -1, 3, 3, 19, -1, 20, 0, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Toddler 1: age", "age units (20 = 1 year; 70-89 = 3.5-4.45 years)", NULL, -1, 2, 3, 22, -1, 23, 0, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 0, 2, 0 },
+    { "Toddler 1: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 0, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Toddler 1: head", "head (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 49, 2, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Toddler 1: body", "body (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 50, 2, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 1 baby comes (the game's own count).", 4, 0, 1 },
+    { "Toddler 2: age", "age units (20 = 1 year; 70-89 = 3.5-4.45 years)", NULL, -1, 2, 3, 22, -1, 25, 2, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 4, 1, 0 },
+    { "Toddler 2: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 2, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Toddler 2: head", "head (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 49, 4, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Toddler 2: body", "body (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 50, 4, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 2 babies come (the game's own count).", 7, 0, 2 },
+    { "Toddler 3: age", "age units (20 = 1 year; 70-89 = 3.5-4.45 years)", NULL, -1, 2, 3, 22, -1, 28, 4, 0, 20, 70, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 7, 0, 0 },
+    { "Toddler 3: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 4, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "Toddler 3: head", "head (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 49, 6, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "Toddler 3: body", "body (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 50, 6, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only if at least 3 babies come (the game's own count).", 9, 0, 3 },
+    { "The man: age", "age units (20 = 1 year; 400-599 = 20-29.95 years)", NULL, -1, 2, 3, -1, -1, 29, 6, 0, 200, 400, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 9, 0, 0 },
+    { "The man: special skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 6, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 14, 0, 0 },
+    { "The man: special skill level", "skill points (30-49)", NULL, -1, 2, 3, -1, -1, 30, 11, 0, 20, 30, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 14, 0, 0 },
+    { "The man: head", "head (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 49, 11, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 14, 0, 1 },
+    { "The man: body", "body (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 50, 11, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 14, 0, 1 },
+    { "The woman: age", "age units (20 = 1 year; 400-599 = 20-29.95 years)", NULL, -1, 2, 3, -1, -1, 32, 11, 0, 200, 400, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 14, 0, 0 },
+    { "The woman: special skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 11, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 0 },
+    { "The woman: special skill level", "skill points (30-49)", NULL, -1, 2, 3, -1, -1, 33, 16, 0, 20, 30, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 0 },
+    { "The woman: head", "head (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 49, 16, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 2 },
+    { "The woman: body", "body (sprite row 0-29)", NULL, -1, 2, 3, -1, -1, 50, 16, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 2 },
+    { "Which children learn parenting", "child gains parenting", NULL, -1, 3, 3, 21, -1, 21, 16, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 0 },
+    { "Parenting gained by each child who learns", "parenting points", NULL, -1, 2, 3, 21, -1, 22, 16, 0, 11, 7, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 0 },
+    { "Which villager finds the idol", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 0, -1, 44, 16, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Destroy rewrites this villager's dislike/like slots; the offering branch does not touch the villager.", 19, 0, 0 },
+    { "Which girl", "the living women and girls", NULL, -1, 4, 2, 1, -1, 45, 16, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "The selector's existence check asks for an ADULT female, but the setup pick itself accepts any age (stock).", 19, 0, 0 },
+    { "If looks aren't everything: parenting gained", "parenting skill", NULL, 1, 2, 3, -1, -1, 1, 16, 0, 20, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 19, 0, 0 },
+    { "Which villager hears the voices", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 2, -1, 44, 16, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Only matters when investigating goes wrong: that villager is removed.", 19, 0, 0 },
+    { "If you investigate the voices", NULL, NULL, 0, 1, 3, -1, -1, -1, 16, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 21, 0, 0 },
+    { "Which child finds the fish", "the living children", NULL, -1, 4, 2, 3, -1, 47, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Leaving the fish alone gives this child farming +30.", 21, 0, 0 },
+    { "Which villager claims to be fastest", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 4, -1, 44, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Both choices rewrite this villager's like/dislike slots with 38.", 21, 0, 0 },
+    { "Which villager has the nightmare", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 5, -1, 44, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Letting them sleep costs this villager 20 health.", 21, 0, 0 },
+    { "Which villager is bumped", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 6, -1, 44, 18, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Bonking changes all five of this villager's skills and costs 10 health.", 21, 0, 0 },
+    { "If you bonk them on the head", NULL, NULL, 0, 1, 3, -1, -1, -1, 18, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which child is the prodigy", "the living children", NULL, -1, 4, 2, 7, -1, 47, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Play: this child's building +50; apprentice: research +10.", 23, 0, 0 },
+    { "If you chase the dragonflies: who falls sick", "falls sick", NULL, 0, 3, 3, 14, -1, 0, 20, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which villager finds the ball (the keeper)", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 8, -1, 44, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "If you keep the ball: who swaps with the keeper", "every other living villager", NULL, 0, 4, 3, 18, -1, 4, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 10304, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which villager finds the mirror", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 9, -1, 44, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Speaking 'Sunimeg' creates a double of this villager.", 23, 0, 0 },
+    { "Which villager sees the star", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 10, -1, 44, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Wishing for self raises one of this villager's skills.", 23, 0, 0 },
+    { "If they wish for themselves: which skill", NULL, NULL, 0, 1, 3, -1, -1, -1, 20, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 28, 0, 0 },
+    { "Wish for self: parenting gained", "parenting skill", NULL, 0, 2, 3, -1, -1, 6, 25, 0, 11, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "skill roll = parenting", 28, 0, 0 },
+    { "Wish for self: building gained", "building skill", NULL, 0, 2, 3, -1, -1, 7, 25, 0, 11, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "skill roll = building", 28, 0, 0 },
+    { "Wish for self: farming gained", "farming skill", NULL, 0, 2, 3, -1, -1, 8, 25, 0, 11, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "skill roll = farming", 28, 0, 0 },
+    { "Wish for self: research gained", "research skill", NULL, 0, 2, 3, -1, -1, 9, 25, 0, 11, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "skill roll = research", 28, 0, 0 },
+    { "Wish for self: healing gained", "healing skill", NULL, 0, 2, 3, -1, -1, 10, 25, 0, 11, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "skill roll = healing", 28, 0, 0 },
+    { "If they wish for the village", NULL, NULL, 1, 1, 3, -1, -1, -1, 25, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 30, 0, 0 },
+    { "Wish for the village: food (before the population factor)", "food, then times k (1/2/3 by population)", NULL, 1, 2, 3, -1, -1, 12, 27, 0, 200, 100, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "village roll = food", 30, 0, 0 },
+    { "Wish for the village: tech points (before the population factor)", "tech points, then times k (1/2/3 by population)", NULL, 1, 2, 3, -1, -1, 13, 27, 0, 2000, 1000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "village roll = tech", 30, 0, 0 },
+    { "Which villager finds the hole", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 11, -1, 44, 27, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Baby snakes and putrid slime make this villager sick.", 30, 0, 0 },
+    { "If you investigate the hole", NULL, NULL, 0, 1, 3, -1, -1, -1, 27, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Brass tools and the pocket watch have the same effect with different text.", 36, 0, 0 },
+    { "Baby snakes: who else falls sick", "falls sick", NULL, 0, 3, 3, 15, -1, 0, 33, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, "investigate result = baby snakes", 36, 0, 0 },
+    { "Which man finds the note", "the living men aged 18 and over", NULL, -1, 4, 2, 12, -1, 46, 33, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Writing a poem gives him parenting +30; hiding makes him the father.", 36, 0, 0 },
+    { "If he hides to catch the poet: who wrote the note (she conceives)", "the living men aged 18 and over", NULL, 1, 4, 3, 16, -1, 46, 33, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 36, 0, 0 },
+    { "If he hides to catch the poet: how many babies", NULL, NULL, 1, 1, 3, 17, -1, -1, 33, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 41, 0, 0 },
+    { "Which villager finds the pearl", "any active villager with health > 0, any age or sex", NULL, -1, 4, 2, 13, -1, 44, 36, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, "Keeping it raises all five of this villager's skills.", 41, 0, 0 },
+    { "If kept: farming gained", "farming skill", NULL, 0, 2, 3, -1, -1, 15, 36, 0, 20, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 41, 0, 0 },
+    { "If kept: research gained", "research skill", NULL, 0, 2, 3, -1, -1, 16, 36, 0, 20, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 41, 0, 0 },
+    { "If kept: parenting gained", "parenting skill", NULL, 0, 2, 3, -1, -1, 17, 36, 0, 20, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 41, 0, 0 },
+    { "If kept: building gained", "building skill", NULL, 0, 2, 3, -1, -1, 18, 36, 0, 20, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 41, 0, 0 },
+    { "If kept: healing gained", "healing skill", NULL, 0, 2, 3, -1, -1, 19, 36, 0, 20, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 41, 0, 0 },
+    { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 36, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 44, 0, 0 },
+    { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 39, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 47, 0, 0 },
+    { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 42, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 50, 0, 0 },
+    { "If you open it: who falls sick", "falls sick", NULL, 0, 3, 3, 28, -1, 35, 45, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 50, 0, 0 },
+    { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 45, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 53, 0, 0 },
+    { "If you open it: who is bitten (falls sick, loses health)", "is bitten: falls sick and loses 10/15/20 health (by contents), floored at 0", "Every living villager falls sick and loses 10-20 health.", 0, 3, 3, 28, -1, 35, 48, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 53, 0, 0 },
+    { "Who finds the sack (if opened: falls sick, -15 health)", "any living villager (record present, health > 0), any age or sex", NULL, -1, 4, 2, 23, -1, 44, 48, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 53, 0, 0 },
+    { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 48, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 56, 0, 0 },
+    { "Who finds the sack (if opened: stung, loses health)", "any living villager (record present, health > 0), any age or sex", NULL, -1, 4, 2, 24, -1, 44, 51, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 56, 0, 0 },
+    { "If they drink it: their new head", NULL, NULL, 0, 1, 3, -1, -1, -1, 51, 30, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only the finder is female: a male's roll is rand(29)", 176, 0, 0 },
+    { "Who finds the vial (if they drink it: new head)", "any living villager (record present, health > 0), any age or sex", NULL, -1, 4, 2, 25, -1, 44, 81, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 176, 0, 0 },
+    { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 81, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 179, 0, 0 },
+    { "If they drink it: which skill improves", NULL, NULL, 0, 1, 3, -1, -1, -1, 84, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 184, 0, 0 },
+    { "Who finds the vial (if they drink it: a skill improves)", "any living villager (record present, health > 0), any age or sex", NULL, -1, 4, 2, 26, -1, 44, 89, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 184, 0, 0 },
+    { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 89, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 187, 0, 0 },
+    { "Who finds the vial (if they drink it: every skill drops)", "any living villager (record present, health > 0), any age or sex", NULL, -1, 4, 2, 27, -1, 44, 92, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 187, 0, 0 },
+    { "What the Gong does", NULL, NULL, -1, 1, 3, 30, -1, -1, 92, 23, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 250, 0, 0 },
+    { "Technology gained (big, 'Grants technology' tier A)", "tech", NULL, -1, 2, 3, 30, -1, 53, 115, 0, 40000, 20000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +20000..59999'", 250, 0, 0 },
+    { "Technology gained (medium, tier B)", "tech", NULL, -1, 2, 3, 30, -1, 57, 115, 0, 20000, 10000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +10000..29999'", 250, 0, 0 },
+    { "Technology gained (small, tier C)", "tech", NULL, -1, 2, 3, 30, -1, 61, 115, 0, 10000, 3000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +3000..12999'", 250, 0, 0 },
+    { "Technology lost (tier C)", "tech lost", NULL, -1, 2, 3, 30, -1, 62, 115, 0, 10000, 3000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Takes technology'", 250, 0, 0 },
+    { "Food gained (big, tier B)", "food", NULL, -1, 2, 3, 30, -1, 58, 115, 0, 2000, 1000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants food: +1000..2999'", 250, 0, 0 },
+    { "Food gained (small, tier C)", "food", NULL, -1, 2, 3, 30, -1, 60, 115, 0, 800, 200, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants food: +200..999'", 250, 0, 0 },
+    { "Who falls sick ('Takes health', 30%, tier B)", "falls sick", NULL, -1, 3, 3, 30, -1, 56, 115, 0, 100, 0, 0, 0, 99, 4, 0, 0, -1324, 0, 4, 0, 0, "only with result 'Takes health: each villager may fall sick (30%)'", 250, 0, 0 },
+    { "Who falls sick ('Takes health', 15%, tier C)", "falls sick", NULL, -1, 3, 3, 30, -1, 63, 115, 0, 100, 0, 0, 0, 99, 4, 0, 0, -1324, 0, 4, 0, 0, "only with result 'Takes health: each villager may fall sick (15%)'", 250, 0, 0 },
+    { "Skill raised to 100 ('Grants wisdom')", NULL, NULL, -1, 1, 3, 30, -1, -1, 115, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 260, 0, 0 },
+    { "Babies per pregnancy ('Grants life')", NULL, NULL, -1, 1, 3, 29, -1, -1, 120, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 265, 0, 0 },
+};
+static const oc_event VV2_OC_EVENTS[] = {
+    { 5, 0, 0, 1, 0, 0, NULL },
+    { 8, 0, 0, 0, 1, 0, NULL },
+    { 11, 0, 1, 0, 1, 0, NULL },
+    { 14, 1, 1, 0, 1, 0, NULL },
+    { 17, 2, 0, 0, 1, 0, NULL },
+    { 18, 2, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 20, 2, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 21, 2, 12, 2, 0, 0, NULL },
+    { 22, 14, 0, 1, 0, 0, NULL },
+    { 25, 14, 10, 0, 0, 0, NULL },
+    { 26, 24, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 27, 24, 2, 0, 0, 0, NULL },
+    { 65, 26, 1, 0, 0, 0, NULL },
+    { 66, 27, 2, 0, 0, 0, NULL },
+    { 69, 29, 2, 0, 0, 0, NULL },
+    { 70, 31, 1, 0, 0, 0, NULL },
+    { 71, 32, 1, 0, 0, 0, NULL },
+    { 72, 33, 1, 0, 0, 0, NULL },
+    { 73, 34, 2, 0, 0, 0, NULL },
+    { 74, 36, 1, 0, 0, 0, NULL },
+    { 75, 37, 1, 0, 0, 0, NULL },
+    { 77, 38, 2, 0, 0, 0, NULL },
+    { 78, 40, 1, 0, 1, 0, NULL },
+    { 80, 41, 10, 0, 0, 0, NULL },
+    { 81, 51, 3, 0, 0, 0, NULL },
+    { 83, 54, 3, 0, 0, 0, NULL },
+    { 84, 57, 6, 0, 0, 0, NULL },
+    { 128, 63, 1, 0, 0, 0, NULL },
+    { 129, 64, 1, 0, 0, 0, NULL },
+    { 130, 65, 2, 0, 0, 0, NULL },
+    { 131, 67, 3, 0, 0, 0, NULL },
+    { 132, 70, 2, 0, 0, 0, NULL },
+    { 133, 72, 2, 0, 0, 0, NULL },
+    { 134, 74, 3, 0, 0, 0, NULL },
+    { 135, 77, 2, 0, 0, 0, NULL },
+    { 1000, 79, 11, 0, 0, 0, NULL },
+};
+#define VV2_OC_EVENT_COUNT 36
 static const story_event VV2_EVENTS[] = {
     { 0, "The Obnoxious Parrot", "", "A parrot keeps startling the researchers: the tribe loses tech points.", "nothing beyond an island event being possible" },
     { 1, "The Flash Flood", "", "A flash flood soaks the food bin: only the top layer of food stays edible.", "nothing beyond an island event being possible" },
@@ -165,16 +1386,19 @@ static const story_event VV2_EVENTS[] = {
     { 15, "Where Are The Infants?", "", "The village's infants are carried off during the night.", "a mother with an infant, and the village's later technologies" },
     { 16, "A Dangerous Mission", "", "Eight of the youngest, strongest adults sail off for the south shore and leave the village.", "a population of more than 60" },
     { 17, "The  Foul Passing", "", "Something foul passes through: crops, coconuts and the food bin are ruined.", "the village's later technologies (the game's own advanced-village check)" },
+    { 18, "The Mosquito Swarm", "", "Mosquitoes swarm the island: some villagers fall ill and the adults take refuge in the water.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 19, "The Friendly Parrot", "", "A friendly parrot drops nuts into the food bin: the tribe gains food.", "nothing beyond an island event being possible" },
+    { 20, "The Dragonfly Migration", "", "Dragonflies drive off the biting insects: every villager is restored to full health and cured of sickness.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 21, "The Barrel O` Babies", "", "A barrel of babies washes up and they join the village (more of them in a bigger village).", "room in the village for new villagers" },
     { 22, "The West Wind", "", "A cool, moist wind refreshes the crops and coconut trees.", "nothing beyond an island event being possible" },
     { 23, "The Dense Fog", "tech gained", "After a thick fog, useful formulae are found on the research table: tech points gained.", "nothing beyond an island event being possible" },
     { 24, "The Dense Fog", "food gained", "After a thick fog, the food bin holds more food.", "nothing beyond an island event being possible" },
     { 25, "Old Friends", "", "A couple from the south shore finds the village and joins it.", "room in the village for new villagers" },
+    { 26, "Science Awareness Day", "", "The village celebrates its researchers with demonstrations and lectures; the children gain research skill.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 27, "The Mother Parrot", "", "The children watch a mother parrot and learn about parenting.", "nothing beyond an island event being possible" },
-    { 64, "The Ancient Gold Coin", "", "A villager finds a gold coin: wear it as an ornament, or give it to the scientists.", "the gold-coin fashion not to have caught on already" },
+    { 64, "The Ancient Gold Coin", "", "A villager finds a gold coin: wear it as an ornament, or give it to the scientists.", "the tribe's culture below the level the gold coin gives" },
     { 65, "The Cursed Idol", "", "A villager finds a cursed statuette: destroy it, or offer food to lift the curse.", "at least 250 food" },
-    { 66, "The Prettiest Tribe Girl", "", "A young woman wants to be declared the prettiest in the tribe.", "at least one adult woman" },
+    { 66, "The Prettiest Tribe Girl", "Female", "A young woman wants to be declared the prettiest in the tribe.", "at least one adult woman" },
     { 67, "The Strange Request", "", "Biggles wants to be left alone at the research table: allow it, or refuse.", "nothing beyond an island event being possible" },
     { 68, "The Savage Child", "", "A wild boy is found at the research table: lure him in with food, or chase him away.", "room in the village for a new villager" },
     { 69, "The Voices In The Brush", "", "A villager hears voices in the brush: investigate (risky), or head back.", "nothing beyond an island event being possible" },
@@ -190,8 +1414,8 @@ static const story_event VV2_EVENTS[] = {
     { 79, "The Huge Coconut", "", "A giant coconut falls: soften it in the pond, or hurl it from the diving rock.", "nothing beyond an island event being possible" },
     { 80, "The Falling Star", "", "A villager sees a falling star: wish for themselves, or for the village.", "nothing beyond an island event being possible" },
     { 81, "The Hole In The Sand", "", "A villager finds a strange hole on the beach: investigate it, or fill it in.", "nothing beyond an island event being possible" },
-    { 82, "The Spyglass", "", "A villager finds a spyglass: keep it, or give it to the scientists.", "the spyglass not to have been kept already" },
-    { 83, "The Love Note", "", "A man finds a love note from a secret admirer: write a poem, or hide to catch the poet.", "at least one adult man and one adult woman" },
+    { 82, "The Spyglass", "", "A villager finds a spyglass: keep it, or give it to the scientists.", "the tribe's exploration below the level the spyglass gives" },
+    { 83, "The Love Note", "Male", "A man finds a love note from a secret admirer: write a poem, or hide to catch the poet.", "at least one adult man and one adult woman" },
     { 84, "The White Pearl", "", "A villager finds a huge white pearl: keep it, or show it to the tribe.", "nothing beyond an island event being possible" },
     { 128, "A Mysterious Sack", "thick plastic", "A thick plastic sack washes up: opening it gives food.", "nothing beyond an island event being possible" },
     { 129, "A Mysterious Sack", "carefully sealed", "A carefully sealed sack washes up: opening it gives tech points.", "nothing beyond an island event being possible" },
@@ -202,7 +1426,7 @@ static const story_event VV2_EVENTS[] = {
     { 134, "A Mysterious Vial", "orange", "A vial of orange liquid: drinking it raises one of the villager's skills.", "nothing beyond an island event being possible" },
     { 135, "A Mysterious Vial", "fragrant", "A vial of fragrant liquid: drinking it lowers all of the villager's skills.", "nothing beyond an island event being possible" },
 };
-#define VV2_EVENT_COUNT 53
+#define VV2_EVENT_COUNT 56
 
 static const unsigned char VV3_W0_E[44] = { 0x50, 0xC3, 0x00, 0x00, 0x30, 0x75, 0x00, 0x00, 0xF8, 0x24, 0x01, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x30, 0x75, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0xA0, 0x86, 0x01, 0x00, 0x40, 0x9C, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0x88, 0x13, 0x00, 0x00 };
 static const unsigned char VV3_W0_R[44] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -239,8 +1463,572 @@ static const story_write VV3_WRITES[] = {
 #define VV3_WRITE_COUNT 10
 static const unsigned char VV3_PICK_SITE_BYTES[7] = { 0x8B, 0x14, 0xB5, 0x78, 0x3C, 0x4B, 0x00 };
 static const unsigned char VV3_TITLE_SITE_BYTES[6] = { 0x8B, 0x8D, 0xE4, 0x00, 0x00, 0x00 };
+static const unsigned char VV3_OC_CHOICE_APPLY_BYTES[12] = { 0x8B, 0x86, 0x30, 0x08, 0x00, 0x00, 0x50, 0xFF, 0x52, 0x2C, 0x8B, 0xCE };
+static const unsigned char VV3_OC_SIMPLE_APPLY_BYTES[5] = { 0xFF, 0x52, 0x30, 0x8B, 0xCE };
 #define VV3_PARENTAGE_SITE 0x455BF3u
 static const unsigned char VV3_PARENTAGE_STOCK[5] = { 0x01, 0x0D, 0xA8, 0x24, 0x58 };
+static const unsigned char VV3_OCS_414D9A[5] = { 0xE8, 0x31, 0xE5, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_415327[5] = { 0xE8, 0xA4, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_415332[5] = { 0xE8, 0x99, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_415340[5] = { 0xE8, 0x8B, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41536A[5] = { 0xE8, 0x61, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_415375[5] = { 0xE8, 0x56, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_415383[5] = { 0xE8, 0x48, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4153AD[5] = { 0xE8, 0x1E, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4153B8[5] = { 0xE8, 0x13, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4153C6[5] = { 0xE8, 0x05, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41547D[5] = { 0xE8, 0x4E, 0xDE, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41556B[5] = { 0xE8, 0x60, 0xDD, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4155A8[5] = { 0xE8, 0x23, 0xDD, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_415846[5] = { 0xE8, 0x85, 0xDA, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_415DB6[5] = { 0xE8, 0x15, 0xD5, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4160A3[5] = { 0xE8, 0x28, 0xD2, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4161E2[5] = { 0xE8, 0xE9, 0xD0, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41632F[5] = { 0xE8, 0x9C, 0xCF, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41645D[5] = { 0xE8, 0x6E, 0xCE, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_416496[5] = { 0xE8, 0x35, 0xCE, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41656A[5] = { 0xE8, 0x61, 0xCD, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_416762[5] = { 0xE8, 0x69, 0xCB, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41698A[5] = { 0xE8, 0x41, 0xC9, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_416B21[5] = { 0xE8, 0xAA, 0xC7, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_416E47[5] = { 0xE8, 0x84, 0xC4, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41722D[5] = { 0xE8, 0x9E, 0xC0, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_417463[5] = { 0xE8, 0x68, 0xBE, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41749F[5] = { 0xE8, 0x2C, 0xBE, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4175BD[5] = { 0xE8, 0x0E, 0xBD, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_417636[5] = { 0xE8, 0x95, 0xBC, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41771D[5] = { 0xE8, 0xAE, 0xBB, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_417792[5] = { 0xE8, 0x39, 0xBB, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4178B5[5] = { 0xE8, 0x16, 0xBA, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_417ACD[5] = { 0xE8, 0xFE, 0xB7, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_417B79[5] = { 0xE8, 0x52, 0xB7, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_417DF0[5] = { 0xE8, 0xDB, 0xB4, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_418109[5] = { 0xE8, 0xC2, 0xB1, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_418268[5] = { 0xE8, 0x63, 0xB0, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_4183EF[5] = { 0xE8, 0xDC, 0xAE, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_419162[5] = { 0xE8, 0x69, 0xA1, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_419182[5] = { 0xE8, 0x49, 0xA1, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_41FC4E[5] = { 0xE8, 0x7D, 0x36, 0xFE, 0xFF };
+static const unsigned char VV3_OCS_455B92[5] = { 0xE8, 0x39, 0xD7, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_455BB2[5] = { 0xE8, 0x19, 0xD7, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_456500[5] = { 0xE8, 0xCB, 0xCD, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_456522[5] = { 0xE8, 0xA9, 0xCD, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45C67B[5] = { 0xE8, 0x50, 0x6C, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45D737[5] = { 0xE8, 0x94, 0x5B, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45D791[5] = { 0xE8, 0x3A, 0x5B, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45D951[5] = { 0xE8, 0x7A, 0x59, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45D964[5] = { 0xE8, 0x67, 0x59, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45D9C5[5] = { 0xE8, 0x06, 0x59, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45DA26[5] = { 0xE8, 0xA5, 0x58, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45DA63[5] = { 0xE8, 0x68, 0x58, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45DA6F[5] = { 0xE8, 0x5C, 0x58, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45DB53[5] = { 0xE8, 0x78, 0x57, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45DB5F[5] = { 0xE8, 0x6C, 0x57, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45DC84[5] = { 0xE8, 0x47, 0x56, 0xFA, 0xFF };
+static const unsigned char VV3_OCS_45DC95[5] = { 0xE8, 0x36, 0x56, 0xFA, 0xFF };
+static const unsigned char VV3_OCC_414B39[5] = { 0xE8, 0x52, 0x8E, 0x04, 0x00 };
+static const unsigned char VV3_OCC_414C00[5] = { 0xE8, 0x3B, 0x90, 0x04, 0x00 };
+static const unsigned char VV3_OCC_414DAF[5] = { 0xE8, 0x9C, 0xB1, 0x04, 0x00 };
+static const unsigned char VV3_OCC_414E67[5] = { 0xE8, 0xD4, 0xAC, 0x00, 0x00 };
+static const unsigned char VV3_OCC_414E9C[5] = { 0xE8, 0x9F, 0xAC, 0x00, 0x00 };
+static const unsigned char VV3_OCC_4150D9[5] = { 0xE8, 0x62, 0xAA, 0x00, 0x00 };
+static const unsigned char VV3_OCC_415119[5] = { 0xE8, 0x22, 0xAA, 0x00, 0x00 };
+static const unsigned char VV3_OCC_4151E9[5] = { 0xE8, 0x52, 0xA9, 0x00, 0x00 };
+static const unsigned char VV3_OCC_415267[5] = { 0xE8, 0xB4, 0x86, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415350[5] = { 0xE8, 0xFB, 0xAB, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415393[5] = { 0xE8, 0xB8, 0xAB, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4153D6[5] = { 0xE8, 0x75, 0xAB, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415431[5] = { 0xE8, 0x2A, 0x80, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415500[5] = { 0xE8, 0x5B, 0x7F, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415640[5] = { 0xE8, 0x1B, 0x7E, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415760[5] = { 0xE8, 0xFB, 0x7C, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4157F0[5] = { 0xE8, 0x6B, 0x7C, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415875[5] = { 0xE8, 0xE6, 0x7E, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415D58[5] = { 0xE8, 0xE3, 0x7E, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415EFF[5] = { 0xE8, 0x8C, 0x7A, 0x04, 0x00 };
+static const unsigned char VV3_OCC_415F0D[5] = { 0xE8, 0xDE, 0x7A, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416280[5] = { 0xE8, 0xDB, 0x71, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4163C1[5] = { 0xE8, 0x9A, 0x70, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416560[5] = { 0xE8, 0xFB, 0x6E, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4166BB[5] = { 0xE8, 0x80, 0x94, 0x00, 0x00 };
+static const unsigned char VV3_OCC_4166CB[5] = { 0xE8, 0x70, 0x94, 0x00, 0x00 };
+static const unsigned char VV3_OCC_4167AD[5] = { 0xE8, 0x8E, 0x93, 0x00, 0x00 };
+static const unsigned char VV3_OCC_416A20[5] = { 0xE8, 0x3B, 0x6A, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416C7A[5] = { 0xE8, 0xE1, 0x6D, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416CE0[5] = { 0xE8, 0x7B, 0x67, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416D7A[5] = { 0xE8, 0xD1, 0x6D, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416EE0[5] = { 0xE8, 0x7B, 0x65, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416EFD[5] = { 0xE8, 0x5E, 0x65, 0x04, 0x00 };
+static const unsigned char VV3_OCC_416FE6[5] = { 0xE8, 0xB5, 0x12, 0x04, 0x00 };
+static const unsigned char VV3_OCC_417003[5] = { 0xE8, 0x98, 0x12, 0x04, 0x00 };
+static const unsigned char VV3_OCC_417060[5] = { 0xE8, 0xFB, 0x63, 0x04, 0x00 };
+static const unsigned char VV3_OCC_41707D[5] = { 0xE8, 0xDE, 0x63, 0x04, 0x00 };
+static const unsigned char VV3_OCC_417165[5] = { 0xE8, 0x36, 0x11, 0x04, 0x00 };
+static const unsigned char VV3_OCC_417182[5] = { 0xE8, 0x19, 0x11, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4171E0[5] = { 0xE8, 0x7B, 0x62, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4173A0[5] = { 0xE8, 0xBB, 0x60, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4175A0[5] = { 0xE8, 0xBB, 0x5E, 0x04, 0x00 };
+static const unsigned char VV3_OCC_41767B[5] = { 0xE8, 0xE0, 0x63, 0x04, 0x00 };
+static const unsigned char VV3_OCC_41768D[5] = { 0xE8, 0xCE, 0x63, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4176A8[5] = { 0xE8, 0xA3, 0x64, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4176BA[5] = { 0xE8, 0x91, 0x64, 0x04, 0x00 };
+static const unsigned char VV3_OCC_41783B[5] = { 0xE8, 0x90, 0x7A, 0x04, 0x00 };
+static const unsigned char VV3_OCC_4178D5[5] = { 0xE8, 0x86, 0x5B, 0x04, 0x00 };
+static const unsigned char VV3_OCC_417A9C[5] = { 0xE8, 0xBF, 0x59, 0x04, 0x00 };
+static const unsigned char VV3_OCC_417D20[5] = { 0xE8, 0x3B, 0x57, 0x04, 0x00 };
+static const unsigned char VV3_OCC_417F40[5] = { 0xE8, 0x1B, 0x55, 0x04, 0x00 };
+static const unsigned char VV3_OCC_418300[5] = { 0xE8, 0x5B, 0x51, 0x04, 0x00 };
+static const oc_site VV3_OC_SITES[] = {
+    { 0x414D9Au, VV3_OCS_414D9A },
+    { 0x415327u, VV3_OCS_415327 },
+    { 0x415332u, VV3_OCS_415332 },
+    { 0x415340u, VV3_OCS_415340 },
+    { 0x41536Au, VV3_OCS_41536A },
+    { 0x415375u, VV3_OCS_415375 },
+    { 0x415383u, VV3_OCS_415383 },
+    { 0x4153ADu, VV3_OCS_4153AD },
+    { 0x4153B8u, VV3_OCS_4153B8 },
+    { 0x4153C6u, VV3_OCS_4153C6 },
+    { 0x41547Du, VV3_OCS_41547D },
+    { 0x41556Bu, VV3_OCS_41556B },
+    { 0x4155A8u, VV3_OCS_4155A8 },
+    { 0x415846u, VV3_OCS_415846 },
+    { 0x415DB6u, VV3_OCS_415DB6 },
+    { 0x4160A3u, VV3_OCS_4160A3 },
+    { 0x4161E2u, VV3_OCS_4161E2 },
+    { 0x41632Fu, VV3_OCS_41632F },
+    { 0x41645Du, VV3_OCS_41645D },
+    { 0x416496u, VV3_OCS_416496 },
+    { 0x41656Au, VV3_OCS_41656A },
+    { 0x416762u, VV3_OCS_416762 },
+    { 0x41698Au, VV3_OCS_41698A },
+    { 0x416B21u, VV3_OCS_416B21 },
+    { 0x416E47u, VV3_OCS_416E47 },
+    { 0x41722Du, VV3_OCS_41722D },
+    { 0x417463u, VV3_OCS_417463 },
+    { 0x41749Fu, VV3_OCS_41749F },
+    { 0x4175BDu, VV3_OCS_4175BD },
+    { 0x417636u, VV3_OCS_417636 },
+    { 0x41771Du, VV3_OCS_41771D },
+    { 0x417792u, VV3_OCS_417792 },
+    { 0x4178B5u, VV3_OCS_4178B5 },
+    { 0x417ACDu, VV3_OCS_417ACD },
+    { 0x417B79u, VV3_OCS_417B79 },
+    { 0x417DF0u, VV3_OCS_417DF0 },
+    { 0x418109u, VV3_OCS_418109 },
+    { 0x418268u, VV3_OCS_418268 },
+    { 0x4183EFu, VV3_OCS_4183EF },
+    { 0x419162u, VV3_OCS_419162 },
+    { 0x419182u, VV3_OCS_419182 },
+    { 0x41FC4Eu, VV3_OCS_41FC4E },
+    { 0x455B92u, VV3_OCS_455B92 },
+    { 0x455BB2u, VV3_OCS_455BB2 },
+    { 0x456500u, VV3_OCS_456500 },
+    { 0x456522u, VV3_OCS_456522 },
+    { 0x45C67Bu, VV3_OCS_45C67B },
+    { 0x45D737u, VV3_OCS_45D737 },
+    { 0x45D791u, VV3_OCS_45D791 },
+    { 0x45D951u, VV3_OCS_45D951 },
+    { 0x45D964u, VV3_OCS_45D964 },
+    { 0x45D9C5u, VV3_OCS_45D9C5 },
+    { 0x45DA26u, VV3_OCS_45DA26 },
+    { 0x45DA63u, VV3_OCS_45DA63 },
+    { 0x45DA6Fu, VV3_OCS_45DA6F },
+    { 0x45DB53u, VV3_OCS_45DB53 },
+    { 0x45DB5Fu, VV3_OCS_45DB5F },
+    { 0x45DC84u, VV3_OCS_45DC84 },
+    { 0x45DC95u, VV3_OCS_45DC95 },
+};
+#define VV3_OC_SITE_COUNT 59
+static const oc_scope VV3_OC_SCOPES[] = {
+    { 0x414B39u, VV3_OCC_414B39, 0, -1, 0, 0, -1 },
+    { 0x414C00u, VV3_OCC_414C00, 0, -1, 0, 0, -1 },
+    { 0x414DAFu, VV3_OCC_414DAF, 0, -1, 0, 0, -1 },
+    { 0x414E67u, VV3_OCC_414E67, 0, -1, 0, 0, -1 },
+    { 0x414E9Cu, VV3_OCC_414E9C, 0, -1, 0, 0, -1 },
+    { 0x4150D9u, VV3_OCC_4150D9, 0, -1, 0, 0, -1 },
+    { 0x415119u, VV3_OCC_415119, 0, -1, 0, 0, -1 },
+    { 0x4151E9u, VV3_OCC_4151E9, 0, -1, 0, 0, -1 },
+    { 0x415267u, VV3_OCC_415267, 0, -1, 0, 0, -1 },
+    { 0x415350u, VV3_OCC_415350, 0, -1, 0, 0, -1 },
+    { 0x415393u, VV3_OCC_415393, 0, -1, 0, 0, -1 },
+    { 0x4153D6u, VV3_OCC_4153D6, 0, -1, 0, 0, -1 },
+    { 0x415431u, VV3_OCC_415431, 0, -1, 0, 0, -1 },
+    { 0x415500u, VV3_OCC_415500, 0, -1, 0, 0, -1 },
+    { 0x415640u, VV3_OCC_415640, 0, -1, 0, 0, -1 },
+    { 0x415760u, VV3_OCC_415760, 0, -1, 0, 0, -1 },
+    { 0x4157F0u, VV3_OCC_4157F0, 0, -1, 0, 0, -1 },
+    { 0x415875u, VV3_OCC_415875, 0, -1, 0, 0, -1 },
+    { 0x415D58u, VV3_OCC_415D58, 0, -1, 0, 0, -1 },
+    { 0x415EFFu, VV3_OCC_415EFF, 0, -1, 0, 0, -1 },
+    { 0x415F0Du, VV3_OCC_415F0D, 0, -1, 0, 0, -1 },
+    { 0x416280u, VV3_OCC_416280, 0, -1, 0, 0, -1 },
+    { 0x4163C1u, VV3_OCC_4163C1, 0, -1, 0, 0, -1 },
+    { 0x416560u, VV3_OCC_416560, 0, -1, 0, 0, -1 },
+    { 0x4166BBu, VV3_OCC_4166BB, 0, -1, 0, 0, -1 },
+    { 0x4166CBu, VV3_OCC_4166CB, 0, -1, 0, 0, -1 },
+    { 0x4167ADu, VV3_OCC_4167AD, 0, -1, 0, 0, -1 },
+    { 0x416A20u, VV3_OCC_416A20, 0, -1, 0, 0, -1 },
+    { 0x416C7Au, VV3_OCC_416C7A, 0, -1, 0, 0, -1 },
+    { 0x416CE0u, VV3_OCC_416CE0, 0, -1, 0, 0, -1 },
+    { 0x416D7Au, VV3_OCC_416D7A, 0, -1, 0, 0, -1 },
+    { 0x416EE0u, VV3_OCC_416EE0, 0, -1, 0, 0, -1 },
+    { 0x416EFDu, VV3_OCC_416EFD, 0, -1, 0, 0, -1 },
+    { 0x416FE6u, VV3_OCC_416FE6, 0, -1, 0, 0, -1 },
+    { 0x417003u, VV3_OCC_417003, 0, -1, 0, 0, -1 },
+    { 0x417060u, VV3_OCC_417060, 0, -1, 0, 0, -1 },
+    { 0x41707Du, VV3_OCC_41707D, 0, -1, 0, 0, -1 },
+    { 0x417165u, VV3_OCC_417165, 0, -1, 0, 0, -1 },
+    { 0x417182u, VV3_OCC_417182, 0, -1, 0, 0, -1 },
+    { 0x4171E0u, VV3_OCC_4171E0, 0, -1, 0, 0, -1 },
+    { 0x4173A0u, VV3_OCC_4173A0, 0, -1, 0, 0, -1 },
+    { 0x4175A0u, VV3_OCC_4175A0, 0, -1, 0, 0, -1 },
+    { 0x41767Bu, VV3_OCC_41767B, 0, -1, 0, 0, -1 },
+    { 0x41768Du, VV3_OCC_41768D, 0, -1, 0, 0, -1 },
+    { 0x4176A8u, VV3_OCC_4176A8, 0, -1, 0, 0, -1 },
+    { 0x4176BAu, VV3_OCC_4176BA, 0, -1, 0, 0, -1 },
+    { 0x41783Bu, VV3_OCC_41783B, 0, -1, 0, 0, -1 },
+    { 0x4178D5u, VV3_OCC_4178D5, 0, -1, 0, 0, -1 },
+    { 0x417A9Cu, VV3_OCC_417A9C, 0, -1, 0, 0, -1 },
+    { 0x417D20u, VV3_OCC_417D20, 0, -1, 0, 0, -1 },
+    { 0x417F40u, VV3_OCC_417F40, 0, -1, 0, 0, -1 },
+    { 0x418300u, VV3_OCC_418300, 0, -1, 0, 0, -1 },
+};
+#define VV3_OC_SCOPE_COUNT 52
+static const oc_force VV3_OC_FORCES[] = {
+    { 10, 0 },
+    { 10, 99 },
+    { 13, 0 },
+    { 13, 99 },
+    { 14, 0 },
+    { 14, 99 },
+    { 20, 0 },
+    { 20, 1 },
+    { 20, 2 },
+    { 20, 3 },
+    { 53, 0 },
+    { 53, 20 },
+    { 53, 40 },
+    { 53, 60 },
+    { 53, 80 },
+    { 55, 0 },
+    { 55, 20 },
+    { 55, 40 },
+    { 55, 60 },
+    { 55, 80 },
+    { 42, 99 },
+    { 42, 0 },
+    { 43, 99 },
+    { 42, 0 },
+    { 43, 0 },
+    { 42, 99 },
+    { 42, 0 },
+    { 43, 99 },
+    { 42, 0 },
+    { 43, 0 },
+    { 25, 0 },
+    { 25, 99 },
+    { 28, 0 },
+    { 28, 50 },
+    { 28, 99 },
+    { 53, 0 },
+    { 53, 20 },
+    { 53, 40 },
+    { 53, 60 },
+    { 53, 80 },
+    { 53, 0 },
+    { 53, 20 },
+    { 53, 40 },
+    { 53, 60 },
+    { 53, 80 },
+    { 55, 0 },
+    { 55, 20 },
+    { 55, 40 },
+    { 55, 60 },
+    { 55, 80 },
+    { 55, 0 },
+    { 55, 20 },
+    { 55, 40 },
+    { 55, 60 },
+    { 55, 80 },
+    { 30, 0 },
+    { 30, 50 },
+    { 30, 99 },
+    { 32, 0 },
+    { 32, 99 },
+    { 33, 0 },
+    { 33, 99 },
+    { 1, 0 },
+    { 1, 1 },
+    { 3, 0 },
+    { 3, 1 },
+    { 3, 2 },
+    { 3, 3 },
+    { 3, 4 },
+    { 4, 0 },
+    { 4, 1 },
+    { 6, 0 },
+    { 6, 1 },
+    { 6, 2 },
+    { 6, 3 },
+    { 6, 4 },
+    { 7, 0 },
+    { 7, 1 },
+    { 9, 0 },
+    { 9, 1 },
+    { 9, 2 },
+    { 9, 3 },
+    { 9, 4 },
+};
+static const oc_option VV3_OC_OPTIONS[] = {
+    { "The women adore him (Parenting +30)", NULL, 0, 1, 0 },
+    { "A crab bites his toe (health and Parenting lost)", NULL, 1, 1, 0 },
+    { "Outfit A (body 5 for a man, 14 for a woman)", NULL, 2, 1, 0 },
+    { "Outfit B (body 18 for a man, 16 for a woman)", NULL, 3, 1, 0 },
+    { "They get away with the fish (food gained)", NULL, 4, 1, 0 },
+    { "A wave hits the villagers", NULL, 5, 1, 0 },
+    { "They prepare and the storm does no harm", NULL, 6, 1, 0 },
+    { "Nobody listens and food is lost in the storm", NULL, 7, 1, 0 },
+    { "False alarm: tech points lost", NULL, 8, 1, 0 },
+    { "False alarm: the villager studies the sky (Research gained)", NULL, 9, 1, 0 },
+    { "loses Parenting", NULL, 10, 1, 0 },
+    { "loses Farming", NULL, 11, 1, 0 },
+    { "loses Healing", NULL, 12, 1, 0 },
+    { "loses Building", NULL, 13, 1, 0 },
+    { "loses Research", NULL, 14, 1, 0 },
+    { "gains Parenting", NULL, 15, 1, 0 },
+    { "gains Farming", NULL, 16, 1, 0 },
+    { "gains Healing", NULL, 17, 1, 0 },
+    { "gains Building", NULL, 18, 1, 0 },
+    { "gains Research", NULL, 19, 1, 0 },
+    { "One baby", NULL, 20, 1, 0 },
+    { "Twins", NULL, 21, 2, 0 },
+    { "Triplets", NULL, 23, 2, 0 },
+    { "One baby", NULL, 25, 1, 0 },
+    { "Twins", NULL, 26, 2, 0 },
+    { "Triplets", NULL, 28, 2, 0 },
+    { "Full recovery (Healing +40)", NULL, 30, 1, 0 },
+    { "The villager dies", NULL, 31, 1, 0 },
+    { "Their looks change (new head)", NULL, 32, 1, 0 },
+    { "Clumsy: two skills drop by 15-44", NULL, 33, 1, 0 },
+    { "Insight: two skills rise by 15-44", NULL, 34, 1, 0 },
+    { "loses Parenting", NULL, 35, 1, 0 },
+    { "loses Farming", NULL, 36, 1, 0 },
+    { "loses Healing", NULL, 37, 1, 0 },
+    { "loses Building", NULL, 38, 1, 0 },
+    { "loses Research", NULL, 39, 1, 0 },
+    { "loses Parenting", NULL, 40, 1, 0 },
+    { "loses Farming", NULL, 41, 1, 0 },
+    { "loses Healing", NULL, 42, 1, 0 },
+    { "loses Building", NULL, 43, 1, 0 },
+    { "loses Research", NULL, 44, 1, 0 },
+    { "gains Parenting", NULL, 45, 1, 0 },
+    { "gains Farming", NULL, 46, 1, 0 },
+    { "gains Healing", NULL, 47, 1, 0 },
+    { "gains Building", NULL, 48, 1, 0 },
+    { "gains Research", NULL, 49, 1, 0 },
+    { "gains Parenting", NULL, 50, 1, 0 },
+    { "gains Farming", NULL, 51, 1, 0 },
+    { "gains Healing", NULL, 52, 1, 0 },
+    { "gains Building", NULL, 53, 1, 0 },
+    { "gains Research", NULL, 54, 1, 0 },
+    { "Scientific insight (Research +15-44)", NULL, 55, 1, 0 },
+    { "Feels years younger (health 100, cured, 5 years younger)", NULL, 56, 1, 0 },
+    { "Two copies of the villager appear", "its condition", 57, 1, 1 },
+    { "The papaya is full of bugs and the mango is lost (no food)", NULL, 58, 1, 0 },
+    { "They bring both fruits home (food gained)", NULL, 59, 1, 0 },
+    { "A crate of fruit (food gained)", NULL, 60, 1, 0 },
+    { "A tarantula bite (sick, health lost, some food)", NULL, 61, 1, 0 },
+    { "Boy", NULL, 62, 1, 0 },
+    { "Girl", NULL, 63, 1, 0 },
+    { "Farming", NULL, 64, 1, 0 },
+    { "Parenting", NULL, 65, 1, 0 },
+    { "Healing", NULL, 66, 1, 0 },
+    { "Research", NULL, 67, 1, 0 },
+    { "Building", NULL, 68, 1, 0 },
+    { "Boy", NULL, 69, 1, 0 },
+    { "Girl", NULL, 70, 1, 0 },
+    { "Farming", NULL, 71, 1, 0 },
+    { "Parenting", NULL, 72, 1, 0 },
+    { "Healing", NULL, 73, 1, 0 },
+    { "Research", NULL, 74, 1, 0 },
+    { "Building", NULL, 75, 1, 0 },
+    { "Boy", NULL, 76, 1, 0 },
+    { "Girl", NULL, 77, 1, 0 },
+    { "Farming", NULL, 78, 1, 0 },
+    { "Parenting", NULL, 79, 1, 0 },
+    { "Healing", NULL, 80, 1, 0 },
+    { "Research", NULL, 81, 1, 0 },
+    { "Building", NULL, 82, 1, 0 },
+};
+static const oc_control VV3_OC_CONTROLS[] = {
+    { "Who is swept away", "is swept away", "Everyone swept away: no villagers remain and the tribe ends.", -1, 3, 3, 0, -1, 51, 0, 0, 100, 0, 0, 0, 99, 4, 0, 0, -3856, 0, 4, 0, 0, "pct 15 < 100, so both 'nobody' and 'everyone' are stock-reachable. No structure-destruction code exists in the apply.", 0, 0, 0 },
+    { "Which children win a prize", "gains Research", NULL, -1, 3, 3, 1, -1, 57, 0, 0, 100, 0, 0, 0, 99, 4, 0, 0, -3756, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Research gained by each winner", "Research skill gained", NULL, -1, 2, 3, 1, -1, 58, 0, 0, 10, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Newcomer's starting Building skill", "Building skill", NULL, -1, 2, 3, -1, -1, 0, 0, 0, 30, 40, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Newcomer's head (hair) style", "head row", NULL, -1, 2, 3, 2, -1, 44, 0, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Newcomer's body (outfit) style", "body row", NULL, -1, 2, 3, 2, -1, 45, 0, 0, 29, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "How long the fog lasts", "game-clock units of weather", NULL, -1, 2, 3, 3, -1, 41, 0, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "How long the fog lasts", "game-clock units of weather", NULL, -1, 2, 3, 4, -1, 41, 0, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Which man is the daredevil", "living and present; adult or elder (age >= 1000); male; the Tribal Chief may be chosen. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 12, -1, 47, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "If he swims with sharks", NULL, NULL, 0, 1, 2, -1, -1, -1, 0, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If he swims with sharks: health lost to the crab", "health lost", NULL, 0, 2, 3, -1, -1, 39, 2, 0, 6, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only the crab result", 2, 0, 0 },
+    { "If he swims with sharks: Parenting lost to the crab", "Parenting lost", NULL, 0, 2, 3, -1, -1, 40, 2, 0, 10, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only the crab result", 2, 0, 0 },
+    { "Who has the dream", "living and present; adult or elder (age >= 1000); either sex; the Tribal Chief is excluded. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 13, -1, 47, 2, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If nature: Farming gained", "Farming skill gained", NULL, 0, 2, 3, -1, -1, 11, 2, 0, 20, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If healing arts: Healing gained", "Healing skill gained", NULL, 1, 2, 3, -1, -1, 12, 2, 0, 20, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Who has the dream", "living and present; adult or elder (age >= 1000); either sex; the Tribal Chief is excluded. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 14, -1, 47, 2, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Who finds the crystal", "living and present; adult or elder (age >= 1000); either sex; the Tribal Chief may be chosen. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 15, -1, 47, 2, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Who finds the beans", "living and present; adult; either sex; the Tribal Chief may be chosen. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 16, -1, 47, 2, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If you taste them: who falls sick", "falls sick", NULL, 0, 3, 3, 17, -1, 48, 2, 0, 100, 0, 0, 0, 99, 4, 0, 0, -3704, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If you use them for dye: the new outfit", NULL, NULL, 1, 1, 3, -1, -1, -1, 2, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 4, 0, 0 },
+    { "Who finds the tablet", "living and present; adult; either sex; the Tribal Chief may be chosen. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 16, -1, 47, 4, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 4, 0, 0 },
+    { "If put on display: who is inspired", "gains Research", NULL, 1, 3, 3, 18, -1, 57, 4, 0, 100, 0, 0, 0, 99, 4, 0, 0, -3756, 0, 4, 0, 0, NULL, 4, 0, 0 },
+    { "If put on display: Research gained by each inspired villager", "Research skill gained", NULL, 1, 2, 3, 18, -1, 58, 4, 0, 25, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 4, 0, 0 },
+    { "If you grab the fish", NULL, NULL, 0, 1, 1, -1, -1, -1, 4, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 6, 0, 0 },
+    { "If you grab the fish and the wave hits: who is swept away", "is swept away", "Everyone swept away: no villagers remain and the tribe ends.", 0, 3, 3, 19, -1, 51, 6, 0, 100, 0, 0, 0, 99, 4, 0, 0, -3856, 0, 4, 0, 0, "only the wave result", 6, 0, 0 },
+    { "If you grab the fish and the wave hits: who comes to dislike it", NULL, NULL, 0, 3, 3, 20, -1, 52, 6, 0, 100, 0, 0, 0, 99, 4, 0, 0, -4020, 0, 4, 0, 0, "only the wave result; villagers swept away just before are skipped (present byte cleared)", 6, 0, 0 },
+    { "Which child sees the ants", "living and present; child; either sex; the Tribal Chief is excluded. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 27, -1, 47, 6, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 6, 0, 0 },
+    { "If you let them be: Farming gained", "Farming skill gained", NULL, 1, 2, 3, -1, -1, 15, 6, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 6, 0, 0 },
+    { "Who finds the pearl", "living and present; adult or elder (age >= 1000); either sex; the Tribal Chief is excluded. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 29, -1, 47, 6, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 6, 0, 0 },
+    { "If mounted on a bracelet: Parenting gained", "Parenting skill gained", NULL, 1, 2, 3, -1, -1, 16, 6, 0, 15, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 6, 0, 0 },
+    { "Who finds the pearl", "living and present; adult or elder (age >= 1000); either sex; the Tribal Chief may be chosen. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 21, -1, 47, 6, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 6, 0, 0 },
+    { "If ground into powder: Research gained", "Research skill gained", NULL, 0, 2, 3, -1, -1, 17, 6, 0, 15, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 6, 0, 0 },
+    { "Which child is the apprentice", "living and present; child; either sex; the Tribal Chief is excluded. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 22, -1, 47, 6, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 6, 0, 0 },
+    { "If a new teacher: Farming gained", "Farming skill gained", NULL, 1, 2, 3, -1, -1, 18, 6, 0, 20, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 6, 0, 0 },
+    { "If a new teacher: Building gained", "Building skill gained", NULL, 1, 2, 3, -1, -1, 19, 6, 0, 10, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 6, 0, 0 },
+    { "Who sees the omen", "living and present; adult or elder (age >= 1000); either sex; the Tribal Chief is excluded. Ages 280..359 are never eligible.", NULL, -1, 4, 1, 23, -1, 47, 6, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 6, 0, 0 },
+    { "If you warn the villagers", NULL, NULL, 0, 1, 1, -1, -1, -1, 6, 4, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 10, 0, 0 },
+    { "If you warn them and it is a false alarm: Research gained", "Research skill gained", NULL, 0, 2, 3, -1, -1, 21, 10, 0, 10, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only the 'studies the sky' result", 10, 0, 0 },
+    { "If you warn them and they prepare: how long the storm lasts", "game-clock units of weather", NULL, 0, 2, 3, 24, -1, 41, 10, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 10, 0, 0 },
+    { "If you warn them and nobody listens: how long the storm lasts", "game-clock units of weather", NULL, 0, 2, 3, 25, -1, 41, 10, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 10, 0, 0 },
+    { "If you perform the dance: how long the weather lasts", "game-clock units of weather", NULL, 1, 2, 3, 26, -1, 41, 10, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 10, 0, 0 },
+    { "Which child watches the otters", "a child (age < 280, i.e. under 14), alive and active, not the chief; canHappen pushes agemask 1, sex -1, exclude-chief 1, no count", NULL, -1, 4, 1, 27, -1, 47, 10, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 10, 0, 0 },
+    { "If they keep watching: Farming gained", "Farming gained", NULL, 1, 2, 3, -1, -1, 22, 10, 0, 15, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 10, 0, 0 },
+    { "Which child finds the ant hill", "a child (age < 280, i.e. under 14), alive and active, not the chief; canHappen pushes agemask 1, sex -1, exclude-chief 1, no count", NULL, -1, 4, 1, 27, -1, 47, 10, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 10, 0, 0 },
+    { "If they poke it: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 23, 10, 0, 10, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 10, 0, 0 },
+    { "Which villager finds the red starfish", "an adult aged 18-49 (360..999) who is not pregnant/nursing, or an elder (age >= 1000); any sex; alive and active; not the chief", NULL, -1, 4, 1, 29, -1, 47, 10, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 10, 0, 0 },
+    { "If picked up: which skill it drains", NULL, NULL, 0, 1, 3, 28, -1, -1, 10, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 15, 0, 0 },
+    { "If picked up: skill points lost", "skill points lost", NULL, 0, 2, 3, 28, -1, 54, 15, 0, 15, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 15, 0, 0 },
+    { "Which villager finds the blue starfish", "an adult aged 18-49 (360..999) who is not pregnant/nursing, or an elder (age >= 1000); any sex; alive and active; not the chief", NULL, -1, 4, 1, 29, -1, 47, 15, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 15, 0, 0 },
+    { "If picked up: which skill it boosts", NULL, NULL, 0, 1, 3, 30, -1, -1, 15, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 20, 0, 0 },
+    { "If picked up: skill points gained", "skill points gained", NULL, 0, 2, 3, 30, -1, 56, 20, 0, 15, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 20, 0, 0 },
+    { "Which villager is stung in bed", "an adult aged 18-49 (360..999) who is not pregnant/nursing, or an elder (age >= 1000); any sex; alive and active; not the chief", NULL, -1, 4, 1, 29, -1, 47, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, "canHappen shared by 31, 32, 33, 45.", 20, 0, 0 },
+    { "If they swat it: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 24, 20, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 20, 0, 0 },
+    { "Which woman has the crush", "a woman aged 18-49 (360..999) who is not pregnant/nursing, alive and active, not the chief; agemask 2, sex 1, exclude-chief 1", NULL, -1, 4, 1, 31, -1, 47, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 20, 0, 0 },
+    { "Which man she courts", "a man aged 18-49 (360..999), alive and active, not the chief; agemask 2, sex 0, exclude-chief 1", NULL, -1, 4, 1, 32, -1, 47, 20, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 20, 0, 0 },
+    { "If she carves a knife: babies conceived", NULL, NULL, 0, 1, 3, 34, 33, -1, 20, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which man has the crush", "a man aged 18-49 (360..999), alive and active, not the chief; agemask 2, sex 0, exclude-chief 1", NULL, -1, 4, 1, 35, -1, 47, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which woman he courts", "a woman aged 18-49 (360..999) who is not pregnant/nursing, alive and active, not the chief; agemask 2, sex 1, exclude-chief 1", NULL, -1, 4, 1, 36, -1, 47, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If he gives her flowers: babies conceived", NULL, NULL, 1, 1, 3, 38, 37, -1, 23, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 30, 0, 0 },
+    { "Which villager falls ill", "any age group: child (< 280), adult 360..999 not pregnant/nursing, or elder (>= 1000); any sex; alive, active, not the chief; agemask 7, sex -1, exclude-chief 1", NULL, -1, 4, 1, 39, -1, 47, 26, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 30, 0, 0 },
+    { "If the procedure is attempted", NULL, NULL, 0, 1, 2, -1, -1, -1, 26, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 32, 0, 0 },
+    { "Which villager finds the vial (a child becomes an elder; anyone older becomes a 10-year-old)", "any age group (child < 280, adult 360..999 not pregnant/nursing, elder >= 1000), any sex, alive and active; the chief CAN be picked (exclude-chief 0); agemask 7, sex -1", NULL, -1, 4, 1, 40, -1, 47, 28, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 32, 0, 0 },
+    { "If a child tastes it: Healing gained", "Healing gained", NULL, 0, 2, 3, -1, -1, 26, 28, 0, 30, 30, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "subject is a child; otherwise the site is not reached", 32, 0, 0 },
+    { "If a child tastes it: Research gained", "Research gained", NULL, 0, 2, 3, -1, -1, 27, 28, 0, 30, 30, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "subject is a child", 32, 0, 0 },
+    { "Which villager finds the vial", "an adult aged 18-49 (360..999) not pregnant/nursing, or an elder (>= 1000); any sex; alive and active; the chief CAN be picked (exclude-chief 0); agemask 6, sex -1", NULL, -1, 4, 1, 41, -1, 47, 28, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 32, 0, 0 },
+    { "If tasted", NULL, NULL, 0, 1, 2, -1, -1, -1, 28, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 35, 0, 0 },
+    { "If tasted (looks change): new head", "head (appearance row)", NULL, 0, 2, 3, -1, -1, 29, 31, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Their looks change'", 35, 0, 0 },
+    { "If tasted (clumsy) first loss: skill", NULL, NULL, 0, 1, 3, 42, -1, -1, 31, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Clumsy'", 40, 0, 0 },
+    { "If tasted (clumsy) first loss: skill points lost", "skill points lost", NULL, 0, 2, 3, 42, -1, 54, 36, 0, 30, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Clumsy'", 40, 0, 0 },
+    { "If tasted (clumsy) second loss: skill", NULL, NULL, 0, 1, 3, 43, -1, -1, 36, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Clumsy'", 45, 0, 0 },
+    { "If tasted (clumsy) second loss: skill points lost", "skill points lost", NULL, 0, 2, 3, 43, -1, 54, 41, 0, 30, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Clumsy'", 45, 0, 0 },
+    { "If tasted (insight) first gain: skill", NULL, NULL, 0, 1, 3, 44, -1, -1, 41, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Insight'", 50, 0, 0 },
+    { "If tasted (insight) first gain: skill points gained", "skill points gained", NULL, 0, 2, 3, 44, -1, 56, 46, 0, 30, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Insight'", 50, 0, 0 },
+    { "If tasted (insight) second gain: skill", NULL, NULL, 0, 1, 3, 45, -1, -1, 46, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Insight'", 55, 0, 0 },
+    { "If tasted (insight) second gain: skill points gained", "skill points gained", NULL, 0, 2, 3, 45, -1, 56, 51, 0, 30, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Insight'", 55, 0, 0 },
+    { "Which villager finds the vial", "an adult aged 18-49 (360..999) not pregnant/nursing, or an elder (>= 1000); any sex; alive and active; the chief CAN be picked (exclude-chief 0); agemask 6, sex -1", NULL, -1, 4, 1, 41, -1, 47, 51, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 55, 0, 0 },
+    { "If tasted", NULL, NULL, 0, 1, 2, -1, -1, -1, 51, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 58, 0, 0 },
+    { "If tasted (insight): Research gained", "Research gained", NULL, 0, 2, 3, -1, -1, 31, 54, 0, 30, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Scientific insight'", 58, 0, 0 },
+    { "If tasted (copies): first copy's name", "entry in the game's first-name list", NULL, 0, 2, 3, 46, -1, 46, 54, 0, 123, 1, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'Two copies' and a free villager slot", 58, 0, 0 },
+    { "Which villager has the mango", "an adult aged 18-49 (360..999) who is not pregnant/nursing, any sex, alive and active; the chief CAN be picked (exclude-chief 0); agemask 2, sex -1", NULL, -1, 4, 1, 47, -1, 47, 54, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 58, 0, 0 },
+    { "If they swim out after the papaya", NULL, NULL, 0, 1, 1, -1, -1, -1, 54, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 60, 0, 0 },
+    { "Which villager finds the crate", "an adult aged 18-49 (360..999) who is not pregnant/nursing, any sex, alive and active; the chief CAN be picked (exclude-chief 0); agemask 2, sex -1", NULL, -1, 4, 1, 48, -1, 47, 56, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, "Only slot 41 uses this canHappen.", 60, 0, 0 },
+    { "If they open the crate", NULL, NULL, 0, 1, 2, -1, -1, -1, 56, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "If opened (tarantula): health lost", "health lost", NULL, 0, 2, 3, -1, -1, 34, 58, 0, 20, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "result 'tarantula bite'", 62, 0, 0 },
+    { "Which young woman meets the bee", "a woman aged 18-49 (360..999) who is not pregnant/nursing, alive and active, not the chief; agemask 2, sex 1, exclude-chief 1", NULL, -1, 4, 1, 49, -1, 47, 58, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 62, 0, 0 },
+    { "If she swats at it: health lost", "health lost", NULL, 1, 2, 3, -1, -1, 35, 58, 0, 10, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "Which villager is disturbed by the bird", "a woman aged 18-49 (360..999) who is not pregnant/nursing, alive and active, not the chief; agemask 2, sex 1, exclude-chief 1", NULL, -1, 4, 1, 49, -1, 47, 58, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 62, 0, 0 },
+    { "Which villager finds the hole", "an adult aged 18-49 (360..999) who is not pregnant/nursing, any sex, alive and active, not the chief; agemask 2, sex -1, exclude-chief 1", NULL, -1, 4, 1, 50, -1, 47, 58, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, "Only slot 44 uses this canHappen.", 62, 0, 0 },
+    { "Which villager tries the royal jelly", "an adult aged 18-49 (360..999) who is not pregnant/nursing, or an elder (age >= 1000); any sex; alive and active; not the chief", NULL, -1, 4, 1, 29, -1, 47, 58, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, "canHappen shared by 31, 32, 33, 45.", 62, 0, 0 },
+    { "If the clear vial is used: Healing gained (the game's text says the jelly spoiled)", "Healing gained", NULL, 0, 2, 3, -1, -1, 36, 58, 0, 15, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "Which child sees the shooting star", "a child (age < 280, i.e. under 14), alive and active, not the chief; canHappen pushes agemask 1, sex -1, exclude-chief 1, no count", NULL, -1, 4, 1, 27, -1, 47, 58, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, "canHappen shared by 29, 30, 46.", 62, 0, 0 },
+    { "If the child stays and watches: Research gained", "Research gained", NULL, 1, 2, 3, -1, -1, 37, 58, 0, 25, 25, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "How long the weather lasts", "game clock units", NULL, -1, 2, 3, 5, -1, 41, 58, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "How long the weather lasts", "game clock units", NULL, -1, 2, 3, 6, -1, 41, 58, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "How long the weather lasts", "game clock units", NULL, -1, 2, 3, 7, -1, 41, 58, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "Who is stung", "is stung and loses health", "Every living villager (all ages) loses 10-19 health; anyone whose health reaches 0 dies, as in stock.", -1, 3, 3, 8, -1, 49, 58, 0, 100, 0, 0, 0, 99, 4, 0, 0, -3704, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "Health lost by each stung villager", "health lost", NULL, -1, 2, 3, 8, -1, 50, 58, 0, 10, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "Which villager sees the figure in the lab", "any age group (child < 280, adult 360..999 not pregnant/nursing, elder >= 1000), any sex, alive and active, not the chief; agemask 7, sex -1, exclude-chief 1", NULL, -1, 4, 1, 51, -1, 47, 58, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, "Only slot 56 uses this canHappen.", 62, 0, 0 },
+    { "If they confront him: Research gained (and their name becomes '?')", "Research gained", NULL, 0, 2, 3, -1, -1, 38, 58, 0, 25, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 62, 0, 0 },
+    { "Baby 1", NULL, NULL, -1, 1, 3, -1, -1, -1, 58, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 64, 0, 0 },
+    { "Baby 1's skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 60, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 69, 0, 0 },
+    { "Baby 1's starting skill level", "skill level", NULL, -1, 2, 3, -1, -1, 2, 65, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 69, 0, 0 },
+    { "Baby 1's head", "head (appearance row)", NULL, -1, 2, 3, 9, -1, 44, 65, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 69, 0, 0 },
+    { "Baby 1's body", "body (appearance row)", NULL, -1, 2, 3, 9, -1, 45, 65, 0, 29, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 69, 0, 0 },
+    { "Baby 1's name", "entry in the game's first-name list", NULL, -1, 2, 3, 9, -1, 46, 65, 0, 123, 1, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 69, 0, 0 },
+    { "Baby 2", NULL, NULL, -1, 1, 3, -1, -1, -1, 65, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 71, 0, 0 },
+    { "Baby 2's skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 67, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 76, 0, 0 },
+    { "Baby 2's starting skill level", "skill level", NULL, -1, 2, 3, -1, -1, 5, 72, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 76, 0, 0 },
+    { "Baby 2's head", "head (appearance row)", NULL, -1, 2, 3, 10, -1, 44, 72, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 76, 0, 0 },
+    { "Baby 2's body", "body (appearance row)", NULL, -1, 2, 3, 10, -1, 45, 72, 0, 29, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 76, 0, 0 },
+    { "Baby 2's name", "entry in the game's first-name list", NULL, -1, 2, 3, 10, -1, 46, 72, 0, 123, 1, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 76, 0, 0 },
+    { "Baby 3", NULL, NULL, -1, 1, 3, -1, -1, -1, 72, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 78, 0, 0 },
+    { "Baby 3's skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 74, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 83, 0, 0 },
+    { "Baby 3's starting skill level", "skill level", NULL, -1, 2, 3, -1, -1, 8, 79, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 83, 0, 0 },
+    { "Baby 3's head", "head (appearance row)", NULL, -1, 2, 3, 11, -1, 44, 79, 0, 30, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 83, 0, 0 },
+    { "Baby 3's body", "body (appearance row)", NULL, -1, 2, 3, 11, -1, 45, 79, 0, 29, 0, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 83, 0, 0 },
+    { "Baby 3's name", "entry in the game's first-name list", NULL, -1, 2, 3, 11, -1, 46, 79, 0, 123, 1, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 83, 0, 0 },
+};
+static const oc_event VV3_OC_EVENTS[] = {
+    { 1, 0, 1, 0, 1, 0, NULL },
+    { 3, 1, 2, 0, 1, 0, NULL },
+    { 6, 3, 0, 0, 1, 0, NULL },
+    { 7, 3, 3, 0, 0, 0, NULL },
+    { 8, 6, 1, 0, 0, 0, NULL },
+    { 9, 7, 1, 0, 0, 0, NULL },
+    { 13, 8, 0, 0, 1, 0, NULL },
+    { 15, 8, 4, 0, 1, 1, NULL },
+    { 16, 12, 3, 0, 1, 1, NULL },
+    { 17, 15, 1, 0, 1, 1, NULL },
+    { 18, 16, 1, 0, 0, 0, NULL },
+    { 19, 17, 3, 0, 1, 1, NULL },
+    { 20, 20, 0, 0, 1, 1, NULL },
+    { 21, 20, 1, 0, 1, 1, NULL },
+    { 22, 21, 2, 0, 1, 1, NULL },
+    { 23, 23, 3, 0, 1, 1, NULL },
+    { 24, 26, 2, 0, 0, 0, NULL },
+    { 25, 28, 2, 0, 0, 0, NULL },
+    { 26, 30, 2, 0, 1, 1, NULL },
+    { 27, 32, 3, 0, 0, 0, NULL },
+    { 28, 35, 6, 0, 0, 0, NULL },
+    { 29, 41, 2, 0, 0, 0, NULL },
+    { 30, 43, 2, 0, 0, 0, NULL },
+    { 31, 45, 3, 0, 0, 0, NULL },
+    { 32, 48, 3, 0, 0, 0, NULL },
+    { 33, 51, 2, 0, 0, 0, NULL },
+    { 34, 53, 3, 0, 0, 0, NULL },
+    { 35, 56, 3, 0, 0, 0, NULL },
+    { 36, 59, 2, 0, 1, 3, NULL },
+    { 37, 61, 3, 0, 0, 0, NULL },
+    { 38, 64, 11, 0, 0, 0, NULL },
+    { 39, 75, 4, 0, 0, 0, NULL },
+    { 40, 79, 2, 0, 0, 0, NULL },
+    { 41, 81, 3, 0, 1, 1, NULL },
+    { 42, 84, 2, 0, 0, 0, NULL },
+    { 43, 86, 1, 0, 0, 0, NULL },
+    { 44, 87, 1, 0, 1, 1, NULL },
+    { 45, 88, 2, 0, 0, 0, NULL },
+    { 46, 90, 2, 0, 0, 0, NULL },
+    { 48, 92, 1, 0, 0, 0, NULL },
+    { 49, 93, 1, 0, 1, 0, NULL },
+    { 52, 94, 1, 0, 0, 0, NULL },
+    { 53, 95, 2, 0, 0, 0, NULL },
+    { 54, 97, 0, 0, 1, 0, NULL },
+    { 56, 97, 2, 0, 0, 0, NULL },
+    { 57, 99, 18, 0, 0, 0, NULL },
+};
+#define VV3_OC_EVENT_COUNT 46
 static const story_event VV3_EVENTS[] = {
     { 1, "The Tsunami", "", "A tsunami crashes into the village, destroying structures and sweeping villagers away.", "the game's own condition for the tsunami (two or more of the villagers it checks)" },
     { 2, "The Plague Of Ants", "", "Ants infest the granary: some food is lost.", "nothing beyond an island event being possible" },
@@ -256,7 +2044,7 @@ static const story_event VV3_EVENTS[] = {
     { 12, "Blessings Day Celebration", "", "The villagers give thanks with dancing, ceremonies and a feast.", "nothing beyond an island event being possible" },
     { 13, "The Miraculous Bloom", "", "Flowers bloom everywhere and the bees make a lot of honey.", "the game's own condition for the bloom" },
     { 14, "The Reflection in the Water", "", "A villager sees a sad royal couple in a reflection (a story moment).", "nothing beyond an island event being possible" },
-    { 15, "The Daredevil", "", "A villager teases sharks: swim with them, or rethink the plan.", "a villager the event can be about" },
+    { 15, "The Daredevil", "Male", "A villager teases sharks: swim with them, or rethink the plan.", "a man the event can be about, and at least two women" },
     { 16, "The Ghostly Dream", "nature or healing", "A ghostly lady visits a dream: study nature, or the healing arts.", "a villager the event can be about" },
     { 17, "The Ghostly Dream", "research or architecture", "A ghostly old man visits a dream: research, or architecture.", "a villager the event can be about" },
     { 18, "The Crystal of Reflections", "", "A villager finds an alluring crystal: keep it, or dispose of it.", "a villager the event can be about" },
@@ -264,7 +2052,7 @@ static const story_event VV3_EVENTS[] = {
     { 20, "The Bitter Brown Beans", "brew or fertilizer", "A crate of roasted beans: brew them, or use them as fertilizer.", "a villager the event can be about" },
     { 21, "The Ancient Tablet", "laundry or decoration", "An engraved tablet: use it for laundry, or for decoration.", "a villager the event can be about" },
     { 22, "The Ancient Tablet", "research or display", "An engraved tablet: focus research on it, or put it on display.", "a villager the event can be about" },
-    { 23, "The Low Tide", "", "A child finds fish stranded by the low tide: grab them, or move to high ground.", "a child the event can be about (the game also rolls a chance)" },
+    { 23, "The Low Tide", "", "A child finds fish stranded by the low tide: grab them, or move to high ground.", "a villager the event can be about, and at least eight villagers" },
     { 24, "The Ants and the Granary", "", "A child sees ants at the granary: sweep them away, or let them be.", "a child the event can be about" },
     { 25, "The Green Pearl", "", "A villager finds a green pearl: grind it into powder, or wear it.", "a villager the event can be about" },
     { 26, "The Blue Pearl", "", "A villager finds a blue pearl: grind it into powder, or examine it.", "a villager the event can be about" },
@@ -275,16 +2063,16 @@ static const story_event VV3_EVENTS[] = {
     { 31, "The Red Starfish", "", "A villager finds a red starfish: pick it up, or leave it.", "a villager the event can be about" },
     { 32, "The Blue Starfish", "", "A villager finds a blue starfish: pick it up, or leave it.", "a villager the event can be about" },
     { 33, "Bed Bugs", "", "Something stings a villager in bed: swat it, or have a closer look.", "a villager the event can be about" },
-    { 34, "The Lovers", "her gift", "A woman courts a man: a carved knife, or a shark-tooth necklace.", "a woman the event can be about" },
-    { 35, "The Lovers", "his gift", "A man courts a woman: a shell necklace, or flowers.", "a man the event can be about" },
+    { 34, "The Lovers", "Female", "A woman courts a man: a carved knife, or a shark-tooth necklace.", "a woman the event can be about" },
+    { 35, "The Lovers", "Male", "A man courts a woman: a shell necklace, or flowers.", "a man the event can be about" },
     { 36, "The Medical Emergency", "", "A villager falls gravely ill: attempt an ancient procedure, or let the illness run its course.", "a villager the event can be about" },
     { 37, "The Mysterious Vial", "quartz", "A crystal vial on the beach: taste it, or bring it back.", "a villager the event can be about" },
     { 38, "The Mysterious Vial", "obsidian", "A crystal vial on the beach: taste it, or bring it back.", "a villager the event can be about" },
     { 39, "The Mysterious Vial", "amber", "A crystal vial on the beach: taste it, or bring it back.", "a villager the event can be about" },
-    { 40, "The Mango and the Papaya", "", "A villager with a mango sees a papaya: swim for it, or keep the mango.", "a villager the event can be about (the game also rolls a chance)" },
+    { 40, "The Mango and the Papaya", "", "A villager with a mango sees a papaya: swim for it, or keep the mango.", "a villager the event can be about" },
     { 41, "The Mysterious Crate", "", "A crate washes up: open it, or shove it back out to sea.", "a villager the event can be about" },
-    { 42, "Vanity and the Bee", "", "A vain young woman and a bee: run to the water, or swat at it.", "a woman the event can be about" },
-    { 43, "The Noisy Bird", "", "A noisy bird disrupts research: scare it away, or leave it alone.", "a villager the event can be about" },
+    { 42, "Vanity and the Bee", "Female", "A vain young woman and a bee: run to the water, or swat at it.", "a woman the event can be about" },
+    { 43, "The Noisy Bird", "Female", "A noisy bird disrupts research: scare it away, or leave it alone.", "a woman the event can be about" },
     { 44, "The Hole in the Hut", "", "A draughty hole in a hut: patch it with beeswax, or tree sap.", "a villager the event can be about" },
     { 45, "The Royal Jelly", "", "A villager tries royal jelly: a clear vial, or a dark vial.", "a villager the event can be about" },
     { 46, "The Shooting Star", "", "A child sees a shooting star: tell the others, or stay and watch.", "a child the event can be about" },
@@ -334,13 +2122,325 @@ static const story_write VV4_WRITES[] = {
 #define VV4_WRITE_COUNT 9
 static const unsigned char VV4_PICK_SITE_BYTES[7] = { 0x8B, 0x04, 0xB5, 0x28, 0xCA, 0x4C, 0x00 };
 static const unsigned char VV4_TITLE_SITE_BYTES[5] = { 0x8D, 0x4C, 0x24, 0x28, 0x51 };
+static const unsigned char VV4_OC_CHOICE_APPLY_BYTES[16] = { 0x8B, 0x01, 0x8B, 0x96, 0x30, 0x08, 0x00, 0x00, 0x8B, 0x40, 0x2C, 0x52, 0xFF, 0xD0, 0x8B, 0xCE };
+static const unsigned char VV4_OC_SIMPLE_APPLY_BYTES[9] = { 0x8B, 0x11, 0x8B, 0x42, 0x30, 0xFF, 0xD0, 0x8B, 0xCE };
 #define VV4_PARENTAGE_SITE 0x45E8E4u
 static const unsigned char VV4_PARENTAGE_STOCK[5] = { 0x84, 0xDB, 0x75, 0x3A, 0x8B };
+static const unsigned char VV4_OCS_414D97[5] = { 0xE8, 0x34, 0xE9, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414DA2[5] = { 0xE8, 0x29, 0xE9, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414DB0[5] = { 0xE8, 0x1B, 0xE9, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414DDA[5] = { 0xE8, 0xF1, 0xE8, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414DE5[5] = { 0xE8, 0xE6, 0xE8, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414DF3[5] = { 0xE8, 0xD8, 0xE8, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414E1D[5] = { 0xE8, 0xAE, 0xE8, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414E28[5] = { 0xE8, 0xA3, 0xE8, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_414E36[5] = { 0xE8, 0x95, 0xE8, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_41505C[5] = { 0xE8, 0x6F, 0xE6, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_41515F[5] = { 0xE8, 0x6C, 0xE5, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_4153CA[5] = { 0xE8, 0x01, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_4153FB[5] = { 0xE8, 0xD0, 0xE2, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_41577C[5] = { 0xE8, 0x4F, 0xDF, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_415CF5[5] = { 0xE8, 0xD6, 0xD9, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_415EED[5] = { 0xE8, 0xDE, 0xD7, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_415FBC[5] = { 0xE8, 0x0F, 0xD7, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_416005[5] = { 0xE8, 0xC6, 0xD6, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_41601F[5] = { 0xE8, 0xAC, 0xD6, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_416386[5] = { 0xE8, 0x45, 0xD3, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_416516[5] = { 0xE8, 0xB5, 0xD1, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_4165E6[5] = { 0xE8, 0xE5, 0xD0, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_416616[5] = { 0xE8, 0xB5, 0xD0, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_4166DC[5] = { 0xE8, 0xEF, 0xCF, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_416785[5] = { 0xE8, 0x46, 0xCF, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_416830[5] = { 0xE8, 0x9B, 0xCE, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_4168A5[5] = { 0xE8, 0x26, 0xCE, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_416960[5] = { 0xE8, 0x6B, 0xCD, 0xFE, 0xFF };
+static const unsigned char VV4_OCS_45E893[5] = { 0xE8, 0x38, 0x4E, 0xFA, 0xFF };
+static const unsigned char VV4_OCS_45E8B3[5] = { 0xE8, 0x18, 0x4E, 0xFA, 0xFF };
+static const unsigned char VV4_OCS_466F6D[5] = { 0xE8, 0x5E, 0xC7, 0xF9, 0xFF };
+static const unsigned char VV4_OCS_46706D[5] = { 0xE8, 0x5E, 0xC6, 0xF9, 0xFF };
+static const unsigned char VV4_OCS_46707E[5] = { 0xE8, 0x4D, 0xC6, 0xF9, 0xFF };
+static const unsigned char VV4_OCS_467159[5] = { 0xE8, 0x72, 0xC5, 0xF9, 0xFF };
+static const unsigned char VV4_OCS_467168[5] = { 0xE8, 0x63, 0xC5, 0xF9, 0xFF };
+static const unsigned char VV4_OCS_467AD4[5] = { 0xE8, 0xF7, 0xBB, 0xF9, 0xFF };
+static const unsigned char VV4_OCS_46BD37[5] = { 0xE8, 0x94, 0x79, 0xF9, 0xFF };
+static const unsigned char VV4_OCC_414957[5] = { 0xE8, 0xD4, 0x72, 0x05, 0x00 };
+static const unsigned char VV4_OCC_4149BC[5] = { 0xE8, 0x6F, 0x72, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414B99[5] = { 0xE8, 0x92, 0x70, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414BD9[5] = { 0xE8, 0x52, 0x70, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414C19[5] = { 0xE8, 0x12, 0x70, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414C74[5] = { 0xE8, 0xC7, 0x23, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414EBB[5] = { 0xE8, 0x80, 0x21, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414ECB[5] = { 0xE8, 0x70, 0x20, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414F8B[5] = { 0xE8, 0x20, 0x2A, 0x05, 0x00 };
+static const unsigned char VV4_OCC_414FD1[5] = { 0xE8, 0x2A, 0x2B, 0x05, 0x00 };
+static const unsigned char VV4_OCC_41503C[5] = { 0xE8, 0x6F, 0x29, 0x05, 0x00 };
+static const unsigned char VV4_OCC_41509C[5] = { 0xE8, 0x8F, 0x6B, 0x05, 0x00 };
+static const unsigned char VV4_OCC_4152F4[5] = { 0xE8, 0x17, 0x1E, 0x05, 0x00 };
+static const unsigned char VV4_OCC_415443[5] = { 0xE8, 0xF8, 0x1A, 0x05, 0x00 };
+static const unsigned char VV4_OCC_4159DF[5] = { 0xE8, 0xCC, 0x1F, 0x05, 0x00 };
+static const unsigned char VV4_OCC_415A6C[5] = { 0xE8, 0xCF, 0x14, 0x05, 0x00 };
+static const unsigned char VV4_OCC_415AEF[5] = { 0xE8, 0xBC, 0x1E, 0x05, 0x00 };
+static const unsigned char VV4_OCC_415BEF[5] = { 0xE8, 0xBC, 0x1D, 0x05, 0x00 };
+static const unsigned char VV4_OCC_415D24[5] = { 0xE8, 0x87, 0x1C, 0x05, 0x00 };
+static const unsigned char VV4_OCC_415E1C[5] = { 0xE8, 0x8F, 0x1B, 0x05, 0x00 };
+static const unsigned char VV4_OCC_415F6F[5] = { 0xE8, 0x3C, 0x1A, 0x05, 0x00 };
+static const unsigned char VV4_OCC_4167B4[5] = { 0xE8, 0xF7, 0x11, 0x05, 0x00 };
+static const unsigned char VV4_OCC_4168D4[5] = { 0xE8, 0xD7, 0x10, 0x05, 0x00 };
+static const unsigned char VV4_OCC_4169EF[5] = { 0xE8, 0xBC, 0x0F, 0x05, 0x00 };
+static const unsigned char VV4_OCC_416A13[5] = { 0xE8, 0x98, 0x0F, 0x05, 0x00 };
+static const unsigned char VV4_OCC_416B0B[5] = { 0xE8, 0xA0, 0x0E, 0x05, 0x00 };
+static const oc_site VV4_OC_SITES[] = {
+    { 0x414D97u, VV4_OCS_414D97 },
+    { 0x414DA2u, VV4_OCS_414DA2 },
+    { 0x414DB0u, VV4_OCS_414DB0 },
+    { 0x414DDAu, VV4_OCS_414DDA },
+    { 0x414DE5u, VV4_OCS_414DE5 },
+    { 0x414DF3u, VV4_OCS_414DF3 },
+    { 0x414E1Du, VV4_OCS_414E1D },
+    { 0x414E28u, VV4_OCS_414E28 },
+    { 0x414E36u, VV4_OCS_414E36 },
+    { 0x41505Cu, VV4_OCS_41505C },
+    { 0x41515Fu, VV4_OCS_41515F },
+    { 0x4153CAu, VV4_OCS_4153CA },
+    { 0x4153FBu, VV4_OCS_4153FB },
+    { 0x41577Cu, VV4_OCS_41577C },
+    { 0x415CF5u, VV4_OCS_415CF5 },
+    { 0x415EEDu, VV4_OCS_415EED },
+    { 0x415FBCu, VV4_OCS_415FBC },
+    { 0x416005u, VV4_OCS_416005 },
+    { 0x41601Fu, VV4_OCS_41601F },
+    { 0x416386u, VV4_OCS_416386 },
+    { 0x416516u, VV4_OCS_416516 },
+    { 0x4165E6u, VV4_OCS_4165E6 },
+    { 0x416616u, VV4_OCS_416616 },
+    { 0x4166DCu, VV4_OCS_4166DC },
+    { 0x416785u, VV4_OCS_416785 },
+    { 0x416830u, VV4_OCS_416830 },
+    { 0x4168A5u, VV4_OCS_4168A5 },
+    { 0x416960u, VV4_OCS_416960 },
+    { 0x45E893u, VV4_OCS_45E893 },
+    { 0x45E8B3u, VV4_OCS_45E8B3 },
+    { 0x466F6Du, VV4_OCS_466F6D },
+    { 0x46706Du, VV4_OCS_46706D },
+    { 0x46707Eu, VV4_OCS_46707E },
+    { 0x467159u, VV4_OCS_467159 },
+    { 0x467168u, VV4_OCS_467168 },
+    { 0x467AD4u, VV4_OCS_467AD4 },
+    { 0x46BD37u, VV4_OCS_46BD37 },
+};
+#define VV4_OC_SITE_COUNT 37
+static const oc_scope VV4_OC_SCOPES[] = {
+    { 0x414957u, VV4_OCC_414957, 0, -1, 0, 0, -1 },
+    { 0x4149BCu, VV4_OCC_4149BC, 0, -1, 0, 0, -1 },
+    { 0x414B99u, VV4_OCC_414B99, 0, -1, 0, 0, -1 },
+    { 0x414BD9u, VV4_OCC_414BD9, 0, -1, 0, 0, -1 },
+    { 0x414C19u, VV4_OCC_414C19, 0, -1, 0, 0, -1 },
+    { 0x414C74u, VV4_OCC_414C74, 0, -1, 0, 0, -1 },
+    { 0x414EBBu, VV4_OCC_414EBB, 0, -1, 0, 0, -1 },
+    { 0x414ECBu, VV4_OCC_414ECB, 0, -1, 0, 0, -1 },
+    { 0x414F8Bu, VV4_OCC_414F8B, 0, -1, 0, 0, -1 },
+    { 0x414FD1u, VV4_OCC_414FD1, 0, -1, 0, 0, -1 },
+    { 0x41503Cu, VV4_OCC_41503C, 0, -1, 0, 0, -1 },
+    { 0x41509Cu, VV4_OCC_41509C, 0, -1, 0, 0, -1 },
+    { 0x4152F4u, VV4_OCC_4152F4, 0, -1, 0, 0, -1 },
+    { 0x415443u, VV4_OCC_415443, 0, -1, 0, 0, -1 },
+    { 0x4159DFu, VV4_OCC_4159DF, 0, -1, 0, 0, -1 },
+    { 0x415A6Cu, VV4_OCC_415A6C, 0, -1, 0, 0, -1 },
+    { 0x415AEFu, VV4_OCC_415AEF, 0, -1, 0, 0, -1 },
+    { 0x415BEFu, VV4_OCC_415BEF, 0, -1, 0, 0, -1 },
+    { 0x415D24u, VV4_OCC_415D24, 0, -1, 0, 0, -1 },
+    { 0x415E1Cu, VV4_OCC_415E1C, 0, -1, 0, 0, -1 },
+    { 0x415F6Fu, VV4_OCC_415F6F, 0, -1, 0, 0, -1 },
+    { 0x4167B4u, VV4_OCC_4167B4, 0, -1, 0, 0, -1 },
+    { 0x4168D4u, VV4_OCC_4168D4, 0, -1, 0, 0, -1 },
+    { 0x4169EFu, VV4_OCC_4169EF, 0, -1, 0, 0, -1 },
+    { 0x416A13u, VV4_OCC_416A13, 0, -1, 0, 0, -1 },
+    { 0x416B0Bu, VV4_OCC_416B0B, 0, -1, 0, 0, -1 },
+};
+#define VV4_OC_SCOPE_COUNT 26
+static const oc_force VV4_OC_FORCES[] = {
+    { 9, 0 },
+    { 9, 1 },
+    { 0, 0 },
+    { 0, 1 },
+    { 2, 0 },
+    { 2, 1 },
+    { 2, 2 },
+    { 2, 3 },
+    { 2, 4 },
+    { 3, 0 },
+    { 3, 1 },
+    { 5, 0 },
+    { 5, 1 },
+    { 5, 2 },
+    { 5, 3 },
+    { 5, 4 },
+    { 6, 0 },
+    { 6, 1 },
+    { 8, 0 },
+    { 8, 1 },
+    { 8, 2 },
+    { 8, 3 },
+    { 8, 4 },
+    { 14, 0 },
+    { 14, 99 },
+    { 24, 0 },
+    { 24, 99 },
+    { 26, 0 },
+    { 26, 99 },
+};
+static const oc_option VV4_OC_OPTIONS[] = {
+    { "Falls from the cliff and is hurt", NULL, 0, 1, 0 },
+    { "Finds rare mushrooms (+300 food)", NULL, 1, 1, 0 },
+    { "Boy", NULL, 2, 1, 0 },
+    { "Girl", NULL, 3, 1, 0 },
+    { "Farming", NULL, 4, 1, 0 },
+    { "Parenting", NULL, 5, 1, 0 },
+    { "Healing", NULL, 6, 1, 0 },
+    { "Research", NULL, 7, 1, 0 },
+    { "Building", NULL, 8, 1, 0 },
+    { "Boy", "baby 2 is only made if the village still has room after the previous baby", 9, 1, 0 },
+    { "Girl", "baby 2 is only made if the village still has room after the previous baby", 10, 1, 0 },
+    { "Farming", "baby 2 is only made if the village still has room after the previous baby", 11, 1, 0 },
+    { "Parenting", "baby 2 is only made if the village still has room after the previous baby", 12, 1, 0 },
+    { "Healing", "baby 2 is only made if the village still has room after the previous baby", 13, 1, 0 },
+    { "Research", "baby 2 is only made if the village still has room after the previous baby", 14, 1, 0 },
+    { "Building", "baby 2 is only made if the village still has room after the previous baby", 15, 1, 0 },
+    { "Boy", "baby 3 is only made if the village still has room after the previous baby", 16, 1, 0 },
+    { "Girl", "baby 3 is only made if the village still has room after the previous baby", 17, 1, 0 },
+    { "Farming", "baby 3 is only made if the village still has room after the previous baby", 18, 1, 0 },
+    { "Parenting", "baby 3 is only made if the village still has room after the previous baby", 19, 1, 0 },
+    { "Healing", "baby 3 is only made if the village still has room after the previous baby", 20, 1, 0 },
+    { "Research", "baby 3 is only made if the village still has room after the previous baby", 21, 1, 0 },
+    { "Building", "baby 3 is only made if the village still has room after the previous baby", 22, 1, 0 },
+    { "Makes it back (+5000 tech)", NULL, 23, 1, 0 },
+    { "Swept away by a wave (the villager is lost)", NULL, 24, 1, 0 },
+    { "The technique works (Building skill up)", NULL, 25, 1, 0 },
+    { "Falls from the scaffolding (badly hurt)", NULL, 26, 1, 0 },
+    { "The fruit cooks faster (Farming skill up)", NULL, 27, 1, 0 },
+    { "Slips onto the hot coals (badly hurt)", NULL, 28, 1, 0 },
+};
+static const oc_control VV4_OC_CONTROLS[] = {
+    { "How long the fog lasts (game-clock units)", "game-clock units", NULL, -1, 2, 3, 0, -1, 36, 0, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "How long the fog lasts (game-clock units)", "game-clock units", NULL, -1, 2, 3, 1, -1, 36, 0, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Which villager finds the berries", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Which villager sees the rainbow", "the villagers this event's own condition allows", NULL, -1, 4, 1, 10, -1, 35, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "If they run to the right side: what happens", NULL, NULL, 1, 1, 2, -1, -1, -1, 0, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If they run to the right side and fall: health lost", "health lost", NULL, 1, 2, 3, -1, -1, 10, 2, 0, 20, 25, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only on the fall result", 2, 0, 0 },
+    { "How long the rainbow lasts (game-clock units)", "game-clock units", NULL, -1, 2, 3, 11, -1, 36, 2, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Which villager spots the crab", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 2, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If they cut off its tail: who gains Healing", "gains Healing skill (skill 2) 5..9", NULL, 0, 3, 3, 12, -1, 33, 2, 0, 100, 0, 0, 0, 99, 4, 0, 0, -7367, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If they cut off its tail: Healing gained by each", "Healing skill", NULL, 0, 2, 3, 12, -1, 34, 2, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Which child finds the fungi", "the villagers this event's own condition allows", NULL, -1, 4, 1, 20, -1, 35, 2, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If they throw it into the ocean: Research gained", "Research skill", NULL, 0, 2, 3, -1, -1, 11, 2, 0, 10, 40, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If they throw it into the ocean: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 12, 2, 0, 5, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "If they admire it from afar: who falls sick", "falls sick", NULL, 1, 3, 3, 13, -1, 30, 2, 0, 100, 0, 0, 0, 99, 4, 0, 0, -7367, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "How long the rain lasts (game-clock units)", "game-clock units", NULL, -1, 2, 3, 2, -1, 36, 2, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "How long the cold-snap weather (type 4) lasts (game-clock units)", "game-clock units", NULL, -1, 2, 3, 3, -1, 36, 2, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "How long the rain lasts (game-clock units)", "game-clock units", NULL, -1, 2, 3, 4, -1, 36, 2, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Who loses health to the stings", "loses 10..19 health", "Everyone loses 10-19 health; anyone already that weak drops to 0 health.", -1, 3, 3, 5, -1, 31, 2, 0, 100, 0, 0, 0, 99, 4, 0, 0, -7367, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Health lost by each stung villager", "health lost", NULL, -1, 2, 3, 5, -1, 32, 2, 0, 10, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 2, 0, 0 },
+    { "Baby 1: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 2, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 4, 0, 0 },
+    { "Baby 1: which skill it starts with", NULL, NULL, -1, 1, 3, -1, -1, -1, 4, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 9, 0, 0 },
+    { "Baby 1: starting level of that skill", "skill points", NULL, -1, 2, 3, -1, -1, 1, 9, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 9, 0, 0 },
+    { "Baby 2 (if there is room): boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 9, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 2 is only made if the village still has room after the previous baby", 11, 0, 0 },
+    { "Baby 2 (if there is room): which skill it starts with", NULL, NULL, -1, 1, 3, -1, -1, -1, 11, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 2 is only made if the village still has room after the previous baby", 16, 0, 0 },
+    { "Baby 2 (if there is room): starting level of that skill", "skill points", NULL, -1, 2, 3, -1, -1, 4, 16, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "baby 2 is only made if the village still has room after the previous baby", 16, 0, 0 },
+    { "Baby 3 (if there is room): boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 16, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 3 is only made if the village still has room after the previous baby", 18, 0, 0 },
+    { "Baby 3 (if there is room): which skill it starts with", NULL, NULL, -1, 1, 3, -1, -1, -1, 18, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 3 is only made if the village still has room after the previous baby", 23, 0, 0 },
+    { "Baby 3 (if there is room): starting level of that skill", "skill points", NULL, -1, 2, 3, -1, -1, 7, 23, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "baby 3 is only made if the village still has room after the previous baby", 23, 0, 0 },
+    { "Who loses health", "loses 5..14 health", "Everyone loses 5-14 health; anyone already that weak drops to 0 health.", -1, 3, 3, 6, -1, 31, 23, 0, 100, 0, 0, 0, 99, 4, 0, 0, -7367, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Health lost by each villager it hits", "health lost", NULL, -1, 2, 3, 6, -1, 32, 23, 0, 10, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Who falls sick", "falls sick", NULL, -1, 3, 3, 7, -1, 30, 23, 0, 100, 0, 0, 0, 99, 4, 0, 0, -7367, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which woman the event shows (the babies still go to the first six eligible women)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 8, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which mothers have more than one baby", "carries twins or triplets instead of one baby", NULL, -1, 3, 3, 9, -1, 28, 23, 0, 100, 0, 0, 0, 99, 4, 0, 0, 0, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Of those, which have triplets (the others have twins)", "carries triplets instead of twins (only reached for mothers already having more than one)", NULL, -1, 3, 3, 9, -1, 29, 23, 0, 100, 0, 0, 0, 99, 4, 0, 0, 0, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which villager finds the shell", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "If they pick it up and listen: health lost (pinch)", "health lost", NULL, 0, 2, 3, -1, -1, 13, 23, 0, 6, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which villager finds the tube", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which child gets stuck", "the villagers this event's own condition allows", NULL, -1, 4, 1, 20, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which adult finds the larvae", "the villagers this event's own condition allows", NULL, -1, 4, 1, 14, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "If they put soap in the pond: who falls sick", "falls sick", NULL, 0, 3, 3, 15, -1, 30, 23, 0, 100, 0, 0, 0, 99, 4, 0, 0, -7367, 0, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which adult sees the faces", "the villagers this event's own condition allows", NULL, -1, 4, 1, 16, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which mother", "the villagers this event's own condition allows", NULL, -1, 4, 1, 17, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "Which adult finds the box", "the villagers this event's own condition allows", NULL, -1, 4, 1, 18, -1, 35, 23, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 23, 0, 0 },
+    { "If they swim back with the box: what happens", NULL, NULL, 0, 1, 1, -1, -1, -1, 23, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager finds the book", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they bring it to the lab: everyone's Parenting gain", "Parenting skill", NULL, 1, 2, 3, -1, -1, 15, 25, 0, 6, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which child ate the mushroom", "the villagers this event's own condition allows", NULL, -1, 4, 1, 20, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they lie: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 16, 25, 0, 26, 25, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they tell the truth: everyone's Parenting gain", "Parenting skill", NULL, 1, 2, 3, -1, -1, 17, 25, 0, 6, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they tell the truth: the child's Farming gain", "Farming skill", NULL, 1, 2, 3, -1, -1, 18, 25, 0, 11, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager is the healer (stock does not require them to be sick)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager is the healer (stock does not require them to be sick)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager is the healer (stock does not require them to be sick)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they eat a bit: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 19, 25, 0, 20, 15, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager is the healer (stock does not require them to be sick)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager is the healer (stock does not require them to be sick)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they fast: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 20, 25, 0, 11, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager is the healer (stock does not require them to be sick)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they use bark: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 21, 25, 0, 6, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they use mushrooms: health lost", "health lost", NULL, 1, 2, 3, -1, -1, 22, 25, 0, 6, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which villager experiments", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they try the salts: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 23, 25, 0, 41, 35, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 25, 0, 0 },
+    { "Which builder tries it", "the villagers this event's own condition allows", NULL, -1, 4, 1, 21, -1, 35, 25, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 25, 0, 0 },
+    { "If they try the technique: what happens", NULL, NULL, 0, 1, 1, -1, -1, -1, 25, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 27, 0, 0 },
+    { "If they try the technique and get hurt: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 25, 27, 0, 75, 75, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only on the hurt result", 27, 0, 0 },
+    { "Which villager tries it", "the villagers this event's own condition allows", NULL, -1, 4, 1, 22, -1, 35, 27, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 27, 0, 0 },
+    { "If they try standing on fruit: what happens", NULL, NULL, 0, 1, 1, -1, -1, -1, 27, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 29, 0, 0 },
+    { "If they try standing on fruit and get hurt: health lost", "health lost", NULL, 0, 2, 3, -1, -1, 27, 29, 0, 75, 75, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only on the hurt result", 29, 0, 0 },
+    { "Which adult", "the villagers this event's own condition allows", NULL, -1, 4, 1, 24, -1, 35, 29, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 29, 0, 0 },
+    { "Which child is stuck (shown in the dialog only)", "the villagers this event's own condition allows", NULL, -1, 4, 1, 23, -1, 35, 29, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 29, 0, 0 },
+    { "Which adult teaches the children", "the villagers this event's own condition allows", NULL, -1, 4, 1, 25, -1, 35, 29, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 29, 0, 0 },
+    { "Which villager meets the stranger", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 35, 29, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 29, 0, 0 },
+};
+static const oc_event VV4_OC_EVENTS[] = {
+    { 5, 0, 0, 0, 1, 0, NULL },
+    { 6, 0, 0, 0, 1, 8, "Never happens in the original game (its condition always fails); its code and text are complete and it works. It needs room in the village for the new villager." },
+    { 7, 0, 1, 0, 0, 0, NULL },
+    { 8, 1, 1, 0, 0, 0, NULL },
+    { 12, 2, 1, 0, 0, 0, NULL },
+    { 13, 3, 4, 0, 0, 0, NULL },
+    { 14, 7, 3, 0, 0, 0, NULL },
+    { 15, 10, 4, 0, 0, 0, NULL },
+    { 17, 14, 1, 0, 0, 0, NULL },
+    { 18, 15, 1, 0, 0, 0, NULL },
+    { 20, 16, 1, 0, 0, 0, NULL },
+    { 21, 17, 2, 0, 0, 0, NULL },
+    { 22, 19, 0, 0, 1, 0, NULL },
+    { 25, 19, 9, 0, 1, 8, NULL },
+    { 26, 28, 3, 0, 1, 0, NULL },
+    { 27, 31, 0, 0, 1, 0, NULL },
+    { 28, 31, 3, 0, 1, 9, NULL },
+    { 29, 34, 2, 0, 0, 0, NULL },
+    { 30, 36, 1, 0, 0, 0, NULL },
+    { 31, 37, 1, 0, 0, 0, NULL },
+    { 32, 38, 2, 0, 1, 1, NULL },
+    { 33, 40, 1, 0, 0, 0, NULL },
+    { 34, 41, 1, 0, 0, 0, NULL },
+    { 35, 42, 2, 0, 0, 0, NULL },
+    { 36, 44, 2, 0, 0, 0, NULL },
+    { 37, 46, 4, 0, 0, 0, NULL },
+    { 38, 50, 1, 0, 0, 0, NULL },
+    { 39, 51, 1, 0, 0, 0, NULL },
+    { 40, 52, 2, 0, 0, 0, NULL },
+    { 41, 54, 1, 0, 0, 0, NULL },
+    { 42, 55, 2, 0, 0, 0, NULL },
+    { 43, 57, 3, 0, 0, 0, NULL },
+    { 44, 60, 2, 0, 0, 0, NULL },
+    { 45, 62, 3, 0, 0, 0, NULL },
+    { 46, 65, 3, 0, 1, 1, NULL },
+    { 47, 68, 2, 0, 0, 0, NULL },
+    { 48, 70, 1, 0, 1, 1, NULL },
+    { 49, 71, 1, 0, 0, 0, NULL },
+};
+#define VV4_OC_EVENT_COUNT 38
 static const story_event VV4_EVENTS[] = {
     { 2, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 3, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },
     { 4, "Isola Day Celebration", "", "The villagers celebrate their arrival on Isola with feasts.", "nothing beyond an island event being possible" },
     { 5, "Day of Honor", "", "The villagers pay their respects to those who have passed on.", "the game's own condition for the day of honor (graves)" },
+    { 6, "The Canoe from the Other Side", "", "A canoe lands on the beach and a villager from another part of Isola joins the village.", "nothing it can have: the original game never runs it (picking it makes it happen); it needs room in the village for a new villager" },
     { 7, "The Mysterious Footprints", "food gained", "Footprints appear overnight, and honeycombs: the village gains food.", "nothing beyond an island event being possible" },
     { 8, "The Mysterious Footprints", "food lost", "Footprints appear overnight, and food is stolen.", "nothing beyond an island event being possible" },
     { 9, "The Mysterious Footprints", "tech gained", "Footprints appear overnight, and useful instruments: tech points gained.", "nothing beyond an island event being possible" },
@@ -359,13 +2459,13 @@ static const story_event VV4_EVENTS[] = {
     { 25, "Daredevil Barrel...of Babies! ", "", "A barrel of babies comes down the waterfalls and they join the village.", "room in the village for new villagers, and the game's own barrel conditions" },
     { 26, "The State of the Tree", "glum", "The sickly Tree of Life makes the villagers glum and moody.", "the Tree of Life still in a poor state" },
     { 27, "The State of the Tree", "rejuvenated", "The recovering Tree of Life rejuvenates the villagers.", "a healthy Tree of Life" },
-    { 28, "The Abandoned Infants ", "", "Babies are found abandoned in the bushes and the women take them in.", "the game's own condition for abandoned infants" },
+    { 28, "The Abandoned Infants ", "Female", "Babies are found abandoned in the bushes and the women take them in.", "the game's own condition for abandoned infants" },
     { 29, "The Pink Shell", "", "A villager finds a pink shell and decides what to do with it.", "a villager the event can be about" },
     { 30, "The Calabash Instrument", "", "A villager finds a notched bamboo tube: pour water into it, or not.", "a villager the event can be about" },
     { 31, "The Climber", "", "A villager gets stuck at the top of the Tree of Life.", "a villager the event can be about" },
     { 32, "The Mosquito Larvae", "", "Mosquito larvae in the pond: the villagers decide how to deal with them.", "a villager the event can be about, and the game's own technology conditions" },
     { 33, "Faces in the Night", "", "A villager sees glowing faces in the trees: tell the tribe, or not.", "a villager the event can be about" },
-    { 34, "The Screaming Baby", "", "A mother with a screaming baby gets conflicting advice.", "a villager the event can be about" },
+    { 34, "The Screaming Baby", "Female", "A mother with a screaming baby gets conflicting advice.", "a mother with a baby the event can be about" },
     { 35, "The Sealed Box", "", "A villager finds a floating sealed box: risk swimming it back, or not.", "a villager the event can be about" },
     { 36, "The Wet Book", "", "A villager finds a disintegrating book: read it now, or carry it to the lab.", "a villager the event can be about" },
     { 37, "The Lie", "", "A child ate a rare mushroom instead of storing it: what to tell the adult?", "a villager the event can be about" },
@@ -379,10 +2479,10 @@ static const story_event VV4_EVENTS[] = {
     { 45, "Innovation in Construction", "", "A builder tests a dangerous new way to build huts.", "a villager the event can be about" },
     { 46, "Innovation in Farming", "", "A villager tries to speed up cooking by sitting on the cooking pit.", "a villager the event can be about, and the game's own technology condition" },
     { 47, "Tough Lessons", "", "A child is stuck high in the Tree of Life: rescue them, or let them learn.", "a child and an adult the event can be about" },
-    { 48, "The Pretty Shell", "", "Two children fight over a shell: teach them to share, or decide who keeps it.", "at least two children" },
+    { 48, "The Pretty Shell", "", "Two children fight over a shell: teach them to share, or decide who keeps it.", "an adult the event can be about, and at least two adults" },
     { 49, "The Legendary Stranger", "", "Biggles appears by the Tree of Life and answers one question.", "a villager the event can be about" },
 };
-#define VV4_EVENT_COUNT 44
+#define VV4_EVENT_COUNT 45
 
 static const unsigned char VV5_W0_E[40] = { 0x50, 0xC3, 0x00, 0x00, 0x30, 0x75, 0x00, 0x00, 0xF8, 0x24, 0x01, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x30, 0x75, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0xA0, 0x86, 0x01, 0x00, 0x40, 0x9C, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00 };
 static const unsigned char VV5_W0_R[40] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -617,8 +2717,454 @@ static const story_write VV5_WRITES[] = {
 #define VV5_WRITE_COUNT 76
 static const unsigned char VV5_PICK_SITE_BYTES[7] = { 0x8B, 0x04, 0xB5, 0x50, 0xC8, 0x4D, 0x00 };
 static const unsigned char VV5_TITLE_SITE_BYTES[6] = { 0x8B, 0x8D, 0xE0, 0x00, 0x00, 0x00 };
+static const unsigned char VV5_OC_CHOICE_APPLY_BYTES[16] = { 0x8B, 0x01, 0x8B, 0x96, 0x30, 0x08, 0x00, 0x00, 0x8B, 0x40, 0x2C, 0x52, 0xFF, 0xD0, 0x8B, 0xCE };
+static const unsigned char VV5_OC_SIMPLE_APPLY_BYTES[9] = { 0x8B, 0x11, 0x8B, 0x42, 0x30, 0xFF, 0xD0, 0x8B, 0xCE };
 #define VV5_PARENTAGE_SITE 0x465F34u
 static const unsigned char VV5_PARENTAGE_STOCK[5] = { 0x84, 0xDB, 0x75, 0x0C, 0x8B };
+static const unsigned char VV5_OCS_414BD5[5] = { 0xE8, 0x86, 0xEA, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_414EF5[5] = { 0xE8, 0x66, 0xE7, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415075[5] = { 0xE8, 0xE6, 0xE5, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415108[5] = { 0xE8, 0x53, 0xE5, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415123[5] = { 0xE8, 0x38, 0xE5, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4151D7[5] = { 0xE8, 0x84, 0xE4, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4151E2[5] = { 0xE8, 0x79, 0xE4, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4151F0[5] = { 0xE8, 0x6B, 0xE4, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41521A[5] = { 0xE8, 0x41, 0xE4, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415225[5] = { 0xE8, 0x36, 0xE4, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415233[5] = { 0xE8, 0x28, 0xE4, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41525D[5] = { 0xE8, 0xFE, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415268[5] = { 0xE8, 0xF3, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415276[5] = { 0xE8, 0xE5, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4152BF[5] = { 0xE8, 0x9C, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4152CA[5] = { 0xE8, 0x91, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4152D8[5] = { 0xE8, 0x83, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41530A[5] = { 0xE8, 0x51, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415315[5] = { 0xE8, 0x46, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415323[5] = { 0xE8, 0x38, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415355[5] = { 0xE8, 0x06, 0xE3, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415360[5] = { 0xE8, 0xFB, 0xE2, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41536E[5] = { 0xE8, 0xED, 0xE2, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415417[5] = { 0xE8, 0x44, 0xE2, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415422[5] = { 0xE8, 0x39, 0xE2, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415430[5] = { 0xE8, 0x2B, 0xE2, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41545A[5] = { 0xE8, 0x01, 0xE2, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415465[5] = { 0xE8, 0xF6, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415473[5] = { 0xE8, 0xE8, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41549D[5] = { 0xE8, 0xBE, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4154A8[5] = { 0xE8, 0xB3, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4154B6[5] = { 0xE8, 0xA5, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415520[5] = { 0xE8, 0x3B, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415534[5] = { 0xE8, 0x27, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41553F[5] = { 0xE8, 0x1C, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41555A[5] = { 0xE8, 0x01, 0xE1, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415565[5] = { 0xE8, 0xF6, 0xE0, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415573[5] = { 0xE8, 0xE8, 0xE0, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_4158D3[5] = { 0xE8, 0x88, 0xDD, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_415FDF[5] = { 0xE8, 0x7C, 0xD6, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_416042[5] = { 0xE8, 0x19, 0xD6, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_41644A[5] = { 0xE8, 0x11, 0xD2, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_416906[5] = { 0xE8, 0x55, 0xCD, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_416C04[5] = { 0xE8, 0x57, 0xCA, 0xFE, 0xFF };
+static const unsigned char VV5_OCS_471A25[5] = { 0xE8, 0x36, 0x1C, 0xF9, 0xFF };
+static const unsigned char VV5_OCS_4771C5[5] = { 0xE8, 0x96, 0xC4, 0xF8, 0xFF };
+static const unsigned char VV5_OCC_414BB4[5] = { 0xE8, 0xB7, 0xCC, 0x05, 0x00 };
+static const unsigned char VV5_OCC_414C37[5] = { 0xE8, 0x24, 0x24, 0x06, 0x00 };
+static const unsigned char VV5_OCC_414C9C[5] = { 0xE8, 0xBF, 0x23, 0x06, 0x00 };
+static const unsigned char VV5_OCC_414E29[5] = { 0xE8, 0x32, 0x22, 0x06, 0x00 };
+static const unsigned char VV5_OCC_415664[5] = { 0xE8, 0x07, 0xC2, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415848[5] = { 0xE8, 0x23, 0xC0, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415877[5] = { 0xE8, 0xF4, 0xBF, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415984[5] = { 0xE8, 0xE7, 0xBE, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415C65[5] = { 0xE8, 0x06, 0xBC, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415C9D[5] = { 0xE8, 0xCE, 0xBB, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415E48[5] = { 0xE8, 0x23, 0xBA, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415E80[5] = { 0xE8, 0xEB, 0xB9, 0x05, 0x00 };
+static const unsigned char VV5_OCC_415F88[5] = { 0xE8, 0xE3, 0xB8, 0x05, 0x00 };
+static const unsigned char VV5_OCC_4162A8[5] = { 0xE8, 0xC3, 0xB5, 0x05, 0x00 };
+static const unsigned char VV5_OCC_4162E0[5] = { 0xE8, 0x8B, 0xB5, 0x05, 0x00 };
+static const unsigned char VV5_OCC_41647E[5] = { 0xE8, 0xED, 0xB3, 0x05, 0x00 };
+static const unsigned char VV5_OCC_416601[5] = { 0xE8, 0x6A, 0xB2, 0x05, 0x00 };
+static const unsigned char VV5_OCC_416717[5] = { 0xE8, 0x54, 0xB1, 0x05, 0x00 };
+static const unsigned char VV5_OCC_41693D[5] = { 0xE8, 0x2E, 0xAF, 0x05, 0x00 };
+static const unsigned char VV5_OCC_416AD7[5] = { 0xE8, 0x94, 0xAD, 0x05, 0x00 };
+static const oc_site VV5_OC_SITES[] = {
+    { 0x414BD5u, VV5_OCS_414BD5 },
+    { 0x414EF5u, VV5_OCS_414EF5 },
+    { 0x415075u, VV5_OCS_415075 },
+    { 0x415108u, VV5_OCS_415108 },
+    { 0x415123u, VV5_OCS_415123 },
+    { 0x4151D7u, VV5_OCS_4151D7 },
+    { 0x4151E2u, VV5_OCS_4151E2 },
+    { 0x4151F0u, VV5_OCS_4151F0 },
+    { 0x41521Au, VV5_OCS_41521A },
+    { 0x415225u, VV5_OCS_415225 },
+    { 0x415233u, VV5_OCS_415233 },
+    { 0x41525Du, VV5_OCS_41525D },
+    { 0x415268u, VV5_OCS_415268 },
+    { 0x415276u, VV5_OCS_415276 },
+    { 0x4152BFu, VV5_OCS_4152BF },
+    { 0x4152CAu, VV5_OCS_4152CA },
+    { 0x4152D8u, VV5_OCS_4152D8 },
+    { 0x41530Au, VV5_OCS_41530A },
+    { 0x415315u, VV5_OCS_415315 },
+    { 0x415323u, VV5_OCS_415323 },
+    { 0x415355u, VV5_OCS_415355 },
+    { 0x415360u, VV5_OCS_415360 },
+    { 0x41536Eu, VV5_OCS_41536E },
+    { 0x415417u, VV5_OCS_415417 },
+    { 0x415422u, VV5_OCS_415422 },
+    { 0x415430u, VV5_OCS_415430 },
+    { 0x41545Au, VV5_OCS_41545A },
+    { 0x415465u, VV5_OCS_415465 },
+    { 0x415473u, VV5_OCS_415473 },
+    { 0x41549Du, VV5_OCS_41549D },
+    { 0x4154A8u, VV5_OCS_4154A8 },
+    { 0x4154B6u, VV5_OCS_4154B6 },
+    { 0x415520u, VV5_OCS_415520 },
+    { 0x415534u, VV5_OCS_415534 },
+    { 0x41553Fu, VV5_OCS_41553F },
+    { 0x41555Au, VV5_OCS_41555A },
+    { 0x415565u, VV5_OCS_415565 },
+    { 0x415573u, VV5_OCS_415573 },
+    { 0x4158D3u, VV5_OCS_4158D3 },
+    { 0x415FDFu, VV5_OCS_415FDF },
+    { 0x416042u, VV5_OCS_416042 },
+    { 0x41644Au, VV5_OCS_41644A },
+    { 0x416906u, VV5_OCS_416906 },
+    { 0x416C04u, VV5_OCS_416C04 },
+    { 0x471A25u, VV5_OCS_471A25 },
+    { 0x4771C5u, VV5_OCS_4771C5 },
+};
+#define VV5_OC_SITE_COUNT 46
+static const oc_scope VV5_OC_SCOPES[] = {
+    { 0x414BB4u, VV5_OCC_414BB4, 0, -1, 0, 0, -1 },
+    { 0x414C37u, VV5_OCC_414C37, 0, -1, 0, 0, -1 },
+    { 0x414C9Cu, VV5_OCC_414C9C, 0, -1, 0, 0, -1 },
+    { 0x414E29u, VV5_OCC_414E29, 0, -1, 0, 0, -1 },
+    { 0x415664u, VV5_OCC_415664, 0, -1, 0, 0, -1 },
+    { 0x415848u, VV5_OCC_415848, 0, -1, 0, 0, -1 },
+    { 0x415877u, VV5_OCC_415877, 0, -1, 0, 0, -1 },
+    { 0x415984u, VV5_OCC_415984, 0, -1, 0, 0, -1 },
+    { 0x415C65u, VV5_OCC_415C65, 0, -1, 0, 0, -1 },
+    { 0x415C9Du, VV5_OCC_415C9D, 0, -1, 0, 0, -1 },
+    { 0x415E48u, VV5_OCC_415E48, 0, -1, 0, 0, -1 },
+    { 0x415E80u, VV5_OCC_415E80, 0, -1, 0, 0, -1 },
+    { 0x415F88u, VV5_OCC_415F88, 0, -1, 0, 0, -1 },
+    { 0x4162A8u, VV5_OCC_4162A8, 0, -1, 0, 0, -1 },
+    { 0x4162E0u, VV5_OCC_4162E0, 0, -1, 0, 0, -1 },
+    { 0x41647Eu, VV5_OCC_41647E, 0, -1, 0, 0, -1 },
+    { 0x416601u, VV5_OCC_416601, 0, -1, 0, 0, -1 },
+    { 0x416717u, VV5_OCC_416717, 0, -1, 0, 0, -1 },
+    { 0x41693Du, VV5_OCC_41693D, 0, -1, 0, 0, -1 },
+    { 0x416AD7u, VV5_OCC_416AD7, 0, -1, 0, 0, -1 },
+};
+#define VV5_OC_SCOPE_COUNT 20
+static const oc_force VV5_OC_FORCES[] = {
+    { 5, 0 },
+    { 5, 1 },
+    { 7, 0 },
+    { 7, 1 },
+    { 7, 2 },
+    { 7, 3 },
+    { 7, 4 },
+    { 7, 5 },
+    { 8, 0 },
+    { 8, 1 },
+    { 10, 0 },
+    { 10, 1 },
+    { 10, 2 },
+    { 10, 3 },
+    { 10, 4 },
+    { 10, 5 },
+    { 11, 0 },
+    { 11, 1 },
+    { 13, 0 },
+    { 13, 1 },
+    { 13, 2 },
+    { 13, 3 },
+    { 13, 4 },
+    { 13, 5 },
+    { 14, 0 },
+    { 14, 1 },
+    { 16, 0 },
+    { 16, 1 },
+    { 16, 2 },
+    { 16, 3 },
+    { 16, 4 },
+    { 16, 5 },
+    { 17, 0 },
+    { 17, 1 },
+    { 19, 0 },
+    { 19, 1 },
+    { 19, 2 },
+    { 19, 3 },
+    { 19, 4 },
+    { 19, 5 },
+    { 20, 0 },
+    { 20, 1 },
+    { 22, 0 },
+    { 22, 1 },
+    { 22, 2 },
+    { 22, 3 },
+    { 22, 4 },
+    { 22, 5 },
+    { 23, 0 },
+    { 23, 1 },
+    { 25, 0 },
+    { 25, 1 },
+    { 25, 2 },
+    { 25, 3 },
+    { 25, 4 },
+    { 25, 5 },
+    { 26, 0 },
+    { 26, 1 },
+    { 28, 0 },
+    { 28, 1 },
+    { 28, 2 },
+    { 28, 3 },
+    { 28, 4 },
+    { 28, 5 },
+    { 29, 0 },
+    { 29, 1 },
+    { 31, 0 },
+    { 31, 1 },
+    { 31, 2 },
+    { 31, 3 },
+    { 31, 4 },
+    { 31, 5 },
+    { 32, 99 },
+    { 37, 0 },
+    { 32, 99 },
+    { 37, 1 },
+    { 32, 99 },
+    { 37, 2 },
+    { 32, 99 },
+    { 37, 3 },
+    { 32, 99 },
+    { 37, 4 },
+    { 32, 99 },
+    { 37, 5 },
+    { 34, 0 },
+    { 36, 0 },
+    { 34, 1 },
+    { 36, 1 },
+    { 34, 2 },
+    { 36, 2 },
+    { 34, 3 },
+    { 36, 3 },
+    { 34, 4 },
+    { 36, 4 },
+    { 33, 0 },
+    { 35, 0 },
+    { 33, 1 },
+    { 35, 1 },
+    { 39, 0 },
+    { 39, 99 },
+    { 41, 99 },
+    { 41, 0 },
+    { 42, 0 },
+    { 42, 99 },
+};
+static const oc_option VV5_OC_OPTIONS[] = {
+    { "Boy", "baby 1 needs a free record", 0, 1, 0 },
+    { "Girl", "baby 1 needs a free record", 1, 1, 0 },
+    { "Farming", "baby 1 needs a free record", 2, 1, 0 },
+    { "Parenting", "baby 1 needs a free record", 3, 1, 0 },
+    { "Healing", "baby 1 needs a free record", 4, 1, 0 },
+    { "Research", "baby 1 needs a free record", 5, 1, 0 },
+    { "Building", "baby 1 needs a free record", 6, 1, 0 },
+    { "Devotion", "baby 1 needs a free record", 7, 1, 0 },
+    { "Boy", NULL, 8, 1, 0 },
+    { "Girl", NULL, 9, 1, 0 },
+    { "Farming", NULL, 10, 1, 0 },
+    { "Parenting", NULL, 11, 1, 0 },
+    { "Healing", NULL, 12, 1, 0 },
+    { "Research", NULL, 13, 1, 0 },
+    { "Building", NULL, 14, 1, 0 },
+    { "Devotion", NULL, 15, 1, 0 },
+    { "Boy", NULL, 16, 1, 0 },
+    { "Girl", NULL, 17, 1, 0 },
+    { "Farming", NULL, 18, 1, 0 },
+    { "Parenting", NULL, 19, 1, 0 },
+    { "Healing", NULL, 20, 1, 0 },
+    { "Research", NULL, 21, 1, 0 },
+    { "Building", NULL, 22, 1, 0 },
+    { "Devotion", NULL, 23, 1, 0 },
+    { "Boy", "baby 1 needs a free record", 24, 1, 0 },
+    { "Girl", "baby 1 needs a free record", 25, 1, 0 },
+    { "Farming", "baby 1 needs a free record", 26, 1, 0 },
+    { "Parenting", "baby 1 needs a free record", 27, 1, 0 },
+    { "Healing", "baby 1 needs a free record", 28, 1, 0 },
+    { "Research", "baby 1 needs a free record", 29, 1, 0 },
+    { "Building", "baby 1 needs a free record", 30, 1, 0 },
+    { "Devotion", "baby 1 needs a free record", 31, 1, 0 },
+    { "Boy", NULL, 32, 1, 0 },
+    { "Girl", NULL, 33, 1, 0 },
+    { "Farming", NULL, 34, 1, 0 },
+    { "Parenting", NULL, 35, 1, 0 },
+    { "Healing", NULL, 36, 1, 0 },
+    { "Research", NULL, 37, 1, 0 },
+    { "Building", NULL, 38, 1, 0 },
+    { "Devotion", NULL, 39, 1, 0 },
+    { "Boy", NULL, 40, 1, 0 },
+    { "Girl", NULL, 41, 1, 0 },
+    { "Farming", NULL, 42, 1, 0 },
+    { "Parenting", NULL, 43, 1, 0 },
+    { "Healing", NULL, 44, 1, 0 },
+    { "Research", NULL, 45, 1, 0 },
+    { "Building", NULL, 46, 1, 0 },
+    { "Devotion", NULL, 47, 1, 0 },
+    { "Boy", "baby 1 needs a free record", 48, 1, 0 },
+    { "Girl", "baby 1 needs a free record", 49, 1, 0 },
+    { "Farming", "baby 1 needs a free record", 50, 1, 0 },
+    { "Parenting", "baby 1 needs a free record", 51, 1, 0 },
+    { "Healing", "baby 1 needs a free record", 52, 1, 0 },
+    { "Research", "baby 1 needs a free record", 53, 1, 0 },
+    { "Building", "baby 1 needs a free record", 54, 1, 0 },
+    { "Devotion", "baby 1 needs a free record", 55, 1, 0 },
+    { "Boy", NULL, 56, 1, 0 },
+    { "Girl", NULL, 57, 1, 0 },
+    { "Farming", NULL, 58, 1, 0 },
+    { "Parenting", NULL, 59, 1, 0 },
+    { "Healing", NULL, 60, 1, 0 },
+    { "Research", NULL, 61, 1, 0 },
+    { "Building", NULL, 62, 1, 0 },
+    { "Devotion", NULL, 63, 1, 0 },
+    { "Boy", NULL, 64, 1, 0 },
+    { "Girl", NULL, 65, 1, 0 },
+    { "Farming", NULL, 66, 1, 0 },
+    { "Parenting", NULL, 67, 1, 0 },
+    { "Healing", NULL, 68, 1, 0 },
+    { "Research", NULL, 69, 1, 0 },
+    { "Building", NULL, 70, 1, 0 },
+    { "Devotion", NULL, 71, 1, 0 },
+    { "Farming", NULL, 72, 2, 0 },
+    { "Parenting", NULL, 74, 2, 0 },
+    { "Healing", NULL, 76, 2, 0 },
+    { "Research", NULL, 78, 2, 0 },
+    { "Building", NULL, 80, 2, 0 },
+    { "Devotion", NULL, 82, 2, 0 },
+    { "80", NULL, 84, 2, 0 },
+    { "81", NULL, 86, 2, 0 },
+    { "82", NULL, 88, 2, 0 },
+    { "83", NULL, 90, 2, 0 },
+    { "84", NULL, 92, 2, 0 },
+    { "Man", NULL, 94, 2, 0 },
+    { "Woman", NULL, 96, 2, 0 },
+    { "An explosion hurts the villager", NULL, 98, 1, 0 },
+    { "They stop mixing acids (science technology +1 level)", "science technology level < 2", 99, 1, 0 },
+    { "Well received (Research +40, science technology +1 level)", "science technology level == 2", 100, 1, 0 },
+    { "Not believed (-100 tech)", NULL, 101, 1, 0 },
+    { "A genuine defector joins the believers", NULL, 102, 1, 0 },
+    { "It was a spy (-2000 tech)", NULL, 103, 1, 0 },
+};
+static const oc_control VV5_OC_CONTROLS[] = {
+    { "Which villager sees the vision", "the villagers this event's own condition allows", NULL, -1, 4, 1, 0, -1, 44, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Faith gained", "faith (20..39)", NULL, -1, 2, 3, -1, -1, 0, 0, 0, 20, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "How long the weather lasts", "", NULL, -1, 2, 3, 1, -1, 45, 0, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "The event's food gained part is fixed (no roll).", 0, 0, 0 },
+    { "How long the weather lasts", "", NULL, -1, 2, 3, 2, -1, 45, 0, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "The event's food lost part is fixed (no roll).", 0, 0, 0 },
+    { "Who has the bed bug bites", "the villagers this event's own condition allows", NULL, -1, 4, 1, 4, -1, 44, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Who finds the mask", "the villagers this event's own condition allows", NULL, -1, 4, 1, 0, -1, 44, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Which child finds the toy", "the villagers this event's own condition allows", NULL, -1, 4, 1, 5, -1, 44, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Which heathen child owns the toy", "the villagers this event's own condition allows", NULL, -1, 4, 1, 6, -1, 44, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "If you keep it: Research gained", "skill points (20..29)", NULL, 0, 2, 3, -1, -1, 38, 0, 0, 10, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "If you return it: Devotion gained", "skill points (20..29)", NULL, 1, 2, 3, -1, -1, 38, 0, 0, 10, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Who wants to jump", "the villagers this event's own condition allows", NULL, -1, 4, 1, 7, -1, 44, 0, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 0, 0, 0 },
+    { "How long the weather lasts", "", NULL, -1, 2, 3, 3, -1, 45, 0, 0, 180, 180, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "The event's fire put out part is fixed (no roll).", 0, 0, 0 },
+    { "Tech points gained", "tech points (2000..2999)", NULL, -1, 2, 3, -1, -1, 1, 0, 0, 1000, 2000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Tech points lost", "tech points lost (500..2999)", NULL, -1, 2, 3, -1, -1, 2, 0, 0, 2500, 500, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Food gained", "food (50..99, before the farming-tech bonus)", NULL, -1, 2, 3, -1, -1, 3, 0, 0, 50, 50, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Tech points lost", "tech points lost (500..1499)", NULL, -1, 2, 3, -1, -1, 4, 0, 0, 1000, 500, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
+    { "Baby 1: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 0, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 1 needs a free record", 2, 0, 0 },
+    { "Baby 1: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 2, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 1 needs a free record", 8, 0, 0 },
+    { "Baby 1: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 6, 8, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "baby 1 needs a free record", 8, 0, 0 },
+    { "Baby 2: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 8, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 10, 0, 0 },
+    { "Baby 2: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 10, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 16, 0, 0 },
+    { "Baby 2: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 9, 16, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 16, 0, 0 },
+    { "Baby 3: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 16, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 18, 0, 0 },
+    { "Baby 3: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 18, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 24, 0, 0 },
+    { "Baby 3: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 12, 24, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 24, 0, 0 },
+    { "Baby 1: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 24, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 1 needs a free record", 26, 0, 0 },
+    { "Baby 1: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 26, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 1 needs a free record", 32, 0, 0 },
+    { "Baby 1: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 15, 32, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "baby 1 needs a free record", 32, 0, 0 },
+    { "Baby 2: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 32, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 34, 0, 0 },
+    { "Baby 2: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 34, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 40, 0, 0 },
+    { "Baby 2: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 18, 40, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 40, 0, 0 },
+    { "Baby 3: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 40, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 42, 0, 0 },
+    { "Baby 3: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 42, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 48, 0, 0 },
+    { "Baby 3: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 21, 48, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 48, 0, 0 },
+    { "Baby 1: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 48, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 1 needs a free record", 50, 0, 0 },
+    { "Baby 1: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 50, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only baby 1 needs a free record", 56, 0, 0 },
+    { "Baby 1: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 24, 56, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "baby 1 needs a free record", 56, 0, 0 },
+    { "Baby 2: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 56, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 58, 0, 0 },
+    { "Baby 2: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 58, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 64, 0, 0 },
+    { "Baby 2: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 27, 64, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 64, 0, 0 },
+    { "Baby 3: boy or girl", NULL, NULL, -1, 1, 3, -1, -1, -1, 64, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 66, 0, 0 },
+    { "Baby 3: starting skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 66, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 72, 0, 0 },
+    { "Baby 3: starting skill level", "skill points (5..9)", NULL, -1, 2, 3, -1, -1, 30, 72, 0, 5, 5, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 72, 0, 0 },
+    { "The master's skill", NULL, NULL, -1, 1, 3, -1, -1, -1, 72, 6, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "room for one villager", 84, 0, 0 },
+    { "The master's skill level", NULL, NULL, -1, 1, 3, -1, -1, -1, 78, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "room for one villager", 94, 0, 0 },
+    { "Man or woman", NULL, NULL, -1, 1, 3, -1, -1, -1, 83, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "room for one villager", 98, 0, 0 },
+    { "Who sneaks into the pools", "the villagers this event's own condition allows", NULL, -1, 4, 1, 8, -1, 44, 85, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 98, 0, 0 },
+    { "Who demands a sign", "the villagers this event's own condition allows", NULL, -1, 4, 1, 0, -1, 44, 85, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 98, 0, 0 },
+    { "Which child spies", "the villagers this event's own condition allows", NULL, -1, 4, 1, 10, -1, 44, 85, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 98, 0, 0 },
+    { "Which heathen catches the child", "the villagers this event's own condition allows", NULL, -1, 4, 1, 11, -1, 44, 85, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 98, 0, 0 },
+    { "Who tries to stop the heathens", "the villagers this event's own condition allows", NULL, -1, 4, 1, 12, -1, 44, 85, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 98, 0, 0 },
+    { "If you teach them", NULL, NULL, 0, 1, 1, -1, -1, -1, 85, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only science technology level < 2", 100, 0, 0 },
+    { "If you teach them and it explodes: health lost", "health lost (10..29)", NULL, 0, 2, 3, -1, -1, 40, 87, 0, 20, 10, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only on the explosion result", 100, 0, 0 },
+    { "Which child is missing", "the villagers this event's own condition allows", NULL, -1, 4, 1, 10, -1, 44, 87, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 100, 0, 0 },
+    { "Which heathen is suspected", "the villagers this event's own condition allows", NULL, -1, 4, 1, 11, -1, 44, 87, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 100, 0, 0 },
+    { "Which heathen is the envoy", "the villagers this event's own condition allows", NULL, -1, 4, 1, 14, -1, 44, 87, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 100, 0, 0 },
+    { "Which believer gives the tour", "the villagers this event's own condition allows", NULL, -1, 4, 1, 13, -1, 44, 87, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 100, 0, 0 },
+    { "Which researcher finds the artifacts", "the villagers this event's own condition allows", NULL, -1, 4, 1, 15, -1, 44, 87, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 100, 0, 0 },
+    { "If you prepare an independent report", NULL, NULL, 1, 1, 1, -1, -1, -1, 87, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Only science technology level == 2", 102, 0, 0 },
+    { "Who finds the scrolls", "the villagers this event's own condition allows", NULL, -1, 4, 1, 16, -1, 44, 89, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 102, 0, 0 },
+    { "Which child the bats are about", "the villagers this event's own condition allows", NULL, -1, 4, 1, 17, -1, 44, 89, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 102, 0, 0 },
+    { "Who deals with the aphids", "the villagers this event's own condition allows", NULL, -1, 4, 1, 0, -1, 44, 89, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 102, 0, 0 },
+    { "Which heathen asks to join", "the villagers this event's own condition allows", NULL, -1, 4, 1, 18, -1, 44, 89, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 102, 0, 0 },
+    { "If you accept the heathen", NULL, NULL, 0, 1, 1, -1, -1, -1, 89, 2, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 104, 0, 0 },
+    { "Who finds the straw thing", "the villagers this event's own condition allows", NULL, -1, 4, 1, 0, -1, 44, 91, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 104, 0, 0 },
+    { "Who finds the nectar", "the villagers this event's own condition allows", NULL, -1, 4, 1, 19, -1, 44, 91, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 104, 0, 0 },
+    { "Who finds the broken mask", "the villagers this event's own condition allows", NULL, -1, 4, 1, 8, -1, 44, 91, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 104, 0, 0 },
+    { "Which heathen child owns the mask", "the villagers this event's own condition allows", NULL, -1, 4, 1, 9, -1, 44, 91, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 104, 0, 0 },
+    { "If you fix the mask: health lost", "health lost (20..30)", NULL, 0, 2, 3, -1, -1, 43, 91, 0, 11, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 104, 0, 0 },
+};
+static const oc_event VV5_OC_EVENTS[] = {
+    { 4, 0, 0, 0, 1, 0, NULL },
+    { 5, 0, 2, 0, 0, 0, NULL },
+    { 6, 2, 1, 0, 0, 0, NULL },
+    { 7, 3, 1, 0, 0, 0, NULL },
+    { 11, 4, 1, 0, 0, 0, NULL },
+    { 12, 5, 1, 0, 0, 0, NULL },
+    { 13, 6, 4, 0, 0, 0, NULL },
+    { 14, 10, 1, 0, 0, 0, NULL },
+    { 15, 11, 1, 0, 0, 0, NULL },
+    { 18, 12, 1, 0, 0, 0, NULL },
+    { 21, 13, 0, 0, 1, 0, NULL },
+    { 23, 13, 1, 0, 1, 0, NULL },
+    { 24, 14, 2, 0, 0, 0, NULL },
+    { 25, 16, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 26, 16, 9, 0, 0, 0, NULL },
+    { 27, 25, 9, 0, 0, 0, NULL },
+    { 30, 34, 9, 0, 0, 0, NULL },
+    { 31, 43, 3, 0, 0, 0, NULL },
+    { 33, 46, 0, 0, 1, 8, "Never happens in the original game (its condition always fails); its code and text are complete and it works. It needs room in the village for the babies." },
+    { 34, 46, 1, 0, 0, 0, NULL },
+    { 35, 47, 1, 0, 0, 0, NULL },
+    { 36, 48, 2, 0, 0, 0, NULL },
+    { 37, 50, 3, 0, 0, 0, NULL },
+    { 38, 53, 2, 0, 0, 0, NULL },
+    { 39, 55, 2, 0, 0, 0, NULL },
+    { 40, 57, 2, 0, 1, 1, NULL },
+    { 41, 59, 1, 0, 0, 0, NULL },
+    { 42, 60, 1, 0, 1, 1, NULL },
+    { 43, 61, 1, 0, 0, 0, NULL },
+    { 44, 62, 2, 0, 0, 0, NULL },
+    { 45, 64, 1, 0, 0, 0, NULL },
+    { 46, 65, 1, 0, 0, 0, NULL },
+    { 47, 66, 3, 0, 0, 0, NULL },
+};
+#define VV5_OC_EVENT_COUNT 33
 static const story_event VV5_EVENTS[] = {
     { 1, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 2, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },
@@ -644,12 +3190,14 @@ static const story_event VV5_EVENTS[] = {
     { 22, "The Clumsy Heathen", "", "A heathen spills a potion on the noni bush, which then bears more fruit.", "nothing beyond an island event being possible" },
     { 23, "The Pesky Critter", "", "A noisy lemur distracts the researchers: tech points lost.", "the game's own progress condition for the lab" },
     { 24, "Mushroom Day!", "", "The villagers celebrate mushrooms, with cake for the children.", "a child the event can be about" },
+    { 25, "The Stinging Wasps", "", "Wasps nest around the village and sting many villagers.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 26, "Barrel O' Babies!", "believers", "A barrel of babies floats down the stream and the believers adopt them.", "room in the village for new villagers" },
     { 27, "Barrel O' Babies!", "heathens", "A barrel of babies floats down the stream and the heathens adopt them.", "room in the village for new villagers" },
     { 28, "The Salty Air", "", "A salty wind forces the villagers to hide until it settles.", "nothing beyond an island event being possible" },
     { 30, "Chutes Without Ladders", "", "Toddlers shoot out of the bushes into the hot springs and join the tribe.", "room in the village for new villagers" },
     { 31, "News From Another Tribe", "a newcomer", "A respected master from another tribe joins the village.", "room in the village for a new villager" },
     { 32, "News From Another Tribe", "a message", "A message from another village: the tribe gains tech points.", "nothing beyond an island event being possible" },
+    { 33, "The Abandoned Infants", "", "Babies are found abandoned in the bushes and the women take them in.", "nothing it can have: the original game never runs it (picking it makes it happen); it needs room in the village for new villagers" },
     { 34, "The Spa", "", "A villager sneaks into the heathens' five pools.", "a villager the event can be about" },
     { 35, "Doubt", "", "A villager doubts the Guiding Hand and demands a sign.", "a villager the event can be about" },
     { 36, "Spying on the Heathens", "", "A child spies on the heathens and gets caught.", "a child the event can be about" },
@@ -660,12 +3208,12 @@ static const story_event VV5_EVENTS[] = {
     { 41, "Trick Or Trade", "", "The heathens have valuable scrolls: trade for them, or trick them.", "at least 100 food" },
     { 42, "The Migrating Fruit Bats", "", "Fruit bats stop on their migration: scare them away, or study them.", "a villager the event can be about" },
     { 43, "The Aphids in the Noni Bush", "", "Bugs are sucking the life out of the crops: deal with them wisely.", "a villager the event can be about" },
-    { 44, "The Defector", "", "A heathen asks to join the believers: accept, or refuse.", "a heathen the event can be about (the game also rolls a chance)" },
+    { 44, "The Defector", "", "A heathen asks to join the believers: accept, or refuse.", "a heathen the event can be about" },
     { 45, "The Straw Hat", "", "A villager finds a woven reed thing: a hat, or a strainer?", "a villager the event can be about" },
     { 46, "The Strange Nectar", "", "A villager finds a rare blossom full of sweet nectar.", "a villager the event can be about" },
     { 47, "The Cracked Mask", "", "A heathen's mask is broken: help glue it, or not.", "a villager the event can be about" },
     { 55, "Innovation in Farming", "the mysterious storyteller", "A mysterious storyteller from the older parts of the island appears.", "a child the event can be about, and the game's own progress condition" },
 };
-#define VV5_EVENT_COUNT 45
+#define VV5_EVENT_COUNT 47
 
 #endif

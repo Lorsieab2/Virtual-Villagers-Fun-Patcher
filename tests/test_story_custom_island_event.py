@@ -51,6 +51,7 @@ from story_custom_fixtures import (  # noqa: E402
     KEEP,
     LAYOUTS,
     PARENTS,
+    RESULT_SIZE,
     Change,
     Event,
     Spawn,
@@ -202,7 +203,7 @@ class Story:
         event.game = self.n
         self.proc.write(EVENT_BUF, event.pack())
         ok = self.proc.export("VvfpStoryProbeApply", self.n, EVENT_BUF, RESULT_BUF, TEXT_BUF, 4096)
-        return ok, unpack_result(self.proc.read(RESULT_BUF, 52)), self.proc.cstring(TEXT_BUF)
+        return ok, unpack_result(self.proc.read(RESULT_BUF, RESULT_SIZE)), self.proc.cstring(TEXT_BUF)
 
     def refusal(self, event: Event):
         event.game = self.n
@@ -226,7 +227,7 @@ class LayoutTests(unittest.TestCase):
         proc = Process(render("vv3", "stock"), TEST_DLL)
         proc.export("VvfpStoryProbeSizes", SCRATCH)
         sizes = struct.unpack("<7i", proc.read(SCRATCH, 28))
-        self.assertEqual(sizes, (Event.SIZE, 136, 192, 52, 680, 1768, 1772))
+        self.assertEqual(sizes, (Event.SIZE, 136, Change.SIZE, RESULT_SIZE, 680, 1768, 1772))
 
 
 # ---------------------------------------------------------------------------
@@ -440,19 +441,34 @@ class VillageOptionTests(unittest.TestCase):
                     story.apply(Event(refill=1))
                     self.assertEqual(p.u32(w + 0xA2F8), 800)
                 elif game == "vv2":
-                    p.put32(w + 0x2EACC, 100)
-                    p.put32(w + 0x2EAD8, 7)
-                    p.put32(w + 0x2EAD0, 3)          # fish
-                    exhausted = [1]
-                    p.stub(0x425AC0, lambda q: (exhausted[0], 0))
-                    p.write(w + 0x2E798, b"\1")
+                    # The game's field test 0x425AC0 queues "Birds found your
+                    # field" as a side effect: the refill never calls it.
+                    field_test = []
+                    p.stub(0x425AC0, lambda q: (field_test.append(1) or 0, 0))
+                    for difficulty, start in ((0, 2200), (1, 1100), (2, 550)):
+                        p.put32(w + 0x2EAEC, difficulty)
+                        p.put32(w + 0x2EACC, 100)
+                        p.put32(w + 0x2EAD8, 7)
+                        p.put32(w + 0x2EAD0, 3)          # fish
+                        p.put32(w + 0x2EAD4, 0)          # the field's protection, used up
+                        p.write(w + 0x2E798, b"\0")      # the farm not planted
+                        p.write(w + 0x2E7E8 - 8, b"\0" * 16)
+                        story.apply(Event(refill=1))
+                        self.assertEqual(p.u32(w + 0x2EACC), 1500)
+                        self.assertEqual(p.u32(w + 0x2EAD0), start, "the fish: the difficulty's start")
+                        self.assertEqual(p.u32(w + 0x2EAD4), 1000)
+                        self.assertEqual(p.u32(w + 0x2EAD8), 7, "no crops while the farm is not planted")
+                        p.write(w + 0x2E798, b"\1")
+                        story.apply(Event(refill=1))
+                        self.assertEqual(p.u32(w + 0x2EAD8), 800)
+                        self.assertEqual(p.read(w + 0x2E7E0, 16), bytes(16),
+                                         "the algae-fish puzzle's own fields are never written")
+                        self.assertEqual(p.read(w + 0x2E770, 1), b"\0", "nor the scarecrow's")
+                    # Above the start, nothing is taken away.
+                    p.put32(w + 0x2EAD0, 5000)
                     story.apply(Event(refill=1))
-                    self.assertEqual(p.u32(w + 0x2EACC), 1500)
-                    self.assertEqual(p.u32(w + 0x2EAD8), 7, "exhausted soil grows nothing")
-                    exhausted[0] = 0
-                    story.apply(Event(refill=1))
-                    self.assertEqual(p.u32(w + 0x2EAD8), 800)
-                    self.assertEqual(p.u32(w + 0x2EAD0), 3, "the fish are never refilled")
+                    self.assertEqual(p.u32(w + 0x2EAD0), 5000)
+                    self.assertEqual(field_test, [])
                 elif game == "vv3":
                     trees = 0x5947E0
                     p.put32(trees + 0x64, 2)
@@ -942,8 +958,9 @@ class PregnancyTests(unittest.TestCase):
                 self.assertEqual(v.i32(4, v.L["pregnant"]), 0)
                 self.assertEqual(r["refused"], 1)
             ok, r, _ = story.apply(Event(changes=[story.change(3, litter=2)]))
-            with self.subTest(game=game, case="already pregnant"):
-                self.assertEqual((r["conceived"], r["refused"]), (0, 1))
+            with self.subTest(game=game, case="already pregnant: the litter changes"):
+                self.assertEqual((r["conceived"], r["refused"]), (1, 0))
+                self.assertEqual(v.i32(3, v.L["litter"]), 2)
 
     def test_a_heathen_never_carries_in_new_believers(self):
         if not have_stock("vv5"):
@@ -1111,35 +1128,131 @@ class StatusTests(unittest.TestCase):
         self.assertEqual((v.byte(2, 0x1CEC), r["refused"]), (0, 1), "a Heathen never gives birth")
 
 
-BEHAVIOUR_ROUTINES = {
-    "vv1": [(0x439470, 4, "array", ()), (0x443FA0, 8, "array", (9,)), (0x444990, 8, "array", (1,)),
-            (0x4410C0, 4, "array", ())],
-    "vv2": [(0x4492A0, 4, "array", ()), (0x451690, 4, "array", ()), (0x452920, 4, "array", ()),
-            (0x454890, 4, "array", ()), (0x44AF20, 4, "array", ())],
-    "vv3": [(0x460F70, 4, "record", ())],
-    "vv4": [(0x468C60, 0, "record", ())],
-    "vv5": [(0x473440, 0, "record", ())],
-}
+# Each game's stop routine and how it is called: (va, bytes popped, this).
+STOPS = {"vv1": (0x439470, 4, "array"), "vv2": (0x4492A0, 4, "array"), "vv3": (0x460F70, 4, "record"),
+         "vv4": (0x468C60, 0, "record"), "vv5": (0x473440, 0, "record")}
+# VV3-VV5: the do-action routine every action goes through (thiscall on the
+# record: id, argument pointer; ret 8).
+DO_ACTION = {"vv3": 0x455570, "vv4": 0x45DEC0, "vv5": 0x465580}
+ADAPTER_SOURCES = {g: SOURCE / f"story_c{g[2]}.inc" for g in GAMES}
+
+
+def behaviour_table(game: str):
+    """The game's offered actions as its adapter declares them:
+    (label, kind, routine, arg)."""
+    source = ADAPTER_SOURCES[game].read_text(encoding="utf-8")
+    body = source[source.index(f"static const ce_action C{game[2]}_BEHAVIOURS[] = {{"):]
+    body = body[:body.index("};")]
+    rows = re.findall(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|\d+) \}', body)
+    return [(label, kind, int(routine.rstrip("u"), 16) if routine != "0" else 0, int(arg, 0))
+            for label, kind, routine, arg in rows]
+
+
+def stock_callers(game: str, target: int) -> int:
+    """E8 calls to `target` anywhere in the stock executable's code."""
+    import pefile as pe_module
+
+    data = stock_path(game).read_bytes()
+    pe = pe_module.PE(data=data, fast_load=True)
+    base = pe.OPTIONAL_HEADER.ImageBase
+    n = 0
+    for section in pe.sections:
+        if not section.Characteristics & 0x20000000:
+            continue
+        raw = data[section.PointerToRawData:section.PointerToRawData + section.SizeOfRawData]
+        start = base + section.VirtualAddress
+        i = raw.find(b"\xE8")
+        while i >= 0 and i + 5 <= len(raw):
+            if start + i + 5 + struct.unpack_from("<i", raw, i + 1)[0] == target:
+                n += 1
+            i = raw.find(b"\xE8", i + 1)
+    return n
 
 
 @emulated
 class BehaviourTests(unittest.TestCase):
-    def test_each_behaviour_is_the_routine_a_stock_event_calls(self):
-        for game, routines in BEHAVIOUR_ROUTINES.items():
+    def test_every_offered_action_stops_first_then_starts_the_games_own_routine(self):
+        for game in GAMES:
             if not have_stock(game):
                 continue
-            for k, (va, pop, this, extra) in enumerate(routines):
+            table = behaviour_table(game)
+            self.assertGreater(len(table), 1, game)
+            stop_va, stop_pop, stop_this = STOPS[game]
+            for k, (label, kind, routine, arg) in enumerate(table):
                 story = Story(game)
                 v = story.village
                 v.put(2, sex="f", years=30, name="Actor")
-                story.record_call(va, pop)
-                story.apply(Event(changes=[story.change(2, behaviour=k)]))
-                expected_this = v.base if this == "array" else v.record(2)
-                args = [] if this == "record" and game != "vv3" else [2]
-                if game == "vv3":
-                    args = [v.record(2)]
-                with self.subTest(game=game, behaviour=k):
-                    self.assertEqual(story.calls[va], [[expected_this] + args + list(extra)])
+                order = []
+
+                def recorder(va, pop):
+                    def fn(p):
+                        order.append([va, p.reg("ecx")] + [p.arg(i) for i in range(pop // 4)])
+                        return 0, pop
+                    return fn
+                story.proc.stub(stop_va, recorder(stop_va, stop_pop))
+                if game in DO_ACTION:
+                    story.proc.stub(DO_ACTION[game], recorder(DO_ACTION[game], 8))
+                elif routine:
+                    story.proc.stub(routine, recorder(routine, 8 if kind == "ACT_CALL_ARG" else 4))
+                if game in ("vv3", "vv4", "vv5"):
+                    health = {"vv3": 0x462670, "vv4": 0x46AF00, "vv5": 0x4758B0}[game]
+                    story.proc.stub(health, recorder(health, 8))
+                ok, r, _ = story.apply(Event(changes=[story.change(2, behaviour=k)]))
+                this = v.base if stop_this == "array" else v.record(2)
+                stop = [stop_va, this] + ([2] if stop_this == "array" else
+                                          [v.record(2)] if game == "vv3" else [])
+                with self.subTest(game=game, behaviour=label):
+                    self.assertEqual(r["refused"], 0)
+                    calls = [c for c in order if c[0] != {"vv3": 0x462670, "vv4": 0x46AF00,
+                                                          "vv5": 0x4758B0}.get(game)]
+                    if kind == "ACT_EFFECT":
+                        self.assertEqual(calls, [[routine, this, 2]], "an effect is not stopped for")
+                        continue
+                    self.assertEqual(calls[0], stop, "the stop comes first")
+                    if kind in ("ACT_STOP", "ACT_RECOVER"):
+                        self.assertEqual(len(calls), 1)
+                    elif kind == "ACT_DO":
+                        self.assertEqual(len(calls), 2)
+                        self.assertEqual(calls[1][:3], [DO_ACTION[game], v.record(2), arg])
+                        self.assertEqual(story.proc.read(calls[1][3], 32), bytes(32),
+                                         "an argument block of zeros")
+                    else:
+                        want = [routine, v.base, 2] + ([arg] if kind == "ACT_CALL_ARG" else [])
+                        self.assertEqual(calls[1:], [want])
+
+    def test_the_first_offered_actions_keep_their_places(self):
+        """Behaviours queued before this release keep meaning the same."""
+        first = {
+            "vv1": [("ACT_STOP", 0x439470, 0), ("ACT_CALL_ARG", 0x443FA0, 9),
+                    ("ACT_CALL_ARG", 0x444990, 1), ("ACT_CALL", 0x4410C0, 0), ("ACT_RECOVER", 0, 0)],
+            "vv2": [("ACT_STOP", 0x4492A0, 0), ("ACT_CALL", 0x451690, 0), ("ACT_CALL", 0x452920, 0),
+                    ("ACT_CALL", 0x454890, 0), ("ACT_EFFECT", 0x44AF20, 0), ("ACT_RECOVER", 0, 0)],
+            "vv3": [("ACT_STOP", 0, 0), ("ACT_RECOVER", 0, 0)],
+            "vv4": [("ACT_STOP", 0, 0), ("ACT_RECOVER", 0, 0)],
+            "vv5": [("ACT_STOP", 0, 0), ("ACT_RECOVER", 0, 0)],
+        }
+        for game, want in first.items():
+            with self.subTest(game=game):
+                self.assertEqual([row[1:] for row in behaviour_table(game)[:len(want)]], want)
+
+    def test_every_vv1_and_vv2_starter_has_a_stock_caller(self):
+        """The owner's rule: an action no stock code starts is never offered."""
+        for game in ("vv1", "vv2"):
+            if not have_stock(game):
+                continue
+            for label, kind, routine, _ in behaviour_table(game):
+                if routine == 0 or kind in ("ACT_STOP", "ACT_RECOVER"):
+                    continue
+                with self.subTest(game=game, behaviour=label):
+                    self.assertGreater(stock_callers(game, routine), 0)
+
+    def test_no_action_of_the_excluded_kinds_is_offered(self):
+        banned = ("bury", "burying", "puzzle", "embrac", "clothes", "picking", "looking for", "teach",
+                  "tag", "chief", "convert", "seeing the light", "guard")
+        for game in GAMES:
+            for label, *_ in behaviour_table(game):
+                with self.subTest(game=game, behaviour=label):
+                    self.assertFalse(any(word in label.lower() for word in banned), label)
 
     def test_recovers_fully(self):
         for game in GAMES:
@@ -1151,9 +1264,8 @@ class BehaviourTests(unittest.TestCase):
             v.put(2, sex="f", years=30, name="Patient", health=12)
             off, size = L["sick"]
             story.proc.write(v.record(2) + off, b"\1")
-            for va in {"vv1": [0x439470], "vv4": [], "vv5": []}.get(game, []):
-                story.record_call(va, 4)
-            recover = len(BEHAVIOUR_ROUTINES[game])
+            story.record_call(STOPS[game][0], STOPS[game][1])
+            recover = [row[1] for row in behaviour_table(game)].index("ACT_RECOVER")
             story.apply(Event(changes=[story.change(2, behaviour=recover)]))
             with self.subTest(game=game):
                 self.assertEqual((v.sick(2), v.i32(2, L["health"])), (0, 100))
@@ -1900,7 +2012,8 @@ class DialogResourceTests(unittest.TestCase):
         dialogs = _dialogs(self.DLL)
         ui = (SOURCE / "story_custom_ui.inc").read_text(encoding="utf-8")
         ids = dict(re.findall(r"(IDC_[A-Z_]+) = (\d+)", ui))
-        owner = {"IDC_CE_": 302, "IDC_CH_": 303, "IDC_SP_": 304, "IDC_PA_": 305}
+        owner = {"IDC_CE_": 302, "IDC_CH_": 303, "IDC_SP_": 304, "IDC_PA_": 305, "IDC_VA_": 306,
+                 "IDC_PZ_": 307, "IDC_RV_": 308, "IDC_UB_": 309}
         for name, value in ids.items():
             dialog = next(d for prefix, d in owner.items() if name.startswith(prefix))
             span = {"IDC_CH_TOGGLE_FIRST": 5, "IDC_CH_SKILL_FIRST": 6, "IDC_CH_SKILL_LABEL_FIRST": 6,

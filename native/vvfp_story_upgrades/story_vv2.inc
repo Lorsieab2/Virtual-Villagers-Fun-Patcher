@@ -58,7 +58,9 @@ static int vv2_route(void) {
 
 /* 0x42EF28: rand(100), < 20 is family A. */
 static int __cdecl vv2_family_roll(int bound) {
-    int slot = vv2_route();
+    int slot;
+    oc_new_choice(2);
+    slot = vv2_route();
     if (slot < 0) {
         return VV2_RAND(bound);
     }
@@ -67,7 +69,9 @@ static int __cdecl vv2_family_roll(int bound) {
 
 /* 0x42EF4A: rand(100), < 50 is family C, otherwise family B. */
 static int __cdecl vv2_c_or_b_roll(int bound) {
-    int slot = vv2_route();
+    int slot;
+    oc_new_choice(2);
+    slot = vv2_route();
     if (slot < 0) {
         return VV2_RAND(bound);
     }
@@ -78,14 +82,63 @@ static int __cdecl vv2_c_or_b_roll(int bound) {
    of this family.  Taking it disarms the pick, so a condition that fails (the
    chooser only offers events whose condition holds) falls back to the
    family's own stock rerolls. */
+/* ---- Unlocked picks (as story_vv1.inc) --------------------------------------- */
+static int vv2_unlock_c;
+static int vv2_unlock_a;
+
+/* 0x434617 `cmp ebp, 0x2AD` (family C's case through its condition table);
+   passed: 0x434835, the call that runs the case. */
+__declspec(naked) static void vv2_unlock_c_stub(void) {
+    __asm {
+        cmp vv2_unlock_c, 0
+        jne pass
+        cmp ebp, 0x2AD
+        push 0x43461D
+        ret
+    pass:
+        mov vv2_unlock_c, 0
+        push 0x434835
+        ret
+    }
+}
+
+/* 0x41F5A5 `cmp eax, 0x14; mov [esp+0x14], eax` (family A's event through
+   its condition table); passed: the event stored, 0x41F694. */
+__declspec(naked) static void vv2_unlock_a_stub(void) {
+    __asm {
+        cmp vv2_unlock_a, 0
+        jne pass
+        cmp eax, 0x14
+        mov dword ptr [esp + 0x14], eax
+        push 0x41F5AC
+        ret
+    pass:
+        mov vv2_unlock_a, 0
+        mov dword ptr [esp + 0x14], eax
+        push 0x41F694
+        ret
+    }
+}
+
 static int vv2_event_roll(int family, int bound) {
-    int slot = vv2_peek();
+    int slot;
+    oc_reroll(2);
+    slot = vv2_peek();
     if (slot < 0 || VV2_SLOT_FAMILY(slot) != family || VV2_SLOT_INDEX(slot) >= bound) {
         return VV2_RAND(bound);
+    }
+    if (oc_unlocked(2, slot)) {
+        /* pass the event's own condition for this one roll */
+        if (family == VV2_FAMILY_C) {
+            vv2_unlock_c = 1;
+        } else if (family == VV2_FAMILY_A) {
+            vv2_unlock_a = 1;
+        }
     }
     pick_slot = -1;
     STORY_COUNT(delivered);
     last_failed_event = NULL;
+    oc_delivered(2, NULL);
     return VV2_SLOT_INDEX(slot);
 }
 
@@ -99,6 +152,8 @@ static story_detour vv2_detours[] = {
     { 0x434607u, 5, VV2_ROLL_CASE_C_BYTES, 1, (void *)vv2_case_roll_c },
     { 0x41F59Du, 5, VV2_ROLL_EVENT_A_BYTES, 1, (void *)vv2_event_roll_a },
     { 0x437B0Eu, 5, VV2_ROLL_EVENT_B_BYTES, 1, (void *)vv2_event_roll_b },
+    { 0x434617u, 6, VV2_UNLOCK_C_BYTES, 0, (void *)vv2_unlock_c_stub },
+    { 0x41F5A5u, 7, VV2_UNLOCK_A_BYTES, 0, (void *)vv2_unlock_a_stub },
 };
 
 /* ---- Conditions: each event's own condition, as the game evaluates it ----
@@ -147,6 +202,21 @@ static int vv2_any_villager(unsigned char *pool, int min_age, int max_age, int s
     return 0;
 }
 
+/* What any island event needs, whatever its own condition: a living adult
+   for the trigger (0x44BAE0(1)), and the village's first island event is
+   always a two-choice event.  An unlocked pick needs only this. */
+static int vv2_base_possible(const story_event *e) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
+    unsigned char *pool = *(unsigned char **)(uintptr_t)VV2_POOL_GLOBAL;
+    if (world == NULL || pool == NULL) {
+        return 0;
+    }
+    if (!vv2_any_villager(pool, 0x118, -1, 0, 0)) {
+        return 0;
+    }
+    return *(int *)(world + VV2_EVENT_COUNT_FIELD) != 0 || VV2_SLOT_FAMILY(e->slot) == VV2_FAMILY_A;
+}
+
 static int vv2_possible(const story_event *e) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
     unsigned char *pool = *(unsigned char **)(uintptr_t)VV2_POOL_GLOBAL;
@@ -156,19 +226,14 @@ static int vv2_possible(const story_event *e) {
     vv2_pred_fn advanced = (vv2_pred_fn)(uintptr_t)0x4261D0u;
     vv2_count_fn population = (vv2_count_fn)(uintptr_t)0x425860u;
     vv2_pred_fn room = (vv2_pred_fn)(uintptr_t)0x44B310u;
-    if (world == NULL || pool == NULL) {
-        return 0;
-    }
-    /* The trigger needs a living adult (0x44BAE0(1) in the trigger). */
-    if (!vv2_any_villager(pool, 0x118, -1, 0, 0)) {
-        return 0;
-    }
-    /* The first island event of a village is always a two-choice event. */
-    if (*(int *)(world + VV2_EVENT_COUNT_FIELD) == 0 && family != VV2_FAMILY_A) {
+    if (!vv2_base_possible(e)) {
         return 0;
     }
     if (family == VV2_FAMILY_C) {
         switch (index) {
+        /* The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day:
+           the selector's condition table maps them to the never-valid 0x434824. */
+        case 18: case 20: case 26: return 0;
         case 8: return graves(world, NULL) != 0;
         case 11: case 14: case 17: return advanced(world, NULL) != 0;
         case 15: return vv2_any_villager(pool, 0x168, -1, 0, 1) && advanced(world, NULL) != 0;

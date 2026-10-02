@@ -67,7 +67,9 @@ static int vv1_route(void) {
 
 /* 0x423818: rand(100), < 20 is an encounter. */
 static int __cdecl vv1_family_roll(int bound) {
-    int slot = vv1_route();
+    int slot;
+    oc_new_choice(1);
+    slot = vv1_route();
     if (slot < 0) {
         return VV1_RAND(bound);
     }
@@ -76,21 +78,83 @@ static int __cdecl vv1_family_roll(int bound) {
 
 /* 0x42383A: rand(100), < 50 is the island events, otherwise a crate. */
 static int __cdecl vv1_island_or_crate_roll(int bound) {
-    int slot = vv1_route();
+    int slot;
+    oc_new_choice(1);
+    slot = vv1_route();
     if (slot < 0) {
         return VV1_RAND(bound);
     }
     return VV1_SLOT_FAMILY(slot) == VV1_FAMILY_ISLAND ? 0 : bound - 1;
 }
 
+/* ---- Unlocked picks ---------------------------------------------------------
+
+   An event the player picked although its timing or story condition does not
+   hold (or a developer-dead event proven to work) is delivered past that
+   condition, once: when the roll above returns the picked index, the check
+   right after it -- the condition table the chooser looks the index up in --
+   is passed for that one roll and the chooser goes on as for an event whose
+   condition holds.  Otherwise the replaced instruction runs as stock. */
+static int vv1_unlock_island;
+static int vv1_unlock_encounter;
+
+/* 0x4284EC `movzx ecx, byte [edi+0x4286A0]` (the island case's condition
+   class); passed: 0x428671, the call that runs the case. */
+__declspec(naked) static void vv1_unlock_island_stub(void) {
+    __asm {
+        pushfd
+        cmp vv1_unlock_island, 0
+        jne pass
+        popfd
+        movzx ecx, byte ptr [edi + 0x4286A0]
+        push 0x4284F3
+        ret
+    pass:
+        popfd
+        mov vv1_unlock_island, 0
+        push 0x428671
+        ret
+    }
+}
+
+/* 0x418941 `movzx eax, byte [edi+0x4189A4]` (the encounter's condition
+   class); passed: 0x41895D, the variant accepted. */
+__declspec(naked) static void vv1_unlock_encounter_stub(void) {
+    __asm {
+        pushfd
+        cmp vv1_unlock_encounter, 0
+        jne pass
+        popfd
+        movzx eax, byte ptr [edi + 0x4189A4]
+        push 0x418948
+        ret
+    pass:
+        popfd
+        mov vv1_unlock_encounter, 0
+        push 0x41895D
+        ret
+    }
+}
+
 static int vv1_event_roll(int family, int bound) {
-    int slot = vv1_peek();
+    int slot;
+    oc_reroll(1);
+    slot = vv1_peek();
     if (slot < 0 || VV1_SLOT_FAMILY(slot) != family || VV1_SLOT_INDEX(slot) >= bound) {
         return VV1_RAND(bound);
+    }
+    if (oc_unlocked(1, slot)) {
+        /* pass the event's own condition for this one roll */
+        if (family == VV1_FAMILY_ISLAND) {
+            vv1_unlock_island = 1;
+        } else if (family == VV1_FAMILY_ENCOUNTER) {
+            vv1_unlock_encounter = 1;
+        }
     }
     pick_slot = -1;
     STORY_COUNT(delivered);
     last_failed_event = NULL;
+    oc_delivered(1, NULL);
     return VV1_SLOT_INDEX(slot);
 }
 
@@ -104,6 +168,8 @@ static story_detour vv1_detours[] = {
     { 0x4284DBu, 5, VV1_ROLL_ISLAND_CASE_BYTES, 1, (void *)vv1_island_case_roll },
     { 0x418932u, 5, VV1_ROLL_ENCOUNTER_BYTES, 1, (void *)vv1_encounter_roll },
     { 0x42B03Eu, 5, VV1_ROLL_CRATE_BYTES, 1, (void *)vv1_crate_roll },
+    { 0x4284ECu, 7, VV1_UNLOCK_ISLAND_BYTES, 0, (void *)vv1_unlock_island_stub },
+    { 0x418941u, 7, VV1_UNLOCK_ENCOUNTER_BYTES, 0, (void *)vv1_unlock_encounter_stub },
 };
 
 /* ---- Conditions: each event's own condition, as the game evaluates it ----
@@ -131,24 +197,33 @@ static int vv1_any_villager(unsigned char *records, int min_age, int max_age) {
     return 0;
 }
 
+/* What any island event needs, whatever its own condition: a living adult
+   for the trigger (0x4237DB), and the village's first island event is
+   always an encounter (0x42382C).  An unlocked pick needs only this. */
+static int vv1_base_possible(const story_event *e) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
+    unsigned char *records = *(unsigned char **)(uintptr_t)VV1_VILLAGERS_GLOBAL;
+    if (world == NULL || records == NULL) {
+        return 0;
+    }
+    if (!vv1_any_villager(records, VV1_CHILD_AGE, -1)) {
+        return 0;
+    }
+    return *(int *)(world + VV1_EVENT_COUNT_FIELD) != 0
+           || VV1_SLOT_FAMILY(e->slot) == VV1_FAMILY_ENCOUNTER;
+}
+
 static int vv1_possible(const story_event *e) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
     unsigned char *records = *(unsigned char **)(uintptr_t)VV1_VILLAGERS_GLOBAL;
     int family = VV1_SLOT_FAMILY(e->slot);
     int index = VV1_SLOT_INDEX(e->slot);
-    if (world == NULL || records == NULL) {
-        return 0;
-    }
-    /* The trigger needs a living adult (0x4237DB), and the first island
-       event of a village is always an encounter (0x42382C). */
-    if (!vv1_any_villager(records, VV1_CHILD_AGE, -1)) {
-        return 0;
-    }
-    if (*(int *)(world + VV1_EVENT_COUNT_FIELD) == 0 && family != VV1_FAMILY_ENCOUNTER) {
+    if (!vv1_base_possible(e)) {
         return 0;
     }
     if (family == VV1_FAMILY_ISLAND) {
         switch (index) {
+        case 1: return 0;   /* A Mighty Storm: its class (0x4286A1 = 5) always re-rolls */
         case 3: return *(int *)(world + 0xA2E4) >= 2;
         case 4: return vv1_any_villager(records, -1, VV1_CHILD_AGE);
         case 9: return world[0x9FB8] == 1;
@@ -160,6 +235,7 @@ static int vv1_possible(const story_event *e) {
         switch (index) {
         case 0: return *(int *)(world + 0xA2BC) < 3;
         case 4: return *(int *)(world + 0xA2D4) < 3;
+        case 5: return 0;   /* The Furry Food: its class (0x4189A9 = 4) always re-rolls */
         case 7: case 9: return vv1_any_villager(records, -1, VV1_CHILD_AGE);
         default: return 1;
         }

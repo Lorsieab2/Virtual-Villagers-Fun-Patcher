@@ -131,14 +131,23 @@ static int c1_sicken(int index) {
    the world's Babies Made (+0x9E24, per baby), twins (+0x9E44) and triplets
    (+0x9E48) counters, the carrying pose (0x439470), and the parentage log.
    Each baby only while the game's room predicate says there is room; there
-   is no sex check in A New Home's delivery (0x42E900). */
+   is no sex check in A New Home's delivery (0x42E900).
+
+   The Golden Child's family 0xC7 is never part of a pregnancy: the delivery
+   (0x42EF39) makes an extra Golden Child when +0x394 is 0xC7, and the baby
+   takes the carrier's own family.  So a Golden Child neither carries nor
+   fathers (stock: 0x42E5A4, the breeding predicate, refuses them). */
+#define VV1_GOLDEN_FAMILY 0xC7
+
 static int c1_conceive(int index, int litter, int father, ce_result *result) {
     unsigned char *array = VV1_ARRAY();
     unsigned char *world = VV1_WORLD();
     unsigned char *r = c1_record(index);
     int babies = 0;
     int age;
-    if (*(int *)(r + 0x358) != 0 || *(int *)(r + 0x348) < 360) {
+    if (*(int *)(r + 0x358) != 0 || *(int *)(r + 0x348) < 360
+        || *(int *)(r + 0x36C) == VV1_GOLDEN_FAMILY
+        || (father >= 0 && *(int *)(c1_record(father) + 0x36C) == VV1_GOLDEN_FAMILY)) {
         ++result->refused;
         return 0;
     }
@@ -169,37 +178,191 @@ static int c1_conceive(int index, int litter, int father, ce_result *result) {
     return babies;
 }
 
-static const char *const C1_BEHAVIOURS[] = {
-    "Stops what they are doing", "Dances", "Goes swimming", "Relaxes",
-    "Recovers fully (cured, full health)"
+/* Every action starter is a thiscall on the villager array taking the
+   villager's index (and, for a few, one more argument), called by the game's
+   own idle pickers, job dispatcher, drop handler or events.  Offered: the
+   ones that only look (walk, animate) or end by themselves; the jobs that
+   give food or skill practice say so.  Never: puzzle actions, burial,
+   pickups, embracing, or a starter no stock code calls. */
+static const ce_action C1_BEHAVIOURS[] = {
+    { "Stops what they are doing", ACT_STOP, 0x439470u, 0 },
+    { "Dances (Blessings Day)", ACT_CALL_ARG, 0x443FA0u, 9 },
+    { "Goes swimming", ACT_CALL_ARG, 0x444990u, 1 },
+    { "Relaxes", ACT_CALL, 0x4410C0u, 0 },
+    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
+    { "Dances", ACT_CALL, 0x43F200u, 0 },
+    { "Rain dancing", ACT_CALL, 0x4419A0u, 0 },
+    { "Makes a party", ACT_CALL, 0x440590u, 0 },
+    { "Exercises", ACT_CALL, 0x4411D0u, 0 },
+    { "Does the laundry", ACT_CALL, 0x441A50u, 0 },
+    { "Observes", ACT_CALL, 0x4408A0u, 0 },
+    { "Unsure what to do (wanders)", ACT_CALL, 0x445AD0u, 0 },
+    { "Goes indoors", ACT_CALL, 0x439DE0u, 0 },
+    { "Runs away", ACT_CALL, 0x439EF0u, 0 },
+    { "Shakes their head", ACT_CALL, 0x43A040u, 0 },
+    { "Not feeling well (only looks it)", ACT_CALL, 0x441CC0u, 0 },
+    { "Honors the dead", ACT_CALL, 0x4401E0u, 0 },
+    { "Honors the Idol (once it is carved)", ACT_CALL, 0x442810u, 0 },
+    { "Honors the temple (once it is restored)", ACT_CALL, 0x443D50u, 0 },
+    { "Sees something unusual", ACT_CALL, 0x441750u, 0 },
+    { "Curious about the rock", ACT_CALL, 0x43ED50u, 0 },
+    { "Curious about the ruins", ACT_CALL, 0x43EF10u, 0 },
+    { "Curious about the creek", ACT_CALL, 0x441620u, 0 },
+    { "Curious about the field", ACT_CALL, 0x442E80u, 0 },
+    { "Curious about the cactus", ACT_CALL, 0x445670u, 0 },
+    { "Tries to push the boulder (no progress)", ACT_CALL, 0x440FA0u, 0 },
+    { "Enjoys the lagoon", ACT_CALL, 0x43FF80u, 0 },
+    { "Enjoys the garden (once it is grown)", ACT_CALL, 0x442DB0u, 0 },
+    { "Admires the treasure (once it is found)", ACT_CALL, 0x4404B0u, 0 },
+    { "Chases butterflies", ACT_CALL, 0x445840u, 0 },
+    { "Drinks well water", ACT_CALL, 0x444B40u, 0 },
+    { "Forages (Farming practice, food)", ACT_CALL, 0x441E10u, 0 },
+    { "Plants or harvests crops (Farming practice)", ACT_CALL, 0x4439F0u, 0 },
+    { "Waters the crops (Farming practice)", ACT_CALL, 0x445020u, 0 },
+    { "Fishes (Farming practice, food; stock needs fishing)", ACT_CALL, 0x43F450u, 0 },
+    { "Eats (uses food, restores health)", ACT_CALL, 0x43FAD0u, 0 },
+    { "Fixes a hut (Building practice)", ACT_CALL, 0x440AD0u, 0 },
+    { "Heals someone (Healing practice, cures nobody)", ACT_CALL, 0x445580u, 0 },
+    { "Goes to school (children; stock needs the school)", ACT_CALL, 0x444AA0u, 0 },
 };
 
-/* Each is what a stock event does to a villager: the AI reset 0x439470;
-   Blessings Day's dance 0x443FA0(idx, 9) (0x419D2E); the Heat Wave's swim
-   0x444990(idx, 1) and rest 0x4410C0(idx) (0x428067); the healer's cure
-   (sick 0) with full health (100, the game's own ceiling, 0x42EE4D). */
+/* The stop routine 0x439470 first (a starter appends to the step queue;
+   live, without the stop the villager first finishes what it was doing),
+   then the starter; the healer's cure (sick 0) with full health (100, the
+   game's own ceiling, 0x42EE4D). */
 static int c1_behave(int index, int behaviour) {
     unsigned char *array = VV1_ARRAY();
     unsigned char *r = c1_record(index);
-    switch (behaviour) {
-    case 0: TC1(0x439470u, array, index); return 1;
-    case 1: TC2(0x443FA0u, array, index, 9); return 1;
-    case 2: TC2(0x444990u, array, index, 1); return 1;
-    case 3: TC1(0x4410C0u, array, index); return 1;
-    case 4:
+    const ce_action *act;
+    if (behaviour < 0 || behaviour >= (int)(sizeof C1_BEHAVIOURS / sizeof C1_BEHAVIOURS[0])) {
+        return 0;
+    }
+    act = &C1_BEHAVIOURS[behaviour];
+    if (act->kind == ACT_RECOVER) {
         *(int *)(r + 0x354) = 0;
         *(int *)(r + 0x344) = 100;
-        TC1(0x439470u, array, index);
-        return 1;
-    default: return 0;
     }
+    TC1(0x439470u, array, index);
+    if (act->kind == ACT_CALL) {
+        TC1(act->routine, array, index);
+    } else if (act->kind == ACT_CALL_ARG) {
+        TC2(act->routine, array, index, act->arg);
+    }
+    return 1;
+}
+
+/* ---- Pregnancy: none, or a different number of babies ------------------ */
+
+/* "0 babies": as the delivery (0x42E900) and the Golden Child puzzle end a
+   pregnancy -- +0x358 and the litter +0x35C cleared (the conception never
+   writes +0x35C for one baby, so a stale 2 or 3 would turn the next single
+   into twins or triplets), +0x3C = 0x13, and the AI reset 0x439470 for the
+   pose the pregnancy set.  Babies Made is left as counted. */
+static int c1_cancel(int index) {
+    unsigned char *r = c1_record(index);
+    if (*(int *)(r + 0x358) == 0) {
+        return 0;
+    }
+    *(int *)(r + 0x358) = 0;
+    *(int *)(r + 0x35C) = 0;
+    *(int *)(r + 0x3C) = 0x13;
+    TC1(0x439470u, VV1_ARRAY(), index);
+    return 1;
+}
+
+/* The litter of a pregnancy (+0x35C: 0 one baby, 2 twins, 3 triplets; the
+   delivery 0x42F011 makes a second baby for any non-zero value, so 1 is
+   never written).  Each added baby only while the game's own room predicate
+   0x43A1A0 says there is room (neither the creator nor the delivery checks).
+   Returns the babies added. */
+static int c1_relitter(int index, int litter, ce_result *result) {
+    unsigned char *array = VV1_ARRAY();
+    unsigned char *r = c1_record(index);
+    int field = *(int *)(r + 0x35C);
+    int babies = field == 3 ? 3 : field != 0 ? 2 : 1;
+    int added = 0;
+    if (litter < babies) {
+        *(int *)(r + 0x35C) = litter == 1 ? 0 : litter;
+        return 0;
+    }
+    while (babies < litter && (TC0(0x43A1A0u, array) & 0xFF)) {
+        ++babies;
+        ++added;
+        *(int *)(r + 0x35C) = babies;
+    }
+    result->no_room_babies += litter - babies;
+    return added;
+}
+
+/* ---- Revive ------------------------------------------------------------- */
+
+/* A skeleton: occupied with health 0 or less (the Golden Child included). */
+static int c1_skeleton(const unsigned char *r) {
+    return r[0x28] == 1 && *(const int *)(r + 0x344) <= 0;
+}
+
+/* Death is health 0 alone (0x42EF05), so life is health again -- after the
+   last-update time +0x340 is set to the game clock 0x402F70 (live: without
+   it the first living tick ages the villager by the time spent dead) --
+   then the AI reset.  Only while the game's own room predicate says the
+   village has room. */
+static int c1_revive(int index, int health, int cure) {
+    unsigned char *array = VV1_ARRAY();
+    unsigned char *r = c1_record(index);
+    if (!(TC0(0x43A1A0u, array) & 0xFF)) {
+        return -1;
+    }
+    *(int *)(r + 0x340) = TC0(0x402F70u, VV1_WORLD());
+    *(int *)(r + 0x344) = health;
+    if (cure) {
+        *(int *)(r + 0x354) = 0;
+    }
+    TC1(0x439470u, array, index);
+    return 1;
 }
 
 static const char *const C1_VILLAGE[] = {
     "Isola Day celebration (everyone celebrates)",
     "Blessings Day celebration (everyone celebrates)",
     "The beach is dirty again (as The Big Wave leaves it)",
+    "A Golden Child appears (if the village has room)",
 };
+
+/* Hours since the village began, as every puzzle completion writes them:
+   (the game clock 0x402F70 - the start [world+0x9E1C]) / 3600, at least 1
+   (0x43AE40..0x43AE71). */
+static int c1_hours(void) {
+    unsigned char *world = VV1_WORLD();
+    unsigned int now = (unsigned int)TC0(0x402F70u, world);
+    unsigned int hours = (now - *(unsigned int *)(world + 0x9E1C)) / 3600u;
+    return hours == 0 ? 1 : (int)hours;
+}
+
+/* The Golden Child, made exactly as the puzzle's drop (0x424242) makes him:
+   the creator 0x43C350 with the Golden Child's family 0xC7 (which forces his
+   sex, age, looks and skills, 0x43C7AF) and age 0x28, his last-update time
+   the game clock; and, the first time, the puzzle's own latch [world+0xA008]
+   and the hour he came [world+0x9E80] (the Cave's clock, 0x447A14: left 0,
+   the Cave would open at once).  Only while the game's own room predicate
+   says there is room. */
+static int c1_golden_child(void) {
+    unsigned char *array = VV1_ARRAY();
+    unsigned char *world = VV1_WORLD();
+    int index;
+    if (!c1_room()) {
+        return 0;
+    }
+    index = TC5(0x43C350u, array, VV1_GOLDEN_FAMILY, 0, 0, 0, 0x28);
+    if (index < 0 || index >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    *(int *)(c1_record(index) + 0x340) = TC0(0x402F70u, world);
+    if (world[0xA008] == 0) {
+        world[0xA008] = 1;
+        *(int *)(world + 0x9E80) = c1_hours();
+    }
+    return 1;
+}
 
 /* Isola Day (0x4280B2) and Blessings Day: the village celebration
    0x4457D0(kind 3 / 7).  The Big Wave (0x42813D): the cleaned-beach state
@@ -213,8 +376,190 @@ static int c1_village(int which) {
         world[0x9FB8] = 0;
         *(int *)(world + 0x9FB4) = 0;
         return 1;
+    case 3: return c1_golden_child();
     default: return 0;
     }
+}
+
+/* ---- Puzzles ---------------------------------------------------------------
+
+   Each puzzle is a byte flag (exactly 1 when solved: the Statistics screen
+   sums them) in an 8-byte slot after its progress counter, and an hours
+   field the Puzzles screen shows ("Completed in N hours"; a flag alone shows
+   0 hours, seen live).  Solved writes what the game's own completion writes
+   (progress at the threshold, the flag, the hours); unsolved puts back what
+   a new village has, so builders and the puzzle's own route can solve it
+   again.  The whole block is saved as it stands.  Verified live (2026-10-01):
+   the layout, writes kept, no crash, the Cave's scenery following its flag
+   both ways, the Puzzles screen's icons and text. */
+#define C1P_NAV 1              /* the walk grid reads it: rebuilt now (0x414590) */
+#define C1P_HOURS_ONCE 2       /* hours written only the first time (Beach, Treasure) */
+#define C1P_HERBS 4            /* Herb Mastery: the four herb flags too */
+#define C1P_CAVE 8             /* unsolve only outside the cave scene */
+#define C1P_HUT2 16            /* unsolved: started (1) once 15 villagers live here */
+#define C1P_HUT3 32            /* unsolved: started (1) once 28 villagers live here */
+
+typedef struct {
+    unsigned int flag;
+    unsigned int progress;     /* 0 = none */
+    int solved_progress;
+    int unsolved_progress;
+    unsigned int hours;
+    int how;
+} c1_puzzle;
+
+static const ce_puzzle_def C1_PUZZLE_DEFS[] = {
+    { "The Well", 1, 1, NULL },
+    { "The Hut (the first small hut)", 1, 1,
+      "Unsolved, the village keeps everyone it has, but makes no room for more." },
+    { "The Beach", 1, 1, NULL },
+    { "The School", 1, 1, NULL },
+    { "The Lagoon", 1, 1, NULL },
+    { "The Magic Fish of Fertility", 1, 1, NULL },
+    { "The Cemetery", 1, 1, NULL },
+    { "Herb Mastery", 1, 1, "Unsolved also forgets the four herbs, so it can be solved again." },
+    { "The Garden", 1, 1, NULL },
+    { "The Magic Plant of Life", 1, 1, "Solving it again needs The Butterflies solved." },
+    { "The Temple", 1, 1, NULL },
+    { "The Idol", 1, 1, NULL },
+    { "The Butterflies", 1, 1,
+      "Unsolved, only a living Golden Child dropped on the Garden can solve it again." },
+    { "The Treasure", 1, 1, NULL },
+    { "The Cave", 1, 1,
+      "Unsolved is refused while you are inside the cave. Only a Golden Child opens it again." },
+    { "The second small hut (not on the Puzzles screen)", 1, 1,
+      "Unsolved, the village keeps everyone it has, but makes no room for more." },
+    { "The third small hut (not on the Puzzles screen)", 1, 1,
+      "Unsolved, the village keeps everyone it has, but makes no room for more." },
+};
+
+static const c1_puzzle C1_PUZZLES[] = {
+    { 0xA058, 0xA054, 2, 0, 0x9EA8, 0 },
+    { 0x9FE8, 0x9FE4, 250, 125, 0x9E70, C1P_NAV },
+    { 0x9FB8, 0x9FB4, 150, 0, 0x9E58, C1P_NAV | C1P_HOURS_ONCE },
+    { 0xA050, 0xA04C, 1, 0, 0x9EA4, 0 },
+    { 0x9FB0, 0x9FAC, 350, 0, 0x9E54, C1P_NAV },
+    { 0xA090, 0, 0, 0, 0x9EC4, 0 },
+    { 0xA000, 0, 0, 0, 0x9E7C, 0 },
+    { 0xA080, 0, 0, 0, 0x9EBC, C1P_HERBS },
+    { 0x9FC0, 0x9FBC, 200, 0, 0x9E5C, 0 },
+    { 0xA098, 0xA094, 300, 0, 0x9EC8, 0 },
+    { 0x9FE0, 0x9FDC, 1000, 0, 0x9E6C, C1P_NAV },
+    { 0x9FD8, 0x9FD4, 1350, 0, 0x9E68, 0 },
+    { 0xA088, 0, 0, 0, 0x9EC0, 0 },
+    { 0x9FC8, 0x9FC4, 800, 0, 0x9E60, C1P_HOURS_ONCE },
+    { 0x9FA8, 0, 0, 0, 0x9E50, C1P_NAV | C1P_CAVE },
+    { 0x9FF0, 0x9FEC, 400, 0, 0x9E74, C1P_NAV | C1P_HUT2 },
+    { 0x9FF8, 0x9FF4, 600, 0, 0x9E78, C1P_NAV | C1P_HUT3 },
+};
+
+#define C1_PUZZLE_COUNT ((int)(sizeof C1_PUZZLES / sizeof C1_PUZZLES[0]))
+
+static int c1_puzzle_solved(int which) {
+    unsigned char *world = VV1_WORLD();
+    if (world == NULL || which < 0 || which >= C1_PUZZLE_COUNT) {
+        return 0;
+    }
+    return world[C1_PUZZLES[which].flag] != 0;
+}
+
+static int c1_population(void) {
+    int i;
+    int n = 0;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        if (c1_listed(c1_record(i))) {
+            ++n;
+        }
+    }
+    return n;
+}
+
+static int c1_puzzle_set(int which, int solved) {
+    static const unsigned int herbs[4] = { 0xA060, 0xA068, 0xA070, 0xA078 };
+    unsigned char *world = VV1_WORLD();
+    const c1_puzzle *p;
+    int k;
+    if (world == NULL || which < 0 || which >= C1_PUZZLE_COUNT) {
+        return 0;
+    }
+    p = &C1_PUZZLES[which];
+    if (solved) {
+        if (p->progress != 0) {
+            *(int *)(world + p->progress) = p->solved_progress;
+        }
+        if (p->how & C1P_HERBS) {
+            for (k = 0; k < 4; ++k) {
+                world[herbs[k]] = 1;
+            }
+        }
+        world[p->flag] = 1;
+        if (!(p->how & C1P_HOURS_ONCE) || *(int *)(world + p->hours) == 0) {
+            *(int *)(world + p->hours) = c1_hours();
+        }
+    } else {
+        if ((p->how & C1P_CAVE) && *(int *)(world + 0xACB4) == 0x14) {
+            return 0;                  /* the player is inside the cave */
+        }
+        world[p->flag] = 0;
+        if (p->progress != 0) {
+            int value = p->unsolved_progress;
+            if (p->how & C1P_HUT2) {
+                value = c1_population() >= 15 ? 1 : 0;
+            } else if (p->how & C1P_HUT3) {
+                value = c1_population() >= 28 ? 1 : 0;
+            }
+            *(int *)(world + p->progress) = value;
+        }
+        if (p->how & C1P_HERBS) {
+            for (k = 0; k < 4; ++k) {
+                world[herbs[k]] = 0;
+            }
+        }
+    }
+    if (p->how & C1P_NAV) {
+        /* The walk grid, rebuilt as the hut and cave completions rebuild it
+           (0x43A7E4); otherwise it follows at the next scene change. */
+        void *nav = *(void **)(VV1_ARRAY() + 0x3E014);
+        if (nav != NULL) {
+            TC0(0x414590u, nav);
+        }
+    }
+    return 1;
+}
+
+/* ---- Food sources ------------------------------------------------------- */
+
+static const ce_value_def C1_VALUES[] = {
+    { "Berry bushes", 0, 5000,
+      "One store for every bush; a new village has 1900, and the bushes look full from 1300." },
+    { "Crops", 0, 800,
+      "Only once the farm is producing (Farming level 2). The game's own ceiling is 800." },
+};
+
+static int c1_value_get(int which) {
+    unsigned char *world = VV1_WORLD();
+    if (world == NULL) {
+        return -1;
+    }
+    if (which == 0) {
+        return *(int *)(world + 0xA2F4);
+    }
+    if (which == 1) {
+        return *(int *)(world + 0xA2E4) >= 2 ? *(int *)(world + 0xA2F8) : -1;
+    }
+    return -1;
+}
+
+/* Plain writes, as the game's own events change them (North Wind 0x4283B5,
+   Locusts 0x427F73); seen live: the bushes' art follows within seconds and
+   the crops' too (the game caps crops at 800 itself). */
+static int c1_value_set(int which, int amount) {
+    unsigned char *world = VV1_WORLD();
+    if (c1_value_get(which) < 0) {
+        return 0;
+    }
+    *(int *)(world + (which == 0 ? 0xA2F4 : 0xA2F8)) = amount;
+    return 1;
 }
 
 static int c1_food(void) { return *(int *)(VV1_WORLD() + 0xA2EC); }
@@ -314,7 +659,8 @@ static const char *const C1_SKILLS[] = { "Parenting", "Building", "Farming", "He
 static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
-        | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY,
+        | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_REVIVE,
     "A New Home",
     280, 40, 1100,
     VV1_RECORD_COUNT, 0x1C,
@@ -330,16 +676,22 @@ static const ce_adapter C1_ADAPTER = {
     5, 0, C1_SKILLS,
     0, 0, 28, 0, 0, 0, 0,
     NULL, 0,
-    C1_BEHAVIOURS, 5,
-    C1_VILLAGE, 3,
+    C1_BEHAVIOURS, (int)(sizeof C1_BEHAVIOURS / sizeof C1_BEHAVIOURS[0]),
+    C1_VILLAGE, 4,
     "Not in A New Home:\r\n\r\n"
-    "- Golden Child: only the game's own puzzle can make one (the creator's family "
-    "0xC7 forces sex, age and looks, and the puzzle's own state would no longer agree).\r\n"
+    "- Turning a villager into the Golden Child: the game snaps their age to 5 years at "
+    "the next moment and keeps their old looks, sex and skills. A new Golden Child can "
+    "appear instead (village changes).\r\n"
+    "- The Golden Child puzzle: marked alone it leaves no Golden Child, so the Cave and "
+    "The Butterflies could never be solved; a new Golden Child solves it.\r\n"
     "- Faction, Tribal Chief, Esteemed Elder, totems: A New Home has none.\r\n"
-    "- Puzzle solved: no completion routine was found that can be called safely; only "
-    "the dirty beach (as The Big Wave leaves it) is offered.\r\n"
+    "- The unborn baby's father: A New Home keeps no father on a pregnancy (only his "
+    "family number, which is never shown).\r\n"
+    "- Actions that solve or advance a puzzle, burying, picking things up and embracing.\r\n"
     "- Likes and dislikes: the last word of the game's list (sleeping) is not offered "
     "(the game itself never uses it and its list reader can overrun on it).\r\n"
+    "- Revive: buried villagers (their record is gone) and skeletons that have already "
+    "crumbled away.\r\n"
     "- The grave screen keeps the job a villager had when buried.",
     51, 14, 51, 0, 360,
     "Refills the berry bushes and, once the farm is producing, the crops.",
@@ -347,19 +699,37 @@ static const ce_adapter C1_ADAPTER = {
     "Your tribe gains %d tech points.", "Your tribe loses %d tech points.",
     c1_record, c1_listed, c1_arm_refusal, c1_room, c1_spawn, c1_kill, c1_vanish, c1_sicken,
     c1_conceive, NULL, c1_behave, c1_village, c1_food, c1_tech, c1_change_food, c1_change_tech,
-    c1_refill, vv1_parents_supported, vv1_set_parents
+    c1_refill, vv1_parents_supported, vv1_set_parents,
+    C1_VALUES, 2, c1_value_get, c1_value_set,
+    C1_PUZZLE_DEFS, C1_PUZZLE_COUNT, c1_puzzle_solved, c1_puzzle_set,
+    c1_cancel, c1_relitter, NULL,
+    c1_skeleton, c1_revive,
+    0, 0x358
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
 
 /* The replacement for `call 0x428470` at 0x428777 (thiscall, ret 8). */
 static void __fastcall c1_choose(void *event, void *unused_edx, int type, int magnitude) {
+    int strength;
     (void)unused_edx;
-    if (magnitude != VV1_BARREL_MAGNITUDE
-        && ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+    if (magnitude == VV1_BARREL_MAGNITUDE) {
+        /* The Origins Barrel of Babies: never a pick's outcome. */
+        TC2(0x428470u, event, type, magnitude);
         return;
     }
+    if (ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+        return;
+    }
+    /* A pick of an island event: the event is chosen (the case roll) and
+       applied inside this call, with this magnitude. */
+    strength = vv1_island_strength();
+    if (strength > 0) {
+        magnitude = strength;
+    }
+    oc_island_begin(1);
     TC2(0x428470u, event, type, magnitude);
+    oc_island_end(1);
 }
 
 /* ---- Title ---------------------------------------------------------------

@@ -3,7 +3,7 @@
   "enabled": true,
   "game_id": "vv1",
   "name": "Story / Cheat Upgrades",
-  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.** **In A New Home a custom event can change a villager's parents only with Show Parents in Details Screen ticked (its file is where A New Home's parents are kept).**",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Pick Island Event also lets the player set how the picked event turns out. Each setting starts at \"Random (original game)\" and offers only what that event's own code can produce in this game: its result (for a two-choice event, the result of each choice -- the popup still appears and the player still clicks), every amount it can roll, who a roll it makes for each villager hits (nobody, everyone, or the villagers chosen), which villager it is about, and each baby's details; in A New Home and The Lost Children also its strength (normally a third of the population, 1 to 10). A setting whose condition does not hold right now can not be bought. An event whose own condition is only a matter of timing or story can be picked anyway, and developer-dead events proven to work are offered as never happening in the original game; events that need something the village lacks, or room for new villagers, stay locked with the reason. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.** **In A New Home a custom event can change a villager's parents only with Show Parents in Details Screen ticked (its file is where A New Home's parents are kept).**",
   "output_tag": "Story Cheat Upgrades",
   "dependencies": [
     "vv1_origins_village_wide_upgrades"
@@ -12,9 +12,11 @@
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 38 island events; events that can never run in this game are not offered.",
+    "Offers 40 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
+    "Pick Island Event's settings: each offered event can carry its result, every amount it rolls, who a per-villager roll hits, which villager it is about and each baby's details (A New Home and The Lost Children: also its strength), each defaulting to Random (original game).  The companion points the event's own rand() calls at a stub that answers the chosen value only in that roll's phase (before the popup, the popup, or the event's apply), for the clicked choice, and -- in a routine other code shares -- only inside the event's own call to it; the outcome ends when the event's apply returns, on refusal and on lapse, so no chosen value reaches a natural event.",
+    "Unlocked picks: an event whose own condition is only timing or story (proven by running its popup and apply with the condition false) can be picked anyway; its condition is passed for that one delivery only.  Developer-dead events proven to work are offered as never happening in the original game.",
     "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
   ],
   "explicit_non_changes": [
@@ -28,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9F0E8AF575BDDF3A4E5D3BA2CFD61471FBFF07D6606F4F797B560CC1A4C82610"
+      "sha256": "3B3F28EB3647900B46EC8F509272F15AB300034D4BE3E630EBB47285CF58C05B"
     }
   ],
   "runtime_detours": [
@@ -147,6 +149,18 @@
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
+      "va": "0x4284EC",
+      "stock_bytes": "0FB68FA0864200",
+      "routine": "the island event's condition check after its roll (unlocked picks)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418941",
+      "stock_bytes": "0FB687A4894100",
+      "routine": "the villager encounter's condition check after its roll (unlocked picks)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
       "va": "0x428777",
       "stock_bytes": "E8F4FCFFFF",
       "routine": "the island event's chooser call 0x428470 (Custom Island Event delivery)",
@@ -157,6 +171,414 @@
       "stock_bytes": "8D54242452",
       "routine": "the villager panel's title, before its label is set (custom titles)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4188ED",
+      "stock_bytes": "E81EA6FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4194B6",
+      "stock_bytes": "E8559AFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4196ED",
+      "stock_bytes": "E81E98FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419953",
+      "stock_bytes": "E8B895FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419C50",
+      "stock_bytes": "E8BB92FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419E74",
+      "stock_bytes": "E89790FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419EFB",
+      "stock_bytes": "E81090FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419F65",
+      "stock_bytes": "E8A68FFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41A05F",
+      "stock_bytes": "E8AC8EFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41A2E0",
+      "stock_bytes": "E82B8CFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41A35F",
+      "stock_bytes": "E8AC8BFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x428052",
+      "stock_bytes": "E8B9AEFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x428248",
+      "stock_bytes": "E8C3ACFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4282AB",
+      "stock_bytes": "E860ACFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4282CD",
+      "stock_bytes": "E83EACFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x428321",
+      "stock_bytes": "E8EAABFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x428343",
+      "stock_bytes": "E8C8ABFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x428360",
+      "stock_bytes": "E8ABABFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42AAEC",
+      "stock_bytes": "E81F84FDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B00C",
+      "stock_bytes": "E8FF7EFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C3D5",
+      "stock_bytes": "E8366BFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C3F6",
+      "stock_bytes": "E8156BFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C417",
+      "stock_bytes": "E8F46AFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C495",
+      "stock_bytes": "E8766AFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C4B6",
+      "stock_bytes": "E8556AFDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C534",
+      "stock_bytes": "E8D769FDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C92F",
+      "stock_bytes": "E8DC65FDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C9CB",
+      "stock_bytes": "E84065FDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C9F8",
+      "stock_bytes": "E81365FDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42CA25",
+      "stock_bytes": "E8E664FDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42CA61",
+      "stock_bytes": "E8AA64FDFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43BE53",
+      "stock_bytes": "E8B870FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43BFD1",
+      "stock_bytes": "E83A6FFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43C5F3",
+      "stock_bytes": "E81869FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43C75A",
+      "stock_bytes": "E8B167FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43C76F",
+      "stock_bytes": "E89C67FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43C784",
+      "stock_bytes": "E88767FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43C799",
+      "stock_bytes": "E87267FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418A1C",
+      "stock_bytes": "E8AF320200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418AA3",
+      "stock_bytes": "E828320200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418B2A",
+      "stock_bytes": "E8A1310200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418BB1",
+      "stock_bytes": "E81A310200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418C38",
+      "stock_bytes": "E893300200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418D46",
+      "stock_bytes": "E8852F0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418DCB",
+      "stock_bytes": "E8A0300200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418E9E",
+      "stock_bytes": "E82D2E0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418F25",
+      "stock_bytes": "E8A62D0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x418FAC",
+      "stock_bytes": "E81F2D0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419033",
+      "stock_bytes": "E8982C0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4190BA",
+      "stock_bytes": "E8112C0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419141",
+      "stock_bytes": "E88A2B0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4191C8",
+      "stock_bytes": "E8032B0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41924F",
+      "stock_bytes": "E87C2A0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41974A",
+      "stock_bytes": "E8012C0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41988D",
+      "stock_bytes": "E81EF0FFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41A444",
+      "stock_bytes": "E837EFFFFF",
+      "routine": "an island event's resolve call (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B06B",
+      "stock_bytes": "E8600C0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B11E",
+      "stock_bytes": "E8AD0B0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B1D1",
+      "stock_bytes": "E8FA0A0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B22B",
+      "stock_bytes": "E8A00A0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B2DE",
+      "stock_bytes": "E8ED090100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B391",
+      "stock_bytes": "E83A090100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B444",
+      "stock_bytes": "E887080100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B51C",
+      "stock_bytes": "E8AF070100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42B5C7",
+      "stock_bytes": "E804070100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42C272",
+      "stock_bytes": "E829E8FFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42D0C4",
+      "stock_bytes": "E877E6FFFF",
+      "routine": "an island event's resolve call (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42D19F",
+      "stock_bytes": "E84CDEFFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     }
   ],
   "island_events": [
@@ -166,6 +588,13 @@
       "variant": "",
       "description": "A monkey ransacks the research table: the tribe loses tech points.",
       "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 1,
+      "title": "A Mighty Storm",
+      "variant": "",
+      "description": "A typhoon strikes in the night and washes away all of the stored food.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
     },
     {
       "slot": 2,
@@ -263,7 +692,7 @@
       "title": "The Trapped Whale",
       "variant": "",
       "description": "A villager finds a stranded whale: free it, or harvest it for food.",
-      "requires": "the whale event to have happened fewer than three times"
+      "requires": "the tribe's spirituality below its highest level (freeing the whale raises it)"
     },
     {
       "slot": 65,
@@ -291,7 +720,14 @@
       "title": "The Visitor",
       "variant": "",
       "description": "A stranger in a boat asks for plants and seeds: help him, or refuse.",
-      "requires": "the visitor to have come fewer than three times"
+      "requires": "the tribe's medicine below its highest level (the visitor raises it)"
+    },
+    {
+      "slot": 69,
+      "title": "The Furry Food",
+      "variant": "",
+      "description": "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
     },
     {
       "slot": 70,
@@ -427,16 +863,637 @@
       "requires": "nothing beyond an island event being possible"
     }
   ],
-  "excluded_island_events": [
-    {
-      "title": "A Mighty Storm",
-      "reason": "island case 1: its condition class (byte 5 at 0x4286A1) always re-rolls, so the selector never runs it"
+  "excluded_island_events": [],
+  "island_event_settings": {
+    "events": {
+      "6": [
+        {
+          "label": "Who goes swimming (everyone else relaxes)",
+          "kind": "loop"
+        }
+      ],
+      "12": [
+        {
+          "label": "Baby 1: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "Baby 1: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Baby 1: research bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 1: building bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 1: healing bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 1: farming bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 2: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "Baby 2: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Baby 2: research bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 2: building bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 2: healing bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 2: farming bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 3: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "Baby 3: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "Baby 3: research bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 3: building bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 3: healing bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Baby 3: farming bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1-4, 5-7, 8-10"
+        }
+      ],
+      "64": [
+        {
+          "label": "Which villager finds the whale",
+          "kind": "victim"
+        }
+      ],
+      "65": [
+        {
+          "label": "If you taste the berries",
+          "kind": "enum",
+          "options": [
+            "The villager feels young again (age set to 250 = 12.5 years)",
+            "The villager dies"
+          ]
+        },
+        {
+          "label": "Which villager finds the berries",
+          "kind": "victim"
+        }
+      ],
+      "66": [
+        {
+          "label": "Which villager finds the drum",
+          "kind": "victim"
+        }
+      ],
+      "67": [
+        {
+          "label": "If you take a closer look",
+          "kind": "enum",
+          "options": [
+            "A lost stranger joins the village (adult, farming 100)",
+            "The villager is never seen again"
+          ]
+        },
+        {
+          "label": "If a stranger joins: the stranger's sex",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "If a stranger joins: research bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If a stranger joins: building bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If a stranger joins: healing bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If a stranger joins: farming bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Which villager sees the face",
+          "kind": "victim"
+        }
+      ],
+      "68": [
+        {
+          "label": "If you tell the stranger to leave: who falls sick",
+          "kind": "loop"
+        },
+        {
+          "label": "Which villager meets the stranger",
+          "kind": "victim"
+        }
+      ],
+      "70": [
+        {
+          "label": "If you drink the red liquid",
+          "kind": "enum",
+          "options": [
+            "A red vapour makes everyone else sick",
+            "The drinker gains complete healing knowledge (healing 100)"
+          ]
+        },
+        {
+          "label": "Which villager finds the vial",
+          "kind": "victim"
+        }
+      ],
+      "71": [
+        {
+          "label": "Which child it is",
+          "kind": "victim"
+        }
+      ],
+      "72": [
+        {
+          "label": "If you drink the blue liquid",
+          "kind": "enum",
+          "options": [
+            "The drinker turns back into a toddler (age 80 = 4 years; any pregnancy ends)",
+            "The drinker gets silly and dances (no lasting effect)"
+          ]
+        },
+        {
+          "label": "Which villager finds the vial",
+          "kind": "victim"
+        }
+      ],
+      "73": [
+        {
+          "label": "Which villager sees the monkey",
+          "kind": "victim"
+        }
+      ],
+      "74": [
+        {
+          "label": "If you taste the mushroom",
+          "kind": "enum",
+          "options": [
+            "Delicious: farming +65 and food gained",
+            "Poisoned: sick and loses health"
+          ]
+        },
+        {
+          "label": "If you taste it (delicious): food gained",
+          "kind": "amount",
+          "values": "300 to 499"
+        },
+        {
+          "label": "If you taste it (poisoned): health lost",
+          "kind": "amount",
+          "values": "25 to 49"
+        },
+        {
+          "label": "Which villager picks the mushroom",
+          "kind": "victim"
+        }
+      ],
+      "75": [
+        {
+          "label": "If you share the pearl: health each villager gains",
+          "kind": "amount",
+          "values": "5 to 9"
+        },
+        {
+          "label": "Which villager finds the pearl",
+          "kind": "victim"
+        }
+      ],
+      "76": [
+        {
+          "label": "Which villager has the dream",
+          "kind": "victim"
+        }
+      ],
+      "77": [
+        {
+          "label": "Which villager finds the moth",
+          "kind": "victim"
+        }
+      ],
+      "78": [
+        {
+          "label": "Which villager finds the book",
+          "kind": "victim"
+        }
+      ],
+      "79": [
+        {
+          "label": "If you mash berries: farming each villager gains",
+          "kind": "amount",
+          "values": "10 to 19"
+        },
+        {
+          "label": "If you give it to the researchers: tech points gained",
+          "kind": "amount",
+          "values": "2000 to 4999"
+        },
+        {
+          "label": "Which villager finds the compass",
+          "kind": "victim"
+        }
+      ],
+      "128": [
+        {
+          "label": "If you open it",
+          "kind": "enum",
+          "options": [
+            "Coconuts: +500 food",
+            "Golden ripe bananas: +1000 food",
+            "Juicy steaks: +1500 food"
+          ]
+        },
+        {
+          "label": "Which villager finds the crate",
+          "kind": "victim"
+        }
+      ],
+      "129": [
+        {
+          "label": "If you open it",
+          "kind": "enum",
+          "options": [
+            "A few tools: +1000 tech points",
+            "Several tools: +2000 tech points",
+            "A great many tools: +3000 tech points"
+          ]
+        },
+        {
+          "label": "Which villager finds the crate",
+          "kind": "victim"
+        }
+      ],
+      "130": [
+        {
+          "label": "If you open it",
+          "kind": "enum",
+          "options": [
+            "A few rusty tools: +500 tech, 15% sickness chance each",
+            "Several rusty tools: +1000 tech, 20% sickness chance each",
+            "A great many rusty tools: +1500 tech, 25% sickness chance each"
+          ]
+        },
+        {
+          "label": "If you open it: who falls sick",
+          "kind": "loop"
+        },
+        {
+          "label": "Which villager finds the crate",
+          "kind": "victim"
+        }
+      ],
+      "131": [
+        {
+          "label": "If you open it",
+          "kind": "enum",
+          "options": [
+            "A few rats: 20% chance each to be bitten (sick, -10 health)",
+            "Several rats: 30% chance each (sick, -15 health)",
+            "A great many rats: 45% chance each (sick, -20 health)"
+          ]
+        },
+        {
+          "label": "If you open it: who is bitten",
+          "kind": "loop"
+        },
+        {
+          "label": "Which villager finds the crate",
+          "kind": "victim"
+        }
+      ],
+      "132": [
+        {
+          "label": "If you open it",
+          "kind": "enum",
+          "options": [
+            "One giggling infant",
+            "A pair of infants",
+            "A trio of infants"
+          ]
+        },
+        {
+          "label": "If you open it, infant 1: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "If you open it, infant 1: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "If you open it, infant 1: research bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 1: building bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 1: healing bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 1: farming bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 2: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "If you open it, infant 2: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "If you open it, infant 2: research bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 2: building bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 2: healing bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 2: farming bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 3: age",
+          "kind": "amount",
+          "values": "70 to 89"
+        },
+        {
+          "label": "If you open it, infant 3: boy or girl",
+          "kind": "enum",
+          "options": [
+            "Boy",
+            "Girl"
+          ]
+        },
+        {
+          "label": "If you open it, infant 3: research bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 3: building bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 3: healing bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "If you open it, infant 3: farming bonus",
+          "kind": "amount",
+          "values": "0 to 6"
+        },
+        {
+          "label": "Which villager finds the crate",
+          "kind": "victim"
+        }
+      ],
+      "133": [
+        {
+          "label": "If you open it",
+          "kind": "enum",
+          "options": [
+            "A few spiders: the finder loses 40 health",
+            "Several spiders: the finder loses 70 health",
+            "A great many spiders: the finder loses 110 health"
+          ]
+        },
+        {
+          "label": "Which villager finds the crate",
+          "kind": "victim"
+        }
+      ],
+      "134": [
+        {
+          "label": "If you drink it: the drinker's new head",
+          "kind": "enum",
+          "options": [
+            "Head row 0",
+            "Head row 1",
+            "Head row 2",
+            "Head row 3",
+            "Head row 4",
+            "Head row 5",
+            "Head row 6",
+            "Head row 7",
+            "Head row 8",
+            "Head row 9",
+            "Head row 10",
+            "Head row 11",
+            "Head row 12",
+            "Head row 13",
+            "Head row 14",
+            "Head row 15",
+            "Head row 16",
+            "Head row 17",
+            "Head row 18",
+            "Head row 19 (women only)"
+          ]
+        },
+        {
+          "label": "Which villager finds the vial",
+          "kind": "victim"
+        }
+      ],
+      "135": [
+        {
+          "label": "If you drink it: how much the skill rises",
+          "kind": "enum",
+          "options": [
+            "+50",
+            "+75",
+            "+100"
+          ]
+        },
+        {
+          "label": "If you drink it: which skill rises",
+          "kind": "enum",
+          "options": [
+            "Farming",
+            "Research",
+            "Building",
+            "Healing",
+            "Breeding / parenting"
+          ]
+        },
+        {
+          "label": "Which villager finds the vial",
+          "kind": "victim"
+        }
+      ],
+      "136": [
+        {
+          "label": "If you drink it",
+          "kind": "enum",
+          "options": [
+            "Lose 30 in every skill",
+            "Lose 50 in every skill",
+            "Lose 70 in every skill"
+          ]
+        },
+        {
+          "label": "Which villager finds the vial",
+          "kind": "victim"
+        }
+      ],
+      "0": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ],
+      "2": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ],
+      "5": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ],
+      "10": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ],
+      "11": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ],
+      "13": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ],
+      "14": [
+        {
+          "label": "Strength",
+          "kind": "strength",
+          "values": "1 to 10"
+        }
+      ]
     },
-    {
-      "title": "The Furry Food",
-      "reason": "encounter variant 5: its condition class (byte 4 at 0x4189A9) always re-rolls"
-    }
-  ],
+    "unlocked": [
+      9,
+      73
+    ],
+    "developer_dead_offered": [
+      1,
+      69
+    ]
+  },
   "custom_island_event": {
     "offered": [
       "title and description",

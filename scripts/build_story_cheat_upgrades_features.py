@@ -37,6 +37,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import story_island_events  # noqa: E402
+import story_outcome_tables  # noqa: E402
 
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
 MODES = ("stock", "collection_progression", "immediate_fixed")
@@ -66,11 +67,29 @@ DESCRIPTION = (
     "this game's own code supports is offered; the rest is shown as not available in "
     "this game. A custom title is kept per save slot in a file beside the saves and is "
     "removed by Start Over. "
+    "Pick Island Event also lets the player set how the picked event turns out. Each setting "
+    "starts at \"Random (original game)\" and offers only what that event's own code can "
+    "produce in this game: its result (for a two-choice event, the result of each choice -- the "
+    "popup still appears and the player still clicks), every amount it can roll, who a roll it "
+    "makes for each villager hits (nobody, everyone, or the villagers chosen), which villager it is "
+    "about, and each baby's details; in A New Home and The Lost Children also its strength "
+    "(normally a third of the population, 1 to 10). A setting whose condition does not hold right "
+    "now can not be bought. An event whose own condition is only a matter of timing or story can "
+    "be picked anyway, and developer-dead events proven to work are offered as never happening in "
+    "the original game; events that need something the village lacks, or room for new villagers, "
+    "stay locked with the reason. "
     "Off by default. **Requires Enable Origins Tech, Details, and Village-Wide "
     "Upgrades: ticking this ticks it, and without it there are no Origins Upgrades "
     "to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a "
     "custom event starts is written to the Births and Conceptions log only with Write "
     "Births and Conceptions Log to Text File ticked.**"
+)
+# The Lost Children's separate Gong of Wonder upgrade.
+VV2_GONG_NOTE = (
+    " Also adds Pick Gong of Wonder Outcome (0 Tech Points): the player picks what the next ring "
+    "of the Gong of Wonder does -- any result the Gong can give, with its amounts and who falls "
+    "sick -- defaulting to \"Random (original game)\"; the choice is used for one ring, in "
+    "this save slot, within ten minutes."
 )
 # A New Home keeps parents only in the Show Parents companion's file.
 VV1_PARENTS_NOTE = (
@@ -216,6 +235,19 @@ PICK_SITES = {
     "vv4": {"VV4_PICK_SITE_BYTES": (0x4180F7, 7)},
     "vv5": {"VV5_PICK_SITE_BYTES": (0x41895B, 7)},
 }
+# Unlocked picks (A New Home / The Lost Children): the check right after
+# each family's event roll, passed once for a pick the player unlocked.
+UNLOCK_SITES = {
+    "vv1": {"VV1_UNLOCK_ISLAND_BYTES": (0x4284EC, 7), "VV1_UNLOCK_ENCOUNTER_BYTES": (0x418941, 7)},
+    "vv2": {"VV2_UNLOCK_C_BYTES": (0x434617, 6), "VV2_UNLOCK_A_BYTES": (0x41F5A5, 7)},
+}
+UNLOCK_SITE_ROUTINES = {
+    "VV1_UNLOCK_ISLAND_BYTES": "the island event's condition check after its roll (unlocked picks)",
+    "VV1_UNLOCK_ENCOUNTER_BYTES": "the villager encounter's condition check after its roll (unlocked picks)",
+    "VV2_UNLOCK_C_BYTES": "the single-result event's condition check after its roll (unlocked picks)",
+    "VV2_UNLOCK_A_BYTES": "the two-choice event's condition check after its roll (unlocked picks)",
+}
+
 PICK_SITE_ROUTINES = {
     "VV1_ROLL_FAMILY_BYTES": "rand(100) choosing the encounter family",
     "VV1_ROLL_ISLAND_OR_CRATE_BYTES": "rand(100) choosing island event or crate",
@@ -264,6 +296,9 @@ CUSTOM_SITE_ROUTINES = {
 # executable and emitted with it.
 PARENTAGE_SITES = {"vv1": 0x43BC39, "vv2": 0x44BAD8, "vv3": 0x455BF3, "vv4": 0x45E8E4,
                    "vv5": 0x465F34}
+
+# Each game's rand(bound) routine (cdecl): the outcome sites call it.
+RAND = {"vv1": 0x402F10, "vv2": 0x4031A0, "vv3": 0x4032D0, "vv4": 0x4036D0, "vv5": 0x403660}
 
 # Addresses the companion reads or calls, per game (emitted as #defines).
 CONSTANTS = {
@@ -445,6 +480,7 @@ def build() -> None:
         "int is_call; void *stub; } story_detour;",
         "typedef struct { int slot; const char *title; const char *variant; "
         "const char *description; const char *requires; } story_event;",
+    ] + story_outcome_tables.C_TYPES + [
         "",
     ]
     for name, value in CONSTANTS.items():
@@ -464,7 +500,9 @@ def build() -> None:
         stock_image = Image((ROOT / "inputs" / f"{game}-stock-copy" /
                              {b.id: b for b in patcher.load_builds()}[game].input_name).read_bytes())
         sites = {}
-        for name, (va, n) in list(PICK_SITES[game].items()) + list(CUSTOM_SITES[game].items()):
+        for name, (va, n) in (list(PICK_SITES[game].items()) + list(UNLOCK_SITES.get(game, {}).items())
+                              + list(CUSTOM_SITES[game].items())
+                              + list(story_outcome_tables.APPLY_SITES.get(game, {}).items())):
             sites[name] = (va, image.read(va, n))
             if stock_image.read(va, n) != sites[name][1]:
                 raise SystemExit(f"{game}: {name} at 0x{va:X} is not the stock code")
@@ -496,6 +534,14 @@ def build() -> None:
         lines.append(f"#define {tag}_PARENTAGE_SITE 0x{parentage_va:X}u")
         lines.append(_c_bytes(f"{tag}_PARENTAGE_STOCK", parentage_stock))
         events = story_island_events.EVENTS[game]
+        outcome_info = story_outcome_tables.collect(game)
+        taken = [(w["va"], w["va"] + len(w["expect"])) for w in writes]
+        taken += [(va, va + len(expect)) for va, expect in sites.values()]
+        outcome_found = story_outcome_tables.check(
+            game, outcome_info, RAND[game], stock_image.read,
+            [Image(data).read for data in renders], taken)
+        lines.extend(story_outcome_tables.emit(game, outcome_info, outcome_found,
+                                               [e["slot"] for e in events]))
         lines.append(f"static const story_event {tag}_EVENTS[] = {{")
         for e in events:
             lines.append(
@@ -505,13 +551,13 @@ def build() -> None:
         lines.append("};")
         lines.append(f"#define {tag}_EVENT_COUNT {len(events)}")
         lines.append("")
-        manifests[game] = (writes, sites, events)
+        manifests[game] = (writes, sites, events, outcome_info, outcome_found)
     lines.append("#endif")
     HEADER.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
     dll = ROOT / DLL_SOURCE
     dll_sha = hashlib.sha256(dll.read_bytes()).hexdigest().upper() if dll.is_file() else ""
-    for game, (writes, sites, events) in manifests.items():
+    for game, (writes, sites, events, outcome_info, outcome_found) in manifests.items():
         number = game[2:]
         detours = [
             {
@@ -527,17 +573,21 @@ def build() -> None:
                 "va": f"0x{va:X}",
                 "stock_bytes": expect.hex().upper(),
                 "routine": PICK_SITE_ROUTINES[name] + " (Pick Island Event)"
-                if name in PICK_SITE_ROUTINES else CUSTOM_SITE_ROUTINES[name],
+                if name in PICK_SITE_ROUTINES else (
+                    story_outcome_tables.APPLY_ROUTINES[name]
+                    if name in story_outcome_tables.APPLY_ROUTINES else
+                    UNLOCK_SITE_ROUTINES.get(name) or CUSTOM_SITE_ROUTINES[name]),
                 "installed_by": f"{DLL_NAME}, VvfpStoryInstall",
             }
             for name, (va, expect) in sites.items()
-        ]
+        ] + story_outcome_tables.manifest_rows(game, outcome_info, outcome_found, DLL_NAME)
         record = {
             "id": f"{game}_story_cheat_upgrades",
             "enabled": True,
             "game_id": game,
             "name": NAME,
-            "description": DESCRIPTION + (VV1_PARENTS_NOTE if game == "vv1" else ""),
+            "description": DESCRIPTION + (VV1_PARENTS_NOTE if game == "vv1" else "")
+            + (VV2_GONG_NOTE if game == "vv2" else ""),
             "output_tag": "Story Cheat Upgrades",
             "dependencies": [f"{game}_origins_village_wide_upgrades"],
             "behavior_changes": [
@@ -564,6 +614,19 @@ def build() -> None:
                 "and the changes are made through the game's own routines.",
                 "New villagers and babies are made only while the game's own room predicate says "
                 "the village has room, so the population cap of the installed mode is never passed.",
+                "Pick Island Event's settings: each offered event can carry its result, every "
+                "amount it rolls, who a per-villager roll hits, which villager it is about and each "
+                "baby's details (A New Home and The Lost Children: also its strength), each "
+                "defaulting to Random (original game).  The companion points the event's own "
+                "rand() calls at a stub that answers the chosen value only in that roll's phase "
+                "(before the popup, the popup, or the event's apply), for the clicked choice, and "
+                "-- in a routine other code shares -- only inside the event's own call to it; the "
+                "outcome ends when the event's apply returns, on refusal and on lapse, so no "
+                "chosen value reaches a natural event.",
+                "Unlocked picks: an event whose own condition is only timing or story (proven by "
+                "running its popup and apply with the condition false) can be picked anyway; its "
+                "condition is passed for that one delivery only.  Developer-dead events proven to "
+                "work are offered as never happening in the original game.",
                 "A custom title replaces a villager's title in the villager panel and is printed in "
                 "the Village Population and Village History logs; it is kept per save slot in "
                 "Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and "
@@ -593,6 +656,7 @@ def build() -> None:
                 for e in events
             ],
             "excluded_island_events": story_island_events.EXCLUDED[game],
+            "island_event_settings": story_outcome_tables.manifest_settings(game),
             "custom_island_event": {
                 "offered": CUSTOM_OFFERED[game],
                 "omitted": CUSTOM_OMITTED[game],

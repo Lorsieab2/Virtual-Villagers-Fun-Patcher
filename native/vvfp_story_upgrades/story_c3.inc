@@ -160,23 +160,217 @@ static int c3_conceive(int index, int litter, int father, ce_result *result) {
     return babies;
 }
 
-static const char *const C3_BEHAVIOURS[] = {
-    "Stops what they are doing", "Recovers fully (cured, full health)"
+/* Every action is started by the game's do-action 0x455570 (thiscall on
+   the record: action id, a pointer to eight argument dwords; ret 8), after
+   the stop 0x460F70, as every stock caller does; these ignore the
+   arguments.  Offered: the ones that only look or end by themselves (the
+   island events', the idle choosers', the potions' looks); the jobs that
+   give food, tech or skill practice say so.  Never: puzzle actions, burial,
+   pickups, new clothes, lessons and games that stop other villagers, the
+   chief's own powers, or an action no stock code starts. */
+static const ce_action C3_BEHAVIOURS[] = {
+    { "Stops what they are doing", ACT_STOP, 0, 0 },
+    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
+    { "Dances", ACT_DO, 0, 8 },
+    { "Dances (another dance)", ACT_DO, 0, 85 },
+    { "Secretly practices a dance", ACT_DO, 0, 181 },
+    { "Performs the ceremonial dance", ACT_DO, 0, 67 },
+    { "Rain dancing", ACT_DO, 0, 12 },
+    { "Celebrates Isola Day", ACT_DO, 0, 66 },
+    { "Relaxes", ACT_DO, 0, 13 },
+    { "Relaxes at the beach", ACT_DO, 0, 21 },
+    { "Reflects", ACT_DO, 0, 22 },
+    { "Watches the clouds", ACT_DO, 0, 18 },
+    { "Goes swimming", ACT_DO, 0, 1 },
+    { "Enjoys the bath", ACT_DO, 0, 23 },
+    { "Bathes", ACT_DO, 0, 143 },
+    { "Cools their feet in the stream", ACT_DO, 0, 19 },
+    { "Washes their face", ACT_DO, 0, 140 },
+    { "Washes their hands", ACT_DO, 0, 141 },
+    { "Gets a drink", ACT_DO, 0, 144 },
+    { "Drinks the rain", ACT_DO, 0, 60 },
+    { "Gets out of the rain", ACT_DO, 0, 142 },
+    { "Cleans up after the rain", ACT_DO, 0, 196 },
+    { "Washes the laundry", ACT_DO, 0, 61 },
+    { "Looks at the fishies", ACT_DO, 0, 146 },
+    { "Looks at the fire", ACT_DO, 0, 34 },
+    { "Honors the dead", ACT_DO, 0, 10 },
+    { "Stomps ants", ACT_DO, 0, 68 },
+    { "Hides in a hut", ACT_DO, 0, 69 },
+    { "Acts sinister", ACT_DO, 0, 62 },
+    { "Jumpy!", ACT_DO, 0, 93 },
+    { "Nature is calling!", ACT_DO, 0, 94 },
+    { "A little bit lonely", ACT_DO, 0, 102 },
+    { "Unsure what to do (wanders)", ACT_DO, 0, 123 },
+    { "Sits", ACT_DO, 0, 52 },
+    { "Shakes their head", ACT_DO, 0, 49 },
+    { "Not feeling well (only looks it)", ACT_DO, 0, 45 },
+    { "Recovers at the hospital", ACT_DO, 0, 97 },
+    { "Feels faint (only looks it)", ACT_DO, 0, 152 },
+    { "Tries to get warm", ACT_DO, 0, 153 },
+    { "Tries to cool off", ACT_DO, 0, 154 },
+    { "Itchy", ACT_DO, 0, 155 },
+    { "Needs to lie down", ACT_DO, 0, 158 },
+    { "Needs to sit down", ACT_DO, 0, 159 },
+    { "Has an epiphany", ACT_DO, 0, 160 },
+    { "In a trance", ACT_DO, 0, 161 },
+    { "Stinky breath!", ACT_DO, 0, 182 },
+    { "Hic!", ACT_DO, 0, 184 },
+    { "Blannesamagawa loomajoobamooga!!", ACT_DO, 0, 191 },
+    { "Who turned out the lights?!", ACT_DO, 0, 192 },
+    { "Something smells YUMMY!", ACT_DO, 0, 193 },
+    { "Listens to a story (children)", ACT_DO, 0, 96 },
+    { "Watches people work (children)", ACT_DO, 0, 106 },
+    { "Runs around (children)", ACT_DO, 0, 148 },
+    { "Plays (children)", ACT_DO, 0, 151 },
+    { "Plays in puddles (children)", ACT_DO, 0, 180 },
+    { "Plays in the dirt (children)", ACT_DO, 0, 190 },
+    { "Makes sandcastles (children)", ACT_DO, 0, 195 },
+    { "Fishes (Farming practice, food)", ACT_DO, 0, 11 },
+    { "Researches (Research practice, tech points)", ACT_DO, 0, 3 },
+    { "Does exercise (Building practice)", ACT_DO, 0, 150 },
+    { "Eats (uses food, heals a little)", ACT_DO, 0, 84 },
 };
 
 /* The stop routine 0x460F70 (thiscall on the record, the record; 137
-   callers, e.g. The Low Tide 0x415EAF); the Origins Full Heal's cure: sick
-   0 and 0x462670(100, -1). */
+   callers, e.g. The Low Tide 0x415EAF), then the action; the Origins Full
+   Heal's cure: sick 0 and 0x462670(100, -1). */
 static int c3_behave(int index, int behaviour) {
+    static const int no_arguments[8];
     unsigned char *r = c3_record(index);
-    switch (behaviour) {
-    case 0: TC1(0x460F70u, r, (int)(uintptr_t)r); return 1;
-    case 1:
+    const ce_action *act;
+    if (behaviour < 0 || behaviour >= (int)(sizeof C3_BEHAVIOURS / sizeof C3_BEHAVIOURS[0])) {
+        return 0;
+    }
+    act = &C3_BEHAVIOURS[behaviour];
+    if (act->kind == ACT_RECOVER) {
         r[0xE89] = 0;
         TC2(0x462670u, r + 0xE6C, 100, -1);
-        return 1;
-    default: return 0;
     }
+    TC1(0x460F70u, r, (int)(uintptr_t)r);
+    if (act->kind == ACT_DO) {
+        TC2(0x455570u, r, act->arg, (int)(uintptr_t)no_arguments);
+    }
+    return 1;
+}
+
+/* ---- The Tribal Chief --------------------------------------------------- */
+
+static const char *const C3_STATUSES[] = {
+    "Becomes the Tribal Chief (refused while a chief lives)",
+    "Becomes the Tribal Chief (the living chief steps down)",
+};
+
+/* The robe's own success (0x431FE0) without its celebration and message:
+   the robing 0x45FBC0 (thiscall on the village, the record; it sets the
+   chief byte +0xE80, the robe body and drops a dislike of dancing) and the
+   chief puzzle's advance 0x435990(0) on the puzzle manager 0x594990.  The
+   game keeps one chief (its robe lectures anyone dropped on it while a
+   chief lives, 0x45FC00): so the living chief steps down first (his chief
+   byte cleared; his robe stays, the game keeps no other body for him), or
+   the change is refused.  Adults only, as the robe's chooser picks. */
+static int c3_set_status(int index, int status) {
+    unsigned char *r = c3_record(index);
+    int i;
+    if ((status != 0 && status != 1) || r[0xE80] != 0 || *(int *)(r + 0xDC4) < 0x118) {
+        return 0;
+    }
+    if (TC0(0x45FC00u, C3_VILLAGE) & 0xFF) {
+        if (status == 0) {
+            return 0;
+        }
+        for (i = 0; i < C3_COUNT; ++i) {
+            unsigned char *other = c3_record(i);
+            if (other != r && c3_listed(other) && other[0xE80] != 0) {
+                other[0xE80] = 0;
+            }
+        }
+    }
+    TC1(0x45FBC0u, C3_VILLAGE, (int)(uintptr_t)r);
+    TC1(0x435990u, 0x594990u, 0);
+    return 1;
+}
+
+/* ---- Pregnancy: none, a different number of babies, the father --------- */
+
+/* "0 babies": the pregnancy +0xE8C and its litter +0xE90 cleared, then the
+   stop 0x460F70, which also releases the place the pregnancy held
+   (0x455F30(-1)), as the delivery does.  Babies Made is left as counted. */
+static int c3_cancel(int index) {
+    unsigned char *r = c3_record(index);
+    if (*(int *)(r + 0xE8C) == 0) {
+        return 0;
+    }
+    *(int *)(r + 0xE8C) = 0;
+    *(int *)(r + 0xE90) = 0;
+    TC1(0x460F70u, r, (int)(uintptr_t)r);
+    return 1;
+}
+
+/* The litter +0xE90 (0 or 1 one baby, 2, 3: the delivery 0x46040F tests
+   > 1 and == 3); each added baby only while there is room. */
+static int c3_relitter(int index, int litter, ce_result *result) {
+    unsigned char *r = c3_record(index);
+    int field = *(int *)(r + 0xE90);
+    int babies = field >= 3 ? 3 : field == 2 ? 2 : 1;
+    int added = 0;
+    if (litter < babies) {
+        *(int *)(r + 0xE90) = litter;
+        return 0;
+    }
+    while (babies < litter && c3_room()) {
+        ++babies;
+        ++added;
+        *(int *)(r + 0xE90) = babies;
+    }
+    result->no_room_babies += litter - babies;
+    return added;
+}
+
+/* The father the delivery hands the creator: name +0xE48 (0x18 bytes), head
+   +0xE68, body +0xE64. */
+static int c3_unborn(int index, const ce_change *c) {
+    unsigned char *r = c3_record(index);
+    if ((c->unborn_head != CE_KEEP && (c->unborn_head < 0 || c->unborn_head >= 30))
+        || (c->unborn_body != CE_KEEP && (c->unborn_body < 0 || c->unborn_body >= 30))) {
+        return 0;
+    }
+    if (c->unborn_name[0] != '\0') {
+        ce_write_name(r + 0xE48, 0x18, c->unborn_name);
+    }
+    if (c->unborn_head != CE_KEEP) *(int *)(r + 0xE68) = c->unborn_head;
+    if (c->unborn_body != CE_KEEP) *(int *)(r + 0xE64) = c->unborn_body;
+    return 1;
+}
+
+/* ---- Revive ------------------------------------------------------------- */
+
+/* A skeleton: present, health 0 or less, and not a record the decay skips
+   (+0xE94, which the game only ever clears). */
+static int c3_skeleton(const unsigned char *r) {
+    return r[0xF10] != 0 && r[0xE94] == 0 && *(const int *)(r + 0xE78) <= 0;
+}
+
+/* Health through the game's own arbiter 0x462670 (the cause back to -1, the
+   living value), the last-update time +0xE70 to the game clock 0x403330
+   (on 0x428B60()), then the stop.  Refused for a dead chief while another
+   chief lives (two chiefs); only while the room predicate 0x45FE30 says
+   there is room. */
+static int c3_revive(int index, int health, int cure) {
+    unsigned char *r = c3_record(index);
+    if (r[0xE80] != 0 && (TC0(0x45FC00u, C3_VILLAGE) & 0xFF)) {
+        return 0;
+    }
+    if (!(TC0(0x45FE30u, C3_VILLAGE) & 0xFF)) {
+        return -1;
+    }
+    TC2(0x462670u, r + 0xE6C, health, -1);
+    *(int *)(r + 0xE70) = TC0(0x403330u, ((getter_fn)(uintptr_t)0x428B60u)());
+    if (cure) {
+        r[0xE89] = 0;
+    }
+    TC1(0x460F70u, r, (int)(uintptr_t)r);
+    return 1;
 }
 
 static int c3_food(void) { return *(int *)(uintptr_t)C3_FOOD; }
@@ -219,6 +413,146 @@ static int c3_refill(void) {
     return 1;
 }
 
+/* ---- Food sources ------------------------------------------------------- */
+
+/* The fruit trees (object 0x5947E0: tree i at +0x1C + i*0x18, the count at
+   +0x64): each tree's fruit +0x30 (the game keeps it 0..1000) and its kind
+   +0x2C (0 banana, 1 mango, 2 papaya -- the draw indexes the art by it with
+   no check, and a save keeps any value, so nothing else is ever written);
+   and the honey [0x5945E0] (0..3000: the save loader refuses a village
+   outside that).  Seen live: kind and fruit change the art at once. */
+static const ce_value_def C3_VALUES[] = {
+    { "Fruit on tree 1", 0, 1000, "Only a planted tree. The game's own ceiling is 1000." },
+    { "Fruit on tree 2", 0, 1000, "Only a planted tree. The game's own ceiling is 1000." },
+    { "Fruit on tree 3", 0, 1000, "Only a planted tree. The game's own ceiling is 1000." },
+    { "Tree 1 kind (0 banana, 1 mango, 2 papaya)", 0, 2, "Only a planted tree." },
+    { "Tree 2 kind (0 banana, 1 mango, 2 papaya)", 0, 2, "Only a planted tree." },
+    { "Tree 3 kind (0 banana, 1 mango, 2 papaya)", 0, 2, "Only a planted tree." },
+    { "Honey", 0, 3000,
+      "Gathering it needs The Bee Hive solved; the game's own ceiling is 3000." },
+};
+
+static unsigned int c3_value_field(int which) {
+    if (which >= 0 && which <= 2) {
+        return 0x594810u + 0x18u * (unsigned int)which;
+    }
+    if (which >= 3 && which <= 5) {
+        return 0x59480Cu + 0x18u * (unsigned int)(which - 3);
+    }
+    return which == 6 ? 0x5945E0u : 0;
+}
+
+static int c3_value_get(int which) {
+    int trees = *(int *)(uintptr_t)0x594844u;
+    if (which < 0 || which > 6) {
+        return -1;
+    }
+    if (which < 6 && which % 3 >= trees) {
+        return -1;                     /* no tree planted there */
+    }
+    return *(int *)(uintptr_t)c3_value_field(which);
+}
+
+static int c3_value_set(int which, int amount) {
+    if (c3_value_get(which) < 0) {
+        return 0;
+    }
+    *(int *)(uintptr_t)c3_value_field(which) = amount;
+    return 1;
+}
+
+/* ---- Puzzles ---------------------------------------------------------------
+
+   Puzzle i is {progress, solve time} at 0x594990 + 8i, solved at the
+   threshold 0x49D230[i].  Solved writes the threshold and the solve time
+   (the clock 0x426590 on 0x5825D4, as AdvancePuzzle stamps it; without it
+   the Puzzles screen shows a solve time of 0); unsolved writes 0 and 0, or,
+   where the puzzle object keeps its own state, the game's own ResetPuzzle
+   0x435680 (progress 0 and the object reset) and the time 0.  Verified live
+   (2026-10-01): every tile follows its progress, the Lift's art both ways,
+   no rewrite by the game. */
+#define C3P_RESET 1            /* unsolved through ResetPuzzle */
+#define C3P_KEY 2              /* a door key: the keys-in-the-door count follows */
+
+typedef struct {
+    int id;
+    int threshold;
+    int how;
+} c3_puzzle;
+
+static const ce_puzzle_def C3_PUZZLE_DEFS[] = {
+    { "The First Chief", 1, 1,
+      "Marks the puzzle only; it makes no chief (the Tribal Chief status does both)." },
+    { "The Bee Hive", 1, 1, NULL },
+    { "The Alchemy Lab", 1, 0,
+      "Solved, the lab's pieces still look as they were. Not offered as unsolved: written "
+      "back to 0 with pieces placed, it could never be solved again." },
+    { "The Roster of the Dead", 1, 1, NULL },
+    { "Weather Dancing", 1, 1, NULL },
+    { "The Lift", 1, 1,
+      "Unsolved, the lift falls at once: a villager up there may be stranded." },
+    { "The Ruins", 1, 1, NULL },
+    { "The Ancient Bath", 1, 1, NULL },
+    { "The Statue", 0, 1,
+      "Not offered as solved: the statue's art and place are its own and would stay "
+      "broken. Unsolved puts the statue back where it began." },
+    { "The Orchard", 1, 1,
+      "Unsolved, the game solves it again at once while all three trees are grown." },
+    { "The Sharks", 1, 1, NULL },
+    { "Aromatherapy", 1, 1, NULL },
+    { "The Ash Key", 1, 0,
+      "Not offered as unsolved: the door would close on anyone beyond it." },
+    { "The Cliff Key", 1, 0,
+      "Not offered as unsolved: the door would close on anyone beyond it." },
+    { "The Clam Key", 1, 0,
+      "Not offered as unsolved: the door would close on anyone beyond it." },
+    { "The Chief and the Princess", 1, 1, NULL },
+};
+
+static const c3_puzzle C3_PUZZLES[] = {
+    { 0, 1, 0 }, { 1, 1, 0 }, { 2, 5, 0 }, { 3, 700, 0 }, { 4, 1, 0 }, { 5, 1, 0 },
+    { 6, 1800, 0 }, { 7, 1400, 0 }, { 8, 2, C3P_RESET }, { 9, 1, 0 }, { 10, 1, C3P_RESET },
+    { 11, 6, C3P_RESET }, { 12, 1, C3P_KEY }, { 13, 1, C3P_KEY }, { 14, 1, C3P_KEY },
+    { 15, 1, 0 },
+};
+
+#define C3_PUZZLE_COUNT ((int)(sizeof C3_PUZZLES / sizeof C3_PUZZLES[0]))
+#define C3_PUZZLE_PROGRESS(id) ((int *)(uintptr_t)(0x594990u + 8u * (unsigned int)(id)))
+
+static int c3_puzzle_solved(int which) {
+    if (which < 0 || which >= C3_PUZZLE_COUNT) {
+        return 0;
+    }
+    return *C3_PUZZLE_PROGRESS(C3_PUZZLES[which].id) >= C3_PUZZLES[which].threshold;
+}
+
+static int c3_puzzle_set(int which, int solved) {
+    const c3_puzzle *p;
+    int *entry;
+    if (which < 0 || which >= C3_PUZZLE_COUNT) {
+        return 0;
+    }
+    p = &C3_PUZZLES[which];
+    entry = C3_PUZZLE_PROGRESS(p->id);
+    if (solved) {
+        entry[0] = p->threshold;
+        entry[1] = TC0(0x426590u, 0x5825D4u);
+        if (p->how & C3P_KEY) {
+            /* The keys in the door (puzzle 19): the keys now complete. */
+            int keys = (*C3_PUZZLE_PROGRESS(12) >= 1) + (*C3_PUZZLE_PROGRESS(13) >= 1)
+                + (*C3_PUZZLE_PROGRESS(14) >= 1);
+            *C3_PUZZLE_PROGRESS(19) = keys;
+        }
+    } else {
+        if (p->how & C3P_RESET) {
+            TC1(0x435680u, 0x594990u, p->id);
+        }
+        entry[0] = 0;
+        entry[1] = 0;
+    }
+    return 1;
+}
+
 static int c3_parents_supported(void) {
     return 1;
 }
@@ -233,7 +567,8 @@ static const char *const C3_SKILLS[] = { "Farming", "Parenting", "Healing", "Res
 static const ce_adapter C3_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
-        | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY,
+        | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_STATUS | CAP_VALUES
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE,
     "The Secret City",
     0x118, 40, 1100,
     C3_COUNT, 0x19,
@@ -244,25 +579,36 @@ static const ce_adapter C3_ADAPTER = {
     30, 30,
     5, 0, C3_SKILLS,
     0xDF8, 0xE11, 0x19, 0xE2C, 0xE30, 0xE34, 0xE38,
-    NULL, 0,
-    C3_BEHAVIOURS, 2,
+    C3_STATUSES, 2,
+    C3_BEHAVIOURS, (int)(sizeof C3_BEHAVIOURS / sizeof C3_BEHAVIOURS[0]),
     NULL, 0,
     "Not in The Secret City:\r\n\r\n"
-    "- Tribal Chief: only the robe puzzle makes a chief, and a second chief is a known defect.\r\n"
+    "- A second Tribal Chief: the game keeps one (the living chief steps down instead).\r\n"
     "- Esteemed Elder is not a status here: the game shows it for any villager with three "
     "mastered skills, so set the skills instead.\r\n"
-    "- Village and puzzle states: no puzzle has a completion routine that can be called on "
-    "its own (the puzzles create the objects they need).\r\n"
-    "- Refill: only the fruit trees have a refill the game itself uses; the beehive's is "
-    "tied to its puzzle.\r\n"
+    "- Puzzles: The Statue as solved, The Alchemy Lab and the three keys as unsolved (see "
+    "each one's note).\r\n"
+    "- A tree kind other than banana, mango and papaya: the game draws the trees by that "
+    "number with no check and would crash.\r\n"
+    "- The unborn baby's starting skill: what the baby does with it at birth was not "
+    "traced to the end, so only the father's name and looks are offered.\r\n"
+    "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
+    "the chief's own powers, and lessons or games that stop other villagers.\r\n"
+    "- Revive: buried villagers (their record is gone), skeletons that have already "
+    "crumbled away, and a dead chief while another chief lives.\r\n"
     "- Golden Child, faction, totems: The Secret City has none.",
     48, 14, 30, 1, 360,
     "Refills the fruit trees.",
     "Your village gains %d food.", "Your village has lost %d food.",
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
     c3_record, c3_listed, c3_arm_refusal, c3_room, c3_spawn, c3_kill, c3_vanish, c3_sicken,
-    c3_conceive, NULL, c3_behave, NULL, c3_food, c3_tech, c3_change_food, c3_change_tech,
-    c3_refill, c3_parents_supported, c3_set_parents
+    c3_conceive, c3_set_status, c3_behave, NULL, c3_food, c3_tech, c3_change_food,
+    c3_change_tech, c3_refill, c3_parents_supported, c3_set_parents,
+    C3_VALUES, 7, c3_value_get, c3_value_set,
+    C3_PUZZLE_DEFS, C3_PUZZLE_COUNT, c3_puzzle_solved, c3_puzzle_set,
+    c3_cancel, c3_relitter, c3_unborn,
+    c3_skeleton, c3_revive,
+    0, 0xE8C
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

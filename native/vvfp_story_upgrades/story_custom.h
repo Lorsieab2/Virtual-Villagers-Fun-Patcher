@@ -48,8 +48,19 @@
 #define CAP_SPAWN_NAME  0x00020000u
 #define CAP_SPAWN_FACTION 0x00040000u
 #define CAP_MALE_PREGNANCY 0x00080000u
+#define CAP_VALUES      0x00100000u   /* food sources and stores set to an amount */
+#define CAP_PUZZLES     0x00200000u   /* puzzles marked solved / unsolved */
+#define CAP_CANCEL      0x00400000u   /* "0 babies": a pregnancy ends */
+#define CAP_RELITTER    0x00800000u   /* an existing pregnancy's babies changed */
+#define CAP_UNBORN      0x01000000u   /* the unborn baby's father */
+#define CAP_REVIVE      0x02000000u   /* skeletons revived */
 
 enum { CE_FATE_NONE = 0, CE_FATE_KILL = 1, CE_FATE_VANISH = 2 };
+/* ce_change.litter: 0 no change, 1..3 babies, CE_LITTER_CANCEL not pregnant. */
+#define CE_LITTER_CANCEL (-1)
+#define CE_MAX_VALUES 16
+#define CE_MAX_PUZZLES 32
+#define CE_MAX_REVIVES 256
 enum { CE_AMOUNT_NONE = 0, CE_AMOUNT_ADD = 1, CE_AMOUNT_SUBTRACT = 2, CE_AMOUNT_ZERO = 3 };
 enum { CE_TITLE_KEEP = 0, CE_TITLE_SET = 1, CE_TITLE_CLEAR = 2 };
 #define CE_MAX_AMOUNT 1000000
@@ -99,7 +110,35 @@ typedef struct {
     int father_body;
     int mother_head;
     int mother_body;
+    /* The unborn baby's father (CAP_UNBORN), written on a carrier who is
+       pregnant once the pregnancies are made: blank / CE_KEEP = no change. */
+    int unborn_set;
+    char unborn_name[CE_NAME_BYTES];
+    int unborn_head;
+    int unborn_body;
+    int unborn_skill;                /* CE_KEEP, 0 = none, else the game's skill i + 1 */
+    int unborn_skill_value;
 } ce_change;
+
+/* A food source or store set to an amount: the adapter's values[which]. */
+typedef struct {
+    int which;
+    int amount;
+} ce_value;
+
+/* A puzzle marked solved (1) or unsolved (0): the adapter's puzzles[which]. */
+typedef struct {
+    int which;
+    int solved;
+} ce_puzzle;
+
+/* A skeleton brought back to life with `health`, cured when `cure`. */
+typedef struct {
+    int index;
+    unsigned int identity;           /* ce_identity of the skeleton, when queued */
+    int health;
+    int cure;
+} ce_revive;
 
 typedef struct {
     int game;
@@ -115,6 +154,12 @@ typedef struct {
     ce_spawn spawns[CE_MAX_SPAWN_GROUPS];
     int change_count;
     ce_change changes[CE_MAX_CHANGES];
+    int value_count;
+    ce_value values[CE_MAX_VALUES];
+    int puzzle_count;
+    ce_puzzle puzzles[CE_MAX_PUZZLES];
+    int revive_count;
+    ce_revive revives[CE_MAX_REVIVES];
 } ce_event;
 
 /* What the delivery did, for the popup's closing lines and the tests. */
@@ -132,6 +177,8 @@ typedef struct {
     int food_after;
     int tech_before;
     int tech_after;
+    int revived;          /* skeletons brought back */
+    int no_room_revives;  /* revivals refused: the village is full */
 } ce_result;
 
 #endif
