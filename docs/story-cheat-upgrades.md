@@ -452,16 +452,42 @@ room checks for each outcome's new villagers and babies. The engine is
 `ce_choice_*` in `native/vvfp_story_upgrades/story_custom.inc`; the data is
 `ce_choice` / `ce_outcome` in `story_custom.h`.
 
-**Each game's own two-button popup is hooked separately** (the
-`CAP_CHOICE` capability in each `story_c*.inc` adapter, with the popup's
-question / result widths and line counts, the label width and the game's
-random routine). A game without the hook keeps the box disabled and refuses a
-question ("This game can not ask a question with two choices yet"). Evidence
-level: the engine is tested in emulation (`tests/test_story_two_choice.py`:
-the layout, every roll of every chance split and the real generator's
-shares, every refusal, the lock / lapse / village binding, applying exactly
-the rolled outcome, mutation-checked); **the dialogs and the in-game popups are
-not yet confirmed in a running game**.
+**Each game's own two-button popup asks the question** (the `CAP_CHOICE`
+capability in each `story_c*.inc` adapter, with the popup's question / result
+widths and line counts, the label width and the game's own rand). In every
+game the question and its result share one dialog: a click removes the two
+buttons, the result replaces the question and OK closes it.
+
+| Game | The popup | Where | Text (characters x lines), label |
+| --- | --- | --- | --- |
+| A New Home | the villager encounters' (0x41A460) | the family rolls send a question there; the setup call 0x41A51F is replaced: question +0x74, labels +0x4E92 / +0x4F92, no villager, a variant past the stock jump table; the resolve call 0x41A444 (an outcomes scope call) is handed to the answer for that dialog only | 49 x 15, 34 |
+| The Lost Children | family A's (0x422380) | the same at 0x42244A (question +0x7C, labels +0x4E9A / +0x4F9A) and 0x422364 | 46 x 18, 30 |
+| The Secret City | the event dialog 0x4192F0 | the pick site hands it a copy of the two-choice vtable 0x47EA40: title / question / labels / result through the custom ids, a living villager shown (pose 5), the answer on the click (+0x34), nothing more on OK | 48 x 11, 32 |
+| The Tree of Life | 0x417790 | the same, vtable 0x48CB64 | 48 x 11, 34 |
+| New Believers | 0x418020 | the same, vtable 0x497D34; the villager shown is a believer, never a Heathen | 48 x 11 (results 17), 38 |
+
+The limits are each game's longest and tallest stock two-choice texts and
+labels. A New Home and The Lost Children size the popup once, from the
+question, so the question is padded with empty lines to the tallest result
+either button can show (its text plus every outcome line its changes could
+print); The Secret City, The Tree of Life and New Believers size it from the
+question and both buttons' tallest results. In A New Home and The Lost
+Children the result repeats the title (the result replaces the whole text);
+in the other three the title stays above it. Their two-choice popup is never
+shown without a villager, so a question waits (and lapses) while nobody living
+can be shown; the villager is chosen at random (the editor has no pick for it
+yet). A New Home's and The Lost Children's first island event is always their
+two-choice family, so a question may be that event (a plain one may not).
+
+Evidence level: emulation of each game's rendered executable in all three
+population modes (`tests/test_story_two_choice_hooks.py`: the question,
+labels and fields in each game's own dialog, the game's own click handler
+reaching the answer, the rolled outcome applied once and its text shown, a
+natural encounter and another dialog left to the game, the remembered dialog
+forgotten, a missed dispatch writing nothing; 16 mutations of the hooks, each
+caught), and **live in all five games** (v1.35.47 test build, 2026-10-02): the
+question in each game's own popup, a click, the outcome's result and its food
+change in memory (both outcomes of a 50/50 button seen), nothing more on OK.
 
 ### Custom titles
 

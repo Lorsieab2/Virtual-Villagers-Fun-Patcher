@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "7B9611F9E3D6F45D2DB008405DDD457414E68C42455A863361430F4BEA74B433"
+      "sha256": "82369B319B875AB26F1BF6FAB01A39513C67BF5CF7BEF6C8702629B3156DB82C"
     }
   ],
   "runtime_detours": [
@@ -170,6 +170,12 @@
       "va": "0x41FD75",
       "stock_bytes": "8D54242452",
       "routine": "the villager panel's title, before its label is set (custom titles)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41A51F",
+      "stock_bytes": "E8BCE4FFFF",
+      "routine": "the villager encounter's setup call 0x4189E0 (a Custom Island Event question)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
