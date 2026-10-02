@@ -1663,7 +1663,7 @@ CONTROLS = {
             'kind': 'enum',
             'options': [
                 {
-                    'label': 'Scientific insight (Research +15-44)',
+                    'label': 'Scientific insight (Research +15-44; also 100 tech points with Fix Vanilla Bugs)',
                     'force': [
                         [0x41771D, 0],
                     ],
@@ -1934,8 +1934,11 @@ CONTROLS = {
         },
         {
             'id': 'healing',
-            'label': "If the clear vial is used: Healing gained (the game's text says the jelly spoiled)",
-            'branch': 0,
+            'label': "If the jelly cures the cold: Healing gained (the clear vial in the base game, the dark vial with Fix Vanilla Bugs)",
+            # Not tied to a button: the site runs only in the curing branch,
+            # which is the clear vial (choice 0) in the base game and the
+            # dark vial (choice 1) with vv3_fix_vanilla_bugs (0x4180FB je).
+            'branch': None,
             'phase': 'apply',
             'scope_call': None,
             'kind': 'amount',
@@ -1944,7 +1947,7 @@ CONTROLS = {
             'base': 15,
             'step': 1,
             'unit': 'Healing gained',
-            'evidence': "applyChoice 0x4180A0 (vt 0x47F1C8[11]); idx 0 (0x4180F5..0x4180FB): sick flag rec+0xE89 := 0 (0x418102); 0x418100 push 0xF; 0x418109 E8 rand(15); 0x41811D add eax,0xF; += rec+0xEB4 (Healing), clamped 0..100; activity 0x90. STOCK TEXT/CODE MISMATCH: idx 0 shows S1014 (spoiled) yet cures and adds Healing; idx 1 (dark vial) shows S1015 (delicious) yet changes nothing. Button 1 'Use a clear vial'.",
+            'evidence': "applyChoice 0x4180A0 (vt 0x47F1C8[11]); idx 0 (0x4180F5..0x4180FB): sick flag rec+0xE89 := 0 (0x418102); 0x418100 push 0xF; 0x418109 E8 rand(15); 0x41811D add eax,0xF; += rec+0xEB4 (Healing), clamped 0..100; activity 0x90. STOCK TEXT/CODE MISMATCH: idx 0 shows S1014 (spoiled) yet cures and adds Healing; idx 1 (dark vial) shows S1015 (delicious) yet changes nothing. Button 1 'Use a clear vial'. vv3_fix_vanilla_bugs turns the jne at 0x4180FB into je, so idx 1 cures; the site is reached only in the curing branch either way.",
         },
     ],
     46: [

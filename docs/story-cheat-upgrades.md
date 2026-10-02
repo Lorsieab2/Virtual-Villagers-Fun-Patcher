@@ -256,14 +256,21 @@ first. These are offered exactly as the game produces them:
 
 * The Secret City's Royal Jelly: the clear vial's text says the jelly spoiled, yet it is the clear vial
   that cures and raises Healing; the dark vial's text says it worked, yet it
-  changes nothing.
+  changes nothing. The owner has since approved a fix: with The Secret City's
+  "Fix Vanilla Bugs" (default on) the dark vial cures and the clear vial does
+  nothing. The Healing setting is tied to no button, so it applies to
+  whichever vial cures in the game being played. "Fix Vanilla Bugs" also
+  makes The Lost Children's Crystal Ball need a second living villager, and
+  Pick Island Event follows that condition when the fix is in the game.
 * The Lost Children's Gong "Takes youth" / "Grants youth" write fixed villager
   slots 6 and 15, not the villager who rang it.
 * Several health losses have no floor (A New Home's old-fruit crate finder and
   rotting-crate finder, The Lost Children's fire ants and mice finder), and A New
   Home's Mysterious Face stranger's farming can reach 106.
 * The Secret City's quartz vial: at age exactly 280 the text promises one result
-  and the apply takes the other; its body-change branch can never run.
+  and the apply takes the other; its body-change branch can never run. The
+  text is fixed by "Fix Vanilla Bugs" (a 14-year-old reads the elder text);
+  the body-change branch is left as it is.
 * The Lost Children's Prettiest Girl: the selector asks for an adult woman, the
   pick accepts a girl of any age.
 * The Tree of Life's healer events do not require the healer to be sick.

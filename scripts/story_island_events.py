@@ -256,7 +256,7 @@ EVENTS: dict[str, list[dict]] = {
            "A villager finds strange black seeds: eat them, or plant them."),
         _e(_slot(VV2_A, 13), "The Crystal Ball",
            "A villager finds a strange ball: keep it, or give it to the children.",
-           requires="at least one adult"),
+           requires="at least one adult (with Fix Vanilla Bugs, also at least two living villagers)"),
         _e(_slot(VV2_A, 14), "The Silver Mirror",
            "A villager finds a silver mirror and must speak one of two words written on it.",
            requires="at least two villagers"),

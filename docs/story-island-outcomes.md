@@ -791,7 +791,7 @@ is about (one the game would not pick leaves the choice to the game).
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
 | Which villager finds the vial | which villager | a villager the game itself could pick |
-| If tasted | result | Scientific insight (Research +15-44); Feels years younger (health 100, cured, 5 years younger); Two copies of the villager appear |
+| If tasted | result | Scientific insight (Research +15-44; also 100 tech points with Fix Vanilla Bugs); Feels years younger (health 100, cured, 5 years younger); Two copies of the villager appear |
 | If tasted (insight): Research gained | amount | any of 15 to 44 Research gained |
 | If tasted (copies): first copy's name | amount | any of 1 to 123 entry in the game's first-name list |
 
@@ -834,7 +834,7 @@ is about (one the game would not pick leaves the choice to the game).
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
 | Which villager tries the royal jelly | which villager | a villager the game itself could pick |
-| If the clear vial is used: Healing gained (the game's text says the jelly spoiled) | amount | any of 15 to 29 Healing gained |
+| If the jelly cures the cold: Healing gained (the clear vial in the base game, the dark vial with Fix Vanilla Bugs) | amount | any of 15 to 29 Healing gained |
 
 ### The Shooting Star
 

@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "E706780BF17C1C015DFEE99C7CCC6B1A759178BF9831A4EDE57961D8396C524D"
+      "sha256": "946AB003B650A211AC70FC03EB8B02358F3D15E500E45C99A8081238587EC087"
     }
   ],
   "runtime_detours": [
@@ -998,7 +998,7 @@
       "title": "The Crystal Ball",
       "variant": "",
       "description": "A villager finds a strange ball: keep it, or give it to the children.",
-      "requires": "at least one adult"
+      "requires": "at least one adult (with Fix Vanilla Bugs, also at least two living villagers)"
     },
     {
       "slot": 78,
