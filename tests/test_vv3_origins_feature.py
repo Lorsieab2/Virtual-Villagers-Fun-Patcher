@@ -97,7 +97,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         entry = dll.split("ShowVV3AppearanceForAll(void)", 1)[1].split("\n}", 1)[0]
         apply_at = entry.index("affected = vv3_apply_for_all")
         guard_at = entry.index("if (affected == 0)", apply_at)
-        charge_at = entry.index("*tech -= VV3_CAF_COST", guard_at)
+        charge_at = entry.index("*tech -= vvfp_story_price(3, VV3_CAF_COST)", guard_at)
         self.assertLess(apply_at, guard_at)
         self.assertLess(guard_at, charge_at)
         self.assertIn("No eligible villagers matched", entry)

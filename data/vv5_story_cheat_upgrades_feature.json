@@ -1,0 +1,982 @@
+{
+  "id": "vv5_story_cheat_upgrades",
+  "enabled": true,
+  "game_id": "vv5",
+  "name": "Story / Cheat Upgrades",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.**",
+  "output_tag": "Story Cheat Upgrades",
+  "dependencies": [
+    "vv5_origins_village_wide_upgrades"
+  ],
+  "behavior_changes": [
+    "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
+    "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
+    "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
+    "Offers 45 island events; events that can never run in this game are not offered.",
+    "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
+    "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
+    "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs.",
+    "No stock event is emulated: a picked event is created, shown and resolved by the game's own code; a custom event is shown by the game's own island-event popup.",
+    "Pick Island Event adds no tech points and writes nothing to the save; a custom event changes only what the player chose, through the game's own routines and fields, and the game saves the village as usual.",
+    "No custom title is written into a villager record."
+  ],
+  "evidence_status": "static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
+      "destination": "VVFP Story Upgrades.dll",
+      "sha256": "9F0E8AF575BDDF3A4E5D3BA2CFD61471FBFF07D6606F4F797B560CC1A4C82610"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x7B2F14",
+      "stock_bytes": "50C3000030750000F824010020A1070020A107003075000050C30000A0860100409C000050C30000",
+      "written_bytes": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "routine": "the Origins price table (10 prices)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7B2414",
+      "stock_bytes": "813DF8D5510040420F00",
+      "written_bytes": "813DF8D5510000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7B2424",
+      "stock_bytes": "B8C0BDF0FF",
+      "written_bytes": "B800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C9987",
+      "stock_bytes": "81FE20A10700",
+      "written_bytes": "81FE00000000",
+      "routine": "an Origins charge, check or refund of 500,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C99BF",
+      "stock_bytes": "81FE20A10700",
+      "written_bytes": "81FE00000000",
+      "routine": "an Origins charge, check or refund of 500,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C99E9",
+      "stock_bytes": "68E05EF8FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 500,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C99FA",
+      "stock_bytes": "2D20A10700",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 500,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C9DCF",
+      "stock_bytes": "817DD850C30000",
+      "written_bytes": "817DD800000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C9E55",
+      "stock_bytes": "3D50C30000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C9F27",
+      "stock_bytes": "68B03CFFFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7C9F39",
+      "stock_bytes": "2D50C30000",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA0E1",
+      "stock_bytes": "3D50C30000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA101",
+      "stock_bytes": "3D50C30000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA10F",
+      "stock_bytes": "6850C30000",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA185",
+      "stock_bytes": "3D50C30000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA1A8",
+      "stock_bytes": "68B03CFFFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA1BA",
+      "stock_bytes": "2D50C30000",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 50,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA5D0",
+      "stock_bytes": "3DA0860100",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 100,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA637",
+      "stock_bytes": "3DA0860100",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 100,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA732",
+      "stock_bytes": "686079FEFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 100,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CA744",
+      "stock_bytes": "2DA0860100",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 100,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CB2DC",
+      "stock_bytes": "817DE8409C0000",
+      "written_bytes": "817DE800000000",
+      "routine": "an Origins charge, check or refund of 40,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CB3BA",
+      "stock_bytes": "68C063FFFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 40,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CB3CC",
+      "stock_bytes": "2D409C0000",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 40,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CC487",
+      "stock_bytes": "3D30750000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CC4B6",
+      "stock_bytes": "3D30750000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CC4C1",
+      "stock_bytes": "68D08AFFFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CC4D3",
+      "stock_bytes": "2D30750000",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CCC95",
+      "stock_bytes": "3D30750000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CCCD6",
+      "stock_bytes": "3D30750000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CCCDD",
+      "stock_bytes": "68D08AFFFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CCCEF",
+      "stock_bytes": "2D30750000",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CCFA2",
+      "stock_bytes": "3DF8240100",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 75,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CCFE8",
+      "stock_bytes": "3DF8240100",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 75,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CCFEF",
+      "stock_bytes": "6808DBFEFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 75,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD001",
+      "stock_bytes": "2DF8240100",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 75,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD38D",
+      "stock_bytes": "3D88130000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD41B",
+      "stock_bytes": "3D88130000",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD462",
+      "stock_bytes": "6878ECFFFF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD474",
+      "stock_bytes": "2D88130000",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD611",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD63E",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD748",
+      "stock_bytes": "68C0BDF0FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD75A",
+      "stock_bytes": "2D40420F00",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD911",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CD93E",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CDA27",
+      "stock_bytes": "68C0BDF0FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CDA39",
+      "stock_bytes": "2D40420F00",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CDC2D",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CDC5A",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CDD31",
+      "stock_bytes": "68C0BDF0FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CDD43",
+      "stock_bytes": "2D40420F00",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE21F",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE24C",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE2F6",
+      "stock_bytes": "68C0BDF0FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE308",
+      "stock_bytes": "2D40420F00",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE81F",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE84C",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE8BF",
+      "stock_bytes": "68C0BDF0FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CE8D1",
+      "stock_bytes": "2D40420F00",
+      "written_bytes": "2D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CF011",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CF032",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CF054",
+      "stock_bytes": "68C0BDF0FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CF211",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CF232",
+      "stock_bytes": "3D40420F00",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CF254",
+      "stock_bytes": "68C0BDF0FF",
+      "written_bytes": "6800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7CF532",
+      "stock_bytes": "3DD0DD0600",
+      "written_bytes": "3D00000000",
+      "routine": "an Origins charge, check or refund of 450,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D020B",
+      "stock_bytes": "446F20796F752077616E7420746F206275792054696D65205761727020666F722035302C303030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E",
+      "written_bytes": "446F20796F752077616E7420746F206275792054696D65205761727020666F722030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D03D5",
+      "stock_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D61746368207468652065786163742035302C3030302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B207468652076696C6C61676520636C6F636B20776173206E6F74206368616E6765642E",
+      "written_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D617463682074686520657861637420302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B207468652076696C6C61676520636C6F636B20776173206E6F74206368616E6765642E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D0464",
+      "stock_bytes": "5468652035302C3030302D706F696E7420646564756374696F6E207761732076657269666965642C20627574207468652076696C6C61676520636C6F636B2075706461746520636F756C64206E6F742062652076657269666965642E",
+      "written_bytes": "54686520302D706F696E7420646564756374696F6E207761732076657269666965642C20627574207468652076696C6C61676520636C6F636B2075706461746520636F756C64206E6F742062652076657269666965642E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D04C1",
+      "stock_bytes": "446F20796F752077616E7420746F206275792049736C616E64204576656E7420666F722033302C303030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E",
+      "written_bytes": "446F20796F752077616E7420746F206275792049736C616E64204576656E7420666F722030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D0660",
+      "stock_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D61746368207468652065786163742033302C3030302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B206E6F206576656E7420776173207175657565642E",
+      "written_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D617463682074686520657861637420302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B206E6F206576656E7420776173207175657565642E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D06E1",
+      "stock_bytes": "5468652033302C3030302D706F696E7420646564756374696F6E207761732076657269666965642C2062757420746865206576656E7420636F756C64206E6F74206265207175657565642E",
+      "written_bytes": "54686520302D706F696E7420646564756374696F6E207761732076657269666965642C2062757420746865206576656E7420636F756C64206E6F74206265207175657565642E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D072D",
+      "stock_bytes": "446F20796F752077616E7420746F206275792042617272656C206F662042616269657320666F722037352C303030207465636820706F696E74733F0D0A556E6275726965642076696C6C6167657273207374696C6C2074616B6520757020726F6F6D2C20736F20736B656C65746F6E732063616E2072656475636520686F77206D616E7920626162696573206172726976652E0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E",
+      "written_bytes": "446F20796F752077616E7420746F206275792042617272656C206F662042616269657320666F722030207465636820706F696E74733F0D0A556E6275726965642076696C6C6167657273207374696C6C2074616B6520757020726F6F6D2C20736F20736B656C65746F6E732063616E2072656475636520686F77206D616E7920626162696573206172726976652E0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D09C1",
+      "stock_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D61746368207468652065786163742037352C3030302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B206E6F2062617272656C20776173207175657565642E",
+      "written_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D617463682074686520657861637420302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B206E6F2062617272656C20776173207175657565642E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x7D0A43",
+      "stock_bytes": "5468652037352C3030302D706F696E7420646564756374696F6E207761732076657269666965642C20627574207468652062617272656C20636F756C64206E6F74206265207175657565642E",
+      "written_bytes": "54686520302D706F696E7420646564756374696F6E207761732076657269666965642C20627574207468652062617272656C20636F756C64206E6F74206265207175657565642E0000000000",
+      "routine": "an Origins prompt that shows the price",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41895B",
+      "stock_bytes": "8B04B550C84D00",
+      "routine": "the island-event selector, after it has chosen (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44319E",
+      "stock_bytes": "8B8DE0000000",
+      "routine": "the villager panel's title, before its label is set (custom titles)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    }
+  ],
+  "island_events": [
+    {
+      "slot": 1,
+      "title": "The Creeping Mold",
+      "variant": "",
+      "description": "A toxic mold spreads in the food bin: some food is ruined.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 2,
+      "title": "The Allergy Season",
+      "variant": "",
+      "description": "Many villagers suffer a bout of hay fever.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 3,
+      "title": "Isola Day Celebration",
+      "variant": "",
+      "description": "The villagers celebrate their arrival on Isola with feasts.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 4,
+      "title": "Day of Honor",
+      "variant": "",
+      "description": "The villagers pay their respects to those who have passed on.",
+      "requires": "at least two graves"
+    },
+    {
+      "slot": 5,
+      "title": "The Vision",
+      "variant": "",
+      "description": "A villager sees a stranger at the forest's edge and gains faith.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 6,
+      "title": "The Mysterious Footprints",
+      "variant": "food gained",
+      "description": "Footprints appear overnight, and honeycombs: the village gains food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 7,
+      "title": "The Mysterious Footprints",
+      "variant": "food lost",
+      "description": "Footprints appear overnight, and food is stolen.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 8,
+      "title": "The Mysterious Footprints",
+      "variant": "tech gained",
+      "description": "Footprints appear overnight, and useful instruments: tech points gained.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 9,
+      "title": "The Mysterious Footprints",
+      "variant": "tech lost",
+      "description": "Footprints appear overnight, and research tools are stolen.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 10,
+      "title": "Blessings Day Celebration",
+      "variant": "",
+      "description": "The villagers give thanks with dancing, ceremonies and a feast.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 11,
+      "title": "The Bed Bugs",
+      "variant": "",
+      "description": "A villager wakes up covered in bites and decides what to do about bed bugs.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 12,
+      "title": "The Mask",
+      "variant": "",
+      "description": "A villager finds a heathen mask: put it on, or not.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 13,
+      "title": "The Heathen Toy",
+      "variant": "",
+      "description": "A child finds a heathen child's toy: keep it, or return it.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 14,
+      "title": "The Daredevil Jump",
+      "variant": "",
+      "description": "A villager wants to jump off the bridge tethered by vines.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 15,
+      "title": "The Cold Snap",
+      "variant": "",
+      "description": "A cold, wet wind puts the village fire out.",
+      "requires": "a lit village fire"
+    },
+    {
+      "slot": 16,
+      "title": "Army Ants!",
+      "variant": "",
+      "description": "Army ants devour the crops.",
+      "requires": "the game's own progress condition for crop events"
+    },
+    {
+      "slot": 17,
+      "title": "Aphid Infestation!",
+      "variant": "",
+      "description": "Aphids ruin much of the food.",
+      "requires": "the game's own progress condition for crop events"
+    },
+    {
+      "slot": 18,
+      "title": "The Strange Crystals",
+      "variant": "",
+      "description": "Green crystals found where lightning struck: the tribe gains tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 19,
+      "title": "The Especially Offensive Cloud",
+      "variant": "",
+      "description": "A heathen experiment fills the village with foul gas: everyone hides.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 20,
+      "title": "The Bottle of Spicy Juice",
+      "variant": "",
+      "description": "A bottle of hot sauce ends up in the food, with uncomfortable results.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 21,
+      "title": "The River Breaks Its Banks",
+      "variant": "",
+      "description": "A flood leaves fertile silt over the crops.",
+      "requires": "the game's own progress condition for crop events"
+    },
+    {
+      "slot": 22,
+      "title": "The Clumsy Heathen",
+      "variant": "",
+      "description": "A heathen spills a potion on the noni bush, which then bears more fruit.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 23,
+      "title": "The Pesky Critter",
+      "variant": "",
+      "description": "A noisy lemur distracts the researchers: tech points lost.",
+      "requires": "the game's own progress condition for the lab"
+    },
+    {
+      "slot": 24,
+      "title": "Mushroom Day!",
+      "variant": "",
+      "description": "The villagers celebrate mushrooms, with cake for the children.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 26,
+      "title": "Barrel O' Babies!",
+      "variant": "believers",
+      "description": "A barrel of babies floats down the stream and the believers adopt them.",
+      "requires": "room in the village for new villagers"
+    },
+    {
+      "slot": 27,
+      "title": "Barrel O' Babies!",
+      "variant": "heathens",
+      "description": "A barrel of babies floats down the stream and the heathens adopt them.",
+      "requires": "room in the village for new villagers"
+    },
+    {
+      "slot": 28,
+      "title": "The Salty Air",
+      "variant": "",
+      "description": "A salty wind forces the villagers to hide until it settles.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 30,
+      "title": "Chutes Without Ladders",
+      "variant": "",
+      "description": "Toddlers shoot out of the bushes into the hot springs and join the tribe.",
+      "requires": "room in the village for new villagers"
+    },
+    {
+      "slot": 31,
+      "title": "News From Another Tribe",
+      "variant": "a newcomer",
+      "description": "A respected master from another tribe joins the village.",
+      "requires": "room in the village for a new villager"
+    },
+    {
+      "slot": 32,
+      "title": "News From Another Tribe",
+      "variant": "a message",
+      "description": "A message from another village: the tribe gains tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 34,
+      "title": "The Spa",
+      "variant": "",
+      "description": "A villager sneaks into the heathens' five pools.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 35,
+      "title": "Doubt",
+      "variant": "",
+      "description": "A villager doubts the Guiding Hand and demands a sign.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 36,
+      "title": "Spying on the Heathens",
+      "variant": "",
+      "description": "A child spies on the heathens and gets caught.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 37,
+      "title": "You're Doing It Wrong!",
+      "variant": "",
+      "description": "A villager sees the heathens trashing the lab: step in, or not.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 38,
+      "title": "The Missing Kids",
+      "variant": "",
+      "description": "A child is missing and a heathen is suspected.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 39,
+      "title": "Outreach?",
+      "variant": "",
+      "description": "A heathen envoy asks for a tour of the believers' camp.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 40,
+      "title": "The Advanced Artifacts",
+      "variant": "",
+      "description": "A researcher finds ancient artifacts: investigate alone, or with help.",
+      "requires": "the game's own progress condition for the artifacts"
+    },
+    {
+      "slot": 41,
+      "title": "Trick Or Trade",
+      "variant": "",
+      "description": "The heathens have valuable scrolls: trade for them, or trick them.",
+      "requires": "at least 100 food"
+    },
+    {
+      "slot": 42,
+      "title": "The Migrating Fruit Bats",
+      "variant": "",
+      "description": "Fruit bats stop on their migration: scare them away, or study them.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 43,
+      "title": "The Aphids in the Noni Bush",
+      "variant": "",
+      "description": "Bugs are sucking the life out of the crops: deal with them wisely.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 44,
+      "title": "The Defector",
+      "variant": "",
+      "description": "A heathen asks to join the believers: accept, or refuse.",
+      "requires": "a heathen the event can be about (the game also rolls a chance)"
+    },
+    {
+      "slot": 45,
+      "title": "The Straw Hat",
+      "variant": "",
+      "description": "A villager finds a woven reed thing: a hat, or a strainer?",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 46,
+      "title": "The Strange Nectar",
+      "variant": "",
+      "description": "A villager finds a rare blossom full of sweet nectar.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 47,
+      "title": "The Cracked Mask",
+      "variant": "",
+      "description": "A heathen's mask is broken: help glue it, or not.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 55,
+      "title": "Innovation in Farming",
+      "variant": "the mysterious storyteller",
+      "description": "A mysterious storyteller from the older parts of the island appears.",
+      "requires": "a child the event can be about, and the game's own progress condition"
+    }
+  ],
+  "excluded_island_events": [
+    {
+      "title": "The Stinging Wasps",
+      "reason": "slot 25: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Return of Biggles",
+      "reason": "slot 29: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Abandoned Infants",
+      "reason": "slot 33: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Smelly Vial",
+      "reason": "slot 48: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Floral Vial",
+      "reason": "slot 49: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Invisible Vial",
+      "reason": "slot 50: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "Innovation in Farming",
+      "reason": "slot 51: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "Tough Lessons",
+      "reason": "slot 52: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Pretty Shell",
+      "reason": "slot 53: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Legendary Stranger",
+      "reason": "slot 54: condition 0x415B10 always returns false"
+    },
+    {
+      "title": "The Tsunami, The Canoe from the Other Side, The Rainy Season, The Festival of the Banyan, Daredevil Barrel...Of Babies!, The State of the Tree, A Closer Look",
+      "reason": "strings only: no event class and no slot in the event table"
+    }
+  ],
+  "custom_island_event": {
+    "offered": [
+      "title and description",
+      "food and tech points (add, subtract, set to 0)",
+      "refill: noni bushes, and the crops once the farm is built",
+      "new villagers (believers)",
+      "dies (leaves a remains)",
+      "disappears (no skeleton)",
+      "falls sick (believers)",
+      "pregnant with a baby, twins or triplets (adult believers, either sex)",
+      "likes and dislikes",
+      "appearance (heads and bodies 0-29)",
+      "skills (six)",
+      "parents",
+      "custom title",
+      "mask",
+      "becomes a believer / becomes a Heathen",
+      "behaviours: stops what they are doing, recovers fully"
+    ],
+    "omitted": [
+      {
+        "option": "new Heathens",
+        "reason": "the Heathen creator's arguments are not all understood"
+      },
+      {
+        "option": "the puzzles' own Heathens' faction",
+        "reason": "their puzzles depend on them"
+      },
+      {
+        "option": "sickness or pregnancy for Heathens",
+        "reason": "the game cures Heathens every moment and Heathens never give birth"
+      },
+      {
+        "option": "puzzle solved",
+        "reason": "the completion routine needs world state that is not proven"
+      }
+    ]
+  },
+  "patches": []
+}

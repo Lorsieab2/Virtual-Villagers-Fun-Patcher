@@ -3,6 +3,7 @@
 #include <shlobj.h>   /* SHGetSpecialFolderPathA for the mask-sidecar path */
 #include <string.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
+#include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 
 static HINSTANCE module_instance;
 
@@ -737,10 +738,29 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
         }
+        /* Story / Cheat Upgrades: every price reads 0, and the Tech menu
+           gains Pick Island Event. */
+        vvfp_story_relabel(3, window);
+        if (!villager_menu) {
+            vvfp_story_add_pick_button(3, window);
+        }
         center_topmost_on_owner(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
+            int island = vv3_row_block_reason(0, VV3_PENDING_ROW_ISLAND);
+            if (vvfp_story_pick_clicked(
+                    3, window, (int)command,
+                    island != VV3_BLOCK_NONE
+                        ? vv3_block_reason_text(island, VV3_PENDING_ROW_ISLAND)
+                        : NULL)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int row = (int)(command - ID_BUY_FIRST);
             const char *name;
@@ -755,7 +775,8 @@ static INT_PTR CALLBACK upgrade_dialog(
                 return TRUE;
             }
             name = s_villager_menu ? detail_names[row] : tech_names[row];
-            const char *cost = s_villager_menu ? detail_costs[row] : tech_costs[row];
+            const char *cost = vvfp_story_price_text(
+                3, s_villager_menu ? detail_costs[row] : tech_costs[row]);
             /* Owned Tech/Food Doublers (rows 3/4) show an explicit "Remove"
                button. Removal is not a purchase and therefore has no
                confirmation prompt; the caller reports the no-refund result
@@ -801,6 +822,10 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
             ? IDD_ORIGINS_FULL_MASTERY
             : IDD_ORIGINS_TECH);
     int result;
+    /* Story / Cheat Upgrades: this game has no per-frame companion tick, so
+       the companion is installed here, before any price is shown or charged
+       (every purchase and the Pick Island Event go through this menu). */
+    vvfp_story_bridge(3);
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
@@ -1543,6 +1568,34 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
 #define VV3_DETAILS_MASK_X_NUDGE_PX (-11)
 #define VV3_DETAILS_MASK_Y_NUDGE_PX (-1)
 
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The save slot the mask sidecar is keyed by; one villager's mask through
+   the same commit the Change Appearance chooser uses; and the Grant Running
+   bracket around a likes/dislikes write, because this game's mask
+   fingerprint includes both lists. */
+static int __stdcall vv3_story_slot(void) {
+    return vv3_mask_captured_slot();
+}
+
+static int __stdcall vv3_story_mask_get(void *record) {
+    return VV3_GetMaskForRecord(record);
+}
+
+static int __stdcall vv3_story_mask_set(void *record, int mask) {
+    if (mask < 0 || mask > VV3_MASK_MAX) {
+        return 0;
+    }
+    return VV3_SetMaskForRecord(record, mask);
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv3_story_slot, vv3_story_mask_get, vv3_story_mask_set,
+        VV3RunningMaskBoundary
+    };
+    return &host;
+}
+
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     void *record, void *sprite_obj, const int *args)
 {
@@ -1675,6 +1728,10 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     int mask, facing, mask_args[6], i;
     int arg0, arg1, arg2, arg3, arg4, arg5;
     float scale;
+    /* Story / Cheat Upgrades: the world draw is The Secret City's per-frame
+       path, so the story companion is installed (custom titles shown, Custom
+       Island Event delivered) without waiting for the Origins menu. */
+    vvfp_story_bridge(3);
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;
@@ -2399,13 +2456,13 @@ __declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    if ((unsigned int)*tech < (unsigned int)EDL_COST) {
+    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, EDL_COST)) {
         MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
                     "Origins Upgrades",
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    *tech -= EDL_COST;
+    *tech -= vvfp_story_price(3, EDL_COST);
 
     /* Second pass: assign round-robin, males and females on separate counters. */
     for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
@@ -2605,6 +2662,7 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
 ) {
     (void)lparam;
     if (message == WM_INITDIALOG) {
+        vvfp_story_relabel(3, window);   /* "OK deducts 0 tech points" */
         center_topmost_on_owner(window);
         SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
         return TRUE;
@@ -3157,6 +3215,7 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     (void)lp;
     if (msg == WM_INITDIALOG) {
         int r;
+        vvfp_story_relabel(3, w);   /* "OK deducts 0 tech points" */
         center_topmost_on_owner(w);
         for (r = 0; r < IDC_CAF_MODE_COUNT; ++r)
             CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
@@ -3260,7 +3319,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
             "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    if ((unsigned int)*tech < (unsigned int)VV3_CAF_COST) {
+    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, VV3_CAF_COST)) {
         MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
             "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
@@ -3309,7 +3368,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
             "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    *tech -= VV3_CAF_COST;
+    *tech -= vvfp_story_price(3, VV3_CAF_COST);
     MessageBoxA(GetForegroundWindow(),
         "Change Appearance for All applied.",
         "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);

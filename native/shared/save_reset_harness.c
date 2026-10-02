@@ -227,6 +227,32 @@ int main(void) {
         RemoveDirectoryA(legacy_dir);
     }
 
+    /* The Story / Cheat Upgrades custom titles (native/shared/custom_titles.h)
+       are per slot in every game, and the owner's rule is that the .dat
+       follows the Start Over reset: slot 1's goes, slot 2's stays. */
+    {
+        char titles_dir[MAX_PATH], t1[MAX_PATH], t2[MAX_PATH];
+        int game;
+        if (!vv_save_subfolder(titles_dir, "Virtual Villagers Fun Patcher Data\\Custom Titles", 64)) {
+            printf("could not resolve the custom titles folder\n");
+            return 2;
+        }
+        wsprintfA(t1, "%s\\Custom Titles - Save 1.dat", titles_dir);
+        wsprintfA(t2, "%s\\Custom Titles - Save 2.dat", titles_dir);
+        for (game = 1; game <= 5; ++game) {
+            char what[96];
+            touch(t1);
+            touch(t2);
+            check(exists(t1) && exists(t2), "custom titles files exist before the reset (nonzero denominator)");
+            vv_reset_slot_state(game, 1, VILLAGE);
+            wsprintfA(what, "CUSTOM TITLES OF SLOT 1 DELETED BY START OVER (game %d)", game);
+            check(!exists(t1), what);
+            wsprintfA(what, "custom titles of slot 2 survive a slot-1 reset (game %d)", game);
+            check(exists(t2), what);
+        }
+        DeleteFileA(t2);
+    }
+
     /* The statistics companion's per-slot data: the counters, the stew
        discoveries and the elders, each a .dat addressed by slot, plus the
        current "v2" statistics log. Start Over must clear slot 1's and leave

@@ -65,7 +65,7 @@ class Game:
         uc.hook_add(UC_HOOK_CODE, self._hook)
 
     def _hook(self, uc, address, size, _):
-        if address == self.stop:
+        if address == self.stop or (isinstance(self.stop, frozenset) and address in self.stop):
             uc.emu_stop()
         elif address == 0x425950:                       # thiscall-free getter: eax = manager
             sp = uc.reg_read(UC_X86_REG_ESP)
@@ -94,14 +94,18 @@ class Game:
 
     def select_event(self, natural: int) -> int:
         """The village-event selector at 0x41890F: eax indexes the candidate
-        table at [esp+0x14]; returns the chosen index (esi)."""
-        self.stop = 0x41891A
+        table at [esp+0x14]; returns the chosen index (esi).
+
+        A natural choice rejoins the stock code at 0x41891A; a purchased
+        Barrel goes straight to the presenter at 0x41895B, past the stock
+        Chutes Without Ladders override (v1.35.45)."""
+        self.stop = frozenset((0x41891A, 0x41895B))
         esp = STACK - 0x100
         self.uc.mem_write(esp, b"\0" * 0x14 + struct.pack("<I", natural))
         self.uc.reg_write(UC_X86_REG_ESP, esp)
         self.uc.reg_write(UC_X86_REG_EAX, 0)
         self.uc.emu_start(0x41890F, 0, count=10000)
-        assert self.uc.reg_read(UC_X86_REG_EIP) == 0x41891A
+        assert self.uc.reg_read(UC_X86_REG_EIP) in self.stop
         return self.uc.reg_read(UC_X86_REG_ESI)
 
 

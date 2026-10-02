@@ -667,7 +667,6 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # displaced bytes and resumes at 0x403166. ----
     SAVEPATH_VA = 0x403160
     BARREL_PENDING_VA = 0x49C700
-    BARREL_UPGRADE_FLAG_VA = 0x49C704
     BARREL_CUE_COUNTER_VA = 0x49C708
     slot_asm = f"""
         push eax
@@ -685,7 +684,6 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
            paid for it. Absolute stores only -- no register operand, so the
            displaced bytes and the resume are untouched. */
         mov  byte ptr [0x{BARREL_PENDING_VA:X}], 0
-        mov  byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
         mov  dword ptr [0x{BARREL_CUE_COUNTER_VA:X}], 0
     slot_done:
         pop  eax

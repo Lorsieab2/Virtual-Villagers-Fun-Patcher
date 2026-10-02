@@ -700,9 +700,9 @@ records that reasoning, and the one measurement question still open about it.
 Because the barrel is queued, the village can fill up during the wait. The room
 check therefore runs **again at delivery**, and if there is no longer space the
 barrel is *held* rather than spent: it stays queued and arrives once a slot
-frees. You are never charged twice. In A New Home, if the event itself cannot be
-created the three-child bonus is released again rather than left waiting to
-attach to whichever barrel turns up next.
+frees. You are never charged twice. A paid barrel is delivered as the game's
+own barrel event at full strength, which is what makes it three children; it
+leaves nothing behind that could change a later crate, sack or barrel.
 
 That covers a barrel losing its room *during the queue delay*. It is not a
 promise that every paid barrel always delivers three children: a separate,

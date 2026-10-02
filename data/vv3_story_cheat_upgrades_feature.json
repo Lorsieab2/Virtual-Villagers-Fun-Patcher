@@ -1,0 +1,567 @@
+{
+  "id": "vv3_story_cheat_upgrades",
+  "enabled": true,
+  "game_id": "vv3",
+  "name": "Story / Cheat Upgrades",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.**",
+  "output_tag": "Story Cheat Upgrades",
+  "dependencies": [
+    "vv3_origins_village_wide_upgrades"
+  ],
+  "behavior_changes": [
+    "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
+    "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
+    "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
+    "Offers 57 island events; events that can never run in this game are not offered.",
+    "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
+    "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
+    "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs.",
+    "No stock event is emulated: a picked event is created, shown and resolved by the game's own code; a custom event is shown by the game's own island-event popup.",
+    "Pick Island Event adds no tech points and writes nothing to the save; a custom event changes only what the player chose, through the game's own routines and fields, and the game saves the village as usual.",
+    "No custom title is written into a villager record."
+  ],
+  "evidence_status": "static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
+      "destination": "VVFP Story Upgrades.dll",
+      "sha256": "9F0E8AF575BDDF3A4E5D3BA2CFD61471FBFF07D6606F4F797B560CC1A4C82610"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x4A3F60",
+      "stock_bytes": "50C3000030750000F824010020A1070020A107003075000050C30000A0860100409C000050C3000088130000",
+      "written_bytes": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "routine": "the Origins price table (11 prices)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x47B6A4",
+      "stock_bytes": "81054426580040420F00",
+      "written_bytes": "81054426580000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x47B769",
+      "stock_bytes": "81054426580030750000",
+      "written_bytes": "81054426580000000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x47BD98",
+      "stock_bytes": "812D4426580088130000",
+      "written_bytes": "812D4426580000000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49EEA0",
+      "stock_bytes": "813D4426580040420F00",
+      "written_bytes": "813D4426580000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49EEAC",
+      "stock_bytes": "812D4426580040420F00",
+      "written_bytes": "812D4426580000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49EF30",
+      "stock_bytes": "813D4426580040420F00",
+      "written_bytes": "813D4426580000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x49EF3C",
+      "stock_bytes": "812D4426580040420F00",
+      "written_bytes": "812D4426580000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4A35C3",
+      "stock_bytes": "813D4426580040420F00",
+      "written_bytes": "813D4426580000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4A35D3",
+      "stock_bytes": "812D4426580040420F00",
+      "written_bytes": "812D4426580000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x419BDB",
+      "stock_bytes": "8B14B5783C4B00",
+      "routine": "the island-event selector, after it has chosen (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x468FC8",
+      "stock_bytes": "8B8DE4000000",
+      "routine": "the villager panel's title, before its label is set (custom titles)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    }
+  ],
+  "island_events": [
+    {
+      "slot": 1,
+      "title": "The Tsunami",
+      "variant": "",
+      "description": "A tsunami crashes into the village, destroying structures and sweeping villagers away.",
+      "requires": "the game's own condition for the tsunami (two or more of the villagers it checks)"
+    },
+    {
+      "slot": 2,
+      "title": "The Plague Of Ants",
+      "variant": "",
+      "description": "Ants infest the granary: some food is lost.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 3,
+      "title": "The Science Fair",
+      "variant": "",
+      "description": "The children hold a science fair contest.",
+      "requires": "at least three children"
+    },
+    {
+      "slot": 4,
+      "title": "The Allergy Season",
+      "variant": "",
+      "description": "Many villagers suffer a bout of hay fever.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 5,
+      "title": "Isola Day Celebration",
+      "variant": "",
+      "description": "The villagers celebrate their arrival on Isola with feasts.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 6,
+      "title": "Day of Honor",
+      "variant": "",
+      "description": "The villagers pay their respects to those who have passed on.",
+      "requires": "at least two graves"
+    },
+    {
+      "slot": 7,
+      "title": "The Canoe from the Other Side",
+      "variant": "",
+      "description": "A villager from another part of Isola arrives by canoe and joins the village.",
+      "requires": "room in the village for a new villager"
+    },
+    {
+      "slot": 8,
+      "title": "The Mysterious Fog",
+      "variant": "food gained",
+      "description": "After a fog, honeycombs appear: the village gains food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 9,
+      "title": "The Mysterious Fog",
+      "variant": "food lost",
+      "description": "After a fog, some food has been stolen.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 10,
+      "title": "The Mysterious Fog",
+      "variant": "tech gained",
+      "description": "After a fog, useful instruments appear: the village gains tech points.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 11,
+      "title": "The Mysterious Fog",
+      "variant": "tech lost",
+      "description": "After a fog, research tools have been stolen: tech points lost.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 12,
+      "title": "Blessings Day Celebration",
+      "variant": "",
+      "description": "The villagers give thanks with dancing, ceremonies and a feast.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 13,
+      "title": "The Miraculous Bloom",
+      "variant": "",
+      "description": "Flowers bloom everywhere and the bees make a lot of honey.",
+      "requires": "the game's own condition for the bloom"
+    },
+    {
+      "slot": 14,
+      "title": "The Reflection in the Water",
+      "variant": "",
+      "description": "A villager sees a sad royal couple in a reflection (a story moment).",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 15,
+      "title": "The Daredevil",
+      "variant": "",
+      "description": "A villager teases sharks: swim with them, or rethink the plan.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 16,
+      "title": "The Ghostly Dream",
+      "variant": "nature or healing",
+      "description": "A ghostly lady visits a dream: study nature, or the healing arts.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 17,
+      "title": "The Ghostly Dream",
+      "variant": "research or architecture",
+      "description": "A ghostly old man visits a dream: research, or architecture.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 18,
+      "title": "The Crystal of Reflections",
+      "variant": "",
+      "description": "A villager finds an alluring crystal: keep it, or dispose of it.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 19,
+      "title": "The Bitter Brown Beans",
+      "variant": "taste or dye",
+      "description": "A crate of roasted beans: taste them, or use them for dye.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 20,
+      "title": "The Bitter Brown Beans",
+      "variant": "brew or fertilizer",
+      "description": "A crate of roasted beans: brew them, or use them as fertilizer.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 21,
+      "title": "The Ancient Tablet",
+      "variant": "laundry or decoration",
+      "description": "An engraved tablet: use it for laundry, or for decoration.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 22,
+      "title": "The Ancient Tablet",
+      "variant": "research or display",
+      "description": "An engraved tablet: focus research on it, or put it on display.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 23,
+      "title": "The Low Tide",
+      "variant": "",
+      "description": "A child finds fish stranded by the low tide: grab them, or move to high ground.",
+      "requires": "a child the event can be about (the game also rolls a chance)"
+    },
+    {
+      "slot": 24,
+      "title": "The Ants and the Granary",
+      "variant": "",
+      "description": "A child sees ants at the granary: sweep them away, or let them be.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 25,
+      "title": "The Green Pearl",
+      "variant": "",
+      "description": "A villager finds a green pearl: grind it into powder, or wear it.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 26,
+      "title": "The Blue Pearl",
+      "variant": "",
+      "description": "A villager finds a blue pearl: grind it into powder, or examine it.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 27,
+      "title": "The Lazy Apprentice",
+      "variant": "",
+      "description": "An apprentice wants a new master: stay, or find a new teacher.",
+      "requires": "an apprentice the event can be about"
+    },
+    {
+      "slot": 28,
+      "title": "The Omen in the Clouds",
+      "variant": "",
+      "description": "A villager sees an omen: warn the villagers, or perform a dance.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 29,
+      "title": "The Playful Otters",
+      "variant": "",
+      "description": "A child watches otters: throw them food, or keep watching.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 30,
+      "title": "The Ant Hill",
+      "variant": "",
+      "description": "A child finds an ant hill: poke it, or drop bits of food.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 31,
+      "title": "The Red Starfish",
+      "variant": "",
+      "description": "A villager finds a red starfish: pick it up, or leave it.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 32,
+      "title": "The Blue Starfish",
+      "variant": "",
+      "description": "A villager finds a blue starfish: pick it up, or leave it.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 33,
+      "title": "Bed Bugs",
+      "variant": "",
+      "description": "Something stings a villager in bed: swat it, or have a closer look.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 34,
+      "title": "The Lovers",
+      "variant": "her gift",
+      "description": "A woman courts a man: a carved knife, or a shark-tooth necklace.",
+      "requires": "a woman the event can be about"
+    },
+    {
+      "slot": 35,
+      "title": "The Lovers",
+      "variant": "his gift",
+      "description": "A man courts a woman: a shell necklace, or flowers.",
+      "requires": "a man the event can be about"
+    },
+    {
+      "slot": 36,
+      "title": "The Medical Emergency",
+      "variant": "",
+      "description": "A villager falls gravely ill: attempt an ancient procedure, or let the illness run its course.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 37,
+      "title": "The Mysterious Vial",
+      "variant": "quartz",
+      "description": "A crystal vial on the beach: taste it, or bring it back.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 38,
+      "title": "The Mysterious Vial",
+      "variant": "obsidian",
+      "description": "A crystal vial on the beach: taste it, or bring it back.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 39,
+      "title": "The Mysterious Vial",
+      "variant": "amber",
+      "description": "A crystal vial on the beach: taste it, or bring it back.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 40,
+      "title": "The Mango and the Papaya",
+      "variant": "",
+      "description": "A villager with a mango sees a papaya: swim for it, or keep the mango.",
+      "requires": "a villager the event can be about (the game also rolls a chance)"
+    },
+    {
+      "slot": 41,
+      "title": "The Mysterious Crate",
+      "variant": "",
+      "description": "A crate washes up: open it, or shove it back out to sea.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 42,
+      "title": "Vanity and the Bee",
+      "variant": "",
+      "description": "A vain young woman and a bee: run to the water, or swat at it.",
+      "requires": "a woman the event can be about"
+    },
+    {
+      "slot": 43,
+      "title": "The Noisy Bird",
+      "variant": "",
+      "description": "A noisy bird disrupts research: scare it away, or leave it alone.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 44,
+      "title": "The Hole in the Hut",
+      "variant": "",
+      "description": "A draughty hole in a hut: patch it with beeswax, or tree sap.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 45,
+      "title": "The Royal Jelly",
+      "variant": "",
+      "description": "A villager tries royal jelly: a clear vial, or a dark vial.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 46,
+      "title": "The Shooting Star",
+      "variant": "",
+      "description": "A child sees a shooting star: tell the others, or stay and watch.",
+      "requires": "a child the event can be about"
+    },
+    {
+      "slot": 47,
+      "title": "The Chief's Address",
+      "variant": "",
+      "description": "The tribal chief gives the State of the Village address.",
+      "requires": "a tribal chief"
+    },
+    {
+      "slot": 48,
+      "title": "The Rainy Season",
+      "variant": "",
+      "description": "The rainy season begins with a heavy afternoon monsoon.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 49,
+      "title": "The Cold Snap",
+      "variant": "",
+      "description": "An unseasonable cold sends the villagers to huddle by the fire.",
+      "requires": "the game's own condition for the cold snap"
+    },
+    {
+      "slot": 50,
+      "title": "The Salty Air",
+      "variant": "",
+      "description": "A salty wind forces the villagers to hide until it settles.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 51,
+      "title": "The Oppressive Humidity",
+      "variant": "",
+      "description": "Hot, humid weather: the villagers can barely work.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 52,
+      "title": "\"Thick as Pea Soup\"",
+      "variant": "",
+      "description": "A thick fog makes it hard to get the chores done.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 53,
+      "title": "The Stinging Jellyfish",
+      "variant": "",
+      "description": "A jellyfish invasion stings many villagers.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 54,
+      "title": "The Mushroom Celebration",
+      "variant": "",
+      "description": "The children are celebrated for collecting their 500th mushroom.",
+      "requires": "500 mushrooms collected"
+    },
+    {
+      "slot": 55,
+      "title": "The Yellow Geckos",
+      "variant": "",
+      "description": "Lucky yellow geckos clear the huts of bugs.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 56,
+      "title": "The Return of Biggles",
+      "variant": "",
+      "description": "A mysterious figure works in the lab at night: confront him, or watch.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 57,
+      "title": "Another One of Those Barrels ",
+      "variant": "",
+      "description": "A barrel of babies washes up and they join the village.",
+      "requires": "room in the village for new villagers"
+    }
+  ],
+  "excluded_island_events": [
+    {
+      "title": "The Swarm of Bees",
+      "reason": "strings only (ids 765/766): no event object and no slot in the registry"
+    },
+    {
+      "title": "The Drought--completely wrong",
+      "reason": "strings only (ids 934-937): no event object and no slot in the registry"
+    }
+  ],
+  "custom_island_event": {
+    "offered": [
+      "title and description",
+      "food and tech points (add, subtract, set to 0)",
+      "refill: fruit trees",
+      "new villagers",
+      "dies (leaves a skeleton)",
+      "disappears (no skeleton)",
+      "falls sick",
+      "pregnant with a baby, twins or triplets (adults 18+, either sex)",
+      "likes and dislikes",
+      "appearance (heads and bodies 0-29)",
+      "skills",
+      "parents",
+      "custom title",
+      "mask",
+      "behaviours: stops what they are doing, recovers fully"
+    ],
+    "omitted": [
+      {
+        "option": "Tribal Chief",
+        "reason": "only the robe puzzle makes one; a second chief is a known defect"
+      },
+      {
+        "option": "Esteemed Elder",
+        "reason": "worked out from three mastered skills, not stored"
+      },
+      {
+        "option": "puzzle solved",
+        "reason": "the puzzles create the objects they need"
+      },
+      {
+        "option": "refill the beehive",
+        "reason": "its refill is tied to its puzzle"
+      }
+    ]
+  },
+  "patches": []
+}

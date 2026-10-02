@@ -1,0 +1,221 @@
+/* The Story / Cheat Upgrades dialogs: plain Windows dialogs (the owner's
+   explicit choice -- not game art).
+
+   301 Pick Island Event: a list of the game's island events by their official
+       titles, the selected event's one-line description under it, OK and
+       Cancel.  The list is filled at run time from story_tables.h.
+   302 Custom Island Event: the event's title and description, the village
+       changes, the new villagers and the villager changes.
+   303 Villager changes: the villagers (extended selection) and the five group
+       toggles, and the changes for them.
+   304 New villagers: one kind of new villager and how many.
+   305 Parents: the parentage data of the chosen villagers.
+   Controls a game cannot support are disabled at run time and say why. */
+#define DS_MODALFRAME 0x0080L
+#define DS_SETFONT 0x0040L
+#define DS_CENTER 0x0800L
+#define WS_POPUP 0x80000000L
+#define WS_CAPTION 0x00C00000L
+#define WS_SYSMENU 0x00080000L
+#define WS_VSCROLL 0x00200000L
+#define WS_TABSTOP 0x00010000L
+#define WS_BORDER 0x00800000L
+#define WS_GROUP 0x00020000L
+#define LBS_NOTIFY 0x0001L
+#define LBS_NOINTEGRALHEIGHT 0x0100L
+#define LBS_EXTENDEDSEL 0x0800L
+#define LBS_MULTIPLESEL 0x0008L
+#define SS_LEFT 0x0000L
+#define ES_AUTOHSCROLL 0x0080L
+#define ES_AUTOVSCROLL 0x0040L
+#define ES_MULTILINE 0x0004L
+#define ES_WANTRETURN 0x1000L
+#define ES_NUMBER 0x2000L
+#define CBS_DROPDOWNLIST 0x0003L
+#define BS_AUTOCHECKBOX 0x0003L
+
+301 DIALOGEX 0, 0, 330, 236
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Pick Island Event"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Choose the island event that will happen next:", -1, 8, 6, 314, 10
+    LISTBOX     3001, 8, 18, 314, 150, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LTEXT       "", 3002, 8, 172, 314, 36, SS_LEFT
+    DEFPUSHBUTTON "OK", 1, 186, 214, 64, 15
+    PUSHBUTTON  "Cancel", 2, 258, 214, 64, 15
+END
+
+302 DIALOGEX 0, 0, 420, 352
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Custom Island Event"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Event title:", -1, 8, 8, 60, 10
+    EDITTEXT    1101, 70, 6, 256, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "", 1124, 330, 8, 82, 10
+    LTEXT       "Description:", -1, 8, 24, 60, 10
+    EDITTEXT    1102, 70, 22, 342, 48, ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "", 1109, 70, 72, 342, 9
+
+    GROUPBOX    "The village", -1, 8, 84, 404, 82
+    LTEXT       "Food:", -1, 16, 98, 50, 10
+    COMBOBOX    1103, 70, 96, 110, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT    1104, 186, 96, 60, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "Tech points:", -1, 16, 114, 50, 10
+    COMBOBOX    1105, 70, 112, 110, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT    1106, 186, 112, 60, 13, ES_NUMBER | WS_TABSTOP
+    AUTOCHECKBOX "Refill the food sources", 1107, 16, 130, 230, 10, WS_TABSTOP
+    LTEXT       "", 1110, 16, 142, 230, 20
+    LTEXT       "Village and puzzle changes (click to tick):", -1, 254, 96, 152, 10
+    LISTBOX     1108, 254, 108, 152, 52, LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+
+    GROUPBOX    "New villagers", -1, 8, 170, 404, 66
+    LISTBOX     1111, 16, 182, 300, 50, LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    PUSHBUTTON  "Add...", 1112, 324, 182, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "Remove", 1113, 324, 200, 80, 14, WS_TABSTOP
+
+    GROUPBOX    "Villager changes", -1, 8, 240, 404, 84
+    LISTBOX     1121, 16, 252, 300, 68, LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    PUSHBUTTON  "Add...", 1122, 324, 252, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "Remove", 1123, 324, 270, 80, 14, WS_TABSTOP
+
+    PUSHBUTTON  "Not in this game...", 1114, 8, 330, 80, 15, WS_TABSTOP
+    LTEXT       "It happens shortly, as a bought Island Event does.", -1, 94, 333, 178, 12
+    DEFPUSHBUTTON "Queue event", 1, 276, 330, 64, 15
+    PUSHBUTTON  "Cancel", 2, 348, 330, 64, 15
+END
+
+303 DIALOGEX 0, 0, 460, 330
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Villager changes"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Villagers (Ctrl+click to add or remove one, Shift+click for a range):", -1, 8, 6, 190, 18
+    LISTBOX     2001, 8, 26, 190, 188, LBS_NOTIFY | LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    AUTOCHECKBOX "All Adult Women", 2002, 8, 218, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Adult Men", 2003, 104, 218, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Females", 2004, 8, 230, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Males", 2005, 104, 230, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Children", 2006, 8, 242, 95, 10, WS_TABSTOP
+    LTEXT       "", 2007, 8, 256, 190, 20
+
+    LTEXT       "Fate:", -1, 206, 8, 70, 10
+    COMBOBOX    2010, 280, 6, 172, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    AUTOCHECKBOX "Falls sick", 2011, 206, 22, 120, 10, WS_TABSTOP
+    LTEXT       "Pregnancy:", -1, 206, 36, 70, 10
+    COMBOBOX    2012, 280, 34, 172, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Father:", -1, 206, 52, 70, 10
+    COMBOBOX    2013, 280, 50, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Head / body:", -1, 206, 68, 70, 10
+    EDITTEXT    2020, 280, 66, 40, 13, ES_NUMBER | WS_TABSTOP
+    EDITTEXT    2021, 324, 66, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 2022, 368, 68, 84, 10
+    LTEXT       "Add a like:", -1, 206, 84, 70, 10
+    COMBOBOX    2030, 280, 82, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Remove a like:", -1, 206, 100, 70, 10
+    COMBOBOX    2031, 280, 98, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Add a dislike:", -1, 206, 116, 70, 10
+    COMBOBOX    2032, 280, 114, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Remove a dislike:", -1, 206, 132, 70, 10
+    COMBOBOX    2033, 280, 130, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Skills (0-100, blank = no change):", -1, 206, 148, 246, 10
+    LTEXT       "", 2050, 206, 162, 44, 10
+    EDITTEXT    2040, 250, 160, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 2051, 284, 162, 44, 10
+    EDITTEXT    2041, 328, 160, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 2052, 362, 162, 44, 10
+    EDITTEXT    2042, 406, 160, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 2053, 206, 178, 44, 10
+    EDITTEXT    2043, 250, 176, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 2054, 284, 178, 44, 10
+    EDITTEXT    2044, 328, 176, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 2055, 362, 178, 44, 10
+    EDITTEXT    2045, 406, 176, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "Custom title:", -1, 206, 196, 70, 10
+    EDITTEXT    2060, 280, 194, 172, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    AUTOCHECKBOX "Remove the custom title", 2061, 280, 210, 172, 10, WS_TABSTOP
+    LTEXT       "Mask:", -1, 206, 226, 70, 10
+    COMBOBOX    2070, 280, 224, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Faction / status:", -1, 206, 242, 70, 10
+    COMBOBOX    2071, 280, 240, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Behaviour:", -1, 206, 258, 70, 10
+    COMBOBOX    2074, 280, 256, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON  "Parents...", 2080, 280, 274, 80, 14, WS_TABSTOP
+    LTEXT       "", 2081, 364, 276, 88, 12
+
+    LTEXT       "", 2090, 8, 294, 444, 12
+    DEFPUSHBUTTON "Add to event", 1, 316, 310, 64, 15
+    PUSHBUTTON  "Cancel", 2, 388, 310, 64, 15
+END
+
+304 DIALOGEX 0, 0, 300, 250
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "New villagers"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "How many:", -1, 8, 8, 80, 10
+    EDITTEXT    3101, 92, 6, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "Sex:", -1, 8, 24, 80, 10
+    COMBOBOX    3102, 92, 22, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT       "Age in years:", -1, 8, 40, 80, 10
+    EDITTEXT    3103, 92, 38, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3104, 136, 40, 156, 10
+    LTEXT       "Name (blank = the game's choice):", -1, 8, 56, 120, 10
+    EDITTEXT    3105, 132, 54, 160, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Head / body (blank = random):", -1, 8, 72, 120, 10
+    EDITTEXT    3106, 132, 70, 40, 13, ES_NUMBER | WS_TABSTOP
+    EDITTEXT    3107, 176, 70, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3108, 220, 72, 72, 10
+    LTEXT       "Likes:", -1, 8, 90, 80, 10
+    COMBOBOX    3110, 92, 88, 64, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX    3111, 160, 88, 64, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX    3112, 228, 88, 64, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Dislikes:", -1, 8, 106, 80, 10
+    COMBOBOX    3113, 92, 104, 64, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX    3114, 160, 104, 64, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX    3115, 228, 104, 64, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Skills (0-100, blank = the game's choice):", -1, 8, 124, 284, 10
+    LTEXT       "", 3130, 8, 138, 44, 10
+    EDITTEXT    3120, 52, 136, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3131, 104, 138, 44, 10
+    EDITTEXT    3121, 148, 136, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3132, 200, 138, 44, 10
+    EDITTEXT    3122, 244, 136, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3133, 8, 154, 44, 10
+    EDITTEXT    3123, 52, 152, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3134, 104, 154, 44, 10
+    EDITTEXT    3124, 148, 152, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3135, 200, 154, 44, 10
+    EDITTEXT    3125, 244, 152, 28, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "Custom title:", -1, 8, 172, 80, 10
+    EDITTEXT    3140, 92, 170, 200, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Mask:", -1, 8, 188, 80, 10
+    COMBOBOX    3141, 92, 186, 120, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "Faction:", -1, 8, 204, 80, 10
+    COMBOBOX    3142, 92, 202, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT       "", 3150, 8, 218, 284, 10
+    DEFPUSHBUTTON "Add", 1, 156, 230, 64, 15
+    PUSHBUTTON  "Cancel", 2, 228, 230, 64, 15
+END
+
+305 DIALOGEX 0, 0, 280, 130
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Parents"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Blank = no change.  These are the parents the game records for the chosen villagers.", -1, 8, 6, 264, 18
+    LTEXT       "Father's name:", -1, 8, 30, 70, 10
+    EDITTEXT    3201, 82, 28, 110, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Head / body:", -1, 8, 46, 70, 10
+    EDITTEXT    3202, 82, 44, 40, 13, ES_NUMBER | WS_TABSTOP
+    EDITTEXT    3203, 126, 44, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "Mother's name:", -1, 8, 66, 70, 10
+    EDITTEXT    3204, 82, 64, 110, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Head / body:", -1, 8, 82, 70, 10
+    EDITTEXT    3205, 82, 80, 40, 13, ES_NUMBER | WS_TABSTOP
+    EDITTEXT    3206, 126, 80, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3207, 172, 46, 100, 40
+    DEFPUSHBUTTON "OK", 1, 136, 108, 64, 15
+    PUSHBUTTON  "Cancel", 2, 208, 108, 64, 15
+END
