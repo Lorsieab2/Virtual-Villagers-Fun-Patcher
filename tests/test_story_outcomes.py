@@ -465,5 +465,505 @@ class GateTests(unittest.TestCase):
                 g.proc.export("VvfpStoryProbeOutcomeDisarm")
 
 
+# ---------------------------------------------------------------------------
+# The game's own code, run for real with a village
+# ---------------------------------------------------------------------------
+
+def _control(game: str, slot: int, cid: str) -> tuple[int, dict]:
+    for ci, c in enumerate(controls_of(game, slot)):
+        if c["id"] == cid:
+            return ci, c
+    raise KeyError((game, slot, cid))
+
+
+@emulated
+class TsunamiTests(unittest.TestCase):
+    """The Secret City's tsunami: its apply 0x414B30 calls the sweep 0x45D990,
+    which rolls rand(100) < 15 for every villager (present byte +0xF10)."""
+
+    def _sweep(self, choice, who=(), slot=1, cid="victims"):
+        g = Game("vv3")
+        for i in range(6, 10):
+            g.village.put(i, sex="f", years=10 + i, name=f"W{i}")
+        ci, c = _control("vv3", slot, cid)
+        g.arm(slot, {} if choice is None else {ci: choice}, who={ci: list(who)})
+        g.force(DELIVERED, -1, 1)
+        g.proc.call(0x414B30, ecx=0, until=0x414B3E)
+        return [g.village.byte(i, 0xF10) for i in range(10)], g
+
+    def test_nobody_everyone_and_the_chosen(self):
+        present, _ = self._sweep(NOBODY)
+        self.assertEqual(present, [1] * 10)
+        present, _ = self._sweep(EVERYONE)
+        self.assertEqual(present, [0] * 10)
+        present, _ = self._sweep(CHOOSE, who=(2, 5, 9))
+        self.assertEqual(present, [0 if i in (2, 5, 9) else 1 for i in range(10)])
+
+    def test_random_is_the_games_own_roll(self):
+        present, g = self._sweep(None)
+        self.assertEqual(present, [1] * 10)            # the stub's 63 is never below 15
+        self.assertEqual(g.rand_calls.count(100), 10, "one roll per villager, as stock")
+
+    def test_the_low_tides_setting_never_reaches_the_tsunamis_sweep(self):
+        """Both events share the sweep; each setting answers only under its own call."""
+        g = Game("vv3")
+        ci, _ = _control("vv3", 23, "swept")
+        g.arm(23, {ci: EVERYONE})
+        g.force(DELIVERED, -1, 1)
+        g.proc.call(0x414B30, ecx=0, until=0x414B3E)
+        self.assertEqual([g.village.byte(i, 0xF10) for i in range(6)], [1] * 6)
+
+
+@emulated
+class BabyTests(unittest.TestCase):
+    """The Secret City's barrel (0x415320): each baby's sex, skill and level
+    reach the game's own creator 0x45FF50 exactly as chosen."""
+
+    def test_each_babys_rolls_reach_the_creator(self):
+        g = Game("vv3")
+        made = []
+
+        def create(p):
+            made.append([p.arg(i) for i in range(5)])
+            return len(made), 0x14
+        g.proc.stub(0x45FF50, create)
+        g.proc.stub(0x45FE30, lambda p: (1, 0))
+        cs = controls_of("vv3", 57)
+        ids = {c["id"]: ci for ci, c in enumerate(cs)}
+        want = [(1, 2, 7), (0, 4, 9), (1, 0, 5)]       # (sex, skill, level)
+        choices = {}
+        for k, (sex, skill, level) in enumerate(want, 1):
+            choices[ids[f"baby{k}_sex"]] = sex
+            choices[ids[f"baby{k}_skill"]] = skill
+            choices[ids[f"baby{k}_level"]] = level - 5
+        g.arm(57, choices)
+        g.force(DELIVERED, -1, 1)
+        g.proc.call(0x415320, ecx=0)
+        self.assertEqual([(m[3], m[1], m[2]) for m in made], want)
+        self.assertEqual([m[4] for m in made], [200] * 3)
+
+
+# The game's own villager pickers: (game, slot, control, how to call it).
+PICKERS = {
+    # thiscall on the records, adults_only = 0: any living villager
+    "vv1": (65, "subject", lambda g: g.proc.call(0x43BCD0, [0], ecx=g.village.base)),
+    "vv2": (131, "finder", lambda g: g.proc.call(0x44BAE0, [0], ecx=g.village.base)),
+    # the event's own condition method: its picker call stores the subject at [obj+4]
+    "vv3": (15, "subject", "m1:0x415420:0x415436"),
+    "vv4": (12, "subject", "m1:0x415E00:0x415E21"),
+    "vv5": (5, "subject", "m1:0x414B90:0x414BB9"),
+}
+
+
+@emulated
+class PickerTests(unittest.TestCase):
+    """Each game's own picker, with the chosen villager among its candidates,
+    picks that villager; one it would not pick leaves the choice to the game."""
+
+    def _pick(self, game, chosen):
+        g = Game(game)
+        slot, cid, how = PICKERS[game]
+        ci, c = _control(game, slot, cid)
+        g.arm(slot, {ci: chosen})
+        _ready(g, c)
+        if callable(how):
+            value = how(g)
+            return (value - (1 << 32) if value & 0x80000000 else value), g
+        _, start, until = how.split(":")
+        obj = g.proc.alloc(0x40)
+        g.proc.call(int(start, 16), ecx=obj, regs={"esi": 0}, until=int(until, 16))
+        record = g.proc.reg("eax")
+        return (g.village.L and story_index(g, record)), g
+
+    def test_the_chosen_villager_is_picked(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            for chosen in (1, 5):        # men: The Daredevil picks a man
+                with self.subTest(game=game, chosen=chosen):
+                    got, g = self._pick(game, chosen)
+                    self.assertEqual(got, chosen)
+                    self.assertEqual(g.state()[5], 0, "found among the candidates")
+
+    def test_a_villager_the_game_would_not_pick_is_left_to_the_game(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                got, g = self._pick(game, 120)       # no such villager
+                self.assertIn(got, range(6))
+                self.assertEqual(g.state()[5], 1)
+
+
+# Every per-villager loop: the game's own helper, called as the event's own
+# code calls it (its arguments and ECX), with a village.  "obj" is an event
+# object whose record pointers (+0x50A8 / +0x50AC A New Home, +0x50B0 The
+# Lost Children) name the village's records.
+LOOP_CALLS = {
+    ("vv1", 68, "sick"): (0x4188B0, [0x4B], "obj"),
+    ("vv1", 130, "sick"): (0x42AAA0, [20, 0, 0], "obj"),
+    ("vv1", 131, "bitten"): (0x42AAA0, [30, 1, 15], "obj"),
+    ("vv2", 11, "sick"): (0x4332F0, [0x50, 0, 0], "obj"),
+    ("vv2", 14, "bitten"): (0x4332F0, [0x28, 1, 0x3C], "obj"),
+    ("vv2", 27, "learns"): (0x4333B0, [0x23, 2, 7, 0xB, 1], "obj"),
+    ("vv2", 75, "sick"): (0x41F500, [0x14], "obj"),
+    ("vv2", 81, "snakes"): (0x41F500, [0x28], "obj"),
+    ("vv2", 130, "sick"): (0x437570, [20, 0, 0], "obj"),
+    ("vv2", 131, "bitten"): (0x437570, [30, 1, 15], "obj"),
+    ("vv3", 1, "victims"): (0x45D990, [15, -1], 0x59E110),
+    ("vv3", 3, "winners"): (0x45DC40, [0x32, 3, 0xA, 0xA, 1], 0x59E110),
+    ("vv3", 19, "sick"): (0x45D760, [0x1E, 0, 0], 0x59E110),
+    ("vv3", 22, "display_gain"): (0x45DC40, [0x14, 3, 0xA, 0x19, 0], 0x59E110),
+    ("vv3", 23, "swept"): (0x45D990, [0x14, -1], 0x59E110),
+    ("vv3", 23, "frightened"): (0x45D9F0, [0x14, 0x11], 0x59E110),
+    ("vv3", 53, "stung"): (0x45D920, [0x32, 0xA, 0xA], 0x59E110),
+    ("vv4", 14, "healers"): (0x467110, [0x50, 2, 5, 5, 0], 0x50E568),
+    ("vv4", 15, "sick"): (0x466F40, [0x1E, 0, 0], 0x50E568),
+    ("vv4", 21, "stung"): (0x467040, [0x32, 0xA, 0xA], 0x50E568),
+    ("vv4", 26, "hurt"): (0x467040, [0xA, 5, 0xA], 0x50E568),
+    ("vv4", 26, "sick"): (0x466F40, [0x14, 0, 0], 0x50E568),
+    ("vv4", 32, "sick"): (0x466F40, [0x19, 0, 0], 0x50E568),
+    # The Abandoned Infants: the first six women conceive (0x45E7B0); the
+    # twins / triplets rolls exist only at Parenting mastery 3 (0x41E1C0(1)).
+    ("vv4", 28, "multiple"): (0x467B00, [-1, 6, 1, -1, 0, 0], 0x50E568,
+                              {0x41E1C0: (3, 4), 0x468350: (1, 0), 0x412F90: (0, 8), 0x4724E0: (0, 0),
+                               0x468C60: (0, 0)}, {}),
+    ("vv4", 28, "triplets"): (0x467B00, [-1, 6, 1, -1, 0, 0], 0x50E568,
+                              {0x41E1C0: (3, 4), 0x468350: (1, 0), 0x412F90: (0, 8), 0x4724E0: (0, 0),
+                               0x468C60: (0, 0)},
+                              {"multiple": EVERYONE}),
+}
+
+
+@emulated
+class LoopTests(unittest.TestCase):
+    """Nobody / everyone / the chosen: the villagers the game's own loop
+    changes are exactly those the setting names (records compared byte for
+    byte against the same loop with "nobody")."""
+
+    def _run(self, key, choice, who=()):
+        game, slot, cid = key
+        target, args, ecx, stubs, also = (LOOP_CALLS[key] + ({}, {}))[:5]
+        g = Game(game)
+        for va, (value, pop) in stubs.items():
+            g.proc.stub(va, lambda p, value=value, pop=pop: (value, pop))
+        for i in (6, 7):
+            g.village.put(i, sex="f" if i == 6 else "m", years=6 + i - 6, name=f"C{i}")
+        ci, c = _control(game, slot, cid)
+        choices = {ci: choice}
+        for other, value in also.items():
+            choices[_control(game, slot, other)[0]] = value
+        g.arm(slot, choices, who={ci: list(who)})
+        _ready(g, c)
+        if ecx == "obj":
+            obj = g.proc.alloc(0x6000)
+            for off in (0x50A8, 0x50AC, 0x50B0):
+                g.proc.put32(obj + off, g.village.base)
+            ecx = obj
+        g.proc.call(target, [a & 0xFFFFFFFF for a in args], ecx=ecx)
+        stride = g.village.L["stride"]
+        return [g.proc.read(g.village.record(i), stride) for i in range(8)]
+
+    def test_every_loop(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            keys = [(game, s, c["id"]) for s, cs in outcomes.CONTROLS[game].items() for c in cs
+                    if c["kind"] == "loop" and c.get("record") is not None]
+            for key in keys:
+                with self.subTest(loop=key):
+                    self.assertIn(key, LOOP_CALLS, "every loop with a villager is run here")
+                    nobody = self._run(key, NOBODY)
+                    everyone = self._run(key, EVERYONE)
+                    hit = [i for i in range(8) if everyone[i] != nobody[i]]
+                    self.assertGreaterEqual(len(hit), 2, "the loop changes the villagers it hits")
+                    chosen = (hit[0], hit[-1])
+                    some = self._run(key, CHOOSE, who=chosen)
+                    self.assertEqual([i for i in range(8) if some[i] != nobody[i]], list(chosen))
+
+
+# ---------------------------------------------------------------------------
+# The armed outcome's life
+# ---------------------------------------------------------------------------
+
+# The popup's OK handler: (game, two-choice start, end, single-result start, end,
+# vtable offsets).  ESI is the dialog (+0x830 the clicked choice), ECX the event.
+OK_PATHS = {
+    "vv3": (0x419A29, 0x419A35, 0x419A41, 0x419A46),
+    "vv4": (0x417EC9, 0x417ED9, 0x417EE5, 0x417EEE),
+    "vv5": (0x418749, 0x418759, 0x418765, 0x41876E),
+}
+TABLES = {"vv3": 0x4B3C78, "vv4": 0x4CCA28, "vv5": 0x4DC850}
+PICK_SITES = {"vv3": (0x419BDB, 0x419BE2), "vv4": (0x4180F7, 0x4180FE), "vv5": (0x41895B, 0x418962)}
+
+
+@functools.lru_cache(maxsize=None)
+def _image(game: str):
+    return pefile.PE(data=render(game, "collection_progression"), fast_load=True)
+
+
+def stock_target(game: str, va: int) -> int:
+    """The callee of the `E8 rel32` at `va` as the render holds it (the
+    companion rewrites it at install)."""
+    pe = _image(game)
+    raw = pe.get_data(va - pe.OPTIONAL_HEADER.ImageBase, 5)
+    assert raw[0] == 0xE8, hex(va)
+    return (va + 5 + struct.unpack("<i", raw[1:])[0]) & 0xFFFFFFFF
+
+
+def _first_slot(game: str, kind: str = "any") -> tuple[int, int, dict]:
+    for slot, cs in outcomes.CONTROLS[game].items():
+        for ci, c in enumerate(cs):
+            if kind == "any" or c["phase"] == kind:
+                return slot, ci, c
+    raise KeyError(game)
+
+
+class _Event:
+    """A stand-in event object whose apply methods are Python stubs that see
+    the armed outcome's fields while they run."""
+
+    def __init__(self, g: Game, slot: int):
+        self.g = g
+        self.obj = g.proc.alloc(0x40)
+        self.vtable = g.proc.alloc(0x40)
+        self.code = g.proc.alloc(0x40)
+        g.proc.write(self.code, b"\xC3" * 0x20)
+        g.proc.put32(self.obj, self.vtable)
+        for i in range(16):
+            g.proc.put32(self.vtable + 4 * i, self.code + i)
+        self.seen = []
+        state, in_apply, branch = g.fields[0], g.fields[1], g.fields[2]
+
+        def apply(pop):
+            def fn(p):
+                self.seen.append((p.u32(state), p.u32(in_apply), p.u32(branch) - (1 << 32)
+                                  if p.u32(branch) & 0x80000000 else p.u32(branch)))
+                return 0, pop
+            return fn
+        g.proc.stub(self.code + 11, apply(4))     # +0x2C applyChoice(choice)
+        g.proc.stub(self.code + 12, apply(0))     # +0x30 apply()
+        g.proc.put32(TABLES[g.game] + 4 * slot, self.obj)
+
+
+@emulated
+class LifeTests(unittest.TestCase):
+    def _ok(self, g: Game, event: _Event, choice: int | None):
+        start, end, s_start, s_end = OK_PATHS[g.game]
+        dlg = g.proc.alloc(0x900)
+        g.proc.put32(dlg + 0x830, 0 if choice is None else choice)
+        g.proc.set_reg("esi", dlg)
+        g.proc.set_reg("ecx", event.obj)
+        g.proc.set_reg("edx", event.vtable)
+        g.proc.set_reg("esp", STACK)
+        if choice is None:
+            g.proc.run(s_start, s_end)
+        else:
+            g.proc.run(start, end)
+
+    def test_vv3_vv5_the_popups_ok_applies_the_delivered_event_then_ends_it(self):
+        for game in OK_PATHS:
+            if not have_stock(game):
+                continue
+            slot, ci, c = _first_slot(game)
+            for choice in (None, 0, 1):
+                with self.subTest(game=game, choice=choice):
+                    g = Game(game)
+                    event = _Event(g, slot)
+                    g.arm(slot, {ci: 0})
+                    self.assertEqual(g.state()[0], ARMED)
+                    g.force(DELIVERED, -1, 0, event.obj)
+                    self._ok(g, event, choice)
+                    self.assertEqual(event.seen, [(DELIVERED, 1, -1 if choice is None else choice)])
+                    self.assertEqual(g.state()[0], IDLE, "ended when its apply returned")
+
+    def test_vv3_vv5_another_objects_apply_is_not_the_events(self):
+        """A custom event or the Origins barrel shown by the same popup."""
+        for game in OK_PATHS:
+            if not have_stock(game):
+                continue
+            slot, ci, c = _first_slot(game)
+            g = Game(game)
+            event = _Event(g, slot)
+            other = _Event(g, slot)
+            g.arm(slot, {ci: 0})
+            g.force(DELIVERED, -1, 0, event.obj)
+            self._ok(g, other, 0)
+            self.assertEqual(other.seen, [(DELIVERED, 0, -1)])
+            self.assertEqual(g.state()[0], DELIVERED, "still waiting for its own apply")
+
+    def test_vv3_vv5_delivery_refusal_lapse_and_a_new_choice(self):
+        for game in PICK_SITES:
+            if not have_stock(game):
+                continue
+            slot, ci, c = _first_slot(game)
+            position = [e["slot"] for e in story_island_events.EVENTS[game]].index(slot)
+            site, resume = PICK_SITES[game]
+            for case in ("delivered", "refused", "lapsed", "stale"):
+                with self.subTest(game=game, case=case):
+                    g = Game(game)
+                    event = _Event(g, slot)
+                    g.proc.stub(event.code + 1, lambda p, ok=(case != "refused"): (1 if ok else 0, 0))
+                    g.proc.export("VvfpStoryProbeSetPick", g.n, position, 0)
+                    g.arm(slot, {ci: 0})
+                    g.proc.export("VvfpStoryProbeSetTick", 11 * 60 * 1000 if case == "lapsed" else 0)
+                    if case == "stale":
+                        g.force(DELIVERED, -1, 0, event.obj)
+                        g.proc.export("VvfpStoryProbeSetPick", g.n, 0xFFFFFFFF, 0)
+                    g.proc.set_reg("esi", 1)
+                    g.proc.set_reg("esp", STACK)
+                    g.proc.run(site, resume)
+                    want = {"delivered": (DELIVERED, event.obj), "refused": (IDLE, 0),
+                            "lapsed": (IDLE, 0), "stale": (IDLE, 0)}[case]
+                    st = g.state()
+                    self.assertEqual((st[0], st[6] & 0xFFFFFFFF), want)
+
+    def test_vv1_vv2_the_resolve_call_applies_the_event_with_its_clicked_choice(self):
+        resolves = {"vv1": [(0x41A444, 0x509C), (0x42D0C4, 0x509C)],
+                    "vv2": [(0x422364, 0x50A4), (0x439DB4, 0x509C)]}
+        for game, calls in resolves.items():
+            if not have_stock(game):
+                continue
+            slot, ci, c = _first_slot(game)
+            for va, field in calls:
+                for clicked in (1, 2):
+                    with self.subTest(game=game, call=hex(va), clicked=clicked):
+                        g = Game(game)
+                        target = stock_target(game, va)
+                        seen = []
+                        state, in_apply, branch = g.fields[:3]
+                        g.proc.stub(target, lambda p: (seen.append(
+                            (p.u32(state), p.u32(in_apply), p.u32(branch))) or 0, 0))
+                        obj = g.proc.alloc(0x6000)
+                        g.proc.put32(obj + field, clicked)
+                        g.arm(slot, {ci: 0})
+                        g.force(DELIVERED)
+                        g.proc.set_reg("ecx", obj)
+                        g.proc.set_reg("esp", STACK)
+                        g.proc.run(va, va + 5)
+                        self.assertEqual(seen, [(DELIVERED, 1, clicked - 1)])
+                        self.assertEqual(g.state()[0], IDLE)
+
+    def test_vv2_family_c_body_runs_with_the_chosen_strength(self):
+        for slot, kind in outcomes.STRENGTH["vv2"].items():
+            values = range(1, 11) if kind == "linear" else (1, 5, 8)
+            for strength in values:
+                with self.subTest(slot=slot, strength=strength):
+                    g = Game("vv2")
+                    seen = []
+                    g.proc.stub(stock_target("vv2", 0x43483D),
+                                lambda p: (seen.append((p.arg(0), p.arg(1), p.u32(g.fields[1]))) or 0, 8))
+                    g.arm(slot, {}, strength=strength)
+                    g.force(DELIVERED)
+                    g.proc.put32(STACK, slot)
+                    g.proc.put32(STACK + 4, 6)            # the population's own magnitude
+                    g.proc.set_reg("esp", STACK)
+                    g.proc.run(0x43483D, 0x434842)
+                    self.assertEqual(seen, [(slot, strength, 1)])
+                    self.assertEqual(g.state()[0], IDLE)
+        with self.subTest(case="without a pick the population's magnitude stands"):
+            g = Game("vv2")
+            seen = []
+            g.proc.stub(stock_target("vv2", 0x43483D),
+                        lambda p: (seen.append((p.arg(0), p.arg(1))) or 0, 8))
+            g.proc.put32(STACK, 5)
+            g.proc.put32(STACK + 4, 6)
+            g.proc.set_reg("esp", STACK)
+            g.proc.run(0x43483D, 0x434842)
+            self.assertEqual(seen, [(5, 6)])
+
+
+def _position(game: str, slot: int) -> int:
+    return [e["slot"] for e in story_island_events.EVENTS[game]].index(slot)
+
+
+@emulated
+class IslandWindowTests(unittest.TestCase):
+    """A New Home's single-result island events run inside the island
+    chooser call 0x428777 (story_c1.inc c1_choose): the outcome is applied
+    there, with the chosen strength."""
+
+    def _choose(self, *, slot=None, strength=0, magnitude=6):
+        g = Game("vv1")
+        seen = []
+        g.proc.stub(0x428470, lambda p: (seen.append((p.arg(1), p.u32(g.fields[1]))) or 0, 8))
+        g.proc.export("VvfpStoryProbeSetTick", 0)
+        if slot is not None:
+            g.proc.export("VvfpStoryProbeSetPick", 1, _position("vv1", slot), 0)
+            g.arm(slot, {}, strength=strength)
+        event = g.proc.alloc(0x6000)
+        g.proc.put32(STACK, 2)
+        g.proc.put32(STACK + 4, magnitude)
+        g.proc.set_reg("ecx", event)
+        g.proc.set_reg("esp", STACK)
+        g.proc.run(0x428777, 0x42877C)
+        return seen, g
+
+    def test_each_strength_reaches_the_events_body(self):
+        for slot, kind in outcomes.STRENGTH["vv1"].items():
+            for strength in (range(1, 11) if kind == "linear" else (1, 5, 8)):
+                with self.subTest(slot=slot, strength=strength):
+                    seen, g = self._choose(slot=slot, strength=strength)
+                    self.assertEqual(seen, [(strength, 1)])
+                    self.assertEqual(g.state()[4], 0, "the window closes with the call")
+
+    def test_normal_strength_and_other_picks_keep_the_populations(self):
+        seen, _ = self._choose(slot=0, strength=0)
+        self.assertEqual(seen, [(6, 0)], "nothing armed: no window, the game's magnitude")
+        seen, _ = self._choose()
+        self.assertEqual(seen, [(6, 0)])
+        seen, _ = self._choose(slot=(1 << 6) | 2, strength=0)
+        self.assertEqual(seen, [(6, 0)])
+
+    def test_the_origins_barrel_never_takes_a_picks_strength(self):
+        seen, _ = self._choose(slot=12, strength=1, magnitude=0x7F4B1A2C)
+        self.assertEqual(seen, [(0x7F4B1A2C, 0)])
+
+
+@emulated
+class GongTests(unittest.TestCase):
+    """The Lost Children's Gong of Wonder: one use is the call 0x461B8E."""
+
+    def _ring(self, g: Game):
+        seen = []
+        g.proc.stub(0x44E8A0, lambda p: (seen.append((p.u32(g.fields[3]), p.u32(g.fields[4]))) or 0, 0))
+        g.proc.set_reg("ecx", g.proc.alloc(0x100))
+        g.proc.set_reg("esp", STACK)
+        g.proc.run(0x461B8E, 0x461B93)
+        return seen
+
+    def _gong(self, tick=0):
+        g = Game("vv2")
+        ci, c = _control("vv2", GONG_SLOT, "result")
+        g.proc.export("VvfpStoryProbeSetTick", 0)
+        g.arm(GONG_SLOT, {ci: len(c["options"]) - 1})
+        g.proc.export("VvfpStoryProbeSetTick", tick)
+        return g
+
+    def test_one_use_then_the_game_again(self):
+        g = self._gong()
+        self.assertEqual(self._ring(g), [(DELIVERED, 1)])
+        self.assertEqual(self._ring(g), [(IDLE, 0)], "one use")
+
+    def test_a_choice_older_than_ten_minutes_is_not_used(self):
+        g = self._gong(tick=10 * 60 * 1000 + 1)
+        self.assertEqual(self._ring(g), [(ARMED, 0)])
+
+    def test_the_gongs_choice_never_answers_an_island_event_and_back(self):
+        g = self._gong()
+        g.force(DELIVERED, -1, 1)                    # an island event's apply running
+        ci, c = _control("vv2", GONG_SLOT, "result")
+        va, value = c["options"][-1]["force"][-1]
+        self.assertEqual(g.forced_roll(va, 10), (stock_value(10), False), "not inside the gong's use")
+
+
+def story_index(g: Game, record: int) -> int:
+    if record == 0:
+        return -1
+    offset = record - g.village.base
+    stride = g.village.L["stride"]
+    return offset // stride if offset % stride == 0 else -2
+
+
 if __name__ == "__main__":
     unittest.main()
