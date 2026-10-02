@@ -39,6 +39,20 @@ _MODULES = {
     "vv4": story_outcomes_vv4, "vv5": story_outcomes_vv5,
 }
 
+# Who each of the games' villager pickers chooses among, in the player's
+# words, where a control's own filter is only code: (game, picker's rand
+# call) -> text.  Shown beside a "which villager" setting.
+PICKER_FILTERS = {
+    ("vv1", 0x43BE53): "any living villager, children too",
+    ("vv1", 0x43BFD1): "the living children",
+    ("vv2", 0x44BC63): "any living villager",
+    ("vv2", 0x44BE4D): "the living women and girls",
+    ("vv2", 0x44C191): "the living children",
+    ("vv2", 0x44C014): "the living men aged 18 and over",
+    ("vv2", 0x42147B): "every other living villager",
+}
+PICKER_FALLBACK = "the villagers this event's own condition allows"
+
 # Conditions an option can need, checked when the dialog opens and again when
 # the pick is bought (story_outcomes_ui.inc oc_condition_holds).
 CONDITION_IDS = {None: 0, "room": 1, "vv2_gong_tiers": 2, "vv2_breeding_mastered": 3}

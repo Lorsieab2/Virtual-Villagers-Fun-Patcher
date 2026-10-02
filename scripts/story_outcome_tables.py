@@ -15,6 +15,7 @@ companion writes -- may overlap.
 from __future__ import annotations
 
 import json
+import re
 import struct
 
 import story_island_outcomes as data
@@ -66,6 +67,24 @@ C_TYPES = [
 
 def _c(text):
     return "NULL" if text is None else json.dumps(text, ensure_ascii=True)
+
+
+def plain(text):
+    """The player's words of a table text: the code references the research
+    keeps beside them (addresses, record offsets, rand calls) removed; None
+    when nothing plain is left."""
+    if not text:
+        return None
+    t = text
+    before = None
+    while before != t:
+        before = t
+        t = re.sub(r"\s*\([^()]*(?:0x|\[|\]|rand\(|==|!=)[^()]*\)", "", t)
+    t = re.sub(r"^0x[0-9A-Fa-f]+(?:\([^)]*\))?:\s*", "", t)
+    t = re.sub(r"\s+", " ", t).strip().rstrip(";,")
+    if not t or re.search(r"0x[0-9A-Fa-f]|\+0x|\[[a-z]|\bEDI\b|\bESI\b|\bEAX\b", t):
+        return None
+    return t
 
 
 def _call_target(read, va):
@@ -184,7 +203,8 @@ def emit(game: str, info: dict, found: dict, events_order: list[int]) -> list[st
                     for va, value in o["force"]:
                         forces.append(f"    {{ {site_index[va]}, {value} }},")
                     cond = data.CONDITION_IDS[o.get("cond")] if o.get("cond") else 0
-                    options.append(f"    {{ {_c(o['label'])}, {_c(o.get('condition'))}, {ff}, "
+                    options.append(f"    {{ {_c(plain(o['label']) or o['label'])}, "
+                                   f"{_c(plain(o.get('condition')) or ('its condition' if o.get('cond') else None))}, {ff}, "
                                    f"{len(o['force'])}, {cond} }},")
             site = site_index[c["site"]] if c["kind"] != "enum" else -1
             xfirst = len(forces)
@@ -200,11 +220,18 @@ def emit(game: str, info: dict, found: dict, events_order: list[int]) -> list[st
                     reg, mem, mem_disp = REGS[where["mem"][0]], 1, where["mem"][1]
                 disp = where["disp"]
             cand = c.get("candidates") or {}
-            text = c.get("unit") if c["kind"] == "amount" else (
-                c.get("what") if c["kind"] == "loop" else c.get("filter"))
+            if c["kind"] == "amount":
+                text = plain(c.get("unit")) or ""
+            elif c["kind"] == "loop":
+                text = plain(c.get("what"))
+            elif c["kind"] == "enum":
+                text = None
+            else:
+                text = plain(c.get("filter")) or data.PICKER_FILTERS.get((game, c["site"]),
+                                                                          data.PICKER_FALLBACK)
             cond = data.CONDITION_IDS[c["cond"]] if c.get("cond") else 0
             controls.append(
-                f"    {{ {_c(c['label'])}, {_c(text)}, {_c(c.get('warn_everyone'))}, "
+                f"    {{ {_c(plain(c['label']) or c['label'])}, {_c(text)}, {_c(plain(c.get('warn_everyone')))}, "
                 f"{-1 if c['branch'] is None else c['branch']}, {kind}, {PHASES[c['phase']]}, "
                 f"{scope}, {scope2}, {site}, {opt_first}, {len(options) - opt_first}, "
                 f"{c.get('bound', 0)}, {c.get('base', 0)}, {c.get('step', 0)}, "
@@ -212,7 +239,7 @@ def emit(game: str, info: dict, found: dict, events_order: list[int]) -> list[st
                 f"{c.get('nobody') if c.get('nobody') is not None else -1}, "
                 f"{reg}, {mem}, {mem_disp}, {disp}, {ELEMS.get(cand.get('elem'), 0)}, "
                 f"{cand.get('size', 4)}, {cand.get('elem_disp', 0)}, {cond}, "
-                f"{_c(c.get('note') or c.get('condition'))}, {xfirst}, {len(extra)}, "
+                f"{_c(plain(c.get('note') or c.get('condition')))}, {xfirst}, {len(extra)}, "
                 f"{c.get('occurrence', 0)} }},")
         need = 0
         for off in unlock.get(slot, {}).get("needs", []):

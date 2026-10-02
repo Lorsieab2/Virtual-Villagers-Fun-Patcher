@@ -1095,6 +1095,97 @@ class UnlockTests(unittest.TestCase):
                         self.assertEqual(g.proc.reg("esi"), slot if delivered else other)
 
 
+@emulated
+class ChooserTests(unittest.TestCase):
+    """The dialog's own logic (story_outcomes_ui.inc) without its window:
+    what each row says, what is refused, the tribe-ending warning, and which
+    events can be picked."""
+
+    def _open(self, game, ok=None, gong=False):
+        g = Game(game)
+        if game in TABLES:
+            for slot in range(1, 58):
+                event = _Event(g, slot)
+                answer = 1 if ok is None else ok(slot)
+                g.proc.stub(event.code + 1, lambda p, answer=answer: (answer, 0))
+        n = g.proc.export("VvfpStoryProbeChooserOpen", g.n, 1 if gong else 0)
+        return g, n
+
+    def _text(self, g, index, what):
+        result = g.proc.export("VvfpStoryProbeChooserText", index, what, SCRATCH + 0x3000, 1200)
+        return result, g.proc.cstring(SCRATCH + 0x3000)
+
+    def _set(self, g, index, ci, value, who=()):
+        g.proc.write(SCRATCH + 0x4000, struct.pack(f"<{max(len(who), 1)}i", *(list(who) or [0])))
+        g.proc.export("VvfpStoryProbeChooserSet", index, ci & 0xFFFFFFFF, value & 0xFFFFFFFF,
+                      SCRATCH + 0x4000, len(who))
+
+    def test_the_tsunami_warns_before_everyone_is_swept_away(self):
+        g, _ = self._open("vv3")
+        index = _position("vv3", 1)
+        ci, c = _control("vv3", 1, "victims")
+        self.assertEqual(self._text(g, index, 3)[1], "", "Random: no warning")
+        self._set(g, index, ci, EVERYONE)
+        self.assertEqual(self._text(g, index, 3)[1], c["warn_everyone"])
+        self._set(g, index, ci, CHOOSE, who=range(6))
+        self.assertEqual(self._text(g, index, 3)[1], c["warn_everyone"], "choosing everyone is everyone")
+        self._set(g, index, ci, CHOOSE, who=(1, 3))
+        self.assertEqual(self._text(g, index, 3)[1], "")
+        self.assertIn("The chosen villagers (2)", self._text(g, index, 4 + ci)[1])
+        self._set(g, index, ci, CHOOSE, who=())
+        self.assertIn("choose at least one villager", self._text(g, index, 2)[1])
+        self._set(g, index, ci, NOBODY)
+        self.assertEqual(self._text(g, index, 2)[1], "")
+        self.assertIn("Who is swept away: Nobody", self._text(g, index, 1)[1])
+
+    def test_an_option_whose_condition_fails_can_not_be_bought(self):
+        g, _ = self._open("vv1")
+        index = _position("vv1", 67)
+        ci, c = _control("vv1", 67, "result")
+        k = [i for i, o in enumerate(c["options"]) if o.get("cond") == "room"][0]
+        self._set(g, index, ci, k)
+        g.proc.stub(0x43A1A0, lambda p: (0, 0))            # the village is full
+        self.assertIn("not possible right now", self._text(g, index, 2)[1])
+        g.proc.stub(0x43A1A0, lambda p: (1, 0))
+        self.assertEqual(self._text(g, index, 2)[1], "")
+
+    def test_rows_amounts_and_strength(self):
+        g, _ = self._open("vv1")
+        index = _position("vv1", 0)
+        rows = len(controls_of("vv1", 0))
+        self.assertEqual(self._text(g, index, 4 + rows)[1], "Strength: Normal (from the population)")
+        self._set(g, index, -1, 7)
+        self.assertEqual(self._text(g, index, 4 + rows)[1], "Strength: 7")
+        self.assertIn("Strength: 7", self._text(g, index, 1)[1])
+        index = _position("vv1", 12)
+        self._set(g, index, -1, 5)
+        self.assertIn("5-7 (two babies)", self._text(g, index, 1)[1])
+        ci, c = _control("vv1", (1 << 6) | 10, "food")
+        index = _position("vv1", (1 << 6) | 10)
+        self._set(g, index, ci, c["bound"] - 1)
+        self.assertIn(f"{c['base'] + c['bound'] - 1}", self._text(g, index, 4 + ci)[1])
+        self._set(g, index, ci, -3)                         # a typed number out of range
+        self.assertIn("type a whole number", self._text(g, index, 2)[1])
+
+    def test_which_events_can_be_picked(self):
+        unlockable = {s for s, e in outcomes.UNLOCKED["vv3"].items() if not e["needs"]}
+        slot = sorted(unlockable)[0]
+        g, _ = self._open("vv3", ok=lambda s: 0 if s in (slot, 47) else 1)
+        self.assertEqual(self._text(g, _position("vv3", slot), 0)[0], 2, "normally not possible")
+        self.assertEqual(self._text(g, _position("vv3", 47), 0)[0], 0, "a chief is needed: locked")
+        self.assertEqual(self._text(g, _position("vv3", 2), 0)[0], 1)
+
+    def test_the_gongs_tiers_need_the_tiers_open(self):
+        g, n = self._open("vv2", gong=True)
+        self.assertEqual(n, 1)
+        ci, c = _control("vv2", GONG_SLOT, "result")
+        k = [i for i, o in enumerate(c["options"]) if o.get("cond") == "vv2_gong_tiers"][0]
+        self._set(g, 0, ci, k)
+        self.assertIn("not possible right now", self._text(g, 0, 2)[1])
+        g.proc.write(g.village.world + 0x2E910, b"\1")
+        self.assertEqual(self._text(g, 0, 2)[1], "")
+
+
 def story_index(g: Game, record: int) -> int:
     if record == 0:
         return -1
