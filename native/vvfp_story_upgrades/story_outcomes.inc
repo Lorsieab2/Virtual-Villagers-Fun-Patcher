@@ -746,16 +746,31 @@ static int oc_write_call(unsigned int va, void *target) {
     return mem_write(va, bytes, 5);
 }
 
+/* A write failed part-way: put the stock call back at the first `sites`
+   outcome sites and the first `scopes` scope calls, which were written. */
+static void oc_undo(const oc_game *g, int sites, int scopes) {
+    int i;
+    for (i = 0; i < scopes; ++i) {
+        mem_write(g->scopes[i].va, g->scopes[i].expect, 5);
+    }
+    for (i = 0; i < sites; ++i) {
+        mem_write(g->sites[i].va, g->sites[i].expect, 5);
+    }
+}
+
+/* Writes every outcome site and scope call, or (a write failing) none. */
 static int oc_install(int game) {
     const oc_game *g = &OC_GAMES[game];
     int i;
     for (i = 0; i < g->site_count; ++i) {
         if (!oc_write_call(g->sites[i].va, (void *)oc_rand_stub)) {
+            oc_undo(g, i, 0);
             return 0;
         }
     }
     for (i = 0; i < g->scope_count; ++i) {
         if (!oc_write_call(g->scopes[i].va, (void *)oc_scope_stub)) {
+            oc_undo(g, g->site_count, i);
             return 0;
         }
     }

@@ -351,7 +351,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # third Tech-menu button, outside the Island Event lock.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "2E54F000A60BAAA03657B2343394CC574796CCBF05B2D07E2BDA43B4AA406B47",
+            "0177F89D2873AB2CDF02C4EFD03A1A76732008FBA9C4CFC2FF32FB64D531A6E1",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

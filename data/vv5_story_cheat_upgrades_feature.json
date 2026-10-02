@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "0F76A04DAE15E52C772084213AFD369E0F46AFFE066F59C40F5603121275021F"
+      "sha256": "DD507699DC11DE1326D543336C2EB7438768919E53AF03F55460BF9C68C0CCE7"
     }
   ],
   "runtime_detours": [
@@ -1872,6 +1872,7 @@
       "refill: noni bushes, and the crops once the farm is built",
       "new villagers (believers)",
       "dies (leaves a remains)",
+      "disappears (no skeleton)",
       "falls sick (believers)",
       "pregnant with a baby, twins or triplets (adult believers, either sex)",
       "likes and dislikes",
@@ -1884,10 +1885,6 @@
       "behaviours: stops what they are doing, recovers fully"
     ],
     "omitted": [
-      {
-        "option": "disappears (no skeleton)",
-        "reason": "the game has no way of removing a living villager; only an unburied corpse disappears"
-      },
       {
         "option": "new Heathens",
         "reason": "the Heathen creator's arguments are not all understood"

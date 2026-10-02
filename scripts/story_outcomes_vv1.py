@@ -2537,14 +2537,14 @@ CONTROLS = {
                     'condition': None,
                 },
                 {
-                    'label': "Research (the game's text says 'construction')",
+                    'label': "Research",
                     'force': [
                         [0x42CA61, 1],
                     ],
                     'condition': None,
                 },
                 {
-                    'label': "Building (the game's text says 'breeding')",
+                    'label': "Building",
                     'force': [
                         [0x42CA61, 2],
                     ],
@@ -2558,14 +2558,14 @@ CONTROLS = {
                     'condition': None,
                 },
                 {
-                    'label': "Breeding / parenting (the game's text says 'research')",
+                    'label': "Breeding / parenting",
                     'force': [
                         [0x42CA61, 4],
                     ],
                     'condition': None,
                 },
             ],
-            'evidence': 'blue vial resolve 0x42CA50 [this+0x509C]==1: push 5; call rand at 0x42CA61; jump table 0x42D038 -> 0 esi=1 text 0x1DC, 1 esi=4 text 0x1DE, 2 esi=2 text 0x1DD, 3 esi=5 text 0x1E0, 4 esi=3 text 0x1DF; then 0x437230(finder, esi, 50/75/100 by level: 0x42CC8F/0x42CC15/0x42CB8A). 0x437230 codes (table 0x4372CC): 1 +0x3C4 farming, 2 +0x3C0 building, 3 +0x3BC parenting, 4 +0x3CC research, 5 +0x3C8 healing; result clamped 0..100. Text ids 0x1DC-0x1E0 from the prior string-table dump (research2_vv1/strings.txt).',
+            'evidence': 'blue vial resolve 0x42CA50 [this+0x509C]==1: push 5; call rand at 0x42CA61; jump table 0x42D038 -> 0 esi=1 text 0x1DC, 1 esi=4 text 0x1DE, 2 esi=2 text 0x1DD, 3 esi=5 text 0x1E0, 4 esi=3 text 0x1DF; then 0x437230(finder, esi, 50/75/100 by level: 0x42CC8F/0x42CC15/0x42CB8A). 0x437230 codes (table 0x4372CC): 1 +0x3C4 farming, 2 +0x3C0 building, 3 +0x3BC parenting, 4 +0x3CC research, 5 +0x3C8 healing; result clamped 0..100. The popup names the skill raised: confirmed in the running game (7 of 7 drinks matched).',
         },
         {
             'id': 'finder',

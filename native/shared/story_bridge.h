@@ -23,9 +23,6 @@
 #define VVFP_STORY_PICK_ID 4090
 /* The Custom Island Event button, beside it. */
 #define VVFP_STORY_CUSTOM_ID 4091
-/* The Lost Children only: the Pick Gong of Wonder Outcome button, above them.
-   It is not an island event and does not share the Island Event row's lock. */
-#define VVFP_STORY_GONG_ID 4092
 
 /* What the story companion asks of the Origins companion that hosts it: the
    save slot this companion keys its own sidecars by, and its own mask store
@@ -51,7 +48,6 @@ static vvfp_story_install_fn vvfp_story_install;
 static vvfp_story_active_fn vvfp_story_active;
 static vvfp_story_pick_fn vvfp_story_pick;
 static vvfp_story_pick_fn vvfp_story_custom;
-static vvfp_story_pick_fn vvfp_story_gong;      /* NULL: an older story companion */
 static vvfp_story_attach_fn vvfp_story_attach;
 
 static int vvfp_story_load(void) {
@@ -81,7 +77,6 @@ static int vvfp_story_load(void) {
     vvfp_story_pick = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryPickIslandEvent");
     vvfp_story_custom = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryCustomIslandEvent");
     vvfp_story_attach = (vvfp_story_attach_fn)GetProcAddress(module, "VvfpStoryAttachHost");
-    vvfp_story_gong = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryPickGongOutcome");
     if (vvfp_story_install == NULL || vvfp_story_active == NULL || vvfp_story_pick == NULL
         || vvfp_story_custom == NULL || vvfp_story_attach == NULL) {
         return 0;
@@ -223,11 +218,6 @@ static void vvfp_story_add_pick_button(int game, HWND dialog) {
                           x, rc.top, width, height);
         vvfp_story_button(dialog, "Pick Island Event (0 tech points)...", VVFP_STORY_PICK_ID,
                           x + width + gap, rc.top, width, height);
-        if (game == 2 && vvfp_story_gong != NULL) {
-            vvfp_story_button(dialog, "Pick Gong of Wonder Outcome (0 tech points)...",
-                              VVFP_STORY_GONG_ID, x + width + gap, rc.top - height - unit.bottom,
-                              width, height);
-        }
         return;
     }
     x = rc.left - width - gap;
@@ -241,10 +231,6 @@ static void vvfp_story_add_pick_button(int game, HWND dialog) {
                       x, rc.top, width, height);
     vvfp_story_button(dialog, "Custom Island Event (0 tech points)...", VVFP_STORY_CUSTOM_ID,
                       x, rc.top - height - unit.bottom, width, height);
-    if (game == 2 && vvfp_story_gong != NULL) {
-        vvfp_story_button(dialog, "Pick Gong of Wonder Outcome (0 tech points)...", VVFP_STORY_GONG_ID,
-                          x, rc.top - 2 * (height + unit.bottom), width, height);
-    }
 }
 
 /* The Pick Island Event or Custom Island Event button (`command`) was
@@ -261,9 +247,6 @@ static int vvfp_story_pick_clicked(int game, HWND dialog, int command, const cha
     }
     if (command == VVFP_STORY_CUSTOM_ID) {
         return vvfp_story_custom(game, dialog) == 1;
-    }
-    if (command == VVFP_STORY_GONG_ID) {
-        return vvfp_story_gong != NULL && vvfp_story_gong(game, dialog) == 1;
     }
     return vvfp_story_pick(game, dialog) == 1;
 }

@@ -1278,12 +1278,14 @@ class DocAndCompanionTests(unittest.TestCase):
                          doc.build())
 
     def test_the_lost_childrens_tech_menu_offers_the_gong(self):
-        bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
-        self.assertIn('GetProcAddress(module, "VvfpStoryPickGongOutcome")', bridge)
-        self.assertIn("game == 2 && vvfp_story_gong != NULL", bridge)
         source = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(encoding="utf-8")
-        body = source[source.index("command == VVFP_STORY_GONG_ID"):][:300]
-        self.assertIn("vvfp_story_pick_clicked(2, window, (int)command, NULL)", body, "no island lock")
+        self.assertIn('GetProcAddress(module, "VvfpStoryPickGongOutcome")', source)
+        self.assertIn("vv2_story_add_gong_button(window);", source)
+        body = source[source.index("command == VV2_STORY_GONG_ID"):][:300]
+        self.assertIn("vv2_story_gong_clicked(window)", body)
+        self.assertNotIn("ISLAND", body, "no island lock")
+        bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
+        self.assertNotIn("Gong", bridge, "the shared bridge (all five companions) is unchanged")
         binary = (ROOT / "assets" / "origins" / "VVFP VV2 Origins Icons.dll").read_bytes()
         self.assertIn(b"VvfpStoryPickGongOutcome", binary)
         shipped = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.def").read_text()

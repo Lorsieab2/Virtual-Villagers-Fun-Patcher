@@ -699,7 +699,11 @@ static int install(int game) {
             return 0;
         }
     }
-    return oc_install(game);
+    if (!oc_install(game)) {
+        install_undo(g, g->write_count, game_detour_count(g));
+        return 0;
+    }
+    return 1;
 }
 
 /* Called by the Origins companion of `game` (1-5) from its own per-frame or

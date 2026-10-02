@@ -825,7 +825,6 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
     (void)lparam;
     if (message == WM_INITDIALOG) {
         int i;
-        char text[160];
         SendDlgItemMessageA(window, IDC_CE_TITLE, EM_LIMITTEXT, CE_TITLE_BYTES - 1, 0);
         SendDlgItemMessageA(window, IDC_CE_TEXT, EM_LIMITTEXT, CE_TEXT_BYTES - 1, 0);
         SetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title);

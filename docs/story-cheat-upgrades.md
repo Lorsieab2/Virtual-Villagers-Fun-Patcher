@@ -254,9 +254,7 @@ fix, the coconut results add 30 instead of setting 30).
 The owner's rule: no original-game behaviour is changed without being reported
 first. These are offered exactly as the game produces them:
 
-* A New Home's blue sea vial names the wrong skill for three of its five results
-  (the setting labels say which skill is really raised). The Secret City's Royal
-  Jelly: the clear vial's text says the jelly spoiled, yet it is the clear vial
+* The Secret City's Royal Jelly: the clear vial's text says the jelly spoiled, yet it is the clear vial
   that cures and raises Healing; the dark vial's text says it worked, yet it
   changes nothing.
 * The Lost Children's Gong "Takes youth" / "Grants youth" write fixed villager

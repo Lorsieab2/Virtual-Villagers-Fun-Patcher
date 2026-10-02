@@ -279,7 +279,7 @@ is about (one the game would not pick leaves the choice to the game).
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
 | If you drink it: how much the skill rises | result | +50; +75; +100 |
-| If you drink it: which skill rises | result | Farming; Research (the game's text says 'construction'); Building (the game's text says 'breeding'); Healing; Breeding / parenting (the game's text says 'research') |
+| If you drink it: which skill rises | result | Farming; Research; Building; Healing; Breeding / parenting |
 | Which villager finds the vial | which villager | a villager the game itself could pick |
 
 ### A Mysterious Vial (fizzy, from the sea)
