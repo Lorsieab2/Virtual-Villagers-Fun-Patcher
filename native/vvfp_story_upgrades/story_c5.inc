@@ -149,6 +149,16 @@ static int c5_conceive(int index, int litter, int father, ce_result *result) {
         ++result->refused;
         return 0;
     }
+    /* The routine rolls twins and triplets whatever `force` says and counts
+       them as it rolls them (Twins Birthed [0x51D380] at 0x465F2D, Triplets
+       Birthed [0x51D384] at 0x465F1A, a believer carrier counted by the
+       statistics row's Heathen guard too): the rolled litter's count is
+       taken back and the chosen litter counted once, as a natural one is. */
+    if (*(int *)(r + 0x1C50) == 2) {
+        --*(int *)(uintptr_t)0x51D380u;
+    } else if (*(int *)(r + 0x1C50) == 3) {
+        --*(int *)(uintptr_t)0x51D384u;
+    }
     *(int *)(r + 0x1C50) = 1;
     babies = 1;
     while (babies < litter && c5_room()) {
@@ -156,6 +166,11 @@ static int c5_conceive(int index, int litter, int father, ce_result *result) {
         *(int *)(r + 0x1C50) = babies;
     }
     result->no_room_babies += litter - babies;
+    if (babies == 2) {
+        ++*(int *)(uintptr_t)0x51D380u;
+    } else if (babies == 3) {
+        ++*(int *)(uintptr_t)0x51D384u;
+    }
     *(int *)(uintptr_t)0x51D360u += babies;
     story_log_conception(5, (const void *)(uintptr_t)C5_MANAGER, r, f);
     return babies;

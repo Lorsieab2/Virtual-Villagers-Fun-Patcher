@@ -821,7 +821,10 @@ class PregnancyTests(unittest.TestCase):
                         self.assertEqual(p.read(r2 + 0x5C0, 5), b"Papa\0")
                         self.assertEqual((v.i32(2, 0x5E0), v.i32(2, 0x5DC)), (7, 8))
                         self.assertEqual((v.i32(2, 0x5EC), v.i32(2, 0x44)), (23, 0x1A))
-                        self.assertEqual(p.u32(v.world + 0x2E500), 1)
+                        self.assertEqual(p.u32(v.world + 0x2E500), litter, "Babies Made, per baby")
+                        self.assertEqual(p.u32(v.world + 0x2E524), int(litter == 3))
+                        self.assertEqual(p.u32(v.world + 0x2E5E4), 0,
+                                         "without the statistics row its twins field is never written")
                     if game == "vv3":
                         self.assertEqual(p.read(r2 + 0xE48, 5), b"Papa\0")
                         self.assertEqual((v.i32(2, 0xE68), v.i32(2, 0xE64), v.i32(2, 0xE44)), (7, 8, 31))
@@ -1785,3 +1788,111 @@ class DialogResourceTests(unittest.TestCase):
         names = {e.name.decode() for e in pe_module.PE(str(self.DLL)).DIRECTORY_ENTRY_EXPORT.symbols if e.name}
         self.assertTrue({"VvfpStoryCustomIslandEvent", "VvfpStoryAttachHost"} <= names)
         self.assertFalse({n for n in names if "Probe" in n or "Stats" in n})
+
+
+# ---------------------------------------------------------------------------
+# Births count in the statistics exactly as a natural conception's do
+# ---------------------------------------------------------------------------
+
+# game: (the natural conception routine, the game's rand, its twins tech level
+# (a stub VA, or a world offset), the counters: Babies Made, Twins Birthed,
+# Triplets Birthed (VV2: the statistics row's pending twins field)).
+NATURAL = {
+    "vv1": dict(routine=0x43BBC0, rand=0x402F10, level=("world", 0xA2DC),
+                counters=("world", (0x9E24, 0x9E44, 0x9E48))),
+    "vv2": dict(routine=0x44B980, rand=0x4031A0, level=("world", 0x2EA8C),
+                counters=("world", (0x2E500, 0x2E5E4, 0x2E524))),
+    "vv3": dict(routine=0x455AB0, rand=0x4032D0, level=("stub", 0x426FC0, 4),
+                counters=("abs", (0x5824A8, 0x5824C8, 0x5824CC))),
+    "vv4": dict(routine=0x45E7B0, rand=0x4036D0, level=("stub", 0x41E1C0, 4),
+                counters=("abs", (0x4D6DE8, 0x4D6E08, 0x4D6E0C))),
+    "vv5": dict(routine=0x465E00, rand=0x403660, level=("stub", 0x423600, 4),
+                counters=("abs", (0x51D360, 0x51D380, 0x51D384))),
+}
+ROLLS = {1: [99], 2: [0, 99], 3: [0, 0]}     # rand(100): < 7 twins, then < 25 triplets
+
+
+@emulated
+class NaturalBirthCountTests(unittest.TestCase):
+    """A custom single, twin and triplet pregnancy moves Babies Made, Twins
+    Birthed and Triplets Birthed exactly as the game's own conception does
+    for the same litter, in each game, with the whole public catalog (the
+    statistics and parentage rows' hooks) installed."""
+
+    def _story(self, game, litter):
+        story = Story(game, full=True)
+        p = story.proc
+        v = story.village
+        cfg = NATURAL[game]
+        v.put(1, sex="m", years=30, name="Papa", head=7, body=8)
+        v.put(2, sex="f", years=30, name="Mama", head=1, body=2)
+        rolls = list(ROLLS[litter])
+        p.stub(cfg["rand"], lambda q: ((rolls.pop(0) if rolls else 99) if q.arg(0) == 100 else 0, 0))
+        kind = cfg["level"][0]
+        if kind == "world":
+            p.put32(v.world + cfg["level"][1], 3)
+            if game == "vv1":
+                p.put32(v.world + 0xA090, 1)      # A New Home's triplets need this too
+        else:
+            p.stub(cfg["level"][1], lambda q: (3, cfg["level"][2]))
+        for va, pop in {"vv3": [(0x412CD0, 4)], "vv4": [(0x412F90, 8)]}.get(game, []):
+            p.stub(va, lambda q, pop=pop: (0, pop))
+        return story
+
+    def _counters(self, story):
+        kind, offsets = NATURAL[story.game]["counters"]
+        base = story.village.world if kind == "world" else 0
+        return [story.proc.u32(base + o) for o in offsets]
+
+    def _natural(self, story):
+        p = story.proc
+        v = story.village
+        g = story.game
+        mother, father = v.record(2), v.record(1)
+        name = father + v.L["name"]
+        if g == "vv1":
+            p.call(0x43BBC0, [2, p.u32(father + 0x36C), 0, 0], ecx=v.base)
+        elif g == "vv2":
+            p.call(0x44B980, [2, p.u32(father + 0x554), 0, 0, name, 7, 8], ecx=v.base)
+        elif g == "vv3":
+            p.call(0x455AB0, [p.u32(father + 0xDD0), 0, 0, name, 7, 8, 0], ecx=mother)
+        else:
+            p.call(NATURAL[g]["routine"], [p.u32(father + 0x1B98), 0, 0, name, 7, 8, 0], ecx=mother)
+
+    def test_custom_births_count_as_natural_ones(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            for litter in (1, 2, 3):
+                natural = self._story(game, litter)
+                before = self._counters(natural)
+                self._natural(natural)
+                v = natural.village
+                self.assertEqual(v.i32(2, v.L["litter"]) in ((0, 1) if litter == 1 else (litter,)), True,
+                                 (game, litter, "the rolls gave the natural litter"))
+                natural_delta = [a - b for a, b in zip(self._counters(natural), before)]
+
+                custom = self._story(game, 1)              # the game's own roll says one baby
+                before = self._counters(custom)
+                ok, r, _ = custom.apply(Event(changes=[custom.change(
+                    2, litter=litter, father=1, father_fingerprint=custom.village.fingerprint(1))]))
+                custom_delta = [a - b for a, b in zip(self._counters(custom), before)]
+                with self.subTest(game=game, litter=litter):
+                    self.assertEqual(r["conceived"], litter)
+                    self.assertEqual(natural_delta, [litter, int(litter == 2), int(litter == 3)],
+                                     "the natural conception's own counts")
+                    self.assertEqual(custom_delta, natural_delta)
+
+    def test_a_rolled_multiple_is_not_counted_twice(self):
+        """The forced conception VV4 and VV5 call rolls and counts twins or
+        triplets itself; a custom single or twin must take that back."""
+        for game in ("vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            for rolled, litter in ((3, 1), (2, 3), (3, 2)):
+                story = self._story(game, rolled)
+                before = self._counters(story)
+                ok, r, _ = story.apply(Event(changes=[story.change(2, litter=litter)]))
+                delta = [a - b for a, b in zip(self._counters(story), before)]
+                with self.subTest(game=game, rolled=rolled, chosen=litter):
+                    self.assertEqual(delta, [litter, int(litter == 2), int(litter == 3)])

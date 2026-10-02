@@ -75,7 +75,8 @@ class Process:
         self.api_calls: list[str] = []
         self.exe_path = b"C:\\Games\\Village\\Game.exe"
         self.loaded = []
-        self._map_pe(pefile.PE(data=exe))
+        self._exe_pe = pefile.PE(data=exe)
+        self._map_pe(self._exe_pe)
         self.mu.mem_map(STACK_TOP - STACK_SIZE, STACK_SIZE)
         self.mu.mem_map(HEAP, HEAP_SIZE)
         self.mu.mem_map(RETURN, 0x1000)
@@ -110,6 +111,17 @@ class Process:
         slot = 0
         for entry in pe.DIRECTORY_ENTRY_IMPORT:
             for imp in entry.imports:
+                stub = API_STUBS + slot * 16
+                slot += 1
+                self.mu.mem_write(stub, b"\xC3")
+                self.api_names[stub] = imp.name.decode()
+                self.mu.mem_write(imp.address, struct.pack("<I", stub))
+        # The game's own imports too, so game code a test runs that calls
+        # one (a hook's GetModuleHandleA) reaches a stub, never garbage.
+        for entry in getattr(self._exe_pe, "DIRECTORY_ENTRY_IMPORT", []):
+            for imp in entry.imports:
+                if not imp.name:
+                    continue
                 stub = API_STUBS + slot * 16
                 slot += 1
                 self.mu.mem_write(stub, b"\xC3")
@@ -292,6 +304,9 @@ class Process:
     def _api_lstrcmpA(self):
         a, b = self.cstring(self.arg(0)), self.cstring(self.arg(1))
         return (0 if a == b else (1 if a > b else 0xFFFFFFFF)), 8
+
+    def _api_GetModuleHandleA(self):
+        return 0, 4                     # no optional companion is loaded
 
     loaded: list = []
 

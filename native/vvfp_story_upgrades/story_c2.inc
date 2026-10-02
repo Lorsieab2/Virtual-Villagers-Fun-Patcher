@@ -113,6 +113,27 @@ static int c2_sicken(int index) {
     return 1;
 }
 
+/* What a natural conception counts, at conception (0x44BA5E..0x44BAD2):
+   Babies Made (+0x2E500) once per baby, Triplets Birthed (+0x2E524) once
+   for triplets.  The Lost Children has no twins counter of its own; with
+   the Village Statistics row ticked its hook at 0x44BA8C (the instruction
+   after the twins branch) adds one to the pending Twins Birthed field
+   (+0x2E5E4) and its triplets hook takes it back, so twins count once and
+   triplets not as twins.  The hook's presence is the row's: without it the
+   field is not the statistics' and is never written. */
+static const unsigned char C2_TWINS_HOOK_STOCK[6] = { 0x8B, 0x87, 0xD4, 0x74, 0xE5, 0x00 };
+
+static void c2_count_conception(int babies) {
+    unsigned char *world = VV2_WORLD();
+    *(int *)(world + 0x2E500) += babies;
+    if (babies == 3) {
+        ++*(int *)(world + 0x2E524);
+    } else if (babies == 2 && mem_readable(0x44BA8Cu, 6)
+               && memcmp((const void *)(uintptr_t)0x44BA8Cu, C2_TWINS_HOOK_STOCK, 6) != 0) {
+        ++*(int *)(world + 0x2E5E4);
+    }
+}
+
 /* A pregnancy, written as the conception routine 0x44B980 writes it:
      +0x540 = the carrier's processed age (+0x534);
      +0x544 = 2 or 3 for twins or triplets, 0 for one baby;
@@ -120,8 +141,9 @@ static int c2_sicken(int index) {
      +0x5EC = the father's lineage (+0x554);
      +0x5C0 = the father's name, +0x5E0 / +0x5DC his head and body;
      +0x44 = 0x1A;
-   Babies Made (+0x2E500) once, and the parentage log with the father's
-   record (the call the routine's own trampoline makes).  An unknown father
+   the counters as the routine counts them (c2_count_conception), and the
+   parentage log with the father's record (the call the routine's own
+   trampoline makes).  An unknown father
    is "Unknown" with the carrier's own head and body.  Each baby only while
    the room predicate says there is room; there is no sex check in the
    conception or the delivery (0x43BE01). */
@@ -155,7 +177,7 @@ static int c2_conceive(int index, int litter, int father, ce_result *result) {
         *(int *)(r + 0x544) = babies;
     }
     result->no_room_babies += litter - babies;
-    ++*(int *)(VV2_WORLD() + 0x2E500);
+    c2_count_conception(babies);
     story_log_conception(2, pool, r, f);
     return babies;
 }
