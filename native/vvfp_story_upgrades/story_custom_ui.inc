@@ -11,7 +11,12 @@ enum {
     IDD_CUSTOM = 302, IDD_CHANGES = 303, IDD_SPAWN = 304, IDD_PARENTS = 305,
     IDD_VALUES = 306, IDD_PUZZLES = 307, IDD_REVIVE = 308, IDD_UNBORN = 309,
     IDC_CE_OTHER = 1131, IDC_CE_VALUES = 1132, IDC_CE_PUZZLES = 1133, IDC_CE_REVIVE = 1134,
-    IDC_CE_OTHER_REMOVE = 1135,
+    IDC_CE_OTHER_REMOVE = 1135, IDC_CE_QUEUE_NOTE = 1136, IDC_CE_CHOICE = 1137,
+    IDC_CE_CHOICES = 1138, IDC_CE_TEXT_LABEL = 1139,
+    IDD_CHOICES = 310,
+    IDC_CC_LABEL_FIRST = 3701, IDC_CC_LIST_FIRST = 3711, IDC_CC_ADD_FIRST = 3721,
+    IDC_CC_EDIT_FIRST = 3731, IDC_CC_REMOVE_FIRST = 3741, IDC_CC_CHANCE_FIRST = 3751,
+    IDC_CC_NOTE_FIRST = 3761, IDC_CC_LIMIT = 3771,
     IDC_VA_LIST = 3301, IDC_VA_AMOUNT = 3302, IDC_VA_NOTE = 3303, IDC_VA_SET = 3304,
     IDC_VA_KEEP = 3305,
     IDC_PZ_LIST = 3401, IDC_PZ_SOLVE = 3402, IDC_PZ_UNSOLVE = 3403, IDC_PZ_KEEP = 3404,
@@ -59,7 +64,19 @@ static struct {
     int unborn_chosen;
     int values[CE_MAX_VALUES];            /* the amounts dialog's choices, CE_KEEP = none */
     int puzzles[CE_MAX_PUZZLES];          /* the puzzles dialog's: -1 none, 0 / 1 */
+    /* Two choices: the draft's buttons and outcomes, kept with the draft.
+       While an outcome is edited the main dialog runs again on `draft`
+       holding that outcome's changes; the event's own draft waits in
+       `main_draft`. */
+    ce_choice choice;
+    ce_event main_draft;
+    int outcome_button;                   /* the outcome being edited */
+    int outcome_index;
+    int filling;                          /* the choices dialog is setting its own controls */
 } ui;
+
+/* The main dialog's two uses, its DialogBoxParam argument. */
+enum { UI_MODE_EVENT = 0, UI_MODE_OUTCOME = 1 };
 
 static const char *const UI_TOGGLE_NAMES[5] = {
     "All Adult Women", "All Adult Men", "All Females", "All Males", "All Children"
@@ -1176,11 +1193,32 @@ static void ui_select_data(HWND window, int id, int data) {
     }
 }
 
+static int ui_mode(HWND window) {
+    return (int)GetWindowLongPtrA(window, DWLP_USER);
+}
+
+/* The event itself asks a question: its changes live in the outcomes. */
+static int ui_asks(HWND window) {
+    return ui_mode(window) == UI_MODE_EVENT && ui.choice.enabled;
+}
+
 static int ui_read_main(HWND window) {
     ce_event *e = &ui.draft;
     int i;
-    GetDlgItemTextA(window, IDC_CE_TITLE, e->title, sizeof e->title);
+    if (ui_mode(window) == UI_MODE_OUTCOME) {
+        e->title[0] = '\0';                 /* an outcome has the event's title */
+    } else {
+        GetDlgItemTextA(window, IDC_CE_TITLE, e->title, sizeof e->title);
+    }
     GetDlgItemTextA(window, IDC_CE_TEXT, e->text, sizeof e->text);
+    if (ui_asks(window)) {
+        /* The village controls are off: every change is an outcome's. */
+        e->food_op = e->tech_op = CE_AMOUNT_NONE;
+        e->food_amount = e->tech_amount = 0;
+        e->refill = 0;
+        e->village = 0;
+        return 1;
+    }
     e->food_op = (ui.a->caps & CAP_FOOD) ? ui_combo_data(window, IDC_CE_FOOD_OP) : CE_AMOUNT_NONE;
     e->tech_op = (ui.a->caps & CAP_TECH) ? ui_combo_data(window, IDC_CE_TECH_OP) : CE_AMOUNT_NONE;
     if (e->food_op < 0) e->food_op = CE_AMOUNT_NONE;
@@ -1209,11 +1247,21 @@ static int ui_read_main(HWND window) {
     return 1;
 }
 
-/* The live word / character counter under the title and the description.
-   Lines are counted with the popup's own layout (ce_lines_used), so the
+/* The popup the text box is written for: the plain island event, the
+   question of a two-choice event, or an outcome's result. */
+static ce_layout ui_layout(HWND window) {
+    if (ui_mode(window) == UI_MODE_OUTCOME) {
+        return ce_result_layout(ui.a);
+    }
+    return ui_asks(window) ? ce_question_layout(ui.a) : ce_plain_layout(ui.a);
+}
+
+/* The live word / character counter under the title and the text box.
+   Lines are counted with that popup's own layout (ce_lines_used_in), so the
    counter agrees with the check made when the event is queued. */
 static void ui_update_counts(HWND window) {
     const ce_adapter *a = ui.a;
+    ce_layout l = ui_layout(window);
     char title[CE_TITLE_BYTES];
     char body[CE_TEXT_BYTES];
     char out[200];
@@ -1225,23 +1273,66 @@ static void ui_update_counts(HWND window) {
     wsprintfA(out, title_chars > a->title_width ? "%d / %d characters - too long" : "%d / %d characters",
               title_chars, a->title_width);
     SetDlgItemTextA(window, IDC_CE_TITLE_COUNT, out);
-    lines = ce_lines_used(a, title, body);
+    lines = ce_lines_used_in(&l, title, body);
     wsprintfA(out, "%d words, %d characters - %d of %d lines used (%d characters a line)%s",
-              ce_word_count(body), ce_char_count(body), lines, a->text_lines, a->text_width,
-              lines > a->text_lines ? " - too long" : "");
+              ce_word_count(body), ce_char_count(body), lines, l.lines, l.width,
+              lines > l.lines ? " - too long" : "");
     SetDlgItemTextA(window, IDC_CE_TEXT_NOTE, out);
 }
 
+/* Which controls are live: what the game offers, and in a question every
+   change is an outcome's (the Remove buttons stay, so changes made before
+   the box was ticked can be taken out). */
+static void ui_apply_mode(HWND window) {
+    const ce_adapter *a = ui.a;
+    int outcome = ui_mode(window) == UI_MODE_OUTCOME;
+    int own = !ui_asks(window);
+    ui_enable(window, IDC_CE_VILLAGE, own && (a->caps & CAP_VILLAGE) != 0);
+    ui_enable(window, IDC_CE_FOOD_OP, own && (a->caps & CAP_FOOD) != 0);
+    ui_enable(window, IDC_CE_FOOD, own && (a->caps & CAP_FOOD) != 0);
+    ui_enable(window, IDC_CE_TECH_OP, own && (a->caps & CAP_TECH) != 0);
+    ui_enable(window, IDC_CE_TECH, own && (a->caps & CAP_TECH) != 0);
+    ui_enable(window, IDC_CE_REFILL, own && (a->caps & CAP_REFILL) != 0);
+    ui_enable(window, IDC_CE_SPAWN_ADD, own && (a->caps & CAP_SPAWN) != 0);
+    ui_enable(window, IDC_CE_CHANGE_ADD, own);
+    ui_enable(window, IDC_CE_VALUES, own && (a->caps & CAP_VALUES) != 0);
+    ui_enable(window, IDC_CE_PUZZLES, own && (a->caps & CAP_PUZZLES) != 0);
+    ui_enable(window, IDC_CE_REVIVE, own && (a->caps & CAP_REVIVE) != 0);
+    ui_enable(window, IDC_CE_TITLE, !outcome);
+    ui_enable(window, IDC_CE_CHOICE, !outcome && ce_choice_available(a));
+    ui_enable(window, IDC_CE_CHOICES, !outcome && ui.choice.enabled);
+    ShowWindow(GetDlgItem(window, IDC_CE_CHOICE), outcome ? SW_HIDE : SW_SHOW);
+    ShowWindow(GetDlgItem(window, IDC_CE_CHOICES), outcome ? SW_HIDE : SW_SHOW);
+    SetDlgItemTextA(window, IDC_CE_TEXT_LABEL,
+                    outcome ? "Result text:" : ui_asks(window) ? "Question:" : "Description:");
+    SetDlgItemTextA(window, IDC_CE_QUEUE_NOTE,
+                    outcome ? "The result text and these changes, when this outcome is rolled."
+                    : ui_asks(window) ? "It happens shortly. Each button's outcomes are under Choices..."
+                                      : "It happens shortly, as a bought Island Event does.");
+    ui_update_counts(window);
+}
+
+static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
+
 static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
     const ce_adapter *a = ui.a;
-    (void)lparam;
     if (message == WM_INITDIALOG) {
         int i;
+        SetWindowLongPtrA(window, DWLP_USER, (LONG_PTR)lparam);
         SendDlgItemMessageA(window, IDC_CE_TITLE, EM_LIMITTEXT, CE_TITLE_BYTES - 1, 0);
         SendDlgItemMessageA(window, IDC_CE_TEXT, EM_LIMITTEXT, CE_TEXT_BYTES - 1, 0);
-        SetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title);
+        if (lparam == UI_MODE_OUTCOME) {
+            char caption[96];
+            wsprintfA(caption, "Outcome %d of the \"%s\" button", ui.outcome_index + 1,
+                      ui.choice.labels[ui.outcome_button]);
+            SetWindowTextA(window, caption);
+            SetDlgItemTextA(window, IDOK, "OK");
+            SetDlgItemTextA(window, IDC_CE_TITLE, ui.main_draft.title);
+        } else {
+            SetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title);
+            CheckDlgButton(window, IDC_CE_CHOICE, ui.choice.enabled ? BST_CHECKED : BST_UNCHECKED);
+        }
         SetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text);
-        ui_update_counts(window);
         ui_fill_amount(window, IDC_CE_FOOD_OP);
         ui_fill_amount(window, IDC_CE_TECH_OP);
         ui_select_data(window, IDC_CE_FOOD_OP, ui.draft.food_op);
@@ -1259,17 +1350,8 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             SendDlgItemMessageA(window, IDC_CE_VILLAGE, LB_ADDSTRING, 0,
                                 (LPARAM)"(none are safe in this game)");
         }
-        ui_enable(window, IDC_CE_VILLAGE, (a->caps & CAP_VILLAGE) != 0);
-        ui_enable(window, IDC_CE_FOOD_OP, (a->caps & CAP_FOOD) != 0);
-        ui_enable(window, IDC_CE_FOOD, (a->caps & CAP_FOOD) != 0);
-        ui_enable(window, IDC_CE_TECH_OP, (a->caps & CAP_TECH) != 0);
-        ui_enable(window, IDC_CE_TECH, (a->caps & CAP_TECH) != 0);
-        ui_enable(window, IDC_CE_REFILL, (a->caps & CAP_REFILL) != 0);
-        ui_enable(window, IDC_CE_SPAWN_ADD, (a->caps & CAP_SPAWN) != 0);
-        ui_enable(window, IDC_CE_VALUES, (a->caps & CAP_VALUES) != 0);
-        ui_enable(window, IDC_CE_PUZZLES, (a->caps & CAP_PUZZLES) != 0);
-        ui_enable(window, IDC_CE_REVIVE, (a->caps & CAP_REVIVE) != 0);
         SetDlgItemTextA(window, IDC_CE_NOTE, a->refill_note);
+        ui_apply_mode(window);
         ui_refresh_lists(window);
         return TRUE;
     }
@@ -1277,6 +1359,18 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
         int id = LOWORD(wparam);
         if ((id == IDC_CE_TITLE || id == IDC_CE_TEXT) && HIWORD(wparam) == EN_CHANGE) {
             ui_update_counts(window);
+            return TRUE;
+        }
+        if (id == IDC_CE_CHOICE) {
+            ui.choice.enabled = IsDlgButtonChecked(window, IDC_CE_CHOICE) == BST_CHECKED;
+            ui_apply_mode(window);
+            return TRUE;
+        }
+        if (id == IDC_CE_CHOICES) {
+            /* The outcomes' result-text check reads the event's title. */
+            GetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title, sizeof ui.draft.title);
+            GetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text, sizeof ui.draft.text);
+            DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CHOICES), window, ui_choices_dialog, 0);
             return TRUE;
         }
         if (id == IDC_CE_OMITTED) {
@@ -1364,7 +1458,13 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             if (!ui_read_main(window)) {
                 return TRUE;
             }
-            refusal = ce_refusal(ui.game, &ui.draft);
+            if (ui_mode(window) == UI_MODE_OUTCOME) {
+                refusal = ce_result_refusal(ui.a, &ui.draft, ui.main_draft.title);
+            } else if (ui.choice.enabled) {
+                refusal = ce_choice_refusal(ui.game, &ui.draft, &ui.choice);
+            } else {
+                refusal = ce_refusal(ui.game, &ui.draft);
+            }
             if (refusal != NULL) {
                 ui_message(window, refusal);
                 return TRUE;
@@ -1373,9 +1473,12 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             return TRUE;
         }
         if (id == IDCANCEL) {
-            /* Keep the words typed for next time; nothing is checked. */
-            GetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title, sizeof ui.draft.title);
-            GetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text, sizeof ui.draft.text);
+            /* The event: keep the words typed for next time; nothing is
+               checked.  An outcome: its changes are left as they were. */
+            if (ui_mode(window) == UI_MODE_EVENT) {
+                GetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title, sizeof ui.draft.title);
+                GetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text, sizeof ui.draft.text);
+            }
             EndDialog(window, IDCANCEL);
             return TRUE;
         }
@@ -1386,14 +1489,214 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
     return FALSE;
 }
 
+/* ---- The choices dialog ---------------------------------------------------- */
+
+/* Edit outcome `index` of `button` (index == the count: a new one) in the
+   main dialog's outcome mode, on the outcome's own changes.  1 when kept. */
+static int ui_edit_outcome(HWND owner, int button, int index) {
+    ce_outcome *o = &ui.choice.outcomes[button][index];
+    int is_new = index >= ui.choice.outcome_count[button];
+    INT_PTR answer;
+    ui.main_draft = ui.draft;
+    if (is_new) {
+        memset(&ui.draft, 0, sizeof ui.draft);
+    } else {
+        ui.draft = o->effects;
+    }
+    ui.outcome_button = button;
+    ui.outcome_index = index;
+    answer = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CUSTOM), owner, ui_main_dialog,
+                             UI_MODE_OUTCOME);
+    if (answer == IDOK) {
+        o->effects = ui.draft;
+        o->effects.title[0] = '\0';
+        if (is_new) {
+            o->chance = 50;
+            ++ui.choice.outcome_count[button];
+        }
+    }
+    ui.draft = ui.main_draft;
+    return answer == IDOK;
+}
+
+/* A percentage to one place: chance of total, rounded. */
+static int ui_percent(int chance, int total) {
+    return total > 0 ? (chance * 100 + total / 2) / total : 0;
+}
+
+/* One button's outcomes list (each row: its share and its result text) and
+   the note under it; `select` is the row to select after (-1 none). */
+static void ui_choice_fill(HWND window, int button, int select) {
+    char row[96];
+    char note[200];
+    char *p = note;
+    int count = ui.choice.outcome_count[button];
+    int total = 0;
+    int k;
+    int i;
+    for (k = 0; k < count; ++k) {
+        total += ui.choice.outcomes[button][k].chance;
+    }
+    SendDlgItemMessageA(window, IDC_CC_LIST_FIRST + button, LB_RESETCONTENT, 0, 0);
+    for (k = 0; k < count; ++k) {
+        const ce_outcome *o = &ui.choice.outcomes[button][k];
+        int n = wsprintfA(row, "%d%%: ", ui_percent(o->chance, total));
+        for (i = 0; o->effects.text[i] != '\0' && n < (int)sizeof row - 4; ++i) {
+            char c = o->effects.text[i];
+            if (c == '\r') {
+                continue;
+            }
+            row[n++] = c == '\n' ? ' ' : c;
+        }
+        row[n] = '\0';
+        if (o->effects.text[i] != '\0') {
+            lstrcpyA(row + n, "...");
+        }
+        SendDlgItemMessageA(window, IDC_CC_LIST_FIRST + button, LB_ADDSTRING, 0, (LPARAM)row);
+    }
+    if (count == 0) {
+        lstrcpyA(note, "No outcomes yet: add one.");
+    } else if (count == 1) {
+        lstrcpyA(note, "One outcome: it always happens when this button is clicked.");
+    } else {
+        p += wsprintfA(p, "Chances add up to %d:", total);
+        for (k = 0; k < count; ++k) {
+            p += wsprintfA(p, "%s outcome %d is %d%%", k == 0 ? "" : ",", k + 1,
+                           ui_percent(ui.choice.outcomes[button][k].chance, total));
+        }
+        lstrcpyA(p, ".");
+    }
+    SetDlgItemTextA(window, IDC_CC_NOTE_FIRST + button, note);
+    ui.filling = 1;
+    if (select >= 0 && select < count) {
+        SendDlgItemMessageA(window, IDC_CC_LIST_FIRST + button, LB_SETCURSEL, (WPARAM)select, 0);
+        SetDlgItemInt(window, IDC_CC_CHANCE_FIRST + button,
+                      (UINT)ui.choice.outcomes[button][select].chance, FALSE);
+    } else {
+        SetDlgItemTextA(window, IDC_CC_CHANCE_FIRST + button, "");
+    }
+    ui_enable(window, IDC_CC_CHANCE_FIRST + button, select >= 0 && select < count);
+    ui_enable(window, IDC_CC_EDIT_FIRST + button, select >= 0 && select < count);
+    ui_enable(window, IDC_CC_REMOVE_FIRST + button, select >= 0 && select < count);
+    ui_enable(window, IDC_CC_ADD_FIRST + button, count < CE_MAX_OUTCOMES);
+    ui.filling = 0;
+}
+
+static int ui_choice_selection(HWND window, int button) {
+    int sel = (int)SendDlgItemMessageA(window, IDC_CC_LIST_FIRST + button, LB_GETCURSEL, 0, 0);
+    return sel >= 0 && sel < ui.choice.outcome_count[button] ? sel : -1;
+}
+
+static void ui_choice_read_labels(HWND window) {
+    int b;
+    for (b = 0; b < 2; ++b) {
+        GetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b], CE_BUTTON_BYTES);
+    }
+}
+
+static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    int b;
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        char text[160];
+        int width = ce_label_width(ui.a);
+        if (width > CE_BUTTON_BYTES - 1) {
+            width = CE_BUTTON_BYTES - 1;
+        }
+        for (b = 0; b < 2; ++b) {
+            SendDlgItemMessageA(window, IDC_CC_LABEL_FIRST + b, EM_LIMITTEXT, (WPARAM)width, 0);
+            SetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b]);
+            SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_LIMITTEXT, 3, 0);
+            ui_choice_fill(window, b, ui.choice.outcome_count[b] > 0 ? 0 : -1);
+        }
+        wsprintfA(text, "A label is up to %d characters in %s. A chance is 1-100: each outcome's "
+                        "share is its chance out of the button's total.", width, ui.a->game_name);
+        SetDlgItemTextA(window, IDC_CC_LIMIT, text);
+        return TRUE;
+    }
+    if (message == WM_COMMAND) {
+        int id = LOWORD(wparam);
+        int code = HIWORD(wparam);
+        for (b = 0; b < 2; ++b) {
+            int sel = ui_choice_selection(window, b);
+            if (id == IDC_CC_LIST_FIRST + b && code == LBN_SELCHANGE) {
+                ui_choice_fill(window, b, sel);
+                return TRUE;
+            }
+            if ((id == IDC_CC_LIST_FIRST + b && code == LBN_DBLCLK) || id == IDC_CC_EDIT_FIRST + b) {
+                if (sel >= 0 && ui_edit_outcome(window, b, sel)) {
+                    ui_choice_fill(window, b, sel);
+                }
+                return TRUE;
+            }
+            if (id == IDC_CC_ADD_FIRST + b) {
+                int count = ui.choice.outcome_count[b];
+                if (count >= CE_MAX_OUTCOMES) {
+                    ui_message(window, "A button can have four outcomes at most.");
+                } else if (ui_edit_outcome(window, b, count)) {
+                    ui_choice_fill(window, b, count);
+                }
+                return TRUE;
+            }
+            if (id == IDC_CC_REMOVE_FIRST + b) {
+                if (sel >= 0) {
+                    memmove(&ui.choice.outcomes[b][sel], &ui.choice.outcomes[b][sel + 1],
+                            (size_t)(ui.choice.outcome_count[b] - sel - 1) * sizeof(ce_outcome));
+                    --ui.choice.outcome_count[b];
+                    ui_choice_fill(window, b, sel < ui.choice.outcome_count[b] ? sel : sel - 1);
+                }
+                return TRUE;
+            }
+            if (id == IDC_CC_CHANCE_FIRST + b && code == EN_CHANGE && !ui.filling) {
+                int chance = ui_number(window, IDC_CC_CHANCE_FIRST + b);
+                if (sel >= 0 && chance >= 1 && chance <= CE_MAX_CHANCE) {
+                    ui.choice.outcomes[b][sel].chance = chance;
+                    /* The rows and the note, without resetting the box being typed in. */
+                    ui.filling = 1;
+                    ui_choice_fill(window, b, sel);
+                    SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_SETSEL, 4, 4);
+                    ui.filling = 0;
+                } else if (sel >= 0) {
+                    SetDlgItemTextA(window, IDC_CC_NOTE_FIRST + b, "Type a chance from 1 to 100.");
+                }
+                return TRUE;
+            }
+        }
+        if (id == IDOK) {
+            const char *refusal;
+            ui_choice_read_labels(window);
+            refusal = ce_buttons_refusal(ui.a, &ui.choice, ui.draft.title);
+            if (refusal != NULL) {
+                ui_message(window, refusal);
+                return TRUE;
+            }
+            EndDialog(window, IDOK);
+            return TRUE;
+        }
+        if (id == IDCANCEL) {
+            /* As the event's own Cancel: what was typed is kept for next time. */
+            ui_choice_read_labels(window);
+            EndDialog(window, IDCANCEL);
+            return TRUE;
+        }
+    } else if (message == WM_CLOSE) {
+        ui_choice_read_labels(window);
+        EndDialog(window, IDCANCEL);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* Arm `e` for `game`: make the island event due exactly as the Island Event
-   purchase does and remember the event.  1 on success. */
-static int ce_arm(int game, const ce_event *e) {
+   purchase does and remember the event -- with its two choices when `c` is
+   an enabled choice (NULL or not enabled: a plain event).  1 on success. */
+static int ce_arm_with(int game, const ce_event *e, const ce_choice *c) {
     if (!GAMES[game].arm()) {
         return 0;
     }
     ce_armed_event = *e;
     ce_armed_event.game = game;
+    ce_store_choice(game, c);
     ce_armed = 1;
     ce_armed_tick = STORY_TICK();
     ce_armed_village = story_village_now(game);
@@ -1437,10 +1740,11 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomIslandEvent(int game, HWND ow
     }
     if (ui.draft_game != game) {
         memset(&ui.draft, 0, sizeof ui.draft);
+        memset(&ui.choice, 0, sizeof ui.choice);
         ui.draft_game = game;
     }
-    if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CUSTOM), owner, ui_main_dialog, 0)
-        != IDOK) {
+    if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CUSTOM), owner, ui_main_dialog,
+                        UI_MODE_EVENT) != IDOK) {
         return 0;
     }
     if (MessageBoxA(owner,
@@ -1451,16 +1755,17 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomIslandEvent(int game, HWND ow
         return 0;
     }
     /* The village may have moved on while the boxes were open. */
-    refusal = ce_refusal(game, &ui.draft);
+    refusal = ce_choice_refusal(game, &ui.draft, &ui.choice);   /* plain: ce_refusal */
     if (refusal == NULL && GAMES[game].island_pending()) {
         refusal = "An island event is already queued and on its way.";
     }
-    if (refusal != NULL || !ce_arm(game, &ui.draft)) {
+    if (refusal != NULL || !ce_arm_with(game, &ui.draft, &ui.choice)) {
         ui_message(owner, refusal != NULL ? refusal
                                           : "The event can not happen right now. No tech points have been deducted.");
         return 0;
     }
     memset(&ui.draft, 0, sizeof ui.draft);     /* queued: start the next one fresh */
+    memset(&ui.choice, 0, sizeof ui.choice);
     ui_message(owner, "Your custom island event is on its way.");
     return 1;
 }

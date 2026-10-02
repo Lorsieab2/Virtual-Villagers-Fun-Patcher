@@ -54,6 +54,8 @@
 #define CAP_RELITTER    0x00800000u   /* an existing pregnancy's babies changed */
 #define CAP_UNBORN      0x01000000u   /* the unborn baby's father */
 #define CAP_REVIVE      0x02000000u   /* skeletons revived */
+#define CAP_CHOICE      0x04000000u   /* a question with two choices (the game's own
+                                         two-button popup is hooked) */
 
 enum { CE_FATE_NONE = 0, CE_FATE_KILL = 1, CE_FATE_VANISH = 2 };
 /* ce_change.litter: 0 no change, 1..3 babies, CE_LITTER_CANCEL not pregnant. */
@@ -161,6 +163,34 @@ typedef struct {
     int revive_count;
     ce_revive revives[CE_MAX_REVIVES];
 } ce_event;
+
+/* ---- Two-choice events ------------------------------------------------------
+
+   The owner: "I want the player to be able to choose the outcomes.  Some
+   buttons should have a chance of multiple outcomes too."
+
+   The event's own ce_event holds the title and the QUESTION (its text) and
+   no changes.  Each of the two buttons has a label and 1..CE_MAX_OUTCOMES
+   outcomes; when the button is clicked one outcome is rolled, weighted by
+   the chances, and its ce_event (`effects`: its text is the RESULT text, its
+   title is unused) is applied exactly as a plain custom event is.  Kept in
+   static storage only: a ce_choice is about half a megabyte. */
+#define CE_MAX_OUTCOMES 4
+#define CE_BUTTON_BYTES 32              /* a button label, NUL included */
+#define CE_MAX_CHANCE 100               /* chances are weights 1..CE_MAX_CHANCE */
+#define CE_LABEL_DEFAULT_WIDTH 12       /* a label's characters when the adapter sets none */
+
+typedef struct {
+    int chance;                          /* 1..CE_MAX_CHANCE, a weight */
+    ce_event effects;                    /* effects.text = the result text */
+} ce_outcome;
+
+typedef struct {
+    int enabled;                         /* 1 = the event asks the question */
+    char labels[2][CE_BUTTON_BYTES];
+    int outcome_count[2];                /* 1..CE_MAX_OUTCOMES each */
+    ce_outcome outcomes[2][CE_MAX_OUTCOMES];
+} ce_choice;
 
 /* What the delivery did, for the popup's closing lines and the tests. */
 typedef struct {

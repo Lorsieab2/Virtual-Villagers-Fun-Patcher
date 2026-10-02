@@ -987,7 +987,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeQueueCustom(int game, const ce
     }
     test_tick = tick;
     install_state[game] = 1;
-    return ce_arm(game, event);
+    return ce_arm_with(game, event, NULL);
 }
 
 /* Arms `event` WITHOUT making the island event due (the delivery tests
@@ -996,6 +996,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_e
                                                             DWORD tick) {
     ce_armed_event = *event;
     ce_armed_event.game = game;
+    ce_armed_is_choice = 0;
     ce_armed = 1;
     ce_armed_tick = tick;
     ce_armed_village = story_village_now(game);
@@ -1100,5 +1101,128 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeSizes(int *out) {
 
 __declspec(dllexport) const void *__stdcall VvfpStoryProbeObject(void) {
     return &ce_object;
+}
+
+/* ---- Two-choice events ---- */
+
+/* The layout the tests pack choices in: sizeof ce_choice, sizeof
+   ce_outcome, the offsets of .labels, .outcome_count and .outcomes,
+   CE_BUTTON_BYTES, CE_MAX_OUTCOMES, CE_MAX_CHANCE, CE_LABEL_DEFAULT_WIDTH,
+   offsetof(ce_outcome, effects). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
+    out[0] = (int)sizeof(ce_choice);
+    out[1] = (int)sizeof(ce_outcome);
+    out[2] = (int)offsetof(ce_choice, labels);
+    out[3] = (int)offsetof(ce_choice, outcome_count);
+    out[4] = (int)offsetof(ce_choice, outcomes);
+    out[5] = CE_BUTTON_BYTES;
+    out[6] = CE_MAX_OUTCOMES;
+    out[7] = CE_MAX_CHANCE;
+    out[8] = CE_LABEL_DEFAULT_WIDTH;
+    out[9] = (int)offsetof(ce_outcome, effects);
+}
+
+/* The capabilities of `game`'s adapter. */
+__declspec(dllexport) unsigned int __stdcall VvfpStoryProbeCaps(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL ? a->caps : 0;
+}
+
+/* Every game may ask a question (1) or only those whose adapter has
+   CAP_CHOICE (0): the engine is tested apart from the hooks. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeChoiceCap(int on) {
+    test_choice_cap = on;
+}
+
+/* The next roll is `roll` (modulo the chances' total), -1 = the real source. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSetRoll(int roll) {
+    test_roll = roll;
+}
+
+/* The pure weighted pick: which of `count` outcomes with `chances` the
+   roll value `roll` (0..sum-1) selects. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeRollIndex(const int *chances, int count, int roll) {
+    return ce_roll_index(chances, count, roll);
+}
+
+/* `times` rolls of `button` of `choice` in `game` through the real random
+   source, counting each outcome in counts[0..3]. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeRollMany(int game, const ce_choice *choice, int button,
+                                                            int times, int *counts) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int i;
+    for (i = 0; i < CE_MAX_OUTCOMES; ++i) {
+        counts[i] = 0;
+    }
+    for (i = 0; i < times && a != NULL; ++i) {
+        int k = ce_choice_roll(a, choice, button);
+        if (k >= 0 && k < CE_MAX_OUTCOMES) {
+            ++counts[k];
+        }
+    }
+}
+
+/* Why the two-choice event cannot be queued in `game` now, or NULL. */
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeChoiceRefusal(int game, const ce_event *event,
+                                                                        const ce_choice *choice) {
+    return ce_choice_refusal(game, event, choice);
+}
+
+/* Arms the two-choice event exactly as the purchase does (the island event
+   made due), at test tick `tick`.  1 on success. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeQueueChoice(int game, const ce_event *event,
+                                                              const ce_choice *choice, DWORD tick) {
+    if (game < 1 || game > 5) {
+        return 0;
+    }
+    test_tick = tick;
+    install_state[game] = 1;
+    return ce_arm_with(game, event, choice);
+}
+
+/* Arms the two-choice event WITHOUT making the island event due (the
+   engine tests drive the entry points directly), as ce_arm_with stores it. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeSetChoice(int game, const ce_event *event,
+                                                            const ce_choice *choice, DWORD tick) {
+    ce_armed_event = *event;
+    ce_armed_event.game = game;
+    ce_store_choice(game, choice);
+    ce_armed = 1;
+    ce_armed_tick = tick;
+    test_tick = tick;
+    ce_armed_village = story_village_now(game);
+    return 1;
+}
+
+/* The hooks' entry points. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeChoiceBegin(int game, char *text, int size) {
+    return ce_choice_begin(game, text, size);
+}
+
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeChoiceLabel(int game, int button) {
+    return ce_choice_label(game, button);
+}
+
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeChoiceTitle(int game) {
+    return ce_choice_title(game);
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryProbeChoiceResolve(int game, int button, char *text, int size) {
+    return ce_choice_resolve(game, button, text, size);
+}
+
+/* ce_choice_pending, ce_choice_asked, and the last resolved button and
+   outcome, into out[0..3]. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeChoiceState(int game, int *out) {
+    out[0] = ce_choice_pending(game);
+    out[1] = ce_choice_asked(game);
+    out[2] = ce_last_button;
+    out[3] = ce_last_outcome;
+}
+
+/* The plain delivery the VV1 / VV2 hooks call (a two-choice event must not
+   go through it). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeDeliver(int game, char *text, int size) {
+    return ce_deliver(game, text, size);
 }
 #endif

@@ -91,7 +91,7 @@ static void *ce_build_object(unsigned int source, const int *slots, void *const 
    NULL when no custom event is armed for `game`. */
 static void *ce_deliver_object(int game, unsigned int string_table, int title_id, int body_id,
                                int replace_existing) {
-    if (!ce_pending(game)) {
+    if (!ce_plain_pending(game)) {
         return NULL;
     }
     if (!ce_install_strings(string_table, title_id, body_id, replace_existing)) {
