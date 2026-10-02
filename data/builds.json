@@ -1557,6 +1557,30 @@
       ]
     },
     {
+      "id": "vv1_fix_vanilla_bugs",
+      "game_id": "vv1",
+      "name": "Fix Vanilla Bugs",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. **Needs no other patch.**",
+      "output_tag": "Fix Vanilla Bugs",
+      "behavior_changes": [
+        "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby."
+      ],
+      "explicit_non_changes": [
+        "The result text, the drinker's new age (80) and every other vial result are the base game's own.",
+        "Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected.",
+        "No save data, villager record layout or art is changed."
+      ],
+      "evidence_status": "static exact-build evidence and emulation of the real event code; live confirmation pending",
+      "patches": [
+        {
+          "offset": "0x19CC1",
+          "before": "899C02580300008B8E985000008B96A850000069C9D80300005F8D04118B88480300005D5E89884C030000",
+          "after": "8D040289985803000089985C0300008B96A85000008B88480300005F5D5E89884C0300000F1F8000000000",
+          "purpose": "A Mysterious Vial (blue liquid), toddler result: the record tail of resolve 0x419380 (0x419CC1..0x419CEB) re-encoded with the drinker's record computed once; it clears the litter +0x35C as well as the pregnancy +0x358, and leaves the same registers and fields as the base game"
+        }
+      ]
+    },
+    {
       "id": "vv2_fix_vanilla_bugs",
       "game_id": "vv2",
       "name": "Fix Vanilla Bugs",
