@@ -1570,7 +1570,7 @@
         "Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected.",
         "No save data, villager record layout or art is changed."
       ],
-      "evidence_status": "static exact-build evidence and emulation of the real event code; live confirmation pending",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way",
       "patches": [
         {
           "offset": "0x19CC1",
@@ -1595,7 +1595,7 @@
         "The result text, the \"give it to the children\" choice, every other island event and the event's chance of being chosen are the base game's own.",
         "No save data, villager record layout or art is changed."
       ],
-      "evidence_status": "static exact-build evidence and emulation of the real resolve and chooser code; live confirmation pending",
+      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running",
       "patches": [
         {
           "offset": "0x1F636",
@@ -1627,7 +1627,7 @@
         "The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change.",
         "No save data, villager record layout or art is changed."
       ],
-      "evidence_status": "static exact-build evidence and emulation of the real event code; live confirmation pending",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder",
       "patches": [
         {
           "offset": "0x180FB",

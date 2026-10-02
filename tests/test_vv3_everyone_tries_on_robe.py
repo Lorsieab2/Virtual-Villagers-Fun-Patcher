@@ -185,17 +185,21 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # complete catalog with main and with the merged branch, the only differing bytes in
     # all three modes are the PE CheckSum (0x160..0x161), the site 0x5BF52..0x5BF56 and the
     # stub at 0xCBA8A..0xCBAFE.
+    # Re-pinned for Fix Vanilla Bugs (vv3_fix_vanilla_bugs). Justified BEFORE
+    # re-pinning: rendering the complete catalog with main e434757a and with the
+    # branch, the only differing bytes in all three modes are the PE CheckSum
+    # (0x160..0x162) and the row's own 0x173E1, 0x1779A..0x177CA and 0x180FB.
     "stock": (
-        "6891D23B94A565C71DA337DD3B1FF05706FF12703739433E4C56A1D605B69D95",
-        "005E0D00",
+        "CF816CC60A463C3C766EE5FA059A97AE8E25A4E99ED90E8634B78F7ABE232287",
+        "E3F80C00",
     ),
     "collection_progression": (
-        "C3B6F19C7325E4E75024947F7C179E1FCEAAA54E5E2C6EB392FFF4DB4ECE057D",
-        "00770D00",
+        "2EA8388A08AE4F71057726C11171FDF13959975261E9BAC38313C923A7F980BA",
+        "E3110D00",
     ),
     "immediate_fixed": (
-        "29483D145E853BEF1B7F6326FF9C332A00DACCA712C5BECAA170D281EBE263A3",
-        "FEB80D00",
+        "B07721065236711526F1E4C8A2A9F7F6E1FA5A451F0404CA878C7227F31D40AC",
+        "E1530D00",
     ),
 }
 
