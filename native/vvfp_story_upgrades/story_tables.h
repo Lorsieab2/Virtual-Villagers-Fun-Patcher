@@ -2395,6 +2395,8 @@ static const oc_control VV4_OC_CONTROLS[] = {
     { "Which villager meets the stranger", "any villager: alive and present ([rec+0x1CC4]!=0, [rec+0x1CC7]==0, 0x4679D6/0x4679E0) with health [rec+0x1C40] > 0 (0x4679E9)", NULL, -1, 4, 1, 19, -1, 35, 29, 0, 0, 0, 0, -1, -1, 7, 0, 0, 24, 2, 4, 0, 0, NULL, 29, 0, 0 },
 };
 static const oc_event VV4_OC_EVENTS[] = {
+    { 5, 0, 0, 0, 1, 0, NULL },
+    { 6, 0, 0, 0, 1, 8, "Never happens in the original game (its condition always fails); its code and text are complete and it works. It needs room in the village for the new villager." },
     { 7, 0, 1, 0, 0, 0, NULL },
     { 8, 1, 1, 0, 0, 0, NULL },
     { 12, 2, 1, 0, 0, 0, NULL },
@@ -2405,13 +2407,15 @@ static const oc_event VV4_OC_EVENTS[] = {
     { 18, 15, 1, 0, 0, 0, NULL },
     { 20, 16, 1, 0, 0, 0, NULL },
     { 21, 17, 2, 0, 0, 0, NULL },
-    { 25, 19, 9, 0, 0, 0, NULL },
-    { 26, 28, 3, 0, 0, 0, NULL },
-    { 28, 31, 3, 0, 0, 0, NULL },
+    { 22, 19, 0, 0, 1, 0, NULL },
+    { 25, 19, 9, 0, 1, 8, NULL },
+    { 26, 28, 3, 0, 1, 0, NULL },
+    { 27, 31, 0, 0, 1, 0, NULL },
+    { 28, 31, 3, 0, 1, 9, NULL },
     { 29, 34, 2, 0, 0, 0, NULL },
     { 30, 36, 1, 0, 0, 0, NULL },
     { 31, 37, 1, 0, 0, 0, NULL },
-    { 32, 38, 2, 0, 0, 0, NULL },
+    { 32, 38, 2, 0, 1, 1, NULL },
     { 33, 40, 1, 0, 0, 0, NULL },
     { 34, 41, 1, 0, 0, 0, NULL },
     { 35, 42, 2, 0, 0, 0, NULL },
@@ -2425,17 +2429,18 @@ static const oc_event VV4_OC_EVENTS[] = {
     { 43, 57, 3, 0, 0, 0, NULL },
     { 44, 60, 2, 0, 0, 0, NULL },
     { 45, 62, 3, 0, 0, 0, NULL },
-    { 46, 65, 3, 0, 0, 0, NULL },
+    { 46, 65, 3, 0, 1, 1, NULL },
     { 47, 68, 2, 0, 0, 0, NULL },
-    { 48, 70, 1, 0, 0, 0, NULL },
+    { 48, 70, 1, 0, 1, 1, NULL },
     { 49, 71, 1, 0, 0, 0, NULL },
 };
-#define VV4_OC_EVENT_COUNT 34
+#define VV4_OC_EVENT_COUNT 38
 static const story_event VV4_EVENTS[] = {
     { 2, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 3, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },
     { 4, "Isola Day Celebration", "", "The villagers celebrate their arrival on Isola with feasts.", "nothing beyond an island event being possible" },
     { 5, "Day of Honor", "", "The villagers pay their respects to those who have passed on.", "the game's own condition for the day of honor (graves)" },
+    { 6, "The Canoe from the Other Side", "", "A canoe lands on the beach and a villager from another part of Isola joins the village.", "nothing it can have: the original game never runs it (picking it makes it happen); it needs room in the village for a new villager" },
     { 7, "The Mysterious Footprints", "food gained", "Footprints appear overnight, and honeycombs: the village gains food.", "nothing beyond an island event being possible" },
     { 8, "The Mysterious Footprints", "food lost", "Footprints appear overnight, and food is stolen.", "nothing beyond an island event being possible" },
     { 9, "The Mysterious Footprints", "tech gained", "Footprints appear overnight, and useful instruments: tech points gained.", "nothing beyond an island event being possible" },
@@ -2474,10 +2479,10 @@ static const story_event VV4_EVENTS[] = {
     { 45, "Innovation in Construction", "", "A builder tests a dangerous new way to build huts.", "a villager the event can be about" },
     { 46, "Innovation in Farming", "", "A villager tries to speed up cooking by sitting on the cooking pit.", "a villager the event can be about, and the game's own technology condition" },
     { 47, "Tough Lessons", "", "A child is stuck high in the Tree of Life: rescue them, or let them learn.", "a child and an adult the event can be about" },
-    { 48, "The Pretty Shell", "", "Two children fight over a shell: teach them to share, or decide who keeps it.", "at least two children" },
+    { 48, "The Pretty Shell", "", "Two children fight over a shell: teach them to share, or decide who keeps it.", "an adult the event can be about, and at least two adults" },
     { 49, "The Legendary Stranger", "", "Biggles appears by the Tree of Life and answers one question.", "a villager the event can be about" },
 };
-#define VV4_EVENT_COUNT 44
+#define VV4_EVENT_COUNT 45
 
 static const unsigned char VV5_W0_E[40] = { 0x50, 0xC3, 0x00, 0x00, 0x30, 0x75, 0x00, 0x00, 0xF8, 0x24, 0x01, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x30, 0x75, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0xA0, 0x86, 0x01, 0x00, 0x40, 0x9C, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00 };
 static const unsigned char VV5_W0_R[40] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -3125,6 +3130,7 @@ static const oc_control VV5_OC_CONTROLS[] = {
     { "If you fix the mask: health lost", "health lost (20..30)", NULL, 0, 2, 3, -1, -1, 43, 91, 0, 11, 20, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 104, 0, 0 },
 };
 static const oc_event VV5_OC_EVENTS[] = {
+    { 4, 0, 0, 0, 1, 0, NULL },
     { 5, 0, 2, 0, 0, 0, NULL },
     { 6, 2, 1, 0, 0, 0, NULL },
     { 7, 3, 1, 0, 0, 0, NULL },
@@ -3134,28 +3140,31 @@ static const oc_event VV5_OC_EVENTS[] = {
     { 14, 10, 1, 0, 0, 0, NULL },
     { 15, 11, 1, 0, 0, 0, NULL },
     { 18, 12, 1, 0, 0, 0, NULL },
-    { 23, 13, 1, 0, 0, 0, NULL },
+    { 21, 13, 0, 0, 1, 0, NULL },
+    { 23, 13, 1, 0, 1, 0, NULL },
     { 24, 14, 2, 0, 0, 0, NULL },
+    { 25, 16, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
     { 26, 16, 9, 0, 0, 0, NULL },
     { 27, 25, 9, 0, 0, 0, NULL },
     { 30, 34, 9, 0, 0, 0, NULL },
     { 31, 43, 3, 0, 0, 0, NULL },
+    { 33, 46, 0, 0, 1, 8, "Never happens in the original game (its condition always fails); its code and text are complete and it works. It needs room in the village for the babies." },
     { 34, 46, 1, 0, 0, 0, NULL },
     { 35, 47, 1, 0, 0, 0, NULL },
     { 36, 48, 2, 0, 0, 0, NULL },
     { 37, 50, 3, 0, 0, 0, NULL },
     { 38, 53, 2, 0, 0, 0, NULL },
     { 39, 55, 2, 0, 0, 0, NULL },
-    { 40, 57, 2, 0, 0, 0, NULL },
+    { 40, 57, 2, 0, 1, 1, NULL },
     { 41, 59, 1, 0, 0, 0, NULL },
-    { 42, 60, 1, 0, 0, 0, NULL },
+    { 42, 60, 1, 0, 1, 1, NULL },
     { 43, 61, 1, 0, 0, 0, NULL },
     { 44, 62, 2, 0, 0, 0, NULL },
     { 45, 64, 1, 0, 0, 0, NULL },
     { 46, 65, 1, 0, 0, 0, NULL },
     { 47, 66, 3, 0, 0, 0, NULL },
 };
-#define VV5_OC_EVENT_COUNT 29
+#define VV5_OC_EVENT_COUNT 33
 static const story_event VV5_EVENTS[] = {
     { 1, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 2, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },
@@ -3181,12 +3190,14 @@ static const story_event VV5_EVENTS[] = {
     { 22, "The Clumsy Heathen", "", "A heathen spills a potion on the noni bush, which then bears more fruit.", "nothing beyond an island event being possible" },
     { 23, "The Pesky Critter", "", "A noisy lemur distracts the researchers: tech points lost.", "the game's own progress condition for the lab" },
     { 24, "Mushroom Day!", "", "The villagers celebrate mushrooms, with cake for the children.", "a child the event can be about" },
+    { 25, "The Stinging Wasps", "", "Wasps nest around the village and sting many villagers.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 26, "Barrel O' Babies!", "believers", "A barrel of babies floats down the stream and the believers adopt them.", "room in the village for new villagers" },
     { 27, "Barrel O' Babies!", "heathens", "A barrel of babies floats down the stream and the heathens adopt them.", "room in the village for new villagers" },
     { 28, "The Salty Air", "", "A salty wind forces the villagers to hide until it settles.", "nothing beyond an island event being possible" },
     { 30, "Chutes Without Ladders", "", "Toddlers shoot out of the bushes into the hot springs and join the tribe.", "room in the village for new villagers" },
     { 31, "News From Another Tribe", "a newcomer", "A respected master from another tribe joins the village.", "room in the village for a new villager" },
     { 32, "News From Another Tribe", "a message", "A message from another village: the tribe gains tech points.", "nothing beyond an island event being possible" },
+    { 33, "The Abandoned Infants", "", "Babies are found abandoned in the bushes and the women take them in.", "nothing it can have: the original game never runs it (picking it makes it happen); it needs room in the village for new villagers" },
     { 34, "The Spa", "", "A villager sneaks into the heathens' five pools.", "a villager the event can be about" },
     { 35, "Doubt", "", "A villager doubts the Guiding Hand and demands a sign.", "a villager the event can be about" },
     { 36, "Spying on the Heathens", "", "A child spies on the heathens and gets caught.", "a child the event can be about" },
@@ -3203,6 +3214,6 @@ static const story_event VV5_EVENTS[] = {
     { 47, "The Cracked Mask", "", "A heathen's mask is broken: help glue it, or not.", "a villager the event can be about" },
     { 55, "Innovation in Farming", "the mysterious storyteller", "A mysterious storyteller from the older parts of the island appears.", "a child the event can be about, and the game's own progress condition" },
 };
-#define VV5_EVENT_COUNT 45
+#define VV5_EVENT_COUNT 47
 
 #endif

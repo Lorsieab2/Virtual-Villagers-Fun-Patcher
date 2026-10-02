@@ -949,6 +949,27 @@ class GongTests(unittest.TestCase):
         g = self._gong(tick=10 * 60 * 1000 + 1)
         self.assertEqual(self._ring(g), [(ARMED, 0)])
 
+    def test_the_gongs_own_code_makes_the_chosen_villagers_sick(self):
+        """The Gong's routine 0x44E8A0 run for real: 'Takes health' of tier B
+        (30%) and tier C (15%), with the chosen villagers -- only they fall
+        sick (+0x53C).  Tier B needs the tiers unlocked (village +0x2E910)."""
+        cs = controls_of("vv2", GONG_SLOT)
+        ids = {c["id"]: i for i, c in enumerate(cs)}
+        result = cs[ids["result"]]
+        for loop, pct in (("sick_b", "30%"), ("sick_c", "15%")):
+            with self.subTest(loop=loop):
+                g = Game("vv2")
+                g.proc.write(g.village.world + 0x2E910, b"\1")
+                k = [i for i, o in enumerate(result["options"]) if pct in o["label"]][0]
+                g.proc.export("VvfpStoryProbeSetTick", 0)
+                g.arm(GONG_SLOT, {ids["result"]: k, ids[loop]: CHOOSE}, who={ids[loop]: [1, 4]})
+                g.proc.stub(0x4239D0, lambda p: (0, 0x1C))      # sparkles
+                g.proc.stub(0x4257A0, lambda p: (0, 8))         # the message
+                g.proc.set_reg("ecx", g.village.base)
+                g.proc.set_reg("esp", STACK)
+                g.proc.run(0x461B8E, 0x461B93)
+                self.assertEqual([g.village.i32(i, 0x53C) for i in range(6)], [0, 1, 0, 0, 1, 0])
+
     def test_the_gongs_choice_never_answers_an_island_event_and_back(self):
         g = self._gong()
         g.force(DELIVERED, -1, 1)                    # an island event's apply running
@@ -1035,26 +1056,43 @@ class UnlockTests(unittest.TestCase):
         self.assertEqual(g.proc.call(0x41F570, [], ecx=event), 14)
 
     def test_vv3_vv5_the_needed_villager_must_have_been_picked(self):
-        for game in ("vv3",):
+        """Its condition fails; it is delivered only if that condition picked
+        the villager(s) it needs THIS time (a value left from an earlier pass
+        never counts) and, for an event that makes villagers, there is room."""
+        rooms = {"vv3": 0x45FE30, "vv4": 0x468350, "vv5": 0x472BD0}
+        for game in ("vv3", "vv4", "vv5"):
             site, resume = PICK_SITES[game]
             for slot, entry in outcomes.UNLOCKED[game].items():
-                for subject in (1, 0):
-                    with self.subTest(game=game, slot=slot, subject=subject):
+                fields = [off for off in entry["needs"] if off != "room"]
+                cases = [("picked now", True, True), ("left from before", False, True)]
+                if "room" in entry["needs"]:
+                    cases.append(("no room", True, False))
+                for case, picks, room in cases:
+                    with self.subTest(game=game, slot=slot, case=case):
                         g = Game(game)
+                        g.proc.stub(rooms[game], lambda p, room=room: (1 if room else 0, 0))
                         for other in range(1, 58):            # every other slot: its own object
                             g.proc.put32(TABLES[game] + 4 * other, g.proc.alloc(0x40))
                         event = _Event(g, slot)
-                        g.proc.stub(event.code + 1, lambda p: (0, 0))      # its condition fails
-                        for off in entry["needs"]:
-                            g.proc.put32(event.obj + off, g.village.record(1) if subject else 0)
+                        record = g.village.record(1)
+
+                        def condition(p, picks=picks):        # fails, after picking (or not)
+                            for off in fields:
+                                if picks:
+                                    p.put32(p.reg("ecx") + off, record)
+                            return 0, 0
+                        g.proc.stub(event.code + 1, condition)
+                        for off in fields:
+                            g.proc.put32(event.obj + off, record)     # an earlier pass's villager
                         g.proc.export("VvfpStoryProbeSetTick", 0)
                         g.proc.export("VvfpStoryProbeSetPick", g.n, _position(game, slot), 0)
                         g.arm(slot, {}, unlocked=1)
-                        g.proc.set_reg("esi", 1 if slot != 1 else 2)
+                        other = 2 if slot != 2 else 3
+                        g.proc.set_reg("esi", other)
                         g.proc.set_reg("esp", STACK)
                         g.proc.run(site, resume)
-                        delivered = subject or not entry["needs"]
-                        self.assertEqual(g.proc.reg("esi"), slot if delivered else (1 if slot != 1 else 2))
+                        delivered = (picks or not fields) and room
+                        self.assertEqual(g.proc.reg("esi"), slot if delivered else other)
 
 
 def story_index(g: Game, record: int) -> int:

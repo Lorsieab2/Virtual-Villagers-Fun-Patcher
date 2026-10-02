@@ -1050,12 +1050,19 @@ class DeadEventTests(unittest.TestCase):
             dead = {s for s, vt in vtables.items() if image.u32(vt + 4) == 0x415B10}
             self.assertEqual(dead, {25, 29, 33, 48, 49, 50, 51, 52, 53, 54})
             offered = {e["slot"] for e in story_island_events.EVENTS["vv5"]}
-            self.assertEqual(offered, set(slots) - dead)
+            # The Stinging Wasps and The Abandoned Infants work: offered as
+            # never happening in the original game; the rest stay excluded.
+            self.assertEqual(offered, set(slots) - (dead - {25, 33}))
+            for slot in (25, 33):
+                self.assertIn(slot, outcomes.DEAD_NOTES["vv5"])
 
     def test_vv3_and_vv4_offer_every_live_slot(self):
         self.assertEqual({e["slot"] for e in story_island_events.EVENTS["vv3"]}, set(range(1, 58)))
+        # The Canoe from the Other Side (6) works and is offered as never
+        # happening in the original game.
         self.assertEqual({e["slot"] for e in story_island_events.EVENTS["vv4"]},
-                         set(range(1, 50)) - {1, 6, 16, 19, 24})
+                         set(range(1, 50)) - {1, 16, 19, 24})
+        self.assertIn(6, outcomes.DEAD_NOTES["vv4"])
 
 
 # ---------------------------------------------------------------------------

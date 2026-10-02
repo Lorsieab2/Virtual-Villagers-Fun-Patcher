@@ -252,6 +252,16 @@ UNLOCKED: dict[str, dict[int, dict]] = {
         26: {"needs": [4]}, 36: {"needs": [4, 0xC]}, 41: {"needs": [4]}, 44: {"needs": [4]},
         49: {"needs": []}, 54: {"needs": []},
     },
+    "vv4": {
+        5: {"needs": []}, 22: {"needs": []}, 25: {"needs": ["room"]}, 26: {"needs": []},
+        27: {"needs": []}, 28: {"needs": [4, "room"]}, 32: {"needs": [4]}, 46: {"needs": [4]},
+        48: {"needs": [4]},
+        6: {"needs": ["room"]},                     # developer-dead, works
+    },
+    "vv5": {
+        4: {"needs": []}, 21: {"needs": []}, 23: {"needs": []}, 40: {"needs": [4]}, 42: {"needs": [4]},
+        25: {"needs": []}, 33: {"needs": ["room"]},  # developer-dead, work
+    },
 }
 DEAD_NOTES: dict[str, dict[int, str]] = {
     "vv1": {1: "Never happens in the original game (its condition always fails); its code and "
@@ -260,4 +270,10 @@ DEAD_NOTES: dict[str, dict[int, str]] = {
                           "code and text are complete and it works."},
     "vv2": {s: "Never happens in the original game (its condition always fails); its code and "
                "text are complete and it works." for s in (18, 20, 26)},
+    "vv4": {6: "Never happens in the original game (its condition always fails); its code and text "
+               "are complete and it works. It needs room in the village for the new villager."},
+    "vv5": {25: "Never happens in the original game (its condition always fails); its code and text "
+                "are complete and it works.",
+            33: "Never happens in the original game (its condition always fails); its code and text "
+                "are complete and it works. It needs room in the village for the babies."},
 }

@@ -300,11 +300,36 @@ static int oc_unlocked(int game, int slot) {
    condition method still runs (it picks the villager the event is about
    before the check that fails); the event is delivered only when what the
    popup and apply need from it is there -- the fields of `object` named by
-   the event's unlock_need (1 = +0x4, 2 = +0xC, 4 = +0x10). */
+   the event's unlock_need (1 = +0x4, 2 = +0xC, 4 = +0x10) -- and, where the
+   event makes new villagers (8), while the game's own room test passes.
+   Before the condition method runs for a delivery, oc_unlock_prepare clears
+   the fields it must fill, so only a villager it picks now can count (never
+   one left from an earlier pass). */
+static void oc_unlock_prepare(int game, int slot, void *object) {
+    const oc_event *e = oc_find_event(game, slot);
+    unsigned char *o = (unsigned char *)object;
+    if (e == NULL || !e->unlock || o == NULL) {
+        return;
+    }
+    if (e->unlock_need & 1) {
+        *(unsigned int *)(o + 4) = 0;
+    }
+    if (e->unlock_need & 2) {
+        *(unsigned int *)(o + 0xC) = 0;
+    }
+    if (e->unlock_need & 4) {
+        *(unsigned int *)(o + 0x10) = 0;
+    }
+}
+
 static int oc_unlock_ready(int game, int slot, const void *object) {
     const oc_event *e = oc_find_event(game, slot);
     const unsigned char *o = (const unsigned char *)object;
+    const ce_adapter *a = ce_adapter_for(game);
     if (e == NULL || !e->unlock || o == NULL) {
+        return 0;
+    }
+    if ((e->unlock_need & 8) && (a == NULL || !a->room())) {
         return 0;
     }
     if ((e->unlock_need & 1) && *(const unsigned int *)(o + 4) == 0) {
