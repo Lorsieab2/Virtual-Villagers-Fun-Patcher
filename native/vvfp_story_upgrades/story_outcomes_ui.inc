@@ -194,7 +194,7 @@ static void oc_value_text(const oc_control *c, int ci, const oc_settings *s, cha
 }
 
 static void chooser_row_text(const oc_event *e, int row, char *out) {
-    char value[160];
+    char value[1100];
     const oc_settings *s = &chooser.settings[chooser.current];
     if (chooser_is_strength_row(e, row)) {
         oc_strength_text(e, s->strength, value);
@@ -252,7 +252,7 @@ static void chooser_fill_who(HWND window, int row) {
 static void chooser_fill_editor(HWND window) {
     const oc_event *e = chooser_oc(chooser.current);
     const oc_settings *s;
-    char text[256];
+    char text[1100];                    /* wsprintfA writes at most 1024 */
     int row = chooser.row;
     chooser.filling = 1;
     SendDlgItemMessageA(window, IDC_PICK_VALUE, CB_RESETCONTENT, 0, 0);
@@ -373,7 +373,7 @@ static void chooser_fill_editor(HWND window) {
 static void chooser_fill_rows(HWND window) {
     const oc_event *e = chooser_oc(chooser.current);
     int i;
-    char text[320];
+    char text[1100];
     SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_RESETCONTENT, 0, 0);
     for (i = 0; i < chooser_rows(e); ++i) {
         chooser_row_text(e, i, text);
@@ -394,7 +394,7 @@ static void chooser_fill_rows(HWND window) {
 
 static void chooser_refresh_row(HWND window) {
     const oc_event *e = chooser_oc(chooser.current);
-    char text[320];
+    char text[1100];
     if (e == NULL || chooser.row < 0) {
         return;
     }
@@ -592,7 +592,7 @@ static void chooser_summary(int index, char *out, int size) {
     }
     chooser.current = index;
     for (i = 0; i < chooser_rows(e); ++i) {
-        char line[320];
+        char line[1100];
         if (chooser_is_strength_row(e, i) ? chooser.settings[index].strength == 0
                                           : chooser.settings[index].choice[i] == OC_RANDOM) {
             continue;

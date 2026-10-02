@@ -347,9 +347,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Re-pinned when it learned Custom Island Event (Story / Cheat
         # Upgrades part 2): the second Tech-menu button and the host table
         # (save slot, mask store) it hands the story companion.
+        # Re-pinned when it learned Pick Gong of Wonder Outcome (v1.35.46): a
+        # third Tech-menu button, outside the Island Event lock.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "0D20CE13AC0D70C6947C6F2314F830BCEF3B3A930DF6499664F98679C6E609AC",
+            "2E54F000A60BAAA03657B2343394CC574796CCBF05B2D07E2BDA43B4AA406B47",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
