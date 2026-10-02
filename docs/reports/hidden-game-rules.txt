@@ -417,8 +417,8 @@ FOOD AND HEALTH
 ISLAND EVENTS AND CATCH-UP
 
 25. Island events: timing
-  What  - The first event comes 30 minutes into a new village, then one every 12 to 23 real
-          hours.
+  What  - The first event comes 15 minutes into a new village, the next 30 minutes after that,
+          then one every 12 to 23 real hours.
         - Paused time does not count, and an event waits until its chosen villager has caught
           up, so events do not pile up while you are away.
         - After the first event (always a choice event): 20% are choice events, 40% passive
@@ -1341,7 +1341,7 @@ BELIEF AND HEATHENS
 EVENTS AND STATISTICS
 
 32. Island events
-  What  The first comes 30 minutes in, then one every 8 to 15 hours. An event needs at least 1
+  What  The first comes 15 minutes in, the next 30 minutes later, then one every 8 to 15 hours. An event needs at least 1
         believer, and its chosen villager must be caught up, so time away never stacks events.
   Tag   [code]
 

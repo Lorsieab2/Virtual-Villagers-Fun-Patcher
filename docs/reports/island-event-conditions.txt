@@ -1411,8 +1411,9 @@ Rules for all island events in this game:
     already rescheduled).
   * Rescue rule (0x4180A5-0x4180F2): if (men outnumber women and there are at most 2 women), or (men
     do not outnumber women and there are at most 2 men) -- living villagers of all ages, 0x467650 --
-    or the population including carried babies is below 3, then with a 15% chance, if the first roll
-    was 30-59, the choice is replaced by Daredevil Barrel...of Babies! (slot 25) WITHOUT checking
+    or the population including carried babies is below 3, then with a 15% chance, if the category
+    roll was 60 or more (0x4180E8-0x4180F0: below 30 or below 60 skips), the choice is replaced by
+    Daredevil Barrel...of Babies! (slot 25) WITHOUT checking
     its condition.
   * No event in this game is limited to once per village: the per-slot 'shown' bytes at
     0x4CC9F4+slot (written at 0x418136) are never read.
@@ -1855,8 +1856,9 @@ Rules for all island events in this game:
     picked uniformly at random. No retries: if none qualifies nothing happens.
   * Rescue rule (0x418913-0x418956): if (men outnumber women and there are at most 2 women) or (men
     do not outnumber women and there are at most 2 men) -- 0x472B80 -- or the believer population is
-    below 3, then with a 15% chance, if the first roll was 30-59, the choice is replaced by Chutes
-    Without Ladders (slot 30) WITHOUT checking its condition.
+    below 3, then with a 15% chance, if the category roll was 60 or more (0x41894C-0x418954: below
+    30 or below 60 skips), the choice is replaced by Chutes Without Ladders (slot 30) WITHOUT checking
+    its condition.
   * No event in this game is limited to once per village: the per-slot 'shown' bytes at
     0x4DC814+slot (written at 0x41899A) are never read.
   * Ages: 20 age units = 1 displayed year; 'child' = under 14 (280), 'adult' = 14 or over. The
