@@ -414,6 +414,55 @@ game's conception or delivery checks the carrier's sex, so a man can carry
 (the Heathen Mommy works the same way); an unknown father is "Unknown" with
 the carrier's own looks. How a male carrier's pose looks is not verified.
 
+### Two choices (v1.35.47)
+
+The owner: "I want the player to be able to choose the outcomes. Some buttons
+should have a chance of multiple outcomes too."
+
+Tick **Ask a question with two choices** in the Custom Island Event dialog and
+the description becomes the **question**; **Choices...** opens a dialog with
+the two **button labels** and, for each button, a list of one to four
+**outcomes** (Add / Edit / Remove, double-click to edit) and the **chance** of
+the chosen outcome (1-100). The note under each list shows every outcome's
+share: its chance out of the button's total (chances 3 and 1 are 75% and
+25%); a button with one outcome always gets it. **Edit** opens the Custom
+Island Event dialog again for that outcome: the title is the event's (greyed),
+the text box is the outcome's **Result text**, and every change the Maker
+offers -- food and tech, refill, village changes, new villagers, villager
+changes, food sources, puzzles, revivals -- is that outcome's own. With the box
+ticked the event itself holds no changes (its village controls are off; changes
+added before ticking must be removed). The word / character / line counter
+counts the question against the question popup and a result text against the
+result popup.
+
+When the event happens the game shows the question with the two buttons; the
+click rolls one of that button's outcomes (weighted by the chances, through the
+game's own random routine where the hook names it), makes exactly that
+outcome's changes as a plain custom event makes its own, and shows its result
+text with the usual food / tech and "no room" lines. Nothing changes before the
+click. Queueing is the plain event's: the same lock, the same ten-minute lapse,
+bound to the save slot and the Start Over / delete generation; an answer in a
+village other than the one the question was asked in changes nothing.
+
+Every value is checked when OK is pressed and again when the event is bought:
+both labels non-empty and within the game's label width (letters, numbers,
+spaces and . , ! ? : - ' only), one to four outcomes per button, each chance
+1-100, each result text non-empty and fitting the result popup, and the usual
+room checks for each outcome's new villagers and babies. The engine is
+`ce_choice_*` in `native/vvfp_story_upgrades/story_custom.inc`; the data is
+`ce_choice` / `ce_outcome` in `story_custom.h`.
+
+**Each game's own two-button popup is hooked separately** (the
+`CAP_CHOICE` capability in each `story_c*.inc` adapter, with the popup's
+question / result widths and line counts, the label width and the game's
+random routine). A game without the hook keeps the box disabled and refuses a
+question ("This game can not ask a question with two choices yet"). Evidence
+level: the engine is tested in emulation (`tests/test_story_two_choice.py`:
+the layout, every roll of every chance split and the real generator's
+shares, every refusal, the lock / lapse / village binding, applying exactly
+the rolled outcome, mutation-checked); **the dialogs and the in-game popups are
+not yet confirmed in a running game**.
+
 ### Custom titles
 
 A villager's title can be replaced by the player's text (1-31 letters,
