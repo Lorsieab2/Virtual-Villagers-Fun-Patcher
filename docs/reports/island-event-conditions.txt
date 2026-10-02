@@ -1,0 +1,523 @@
+VIRTUAL VILLAGERS - ISLAND EVENT CONDITIONS
+============================================
+What each event needs before the game will let it happen.
+"Always possible" = nothing beyond an island event being due.
+Read from each game's own code (Story / Cheat Upgrades research).
+
+A NEW HOME
+----------
+  The Bad Little Monkey
+      needs: Always possible
+  The Plague of Parrots
+      needs: Always possible
+  A Plague of Locusts
+      needs: crops growing in the farm field
+  The Measles Epidemic
+      needs: at least one living child
+  The South Wind
+      needs: Always possible
+  The Heat Wave
+      needs: Always possible
+  Isola Day Celebration
+      needs: Always possible
+  Blessings Day Celebration
+      needs: Always possible
+  The Big Wave
+      needs: the beach to have been cleaned up completely
+  The Good Little Monkey
+      needs: Always possible
+  The Greedy Little Monkey
+      needs: Always possible
+  The Barrel O` Babies
+      needs: room in the village for new villagers
+  The North Wind
+      needs: Always possible
+  The Helpful Honeybees
+      needs: Always possible
+  The Trapped Whale
+      needs: the whale event to have happened fewer than three times
+  The Strange Berries
+      needs: Always possible
+  The Old Drum
+      needs: Always possible
+  The Mysterious Face
+      needs: Always possible
+  The Visitor
+      needs: the visitor to have come fewer than three times
+  A Mysterious Vial (red liquid)
+      needs: Always possible
+  The Troubled Child
+      needs: at least one living child
+  A Mysterious Vial (blue liquid)
+      needs: Always possible
+  The Suspicious Monkey
+      needs: at least one living child
+  The Wild Mushroom
+      needs: Always possible
+  The Black Pearl
+      needs: Always possible
+  The Dream
+      needs: Always possible
+  The Moth
+      needs: Always possible
+  The Book
+      needs: Always possible
+  The Brass Compass
+      needs: Always possible
+  A Mysterious Crate (wooden)
+      needs: Always possible
+  A Mysterious Crate (carefully sealed)
+      needs: Always possible
+  A Mysterious Crate (badly weathered)
+      needs: Always possible
+  A Mysterious Crate (rotting)
+      needs: Always possible
+  A Mysterious Crate (watertight)
+      needs: Always possible
+  A Mysterious Crate (old fruit)
+      needs: Always possible
+  A Mysterious Vial (red, from the sea)
+      needs: Always possible
+  A Mysterious Vial (blue, from the sea)
+      needs: Always possible
+  A Mysterious Vial (fizzy, from the sea)
+      needs: Always possible
+  Never possible in the shipping game (developer-dead):
+      A Mighty Storm - island case 1: its condition class (byte 5 at 0x4286A1) always re-rolls, so the selector never runs it
+      The Furry Food - encounter variant 5: its condition class (byte 4 at 0x4189A9) always re-rolls
+
+THE LOST CHILDREN
+-----------------
+  The Obnoxious Parrot
+      needs: Always possible
+  The Flash Flood
+      needs: Always possible
+  The Dense Fog (food lost)
+      needs: Always possible
+  The Dense Fog (tech lost)
+      needs: Always possible
+  The East Wind
+      needs: Always possible
+  The Heat Wave
+      needs: Always possible
+  Isola Day Celebration
+      needs: Always possible
+  Day of Honor
+      needs: someone in the village to have died
+  Day of Elders
+      needs: Always possible
+  Blessings Day Celebration (first version)
+      needs: Always possible
+  The Epidemic
+      needs: the village's later technologies (the game's own advanced-village check)
+  Blessings Day Celebration (second version)
+      needs: Always possible
+  The Spring Allergies
+      needs: Always possible
+  Rats!
+      needs: the village's later technologies (the game's own advanced-village check)
+  Where Are The Infants?
+      needs: a mother with an infant, and the village's later technologies
+  A Dangerous Mission
+      needs: a population of more than 60
+  The  Foul Passing
+      needs: the village's later technologies (the game's own advanced-village check)
+  The Friendly Parrot
+      needs: Always possible
+  The Barrel O` Babies
+      needs: room in the village for new villagers
+  The West Wind
+      needs: Always possible
+  The Dense Fog (tech gained)
+      needs: Always possible
+  The Dense Fog (food gained)
+      needs: Always possible
+  Old Friends
+      needs: room in the village for new villagers
+  The Mother Parrot
+      needs: Always possible
+  The Ancient Gold Coin
+      needs: the gold-coin fashion not to have caught on already
+  The Cursed Idol
+      needs: at least 250 food
+  The Prettiest Tribe Girl
+      needs: at least one adult woman
+  The Strange Request
+      needs: Always possible
+  The Savage Child
+      needs: room in the village for a new villager
+  The Voices In The Brush
+      needs: Always possible
+  For The Birds
+      needs: at least one living child
+  The Fastest Runner
+      needs: Always possible
+  The Nightmare
+      needs: Always possible
+  A Bump On The Head
+      needs: Always possible
+  The Child Prodigy
+      needs: at least one living child
+  The Swarm Of Dragonflies
+      needs: Always possible
+  The Black Seeds
+      needs: Always possible
+  The Crystal Ball
+      needs: at least one adult
+  The Silver Mirror
+      needs: at least two villagers
+  The Huge Coconut
+      needs: Always possible
+  The Falling Star
+      needs: Always possible
+  The Hole In The Sand
+      needs: Always possible
+  The Spyglass
+      needs: the spyglass not to have been kept already
+  The Love Note
+      needs: at least one adult man and one adult woman
+  The White Pearl
+      needs: Always possible
+  A Mysterious Sack (thick plastic)
+      needs: Always possible
+  A Mysterious Sack (carefully sealed)
+      needs: Always possible
+  A Mysterious Sack (somewhat compromised)
+      needs: Always possible
+  A Mysterious Sack (thick canvas)
+      needs: Always possible
+  A Mysterious Sack (stained, heavy burlap)
+      needs: Always possible
+  A Mysterious Vial (green)
+      needs: Always possible
+  A Mysterious Vial (orange)
+      needs: Always possible
+  A Mysterious Vial (fragrant)
+      needs: Always possible
+  Never possible in the shipping game (developer-dead):
+      (case 4 of 0x433600) - no event body: both tables point it at the shared epilogue / a never-valid entry
+      The Mosquito Swarm - case 18: the selector's condition table maps it to the never-valid entry 0x434824
+      The Dragonfly Migration - case 20: the selector's condition table maps it to the never-valid entry 0x434824
+      Science Awareness Day - case 26: the selector's condition table maps it to the never-valid entry 0x434824
+
+THE SECRET CITY
+---------------
+  The Tsunami
+      needs: the game's own condition for the tsunami (two or more of the villagers it checks)
+  The Plague Of Ants
+      needs: Always possible
+  The Science Fair
+      needs: at least three children
+  The Allergy Season
+      needs: Always possible
+  Isola Day Celebration
+      needs: Always possible
+  Day of Honor
+      needs: at least two graves
+  The Canoe from the Other Side
+      needs: room in the village for a new villager
+  The Mysterious Fog (food gained)
+      needs: Always possible
+  The Mysterious Fog (food lost)
+      needs: Always possible
+  The Mysterious Fog (tech gained)
+      needs: Always possible
+  The Mysterious Fog (tech lost)
+      needs: Always possible
+  Blessings Day Celebration
+      needs: Always possible
+  The Miraculous Bloom
+      needs: the game's own condition for the bloom
+  The Reflection in the Water
+      needs: Always possible
+  The Daredevil
+      needs: a villager the event can be about
+  The Ghostly Dream (nature or healing)
+      needs: a villager the event can be about
+  The Ghostly Dream (research or architecture)
+      needs: a villager the event can be about
+  The Crystal of Reflections
+      needs: a villager the event can be about
+  The Bitter Brown Beans (taste or dye)
+      needs: a villager the event can be about
+  The Bitter Brown Beans (brew or fertilizer)
+      needs: a villager the event can be about
+  The Ancient Tablet (laundry or decoration)
+      needs: a villager the event can be about
+  The Ancient Tablet (research or display)
+      needs: a villager the event can be about
+  The Low Tide
+      needs: a child the event can be about (the game also rolls a chance)
+  The Ants and the Granary
+      needs: a child the event can be about
+  The Green Pearl
+      needs: a villager the event can be about
+  The Blue Pearl
+      needs: a villager the event can be about
+  The Lazy Apprentice
+      needs: an apprentice the event can be about
+  The Omen in the Clouds
+      needs: a villager the event can be about
+  The Playful Otters
+      needs: a child the event can be about
+  The Ant Hill
+      needs: a child the event can be about
+  The Red Starfish
+      needs: a villager the event can be about
+  The Blue Starfish
+      needs: a villager the event can be about
+  Bed Bugs
+      needs: a villager the event can be about
+  The Lovers (her gift)
+      needs: a woman the event can be about
+  The Lovers (his gift)
+      needs: a man the event can be about
+  The Medical Emergency
+      needs: a villager the event can be about
+  The Mysterious Vial (quartz)
+      needs: a villager the event can be about
+  The Mysterious Vial (obsidian)
+      needs: a villager the event can be about
+  The Mysterious Vial (amber)
+      needs: a villager the event can be about
+  The Mango and the Papaya
+      needs: a villager the event can be about (the game also rolls a chance)
+  The Mysterious Crate
+      needs: a villager the event can be about
+  Vanity and the Bee
+      needs: a woman the event can be about
+  The Noisy Bird
+      needs: a villager the event can be about
+  The Hole in the Hut
+      needs: a villager the event can be about
+  The Royal Jelly
+      needs: a villager the event can be about
+  The Shooting Star
+      needs: a child the event can be about
+  The Chief's Address
+      needs: a tribal chief
+  The Rainy Season
+      needs: Always possible
+  The Cold Snap
+      needs: the game's own condition for the cold snap
+  The Salty Air
+      needs: Always possible
+  The Oppressive Humidity
+      needs: Always possible
+  "Thick as Pea Soup"
+      needs: Always possible
+  The Stinging Jellyfish
+      needs: Always possible
+  The Mushroom Celebration
+      needs: 500 mushrooms collected
+  The Yellow Geckos
+      needs: Always possible
+  The Return of Biggles
+      needs: a villager the event can be about
+  Another One of Those Barrels 
+      needs: room in the village for new villagers
+  Never possible in the shipping game (developer-dead):
+      The Swarm of Bees - strings only (ids 765/766): no event object and no slot in the registry
+      The Drought--completely wrong - strings only (ids 934-937): no event object and no slot in the registry
+
+THE TREE OF LIFE
+----------------
+  The Creeping Mold
+      needs: Always possible
+  The Allergy Season
+      needs: Always possible
+  Isola Day Celebration
+      needs: Always possible
+  Day of Honor
+      needs: the game's own condition for the day of honor (graves)
+  The Mysterious Footprints (food gained)
+      needs: Always possible
+  The Mysterious Footprints (food lost)
+      needs: Always possible
+  The Mysterious Footprints (tech gained)
+      needs: Always possible
+  The Mysterious Footprints (tech lost)
+      needs: Always possible
+  Blessings Day Celebration
+      needs: Always possible
+  A Closer Look
+      needs: a villager the event can be about
+  The Arc of Brilliant Colors
+      needs: a villager the event can be about
+  The Robber Crab
+      needs: a villager the event can be about
+  The Phosphorescent Fungi
+      needs: a villager the event can be about
+  The Rainy Season
+      needs: Always possible
+  The Cold Snap
+      needs: a lit village fire
+  "A Monsoon!"
+      needs: Always possible
+  The Stinging Wasps
+      needs: Always possible
+  The Festival of the Banyan
+      needs: 500 mushrooms collected and a healthy Tree of Life
+  The Pure Sea Air
+      needs: Always possible
+  Daredevil Barrel...of Babies! 
+      needs: room in the village for new villagers, and the game's own barrel conditions
+  The State of the Tree (glum)
+      needs: the Tree of Life still in a poor state
+  The State of the Tree (rejuvenated)
+      needs: a healthy Tree of Life
+  The Abandoned Infants 
+      needs: the game's own condition for abandoned infants
+  The Pink Shell
+      needs: a villager the event can be about
+  The Calabash Instrument
+      needs: a villager the event can be about
+  The Climber
+      needs: a villager the event can be about
+  The Mosquito Larvae
+      needs: a villager the event can be about, and the game's own technology conditions
+  Faces in the Night
+      needs: a villager the event can be about
+  The Screaming Baby
+      needs: a villager the event can be about
+  The Sealed Box
+      needs: a villager the event can be about
+  The Wet Book
+      needs: a villager the event can be about
+  The Lie
+      needs: a villager the event can be about
+  The Aspiring Doctor (algae)
+      needs: a villager the event can be about
+  The Aspiring Doctor (sea water)
+      needs: a villager the event can be about
+  The Aspiring Doctor (mushrooms)
+      needs: a villager the event can be about
+  The Aspiring Doctor (bark)
+      needs: a villager the event can be about
+  The Aspiring Doctor (fasting)
+      needs: a villager the event can be about
+  The Aspiring Doctor (cut leg)
+      needs: a villager the event can be about
+  The Aspiring Scientist
+      needs: a villager the event can be about
+  Innovation in Construction
+      needs: a villager the event can be about
+  Innovation in Farming
+      needs: a villager the event can be about, and the game's own technology condition
+  Tough Lessons
+      needs: a child and an adult the event can be about
+  The Pretty Shell
+      needs: at least two children
+  The Legendary Stranger
+      needs: a villager the event can be about
+  Never possible in the shipping game (developer-dead):
+      The Tsunami - slot 1: condition 0x4146E0 always returns false
+      The Canoe from the Other Side - slot 6: condition 0x4146E0 always returns false
+      The Medical Emergency - slot 16: condition 0x4146E0 always returns false
+      The Salty Air - slot 19: strings only, no event object
+      The Return of Biggles - slot 24: condition 0x4146E0 always returns false
+
+NEW BELIEVERS
+-------------
+  The Creeping Mold
+      needs: Always possible
+  The Allergy Season
+      needs: Always possible
+  Isola Day Celebration
+      needs: Always possible
+  Day of Honor
+      needs: at least two graves
+  The Vision
+      needs: a villager the event can be about
+  The Mysterious Footprints (food gained)
+      needs: Always possible
+  The Mysterious Footprints (food lost)
+      needs: Always possible
+  The Mysterious Footprints (tech gained)
+      needs: Always possible
+  The Mysterious Footprints (tech lost)
+      needs: Always possible
+  Blessings Day Celebration
+      needs: Always possible
+  The Bed Bugs
+      needs: a villager the event can be about
+  The Mask
+      needs: a villager the event can be about
+  The Heathen Toy
+      needs: a child the event can be about
+  The Daredevil Jump
+      needs: a villager the event can be about
+  The Cold Snap
+      needs: a lit village fire
+  Army Ants!
+      needs: the game's own progress condition for crop events
+  Aphid Infestation!
+      needs: the game's own progress condition for crop events
+  The Strange Crystals
+      needs: Always possible
+  The Especially Offensive Cloud
+      needs: Always possible
+  The Bottle of Spicy Juice
+      needs: Always possible
+  The River Breaks Its Banks
+      needs: the game's own progress condition for crop events
+  The Clumsy Heathen
+      needs: Always possible
+  The Pesky Critter
+      needs: the game's own progress condition for the lab
+  Mushroom Day!
+      needs: a child the event can be about
+  Barrel O' Babies! (believers)
+      needs: room in the village for new villagers
+  Barrel O' Babies! (heathens)
+      needs: room in the village for new villagers
+  The Salty Air
+      needs: Always possible
+  Chutes Without Ladders
+      needs: room in the village for new villagers
+  News From Another Tribe (a newcomer)
+      needs: room in the village for a new villager
+  News From Another Tribe (a message)
+      needs: Always possible
+  The Spa
+      needs: a villager the event can be about
+  Doubt
+      needs: a villager the event can be about
+  Spying on the Heathens
+      needs: a child the event can be about
+  You're Doing It Wrong!
+      needs: a villager the event can be about
+  The Missing Kids
+      needs: a child the event can be about
+  Outreach?
+      needs: a villager the event can be about
+  The Advanced Artifacts
+      needs: the game's own progress condition for the artifacts
+  Trick Or Trade
+      needs: at least 100 food
+  The Migrating Fruit Bats
+      needs: a villager the event can be about
+  The Aphids in the Noni Bush
+      needs: a villager the event can be about
+  The Defector
+      needs: a heathen the event can be about (the game also rolls a chance)
+  The Straw Hat
+      needs: a villager the event can be about
+  The Strange Nectar
+      needs: a villager the event can be about
+  The Cracked Mask
+      needs: a villager the event can be about
+  Innovation in Farming (the mysterious storyteller)
+      needs: a child the event can be about, and the game's own progress condition
+  Never possible in the shipping game (developer-dead):
+      The Stinging Wasps - slot 25: condition 0x415B10 always returns false
+      The Return of Biggles - slot 29: condition 0x415B10 always returns false
+      The Abandoned Infants - slot 33: condition 0x415B10 always returns false
+      The Smelly Vial - slot 48: condition 0x415B10 always returns false
+      The Floral Vial - slot 49: condition 0x415B10 always returns false
+      The Invisible Vial - slot 50: condition 0x415B10 always returns false
+      Innovation in Farming - slot 51: condition 0x415B10 always returns false
+      Tough Lessons - slot 52: condition 0x415B10 always returns false
+      The Pretty Shell - slot 53: condition 0x415B10 always returns false
+      The Legendary Stranger - slot 54: condition 0x415B10 always returns false
+      The Tsunami, The Canoe from the Other Side, The Rainy Season, The Festival of the Banyan, Daredevil Barrel...Of Babies!, The State of the Tree, A Closer Look - strings only: no event class and no slot in the event table
