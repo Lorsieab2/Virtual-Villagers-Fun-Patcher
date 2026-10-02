@@ -3,6 +3,7 @@
 #include <shlobj.h>   /* SHGetSpecialFolderPathA, CSIDL_PERSONAL */
 #include <string.h>   /* strrchr */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
+#include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20. The
@@ -570,6 +571,7 @@ static void vvfp_fix_huts_bridge(void) {
    state); every later save and load makes it a no-op. */
 __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
     vvfp_fix_huts_bridge();
+    vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
 }
 
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
@@ -578,6 +580,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     DWORD now = GetTickCount();
     int slot;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
+    vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
     if (g_vv5_have_roster && (now - g_vv5_sync_tick) < VV5_SYNC_INTERVAL_MS) {
         return 1;                   /* checked a moment ago */
     }
@@ -962,6 +965,7 @@ static INT_PTR CALLBACK appearance_dialog(
     LPARAM lparam
 ) {
     if (message == WM_INITDIALOG) {
+        vvfp_story_relabel(5, window);   /* "OK deducts 0 tech points" */
         appearance_update_mask_label(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -1375,6 +1379,7 @@ static void caf_update_gray(HWND w) {
 
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     if (msg == WM_INITDIALOG) {
+        vvfp_story_relabel(5, w);   /* "OK deducts 0 tech points" */
         caf_body[0] = caf_body[1] = caf_head[0] = caf_head[1] = caf_mask[0] = caf_mask[1] = -1;
         caf_heads_mode = 0; caf_bodies_mode = 0; caf_mask_dist = 0; caf_single_mask = -1;
         CheckDlgButton(w, IDC_CAF_HEADS_FIRST, BST_CHECKED);
@@ -1647,6 +1652,54 @@ static void vv5_format_cost(int value, char *out) {
         only dialog one Time Warp click may produce;
      1  applied, and already paid for;
      2  refused, with the reason already shown, and nothing charged. */
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The save slot the mask sidecar is keyed by, and one villager's mask, set
+   exactly as Change Appearance for All commits one (the nibble table, then
+   the sidecar). */
+static int vv5_story_index(void *record) {
+    unsigned int delta;
+    if ((unsigned int)(UINT_PTR)record < VV5_REC_BASE) {
+        return -1;
+    }
+    delta = (unsigned int)(UINT_PTR)record - VV5_REC_BASE;
+    if (delta % VV5_REC_STRIDE != 0 || delta / VV5_REC_STRIDE >= VV5_REC_COUNT) {
+        return -1;
+    }
+    return (int)(delta / VV5_REC_STRIDE);
+}
+
+static int __stdcall vv5_story_slot(void) {
+    int slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    return slot >= 1 && slot <= 5 ? slot : 0;
+}
+
+static int __stdcall vv5_story_mask_get(void *record) {
+    int index = vv5_story_index(record);
+    int mask;
+    if (index < 0) {
+        return 0;
+    }
+    mask = caf_get_mask(index);
+    return mask < APPEARANCE_MASK_COUNT ? mask : 0;
+}
+
+static int __stdcall vv5_story_mask_set(void *record, int mask) {
+    int index = vv5_story_index(record);
+    if (index < 0 || mask < 0 || mask >= APPEARANCE_MASK_COUNT) {
+        return 0;
+    }
+    caf_set_mask(index, mask);
+    WriteMaskSidecar((const unsigned char *)VV5_MASK_TABLE);
+    return 1;
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL
+    };
+    return &host;
+}
+
 __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
     char message[448];
@@ -1743,7 +1796,7 @@ __declspec(dllexport) int __stdcall ShowVV5AppearanceForAll(void) {
     ok = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_APPEARANCE_ALL),
                          owner, caf_dialog, 0);
     if (ok != 1) return 0;
-    if (*(int *)VV5_TECH < 450000) {
+    if (*(int *)VV5_TECH < vvfp_story_price(5, 450000)) {
         MessageBoxA(owner, "Not enough tech points. This upgrade costs 450,000.",
                     "Change Appearance for All", MB_OK | MB_ICONWARNING);
         return 0;
@@ -1765,7 +1818,9 @@ __declspec(dllexport) int __stdcall ShowVV5AppearanceForAll(void) {
                         "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
             return 0;
         }
-        caf_charge(-450000);
+        if (vvfp_story_price(5, 450000) != 0) {
+            caf_charge(-450000);
+        }
         WriteMaskSidecar((const unsigned char *)VV5_MASK_TABLE);
         MessageBoxA(owner, "Change Appearance for All applied to every villager.",
                     "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
@@ -1878,10 +1933,28 @@ static INT_PTR CALLBACK upgrade_dialog(
                and `continue`s. Leaving a second copy would be unreachable
                code documenting a path that cannot run. */
         }
+        /* Story / Cheat Upgrades: every price reads 0, and the Tech menu
+           gains Pick Island Event. */
+        vvfp_story_relabel(5, window);
+        if (!villager_menu) {
+            vvfp_story_add_pick_button(5, window);
+        }
         return TRUE;
     }
     if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
+            if (vvfp_story_pick_clicked(
+                    5, window, (int)command,
+                    block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
+                        ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
+                        : NULL)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int clicked = (int)(command - ID_BUY_FIRST);
             if (clicked >= 0 && clicked < ROW_STATE_MAX
@@ -1914,6 +1987,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
     int dialog_state
 ) {
     HWND owner = GetOriginsOwner();
+    vvfp_story_bridge(5);   /* before any price is shown or charged */
     if (owner == NULL) {
         return -1;
     }
@@ -1952,6 +2026,9 @@ static const char *action_name(unsigned int action) {
 }
 
 static const char *action_cost(unsigned int action) {
+    if (vvfp_story_free(5)) {
+        return "0";             /* Story / Cheat Upgrades */
+    }
     switch (action) {
     case ACTION_YOUTH: return "50,000";
     case ACTION_MASTERY: return "100,000";

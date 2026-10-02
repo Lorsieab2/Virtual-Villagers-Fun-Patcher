@@ -72,15 +72,18 @@ BARREL_SELECTOR_BODY_FILE_OFFSET = PAYLOAD_FILE_OFFSET + 0x180
 BARREL_SELECTOR_BODY_VA = PAYLOAD_VA + 0x180
 BARREL_SELECTOR_HOOK_STOCK = bytes.fromhex("8B7484146A64E8")
 BARREL_SELECTOR_HOOK_REPAIRED = bytes.fromhex("E96C9839009090")
-BARREL_SELECTOR_BODY_STOCK = b"\0" * 0x28
+BARREL_SELECTOR_BODY_STOCK = b"\0" * 0x39
 # BE1A000000 is `mov esi, 26` -- the believer barrel in the EVENT OBJECT table
 # at 0x4DC850, verified by RTTI on the constructed object. It was BE19000000
 # (`mov esi, 25`), which is CEventTheStingingWasps: the player bought the barrel
 # and got a wasp swarm and no children. See tests/test_vv5_barrel_event_index.py,
 # which re-derives the id from the stock binary rather than trusting this byte.
+# The purchased barrel then jumps straight to the presenter at 0x41895B, past
+# the stock Chutes Without Ladders override (see the routine below).
 BARREL_SELECTOR_BODY_REPAIRED = bytes.fromhex(
-    "8B748414F70588D3510004000000740C832588D35100FBBE1A000000"
-    "6A64E8BD14C5FFE97267C6FF"
+    "8B748414F70588D3510004000000741D832588D35100FBBE1A000000"
+    "6A64E8BD14C5FF83C40889C7E9AE67C6FF"
+    "6A64E8AC14C5FFE96167C6FF"
 )
 BARREL_SELECTOR_BODY_SHA256 = hashlib.sha256(BARREL_SELECTOR_BODY_REPAIRED).hexdigest().upper()
 
@@ -374,6 +377,18 @@ def main() -> None:
             #     children -- one unconditional 0x471E20, then two more each
             #     gated on 0x472BD0.
             mov esi, 26
+            # The purchased barrel goes straight to the presenter (0x41895B).
+            # Falling back into the stock code at 0x41891A ran the Chutes
+            # Without Ladders override (0x41891D..0x418956), which in a very
+            # small village replaces whatever was chosen -- the paid barrel
+            # included -- with index 30.  The stock rand(100) is still drawn
+            # and lands in edi exactly as 0x41891A..0x418922 would leave it;
+            # nothing after 0x41895B reads edi before restoring it.
+            push 100
+            call 0x403660
+            add esp, 8
+            mov edi, eax
+            jmp 0x41895B
         done:
             push 100
             call 0x403660
@@ -1177,10 +1192,10 @@ def main() -> None:
     patch(0x4BC20, bytes.fromhex("83EC18A1A8974D00"),
           rel32_jump(0x44BC20, entry["detail_handler"], 8),
           "route the added Detail control through the villager-upgrade menu")
-    if bytes(payload[0x180:0x1A8]) != BARREL_SELECTOR_BODY_REPAIRED:
+    if bytes(payload[0x180:0x180 + len(BARREL_SELECTOR_BODY_REPAIRED)]) != BARREL_SELECTOR_BODY_REPAIRED:
         raise RuntimeError(
             "D37 VV5 selector body assembly drifted from the exact repaired bytes: "
-            + bytes(payload[0x180:0x1A8]).hex().upper()
+            + bytes(payload[0x180:0x180 + len(BARREL_SELECTOR_BODY_REPAIRED)]).hex().upper()
         )
     patch(PAYLOAD_FILE_OFFSET, b"\0" * len(payload), bytes(payload),
           "install the VV5 Origins menus and mechanics in the unused .shr section")

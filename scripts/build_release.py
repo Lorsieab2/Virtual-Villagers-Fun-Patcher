@@ -50,6 +50,9 @@ FILES = [
     "assets/work_first/VVFP Work First.dll",
     "assets/golden_mushroom/VVFP Golden Mushroom.dll",
     "assets/golden_mushroom/golden_mushroom.png",
+    # Story / Cheat Upgrades: one companion for all five games, loaded by each
+    # game's Origins companion; no executable bytes.
+    "assets/story_upgrades/VVFP Story Upgrades.dll",
     "data/builds.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
@@ -96,6 +99,11 @@ FILES = [
     "data/vv5_work_first_feature.json",
     "data/vv2_numeric_keys_tip_feature.json",
     "data/vv5_playing_in_the_dirt_feature.json",
+    "data/vv1_story_cheat_upgrades_feature.json",
+    "data/vv2_story_cheat_upgrades_feature.json",
+    "data/vv3_story_cheat_upgrades_feature.json",
+    "data/vv4_story_cheat_upgrades_feature.json",
+    "data/vv5_story_cheat_upgrades_feature.json",
     "data/expanded_atomic_writer_integration.json",
     "data/vv5_task9_native_actions.json",
     "docs/game-data-conventions.md",

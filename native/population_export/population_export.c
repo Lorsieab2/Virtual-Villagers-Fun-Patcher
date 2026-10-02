@@ -56,6 +56,7 @@
 
 #include <windows.h>
 #include "save_folder.h"
+#include "custom_titles.h"
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
@@ -833,6 +834,84 @@ static int write_vv1_own_parents(FILE *file, int index) {
     return 1;
 }
 
+/* Custom titles (Story / Cheat Upgrades, Custom Island Event).
+
+   The owner: a custom title is shown everywhere the title shows -- "the
+   villager panel, Details, and the patcher logs".  The titles are kept per
+   save slot in native/shared/custom_titles.h's .dat file; this roster and
+   the history print a villager's custom title under its name.  The slot is
+   the one the village header names ("Village: <name> (Save <n>)"); a title
+   is printed only for the record it was set for AND only while that record
+   holds the villager whose name it was set for, exactly as the villager
+   panel shows it.  No file, an unreadable file or a header without a slot:
+   no titles, and nothing else changes. */
+static vv_custom_title g_custom_titles[VV_TITLES_MAX];
+static int g_custom_title_count;
+
+/* The LAST " (Save " marker, as the reset reads it (save_reset_export.c's
+   header_is_for_slot): the exporters append the slot after the name, so a
+   village whose own name contains "(Save 2)" cannot shadow the real one. */
+static int village_save_slot(const char *village) {
+    const char *at = NULL;
+    const char *scan = village;
+    for (;;) {
+        const char *hit = strstr(scan, " (Save ");
+        if (hit == NULL) {
+            break;
+        }
+        at = hit;
+        scan = hit + 1;
+    }
+    if (at == NULL || at[7] < '1' || at[7] > '5' || at[8] != ')') {
+        return 0;
+    }
+    return at[7] - '0';
+}
+
+static void load_custom_titles(int game_id, const struct game_layout *g, const char *village) {
+    static unsigned char data[VV_TITLES_FILE_MAX];
+    char folder[MAX_PATH];
+    char path[MAX_PATH];
+    vv_titles_check check;
+    HANDLE h;
+    DWORD got = 0;
+    int slot = village_save_slot(village);
+    g_custom_title_count = 0;
+    if (slot == 0 || !vv_save_folder(folder, (int)sizeof("\\" VV_TITLES_SUBFOLDER "\\Custom Titles - Save 0.dat"))) {
+        return;
+    }
+    lstrcatA(folder, "\\" VV_TITLES_SUBFOLDER);
+    if (!vv_titles_file_name(path, MAX_PATH, folder, slot)) {
+        return;
+    }
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    if (!ReadFile(h, data, sizeof data, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(h);
+    check.game = game_id;
+    check.slots = g->slots;
+    if (got > 0 && vv_titles_validate(data, got, &check)) {
+        g_custom_title_count = vv_titles_parse(data, g_custom_titles);
+    }
+}
+
+static const char *custom_title_of(const struct game_layout *g, const unsigned char *record, int index) {
+    int i;
+    for (i = 0; i < g_custom_title_count; ++i) {
+        if (g_custom_titles[i].index == (unsigned int)index) {
+            return g_custom_titles[i].fingerprint
+                    == vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                         g->dislikes, g->preference_slots)
+                ? g_custom_titles[i].title : NULL;
+        }
+    }
+    return NULL;
+}
+
 /* `with_pregnancy` is 0 for the Village History log and 1 for the
    Village Population roster.
 
@@ -862,6 +941,10 @@ static int write_villager(
 
     if (fprintf(file, "Villager %d\n", number) < 0) return 0;
     if (fprintf(file, "  Name: %s\n", name) < 0) return 0;
+    {
+        const char *custom = custom_title_of(g, record, index);
+        if (custom != NULL && fprintf(file, "  Custom title: %s\n", custom) < 0) return 0;
+    }
     if (fprintf(file, "  Age: %d\n", *(const int *)(record + g->age)) < 0) {
         return 0;
     }
@@ -1248,6 +1331,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     if (!layout_is_sane(g)) {
         return 0;
     }
+    load_custom_titles(game_id, g, village);
     if (module == NULL) {
         module = (const unsigned char *)GetModuleHandleW(NULL);
     }

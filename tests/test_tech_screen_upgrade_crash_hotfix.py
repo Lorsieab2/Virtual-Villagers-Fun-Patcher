@@ -147,6 +147,12 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
         access violation in unrelated code. The correct match for
         sub_4286B0's own vtable (off_459AE4) is sub_427620, a plain
         thiscall taking no stack arguments.
+
+        The helper's event comes from operator new (0x44AF03), so since
+        v1.35.45 it is released through that SAME class's scalar deleting
+        destructor, sub_427A00 -- vtable off_459AE4 slot 0 -- with flag 1:
+        it runs sub_427620 and then returns the block to operator delete
+        (0x44AEAE).  Calling sub_427620 alone leaked the 0x50F0 bytes.
         """
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
             encoding="utf-8"
@@ -159,9 +165,10 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
             "patch(\n        HEAL_CAVE_FILE_OFFSET", 1
         )[0]
         self.assertIn(
-            "mov ecx, ebx\n            call 0x427620",
+            "push 1\n            mov ecx, ebx\n            call 0x427A00",
             helper,
         )
+        self.assertNotIn("call 0x427620", helper.split("barrel_main_helper_code = assemble", 1)[0])
         self.assertNotIn("call 0x42AB60", helper)
         self.assertNotIn("call 0x42A6A0", helper)
 

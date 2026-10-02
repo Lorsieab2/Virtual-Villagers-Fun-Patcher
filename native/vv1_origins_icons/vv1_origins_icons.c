@@ -5,6 +5,13 @@
 #include "vv1_mask_distribute.h"  /* Change Appearance for All distribution modes */
 #include "vv1_head_buckets.h"     /* head-index buckets by hair colour (Heads override) */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
+#include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+
+/* Which game this file is compiled for, for the Story / Cheat Upgrades
+   companion.  The Lost Children's companion includes this file and sets 2. */
+#ifndef VV_STORY_GAME
+#define VV_STORY_GAME 1
+#endif
 
 #ifndef VV_AGE_OFFSET
 #define VV_AGE_OFFSET 0x348
@@ -1558,6 +1565,7 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     vvfp_fix_huts_bridge(1);    /* fix-huts companion: once, fail-open */
     vvfp_lesson_cap_bridge(1);  /* lesson-cap companion: once, fail-open */
     vvfp_healers_study_bridge(1); /* healers-study companion: once, fail-open */
+    vvfp_story_bridge(1);       /* story / cheat upgrades companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     slot = vv1_mask_prepare_slot();
     if (!slot) {
@@ -1999,9 +2007,27 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
         }
+        /* Story / Cheat Upgrades: every price reads 0, and the Tech menu
+           gains Pick Island Event. */
+        vvfp_story_relabel(VV_STORY_GAME, window);
+        if (!villager_menu) {
+            vvfp_story_add_pick_button(VV_STORY_GAME, window);
+        }
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+            /* Pick Island Event and Custom Island Event share the Island
+               Event row's lock. */
+            if (vvfp_story_pick_clicked(
+                    VV_STORY_GAME, window, (int)command,
+                    block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
+                        ? block_reason_text(block_reasons[PENDING_ROW_ISLAND], PENDING_ROW_ISLAND)
+                        : NULL)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int clicked = (int)(command - ID_BUY_FIRST);
             if (clicked >= 0 && clicked < ROW_STATE_MAX
@@ -2028,10 +2054,42 @@ static INT_PTR CALLBACK upgrade_dialog(
     return FALSE;
 }
 
+/* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
+   The story companion's view of this companion: the save slot the mask
+   sidecar is keyed by, and a single villager's mask, set exactly as the
+   Change Appearance chooser commits one (the nibble table, then the
+   sidecar).  The Lost Children textually includes this file and defines its
+   own host after the include. */
+#if VV_STORY_GAME == 1
+static int __stdcall vv1_story_slot(void) {
+    return vv1_mask_current_slot();
+}
+
+static int __stdcall vv1_story_mask_get(void *record) {
+    return vv1_mask_get((unsigned char *)record);
+}
+
+static int __stdcall vv1_story_mask_set(void *record, int mask) {
+    if (mask < 0 || mask >= VV_MASK_COUNT || vv1_mask_index((unsigned char *)record) < 0) {
+        return 0;
+    }
+    vv1_mask_set((unsigned char *)record, (unsigned char)mask);
+    return vv1_mask_get((unsigned char *)record) == mask && vv1_mask_sidecar_save();
+}
+
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = {
+        sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL
+    };
+    return &host;
+}
+#endif
+
 static int show_upgrade_menu(int villager_menu, int dialog_state) {
     int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
     HWND owner = GetForegroundWindow();
     int result;
+    vvfp_story_bridge(VV_STORY_GAME);   /* before any price is shown or charged */
     vv1_prep_fullscreen();
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
@@ -2169,6 +2227,7 @@ static INT_PTR CALLBACK appearance_dialog(
 ) {
     (void)lparam;
     if (message == WM_INITDIALOG) {
+        vvfp_story_relabel(VV_STORY_GAME, window);   /* "OK deducts 0 tech points" */
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; WM_DRAWITEM below paints the
            starting values on the dialog's own first paint, nothing else to
@@ -2485,6 +2544,7 @@ static void forall_draw_item(DRAWITEMSTRUCT *item) {
 static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
                                       WPARAM wparam, LPARAM lparam) {
     if (message == WM_INITDIALOG) {
+        vvfp_story_relabel(VV_STORY_GAME, window);   /* "OK deducts 0 tech points" */
         forall_state.male_head = forall_state.male_body = forall_state.male_mask = FORALL_NO_CHANGE;
         forall_state.female_head = forall_state.female_body = forall_state.female_mask = FORALL_NO_CHANGE;
         forall_state.mask_override = 0;
@@ -2650,7 +2710,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr)
             return 0;
         }
     }
-    if (*tech < VV_FORALL_COST) {
+    if (*tech < vvfp_story_price(VV_STORY_GAME, VV_FORALL_COST)) {
         MessageBoxA(owner, "Not enough tech points. This upgrade costs 450,000.",
                     "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
         return 0;
@@ -2671,7 +2731,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr)
     if (forall_apply() <= 0) {
         return 0;                 /* nothing actually applied -> no charge */
     }
-    *tech -= VV_FORALL_COST;
+    *tech -= vvfp_story_price(VV_STORY_GAME, VV_FORALL_COST);
     MessageBoxA(owner, "Change Appearance for All applied to every villager.",
                 "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
     return 1;

@@ -1,0 +1,482 @@
+{
+  "id": "vv4_story_cheat_upgrades",
+  "enabled": true,
+  "game_id": "vv4",
+  "name": "Story / Cheat Upgrades",
+  "description": "Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Off by default. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.**",
+  "output_tag": "Story Cheat Upgrades",
+  "dependencies": [
+    "vv4_origins_village_wide_upgrades"
+  ],
+  "behavior_changes": [
+    "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
+    "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
+    "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
+    "Offers 44 island events; events that can never run in this game are not offered.",
+    "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
+    "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
+    "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched; the companion writes the listed sites at run time after verifying every one of them, and writes nothing if any differs.",
+    "No stock event is emulated: a picked event is created, shown and resolved by the game's own code; a custom event is shown by the game's own island-event popup.",
+    "Pick Island Event adds no tech points and writes nothing to the save; a custom event changes only what the player chose, through the game's own routines and fields, and the game saves the village as usual.",
+    "No custom title is written into a villager record."
+  ],
+  "evidence_status": "static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
+      "destination": "VVFP Story Upgrades.dll",
+      "sha256": "9F0E8AF575BDDF3A4E5D3BA2CFD61471FBFF07D6606F4F797B560CC1A4C82610"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x489EE7",
+      "stock_bytes": "50C3000030750000F824010020A1070020A107003075000050C30000A0860100409C000050C3000088130000",
+      "written_bytes": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "routine": "the Origins price table (11 prices)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x48969E",
+      "stock_bytes": "813D886F4D0040420F00",
+      "written_bytes": "813D886F4D0000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4896AE",
+      "stock_bytes": "B8C0BDF0FF",
+      "written_bytes": "B800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4896C3",
+      "stock_bytes": "813D886F4D0040420F00",
+      "written_bytes": "813D886F4D0000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4896D3",
+      "stock_bytes": "B8C0BDF0FF",
+      "written_bytes": "B800000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4896F3",
+      "stock_bytes": "8105886F4D0040420F00",
+      "written_bytes": "8105886F4D0000000000",
+      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x489A3B",
+      "stock_bytes": "813D886F4D0088130000",
+      "written_bytes": "813D886F4D0000000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x72810A",
+      "stock_bytes": "8105886F4D0030750000",
+      "written_bytes": "8105886F4D0000000000",
+      "routine": "an Origins charge, check or refund of 30,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x728788",
+      "stock_bytes": "B878ECFFFF",
+      "written_bytes": "B800000000",
+      "routine": "an Origins charge, check or refund of 5,000 tech points",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4180F7",
+      "stock_bytes": "8B04B528CA4C00",
+      "routine": "the island-event selector, after it has chosen (Pick Island Event)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4404D9",
+      "stock_bytes": "8D4C242851",
+      "routine": "the villager panel's title, before its label is set (custom titles)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    }
+  ],
+  "island_events": [
+    {
+      "slot": 2,
+      "title": "The Creeping Mold",
+      "variant": "",
+      "description": "A toxic mold spreads in the food bin: some food is ruined.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 3,
+      "title": "The Allergy Season",
+      "variant": "",
+      "description": "Many villagers suffer a bout of hay fever.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 4,
+      "title": "Isola Day Celebration",
+      "variant": "",
+      "description": "The villagers celebrate their arrival on Isola with feasts.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 5,
+      "title": "Day of Honor",
+      "variant": "",
+      "description": "The villagers pay their respects to those who have passed on.",
+      "requires": "the game's own condition for the day of honor (graves)"
+    },
+    {
+      "slot": 7,
+      "title": "The Mysterious Footprints",
+      "variant": "food gained",
+      "description": "Footprints appear overnight, and honeycombs: the village gains food.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 8,
+      "title": "The Mysterious Footprints",
+      "variant": "food lost",
+      "description": "Footprints appear overnight, and food is stolen.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 9,
+      "title": "The Mysterious Footprints",
+      "variant": "tech gained",
+      "description": "Footprints appear overnight, and useful instruments: tech points gained.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 10,
+      "title": "The Mysterious Footprints",
+      "variant": "tech lost",
+      "description": "Footprints appear overnight, and research tools are stolen.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 11,
+      "title": "Blessings Day Celebration",
+      "variant": "",
+      "description": "The villagers give thanks with dancing, ceremonies and a feast.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 12,
+      "title": "A Closer Look",
+      "variant": "",
+      "description": "A farmer finds many overlooked berries: more berries are left.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 13,
+      "title": "The Arc of Brilliant Colors",
+      "variant": "",
+      "description": "A villager sees a rainbow: look for its end near the mausoleum, or the cliff.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 14,
+      "title": "The Robber Crab",
+      "variant": "",
+      "description": "A villager spots a rare robber crab with healing properties.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 15,
+      "title": "The Phosphorescent Fungi",
+      "variant": "",
+      "description": "A villager finds a dangerous glowing mushroom and decides what to do.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 17,
+      "title": "The Rainy Season",
+      "variant": "",
+      "description": "The rainy season begins with a heavy afternoon monsoon.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 18,
+      "title": "The Cold Snap",
+      "variant": "",
+      "description": "A cold, wet wind puts the village fire out.",
+      "requires": "a lit village fire"
+    },
+    {
+      "slot": 20,
+      "title": "\"A Monsoon!\"",
+      "variant": "",
+      "description": "A sudden heavy rain makes it hard to get the chores done.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 21,
+      "title": "The Stinging Wasps",
+      "variant": "",
+      "description": "Wasps nest around the village and sting many villagers.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 22,
+      "title": "The Festival of the Banyan",
+      "variant": "",
+      "description": "The children are celebrated for collecting their 500th mushroom.",
+      "requires": "500 mushrooms collected and a healthy Tree of Life"
+    },
+    {
+      "slot": 23,
+      "title": "The Pure Sea Air",
+      "variant": "",
+      "description": "Clean, pure air clears everyone's lungs.",
+      "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 25,
+      "title": "Daredevil Barrel...of Babies! ",
+      "variant": "",
+      "description": "A barrel of babies comes down the waterfalls and they join the village.",
+      "requires": "room in the village for new villagers, and the game's own barrel conditions"
+    },
+    {
+      "slot": 26,
+      "title": "The State of the Tree",
+      "variant": "glum",
+      "description": "The sickly Tree of Life makes the villagers glum and moody.",
+      "requires": "the Tree of Life still in a poor state"
+    },
+    {
+      "slot": 27,
+      "title": "The State of the Tree",
+      "variant": "rejuvenated",
+      "description": "The recovering Tree of Life rejuvenates the villagers.",
+      "requires": "a healthy Tree of Life"
+    },
+    {
+      "slot": 28,
+      "title": "The Abandoned Infants ",
+      "variant": "",
+      "description": "Babies are found abandoned in the bushes and the women take them in.",
+      "requires": "the game's own condition for abandoned infants"
+    },
+    {
+      "slot": 29,
+      "title": "The Pink Shell",
+      "variant": "",
+      "description": "A villager finds a pink shell and decides what to do with it.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 30,
+      "title": "The Calabash Instrument",
+      "variant": "",
+      "description": "A villager finds a notched bamboo tube: pour water into it, or not.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 31,
+      "title": "The Climber",
+      "variant": "",
+      "description": "A villager gets stuck at the top of the Tree of Life.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 32,
+      "title": "The Mosquito Larvae",
+      "variant": "",
+      "description": "Mosquito larvae in the pond: the villagers decide how to deal with them.",
+      "requires": "a villager the event can be about, and the game's own technology conditions"
+    },
+    {
+      "slot": 33,
+      "title": "Faces in the Night",
+      "variant": "",
+      "description": "A villager sees glowing faces in the trees: tell the tribe, or not.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 34,
+      "title": "The Screaming Baby",
+      "variant": "",
+      "description": "A mother with a screaming baby gets conflicting advice.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 35,
+      "title": "The Sealed Box",
+      "variant": "",
+      "description": "A villager finds a floating sealed box: risk swimming it back, or not.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 36,
+      "title": "The Wet Book",
+      "variant": "",
+      "description": "A villager finds a disintegrating book: read it now, or carry it to the lab.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 37,
+      "title": "The Lie",
+      "variant": "",
+      "description": "A child ate a rare mushroom instead of storing it: what to tell the adult?",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 38,
+      "title": "The Aspiring Doctor",
+      "variant": "algae",
+      "description": "A gravely ill healer tries a cure: pure sea algae.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 39,
+      "title": "The Aspiring Doctor",
+      "variant": "sea water",
+      "description": "A gravely ill healer tries a cure: sea water.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 40,
+      "title": "The Aspiring Doctor",
+      "variant": "mushrooms",
+      "description": "A gravely ill healer tries a cure: tiny amounts of forbidden mushrooms.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 41,
+      "title": "The Aspiring Doctor",
+      "variant": "bark",
+      "description": "A gravely ill healer tries a cure: bark from the Tree of Life.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 42,
+      "title": "The Aspiring Doctor",
+      "variant": "fasting",
+      "description": "A gravely ill healer tries a cure: a day of fasting.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 43,
+      "title": "The Aspiring Doctor",
+      "variant": "cut leg",
+      "description": "A healer with a cut leg chooses a treatment: tree bark, or rare mushrooms.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 44,
+      "title": "The Aspiring Scientist",
+      "variant": "",
+      "description": "A curious villager experiments at night: white salts, or dried algae?",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 45,
+      "title": "Innovation in Construction",
+      "variant": "",
+      "description": "A builder tests a dangerous new way to build huts.",
+      "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 46,
+      "title": "Innovation in Farming",
+      "variant": "",
+      "description": "A villager tries to speed up cooking by sitting on the cooking pit.",
+      "requires": "a villager the event can be about, and the game's own technology condition"
+    },
+    {
+      "slot": 47,
+      "title": "Tough Lessons",
+      "variant": "",
+      "description": "A child is stuck high in the Tree of Life: rescue them, or let them learn.",
+      "requires": "a child and an adult the event can be about"
+    },
+    {
+      "slot": 48,
+      "title": "The Pretty Shell",
+      "variant": "",
+      "description": "Two children fight over a shell: teach them to share, or decide who keeps it.",
+      "requires": "at least two children"
+    },
+    {
+      "slot": 49,
+      "title": "The Legendary Stranger",
+      "variant": "",
+      "description": "Biggles appears by the Tree of Life and answers one question.",
+      "requires": "a villager the event can be about"
+    }
+  ],
+  "excluded_island_events": [
+    {
+      "title": "The Tsunami",
+      "reason": "slot 1: condition 0x4146E0 always returns false"
+    },
+    {
+      "title": "The Canoe from the Other Side",
+      "reason": "slot 6: condition 0x4146E0 always returns false"
+    },
+    {
+      "title": "The Medical Emergency",
+      "reason": "slot 16: condition 0x4146E0 always returns false"
+    },
+    {
+      "title": "The Salty Air",
+      "reason": "slot 19: strings only, no event object"
+    },
+    {
+      "title": "The Return of Biggles",
+      "reason": "slot 24: condition 0x4146E0 always returns false"
+    }
+  ],
+  "custom_island_event": {
+    "offered": [
+      "title and description",
+      "food and tech points (add, subtract, set to 0)",
+      "refill: berry bushes",
+      "new villagers",
+      "dies (leaves a skeleton)",
+      "disappears (no skeleton)",
+      "falls sick",
+      "pregnant with a baby, twins or triplets (adults 18+, either sex)",
+      "likes and dislikes",
+      "appearance (heads and bodies 0-29)",
+      "skills",
+      "parents",
+      "custom title",
+      "mask",
+      "behaviours: stops what they are doing, recovers fully",
+      "village: rain begins, the weather clears"
+    ],
+    "omitted": [
+      {
+        "option": "refill fruit trees and fishing",
+        "reason": "the game has no refill for them"
+      },
+      {
+        "option": "special statuses",
+        "reason": "Scholar and Elderly are worked out; Tribal Chief is never shown"
+      },
+      {
+        "option": "other weather",
+        "reason": "the other weather types are not identified"
+      },
+      {
+        "option": "puzzle solved",
+        "reason": "only the collections have a completion route"
+      }
+    ]
+  },
+  "patches": []
+}

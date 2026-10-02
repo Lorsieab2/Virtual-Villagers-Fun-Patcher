@@ -58,10 +58,18 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # only at 0x26F69..0x26F6C (the rewritten call's rel32), inside the stub at
     # 0x8BB70..0x8BBDA (.shr, which Origins maps as code), and at the PE
     # CheckSum 0x150..0x151. The length is unchanged.
+    #
+    # Re-pinned for v1.35.45 (Barrel follow-ups). The manifest diff against
+    # the parent commit is exactly: rows 0x2B00C (the Mysterious Crate roll
+    # detour, back to stock), 0x8B962 (its cave) and 0x8EB80 (the disarm
+    # stub) removed; 0x8B710 (the deferred barrel helper: deleting
+    # destructor, failure branch straight to the restore), 0x8E820 (the
+    # slot-change cave without the removed flag's clear) and 0x8EB00 (the
+    # room check without the arming store) changed. Nothing else.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "C5083455666A861C9D47EBA379A28A3BD7EB70161F8CAD60471FC9FFCE78C44A",
-        "collection_progression": "6688B35CE4484E6F068B388FEC0EA47E93BCCEEAD741AAF63DFEE82F5B370381",
-        "immediate_fixed": "6688B35CE4484E6F068B388FEC0EA47E93BCCEEAD741AAF63DFEE82F5B370381",
+        "stock": "7AFB00C713B59949475EECB10FA9922EE8660135C4615F62DB1F9885B0E58180",
+        "collection_progression": "A3C7C69E1A1186B793F59FB7174398BE3570344B36FE7D2493C4BD232D5F805F",
+        "immediate_fixed": "A3C7C69E1A1186B793F59FB7174398BE3570344B36FE7D2493C4BD232D5F805F",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

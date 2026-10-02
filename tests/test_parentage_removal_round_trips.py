@@ -116,6 +116,9 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                 item
                 for item in every
                 if not item.endswith(ORIGINS_SUFFIXES)
+                # Story / Cheat Upgrades requires the public Origins upgrades
+                # row, so it cannot be selected without it.
+                and not item.endswith("_story_cheat_upgrades")
             ]
 
             for label, requested in SELECTION_FORMS(every, without_origins):

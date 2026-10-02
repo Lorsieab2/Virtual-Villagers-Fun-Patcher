@@ -471,7 +471,13 @@ class ManifestTests(unittest.TestCase):
         # an Origins build sweeps a deleted tribe's masks even when the
         # parentage log is not selected. The stub's own bytes live in the
         # appended page rather than in a patch, so this is +1 not +2.
-        self.assertEqual(len(rows), 40)
+        # 38, not 40 (v1.35.45): the baby-count override (cave 0x9A4F0 and
+        # its call site 0x37ADC) is removed -- 0x37ADC is the Mysterious
+        # Sack / Vial's strength roll, not the barrel's, whose three
+        # children come from its magnitude.
+        self.assertEqual(len(rows), 38)
+        self.assertNotIn(0x37ADC, rows, "the Sack / Vial roll is detoured again")
+        self.assertNotIn(0x9A4F0, rows)
         for required in (0x9A4A0, 0x9A745):
             self.assertIn(required, rows, "delivery-time recheck cave is missing")
         mask_guards = {
@@ -510,14 +516,18 @@ class ManifestTests(unittest.TestCase):
             "C7807004030001000000803D00C74900017507C60500C7490002"
             "E9B570FAFF",
         )
+        # v1.35.45: the `mov byte ptr [0x49C704], 1` (C60504C7490001) that
+        # armed the removed "three children" flag is gone; every later
+        # branch and call displacement shrinks by those 7 bytes.
         self.assertEqual(
             rows[0x9A780]["after"],
-            "803D00C7490003741C803D00C74900027561C60500C7490003C705"
-            "08C749005A000000EB4EFF0D08C749007546E893FFFFFF85C0743D"
-            "C60500C7490000C60504C749000181ECD8500000682C1A4B7F6A02"
-            "8D4C2408E80681F9FF6A00568D4C2408E8EA52F6FF89E1E8A369F9"
-            "FF81C4D850000089F9E8066AF6FFE9F621F9FF",
+            "803D00C7490003741C803D00C7490002755AC60500C7490003C705"
+            "08C749005A000000EB47FF0D08C74900753FE893FFFFFF85C07436"
+            "C60500C749000081ECD8500000682C1A4B7F6A02"
+            "8D4C2408E80D81F9FF6A00568D4C2408E8F152F6FF89E1E8AA69F9"
+            "FF81C4D850000089F9E80D6AF6FFE9FD21F9FF",
         )
+        self.assertNotIn("C60504C7490001", rows[0x9A780]["after"])
         self.assertEqual(rows[0x2E9F0]["before"], "E80B48FDFF")
         self.assertEqual(rows[0x2E9F0]["after"], "E98BDD0600")
         self.assertEqual(rows[0x437DA]["after"], "E9318F0500")
@@ -1178,10 +1188,12 @@ class ManifestTests(unittest.TestCase):
         # 20 with Manual Drop-Breeding overrides Birth Control
         # (vv2_manual_drop_breeding_overrides_birth_control), the pairing
         # handler's woman-50 refusal re-encoded in place behind a drop test;
-        # 21 with Firepit: Dry Grass Drawn Above the Wood
+        # 21 with Story / Cheat Upgrades (vv2_story_cheat_upgrades), which
+        # patches no executable byte -- its companion writes at run time;
+        # 22 with Firepit: Dry Grass Drawn Above the Wood
         # (vv2_firepit_dry_grass_above_wood), the scene builder's two fire-pit
         # draw blocks swapped in place.
-        self.assertEqual(len(feature_ids), 21)
+        self.assertEqual(len(feature_ids), 22)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -2568,6 +2580,8 @@ class StockIntegrationTests(unittest.TestCase):
             not in {
                 "vv1_enable_origins_exclusive_features",
                 "vv1_origins_village_wide_upgrades",
+                # Requires the Origins upgrades row excluded above.
+                "vv1_story_cheat_upgrades",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -4020,6 +4034,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_faster_village_scrolling",
                 "vv2_manual_drop_breeding_overrides_birth_control",
                 "vv2_numeric_keys_tip_wording",
+                "vv2_story_cheat_upgrades",
                 "vv2_firepit_dry_grass_above_wood",
             },
         )

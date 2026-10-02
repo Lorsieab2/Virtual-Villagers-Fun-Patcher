@@ -169,6 +169,9 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 "vv2_healers_study_regardless_of_food",
                 # Builders and Healers Work First: loaded by the fix-huts companion.
                 "vv2_builders_and_healers_work_first",
+                # Story / Cheat Upgrades: loaded by the Origins companion, and
+                # it requires the Origins upgrades row itself.
+                "vv2_story_cheat_upgrades",
                 *PUBLIC,
             }
         ]

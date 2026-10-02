@@ -60,6 +60,17 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
     # is "Default-OFF. Owner's-Defaults ON."
     + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
+    # The owner: Story / Cheat Upgrades (all five games) is off by default, and
+    # Owner's Defaults leaves it off too (see OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
+    + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
+)
+
+# Patches the Owner's Defaults button leaves OFF, by exact id.  Owner's
+# Defaults ticks every other default-off patch; these are the exceptions the
+# owner named: Learning Skills Never Fails and Story / Cheat Upgrades.
+OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
+    ["vv%d_learning_never_fails" % game for game in range(1, 6)]
+    + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
 )
 
 
@@ -105,9 +116,10 @@ def owners_default_fun_patch_selection(patch_id: str) -> bool:
     """Whether the Owner's Defaults button ticks this.
 
     The owner: "Every patch EXCEPT FOR LEARNING NEVER FAILS is on." -- so the
-    other default-off patches are ticked here too.
+    other default-off patches are ticked here too -- except Story / Cheat
+    Upgrades, which the owner keeps off here as well.  Matched by exact id.
     """
-    return not patch_id.endswith("_learning_never_fails")
+    return patch_id not in OWNERS_DEFAULT_OFF_FUN_PATCH_IDS
 
 
 # The owner: the update link opens the project's base GitHub

@@ -23,20 +23,26 @@ int vv_reset_refused_paths = 0;
 /* Both the current folder and the loose pre-move names. A player who
    upgrades keeps whatever the previous build wrote beside their saves, and a
    sidecar left behind would restore a reset village's masks or parentage. */
-static const char *const SIDECAR_FORMATS[5][6] = {
+/* The Story / Cheat Upgrades custom titles (native/shared/custom_titles.h)
+   are per slot in every game: the owner's rule is that the .dat follows the
+   Start Over reset. */
+#define CUSTOM_TITLES_FORMAT \
+    "%s\\Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save %d.dat"
+#define SIDECAR_FORMAT_COUNT 7
+static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %d.dat",
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %d.dat",
                "%s\\vv1_masks_%d.dat", "%s\\vv1_doublers_%d.dat",
-               "%s\\vv1_parents_%d.dat" },
+               "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT },
     /* VV2 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
-               "%s\\vv2_masks_%d.dat", 0, 0, 0, 0 },
+               "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
     /* VV3 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", 0, 0, 0, 0 },
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
     /* VV4 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", 0, 0, 0, 0 },
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
     /* VV5 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", 0, 0, 0, 0 },
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are
@@ -286,7 +292,7 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
         return -1;              /* unresolved path is never a deletion target */
     }
 
-    for (i = 0; i < 6; ++i) {
+    for (i = 0; i < SIDECAR_FORMAT_COUNT; ++i) {
         const char *fmt = SIDECAR_FORMATS[game - 1][i];
         if (fmt == NULL) {
             continue;   /* a hole, not the end: the rows are not packed */
