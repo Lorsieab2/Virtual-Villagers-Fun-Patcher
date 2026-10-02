@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "1D5F8F75A8EB05643EDF3C8FA5B2A3CE7D8870BD09838781507C1F0ABFB56B6D"
+      "sha256": "E4A7C603236B852AB3033D454B429029DFE66A1D71C1F1AEB038A925E26D8599"
     }
   ],
   "runtime_detours": [
@@ -665,7 +665,7 @@
     {
       "slot": 28,
       "title": "The Abandoned Infants ",
-      "variant": "",
+      "variant": "Female",
       "description": "Babies are found abandoned in the bushes and the women take them in.",
       "requires": "the game's own condition for abandoned infants"
     },
@@ -707,9 +707,9 @@
     {
       "slot": 34,
       "title": "The Screaming Baby",
-      "variant": "",
+      "variant": "Female",
       "description": "A mother with a screaming baby gets conflicting advice.",
-      "requires": "a villager the event can be about"
+      "requires": "a mother with a baby the event can be about"
     },
     {
       "slot": 35,

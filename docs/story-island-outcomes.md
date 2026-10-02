@@ -388,7 +388,7 @@ is about (one the game would not pick leaves the choice to the game).
 | --- | --- | --- |
 | Which villager finds the idol | which villager | a villager the game itself could pick |
 
-### The Prettiest Tribe Girl
+### The Prettiest Tribe Girl (Female)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
@@ -475,7 +475,7 @@ is about (one the game would not pick leaves the choice to the game).
 | If you investigate the hole | result | Brass tools: tech +1000 (times k); A cache of nuts: food +300 (times k); Baby snakes: the villager falls sick, and others may too; Putrid slime: the villager falls sick; A golden pocket watch: tech +1000 (times k); Ants raid the food bin: food -150 (times k, not below 0) |
 | Baby snakes: who else falls sick | each villager | nobody, everyone, the villagers chosen |
 
-### The Love Note
+### The Love Note (Male)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
@@ -602,7 +602,7 @@ is about (one the game would not pick leaves the choice to the game).
 
 ### The Miraculous Bloom -- can be picked when its own timing/story condition does not hold
 
-### The Daredevil -- can be picked when its own timing/story condition does not hold
+### The Daredevil (Male) -- can be picked when its own timing/story condition does not hold
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
@@ -739,7 +739,7 @@ is about (one the game would not pick leaves the choice to the game).
 | Which villager is stung in bed | which villager | a villager the game itself could pick |
 | If they swat it: health lost | amount | any of 5 to 9 health lost |
 
-### The Lovers (her gift)
+### The Lovers (Female)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
@@ -747,7 +747,7 @@ is about (one the game would not pick leaves the choice to the game).
 | Which man she courts | which villager | a villager the game itself could pick |
 | If she carves a knife: babies conceived | result | One baby; Twins; Triplets |
 
-### The Lovers (his gift)
+### The Lovers (Male)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
@@ -810,14 +810,14 @@ is about (one the game would not pick leaves the choice to the game).
 | If they open the crate | result | A crate of fruit (food gained); A tarantula bite (sick, health lost, some food) |
 | If opened (tarantula): health lost | amount | any of 10 to 29 health lost |
 
-### Vanity and the Bee
+### Vanity and the Bee (Female)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
 | Which young woman meets the bee | which villager | a villager the game itself could pick |
 | If she swats at it: health lost | amount | any of 15 to 24 health lost |
 
-### The Noisy Bird
+### The Noisy Bird (Female)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
@@ -1029,7 +1029,7 @@ is about (one the game would not pick leaves the choice to the game).
 
 ### The State of the Tree (rejuvenated) -- can be picked when its own timing/story condition does not hold
 
-### The Abandoned Infants  -- can be picked when its own timing/story condition does not hold
+### The Abandoned Infants (Female) -- can be picked when its own timing/story condition does not hold
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
@@ -1069,7 +1069,7 @@ is about (one the game would not pick leaves the choice to the game).
 | --- | --- | --- |
 | Which adult sees the faces | which villager | a villager the game itself could pick |
 
-### The Screaming Baby
+### The Screaming Baby (Female)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |

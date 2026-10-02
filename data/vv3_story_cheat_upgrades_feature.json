@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "1D5F8F75A8EB05643EDF3C8FA5B2A3CE7D8870BD09838781507C1F0ABFB56B6D"
+      "sha256": "E4A7C603236B852AB3033D454B429029DFE66A1D71C1F1AEB038A925E26D8599"
     }
   ],
   "runtime_detours": [
@@ -897,7 +897,7 @@
     {
       "slot": 15,
       "title": "The Daredevil",
-      "variant": "",
+      "variant": "Male",
       "description": "A villager teases sharks: swim with them, or rethink the plan.",
       "requires": "a man the event can be about, and at least two women"
     },
@@ -1030,14 +1030,14 @@
     {
       "slot": 34,
       "title": "The Lovers",
-      "variant": "her gift",
+      "variant": "Female",
       "description": "A woman courts a man: a carved knife, or a shark-tooth necklace.",
       "requires": "a woman the event can be about"
     },
     {
       "slot": 35,
       "title": "The Lovers",
-      "variant": "his gift",
+      "variant": "Male",
       "description": "A man courts a woman: a shell necklace, or flowers.",
       "requires": "a man the event can be about"
     },
@@ -1086,16 +1086,16 @@
     {
       "slot": 42,
       "title": "Vanity and the Bee",
-      "variant": "",
+      "variant": "Female",
       "description": "A vain young woman and a bee: run to the water, or swat at it.",
       "requires": "a woman the event can be about"
     },
     {
       "slot": 43,
       "title": "The Noisy Bird",
-      "variant": "",
+      "variant": "Female",
       "description": "A noisy bird disrupts research: scare it away, or leave it alone.",
-      "requires": "a villager the event can be about"
+      "requires": "a woman the event can be about"
     },
     {
       "slot": 44,
