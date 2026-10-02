@@ -777,6 +777,22 @@ class LifeTests(unittest.TestCase):
                     self.assertEqual(event.seen, [(DELIVERED, 1, -1 if choice is None else choice)])
                     self.assertEqual(g.state()[0], IDLE, "ended when its apply returned")
 
+    def test_the_same_event_happening_naturally_afterwards_is_stock(self):
+        for game in OK_PATHS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                slot, ci, c = _first_slot(game, "apply")
+                g = Game(game)
+                event = _Event(g, slot)
+                g.arm(slot, {ci: 0})
+                g.force(DELIVERED, -1, 0, event.obj)
+                self._ok(g, event, None if c["branch"] is None else c["branch"])
+                self.assertEqual(g.state()[0], IDLE)
+                # The event again, chosen by the game itself: its rolls are the game's.
+                va = control_sites(c)[0]
+                self.assertEqual(g.forced_roll(va, 100), (stock_value(100), False))
+
     def test_vv3_vv5_another_objects_apply_is_not_the_events(self):
         """A custom event or the Origins barrel shown by the same popup."""
         for game in OK_PATHS:
@@ -1016,6 +1032,29 @@ class UnlockTests(unittest.TestCase):
                     g.proc.call(0x428470, [2, 6], ecx=event)
                     self.assertEqual(seen, [(slot if unlocked else 13, 6)])
 
+    def test_vv1_the_pass_is_used_once(self):
+        g, event = self._vv1(9, 1, rands=(9, 13))
+        seen = []
+        g.proc.stub(0x427CA0, lambda p: (seen.append(p.arg(0)) or 0, 8))
+        g.proc.call(0x428470, [2, 6], ecx=event)
+        g.proc.call(0x428470, [2, 6], ecx=event)       # the next island event: no pick
+        self.assertEqual(seen, [9, 13], "the condition is the game's own again (9 rolled, re-rolled)")
+
+    def test_vv1_vv2_a_delivered_outcome_ends_when_the_game_rolls_again(self):
+        """The delivered event's own condition failed and the game rolls
+        another: the outcome must not reach that other event."""
+        for game, site, slot, bound in (("vv1", 0x418932, (1 << 6) | 3, 16),
+                                        ("vv2", 0x41F59D, (1 << 6) | 9, 22)):
+            with self.subTest(game=game):
+                g = Game(game)
+                g.proc.export("VvfpStoryProbeSetTick", 0)
+                g.proc.export("VvfpStoryProbeSetPick", g.n, _position(game, slot), 0)
+                g.arm(slot, {0: 0})
+                self.assertEqual(g.roll(site, bound), slot & 0x3F)
+                self.assertEqual(g.state()[0], DELIVERED)
+                g.roll(site, bound)
+                self.assertEqual(g.state()[0], IDLE)
+
     def test_vv1_encounters(self):
         g, event = self._vv1((1 << 6) | 5, 1, rands=(2,))           # The Furry Food (dead)
         self.assertEqual(g.proc.call(0x418920, [], ecx=event), 5)
@@ -1184,6 +1223,51 @@ class ChooserTests(unittest.TestCase):
         self.assertIn("not possible right now", self._text(g, 0, 2)[1])
         g.proc.write(g.village.world + 0x2E910, b"\1")
         self.assertEqual(self._text(g, 0, 2)[1], "")
+
+
+@emulated
+class ModeParityTests(unittest.TestCase):
+    """All three population modes: every outcome site is installed and every
+    event's first setting forces exactly the same values; the tsunami's
+    chosen villagers are the ones swept away in each mode."""
+
+    def test_every_mode(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            for mode in MODES:
+                with self.subTest(game=game, mode=mode):
+                    g = Game(game, mode)
+                    for slot in events_of(game):
+                        cs = controls_of(game, slot)
+                        if not cs:
+                            continue
+                        c = cs[0]
+                        gong = slot == GONG_SLOT
+                        if c["kind"] == "enum":
+                            choice, (va, value) = 0, c["options"][0]["force"][0]
+                        elif c["kind"] == "amount":
+                            choice, va, value = c["bound"] - 1, c["site"], c["bound"] - 1
+                        elif c["kind"] == "loop":
+                            choice, va, value = NOBODY, c["site"], c["nobody"]
+                        else:
+                            continue
+                        g.arm(slot, {0: choice})
+                        _ready(g, c, gong=gong)
+                        for _ in range(c.get("occurrence", 1) - 1):
+                            g.roll(va, _bound_for(c, value))
+                        self.assertEqual(g.forced_roll(va, _bound_for(c, value)), (value, True),
+                                         (slot, c["id"]))
+                        g.force(IDLE, gong=gong)
+                        g.force(IDLE)
+        for mode in MODES:
+            with self.subTest(game="vv3", mode=mode, case="tsunami"):
+                g = Game("vv3", mode)
+                ci, _ = _control("vv3", 1, "victims")
+                g.arm(1, {ci: CHOOSE}, who={ci: [0, 5]})
+                g.force(DELIVERED, -1, 1)
+                g.proc.call(0x414B30, ecx=0, until=0x414B3E)
+                self.assertEqual([g.village.byte(i, 0xF10) for i in range(6)], [0, 1, 1, 1, 1, 0])
 
 
 class DocAndCompanionTests(unittest.TestCase):
