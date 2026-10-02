@@ -67,6 +67,9 @@ class CustomTitlesFile(unittest.TestCase):
             "THE OLD VILLAGE'S TITLES ARE FORGOTTEN AFTER START OVER",
             "THE DELETED FILE IS NOT WRITTEN BACK",
             "AFTER AN UNTICKED START OVER ONLY THE NEW TITLE IS WRITTEN",
+            "A FAILED WRITE LEAVES THE CHANGED TITLE AS IT WAS IN MEMORY",
+            "A FAILED WRITE ADDS NO TITLE IN MEMORY",
+            "A FAILED WRITE REMOVES NO TITLE IN MEMORY",
         ):
             with self.subTest(case=case):
                 self.assertIn(case, text)
@@ -103,7 +106,9 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         for case in ("THE ROSTER PRINTS THE CUSTOM TITLE UNDER ITS VILLAGER'S NAME",
                      "A TITLE WHOSE RECORD HOLDS SOMEBODY ELSE IS NOT PRINTED",
                      "THE HISTORY PRINTS IT TOO",
-                     "ANOTHER SLOT'S VILLAGE PRINTS NO TITLES"):
+                     "ANOTHER SLOT'S VILLAGE PRINTS NO TITLES",
+                     "A NAME CONTAINING (Save 2) DOES NOT READ SLOT 2'S TITLES",
+                     "THE LAST (Save N) MARKER IS THE SLOT"):
             with self.subTest(case=case):
                 self.assertIn(case, text)
 

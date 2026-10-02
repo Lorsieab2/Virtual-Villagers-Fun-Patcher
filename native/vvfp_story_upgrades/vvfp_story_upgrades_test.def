@@ -6,6 +6,7 @@ EXPORTS
     VvfpStoryPickPending=_VvfpStoryPickPending@4
     VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8
     VvfpStoryAttachHost=_VvfpStoryAttachHost@8
+    VvfpStoryVillageReset=_VvfpStoryVillageReset@8
     VvfpStoryProbeQueueCustom=_VvfpStoryProbeQueueCustom@12
     VvfpStoryProbeSetCustom=_VvfpStoryProbeSetCustom@12
     VvfpStoryProbeCustomPending=_VvfpStoryProbeCustomPending@4

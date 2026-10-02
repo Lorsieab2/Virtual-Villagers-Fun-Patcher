@@ -919,6 +919,7 @@ static int ce_arm(int game, const ce_event *e) {
     ce_armed_event.game = game;
     ce_armed = 1;
     ce_armed_tick = STORY_TICK();
+    ce_armed_village = story_village_now(game);
     ce_last_lapsed = 0;
     return 1;
 }

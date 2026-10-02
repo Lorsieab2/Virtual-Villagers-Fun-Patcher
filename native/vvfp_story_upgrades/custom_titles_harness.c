@@ -21,6 +21,18 @@
 #include <windows.h>
 #include <string.h>
 
+/* A write that fails on demand (sidecar_io.h's write hook). */
+static int g_fail_writes;
+static BOOL WINAPI harness_write(HANDLE h, LPCVOID data, DWORD size, LPDWORD wrote, LPOVERLAPPED o) {
+    if (g_fail_writes) {
+        *wrote = 0;
+        SetLastError(ERROR_DISK_FULL);
+        return FALSE;
+    }
+    return WriteFile(h, data, size, wrote, o);
+}
+#define VV_SIDECAR_WRITE_FILE harness_write
+
 #include "../shared/save_folder.h"
 #include "../shared/save_reset.h"
 #include "../shared/custom_titles.h"
@@ -250,6 +262,29 @@ int main(void) {
             FindClose(f);
         }
     }
+
+    /* -- a write that fails leaves the table as it was ------------------- */
+    new_session();
+    g_slot = 1;
+    DeleteFileA(path1);
+    check(titles_set(3, 1, "Kept Title") == 1, "a title published before the failing writes");
+    g_fail_writes = 1;
+    check(titles_set(3, 1, "Changed") == 0, "a change that can not be written is refused");
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Kept Title") == 0,
+          "A FAILED WRITE LEAVES THE CHANGED TITLE AS IT WAS IN MEMORY");
+    check(titles_set(3, 2, "Added") == 0 && titles.count == 1 && titles_lookup(3, g_records[2]) == NULL,
+          "A FAILED WRITE ADDS NO TITLE IN MEMORY");
+    check(titles_set(3, 1, NULL) == 0 && titles_lookup(3, g_records[1]) != NULL,
+          "A FAILED WRITE REMOVES NO TITLE IN MEMORY");
+    g_fail_writes = 0;
+    check(titles_set(3, 0, "Later") == 1 && file_size(path1) == 16 + 80,
+          "the next write holds only the changes that were made");
+    new_session();
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Kept Title") == 0 && titles_lookup(3, g_records[2]) == NULL,
+          "and the file agrees with what memory showed");
+    DeleteFileA(path1);
 
     /* -- Start Over: the reset deletes the slot's file, every game ------- */
     for (game = 1; game <= 5; ++game) {

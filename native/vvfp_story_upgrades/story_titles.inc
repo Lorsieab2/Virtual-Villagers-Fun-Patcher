@@ -155,8 +155,29 @@ static const char *titles_lookup(int game, const unsigned char *record) {
     return titles.entries[i].title;
 }
 
+/* The table as it was before titles_set changed it, put back when the change
+   could not be written: memory never says what the file does not. */
+static struct {
+    int count;
+    vv_custom_title entries[VV_TITLES_MAX];
+    unsigned char seen[VV_TITLES_MAX];
+} titles_before;
+
+static int titles_commit(void) {
+    if (titles_publish()) {
+        return 1;
+    }
+    /* (titles_set has already looked for a Start Over, so the publish's own
+       look finds none: this is a write that failed.) */
+    titles.count = titles_before.count;
+    memcpy(titles.entries, titles_before.entries, sizeof titles.entries);
+    memcpy(titles.seen, titles_before.seen, sizeof titles.seen);
+    return 0;
+}
+
 /* Set (text != NULL) or remove the custom title of the villager in record
-   `index`.  Returns 1 when the table now says so and is published. */
+   `index`.  Returns 1 when the table now says so and is published; when it
+   can not be published the table is left as it was. */
 static int titles_set(int game, int index, const char *text) {
     const unsigned char *record = story_record(game, index);
     int i;
@@ -167,12 +188,15 @@ static int titles_set(int game, int index, const char *text) {
     /* A Start Over since the last write: the old village's titles go; this
        one belongs to the village there now. */
     titles_reset_detected();
+    titles_before.count = titles.count;
+    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
     i = titles_find((unsigned int)index);
     if (text == NULL) {
         if (i >= 0) {
             titles_remove_at(i);
         }
-        return titles_publish();
+        return titles_commit();
     }
     if (!vv_title_valid(text)) {
         return 0;
@@ -188,7 +212,7 @@ static int titles_set(int game, int index, const char *text) {
     memset(titles.entries[i].title, 0, sizeof titles.entries[i].title);
     lstrcpynA(titles.entries[i].title, text, VV_TITLE_BYTES);
     titles.seen[i] = 1;
-    return titles_publish();
+    return titles_commit();
 }
 
 /* Once per frame (from the Origins companion's tick): bind to the slot,

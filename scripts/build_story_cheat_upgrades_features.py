@@ -114,7 +114,7 @@ CUSTOM_OFFERED = {
             "village: rain begins, the weather clears"],
     "vv5": ["title and description", "food and tech points (add, subtract, set to 0)",
             "refill: noni bushes, and the crops once the farm is built", "new villagers (believers)",
-            "dies (leaves a remains)", "falls sick (believers)",
+            "dies (leaves a remains)", "disappears (no skeleton)", "falls sick (believers)",
             "pregnant with a baby, twins or triplets (adult believers, either sex)",
             "likes and dislikes", "appearance (heads and bodies 0-29)", "skills (six)", "parents",
             "custom title", "mask", "becomes a believer / becomes a Heathen",
@@ -142,9 +142,7 @@ CUSTOM_OMITTED = {
              "Chief is never shown"},
             {"option": "other weather", "reason": "the other weather types are not identified"},
             {"option": "puzzle solved", "reason": "only the collections have a completion route"}],
-    "vv5": [{"option": "disappears (no skeleton)", "reason": "the game has no way of removing a "
-             "living villager; only an unburied corpse disappears"},
-            {"option": "new Heathens", "reason": "the Heathen creator's arguments are not all understood"},
+    "vv5": [{"option": "new Heathens", "reason": "the Heathen creator's arguments are not all understood"},
             {"option": "the puzzles' own Heathens' faction", "reason": "their puzzles depend on them"},
             {"option": "sickness or pregnancy for Heathens", "reason": "the game cures Heathens every "
              "moment and Heathens never give birth"},

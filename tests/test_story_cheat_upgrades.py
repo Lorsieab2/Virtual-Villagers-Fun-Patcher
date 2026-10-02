@@ -501,15 +501,22 @@ SELECTORS = {
 class TablePickTests(unittest.TestCase):
     """VV3-VV5: the replacement at the point the selector has chosen."""
 
-    def _at_site(self, game, *, pick_slot=None, ok=None, chosen=2, tick=0, arm_tick=0):
+    def _at_site(self, game, *, pick_slot=None, ok=None, chosen=2, tick=0, arm_tick=0,
+                 host=None, between=None):
         table, count, site, resume, register = SELECTORS[game]
         proc = process(game)
         n = int(game[2:])
         self.assertEqual(proc.export("VvfpStoryInstall", n), 1)
+        if host is not None:
+            import test_story_custom_island_event as part2
+
+            host = part2.Host(proc, n, host)
         objects = _ObjectTable(proc, table, count, ok or {})
         if pick_slot is not None:
             self.assertEqual(proc.export("VvfpStoryProbeSetPick", n, _position(game, pick_slot), arm_tick),
                              pick_slot)
+        if between is not None:
+            between(proc, n, host)
         proc.export("VvfpStoryProbeSetTick", tick)
         proc.set_reg("esi", chosen)
         proc.set_reg("esp", HEAP + 0x3000000)
@@ -539,6 +546,32 @@ class TablePickTests(unittest.TestCase):
                 self.assertEqual(proc.export("VvfpStoryProbeArmedSlot"), 0xFFFFFFFF)
                 stats = proc.read(proc.exports["VvfpStoryStats"], 12)
                 self.assertEqual(struct.unpack("<3i", stats), (0, 1, 0))
+
+    def test_a_pick_never_reaches_another_village(self):
+        """Picked in one village, then another slot loaded, Start Over or a
+        tribe deleted: the game keeps its own choice."""
+        def other_slot(proc, n, host):
+            host.slot = 3
+
+        def reset(proc, n, host):
+            proc.export("VvfpStoryVillageReset", n, 2)
+
+        def same(proc, n, host):
+            host.slot = 2
+        for game in SELECTORS:
+            slot = story_island_events.EVENTS[game][-1]["slot"]
+            for case, between in (("other slot", other_slot), ("start over", reset)):
+                with self.subTest(game=game, case=case):
+                    proc, objects, esi, obj = self._at_site(game, pick_slot=slot, chosen=3, host=2,
+                                                            between=between)
+                    self.assertEqual((esi, obj), (3, objects.objects[3]))
+                    self.assertEqual(proc.export("VvfpStoryProbeArmedSlot"), 0xFFFFFFFF, "discarded")
+                    stats = struct.unpack("<4i", proc.read(proc.exports["VvfpStoryStats"], 16))
+                    self.assertEqual(stats, (0, 0, 0, 1))
+            with self.subTest(game=game, case="same village"):
+                proc, objects, esi, obj = self._at_site(game, pick_slot=slot, chosen=3, host=2,
+                                                        between=same)
+                self.assertEqual((esi, obj), (slot, objects.objects[slot]))
 
     def test_a_pick_older_than_ten_minutes_lapses(self):
         for game in SELECTORS:

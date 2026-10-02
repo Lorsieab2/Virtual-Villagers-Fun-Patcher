@@ -108,6 +108,22 @@ static int c5_kill(int index) {
     return 1;
 }
 
+/* Disappearance is the game's own removal of a record without a body: the
+   presence byte +0x1CD4 cleared, as the stock code clears it for a living
+   villager it takes away (0x420142, 0x46723E) and for a body it removes
+   (0x473F8F).  The activity stops first (0x473440, as the death does), and
+   the selection is dropped when it is this villager, as the body's removal
+   does (0x473F7A: 0x4653D0 is "is selected", 0x470800 clears it). */
+static int c5_vanish(int index) {
+    unsigned char *r = c5_record(index);
+    TC0(0x473440u, r);
+    if ((TC0(0x4653D0u, r) & 0xFF) != 0) {
+        TC0(0x470800u, C5_MANAGER);
+    }
+    r[0x1CD4] = 0;
+    return 1;
+}
+
 /* Sick is the byte +0x1C48, as Missing Kids (0x4161FA) writes it; the game
    clears it on Heathens every tick, so a Heathen is refused. */
 static int c5_sicken(int index) {
@@ -275,7 +291,7 @@ static const char *const C5_SKILLS[] = {
 };
 
 static const ce_adapter C5_ADAPTER = {
-    CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_SICK | CAP_PREGNANT | CAP_PREFS
+    CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT | CAP_PREFS
         | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
         | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY,
     "New Believers",
@@ -292,8 +308,6 @@ static const ce_adapter C5_ADAPTER = {
     C5_BEHAVIOURS, 2,
     NULL, 0,
     "Not in New Believers:\r\n\r\n"
-    "- Disappear: the game has no way of removing a living villager (no event does it); "
-    "only a corpse that is never buried disappears.\r\n"
     "- New Heathens: the Heathen creator's arguments are not all understood; make a "
     "believer and turn them into a Heathen instead.\r\n"
     "- The puzzles' own Heathens (the Heathen Mommy and the others) keep their faction.\r\n"
@@ -305,7 +319,7 @@ static const ce_adapter C5_ADAPTER = {
     "Refills the noni bushes and, once the farm is built, the crops.",
     "Your village gains %d food.", "Your village has lost %d food.",
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
-    c5_record, c5_listed, c5_arm_refusal, c5_room, c5_spawn, c5_kill, NULL, c5_sicken,
+    c5_record, c5_listed, c5_arm_refusal, c5_room, c5_spawn, c5_kill, c5_vanish, c5_sicken,
     c5_conceive, c5_set_status, c5_behave, NULL, c5_food, c5_tech, c5_change_food, c5_change_tech,
     c5_refill, c5_parents_supported, c5_set_parents
 };

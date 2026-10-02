@@ -6,3 +6,4 @@ EXPORTS
     VvfpStoryPickPending=_VvfpStoryPickPending@4
     VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8
     VvfpStoryAttachHost=_VvfpStoryAttachHost@8
+    VvfpStoryVillageReset=_VvfpStoryVillageReset@8

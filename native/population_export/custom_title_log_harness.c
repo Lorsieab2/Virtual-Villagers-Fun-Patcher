@@ -193,6 +193,18 @@ int main(void) {
     text = read_all(roster);
     check(strstr(text, "Custom title") == NULL, "a header with no slot prints no titles");
 
+    /* A village NAMED "Trick (Save 2)" in slot 4: the header's last marker
+       is its slot, so slot 2's titles must not leak into it... */
+    WriteVillagePopulation(3, g_module, "Village: Trick (Save 2) (Save 4)\n");
+    text = read_all(roster);
+    check(strstr(text, "  Name: Kai\n") != NULL && strstr(text, "Custom title") == NULL,
+          "A NAME CONTAINING (Save 2) DOES NOT READ SLOT 2'S TITLES");
+    /* ...and the same name in slot 2 still gets them. */
+    WriteVillagePopulation(3, g_module, "Village: Trick (Save 4) (Save 2)\n");
+    text = read_all(roster);
+    check(strstr(text, "  Name: Kai\n  Custom title: Keeper of Stories\n") != NULL,
+          "THE LAST (Save N) MARKER IS THE SLOT");
+
     printf("\n%d failure(s)\n", g_failures);
     return g_failures == 0 ? 0 : 1;
 }

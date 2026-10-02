@@ -128,7 +128,8 @@ class Host:
         self.table = proc.alloc(0x20)
         fns = [code, code + 0x10, code + 0x20, code + 0x30 if bracket else 0]
         proc.write(self.table, struct.pack("<5I", 20, *fns))
-        proc.stub(code, lambda p: (slot, 0))
+        self.slot = slot
+        proc.stub(code, lambda p: (self.slot, 0))
         proc.stub(code + 0x10, lambda p: (self.masks.get(p.arg(0), 0), 4))
 
         def mask_set(p):
@@ -548,15 +549,32 @@ class VillagerOptionTests(unittest.TestCase):
                     self.assertEqual(v.byte(2, 0xF11), 0)
                     self.assertEqual(p.u32(world + 0x12FC0), 0xFFFFFFFF)
 
-    def test_new_believers_offers_no_disappearance(self):
+    def test_new_believers_disappearance_clears_the_presence_byte(self):
+        """New Believers' own removal: +0x1CD4 cleared (0x420142, 0x46723E,
+        0x473F8F), the activity stopped, the selection dropped only when it is
+        this villager, no death and no other change."""
         if not have_stock("vv5"):
             self.skipTest("no stock executable")
-        story = Story("vv5")
-        v = story.village
-        v.put(2, sex="f", years=30, name="Stays")
-        ok, r, _ = story.apply(Event(changes=[story.change(2, fate=FATE_VANISH, sick=1)]))
-        self.assertEqual((r["vanished"], v.byte(2, 0x1CD4)), (0, 1))
-        self.assertEqual(v.sick(2), 1, "with no disappearance the other changes apply")
+        for selected in (True, False):
+            story = Story("vv5")
+            v = story.village
+            p = story.proc
+            v.put(2, sex="f", years=30, name="Gone")
+            v.put(3, sex="m", years=30, name="Stays")
+            world = p.alloc(0x18000)
+            p.stub(0x425950, lambda q: (world, 0))
+            p.put32(v.record(2) + 0x1C94, 77)
+            p.put32(world + 0x17E24, 77 if selected else 78)
+            story.record_call(0x473440, 0)
+            ok, r, _ = story.apply(Event(changes=[story.change(2, fate=FATE_VANISH, sick=1)]))
+            with self.subTest(selected=selected):
+                self.assertEqual(r["vanished"], 1)
+                self.assertEqual(v.byte(2, 0x1CD4), 0, "no body, no skeleton")
+                self.assertEqual(v.i32(2, 0x1C40), 90, "a disappearance is not a death")
+                self.assertEqual(v.sick(2), 0, "a villager who disappears gets no other change")
+                self.assertEqual(story.calls[0x473440], [[v.record(2)]])
+                self.assertEqual(p.u32(world + 0x17E24), 0xFFFFFFFF if selected else 78)
+                self.assertEqual(v.byte(3, 0x1CD4), 1)
 
     def test_sickness(self):
         for game, story in _stories():
@@ -1240,7 +1258,7 @@ BARREL_MAGNITUDE = 0x7F4B1A2C
 class ChooserDeliveryTests(unittest.TestCase):
     """A New Home and The Lost Children: the island event's chooser call."""
 
-    def _run(self, game, magnitude=6, custom=True):
+    def _run(self, game, magnitude=6, custom=True, between=None):
         site, resume, chooser = CHOOSER[game]
         story = Story(game)
         p = story.proc
@@ -1251,6 +1269,8 @@ class ChooserDeliveryTests(unittest.TestCase):
             _set_custom(story, Event(title="The Long Night", text="The stars went out.",
                                      food_op=ADD, food_amount=250,
                                      changes=[story.change(1, sick=1)]))
+        if between is not None:
+            between(story)
         esp = HEAP + 0x3000000
         p.put32(esp, 2)
         p.put32(esp + 4, magnitude)
@@ -1279,6 +1299,31 @@ class ChooserDeliveryTests(unittest.TestCase):
                 self.assertEqual((p.reg("ebx"), p.reg("esi"), p.reg("edi"), p.reg("ebp")),
                                  (0x1111, obj, 0x2222, obj + 0x277F))
                 self.assertEqual(p.export("VvfpStoryProbeCustomPending", story.n), 0, "taken once")
+
+    def test_a_custom_event_never_reaches_another_village(self):
+        """Queued in one village, then another slot loaded, Start Over or a
+        tribe deleted: the game chooses its own event and nothing applies."""
+        def other_slot(story):
+            story.host.slot = 2
+
+        def reset(story):
+            story.proc.export("VvfpStoryVillageReset", story.n, 1)
+        for game in CHOOSER:
+            if not have_stock(game):
+                continue
+            for case, between in (("other slot", other_slot), ("start over", reset)):
+                story, obj, esp = self._run(game, between=between)
+                p = story.proc
+                with self.subTest(game=game, case=case):
+                    self.assertEqual(story.calls[CHOOSER[game][2]], [[obj, 2, 6]])
+                    self.assertEqual(story.village.sick(1), 0, "nothing applies")
+                    self.assertEqual(p.export("VvfpStoryProbeCustomPending", story.n), 0)
+                    stats = struct.unpack("<4i", p.read(p.exports["VvfpStoryStats"], 16))
+                    self.assertEqual((stats[0], stats[3]), (0, 1), "discarded, not delivered")
+            with self.subTest(game=game, case="same village"):
+                story, obj, esp = self._run(game, between=lambda s: setattr(s.host, "slot", 1))
+                self.assertNotIn(CHOOSER[game][2], story.calls)
+                self.assertEqual(story.village.sick(1), 1)
 
     def test_without_a_custom_event_the_game_chooses(self):
         for game in CHOOSER:
@@ -1454,6 +1499,30 @@ class CustomLockTests(unittest.TestCase):
                 proc.export("VvfpStoryProbeArm", n, 0, 0)
                 self.assertEqual(proc.export("VvfpStoryCustomIslandEvent", n, 0), 0)
                 self.assertIn("already queued", proc.messages[-1])
+
+    def test_queueing_remembers_the_village_it_was_queued_in(self):
+        """The purchase paths (not the probes that set state directly) bind
+        the queued event to the slot and the reset generation."""
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            n = int(game[2:])
+            for kind in ("custom", "pick"):
+                for change in ("none", "other slot", "reset"):
+                    story = Story(game, slot=3)
+                    p = story.proc
+                    self._world(p, game)
+                    if kind == "custom":
+                        p.write(EVENT_BUF, Event(game=n).pack())
+                        self.assertEqual(p.export("VvfpStoryProbeQueueCustom", n, EVENT_BUF, 0), 1)
+                    else:
+                        self.assertGreaterEqual(p.export("VvfpStoryProbeArm", n, 0, 0), 0)
+                    if change == "other slot":
+                        story.host.slot = 4
+                    elif change == "reset":
+                        p.export("VvfpStoryVillageReset", n, 3)
+                    with self.subTest(game=game, kind=kind, change=change):
+                        self.assertEqual(p.export("VvfpStoryPickPending", n), 1 if change == "none" else 0)
 
     def test_a_custom_event_not_delivered_in_ten_minutes_lapses(self):
         for game in GAMES:
@@ -1896,3 +1965,42 @@ class NaturalBirthCountTests(unittest.TestCase):
                 delta = [a - b for a, b in zip(self._counters(story), before)]
                 with self.subTest(game=game, rolled=rolled, chosen=litter):
                     self.assertEqual(delta, [litter, int(litter == 2), int(litter == 3)])
+
+
+# ---------------------------------------------------------------------------
+# Start Over and a deleted tribe tell the story companion (Save Reset DLL)
+# ---------------------------------------------------------------------------
+
+NOTIFY_BUILD = ROOT / "scripts" / "build_story_notify_harness.ps1"
+NOTIFY_CL = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC"
+                 r"\14.51.36231\bin\Hostx64\x86\cl.exe")
+
+
+class VillageResetNotifyTests(unittest.TestCase):
+    """native/save_reset_export/story_notify_harness.c compiles the shipped
+    ResetDeletedTribe with its module lookups and sweep recorded (nothing on
+    disk is touched) and checks the story companion is told, in all five
+    games, only when it is loaded and exports VvfpStoryVillageReset."""
+
+    def test_both_sides_name_the_same_export(self):
+        reset = (ROOT / "native/save_reset_export/save_reset_export.c").read_text(encoding="utf-8")
+        self.assertIn('GetModuleHandleA("VVFP Story Upgrades.dll")', reset)
+        self.assertIn('GetProcAddress(story, "VvfpStoryVillageReset")', reset)
+        self.assertNotIn("LoadLibrary", reset)
+        for name in ("vvfp_story_upgrades.def", "vvfp_story_upgrades_test.def"):
+            with self.subTest(def_file=name):
+                text = (ROOT / "native/vvfp_story_upgrades" / name).read_text(encoding="utf-8")
+                self.assertIn("VvfpStoryVillageReset=_VvfpStoryVillageReset@8", text)
+
+    @unittest.skipUnless(NOTIFY_CL.exists(), "the 32-bit MSVC toolchain is not installed")
+    def test_the_reset_tells_the_story_companion(self):
+        import subprocess
+
+        run = subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(NOTIFY_BUILD)],
+            capture_output=True, text=True, timeout=600)
+        self.assertEqual(run.returncode, 0, run.stdout[-3000:] + run.stderr[-2000:])
+        self.assertIn("0 failure(s)", run.stdout)
+        self.assertNotIn("[FAIL]", run.stdout)
+        for game in range(1, 6):
+            self.assertIn(f"THE STORY COMPANION IS TOLD THE VILLAGE IS GONE (game {game})", run.stdout)

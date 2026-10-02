@@ -81,12 +81,37 @@ enum {
 static HINSTANCE module_instance;
 static int install_state[6];      /* 0 = not tried, 1 = active, -1 = refused */
 
+/* The village a pick or a custom event was queued in: its save slot (as the
+   Origins companion keys its own sidecars) and the reset generation, which
+   VvfpStoryVillageReset advances whenever a tribe is deleted or started
+   over.  A queued event is delivered only into that same village; loading
+   another slot, Start Over or deleting a tribe discards it, so it can never
+   replace another village's event or change its villagers. */
+typedef struct {
+    int slot;
+    unsigned int generation;
+} story_village;
+static unsigned int story_village_generation;
+static int story_current_slot(int game);
+
+static story_village story_village_now(int game) {
+    story_village v;
+    v.slot = story_current_slot(game);
+    v.generation = story_village_generation;
+    return v;
+}
+
+static int story_village_is(int game, const story_village *v) {
+    return v->slot == story_current_slot(game) && v->generation == story_village_generation;
+}
+
 /* The armed pick: the game's own index of the chosen event (-1 = none),
    when it was armed, and the table entry it came from. */
 static int pick_slot = -1;
 static int pick_game;
 static DWORD pick_tick;
 static const story_event *pick_event;
+static story_village pick_village;
 /* The outcome of the last pick, shown the next time the chooser opens when
    the game could not run it. */
 static const story_event *last_failed_event;
@@ -97,6 +122,7 @@ struct vvfp_story_stats {
     int delivered;      /* a picked or custom event replaced the game's own */
     int refused;        /* the picked event's own condition did not hold */
     int lapsed;         /* an armed pick or custom event was dropped as too old */
+    int discarded;      /* an armed pick or custom event was dropped: another village */
 };
 __declspec(dllexport) struct vvfp_story_stats VvfpStoryStats = { 0 };
 #define STORY_COUNT(field) (++VvfpStoryStats.field)
@@ -188,6 +214,12 @@ static int can_fire_with_retries(void *object) {
 static int last_failed_lapsed;
 
 static int drop_lapsed_pick(void) {
+    if (pick_slot >= 0 && !story_village_is(pick_game, &pick_village)) {
+        /* Another village: the pick was for the one the player left. */
+        pick_slot = -1;
+        STORY_COUNT(discarded);
+        return 1;
+    }
     if (pick_slot >= 0 && STORY_TICK() - pick_tick > PICK_TIMEOUT_MS) {
         pick_slot = -1;
         last_failed_event = pick_event;
@@ -738,7 +770,17 @@ static int arm_pick(int game, const story_event *event) {
     pick_game = game;
     pick_tick = STORY_TICK();
     pick_event = event;
+    pick_village = story_village_now(game);
     return 1;
+}
+
+/* Called by "VVFP Save Reset.dll" (ResetDeletedTribe) when the player
+   deletes a tribe or starts over: the village a queued event was for is
+   gone (or replaced in the same slot), so every queued event is discarded. */
+__declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
+    (void)game;
+    (void)slot;
+    ++story_village_generation;
 }
 
 /* The Pick Island Event upgrade, called by the Origins companion when its
@@ -901,6 +943,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetPick(int game, int position
     pick_game = game;
     pick_tick = tick;
     pick_event = &g->events[position];
+    pick_village = story_village_now(game);
     return pick_slot;
 }
 
@@ -940,6 +983,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_e
     ce_armed_event.game = game;
     ce_armed = 1;
     ce_armed_tick = tick;
+    ce_armed_village = story_village_now(game);
     return 1;
 }
 

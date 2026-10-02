@@ -104,12 +104,19 @@ static const ce_adapter *ce_adapter_for(int game);
 static ce_event ce_armed_event;
 static int ce_armed;               /* 1 while an event is queued and not yet delivered */
 static DWORD ce_armed_tick;
+static story_village ce_armed_village;   /* the village it was queued in */
 static ce_result ce_last_result;
 static int ce_last_lapsed;         /* the last queued event lapsed before it could happen */
 
 /* An armed event the game has not run within PICK_TIMEOUT_MS is dropped,
    exactly like a pick.  Returns 1 when one was dropped. */
 static int ce_drop_lapsed(void) {
+    if (ce_armed && !story_village_is(ce_armed_event.game, &ce_armed_village)) {
+        /* Another village: the event was for the one the player left. */
+        ce_armed = 0;
+        STORY_COUNT(discarded);
+        return 1;
+    }
     if (ce_armed && STORY_TICK() - ce_armed_tick > PICK_TIMEOUT_MS) {
         ce_armed = 0;
         ce_last_lapsed = 1;

@@ -86,7 +86,11 @@ fires the event, the companion replaces only the game's choice of WHICH event:
   pointing at the barrel; a pick is never spent there.
 
 A pick not delivered within ten minutes lapses (so it can never carry over
-into a village loaded much later), and the next chooser says so.
+into a village loaded much later), and the next chooser says so.  A pick (or a
+custom event) belongs to the village it was queued in: loading another save
+slot, Start Over or deleting a tribe discards it ("VVFP Save Reset.dll" tells
+the story companion through VvfpStoryVillageReset), so it can never replace
+another village's event or change its villagers.
 
 No event is emulated; the picked event is created, shown and resolved by the
 game's own code, with its own choices, random outcomes and amounts.
@@ -262,7 +266,7 @@ village instead of writing it back.
   known defect); the beehive refill (tied to its puzzle); puzzle states.
 * The Tree of Life: fruit-tree and fishing refills (no game routine); weather
   types other than rain and clear (not identified); puzzle states.
-* New Believers: disappearing; new Heathens (the creator's arguments are not
+* New Believers: new Heathens (the creator's arguments are not
   all understood); puzzle states (prerequisites unproven); the puzzles' own
   Heathens keep their faction.
 

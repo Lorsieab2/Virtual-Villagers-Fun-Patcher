@@ -848,12 +848,24 @@ static int write_vv1_own_parents(FILE *file, int index) {
 static vv_custom_title g_custom_titles[VV_TITLES_MAX];
 static int g_custom_title_count;
 
+/* The LAST " (Save " marker, as the reset reads it (save_reset_export.c's
+   header_is_for_slot): the exporters append the slot after the name, so a
+   village whose own name contains "(Save 2)" cannot shadow the real one. */
 static int village_save_slot(const char *village) {
-    const char *at = strstr(village, "(Save ");
-    if (at == NULL || at[6] < '1' || at[6] > '5' || at[7] != ')') {
+    const char *at = NULL;
+    const char *scan = village;
+    for (;;) {
+        const char *hit = strstr(scan, " (Save ");
+        if (hit == NULL) {
+            break;
+        }
+        at = hit;
+        scan = hit + 1;
+    }
+    if (at == NULL || at[7] < '1' || at[7] > '5' || at[8] != ')') {
         return 0;
     }
-    return at[6] - '0';
+    return at[7] - '0';
 }
 
 static void load_custom_titles(int game_id, const struct game_layout *g, const char *village) {

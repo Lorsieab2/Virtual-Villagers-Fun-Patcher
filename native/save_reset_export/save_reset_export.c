@@ -240,6 +240,25 @@ int vv_saved_village_header(int game, int slot, const wchar_t *folder,
     return 1;
 }
 
+/* Story / Cheat Upgrades: a pick or custom island event queued in the village
+ * being left must never be delivered into the next one, so the story
+ * companion is told the village is gone. Only when it is already loaded
+ * (GetModuleHandle never loads a DLL); without the row it is not there and
+ * nothing happens. */
+typedef void (__stdcall *story_village_reset_fn)(int game, int slot);
+
+static void notify_story_upgrades(int game, int slot) {
+    HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+    story_village_reset_fn reset;
+    if (story == NULL) {
+        return;
+    }
+    reset = (story_village_reset_fn)(void *)GetProcAddress(story, "VvfpStoryVillageReset");
+    if (reset != NULL) {
+        reset(game, slot);
+    }
+}
+
 __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     char village[256];
     wchar_t folder[MAX_PATH];
@@ -248,6 +267,7 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     if (game < 1 || game > 5 || slot < 1 || slot > 5) {
         return -1;
     }
+    notify_story_upgrades(game, slot);
     /* The village in the slot's own save, which both hooks reach before the
      * game removes or overwrites it (see vv_saved_village_header). The
      * reserve is the reader's own "\\*<slot>.ldw" filter; it bounds each full
