@@ -52,10 +52,13 @@ THE BIG PICTURE (rules shared by most or all games)
    "Worried about food". In VV1, at 400 food or MORE a villager gets one job
    roll instead of two.
 
-6. Builders never start a new building. They only continue one that already
-   has progress, so a newly unlocked hut or project sits untouched until you
-   drop a villager on it (VV1, VV3, VV4, VV5; in VV2 a builder must be dragged
-   to huts 2 and 3 once).
+6. Builders rarely start a new building on their own. In VV3, VV4 and VV5
+   they only continue one that already has progress, so a newly unlocked hut
+   or project sits untouched until you drop a villager on it. In VV1 the
+   first hut needs nothing and huts 2 and 3 are started on their own once the
+   population reaches 23 and 46 (see VV1 gate 29); only VV1's other projects
+   need existing progress. In VV2 a builder must be dragged to huts 2 and 3
+   once.
 
 7. Breeding needs adults and luck.
    - Both partners must be 18 or older in every game.
@@ -82,8 +85,9 @@ THE BIG PICTURE (rules shared by most or all games)
    - VV2: 15 / 25 / 50 villagers need 1 / 2 / 3 huts.
    - VV3: 10 / 17 / 35 need 1 / 2 / 3 finished huts.
    - VV4/VV5: 10 / 17 / 35 (VV5 counts believers: 17 and 35).
-   The overall cap is 90 plus 5 per finished collection (up to 115 in VV4/VV5;
-   VV3 also adds Magic 3).
+   The overall cap is 90 plus a bonus for finished collections: up to 115
+   in VV4 (four collections of 5), up to 105 in VV5 (a +15 total); VV3 also
+   adds Magic 3.
 
 9. Healing is a skill roll too. A cure succeeds with about (Healing skill +
    31-33)% chance. A healer who DISLIKES medicine fails half their cures
@@ -91,8 +95,11 @@ THE BIG PICTURE (rules shared by most or all games)
 
 10. Research pays tech points = Research skill divided by a number that
     depends on Science level (VV1: 7/5/3; VV2: 11/9/5; VV4/VV5: 11/9/7). A
-    researcher whose skill is below that number earns NOTHING. Faster game
-    speed gives less food and fewer tech points per action.
+    researcher whose skill is below that number earns NOTHING. The game
+    speed setting also changes the amount per action: Fast gives MORE food
+    and tech points per successful action, Slow gives less (in VV3-VV5 the
+    payout is divided by speed/6, where the speed value is 3 on Fast, 6 on
+    Normal and 10 on Slow).
 
 11. Time away plays by different rules. Catch-up/Time Warp breeding skips
     almost all the live checks in VV4 and VV5 (no Love Shack, no Parenting
@@ -1663,7 +1670,7 @@ exe again. My findings matched the docs everywhere I compared them.
   - Tech points: `[0x51D5F8]`.
   - Village manager: `0x425950()`.
   - Offline catch-up flag: manager `+0x17E10` (=1 only while the offline catch-up simulation runs; set and cleared at `0x47330A` and `0x473330`).
-  - Game speed: manager `+0x17D7C`. Values are 3, 6 (default) and 10, plus 999 for paused, set at `0x41B93F`, `0x41B969`, `0x41B990` and `0x41B911`. Because ageing multiplies elapsed time by this value, 10 is Fast and 3 is Slow.
+  - Game speed: manager `+0x17D7C`. Values are 3, 6 (default) and 10, plus 999 for paused, set at `0x41B93F`, `0x41B969`, `0x41B990` and `0x41B911`. The value divides the ageing rate (a villager year takes 20 x 60 x value real seconds), so 3 is Fast and 10 is Slow, as in the other four games and in docs/vv5-origins-exclusive-features-research.md. (An earlier draft of this section had the two reversed.)
   - Difficulty: manager `+0x17D54`, values 0, 1 or 2. Default 1 is set at `0x4249D3`. The setter at `0x41B9B9`/`0x41B9E7`/`0x41BA19` sits next to strings "Difficulty / Easy / Medium / Hard" (ids 1406–1409). I read it as 0 = Easy, 1 = Medium, 2 = Hard, but that mapping is inferred from button order.
 - **Faction.** Record byte `+0x1CEC`: 0 is a Believer, non-zero is a Heathen. In VV5, sex value 1 is the female: the pregnancy wrapper `0x467D20` picks the mother as the partner with `+0x1B90 == 1`.
 
@@ -1767,7 +1774,7 @@ Each chain below was followed through direct calls or vtable slots. **All of it 
 
 12. **Crop harvesting** needs the Hydroponic Farm restored (project 5) and at least 15 crops grown.
     - Evidence: `0x46C5DD` `cmp [mgr+0x17D5C],0xF; jl`; `0x46C5E6` project 5.
-    - **Yield** (event 14, `0x46D0D0`): 7 food during catch-up. In live play it depends on game speed: 10 on Slow (3), 7 on Normal (6), 4 on Fast (10).
+    - **Yield** (event 14, `0x46D0D0`): 7 food during catch-up. In live play it depends on game speed: 10 on Fast (3), 7 on Normal (6), 4 on Slow (10).
     - Crops are replanted to 800 (`0x439EDA`, `0x425EDB`). *Reached.*
 
 13. **Fishing** needs the lake restored (project 10).
@@ -1775,7 +1782,7 @@ Each chain below was followed through direct calls or vtable slots. **All of it 
     - Villagers who dislike fish (#33), the ocean (#17) or swimming (#37) refuse 60% of the time (`0x46C647`–`0x46C699`).
     - **Yield**: 4 food per fish (event 16, `0x46D790`). *Reached.*
 
-14. **The game speed setting quietly changes yields.** Other fixed food events are event 11 (+8 food during catch-up; live: 11 on Slow, 8 on Normal, 5 on Fast, `0x46CF5D`), event 15 (+3), event 17 (+8) and event 18 (+55, plus a tip). Faster game speed means less food per action.
+14. **The game speed setting quietly changes yields.** Other fixed food events are event 11 (+8 food during catch-up; live: 11 on Fast, 8 on Normal, 5 on Slow, `0x46CF5D`), event 15 (+3), event 17 (+8) and event 18 (+55, plus a tip). Faster game speed means more food per action.
     - The behaviours that fire events 11, 15, 17 and 18 were **not identified**; they are not reached through a constant `push` before `0x474EF0`. *UNVERIFIED-REACHABILITY.*
 
 15. **Food Mastery multiplies every food gain:** ×1 at level 1, ×1.5 (rounded down) at level 2, ×2 at level 3. This happens before the gain is stored.
@@ -1992,7 +1999,7 @@ Each chain below was followed through direct calls or vtable slots. **All of it 
     | 2 | skill ÷ 9 | skill ÷ 7 |
     | 3 | skill ÷ 7 | skill ÷ 5 |
 
-    - **Game speed.** In live play the result is divided by speed ÷ 6, which is 2× on Slow, 1× on Normal and 0.6× on Fast.
+    - **Game speed.** In live play the result is divided by speed ÷ 6, which is 2× on Fast, 1× on Normal and 0.6× on Slow.
     - **Bonuses on top:**
       - Lab gear: RNG(⌊n ÷ 2⌋) more points, where n is the number of owned collection items 0x50–0x67.
       - Fire Pit: when `0x438EC0` on the Fire Pit object is true, a 10% chance of +1.
@@ -2027,7 +2034,7 @@ Each chain below was followed through direct calls or vtable slots. **All of it 
 
 - **Food.**
   - No food is gathered on its own until the **fence has been made into a granary**, and that takes 30 successful building actions (gate 10).
-  - **Faster game speed gives less** food and fewer tech points per action. Slow gives about 2× the research of Normal; Fast gives 0.6× (gates 14 and 51).
+  - **Faster game speed gives more** food and tech points per action. Fast gives about 2× the research of Normal; Slow gives 0.6× (gates 14 and 51).
 - **Construction.**
   - Builders **never start a new hut on their own**; the player must kick it off (gate 20).
   - **Hut 3 gains only 1 point per build action, versus 12 for Hut 1** (gate 22).
@@ -2054,4 +2061,4 @@ Each chain below was followed through direct calls or vtable slots. **All of it 
   - the semantics of the Fire Pit predicate `0x438EC0`
   - the starting belief of believers
   - which collection is group 0x68 and which is group 0x50 (0x50 is the one the research bonus counts)
-- The Difficulty value mapping (0 = Easy, 1 = Medium, 2 = Hard) and the speed mapping (3 = Slow, 10 = Fast) are inferred from button order and ageing arithmetic, not from a label read directly in code.
+- The Difficulty value mapping (0 = Easy, 1 = Medium, 2 = Hard) is inferred from button order, not from a label read directly in code. The speed mapping (3 = Fast, 10 = Slow) follows from the ageing arithmetic and matches the repo's Time Warp research.
