@@ -1493,10 +1493,15 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
 
 /* Edit outcome `index` of `button` (index == the count: a new one) in the
    main dialog's outcome mode, on the outcome's own changes.  1 when kept. */
+static void ui_choice_read_labels(HWND window);
+
 static int ui_edit_outcome(HWND owner, int button, int index) {
     ce_outcome *o = &ui.choice.outcomes[button][index];
     int is_new = index >= ui.choice.outcome_count[button];
     INT_PTR answer;
+    /* The outcome dialog's caption names the button by the label typed in
+       the Choices dialog (`owner`), which is otherwise read only on OK. */
+    ui_choice_read_labels(owner);
     ui.main_draft = ui.draft;
     if (is_new) {
         memset(&ui.draft, 0, sizeof ui.draft);
