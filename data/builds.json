@@ -1536,7 +1536,7 @@
       "id": "vv2_firepit_dry_grass_above_wood",
       "game_id": "vv2",
       "name": "Firepit: Dry Grass Drawn Above the Wood",
-      "description": "When both the dry grass and the firewood have been put in the unlit fire pit, the dry grass is drawn on top of the wood instead of being hidden behind it. Only the drawing order of those two pictures changes; nothing else about the fire pit, the fire puzzle or your save is touched.",
+      "description": "When both the dry grass and the firewood have been put in the unlit fire pit, the dry grass is drawn on top of the wood instead of being hidden behind it. Only the drawing order of those two pictures changes; nothing else about the fire pit, the fire puzzle or your save is touched. **Needs no other patch.**",
       "output_tag": "Firepit Grass Above Wood",
       "behavior_changes": [
         "The village scene adds the fire pit's firewood picture before its dry-grass picture, so the grass is drawn last and appears on top when both are in the pit.",

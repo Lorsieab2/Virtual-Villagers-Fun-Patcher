@@ -502,7 +502,7 @@ Updates the slow scrolling when selecting villagers and dragging the screen to V
 
 #### Firepit: Dry Grass Drawn Above the Wood (`vv2_firepit_dry_grass_above_wood`)
 
-When both the dry grass and the firewood have been put in the unlit fire pit, the dry grass is drawn on top of the wood instead of being hidden behind it. Only the drawing order of those two pictures changes; nothing else about the fire pit, the fire puzzle or your save is touched.
+When both the dry grass and the firewood have been put in the unlit fire pit, the dry grass is drawn on top of the wood instead of being hidden behind it. Only the drawing order of those two pictures changes; nothing else about the fire pit, the fire puzzle or your save is touched. **Needs no other patch.**
 
 **Requires no other patch to be ticked.**
 
