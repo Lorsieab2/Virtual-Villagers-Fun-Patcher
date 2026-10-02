@@ -708,7 +708,9 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
 
 /* Opens the chooser for `game`: fills the possibilities and the roster.
    Returns the chosen event index, or -1. */
-static int chooser_run(int game, const story_game *g, HWND owner) {
+/* Fills the chooser for `game` / `g`: the roster, each event's
+   possibility, Random settings. */
+static void chooser_prepare(int game, const story_game *g) {
     const ce_adapter *a = ce_adapter_for(game);
     int i;
     int k;
@@ -733,6 +735,10 @@ static int chooser_run(int game, const story_game *g, HWND owner) {
         }
         chooser.settings[i].unlocked = chooser.possible[i] == OC_POSSIBLE_UNLOCK;
     }
+}
+
+static int chooser_run(int game, const story_game *g, HWND owner) {
+    chooser_prepare(game, g);
     if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_PICK), owner, chooser_dialog, 0) != IDOK) {
         return -1;
     }
@@ -852,3 +858,69 @@ __declspec(dllexport) int __stdcall VvfpStoryPickGongOutcome(int game, HWND owne
                 "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
 }
+
+#ifdef VVFP_TEST
+/* ---- Test build only: the chooser's logic without its window -------------- */
+
+/* Fills the chooser for `game` as opening the dialog does; returns the
+   event count.  The Gong of Wonder's when `gong`. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeChooserOpen(int game, int gong) {
+    if (game < 1 || game > 5) {
+        return 0;
+    }
+    chooser.gong = gong;
+    chooser_prepare(game, gong ? &OC_GONG_GAME : &GAMES[game]);
+    return chooser.game->event_count;
+}
+
+/* Sets event `index`'s control `ci` (ci = -1: the strength) to `value`, and
+   its chosen villagers to the `who_count` record indices in `who`. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeChooserSet(int index, int ci, int value,
+                                                              const int *who, int who_count) {
+    oc_settings *s = &chooser.settings[index];
+    int i;
+    if (ci < 0) {
+        s->strength = value;
+        return;
+    }
+    s->choice[ci] = value;
+    memset(s->who[ci], 0, OC_WHO_BYTES);
+    for (i = 0; i < who_count; ++i) {
+        if (who[i] >= 0 && who[i] < OC_WHO_BYTES * 8) {
+            s->who[ci][who[i] >> 3] |= (unsigned char)(1u << (who[i] & 7));
+        }
+    }
+}
+
+/* What the chooser shows or decides for event `index`: 0 the possibility
+   (OC_POSSIBLE_*), 1 the summary, 2 why it can not be bought (or ""), 3 the
+   tribe-ending warning (or ""), 4 + row: that settings row's text. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeChooserText(int index, int what, char *out, int size) {
+    char buffer[1200];
+    const char *text = NULL;
+    out[0] = '\0';
+    chooser.current = index;
+    if (what == 0) {
+        return chooser.possible[index];
+    }
+    if (what == 1) {
+        chooser_summary(index, buffer, sizeof buffer);
+        text = buffer;
+    } else if (what == 2) {
+        text = chooser_refusal(index, buffer);
+    } else if (what == 3) {
+        text = chooser_warning(index);
+    } else {
+        const oc_event *e = chooser_oc(index);
+        if (e == NULL || what - 4 >= chooser_rows(e)) {
+            return 0;
+        }
+        chooser_row_text(e, what - 4, buffer);
+        text = buffer;
+    }
+    if (text != NULL) {
+        lstrcpynA(out, text, size);
+    }
+    return 1;
+}
+#endif
