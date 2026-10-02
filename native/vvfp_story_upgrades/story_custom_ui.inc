@@ -13,7 +13,7 @@ enum {
     IDC_CE_TECH_OP = 1105, IDC_CE_TECH = 1106, IDC_CE_REFILL = 1107, IDC_CE_VILLAGE = 1108,
     IDC_CE_TEXT_NOTE = 1109, IDC_CE_NOTE = 1110, IDC_CE_SPAWNS = 1111, IDC_CE_SPAWN_ADD = 1112,
     IDC_CE_SPAWN_REMOVE = 1113, IDC_CE_OMITTED = 1114, IDC_CE_CHANGES = 1121,
-    IDC_CE_CHANGE_ADD = 1122, IDC_CE_CHANGE_REMOVE = 1123,
+    IDC_CE_CHANGE_ADD = 1122, IDC_CE_CHANGE_REMOVE = 1123, IDC_CE_TITLE_COUNT = 1124,
     IDC_CH_LIST = 2001, IDC_CH_TOGGLE_FIRST = 2002, IDC_CH_COUNT = 2007,
     IDC_CH_FATE = 2010, IDC_CH_SICK = 2011, IDC_CH_PREGNANCY = 2012, IDC_CH_FATHER = 2013,
     IDC_CH_HEAD = 2020, IDC_CH_BODY = 2021, IDC_CH_LOOK_RANGE = 2022,
@@ -368,7 +368,7 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
     t->father = ui_combo_data(window, IDC_CH_FATHER);
     if (t->litter > 0 && t->father >= 0) {
         const unsigned char *father = ui.a->record(t->father);
-        t->father_fingerprint = father != NULL ? ce_fingerprint(ui.a, father) : 0;
+        t->father_fingerprint = father != NULL ? ce_identity(ui.a, father) : 0;
     } else {
         t->father = -1;
     }
@@ -561,7 +561,7 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
             }
             for (i = 0; i < count; ++i) {
                 const unsigned char *record = ui.a->record(targets[i]);
-                if (record == NULL || !ce_merge(&ui.draft, &t, targets[i], ce_fingerprint(ui.a, record))) {
+                if (record == NULL || !ce_merge(&ui.draft, &t, targets[i], ce_identity(ui.a, record))) {
                     ui_message(window, "The event can hold changes for 256 villagers at most.");
                     break;
                 }
@@ -797,6 +797,29 @@ static int ui_read_main(HWND window) {
     return 1;
 }
 
+/* The live word / character counter under the title and the description.
+   Lines are counted with the popup's own layout (ce_lines_used), so the
+   counter agrees with the check made when the event is queued. */
+static void ui_update_counts(HWND window) {
+    const ce_adapter *a = ui.a;
+    char title[CE_TITLE_BYTES];
+    char body[CE_TEXT_BYTES];
+    char out[200];
+    int title_chars;
+    int lines;
+    GetDlgItemTextA(window, IDC_CE_TITLE, title, sizeof title);
+    GetDlgItemTextA(window, IDC_CE_TEXT, body, sizeof body);
+    title_chars = lstrlenA(title);
+    wsprintfA(out, title_chars > a->title_width ? "%d / %d characters - too long" : "%d / %d characters",
+              title_chars, a->title_width);
+    SetDlgItemTextA(window, IDC_CE_TITLE_COUNT, out);
+    lines = ce_lines_used(a, title, body);
+    wsprintfA(out, "%d words, %d characters - %d of %d lines used (%d characters a line)%s",
+              ce_word_count(body), ce_char_count(body), lines, a->text_lines, a->text_width,
+              lines > a->text_lines ? " - too long" : "");
+    SetDlgItemTextA(window, IDC_CE_TEXT_NOTE, out);
+}
+
 static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
     const ce_adapter *a = ui.a;
     (void)lparam;
@@ -807,9 +830,7 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
         SendDlgItemMessageA(window, IDC_CE_TEXT, EM_LIMITTEXT, CE_TEXT_BYTES - 1, 0);
         SetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title);
         SetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text);
-        wsprintfA(text, "Shown in the game's own island event panel: up to %d lines of %d characters.",
-                  a->text_lines, a->text_width);
-        SetDlgItemTextA(window, IDC_CE_TEXT_NOTE, text);
+        ui_update_counts(window);
         ui_fill_amount(window, IDC_CE_FOOD_OP);
         ui_fill_amount(window, IDC_CE_TECH_OP);
         ui_select_data(window, IDC_CE_FOOD_OP, ui.draft.food_op);
@@ -840,6 +861,10 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
     }
     if (message == WM_COMMAND) {
         int id = LOWORD(wparam);
+        if ((id == IDC_CE_TITLE || id == IDC_CE_TEXT) && HIWORD(wparam) == EN_CHANGE) {
+            ui_update_counts(window);
+            return TRUE;
+        }
         if (id == IDC_CE_OMITTED) {
             MessageBoxA(window, a->omitted, "Not in this game",
                         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);

@@ -74,7 +74,7 @@ typedef struct {
 /* The changes for one villager. */
 typedef struct {
     int index;                       /* the game's record index */
-    unsigned int fingerprint;        /* the villager's name, when queued */
+    unsigned int fingerprint;        /* ce_identity of the villager, when queued */
     int fate;                        /* CE_FATE_* */
     int sick;                        /* 1 = falls sick */
     int litter;                      /* 0 = no pregnancy, 1..3 babies */

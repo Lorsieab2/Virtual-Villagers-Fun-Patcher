@@ -17,7 +17,8 @@
    APPLYING.  Every change goes through the adapter, which writes only what
    that game's own code was traced to write for the same effect (see each
    story_c*.inc).  A villager is changed only if its record still holds the
-   same villager (living, same name) as when the event was queued; new
+   same villager (living; same name, sex, appearance, likes and dislikes) as
+   when the event was queued; new
    villagers and babies are made only while the game's own room predicate
    says the village has room, one at a time, so the population cap of the
    installed mode is never passed. */
@@ -134,8 +135,34 @@ static int ce_pending(int game) {
 
 /* ---- Record helpers ------------------------------------------------------ */
 
+/* The name alone: what a custom title is bound to (story_titles.inc). */
 static unsigned int ce_fingerprint(const ce_adapter *a, const unsigned char *record) {
     return vv_title_fingerprint(record + a->off_name, (unsigned int)a->name_bytes);
+}
+
+static unsigned int ce_mix(unsigned int h, int value) {
+    int k;
+    for (k = 0; k < 4; ++k) {
+        h = (h ^ ((unsigned int)value >> (8 * k) & 0xFFu)) * 16777619u;
+    }
+    return h;
+}
+
+/* Who a queued change is for: the name plus every field the game never
+   changes on its own -- sex, head, body, likes and dislikes.  Names repeat
+   (they come from a fixed pool), so a record freed and reused by a new
+   villager of the same name must not inherit the change. */
+static unsigned int ce_identity(const ce_adapter *a, const unsigned char *record) {
+    unsigned int h = ce_fingerprint(a, record);
+    int k;
+    h = ce_mix(h, *(const int *)(record + a->off_sex));
+    h = ce_mix(h, *(const int *)(record + a->off_head));
+    h = ce_mix(h, *(const int *)(record + a->off_body));
+    for (k = 0; k < a->pref_slots; ++k) {
+        h = ce_mix(h, ((const int *)(record + a->off_likes))[k]);
+        h = ce_mix(h, ((const int *)(record + a->off_dislikes))[k]);
+    }
+    return h ? h : 1u;
 }
 
 static int ce_sex(const ce_adapter *a, const unsigned char *record) {
@@ -153,14 +180,15 @@ static int ce_age(const ce_adapter *a, const unsigned char *record) {
     return *(const int *)(record + a->off_age);
 }
 
-/* The record `index` if it holds the same living villager as `fingerprint`. */
-static unsigned char *ce_same_villager(const ce_adapter *a, int index, unsigned int fingerprint) {
+/* The record `index` if it holds the same living villager as `identity`
+   (ce_identity when the change was queued). */
+static unsigned char *ce_same_villager(const ce_adapter *a, int index, unsigned int identity) {
     unsigned char *record;
     if (index < 0 || index >= a->record_count) {
         return NULL;
     }
     record = a->record(index);
-    if (record == NULL || !a->listed(record) || ce_fingerprint(a, record) != fingerprint) {
+    if (record == NULL || !a->listed(record) || ce_identity(a, record) != identity) {
         return NULL;
     }
     return record;
@@ -401,6 +429,58 @@ static void ce_line(ce_writer *w, const char *text) {
     ce_wrap(w, text);
 }
 
+/* For the editor's counter: the panel lines the title and description take
+   when laid out exactly as ce_compose lays them out (outcome lines aside),
+   counted past the panel's limit.  The panel holds a->text_lines. */
+static int ce_lines_used(const ce_adapter *a, const char *title, const char *text) {
+    static char scratch[4096];
+    ce_writer w;
+    memset(&w, 0, sizeof w);
+    w.out = scratch;
+    w.size = sizeof scratch;
+    w.width = a->text_width;
+    w.max_lines = 1000;
+    scratch[0] = '\0';
+    if (text[0] == '\0' && (a->title_separate || title[0] == '\0')) {
+        return 0;
+    }
+    if (!a->title_separate) {
+        ce_wrap(&w, title);
+        ce_newline(&w);
+        ce_newline(&w);
+        ce_newline(&w);
+        ce_newline(&w);
+    }
+    ce_wrap(&w, text);
+    return w.used == 0 ? 0 : w.lines + 1;
+}
+
+/* Words in `text`: runs of characters between spaces, tabs and line breaks. */
+static int ce_word_count(const char *text) {
+    int words = 0;
+    int inside = 0;
+    for (; *text != '\0'; ++text) {
+        int space = *text == ' ' || *text == '\t' || *text == '\r' || *text == '\n';
+        if (!space && !inside) {
+            ++words;
+        }
+        inside = !space;
+    }
+    return words;
+}
+
+/* Characters as the panel shows them: the player's line breaks are not
+   characters (Windows stores each as CR LF). */
+static int ce_char_count(const char *text) {
+    int n = 0;
+    for (; *text != '\0'; ++text) {
+        if (*text != '\r' && *text != '\n') {
+            ++n;
+        }
+    }
+    return n;
+}
+
 /* The popup text: the title on the first line, then (as every stock event
    does) three empty lines and the description, then the outcome lines.
    Returns 0 when it does not fit the game's panel. */
@@ -573,6 +653,17 @@ static void ce_amount(int op, int amount, int current, int *out) {
 static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     int i;
     int j;
+    /* Who is still the villager the change was queued for, decided once
+       before anything is changed: this event may itself change a target's
+       appearance or likes, which would otherwise make it look like someone
+       else to the pregnancies below. */
+    unsigned char same[CE_MAX_CHANGES];
+    unsigned char father_same[CE_MAX_CHANGES];
+    for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
+        const ce_change *c = &e->changes[i];
+        same[i] = ce_same_villager(a, c->index, c->fingerprint) != NULL;
+        father_same[i] = c->father >= 0 && ce_same_villager(a, c->father, c->father_fingerprint) != NULL;
+    }
     memset(r, 0, sizeof *r);
     r->food_before = r->food_after = (a->caps & CAP_FOOD) ? a->food() : 0;
     r->tech_before = r->tech_after = (a->caps & CAP_TECH) ? a->tech() : 0;
@@ -599,7 +690,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
        villager who dies or disappears gets nothing else. */
     for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
         const ce_change *c = &e->changes[i];
-        unsigned char *record = ce_same_villager(a, c->index, c->fingerprint);
+        unsigned char *record = same[i] ? a->record(c->index) : NULL;
         if (record == NULL) {
             ++r->skipped;
             continue;
@@ -652,11 +743,12 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
             const ce_change *c = &e->changes[i];
             int father = -1;
-            if (c->litter <= 0 || c->fate != CE_FATE_NONE
-                || ce_same_villager(a, c->index, c->fingerprint) == NULL) {
+            const unsigned char *mother = same[i] ? a->record(c->index) : NULL;
+            const unsigned char *sire = father_same[i] ? a->record(c->father) : NULL;
+            if (c->litter <= 0 || c->fate != CE_FATE_NONE || mother == NULL || !a->listed(mother)) {
                 continue;
             }
-            if (c->father >= 0 && ce_same_villager(a, c->father, c->father_fingerprint) != NULL) {
+            if (sire != NULL && a->listed(sire)) {
                 father = c->father;
             }
             r->conceived += a->conceive(c->index, c->litter > 3 ? 3 : c->litter, father, r);
@@ -674,13 +766,14 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                     break;
                 }
                 ++r->born;
-                if ((a->caps & CAP_TITLE) && s->title[0] != '\0') {
-                    titles_set(e->game, index, s->title);
+                if ((a->caps & CAP_TITLE) && s->title[0] != '\0'
+                    && !titles_set(e->game, index, s->title)) {
+                    ++r->refused;
                 }
                 if ((a->caps & CAP_MASK) && s->mask != CE_KEEP) {
                     unsigned char *record = a->record(index);
-                    if (record != NULL) {
-                        story_set_mask(e->game, record, s->mask);
+                    if (record == NULL || !story_set_mask(e->game, record, s->mask)) {
+                        ++r->refused;
                     }
                 }
             }

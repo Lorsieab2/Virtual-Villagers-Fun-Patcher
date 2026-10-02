@@ -52,7 +52,8 @@ CAPTION "Custom Island Event"
 FONT 9, "Segoe UI"
 BEGIN
     LTEXT       "Event title:", -1, 8, 8, 60, 10
-    EDITTEXT    1101, 70, 6, 342, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    EDITTEXT    1101, 70, 6, 256, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "", 1124, 330, 8, 82, 10
     LTEXT       "Description:", -1, 8, 24, 60, 10
     EDITTEXT    1102, 70, 22, 342, 48, ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_TABSTOP
     LTEXT       "", 1109, 70, 72, 342, 9

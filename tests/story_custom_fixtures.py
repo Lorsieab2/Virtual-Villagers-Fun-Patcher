@@ -134,6 +134,19 @@ class Village:
         return fnv_name(self.proc.read(self.record(i) + self.L["name"], self.L["name_cap"]),
                         self.L["name_cap"])
 
+    def identity(self, i: int) -> int:
+        """story_custom.inc ce_identity: the name, then sex, head, body and the
+        likes / dislikes slots interleaved, each as 4 little-endian bytes."""
+        h = self.fingerprint(i)
+        rd = lambda off: self.proc.read(self.record(i) + off, 4)  # noqa: E731
+        fields = [rd(self.L["sex"][0]), rd(self.L["head"]), rd(self.L["body"])]
+        for k in range(self.L["slots"]):
+            fields += [rd(self.L["likes"] + 4 * k), rd(self.L["dislikes"] + 4 * k)]
+        for raw in fields:
+            for b in raw:
+                h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+        return h or 1
+
     def i32(self, i: int, off: int) -> int:
         return struct.unpack("<i", self.proc.read(self.record(i) + off, 4))[0]
 

@@ -205,12 +205,12 @@ so a custom event is refused until it has happened.
 
 | Option | A New Home | The Lost Children | The Secret City | The Tree of Life | New Believers |
 | --- | --- | --- | --- | --- | --- |
-| Title and description | yes | yes | yes | yes | yes |
+| Title and description (live word / character / panel-line counter) | yes | yes | yes | yes | yes |
 | Food / tech points | yes | yes | yes | yes | yes |
 | Refill food sources | berries; crops once the farm produces | coconut trees; crops while planted (not fish / soil: puzzle-gated) | fruit trees (0x4340A0) | berry bushes | noni bushes; crops once built |
 | New villagers | creator 0x43C350 | 0x44F580 | 0x45FF50 | 0x467D10 | believers, 0x471E20 |
 | Dies (skeleton) | health 0 | health 0 | 0x462670(0, -1) | stop + 0x46AF00(0, -1) | stop + SetHealth(0, 2) |
-| Disappears (no skeleton) | as "a closer look" (0x41979D) | as A Dangerous Mission | as the Tsunami (0x45D990) | as The Sealed Box | **omitted**: no stock way to remove a living villager |
+| Disappears (no skeleton) | as "a closer look" (0x41979D) | as A Dangerous Mission | as the Tsunami (0x45D990) | as The Sealed Box | presence byte +0x1CD4 cleared, after the stop (0x473440) and the manager release (0x470800) |
 | Falls sick | yes | yes | yes | yes | believers only (Heathens are cured every moment) |
 | Pregnant (baby / twins / triplets, either sex) | adults 18+ | adults 18+ | adults 18+ | adults 18+ (0x45E7B0, forced) | adult believers (0x465E00, forced; Heathens never deliver) |
 | Likes / dislikes | 46 of 47 words | 62 words | 79 words | 79 words | 79 words |
@@ -223,10 +223,16 @@ so a custom event is refused until it has happened.
 | Behaviours | stop, dance, swim, relax, recover | stop, swim, celebrate, visit graves, sneeze, recover | stop, recover | stop, recover | stop, recover |
 | Village / puzzle | Isola Day, Blessings Day, the dirty beach (as The Big Wave) | -- | -- | rain, clear weather | -- |
 
+The editor counts as you type: the title's characters against the one line the panel
+gives it, and the description's words, characters and panel lines, laid out by
+the same word-wrap the popup uses, so "too long" there is exactly what OK refuses.
+
 Each is the game's own routine or the fields its own code writes for the same
 effect (the per-game files `native/vvfp_story_upgrades/story_c1.inc` ..
 `story_c5.inc` cite the sites). A villager is changed only while its record
-still holds the same living villager as when the event was queued. Each new
+still holds the same living villager as when the event was queued: same name,
+sex, head, body, likes and dislikes (names repeat, so a name alone is not enough),
+decided once before the event changes anything. Each new
 villager and each baby is made only while the game's own room predicate says
 the village has room (and a record is free), so the population cap of the
 installed mode is never passed -- run in all three modes in the tests.

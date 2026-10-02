@@ -1479,6 +1479,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
     const unsigned char *records = vv1_records();
     int slot;
     vv1_parent_entry *e;
+    vv1_parent_entry before;
     if (records == NULL || index < 0 || index >= VV1_RECORD_COUNT
         || !records[(unsigned int)index * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET]
         || father_head > VV1_APPEARANCE_MAX || father_body > VV1_APPEARANCE_MAX
@@ -1490,6 +1491,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
         return 0;
     }
     e = &g_entries[index];
+    before = *e;
     if (father != NULL && father[0] != '\0') {
         lstrcpynA(e->father_name, father, VV1_NAME_CAPACITY);
     }
@@ -1500,7 +1502,12 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
     if (father_body >= 0) e->father_body = vv1_plus_one(father_body);
     if (mother_head >= 0) e->mother_head = vv1_plus_one(mother_head);
     if (mother_body >= 0) e->mother_body = vv1_plus_one(mother_body);
-    return vv1_parents_save(slot, records);
+    if (!vv1_parents_save(slot, records)) {
+        /* Refused: the change must not show, nor reach a later save. */
+        *e = before;
+        return 0;
+    }
+    return 1;
 }
 
 /* ---- exports (test seams: same logic, caller-supplied records, no files)

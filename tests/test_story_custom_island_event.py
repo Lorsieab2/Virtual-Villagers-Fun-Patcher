@@ -211,7 +211,7 @@ class Story:
         return None if at == 0 else self.proc.cstring(at)
 
     def change(self, i: int, **fields) -> Change:
-        return Change(index=i, fingerprint=self.village.fingerprint(i), **fields)
+        return Change(index=i, fingerprint=self.village.identity(i), **fields)
 
 
 # ---------------------------------------------------------------------------
@@ -716,6 +716,32 @@ class VillagerOptionTests(unittest.TestCase):
                 self.assertEqual((v.sick(2), v.sick(3)), (0, 0))
                 self.assertIn("2 of the chosen villagers were no longer here.", text.replace("\n", " "))
 
+    def test_a_reused_record_with_the_same_name_is_left_alone(self):
+        """Names come from a fixed pool: a new villager of the same name in a
+        freed record is somebody else (Codex, PR #495)."""
+        for game, story in _stories():
+            for what, kw in (("head", {"head": 6}), ("body", {"body": 7}), ("sex", {"sex": "f"})):
+                v = story.village
+                v.put(2, sex="m", years=30, name="Kaimi")
+                queued = story.change(2, fate=1)
+                v.put(2, **{"sex": "m", "years": 30, "name": "Kaimi", **kw})
+                ok, r, _ = story.apply(Event(changes=[queued]))
+                with self.subTest(game=game, differs=what):
+                    self.assertEqual((r["skipped"], r["changed"], r["died"]), (1, 0, 0))
+                    self.assertEqual(v.name(2), "Kaimi")
+            v = story.village
+            v.put(2, sex="m", years=30, name="Kaimi")
+            queued = story.change(2, sick=1)
+            v.proc.put32(v.record(2) + v.L["likes"], 3)      # same name and looks, other likes
+            ok, r, _ = story.apply(Event(changes=[queued]))
+            with self.subTest(game=game, differs="likes"):
+                self.assertEqual((r["skipped"], v.sick(2)), (1, 0))
+            v.put(2, sex="m", years=30, name="Kaimi")
+            queued = story.change(2, sick=1)
+            ok, r, _ = story.apply(Event(changes=[queued]))
+            with self.subTest(game=game, differs="nothing"):
+                self.assertEqual((r["changed"], r["skipped"]), (1, 0))
+
 
 # ---------------------------------------------------------------------------
 # Pregnancy: the fields a conception writes, the room, the parentage log
@@ -808,6 +834,26 @@ class PregnancyTests(unittest.TestCase):
             story.record_call(0x412F90, 8)
         return story
 
+    def test_a_new_look_in_the_same_event_does_not_cancel_the_pregnancy(self):
+        """Identity is decided before anything changes: the event may itself
+        give the mother and father new heads, bodies and likes."""
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = self._story(game)
+            v = story.village
+            ok, r, _ = story.apply(Event(changes=[
+                story.change(1, head=3, body=3, like_add=1),
+                story.change(2, head=5, body=6, like_add=2, litter=2, father=1,
+                             father_fingerprint=v.identity(1))]))
+            with self.subTest(game=game):
+                self.assertEqual((r["skipped"], r["conceived"]), (0, 2))
+                self.assertEqual((v.i32(2, v.L["head"]), v.i32(2, v.L["body"])), (5, 6))
+                if game in ("vv2", "vv3"):
+                    off = 0x5C0 if game == "vv2" else 0xE48
+                    self.assertEqual(story.proc.read(v.record(2) + off, 5), b"Papa\0",
+                                     "the father was still recognised")
+
     def test_each_game_writes_its_own_conception_fields(self):
         for game in GAMES:
             if not have_stock(game):
@@ -818,7 +864,7 @@ class PregnancyTests(unittest.TestCase):
                 p = story.proc
                 r2 = v.record(2)
                 ok, r, _ = story.apply(Event(changes=[story.change(2, litter=litter, father=1,
-                                                                   father_fingerprint=v.fingerprint(1))]))
+                                                                   father_fingerprint=v.identity(1))]))
                 with self.subTest(game=game, litter=litter):
                     self.assertEqual(r["conceived"], litter)
                     self.assertEqual(v.i32(2, v.L["pregnant"]), 600, "the age at conception")
@@ -938,7 +984,7 @@ class PregnancyTests(unittest.TestCase):
                 log = ParentageLog(story.proc)
                 v = story.village
                 story.apply(Event(changes=[story.change(2, litter=1, father=1,
-                                                        father_fingerprint=v.fingerprint(1))]))
+                                                        father_fingerprint=v.identity(1))]))
                 records = {"vv1": v.base, "vv2": v.base, "vv3": 0x59E110, "vv4": 0x50E568,
                            "vv5": 0x554148}[game]
                 with self.subTest(game=game, parentage_row=full):
@@ -1944,7 +1990,7 @@ class NaturalBirthCountTests(unittest.TestCase):
                 custom = self._story(game, 1)              # the game's own roll says one baby
                 before = self._counters(custom)
                 ok, r, _ = custom.apply(Event(changes=[custom.change(
-                    2, litter=litter, father=1, father_fingerprint=custom.village.fingerprint(1))]))
+                    2, litter=litter, father=1, father_fingerprint=custom.village.identity(1))]))
                 custom_delta = [a - b for a, b in zip(self._counters(custom), before)]
                 with self.subTest(game=game, litter=litter):
                     self.assertEqual(r["conceived"], litter)
