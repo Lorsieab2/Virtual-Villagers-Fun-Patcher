@@ -149,7 +149,7 @@ static const char *titles_lookup(int game, const unsigned char *record) {
         return NULL;
     }
     i = titles_find((unsigned int)index);
-    if (i < 0 || titles.entries[i].fingerprint != story_name_fingerprint(game, record)) {
+    if (i < 0 || titles.entries[i].fingerprint != story_title_identity(game, record)) {
         return NULL;
     }
     return titles.entries[i].title;
@@ -208,10 +208,37 @@ static int titles_set(int game, int index, const char *text) {
         i = titles.count++;
     }
     titles.entries[i].index = (unsigned int)index;
-    titles.entries[i].fingerprint = story_name_fingerprint(game, record);
+    titles.entries[i].fingerprint = story_title_identity(game, record);
     memset(titles.entries[i].title, 0, sizeof titles.entries[i].title);
     lstrcpynA(titles.entries[i].title, text, VV_TITLE_BYTES);
     titles.seen[i] = 1;
+    return titles_commit();
+}
+
+/* The villager in record `index` was just changed by a custom event in a
+   way that changes who a title is bound to (likes / dislikes): carry its
+   title over to the new identity.  `before` is the identity it had.
+   Returns 1 when there was nothing to carry or the carried table is
+   published; 0 when it could not be (the table is then left as it was). */
+static int titles_rebind(int game, int index, unsigned int before) {
+    const unsigned char *record = story_record(game, index);
+    int i;
+    /* Only a table already loaded for this game can hold the title (it was
+       set through titles_set, which loaded it); nothing loaded, nothing to
+       carry, and no file is touched. */
+    if (titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL) {
+        return 1;
+    }
+    i = titles_find((unsigned int)index);
+    if (i < 0 || titles.entries[i].fingerprint != before
+        || titles.entries[i].fingerprint == story_title_identity(game, record)) {
+        return 1;
+    }
+    titles_reset_detected();
+    titles_before.count = titles.count;
+    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    titles.entries[i].fingerprint = story_title_identity(game, record);
     return titles_commit();
 }
 
@@ -233,7 +260,7 @@ static void titles_tick(int game) {
     for (i = titles.count - 1; i >= 0; --i) {
         const unsigned char *record = story_record(game, (int)titles.entries[i].index);
         int match = record != NULL && story_record_alive(game, record)
-            && titles.entries[i].fingerprint == story_name_fingerprint(game, record);
+            && titles.entries[i].fingerprint == story_title_identity(game, record);
         if (match) {
             titles.seen[i] = 1;
         } else if (titles.seen[i]) {

@@ -158,9 +158,19 @@ static int mem_matches(unsigned int va, const unsigned char *bytes, int length) 
     return memcmp((const void *)(uintptr_t)va, bytes, (size_t)length) == 0;
 }
 
+#ifdef VVFP_TEST
+/* TEST build only: the write that fails (0 = the first), -1 = none. */
+static int test_fail_write = -1;
+#endif
+
 static int mem_write(unsigned int va, const unsigned char *bytes, int length) {
     DWORD old;
     void *at = (void *)(uintptr_t)va;
+#ifdef VVFP_TEST
+    if (test_fail_write >= 0 && test_fail_write-- == 0) {
+        return 0;
+    }
+#endif
     if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
         return 0;
     }
@@ -481,9 +491,10 @@ static int story_record_count(int game);
 static unsigned char *story_record(int game, int index);
 static int story_record_index(int game, const unsigned char *record);
 static int story_record_alive(int game, const unsigned char *record);
-static unsigned int story_name_fingerprint(int game, const unsigned char *record);
+static unsigned int story_title_identity(int game, const unsigned char *record);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
+static int titles_rebind(int game, int index, unsigned int before);
 
 #include "story_common.inc"
 #include "story_custom.inc"
@@ -534,9 +545,10 @@ static int story_record_alive(int game, const unsigned char *record) {
     return a != NULL && record != NULL && a->listed(record);
 }
 
-static unsigned int story_name_fingerprint(int game, const unsigned char *record) {
+static unsigned int story_title_identity(int game, const unsigned char *record) {
     const ce_adapter *a = ce_adapter_for(game);
-    return a != NULL ? ce_fingerprint(a, record) : 0;
+    return a != NULL ? vv_title_identity(record, a->off_name, (unsigned int)a->name_bytes, a->off_likes,
+                                         a->off_dislikes, (unsigned int)a->pref_slots) : 0;
 }
 
 #include "story_titles.inc"
@@ -609,6 +621,20 @@ static const story_detour *game_detour(const story_game *g, int index) {
     return index < g->detour_count ? &g->detours[index] : &g->more_detours[index - g->detour_count];
 }
 
+/* A write failed part-way: put the stock bytes back at the first `writes`
+   price sites and the first `detours` detour sites, which were written, so
+   a game reported inactive has none of the feature live. */
+static void install_undo(const story_game *g, int writes, int detours) {
+    int i;
+    for (i = 0; i < detours; ++i) {
+        const story_detour *d = game_detour(g, i);
+        mem_write(d->va, d->expect, d->length);
+    }
+    for (i = 0; i < writes; ++i) {
+        mem_write(g->writes[i].va, g->writes[i].expect, g->writes[i].length);
+    }
+}
+
 /* Verify every site of this game, then write every one -- or write nothing. */
 static int install(int game) {
     const story_game *g = &GAMES[game];
@@ -627,6 +653,7 @@ static int install(int game) {
     }
     for (i = 0; i < g->write_count; ++i) {
         if (!mem_write(g->writes[i].va, g->writes[i].replace, g->writes[i].length)) {
+            install_undo(g, i, 0);
             return 0;
         }
     }
@@ -634,6 +661,7 @@ static int install(int game) {
         const story_detour *d = game_detour(g, i);
         detour_bytes(d, bytes);
         if (!mem_write(d->va, bytes, d->length)) {
+            install_undo(g, g->write_count, i);
             return 0;
         }
     }
@@ -947,6 +975,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetPick(int game, int position
     return pick_slot;
 }
 
+/* Make the n-th memory write of the next install fail (-1 = none). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeFailWrite(int n) {
+    test_fail_write = n;
+}
+
 __declspec(dllexport) void __stdcall VvfpStoryProbeSetTick(DWORD tick) {
     test_tick = tick;
 }
@@ -1055,7 +1088,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeTitleSet(int game, int index, 
         return 0;
     }
     titles.entries[titles.count].index = (unsigned int)index;
-    titles.entries[titles.count].fingerprint = story_name_fingerprint(game, record);
+    titles.entries[titles.count].fingerprint = story_title_identity(game, record);
     lstrcpynA(titles.entries[titles.count].title, text, VV_TITLE_BYTES);
     titles.seen[titles.count] = 0;
     ++titles.count;

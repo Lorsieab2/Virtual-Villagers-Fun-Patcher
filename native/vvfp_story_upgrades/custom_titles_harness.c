@@ -136,7 +136,7 @@ static int story_record_alive(int game, const unsigned char *record) {
     return record[0] != 0;
 }
 
-static unsigned int story_name_fingerprint(int game, const unsigned char *record) {
+static unsigned int story_title_identity(int game, const unsigned char *record) {
     (void)game;
     return vv_title_fingerprint(record + 1, NAME_BYTES);
 }

@@ -904,7 +904,8 @@ static const char *custom_title_of(const struct game_layout *g, const unsigned c
     for (i = 0; i < g_custom_title_count; ++i) {
         if (g_custom_titles[i].index == (unsigned int)index) {
             return g_custom_titles[i].fingerprint
-                    == vv_title_fingerprint(record + g->name, g->name_capacity)
+                    == vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                         g->dislikes, g->preference_slots)
                 ? g_custom_titles[i].title : NULL;
         }
     }

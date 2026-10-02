@@ -1190,9 +1190,9 @@ class TitleSetTests(unittest.TestCase):
                 game_id, entries = files.titles(path)
                 self.assertEqual(game_id, story.n)
                 self.assertEqual(sorted(entries), sorted([
-                    (2, v.fingerprint(2), "Master Storyteller"),
-                    (3, v.fingerprint(3), "Chief Fisher"),
-                    (new, v.fingerprint(new), "Newcomer")]))
+                    (2, v.title_identity(2), "Master Storyteller"),
+                    (3, v.title_identity(3), "Chief Fisher"),
+                    (new, v.title_identity(new), "Newcomer")]))
                 at = p.export("VvfpStoryProbeTitleOf", story.n, v.record(2))
                 self.assertEqual(p.cstring(at), "Master Storyteller")
             story.apply(Event(changes=[story.change(3, title_op=2)]))
@@ -1206,8 +1206,55 @@ class TitleSetTests(unittest.TestCase):
             ok, r, _ = story.apply(Event(changes=[story.change(3, title_op=1, title="After")]))
             with self.subTest(game=game, case="start over"):
                 self.assertEqual(r["refused"], 0)
-                self.assertEqual(files.titles(path)[1], [(3, v.fingerprint(3), "After")])
+                self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "After")])
                 self.assertEqual(p.export("VvfpStoryProbeTitleCount"), 1)
+
+    def test_a_title_is_not_inherited_by_a_same_named_villager(self):
+        """Codex, PR #495: names repeat, so the title is bound to the likes and
+        dislikes as well; another Kai in the reused record shows no title."""
+        from story_custom_fixtures import MemoryFiles
+
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            p = story.proc
+            MemoryFiles(p)
+            p.write(SCRATCH, rb"C:\Save\Custom Titles - Save 1.dat" + b"\0")
+            p.export("VvfpStoryProbeTitlesLoaded", story.n, 1, SCRATCH)
+            v = story.village
+            v.put(3, sex="m", years=30, name="Kai")
+            story.apply(Event(changes=[story.change(3, title_op=1, title="Chief Fisher")]))
+            v.put(3, sex="m", years=30, name="Kai")            # another Kai in the record
+            p.put32(v.record(3) + v.L["likes"], 2)
+            with self.subTest(game=game, case="another Kai"):
+                self.assertEqual(p.export("VvfpStoryProbeTitleOf", story.n, v.record(3)), 0)
+            p.put32(v.record(3) + v.L["likes"], 0xFFFFFFFF)  # the same Kai again
+            with self.subTest(game=game, case="the same Kai"):
+                self.assertEqual(p.cstring(p.export("VvfpStoryProbeTitleOf", story.n, v.record(3))),
+                                 "Chief Fisher")
+
+    def test_the_title_follows_its_villager_through_a_likes_change(self):
+        from story_custom_fixtures import MemoryFiles
+
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            p = story.proc
+            files = MemoryFiles(p)
+            path = r"C:\Save\Custom Titles - Save 1.dat"
+            p.write(SCRATCH, path.encode() + b"\0")
+            p.export("VvfpStoryProbeTitlesLoaded", story.n, 1, SCRATCH)
+            v = story.village
+            v.put(3, sex="m", years=30, name="Kai")
+            story.apply(Event(changes=[story.change(3, title_op=1, title="Chief Fisher")]))
+            ok, r, _ = story.apply(Event(changes=[story.change(3, like_add=1, dislike_add=2)]))
+            with self.subTest(game=game):
+                self.assertEqual(r["refused"], 0)
+                self.assertEqual(p.cstring(p.export("VvfpStoryProbeTitleOf", story.n, v.record(3))),
+                                 "Chief Fisher")
+                self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "Chief Fisher")])
 
 
 # ---------------------------------------------------------------------------

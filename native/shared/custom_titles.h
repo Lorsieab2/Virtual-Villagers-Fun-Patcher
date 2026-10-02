@@ -16,13 +16,14 @@
  * deleted by the Start Over reset (native/shared/save_reset.c).
  *
  * FORMAT (little-endian):
- *     u32 magic 'VCT1' (0x31544356), u32 version 1, u32 game (1..5),
+ *     u32 magic 'VCT1' (0x31544356), u32 version 2, u32 game (1..5),
  *     u32 count (0..VV_TITLES_MAX), then `count` entries:
  *         u32 record index, u32 fingerprint, char title[VV_TITLE_BYTES]
  *     The file is exactly 16 + count * 40 bytes.
  *
- * A title belongs to the villager in record `index` whose name hashes to
- * `fingerprint`.  A record index alone is not an identity -- the games reuse
+ * A title belongs to the villager in record `index` whose name, likes and
+ * dislikes hash to `fingerprint` (vv_title_identity; version 1 hashed the
+ * name alone, and names repeat, so a v1 file is set aside, never read).  A record index alone is not an identity -- the games reuse
  * a dead villager's record for the next birth -- so every reader checks the
  * fingerprint against the record it is about to label, and shows nothing when
  * it differs.  A title is printable ASCII (the games' fonts), at most
@@ -34,7 +35,7 @@
 #include <string.h>
 
 #define VV_TITLES_MAGIC 0x31544356u     /* 'VCT1' */
-#define VV_TITLES_VERSION 1u
+#define VV_TITLES_VERSION 2u
 #define VV_TITLES_MAX 256
 #define VV_TITLE_BYTES 32
 #define VV_TITLE_MAX (VV_TITLE_BYTES - 1)
@@ -59,6 +60,25 @@ static unsigned int vv_title_fingerprint(const unsigned char *name, unsigned int
         h = (h ^ name[i]) * 16777619u;
     }
     h = (h ^ 0xFFu) * 16777619u;
+    return h ? h : 1u;
+}
+
+/* Who a title belongs to: the name, then the likes and dislikes arrays
+   (`slots` dwords each), which the games never change on their own.  Names
+   come from a fixed pool, so a record reused by another villager of the same
+   name must not inherit the title.  Appearance is left out: the player can
+   change it (Change Appearance) without becoming someone else.  Never 0. */
+static unsigned int vv_title_identity(const unsigned char *record, unsigned int name,
+                                      unsigned int name_capacity, unsigned int likes,
+                                      unsigned int dislikes, unsigned int slots) {
+    unsigned int h = vv_title_fingerprint(record + name, name_capacity);
+    unsigned int i;
+    for (i = 0; i < slots * 4u; ++i) {
+        h = (h ^ record[likes + i]) * 16777619u;
+    }
+    for (i = 0; i < slots * 4u; ++i) {
+        h = (h ^ record[dislikes + i]) * 16777619u;
+    }
     return h ? h : 1u;
 }
 

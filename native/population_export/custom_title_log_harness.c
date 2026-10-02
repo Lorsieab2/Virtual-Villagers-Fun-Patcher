@@ -155,7 +155,7 @@ int main(void) {
 
     memset(entries, 0, sizeof entries);
     entries[0].index = 1;
-    entries[0].fingerprint = vv_title_fingerprint(record(1) + 0xDD4, 0x19);
+    entries[0].fingerprint = vv_title_identity(record(1), 0xDD4, 0x19, 0xFB4, 0xFC0, 3);
     lstrcpyA(entries[0].title, "Keeper of Stories");
     entries[1].index = 2;
     entries[1].fingerprint = vv_title_fingerprint((const unsigned char *)"Someone Else", 0x19);

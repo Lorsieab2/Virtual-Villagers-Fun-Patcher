@@ -263,6 +263,24 @@ class InstallTests(unittest.TestCase):
                     self.assertEqual(broken.export("VvfpStoryActive", int(game[2:])), 0)
                     self.assertEqual([broken.read(v, len(e)) for v, e, _ in table], snapshot)
 
+    def test_a_write_that_fails_part_way_leaves_nothing_installed(self):
+        """Codex, PR #495: a later write failing must not leave the earlier
+        sites written while the feature reports itself inactive."""
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            probe = process(game)
+            count = len(sites(probe, game))
+            for fail_at in (0, 1, count // 2, count - 1):
+                with self.subTest(game=game, failing_write=fail_at):
+                    proc = process(game)
+                    table = sites(proc, game)
+                    snapshot = [proc.read(v, len(e)) for v, e, _ in table]
+                    proc.export("VvfpStoryProbeFailWrite", fail_at)
+                    self.assertEqual(proc.export("VvfpStoryInstall", int(game[2:])), 0)
+                    self.assertEqual(proc.export("VvfpStoryActive", int(game[2:])), 0)
+                    self.assertEqual([proc.read(v, len(e)) for v, e, _ in table], snapshot)
+
     def test_a_build_without_origins_installs_nothing(self):
         for game in GAMES:
             if not have_stock(game):

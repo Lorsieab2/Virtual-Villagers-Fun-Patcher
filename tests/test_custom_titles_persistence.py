@@ -99,7 +99,7 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         self.assertIn('#include "custom_titles.h"', text)
         self.assertIn("load_custom_titles(game_id, g, village);", text)
         self.assertIn('"  Custom title: %s\\n"', text)
-        self.assertIn("vv_title_fingerprint(record + g->name, g->name_capacity)", text)
+        self.assertIn("vv_title_identity(record, g->name, g->name_capacity, g->likes,", text)
 
     def test_the_harness_covers_every_case(self):
         text = LOG_HARNESS.read_text(encoding="utf-8")

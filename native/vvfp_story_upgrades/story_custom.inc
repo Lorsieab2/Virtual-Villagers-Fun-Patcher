@@ -709,9 +709,15 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             continue;
         }
         if (c->like_add >= 0 || c->like_remove >= 0 || c->dislike_add >= 0 || c->dislike_remove >= 0) {
+            unsigned int titled_as = story_title_identity(e->game, record);
             story_preferences_changing(e->game, 0);
             r->refused += ce_apply_fields(a, record, c);
             story_preferences_changing(e->game, 1);
+            /* A custom title is bound to the likes and dislikes too: it
+               follows its villager through this change. */
+            if ((a->caps & CAP_TITLE) && !titles_rebind(e->game, c->index, titled_as)) {
+                ++r->refused;
+            }
         } else {
             r->refused += ce_apply_fields(a, record, c);
         }

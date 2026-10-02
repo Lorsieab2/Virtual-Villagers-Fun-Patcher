@@ -134,6 +134,16 @@ class Village:
         return fnv_name(self.proc.read(self.record(i) + self.L["name"], self.L["name_cap"]),
                         self.L["name_cap"])
 
+    def title_identity(self, i: int) -> int:
+        """native/shared/custom_titles.h vv_title_identity: the name, then the
+        likes array's bytes, then the dislikes array's bytes."""
+        h = self.fingerprint(i)
+        n = 4 * self.L["slots"]
+        for b in self.proc.read(self.record(i) + self.L["likes"], n) + \
+                self.proc.read(self.record(i) + self.L["dislikes"], n):
+            h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+        return h or 1
+
     def identity(self, i: int) -> int:
         """story_custom.inc ce_identity: the name, then sex, head, body and the
         likes / dislikes slots interleaved, each as 4 little-endian bytes."""
@@ -361,7 +371,7 @@ class MemoryFiles:
         if raw is None:
             return None
         magic, version, game, count = struct.unpack("<4I", raw[:16])
-        assert (magic, version) == (0x31544356, 1)
+        assert (magic, version) == (0x31544356, 2)
         out = []
         for k in range(count):
             e = raw[16 + 40 * k:56 + 40 * k]
