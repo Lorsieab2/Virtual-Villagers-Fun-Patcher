@@ -419,7 +419,16 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # that was one byte over its bound. Register contract unchanged: the
     # helper still pushad/popad around the whole body and the stub still
     # rejoins the same shared restore.
-    ("vv1_enable_origins_exclusive_features", "0x2403F"): "40E7A84AF567A2DA2F1DDA917EA6D1981B4B113BFE9F6AE691535DB56BE13D74",
+    # Re-reviewed for v1.35.45: the three-child flag and its disarm stub are
+    # gone (the flag was consumed by the Mysterious Crate's roll, never by
+    # the barrel), so the construction-failure `je` now targets the shared
+    # popad directly; and the dispatched event is released through the
+    # scalar deleting destructor (`push 1; mov ecx, ebx; call 0x427A00`)
+    # instead of the plain destructor, which leaked the operator-new block.
+    # Register contract unchanged: everything still sits between the one
+    # pushad and the shared popad, ebx is the helper's own scratch, and the
+    # resume at 0x424044 is untouched.
+    ("vv1_enable_origins_exclusive_features", "0x2403F"): "C1BD1DCA54AF45A176083AFCAC19741683B6EFC2CDE823166517E563FB57FC27",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
     # Re-reviewed: the pending_rows cave now calls POPULATION_FINAL_TIER_VA
@@ -449,7 +458,9 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # no register operand, inside the existing pushfd/pushad..popad/popfd
     # window, and the re-entry target is untouched. Nothing the stock code
     # at the resume depends on is altered.
-    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "CC7BA6DF24ABB82A900C039DF8EC348D41919D44227D1D0FD4DBEBA8A2D2F5C1",
+    # Re-reviewed for v1.35.45: the three-child one-shot's clear is removed
+    # with the flag itself; one absolute store fewer, nothing else changes.
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "08F2B73E12E206FA84370D0524044FFC261AA9760A11930AD0D35E0AFBE439BE",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "323F30C734F89D8ABAF15C4C864AC78A0320AE634B5D4D99EA826801C35F8044",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock

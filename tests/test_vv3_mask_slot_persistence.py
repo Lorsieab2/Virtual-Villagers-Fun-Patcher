@@ -398,7 +398,7 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
             "__declspec(dllexport) int __stdcall ShowVV3AppearanceForAll", 1
         )[1]
         self.assertIn("g_vv3_caf_mask_persist_failed", ui)
-        self.assertLess(ui.index("affected = vv3_apply_for_all"), ui.index("*tech -= VV3_CAF_COST;"))
+        self.assertLess(ui.index("affected = vv3_apply_for_all"), ui.index("*tech -= vvfp_story_price(3, VV3_CAF_COST);"))
 
     def test_record_index_is_bounded_by_the_current_population_slots(self) -> None:
         indexer = self.source.split("static int vv3_mask_index", 1)[1].split(
@@ -536,7 +536,7 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         ambiguity_message = entry.index(
             "g_vv3_caf_mask_fail == VV3_CAF_MASK_AMBIGUOUS", zero_guard
         )
-        charge = entry.index("*tech -= VV3_CAF_COST", ambiguity_message)
+        charge = entry.index("*tech -= vvfp_story_price(3, VV3_CAF_COST)", ambiguity_message)
         self.assertLess(apply_at, zero_guard)
         self.assertLess(zero_guard, ambiguity_message)
         self.assertLess(ambiguity_message, charge)

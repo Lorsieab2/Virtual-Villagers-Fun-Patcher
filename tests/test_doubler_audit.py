@@ -311,11 +311,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # manifest diff against the parent commit is exactly two added caves
         # (0x9A4A0 silent gate stub, 0x9A745 glue) and the main helper at
         # 0x9A780 that calls them -- nothing in any doubler region.
+        # Re-pinned for v1.35.45: the Sack/Vial roll detour 0x37ADC and its
+        # cave 0x9A4F0 are removed (the old "three children" flag never
+        # reached the barrel), 0x9A780 loses the flag's arming store, and
+        # 0x45B50's rel32 follows the sweep stub 7 bytes earlier in the
+        # appended page -- nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "327782ADF86C2491E3B35CB72B35F4AFAA608642319EA0D90F435828C7272D7C",
+            "76A219E37CBB8E91F6B25013DC184A3FBDACE5311235675F866D70F0D2B5ACED",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
@@ -335,9 +340,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # VV2's own writer became atomic (temp file, checked writes, flush,
         # replace), and in both VV2's and the shared VV1 source an invalid
         # sidecar is set aside and an unopenable one is never overwritten.
+        # Re-pinned when it learned Story / Cheat Upgrades
+        # (native/shared/story_bridge.h): it loads "VVFP Story Upgrades.dll"
+        # when shipped and, only while that row is active, shows and charges
+        # 0 and offers Pick Island Event.
+        # Re-pinned when it learned Custom Island Event (Story / Cheat
+        # Upgrades part 2): the second Tech-menu button and the host table
+        # (save slot, mask store) it hands the story companion.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "20333021F7C490BCF3DC1724730A998A66068FD483E54C6D145BB60261E7C2E1",
+            "0D20CE13AC0D70C6947C6F2314F830BCEF3B3A930DF6499664F98679C6E609AC",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

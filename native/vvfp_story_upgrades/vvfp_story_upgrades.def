@@ -1,0 +1,9 @@
+LIBRARY "VVFP Story Upgrades"
+EXPORTS
+    VvfpStoryInstall=_VvfpStoryInstall@4
+    VvfpStoryActive=_VvfpStoryActive@4
+    VvfpStoryPickIslandEvent=_VvfpStoryPickIslandEvent@8
+    VvfpStoryPickPending=_VvfpStoryPickPending@4
+    VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8
+    VvfpStoryAttachHost=_VvfpStoryAttachHost@8
+    VvfpStoryVillageReset=_VvfpStoryVillageReset@8

@@ -29,11 +29,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "data" / "vv1_origins_feature.json"
 
-# The save-slot capture cave, and the three queued-event globals it must clear.
+# The save-slot capture cave, and the two queued-event globals it must clear.
+# (The third, a "three children" flag at 0x48D708, was removed in v1.35.45:
+# it was consumed by the Mysterious Crate's roll, never by the barrel.)
 CAVE_OFFSET = "0x8e820"   # matched case-insensitively below
 BARREL_PENDING_VA = 0x0048D700
 BARREL_DELAY_COUNTER_VA = 0x0048D704
-BARREL_UPGRADE_FLAG_VA = 0x0048D708
 
 
 def _patch_rows():
@@ -83,7 +84,6 @@ class QueuedEventsClearOnSlotChangeTests(unittest.TestCase):
         for address, name in (
             (BARREL_PENDING_VA, "Barrel pending flag"),
             (BARREL_DELAY_COUNTER_VA, "Barrel delay counter"),
-            (BARREL_UPGRADE_FLAG_VA, "three-child one-shot"),
         ):
             with self.subTest(state=name):
                 self.assertIn(
@@ -111,7 +111,6 @@ class QueuedEventsClearOnSlotChangeTests(unittest.TestCase):
 VV2_STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"
 VV2_QUEUED_GLOBALS = {
     0x0049C700: "Barrel pending flag",
-    0x0049C704: "three-child one-shot",
     0x0049C708: "Barrel cue counter",
 }
 

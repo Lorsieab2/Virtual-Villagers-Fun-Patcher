@@ -336,18 +336,25 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         # CEventTheStingingWasps -- the wrong event, and no children.
         # tests/test_vv5_barrel_event_index.py re-derives the id from the stock
         # binary's RTTI so this literal cannot drift back unnoticed.
+        # The purchased barrel then draws the stock rand(100) into edi and
+        # jumps straight to the presenter at 0x41895B, past the stock Chutes
+        # Without Ladders override, which could turn it into event 30
+        # (v1.35.45); natural events still rejoin at 0x41891A.
         expected_body = bytes.fromhex(
-            "8B748414F70588D3510004000000740C832588D35100FBBE1A000000"
-            "6A64E8BD14C5FFE97267C6FF"
+            "8B748414F70588D3510004000000741D832588D35100FBBE1A000000"
+            "6A64E8BD14C5FF83C40889C7E9AE67C6FF"
+            "6A64E8AC14C5FFE96167C6FF"
         )
         self.assertEqual(body["file_offset"], "0xDB180")
         self.assertEqual(body["virtual_address"], "0x7B2180")
         self.assertEqual(bytes.fromhex(body["after"]), expected_body)
-        self.assertEqual(bytes.fromhex(body["before"]), b"\0" * 40)
+        self.assertEqual(bytes.fromhex(body["before"]), b"\0" * len(expected_body))
         self.assertEqual(body["uninstall_after"], body["before"])
         self.assertEqual(body["sha256"], hashlib.sha256(expected_body).hexdigest().upper())
-        self.assertEqual(self.payload[0x180:0x1A8], expected_body)
-        self.assertEqual(self.payload[0x180:0x1A8].hex().upper(), body["after"])
+        end = 0x180 + len(expected_body)
+        self.assertLessEqual(end, 0x1C0, "the selector body outgrew its 0x40-byte slot")
+        self.assertEqual(self.payload[0x180:end], expected_body)
+        self.assertEqual(self.payload[0x180:end].hex().upper(), body["after"])
         self.assertEqual(selector["native_call_virtual_address"], "0x403660")
         self.assertEqual(selector["continuation_virtual_address"], "0x41891A")
         self.assertEqual(selector["forbidden_branch_targets"], ["0x418916", "0x418917", "0x418918", "0x418919"])
@@ -363,12 +370,20 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             [FEATURE_ID],
         )
         self.assertEqual(bytes(rendered[0x1890F:0x18916]).hex().upper(), "E96C9839009090")
-        rendered_body = bytes(rendered[0xDB180:0xDB1A8])
+        rendered_body = bytes(rendered[0xDB180:0xDB180 + len(expected_body)])
         self.assertEqual(rendered_body, expected_body)
-        call_at = 0xDB180 + expected_body.index(bytes.fromhex("E8BD14C5FF"))
-        call_va = 0x7B2180 + expected_body.index(bytes.fromhex("E8BD14C5FF"))
-        call_target = call_va + 5 + struct.unpack_from("<i", rendered, call_at + 1)[0]
-        self.assertEqual(call_target, 0x403660)
+        # Both paths draw rand through the game's own 0x403660.
+        for call in ("E8BD14C5FF", "E8AC14C5FF"):
+            call_at = 0xDB180 + expected_body.index(bytes.fromhex(call))
+            call_va = 0x7B2180 + expected_body.index(bytes.fromhex(call))
+            call_target = call_va + 5 + struct.unpack_from("<i", rendered, call_at + 1)[0]
+            self.assertEqual(call_target, 0x403660, call)
+        # The purchased barrel goes straight to the presenter, past the stock
+        # Chutes override; only the natural path rejoins at 0x41891A.
+        forced_at = expected_body.index(bytes.fromhex("E9AE67C6FF"))
+        forced = 0x7B2180 + forced_at + 5 + struct.unpack_from(
+            "<i", rendered, 0xDB180 + forced_at + 1)[0]
+        self.assertEqual(forced, 0x41895B)
         jump_at = 0xDB180 + len(expected_body) - 5
         jump_va = 0x7B2180 + len(expected_body) - 5
         continuation = jump_va + 5 + struct.unpack_from("<i", rendered, jump_at + 1)[0]
@@ -614,7 +629,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "A92D35C51E408E2E02DAFB48182A5D10293F5C6DA0473E51E47A11B746BD13E4",
+            "13F30A84A1E3F8C5D2D9F889210C534D041776615C70B3A69925EC45DF5ED6C0",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
