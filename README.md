@@ -360,6 +360,12 @@ Updates the slow scrolling when selecting villagers and dragging the screen to V
 
 - Patch ID: `vv2_faster_village_scrolling`
 
+**Firepit: Dry Grass Drawn Above the Wood**
+
+When both the dry grass and the firewood have been put in the unlit fire pit, the dry grass is drawn on top of the wood instead of being hidden behind it. Only the drawing order of those two pictures changes; nothing else about the fire pit, the fire puzzle or your save is touched. **Needs no other patch.**
+
+- Patch ID: `vv2_firepit_dry_grass_above_wood`
+
 
 ### Virtual Villagers - The Secret City
 

@@ -512,6 +512,18 @@ Updates the slow scrolling when selecting villagers and dragging the screen to V
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Firepit: Dry Grass Drawn Above the Wood (`vv2_firepit_dry_grass_above_wood`)
+
+When both the dry grass and the firewood have been put in the unlit fire pit, the dry grass is drawn on top of the wood instead of being hidden behind it. Only the drawing order of those two pictures changes; nothing else about the fire pit, the fire puzzle or your save is touched. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The village scene adds the fire pit's firewood picture before its dry-grass picture, so the grass is drawn last and appears on top when both are in the pit. With only one of the two in the pit, the picture drawn is the same as in the base game.
+- Explicit non-changes/exclusions: The positions, sprites and frames of both pictures are the base game's own; no art is added or edited. The fire-pit flags, fire lighting, the fire puzzle, villager tasks and save data are not changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence; runtime/player visual confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 
 When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.

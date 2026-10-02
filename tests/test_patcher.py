@@ -1189,8 +1189,11 @@ class ManifestTests(unittest.TestCase):
         # (vv2_manual_drop_breeding_overrides_birth_control), the pairing
         # handler's woman-50 refusal re-encoded in place behind a drop test;
         # 21 with Story / Cheat Upgrades (vv2_story_cheat_upgrades), which
-        # patches no executable byte -- its companion writes at run time.
-        self.assertEqual(len(feature_ids), 21)
+        # patches no executable byte -- its companion writes at run time;
+        # 22 with Firepit: Dry Grass Drawn Above the Wood
+        # (vv2_firepit_dry_grass_above_wood), the scene builder's two fire-pit
+        # draw blocks swapped in place.
+        self.assertEqual(len(feature_ids), 22)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4032,6 +4035,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_manual_drop_breeding_overrides_birth_control",
                 "vv2_numeric_keys_tip_wording",
                 "vv2_story_cheat_upgrades",
+                "vv2_firepit_dry_grass_above_wood",
             },
         )
         for mode in ALL_MODES:

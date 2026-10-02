@@ -1533,6 +1533,30 @@
       ]
     },
     {
+      "id": "vv2_firepit_dry_grass_above_wood",
+      "game_id": "vv2",
+      "name": "Firepit: Dry Grass Drawn Above the Wood",
+      "description": "When both the dry grass and the firewood have been put in the unlit fire pit, the dry grass is drawn on top of the wood instead of being hidden behind it. Only the drawing order of those two pictures changes; nothing else about the fire pit, the fire puzzle or your save is touched. **Needs no other patch.**",
+      "output_tag": "Firepit Grass Above Wood",
+      "behavior_changes": [
+        "The village scene adds the fire pit's firewood picture before its dry-grass picture, so the grass is drawn last and appears on top when both are in the pit.",
+        "With only one of the two in the pit, the picture drawn is the same as in the base game."
+      ],
+      "explicit_non_changes": [
+        "The positions, sprites and frames of both pictures are the base game's own; no art is added or edited.",
+        "The fire-pit flags, fire lighting, the fire puzzle, villager tasks and save data are not changed."
+      ],
+      "evidence_status": "static exact-build evidence; runtime/player visual confirmation pending",
+      "patches": [
+        {
+          "offset": "0x1C5EA",
+          "before": "8B868016000080B85804030001751A8B8EE81500006A0F684A03000068DE020000518BCEE8BDEFFFFF8B968016000080BA590403000175188B86F4150000684003000068CA020000508BCEE846EFFFFF",
+          "after": "8B968016000080BA590403000175188B86F4150000684003000068CA020000508BCEE86FEFFFFF8B868016000080B85804030001751A8B8EE81500006A0F684A03000068DE020000518BCEE896EFFFFF",
+          "purpose": "swap the scene's two fire-pit draw blocks so the firewood (woodpile.png) is queued before the dry grass (carrying.png frame 15); each block keeps its own flag test and position, with the call displacements re-aimed"
+        }
+      ]
+    },
+    {
       "id": "vv3_everyone_tries_on_robe",
       "game_id": "vv3",
       "name": "Everyone Tries On the Robe",
