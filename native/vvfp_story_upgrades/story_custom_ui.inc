@@ -1136,7 +1136,10 @@ static void ui_refresh_other(HWND window) {
 }
 
 static void ui_refresh_lists(HWND window) {
-    char text[256];
+    /* ui_describe_change can reach ~270 characters (a 28-character name, a
+       31-character title, the longest status and action labels and every
+       flag), so this holds twice that. */
+    char text[512];
     char years[16];
     int i;
     ui_refresh_other(window);
