@@ -50,7 +50,9 @@ static const char *c2_arm_refusal(void) {
     if (world == NULL || VV2_POOL() == NULL) {
         return "There is no village to have an island event.";
     }
-    if (*(int *)(world + VV2_EVENT_COUNT_FIELD) == 0) {
+    /* The first event is always family A: a question (shown by family A's
+       own popup) may be it, a plain event may not. */
+    if (*(int *)(world + VV2_EVENT_COUNT_FIELD) == 0 && !ce_refusal_for_choice) {
         return "A village's first island event is always one with a choice. A custom island "
                "event can be queued once it has happened.";
     }
@@ -701,6 +703,11 @@ static int c2_set_parents(int index, const ce_change *c) {
 
 static const char *const C2_SKILLS[] = { "Parenting", "Building", "Farming", "Healing", "Research" };
 
+/* The game's own rand(bound) (cdecl, 0..bound-1), for a question's roll. */
+static int c2_rand_below(int n) {
+    return VV2_RAND(n);
+}
+
 static const ce_adapter C2_ADAPTER;
 
 static void c2_apply_spawn_fields(unsigned char *r, const ce_spawn *s) {
@@ -711,7 +718,7 @@ static const ce_adapter C2_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
         | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES | CAP_PUZZLES
-        | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE,
+        | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Lost Children",
     0x118, 40, 1100,
     VV2_RECORD_COUNT, 0x18,
@@ -758,7 +765,12 @@ static const ce_adapter C2_ADAPTER = {
     C2_PUZZLE_DEFS, C2_PUZZLE_COUNT, c2_puzzle_solved, c2_puzzle_set,
     c2_cancel, c2_relitter, c2_unborn,
     c2_skeleton, c2_revive,
-    0, 0x540
+    0, 0x540,
+    /* Family A's popup (0x422380): lines of 46 characters (the plain
+       popup's; stock family A lines reach 48 at its 450 pixels), 18 lines
+       (the tallest stock family A text); the result replaces the whole
+       text, title included; labels of 30 characters (the longest stock). */
+    46, 18, 46, 18, 1, 30, c2_rand_below
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -771,6 +783,70 @@ static void __fastcall c2_choose(void *event, void *unused_edx, int kind, int ma
         return;
     }
     TC2(0x434570u, event, kind, magnitude);
+}
+
+/* ---- Two choices -----------------------------------------------------------
+
+   As A New Home's encounters (story_c1.inc), with family A's dialog: ctor
+   0x422380 (built by the trigger at 0x42F1A3), setup call 0x42244A
+   (0x41F780), question +0x7C, result +0x278B, labels +0x4E9A / +0x4F9A,
+   variant +0x509C (0..20; 21+ returns at 0x422257 without writing),
+   villager shown +0x50A0, choice +0x50A4 (1 / 2), width +0x60; the click
+   handler 0x4222F0 calls the resolve 0x4204B0 at 0x422364, an outcomes
+   scope call handed to c2_choice_resolve for the remembered dialog. */
+
+#define C2_DLG_QUESTION 0x7Cu
+#define C2_DLG_RESULT 0x278Bu
+#define C2_DLG_LABEL_FIRST 0x4E9Au
+#define C2_DLG_LABEL_SECOND 0x4F9Au
+#define C2_DLG_VARIANT 0x509Cu
+#define C2_DLG_SUBJECT 0x50A0u
+#define C2_DLG_CHOICE 0x50A4u
+
+static void *c2_choice_dialog;
+static char c2_choice_title[CE_TITLE_BYTES];
+
+/* The replacement for `call 0x41F780` at 0x42244A (thiscall, AL). */
+static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
+    unsigned char *d = (unsigned char *)dialog;
+    (void)unused_edx;
+    if (!ce_choice_begin(2, (char *)d + C2_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
+        c2_choice_dialog = NULL;
+        return (char)TC0(0x41F780u, dialog);
+    }
+    choice_fill_dialog(2, d, C2_DLG_QUESTION, C2_DLG_LABEL_FIRST, C2_DLG_LABEL_SECOND, c2_choice_title);
+    *(int *)(d + C2_DLG_VARIANT) = CHOICE_VARIANT_NONE;
+    *(int *)(d + C2_DLG_SUBJECT) = -1;
+    *(int *)(d + C1_DLG_WIDTH) = C1_ENCOUNTER_WIDTH;
+    d[C2_DLG_RESULT] = '\0';
+    c2_choice_dialog = dialog;
+    return 1;
+}
+
+/* In place of the resolve 0x4204B0: +0x50A4 is 1 / 2. */
+static void __fastcall c2_choice_resolve(void *dialog, void *unused_edx) {
+    unsigned char *d = (unsigned char *)dialog;
+    (void)unused_edx;
+    c2_choice_dialog = NULL;
+    if (!ce_choice_resolve(2, *(int *)(d + C2_DLG_CHOICE) - 1, (char *)d + C2_DLG_RESULT,
+                           C1_DLG_TEXT_BYTES)) {
+        lstrcpynA((char *)d + C2_DLG_RESULT, c2_choice_title, C1_DLG_TEXT_BYTES);
+    }
+}
+
+/* The outcomes scope stub's target for the resolve call at `va` of `game`
+   with ECX `ecx`: our answer for the remembered two-choice dialog, else 0
+   (the game's own resolve). */
+static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx) {
+    if (game == 1 && va == 0x41A444u && c1_choice_dialog != NULL
+        && ecx == (unsigned int)(uintptr_t)c1_choice_dialog) {
+        return (unsigned int)(uintptr_t)c1_choice_resolve;
+    }
+    if (game == 2 && va == 0x422364u && c2_choice_dialog != NULL
+        && ecx == (unsigned int)(uintptr_t)c2_choice_dialog) {
+        return (unsigned int)(uintptr_t)c2_choice_resolve;
+    }
+    return 0;
 }
 
 /* ---- Title ---------------------------------------------------------------

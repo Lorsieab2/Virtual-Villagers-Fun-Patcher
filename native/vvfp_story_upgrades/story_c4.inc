@@ -551,11 +551,18 @@ static int c4_set_parents(int index, const ce_change *c) {
 
 static const char *const C4_SKILLS[] = { "Farming", "Parenting", "Healing", "Research", "Building" };
 
+typedef int (__cdecl *c4_rand_fn)(int bound);
+
+/* The game's own rand(bound) 0x4036D0 (cdecl, 0..bound-1). */
+static int c4_rand_below(int n) {
+    return ((c4_rand_fn)(uintptr_t)0x4036D0u)(n);
+}
+
 static const ce_adapter C4_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
         | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
-        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE,
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Tree of Life",
     0x118, 40, 1100,
     C4_COUNT, 0x19,
@@ -595,7 +602,11 @@ static const ce_adapter C4_ADAPTER = {
     C4_PUZZLE_DEFS, C4_PUZZLE_COUNT, c4_puzzle_solved, c4_puzzle_set,
     c4_cancel, c4_relitter, c4_unborn,
     c4_skeleton, c4_revive,
-    0, 0x1C4C
+    0, 0x1C4C,
+    /* The two-choice popup (0x417790): as The Secret City's -- 48 characters,
+       11 lines (the tallest stock two-choice text), the title above the
+       result, labels of 34 characters (the longest stock). */
+    48, 11, 48, 11, 0, 34, c4_rand_below
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -625,6 +636,13 @@ static void *c4_custom_object(void) {
     functions[1] = (void *)c4_title_id;
     functions[2] = (void *)c4_body_id;
     return ce_build_object(0x48C4ECu, slots, functions, 3);
+}
+
+/* A question (story_objects.inc): a copy of the first two-choice event's
+   vtable (0x48CB64) with The Salty Air's ids, featuring any living villager. */
+static void *c4_choice_object(void) {
+    return choice_object(4, C4_STRING_TABLE, C4_TITLE_ID, C4_BODY_ID, 1, 0x48CB64u,
+                         (void *)c4_title_id, NULL);
 }
 
 /* ---- Title ---------------------------------------------------------------

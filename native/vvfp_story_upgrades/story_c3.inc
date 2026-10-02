@@ -564,11 +564,18 @@ static int c3_set_parents(int index, const ce_change *c) {
 
 static const char *const C3_SKILLS[] = { "Farming", "Parenting", "Healing", "Research", "Building" };
 
+typedef int (__cdecl *c3_rand_fn)(int bound);
+
+/* The game's own rand(bound) 0x4032D0 (cdecl, 0..bound-1). */
+static int c3_rand_below(int n) {
+    return ((c3_rand_fn)(uintptr_t)0x4032D0u)(n);
+}
+
 static const ce_adapter C3_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
         | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_STATUS | CAP_VALUES
-        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE,
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Secret City",
     0x118, 40, 1100,
     C3_COUNT, 0x19,
@@ -608,7 +615,12 @@ static const ce_adapter C3_ADAPTER = {
     C3_PUZZLE_DEFS, C3_PUZZLE_COUNT, c3_puzzle_solved, c3_puzzle_set,
     c3_cancel, c3_relitter, c3_unborn,
     c3_skeleton, c3_revive,
-    0, 0xE8C
+    0, 0xE8C,
+    /* The two-choice popup (0x4192F0): the 432-pixel text box of the plain
+       one, 11 lines for the tallest of the question and the results (the
+       tallest stock two-choice text; the popup also shows the villager);
+       the title stays above the result; labels of 32 characters. */
+    48, 11, 48, 11, 0, 32, c3_rand_below
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -638,6 +650,13 @@ static void *c3_custom_object(void) {
     functions[2] = (void *)ce_object_nothing;
     functions[3] = (void *)ce_object_nothing;
     return ce_build_object(0x47E600u, slots, functions, 4);
+}
+
+/* A question (story_objects.inc): a copy of the first two-choice event's
+   vtable (0x47EA40) with the custom ids, featuring any living villager. */
+static void *c3_choice_object(void) {
+    return choice_object(3, C3_STRING_TABLE, C3_TITLE_ID, C3_BODY_ID, 0, 0x47EA40u,
+                         (void *)c3_title_id, NULL);
 }
 
 /* ---- Title ---------------------------------------------------------------

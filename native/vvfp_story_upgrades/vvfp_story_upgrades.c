@@ -150,6 +150,11 @@ static int vv1_island_strength(void);
 static void *c3_custom_object(void);
 static void *c4_custom_object(void);
 static void *c5_custom_object(void);
+static int ce_choice_pending(int game);
+static void *c3_choice_object(void);
+static void *c4_choice_object(void);
+static void *c5_choice_object(void);
+static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -314,7 +319,10 @@ static void *__cdecl vv3_select(int *slot) {
     if (read_u32(VV3_EVENT_TABLE + 4) == read_u32(VV3_EVENT_TABLE + 8)) {
         return NULL;
     }
-    custom = c3_custom_object();
+    custom = c3_choice_object();      /* a question (story_objects.inc) */
+    if (custom == NULL) {
+        custom = c3_custom_object();
+    }
     if (custom != NULL) {
         return custom;
     }
@@ -352,7 +360,10 @@ __declspec(naked) static void vv3_stub(void) {
 static void *__cdecl vv4_select(int *slot) {
     void *custom;
     oc_new_choice(4);
-    custom = c4_custom_object();
+    custom = c4_choice_object();      /* a question (story_objects.inc) */
+    if (custom == NULL) {
+        custom = c4_custom_object();
+    }
     if (custom != NULL) {
         return custom;
     }
@@ -386,7 +397,10 @@ __declspec(naked) static void vv4_stub(void) {
 static void *__cdecl vv5_select(int *slot) {
     void *custom;
     oc_new_choice(5);
-    custom = c5_custom_object();
+    custom = c5_choice_object();      /* a question (story_objects.inc) */
+    if (custom == NULL) {
+        custom = c5_custom_object();
+    }
     if (custom != NULL) {
         return custom;
     }
@@ -600,14 +614,17 @@ typedef struct {
 
 /* The Custom Island Event's own sites follow each game's pick sites: its
    delivery (VV1 / VV2: the island event's chooser call; VV3-VV5: the pick
-   site itself) and the villager panel's title (story_c*.inc). */
+   site itself), the villager panel's title (story_c*.inc), and VV1 / VV2's
+   two-choice setup call, where a question is asked. */
 static story_detour vv1_custom_detours[] = {
     { 0x428777u, 5, VV1_CUSTOM_CHOOSE_BYTES, 1, (void *)c1_choose },
     { 0x41FD75u, 5, VV1_TITLE_SITE_BYTES, 0, (void *)c1_title_stub },
+    { 0x41A51Fu, 5, VV1_CHOICE_SETUP_BYTES, 1, (void *)c1_choice_setup },
 };
 static story_detour vv2_custom_detours[] = {
     { 0x4349B2u, 5, VV2_CUSTOM_CHOOSE_BYTES, 1, (void *)c2_choose },
     { 0x429DE3u, 5, VV2_TITLE_SITE_BYTES, 1, (void *)c2_title },
+    { 0x42244Au, 5, VV2_CHOICE_SETUP_BYTES, 1, (void *)c2_choice_setup },
 };
 static story_detour vv3_detours[] = {
     { VV3_PICK_SITE, 7, VV3_PICK_SITE_BYTES, 0, (void *)vv3_stub },
@@ -631,10 +648,10 @@ static story_detour vv5_detours[] = {
 static const story_game GAMES[6] = {
     { 0 },
     { VV1_WRITES, VV1_WRITE_COUNT, vv1_detours, sizeof vv1_detours / sizeof vv1_detours[0],
-      vv1_custom_detours, 2,
+      vv1_custom_detours, sizeof vv1_custom_detours / sizeof vv1_custom_detours[0],
       VV1_EVENTS, VV1_EVENT_COUNT, vv1_possible, vv1_island_pending, vv1_arm },
     { VV2_WRITES, VV2_WRITE_COUNT, vv2_detours, sizeof vv2_detours / sizeof vv2_detours[0],
-      vv2_custom_detours, 2,
+      vv2_custom_detours, sizeof vv2_custom_detours / sizeof vv2_custom_detours[0],
       VV2_EVENTS, VV2_EVENT_COUNT, vv2_possible, vv2_island_pending, vv2_arm },
     { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, 4, NULL, 0,
       VV3_EVENTS, VV3_EVENT_COUNT, vv3_possible, vv3_island_pending, vv3_arm },
