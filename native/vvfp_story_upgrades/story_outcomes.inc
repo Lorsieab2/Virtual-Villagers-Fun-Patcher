@@ -588,7 +588,9 @@ static unsigned int oc_scope_enter(const unsigned int *regs) {
                     oc.branch = (int)read_u32(regs[6] + (unsigned int)s->choice_off) + s->choice_bias;
                 }
             }
-            if (s->kind == OC_SCOPE_GONG && oc_gong.state == OC_ARMED && oc_gong.game == game) {
+            if (s->kind == OC_SCOPE_GONG && oc_gong.state == OC_ARMED && oc_gong.game == game
+                && STORY_TICK() - oc_gong.tick <= PICK_TIMEOUT_MS
+                && story_current_slot(game) == oc_gong.save_slot) {
                 oc_gong.state = OC_DELIVERED;
                 oc_apply_open(&oc_gong);
             }
@@ -915,8 +917,24 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeOutcomeArm(int game, int slot,
     }
     s.strength = strength;
     s.unlocked = unlocked;
+    if (slot == OC_GONG_SLOT) {
+        oc_arm_set(&oc_gong, game, slot, &s);
+        oc_gong.save_slot = story_current_slot(game);
+        return oc_gong.state;
+    }
     oc_arm(game, slot, &s);
     return oc.state;
+}
+
+/* Addresses of the armed outcomes' fields, for stubs that read them while
+   game code runs: &oc.state, &oc.in_apply, &oc.branch, &oc_gong.state,
+   &oc_gong.in_apply. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeOutcomeFields(unsigned int *out) {
+    out[0] = (unsigned int)(uintptr_t)&oc.state;
+    out[1] = (unsigned int)(uintptr_t)&oc.in_apply;
+    out[2] = (unsigned int)(uintptr_t)&oc.branch;
+    out[3] = (unsigned int)(uintptr_t)&oc_gong.state;
+    out[4] = (unsigned int)(uintptr_t)&oc_gong.in_apply;
 }
 
 /* state, game, slot (-1), branch, in_apply, victim_missed, object. */
@@ -942,6 +960,14 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeOutcomeForce(int state, int b
     oc.branch = branch;
     oc.in_apply = in_apply;
     oc.object = object;
+    memset(oc.calls, 0, sizeof oc.calls);
+}
+
+/* The same for the Gong of Wonder's armed outcome. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGongForce(int state, int in_apply) {
+    oc_gong.state = state;
+    oc_gong.in_apply = in_apply;
+    memset(oc_gong.calls, 0, sizeof oc_gong.calls);
 }
 
 /* Sets the depth of the scope call at `va` of `game`; returns its index or -1. */

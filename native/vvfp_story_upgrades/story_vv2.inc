@@ -82,12 +82,58 @@ static int __cdecl vv2_c_or_b_roll(int bound) {
    of this family.  Taking it disarms the pick, so a condition that fails (the
    chooser only offers events whose condition holds) falls back to the
    family's own stock rerolls. */
+/* ---- Unlocked picks (as story_vv1.inc) --------------------------------------- */
+static int vv2_unlock_c;
+static int vv2_unlock_a;
+
+/* 0x434617 `cmp ebp, 0x2AD` (family C's case through its condition table);
+   passed: 0x434835, the call that runs the case. */
+__declspec(naked) static void vv2_unlock_c_stub(void) {
+    __asm {
+        cmp vv2_unlock_c, 0
+        jne pass
+        cmp ebp, 0x2AD
+        push 0x43461D
+        ret
+    pass:
+        mov vv2_unlock_c, 0
+        push 0x434835
+        ret
+    }
+}
+
+/* 0x41F5A5 `cmp eax, 0x14; mov [esp+0x14], eax` (family A's event through
+   its condition table); passed: the event stored, 0x41F694. */
+__declspec(naked) static void vv2_unlock_a_stub(void) {
+    __asm {
+        cmp vv2_unlock_a, 0
+        jne pass
+        cmp eax, 0x14
+        mov dword ptr [esp + 0x14], eax
+        push 0x41F5AC
+        ret
+    pass:
+        mov vv2_unlock_a, 0
+        mov dword ptr [esp + 0x14], eax
+        push 0x41F694
+        ret
+    }
+}
+
 static int vv2_event_roll(int family, int bound) {
     int slot;
     oc_reroll(2);
     slot = vv2_peek();
     if (slot < 0 || VV2_SLOT_FAMILY(slot) != family || VV2_SLOT_INDEX(slot) >= bound) {
         return VV2_RAND(bound);
+    }
+    if (oc_unlocked(2, slot)) {
+        /* pass the event's own condition for this one roll */
+        if (family == VV2_FAMILY_C) {
+            vv2_unlock_c = 1;
+        } else if (family == VV2_FAMILY_A) {
+            vv2_unlock_a = 1;
+        }
     }
     pick_slot = -1;
     STORY_COUNT(delivered);
@@ -106,6 +152,8 @@ static story_detour vv2_detours[] = {
     { 0x434607u, 5, VV2_ROLL_CASE_C_BYTES, 1, (void *)vv2_case_roll_c },
     { 0x41F59Du, 5, VV2_ROLL_EVENT_A_BYTES, 1, (void *)vv2_event_roll_a },
     { 0x437B0Eu, 5, VV2_ROLL_EVENT_B_BYTES, 1, (void *)vv2_event_roll_b },
+    { 0x434617u, 6, VV2_UNLOCK_C_BYTES, 0, (void *)vv2_unlock_c_stub },
+    { 0x41F5A5u, 7, VV2_UNLOCK_A_BYTES, 0, (void *)vv2_unlock_a_stub },
 };
 
 /* ---- Conditions: each event's own condition, as the game evaluates it ----

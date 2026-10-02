@@ -39,7 +39,7 @@ STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMEN
 CAPTION "Pick Island Event"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Choose the island event that will happen next:", -1, 8, 6, 210, 10
+    LTEXT       "Choose the island event that will happen next:", 3010, 8, 6, 210, 10
     LISTBOX     3001, 8, 18, 210, 254, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
     LTEXT       "", 3002, 226, 18, 246, 44, SS_LEFT
     LTEXT       "How it turns out (Random is the original game's own choice):", -1, 226, 64, 246, 10

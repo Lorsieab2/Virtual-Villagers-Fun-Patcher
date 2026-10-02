@@ -217,6 +217,19 @@ PICK_SITES = {
     "vv4": {"VV4_PICK_SITE_BYTES": (0x4180F7, 7)},
     "vv5": {"VV5_PICK_SITE_BYTES": (0x41895B, 7)},
 }
+# Unlocked picks (A New Home / The Lost Children): the check right after
+# each family's event roll, passed once for a pick the player unlocked.
+UNLOCK_SITES = {
+    "vv1": {"VV1_UNLOCK_ISLAND_BYTES": (0x4284EC, 7), "VV1_UNLOCK_ENCOUNTER_BYTES": (0x418941, 7)},
+    "vv2": {"VV2_UNLOCK_C_BYTES": (0x434617, 6), "VV2_UNLOCK_A_BYTES": (0x41F5A5, 7)},
+}
+UNLOCK_SITE_ROUTINES = {
+    "VV1_UNLOCK_ISLAND_BYTES": "the island event's condition check after its roll (unlocked picks)",
+    "VV1_UNLOCK_ENCOUNTER_BYTES": "the villager encounter's condition check after its roll (unlocked picks)",
+    "VV2_UNLOCK_C_BYTES": "the single-result event's condition check after its roll (unlocked picks)",
+    "VV2_UNLOCK_A_BYTES": "the two-choice event's condition check after its roll (unlocked picks)",
+}
+
 PICK_SITE_ROUTINES = {
     "VV1_ROLL_FAMILY_BYTES": "rand(100) choosing the encounter family",
     "VV1_ROLL_ISLAND_OR_CRATE_BYTES": "rand(100) choosing island event or crate",
@@ -469,7 +482,8 @@ def build() -> None:
         stock_image = Image((ROOT / "inputs" / f"{game}-stock-copy" /
                              {b.id: b for b in patcher.load_builds()}[game].input_name).read_bytes())
         sites = {}
-        for name, (va, n) in (list(PICK_SITES[game].items()) + list(CUSTOM_SITES[game].items())
+        for name, (va, n) in (list(PICK_SITES[game].items()) + list(UNLOCK_SITES.get(game, {}).items())
+                              + list(CUSTOM_SITES[game].items())
                               + list(story_outcome_tables.APPLY_SITES.get(game, {}).items())):
             sites[name] = (va, image.read(va, n))
             if stock_image.read(va, n) != sites[name][1]:
@@ -543,7 +557,8 @@ def build() -> None:
                 "routine": PICK_SITE_ROUTINES[name] + " (Pick Island Event)"
                 if name in PICK_SITE_ROUTINES else (
                     story_outcome_tables.APPLY_ROUTINES[name]
-                    if name in story_outcome_tables.APPLY_ROUTINES else CUSTOM_SITE_ROUTINES[name]),
+                    if name in story_outcome_tables.APPLY_ROUTINES else
+                    UNLOCK_SITE_ROUTINES.get(name) or CUSTOM_SITE_ROUTINES[name]),
                 "installed_by": f"{DLL_NAME}, VvfpStoryInstall",
             }
             for name, (va, expect) in sites.items()

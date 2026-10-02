@@ -87,12 +87,69 @@ static int __cdecl vv1_island_or_crate_roll(int bound) {
     return VV1_SLOT_FAMILY(slot) == VV1_FAMILY_ISLAND ? 0 : bound - 1;
 }
 
+/* ---- Unlocked picks ---------------------------------------------------------
+
+   An event the player picked although its timing or story condition does not
+   hold (or a developer-dead event proven to work) is delivered past that
+   condition, once: when the roll above returns the picked index, the check
+   right after it -- the condition table the chooser looks the index up in --
+   is passed for that one roll and the chooser goes on as for an event whose
+   condition holds.  Otherwise the replaced instruction runs as stock. */
+static int vv1_unlock_island;
+static int vv1_unlock_encounter;
+
+/* 0x4284EC `movzx ecx, byte [edi+0x4286A0]` (the island case's condition
+   class); passed: 0x428671, the call that runs the case. */
+__declspec(naked) static void vv1_unlock_island_stub(void) {
+    __asm {
+        pushfd
+        cmp vv1_unlock_island, 0
+        jne pass
+        popfd
+        movzx ecx, byte ptr [edi + 0x4286A0]
+        push 0x4284F3
+        ret
+    pass:
+        popfd
+        mov vv1_unlock_island, 0
+        push 0x428671
+        ret
+    }
+}
+
+/* 0x418941 `movzx eax, byte [edi+0x4189A4]` (the encounter's condition
+   class); passed: 0x41895D, the variant accepted. */
+__declspec(naked) static void vv1_unlock_encounter_stub(void) {
+    __asm {
+        pushfd
+        cmp vv1_unlock_encounter, 0
+        jne pass
+        popfd
+        movzx eax, byte ptr [edi + 0x4189A4]
+        push 0x418948
+        ret
+    pass:
+        popfd
+        mov vv1_unlock_encounter, 0
+        push 0x41895D
+        ret
+    }
+}
+
 static int vv1_event_roll(int family, int bound) {
     int slot;
     oc_reroll(1);
     slot = vv1_peek();
     if (slot < 0 || VV1_SLOT_FAMILY(slot) != family || VV1_SLOT_INDEX(slot) >= bound) {
         return VV1_RAND(bound);
+    }
+    if (oc_unlocked(1, slot)) {
+        /* pass the event's own condition for this one roll */
+        if (family == VV1_FAMILY_ISLAND) {
+            vv1_unlock_island = 1;
+        } else if (family == VV1_FAMILY_ENCOUNTER) {
+            vv1_unlock_encounter = 1;
+        }
     }
     pick_slot = -1;
     STORY_COUNT(delivered);
@@ -111,6 +168,8 @@ static story_detour vv1_detours[] = {
     { 0x4284DBu, 5, VV1_ROLL_ISLAND_CASE_BYTES, 1, (void *)vv1_island_case_roll },
     { 0x418932u, 5, VV1_ROLL_ENCOUNTER_BYTES, 1, (void *)vv1_encounter_roll },
     { 0x42B03Eu, 5, VV1_ROLL_CRATE_BYTES, 1, (void *)vv1_crate_roll },
+    { 0x4284ECu, 7, VV1_UNLOCK_ISLAND_BYTES, 0, (void *)vv1_unlock_island_stub },
+    { 0x418941u, 7, VV1_UNLOCK_ENCOUNTER_BYTES, 0, (void *)vv1_unlock_encounter_stub },
 };
 
 /* ---- Conditions: each event's own condition, as the game evaluates it ----
