@@ -42,7 +42,9 @@ static const char *c1_arm_refusal(void) {
     if (world == NULL || VV1_ARRAY() == NULL) {
         return "There is no village to have an island event.";
     }
-    if (*(int *)(world + VV1_EVENT_COUNT_FIELD) == 0) {
+    /* The first event is always a villager encounter: a question (shown by
+       the encounters' own popup) may be it, a plain event may not. */
+    if (*(int *)(world + VV1_EVENT_COUNT_FIELD) == 0 && !ce_refusal_for_choice) {
         return "A village's first island event is always a visitor. A custom island event "
                "can be queued once it has happened.";
     }
@@ -656,11 +658,16 @@ static int vv1_set_parents(int index, const ce_change *c) {
 
 static const char *const C1_SKILLS[] = { "Parenting", "Building", "Farming", "Healing", "Research" };
 
+/* The game's own rand(bound) (cdecl, 0..bound-1), for a question's roll. */
+static int c1_rand_below(int n) {
+    return VV1_RAND(n);
+}
+
 static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
         | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
-        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_REVIVE,
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_REVIVE | CAP_CHOICE,
     "A New Home",
     280, 40, 1100,
     VV1_RECORD_COUNT, 0x1C,
@@ -704,7 +711,12 @@ static const ce_adapter C1_ADAPTER = {
     C1_PUZZLE_DEFS, C1_PUZZLE_COUNT, c1_puzzle_solved, c1_puzzle_set,
     c1_cancel, c1_relitter, NULL,
     c1_skeleton, c1_revive,
-    0, 0x358
+    0, 0x358,
+    /* The villager encounters' popup (0x41A460): lines of 49 characters,
+       15 lines (the longest and tallest stock encounter texts, at its 450
+       pixels); the result replaces the whole text, title included; labels
+       of 34 characters (the longest stock label). */
+    49, 15, 49, 15, 1, 34, c1_rand_below
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -730,6 +742,97 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
     oc_island_begin(1);
     TC2(0x428470u, event, type, magnitude);
     oc_island_end(1);
+}
+
+/* ---- Two choices -----------------------------------------------------------
+
+   A question is asked by the villager encounters' own popup.  The trigger
+   (0x4237B3: rescheduled, sounded and counted as stock) builds the dialog on
+   its stack with 0x41A460, whose setup call at 0x41A51F (0x4189E0, thiscall,
+   returns AL; 0 closes the dialog at once) picks a variant and writes the
+   question (+0x74), the two labels (+0x4E92 / +0x4F92, 0x100 bytes each), the
+   variant (+0x5094, 0..15), the villager shown (+0x5098, -1 = none) and the
+   popup's width (+0x60).  The ctor then sizes the popup ONCE, from the
+   question's lines.  A click (handler 0x41A3D0) removes the two buttons,
+   shows OK, stores 1 / 2 (first / second button) in +0x509C and calls the
+   resolve 0x419380 at 0x41A444, which writes the result (+0x2783, drawn in
+   place of the question) and makes the changes.
+
+   The setup detour fills those fields for the asked question: the question
+   padded to the tallest result either button can show (the popup is never
+   resized), the labels, no villager, the stock width, and a variant out of
+   range (16+: the stock resolve's jump-table bound returns without writing,
+   so a missed dispatch changes nothing).  The resolve call is an outcomes
+   scope call (story_outcomes.inc); oc_scope_enter hands it to
+   c1_choice_resolve when ECX is the dialog remembered here.  The dialog is
+   on the trigger's stack, so the next encounter reuses the address: it is
+   forgotten after our resolve and at every setup that is not ours. */
+
+#define C1_DLG_QUESTION 0x74u
+#define C1_DLG_RESULT 0x2783u
+#define C1_DLG_TEXT_BYTES 0x270F
+#define C1_DLG_LABEL_FIRST 0x4E92u
+#define C1_DLG_LABEL_SECOND 0x4F92u
+#define C1_DLG_LABEL_BYTES 0x100
+#define C1_DLG_VARIANT 0x5094u
+#define C1_DLG_SUBJECT 0x5098u
+#define C1_DLG_CHOICE 0x509Cu
+#define C1_DLG_WIDTH 0x60u
+#define C1_ENCOUNTER_WIDTH 0x1C2
+#define CHOICE_VARIANT_NONE 0x7F4B1A2D     /* past every stock jump table */
+
+static void *c1_choice_dialog;
+static char c1_choice_title[CE_TITLE_BYTES];
+
+/* The asked question of `game` into a VV1 / VV2 two-choice dialog: the
+   question padded to the tallest result, the two labels.  The title is kept
+   for a result that can not be written. */
+static void choice_fill_dialog(int game, unsigned char *dialog, unsigned int question,
+                               unsigned int first_label, unsigned int second_label, char *title) {
+    static char tallest[4096];
+    int lines = ce_choice_tallest(game, 0, tallest, sizeof tallest);
+    int other = ce_choice_tallest(game, 1, tallest, sizeof tallest);
+    const char *first = ce_choice_label(game, 0);
+    const char *second = ce_choice_label(game, 1);
+    const char *named = ce_choice_title(game);
+    if (other > lines) {
+        lines = other;
+    }
+    ce_pad_lines((char *)dialog + question, C1_DLG_TEXT_BYTES, lines);
+    lstrcpynA((char *)dialog + first_label, first != NULL ? first : "", C1_DLG_LABEL_BYTES);
+    lstrcpynA((char *)dialog + second_label, second != NULL ? second : "", C1_DLG_LABEL_BYTES);
+    lstrcpynA(title, named != NULL ? named : "", CE_TITLE_BYTES);
+}
+
+/* The replacement for `call 0x4189E0` at 0x41A51F (thiscall, no stack
+   arguments, AL = keep the dialog). */
+static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
+    unsigned char *d = (unsigned char *)dialog;
+    (void)unused_edx;
+    if (!ce_choice_begin(1, (char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
+        c1_choice_dialog = NULL;
+        return (char)TC0(0x4189E0u, dialog);
+    }
+    choice_fill_dialog(1, d, C1_DLG_QUESTION, C1_DLG_LABEL_FIRST, C1_DLG_LABEL_SECOND, c1_choice_title);
+    *(int *)(d + C1_DLG_VARIANT) = CHOICE_VARIANT_NONE;
+    *(int *)(d + C1_DLG_SUBJECT) = -1;
+    *(int *)(d + C1_DLG_WIDTH) = C1_ENCOUNTER_WIDTH;
+    d[C1_DLG_RESULT] = '\0';
+    c1_choice_dialog = dialog;
+    return 1;
+}
+
+/* The question's answer, in place of the resolve 0x419380 (thiscall, no
+   stack arguments): +0x509C is 1 for the first button, 2 for the second. */
+static void __fastcall c1_choice_resolve(void *dialog, void *unused_edx) {
+    unsigned char *d = (unsigned char *)dialog;
+    (void)unused_edx;
+    c1_choice_dialog = NULL;
+    if (!ce_choice_resolve(1, *(int *)(d + C1_DLG_CHOICE) - 1, (char *)d + C1_DLG_RESULT,
+                           C1_DLG_TEXT_BYTES)) {
+        /* Another village by now, or nothing asked: the title alone. */
+        lstrcpynA((char *)d + C1_DLG_RESULT, c1_choice_title, C1_DLG_TEXT_BYTES);
+    }
 }
 
 /* ---- Title ---------------------------------------------------------------

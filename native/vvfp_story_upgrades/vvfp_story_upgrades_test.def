@@ -43,5 +43,20 @@ EXPORTS
     VvfpStoryProbeChooserText=_VvfpStoryProbeChooserText@16
     VvfpStoryProbeOutcomeEvent=_VvfpStoryProbeOutcomeEvent@12
     VvfpStoryProbeOutcomeControl=_VvfpStoryProbeOutcomeControl@16
+    VvfpStoryProbeChoiceSizes=_VvfpStoryProbeChoiceSizes@4
+    VvfpStoryProbeCaps=_VvfpStoryProbeCaps@4
+    VvfpStoryProbeChoiceCap=_VvfpStoryProbeChoiceCap@4
+    VvfpStoryProbeSetRoll=_VvfpStoryProbeSetRoll@4
+    VvfpStoryProbeRollIndex=_VvfpStoryProbeRollIndex@12
+    VvfpStoryProbeRollMany=_VvfpStoryProbeRollMany@20
+    VvfpStoryProbeChoiceRefusal=_VvfpStoryProbeChoiceRefusal@12
+    VvfpStoryProbeQueueChoice=_VvfpStoryProbeQueueChoice@16
+    VvfpStoryProbeSetChoice=_VvfpStoryProbeSetChoice@16
+    VvfpStoryProbeChoiceBegin=_VvfpStoryProbeChoiceBegin@12
+    VvfpStoryProbeChoiceLabel=_VvfpStoryProbeChoiceLabel@8
+    VvfpStoryProbeChoiceTitle=_VvfpStoryProbeChoiceTitle@4
+    VvfpStoryProbeChoiceResolve=_VvfpStoryProbeChoiceResolve@16
+    VvfpStoryProbeChoiceState=_VvfpStoryProbeChoiceState@8
+    VvfpStoryProbeDeliver=_VvfpStoryProbeDeliver@12
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA

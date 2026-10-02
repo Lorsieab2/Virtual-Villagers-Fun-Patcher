@@ -2013,12 +2013,13 @@ class DialogResourceTests(unittest.TestCase):
         ui = (SOURCE / "story_custom_ui.inc").read_text(encoding="utf-8")
         ids = dict(re.findall(r"(IDC_[A-Z_]+) = (\d+)", ui))
         owner = {"IDC_CE_": 302, "IDC_CH_": 303, "IDC_SP_": 304, "IDC_PA_": 305, "IDC_VA_": 306,
-                 "IDC_PZ_": 307, "IDC_RV_": 308, "IDC_UB_": 309}
+                 "IDC_PZ_": 307, "IDC_RV_": 308, "IDC_UB_": 309, "IDC_CC_": 310}
         for name, value in ids.items():
             dialog = next(d for prefix, d in owner.items() if name.startswith(prefix))
             span = {"IDC_CH_TOGGLE_FIRST": 5, "IDC_CH_SKILL_FIRST": 6, "IDC_CH_SKILL_LABEL_FIRST": 6,
                     "IDC_SP_LIKE_FIRST": 3, "IDC_SP_DISLIKE_FIRST": 3, "IDC_SP_SKILL_FIRST": 6,
-                    "IDC_SP_SKILL_LABEL_FIRST": 6}.get(name, 1)
+                    "IDC_SP_SKILL_LABEL_FIRST": 6}.get(name, 2 if name.startswith("IDC_CC_")
+                                                       and name.endswith("_FIRST") else 1)
             for k in range(span):
                 with self.subTest(control=name, k=k):
                     self.assertIn(int(value) + k, dialogs[dialog][1])

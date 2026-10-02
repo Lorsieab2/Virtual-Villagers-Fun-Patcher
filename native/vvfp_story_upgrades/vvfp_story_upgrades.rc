@@ -14,6 +14,8 @@
    307 Puzzles: mark puzzles solved or unsolved.
    308 Revive: skeletons brought back to life.
    309 The unborn baby's father.
+   310 Choices: a two-choice event's button labels and each button's outcomes
+       (each edited in 302's outcome mode) with their chances.
    Controls a game cannot support are disabled at run time and say why. */
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
@@ -57,7 +59,7 @@ BEGIN
     PUSHBUTTON  "Cancel", 2, 408, 278, 64, 15
 END
 
-302 DIALOGEX 0, 0, 420, 416
+302 DIALOGEX 0, 0, 420, 434
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Custom Island Event"
 FONT 9, "Segoe UI"
@@ -65,7 +67,7 @@ BEGIN
     LTEXT       "Event title:", -1, 8, 8, 60, 10
     EDITTEXT    1101, 70, 6, 256, 13, ES_AUTOHSCROLL | WS_TABSTOP
     LTEXT       "", 1124, 330, 8, 82, 10
-    LTEXT       "Description:", -1, 8, 24, 60, 10
+    LTEXT       "Description:", 1139, 8, 24, 60, 10
     EDITTEXT    1102, 70, 22, 342, 48, ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_TABSTOP
     LTEXT       "", 1109, 70, 72, 342, 9
 
@@ -98,10 +100,13 @@ BEGIN
     PUSHBUTTON  "Revive...", 1134, 324, 362, 80, 11, WS_TABSTOP
     PUSHBUTTON  "Remove", 1135, 324, 374, 80, 11, WS_TABSTOP
 
-    PUSHBUTTON  "Not in this game...", 1114, 8, 394, 80, 15, WS_TABSTOP
-    LTEXT       "It happens shortly, as a bought Island Event does.", -1, 94, 397, 178, 12
-    DEFPUSHBUTTON "Queue event", 1, 276, 394, 64, 15
-    PUSHBUTTON  "Cancel", 2, 348, 394, 64, 15
+    AUTOCHECKBOX "Ask a question with two choices", 1137, 8, 396, 150, 10, WS_TABSTOP
+    PUSHBUTTON  "Choices...", 1138, 162, 394, 80, 14, WS_TABSTOP
+
+    PUSHBUTTON  "Not in this game...", 1114, 8, 412, 80, 15, WS_TABSTOP
+    LTEXT       "It happens shortly, as a bought Island Event does.", 1136, 94, 412, 178, 18
+    DEFPUSHBUTTON "Queue event", 1, 276, 412, 64, 15
+    PUSHBUTTON  "Cancel", 2, 348, 412, 64, 15
 END
 
 303 DIALOGEX 0, 0, 460, 346
@@ -301,4 +306,40 @@ BEGIN
     LTEXT       "", 3604, 172, 54, 100, 20
     DEFPUSHBUTTON "OK", 1, 136, 82, 64, 15
     PUSHBUTTON  "Cancel", 2, 208, 82, 64, 15
+END
+
+310 DIALOGEX 0, 0, 440, 276
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Choices"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "The player answers the question with one of two buttons. Each button has one to four outcomes; when it is clicked, one of them happens, picked by the chances.", -1, 8, 6, 424, 18
+
+    GROUPBOX    "First button", -1, 8, 28, 210, 208
+    LTEXT       "Label:", -1, 16, 42, 30, 10
+    EDITTEXT    3701, 48, 40, 162, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Outcomes (double-click to edit):", -1, 16, 58, 190, 10
+    LISTBOX     3711, 16, 70, 194, 80, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    PUSHBUTTON  "Add...", 3721, 16, 154, 60, 14, WS_TABSTOP
+    PUSHBUTTON  "Edit...", 3731, 82, 154, 60, 14, WS_TABSTOP
+    PUSHBUTTON  "Remove", 3741, 148, 154, 62, 14, WS_TABSTOP
+    LTEXT       "Chance of the chosen outcome (1-100):", -1, 16, 175, 140, 10
+    EDITTEXT    3751, 160, 173, 50, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3761, 16, 192, 194, 40
+
+    GROUPBOX    "Second button", -1, 222, 28, 210, 208
+    LTEXT       "Label:", -1, 230, 42, 30, 10
+    EDITTEXT    3702, 262, 40, 162, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Outcomes (double-click to edit):", -1, 230, 58, 190, 10
+    LISTBOX     3712, 230, 70, 194, 80, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    PUSHBUTTON  "Add...", 3722, 230, 154, 60, 14, WS_TABSTOP
+    PUSHBUTTON  "Edit...", 3732, 296, 154, 60, 14, WS_TABSTOP
+    PUSHBUTTON  "Remove", 3742, 362, 154, 62, 14, WS_TABSTOP
+    LTEXT       "Chance of the chosen outcome (1-100):", -1, 230, 175, 140, 10
+    EDITTEXT    3752, 374, 173, 50, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3762, 230, 192, 194, 40
+
+    LTEXT       "", 3771, 8, 240, 280, 30
+    DEFPUSHBUTTON "OK", 1, 296, 254, 64, 15
+    PUSHBUTTON  "Cancel", 2, 368, 254, 64, 15
 END

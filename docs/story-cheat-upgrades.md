@@ -414,6 +414,87 @@ game's conception or delivery checks the carrier's sex, so a man can carry
 (the Heathen Mommy works the same way); an unknown father is "Unknown" with
 the carrier's own looks. How a male carrier's pose looks is not verified.
 
+### Two choices (v1.35.47)
+
+The owner: "I want the player to be able to choose the outcomes. Some buttons
+should have a chance of multiple outcomes too."
+
+Tick **Ask a question with two choices** in the Custom Island Event dialog and
+the description becomes the **question**; **Choices...** opens a dialog with
+the two **button labels** and, for each button, a list of one to four
+**outcomes** (Add / Edit / Remove, double-click to edit) and the **chance** of
+the chosen outcome (1-100). The note under each list shows every outcome's
+share: its chance out of the button's total (chances 3 and 1 are 75% and
+25%); a button with one outcome always gets it. **Edit** opens the Custom
+Island Event dialog again for that outcome: the title is the event's (greyed),
+the text box is the outcome's **Result text**, and every change the Maker
+offers -- food and tech, refill, village changes, new villagers, villager
+changes, food sources, puzzles, revivals -- is that outcome's own. With the box
+ticked the event itself holds no changes (its village controls are off; changes
+added before ticking must be removed). The word / character / line counter
+counts the question against the question popup and a result text against the
+result popup.
+
+When the event happens the game shows the question with the two buttons; the
+click rolls one of that button's outcomes (weighted by the chances, through the
+game's own random routine where the hook names it), makes exactly that
+outcome's changes as a plain custom event makes its own, and shows its result
+text with the usual food / tech and "no room" lines. Nothing changes before the
+click. Queueing is the plain event's: the same lock, the same ten-minute lapse,
+bound to the save slot and the Start Over / delete generation; an answer in a
+village other than the one the question was asked in changes nothing.
+
+The picture: A New Home and The Lost Children show the question without a
+villager, as their own encounter popup can. The Secret City, The Tree of Life
+and New Believers must show one (their two-button popup is not drawn without
+it), so a random living villager is featured -- in New Believers always a
+believer, never a Heathen. Choosing that villager is not offered yet.
+
+Every value is checked when OK is pressed and again when the event is bought:
+both labels non-empty and within the game's label width (letters, numbers,
+spaces and . , ! ? : - ' only), one to four outcomes per button, each chance
+1-100, each result text non-empty and fitting the result popup, and the usual
+room checks for each outcome's new villagers and babies. The engine is
+`ce_choice_*` in `native/vvfp_story_upgrades/story_custom.inc`; the data is
+`ce_choice` / `ce_outcome` in `story_custom.h`.
+
+**Each game's own two-button popup asks the question** (the `CAP_CHOICE`
+capability in each `story_c*.inc` adapter, with the popup's question / result
+widths and line counts, the label width and the game's own rand). In every
+game the question and its result share one dialog: a click removes the two
+buttons, the result replaces the question and OK closes it.
+
+| Game | The popup | Where | Text (characters x lines), label |
+| --- | --- | --- | --- |
+| A New Home | the villager encounters' (0x41A460) | the family rolls send a question there; the setup call 0x41A51F is replaced: question +0x74, labels +0x4E92 / +0x4F92, no villager, a variant past the stock jump table; the resolve call 0x41A444 (an outcomes scope call) is handed to the answer for that dialog only | 49 x 15, 34 |
+| The Lost Children | family A's (0x422380) | the same at 0x42244A (question +0x7C, labels +0x4E9A / +0x4F9A) and 0x422364 | 46 x 18, 30 |
+| The Secret City | the event dialog 0x4192F0 | the pick site hands it a copy of the two-choice vtable 0x47EA40: title / question / labels / result through the custom ids, a living villager shown (pose 5), the answer on the click (+0x34), nothing more on OK | 48 x 11, 32 |
+| The Tree of Life | 0x417790 | the same, vtable 0x48CB64 | 48 x 11, 34 |
+| New Believers | 0x418020 | the same, vtable 0x497D34; the villager shown is a believer, never a Heathen | 48 x 11 (results 17), 38 |
+
+The limits are each game's longest and tallest stock two-choice texts and
+labels. A New Home and The Lost Children size the popup once, from the
+question, so the question is padded with empty lines to the tallest result
+either button can show (its text plus every outcome line its changes could
+print); The Secret City, The Tree of Life and New Believers size it from the
+question and both buttons' tallest results. In A New Home and The Lost
+Children the result repeats the title (the result replaces the whole text);
+in the other three the title stays above it. Their two-choice popup is never
+shown without a villager, so a question waits (and lapses) while nobody living
+can be shown; the villager is chosen at random (the editor has no pick for it
+yet). A New Home's and The Lost Children's first island event is always their
+two-choice family, so a question may be that event (a plain one may not).
+
+Evidence level: emulation of each game's rendered executable in all three
+population modes (`tests/test_story_two_choice_hooks.py`: the question,
+labels and fields in each game's own dialog, the game's own click handler
+reaching the answer, the rolled outcome applied once and its text shown, a
+natural encounter and another dialog left to the game, the remembered dialog
+forgotten, a missed dispatch writing nothing; 16 mutations of the hooks, each
+caught), and **live in all five games** (v1.35.47 test build, 2026-10-02): the
+question in each game's own popup, a click, the outcome's result and its food
+change in memory (both outcomes of a 50/50 button seen), nothing more on OK.
+
 ### Custom titles
 
 A villager's title can be replaced by the player's text (1-31 letters,

@@ -136,6 +136,17 @@ typedef struct {
                                                          own predicate), 0 refused */
     int faction_count;             /* CAP_SPAWN_FACTION: statuses[0..n-1] are factions */
     unsigned int off_pregnant;     /* non-zero while expecting (every game's own test) */
+    /* Two-choice events (CAP_CHOICE), set by the game's delivery hook.  A
+       field left 0 takes the conservative default named. */
+    int question_width;            /* the question popup's characters a line (0 = text_width) */
+    int question_lines;            /* its lines, title included as text_lines (0 = text_lines) */
+    int result_width;              /* the result popup's characters a line (0 = the question's) */
+    int result_lines;              /* its lines (0 = the question's) */
+    int result_has_title;          /* 1 = the result text starts with the title and four line
+                                      breaks, as the plain popup of a one-string game does */
+    int label_width;               /* a button label's characters (0 = CE_LABEL_DEFAULT_WIDTH) */
+    int (*rand_below)(int n);      /* the game's own random routine, 0..n-1 (NULL = the
+                                      companion's own generator) */
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
@@ -148,6 +159,20 @@ static DWORD ce_armed_tick;
 static story_village ce_armed_village;   /* the village it was queued in */
 static ce_result ce_last_result;
 static int ce_last_lapsed;         /* the last queued event lapsed before it could happen */
+/* Two-choice events.  Two stores, so a question the game is showing (asked,
+   waiting for a click) is never overwritten by the next event armed: the
+   armed choice is ce_choice_store[ce_armed_store] when ce_armed_is_choice,
+   the asked one ce_choice_store[ce_asked_store] while ce_asked. */
+static ce_choice ce_choice_store[2];
+static int ce_armed_is_choice;
+static int ce_armed_store;
+static int ce_asked;                /* 1 while the question waits for a click */
+static int ce_asked_store;
+static int ce_asked_game;
+static story_village ce_asked_village;
+static char ce_asked_title[CE_TITLE_BYTES];
+static int ce_last_button = -1;     /* the last resolved button and its rolled outcome */
+static int ce_last_outcome = -1;
 
 /* An armed event the game has not run within PICK_TIMEOUT_MS is dropped,
    exactly like a pick.  Returns 1 when one was dropped. */
@@ -171,6 +196,17 @@ static int ce_drop_lapsed(void) {
 static int ce_pending(int game) {
     ce_drop_lapsed();
     return ce_armed && ce_armed_event.game == game;
+}
+
+/* Whether a two-choice event is armed for `game`: its delivery hook asks
+   the question (ce_choice_begin) instead of showing the plain popup. */
+static int ce_choice_pending(int game) {
+    return ce_pending(game) && ce_armed_is_choice;
+}
+
+/* Whether a plain (one-popup) custom event is armed for `game`. */
+static int ce_plain_pending(int game) {
+    return ce_pending(game) && !ce_armed_is_choice;
 }
 
 /* ---- Record helpers ------------------------------------------------------ */
@@ -469,22 +505,73 @@ static void ce_line(ce_writer *w, const char *text) {
     ce_wrap(w, text);
 }
 
-/* For the editor's counter: the panel lines the title and description take
-   when laid out exactly as ce_compose lays them out (outcome lines aside),
-   counted past the panel's limit.  The panel holds a->text_lines. */
-static int ce_lines_used(const ce_adapter *a, const char *title, const char *text) {
+/* A popup's text panel: characters a line, lines (title included when it
+   shares the text), whether the title leads the text, and whether the title
+   must fit its one line. */
+typedef struct {
+    int width;
+    int lines;
+    int with_title;
+    int check_title;
+} ce_layout;
+
+/* The plain island-event popup. */
+static ce_layout ce_plain_layout(const ce_adapter *a) {
+    ce_layout l;
+    l.width = a->text_width;
+    l.lines = a->text_lines;
+    l.with_title = !a->title_separate;
+    l.check_title = 1;
+    return l;
+}
+
+/* The two-choice question popup: the title and the question. */
+static ce_layout ce_question_layout(const ce_adapter *a) {
+    ce_layout l = ce_plain_layout(a);
+    if (a->question_width > 0) {
+        l.width = a->question_width;
+    }
+    if (a->question_lines > 0) {
+        l.lines = a->question_lines;
+    }
+    return l;
+}
+
+/* The popup after a button: the rolled outcome's result text. */
+static ce_layout ce_result_layout(const ce_adapter *a) {
+    ce_layout l = ce_question_layout(a);
+    if (a->result_width > 0) {
+        l.width = a->result_width;
+    }
+    if (a->result_lines > 0) {
+        l.lines = a->result_lines;
+    }
+    l.with_title = a->result_has_title != 0;
+    l.check_title = 0;
+    return l;
+}
+
+/* A button label's characters. */
+static int ce_label_width(const ce_adapter *a) {
+    return a->label_width > 0 ? a->label_width : CE_LABEL_DEFAULT_WIDTH;
+}
+
+/* For the editor's counter: the panel lines the title and text take when
+   laid out exactly as ce_compose_in lays them out with `l` (outcome lines
+   aside), counted past the panel's limit. */
+static int ce_lines_used_in(const ce_layout *l, const char *title, const char *text) {
     static char scratch[4096];
     ce_writer w;
     memset(&w, 0, sizeof w);
     w.out = scratch;
     w.size = sizeof scratch;
-    w.width = a->text_width;
+    w.width = l->width;
     w.max_lines = 1000;
     scratch[0] = '\0';
-    if (text[0] == '\0' && (a->title_separate || title[0] == '\0')) {
+    if (text[0] == '\0' && (!l->with_title || title[0] == '\0')) {
         return 0;
     }
-    if (!a->title_separate) {
+    if (l->with_title) {
         ce_wrap(&w, title);
         ce_newline(&w);
         ce_newline(&w);
@@ -521,25 +608,26 @@ static int ce_char_count(const char *text) {
     return n;
 }
 
-/* The popup text: the title on the first line, then (as every stock event
-   does) three empty lines and the description, then the outcome lines.
-   Returns 0 when it does not fit the game's panel. */
-static int ce_compose(const ce_adapter *a, const ce_event *e, const ce_result *r,
-                      char *out, int size) {
+/* The popup text laid out with `l`: the title on the first line (when it
+   leads the text), then (as every stock event does) three empty lines and
+   the event's text, then the outcome lines.  Returns 0 when it does not fit
+   the game's panel. */
+static int ce_compose_in(const ce_adapter *a, const ce_layout *l, const char *title,
+                         const ce_event *e, const ce_result *r, char *out, int size) {
     ce_writer w;
     char line[160];
     memset(&w, 0, sizeof w);
     w.out = out;
     w.size = size;
-    w.width = a->text_width;
-    w.max_lines = a->text_lines - 1;
+    w.width = l->width;
+    w.max_lines = l->lines - 1;
     out[0] = '\0';
-    if (lstrlenA(e->title) > a->title_width) {
+    if (l->check_title && lstrlenA(title) > a->title_width) {
         return 0;                      /* the title is one line */
     }
-    if (!a->title_separate) {
+    if (l->with_title) {
         /* As every stock event: the title, then four line breaks. */
-        ce_wrap(&w, e->title);
+        ce_wrap(&w, title);
         ce_newline(&w);
         ce_newline(&w);
         ce_newline(&w);
@@ -595,6 +683,13 @@ static int ce_compose(const ce_adapter *a, const ce_event *e, const ce_result *r
         }
     }
     return !w.overflow;
+}
+
+/* The plain popup text. */
+static int ce_compose(const ce_adapter *a, const ce_event *e, const ce_result *r,
+                      char *out, int size) {
+    ce_layout l = ce_plain_layout(a);
+    return ce_compose_in(a, &l, e->title, e, r, out, size);
 }
 
 /* ---- Record writes the adapters share ------------------------------------ */
@@ -928,10 +1023,11 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
 /* Called by a game's delivery hook: if a custom event is armed for `game`,
    take it, apply it and write the popup text into `text` (`size` bytes).
    Returns 1 when the custom event was delivered (the caller must then NOT
-   run the game's own event choice), 0 otherwise. */
+   run the game's own event choice), 0 otherwise -- also when the armed
+   event asks a question: that one is delivered by ce_choice_begin. */
 static int ce_deliver(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
-    if (a == NULL || !ce_pending(game)) {
+    if (a == NULL || !ce_plain_pending(game)) {
         return 0;
     }
     ce_armed = 0;
@@ -947,6 +1043,23 @@ static int ce_deliver(int game, char *text, int size) {
 
 /* ---- Queueing ---------------------------------------------------------- */
 
+/* Why the changes of `e` cannot be made right now: new villagers or babies
+   in a village the game's own predicate says is full.  NULL otherwise. */
+static const char *ce_room_refusal(const ce_adapter *a, const ce_event *e) {
+    int i;
+    for (i = 0; i < e->spawn_groups; ++i) {
+        if (e->spawns[i].count > 0 && !a->room()) {
+            return "The village is full: there is no room for new villagers.";
+        }
+    }
+    for (i = 0; i < e->change_count; ++i) {
+        if (e->changes[i].litter > 0 && !a->room()) {
+            return "The village is full: there is no room for babies.";
+        }
+    }
+    return NULL;
+}
+
 /* Why `e` cannot be queued in `game` right now, or NULL.  The checks the
    dialogs make, repeated here because the village may have moved on while
    the dialogs were open. */
@@ -954,7 +1067,6 @@ static const char *ce_refusal(int game, const ce_event *e) {
     const ce_adapter *a = ce_adapter_for(game);
     const char *reason;
     char text[1024];
-    int i;
     if (a == NULL) {
         return "Custom Island Event is not available in this game.";
     }
@@ -972,15 +1084,433 @@ static const char *ce_refusal(int game, const ce_event *e) {
     if (reason != NULL) {
         return reason;
     }
-    for (i = 0; i < e->spawn_groups; ++i) {
-        if (e->spawns[i].count > 0 && !a->room()) {
-            return "The village is full: there is no room for new villagers.";
-        }
+    return ce_room_refusal(a, e);
+}
+
+/* ---- Two-choice events ------------------------------------------------------
+
+   ARMING.  A two-choice event is armed exactly as a plain one (ce_arm_with
+   in story_custom_ui.inc): the same lock, the same 10-minute lapse, bound
+   to the same save slot and reset generation.  ce_deliver leaves it alone.
+
+   ASKING.  The game's delivery hook calls ce_choice_begin where it would
+   call ce_deliver: the event is taken (so the lock is released as for a
+   delivered event), the question popup's text is written and the two labels
+   are ce_choice_label(game, 0 / 1).  Nothing in the village changes yet.
+
+   ANSWERING.  When the player clicks a button the hook calls
+   ce_choice_resolve(game, button, ...) on the game's own thread: one of
+   that button's outcomes is rolled, weighted by the chances, through the
+   game's own random routine (ce_adapter.rand_below); its changes are
+   applied by ce_apply exactly as a plain event's are, and the result text
+   (the outcome's text plus the usual outcome lines) is written for the
+   game's result popup. */
+
+/* 1 while ce_choice_refusal asks the adapter's arm_refusal: the event is a
+   question (A New Home / The Lost Children then allow the first event). */
+static int ce_refusal_for_choice;
+
+#ifdef VVFP_TEST
+static int test_choice_cap;        /* TEST build: every game may ask (the hooks are tested apart) */
+static int test_roll = -1;         /* TEST build: the next roll, -1 = the real source */
+#endif
+
+/* Whether `game` can ask a question: its delivery hook is in place. */
+static int ce_choice_available(const ce_adapter *a) {
+#ifdef VVFP_TEST
+    if (test_choice_cap) {
+        return 1;
     }
-    for (i = 0; i < e->change_count; ++i) {
-        if (e->changes[i].litter > 0 && !a->room()) {
-            return "The village is full: there is no room for babies.";
+#endif
+    return (a->caps & CAP_CHOICE) != 0;
+}
+
+/* Whether `e` changes anything at all. */
+static int ce_has_effects(const ce_event *e) {
+    return e->food_op != CE_AMOUNT_NONE || e->tech_op != CE_AMOUNT_NONE || e->refill || e->village != 0
+        || e->spawn_groups > 0 || e->change_count > 0 || e->value_count > 0 || e->puzzle_count > 0
+        || e->revive_count > 0;
+}
+
+/* Why `label` cannot be a button's label in this game, or NULL. */
+static const char *ce_label_refusal(const ce_adapter *a, const char *label) {
+    static char reason[96];
+    if (ce_word_count(label) == 0) {
+        return "Give both buttons a label.";
+    }
+    if (!ce_text_ok(label, 0)) {
+        return "A button label may use letters, numbers, spaces and . , ! ? : - ' only.";
+    }
+    if (lstrlenA(label) > ce_label_width(a)) {
+        wsprintfA(reason, "A button label is %d characters at most in this game.", ce_label_width(a));
+        return reason;
+    }
+    return NULL;
+}
+
+/* Why `e` cannot be an outcome (its result text and changes) of an event
+   titled `title`, or NULL. */
+static const char *ce_result_refusal(const ce_adapter *a, const ce_event *e, const char *title) {
+    static char text[2048];
+    ce_layout l = ce_result_layout(a);
+    if (ce_word_count(e->text) == 0) {
+        return "Give each outcome a result text.";
+    }
+    if (!ce_text_ok(e->text, 1)) {
+        return "The result text may use letters, numbers, spaces and . , ! ? : - ' only.";
+    }
+    if (!ce_compose_in(a, &l, title, e, NULL, text, sizeof text)) {
+        return "The result text must fit the island event panel. Shorten it.";
+    }
+    return ce_room_refusal(a, e);
+}
+
+/* Why outcome `o` cannot be part of an event titled `title`, or NULL. */
+static const char *ce_outcome_refusal(const ce_adapter *a, const ce_outcome *o, const char *title) {
+    if (o->chance < 1 || o->chance > CE_MAX_CHANCE) {
+        return "Each outcome's chance is 1 to 100.";
+    }
+    return ce_result_refusal(a, &o->effects, title);
+}
+
+/* Why the two buttons of `c` (labels and outcomes) cannot be queued with an
+   event titled `title`, or NULL; the reason names the button and outcome. */
+static const char *ce_buttons_refusal(const ce_adapter *a, const ce_choice *c, const char *title) {
+    static const char *const BUTTON[2] = { "First button", "Second button" };
+    static char reason[400];
+    const char *why;
+    int b;
+    int k;
+    for (b = 0; b < 2; ++b) {
+        why = ce_label_refusal(a, c->labels[b]);
+        if (why != NULL) {
+            wsprintfA(reason, "%s: %s", BUTTON[b], why);
+            return reason;
+        }
+        if (c->outcome_count[b] < 1 || c->outcome_count[b] > CE_MAX_OUTCOMES) {
+            wsprintfA(reason, "%s: give it one to %d outcomes.", BUTTON[b], CE_MAX_OUTCOMES);
+            return reason;
+        }
+        for (k = 0; k < c->outcome_count[b]; ++k) {
+            why = ce_outcome_refusal(a, &c->outcomes[b][k], title);
+            if (why != NULL) {
+                wsprintfA(reason, "%s, outcome %d: %s", BUTTON[b], k + 1, why);
+                return reason;
+            }
         }
     }
     return NULL;
+}
+
+/* Why the two-choice event (`e`: the title and the question; `c`: the
+   buttons) cannot be queued in `game` right now, or NULL.  A choice that is
+   not enabled is a plain event (ce_refusal). */
+static const char *ce_choice_refusal(int game, const ce_event *e, const ce_choice *c) {
+    const ce_adapter *a = ce_adapter_for(game);
+    const char *why;
+    char text[1024];
+    if (a == NULL || !c->enabled) {
+        return ce_refusal(game, e);
+    }
+    if (!ce_choice_available(a)) {
+        return "This game can not ask a question with two choices yet.";
+    }
+    if (e->title[0] == '\0') {
+        return "Give the event a title.";
+    }
+    if (!ce_text_ok(e->title, 0) || !ce_text_ok(e->text, 1)) {
+        return "The title and question may use letters, numbers, spaces and . , ! ? : - ' only.";
+    }
+    {
+        ce_layout l = ce_question_layout(a);
+        if (!ce_compose_in(a, &l, e->title, e, NULL, text, sizeof text)) {
+            return "The title must fit on one line and the question must fit the island event panel. "
+                   "Shorten them.";
+        }
+    }
+    if (ce_has_effects(e)) {
+        return "With a question, every change belongs to an outcome. Remove the event's own "
+               "changes, or untick \"Ask a question with two choices\".";
+    }
+    /* A New Home's and The Lost Children's first island event is always
+       their two-choice family, which is the one a question is shown by:
+       their arm_refusal lets a question be that event (owner, 2026-10-02). */
+    ce_refusal_for_choice = 1;
+    why = a->arm_refusal();
+    ce_refusal_for_choice = 0;
+    if (why != NULL) {
+        return why;
+    }
+    return ce_buttons_refusal(a, c, e->title);
+}
+
+/* The outcome a roll picks: `roll` is 0..(the chances' sum - 1); outcome i
+   takes chances[i] of those values, in order. */
+static int ce_roll_index(const int *chances, int count, int roll) {
+    int i;
+    for (i = 0; i < count - 1; ++i) {
+        if (roll < chances[i]) {
+            return i;
+        }
+        roll -= chances[i];
+    }
+    return count - 1;
+}
+
+/* The companion's own generator, for a game whose hook names no random
+   routine: xorshift32, seeded once from the clock. */
+static unsigned int ce_rng;
+
+/* A random number 0..n-1: the game's own routine when the adapter names
+   one.  One outcome is never rolled for (the game's own random sequence is
+   left exactly as it was). */
+static int ce_random_below(const ce_adapter *a, int n) {
+    int r;
+    if (n <= 1) {
+        return 0;
+    }
+#ifdef VVFP_TEST
+    if (test_roll >= 0) {
+        r = test_roll;
+        test_roll = -1;
+        return r % n;
+    }
+#endif
+    if (a->rand_below != NULL) {
+        r = a->rand_below(n) % n;
+        return r < 0 ? r + n : r;
+    }
+    if (ce_rng == 0) {
+        ce_rng = (GetTickCount() * 2654435761u) ^ 0xA5A5A5A5u;
+        if (ce_rng == 0) {
+            ce_rng = 1;
+        }
+    }
+    ce_rng ^= ce_rng << 13;
+    ce_rng ^= ce_rng >> 17;
+    ce_rng ^= ce_rng << 5;
+    return (int)((ce_rng >> 8) % (unsigned int)n);
+}
+
+/* Remember the choices of the event being armed for `game` (NULL or not
+   enabled: a plain event), never in the store a question still on screen
+   is waiting in. */
+static void ce_store_choice(int game, const ce_choice *c) {
+    int b;
+    int k;
+    ce_armed_is_choice = c != NULL && c->enabled;
+    if (!ce_armed_is_choice) {
+        return;
+    }
+    ce_armed_store = ce_asked && ce_asked_store == 0 ? 1 : 0;
+    ce_choice_store[ce_armed_store] = *c;
+    for (b = 0; b < 2; ++b) {
+        for (k = 0; k < CE_MAX_OUTCOMES; ++k) {
+            ce_choice_store[ce_armed_store].outcomes[b][k].effects.game = game;
+        }
+    }
+}
+
+/* Roll one of `button`'s outcomes of `c`. */
+static int ce_choice_roll(const ce_adapter *a, const ce_choice *c, int button) {
+    int chances[CE_MAX_OUTCOMES];
+    int count = c->outcome_count[button];
+    int total = 0;
+    int k;
+    if (count < 1) {
+        return -1;
+    }
+    if (count > CE_MAX_OUTCOMES) {
+        count = CE_MAX_OUTCOMES;
+    }
+    for (k = 0; k < count; ++k) {
+        chances[k] = c->outcomes[button][k].chance;
+        if (chances[k] < 1) {
+            chances[k] = 1;            /* refused when queued; never a 0 or negative share */
+        }
+        total += chances[k];
+    }
+    return ce_roll_index(chances, count, ce_random_below(a, total));
+}
+
+/* (a) THE QUESTION.  Called by a game's delivery hook where it calls
+   ce_deliver: if a two-choice event is armed for `game`, take it and write
+   the question popup's text (laid out with the question layout: the title
+   leads it unless the game shows the title on its own, see
+   ce_choice_title) into `text` (`size` bytes).  Returns 1 when the question
+   is asked (the caller then shows the game's two-button popup with the
+   labels ce_choice_label(game, 0) and (game, 1)), 0 otherwise. */
+static int ce_choice_begin(int game, char *text, int size) {
+    const ce_adapter *a = ce_adapter_for(game);
+    ce_layout l;
+    if (a == NULL || !ce_choice_pending(game)) {
+        return 0;
+    }
+    ce_armed = 0;
+    ce_armed_is_choice = 0;
+    ce_asked = 1;
+    ce_asked_store = ce_armed_store;
+    ce_asked_game = game;
+    ce_asked_village = ce_armed_village;
+    lstrcpynA(ce_asked_title, ce_armed_event.title, sizeof ce_asked_title);
+    l = ce_question_layout(a);
+    ce_compose_in(a, &l, ce_armed_event.title, &ce_armed_event, NULL, text, size);
+    STORY_COUNT(delivered);
+    return 1;
+}
+
+/* Whether `game`'s question is waiting for a click. */
+static int ce_choice_asked(int game) {
+    return ce_asked && ce_asked_game == game;
+}
+
+/* The asked question's button label (button 0 or 1), or NULL. */
+static const char *ce_choice_label(int game, int button) {
+    if (!ce_choice_asked(game) || button < 0 || button > 1) {
+        return NULL;
+    }
+    return ce_choice_store[ce_asked_store].labels[button];
+}
+
+/* The asked question's title (for a game that shows the title on its own),
+   or NULL. */
+static const char *ce_choice_title(int game) {
+    return ce_choice_asked(game) ? ce_asked_title : NULL;
+}
+
+/* (b) THE ANSWER.  Called by the hook, on the game's own thread, when the
+   player clicks button 0 or 1 of the asked question: roll that button's
+   outcome, apply its changes (ce_apply, as a plain event) and write the
+   result popup's text (the result layout: the outcome's result text, then
+   the usual outcome lines; when those do not fit, the result text alone)
+   into `text`.  Returns 1 when done.  0 (nothing applied, nothing written)
+   when no question of `game` is waiting, the button is not 0 / 1, or the
+   village is no longer the one the event was queued in.  Answers once. */
+static int ce_choice_resolve(int game, int button, char *text, int size) {
+    const ce_adapter *a = ce_adapter_for(game);
+    const ce_choice *c;
+    const ce_outcome *o;
+    ce_layout l;
+    int k;
+    if (a == NULL || !ce_choice_asked(game) || button < 0 || button > 1) {
+        return 0;
+    }
+    ce_asked = 0;
+    if (!story_village_is(game, &ce_asked_village)) {
+        STORY_COUNT(discarded);
+        return 0;
+    }
+    c = &ce_choice_store[ce_asked_store];
+    k = ce_choice_roll(a, c, button);
+    if (k < 0) {
+        return 0;
+    }
+    o = &c->outcomes[button][k];
+    ce_apply(a, &o->effects, &ce_last_result);
+    l = ce_result_layout(a);
+    if (!ce_compose_in(a, &l, ce_asked_title, &o->effects, &ce_last_result, text, size)) {
+        /* The outcome lines do not fit: the result text was checked when
+           the event was queued, so show it alone. */
+        ce_compose_in(a, &l, ce_asked_title, &o->effects, NULL, text, size);
+    }
+    ce_last_button = button;
+    ce_last_outcome = k;
+    return 1;
+}
+
+/* The lines of `text` as a popup shows them. */
+static int ce_text_lines(const char *text) {
+    int n = 1;
+    if (text[0] == '\0') {
+        return 0;
+    }
+    for (; *text != '\0'; ++text) {
+        if (*text == '\n') {
+            ++n;
+        }
+    }
+    return n;
+}
+
+/* The TALLEST result text `button` of `game`'s asked question can show:
+   each outcome's result text with every outcome line its changes could
+   print (the largest numbers), laid out as ce_choice_resolve lays it out --
+   or, when those lines do not fit, the text alone padded to the result
+   popup's height.  Written to `out`; returns its lines (0 when nothing is
+   asked).  A game that sizes its popup before the click (VV1 / VV2: from
+   the question alone; VV3-VV5: from the question and both results) sizes
+   it with this, so the result shown after the click always fits. */
+static int ce_choice_tallest(int game, int button, char *out, int size) {
+    static char scratch[4096];
+    const ce_adapter *a = ce_adapter_for(game);
+    const ce_choice *c;
+    ce_layout l;
+    int best = 0;
+    int k;
+    if (size > 0) {
+        out[0] = '\0';
+    }
+    if (a == NULL || !ce_choice_asked(game) || button < 0 || button > 1 || size <= 0) {
+        return 0;
+    }
+    c = &ce_choice_store[ce_asked_store];
+    l = ce_result_layout(a);
+    for (k = 0; k < c->outcome_count[button] && k < CE_MAX_OUTCOMES; ++k) {
+        const ce_event *e = &c->outcomes[button][k].effects;
+        ce_result r;
+        int lines;
+        int i;
+        int babies = 0;
+        memset(&r, 0, sizeof r);
+        for (i = 0; i < e->change_count; ++i) {
+            if (e->changes[i].litter > 0) {
+                babies = 1;
+            }
+        }
+        if (e->food_op != CE_AMOUNT_NONE) {
+            r.food_after = 9999999;
+        }
+        if (e->tech_op != CE_AMOUNT_NONE) {
+            r.tech_after = 9999999;
+        }
+        if (e->spawn_groups > 0 || babies) {
+            r.no_room_spawns = 999;
+        }
+        if (e->revive_count > 0) {
+            r.no_room_revives = 999;
+        }
+        if (e->change_count > 0 || e->revive_count > 0) {
+            r.skipped = 999;
+        }
+        if (ce_has_effects(e)) {
+            r.refused = 999;
+        }
+        if (ce_compose_in(a, &l, ce_asked_title, e, &r, scratch, sizeof scratch)) {
+            lines = ce_text_lines(scratch);
+        } else {
+            /* ce_choice_resolve then shows the text alone; the popup must
+               still be as tall as the outcome lines would have made it. */
+            ce_compose_in(a, &l, ce_asked_title, e, NULL, scratch, sizeof scratch);
+            lines = l.lines;
+            while (ce_text_lines(scratch) < lines && lstrlenA(scratch) + 2 < (int)sizeof scratch) {
+                lstrcatA(scratch, "\n");
+            }
+        }
+        if (lines > best) {
+            best = lines;
+            lstrcpynA(out, scratch, size);
+        }
+    }
+    return best;
+}
+
+/* Pads `text` (`size` bytes) with line breaks to `lines` lines. */
+static void ce_pad_lines(char *text, int size, int lines) {
+    int n = lstrlenA(text);
+    int have = ce_text_lines(text);
+    while (have < lines && n + 1 < size) {
+        text[n++] = '\n';
+        text[n] = '\0';
+        ++have;
+    }
 }

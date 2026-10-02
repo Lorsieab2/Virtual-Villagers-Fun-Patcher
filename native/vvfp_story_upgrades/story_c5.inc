@@ -646,11 +646,23 @@ static const char *const C5_SKILLS[] = {
     "Farming", "Parenting", "Healing", "Research", "Building", "Devotion"
 };
 
+typedef int (__cdecl *c5_rand_fn)(int bound);
+
+/* The game's own rand(bound) 0x403660 (cdecl, 0..bound-1). */
+static int c5_rand_below(int n) {
+    return ((c5_rand_fn)(uintptr_t)0x403660u)(n);
+}
+
+/* A villager a question may feature: a believer, never a Heathen. */
+static int c5_believer(const unsigned char *r) {
+    return !c5_heathen(r);
+}
+
 static const ce_adapter C5_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT | CAP_PREFS
         | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
         | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_SPAWN_FACTION | CAP_VALUES
-        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE,
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "New Believers",
     0x118, 40, 1100,
     C5_COUNT, 0x19,
@@ -690,7 +702,12 @@ static const ce_adapter C5_ADAPTER = {
     C5_PUZZLE_DEFS, C5_PUZZLE_COUNT, c5_puzzle_solved, c5_puzzle_set,
     c5_cancel, c5_relitter, c5_unborn,
     c5_skeleton, c5_revive,
-    2, 0x1C4C
+    2, 0x1C4C,
+    /* The two-choice popup (0x418020): 48 characters, 11 lines for the
+       question and 17 for a result (the tallest stock question and result:
+       Innovation in Farming's), the title above the result, labels of 38
+       characters (the longest stock). */
+    48, 11, 48, 17, 0, 38, c5_rand_below
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -719,6 +736,13 @@ static void *c5_custom_object(void) {
     functions[1] = (void *)c5_body_id;
     functions[2] = (void *)ce_object_nothing;
     return ce_build_object(0x49762Cu, slots, functions, 3);
+}
+
+/* A question (story_objects.inc): a copy of the first two-choice event's
+   vtable (0x497D34) with the custom ids, featuring a living believer. */
+static void *c5_choice_object(void) {
+    return choice_object(5, C5_STRING_TABLE, C5_TITLE_ID, C5_BODY_ID, 0, 0x497D34u,
+                         (void *)c5_title_id, c5_believer);
 }
 
 /* ---- Title ---------------------------------------------------------------

@@ -67,6 +67,12 @@ DESCRIPTION = (
     "this game's own code supports is offered; the rest is shown as not available in "
     "this game. A custom title is kept per save slot in a file beside the saves and is "
     "removed by Start Over. "
+    "A custom event can also ask a question with two choices: the player writes the question, "
+    "the two button labels and, for each button, one to four outcomes, each with its own chance, "
+    "result text and changes (everything the event itself can change); clicking a button rolls "
+    "one of its outcomes by those chances and makes only that outcome's changes. **A question "
+    "with two choices can be queued only in a game whose own two-button island-event popup the "
+    "companion hooks; in any other game the option is shown as not available yet.** "
     "Pick Island Event also lets the player set how the picked event turns out. Each setting "
     "starts at \"Random (original game)\" and offers only what that event's own code can "
     "produce in this game: its result (for a two-choice event, the result of each choice -- the "
@@ -271,10 +277,12 @@ CUSTOM_SITES = {
     "vv1": {
         "VV1_CUSTOM_CHOOSE_BYTES": (0x428777, 5),
         "VV1_TITLE_SITE_BYTES": (0x41FD75, 5),
+        "VV1_CHOICE_SETUP_BYTES": (0x41A51F, 5),
     },
     "vv2": {
         "VV2_CUSTOM_CHOOSE_BYTES": (0x4349B2, 5),
         "VV2_TITLE_SITE_BYTES": (0x429DE3, 5),
+        "VV2_CHOICE_SETUP_BYTES": (0x42244A, 5),
     },
     "vv3": {"VV3_TITLE_SITE_BYTES": (0x468FC8, 6)},
     "vv4": {"VV4_TITLE_SITE_BYTES": (0x4404D9, 5)},
@@ -285,6 +293,8 @@ CUSTOM_SITE_ROUTINES = {
     "VV1_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
     "VV2_CUSTOM_CHOOSE_BYTES": "the island event's chooser call 0x434570 (Custom Island Event delivery)",
     "VV2_TITLE_SITE_BYTES": "the villager panel's title label call 0x40C510 (custom titles)",
+    "VV1_CHOICE_SETUP_BYTES": "the villager encounter's setup call 0x4189E0 (a Custom Island Event question)",
+    "VV2_CHOICE_SETUP_BYTES": "the two-choice event's setup call 0x41F780 (a Custom Island Event question)",
     "VV3_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
     "VV4_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
     "VV5_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",

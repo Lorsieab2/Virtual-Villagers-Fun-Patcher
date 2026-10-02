@@ -307,6 +307,47 @@ class Event:
         return out
 
 
+@dataclass
+class Outcome:
+    """story_custom.h ce_outcome: a chance (a weight) and the changes, whose
+    text is the result text."""
+    chance: int = 1
+    effects: Event = field(default_factory=lambda: Event(title="", text="It happened."))
+
+    SIZE = 4 + Event.SIZE
+
+    def pack(self) -> bytes:
+        return struct.pack("<i", self.chance) + self.effects.pack()
+
+
+@dataclass
+class Choice:
+    """story_custom.h ce_choice: two labels and each button's outcomes.
+    `counts` overrides the packed outcome counts (for the refusal tests)."""
+    enabled: int = 1
+    labels: tuple = ("Yes", "No")
+    outcomes: tuple = ((), ())
+    counts: tuple | None = None
+
+    MAX_OUTCOMES = 4
+    BUTTON_BYTES = 40
+    SIZE = 4 + 2 * BUTTON_BYTES + 2 * 4 + 2 * 4 * Outcome.SIZE
+
+    def pack(self) -> bytes:
+        out = struct.pack("<i", self.enabled)
+        out += b"".join(_s(label, self.BUTTON_BYTES) for label in self.labels)
+        counts = self.counts if self.counts is not None else tuple(len(o) for o in self.outcomes)
+        out += struct.pack("<2i", *counts)
+        empty = bytes(Outcome.SIZE)
+        for button in self.outcomes:
+            assert len(button) <= self.MAX_OUTCOMES
+            for o in button:
+                out += o.pack()
+            out += empty * (self.MAX_OUTCOMES - len(button))
+        assert len(out) == self.SIZE
+        return out
+
+
 RESULT_FIELDS = ("changed", "skipped", "died", "vanished", "conceived", "no_room_babies", "born",
                  "no_room_spawns", "refused", "food_before", "food_after", "tech_before", "tech_after",
                  "revived", "no_room_revives")

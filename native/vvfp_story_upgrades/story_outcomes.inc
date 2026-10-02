@@ -623,6 +623,15 @@ static unsigned int oc_scope_enter(const unsigned int *regs) {
             if (i < OC_MAX_SCOPES) {
                 ++oc_scope_depth[i];
             }
+            {
+                /* A Custom Island Event question's answer (A New Home's and
+                   The Lost Children's two-choice resolve, story_c2.inc):
+                   never a pick's outcome, which is never armed with it. */
+                unsigned int answer = choice_resolve_target(game, s->va, regs[6]);
+                if (answer != 0) {
+                    return answer;
+                }
+            }
             if (s->kind == OC_SCOPE_APPLY && oc.state == OC_DELIVERED && oc.game == game) {
                 oc_apply_open(&oc);
                 if (s->strength_arg >= 0 && oc_strength(game) > 0) {
