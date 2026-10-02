@@ -35,10 +35,11 @@ No game was run for this report, so apart from the [save] and [observed live] it
 comes from reading the program, not from watching it play.
 
 Patch status
-  - "v1.35.44" means the population-hut change now on main (merged, not yet tagged as a release).
-  - "Catch-up update" means the work on the fix/vv2-healers-study-catch-up branch, which is not
-    merged yet. It gives the catch-up boost of Builders and Healers Work First, continues The Lost
-    Children's plant study during catch-up, and installs the companions before the first catch-up.
+  - "v1.35.44" means the release v1.35.44 (published), which includes the population-hut change.
+  - "Catch-up update" means the catch-up work that also shipped in v1.35.44 (PR #494): the
+    catch-up boost of Builders and Healers Work First, The Lost Children's plant study during
+    catch-up, and the companions installed before the first catch-up. Both are in every release
+    from v1.35.44 on.
 
 Code that exists in a game but never runs is not listed as a rule. It is collected at the end under
 "Looks like a rule but never runs".
@@ -936,9 +937,9 @@ BREEDING
         4. the conception roll
         5. the silent refusal of a woman aged 50+
         Only catch-up skips them (rule 9).
-  Patch Manual Drop-Breeding overrides Birth Control lifts the 50+ refusal. Because it patches this
-        shared routine, it probably also lifts it for autonomous pairs; see "Notes for the Fun
-        Patcher" at the end.
+  Patch Manual Drop-Breeding overrides Birth Control lifts the 50+ refusal for your own drops only.
+        Since v1.35.44 (PR #493) it tells your drop apart from villagers pairing on their own, so
+        autonomous pairs keep the original game's 50+ refusal.
   Tag   [code, re-traced] for the 50+ refusal after the roll.
 
 5. Conception odds by Medicine
@@ -1400,12 +1401,12 @@ These checks are in the stock code but can never take effect in the shipping gam
 ======================================================================================
 NOTES FOR THE FUN PATCHER (things this research found in the patches' own text)
 ======================================================================================
-1. Manual Drop-Breeding overrides Birth Control: The Tree of Life, New Believers, probably The
-   Secret City
-   The patched 50+ check sits in the routine that live autonomous embraces also use. Traced: the
-   "Embracing" state handler queues the action that calls the drop routine. So the patch most
-   likely lifts the 50+ refusal for villagers pairing on their own too, while its description
-   says "Only the manual drop is changed". Not tested in a running game.
+1. Manual Drop-Breeding overrides Birth Control: The Tree of Life, New Believers, The Secret City
+   The patched 50+ check sits in the routine that live autonomous embraces also use (the
+   "Embracing" state handler queues the action that calls the drop routine). This research found
+   that the patch then lifted the refusal for villagers pairing on their own too. Fixed in v1.35.44
+   (PR #493): the patch now tells your drop apart from autonomous pairing, so only your drop gets
+   the exception, as its description says.
 
 2. Builders Fix Huts When Idle in A New Home
    The 400-food limit it bypasses applies only while you play. Catch-up never had it. The
