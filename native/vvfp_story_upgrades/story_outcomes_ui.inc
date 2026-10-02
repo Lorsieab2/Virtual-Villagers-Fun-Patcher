@@ -47,6 +47,39 @@ static struct {
 
 static void label_of(const story_event *e, char *out, size_t size);
 
+/* Whether `e`, whose own condition does not hold, can be picked anyway: it
+   is unlockable (a timing or story condition, or a developer-dead event,
+   proven safe to pass), and what it still needs is there -- A New Home / The
+   Lost Children: what every island event needs (an adult; the first event
+   is an encounter / a two-choice event); the other games: the villager its
+   own condition picked, read from the event object after asking it. */
+static int oc_unlock_possible(int game, const story_event *e) {
+    unsigned int table;
+    getter_fn getter;
+    void *object;
+    if (!oc_event_unlockable(game, e->slot)) {
+        return 0;
+    }
+    switch (game) {
+    case 1: return vv1_base_possible(e);
+    case 2: return vv2_base_possible(e);
+    case 3: table = VV3_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV3_EVENT_GETTER; break;
+    case 4: table = VV4_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV4_EVENT_GETTER; break;
+    case 5: table = VV5_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV5_EVENT_GETTER; break;
+    default: return 0;
+    }
+    object = *(void **)(uintptr_t)(table + 4u * (unsigned int)e->slot);
+    if (object == NULL) {
+        getter();
+        object = *(void **)(uintptr_t)(table + 4u * (unsigned int)e->slot);
+    }
+    if (object == NULL) {
+        return 0;
+    }
+    can_fire_with_retries(object);       /* its own condition picks the villager */
+    return oc_unlock_ready(game, e->slot, object);
+}
+
 static const oc_event *chooser_oc(int index) {
     if (index < 0 || index >= chooser.game->event_count) {
         return NULL;
@@ -690,7 +723,9 @@ static int chooser_run(int game, const story_game *g, HWND owner) {
         const oc_event *e = oc_find_event(game, g->events[i].slot);
         int possible = g->possible(&g->events[i]);
         chooser.possible[i] = possible ? OC_POSSIBLE_YES
-                              : (e != NULL && e->unlock) ? OC_POSSIBLE_UNLOCK : OC_POSSIBLE_NO;
+                              : (e != NULL && e->unlock
+                                 && oc_unlock_possible(game, &g->events[i]))
+                                    ? OC_POSSIBLE_UNLOCK : OC_POSSIBLE_NO;
         memset(&chooser.settings[i], 0, sizeof chooser.settings[i]);
         for (k = 0; k < OC_MAX_CONTROLS; ++k) {
             chooser.settings[i].choice[k] = OC_RANDOM;

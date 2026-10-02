@@ -142,6 +142,7 @@ static void oc_lapsed(void);
 static void oc_refused(int game);
 static void oc_reroll(int game);
 static int oc_unlocked(int game, int slot);
+static int oc_unlock_ready(int game, int slot, const void *object);
 static void oc_island_begin(int game);
 static void oc_island_end(int game);
 static int vv1_island_strength(void);
@@ -276,7 +277,8 @@ static int choose_from_table(int game, unsigned int table, int current) {
         return current;
     }
     object = *(void **)(uintptr_t)(table + 4u * (unsigned int)slot);
-    if (object != NULL && (can_fire_with_retries(object) || oc_unlocked(game, slot))) {
+    if (object != NULL && (can_fire_with_retries(object)
+                           || (oc_unlocked(game, slot) && oc_unlock_ready(game, slot, object)))) {
         STORY_COUNT(delivered);
         last_failed_event = NULL;
         oc_delivered(game, object);
@@ -835,7 +837,7 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
         return 0;
     }
     /* The village may have moved on while the boxes were open. */
-    possible_now = g->possible(event) || (settings->unlocked && oc_event_unlockable(game, event->slot));
+    possible_now = g->possible(event) || (settings->unlocked && oc_unlock_possible(game, event));
     if (ce_armed || g->island_pending() || !possible_now || !arm_pick(game, event)) {
         MessageBoxA(owner, "That island event can not happen right now. No tech points have been deducted.",
                     "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);

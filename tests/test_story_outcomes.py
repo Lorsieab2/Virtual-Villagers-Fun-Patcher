@@ -957,6 +957,106 @@ class GongTests(unittest.TestCase):
         self.assertEqual(g.forced_roll(va, 10), (stock_value(10), False), "not inside the gong's use")
 
 
+def _script(values):
+    values = list(values)
+
+    def rand(p):
+        bound = p.arg(0)
+        value = values.pop(0) if values else 0
+        assert 0 <= value < bound, (value, bound)
+        return value, 0
+    return rand
+
+
+@emulated
+class UnlockTests(unittest.TestCase):
+    """A pick unlocked past its timing condition (or a developer-dead event
+    proven to work) is delivered by the game's own chooser, once; without the
+    unlock the chooser is stock (it rolls again)."""
+
+    def _vv1(self, slot, unlocked, rands=(13,)):
+        g = Game("vv1")
+        g.proc.stub(0x402F10, _script(rands))
+        g.proc.export("VvfpStoryProbeSetTick", 0)
+        g.proc.export("VvfpStoryProbeSetPick", 1, _position("vv1", slot), 0)
+        g.arm(slot, {}, unlocked=unlocked)
+        event = g.proc.alloc(0x6000)
+        g.proc.put32(event + 0x50A4, g.village.world)     # the beach is not clean
+        g.proc.put32(event + 0x50A8, g.village.base)
+        return g, event
+
+    def test_vv1_island_events(self):
+        for slot in (9, 1):                    # The Big Wave (beach), A Mighty Storm (dead)
+            for unlocked in (1, 0):
+                with self.subTest(slot=slot, unlocked=unlocked):
+                    g, event = self._vv1(slot, unlocked)
+                    seen = []
+                    g.proc.stub(0x427CA0, lambda p: (seen.append((p.arg(0), p.arg(1))) or 0, 8))
+                    g.proc.call(0x428470, [2, 6], ecx=event)
+                    self.assertEqual(seen, [(slot if unlocked else 13, 6)])
+
+    def test_vv1_encounters(self):
+        g, event = self._vv1((1 << 6) | 5, 1, rands=(2,))           # The Furry Food (dead)
+        self.assertEqual(g.proc.call(0x418920, [], ecx=event), 5)
+        g, event = self._vv1((1 << 6) | 5, 0, rands=(2,))
+        self.assertEqual(g.proc.call(0x418920, [], ecx=event), 2)
+        for i in range(10):                    # no child: The Suspicious Monkey
+            g.village.put(i, sex="m", years=30, name=f"A{i}")
+        g, event = self._vv1((1 << 6) | 9, 1, rands=(2,))
+        self.assertEqual(g.proc.call(0x418920, [], ecx=event), 9)
+
+    def test_vv2_single_result_events(self):
+        for slot in (8, 11, 14, 17, 18, 20, 26):
+            # Without the unlock: the dead cases' never-valid entry rolls again
+            # (the others' own checks read the whole village, run elsewhere).
+            for unlocked in ((1, 0) if slot in (18, 20, 26) else (1,)):
+                with self.subTest(slot=slot, unlocked=unlocked):
+                    g = Game("vv2")
+                    g.proc.stub(0x4031A0, _script((22,)))
+                    g.proc.export("VvfpStoryProbeSetTick", 0)
+                    g.proc.export("VvfpStoryProbeSetPick", 2, _position("vv2", slot), 0)
+                    g.arm(slot, {}, unlocked=unlocked)
+                    seen = []
+                    g.proc.stub(stock_target("vv2", 0x43483D),
+                                lambda p: (seen.append((p.arg(0), p.arg(1))) or 0, 8))
+                    event = g.proc.alloc(0x6000)
+                    g.proc.call(0x434570, [2, 7], ecx=event)
+                    self.assertEqual(seen, [(slot if unlocked else 22, 7)])
+
+    def test_vv2_two_choice_event(self):
+        """The Silver Mirror with one villager: the family-A chooser returns it."""
+        g = Game("vv2")
+        g.proc.stub(0x4031A0, _script((3,)))
+        g.proc.export("VvfpStoryProbeSetTick", 0)
+        slot = (1 << 6) | 14
+        g.proc.export("VvfpStoryProbeSetPick", 2, _position("vv2", slot), 0)
+        g.arm(slot, {}, unlocked=1)
+        event = g.proc.alloc(0x6000)
+        self.assertEqual(g.proc.call(0x41F570, [], ecx=event), 14)
+
+    def test_vv3_vv5_the_needed_villager_must_have_been_picked(self):
+        for game in ("vv3",):
+            site, resume = PICK_SITES[game]
+            for slot, entry in outcomes.UNLOCKED[game].items():
+                for subject in (1, 0):
+                    with self.subTest(game=game, slot=slot, subject=subject):
+                        g = Game(game)
+                        for other in range(1, 58):            # every other slot: its own object
+                            g.proc.put32(TABLES[game] + 4 * other, g.proc.alloc(0x40))
+                        event = _Event(g, slot)
+                        g.proc.stub(event.code + 1, lambda p: (0, 0))      # its condition fails
+                        for off in entry["needs"]:
+                            g.proc.put32(event.obj + off, g.village.record(1) if subject else 0)
+                        g.proc.export("VvfpStoryProbeSetTick", 0)
+                        g.proc.export("VvfpStoryProbeSetPick", g.n, _position(game, slot), 0)
+                        g.arm(slot, {}, unlocked=1)
+                        g.proc.set_reg("esi", 1 if slot != 1 else 2)
+                        g.proc.set_reg("esp", STACK)
+                        g.proc.run(site, resume)
+                        delivered = subject or not entry["needs"]
+                        self.assertEqual(g.proc.reg("esi"), slot if delivered else (1 if slot != 1 else 2))
+
+
 def story_index(g: Game, record: int) -> int:
     if record == 0:
         return -1

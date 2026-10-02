@@ -59,7 +59,8 @@ C_TYPES = [
     "const char *note; unsigned short xsite_first; unsigned short xsite_count; "
     "unsigned char occurrence; } oc_control;",
     "typedef struct { int slot; unsigned short control_first; unsigned short control_count; "
-    "unsigned char strength; unsigned char unlock; const char *dead_note; } oc_event;",
+    "unsigned char strength; unsigned char unlock; unsigned char unlock_need; "
+    "const char *dead_note; } oc_event;",
 ]
 
 
@@ -213,13 +214,16 @@ def emit(game: str, info: dict, found: dict, events_order: list[int]) -> list[st
                 f"{cand.get('size', 4)}, {cand.get('elem_disp', 0)}, {cond}, "
                 f"{_c(c.get('note') or c.get('condition'))}, {xfirst}, {len(extra)}, "
                 f"{c.get('occurrence', 0)} }},")
+        need = 0
+        for off in unlock.get(slot, {}).get("needs", []):
+            need |= {4: 1, 0xC: 2, 0x10: 4}[off]
         events.append(f"    {{ {slot}, {first_control}, {len(controls) - first_control}, "
-                      f"{STRENGTH[strength.get(slot)]}, {1 if slot in unlock else 0}, "
+                      f"{STRENGTH[strength.get(slot)]}, {1 if slot in unlock else 0}, {need}, "
                       f"{_c(dead.get(slot))} }},")
     for name, rows, empty in ((f"{tag}_OC_FORCES", forces, "    { 0, 0 },"),
                               (f"{tag}_OC_OPTIONS", options, "    { NULL, NULL, 0, 0, 0 },"),
                               (f"{tag}_OC_CONTROLS", controls, "    { NULL },"),
-                              (f"{tag}_OC_EVENTS", events, "    { -1, 0, 0, 0, 0, NULL },")):
+                              (f"{tag}_OC_EVENTS", events, "    { -1, 0, 0, 0, 0, 0, NULL },")):
         ctype = {"FORCES": "oc_force", "OPTIONS": "oc_option", "CONTROLS": "oc_control",
                  "EVENTS": "oc_event"}[name.rsplit("_", 1)[1]]
         lines.append(f"static const {ctype} {name}[] = {{")

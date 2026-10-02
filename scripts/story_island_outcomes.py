@@ -217,7 +217,47 @@ GONG_USE_CALLS: dict[str, list[int]] = {"vv2": list(story_outcomes_gong.USE_CALL
 GONG_CONTROLS: dict[str, list[dict]] = {
     "vv2": [_normalise("vv2", 1000, c) for c in story_outcomes_gong.CONTROLS]}
 
-# Events whose timing/story condition a pick may override (proven safe), and
-# developer-dead events made pickable (filled from the unlock research).
-UNLOCKED: dict[str, dict[int, dict]] = {}
-DEAD_NOTES: dict[str, dict[int, str]] = {}
+# Events whose own condition a pick may pass because it is a timing or story
+# condition the event's code does not need -- each proven by running the
+# event's own popup and apply in emulation with the condition false (the
+# state absent): complete, no invalid access, a coherent result.  "needs":
+# what the event's own condition method must still have picked (The Secret
+# City, The Tree of Life, New Believers: object fields +0x4 the villager the
+# event is about, +0xC a second villager), else it stays locked.  Conditions
+# the code does need (a villager of some kind, crops, room for new villagers
+# -- room is never overridden) keep the event locked, with its reason.
+# A New Home / The Lost Children pass the check right after the event roll,
+# once (story_vv1.inc / story_vv2.inc).
+UNLOCKED: dict[str, dict[int, dict]] = {
+    "vv1": {
+        9: {"why": "the beach not yet cleaned up: the wave resets the cleaning done so far"},
+        (1 << 6) | 9: {"why": "no child: the game already lets any villager meet the monkey"},
+        1: {"why": "developer-dead (never runs in the original game)"},
+        (1 << 6) | 5: {"why": "developer-dead (never runs in the original game)"},
+    },
+    "vv2": {
+        8: {"why": "nobody has died yet: the honoring never reads the graves"},
+        11: {"why": "the village's later progress not reached"},
+        14: {"why": "the village's later progress not reached"},
+        17: {"why": "the village's later progress not reached"},
+        (1 << 6) | 14: {"why": "a lone villager: the copy still needs room in the village"},
+        18: {"why": "developer-dead (never runs in the original game)"},
+        20: {"why": "developer-dead (never runs in the original game)"},
+        26: {"why": "developer-dead (never runs in the original game)"},
+    },
+    "vv3": {
+        1: {"needs": []}, 3: {"needs": []}, 6: {"needs": []}, 13: {"needs": []},
+        15: {"needs": [4]}, 16: {"needs": [4]}, 17: {"needs": [4]}, 19: {"needs": [4]},
+        20: {"needs": [4]}, 21: {"needs": [4]}, 22: {"needs": [4]}, 23: {"needs": [4]},
+        26: {"needs": [4]}, 36: {"needs": [4, 0xC]}, 41: {"needs": [4]}, 44: {"needs": [4]},
+        49: {"needs": []}, 54: {"needs": []},
+    },
+}
+DEAD_NOTES: dict[str, dict[int, str]] = {
+    "vv1": {1: "Never happens in the original game (its condition always fails); its code and "
+               "text are complete and it works.",
+            (1 << 6) | 5: "Never happens in the original game (its condition always fails); its "
+                          "code and text are complete and it works."},
+    "vv2": {s: "Never happens in the original game (its condition always fails); its code and "
+               "text are complete and it works." for s in (18, 20, 26)},
+}
