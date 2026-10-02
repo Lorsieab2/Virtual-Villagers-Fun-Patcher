@@ -45,6 +45,9 @@ REMAINING = {
     "vv2_write_village_statistics",
     # one string pointer and dead storage; owns no Origins bytes
     "vv2_numeric_keys_tip_wording",
+    # the scene builder's two fire-pit draw blocks swapped in place; owns no
+    # Origins bytes
+    "vv2_firepit_dry_grass_above_wood",
 }
 
 
