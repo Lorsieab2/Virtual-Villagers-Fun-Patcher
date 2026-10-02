@@ -66,10 +66,11 @@ CAP_CHOICE = 0x04000000
 # Each game's two-choice popup, as its adapter declares it (story_c*.inc):
 # question characters a line, question lines, result characters, result
 # lines, the result leads with the title, label characters.  The numbers are
-# the longest and tallest stock two-choice texts of each game.
+# the longest and tallest stock two-choice texts of each game (A New Home
+# and The Lost Children: less the two lines the villager's picture adds).
 CHOICE_PANEL = {
-    "vv1": (49, 15, 49, 15, 1, 34),
-    "vv2": (46, 18, 46, 18, 1, 30),
+    "vv1": (49, 13, 49, 13, 1, 34),
+    "vv2": (46, 16, 46, 16, 1, 30),
     "vv3": (48, 11, 48, 11, 0, 32),
     "vv4": (48, 11, 48, 11, 0, 34),
     "vv5": (48, 11, 48, 17, 0, 38),

@@ -206,38 +206,12 @@ static void __fastcall choice_object_apply(void *self, void *unused_edx, int cho
     (void)choice;
 }
 
-/* A living villager to feature: the game's own random routine over the
-   listed villagers that `allowed` accepts (NULL: any). */
-static unsigned char *choice_featured(const ce_adapter *a, int (*allowed)(const unsigned char *)) {
-    int count = 0;
-    int pick;
-    int i;
-    for (i = 0; i < a->record_count; ++i) {
-        unsigned char *r = a->record(i);
-        if (r != NULL && a->listed(r) && (allowed == NULL || allowed(r))) {
-            ++count;
-        }
-    }
-    if (count == 0) {
-        return NULL;
-    }
-    pick = ce_random_below(a, count);
-    for (i = 0; i < a->record_count; ++i) {
-        unsigned char *r = a->record(i);
-        if (r != NULL && a->listed(r) && (allowed == NULL || allowed(r)) && pick-- == 0) {
-            return r;
-        }
-    }
-    return NULL;
-}
-
 /* The question object of `game`, built from the two-choice vtable `source`
-   with the title method `title`, featuring a villager `allowed` accepts;
-   NULL when no question is armed (or nobody could be featured: the event
-   stays armed and lapses as an undelivered one). */
+   with the title method `title`, featuring the picked villager or a random
+   living one (ce_choice_featured); NULL when no question is armed (or nobody
+   could be featured: the event stays armed and lapses as an undelivered one). */
 static void *choice_object(int game, unsigned int string_table, int title_id, int body_id,
-                           int replace_existing, unsigned int source, void *title,
-                           int (*allowed)(const unsigned char *)) {
+                           int replace_existing, unsigned int source, void *title) {
     static const int slots[11] = { 2, 3, 5, 6, 7, 8, 9, 10, 11, 13, 4 };
     void *functions[11];
     const ce_adapter *a = ce_adapter_for(game);
@@ -248,7 +222,8 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     if (a == NULL || !ce_choice_pending(game)) {
         return NULL;
     }
-    villager = choice_featured(a, allowed);
+    b = ce_choice_featured(game);
+    villager = b >= 0 ? a->record(b) : NULL;
     if (villager == NULL) {
         return NULL;
     }

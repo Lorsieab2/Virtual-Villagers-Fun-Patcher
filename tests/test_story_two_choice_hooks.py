@@ -57,9 +57,10 @@ def _outcome(text, chance=1, **kw):
     return Outcome(chance, Event(title="", text=text, **kw))
 
 
-def _choice(story):
-    """Left: 50/50 a small haul (+100 food) or a big one (+500); Right: Bea sick."""
-    return Choice(labels=("Go fishing", "Stay home"), outcomes=(
+def _choice(story, featured=None):
+    """Left: 50/50 a small haul (+100 food) or a big one (+500); Right: Bea sick.
+    `featured`: the villager in the picture (a record index; None: random)."""
+    return Choice(labels=("Go fishing", "Stay home"), featured=featured, outcomes=(
         [_outcome("A small haul.", 50, food_op=ADD, food_amount=100),
          _outcome("A big haul.", 50, food_op=ADD, food_amount=500)],
         [_outcome("Bea fell ill.", changes=[story.change(2, sick=1)])],
@@ -85,11 +86,11 @@ def _story(game, mode="collection_progression"):
     return story
 
 
-def _arm(story, title="The Strange Lights", text="Lights over the sea. What now?"):
+def _arm(story, title="The Strange Lights", text="Lights over the sea. What now?", featured=None):
     event = Event(title=title, text=text)
     event.game = story.n
     story.proc.write(EVENT_BUF, event.pack())
-    story.proc.write(CHOICE_BUF, _choice(story).pack())
+    story.proc.write(CHOICE_BUF, _choice(story, featured).pack())
     story.proc.export("VvfpStoryProbeSetChoice", story.n, EVENT_BUF, CHOICE_BUF, 0)
     story.proc.export("VvfpStoryProbeSetTick", 0)
 
@@ -105,15 +106,16 @@ def _lines(text):
 DIALOG = {
     # setup call, stock setup, click handler, resolve call, stock resolve,
     # question, result, labels, variant, villager, choice, stock variant bound,
-    # handler's sound / remove / add, first-event counter
+    # handler's sound / remove / add, first-event counter, the dialog's
+    # villager manager (the ctor's) and the stock setup's "select" routine
     "vv1": dict(site=0x41A51F, setup=0x4189E0, handler=0x41A3D0, resolve_site=0x41A444,
                 resolve=0x419380, q=0x74, res=0x2783, l1=0x4E92, l2=0x4F92, variant=0x5094,
                 subject=0x5098, choice=0x509C, bound=15, stubs=(0x431470, 0x40ABC0, 0x40AB80),
-                counter=0x9E40, rolls=((0x423818, 100), 0x402F10)),
+                counter=0x9E40, rolls=((0x423818, 100), 0x402F10), villagers=0x50A8, select=0x43A160),
     "vv2": dict(site=0x42244A, setup=0x41F780, handler=0x4222F0, resolve_site=0x422364,
                 resolve=0x4204B0, q=0x7C, res=0x278B, l1=0x4E9A, l2=0x4F9A, variant=0x509C,
                 subject=0x50A0, choice=0x50A4, bound=20, stubs=(0x43F010, 0x40B5A0, 0x40B560),
-                counter=0x2E51C, rolls=((0x42EF28, 100), 0x4031A0)),
+                counter=0x2E51C, rolls=((0x42EF28, 100), 0x4031A0), villagers=0x50B0, select=0x44B2D0),
 }
 
 
@@ -128,6 +130,8 @@ class EncounterDialogTests(unittest.TestCase):
         p.put32(dlg + 0x5C, 4)
         p.put32(dlg + d["subject"], 0xFFFFFFFF)
         p.put32(dlg + d["choice"], 0xFFFFFFFF)
+        p.put32(dlg + d["villagers"], story.village.array)
+        story.record_call(d["select"], 4)
         for va in d["stubs"]:
             story.record_call(va, 4)
         story.record_call(d["setup"], 0, value=1)
@@ -170,14 +174,19 @@ class EncounterDialogTests(unittest.TestCase):
                 self.assertEqual(self._setup(story, dlg), 1)
                 self.assertNotIn(d["setup"], story.calls, "the game's own setup is not run")
                 question = p.cstring(dlg + d["q"], 0x2710)
+                # The villager's picture: five empty lines under the title,
+                # as every stock encounter leaves.
                 self.assertTrue(question.startswith(
-                    "The Strange Lights\n\n\n\nLights over the sea. What now?"), question)
+                    "The Strange Lights" + "\n" * 6 + "Lights over the sea. What now?"), repr(question))
                 self.assertTrue(all(len(line) <= CHOICE_PANEL[game][0] for line in question.split("\n")))
                 self.assertEqual((p.cstring(dlg + d["l1"]), p.cstring(dlg + d["l2"])),
                                  ("Go fishing", "Stay home"))
                 self.assertGreater(p.u32(dlg + d["variant"]), d["bound"],
                                    "past the stock resolve's jump table")
-                self.assertEqual(p.u32(dlg + d["subject"]), 0xFFFFFFFF, "no villager shown")
+                shown = p.u32(dlg + d["subject"])
+                self.assertIn(shown, (1, 2), "a living villager is shown")
+                self.assertEqual(story.calls[d["select"]], [[story.village.array, shown]],
+                                 "and selected, as the stock setup does")
                 self.assertEqual(p.u32(dlg + 0x60), 0x1C2, "the stock encounter width")
                 self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 0)
                 self.assertEqual(p.u32(_food_tech(story)[0]), FOOD0, "nothing changes before a click")
@@ -201,7 +210,7 @@ class EncounterDialogTests(unittest.TestCase):
                     self.assertEqual(self._click(story, dlg, button_id, roll), 1)
                     self.assertNotIn(d["resolve"], story.calls, "the game's own resolve is not run")
                     result = p.cstring(dlg + d["res"], 0x2710)
-                    self.assertTrue(result.startswith("The Strange Lights\n\n\n\n" + words), result)
+                    self.assertTrue(result.startswith("The Strange Lights" + "\n" * 6 + words), repr(result))
                     self.assertEqual(p.u32(food), food_after)
                     self.assertEqual(story.village.sick(2), bea_sick)
                     self.assertEqual(p.read(dlg + 0x50, 1), b"\1", "the dialog draws the result")
@@ -218,14 +227,14 @@ class EncounterDialogTests(unittest.TestCase):
             _arm(story, text="Short?")
             self._setup(story, dlg)
             question = p.cstring(dlg + d["q"], 0x2710)
-            # The tallest result (Bea's): the title, three empty lines, the
-            # text, an empty line, "999 of the chosen villagers were no longer
-            # here." (two lines at The Lost Children's 46 characters) and
-            # "999 changes could not be made.".
+            # The tallest result (Bea's): the title, five empty lines (the
+            # picture), the text, an empty line, "999 of the chosen villagers
+            # were no longer here." (two lines at The Lost Children's 46
+            # characters) and "999 changes could not be made.".
             skipped = 2 if CHOICE_PANEL[game][2] < 48 else 1
             with self.subTest(game=game):
-                self.assertEqual(_lines(question), 1 + 3 + 1 + 1 + skipped + 1)
-                self.assertEqual(question.rstrip("\n"), "The Strange Lights\n\n\n\nShort?",
+                self.assertEqual(_lines(question), 1 + 5 + 1 + 1 + skipped + 1)
+                self.assertEqual(question.rstrip("\n"), "The Strange Lights" + "\n" * 6 + "Short?",
                                  "only line breaks are added")
 
     def test_a_natural_encounter_is_the_games_own(self):
@@ -284,6 +293,48 @@ class EncounterDialogTests(unittest.TestCase):
                 self._click(story, asked, 2, 0)
                 self.assertEqual(p.u32(_food_tech(story)[0]), FOOD0 + 100, "the question still answers")
 
+    def test_the_picked_villager_is_shown_while_still_the_same(self):
+        for game, mode, story in self._each(MODES):
+            d = DIALOG[game]
+            p = story.proc
+            story.village.put(3, sex="m", years=40, name="Cal")
+            dlg = self._dialog(story)
+            _arm(story, featured=3)
+            p.export("VvfpStoryProbeSetRoll", 0)          # a random pick would be Adam
+            self._setup(story, dlg)
+            with self.subTest(game=game, mode=mode, case="the pick"):
+                self.assertEqual(p.u32(dlg + d["subject"]), 3)
+                self.assertEqual(story.calls[d["select"]], [[story.village.array, 3]])
+        for game, mode, story in self._each():
+            for case, change in (("another look", lambda v: v.proc.put32(v.record(3) + v.L["head"], 9)),
+                                 ("dead", lambda v: v.proc.put32(v.record(3) + v.L["health"], 0)),
+                                 ("another villager", lambda v: v.put(3, sex="f", years=20, name="Dee"))):
+                story = _story(game)
+                p = story.proc
+                story.village.put(3, sex="m", years=40, name="Cal")
+                dlg = self._dialog(story)
+                _arm(story, featured=3)
+                change(story.village)
+                p.export("VvfpStoryProbeSetRoll", 0)
+                self._setup(story, dlg)
+                with self.subTest(game=game, case=case):
+                    self.assertEqual(p.u32(dlg + DIALOG[game]["subject"]), 1,
+                                     "a stale pick: a random living villager (roll 0: Adam)")
+
+    def test_with_nobody_to_show_there_is_no_picture(self):
+        for game, mode, story in self._each():
+            story = Story(game)
+            p = story.proc
+            p.stub(RAND[game], lambda q: (0, 0))
+            dlg = self._dialog(story)
+            _arm(story)
+            self._setup(story, dlg)
+            with self.subTest(game=game):
+                self.assertEqual(p.u32(dlg + DIALOG[game]["subject"]), 0xFFFFFFFF)
+                self.assertNotIn(DIALOG[game]["select"], story.calls)
+                self.assertTrue(p.cstring(dlg + DIALOG[game]["q"], 0x2710).startswith(
+                    "The Strange Lights\n\n\n\nLights"), "no picture, no gap")
+
     def test_a_missed_dispatch_changes_nothing(self):
         """The variant written is past the stock resolve's jump table: run the
         game's own resolve on the question's dialog and nothing is written."""
@@ -340,12 +391,14 @@ HANDLER = {
 
 @emulated
 class ObjectQuestionTests(unittest.TestCase):
-    def _object(self, story, roll=-1):
+    def _object(self, story, roll=-1, featured=None, between=None):
         table, site, resume, register, *_ = SELECT[story.game]
         p = story.proc
         for slot in range(1, 58):
             p.put32(table + 4 * slot, p.alloc(0x20))
-        _arm(story)
+        _arm(story, featured=featured)
+        if between is not None:
+            between(story.village)
         story.proc.export("VvfpStoryProbeSetRoll", roll)      # the villager shown
         p.set_reg("esi", 5)
         p.set_reg("esp", STACK)
@@ -452,6 +505,37 @@ class ObjectQuestionTests(unittest.TestCase):
             with self.subTest(roll=roll):
                 self.assertIn(self._method(story, obj, 0x1C),
                               (story.village.record(2), story.village.record(3)))
+
+    def test_the_picked_villager_is_shown_while_still_the_same(self):
+        for game, mode, story in self._each(MODES):
+            story.village.put(3, sex="m", years=40, name="Cal")
+            obj = self._object(story, roll=0, featured=3)     # a random pick would be Adam
+            with self.subTest(game=game, mode=mode, case="the pick"):
+                self.assertEqual(self._method(story, obj, 0x1C), story.village.record(3))
+        for game, mode, story in self._each():
+            for case, change in (("another look", lambda v: v.proc.put32(v.record(3) + v.L["head"], 9)),
+                                 ("dead", lambda v: v.proc.put32(v.record(3) + v.L["health"], 0)),
+                                 ("another villager", lambda v: v.put(3, sex="f", years=20, name="Dee"))):
+                story = _story(game)
+                story.village.put(3, sex="m", years=40, name="Cal")
+                obj = self._object(story, roll=0, featured=3, between=change)
+                with self.subTest(game=game, case=case):
+                    self.assertEqual(self._method(story, obj, 0x1C), story.village.record(1),
+                                     "a stale pick: a random living villager (roll 0: Adam)")
+
+    def test_new_believers_never_shows_a_picked_heathen(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        story = _story("vv5")
+        story.village.put(3, sex="m", years=30, name="Heath", faction=1)
+        obj = self._object(story, roll=0, featured=3)
+        self.assertEqual(self._method(story, obj, 0x1C), story.village.record(1))
+        story = _story("vv5")
+        story.village.put(3, sex="m", years=30, name="Heath")
+        obj = self._object(story, roll=0, featured=3,
+                           between=lambda v: v.proc.write(v.record(3) + 0x1CEC, b"\1"))
+        self.assertEqual(self._method(story, obj, 0x1C), story.village.record(1),
+                         "converted to a Heathen since: a believer instead")
 
     def test_with_nobody_to_show_the_question_waits(self):
         for game, mode, story in self._each():

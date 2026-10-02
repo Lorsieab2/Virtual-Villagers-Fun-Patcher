@@ -606,7 +606,7 @@ static const ce_adapter C4_ADAPTER = {
     /* The two-choice popup (0x417790): as The Secret City's -- 48 characters,
        11 lines (the tallest stock two-choice text), the title above the
        result, labels of 34 characters (the longest stock). */
-    48, 11, 48, 11, 0, 34, c4_rand_below
+    48, 11, 48, 11, 0, 34, c4_rand_below, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -639,10 +639,10 @@ static void *c4_custom_object(void) {
 }
 
 /* A question (story_objects.inc): a copy of the first two-choice event's
-   vtable (0x48CB64) with The Salty Air's ids, featuring any living villager. */
+   vtable (0x48CB64) with The Salty Air's ids, featuring the picked or a random living villager. */
 static void *c4_choice_object(void) {
     return choice_object(4, C4_STRING_TABLE, C4_TITLE_ID, C4_BODY_ID, 1, 0x48CB64u,
-                         (void *)c4_title_id, NULL);
+                         (void *)c4_title_id);
 }
 
 /* ---- Title ---------------------------------------------------------------

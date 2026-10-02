@@ -323,15 +323,18 @@ class Outcome:
 @dataclass
 class Choice:
     """story_custom.h ce_choice: two labels and each button's outcomes.
-    `counts` overrides the packed outcome counts (for the refusal tests)."""
+    `counts` overrides the packed outcome counts (for the refusal tests).
+    `featured` is the villager in the picture: a record index, or None for a
+    random living one (packed as index + 1; the identity is taken when queued)."""
     enabled: int = 1
     labels: tuple = ("Yes", "No")
     outcomes: tuple = ((), ())
     counts: tuple | None = None
+    featured: int | None = None
 
     MAX_OUTCOMES = 4
     BUTTON_BYTES = 40
-    SIZE = 4 + 2 * BUTTON_BYTES + 2 * 4 + 2 * 4 * Outcome.SIZE
+    SIZE = 4 + 2 * BUTTON_BYTES + 2 * 4 + 2 * 4 * Outcome.SIZE + 8
 
     def pack(self) -> bytes:
         out = struct.pack("<i", self.enabled)
@@ -344,6 +347,7 @@ class Choice:
             for o in button:
                 out += o.pack()
             out += empty * (self.MAX_OUTCOMES - len(button))
+        out += struct.pack("<iI", 0 if self.featured is None else self.featured + 1, 0)
         assert len(out) == self.SIZE
         return out
 
