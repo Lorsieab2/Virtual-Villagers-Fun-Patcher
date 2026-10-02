@@ -444,11 +444,21 @@ click. Queueing is the plain event's: the same lock, the same ten-minute lapse,
 bound to the save slot and the Start Over / delete generation; an answer in a
 village other than the one the question was asked in changes nothing.
 
-The picture: A New Home and The Lost Children show the question without a
-villager, as their own encounter popup can. The Secret City, The Tree of Life
-and New Believers must show one (their two-button popup is not drawn without
-it), so a random living villager is featured -- in New Believers always a
-believer, never a Heathen. Choosing that villager is not offered yet.
+The picture (v1.35.48): **Villager in the picture** in the Choices dialog is
+**Random (a living villager)** or one of the village's villagers (name, sex,
+age; in New Believers believers only). The pick is kept with the villager's
+record and identity -- name, sex, head, body, likes and dislikes, as a
+villager change is -- taken when the event is bought; when the question is
+asked, that villager is shown only if the record still holds the same living
+villager (in New Believers, still a believer); otherwise, and for Random, a
+random living villager is shown (the game's own random routine). Every game
+shows the villager: A New Home's and The Lost Children's encounter popups draw
+the villager's portrait under the title (the dialog's own villager field,
++0x5098 / +0x50A0, which their draw routines 0x4187E0 / 0x41F430 read) and
+select that villager as their own setup does (0x43A160 / 0x44B2D0); the text
+then leaves five empty lines under the title, as every stock encounter does,
+in the question and the result. The Secret City, The Tree of Life and New
+Believers must show one (their two-button popup is not drawn without it).
 
 Every value is checked when OK is pressed and again when the event is bought:
 both labels non-empty and within the game's label width (letters, numbers,
@@ -466,9 +476,9 @@ buttons, the result replaces the question and OK closes it.
 
 | Game | The popup | Where | Text (characters x lines), label |
 | --- | --- | --- | --- |
-| A New Home | the villager encounters' (0x41A460) | the family rolls send a question there; the setup call 0x41A51F is replaced: question +0x74, labels +0x4E92 / +0x4F92, no villager, a variant past the stock jump table; the resolve call 0x41A444 (an outcomes scope call) is handed to the answer for that dialog only | 49 x 15, 34 |
-| The Lost Children | family A's (0x422380) | the same at 0x42244A (question +0x7C, labels +0x4E9A / +0x4F9A) and 0x422364 | 46 x 18, 30 |
-| The Secret City | the event dialog 0x4192F0 | the pick site hands it a copy of the two-choice vtable 0x47EA40: title / question / labels / result through the custom ids, a living villager shown (pose 5), the answer on the click (+0x34), nothing more on OK | 48 x 11, 32 |
+| A New Home | the villager encounters' (0x41A460) | the family rolls send a question there; the setup call 0x41A51F is replaced: question +0x74, labels +0x4E92 / +0x4F92, the villager in the picture +0x5098 (selected as the stock setup does), a variant past the stock jump table; the resolve call 0x41A444 (an outcomes scope call) is handed to the answer for that dialog only | 49 x 13 (15 with the picture's two lines), 34 |
+| The Lost Children | family A's (0x422380) | the same at 0x42244A (question +0x7C, labels +0x4E9A / +0x4F9A, villager +0x50A0) and 0x422364 | 46 x 16 (18 with the picture), 30 |
+| The Secret City | the event dialog 0x4192F0 | the pick site hands it a copy of the two-choice vtable 0x47EA40: title / question / labels / result through the custom ids, the villager in the picture (pose 5), the answer on the click (+0x34), nothing more on OK | 48 x 11, 32 |
 | The Tree of Life | 0x417790 | the same, vtable 0x48CB64 | 48 x 11, 34 |
 | New Believers | 0x418020 | the same, vtable 0x497D34; the villager shown is a believer, never a Heathen | 48 x 11 (results 17), 38 |
 
@@ -481,8 +491,8 @@ question and both buttons' tallest results. In A New Home and The Lost
 Children the result repeats the title (the result replaces the whole text);
 in the other three the title stays above it. Their two-choice popup is never
 shown without a villager, so a question waits (and lapses) while nobody living
-can be shown; the villager is chosen at random (the editor has no pick for it
-yet). A New Home's and The Lost Children's first island event is always their
+can be shown (A New Home and The Lost Children then show it without a
+picture). A New Home's and The Lost Children's first island event is always their
 two-choice family, so a question may be that event (a plain one may not).
 
 Evidence level: emulation of each game's rendered executable in all three
@@ -494,6 +504,17 @@ forgotten, a missed dispatch writing nothing; 16 mutations of the hooks, each
 caught), and **live in all five games** (v1.35.47 test build, 2026-10-02): the
 question in each game's own popup, a click, the outcome's result and its food
 change in memory (both outcomes of a 50/50 button seen), nothing more on OK.
+The picked villager (v1.35.48): emulated in all three population modes (the
+pick shown, a pick whose record changed, died or was reused falls back to a
+random living villager, a Heathen never shown in New Believers, no picture
+when nobody living can be shown; 11 mutations of the pick, each caught), and
+live in all five games (v1.35.48 test build, 2026-10-02): the picked villager
+in each game's own popup (A New Home and The Lost Children: the portrait under
+the title and that villager selected -- named in A New Home's villager panel,
+read back from The Lost Children's memory; The
+Secret City and The Tree of Life: two picks in a row, each shown; New
+Believers: only the three living believers offered, the only male believer
+shown), the result, and the food change.
 
 ### Custom titles
 
