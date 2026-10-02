@@ -12,7 +12,7 @@
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 45 island events; events that can never run in this game are not offered.",
+    "Offers 47 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
     "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
@@ -28,7 +28,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9E71E4DD1AF0706FB9AD4645688D8B939EBF2E5153EAE402C0A7E7D49E4CBED0"
+      "sha256": "8FC1063B50598556D57AF58C56146CD68AC6B4452438801FCC7A38530DFEA677"
     }
   ],
   "runtime_detours": [
@@ -1155,6 +1155,13 @@
       "requires": "a child the event can be about"
     },
     {
+      "slot": 25,
+      "title": "The Stinging Wasps",
+      "variant": "",
+      "description": "Wasps nest around the village and sting many villagers.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
+    },
+    {
       "slot": 26,
       "title": "Barrel O' Babies!",
       "variant": "believers",
@@ -1195,6 +1202,13 @@
       "variant": "a message",
       "description": "A message from another village: the tribe gains tech points.",
       "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 33,
+      "title": "The Abandoned Infants",
+      "variant": "",
+      "description": "Babies are found abandoned in the bushes and the women take them in.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen); it needs room in the village for new villagers"
     },
     {
       "slot": 34,
@@ -1304,44 +1318,36 @@
   ],
   "excluded_island_events": [
     {
-      "title": "The Stinging Wasps",
-      "reason": "slot 25: condition 0x415B10 always returns false"
-    },
-    {
       "title": "The Return of Biggles",
-      "reason": "slot 29: condition 0x415B10 always returns false"
-    },
-    {
-      "title": "The Abandoned Infants",
-      "reason": "slot 33: condition 0x415B10 always returns false"
+      "reason": "slot 29: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "The Smelly Vial",
-      "reason": "slot 48: condition 0x415B10 always returns false"
+      "reason": "slot 48: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "The Floral Vial",
-      "reason": "slot 49: condition 0x415B10 always returns false"
+      "reason": "slot 49: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "The Invisible Vial",
-      "reason": "slot 50: condition 0x415B10 always returns false"
+      "reason": "slot 50: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "Innovation in Farming",
-      "reason": "slot 51: condition 0x415B10 always returns false"
+      "reason": "slot 51: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "Tough Lessons",
-      "reason": "slot 52: condition 0x415B10 always returns false"
+      "reason": "slot 52: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "The Pretty Shell",
-      "reason": "slot 53: condition 0x415B10 always returns false"
+      "reason": "slot 53: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "The Legendary Stranger",
-      "reason": "slot 54: condition 0x415B10 always returns false"
+      "reason": "slot 54: condition 0x415B10 always returns false and never picks the villager the event is about; its apply reads a null villager"
     },
     {
       "title": "The Tsunami, The Canoe from the Other Side, The Rainy Season, The Festival of the Banyan, Daredevil Barrel...Of Babies!, The State of the Tree, A Closer Look",

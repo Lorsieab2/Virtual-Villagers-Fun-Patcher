@@ -12,7 +12,7 @@
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 44 island events; events that can never run in this game are not offered.",
+    "Offers 45 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
     "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
@@ -28,7 +28,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9E71E4DD1AF0706FB9AD4645688D8B939EBF2E5153EAE402C0A7E7D49E4CBED0"
+      "sha256": "8FC1063B50598556D57AF58C56146CD68AC6B4452438801FCC7A38530DFEA677"
     }
   ],
   "runtime_detours": [
@@ -528,6 +528,13 @@
       "requires": "the game's own condition for the day of honor (graves)"
     },
     {
+      "slot": 6,
+      "title": "The Canoe from the Other Side",
+      "variant": "",
+      "description": "A canoe lands on the beach and a villager from another part of Isola joins the village.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen); it needs room in the village for a new villager"
+    },
+    {
       "slot": 7,
       "title": "The Mysterious Footprints",
       "variant": "food gained",
@@ -798,7 +805,7 @@
       "title": "The Pretty Shell",
       "variant": "",
       "description": "Two children fight over a shell: teach them to share, or decide who keeps it.",
-      "requires": "at least two children"
+      "requires": "an adult the event can be about, and at least two adults"
     },
     {
       "slot": 49,
@@ -811,15 +818,11 @@
   "excluded_island_events": [
     {
       "title": "The Tsunami",
-      "reason": "slot 1: condition 0x4146E0 always returns false"
-    },
-    {
-      "title": "The Canoe from the Other Side",
-      "reason": "slot 6: condition 0x4146E0 always returns false"
+      "reason": "slot 1: condition 0x4146E0 always returns false, and it is half-finished: its text says structures are destroyed but its apply never touches one (it only removes villagers, skipping the death a drowning takes)"
     },
     {
       "title": "The Medical Emergency",
-      "reason": "slot 16: condition 0x4146E0 always returns false"
+      "reason": "slot 16: condition 0x4146E0 always returns false and never picks the villager the event is about, so no popup opens and its apply reads a null villager"
     },
     {
       "title": "The Salty Air",
@@ -827,7 +830,7 @@
     },
     {
       "title": "The Return of Biggles",
-      "reason": "slot 24: condition 0x4146E0 always returns false"
+      "reason": "slot 24: condition 0x4146E0 always returns false and never picks the villager the event is about, so no popup opens and its apply reads a null villager"
     }
   ],
   "custom_island_event": {

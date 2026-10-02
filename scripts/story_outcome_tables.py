@@ -216,7 +216,7 @@ def emit(game: str, info: dict, found: dict, events_order: list[int]) -> list[st
                 f"{c.get('occurrence', 0)} }},")
         need = 0
         for off in unlock.get(slot, {}).get("needs", []):
-            need |= {4: 1, 0xC: 2, 0x10: 4}[off]
+            need |= {4: 1, 0xC: 2, 0x10: 4, "room": 8}[off]
         events.append(f"    {{ {slot}, {first_control}, {len(controls) - first_control}, "
                       f"{STRENGTH[strength.get(slot)]}, {1 if slot in unlock else 0}, {need}, "
                       f"{_c(dead.get(slot))} }},")

@@ -76,6 +76,7 @@ static int oc_unlock_possible(int game, const story_event *e) {
     if (object == NULL) {
         return 0;
     }
+    oc_unlock_prepare(game, e->slot, object);
     can_fire_with_retries(object);       /* its own condition picks the villager */
     return oc_unlock_ready(game, e->slot, object);
 }

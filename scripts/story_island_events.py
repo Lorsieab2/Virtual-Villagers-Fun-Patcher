@@ -407,6 +407,9 @@ EVENTS: dict[str, list[dict]] = {
         _e(4, "Isola Day Celebration", "The villagers celebrate their arrival on Isola with feasts."),
         _e(5, "Day of Honor", "The villagers pay their respects to those who have passed on.",
            requires="the game's own condition for the day of honor (graves)"),
+        _e(6, "The Canoe from the Other Side",
+           "A canoe lands on the beach and a villager from another part of Isola joins the village.",
+           requires=NEVER + "; it needs room in the village for a new villager"),
         _e(7, "The Mysterious Footprints", "Footprints appear overnight, and honeycombs: the village gains food.",
            variant="food gained"),
         _e(8, "The Mysterious Footprints", "Footprints appear overnight, and food is stolen.",
@@ -480,7 +483,7 @@ EVENTS: dict[str, list[dict]] = {
         _e(47, "Tough Lessons", "A child is stuck high in the Tree of Life: rescue them, or let them learn.",
            requires="a child and an adult the event can be about"),
         _e(48, "The Pretty Shell", "Two children fight over a shell: teach them to share, or decide who keeps it.",
-           requires="at least two children"),
+           requires="an adult the event can be about, and at least two adults"),
         _e(49, "The Legendary Stranger", "Biggles appears by the Tree of Life and answers one question.",
            requires="a villager the event can be about"),
     ],
@@ -525,6 +528,8 @@ EVENTS: dict[str, list[dict]] = {
            requires="the game's own progress condition for the lab"),
         _e(24, "Mushroom Day!", "The villagers celebrate mushrooms, with cake for the children.",
            requires="a child the event can be about"),
+        _e(25, "The Stinging Wasps", "Wasps nest around the village and sting many villagers.",
+           requires=NEVER),
         _e(26, "Barrel O' Babies!", "A barrel of babies floats down the stream and the believers adopt them.",
            variant="believers", requires="room in the village for new villagers"),
         _e(27, "Barrel O' Babies!", "A barrel of babies floats down the stream and the heathens adopt them.",
@@ -536,6 +541,8 @@ EVENTS: dict[str, list[dict]] = {
            variant="a newcomer", requires="room in the village for a new villager"),
         _e(32, "News From Another Tribe", "A message from another village: the tribe gains tech points.",
            variant="a message"),
+        _e(33, "The Abandoned Infants", "Babies are found abandoned in the bushes and the women take them in.",
+           requires=NEVER + "; it needs room in the village for new villagers"),
         _e(34, "The Spa", "A villager sneaks into the heathens' five pools.",
            requires="a villager the event can be about"),
         _e(35, "Doubt", "A villager doubts the Guiding Hand and demands a sign.",
@@ -589,23 +596,32 @@ EXCLUDED: dict[str, list[dict]] = {
          "reason": "strings only (ids 934-937): no event object and no slot in the registry"},
     ],
     "vv4": [
-        {"title": "The Tsunami", "reason": "slot 1: condition 0x4146E0 always returns false"},
-        {"title": "The Canoe from the Other Side", "reason": "slot 6: condition 0x4146E0 always returns false"},
-        {"title": "The Medical Emergency", "reason": "slot 16: condition 0x4146E0 always returns false"},
+        {"title": "The Tsunami", "reason": "slot 1: condition 0x4146E0 always returns false, and it is "
+         "half-finished: its text says structures are destroyed but its apply never touches one (it only "
+         "removes villagers, skipping the death a drowning takes)"},
+        {"title": "The Medical Emergency", "reason": "slot 16: condition 0x4146E0 always returns false and "
+         "never picks the villager the event is about, so no popup opens and its apply reads a null villager"},
         {"title": "The Salty Air", "reason": "slot 19: strings only, no event object"},
-        {"title": "The Return of Biggles", "reason": "slot 24: condition 0x4146E0 always returns false"},
+        {"title": "The Return of Biggles", "reason": "slot 24: condition 0x4146E0 always returns false and "
+         "never picks the villager the event is about, so no popup opens and its apply reads a null villager"},
     ],
     "vv5": [
-        {"title": "The Stinging Wasps", "reason": "slot 25: condition 0x415B10 always returns false"},
-        {"title": "The Return of Biggles", "reason": "slot 29: condition 0x415B10 always returns false"},
-        {"title": "The Abandoned Infants", "reason": "slot 33: condition 0x415B10 always returns false"},
-        {"title": "The Smelly Vial", "reason": "slot 48: condition 0x415B10 always returns false"},
-        {"title": "The Floral Vial", "reason": "slot 49: condition 0x415B10 always returns false"},
-        {"title": "The Invisible Vial", "reason": "slot 50: condition 0x415B10 always returns false"},
-        {"title": "Innovation in Farming", "reason": "slot 51: condition 0x415B10 always returns false"},
-        {"title": "Tough Lessons", "reason": "slot 52: condition 0x415B10 always returns false"},
-        {"title": "The Pretty Shell", "reason": "slot 53: condition 0x415B10 always returns false"},
-        {"title": "The Legendary Stranger", "reason": "slot 54: condition 0x415B10 always returns false"},
+        {"title": "The Return of Biggles", "reason": "slot 29: condition 0x415B10 always returns false "
+         "and never picks the villager the event is about; its apply reads a null villager"},
+        {"title": "The Smelly Vial", "reason": "slot 48: condition 0x415B10 always returns false and "
+         "never picks the villager the event is about; its apply reads a null villager"},
+        {"title": "The Floral Vial", "reason": "slot 49: condition 0x415B10 always returns false and "
+         "never picks the villager the event is about; its apply reads a null villager"},
+        {"title": "The Invisible Vial", "reason": "slot 50: condition 0x415B10 always returns false and "
+         "never picks the villager the event is about; its apply reads a null villager"},
+        {"title": "Innovation in Farming", "reason": "slot 51: condition 0x415B10 always returns false and "
+         "never picks the villager the event is about; its apply reads a null villager"},
+        {"title": "Tough Lessons", "reason": "slot 52: condition 0x415B10 always returns false and "
+         "never picks the villager the event is about; its apply reads a null villager"},
+        {"title": "The Pretty Shell", "reason": "slot 53: condition 0x415B10 always returns false and "
+         "never picks the villager the event is about; its apply reads a null villager"},
+        {"title": "The Legendary Stranger", "reason": "slot 54: condition 0x415B10 always returns false and "
+         "never picks the villager the event is about; its apply reads a null villager"},
         {"title": "The Tsunami, The Canoe from the Other Side, The Rainy Season, "
                   "The Festival of the Banyan, Daredevil Barrel...Of Babies!, "
                   "The State of the Tree, A Closer Look",
