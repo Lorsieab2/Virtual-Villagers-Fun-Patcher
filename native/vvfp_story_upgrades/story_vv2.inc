@@ -202,6 +202,21 @@ static int vv2_any_villager(unsigned char *pool, int min_age, int max_age, int s
     return 0;
 }
 
+/* What any island event needs, whatever its own condition: a living adult
+   for the trigger (0x44BAE0(1)), and the village's first island event is
+   always a two-choice event.  An unlocked pick needs only this. */
+static int vv2_base_possible(const story_event *e) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
+    unsigned char *pool = *(unsigned char **)(uintptr_t)VV2_POOL_GLOBAL;
+    if (world == NULL || pool == NULL) {
+        return 0;
+    }
+    if (!vv2_any_villager(pool, 0x118, -1, 0, 0)) {
+        return 0;
+    }
+    return *(int *)(world + VV2_EVENT_COUNT_FIELD) != 0 || VV2_SLOT_FAMILY(e->slot) == VV2_FAMILY_A;
+}
+
 static int vv2_possible(const story_event *e) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
     unsigned char *pool = *(unsigned char **)(uintptr_t)VV2_POOL_GLOBAL;
@@ -211,19 +226,14 @@ static int vv2_possible(const story_event *e) {
     vv2_pred_fn advanced = (vv2_pred_fn)(uintptr_t)0x4261D0u;
     vv2_count_fn population = (vv2_count_fn)(uintptr_t)0x425860u;
     vv2_pred_fn room = (vv2_pred_fn)(uintptr_t)0x44B310u;
-    if (world == NULL || pool == NULL) {
-        return 0;
-    }
-    /* The trigger needs a living adult (0x44BAE0(1) in the trigger). */
-    if (!vv2_any_villager(pool, 0x118, -1, 0, 0)) {
-        return 0;
-    }
-    /* The first island event of a village is always a two-choice event. */
-    if (*(int *)(world + VV2_EVENT_COUNT_FIELD) == 0 && family != VV2_FAMILY_A) {
+    if (!vv2_base_possible(e)) {
         return 0;
     }
     if (family == VV2_FAMILY_C) {
         switch (index) {
+        /* The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day:
+           the selector's condition table maps them to the never-valid 0x434824. */
+        case 18: case 20: case 26: return 0;
         case 8: return graves(world, NULL) != 0;
         case 11: case 14: case 17: return advanced(world, NULL) != 0;
         case 15: return vv2_any_villager(pool, 0x168, -1, 0, 1) && advanced(world, NULL) != 0;

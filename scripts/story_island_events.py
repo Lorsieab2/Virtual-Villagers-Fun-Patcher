@@ -18,6 +18,8 @@ EXCLUDED with the reason; they are never offered.
 from __future__ import annotations
 
 ALWAYS = "nothing beyond an island event being possible"
+# A developer-dead event proven to work: its own condition never holds.
+NEVER = "nothing it can have: the original game never runs it (picking it makes it happen)"
 
 # A New Home families (story_vv1.inc).
 VV1_ISLAND, VV1_ENCOUNTER, VV1_CRATE = 0, 1, 2
@@ -44,6 +46,9 @@ EVENTS: dict[str, list[dict]] = {
         # The island events of 0x427CA0 (case, magnitude clamp(population/3, 1, 10)).
         _e(_slot(VV1_ISLAND, 0), "The Bad Little Monkey",
            "A monkey ransacks the research table: the tribe loses tech points."),
+        _e(_slot(VV1_ISLAND, 1), "A Mighty Storm",
+           "A typhoon strikes in the night and washes away all of the stored food.",
+           requires=NEVER),
         _e(_slot(VV1_ISLAND, 2), "The Plague of Parrots",
            "A flock of wild parrots eats many of the berries."),
         _e(_slot(VV1_ISLAND, 3), "A Plague of Locusts",
@@ -77,7 +82,7 @@ EVENTS: dict[str, list[dict]] = {
         # The villager encounters (0x41A460): two-choice events.
         _e(_slot(VV1_ENCOUNTER, 0), "The Trapped Whale",
            "A villager finds a stranded whale: free it, or harvest it for food.",
-           requires="the whale event to have happened fewer than three times"),
+           requires="the tribe's spirituality below its highest level (freeing the whale raises it)"),
         _e(_slot(VV1_ENCOUNTER, 1), "The Strange Berries",
            "A villager finds strange berries: taste them (risky) or leave them."),
         _e(_slot(VV1_ENCOUNTER, 2), "The Old Drum",
@@ -86,7 +91,11 @@ EVENTS: dict[str, list[dict]] = {
            "A villager sees a face in the trees: take a closer look (risky), or back away."),
         _e(_slot(VV1_ENCOUNTER, 4), "The Visitor",
            "A stranger in a boat asks for plants and seeds: help him, or refuse.",
-           requires="the visitor to have come fewer than three times"),
+           requires="the tribe's medicine below its highest level (the visitor raises it)"),
+        _e(_slot(VV1_ENCOUNTER, 5), "The Furry Food",
+           "The stored food goes moldy: remove the moldy pieces (some villagers get stomach "
+           "trouble), or throw out all the food.",
+           requires=NEVER),
         _e(_slot(VV1_ENCOUNTER, 6), "A Mysterious Vial",
            "A villager finds a vial of oily red liquid: drink it (risky), or pour it out.",
            variant="red liquid"),
@@ -182,8 +191,14 @@ EVENTS: dict[str, list[dict]] = {
         _e(_slot(VV2_C, 17), "The  Foul Passing",
            "Something foul passes through: crops, coconuts and the food bin are ruined.",
            requires="the village's later technologies (the game's own advanced-village check)"),
+        _e(_slot(VV2_C, 18), "The Mosquito Swarm",
+           "Mosquitoes swarm the island: some villagers fall ill and the adults take refuge in "
+           "the water.", requires=NEVER),
         _e(_slot(VV2_C, 19), "The Friendly Parrot",
            "A friendly parrot drops nuts into the food bin: the tribe gains food."),
+        _e(_slot(VV2_C, 20), "The Dragonfly Migration",
+           "Dragonflies drive off the biting insects: every villager is restored to full health "
+           "and cured of sickness.", requires=NEVER),
         _e(_slot(VV2_C, 21), "The Barrel O` Babies",
            "A barrel of babies washes up and they join the village (more of them in a bigger village).",
            requires="room in the village for new villagers"),
@@ -197,12 +212,15 @@ EVENTS: dict[str, list[dict]] = {
         _e(_slot(VV2_C, 25), "Old Friends",
            "A couple from the south shore finds the village and joins it.",
            requires="room in the village for new villagers"),
+        _e(_slot(VV2_C, 26), "Science Awareness Day",
+           "The village celebrates its researchers with demonstrations and lectures; the children "
+           "gain research skill.", requires=NEVER),
         _e(_slot(VV2_C, 27), "The Mother Parrot",
            "The children watch a mother parrot and learn about parenting."),
         # Family A: the two-choice events of 0x41F570.
         _e(_slot(VV2_A, 0), "The Ancient Gold Coin",
            "A villager finds a gold coin: wear it as an ornament, or give it to the scientists.",
-           requires="the gold-coin fashion not to have caught on already"),
+           requires="the tribe's culture below the level the gold coin gives"),
         _e(_slot(VV2_A, 1), "The Cursed Idol",
            "A villager finds a cursed statuette: destroy it, or offer food to lift the curse.",
            requires="at least 250 food"),
@@ -246,7 +264,7 @@ EVENTS: dict[str, list[dict]] = {
            "A villager finds a strange hole on the beach: investigate it, or fill it in."),
         _e(_slot(VV2_A, 18), "The Spyglass",
            "A villager finds a spyglass: keep it, or give it to the scientists.",
-           requires="the spyglass not to have been kept already"),
+           requires="the tribe's exploration below the level the spyglass gives"),
         _e(_slot(VV2_A, 19), "The Love Note",
            "A man finds a love note from a secret admirer: write a poem, or hide to catch the poet.",
            requires="at least one adult man and one adult woman"),
@@ -302,7 +320,7 @@ EVENTS: dict[str, list[dict]] = {
         _e(14, "The Reflection in the Water",
            "A villager sees a sad royal couple in a reflection (a story moment)."),
         _e(15, "The Daredevil", "A villager teases sharks: swim with them, or rethink the plan.",
-           requires="a villager the event can be about"),
+           requires="a man the event can be about, and at least two women"),
         _e(16, "The Ghostly Dream", "A ghostly lady visits a dream: study nature, or the healing arts.",
            variant="nature or healing", requires="a villager the event can be about"),
         _e(17, "The Ghostly Dream", "A ghostly old man visits a dream: research, or architecture.",
@@ -318,7 +336,7 @@ EVENTS: dict[str, list[dict]] = {
         _e(22, "The Ancient Tablet", "An engraved tablet: focus research on it, or put it on display.",
            variant="research or display", requires="a villager the event can be about"),
         _e(23, "The Low Tide", "A child finds fish stranded by the low tide: grab them, or move to high ground.",
-           requires="a child the event can be about (the game also rolls a chance)"),
+           requires="a villager the event can be about, and at least eight villagers"),
         _e(24, "The Ants and the Granary", "A child sees ants at the granary: sweep them away, or let them be.",
            requires="a child the event can be about"),
         _e(25, "The Green Pearl", "A villager finds a green pearl: grind it into powder, or wear it.",
@@ -353,7 +371,7 @@ EVENTS: dict[str, list[dict]] = {
         _e(39, "The Mysterious Vial", "A crystal vial on the beach: taste it, or bring it back.",
            variant="amber", requires="a villager the event can be about"),
         _e(40, "The Mango and the Papaya", "A villager with a mango sees a papaya: swim for it, or keep the mango.",
-           requires="a villager the event can be about (the game also rolls a chance)"),
+           requires="a villager the event can be about"),
         _e(41, "The Mysterious Crate", "A crate washes up: open it, or shove it back out to sea.",
            requires="a villager the event can be about"),
         _e(42, "Vanity and the Bee", "A vain young woman and a bee: run to the water, or swat at it.",
@@ -539,7 +557,7 @@ EVENTS: dict[str, list[dict]] = {
         _e(43, "The Aphids in the Noni Bush", "Bugs are sucking the life out of the crops: deal with them wisely.",
            requires="a villager the event can be about"),
         _e(44, "The Defector", "A heathen asks to join the believers: accept, or refuse.",
-           requires="a heathen the event can be about (the game also rolls a chance)"),
+           requires="a heathen the event can be about"),
         _e(45, "The Straw Hat", "A villager finds a woven reed thing: a hat, or a strainer?",
            requires="a villager the event can be about"),
         _e(46, "The Strange Nectar", "A villager finds a rare blossom full of sweet nectar.",
@@ -555,21 +573,14 @@ EVENTS: dict[str, list[dict]] = {
 # Events whose code or text exists in the executable but that the game can
 # never run.  Never offered.
 EXCLUDED: dict[str, list[dict]] = {
-    "vv1": [
-        {"title": "A Mighty Storm",
-         "reason": "island case 1: its condition class (byte 5 at 0x4286A1) always re-rolls, so the selector never runs it"},
-        {"title": "The Furry Food",
-         "reason": "encounter variant 5: its condition class (byte 4 at 0x4189A9) always re-rolls"},
-    ],
+    # A New Home's A Mighty Storm (island case 1) and The Furry Food
+    # (encounter variant 5) never run in the original game (their condition
+    # class always re-rolls), but their code and strings are complete and
+    # proven to run: they are offered (see EVENTS and docs/story-cheat-upgrades.md).
+    "vv1": [],
     "vv2": [
         {"title": "(case 4 of 0x433600)",
          "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry"},
-        {"title": "The Mosquito Swarm",
-         "reason": "case 18: the selector's condition table maps it to the never-valid entry 0x434824"},
-        {"title": "The Dragonfly Migration",
-         "reason": "case 20: the selector's condition table maps it to the never-valid entry 0x434824"},
-        {"title": "Science Awareness Day",
-         "reason": "case 26: the selector's condition table maps it to the never-valid entry 0x434824"},
     ],
     "vv3": [
         {"title": "The Swarm of Bees",

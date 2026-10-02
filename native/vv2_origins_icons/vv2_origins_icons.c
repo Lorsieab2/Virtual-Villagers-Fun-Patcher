@@ -163,6 +163,13 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VVFP_STORY_GONG_ID) {
+            /* Pick Gong of Wonder Outcome: not an island event, no lock. */
+            if (vvfp_story_pick_clicked(2, window, (int)command, NULL)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
             /* Pick Island Event and Custom Island Event share the Island
                Event row's lock. */

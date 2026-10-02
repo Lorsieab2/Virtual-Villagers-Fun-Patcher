@@ -12,7 +12,7 @@
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 53 island events; events that can never run in this game are not offered.",
+    "Offers 56 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
     "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
@@ -28,7 +28,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "157D7810100E791D3D96311AA060EA945FA65CB6A70364099C228413698BB6CD"
+      "sha256": "9E71E4DD1AF0706FB9AD4645688D8B939EBF2E5153EAE402C0A7E7D49E4CBED0"
     }
   ],
   "runtime_detours": [
@@ -825,11 +825,25 @@
       "requires": "the village's later technologies (the game's own advanced-village check)"
     },
     {
+      "slot": 18,
+      "title": "The Mosquito Swarm",
+      "variant": "",
+      "description": "Mosquitoes swarm the island: some villagers fall ill and the adults take refuge in the water.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
+    },
+    {
       "slot": 19,
       "title": "The Friendly Parrot",
       "variant": "",
       "description": "A friendly parrot drops nuts into the food bin: the tribe gains food.",
       "requires": "nothing beyond an island event being possible"
+    },
+    {
+      "slot": 20,
+      "title": "The Dragonfly Migration",
+      "variant": "",
+      "description": "Dragonflies drive off the biting insects: every villager is restored to full health and cured of sickness.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
     },
     {
       "slot": 21,
@@ -867,6 +881,13 @@
       "requires": "room in the village for new villagers"
     },
     {
+      "slot": 26,
+      "title": "Science Awareness Day",
+      "variant": "",
+      "description": "The village celebrates its researchers with demonstrations and lectures; the children gain research skill.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
+    },
+    {
       "slot": 27,
       "title": "The Mother Parrot",
       "variant": "",
@@ -878,7 +899,7 @@
       "title": "The Ancient Gold Coin",
       "variant": "",
       "description": "A villager finds a gold coin: wear it as an ornament, or give it to the scientists.",
-      "requires": "the gold-coin fashion not to have caught on already"
+      "requires": "the tribe's culture below the level the gold coin gives"
     },
     {
       "slot": 65,
@@ -1004,7 +1025,7 @@
       "title": "The Spyglass",
       "variant": "",
       "description": "A villager finds a spyglass: keep it, or give it to the scientists.",
-      "requires": "the spyglass not to have been kept already"
+      "requires": "the tribe's exploration below the level the spyglass gives"
     },
     {
       "slot": 83,
@@ -1081,18 +1102,6 @@
     {
       "title": "(case 4 of 0x433600)",
       "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry"
-    },
-    {
-      "title": "The Mosquito Swarm",
-      "reason": "case 18: the selector's condition table maps it to the never-valid entry 0x434824"
-    },
-    {
-      "title": "The Dragonfly Migration",
-      "reason": "case 20: the selector's condition table maps it to the never-valid entry 0x434824"
-    },
-    {
-      "title": "Science Awareness Day",
-      "reason": "case 26: the selector's condition table maps it to the never-valid entry 0x434824"
     }
   ],
   "custom_island_event": {

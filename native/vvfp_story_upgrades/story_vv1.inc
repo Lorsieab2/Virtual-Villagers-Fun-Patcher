@@ -197,24 +197,33 @@ static int vv1_any_villager(unsigned char *records, int min_age, int max_age) {
     return 0;
 }
 
+/* What any island event needs, whatever its own condition: a living adult
+   for the trigger (0x4237DB), and the village's first island event is
+   always an encounter (0x42382C).  An unlocked pick needs only this. */
+static int vv1_base_possible(const story_event *e) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
+    unsigned char *records = *(unsigned char **)(uintptr_t)VV1_VILLAGERS_GLOBAL;
+    if (world == NULL || records == NULL) {
+        return 0;
+    }
+    if (!vv1_any_villager(records, VV1_CHILD_AGE, -1)) {
+        return 0;
+    }
+    return *(int *)(world + VV1_EVENT_COUNT_FIELD) != 0
+           || VV1_SLOT_FAMILY(e->slot) == VV1_FAMILY_ENCOUNTER;
+}
+
 static int vv1_possible(const story_event *e) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
     unsigned char *records = *(unsigned char **)(uintptr_t)VV1_VILLAGERS_GLOBAL;
     int family = VV1_SLOT_FAMILY(e->slot);
     int index = VV1_SLOT_INDEX(e->slot);
-    if (world == NULL || records == NULL) {
-        return 0;
-    }
-    /* The trigger needs a living adult (0x4237DB), and the first island
-       event of a village is always an encounter (0x42382C). */
-    if (!vv1_any_villager(records, VV1_CHILD_AGE, -1)) {
-        return 0;
-    }
-    if (*(int *)(world + VV1_EVENT_COUNT_FIELD) == 0 && family != VV1_FAMILY_ENCOUNTER) {
+    if (!vv1_base_possible(e)) {
         return 0;
     }
     if (family == VV1_FAMILY_ISLAND) {
         switch (index) {
+        case 1: return 0;   /* A Mighty Storm: its class (0x4286A1 = 5) always re-rolls */
         case 3: return *(int *)(world + 0xA2E4) >= 2;
         case 4: return vv1_any_villager(records, -1, VV1_CHILD_AGE);
         case 9: return world[0x9FB8] == 1;
@@ -226,6 +235,7 @@ static int vv1_possible(const story_event *e) {
         switch (index) {
         case 0: return *(int *)(world + 0xA2BC) < 3;
         case 4: return *(int *)(world + 0xA2D4) < 3;
+        case 5: return 0;   /* The Furry Food: its class (0x4189A9 = 4) always re-rolls */
         case 7: case 9: return vv1_any_villager(records, -1, VV1_CHILD_AGE);
         default: return 1;
         }

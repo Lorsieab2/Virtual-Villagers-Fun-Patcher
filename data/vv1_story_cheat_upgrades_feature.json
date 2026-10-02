@@ -12,7 +12,7 @@
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 38 island events; events that can never run in this game are not offered.",
+    "Offers 40 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
     "A custom title replaces a villager's title in the villager panel and is printed in the Village Population and Village History logs; it is kept per save slot in Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and deleted by Start Over."
@@ -28,7 +28,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "157D7810100E791D3D96311AA060EA945FA65CB6A70364099C228413698BB6CD"
+      "sha256": "9E71E4DD1AF0706FB9AD4645688D8B939EBF2E5153EAE402C0A7E7D49E4CBED0"
     }
   ],
   "runtime_detours": [
@@ -588,6 +588,13 @@
       "requires": "nothing beyond an island event being possible"
     },
     {
+      "slot": 1,
+      "title": "A Mighty Storm",
+      "variant": "",
+      "description": "A typhoon strikes in the night and washes away all of the stored food.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
+    },
+    {
       "slot": 2,
       "title": "The Plague of Parrots",
       "variant": "",
@@ -683,7 +690,7 @@
       "title": "The Trapped Whale",
       "variant": "",
       "description": "A villager finds a stranded whale: free it, or harvest it for food.",
-      "requires": "the whale event to have happened fewer than three times"
+      "requires": "the tribe's spirituality below its highest level (freeing the whale raises it)"
     },
     {
       "slot": 65,
@@ -711,7 +718,14 @@
       "title": "The Visitor",
       "variant": "",
       "description": "A stranger in a boat asks for plants and seeds: help him, or refuse.",
-      "requires": "the visitor to have come fewer than three times"
+      "requires": "the tribe's medicine below its highest level (the visitor raises it)"
+    },
+    {
+      "slot": 69,
+      "title": "The Furry Food",
+      "variant": "",
+      "description": "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.",
+      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
     },
     {
       "slot": 70,
@@ -847,16 +861,7 @@
       "requires": "nothing beyond an island event being possible"
     }
   ],
-  "excluded_island_events": [
-    {
-      "title": "A Mighty Storm",
-      "reason": "island case 1: its condition class (byte 5 at 0x4286A1) always re-rolls, so the selector never runs it"
-    },
-    {
-      "title": "The Furry Food",
-      "reason": "encounter variant 5: its condition class (byte 4 at 0x4189A9) always re-rolls"
-    }
-  ],
+  "excluded_island_events": [],
   "custom_island_event": {
     "offered": [
       "title and description",

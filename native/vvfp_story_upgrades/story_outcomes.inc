@@ -296,6 +296,29 @@ static int oc_unlocked(int game, int slot) {
            && oc.event->unlock && oc.set.unlocked;
 }
 
+/* The Secret City, The Tree of Life, New Believers: an unlocked event's own
+   condition method still runs (it picks the villager the event is about
+   before the check that fails); the event is delivered only when what the
+   popup and apply need from it is there -- the fields of `object` named by
+   the event's unlock_need (1 = +0x4, 2 = +0xC, 4 = +0x10). */
+static int oc_unlock_ready(int game, int slot, const void *object) {
+    const oc_event *e = oc_find_event(game, slot);
+    const unsigned char *o = (const unsigned char *)object;
+    if (e == NULL || !e->unlock || o == NULL) {
+        return 0;
+    }
+    if ((e->unlock_need & 1) && *(const unsigned int *)(o + 4) == 0) {
+        return 0;
+    }
+    if ((e->unlock_need & 2) && *(const unsigned int *)(o + 0xC) == 0) {
+        return 0;
+    }
+    if ((e->unlock_need & 4) && *(const unsigned int *)(o + 0x10) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
 /* ---- Answering a roll ------------------------------------------------------ */
 
 static int oc_site_index(const oc_game *g, unsigned int va) {
