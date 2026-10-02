@@ -1557,6 +1557,44 @@
       ]
     },
     {
+      "id": "vv3_fix_vanilla_bugs",
+      "game_id": "vv3",
+      "name": "Fix Vanilla Bugs",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. **Needs no other patch.**",
+      "output_tag": "Fix Vanilla Bugs",
+      "behavior_changes": [
+        "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
+        "The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager.",
+        "The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens."
+      ],
+      "explicit_non_changes": [
+        "Every result text, every other vial result and every other island event are the base game's own.",
+        "The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change.",
+        "No save data, villager record layout or art is changed."
+      ],
+      "evidence_status": "static exact-build evidence and emulation of the real event code; live confirmation pending",
+      "patches": [
+        {
+          "offset": "0x180FB",
+          "before": "7558",
+          "after": "7458",
+          "purpose": "Royal Jelly: applyChoice 0x4180A0 runs the cure and Healing gain for the dark vial (choice 1) instead of the clear vial (choice 0): jne becomes je"
+        },
+        {
+          "offset": "0x17797",
+          "before": "8B4E048B91B80E000081C1AC0E000083C00F03D08BC283C40483F86489510C7E09C7410C64000000EB0B85C07D07C7410C00000000",
+          "after": "8B4E040381B80E000083C00F83C40483F8647E036A645885C07D0231C08981B80E00006864000000B944265800E867F900000F1F00",
+          "purpose": "Mysterious Vial (amber), scientific insight: the same Research gain and 0..100 clamp re-encoded compactly, then push 100; mov ecx,0x582644; call 0x427130 adds 100 tech points through the game's tech adder"
+        },
+        {
+          "offset": "0x173E0",
+          "before": "0F9DC1",
+          "after": "0F9FC1",
+          "purpose": "Mysterious Vial (quartz): resultText 0x4173C0 chooses the little-child text only above age 280 (setg instead of setge), matching applyChoice's jg at 0x417435"
+        }
+      ]
+    },
+    {
       "id": "vv3_everyone_tries_on_robe",
       "game_id": "vv3",
       "name": "Everyone Tries On the Robe",
