@@ -5,8 +5,9 @@ row in The Secret City. It is not blocked on finding the right storage: the
 game does not maintain the quantity at all, and the reason is structural
 rather than an absence somebody failed to search hard enough for.
 
-Robing a chief is **puzzle id 1** in the story-puzzle system, and every
-puzzle is a saturating progress value behind a one-way latch:
+Robing a chief is **puzzle id 0** ("The First Chief") in the story-puzzle
+system, and every puzzle is a saturating progress value behind a one-way
+latch:
 
     sub_435990  AdvancePuzzle(id)
         0x435999  call 0x4358D0        ; IsComplete(id)
@@ -16,15 +17,25 @@ puzzle is a saturating progress value behind a one-way latch:
         0x4359A5  inc  edx
         0x4359A6  mov  [edi+esi*8], edx
 
-Puzzle 1's threshold is 1, so the single advance at 0x431B7E takes progress
+Puzzle 0's threshold is 1, so the single advance at 0x432042 takes progress
 from 0 to 1, which equals the threshold and marks it complete. Every later
 robing reaches the `jne` and returns without touching the counter. The stored
 value is therefore a boolean by construction: it is not a count that happens
 to stop at one, it is a latch that cannot represent two.
 
-The routine that advances it is the robe fitting itself, sub_431A40, whose
-`cmp eax, 0x1F ; jne 0x431B96` is the fit test -- the two branches are the
-game's own "The robe fits!" and "The robe does not fit" outcomes.
+The routine that advances it is the robe's success callback sub_431FE0: it
+robes the villager (0x45FBC0, which sets the chief byte +0xE80), has the
+village celebrate (0x45FCF0), shows "The First Chief" (tip 0x2BF), clears the
+chief-power cooldowns and then advances puzzle 0. Seen in the running game
+(2026-10-01): writing progress[0] = 1 turns the Puzzles screen's chief tile
+to "The First Chief"; progress[1] is The Bee Hive.
+
+An earlier revision of this file said puzzle 1, advanced at 0x431B88 inside
+sub_431A40, with sub_415030 as the game's "has chief" accessor. All three
+were the Bee Hive: sub_431A40 is the beehive's villager-action handler (its
+`cmp eax, 0x1F` is a map-region test, 0x4205B0), and sub_415030 is
+IsComplete(1), used by The Miraculous Bloom. The game's real "is there a
+chief" test is sub_45FC00, a boolean over the villagers' own chief bytes.
 
 ## Why this is worth a test rather than a note
 
@@ -58,12 +69,16 @@ STOCK = ROOT / "research/stock-executables/Virtual Villagers - The Secret City.e
 # Established addresses. Each is asserted below, never merely asserted about.
 ADVANCE_PUZZLE = 0x435990
 IS_COMPLETE = 0x4358D0
-ROBE_FITTING = 0x431A40
-ADVANCE_CALL_SITE = 0x431B88          # the call inside the robe fitting
+ROBE_SUCCESS = 0x431FE0               # the robe's success callback
+ROBE_VILLAGER = 0x45FBC0              # sets the chief byte on the record
+ADVANCE_CALL_SITE = 0x432042          # the call inside the robe's success callback
 THRESHOLDS = 0x49D230                 # indexed as [reg*4 + 0x49D230]
-HAS_CHIEF = 0x415030                  # the game's own boolean accessor
+HAS_CHIEF = 0x45FC00                  # the game's own "is there a chief" test
+FIRST_CHIEF = 0x45EF30                # the first living villager with the chief byte
+BEE_HIVE_DONE = 0x415030              # IsComplete(1): the Bee Hive, not the chief
 LATCH_EARLY_OUT = 0x4359D0            # AdvancePuzzle's epilogue
-CHIEF_PUZZLE_ID = 1
+CHIEF_PUZZLE_ID = 0
+CHIEF_BYTE = 0xE80
 
 
 def _sections(data):
@@ -109,50 +124,41 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
         return list(self.md.disasm(self.data[offset:offset + length], va))
 
     def test_the_game_reads_the_chief_as_a_boolean(self):
-        """The game's own HasChief predicate returns a flag, not a count.
+        """The game's own "is there a chief" test returns a flag, not a count.
 
-        sub_415030 is the whole accessor:
+        sub_45FC00 is the whole accessor:
 
-            push 1 ; mov ecx, <puzzle manager> ; call IsComplete
-            test al, al ; setne al ; ret
+            call 0x45EF30 ; test eax, eax ; setne al ; ret
 
-        `setne` collapses whatever is stored into 0 or 1. Two of its callers
-        then pair it with a population check (`cmp [0x5945E0], 0xA`), which is
-        the tribe-size influence rule the game's own tips describe. Nothing
-        anywhere reads a chief quantity, because there is nothing to read.
-
-        This is the load-bearing assertion. An earlier draft of this test
-        derived the chief's puzzle id from its index in the table of handler
-        initialisers at 0x49D298 -- which is wrong, because no instruction
-        indexes that table by puzzle id, and it holds 25 entries against the
-        26 the indexed tables hold. The id below comes only from tables the
-        code actually subscripts.
+        sub_45EF30 returns the FIRST living villager whose chief byte +0xE80
+        is set, or 0. `setne` collapses that to 0 or 1, so nothing reads a
+        chief quantity, because there is nothing to read.
         """
-        decoded = self._disasm(HAS_CHIEF, 0x14)
-        rendered = [(i.mnemonic, i.op_str) for i in decoded]
+        rendered = [(i.mnemonic, i.op_str) for i in self._disasm(HAS_CHIEF, 0xB)]
+        self.assertEqual(rendered[0], ("call", hex(FIRST_CHIEF)))
+        self.assertIn(("setne", "al"), rendered,
+                      "setne is what makes the answer a boolean rather than a count")
+        finder = [(i.mnemonic, i.op_str) for i in self._disasm(FIRST_CHIEF, 0x44)]
+        # [eax + 8] with eax = record + 0xE78 (lea eax, [ecx + 0xe8c] from the
+        # village's +0x14 record base): the chief byte.
+        self.assertIn(("lea", "eax, [ecx + 0xe8c]"), finder)
+        self.assertIn(("mov", "bl, byte ptr [eax + 8]"), finder)
+        self.assertEqual(0xE8C - 0x14 + 8, CHIEF_BYTE)
 
-        self.assertIn(
-            ("push", "1"),
-            rendered,
-            "HasChief must ask about puzzle 1",
-        )
-        self.assertIn(
-            ("call", hex(IS_COMPLETE)),
-            rendered,
-            "HasChief must reach the completion test",
-        )
-        self.assertIn(
-            ("setne", "al"),
-            rendered,
-            "setne is what makes the answer a boolean rather than a count",
-        )
+    def test_0x415030_is_the_bee_hive_not_the_chief(self):
+        """The accessor an earlier revision called "has chief" asks about
+        puzzle 1, The Bee Hive."""
+        rendered = [(i.mnemonic, i.op_str) for i in self._disasm(BEE_HIVE_DONE, 0x12)]
+        self.assertIn(("push", "1"), rendered)
+        self.assertIn(("call", hex(IS_COMPLETE)), rendered)
+        self.assertNotEqual(CHIEF_PUZZLE_ID, 1)
 
     def test_the_chief_puzzle_threshold_is_one(self):
-        """Puzzle 1's threshold makes a single advance saturate it.
+        """Puzzle 0's threshold makes a single advance saturate it.
 
         The threshold table is one the code subscripts directly -- five
         instructions in the puzzle accessors use `[reg*4 + 0x49D230]` -- so
-        reading entry 1 out of it is reading what the game reads.
+        reading entry 0 out of it is reading what the game reads.
         """
         thresholds = _to_file_offset(self.sections, THRESHOLDS)
         self.assertIsNotNone(thresholds)
@@ -170,7 +176,7 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
 
         This is the whole finding. The increment at [edi+esi*8] is reachable
         only when IsComplete said no, so a puzzle at its threshold can never be
-        advanced again -- and puzzle 1's threshold is 1.
+        advanced again -- and puzzle 0's threshold is 1.
         """
         decoded = [
             (i.address, i.mnemonic, i.op_str)
@@ -247,17 +253,21 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
             "what makes it a return rather than a re-entry",
         )
 
-    def test_the_robe_fitting_advances_puzzle_one(self):
-        """The only advance of puzzle 1 lives in the robe-fitting routine.
+    def test_the_robe_success_robes_the_villager_and_advances_puzzle_zero(self):
+        """The robe's success callback robes the villager first, then advances
+        puzzle 0 as its last call.
 
-        `push 1` sits ten bytes before the call with an unrelated `mov` between
-        them, which is why a narrow backward window reports no such call site.
-        That false absence is the reason this assertion decodes the routine
-        forward from its entry instead of pattern-matching near the call.
+        `push 0` sits three instructions before the call, with the puzzle
+        manager's `mov ecx` and an unrelated cooldown store between them, so
+        the routine is decoded forward from its entry rather than
+        pattern-matched near the call.
         """
-        decoded = self._disasm(ROBE_FITTING, 0x180)
+        decoded = self._disasm(ROBE_SUCCESS, 0x6A)
         by_address = dict((i.address, i) for i in decoded)
 
+        calls = [i.op_str for i in decoded if i.mnemonic == "call"]
+        self.assertEqual(calls[0], hex(ROBE_VILLAGER),
+                         "the villager is robed before anything else")
         call = by_address.get(ADVANCE_CALL_SITE)
         self.assertIsNotNone(
             call, "no instruction decodes at %#010x" % ADVANCE_CALL_SITE
@@ -272,9 +282,12 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
         self.assertTrue(pushes, "the id must be pushed before the call")
         self.assertEqual(
             pushes[-1].op_str,
-            "1",
+            "0",
             "the last push before the call is the puzzle id, and it is the chief",
         )
+        robe = [(i.mnemonic, i.op_str) for i in self._disasm(ROBE_VILLAGER, 0x18)]
+        self.assertIn(("mov", "byte ptr [eax + 0xe80], 1"), robe,
+                      "the robing routine sets the chief byte")
 
     def _entry_before(self, address, limit=0x400):
         """Nearest preceding address whose decode chain reaches `address`.
@@ -284,10 +297,17 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
         is accepted only if decoding forward from it lands EXACTLY on
         `address`. That is a validated instruction-boundary chain rather than a
         guess at one.
+
+        The FARTHEST such candidate is taken: a 0x90 byte can also be the
+        last byte of an immediate (`mov ecx, 0x594990` ends in 0x90 right
+        before this file's own call site), and a chain started just after it
+        can land on `address` by accident while decoding garbage on the way.
+        A chain started further back has had room to synchronise with the
+        real instruction stream.
         """
         text = next(s for s in self.sections if s[0] == ".text")
         _name, start, _vsize, raw, _rsize = text
-        for candidate in range(address - 1, max(start, address - limit) - 1, -1):
+        for candidate in range(max(start, address - limit), address):
             index = raw + (candidate - start)
             if self.data[index - 1] not in (0x90, 0xCC):
                 continue
@@ -307,23 +327,10 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
         so this is a statement about the image and not about a window in it.
 
         Each candidate is decoded from a validated instruction boundary rather
-        than from `call - 0x18`. That fixed offset is not safe: x86 is
-        variable-length, and measured against this image **three of the
-        twenty-seven** call sites to `AdvancePuzzle` desynchronise from it --
-        the decode never reaches the call at all, so its argument is never
-        read. Any of those three could have carried a second `push 1` and this
-        assertion would still have passed. A site whose boundary cannot be
-        established is reported rather than skipped, because "could not decode"
-        and "does not push 1" must not look alike.
-
-        **Honest limit of the anchoring change.** Swapping the anchoring back
-        to `call - 0x18` does *not* make this test fail today, because none of
-        the three desynchronising sites happens to carry a `push 1`. The change
-        is therefore defensive rather than currently load-bearing: it removes a
-        way this assertion could be wrong in future without announcing it, and
-        that is stated here rather than left to look like a mutation-tested
-        property when it is not. The desync count above is the measurement that
-        justifies it.
+        than from a fixed offset before the call, which x86's variable-length
+        encoding makes unsafe. A site whose boundary cannot be established is
+        reported rather than skipped, because "could not decode" and "does not
+        push 0" must not look alike.
         """
         _name, start, _vsize, raw, rsize = next(
             s for s in self.sections if s[0] == ".text"
@@ -353,7 +360,7 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
                 )
             )
             pushes = [i for i in window if i.mnemonic == "push"]
-            if pushes and pushes[-1].op_str == "1":
+            if pushes and pushes[-1].op_str == str(CHIEF_PUZZLE_ID):
                 sites.append(call_site)
 
         self.assertEqual(
@@ -365,7 +372,7 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
         self.assertEqual(
             [hex(address) for address in sites],
             [hex(ADVANCE_CALL_SITE)],
-            "the robe fitting must be the only route that advances puzzle 1",
+            "the robe's success callback must be the only route that advances puzzle 0",
         )
 
 

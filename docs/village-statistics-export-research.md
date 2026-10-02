@@ -346,24 +346,33 @@ a one-way latch.
         0x4359A5  inc  edx
         0x4359A6  mov  [edi+esi*8], edx
 
-The chief is puzzle id 1, whose threshold is 1. The single advance takes
-progress from 0 to 1, which equals the threshold and marks it complete, so
-every later robing hits the `jne` and returns. The stored value cannot
-represent two: it is not a counter that saturates at one, it is a latch.
+The chief is puzzle id 0 ("The First Chief"), whose threshold is 1. The single
+advance takes progress from 0 to 1, which equals the threshold and marks it
+complete, so every later robing hits the `jne` and returns. The stored value
+cannot represent two: it is not a counter that saturates at one, it is a
+latch. Seen in the running game (2026-10-01): writing progress[0] = 1 turns
+the Puzzles screen's chief tile to "The First Chief"; progress[1] is The Bee
+Hive.
 
-The game agrees. Its own accessor is a boolean:
+The game agrees. Its own "is there a chief" test is a boolean over the
+villagers' chief bytes (+0xE80):
 
-    0x415030  push 1 ; mov ecx, 0x594990 ; call 0x4358D0
-    0x41503C  test al, al ; setne al ; ret
+    0x45FC00  call 0x45EF30 ; test eax, eax ; setne al ; ret
 
-`setne` collapses the stored value to 0 or 1, and two of its callers pair it
-with `cmp [0x5945E0], 0xA`, the tribe-size influence rule. Nothing in the image
-reads a chief quantity.
+`0x45EF30` returns the first living villager whose chief byte is set, and
+`setne` collapses that to 0 or 1. Nothing in the image reads a chief quantity.
 
-The advancing site is the robe fitting `sub_431A40`, whose `cmp eax, 0x1F` at
-`0x431AB0` forks into the game's own "The robe fits!" and "The robe does not
-fit" outcomes; the success branch ends at `0x431B7E push 1 ; call 0x435990`.
-That is the only site in `.text` that advances puzzle 1.
+The advancing site is the robe's success callback `sub_431FE0`: it robes the
+villager (`0x45FBC0`, which sets +0xE80), has the village celebrate
+(`0x45FCF0`), shows "The First Chief" (tip 0x2BF), clears the chief-power
+cooldowns and ends with `0x432031 push 0 ; ... ; 0x432042 call 0x435990`.
+That is the only site in `.text` that advances puzzle 0.
+
+**Corrected.** An earlier revision said puzzle 1, advanced at `0x431B88`
+inside `sub_431A40`, with `0x415030` as the "has chief" accessor. All three
+are the Bee Hive: `sub_431A40` is the beehive's villager-action handler (its
+`cmp eax, 0x1F` at `0x431AB0` is a map-region test, `0x4205B0`), and
+`0x415030` is IsComplete(1), used by The Miraculous Bloom.
 
 `tests/test_vv3_chief_puzzle_is_a_one_shot_latch.py` pins all of the above,
 and each of its assertions was validated against a mutated known-bad copy.
@@ -391,9 +400,11 @@ exists anywhere in the image.** An earlier revision of this section said the
 quantity "does not exist in the game, and no amount of further searching will
 find it", which claimed more than was measured.
 
-Every write on the robe fitting's success path targets `[esi+...]`, the puzzle
-object's own fields. Its eight callees were then checked for references to the
-persisted statistics block -- and that check is **not usable**, because it
+An earlier check of "the robe fitting's success path" was made on
+`sub_431A40`, which is the Bee Hive's handler (see the correction above), so
+it says nothing about the robe at all. Its eight callees were checked for
+references to the persisted statistics block -- and that check was **not
+usable** in any case, because it
 failed its own positive control: `sub_4264A0` provably copies the block and the
 scan did not flag it. The block arrives there in `ECX` from the caller, so a
 callee scanned for the literal address can never match. A method that cannot
