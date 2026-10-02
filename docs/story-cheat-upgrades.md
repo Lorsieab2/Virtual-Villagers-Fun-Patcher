@@ -444,6 +444,12 @@ click. Queueing is the plain event's: the same lock, the same ten-minute lapse,
 bound to the save slot and the Start Over / delete generation; an answer in a
 village other than the one the question was asked in changes nothing.
 
+The picture: A New Home and The Lost Children show the question without a
+villager, as their own encounter popup can. The Secret City, The Tree of Life
+and New Believers must show one (their two-button popup is not drawn without
+it), so a random living villager is featured -- in New Believers always a
+believer, never a Heathen. Choosing that villager is not offered yet.
+
 Every value is checked when OK is pressed and again when the event is bought:
 both labels non-empty and within the game's label width (letters, numbers,
 spaces and . , ! ? : - ' only), one to four outcomes per button, each chance
