@@ -176,7 +176,7 @@ typedef struct {
    title is unused) is applied exactly as a plain custom event is.  Kept in
    static storage only: a ce_choice is about half a megabyte. */
 #define CE_MAX_OUTCOMES 4
-#define CE_BUTTON_BYTES 32              /* a button label, NUL included */
+#define CE_BUTTON_BYTES 40              /* a button label, NUL included (New Believers: 38) */
 #define CE_MAX_CHANCE 100               /* chances are weights 1..CE_MAX_CHANCE */
 #define CE_LABEL_DEFAULT_WIDTH 12       /* a label's characters when the adapter sets none */
 

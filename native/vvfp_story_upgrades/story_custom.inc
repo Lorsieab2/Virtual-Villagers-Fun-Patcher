@@ -1106,6 +1106,10 @@ static const char *ce_refusal(int game, const ce_event *e) {
    (the outcome's text plus the usual outcome lines) is written for the
    game's result popup. */
 
+/* 1 while ce_choice_refusal asks the adapter's arm_refusal: the event is a
+   question (A New Home / The Lost Children then allow the first event). */
+static int ce_refusal_for_choice;
+
 #ifdef VVFP_TEST
 static int test_choice_cap;        /* TEST build: every game may ask (the hooks are tested apart) */
 static int test_roll = -1;         /* TEST build: the next roll, -1 = the real source */
@@ -1228,7 +1232,12 @@ static const char *ce_choice_refusal(int game, const ce_event *e, const ce_choic
         return "With a question, every change belongs to an outcome. Remove the event's own "
                "changes, or untick \"Ask a question with two choices\".";
     }
+    /* A New Home's and The Lost Children's first island event is always
+       their two-choice family, which is the one a question is shown by:
+       their arm_refusal lets a question be that event (owner, 2026-10-02). */
+    ce_refusal_for_choice = 1;
     why = a->arm_refusal();
+    ce_refusal_for_choice = 0;
     if (why != NULL) {
         return why;
     }
@@ -1407,4 +1416,101 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
     ce_last_button = button;
     ce_last_outcome = k;
     return 1;
+}
+
+/* The lines of `text` as a popup shows them. */
+static int ce_text_lines(const char *text) {
+    int n = 1;
+    if (text[0] == '\0') {
+        return 0;
+    }
+    for (; *text != '\0'; ++text) {
+        if (*text == '\n') {
+            ++n;
+        }
+    }
+    return n;
+}
+
+/* The TALLEST result text `button` of `game`'s asked question can show:
+   each outcome's result text with every outcome line its changes could
+   print (the largest numbers), laid out as ce_choice_resolve lays it out --
+   or, when those lines do not fit, the text alone padded to the result
+   popup's height.  Written to `out`; returns its lines (0 when nothing is
+   asked).  A game that sizes its popup before the click (VV1 / VV2: from
+   the question alone; VV3-VV5: from the question and both results) sizes
+   it with this, so the result shown after the click always fits. */
+static int ce_choice_tallest(int game, int button, char *out, int size) {
+    static char scratch[4096];
+    const ce_adapter *a = ce_adapter_for(game);
+    const ce_choice *c;
+    ce_layout l;
+    int best = 0;
+    int k;
+    if (size > 0) {
+        out[0] = '\0';
+    }
+    if (a == NULL || !ce_choice_asked(game) || button < 0 || button > 1 || size <= 0) {
+        return 0;
+    }
+    c = &ce_choice_store[ce_asked_store];
+    l = ce_result_layout(a);
+    for (k = 0; k < c->outcome_count[button] && k < CE_MAX_OUTCOMES; ++k) {
+        const ce_event *e = &c->outcomes[button][k].effects;
+        ce_result r;
+        int lines;
+        int i;
+        int babies = 0;
+        memset(&r, 0, sizeof r);
+        for (i = 0; i < e->change_count; ++i) {
+            if (e->changes[i].litter > 0) {
+                babies = 1;
+            }
+        }
+        if (e->food_op != CE_AMOUNT_NONE) {
+            r.food_after = 9999999;
+        }
+        if (e->tech_op != CE_AMOUNT_NONE) {
+            r.tech_after = 9999999;
+        }
+        if (e->spawn_groups > 0 || babies) {
+            r.no_room_spawns = 999;
+        }
+        if (e->revive_count > 0) {
+            r.no_room_revives = 999;
+        }
+        if (e->change_count > 0 || e->revive_count > 0) {
+            r.skipped = 999;
+        }
+        if (ce_has_effects(e)) {
+            r.refused = 999;
+        }
+        if (ce_compose_in(a, &l, ce_asked_title, e, &r, scratch, sizeof scratch)) {
+            lines = ce_text_lines(scratch);
+        } else {
+            /* ce_choice_resolve then shows the text alone; the popup must
+               still be as tall as the outcome lines would have made it. */
+            ce_compose_in(a, &l, ce_asked_title, e, NULL, scratch, sizeof scratch);
+            lines = l.lines;
+            while (ce_text_lines(scratch) < lines && lstrlenA(scratch) + 2 < (int)sizeof scratch) {
+                lstrcatA(scratch, "\n");
+            }
+        }
+        if (lines > best) {
+            best = lines;
+            lstrcpynA(out, scratch, size);
+        }
+    }
+    return best;
+}
+
+/* Pads `text` (`size` bytes) with line breaks to `lines` lines. */
+static void ce_pad_lines(char *text, int size, int lines) {
+    int n = lstrlenA(text);
+    int have = ce_text_lines(text);
+    while (have < lines && n + 1 < size) {
+        text[n++] = '\n';
+        text[n] = '\0';
+        ++have;
+    }
 }

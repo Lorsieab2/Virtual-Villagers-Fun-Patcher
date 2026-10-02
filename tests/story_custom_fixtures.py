@@ -330,8 +330,8 @@ class Choice:
     counts: tuple | None = None
 
     MAX_OUTCOMES = 4
-    BUTTON_BYTES = 32
-    SIZE = 4 + 2 * 32 + 2 * 4 + 2 * 4 * Outcome.SIZE
+    BUTTON_BYTES = 40
+    SIZE = 4 + 2 * BUTTON_BYTES + 2 * 4 + 2 * 4 * Outcome.SIZE
 
     def pack(self) -> bytes:
         out = struct.pack("<i", self.enabled)

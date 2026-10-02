@@ -63,6 +63,18 @@ CHOICE_BUF = EVENT_BUF + 0x20000
 COUNTS = SCRATCH + 0x800
 CAP_CHOICE = 0x04000000
 
+# Each game's two-choice popup, as its adapter declares it (story_c*.inc):
+# question characters a line, question lines, result characters, result
+# lines, the result leads with the title, label characters.  The numbers are
+# the longest and tallest stock two-choice texts of each game.
+CHOICE_PANEL = {
+    "vv1": (49, 15, 49, 15, 1, 34),
+    "vv2": (46, 18, 46, 18, 1, 30),
+    "vv3": (48, 11, 48, 11, 0, 32),
+    "vv4": (48, 11, 48, 11, 0, 34),
+    "vv5": (48, 11, 48, 17, 0, 38),
+}
+
 
 def _story(game, **kw):
     story = Story(game, **kw)
@@ -107,10 +119,21 @@ def _label(story, button):
 
 
 def _resolve(story, button):
+    """The answer; the text returned is the result's body: in A New Home and
+    The Lost Children the result replaces the whole popup text, so it must
+    start with the title and four line breaks, which are checked and cut."""
+    at = story.proc.export("VvfpStoryProbeChoiceTitle", story.n)
+    title = story.proc.cstring(at) if at else ""
     story.proc.write(TEXT_BUF, b"\0")
     ok = story.proc.export("VvfpStoryProbeChoiceResolve", story.n, button, TEXT_BUF, 4096)
     story.proc.export("VvfpStoryProbeResult", RESULT_BUF)
-    return ok, unpack_result(story.proc.read(RESULT_BUF, RESULT_SIZE)), story.proc.cstring(TEXT_BUF)
+    text = story.proc.cstring(TEXT_BUF)
+    if ok and CHOICE_PANEL[story.game][4]:
+        head = title + "\n\n\n\n"
+        if not text.startswith(head):
+            raise AssertionError(f"{story.game}: the result does not lead with the title: {text!r}")
+        text = text[len(head):]
+    return ok, unpack_result(story.proc.read(RESULT_BUF, RESULT_SIZE)), text
 
 
 def _state(story):
@@ -157,7 +180,8 @@ class ChoiceLayoutTests(unittest.TestCase):
         story = Story("vv3")
         story.proc.export("VvfpStoryProbeChoiceSizes", SCRATCH)
         sizes = struct.unpack("<10i", story.proc.read(SCRATCH, 40))
-        self.assertEqual(sizes, (Choice.SIZE, Outcome.SIZE, 4, 4 + 64, 4 + 64 + 8,
+        labels = 2 * Choice.BUTTON_BYTES
+        self.assertEqual(sizes, (Choice.SIZE, Outcome.SIZE, 4, 4 + labels, 4 + labels + 8,
                                  Choice.BUTTON_BYTES, Choice.MAX_OUTCOMES, 100, 12, 4))
 
     def test_the_event_layout_is_unchanged(self):
@@ -251,7 +275,7 @@ class ChoiceRefusalTests(unittest.TestCase):
 
     def test_the_question(self):
         for game, story in _stories():
-            lines = PANEL[game][1]
+            lines = CHOICE_PANEL[game][1]
             cases = [
                 (_question(title=""), "Give the event a title."),
                 (_question(text="a *star*"), "title and question may use letters"),
@@ -271,9 +295,10 @@ class ChoiceRefusalTests(unittest.TestCase):
 
     def test_the_labels(self):
         for game, story in _stories():
-            limit = max(n for n in range(1, 32)
+            limit = max(n for n in range(1, Choice.BUTTON_BYTES)
                         if _refusal(story, _question(), _choice(story, labels=("x" * n, "No"))) is None)
             with self.subTest(game=game, limit=limit):
+                self.assertEqual(limit, CHOICE_PANEL[game][5], "the game's own label width")
                 why = _refusal(story, _question(), _choice(story, labels=("x" * (limit + 1), "No")))
                 self.assertIn(f"{limit} characters at most", why or "")
                 self.assertIsNone(_refusal(story, _question(), _choice(story, labels=("No", "x" * limit))))
@@ -287,7 +312,7 @@ class ChoiceRefusalTests(unittest.TestCase):
 
     def test_the_outcomes(self):
         for game, story in _stories():
-            lines = PANEL[game][1]
+            lines = CHOICE_PANEL[game][3]
             ok = _result("It went well.")
 
             def with_left(*outcomes, counts=None):
@@ -415,7 +440,8 @@ class ChoiceArmingTests(unittest.TestCase):
 class QuestionTests(unittest.TestCase):
     def test_the_question_text_and_labels(self):
         for game, story in _stories():
-            width, lines, title_width, separate = PANEL[game]
+            width = CHOICE_PANEL[game][0]
+            separate = PANEL[game][3]
             words = " ".join(["island"] * 20)
             _set(story, _question(title="The Long Night", text=words), _choice(story, labels=("Run", "Hide")))
             ok, text = _begin(story)
