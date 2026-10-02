@@ -37,6 +37,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import story_island_events  # noqa: E402
+import story_outcome_tables  # noqa: E402
 
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
 MODES = ("stock", "collection_progression", "immediate_fixed")
@@ -265,6 +266,9 @@ CUSTOM_SITE_ROUTINES = {
 PARENTAGE_SITES = {"vv1": 0x43BC39, "vv2": 0x44BAD8, "vv3": 0x455BF3, "vv4": 0x45E8E4,
                    "vv5": 0x465F34}
 
+# Each game's rand(bound) routine (cdecl): the outcome sites call it.
+RAND = {"vv1": 0x402F10, "vv2": 0x4031A0, "vv3": 0x4032D0, "vv4": 0x4036D0, "vv5": 0x403660}
+
 # Addresses the companion reads or calls, per game (emitted as #defines).
 CONSTANTS = {
     "VV3_EVENT_TABLE": 0x4B3C78, "VV3_EVENT_GETTER": 0x419AC0,
@@ -445,6 +449,7 @@ def build() -> None:
         "int is_call; void *stub; } story_detour;",
         "typedef struct { int slot; const char *title; const char *variant; "
         "const char *description; const char *requires; } story_event;",
+    ] + story_outcome_tables.C_TYPES + [
         "",
     ]
     for name, value in CONSTANTS.items():
@@ -464,7 +469,8 @@ def build() -> None:
         stock_image = Image((ROOT / "inputs" / f"{game}-stock-copy" /
                              {b.id: b for b in patcher.load_builds()}[game].input_name).read_bytes())
         sites = {}
-        for name, (va, n) in list(PICK_SITES[game].items()) + list(CUSTOM_SITES[game].items()):
+        for name, (va, n) in (list(PICK_SITES[game].items()) + list(CUSTOM_SITES[game].items())
+                              + list(story_outcome_tables.APPLY_SITES.get(game, {}).items())):
             sites[name] = (va, image.read(va, n))
             if stock_image.read(va, n) != sites[name][1]:
                 raise SystemExit(f"{game}: {name} at 0x{va:X} is not the stock code")
@@ -496,6 +502,14 @@ def build() -> None:
         lines.append(f"#define {tag}_PARENTAGE_SITE 0x{parentage_va:X}u")
         lines.append(_c_bytes(f"{tag}_PARENTAGE_STOCK", parentage_stock))
         events = story_island_events.EVENTS[game]
+        outcome_info = story_outcome_tables.collect(game)
+        taken = [(w["va"], w["va"] + len(w["expect"])) for w in writes]
+        taken += [(va, va + len(expect)) for va, expect in sites.values()]
+        outcome_found = story_outcome_tables.check(
+            game, outcome_info, RAND[game], stock_image.read,
+            [Image(data).read for data in renders], taken)
+        lines.extend(story_outcome_tables.emit(game, outcome_info, outcome_found,
+                                               [e["slot"] for e in events]))
         lines.append(f"static const story_event {tag}_EVENTS[] = {{")
         for e in events:
             lines.append(
@@ -505,13 +519,13 @@ def build() -> None:
         lines.append("};")
         lines.append(f"#define {tag}_EVENT_COUNT {len(events)}")
         lines.append("")
-        manifests[game] = (writes, sites, events)
+        manifests[game] = (writes, sites, events, outcome_info, outcome_found)
     lines.append("#endif")
     HEADER.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
     dll = ROOT / DLL_SOURCE
     dll_sha = hashlib.sha256(dll.read_bytes()).hexdigest().upper() if dll.is_file() else ""
-    for game, (writes, sites, events) in manifests.items():
+    for game, (writes, sites, events, outcome_info, outcome_found) in manifests.items():
         number = game[2:]
         detours = [
             {
@@ -527,11 +541,13 @@ def build() -> None:
                 "va": f"0x{va:X}",
                 "stock_bytes": expect.hex().upper(),
                 "routine": PICK_SITE_ROUTINES[name] + " (Pick Island Event)"
-                if name in PICK_SITE_ROUTINES else CUSTOM_SITE_ROUTINES[name],
+                if name in PICK_SITE_ROUTINES else (
+                    story_outcome_tables.APPLY_ROUTINES[name]
+                    if name in story_outcome_tables.APPLY_ROUTINES else CUSTOM_SITE_ROUTINES[name]),
                 "installed_by": f"{DLL_NAME}, VvfpStoryInstall",
             }
             for name, (va, expect) in sites.items()
-        ]
+        ] + story_outcome_tables.manifest_rows(game, outcome_info, outcome_found, DLL_NAME)
         record = {
             "id": f"{game}_story_cheat_upgrades",
             "enabled": True,

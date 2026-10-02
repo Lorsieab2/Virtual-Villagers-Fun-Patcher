@@ -354,12 +354,25 @@ static const ce_adapter C1_ADAPTER = {
 
 /* The replacement for `call 0x428470` at 0x428777 (thiscall, ret 8). */
 static void __fastcall c1_choose(void *event, void *unused_edx, int type, int magnitude) {
+    int strength;
     (void)unused_edx;
-    if (magnitude != VV1_BARREL_MAGNITUDE
-        && ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+    if (magnitude == VV1_BARREL_MAGNITUDE) {
+        /* The Origins Barrel of Babies: never a pick's outcome. */
+        TC2(0x428470u, event, type, magnitude);
         return;
     }
+    if (ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+        return;
+    }
+    /* A pick of an island event: the event is chosen (the case roll) and
+       applied inside this call, with this magnitude. */
+    strength = vv1_island_strength();
+    if (strength > 0) {
+        magnitude = strength;
+    }
+    oc_island_begin(1);
     TC2(0x428470u, event, type, magnitude);
+    oc_island_end(1);
 }
 
 /* ---- Title ---------------------------------------------------------------

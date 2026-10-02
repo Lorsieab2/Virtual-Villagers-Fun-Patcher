@@ -67,7 +67,9 @@ static int vv1_route(void) {
 
 /* 0x423818: rand(100), < 20 is an encounter. */
 static int __cdecl vv1_family_roll(int bound) {
-    int slot = vv1_route();
+    int slot;
+    oc_new_choice(1);
+    slot = vv1_route();
     if (slot < 0) {
         return VV1_RAND(bound);
     }
@@ -76,7 +78,9 @@ static int __cdecl vv1_family_roll(int bound) {
 
 /* 0x42383A: rand(100), < 50 is the island events, otherwise a crate. */
 static int __cdecl vv1_island_or_crate_roll(int bound) {
-    int slot = vv1_route();
+    int slot;
+    oc_new_choice(1);
+    slot = vv1_route();
     if (slot < 0) {
         return VV1_RAND(bound);
     }
@@ -84,13 +88,16 @@ static int __cdecl vv1_island_or_crate_roll(int bound) {
 }
 
 static int vv1_event_roll(int family, int bound) {
-    int slot = vv1_peek();
+    int slot;
+    oc_reroll(1);
+    slot = vv1_peek();
     if (slot < 0 || VV1_SLOT_FAMILY(slot) != family || VV1_SLOT_INDEX(slot) >= bound) {
         return VV1_RAND(bound);
     }
     pick_slot = -1;
     STORY_COUNT(delivered);
     last_failed_event = NULL;
+    oc_delivered(1, NULL);
     return VV1_SLOT_INDEX(slot);
 }
 

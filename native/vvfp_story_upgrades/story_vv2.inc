@@ -58,7 +58,9 @@ static int vv2_route(void) {
 
 /* 0x42EF28: rand(100), < 20 is family A. */
 static int __cdecl vv2_family_roll(int bound) {
-    int slot = vv2_route();
+    int slot;
+    oc_new_choice(2);
+    slot = vv2_route();
     if (slot < 0) {
         return VV2_RAND(bound);
     }
@@ -67,7 +69,9 @@ static int __cdecl vv2_family_roll(int bound) {
 
 /* 0x42EF4A: rand(100), < 50 is family C, otherwise family B. */
 static int __cdecl vv2_c_or_b_roll(int bound) {
-    int slot = vv2_route();
+    int slot;
+    oc_new_choice(2);
+    slot = vv2_route();
     if (slot < 0) {
         return VV2_RAND(bound);
     }
@@ -79,13 +83,16 @@ static int __cdecl vv2_c_or_b_roll(int bound) {
    chooser only offers events whose condition holds) falls back to the
    family's own stock rerolls. */
 static int vv2_event_roll(int family, int bound) {
-    int slot = vv2_peek();
+    int slot;
+    oc_reroll(2);
+    slot = vv2_peek();
     if (slot < 0 || VV2_SLOT_FAMILY(slot) != family || VV2_SLOT_INDEX(slot) >= bound) {
         return VV2_RAND(bound);
     }
     pick_slot = -1;
     STORY_COUNT(delivered);
     last_failed_event = NULL;
+    oc_delivered(2, NULL);
     return VV2_SLOT_INDEX(slot);
 }
 

@@ -30,4 +30,12 @@ EXPORTS
     VvfpStoryProbePending=_VvfpStoryProbePending@4
     VvfpStoryProbePossible=_VvfpStoryProbePossible@8
     VvfpStoryProbeArmedSlot=_VvfpStoryProbeArmedSlot@0
+    VvfpStoryProbeOutcomeArm=_VvfpStoryProbeOutcomeArm@28
+    VvfpStoryProbeOutcomeState=_VvfpStoryProbeOutcomeState@4
+    VvfpStoryProbeOutcomeDisarm=_VvfpStoryProbeOutcomeDisarm@0
+    VvfpStoryProbeOutcomeForce=_VvfpStoryProbeOutcomeForce@16
+    VvfpStoryProbeOutcomeScope=_VvfpStoryProbeOutcomeScope@12
+    VvfpStoryProbeOutcomeEvent=_VvfpStoryProbeOutcomeEvent@12
+    VvfpStoryProbeOutcomeControl=_VvfpStoryProbeOutcomeControl@16
     VvfpStoryStats DATA
+    VvfpStoryOutcomeStats DATA

@@ -28,7 +28,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9F0E8AF575BDDF3A4E5D3BA2CFD61471FBFF07D6606F4F797B560CC1A4C82610"
+      "sha256": "63A47524CFADC106F60ADE032DB4DC1976B26182285A992380B287DF86DC0443"
     }
   ],
   "runtime_detours": [
@@ -107,6 +107,588 @@
       "va": "0x429DE3",
       "stock_bytes": "E82827FEFF",
       "routine": "the villager panel's title label call 0x40C510 (custom titles)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41F53D",
+      "stock_bytes": "E85E3CFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42071F",
+      "stock_bytes": "E87C2AFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x420A78",
+      "stock_bytes": "E82327FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x420E5F",
+      "stock_bytes": "E83C23FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42147B",
+      "stock_bytes": "E8201DFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421942",
+      "stock_bytes": "E85918FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421975",
+      "stock_bytes": "E82618FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4219BF",
+      "stock_bytes": "E8DC17FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421A09",
+      "stock_bytes": "E89217FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421A53",
+      "stock_bytes": "E84817FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421A9D",
+      "stock_bytes": "E8FE16FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421B08",
+      "stock_bytes": "E89316FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421B1A",
+      "stock_bytes": "E88116FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421B51",
+      "stock_bytes": "E84A16FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421B97",
+      "stock_bytes": "E80416FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x422071",
+      "stock_bytes": "E82A11FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4220C3",
+      "stock_bytes": "E8D810FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x422115",
+      "stock_bytes": "E88610FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42216C",
+      "stock_bytes": "E82F10FEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4221BE",
+      "stock_bytes": "E8DD0FFEFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43333C",
+      "stock_bytes": "E85FFEFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43344C",
+      "stock_bytes": "E84FFDFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x433513",
+      "stock_bytes": "E888FCFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4340E8",
+      "stock_bytes": "E8B3F0FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434188",
+      "stock_bytes": "E813F0FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4341A9",
+      "stock_bytes": "E8F2EFFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434248",
+      "stock_bytes": "E853EFFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434269",
+      "stock_bytes": "E832EFFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43428A",
+      "stock_bytes": "E811EFFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434435",
+      "stock_bytes": "E866EDFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434447",
+      "stock_bytes": "E854EDFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434455",
+      "stock_bytes": "E846EDFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434471",
+      "stock_bytes": "E82AEDFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434483",
+      "stock_bytes": "E818EDFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x434491",
+      "stock_bytes": "E80AEDFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4375BC",
+      "stock_bytes": "E8DFBBFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x437ADC",
+      "stock_bytes": "E8BFB6FCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4395EF",
+      "stock_bytes": "E8AC9BFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x439691",
+      "stock_bytes": "E80A9BFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4396BE",
+      "stock_bytes": "E8DD9AFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4396EB",
+      "stock_bytes": "E8B09AFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x439727",
+      "stock_bytes": "E8749AFCFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44BA75",
+      "stock_bytes": "E82677FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44BAA9",
+      "stock_bytes": "E8F276FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44BC63",
+      "stock_bytes": "E83875FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44BE4D",
+      "stock_bytes": "E84E73FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44C014",
+      "stock_bytes": "E88771FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44C191",
+      "stock_bytes": "E80A70FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44CB88",
+      "stock_bytes": "E81366FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44CC27",
+      "stock_bytes": "E87465FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44CC37",
+      "stock_bytes": "E86465FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44E8A8",
+      "stock_bytes": "E8F348FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44E8CF",
+      "stock_bytes": "E8CC48FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EA19",
+      "stock_bytes": "E88247FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EBC0",
+      "stock_bytes": "E8DB45FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EBE5",
+      "stock_bytes": "E8B645FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EC67",
+      "stock_bytes": "E83445FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44ED39",
+      "stock_bytes": "E86244FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EDA0",
+      "stock_bytes": "E8FB43FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EFE4",
+      "stock_bytes": "E8B741FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44F0C0",
+      "stock_bytes": "E8DB40FBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44F1E9",
+      "stock_bytes": "E8B23FFBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44F257",
+      "stock_bytes": "E8443FFBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44F2E7",
+      "stock_bytes": "E8B43EFBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44F35E",
+      "stock_bytes": "E83D3EFBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44F3CB",
+      "stock_bytes": "E8D03DFBFF",
+      "routine": "a random roll of an island event (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41F843",
+      "stock_bytes": "E898C20200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41F8CC",
+      "stock_bytes": "E8AFC30200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41FAB7",
+      "stock_bytes": "E824C00200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41FB3C",
+      "stock_bytes": "E8EFC40200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41FC0F",
+      "stock_bytes": "E8CCBE0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41FC95",
+      "stock_bytes": "E846BE0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41FD3A",
+      "stock_bytes": "E8A1BD0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41FE04",
+      "stock_bytes": "E827C20200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x41FFB7",
+      "stock_bytes": "E824BB0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42003E",
+      "stock_bytes": "E89DBA0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42014C",
+      "stock_bytes": "E88FB90200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4201D2",
+      "stock_bytes": "E809B90200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4202E5",
+      "stock_bytes": "E886BB0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x42036B",
+      "stock_bytes": "E870B70200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421349",
+      "stock_bytes": "E8B2E1FFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421CAD",
+      "stock_bytes": "E84ED8FFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x421F1B",
+      "stock_bytes": "E8509F0200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x422006",
+      "stock_bytes": "E875990200",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x422364",
+      "stock_bytes": "E847E1FFFF",
+      "routine": "an island event's resolve call (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x433D17",
+      "stock_bytes": "E8D4F5FFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x433DFB",
+      "stock_bytes": "E8F0F4FFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4344E8",
+      "stock_bytes": "E8C3EEFFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x43483D",
+      "stock_bytes": "E8BEEDFFFF",
+      "routine": "an island event's resolve call (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x437CFB",
+      "stock_bytes": "E8E03D0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x437DAE",
+      "stock_bytes": "E82D3D0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x437E61",
+      "stock_bytes": "E87A3C0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x437F39",
+      "stock_bytes": "E8A23B0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x437FE4",
+      "stock_bytes": "E8F73A0100",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x439DB4",
+      "stock_bytes": "E8A7E3FFFF",
+      "routine": "an island event's resolve call (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EB3E",
+      "stock_bytes": "E83DCEFFFF",
+      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x461B8E",
+      "stock_bytes": "E80DCDFEFF",
+      "routine": "the Gong of Wonder's use (Pick Gong of Wonder Outcome)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     }
   ],
