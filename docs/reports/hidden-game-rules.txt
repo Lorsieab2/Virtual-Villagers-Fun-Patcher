@@ -1,0 +1,1488 @@
+VIRTUAL VILLAGERS - HIDDEN GAME RULES
+=====================================
+All five games: A New Home, The Lost Children, The Secret City, The Tree of Life, New Believers
+Written 2026-10-01 from the stock (unpatched) game executables, the Fun Patcher's research notes
+and your saves.
+
+
+INTRODUCTION
+------------
+You found out that A New Home shows a hut's scaffold at 15 villagers, but builders won't touch it
+until there are 23, and they walk away from it if the village shrinks. The game never tells you.
+This file collects every rule of that kind we could find: hidden gates, thresholds and dice rolls
+that quietly change what villagers do.
+
+How to read it
+  - Each rule has a plain title, then:
+      What     what the game does, with the exact numbers
+      Tip      what it means for you as a player
+      Patch    whether a Fun Patcher patch changes it ("not changed by the patcher" if none)
+      Tag      the evidence (see below)
+  - Ages. The games count age in steps of 1/20 of a year. At Normal speed one step is 6 real
+    minutes (3 at Fast, 10 at Slow), so one game year is 2 real hours at Normal.
+  - "Medicine level" means the Medicine technology. It starts at 1 in every game, and the maximum
+    is 3.
+  - "A roll of 25 or less out of 100" means 26 chances in 100, and so on.
+
+Evidence tags
+  [code]            traced in the stock game executable for this report
+  [code, re-traced] one of the facts you asked to have checked again; traced again for this report
+  [save]            also confirmed in your own save files
+  [observed live]   seen in the running game during earlier live tests
+  [repo research]   taken from the patcher's earlier research notes; not traced again this time
+  [unverified]      could not be confirmed; treat it as a lead, not a fact
+No game was run for this report, so apart from the [save] and [observed live] items, everything here
+comes from reading the program, not from watching it play.
+
+Patch status
+  - "v1.35.44" means the release v1.35.44 (published), which includes the population-hut change.
+  - "Catch-up update" means the catch-up work that also shipped in v1.35.44 (PR #494): the
+    catch-up boost of Builders and Healers Work First, The Lost Children's plant study during
+    catch-up, and the companions installed before the first catch-up. Both are in every release
+    from v1.35.44 on.
+
+Code that exists in a game but never runs is not listed as a rule. It is collected at the end under
+"Looks like a rule but never runs".
+
+
+======================================================================================
+RULES SHARED BY ALL FIVE GAMES
+======================================================================================
+
+TIME AWAY (catch-up: what happens while the game is closed, and Time Warp)
+
+S1. Time away counts oddly: more than a day away gives more progress than half a day
+  What  Each villager carries a "time owed" total, checked when you load:
+        - Owed time over 24 hours is cut to exactly 24 hours.
+        - Otherwise, owed time over a speed limit is cut to about 8.6 hours (31,000 seconds).
+          The limit is 8.6 hours at Normal, 10.6 hours at Fast and 6.6 hours at Slow.
+        Results:
+        - At Normal, 8.6 hours away counts in full, 9 to 24 hours away counts as only 8.6, and
+          anything over 24 hours counts as a full 24.
+        - At Slow, 7 to 24 hours away is rounded UP to 8.6 hours.
+        - 8.6 hours is about 4.3 game years at Normal, 2.6 at Slow and 8.6 at Fast.
+          24 hours is about 12 / 7.2 / 24 game years.
+  Tip   A short absence (under 8 hours) or a long one (over a day) gives full value. An absence of
+        10 to 23 hours loses the time past 8.6 hours.
+  Patch Not changed by the patcher.
+  Tag   [code, re-traced] The same 24-hour and 31,000-second limits are in all five games.
+
+S2. Only healthy, idle adults do anything while you are away
+  What  During catch-up a villager acts only if they are 14 or older, not sick, have health of 20
+        or more, and are not pregnant, nursing or busy. Each one gets 5 work turns per age step in
+        A New Home and 4 in the other games, and only while more than 2 age steps behind.
+        Children never act.
+  Tip   No lessons, no child play and no child mushroom-finding happen while the game is closed.
+        Sick or weak adults also sit out.
+  Patch Builders and Healers Work First (catch-up update) makes builders and healers try their
+        own job first about 3 times in 4 during catch-up. Otherwise not changed.
+  Tag   [code, re-traced]
+
+S3. While you are away, a "Parenting" turn becomes a pairing only 6% of the time
+  What  If the catch-up job picker chooses Parenting, the villager tries to pair only on a roll of
+        5 or less out of 100 (6 in 100). The other turns are used for nothing.
+        Earlier notes said 5%; it is 6%.
+  Tip   Few babies are conceived while the game is closed. Breed while you play.
+  Patch Not changed by the patcher.
+  Tag   [code, re-traced]
+
+S4. Unborn babies already count toward the population
+  What  A pregnant or nursing mother adds 1, 2 or 3 to the population number before her babies
+        appear.
+  Tip   Housing and population limits (below) can be reached "early". The Highest Population
+        statistic can show more villagers than you can see.
+  Patch Not changed by the patcher.
+  Tag   [code, re-traced] in all five games.
+
+AGEING, SICKNESS AND DEATH
+
+S5. Old age: a hidden death roll every birthday past 55, 63 or 71
+  What  On each birthday past 55 (Medicine 1), 63 (Medicine 2) or 71 (Medicine 3), the villager
+        dies with chance 10% times the number of years over that age. Death is certain by 65, 73
+        or 81.
+  Tip   Medicine is the lifespan technology. Each level adds 8 years.
+  Patch A New Home: Magic Fruit of Life Alters Mortality (+7 years).
+        The Secret City: Nature Level 3 Actually Alters Mortality (+7 years).
+        Other games: not changed by the patcher.
+  Tag   [code] in all five games. [save] In The Lost Children the oldest villagers in your saves
+        are 76 to 80 at Medicine 3, under the limit of 81.
+
+S6. "Elderly" villagers get sick more and heal much more slowly
+  What  From age 50 (Medicine 1), 58 (Medicine 2) or 66 (Medicine 3), a villager:
+        - has an extra 1.5% chance of falling sick on every age step (about 26% per year), and
+        - regains health only one fifth as often as younger villagers.
+        This is why most villagers aged 50+ that you saw live were ill.
+  Tip   Expect sickness among your elders and keep a healer busy. Medicine 3 moves "elderly" to 66.
+  Patch Not changed by the patcher.
+  Tag   [code] in all five games. [observed live] Villagers aged 50+ were mostly ill.
+
+S7. A work injury hides in research
+  What  2% of research sessions cost the researcher 0 to 9 health.
+  Patch Not changed by the patcher.
+  Tag   [code] in all five games.
+
+S8. The Difficulty setting quietly changes food and health
+  What  Easy, Normal (or Medium) and Hard change how much food villagers eat, how often they
+        starve, sicken and heal, and the starting food. The exact numbers are in each game's
+        section.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+BREEDING
+
+S9. A pairing's success depends on the skill of the villager you dragged
+  What  A manual drop makes two hidden rolls, both using the Parenting skill of the villager you
+        DRAGGED (not the one you dropped it on):
+        - "Do they get along?": a roll of 0-99 must be at most Parenting + 30 (A New Home) or
+          Parenting + 33 (the other games). The other games change the +33 to +66 if the villager
+          likes "learning" and +16 if they dislike it. The Tree of Life and New Believers add +15
+          at Learning level 2 and +30 at Learning level 3.
+        - Conception: a roll of 0-299, plus 50, minus 50 for each level of the fertility
+          technology, must be at most that same Parenting skill. The fertility technology is
+          Medicine, or "Fertility" in A New Home. A failed conception roll shows no message.
+  Tip   Drag the partner with the higher Parenting. The fertility technology matters a lot:
+        at level 1 the conception chance is (Parenting + 1) out of 300, at level 3 it is
+        (Parenting + 101) out of 300.
+  Patch Learning Skills Never Fails makes the get-along roll always succeed. The conception roll
+        is not changed.
+  Tag   [code, re-traced] in all five games.
+
+S10. Your first pairing in a new village is guaranteed
+  What  Until the tutorial message "Good! They get along..." has been shown in a village, a
+        pairing skips the conception roll (and in most games the low-food refusal). The age check
+        and the other checks still apply.
+  Tip   This only happens once per village, so don't expect the same luck again.
+  Patch Not changed by the patcher.
+  Tag   [code] in all five games. See A New Home rule 7 for exactly when it is switched on.
+
+S11. Twins and triplets are rare and need the top fertility technology
+  What  The Lost Children, The Secret City, The Tree of Life and New Believers: only at Medicine
+        level 3. Then 7% of conceptions are multiple, and a quarter of those are triplets. Overall
+        that is 5.25% twins and 1.75% triplets. Below Medicine 3 every birth is single.
+        A New Home works differently; see its rule 10.
+  Patch Not changed by the patcher. The population modes only stop a litter from overflowing the
+        village.
+  Tag   [code]
+
+S12. Babies take two years to arrive
+  What  The baby becomes its own villager 40 age steps (2 game years) after conception. That is
+        about 4 real hours at Normal.
+  Tag   [code]
+
+S13. In a tiny village the newborn's sex is not random
+  What  When the village has 6 or fewer people (counting unborn babies), a newborn's sex is forced
+        whenever one sex has 2 or fewer members. In A New Home and The Lost Children the code
+        pushes toward the sex that is ALREADY in the majority, the opposite of balancing. That
+        looks like a bug in the original game. The direction in the other three games was not
+        settled.
+  Patch Not changed by the patcher.
+  Tag   [code] Not seen in a running game. The direction is [unverified] for The Secret City, The
+        Tree of Life and New Believers.
+
+JOBS
+
+S14. Bodies get buried before most other work
+  What  While an unburied body lies in the village, any idle adult goes to it 25% of the time, and
+        a villager with Healing 50 or more does so about 77% of the time. A body left alone
+        vanishes by itself after 240 age steps (about a day of real time at Normal).
+        New Believers buries only after the Mausoleum is restored.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+
+======================================================================================
+A NEW HOME (VV1)
+======================================================================================
+
+BUILDING
+
+1. A hut's scaffold appears long before builders will work on it
+  What  Hut 9 is built at any population. Hut 10's scaffold appears at 15 villagers, but builders
+        start on it only above 22. Hut 11's scaffold appears at 28 villagers, but builders start on
+        it only above 45. Drawing a scaffold marks it as "started" (progress 1), but the stock
+        builder code never looks at that mark.
+  Tip   A bare scaffold at 15 to 22 villagers (or 28 to 45) is waiting for your population.
+  Patch v1.35.44, Builder Action Fixes and Builders Fix Huts When Idle (both carry it):
+        - builders start hut 10 or 11 only after you have worked on it (dropped a villager on it)
+        - once started, builders finish it at any population, including during catch-up
+  Tag   [code, re-traced]
+
+2. Builders abandon a half-built hut if the population drops
+  What  The population test is made on every decision. If the village falls back to 22 or fewer
+        (hut 10) or 45 or fewer (hut 11), builders stop working on that hut, even halfway through,
+        until the population rises again.
+  Tip   A plague, starvation or an island event can freeze construction without any message.
+  Patch v1.35.44 (as in rule 1): a started hut is finished at any population.
+  Tag   [code, re-traced]
+
+3. With 400 or more food, builders get fewer chances to build
+  What  Below 400 food the game gives every villager an extra job attempt and a "carry on with
+        what you were doing" step. At 400 or more it does not. A builder still gets one
+        construction attempt per decision, but loses the second.
+        This happens only while you play; catch-up has no food gate for builders.
+  Tip   A well-fed village builds more slowly. This is not a bug in your village.
+  Patch Builder Action Fixes and Builders Fix Huts When Idle give builders the attempt at 400+
+        food about 3 times in 4.
+  Tag   [code, re-traced] The previous note ("builders get no construction attempt at 400+") was
+        too strong.
+
+4. 21% of builder decisions skip huts, and below Construction level 3 huts are never fixed
+  What  - Hut priority: on about 79% of decisions a builder goes to an unfinished, unlocked hut
+          first. On the other 21% (a roll of 20 or less out of 100) it skips huts and looks at
+          projects instead, unless it was already working on a hut.
+        - The 21% skip on hut fixing: when it fires, the builder reports "started" but has
+          nothing to do, so it stands idle.
+        - Other projects (beach, blockage, field and so on) are only continued once someone has
+          started them.
+        - Below Construction level 3 the Building job gives up before it ever reaches hut fixing.
+  Patch Builders Fix Huts When Idle (build first; idle builders fix huts at any Construction
+        level). Builders and Healers Work First raises the odds further.
+  Tag   [code]
+
+BREEDING
+
+5. A New Home has no age limit on a manual drop, but low food blocks most drops
+  What  Both villagers must be 18 or older, of opposite sex, alive, not sick and not
+        busy/pregnant. There is no upper age for either sex.
+        Below 400 food a drop goes ahead only 26% of the time; the other 74% get "too hungry".
+        When a drop fails because the village is at 90 or more, the game shows no message.
+  Tip   Get food to 400+ before you breed by hand.
+  Patch Birth Control adds a refusal for women aged 50+. Manual Drop-Breeding overrides Birth
+        Control takes it back out for drops (it only matters when Birth Control is ticked).
+  Tag   [code, re-traced] There is no 50+ refusal in stock A New Home.
+
+6. Housing gates and the population limit
+  What  To have a baby, the village needs:
+        - hut 9 from 15 villagers
+        - hut 10 from 25
+        - hut 11 from 50
+        90 is the hard limit. Unborn babies count (rule S4).
+  Tip   Get hut 10 finished before 25 people and hut 11 before 50, or breeding stops.
+  Patch Collection Progression Max Pop and Immediate Fixed Max Pop raise the limit to 256.
+        No Population Increase keeps 90. The hut gates are not changed.
+  Tag   [code]
+
+7. The first pairing in a new village is guaranteed, unless you turned the help off
+  What  A new village switches on the tutorial tip "Good! They get along...". While that tip is
+        waiting to be shown, a drop skips both the low-food roll and the conception roll and
+        always succeeds if the basic checks pass. The tip is then shown and switched off for
+        good.
+        If you answer No to "Would you like HELP the first time?", the tutorial tips are switched
+        off, and this freebie with them.
+        This is a real rule, not dead code. It runs once per village.
+  Patch Not changed by the patcher.
+  Tag   [code] Which button of the help question turns the tips off is inferred, not observed.
+
+8. One embrace can make several women pregnant
+  What  When a villager does the autonomous "Embracing" action, the game ignores the partner it
+        walked to. It scans the whole village and gives every eligible adult of the opposite sex
+        their own food roll (below 400 food), skill roll and conception roll. It does not stop
+        after a success, so one man can father several babies at once. There is no family check.
+  Tip   A single active father siring most of the village is normal in this game.
+  Patch Birth Control (partners under 50 only; the Parenting preference must be ticked).
+  Tag   [code]
+
+9. Villagers choose Parenting on their own only if it beats their other skills by about 15
+  What  When the job picker scores Parenting, it subtracts 15 from the skill. A ticked Parenting
+        preference overrides this 86% of the time.
+  Patch Birth Control.
+  Tag   [code]
+
+10. Twins need Fertility 3 or the Magic Fish; triplets need both
+  What  Twins are possible only with Fertility level 3 OR the Magic Fish of Fertility puzzle
+        solved: 7% of conceptions. Triplets need BOTH, and are then 25% of multiple births. At
+        best that is 5.25% twins and 1.75% triplets.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+11. How a baby inherits talent depends on how it was conceived
+  What  The baby starts with points in the best skill of one parent, chosen 50/50:
+        - 5 to 7 points after your manual drop
+        - 10 to 19 points after autonomous Embracing
+        Parenting is never inherited. If Parenting is the chosen skill, the baby gets Farming 0
+        instead.
+  Tip   Let villagers pair on their own if you want talented babies.
+  Patch Not changed by the patcher.
+  Tag   [code] [save] Your birth log shows babies with 6 to 7 points in one skill and Breeding
+        always 0.
+
+JOBS
+
+12. How the job picker really works
+  What  - 15% of decisions produce no job at all.
+        - Each skill is considered only 84% of the time.
+        - A ticked preference overrides the pick 86% of the time.
+        - The job then starts only on a roll of 0-99 below (skill + 40).
+        A skill of 0 or 1 therefore never works on its own, even with the preference ticked.
+  Tip   Don't tick a preference for a skill the villager does not have. Drag them to the job
+        first.
+  Patch Builders and Healers Work First and Builder Action Fixes raise the odds for building and
+        healing.
+  Tag   [code]
+
+13. Dislikes quietly cancel work
+  What  - A villager who dislikes "work" refuses 70% of job picks.
+        - Disliking "medicine" skips Healing half the time.
+        - Disliking swimming, the ocean, dancing and similar vetoes those activities.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+14. Beginners keep repeating whatever you last dragged them to
+  What  If a villager's best skill is under 50 and all skills add up to under 70, the game makes
+        them carry on with the task you last dragged them to. Except on Easy, they need at least
+        1 point in that skill.
+  Tip   One drag is enough to set a beginner working.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+15. Swimming, dancing, the garden and worship need 2,000 food
+  What  These leisure and worship activities happen only at 2,000+ food. The worship chance is
+        3 x Spirituality level, plus 3 for each shrine project completed.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+16. Work starts at 14
+  What  Under 14 a villager only does child things. The game's own tip says "around 14".
+  Tag   [code]
+
+SKILLS, SCHOOL AND RESEARCH
+
+17. Skill gain: fast at first, then very slow
+  What  - A work task succeeds on a roll of 0-99 at most (skill + 30). A failed roll gains
+          nothing.
+        - Each success gives (50 - skill) / 5: +10 at 0, +5 at 25, +1 at 45.
+        - From about 46 upward, a success gives +1 only with chance 26% x (100 - skill)%. That is
+          2.6% at 90.
+        - Titles: Trainee from 20, Adept from 50, Master from 90.
+  Patch Learning Skills Never Fails (every roll succeeds). The gains are not changed.
+  Tag   [code]
+
+18. School gives no skill
+  What  The stock "Going to school" lesson awards nothing.
+  Patch School Lessons Grant Skill (7 to 9 points in one random skill). School Lessons Stop at 50.
+  Tag   [repo research]
+
+19. Research pays by Science level and stops at the top
+  What  A research session pays Research skill / 7, / 5 or / 3 at Science level 1, 2 or 3, so
+        Research under 7 at Science 1 earns nothing. Once all six technologies are at level 3,
+        researchers stop.
+  Patch Continue Research at Max Technologies.
+  Tag   [code]
+
+FOOD AND HEALTH
+
+20. Berries shrink as the bush empties
+  What  - Each forage gives (berries left / 130) berries, at least 2.
+        - The bush starts at 1,400 (1,900 on Easy) and regrows by 30 every 4 real hours at
+          Normal.
+        - Crops reset to +800 on the same clock once Farming level is 2 or more.
+        - A crop harvest gives 7 food.
+        - At Farming level 1, an empty bush leaves farmers "busy" doing nothing.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+21. Eating and starving
+  What  - Each villager eats 2 food per age step.
+        - At 200 food or less, half the time they skip the meal and lose 1 health instead.
+        - Above 2,000 food (Normal), at any food level (Hard), never (Easy): they eat 2 extra with
+          76% chance.
+        - At 0 food they lose 1 health 76% of the time (always on Hard).
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+22. Children never fall ill, except from Measles
+  What  Only villagers aged 14+ can catch a random illness. Per age step the chance is 4 in 2,400
+        (Medicine 1), 4 in 4,800 (Medicine 2) or 3 in 10,000 (Medicine 3), plus the elderly risk
+        in S6. On Easy the check runs only half the time. A sick villager loses 1 health 71% of
+        the time (about 22% at health 20 or less).
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+23. Healers never cure children on their own
+  What  A healer's "Healing someone" action rolls the healer's Healing skill once for every
+        villager and cures each sick one that passes. It also trains Healing on every roll, so it
+        is fast in a big village. But it cures only villagers aged 14+, so children with Measles
+        are never cured autonomously. Catch-up cures are adults-only too.
+        Dropping a healer on a child does cure them. When all four herbs are understood, a
+        dropped cure also restores 10 to 29 health.
+  Tip   During Measles, drop your healer on each sick child yourself.
+  Patch Not changed by the patcher.
+  Tag   [code] Where the drag-cure's own success roll happens was not found [unverified].
+
+24. Natural healing
+  What  A fed, healthy villager gains +1 health per age step: always on Easy, half the time
+        otherwise, and one fifth as often once elderly (S6).
+  Tag   [code]
+
+ISLAND EVENTS AND CATCH-UP
+
+25. Island events: timing
+  What  - The first event comes 15 minutes into a new village, the next 30 minutes after that,
+          then one every 12 to 23 real hours.
+        - Paused time does not count, and an event waits until its chosen villager has caught
+          up, so events do not pile up while you are away.
+        - After the first event (always a choice event): 20% are choice events, 40% passive
+          events and 40% a Mysterious Crate.
+  Patch Not changed by the patcher.
+  Tag   [code] That no events happen during catch-up is inferred.
+
+26. Island events: hidden conditions and sizes
+  What  - Trapped Whale needs Spirituality below 3.
+        - The Visitor needs Medicine below 3.
+        - Locusts need Farming level 2+.
+        - Big Wave needs the beach cleaned.
+        - Measles needs a child, and makes every child sick.
+        - Barrel O' Babies needs room under the limit. It brings 1 baby under 15 villagers, 2 at
+          15 to 23 and 3 at 24+.
+        - An event's size is population / 3, between 1 and 10.
+        - The Bad Little Monkey takes size x 900 tech points.
+  Patch Not changed by the patcher (automatic capacity safety stops overflow).
+  Tag   [code]
+
+27. A New Home keeps plant study going during catch-up
+  What  Catch-up calls the Building and Healing jobs directly, so a healer with nobody to treat
+        carries on studying the plant. The Lost Children does not (see its rule 30).
+  Patch Healers Study Plants Regardless of Food (for live play at 400+ food; catch-up already
+        continued).
+  Tag   [code, re-traced]
+
+
+======================================================================================
+THE LOST CHILDREN (VV2)
+======================================================================================
+
+TIME
+
+1. "1/2 speed" is really 0.6 speed
+  What  Normal is 6 real minutes per age step, 2x is 3 minutes, and "1/2 speed" is 10 minutes
+        (not 12).
+  Tag   [code] [save]
+
+BUILDING
+
+2. Builders never start the 2nd or 3rd population hut by themselves
+  What  The scaffold of the second population hut appears at 21 villagers, the third at 46.
+        Each scaffold shows progress 1. Builders work on a hut only when the population is above
+        22 (or above 45) AND its progress is at least 2, which only your drop can give it. They
+        drop it again whenever the population falls back to 22 (or 45).
+  Tip   Drop a builder on each new hut once to start it.
+  Patch v1.35.44, Builders Fix Huts When Idle: builders start a hut you have started, then finish
+        it at any population, including during catch-up.
+  Tag   [code, re-traced]
+
+3. Each construction step is skipped 21% of the time
+  What  Construction goes through a fixed order (own task, project 1, the huts, then projects
+        unlocked by Engineering levels 2 and 3). Each step goes ahead only on a roll above 20 out
+        of 100 (79%). Below Engineering
+        level 3 the Building job gives up before hut fixing.
+  Patch Builders Fix Huts When Idle and Builders and Healers Work First.
+  Tag   [code]
+
+4. The Hospital needs Medicine 3 and Engineering 3, and your start
+  What  Its scaffold appears only once both levels are 3. Builders work on it only after you have
+        started it.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+BREEDING
+
+5. Housing gates and the population limit
+  What  To have a baby the village needs:
+        - 1 hut from 15 villagers
+        - 2 huts from 25
+        - 3 huts from 50
+        The limit is 90, plus 5 per completed collection (25 when all four are done), so 115.
+  Patch Collection Progression Max Pop and Immediate Fixed Max Pop raise the limit. No Population
+        Increase keeps 115. The hut gates are not changed.
+  Tag   [code] [save] Peak population of 90 to 91.
+
+6. Manual drop: a woman aged 50+ is refused silently, after the rolls
+  What  Both villagers must be 18+, of opposite sex, healthy, not sick and not nursing. Below 300
+        food there is a 34% "too hungry" refusal. Then come the two rolls (S9). Only after the
+        conception roll has succeeded is a woman aged 50+ refused, with no message. The
+        "elderly and not interested" message appears only when an earlier check failed.
+  Patch Manual Drop-Breeding overrides Birth Control (works with or without Birth Control).
+  Tag   [code, re-traced]
+
+7. Autonomous pairing: women under 50 only, and one man can father several babies
+  What  An embracing villager scans the whole village twice. Every eligible opposite-sex villager
+        gets their own food check (34% veto below 300 food), skill roll and conception roll, so
+        one man can make several women pregnant at once. The woman must be under 50; men have no
+        age limit.
+  Patch Birth Control.
+  Tag   [code]
+
+8. How a baby inherits talent depends on how it was conceived
+  What  The baby gets the best skill of one parent, chosen 50/50:
+        - 10 to 19 points from autonomous or catch-up pairing
+        - only 5 to 7 points from your drop
+        On a drop where both parents share the same best skill, Culture changes it to 4 to 5
+        (level 1), 5 to 8 (level 2) or 7 to 11 (level 3). Parenting is never inherited.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+9. Newborns start at 90 health, and most have no likes
+  What  A newborn starts at 90 health. 70% have no likes, 21% one and 9% two. Dislikes follow the
+        same odds.
+  Tag   [code]
+
+10. Every pregnancy trains the mother
+  What  The mother gains max(5, (100 - Parenting) / 10) Parenting, up to 100.
+  Tag   [code]
+
+JOBS
+
+11. Two decisions in three do nothing
+  What  The idle scheduler does nothing on 66% of its runs.
+  Tip   Idle-looking villagers are normal.
+  Tag   [code]
+
+12. The job picker's hidden rules
+  What  - Unless the villager likes "work", 15% of picks give no job. Disliking "work" adds a
+          further 70%.
+        - Each skill is considered 84% of the time, and Parenting scores 15 lower.
+        - A ticked preference wins 86% of the time.
+        - The job starts only if the skill is above 5, and then with chance (skill + 40)%.
+        A preference on a skill of 5 or less leaves the villager idle.
+  Patch Builders and Healers Work First (builders and healers only).
+  Tag   [code]
+
+13. The 300-food line
+  What  Below 300 food every villager gets an extra job attempt, and healers carry on studying
+        plants. At 300+ they lose that attempt, and healers stop plant study.
+  Patch Healers Study Plants Regardless of Food. Builders Fix Huts When Idle and Builders and
+        Healers Work First (for builders).
+  Tag   [code]
+
+14. Plenty of food makes villagers quit long jobs
+  What  At 4,000+ food, a villager who doesn't like "work" keeps at a multi-step job only about
+        half the time, and one who dislikes work only about a third.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+15. Dislikes cancel jobs
+  What  Disliking "medicine" skips Healing half the time. Disliking coconuts or heights stops a
+        farmer climbing for coconuts.
+  Tag   [code]
+
+16. With nobody sick, healers do nothing
+  What  The Healing job looks only for a sick patient. With none, it returns nothing and does not
+        study plants.
+  Patch Easier Healing Mastery (healers study plants when nobody is sick, including catch-up).
+  Tag   [code]
+
+17. Nursing mothers act only one decision in five
+  Tag   [code]
+
+FOOD AND HEALTH
+
+18. Eating and starving
+  What  - Each villager eats 2 food per age step.
+        - At 150 food or less they ration: 50% eat, 15% skip and lose 1 health, 35% skip without
+          penalty.
+        - On Medium they eat 2 extra 76% of the time above 4,000 food; on Hard always; never on
+          Easy.
+        - At 0 food they lose 1 health 76% of the time (always on Hard).
+  Tag   [code]
+
+19. Healing needs the fire or the Hospital on Medium and Hard
+  What  A fed, healthy villager regains +1 health per age step: always on Easy. On Medium and
+        Hard it is only half the time, unless the fire is lit or the Hospital is built.
+        Adding wood resets the fire to burn for 20 hours at Normal; it never stacks.
+  Tip   Keep the fire lit until the Hospital exists. Extra wood on a burning fire is wasted.
+  Tag   [code]
+
+20. Sickness odds depend on Medicine and the fire
+  What  Per age step: 4 in 1,440 with the fire lit, or 7 in 1,440 without (Medicine 1). The
+        figures are 4 or 7 in 2,460 at Medicine 2, and 3 or 5 in 5,400 at Medicine 3. Easy halves
+        them. The Hospital does NOT lower these odds. A sick villager loses 1 health 61% of the
+        time (about 19% at 20 health or less).
+  Tag   [code]
+
+21. A healer's treatment can cure many villagers at once
+  What  "Healing someone" ends with one Healing roll for every living villager, and every sick
+        villager whose roll passes is cured. Healers therefore train very fast in big villages.
+        Plant study also has a Healing-in-1,500 chance per step to cure one villager.
+  Patch Learning Skills Never Fails makes the rolls succeed.
+  Tag   [code]
+
+22. The Hospital's "Recovering" restores no health
+  Patch Hospital Recovery Heals (+1 health).
+  Tag   [repo research]
+
+SKILLS, CHILDREN AND RESEARCH
+
+23. Skill gain
+  What  - Success when a roll of 0-99 is at most skill + 33 (+66 if the villager likes
+          "learning", +16 if they dislike it).
+        - A failure at skill 0 bumps it to 4.
+        - Each success gives about (50 - skill) / 5, doubled for likes-learning and halved for
+          dislikes-learning.
+        - Above about 45, +1 comes only with chance 26% x (100 - skill)%.
+        - "Master" shows from 88.
+  Patch Learning Skills Never Fails.
+  Tag   [code]
+
+24. Only an adult with Parenting 50+ can teach
+  What  Dropping an adult on a child starts a class only if the dropped adult has Parenting of 50
+        or more. Otherwise they just play, and each other young child has a 25% chance to join.
+        The stock lesson grants no skill.
+  Patch Teaching Children Grants Skill. Teaching Children Stops at 50.
+  Tag   [code] for the gate. [repo research] for "no skill".
+
+25. Research pays more while you're away
+  What  While playing, Research skill / 11, / 9 or / 5 at Science 1, 2 or 3, doubled at 2x speed
+        and reduced at 1/2 speed. During catch-up it is / 7, / 6 or / 4 with no speed change. A
+        lit fire adds +1 point 10% of the time.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+26. Food per trip is fixed, and coconuts run out
+  What  - A coconut trip gives 4 food at Normal (8 at 2x, 2 at half), whatever the skill.
+        - Gatherers stop when fewer than 10 coconuts remain.
+        - The trees regrow +30 every 4 real hours at Normal, up to 1,500.
+        - The field resets to 800 on the same clock.
+        - Pausing freezes these timers.
+  Tag   [code] [save] Coconuts at 1,500 and the field at 800.
+
+27. Birds raid the field until you build the scarecrow
+  What  After the field has produced 1,000 food in total, birds come and the field stops
+        regrowing until project 3 (the scarecrow, going by the game's text) is built.
+  Tip   Build the scarecrow early.
+  Tag   [code] That project 3 is the scarecrow is inferred. [save] Project 3 is complete in your
+        saves.
+
+EVENTS AND THE GONG
+
+28. Island events
+  What  - About every 10 to 19 real hours, never while a villager is still catching up.
+        - Group events affect population / 3 villagers (1 to 10).
+        - Flash Flood cuts food to 750 if it is above that.
+        - The Obnoxious Parrot takes a quarter of your tech points.
+  Patch Not changed by the patcher.
+  Tag   [code]
+
+29. The Gong of Wonder: once a day, and the coconut outcome destroys coconuts
+  What  The gong works once per 24 real hours. The first ring can only give a common outcome.
+        After that, 5% of rings give a rare outcome and 25% an uncommon one. Its "coconuts"
+        outcome SETS the trees to 30 instead of adding 30.
+  Patch Gong of Wonder Coconuts Fix.
+  Tag   [code]
+
+CATCH-UP
+
+30. Plant study never continues while you are away
+  What  Catch-up's "carry on" step has no case for plant study, so a healer studying a plant
+        stops.
+  Patch Catch-up update: Healers Study Plants Regardless of Food continues it about 3 times in 4.
+        Easier Healing Mastery also lets healers study during catch-up when nobody is sick.
+  Tag   [code, re-traced]
+
+
+======================================================================================
+THE SECRET CITY (VV3)
+======================================================================================
+
+BUILDING
+
+1. Builders never start a hut or project you haven't started
+  What  The Building job offers a hut or project only once its progress is above 1% (your drop
+        puts it there) and it is not finished. There is no population test.
+  Tip   Drop a builder on each new site once.
+  Patch Not changed by the patcher. Builders and Healers Work First does not lift the start gate;
+        v1.35.44 deliberately leaves this game as it is.
+  Tag   [code, re-traced]
+
+2. Builders fix huts only once all four huts are built
+  Patch Builders Fix Huts When Idle.
+  Tag   [code]
+
+3. One project needs the chief
+  What  Project 8 is offered only while the chief is supervising and the builder has Building 20+.
+  Tag   [code]
+
+BREEDING
+
+4. Autonomous pairing is for ages 18 to 49, men included
+  What  Both partners, including the one starting it, must be under 50. Both must be of opposite
+        sex and well, and the partner not pregnant.
+  Patch Birth Control (also requires the Parenting preference ticked and some Parenting skill).
+  Tag   [code]
+
+5. The pairing checks, in order, and the silent 50+ refusal
+  What  The checks run in this order:
+        1. Same-sex, sick, under-18 and pregnant pairs are refused.
+        2. At 250 food or less, 34% "too hungry".
+        3. The get-along roll.
+        4. The conception roll (S9).
+        5. Only then is a woman aged 50+ in either role refused, with no message, although a
+           "too old" message exists in the game.
+        Men 50+ can still father children by drop.
+  Patch Manual Drop-Breeding overrides Birth Control.
+  Tag   [code, re-traced] Whether autonomous embraces pass through the same checks is inferred
+        here (it is traced for The Tree of Life and New Believers).
+
+6. Potions boost conception
+  What  The fertile potion adds 50 and the very-fertile potion 100 to the conception roll. Both
+        need age 18+.
+  Tag   [code]
+
+7. Housing gates and the population limit
+  What  To have a baby the village needs 1 finished hut from 10 villagers, 2 from 17 and 3 from
+        35. The limit is 90, plus 5 per collection (25 for all four), plus 10 at Magic 3: 125.
+        A refusal is silent; "Worried about housing" is the only sign.
+  Patch The population modes change the limit. The hut gates are not changed.
+  Tag   [code]
+
+8. Mothers gain Parenting at conception
+  What  The mother gains max(5, (100 - Parenting) / 10).
+  Tag   [code] Checked directly; one research pass said / 5, which is wrong.
+
+9. Babies start with a small head start
+  What  A newborn gets 5 to 7 points in one parent's best skill (98% one parent, 2% the other),
+        or 4 to 6 if both parents share the same best skill.
+  Tag   [code] The parent mapping is partly inferred.
+
+10. While you are away, conception skips every other check
+  What  A catch-up pairing (6%, S3) uses only the conception roll. There is no food check, no
+        get-along roll and no 50+ check, but the 18 to 49 age range still applies.
+  Tag   [code]
+
+JOBS
+
+11. Two decisions in three do nothing (except the chief)
+  Tag   [code]
+
+12. The job picker's hidden rules
+  What  These are the same as The Lost Children rule 12:
+        - 15% no job unless the villager likes "work", 70% if they dislike it
+        - 84% chance per skill
+        - preference wins 86%
+        - skill must be above 5, then (skill + 40)%
+  Patch Builders and Healers Work First (builders and healers).
+  Tag   [code]
+
+13. Dislikes make villagers refuse, and forget, their task
+  What  A villager refuses a disliked task 60% of the time, and their assignment is wiped:
+        - honey: bees or honey
+        - fruit
+        - fishing: fish, ocean or swimming
+        - stone and lifting projects: rocks or lifting
+        - vine clearing: plants or bushes
+  Tip   Check Dislikes before assigning.
+  Tag   [code]
+
+14. Food sources have unannounced minimums
+  What  - Fruit trees are used only with 10+ fruit.
+        - Honey needs puzzle 1 done and the hive above 10.
+        - Fishing needs puzzle 10.
+        - A harvest gives 8 food at Normal, 11 at Fast and 5 at Slow (8 in catch-up), whatever
+          the Farming skill.
+        - A supervising chief adds a third, with chance 25% x Leadership level.
+  Tag   [code]
+
+15. Low food (250 or less)
+  What  Anyone with Farming 20+ farms first. Half of the other non-farm, non-heal picks become
+        "worried about food".
+  Patch Builders Fix Huts When Idle (builders). Builders and Healers Work First (healers).
+  Tag   [code]
+
+16. Unskilled villagers mostly stand still
+  What  When no job starts:
+        - a best skill under 20 gives a fallback action
+        - a best skill under 50 with all skills totalling under 70 means 95% stand idle
+  Tag   [code]
+
+17. Healers treat sickness only, never low health
+  What  - The patient must be sick.
+        - With no patient, a healer studies only at Medicine 2+.
+        - A healer who dislikes "medicine" skips Healing 50% of the time and fails an extra 50%
+          of cures.
+        - Curing restores no health.
+  Tag   [code]
+
+SKILLS
+
+18. Skill rolls and gains
+  What  - Success when a roll of 0-99 is at most skill + 33. It is +66 if the villager likes
+          "learning" or has the "feels smarter" potion, and +16 if they dislike learning.
+        - Each success gives (70 - skill) / 18 for Farming, Research and Building, / 10 for
+          Parenting and / 12 for Healing, doubled or halved by liking or disliking learning. A
+          beginner at 0 gets 7.
+        - Once that reaches 0 (about 53+), +1 comes only with chance 51% x (100 - skill)%.
+  Patch Learning Skills Never Fails.
+  Tag   [code] The divisors were checked directly; both research passes said / 9, which is wrong.
+
+19. Failed embraces train Parenting
+  What  A failed roll gives +4 only at skill 0, for every skill except Parenting. Parenting's
+        test is the other way round: +4 on EVERY failed roll while Parenting is above 0. Above
+        about 50, failed pairings train Parenting faster than successful ones.
+  Patch Not changed directly. It never fires with Learning Skills Never Fails, which removes
+        failures.
+  Tag   [code]
+
+20. Tutorial safety net
+  What  After your first failed honey, breeding or research attempt (hint shown), the next failure
+        is turned into a success.
+  Tag   [code]
+
+RESEARCH
+
+21. Research pays more while you're away
+  What  - While playing: Research / 11, / 9 or / 7 at Science 1, 2 or 3.
+        - During catch-up: / 7, / 7 or / 5.
+        - A supervising chief adds 25% (chance 25% x Leadership).
+        - Magic 1+ adds 1.
+        - The fire adds 1 point 10% of the time.
+  Tag   [code]
+
+FOOD AND HEALTH
+
+22. Rationing starts at 500 food, not 0
+  What  At 500 food or less, each age step: 50% eat, 15% lose 1 health, 35% nothing.
+  Tip   Keep food above 500.
+  Tag   [code]
+
+23. Eating extra, starving, and Difficulty
+  What  - Easy starts with 300 extra food. Hard starts 99 lower (not below 0).
+        - Extra eating (2 more, 76%): never on Easy, at 8,000+ food on Medium, always on Hard.
+        - At 0 food, -1 health 76% of the time (always on Hard).
+  Tag   [code]
+
+24. Healing and sickness depend on the fire
+  What  - Regeneration is always on Easy. On Medium and Hard it is half the time, unless the fire
+          is lit or Medicine is 3.
+        - Sickness per age step is (3f + 1) in 1,440 / 2,460 at Medicine 1 / 2, and (2f + 1) in
+          5,400 at Medicine 3. f is 1 with the fire lit or puzzle 11 done, otherwise 2, and Hard
+          adds 1 unless both are present.
+        - On Easy a sick villager gets well by themselves about 25% of the time per age step.
+          Never on Medium or Hard.
+  Tag   [code] That the timed object is the fire is inferred.
+
+25. Nature level 3's promised longevity does nothing
+  What  The game says Nature 3 increases longevity. The ageing code reads Nature and throws the
+        value away.
+  Patch Nature Level 3 Actually Alters Mortality (+7 years).
+  Tag   [code]
+
+26. Nature level 1's faster refill is missing too
+  What  Fruit trees refill every 3 game hours (37 fruit per hour, 42 at Nature 1+, up to 1,000).
+        Honey refills 2 per hour, up to 3,000. Nature does not speed either up.
+  Patch Nature Level 1 Actually Replenishes Food Sources Faster.
+  Tag   [code]
+
+THE CHIEF
+
+27. The robe fits one secretly chosen villager
+  What  When a village is created, the game quietly marks one random living, non-nursing villager
+        (babies under 1 count three times). Only that villager can become chief by trying on the
+        robe.
+  Tip   If nobody seems to fit, keep sending different villagers.
+  Patch Everyone Tries On the Robe (everyone tries, so the chosen one is found).
+  Tag   [code] Traced by one research pass only.
+
+28. Chief lessons train up to 100
+  What  At Leadership 2, a lesson gives +7 to 9 to one random skill, up to 100.
+  Patch Tribal Chief Lessons Stop at 50.
+  Tag   [code]; the Leadership 2 requirement is [repo research]
+
+29. The chief's food gift
+  What  A food grant gives 3 x Leadership x (10 to 29) food.
+  Tag   [code]
+
+EVENTS AND CATCH-UP
+
+30. Island events, and rescue events for dying villages
+  What  Events come every 8 to 15 hours. If one sex has 2 or fewer members, or the population is
+        under 3, 15% of events are forced to a rescue event (barrel babies and similar).
+  Tag   [code]
+
+31. "People Cured" counts failures while you're away
+  What  During catch-up the People Cured statistic rises on every cure attempt, even a failed one.
+  Tag   [code]
+
+32. The chief never works during catch-up
+  Tag   [code]
+
+
+======================================================================================
+THE TREE OF LIFE (VV4)
+======================================================================================
+
+BUILDING
+
+1. Builders never start a hut or project you haven't started
+  What  A hut or project is offered only once it has progress and is unfinished. There is no
+        population test. A builder who dislikes wood keeps each option only 16% of the time.
+  Patch Builders Fix Huts When Idle (puts construction back when the dislike roll emptied the
+        list). The start gate itself is not changed.
+  Tag   [code, re-traced]
+
+2. Hut fixing only once all four huts are built
+  Patch Builders Fix Huts When Idle.
+  Tag   [code]
+
+BREEDING
+
+3. Nobody can pair until the Love Shack is built
+  What  Every embrace, yours or theirs, is refused until the Love Shack is complete.
+  Tip   Build it first.
+  Tag   [code]
+
+4. Villagers pairing on their own face the same checks as your drops
+  What  The autonomous "Embracing" step goes through the same routine as a manual drop:
+        1. the Love Shack
+        2. the 34% "too hungry" refusal at 250 food or less (after the first pairing)
+        3. the get-along roll
+        4. the conception roll
+        5. the silent refusal of a woman aged 50+
+        Only catch-up skips them (rule 9).
+  Patch Manual Drop-Breeding overrides Birth Control lifts the 50+ refusal for your own drops only.
+        Since v1.35.44 (PR #493) it tells your drop apart from villagers pairing on their own, so
+        autonomous pairs keep the original game's 50+ refusal.
+  Tag   [code, re-traced] for the 50+ refusal after the roll.
+
+5. Conception odds by Medicine
+  What  The chance is (Parenting + 1) / 300 at Medicine 1, (P + 51) / 300 at 2 and (P + 101) / 300
+        at 3. Parenting 100 at Medicine 3 gives 67%.
+  Tag   [code]
+
+6. Villagers seek a mate only if Parenting is the ticked preference
+  What  The picker only offers Parenting when it is the selected job, and scores it at skill - 15.
+  Patch Not changed by the patcher (this game has no Birth Control patch).
+  Tag   [code]
+
+7. Partner choice: 18 to 49, any age for the one who starts it, no family check
+  Tag   [code]
+
+8. Housing gates and the population limit
+  What  To have a baby the village needs 1 of huts 19 to 21 from 10 villagers, 2 from 17 and all 3
+        from 35. Hut 22 does not count. The limit is 90 plus 5 per collection (25 for all four):
+        115. A conception that fails this is dropped silently.
+  Patch The population modes change the limit. The hut gates are not changed.
+  Tag   [code]
+
+9. While you are away, 50+ mothers appear
+  What  Catch-up pairing (6%, S3) skips the Love Shack, hunger, get-along and 50+ checks. Only the
+        mate choice and the conception roll remain, and the one who starts it can be any age.
+  Tip   Older mothers come from time away, not from play.
+  Tag   [code]
+
+10. Pregnant and nursing women never work
+  What  For the full 2 years they only rest or do leisure.
+  Tag   [code]
+
+11. Mothers gain Parenting at conception
+  What  The mother gains max(5, (100 - Parenting) / 10).
+  Tag   [code]
+
+JOBS
+
+12. Two decisions in three do nothing
+  Tag   [code]
+
+13. The job picker's hidden rules
+  What  - 15% no job unless the villager likes "work", 70% if they dislike it
+        - 84% chance per skill
+        - preference wins 86%
+        - skill must be above 5, then (skill + 40)%
+  Patch Builders and Healers Work First.
+  Tag   [code]
+
+14. Dislikes veto work 60% of the time
+  What  - A farmer refuses a source they dislike: berries, fruit, or fish / ocean / swimming.
+        - A healer who dislikes "medicine" skips Healing half the time and fails half their cures.
+  Tag   [code]
+
+15. Low food (250 or less)
+  What  Anyone with Farming 20+ farms first (the 20 is exact). Otherwise half of the non-farm,
+        non-heal picks become foraging.
+  Patch Builders Fix Huts When Idle and Builders and Healers Work First (builders and healers
+        skip it about 3 times in 4, while you play).
+  Tag   [code, re-traced]
+
+16. Idle fallbacks
+  What  - A best skill under 20 gives a fallback action.
+        - A best skill under 50 with all skills totalling under 70 means 95% idle.
+        - Above 8,000 food villagers get an extra leisure activity.
+  Tag   [code]
+
+SKILLS AND THE NURSERY
+
+17. Skill rolls and gains
+  What  - Success when a roll of 0-99 is at most skill + 33 (66 likes / 16 dislikes learning),
+          plus 15 at Learning level 2 and 30 at level 3.
+        - Gains are (70 - skill) / 18 for Farming, Research and Building, / 10 Parenting, / 12
+          Healing. A beginner at 0 gets 7.
+        - Once that reaches 0 (about 53, 59 or 61), +1 comes only with chance
+          51% x (100 - skill)%.
+        - The mastery achievements trigger at 88.
+  Patch Learning Skills Never Fails.
+  Tag   [code]
+
+18. Failed embraces train Parenting
+  What  Same as The Secret City rule 19: Parenting gets +4 on every failed roll while it is above
+        0. The other skills get +4 only at 0.
+  Tag   [code]
+
+19. Tutorial safety net
+  What  The second blackberry or research attempt after your first tutorial failure always
+        succeeds.
+  Tag   [code]
+
+20. How the Nursery School teaches
+  What  - Each tick a random teacher gives the children an amount equal to the teacher's skill
+          total x speed / 14,400.
+        - Half the time it all goes to each child's best skill. Otherwise it is split, 1/5 to
+          each skill.
+        - Skills at 50 or more are skipped.
+  Tag   [code]
+
+FOOD AND HEALTH
+
+21. Rationing starts at 500 food
+  What  At 500 food or less, half the meals are skipped and 30% of skipped meals cost 1 health.
+        At 0 food villagers lose 1 health at least 76% of the time (always on Hard).
+  Tag   [code]
+
+22. Difficulty's hidden effects
+  What  - Starting food: Easy +300, Hard -99.
+        - Extra eating (2 more, 76%): on Hard always, on Normal only at 8,000+ food.
+        - On Easy only a quarter of the sickness checks run, and a sick villager gets well by
+          themselves 25% of the time per age step.
+  Tag   [code]
+
+23. Sickness and healing
+  What  - Illness per age step is 4 in 1,440 / 4 in 2,460 / 3 in 5,400 at Medicine 1 / 2 / 3,
+          plus the elderly risk (S6).
+        - A sick villager loses 1 health 61% of the time.
+        - Natural healing is +1 half the time; always on Easy or at Medicine 3; extra chances while
+          a fire burns.
+        - A cure clears sickness only; it restores no health.
+  Patch Not changed by the patcher (the Full Heal / Cure All candidate is disabled).
+  Tag   [code]
+
+24. Eating at the food bin heals
+  What  A villager under 100 health who eats at the bin gains +1 health half the time. Each visit
+        costs 1 food.
+  Tag   [code]
+
+RESEARCH AND FOOD
+
+25. Research pays more while you're away
+  What  - While playing: Research / 11, / 9 or / 7 at Science 1, 2 or 3, x2 on Fast and x0.6 on
+          Slow.
+        - During catch-up: / 7, / 7 or / 5.
+        - A lit fire adds +1 point 10% of the time.
+  Tag   [code]
+
+26. A hidden farming bonus while you're away
+  What  With project 6 built, each catch-up step an adult whose (Farming - 25) beats a roll of
+        0-99 adds 5 food and takes a Farming practice roll.
+  Tag   [code]
+
+27. "People Cured" counts failures while you're away
+  Tag   [code]
+
+ISLAND EVENTS
+
+28. Event timing
+  What  The first event comes soon after a village starts (within about half an hour). After that,
+        one comes every 8 to 15 hours, chosen evenly among the events whose own conditions are met.
+  Tag   [code] The two research passes disagreed on the very first delay (15 or 30 minutes).
+
+29. Rescue barrel for dying villages
+  What  If the scarcer sex has 2 or fewer members, or the population is under 3, 6% of events are
+        forced to "Daredevil Barrel...of Babies", even when its own conditions fail.
+  Tag   [code]
+
+30. Golden Fish odds rise with every scale
+  What  The chance is (2 x scales + 1)%: 3% at 1 scale, 25% at all 12.
+  Patch Complete Fish Scales = Golden Fish in Nets (only with all 12).
+  Tag   [code]
+
+31. A new village sometimes starts with a runner
+  What  30% of new villages have one of the first five villagers made to like running.
+  Tag   [code]
+
+Not covered for this game: the cauldron (stews, cloth, soap) effects and children's own
+behaviour. Both research passes stopped at animation code and found no hidden rule there.
+
+
+======================================================================================
+NEW BELIEVERS (VV5)
+======================================================================================
+
+BUILDING
+
+1. Builders never start a hut or project you haven't started
+  What  - Huts, the Nursery Hut and the other projects are offered only at progress above 1%.
+          There is no population test.
+        - A builder who dislikes wood keeps each option only 16% of the time. One who dislikes
+          owls keeps the granary 16% of the time.
+  Patch Builders Fix Huts When Idle.
+  Tag   [code, re-traced]
+
+2. Hut fixing only once Houses 1 to 3 and the Clothing Hut are all built
+  What  It then picks House 1, 2 or 3 at random.
+  Patch Builders Fix Huts When Idle.
+  Tag   [code]
+
+WORK AND JOBS
+
+3. Two decisions in three do nothing (Heathens excepted)
+  What  Only 34% of an adult's decisions go on. Heathens bypass this gate.
+  Tag   [code]
+
+4. The job picker's hidden rules
+  What  - 15% no job unless the villager likes "work", 70% if they dislike it
+        - each skill considered about 85% of the time
+        - disliking "medicine" halves the chance of Healing
+        - preference wins 86%
+        - skill must be above 5, then (skill + 40)%
+  Patch Builders and Healers Work First (builders and healers). Easier Devotee Training
+        (devotees, live play only).
+  Tag   [code]
+
+5. Autonomous Parenting needs the "Children" preference
+  What  Parenting is offered only when it is the selected job, scored at skill - 15.
+  Tag   [code]
+
+6. Low food (250 or less)
+  What  Anyone with Farming 20+ farms first. Otherwise half of the non-farm, non-heal villagers
+        just stand "Worried about food".
+  Patch Builders Fix Huts When Idle and Builders and Healers Work First (builders and healers,
+        while you play).
+  Tag   [code, re-traced]
+
+7. Unskilled villagers mostly stand idle
+  What  - A best skill under 20 gives a fallback action.
+        - Under 50 with all skills totalling under 70: 95% idle.
+  Tag   [code]
+
+8. Dislikes make villagers run away
+  What  - Noni harvesting with a berries dislike: 60%.
+        - Fishing with a fish, ocean or swimming dislike: 60%.
+        - Building the statue with a rocks dislike: 90%.
+  Tag   [code]
+
+9. Jobs need puzzles first, and research needs its totem only while you are away
+  What  - Farming needs the Fence puzzle.
+        - Noni needs the Food Totem puzzle and more than 3 noni.
+        - Crops need the HydroFarm and 15+ crops.
+        - Fishing needs Restore Lake.
+        - Research needs the Research Totem puzzle only during catch-up; while you play,
+          villagers research without it. The Food Totem also matters only in catch-up.
+  Tip   Finish the Research Totem before you close the game, or researchers sit idle while you
+        are away.
+  Tag   [code] Checked directly; one research pass had this the wrong way round.
+
+10. Healers treat only believers
+  What  The patient search skips Heathens. With nobody sick and the Medicine Totem done, healers
+        study instead.
+  Patch Builders and Healers Work First.
+  Tag   [code]
+
+11. Pregnant and nursing mothers never work
+  Tag   [code]
+
+DEVOTION AND CHIEFS
+
+12. Devotion needs the Believer Idol or a statue
+  What  The Devotion job honors only if the Believer Idol puzzle is complete or the statue stage
+        is 1 or 2. Like every job, it needs Devotion above 5.
+  Patch Not changed by the patcher.
+  Tag   [code, re-traced]
+
+13. Most honoring comes from the Retired Chief
+  What  The Retired Chief passes the 34% gate, then a 50% roll, then honors or spreads the word
+        50/50. Ordinary devotees honor only through the Devotion job. The Retired Chief is the
+        converted Heathen Chief, who keeps his special type.
+  Patch Easier Devotee Training (devotees with any Devotion may honor on their own, live only).
+        Statue Drops: Normal Action or Honoring (drops on the statue). Catch-up update: Builders
+        and Healers Work First gives devotees a catch-up boost.
+  Tag   [code, re-traced]
+
+14. Divine energy depends on Devotion
+  What  Each believer adds +1 divine energy per age step: +4 at Devotion 50+, +9 at 88+. The
+        maximum starts at 40.
+  Tag   [code]
+
+BREEDING
+
+15. Manual drop: Love Shack, hunger, two rolls, then the silent 50+ refusal
+  What  - Both partners 18+, healthy, not expecting.
+        - The Love Shack must be built.
+        - At 250 food or less, 34% "too hungry" (after the tutorial tip).
+        - The get-along roll (+15 / +30 at Learning 2 / 3).
+        - The conception roll.
+        - Only then is a woman aged 50+ refused, with no message.
+  Patch Manual Drop-Breeding overrides Birth Control (this game has no Birth Control patch).
+        Learning Skills Never Fails (get-along roll).
+  Tag   [code, re-traced]
+
+16. Live pairings face the same checks; time away skips them
+  What  The live "Embracing" step leads into the same routine as your drop, so the Love Shack,
+        hunger, get-along, conception and 50+ checks all apply while you play. Catch-up pairing
+        (6%, S3) skips the Love Shack and food checks and uses only the conception roll. Its
+        partner must be a believer aged 18 to 49 and not expecting, while the one who starts it
+        can be any age.
+  Tip   Mothers over 50 appear only after time away.
+  Tag   [code] One research pass concluded that villagers conceive on their own only during
+        catch-up. That is wrong: the live Embracing handler queues the step that runs the pairing
+        routine.
+
+17. Population limit and housing gates (Heathens don't count)
+  What  The limit is 90, or 95 with one collection and 105 with both. The village also needs
+        1 house from 10 villagers, 2 from 17 and all 3 from 35. Only believers and unborn babies
+        count. A refusal is silent.
+  Patch Collection Progression Max Pop and Immediate Fixed Max Pop change the limit. No Population
+        Increase keeps 105. The house gates are not changed.
+  Tag   [code]
+
+18. Babies and mothers
+  What  - The mother gains max(5, (100 - Parenting) / 10) Parenting.
+        - "Babies Made" counts at conception, not birth.
+        - A baby starts with 5 to 7 points in the mother's best skill (98%) or the father's (2%),
+          nothing if that skill is Parenting.
+  Tag   [code]
+
+19. Tiny villages steer the newborn's sex
+  What  With 6 or fewer believers, the newborn's sex is forced when one sex has 2 or fewer
+        members. Heathens count in that tally.
+  Tag   [code] Which way it pushes is [unverified].
+
+SKILLS AND THE NURSERY
+
+20. Skill rolls and gains
+  What  - Success at skill + 33 (66 / 16 with likes or dislikes for learning; +15 / +30 at
+          Learning 2 / 3).
+        - Gains are (70 - skill) / 18 for Farming, Building, Research and Devotion, / 10
+          Parenting, / 12 Healing. A beginner at 0 gets 7.
+        - Above about 53, +1 comes only with chance about 50% x (100 - skill)%.
+        - Mastery messages come at 88.
+  Patch Learning Skills Never Fails.
+  Tag   [code] The divisors were checked directly; one research pass said / 9, which is wrong.
+
+21. Failed manual drops train Parenting
+  What  Parenting gets +4 on every failed roll while it is above 0, so failed drops keep raising
+        it.
+  Tag   [code]
+
+22. Nursery School
+  What  - The teacher needs at least 3 skills at 50+, and only one teaches at a time.
+        - Half of the lessons go to the child's best skill. The other half are spread at 1/5 to
+          each of 6 skills (6/5 in total).
+        - Skills at 50+ are skipped.
+  Patch VV4 Nursery School Divisor Parity (1/6 each).
+  Tag   [code]
+
+FOOD, HEALTH, AGEING
+
+23. Rationing starts at 500 food
+  What  At 500 or less villagers eat only half the time, and lose 1 health 15% of the time.
+        At 8,000+ food (Medium) they eat 2 extra 76% of the time, and also add +1 divine energy.
+  Tag   [code]
+
+24. Sickness never clears by itself except on Easy
+  What  - Illness per age step is 4 in 1,440 / 4 in 2,460 / 3 in 5,400 at Medicine 1 / 2 / 3,
+          plus the elderly risk.
+        - On Medium and Hard a sick villager stays sick until healed.
+        - On Easy they recover by themselves about 25% of the time per age step.
+  Tag   [code]
+
+25. A healer may refuse, and curing the Heathen doctor converts him
+  What  A healer who dislikes "medicine" refuses half the time, even after the skill roll. A
+        successful drop-cure on the Heathen doctor converts him.
+  Tag   [code]
+
+26. Heathens never age
+  What  Age is added only to believers.
+  Tag   [code]
+
+27. "People Cured" counts failures while you're away
+  Tag   [code]
+
+RESEARCH AND FOOD
+
+28. Research pays more while you're away
+  What  While playing: Research / 11, / 9 or / 7 at Science 1, 2 or 3, scaled by speed. During
+        catch-up: / 7, / 7 or / 5.
+  Tag   [code]
+
+29. A gathering trip pays by speed
+  What  8 food at Normal, 11 at Fast, 5 at Slow, 8 in catch-up, whatever the skill.
+  Tag   [code]
+
+BELIEF AND HEATHENS
+
+30. Believers can lose their faith
+  What  Belief runs from -100 to 100. Newborns start at 30 to 59. Every age step it drifts:
+        - Down: food under 10 (30%), food 250 or less (10%), sick (15%), village under 12.
+        - Up: food 8,000+ (20%), statue or idol (10-30%), Spirituality level (10/20/30%),
+          population / 5 %.
+        - Above 75 only 30% of gains apply; below 5 only 50% of losses apply.
+        At 0 or below the villager stops believing.
+  Tip   Starvation, sickness and a tiny village drain faith.
+  Tag   [code] Traced by one research pass only.
+
+31. Converting Heathens
+  What  - A Heathen converts once belief goes above 0, but only after a story point has been
+          reached.
+        - Preaching needs a Devotion skill roll and gives +3 belief (+1 at Devotion 50, +1 more
+          at the next tier).
+        - Each Heathen can be preached to only once every 2 real hours.
+        - Special Heathens cannot be preached to.
+        - A convert starts with at least 55 belief.
+  Patch Heathen Mommy Puzzle Restoration restores the missing Heathen mother. The rest is not
+        changed by the patcher.
+  Tag   [code]
+
+EVENTS AND STATISTICS
+
+32. Island events
+  What  The first comes 15 minutes in, the next 30 minutes later, then one every 8 to 15 hours. An event needs at least 1
+        believer, and its chosen villager must be caught up, so time away never stacks events.
+  Tag   [code]
+
+33. Oldest Villager and Highest Population are records, not current values
+  What  Both only ever go up. A Heathen's frozen age can set Oldest Villager, and Highest
+        Population includes unborn babies.
+  Tag   [code, re-traced]
+
+
+======================================================================================
+LOOKS LIKE A RULE BUT NEVER RUNS
+======================================================================================
+These checks are in the stock code but can never take effect in the shipping game.
+
+- The "village under 7" limit on breeding and curing (A New Home, The Lost Children, The Secret
+  City, The Tree of Life)
+  The drop handler and the catch-up cure actions say "allowed if a flag is set, otherwise only
+  when the population is under 7". It looks like a leftover from the old trial version. The flag
+  is always 1, so the population test never matters.
+  - In A New Home the flag lives in the game's global settings file (Virtual Villagers0.ldw). The
+    game sets it to 1 when it creates that file on the very first launch, and nothing ever sets
+    it back. Every Virtual Villagers0.ldw in your folders holds 1 [save].
+  - The other three games set it to 1 at every start-up.
+  What it guards is the normal pairing and the normal catch-up cure. It is not a special cure
+  and not a small-tribe feature. Neither New Believers research pass reported this check.
+
+- The job picker's "25% chance to breed without the Parenting preference"
+  This is your settled decision: dead code. In The Tree of Life and New Believers it is provably
+  unreachable, because Parenting is only offered when the preference is ticked.
+
+- The job picker's "low food" argument (A New Home, The Lost Children)
+  It is passed in but never read. The only real food difference is the extra job attempt
+  (A New Home rule 3, The Lost Children rule 13).
+
+- "Good" and "bad" island-event lists (A New Home, The Lost Children)
+  The routine that picks them always returns 0, so only the mixed list ever runs.
+
+- Two A New Home events that can never happen
+  "The Furry Food" and "A Mighty Storm" (food set to 0) always send the game back to choose a
+  different event.
+
+- Level-0 technology branches (all games)
+  Medicine, Science and the other starting technologies begin at level 1, so the code paths for
+  level 0 (for example a 47-year death age) never run.
+
+- The Secret City
+  - The ageing code reads Medicine and Nature and discards them (see its rule 25).
+  - A catch-up dice roll is drawn and ignored.
+  - A dormant totem selector is never set.
+
+- New Believers
+  - Building options 5 and 10 (refusals for disliking plants or lifting) are never offered.
+  - A catch-up dice roll is drawn and ignored.
+  - The event scheduler's 20% branch gives the same delay either way.
+
+
+======================================================================================
+NOTES FOR THE FUN PATCHER (things this research found in the patches' own text)
+======================================================================================
+1. Manual Drop-Breeding overrides Birth Control: The Tree of Life, New Believers, The Secret City
+   The patched 50+ check sits in the routine that live autonomous embraces also use (the
+   "Embracing" state handler queues the action that calls the drop routine). This research found
+   that the patch then lifted the refusal for villagers pairing on their own too. Fixed in v1.35.44
+   (PR #493): the patch now tells your drop apart from autonomous pairing, so only your drop gets
+   the exception, as its description says.
+
+2. Builders Fix Huts When Idle in A New Home
+   The 400-food limit it bypasses applies only while you play. Catch-up never had it. The
+   descriptions already say "The food bypass acts only while you play".
+
+
+======================================================================================
+WHERE IN THE CODE (stock executables; virtual addresses)
+======================================================================================
+All games
+  catch-up clamps (86400 / 31000 s): VV1 0x42EA7C-0x42EAB7, VV2 0x43B86A-0x43B8AC,
+    VV3 0x45F4F9-0x45F567, VV4 0x466574-0x4665DC, VV5 0x46FFC0-0x470013
+  catch-up worker: VV1 0x42E790 (5 calls from 0x42F10A..0x42F12A), VV2 0x43B4D0,
+    VV3 0x45BF00, VV4 0x465750, VV5 0x46E8E0 (4 calls 0x473311..0x473326)
+  catch-up Parenting 6% roll: VV1 0x42E7E5, VV2 0x43B532, VV3 0x45BF57, VV4 0x4657A4,
+    VV5 0x46E934
+  low-food farming in catch-up: VV3 0x45BF91, VV4 0x4657E3/0x465818, VV5 0x46E985/0x46E9BA
+  population counter with unborn: VV1 0x41CF90, VV2 0x425860, VV3 0x45E8F0, VV4 0x467610,
+    VV5 0x4713F0
+
+A New Home
+  scaffolds 0x414AE7 (>=15) / 0x414BCC (>=28), progress-1 writes 0x414B0C / 0x414BF1
+  builders 0x44752E (hut 9), 0x44754F (>22), 0x447581 (>45); 21% skips 0x4474AA, 0x44772E;
+    Construction 3 gate 0x44765E; 400-food scheduler gate 0x448336
+  drop handler 0x43DAD0: age 0x43DB35; food 0x43DBBE; skill roll 0x43D440 / 0x43D5D1;
+    conception 0x43DC61-0x43DC88; failure messages 0x43DD9E-0x43DE83
+  hint flag (tip 0x117 "Good! They get along") +0x148: armed at new village 0x41C755;
+    cleared by the help question's "no" path 0x41ECB6 (dialog 0x41EB30, text 0xFD) and at
+    village death 0x42F1D2; consumed 0x43DC51-0x43DCAC
+  trial flag +0xABEC: write 0x41C892 in settings-defaults 0x41C840 (called when load(0) 0x41BE00
+    fails, from 0x41D27B / 0x41D4E2); settings record +0xABE4..+0xACA4, file offset 0x14 of
+    Virtual Villagers0.ldw; checks 0x43DC09, 0x446D48, 0x446E37
+  embrace scan 0x446E70 (loop continues 0x447036); housing 0x43A1A0; twins 0x43BBC0;
+    newborn talent 0x43DCD1 / 0x446FB0 / 0x43BBD4; sex rule 0x42E660
+  job picker 0x439AE0; repeat-task 0x448394; leisure 2000 food 0x4483D5; child age 0x44828A
+  skill gain 0x43D440; research 0x43B2AB / 0x447486; berries 0x43AD62, regrow 0x42EC0D
+  eating 0x42EC92-0x42ED46; sickness 0x42E590; regen 0x42EDE1; old age 0x42EE7E
+  healing all 0x446DD0 (age >=14 0x446E28); drag cure 0x43CEB0
+  events 0x4237B3 (first 0x423A37, interval 0x423883); dead balance 0x41D110
+
+The Lost Children
+  scaffolds 0x4196ED / 0x419768; builders 0x4600DE-0x460126; hospital 0x4197DF, 0x4601C9
+  drop 0x44F67C-0x44F7F9 (age refusal 0x44F7C8); skill roll 0x44E170 (bonus 0x44E179)
+  embrace scans 0x464860 / 0x464A62; housing 0x44B310; twins 0x44BA6A; mother gain 0x44B99E
+  scheduler idle 0x461896; picker 0x449C66-0x449E23; 300-food 0x4619E3; 4000-food 0x461580
+  catch-up continue table 0x4617FC (state 9 -> 0x46162A returns false)
+  eating 0x43BAB0; regen 0x43BC64; sickness 0x43B2B0; old age 0x43BD67; heal-all 0x4647C2
+  research 0x46364F; coconuts / field 0x43B9B0; birds 0x425AC0; teaching gate 0x44F9D0
+  events 0x42EEC3 / 0x434570; gong 0x461B32, 0x44E8A0, 0x44E9A9; trial flag 0x4256C2
+
+The Secret City
+  building 0x45B1C0-0x45B39D (progress 0x432210 / 0x4358F0); hut fix 0x45B5D5
+  pair handler 0x4584B0 (hunger 0x45857B, conception 0x4586A7-0x4586F1, 50+ 0x4586F3)
+  selector 0x45CE00; housing 0x45FE30; writer 0x455AB0 (mother gain /10 at 0x455AC5); twins 0x455B75
+  picker 0x459730; scheduler 0x45BFE0 / 0x45C0BA; dislikes 0x45B016; low food 0x45C213
+  skill 0x45A2C0 (divisors 0x45A44E, 0x45A5C8, 0x45A6E3, 0x45A7EC); Parenting +4 0x45A554
+  age loop 0x45FFE0 (rationing 0x460040, old age 0x4602C1, discarded reads 0x4601B1 / 0x4601BD)
+  sickness 0x455C00 (fire object 0x5946D8); research 0x459095; robe pick 0x45FB20
+  lessons 0x458F11; chief food 0x459032; catch-up cures counter 0x45B971; trial flag 0x427EB1
+
+The Tree of Life
+  building 0x463C1C-0x463F8A; drop / embrace routine 0x460C10 (love shack 0x460CE3, hunger
+    0x460CFD, conception 0x460E31, 50+ 0x460E67); live path: Embracing handler 0x455420
+    (registered 0x45CA9D) -> 0x469720 queues action 15 -> 0x46A226 -> 0x460C10
+  catch-up pairing 0x464FF8; selector 0x466DA0; housing 0x468350; twins 0x45E876
+  scheduler 0x465840; picker 0x461CC0; skill 0x462A80 (bonus 0x462A88); life loop 0x468430
+  research 0x464BE0; catch-up farming 0x468A7A; nursery 0x4203F3; events 0x43FB81 / 0x418050;
+    golden fish 0x433354; trial flag 0x41F4F3
+
+New Believers
+  building 0x46C7EC-0x46CA80; fix hut 0x46C9E6; research totem gate 0x46C75E (catch-up flag
+    0x17E10 set 0x47330A); devotion job 0x46CDB6; retired chief 0x46F1DD
+  drop / embrace routine 0x4689A0 (50+ 0x468BC4); live path: Embracing handler 0x45D010
+    (registered 0x463FF3) -> 0x474CE0 queues action 0x10 -> 0x473859 -> 0x4689A0
+  catch-up pairing 0x46E078; selector 0x470A10; housing 0x472BD0; twins 0x465ED7
+  scheduler 0x46F070; picker 0x46A3C0; skill 0x46B270 (divisors from 0x46B3EE)
+  life tick 0x472C90 (old age 0x472FC6); belief 0x468040 / 0x467F90; preaching 0x468DA0
+    (cooldown 0x468F2A); Heathens never age 0x47007F; Oldest Villager 0x4700B4;
+    Highest Population 0x4261BD; events 0x4426DF

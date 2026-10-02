@@ -1,0 +1,728 @@
+VIRTUAL VILLAGERS FUN PATCHER - FINAL REPORT
+============================================
+RELEASED 2026-10-01: v1.35.44 (Latest)
+https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases/tag/v1.35.44
+PRs #492 (hut rule), #493 (Manual Drop-Breeding: your drop only), #494 (catch-up job
+boost, VV2 plant study, add-ons before the first catch-up, New Believers stock-mode
+fixes, one roll per catch-up decision).
+
+Checks:
+- Each PR: green CI, a clean Codex review of its head commit, and a full suite run
+  (last: 2294 passed, 0 failed).
+- Three-mode audit: every patch, every game, all three population modes. Its two
+  defects are fixed.
+- Live smoke tests on copies of your villages before release, and again from the
+  published download:
+  - all five games run with their add-ons loaded;
+  - A New Home: builders spent 60 of 60 samples on your started hut;
+  - New Believers in stock mode loads Fix Huts and Work First (it never did before).
+- The download matches its published hashes, and its patcher applies to all five games.
+Not live-tested, emulated only: the catch-up job share, the Barrel/Island fix in New
+Believers stock mode, and the drop-only detection of Manual Drop-Breeding (you chose to
+skip that re-test).
+
+OVERNIGHT STATUS 2026-10-01 (v1.35.44 in progress, NOT yet released)
+
+MERGED INTO MAIN
+- #492 Hut rule, all five games.
+  - At or below 22 / 45 villagers (A New Home), builders only work on a population hut
+    you have started, then finish it at any population, also during catch-up.
+  - Above 22 / 45 they may start an untouched hut, as the original game does.
+  - The Lost Children: only huts you have started, at any population.
+  - LIVE: on a copy of your village, 117 of 120 builder samples were building hut 10,
+    and the rule is in memory before any village loads.
+- #493 Manual Drop-Breeding now applies to YOUR drop only.
+  - The released patch also let villagers pairing on their own skip the 50+ refusal, in
+    all five games. Fixed; tested in all five games and all three modes.
+  - Test build for a quick re-check: Downloads\VVFP Manual Drop Test (see its READ ME).
+
+FINISHED BUT BLOCKED: the permission system refused to push the branch.
+Branch fix/vv2-healers-study-catch-up, head 84d8e253. Full suite: 2280 passed, 0 failed.
+- Catch-up boost: builders, healers and devotees do their own job about 3 in 4 times
+  during catch-up. At low food, skilled farmers still farm. Lost Children healers
+  continue plant study.
+- Add-ons now install before the first catch-up in The Lost Children and New Believers.
+- NEW BELIEVERS 'stock' MODE: 7 of 8 Origins hooks were missing (an old bug).
+  - Barrel of Babies took 75,000 tech points and never arrived.
+  - Island/Barrel purchases could lock as 'pending'.
+  - Masks never drew.
+  - Fix Huts and Work First never installed. All fixed.
+- The Secret City: Work First's catch-up hook is now in the game file, so it applies
+  from the very first catch-up.
+=> To ship v1.35.44 with all of this: allow git push for this session (or push that
+   branch yourself). Or tell me to release without it.
+
+THREE-MODE AUDIT: every patch in every game was checked in stock, collection_progression
+and immediate_fixed. The only defects found are the two above, both fixed on the
+blocked branch.
+
+HIDDEN RULES: Downloads\Virtual Villagers - Hidden Game Rules.txt (167 rules).
+
+UPDATE 2026-10-01: v1.35.43 RELEASED (now Latest)
+https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases/tag/v1.35.43
+
+Builders now build a population hut once the game shows its scaffold, and always
+finish a hut that has been started, whatever the population. PR #491.
+
+- The hidden stock rule:
+  - A New Home: the scaffold shows at 15 / 28 villagers, but builders waited for more
+    than 22 / 45, and abandoned a started hut below that.
+  - The Lost Children: the scaffold shows at 21 / 46, but builders waited for more
+    than 22 / 45 AND progress of 2 or more, so they never started a fresh scaffold.
+  - The Secret City, The Tree of Life and New Believers have no such gate.
+  - Both patch descriptions now explain the rule with the numbers.
+- LIVE on a copy of your village (17 villagers, hut 10 started):
+  - v1.35.42: 24 'Building small hut' against 129 fix/examine samples; hut 10 gained 1
+    progress in 2 minutes.
+  - With the fix: 158 building, 0 fixing. From the published download: 119 building,
+    0 fixing.
+- Tests and checks:
+  - Full suite: 2244 passed, 0 failed. CI green. Codex: no issues.
+  - The download matches the published hashes, and the patcher applies to all five games.
+- Not done (you said to skip the remaining tests): a VV2 in-game run of v1.35.43. VV2's
+  change is covered by emulation tests only.
+
+Date: 2026-10-01
+Result: everything is fixed, merged and released. Current release: v1.35.42 (Latest).
+https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases/tag/v1.35.42
+
+
+SUMMARY OF THE WHOLE JOB
+------------------------
+Round 1: full audit of v1.35.40 (all 80 public patches, five games, three modes, the
+GUI, apply/overwrite, companion DLLs, packaging).
+- 12 fix PRs (#468-#484), covering, among other things:
+  - VV3 memory corruption and the honey refill;
+  - VV4 grave repair;
+  - VV5 saves wiping Doublers;
+  - mask, parentage and corruption safety;
+  - the overwrite leftovers, the GUI untick, Village-wide Running, Start Over without
+    Origins;
+  - removing test hooks from shipped DLLs;
+  - corrected descriptions.
+- All were merged and shipped in v1.35.41. Details are in PART 1 below.
+
+Round 2: live tests on new saves, plus the work you asked for. Shipped in v1.35.42.
+  #485  Builders build new things first, then fix huts (all five games). Behaviour
+        patches now raise the likelihood (about 3 in 4) instead of forcing it.
+  #486  VV4: the cloth vines count as herbs, and every cauldron product is a stew
+        (pinned by tests).
+  #487  Start Over from the main menu resets the patcher's files, even right after launch.
+  #488  Docs: Real Hours Played = hours since the village was founded.
+  #489  NEW PATCH: Manual Drop-Breeding overrides Birth Control (all five games;
+        default off, Owner's Defaults on).
+  #490  New Believers statistics count believers only; Heathens never count.
+
+Not bugs, by your rulings or by evidence:
+- VV4 Highest Population 6 with 5 villagers listed: a pregnant mother's baby counts.
+- VV2 zeros in the creation-time statistics log: they fill in at the next save.
+- The Birth Control "25% fallback": dead code.
+- Heathen graves are never made.
+
+
+WHAT WAS VERIFIED, AND HOW
+--------------------------
+LIVE (in a running game):
+- All five games ran with every public patch, on v1.35.41, on the round-2 builds and on
+  the final download.
+- New VV2/VV3 villages wrote every log and .dat file at a clean quit.
+- Start Over from the main menu, including straight after launch (VV2).
+- Builders building first in VV1: 78% of samples were building, the rest stock actions.
+- VV5 Oldest Villager, A/B on the same village: v1.35.41 rebuilt 50 from a Heathen;
+  v1.35.42 rebuilt 43 from the believer.
+- Manual Drop-Breeding: you dropped Tasiri (50) with Tolu and she became pregnant. Stock
+  refuses her at exactly that point.
+
+EMULATED (the real game routines executed in tests):
+- The 75% decision roll and option A in all five games.
+- Manual drop in all five games: 50+, exactly 50, just under 50, every kept rule.
+- VV5 People Cured / Babies / Twins / Triplets guards.
+
+NOT OBSERVED LIVE (emulated only):
+- The exact 75/25 split.
+- Construction-before-repair in VV2-VV5 with a damaged hut present.
+- The VV5 People Cured and Babies/Twins/Triplets guards: their events weren't forced live.
+
+RELEASE CHECKS:
+- Each PR: green CI, a clean Codex review of its head commit, and every Codex finding
+  fixed or answered.
+- After each merge, the next PR was synced and its full suite rerun:
+  - #485: 2187 passed
+  - #489: 2207 passed
+  - #490: 2221 passed
+  - 0 failed in each.
+- The published download:
+  - the zip and source zip match the published manifest hashes;
+  - all 20 pinned DLLs match;
+  - its patcher applies every public patch to all five vanilla games;
+  - the new fix bytes are present in the output;
+  - all five games launched from it.
+
+
+THINGS NOTICED BUT NOT CHANGED (you did not ask for them)
+---------------------------------------------------------
+- VV1's healing case (0x4478FC) starts plant study but reports "nothing started".
+- scripts/settle_vv5_identity_chain.py does not update VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256
+  when the generator's two ACTIVE pins hold the same value. I set that pin by hand once.
+- Two GUI test files skip their window tests ("Tk display is not available") when run in
+  one batch with the other GUI tests. Alone they pass. This is pre-existing.
+- README still says "35 optional patches"; that count is out of date.
+- Villages saved before v1.35.42 keep their stored VV5 Oldest Villager until a believer
+  passes it, because the game stores it as a running maximum.
+
+
+SAFETY
+------
+- Your saves and vanilla games were only ever read.
+- Test villages lived in new folders (AuditTest, MBTest, OldestTest, Manual Drop Test).
+  Edited test villages were closed without saving.
+- The test build for Manual Drop-Breeding is in Downloads\VVFP Manual Drop Test. Its
+  saves are in Documents\LDW\...Modded Manual Drop Test. Both are safe to delete.
+
+
+The detailed sections follow: round 2 first, then round 1.
+
+######################################################################
+DETAIL
+######################################################################
+
+VIRTUAL VILLAGERS FUN PATCHER - FULL AUDIT REPORT
+=================================================
+Date: 2026-09-30 (part 2 added 2026-10-01)
+
+PART 1 (below the line, unchanged): the first audit of v1.35.40 (PRs #468-#484). The other
+session merged all of those PRs, and they shipped in v1.35.41.
+
+PART 2 (this section): live tests of v1.35.41 on new saves, plus the fixes and new patch
+you asked for afterwards (PRs #485-#490).
+
+STATUS OF PART 2: RELEASED as v1.35.42 (2026-10-01).
+- All six PRs (#485-#490) were admin-merged with your permission.
+  - Each had green CI and a clean Codex review of its head commit.
+  - Each later PR was synced with main and re-verified on its full suite:
+    #485 2187 passed, #489 2207 passed, #490 2221 passed, 0 failed each.
+  - Overlapping VV3 whole-catalog pins were re-derived by rendering main and the merged
+    branch. Only each PR's own bytes and the checksum differed.
+- Release: https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases/tag/v1.35.42
+  - It is Latest; v1.35.41 is now a prerelease.
+  - PATCHER_VERSION is v1.35.42 and LAST_PUBLISHED_VERSION is v1.35.41.
+- Fresh-download check of the published files:
+  - the zip and source zip match the published manifest hashes;
+  - the zip extracts cleanly;
+  - all 20 pinned companion DLLs match;
+  - its own patcher applies every public patch to all five vanilla games (exit code 0);
+  - the new patch bytes (#489 in VV2-VV5, #490 Oldest Villager) are in the output;
+  - all five games launched from it and ran 60 s with their companions loaded.
+- Your saves were only ever read. Test villages used copies in new folders.
+
+Evidence words used below:
+- "live" = observed in a running game.
+- "emulated" = the real game routine executed under the emulator.
+- "traced" = static reading only.
+
+
+==================================================================
+P2-1. LIVE TESTS OF v1.35.41 ON NEW SAVES
+==================================================================
+- VV1-VV5 all launch with every public patch, and their companion DLLs load (live).
+- VV2 and VV3 new villages: the Village Statistics v2 log, Population, History, Births and
+  Conceptions logs and every .dat file are written at the clean quit (live).
+  - VV3: 16 rows (Chiefs Robed, Stews Found), "Puzzles Solved: 0 out of 16".
+  - Highest Population 8 = 7 villagers + 1 pregnant mother's baby (live; your
+    pending-baby rule).
+- VV4 "Highest Population 6" with 5 villagers listed: NOT a bug. Pahura was pregnant, and
+  her baby counts (your rule).
+- VV2 zeros in the creation-time statistics log: NOT a bug (your ruling). The values
+  filled in after the next clean quit.
+- VV5 Oldest Villager read 50, taken from a Heathen. This IS a defect; it is fixed in
+  #490 (P2-6).
+
+
+==================================================================
+P2-2. #485  BUILDERS BUILD NEW THINGS FIRST, THEN FIX HUTS (ALL 5 GAMES)
+==================================================================
+Your report: builders fixed huts before building new huts or projects.
+
+Cause, per game:
+- VV1: Builder Action Fixes' level gate sent builders to hut repair before the stock
+  construction choices.
+- VV2-VV5: the Fix Huts filter and the low-food bypasses let a hut fix win while
+  construction was available.
+
+Fix:
+- New construction (new huts, projects under way) always comes before a hut fix in all
+  five games. A hut fix is the fallback.
+- Your later rule: the patches RAISE the likelihood and never force it.
+  - Each decision rolls once, 75% patched / 25% stock, using the DLL's own generator.
+  - This applies to Fix Huts, Builder Action Fixes (VV1), Work First, and Healers Study
+    (VV1/VV2).
+- Option A: when the stock game would skip construction, the builder goes straight into
+  it, using the game's own handlers. VV4/VV5 restore construction options that the
+  dislike roll removed.
+- Stays as it was: Robe, Birth Control and the rare retry.
+
+Evidence:
+- Emulated from each game's real scheduler caller. The forced-pass and forced-fail paths
+  match stock call for call, and 800 decisions per game measured 75% within 4 standard
+  deviations.
+- 18 code mutants plus 1 data mutant, all killed. Full suite 2153 passed, 0 failed.
+- LIVE: all five builds ran 75 s with the Fix Huts and Work First DLLs loaded and no
+  crash.
+- LIVE VV1 new village: with 6 villagers set to Building, 78% of 240 action samples were
+  "Building small hut". The rest were ordinary stock actions, which fits "raise
+  likelihood, not 100%".
+- Not observed live:
+  - the 75% split itself (statistical);
+  - VV2-VV5 construction-before-repair with a damaged hut present.
+  These are emulated only.
+- An earlier VV1 A/B (part 1 of this session) showed builder-first live.
+
+Noticed, not changed (you did not ask): VV1's healing case (0x4478FC) starts plant study
+but reports "nothing started".
+
+
+==================================================================
+P2-3. #486  VV4 STEWS: THE CLOTH VINES COUNT AS A HERB
+==================================================================
+Your rules: the vine herbs used for cloth count as herbs, and anything made in the
+cauldron is a stew (cloth pulp and soap brews included).
+
+- The code already did this. The PR pins it with tests: herb ids 0x1F-0x22 including
+  0x22, and every cauldron product counts.
+- Codex P2 (the test should exercise the real path) was fixed. Codex: no issues.
+
+
+==================================================================
+P2-4. #487  START OVER ON THE MAIN MENU NOW RESETS THE PATCHER'S FILES
+==================================================================
+Defect, LIVE (VV2 v1.35.41): Start Over from the main menu left the old village's logs
+and .dat files.
+- Cause: the reset hook sat only on the save-slot menu's delete. The main menu's
+  Start Over calls Restart directly.
+
+Fix:
+- The Restart call (all five games) goes through a stub that runs the Save Reset first.
+- The erased village is read from its own save, so the reset works even straight after
+  launch, before any save.
+
+Evidence:
+- LIVE, VV2: both cases fixed: Start Over after playing, and Start Over immediately after
+  launch.
+- Emulated in all five games.
+- Codex P2, fixed this session (fa3c7d77):
+  - Problem: the reset asked for MAX_PATH/2 characters of headroom, so a long Documents
+    path made it fail.
+  - Fix: it now reserves exactly the 8 characters it appends.
+  - The DLL was rebuilt and re-pinned (including the VV5 identity chain).
+  - The new test fails the old code (mutation-checked).
+  - Full suite: 2120 passed. The only failures were git-blob checks before the commit;
+    they pass after it.
+  - Codex: no issues.
+
+Tool bug found, not fixed (you did not ask):
+- scripts/settle_vv5_identity_chain.py does not update VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256
+  when the generator's two ACTIVE pins hold the same value. I set that pin by hand.
+
+
+==================================================================
+P2-5. #489  NEW PATCH: "MANUAL DROP-BREEDING OVERRIDES BIRTH CONTROL"
+==================================================================
+- All five games. Default OFF; Owner's Defaults ON.
+- Your rules: normal chance; every stock rule still applies; the man can be any age; stock
+  conception chance (no reduction for 50+).
+
+What it changes:
+- VV2-VV5: each game refuses a woman aged 50+ after its own conception roll has passed.
+  One short jump per game removes only that refusal:
+  - VV2 0x4F7C8
+  - VV3 0x586F3
+  - VV4 0x60E67
+  - VV5 0x68BC4
+- VV1: stock has no such refusal. With Birth Control ticked, the manual drop now steps
+  around Birth Control's manual age hook. On its own the patch changes nothing in VV1, and
+  its description says so in bold.
+- Parenting preference: never read on the manual path in any game, so there was nothing
+  to lift.
+- Parenting skill: has no minimum; it only feeds the two stock chance rolls, which stay.
+
+Kept, stock:
+- same sex, under 18, dead or ill, expecting or nursing
+- food check, the love shack (VV4/VV5), the population check
+- both chance rolls
+
+Evidence:
+- Emulated from each game's real manual-drop handler, with the game's own Parenting
+  routine running:
+  - stock vs patch vs Birth Control vs both;
+  - women of 60, exactly 50 and just under 50.
+- 11 mutants, all killed.
+- Full suite after the docs fix: 2112 passed, 0 failed. GUI tests: 31 passed.
+- Codex P2 (docs still called VV4 the untouched breeding reference) fixed in 2e31d63c.
+  Codex: no issues on the head.
+
+VERIFIED LIVE (2026-10-01, you ran it):
+- VV5 test build (2e31d63c, every public patch plus this one).
+- Tasiri, a healthy believer, was aged to exactly 50 (internal 1000) using the game's
+  own age fields, as Origins does.
+- Dropped with Tolu (54): she became PREGNANT. Her record shows conception age 1000.
+- Stock refuses a woman of 1000 or older at exactly this point, so the pregnancy comes
+  from the patch.
+- The Births and Conceptions record is held until the village is identified at the next
+  save, which is the parentage companion's existing behaviour.
+- Earlier attempts failed for reasons that were not the patch:
+  - a bare age write killed a VV2 woman;
+  - in VV4 the 50+ women kept falling ill, and my automated drags missed.
+
+
+==================================================================
+P2-6. #490  VV5 STATISTICS: BELIEVERS ONLY; HEATHENS NEVER COUNT
+==================================================================
+Your rule: every row is believers only, and a converted Heathen counts from conversion on.
+Heathens Converted is the only Heathen row.
+
+| Row | Heathen path | Fix |
+| --- | --- | --- |
+| Oldest Villager | LIVE: 0x470077 skipped a Heathen's ageing but not the maximum | the jump now skips the maximum too |
+| People Cured | traced/emulated: the drag-a-healer cure did not check faction | a patient who was a Heathen when the cure began is not counted (a purple Heathen whom the cure converts counts under Heathens Converted only) |
+| Babies Made / Twins / Triplets | traced/emulated: counted on the mother with no faction check | a Heathen mother is not counted |
+| Villagers Buried | none, by your ruling: "No heathen graves are made ever" | a guard was added, then removed as dead code (f9e8662d); this also answers Codex's baseline P2 |
+| other rows | no Heathen path found | none |
+
+LIVE A/B on the same VV5 village (5 believers, 29 Heathens; Marara 43, oldest believer;
+Kin 50, a Heathen). I zeroed Oldest Villager in memory and let the game rebuild it:
+- released v1.35.41: 50 (wrong)
+- #490: 43 (right)
+
+Other evidence:
+- The other guards are emulated only; their events were not forced live.
+- Saved villages keep their stored Oldest Villager until a believer passes it. The game
+  stores it as a running maximum, and no repair was attempted.
+- Codex: no issues on the head.
+- Full suite on the head: 2106 passed, 0 failed.
+
+
+==================================================================
+P2-7. #488  DOCS: REAL HOURS PLAYED
+==================================================================
+- Your decision is recorded in docs/village-statistics-directive.md and requirements.md:
+  "Real Hours Played" = real-world hours since the village was founded, including time the
+  game was closed.
+- Codex: approved.
+
+
+==================================================================
+P2-8. BIRTH CONTROL PARITY (VV1-VV3 = VV4/VV5)
+==================================================================
+- Recorded as your rule. The "25% fallback" is dead code and is not part of it.
+- I did not re-audit Birth Control in part 2 beyond confirming that #489 changes no Birth
+  Control byte.
+
+
+==================================================================
+RELEASE STEPS (done 2026-10-01, see status above)
+==================================================================
+1. Merge, squash, in this order:
+   - #488, #486, #487, #485, #489, #490
+   Later PRs need a sync with main and re-pins where files overlap:
+   - #485 and #489 both re-pin the VV3 full-catalog digests.
+   - #487 rebuilt VVFP Save Reset.dll and re-settled the VV5 identity chain.
+   - #489 and #490 both regenerate docs/transparency-log.md.
+2. Bump PATCHER_VERSION to v1.35.42 and LAST_PUBLISHED_VERSION to v1.35.41 together in
+   src/transparency.py.
+3. On a clean checkout of main, run `python scripts/build_release.py`. Publish the zip,
+   source zip and manifest as v1.35.42 (Latest), and mark v1.35.41 as a prerelease.
+4. Verify the fresh download: download the zip from GitHub, apply it to the vanilla
+   games, check the DLL hashes against the manifest, and launch each game.
+If you allow merges in this session, I can do all four.
+
+
+
+######################################################################
+PART 1 - THE FIRST AUDIT (v1.35.40; all merged, shipped in v1.35.41)
+######################################################################
+
+VIRTUAL VILLAGERS FUN PATCHER - FULL AUDIT REPORT
+=================================================
+Date: 2026-09-30
+Audited: origin/main at fa80eb93 (v1.35.40): all 80 public patches in the five games, all
+three population modes, and the patcher itself (GUI, defaults, apply and overwrite, catalog
+validation, companion DLLs, release packaging).
+
+STATUS: finished, apart from Codex re-reviews, which are blocked (see section 4).
+- 12 fix PRs are open. None is merged and no prerelease was cut, as you asked.
+- The games were NOT launched. Your saves (Documents\LDW) and your Read-Only
+  Vanilla games folder were only ever read, never written.
+- Another session (the Village Statistics work, PR #467) was changing the repository during
+  the audit, so every finding was re-checked against a frozen copy of main. Statistics
+  findings went to that session rather than being fixed twice (section 5).
+
+
+==================================================================
+1. SUMMARY
+==================================================================
+Test baseline: main passes its own suite (1974 passed, 0 failed, 74 skipped).
+
+The main-branch suite was green, yet there were real defects. Two of them corrupted
+memory, one could make a VV4 save refuse to load, and one feature never worked at all.
+
+Each defect below was confirmed by me, not only by an auditor:
+- MEMORY / SAVE CORRUPTION
+  * D1  VV3 Rare Collectible Retry wrote outside its array, and could run away (#470)
+  * D2  VV1 parentage overwrote the Golden Child marker field (#475)
+  * D3  VV4 statistics grave seed could make a save fail to load; repair for saves
+        already affected (#472)
+- BROKEN FEATURES
+  * D4  VV3 Nature honey refill: the hive never refilled at all (#468)
+  * D5  Overwriting with fewer patches left the unticked patches running (#471)
+  * D6  Start Over didn't reset the logs unless Origins was also installed, and it
+        deleted the wrong population roster file (#481)
+  * D7  VV2/VV3/VV5 Village-wide Running charged for a Dislike removal it didn't do (#478)
+  * D8  VV1 parentage lost the father on twins and two autonomous pairing paths (#475)
+  * D9  VV5 Guardians of Isola lost two text strings (Apprentice label, first tip) (#484)
+  * D10 GUI: the first untick of a prerequisite on a fresh install was undone (#473)
+- RULE VIOLATIONS
+  * D11 Ten shipped DLLs exported test hooks, and the VV3 Origins DLL shipped debug
+        instrumentation, against the no-debug-in-shipped-builds rule (#482)
+- WRONG TEXT AND PACKAGING
+  * D12 Descriptions sent players to the wrong log folders, named a checkbox that doesn't
+        exist (21 patches), and had wrong skill labels; README errors; the release script
+        published a zip from uncommitted changes (#477)
+- TEST GAPS
+  * D13 Several patches' tests only compared bytes, so broken versions passed. Six
+        patches now have tests that run the patched code (#474)
+
+
+==================================================================
+2. EACH DEFECT: CAUSE, FIX AND EVIDENCE
+==================================================================
+
+D1. VV3 "Pointing Out a Rare Collectible Always Works" corrupted memory   PR #470
+  Cause: after a rejected pick, the retry jumped back to the loop start (0x42DC85 ->
+  0x42DB70), but by then three registers the loop depends on held other values
+  (EDI, ESI, EBP). Each reroll therefore wrote the collectible outside the tracker's
+  two slots, into neighbouring game data.
+  Emulated with main's patch: one refused pick produced 12 stray writes (0x58F890...)
+  and placed nothing. When every pick is refused, it ran until it wrote to unmapped
+  memory, which in the game means a crash or wider corruption. Shipped since v1.34.14.
+  Fix: the stock routine is now completely untouched. Its only call site calls a small
+  wrapper that runs the stock routine and stops once a collectible is placed, up to 20
+  tries. The description now says so honestly.
+  Test: the real routine is executed and every memory write is recorded. There are no
+  stray writes, a refused pick is rerolled, and the retries are capped at 20. Against the
+  old patch this test fails.
+
+D2. VV1 parentage altered game state (Golden Child marker)                 PR #475
+  Cause: the capture overwrote an argument believed to be unused. The game stores it in
+  the mother's +0x394, which it later compares with 0xC7, the Golden Child marker. The
+  field held a pointer instead; at one pairing site it held the mother's own slot index.
+  In the 256-population modes, a mother in slot 199 could therefore produce a spurious
+  Golden Child.
+  Fix: no conception call is patched any more, so the game's arguments are exactly
+  stock. The father is read from the caller's own stack frame instead.
+  Test: 24 conception paths x 4 builds, each compared with a stock run. +0x394, all
+  villager records and the registers match stock, and the log gets the real father.
+
+D3. VV4 statistics grave seed could make a save fail to load               PR #472
+  Cause: released builds wrote +0x37 = 1 on graves with a certain stock flag. That
+  byte is the top byte of the field at +0x34, so the stock memorial loader rejects the
+  grave, and with it the whole save.
+  Your saves: all 36 VV4 saves were scanned read-only. None is affected today. Applying
+  the seed to a copy in memory makes 20 of them fail to load in stock.
+  Fix: a load-time repair in every mode. It fires only on exactly that seed pattern and
+  restores the stock value. Valid graves are untouched and other invalid graves are
+  still rejected, as in stock. (#467 removes the seeding itself.)
+  Test: the real loader is emulated; 8 deliberately broken variants are all caught.
+
+D4. VV3 Nature honey refill: the hive never refilled                       PR #468
+  Cause: the amount of honey to add was divided by 2048 twice, so 0 was added while the
+  refill timer still reset. Shipped since v1.34.14.
+  Emulated, honey starting at 100:
+    stock game: 102 after 1 h, 148 after 24 h
+    main:       100 after 1 h, 100 after 24 h
+    fixed:      102 after 1 h, 148 after 24 h (Nature 0);
+                Nature 1+ refills every 45 minutes
+  Codex: approved (thumbs up).
+
+D5. Overwrite kept the unticked patches running                            PR #471
+  Cause: to keep your own files, the overwrite copied every old file across, including
+  the patcher's own companion DLLs. Those DLLs switch their feature on just by being
+  present. Going from all patches to none left 10-24 stale files per game.
+  Fix: files the patcher owns are no longer carried over; your own files still are.
+  Codex found two real problems in my first version, both fixed:
+    (a) overwrite failed from the release zip (reproduced from a real zip, then fixed
+        and re-verified: all 5 games pass from an extracted zip);
+    (b) a moved install could keep a retired feature's DLL.
+
+D6. Start Over and the patcher's files                                     PR #481
+  (a) Only the Origins base installed the Start Over hook. Parentage-only builds
+      (VV1/3/4/5) and statistics-only builds (all 5) never cleared their logs, so a
+      restarted village continued the old village's log. That was 42 of 120
+      combinations tested.
+  (b) Start Over deleted "Village Population <slot>.txt", but those files are numbered
+      by page and shared across slots. It could delete another village's roster.
+  Fix: exactly one selected feature carries the hook, using bytes identical to Origins'
+  own. Roster pages are now deleted only if they belong to the village being erased.
+  All 120 combinations were verified, and the new stub was independently checked to
+  overlap nothing.
+
+D7. Village-wide Running (VV2, VV3, VV5)                                   PR #478
+  The description, and the Origins spreadsheet it cites, say a Running Dislike is cleared
+  even when a villager's Likes are full. VV1 and VV4 did this; VV2, VV3 and VV5 skipped
+  it. In VV3 the menu even counted the removal it didn't make, so you paid for it.
+  Fix: one byte per game.
+
+D8. VV1 parentage lost the father                                          PR #475
+  The father was missing on twins and on two autonomous pairing paths, so the log wrote
+  "(not captured)" and Show Parents had no father. Fixed together with D2.
+
+D9. VV5 Guardians of Isola lost two strings                                PR #484
+  The rewrite's sm.xml dropped the trailing tabs the game uses in two text ids, so the
+  Devotion "Apprentice" label and the first tutorial tip no longer matched what the game
+  looks up. Fixed, and a test now requires every id to match stock exactly.
+
+D10. GUI: the first untick of a prerequisite was undone                    PR #473
+  On a fresh install, unticking Builders Fix Huts (or the VV1/VV2 lesson grant) ticked
+  it straight back on. Only the first click was affected. Codex: approved.
+
+D11. Test hooks in shipped DLLs                                            PR #482
+  Ten companion DLLs exported probe and stats functions; one of them reseeds the live
+  RNG. The VV3 Origins DLL also shipped unused debug writes plus an extra call on every
+  chief-mask draw.
+  Fix: these are now compiled only into separate test builds, and the test builds are
+  kept out of both release zips. Emulation shows the shipped DLLs behave identically
+  (0 mismatches across 22 functions).
+
+D12. Descriptions, docs, release script                                    PR #477
+  - Log locations: descriptions said "beside the game executable"; the logs are
+    really in the Virtual Villagers Fun Patcher Logs folder beside your saves.
+  - 21 descriptions said "Requires Enable Origins-Exclusive Features", a checkbox that
+    doesn't exist. They now say the Origins base is added automatically.
+  - VV3 Learning Never Fails labels: 4 of the 5 named the wrong skill.
+  - VV5 Village-wide: now lists what the base actually adds.
+  - The release script refuses uncommitted changes before writing anything.
+  Codex found one overclaim, since fixed: Change Appearance for All does affect
+  Heathens.
+
+D13. Guard tests                                                           PR #474
+  VV3 Birth Control, the VV2/VV4/VV5 birth hooks, the VV5 statue 50/50, the VV1
+  population cap and Village-wide Running now have tests that run the patched code.
+  Codex: approved.
+
+
+==================================================================
+3. CHECKED AND FOUND TO BE CORRECT (NOT BUGS)
+==================================================================
+- VV2 Birth Control lets an older female initiate in autonomous pairing. This is
+  intended: the patch deliberately matches VV4/VV5, per its design notes, and the
+  drag-to-pair age rule is unchanged. I had started a fix, then discarded it.
+- Codex's claim on #470 that the wrapper's call jumps 2 bytes too far is wrong. The
+  built exe disassembles to "call 0x42db30", and the emulator counts entries there.
+  I replied with the evidence.
+- Every patch's recorded original bytes match your vanilla exes, and every patch
+  applies in all 3 modes with no unexplained byte changes.
+- All companion DLLs rebuild from their current source.
+- The release zip contains no personal paths.
+- Golden Mushroom odds are 1 in 1,000,000 (two 1-in-1000 rolls), matching your
+  2026-09-29 rule, and the mushroom counts as a mushroom everywhere it was checked.
+- There are no zombie processes from this work.
+
+
+==================================================================
+4. CODEX STATUS AND OPEN PRs
+==================================================================
+  PR    Fix                                   CI     Codex
+  #468  VV3 honey                             green  approved (thumbs up)
+  #470  VV3 rare collectible                  green  2 findings: 1 wrong (answered),
+                                                     1 fixed; re-review blocked
+  #471  Overwrite leftovers                   green  2 findings, both fixed;
+                                                     re-review blocked
+  #472  VV4 grave repair                      green  approved
+  #473  GUI first untick                      green  approved
+  #474  Guard tests                           green  approved
+  #475  VV1 parentage                         green  approved
+  #477  Descriptions/docs/release script      green  1 finding fixed; re-review blocked
+  #478  Village-wide Running                  green  review blocked
+  #481  Start Over reset + roster pages       green  review blocked
+  #482  No test hooks in DLLs                 green  review blocked
+  #484  VV5 Guardians text ids                -      review blocked
+
+BLOCKER: Codex replied "You have reached your Codex usage limits for code reviews" on
+every request after about 06:49. Each blocked PR still has one of the two allowed
+re-requests left. Once the limit resets, comment "@codex review" on #470, #471, #477,
+#478, #481, #482 and #484, or tell me to.
+
+Merge-order notes (all are in the PR descriptions):
+- #468, #470, #478 and #467 each re-pin the same VV3 whole-catalog hashes. Whichever
+  merges later needs a quick re-render.
+- #481 and #467 both rebuild VVFP Save Reset.dll. The second to merge rebuilds it again.
+- #475 and #467 each touch one line of every parentage manifest.
+- #477 and #467 both regenerate docs/transparency-log.md.
+
+
+==================================================================
+5. PASSED TO THE VILLAGE STATISTICS SESSION (PR #467)
+==================================================================
+Found by the audit and handed over. That session confirmed these are done in #467:
+- counters kept in spare save bytes are moved to .dat files (VV3/VV4/VV5);
+- "People Cured" no longer counts failed heals;
+- VV2 "Tech Points Earned" no longer double-counts;
+- the VV1 Villagers Buried seed is fixed;
+- the VV4 "Mushrooms Found" label is corrected;
+- Stews Found showing -1 is fixed.
+It said it would also correct the "in the modified game folder" wording. It asked me to
+take the VV4 grave repair (#472) and the roster-page bug (#481), which I did.
+Kept as your earlier decisions: "Real Hours Played" is wall-clock time since the village
+was founded, and twins/triplets are counted at conception.
+
+
+==================================================================
+6. NEEDS YOUR DECISION OR A LIVE CHECK
+==================================================================
+Live checks (Time Warp is the fastest way; none were run because I didn't launch games):
+ 1. VV3 honey (#468): note the hive amount, Time Warp a few hours, and check that it
+    rose.
+ 2. VV3 rare collectible (#470): late game, have the Chief point out rare collectibles
+    repeatedly. One should appear each time, with no hang.
+ 3. VV1 parentage (#475): Time Warp for twins and autonomous pairings. Every Conception
+    record should name a real father.
+ 4. Start Over without Origins (#481), especially VV2. The slot's logs should be
+    cleared and other slots left alone.
+ 5. Village-wide Running (#478): a villager with 3 Likes and a Running Dislike should
+    lose the Dislike.
+ 6. Guardians (#484): the "Apprentice" label and the first tutorial tip should show
+    their text.
+ 7. VV2 Gong "all women pregnant": what does the Details screen show for the father,
+    "?" or "Unknown"? The game stores "?", and the log prints what the game stores. My
+    notes say VV2 shows "Unknown", but I found no code that substitutes it. If the game
+    really shows "Unknown", the log should too, and that's a small follow-up fix.
+
+For you to decide:
+ 8. VV5 Origins: a certified, hash-pinned purpose line says "no Cure behavior is
+    available", but the shipped Full Heal/Cure All does work. Rewording it means
+    re-certifying the VV5 hash chain.
+ 9. VV2 Gong of Wonder coconuts: the fix adds 30 without a cap, so the count can
+    briefly exceed the stock 1500 until the next regrowth caps it. This is harmless as
+    far as I can tell.
+10. The Births and Conceptions log is created at village creation only when Write
+    Village Statistics is also ticked; otherwise it appears with its first record. This
+    is now stated in bold in the descriptions (#477). Say if you want it created
+    regardless.
+11. Minor edge cases left alone: a villager with the same Running Dislike twice keeps
+    one copy in VV4/VV5; the VV3 dry-run count can overstate by one in a rare case.
+
+
+==================================================================
+7. HOW IT WAS VERIFIED, AND THE LIMITS
+==================================================================
+- Six auditors (one per game plus one for the patcher itself). I re-checked every
+  claimed defect myself before fixing anything: disassembly, reproductions, and
+  emulation of the real game code from real patcher builds.
+- Every fix was tested against the old code (the new tests fail there) and ran the full
+  test suite with 0 failures. Where a whole-exe hash had to be re-pinned, a byte diff
+  proved only the intended bytes changed.
+- Evidence tier: this is emulation of the real code, one step below live game memory.
+  None of it was observed in the running games; section 6 lists what would confirm it.
+- One mistake on my side early on: while stopping a file search I had started, I
+  matched processes by text and ended a claude.exe that may have belonged to another
+  session (the VV3 father-capture session restarted shortly after). I now stop processes
+  only by the exact ID I started, and saved that as a rule.
