@@ -11,8 +11,11 @@ run, under the official English title that game's own string data gives it.
   objects; their slot is the index in that table.
 
 `variant` tells apart events that share a title (it is shown after the title
-in the chooser).  `requires` is what the event's own condition needs, shown
-when the condition does not hold.  Developer-dead events are listed in
+in the chooser); for an event whose picked villager is always one sex it
+names that sex (the owner, 2026-10-01: "Female" / "Male", read from each
+event's own picker -- the sex it passes -- and its text).  `requires` is
+what the event's own condition needs, shown when the condition does not
+hold.  Developer-dead events are listed in
 EXCLUDED with the reason; they are never offered.
 """
 from __future__ import annotations
@@ -226,7 +229,8 @@ EVENTS: dict[str, list[dict]] = {
            requires="at least 250 food"),
         _e(_slot(VV2_A, 2), "The Prettiest Tribe Girl",
            "A young woman wants to be declared the prettiest in the tribe.",
-           requires="at least one adult woman"),
+           requires="at least one adult woman",
+           variant="Female"),
         _e(_slot(VV2_A, 3), "The Strange Request",
            "Biggles wants to be left alone at the research table: allow it, or refuse."),
         _e(_slot(VV2_A, 4), "The Savage Child",
@@ -267,7 +271,8 @@ EVENTS: dict[str, list[dict]] = {
            requires="the tribe's exploration below the level the spyglass gives"),
         _e(_slot(VV2_A, 19), "The Love Note",
            "A man finds a love note from a secret admirer: write a poem, or hide to catch the poet.",
-           requires="at least one adult man and one adult woman"),
+           requires="at least one adult man and one adult woman",
+           variant="Male"),
         _e(_slot(VV2_A, 20), "The White Pearl",
            "A villager finds a huge white pearl: keep it, or show it to the tribe."),
         # Family B: the Mysterious Sack / Vial of 0x437AC0 (open it or leave it).
@@ -320,7 +325,8 @@ EVENTS: dict[str, list[dict]] = {
         _e(14, "The Reflection in the Water",
            "A villager sees a sad royal couple in a reflection (a story moment)."),
         _e(15, "The Daredevil", "A villager teases sharks: swim with them, or rethink the plan.",
-           requires="a man the event can be about, and at least two women"),
+           requires="a man the event can be about, and at least two women",
+           variant="Male"),
         _e(16, "The Ghostly Dream", "A ghostly lady visits a dream: study nature, or the healing arts.",
            variant="nature or healing", requires="a villager the event can be about"),
         _e(17, "The Ghostly Dream", "A ghostly old man visits a dream: research, or architecture.",
@@ -358,9 +364,9 @@ EVENTS: dict[str, list[dict]] = {
         _e(33, "Bed Bugs", "Something stings a villager in bed: swat it, or have a closer look.",
            requires="a villager the event can be about"),
         _e(34, "The Lovers", "A woman courts a man: a carved knife, or a shark-tooth necklace.",
-           variant="her gift", requires="a woman the event can be about"),
+           variant="Female", requires="a woman the event can be about"),
         _e(35, "The Lovers", "A man courts a woman: a shell necklace, or flowers.",
-           variant="his gift", requires="a man the event can be about"),
+           variant="Male", requires="a man the event can be about"),
         _e(36, "The Medical Emergency",
            "A villager falls gravely ill: attempt an ancient procedure, or let the illness run its course.",
            requires="a villager the event can be about"),
@@ -375,9 +381,11 @@ EVENTS: dict[str, list[dict]] = {
         _e(41, "The Mysterious Crate", "A crate washes up: open it, or shove it back out to sea.",
            requires="a villager the event can be about"),
         _e(42, "Vanity and the Bee", "A vain young woman and a bee: run to the water, or swat at it.",
-           requires="a woman the event can be about"),
+           requires="a woman the event can be about",
+           variant="Female"),
         _e(43, "The Noisy Bird", "A noisy bird disrupts research: scare it away, or leave it alone.",
-           requires="a villager the event can be about"),
+           requires="a woman the event can be about",
+           variant="Female"),
         _e(44, "The Hole in the Hut", "A draughty hole in a hut: patch it with beeswax, or tree sap.",
            requires="a villager the event can be about"),
         _e(45, "The Royal Jelly", "A villager tries royal jelly: a clear vial, or a dark vial.",
@@ -443,7 +451,8 @@ EVENTS: dict[str, list[dict]] = {
         _e(27, "The State of the Tree", "The recovering Tree of Life rejuvenates the villagers.",
            variant="rejuvenated", requires="a healthy Tree of Life"),
         _e(28, "The Abandoned Infants ", "Babies are found abandoned in the bushes and the women take them in.",
-           requires="the game's own condition for abandoned infants"),
+           requires="the game's own condition for abandoned infants",
+           variant="Female"),
         _e(29, "The Pink Shell", "A villager finds a pink shell and decides what to do with it.",
            requires="a villager the event can be about"),
         _e(30, "The Calabash Instrument", "A villager finds a notched bamboo tube: pour water into it, or not.",
@@ -455,7 +464,8 @@ EVENTS: dict[str, list[dict]] = {
         _e(33, "Faces in the Night", "A villager sees glowing faces in the trees: tell the tribe, or not.",
            requires="a villager the event can be about"),
         _e(34, "The Screaming Baby", "A mother with a screaming baby gets conflicting advice.",
-           requires="a villager the event can be about"),
+           requires="a mother with a baby the event can be about",
+           variant="Female"),
         _e(35, "The Sealed Box", "A villager finds a floating sealed box: risk swimming it back, or not.",
            requires="a villager the event can be about"),
         _e(36, "The Wet Book", "A villager finds a disintegrating book: read it now, or carry it to the lab.",

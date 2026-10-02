@@ -24,7 +24,7 @@ KIND = {"enum": "result", "amount": "amount", "loop": "each villager", "victim":
 
 
 def _event_label(e: dict) -> str:
-    return f"{e['title']} ({e['variant']})" if e["variant"] else e["title"]
+    return f"{e['title'].rstrip()} ({e['variant']})" if e["variant"] else e["title"]
 
 
 def _control_line(c: dict) -> str:

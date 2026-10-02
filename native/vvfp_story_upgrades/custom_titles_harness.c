@@ -131,7 +131,7 @@ static int story_record_index(int game, const unsigned char *record) {
     return -1;
 }
 
-static int story_record_alive(int game, const unsigned char *record) {
+static int story_record_present(int game, const unsigned char *record) {
     (void)game;
     return record[0] != 0;
 }

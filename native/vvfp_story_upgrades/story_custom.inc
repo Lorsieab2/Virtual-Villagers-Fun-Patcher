@@ -23,6 +23,24 @@
    says the village has room, one at a time, so the population cap of the
    installed mode is never passed. */
 
+/* A food source or store the event can set to an amount (CAP_VALUES):
+   its name, the range the game itself keeps it in, and what to know. */
+typedef struct {
+    const char *name;
+    int min;
+    int max;
+    const char *note;
+} ce_value_def;
+
+/* A puzzle the event can mark solved / unsolved (CAP_PUZZLES): which way is
+   offered (the other is refused, with the reason in `note`). */
+typedef struct {
+    const char *name;
+    int can_solve;
+    int can_unsolve;
+    const char *note;
+} ce_puzzle_def;
+
 typedef struct {
     unsigned int caps;
     const char *game_name;
@@ -59,7 +77,7 @@ typedef struct {
     unsigned int off_mother_body;
     const char *const *statuses;   /* CAP_STATUS: the faction / status choices */
     int status_count;
-    const char *const *behaviours; /* CAP_BEHAVIOUR */
+    const ce_action *behaviours;   /* CAP_BEHAVIOUR */
     int behaviour_count;
     const char *const *villages;   /* CAP_VILLAGE */
     int village_count;
@@ -96,6 +114,28 @@ typedef struct {
     int (*refill)(void);
     int (*parents_supported)(void);            /* CAP_PARENTS needs the game's / companion's store */
     int (*set_parents)(int index, const ce_change *change);
+    /* CAP_VALUES: the current amount (-1 = not there yet, e.g. a farm not
+       built) and the write (0 = refused). */
+    const ce_value_def *values;
+    int value_count;
+    int (*value_get)(int which);
+    int (*value_set)(int which, int amount);
+    /* CAP_PUZZLES. */
+    const ce_puzzle_def *puzzles;
+    int puzzle_count;
+    int (*puzzle_solved)(int which);
+    int (*puzzle_set)(int which, int solved);   /* 0 = refused right now */
+    /* CAP_CANCEL / CAP_RELITTER / CAP_UNBORN. */
+    int (*cancel)(int index);
+    int (*relitter)(int index, int litter, ce_result *result);
+    int (*unborn)(int index, const ce_change *change);
+    /* CAP_REVIVE: a record the game shows as a skeleton that may come back,
+       and the revival (0 = refused). */
+    int (*skeleton)(const unsigned char *record);
+    int (*revive)(int index, int health, int cure);   /* 1 done, -1 no room (the game's
+                                                         own predicate), 0 refused */
+    int faction_count;             /* CAP_SPAWN_FACTION: statuses[0..n-1] are factions */
+    unsigned int off_pregnant;     /* non-zero while expecting (every game's own test) */
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
@@ -526,13 +566,19 @@ static int ce_compose(const ce_adapter *a, const ce_event *e, const ce_result *r
             wsprintfA(line, delta < 0 ? a->tech_loss : a->tech_gain, delta < 0 ? -delta : delta);
             ce_line(&w, line);
         }
-        if ((r->no_room_spawns > 0 || r->no_room_babies > 0 || r->skipped > 0 || r->refused > 0)
+        if ((r->no_room_spawns > 0 || r->no_room_babies > 0 || r->no_room_revives > 0
+             || r->skipped > 0 || r->refused > 0)
             && first) {
             ce_newline(&w);
         }
         if (r->no_room_spawns > 0 || r->no_room_babies > 0) {
             wsprintfA(line, "The village had no room for %d of the new villagers.",
                       r->no_room_spawns + r->no_room_babies);
+            ce_line(&w, line);
+        }
+        if (r->no_room_revives > 0) {
+            wsprintfA(line, "The village had no room for %d of the villagers brought back.",
+                      r->no_room_revives);
             ce_line(&w, line);
         }
         if (r->skipped > 0) {
@@ -680,8 +726,59 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     }
     if (a->caps & CAP_VILLAGE) {
         for (i = 0; i < a->village_count && i < 32; ++i) {
-            if (e->village & (1u << i)) {
-                a->village(i);
+            if ((e->village & (1u << i)) && !a->village(i)) {
+                ++r->refused;
+            }
+        }
+    }
+    /* Amounts, after the refill so a chosen amount is what stays. */
+    if (a->caps & CAP_VALUES) {
+        for (i = 0; i < e->value_count && i < CE_MAX_VALUES; ++i) {
+            const ce_value *v = &e->values[i];
+            if (v->which < 0 || v->which >= a->value_count || v->amount < a->values[v->which].min
+                || v->amount > a->values[v->which].max || !a->value_set(v->which, v->amount)) {
+                ++r->refused;
+            }
+        }
+    }
+    if (a->caps & CAP_PUZZLES) {
+        for (i = 0; i < e->puzzle_count && i < CE_MAX_PUZZLES; ++i) {
+            const ce_puzzle *p = &e->puzzles[i];
+            const ce_puzzle_def *d = p->which >= 0 && p->which < a->puzzle_count
+                ? &a->puzzles[p->which] : NULL;
+            if (d == NULL || (p->solved ? !d->can_solve : !d->can_unsolve)) {
+                ++r->refused;
+                continue;
+            }
+            /* Already so: nothing to write (a second completion would stamp
+               a new solve time and run the puzzle's completion again). */
+            if ((a->puzzle_solved(p->which) != 0) == (p->solved != 0)) {
+                continue;
+            }
+            if (!a->puzzle_set(p->which, p->solved ? 1 : 0)) {
+                ++r->refused;
+            }
+        }
+    }
+
+    /* Skeletons brought back, each only while the game says there is room
+       and the record still holds the same dead villager. */
+    if (a->caps & CAP_REVIVE) {
+        for (i = 0; i < e->revive_count && i < CE_MAX_REVIVES; ++i) {
+            const ce_revive *v = &e->revives[i];
+            unsigned char *record = v->index >= 0 && v->index < a->record_count ? a->record(v->index) : NULL;
+            if (record == NULL || !a->skeleton(record) || ce_identity(a, record) != v->identity) {
+                ++r->skipped;
+                continue;
+            }
+            if (v->health < 1 || v->health > 100) {
+                ++r->refused;
+                continue;
+            }
+            switch (a->revive(v->index, v->health, v->cure)) {
+            case 1: ++r->revived; break;
+            case -1: ++r->no_room_revives; break;
+            default: ++r->refused; break;
             }
         }
     }
@@ -751,13 +848,48 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             int father = -1;
             const unsigned char *mother = same[i] ? a->record(c->index) : NULL;
             const unsigned char *sire = father_same[i] ? a->record(c->father) : NULL;
-            if (c->litter <= 0 || c->fate != CE_FATE_NONE || mother == NULL || !a->listed(mother)) {
+            if (c->litter == 0 || c->fate != CE_FATE_NONE || mother == NULL || !a->listed(mother)) {
+                continue;
+            }
+            if (c->litter == CE_LITTER_CANCEL) {
+                /* "0 babies": no pregnancy (a pregnancy always delivers one
+                   baby in every game, so this is the only way to 0). */
+                if (!(a->caps & CAP_CANCEL) || !a->cancel(c->index)) {
+                    ++r->refused;
+                }
+                continue;
+            }
+            if (c->litter < 1) {
+                ++r->refused;
+                continue;
+            }
+            if (*(const int *)(mother + a->off_pregnant) != 0) {
+                /* Already expecting: the number of babies changes. */
+                if (!(a->caps & CAP_RELITTER)) {
+                    ++r->refused;
+                } else {
+                    r->conceived += a->relitter(c->index, c->litter > 3 ? 3 : c->litter, r);
+                }
                 continue;
             }
             if (sire != NULL && a->listed(sire)) {
                 father = c->father;
             }
             r->conceived += a->conceive(c->index, c->litter > 3 ? 3 : c->litter, father, r);
+        }
+    }
+    /* The unborn baby's father, on every carrier now expecting. */
+    if (a->caps & CAP_UNBORN) {
+        for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
+            const ce_change *c = &e->changes[i];
+            const unsigned char *mother = same[i] ? a->record(c->index) : NULL;
+            if (!c->unborn_set || c->fate != CE_FATE_NONE) {
+                continue;
+            }
+            if (mother == NULL || !a->listed(mother)
+                || *(const int *)(mother + a->off_pregnant) == 0 || !a->unborn(c->index, c)) {
+                ++r->refused;
+            }
         }
     }
     if (a->caps & CAP_SPAWN) {

@@ -259,7 +259,7 @@ static void titles_tick(int game) {
     }
     for (i = titles.count - 1; i >= 0; --i) {
         const unsigned char *record = story_record(game, (int)titles.entries[i].index);
-        int match = record != NULL && story_record_alive(game, record)
+        int match = record != NULL && story_record_present(game, record)
             && titles.entries[i].fingerprint == story_title_identity(game, record);
         if (match) {
             titles.seen[i] = 1;

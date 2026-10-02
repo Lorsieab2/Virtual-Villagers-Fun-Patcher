@@ -1,6 +1,6 @@
 /* Custom Island Event: the dialogs.  Included by vvfp_story_upgrades.c after
    story_custom.inc.  Plain Windows dialogs (the owner's explicit choice),
-   resources 302-305 in vvfp_story_upgrades.rc.
+   resources 302-309 in vvfp_story_upgrades.rc.
 
    Every control a game cannot support is disabled; "Not in this game..."
    says what is missing in that game and why.  Every value is checked when
@@ -9,6 +9,17 @@
 
 enum {
     IDD_CUSTOM = 302, IDD_CHANGES = 303, IDD_SPAWN = 304, IDD_PARENTS = 305,
+    IDD_VALUES = 306, IDD_PUZZLES = 307, IDD_REVIVE = 308, IDD_UNBORN = 309,
+    IDC_CE_OTHER = 1131, IDC_CE_VALUES = 1132, IDC_CE_PUZZLES = 1133, IDC_CE_REVIVE = 1134,
+    IDC_CE_OTHER_REMOVE = 1135,
+    IDC_VA_LIST = 3301, IDC_VA_AMOUNT = 3302, IDC_VA_NOTE = 3303, IDC_VA_SET = 3304,
+    IDC_VA_KEEP = 3305,
+    IDC_PZ_LIST = 3401, IDC_PZ_SOLVE = 3402, IDC_PZ_UNSOLVE = 3403, IDC_PZ_KEEP = 3404,
+    IDC_PZ_NOTE = 3405,
+    IDC_RV_LIST = 3501, IDC_RV_HEALTH = 3502, IDC_RV_CURE = 3503, IDC_RV_NOTE = 3504,
+    IDC_RV_ALL = 3505,
+    IDC_UB_NAME = 3601, IDC_UB_HEAD = 3602, IDC_UB_BODY = 3603, IDC_UB_RANGE = 3604,
+    IDC_CH_UNBORN = 2082, IDC_CH_UNBORN_NOTE = 2083,
     IDC_CE_TITLE = 1101, IDC_CE_TEXT = 1102, IDC_CE_FOOD_OP = 1103, IDC_CE_FOOD = 1104,
     IDC_CE_TECH_OP = 1105, IDC_CE_TECH = 1106, IDC_CE_REFILL = 1107, IDC_CE_VILLAGE = 1108,
     IDC_CE_TEXT_NOTE = 1109, IDC_CE_NOTE = 1110, IDC_CE_SPAWNS = 1111, IDC_CE_SPAWN_ADD = 1112,
@@ -44,6 +55,10 @@ static struct {
     ce_spawn spawn;                       /* the spawn dialog's result */
     ce_change parents;                    /* the parents dialog's result */
     int parents_chosen;
+    ce_change unborn;                     /* the unborn baby's father dialog's result */
+    int unborn_chosen;
+    int values[CE_MAX_VALUES];            /* the amounts dialog's choices, CE_KEEP = none */
+    int puzzles[CE_MAX_PUZZLES];          /* the puzzles dialog's: -1 none, 0 / 1 */
 } ui;
 
 static const char *const UI_TOGGLE_NAMES[5] = {
@@ -229,6 +244,44 @@ static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wpar
     return FALSE;
 }
 
+/* ---- The unborn baby's father dialog ------------------------------------ */
+
+static INT_PTR CALLBACK ui_unborn_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    char text[96];
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        SendDlgItemMessageA(window, IDC_UB_NAME, EM_LIMITTEXT, (WPARAM)(ui.a->parent_name_bytes - 2), 0);
+        wsprintfA(text, "Heads 0-%d, bodies 0-%d.", ui.a->head_count - 1, ui.a->body_count - 1);
+        SetDlgItemTextA(window, IDC_UB_RANGE, text);
+        return TRUE;
+    }
+    if (message == WM_COMMAND && LOWORD(wparam) == IDOK) {
+        ce_change *u = &ui.unborn;
+        int head = ui_number(window, IDC_UB_HEAD);
+        int body = ui_number(window, IDC_UB_BODY);
+        GetDlgItemTextA(window, IDC_UB_NAME, u->unborn_name, CE_NAME_BYTES);
+        if (!ce_text_ok(u->unborn_name, 0)) {
+            ui_message(window, "A name may use letters, numbers, spaces and . , ! ? : - ' only.");
+            return TRUE;
+        }
+        if ((head != CE_KEEP && (head < 0 || head >= ui.a->head_count))
+            || (body != CE_KEEP && (body < 0 || body >= ui.a->body_count))) {
+            ui_message(window, "A head or body is out of range for this game.");
+            return TRUE;
+        }
+        u->unborn_head = head;
+        u->unborn_body = body;
+        u->unborn_set = u->unborn_name[0] != '\0' || head != CE_KEEP || body != CE_KEEP;
+        EndDialog(window, IDOK);
+        return TRUE;
+    }
+    if ((message == WM_COMMAND && LOWORD(wparam) == IDCANCEL) || message == WM_CLOSE) {
+        EndDialog(window, IDCANCEL);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* ---- The villager changes dialog --------------------------------------- */
 
 static unsigned int ui_toggles(HWND window) {
@@ -270,7 +323,7 @@ static void ui_show_count(HWND window) {
 
 static int ui_change_is_empty(const ce_change *c) {
     int i;
-    if (c->fate != CE_FATE_NONE || c->sick || c->litter > 0 || c->head != CE_KEEP
+    if (c->fate != CE_FATE_NONE || c->sick || c->litter != 0 || c->unborn_set || c->head != CE_KEEP
         || c->body != CE_KEEP || c->like_add >= 0 || c->like_remove >= 0
         || c->dislike_add >= 0 || c->dislike_remove >= 0 || c->title_op != CE_TITLE_KEEP
         || c->mask != CE_KEEP || c->status != CE_KEEP || c->behaviour != CE_KEEP
@@ -297,6 +350,8 @@ static void ce_change_init(ce_change *c) {
     }
     c->mask = c->status = c->behaviour = CE_KEEP;
     c->father_head = c->father_body = c->mother_head = c->mother_body = CE_KEEP;
+    c->unborn_head = c->unborn_body = CE_KEEP;
+    c->unborn_skill = c->unborn_skill_value = CE_KEEP;
 }
 
 /* Merge `t` (the dialog's changes) into the draft's entry for villager
@@ -321,10 +376,16 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
     c->fingerprint = fingerprint;
     if (t->fate != CE_FATE_NONE) c->fate = t->fate;
     if (t->sick) c->sick = 1;
-    if (t->litter > 0) {
+    if (t->litter != 0) {
         c->litter = t->litter;
         c->father = t->father;
         c->father_fingerprint = t->father_fingerprint;
+    }
+    if (t->unborn_set) {
+        c->unborn_set = 1;
+        if (t->unborn_name[0]) lstrcpynA(c->unborn_name, t->unborn_name, CE_NAME_BYTES);
+        if (t->unborn_head != CE_KEEP) c->unborn_head = t->unborn_head;
+        if (t->unborn_body != CE_KEEP) c->unborn_body = t->unborn_body;
     }
     if (t->head != CE_KEEP) c->head = t->head;
     if (t->body != CE_KEEP) c->body = t->body;
@@ -364,7 +425,7 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
     if (t->fate < 0) t->fate = CE_FATE_NONE;
     t->sick = IsDlgButtonChecked(window, IDC_CH_SICK) == BST_CHECKED;
     t->litter = ui_combo_data(window, IDC_CH_PREGNANCY);
-    if (t->litter < 0) t->litter = 0;
+    if (t->litter < CE_LITTER_CANCEL || t->litter > 3) t->litter = 0;
     t->father = ui_combo_data(window, IDC_CH_FATHER);
     if (t->litter > 0 && t->father >= 0) {
         const unsigned char *father = ui.a->record(t->father);
@@ -410,6 +471,12 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
     if (!(ui.a->caps & CAP_STATUS)) t->status = CE_KEEP;
     t->behaviour = ui_combo_data(window, IDC_CH_BEHAVIOUR);
     if (!(ui.a->caps & CAP_BEHAVIOUR)) t->behaviour = CE_KEEP;
+    if (ui.unborn_chosen && ui.unborn.unborn_set && (ui.a->caps & CAP_UNBORN)) {
+        t->unborn_set = 1;
+        lstrcpynA(t->unborn_name, ui.unborn.unborn_name, CE_NAME_BYTES);
+        t->unborn_head = ui.unborn.unborn_head;
+        t->unborn_body = ui.unborn.unborn_body;
+    }
     if (ui.parents_chosen && ui.parents.parents_set) {
         t->parents_set = 1;
         lstrcpynA(t->father_name, ui.parents.father_name, CE_NAME_BYTES);
@@ -427,7 +494,7 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         ui_message(window, "Choose at least one change.");
         return 0;
     }
-    if (t->litter > 0) {
+    if (t->litter > 0 || t->unborn_set) {
         for (i = 0; i < count; ++i) {
             int position = ui_roster_position(targets[i]);
             const story_member *m = &ui.roster[position];
@@ -476,6 +543,9 @@ static void ui_setup_changes(HWND window) {
     if (a->caps & CAP_VANISH) ui_combo_add(window, IDC_CH_FATE, "Disappears (no skeleton)", CE_FATE_VANISH);
     SendDlgItemMessageA(window, IDC_CH_FATE, CB_SETCURSEL, 0, 0);
     ui_combo_add(window, IDC_CH_PREGNANCY, "No change", 0);
+    if (a->caps & CAP_CANCEL) {
+        ui_combo_add(window, IDC_CH_PREGNANCY, "Not pregnant (0 babies)", CE_LITTER_CANCEL);
+    }
     ui_combo_add(window, IDC_CH_PREGNANCY, "Pregnant with a baby", 1);
     ui_combo_add(window, IDC_CH_PREGNANCY, "Pregnant with twins", 2);
     ui_combo_add(window, IDC_CH_PREGNANCY, "Pregnant with triplets", 3);
@@ -503,7 +573,11 @@ static void ui_setup_changes(HWND window) {
         ui_fill_masks(window, IDC_CH_MASK, "No change");
     }
     ui_fill_choices(window, IDC_CH_STATUS, a->statuses, a->status_count);
-    ui_fill_choices(window, IDC_CH_BEHAVIOUR, a->behaviours, a->behaviour_count);
+    ui_combo_add(window, IDC_CH_BEHAVIOUR, "No change", CE_KEEP);
+    for (i = 0; i < a->behaviour_count; ++i) {
+        ui_combo_add(window, IDC_CH_BEHAVIOUR, a->behaviours[i].label, i);
+    }
+    SendDlgItemMessageA(window, IDC_CH_BEHAVIOUR, CB_SETCURSEL, 0, 0);
 
     ui_enable(window, IDC_CH_FATE, (a->caps & (CAP_KILL | CAP_VANISH)) != 0);
     ui_enable(window, IDC_CH_SICK, (a->caps & CAP_SICK) != 0);
@@ -521,10 +595,13 @@ static void ui_setup_changes(HWND window) {
     ui_enable(window, IDC_CH_STATUS, (a->caps & CAP_STATUS) != 0);
     ui_enable(window, IDC_CH_BEHAVIOUR, (a->caps & CAP_BEHAVIOUR) != 0);
     ui_enable(window, IDC_CH_PARENTS, (a->caps & CAP_PARENTS) != 0 && a->parents_supported());
+    ui_enable(window, IDC_CH_UNBORN, (a->caps & CAP_UNBORN) != 0);
     SetDlgItemTextA(window, IDC_CH_NOTE,
-                    "A villager who dies or disappears gets no other change. "
-                    "\"Not in this game...\" lists what is unavailable.");
+                    "A villager who dies or disappears gets no other change. A pregnancy that "
+                    "is already on its way changes its number of babies. \"Not in this "
+                    "game...\" lists what is unavailable.");
     ui.parents_chosen = 0;
+    ui.unborn_chosen = 0;
     ui_show_count(window);
 }
 
@@ -539,6 +616,16 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
         if ((id == IDC_CH_LIST && HIWORD(wparam) == LBN_SELCHANGE)
             || (id >= IDC_CH_TOGGLE_FIRST && id < IDC_CH_TOGGLE_FIRST + 5)) {
             ui_show_count(window);
+            return TRUE;
+        }
+        if (id == IDC_CH_UNBORN) {
+            ce_change_init(&ui.unborn);
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_UNBORN), window,
+                                ui_unborn_dialog, 0) == IDOK) {
+                ui.unborn_chosen = ui.unborn.unborn_set;
+                SetDlgItemTextA(window, IDC_CH_UNBORN_NOTE,
+                                ui.unborn_chosen ? "The baby's father will change." : "");
+            }
             return TRUE;
         }
         if (id == IDC_CH_PARENTS) {
@@ -619,8 +706,9 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
         ui_enable(window, IDC_SP_MASK, (a->caps & CAP_MASK) != 0);
         ui_combo_add(window, IDC_SP_FACTION, "(the game's own)", CE_KEEP);
         if (a->caps & CAP_SPAWN_FACTION) {
-            ui_fill_choices(window, IDC_SP_FACTION, a->statuses, a->status_count);
-            SendDlgItemMessageA(window, IDC_SP_FACTION, CB_DELETESTRING, 1, 0);   /* "No change" */
+            for (i = 0; i < a->faction_count && i < a->status_count; ++i) {
+                ui_combo_add(window, IDC_SP_FACTION, a->statuses[i], i);
+            }
         }
         SendDlgItemMessageA(window, IDC_SP_FACTION, CB_SETCURSEL, 0, 0);
         ui_enable(window, IDC_SP_FACTION, (a->caps & CAP_SPAWN_FACTION) != 0);
@@ -697,6 +785,297 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
     return FALSE;
 }
 
+/* ---- The amounts dialog ------------------------------------------------ */
+
+static void ui_values_fill(HWND window) {
+    char text[200];
+    int i;
+    int sel = (int)SendDlgItemMessageA(window, IDC_VA_LIST, LB_GETCURSEL, 0, 0);
+    SendDlgItemMessageA(window, IDC_VA_LIST, LB_RESETCONTENT, 0, 0);
+    for (i = 0; i < ui.a->value_count && i < CE_MAX_VALUES; ++i) {
+        const ce_value_def *d = &ui.a->values[i];
+        int now = ui.a->value_get(i);
+        char *p = text;
+        p += wsprintfA(p, "%s (%d-%d): ", d->name, d->min, d->max);
+        p += now < 0 ? wsprintfA(p, "not there yet") : wsprintfA(p, "now %d", now);
+        if (ui.values[i] != CE_KEEP) {
+            wsprintfA(p, "  ->  %d", ui.values[i]);
+        }
+        SendDlgItemMessageA(window, IDC_VA_LIST, LB_ADDSTRING, 0, (LPARAM)text);
+    }
+    if (sel >= 0) {
+        SendDlgItemMessageA(window, IDC_VA_LIST, LB_SETCURSEL, (WPARAM)sel, 0);
+    }
+}
+
+static INT_PTR CALLBACK ui_values_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    int i;
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        for (i = 0; i < CE_MAX_VALUES; ++i) {
+            ui.values[i] = CE_KEEP;
+        }
+        for (i = 0; i < ui.draft.value_count; ++i) {
+            ui.values[ui.draft.values[i].which] = ui.draft.values[i].amount;
+        }
+        ui_values_fill(window);
+        return TRUE;
+    }
+    if (message == WM_COMMAND) {
+        int id = LOWORD(wparam);
+        int sel = (int)SendDlgItemMessageA(window, IDC_VA_LIST, LB_GETCURSEL, 0, 0);
+        if (id == IDC_VA_LIST && HIWORD(wparam) == LBN_SELCHANGE) {
+            SetDlgItemTextA(window, IDC_VA_NOTE,
+                            sel >= 0 && ui.a->values[sel].note != NULL ? ui.a->values[sel].note : "");
+            return TRUE;
+        }
+        if (id == IDC_VA_SET || id == IDC_VA_KEEP) {
+            char text[96];
+            int amount;
+            if (sel < 0 || sel >= ui.a->value_count) {
+                ui_message(window, "Choose a food source or store first.");
+                return TRUE;
+            }
+            if (id == IDC_VA_KEEP) {
+                ui.values[sel] = CE_KEEP;
+            } else {
+                amount = ui_number(window, IDC_VA_AMOUNT);
+                if (amount == CE_KEEP || amount < ui.a->values[sel].min || amount > ui.a->values[sel].max) {
+                    wsprintfA(text, "Type an amount from %d to %d.", ui.a->values[sel].min,
+                              ui.a->values[sel].max);
+                    ui_message(window, text);
+                    return TRUE;
+                }
+                ui.values[sel] = amount;
+            }
+            ui_values_fill(window);
+            return TRUE;
+        }
+        if (id == IDOK) {
+            ui.draft.value_count = 0;
+            for (i = 0; i < ui.a->value_count && i < CE_MAX_VALUES; ++i) {
+                if (ui.values[i] != CE_KEEP) {
+                    ui.draft.values[ui.draft.value_count].which = i;
+                    ui.draft.values[ui.draft.value_count].amount = ui.values[i];
+                    ++ui.draft.value_count;
+                }
+            }
+            EndDialog(window, IDOK);
+            return TRUE;
+        }
+        if (id == IDCANCEL) {
+            EndDialog(window, IDCANCEL);
+            return TRUE;
+        }
+    } else if (message == WM_CLOSE) {
+        EndDialog(window, IDCANCEL);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* ---- The puzzles dialog ------------------------------------------------- */
+
+static void ui_puzzles_fill(HWND window) {
+    char text[200];
+    int i;
+    int top = (int)SendDlgItemMessageA(window, IDC_PZ_LIST, LB_GETTOPINDEX, 0, 0);
+    int count = ui.a->puzzle_count < CE_MAX_PUZZLES ? ui.a->puzzle_count : CE_MAX_PUZZLES;
+    unsigned char selected[CE_MAX_PUZZLES];
+    for (i = 0; i < count; ++i) {
+        selected[i] = SendDlgItemMessageA(window, IDC_PZ_LIST, LB_GETSEL, (WPARAM)i, 0) > 0;
+    }
+    SendDlgItemMessageA(window, IDC_PZ_LIST, LB_RESETCONTENT, 0, 0);
+    for (i = 0; i < count; ++i) {
+        const ce_puzzle_def *d = &ui.a->puzzles[i];
+        wsprintfA(text, "%s: %s%s", d->name, ui.a->puzzle_solved(i) ? "solved" : "unsolved",
+                  ui.puzzles[i] == 1 ? "  ->  solved" : ui.puzzles[i] == 0 ? "  ->  unsolved" : "");
+        SendDlgItemMessageA(window, IDC_PZ_LIST, LB_ADDSTRING, 0, (LPARAM)text);
+        if (selected[i]) {
+            SendDlgItemMessageA(window, IDC_PZ_LIST, LB_SETSEL, TRUE, (LPARAM)i);
+        }
+    }
+    SendDlgItemMessageA(window, IDC_PZ_LIST, LB_SETTOPINDEX, (WPARAM)top, 0);
+}
+
+static INT_PTR CALLBACK ui_puzzles_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    int i;
+    int count = ui.a->puzzle_count < CE_MAX_PUZZLES ? ui.a->puzzle_count : CE_MAX_PUZZLES;
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        for (i = 0; i < CE_MAX_PUZZLES; ++i) {
+            ui.puzzles[i] = -1;
+        }
+        for (i = 0; i < ui.draft.puzzle_count; ++i) {
+            ui.puzzles[ui.draft.puzzles[i].which] = ui.draft.puzzles[i].solved;
+        }
+        ui_puzzles_fill(window);
+        return TRUE;
+    }
+    if (message == WM_COMMAND) {
+        int id = LOWORD(wparam);
+        if (id == IDC_PZ_LIST && HIWORD(wparam) == LBN_SELCHANGE) {
+            int caret = (int)SendDlgItemMessageA(window, IDC_PZ_LIST, LB_GETCARETINDEX, 0, 0);
+            SetDlgItemTextA(window, IDC_PZ_NOTE, caret >= 0 && caret < count
+                            && ui.a->puzzles[caret].note != NULL ? ui.a->puzzles[caret].note : "");
+            return TRUE;
+        }
+        if (id == IDC_PZ_SOLVE || id == IDC_PZ_UNSOLVE || id == IDC_PZ_KEEP) {
+            int refused = 0;
+            for (i = 0; i < count; ++i) {
+                if (SendDlgItemMessageA(window, IDC_PZ_LIST, LB_GETSEL, (WPARAM)i, 0) <= 0) {
+                    continue;
+                }
+                if (id == IDC_PZ_KEEP) {
+                    ui.puzzles[i] = -1;
+                } else if (id == IDC_PZ_SOLVE ? ui.a->puzzles[i].can_solve : ui.a->puzzles[i].can_unsolve) {
+                    ui.puzzles[i] = id == IDC_PZ_SOLVE ? 1 : 0;
+                } else {
+                    ++refused;
+                }
+            }
+            ui_puzzles_fill(window);
+            if (refused > 0) {
+                ui_message(window, id == IDC_PZ_SOLVE
+                    ? "Some of the chosen puzzles can not be marked solved here (see each one's note)."
+                    : "Some of the chosen puzzles can not be marked unsolved here (see each one's note).");
+            }
+            return TRUE;
+        }
+        if (id == IDOK) {
+            ui.draft.puzzle_count = 0;
+            for (i = 0; i < count; ++i) {
+                if (ui.puzzles[i] >= 0) {
+                    ui.draft.puzzles[ui.draft.puzzle_count].which = i;
+                    ui.draft.puzzles[ui.draft.puzzle_count].solved = ui.puzzles[i];
+                    ++ui.draft.puzzle_count;
+                }
+            }
+            EndDialog(window, IDOK);
+            return TRUE;
+        }
+        if (id == IDCANCEL) {
+            EndDialog(window, IDCANCEL);
+            return TRUE;
+        }
+    } else if (message == WM_CLOSE) {
+        EndDialog(window, IDCANCEL);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* ---- The revive dialog --------------------------------------------------- */
+
+/* The skeletons, oldest first (the owner's rule for any villager list the
+   patcher builds), each with its record index as the row's data. */
+static int ui_skeletons(int *out, int cap) {
+    int n = 0;
+    int i;
+    int j;
+    for (i = 0; i < ui.a->record_count && n < cap; ++i) {
+        const unsigned char *r = ui.a->record(i);
+        if (r != NULL && ui.a->skeleton(r)) {
+            out[n++] = i;
+        }
+    }
+    for (i = 1; i < n; ++i) {
+        int index = out[i];
+        int age = ce_age(ui.a, ui.a->record(index));
+        for (j = i; j > 0 && ce_age(ui.a, ui.a->record(out[j - 1])) < age; --j) {
+            out[j] = out[j - 1];
+        }
+        out[j] = index;
+    }
+    return n;
+}
+
+static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        int skeletons[UI_ROSTER_MAX];
+        int n = ui_skeletons(skeletons, UI_ROSTER_MAX);
+        char name[CE_NAME_BYTES];
+        char years[16];
+        char text[96];
+        int i;
+        int k;
+        for (i = 0; i < n; ++i) {
+            const unsigned char *r = ui.a->record(skeletons[i]);
+            int row;
+            ce_copy_name(name, sizeof name, r + ui.a->off_name, ui.a->name_bytes);
+            wsprintfA(text, "%s (%s, %s)", name, ce_sex(ui.a, r) == STORY_SEX_MALE ? "male" : "female",
+                      ui_years(ce_age(ui.a, r), years));
+            row = (int)SendDlgItemMessageA(window, IDC_RV_LIST, LB_ADDSTRING, 0, (LPARAM)text);
+            SendDlgItemMessageA(window, IDC_RV_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)skeletons[i]);
+            for (k = 0; k < ui.draft.revive_count; ++k) {
+                if (ui.draft.revives[k].index == skeletons[i]) {
+                    SendDlgItemMessageA(window, IDC_RV_LIST, LB_SETSEL, TRUE, (LPARAM)row);
+                }
+            }
+        }
+        if (n == 0) {
+            SendDlgItemMessageA(window, IDC_RV_LIST, LB_ADDSTRING, 0, (LPARAM)"(no skeletons right now)");
+            ui_enable(window, IDC_RV_LIST, 0);
+            ui_enable(window, IDC_RV_ALL, 0);
+        }
+        SetDlgItemInt(window, IDC_RV_HEALTH, (UINT)(ui.draft.revive_count > 0 ? ui.draft.revives[0].health : 100),
+                      FALSE);
+        CheckDlgButton(window, IDC_RV_CURE,
+                       ui.draft.revive_count == 0 || ui.draft.revives[0].cure ? BST_CHECKED : BST_UNCHECKED);
+        SetDlgItemTextA(window, IDC_RV_NOTE,
+                        "Only a villager who is still a skeleton can come back (a buried one is gone). "
+                        "Each comes back only while the village has room. Without the cure a sick or "
+                        "very old villager can die again within moments.");
+        return TRUE;
+    }
+    if (message == WM_COMMAND) {
+        int id = LOWORD(wparam);
+        int rows = (int)SendDlgItemMessageA(window, IDC_RV_LIST, LB_GETCOUNT, 0, 0);
+        int i;
+        if (id == IDC_RV_ALL) {
+            SendDlgItemMessageA(window, IDC_RV_LIST, LB_SETSEL, TRUE, (LPARAM)-1);
+            return TRUE;
+        }
+        if (id == IDOK) {
+            int health = ui_number(window, IDC_RV_HEALTH);
+            int cure = IsDlgButtonChecked(window, IDC_RV_CURE) == BST_CHECKED;
+            if (health == CE_KEEP || health < 1 || health > 100) {
+                ui_message(window, "Health is 1-100.");
+                return TRUE;
+            }
+            ui.draft.revive_count = 0;
+            for (i = 0; i < rows && ui.draft.revive_count < CE_MAX_REVIVES; ++i) {
+                int index;
+                const unsigned char *r;
+                if (SendDlgItemMessageA(window, IDC_RV_LIST, LB_GETSEL, (WPARAM)i, 0) <= 0) {
+                    continue;
+                }
+                index = (int)SendDlgItemMessageA(window, IDC_RV_LIST, LB_GETITEMDATA, (WPARAM)i, 0);
+                r = ui.a->record(index);
+                if (r == NULL || !ui.a->skeleton(r)) {
+                    continue;
+                }
+                ui.draft.revives[ui.draft.revive_count].index = index;
+                ui.draft.revives[ui.draft.revive_count].identity = ce_identity(ui.a, r);
+                ui.draft.revives[ui.draft.revive_count].health = health;
+                ui.draft.revives[ui.draft.revive_count].cure = cure;
+                ++ui.draft.revive_count;
+            }
+            EndDialog(window, IDOK);
+            return TRUE;
+        }
+        if (id == IDCANCEL) {
+            EndDialog(window, IDCANCEL);
+            return TRUE;
+        }
+    } else if (message == WM_CLOSE) {
+        EndDialog(window, IDCANCEL);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* ---- The main dialog --------------------------------------------------- */
 
 static void ui_describe_change(const ce_change *c, char *out) {
@@ -706,6 +1085,7 @@ static void ui_describe_change(const ce_change *c, char *out) {
     if (c->fate == CE_FATE_KILL) p += wsprintfA(p, " dies");
     if (c->fate == CE_FATE_VANISH) p += wsprintfA(p, " disappears");
     if (c->sick) p += wsprintfA(p, " sick");
+    if (c->litter == CE_LITTER_CANCEL) p += wsprintfA(p, " not pregnant");
     if (c->litter == 1) p += wsprintfA(p, " pregnant");
     if (c->litter == 2) p += wsprintfA(p, " twins");
     if (c->litter == 3) p += wsprintfA(p, " triplets");
@@ -723,14 +1103,43 @@ static void ui_describe_change(const ce_change *c, char *out) {
     if (c->title_op == CE_TITLE_CLEAR) p += wsprintfA(p, " no title");
     if (c->mask != CE_KEEP) p += wsprintfA(p, " mask");
     if (c->status != CE_KEEP) p += wsprintfA(p, " %s", ui.a->statuses[c->status]);
-    if (c->behaviour != CE_KEEP) p += wsprintfA(p, " %s", ui.a->behaviours[c->behaviour]);
+    if (c->behaviour != CE_KEEP) p += wsprintfA(p, " %s", ui.a->behaviours[c->behaviour].label);
     if (c->parents_set) p += wsprintfA(p, " parents");
+    if (c->unborn_set) p += wsprintfA(p, " baby's father");
+}
+
+/* The amounts, puzzles and revivals the draft holds, one row each. */
+static int ui_other_rows(void) {
+    return ui.draft.value_count + ui.draft.puzzle_count + (ui.draft.revive_count > 0 ? 1 : 0);
+}
+
+static void ui_refresh_other(HWND window) {
+    char text[256];
+    int i;
+    SendDlgItemMessageA(window, IDC_CE_OTHER, LB_RESETCONTENT, 0, 0);
+    for (i = 0; i < ui.draft.value_count; ++i) {
+        const ce_value *v = &ui.draft.values[i];
+        wsprintfA(text, "%s: set to %d", ui.a->values[v->which].name, v->amount);
+        SendDlgItemMessageA(window, IDC_CE_OTHER, LB_ADDSTRING, 0, (LPARAM)text);
+    }
+    for (i = 0; i < ui.draft.puzzle_count; ++i) {
+        const ce_puzzle *z = &ui.draft.puzzles[i];
+        wsprintfA(text, "%s: %s", ui.a->puzzles[z->which].name, z->solved ? "solved" : "unsolved");
+        SendDlgItemMessageA(window, IDC_CE_OTHER, LB_ADDSTRING, 0, (LPARAM)text);
+    }
+    if (ui.draft.revive_count > 0) {
+        wsprintfA(text, ui.draft.revive_count == 1 ? "1 skeleton comes back to life"
+                                                   : "%d skeletons come back to life",
+                  ui.draft.revive_count);
+        SendDlgItemMessageA(window, IDC_CE_OTHER, LB_ADDSTRING, 0, (LPARAM)text);
+    }
 }
 
 static void ui_refresh_lists(HWND window) {
     char text[256];
     char years[16];
     int i;
+    ui_refresh_other(window);
     SendDlgItemMessageA(window, IDC_CE_SPAWNS, LB_RESETCONTENT, 0, 0);
     for (i = 0; i < ui.draft.spawn_groups; ++i) {
         const ce_spawn *s = &ui.draft.spawns[i];
@@ -854,6 +1263,9 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
         ui_enable(window, IDC_CE_TECH, (a->caps & CAP_TECH) != 0);
         ui_enable(window, IDC_CE_REFILL, (a->caps & CAP_REFILL) != 0);
         ui_enable(window, IDC_CE_SPAWN_ADD, (a->caps & CAP_SPAWN) != 0);
+        ui_enable(window, IDC_CE_VALUES, (a->caps & CAP_VALUES) != 0);
+        ui_enable(window, IDC_CE_PUZZLES, (a->caps & CAP_PUZZLES) != 0);
+        ui_enable(window, IDC_CE_REVIVE, (a->caps & CAP_REVIVE) != 0);
         SetDlgItemTextA(window, IDC_CE_NOTE, a->refill_note);
         ui_refresh_lists(window);
         return TRUE;
@@ -887,6 +1299,44 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
                 --ui.draft.spawn_groups;
                 ui_refresh_lists(window);
             }
+            return TRUE;
+        }
+        if (id == IDC_CE_VALUES) {
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_VALUES), window,
+                                ui_values_dialog, 0) == IDOK) {
+                ui_refresh_other(window);
+            }
+            return TRUE;
+        }
+        if (id == IDC_CE_PUZZLES) {
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_PUZZLES), window,
+                                ui_puzzles_dialog, 0) == IDOK) {
+                ui_refresh_other(window);
+            }
+            return TRUE;
+        }
+        if (id == IDC_CE_REVIVE) {
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_REVIVE), window,
+                                ui_revive_dialog, 0) == IDOK) {
+                ui_refresh_other(window);
+            }
+            return TRUE;
+        }
+        if (id == IDC_CE_OTHER_REMOVE) {
+            int sel = (int)SendDlgItemMessageA(window, IDC_CE_OTHER, LB_GETCURSEL, 0, 0);
+            if (sel >= 0 && sel < ui.draft.value_count) {
+                memmove(&ui.draft.values[sel], &ui.draft.values[sel + 1],
+                        (size_t)(ui.draft.value_count - sel - 1) * sizeof(ce_value));
+                --ui.draft.value_count;
+            } else if (sel >= ui.draft.value_count && sel < ui.draft.value_count + ui.draft.puzzle_count) {
+                int k = sel - ui.draft.value_count;
+                memmove(&ui.draft.puzzles[k], &ui.draft.puzzles[k + 1],
+                        (size_t)(ui.draft.puzzle_count - k - 1) * sizeof(ce_puzzle));
+                --ui.draft.puzzle_count;
+            } else if (sel >= 0 && sel < ui_other_rows()) {
+                ui.draft.revive_count = 0;
+            }
+            ui_refresh_other(window);
             return TRUE;
         }
         if (id == IDC_CE_CHANGE_ADD) {

@@ -514,7 +514,7 @@ static int vv5_possible(const story_event *e) {
 static int story_record_count(int game);
 static unsigned char *story_record(int game, int index);
 static int story_record_index(int game, const unsigned char *record);
-static int story_record_alive(int game, const unsigned char *record);
+static int story_record_present(int game, const unsigned char *record);
 static unsigned int story_title_identity(int game, const unsigned char *record);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
@@ -564,9 +564,13 @@ static int story_record_index(int game, const unsigned char *record) {
     return -1;
 }
 
-static int story_record_alive(int game, const unsigned char *record) {
+/* A villager is still here: living, or a skeleton not yet buried or
+   crumbled away (a revive can bring them back, so their custom title stays
+   until the record is freed or holds someone else). */
+static int story_record_present(int game, const unsigned char *record) {
     const ce_adapter *a = ce_adapter_for(game);
-    return a != NULL && record != NULL && a->listed(record);
+    return a != NULL && record != NULL
+        && (a->listed(record) || (a->skeleton != NULL && a->skeleton(record)));
 }
 
 static unsigned int story_title_identity(int game, const unsigned char *record) {
@@ -738,11 +742,19 @@ __declspec(dllexport) int __stdcall VvfpStoryActive(int game) {
 
 /* ---- The chooser ----------------------------------------------------------- */
 
+/* "Title (variant)"; a title the game itself ends with a space (The Tree
+   of Life's "The Abandoned Infants ") keeps one space before the bracket. */
 static void label_of(const story_event *e, char *out, size_t size) {
+    int n;
+    lstrcpynA(out, e->title, (int)size);
     if (e->variant != NULL && e->variant[0] != '\0') {
-        wsprintfA(out, "%s (%s)", e->title, e->variant);
-    } else {
-        lstrcpynA(out, e->title, (int)size);
+        n = lstrlenA(out);
+        while (n > 0 && out[n - 1] == ' ') {
+            out[--n] = '\0';
+        }
+        if ((size_t)n + (size_t)lstrlenA(e->variant) + 4 <= size) {
+            wsprintfA(out + n, " (%s)", e->variant);
+        }
     }
 }
 
