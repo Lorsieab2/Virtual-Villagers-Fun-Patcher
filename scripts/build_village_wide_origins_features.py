@@ -66,6 +66,9 @@ CONFIG = {
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
+        # VV2's base payload calls the entry directly and never checks the
+        # VVFPOWU header (its only reader, a preflight, was unreachable).
+        "signature_header": False,
         "running_preference_id": 38,
         "exe": "Virtual Villagers - The Lost Children.exe",
         "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
@@ -736,8 +739,19 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """,
     )
 
-    header = bytearray(b"VVFPOWU\0")
     entry_offset = entry_va - payload_va
+    if not config.get("signature_header", True):
+        # Nothing in this game reads the header (its base payload calls the
+        # entry directly), so the 0x20 bytes stay zero.
+        payload = bytes(0x20) + bytes(code)
+        return payload, {
+            "signature_offset": None,
+            "entry_offset": config["payload_offset"] + (entry_va - payload_va),
+            "running_offset": config["payload_offset"] + (running_va - payload_va),
+            "mastery_offset": config["payload_offset"] + (mastery_va - payload_va),
+            "age_offset": config["payload_offset"] + (age_va - payload_va),
+        }
+    header = bytearray(b"VVFPOWU\0")
     if entry_offset < 0 or entry_offset > 0xFFFF:
         raise AssertionError(
             f"entry_offset {entry_offset:#x} does not fit the packed 16-bit field"
@@ -889,8 +903,14 @@ def main() -> None:
             "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
             "dependencies": [f"{game_id}_enable_origins_exclusive_features"],
             "extension_abi": {
-                "signature": "VVFPOWU",
-                "signature_offset": f"0x{entries['signature_offset']:X}",
+                **(
+                    {
+                        "signature": "VVFPOWU",
+                        "signature_offset": f"0x{entries['signature_offset']:X}",
+                    }
+                    if entries["signature_offset"] is not None
+                    else {"signature": None}
+                ),
                 "entry_offset": f"0x{entries['entry_offset']:X}",
                 "entry_virtual_address": f"0x{config['cave_va'] + (entries['entry_offset'] - config['cave_offset']):X}",
                 "calling_convention": (

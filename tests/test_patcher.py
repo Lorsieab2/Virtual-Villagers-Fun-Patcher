@@ -253,13 +253,10 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("sub dword ptr [edi + 0x2EADC], 30000", source)
         self.assertIn("ShowVV2CureResult", source)
 
-        preflight = source[
-            source.index("    preflight_code = assemble(") :
-            source.index("    cure_preflight_code = assemble(")
-        ]
-        self.assertIn("mov ecx, 256", preflight)
-        self.assertEqual(preflight.count("mov ebx, 62"), 2)
-        self.assertIn("mov eax, 2\n            ret", preflight)
+        # The village-wide preflight (raw 0x9A009) that dry-scanned before a
+        # Running charge was never called -- the rows charge only after the
+        # apply reports a real change, above -- and was removed.
+        self.assertNotIn("    preflight_code = assemble(", source)
         cure_preflight_source = source[
             source.index("    cure_preflight_code = assemble(") :
             source.index("    detail_preflight_code = assemble(")
@@ -475,7 +472,11 @@ class ManifestTests(unittest.TestCase):
         # its call site 0x37ADC) is removed -- 0x37ADC is the Mysterious
         # Sack / Vial's strength roll, not the barrel's, whose three
         # children come from its magnitude.
-        self.assertEqual(len(rows), 38)
+        # 36, not 38: the dispatch stub (0x9A004) and the village-wide
+        # preflight (0x9A009) were unreachable and are removed.
+        self.assertEqual(len(rows), 36)
+        self.assertNotIn(0x9A004, rows)
+        self.assertNotIn(0x9A009, rows)
         self.assertNotIn(0x37ADC, rows, "the Sack / Vial roll is detoured again")
         self.assertNotIn(0x9A4F0, rows)
         for required in (0x9A4A0, 0x9A745):
@@ -497,7 +498,6 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("dry-scan of all 256", rows[0x9A300]["purpose"])
         self.assertIn("Detail-row purchase would change", rows[0x9A380]["purpose"])
         self.assertIn("Task9-style OK/Cancel", rows[0x9A204]["purpose"])
-        self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
         shr_ranges = sorted(
             (
                 offset,
@@ -655,7 +655,10 @@ class ManifestTests(unittest.TestCase):
                 source = stock_by_game[game_id].read_bytes()
                 self.assertEqual(source[offset : offset + len(before)], before)
                 self.assertEqual(before, b"\0" * len(before))
-                self.assertEqual(feature.raw["extension_abi"]["signature"], "VVFPOWU")
+                # The Lost Children's base payload calls the entry directly and
+                # nothing reads the header, so it carries none.
+                expected_signature = None if game_id == "vv2" else "VVFPOWU"
+                self.assertEqual(feature.raw["extension_abi"]["signature"], expected_signature)
                 self.assertIn("ECX=first physical record pointer", feature.raw["extension_abi"]["calling_convention"])
                 commands = feature.raw["extension_abi"]["commands"]
                 self.assertEqual(commands["6"], "All Villagers Like Running")
@@ -733,7 +736,6 @@ class ManifestTests(unittest.TestCase):
     def test_origins_village_wide_exact_header_and_safe_field_targets(self) -> None:
         expected_headers = {
             "vv1": 0x48D180,
-            "vv2": 0x49C800,
             "vv3": 0x47B820,
             "vv4": 0x728220,
         }
@@ -772,10 +774,10 @@ class ManifestTests(unittest.TestCase):
         """
         game_exes = {
             "vv1": "Virtual Villagers - A New Home.exe",
-            "vv2": "Virtual Villagers - The Lost Children.exe",
             "vv3": "Virtual Villagers - The Secret City.exe",
             "vv4": "Virtual Villagers - The Tree of Life.exe",
         }
+        # The Lost Children has no header and no preflight that reads one.
         for game_id, exe_name in game_exes.items():
             with self.subTest(game=game_id):
                 source = STOCK / exe_name
