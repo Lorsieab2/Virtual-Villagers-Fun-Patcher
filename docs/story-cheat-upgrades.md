@@ -395,7 +395,7 @@ so a custom event is refused until it has happened.
 | Parents | with Show Parents (its sidecar) | on the record | on the record | on the record | on the record |
 | Custom title | yes | yes | yes | yes | yes |
 | Mask | yes | yes | yes | yes | yes |
-| Faction / status | -- | Esteemed Elder (0x44D190, with its totem); totem art 1-8 | -- (Tribal Chief omitted) | -- | believer / Heathen (the game's conversions; puzzle Heathens refused) |
+| Faction / status | -- | Esteemed Elder (0x44D190, with its totem); totem art 1-8 | -- (Tribal Chief omitted) | -- | believer / Heathen (the game's conversions, not counted; puzzle Heathens refused) |
 | Behaviours | stop, dance, swim, relax, recover | stop, swim, celebrate, visit graves, sneeze, recover | stop, recover | stop, recover | stop, recover |
 | Village / puzzle | Isola Day, Blessings Day, the dirty beach (as The Big Wave) | -- | -- | rain, clear weather | -- |
 
@@ -420,6 +420,18 @@ Conceptions Log to Text File** ticked it is logged through the same
 game's conception or delivery checks the carrier's sex, so a man can carry
 (the Heathen Mommy works the same way); an unknown father is "Unknown" with
 the carrier's own looks. How a male carrier's pose looks is not verified.
+
+New Believers' faction changes are the Maker's, not the player's, so they
+count nowhere (owner, 2026-10-02). "Becomes a believer" runs the game's own
+conversion 0x4668B0, which adds to the trophies A Heathen's Prerogative (0x13,
+3 conversions) and If You Can't Beat 'Em... (0x14, 10) in the trophy table
+0x4DB358 -- earning one also queues its popup and adds to Over-Achiever and
+Unachievable -- and to the patcher's Heathens Converted (0x51D3A4). The
+companion copies the whole trophy table and that total before the call and
+puts them back straight after, on the game thread, before any frame can draw
+the popup or any save or export can read them. "Becomes a Heathen" (0x4669E0)
+and a new Heathen (0x46FD20) write no counter at all (emulated on the stock
+code and the full catalog). A conversion in play still counts as it always did.
 
 ### Two choices (v1.35.47)
 
@@ -550,8 +562,7 @@ village instead of writing it back.
   known defect); the beehive refill (tied to its puzzle); puzzle states.
 * The Tree of Life: fruit-tree and fishing refills (no game routine); weather
   types other than rain and clear (not identified); puzzle states.
-* New Believers: new Heathens (the creator's arguments are not
-  all understood); puzzle states (prerequisites unproven); the puzzles' own
+* New Believers: puzzle states (prerequisites unproven); the puzzles' own
   Heathens keep their faction.
 
 ### Found in passing (not changed here)
