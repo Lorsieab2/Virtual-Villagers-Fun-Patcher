@@ -15,6 +15,7 @@
 #include <shlobj.h>
 #include <stdio.h>
 #include <string.h>
+#include "../shared/harness_ldw_tree.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -65,6 +66,7 @@ static unsigned char *table(void) { return (unsigned char *)TABLE_VA; }
 static int table_is_zero(void) { int i; for (i = 0; i < TABLE_BYTES; ++i) if (table()[i]) return 0; return 1; }
 
 int main(int argc, char **argv) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll; sync_t sync; write_t writes;
     char docs[MAX_PATH], exe[MAX_PATH], folder[MAX_PATH], file[MAX_PATH], *base, *dot;
     DWORD attrs;

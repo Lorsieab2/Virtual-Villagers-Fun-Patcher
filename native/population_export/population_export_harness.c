@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../shared/harness_ldw_tree.h"
 
 static int g_failures;
 
@@ -408,6 +409,7 @@ static void run_game(const struct game *g, write_population_t write) {
 }
 
 int main(int argc, char **argv) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll;
     write_population_t write;
     size_t i;
