@@ -104,6 +104,24 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
                 self.assertIn("VvfpCauseNamesVillage=_VvfpCauseNamesVillage@0",
                               (CAUSE / definition).read_text(encoding="utf-8"))
 
+    def test_a_refused_install_releases_what_was_held_for_it(self) -> None:
+        """Codex (#512 review): records held for Cause of Death were written
+        only when a later record noticed it had been refused -- with none,
+        they were lost at exit. The refusal itself now releases them."""
+        cause = (CAUSE / "vvfp_cause_of_death.c").read_text(encoding="utf-8")
+        install = function(cause, "VvfpCauseInstall")
+        self.assertIn("} else if (cod_log_ready() && release_held != NULL) {", install)
+        self.assertIn("(void)release_held(game);", install)
+        self.assertIn('GetProcAddress(module, "ReleaseHeldRecords")', cause)
+        parentage = PARENTAGE.read_text(encoding="utf-8")
+        release = function(parentage, "ReleaseHeldRecords")
+        self.assertIn("if (village_publisher_present()) {\n        return 0;", release)
+        self.assertIn('flush_pending(game_id, "");', release)
+        self.assertIn(
+            "ReleaseHeldRecords=_ReleaseHeldRecords@4",
+            (ROOT / "native/parentage_export/parentage_export.def").read_text(encoding="utf-8"),
+        )
+
     def test_the_shipped_dlls_carry_the_new_exports(self) -> None:
         import sys
         sys.path.insert(0, str(ROOT / "src"))
@@ -111,6 +129,7 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         parentage = (ROOT / "assets/parentage/VVFP Parentage Export.dll").read_bytes()
         cause = (ROOT / "assets/cause_of_death/VVFP Cause of Death.dll").read_bytes()
         self.assertIn(b"PublishVillageAtSave", _pe_export_names(parentage))
+        self.assertIn(b"ReleaseHeldRecords", _pe_export_names(parentage))
         self.assertIn(b"VvfpCauseNamesVillage", _pe_export_names(cause))
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

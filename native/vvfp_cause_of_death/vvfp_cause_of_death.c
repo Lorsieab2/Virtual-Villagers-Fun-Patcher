@@ -328,9 +328,11 @@ enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);
 typedef int (__stdcall *publish_village_fn)(int game, const void *save_buffer, int slot);
+typedef int (__stdcall *release_held_fn)(int game);
 static int log_state;            /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static write_record_fn write_record;
 static publish_village_fn publish_village;
+static release_held_fn release_held;
 
 /* "VVFP Parentage Export.dll", loaded by full path from the executable's
    folder the first time; absent (the Births and Conceptions row off), no
@@ -351,6 +353,7 @@ static int cod_log_ready(void) {
             if (module != NULL) {
                 write_record = (write_record_fn)GetProcAddress(module, "WriteVillageRecord");
                 publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
+                release_held = (release_held_fn)GetProcAddress(module, "ReleaseHeldRecords");
                 if (write_record != NULL) {
                     log_state = 1;
                 }
@@ -595,6 +598,11 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
     roster_save_site();
     if (cod_install_sites()) {
         install_state = 1;
+    } else if (cod_log_ready() && release_held != NULL) {
+        /* Refused: this companion will never name a village at a save, so
+           the parentage DLL must not keep holding records for it (#512
+           review) -- they are written now, unlabelled, in order. */
+        (void)release_held(game);
     }
     return install_state == 1;
 }

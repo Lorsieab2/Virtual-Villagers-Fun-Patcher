@@ -329,11 +329,17 @@ int main(int argc, char **argv) {
     /* 6: Cause of Death loaded but refused. */
     printf("Virtual Villagers 3: Cause of Death refused\n");
     {
-        char cause[MAX_PATH];
+        char cause[MAX_PATH], beside[MAX_PATH];
         HMODULE companion;
         install_t install;
+        const char *shipped = dll_path;
         _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
         CHECK(CopyFileA(argv[2], cause, FALSE), "the companion's TEST build is beside the harness");
+        /* The companion loads the parentage DLL from the executable's folder,
+           so this phase uses that copy: one module, one queue. */
+        _snprintf(beside, MAX_PATH, "%s\\VVFP Parentage Export.dll", exe_dir);
+        CHECK(CopyFileA(shipped, beside, FALSE), "the parentage DLL is beside the harness");
+        dll_path = beside;
         g = &LAYOUTS[2];
         records = alloc_table(3);
         villager(0, "Ana", 600, 3, 4);
@@ -345,6 +351,8 @@ int main(int argc, char **argv) {
         companion = LoadLibraryA(cause);
         install = companion != NULL ? (install_t)GetProcAddress(companion, "VvfpCauseInstall") : NULL;
         CHECK(install != NULL && install(3, NULL) == 0, "its install is refused (no game here)");
+        CHECK(read_deaths(3) && STARTS("Death 1\r\n  Name: Bonedry\r\n") && strstr(text, "Village: ") == NULL,
+              "the refusal itself writes the held death, unlabelled -- no later record needed (#512)");
         CHECK(write_record(3, DEATH, rec(0), 1, BURIED, NULL, 1) == 1, "the next death");
         CHECK(read_deaths(3) && STARTS("Death 1\r\n  Name: Bonedry\r\n")
               && strstr(text, "Death 2\r\n  Name: Ana\r\n") != NULL && strstr(text, "Village: ") == NULL,
@@ -353,6 +361,8 @@ int main(int argc, char **argv) {
         FreeLibrary(dll);
         free_table(3);
         DeleteFileA(cause);
+        DeleteFileA(beside);
+        dll_path = shipped;
         wipe(0);
     }
 

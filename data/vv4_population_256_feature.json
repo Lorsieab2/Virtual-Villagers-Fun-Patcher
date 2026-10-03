@@ -10,7 +10,8 @@
  "needs_on": [
   {
    "id": "vv4_fix_vanilla_bugs",
-   "for": "loading a village that the base game's exactly-150-villager save bug has already damaged (without it such a village does not load)"
+   "for": "loading a village that the base game's exactly-150-villager save bug has already damaged (without it such a village does not load)",
+   "without": "a village the base game's exactly-150-villager save bug has already damaged will NOT load in the 256 build. Every other village loads and plays normally."
   }
  ],
  "behavior_changes": [

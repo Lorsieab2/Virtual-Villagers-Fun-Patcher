@@ -3535,6 +3535,30 @@ __declspec(dllexport) int __stdcall PublishVillageAtSave(
     return ensure_parentage_log(game_id, header, villager_table(game_id));
 }
 
+/* Cause of Death's install was refused (Codex, #512 review): its save hook
+   will never name a village, so records held for it would otherwise wait for
+   a later record to notice -- and with none, be lost at exit. It calls this at
+   the moment of refusal: with no publisher left, every held record of this
+   game is written now, unlabelled and in order, exactly as a record with no
+   publisher is. With the statistics companion present they keep waiting for
+   its save. Returns 1 when nothing of this game is still held. */
+__declspec(dllexport) int __stdcall ReleaseHeldRecords(int game_id) {
+    int i;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
+        return 0;
+    }
+    if (village_publisher_present()) {
+        return 0;
+    }
+    flush_pending(game_id, "");
+    for (i = 0; i < pending_count; ++i) {
+        if (pending[i].game_id == game_id) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 /* The original two-argument form, kept for a population exporter that has not
    been rebuilt. With no table it cannot vouch for the tribe, so records keep
    being held and are written here at each save instead of at once. */

@@ -787,7 +787,10 @@ def main() -> int:
         # through the prerequisite UI -- the sentence under the description and
         # the confirmation before patching -- never by ticking anything.
         "needs_on": [{"id": "vv4_fix_vanilla_bugs",
-                      "for": "loading a village that the base game's exactly-150-villager save bug has already damaged (without it such a village does not load)"}],
+                      "for": "loading a village that the base game's exactly-150-villager save bug has already damaged (without it such a village does not load)",
+                      # Not a patch that merely does less (#512 review): the
+                      # confirmation must say plainly what will not work.
+                      "without": "a village the base game's exactly-150-villager save bug has already damaged will NOT load in the 256 build. Every other village loads and plays normally."}],
         "behavior_changes": [
             "The villager table has 256 slots; the population modes that raise the cap reach 256.",
             "Saves hold up to 256 villagers in a longer save file that only this build reads.",

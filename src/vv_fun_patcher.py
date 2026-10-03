@@ -4027,6 +4027,11 @@ def _needs_on(patch: FunPatch) -> tuple[tuple[str, str], ...]:
             raise PatcherError(
                 f"Invalid needs_on entry on {patch.id}: each needs an id and a for."
             )
+        without = entry.get("without")
+        if without is not None and (not isinstance(without, str) or not without.strip()):
+            raise PatcherError(
+                f"Invalid needs_on entry on {patch.id}: 'without' must be a sentence."
+            )
         alternatives = entry.get("or", [])
         if not isinstance(alternatives, list) or not all(
             isinstance(item, str) and item.strip() for item in alternatives
@@ -4036,6 +4041,23 @@ def _needs_on(patch: FunPatch) -> tuple[tuple[str, str], ...]:
             )
         result.append((entry["id"].strip(), entry["for"].strip()))
     return tuple(result)
+
+
+def _needs_on_without(patch: FunPatch, dependency_id: str) -> str | None:
+    """What stops working when a ``needs_on`` entry is unmet, if anything.
+
+    Most entries only make a patch do less, which the confirmation says once
+    for all of them. An entry whose absence breaks something -- 256 Villagers
+    cannot load a village the base game's exactly-150-villager save bug has
+    already damaged without Fix Vanilla Bugs (Codex, #512 review) -- carries
+    that in ``without``, and the confirmation states it instead of promising
+    the patch will still work.
+    """
+    for entry in patch.raw.get("needs_on", ()) or ():
+        if isinstance(entry, dict) and str(entry.get("id", "")).strip() == dependency_id:
+            without = entry.get("without")
+            return without.strip() if isinstance(without, str) else None
+    return None
 
 
 def _needs_on_alternatives(patch: FunPatch, dependency_id: str) -> tuple[str, ...]:
@@ -4177,18 +4199,49 @@ def unmet_needs_on_text(
     unmet = unmet_needs_on(selected_ids, catalog)
     if not unmet:
         return ""
+    # What breaks, and what else would serve, per unmet pair, from the
+    # entries themselves.
+    breaks: dict[tuple[str, str, str], str] = {}
+    either: dict[tuple[str, str, str], str] = {}
+    chosen = set(selected_ids)
+    by_id = {patch.id: patch for patch in catalog}
+    for patch in catalog:
+        if patch.id not in chosen:
+            continue
+        for dependency_id, purpose in _needs_on(patch):
+            if dependency_id not in by_id:
+                continue
+            row = (patch.name, by_id[dependency_id].name, purpose)
+            without = _needs_on_without(patch, dependency_id)
+            if without is not None:
+                breaks[row] = without
+            either[row] = "".join(
+                f" or {by_id[other].name}"
+                for other in _needs_on_alternatives(patch, dependency_id)
+                if other in by_id
+            )
     lines = [
         "These patches are ticked, but a patch they work with is not:",
         "",
     ]
-    for name, missing, purpose in unmet:
+    for row in unmet:
+        name, missing, purpose = row
         lines.append(f"- {name}")
-        lines.append(f"    needs {missing} on for {purpose}.")
+        lines.append(f"    needs {missing}{either.get(row, '')} on for {purpose}.")
+        if row in breaks:
+            lines.append(f"    Without it: {breaks[row]}")
         lines.append("")
-    lines.append(
-        "They will still be applied and will still work; they just do less "
-        "with the other patch off."
-    )
+    if any(row not in breaks for row in unmet):
+        lines.append(
+            ("The others" if breaks else "They")
+            + " will still be applied and will still work; they just do less "
+            "with the other patch off."
+        )
+    if breaks:
+        lines.append(
+            "Read each \"Without it\" line: those patches will still be applied, "
+            "but what it names will not work."
+        )
     lines.append("")
     lines.append("Patch the games anyway?")
     return "\n".join(lines)

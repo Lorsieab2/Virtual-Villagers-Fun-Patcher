@@ -177,6 +177,9 @@ class PatchRequirementTests(unittest.TestCase):
                     self.assertNotIn(stats, [row[1] for row in patcher.unmet_needs_on(chosen, catalog)])
                 self.assertIn(f"Needs {stats} or {cause} on for the village and savegame header",
                               patcher.patch_requirement_text(log, catalog))
+                # With neither ticked, the confirmation names both.
+                self.assertIn(f"needs {stats} or {cause} on for the village",
+                              patcher.unmet_needs_on_text([log.id], catalog))
 
     def test_a_needs_on_alternative_must_be_a_known_patch_of_the_same_game(self):
         catalog = list(patcher.load_fun_patches())
@@ -217,6 +220,22 @@ class PatchRequirementTests(unittest.TestCase):
                 )
                 body = patcher.unmet_needs_on_text([f"{game}_population_256"], catalog)
                 self.assertIn("- 256 Villagers (Experimental)\n    needs Fix Vanilla Bugs on", body)
+                # Codex (#512 review): this is not a patch that merely does
+                # less -- the confirmation must say what will not load, and
+                # must not promise that everything still works.
+                self.assertIn(
+                    "    Without it: a village the base game's exactly-150-villager save bug has "
+                    "already damaged will NOT load in the 256 build.",
+                    body,
+                )
+                self.assertNotIn("will still work", body)
+                self.assertIn("what it names will not work", body)
+                # Beside a patch that only does less, each keeps its own wording.
+                mixed = patcher.unmet_needs_on_text(
+                    [f"{game}_population_256", f"{game}_write_parentage_log"], catalog
+                )
+                self.assertIn("Without it: a village", mixed)
+                self.assertIn("The others will still be applied and will still work", mixed)
                 self.assertEqual(
                     patcher.unmet_needs_on_text(
                         [f"{game}_population_256", f"{game}_fix_vanilla_bugs"], catalog
