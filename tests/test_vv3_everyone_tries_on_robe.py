@@ -30,19 +30,23 @@ ISOLATED_RESULTS = {
         "AD570D00",
     ),
 }
+# Re-pinned for the VV3 slot counter's active-flag BYTE test: rendering this patch alone with
+# main 5aa370fc and with the branch differs only in the PE CheckSum (0x160) and the counter's
+# operand-size byte 0x7B326 (83 -> 80), which the population modes' safety rows carry; the same
+# holds for BASE_RESULTS (the same modes with no optional patch).
 RENDERED_RESULTS = {
     "collection_progression": (
-        "C0962BC66BC3973FAF9C21F1654008B81493F076210E08EEEF83AEE3D87049BC",
-        "A7310D00",
+        "3986D13125B13CFFA9A3A0AA687C0C733BAE93CEC4771C8C15A7DF2F78B6675A",
+        "A4310D00",
     ),
     "immediate_fixed": (
-        "79770F20286EAACE78A70506514F90B9D9BB72D4A4AE9B77F0A6A0F8C36F2242",
-        "A5730D00",
+        "3AC777FF4C6A6A5D83F58B6E22EA82F8B3AE3308F39E2060EF62E22D37B81A29",
+        "A2730D00",
     ),
 }
 BASE_RESULTS = {
-    "collection_progression": "AF6F2817D9AA6C15466DCE73E0B27EDB1EF9C7238BBA4597889BFBADF0985F90",
-    "immediate_fixed": "551A1716FE73EC983747133C12FDDFA3A1C7CBCA70B84F71631FFF4F064B42C6",
+    "collection_progression": "9982E9769F34DCA8DBA381BF6B2ECF0501A8ADBDF31433A18D71F55D0A6544E5",
+    "immediate_fixed": "BF93C2739FB28B917316BB01B76BD885E884C63627B2418DDD5234A2484A7CE0",
 }
 EXPANDED_COMPOSITION_RESULTS = {
     "experimental_expanded_256": (
@@ -189,17 +193,22 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # re-pinning: rendering the complete catalog with main e434757a and with the
     # branch, the only differing bytes in all three modes are the PE CheckSum
     # (0x160..0x162) and the row's own 0x173E1, 0x1779A..0x177CA and 0x180FB.
+    # Re-pinned for the 150-villager save fix in Fix Vanilla Bugs and the slot counter's
+    # active-flag BYTE test. Justified BEFORE re-pinning: rendering the complete catalog
+    # with main 5aa370fc and with the branch, the only differing bytes in all three modes
+    # are the PE CheckSum (0x160..0x162), the row's own 0x3571A..0x3578E, 0x5C88E..0x5C8CF
+    # and 0x5EFC5..0x5EFE2, and the counter's operand-size byte 0x7B326 (83 -> 80).
     "stock": (
-        "CF816CC60A463C3C766EE5FA059A97AE8E25A4E99ED90E8634B78F7ABE232287",
-        "E3F80C00",
+        "35302C2C1FA15498E238509BA686F0EA3BE98F89FA5FF642E43F04D15AB52C81",
+        "01270D00",
     ),
     "collection_progression": (
-        "2EA8388A08AE4F71057726C11171FDF13959975261E9BAC38313C923A7F980BA",
-        "E3110D00",
+        "314D6F8D2B91A97D50D936C8B957A7F6DDDADE4FC7910E9A75632ADBC3424FE7",
+        "01400D00",
     ),
     "immediate_fixed": (
-        "B07721065236711526F1E4C8A2A9F7F6E1FA5A451F0404CA878C7227F31D40AC",
-        "E1530D00",
+        "8B914C96C5542D18D8B37A7425BB8772D62ADFC4D5388D296F29D1B9237EA931",
+        "FF810D00",
     ),
 }
 
