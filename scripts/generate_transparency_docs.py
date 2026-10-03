@@ -167,6 +167,115 @@ def _append_transaction_lines(raw: dict) -> list[str]:
     return lines
 
 
+def _population_256_lines(raw: dict, catalog) -> list[str]:
+    """Everything 256 Villagers changes beyond its own guarded rows.
+
+    Its body is applied by its own routine (src/vv_fun_patcher.py
+    _apply_population_256), not through `patches`, so none of the generic
+    lines above see it. Codex (#509 review) found the document reported only
+    `rows` -- "570 guarded edits" for The Secret City -- while the same render
+    also swaps in its own safety and population-mode rows, rewrites
+    references inside other selected patches' code, rewrites three PE header
+    regions and appends a whole code section. A count that omits those reads
+    as complete and is not, which is the defect _append_transaction_lines
+    exists for, one feature over.
+    """
+
+    body = raw.get("population_256")
+    if not isinstance(body, dict):
+        return []
+    lines: list[str] = []
+    yielding: dict[str, int] = {}
+    for row in body.get("rows", []):
+        target = row.get("yield_to") if isinstance(row, dict) else None
+        if isinstance(target, dict) and target.get("feature"):
+            yielding[target["feature"]] = yielding.get(target["feature"], 0) + 1
+    if yielding:
+        names = {patch.id: patch.name for patch in catalog}
+        lines.append(
+            "- Of those, "
+            + ", ".join(
+                f"{count} stand{'s' if count == 1 else ''} aside when "
+                f"{names.get(feature_id, feature_id)} (`{feature_id}`) is also "
+                "selected"
+                for feature_id, count in yielding.items()
+            )
+            + ": that patch already replaced the same stock bytes with its own "
+            "detour, and the rewrite inside its code (counted below) covers the "
+            "instruction it moved."
+        )
+    safety = body.get("safety_rows")
+    if isinstance(safety, list):
+        lines.append(
+            "- Automatic safety edits: replaced, in every population mode, by "
+            f"its own {len(safety)} guarded safety edits for the 256-slot table."
+        )
+    mode_rows = body.get("mode_rows")
+    if isinstance(mode_rows, dict) and mode_rows:
+        lines.append(
+            "- Population-mode edits: replaced by its own guarded rows, "
+            + ", ".join(
+                f"{mode}={len(rows)}"
+                for mode, rows in mode_rows.items()
+                if isinstance(rows, list)
+            )
+            + "; only the selected mode's rows are applied."
+        )
+    compositions = body.get("compositions")
+    if isinstance(compositions, dict) and compositions:
+        names = {patch.id: patch.name for patch in catalog}
+        described = []
+        for feature_id, entries in compositions.items():
+            if not isinstance(entries, list):
+                continue
+            count = sum(
+                int(entry.get("count", 0))
+                for entry in entries
+                if isinstance(entry, dict)
+            )
+            described.append(
+                f"{names.get(feature_id, feature_id)} (`{feature_id}`) {count}"
+            )
+        lines.append(
+            "- Guarded rewrites inside other selected patches' own code, "
+            "applied only when that patch is also selected: "
+            + ", ".join(described)
+            + "; each pattern must occur exactly that many times in the bytes "
+            "that patch wrote, or nothing is written."
+        )
+    layout = body.get("layout")
+    pages = body.get("code_pages")
+    if isinstance(layout, dict) and isinstance(pages, dict) and pages:
+        try:
+            section_va = int(layout["section_va"], 0)
+            mapped = int(layout["section_end"], 0) - section_va
+        except (KeyError, TypeError, ValueError):
+            return lines
+        lengths = sorted(
+            {
+                len(bytes.fromhex(page.get("hex", "")))
+                for page in pages.values()
+                if isinstance(page, dict)
+            }
+        )
+        if lengths:
+            size = "/".join(str(n) for n in lengths)
+            lines.append(
+                f"- Appends {size} bytes of code (one page per population mode) "
+                f"as the new PE section `{layout.get('section_name')}` at "
+                f"0x{section_va:X}, mapped as 0x{mapped:X} bytes whose remainder "
+                "is zero-fill for the relocated villager table, the Details "
+                "list and the save buffers; when the image ends before "
+                f"0x{section_va:X}, a zero-fill "
+                f"`{layout.get('filler_section_name')}` section maps the gap. "
+                "It rewrites 3 guarded regions of the PE headers to map them: "
+                "the new section headers (40 bytes each), NumberOfSections and "
+                "SizeOfImage. The appended bytes and every header change carry "
+                "an exact before/after guard."
+            )
+    return lines
+
+
 def _contain_running_claim(text: str) -> str:
     """Keep generated summaries fail-closed without rewriting pinned candidates."""
 
@@ -415,6 +524,9 @@ def build_document() -> str:
             guarded = len(raw.get("patches", []))
             # 256 Villagers keeps its rows in its own body, applied after
             # every other patch (src/vv_fun_patcher.py _apply_population_256).
+            # Its other edits -- the safety and population-mode rows it
+            # substitutes, the rewrites inside other patches' code, the PE
+            # headers and the appended section -- are listed just below.
             population_256 = raw.get("population_256")
             if isinstance(population_256, dict):
                 guarded += len(population_256.get("rows", []))
@@ -437,6 +549,7 @@ def build_document() -> str:
             # biggest change is worse than one that says nothing, because the
             # number reads as complete.
             lines.extend(_append_transaction_lines(raw))
+            lines.extend(_population_256_lines(raw, patches))
             mode_overrides = raw.get("patch_mode_overrides", {})
             if mode_overrides:
                 lines.append(
