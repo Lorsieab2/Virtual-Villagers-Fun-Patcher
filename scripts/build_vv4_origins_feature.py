@@ -740,7 +740,10 @@ def main() -> None:
     strings = bytearray()
     s: dict[str, int] = {}
     for name, value in (
-        ("button_label", "Upgrades"),
+        # Zeroed in place: the shipped Upgrades buttons are the native image
+        # buttons build_ui_payload installs over the constructors below, with
+        # their own text, so nothing reads this label any more.
+        ("button_label", "\0" * len("Upgrades")),
         ("tech_title", "Origins Upgrades"),
         ("detail_title", "Villager Upgrades"),
         ("purchased", "Purchased."),
@@ -780,7 +783,9 @@ def main() -> None:
     detail_constructor = PAYLOAD_VA + 0x100
     barrel_eligibility = PAYLOAD_VA + 0x180
     show_dialog = PAYLOAD_VA + 0x1B0
-    show_message = PAYLOAD_VA + 0x200
+    # The status popup helper lives only in its pinned result-helper cave
+    # (see below); the menus call it there.
+    show_message = VV4_RESULT_HELPER_VA
     tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
     tech_increment = PAYLOAD_VA + 0x890
@@ -929,9 +934,10 @@ def main() -> None:
             ret 8
         """,
     )
-    # Single source of truth for the status popup helper. It is placed at
-    # `show_message` AND copied verbatim into the pinned result-helper cave
-    # (see below). Every reference is absolute (string VAs, IAT slots) or an
+    # Single source of truth for the status popup helper, assembled into the
+    # pinned result-helper cave below. (A second copy at PAYLOAD_VA + 0x200 that
+    # the menus once called was unreachable after every call moved to the cave,
+    # and is no longer emitted.) Every reference is absolute (string VAs, IAT slots) or an
     # internal rel8 jump, so the bytes are position-independent -- deriving the
     # cave copy from this same source keeps its baked string VAs in lockstep
     # with the current string table instead of rotting when strings shift.
@@ -957,7 +963,6 @@ def main() -> None:
             pop ebx
             ret 8
         """
-    put(show_message, show_message_source)
     put(
         tech_menu,
         f"""
@@ -1504,6 +1509,7 @@ def main() -> None:
     if any(payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)]):
         raise RuntimeError("VV4 result-helper cave is not zero")
     payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)] = result_helper_bytes
+    # Both menus call the helper in its cave directly; record and check them.
     result_repairs = []
     for call_offset in range(len(payload) - 4):
         if payload[call_offset] != 0xE8:
@@ -1512,15 +1518,10 @@ def main() -> None:
         target_va = source_va + 5 + int.from_bytes(
             payload[call_offset + 1 : call_offset + 5], "little", signed=True
         )
-        if target_va != 0x489573:
-            continue
-        replacement = VV4_RESULT_HELPER_VA - (source_va + 5)
-        payload[call_offset + 1 : call_offset + 5] = replacement.to_bytes(
-            4, "little", signed=True
-        )
-        result_repairs.append(f"0x{source_va:X}")
+        if target_va == VV4_RESULT_HELPER_VA:
+            result_repairs.append(f"0x{source_va:X}")
     if len(result_repairs) != 2:
-        raise RuntimeError(f"expected two VV4 result-helper call repairs, got {result_repairs}")
+        raise RuntimeError(f"expected two VV4 result-helper calls, got {result_repairs}")
     ui_metadata["result_helper"] = {
         "offset": f"0x{VV4_RESULT_HELPER_OFFSET:X}",
         "virtual_address": f"0x{PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET:X}",
