@@ -1103,29 +1103,46 @@ static int build_log_path(
     ) >= 0;
 }
 
-/* ---- The two log families -------------------------------------------------
+/* ---- The log families -----------------------------------------------------
 
-   This exporter keeps two append-only logs per village, in two folders:
+   This exporter keeps three append-only logs per village, in three folders:
 
      Births and Conceptions  "Virtual Villagers N Births and Conceptions Log <n>.txt"
      Deaths                  "Virtual Villagers N Deaths Log <n>.txt"
+     Unaccounted Villagers   "Virtual Villagers N Unaccounted Villagers Log <n>.txt"
 
-   The owner asked for each death's cause and age to be "mentioned in the
-   logs" in all five games. A death is an event in the village's life, like a
-   conception, so it gets the same machinery -- the village header, the held
-   records and the tribe check, the numbered roll every RECORDS_PER_FILE
-   records, Start Over -- in a log of its own rather than inside a file whose
-   name says births. Each family has its own record marker, which is what its
-   files are counted by; the Deaths log never had a retired folder, so it has
-   no migration. */
-enum { LOG_BIRTHS = 0, LOG_DEATHS = 1 };
+   The owner: "VV1-VV5 should keep track of all deaths (that leave a
+   skeleton) along with the age, cause, epitaph and skill ... in a log, like
+   how Births are logged!", disappearances in their own records beside them,
+   and "for villagers who somehow can't be reconciled by the logs or
+   loggers, please put their data and details in a separate log. No villager
+   gets unaccounted for!". Each is an event in the village's life, like a
+   conception, so each gets the same machinery -- the village header, the
+   held records and the tribe check, the numbered roll every
+   RECORDS_PER_FILE records, Start Over. Each family has its own numbered
+   marker, which is what its files are counted by; the unnumbered records
+   ride along like a Birth does (the newest file, never rolling). Neither new
+   log ever had a retired folder, so neither has a migration.
 
-/* What a held or written record is. A conception is numbered in the births
-   family; a birth is not numbered and never rolls; a death is numbered in the
-   deaths family. */
-enum { KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2 };
+   The records' text is rendered by "VVFP Cause of Death.dll", which sees
+   the deaths, burials and departures; this exporter files them. */
+enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2 };
+
+/* What a held or written record is.
+
+     CONCEPTION   births family, numbered "Conception <n>"
+     BIRTH        births family, its own "Birth" block, never rolls
+     DEATH        deaths family, numbered "Death <n>"
+     DISAPPEARED  deaths family, "Disappeared", never rolls
+     EPITAPH      deaths family, "Epitaph changed", never rolls
+     UNACCOUNTED  unaccounted family, numbered "Unaccounted <n>" */
+enum {
+    KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
+    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5
+};
 
 #define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Deaths"
+#define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
 #define BIRTHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions"
 
 static const wchar_t *const DEATH_LOG_NAME[6] = {
@@ -1137,18 +1154,37 @@ static const wchar_t *const DEATH_LOG_NAME[6] = {
     L"Virtual Villagers 5 Deaths Log",
 };
 
+static const wchar_t *const UNACCOUNTED_LOG_NAME[6] = {
+    NULL,
+    L"Virtual Villagers 1 Unaccounted Villagers Log",
+    L"Virtual Villagers 2 Unaccounted Villagers Log",
+    L"Virtual Villagers 3 Unaccounted Villagers Log",
+    L"Virtual Villagers 4 Unaccounted Villagers Log",
+    L"Virtual Villagers 5 Unaccounted Villagers Log",
+};
+
 static int log_family_of(int kind) {
-    return kind == KIND_DEATH ? LOG_DEATHS : LOG_BIRTHS;
+    if (kind == KIND_DEATH || kind == KIND_DISAPPEARED || kind == KIND_EPITAPH) {
+        return LOG_DEATHS;
+    }
+    return kind == KIND_UNACCOUNTED ? LOG_UNACCOUNTED : LOG_BIRTHS;
 }
 
-/* The marker each family's records begin with, which is what its files are
-   counted by. */
+/* A record that is numbered and counted toward its file's roll. */
+static int kind_is_numbered(int kind) {
+    return kind == KIND_CONCEPTION || kind == KIND_DEATH || kind == KIND_UNACCOUNTED;
+}
+
+/* The marker each family's numbered records begin with, which is what its
+   files are counted by. */
 static const char *family_marker(int family) {
-    return family == LOG_DEATHS ? "Death " : "Conception ";
+    return family == LOG_DEATHS ? "Death "
+        : family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";
 }
 
 static const wchar_t *family_folder(int family) {
-    return family == LOG_DEATHS ? DEATHS_FOLDER : BIRTHS_FOLDER;
+    return family == LOG_DEATHS ? DEATHS_FOLDER
+        : family == LOG_UNACCOUNTED ? UNACCOUNTED_FOLDER : BIRTHS_FOLDER;
 }
 
 /* The game a layout row belongs to: its index in GAME_LAYOUTS. */
@@ -1158,16 +1194,19 @@ static int layout_game(const struct game_layout *g) {
 
 static const wchar_t *family_stem(const struct game_layout *g, int family) {
     int game;
-    if (family != LOG_DEATHS) {
+    if (family == LOG_BIRTHS) {
         return g->log_name;
     }
     game = layout_game(g);
-    return game >= GAME_VV1 && game <= GAME_VV5 ? DEATH_LOG_NAME[game] : NULL;
+    if (game < GAME_VV1 || game > GAME_VV5) {
+        return NULL;
+    }
+    return family == LOG_DEATHS ? DEATH_LOG_NAME[game] : UNACCOUNTED_LOG_NAME[game];
 }
 
-/* "<save folder>\Virtual Villagers Fun Patcher Logs\Deaths\Virtual Villagers N Deaths Log <n>.txt",
-   and for the births family exactly what build_log_path builds (its
-   retired-folder migration included). */
+/* "<save folder>\Virtual Villagers Fun Patcher Logs\Deaths\Virtual Villagers N Deaths Log <n>.txt"
+   (and the Unaccounted Villagers twin), and for the births family exactly
+   what build_log_path builds (its retired-folder migration included). */
 static int build_family_log_path(
     const struct game_layout *g,
     int family,
@@ -1176,11 +1215,11 @@ static int build_family_log_path(
 ) {
     wchar_t folder[MAX_PATH];
     const wchar_t *stem;
-    if (family != LOG_DEATHS) {
+    if (family == LOG_BIRTHS) {
         return build_log_path(g, file_number, destination);
     }
     stem = family_stem(g, family);
-    if (stem == NULL || !vv_save_subfolder_w(folder, DEATHS_FOLDER, 64)) {
+    if (stem == NULL || !vv_save_subfolder_w(folder, family_folder(family), 64)) {
         return 0;
     }
     return _snwprintf_s(destination, MAX_LOG_PATH, _TRUNCATE,
@@ -1306,7 +1345,9 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     fclose(file);
 
     /* A record marker as the first line means the file has no header. */
-    if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0) {
+    if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
+        || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
+        || strncmp(line, "Epitaph changed", 15) == 0) {
         return 0;
     }
     /* Trim the line ending, which is CRLF on disk because the log is written
@@ -2345,7 +2386,7 @@ static int append_record(
     FILE *file;
 
     if (!select_family_log_file(g, log_family_of(kind), village, path,
-                                &existing_records, kind == KIND_BIRTH)) {
+                                &existing_records, !kind_is_numbered(kind))) {
         return 0;
     }
     /* Text mode, so each \n becomes the CRLF Notepad needs; see the note in
@@ -2364,10 +2405,10 @@ static int append_record(
         }
     }
     if (written) {
-        if (kind == KIND_BIRTH) {
+        if (!kind_is_numbered(kind)) {
             written = fprintf(file, "%s", text) >= 0;
         } else {
-            /* "Conception <n>" or "Death <n>": the running total across the
+            /* "Conception <n>", "Death <n>" or "Unaccounted <n>": the running total across the
                family's files, so numbering never restarts in a new file. */
             written = fprintf(file, "%s%d\n%s", family_marker(log_family_of(kind)),
                               existing_records + 1, text) >= 0;
@@ -2926,6 +2967,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
    read from -- they are not derivable from the name and appearance values the
    other arguments carry. A NULL record simply omits those lines, so a caller
    that cannot supply one still logs a complete birth. */
+static void tell_cause_of_death_birth(int game_id, const void *child_record);
+
 __declspec(dllexport) int __stdcall WriteParentageBirth(
     int game_id,
     const char *child_name, int child_head, int child_body,
@@ -3079,45 +3122,61 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
+    /* The Unaccounted Villagers reconciliation counts this child as a known
+       arrival, whether or not the record could be filed now. */
+    tell_cause_of_death_birth(game_id, rec);
     /* The child is the villager a held birth is re-checked against. */
     return emit_record(game_id, KIND_BIRTH, NULL, text);
 }
 
-/* One Death record, written by "VVFP Cause of Death.dll" at the moment a
-   villager dies -- the instant the game sets their health to 0 -- in all five
-   games, in one format:
+/* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
+   Death.dll", which sees the deaths, burials, removals and arrivals and
+   decides what each record says.  One format in all five games:
 
-       Death <n>
+       Death <n>                       (numbered; the Deaths log)
          Name: <name>
-         Age at death: <the game's own age value, 20 per year>
-         Cause of death: <words>
-         Head: <head>
-         Body: <body>
+         <before: Age at death, Cause of death, Grave, Epitaph>
+         Head / Body / Likes / Dislikes
+         <after>
 
-   The caller supplies the cause's words (each game's own, or the wording
-   A New Home and The Lost Children borrow from the later games) and the age
-   it read from the record at that moment, in the game's own units -- the
-   owner's choice, the same value the Population log prints as Age. Name,
-   head and body come from the record, which still holds them: a dead
-   villager's record is freed only when the body is buried.
+       Disappeared                     (the Deaths log; never rolls)
+       Epitaph changed                 (the Deaths log; never rolls)
+       Unaccounted <n>                 (numbered; the Unaccounted Villagers log)
 
-   `record` must be one of the game's own villager records; anything else is
-   refused, so a wrong pointer can never print a plausible stranger. */
-__declspec(dllexport) int __stdcall WriteDeathRecord(
+   The caller renders the lines that are its own (`before`, `after`; each
+   line "  Label: value\n"); this exporter prints the heading, the name and
+   with `detail` 1 the identity fields a Birth record prints (head, body,
+   likes, dislikes), and with 2 also the skills block and the villager's own
+   parents, from `record`.  `detail` 0 prints the name alone (an epitaph
+   change, whose villager has no record any more).
+
+   `record` is the villager's own record, checked to be one of the game's
+   villager records when `check` is set -- so a wrong pointer can never
+   print a plausible stranger.  A departed villager no longer has one: the
+   caller then passes `check` 0 and a copy rebuilt at the record's own
+   offsets from what it kept. */
+__declspec(dllexport) int __stdcall WriteVillageRecord(
     int game_id,
+    int kind,
     const void *record_pointer,
-    int age_at_death,
-    const char *cause
+    int check,
+    const char *before,
+    const char *after,
+    int detail
 ) {
     const struct game_layout *g;
     const unsigned char *record = (const unsigned char *)record_pointer;
     const unsigned char *records;
+    const char *heading = "";
     char name[MAX_NAME_BYTES];
-    char words[96];
+    char likes[64], dislikes[64];
+    char skills[512];
+    char parents[256];
     char text[RECORD_TEXT_MAX];
     int written;
 
-    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL) {
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
+        || kind < KIND_DEATH || kind > KIND_UNACCOUNTED) {
         return 0;
     }
     g = &GAME_LAYOUTS[game_id];
@@ -3125,31 +3184,69 @@ __declspec(dllexport) int __stdcall WriteDeathRecord(
         return 0;
     }
     records = villager_table(game_id);
-    if (records == NULL
-        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)
-        || !is_record_slot(g, records, record)) {
+    if (check
+        && (records == NULL
+            || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)
+            || !is_record_slot(g, records, record))) {
         return 0;
     }
-    copy_villager_name(g, record, name, sizeof name);
-    if (cause == NULL || cause[0] == '\0') {
-        cause = "(not recorded)";
+    if (!check && !memory_is_readable(record, g->stride)) {
+        return 0;
     }
-    _snprintf_s(words, sizeof words, _TRUNCATE, "%s", cause);
-    written = _snprintf(
-        text, sizeof(text),
-        "  Name: %s\n"
-        "  Age at death: %d\n"
-        "  Cause of death: %s\n"
-        "  Head: %d\n"
-        "  Body: %d\n"
-        "\n",
-        name, age_at_death, words,
-        *(const int *)(record + g->head),
-        *(const int *)(record + g->body));
+    if (kind == KIND_DISAPPEARED) {
+        heading = "Disappeared\n";
+    } else if (kind == KIND_EPITAPH) {
+        heading = "Epitaph changed\n";
+    }
+    copy_villager_name(g, record, name, sizeof name);
+    preference_text(g, record, g->likes, likes, sizeof likes);
+    preference_text(g, record, g->dislikes, dislikes, sizeof dislikes);
+    skills[0] = '\0';
+    parents[0] = '\0';
+    if (detail >= 2) {
+        skill_text(g, record, skills, sizeof skills);
+        if (g->parent_father_name != 0u
+            && (record[g->parent_father_name] != 0 || record[g->parent_mother_name] != 0)) {
+            char pf[MAX_NAME_BYTES], pm[MAX_NAME_BYTES];
+            pf[0] = pm[0] = '\0';
+            if (record[g->parent_father_name] != 0) {
+                copy_name_field(record + g->parent_father_name, pf, sizeof pf,
+                                g->parent_name_capacity);
+            }
+            if (record[g->parent_mother_name] != 0) {
+                copy_name_field(record + g->parent_mother_name, pm, sizeof pm,
+                                g->parent_name_capacity);
+            }
+            _snprintf_s(parents, sizeof parents, _TRUNCATE,
+                        "  Parents:\n    Father: %s\n    Mother: %s\n",
+                        pf[0] ? pf : "(none)", pm[0] ? pm : "(none)");
+        }
+    }
+    if (detail <= 0) {
+        written = _snprintf(text, sizeof(text), "%s  Name: %s\n%s%s\n",
+                            heading, name, before != NULL ? before : "",
+                            after != NULL ? after : "");
+    } else {
+        written = _snprintf(
+            text, sizeof(text),
+            "%s"
+            "  Name: %s\n"
+            "%s"
+            "  Head: %d\n"
+            "  Body: %d\n"
+            "  Likes: %s\n"
+            "  Dislikes: %s\n"
+            "%s%s%s"
+            "\n",
+            heading, name, before != NULL ? before : "",
+            *(const int *)(record + g->head),
+            *(const int *)(record + g->body),
+            likes, dislikes, skills, parents, after != NULL ? after : "");
+    }
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
-    return emit_record(game_id, KIND_DEATH, records, text);
+    return emit_record(game_id, kind, check ? records : NULL, text);
 }
 
 /* Whether this install records deaths: "VVFP Cause of Death.dll" ships only
@@ -3180,6 +3277,44 @@ static int deaths_recorder_present(void) {
         state = 1;
     }
     return state == 1;
+}
+
+/* Tell "VVFP Cause of Death.dll" a child this log has recorded arrived, so
+   its save-time reconciliation never reports the child as an unaccounted
+   arrival.  That companion is installed from the first village frame, after
+   the first village's load-time catch-up has already run its births, so it
+   is loaded here, by full path beside the executable, when it is not yet:
+   its export only notes the child's record.  Absent (its row off): nothing. */
+static void tell_cause_of_death_birth(int game_id, const void *child_record) {
+    typedef void (__stdcall *note_fn)(int, const void *);
+    wchar_t path[MAX_PATH];
+    wchar_t *slash;
+    DWORD n;
+    HMODULE module;
+    note_fn note;
+    static const wchar_t name[] = L"VVFP Cause of Death.dll";
+
+    if (child_record == NULL || !deaths_recorder_present()) {
+        return;
+    }
+    module = GetModuleHandleW(name);
+    if (module == NULL) {
+        n = GetModuleFileNameW(NULL, path, MAX_PATH);
+        slash = n != 0 && n < MAX_PATH ? wcsrchr(path, L'\\') : NULL;
+        if (slash == NULL
+            || (size_t)(slash + 1 - path) + sizeof(name) / sizeof(name[0]) > MAX_PATH) {
+            return;
+        }
+        wcscpy(slash + 1, name);
+        module = LoadLibraryW(path);
+        if (module == NULL) {
+            return;
+        }
+    }
+    note = (note_fn)GetProcAddress(module, "VvfpCauseNoteArrival");
+    if (note != NULL) {
+        note(game_id, child_record);
+    }
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -3239,7 +3374,7 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
     return ensure_parentage_log(game_id, village, NULL);
 }
 
-static int create_deaths_log(const struct game_layout *g, const char *village);
+static int create_extra_log(const struct game_layout *g, int family, const char *village);
 
 static int ensure_parentage_log(
     int game_id,
@@ -3290,7 +3425,8 @@ static int ensure_parentage_log(
        deaths. Its result does not decide this function's: the births log is
        the one the callers have always asked about. */
     if (deaths_recorder_present()) {
-        (void)create_deaths_log(g, village);
+        (void)create_extra_log(g, LOG_DEATHS, village);
+        (void)create_extra_log(g, LOG_UNACCOUNTED, village);
     }
     if (!select_log_file(g, village, path, &existing, 1)) {
         return 0;
@@ -3317,13 +3453,13 @@ static int ensure_parentage_log(
 
 /* The Deaths log's counterpart of the above: created empty but headed, and
    only when the village has none. 1 when it exists afterwards. */
-static int create_deaths_log(const struct game_layout *g, const char *village) {
+static int create_extra_log(const struct game_layout *g, int family, const char *village) {
     wchar_t path[MAX_LOG_PATH];
     int existing = 0;
     FILE *file;
     int had_content;
 
-    if (!select_family_log_file(g, LOG_DEATHS, village, path, &existing, 1)) {
+    if (!select_family_log_file(g, family, village, path, &existing, 1)) {
         return 0;
     }
     if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {

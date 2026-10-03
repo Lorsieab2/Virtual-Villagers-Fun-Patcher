@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "5534A54442B5C64571524C6474F51784A1A2CA02009E0B51276E79AEA0DD83BB",
-      "size": 135680
+      "sha256": "0B6F16AECEDD08EFBEFE9F5B0E0BF120CFBD03F674C87D7DBCCAEB940F974157",
+      "size": 136704
     }
   ],
   "doubler_evidence": {
@@ -545,8 +545,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "87BB509086EDBBCB0A54339753912C2CAEF6352E5C9EA0E72EF10133E4DABD99",
-  "base_file_sha256": "87BB509086EDBBCB0A54339753912C2CAEF6352E5C9EA0E72EF10133E4DABD99",
+  "base_source_text_sha256": "18EE1090DCE50A4BB53FDB415D727CFFBBA51831E14EE5B2D0FA9F6FA9A39ECF",
+  "base_file_sha256": "18EE1090DCE50A4BB53FDB415D727CFFBBA51831E14EE5B2D0FA9F6FA9A39ECF",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -556,7 +556,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "9AACA4265DB88FB0A6101CA61A01F55830E081880AC0CFE94C2B69F0DE811C0D"
+      "source_text_sha256": "ADFDB301B702B1118E079EA59AB21DFDC478BE18473315D48E5AC48513195725"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -584,7 +584,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "87BB509086EDBBCB0A54339753912C2CAEF6352E5C9EA0E72EF10133E4DABD99"
+      "source_text_sha256": "18EE1090DCE50A4BB53FDB415D727CFFBBA51831E14EE5B2D0FA9F6FA9A39ECF"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -840,5 +840,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "96058F8FC1B4541E1110682E81DC64AC2432DA31546BDFD171254E9BC76BD1AB"
+  "task9_map_canonical_sha256": "64B9E5A0CF08E6D1612316BD5ABF0369D932C77BC3A2BC035D58080922766C0A"
 }

@@ -93,13 +93,18 @@ class BothRecordKindsTests(unittest.TestCase):
         self.assertNotIn('"Conception %d', birth)
         self.assertRegex(
             append,
-            r'if \(kind == KIND_BIRTH\) \{\s*written = fprintf\(file, "%s", text\)[^}]*\} else \{'
+            r'if \(!kind_is_numbered\(kind\)\) \{\s*written = fprintf\(file, "%s", text\)[^}]*\} else \{'
             r'[^}]*written = fprintf\(file, "%s%d\\n%s", family_marker\(log_family_of\(kind\)\)',
         )
         # A conception's family is the births family, whose marker is
-        # "Conception "; only a death goes to the Deaths log.
-        self.assertIn("return kind == KIND_DEATH ? LOG_DEATHS : LOG_BIRTHS;", self.source)
-        self.assertIn('return family == LOG_DEATHS ? "Death " : "Conception ";', self.source)
+        # "Conception "; only the Cause of Death companion's kinds go to the
+        # Deaths and Unaccounted Villagers logs, and only conceptions, deaths
+        # and unaccounted records are numbered -- a birth never is.
+        self.assertIn("return kind == KIND_UNACCOUNTED ? LOG_UNACCOUNTED : LOG_BIRTHS;", self.source)
+        self.assertIn("return kind == KIND_CONCEPTION || kind == KIND_DEATH || kind == KIND_UNACCOUNTED;",
+                      self.source)
+        self.assertIn('return family == LOG_DEATHS ? "Death "', self.source)
+        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";', self.source)
 
     def test_only_conceptions_are_counted(self):
         """Births must not advance the conception number or the rollover.
@@ -113,7 +118,7 @@ class BothRecordKindsTests(unittest.TestCase):
         self.assertIn("const char *marker = family_marker(family);", counter)
         self.assertIn("strncmp(line, marker, marker_length) == 0", counter)
         self.assertNotIn("Birth", counter)
-        self.assertIn('return family == LOG_DEATHS ? "Death " : "Conception ";', self.source)
+        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";', self.source)
 
     def test_the_two_kinds_share_one_log_file(self):
         """A birth in its own file could not be read beside its conception.
@@ -131,7 +136,7 @@ class BothRecordKindsTests(unittest.TestCase):
         self.assertIn("emit_record(game_id, KIND_BIRTH,", birth)
         self.assertIn("emit_record(game_id, 0,", conception)
         self.assertIn("select_family_log_file(g, log_family_of(kind), village, path,", append)
-        self.assertIn("&existing_records, kind == KIND_BIRTH)", append)
+        self.assertIn("&existing_records, !kind_is_numbered(kind))", append)
         # And no separate birth log exists to split the two kinds apart.
         self.assertNotIn("Birth Log", self.source)
 
@@ -182,8 +187,8 @@ class BothRecordKindsTests(unittest.TestCase):
                       "the conception path rolls over normally")
         self.assertIn("emit_record(game_id, KIND_BIRTH,", birth,
                       "the birth path must ask not to roll over")
-        self.assertIn("&existing_records, kind == KIND_BIRTH)", append,
-                      "append_record must hand the kind to the walk")
+        self.assertIn("&existing_records, !kind_is_numbered(kind))", append,
+                      "append_record must hand the kind to the walk: a birth is not numbered")
 
     def test_a_birth_appends_rather_than_truncating(self):
         """A birth that opened "w" would erase the conceptions before it."""
