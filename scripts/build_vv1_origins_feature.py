@@ -78,10 +78,6 @@ MASK_DATA_SECTION_VA = 0x491000   # .vv1md  R/W : all mask writable scratch
 MASK_CODE_FILE_BASE = 0x8E000
 def mask_code_va(off: int) -> int:
     return MASK_CODE_SECTION_VA + (off - MASK_CODE_FILE_BASE)
-HEAL_CAVE_FILE_OFFSET = 0x8B004
-HEAL_CAVE_STUB_VA = IMAGE_BASE + SHR_RVA + (
-    HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET
-)
 CURE_ENTRY_FILE_OFFSET = 0x8B530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
@@ -2842,12 +2838,6 @@ def main() -> None:
         b"\0" * len(row_message_helper_code),
         row_message_helper_code,
         "resolve and invoke the icons DLL's shared ShowOriginsRowMessage export, forwarding (is_detail, row, status) unchanged -- the generic completion/no-change/removed/blocked result box every plain-wording row now routes through",
-    )
-    patch(
-        HEAL_CAVE_FILE_OFFSET,
-        b"\0" * 5,
-        rel32_jump(HEAL_CAVE_STUB_VA, CURE_ENTRY_VA),
-        "redirect the shared VV1 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
     )
     patch(
         CONFIRM_HELPER_FILE_OFFSET,
