@@ -394,11 +394,15 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # bytes for Custom Island Event: the second Tech-menu button and the
         # host table (save slot, mask store) it hands the story companion.
         # Same size, new digest, when it learned to load the Cause of Death
-        # companion (native/shared/cause_bridge.h).
+        # companion (native/shared/cause_bridge.h). Removing ReadMaskSidecar
+        # (its only caller, the page's mask_load_once, was unreachable once
+        # Vv5MaskSync replaced it) shrank the code, but not by a whole
+        # 512-byte file-alignment unit once Cause of Death's loader is in, so
+        # the size is unchanged and only the digest moves.
         self.assertEqual(vv5_companion["size"], 1780224)
         self.assertEqual(
             vv5_companion["sha256"],
-            "61EABC0EB25AEA824A5C3DEE2A1983AD4BA65F3A365884A8919F64F50F65B6D4",
+            "4A968673F4D12CC08C3BE3274B8C324331909823C5CD9A80489CC9D31FC37998",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

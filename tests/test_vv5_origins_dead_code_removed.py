@@ -4,36 +4,40 @@ The shipped VV5 Origins record is the Task9 one. Its Tech and Detail menus live
 in the appended .vv5t9 page; the base .shr payload only keeps what live code
 reaches: the two Upgrades-button constructors, the Tech/Detail handlers and
 their absolute jumps into the page, the Barrel selector, the two doubler
-wrappers and the "Upgrades" label. The legacy .shr menus, their dialog,
-message and record helpers, the Cure/village-wide dispatch helper at 0x494EA0,
-its 0x494B32 stub, the 0x494B37 preflight, the 640-byte village-wide extension
-at 0x494C20 and the Task9 page's resolve_manager were unreachable in every
-public build and were removed.
+wrappers and the "Upgrades" label.
+
+Removed as unreachable in every public build:
+
+* .shr: the legacy menus, their dialog, message and record helpers, and their
+  strings and price tables;
+* .text tail: the Cure/village-wide dispatch helper at 0x494EA0, its 0x494B32
+  stub, the 0x494B37 preflight and the 640-byte village-wide extension at
+  0x494C20;
+* the Task9 page: resolve_manager, mask_load_once, the Time Warp row's own
+  clock-only transaction (superseded by the companion), the nop padding after
+  unconditional jumps, the unread page header and the strings only those
+  read. Inside the page they are zeroed IN PLACE, so no live byte moves --
+  the Expanded Time Warp overlay and the Story / Cheat Upgrades price sites
+  name page addresses.
 
 These tests render all three public modes, with Origins alone and with the
-full public catalog, and run a reachability pass over the result: roots are
-every rel32 branch/call and every 32-bit value anywhere OUTSIDE the
-Origins-owned regions that lands inside them, and recursive disassembly
-follows code from there. Every non-zero byte of the .shr payload and of the
-.text-tail range must be reached, and every Task9 action routine the Tech and
-Details menus offer must be reached too.
+full public catalog, and run tests/origins_reachability.py over the result.
+Every non-zero byte of the .shr payload, the .text-tail range and the Task9
+page must be reached, and every Task9 action the menus offer must be reached.
 """
 from __future__ import annotations
 
 import importlib.util
 import json
-import struct
 import sys
 import unittest
 from pathlib import Path
 
-import capstone
-from capstone import x86 as X
-import pefile
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "tests"))
 import vv_fun_patcher as vfp  # noqa: E402
+import origins_reachability as reach  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
 MODES = ("stock", "collection_progression", "immediate_fixed")
@@ -44,8 +48,9 @@ SHR = (0x7B2000, 0x7B3000)
 SHR_CODE_END = 0x7B2D00                  # the .shr string area starts here
 TEXT_TAIL = (0x494B32, 0x494FD0)         # where the removed caves lived
 PAGE = (0x7C9000, 0x7D1000)
-PAGE_CODE_END = 0x7D0000
+PAGE_CODE_END = 0x7D0000                 # the page's string area starts here
 REGIONS = (SHR, TEXT_TAIL, PAGE)
+CODE_RANGES = ((SHR[0], SHR_CODE_END), TEXT_TAIL, (PAGE[0], PAGE_CODE_END))
 
 # Every action the two Task9 menus dispatch to, plus the entries themselves.
 TASK9_ACTIONS = (
@@ -58,15 +63,18 @@ TASK9_ACTIONS = (
 
 _renders: dict[tuple[str, str], bytes] = {}
 _analyses: dict[tuple[str, str], tuple] = {}
+_builder = None
 
 
 def task9_builder():
-    spec = importlib.util.spec_from_file_location(
-        "vv5_task9_builder_reach", ROOT / "scripts" / "build_vv5_task9_native_actions.py"
-    )
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    global _builder
+    if _builder is None:
+        spec = importlib.util.spec_from_file_location(
+            "vv5_task9_builder_reach", ROOT / "scripts" / "build_vv5_task9_native_actions.py"
+        )
+        _builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_builder)
+    return _builder
 
 
 def render(scope: str, mode: str) -> bytes:
@@ -83,96 +91,11 @@ def render(scope: str, mode: str) -> bytes:
     return _renders[key]
 
 
-def region_of(value: int):
-    for lo, hi in REGIONS:
-        if lo <= value < hi:
-            return (lo, hi)
-    return None
-
-
-def code_limit(value: int) -> int:
-    return {SHR: SHR_CODE_END, PAGE: PAGE_CODE_END, TEXT_TAIL: TEXT_TAIL[1]}[region_of(value)]
-
-
 def analyse(data: bytes):
-    """Return (image, reached byte VAs) for one rendered executable."""
-    pe = pefile.PE(data=data, fast_load=True)
-    base = pe.OPTIONAL_HEADER.ImageBase
-    size = pe.OPTIONAL_HEADER.SizeOfImage
-    image = bytearray(size)
-    image[: pe.OPTIONAL_HEADER.SizeOfHeaders] = data[: pe.OPTIONAL_HEADER.SizeOfHeaders]
-    executable = []
-    for section in pe.sections:
-        raw = data[section.PointerToRawData: section.PointerToRawData + section.SizeOfRawData]
-        image[section.VirtualAddress: section.VirtualAddress + len(raw)] = raw[: size - section.VirtualAddress]
-        if section.Characteristics & 0x20000000:
-            executable.append((section.VirtualAddress, section.VirtualAddress + max(section.Misc_VirtualSize, len(raw))))
-    inside = bytearray(size)
-    for lo, hi in REGIONS:
-        inside[lo - base: hi - base] = b"\1" * (hi - lo)
-
-    roots: set[int] = set()
-    view = memoryview(image)
-    for shift in range(4):
-        for index, (value,) in enumerate(struct.iter_unpack("<I", view[shift: shift + (size - shift) // 4 * 4])):
-            rva = shift + index * 4
-            if not inside[rva] and region_of(value):
-                roots.add(value)
-    for lo, hi in executable:
-        for rva in range(lo, min(hi, size - 6)):
-            if inside[rva]:
-                continue
-            op = image[rva]
-            if op in (0xE8, 0xE9):
-                target = (base + rva + 5 + struct.unpack_from("<i", image, rva + 1)[0]) & 0xFFFFFFFF
-            elif op == 0x0F and 0x80 <= image[rva + 1] <= 0x8F:
-                target = (base + rva + 6 + struct.unpack_from("<i", image, rva + 2)[0]) & 0xFFFFFFFF
-            else:
-                continue
-            if region_of(target):
-                roots.add(target)
-
-    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-    md.detail = True
-    live: set[int] = set()
-    data_refs: set[int] = set()
-    work = []
-    for value in roots:
-        if value < code_limit(value):
-            work.append(value)
-        else:
-            data_refs.add(value)
-    seen: set[int] = set()
-    while work:
-        va = work.pop()
-        while va not in seen and region_of(va):
-            seen.add(va)
-            insn = next(md.disasm(bytes(image[va - base: va - base + 16]), va), None)
-            if insn is None:
-                break
-            live.update(range(va, va + insn.size))
-            for op in insn.operands:
-                value = None
-                if op.type == X.X86_OP_IMM:
-                    value = op.imm & 0xFFFFFFFF
-                elif op.type == X.X86_OP_MEM and op.mem.base == 0:
-                    value = op.mem.disp & 0xFFFFFFFF
-                if value is None or not region_of(value):
-                    continue
-                if op.type == X.X86_OP_IMM and value < code_limit(value):
-                    work.append(value)
-                else:
-                    data_refs.add(value)
-            if insn.mnemonic in ("ret", "jmp", "int3", "ud2", "hlt"):
-                break
-            va += insn.size
-    for ref in data_refs:
-        cursor = ref
-        while region_of(cursor) and image[cursor - base] and cursor - ref < 256:
-            live.add(cursor)
-            cursor += 1
-        live.update(range(ref, ref + 4))
-    return image, base, live
+    builder = task9_builder()
+    # The bighead offset table is read by index, so it is one object.
+    objects = {PAGE[0] + builder.OFF["bighead_offsets"]: builder.SIZES["bighead_offsets"]}
+    return reach.reach(data, REGIONS, objects, CODE_RANGES)
 
 
 def analysis(scope: str, mode: str):
@@ -183,24 +106,18 @@ def analysis(scope: str, mode: str):
 
 
 def unreached(image, base, live, lo, hi) -> list[str]:
-    runs: list[list[int]] = []
-    for va in range(lo, hi):
-        if image[va - base] and va not in live:
-            if runs and va - runs[-1][1] <= 16:
-                runs[-1][1] = va + 1
-            else:
-                runs.append([va, va + 1])
-    return [f"{a:#x}-{b:#x}" for a, b in runs]
+    return reach.unreached(image, base, live, lo, hi)
 
 
 class VV5OriginsCarriesNoUnreachableCode(unittest.TestCase):
-    def test_every_origins_shr_and_text_tail_byte_is_reached(self) -> None:
+    def test_every_origins_byte_is_reached(self) -> None:
         for scope in ("alone", "full"):
             for mode in MODES:
                 with self.subTest(scope=scope, mode=mode):
                     image, base, live = analysis(scope, mode)
                     self.assertEqual(unreached(image, base, live, *SHR), [], ".shr")
                     self.assertEqual(unreached(image, base, live, *TEXT_TAIL), [], ".text tail")
+                    self.assertEqual(unreached(image, base, live, *PAGE), [], "Task9 page")
 
     def test_removed_regions_are_back_to_stock_zero(self) -> None:
         stock = STOCK.read_bytes()
@@ -218,6 +135,20 @@ class VV5OriginsCarriesNoUnreachableCode(unittest.TestCase):
                 ):
                     with self.subTest(scope=scope, mode=mode, region=what):
                         self.assertEqual(image[lo:hi], stock[lo:hi])
+                # Inside the Task9 page (raw 0xF2000 = page+0): zeroed in place.
+                for lo, hi, what in (
+                    (0x0000, 0x0040, "unread page header"),
+                    (0x1147, 0x1218, "Time Warp's own clock-only transaction"),
+                    (0x121F, 0x122D, "its cancelled/recheck messages"),
+                    (0x123B, 0x1247, "its charge/clock-unknown messages"),
+                    (0x6D00, 0x6D80, "mask_load_once"),
+                    (0x7087, 0x7099, "SDL_GetWindowFlags"),
+                    (0x7124, 0x7134, "ReadMaskSidecar"),
+                    (0x7169, 0x71C3, "an unused permanent-change warning"),
+                    (0x720B, 0x7261, "the old Time Warp prompt"),
+                ):
+                    with self.subTest(scope=scope, mode=mode, region=what):
+                        self.assertEqual(image[0xF2000 + lo:0xF2000 + hi], bytes(hi - lo))
 
     def test_every_task9_upgrade_is_reached_from_the_live_hooks(self) -> None:
         builder = task9_builder()

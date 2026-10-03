@@ -121,11 +121,21 @@ class Task9ArtifactTests(unittest.TestCase):
             page, page_map = builder.build_page(layout["page_va"])
             start = builder.OFF["tech_menu"]
             size = page_map["routine_length"]["tech_menu"]
-            instructions = list(
-                Cs(CS_ARCH_X86, CS_MODE_32).disasm(
-                    page[start : start + size], layout["page_va"] + start
-                )
-            )
+            # Walk the routine, stepping over the zero bytes that stand in for
+            # the padding once kept after unconditional jumps (zero bytes
+            # decode as `add [eax], al`, which would misalign a linear sweep).
+            md = Cs(CS_ARCH_X86, CS_MODE_32)
+            instructions = []
+            offset = 0
+            while offset < size:
+                item = next(md.disasm(page[start + offset : start + size], layout["page_va"] + start + offset), None)
+                if item is None:
+                    break
+                instructions.append(item)
+                offset += item.size
+                if item.mnemonic in ("jmp", "ret"):
+                    while offset < size and page[start + offset] == 0:
+                        offset += 1
             jumps = {
                 item.address - (layout["page_va"] + start): int(item.op_str, 16)
                 for item in instructions
