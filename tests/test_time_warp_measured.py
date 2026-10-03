@@ -178,6 +178,14 @@ class MigratedGamesTests(unittest.TestCase):
         """
         for gid in sorted(MIGRATED):
             with self.subTest(game=gid):
+                if gid == "vv5":
+                    # New Believers' Tech menu is the Task9 page's; the base
+                    # payload's legacy menu never ran and is gone.
+                    self.assertIn(
+                        "ShowVv5TimeWarp",
+                        source("scripts/build_vv5_task9_native_actions.py"),
+                    )
+                    continue
                 # VV2 names its constant TIME_WARP_EXPORT_BYTES; VV1 and
                 # VV3 use a lowercase string-table key. Either counts.
                 self.assertIn(
@@ -264,6 +272,12 @@ class MigratedGamesTests(unittest.TestCase):
                 self.assertRegex(dll, r"#define VV\d_TW_APPLIED   1")
                 self.assertRegex(dll, r"#define VV\d_TW_REFUSED   2")
                 self.assertRegex(dll, r"return VV\d_TW_CANCELLED;")
+                if gid == "vv5":
+                    # The executable side was asserted on the base payload's
+                    # legacy menu, which never ran and is gone. The shipped
+                    # Task9 row returns to `done` after the companion whatever
+                    # it answers (see build_time_warp).
+                    continue
                 exe = source(GENERATORS[gid])
                 # Anchored on the dispatch's own comment, which every game
                 # carries, rather than on a particular cave name.
