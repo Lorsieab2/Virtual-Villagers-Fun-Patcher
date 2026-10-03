@@ -76,6 +76,7 @@
 
 #include "village_identity.h"
 #include "save_folder.h"
+#include "vv3_villager_table.h"
 
 enum {
     /* The log sits beside the executable, so the path is bounded by the
@@ -819,6 +820,25 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
     }
 };
+
+/* A game's layout, with The Secret City's slot count as the executable states
+   it: 150, or 256 with 256 Villagers (Experimental), whose villager table the
+   conception and birth trampolines pass in its new place. */
+static const struct game_layout *layout_of(int game_id) {
+    static struct game_layout vv3;
+    static int vv3_ready;
+    if (game_id == GAME_VV3) {
+        if (!vv3_ready) {
+            unsigned int table, slots;
+            vv3_villager_table((const unsigned char *)GetModuleHandleW(NULL), &table, &slots);
+            vv3 = GAME_LAYOUTS[GAME_VV3];
+            vv3.slots = (int)slots;
+            vv3_ready = 1;
+        }
+        return &vv3;
+    }
+    return &GAME_LAYOUTS[game_id];
+}
 
 /* Names are engine-written with sprintf into a fixed 0x1C-byte field, so a
    name that exactly fills the buffer leaves no terminator. Copy into a local
@@ -2132,6 +2152,15 @@ static const struct { unsigned int rva; int is_pointer; } VILLAGER_TABLE[6] = {
     { 0x10E568u, 0 }, { 0x154148u, 0 },
 };
 
+/* VV3's table RVA as the executable names it (see vv3_villager_table.h). */
+static unsigned int villager_table_rva(int game_id) {
+    unsigned int table = VILLAGER_TABLE[game_id].rva, slots;
+    if (game_id == GAME_VV3) {
+        vv3_villager_table((const unsigned char *)GetModuleHandleW(NULL), &table, &slots);
+    }
+    return table;
+}
+
 #define TRIBE_SLOTS 256
 #define TRIBES_HELD 8
 
@@ -2175,7 +2204,7 @@ static const unsigned char *villager_table(int game_id) {
     if (module == NULL || VILLAGER_TABLE[game_id].rva == 0u) {
         return NULL;
     }
-    table = module + VILLAGER_TABLE[game_id].rva;
+    table = module + villager_table_rva(game_id);
     if (VILLAGER_TABLE[game_id].is_pointer) {
         if (!memory_is_readable(table, sizeof(void *))) {
             return NULL;
@@ -2187,7 +2216,7 @@ static const unsigned char *villager_table(int game_id) {
 
 /* Snapshot the tribe in `records` (or where the game keeps it). */
 static int take_tribe(int game_id, const unsigned char *records, struct tribe *out) {
-    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    const struct game_layout *g = layout_of(game_id);
     unsigned int slot;
 
     out->game = game_id;
@@ -2476,7 +2505,7 @@ static char *label_record(const char *text) {
    for good. The one exception is a write whose partial output could not be
    rolled back: retrying it could only duplicate what may already be on disk. */
 static void flush_pending(int game_id, const char *village) {
-    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    const struct game_layout *g = layout_of(game_id);
     int i;
     int kept = 0;
     int stopped = 0;
@@ -2554,7 +2583,7 @@ static int emit_record(
     const unsigned char *records,
     const char *text
 ) {
-    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    const struct game_layout *g = layout_of(game_id);
     char village[VV_VILLAGE_NAME_MAX + 32];
 
     if (records != NULL
@@ -2674,7 +2703,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
     }
-    g = &GAME_LAYOUTS[game_id];
+    g = layout_of(game_id);
     /* A game whose record geometry has not been established refuses outright,
        and so does one whose row is filled in but not self-consistent. Logging a
        plausible-looking wrong number would be worse than logging nothing,
@@ -3006,7 +3035,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
     }
-    g = &GAME_LAYOUTS[game_id];
+    g = layout_of(game_id);
     if (!layout_is_usable(g)) {
         return 0;
     }
@@ -3390,7 +3419,7 @@ static int ensure_parentage_log(
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
     }
-    g = &GAME_LAYOUTS[game_id];
+    g = layout_of(game_id);
     if (!layout_is_usable(g)) {
         return 0;
     }
@@ -3503,7 +3532,7 @@ const struct game_layout *vv_parentage_layout(int game) {
     if (game < 1 || game > 5) {
         return NULL;
     }
-    return &GAME_LAYOUTS[game];
+    return layout_of(game);
 }
 
 int vv_parentage_log_folder(wchar_t *out) {

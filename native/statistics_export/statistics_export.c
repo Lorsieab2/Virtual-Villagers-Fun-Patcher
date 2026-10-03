@@ -8,6 +8,7 @@
 #include "village_elders.h"
 #include "roster_match.h"
 #include "statistics_store.h"
+#include "vv3_villager_table.h"
 
 enum {
     GAME_VV1 = 1,
@@ -300,8 +301,10 @@ static int village_elders_for(int game_id) {
     l.grave_name_capacity = 0x19u;
     l.grave_capacity = 500u;
     if (game_id == GAME_VV3) {
-        l.villagers = module + 0x19E110u; l.record_base = 0x14u; l.stride = 0x1F8Cu;
-        l.slots = 150u; l.active = 0xF10u; l.name = 0xDD4u;
+        unsigned int table, slots;
+        vv3_villager_table(module, &table, &slots);
+        l.villagers = module + table; l.record_base = 0x14u; l.stride = 0x1F8Cu;
+        l.slots = slots; l.active = 0xF10u; l.name = 0xDD4u;
         l.father_name = 0xDF8u; l.mother_name = 0xE11u;
         l.skills = 0xEACu; l.skill_count = 5u; l.skills_are_float = 0; l.master_int = 0x58;
         l.graves = module + 0x197D64u; l.grave_stride = 0x30u; l.grave_elder_flag = 0x29u;
@@ -985,6 +988,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     } else if (game_id == GAME_VV2) {
         written = write_vv2(file, manager, village);
     } else if (game_id == GAME_VV3) {
+        unsigned int vv3_table, vv3_slots;
+        vv3_villager_table((const unsigned char *)GetModuleHandleW(NULL), &vv3_table, &vv3_slots);
         written = write_later_game(
             file,
             manager,
@@ -1025,8 +1030,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             1,
             /* The villager array: container 0x59E110 (accessor sub_45C840,
                record base 0x14, stride 0x1F8C, 150 slots), active byte
-               +0xF10. */
-            0x19E110u, 0x14u, 0x1F8Cu, 150,
+               +0xF10 -- or wherever the executable says it is (0x800000 and
+               256 slots with 256 Villagers). */
+            vv3_table, 0x14u, 0x1F8Cu, (int)vv3_slots,
             0xF10u,
             /* Village Elders. Skills at villager+0xEAC, from the burial
                writer's `lea ebx,[ebp+0EACh]` at 0x455057 -- the pointer it
@@ -1228,13 +1234,17 @@ static unsigned int bounded_len(const unsigned char *p, unsigned int capacity) {
 }
 
 static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
-    const struct roster_layout *r = &ROSTER_LAYOUTS[game_id];
+    struct roster_layout layout = ROSTER_LAYOUTS[game_id];
+    const struct roster_layout *r = &layout;
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     const unsigned char *villagers;
     unsigned int slot;
     int count = 0;
     if (module == NULL) {
         return 0;
+    }
+    if (game_id == GAME_VV3) {
+        vv3_villager_table(module, &layout.villagers_rva, &layout.slots);
     }
     villagers = r->rva_is_pointer ? *(unsigned char *const *)(module + r->villagers_rva)
                                   : module + r->villagers_rva;

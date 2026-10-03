@@ -122,7 +122,10 @@ static int header_is_for_slot(const char *header, int slot) {
  *     VV4       24          +16          0x1710C
  *     VV5       24          +16          0x17D78
  *
- * every file opening with "ldwg", sized exactly header + buffer.
+ * every file opening with "ldwg", sized exactly header + buffer.  The Secret
+ * City built with 256 Villagers (Experimental) writes a longer buffer,
+ * 0x1A4B4: the stock 0x12F1C bytes unchanged, then villagers 150..255, so its
+ * name is at the same offset and either length is that game's save.
  *
  * The base name before the slot number comes from the game, not from a string
  * here, so it is found: exactly one file named "<something><slot>.ldw" whose
@@ -136,6 +139,20 @@ static const DWORD SAVE_LENGTH_AT[5] = { 8u, 8u, 8u, 16u, 16u };
 static const DWORD SAVE_BUFFER_BYTES[5] = {
     0x0ABDCu, 0x30370u, 0x12F1Cu, 0x1710Cu, 0x17D78u
 };
+#define VV3_256_SAVE_BUFFER_BYTES 0x1A4B4u
+
+/* The buffer length a save file of `file_size` bytes holds for `game`, or 0
+   when no save of that game is that long. */
+static DWORD save_buffer_bytes(int game, DWORD file_size) {
+    DWORD header = SAVE_FILE_HEADER[game - 1];
+    if (file_size == header + SAVE_BUFFER_BYTES[game - 1]) {
+        return SAVE_BUFFER_BYTES[game - 1];
+    }
+    if (game == 3 && file_size == header + VV3_256_SAVE_BUFFER_BYTES) {
+        return VV3_256_SAVE_BUFFER_BYTES;
+    }
+    return 0;
+}
 
 /* Is `name` "<prefix><slot>.ldw" with a non-empty prefix not ending in a digit? */
 static int is_slot_save_name(const wchar_t *name, int slot) {
@@ -167,7 +184,6 @@ int vv_saved_village_header(int game, int slot, const wchar_t *folder,
     char name[VV_VILLAGE_NAME_MAX];
     char header[256];
     int valid = 0;
-    DWORD expected;
 
     if (out == NULL || size == 0) {
         return 0;
@@ -177,7 +193,6 @@ int vv_saved_village_header(int game, int slot, const wchar_t *folder,
         || lstrlenW(folder) + SAVE_FILTER_RESERVE >= MAX_PATH) {
         return 0;
     }
-    expected = SAVE_FILE_HEADER[game - 1] + SAVE_BUFFER_BYTES[game - 1];
     wsprintfW(filter, L"%ls\\*%d.ldw", folder, slot);
     search = FindFirstFileW(filter, &found);
     if (search == INVALID_HANDLE_VALUE) {
@@ -189,13 +204,17 @@ int vv_saved_village_header(int game, int slot, const wchar_t *folder,
         unsigned char *data;
         DWORD got = 0;
         DWORD length;
+        DWORD expected;
+        DWORD buffer_bytes;
 
         if ((found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             || !is_slot_save_name(found.cFileName, slot)
-            || found.nFileSizeHigh != 0 || found.nFileSizeLow != expected
+            || found.nFileSizeHigh != 0
+            || (buffer_bytes = save_buffer_bytes(game, found.nFileSizeLow)) == 0
             || lstrlenW(folder) + 1 + lstrlenW(found.cFileName) >= MAX_PATH) {
             continue;
         }
+        expected = SAVE_FILE_HEADER[game - 1] + buffer_bytes;
         wsprintfW(path, L"%ls\\%ls", folder, found.cFileName);
         file = CreateFileW(path, GENERIC_READ,
                            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -214,7 +233,7 @@ int vv_saved_village_header(int game, int slot, const wchar_t *folder,
         if (ReadFile(file, data, expected, &got, NULL) && got == expected
             && data[0] == 'l' && data[1] == 'd' && data[2] == 'w' && data[3] == 'g') {
             CopyMemory(&length, data + SAVE_LENGTH_AT[game - 1], sizeof length);
-            if (length == SAVE_BUFFER_BYTES[game - 1]) {
+            if (length == buffer_bytes) {
                 ++valid;
                 /* The companion reads the name at manager + 8 + offset; the
                    save buffer is what sits at manager + 8. */

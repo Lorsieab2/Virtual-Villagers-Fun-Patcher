@@ -547,7 +547,7 @@ static const ce_adapter *ce_adapter_for(int game) {
     switch (game) {
     case 1: return &C1_ADAPTER;
     case 2: return &C2_ADAPTER;
-    case 3: return &C3_ADAPTER;
+    case 3: return c3_adapter();
     case 4: return &C4_ADAPTER;
     case 5: return &C5_ADAPTER;
     default: return NULL;

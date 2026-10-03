@@ -418,10 +418,13 @@ static void end_modal_over_game(HWND owner) {
 }
 
 
-/* Villager record array. Base and stride are fixed in the image, so this needs
-   nothing from the executable -- the DLL can answer the question on its own.
-   The slot bound is read from the same 0x42883A immediate the robe fan-out
-   uses, because expanded builds raise it from 150 to 256.
+/* Villager record array.  The population manager's address is read from the
+   executable's own `mov ecx, MANAGER` at 0x4279B3 (the call that loads the
+   villager sprites), and the records start 0x14 after it; the slot bound is
+   the 0x42883A immediate the robe fan-out reads.  The stock build has the
+   manager at 0x59E110 and 150 slots; 256 Villagers (Experimental) moves the
+   manager to 0x800000 and has 256.  Reading both from the image lets this one
+   DLL serve either build.
 
    A slot counts as OCCUPIED whenever its active field is set, whether or not
    the villager in it is alive. That is the whole point: an unburied skeleton
@@ -429,7 +432,11 @@ static void end_modal_over_game(HWND owner) {
    (health <= 0), so a village full of bodies reads as small while its slots
    are nearly all taken. The barrel then spawns fewer children than it charged
    for -- sometimes none. */
-#define VV3_RECORD_BASE      0x59E124
+#define VV3_MANAGER_IMM_VA   0x4279B4
+static UINT_PTR vv3_population_manager(void) {
+    return (UINT_PTR)*(volatile unsigned int *)(UINT_PTR)VV3_MANAGER_IMM_VA;
+}
+#define VV3_RECORD_BASE      (vv3_population_manager() + 0x14u)
 #define VV3_RECORD_STRIDE    0x1F8C
 #define VV3_SLOT_BOUND_PTR   0x42883A
 #define VV3_OFF_ACTIVE       0xF10
@@ -476,14 +483,9 @@ static int vv3_has_free_villager_slots(int wanted) {
    constructor which allocates 0x12FD4 bytes and builds the manager when the
    pointer is null, and merely drawing a menu must not have that side effect.
 
-   The capacity half still walks villager records, and that walk is where the
-   stock/expanded layout difference matters: the executable distinguishes the
-   two by testing whether the immediate at 0x42883A is 256, and
-   vv3_has_free_villager_slots uses the same probe. */
+   The capacity half still walks villager records, from the manager address
+   and slot count the executable holds (see vv3_has_free_villager_slots). */
 #define VV3_MANAGER_SINGLETON     0x4B309C
-#define VV3_ARCH_PROBE            0x42883A
-#define VV3_ARCH_EXPANDED_VALUE   0x100
-#define VV3_ARCH_EXPANDED_OFFSET  0x7598
 #define VV3_ISLAND_COUNTDOWN_OFF  0x12EF4
 #define VV3_BARREL_PENDING_FLAG   0x6E0058
 /* The purchased Island Event's pending flag, in the patch's own appended data
@@ -502,6 +504,7 @@ static int vv3_has_free_villager_slots(int wanted) {
 #define VV3_ISLAND_PENDING_FLAG   0x6E0050
 #define VV3_IMMEDIATE_FIXED_PROBE 0x45FEA2
 #define VV3_COLLECTION_BASE_PROBE 0x45FEE3
+#define VV3_COLLECTION_ADD_SITE   0x45FEE1
 #define VV3_POPULATION_MODE_COLLECTION 0x73
 
 /* The scheduler's own clock, 0x403330: converts GetSystemTimeAsFileTime through
@@ -517,12 +520,15 @@ static unsigned int vv3_scheduler_now(void) {
 
 static int vv3_barrel_uses_physical_limit(void) {
     /* Immediate Fixed replaces the native bonus calculation at 0x45FEA2;
-       Collection Progression raises the base byte at 0x45FEE3.  In either
-       public expanded mode, the intended limit is the physical 150-record
-       table, not the stock 87/90 population tier. */
+       Collection Progression raises the base byte at 0x45FEE3 -- or, with 256
+       Villagers, whose base of 221 does not fit that byte, calls out of the
+       `add esi, base` at 0x45FEE1.  In any of these the intended limit is the
+       physical record table (150 slots, or 256 with 256 Villagers), not the
+       stock 87/90 population tier. */
     return *(volatile unsigned char *)(UINT_PTR)VV3_IMMEDIATE_FIXED_PROBE == 0xBE
         || *(volatile unsigned char *)(UINT_PTR)VV3_COLLECTION_BASE_PROBE
-            == VV3_POPULATION_MODE_COLLECTION;
+            == VV3_POPULATION_MODE_COLLECTION
+        || *(volatile unsigned char *)(UINT_PTR)VV3_COLLECTION_ADD_SITE == 0xE8;
 }
 
 enum {
@@ -911,7 +917,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
    payload applies the change.  Prepare stores the counts and returns whether the
    purchase would change anything (so the payload can refund/skip on a no-op);
    the result reader formats the message from the stored counts. */
-#define VV3_REC_BASE   0x0059E124u
+#define VV3_REC_BASE   VV3_RECORD_BASE
 #define VV3_SLOTS_PTR  0x0042883Au
 #define VV3_STRIDE     0x1F8Cu
 #define VV3_ACTIVE     0xF10   /* byte: 0 = empty slot                */
@@ -940,7 +946,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
    read 0 statically but the running sim ZEROES it every frame (the same trap that
    killed VV2's +0x480), so a written mask vanishes within a frame.  So the choice
    lives in DLL memory the patch owns -- a 256-entry table keyed by villager slot
-   index (index = (record - 0x59E124) / 0x1F8C, the id the game itself uses).  The
+   index (index = (record - first record) / 0x1F8C, the id the game itself uses).  The
    villager record and the save file are NEVER written.
 
    A slot is reused when a villager dies and a newborn takes its place, so each
@@ -2230,6 +2236,7 @@ __declspec(dllexport) int __stdcall PrepareOriginsVillageWide(int command) {
 static int vv3_barrel_has_room_for_three(void) {
     unsigned int current = 0;
     unsigned int maxpop = 0;
+    unsigned int manager = (unsigned int)vv3_population_manager();
 
     if (vv3_barrel_uses_physical_limit()) {
         return vv3_has_free_villager_slots(VV3_BARREL_CHILDREN);
@@ -2242,7 +2249,7 @@ static int vv3_barrel_has_room_for_three(void) {
         push ebx
         push esi
         push edi
-        mov ecx, 0x59E110       /* population manager */
+        mov ecx, manager        /* population manager */
         mov eax, 0x45E8F0
         call eax                /* current living population */
         mov current, eax
@@ -2838,20 +2845,15 @@ static const char *vv3_speed_name(int speed) {
 /* The manager, and the speed field on it.  Reads the singleton POINTER rather
    than calling the lazy getter at 0x428B60, for the same reason the pending-row
    probe above does: the getter constructs a manager when there is none, and a
-   null pointer already answers the question.  The arch probe picks the right
-   field offset on expanded builds, exactly as the executable does. */
+   null pointer already answers the question.  The field never moves: 256
+   Villagers (Experimental) keeps every game-object field where it is. */
 static int *vv3_speed_field(void) {
     unsigned char *manager =
         *(unsigned char **)(UINT_PTR)VV3_MANAGER_SINGLETON;
-    unsigned int extra = 0;
     if (manager == 0) {
         return 0;
     }
-    if (*(volatile unsigned int *)(UINT_PTR)VV3_ARCH_PROBE
-        == VV3_ARCH_EXPANDED_VALUE) {
-        extra = VV3_ARCH_EXPANDED_OFFSET;
-    }
-    return (int *)(manager + extra + VV3_TW_SPEED_OFFSET);
+    return (int *)(manager + VV3_TW_SPEED_OFFSET);
 }
 
 /* Returns how many records were carried, 0 when the village is empty -- the

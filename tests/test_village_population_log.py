@@ -289,6 +289,19 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                     arguments[3], '"%s"' % title,
                     "argument 3 must be the title")
                 for field, position in sorted(positions.items()):
+                    if game == 3 and field in ("villagers_rva", "slots"):
+                        # The Secret City's table is located at run time from
+                        # the executable (native/shared/vv3_villager_table.h):
+                        # the stock 0x19E110 / 150, or 256 Villagers' table.
+                        # Both companions call the same locator, whose stock
+                        # answer is the population row's.
+                        self.assertEqual(
+                            arguments[position],
+                            {"villagers_rva": "vv3_table", "slots": "(int)vv3_slots"}[field])
+                        locator = (ROOT / "native" / "shared" / "vv3_villager_table.h").read_text()
+                        self.assertIn("#define VV3_STOCK_MANAGER_RVA 0x%Xu" % row["villagers_rva"], locator)
+                        self.assertEqual(row["slots"], 150)
+                        continue
                     self.assertEqual(
                         row[field], as_number(arguments[position]),
                         "game %d's %s must equal statistics argument %d"
