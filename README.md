@@ -469,7 +469,7 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 
 **Fix Vanilla Bugs**
 
-Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the "flash of scientific insight" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. **Needs no other patch.**
+Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the "flash of scientific insight" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. **Needs no other patch.**
 
 - Patch ID: `vv3_fix_vanilla_bugs`
 
@@ -536,6 +536,12 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 **Needs no other patch: the 50-and-over refusal it lifts is The Tree of Life's own; this game has no Birth Control patch.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food, love-shack and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
 
 - Patch ID: `vv4_manual_drop_breeding_overrides_birth_control`
+
+**Fix Vanilla Bugs**
+
+Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. **Needs no other patch.**
+
+- Patch ID: `vv4_fix_vanilla_bugs`
 
 
 ### Virtual Villagers - New Believers
