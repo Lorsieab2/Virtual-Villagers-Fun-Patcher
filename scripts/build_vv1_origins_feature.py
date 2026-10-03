@@ -674,9 +674,19 @@ DOUBLER_LOAD_HOOK_GUARD = bytes.fromhex("E84EC50200")
 # record, stores the live occupied byte at 0x43C393, and returns that record's
 # index to every normal/event caller.  The mask hook is placed immediately
 # after the two initial occupied/faction stores, while ESI is the selected
-# record and the original local index remains at [esp+0x10].
-MASK_NEWBORN_CLEAR_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xA00
+# record and the original local index is still on the stack (written as
+# [esp+0x10]; [esp+0x14] at the splice, after the routine's `push 0x4e`).
+MASK_NEWBORN_CLEAR_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xA00  # .vv1mc, 0x80 reserved
 MASK_NEWBORN_CLEAR_VA = mask_code_va(MASK_NEWBORN_CLEAR_FILE_OFFSET)
+# The twin/triplet allocator.  sub_43C840 (called at 0x42F021 for a twin and
+# 0x42F06D for a triplet) does NOT go through sub_43C350: it repeats the same
+# first-free-record pick itself (0x43C84F-0x43C87C), keeps the chosen index in
+# the same [esp+0x10] local, runs the same `push 0x4e` (0x43C87F), and then
+# stores the occupied/faction bytes at 0x43C881 (`mov byte [esi+0x28],1` /
+# `mov byte [esi+0x29],bl`, BL = 0 from 0x43C84F).  Without its own guard an
+# extra baby kept whatever mask nibble a dead previous occupant left behind.
+MASK_TWIN_CLEAR_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xA80  # .vv1mc, 0x80 reserved (ends 0xB00)
+MASK_TWIN_CLEAR_VA = mask_code_va(MASK_TWIN_CLEAR_FILE_OFFSET)
 # Delivery-time capacity recheck for the deferred Barrel of Babies.  Capacity
 # is checked when the row is bought, but VV1 then waits BARREL_DELAY_TICKS
 # before dispatching, so a pregnancy or event can take a slot inside that
@@ -721,6 +731,10 @@ MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET = 0x3C393
 MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET
 MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
 MASK_NEWBORN_CLEAR_ORIGINAL_BYTES = bytes.fromhex("C6462801C6462900")
+MASK_TWIN_CLEAR_SPLICE_FILE_OFFSET = 0x3C881
+MASK_TWIN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_TWIN_CLEAR_SPLICE_FILE_OFFSET
+MASK_TWIN_CLEAR_RESUME_VA = 0x43C888
+MASK_TWIN_CLEAR_ORIGINAL_BYTES = bytes.fromhex("C6462801885E29")
 # THE EXACT BIRTH HOOK (Show Parents in Details Screen).  Every child A New
 # Home bears is created from the pregnancy tick sub_42E900, which walks the
 # record array (ESI = the village object, [ESI+4] = the record array, EDI =
@@ -3160,62 +3174,71 @@ def main() -> None:
     # between two rendered frames, so no free state is necessarily observed.
     # pushad keeps every native register and stack local intact.  The helper
     # only clears the patch-owned nibble and never writes the villager record.
-    newborn_clear_code = assemble(
-        f"""
-            mov byte ptr [esi + 0x28], 1
-            mov byte ptr [esi + 0x29], 0
-            pushad
-            mov ecx, dword ptr [esp + 0x34]       # sub_43C350 local index (pushad + push 0x4e + 4 pushes)
-            cmp ecx, {MASK_TABLE_SIZE * 2}
-            jae newborn_clear_done
-            mov eax, ecx
-            shr eax, 1
-            mov dl, byte ptr [eax + 0x{MASK_TABLE_VA:X}]
-            test cl, 1
-            jz newborn_clear_low
-            test dl, 0xf0
-            jz newborn_clear_done
-            and dl, 0x0f
-            jmp newborn_clear_store
-        newborn_clear_low:
-            test dl, 0x0f
-            jz newborn_clear_done
-            and dl, 0xf0
-        newborn_clear_store:
-            mov byte ptr [eax + 0x{MASK_TABLE_VA:X}], dl
-            mov byte ptr [0x{MASK_BIRTH_DIRTY_VA:X}], 1
-        newborn_clear_done:
-            popad
-            jmp 0x{MASK_NEWBORN_CLEAR_RESUME_VA:X}
-        """,
-        MASK_NEWBORN_CLEAR_VA,
-    )
-    if len(newborn_clear_code) > 0x100:
-        raise RuntimeError(
-            f"VV1 newborn mask-clear hook exceeds its .vv1mc reservation: "
-            f"{len(newborn_clear_code):#x} > 0x100"
+    def mask_clear_cave(replay: str, resume_va: int, cave_va: int, routine: str) -> bytes:
+        # Shared by the sub_43C350 (single/first child, event and founding
+        # villagers) and sub_43C840 (twin/triplet) allocators: both keep the
+        # chosen index in the same local and push 0x4e before their splice,
+        # so after pushad the index is [esp+0x34] in each.
+        return assemble(
+            f"""
+                {replay}
+                pushad
+                mov ecx, dword ptr [esp + 0x34]       # {routine} local index (pushad + push 0x4e + 4 pushes)
+                cmp ecx, {MASK_TABLE_SIZE * 2}
+                jae newborn_clear_done
+                mov eax, ecx
+                shr eax, 1
+                mov dl, byte ptr [eax + 0x{MASK_TABLE_VA:X}]
+                test cl, 1
+                jz newborn_clear_low
+                test dl, 0xf0
+                jz newborn_clear_done
+                and dl, 0x0f
+                jmp newborn_clear_store
+            newborn_clear_low:
+                test dl, 0x0f
+                jz newborn_clear_done
+                and dl, 0xf0
+            newborn_clear_store:
+                mov byte ptr [eax + 0x{MASK_TABLE_VA:X}], dl
+                mov byte ptr [0x{MASK_BIRTH_DIRTY_VA:X}], 1
+            newborn_clear_done:
+                popad
+                jmp 0x{resume_va:X}
+            """,
+            cave_va,
         )
-    patch(
-        MASK_NEWBORN_CLEAR_FILE_OFFSET,
-        b"\0" * len(newborn_clear_code),
-        newborn_clear_code,
-        "clear the patch-owned VV1 mask nibble at the exact sub_43C350 newborn/allocation boundary before a free record can be reused; preserves the native occupied/faction stores, all registers, and every villager-record field",
-    )
-    newborn_clear_detour_code = assemble(
-        f"""
-            jmp 0x{MASK_NEWBORN_CLEAR_VA:X}
-            nop
-            nop
-            nop
-        """,
-        MASK_NEWBORN_CLEAR_SPLICE_VA,
-    )
-    patch(
-        MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET,
-        MASK_NEWBORN_CLEAR_ORIGINAL_BYTES,
-        newborn_clear_detour_code,
-        "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble",
-    )
+
+    for cave_file, cave_va, splice_file, splice_va, splice_preimage, replay, resume_va, routine, cave_purpose, splice_purpose in (
+        (
+            MASK_NEWBORN_CLEAR_FILE_OFFSET, MASK_NEWBORN_CLEAR_VA,
+            MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET, MASK_NEWBORN_CLEAR_SPLICE_VA,
+            MASK_NEWBORN_CLEAR_ORIGINAL_BYTES,
+            "mov byte ptr [esi + 0x28], 1\n                mov byte ptr [esi + 0x29], 0",
+            MASK_NEWBORN_CLEAR_RESUME_VA, "sub_43C350",
+            "clear the patch-owned VV1 mask nibble at the exact sub_43C350 newborn/allocation boundary before a free record can be reused; preserves the native occupied/faction stores, all registers, and every villager-record field",
+            "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble",
+        ),
+        (
+            MASK_TWIN_CLEAR_FILE_OFFSET, MASK_TWIN_CLEAR_VA,
+            MASK_TWIN_CLEAR_SPLICE_FILE_OFFSET, MASK_TWIN_CLEAR_SPLICE_VA,
+            MASK_TWIN_CLEAR_ORIGINAL_BYTES,
+            "mov byte ptr [esi + 0x28], 1\n                mov byte ptr [esi + 0x29], bl",
+            MASK_TWIN_CLEAR_RESUME_VA, "sub_43C840",
+            "clear the patch-owned VV1 mask nibble at the exact sub_43C840 twin/triplet allocation boundary before a free record can be reused; preserves the native occupied/faction stores, all registers, and every villager-record field",
+            "splice sub_43C840 (the twin/triplet allocator) immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],bl before clearing the corresponding patch-owned mask nibble",
+        ),
+    ):
+        clear_code = mask_clear_cave(replay, resume_va, cave_va, routine)
+        if len(clear_code) > 0x80:
+            raise RuntimeError(
+                f"VV1 {routine} mask-clear hook exceeds its .vv1mc reservation: "
+                f"{len(clear_code):#x} > 0x80"
+            )
+        patch(cave_file, b"\0" * len(clear_code), clear_code, cave_purpose)
+        detour = assemble(f"jmp 0x{cave_va:X}", splice_va)
+        detour += b"\x90" * (len(splice_preimage) - len(detour))
+        patch(splice_file, splice_preimage, detour, splice_purpose)
     # The exact birth hook -- see the PARENTAGE_BORN_* constants.
     patch(
         PARENTAGE_BORN_NAME_FILE_OFFSET,
@@ -4545,7 +4568,7 @@ def main() -> None:
             "legacy_migration": False,
             "invalid_or_missing_sidecar": "clear in-memory table",
             "dead_entry_clears": "persisted back to the matching slot sidecar",
-            "newborn_reuse_guard": "exact sub_43C350 allocation boundary at 0x43C393 clears the selected record-index nibble before normal/event newborn initialization continues; a patch-owned dirty flag makes Vv1MaskTick persist the clear to the active sidecar and retry on write failure",
+            "newborn_reuse_guard": "exact sub_43C350 allocation boundary at 0x43C393 clears the selected record-index nibble before normal/event newborn initialization continues, and the twin/triplet allocator sub_43C840's own boundary at 0x43C881 does the same for each extra baby; a patch-owned dirty flag makes Vv1MaskTick persist the clear to the active sidecar and retry on write failure",
             "pickup_held_runtime_status": "static: held villagers update the ordinary record position and re-enter the central village render loops; player-visible held mask behavior remains runtime-unverified",
         },
         "pe_append_transaction": {

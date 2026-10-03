@@ -119,7 +119,7 @@
     "legacy_migration": false,
     "invalid_or_missing_sidecar": "clear in-memory table",
     "dead_entry_clears": "persisted back to the matching slot sidecar",
-    "newborn_reuse_guard": "exact sub_43C350 allocation boundary at 0x43C393 clears the selected record-index nibble before normal/event newborn initialization continues; a patch-owned dirty flag makes Vv1MaskTick persist the clear to the active sidecar and retry on write failure",
+    "newborn_reuse_guard": "exact sub_43C350 allocation boundary at 0x43C393 clears the selected record-index nibble before normal/event newborn initialization continues, and the twin/triplet allocator sub_43C840's own boundary at 0x43C881 does the same for each extra baby; a patch-owned dirty flag makes Vv1MaskTick persist the clear to the active sidecar and retry on write failure",
     "pickup_held_runtime_status": "static: held villagers update the ordinary record position and re-enter the central village render loops; player-visible held mask behavior remains runtime-unverified"
   },
   "pe_append_transaction": {
@@ -276,6 +276,18 @@
       "before": "C6462801C6462900",
       "after": "E968460500909090",
       "purpose": "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble"
+    },
+    {
+      "offset": "0x8EA80",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "C6462801885E29608B4C243481F900010000732E89C8D1E88A9000104900F6C101740AF6C2F0741A80E20FEB08F6C20F741080E2F0889000104900C605FC1149000161E9C0BDFAFF",
+      "purpose": "clear the patch-owned VV1 mask nibble at the exact sub_43C840 twin/triplet allocation boundary before a free record can be reused; preserves the native occupied/faction stores, all registers, and every villager-record field"
+    },
+    {
+      "offset": "0x3C881",
+      "before": "C6462801885E29",
+      "after": "E9FA4105009090",
+      "purpose": "splice sub_43C840 (the twin/triplet allocator) immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],bl before clearing the corresponding patch-owned mask nibble"
     },
     {
       "offset": "0x8E438",
