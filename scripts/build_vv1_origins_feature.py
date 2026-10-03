@@ -3148,7 +3148,14 @@ def main() -> None:
     # Clear a reused record at the game's own newborn/allocation boundary.
     # sub_43C350 selects the first free record and its exact initialization
     # starts at 0x43C393; at this point ESI is that record and the original
-    # selected index is still in the function's [esp+0x10] local.  This is
+    # selected index is still in the function's index local.  That local was
+    # written as [esp+0x10] (0x43C36E/0x43C384), but 0x43C391 `push 0x4e`
+    # (the first random-range argument) runs before the splice, so at the
+    # splice the local is [esp+0x14] and [esp+0x10] is the caller's saved
+    # EBX.  After pushad (+0x20) the local is [esp+0x34]; [esp+0x30] would
+    # be the caller's EBX -- the mother's record pointer at a birth (so the
+    # newborn's nibble was never cleared) and a small constant at the event
+    # call sites (so some OTHER villager's mask was wiped).  This is
     # stronger than a periodic free-slot sweep: death and birth can happen
     # between two rendered frames, so no free state is necessarily observed.
     # pushad keeps every native register and stack local intact.  The helper
@@ -3158,7 +3165,7 @@ def main() -> None:
             mov byte ptr [esi + 0x28], 1
             mov byte ptr [esi + 0x29], 0
             pushad
-            mov ecx, dword ptr [esp + 0x30]       # sub_43C350 local index
+            mov ecx, dword ptr [esp + 0x34]       # sub_43C350 local index (pushad + push 0x4e + 4 pushes)
             cmp ecx, {MASK_TABLE_SIZE * 2}
             jae newborn_clear_done
             mov eax, ecx
