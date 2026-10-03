@@ -242,12 +242,6 @@
       "purpose": "resolve and invoke the icons DLL's shared ShowOriginsRowMessage export, forwarding (is_detail, row, status) unchanged -- the generic completion/no-change/removed/blocked result box every plain-wording row now routes through"
     },
     {
-      "offset": "0x8B004",
-      "before": "0000000000",
-      "after": "E927050000",
-      "purpose": "redirect the shared VV1 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve"
-    },
-    {
       "offset": "0x8BB00",
       "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "8B4C2408837C240400752183F90B7507BAD0DD0600EB1C83F9067207BA40420F00EB108B148DC05F4800EB078B148DD85F48005268995D4800FF151070450085C0742368CD5E480050FF15D470450085C07413FF3424FF742410FF742410FFD083C404C2080083C40431C0C20800",

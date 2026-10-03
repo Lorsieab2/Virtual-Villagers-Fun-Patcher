@@ -66,10 +66,12 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # destructor, failure branch straight to the restore), 0x8E820 (the
     # slot-change cave without the removed flag's clear) and 0x8EB00 (the
     # room check without the arming store) changed. Nothing else.
+    # Re-pinned when the .shr+0x004 dispatch stub nothing called (row
+    # 0x8B004) was removed: five bytes back to zero, plus the PE checksum.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "7AFB00C713B59949475EECB10FA9922EE8660135C4615F62DB1F9885B0E58180",
-        "collection_progression": "A3C7C69E1A1186B793F59FB7174398BE3570344B36FE7D2493C4BD232D5F805F",
-        "immediate_fixed": "A3C7C69E1A1186B793F59FB7174398BE3570344B36FE7D2493C4BD232D5F805F",
+        "stock": "FF7B849892BB1BBDE5BD68BBB07CE6F30F71F516BAAD72BEB6BC75CB0D00098D",
+        "collection_progression": "FA2563C3BB31871D44614239ACAD1FE9E4F2A8C7D606341944512FEEC291988D",
+        "immediate_fixed": "FA2563C3BB31871D44614239ACAD1FE9E4F2A8C7D606341944512FEEC291988D",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

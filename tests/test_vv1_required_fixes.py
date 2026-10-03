@@ -97,11 +97,8 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIn("SHR_FILE_OFFSET = 0x8B000", source)
         self.assertIn("SHR_RVA = 0x8D000", source)
         self.assertIn("CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA", source)
-        self.assertIn(
-            "HEAL_CAVE_STUB_VA = IMAGE_BASE + SHR_RVA + (",
-            source,
-        )
-        self.assertIn("rel32_jump(HEAL_CAVE_STUB_VA, CURE_ENTRY_VA)", source)
+        # No dispatch stub: callers use the Cure entry directly.
+        self.assertNotIn("HEAL_CAVE_STUB_VA", source)
         self.assertIn("BARREL_PENDING_FILE_OFFSET = 0x8B700", source)
         self.assertIn("BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710", source)
         barrel = source.split("do_barrel:", 1)[1].split(
