@@ -59,13 +59,13 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         # The conception passes the table the game handed over; a birth has
         # none, and the tribe is then found where the game keeps it.
         self.assertIn("return emit_record(game_id, 0, records, text);", source)
-        self.assertIn("return emit_record(game_id, 1, NULL, text);", source)
+        self.assertIn("return emit_record(game_id, KIND_BIRTH, NULL, text);", source)
 
     def test_an_unknown_village_holds_rather_than_writes(self) -> None:
         emit = function("emit_record")
         known = emit.index("if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {")
         publisher = emit.index("if (village[0] == '\\0' && !statistics_publisher_present()) {")
-        held = emit.rindex("return hold_record(game_id, is_birth, records, text);")
+        held = emit.rindex("return hold_record(game_id, kind, records, text);")
         self.assertLess(known, publisher)
         self.assertLess(publisher, held,
                         "records must be held only when a publisher exists")
@@ -79,14 +79,14 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         """#449 review: a held record is released only once it is on disk."""
         flush = function("flush_pending")
         self.assertIn(
-            "outcome = append_record(g, village, entry->is_birth, text);", flush)
+            "outcome = append_record(g, village, entry->kind, text);", flush)
         # Only a failure whose file was restored is retried: one that could not
         # be rolled back is released, because a retry could duplicate it.
         self.assertIn("if (outcome == APPEND_RETRY) {", flush)
         self.assertIn("stopped = 1;", flush)
         self.assertIn("pending[kept++] = *entry;", flush)
         emit = function("emit_record")
-        self.assertIn("int outcome = append_record(g, village, is_birth, text);", emit)
+        self.assertIn("int outcome = append_record(g, village, kind, text);", emit)
         self.assertIn("if (outcome == APPEND_UNRECOVERABLE) {", emit)
         append = function("append_record")
         self.assertIn("if (!roll_back_append(path, original_size)) {", append)
@@ -124,7 +124,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn(
             "!same_tribe(&held_tribes[entry->tribe], scratch_tribe, TRIBE_LOOSE)", flush)
         self.assertIn("labelled = label_record(entry->text);", flush)
-        self.assertIn("outcome = append_record(g, village, entry->is_birth, text);", flush)
+        self.assertIn("outcome = append_record(g, village, entry->kind, text);", flush)
         source = SOURCE.read_text(encoding="utf-8")
         self.assertIn("#define TRIBE_LOOSE  1", source)
         self.assertIn("  Note: Recorded before this village was saved", source)

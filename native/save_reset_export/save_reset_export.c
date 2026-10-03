@@ -259,6 +259,22 @@ static void notify_story_upgrades(int game, int slot) {
     }
 }
 
+/* Cause of Death (A New Home, The Lost Children): the graves table it keeps
+ * in memory for the slot being erased is dropped BEFORE the slot's file is
+ * deleted below, so nothing it holds can be written back into the new
+ * village. Same rule as above: only when already loaded. */
+static void notify_cause_of_death(int game, int slot) {
+    HMODULE cause = GetModuleHandleA("VVFP Cause of Death.dll");
+    story_village_reset_fn reset;
+    if (cause == NULL) {
+        return;
+    }
+    reset = (story_village_reset_fn)(void *)GetProcAddress(cause, "VvfpCauseVillageReset");
+    if (reset != NULL) {
+        reset(game, slot);
+    }
+}
+
 __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     char village[256];
     wchar_t folder[MAX_PATH];
@@ -268,6 +284,7 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
         return -1;
     }
     notify_story_upgrades(game, slot);
+    notify_cause_of_death(game, slot);
     /* The village in the slot's own save, which both hooks reach before the
      * game removes or overwrites it (see vv_saved_village_header). The
      * reserve is the reader's own "\\*<slot>.ldw" filter; it bounds each full

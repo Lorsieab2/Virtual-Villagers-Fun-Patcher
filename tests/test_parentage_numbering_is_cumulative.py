@@ -60,13 +60,17 @@ class ParentageNumberingIsCumulativeTests(unittest.TestCase):
         below would still be correct and still be pointless.
         """
         source = EXPORTER.read_text(encoding="utf-8")
+        # "Conception <n>" (and a death's "Death <n>"): the family's marker
+        # and the running total.
         self.assertIn(
-            'fprintf(file, "Conception %d\\n%s", existing_records + 1, text)',
+            'fprintf(file, "%s%d\\n%s", family_marker(log_family_of(kind)),\n'
+            '                              existing_records + 1, text)',
             source,
         )
 
     def test_the_count_accumulates_over_every_log_file(self):
-        body = _function("select_log_file")
+        # The walk serves both log families; select_log_file is its births form.
+        body = _function("select_family_log_file")
 
         # A running total that survives the loop, rather than the per-file
         # count being handed straight back.
@@ -98,7 +102,8 @@ class ParentageNumberingIsCumulativeTests(unittest.TestCase):
         low, which is the same defect one step smaller and would still look
         plausible in a log.
         """
-        body = _function("select_log_file")
+        # The walk serves both log families; select_log_file is its births form.
+        body = _function("select_family_log_file")
         accumulate = body.index("total += records")
         # Matched on the condition's opening rather than the whole
         # expression: a birth now also takes this branch when the file is

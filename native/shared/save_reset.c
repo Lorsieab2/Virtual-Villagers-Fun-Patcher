@@ -28,21 +28,26 @@ int vv_reset_refused_paths = 0;
    Start Over reset. */
 #define CUSTOM_TITLES_FORMAT \
     "%s\\Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save %d.dat"
-#define SIDECAR_FORMAT_COUNT 7
+/* "Show Cause of Death and Epitaph on Graves" (A New Home, The Lost
+   Children): each grave's cause of death and epitaph, which those games never
+   keep (native/vvfp_cause_of_death). Per slot, so it follows Start Over. */
+#define CAUSE_OF_DEATH_FORMAT(n) \
+    "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Graves - Save %d.dat"
+#define SIDECAR_FORMAT_COUNT 8
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %d.dat",
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %d.dat",
                "%s\\vv1_masks_%d.dat", "%s\\vv1_doublers_%d.dat",
-               "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT },
+               "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("1") },
     /* VV2 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
-               "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
+               "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("2"), 0, 0, 0, 0 },
     /* VV3 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0, 0 },
     /* VV4 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0, 0 },
     /* VV5 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0 },
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, 0, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are
@@ -420,11 +425,23 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
            Conceptions". A player can be upgrading from either, so all four
            combinations are swept. No build wrote more than one of them, so
            the passes never contend for the same file. */
-        static const wchar_t *const FOLDERS[4] = {
+        /* Index 4 is the Deaths log: "VVFP Cause of Death.dll" records each
+           death through the parentage exporter, into a village-headed log
+           like the births one. It is only probed -- a player without that
+           row has no Deaths folder, and a reset must not create one. */
+        static const wchar_t *const FOLDERS[5] = {
             L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions",
             L"Virtual Villagers Fun Patcher Logs\\Tribe Parental Records",
             L"VVFP Logs\\Births and Conceptions",
-            L"VVFP Logs\\Tribe Parental Records"
+            L"VVFP Logs\\Tribe Parental Records",
+            L"Virtual Villagers Fun Patcher Logs\\Deaths"
+        };
+        static const wchar_t *const DEATH_LOG[5] = {
+            L"Virtual Villagers 1 Deaths Log",
+            L"Virtual Villagers 2 Deaths Log",
+            L"Virtual Villagers 3 Deaths Log",
+            L"Virtual Villagers 4 Deaths Log",
+            L"Virtual Villagers 5 Deaths Log"
         };
         static const wchar_t *const LEGACY_LOG[5] = {
             L"Virtual Villagers 1 Parentage Log",
@@ -434,11 +451,11 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             L"Virtual Villagers 5 Parentage Log"
         };
         int pass;
-        for (pass = 0; pass < 4; ++pass) {
+        for (pass = 0; pass < 5; ++pass) {
             /* The old FILE name went with the old FOLDER name, so the
                stem follows the folder rather than the pass number. */
-            const wchar_t *stem = (pass % 2 == 0)
-                ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
+            const wchar_t *stem = pass == 4 ? DEATH_LOG[game - 1]
+                : (pass % 2 == 0) ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
             if (pass == 0) {
                 /* The current folder, which the exporter writes to anyway. */
                 if (!vv_save_subfolder_w(sub_w, FOLDERS[pass], 64)) {

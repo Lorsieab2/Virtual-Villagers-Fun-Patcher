@@ -1103,6 +1103,90 @@ static int build_log_path(
     ) >= 0;
 }
 
+/* ---- The two log families -------------------------------------------------
+
+   This exporter keeps two append-only logs per village, in two folders:
+
+     Births and Conceptions  "Virtual Villagers N Births and Conceptions Log <n>.txt"
+     Deaths                  "Virtual Villagers N Deaths Log <n>.txt"
+
+   The owner asked for each death's cause and age to be "mentioned in the
+   logs" in all five games. A death is an event in the village's life, like a
+   conception, so it gets the same machinery -- the village header, the held
+   records and the tribe check, the numbered roll every RECORDS_PER_FILE
+   records, Start Over -- in a log of its own rather than inside a file whose
+   name says births. Each family has its own record marker, which is what its
+   files are counted by; the Deaths log never had a retired folder, so it has
+   no migration. */
+enum { LOG_BIRTHS = 0, LOG_DEATHS = 1 };
+
+/* What a held or written record is. A conception is numbered in the births
+   family; a birth is not numbered and never rolls; a death is numbered in the
+   deaths family. */
+enum { KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2 };
+
+#define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Deaths"
+#define BIRTHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions"
+
+static const wchar_t *const DEATH_LOG_NAME[6] = {
+    NULL,
+    L"Virtual Villagers 1 Deaths Log",
+    L"Virtual Villagers 2 Deaths Log",
+    L"Virtual Villagers 3 Deaths Log",
+    L"Virtual Villagers 4 Deaths Log",
+    L"Virtual Villagers 5 Deaths Log",
+};
+
+static int log_family_of(int kind) {
+    return kind == KIND_DEATH ? LOG_DEATHS : LOG_BIRTHS;
+}
+
+/* The marker each family's records begin with, which is what its files are
+   counted by. */
+static const char *family_marker(int family) {
+    return family == LOG_DEATHS ? "Death " : "Conception ";
+}
+
+static const wchar_t *family_folder(int family) {
+    return family == LOG_DEATHS ? DEATHS_FOLDER : BIRTHS_FOLDER;
+}
+
+/* The game a layout row belongs to: its index in GAME_LAYOUTS. */
+static int layout_game(const struct game_layout *g) {
+    return (int)(g - GAME_LAYOUTS);
+}
+
+static const wchar_t *family_stem(const struct game_layout *g, int family) {
+    int game;
+    if (family != LOG_DEATHS) {
+        return g->log_name;
+    }
+    game = layout_game(g);
+    return game >= GAME_VV1 && game <= GAME_VV5 ? DEATH_LOG_NAME[game] : NULL;
+}
+
+/* "<save folder>\Virtual Villagers Fun Patcher Logs\Deaths\Virtual Villagers N Deaths Log <n>.txt",
+   and for the births family exactly what build_log_path builds (its
+   retired-folder migration included). */
+static int build_family_log_path(
+    const struct game_layout *g,
+    int family,
+    int file_number,
+    wchar_t *destination
+) {
+    wchar_t folder[MAX_PATH];
+    const wchar_t *stem;
+    if (family != LOG_DEATHS) {
+        return build_log_path(g, file_number, destination);
+    }
+    stem = family_stem(g, family);
+    if (stem == NULL || !vv_save_subfolder_w(folder, DEATHS_FOLDER, 64)) {
+        return 0;
+    }
+    return _snwprintf_s(destination, MAX_LOG_PATH, _TRUNCATE,
+                        L"%ls\\%ls %d.txt", folder, stem, file_number) >= 0;
+}
+
 /* Does this log already have something in it?
 
    NOT ftell. A stream freshly opened with "a" reports position 0 however
@@ -1173,16 +1257,18 @@ static int roll_back_append(const wchar_t *path, LONGLONG size) {
 
    Counts the row marker rather than newlines, because a record spans several
    lines and a partially written trailing row must not inflate the count. */
-static int count_records(const wchar_t *path) {
+static int count_family_records(const wchar_t *path, int family) {
     FILE *file = _wfopen(path, L"rb");
     int count = 0;
     char line[512];
+    const char *marker = family_marker(family);
+    size_t marker_length = strlen(marker);
 
     if (file == NULL) {
         return 0;
     }
     while (fgets(line, (int)sizeof(line), file) != NULL) {
-        if (strncmp(line, "Conception ", 11) == 0) {
+        if (strncmp(line, marker, marker_length) == 0) {
             ++count;
         }
     }
@@ -1220,7 +1306,7 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     fclose(file);
 
     /* A record marker as the first line means the file has no header. */
-    if (strncmp(line, "Conception ", 11) == 0) {
+    if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0) {
         return 0;
     }
     /* Trim the line ending, which is CRLF on disk because the log is written
@@ -1289,19 +1375,19 @@ static int log_belongs_to_village(const wchar_t *path, const char *village) {
    The name filter is the shape this exporter writes -- the stem, a space,
    a number, ".txt" -- so a hand-made or corrupt name cannot raise the
    ceiling and strand real logs above it. */
-static int highest_log_number(const struct game_layout *g,
+static int highest_log_number(const wchar_t *stem,
                               const wchar_t *folder) {
     WIN32_FIND_DATAW found;
     HANDLE search;
     wchar_t filter[MAX_LOG_PATH];
     int stem_len;
     int best = 0;
-    if (g == NULL || g->log_name == NULL || folder == NULL) {
+    if (stem == NULL || folder == NULL) {
         return 0;
     }
-    stem_len = lstrlenW(g->log_name);
+    stem_len = lstrlenW(stem);
     if (_snwprintf_s(filter, MAX_LOG_PATH, _TRUNCATE,
-                     L"%ls\\%ls *.txt", folder, g->log_name) < 0) {
+                     L"%ls\\%ls *.txt", folder, stem) < 0) {
         return 0;
     }
     search = FindFirstFileW(filter, &found);
@@ -1369,9 +1455,17 @@ static int highest_log_number(const struct game_layout *g,
    first one that is not full, so accumulating the total costs no extra work.
 
    Bounded so a corrupt or unwritable directory cannot spin forever; 4096 files
-   is far beyond any real playthrough. */
-VV_PARENTAGE_STATIC int select_log_file(
+   is far beyond any real playthrough.
+
+   The same selection serves both families (Births and Conceptions, and
+   Deaths): `family` picks the folder, the file stem and the record marker the
+   files are counted by.  `for_birth` asks for the village's NEWEST existing
+   file rather than the next one with room; ensure_parentage_log uses it in
+   both families to create a log only when the village has none.
+   select_log_file below is the births family's form. */
+static int select_family_log_file(
     const struct game_layout *g,
+    int family,
     const char *village,
     wchar_t *destination,
     int *existing_records,
@@ -1416,17 +1510,16 @@ VV_PARENTAGE_STATIC int select_log_file(
 
        One throwaway call does the migration, so the enumeration below
        sees the folder as it will actually be. */
-    if (!build_log_path(g, 1, destination)) {
+    if (!build_family_log_path(g, family, 1, destination)) {
         return 0;
     }
-    if (!vv_save_subfolder_w(
-            folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
+    if (!vv_save_subfolder_w(folder, family_folder(family), 64)) {
         return 0;
     }
-    ceiling = highest_log_number(g, folder);
+    ceiling = highest_log_number(family_stem(g, family), folder);
     for (number = 1; number <= ceiling + 1 && number <= 4096; ++number) {
         int records;
-        if (!build_log_path(g, number, destination)) {
+        if (!build_family_log_path(g, family, number, destination)) {
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
@@ -1460,7 +1553,7 @@ VV_PARENTAGE_STATIC int select_log_file(
             continue;
         }
         highest = number;       /* the newest file that exists, for the tail */
-        records = count_records(destination);
+        records = count_family_records(destination, family);
         total += records;
         if (!log_belongs_to_village(destination, village)) {
             /* Another village's log. Keep walking so this one is never
@@ -1502,7 +1595,7 @@ VV_PARENTAGE_STATIC int select_log_file(
        A birth belongs in this village's newest file wherever that is, even
        when later numbers belong to other villages. */
     if (for_birth && last_match != 0) {
-        if (!build_log_path(g, last_match, destination)) {
+        if (!build_family_log_path(g, family, last_match, destination)) {
             return 0;
         }
         *existing_records = last_total;
@@ -1518,7 +1611,7 @@ VV_PARENTAGE_STATIC int select_log_file(
        monotonic; the cost is that a reset's holes are not reused, which is
        only a gap in file NAMES and costs nothing. */
     if (highest != 0 && highest < 4096) {
-        if (!build_log_path(g, highest + 1, destination)) {
+        if (!build_family_log_path(g, family, highest + 1, destination)) {
             return 0;
         }
         *existing_records = total;
@@ -1529,13 +1622,26 @@ VV_PARENTAGE_STATIC int select_log_file(
        failure here meant it could never be created -- the feature simply
        did not work for a new player. Found in review. */
     if (first_free != 0) {
-        if (!build_log_path(g, first_free, destination)) {
+        if (!build_family_log_path(g, family, first_free, destination)) {
             return 0;
         }
         *existing_records = 0;
         return 1;
     }
     return 0;
+}
+
+/* The Births and Conceptions log's file: the form every births-family caller
+   and the on-disk harnesses use. */
+VV_PARENTAGE_STATIC int select_log_file(
+    const struct game_layout *g,
+    const char *village,
+    wchar_t *destination,
+    int *existing_records,
+    int for_birth
+) {
+    return select_family_log_file(g, LOG_BIRTHS, village, destination,
+                                  existing_records, for_birth);
 }
 
 /* Append one conception record.
@@ -1914,7 +2020,7 @@ static int is_record_slot(
 
 struct pending_record {
     int game_id;
-    int is_birth;
+    int kind;
     int tribe;          /* index into held_tribes; -1 = not snapshotted */
     char *text;
 };
@@ -2228,7 +2334,7 @@ static int saved_tribe_still_loaded(int game_id) {
 static int append_record(
     const struct game_layout *g,
     const char *village,
-    int is_birth,
+    int kind,
     const char *text
 ) {
     wchar_t path[MAX_LOG_PATH];
@@ -2238,7 +2344,8 @@ static int append_record(
     LONGLONG original_size;
     FILE *file;
 
-    if (!select_log_file(g, village, path, &existing_records, is_birth)) {
+    if (!select_family_log_file(g, log_family_of(kind), village, path,
+                                &existing_records, kind == KIND_BIRTH)) {
         return 0;
     }
     /* Text mode, so each \n becomes the CRLF Notepad needs; see the note in
@@ -2257,10 +2364,13 @@ static int append_record(
         }
     }
     if (written) {
-        if (is_birth) {
+        if (kind == KIND_BIRTH) {
             written = fprintf(file, "%s", text) >= 0;
         } else {
-            written = fprintf(file, "Conception %d\n%s", existing_records + 1, text) >= 0;
+            /* "Conception <n>" or "Death <n>": the running total across the
+               family's files, so numbering never restarts in a new file. */
+            written = fprintf(file, "%s%d\n%s", family_marker(log_family_of(kind)),
+                              existing_records + 1, text) >= 0;
         }
     }
     /* Flushed separately so a failed write is reported rather than hidden in
@@ -2345,7 +2455,7 @@ static void flush_pending(int game_id, const char *village) {
                     text = labelled;
                 }
             }
-            outcome = append_record(g, village, entry->is_birth, text);
+            outcome = append_record(g, village, entry->kind, text);
             free(labelled);
             if (outcome == APPEND_RETRY) {
                 stopped = 1;                  /* keep it and all after it */
@@ -2367,7 +2477,7 @@ static void flush_pending(int game_id, const char *village) {
 }
 
 /* Queue a finished record behind any already held. */
-static int hold_record(int game_id, int is_birth, const unsigned char *records,
+static int hold_record(int game_id, int kind, const unsigned char *records,
                        const char *text) {
     struct pending_record *entry;
     size_t length;
@@ -2390,7 +2500,7 @@ static int hold_record(int game_id, int is_birth, const unsigned char *records,
     }
     memcpy(entry->text, text, length);
     entry->game_id = game_id;
-    entry->is_birth = is_birth;
+    entry->kind = kind;
     entry->tribe = current_tribe_index(game_id, records);
     ++pending_count;
     return 1;
@@ -2399,7 +2509,7 @@ static int hold_record(int game_id, int is_birth, const unsigned char *records,
 /* Write a finished record now, or hold it until the village is known. */
 static int emit_record(
     int game_id,
-    int is_birth,
+    int kind,
     const unsigned char *records,
     const char *text
 ) {
@@ -2419,7 +2529,7 @@ static int emit_record(
            Otherwise it queues BEHIND what is waiting, so a failed write can
            neither lose it nor let it overtake an earlier record. */
         if (pending_count == 0) {
-            int outcome = append_record(g, village, is_birth, text);
+            int outcome = append_record(g, village, kind, text);
             if (outcome == APPEND_WRITTEN) {
                 return 1;
             }
@@ -2427,13 +2537,13 @@ static int emit_record(
                 return 0;             /* never queued: a retry could duplicate */
             }
         }
-        return hold_record(game_id, is_birth, records, text);
+        return hold_record(game_id, kind, records, text);
     }
     if (village[0] == '\0' && !statistics_publisher_present()) {
-        return append_record(g, village, is_birth, text) == APPEND_WRITTEN;
+        return append_record(g, village, kind, text) == APPEND_WRITTEN;
     }
     /* No village yet, or a recalled one the loaded tribe cannot vouch for. */
-    return hold_record(game_id, is_birth, records, text);
+    return hold_record(game_id, kind, records, text);
 }
 
 /* The full entry point. WriteParentageRecord below is the original three
@@ -2970,7 +3080,106 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
         return 0;
     }
     /* The child is the villager a held birth is re-checked against. */
-    return emit_record(game_id, 1, NULL, text);
+    return emit_record(game_id, KIND_BIRTH, NULL, text);
+}
+
+/* One Death record, written by "VVFP Cause of Death.dll" at the moment a
+   villager dies -- the instant the game sets their health to 0 -- in all five
+   games, in one format:
+
+       Death <n>
+         Name: <name>
+         Age at death: <the game's own age value, 20 per year>
+         Cause of death: <words>
+         Head: <head>
+         Body: <body>
+
+   The caller supplies the cause's words (each game's own, or the wording
+   A New Home and The Lost Children borrow from the later games) and the age
+   it read from the record at that moment, in the game's own units -- the
+   owner's choice, the same value the Population log prints as Age. Name,
+   head and body come from the record, which still holds them: a dead
+   villager's record is freed only when the body is buried.
+
+   `record` must be one of the game's own villager records; anything else is
+   refused, so a wrong pointer can never print a plausible stranger. */
+__declspec(dllexport) int __stdcall WriteDeathRecord(
+    int game_id,
+    const void *record_pointer,
+    int age_at_death,
+    const char *cause
+) {
+    const struct game_layout *g;
+    const unsigned char *record = (const unsigned char *)record_pointer;
+    const unsigned char *records;
+    char name[MAX_NAME_BYTES];
+    char words[96];
+    char text[RECORD_TEXT_MAX];
+    int written;
+
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL) {
+        return 0;
+    }
+    g = &GAME_LAYOUTS[game_id];
+    if (!layout_is_usable(g)) {
+        return 0;
+    }
+    records = villager_table(game_id);
+    if (records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)
+        || !is_record_slot(g, records, record)) {
+        return 0;
+    }
+    copy_villager_name(g, record, name, sizeof name);
+    if (cause == NULL || cause[0] == '\0') {
+        cause = "(not recorded)";
+    }
+    _snprintf_s(words, sizeof words, _TRUNCATE, "%s", cause);
+    written = _snprintf(
+        text, sizeof(text),
+        "  Name: %s\n"
+        "  Age at death: %d\n"
+        "  Cause of death: %s\n"
+        "  Head: %d\n"
+        "  Body: %d\n"
+        "\n",
+        name, age_at_death, words,
+        *(const int *)(record + g->head),
+        *(const int *)(record + g->body));
+    if (written < 0 || (size_t)written >= sizeof(text)) {
+        return 0;
+    }
+    return emit_record(game_id, KIND_DEATH, records, text);
+}
+
+/* Whether this install records deaths: "VVFP Cause of Death.dll" ships only
+   with its row, so its presence beside the executable is the test, exactly as
+   the statistics publisher's is. Without it no Deaths log is created empty. */
+static int deaths_recorder_present(void) {
+    static int state;                 /* 0 unknown, 1 present, -1 absent */
+    wchar_t path[MAX_PATH];
+    wchar_t *slash;
+    DWORD n;
+    static const wchar_t name[] = L"VVFP Cause of Death.dll";
+
+    if (state != 0) {
+        return state == 1;
+    }
+    state = -1;
+    n = GetModuleFileNameW(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    slash = wcsrchr(path, L'\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof(name) / sizeof(name[0]) > MAX_PATH) {
+        return 0;
+    }
+    wcscpy(slash + 1, name);
+    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+        state = 1;
+    }
+    return state == 1;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -3030,6 +3239,8 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
     return ensure_parentage_log(game_id, village, NULL);
 }
 
+static int create_deaths_log(const struct game_layout *g, const char *village);
+
 static int ensure_parentage_log(
     int game_id,
     const char *village,
@@ -3073,8 +3284,46 @@ static int ensure_parentage_log(
 
        With for_birth = 1 this creates a file only when the village has no
        matching log at all, which is exactly the case the owner asked for: a
-       brand-new village, or one restarted after Start Over. */
+       brand-new village, or one restarted after Start Over.
+
+       The Deaths log is created the same way, when this install records
+       deaths. Its result does not decide this function's: the births log is
+       the one the callers have always asked about. */
+    if (deaths_recorder_present()) {
+        (void)create_deaths_log(g, village);
+    }
     if (!select_log_file(g, village, path, &existing, 1)) {
+        return 0;
+    }
+    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* this village already has a log */
+    }
+    /* Measured BEFORE the open, which would create the file. */
+    had_content = log_file_has_content(path);
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    /* Brand new means nothing on disk -- measured before the open, since
+       opening creates the file. See log_file_has_content. */
+    if (!had_content) {
+        if (fprintf(file, "%s", village) < 0) {
+            fclose(file);
+            return 0;
+        }
+    }
+    return fclose(file) == 0;
+}
+
+/* The Deaths log's counterpart of the above: created empty but headed, and
+   only when the village has none. 1 when it exists afterwards. */
+static int create_deaths_log(const struct game_layout *g, const char *village) {
+    wchar_t path[MAX_LOG_PATH];
+    int existing = 0;
+    FILE *file;
+    int had_content;
+
+    if (!select_family_log_file(g, LOG_DEATHS, village, path, &existing, 1)) {
         return 0;
     }
     if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {

@@ -2211,3 +2211,7 @@ class VillageResetNotifyTests(unittest.TestCase):
         self.assertNotIn("[FAIL]", run.stdout)
         for game in range(1, 6):
             self.assertIn(f"THE STORY COMPANION IS TOLD THE VILLAGE IS GONE (game {game})", run.stdout)
+            # The same harness covers the Cause of Death companion's graves
+            # table (tests/test_cause_of_death.py pins the names).
+            self.assertIn(f"THE CAUSE OF DEATH COMPANION IS TOLD THE VILLAGE IS GONE (game {game})",
+                          run.stdout)

@@ -79,10 +79,11 @@ class BothRecordKindsTests(unittest.TestCase):
         # The "Conception <n>" line is printed by append_record, because the
         # number is only known when the record is written -- which, for a
         # record held until the village's first save, is later than the
-        # conception. The conception export passes is_birth = 0; the birth
-        # export renders its own "Birth" block and passes is_birth = 1.
+        # conception. The conception export passes kind 0 (KIND_CONCEPTION);
+        # the birth export renders its own "Birth" block and passes KIND_BIRTH.
         self.assertIn("return emit_record(game_id, 0, records, text);", conception)
-        self.assertIn("return emit_record(game_id, 1, NULL, text);", birth)
+        self.assertIn("return emit_record(game_id, KIND_BIRTH, NULL, text);", birth)
+        self.assertIn("KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2", self.source)
         self.assertIn('"Birth\\n"', birth)
         # Neither may write the other's marker: one record kind printing the
         # other's header is indistinguishable in the log from the wrong event
@@ -92,9 +93,13 @@ class BothRecordKindsTests(unittest.TestCase):
         self.assertNotIn('"Conception %d', birth)
         self.assertRegex(
             append,
-            r'if \(is_birth\) \{\s*written = fprintf\(file, "%s", text\)[^}]*\} else \{\s*'
-            r'written = fprintf\(file, "Conception %d',
+            r'if \(kind == KIND_BIRTH\) \{\s*written = fprintf\(file, "%s", text\)[^}]*\} else \{'
+            r'[^}]*written = fprintf\(file, "%s%d\\n%s", family_marker\(log_family_of\(kind\)\)',
         )
+        # A conception's family is the births family, whose marker is
+        # "Conception "; only a death goes to the Deaths log.
+        self.assertIn("return kind == KIND_DEATH ? LOG_DEATHS : LOG_BIRTHS;", self.source)
+        self.assertIn('return family == LOG_DEATHS ? "Death " : "Conception ";', self.source)
 
     def test_only_conceptions_are_counted(self):
         """Births must not advance the conception number or the rollover.
@@ -102,9 +107,13 @@ class BothRecordKindsTests(unittest.TestCase):
         `count_records` is the single place that decides both, so this pins the
         marker it matches rather than merely that some counting happens.
         """
-        counter = function(self.source, "static int count_records(")
-        self.assertIn('strncmp(line, "Conception ", 11) == 0', counter)
+        # One counter for both log families: it counts the family's marker,
+        # which for the Births and Conceptions log is "Conception ".
+        counter = function(self.source, "static int count_family_records(")
+        self.assertIn("const char *marker = family_marker(family);", counter)
+        self.assertIn("strncmp(line, marker, marker_length) == 0", counter)
         self.assertNotIn("Birth", counter)
+        self.assertIn('return family == LOG_DEATHS ? "Death " : "Conception ";', self.source)
 
     def test_the_two_kinds_share_one_log_file(self):
         """A birth in its own file could not be read beside its conception.
@@ -119,10 +128,10 @@ class BothRecordKindsTests(unittest.TestCase):
             self.source,
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
         append = function(self.source, "static int append_record(")
-        self.assertIn("emit_record(game_id, 1,", birth)
+        self.assertIn("emit_record(game_id, KIND_BIRTH,", birth)
         self.assertIn("emit_record(game_id, 0,", conception)
-        self.assertIn(
-            "select_log_file(g, village, path, &existing_records, is_birth)", append)
+        self.assertIn("select_family_log_file(g, log_family_of(kind), village, path,", append)
+        self.assertIn("&existing_records, kind == KIND_BIRTH)", append)
         # And no separate birth log exists to split the two kinds apart.
         self.assertNotIn("Birth Log", self.source)
 
@@ -139,7 +148,8 @@ class BothRecordKindsTests(unittest.TestCase):
         The two calls must therefore differ: the conception may roll over, the
         birth may not.
         """
-        chooser = function(self.source, "static int select_log_file(")
+        # The walk serves both log families; select_log_file is its births form.
+        chooser = function(self.source, "static int select_family_log_file(")
         # A birth must not stop at the first file with records either: after
         # the first rollover that is file 1, which would put every later birth
         # back there, apart from its conception and growing without bound. An
@@ -166,14 +176,14 @@ class BothRecordKindsTests(unittest.TestCase):
         birth = function(
             self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
         append = function(self.source, "static int append_record(")
-        # The kind travels as is_birth -- 0 from the conception export, 1 from
-        # the birth export -- into select_log_file's for_birth.
+        # The kind travels -- 0 from the conception export, KIND_BIRTH from
+        # the birth export -- into the walk's for_birth.
         self.assertIn("emit_record(game_id, 0,", conception,
                       "the conception path rolls over normally")
-        self.assertIn("emit_record(game_id, 1,", birth,
+        self.assertIn("emit_record(game_id, KIND_BIRTH,", birth,
                       "the birth path must ask not to roll over")
-        self.assertIn("&existing_records, is_birth)", append,
-                      "append_record must hand the kind to select_log_file")
+        self.assertIn("&existing_records, kind == KIND_BIRTH)", append,
+                      "append_record must hand the kind to the walk")
 
     def test_a_birth_appends_rather_than_truncating(self):
         """A birth that opened "w" would erase the conceptions before it."""
