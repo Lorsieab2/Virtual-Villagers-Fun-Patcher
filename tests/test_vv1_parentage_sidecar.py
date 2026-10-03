@@ -114,6 +114,7 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
         because the table stayed with the record index."""
         out = self.result.stdout
         for case in (
+            "the load writes the followed table back at once (Lisha and her father at record 13 in the file)",
             "the compacted village is still this village's sidecar",
             "after a load that compacted the array, every child keeps its own parents",
             "... Lisha [15 -> 13] is still Ghali and Onawa's",

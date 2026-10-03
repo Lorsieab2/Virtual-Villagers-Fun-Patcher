@@ -267,6 +267,7 @@ static int g_birth_count;
 static int g_blocked_slot;                    /* the slot whose sidecar is there but could not be read */
 static int g_blocked_wait;                    /* sync calls before that sidecar is tried again */
 static int g_may_replace;                     /* the file at the path is one this table may replace */
+static int g_load_followed;                   /* the last load moved entries: the file is behind the table */
 
 /* What an attempt to load the sidecar found. */
 #define VV1_LOAD_NONE      0      /* no file (or an invalid one, now set aside): nothing to lose */
@@ -842,12 +843,17 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
        build is re-keyed the same way on its first load.  (A roster that
        names nobody has no identities to follow: its table is taken as it
        stands, as before.) */
+    g_load_followed = 0;
     if (vv1_roster_names_anyone(g_roster)) {
         static vv1_occupant now[VV1_RECORD_COUNT];
         vv1_take_roster(records, now);
         if (vv1_follow_roster(now)) {
             g_have_prev = 0;
         }
+        /* Anything that moved is written back at once (by the caller, which
+           owns the replace permission): left in memory only, the file would
+           keep the old layout until the next birth or death. */
+        g_load_followed = memcmp(g_roster, roster, sizeof(g_roster)) != 0;
     }
     return VV1_LOAD_MATCHED;
 }
@@ -937,6 +943,9 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             g_loaded_slot = slot;   /* the file is this village's: it is loaded */
             g_strikes = 0;
             g_may_replace = 1;
+            if (g_load_followed) {
+                vv1_parents_save(slot, records);   /* the followed table, written back */
+            }
             return slot;
         }
         if (result == VV1_LOAD_BLOCKED) {
@@ -973,6 +982,9 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             vv1_parents_reset();  /* another village in this slot: start empty */
         }
         g_may_replace = (result != VV1_LOAD_NONE);
+        if (result == VV1_LOAD_MATCHED && g_load_followed) {
+            vv1_parents_save(slot, records);
+        }
         break;
     case 1:
         g_strikes = 0;

@@ -341,6 +341,13 @@ static void follow_cases(void) {
     write_owner_sidecar();
     n = lay_out(after_load, "Kito", "Chika");
     put(after_load, n, "Silko", 1, 1);
+    /* One sync and nothing else -- no birth, no death, no export: the
+       followed table must reach the file by itself. */
+    check(vv1_parents_sync_core(SLOT, after_load) == SLOT
+          && read_all(path, file_now, sizeof(file_now), &size) && size == good_size
+          && lstrcmpA((const char *)file_now + 12 + 13 * sizeof(vv1_occupant) + 8, "Lisha") == 0
+          && lstrcmpA((const char *)file_now + 12 + sizeof(g_roster) + 13 * sizeof(vv1_parent_entry) + 8, "Ghali") == 0,
+          "the load writes the followed table back at once (Lisha and her father at record 13 in the file)");
     play(after_load, 2);
     check(g_loaded_slot == SLOT, "the compacted village is still this village's sidecar");
     check(every_child_follows(after_load), "after a load that compacted the array, every child keeps its own parents");
