@@ -150,6 +150,39 @@ int main(void) {
         check(0, "select_log_file returned a path for a rollover");
     }
 
+    /* A BIRTH AT THE ROLLOVER BOUNDARY STAYS WITH ITS CONCEPTION.
+
+       Births are not counted toward the roll, so a file is full the moment
+       its 256th conception is written. The pregnancy that conception started
+       is still in flight: its birth must go to that same file, not to the
+       next one, which a conception would be handed. Asserting only that both
+       calls share select_log_file passed while the birth rolled over (Codex,
+       #423); this asks the real function at the boundary. */
+    for (i = 1; i <= 8; ++i) {
+        remove_log(folder, stem, i);
+    }
+    write_log(folder, stem, 1, "Bravo", 256);   /* conception 256 just filled it */
+    check(present(folder, stem, 1), "setup: file 1 holds exactly 256 conceptions");
+    if (select_log_file(g, "Bravo", chosen, &records, 0)) {
+        wsprintfW(expect, L"%ls\\%ls 2.txt", folder, stem);
+        printf("  boundary conception -> %ls (existing=%d)\n", chosen, records);
+        check(lstrcmpiW(chosen, expect) == 0,
+              "conception 257 rolls over to file 2");
+        check(records == 256, "numbered after the 256 already written");
+    } else {
+        check(0, "select_log_file returned a path for conception 257");
+    }
+    if (select_log_file(g, "Bravo", chosen, &records, 1)) {
+        wsprintfW(expect, L"%ls\\%ls 1.txt", folder, stem);
+        printf("  boundary birth      -> %ls (existing=%d)\n", chosen, records);
+        check(lstrcmpiW(chosen, expect) == 0,
+              "A BIRTH AFTER CONCEPTION 256 STAYS IN FILE 1, beside its conception");
+    } else {
+        check(0, "select_log_file returned a path for the boundary birth");
+    }
+    check(!present(folder, stem, 2), "selection created no file");
+    remove_log(folder, stem, 1);
+
     /* A GAP WIDER THAN ANY FIXED BOUND.
 
        An earlier fix stopped after a fixed run of missing numbers, assuming
