@@ -35,6 +35,19 @@ another test class below.
    they became a little child and became an elder (age 1000, Healing +48,
    Research +39).  The owner: "for exactly-14, swap the text to match the
    effects."  setge becomes setg; the effects are untouched.
+
+4. A village of exactly 150 villagers cannot be loaded again.  The save
+   writer 0x45EF80 packs every active villager into the 150 x 0x11C-byte table
+   at game+0x786C and then writes a 0 end-of-list flag at entry[count]; with
+   150 villagers that flag lands on game+0x11ED4, the first byte of the block
+   of 0x594990 saved just before it, whose size dword 0x2AD becomes 0x200.
+   The load-time check 0x435710 compares it with 0x2AD and fails.  Seen live
+   (v1.35.50 test build, Immediate Fixed, 2026-10-02): 149 saved and reloaded;
+   150 was written with the size 0x200 and the game showed an empty main menu.
+   Same fix as The Tree of Life's (see test_vv4_fix_vanilla_bugs.py): the end
+   flag only below 150, the loader 0x45C860 bounded at 150 entries, and the
+   block check accepting a size whose only difference is a zeroed low byte when
+   entry #150 is in use, which repairs saves the unfixed game damaged.
 """
 from __future__ import annotations
 
@@ -53,6 +66,7 @@ from unicorn.x86_const import (
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "tests"))
 
 from vv_fun_patcher import (  # noqa: E402
     load_builds,
@@ -60,6 +74,7 @@ from vv_fun_patcher import (  # noqa: E402
     load_public_fun_patches,
     render_patched_bytes,
 )
+from save_table_emulator import VV3, SaveTableCases  # noqa: E402
 
 FEATURE_ID = "vv3_fix_vanilla_bugs"
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
@@ -81,10 +96,40 @@ AMBER_PATCHED = bytes.fromhex(
 QUARTZ_OFFSET = 0x173E0
 QUARTZ_STOCK = bytes.fromhex("0F9DC1")
 QUARTZ_PATCHED = bytes.fromhex("0F9FC1")
+SAVE_WRITER_OFFSET = 0x5EFC5
+SAVE_WRITER_STOCK = bytes.fromhex(
+    "E8969BFCFF69DB1C0100005F5EC684186C780000005DB0015BC20400909090909090909090909090909090"
+)
+SAVE_WRITER_PATCHED = bytes.fromhex(
+    "81FB96000000730DE88E9BFCFFC684386C780000005F5E5DB0015BC2040090909090909090909090909090"
+)
+SAVE_LOADER_OFFSET = 0x5C88D
+SAVE_LOADER_STOCK = bytes.fromhex(
+    "743233F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C010000E8AAC2FCFF8A8C306C"
+    "78000084C975D05F5EB0015BC2040090909090909090"
+)
+SAVE_LOADER_PATCHED = bytes.fromhex(
+    "743933F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C01000081FE68A60000730FE8"
+    "A2C2FCFF80BC306C7800000075C95F5EB0015BC20400"
+)
+SAVE_CHECK_OFFSET = 0x35710
+SAVE_CHECK_STOCK = bytes.fromhex(
+    "8B5424045355568B32578BD9E8DFFFFFFF3D001000007F543BF075508B83380100008D7204B9340000008BFB33ED"
+    "85C0F3A5BED40000007E2A8DBBD0000000EB048B5424148B0F8B0103D652FF500C85C07C1903F08B8338010000"
+    "4583C7043BE87CDE5F5E5DB0015BC204005F5E5D32C05BC204009090909090909090909090"
+)
+SAVE_CHECK_PATCHED = bytes.fromhex(
+    "8B5424045355568B325789CBE8DFFFFFFF3D001000007F5E39C6741189C130C939CE755280BAE4FEFFFF017549"
+    "8B83380100008D72046A345989DF31ED85C0F3A5BED40000007E2A8DBBD0000000EB048B5424148B0F8B0101F2"
+    "52FF500C85C07C1401C68B83380100004583C70439C57CDEB001EB0230C05F5E5D5BC2040090"
+)
 FIXES = (
     (JELLY_OFFSET, JELLY_STOCK, JELLY_PATCHED),
     (AMBER_OFFSET, AMBER_STOCK, AMBER_PATCHED),
     (QUARTZ_OFFSET, QUARTZ_STOCK, QUARTZ_PATCHED),
+    (SAVE_WRITER_OFFSET, SAVE_WRITER_STOCK, SAVE_WRITER_PATCHED),
+    (SAVE_LOADER_OFFSET, SAVE_LOADER_STOCK, SAVE_LOADER_PATCHED),
+    (SAVE_CHECK_OFFSET, SAVE_CHECK_STOCK, SAVE_CHECK_PATCHED),
 )
 TECH_REWARD = 100
 
@@ -238,7 +283,9 @@ class ManifestTests(unittest.TestCase):
 
     def test_stock_bytes_and_offsets(self) -> None:
         pe = pefile.PE(str(STOCK), fast_load=True)
-        for va, (offset, before, _after) in zip((0x4180FB, 0x417797, 0x4173E0), FIXES):
+        vas = (0x4180FB, 0x417797, 0x4173E0, 0x45EFC5, 0x45C88D, 0x435710)
+        self.assertEqual(len(vas), len(FIXES))
+        for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)
             self.assertEqual(self.stock[offset:offset + len(before)], before)
 
@@ -259,7 +306,8 @@ class ManifestTests(unittest.TestCase):
             for start, end in regions:
                 # A branch that lands on a region's first byte enters it the
                 # way the stock fall-through does.
-                if start < target < end and not start <= ins.address < end:
+                # The save loader's region keeps its loop head 0x45C891 where it was.
+                if start < target < end and not start <= ins.address < end and target != 0x45C891:
                     incoming.append((hex(ins.address), hex(target)))
         self.assertEqual(incoming, [])
 
@@ -457,6 +505,104 @@ class QuartzAgeFourteenTests(unittest.TestCase, _Builds):
                     else:
                         self.assertEqual(text, self.ELDER_TEXT if effect_is_elder else self.CHILD_TEXT)
                     self.assertEqual(self._text(exe, age, choice=1), 0x3C1)
+
+
+def _listing(code: bytes, va: int) -> list[tuple[int, str, str]]:
+    md = Cs(CS_ARCH_X86, CS_MODE_32)
+    assert sum(i.size for i in md.disasm(code, va)) == len(code)
+    return [(i.address, i.mnemonic, i.op_str) for i in md.disasm(code, va)]
+
+
+class Save150DecodeTests(unittest.TestCase):
+    def test_writer_decoded(self) -> None:
+        listing = _listing(SAVE_WRITER_PATCHED, 0x45EFC5)
+        self.assertEqual(
+            listing[:10],
+            [
+                (0x45EFC5, "cmp", "ebx, 0x96"),
+                (0x45EFCB, "jae", "0x45efda"),
+                (0x45EFCD, "call", "0x428b60"),
+                (0x45EFD2, "mov", "byte ptr [eax + edi + 0x786c], 0"),
+                (0x45EFDA, "pop", "edi"),
+                (0x45EFDB, "pop", "esi"),
+                (0x45EFDC, "pop", "ebp"),
+                (0x45EFDD, "mov", "al, 1"),
+                (0x45EFDF, "pop", "ebx"),
+                (0x45EFE0, "ret", "4"),
+            ],
+        )
+        self.assertEqual({m for _a, m, _o in listing[10:]}, {"nop"})
+        # EDI is the entry offset: the stock loop adds 0x11C to it for each saved villager.
+        stock = _listing(STOCK.read_bytes()[0x5EF80:0x5EFC5], 0x45EF80)
+        self.assertIn((0x45EF86, "xor", "edi, edi"), stock)
+        self.assertIn((0x45EFB5, "inc", "ebx"), stock)
+        self.assertIn((0x45EFB6, "add", "edi, 0x11c"), stock)
+
+    def test_loader_decoded(self) -> None:
+        self.assertEqual(
+            _listing(SAVE_LOADER_PATCHED, 0x45C88D),
+            [
+                (0x45C88D, "je", "0x45c8c8"),
+                (0x45C88F, "xor", "esi, esi"),
+                (0x45C891, "call", "0x428b60"),
+                (0x45C896, "lea", "eax, [eax + esi + 0x786c]"),
+                (0x45C89D, "push", "eax"),
+                (0x45C89E, "mov", "ecx, edi"),
+                (0x45C8A0, "call", "0x456830"),
+                (0x45C8A5, "add", "edi, 0x1f8c"),
+                (0x45C8AB, "add", "esi, 0x11c"),
+                (0x45C8B1, "cmp", "esi, 0xa668"),
+                (0x45C8B7, "jae", "0x45c8c8"),
+                (0x45C8B9, "call", "0x428b60"),
+                (0x45C8BE, "cmp", "byte ptr [eax + esi + 0x786c], 0"),
+                (0x45C8C6, "jne", "0x45c891"),
+                (0x45C8C8, "pop", "edi"),
+                (0x45C8C9, "pop", "esi"),
+                (0x45C8CA, "mov", "al, 1"),
+                (0x45C8CC, "pop", "ebx"),
+                (0x45C8CD, "ret", "4"),
+            ],
+        )
+        self.assertEqual(0xA668, 150 * 0x11C)
+
+    def test_check_decoded(self) -> None:
+        listing = _listing(SAVE_CHECK_PATCHED, 0x435710)
+        self.assertEqual(
+            listing[7:17],
+            [
+                (0x43571C, "call", "0x435700"),
+                (0x435721, "cmp", "eax, 0x1000"),
+                (0x435726, "jg", "0x435786"),
+                (0x435728, "cmp", "esi, eax"),
+                (0x43572A, "je", "0x43573d"),
+                (0x43572C, "mov", "ecx, eax"),
+                (0x43572E, "xor", "cl, cl"),
+                (0x435730, "cmp", "esi, ecx"),
+                (0x435732, "jne", "0x435786"),
+                (0x435734, "cmp", "byte ptr [edx - 0x11c], 1"),
+            ],
+        )
+        self.assertEqual(listing[17], (0x43573B, "jne", "0x435786"))
+        self.assertEqual(listing[-2:], [(0x43578C, "ret", "4"), (0x43578F, "nop", "")])
+
+    def test_only_caller_passes_the_block_right_after_the_table(self) -> None:
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.skipdata = True
+        pe = pefile.PE(str(STOCK))
+        text = next(s for s in pe.sections if s.Name.startswith(b".text"))
+        calls = [i.address for i in md.disasm(text.get_data(), 0x400000 + text.VirtualAddress)
+                 if i.mnemonic == "call" and i.op_str == "0x435710"]
+        self.assertEqual(calls, [0x4289F8])
+        site = _listing(STOCK.read_bytes()[0x289EC:0x289F3], 0x4289EC)
+        self.assertEqual(site[0], (0x4289EC, "lea", "ecx, [ebx + 0x11ed4]"))
+        self.assertEqual(0x786C + 150 * 0x11C, 0x11ED4)
+        # the block size the check compares with (stubbed in the emulation) is this constant
+        self.assertEqual(_listing(STOCK.read_bytes()[0x35700:0x35706], 0x435700),
+                         [(0x435700, "mov", "eax, 0x2ad"), (0x435705, "ret", "")])
+
+
+class Save150EmulationTests(SaveTableCases, unittest.TestCase, _Builds):
+    LAYOUT = VV3
 
 
 if __name__ == "__main__":

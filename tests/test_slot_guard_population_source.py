@@ -172,6 +172,56 @@ class SlotGuardPopulationSourceTests(unittest.TestCase):
                     self.assertIn(needle, blob, f"{game} counter lacks its {label}")
                 self.assertTrue(blob.endswith("C3"), "counter must return")
 
+    # Each game's active flag is ONE byte, the byte the game's own free-slot search tests
+    # (VV3 0x45F0C0 `mov dl, byte [eax-0x1F8C]`, VV4 0x466280 `cmp byte [eax], 0`).  The bytes
+    # after it are other flags (VV3: +0xF11, +0xF12, +0xF13; VV4: the ghost flag +0x1CC7), and the
+    # record reset clears only some of them (VV3 0x456040 clears +0xF10..+0xF12, never +0xF13),
+    # so a DWORD test counts a free record with a stale neighbour as occupied.
+    COUNTERS = {
+        "vv3": (0x7B318, 0xF10),
+        "vv4": (0x890F0, 0x1CC4),
+        "vv5": (0x944C0, 0x1CD4),
+    }
+
+    @unittest.skipUnless(HAVE_TOOLS, "capstone not installed")
+    def test_counters_test_the_active_flag_as_a_byte(self) -> None:
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        for game, (offset, active) in self.COUNTERS.items():
+            with self.subTest(game=game):
+                blob = bytes.fromhex({int(r["offset"], 16): r["after"]
+                                      for r in _safety_patches(game)}[offset])
+                uses = []
+                for ins in md.disasm(blob, IMAGE_BASE + offset):
+                    for op in ins.operands:
+                        if op.type == X86_OP_MEM and op.mem.disp == active:
+                            uses.append((ins.mnemonic, op.size))
+                self.assertEqual(uses, [("cmp", 1)], f"{game} counter must test the active flag byte")
+
+    @unittest.skipUnless(HAVE_TOOLS, "capstone not installed")
+    def test_vv3_counter_ignores_the_neighbouring_flag_bytes(self) -> None:
+        from unicorn import UC_ARCH_X86, UC_MODE_32, Uc
+        from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_ESP
+
+        offset, active = self.COUNTERS["vv3"]
+        blob = bytes.fromhex({int(r["offset"], 16): r["after"] for r in _safety_patches("vv3")}[offset])
+        first, stride = 0x59E124, 0x1F8C
+        mu = Uc(UC_ARCH_X86, UC_MODE_32)
+        mu.mem_map(IMAGE_BASE + (offset & ~0xFFF), 0x2000)
+        mu.mem_write(IMAGE_BASE + offset, blob)
+        mu.mem_map(first & ~0xFFF, (150 * stride + 0x2000) & ~0xFFF)
+        mu.mem_map(0x70000000, 0x10000)
+        occupied = {0, 1, 7, 149}
+        for index in range(150):
+            base = first + index * stride + active
+            # free records carry stale flags in +0xF11..+0xF13, as a reset leaves +0xF13
+            mu.mem_write(base, bytes([1 if index in occupied else 0, 1, 1, 1]))
+        mu.mem_write(0x70008000, (0x0BADF00D).to_bytes(4, "little"))
+        mu.mem_map(0x0BADF000, 0x1000)
+        mu.reg_write(UC_X86_REG_ESP, 0x70008000)
+        mu.emu_start(IMAGE_BASE + offset, 0x0BADF00D, count=20000)
+        self.assertEqual(mu.reg_read(UC_X86_REG_EAX), len(occupied))
+
 
 if __name__ == "__main__":
     unittest.main()

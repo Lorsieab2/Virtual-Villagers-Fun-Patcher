@@ -660,7 +660,7 @@ class NewHomeCauseOfDeath(unittest.TestCase):
         w.villager(6, "Newborn", 0, 100)
         g.run(0x43C39B, 0x43C3A2, esi=w.record(6), ebp=0)
         w.villager(7, "Twin", 0, 100)
-        g.run(0x43C885, 0x43C88E, esi=w.record(7), ebx=0)
+        g.run(0x43C888, 0x43C88E, esi=w.record(7), ebx=0)
         self.assertEqual(g.stats()["arrived"], 2)
         # The file writer's success epilogue: the village's 0xABDC-byte write.
         for size, slot, written, expected in ((0xABDC, 2, 0, False), (0xC0, 2, 1, False),

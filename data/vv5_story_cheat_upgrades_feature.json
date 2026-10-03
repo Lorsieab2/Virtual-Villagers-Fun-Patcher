@@ -30,31 +30,10 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "54E8768FB81E456D8966FBC9EB44F5BCFE92BAF554DEA7C1E3D09D6AB3917C62"
+      "sha256": "6C13BA3BB65A5FF7B17B669987AE6D1C3035FAC35F8E8FAEC68C9ED0E0ECEA4C"
     }
   ],
   "runtime_detours": [
-    {
-      "va": "0x7B2F14",
-      "stock_bytes": "50C3000030750000F824010020A1070020A107003075000050C30000A0860100409C000050C30000",
-      "written_bytes": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "routine": "the Origins price table (10 prices)",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7B2414",
-      "stock_bytes": "813DF8D5510040420F00",
-      "written_bytes": "813DF8D5510000000000",
-      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7B2424",
-      "stock_bytes": "B8C0BDF0FF",
-      "written_bytes": "B800000000",
-      "routine": "an Origins charge, check or refund of 1,000,000 tech points",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
     {
       "va": "0x7C9987",
       "stock_bytes": "81FE20A10700",
@@ -129,27 +108,6 @@
       "va": "0x7CA10F",
       "stock_bytes": "6850C30000",
       "written_bytes": "6800000000",
-      "routine": "an Origins charge, check or refund of 50,000 tech points",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7CA185",
-      "stock_bytes": "3D50C30000",
-      "written_bytes": "3D00000000",
-      "routine": "an Origins charge, check or refund of 50,000 tech points",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7CA1A8",
-      "stock_bytes": "68B03CFFFF",
-      "written_bytes": "6800000000",
-      "routine": "an Origins charge, check or refund of 50,000 tech points",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7CA1BA",
-      "stock_bytes": "2D50C30000",
-      "written_bytes": "2D00000000",
       "routine": "an Origins charge, check or refund of 50,000 tech points",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
@@ -501,27 +459,6 @@
       "stock_bytes": "3DD0DD0600",
       "written_bytes": "3D00000000",
       "routine": "an Origins charge, check or refund of 450,000 tech points",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7D020B",
-      "stock_bytes": "446F20796F752077616E7420746F206275792054696D65205761727020666F722035302C303030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E",
-      "written_bytes": "446F20796F752077616E7420746F206275792054696D65205761727020666F722030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E0000000000",
-      "routine": "an Origins prompt that shows the price",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7D03D5",
-      "stock_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D61746368207468652065786163742035302C3030302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B207468652076696C6C61676520636C6F636B20776173206E6F74206368616E6765642E",
-      "written_bytes": "5468652066696E616C20746563682D706F696E742062616C616E636520646964206E6F74206D617463682074686520657861637420302D706F696E7420646564756374696F6E2E2054686520636861726765206F7574636F6D6520697320756E6B6E6F776E3B207468652076696C6C61676520636C6F636B20776173206E6F74206368616E6765642E0000000000",
-      "routine": "an Origins prompt that shows the price",
-      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
-    },
-    {
-      "va": "0x7D0464",
-      "stock_bytes": "5468652035302C3030302D706F696E7420646564756374696F6E207761732076657269666965642C20627574207468652076696C6C61676520636C6F636B2075706461746520636F756C64206E6F742062652076657269666965642E",
-      "written_bytes": "54686520302D706F696E7420646564756374696F6E207761732076657269666965642C20627574207468652076696C6C61676520636C6F636B2075706461746520636F756C64206E6F742062652076657269666965642E0000000000",
-      "routine": "an Origins prompt that shows the price",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {

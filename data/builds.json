@@ -465,8 +465,8 @@
         {
           "offset": "0x7B318",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "515231C0BA24E15900B99600000083BA100F00000074014081C28C1F00004975ED5A59C3",
-          "purpose": "count occupied VV3 villager record slots for the 150-slot saturation guards"
+          "after": "515231C0BA24E15900B99600000080BA100F00000074014081C28C1F00004975ED5A59C3",
+          "purpose": "count occupied VV3 villager record slots for the 150-slot saturation guards: a record is occupied when its active-flag BYTE +0xF10 is set (the game's own free-slot test at 0x45F0C0), so the neighbouring flag bytes +0xF11..+0xF13 never make a free record count as occupied"
         }
       ]
     },
@@ -1615,19 +1615,20 @@
       "id": "vv3_fix_vanilla_bugs",
       "game_id": "vv3",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
         "The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager.",
-        "The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens."
+        "The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens.",
+        "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150."
       ],
       "explicit_non_changes": [
         "Every result text, every other vial result and every other island event are the base game's own.",
         "The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change.",
-        "No save data, villager record layout or art is changed."
+        "No villager record layout or art is changed; saves with 0 to 149 villagers are written and read exactly as before, and the save file's size and format are unchanged."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded",
       "patches": [
         {
           "offset": "0x180FB",
@@ -1646,6 +1647,62 @@
           "before": "0F9DC1",
           "after": "0F9FC1",
           "purpose": "Mysterious Vial (quartz): resultText 0x4173C0 chooses the little-child text only above age 280 (setg instead of setge), matching applyChoice's jg at 0x417435"
+        },
+        {
+          "offset": "0x5EFC5",
+          "before": "E8969BFCFF69DB1C0100005F5EC684186C780000005DB0015BC20400909090909090909090909090909090",
+          "after": "81FB96000000730DE88E9BFCFFC684386C780000005F5E5DB0015BC2040090909090909090909090909090",
+          "purpose": "150 villagers, save: 0x45EF80 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x2AD -> 0x200)"
+        },
+        {
+          "offset": "0x5C88D",
+          "before": "743233F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C010000E8AAC2FCFF8A8C306C78000084C975D05F5EB0015BC2040090909090909090",
+          "after": "743933F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C01000081FE68A60000730FE8A2C2FCFF80BC306C7800000075C95F5EB0015BC20400",
+          "purpose": "150 villagers, load: 0x45C860 stops after the 150th saved villager instead of reading past the table into the next block"
+        },
+        {
+          "offset": "0x35710",
+          "before": "8B5424045355568B32578BD9E8DFFFFFFF3D001000007F543BF075508B83380100008D7204B9340000008BFB33ED85C0F3A5BED40000007E2A8DBBD0000000EB048B5424148B0F8B0103D652FF500C85C07C1903F08B83380100004583C7043BE87CDE5F5E5DB0015BC204005F5E5D32C05BC204009090909090909090909090",
+          "after": "8B5424045355568B325789CBE8DFFFFFFF3D001000007F5E39C6741189C130C939CE755280BAE4FEFFFF0175498B83380100008D72046A345989DF31ED85C0F3A5BED40000007E2A8DBBD0000000EB048B5424148B0F8B0101F252FF500C85C07C1401C68B83380100004583C70439C57CDEB001EB0230C05F5E5D5BC2040090",
+          "purpose": "150 villagers, load: the progress block's size check 0x435710 also accepts a stored size that differs from 0x2AD only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game"
+        }
+      ]
+    },
+    {
+      "id": "vv4_fix_vanilla_bugs",
+      "game_id": "vv4",
+      "name": "Fix Vanilla Bugs",
+      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. **Needs no other patch.**",
+      "output_tag": "Fix Vanilla Bugs",
+      "behavior_changes": [
+        "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again.",
+        "Loading reads at most the 150 saved villagers, never anything after the list.",
+        "A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly."
+      ],
+      "explicit_non_changes": [
+        "The population cap, births, events and every population mode are unchanged; no villager is removed or added.",
+        "Saves with 0 to 149 villagers are written and read exactly as before, byte for byte; the save file's size and format are unchanged.",
+        "A save whose size check fails for any other reason is still refused, as in the base game."
+      ],
+      "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded",
+      "patches": [
+        {
+          "offset": "0x660F1",
+          "before": "E87A9DFBFF69DB040100005F5EC6841868C80000005DB0015BC20400CCCCCC",
+          "after": "81FB96000000730DE8729DFBFFC6843868C80000005F5E5DB0015BC20400CC",
+          "purpose": "Save: 0x4660A0 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x250 -> 0x200)"
+        },
+        {
+          "offset": "0x6613D",
+          "before": "743633F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF83C3018BF381C73C2E000069F604010000E8059DFBFF80BC3068C800000075CC5F5EB0015BC20400CCCCCC",
+          "after": "743933F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF81C60401000081FE58980000731581C73C2E0000E8029DFBFF80BC3068C800000075C95F5EB0015BC20400",
+          "purpose": "Load: 0x466110 stops after the 150th saved villager instead of reading past the table into the next block"
+        },
+        {
+          "offset": "0x387A0",
+          "before": "538B5C2408568B33578BF9E8C0FFFFFF3D001000007F4B8BCFE8B2FFFFFF3BF075408D7304B934000000F3A5BFD4000000BE888B4D008B0E33C085C9740F8B018B400C8D141F52FFD085C07C1583C60403F881FEF08B4D007CDC5F5EB0015BC204005F5E32C05BC20400CCCCCCCCCCCC",
+          "after": "538B5C2408568B335789CFE8C0FFFFFF3D001000007F4F39C6741189C130C939CE754380BBFCFEFFFF01753A8D73046A3459F3A5BFD4000000BE888B4D008B0E31C085C9740F8B018B400C8D141F52FFD085C07C1183C60401C781FEF08B4D007CDCB001EB0230C05F5E5BC20400CCCC",
+          "purpose": "Load: the progress block's size check 0x4387A0 also accepts a stored size that differs from the computed size only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game; the redundant second size computation is dropped to make room"
         }
       ]
     },

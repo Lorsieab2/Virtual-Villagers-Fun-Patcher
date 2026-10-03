@@ -11,7 +11,6 @@ EXPORTS
     ShowVV5AppearanceForAll=_ShowVV5AppearanceForAll@0
     ApplyVV5EqualDivision=_ApplyVV5EqualDivision@8
     WriteMaskSidecar=_WriteMaskSidecar@4
-    ReadMaskSidecar=_ReadMaskSidecar@4
     Vv5MaskSync=_Vv5MaskSync@0
     ShowVv5TimeWarp=_ShowVv5TimeWarp@4
     Vv5InstallCompanions=_Vv5InstallCompanions@0

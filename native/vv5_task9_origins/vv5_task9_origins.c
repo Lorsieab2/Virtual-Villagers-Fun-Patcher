@@ -10,8 +10,8 @@
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20. The
    safest way to persist it is OUTSIDE the game's save flow (VV5's autosave does
    not re-run get_save_path, so an exe save-hook never fires). Instead the native
-   code writes it from the chooser (WriteMaskSidecar, on OK) and reads it back on
-   the first village frame (ReadMaskSidecar). Both build the path here in clean C,
+   code writes it from the chooser (WriteMaskSidecar, on OK) and the render path
+   reads it back through Vv5MaskSync. Both build the path here in clean C,
    next to the game's own save: Documents\LDW\<exe-basename>\vvfp_masks_<slot>.dat.
    Keyed by villager record index (positional + stable across reload) AND by save
    slot: the exe-side slot_capture detour on buildSavePath stashes the current
@@ -478,32 +478,6 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
         memcpy(table, buf, sizeof(buf));
     }
     return 1;
-}
-
-/* Restore the mask side-table for the village on screen into the 75-byte
-   buffer at exe 0x7B1D20 (passed in), adopting that village's roster.  Kept
-   as an export for the appended page's mask_load_once; Vv5MaskSync is what
-   the render path calls now. */
-__declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
-    unsigned int cur[VV5_RECORD_COUNT];
-    int slot;
-    if (table == NULL) {
-        return;
-    }
-    memset(table, 0, MASK_TABLE_BYTES);
-    slot = *(volatile int *)VV5_SLOT_SCRATCH;
-    if (slot <= 0 || vv5_roster_snapshot(cur) == 0) {
-        return;                     /* no identifiable village -> no masks */
-    }
-    /* The other adopt site, with the same hazard: a refused path must
-       not be latched, or the next write truncates the real file with
-       an empty table. Found in review. */
-    if (!vv5_mask_sidecar_load(table, cur)) {
-        return;                 /* stay pending; retried on the next call */
-    }
-    memcpy(g_vv5_roster, cur, sizeof(cur));
-    g_vv5_have_roster = 1;
-    g_vv5_slot = slot;
 }
 
 /* The village-change decision, called from the render path's mask_flip on

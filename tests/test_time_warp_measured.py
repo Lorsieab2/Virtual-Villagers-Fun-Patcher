@@ -178,6 +178,14 @@ class MigratedGamesTests(unittest.TestCase):
         """
         for gid in sorted(MIGRATED):
             with self.subTest(game=gid):
+                if gid == "vv5":
+                    # New Believers' Tech menu is the Task9 page's; the base
+                    # payload's legacy menu never ran and is gone.
+                    self.assertIn(
+                        "ShowVv5TimeWarp",
+                        source("scripts/build_vv5_task9_native_actions.py"),
+                    )
+                    continue
                 # VV2 names its constant TIME_WARP_EXPORT_BYTES; VV1 and
                 # VV3 use a lowercase string-table key. Either counts.
                 self.assertIn(
@@ -250,7 +258,11 @@ class MigratedGamesTests(unittest.TestCase):
                 )
 
     def test_cancel_is_distinguishable_from_a_refusal(self) -> None:
-        """Cancel reopens the Tech menu; a refusal closes it after its message.
+        """VV1-VV4: Cancel reopens the Tech menu; a refusal closes it after its
+        message. VV5 is the exception by design: its Task9 row closes the menu
+        after the companion whatever it answers (the companion's own box is the
+        only dialog one Time Warp click produces), so only VV5's companion side
+        is checked here.
 
         Before the row moved into the DLL it went through the shared
         confirmation, whose zero result jumps back to menu_loop. A single
@@ -264,6 +276,12 @@ class MigratedGamesTests(unittest.TestCase):
                 self.assertRegex(dll, r"#define VV\d_TW_APPLIED   1")
                 self.assertRegex(dll, r"#define VV\d_TW_REFUSED   2")
                 self.assertRegex(dll, r"return VV\d_TW_CANCELLED;")
+                if gid == "vv5":
+                    # The executable side was asserted on the base payload's
+                    # legacy menu, which never ran and is gone. The shipped
+                    # Task9 row returns to `done` after the companion whatever
+                    # it answers (see build_time_warp).
+                    continue
                 exe = source(GENERATORS[gid])
                 # Anchored on the dispatch's own comment, which every game
                 # carries, rather than on a particular cave name.

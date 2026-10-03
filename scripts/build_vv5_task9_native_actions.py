@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "18EE1090DCE50A4BB53FDB415D727CFFBBA51831E14EE5B2D0FA9F6FA9A39ECF"
-ACTIVE_SOURCE_TEXT_SHA256 = "18EE1090DCE50A4BB53FDB415D727CFFBBA51831E14EE5B2D0FA9F6FA9A39ECF"
+ACTIVE_SHA256 = "9602A5504F81A97DA88CBECB211653C4825DF583D95E4E8536C90404C57B0DD8"
+ACTIVE_SOURCE_TEXT_SHA256 = "9602A5504F81A97DA88CBECB211653C4825DF583D95E4E8536C90404C57B0DD8"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -228,7 +228,6 @@ OFF = {
     "show_menu": 0x670,
     "confirm": 0x6D0,
     "status": 0x740,
-    "resolve_manager": 0x7A0,
     "tech_menu": 0x840,
     "detail_menu": 0xB40,
     "age": 0xD40,
@@ -255,7 +254,6 @@ OFF = {
     "mask_unflip": 0x6B00,
     "mask_get": 0x6C00,
     "mask_set": 0x6C80,
-    "mask_load_once": 0x6D00,
     "bighead_mask": 0x6D80,
     "bighead_offsets": 0x6F00,
     "slot_capture": 0x6F20,
@@ -275,7 +273,6 @@ SIZES = {
     "show_menu": 0x60,
     "confirm": 0x70,
     "status": 0x50,
-    "resolve_manager": 0xA0,
     "tech_menu": 0x300,
     "detail_menu": 0x200,
     "age": 0x300,
@@ -302,7 +299,6 @@ SIZES = {
     "mask_unflip": 0x180,
     "mask_get": 0x80,
     "mask_set": 0x80,
-    "mask_load_once": 0x80,
     "bighead_mask": 0x140,
     "bighead_offsets": 0x10,
     "slot_capture": 0x40,
@@ -357,6 +353,16 @@ def section_header(rva: int, raw: int) -> bytes:
     )
 
 
+def retired(text: bytes) -> bytes:
+    """A string nothing reads any more, zeroed IN PLACE.
+
+    The page's strings are laid out back to back, and later ones are named by
+    address elsewhere (the Story / Cheat Upgrades price strings, the Expanded
+    Time Warp overlay's string reserve), so a removed string keeps its length
+    as zero bytes rather than moving every string after it."""
+    return b"\0" * len(text)
+
+
 def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     values = (
         ("dll", b"VVFP Origins Icons.dll\0"),
@@ -366,7 +372,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("confirm_export", b"ConfirmVV5Task9Action\0"),
         ("status_export", b"ShowVV5Task9Result\0"),
         ("sdl", b"SDL2.dll\0"),
-        ("flags", b"SDL_GetWindowFlags\0"),
+        ("flags", retired(b"SDL_GetWindowFlags\0")),
         ("sethint", b"SDL_SetHint\0"),
         ("min_hint", b"SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS\0"),
         ("hint_zero", b"0\0"),
@@ -378,25 +384,25 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("forall_export", b"ShowVV5AppearanceForAll\0"),
         ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
         ("writemask_export", b"WriteMaskSidecar\0"),
-        ("readmask_export", b"ReadMaskSidecar\0"),
+        ("readmask_export", retired(b"ReadMaskSidecar\0")),
         ("sync_export", b"Vv5MaskSync\0"),
         ("bighead_atlas", b"bigheads_masks.png\0"),
         ("division_export", b"ApplyVV5EqualDivision\0"),
-        ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
+        ("perm_warning", retired(b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0")),
         ("tw_get", b"GetOriginsOwner\0"),
         ("tw_apply", b"ShowVv5TimeWarp\0"),
         ("tw_user32", b"USER32.dll\0"),
         ("tw_messagebox", b"MessageBoxA\0"),
         ("tw_title", b"Origins Upgrades\0"),
-        ("tw_warning", b"Do you want to buy Time Warp for 50,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
+        ("tw_warning", retired(b"Do you want to buy Time Warp for 50,000 tech points?\r\nPress OK to confirm, or Cancel.\0")),
         ("tw_paused", b"Time Warp is unavailable while the game is paused.\r\nNo tech points have been deducted.\0"),
         ("tw_insufficient", b"Not enough tech points.\0"),
-        ("tw_cancelled", b"Time Warp was canceled.\r\nNo tech points have been deducted.\0"),
-        ("tw_recheck", b"The game speed, village clock, or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
+        ("tw_cancelled", retired(b"Time Warp was canceled.\r\nNo tech points have been deducted.\0")),
+        ("tw_recheck", retired(b"The game speed, village clock, or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0")),
         ("tw_unavailable", b"Time Warp is unavailable.\r\nNo tech points have been deducted.\0"),
-        ("tw_success", b"Time Warp completed.\0"),
-        ("tw_charge_unknown", b"The final tech-point balance did not match the exact 50,000-point deduction. The charge outcome is unknown; the village clock was not changed.\0"),
-        ("tw_clock_unknown", b"The 50,000-point deduction was verified, but the village clock update could not be verified.\0"),
+        ("tw_success", retired(b"Time Warp completed.\0")),
+        ("tw_charge_unknown", retired(b"The final tech-point balance did not match the exact 50,000-point deduction. The charge outcome is unknown; the village clock was not changed.\0")),
+        ("tw_clock_unknown", retired(b"The 50,000-point deduction was verified, but the village clock update could not be verified.\0")),
         ("iv_warning", b"Do you want to buy Island Event for 30,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
         ("iv_cancelled", b"Island Event was canceled.\r\nNo tech points have been deducted.\0"),
         ("iv_recheck", b"The village or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
@@ -421,8 +427,9 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     cursor = OFF["strings"]
     result: dict[str, int] = {}
     for name, value in values:
-        result[name] = page_va + cursor
-        page[cursor : cursor + len(value)] = value
+        if any(value):
+            result[name] = page_va + cursor
+            page[cursor : cursor + len(value)] = value
         cursor += len(value)
     if cursor > PAGE_SIZE:
         raise RuntimeError("Task9 strings overflow")
@@ -577,32 +584,6 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         pop ebp
         ret 4
     """)
-    result["resolve_manager"] = put(page, page_va, "resolve_manager", """
-        test eax, eax
-        jz invalid
-        mov ebx, dword ptr [eax+0x17E24]
-        cmp ebx, 150
-        jae invalid
-        push ebx
-        mov ecx, 0x554148
-        call 0x46F950
-        test eax, eax
-        jz invalid
-        cmp byte ptr [eax+0x1CD4], 0
-        je invalid
-        cmp byte ptr [eax+0x1CE1], 0
-        jne invalid
-        cmp byte ptr [eax+0x1CEC], 0
-        jne invalid
-        cmp dword ptr [eax+0x1C40], 0
-        jle invalid
-        pop ebx
-        ret
-    invalid:
-        xor eax, eax
-        pop ebx
-        ret
-    """)
     result["eligible"] = put(page, page_va, "eligible", """
         mov edx, dword ptr [esp+4]
         xor eax, eax
@@ -737,27 +718,27 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     )
     tw_row = (
         f"time_warp_row:\n        call 0x{page_va + OFF['time_warp']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    island_row:\n        call 0x{page_va + OFF['island']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    barrel_row:\n        call 0x{page_va + OFF['barrel']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    complete_collections_row:\n        call 0x{page_va + OFF['complete_collections']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    reset_collections_row:\n        call 0x{page_va + OFF['reset_collections']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    running_all_row:\n        call 0x{page_va + OFF['running_all']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    mastery_all_row:\n        call 0x{page_va + OFF['mastery_all']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    age18_all_row:\n        call 0x{page_va + OFF['age18_all']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    division_parenting_row:\n        call 0x{page_va + OFF['division_parenting']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    division_no_parenting_row:\n        call 0x{page_va + OFF['division_no_parenting']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n"
+        "        jmp done\n        .byte 0, 0, 0\n"
         f"    appearance_all_row:\n        call 0x{page_va + OFF['appearance_all']:X}\n"
-        "        jmp done\n        nop\n        nop\n        nop\n    "
+        "        jmp done\n        .byte 0, 0, 0\n    "
         if native_stock
         else ""
     )
@@ -836,9 +817,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         jnz retained
         {doubler_action}{status_call(page_va, doubler_reg, 11)}
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     purchase:
         cmp dword ptr [0x41F1E6], 0x96
         jne unavailable
@@ -859,9 +838,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         jne charge_unknown
         {doubler_action}{status_call(page_va, doubler_reg, 12)}
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     tech_pending_state:
         # Publish the pending tokens as state bits so blocked rows explain
         # themselves instead of reading "Unavailable". The companion consumes
@@ -914,33 +891,23 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     heal:
         call 0x{page_va + OFF['heal']:X}
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     {tw_row}unavailable:
         {status_call(page_va, 'ebx', 10)}
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     insufficient:
         {status_call(page_va, 'ebx', 3)}
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     retained:
         {status_call(page_va, 'ebx', 6)}
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     charge_unknown:
         {status_call(page_va, 'ebx', 7)}
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     done:
         pop edi
         pop esi
@@ -2105,55 +2072,27 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         ret
     """)
 
+def zero_fill(count: int) -> str:
+    """Operands for `.byte`: `count` zero bytes, standing in for removed
+    unreachable code so every live byte after it keeps its address."""
+    return ", ".join(["0"] * count)
+
+
 def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
-    """SUPERSEDED -- not what VV5 ships.
+    """Time Warp row (command 0): hand the whole purchase to the companion.
 
-    Time Warp moved into the companion (ShowVv5TimeWarp) because the engine
-    clamps the pending slice this routine relied on, so no clock-only delta can
-    reach the target at any speed. The shipped page resolves the export instead;
-    verify with a byte search for the 194400 immediate, which is absent from
-    every emitted row. Kept only as the historical implementation.
+    The page resolves ShowVv5TimeWarp from the companion and calls it with the
+    50,000 price; the companion confirms (naming the speed and the years),
+    refuses while paused, verifies funds, charges through the game's own
+    tech-point routine, reads the deduction back, and only then moves the
+    village clock and credits each villager's age. The page charges nothing
+    and says nothing after the call; it only reports an unavailable
+    companion, a paused game or insufficient funds found before the call.
 
-    Village-clock Time Warp: advance exactly three displayed villager years
-    at any speed for one verified 50,000 tech-point charge.
-
-    VV5 subtracts 194400 / speed, measured in play rather than derived from a
-    model of the engine. With a flat 129600 the village advanced 6-7 years at
-    slow, 12 at normal and 24 at fast: fast is exactly twice normal and normal
-    twice slow, so the advance tracks delta * speed and only a division holds
-    it constant. Calibrated at normal, where 129600 gave 12 years, so three
-    years is 32400 and 32400 * 6 = 194400.
-
-    Dividing also sidesteps VV5's speed codes, which are never written as
-    immediates and so cannot be read out of the binary; 24/12 = 2 rules out a
-    fast code of 10 in any case.
-
-    Paused is refused before the charge rather than given a delta, because the
-    village does not advance at all while paused and every game charged for
-    that no-op.
-
-    This is NOT the shape every game wants, and the difference is not
-    cosmetic.  Each game's table is its own measurement:
-
-    * VV3 uses 16200 / 21600 / 36000.  Its earlier speed * 3600 form measured
-      2 / 3 / 3, so only the slow entry moved (10800 scaled by 3/2).
-    * VV1 uses 32400 / 21600 / 21600, from a flat 21600 measuring 2 / 3 / 3.
-    * VV2 and VV4 carry 32400 / 21600 / 10800, from a flat 21600 measuring
-      2 / 3 / 6.
-
-    The VV2/VV4 entries are the weakest link, and for a reason worth recording:
-    those tables select on the speed field the same way this one does, and a
-    scan of both binaries finds only the constant 6 ever stored into that field
-    as an immediate.  If nothing writes it from a register at runtime, their
-    `cmp eax, 3` and `cmp eax, 10` never match, every speed silently takes the
-    normal delta, and the slow/fast entries above are dead -- which is exactly
-    what 2 / 3 / 6 under a flat delta looks like.  VV5 has the same exposure;
-    dividing sidesteps the comparison but not the question of what the field
-    holds.  Re-measure per speed before trusting any of these three.  Self-contained
-    (inline MessageBoxA via the page's existing import thunks); no companion
-    DLL change. Ported from the statically-reviewed dispatcher in
-    build_expanded_time_warp.py as a ret-terminated subroutine so tech_menu can
-    call it for command 0."""
+    The engine clamps a villager's pending slice (0x0046FFCB), so no
+    clock-only delta reaches the target; that is why the advance lives in the
+    companion. The page's own clock-only transaction that preceded this was
+    unreachable once the companion took over and has been removed."""
     return put(page, page_va, "time_warp", f"""
         push ebp
         mov ebp, esp
@@ -2275,107 +2214,22 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         add esp, 4
         mov eax, 0x{s['tw_unavailable']:X}
         jmp warning_status
-    tw_legacy_unreached:
-        cmp eax, 1
-        jne cancelled
-        call 0x425950
-        cmp eax, dword ptr [ebp-0x18]
-        jne recheck
-        mov edi, eax
-        mov eax, dword ptr [edi+0x17D7C]
-        test eax, eax
-        jle recheck
-        # No 999 refusal here either; the speed-unchanged compare that follows
-        # already rejects a speed that moved while the prompt was open.
-        cmp eax, dword ptr [ebp-0x1C]
-        jne recheck
-        mov eax, dword ptr [0x51D5F8]
-        cmp eax, dword ptr [ebp-0x20]
-        jne recheck
-        cmp eax, 50000
-        jb insufficient
-        mov eax, dword ptr [0x4C6250]
-        cmp eax, dword ptr [ebp-0x24]
-        jne recheck
-        mov eax, dword ptr [0x4C6254]
-        cmp eax, dword ptr [ebp-0x28]
-        jne recheck
-        push -50000
-        mov ecx, 0x51D5F8
-        call 0x4237B0
-        mov eax, dword ptr [ebp-0x20]
-        sub eax, 50000
-        mov dword ptr [ebp-0x2C], eax
-        cmp dword ptr [0x51D5F8], eax
-        jne charge_unknown
-        # UNREACHABLE as of the companion dispatch above, and kept only so
-        # the surrounding verify/label structure is untouched.
-        #
-        # It WAS the shipping VV5 Time Warp: the loader replaces the VV5
-        # Origins base record with this Task9 page, so the fix applied to
-        # build_vv5_origins_feature.py alone never reached a player. That is
-        # exactly how this survived -- verifying the Origins manifest proves
-        # nothing about VV5; only the rendered image does.
-        #
-        # Its reasoning below is also wrong: it assumes the advance tracks
-        # delta * speed, which ignores the clamp that caps any single pending
-        # slice at 31000 regardless.
-        #
-        # Measured with a flat 129600: 6-7 years at slow, 12 at normal, 24 at
-        # fast. Fast is exactly twice normal and normal twice slow, so the
-        # advance tracks delta * speed. That also rules out a fast code of 10
-        # (24/12 = 2, but 10/6 = 1.67), and VV5 never writes its speed codes
-        # as immediates, so they cannot be read out of the binary the way
-        # VV1's and VV3's can.
-        #
-        # Dividing sidesteps the question entirely: 194400 / speed keeps
-        # delta * speed fixed at 194400, which is three years whatever the
-        # codes are. Calibrated at normal, where 129600 gave 12 years, so
-        # three years is 32400 and 32400 * 6 = 194400.
-        #
-        # The divide is safe: `test eax, eax / jle unavailable` above rejects
-        # zero and negative speeds, and paused is refused before this point.
-        mov eax, 194400
-        xor edx, edx
-        mov ecx, dword ptr [ebp-0x1C]
-        div ecx
-        mov dword ptr [ebp-0x30], eax
-        mov ecx, dword ptr [ebp-0x24]
-        mov edx, dword ptr [ebp-0x28]
-        sub ecx, eax
-        sbb edx, 0
-        mov dword ptr [ebp-0x34], ecx
-        mov dword ptr [ebp-0x38], edx
-        sub dword ptr [0x4C6250], eax
-        sbb dword ptr [0x4C6254], 0
-        cmp dword ptr [0x4C6250], ecx
-        jne clock_unknown
-        cmp dword ptr [0x4C6254], edx
-        jne clock_unknown
-        mov eax, 0x{s['tw_success']:X}
-        mov edx, 0x40
-        call show_message
-        jmp done
+        # The page's own clock-only transaction used to sit here. It was
+        # unreachable once the companion took the whole purchase over, and
+        # is zeroed IN PLACE (209 bytes) so no live byte of this routine
+        # moves.
+        .byte {zero_fill(209)}
     insufficient:
         mov eax, 0x{s['tw_insufficient']:X}
         jmp warning_status
-    cancelled:
-        mov eax, 0x{s['tw_cancelled']:X}
-        jmp warning_status
-    recheck:
-        mov eax, 0x{s['tw_recheck']:X}
-        jmp warning_status
+        .byte {zero_fill(14)}
     unavailable:
         mov eax, 0x{s['tw_unavailable']:X}
         jmp warning_status
     tw_paused_refused:
         mov eax, 0x{s['tw_paused']:X}
         jmp warning_status
-    charge_unknown:
-        mov eax, 0x{s['tw_charge_unknown']:X}
-        jmp warning_status
-    clock_unknown:
-        mov eax, 0x{s['tw_clock_unknown']:X}
+        .byte {zero_fill(12)}
     warning_status:
         mov edx, 0x30
         call show_message
@@ -3738,9 +3592,7 @@ def build_division(
         mov ecx, 0x51D5F8
         call 0x4237B0
         jmp done
-        nop
-        nop
-        nop
+        .byte 0, 0, 0
     insufficient:
         {status_call(page_va, str(action), 3)}
         jmp done
@@ -4021,27 +3873,6 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     ms_ret:
         ret
     """)
-    # mask_load_once: on the first village frame, restore the side-table from the
-    # sidecar via the companion DLL's ReadMaskSidecar(table). LoadLibraryA is
-    # idempotent (returns the already-loaded handle if the chooser opened it). The
-    # loaded flag is set FIRST so a failed load never retries every frame. All
-    # results null-guarded. esi (villager record) is preserved by the stdcall/DLL
-    # calls, so the caller (mask_arm) can proceed. No villager-record or save write.
-    load_once = put(page, page_va, "mask_load_once", f"""
-        push 0x{s['dll']:X}
-        call dword ptr [0x4951E0]
-        test eax, eax
-        je mlo_ret
-        push 0x{s['readmask_export']:X}
-        push eax
-        call dword ptr [0x4951DC]
-        test eax, eax
-        je mlo_ret
-        push 0x{MASK_TABLE:X}
-        call eax
-    mlo_ret:
-        ret
-    """)
     # mask_sync: every head draw asks the companion whether the village on
     # screen is still the one the side-table was loaded for (Vv5MaskSync, no
     # arguments, throttled inside the DLL).  The export address is resolved
@@ -4300,20 +4131,17 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     """)
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_unflip": unflip, "mask_get": get, "mask_set": set_,
-        "mask_load_once": load_once, "mask_sync": sync, "bighead_mask": bighead,
+        "mask_sync": sync, "bighead_mask": bighead,
         "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
         "companion_install": install,
     }
 
 
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
+    # The page's first 0x40 bytes stay zero: the identification header once
+    # written here ("VVT9PG", version, size, bound, stride, base) was read by
+    # nothing -- no game code, companion, patcher or test.
     page = bytearray(PAGE_SIZE)
-    page[0:8] = b"VVT9PG\0\0"
-    page[8:12] = (1).to_bytes(4, "little")
-    page[12:16] = PAGE_SIZE.to_bytes(4, "little")
-    page[16:20] = BOUND.to_bytes(4, "little")
-    page[20:24] = STRIDE.to_bytes(4, "little")
-    page[24:28] = page_va.to_bytes(4, "little")
     strings = build_strings(page, page_va)
     routines: dict[str, bytes] = {}
     routines.update(build_modal(page, page_va, strings))
@@ -4406,33 +4234,20 @@ def patch_payload(active: dict[str, object], stock_page_va: int) -> tuple[bytes,
             "local_x": "137",
             "local_y": "2",
         }
-    old_guard = bytes(payload[0x270:0x2C0])
-    resolver_transfer = asm(
-        f"push 0x{stock_page_va + OFF['resolve_manager']:X}; ret",
-        PAYLOAD_VA + 0x276,
-    )
-    if len(resolver_transfer) != 6:
-        raise RuntimeError("safe resolver transfer length drift")
-    payload[0x276:0x27C] = resolver_transfer
     tech_stub = asm(f"mov eax, 0x{stock_page_va + OFF['tech_entry']:X}; jmp eax", PAYLOAD_VA + 0x2C0)
     detail_stub = asm(f"mov eax, 0x{stock_page_va + OFF['detail_entry']:X}; jmp eax", PAYLOAD_VA + 0x600)
     if len(tech_stub) != 7 or len(detail_stub) != 7:
         raise RuntimeError("Task9 absolute menu stub length drift")
     payload[0x2C0:0x2C7] = tech_stub
     payload[0x600:0x607] = detail_stub
-    forbidden = bytes.fromhex("E11C0000")
-    forbidden_count = payload.count(forbidden)
-    payload = bytearray(bytes(payload).replace(forbidden, bytes.fromhex("EC1C0000")))
-    if forbidden in payload:
+    # The legacy menus that read the withdrawn +0x1CE1 eligibility byte are
+    # gone from the base payload; refuse a base that brings one back.
+    if bytes.fromhex("E11C0000") in payload:
         raise RuntimeError("withdrawn legacy eligibility read remains")
     return bytes(payload[:patch_length]), {
         "geometry": geometry,
-        "safe_resolver_before_sha256": sha(old_guard),
-        "safe_resolver_transfer_bytes": resolver_transfer.hex().upper(),
-        "safe_resolver_transfer_sha256": sha(resolver_transfer),
         "tech_entry_stub": tech_stub.hex().upper(),
         "detail_entry_stub": detail_stub.hex().upper(),
-        "withdrawn_legacy_eligibility_immediates_rebound_to_faction": forbidden_count,
     }
 
 
@@ -4569,13 +4384,9 @@ def main() -> None:
         },
     })
     for item in result["patches"]:
-        after = bytes.fromhex(str(item["after"]))
         if int(str(item["offset"]), 0) == PAYLOAD_OFFSET:
             item["after"] = payload.hex().upper()
-            item["purpose"] = "install pinned VV5 Origins payload with Task9 geometry, safe resolver, and absolute native-action entries"
-        elif bytes.fromhex("E11C0000") in after:
-            item["after"] = after.replace(bytes.fromhex("E11C0000"), bytes.fromhex("EC1C0000")).hex().upper()
-            item["purpose"] = str(item["purpose"]) + "; remove the withdrawn synthetic eligibility read"
+            item["purpose"] = "install pinned VV5 Origins payload with Task9 geometry and absolute native-action entries"
     expanded_overrides = [
         {
             "offset": f"0x{PAYLOAD_OFFSET + 0x2C1:X}",
@@ -4588,12 +4399,6 @@ def main() -> None:
             "before": (LAYOUTS["collection_progression"]["page_va"] + OFF["detail_entry"]).to_bytes(4, "little").hex().upper(),
             "after": (LAYOUTS["experimental_expanded_256"]["page_va"] + OFF["detail_entry"]).to_bytes(4, "little").hex().upper(),
             "purpose": "bind relocated .shr Detail entry to the fixed Expanded Task9 page",
-        },
-        {
-            "offset": f"0x{PAYLOAD_OFFSET + 0x277:X}",
-            "before": (LAYOUTS["collection_progression"]["page_va"] + OFF["resolve_manager"]).to_bytes(4, "little").hex().upper(),
-            "after": (LAYOUTS["experimental_expanded_256"]["page_va"] + OFF["resolve_manager"]).to_bytes(4, "little").hex().upper(),
-            "purpose": "bind the preserved legacy resolver entry to its Expanded null-guard continuation without changing any C342 row",
         },
     ]
     for label in ("tech", "detail"):

@@ -5,7 +5,10 @@
 
    Each hook sits inside the creator, after it has chosen the record, with
    esi = the record:
-     A New Home        fresh 0x43C350 at 0x43C39B, copy 0x43C840 at 0x43C885
+     A New Home        fresh 0x43C350 at 0x43C39B, copy 0x43C840 at 0x43C888
+                       (after its +0x28/+0x29 stores: Origins splices
+                       0x43C881-0x43C887 for the twin/triplet mask clear
+                       and resumes at 0x43C888)
      The Lost Children fresh 0x44C600 at 0x44C84F, copy 0x44CEC0 at 0x44CF04
      The Secret City   fresh init 0x456120 at 0x456326, copy init 0x4566E0
                        at 0x4566EF
@@ -61,7 +64,7 @@ static void roster_sites(void) {
     switch (g_game) {
     case 1:
         cod_add(0x43C39Bu, "C6462A00" "896E40", roster_created);
-        cod_add(0x43C885u, "885E29" "885E2A" "895E40", roster_created);
+        cod_add(0x43C888u, "885E2A" "895E40", roster_created);
         break;
     case 2:
         cod_add(0x44C84Fu, "C6865805000000", roster_created);

@@ -15,6 +15,13 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 encoding="utf-8"
             )
             with self.subTest(game=game):
+                if game == 5:
+                    # New Believers' base payload no longer resolves any
+                    # result export: the legacy Tech menu and dispatch helper
+                    # that did were unreachable (Task9 owns the VV5 menus)
+                    # and were removed.
+                    self.assertNotIn("show_result_export", source)
+                    continue
                 if game == 3:
                     # VV3 centralizes result display in the show_result /
                     # village-wide trampolines instead of two literal
@@ -75,7 +82,12 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 encoding="utf-8"
             )
             with self.subTest(game=game):
-                target = "done" if game == 5 else "menu_done"
+                if game == 5:
+                    # The VV5 cure row lived in the removed legacy Tech menu;
+                    # Full Heal/Cure All is the Task9 page's.
+                    self.assertNotIn("HEAL_CAVE_VA", source)
+                    continue
+                target = "menu_done"
                 self.assertIn(
                     f"call 0x{{HEAL_CAVE_VA:X}}\n            jmp {target}",
                     source,

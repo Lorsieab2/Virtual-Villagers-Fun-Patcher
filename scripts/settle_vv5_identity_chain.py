@@ -200,6 +200,12 @@ def main() -> None:
     current = pinned(EXPANDED, r'if sha\(stock_page\) != "([0-9A-F]{64})"')
     if current:
         swap(EXPANDED, current, stock_sha, "expanded builder stock page")
+    # The expanded builder pins the expanded-layout page too, so a change to
+    # any routine both layouts share has to move this pin as well.
+    current = pinned(EXPANDED, r'if sha\(base_page\) != "([0-9A-F]{64})"')
+    if current:
+        swap(EXPANDED, f'if sha(base_page) != "{current}"',
+             f'if sha(base_page) != "{expanded_sha}"', "expanded builder expanded page")
     for mode in ("collection_progression", "immediate_fixed",
                  "experimental_expanded_256", "experimental_expanded_256_progression"):
         # Re-read each time. The two stock modes share a hash, so settling one

@@ -92,18 +92,17 @@ def _instructions_only(block: str) -> str:
 # Values a Tech state builder ORs in that mark a row UNBUYABLE rather than
 # satisfied, so they must not be mistaken for checkmark bits.
 #   0x800 / 0x1000  the two doublers' own `1 << (8 + row)` unavailable markers
-#   0x800000        an Island Event is already pending
-#   0x1000000       a Barrel of Babies is already pending
-# The last two are dedicated bits rather than `1 << (8 + row)` ones, because in
-# a 14-row menu bit 9 would mean both "row 9 satisfied" and "row 1
-# unavailable". Only VV5 shows up here: the other four games compute these in
-# a helper the builder calls, so the OR is not in the builder's own text.
-UNAVAILABLE_MASK_VALUES = {0x800, 0x1000, 0x1800, 0x800000, 0x1000000}
+# The pending Island Event / Barrel bits (0x800000 / 0x1000000) are computed in
+# a helper every builder calls, so they never appear in a builder's own block.
+UNAVAILABLE_MASK_VALUES = {0x800, 0x1000, 0x1800}
 
+# New Believers' Tech menu is the Task9 page's: the base Origins payload's
+# legacy menu never ran and is no longer emitted.
 GENERATORS = {
     game: ROOT / f"scripts/build_{game}_origins_feature.py"
-    for game in ("vv1", "vv2", "vv3", "vv4", "vv5")
+    for game in ("vv1", "vv2", "vv3", "vv4")
 }
+GENERATORS["vv5"] = ROOT / "scripts/build_vv5_task9_native_actions.py"
 
 
 def parse_dialogs(path: Path) -> dict[int, dict]:
@@ -229,7 +228,11 @@ def tech_state_bits(generator: Path) -> set[int]:
     if call is None:
         raise RuntimeError(f"{generator.name}: no Tech dialog invocation found")
     register = call.group("reg")
-    zero = re.compile(rf"xor\s+{register},\s*{register}\b")
+    # Cleared with `xor`, or -- New Believers' Task9 menu -- seeded with its
+    # per-layout base state.
+    zero = re.compile(
+        rf"xor\s+{register},\s*{register}\b|mov\s+{register},\s*0x\{{menu_state:X\}}"
+    )
     starts = [m.start() for m in zero.finditer(text) if m.start() < call.start()]
     if not starts:
         raise RuntimeError(

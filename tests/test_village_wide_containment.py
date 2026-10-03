@@ -21,6 +21,10 @@ from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
 GAME_IDS = tuple(f"vv{game}" for game in range(1, 6))
+# New Believers' row is a route only: its extension was unreachable (Task9
+# owns the VV5 menus) and was removed; tests/test_vv5_origins_dead_code_removed.py
+# proves the route renders byte-identical to its base.
+ROUTE_ONLY = {"vv5"}
 
 
 def raw_record(game_id: str) -> dict:
@@ -52,7 +56,10 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                 self.assertIs(base.get("catalog_enabled", True), True)
                 self.assertIs(base.get("catalog_hidden", False), False)
                 self.assertIs(wide["enabled"], True)
-                self.assertTrue(wide["patches"])
+                if game_id in ROUTE_ONLY:
+                    self.assertEqual(wide["patches"], [])
+                else:
+                    self.assertTrue(wide["patches"])
                 self.assertEqual(
                     wide["dependencies"],
                     [base_id],
@@ -62,7 +69,10 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     "Full Mastery",
                 ):
                     self.assertIn(label, wide["description"])
-                self.assertIn("Make Villagers Young Adults", wide["description"])
+                if game_id in ROUTE_ONLY:
+                    self.assertIn("All Villagers are Exactly 18", wide["description"])
+                else:
+                    self.assertIn("Make Villagers Young Adults", wide["description"])
                 self.assertIn("Tech screen", wide["description"])
                 self.assertIn("Villager Details-screen", wide["description"])
                 self.assertTrue(
@@ -117,7 +127,9 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
             base_id = f"{build.id}_enable_origins_exclusive_features"
             wide_id = f"{build.id}_origins_village_wide_upgrades"
             selected = resolve_fun_patch_ids([base_id, wide_id], game_id=build.id)
-            expected_owner_names = {f"feature:{base_id}", f"feature:{wide_id}"}
+            expected_owner_names = {f"feature:{base_id}"}
+            if build.id not in ROUTE_ONLY:
+                expected_owner_names.add(f"feature:{wide_id}")
             modes = ["stock", "collection_progression", "immediate_fixed"]
             for mode in modes:
                 with self.subTest(game=build.id, mode=mode):
@@ -128,6 +140,9 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     self.assertEqual(source.read_bytes(), before)
                     owners = {item["owner"] for item in applied}
                     self.assertTrue(expected_owner_names.issubset(owners))
+                    if build.id in ROUTE_ONLY:
+                        self.assertNotIn(f"feature:{wide_id}", owners)
+                        continue
                     wide_record = raw_record(build.id)
                     wide_patch = wide_record["patches"][0]
                     wide_offset = int(wide_patch["offset"], 0)
@@ -162,6 +177,9 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                 companion = ROOT / base["companion_files"][0]["source"]
                 expected_hash = hashlib.sha256(companion.read_bytes()).hexdigest().upper()
                 self.assertEqual(base["companion_files"][0]["sha256"], expected_hash)
+                if game_id in ROUTE_ONLY:
+                    self.assertEqual(wide["patches"], [])
+                    continue
                 self.assertEqual(wide["patches"][0]["purpose"].startswith("install the optional"), True)
                 self.assertEqual(
                     len(bytes.fromhex(wide["patches"][0]["before"])),

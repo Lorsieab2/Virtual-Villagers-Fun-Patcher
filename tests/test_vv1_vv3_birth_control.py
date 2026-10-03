@@ -66,10 +66,16 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # destructor, failure branch straight to the restore), 0x8E820 (the
     # slot-change cave without the removed flag's clear) and 0x8EB00 (the
     # room check without the arming store) changed. Nothing else.
+    #
+    # Re-pinned for the newborn mask-clear fix. The manifest diff is exactly
+    # one byte in row 0x8EA00 (the newborn cave): its index load is now
+    # [esp+0x34] (8B4C2434) instead of [esp+0x30], the caller's saved EBX.
+    # Then re-pinned for the twin/triplet guard: two rows added, 0x3C881 (the
+    # sub_43C840 splice) and 0x8EA80 (its cave). Nothing else changed.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "7AFB00C713B59949475EECB10FA9922EE8660135C4615F62DB1F9885B0E58180",
-        "collection_progression": "A3C7C69E1A1186B793F59FB7174398BE3570344B36FE7D2493C4BD232D5F805F",
-        "immediate_fixed": "A3C7C69E1A1186B793F59FB7174398BE3570344B36FE7D2493C4BD232D5F805F",
+        "stock": "D27D2BE3C8B74DFB14E4C5A05C46840E232DD1A5B6CC7C6BB67DD47EDDA6A424",
+        "collection_progression": "96F1B78874AEE5D67E8B487EDC4BAD9E84AE63AEEBE5BA93605B5C56866AFA39",
+        "immediate_fixed": "96F1B78874AEE5D67E8B487EDC4BAD9E84AE63AEEBE5BA93605B5C56866AFA39",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

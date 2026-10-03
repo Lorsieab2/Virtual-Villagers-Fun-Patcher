@@ -4,19 +4,19 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "5BD36FC1ACEEA65E4B9D82FB9F170C06C2AABDA949B8F116391EE263D44D22EE"
+      "source_text_sha256": "56E7630B4CE6CA3C97C28828FDDBF50BC43F22DE190A5CEB4C1693E62A795477"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "ADFDB301B702B1118E079EA59AB21DFDC478BE18473315D48E5AC48513195725"
+      "source_text_sha256": "F27D9830283C3F9B64C92EC728BD5547A142B49FD5225440541AC38D246CC32F"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "6C324E1F877205366A86D8DF759FBB33869617CE076CC12E9B8BA52C5EA58A42"
+      "source_text_sha256": "FDCFE608B6695C80108727D817BB8F75A4B46E4BFCE41BDFF2EB554DB4214473"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "24EF234E8496CFFE7495859B0638042283F61EA9419F712101015E839392A305"
+      "source_text_sha256": "A31A16E975790593E2D793BE8A908B7AE76E096D045F6CC64BCA746C1D1E4BEA"
     },
     "task9_companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -26,7 +26,7 @@
   "companion": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "61EABC0EB25AEA824A5C3DEE2A1983AD4BA65F3A365884A8919F64F50F65B6D4",
+    "sha256": "4A968673F4D12CC08C3BE3274B8C324331909823C5CD9A80489CC9D31FC37998",
     "size": 1780224
   },
   "dependency": "vv5_enable_origins_exclusive_features",
@@ -34,9 +34,9 @@
   "page_rva": "0x504000",
   "page_va": "0x904000",
   "layout": {
-    "stock_page_sha256": "088ED72A8E881722AEC9C94B9797A2937F2A2220920DB72A9C1689C2541DCB42",
-    "expanded_baseline_page_sha256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
-    "expanded_time_warp_page_sha256": "AA4F8C466D4516EE80EC9FAEA9EA9D8E76D72B014310073D6DDB5AAE17FA29B6",
+    "stock_page_sha256": "D49632027B0DC44BB8A2FAC464E5F553A2EAD293FF7F6866933C27FC9B1FF129",
+    "expanded_baseline_page_sha256": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
+    "expanded_time_warp_page_sha256": "7999393C1E34D6903CD76937A8015AD3E2C4CBFA6FC985AC8068618F738210F9",
     "age_length": 652,
     "age_sha256_stock": "0BF24696E77297502FF39BE62B4D7C8A7E8A6B6D24CE0F0962BC90F1093E8E8F",
     "age_sha256_expanded": "24DFF28FE8ED815BA8C98A3551E75312FC33F885B1E232D97823166412188A62",
