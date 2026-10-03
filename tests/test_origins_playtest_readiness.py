@@ -62,7 +62,12 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                         self.assertEqual(source.read_bytes(), before)
                         owners = {item["owner"] for item in applied}
                         self.assertIn(f"feature:{base_id}", owners)
-                        self.assertIn(f"feature:{wide_id}", owners)
+                        if build.id == "vv5":
+                            # A route only: it owns no bytes (its extension was
+                            # unreachable and removed).
+                            self.assertNotIn(f"feature:{wide_id}", owners)
+                        else:
+                            self.assertIn(f"feature:{wide_id}", owners)
                         checksum_offset, _ = _pe_checksum_layout(rendered)
                         stored = struct.unpack_from("<I", rendered, checksum_offset)[0]
                         self.assertNotEqual(stored, 0)

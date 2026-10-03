@@ -8,8 +8,8 @@ full: the villager kept the Dislike and ECX reported nothing removed, while the
 VV3 companion's dry run had already told the player it would be removed.
 
 Each game's optional payload is rendered by the patcher and entered at its own
-entry with EAX = 6, ECX = the first record and EDX = the record count. VV4 and
-VV5 call the game's own Like/Dislike helpers, so those run from the rendered
+entry with EAX = 6, ECX = the first record and EDX = the record count. VV4
+calls the game's own Like/Dislike helpers, so those run from the rendered
 image as well. The field offsets are pinned here independently of the
 generator (scripts/build_village_wide_origins_features.py).
 
@@ -52,8 +52,10 @@ GAMES = {
     "vv2": ("Virtual Villagers - The Lost Children.exe", 0x49C820, 0xE48C, 0x30, 0x52C, 0x5F0, 0x6E8, 62, "full", 0x49C850),
     "vv3": ("Virtual Villagers - The Secret City.exe", 0x47B840, 0x1F8C, 0xF10, 0xE78, 0xFB4, 0xFC0, 3, "full", None),
     "vv4": ("Virtual Villagers - The Tree of Life.exe", 0x728240, 0x2E3C, 0x1CC4, 0x1C40, 0x1E60, 0x1E6C, 3, "granted", None),
-    "vv5": ("Virtual Villagers - New Believers.exe", 0x494C40, 0x2F44, 0x1CD4, 0x1C40, 8028, 8040, 3, "full", None),
 }
+# New Believers is not here: its optional payload (entry 0x494C40) was never
+# reached in any shipped build -- Task9 owns the VV5 menus and implements Grant
+# Running to All Villagers itself -- and was removed.
 
 _RENDERS: dict[str, bytes] = {}
 
