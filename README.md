@@ -287,6 +287,18 @@ Shows each dead villager's cause of death and an epitaph on their grave, the way
 
 - Patch ID: `vv1_cause_of_death`
 
+**Learning Skills Never Fails**
+
+Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged. Off by default.
+
+- Patch ID: `vv1_learning_never_fails`
+
+**Story / Cheat Upgrades**
+
+Optional tools for custom stories, experiments, sandbox play and cheats, which deliberately bypass normal game progression and random island events. Every Origins Upgrade costs 0 Tech Points, and the Origins menus gain **Pick Island Event** (choose which of the game's own island events happens next, and its outcome) and **Custom Island Event** (write your own event, including two-choice events whose buttons have outcomes and chances you set). Off by default.
+
+- Patch ID: `vv1_story_cheat_upgrades`
+
 ### Virtual Villagers - The Lost Children
 
 **Birth Control**
@@ -416,6 +428,18 @@ Shows each dead villager's cause of death on their grave, the way The Secret Cit
 
 - Patch ID: `vv2_cause_of_death`
 
+**Learning Skills Never Fails**
+
+Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged. Off by default.
+
+- Patch ID: `vv2_learning_never_fails`
+
+**Story / Cheat Upgrades**
+
+Optional tools for custom stories, experiments, sandbox play and cheats, which deliberately bypass normal game progression and random island events. Every Origins Upgrade costs 0 Tech Points, and the Origins menus gain **Pick Island Event** (choose which of the game's own island events happens next, and its outcome) and **Custom Island Event** (write your own event, including two-choice events whose buttons have outcomes and chances you set). Off by default.
+
+- Patch ID: `vv2_story_cheat_upgrades`
+
 ### Virtual Villagers - The Secret City
 
 **Birth Control**
@@ -529,6 +553,18 @@ Gives The Secret City 256 villager slots (numbered 0 to 255) instead of 150. The
 - Population modes: stock, collection_progression, immediate_fixed
 - Patch ID: `vv3_population_256`
 
+**Learning Skills Never Fails**
+
+Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged. Off by default.
+
+- Patch ID: `vv3_learning_never_fails`
+
+**Story / Cheat Upgrades**
+
+Optional tools for custom stories, experiments, sandbox play and cheats, which deliberately bypass normal game progression and random island events. Every Origins Upgrade costs 0 Tech Points, and the Origins menus gain **Pick Island Event** (choose which of the game's own island events happens next, and its outcome) and **Custom Island Event** (write your own event, including two-choice events whose buttons have outcomes and chances you set). Off by default.
+
+- Patch ID: `vv3_story_cheat_upgrades`
+
 ### Virtual Villagers - The Tree of Life
 
 **Complete Fish Scales = Golden Fish in Nets**
@@ -616,6 +652,18 @@ Gives The Tree of Life 256 villager slots (numbered 0 to 255) instead of 150. Th
 
 - Population modes: stock, collection_progression, immediate_fixed
 - Patch ID: `vv4_population_256`
+
+**Learning Skills Never Fails**
+
+Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged. Off by default.
+
+- Patch ID: `vv4_learning_never_fails`
+
+**Story / Cheat Upgrades**
+
+Optional tools for custom stories, experiments, sandbox play and cheats, which deliberately bypass normal game progression and random island events. Every Origins Upgrade costs 0 Tech Points, and the Origins menus gain **Pick Island Event** (choose which of the game's own island events happens next, and its outcome) and **Custom Island Event** (write your own event, including two-choice events whose buttons have outcomes and chances you set). Off by default.
+
+- Patch ID: `vv4_story_cheat_upgrades`
 
 ### Virtual Villagers - New Believers
 
@@ -710,8 +758,20 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 
 - Patch ID: `vv5_manual_drop_breeding_overrides_birth_control`
 
+**Learning Skills Never Fails**
 
-That is 35 optional patches across the five games.
+Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, Parenting, and Devotion; heathens and all non-skill outcomes remain unchanged. Off by default.
+
+- Patch ID: `vv5_learning_never_fails`
+
+**Story / Cheat Upgrades**
+
+Optional tools for custom stories, experiments, sandbox play and cheats, which deliberately bypass normal game progression and random island events. Every Origins Upgrade costs 0 Tech Points, and the Origins menus gain **Pick Island Event** (choose which of the game's own island events happens next, and its outcome) and **Custom Island Event** (write your own event, including two-choice events whose buttons have outcomes and chances you set). Off by default.
+
+- Patch ID: `vv5_story_cheat_upgrades`
+
+
+That is 103 optional patches across the five games.
 
 Three patches change files rather than executable bytes: **VV1 Visual
 Mods**, **VV4 Optional Text changes**, and the **VV5 Guardians of Isola
