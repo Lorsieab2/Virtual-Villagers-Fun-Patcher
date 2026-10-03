@@ -265,6 +265,7 @@ __declspec(dllexport) int __stdcall ShowVV2UpgradeMenuState(
 ) {
     int resource = villager_menu ? IDD_VV2_VILLAGER : IDD_VV2_TECH;
     vvfp_story_bridge(2);   /* before any price is shown or charged */
+    vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
     vv2_prep_fullscreen();
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
@@ -1857,6 +1858,7 @@ __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_lesson_cap_bridge(2);  /* lesson-cap companion: once, fail-open */
     vvfp_healers_study_bridge(2); /* healers-study companion: once, fail-open */
     vvfp_story_bridge(2);       /* story / cheat upgrades companion: once, fail-open */
+    vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }
@@ -2094,6 +2096,7 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     vvfp_lesson_cap_bridge(2);
     vvfp_healers_study_bridge(2);
     vvfp_story_bridge(2);
+    vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
     n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
     for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */

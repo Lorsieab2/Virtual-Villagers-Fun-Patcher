@@ -1,0 +1,151 @@
+{
+  "id": "vv2_cause_of_death",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Show Cause of Death on Graves",
+  "description": "Shows each dead villager's cause of death on their grave, the way The Secret City, The Tree of Life and New Believers do: clicking a gravestone shows the cause under the age, in those games' own words (Old age, Disease, Starvation, Work accident, or Unknown causes). The cause is the one that killed them -- old age, sickness, hunger or an empty food bin, an injury at work -- and \"Unknown causes\" for an island event and anything else, which is how those games word an island-event death. The Lost Children already writes an epitaph on every grave; that is unchanged. The game keeps no cause of death, so it is recorded the moment a villager dies and kept for each save slot in a file beside the saves ('Virtual Villagers Fun Patcher Data'); Start Over deletes it. **Graves dug before this patch was installed, and bodies that were already lying when it was, show no cause: how they died was never recorded.** Each death is also written to the Deaths log, 'Virtual Villagers 2 Deaths Log <n>.txt', in the 'Virtual Villagers Fun Patcher Logs\\Deaths' folder beside the game's saves (Documents\\LDW\\<game executable name>\\). Each Death record gives the villager's name, their age at death in the game's own units (20 per year, the value the Village Population log prints as Age), the cause of death, and their head and body. The log is headed with the village and its save slot, is created when a village is first saved and again after Start Over (which deletes it with the village), only ever grows, and starts a new numbered file after every 256 Death records. **The Deaths log is written by Write Births and Conceptions Log to Text File's DLL: with that patch off, no Deaths log is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.",
+  "output_tag": "Cause of Death",
+  "dependencies": [
+    "vv2_enable_origins_exclusive_features"
+  ],
+  "needs_on": [
+    {
+      "id": "vv2_write_parentage_log",
+      "for": "the Deaths log, which that patch's DLL writes (without it no Deaths log is written)"
+    }
+  ],
+  "behavior_changes": [
+    "At each site that can kill (the aging step's old-age store and its sickness, hunger and no-food drains; every work injury), a check made before the site's own instructions records the cause when that change takes a living villager's health to 0 or below; the site's instructions then run unchanged.",
+    "Every frame, a villager seen alive on an earlier frame who is now a body, with no site having reported the death, is recorded with \"Unknown causes\" (island events, the Gong of Wonder, the Custom Island Event's \"dies\", an edited save).",
+    "At the burial's grave write, the cause recorded for that body is carried to the grave slot; at an unburied body's decay it is dropped.",
+    "The grave popup draws the cause one line under its Age line.",
+    "Kept per save slot in 'Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Graves - Save <n>.dat' (written atomically; an unreadable file is set aside, never overwritten; deleted by Start Over).",
+    "Each death is written to the Deaths log through WriteDeathRecord in \"VVFP Parentage Export.dll\" (name, age in age units, cause, head, body)."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the Origins companion loads the DLL, which detours the listed sites at run time only after verifying every site's stock bytes; any other build installs nothing.",
+    "No game value is changed: health, age, the graves and the save are only read. The epitaph's two-way choices use the companion's own random numbers, never the game's.",
+    "Nothing is written into the game's grave table or a villager record; the cause and epitaph live only in the patcher's .dat file.",
+    "The Statistics row's Villagers Buried hook (VV1 0x448F65, VV2 0x46503B) is a different site and is untouched."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/cause_of_death/VVFP Cause of Death.dll",
+      "destination": "VVFP Cause of Death.dll",
+      "sha256": "F878CCD672DE0213FA8C536486BF476F2B4599EA51DBC9798C0EC43177283AB1"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x43BDEE",
+      "stock_bytes": "C7832C05000000000000",
+      "routine": "the aging step's old-age store (Old age)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43BAEB",
+      "stock_bytes": "8D84382C050000",
+      "routine": "the aging step's hunger drain at 150 food or less (Starvation)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43BB7E",
+      "stock_bytes": "8D843A2C050000",
+      "routine": "the aging step's no-food drain (Starvation)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43BC43",
+      "stock_bytes": "8D843A2C050000",
+      "routine": "the aging step's sickness drain (Disease)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x46299C",
+      "stock_bytes": "2945008B86D474E500",
+      "routine": "the Ancient Mosaic's injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x462AD9",
+      "stock_bytes": "29078B8ED474E500",
+      "routine": "the Lovely Hut's injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x462C11",
+      "stock_bytes": "29078B86D474E500",
+      "routine": "a hut's injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x462D48",
+      "stock_bytes": "29078B96D474E500",
+      "routine": "a hut's injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x462E84",
+      "stock_bytes": "29078B96D474E500",
+      "routine": "a hut's injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x462F96",
+      "stock_bytes": "29078B96D474E500",
+      "routine": "the Hospital's injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x463099",
+      "stock_bytes": "29078B96D474E500",
+      "routine": "the Sewing Hut's injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x463644",
+      "stock_bytes": "8B4D0083C404",
+      "routine": "research's injury, rand(10) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x4638E6",
+      "stock_bytes": "8B0F83C404",
+      "routine": "the Gong restoration's injury, rand(10) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x46404A",
+      "stock_bytes": "8B0F83C404",
+      "routine": "the Vine Wall's injury, rand(10) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x4641B3",
+      "stock_bytes": "8B4D0083C404",
+      "routine": "the Dam's injury, rand(10) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x465063",
+      "stock_bytes": "8B4F6069C98CE40000",
+      "routine": "the burial's grave write (carries the cause to the grave slot)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43B78D",
+      "stock_bytes": "C644383000",
+      "routine": "an unburied body's decay (no grave)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x444790",
+      "stock_bytes": "8B8D84000000",
+      "routine": "the grave panel's Draw, after its Age line (draws the cause)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    }
+  ]
+}

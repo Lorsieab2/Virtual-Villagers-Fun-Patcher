@@ -54,8 +54,12 @@ FOUNDATION_OUTPUT = (
 # "VVFP Story Upgrades.dll" (save slot, mask store, the Grant Running bracket)
 # and the story bridge called from the world mask draw, the game's per-frame
 # path.  Without the row nothing changes.
-SOURCE_SHA256 = "EBD83589014210E4380C4B2891A19ED59BF549F164BC66D80C465796B8084491"
-SOURCE_SIZE = 1906688
+# Recertified when the companion learned the Cause of Death row
+# (native/shared/cause_bridge.h): it loads "VVFP Cause of Death.dll" when
+# shipped, from the same places it loads the story companion.  Without the
+# row nothing changes.
+SOURCE_SHA256 = "097CAF3BEC40057E017B720DC82E101379F40633741CA421BB5FD1D5A5FB989B"
+SOURCE_SIZE = 1907712
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

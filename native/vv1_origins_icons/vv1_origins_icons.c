@@ -6,6 +6,7 @@
 #include "vv1_head_buckets.h"     /* head-index buckets by hair colour (Heads override) */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
    companion.  The Lost Children's companion includes this file and sets 2. */
@@ -1566,6 +1567,7 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     vvfp_lesson_cap_bridge(1);  /* lesson-cap companion: once, fail-open */
     vvfp_healers_study_bridge(1); /* healers-study companion: once, fail-open */
     vvfp_story_bridge(1);       /* story / cheat upgrades companion: once, fail-open */
+    vvfp_cause_bridge(1);  /* cause of death companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     slot = vv1_mask_prepare_slot();
     if (!slot) {
@@ -2090,6 +2092,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
     HWND owner = GetForegroundWindow();
     int result;
     vvfp_story_bridge(VV_STORY_GAME);   /* before any price is shown or charged */
+    vvfp_cause_bridge(VV_STORY_GAME);  /* cause of death companion: once, fail-open */
     vv1_prep_fullscreen();
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;

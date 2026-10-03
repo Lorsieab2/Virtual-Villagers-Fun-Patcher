@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -959,6 +960,7 @@ __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     vvfp_story_bridge(4);       /* story / cheat upgrades companion: once, fail-open */
+    vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
     g_dest_surface = surface;
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
@@ -1668,6 +1670,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 static int show_upgrade_menu(int villager_menu, int dialog_state) {
     int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
     vvfp_story_bridge(4);   /* before any price is shown or charged */
+    vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }

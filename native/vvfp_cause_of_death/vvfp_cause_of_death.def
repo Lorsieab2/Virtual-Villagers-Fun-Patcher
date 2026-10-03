@@ -1,0 +1,5 @@
+LIBRARY "VVFP Cause of Death"
+EXPORTS
+    VvfpCauseInstall=_VvfpCauseInstall@8
+    VvfpCauseTick=_VvfpCauseTick@4
+    VvfpCauseVillageReset=_VvfpCauseVillageReset@8

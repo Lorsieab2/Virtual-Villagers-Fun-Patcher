@@ -1,0 +1,49 @@
+{
+  "id": "vv5_cause_of_death",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Log Each Death's Cause and Age",
+  "description": "Writes every death, as it happens, to the Deaths log, 'Virtual Villagers 5 Deaths Log <n>.txt', in the 'Virtual Villagers Fun Patcher Logs\\Deaths' folder beside the game's saves (Documents\\LDW\\<game executable name>\\). Each Death record gives the villager's name, their age at death in the game's own units (20 per year, the value the Village Population log prints as Age), the cause of death, and their head and body. The log is headed with the village and its save slot, is created when a village is first saved and again after Start Over (which deletes it with the village), only ever grows, and starts a new numbered file after every 256 Death records. The cause is the one the game itself records and shows on the grave, in its own words (Old age, Disease, Starvation, Work accident, or Unknown causes, which is how the game words every island-event death). **The Deaths log is written by Write Births and Conceptions Log to Text File's DLL: with that patch off, no Deaths log is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.",
+  "output_tag": "Cause of Death",
+  "dependencies": [
+    "vv5_enable_origins_exclusive_features"
+  ],
+  "needs_on": [
+    {
+      "id": "vv5_write_parentage_log",
+      "for": "the Deaths log, which that patch's DLL writes (without it no Deaths log is written)"
+    }
+  ],
+  "behavior_changes": [
+    "Every change of health goes through the game's two health arbiters (set and add, each with a cause); at their first instructions, a change that takes a living villager from above 0 to 0 or below is written to the Deaths log with the cause the caller passes, worded as the game's own grave does (string table, Unknown causes for -1).",
+    "New Believers' Reanimate stand-in corpse (set(0, -1) at 0x46FE66) is not a death and is not logged."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the Origins companion loads the DLL, which detours the two arbiters at run time only after verifying their stock bytes; any other build installs nothing.",
+    "The arbiters run unchanged: health and cause are written by the game exactly as before. The Statistics row's Villagers Died hooks sit later in the same routines and are untouched."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/cause_of_death/VVFP Cause of Death.dll",
+      "destination": "VVFP Cause of Death.dll",
+      "sha256": "F878CCD672DE0213FA8C536486BF476F2B4599EA51DBC9798C0EC43177283AB1"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x4758B0",
+      "stock_bytes": "8B44240485C0",
+      "routine": "the health setter (its first instructions)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x4758F0",
+      "stock_bytes": "8B44240401410C",
+      "routine": "the health adder (its first instructions)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    }
+  ]
+}
