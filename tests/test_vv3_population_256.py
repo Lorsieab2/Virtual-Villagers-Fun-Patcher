@@ -391,8 +391,8 @@ DIFFERENTIAL = {
     0x45DCE0: ([0, 0, 0, 0, 0], "none"), 0x45DDE0: ([0, 0, 0, 0, 0], "none"),
     0x45E0F0: ([0, 0, 0, 0, 0, 0], "none"), 0x45E370: ([0, 0, 0, 0, 0, 0, 0, 0], "none"),
     0x45E610: ([0, 0, 0, 0, 0, 0], "none"), 0x45ECB0: ([2, 0, "out"], "pointer"),
-    0x45FB20: ([], "bool"), 0x45F960: ([500, 500, 0], "pointer"), 0x45FA30: ([500, 500, 0], "pointer"),
-    0x460D20: ([500, 500], "value"), 0x45C900: (["idx:3"], "none"), 0x45C950: ([], "index"),
+    0x45FB20: ([], "bool"), 0x45F960: (["ax", "ay", 0], "pointer"), 0x45FA30: (["ax", "ay", 0], "pointer"),
+    0x460D20: (["ax", "ay"], "index"), 0x45D461: ([1, -1, 1, 0], "pointer"), 0x45C900: (["idx:3"], "none"), 0x45C950: ([], "index"),
     0x45D240: ([0], "index"), 0x45EBF0: ([2], "bool"), 0x45EF00: ([], "pointer"),
     0x45EF30: ([], "pointer"), 0x45F890: ([500, 500, 0, 0], "pointer"), 0x45FC10: ([], "value"),
     0x45FAD0: ([], "none"), 0x45FCF0: ([0], "none"), 0x45F640: ([], "none"),
@@ -419,15 +419,34 @@ def _fill(m: Machine, slot: int, seed: int) -> None:
     m.put32(r + 0xEDC, slot)
 
 
+# The reverse scans look for a villager near a point.  Every villager is made
+# a candidate (+0 == 2) and the point is where the game itself places the
+# LAST villager -- its anchor from the routine each scan measures with -- so
+# a scan that started below the top slot would miss it.
+ANCHOR = {0x45F960: 0x455E80, 0x45FA30: 0x455EF0, 0x460D20: 0x455E80}
+# 0x45D461 is 0x45D460 called with any family and its third argument set (the
+# "not busy" flag), so every argument it reads is exercised.
+ALIAS = {0x45D461: 0x45D460}
+
+
 def _differential_run(image: bytes, fn: int, args, slots, shift: int):
     m = Machine(image)
     rolls = random.Random(7)
     m.standard_stubs(lambda n: rolls.randrange(1 << 30))
     for slot in slots:
         _fill(m, slot, 1000 + slot - shift)
+        if fn in ANCHOR:
+            m.put32(m.rec(slot), 2)
     out = m.alloc(4)
+    if fn in ANCHOR and slots:
+        point = m.alloc(8)
+        m.call(ANCHOR[fn], [point], ecx=m.rec(slots[-1]))
+        anchor = {"ax": m.u32(point) + 1, "ay": m.u32(point + 4) + 1}
     real = []
     for a in args:
+        if a in ("ax", "ay"):
+            real.append(anchor[a] if slots else 0)
+            continue
         if isinstance(a, str) and a.startswith("rec:"):
             real.append(m.rec(int(a[4:]) + shift))
         elif isinstance(a, str) and a.startswith("idx:"):
@@ -436,7 +455,7 @@ def _differential_run(image: bytes, fn: int, args, slots, shift: int):
             real.append(out)
         else:
             real.append(a)
-    eax = m.call(fn, real, ecx=m.manager, limit=50_000_000)
+    eax = m.call(ALIAS.get(fn, fn), [v & 0xFFFFFFFF for v in real], ecx=m.manager, limit=50_000_000)
     records = m.read(m.rec(shift), STRIDE * len(slots)) if slots else b""
     return m, eax, list(m.rng_calls), records
 
@@ -733,6 +752,10 @@ def _leftovers(data: bytes, applied: list[dict]) -> list[str]:
     md = Cs(CS_ARCH_X86, CS_MODE_32)
     md.detail = True
     found = []
+    # The withdrawn layout's probe, wherever it is (a disassembly of a code
+    # block that starts with data can step over it).
+    if bytes.fromhex("813D3A88420000010000") in data:
+        found.append("the 0x42883A == 256 -> +0x7598 probe is still present")
     for item in applied:
         owner = item.get("owner", "")
         offset = int(item["offset"], 0)
