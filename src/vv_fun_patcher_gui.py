@@ -60,21 +60,21 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
     # is "Default-OFF. Owner's-Defaults ON."
     + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
-    # The owner: Story / Cheat Upgrades (all five games) is off by default, and
-    # Owner's Defaults leaves it off too (see OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
+    # The owner: Story / Cheat Upgrades (all five games) is off by default;
+    # Owner's Defaults ticks it (owner, 2026-10-03).
     + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
-    # 256 Villagers (Experimental) is off by default and under Owner's
-    # Defaults: it moves the villager table and changes the save format.
+    # 256 Villagers (Experimental) is off by default: it moves the villager
+    # table and changes the save format. Owner's Defaults ticks it (owner,
+    # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
 )
 
 # Patches the Owner's Defaults button leaves OFF, by exact id.  Owner's
-# Defaults ticks every other default-off patch; these are the exceptions the
-# owner named: Learning Skills Never Fails and Story / Cheat Upgrades.
+# Defaults ticks every other default-off patch; the one exception the owner
+# named is Learning Skills Never Fails.  (2026-10-03: "please toggle ON in the
+# Owner's Defaults: 256 experimental patches, Story events patches.")
 OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
-    + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
-    + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -132,8 +132,8 @@ def owners_default_fun_patch_selection(patch_id: str) -> bool:
     """Whether the Owner's Defaults button ticks this.
 
     The owner: "Every patch EXCEPT FOR LEARNING NEVER FAILS is on." -- so the
-    other default-off patches are ticked here too -- except Story / Cheat
-    Upgrades, which the owner keeps off here as well.  Matched by exact id.
+    other default-off patches are ticked here too, Story / Cheat Upgrades and
+    256 Villagers (Experimental) included.  Matched by exact id.
     """
     return patch_id not in OWNERS_DEFAULT_OFF_FUN_PATCH_IDS
 
