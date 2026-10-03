@@ -286,6 +286,69 @@ int main(void) {
           "and the file agrees with what memory showed");
     DeleteFileA(path1);
 
+    /* -- a reload renumbers the villagers: the titles follow them --------
+       The games load a save packed into records 0, 1, 2, ...: Hina [0] dies,
+       and after the reload Kai, Lani and Moku are each one record lower. */
+    new_session();
+    g_slot = 1;
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani"); villager(3, "Moku");
+    check(titles_set(3, 0, "Matriarch") == 1 && titles_set(3, 1, "Kai Title") == 1
+          && titles_set(3, 3, "Moku Title") == 1, "setup: Hina, Kai and Moku have titles");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Lani"); villager(2, "Moku");
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0, "AFTER A RELOAD KAI [1 -> 0] KEEPS HIS TITLE");
+    seen = titles_lookup(3, g_records[2]);
+    check(seen != NULL && lstrcmpA(seen, "Moku Title") == 0, "... and Moku [3 -> 2] keeps hers");
+    check(titles_lookup(3, g_records[1]) == NULL, "... Lani, now in Kai's old record, is given nothing");
+    check(titles.count == 2, "... and the dead Hina's title, on the record Kai holds now, is dropped");
+    new_session();
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && file_size(path1) == 16 + 80,
+          "THE FOLLOWED TITLES ARE WRITTEN BACK: a new session reads them at their new records");
+    /* The same within one session (a reload without leaving the game): the
+       sweep must not take a villager who merely moved for one who died. */
+    titles_tick(3);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Moku"); villager(2, "Kai");
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[2]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && titles.count == 2,
+          "A VILLAGER WHO MOVED IN THIS SESSION IS NOT SWEPT AWAY AS DEAD");
+    /* Two villagers of one identity: nothing is guessed. */
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Moku"); villager(3, "Kai");
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL && titles_lookup(3, g_records[3]) == NULL,
+          "two villagers sharing the title's identity: neither is given it");
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Moku Title") == 0, "... while Moku's still follows her");
+    /* Two titled villagers of one identity, one of whom died before the
+       reload: the survivor could be either, so neither title is given --
+       and the file never lists one record twice (it would be unreadable). */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); villager(3, "Kai");
+    check(titles_set(3, 1, "First Kai") == 1 && titles_set(3, 3, "Second Kai") == 1,
+          "setup: two villagers named Kai, each with a title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Lani");
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL, "a surviving Kai is not given either Kai's title");
+    new_session();
+    check(titles_lookup(3, g_records[1]) == NULL && titles.loaded && titles.count == 2,
+          "... and the file still loads with both entries (no record listed twice)");
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");
+
     /* -- Start Over: the reset deletes the slot's file, every game ------- */
     for (game = 1; game <= 5; ++game) {
         char what[96];

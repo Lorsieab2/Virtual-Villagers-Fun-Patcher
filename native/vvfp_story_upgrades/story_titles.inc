@@ -12,7 +12,8 @@
    stored fingerprint; a reused record (a birth into a dead villager's
    record) never inherits it.  The sweep drops a title once its villager has
    been seen in this session and its record then holds nobody or somebody
-   else.  Start Over deletes the file (native/shared/save_reset.c); a file
+   else -- after titles_follow has moved it to the record its villager
+   holds now, for the games renumber their villagers on every load.  Start Over deletes the file (native/shared/save_reset.c); a file
    that was present and is now missing is that reset, so the table is
    forgotten rather than written back. */
 
@@ -242,8 +243,86 @@ static int titles_rebind(int game, int index, unsigned int before) {
     return titles_commit();
 }
 
+/* How many present records carry this identity; *where gets the last. */
+static int titles_live_count(int game, unsigned int identity, int *where) {
+    int count = story_record_count(game);
+    int n = 0;
+    int r;
+    for (r = 0; r < count; ++r) {
+        const unsigned char *record = story_record(game, r);
+        if (record != NULL && story_record_present(game, record)
+            && story_title_identity(game, record) == identity) {
+            ++n;
+            *where = r;
+        }
+    }
+    return n;
+}
+
+/* MAKE EACH TITLE FOLLOW ITS VILLAGER.  The games load a save packed into
+   records 0, 1, 2, ...: after a death and a reload everyone behind it is in
+   a lower record, and a title kept at its old record index then labelled
+   nobody (its fingerprint no longer matched the record there) -- or, in a
+   session that had already seen the villager, was swept away as if they had
+   died.  So an entry whose record no longer holds its villager moves to the
+   one record that does: the identity (name, likes, dislikes) must be held by
+   exactly ONE present villager and by no other entry, else nothing is
+   guessed.  An entry left on a record another entry has just moved into
+   belonged to nobody there, and is dropped (no index may be listed twice).
+   Returns 1 when the table changed. */
+static int titles_follow(int game) {
+    static int target[VV_TITLES_MAX];         /* the record each entry's villager holds now, -1 unknown */
+    int i, j, kept;
+    int moved = 0;
+    /* First where everyone is, before anything moves: an entry's old record
+       may be the new record of an entry not yet looked at. */
+    for (i = 0; i < titles.count; ++i) {
+        const unsigned char *record = story_record(game, (int)titles.entries[i].index);
+        int where = -1;
+        int duplicate = 0;
+        target[i] = -1;
+        if (record != NULL && story_record_present(game, record)
+            && titles.entries[i].fingerprint == story_title_identity(game, record)) {
+            target[i] = (int)titles.entries[i].index;   /* still where it was */
+            continue;
+        }
+        for (j = 0; j < titles.count; ++j) {
+            duplicate |= j != i && titles.entries[j].fingerprint == titles.entries[i].fingerprint;
+        }
+        if (!duplicate && titles_live_count(game, titles.entries[i].fingerprint, &where) == 1) {
+            target[i] = where;
+        }                                     /* else away, gone, or ambiguous: not guessed */
+    }
+    for (i = 0, kept = 0; i < titles.count; ++i) {
+        int taken = 0;
+        if (target[i] < 0) {
+            for (j = 0; j < titles.count; ++j) {
+                taken |= j != i && target[j] == (int)titles.entries[i].index;
+            }
+        }
+        if (taken) {
+            moved = 1;                        /* its record is another villager's now: dropped */
+            continue;
+        }
+        titles.entries[kept] = titles.entries[i];
+        titles.seen[kept] = titles.seen[i];
+        if (target[i] >= 0 && (unsigned int)target[i] != titles.entries[i].index) {
+            titles.entries[kept].index = (unsigned int)target[i];
+            titles.seen[kept] = 1;
+            moved = 1;
+        }
+        ++kept;
+    }
+    for (i = kept; i < titles.count; ++i) {
+        titles.seen[i] = 0;
+    }
+    titles.count = kept;
+    return moved;
+}
+
 /* Once per frame (from the Origins companion's tick): bind to the slot,
-   detect a Start Over, and drop the titles of villagers that are gone. */
+   detect a Start Over, move titles to where their villagers are now, and
+   drop the titles of villagers that are gone. */
 static void titles_tick(int game) {
     int i;
     int changed = 0;
@@ -257,6 +336,7 @@ static void titles_tick(int game) {
             return;
         }
     }
+    changed = titles_follow(game);
     for (i = titles.count - 1; i >= 0; --i) {
         const unsigned char *record = story_record(game, (int)titles.entries[i].index);
         int match = record != NULL && story_record_present(game, record)

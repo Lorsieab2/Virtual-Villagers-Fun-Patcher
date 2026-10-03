@@ -70,6 +70,12 @@ class CustomTitlesFile(unittest.TestCase):
             "A FAILED WRITE LEAVES THE CHANGED TITLE AS IT WAS IN MEMORY",
             "A FAILED WRITE ADDS NO TITLE IN MEMORY",
             "A FAILED WRITE REMOVES NO TITLE IN MEMORY",
+            "AFTER A RELOAD KAI [1 -> 0] KEEPS HIS TITLE",
+            "THE FOLLOWED TITLES ARE WRITTEN BACK: a new session reads them at their new records",
+            "A VILLAGER WHO MOVED IN THIS SESSION IS NOT SWEPT AWAY AS DEAD",
+            "two villagers sharing the title's identity: neither is given it",
+            "a surviving Kai is not given either Kai's title",
+            "... and the file still loads with both entries (no record listed twice)",
         ):
             with self.subTest(case=case):
                 self.assertIn(case, text)
