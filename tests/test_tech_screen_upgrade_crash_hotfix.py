@@ -65,8 +65,10 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 # feature.py's own "village_wide:" label), so it gets the
                 # same single-site count.
                 # VV2 lost its second site with the unreachable village-wide
-                # preflight, which was the other one.
-                expected = 1 if game in (1, 2, 4) else 2
+                # preflight, which was the other one, and its last with the
+                # Cure helper's rows 6-8 arm, which no row reached (#506
+                # review): its village-wide rows report from the companion.
+                expected = {1: 1, 2: 0, 4: 1}.get(game, 2)
                 self.assertEqual(
                     source.count("mov eax, 0x{s['show_result_export']:X}"),
                     expected,
@@ -195,8 +197,12 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
         helper = source.split("cure_code = assemble(", 1)[1].split(
             "preflight_code = assemble(", 1
         )[0]
+        # Cure walks the pool the game's own singleton getter returns. (The
+        # rows 6-8 arm that also handed it to the village-wide payload as
+        # `lea ecx, [eax + 0x52C]` could never run and was removed -- #506.)
         self.assertIn("call 0x44F4E0", helper)
-        self.assertIn("lea ecx, [eax + 0x52C]", helper)
+        self.assertIn("call 0x44F4E0\n            test eax, eax\n            je cure_invalid_after_recheck\n"
+                      "            mov edx, eax", helper)
         self.assertNotIn("[esi + 0x10]", helper)
 
     def test_vv5_statue_fault_sites_are_not_hooked_at_all(self) -> None:

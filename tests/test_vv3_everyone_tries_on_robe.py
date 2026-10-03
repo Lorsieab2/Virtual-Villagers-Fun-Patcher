@@ -198,17 +198,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # with main 5aa370fc and with the branch, the only differing bytes in all three modes
     # are the PE CheckSum (0x160..0x162), the row's own 0x3571A..0x3578E, 0x5C88E..0x5C8CF
     # and 0x5EFC5..0x5EFE2, and the counter's operand-size byte 0x7B326 (83 -> 80).
+    # Re-pinned for #506's dead-code removal. Justified BEFORE re-pinning:
+    # rendering the complete catalog with main 934c5084 and with the branch, the
+    # only differing bytes in all three modes are the PE CheckSum (0x160..0x163),
+    # the Cure helper's below-row-5 arm 0x7B669..0x7B676, the village-wide
+    # entry's invalid-command return 0x7B84E..0x7B861 and the Tech menu's
+    # legacy tail 0xA3670..0xA367E -- each now a short jump over zeros.
     "stock": (
-        "35302C2C1FA15498E238509BA686F0EA3BE98F89FA5FF642E43F04D15AB52C81",
-        "01270D00",
+        "644F587CAD20609D35C9B45FA7B57FD341C4AFFD249509E3F4B17EF437AB1CD7",
+        "17B70D00",
     ),
     "collection_progression": (
-        "314D6F8D2B91A97D50D936C8B957A7F6DDDADE4FC7910E9A75632ADBC3424FE7",
-        "01400D00",
+        "9B8875553F65170D56309346958D633ADE7FA4897FF0648E137612FA3ACF7900",
+        "18D00C00",
     ),
     "immediate_fixed": (
-        "8B914C96C5542D18D8B37A7425BB8772D62ADFC4D5388D296F29D1B9237EA931",
-        "FF810D00",
+        "286A8C836E1366BEF58D4EB3CD46AD37DE0CD3A95FF738CB64C002EAA5576993",
+        "16120D00",
     ),
 }
 

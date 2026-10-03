@@ -74,10 +74,18 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # sub_43C840 splice) and 0x8EA80 (its cave). Nothing else changed.
     # Re-pinned when the .shr+0x004 dispatch stub nothing called (row
     # 0x8B004) was removed: five bytes back to zero, plus the PE checksum.
+    # Re-pinned for #506's dead-code removal. Justified BEFORE re-pinning:
+    # rendering with main 934c5084 and with the branch, the only differing
+    # bytes in all three modes are the PE CheckSum (0x150..0x152), the Tech
+    # menu's decided `cmp ebx, 8; ja` 0x56ABD..0x56AC6 and legacy tail
+    # 0x56B2B..0x56B3B, the five unread "Images/mN.png" strings
+    # 0x85F70..0x85FBD (zeroed, so the price table at 0x85FC0 stays put) and
+    # the Cure helper's below-row-5 arm 0x8B539..0x8B549. The length is
+    # unchanged.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "23AA6BF600AD6124A514997508B7E0A78232AFC9E4BDE7BF689D2483C0859511",
-        "collection_progression": "0D0C1F185A3E536A606142FE69C7CDEC4EEDEA088BE569841B22C3E5F597BE97",
-        "immediate_fixed": "0D0C1F185A3E536A606142FE69C7CDEC4EEDEA088BE569841B22C3E5F597BE97",
+        "stock": "F199787A44F0A76B7C15E460DCF5104961F13BCC641BCD7A1B023A4C8B171429",
+        "collection_progression": "FD2682716253F45262A4CEE1FBECC899D94619E3ACDBF56055B9DD535BAC780C",
+        "immediate_fixed": "FD2682716253F45262A4CEE1FBECC899D94619E3ACDBF56055B9DD535BAC780C",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

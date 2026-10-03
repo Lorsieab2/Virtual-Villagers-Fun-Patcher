@@ -9,6 +9,16 @@
 > Villagers and All Villagers are Exactly 18 itself. They were removed;
 > `vv5_origins_village_wide_upgrades` is now a route-only catalog row that
 > installs the Task9 base. The VV5 notes below describe the removed payload.
+>
+> **The Lost Children (VV2) no longer carries one either.** Its 1,312-byte
+> payload at `.shr+0x800` was called only by the base Cure helper's rows 6-8
+> arm, and the Tech menu called the helper with those rows only from a
+> fallback no row could reach: rows 0-5 are handled before it and rows 6 and
+> up go to the companion's dispatch stub, which performs the village-wide
+> rows (Codex, #506 review; proved by `tests/test_origins_dead_code_removed.py`
+> and executed by `tests/test_origins_dispatch_emulated.py`). The payload,
+> the arm and the fallback were removed; `vv2_origins_village_wide_upgrades`
+> is now route-only too. The VV2 notes below describe the removed payload.
 
 ## Current static/playtest package boundary
 
@@ -60,9 +70,10 @@ hook. The base passes `EAX=6/7/8`, `ECX=first physical record pointer`, and
 villagers granted Running, which its base payload passes on as "granted"),
 already-running villagers in `EDX`, and villagers whose Running dislike was
 removed in `ECX`. A full-Like villager gains no Like but still has any Running
-Dislike removed, in all five games; commands 7/8 return zero counts and invalid commands return
-`EAX=-1`, `EDX=0`, `ECX=0`. All helpers preserve `EBX`, `ESI`, `EDI`, `EBP`,
-and `ESP`.
+Dislike removed, in all five games; commands 7/8 return zero counts. Every
+caller passes command 6, 7 or 8, so the entry tests for 6 and 7 and runs 8
+otherwise; the invalid-command return it used to end with could never run and
+was removed. All helpers preserve `EBX`, `ESI`, `EDI`, `EBP`, and `ESP`.
 
 | Row | Label | Cost |
 | --- | --- | --- |

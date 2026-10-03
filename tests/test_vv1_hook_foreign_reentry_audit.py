@@ -168,6 +168,18 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       `test ebx, ebx` (same ZF for the je that reads it, EBX untouched) and
 #       `mov ecx, 4` became `push 4 / pop ecx` (same ECX, ESP balanced, flags
 #       untouched). No stock re-entry is added.
+#   0x35AB0                         re-confirmed after #506's dead-code
+#       removal. In the Tech menu it reaches, the `cmp ebx, 8; ja menu_loop`
+#       before the village-wide preflight (rows 9+ had already gone to Equal
+#       Division) and the legacy tail after the row-4 test (`cmp ebx, 8;
+#       ja menu_loop; jmp do_village_wide`, reached by no row) became short
+#       jumps over zeroed bytes, and the row-4 `je` became that jump; in the
+#       Cure helper it calls, the below-row-5 arm (`mov [edi+0x9E94], 1;
+#       ret`) went the same way. Every removed target was a label inside the
+#       menu or a return to its own caller, so no stock re-entry is removed or
+#       added, and no register or flag a surviving path reads is written
+#       differently: the jumps write nothing and the paths they skip could not
+#       run (tests/test_origins_dead_code_removed.py).
 #   0x3C393                         confirmed.  Exact stock sub_43C350 selects
 #       the first free record, sets its occupied/faction bytes at this
 #       boundary, and keeps the selected record index in the local written as
@@ -447,7 +459,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # pushes eax/ecx/edx/ebx on entry and pops all four before ret, the helper
     # clobbers only eax (already saved), and edi -- which carries the result
     # flags -- is neither read nor written by it.
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "1190FF74D668E68FB2E22660BC8201239A637CE905EAC19BD9B8ECF9D3FB5710",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "B42C3CCA7D1E8BE1B11EF32F7642816EE38A14F3099BDC17F3D882FA973DAB5D",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "85981BBBF90AF4359201D349D4DE3630C9BE14F1286B400FD780588BF6476BFE",

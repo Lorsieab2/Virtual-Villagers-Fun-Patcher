@@ -934,11 +934,15 @@ def main() -> None:
             je do_tech_doubler
             cmp ebx, 4
             je do_food_doubler
-            cmp ebx, 5
-            je do_cure
-            call 0x{HEAL_CAVE_VA:X}
-            nop
-            jmp menu_done
+            # Rows 0, 6 and up never reach here, and rows 1-4 jumped above,
+            # so this is row 5. The `cmp ebx, 5; je do_cure` that stood here
+            # always jumped, and the Cure call, `nop` and jump after it --
+            # reached only by a row the menu never gets here with -- could
+            # never run (Codex, #506 review). A short jump to do_cure, the
+            # next label, replaces them; the bytes are zeroed IN PLACE so
+            # every later byte of the menu keeps its address.
+            .byte 0xEB, 0x0E
+            .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
         do_cure:
             call 0x{HEAL_CAVE_VA:X}
@@ -1575,10 +1579,15 @@ def main() -> None:
         f"""
             cmp ebx, 5
             je cure_all
-            cmp ebx, 6
-            jae village_wide
-            or dword ptr [0x5824D0], 2
-            ret
+            # Its only callers are do_cure (row 5) and do_village_wide (rows
+            # 6-8), so this is row 6, 7 or 8. The `cmp ebx, 6; jae
+            # village_wide` that stood here always jumped, and the Food
+            # Doubler store and `ret` after it -- reached only by a row
+            # below 5 -- could never run (Codex, #506 review). A short jump
+            # replaces them; the bytes are zeroed IN PLACE so cure_all and
+            # its price immediates keep their addresses.
+            .byte 0xEB, 0x0B
+            .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         village_wide:
             # ebx = command (6 running / 7 mastery / 8 age).  Count the affected
             # villagers in the DLL first (PrepareOriginsVillageWide): if nothing

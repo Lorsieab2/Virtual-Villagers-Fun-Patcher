@@ -589,9 +589,11 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 if int(item["offset"], 0) == 0xA3180
             )["after"]
         )
+        # #506 review: the Tech menu's legacy tail (a Cure call no row could
+        # reach) is a short jump over zeroed bytes now.
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "DBABCEA5A7080CC32B567E6F4EF8388A9FCFD1169F5F06B7FBF1B1D62C763638",
+            "A0AC0D837B9DFCBAAC26B266606D0955FA36BF02D43DB5C30F1AB891307DFF67",
         )
         self.assertEqual(
             bytes.fromhex(

@@ -64,52 +64,6 @@ CONFIG = {
         # VV1-only, a per-game opt-in like always_clear_running_dislike.
         "golden_child_ptr": (0x36C, 0xC7),
     },
-    "vv2": {
-        "title": "Virtual Villagers - The Lost Children",
-        # VV2's base payload calls the entry directly and never checks the
-        # VVFPOWU header (its only reader, a preflight, was unreachable).
-        "signature_header": False,
-        "running_preference_id": 38,
-        "exe": "Virtual Villagers - The Lost Children.exe",
-        "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
-        "cave_offset": 0x9A004,
-        "cave_va": 0x49C004,
-        # The VV2 base Origins UI uses 0x9A180-0x9A7CB for its preflight and
-        # event helpers. Keep this optional village-wide payload after that
-        # occupied range inside the same executable .shr reserve.
-        "payload_offset": 0x9A800,
-        "stride": 0xE48C,
-        "first": "ecx",
-        "active": 0x30,
-        "health": 0x52C,
-        "age": 0x530,
-        "skills": (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4),
-        "native_skill_writer": 0x445430,
-        "skill_codes": (2, 5, 1, 3, 4),
-        "native_mastery_manager": 0x44F4E0,
-        "totem": 0x558,
-        "code_size": 0x500,
-        "age_code_offset": 0x360,
-        "likes": 0x5F0,
-        "dislikes": 0x6E8,
-        "slot_count": 62,
-        "running_preference_id": 38,
-        "bound": "edx",
-        "master_value": 100,
-        # VV2's own ShowOriginsVillageWideResult call site (shared with VV1
-        # via #include, scripts/build_vv2_origins_feature.py) always displays
-        # a "Granted Running to %d villagers." headline -- that arg has had
-        # nowhere to come from since VV1's own report_running_granted opt-in
-        # was VV1-only, which left VV2's call site permanently unable to
-        # supply a real value once the shared C function grew this 5th
-        # parameter. Opting VV2 in here is what actually fixes that,
-        # not just re-aligning the two sides' arg counts.
-        "report_running_granted": True,
-        # A full-Like villager still has a Running Dislike removed, as the
-        # description and the OFFICIAL spreadsheet say. Without this VV2's
-        # full-Like branch skipped the Dislike scan entirely.
-        "always_clear_running_dislike": True,
-    },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
         "running_preference_id": 38,
@@ -141,7 +95,8 @@ CONFIG = {
         "running_preference_id": 38,
         "bound": "edx",
         "master_value": 100,
-        # See vv2: full-Like villagers still lose a Running Dislike.
+        # Full-Like villagers still lose a Running Dislike, as the
+        # description and the OFFICIAL spreadsheet say.
         "always_clear_running_dislike": True,
     },
     "vv4": {
@@ -258,6 +213,11 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             raise RuntimeError(f"optional payload overlap at {va:#x}")
         code[start:end] = payload
 
+    # Every caller hands over row 6, 7 or 8: the base menus test the row
+    # before they call, and route every other row elsewhere. So the third
+    # test always jumped and the invalid-command return after it (EAX = -1,
+    # EDX = ECX = 0) could never run (Codex, #506 review; proved by
+    # tests/test_origins_dead_code_removed.py). Row 8 is what is left.
     put(
         entry_va,
         f"""
@@ -265,12 +225,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             je 0x{running_va:X}
             cmp eax, 7
             je 0x{mastery_va:X}
-            cmp eax, 8
-            je 0x{age_va:X}
-            xor edx, edx
-            xor ecx, ecx
-            mov eax, -1
-            ret
+            jmp 0x{age_va:X}
         """,
     )
 
@@ -345,7 +300,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         slot_count = config["slot_count"]
         # report_running_granted is opt-in (VV1 only as of this writing) so
         # this shared branch stays byte-identical for every other game that
-        # also reaches it (VV2-VV4 all lack native_running too). The granted
+        # also reaches it (VV3 lacks native_running too). The granted
         # count itself has nowhere to go through the existing 3-register
         # return (eax/ecx/edx are already full, and every callee-saved
         # register -- ebx/esi/edi/ebp -- already carries something the
@@ -365,10 +320,10 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         else:
             granted_store = ""
         # always_clear_running_dislike is set for every game that reaches
-        # this branch (VV1, VV2, VV3);
+        # this branch (VV1, VV3);
         # VV4's native helper path clears unconditionally. It stays a flag
         # only so a game that genuinely needs the old skip can say so.
-        # Before VV2 and VV3 opted in, their full-Like branch skipped the
+        # Before VV3 opted in, its full-Like branch skipped the
         # Dislike scan, contradicting their own description.
         # A villager whose Like slots are all full still can't
         # gain the Running Like, but per the OFFICIAL Origins Upgrade
@@ -740,17 +695,6 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     )
 
     entry_offset = entry_va - payload_va
-    if not config.get("signature_header", True):
-        # Nothing in this game reads the header (its base payload calls the
-        # entry directly), so the 0x20 bytes stay zero.
-        payload = bytes(0x20) + bytes(code)
-        return payload, {
-            "signature_offset": None,
-            "entry_offset": config["payload_offset"] + (entry_va - payload_va),
-            "running_offset": config["payload_offset"] + (running_va - payload_va),
-            "mastery_offset": config["payload_offset"] + (mastery_va - payload_va),
-            "age_offset": config["payload_offset"] + (age_va - payload_va),
-        }
     header = bytearray(b"VVFPOWU\0")
     if entry_offset < 0 or entry_offset > 0xFFFF:
         raise AssertionError(
@@ -818,15 +762,6 @@ def main() -> None:
                 " The Tech screen's Food and Tech Point Doublers do not double "
                 "Island Event, Duplicate Collectible or Golden Child tech gains."
             )
-        elif game_id == "vv2":
-            description += (
-                " The Tech screen also offers Time Warp, Island Event, Barrel of "
-                "Babies, Tech and Food Point Doublers, and Cure All Villagers, the "
-                "Villager Details screen grants Youth, Full Mastery, Running, and "
-                "Set Age to 18, and the Heathen mask cosmetics are included. The "
-                "point doublers do not double Island Event, Duplicate Collectible "
-                "or Gong of Wonder tech gains."
-            )
         elif game_id == "vv3":
             description += (
                 " The Tech screen also offers Food and Tech Point Doublers, Complete "
@@ -892,7 +827,6 @@ def main() -> None:
                 "source": "exact stock executable embedded preference table",
                 "table_file_offset": {
                     "vv1": "0x7B260",
-                    "vv2": "0x8B808",
                     "vv3": "0x97488",
                     "vv4": "0xA0CD8",
                 }[game_id],
@@ -903,14 +837,8 @@ def main() -> None:
             "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
             "dependencies": [f"{game_id}_enable_origins_exclusive_features"],
             "extension_abi": {
-                **(
-                    {
-                        "signature": "VVFPOWU",
-                        "signature_offset": f"0x{entries['signature_offset']:X}",
-                    }
-                    if entries["signature_offset"] is not None
-                    else {"signature": None}
-                ),
+                "signature": "VVFPOWU",
+                "signature_offset": f"0x{entries['signature_offset']:X}",
                 "entry_offset": f"0x{entries['entry_offset']:X}",
                 "entry_virtual_address": f"0x{config['cave_va'] + (entries['entry_offset'] - config['cave_offset']):X}",
                 "calling_convention": (
@@ -924,7 +852,7 @@ def main() -> None:
                         if config.get("native_like_add")
                         else "full-Like skips in EAX"
                     )
-                    + ", already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full-Like villagers still have any Running Dislike removed (no Like is added); commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP"
+                    + ", already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full-Like villagers still have any Running Dislike removed (no Like is added); commands 7/8 return zero counts; only commands 6, 7 and 8 are ever passed (any other value runs command 8); preserves EBX/ESI/EDI/EBP/ESP"
                 ),
                 "commands": {
                     "6": "All Villagers Like Running",
@@ -1021,6 +949,54 @@ VV5_ROUTE = {
 }
 
 
+# The Lost Children's public row carries no payload of its own either.
+#
+# It used to install a 1,312-byte village-wide payload at .shr+0x800 that only
+# the base Cure helper's rows 6-8 arm called -- and only the Tech menu's
+# fallback ever called the helper with those rows, after every row from 0 to 5
+# had been handled and rows 6 and up had gone to the companion's dispatch
+# stub. So nothing in any shipped build reached it (Codex, #506 review), and
+# it was removed rather than kept. The companion performs the village-wide
+# Running, Full Mastery and Young Adults rows; this row stays the player's
+# route to the Origins upgrades: ticking it installs the internal base.
+VV2_ROUTE = {
+    "id": "vv2_origins_village_wide_upgrades",
+    "game_id": "vv2",
+    "name": "Enable Origins Tech, Details, and Village-Wide Upgrades",
+    "description": (
+        "Includes the Origins Tech screen and Villager Details-screen buttons "
+        "and their upgrades through the internal Origins prerequisite, which "
+        "supplies every upgrade; this row adds no code of its own. The "
+        "Village-Wide menu offers Running, Full Mastery, and Make Villagers "
+        "Young Adults. The Tech screen also offers Time Warp, Island Event, "
+        "Barrel of Babies, Tech and Food Point Doublers, and Cure All "
+        "Villagers, the Villager Details screen grants Youth, Full Mastery, "
+        "Running, and Set Age to 18, and the Heathen mask cosmetics are "
+        "included. The point doublers do not double Island Event, Duplicate "
+        "Collectible or Gong of Wonder tech gains."
+    ),
+    "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
+    "dependencies": ["vv2_enable_origins_exclusive_features"],
+    "behavior_changes": [
+        "Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route.",
+        "Every upgrade, including the village-wide All Villagers Like Running, Grant Full Mastery to All Villagers and Make Villagers Young Adults rows, is implemented by the base feature and its companion; this row writes no bytes of its own.",
+    ],
+    "explicit_non_changes": [
+        "This row installs no executable bytes and no companion file of its own.",
+    ],
+    "evidence_status": "route-only record; the upgrades it exposes are the base feature's",
+    "companion_files": [],
+    "patches": [],
+    "enabled": True,
+}
+
+
+def write_vv2_route() -> None:
+    manifest_path = ROOT / "data" / "vv2_origins_village_wide_upgrades.json"
+    manifest_path.write_text(json.dumps(VV2_ROUTE, indent=2) + "\n", encoding="utf-8", newline="")
+    print(f"vv2: route only -> {manifest_path}")
+
+
 def write_vv5_route() -> None:
     manifest_path = ROOT / "data" / "vv5_origins_village_wide_upgrades.json"
     manifest_path.write_text(json.dumps(VV5_ROUTE, indent=2) + "\n", encoding="utf-8", newline="")
@@ -1029,4 +1005,5 @@ def write_vv5_route() -> None:
 
 if __name__ == "__main__":
     main()
+    write_vv2_route()
     write_vv5_route()

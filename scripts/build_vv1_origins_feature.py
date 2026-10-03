@@ -816,26 +816,13 @@ PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite dr
 # source to zero because its portrait registration is already aligned.
 DETAILS_MASK_Y_NUDGE_PX = -15
 DETAILS_MASK_X_NUDGE_PX = 1
-# Read-only companion-PNG path strings. They are genuine read-only constants,
-# so they belong in .rdata, and they are added to the Origins string cave in
-# main() (MASK_PATHS_VA is assigned there, right after the base strings) --
-# that cave is private to this feature, unlike the .text slack, which several
-# other fun-patches (population-saturation guards, school-lessons, ...) also
-# claim, and unlike the mask cave, which is 5 bytes too small to also hold
-# them. Five 16-byte NUL-padded strings so the draw hook can select one by
-# (choice << 4) instead of writing a digit into a shared string -- an in-place
-# digit write is itself a write into executable memory and would defeat the
-# whole W^X split. Every asset filename in the stock exe is bare (no path
-# separator), yet the files live under Images/ on disk, so the loader builds
-# that prefix at load time; "Images/mN.png" is the one relative-path shape
-# already proven to work for this game.
-MASK_PATH_STRIDE = 0x10  # 16-byte stride so the draw hook selects by (choice<<4)
-mask_paths_data = b"".join(
-    f"Images/m{n}.png\0".encode("ascii").ljust(MASK_PATH_STRIDE, b"\0")
-    for n in range(1, 6)
-)
-assert len(mask_paths_data) == 5 * MASK_PATH_STRIDE
-# MASK_PATHS_VA is assigned in main() once the string cave offset is known.
+# The string cave used to end with five 16-byte "Images/mN.png" path
+# strings for an earlier mask draw. No instruction in any build reads them --
+# the village and Details masks are both drawn from the companion's
+# mask_atlas.png sprite -- so they are now zero bytes of the same length,
+# which keeps the price table after them at 0x485FC0.
+MASK_PATH_STRIDE = 0x10
+MASK_PATHS_RESERVED = 5 * MASK_PATH_STRIDE
 # The mask cave itself holds only code.
 # Playtested: the first build drew the mask right after the occupied check
 # (before the native head/body/clothing draw for that same iteration), so the
@@ -1060,15 +1047,14 @@ def main() -> None:
         "No tech points have been deducted.",
     )
 
-    # Cosmetic-mask companion-PNG path strings live here in the read-only
-    # string cave (.rdata), fixed 16-byte stride so the draw hook selects one
-    # by (choice << 4). Aligned to a 16-byte boundary first so MASK_PATHS_VA +
-    # (choice-1)*0x10 is exact. Kept out of executable memory entirely; see the
-    # W^X notes on the mask overlay.
     while len(strings) % MASK_PATH_STRIDE:
         strings.append(0)
-    mask_paths_va = STRINGS_VA + len(strings)
-    strings.extend(mask_paths_data)
+    # The five "Images/mN.png" path strings were read by no instruction in
+    # any build: the village and Details masks are both drawn from the
+    # companion's mask_atlas.png sprite. Kept as zero bytes, the same length,
+    # so tech_cost_table after them stays at 0x485FC0, where the Story /
+    # Cheat Upgrades rows rewrite its prices.
+    strings.extend(bytes(MASK_PATHS_RESERVED))
 
     # tech_cost_table/detail_cost_table are the only tables the charge
     # logic actually reads (legacy_charge indexes tech_cost_table by row;
@@ -1313,8 +1299,14 @@ def main() -> None:
         menu_dispatch_normal:
             cmp ebx, 6
             jb legacy_charge
-            cmp ebx, 8
-            ja menu_loop
+            # Rows 9 and up went to the Equal Division dispatch above, so
+            # this is row 6, 7 or 8. The `cmp ebx, 8; ja menu_loop` that
+            # stood here could never jump (Codex, #506 review: a check whose
+            # outcome is already decided); its 9 bytes are skipped and
+            # zeroed IN PLACE, so no later byte -- the price immediates the
+            # Story / Cheat Upgrades rows rewrite among them -- moves.
+            .byte 0xEB, 0x07
+            .byte 0, 0, 0, 0, 0, 0, 0
             call 0x{VILLAGE_PREFLIGHT_VA:X}
             test eax, eax
             jz menu_loop
@@ -1355,11 +1347,15 @@ def main() -> None:
             je do_barrel
             cmp ebx, 3
             je do_tech_doubler
-            cmp ebx, 4
-            je do_food_doubler
-            cmp ebx, 8
-            ja menu_loop
-            jmp do_village_wide
+            # Only row 4 is left: rows 0 (Time Warp) and 5 (Cure) never get
+            # here and rows 6 and up took the branch above legacy_charge. So
+            # `cmp ebx, 4; je do_food_doubler` always jumped, and the
+            # `cmp ebx, 8; ja menu_loop; jmp do_village_wide` after it could
+            # never run (Codex, #506 review). A short jump replaces the test;
+            # the 14 bytes after it are zeroed IN PLACE so do_island_event
+            # and everything after it keep their addresses.
+            .byte 0xEB, 0x48
+            .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
         do_island_event:
@@ -1769,10 +1765,15 @@ def main() -> None:
         f"""
             cmp ebx, 5
             je cure_all
-            cmp ebx, 6
-            jae village_wide
-            mov dword ptr [edi + 0x9E94], 1
-            ret
+            # Its only callers are cure_gated (row 5) and do_village_wide
+            # (rows 6-8), so this is row 6, 7 or 8. The `cmp ebx, 6;
+            # jae village_wide` that stood here always jumped, and the
+            # Food Doubler store and `ret` after it -- reached only by a row
+            # below 5 -- could never run (Codex, #506 review). A short jump
+            # replaces them; the bytes are zeroed IN PLACE so cure_all and
+            # its price immediates keep their addresses.
+            .byte 0xEB, 0x0E
+            .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         village_wide:
             # None of the three rows charge upfront any more (the generic
             # dispatch that calls this only ever checked affordability, see
@@ -3535,8 +3536,6 @@ def main() -> None:
         mask_hook_code
         + mask_frame_cache_code
     )
-    # The read-only path strings were already appended to the .rdata string
-    # cave above (mask_paths_va); no separate patch is needed for them here.
     patch(
         MASK_OVERLAY_FILE_OFFSET,
         b"\0" * len(mask_overlay_blob),
