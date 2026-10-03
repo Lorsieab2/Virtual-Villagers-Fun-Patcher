@@ -4027,8 +4027,30 @@ def _needs_on(patch: FunPatch) -> tuple[tuple[str, str], ...]:
             raise PatcherError(
                 f"Invalid needs_on entry on {patch.id}: each needs an id and a for."
             )
+        alternatives = entry.get("or", [])
+        if not isinstance(alternatives, list) or not all(
+            isinstance(item, str) and item.strip() for item in alternatives
+        ):
+            raise PatcherError(
+                f"Invalid needs_on entry on {patch.id}: 'or' must list feature IDs."
+            )
         result.append((entry["id"].strip(), entry["for"].strip()))
     return tuple(result)
+
+
+def _needs_on_alternatives(patch: FunPatch, dependency_id: str) -> tuple[str, ...]:
+    """The patches that serve a ``needs_on`` entry as well as its own ``id``.
+
+    Codex (#512 review): Cause of Death names the village for the logs at
+    every save, as Village Statistics does, so the parentage log's
+    Statistics entry lists it under ``or``. With either ticked the entry is
+    met: the confirmation must not tell the player the log does less when it
+    does not.
+    """
+    for entry in patch.raw.get("needs_on", ()) or ():
+        if isinstance(entry, dict) and str(entry.get("id", "")).strip() == dependency_id:
+            return tuple(item.strip() for item in entry.get("or", []) or [])
+    return ()
 
 
 def patch_requirements(
@@ -4059,14 +4081,15 @@ def patch_requirements(
     )
     soft = _needs_on(patch)
     for dependency_id, _ in soft:
-        if dependency_id not in by_id:
-            raise PatcherError(
-                f"{patch.id} needs_on names an unknown patch: {dependency_id}"
-            )
-        if by_id[dependency_id].game_id != patch.game_id:
-            raise PatcherError(
-                f"{patch.id} needs_on names a patch of another game: {dependency_id}"
-            )
+        for named in (dependency_id, *_needs_on_alternatives(patch, dependency_id)):
+            if named not in by_id:
+                raise PatcherError(
+                    f"{patch.id} needs_on names an unknown patch: {named}"
+                )
+            if by_id[named].game_id != patch.game_id:
+                raise PatcherError(
+                    f"{patch.id} needs_on names a patch of another game: {named}"
+                )
     lines: list[str] = []
     for dependency_id in hard:
         lines.append(
@@ -4074,7 +4097,9 @@ def patch_requirements(
             "and unticking it unticks this."
         )
     for dependency_id, purpose in soft:
-        lines.append(f"Needs {by_id[dependency_id].name} on for {purpose}.")
+        alternatives = _needs_on_alternatives(patch, dependency_id)
+        either = "".join(f" or {by_id[other].name}" for other in alternatives)
+        lines.append(f"Needs {by_id[dependency_id].name}{either} on for {purpose}.")
     if not lines:
         lines.append(
             "Requires no other patch to be ticked"
@@ -4127,7 +4152,9 @@ def unmet_needs_on(
         if patch.id not in chosen:
             continue
         for dependency_id, purpose in _needs_on(patch):
-            if dependency_id in chosen:
+            if dependency_id in chosen or any(
+                other in chosen for other in _needs_on_alternatives(patch, dependency_id)
+            ):
                 continue
             other = by_id.get(dependency_id)
             if other is None:

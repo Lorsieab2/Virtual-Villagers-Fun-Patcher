@@ -158,6 +158,39 @@ class PatchRequirementTests(unittest.TestCase):
         for game in ("vv2", "vv3", "vv4", "vv5"):
             self.assertEqual(by[f"{game}_write_village_statistics"].get("needs_on", []), [])
 
+    def test_cause_of_death_meets_the_parentage_logs_statistics_entry(self):
+        # Codex (#512 review): Cause of Death names the village and creates the
+        # logs at the first save, as Village Statistics does, so with it ticked
+        # the parentage log must not be reported as doing less. With neither
+        # ticked the entry is still reported, naming both.
+        catalog = patcher.load_fun_patches()
+        by = {patch.id: patch for patch in catalog}
+        for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            with self.subTest(game=game):
+                log = by[f"{game}_write_parentage_log"]
+                stats = by[f"{game}_write_village_statistics"].name
+                cause = by[f"{game}_cause_of_death"].name
+                entry = next(e for e in log.raw["needs_on"] if e["id"] == f"{game}_write_village_statistics")
+                self.assertEqual(entry["or"], [f"{game}_cause_of_death"])
+                self.assertIn(stats, [row[1] for row in patcher.unmet_needs_on([log.id], catalog)])
+                for chosen in ([log.id, f"{game}_cause_of_death"], [log.id, f"{game}_write_village_statistics"]):
+                    self.assertNotIn(stats, [row[1] for row in patcher.unmet_needs_on(chosen, catalog)])
+                self.assertIn(f"Needs {stats} or {cause} on for the village and savegame header",
+                              patcher.patch_requirement_text(log, catalog))
+
+    def test_a_needs_on_alternative_must_be_a_known_patch_of_the_same_game(self):
+        catalog = list(patcher.load_fun_patches())
+        log = next(p for p in catalog if p.id == "vv3_write_parentage_log")
+        raw = dict(log.raw, needs_on=[{"id": "vv3_write_village_statistics", "for": "x", "or": ["nope"]}])
+        bad = patcher.FunPatch(**{**log.__dict__, "raw": raw}) if hasattr(log, "__dict__") else None
+        if bad is None:
+            self.skipTest("FunPatch is not reconstructible here")
+        with self.assertRaises(patcher.PatcherError):
+            patcher.patch_requirements(bad, catalog)
+        raw = dict(log.raw, needs_on=[{"id": "vv3_write_village_statistics", "for": "x", "or": "vv3_cause_of_death"}])
+        with self.assertRaises(patcher.PatcherError):
+            patcher._needs_on(patcher.FunPatch(**{**log.__dict__, "raw": raw}))
+
     def test_256_villagers_needs_fix_vanilla_bugs_through_the_prerequisite_ui(self):
         # Codex (#509 review): ticking 256 Villagers with Fix Vanilla Bugs off
         # cannot load a village the base game's exactly-150 save bug already
