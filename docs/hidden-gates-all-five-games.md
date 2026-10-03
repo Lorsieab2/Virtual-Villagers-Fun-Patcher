@@ -36,11 +36,11 @@ THE BIG PICTURE (rules shared by most or all games)
    on their own (VV2-VV5; VV1 uses the same skill + 40 roll).
 
 3. Every task is another dice roll, and a failure wastes it. Each completed
-   job step succeeds with a chance of about (skill + 33)% -- VV1 uses skill +
-   31. A villager who LIKES "learning" gets +66 instead of +33; one who
-   DISLIKES it gets only +16. In VV4/VV5 Learning tech adds +15 or +30. A
-   failed roll gives no food, no build progress, no tech points, no cure and
-   no baby.
+   job step succeeds with a chance of (skill + 34)% -- the roll is 0-99 and
+   passes at skill + 33 or below; VV1 uses skill + 31. A villager who LIKES
+   "learning" gets +66 instead of +33; one who DISLIKES it gets only +16. In
+   VV4/VV5 Learning tech adds +15 or +30. A failed roll gives no food, no
+   build progress, no tech points, no cure and no baby.
 
 4. Who never works. Children under 14, sick villagers, and pregnant or nursing
    mothers never pick a job (VV2-VV5). In VV3 the Tribal Chief never does.
@@ -80,8 +80,8 @@ THE BIG PICTURE (rules shared by most or all games)
 
 8. Huts cap the population. Each game stops births at certain head-counts
    until the next population hut is finished:
-   - VV1: 25 and 50 (hut 2 starts at 23-24 people, hut 3 at 46-49 -- a narrow
-     window; unborn babies count).
+   - VV1: 15 / 25 / 50 people need huts 1 / 2 / 3 (hut 2 starts at 23-24
+     people, hut 3 at 46-49 -- a narrow window; unborn babies count).
    - VV2: 15 / 25 / 50 villagers need 1 / 2 / 3 huts.
    - VV3: 10 / 17 / 35 need 1 / 2 / 3 finished huts.
    - VV4/VV5: 10 / 17 / 35 (VV5 counts believers: 17 and 35).
@@ -90,12 +90,14 @@ THE BIG PICTURE (rules shared by most or all games)
    adds Magic 3.
 
 9. Healing is a skill roll too. A cure succeeds with about (Healing skill +
-   31-33)% chance. A healer who DISLIKES medicine fails half their cures
+   31-34)% chance. A healer who DISLIKES medicine fails half their cures
    regardless (VV3-VV5). In VV5 healers never treat sick Heathens.
 
 10. Research pays tech points = Research skill divided by a number that
     depends on Science level (VV1: 7/5/3; VV2: 11/9/5; VV4/VV5: 11/9/7). A
-    researcher whose skill is below that number earns NOTHING. The game
+    researcher whose skill is below that number earns nothing from the base
+    formula; in VV1 that is nothing at all, but in VV2-VV5 a success can still
+    earn the game's bonuses (lit fire, chief, Magic, collections). The game
     speed setting also changes the amount per action: Fast gives MORE food
     and tech points per successful action, Slow gives less (in VV3-VV5 the
     payout is divided by speed/6, where the speed value is 3 on Fast, 6 on
@@ -103,11 +105,12 @@ THE BIG PICTURE (rules shared by most or all games)
 
 11. Time away plays by different rules. Catch-up/Time Warp breeding skips
     almost all the live checks in VV4 and VV5 (no Love Shack, no Parenting
-    roll, no over-50 limit for the mother) -- which explains older mothers
-    after time away. In VV2 the man can be any age away, and children inherit
-    more skill (10-19 instead of 4-11). Research pays MORE during catch-up in
-    VV2 and VV4, and building is slower in VV2. In VV1 one healing action
-    during catch-up can cure every sick adult at once.
+    roll, and an initiating mother aged 50 or over is not refused; the partner
+    search still rejects a partner aged 50 or over) -- which explains older
+    mothers after time away. In VV2 the man can be any age away, and children
+    inherit more skill (10-19 instead of 4-11). Research pays MORE during
+    catch-up in VV2 and VV4, and building is slower in VV2. In VV1 one healing
+    action during catch-up can cure every sick adult at once.
 
 THE TOP SURPRISES
 -----------------
@@ -710,7 +713,8 @@ evidence order, these readings rank below live memory and the owner's saves.
 12. **Every working step has a skill check, and failing it ends the task.**
     * Success means `RNG(100) ≤ skill + bonus`. The bonus is +33 normally, +66 if the villager likes
       "learning" and +16 if they dislike it.
-    * At 67 skill or more (34 if they like learning), nobody ever fails.
+    * `RNG(100)` is 0-99, so the chance is (skill + 34)%: a neutral villager at skill 0 succeeds
+      34% of the time, and at 66 skill or more (33 if they like learning) nobody ever fails.
     * On failure the task is cancelled with no output. A failed villager with skill 0 is bumped to 4.
     *Evidence:* `0x44E170–0x44E1AC` (`ebp` = 0x42/0x21/0x10), per-skill compare e.g.
     `0x44E1D0–0x44E1E2`. On fail: `0x4492A0` and `0x44B1B0` clear the queue; `mov [skill],4` at
@@ -1014,8 +1018,9 @@ already counts toward population.
    * **Food and research:** gathering always pays the normal-speed amounts, and research pays more
      tech points.
    * **Building:** construction moves at half speed.
-2. **Research below 11 earns 0 tech points at Science 1.** Low-skill researchers are pure practice
-   until Science 2 (Research 9+) or Science 3 (Research 5+).
+2. **Research below 11 earns 0 tech points from the base formula at Science 1.** Below Science 2
+   (Research 9+) or Science 3 (Research 5+), a low-skill researcher's only points are the lit fire's
+   10% chance of +1 (rule 2).
 3. **Twins and triplets are impossible below Medicine 3.**
 4. **A child inherits nothing when the chosen parent is best at Parenting,** and the Culture 1
    "same skill" bonus (4–5) is lower than the normal 5–7.
@@ -1061,7 +1066,7 @@ Source: stock `Virtual Villagers - The Secret City.exe` (831,488 bytes), disasse
 - **CATCH-UP:** 0x4684D0 → 0x428C60 (at 0x46866D) → aging loop 0x45FFE0 (at 0x428CA0) → 0x45BF00, called 4 times per age unit (0x460568–0x460580). This only happens when the villager's processed clock is more than 2 units behind their age, and only for adults who are not sick, not pregnant and not the chief. 0x45BF00 → 0x459730 / 0x45AF00 → 0x45B790, which executes the queued steps on the spot: step 13 at 0x45B7EB, step 22 at 0x45B91E, everything else through 0x461FB0.
 
 **The skill test behind every job: 0x45A2C0.** Every harvest, build, hut repair, cure, research session and conception goes through this test.
-- Plain: each time a villager finishes a job they roll for success. The chance is their skill + 33 percent, so anyone at 67 skill or more always succeeds. Villagers who like "learning" (or are under temporary effect 3) get +66 instead. Villagers who dislike "learning" get only +16. On a failure they shake their head, the rest of the job is cancelled (no food, no build progress, no tech points, no cure, no baby) and they gain nothing. The one exception: a villager at exactly 0 skill gains 4 points even when they fail.
+- Plain: each time a villager finishes a job they roll for success. The roll is 0-99 and passes at skill + 33 or below, so the chance is skill + 34 percent: a neutral villager at skill 0 succeeds 34% of the time, and anyone at 66 skill or more always succeeds. Villagers who like "learning" (or are under temporary effect 3) get +66 instead. Villagers who dislike "learning" get only +16. On a failure they shake their head, the rest of the job is cancelled (no food, no build progress, no tech points, no cure, no baby) and they gain nothing. The one exception: a villager at exactly 0 skill gains 4 points even when they fail.
   Evidence: the margin is set at 0x45A2F5–0x45A31B (0x21, 0x21−0x11, or 0x42). The test is `rand(100)` vs skill+margin, e.g. `cmp eax,ebp; jle success` at 0x45A34C. A failure clears the queue (0x460F70, e.g. 0x45A3BE) and starts action 0x31 "Shaking head". The zero-skill consolation is +4 at 0x45A3AE. REACHED through step type 7 in both chains.
 - Plain: on a success the skill rises by (70 − skill) ÷ 18 for Farming, Research and Building; ÷ 10 for Breeding; ÷ 12 for Healing. The first success from 0 always gives 7. Learning-lovers get double and learning-haters get half. Once that formula reaches 0 (Farming, Building and Research from about 53; Breeding from 61; Healing from 59), each success has only a 51% × (100 − skill)% chance of +1. That is the slow grind to Master.
   Evidence: divisors are `0x38E38E39 sar2` (÷18) at 0x45A455, `0x66666667 sar2` (÷10) at 0x45A5CF, `0x2AAAAAAB sar1` (÷12) at 0x45A6EA, ÷18 at 0x45A7F3 and 0x45A9D3. The floor of 7 is at 0x45A46C. Doubling and halving are at 0x45A47A–0x45A48D. The chance of +1 is `rand(100)<=50 && rand(100)>=skill` at 0x45A493–0x45A4B2. REACHED.
@@ -1169,7 +1174,7 @@ Source: stock `Virtual Villagers - The Secret City.exe` (831,488 bytes), disasse
   Evidence: 0x45D2C0 (sick byte +0xE89, health >0). REACHED (0x45B695 live, 0x45B924 catch-up).
 - **With nobody sick, healers study medicine only at Medicine 2+.** Studying trains Healing. Below Medicine 2, a healer with no patient does nothing.
   Evidence: `0x426FC0(1) cmp eax,2; jl fail` at 0x45B69E → action 0xBD "Studying medicine" (0x451890, ends in a practise-Healing step at 0x4519FC). REACHED.
-- **Cure chance:** the cure needs the Healing skill test (skill + 33%). **A healer who dislikes medicine then fails half of the successful attempts anyway** (live only).
+- **Cure chance:** the cure needs the Healing skill test ((skill + 34)%). **A healer who dislikes medicine then fails half of the successful attempts anyway** (live only).
   Evidence: 0x457395; dislikes(4) `rand<50` → fail at 0x4573A2–0x4573C0; the cure clears +0xE89 at 0x4573F0. REACHED, live.
 - **Catch-up quirk:** in catch-up the medicine-hater penalty is missing. The cure counter 0x5824B0 goes up **even when the cure fails**. The live code bumps the same counter only on success, and pays its 30-cure award off it.
   Evidence: 0x45B961–0x45B971 (`inc [0x5824B0]` after `je`) vs 0x457405. REACHED.
