@@ -67,7 +67,9 @@ class VV2RequiredFixTests(unittest.TestCase):
         # already-Running villagers are truly left unchanged.
         self.assertIn("removes any Running Dislike whether or not a Like was added", village)
         self.assertIn("leaves already-Running villagers unchanged", village)
-        self.assertIn("running_existing:\n                inc ebp\n                jmp running_next", village)
+        # The generic branch VV2 reaches. (The old 16-space form matched only
+        # New Believers' native branch, removed with its unreachable payload.)
+        self.assertIn("running_existing:\n            inc ebp\n            jmp running_next", village)
 
     def test_vv2_cure_all_restores_partial_health_and_clears_sickness(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(

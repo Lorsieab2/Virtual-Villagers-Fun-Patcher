@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "9133C01578847C0491203C91535AF8964546B1B089C04764895733CCF58578AD"
-ACTIVE_SOURCE_TEXT_SHA256 = "9133C01578847C0491203C91535AF8964546B1B089C04764895733CCF58578AD"
+ACTIVE_SHA256 = "9602A5504F81A97DA88CBECB211653C4825DF583D95E4E8536C90404C57B0DD8"
+ACTIVE_SOURCE_TEXT_SHA256 = "9602A5504F81A97DA88CBECB211653C4825DF583D95E4E8536C90404C57B0DD8"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -228,7 +228,6 @@ OFF = {
     "show_menu": 0x670,
     "confirm": 0x6D0,
     "status": 0x740,
-    "resolve_manager": 0x7A0,
     "tech_menu": 0x840,
     "detail_menu": 0xB40,
     "age": 0xD40,
@@ -275,7 +274,6 @@ SIZES = {
     "show_menu": 0x60,
     "confirm": 0x70,
     "status": 0x50,
-    "resolve_manager": 0xA0,
     "tech_menu": 0x300,
     "detail_menu": 0x200,
     "age": 0x300,
@@ -576,32 +574,6 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         pop ebx
         pop ebp
         ret 4
-    """)
-    result["resolve_manager"] = put(page, page_va, "resolve_manager", """
-        test eax, eax
-        jz invalid
-        mov ebx, dword ptr [eax+0x17E24]
-        cmp ebx, 150
-        jae invalid
-        push ebx
-        mov ecx, 0x554148
-        call 0x46F950
-        test eax, eax
-        jz invalid
-        cmp byte ptr [eax+0x1CD4], 0
-        je invalid
-        cmp byte ptr [eax+0x1CE1], 0
-        jne invalid
-        cmp byte ptr [eax+0x1CEC], 0
-        jne invalid
-        cmp dword ptr [eax+0x1C40], 0
-        jle invalid
-        pop ebx
-        ret
-    invalid:
-        xor eax, eax
-        pop ebx
-        ret
     """)
     result["eligible"] = put(page, page_va, "eligible", """
         mov edx, dword ptr [esp+4]
@@ -4406,33 +4378,20 @@ def patch_payload(active: dict[str, object], stock_page_va: int) -> tuple[bytes,
             "local_x": "137",
             "local_y": "2",
         }
-    old_guard = bytes(payload[0x270:0x2C0])
-    resolver_transfer = asm(
-        f"push 0x{stock_page_va + OFF['resolve_manager']:X}; ret",
-        PAYLOAD_VA + 0x276,
-    )
-    if len(resolver_transfer) != 6:
-        raise RuntimeError("safe resolver transfer length drift")
-    payload[0x276:0x27C] = resolver_transfer
     tech_stub = asm(f"mov eax, 0x{stock_page_va + OFF['tech_entry']:X}; jmp eax", PAYLOAD_VA + 0x2C0)
     detail_stub = asm(f"mov eax, 0x{stock_page_va + OFF['detail_entry']:X}; jmp eax", PAYLOAD_VA + 0x600)
     if len(tech_stub) != 7 or len(detail_stub) != 7:
         raise RuntimeError("Task9 absolute menu stub length drift")
     payload[0x2C0:0x2C7] = tech_stub
     payload[0x600:0x607] = detail_stub
-    forbidden = bytes.fromhex("E11C0000")
-    forbidden_count = payload.count(forbidden)
-    payload = bytearray(bytes(payload).replace(forbidden, bytes.fromhex("EC1C0000")))
-    if forbidden in payload:
+    # The legacy menus that read the withdrawn +0x1CE1 eligibility byte are
+    # gone from the base payload; refuse a base that brings one back.
+    if bytes.fromhex("E11C0000") in payload:
         raise RuntimeError("withdrawn legacy eligibility read remains")
     return bytes(payload[:patch_length]), {
         "geometry": geometry,
-        "safe_resolver_before_sha256": sha(old_guard),
-        "safe_resolver_transfer_bytes": resolver_transfer.hex().upper(),
-        "safe_resolver_transfer_sha256": sha(resolver_transfer),
         "tech_entry_stub": tech_stub.hex().upper(),
         "detail_entry_stub": detail_stub.hex().upper(),
-        "withdrawn_legacy_eligibility_immediates_rebound_to_faction": forbidden_count,
     }
 
 
@@ -4569,13 +4528,9 @@ def main() -> None:
         },
     })
     for item in result["patches"]:
-        after = bytes.fromhex(str(item["after"]))
         if int(str(item["offset"]), 0) == PAYLOAD_OFFSET:
             item["after"] = payload.hex().upper()
-            item["purpose"] = "install pinned VV5 Origins payload with Task9 geometry, safe resolver, and absolute native-action entries"
-        elif bytes.fromhex("E11C0000") in after:
-            item["after"] = after.replace(bytes.fromhex("E11C0000"), bytes.fromhex("EC1C0000")).hex().upper()
-            item["purpose"] = str(item["purpose"]) + "; remove the withdrawn synthetic eligibility read"
+            item["purpose"] = "install pinned VV5 Origins payload with Task9 geometry and absolute native-action entries"
     expanded_overrides = [
         {
             "offset": f"0x{PAYLOAD_OFFSET + 0x2C1:X}",
@@ -4588,12 +4543,6 @@ def main() -> None:
             "before": (LAYOUTS["collection_progression"]["page_va"] + OFF["detail_entry"]).to_bytes(4, "little").hex().upper(),
             "after": (LAYOUTS["experimental_expanded_256"]["page_va"] + OFF["detail_entry"]).to_bytes(4, "little").hex().upper(),
             "purpose": "bind relocated .shr Detail entry to the fixed Expanded Task9 page",
-        },
-        {
-            "offset": f"0x{PAYLOAD_OFFSET + 0x277:X}",
-            "before": (LAYOUTS["collection_progression"]["page_va"] + OFF["resolve_manager"]).to_bytes(4, "little").hex().upper(),
-            "after": (LAYOUTS["experimental_expanded_256"]["page_va"] + OFF["resolve_manager"]).to_bytes(4, "little").hex().upper(),
-            "purpose": "bind the preserved legacy resolver entry to its Expanded null-guard continuation without changing any C342 row",
         },
     ]
     for label in ("tech", "detail"):

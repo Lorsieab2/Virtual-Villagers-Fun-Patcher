@@ -777,8 +777,8 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "0BB85EF6A1A7C1BF4616F2CBFE5026C3C8CC564F5265E5015DA7FAF002DB753E",
-    "map": "CCDCD9B0CC09B0C7848442D33A47F7C2C67C5C845BB9DBE568240B09E4E7B577",
+    "manifest": "42B9ED0264EA9BB007C7E4A578CBE78C29D6EA5BCE1477092D15C50B60E041C5",
+    "map": "C659FC1EAA21B93A9BDD84D3AB6EFCBE88370CB97401CB22458784C270AA185B",
 }
 VV5_TASK9_DLL_SHA256 = "61EABC0EB25AEA824A5C3DEE2A1983AD4BA65F3A365884A8919F64F50F65B6D4"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
@@ -789,12 +789,12 @@ VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 VV5_TASK9_SAVE_RESET_SHA256 = "0B6F16AECEDD08EFBEFE9F5B0E0BF120CFBD03F674C87D7DBCCAEB940F974157"
 VV5_TASK9_SAVE_RESET_SIZE = 136704
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "088ED72A8E881722AEC9C94B9797A2937F2A2220920DB72A9C1689C2541DCB42",
-    "immediate_fixed": "088ED72A8E881722AEC9C94B9797A2937F2A2220920DB72A9C1689C2541DCB42",
-    "experimental_expanded_256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
-    "experimental_expanded_256_progression": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
+    "collection_progression": "4C98159F48560B26A98E2DED030DDB7878DE2FB366995EF2E916319B5CE83931",
+    "immediate_fixed": "4C98159F48560B26A98E2DED030DDB7878DE2FB366995EF2E916319B5CE83931",
+    "experimental_expanded_256": "16639094427653ABA9165E95F2B33481D4D72224256DD4C6E97A56A1223BA255",
+    "experimental_expanded_256_progression": "16639094427653ABA9165E95F2B33481D4D72224256DD4C6E97A56A1223BA255",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "9133C01578847C0491203C91535AF8964546B1B089C04764895733CCF58578AD"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "9602A5504F81A97DA88CBECB211653C4825DF583D95E4E8536C90404C57B0DD8"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -1803,8 +1803,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "5BD36FC1ACEEA65E4B9D82FB9F170C06C2AABDA949B8F116391EE263D44D22EE",
-    "task9_builder": "8409E3E520C4F32E9BD586DD81B49C09F154B1BDD2441D26D24EC7FD97CC981E",
+    "builder": "52CB4850DA2DC105D99B1CE823B543634D259DF9C17F4F06F129B1978B71C334",
+    "task9_builder": "69F550641606FE01129D4D637A7522FED5706E999867B9CB08989666C8E83004",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1816,8 +1816,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "B321D4E5DA65DC2EEE70B58FB80C5BC78E03D403ADB4676DC1438005199DCDC8",
-        "map": "C1B2D47A4BAF7AD4689AE53C2689EEFE44D810FE3FAFBF1CF3ECA9085F37129F",
+        "manifest": "803122FFDE465CE6E2D1D650C06363B8F1663CDFF9D9A3E17CCA614C05BBC4BE",
+        "map": "C433304D2E7F8E265EE61673B9EF8FA9EF3090F5723DA7FE97ACB83CBDF772A7",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3218,7 +3218,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         raise PatcherError("VV5 Task9 generated payload row is missing.")
     payload = bytes.fromhex(payload_row.get("after", ""))
     if (
-        len(payload) != 0xF3C
+        len(payload) != 0xD09
         or bytes.fromhex("89F96A6A") in payload[0x40:0x180]
         or payload[0x4E:0x59] != bytes.fromhex("97E8EC6F0100E8C7D9C9FF")
         or payload[0x10E:0x119] != bytes.fromhex("97E82C6F0100E807D9C9FF")
@@ -3372,7 +3372,10 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
                 page[relative + 1 : relative + 5], "little", signed=True
             )
             targets.append(target)
-        if 0x466170 in targets or 0x471840 in targets or targets.count(0x46F950) != 2:
+        # One direct record-resolver call: resolve_index. The second copy,
+        # resolve_manager, only served the legacy .shr get_record bridge,
+        # which never ran, and was removed with it.
+        if 0x466170 in targets or 0x471840 in targets or targets.count(0x46F950) != 1:
             raise PatcherError(
                 f"VV5 Task9 {mode} retained a forbidden transitive resolver route."
             )
