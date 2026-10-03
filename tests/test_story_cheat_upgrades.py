@@ -1129,6 +1129,38 @@ class ConditionTests(unittest.TestCase):
         proc.stub(0x425860, lambda p: (60, 0))
         self.assertEqual(proc.export("VvfpStoryProbePossible", 2, mission), 0)
 
+    def test_vv2_the_crystal_ball_needs_a_second_villager_with_fix_vanilla_bugs(self):
+        """vv2_fix_vanilla_bugs makes the game's own case-13 condition also need
+        two living villagers; the companion follows whichever condition the
+        running executable has, told apart by the fix's chooser hook."""
+        proc = process("vv2")
+        world = proc.alloc(0x31000)
+        pool = proc.alloc(0xE58000)
+        proc.put32(0x4997BC, world)
+        proc.put32(0x499F24, pool)
+        proc.put32(world + 0x2E51C, 1)
+        rec = pool + 0x30
+        proc.write(rec, b"\1")                            # one living adult
+        proc.put32(rec + 0x4FC, 100)
+        proc.put32(rec + 0x500, 400)
+        crystal_ball = _position("vv2", (1 << 6) | 13)
+        self.assertEqual(proc.read(0x41F636, 5), bytes.fromhex("0F95C3EB5B"))
+        self.assertEqual(proc.export("VvfpStoryProbePossible", 2, crystal_ball), 1, "base game: the adult is enough")
+        proc.write(0x41F636, bytes.fromhex("E9951F0000"))  # the fix's chooser hook
+        self.assertEqual(proc.export("VvfpStoryProbePossible", 2, crystal_ball), 0, "fixed: nobody to trade with")
+        other = rec + 0xE48C * 7
+        proc.write(other, b"\1")                          # a living child elsewhere in the pool
+        proc.put32(other + 0x4FC, 1)
+        proc.put32(other + 0x500, 100)
+        self.assertEqual(proc.export("VvfpStoryProbePossible", 2, crystal_ball), 1)
+        proc.put32(other + 0x4FC, 0)                      # who has died
+        self.assertEqual(proc.export("VvfpStoryProbePossible", 2, crystal_ball), 0)
+        proc.put32(other + 0x4FC, 5)
+        proc.write(other, b"\0")                          # an inactive record
+        self.assertEqual(proc.export("VvfpStoryProbePossible", 2, crystal_ball), 0)
+        # The other two-choice events do not change.
+        self.assertEqual(proc.export("VvfpStoryProbePossible", 2, _position("vv2", (1 << 6) | 12)), 1)
+
     def test_vv3_vv5_ask_the_events_own_condition(self):
         for game in SELECTORS:
             table, count, *_ = SELECTORS[game]

@@ -1226,6 +1226,29 @@ class ChooserTests(unittest.TestCase):
 
 
 @emulated
+class FixVanillaBugsTests(unittest.TestCase):
+    """The Secret City's "Fix Vanilla Bugs" moves the Royal Jelly's cure from
+    the clear vial (choice 0) to the dark vial (choice 1).  The Healing setting
+    is tied to no button: its roll is reached only in the curing branch, so it
+    answers whichever vial cures in the running executable."""
+
+    def test_vv3_royal_jelly_healing_answers_whichever_vial_cures(self):
+        if not have_stock("vv3"):
+            self.skipTest("no stock VV3")
+        g = Game("vv3")
+        cs = controls_of("vv3", 45)
+        ci, c = next((i, c) for i, c in enumerate(cs) if c["id"] == "healing")
+        self.assertIsNone(c["branch"])
+        self.assertEqual(c["site"], 0x418109)
+        for branch in (0, 1):
+            with self.subTest(branch=branch):
+                g.arm(45, {ci: 9})
+                g.force(DELIVERED, branch, in_apply=1)
+                self.assertEqual(g.forced_roll(0x418109, 15), (9, True))
+                g.force(IDLE)
+
+
+@emulated
 class ModeParityTests(unittest.TestCase):
     """All three population modes: every outcome site is installed and every
     event's first setting forces exactly the same values; the tsunami's

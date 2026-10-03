@@ -197,6 +197,18 @@ Updates the slow scrolling when selecting villagers and dragging the screen to V
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Fix Vanilla Bugs (`vv1_fix_vanilla_bugs`)
+
+Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A Mysterious Vial (blue liquid), "Drink the liquid", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.
+- Explicit non-changes/exclusions: The result text, the drinker's new age (80) and every other vial result are the base game's own. Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected. No save data, villager record layout or art is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Healers Study Plants Regardless of Food (`vv1_healers_study_regardless_of_food`)
 
 Healers are more likely to keep studying plants regardless of the food supply. A villager who was studying the plant it was dropped on (the medical cactus) carries on studying when the village has 400 food or more, exactly as the stock game already does below 400 -- about three times in four each time the game chooses what the healer does; the rest of the time the game chooses exactly as it always has. With Builders Fix Huts When Idle also selected, the two share that one roll per choice. During catch-up -- the time that passes while the game is closed, and Time Warp -- A New Home already keeps a healer's plant study going by itself whenever it gives the healer healing work and no one needs healing (with Builders and Healers Work First, at least three times in four), so this patch changes nothing there. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.
@@ -524,6 +536,18 @@ When both the dry grass and the firewood have been put in the unlit fire pit, th
 - Evidence status: static exact-build evidence; runtime/player visual confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Fix Vanilla Bugs (`vv2_fix_vanilla_bugs`)
+
+Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if "Keep it" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with. If "Keep it" is resolved while no other villager is living, the swap is skipped: nothing about any villager changes and the game does not read an unset list entry. With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game.
+- Explicit non-changes/exclusions: The result text, the "give it to the children" choice, every other island event and the event's chance of being chosen are the base game's own. No save data, villager record layout or art is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 
 When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
@@ -780,6 +804,18 @@ Dropping an active, living, non-nursing villager on the robe interrupts every ot
 - Evidence status: independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 - Mode-specific guarded edits: stock=1, collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
+
+#### Fix Vanilla Bugs (`vv3_fix_vanilla_bugs`)
+
+Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the "flash of scientific insight" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing. The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager. The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens.
+- Explicit non-changes/exclusions: Every result text, every other vial result and every other island event are the base game's own. The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change. No save data, villager record layout or art is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Learning Skills Never Fails (`vv3_learning_never_fails`)
 

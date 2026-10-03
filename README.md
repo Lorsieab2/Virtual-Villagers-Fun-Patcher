@@ -248,6 +248,12 @@ Updates the slow scrolling when selecting villagers and dragging the screen to V
 
 - Patch ID: `vv1_faster_village_scrolling`
 
+**Fix Vanilla Bugs**
+
+Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. **Needs no other patch.**
+
+- Patch ID: `vv1_fix_vanilla_bugs`
+
 
 ### Virtual Villagers - The Lost Children
 
@@ -366,6 +372,12 @@ When both the dry grass and the firewood have been put in the unlit fire pit, th
 
 - Patch ID: `vv2_firepit_dry_grass_above_wood`
 
+**Fix Vanilla Bugs**
+
+Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if "Keep it" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. **Needs no other patch.**
+
+- Patch ID: `vv2_fix_vanilla_bugs`
+
 
 ### Virtual Villagers - The Secret City
 
@@ -454,6 +466,12 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
 
 - Patch ID: `vv3_super_secret_golden_mushroom`
+
+**Fix Vanilla Bugs**
+
+Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the "flash of scientific insight" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. **Needs no other patch.**
+
+- Patch ID: `vv3_fix_vanilla_bugs`
 
 
 ### Virtual Villagers - The Tree of Life

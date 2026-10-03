@@ -48,6 +48,9 @@ REMAINING = {
     # the scene builder's two fire-pit draw blocks swapped in place; owns no
     # Origins bytes
     "vv2_firepit_dry_grass_above_wood",
+    # the Crystal Ball's chooser case and Keep-it swap re-encoded in place;
+    # owns no Origins bytes
+    "vv2_fix_vanilla_bugs",
 }
 
 

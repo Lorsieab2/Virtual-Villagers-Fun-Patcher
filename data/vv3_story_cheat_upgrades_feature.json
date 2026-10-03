@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "E706780BF17C1C015DFEE99C7CCC6B1A759178BF9831A4EDE57961D8396C524D"
+      "sha256": "946AB003B650A211AC70FC03EB8B02358F3D15E500E45C99A8081238587EC087"
     }
   ],
   "runtime_detours": [
@@ -1684,7 +1684,7 @@
           "label": "If tasted",
           "kind": "enum",
           "options": [
-            "Scientific insight (Research +15-44)",
+            "Scientific insight (Research +15-44; also 100 tech points with Fix Vanilla Bugs)",
             "Feels years younger (health 100, cured, 5 years younger)",
             "Two copies of the villager appear"
           ]
@@ -1762,7 +1762,7 @@
           "kind": "victim"
         },
         {
-          "label": "If the clear vial is used: Healing gained (the game's text says the jelly spoiled)",
+          "label": "If the jelly cures the cold: Healing gained (the clear vial in the base game, the dark vial with Fix Vanilla Bugs)",
           "kind": "amount",
           "values": "15 to 29"
         }

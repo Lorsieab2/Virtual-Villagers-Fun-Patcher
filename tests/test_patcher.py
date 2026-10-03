@@ -1192,8 +1192,10 @@ class ManifestTests(unittest.TestCase):
         # patches no executable byte -- its companion writes at run time;
         # 22 with Firepit: Dry Grass Drawn Above the Wood
         # (vv2_firepit_dry_grass_above_wood), the scene builder's two fire-pit
-        # draw blocks swapped in place.
-        self.assertEqual(len(feature_ids), 22)
+        # draw blocks swapped in place; 23 with Fix Vanilla Bugs
+        # (vv2_fix_vanilla_bugs), the Crystal Ball's chooser case and Keep-it
+        # swap re-encoded in place.
+        self.assertEqual(len(feature_ids), 23)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4036,6 +4038,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_numeric_keys_tip_wording",
                 "vv2_story_cheat_upgrades",
                 "vv2_firepit_dry_grass_above_wood",
+                "vv2_fix_vanilla_bugs",
             },
         )
         for mode in ALL_MODES:

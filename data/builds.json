@@ -1557,6 +1557,99 @@
       ]
     },
     {
+      "id": "vv1_fix_vanilla_bugs",
+      "game_id": "vv1",
+      "name": "Fix Vanilla Bugs",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. **Needs no other patch.**",
+      "output_tag": "Fix Vanilla Bugs",
+      "behavior_changes": [
+        "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby."
+      ],
+      "explicit_non_changes": [
+        "The result text, the drinker's new age (80) and every other vial result are the base game's own.",
+        "Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected.",
+        "No save data, villager record layout or art is changed."
+      ],
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way",
+      "patches": [
+        {
+          "offset": "0x19CC1",
+          "before": "899C02580300008B8E985000008B96A850000069C9D80300005F8D04118B88480300005D5E89884C030000",
+          "after": "8D040289985803000089985C0300008B96A85000008B88480300005F5D5E89884C0300000F1F8000000000",
+          "purpose": "A Mysterious Vial (blue liquid), toddler result: the record tail of resolve 0x419380 (0x419CC1..0x419CEB) re-encoded with the drinker's record computed once; it clears the litter +0x35C as well as the pregnancy +0x358, and leaves the same registers and fields as the base game"
+        }
+      ]
+    },
+    {
+      "id": "vv2_fix_vanilla_bugs",
+      "game_id": "vv2",
+      "name": "Fix Vanilla Bugs",
+      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. **Needs no other patch.**",
+      "output_tag": "Fix Vanilla Bugs",
+      "behavior_changes": [
+        "The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with.",
+        "If \"Keep it\" is resolved while no other villager is living, the swap is skipped: nothing about any villager changes and the game does not read an unset list entry.",
+        "With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game."
+      ],
+      "explicit_non_changes": [
+        "The result text, the \"give it to the children\" choice, every other island event and the event's chance of being chosen are the base game's own.",
+        "No save data, villager record layout or art is changed."
+      ],
+      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running",
+      "patches": [
+        {
+          "offset": "0x1F636",
+          "before": "0F95C3EB5B",
+          "after": "E9951F0000",
+          "purpose": "Crystal Ball: the two-choice chooser's case 13 (setne bl; jmp 0x41F696) now continues at 0x4215D0, which keeps the stock adult test and also requires at least two living villagers"
+        },
+        {
+          "offset": "0x21480",
+          "before": "8BBC84402800008B86B050000069FF8CE400008B8C38F00700008B9438EC0700008B9C38E40700008BAC38E807000003C7894C24288B88F40700008954241C8B90F0050000894C242C8B88F4050000895424248B90E8060000894C24148B88EC060000056405000089542418508D94244427000052894C2428E8BF6D04008B8EA05000008B86B050000069C98CE400008B9401E4070000899438E40700008B8EA05000008B86B050000069C98CE400008B9401E8070000899438E80700008B8EA05000008B86B050000069C98CE400008B9401F0070000899438F00700008B8EA05000008B86B050000069C98CE400008B9401EC070000899438EC0700008B8EA05000008B86B050000069C98CE400008B9401F4070000899438F40700008B8EA05000008B86B050000069C98CE400008B9401F0050000899438F00500008B8EA05000008B86B050000069C98CE400008B9401F4050000899438F40500008B8EA05000008B86B050000069C98CE400008B9401E8060000899438E80600008B8EA05000008B86B050000069C98CE400008B9401EC060000899438EC0600008B8EA05000008B86B050000069C98CE400008D940164050000528D84386405000050E8786C04008B8EA05000008B96B050000069C98CE40000899C11E40700008B86A05000008B8EB050000069C08CE4000089AC08E80700008B96A05000008B86B050000069D28CE400008B4C2438898C02F00700008B96A05000008B86B050000069D28CE400008B4C242C898C02EC0700008B96A05000008B86B050000069D28CE400008B4C243C898C02F40700008B96A05000008B86B050000069D28CE400008B4C2434898C02F00500008B96A05000008B86B050000069D28CE400008B4C2424898C02F40500008B96A05000008B86B050000069D28CE400008B4C2428898C02E80600008B96A05000008B86B050000069D28CE400008B4C2430898C02EC0600008B86A05000008B8EB050000069C08CE400008D942450270000528D94086405000052E8546B040083C41C",
+          "after": "85FF0F843F0100008BBC84402800008B86B050000069FF8CE4000001C78BAEA050000069ED8CE4000001C58D8764050000508D84244427000050E8FE6D040083C4088B87E40700008B8DE4070000898FE40700008985E40700008B87E80700008B8DE8070000898FE80700008985E80700008B87EC0700008B8DEC070000898FEC0700008985EC0700008B87F00700008B8DF0070000898FF00700008985F00700008B87F40700008B8DF4070000898FF40700008985F40700008B87F00500008B8DF0050000898FF00500008985F00500008B87F40500008B8DF4050000898FF40500008985F40500008B87E80600008B8DE8060000898FE80600008985E80600008B87EC0600008B8DEC060000898FEC0600008985EC0600008D8564050000508D876405000050E8106D040083C4088D842440270000508D856405000050E8F96C040083C40883C404E99D010000CC0F95C37505E9BCE0FFFF8B8EB050000031C031D283C130803900740A83B9FC040000007E014081C18CE400004281FA000100007CE283F8020F9DC3E986E0FFFFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "purpose": "Crystal Ball: the Keep-it swap (0x421480..0x42176B) re-encoded compactly with the same field and text swap; it is skipped when the list of other living villagers is empty, and the freed bytes hold the case-13 living-villager count (0x4215D0) and int3 padding"
+        }
+      ]
+    },
+    {
+      "id": "vv3_fix_vanilla_bugs",
+      "game_id": "vv3",
+      "name": "Fix Vanilla Bugs",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. **Needs no other patch.**",
+      "output_tag": "Fix Vanilla Bugs",
+      "behavior_changes": [
+        "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
+        "The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager.",
+        "The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens."
+      ],
+      "explicit_non_changes": [
+        "Every result text, every other vial result and every other island event are the base game's own.",
+        "The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change.",
+        "No save data, villager record layout or art is changed."
+      ],
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder",
+      "patches": [
+        {
+          "offset": "0x180FB",
+          "before": "7558",
+          "after": "7458",
+          "purpose": "Royal Jelly: applyChoice 0x4180A0 runs the cure and Healing gain for the dark vial (choice 1) instead of the clear vial (choice 0): jne becomes je"
+        },
+        {
+          "offset": "0x17797",
+          "before": "8B4E048B91B80E000081C1AC0E000083C00F03D08BC283C40483F86489510C7E09C7410C64000000EB0B85C07D07C7410C00000000",
+          "after": "8B4E040381B80E000083C00F83C40483F8647E036A645885C07D0231C08981B80E00006864000000B944265800E867F900000F1F00",
+          "purpose": "Mysterious Vial (amber), scientific insight: the same Research gain and 0..100 clamp re-encoded compactly, then push 100; mov ecx,0x582644; call 0x427130 adds 100 tech points through the game's tech adder"
+        },
+        {
+          "offset": "0x173E0",
+          "before": "0F9DC1",
+          "after": "0F9FC1",
+          "purpose": "Mysterious Vial (quartz): resultText 0x4173C0 chooses the little-child text only above age 280 (setg instead of setge), matching applyChoice's jg at 0x417435"
+        }
+      ]
+    },
+    {
       "id": "vv3_everyone_tries_on_robe",
       "game_id": "vv3",
       "name": "Everyone Tries On the Robe",

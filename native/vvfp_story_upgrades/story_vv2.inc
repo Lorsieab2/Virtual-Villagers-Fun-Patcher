@@ -205,6 +205,31 @@ static int vv2_any_villager(unsigned char *pool, int min_age, int max_age, int s
     return 0;
 }
 
+/* The number of living villagers, by the Crystal Ball's own test (active
+   byte +0x30 set and health +0x52C > 0; r points at +0x30). */
+static int vv2_living_count(unsigned char *pool) {
+    int i;
+    int count = 0;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        unsigned char *r = pool + VV2_RECORD_FIRST + (size_t)i * VV2_RECORD_STRIDE;
+        if (r[0] != 0 && *(int *)(r + 0x4FC) > 0) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+/* The Lost Children's "Fix Vanilla Bugs" (vv2_fix_vanilla_bugs) makes The
+   Crystal Ball (two-choice case 13) also need at least two living villagers,
+   so the finder always has someone to trade places with.  Its chooser hook,
+   0x41F636 `jmp 0x4215D0` in place of `setne bl; jmp 0x41F696`, tells a build
+   with the fix from the base game, whose condition is only the adult. */
+static const unsigned char VV2_CRYSTAL_BALL_FIX[5] = { 0xE9, 0x95, 0x1F, 0x00, 0x00 };
+
+static int vv2_crystal_ball_fixed(void) {
+    return mem_matches(0x41F636u, VV2_CRYSTAL_BALL_FIX, 5);
+}
+
 /* What any island event needs, whatever its own condition: a living adult
    for the trigger (0x44BAE0(1)), and the village's first island event is
    always a two-choice event.  An unlocked pick needs only this. */
@@ -252,7 +277,9 @@ static int vv2_possible(const story_event *e) {
         case 2: return vv2_any_villager(pool, 0x118, -1, 2, 0);
         case 4: return room(pool, NULL) != 0;
         case 6: case 10: return vv2_any_villager(pool, -1, 0x118, 0, 0);
-        case 13: return vv2_any_villager(pool, 0x118, -1, 0, 0);
+        case 13:
+            return vv2_any_villager(pool, 0x118, -1, 0, 0)
+                && (!vv2_crystal_ball_fixed() || vv2_living_count(pool) >= 2);
         case 14: return population(world, NULL) >= 2;
         case 18: return *(int *)(world + 0x2EA94) < 2;
         case 19: return vv2_any_villager(pool, 0x168, -1, 2, 0) && vv2_any_villager(pool, 0x168, -1, 1, 0);
