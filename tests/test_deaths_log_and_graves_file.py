@@ -23,7 +23,11 @@ throwaway save folder named after the harness:
   roster's reconciliation at each save (nothing at the first save, one
   record per unreported departure or arrival, nothing for a reload's packing
   of the records, for reported departures and arrivals, or for another
-  village's roster).
+  village's roster; a record freed by a reported burial or removal and then
+  filled by a newcomer nobody reported -- of the same sex, or the buried
+  villager's own bytes written back -- is one record, while a reported
+  birth into it, a body kept or revived, and the reload after burials are
+  nothing).
 
 The harnesses need the 32-bit MSVC toolchain, so they run where it is
 installed and are skipped elsewhere. The static checks run everywhere.
@@ -93,7 +97,7 @@ class Harnesses(unittest.TestCase):
         result = run("build_cause_files_harness.ps1")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASSED: 0 failure(s)", result.stdout)
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 36, result.stdout)
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 46, result.stdout)
 
 
 if __name__ == "__main__":
