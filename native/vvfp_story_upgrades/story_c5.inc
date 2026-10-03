@@ -207,6 +207,34 @@ static const char *const C5_STATUSES[] = {
     "Heathen's mask: blue", "Heathen's mask: orange (aggressive)", "Heathen's mask: red (scary)",
 };
 
+/* What a conversion to a believer counts (owner, 2026-10-02: the Maker's
+   faction changes are not the player's conversions and must not count).
+   Emulated on the stock code and the full catalog render, 0x4668B0 writes
+   exactly two things outside the record that are not the screen's: the
+   trophy table 0x4DB358 (0x413450 adds 1 to "A Heathen's Prerogative" 0x13,
+   3 to earn, and "If You Can't Beat 'Em..." 0x14, 10 to earn; earning one
+   sets its byte, stamps it, queues the "Trophy earned" popup at +0x318 and
+   adds to the Over-Achiever / Unachievable trophies 0x40 / 0x41) and the
+   patcher's Heathens Converted total 0x51D3A4 (build_statistics_features.py
+   conversion_stat_va, its detour on 0x4668B0's entry).  Both are memory
+   only -- the table reaches a file only inside the slot's save, the popup
+   is drawn by a later frame, the total is exported later -- so the whole
+   table and the total are put back on this same game thread before
+   anything can read them.  To a Heathen (0x4669E0) and the Heathen creator
+   write neither (emulated), so they need nothing. */
+#define C5_TROPHIES 0x4DB358u
+#define C5_TROPHY_BYTES 0x428          /* 66 entries of 12, the popup queue, its timer */
+#define C5_HEATHENS_CONVERTED 0x51D3A4u
+
+static void c5_convert_uncounted(unsigned char *r) {
+    unsigned char trophies[C5_TROPHY_BYTES];
+    int converted = *(volatile int *)(uintptr_t)C5_HEATHENS_CONVERTED;
+    memcpy(trophies, (const void *)(uintptr_t)C5_TROPHIES, sizeof trophies);
+    TC0(0x4668B0u, r);
+    memcpy((void *)(uintptr_t)C5_TROPHIES, trophies, sizeof trophies);
+    *(volatile int *)(uintptr_t)C5_HEATHENS_CONVERTED = converted;
+}
+
 /* The game's own conversions -- 0x4668B0 to a believer (what SetFaith
    0x467F90 calls when faith rises above 0; The Defector) and 0x4669E0 to a
    Heathen (when it falls to 0 or below; The Mask) -- with the faith they
@@ -231,7 +259,7 @@ static int c5_set_status(int index, int status) {
     }
     if (status == 0) {
         if (c5_heathen(r)) {
-            TC0(0x4668B0u, r);
+            c5_convert_uncounted(r);
         }
         *(int *)(r + 0x1CF0) = 55;
         return !c5_heathen(r);
@@ -690,7 +718,11 @@ static const ce_adapter C5_ADAPTER = {
     "burying, picking things up, new clothes and games that stop other villagers.\r\n"
     "- Revive: nothing while the game's own Reanimate is under way; buried villagers "
     "(their record is gone) and skeletons that have already crumbled away.\r\n"
-    "- Esteemed Elder and Retired Chief are worked out from skills and the chief puzzle.",
+    "- Esteemed Elder and Retired Chief are worked out from skills and the chief puzzle.\r\n"
+    "- Counting: \"Becomes a believer\", \"Becomes a Heathen\" and new Heathens made here "
+    "are not your conversions, so they never count toward the game's trophies (A "
+    "Heathen's Prerogative, If You Can't Beat 'Em...) or the Heathens Converted "
+    "statistic. Heathens you convert in play count as always.",
     48, 14, 30, 1, 0x118,
     "Refills the noni bushes and, once the farm is built, the crops.",
     "Your village gains %d food.", "Your village has lost %d food.",
