@@ -24,6 +24,7 @@ instructions, so the same code drives the stock and the 256 images.
 from __future__ import annotations
 
 import random
+import re
 import struct
 import unittest
 
@@ -1016,8 +1017,11 @@ class CompositionTests(unittest.TestCase):
         for mode in MODES:
             image = render(mode, True, True)
             m = Machine(image)
-            start = image.find(bytes.fromhex("B9081D8000" "31F6BB00010000"))
-            self.assertGreater(start, 0)
+            # the walk, found by its shape (mov ecx, first flag; xor esi, esi;
+            # mov ebx, records; cmp byte [ecx], 0) whatever its immediates
+            walks = [m.start() for m in re.finditer(rb"\xB9.{4}\x31\xF6\xBB.{4}\x80\x39\x00", image, re.S)]
+            self.assertEqual(len(walks), 1)
+            start = walks[0]
             va = int(vfp._virtual_address_for_offset(image, start), 16)
             every = set(range(256))
             cases = (
