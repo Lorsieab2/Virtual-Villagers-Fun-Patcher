@@ -51,9 +51,18 @@
    (its save was replaced outside the game): a new roster is started and
    nothing is logged against the old one.
 
-   A villager in the same record at both saves is the same villager unless
-   both the name and the sex changed with neither a departure nor an arrival
-   reported -- then one left and another arrived unseen.
+   Every departure is reported where the game frees the record (a burial,
+   a body's removal, a disappearance), never at a death, so a body that is
+   revived keeps its record and reports nothing.  A record whose departure
+   was reported since the last save holds somebody else now, if anybody:
+   never the villager kept there, whatever the name and sex, so a newcomer
+   in it is accounted for only by an arrival reported after that departure
+   (a departure cancels any arrival reported into the record before it).
+
+   Otherwise a villager in the same record at both saves is the same
+   villager unless both the name and the sex changed with neither a
+   departure nor an arrival reported -- then one left and another arrived
+   unseen.
 
    KEPT.  <save folder>\Virtual Villagers Fun Patcher Data\
               Virtual Villagers N Village Roster - Save S.dat
@@ -82,10 +91,14 @@ static int report_counts(signed char tag, int slot) {
     return tag == slot || tag == REPORT_EARLY;
 }
 
+/* A departure frees the record: an arrival reported into it before
+   accounted for the villager who has now left, never for whoever the
+   record holds next. */
 static void roster_departed(int index, const unsigned char *record) {
     (void)record;
     if (index >= 0 && index < RECORDS_MAX) {
         departed[index] = report_tag();
+        arrived[index] = REPORT_NONE;
         COD_COUNT(departed);
     }
 }
@@ -329,7 +342,10 @@ static void roster_reconcile(int slot) {
                 memset(roster_scratch, 0, r->stride);
                 memcpy(roster_scratch + r->snapshot_lo, kept[i] + ROSTER_ENTRY_HEAD, span);
                 roster_when(last_seen, kept[i] + 8);
-                same = present && roster_same(roster_scratch, now_record);
+                /* A recorded departure freed this record: whoever is in it
+                   now is somebody else, whatever their name or sex. */
+                same = present && !report_counts(departed[i], slot)
+                    && roster_same(roster_scratch, now_record);
                 if ((!present || !same) && !report_counts(departed[i], slot)) {
                     roster_log(roster_scratch, 0, (int)i,
                                "Left the village with no Death or Disappeared record", last_seen, now);
