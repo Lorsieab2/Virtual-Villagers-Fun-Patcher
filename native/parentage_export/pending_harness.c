@@ -35,6 +35,7 @@
 #include <string.h>
 
 #include "village_identity.h"
+#include "../shared/harness_ldw_tree.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -220,6 +221,7 @@ static int noted_in(const char *log, const char *marker) {
 static int noted(const char *marker) { return noted_in(logtext, marker); }
 
 int main(int argc, char **argv) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll;
     write_t write;
     birth_t birth;

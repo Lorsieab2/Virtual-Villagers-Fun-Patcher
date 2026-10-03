@@ -15,6 +15,7 @@
 
 #include "save_folder.h"
 #include "save_reset.h"
+#include "harness_ldw_tree.h"
 
 /* the reset's internal guards, exposed by VV_RESET_TESTABLE */
 int delete_if_present(const char *path);
@@ -56,6 +57,7 @@ static int exists(const char *path) {
 }
 
 int main(void) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char folder[MAX_PATH];
     wchar_t folder_w_probe[MAX_PATH];
     char mask1[MAX_PATH], mask2[MAX_PATH], doubler1[MAX_PATH];

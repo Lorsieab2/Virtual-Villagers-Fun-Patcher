@@ -2964,7 +2964,13 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
    left to carry it back through directly. Called only for command 6
    (Running); command 8 (Set All Villagers to 18) now routes its own
    result through the generic ShowOriginsRowMessage below instead, since
-   the spreadsheet gives it a plain "completed." line with no counts. */
+   the spreadsheet gives it a plain "completed." line with no counts.
+
+   A New Home only. The Lost Children includes this file, but its village-wide
+   rows report through ShowVV2UpgradeResult, and since v1.35.56 its executable
+   carries no "ShowOriginsVillageWideResult" string to resolve, so building
+   this export into the VV2 companion would only ship an unreachable entry. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int command,
     int granted,
@@ -3008,6 +3014,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     );
     return 0;
 }
+#endif
 
 /* All Villagers are 18: granted/already/golden_child come from three fixed
    .shr scratch dwords age_va (in the shared village-wide script,

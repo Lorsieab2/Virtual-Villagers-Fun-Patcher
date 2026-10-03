@@ -43,6 +43,7 @@
 
 #include "village_identity.h"
 #include "save_reset.h"
+#include "../shared/harness_ldw_tree.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -183,10 +184,10 @@ static void stand_in(const char *name, int present) {
 
 static void load(void) {
     dll = LoadLibraryA(dll_path);
-    if (dll == NULL) { printf("cannot load %s\n", dll_path); ExitProcess(2); }
+    if (dll == NULL) { printf("cannot load %s\n", dll_path); exit(2); }
     write_record = (record_t)GetProcAddress(dll, "WriteVillageRecord");
     ensure_village = (ensure_village_t)GetProcAddress(dll, "EnsureParentageLogForVillage");
-    if (write_record == NULL || ensure_village == NULL) { printf("missing exports\n"); ExitProcess(2); }
+    if (write_record == NULL || ensure_village == NULL) { printf("missing exports\n"); exit(2); }
 }
 
 static char text[1 << 17];
@@ -236,6 +237,7 @@ static void head_of(const char *at, char *out, int size) {
 #define UNBURIED "  Age at death: 300\n  Cause of death: Unknown causes\n  Grave: no grave (never buried: the game removed the body)\n  Epitaph: (none)\n"
 
 int main(int argc, char **argv) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char expected[512];
     char record_text[5][512];
     int game;

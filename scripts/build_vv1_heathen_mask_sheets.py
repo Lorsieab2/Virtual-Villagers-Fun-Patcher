@@ -4,7 +4,9 @@ The art in assets/origins/mask-art/ was authored against VV1's own head
 atlas: each file is a seven-frame strip, one frame per facing column, already
 positioned so that dropping it over a head row lands the mask on the face. It
 is used verbatim -- no scaling, no cropping, no re-centring. This script only
-moves it onto the cell grid the draw hook blits from.
+moves it onto the cell grid the draw hook blits from, and writes the one atlas
+(mask_atlas.png) and the Change Appearance preview strip. Each colour's sheet
+is built in memory as a row of that atlas; it is not shipped on its own.
 
 Alignment was recovered from the supplied mockups rather than guessed. Each
 "alignment mockup" is that colour's mask composited over a real VV1 head
@@ -32,7 +34,6 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 ART_DIR = ROOT / "assets" / "origins" / "mask-art"
-OUT_DIR = ROOT / "assets" / "origins"
 PREVIEW_BMP = ROOT / "native" / "vv1_origins_icons" / "appearance" / "mask.bmp"
 # Single atlas for the in-game draw, laid out the way the stock sprite loader
 # wants it: one image, COLS x ROWS of equal cells, loaded via the game's own
@@ -460,14 +461,10 @@ def build_atlas(sheets: dict[str, Image.Image]) -> bytes:
 
 def build() -> list[tuple[Path, bytes]]:
     sheets = {colour: _sheet(colour) for colour in COLOURS}
-    out: list[tuple[Path, bytes]] = []
-    for index, colour in enumerate(COLOURS, start=1):
-        buf = io.BytesIO()
-        sheets[colour].save(buf, "PNG")
-        out.append((OUT_DIR / f"m{index}.png", buf.getvalue()))
-    out.append((ATLAS_PNG, build_atlas(sheets)))
-    out.append((PREVIEW_BMP, build_preview_strip(sheets)))
-    return out
+    return [
+        (ATLAS_PNG, build_atlas(sheets)),
+        (PREVIEW_BMP, build_preview_strip(sheets)),
+    ]
 
 
 def main() -> int:

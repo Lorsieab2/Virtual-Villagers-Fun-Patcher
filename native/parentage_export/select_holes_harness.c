@@ -15,6 +15,7 @@
  */
 #include <stdio.h>
 #include <windows.h>
+#include "../shared/harness_ldw_tree.h"
 
 /* The unit under test, exposed for the harness. */
 struct game_layout;
@@ -75,6 +76,7 @@ static int present(const wchar_t *folder, const wchar_t *stem, int number) {
 }
 
 int main(void) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     const struct game_layout *g = vv_parentage_layout(1);
     const wchar_t *stem = L"Virtual Villagers 1 Births and Conceptions Log";
     wchar_t folder[MAX_PATH];
