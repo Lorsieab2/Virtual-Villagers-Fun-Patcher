@@ -29,6 +29,13 @@
         departure and a reported arrival report nothing; an arrival nobody
         reported is one record; another village's roster is set aside
         without records; Start Over deletes the roster.
+     9. A record freed by a recorded departure (a burial, a body's removal)
+        and filled again: a newcomer nobody reported is one record even with
+        the same sex, or the same name and sex (the buried villager's own
+        bytes written back); so is one after a reported arrival that was
+        then buried.  A reported birth into it, a villager born and buried
+        between saves, a body kept across a save, a body revived, and the
+        load packing the records after burials report nothing.
 
    Usage:  cause_files_harness.exe "<path to VVFP Cause of Death.test.dll>"
    Exit code 0 when every check passes. */
@@ -96,6 +103,14 @@ static void villager(int i, const char *name, int age, int health, int building)
     *(int *)(rec(i) + SEX) = 1 + (i & 1);
     strncpy((char *)rec(i) + NAME, name, 0x1B);
     *(int *)(rec(i) + SKILLS + 4) = building;       /* storage index 1 = Building */
+}
+
+/* Somebody new written into record i (a memory edit), keeping the sex of
+   whoever was there last. */
+static void reoccupy(int i, const char *name) {
+    int sex = *(int *)(rec(i) + SEX);
+    villager(i, name, 500, 90, 0);
+    *(int *)(rec(i) + SEX) = sex;
 }
 
 /* What a death site does: the cause is recorded before the store that
@@ -442,13 +457,80 @@ int main(int argc, char **argv) {
     CHECK(unaccounted() == 1, "an arrival nobody reported: one record");
     saved(5);
     CHECK(unaccounted() == 1, "each record is written once");
+
+    printf("9. a record freed by a recorded departure, then filled again\n");
+    /* now: 0..3, 5, 6 the first eight's survivors, 9 Newborn, 10 Stranger */
+    died(5, 2);
+    game_bury(5, 10);
+    buried(5, 10);
+    reoccupy(5, "Intruder");            /* the same sex, nobody reported */
+    saved(5);
+    CHECK(unaccounted() == 2, "a newcomer of the same sex in a buried villager's record: one record");
+    died(6, 2);
+    game_bury(6, 11);
+    buried(6, 11);
+    rec(6)[PRESENT] = 1;                /* the buried villager's own bytes back */
+    *(int *)(rec(6) + HEALTH) = 80;
+    saved(5);
+    CHECK(unaccounted() == 3, "the buried villager written back unreported, same name and sex: one record");
+    died(3, 2);
+    decayed(3);                         /* the unburied body removed */
+    rec(3)[PRESENT] = 0;
+    reoccupy(3, "Squatter");
+    saved(5);
+    CHECK(unaccounted() == 4, "a newcomer in a removed body's record: one record");
+    villager(11, "Baby", 0, 100, 0);
+    arrived(11);
+    died(11, 0);
+    game_bury(11, 12);
+    buried(11, 12);
+    reoccupy(11, "Changeling");         /* a reported arrival, gone, then nobody reported */
+    saved(5);
+    CHECK(unaccounted() == 5, "an arrival reported, then buried, then a newcomer unreported: one record");
+    villager(12, "Brief", 0, 100, 0);
+    arrived(12);
+    died(12, 0);
+    game_bury(12, 13);
+    buried(12, 13);
+    saved(5);
+    CHECK(unaccounted() == 5, "born and buried between two saves: nothing");
+    villager(13, "Later", 0, 100, 0);
+    arrived(13);                        /* a birth, then a burial elsewhere */
+    died(0, 2);
+    game_bury(0, 15);
+    buried(0, 15);
+    reoccupy(0, "Heir");
+    arrived(0);
+    saved(5);
+    CHECK(unaccounted() == 5, "a birth, then a burial in another record and a birth into it: nothing");
+    died(2, 2);
+    game_bury(2, 14);
+    buried(2, 14);
+    reoccupy(2, "Firstborn");
+    arrived(2);                         /* a birth into a buried villager's record */
+    saved(5);
+    CHECK(unaccounted() == 5, "a reported birth into a buried villager's record: nothing");
+    died(1, 3);                         /* a body ... */
+    saved(5);
+    CHECK(unaccounted() == 5, "a body kept across a save: nothing");
+    *(int *)(rec(1) + HEALTH) = 60;     /* ... revived, no Death record */
+    saved(5);
+    CHECK(unaccounted() == 5, "a body revived keeps its record: nothing");
+    unload();
+    game_reload();                      /* the load packs the records after the burials
+                                           (a new session: the counters start again) */
+    load();
+    tick(1);
+    saved(5);
+    CHECK(unaccounted() == 0, "the load packing the records after burials reports nothing");
+
     for (i = 0; i < 12; ++i) {
         char name[16];
         _snprintf(name, sizeof name, "Elsewhere%d", i);
         villager(i, name, 300, 90, 0);
     }
     saved(5);
-    CHECK(unaccounted() == 1, "another village's roster: a new roster, no records");
+    CHECK(unaccounted() == 0, "another village's roster: a new roster, no records");
     {
         FILE *f = fopen(path, "wb");
         fwrite("not a roster", 1, 12, f);
@@ -456,7 +538,7 @@ int main(int argc, char **argv) {
     }
     before = count_unreadable();
     saved(5);
-    CHECK(unaccounted() == 1 && count_unreadable() == before + 1, "an unreadable roster is set aside, no records");
+    CHECK(unaccounted() == 0 && count_unreadable() == before + 1, "an unreadable roster is set aside, no records");
     reset(1, 5);
     vv_reset_slot_state(1, 5, NULL);
     CHECK(GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES, "Start Over deletes the roster");
