@@ -302,6 +302,16 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                         self.assertIn("#define VV3_STOCK_MANAGER_RVA 0x%Xu" % row["villagers_rva"], locator)
                         self.assertEqual(row["slots"], 150)
                         continue
+                    if game == 4 and field in ("villagers_rva", "slots"):
+                        # The Tree of Life's table, likewise
+                        # (native/shared/vv4_villager_table.h).
+                        self.assertEqual(
+                            arguments[position],
+                            {"villagers_rva": "vv4_table", "slots": "(int)vv4_slots"}[field])
+                        locator = (ROOT / "native" / "shared" / "vv4_villager_table.h").read_text()
+                        self.assertIn("#define VV4_STOCK_MANAGER_RVA 0x%Xu" % row["villagers_rva"], locator)
+                        self.assertEqual(row["slots"], 150)
+                        continue
                     self.assertEqual(
                         row[field], as_number(arguments[position]),
                         "game %d's %s must equal statistics argument %d"

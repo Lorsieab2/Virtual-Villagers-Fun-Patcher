@@ -125,7 +125,8 @@ static int header_is_for_slot(const char *header, int slot) {
  * every file opening with "ldwg", sized exactly header + buffer.  The Secret
  * City built with 256 Villagers (Experimental) writes a longer buffer,
  * 0x1A4B4: the stock 0x12F1C bytes unchanged, then villagers 150..255, so its
- * name is at the same offset and either length is that game's save.
+ * name is at the same offset and either length is that game's save.  The Tree
+ * of Life's 256 build does the same with 0x1DCB4 (0x1710C, then 150..255).
  *
  * The base name before the slot number comes from the game, not from a string
  * here, so it is found: exactly one file named "<something><slot>.ldw" whose
@@ -140,6 +141,9 @@ static const DWORD SAVE_BUFFER_BYTES[5] = {
     0x0ABDCu, 0x30370u, 0x12F1Cu, 0x1710Cu, 0x17D78u
 };
 #define VV3_256_SAVE_BUFFER_BYTES 0x1A4B4u
+/* The Tree of Life with 256 Villagers: the stock 0x1710C bytes unchanged,
+   then villagers 150..255 (106 x 0x104). */
+#define VV4_256_SAVE_BUFFER_BYTES 0x1DCB4u
 
 /* The buffer length a save file of `file_size` bytes holds for `game`, or 0
    when no save of that game is that long. */
@@ -150,6 +154,9 @@ static DWORD save_buffer_bytes(int game, DWORD file_size) {
     }
     if (game == 3 && file_size == header + VV3_256_SAVE_BUFFER_BYTES) {
         return VV3_256_SAVE_BUFFER_BYTES;
+    }
+    if (game == 4 && file_size == header + VV4_256_SAVE_BUFFER_BYTES) {
+        return VV4_256_SAVE_BUFFER_BYTES;
     }
     return 0;
 }

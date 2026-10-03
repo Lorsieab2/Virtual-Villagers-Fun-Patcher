@@ -26,7 +26,7 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "CD9A11F1939E4B2F98BA0F2007D1B3F6CAB472BE20814FFC252BFAE81A8ADFDA",
+      "sha256": "B5B89E67F86FC7EEA6F53303E3A58062E9AB6DAE4D5372EAE398B0F731DB5278",
       "size": 136704
     }
   ],
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "C1140A64ACE8021EAA48073EE4D083F039366EF93F4A3502D9E169969B0BD3C2",
-  "base_file_sha256": "C1140A64ACE8021EAA48073EE4D083F039366EF93F4A3502D9E169969B0BD3C2",
+  "base_source_text_sha256": "47D2110EF95B07EF4C6B0B438EEDC62242D5D225639132560BDF2B771675D4AE",
+  "base_file_sha256": "47D2110EF95B07EF4C6B0B438EEDC62242D5D225639132560BDF2B771675D4AE",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "621FB35676E7795E7D481E7BA9D48AECFD1405ECE1C2865F1C06D6DB0DA05BEB"
+      "source_text_sha256": "84E6F107652BA08DD28C497381EF9805FA8C59C9E0A700D27421E9C0378AC977"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "C1140A64ACE8021EAA48073EE4D083F039366EF93F4A3502D9E169969B0BD3C2"
+      "source_text_sha256": "47D2110EF95B07EF4C6B0B438EEDC62242D5D225639132560BDF2B771675D4AE"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "69227DCC712A6EED44EB680172A7C1C0D823AA46F36FD213FCA7B32048A0F76F"
+  "task9_map_canonical_sha256": "33C5D8B17BA30C810579F5CCCDF6E05AD43E43F6F50BF5F9A5ABF5686DCE9D1E"
 }

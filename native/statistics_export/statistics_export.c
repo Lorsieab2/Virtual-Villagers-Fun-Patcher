@@ -9,6 +9,7 @@
 #include "roster_match.h"
 #include "statistics_store.h"
 #include "vv3_villager_table.h"
+#include "vv4_villager_table.h"
 
 enum {
     GAME_VV1 = 1,
@@ -309,8 +310,10 @@ static int village_elders_for(int game_id) {
         l.skills = 0xEACu; l.skill_count = 5u; l.skills_are_float = 0; l.master_int = 0x58;
         l.graves = module + 0x197D64u; l.grave_stride = 0x30u; l.grave_elder_flag = 0x29u;
     } else if (game_id == GAME_VV4) {
-        l.villagers = module + 0x10E568u; l.record_base = 0x44u; l.stride = 0x2E3Cu;
-        l.slots = 150u; l.active = 0x1CC4u; l.name = 0x1B9Cu;
+        unsigned int table, slots;
+        vv4_villager_table(module, &table, &slots);
+        l.villagers = module + table; l.record_base = 0x44u; l.stride = 0x2E3Cu;
+        l.slots = slots; l.active = 0x1CC4u; l.name = 0x1B9Cu;
         l.father_name = 0x1BC0u; l.mother_name = 0x1BD9u;
         l.skills = 0x1C5Cu; l.skill_count = 5u; l.skills_are_float = 1; l.master_float = 88.0f;
         l.graves = module + 0x1025C8u; l.grave_stride = 0x5Cu; l.grave_elder_flag = 0x31u;
@@ -1053,6 +1056,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             GAME_VV3
         );
     } else if (game_id == GAME_VV4) {
+        unsigned int vv4_table, vv4_slots;
+        vv4_villager_table((const unsigned char *)GetModuleHandleW(NULL), &vv4_table, &vv4_slots);
         written = write_later_game(
             file,
             manager,
@@ -1081,8 +1086,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             /* The villager array, for Village Elders: container 0x50E568, the
                immediate all 55 of its accessor's callers load, with the
                record base, stride and slot count the parentage layout
-               already carries for this game. */
-            0x10E568u, 0x44u, 0x2E3Cu, 150,
+               already carries for this game -- or wherever the executable
+               says it is (0x800000 and 256 slots with 256 Villagers). */
+            vv4_table, 0x44u, 0x2E3Cu, (int)vv4_slots,
             0x1CC4u,
             /* Skills at villager+0x1C5C, from `lea ebx,[edi+1C5Ch]` at
                0x45D4E3 in the burial writer. FLOAT32 against 88.0, five
@@ -1245,6 +1251,8 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
     }
     if (game_id == GAME_VV3) {
         vv3_villager_table(module, &layout.villagers_rva, &layout.slots);
+    } else if (game_id == GAME_VV4) {
+        vv4_villager_table(module, &layout.villagers_rva, &layout.slots);
     }
     villagers = r->rva_is_pointer ? *(unsigned char *const *)(module + r->villagers_rva)
                                   : module + r->villagers_rva;

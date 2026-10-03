@@ -68,9 +68,18 @@ class DllStorageContractTests(unittest.TestCase):
     def test_side_table_is_index_keyed_with_the_confirmed_layout(self) -> None:
         # Base is the game's own accessor result FUN_00466040(0x50E568)=0x50E5AC,
         # NOT 0x5101EC (that older value mis-keyed every record -> no masks).
-        self.assertIn("#define VV_REC_ARRAY_BASE 0x50E5ACu", self.c)
+        # The stock answer is 0x50E5AC (the manager 0x50E568 + 0x44); with 256
+        # Villagers it is read from the executable (vv4_villager_table.h).
+        self.assertIn("#define VV_REC_ARRAY_BASE vv_rec_base()", self.c)
+        self.assertIn("g_vv_rec_base = 0x400000u + rva + 0x44u;", self.c)
+        locator = (DLL_SOURCE.parent.parent / "shared" / "vv4_villager_table.h").read_text(encoding="utf-8")
+        self.assertIn("#define VV4_STOCK_MANAGER_RVA 0x10E568u", locator)
         self.assertIn("#define VV_REC_STRIDE     0x2E3Cu", self.c)
         self.assertIn("g_mask_by_index[VV_MAX_VILLAGERS]", self.c)
+        # Every walk over records stops at the executable's slot count.
+        sweep = self.c.split("static int vv_mask_sweep(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("int slots = vv_slots();", sweep)
+        self.assertIn("for (idx = 0; idx < slots; idx++) {", sweep)
 
     def test_clear_on_death_sweep_uses_the_free_slot_flag(self) -> None:
         # record+0x1CC4 is the game's own occupied flag (0 = free/dead), from
@@ -123,7 +132,10 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("vv_mask_sidecar_valid, NULL);", read)
         valid = self.c.split("static int vv_mask_sidecar_valid(", 1)[1].split("\n}", 1)[0]
         self.assertIn("VV_SIDECAR_VERSION", valid)
-        self.assertIn("VV_MAX_VILLAGERS", valid)
+        # The count is the writing build's slot count: 150, or 256 from the
+        # 256 Villagers build; either is read.
+        self.assertIn("vv_mask_sidecar_count_ok(vv_sidecar_u32(data + 8))", valid)
+        self.assertIn("return count == 150u || count == 256u;", self.c)
         self.assertIn("data[0] == 'V' && data[1] == 'V' && data[2] == 'M' && data[3] == 'K'", valid)
 
     def test_save_slot_namespaces_and_resets_sidecar_state(self) -> None:
@@ -149,8 +161,9 @@ class DllStorageContractTests(unittest.TestCase):
         for expected in (
             'parts[0] = "VVMK";            sizes[0] = 4;',
             "parts[1] = header;            sizes[1] = sizeof(header);",
-            "parts[2] = g_mask_by_index;   sizes[2] = VV_MAX_VILLAGERS;",
-            "parts[3] = g_mask_fp;         sizes[3] = VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int);",
+            "header[1] = (unsigned int)vv_slots();",
+            "parts[2] = g_mask_by_index;   sizes[2] = header[1];",
+            "parts[3] = g_mask_fp;         sizes[3] = header[1] * (DWORD)sizeof(unsigned int);",
             "vv_sidecar_publish(&g_mask_gate, path, parts, sizes, 4);",
         ):
             self.assertIn(expected, write)

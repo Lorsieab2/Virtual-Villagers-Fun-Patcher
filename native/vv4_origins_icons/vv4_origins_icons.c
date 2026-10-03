@@ -154,9 +154,38 @@ static const char *const g_mask_names[VV_MASK_COUNT] = {
    Mastery walker passes 0x50E5AC as the array base. (An earlier derivation
    used 0x5101EC = ctx+0x1C84, which is wrong -- it left vv_villager_index
    returning -1 for every real record, so masks never stored or rendered.) */
-#define VV_REC_ARRAY_BASE 0x50E5ACu
+/* With 256 Villagers (Experimental) the manager is at 0x800000 and has 256
+   slots; both are read from the executable (native/shared/vv4_villager_table.h),
+   so this one DLL serves either build.  VV_MAX_VILLAGERS sizes the side tables
+   for the larger build; every walk over records stops at vv_slots(). */
+#include "../shared/vv4_villager_table.h"
+
+static unsigned int g_vv_rec_base;
+static int g_vv_slots;
+
+static void vv_locate(void) {
+    unsigned int rva, slots;
+    if (g_vv_rec_base != 0) {
+        return;
+    }
+    vv4_villager_table((const unsigned char *)(UINT_PTR)0x400000u, &rva, &slots);
+    g_vv_slots = (int)slots;
+    g_vv_rec_base = 0x400000u + rva + 0x44u;
+}
+
+static unsigned int vv_rec_base(void) {
+    vv_locate();
+    return g_vv_rec_base;
+}
+
+static int vv_slots(void) {
+    vv_locate();
+    return g_vv_slots;
+}
+
+#define VV_REC_ARRAY_BASE vv_rec_base()
 #define VV_REC_STRIDE     0x2E3Cu
-#define VV_MAX_VILLAGERS  150
+#define VV_MAX_VILLAGERS  256
 /* The villager's OWN name, 25 bytes, read here as identity only (never written).
    Proven three ways: the burial writer 0x45D4B4 copies it into the grave record
    (push 0x19; lea eax,[edi+0x1B9C]; call strncpy), the birth routine at
@@ -260,7 +289,8 @@ static void vv_prepare_mask_state(void) {
 static int vv_mask_sweep(void) {
     int idx;
     int changed = 0;
-    for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
+    int slots = vv_slots();
+    for (idx = 0; idx < slots; idx++) {
         const unsigned char *rec =
             (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
         if (rec[VV_OCCUPIED_OFFSET] != 0) {
@@ -306,7 +336,7 @@ static int vv_villager_index(const unsigned char *villager) {
         return -1;
     }
     idx = off / VV_REC_STRIDE;
-    return idx < (unsigned int)VV_MAX_VILLAGERS ? (int)idx : -1;
+    return idx < (unsigned int)vv_slots() ? (int)idx : -1;
 }
 static int vv_get_mask(const unsigned char *villager) {
     int idx;
@@ -589,8 +619,9 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
    wherever the live .ldw saves actually are. Written on chooser OK; read once,
    lazily, on the first present frame for the captured save slot. The stored fingerprints guard identity on
    reload, and the sweep's seen-alive latch keeps a restored mask until its
-   villager appears. Format: "VVMK" + u32 version + u32 count(150) + 150 mask
-   bytes + 150 u32 fingerprints (magic/version added per VV3/VV5 advice so the
+   villager appears. Format: "VVMK" + u32 version + u32 count (150, or 256 from
+   the 256 Villagers build) + count mask bytes + count u32 fingerprints
+   (magic/version added per VV3/VV5 advice so the
    entry shape can evolve without silently misreading an old file). There is no
    legacy global sidecar migration: slot 0 and malformed/missing files remain
    all-unmasked. */
@@ -721,22 +752,32 @@ static int vv_build_sidecar_path(char *out, int slot) {
    been found missing, or -- present but invalid -- been moved aside intact. */
 static vv_sidecar_gate g_mask_gate;
 
-#define VV4_MASK_SIDECAR_BYTES \
-    (4 + 2 * sizeof(unsigned int) + VV_MAX_VILLAGERS \
-     + VV_MAX_VILLAGERS * sizeof(unsigned int))
+/* A file holds `count` entries: the slot count of the build that wrote it,
+   150 (the stock table) or 256 (256 Villagers).  Both are read by either
+   build, so a village copied from a 150-slot build into the 256 build keeps
+   its masks; a build writes its own count, so a 150-slot build's files are
+   byte-for-byte what they always were. */
+#define VV4_MASK_SIDECAR_BYTES_FOR(count) \
+    (4 + 2 * sizeof(unsigned int) + (count) + (count) * sizeof(unsigned int))
+#define VV4_MASK_SIDECAR_BYTES VV4_MASK_SIDECAR_BYTES_FOR(VV_MAX_VILLAGERS)
 
 static unsigned int vv_sidecar_u32(const unsigned char *p) {
     return (unsigned int)p[0] | ((unsigned int)p[1] << 8)
          | ((unsigned int)p[2] << 16) | ((unsigned int)p[3] << 24);
 }
 
+static int vv_mask_sidecar_count_ok(unsigned int count) {
+    return count == 150u || count == 256u;
+}
+
 static int vv_mask_sidecar_valid(const unsigned char *data, DWORD len,
                                  void *ctx) {
     (void)ctx;
-    return len >= VV4_MASK_SIDECAR_BYTES
+    return len >= 12
         && data[0] == 'V' && data[1] == 'V' && data[2] == 'M' && data[3] == 'K'
         && vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION
-        && vv_sidecar_u32(data + 8) == VV_MAX_VILLAGERS;
+        && vv_mask_sidecar_count_ok(vv_sidecar_u32(data + 8))
+        && len >= VV4_MASK_SIDECAR_BYTES_FOR(vv_sidecar_u32(data + 8));
 }
 
 static void vv_write_mask_sidecar(void) {
@@ -757,13 +798,13 @@ static void vv_write_mask_sidecar(void) {
         return;
     }
     header[0] = VV_SIDECAR_VERSION;
-    header[1] = VV_MAX_VILLAGERS;
+    header[1] = (unsigned int)vv_slots();
     /* Written to "<path>.tmp", every write checked, flushed, then moved over
        the published file, which stays byte-for-byte intact on any failure. */
     parts[0] = "VVMK";            sizes[0] = 4;
     parts[1] = header;            sizes[1] = sizeof(header);
-    parts[2] = g_mask_by_index;   sizes[2] = VV_MAX_VILLAGERS;
-    parts[3] = g_mask_fp;         sizes[3] = VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int);
+    parts[2] = g_mask_by_index;   sizes[2] = header[1];
+    parts[3] = g_mask_fp;         sizes[3] = header[1] * (DWORD)sizeof(unsigned int);
     (void)vv_sidecar_publish(&g_mask_gate, path, parts, sizes, 4);
 }
 
@@ -772,7 +813,8 @@ static int vv_read_mask_sidecar(void) {
     DWORD rd;
     unsigned char file[VV4_MASK_SIDECAR_BYTES];
     const unsigned char *masks = file + 12;
-    const unsigned char *fps = file + 12 + VV_MAX_VILLAGERS;
+    const unsigned char *fps;
+    int count;
     int i;
     int status;
     vv_sidecar_gate_bind(&g_mask_gate, g_current_slot);
@@ -799,7 +841,15 @@ static int vv_read_mask_sidecar(void) {
         return 0;
     }
     if (status == VV_SIDECAR_LOAD_VALID) {
-        for (i = 0; i < VV_MAX_VILLAGERS; i++) {
+        /* The file's own count (150 or 256, validated above); entries past
+           this build's slots are not loaded, and slots past the file's
+           count stay unmasked. */
+        count = (int)vv_sidecar_u32(file + 8);
+        fps = file + 12 + count;
+        if (count > vv_slots()) {
+            count = vv_slots();
+        }
+        for (i = 0; i < count; i++) {
             g_mask_by_index[i] = (masks[i] < VV_MASK_COUNT) ? masks[i] : 0;
             g_mask_fp[i] = vv_sidecar_u32(fps + i * 4);
         }
@@ -1011,7 +1061,7 @@ static void vv4_blit_mask(int mask, int x, int y, int frame, int scale_pct) {
 __declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
                                                  int frame, int scale_pct) {
     vv_prepare_mask_state();
-    if (index < 0 || index >= VV_MAX_VILLAGERS) {
+    if (index < 0 || index >= vv_slots()) {
         return;
     }
     vv4_blit_mask((int)g_mask_by_index[index], x, y, frame, scale_pct);
@@ -1939,9 +1989,10 @@ static int vv4_apply_for_all(void) {
     int affected = 0;
     int mask_changed = 0;
     int i, idx, mode;
+    int slots = vv_slots();
 
     fa_rng = GetTickCount() | 1u;
-    for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
+    for (idx = 0; idx < slots; idx++) {
         unsigned char *rec = fa_record(idx);
         int male;
         if (rec[VV_OCCUPIED_OFFSET] == 0) {
@@ -2585,9 +2636,9 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 }
 
 /* ---- Village-wide dry-run counting (for VV5-task9-style confirms) ---- */
-#define VV_RECORD_BASE       0x50E5AC
+#define VV_RECORD_BASE       vv_rec_base()
 #define VV_RECORD_STRIDE     0x2E3C
-#define VV_RECORD_COUNT_ADDR 0x42001C   /* record-array capacity (150) */
+#define VV_RECORD_COUNT_ADDR 0x42001C   /* record-array capacity (150, or 256) */
 #define VV_ACTIVE_OFFSET     0x1CC4
 #define VV_DEAD_OFFSET       0x1CC7
 #define VV_HEALTH_OFFSET     0x1C40

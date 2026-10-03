@@ -58,6 +58,7 @@
 #include "save_folder.h"
 #include "custom_titles.h"
 #include "vv3_villager_table.h"
+#include "vv4_villager_table.h"
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
@@ -1338,6 +1339,8 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     located = GAME_LAYOUTS[game_id];
     if (game_id == GAME_VV3) {
         vv3_villager_table(module, &located.villagers_rva, &located.slots);
+    } else if (game_id == GAME_VV4) {
+        vv4_villager_table(module, &located.villagers_rva, &located.slots);
     }
     g = &located;
     if (!layout_is_sane(g)) {

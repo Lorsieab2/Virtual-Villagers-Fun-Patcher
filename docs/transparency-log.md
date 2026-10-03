@@ -1009,6 +1009,18 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 ### Optional features
 
+#### 256 Villagers (Experimental) (`vv4_population_256`)
+
+EXPERIMENTAL. Gives The Tree of Life 256 villager slots instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 231 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 115 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves in their own "Virtual Villagers - The Tree of Life - Modded 256" folder, so they never mix with 150-slot saves: a 256 save cannot be opened by a 150-slot game. Copy an old save into that folder and it loads, then is saved in the 256 format from then on. Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
+- Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 115. Nothing changes for a build that does not tick this patch.
+- Dependencies: none
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live confirmation pending
+- Guarded executable edits: 453; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Builders and Healers Work First (`vv4_builders_and_healers_work_first`)
 
 Builders and healers are more likely to do their own work first, at any food level -- about three times in four each time the game chooses what they do; the rest of the time the game chooses exactly as it always has, and the one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. When it steps in: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. This also applies during catch-up -- the time that passes while the game is closed, and Time Warp: each time catch-up chooses work for a builder or healer, about three times in four they are first given their own job (a builder only while it has hut work, as above), so they keep gaining skill while you are away; the rest of the time, and whenever there is nothing of theirs to do, catch-up's own choice stands. Villagers with any other job are untouched. Catch-up's low-food rule still wins: at 250 food or less a villager with Farming 20 or more farms, whatever their job. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, whose stub does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.

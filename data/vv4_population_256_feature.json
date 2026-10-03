@@ -1,0 +1,2931 @@
+{
+ "id": "vv4_population_256",
+ "enabled": true,
+ "catalog_enabled": true,
+ "catalog_hidden": false,
+ "game_id": "vv4",
+ "name": "256 Villagers (Experimental)",
+ "description": "EXPERIMENTAL. Gives The Tree of Life 256 villager slots instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 231 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 115 is unchanged, only the table is larger. The patched game is named \"... - Modded 256\" and keeps its saves in their own \"Virtual Villagers - The Tree of Life - Modded 256\" folder, so they never mix with 150-slot saves: a 256 save cannot be opened by a 150-slot game. Copy an old save into that folder and it loads, then is saved in the 256 format from then on. Off by default.",
+ "output_tag": "256 Villagers",
+ "behavior_changes": [
+  "The villager table has 256 slots; the population modes that raise the cap reach 256.",
+  "Saves hold up to 256 villagers in a longer save file that only this build reads."
+ ],
+ "explicit_non_changes": [
+  "No Population Increase keeps the stock cap of 115.",
+  "Nothing changes for a build that does not tick this patch."
+ ],
+ "evidence_status": "static exact-build implementation with emulation of the replaced routines; live confirmation pending",
+ "patches": [],
+ "population_256": {
+  "rows": [
+   {
+    "offset": "0x13C80",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1425A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1431F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14331",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x146F4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14772",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x147BA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x147FA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14876",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x148CA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x148D7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x148E6",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x148F1",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14AFA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14C20",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14C5F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14C6F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14CED",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14D20",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14D50",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager",
+    "yield_to": {
+     "feature": "vv4_enable_origins_exclusive_features",
+     "after": "E99E470700"
+    }
+   },
+   {
+    "offset": "0x14DBB",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14DC5",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14DFE",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14E08",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14E41",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14E63",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14EB6",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14EC6",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14F20",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14F2A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14F7E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14F98",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x14FCC",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15037",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x150B1",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x152D4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x152EF",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x153B7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1543E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15452",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15508",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15657",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15767",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15844",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x158E7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1596C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x159DA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15A44",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15A67",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15AEA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15B27",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15BEA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15C28",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15D1F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15D67",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15E17",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15E57",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15EFB",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15F6A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x15FA7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16013",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x160CB",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x161EA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16367",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16437",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x164F7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x165C7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x166C7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x167AF",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x167F7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x168CF",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16927",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x169EA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16A0B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16A57",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16AFE",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16B67",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x16C67",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x180B9",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x180CA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1959A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x19673",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1E002",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1E088",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1E0A8",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1E0F1",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1E600",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1E9BC",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1F120",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1F27F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1F2E5",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1F354",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1FD2F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1FD41",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x1FFB1",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x20077",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2025E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x20269",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x203F7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x20461",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x20551",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2055B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x20565",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x205DF",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x205FE",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x20641",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2DDB9",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2EEFB",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2F1F5",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2F207",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2F3F4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2F404",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x2F612",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x302DF",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x302FE",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x30315",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x314E2",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x317D0",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x317E0",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3196C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3302C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x33601",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x336A2",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x33774",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x337A2",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x337D0",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x337FE",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x33F7C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x366DA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x36712",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x36933",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x369D2",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x36EE2",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3707D",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x37292",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x37472",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x374A4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x374C4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x376C8",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x37A5C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x37E4C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x38C78",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x39147",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3975C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x398EE",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3A000",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3A392",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3B6D4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3B7C4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3B83B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3B91F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3B95B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3B966",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3B978",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3BA9F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3BB91",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3BC7A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3F6DC",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3F7FC",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3F841",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3F856",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3F895",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3F993",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3F9B7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3FA49",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3FA6B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3FB69",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3FF0A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3FF1C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x3FF92",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40114",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x401A5",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4022E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4027D",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x408C0",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x408E3",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40906",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40929",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4094C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4096F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40C92",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40D56",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40E32",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40E72",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x40F0C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x41178",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x412DD",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x424D9",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x426E9",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42923",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x429EE",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42A0A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42A5F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42A87",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42C1A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42C5E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42F11",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42F8A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42FA2",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42FC5",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x42FDD",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4300E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4302F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x43050",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x430DB",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x43161",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x431EB",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4326B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x432EB",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x433C4",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x44A10",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x44A9F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x45478",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x47ADF",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x47AFF",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x47D60",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x47D7E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x48009",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x482A1",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x482FA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x48309",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x48500",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4853E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x48567",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x485A5",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x485D1",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4864E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4BE21",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4BE35",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4BE61",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4BEBA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4C0D3",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x4C558",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x53394",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x53E84",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x55750",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x557EA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x55807",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x55824",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x55841",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x5585E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x5587B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x55898",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x5D418",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x5E7BC",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x5FDAA",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x60399",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x60C49",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x60D5B",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6247E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x62BFC",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x62C4E",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6333C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6417C",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x64190",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x641FD",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x64232",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x64633",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x64650",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x64665",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x64AA8",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x64FF9",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6504F",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x65123",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x65154",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x65294",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x658E2",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x688E1",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x68984",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6A937",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6A96D",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6BFFC",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6C00A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6C018",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6C0B9",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6C0C7",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6C0D5",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6E32A",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x6E940",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x88D70",
+    "before": "B968E55000",
+    "after": "B900008000",
+    "purpose": "point this population-manager call at the relocated manager"
+   },
+   {
+    "offset": "0x5DD61",
+    "before": "8B0D74E55000",
+    "after": "8B0D0C008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5DD82",
+    "before": "A174E55000",
+    "after": "A10C008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5DDA1",
+    "before": "8B0D84E55000",
+    "after": "8B0D1C008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5DDBA",
+    "before": "8B1584E55000",
+    "after": "8B151C008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5DDE0",
+    "before": "8B0D70E55000",
+    "after": "8B0D08008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5DDFB",
+    "before": "A170E55000",
+    "after": "A108008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5DE19",
+    "before": "8B0D80E55000",
+    "after": "8B0D18008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5DE2A",
+    "before": "8B0D80E55000",
+    "after": "8B0D18008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5F748",
+    "before": "A18CE55000",
+    "after": "A124008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5F76C",
+    "before": "8B158CE55000",
+    "after": "8B1524008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5F795",
+    "before": "A18CE55000",
+    "after": "A124008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5F87E",
+    "before": "A16CE55000",
+    "after": "A104008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5FA3F",
+    "before": "8B0D8CE55000",
+    "after": "8B0D24008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5FA5C",
+    "before": "A18CE55000",
+    "after": "A124008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x5FA81",
+    "before": "8B0D8CE55000",
+    "after": "8B0D24008000",
+    "purpose": "population-manager header field: the relocated manager"
+   },
+   {
+    "offset": "0x3FFB9",
+    "before": "8B8840025100",
+    "after": "8B88D81C8000",
+    "purpose": "villager position by index: the relocated record table"
+   },
+   {
+    "offset": "0x3FFBF",
+    "before": "8B8044025100",
+    "after": "8B80DC1C8000",
+    "purpose": "villager position by index: the relocated record table"
+   },
+   {
+    "offset": "0x42BB9",
+    "before": "8B8840025100",
+    "after": "8B88D81C8000",
+    "purpose": "villager position by index: the relocated record table"
+   },
+   {
+    "offset": "0x42BBF",
+    "before": "8BB844025100",
+    "after": "8BB8DC1C8000",
+    "purpose": "villager position by index: the relocated record table"
+   },
+   {
+    "offset": "0x2001A",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: load/elapsed-time scan over every record (0x41FEF0); the slot count Origins and Time Warp read at 0x42001C"
+   },
+   {
+    "offset": "0x202A6",
+    "before": "3D96000000",
+    "after": "3D00010000",
+    "purpose": "256 slots: second scan over every record (0x41FEF0)"
+   },
+   {
+    "offset": "0x20515",
+    "before": "81FB96000000",
+    "after": "81FB00010000",
+    "purpose": "256 slots: periodic world update over every record (0x420330)"
+   },
+   {
+    "offset": "0x3360E",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: every index through the getter (0x4335D0)"
+   },
+   {
+    "offset": "0x3696A",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: records with job 0x79 (0x436920)"
+   },
+   {
+    "offset": "0x3BBA8",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: village reset: clear every record's alive flag (0x43BB60)"
+   },
+   {
+    "offset": "0x482DD",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: Villager Details living-list builder (0x448290)"
+   },
+   {
+    "offset": "0x603F2",
+    "before": "81FB96000000",
+    "after": "81FB00010000",
+    "purpose": "256 slots: nearest-villager search (0x460370)"
+   },
+   {
+    "offset": "0x65F56",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: init: every record learns its own index (0x465F20)"
+   },
+   {
+    "offset": "0x66044",
+    "before": "3D95000000",
+    "after": "3DFF000000",
+    "purpose": "256 slots: index -> record getter: 0 <= i <= 255 (0x466040)"
+   },
+   {
+    "offset": "0x66084",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: first record matching 0x45DD10 (0x466060)"
+   },
+   {
+    "offset": "0x660AB",
+    "before": "BD96000000",
+    "after": "BD00010000",
+    "purpose": "256 slots: SAVE: pack every living villager into the compact table (0x4660A0)"
+   },
+   {
+    "offset": "0x66118",
+    "before": "BB96000000",
+    "after": "BB00010000",
+    "purpose": "256 slots: LOAD: reset every record before reading the compact table (0x466110)"
+   },
+   {
+    "offset": "0x66245",
+    "before": "BF96000000",
+    "after": "BF00010000",
+    "purpose": "256 slots: reset every record (0x466240)"
+   },
+   {
+    "offset": "0x6628D",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: ALLOCATOR: first free slot (0x466270)"
+   },
+   {
+    "offset": "0x6629C",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: ALLOCATOR: no free slot (0x466270)"
+   },
+   {
+    "offset": "0x6632D",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: ALLOCATOR from a template: first free slot (0x466310)"
+   },
+   {
+    "offset": "0x6633C",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: ALLOCATOR from a template: no free slot (0x466310)"
+   },
+   {
+    "offset": "0x6638D",
+    "before": "81FF96000000",
+    "after": "81FF00010000",
+    "purpose": "256 slots: GHOST ALLOCATOR: first free slot (0x466370)"
+   },
+   {
+    "offset": "0x6639C",
+    "before": "81FF96000000",
+    "after": "81FF00010000",
+    "purpose": "256 slots: GHOST ALLOCATOR: no free slot (0x466370)"
+   },
+   {
+    "offset": "0x66425",
+    "before": "BF96000000",
+    "after": "BF00010000",
+    "purpose": "256 slots: per-record update of living records (0x466420)"
+   },
+   {
+    "offset": "0x6645B",
+    "before": "C744241096000000",
+    "after": "C744241000010000",
+    "purpose": "256 slots: ageing / day tick, counter on the stack (0x466450)"
+   },
+   {
+    "offset": "0x6674E",
+    "before": "81FD96000000",
+    "after": "81FD00010000",
+    "purpose": "256 slots: per-record scan (0x4666B0)"
+   },
+   {
+    "offset": "0x6683B",
+    "before": "C744241095000000",
+    "after": "C7442410FF000000",
+    "purpose": "256 slots: world-point picker reverse scan 255..0 (0x466820)"
+   },
+   {
+    "offset": "0x669CB",
+    "before": "3D96000000",
+    "after": "3D00010000",
+    "purpose": "256 slots: villager at a point (0x466940)"
+   },
+   {
+    "offset": "0x66A0B",
+    "before": "C744241095000000",
+    "after": "C7442410FF000000",
+    "purpose": "256 slots: villager-at-a-point reverse scan 255..0 (0x466A00)"
+   },
+   {
+    "offset": "0x66ADF",
+    "before": "BD95000000",
+    "after": "BDFF000000",
+    "purpose": "256 slots: nearby sick-villager reverse scan 255..0 (0x466AD0)"
+   },
+   {
+    "offset": "0x66BBF",
+    "before": "81FF96000000",
+    "after": "81FF00010000",
+    "purpose": "256 slots: any villager within the radius (0x466B80)"
+   },
+   {
+    "offset": "0x66C77",
+    "before": "81FB96000000",
+    "after": "81FB00010000",
+    "purpose": "256 slots: per-record scan (0x466BF0)"
+   },
+   {
+    "offset": "0x66C9A",
+    "before": "81FE95000000",
+    "after": "81FEFF000000",
+    "purpose": "256 slots: select a villager: -1 or 0..255 (0x466C90)"
+   },
+   {
+    "offset": "0x66D0D",
+    "before": "3D96000000",
+    "after": "3D00010000",
+    "purpose": "256 slots: per-record scan (0x466CE0)"
+   },
+   {
+    "offset": "0x66D28",
+    "before": "BF96000000",
+    "after": "BF00010000",
+    "purpose": "256 slots: every record (0x466D20)"
+   },
+   {
+    "offset": "0x66D68",
+    "before": "BF96000000",
+    "after": "BF00010000",
+    "purpose": "256 slots: every record (0x466D60)"
+   },
+   {
+    "offset": "0x66E6D",
+    "before": "81FE96000000",
+    "after": "81FE00010000",
+    "purpose": "256 slots: picker (0x466DA0)"
+   },
+   {
+    "offset": "0x66F0F",
+    "before": "81FA96000000",
+    "after": "81FA00010000",
+    "purpose": "256 slots: picker (0x466EB0)"
+   },
+   {
+    "offset": "0x66F52",
+    "before": "BF96000000",
+    "after": "BF00010000",
+    "purpose": "256 slots: every record (0x466F40)"
+   },
+   {
+    "offset": "0x66FB6",
+    "before": "B996000000",
+    "after": "B900010000",
+    "purpose": "256 slots: every record (0x466FB0)"
+   },
+   {
+    "offset": "0x66FE8",
+    "before": "BF96000000",
+    "after": "BF00010000",
+    "purpose": "256 slots: every record (0x466FE0)"
+   },
+   {
+    "offset": "0x67052",
+    "before": "BD96000000",
+    "after": "BD00010000",
+    "purpose": "256 slots: every record (0x467040)"
+   },
+   {
+    "offset": "0x670BD",
+    "before": "BD96000000",
+    "after": "BD00010000",
+    "purpose": "256 slots: every record (0x4670B0)"
+   },
+   {
+    "offset": "0x67127",
+    "before": "C744241096000000",
+    "after": "C744241000010000",
+    "purpose": "256 slots: every record, counter on the stack (0x467110)"
+   },
+   {
+    "offset": "0x6721A",
+    "before": "81FA96000000",
+    "after": "81FA00010000",
+    "purpose": "256 slots: Island Event group picker (0x4671A0)"
+   },
+   {
+    "offset": "0x67302",
+    "before": "81F996000000",
+    "after": "81F900010000",
+    "purpose": "256 slots: Island Event picker (0x467290)"
+   },
+   {
+    "offset": "0x673FA",
+    "before": "81F996000000",
+    "after": "81F900010000",
+    "purpose": "256 slots: Island Event picker (0x467380)"
+   },
+   {
+    "offset": "0x67498",
+    "before": "BF96000000",
+    "after": "BF00010000",
+    "purpose": "256 slots: every record (0x467490); the slot count Origins reads at 0x467499"
+   },
+   {
+    "offset": "0x6755A",
+    "before": "81FA96000000",
+    "after": "81FA00010000",
+    "purpose": "256 slots: Island Event picker (0x4674E0)"
+   },
+   {
+    "offset": "0x67618",
+    "before": "BA96000000",
+    "after": "BA00010000",
+    "purpose": "256 slots: POPULATION COUNTER for the cap check (0x467610)"
+   },
+   {
+    "offset": "0x67748",
+    "before": "BA96000000",
+    "after": "BA00010000",
+    "purpose": "256 slots: adults with a condition (0x467740)"
+   },
+   {
+    "offset": "0x6779E",
+    "before": "C744241096000000",
+    "after": "C744241000010000",
+    "purpose": "256 slots: village-wide action, counter on the stack (0x467790)"
+   },
+   {
+    "offset": "0x67848",
+    "before": "81FA96000000",
+    "after": "81FA00010000",
+    "purpose": "256 slots: any villager with a job (0x467820)"
+   },
+   {
+    "offset": "0x6786A",
+    "before": "BD96000000",
+    "after": "BD00010000",
+    "purpose": "256 slots: every villager with a job (0x467860)"
+   },
+   {
+    "offset": "0x67930",
+    "before": "3D96000000",
+    "after": "3D00010000",
+    "purpose": "256 slots: random villager with a job (0x4678F0)"
+   },
+   {
+    "offset": "0x67AA7",
+    "before": "81FF96000000",
+    "after": "81FF00010000",
+    "purpose": "256 slots: filtered random villager (0x4679B0)"
+   },
+   {
+    "offset": "0x67BB0",
+    "before": "81FF96000000",
+    "after": "81FF00010000",
+    "purpose": "256 slots: filtered random adults, Abandoned Infants too (0x467B00)"
+   },
+   {
+    "offset": "0x67C98",
+    "before": "81F996000000",
+    "after": "81F900010000",
+    "purpose": "256 slots: random villager with a field value (0x467C50)"
+   },
+   {
+    "offset": "0x67CEE",
+    "before": "BF95000000",
+    "after": "BFFF000000",
+    "purpose": "256 slots: static constructor: construct every record (0x467CE0)"
+   },
+   {
+    "offset": "0x6844B",
+    "before": "C744241C96000000",
+    "after": "C744241C00010000",
+    "purpose": "256 slots: pregnancy/birth/ageing tick, counter on the stack (0x468430)"
+   },
+   {
+    "offset": "0x66843",
+    "before": "8DB9F7051B00",
+    "after": "8DB9CF2A2E00",
+    "purpose": "world-point picker reverse scan start: record 255 +0x1CC7"
+   },
+   {
+    "offset": "0x66A13",
+    "before": "8DB1C4051B00",
+    "after": "8DB19C2A2E00",
+    "purpose": "villager-at-a-point reverse scan start: record 255 +0x1C94"
+   },
+   {
+    "offset": "0x66AE4",
+    "before": "8DB130E91A00",
+    "after": "8DB1080E2E00",
+    "purpose": "nearby sick-villager reverse scan start: record 255"
+   },
+   {
+    "offset": "0x66DA0",
+    "before": "81EC58020000",
+    "after": "81EC00040000",
+    "purpose": "widen the picker's index array to 256 entries (0x466DA0)"
+   },
+   {
+    "offset": "0x66DB1",
+    "before": "8B8C2468020000",
+    "after": "8B8C2410040000",
+    "purpose": "argument above the widened index array (0x466DA0)"
+   },
+   {
+    "offset": "0x66E83",
+    "before": "81C458020000",
+    "after": "81C400040000",
+    "purpose": "widen the picker's index array to 256 entries (0x466DA0)"
+   },
+   {
+    "offset": "0x66E9C",
+    "before": "81C458020000",
+    "after": "81C400040000",
+    "purpose": "widen the picker's index array to 256 entries (0x466DA0)"
+   },
+   {
+    "offset": "0x66EB0",
+    "before": "81EC58020000",
+    "after": "81EC00040000",
+    "purpose": "widen the picker's index array to 256 entries (0x466EB0)"
+   },
+   {
+    "offset": "0x66EBF",
+    "before": "8B8C2460020000",
+    "after": "8B8C2408040000",
+    "purpose": "argument above the widened index array (0x466EB0)"
+   },
+   {
+    "offset": "0x66F20",
+    "before": "81C458020000",
+    "after": "81C400040000",
+    "purpose": "widen the picker's index array to 256 entries (0x466EB0)"
+   },
+   {
+    "offset": "0x66F37",
+    "before": "81C458020000",
+    "after": "81C400040000",
+    "purpose": "widen the picker's index array to 256 entries (0x466EB0)"
+   },
+   {
+    "offset": "0x671A0",
+    "before": "81EC60020000",
+    "after": "81EC08040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4671A0)"
+   },
+   {
+    "offset": "0x671A8",
+    "before": "8BAC2470020000",
+    "after": "8BAC2418040000",
+    "purpose": "argument above the widened index array (0x4671A0)"
+   },
+   {
+    "offset": "0x671B0",
+    "before": "8BB4247C020000",
+    "after": "8BB42424040000",
+    "purpose": "argument above the widened index array (0x4671A0)"
+   },
+   {
+    "offset": "0x671B8",
+    "before": "8BBC247C020000",
+    "after": "8BBC2424040000",
+    "purpose": "argument above the widened index array (0x4671A0)"
+   },
+   {
+    "offset": "0x67222",
+    "before": "8B842484020000",
+    "after": "8B84242C040000",
+    "purpose": "argument above the widened index array (0x4671A0)"
+   },
+   {
+    "offset": "0x67239",
+    "before": "8BAC2474020000",
+    "after": "8BAC241C040000",
+    "purpose": "argument above the widened index array (0x4671A0)"
+   },
+   {
+    "offset": "0x6727F",
+    "before": "81C460020000",
+    "after": "81C408040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4671A0)"
+   },
+   {
+    "offset": "0x67294",
+    "before": "81EC5C020000",
+    "after": "81EC04040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467290)"
+   },
+   {
+    "offset": "0x6729D",
+    "before": "8BB42478020000",
+    "after": "8BB42420040000",
+    "purpose": "argument above the widened index array (0x467290)"
+   },
+   {
+    "offset": "0x672A7",
+    "before": "8BBC2478020000",
+    "after": "8BBC2420040000",
+    "purpose": "argument above the widened index array (0x467290)"
+   },
+   {
+    "offset": "0x6730A",
+    "before": "8B842484020000",
+    "after": "8B84242C040000",
+    "purpose": "argument above the widened index array (0x467290)"
+   },
+   {
+    "offset": "0x67321",
+    "before": "DB842474020000",
+    "after": "DB84241C040000",
+    "purpose": "argument above the widened index array (0x467290)"
+   },
+   {
+    "offset": "0x67328",
+    "before": "8BBC2470020000",
+    "after": "8BBC2418040000",
+    "purpose": "argument above the widened index array (0x467290)"
+   },
+   {
+    "offset": "0x6736A",
+    "before": "81C45C020000",
+    "after": "81C404040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467290)"
+   },
+   {
+    "offset": "0x67380",
+    "before": "81EC64020000",
+    "after": "81EC0C040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467380)"
+   },
+   {
+    "offset": "0x67386",
+    "before": "8B942478020000",
+    "after": "8B942420040000",
+    "purpose": "argument above the widened index array (0x467380)"
+   },
+   {
+    "offset": "0x6738E",
+    "before": "8B9C2474020000",
+    "after": "8B9C241C040000",
+    "purpose": "argument above the widened index array (0x467380)"
+   },
+   {
+    "offset": "0x67399",
+    "before": "8BBC2480020000",
+    "after": "8BBC2428040000",
+    "purpose": "argument above the widened index array (0x467380)"
+   },
+   {
+    "offset": "0x67402",
+    "before": "8B842488020000",
+    "after": "8B842430040000",
+    "purpose": "argument above the widened index array (0x467380)"
+   },
+   {
+    "offset": "0x6741D",
+    "before": "8B9C2478020000",
+    "after": "8B9C2420040000",
+    "purpose": "argument above the widened index array (0x467380)"
+   },
+   {
+    "offset": "0x67425",
+    "before": "8BAC2478020000",
+    "after": "8BAC2420040000",
+    "purpose": "argument above the widened index array (0x467380)"
+   },
+   {
+    "offset": "0x6747F",
+    "before": "81C464020000",
+    "after": "81C40C040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467380)"
+   },
+   {
+    "offset": "0x674E0",
+    "before": "81EC60020000",
+    "after": "81EC08040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4674E0)"
+   },
+   {
+    "offset": "0x674E7",
+    "before": "8B9C247C020000",
+    "after": "8B9C2424040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x674EF",
+    "before": "8BAC247C020000",
+    "after": "8BAC2424040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x674F8",
+    "before": "8BBC248C020000",
+    "after": "8BBC2434040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x67562",
+    "before": "8B842490020000",
+    "after": "8B842438040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x67585",
+    "before": "8B84247C020000",
+    "after": "8B842424040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x6758C",
+    "before": "8B9C2474020000",
+    "after": "8B9C241C040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x67593",
+    "before": "8BAC2478020000",
+    "after": "8BAC2420040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x675A1",
+    "before": "8B842480020000",
+    "after": "8B842428040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x675CA",
+    "before": "8B8C247C020000",
+    "after": "8B8C2424040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x675D7",
+    "before": "8B942484020000",
+    "after": "8B94242C040000",
+    "purpose": "argument above the widened index array (0x4674E0)"
+   },
+   {
+    "offset": "0x67604",
+    "before": "81C460020000",
+    "after": "81C408040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4674E0)"
+   },
+   {
+    "offset": "0x678F0",
+    "before": "81EC5C020000",
+    "after": "81EC04040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4678F0)"
+   },
+   {
+    "offset": "0x678FA",
+    "before": "8BBC2468020000",
+    "after": "8BBC2410040000",
+    "purpose": "argument above the widened index array (0x4678F0)"
+   },
+   {
+    "offset": "0x67937",
+    "before": "8B84246C020000",
+    "after": "8B842414040000",
+    "purpose": "argument above the widened index array (0x4678F0)"
+   },
+   {
+    "offset": "0x67961",
+    "before": "81C45C020000",
+    "after": "81C404040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4678F0)"
+   },
+   {
+    "offset": "0x6796E",
+    "before": "81C45C020000",
+    "after": "81C404040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4678F0)"
+   },
+   {
+    "offset": "0x679B0",
+    "before": "81EC5C020000",
+    "after": "81EC04040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4679B0)"
+   },
+   {
+    "offset": "0x679B6",
+    "before": "8B842474020000",
+    "after": "8B84241C040000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x679F6",
+    "before": "8B842470020000",
+    "after": "8B842418040000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A0E",
+    "before": "8B842474020000",
+    "after": "8B84241C040000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A22",
+    "before": "8B842478020000",
+    "after": "8B842420040000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A36",
+    "before": "80BC247C02000000",
+    "after": "80BC242404000000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A46",
+    "before": "80BC248002000000",
+    "after": "80BC242804000000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A56",
+    "before": "83BC2484020000FF",
+    "after": "83BC242C040000FF",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A68",
+    "before": "3B842488020000",
+    "after": "3B842430040000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A71",
+    "before": "80BC248C02000000",
+    "after": "80BC243404000000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67A81",
+    "before": "80BC249002000000",
+    "after": "80BC243804000000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67AB3",
+    "before": "8B842494020000",
+    "after": "8B84243C040000",
+    "purpose": "argument above the widened index array (0x4679B0)"
+   },
+   {
+    "offset": "0x67ACA",
+    "before": "81C45C020000",
+    "after": "81C404040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4679B0)"
+   },
+   {
+    "offset": "0x67AF2",
+    "before": "81C45C020000",
+    "after": "81C404040000",
+    "purpose": "widen the picker's index array to 256 entries (0x4679B0)"
+   },
+   {
+    "offset": "0x67B00",
+    "before": "81EC5C020000",
+    "after": "81EC04040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467B00)"
+   },
+   {
+    "offset": "0x67B06",
+    "before": "8B84246C020000",
+    "after": "8B842414040000",
+    "purpose": "argument above the widened index array (0x467B00)"
+   },
+   {
+    "offset": "0x67B4F",
+    "before": "8B8C2470020000",
+    "after": "8B8C2418040000",
+    "purpose": "argument above the widened index array (0x467B00)"
+   },
+   {
+    "offset": "0x67B68",
+    "before": "80BC247802000000",
+    "after": "80BC242004000000",
+    "purpose": "argument above the widened index array (0x467B00)"
+   },
+   {
+    "offset": "0x67B78",
+    "before": "83BC247C020000FF",
+    "after": "83BC2424040000FF",
+    "purpose": "argument above the widened index array (0x467B00)"
+   },
+   {
+    "offset": "0x67B89",
+    "before": "3B842480020000",
+    "after": "3B842428040000",
+    "purpose": "argument above the widened index array (0x467B00)"
+   },
+   {
+    "offset": "0x67BBC",
+    "before": "8B842484020000",
+    "after": "8B84242C040000",
+    "purpose": "argument above the widened index array (0x467B00)"
+   },
+   {
+    "offset": "0x67BD3",
+    "before": "81C45C020000",
+    "after": "81C404040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467B00)"
+   },
+   {
+    "offset": "0x67BE2",
+    "before": "8B9C2474020000",
+    "after": "8B9C241C040000",
+    "purpose": "argument above the widened index array (0x467B00)"
+   },
+   {
+    "offset": "0x67C47",
+    "before": "81C45C020000",
+    "after": "81C404040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467B00)"
+   },
+   {
+    "offset": "0x67C50",
+    "before": "81EC58020000",
+    "after": "81EC00040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467C50)"
+   },
+   {
+    "offset": "0x67C5A",
+    "before": "8BBC2464020000",
+    "after": "8BBC240C040000",
+    "purpose": "argument above the widened index array (0x467C50)"
+   },
+   {
+    "offset": "0x67CA0",
+    "before": "8B842468020000",
+    "after": "8B842410040000",
+    "purpose": "argument above the widened index array (0x467C50)"
+   },
+   {
+    "offset": "0x67CB5",
+    "before": "81C458020000",
+    "after": "81C400040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467C50)"
+   },
+   {
+    "offset": "0x67CD7",
+    "before": "81C458020000",
+    "after": "81C400040000",
+    "purpose": "widen the picker's index array to 256 entries (0x467C50)"
+   },
+   {
+    "offset": "0x482CB",
+    "before": "893485008E4D00",
+    "after": "89348500107F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x483C0",
+    "before": "391485008E4D00",
+    "after": "39148500107F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x48413",
+    "before": "8B2C9D008E4D00",
+    "after": "8B2C9D00107F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x4841E",
+    "before": "8D349DFC8D4D00",
+    "after": "8D349DFC0F7F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x4844D",
+    "before": "892CBD008E4D00",
+    "after": "892CBD00107F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x48492",
+    "before": "8B0485008E4D00",
+    "after": "8B048500107F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x484D0",
+    "before": "8B048DFC8D4D00",
+    "after": "8B048DFC0F7F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x484D8",
+    "before": "8B0485008E4D00",
+    "after": "8B048500107F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x485B8",
+    "before": "8B148D008E4D00",
+    "after": "8B148D00107F00",
+    "purpose": "Villager Details: the 256-entry living list"
+   },
+   {
+    "offset": "0x67666",
+    "before": "8D81D41B0000BF19000000",
+    "after": "E995893800909090909090",
+    "purpose": "male/female tally: one 256-record loop instead of 25 x 6 unrolled records (0x467650)"
+   },
+   {
+    "offset": "0x660C9",
+    "before": "E8A29DFBFF8D843868C80000",
+    "after": "8D870040AE00909090909090",
+    "purpose": "save writer: pack villagers into the 257-entry compact table"
+   },
+   {
+    "offset": "0x660F1",
+    "before": "E87A9DFBFF",
+    "after": "9090909090",
+    "purpose": "save writer: the end flag goes into the 257-entry compact table (no game-state lookup)"
+   },
+   {
+    "offset": "0x660FE",
+    "before": "C6841868C8000000",
+    "after": "C6830040AE000090",
+    "purpose": "save writer: end the compact table after the last villager"
+   },
+   {
+    "offset": "0x66132",
+    "before": "E8399DFBFF389868C80000",
+    "after": "381D0040AE009090909090",
+    "purpose": "save reader: read the first compact entry from the 257-entry table"
+   },
+   {
+    "offset": "0x66141",
+    "before": "E82A9DFBFF8D843068C80000",
+    "after": "8D860040AE00909090909090",
+    "purpose": "save reader: read villagers from the 257-entry compact table"
+   },
+   {
+    "offset": "0x66166",
+    "before": "E8059DFBFF80BC3068C8000000",
+    "after": "80BE0040AE0000909090909090",
+    "purpose": "save reader: stop at the end of the 257-entry compact table"
+   },
+   {
+    "offset": "0x1F12E",
+    "before": "578D4608680C7101008BCE50",
+    "after": "57E80C0F3D0068B4DC010050",
+    "purpose": "save: write the stock payload followed by villagers 150..255"
+   },
+   {
+    "offset": "0x1FC09",
+    "before": "56680C7101008D8C2498000000518BCBE8C23BFEFF84C00F8469FFFFFF",
+    "after": "E9C2043D00909090909090909090909090909090909090909090909090",
+    "purpose": "load: accept a 256-format save, or an old 150-slot save with no extension"
+   }
+  ],
+  "mode_rows": {
+   "stock": [],
+   "collection_progression": [
+    {
+     "offset": "0x683EF",
+     "before": "83C65A3BDE",
+     "after": "E85C7D3800",
+     "purpose": "Collection Progression: base 231 plus 0-25 collection points, 256 at most"
+    }
+   ],
+   "immediate_fixed": [
+    {
+     "offset": "0x683AA",
+     "before": "83FE147505BE19000000",
+     "after": "BEA60000009090909090",
+     "purpose": "Immediate Fixed: 166 + 90 = 256 at every collection state"
+    }
+   ]
+  },
+  "safety_rows": [
+   {
+    "offset": "0x5E8C0",
+    "before": "C786501C000003000000",
+    "after": "E95BA702009090909090",
+    "purpose": "route triplet selection through the 256-slot saturation guard"
+   },
+   {
+    "offset": "0x89020",
+    "before": "00000000000000000000000000000000000000000000000000000000000000",
+    "after": "E8CB0000003DFD0000000F8FA358FDFFC786501C000003000000E98B58FDFF",
+    "purpose": "keep triplets only when three of the 256 villager slots remain"
+   },
+   {
+    "offset": "0x5E8D3",
+    "before": "C786501C000002000000",
+    "after": "E968A702009090909090",
+    "purpose": "route twin selection through the 256-slot saturation guard"
+   },
+   {
+    "offset": "0x89040",
+    "before": "00000000000000000000000000000000000000000000000000000000000000",
+    "after": "E8AB0000003DFE0000000F8F9458FDFFC786501C000002000000E97E58FDFF",
+    "purpose": "keep twins only when two of the 256 villager slots remain"
+   },
+   {
+    "offset": "0x148B0",
+    "before": "566858020000",
+    "after": "E9AB47070090",
+    "purpose": "recheck the 256-slot physical limit before an Island Event creates its first adult"
+   },
+   {
+    "offset": "0x89060",
+    "before": "000000000000000000000000000000000000000000000000",
+    "after": "E88B0000003D000100007D0B566858020000E93FB8F8FFC3",
+    "purpose": "skip the event newcomer when all 256 slots are in demand or resume the complete stock outcome below"
+   },
+   {
+    "offset": "0x14D90",
+    "before": "68C8000000",
+    "after": "E9EB420700",
+    "purpose": "recheck the 256-slot physical limit before the Daredevil Barrel creates its first child"
+   },
+   {
+    "offset": "0x89080",
+    "before": "0000000000000000000000000000000000000000000000",
+    "after": "E86B0000003D000100007D0A68C8000000E9FFBCF8FFC3",
+    "purpose": "skip the first barrel child when all 256 slots are in demand while retaining the stock later-child cap"
+   },
+   {
+    "offset": "0x14FC0",
+    "before": "6A006A006A",
+    "after": "E9FB400700",
+    "purpose": "route Abandoned Infants through a remaining-slot clamp"
+   },
+   {
+    "offset": "0x890C0",
+    "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "E82B000000F7D805000100007E1F83F8067E05B8060000006A006A006AFF6A01506AFFB900008000E813EAFDFFC3",
+    "purpose": "reserve no more than the lesser of six abandoned infants or the slots left of 256, picked by the relocated manager"
+   },
+   {
+    "offset": "0x890F0",
+    "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "515231C0BA44008000B90001000080BAC41C000000741283C00183BA4C1C00000074060382501C000081C23C2E000083E90175DA5A59C3",
+    "purpose": "count VV4 physical villager demand for the 256-slot saturation guards: every occupied record of the relocated table plus the babies each pregnant mother still owes a record"
+   },
+   {
+    "offset": "0x5D700",
+    "before": "8B7BF485FF744E8D53D8BE19000000E85CFCFFFF84C0744785FF7C438B0383F8FF7C3C83F8057D378B430C83F8FF7C2F83F8057D2A8B7C2410834424105C83C501B9170000008BF283C35C81FDF4010000F3A57CAB5F5E5DB0015B59C204005F5E5D32C05B59C20400CCCCCCCCCCCCCC",
+    "after": "8B7BF485FF74598D53D8BE19000000E85CFCFFFF84C0744C85FF7C488B034083F80673408B430C807B0F017511C1E008C1F8088D480183F906732989430C4083F80673208B7C2410834424105C456A17598BF283C35C81FDF4010000F3A57CA0B001EB0232C05F5E5D5B59C20400CCCC",
+    "purpose": "repair graves damaged by Village Statistics v1.35.40 and earlier before the memorial loader validates them: a grave whose stock dword +0x34 carries a patch-set 0x01 in its top byte over a valid -1..4 value is restored to that value, so the save loads; every stock-valid grave is left byte-identical and any other invalid grave is still rejected exactly as stock"
+   }
+  ],
+  "code_pages": {
+   "stock": {
+    "hex": "8D81D41B0000BF0001000083B8B0000000007E128B0885C97505830201EB0783F9017502010E053C2E000083EF0175DBE90077C7FFCCCCCCCCCCCCCCCCCCCCCC5657538D7608BF0050AF00B9435C0000F3A531DB69C30401000080B80040AE0000740B83C30181FB0001000072E689D981F9960000007605B9960000006BC941BE0040AE00BF6018B000F3A581FB960000007303C60700BF0CC1B000BE58D8AE0031C981EB9600000076056BCB41F3A5B9B42CB10029F9C1E90231C0F3AB5B5F5E89F1B80050AF00C3CCCCCCCCCCCCCC5668B4DC0100680050AF0089D9E8FE36C1FF84C0752656680C710100680050AF0089D9E8E836C1FF84C074495731C0BF0CC1B000B9EA1A0000F3AB5F5657BE0050AF008DBC2498000000B9435C0000F3A5BE6018B000BF0040AE00B916260000F3A5BE0CC1B000B9EA1A0000F3A55F5EE9E1FAC2FFE945FAC2FF00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "sha256": "7243FA8ACF4FC73F181AFD5E716FD7F2A368F13C0B5BCC1338AF46CD8C46CE88"
+   },
+   "collection_progression": {
+    "hex": "8D81D41B0000BF0001000083B8B0000000007E128B0885C97505830201EB0783F9017502010E053C2E000083EF0175DBE90077C7FFCCCCCCCCCCCCCCCCCCCCCC5657538D7608BF0050AF00B9435C0000F3A531DB69C30401000080B80040AE0000740B83C30181FB0001000072E689D981F9960000007605B9960000006BC941BE0040AE00BF6018B000F3A581FB960000007303C60700BF0CC1B000BE58D8AE0031C981EB9600000076056BCB41F3A5B9B42CB10029F9C1E90231C0F3AB5B5F5E89F1B80050AF00C3CCCCCCCCCCCCCC5668B4DC0100680050AF0089D9E8FE36C1FF84C0752656680C710100680050AF0089D9E8E836C1FF84C074495731C0BF0CC1B000B9EA1A0000F3AB5F5657BE0050AF008DBC2498000000B9435C0000F3A5BE6018B000BF0040AE00B916260000F3A5BE0CC1B000B9EA1A0000F3A55F5EE9E1FAC2FFE945FAC2FFCCCCCCCCCCCC81C6E700000039F3C300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "sha256": "F9F60E9C485544D140DC07619EDE2586E3332F0C664965F989B82ACF1F35BE51"
+   },
+   "immediate_fixed": {
+    "hex": "8D81D41B0000BF0001000083B8B0000000007E128B0885C97505830201EB0783F9017502010E053C2E000083EF0175DBE90077C7FFCCCCCCCCCCCCCCCCCCCCCC5657538D7608BF0050AF00B9435C0000F3A531DB69C30401000080B80040AE0000740B83C30181FB0001000072E689D981F9960000007605B9960000006BC941BE0040AE00BF6018B000F3A581FB960000007303C60700BF0CC1B000BE58D8AE0031C981EB9600000076056BCB41F3A5B9B42CB10029F9C1E90231C0F3AB5B5F5E89F1B80050AF00C3CCCCCCCCCCCCCC5668B4DC0100680050AF0089D9E8FE36C1FF84C0752656680C710100680050AF0089D9E8E836C1FF84C074495731C0BF0CC1B000B9EA1A0000F3AB5F5657BE0050AF008DBC2498000000B9435C0000F3A5BE6018B000BF0040AE00B916260000F3A5BE0CC1B000B9EA1A0000F3A55F5EE9E1FAC2FFE945FAC2FF00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "sha256": "7243FA8ACF4FC73F181AFD5E716FD7F2A368F13C0B5BCC1338AF46CD8C46CE88"
+   }
+  },
+  "compositions": {
+   "vv4_enable_origins_exclusive_features": [
+    {
+     "find": "B968E55000",
+     "replace": "B900008000",
+     "count": 4,
+     "purpose": "Origins code: the relocated population manager (Barrel admission detour, two Villager-menu getters, Barrel purchase gate)"
+    },
+    {
+     "find": "B9ACE55000",
+     "replace": "B944008000",
+     "count": 1,
+     "purpose": "Origins village-wide upgrades: first record of the relocated table"
+    },
+    {
+     "find": "BAACE55000",
+     "replace": "BA44008000",
+     "count": 1,
+     "purpose": "Origins village-wide upgrades: first record of the relocated table"
+    },
+    {
+     "find": "3D960000007D03B001C3",
+     "replace": "3D000100007D03B001C3",
+     "count": 2,
+     "purpose": "Origins purchased-barrel room checks: room up to the 256-record table"
+    },
+    {
+     "find": "83C0033D960000007E04",
+     "replace": "83C0033D000100007E04",
+     "count": 1,
+     "purpose": "Origins Barrel purchase gate: refuse only when population + 3 would exceed 256 records"
+    },
+    {
+     "find": "B97002510031F6BB96000000",
+     "replace": "B9081D800031F6BB00010000",
+     "count": 1,
+     "purpose": "Origins Tech menu: count free records of the relocated 256-record table (manager + 0x44 + 0x1CC4 is record 0's active byte)"
+    }
+   ],
+   "vv4_write_parentage_log": [
+    {
+     "find": "6868E55000",
+     "replace": "6800008000",
+     "count": 1,
+     "purpose": "parentage stub: pass the relocated population manager"
+    },
+    {
+     "find": "81C1ACE55000",
+     "replace": "81C144008000",
+     "count": 1,
+     "purpose": "parentage stub: first record of the relocated table"
+    }
+   ]
+  },
+  "layout": {
+   "stock_manager": "0x50E568",
+   "manager": "0x800000",
+   "record_stride": "0x2E3C",
+   "record_base_offset": "0x44",
+   "slots": 256,
+   "physical_records": 256,
+   "section_va": "0x7F0000",
+   "section_end": "0xB13000",
+   "code_page_va": "0x7F0000",
+   "details_list": "0x7F1000",
+   "compact_table": "0xAE4000",
+   "scratch_payload": "0xAF5000",
+   "stock_payload_size": "0x1710C",
+   "payload_size": "0x1DCB4",
+   "section_name": ".vv256",
+   "filler_section_name": ".vv256z"
+  },
+  "labels": {
+   "tally": "0x7F0000",
+   "save_prep": "0x7F0040",
+   "load_cave": "0x7F00D0",
+   "cp_add": "0x7F0150"
+  }
+ }
+}
