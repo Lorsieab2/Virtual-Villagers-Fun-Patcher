@@ -49,10 +49,10 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
     def test_a_village_is_held_for_when_either_companion_will_name_it(self) -> None:
         source = PARENTAGE.read_text(encoding="utf-8")
         emit = function(source, "emit_record")
-        self.assertIn("if (village[0] == '\\0' && !village_publisher_present()) {", emit)
+        self.assertIn("if (village[0] == '\\0' && !village_publisher_present(game_id)) {", emit)
         self.assertNotIn("statistics_publisher_present()", emit)
         present = function(source, "village_publisher_present")
-        self.assertIn("return statistics_publisher_present() || cause_of_death_publishes();", present)
+        self.assertIn("return statistics_publisher_present() || cause_of_death_publishes(game_id);", present)
         cause = function(source, "cause_of_death_publishes")
         # Not loaded yet: this DLL loads it rather than assume it will load
         # (#512 review) -- a file that cannot load, or lacks the exports,
@@ -61,11 +61,15 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         self.assertIn("module = LoadLibraryW(path);", cause)
         self.assertIn('|| GetProcAddress(module, "VvfpCauseInstall") == NULL) {\n            cause_state = -1;', cause)
         self.assertIn('GetProcAddress(module, "VvfpCauseNamesVillage")', cause)
-        self.assertIn("if (names() == -1) {\n        cause_state = -1;", cause)
+        self.assertIn("if (state == -1) {\n        cause_state = -1;", cause)
+        # Not installed yet: its save hook is armed so a save before the
+        # install still names the village (#512 review, The Secret City);
+        # a hook that cannot be armed is final.
+        self.assertIn("if (state == 0 && game_id >= GAME_VV1 && game_id <= GAME_VV5 && !arm_save(game_id)) {", cause)
 
     def test_with_no_publisher_held_records_go_first(self) -> None:
         emit = function(PARENTAGE.read_text(encoding="utf-8"), "emit_record")
-        branch = emit[emit.index("!village_publisher_present()"):]
+        branch = emit[emit.index("!village_publisher_present(game_id)"):]
         self.assertLess(branch.index("flush_pending(game_id, village);"),
                         branch.index("return append_record(g, village, kind, text) == APPEND_WRITTEN;"))
 
@@ -89,13 +93,14 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
     def test_cause_of_death_names_the_village_before_it_reconciles(self) -> None:
         roster = (CAUSE / "cod_roster.inc").read_text(encoding="utf-8")
         for name, buffer in (
-            ("roster_saved", "cod_publish_village((const void *)(uintptr_t)(regs[R_ESI] + 8u), slot);"),
-            ("vv1_written", "cod_publish_village((const void *)(uintptr_t)reg_stack(regs, 0x210), slot);"),
+            ("roster_saved", "cod_save_done(slot, (const void *)(uintptr_t)(regs[R_ESI] + 8u));"),
+            ("vv1_written", "cod_save_done(slot, (const void *)(uintptr_t)reg_stack(regs, 0x210));"),
         ):
             with self.subTest(hook=name):
-                body = function(roster, name)
-                self.assertIn(buffer, body)
-                self.assertLess(body.index(buffer), body.index("roster_reconcile(slot);"))
+                self.assertIn(buffer, function(roster, name))
+        done = function(roster, "cod_save_done")
+        self.assertLess(done.index("cod_publish_village(save_buffer, slot);"),
+                        done.index("roster_reconcile(slot);"))
         cause = (CAUSE / "vvfp_cause_of_death.c").read_text(encoding="utf-8")
         publish = function(cause, "cod_publish_village")
         self.assertIn("(void)publish_village(g_game, save_buffer, slot);", publish)
@@ -117,12 +122,31 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         self.assertIn('GetProcAddress(module, "ReleaseHeldRecords")', cause)
         parentage = PARENTAGE.read_text(encoding="utf-8")
         release = function(parentage, "ReleaseHeldRecords")
-        self.assertIn("if (village_publisher_present()) {\n        return 0;", release)
+        self.assertIn("if (village_publisher_present(game_id)) {\n        return 0;", release)
         self.assertIn('flush_pending(game_id, "");', release)
         self.assertIn(
             "ReleaseHeldRecords=_ReleaseHeldRecords@4",
             (ROOT / "native/parentage_export/parentage_export.def").read_text(encoding="utf-8"),
         )
+
+    def test_a_save_before_the_install_names_the_village(self) -> None:
+        cause = (CAUSE / "vvfp_cause_of_death.c").read_text(encoding="utf-8")
+        arm = function(cause, "VvfpCauseArmSave")
+        self.assertIn("roster_save_site();", arm)
+        self.assertIn("if (cod_install_sites(0)) {", arm)
+        install = function(cause, "VvfpCauseInstall")
+        # The armed hook stays sites[0]; the install adds the rest after it.
+        self.assertIn("site_count = save_armed ? 1 : 0;", install)
+        self.assertIn("if (!save_armed) {\n        roster_save_site();", install)
+        self.assertIn("if (cod_install_sites(save_armed ? 1 : 0)) {", install)
+        roster = (CAUSE / "cod_roster.inc").read_text(encoding="utf-8")
+        done = function(roster, "cod_save_done")
+        self.assertIn("cod_publish_village(save_buffer, slot);", done)
+        self.assertIn("if (install_state == 1) {\n        roster_reconcile(slot);", done)
+        for name in ("roster_saved", "vv1_written"):
+            self.assertIn("cod_save_done(slot, ", function(roster, name))
+        for definition in ("vvfp_cause_of_death.def", "vvfp_cause_of_death_test.def"):
+            self.assertIn("VvfpCauseArmSave=_VvfpCauseArmSave@4", (CAUSE / definition).read_text(encoding="utf-8"))
 
     def test_the_shipped_dlls_carry_the_new_exports(self) -> None:
         import sys
@@ -133,6 +157,7 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         self.assertIn(b"PublishVillageAtSave", _pe_export_names(parentage))
         self.assertIn(b"ReleaseHeldRecords", _pe_export_names(parentage))
         self.assertIn(b"VvfpCauseNamesVillage", _pe_export_names(cause))
+        self.assertIn(b"VvfpCauseArmSave", _pe_export_names(cause))
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
     def test_the_harness_passes_against_the_shipped_dll(self) -> None:

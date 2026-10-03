@@ -2183,11 +2183,14 @@ static int statistics_publisher_present(void) {
    nothing but its DllMain; the companion's own load later shares the
    module. */
 typedef int (__stdcall *cause_names_village_t)(void);
+typedef int (__stdcall *cause_arm_save_t)(int game);
 
 static int cause_state;               /* 0 undecided, -1 never */
 
-static int cause_of_death_publishes(void) {
+static int cause_of_death_publishes(int game_id) {
     static cause_names_village_t names;
+    static cause_arm_save_t arm_save;
+    int state;
     wchar_t path[MAX_PATH];
     wchar_t *slash;
     DWORD n;
@@ -2220,12 +2223,22 @@ static int cause_of_death_publishes(void) {
             return 0;
         }
         names = (cause_names_village_t)GetProcAddress(module, "VvfpCauseNamesVillage");
-        if (names == NULL) {
+        arm_save = (cause_arm_save_t)GetProcAddress(module, "VvfpCauseArmSave");
+        if (names == NULL || arm_save == NULL) {
             cause_state = -1;
             return 0;
         }
     }
-    if (names() == -1) {
+    state = names();
+    if (state == -1) {
+        cause_state = -1;
+        return 0;
+    }
+    /* Not installed yet: a save may come before the install (The Secret
+       City installs it only when a villager is first drawn), so its save
+       hook is armed now, to name the village at that save (#512 review).
+       A hook that cannot be armed can never name it: records go out now. */
+    if (state == 0 && game_id >= GAME_VV1 && game_id <= GAME_VV5 && !arm_save(game_id)) {
         cause_state = -1;
         return 0;
     }
@@ -2234,8 +2247,8 @@ static int cause_of_death_publishes(void) {
 
 /* Whether anything will publish the village: the statistics companion, or
    Cause of Death's own save hook. */
-static int village_publisher_present(void) {
-    return statistics_publisher_present() || cause_of_death_publishes();
+static int village_publisher_present(int game_id) {
+    return statistics_publisher_present() || cause_of_death_publishes(game_id);
 }
 
 /* Whether `size` bytes at `p` can be read without faulting. A held record's
@@ -2735,7 +2748,7 @@ static int emit_record(
         }
         return hold_record(game_id, kind, records, text);
     }
-    if (village[0] == '\0' && !village_publisher_present()) {
+    if (village[0] == '\0' && !village_publisher_present(game_id)) {
         /* Records held while a publisher was still expected -- Cause of
            Death shipped, then found unable to hook the save -- go first,
            in order, unlabelled like this one: nothing will name them now. */
@@ -3579,7 +3592,7 @@ __declspec(dllexport) int __stdcall ReleaseHeldRecords(int game_id) {
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
     }
-    if (village_publisher_present()) {
+    if (village_publisher_present(game_id)) {
         return 0;
     }
     flush_pending(game_id, "");

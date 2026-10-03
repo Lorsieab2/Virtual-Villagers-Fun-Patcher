@@ -58,6 +58,8 @@ typedef int (__stdcall *birth_t)(int, const char *, int, int, const char *, int,
 typedef int (__stdcall *publish_t)(int, const void *, int);
 typedef int (__stdcall *install_t)(int, const void *);
 typedef int (__stdcall *setup_t)(int, const void *, void *);
+typedef void (__stdcall *arm_t)(int);
+typedef void (__stdcall *save_done_t)(int, const void *);
 
 enum { DEATH = 2 };
 
@@ -194,6 +196,12 @@ static void stand_in(const char *name, int present) {
 static void drop_cause(void) {
     HMODULE h;
     while ((h = GetModuleHandleA("VVFP Cause of Death.dll")) != NULL) {
+        FreeLibrary(h);
+    }
+    /* ...and every parentage DLL instance: the companion keeps its own
+       reference to the one it loaded, so a phase would otherwise inherit
+       the previous phase's state. */
+    while ((h = GetModuleHandleA("VVFP Parentage Export.dll")) != NULL) {
         FreeLibrary(h);
     }
 }
@@ -387,9 +395,13 @@ int main(int argc, char **argv) {
         villager(1, "Bonedry", 1234, 7, 9);
         load();
         vv_village_publish("");
-        CHECK(write_record(3, DEATH, rec(1), 1, BURIED, NULL, 1) == 1 && !read_deaths(3),
-              "before the companion is loaded, a death is held: it will name the village");
         companion = LoadLibraryA(cause);
+        if (companion != NULL) {
+            arm_t arm = (arm_t)GetProcAddress(companion, "VvfpCauseTestArm");
+            if (arm != NULL) arm(1);      /* its save hook arms, as in a game */
+        }
+        CHECK(write_record(3, DEATH, rec(1), 1, BURIED, NULL, 1) == 1 && !read_deaths(3),
+              "before the companion is installed, a death is held: it will name the village");
         install = companion != NULL ? (install_t)GetProcAddress(companion, "VvfpCauseInstall") : NULL;
         CHECK(install != NULL && install(3, NULL) == 0, "its install is refused (no game here)");
         CHECK(read_deaths(3) && STARTS("Death 1\r\n  Name: Bonedry\r\n") && strstr(text, "Village: ") == NULL,
@@ -405,6 +417,90 @@ int main(int argc, char **argv) {
         DeleteFileA(cause);
         DeleteFileA(beside);
         dll_path = shipped;
+        wipe(0);
+    }
+
+    /* 6a: a save before the install (#512 review): The Secret City installs
+       the companion only when a villager is first drawn, so a catch-up
+       record can be held when the game saves. The save hook the parentage
+       DLL armed names the village there, and the held records go out under
+       it -- without reconciling anything, since nothing was watching. */
+    printf("Virtual Villagers 3: a save before Cause of Death is installed\n");
+    {
+        char cause[MAX_PATH], beside[MAX_PATH];
+        HMODULE companion;
+        save_done_t save_done = NULL;
+        const char *shipped = dll_path;
+        unsigned char *buffer = save_buffer(3, "Early Tribe");
+        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+        drop_cause();
+        CopyFileA(argv[2], cause, FALSE);
+        _snprintf(beside, MAX_PATH, "%s\\VVFP Parentage Export.dll", exe_dir);
+        CopyFileA(shipped, beside, FALSE);
+        dll_path = beside;
+        g = &LAYOUTS[2];
+        records = alloc_table(3);
+        villager(0, "Ana", 600, 3, 4);
+        villager(1, "Bonedry", 1234, 7, 9);
+        villager(2, "Cala", 300, 1, 2);
+        load();
+        vv_village_publish("");
+        companion = LoadLibraryA(cause);
+        if (companion != NULL) {
+            arm_t arm = (arm_t)GetProcAddress(companion, "VvfpCauseTestArm");
+            save_done = (save_done_t)GetProcAddress(companion, "VvfpCauseTestSaveDone");
+            if (arm != NULL) arm(1);
+        }
+        CHECK(birth(3, "", -1, -1, "Ana", 3, 4, "Bonedry", 7, 9, rec(2)) == 1
+              && write_record(3, DEATH, rec(1), 1, BURIED, NULL, 1) == 1
+              && !read_births(3) && !read_deaths(3),
+              "catch-up records are held while the companion is not installed");
+        CHECK(save_done != NULL, "the TEST build has the save entry");
+        if (save_done != NULL) save_done(1, buffer);
+        CHECK(read_births(3) && STARTS("Village: Early Tribe (Save 1)\r\n")
+              && strstr(text, "Birth\r\n  Child: Cala\r\n") != NULL,
+              "the save names the village and writes the held birth under it");
+        CHECK(read_deaths(3) && STARTS("Village: Early Tribe (Save 1)\r\nDeath 1\r\n  Name: Bonedry\r\n"),
+              "...and the held death");
+        CHECK(read_unaccounted(3) && strcmp(text, "Village: Early Tribe (Save 1)\r\n") == 0,
+              "nothing is reconciled before the install: the Unaccounted log is only headed");
+        free(buffer);
+        if (companion != NULL) FreeLibrary(companion);
+        FreeLibrary(dll);
+        drop_cause();
+        free_table(3);
+        DeleteFileA(cause);
+        DeleteFileA(beside);
+        dll_path = shipped;
+        wipe(0);
+    }
+
+    /* 6c: a save hook that cannot be armed can never name a village: the
+       first record goes out at once, unlabelled. */
+    printf("Virtual Villagers 3: the save hook cannot be armed\n");
+    {
+        char cause[MAX_PATH];
+        HMODULE companion;
+        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+        drop_cause();
+        CopyFileA(argv[2], cause, FALSE);
+        g = &LAYOUTS[2];
+        records = alloc_table(3);
+        villager(1, "Bonedry", 1234, 7, 9);
+        load();
+        vv_village_publish("");
+        companion = LoadLibraryA(cause);
+        if (companion != NULL) {
+            arm_t arm = (arm_t)GetProcAddress(companion, "VvfpCauseTestArm");
+            if (arm != NULL) arm(-1);
+        }
+        CHECK(write_record(3, DEATH, rec(1), 1, BURIED, NULL, 1) == 1 && read_deaths(3)
+              && STARTS("Death 1\r\n  Name: Bonedry\r\n"),
+              "a death is written at once, unlabelled");
+        if (companion != NULL) FreeLibrary(companion);
+        FreeLibrary(dll);
+        drop_cause();
+        free_table(3);
         wipe(0);
     }
 
