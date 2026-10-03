@@ -1370,6 +1370,36 @@ class TitleSetTests(unittest.TestCase):
                                  "Chief Fisher")
                 self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "Chief Fisher")])
 
+    def test_a_spawned_villagers_title_that_cannot_be_saved_is_a_refused_change(self):
+        """Codex, PR #495: a new villager's title whose file cannot be
+        published (a full disk, a read-only folder) is counted as a change
+        that could not be made, exactly as an existing villager's is."""
+        from story_custom_fixtures import MemoryFiles
+
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            p = story.proc
+            files = MemoryFiles(p)
+            path = r"C:\Save\Custom Titles - Save 1.dat"
+            p.write(SCRATCH, path.encode() + b"\0")
+            p.export("VvfpStoryProbeTitlesLoaded", story.n, 1, SCRATCH)
+
+            def denied(q):
+                files.last_error = 5            # ERROR_ACCESS_DENIED
+                return 0, 12
+            p.api_handlers["MoveFileExA"] = denied
+            v = story.village
+            v.put(2, sex="f", years=30, name="Hina")
+            ok, r, _ = story.apply(Event(spawns=[Spawn(count=1, sex=2, age=300, name="Lani",
+                                                       title="Newcomer")]))
+            new = story.creations[0][0]
+            with self.subTest(game=game):
+                self.assertEqual((r["born"], r["refused"]), (1, 1))
+                self.assertIsNone(files.titles(path))
+                self.assertEqual(p.export("VvfpStoryProbeTitleOf", story.n, v.record(new)), 0)
+
 
 # ---------------------------------------------------------------------------
 # The popup text and the refusals

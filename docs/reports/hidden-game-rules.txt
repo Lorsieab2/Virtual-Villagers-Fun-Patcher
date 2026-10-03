@@ -1087,9 +1087,11 @@ RESEARCH AND FOOD
 ISLAND EVENTS
 
 28. Event timing
-  What  The first event comes soon after a village starts (within about half an hour). After that,
-        one comes every 8 to 15 hours, chosen evenly among the events whose own conditions are met.
-  Tag   [code] The two research passes disagreed on the very first delay (15 or 30 minutes).
+  What  The first event comes 15 minutes into a new village. The first event after the game is
+        started schedules the next one 30 minutes later; after that, one comes every 8 to 15 hours,
+        chosen evenly among the events whose own conditions are met.
+  Tag   [code, re-traced] A new village sets the next-event time to 15 minutes after creation
+        (0x41F31B: +0x384), as in the detailed island-event report.
 
 29. Rescue barrel for dying villages
   What  If the scarcer sex has 2 or fewer members, or the population is under 3, 6% of events are
