@@ -36,6 +36,7 @@ POPULATION = ROOT / "native" / "population_export" / "population_export.c"
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
 
 MAGIC = 0x35304D56          # 'VM05'
+MAGIC_256 = 0x35324D56      # 'VM25', the 256 Villagers build's sidecar
 OLD_TAGGED_MAGIC = 0x31304D56   # 'VM01', v1.35.13's never-written format
 WRONG_TAG_A = 0x4DBFC8 + 8 + 0x328
 WRONG_TAG_B = 0x4DBFC8 + 8 + 0x338
@@ -114,17 +115,23 @@ class Vv5RosterIdentityTest(unittest.TestCase):
     def test_roster_reads_the_records_the_population_exporter_reads(self) -> None:
         row = _population_vv5_row()
         self.assertEqual(row["is_pointer"], 0, "VV5's RVA is the array itself")
-        self.assertEqual(self._macro("VV5_VILLAGERS_VA"), 0x400000 + row["rva"])
-        records = re.search(r"#define VV5_ROSTER_RECORDS\s+\(VV5_VILLAGERS_VA \+ (0x[0-9A-Fa-f]+)u\)", self.text)
-        self.assertIsNotNone(records)
-        self.assertEqual(int(records.group(1), 16), row["record_base"])
+        # The table is located from the executable (native/shared/vv5_villager_table.h):
+        # the stock answer is the exporter's RVA, the records start record_base in.
+        locator = (ROOT / "native" / "shared" / "vv5_villager_table.h").read_text(encoding="utf-8")
+        self.assertIn("#define VV5_STOCK_MANAGER_RVA 0x%Xu" % row["rva"], locator)
+        locate = self._function("static void vv5_locate(")
+        self.assertIn("g_vv5_rec_base = 0x400000u + rva + 0x%Xu;" % row["record_base"], locate)
+        self.assertRegex(self.text, r"#define VV5_ROSTER_RECORDS\s+vv5_rec_base\(\)")
+        self.assertRegex(self.text, r"#define VV5_RECORD_BASE\s+vv5_rec_base\(\)")
         self.assertEqual(self._macro("VV5_ROSTER_STRIDE"), row["stride"])
-        self.assertEqual(self._macro("VV5_RECORD_COUNT"), row["slots"])
+        # sized for the 256 build; every walk stops at the executable's own count
+        self.assertEqual(self._macro("VV5_MAX_VILLAGERS"), 256)
+        self.assertGreaterEqual(256, row["slots"])
+        self.assertRegex(self.text, r"#define VV5_RECORD_COUNT\s+VV5_MAX_VILLAGERS")
+        self.assertIn("for (i = 0; i < slots; ++i)", self._function("static int vv5_roster_snapshot("))
         self.assertEqual(self._macro("VV5_ACTIVE_OFFSET"), row["active"])
         self.assertEqual(self._macro("VV5_NAME_OFFSET"), row["name"])
         self.assertEqual(self._macro("VV5_NAME_CAPACITY"), row["name_capacity"])
-        # and agrees with the barrel-capacity check's own absolute base
-        self.assertEqual(0x400000 + row["rva"] + row["record_base"], self._macro("VV5_RECORD_BASE"))
 
     # -- the rule ----------------------------------------------------------------
 
@@ -152,11 +159,14 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         self.assertLess(write.index("!g_vv5_have_roster"), write.index("vv_sidecar_publish("),
                         "an unidentified village must not write a file")
         self.assertRegex(write, r"parts\[0\]\s*=\s*&magic;\s*sizes\[0\]\s*=\s*sizeof\(magic\);")
-        self.assertRegex(write, r"parts\[1\]\s*=\s*g_vv5_roster;\s*sizes\[1\]\s*=\s*sizeof\(g_vv5_roster\);")
-        self.assertRegex(write, r"parts\[2\]\s*=\s*table;\s*sizes\[2\]\s*=\s*MASK_TABLE_BYTES;")
+        # each build writes its own slot count: 150 ('VM05') or 256 ('VM25')
+        self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC_256"), MAGIC_256)
+        self.assertIn("vv5_slots() == 256 ? VV5_MASK_SIDECAR_MAGIC_256 : VV5_MASK_SIDECAR_MAGIC", write)
+        self.assertRegex(write, r"parts\[1\]\s*=\s*g_vv5_roster;\s*sizes\[1\]\s*=\s*\(DWORD\)vv5_slots\(\)\s*\*\s*sizeof\(unsigned int\);")
+        self.assertRegex(write, r"parts\[2\]\s*=\s*table;\s*sizes\[2\]\s*=\s*vv5_mask_table_bytes\(\);")
         self.assertIn("vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3)", write)
         load = self._function("static int vv5_mask_sidecar_load(")
-        self.assertLess(load.index("memset(table, 0, MASK_TABLE_BYTES)"), load.index("return"),
+        self.assertLess(load.index("memset(table, 0, table_bytes)"), load.index("return"),
                         "fail closed: the clear must precede EVERY exit, including a failed path")
         self.assertIn("vv5_roster_same(filesnap, live)", load)
         self.assertNotIn("header[1] != tag", load)
@@ -203,7 +213,8 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         self.assertNotIn(struct.pack("<I", OLD_TAGGED_MAGIC), blob, "built DLL still carries 'VM01': not rebuilt")
         self.assertIn(b"Vv5MaskSync\0", blob, "built DLL does not export Vv5MaskSync")
         self.assertNotIn(struct.pack("<I", WRONG_TAG_A), blob, "built DLL still reads the wrong tag address")
-        self.assertIn(struct.pack("<I", 0x554148 + 0x48), blob, "built DLL does not address the villager records")
+        self.assertIn(struct.pack("<I", MAGIC_256), blob, "built DLL lacks the 'VM25' magic of the 256 build")
+        self.assertIn(struct.pack("<I", 0x154148), blob, "built DLL does not locate the stock villager table")
 
 
 if __name__ == "__main__":

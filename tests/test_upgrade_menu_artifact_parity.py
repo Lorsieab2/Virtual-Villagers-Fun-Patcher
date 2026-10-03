@@ -398,11 +398,13 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # (its only caller, the page's mask_load_once, was unreachable once
         # Vv5MaskSync replaced it) shrank the code, but not by a whole
         # 512-byte file-alignment unit once Cause of Death's loader is in, so
-        # the size is unchanged and only the digest moves.
+        # the size is unchanged and only the digest moves. Same size again,
+        # new digest, when it learned to read the villager table, slot count
+        # and mask table from the image (256 Villagers (Experimental)).
         self.assertEqual(vv5_companion["size"], 1780224)
         self.assertEqual(
             vv5_companion["sha256"],
-            "4A968673F4D12CC08C3BE3274B8C324331909823C5CD9A80489CC9D31FC37998",
+            "E66F4C969A9DE02F81F8C48A74B28638F593EA45A86AB1CDE93F413AD40476A2",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

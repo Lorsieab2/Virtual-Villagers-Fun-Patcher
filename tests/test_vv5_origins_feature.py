@@ -632,6 +632,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             not in {
                 FEATURE_ID,
                 "vv5_full_mastery_all_stage_a_candidate",
+                # the 256-slot build is composed in tests/test_vv5_population_256.py
+                "vv5_population_256",
             }
         ]
         active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}

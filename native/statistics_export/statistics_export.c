@@ -10,6 +10,7 @@
 #include "statistics_store.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
+#include "vv5_villager_table.h"
 
 enum {
     GAME_VV1 = 1,
@@ -318,8 +319,10 @@ static int village_elders_for(int game_id) {
         l.skills = 0x1C5Cu; l.skill_count = 5u; l.skills_are_float = 1; l.master_float = 88.0f;
         l.graves = module + 0x1025C8u; l.grave_stride = 0x5Cu; l.grave_elder_flag = 0x31u;
     } else if (game_id == GAME_VV5) {
-        l.villagers = module + 0x154148u; l.record_base = 0x48u; l.stride = 0x2F44u;
-        l.slots = 150u; l.active = 0x1CD4u; l.name = 0x1B9Cu;
+        unsigned int table, slots;
+        vv5_villager_table(module, &table, &slots);
+        l.villagers = module + table; l.record_base = 0x48u; l.stride = 0x2F44u;
+        l.slots = slots; l.active = 0x1CD4u; l.name = 0x1B9Cu;
         l.father_name = 0x1BC0u; l.mother_name = 0x1BD9u;
         l.skills = 0x1C5Cu; l.skill_count = 6u; l.skills_are_float = 1; l.master_float = 88.0f;
         l.tribe = 0x1CECu;              /* 0 = believer; heathens (the chief has all 100s) are not villagers */
@@ -1253,6 +1256,8 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
         vv3_villager_table(module, &layout.villagers_rva, &layout.slots);
     } else if (game_id == GAME_VV4) {
         vv4_villager_table(module, &layout.villagers_rva, &layout.slots);
+    } else if (game_id == GAME_VV5) {
+        vv5_villager_table(module, &layout.villagers_rva, &layout.slots);
     }
     villagers = r->rva_is_pointer ? *(unsigned char *const *)(module + r->villagers_rva)
                                   : module + r->villagers_rva;

@@ -22,7 +22,7 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "B5B89E67F86FC7EEA6F53303E3A58062E9AB6DAE4D5372EAE398B0F731DB5278"
+      "sha256": "42496ED028AE39971F1E71B94FE54EC452C292F089CE2E9C859726B1F01A973F"
     }
   ],
   "pe_append_transaction": {

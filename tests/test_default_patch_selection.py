@@ -106,7 +106,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_story_cheat_upgrades")
                   # 256 Villagers (Experimental): off by default -- it moves
                   # the villager table and changes the save format.
-                  or p in ("vv3_population_256", "vv4_population_256")})
+                  or p in ("vv3_population_256", "vv4_population_256", "vv5_population_256")})
 
     def test_story_cheat_upgrades_is_off_by_default_in_all_five(self) -> None:
         """The owner: Story / Cheat Upgrades is a default-off patch."""

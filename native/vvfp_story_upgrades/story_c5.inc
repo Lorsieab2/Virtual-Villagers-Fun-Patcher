@@ -2,8 +2,10 @@
 
    Every address below was traced in the stock executable and is identical in
    the three renders (docs/story-cheat-upgrades.md).  The villager manager is
-   0x554148; record i at 0x554190 + i*0x2F44, 150 records.  A Heathen is a
-   record with the faction byte +0x1CEC set.
+   0x554148; record i at 0x554190 + i*0x2F44, 150 records -- or, with 256
+   Villagers (Experimental), 0x800000 and 256 records: both are read from the
+   executable (native/shared/vv5_villager_table.h), so this one DLL serves
+   either build.  A Heathen is a record with the faction byte +0x1CEC set.
 
    DELIVERY.  The island-event selector 0x418870 has chosen at 0x41895B (the
    Pick Island Event site, after the Origins Barrel stub and the stock
@@ -13,10 +15,40 @@
    / 0x3AE, string-table slots (0x5240A8) the game leaves empty and no code
    names. */
 
-#define C5_MANAGER 0x554148u
-#define C5_RECORDS 0x554190u
+#include "../shared/vv5_villager_table.h"
+
+static unsigned int c5_table_manager;
+static int c5_table_count;
+
+/* The manager and its slot count, as the executable names them; read once.
+   The image is not relocatable, so its base is 0x400000. */
+static void c5_locate(void) {
+    unsigned int rva, slots;
+    if (c5_table_manager != 0) {
+        return;
+    }
+    vv5_villager_table((const unsigned char *)(uintptr_t)0x400000u, &rva, &slots);
+    c5_table_count = (int)slots;
+    c5_table_manager = 0x400000u + rva;
+}
+
+static unsigned int c5_manager(void) {
+    c5_locate();
+    return c5_table_manager;
+}
+
+static int c5_count(void) {
+    c5_locate();
+    return c5_table_count;
+}
+
+#define C5_MANAGER c5_manager()
+#define C5_RECORDS (c5_manager() + 0x48u)
 #define C5_STRIDE 0x2F44u
-#define C5_COUNT 150
+#define C5_COUNT c5_count()
+/* The adapter's record count at compile time: the stock table.  The adapter
+   handed out at run time (c5_adapter) carries the executable's own count. */
+#define C5_STOCK_COUNT 150
 #define C5_FOOD 0x51D34Cu
 #define C5_TECH 0x51D5F8u
 #define C5_TITLE_ID 0x3AD
@@ -74,12 +106,13 @@ static const char *c5_arm_refusal(void) {
 }
 
 /* The game's own room predicate 0x472BD0 (believers below the mode's cap,
-   the housing gates) and the 150 records. */
+   the housing gates) and the physical records (150, or 256). */
 static int c5_room(void) {
     return (TC0(0x472BD0u, C5_MANAGER) & 0xFF) != 0 && c5_demand() < C5_COUNT;
 }
 
 static const ce_adapter C5_ADAPTER;
+static const ce_adapter *c5_adapter(void);
 
 /* 0x471E20 (thiscall on the manager: lineage, skill, value, sex, age; ret
    0x14) -- the believer creator the Barrel, Chutes and News From Another
@@ -103,7 +136,7 @@ static int c5_spawn(const ce_spawn *s) {
     if (index < 0 || index >= C5_COUNT) {
         return -1;
     }
-    ce_apply_spawn_record(&C5_ADAPTER, c5_record(index), s);
+    ce_apply_spawn_record(c5_adapter(), c5_record(index), s);
     return index;
 }
 
@@ -693,7 +726,7 @@ static const ce_adapter C5_ADAPTER = {
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "New Believers",
     0x118, 40, 1100,
-    C5_COUNT, 0x19,
+    C5_STOCK_COUNT, 0x19,
     0x1B9C, 0x1B90, 0x1B8C, 0x1BB8, 0x1BBC, 0x1F5C, 0x1F68, 0x1C5C,
     0, 1,
     3, 79,
@@ -801,4 +834,17 @@ __declspec(naked) static void c5_title_stub(void) {
         push 0x4431A4
         ret
     }
+}
+
+/* C5_ADAPTER with the executable's own slot count (150, or 256 with 256
+   Villagers). */
+static const ce_adapter *c5_adapter(void) {
+    static ce_adapter adapter;
+    static int ready;
+    if (!ready) {
+        adapter = C5_ADAPTER;
+        adapter.record_count = c5_count();
+        ready = 1;
+    }
+    return &adapter;
 }

@@ -59,6 +59,7 @@
 #include "custom_titles.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
+#include "vv5_villager_table.h"
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
@@ -1341,6 +1342,8 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         vv3_villager_table(module, &located.villagers_rva, &located.slots);
     } else if (game_id == GAME_VV4) {
         vv4_villager_table(module, &located.villagers_rva, &located.slots);
+    } else if (game_id == GAME_VV5) {
+        vv5_villager_table(module, &located.villagers_rva, &located.slots);
     }
     g = &located;
     if (!layout_is_sane(g)) {

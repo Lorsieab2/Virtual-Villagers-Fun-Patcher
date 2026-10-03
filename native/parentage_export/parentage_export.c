@@ -78,6 +78,7 @@
 #include "save_folder.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
+#include "vv5_villager_table.h"
 
 enum {
     /* The log sits beside the executable, so the path is bounded by the
@@ -830,6 +831,8 @@ static const struct game_layout *layout_of(int game_id) {
     static int vv3_ready;
     static struct game_layout vv4;
     static int vv4_ready;
+    static struct game_layout vv5;
+    static int vv5_ready;
     if (game_id == GAME_VV3) {
         if (!vv3_ready) {
             unsigned int table, slots;
@@ -849,6 +852,16 @@ static const struct game_layout *layout_of(int game_id) {
             vv4_ready = 1;
         }
         return &vv4;
+    }
+    if (game_id == GAME_VV5) {
+        if (!vv5_ready) {
+            unsigned int table, slots;
+            vv5_villager_table((const unsigned char *)GetModuleHandleW(NULL), &table, &slots);
+            vv5 = GAME_LAYOUTS[GAME_VV5];
+            vv5.slots = (int)slots;
+            vv5_ready = 1;
+        }
+        return &vv5;
     }
     return &GAME_LAYOUTS[game_id];
 }
@@ -2165,14 +2178,16 @@ static const struct { unsigned int rva; int is_pointer; } VILLAGER_TABLE[6] = {
     { 0x10E568u, 0 }, { 0x154148u, 0 },
 };
 
-/* VV3's and VV4's table RVA as the executable names it (see
-   vv3_villager_table.h and vv4_villager_table.h). */
+/* VV3's, VV4's and VV5's table RVA as the executable names it (see
+   vv3_villager_table.h, vv4_villager_table.h and vv5_villager_table.h). */
 static unsigned int villager_table_rva(int game_id) {
     unsigned int table = VILLAGER_TABLE[game_id].rva, slots;
     if (game_id == GAME_VV3) {
         vv3_villager_table((const unsigned char *)GetModuleHandleW(NULL), &table, &slots);
     } else if (game_id == GAME_VV4) {
         vv4_villager_table((const unsigned char *)GetModuleHandleW(NULL), &table, &slots);
+    } else if (game_id == GAME_VV5) {
+        vv5_villager_table((const unsigned char *)GetModuleHandleW(NULL), &table, &slots);
     }
     return table;
 }

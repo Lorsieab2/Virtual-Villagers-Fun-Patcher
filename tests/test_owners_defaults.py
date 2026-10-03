@@ -31,7 +31,7 @@ def _owner_keeps_off(patch_id: str) -> bool:
     Cheat Upgrades ("make sure Owner's Defaults does NOT tick it") -- and 256
     Villagers (Experimental), which is off everywhere until the player opts in."""
     return ("learning_never_fails" in patch_id or patch_id.endswith("_story_cheat_upgrades")
-            or patch_id in ("vv3_population_256", "vv4_population_256"))
+            or patch_id in ("vv3_population_256", "vv4_population_256", "vv5_population_256"))
 
 
 class OwnersDefaultsTests(unittest.TestCase):
