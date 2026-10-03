@@ -64,7 +64,9 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 # Running/Mastery/Age18 together, at build_vv4_origins_
                 # feature.py's own "village_wide:" label), so it gets the
                 # same single-site count.
-                expected = 1 if game in (1, 4) else 2
+                # VV2 lost its second site with the unreachable village-wide
+                # preflight, which was the other one.
+                expected = 1 if game in (1, 2, 4) else 2
                 self.assertEqual(
                     source.count("mov eax, 0x{s['show_result_export']:X}"),
                     expected,
@@ -98,7 +100,9 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
             (ROOT / "data" / "vv1_origins_feature.json").read_text(encoding="utf-8")
         )
         patches = {item["offset"]: item for item in manifest["patches"]}
-        self.assertEqual(patches["0x8B004"]["after"], "E927050000")
+        # The .shr+0x004 dispatch stub is gone: every caller calls the Cure
+        # entry directly, so nothing ever reached it.
+        self.assertNotIn("0x8B004", patches)
         self.assertEqual(patches["0x270"]["after"], "00100000")
         self.assertEqual(patches["0x28C"]["after"], "600000F0")
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
