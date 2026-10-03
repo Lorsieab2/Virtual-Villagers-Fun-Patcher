@@ -1,0 +1,17 @@
+LIBRARY "VVFP Cause of Death.test.dll"
+EXPORTS
+    VvfpCauseInstall=_VvfpCauseInstall@8
+    VvfpCauseTick=_VvfpCauseTick@4
+    VvfpCauseVillageReset=_VvfpCauseVillageReset@8
+    VvfpCauseVanished=_VvfpCauseVanished@8
+    VvfpCauseNoteArrival=_VvfpCauseNoteArrival@8
+    VvfpCauseTestSetup=_VvfpCauseTestSetup@12
+    VvfpCauseTestDied=_VvfpCauseTestDied@8
+    VvfpCauseTestBuried=_VvfpCauseTestBuried@8
+    VvfpCauseTestDecayed=_VvfpCauseTestDecayed@4
+    VvfpCauseTestArrived=_VvfpCauseTestArrived@4
+    VvfpCauseTestSaved=_VvfpCauseTestSaved@4
+    VvfpCauseTestEpitaph=_VvfpCauseTestEpitaph@8
+    VvfpCauseTestGrave=_VvfpCauseTestGrave@12
+    VvfpCauseStats DATA
+    VvfpCauseRollTest DATA

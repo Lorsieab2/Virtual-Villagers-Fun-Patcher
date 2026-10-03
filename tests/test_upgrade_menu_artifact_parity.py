@@ -393,10 +393,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # only while that row's companion is installed. Grew again by 1,024
         # bytes for Custom Island Event: the second Tech-menu button and the
         # host table (save slot, mask store) it hands the story companion.
+        # Same size, new digest, when it learned to load the Cause of Death
+        # companion (native/shared/cause_bridge.h).
         self.assertEqual(vv5_companion["size"], 1780224)
         self.assertEqual(
             vv5_companion["sha256"],
-            "989AA1E16854526D74FB044AD58BD6E36091D655055C9CD1F069115F7285FD00",
+            "61EABC0EB25AEA824A5C3DEE2A1983AD4BA65F3A365884A8919F64F50F65B6D4",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

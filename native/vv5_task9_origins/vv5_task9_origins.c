@@ -4,6 +4,7 @@
 #include <string.h>   /* strrchr */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20. The
@@ -572,6 +573,7 @@ static void vvfp_fix_huts_bridge(void) {
 __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
     vvfp_fix_huts_bridge();
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
+    vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
 }
 
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
@@ -581,6 +583,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     int slot;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
+    vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
     if (g_vv5_have_roster && (now - g_vv5_sync_tick) < VV5_SYNC_INTERVAL_MS) {
         return 1;                   /* checked a moment ago */
     }
@@ -1988,6 +1991,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
 ) {
     HWND owner = GetOriginsOwner();
     vvfp_story_bridge(5);   /* before any price is shown or charged */
+    vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
     if (owner == NULL) {
         return -1;
     }

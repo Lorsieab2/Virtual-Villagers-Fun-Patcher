@@ -793,6 +793,20 @@ static void ce_amount(int op, int amount, int current, int *out) {
 /* Apply `e` to the village.  Runs on the game's own thread, inside the
    game's island-event construction, where the stock events make their own
    changes. */
+/* "VVFP Cause of Death.dll" logs every disappearance in the Deaths log
+   ("Disappeared in a custom island event"); this event's own "Disappears"
+   is the one it cannot see for itself, so it is told, after the villager
+   has gone (the record still holds them).  Absent (its row off): nothing. */
+static void ce_tell_cause_of_death(int game, int index) {
+    typedef void (__stdcall *vanished_fn)(int, int);
+    HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
+    vanished_fn vanished = module != NULL
+        ? (vanished_fn)GetProcAddress(module, "VvfpCauseVanished") : NULL;
+    if (vanished != NULL) {
+        vanished(game, index);
+    }
+}
+
 static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     int i;
     int j;
@@ -899,6 +913,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         if (c->fate == CE_FATE_VANISH && (a->caps & CAP_VANISH)) {
             if (a->vanish(c->index)) {
                 ++r->vanished;
+                ce_tell_cause_of_death(e->game, c->index);
             }
             continue;
         }

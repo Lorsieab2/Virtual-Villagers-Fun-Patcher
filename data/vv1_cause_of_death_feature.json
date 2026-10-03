@@ -1,0 +1,184 @@
+{
+  "id": "vv1_cause_of_death",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Show Cause of Death and Epitaphs on Graves, and Log Every Death",
+  "description": "Shows each dead villager's cause of death and an epitaph on their grave, the way The Secret City, The Tree of Life and New Believers do. Clicking a gravestone shows the epitaph in quotes under the name, in a box you can type in (up to 31 characters; Done keeps it), and the cause under the age, in those games' own words (Old age, Disease, Starvation, Work accident, or Unknown causes). The cause is the one that killed them -- old age, sickness, hunger or an empty food bin, an injury at work -- and \"Unknown causes\" for an island event and anything else, which is how those games word an island-event death. The epitaph is chosen by the rule those games use at a burial: a child's is \"Curious and Playful\" or \"Loving and Special\"; an adult's comes from the skill the grave shows (for example \"Strong Arms, Big Heart\" or \"Inspired Architect\" for a builder); a villager with no skill is a \"Respected Citizen\". Those games' Chief, Esteemed Elder and Scholar epitaphs have no counterpart here and are not used. A New Home keeps neither, so both are kept for each save slot in a file beside the saves ('Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Graves - Save <n>.dat'); Start Over deletes it. **Graves dug before this patch was installed get an epitaph the first time they are opened, but no cause: how they died was never recorded.** Every death that leaves a body is written to the Deaths log ('Virtual Villagers 1 Deaths Log <n>.txt' in the 'Virtual Villagers Fun Patcher Logs\\Deaths' folder beside the game's saves) when it is final: when the body is buried, with the skill line and epitaph the grave was given, or when the game removes a body nobody buried (\"no grave\"). Each Death record gives the villager's name, head, body, likes and dislikes, their age at death in the game's own units (20 per year, as the Village Population log prints Age), the cause, the grave and the epitaph. A villager brought back to life gets no Death record. A villager taken with no skeleton (The Mysterious Face and The Book, or the Custom Island Event's \"Disappears\") gets a \"Disappeared\" record saying what took them, and editing a grave's epitaph adds an \"Epitaph changed\" record with the old and new text. At every save, the village is checked against the one saved before: a villager who left with no Death or Disappeared record, or arrived with no birth or known arrival, is written with everything known about them to the Unaccounted Villagers log ('Virtual Villagers 1 Unaccounted Villagers Log <n>.txt' in 'Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers'). Both logs are headed with the village and its save slot, are created when a village is started and again after Start Over (which deletes them with the village), only ever grow, and start a new numbered file after every 256 records. The village as it was at each save is kept in 'Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Roster - Save <n>.dat'; Start Over deletes it. **The first save after this patch is installed only starts the check: nothing is reported about anything that happened before it.** **The patch's DLL is loaded once a village is shown; anything that happens before that in a session is not seen -- a villager who died or was buried then gets no Death record, and the next save lists them in the Unaccounted Villagers log instead.** **The logs are written by Write Births and Conceptions Log to Text File's DLL: with that patch off, none of them is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.",
+  "output_tag": "Cause of Death",
+  "dependencies": [
+    "vv1_enable_origins_exclusive_features"
+  ],
+  "needs_on": [
+    {
+      "id": "vv1_write_parentage_log",
+      "for": "the Deaths and Unaccounted Villagers logs, which that patch's DLL writes (without it neither is written)"
+    }
+  ],
+  "behavior_changes": [
+    "At each site that can kill (the aging step's old-age store and its sickness, hunger and no-food drains; every work injury), a check made before the site's own instructions records the cause when that change takes a living villager's health to 0 or below; the site's instructions then run unchanged.",
+    "Every frame, a villager seen alive on an earlier frame who is now a body, with no site having reported the death, is recorded with \"Unknown causes\" (island events, the Gong of Wonder, the Custom Island Event's \"dies\", an edited save).",
+    "After the burial's grave loop, the cause recorded for that body is carried to the grave it was given with an epitaph chosen by the later games' rule, and the Death record is written.",
+    "The grave popup draws the cause at the later games' height (+0xD7); its constructor adds the game's own editable text box for the epitaph (as The Lost Children's panel and the Villager Detail name box are made), drawn between quotes, and Done keeps an edited epitaph in the .dat file.",
+    "Kept per save slot in 'Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Graves - Save <n>.dat' (written atomically; an unreadable file is set aside, never overwritten; deleted by Start Over).",
+    "The listed removals of a living villager write a Disappeared record before the game takes them; the Custom Island Event's \"Disappears\" is reported by the Story / Cheat Upgrades DLL.",
+    "The grave's Done writes an Epitaph changed record when the epitaph's text changed.",
+    "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
+    "The roster is kept in 'Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Roster - Save <n>.dat' (written atomically; deleted by Start Over).",
+    "All records are written through WriteVillageRecord in \"VVFP Parentage Export.dll\"."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the Origins companion loads the DLL, which detours the listed sites at run time only after verifying every site's stock bytes; any other build installs nothing.",
+    "No game value is changed: health, age, the graves, the Roster of the Dead and the save are only read; each detoured site's own instructions run unchanged after the check.",
+    "Nothing is written into the game's grave table or a villager record; the cause and epitaph live only in the patcher's .dat file. The epitaph's two-way choices use the companion's own random numbers, never the game's."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/cause_of_death/VVFP Cause of Death.dll",
+      "destination": "VVFP Cause of Death.dll",
+      "sha256": "DBB4EEBCDA38BFE29042F87560D5BF343A7C2DF69D64F2C4632263BE00F5A04E"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x42EF05",
+      "stock_bytes": "C7834403000000000000",
+      "routine": "the aging step's old-age store (Old age)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x42ECB7",
+      "stock_bytes": "8B8C0744030000",
+      "routine": "the aging step's hunger drain at 200 food or less (Starvation)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x42ED37",
+      "stock_bytes": "8B8C1744030000",
+      "routine": "the aging step's no-food drain (Starvation)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x42EDA3",
+      "stock_bytes": "8B8C1744030000",
+      "routine": "the aging step's sickness drain (Disease)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43A5B4",
+      "stock_bytes": "29038B8610E00300",
+      "routine": "a job's 2% injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43A793",
+      "stock_bytes": "29078B8610E00300",
+      "routine": "a job's 2% injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43A8BA",
+      "stock_bytes": "29078B9610E00300",
+      "routine": "a job's 2% injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43A9E1",
+      "stock_bytes": "29078B9610E00300",
+      "routine": "a job's 2% injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43AAE7",
+      "stock_bytes": "29078B8E10E00300",
+      "routine": "a job's 2% injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43AC9B",
+      "stock_bytes": "29078B8610E00300",
+      "routine": "a job's 2% injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43B112",
+      "stock_bytes": "29078B8E10E00300",
+      "routine": "a job's 2% injury, rand(15) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43B2D4",
+      "stock_bytes": "8B0B83C404",
+      "routine": "a job's 2% injury, rand(10) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43B393",
+      "stock_bytes": "8B0B83C404",
+      "routine": "a job's 2% injury, rand(10) (Work accident)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x449008",
+      "stock_bytes": "8B5C2410C7860CFDFFFF01000000",
+      "routine": "after the burial's grave loop: the Death record, the grave's cause and epitaph",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x42E9C3",
+      "stock_bytes": "C644072800",
+      "routine": "an unburied body's removal: the Death record (no grave)",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x436700",
+      "stock_bytes": "5F5E5D5B81C4CC000000",
+      "routine": "the grave popup's Draw epilogue: the cause and the epitaph's quotes",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x436E5C",
+      "stock_bytes": "C7465C22010000",
+      "routine": "the grave popup's constructor end: the editable epitaph box",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x436407",
+      "stock_bytes": "8B4424083B4164",
+      "routine": "the grave popup's onEvent: Done keeps an edited epitaph",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x41979D",
+      "stock_bytes": "885C02288B8EA4500000",
+      "routine": "The Mysterious Face takes a villager: the Disappeared record",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x41A272",
+      "stock_bytes": "885C11285B",
+      "routine": "The Book takes a villager: the Disappeared record",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43C39B",
+      "stock_bytes": "C6462A00896E40",
+      "routine": "the villager creator (0x43C350): an arrival",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x43C885",
+      "stock_bytes": "885E29885E2A895E40",
+      "routine": "the copy creator (0x43C840, twins and triplets): an arrival",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    },
+    {
+      "va": "0x40322A",
+      "stock_bytes": "5F5E8AC35B",
+      "routine": "the save file writer's success epilogue (bl = written; the village is its 0xABDC-byte write): the Unaccounted Villagers reconciliation",
+      "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
+    }
+  ]
+}

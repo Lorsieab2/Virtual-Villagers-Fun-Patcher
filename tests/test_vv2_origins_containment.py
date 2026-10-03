@@ -175,6 +175,9 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # Story / Cheat Upgrades: loaded by the Origins companion, and
                 # it requires the Origins upgrades row itself.
                 "vv2_story_cheat_upgrades",
+                # Show Cause of Death on Graves: loaded by the Origins
+                # companion, so it declares the Origins base.
+                "vv2_cause_of_death",
                 *PUBLIC,
             }
         ]

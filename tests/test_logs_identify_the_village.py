@@ -220,7 +220,7 @@ class LogsCarryTheVillageTests(unittest.TestCase):
         )
         source = "vv_village_recall(village, sizeof village)\n" + append
         recall = source.find("vv_village_recall(village, sizeof village)")
-        select = source.find("select_log_file(g, village, path")
+        select = source.find("select_family_log_file(g, log_family_of(kind), village, path")
         # The gate, located by the measurement that decides it. This
         # used to search for "ftell(file) == 0"; that expression is now
         # gone from the code and survives only inside a comment that

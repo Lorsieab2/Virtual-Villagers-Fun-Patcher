@@ -4,6 +4,7 @@
 #include <string.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 
 static HINSTANCE module_instance;
 
@@ -826,6 +827,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
        the companion is installed here, before any price is shown or charged
        (every purchase and the Pick Island Event go through this menu). */
     vvfp_story_bridge(3);
+    vvfp_cause_bridge(3);  /* cause of death companion: once, fail-open */
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
@@ -1732,6 +1734,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
        path, so the story companion is installed (custom titles shown, Custom
        Island Event delivered) without waiting for the Origins menu. */
     vvfp_story_bridge(3);
+    vvfp_cause_bridge(3);  /* cause of death companion: once, fail-open */
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;

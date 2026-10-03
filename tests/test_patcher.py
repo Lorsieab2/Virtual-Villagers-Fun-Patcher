@@ -1194,8 +1194,10 @@ class ManifestTests(unittest.TestCase):
         # (vv2_firepit_dry_grass_above_wood), the scene builder's two fire-pit
         # draw blocks swapped in place; 23 with Fix Vanilla Bugs
         # (vv2_fix_vanilla_bugs), the Crystal Ball's chooser case and Keep-it
-        # swap re-encoded in place.
-        self.assertEqual(len(feature_ids), 23)
+        # swap re-encoded in place; 24 with Show Cause of Death on Graves
+        # (vv2_cause_of_death), which patches no executable byte -- its
+        # companion writes at run time.
+        self.assertEqual(len(feature_ids), 24)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4039,6 +4041,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_story_cheat_upgrades",
                 "vv2_firepit_dry_grass_above_wood",
                 "vv2_fix_vanilla_bugs",
+                "vv2_cause_of_death",
             },
         )
         for mode in ALL_MODES:

@@ -144,12 +144,21 @@ def main() -> None:
     print(f"  companion exports {len(REQUIRED_EXPORTS)}/{len(REQUIRED_EXPORTS)} present")
 
     # 1 -- the Origins payload the caller just built.
-    swap(GENERATOR, pinned(GENERATOR, r'ACTIVE_SHA256 = "([0-9A-F]{64})"'),
-         raw(ACTIVE), "generator ACTIVE_SHA256")
-    before = pinned(GENERATOR, r'ACTIVE_SOURCE_TEXT_SHA256 = "([0-9A-F]{64})"')
-    swap(GENERATOR, before, txt(ACTIVE), "generator ACTIVE_SOURCE_TEXT")
-    if before != txt(ACTIVE):
-        swap(str(PATCHER), before, txt(ACTIVE), "patcher ACTIVE_SOURCE_TEXT")
+    #
+    # Each pin is replaced as its whole assignment line. The raw and the
+    # source-text digests of an LF-only file are the SAME value, and a bare
+    # replace of the first then rewrote the second as well: the second step
+    # read back the new value as "before", found it nowhere in the patcher,
+    # and left the patcher's pin stale while reporting success.
+    old_raw = pinned(GENERATOR, r'\bACTIVE_SHA256 = "([0-9A-F]{64})"')
+    old_text = pinned(GENERATOR, r'ACTIVE_SOURCE_TEXT_SHA256 = "([0-9A-F]{64})"')
+    old_patcher = pinned(str(PATCHER), r'VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "([0-9A-F]{64})"')
+    swap(GENERATOR, f'\nACTIVE_SHA256 = "{old_raw}"', f'\nACTIVE_SHA256 = "{raw(ACTIVE)}"',
+         "generator ACTIVE_SHA256")
+    swap(GENERATOR, f'ACTIVE_SOURCE_TEXT_SHA256 = "{old_text}"',
+         f'ACTIVE_SOURCE_TEXT_SHA256 = "{txt(ACTIVE)}"', "generator ACTIVE_SOURCE_TEXT")
+    swap(str(PATCHER), f'VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "{old_patcher}"',
+         f'VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "{txt(ACTIVE)}"', "patcher ACTIVE_SOURCE_TEXT")
 
     # 2 -- Task9 artefacts.
     run(GENERATOR)
