@@ -45,7 +45,6 @@ STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 # the Tech-screen preflight access violation at raw 0x9A009.
 SHR_FILE_OFFSET = 0x9A000
 SHR_RVA = 0x9C000
-HEAL_CAVE_FILE_OFFSET = 0x9A004
 CURE_PREFLIGHT_FILE_OFFSET = 0x9A300
 CURE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     CURE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -73,8 +72,6 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x820
 # .c) always displays a "Granted Running to %d villagers." headline, so
 # this can no longer be left unset now that the function takes it.
 RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
-VILLAGE_PREFLIGHT_FILE_OFFSET = 0x9A009
-VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET)
 BARREL_PENDING_FILE_OFFSET = 0x9A700
 BARREL_PENDING_VA = IMAGE_BASE + SHR_RVA + (BARREL_PENDING_FILE_OFFSET - SHR_FILE_OFFSET)
 BARREL_CLOSE_HELPER_FILE_OFFSET = 0x9A710
@@ -1005,9 +1002,10 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
 
-        do_village_wide:
-            call 0x{HEAL_CAVE_VA:X}
-            jmp menu_done
+        # do_village_wide (call the Cure helper, jmp menu_done) was never
+        # jumped to: the village-wide rows have their own route. Zeroed in
+        # place so no later byte of the menu moves.
+            .byte 0, 0, 0, 0, 0, 0, 0
 
         do_island_event:
             # Queue it; do not make it due immediately.  edi is the world and is
@@ -1526,150 +1524,6 @@ def main() -> None:
         cure_code
         + b"\0" * (0x1A0 - len(cure_code))
         + b"ShowVV2CureResult\0"
-    )
-    preflight_code = assemble(
-        f"""
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 4:X}], 0x0055574F
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 8:X}], 0x00200001
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x10:X}], 3
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x14:X}], 0
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x18:X}], 0
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
-            jne preflight_invalid
-            mov eax, 0x{s['show_result_export']:X}
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x474010]
-            test eax, eax
-            je preflight_invalid
-            push 0x{s['show_result_export']:X}
-            push eax
-            call dword ptr [0x4740D4]
-            test eax, eax
-            je preflight_invalid
-            call 0x44F4E0
-            test eax, eax
-            je preflight_invalid
-            lea edx, [eax + 0x52C]
-            push ebx
-            push ebp
-            push ecx
-            push edx
-            push edi
-            cmp ebx, 7
-            je preflight_mastery
-            cmp ebx, 8
-            je preflight_age
-            mov ecx, 256
-        preflight_record:
-            cmp byte ptr [edx + 0x30], 0
-            je preflight_next_record
-            cmp dword ptr [edx + 0x52C], 0
-            jle preflight_next_record
-            cmp byte ptr [edx + 0x558], 0
-            jne preflight_next_record
-            xor ebp, ebp
-            lea edi, [edx + 0x5F0]
-            mov ebx, 62
-        preflight_likes:
-            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
-            jne preflight_like_empty
-            or ebp, 1
-        preflight_like_empty:
-            cmp dword ptr [edi], -1
-            jne preflight_like_next
-            or ebp, 2
-        preflight_like_next:
-            add edi, 4
-            dec ebx
-            jne preflight_likes
-            lea edi, [edx + 0x6E8]
-            mov ebx, 62
-            test ebp, 1
-            jnz preflight_dislike_scan
-            test ebp, 2
-            jz preflight_next_record
-        preflight_dislike_scan:
-            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
-            je preflight_change
-            add edi, 4
-            dec ebx
-            jne preflight_dislike_scan
-            test ebp, 1
-            jnz preflight_next_record
-            test ebp, 2
-            jnz preflight_change
-        preflight_mastery:
-            mov ecx, 256
-        preflight_mastery_record:
-            cmp byte ptr [edx + 0x30], 0
-            je preflight_mastery_next
-            cmp dword ptr [edx + 0x52C], 0
-            jle preflight_mastery_next
-            cmp byte ptr [edx + 0x558], 0
-            jne preflight_mastery_next
-            cmp dword ptr [edx + 0x7E4], 100
-            jne preflight_change
-            cmp dword ptr [edx + 0x7E8], 100
-            jne preflight_change
-            cmp dword ptr [edx + 0x7EC], 100
-            jne preflight_change
-            cmp dword ptr [edx + 0x7F0], 100
-            jne preflight_change
-            cmp dword ptr [edx + 0x7F4], 100
-            jne preflight_change
-        preflight_mastery_next:
-            add edx, 0xE48C
-            dec ecx
-            jne preflight_mastery_record
-            jmp preflight_no_change
-        preflight_age:
-            mov ecx, 256
-        preflight_age_record:
-            cmp byte ptr [edx + 0x30], 0
-            je preflight_age_next
-            cmp dword ptr [edx + 0x52C], 0
-            jle preflight_age_next
-            cmp byte ptr [edx + 0x558], 0
-            jne preflight_age_next
-            cmp dword ptr [edx + 0x530], 360
-            jne preflight_change
-        preflight_age_next:
-            add edx, 0xE48C
-            dec ecx
-            jne preflight_age_record
-            jmp preflight_no_change
-        preflight_next_record:
-            add edx, 0xE48C
-            dec ecx
-            jne preflight_record
-        preflight_no_change:
-            pop edi
-            pop edx
-            pop ecx
-            pop ebp
-            pop ebx
-            mov eax, 2
-            ret
-        preflight_change:
-            pop edi
-            pop edx
-            pop ecx
-            pop ebp
-            pop ebx
-            mov eax, 1
-            ret
-        preflight_invalid:
-            xor eax, eax
-            ret
-        """,
-        VILLAGE_PREFLIGHT_VA,
     )
     cure_preflight_code = assemble(
         """
@@ -2443,25 +2297,10 @@ def main() -> None:
             f"barrel main helper is too large: {len(barrel_main_code):#x}/0x80"
         )
     patch(
-        HEAL_CAVE_FILE_OFFSET,
-        b"\0" * 5,
-        rel32_jump(
-            IMAGE_BASE + SHR_RVA + (HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET),
-            CURE_ENTRY_VA,
-        ),
-        "redirect the shared VV2 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
-    )
-    patch(
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_block),
         cure_block,
         "recheck the active Cure preflight and 30,000-tech balance before any health, sickness, or statistics write; apply only a real change, charge once, and report through the VV2 Origins result/status model",
-    )
-    patch(
-        VILLAGE_PREFLIGHT_FILE_OFFSET,
-        b"\0" * len(preflight_code),
-        preflight_code,
-        "validate the optional Origins dependency and dry-scan all 256 living records and all 62 Like and Dislike slots before any village-wide Running charge",
     )
     patch(
         CURE_PREFLIGHT_FILE_OFFSET,

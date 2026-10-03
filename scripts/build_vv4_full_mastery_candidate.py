@@ -203,18 +203,31 @@ def validate_native_asset_provenance() -> dict[str, object]:
 
 
 def build_ui_payload(
-    active_payload: bytes, *, repair_result_helper: bool = True
+    active_payload: bytes,
+    *,
+    repair_result_helper: bool = True,
+    original_blocks_present: bool = True,
 ) -> tuple[bytes, dict[str, object]]:
-    """Replace only the candidate UI blocks; preserve all other active bytes."""
+    """Replace only the candidate UI blocks; preserve all other active bytes.
+
+    The frozen candidate's input still carries the old generic-factory
+    constructors and Detail handler in the UI windows, guarded here. The live
+    Origins builder no longer assembles them (every byte is overwritten
+    below), so it passes original_blocks_present=False and the windows must
+    be empty instead.
+    """
     payload = bytearray(active_payload.ljust(PAYLOAD_SIZE, b"\0"))
     if len(payload) != PAYLOAD_SIZE:
         raise RuntimeError("active payload exceeds reserved candidate size")
-    if payload[TECH_CONSTRUCTOR_OFFSET : TECH_CONSTRUCTOR_OFFSET + 7] != bytes.fromhex("6A14E8A278FEFF"):
-        raise RuntimeError("Tech constructor payload guard mismatch")
-    if payload[DETAIL_HANDLER_OFFSET : DETAIL_HANDLER_OFFSET + 8] != bytes.fromhex("837C240408751183"):
-        raise RuntimeError("Detail handler payload guard mismatch")
-    if payload[DETAIL_CONSTRUCTOR_OFFSET : DETAIL_CONSTRUCTOR_OFFSET + 7] != bytes.fromhex("6A14E8E277FEFF"):
-        raise RuntimeError("Detail constructor payload guard mismatch")
+    if original_blocks_present:
+        if payload[TECH_CONSTRUCTOR_OFFSET : TECH_CONSTRUCTOR_OFFSET + 7] != bytes.fromhex("6A14E8A278FEFF"):
+            raise RuntimeError("Tech constructor payload guard mismatch")
+        if payload[DETAIL_HANDLER_OFFSET : DETAIL_HANDLER_OFFSET + 8] != bytes.fromhex("837C240408751183"):
+            raise RuntimeError("Detail handler payload guard mismatch")
+        if payload[DETAIL_CONSTRUCTOR_OFFSET : DETAIL_CONSTRUCTOR_OFFSET + 7] != bytes.fromhex("6A14E8E277FEFF"):
+            raise RuntimeError("Detail constructor payload guard mismatch")
+    elif any(payload[TECH_CONSTRUCTOR_OFFSET : DETAIL_CONSTRUCTOR_OFFSET + 0x80]):
+        raise RuntimeError("UI constructor/handler windows are not empty")
     if any(payload[DETAIL_HANDLER_RELOC_OFFSET : DETAIL_HANDLER_RELOC_OFFSET + 0x2B]):
         raise RuntimeError("Detail handler relocation cave is not zero")
     result_call_repairs = []

@@ -739,8 +739,11 @@ def main() -> None:
 
     strings = bytearray()
     s: dict[str, int] = {}
+    # Nine zero bytes where an "Upgrades" label used to be: the shipped buttons
+    # are the native image buttons build_ui_payload installs with their own
+    # text. Kept as filler so every later string keeps its address.
+    strings.extend(bytes(len(b"Upgrades\0")))
     for name, value in (
-        ("button_label", "Upgrades"),
         ("tech_title", "Origins Upgrades"),
         ("detail_title", "Villager Upgrades"),
         ("purchased", "Purchased."),
@@ -775,12 +778,16 @@ def main() -> None:
         raise RuntimeError("VV4 Origins strings exceed the validated cave")
 
     tech_handler = PAYLOAD_VA + 0x000
+    # The Upgrades-button constructors at +0x040 / +0x100 and the Tech-control
+    # destructor helper at +0x0C0 are the native UI blocks build_ui_payload
+    # installs (below); nothing is assembled into those windows here.
     tech_constructor = PAYLOAD_VA + 0x040
-    detail_handler = PAYLOAD_VA + 0x0C0
     detail_constructor = PAYLOAD_VA + 0x100
     barrel_eligibility = PAYLOAD_VA + 0x180
     show_dialog = PAYLOAD_VA + 0x1B0
-    show_message = PAYLOAD_VA + 0x200
+    # The status popup helper lives only in its pinned result-helper cave
+    # (see below); the menus call it there.
+    show_message = VV4_RESULT_HELPER_VA
     tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
     tech_increment = PAYLOAD_VA + 0x890
@@ -815,75 +822,6 @@ def main() -> None:
             mov edi, ecx
             call 0x44DA20
             jmp 0x43E9F8
-        """,
-    )
-    put(
-        tech_constructor,
-        f"""
-            push 0x14
-            call 0x470C5C
-            add esp, 4
-            test eax, eax
-            je done
-            push 0x3F800000
-            push 0
-            push 13
-            push 0x{s['button_label']:X}
-            push 572
-            push 560
-            push esi
-            mov ecx, eax
-            call 0x40D8A0
-            push eax
-            mov ecx, esi
-            call 0x40C190
-        done:
-            mov eax, esi
-            mov ecx, dword ptr [esp + 0x4C]
-            jmp 0x43E16B
-        """,
-    )
-    put(
-        detail_handler,
-        f"""
-            cmp dword ptr [esp + 4], 8
-            jne original
-            cmp dword ptr [esp + 8], 2
-            jne original
-            call 0x{detail_menu:X}
-            xor eax, eax
-            ret 8
-        original:
-            sub esp, 0x18
-            mov eax, dword ptr [0x4C9FBC]
-            jmp 0x448618
-        """,
-    )
-    put(
-        detail_constructor,
-        f"""
-            push 0x14
-            call 0x470C5C
-            add esp, 4
-            test eax, eax
-            je done
-            push 0x3F800000
-            push 0
-            push 2
-            push 0x{s['button_label']:X}
-            push 520
-            push 600
-            push esi
-            mov ecx, eax
-            call 0x40D8A0
-            push eax
-            mov ecx, esi
-            call 0x40C190
-        done:
-            mov dword ptr [0x4D905C], 0
-            mov dword ptr [0x4D9058], 0
-            mov eax, esi
-            jmp 0x447A33
         """,
     )
     put(
@@ -929,9 +867,10 @@ def main() -> None:
             ret 8
         """,
     )
-    # Single source of truth for the status popup helper. It is placed at
-    # `show_message` AND copied verbatim into the pinned result-helper cave
-    # (see below). Every reference is absolute (string VAs, IAT slots) or an
+    # Single source of truth for the status popup helper, assembled into the
+    # pinned result-helper cave below. (A second copy at PAYLOAD_VA + 0x200 that
+    # the menus once called was unreachable after every call moved to the cave,
+    # and is no longer emitted.) Every reference is absolute (string VAs, IAT slots) or an
     # internal rel8 jump, so the bytes are position-independent -- deriving the
     # cave copy from this same source keeps its baked string VAs in lockstep
     # with the current string table instead of rotting when strings shift.
@@ -957,7 +896,6 @@ def main() -> None:
             pop ebx
             ret 8
         """
-    put(show_message, show_message_source)
     put(
         tech_menu,
         f"""
@@ -1492,7 +1430,7 @@ def main() -> None:
     from build_vv4_full_mastery_candidate import build_ui_payload  # noqa: E402
 
     payload, ui_metadata = build_ui_payload(
-        bytes(payload), repair_result_helper=False
+        bytes(payload), repair_result_helper=False, original_blocks_present=False
     )
     payload = bytearray(payload)
     # Copy the status popup helper into the pinned cave. Derive it from the
@@ -1504,6 +1442,7 @@ def main() -> None:
     if any(payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)]):
         raise RuntimeError("VV4 result-helper cave is not zero")
     payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)] = result_helper_bytes
+    # Both menus call the helper in its cave directly; record and check them.
     result_repairs = []
     for call_offset in range(len(payload) - 4):
         if payload[call_offset] != 0xE8:
@@ -1512,15 +1451,10 @@ def main() -> None:
         target_va = source_va + 5 + int.from_bytes(
             payload[call_offset + 1 : call_offset + 5], "little", signed=True
         )
-        if target_va != 0x489573:
-            continue
-        replacement = VV4_RESULT_HELPER_VA - (source_va + 5)
-        payload[call_offset + 1 : call_offset + 5] = replacement.to_bytes(
-            4, "little", signed=True
-        )
-        result_repairs.append(f"0x{source_va:X}")
+        if target_va == VV4_RESULT_HELPER_VA:
+            result_repairs.append(f"0x{source_va:X}")
     if len(result_repairs) != 2:
-        raise RuntimeError(f"expected two VV4 result-helper call repairs, got {result_repairs}")
+        raise RuntimeError(f"expected two VV4 result-helper calls, got {result_repairs}")
     ui_metadata["result_helper"] = {
         "offset": f"0x{VV4_RESULT_HELPER_OFFSET:X}",
         "virtual_address": f"0x{PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET:X}",

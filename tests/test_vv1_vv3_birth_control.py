@@ -72,10 +72,12 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # [esp+0x34] (8B4C2434) instead of [esp+0x30], the caller's saved EBX.
     # Then re-pinned for the twin/triplet guard: two rows added, 0x3C881 (the
     # sub_43C840 splice) and 0x8EA80 (its cave). Nothing else changed.
+    # Re-pinned when the .shr+0x004 dispatch stub nothing called (row
+    # 0x8B004) was removed: five bytes back to zero, plus the PE checksum.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "D27D2BE3C8B74DFB14E4C5A05C46840E232DD1A5B6CC7C6BB67DD47EDDA6A424",
-        "collection_progression": "96F1B78874AEE5D67E8B487EDC4BAD9E84AE63AEEBE5BA93605B5C56866AFA39",
-        "immediate_fixed": "96F1B78874AEE5D67E8B487EDC4BAD9E84AE63AEEBE5BA93605B5C56866AFA39",
+        "stock": "23AA6BF600AD6124A514997508B7E0A78232AFC9E4BDE7BF689D2483C0859511",
+        "collection_progression": "0D0C1F185A3E536A606142FE69C7CDEC4EEDEA088BE569841B22C3E5F597BE97",
+        "immediate_fixed": "0D0C1F185A3E536A606142FE69C7CDEC4EEDEA088BE569841B22C3E5F597BE97",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

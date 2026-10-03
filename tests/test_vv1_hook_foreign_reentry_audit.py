@@ -451,7 +451,6 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "85981BBBF90AF4359201D349D4DE3630C9BE14F1286B400FD780588BF6476BFE",
-    ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
     ("vv1_enable_origins_exclusive_features", "0x913C"): "E8C3E35B56C0AD00518A27056132703EE942FDC5C6BAD9C3C1F90698AD701198",
     # The three newer detours below are part of the same integrated mask
