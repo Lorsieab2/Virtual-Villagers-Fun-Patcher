@@ -440,8 +440,11 @@ Nothing is written into a villager record or the save.
 
 An entry is never erased. Death leaves it; growing up hides the figures but
 keeps the record, so a villager made young again shows their parents again.
-Only a new villager appearing in the same record slot starts that slot over,
-because giving them the previous tenant's parents would be wrong.
+Each entry belongs to its villager, not to a record slot: when the game
+loads a save it renumbers the villagers (everyone after a villager who died
+moves down), and the entries move with them, matched by name, gender and
+family. A new villager starts with no parents, and two villagers who share
+all three are left without parents after a renumbering rather than guessed.
 
 The Village Population roster shows the same record as a "Parents:" block
 on each A New Home villager whose parents are known.
