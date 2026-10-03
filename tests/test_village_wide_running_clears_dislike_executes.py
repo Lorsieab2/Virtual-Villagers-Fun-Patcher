@@ -16,9 +16,8 @@ generator (scripts/build_village_wide_origins_features.py).
 Counts: EDX = already-Running skips, ECX = Running Dislikes removed. EAX is the
 full-Like skip count in every game except VV4, whose native-helper branch
 returns villagers granted Running there (its base payload passes EAX to the
-companion as "granted"). VV1 and VV2 also store the granted count in the
-scratch dword at entry + 0x30, which their base payloads pass to the result
-dialog.
+companion as "granted"). VV1 also stores the granted count in the scratch
+dword at entry + 0x30, which its base payload passes to the result dialog.
 """
 from __future__ import annotations
 
@@ -49,13 +48,15 @@ KEPT = dict(ebx=UC_X86_REG_EBX, esi=UC_X86_REG_ESI, edi=UC_X86_REG_EDI, ebp=UC_X
 # EAX meaning ("full" or "granted"), granted scratch dword (or None)
 GAMES = {
     "vv1": ("Virtual Villagers - A New Home.exe", 0x48D1A0, 0x3D8, 0x28, 0x344, 0x398, 0x3A8, 4, "full", 0x48D1D0),
-    "vv2": ("Virtual Villagers - The Lost Children.exe", 0x49C820, 0xE48C, 0x30, 0x52C, 0x5F0, 0x6E8, 62, "full", 0x49C850),
     "vv3": ("Virtual Villagers - The Secret City.exe", 0x47B840, 0x1F8C, 0xF10, 0xE78, 0xFB4, 0xFC0, 3, "full", None),
     "vv4": ("Virtual Villagers - The Tree of Life.exe", 0x728240, 0x2E3C, 0x1CC4, 0x1C40, 0x1E60, 0x1E6C, 3, "granted", None),
 }
 # New Believers is not here: its optional payload (entry 0x494C40) was never
 # reached in any shipped build -- Task9 owns the VV5 menus and implements Grant
-# Running to All Villagers itself -- and was removed.
+# Running to All Villagers itself -- and was removed. Nor is The Lost
+# Children: only its Cure helper's rows 6-8 arm called its payload (entry
+# 0x49C820), no row reached that arm, and its companion performs Running
+# (ApplyVV2RunningToAll), so the payload was removed too (#506 review).
 
 _RENDERS: dict[str, bytes] = {}
 

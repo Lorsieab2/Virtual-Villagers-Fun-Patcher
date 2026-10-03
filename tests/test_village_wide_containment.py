@@ -23,8 +23,11 @@ STOCK = ROOT / "research" / "stock-executables"
 GAME_IDS = tuple(f"vv{game}" for game in range(1, 6))
 # New Believers' row is a route only: its extension was unreachable (Task9
 # owns the VV5 menus) and was removed; tests/test_vv5_origins_dead_code_removed.py
-# proves the route renders byte-identical to its base.
-ROUTE_ONLY = {"vv5"}
+# proves the route renders byte-identical to its base. The Lost Children's
+# is too: only the Cure helper's rows 6-8 arm called its payload, and no row
+# reached that arm -- its companion performs those rows (#506 review,
+# tests/test_origins_dead_code_removed.py).
+ROUTE_ONLY = {"vv2", "vv5"}
 
 
 def raw_record(game_id: str) -> dict:
@@ -69,10 +72,12 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     "Full Mastery",
                 ):
                     self.assertIn(label, wide["description"])
-                if game_id in ROUTE_ONLY:
+                if game_id == "vv5":
                     self.assertIn("All Villagers are Exactly 18", wide["description"])
                 else:
                     self.assertIn("Make Villagers Young Adults", wide["description"])
+                if game_id in ROUTE_ONLY:
+                    self.assertIn("this row adds no code of its own", wide["description"])
                 self.assertIn("Tech screen", wide["description"])
                 self.assertIn("Villager Details-screen", wide["description"])
                 self.assertTrue(
@@ -142,6 +147,9 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     self.assertTrue(expected_owner_names.issubset(owners))
                     if build.id in ROUTE_ONLY:
                         self.assertNotIn(f"feature:{wide_id}", owners)
+                        # ...and the route adds nothing to its base.
+                        base_only, _ = render_patched_bytes(source, build, mode, [base_id])
+                        self.assertEqual(bytes(rendered), bytes(base_only))
                         continue
                     wide_record = raw_record(build.id)
                     wide_patch = wide_record["patches"][0]

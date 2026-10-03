@@ -64,7 +64,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
     def test_an_unknown_village_holds_rather_than_writes(self) -> None:
         emit = function("emit_record")
         known = emit.index("if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {")
-        publisher = emit.index("if (village[0] == '\\0' && !statistics_publisher_present()) {")
+        publisher = emit.index("if (village[0] == '\\0' && !village_publisher_present(game_id)) {")
         held = emit.rindex("return hold_record(game_id, kind, records, text);")
         self.assertLess(known, publisher)
         self.assertLess(publisher, held,

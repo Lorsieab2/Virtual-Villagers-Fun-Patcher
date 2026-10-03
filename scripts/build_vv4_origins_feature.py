@@ -765,11 +765,17 @@ def main() -> None:
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("message_export", "ShowOriginsUpgradeMessage"),
-        ("cure_all", "Full Heal/Cure All Villagers"),
+        # "Full Heal/Cure All Villagers" was read by no instruction: zero
+        # bytes of its length keep every later string and the price tables
+        # (0x489EE7, rewritten by the Story / Cheat Upgrades rows) in place.
+        (None, 29),
         ("show_appearance_picker", "ShowOriginsAppearancePicker"),
         ("show_cure_result", "ShowOriginsCureResult"),
     ):
-        add_c_string(strings, s, name, value)
+        if name is None:
+            strings.extend(bytes(value))
+        else:
+            add_c_string(strings, s, name, value)
     while len(strings) % 4:
         strings.append(0)
     s["tech_costs"] = STRINGS_VA + len(strings)
@@ -977,8 +983,13 @@ def main() -> None:
             jae do_collections
             cmp ebx, 6
             jb legacy_charge
-            cmp ebx, 8
-            ja menu_loop
+            # Rows 9 and up went to do_collections just above, so this is
+            # row 6, 7 or 8. The `cmp ebx, 8; ja menu_loop` that stood here
+            # could never jump (Codex, #506 review); its 9 bytes are skipped
+            # and zeroed IN PLACE, so no later byte -- the price immediates
+            # the Story / Cheat Upgrades rows rewrite among them -- moves.
+            .byte 0xEB, 0x07
+            .byte 0, 0, 0, 0, 0, 0, 0
             call 0x{VILLAGE_PREFLIGHT_VA:X}
             test eax, eax
             jz menu_loop
@@ -1073,11 +1084,15 @@ def main() -> None:
             je do_tech_doubler
             cmp ebx, 4
             je do_food_doubler
-            cmp ebx, 5
-            je do_cure
-            call 0x{HEAL_CAVE_VA:X}
-            nop
-            jmp success
+            # Rows 0, 6 and up never reach here, and rows 1-4 jumped above,
+            # so this is row 5. The `cmp ebx, 5; je do_cure` that stood here
+            # always jumped, and the Cure call, `nop` and jump after it --
+            # reached only by a row the menu never gets here with -- could
+            # never run (Codex, #506 review). A short jump to do_cure, the
+            # next label, replaces them; the bytes are zeroed IN PLACE so
+            # every later byte of the menu keeps its address.
+            .byte 0xEB, 0x0B
+            .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
         do_cure:
@@ -1519,10 +1534,15 @@ def main() -> None:
         f"""
             cmp ebx, 5
             je cure_all
-            cmp ebx, 6
-            jae village_wide
-            or dword ptr [0x4D6E10], 2
-            ret
+            # Its only callers are do_cure (row 5) and do_village_wide (rows
+            # 6-8), so this is row 6, 7 or 8. The `cmp ebx, 6; jae
+            # village_wide` that stood here always jumped, and the Food
+            # Doubler store and `ret` after it -- reached only by a row
+            # below 5 -- could never run (Codex, #506 review). A short jump
+            # replaces them; the bytes are zeroed IN PLACE so cure_all and
+            # its price immediates keep their addresses.
+            .byte 0xEB, 0x0B
+            .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         village_wide:
             push ebx
             push ebp

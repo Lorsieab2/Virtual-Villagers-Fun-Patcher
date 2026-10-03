@@ -802,8 +802,8 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "18D2ACF311375894551B995A3534795FAB1B0BB0D7FE5072DFCF264B28F355AA",
-    "map": "D15B4919569035FFA9E0494B9D548E15D75CAE044EE65B64BFAA84DC0A3E67E3",
+    "manifest": "AF9800D1CA1776CD6F219E4D9D53EFF237F92628FA01D546EA55558C6CECDAEE",
+    "map": "AE2237928D22B88549EF5CF2CD7D4F342642AE2C5EF2D52F596398F1C3F9E90D",
 }
 VV5_TASK9_DLL_SHA256 = "E66F4C969A9DE02F81F8C48A74B28638F593EA45A86AB1CDE93F413AD40476A2"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
@@ -814,8 +814,8 @@ VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 VV5_TASK9_SAVE_RESET_SHA256 = "42496ED028AE39971F1E71B94FE54EC452C292F089CE2E9C859726B1F01A973F"
 VV5_TASK9_SAVE_RESET_SIZE = 136704
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "D49632027B0DC44BB8A2FAC464E5F553A2EAD293FF7F6866933C27FC9B1FF129",
-    "immediate_fixed": "D49632027B0DC44BB8A2FAC464E5F553A2EAD293FF7F6866933C27FC9B1FF129",
+    "collection_progression": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
+    "immediate_fixed": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
     "experimental_expanded_256": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
     "experimental_expanded_256_progression": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
 }
@@ -1828,8 +1828,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "84564A38A75A507A94943E8E60136191042D860063001D67FE472390F349B03F",
-    "task9_builder": "7A722B3B17D8B056D7670B4C97EF743C5005F57183B2B3DEBDC287E39A159C93",
+    "builder": "5FB06BF3B0EBC356548BAB70E9DE7F27314CD049724EF9177673926364385C4D",
+    "task9_builder": "EEB074D964A159DBC36D8EAE9243BF467631D2E0FD7B5E0FAE50E97865F7F989",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1841,8 +1841,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "8935B6C25D24A4242872B48ED0864DD6BC72BB4AFD46F0F234BB42B82CF822D6",
-        "map": "4952187EF73D6E0C2851E0D06A2F01014C0D8F33DC5800B06AD72FF1B1BB2D43",
+        "manifest": "D7FBA30C2B1C3989E876C746E6E24135FD08B70076D4A80215CBC5B2BC89097E",
+        "map": "C5FD25794118F25F6FE8A44C3CD3539C29F4E4C47D63ABE50ADA445F37CA8E94",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -4027,8 +4027,52 @@ def _needs_on(patch: FunPatch) -> tuple[tuple[str, str], ...]:
             raise PatcherError(
                 f"Invalid needs_on entry on {patch.id}: each needs an id and a for."
             )
+        without = entry.get("without")
+        if without is not None and (not isinstance(without, str) or not without.strip()):
+            raise PatcherError(
+                f"Invalid needs_on entry on {patch.id}: 'without' must be a sentence."
+            )
+        alternatives = entry.get("or", [])
+        if not isinstance(alternatives, list) or not all(
+            isinstance(item, str) and item.strip() for item in alternatives
+        ):
+            raise PatcherError(
+                f"Invalid needs_on entry on {patch.id}: 'or' must list feature IDs."
+            )
         result.append((entry["id"].strip(), entry["for"].strip()))
     return tuple(result)
+
+
+def _needs_on_without(patch: FunPatch, dependency_id: str) -> str | None:
+    """What stops working when a ``needs_on`` entry is unmet, if anything.
+
+    Most entries only make a patch do less, which the confirmation says once
+    for all of them. An entry whose absence breaks something -- 256 Villagers
+    cannot load a village the base game's exactly-150-villager save bug has
+    already damaged without Fix Vanilla Bugs (Codex, #512 review) -- carries
+    that in ``without``, and the confirmation states it instead of promising
+    the patch will still work.
+    """
+    for entry in patch.raw.get("needs_on", ()) or ():
+        if isinstance(entry, dict) and str(entry.get("id", "")).strip() == dependency_id:
+            without = entry.get("without")
+            return without.strip() if isinstance(without, str) else None
+    return None
+
+
+def _needs_on_alternatives(patch: FunPatch, dependency_id: str) -> tuple[str, ...]:
+    """The patches that serve a ``needs_on`` entry as well as its own ``id``.
+
+    Codex (#512 review): Cause of Death names the village for the logs at
+    every save, as Village Statistics does, so the parentage log's
+    Statistics entry lists it under ``or``. With either ticked the entry is
+    met: the confirmation must not tell the player the log does less when it
+    does not.
+    """
+    for entry in patch.raw.get("needs_on", ()) or ():
+        if isinstance(entry, dict) and str(entry.get("id", "")).strip() == dependency_id:
+            return tuple(item.strip() for item in entry.get("or", []) or [])
+    return ()
 
 
 def patch_requirements(
@@ -4059,14 +4103,15 @@ def patch_requirements(
     )
     soft = _needs_on(patch)
     for dependency_id, _ in soft:
-        if dependency_id not in by_id:
-            raise PatcherError(
-                f"{patch.id} needs_on names an unknown patch: {dependency_id}"
-            )
-        if by_id[dependency_id].game_id != patch.game_id:
-            raise PatcherError(
-                f"{patch.id} needs_on names a patch of another game: {dependency_id}"
-            )
+        for named in (dependency_id, *_needs_on_alternatives(patch, dependency_id)):
+            if named not in by_id:
+                raise PatcherError(
+                    f"{patch.id} needs_on names an unknown patch: {named}"
+                )
+            if by_id[named].game_id != patch.game_id:
+                raise PatcherError(
+                    f"{patch.id} needs_on names a patch of another game: {named}"
+                )
     lines: list[str] = []
     for dependency_id in hard:
         lines.append(
@@ -4074,7 +4119,9 @@ def patch_requirements(
             "and unticking it unticks this."
         )
     for dependency_id, purpose in soft:
-        lines.append(f"Needs {by_id[dependency_id].name} on for {purpose}.")
+        alternatives = _needs_on_alternatives(patch, dependency_id)
+        either = "".join(f" or {by_id[other].name}" for other in alternatives)
+        lines.append(f"Needs {by_id[dependency_id].name}{either} on for {purpose}.")
     if not lines:
         lines.append(
             "Requires no other patch to be ticked"
@@ -4127,7 +4174,9 @@ def unmet_needs_on(
         if patch.id not in chosen:
             continue
         for dependency_id, purpose in _needs_on(patch):
-            if dependency_id in chosen:
+            if dependency_id in chosen or any(
+                other in chosen for other in _needs_on_alternatives(patch, dependency_id)
+            ):
                 continue
             other = by_id.get(dependency_id)
             if other is None:
@@ -4150,18 +4199,49 @@ def unmet_needs_on_text(
     unmet = unmet_needs_on(selected_ids, catalog)
     if not unmet:
         return ""
+    # What breaks, and what else would serve, per unmet pair, from the
+    # entries themselves.
+    breaks: dict[tuple[str, str, str], str] = {}
+    either: dict[tuple[str, str, str], str] = {}
+    chosen = set(selected_ids)
+    by_id = {patch.id: patch for patch in catalog}
+    for patch in catalog:
+        if patch.id not in chosen:
+            continue
+        for dependency_id, purpose in _needs_on(patch):
+            if dependency_id not in by_id:
+                continue
+            row = (patch.name, by_id[dependency_id].name, purpose)
+            without = _needs_on_without(patch, dependency_id)
+            if without is not None:
+                breaks[row] = without
+            either[row] = "".join(
+                f" or {by_id[other].name}"
+                for other in _needs_on_alternatives(patch, dependency_id)
+                if other in by_id
+            )
     lines = [
         "These patches are ticked, but a patch they work with is not:",
         "",
     ]
-    for name, missing, purpose in unmet:
+    for row in unmet:
+        name, missing, purpose = row
         lines.append(f"- {name}")
-        lines.append(f"    needs {missing} on for {purpose}.")
+        lines.append(f"    needs {missing}{either.get(row, '')} on for {purpose}.")
+        if row in breaks:
+            lines.append(f"    Without it: {breaks[row]}")
         lines.append("")
-    lines.append(
-        "They will still be applied and will still work; they just do less "
-        "with the other patch off."
-    )
+    if any(row not in breaks for row in unmet):
+        lines.append(
+            ("The others" if breaks else "They")
+            + " will still be applied and will still work; they just do less "
+            "with the other patch off."
+        )
+    if breaks:
+        lines.append(
+            "Read each \"Without it\" line: those patches will still be applied, "
+            "but what it names will not work."
+        )
     lines.append("")
     lines.append("Patch the games anyway?")
     return "\n".join(lines)

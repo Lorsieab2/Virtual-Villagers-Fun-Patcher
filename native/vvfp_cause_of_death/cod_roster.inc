@@ -425,13 +425,28 @@ static void roster_reset(int slot) {
 
 #include "cod_roster_sites.inc"
 
+/* A successful save of `slot` from `save_buffer`: name the village for the
+   logs first, so this save's Unaccounted records go under its header, then
+   reconcile -- only once installed: with the save hook merely armed
+   (VvfpCauseArmSave) nothing has been watching departures and arrivals, so
+   a reconciliation would report everyone who changed. */
+static void cod_save_done(int slot, const void *save_buffer) {
+    cod_publish_village(save_buffer, slot);
+    if (install_state == 1) {
+        roster_reconcile(slot);
+    }
+}
+
 /* Right after the game's own save call: al = 1 when it saved, edi = the
-   slot. */
+   slot, and esi the block the call saved from -- the same `lea eax,
+   [esi + 8]` buffer the statistics hook reads the village name from. The
+   village is named for the logs first, so this save's Unaccounted records
+   go under its header (cod_publish_village). */
 static void roster_saved(int site, const unsigned int *regs) {
     int slot = (int)regs[R_EDI];
     (void)site;
     if ((regs[R_EAX] & 0xFFu) != 0 && slot >= 1 && slot <= 5) {
-        roster_reconcile(slot);
+        cod_save_done(slot, (const void *)(uintptr_t)(regs[R_ESI] + 8u));
     }
 }
 
@@ -447,7 +462,8 @@ static void vv1_written(int site, const unsigned int *regs) {
     int slot = (int)reg_stack(regs, 0x218);
     (void)site;
     if ((regs[R_EBX] & 0xFFu) != 0 && reg_stack(regs, 0x214) == 0xABDCu && slot >= 1 && slot <= 5) {
-        roster_reconcile(slot);
+        /* The writer's first argument is the buffer it wrote. */
+        cod_save_done(slot, (const void *)(uintptr_t)reg_stack(regs, 0x210));
     }
 }
 

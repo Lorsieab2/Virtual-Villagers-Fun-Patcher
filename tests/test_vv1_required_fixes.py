@@ -188,15 +188,12 @@ class VV1RequiredFixTests(unittest.TestCase):
         granted (not just how many were skipped), sourced from new
         scratch dwords the shared, cross-game
         scripts/build_village_wide_origins_features.py writes only when
-        a game's own config opts in. report_mastery_counts stays
-        VV1-only. report_running_granted is also VV1-only (VV3-VV5
+        a game's own config opts in. Both are VV1-only: VV3 and VV4
         share the exact same code branches and must stay
-        byte-identical) *except* for VV2, which opts in too --
-        VV2's own ShowOriginsVillageWideResult call site
-        (native/vv1_origins_icons/vv1_origins_icons.c, #included by
-        VV2's own .c) shares VV1's exact 5-arg signature and always
-        displays a "Granted Running to %d villagers." headline, so it
-        needs a real value here, not a placeholder. Then disassembles
+        byte-identical, and The Lost Children, which opted in to
+        report_running_granted, no longer has a village-wide payload at
+        all (#506 review: only an unreachable Cure arm called it). Then
+        disassembles
         the real rendered VV1 exe to confirm the wiring end to end: the
         village-wide caller reads the right scratch address for the
         right command, and the compiled DLL actually exports the entry
@@ -205,19 +202,17 @@ class VV1RequiredFixTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
             encoding="utf-8"
         )
-        # Only VV1's (and, for report_running_granted, VV2's) config
-        # *data* block may set either opt-in flag -- scoped to just the
+        # Only VV1's config *data* block may set either opt-in flag --
+        # scoped to just the
         # CONFIG = {...} literal itself (bounded by "def assemble", the
         # first function after it), not the whole rest of the file,
         # which legitimately references these flag names many times in
         # the shared generator logic that reads them.
         config_literal = source.split("CONFIG = {", 1)[1].split("\ndef assemble", 1)[0]
-        vv1_config, _, rest = config_literal.partition('\n    "vv2": {')
-        vv2_config, _, other_configs = rest.partition('\n    "vv3": {')
+        self.assertNotIn('\n    "vv2": {', config_literal)
+        vv1_config, _, other_configs = config_literal.partition('\n    "vv3": {')
         self.assertIn('"report_running_granted": True', vv1_config)
         self.assertIn('"report_mastery_counts": True', vv1_config)
-        self.assertIn('"report_running_granted": True', vv2_config)
-        self.assertNotIn("report_mastery_counts", vv2_config)
         self.assertNotIn("report_running_granted", other_configs)
         self.assertNotIn("report_mastery_counts", other_configs)
 

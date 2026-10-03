@@ -62,9 +62,11 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                         self.assertEqual(source.read_bytes(), before)
                         owners = {item["owner"] for item in applied}
                         self.assertIn(f"feature:{base_id}", owners)
-                        if build.id == "vv5":
+                        if build.id in {"vv2", "vv5"}:
                             # A route only: it owns no bytes (its extension was
-                            # unreachable and removed).
+                            # unreachable and removed -- New Believers' because
+                            # Task9 owns its menus, The Lost Children's because
+                            # only an unreachable Cure arm called it, #506).
                             self.assertNotIn(f"feature:{wide_id}", owners)
                         else:
                             self.assertIn(f"feature:{wide_id}", owners)

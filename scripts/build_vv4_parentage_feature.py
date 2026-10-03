@@ -656,8 +656,11 @@ def build() -> dict:
                 "needs_on": [
                     {
                         "id": "vv4_write_village_statistics",
+                        # Cause of Death names the village at each save too
+                        # (#512 review): either one meets this entry.
+                        "or": ["vv4_cause_of_death"],
                         "for": (
-                            "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without it, records are still written correctly, just unlabelled, and the log first appears with its first record)"
+                            "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without either, records are still written correctly, just unlabelled, and the log first appears with its first record; Cause of Death names the village at each save itself)"
                         ),
                     },
                 ],

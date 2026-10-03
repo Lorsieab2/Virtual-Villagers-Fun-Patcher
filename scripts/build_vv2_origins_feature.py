@@ -55,23 +55,18 @@ DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
 )
 CURE_ENTRY_FILE_OFFSET = 0x9A530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
-HEAL_CAVE_VA = CURE_ENTRY_VA
+# Full Heal/Cure All. Its reserve used to open with a command dispatch -- row
+# 5 to Cure, rows 6-8 to the optional village-wide payload at .shr+0x820 --
+# but the Tech menu only ever calls it for row 5: rows 6-8 go to the
+# companion's dispatch stub at charge:, and the fallback that called it for
+# any other row could never run (Codex, #506 review). So the dispatch and the
+# village-wide arm are zero, the menu calls Cure itself, and Cure stays at
+# the offset it always had, so its price immediates -- which the Story /
+# Cheat Upgrades rows rewrite -- keep their addresses.
+CURE_ALL_OFFSET = 0x9D
+HEAL_CAVE_VA = CURE_ENTRY_VA + CURE_ALL_OFFSET
 # The Full Heal result-export name string trails the Cure code in its reserve.
 CURE_STRING_VA = CURE_ENTRY_VA + 0x1A0
-# The optional village-wide payload follows the base VV2 Origins helpers in
-# the .shr reserve at raw 0x9A800.  Its runtime address must use the mapped
-# .shr RVA, not IMAGE_BASE + raw file offset.
-VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x800
-VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x820
-# Fixed scratch dword in the confirmed-unused gap between the optional
-# village-wide payload's entry dispatch and its own running_va (see
-# scripts/build_village_wide_origins_features.py's report_running_granted,
-# which now writes this for VV2 too -- mirrors VV1's own
-# RUNNING_GRANTED_VA). ShowOriginsVillageWideResult's shared C body
-# (native/vv1_origins_icons/vv1_origins_icons.c, #included by VV2's own
-# .c) always displays a "Granted Running to %d villagers." headline, so
-# this can no longer be left unset now that the function takes it.
-RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
 BARREL_PENDING_FILE_OFFSET = 0x9A700
 BARREL_PENDING_VA = IMAGE_BASE + SHR_RVA + (BARREL_PENDING_FILE_OFFSET - SHR_FILE_OFFSET)
 BARREL_CLOSE_HELPER_FILE_OFFSET = 0x9A710
@@ -506,35 +501,36 @@ def main() -> None:
 
     strings = bytearray()
     s: dict[str, int] = {}
+    # A number is the length of a string no instruction reads any more: it
+    # stays as that many zero bytes so every later string, and the price
+    # tables after them (tech_costs at 0x494F90, which the Story / Cheat
+    # Upgrades rows rewrite), keep their addresses. "Purchased.", "Removed.",
+    # "Full Mastery could not be completed.", the permanent-change warning,
+    # the three Running messages and "ShowOriginsVillageWideResult" were read
+    # only by the Cure helper's village-wide arm, which could never run
+    # (Codex, #506 review), or by nothing at all.
     for name, value in (
         ("button_label", "Upgrades"),
         ("tech_title", "Origins Upgrades"),
         ("detail_title", "Villager Upgrades"),
-        ("purchased", "Purchased."),
-        ("removed", "Removed."),
+        (None, 11 + 9),
         ("not_enough", "Not enough tech points."),
-        ("mastery_failed", "Full Mastery could not be completed."),
+        (None, 37),
         (
             "population_capacity",
             "The village population is already close to its max. No tech points have been deducted.",
         ),
-        (
-            "permanent_warning",
-            "This upgrade makes permanent changes to your village. Do you still want to purchase this?",
-        ),
-        ("running_unavailable", "Running cannot be added."),
-        ("running_granted", "All villagers like running."),
-        (
-            "running_no_change",
-            "No changes were needed. No tech points have been deducted.",
-        ),
+        (None, 90 + 25 + 28 + 59),
         ("icons_dll", "VVFP VV2 Origins Icons.dll"),
         ("show_dialog_export", "ShowVV2UpgradeMenuState"),
-        ("show_result_export", "ShowOriginsVillageWideResult"),
+        (None, 29),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
     ):
-        add_c_string(strings, s, name, value)
+        if name is None:
+            strings.extend(bytes(value))
+        else:
+            add_c_string(strings, s, name, value)
 
     while len(strings) % 4:
         strings.append(0)
@@ -543,9 +539,6 @@ def main() -> None:
         strings.extend(value.to_bytes(4, "little"))
     s["detail_costs"] = STRINGS_VA + len(strings)
     for value in (50000, 100000, 40000, 50000):
-        strings.extend(value.to_bytes(4, "little"))
-    s["vv2_skill_codes"] = STRINGS_VA + len(strings)
-    for value in (2, 5, 1, 3, 4):
         strings.extend(value.to_bytes(4, "little"))
     if len(strings) > PAYLOAD_SIZE - STRINGS_OFFSET:
         raise RuntimeError(
@@ -939,29 +932,32 @@ def main() -> None:
         legacy_charge:
             cmp ebx, 5
             je do_cure
-        legacy_charge_ready:
+            # Only rows 1, 3 and 4 get past here: row 0 (Time Warp) went to
+            # the companion at confirm_purchase, row 2 (Barrel) to
+            # barrel_capacity_preflight at preflight, row 5 (Cure) just
+            # above, and rows 6 and up to the dispatch stub at charge.
+            #
+            # Codex (#506 review) found the code below still tested for
+            # rows 2 and 5 and ended in a Cure call for any other row --
+            # none of which could ever happen. The two row-2 tests are
+            # skipped and zeroed, the row-4 test is a plain jump, and the
+            # row-5 test and the Cure call after it are zeroed, all IN
+            # PLACE, so barrel_capacity_preflight and every later byte of
+            # the menu keep their addresses.
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
-            cmp ebx, 2
-            je barrel_capacity_preflight
+            .byte 0xEB, 0x03
+            .byte 0, 0, 0
             cmp dword ptr [edi + 0x2EADC], eax
             jb insufficient
-            # Row 0 (Time Warp) never reaches here -- it is dispatched to
-            # the companion DLL, which owns its own paused refusal and its
-            # own charge. Every other row charges normally.
             sub dword ptr [edi + 0x2EADC], eax
             cmp ebx, 1
             je do_island_event
-            cmp ebx, 2
-            je barrel_capacity_preflight
+            .byte 0xEB, 0x03
+            .byte 0, 0, 0
             cmp ebx, 3
             je do_tech_doubler
-            cmp ebx, 4
-            je do_food_doubler
-            cmp ebx, 5
-            je do_cure
-            call 0x{HEAL_CAVE_VA:X}
-            nop
-            jmp success
+            jmp do_food_doubler
+            .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
         barrel_capacity_preflight:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
@@ -1363,70 +1359,6 @@ def main() -> None:
 
     cure_code = assemble(
         f"""
-            cmp ebx, 5
-            je cure_all
-            cmp ebx, 6
-            jb unsupported_village
-            cmp ebx, 8
-            ja unsupported_village
-            jmp running_village
-        unsupported_village:
-            mov eax, 0x{s['running_unavailable']:X}
-            push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-            ret
-        running_village:
-            push ebx
-            push ebp
-            push ecx
-            push edx
-            push esi
-            push edi
-            mov eax, ebx
-            call 0x44F4E0
-            test eax, eax
-            je village_wide_done
-            lea ecx, [eax + 0x52C]
-            mov eax, ebx
-            mov edx, 256
-            call 0x{VILLAGE_WIDE_ENTRY_VA:X}
-            mov ebp, eax
-            mov edi, edx
-            mov esi, ecx
-            cmp ebx, 6
-            jne village_wide_status
-            mov eax, 0x{s['show_result_export']:X}
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x474010]
-            test eax, eax
-            je village_wide_status
-            push 0x{s['show_result_export']:X}
-            push eax
-            call dword ptr [0x4740D4]
-            test eax, eax
-            je village_wide_status
-            push esi
-            push edi
-            push ebp
-            push dword ptr [0x{RUNNING_GRANTED_VA:X}]
-            push ebx
-            call eax
-            jmp village_wide_done
-        village_wide_status:
-            mov eax, 0x{s['purchased']:X}
-            push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-        village_wide_done:
-            pop edi
-            pop esi
-            pop edx
-            pop ecx
-            pop ebp
-            pop ebx
-            ret
-        cure_all:
             push ebx
             push ebp
             push ecx
@@ -1516,13 +1448,14 @@ def main() -> None:
         """,
         HEAL_CAVE_VA,
     )
-    if len(cure_code) > 0x1A0:
+    if CURE_ALL_OFFSET + len(cure_code) > 0x1A0:
         raise RuntimeError(
-            f"cure code is too large: {len(cure_code):#x}/0x1A0"
+            f"cure code is too large: {CURE_ALL_OFFSET + len(cure_code):#x}/0x1A0"
         )
     cure_block = (
-        cure_code
-        + b"\0" * (0x1A0 - len(cure_code))
+        bytes(CURE_ALL_OFFSET)
+        + cure_code
+        + b"\0" * (0x1A0 - CURE_ALL_OFFSET - len(cure_code))
         + b"ShowVV2CureResult\0"
     )
     cure_preflight_code = assemble(

@@ -303,7 +303,7 @@ class ManifestTests(unittest.TestCase):
         )
 
         cure = source[
-            source.index("    cure_code = assemble(") : source.index("    if len(cure_code)")
+            source.index("    cure_code = assemble(") : source.index("    if CURE_ALL_OFFSET + len(cure_code)")
         ]
         final_preflight = cure.index("call 0x{CURE_PREFLIGHT_VA:X}")
         funds = cure.index("cmp dword ptr [edi + 0x2EADC], 30000")
@@ -591,10 +591,14 @@ class ManifestTests(unittest.TestCase):
             self.assertIn("Full Mastery", feature.description)
             self.assertIn("Tech screen", feature.description)
             self.assertNotIn("Runtime/player confirmation pending", feature.description)
-            if game == 5:
-                # A route only: the extension it used to carry was unreachable.
+            if game == 2:
+                self.assertIn("Make Villagers Young Adults", feature.description)
+            if game in (2, 5):
+                # A route only: the extension it used to carry was unreachable
+                # (#506 review for The Lost Children).
                 self.assertEqual(feature.raw["patches"], [])
                 self.assertNotIn("extension_abi", feature.raw)
+                self.assertIn("this row adds no code of its own", feature.description)
                 continue
             self.assertIn("Make Villagers Young Adults", feature.description)
 
@@ -646,7 +650,7 @@ class ManifestTests(unittest.TestCase):
         # (Task9 owns the VV5 menus) and was removed; see
         # tests/test_vv5_origins_dead_code_removed.py.
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
-        for game_id in ("vv1", "vv2", "vv3", "vv4"):
+        for game_id in ("vv1", "vv3", "vv4"):
             feature = village_wide_record(game_id)
             with self.subTest(game=game_id):
                 patch = feature.raw["patches"][0]
@@ -655,10 +659,7 @@ class ManifestTests(unittest.TestCase):
                 source = stock_by_game[game_id].read_bytes()
                 self.assertEqual(source[offset : offset + len(before)], before)
                 self.assertEqual(before, b"\0" * len(before))
-                # The Lost Children's base payload calls the entry directly and
-                # nothing reads the header, so it carries none.
-                expected_signature = None if game_id == "vv2" else "VVFPOWU"
-                self.assertEqual(feature.raw["extension_abi"]["signature"], expected_signature)
+                self.assertEqual(feature.raw["extension_abi"]["signature"], "VVFPOWU")
                 self.assertIn("ECX=first physical record pointer", feature.raw["extension_abi"]["calling_convention"])
                 commands = feature.raw["extension_abi"]["commands"]
                 self.assertEqual(commands["6"], "All Villagers Like Running")
@@ -666,7 +667,7 @@ class ManifestTests(unittest.TestCase):
                 self.assertEqual(commands["8"], "All Villagers are 18")
 
     def test_origins_village_wide_metadata_preserves_explicit_exclusions(self) -> None:
-        for game_id in ("vv1", "vv2", "vv3", "vv4"):
+        for game_id in ("vv1", "vv3", "vv4"):
             patch = village_wide_record(game_id)
             exclusions = patch.raw["explicit_non_changes"]
             self.assertTrue(any("nursing" in item for item in exclusions))
@@ -675,12 +676,16 @@ class ManifestTests(unittest.TestCase):
         # Heathen exclusion of the Task9 village-wide upgrades it exposes.
         exclusions = village_wide_record("vv5").raw["explicit_non_changes"]
         self.assertTrue(any("Heathens" in item for item in exclusions))
+        # The Lost Children's route says it writes nothing of its own.
+        exclusions = village_wide_record("vv2").raw["explicit_non_changes"]
+        self.assertTrue(any("no executable bytes" in item for item in exclusions))
 
     def test_origins_village_wide_abi_uses_command_eax_and_bound_edx(self) -> None:
         # New Believers' row is a route only: its extension was unreachable
         # (Task9 owns the VV5 menus) and was removed; see
-        # tests/test_vv5_origins_dead_code_removed.py.
-        for game_id in ("vv1", "vv2", "vv3", "vv4"):
+        # tests/test_vv5_origins_dead_code_removed.py. The Lost Children's is
+        # too (#506 review; tests/test_origins_dead_code_removed.py).
+        for game_id in ("vv1", "vv3", "vv4"):
             with self.subTest(game=game_id):
                 feature = village_wide_record(game_id)
                 convention = feature.raw["extension_abi"]["calling_convention"]
@@ -691,10 +696,14 @@ class ManifestTests(unittest.TestCase):
                 entry_offset = int(feature.raw["extension_abi"]["entry_offset"], 0)
                 payload_base = int(feature.raw["patches"][0]["offset"], 0)
                 entry = payload[entry_offset - payload_base :]
-                self.assertIn(bytes.fromhex("83F806"), entry)
-                self.assertIn(bytes.fromhex("83F807"), entry)
-                self.assertIn(bytes.fromhex("83F808"), entry)
-                self.assertIn(bytes.fromhex("B8FFFFFFFF"), entry)
+                # Every caller passes 6, 7 or 8, so the entry tests 6 and 7
+                # and runs 8 otherwise: the `cmp eax, 8` that always matched
+                # and the invalid-command return (`mov eax, -1`) after it
+                # could never run and were removed (#506 review).
+                self.assertTrue(entry.startswith(bytes.fromhex("83F806")))
+                self.assertIn(bytes.fromhex("83F807"), entry[:16])
+                self.assertNotIn(bytes.fromhex("83F808"), entry[:32])
+                self.assertNotIn(bytes.fromhex("B8FFFFFFFF"), entry[:32])
                 self.assertIn(bytes.fromhex("89CE"), payload)  # mov esi, ecx
                 self.assertIn(bytes.fromhex("89D3"), payload)  # mov ebx, edx
 
@@ -710,7 +719,7 @@ class ManifestTests(unittest.TestCase):
         epilogue = bytes.fromhex("5F5E5B5DC3")
         bad_mastery_tail = bytes.fromhex("31C031D231C95E5F5B5DC3")
         mastery_tail = bytes.fromhex("31C031D231C95F5E5B5DC3")
-        for game_id in ("vv1", "vv2", "vv3", "vv4"):
+        for game_id in ("vv1", "vv3", "vv4"):
             with self.subTest(game=game_id):
                 feature = village_wide_record(game_id)
                 payload = bytes.fromhex(feature.raw["patches"][0]["after"])
@@ -931,7 +940,14 @@ class ManifestTests(unittest.TestCase):
                 self.assertIn("jne", section)
 
     def test_active_origins_manifests_preserve_stock_like_dislike_slot_counts(self) -> None:
-        expected = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3}
+        # The Lost Children's route carries no payload or record metadata any
+        # more (#506 review); its 62 slots are bound where its village-wide
+        # rows run, the companion, in tests/test_vv2_required_fixes.py.
+        self.assertNotIn(
+            "record_fields",
+            json.loads((ROOT / "data" / "vv2_origins_village_wide_upgrades.json").read_text(encoding="utf-8")),
+        )
+        expected = {"vv1": 4, "vv3": 3, "vv4": 3}
         for game_id, slot_count in expected.items():
             with self.subTest(game=game_id):
                 record = json.loads(
@@ -4026,7 +4042,8 @@ class StockIntegrationTests(unittest.TestCase):
                 self.assertEqual(bytes(rendered[0x234:0x238]), bytes.fromhex("20000060"))
                 owners = {item["owner"] for item in applied}
                 self.assertIn("feature:vv2_enable_origins_exclusive_features", owners)
-                self.assertIn("feature:vv2_origins_village_wide_upgrades", owners)
+                # A route only (#506 review): it is selected, and owns no bytes.
+                self.assertNotIn("feature:vv2_origins_village_wide_upgrades", owners)
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp) / build.title
             folder.mkdir()

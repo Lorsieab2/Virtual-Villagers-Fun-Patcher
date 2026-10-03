@@ -55,7 +55,12 @@
    (WriteVillageRecord) -- the same village header, held records, numbered
    roll and Start Over as the Births and Conceptions log.  Without that DLL
    (the Births and Conceptions row off) no log is written; the graves work
-   regardless.
+   regardless.  The header names the village the statistics companion
+   publishes at each save; without Village Statistics nothing did, so the
+   logs were unlabelled and shared by every village (Codex, #504 review).
+   This companion's own hook on the save call now hands that DLL the save
+   buffer and slot first (PublishVillageAtSave), so the logs are headed and
+   created at a village's first save either way (cod_roster.inc).
 
    Installed at run time by VvfpCauseInstall(game, host) from the Origins
    companion; every site's stock bytes are checked first, all or nothing.
@@ -85,6 +90,7 @@ struct vvfp_cause_stats {
     int departed;        /* departures accounted (deaths, disappearances) */
     int arrived;         /* arrivals accounted */
     int unaccounted;     /* Unaccounted records */
+    int armed;           /* save hook armed ahead of the install */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -210,6 +216,8 @@ static struct game_records REC[6] = {
 /* The native harnesses have no game image at the games' addresses: they hand
    their own villager table here. */
 static unsigned char *test_table;
+/* ...and say whether arming the save hook succeeds: 1 yes, -1 no, 0 try. */
+static int test_arm;
 #endif
 
 /* The Secret City, The Tree of Life, New Believers: the villager table and
@@ -322,14 +330,17 @@ enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5 
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);
+typedef int (__stdcall *publish_village_fn)(int game, const void *save_buffer, int slot);
+typedef int (__stdcall *release_held_fn)(int game);
 static int log_state;            /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static write_record_fn write_record;
+static publish_village_fn publish_village;
+static release_held_fn release_held;
 
-/* Hand one record to "VVFP Parentage Export.dll", loaded by full path from
-   the executable's folder the first time; absent (the Births and
-   Conceptions row off), nothing is written. */
-static int cod_write(int kind, const void *record, int check, const char *before,
-                     const char *after, int detail) {
+/* "VVFP Parentage Export.dll", loaded by full path from the executable's
+   folder the first time; absent (the Births and Conceptions row off), no
+   log is written. */
+static int cod_log_ready(void) {
     if (log_state == 0) {
         char path[MAX_PATH];
         char *slash;
@@ -344,13 +355,30 @@ static int cod_write(int kind, const void *record, int check, const char *before
             module = LoadLibraryA(path);
             if (module != NULL) {
                 write_record = (write_record_fn)GetProcAddress(module, "WriteVillageRecord");
+                publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
+                release_held = (release_held_fn)GetProcAddress(module, "ReleaseHeldRecords");
                 if (write_record != NULL) {
                     log_state = 1;
                 }
             }
         }
     }
-    if (log_state != 1) {
+    return log_state == 1;
+}
+
+/* At a save, before anything is reconciled: name the village for the logs
+   from the block being saved (the parentage DLL does nothing when the
+   statistics companion has already done it at this same save). */
+static void cod_publish_village(const void *save_buffer, int slot) {
+    if (save_buffer != NULL && cod_log_ready() && publish_village != NULL) {
+        (void)publish_village(g_game, save_buffer, slot);
+    }
+}
+
+/* Hand one record to the parentage DLL. */
+static int cod_write(int kind, const void *record, int check, const char *before,
+                     const char *after, int detail) {
+    if (!cod_log_ready()) {
         return 0;
     }
     COD_COUNT(logged);
@@ -512,9 +540,9 @@ static void cod_add(unsigned int va, const char *stock_hex, site_fn fn) {
 /* All or nothing: every site must hold its stock bytes before any is
    written, so a build where another patch took one of them is left alone
    entirely rather than half-recorded. */
-static int cod_install_sites(void) {
+static int cod_install_sites(int first) {
     int i;
-    for (i = 0; i < site_count; ++i) {
+    for (i = first; i < site_count; ++i) {
         if (sites[i].length < 5 || !cod_bytes_are(sites[i].va, sites[i].stock, sites[i].length)) {
             return 0;
         }
@@ -523,7 +551,7 @@ static int cod_install_sites(void) {
     if (stub_page == NULL) {
         return 0;
     }
-    for (i = 0; i < site_count; ++i) {
+    for (i = first; i < site_count; ++i) {
         if (!cod_write_jmp(sites[i].va, sites[i].length, stub_page + i * STUB_BYTES)) {
             return 0;
         }
@@ -538,6 +566,10 @@ static unsigned int seen_alive[RECORDS_MAX];   /* name hash, 0 = not seen alive 
    (cod_roster_sites.inc), while it holds it. */
 static unsigned char temporary[RECORDS_MAX];
 static int install_state;   /* 0 = not tried, 1 = installed, -1 = refused */
+/* The save hook alone, armed ahead of the install (VvfpCauseArmSave): it
+   is sites[0] from then on, and the install adds every other site after
+   it. */
+static int save_armed;
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
@@ -560,7 +592,8 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
         g_host = (const cod_host *)host;
     }
     cod_locate_table();
-    site_count = 0;
+    /* An armed save hook stays sites[0], already written; the rest follow. */
+    site_count = save_armed ? 1 : 0;
     if (game <= 2) {
         vv12_sites();
         epitaph_edit_sites();
@@ -570,9 +603,16 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
     }
     gone_sites();
     roster_sites();
-    roster_save_site();
-    if (cod_install_sites()) {
+    if (!save_armed) {
+        roster_save_site();
+    }
+    if (cod_install_sites(save_armed ? 1 : 0)) {
         install_state = 1;
+    } else if (cod_log_ready() && release_held != NULL) {
+        /* Refused: this companion will never name a village at a save, so
+           the parentage DLL must not keep holding records for it (#512
+           review) -- they are written now, unlabelled, in order. */
+        (void)release_held(game);
     }
     return install_state == 1;
 }
@@ -598,6 +638,56 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
         vv12_tick();
     }
     seen_tick();
+}
+
+/* Arm the save hook alone, before the install (Codex, #512 review).
+
+   The Origins companion installs this companion once a village is shown --
+   in The Secret City only when a villager is first drawn or the Origins
+   menu opens -- but records from the load-time catch-up are held for this
+   companion's save hook to name the village. A save made before the
+   install would leave them held, and lost at exit. So the parentage DLL,
+   the first time it holds a record for this companion, arms the save hook
+   here: at a save it then names the village (cod_save_done), and nothing
+   else runs until the install, which keeps it as sites[0]. Only the save
+   hook's own stock bytes are checked and written. Returns 1 when armed or
+   installed. */
+__declspec(dllexport) int __stdcall VvfpCauseArmSave(int game) {
+    if (install_state == 1 || save_armed) {
+        return 1;
+    }
+    if (install_state != 0 || game < 1 || game > 5 || (g_game != 0 && game != g_game)) {
+        return 0;
+    }
+    g_game = game;
+#ifdef VVFP_TEST
+    /* The harnesses map no game: they say whether arming succeeds. */
+    if (test_arm != 0) {
+        save_armed = test_arm > 0;
+        if (save_armed) {
+            COD_COUNT(armed);
+        }
+        return save_armed;
+    }
+#endif
+    cod_locate_table();
+    site_count = 0;
+    roster_save_site();
+    if (cod_install_sites(0)) {
+        save_armed = 1;
+        COD_COUNT(armed);
+    } else {
+        site_count = 0;
+    }
+    return save_armed;
+}
+
+/* Whether this companion names the village at each save for the logs
+   (cod_roster.inc): 1 installed, 0 not installed yet, -1 refused -- in
+   which case its save hook never runs and the parentage DLL must not wait
+   for it. */
+__declspec(dllexport) int __stdcall VvfpCauseNamesVillage(void) {
+    return install_state;
 }
 
 /* Start Over erased `slot`: forget everything held for it before the reset

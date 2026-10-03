@@ -158,6 +158,96 @@ class PatchRequirementTests(unittest.TestCase):
         for game in ("vv2", "vv3", "vv4", "vv5"):
             self.assertEqual(by[f"{game}_write_village_statistics"].get("needs_on", []), [])
 
+    def test_cause_of_death_meets_the_parentage_logs_statistics_entry(self):
+        # Codex (#512 review): Cause of Death names the village and creates the
+        # logs at the first save, as Village Statistics does, so with it ticked
+        # the parentage log must not be reported as doing less. With neither
+        # ticked the entry is still reported, naming both.
+        catalog = patcher.load_fun_patches()
+        by = {patch.id: patch for patch in catalog}
+        for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            with self.subTest(game=game):
+                log = by[f"{game}_write_parentage_log"]
+                stats = by[f"{game}_write_village_statistics"].name
+                cause = by[f"{game}_cause_of_death"].name
+                entry = next(e for e in log.raw["needs_on"] if e["id"] == f"{game}_write_village_statistics")
+                self.assertEqual(entry["or"], [f"{game}_cause_of_death"])
+                self.assertIn(stats, [row[1] for row in patcher.unmet_needs_on([log.id], catalog)])
+                for chosen in ([log.id, f"{game}_cause_of_death"], [log.id, f"{game}_write_village_statistics"]):
+                    self.assertNotIn(stats, [row[1] for row in patcher.unmet_needs_on(chosen, catalog)])
+                self.assertIn(f"Needs {stats} or {cause} on for the village and savegame header",
+                              patcher.patch_requirement_text(log, catalog))
+                # With neither ticked, the confirmation names both.
+                self.assertIn(f"needs {stats} or {cause} on for the village",
+                              patcher.unmet_needs_on_text([log.id], catalog))
+
+    def test_a_needs_on_alternative_must_be_a_known_patch_of_the_same_game(self):
+        catalog = list(patcher.load_fun_patches())
+        log = next(p for p in catalog if p.id == "vv3_write_parentage_log")
+        raw = dict(log.raw, needs_on=[{"id": "vv3_write_village_statistics", "for": "x", "or": ["nope"]}])
+        bad = patcher.FunPatch(**{**log.__dict__, "raw": raw}) if hasattr(log, "__dict__") else None
+        if bad is None:
+            self.skipTest("FunPatch is not reconstructible here")
+        with self.assertRaises(patcher.PatcherError):
+            patcher.patch_requirements(bad, catalog)
+        raw = dict(log.raw, needs_on=[{"id": "vv3_write_village_statistics", "for": "x", "or": "vv3_cause_of_death"}])
+        with self.assertRaises(patcher.PatcherError):
+            patcher._needs_on(patcher.FunPatch(**{**log.__dict__, "raw": raw}))
+
+    def test_256_villagers_needs_fix_vanilla_bugs_through_the_prerequisite_ui(self):
+        # Codex (#509 review): ticking 256 Villagers with Fix Vanilla Bugs off
+        # cannot load a village the base game's exactly-150 save bug already
+        # damaged, so The Secret City's and The Tree of Life's 256 rows name it
+        # as a soft prerequisite: stated under the description and confirmed
+        # before patching, never ticked for the player.
+        catalog = patcher.load_fun_patches()
+        by = {patch.id: patch for patch in catalog}
+        for game in ("vv3", "vv4"):
+            with self.subTest(game=game):
+                row = json.loads(
+                    (ROOT / "data" / f"{game}_population_256_feature.json").read_text(encoding="utf-8")
+                )
+                self.assertEqual([e["id"] for e in row["needs_on"]], [f"{game}_fix_vanilla_bugs"])
+                self.assertNotIn("dependencies", row)
+                self.assertIn(
+                    "Needs Fix Vanilla Bugs on for loading a village that the base game's "
+                    "exactly-150-villager save bug has already damaged",
+                    patcher.patch_requirement_text(by[f"{game}_population_256"], catalog),
+                )
+                self.assertIn(
+                    "Needed by 256 Villagers (Experimental) for loading a village",
+                    patcher.patch_requirement_text(by[f"{game}_fix_vanilla_bugs"], catalog),
+                )
+                body = patcher.unmet_needs_on_text([f"{game}_population_256"], catalog)
+                self.assertIn("- 256 Villagers (Experimental)\n    needs Fix Vanilla Bugs on", body)
+                # Codex (#512 review): this is not a patch that merely does
+                # less -- the confirmation must say what will not load, and
+                # must not promise that everything still works.
+                self.assertIn(
+                    "    Without it: a village the base game's exactly-150-villager save bug has "
+                    "already damaged will NOT load in the 256 build.",
+                    body,
+                )
+                self.assertNotIn("will still work", body)
+                self.assertIn("what it names will not work", body)
+                # Beside a patch that only does less, each keeps its own wording.
+                mixed = patcher.unmet_needs_on_text(
+                    [f"{game}_population_256", f"{game}_write_parentage_log"], catalog
+                )
+                self.assertIn("Without it: a village", mixed)
+                self.assertIn("The others will still be applied and will still work", mixed)
+                self.assertEqual(
+                    patcher.unmet_needs_on_text(
+                        [f"{game}_population_256", f"{game}_fix_vanilla_bugs"], catalog
+                    ),
+                    "",
+                )
+        # New Believers' base game has no exactly-150 save bug to repair.
+        self.assertEqual(
+            json.loads((ROOT / "data" / "vv5_population_256_feature.json").read_text(encoding="utf-8")).get("needs_on", []),
+            [],
+        )
+
     def test_the_readme_rows_state_the_links_in_bold(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("**Needs Write Births and Conceptions Log to Text File on for the father", readme)

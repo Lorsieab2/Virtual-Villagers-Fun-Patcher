@@ -677,8 +677,24 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # Command upper bound: 0..12 in stock (Collections rows 9/10 plus the two
     # Equal Division of Labor rows 11/12), 0..5 in expanded (original).
     command_bound = 13 if native_stock else 5
+    # In the stock layout the dispatch above has already sent rows 0-2 and
+    # 6-13 to their own routines and the bound refused anything past 13, so
+    # only rows 3, 4 and 5 arrive here: `cmp ebx, 3; jb unavailable` and,
+    # after Heal takes row 5, `cmp ebx, 6; jae unavailable` could never jump
+    # (Codex, #506 review; proved by tests/test_vv5_origins_dead_code_removed.py).
+    # Each is a short jump over its own 7 zeroed bytes, so every later
+    # address in the page -- the price immediates the Story / Cheat Upgrades
+    # rows rewrite among them -- is unchanged. The expanded page has no such
+    # dispatch, so it keeps the row-3 test, which is live there.
+    low_rows_guard = (
+        ".byte 0xEB, 0x07\n        .byte 0, 0, 0, 0, 0, 0, 0\n        "
+        if native_stock
+        else "cmp ebx, 3\n        jb unavailable\n        "
+    )
     collections_guard = (
-        "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
+        ".byte 0xEB, 0x07\n        .byte 0, 0, 0, 0, 0, 0, 0\n        "
+        if native_stock
+        else ""
     )
     # Name the point doublers correctly in their result (action 18/19) in stock;
     # the expanded baseline keeps the original ebx form so the overlay-owned
@@ -799,9 +815,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         mov ebx, eax
         cmp ebx, {command_bound}
         ja done
-        {tw_dispatch}cmp ebx, 3
-        jb unavailable
-        cmp ebx, 5
+        {tw_dispatch}{low_rows_guard}cmp ebx, 5
         je heal
         {collections_guard}mov edi, 1
         cmp ebx, 3

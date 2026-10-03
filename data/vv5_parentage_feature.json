@@ -1,11 +1,11 @@
 {
-  "companion_sha256": "099429EB54C4C109F93BD1701988766187DC6305804C9FA117948A3D961AB5BC",
+  "companion_sha256": "D5BBA6D92C75CE5E168F5B4A56AC6ECEE18CF95862F6981EB8F9241F4841AFEE",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "099429EB54C4C109F93BD1701988766187DC6305804C9FA117948A3D961AB5BC",
+          "sha256": "D5BBA6D92C75CE5E168F5B4A56AC6ECEE18CF95862F6981EB8F9241F4841AFEE",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         },
         {
@@ -20,8 +20,11 @@
       "name": "Write Births and Conceptions Log to Text File",
       "needs_on": [
         {
-          "for": "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without it, records are still written correctly, just unlabelled, and the log first appears with its first record)",
-          "id": "vv5_write_village_statistics"
+          "for": "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without either, records are still written correctly, just unlabelled, and the log first appears with its first record; Cause of Death names the village at each save itself)",
+          "id": "vv5_write_village_statistics",
+          "or": [
+            "vv5_cause_of_death"
+          ]
         }
       ],
       "output_tag": "Births and Conceptions Log Text Export",

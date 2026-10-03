@@ -2110,7 +2110,21 @@ static int is_record_slot(
    Statistics has no publisher at all, and holding would lose every record.
    The patcher deletes a feature's companion DLLs when the feature is removed,
    so the statistics DLL's presence next to the executable is the test. With
-   it absent, records are written immediately and unlabelled, as before. */
+   it absent, records are written immediately and unlabelled, as before.
+
+   CAUSE OF DEATH NAMES THE VILLAGE TOO. Codex (#504 review): with Cause of
+   Death and this log ticked but Village Statistics not, nothing published
+   the village, so the Deaths and Unaccounted Villagers records -- which
+   that patch promises are headed with the village and created at its first
+   save -- were written unlabelled into files every village then shared, and
+   Start Over could not tell which to delete. "VVFP Cause of Death.dll"
+   already sits on the game's save call (it reconciles the roster there), so
+   at every save it hands this DLL the save buffer and slot
+   (PublishVillageAtSave below), which publishes the same header the
+   statistics companion would and creates the logs. Its presence beside the
+   executable therefore counts as a publisher as well -- unless it is loaded
+   and reports that its hooks were refused, in which case it will never name
+   a village and records are written at once, as with no publisher. */
 
 /* One rendered record: 13 short lines plus a skills block of at most 512. */
 #define RECORD_TEXT_MAX 2048
@@ -2126,6 +2140,8 @@ static struct pending_record *pending;
 static int pending_count;
 static int pending_capacity;
 static int publisher_state;         /* 0 unknown, 1 present, -1 absent */
+
+static int deaths_recorder_present(void);
 
 static int statistics_publisher_present(void) {
     wchar_t path[MAX_PATH];
@@ -2151,6 +2167,88 @@ static int statistics_publisher_present(void) {
         publisher_state = 1;
     }
     return publisher_state == 1;
+}
+
+/* Whether "VVFP Cause of Death.dll" will name the village at each save (see
+   above). It says itself: 1 installed, 0 not installed yet (the Origins
+   companion installs it once a village is shown, after the load-time
+   catch-up, so records wait for it), -1 refused. A refusal is final.
+
+   Asked before the companion has loaded it, this DLL loads it -- by full
+   path from the executable's folder, as the companion does, never from
+   DllMain -- rather than assume it will load. Codex (#512 review): a
+   shipped file that cannot load, or that lacks the exports, will never name
+   a village, and treating it as a publisher held every record until exit,
+   where it was lost. Either is final, like a refusal. Loading it early runs
+   nothing but its DllMain; the companion's own load later shares the
+   module. */
+typedef int (__stdcall *cause_names_village_t)(void);
+typedef int (__stdcall *cause_arm_save_t)(int game);
+
+static int cause_state;               /* 0 undecided, -1 never */
+
+static int cause_of_death_publishes(int game_id) {
+    static cause_names_village_t names;
+    static cause_arm_save_t arm_save;
+    int state;
+    wchar_t path[MAX_PATH];
+    wchar_t *slash;
+    DWORD n;
+    HMODULE module;
+    static const wchar_t file[] = L"VVFP Cause of Death.dll";
+
+    if (cause_state != 0) {
+        return 0;
+    }
+    if (!deaths_recorder_present()) {
+        cause_state = -1;
+        return 0;
+    }
+    if (names == NULL) {
+        module = GetModuleHandleW(file);
+        if (module == NULL) {
+            n = GetModuleFileNameW(NULL, path, MAX_PATH);
+            slash = n != 0 && n < MAX_PATH ? wcsrchr(path, L'\\') : NULL;
+            if (slash == NULL
+                || (size_t)(slash + 1 - path) + sizeof(file) / sizeof(file[0]) > MAX_PATH) {
+                cause_state = -1;
+                return 0;
+            }
+            wcscpy(slash + 1, file);
+            module = LoadLibraryW(path);
+        }
+        if (module == NULL
+            || GetProcAddress(module, "VvfpCauseInstall") == NULL) {
+            cause_state = -1;
+            return 0;
+        }
+        names = (cause_names_village_t)GetProcAddress(module, "VvfpCauseNamesVillage");
+        arm_save = (cause_arm_save_t)GetProcAddress(module, "VvfpCauseArmSave");
+        if (names == NULL || arm_save == NULL) {
+            cause_state = -1;
+            return 0;
+        }
+    }
+    state = names();
+    if (state == -1) {
+        cause_state = -1;
+        return 0;
+    }
+    /* Not installed yet: a save may come before the install (The Secret
+       City installs it only when a villager is first drawn), so its save
+       hook is armed now, to name the village at that save (#512 review).
+       A hook that cannot be armed can never name it: records go out now. */
+    if (state == 0 && game_id >= GAME_VV1 && game_id <= GAME_VV5 && !arm_save(game_id)) {
+        cause_state = -1;
+        return 0;
+    }
+    return 1;
+}
+
+/* Whether anything will publish the village: the statistics companion, or
+   Cause of Death's own save hook. */
+static int village_publisher_present(int game_id) {
+    return statistics_publisher_present() || cause_of_death_publishes(game_id);
 }
 
 /* Whether `size` bytes at `p` can be read without faulting. A held record's
@@ -2650,7 +2748,16 @@ static int emit_record(
         }
         return hold_record(game_id, kind, records, text);
     }
-    if (village[0] == '\0' && !statistics_publisher_present()) {
+    if (village[0] == '\0' && !village_publisher_present(game_id)) {
+        /* Records held while a publisher was still expected -- Cause of
+           Death shipped, then found unable to hook the save -- go first,
+           in order, unlabelled like this one: nothing will name them now. */
+        if (pending_count > 0) {
+            flush_pending(game_id, village);
+            if (pending_count > 0) {
+                return hold_record(game_id, kind, records, text);
+            }
+        }
         return append_record(g, village, kind, text) == APPEND_WRITTEN;
     }
     /* No village yet, or a recalled one the loaded tribe cannot vouch for. */
@@ -3432,6 +3539,69 @@ __declspec(dllexport) int __stdcall EnsureParentageLogForVillage(
     const void *records
 ) {
     return ensure_parentage_log(game_id, village, records);
+}
+
+/* The village identity at a save, from Cause of Death's own hook on the save
+   call, for an install without Village Statistics (see "CAUSE OF DEATH NAMES
+   THE VILLAGE TOO" above).
+
+   `save_buffer` is the block the game is saving -- the statistics hook's
+   manager + 8 -- and `slot` the save slot, so the header is the one the
+   statistics companion would have published, byte for byte: the same
+   vv_village_name read, the same vv_village_header format. It is published
+   for the records written later, and the logs are created exactly as the
+   population exporter's call after a save creates them, with the villager
+   table this DLL finds itself.
+
+   With the statistics companion present this does nothing: it has already
+   published this save's village and created the logs, from the same call. */
+__declspec(dllexport) int __stdcall PublishVillageAtSave(
+    int game_id,
+    const void *save_buffer,
+    int slot
+) {
+    char name[VV_VILLAGE_NAME_MAX];
+    char header[VV_VILLAGE_NAME_MAX + 32];
+
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || save_buffer == NULL
+        || slot < 1 || slot > 5) {
+        return 0;
+    }
+    if (statistics_publisher_present()) {
+        return 0;
+    }
+    if (!vv_village_name(game_id, (const unsigned char *)save_buffer - 8, name)) {
+        name[0] = '\0';
+    }
+    if (!vv_village_header(header, sizeof header, name, slot)) {
+        return 0;
+    }
+    vv_village_publish(header);
+    return ensure_parentage_log(game_id, header, villager_table(game_id));
+}
+
+/* Cause of Death's install was refused (Codex, #512 review): its save hook
+   will never name a village, so records held for it would otherwise wait for
+   a later record to notice -- and with none, be lost at exit. It calls this at
+   the moment of refusal: with no publisher left, every held record of this
+   game is written now, unlabelled and in order, exactly as a record with no
+   publisher is. With the statistics companion present they keep waiting for
+   its save. Returns 1 when nothing of this game is still held. */
+__declspec(dllexport) int __stdcall ReleaseHeldRecords(int game_id) {
+    int i;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
+        return 0;
+    }
+    if (village_publisher_present(game_id)) {
+        return 0;
+    }
+    flush_pending(game_id, "");
+    for (i = 0; i < pending_count; ++i) {
+        if (pending[i].game_id == game_id) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 /* The original two-argument form, kept for a population exporter that has not

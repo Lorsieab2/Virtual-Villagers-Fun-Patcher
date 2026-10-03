@@ -5,3 +5,5 @@ EXPORTS
     VvfpCauseVillageReset=_VvfpCauseVillageReset@8
     VvfpCauseVanished=_VvfpCauseVanished@8
     VvfpCauseNoteArrival=_VvfpCauseNoteArrival@8
+    VvfpCauseNamesVillage=_VvfpCauseNamesVillage@0
+    VvfpCauseArmSave=_VvfpCauseArmSave@4

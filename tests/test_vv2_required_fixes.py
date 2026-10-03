@@ -20,16 +20,31 @@ class VV2RequiredFixTests(unittest.TestCase):
         self.assertIn("vv2_origins_village_wide_upgrades", ids)
 
     def test_vv2_record_layout_and_mastery_abi_are_bound(self) -> None:
+        # The village-wide rows run in the companion (ApplyVV2RunningToAll,
+        # ApplyVV2MasteryToAll, ApplyVV2AgeToAll, reached through the dispatch
+        # stub); the payload that used to carry this layout as ABI metadata
+        # was unreachable and is gone (#506 review), so its route record
+        # carries none. The layout is bound where the rows actually run.
         feature = get_fun_patch("vv2_origins_village_wide_upgrades")
-        fields = feature.raw["record_fields"]
-        self.assertEqual(fields["like_slot_count"], 62)
-        self.assertEqual(fields["dislike_slot_count"], 62)
-        self.assertEqual(fields["likes_offset"], "0x5F0")
-        self.assertEqual(fields["dislikes_offset"], "0x6E8")
-        self.assertEqual(fields["totem_offset"], "0x558")
-        self.assertEqual(fields["native_skill_writer"], "0x445430")
-        self.assertEqual(fields["native_mastery_manager"], "0x44F4E0")
-        self.assertNotIn("native_mastery_evaluator", fields)
+        self.assertEqual(feature.raw["patches"], [])
+        self.assertNotIn("record_fields", feature.raw)
+        self.assertNotIn("extension_abi", feature.raw)
+        native = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(
+            encoding="utf-8"
+        )
+        for line in (
+            "#define VV2_SPECIAL_OFFSET  0x558",
+            "#define VV2_LIKES_OFFSET    0x5F0",
+            "#define VV2_DISLIKES_OFFSET 0x6E8",
+            "#define VV2_PREF_SLOTS      62",
+        ):
+            self.assertIn(line, native)
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")
+        # The dispatch stub hands each row the record base the game's own
+        # singleton getter returns.
+        self.assertIn('running_export_bytes = b"ApplyVV2RunningToAll\\0"', source)
+        self.assertIn('mastery_export_bytes = b"ApplyVV2MasteryToAll\\0"', source)
+        self.assertIn("call 0x44F4E0", source)
 
     def test_vv2_detail_menu_uses_exact_mastery_and_all_62_preference_slots(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
@@ -42,7 +57,9 @@ class VV2RequiredFixTests(unittest.TestCase):
         for offset in ("0x7E4", "0x7E8", "0x7EC", "0x7F0", "0x7F4"):
             self.assertIn(f"cmp dword ptr [edx + {offset}], 100", detail_menu)
         self.assertNotIn(", 90", detail_menu)
-        self.assertIn("for value in (2, 5, 1, 3, 4)", source)
+        # The skill-code table (2, 5, 1, 3, 4) only the removed village-wide
+        # payload read is gone with it (#506 review).
+        self.assertNotIn("vv2_skill_codes", source)
         self.assertNotIn("call 0x44D4C0", source)
 
     def test_vv2_running_only_inserts_before_clearing_dislikes(self) -> None:
@@ -67,15 +84,19 @@ class VV2RequiredFixTests(unittest.TestCase):
         # already-Running villagers are truly left unchanged.
         self.assertIn("removes any Running Dislike whether or not a Like was added", village)
         self.assertIn("leaves already-Running villagers unchanged", village)
-        # The generic branch VV2 reaches. (The old 16-space form matched only
-        # New Believers' native branch, removed with its unreachable payload.)
+        # The generic branch (A New Home and The Secret City reach it; The
+        # Lost Children's village-wide rows run in its companion now). The
+        # old 16-space form matched only New Believers' native branch,
+        # removed with its unreachable payload.
         self.assertIn("running_existing:\n            inc ebp\n            jmp running_next", village)
 
     def test_vv2_cure_all_restores_partial_health_and_clears_sickness(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        cure = source.split("cure_all:", 1)[1].split("cure_report:", 1)[0]
+        # Cure is the whole helper now: the menu calls it directly (#506
+        # review removed the rows 6-8 dispatch in front of it).
+        cure = source.split("cure_code = assemble(", 1)[1].split("cure_report:", 1)[0]
         # Cure All is a full heal: any living villager below full health
         # (100) is restored to 100, and sickness (+0x53C) is cleared.
         self.assertIn("cmp dword ptr [edx + 0x52C], 100", cure)

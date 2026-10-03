@@ -540,11 +540,24 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                     if immediate == 100 and memory is not None \
                             and memory.disp > 0:
                         found.add(memory.disp)
-            return sorted(found)
+            # The skills are the longest run of consecutive dwords compared
+            # with 100. A base payload also compares other single fields
+            # with 100 -- health in Cure, the age floor in Youth -- which
+            # are not part of the run.
+            runs = []
+            for disp in sorted(found):
+                if runs and disp == runs[-1][-1] + 4:
+                    runs[-1].append(disp)
+                else:
+                    runs.append([disp])
+            return max(runs, key=len) if runs else []
 
         expected = {
             1: "vv1_origins_village_wide_upgrades.json",
-            2: "vv2_origins_village_wide_upgrades.json",
+            # The Lost Children's village-wide walker was an unreachable
+            # payload, removed (#506 review); its Details-screen Full Mastery
+            # walker, in the base, writes the same five fields.
+            2: "vv2_origins_feature.json",
             # VV3 is the control: its offsets were already established from
             # another source, so the walker reproducing them is what justifies
             # trusting the same scan for the two games that had no answer.

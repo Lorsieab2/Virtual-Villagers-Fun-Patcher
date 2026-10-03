@@ -319,11 +319,18 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Re-pinned when the unreachable dispatch stub (0x9A004), village-wide
         # preflight (0x9A009) and do_village_wide branch were removed --
         # nothing in any doubler region.
+        # Re-pinned when #506's review removed the rest of that dead code in
+        # place: the Tech menu's decided row-2 tests and its unreachable
+        # legacy tail (0x943A8+0x3BD..0x404), the Cure helper's rows 6-8
+        # dispatch (0x9A530..0x9A5CD; the menu now calls Cure at 0x9A5CD) and
+        # the strings and skill-code table only that code read
+        # (0x943A8+0xA0C.. and +0xC10..) -- nothing in either doubler wrapper
+        # region (+0x820..0x960) or the positive writers.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "E707EF00928C6A3ECA444138800BAF9A36231DB0834DD160FC6FD4350230F48C",
+            "A5EC1789912FFBAC7B46543732BBB10F5CDFF9C1A1A40A2B57B9758E53A17820",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.

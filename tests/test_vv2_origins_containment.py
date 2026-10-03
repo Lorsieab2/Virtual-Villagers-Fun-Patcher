@@ -66,7 +66,12 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 record = json.loads((ROOT / "data" / filename).read_text(encoding="utf-8"))
                 self.assertEqual(record["id"], feature_id)
                 self.assertIs(record.get("enabled", True), True)
-                self.assertTrue(record["patches"])
+                if feature_id == "vv2_origins_village_wide_upgrades":
+                    # A route only (#506 review): the payload it carried was
+                    # reachable from no row and was removed.
+                    self.assertEqual(record["patches"], [])
+                else:
+                    self.assertTrue(record["patches"])
                 if "origins_feature" in filename:
                     self.assertIs(record["catalog_enabled"], True)
                     self.assertIs(record["catalog_hidden"], False)

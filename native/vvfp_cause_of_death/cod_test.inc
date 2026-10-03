@@ -55,6 +55,17 @@ __declspec(dllexport) void __stdcall VvfpCauseTestSaved(int slot) {
     roster_reconcile(slot);
 }
 
+/* Whether VvfpCauseArmSave succeeds here: 1 yes, -1 no. */
+__declspec(dllexport) void __stdcall VvfpCauseTestArm(int outcome) {
+    test_arm = outcome;
+}
+
+/* The same, with the save buffer: what an armed or installed save hook does
+   (cod_save_done), including naming the village. */
+__declspec(dllexport) void __stdcall VvfpCauseTestSaveDone(int slot, const void *save_buffer) {
+    cod_save_done(slot, save_buffer);
+}
+
 /* The entry the popup would draw for grave `slot`: 1 with its cause and
    epitaph when it is recorded for the grave the game holds there now. */
 __declspec(dllexport) int __stdcall VvfpCauseTestGrave(int slot, int *cause, int *epitaph) {

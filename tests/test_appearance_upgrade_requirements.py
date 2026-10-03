@@ -275,9 +275,14 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 "running_preference_evidence",
             )
             if relative.endswith("_origins_village_wide_upgrades.json"):
-                if relative == "data/vv5_origins_village_wide_upgrades.json":
-                    # New Believers' row is a route only: its extension was
-                    # unreachable (Task9 owns the menus) and was removed.
+                if relative in (
+                    "data/vv2_origins_village_wide_upgrades.json",
+                    "data/vv5_origins_village_wide_upgrades.json",
+                ):
+                    # New Believers' and The Lost Children's rows are routes
+                    # only: their extensions were unreachable (Task9 owns New
+                    # Believers' menus; only an unreachable Cure arm called
+                    # The Lost Children's -- #506 review) and were removed.
                     self.assertEqual(current_manifest["patches"], [], relative)
                     continue
                 # The village-wide payloads are intentionally corrected
