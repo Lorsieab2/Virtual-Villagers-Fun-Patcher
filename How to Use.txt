@@ -119,7 +119,7 @@ OPTIONAL PATCH SELECTION
 Use "Select All Patches" to turn on every optional fun patch at once except
 256 Villagers (Experimental), which you tick yourself. Use "Default Patches" for the default
 selection, "Owner's Defaults" for every patch except Learning Skills Never
-Fails, Story / Cheat Upgrades and 256 Villagers (Experimental), and "Deselect
+Fails (Story / Cheat Upgrades and 256 Villagers (Experimental) included), and "Deselect
 All Patches" to turn them all off. These buttons do not change the
 selected population mode. Optional patches are grouped under the five
 game-title headers, in order: Virtual Villagers - A New Home, The Lost
