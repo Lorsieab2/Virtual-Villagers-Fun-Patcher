@@ -1,139 +1,191 @@
-/* The Secret City, The Tree of Life and New Believers: the Deaths log.
+/* The Secret City, The Tree of Life and New Believers: the Death records,
+   written at the burial (with the grave's skill line and epitaph, from the
+   Roster of the Dead entry the burial has just written) and at the removal
+   of an unburied body.  The cause is the game's own, kept on the record
+   beside health (VV3 +0xE7C, VV4 and VV5 +0x1C44), which the grave dialog
+   words.  Included by vvfp_cause_of_death.c.
 
-   These three games keep a cause of death beside health and route every
-   change of health through two sibling arbiters on the record's health
-   block (ECX), both `ret 8` with (value, cause) on the stack:
+   THE BURIAL.  The burial clears the body's presence byte (VV3 0x462293,
+   VV4 0x46A977, VV5 0x473F8F) and then calls the Roster of the Dead writer
+   (VV3 0x454FF0, VV4 0x45D470, VV5 0x464C70) with the record; the writer
+   takes the first free entry of 500, fills it, and on The Secret City gives
+   the first 50 a gravestone (with the epitaph) as well.  Two hooks:
 
-       set  VV3 0x462670  VV4 0x46AF00  VV5 0x4758B0   health = value
-       add  VV3 0x4626B0  VV4 0x46AF40  VV5 0x4758F0   health += value
+     the writer's shared exit, reached only when an entry was written:
+       VV3 0x4551D7  edi = the entry's slot, ebp = the record
+       VV4 0x45D62E  ebp = the slot, [esp+0x10] = the record
+       VV5 0x464E51  the same
+     right after the writer's call, reached on every burial:
+       VV3 0x4622C8  edi = the record
+       VV4 0x46A996  esi = the record
+       VV5 0x473FAE  esi = the record
 
-   A result of 0 or less stores health 0 and the caller's cause; above 0 it
-   clamps to 100 and stores cause -1 (alive).  So a death is exactly an
-   arbiter call that takes health from above 0 to 0 or below -- read before
-   the arbiter runs, which is why the detour sits on each one's first two
-   instructions (`mov eax,[esp+4]; test eax,eax`, six bytes, no relative
-   operand) rather than on the zeroing store, which the statistics row's
-   Villagers Died hooks own (VV3 0x46267F/0x4626C6, VV4 0x46AF0F/0x46AF52,
-   VV5 0x4758BF/0x475902).
+   The record is written at the second; a burial whose writer found no free
+   entry gets "no grave (the Roster of the Dead was full)".
 
-   The cause is the caller's second argument, worded as the game's own grave
-   dialog words it (string 0x2E6/0x317/0x314 + cause; -1 is the game's own
-   "Unknown causes", which every island event passes).
+   THE UNBURIED BODY.  After 240 minutes the game removes a body nobody
+   buried:
+       VV3 0x45F437  the `div` whose quotient (the minutes) decides it: the
+                     removal follows when it is 0xF0 or more; esi = record +
+                     0xF10
+       VV4 0x4664B4  `lea edi, [esi-0x1cc7]`, reached only once it is due
+       VV5 0x46FF12  the store itself, esi = the record */
 
-   One exclusion: New Believers' Reanimate makes a stand-in corpse with
-   set(0, -1) at 0x46FE66 on a freshly initialised record -- not a death. */
+struct v345_layout {
+    unsigned int roster;         /* the Roster of the Dead's first entry */
+    unsigned int entry_stride;
+    unsigned int e_age, e_job, e_value, e_cause, e_epitaph;   /* e_epitaph 0: on the gravestone */
+    unsigned int cause;          /* the record's own cause */
+};
 
-/* The health block's offset in the record, and the record's age. */
-static const unsigned int V345_BLOCK[6] = { 0, 0, 0, 0xE6C, 0x1C34, 0x1C34 };
-static const unsigned int V345_AGE[6] = { 0, 0, 0, 0xDC4, 0x1B8C, 0x1B8C };
+static const struct v345_layout V345[6] = {
+    { 0 }, { 0 }, { 0 },
+    /* VV3: entries 0x5973F0 + 0x974, 0x30 each; gravestones 0x5973F0, 0x2C
+       each (+4 value, +8 epitaph char[0x20]) for the first 50. */
+    { 0x5973F0u + 0x974u, 0x30u, 0x1Cu, 0x20u, 0x24u, 0x2Cu, 0u, 0xE7Cu },
+    { 0x5025C8u, 0x5Cu, 0x1Cu, 0x28u, 0x2Cu, 0x34u, 0x38u, 0x1C44u },
+    { 0x5481A8u, 0x5Cu, 0x1Cu, 0x28u, 0x2Cu, 0x34u, 0x38u, 0x1C44u },
+};
 
-/* The two arbiters per game. */
-static const unsigned int V345_SET[6] = { 0, 0, 0, 0x462670u, 0x46AF00u, 0x4758B0u };
-static const unsigned int V345_ADD[6] = { 0, 0, 0, 0x4626B0u, 0x46AF40u, 0x4758F0u };
+#define V345_ENTRIES 500
+#define VV3_GRAVESTONES 0x5973F0u
+#define VV3_GRAVESTONE_STRIDE 0x2Cu
 
-/* VV5's Reanimate stand-in: the return address of its set(0, -1). */
-#define VV5_STAND_IN_RETURN 0x46FE6Bu
+/* The grave dialog's profession words (VV3 0x41E6D0, VV4 0x41BBA0, VV5
+   0x41C3F0); New Believers adds the Devotee. */
+static const char *const V345_JOBS[6] = {
+    "Farmer", "Parent", "Doctor", "Scientist", "Builder", "Devotee"
+};
 
-/* Both arbiters open with the same six bytes in all three games. */
-static const unsigned char V345_SET_STOCK[6] = { 0x8B, 0x44, 0x24, 0x04, 0x85, 0xC0 };
-/* The adds differ: VV3 loads health into edx (`mov eax,[esp+4];
-   mov edx,[ecx+0xc]`), VV4 and VV5 add in place (`mov eax,[esp+4];
-   add [ecx+0xc],eax`).  Seven bytes each. */
-static const unsigned char V3_ADD_STOCK[7] = { 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x51, 0x0C };
-static const unsigned char V45_ADD_STOCK[7] = { 0x8B, 0x44, 0x24, 0x04, 0x01, 0x41, 0x0C };
-
-static void __cdecl v345_arbiter(int is_add, unsigned char *block, const unsigned int *frame) {
-    int old_health = *(const int *)(block + 0xC);
-    int value = (int)frame[1];
-    int cause = (int)frame[2];
-    int result = is_add ? old_health + value : value;
-    unsigned char *record;
-    if (old_health <= 0 || result > 0) {
-        return;                       /* not a death */
+static unsigned char *v345_entry(int slot) {
+    if (slot < 0 || slot >= V345_ENTRIES) {
+        return NULL;
     }
-    if (g_game == 5 && frame[0] == VV5_STAND_IN_RETURN) {
-        return;                       /* Reanimate's stand-in corpse */
-    }
-    record = block - V345_BLOCK[g_game];
-    cod_log_death(record, *(const int *)(record + V345_AGE[g_game]), cod_cause_words(cause));
+    return (unsigned char *)(uintptr_t)(V345[g_game].roster + (unsigned int)slot * V345[g_game].entry_stride);
 }
 
-/* Each stub: the arbiter's own frame is at esp on entry ([esp] = return,
-   [esp+4] = value, [esp+8] = cause).  pushad saves everything, the call
-   sees the frame at esp+32, then the displaced bytes run and the arbiter
-   continues where they ended. */
-static unsigned int v345_set_resume, v345_add_resume;
-
-static __declspec(naked) void v345_set_stub(void) {
-    __asm {
-        pushad
-        lea eax, [esp + 32]
-        push eax
-        push ecx
-        push 0
-        call v345_arbiter
-        add esp, 12
-        popad
-        mov eax, dword ptr [esp + 4]
-        test eax, eax
-        jmp dword ptr [v345_set_resume]
+/* The skill line the dialog shows under "Job", as it builds it:
+   "Untrained" with no profession or a best skill under 20; otherwise the
+   rank -- "Trainee" under 50, "Adept" under 88, "Master" -- and the
+   profession; The Tree of Life calls everyone under 280 age units with a
+   skill of 20 or more an "Apprentice". */
+static void v345_title(const unsigned char *entry, char *out) {
+    const struct v345_layout *l = &V345[g_game];
+    int job = *(const int *)(entry + l->e_job);
+    int value = *(const int *)(entry + l->e_value);
+    int age = *(const int *)(entry + l->e_age);
+    const char *rank;
+    if (job < 0 || job > (g_game == 5 ? 5 : 4) || value < 20) {
+        lstrcpyA(out, "Untrained");
+        return;
     }
-}
-
-/* VV3: `mov eax,[esp+4]; mov edx,[ecx+0xc]`, seven bytes. */
-static __declspec(naked) void v3_add_stub(void) {
-    __asm {
-        pushad
-        lea eax, [esp + 32]
-        push eax
-        push ecx
-        push 1
-        call v345_arbiter
-        add esp, 12
-        popad
-        mov eax, dword ptr [esp + 4]
-        mov edx, dword ptr [ecx + 0xC]
-        jmp dword ptr [v345_add_resume]
-    }
-}
-
-/* VV4/VV5: `mov eax,[esp+4]; add [ecx+0xc],eax`, seven bytes. */
-static __declspec(naked) void v45_add_stub(void) {
-    __asm {
-        pushad
-        lea eax, [esp + 32]
-        push eax
-        push ecx
-        push 1
-        call v345_arbiter
-        add esp, 12
-        popad
-        mov eax, dword ptr [esp + 4]
-        add dword ptr [ecx + 0xC], eax
-        jmp dword ptr [v345_add_resume]
-    }
-}
-
-static int v345_install(void) {
-    struct cod_site set_site, add_site;
-    set_site.va = V345_SET[g_game];
-    set_site.stock = V345_SET_STOCK;
-    set_site.length = 6;
-    set_site.stub = v345_set_stub;
-    add_site.va = V345_ADD[g_game];
-    if (g_game == 3) {
-        add_site.stock = V3_ADD_STOCK;
-        add_site.length = 7;
-        add_site.stub = v3_add_stub;
+    if (g_game == 4 && age < 0x118) {
+        rank = "Apprentice";
     } else {
-        add_site.stock = V45_ADD_STOCK;
-        add_site.length = 7;
-        add_site.stub = v45_add_stub;
+        rank = value < 50 ? "Trainee" : value < 88 ? "Adept" : "Master";
     }
-    if (!cod_site_is_stock(&set_site) || !cod_site_is_stock(&add_site)) {
-        return 0;                     /* another build, or already taken: nothing */
+    wsprintfA(out, "%s %s", rank, V345_JOBS[job]);
+}
+
+/* What the writer's exit reported: the entry it wrote and for whom. */
+static const unsigned char *written_record;
+static int written_slot = -1;
+
+static void v345_written(int site, const unsigned int *regs) {
+    (void)site;
+    if (g_game == 3) {
+        written_record = (const unsigned char *)(uintptr_t)regs[R_EBP];
+        written_slot = (int)regs[R_EDI];
+    } else {
+        written_record = (const unsigned char *)(uintptr_t)reg_stack(regs, 0x10);
+        written_slot = (int)regs[R_EBP];
     }
-    v345_set_resume = set_site.va + (unsigned int)set_site.length;
-    v345_add_resume = add_site.va + (unsigned int)add_site.length;
-    return cod_install_site(&set_site) && cod_install_site(&add_site);
+}
+
+static void v345_buried(int site, const unsigned int *regs) {
+    const unsigned char *record = (const unsigned char *)(uintptr_t)regs[g_game == 3 ? R_EDI : R_ESI];
+    const unsigned char *entry = NULL;
+    char title[64];
+    char epitaph[64];
+    int index = cod_index_of(record);
+    (void)site;
+    if (index < 0 || temporary[index] || rec_lookalike(record)) {
+        written_record = NULL;
+        return;
+    }
+    COD_COUNT(burials);
+    roster_departed(index, record);
+    if (written_record == record) {
+        entry = v345_entry(written_slot);
+    }
+    written_record = NULL;
+    if (entry == NULL) {
+        cod_log_death(record, *(const int *)(record + V345[g_game].cause),
+                      "no grave (the Roster of the Dead was full)", NULL);
+        return;
+    }
+    v345_title(entry, title);
+    if (g_game != 3) {
+        cod_printable(epitaph, sizeof epitaph, (const char *)entry + V345[g_game].e_epitaph, EPITAPH_TEXT);
+    } else if (written_slot < 50) {
+        cod_printable(epitaph, sizeof epitaph,
+                      (const char *)(uintptr_t)(VV3_GRAVESTONES + (unsigned int)written_slot * VV3_GRAVESTONE_STRIDE + 8u),
+                      EPITAPH_TEXT);
+    } else {
+        lstrcpyA(epitaph, "(none: only the first 50 graves get a gravestone)");
+    }
+    /* The cause the entry keeps: the record's own, copied by the writer. */
+    cod_log_death(record, *(const int *)(entry + V345[g_game].e_cause), title, epitaph);
+}
+
+static void v345_decayed_record(const unsigned char *record) {
+    int index = cod_index_of(record);
+    if (index < 0 || temporary[index] || rec_lookalike(record) || !rec_present(record)
+        || rec_health(record) > 0) {
+        return;
+    }
+    roster_departed(index, record);
+    cod_log_death(record, *(const int *)(record + V345[g_game].cause), NO_GRAVE_NEVER_BURIED, NULL);
+}
+
+/* VV3 0x45F437 `div dword [ecx+0x12f20]`: edx:eax / the divisor >= 0xF0. */
+static void vv3_decay(int site, const unsigned int *regs) {
+    unsigned int divisor = *(const unsigned int *)(uintptr_t)(regs[R_ECX] + 0x12F20u);
+    unsigned long long dividend = ((unsigned long long)regs[R_EDX] << 32) | regs[R_EAX];
+    (void)site;
+    if (divisor != 0 && dividend / divisor >= 0xF0u) {
+        v345_decayed_record((const unsigned char *)(uintptr_t)(regs[R_ESI] - 0xF10u));
+    }
+}
+
+static void vv4_decay(int site, const unsigned int *regs) {
+    (void)site;
+    v345_decayed_record((const unsigned char *)(uintptr_t)(regs[R_ESI] - 0x1CC7u));
+}
+
+static void vv5_decay(int site, const unsigned int *regs) {
+    (void)site;
+    v345_decayed_record((const unsigned char *)(uintptr_t)regs[R_ESI]);
+}
+
+static void v345_sites(void) {
+    switch (g_game) {
+    case 3:
+        cod_add(0x4551D7u, "5D5B5FB001", v345_written);
+        cod_add(0x4622C8u, "5F5E5D" "C7432801000000", v345_buried);
+        cod_add(0x45F437u, "F7B1202F0100", vv3_decay);
+        break;
+    case 4:
+        cod_add(0x45D62Eu, "5EB0015D59", v345_written);
+        cod_add(0x46A996u, "5E" "C7435401000000", v345_buried);
+        cod_add(0x4664B4u, "8DBE39E3FFFF", vv4_decay);
+        break;
+    case 5:
+        cod_add(0x464E51u, "5EB0015D59", v345_written);
+        cod_add(0x473FAEu, "5E" "C7435401000000", v345_buried);
+        cod_add(0x46FF12u, "889ED41C0000", vv5_decay);
+        break;
+    default:
+        break;
+    }
 }

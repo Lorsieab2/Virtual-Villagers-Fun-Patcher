@@ -257,17 +257,24 @@ class Process:
                 text += c
                 i += 1
                 continue
-            spec = fmt[i + 1]
-            i += 2
+            i += 1
+            # A zero-padded width ("%04d") is the one flag the companions use.
+            pad = ""
+            while fmt[i] in "0123456789":
+                pad += fmt[i]
+                i += 1
+            spec = fmt[i]
+            i += 1
             if spec == "%":
                 text += "%"
                 continue
             value = self.arg(index)
             index += 1
             if spec in "di":
-                text += str(value - (1 << 32) if value & 0x80000000 else value)
+                number = str(value - (1 << 32) if value & 0x80000000 else value)
+                text += number.rjust(int(pad), "0") if pad.startswith("0") else number.rjust(int(pad or 0))
             elif spec == "u":
-                text += str(value)
+                text += str(value).rjust(int(pad), "0") if pad.startswith("0") else str(value).rjust(int(pad or 0))
             elif spec == "s":
                 text += self.cstring(value)
             elif spec == "c":
