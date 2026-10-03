@@ -37,7 +37,7 @@
     {
       "source": "assets/cause_of_death/VVFP Cause of Death.dll",
       "destination": "VVFP Cause of Death.dll",
-      "sha256": "DBB4EEBCDA38BFE29042F87560D5BF343A7C2DF69D64F2C4632263BE00F5A04E"
+      "sha256": "F945D3E721DC2BCEB5C246D578F605BC8C367E74DF053C84AE5BADB26633FAE7"
     }
   ],
   "patches": [],
@@ -169,8 +169,8 @@
       "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
     },
     {
-      "va": "0x43C885",
-      "stock_bytes": "885E29885E2A895E40",
+      "va": "0x43C888",
+      "stock_bytes": "885E2A895E40",
       "routine": "the copy creator (0x43C840, twins and triplets): an arrival",
       "installed_by": "VVFP Cause of Death.dll, VvfpCauseInstall"
     },

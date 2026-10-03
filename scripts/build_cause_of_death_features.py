@@ -66,7 +66,7 @@ SITES = {
         ("0x41979D", "885C0228" "8B8EA4500000", "The Mysterious Face takes a villager: the Disappeared record"),
         ("0x41A272", "885C1128" "5B", "The Book takes a villager: the Disappeared record"),
         ("0x43C39B", "C6462A00" "896E40", "the villager creator (0x43C350): an arrival"),
-        ("0x43C885", "885E29" "885E2A" "895E40", "the copy creator (0x43C840, twins and triplets): an arrival"),
+        ("0x43C888", "885E2A" "895E40", "the copy creator (0x43C840, twins and triplets): an arrival"),
         ("0x40322A", "5F5E" "8AC3" "5B", "the save file writer's success epilogue (bl = written; the village is its 0xABDC-byte write): the Unaccounted Villagers reconciliation"),
     ],
     "vv2": [
