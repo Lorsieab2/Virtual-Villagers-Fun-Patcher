@@ -189,6 +189,9 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x9600",
                         "0x45B50",
                         "0x4C5E6",
+                        # 0x9A004/0x9A009: the dispatch stub and village-wide
+                        # preflight, removed as unreachable.
+                        "0x9A004",
                         "0x9A009",
                         "0x9A300",
                         "0x9A530",
@@ -266,6 +269,8 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # dialog strings, preflight/Cure helpers, deferred Barrel
                     # helper, and the already-repaired section metadata rows.
                     repaired_offsets = {
+                        # The dispatch stub nothing called, removed.
+                        "0x8B004",
                         # The exact birth hook (Show Parents in Details Screen):
                         # four splices after the pregnancy tick's child-creation
                         # calls, their site stubs, the shared body and the export

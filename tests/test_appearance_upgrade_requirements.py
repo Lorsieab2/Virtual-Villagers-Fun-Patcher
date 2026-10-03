@@ -294,6 +294,8 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
+                    # the dispatch stub nothing called, removed
+                    "0x8B004",
                     # The exact birth hook (Show Parents in Details Screen): now
                     # four splices after the pregnancy tick's child-creation
                     # calls, their site stubs, the shared body and the "Vv1Born"
@@ -502,6 +504,8 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
+                    # the dispatch stub, village-wide preflight and do_village_wide branch, removed as unreachable
+                    "0x9A004", "0x9A009", "0x943A8",
                     # Barrel of Babies delivery-time capacity recheck: a silent
                     # gate stub (0x9A4A0) and the glue that calls it (0x9A745),
                     # wired into the main helper (0x9A780), so a cued barrel
