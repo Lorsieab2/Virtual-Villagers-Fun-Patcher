@@ -164,12 +164,12 @@ class RowTests(unittest.TestCase):
                     self.assertTrue(omitted["reason"], omitted)
                 self.assertEqual(row.raw["dependencies"], [f"{game}_origins_village_wide_upgrades"])
 
-    def test_off_by_default_and_not_ticked_by_owners_defaults(self):
+    def test_off_by_default_and_ticked_by_owners_defaults(self):
         for game in GAMES:
             with self.subTest(game=game):
                 self.assertIn(feature_id(game), DEFAULT_OFF_FUN_PATCH_IDS)
                 self.assertFalse(default_fun_patch_selection(feature_id(game)))
-                self.assertFalse(owners_default_fun_patch_selection(feature_id(game)))
+                self.assertTrue(owners_default_fun_patch_selection(feature_id(game)))
 
     def test_requires_the_origins_upgrades(self):
         for game in GAMES:
