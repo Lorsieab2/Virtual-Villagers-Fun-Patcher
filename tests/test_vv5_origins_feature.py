@@ -275,17 +275,22 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("not verified safe for Heathens", self.source)
         self.assertIn(b"3 displayed years", self.payload)
 
-    def test_cure_row_truth_is_withdrawn_and_eb5f_contained(self) -> None:
+    def test_cure_row_truth_is_withdrawn(self) -> None:
+        # The helper no longer carries the old inline Cure All loop (which
+        # counted into villager record 0 +0x77C); its row 5 just returns.
+        # tests/test_vv5_origins_cure_helper.py runs the rendered bytes.
         self.assertIn("Full Heal/Cure All", self.feature["description"])
         self.assertNotIn("30,000", self.feature["description"])
         cure = next(
             item for item in self.feature["patches"] if int(item["offset"], 0) == 0x94EA0
         )
         purpose = cure["purpose"].casefold()
-        self.assertIn("eb5f", purpose)
+        self.assertIn("withdrawn", purpose)
         self.assertIn("unavailable", purpose)
-        self.assertIn("unreachable", purpose)
+        self.assertIn("without changing any villager or statistic", purpose)
         self.assertNotIn("preserve cure", purpose)
+        self.assertNotIn("eb5f", purpose)
+        self.assertNotIn("byte-identical", purpose)
 
     def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
@@ -627,9 +632,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         digest = hashlib.sha256(
             json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest().upper()
+        # Re-pinned when the dead row-5 Cure All loop (which counted into
+        # villager record 0 +0x77C) was removed from the 0x94EA0 helper.
         self.assertEqual(
             digest,
-            "13F30A84A1E3F8C5D2D9F889210C534D041776615C70B3A69925EC45DF5ED6C0",
+            "6CB2ABD5E6CB750DB129B572E62901EF3D1C5648DEE75CE3F3237AD1BD46402E",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
