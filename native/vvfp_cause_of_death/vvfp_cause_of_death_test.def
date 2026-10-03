@@ -5,6 +5,7 @@ EXPORTS
     VvfpCauseVillageReset=_VvfpCauseVillageReset@8
     VvfpCauseVanished=_VvfpCauseVanished@8
     VvfpCauseNoteArrival=_VvfpCauseNoteArrival@8
+    VvfpCauseNamesVillage=_VvfpCauseNamesVillage@0
     VvfpCauseTestSetup=_VvfpCauseTestSetup@12
     VvfpCauseTestDied=_VvfpCauseTestDied@8
     VvfpCauseTestBuried=_VvfpCauseTestBuried@8

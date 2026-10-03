@@ -55,7 +55,12 @@
    (WriteVillageRecord) -- the same village header, held records, numbered
    roll and Start Over as the Births and Conceptions log.  Without that DLL
    (the Births and Conceptions row off) no log is written; the graves work
-   regardless.
+   regardless.  The header names the village the statistics companion
+   publishes at each save; without Village Statistics nothing did, so the
+   logs were unlabelled and shared by every village (Codex, #504 review).
+   This companion's own hook on the save call now hands that DLL the save
+   buffer and slot first (PublishVillageAtSave), so the logs are headed and
+   created at a village's first save either way (cod_roster.inc).
 
    Installed at run time by VvfpCauseInstall(game, host) from the Origins
    companion; every site's stock bytes are checked first, all or nothing.
@@ -322,14 +327,15 @@ enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5 
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);
+typedef int (__stdcall *publish_village_fn)(int game, const void *save_buffer, int slot);
 static int log_state;            /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static write_record_fn write_record;
+static publish_village_fn publish_village;
 
-/* Hand one record to "VVFP Parentage Export.dll", loaded by full path from
-   the executable's folder the first time; absent (the Births and
-   Conceptions row off), nothing is written. */
-static int cod_write(int kind, const void *record, int check, const char *before,
-                     const char *after, int detail) {
+/* "VVFP Parentage Export.dll", loaded by full path from the executable's
+   folder the first time; absent (the Births and Conceptions row off), no
+   log is written. */
+static int cod_log_ready(void) {
     if (log_state == 0) {
         char path[MAX_PATH];
         char *slash;
@@ -344,13 +350,29 @@ static int cod_write(int kind, const void *record, int check, const char *before
             module = LoadLibraryA(path);
             if (module != NULL) {
                 write_record = (write_record_fn)GetProcAddress(module, "WriteVillageRecord");
+                publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
                 if (write_record != NULL) {
                     log_state = 1;
                 }
             }
         }
     }
-    if (log_state != 1) {
+    return log_state == 1;
+}
+
+/* At a save, before anything is reconciled: name the village for the logs
+   from the block being saved (the parentage DLL does nothing when the
+   statistics companion has already done it at this same save). */
+static void cod_publish_village(const void *save_buffer, int slot) {
+    if (save_buffer != NULL && cod_log_ready() && publish_village != NULL) {
+        (void)publish_village(g_game, save_buffer, slot);
+    }
+}
+
+/* Hand one record to the parentage DLL. */
+static int cod_write(int kind, const void *record, int check, const char *before,
+                     const char *after, int detail) {
+    if (!cod_log_ready()) {
         return 0;
     }
     COD_COUNT(logged);
@@ -598,6 +620,14 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
         vv12_tick();
     }
     seen_tick();
+}
+
+/* Whether this companion names the village at each save for the logs
+   (cod_roster.inc): 1 installed, 0 not installed yet, -1 refused -- in
+   which case its save hook never runs and the parentage DLL must not wait
+   for it. */
+__declspec(dllexport) int __stdcall VvfpCauseNamesVillage(void) {
+    return install_state;
 }
 
 /* Start Over erased `slot`: forget everything held for it before the reset

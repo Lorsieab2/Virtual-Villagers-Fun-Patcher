@@ -426,11 +426,15 @@ static void roster_reset(int slot) {
 #include "cod_roster_sites.inc"
 
 /* Right after the game's own save call: al = 1 when it saved, edi = the
-   slot. */
+   slot, and esi the block the call saved from -- the same `lea eax,
+   [esi + 8]` buffer the statistics hook reads the village name from. The
+   village is named for the logs first, so this save's Unaccounted records
+   go under its header (cod_publish_village). */
 static void roster_saved(int site, const unsigned int *regs) {
     int slot = (int)regs[R_EDI];
     (void)site;
     if ((regs[R_EAX] & 0xFFu) != 0 && slot >= 1 && slot <= 5) {
+        cod_publish_village((const void *)(uintptr_t)(regs[R_ESI] + 8u), slot);
         roster_reconcile(slot);
     }
 }
@@ -447,6 +451,8 @@ static void vv1_written(int site, const unsigned int *regs) {
     int slot = (int)reg_stack(regs, 0x218);
     (void)site;
     if ((regs[R_EBX] & 0xFFu) != 0 && reg_stack(regs, 0x214) == 0xABDCu && slot >= 1 && slot <= 5) {
+        /* The writer's first argument is the buffer it wrote. */
+        cod_publish_village((const void *)(uintptr_t)reg_stack(regs, 0x210), slot);
         roster_reconcile(slot);
     }
 }

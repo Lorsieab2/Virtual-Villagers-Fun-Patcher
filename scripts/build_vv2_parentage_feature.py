@@ -643,7 +643,7 @@ def build() -> dict:
                     {
                         "id": "vv2_write_village_statistics",
                         "for": (
-                            "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without it, records are still written correctly, just unlabelled, and the log first appears with its first record)"
+                            "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without it, records are still written correctly, just unlabelled, and the log first appears with its first record -- unless Cause of Death is ticked, which names the village at each save itself)"
                         ),
                     },
                 ],

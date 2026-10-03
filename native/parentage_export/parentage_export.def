@@ -6,3 +6,4 @@ EXPORTS
     EnsureParentageLog=_EnsureParentageLog@8
     EnsureParentageLogForVillage=_EnsureParentageLogForVillage@12
     WriteVillageRecord=_WriteVillageRecord@28
+    PublishVillageAtSave=_PublishVillageAtSave@12
