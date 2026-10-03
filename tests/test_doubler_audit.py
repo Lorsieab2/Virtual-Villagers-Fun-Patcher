@@ -316,11 +316,14 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # reached the barrel), 0x9A780 loses the flag's arming store, and
         # 0x45B50's rel32 follows the sweep stub 7 bytes earlier in the
         # appended page -- nothing in any doubler region.
+        # Re-pinned when the unreachable dispatch stub (0x9A004), village-wide
+        # preflight (0x9A009) and do_village_wide branch were removed --
+        # nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "76A219E37CBB8E91F6B25013DC184A3FBDACE5311235675F866D70F0D2B5ACED",
+            "E707EF00928C6A3ECA444138800BAF9A36231DB0834DD160FC6FD4350230F48C",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
