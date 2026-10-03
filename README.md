@@ -254,6 +254,11 @@ Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant vi
 
 - Patch ID: `vv1_fix_vanilla_bugs`
 
+**Show Cause of Death and Epitaphs on Graves**
+
+Shows each dead villager's cause of death on their grave, the way The Secret City, The Tree of Life and New Believers do: clicking a gravestone shows the cause under the age, in those games' own words (Old age, Disease, Starvation, Work accident, or Unknown causes). The cause is the one that killed them -- old age, sickness, hunger or an empty food bin, an injury at work -- and "Unknown causes" for an island event and anything else, which is how those games word an island-event death. The grave also gets an epitaph under the name, chosen by the rule those games use at a burial: a child's is "Curious and Playful" or "Loving and Special"; an adult's comes from their best skill (for example "Strong Arms, Big Heart" or "Inspired Architect" for a builder, "Child of the Earth" or "Nature's Friend" for a farmer); a villager with no skill at all is a "Respected Citizen". Those games' Chief, Esteemed Elder and Scholar epitaphs have no counterpart in A New Home and are not used. The game keeps no cause of death, so it is recorded the moment a villager dies and kept for each save slot in a file beside the saves ('Virtual Villagers Fun Patcher Data'); Start Over deletes it. **Graves dug before this patch was installed show nothing extra, and a body that was already lying when it was installed gets its epitaph but no cause: how it died was never recorded.** Each death is also written to the Deaths log, 'Virtual Villagers 1 Deaths Log <n>.txt', in the 'Virtual Villagers Fun Patcher Logs\Deaths' folder beside the game's saves (Documents\LDW\<game executable name>\). Each Death record gives the villager's name, their age at death in the game's own units (20 per year, the value the Village Population log prints as Age), the cause of death, and their head and body. The log is headed with the village and its save slot, is created when a village is first saved and again after Start Over (which deletes it with the village), only ever grows, and starts a new numbered file after every 256 Death records. **The Deaths log is written by Write Births and Conceptions Log to Text File's DLL: with that patch off, no Deaths log is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.
+
+- Patch ID: `vv1_cause_of_death`
 
 ### Virtual Villagers - The Lost Children
 
@@ -378,6 +383,11 @@ Fixes bugs in the base game. The Crystal Ball: the island event is only offered 
 
 - Patch ID: `vv2_fix_vanilla_bugs`
 
+**Show Cause of Death on Graves**
+
+Shows each dead villager's cause of death on their grave, the way The Secret City, The Tree of Life and New Believers do: clicking a gravestone shows the cause under the age, in those games' own words (Old age, Disease, Starvation, Work accident, or Unknown causes). The cause is the one that killed them -- old age, sickness, hunger or an empty food bin, an injury at work -- and "Unknown causes" for an island event and anything else, which is how those games word an island-event death. The Lost Children already writes an epitaph on every grave; that is unchanged. The game keeps no cause of death, so it is recorded the moment a villager dies and kept for each save slot in a file beside the saves ('Virtual Villagers Fun Patcher Data'); Start Over deletes it. **Graves dug before this patch was installed, and bodies that were already lying when it was, show no cause: how they died was never recorded.** Each death is also written to the Deaths log, 'Virtual Villagers 2 Deaths Log <n>.txt', in the 'Virtual Villagers Fun Patcher Logs\Deaths' folder beside the game's saves (Documents\LDW\<game executable name>\). Each Death record gives the villager's name, their age at death in the game's own units (20 per year, the value the Village Population log prints as Age), the cause of death, and their head and body. The log is headed with the village and its save slot, is created when a village is first saved and again after Start Over (which deletes it with the village), only ever grows, and starts a new numbered file after every 256 Death records. **The Deaths log is written by Write Births and Conceptions Log to Text File's DLL: with that patch off, no Deaths log is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.
+
+- Patch ID: `vv2_cause_of_death`
 
 ### Virtual Villagers - The Secret City
 
@@ -473,6 +483,11 @@ Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villag
 
 - Patch ID: `vv3_fix_vanilla_bugs`
 
+**Log Each Death's Cause and Age**
+
+Writes every death, as it happens, to the Deaths log, 'Virtual Villagers 3 Deaths Log <n>.txt', in the 'Virtual Villagers Fun Patcher Logs\Deaths' folder beside the game's saves (Documents\LDW\<game executable name>\). Each Death record gives the villager's name, their age at death in the game's own units (20 per year, the value the Village Population log prints as Age), the cause of death, and their head and body. The log is headed with the village and its save slot, is created when a village is first saved and again after Start Over (which deletes it with the village), only ever grows, and starts a new numbered file after every 256 Death records. The cause is the one the game itself records and shows on the grave, in its own words (Old age, Disease, Starvation, Work accident, or Unknown causes, which is how the game words every island-event death). **Deaths in the time The Secret City catches up when a village is first loaded in a session (the time that passed while the game was closed) happen before this patch's DLL is loaded and are not logged; every later death is.** **The Deaths log is written by Write Births and Conceptions Log to Text File's DLL: with that patch off, no Deaths log is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.
+
+- Patch ID: `vv3_cause_of_death`
 
 ### Virtual Villagers - The Tree of Life
 
@@ -537,6 +552,11 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 
 - Patch ID: `vv4_manual_drop_breeding_overrides_birth_control`
 
+**Log Each Death's Cause and Age**
+
+Writes every death, as it happens, to the Deaths log, 'Virtual Villagers 4 Deaths Log <n>.txt', in the 'Virtual Villagers Fun Patcher Logs\Deaths' folder beside the game's saves (Documents\LDW\<game executable name>\). Each Death record gives the villager's name, their age at death in the game's own units (20 per year, the value the Village Population log prints as Age), the cause of death, and their head and body. The log is headed with the village and its save slot, is created when a village is first saved and again after Start Over (which deletes it with the village), only ever grows, and starts a new numbered file after every 256 Death records. The cause is the one the game itself records and shows on the grave, in its own words (Old age, Disease, Starvation, Work accident, or Unknown causes, which is how the game words every island-event death). **The Deaths log is written by Write Births and Conceptions Log to Text File's DLL: with that patch off, no Deaths log is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.
+
+- Patch ID: `vv4_cause_of_death`
 
 ### Virtual Villagers - New Believers
 
@@ -638,6 +658,12 @@ Three patches change files rather than executable bytes: **VV1 Visual
 Mods**, **VV4 Optional Text changes**, and the **VV5 Guardians of Isola
 Rewrite** swap images and text inside the copied game folder only, and
 restore the exact base-game files when the patch is not selected.
+
+**Log Each Death's Cause and Age**
+
+Writes every death, as it happens, to the Deaths log, 'Virtual Villagers 5 Deaths Log <n>.txt', in the 'Virtual Villagers Fun Patcher Logs\Deaths' folder beside the game's saves (Documents\LDW\<game executable name>\). Each Death record gives the villager's name, their age at death in the game's own units (20 per year, the value the Village Population log prints as Age), the cause of death, and their head and body. The log is headed with the village and its save slot, is created when a village is first saved and again after Start Over (which deletes it with the village), only ever grows, and starts a new numbered file after every 256 Death records. The cause is the one the game itself records and shows on the grave, in its own words (Old age, Disease, Starvation, Work accident, or Unknown causes, which is how the game words every island-event death). **The Deaths log is written by Write Births and Conceptions Log to Text File's DLL: with that patch off, no Deaths log is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.
+
+- Patch ID: `vv5_cause_of_death`
 
 ## The Origins upgrades menus
 
