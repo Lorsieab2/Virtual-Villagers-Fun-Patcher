@@ -4,8 +4,7 @@
    at the game's own address (0x554148, records 0x48 in, stride 0x2F44), the
    slot scratch (0x7B1D7C) and the mask side-table (0x7B1D20) at theirs, and
    the exports are driven the way the appended page and the chooser drive
-   them: Vv5MaskSync on draws, WriteMaskSidecar on chooser OK, ReadMaskSidecar
-   on the legacy load path.
+   them: Vv5MaskSync on draws and WriteMaskSidecar on chooser OK.
 
    The DLL writes Documents\LDW\<this harness's basename>\vvfp_masks_1.dat.
    The harness removes that file and, if it is then empty, that folder.
@@ -33,7 +32,6 @@ static int failures;
 
 typedef int (__stdcall *sync_t)(void);
 typedef void (__stdcall *write_t)(const unsigned char *);
-typedef void (__stdcall *read_t)(unsigned char *);
 
 /* The game's addresses are covered by this harness's own image: it is linked
    fixed at 0x400000 (/FIXED /DYNAMICBASE:NO) with a writable block large
@@ -67,7 +65,7 @@ static unsigned char *table(void) { return (unsigned char *)TABLE_VA; }
 static int table_is_zero(void) { int i; for (i = 0; i < TABLE_BYTES; ++i) if (table()[i]) return 0; return 1; }
 
 int main(int argc, char **argv) {
-    HMODULE dll; sync_t sync; write_t writes; read_t reads;
+    HMODULE dll; sync_t sync; write_t writes;
     char docs[MAX_PATH], exe[MAX_PATH], folder[MAX_PATH], file[MAX_PATH], *base, *dot;
     DWORD attrs;
     if (argc < 2) { printf("usage: harness <dll>\n"); return 2; }
@@ -84,9 +82,8 @@ int main(int argc, char **argv) {
     if (!dll) return 1;
     sync = (sync_t)GetProcAddress(dll, "Vv5MaskSync");
     writes = (write_t)GetProcAddress(dll, "WriteMaskSidecar");
-    reads = (read_t)GetProcAddress(dll, "ReadMaskSidecar");
-    CHECK(sync && writes && reads, "Vv5MaskSync / WriteMaskSidecar / ReadMaskSidecar resolve");
-    if (!(sync && writes && reads)) return 1;
+    CHECK(sync && writes, "Vv5MaskSync / WriteMaskSidecar resolve");
+    if (!(sync && writes)) return 1;
 
     /* where the DLL will write */
     SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE);
@@ -131,9 +128,6 @@ int main(int argc, char **argv) {
     Sleep(300);
     set_villager(3, NULL);                      /* a death */
     CHECK(sync() == 1 && table()[0] == 0x21, "death keeps the masks");
-    memset(table(), 0, TABLE_BYTES);
-    reads(table());
-    CHECK(table()[0] == 0x21 && table()[1] == 0x03, "legacy read restores the masks for this roster");
 
     printf("== a Start Over in the same slot: seven new villagers ==\n");
     Sleep(300);

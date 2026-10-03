@@ -258,7 +258,11 @@ class MigratedGamesTests(unittest.TestCase):
                 )
 
     def test_cancel_is_distinguishable_from_a_refusal(self) -> None:
-        """Cancel reopens the Tech menu; a refusal closes it after its message.
+        """VV1-VV4: Cancel reopens the Tech menu; a refusal closes it after its
+        message. VV5 is the exception by design: its Task9 row closes the menu
+        after the companion whatever it answers (the companion's own box is the
+        only dialog one Time Warp click produces), so only VV5's companion side
+        is checked here.
 
         Before the row moved into the DLL it went through the shared
         confirmation, whose zero result jumps back to menu_loop. A single

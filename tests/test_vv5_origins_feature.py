@@ -215,64 +215,38 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         # No owner fallback in this companion.
         self.assertIn("HWND owner = GetOriginsOwner();", dll)
 
-    def test_active_task9_time_warp_is_speed_independent(self) -> None:
-        """The SHIPPING VV5 Time Warp: one constant, no speed scaling.
+    def test_active_task9_time_warp_hands_the_purchase_to_the_companion(self) -> None:
+        """The SHIPPING VV5 Time Warp row does no clock math of its own.
 
         This pins the ACTIVE Task9 page, which is what the public modes
-        actually render -- not the base builder. A fix applied only to
-        build_vv5_origins_feature.py never reaches a player, which is how a
-        wrong VV5 build shipped once already.
-
-        The old form divided 129600 by the speed code. Measured in play at
-        half speed it subtracted 43200 and advanced ONE year, so three years
-        is 129600 -- now subtracted at every speed. Dividing also gave half a
-        year at normal speed, and the paused sentinel 999 gave
-        129600/999 = 129 seconds for a full 50,000-point charge.
+        actually render -- not the base builder. The row resolves
+        ShowVv5TimeWarp and hands it the whole purchase; the companion owns
+        the speed-dependent advance (the engine clamps any clock-only slice,
+        see the companion test above). The page's own clock-only transaction
+        -- `mov eax, 194400` divided by the speed -- was unreachable once the
+        companion took over, and is gone.
         """
         task9 = json.loads(
             (ROOT / "data/vv5_task9_native_actions.json").read_text(encoding="utf-8")
         )
-        transaction = task9.get("pe_append_transaction") or {}
-        pages = [
-            bytes.fromhex(layout["append_bytes"])
-            for layout in (transaction.get("layouts") or {}).values()
-            if layout.get("append_bytes")
-        ]
-        self.assertTrue(pages, "no VV5 Task9 appended page was found")
-
-        # Only the Time Warp routine's own window. Checking the whole 0x8000
-        # page for absent byte patterns is meaningless -- "F7F1" and "83F903"
-        # occur by chance inside unrelated routines and data.
+        layout = task9["pe_append_transaction"]["layouts"]["collection_progression"]
+        blob = bytes.fromhex(layout["append_bytes"])
+        page_va = int(layout["page_virtual_address"], 0)
+        # Only the Time Warp routine's own window.
         TIME_WARP_OFFSET, TIME_WARP_LENGTH = 0x1040, 0x500
-        page = b"".join(
-            blob[TIME_WARP_OFFSET : TIME_WARP_OFFSET + TIME_WARP_LENGTH]
-            for blob in pages
-        )
-        self.assertTrue(page, "no VV5 Task9 payload bytes were found")
-
-        # mov eax, 194400, then divided by the live speed.
-        #
-        # This replaces an assertion that the amount is a flat 129600 and that
-        # no division survives. Measured in play, the flat form advanced 6-7
-        # years at slow, 12 at normal and 24 at fast, so the advance tracks
-        # delta * speed and only a division holds it constant at three.
-        self.assertIn(bytes.fromhex("B860F70200"), page)
-        self.assertNotIn(bytes.fromhex("B840FA0100"), page)
-        self.assertIn(bytes.fromhex("F7F1"), page)   # div ecx
-        # And nothing normalises a speed code, because none is read.
+        page = blob[TIME_WARP_OFFSET : TIME_WARP_OFFSET + TIME_WARP_LENGTH]
+        export = blob.index(b"ShowVv5TimeWarp\0")
+        self.assertIn(b"\x68" + (page_va + export).to_bytes(4, "little"), page)
+        self.assertIn(bytes.fromhex("FFD0"), page)            # call eax
         for label, encoding in (
-            ("cmp ecx, 3", "83F903"),
-            ("cmp ecx, 10", "83F90A"),
-            ("mov ecx, 6", "B906000000"),
+            ("mov eax, 194400", "B860F70200"),
+            ("mov eax, 129600", "B840FA0100"),
+            ("div ecx", "F7F1"),
+            ("sub [0x4C6250], eax", "290550624C00"),
+            ("VV1-VV4 speed * 3600", "69C0100E0000"),
         ):
             with self.subTest(check=label):
                 self.assertNotIn(bytes.fromhex(encoding), page)
-        # VV1-VV4's proportional form must never appear in the VV5 page either.
-        self.assertNotIn(
-            bytes.fromhex("69C0100E0000"),
-            page,
-            "VV5 Time Warp must not use VV1-VV4's proportional speed * 3600 shift",
-        )
 
     def test_base_payload_carries_no_legacy_menu(self) -> None:
         # The legacy menus' "native event safety" rows described a menu that

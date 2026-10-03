@@ -559,8 +559,8 @@ any dialogs live in the companion DLL; the exe stub just calls in / reissues the
   `sub_403600`; VV2 `0x474400`); capture the slot arg, stash **only when slot != 0** (0 =
   meta, never a village). When the captured slot **differs** from the last, **clear a
   `loaded` flag** — do NOT read the sidecar here: the path builder fires DURING load,
-  *before* the records are in memory. Do the actual `ReadMaskSidecar` at the **first
-  village render frame** (records present by then), gated by that flag. Never-seen slot →
+  *before* the records are in memory. Do the actual sidecar read (VV5: `Vv5MaskSync`;
+  its older `ReadMaskSidecar` export is gone) at the **first village render frame** (records present by then), gated by that flag. Never-seen slot →
   the per-slot file is absent → **zero the table** (no masks beats wrong masks). Make the
   restore fn **re-callable**, not once-from-init. A newborn reusing a dead masked slot:
   clear its nibble at birth, or use a **seen-alive latch** (clear a slot's mask only after

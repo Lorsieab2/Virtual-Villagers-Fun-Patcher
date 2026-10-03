@@ -23,8 +23,8 @@ VV4_MAP_OUT = ROOT / "data/candidates/vv4_expanded_time_warp_map.json"
 VV5_OUT = ROOT / "data/vv5_expanded_time_warp.json"
 VV5_MAP_OUT = ROOT / "data/candidates/vv5_expanded_time_warp_map.json"
 
-COMPANION_SHA256 = "989AA1E16854526D74FB044AD58BD6E36091D655055C9CD1F069115F7285FD00"
-COMPANION_SIZE = 1780224
+COMPANION_SHA256 = "0010A902DF4F460BCAD81EB5C188A6CE63964A729339BAD2A0B1B07FFE1AF3CE"
+COMPANION_SIZE = 1779712
 EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
@@ -479,10 +479,10 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         raise RuntimeError("Task9 age reserve drift")
     page_va = 0x904000
     base_page, base_map = task9.build_page(page_va)
-    if sha(base_page) != "16639094427653ABA9165E95F2B33481D4D72224256DD4C6E97A56A1223BA255":
+    if sha(base_page) != "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "4C98159F48560B26A98E2DED030DDB7878DE2FB366995EF2E916319B5CE83931":
+    if sha(stock_page) != "D49632027B0DC44BB8A2FAC464E5F553A2EAD293FF7F6866933C27FC9B1FF129":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]

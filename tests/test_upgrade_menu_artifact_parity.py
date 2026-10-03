@@ -393,10 +393,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # only while that row's companion is installed. Grew again by 1,024
         # bytes for Custom Island Event: the second Tech-menu button and the
         # host table (save slot, mask store) it hands the story companion.
-        self.assertEqual(vv5_companion["size"], 1780224)
+        # Shrank by 512 bytes when ReadMaskSidecar went: its only caller, the
+        # page's mask_load_once, was unreachable (Vv5MaskSync replaced it).
+        self.assertEqual(vv5_companion["size"], 1779712)
         self.assertEqual(
             vv5_companion["sha256"],
-            "989AA1E16854526D74FB044AD58BD6E36091D655055C9CD1F069115F7285FD00",
+            "0010A902DF4F460BCAD81EB5C188A6CE63964A729339BAD2A0B1B07FFE1AF3CE",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
