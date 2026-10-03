@@ -108,6 +108,14 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertIn("mov ecx, dword ptr [esp + 0x34]", self.generator)
         self.assertNotIn("mov ecx, dword ptr [esp + 0x30]", self.generator)
         self.assertIn("608B4C243481F9", cave["after"])
+        # The twin/triplet allocator sub_43C840 has its own guard.
+        twin_splice = patches[0x3C881]
+        self.assertEqual(twin_splice["before"], "C6462801885E29")
+        self.assertEqual(len(bytes.fromhex(twin_splice["after"])), 7)
+        twin_cave = patches[0x8EA80]
+        self.assertIn("sub_43C840", twin_cave["purpose"])
+        self.assertTrue(twin_cave["after"].startswith("C6462801885E29608B4C243481F9"))
+        self.assertIn("C605FC11490001", twin_cave["after"])
         self.assertIn("MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B", self.generator)
         self.assertIn(
             "exact sub_43C350 allocation boundary at 0x43C393",

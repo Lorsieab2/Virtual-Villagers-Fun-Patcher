@@ -70,10 +70,12 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # Re-pinned for the newborn mask-clear fix. The manifest diff is exactly
     # one byte in row 0x8EA00 (the newborn cave): its index load is now
     # [esp+0x34] (8B4C2434) instead of [esp+0x30], the caller's saved EBX.
+    # Then re-pinned for the twin/triplet guard: two rows added, 0x3C881 (the
+    # sub_43C840 splice) and 0x8EA80 (its cave). Nothing else changed.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "C816D78935D2B3043C47D30BF1AA8493C5E69590204D2BB8B37D53DA8FDCC8B6",
-        "collection_progression": "8960ADE359600E1E2D119E7D1EF319126DE4D002E04C6E3D08C0C8613DCC07B1",
-        "immediate_fixed": "8960ADE359600E1E2D119E7D1EF319126DE4D002E04C6E3D08C0C8613DCC07B1",
+        "stock": "D27D2BE3C8B74DFB14E4C5A05C46840E232DD1A5B6CC7C6BB67DD47EDDA6A424",
+        "collection_progression": "96F1B78874AEE5D67E8B487EDC4BAD9E84AE63AEEBE5BA93605B5C56866AFA39",
+        "immediate_fixed": "96F1B78874AEE5D67E8B487EDC4BAD9E84AE63AEEBE5BA93605B5C56866AFA39",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

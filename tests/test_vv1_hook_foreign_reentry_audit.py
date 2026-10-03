@@ -177,6 +177,13 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       stores, pushad/popad-brackets a bounds-checked clear of the patch-owned
 #       mask nibble for that exact index, and resumes at 0x43C39B. No villager-record bytes or incoming flags are consumed by
 #       the clear path.
+#   0x3C881                         confirmed.  sub_43C840, the twin/triplet
+#       allocator, repeats the same first-free pick itself: index local
+#       written as [esp+0x10] (0x43C859/0x43C870), `push 0x4e` at 0x43C87F,
+#       so [esp+0x34] after pushad. The cave replays its two displaced stores
+#       (`mov byte [esi+0x28],1` / `mov byte [esi+0x29],bl`, BL = 0 from
+#       0x43C84F), runs the same pushad/popad-bracketed clear, and resumes at
+#       0x43C888 = splice + 7. A plain resume; no foreign re-entry.
 #   No entry in this review was unsafe or unknown. The hashes below are the
 #   post-review generated cave bytes.
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
@@ -464,6 +471,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # with the flag itself; one absolute store fewer, nothing else changes.
     ("vv1_enable_origins_exclusive_features", "0x2ED0"): "08F2B73E12E206FA84370D0524044FFC261AA9760A11930AD0D35E0AFBE439BE",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "D5FC3AE7C5A990A28E182EAC7C8A2D55696B8699FFD5043F27270E1366768445",
+    ("vv1_enable_origins_exclusive_features", "0x3C881"): "A182B7FF5CAC72344D8166135769696A84B6DD8500B81839A5AF1F270B34A5FE",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock
     # at the NATURAL resume (0x43779F=splice+7, 0x438909=splice+9), so no

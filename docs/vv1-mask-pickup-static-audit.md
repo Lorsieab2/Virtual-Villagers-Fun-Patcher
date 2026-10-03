@@ -127,7 +127,11 @@ local written as `[esp+0x10]` is the exact record index -- at the splice it is
 `[esp+0x34]` after its `pushad` (`[esp+0x30]` is the caller's saved EBX, which
 the first version read by mistake); the owned cave clears only that
 index's patch-owned mask nibble, replays the two displaced stores, preserves all
-registers, and resumes at `0x43C39B`. This closes the case where death and birth
+registers, and resumes at `0x43C39B`. The twin/triplet allocator `sub_43C840`, which
+repeats the same first-free pick itself instead of calling `sub_43C350`, is
+guarded the same way at `0x43C881` (index at the same `[esp+0x34]` after
+`pushad`, resume at `0x43C888`), so each extra baby's own nibble is cleared
+too. This closes the case where death and birth
 occur between two rendered frames, so a periodic free-slot observation is not
 required. The shared `vv1_mask_get` accessor also maps corrupted sidecar
 nibbles 6..15 to None before they can reach the Details picker or an atlas row.
