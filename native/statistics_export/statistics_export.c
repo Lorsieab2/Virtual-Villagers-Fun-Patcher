@@ -1187,7 +1187,10 @@ typedef int (__fastcall *save_writer)(void *manager, void *unused,
    likes and dislikes arrays and, where the record stores them, the parents'
    names. A recorded villager and a living one are the same when they share
    the slot AND either the name or the fingerprint, so a player renaming
-   villagers never looks like a new village. If the next save's living
+   villagers never looks like a new village. "The slot" is the record the
+   villager held when the roster was written OR its rank in that roster:
+   the games load a save packed into records 0, 1, 2, ..., so after a
+   reload everyone behind a death is at its rank (roster_match.c). If the next save's living
    roster shares no villager with the recorded one, the slot now holds a
    different village. The decision is made before the stock save, but it is
    committed only AFTER the save succeeds: the three .dat files are then

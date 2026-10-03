@@ -15,8 +15,21 @@
                                            majority of the smaller roster
                                            (survivors whose likes changed)
      - otherwise                        -> a different village
-   Each recorded row is matched at most once. */
+   Each recorded row is matched at most once.
 
+   "The same slot" means either of the two records a recorded villager can
+   be in at the next save: the record it held when the roster was written,
+   or its RANK in that roster.  The games save only their occupied records,
+   packed in record order, and load them into records 0, 1, 2, ... -- so
+   after a reload every villager behind a death is at its rank, not its old
+   record (A New Home, seen live: one death at record 2 moved 22 villagers
+   down one record).  Compared by old record only, a death at a low record
+   left no strong match, the village was taken for a new one, and its
+   statistics, stews and Village Elders were moved aside.  The rank is as
+   positional as the record -- a coincidence still has to land on one of
+   two exact records -- so the Start Over protection is unchanged. */
+
+#include <stdio.h>
 #include <string.h>
 
 #include "roster_match.h"
@@ -39,8 +52,20 @@ int vv_roster_same_villager(const char *a, const char *b) {
     return fa - ta == fb - tb && strncmp(ta, tb, (size_t)(fa - ta)) == 0;   /* same name only */
 }
 
+/* The recorded row with its record replaced by its rank -- where the packed
+   save puts that villager on the next load.  Empty when the row has no slot
+   field or does not fit. */
+static void ranked_row(const char *row, int rank, char *out, size_t size) {
+    const char *tab = strchr(row, '\t');
+    out[0] = '\0';
+    if (tab != NULL && _snprintf_s(out, size, _TRUNCATE, "%d%s", rank, tab) < 0) {
+        out[0] = '\0';
+    }
+}
+
 int vv_roster_same_village(const char *was, int was_count, const char *now, int now_count, int row_size) {
     char used[VV_ROSTER_MAX];
+    char ranked[128];
     int i, j, same, strong = 0, matched = 0, smaller;
     if (was_count > VV_ROSTER_MAX) {
         was_count = VV_ROSTER_MAX;
@@ -51,7 +76,18 @@ int vv_roster_same_village(const char *was, int was_count, const char *now, int 
     memset(used, 0, sizeof(used));
     for (j = 0; j < now_count; ++j) {
         for (i = 0; i < was_count; ++i) {
-            if (!used[i] && (same = vv_roster_same_villager(was + i * row_size, now + j * row_size)) != 0) {
+            if (used[i]) {
+                continue;
+            }
+            same = vv_roster_same_villager(was + i * row_size, now + j * row_size);
+            if (same == 0) {
+                /* rows are written in record order, so row i is rank i */
+                ranked_row(was + i * row_size, i, ranked, sizeof(ranked));
+                if (ranked[0] != '\0') {
+                    same = vv_roster_same_villager(ranked, now + j * row_size);
+                }
+            }
+            if (same != 0) {
                 used[i] = 1;
                 ++matched;
                 strong += same == 2;
