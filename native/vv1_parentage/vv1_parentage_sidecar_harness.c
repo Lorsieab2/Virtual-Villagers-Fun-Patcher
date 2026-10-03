@@ -199,16 +199,70 @@ static int loaded_alba(void) {
         && g_entries[5].father_head == 4 && g_entries[5].mother_body == 7;
 }
 
+/* A New Home's villager pointer (0x0048B614) and save slot (0x004911F4),
+   which Vv1ParentageSetParents reads (case 11), live on this page.  By the
+   time main runs the CRT heap has usually reserved it, so the harness runs
+   itself again suspended, maps the page in that copy before its heap
+   exists, and lets it run every case.  The test links this program away
+   from 0x00400000 so its own image never holds the page. */
+#define GAME_PAGE ((void *)0x00480000u)
+#define GAME_PAGE_SIZE 0x20000u
+
+static int run_with_the_game_page(const char *docs) {
+    char self[MAX_PATH];
+    char line[3 * MAX_PATH];
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    DWORD code = 1;
+    if (!GetModuleFileNameA(NULL, self, sizeof(self))) {
+        printf("FAIL setup: no harness path\n");
+        return 1;
+    }
+    wsprintfA(line, "\"%s\" \"%s\" mapped", self, docs);
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+    fflush(stdout);
+    if (!CreateProcessA(self, line, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &si, &pi)) {
+        printf("FAIL setup: the harness could not run itself (error %lu)\n", GetLastError());
+        return 1;
+    }
+    if (VirtualAllocEx(pi.hProcess, GAME_PAGE, GAME_PAGE_SIZE, MEM_RESERVE | MEM_COMMIT,
+                       PAGE_READWRITE) != GAME_PAGE) {
+        printf("FAIL setup: the game's globals are mapped (error %lu)\n", GetLastError());
+        TerminateProcess(pi.hProcess, 1);
+    } else {
+        ResumeThread(pi.hThread);
+    }
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    GetExitCodeProcess(pi.hProcess, &code);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    return (int)code;
+}
+
 int main(int argc, char **argv) {
     int known;
     int opens;
     int f;
     HANDLE lock;
+    void *game;
     static const char junk[] = "not a parentage sidecar";
 
     if (argc < 2) {
         printf("usage: harness <scratch folder>\n");
         return 2;
+    }
+    if (argc < 3 || lstrcmpA(argv[2], "mapped") != 0) {
+        return run_with_the_game_page(argv[1]);
+    }
+    {
+        MEMORY_BASIC_INFORMATION page;
+        game = VirtualQuery(GAME_PAGE, &page, sizeof(page)) && page.State == MEM_COMMIT
+               && page.AllocationBase == GAME_PAGE ? GAME_PAGE : NULL;
     }
     lstrcpynA(g_docs, argv[1], MAX_PATH);
     put(village_a, 3, "Bram", 1, 11);
@@ -362,6 +416,38 @@ int main(int argc, char **argv) {
     write_good_sidecar();
     known = play(village_a, 1);
     check(known == 1 && loaded_alba(), "this village's own sidecar loads at once");
+
+    /* 11. A parent change (the Custom Island Event's) whose save fails is
+           rolled back: it must not show, nor reach a later save.  The
+           export reads the game's own villager pointer and save slot, so
+           the page holding them is mapped here and pointed at village A;
+           a folder where the save's temporary file goes makes the save
+           fail. */
+    write_good_sidecar();
+    play(village_a, 2);
+    check(loaded_alba(), "setup: village A is loaded for the parent change");
+    {
+        char tmp[MAX_PATH];
+        check(game != NULL, "setup: the game's globals are mapped");
+        if (game != NULL) {
+            *(unsigned char **)0x0048B614u = village_a;
+            *(unsigned int *)0x004911F4u = SLOT;
+            wsprintfA(tmp, "%s.tmp", path);
+            check(CreateDirectoryA(tmp, NULL), "setup: the save's temporary file cannot be created");
+            check(Vv1ParentageSetParents(5, "Zed", 1, 2, "Yara", 3, 4) == 0,
+                  "a parent change whose save fails is refused");
+            check(loaded_alba(), "... and the table keeps the parents it had");
+            RemoveDirectoryA(tmp);
+            vv1_parents_save(SLOT, village_a);
+            fresh();
+            play(village_a, 2);
+            check(loaded_alba(), "... and the next save does not persist the refused change");
+            check(Vv1ParentageSetParents(5, "Zed", 1, 2, "Yara", 3, 4) == 1
+                  && lstrcmpA(g_entries[5].father_name, "Zed") == 0,
+                  "a parent change whose save succeeds is kept");
+            *(unsigned char **)0x0048B614u = NULL;
+        }
+    }
 
     DeleteFileA(path);
     printf("%d failure(s)\n", failures);

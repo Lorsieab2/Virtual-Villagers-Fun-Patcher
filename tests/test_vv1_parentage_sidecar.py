@@ -50,7 +50,8 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
                "/I", str(NATIVE),
                str(NATIVE / "vv1_parentage_sidecar_harness.c"),
                f"/Fe{exe}", f"/Fo{cls.work}\\",
-               "/link", f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
+               "/link", "/DYNAMICBASE:NO", "/BASE:0x10000000",
+               f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
                f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}",
                "kernel32.lib", "user32.lib", "shell32.lib", "advapi32.lib"]
         build = subprocess.run(cmd, capture_output=True, text=True, cwd=cls.work)
@@ -98,6 +99,10 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
             "a sidecar that appears after an empty start is not replaced",
             "... and it is read on the next frame",
             "another village's sidecar is superseded after the strike window",
+            "a parent change whose save fails is refused",
+            "... and the table keeps the parents it had",
+            "... and the next save does not persist the refused change",
+            "a parent change whose save succeeds is kept",
             "this village's own sidecar loads at once",
         ):
             with self.subTest(case=case):
