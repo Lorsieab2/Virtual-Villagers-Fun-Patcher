@@ -72,7 +72,10 @@ def rendered(game: str, mode: str, everything: bool) -> bytes:
         import vv_fun_patcher as vfp
         build = next(b for b in vfp.load_builds() if b.id == game)
         if everything:
-            rows = [p.id for p in vfp.load_public_fun_patches() if p.game_id == game]
+            # The ordinary build: 256 Villagers (Experimental) builds another
+            # layout and has its own tests (LaterGames256 below).
+            rows = [p.id for p in vfp.load_public_fun_patches()
+                    if p.game_id == game and p.id not in vfp.EXPERIMENTAL_FUN_PATCH_IDS]
         else:
             rows = [f"{game}_cause_of_death"]
         data, _ = vfp.render_patched_bytes(STOCK[game], build, mode, rows)
@@ -1169,6 +1172,159 @@ class LaterGames(unittest.TestCase):
             self.assertEqual(g.stats()["arrived"], 0)
             w.bury(9)
             self.assertEqual(g.of_kind(DEATH), [], "the stand-in's burial is not a death")
+
+
+_RENDERS_256: dict = {}
+
+
+def rendered_256(game: str, mode: str) -> bytes:
+    """Every public patch of the game WITH 256 Villagers (Experimental)."""
+    if (game, mode) not in _RENDERS_256:
+        import vv_fun_patcher as vfp
+        build = next(b for b in vfp.load_builds() if b.id == game)
+        rows = [p.id for p in vfp.load_public_fun_patches() if p.game_id == game]
+        assert f"{game}_population_256" in rows
+        data, _ = vfp.render_patched_bytes(STOCK[game], build, mode, rows)
+        _RENDERS_256[(game, mode)] = bytes(data)
+    return _RENDERS_256[(game, mode)]
+
+
+SEX = {"vv3": 0xDC8, "vv4": 0x1B90, "vv5": 0x1B90}
+
+
+class Later256(Later):
+    """The same world, with the villager table where the 256 build keeps it."""
+
+    def record(self, i: int) -> int:
+        return 0x800000 + self.l["base"] + i * self.l["stride"]
+
+
+def later_256(game: str, mode: str = "stock") -> tuple[Game, Later256]:
+    g = Game(game, rendered_256(game, mode))
+    world = Later256(g)
+    assert g.install() == 1
+    return g, world
+
+
+class LaterGames256(unittest.TestCase):
+    """Cause of Death in the 256 Villagers (Experimental) builds: the
+    companion reads the relocated table and its 256 slots from the
+    executable, so deaths, removals, disappearances, arrivals and the
+    Unaccounted reconciliation all reach villagers in records 150..255."""
+
+    def games(self):
+        for game in ("vv3", "vv4", "vv5"):
+            if STOCK[game].is_file() and TEST_DLL.is_file():
+                yield game
+
+    def test_install_writes_every_site_in_every_mode(self):
+        for game in self.games():
+            for mode in MODES:
+                g = Game(game, rendered_256(game, mode))
+                self.assertEqual(g.install(), 1, (game, mode))
+                for d in manifest(game)["runtime_detours"]:
+                    self.assertEqual(g.p.read(int(d["va"], 16), 1), b"\xE9", (game, mode, d["va"]))
+
+    def test_burials_and_a_removed_body_above_slot_150_are_death_records(self):
+        words = {-1: "Unknown causes", 0: "Disease", 1: "Starvation", 2: "Old age", 3: "Work accident"}
+        for game in self.games():
+            for mode in MODES:
+                g, w = later_256(game, mode)
+                slots = (150, 200, 255)
+                for n, (i, cause) in enumerate(zip(slots, (2, 0, 3))):
+                    w.villager(i, f"Dead{i}", 600 + n, 0, cause)
+                    w.bury(i)
+                w.villager(230, "Lying", 900, 0, 1)
+                w.decay(230)
+                deaths = g.of_kind(DEATH)
+                self.assertEqual([(e["record"], e["Cause of death"]) for e in deaths],
+                                 [(w.record(i), words[c]) for i, c in zip(slots, (2, 0, 3))]
+                                 + [(w.record(230), "Starvation")], (game, mode))
+                self.assertEqual(deaths[-1]["Grave"], NO_GRAVE, (game, mode))
+                self.assertEqual(g.stats()["burials"], 3, (game, mode))
+
+    def test_the_tsunami_takes_villagers_above_slot_150(self):
+        if "vv3" not in self.games():
+            return
+        g, w = later_256("vv3")
+        w.villager(151, "Swept", 500, 80)
+        w.villager(255, "Swept2", 500, 80)
+        w.villager(200, "Bones", 500, 0)
+        g.p.put32(STACK, 0x414B3E)
+        g.p.put32(STACK + 4, 100)
+        g.p.put32(STACK + 8, 0xFFFFFFFF)
+        g.p.set_reg("esp", STACK)
+        g.p.set_reg("ecx", 0x800000)
+        g.p.run(0x45D990, 0x414B3E)
+        self.assertEqual([(e["record"], e["What happened"]) for e in g.of_kind(DISAPPEARED)],
+                         [(w.record(151), "Swept away by The Tsunami"),
+                          (w.record(255), "Swept away by The Tsunami")])
+
+    def test_arrivals_and_the_unaccounted_reconciliation_above_slot_150(self):
+        sites = {"vv3": (0x456326, 0x456332), "vv4": (0x45F175, 0x45F181), "vv5": (0x468411, 0x46841A)}
+        saves = {"vv3": 0x427D71, "vv4": 0x41F13F, "vv5": 0x4245FF}
+        for game in self.games():
+            g, w = later_256(game)
+            w.villager(10, "Low", 600, 80)
+            w.villager(252, "High", 600, 80)
+            g.saved_epilogue(saves[game], 1, 1)               # the first roster
+            self.assertEqual(g.of_kind(UNACCOUNTED), [], game)
+            # a birth into record 254, reported by the game's own creator
+            w.villager(254, "Newborn", 0, 100)
+            start, stop = sites[game]
+            g.run(start, stop, esi=w.record(254), ebx=0)
+            self.assertEqual(g.stats()["arrived"], 1, game)
+            # record 252 emptied and record 253 filled, neither reported
+            g.p.write(w.record(252) + w.l["present"], b"\x00")
+            w.villager(253, "Stranger", 600, 80)
+            g.p.put32(w.record(253) + SEX[game], 1)
+            g.saved_epilogue(saves[game], 1, 1)
+            got = sorted((e["Record"], e["What"]) for e in g.of_kind(UNACCOUNTED))
+            self.assertEqual(got, [("252", "Left the village with no Death or Disappeared record"),
+                                   ("253", "Arrived with no Birth record or known arrival")], game)
+            self.assertEqual(struct.unpack_from("<4I", g.roster(1))[3], 3, game)   # Low, Stranger, Newborn
+
+
+PARENTAGE_DLL = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
+
+
+class _Accepted(Exception):
+    pass
+
+
+class DeathRecords256(unittest.TestCase):
+    """"VVFP Parentage Export.dll"'s WriteVillageRecord, which files the
+    Death, Disappeared and Unaccounted records, accepts a villager's record
+    from any of the table's slots as the executable states them: 150..255
+    in a 256 Villagers build, refused past 149 in the ordinary one."""
+
+    def accepted(self, game: str, exe: bytes, table: int, slot: int) -> bool:
+        p = Process(exe, PARENTAGE_DLL)
+        p.api_handlers["GetModuleHandleW"] = lambda proc: ((0x400000 if proc.arg(0) == 0 else 0), 4)
+
+        def past_the_check(proc):
+            raise _Accepted()
+        # the first thing an accepted record does is name its session
+        p.api_handlers["GetCurrentProcessId"] = past_the_check
+        l = LATER[game]
+        r = table + l["base"] + slot * l["stride"]
+        p.write(r + l["name"], b"Someone\0")
+        p.write(r + l["present"], b"\x01")
+        try:
+            return p.export("WriteVillageRecord", int(game[-1]), DEATH, r, 1, 0, 0, 1) == 1
+        except _Accepted:
+            return True
+
+    def test_every_slot_of_the_table_the_executable_states(self):
+        for game in ("vv3", "vv4", "vv5"):
+            if not STOCK[game].is_file():
+                continue
+            big, ordinary = rendered_256(game, "stock"), rendered(game, "stock", True)
+            for slot in (0, 149, 150, 200, 255):
+                with self.subTest(game=game, slot=slot):
+                    self.assertTrue(self.accepted(game, big, 0x800000, slot))
+                    if slot <= 150:          # record 150 is the first past the ordinary table
+                        self.assertEqual(self.accepted(game, ordinary, LATER[game]["table"], slot), slot < 150)
 
 
 class ManifestsAndShipping(unittest.TestCase):

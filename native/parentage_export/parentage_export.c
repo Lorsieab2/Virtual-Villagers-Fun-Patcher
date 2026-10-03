@@ -1233,9 +1233,19 @@ static const wchar_t *family_folder(int family) {
         : family == LOG_UNACCOUNTED ? UNACCOUNTED_FOLDER : BIRTHS_FOLDER;
 }
 
-/* The game a layout row belongs to: its index in GAME_LAYOUTS. */
+/* The game a layout row belongs to.  layout_of hands out a copy of The
+   Secret City's, The Tree of Life's and New Believers' rows (with the slot
+   count the executable states: 150, or 256 with 256 Villagers
+   (Experimental)), so a row is told by its log name, which the copy shares,
+   never by its address in GAME_LAYOUTS. */
 static int layout_game(const struct game_layout *g) {
-    return (int)(g - GAME_LAYOUTS);
+    int game;
+    for (game = GAME_VV1; game <= GAME_VV5; ++game) {
+        if (g->log_name == GAME_LAYOUTS[game].log_name) {
+            return game;
+        }
+    }
+    return 0;
 }
 
 static const wchar_t *family_stem(const struct game_layout *g, int family) {
@@ -3239,7 +3249,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         || kind < KIND_DEATH || kind > KIND_UNACCOUNTED) {
         return 0;
     }
-    g = &GAME_LAYOUTS[game_id];
+    g = layout_of(game_id);
     if (!layout_is_usable(g)) {
         return 0;
     }
