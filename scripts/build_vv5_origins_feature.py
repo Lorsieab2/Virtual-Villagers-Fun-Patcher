@@ -987,13 +987,22 @@ def main() -> None:
             }
         )
 
+    # The Origins dispatch helper the legacy .shr Tech handler calls with the
+    # menu row in EBX. Row 5 was the old inline Cure All loop; it is withdrawn
+    # (the shipped Full Heal/Cure All is the Task9 action, which clears
+    # sickness and credits People Cured 0x51D368 per cured Believer), so row
+    # 5 returns without touching any villager or statistic. The withdrawn loop
+    # was also wrong: it incremented 0x55490C, which is not a statistic but
+    # villager record 0 (0x554190) +0x77C -- the action queue's entry 21,
+    # field +0x44 -- so it must not come back.
     cure_code = assemble(
         f"""
-            cmp ebx, 5
-            je cure_all
             cmp ebx, 6
             jae village_wide
+            cmp ebx, 5
+            je withdrawn_cure
             or dword ptr [0x51D388], 2
+        withdrawn_cure:
             ret
         village_wide:
             push ebx
@@ -1025,83 +1034,6 @@ def main() -> None:
             push ebx
             call eax
         village_result_done:
-            pop edi
-            pop esi
-            pop edx
-            pop ecx
-            pop ebp
-            pop ebx
-            ret
-        cure_all:
-            push ebx
-            push ebp
-            push ecx
-            push edx
-            push esi
-            push edi
-            xor eax, eax
-            mov edx, 0x554190
-            mov ecx, dword ptr [0x41F1E6]
-        cure_loop:
-            cmp byte ptr [edx + 0x1CD4], 0
-            je cure_next
-            cmp byte ptr [edx + 0x1CE1], 0
-            jne cure_next
-            cmp dword ptr [edx + 0x1C40], 0
-            jle cure_next
-            cmp byte ptr [edx + 0x1CEC], 0
-            jne cure_next
-            cmp byte ptr [edx + 0x1C48], 0
-            je cure_next
-            mov byte ptr [edx + 0x1C48], 0
-            inc dword ptr [0x55490C]
-            inc eax
-        cure_next:
-            add edx, 0x2F44
-            dec ecx
-            jne cure_loop
-            mov ebp, eax
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
-            test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
-            push eax
-            push 0x{s['tech_title']:X}
-            call 0x{entry['show_message']:X}
-            add esp, 8
-            add esp, 40
             pop edi
             pop esi
             pop edx
@@ -1156,7 +1088,7 @@ def main() -> None:
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "retain the byte-identical withdrawn Cure payload behind the EB5F containment gate; command 5 is unavailable and unreachable, and no Cure behavior is available",
+        "install the Origins dispatch helper; the withdrawn Cure command 5 is unavailable and returns without changing any villager or statistic (Full Heal/Cure All is the Task9 action)",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,

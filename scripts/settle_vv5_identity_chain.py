@@ -144,12 +144,24 @@ def main() -> None:
     print(f"  companion exports {len(REQUIRED_EXPORTS)}/{len(REQUIRED_EXPORTS)} present")
 
     # 1 -- the Origins payload the caller just built.
-    swap(GENERATOR, pinned(GENERATOR, r'ACTIVE_SHA256 = "([0-9A-F]{64})"'),
-         raw(ACTIVE), "generator ACTIVE_SHA256")
-    before = pinned(GENERATOR, r'ACTIVE_SOURCE_TEXT_SHA256 = "([0-9A-F]{64})"')
-    swap(GENERATOR, before, txt(ACTIVE), "generator ACTIVE_SOURCE_TEXT")
-    if before != txt(ACTIVE):
-        swap(str(PATCHER), before, txt(ACTIVE), "patcher ACTIVE_SOURCE_TEXT")
+    #
+    # Read BOTH old pins before writing either. The manifest is LF-only, so
+    # its raw and source-text digests are usually the same value, and the
+    # raw swap below is a global replace that then rewrites the source-text
+    # line too. Reading the source-text pin afterwards saw the new value,
+    # concluded nothing had changed, and skipped the patcher's own copy
+    # (VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256), which left every VV5 render
+    # failing "pinned active Origins source drifted".
+    old_raw = pinned(GENERATOR, r'ACTIVE_SHA256 = "([0-9A-F]{64})"')
+    old_text = pinned(GENERATOR, r'ACTIVE_SOURCE_TEXT_SHA256 = "([0-9A-F]{64})"')
+    swap(GENERATOR, f'ACTIVE_SHA256 = "{old_raw}"',
+         f'ACTIVE_SHA256 = "{raw(ACTIVE)}"', "generator ACTIVE_SHA256")
+    swap(GENERATOR, f'ACTIVE_SOURCE_TEXT_SHA256 = "{old_text}"',
+         f'ACTIVE_SOURCE_TEXT_SHA256 = "{txt(ACTIVE)}"', "generator ACTIVE_SOURCE_TEXT")
+    swap(str(PATCHER),
+         f'VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "{old_text}"',
+         f'VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "{txt(ACTIVE)}"',
+         "patcher ACTIVE_SOURCE_TEXT")
 
     # 2 -- Task9 artefacts.
     run(GENERATOR)
