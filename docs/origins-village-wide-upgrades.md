@@ -1,5 +1,15 @@
 # Origins village-wide upgrades
 
+> **New Believers (VV5) no longer carries a village-wide payload.** Its
+> extension at `0x494C20`, the base payload's preflight (`0x494B37`), stub
+> (`0x494B32`) and dispatch helper (`0x494EA0`), and the legacy `.shr` menus
+> that called them were unreachable in every shipped build: the Task9 page
+> replaces both Origins menu entries with jumps into its own page and
+> implements Grant Running to All Villagers, Grant Full Mastery to All
+> Villagers and All Villagers are Exactly 18 itself. They were removed;
+> `vv5_origins_village_wide_upgrades` is now a route-only catalog row that
+> installs the Task9 base. The VV5 notes below describe the removed payload.
+
 ## Current static/playtest package boundary
 
 All five `vvN_origins_village_wide_upgrades` records are catalog-visible in

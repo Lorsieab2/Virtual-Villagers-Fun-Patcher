@@ -187,10 +187,10 @@ PRICE_TABLES = {
     "vv2": [(0x494F90, 10)],              # tech rows 0-5, Details rows 0-3
     "vv3": [(0x4A3F60, 11)],
     "vv4": [(0x489EE7, 11)],
-    # The base payload's own tables, behind the Task9 entry trampolines
-    # (0x7B22C0 / 0x7B2600 jump straight into the Task9 page): zeroed too, so
-    # no Origins byte holds a price whichever route reaches it.
-    "vv5": [(0x7B2F14, 10)],
+    # New Believers keeps every price in its Task9 page. The base payload's
+    # legacy menus and their price tables never ran (0x7B22C0 / 0x7B2600 jump
+    # straight into the Task9 page) and are no longer emitted.
+    "vv5": [],
 }
 PRICE_IMMEDIATES = {
     "vv1": [0x456AD9, 0x48D5A3, 0x48D5DB, 0x48D624, 0x48D6F1, 0x48DA86, 0x48DABB,
@@ -200,7 +200,7 @@ PRICE_IMMEDIATES = {
             0x4A35C9, 0x4A35D9],
     "vv4": [0x4896A4, 0x4896AF, 0x4896C9, 0x4896D4, 0x4896F9, 0x489A41, 0x728110,
             0x728789],
-    "vv5": [0x7B241A, 0x7B2425, 0x7C9989, 0x7C99C1, 0x7C99EA, 0x7C99FB, 0x7C9DD2, 0x7C9E56, 0x7C9F28,
+    "vv5": [0x7C9989, 0x7C99C1, 0x7C99EA, 0x7C99FB, 0x7C9DD2, 0x7C9E56, 0x7C9F28,
             0x7C9F3A, 0x7CA0E2, 0x7CA102, 0x7CA110, 0x7CA186, 0x7CA1A9, 0x7CA1BB,
             0x7CA5D1, 0x7CA638, 0x7CA733, 0x7CA745, 0x7CB2DF, 0x7CB3BB, 0x7CB3CD,
             0x7CC488, 0x7CC4B7, 0x7CC4C2, 0x7CC4D4, 0x7CCC96, 0x7CCCD7, 0x7CCCDE,

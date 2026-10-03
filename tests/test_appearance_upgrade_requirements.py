@@ -275,7 +275,12 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 "running_preference_evidence",
             )
             if relative.endswith("_origins_village_wide_upgrades.json"):
-                # The five village-wide payloads are intentionally corrected
+                if relative == "data/vv5_origins_village_wide_upgrades.json":
+                    # New Believers' row is a route only: its extension was
+                    # unreachable (Task9 owns the menus) and was removed.
+                    self.assertEqual(current_manifest["patches"], [], relative)
+                    continue
+                # The village-wide payloads are intentionally corrected
                 # in the current slice. Their guards and ownership metadata
                 # remain unchanged; only their generated payload bytes differ.
                 current_patch = current_manifest["patches"][0]
@@ -722,8 +727,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 # them. The stub sits in the free .text tail measured against a
                 # RENDERED image; the parentage manifest drops its duplicate
                 # claim on 0x193F5.
+                # 0x94B32/0x94B37/0x94EA0: the Cure stub, village-wide
+                # preflight and dispatch helper, removed as unreachable.
                 "data/vv5_origins_feature.json": {
-                    "0x94B37", "0x94EA0", "0xDB000", "0x1890F",
+                    "0x94B32", "0x94B37", "0x94EA0", "0xDB000", "0x1890F",
                     "0x94730", "0x193F5",
                 },
             }.get(relative, set())

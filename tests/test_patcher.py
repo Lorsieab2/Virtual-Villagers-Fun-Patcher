@@ -589,9 +589,14 @@ class ManifestTests(unittest.TestCase):
             )
             self.assertIn("Running", feature.description)
             self.assertIn("Full Mastery", feature.description)
-            self.assertIn("Make Villagers Young Adults", feature.description)
             self.assertIn("Tech screen", feature.description)
             self.assertNotIn("Runtime/player confirmation pending", feature.description)
+            if game == 5:
+                # A route only: the extension it used to carry was unreachable.
+                self.assertEqual(feature.raw["patches"], [])
+                self.assertNotIn("extension_abi", feature.raw)
+                continue
+            self.assertIn("Make Villagers Young Adults", feature.description)
 
             self.assertEqual(feature.raw.get("running_preference_id"), 38)
             self.assertIn("removed Running dislike", feature.raw["extension_abi"]["calling_convention"])
@@ -637,8 +642,11 @@ class ManifestTests(unittest.TestCase):
         )
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
+        # New Believers' row is a route only: its extension was unreachable
+        # (Task9 owns the VV5 menus) and was removed; see
+        # tests/test_vv5_origins_dead_code_removed.py.
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
-        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv2", "vv3", "vv4"):
             feature = village_wide_record(game_id)
             with self.subTest(game=game_id):
                 patch = feature.raw["patches"][0]
@@ -655,16 +663,21 @@ class ManifestTests(unittest.TestCase):
                 self.assertEqual(commands["8"], "All Villagers are 18")
 
     def test_origins_village_wide_metadata_preserves_explicit_exclusions(self) -> None:
-        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv2", "vv3", "vv4"):
             patch = village_wide_record(game_id)
             exclusions = patch.raw["explicit_non_changes"]
             self.assertTrue(any("nursing" in item for item in exclusions))
             self.assertTrue(any("unrelated Like" in item for item in exclusions))
-            if patch.game_id == "vv5":
-                self.assertTrue(any("Heathens" in item for item in exclusions))
+        # New Believers' route carries no payload; it still states the
+        # Heathen exclusion of the Task9 village-wide upgrades it exposes.
+        exclusions = village_wide_record("vv5").raw["explicit_non_changes"]
+        self.assertTrue(any("Heathens" in item for item in exclusions))
 
     def test_origins_village_wide_abi_uses_command_eax_and_bound_edx(self) -> None:
-        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        # New Believers' row is a route only: its extension was unreachable
+        # (Task9 owns the VV5 menus) and was removed; see
+        # tests/test_vv5_origins_dead_code_removed.py.
+        for game_id in ("vv1", "vv2", "vv3", "vv4"):
             with self.subTest(game=game_id):
                 feature = village_wide_record(game_id)
                 convention = feature.raw["extension_abi"]["calling_convention"]
@@ -694,7 +707,7 @@ class ManifestTests(unittest.TestCase):
         epilogue = bytes.fromhex("5F5E5B5DC3")
         bad_mastery_tail = bytes.fromhex("31C031D231C95E5F5B5DC3")
         mastery_tail = bytes.fromhex("31C031D231C95F5E5B5DC3")
-        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv2", "vv3", "vv4"):
             with self.subTest(game=game_id):
                 feature = village_wide_record(game_id)
                 payload = bytes.fromhex(feature.raw["patches"][0]["after"])
@@ -723,7 +736,6 @@ class ManifestTests(unittest.TestCase):
             "vv2": 0x49C800,
             "vv3": 0x47B820,
             "vv4": 0x728220,
-            "vv5": 0x494C20,
         }
         for game_id, header_va in expected_headers.items():
             with self.subTest(game=game_id):
@@ -740,8 +752,6 @@ class ManifestTests(unittest.TestCase):
                 )
                 if game_id == "vv4":
                     self.assertNotIn("expanded_shr_relocations", feature.raw)
-                if game_id == "vv5":
-                    self.assertNotIn((0x1B8C + 0xAD0).to_bytes(4, "little"), payload)
 
     def test_origins_village_wide_preflight_header_check_matches_written_header(
         self,
@@ -765,7 +775,6 @@ class ManifestTests(unittest.TestCase):
             "vv2": "Virtual Villagers - The Lost Children.exe",
             "vv3": "Virtual Villagers - The Secret City.exe",
             "vv4": "Virtual Villagers - The Tree of Life.exe",
-            "vv5": "Virtual Villagers - New Believers.exe",
         }
         for game_id, exe_name in game_exes.items():
             with self.subTest(game=game_id):
@@ -818,30 +827,6 @@ class ManifestTests(unittest.TestCase):
                     f"{game_id}: found no compiled preflight header check to verify",
                 )
 
-    def test_origins_village_wide_entry_and_vv5_native_targets_are_not_header_shifted(self) -> None:
-        feature = village_wide_record("vv5")
-        patch = feature.raw["patches"][0]
-        payload = bytes.fromhex(patch["after"])
-        payload_base = int(patch["offset"], 0)
-        entry_offset = int(feature.raw["extension_abi"]["entry_offset"], 0) - payload_base
-        self.assertEqual(payload[entry_offset : entry_offset + 3], bytes.fromhex("83F806"))
-
-        payload_va = int(feature.raw["extension_abi"]["signature_offset"], 0) + 0x400000
-        targets: list[int] = []
-        for offset in range(len(payload) - 4):
-            if payload[offset] != 0xE8:
-                continue
-            targets.append(
-                payload_va
-                + offset
-                + 5
-                + int.from_bytes(payload[offset + 1 : offset + 5], "little", signed=True)
-            )
-        self.assertEqual(
-            sorted(targets),
-            sorted([0x464F90, 0x464AD0, 0x4649E0, 0x475730]),
-        )
-
     def test_current_origins_routes_render_in_stock_mode(self) -> None:
         sources = {
             "vv1": ROOT / "inputs/vv1-stock-copy/Virtual Villagers - A New Home.exe",
@@ -872,7 +857,7 @@ class ManifestTests(unittest.TestCase):
         full_like = source.split("running_full_like:", 1)[1].split("running_existing:", 1)[0]
         self.assertIn("jmp {full_like_target}", full_like)
         # full_like_target is a per-game flag (always_clear_running_dislike),
-        # set for VV1, VV2, VV3 and VV5 so a full-Like villager falls through
+        # set for VV1, VV2 and VV3 so a full-Like villager falls through
         # to running_remove_dislikes. The behaviour itself is executed in
         # tests/test_village_wide_running_clears_dislike_executes.py.
         self.assertIn(
@@ -880,21 +865,6 @@ class ManifestTests(unittest.TestCase):
             source,
         )
         self.assertIn('"always_clear_running_dislike": True', source.split('"vv1": {', 1)[1].split('"vv2": {', 1)[0])
-
-    def test_vv5_village_wide_payload_uses_authoritative_believer_predicate(self) -> None:
-        feature = village_wide_record("vv5")
-        payload = bytes.fromhex(feature.raw["patches"][0]["after"])
-        # Active, non-heathen occupancy, health, and current faction are all
-        # explicit in the generated helper; health alone is not a substitute.
-        for immediate in (
-            bytes.fromhex("80BED41C000000"),
-            bytes.fromhex("80BEE11C000000"),
-            bytes.fromhex("83BE401C000000"),
-            bytes.fromhex("80BEEC1C000000"),
-        ):
-            self.assertIn(immediate, payload)
-        self.assertIn("Heathens", " ".join(feature.raw["explicit_non_changes"]))
-        self.assertIn("believer", feature.description.casefold())
 
     def test_rejected_vv4_birth_control_is_not_selectable(self) -> None:
         self.assertNotIn(
@@ -921,9 +891,8 @@ class ManifestTests(unittest.TestCase):
             "vv2": 62,
             "vv3": 3,
             "vv4": 3,
-            "vv5": 3,
         }
-        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv2", "vv3", "vv4"):
             with self.subTest(game=game_id):
                 source = next(
                     (ROOT / "scripts").glob(f"build_{game_id}_origins_feature.py")
@@ -960,7 +929,7 @@ class ManifestTests(unittest.TestCase):
                 self.assertIn("jne", section)
 
     def test_active_origins_manifests_preserve_stock_like_dislike_slot_counts(self) -> None:
-        expected = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
+        expected = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3}
         for game_id, slot_count in expected.items():
             with self.subTest(game=game_id):
                 record = json.loads(

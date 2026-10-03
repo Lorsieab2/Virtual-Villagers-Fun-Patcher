@@ -39,6 +39,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         cls.payload = bytes.fromhex(cls.payload_patch["after"])
         cls.source = BUILDER.read_text(encoding="utf-8")
+        # The shipped VV5 Tech and Detail menus are the Task9 page's; the base
+        # payload's legacy menus never ran and are no longer emitted.
+        cls.task9_source = (
+            ROOT / "scripts" / "build_vv5_task9_native_actions.py"
+        ).read_text(encoding="utf-8")
 
     def test_exact_build_and_companion_identity(self) -> None:
         self.assertEqual(
@@ -84,10 +89,12 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             before = bytes.fromhex(item["before"])
             self.assertEqual(self.stock[offset : offset + len(before)], before)
             self.assertEqual(len(before), len(bytes.fromhex(item["after"])))
-        # 0xF3C since Time Warp moved into the companion: the flat
-        # advance and two now-dead strings came out, the export name
-        # went in, and the block is that much shorter.
-        self.assertEqual(len(self.payload), 0xF3C)
+        # 0xD09: only live code is left -- the constructors and handlers,
+        # the two menu entries Task9 turns into jumps, the Barrel selector,
+        # the doubler wrappers -- and the "Upgrades" label at 0xD00. The
+        # legacy menus, their helpers, strings and price tables are gone.
+        self.assertEqual(len(self.payload), 0xD09)
+        self.assertEqual(self.payload[0xD00:], b"Upgrades\0")
         self.assertEqual(
             self.stock[0xDB000 : 0xDB000 + len(self.payload)],
             b"\0" * len(self.payload),
@@ -178,7 +185,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn("do_time_warp:", text)
         self.assertNotIn("tw_slow:", text)
         self.assertNotIn("tw_fast:", text)
-        self.assertIn("time_warp_export", text)
+        self.assertIn("ShowVv5TimeWarp", self.task9_source)
 
         dll = (
             ROOT / "native" / "vv5_task9_origins" / "vv5_task9_origins.c"
@@ -267,30 +274,26 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             "VV5 Time Warp must not use VV1-VV4's proportional speed * 3600 shift",
         )
 
-    def test_unsafe_native_time_and_event_rows_are_disabled_for_heathen_safety(self) -> None:
-        self.assertEqual(
-            self.feature["native_event_safety"]["disabled_rows"],
-            ["Time Warp", "Island Event", "Barrel of Babies"],
-        )
-        self.assertIn("not verified safe for Heathens", self.source)
-        self.assertIn(b"3 displayed years", self.payload)
+    def test_base_payload_carries_no_legacy_menu(self) -> None:
+        # The legacy menus' "native event safety" rows described a menu that
+        # never ran; Task9 offers Time Warp, Island Event and Barrel itself.
+        self.assertNotIn("native_event_safety", self.feature)
+        self.assertIn('put("tech_menu", "ret")', self.source)
+        self.assertIn('put("detail_menu", "ret")', self.source)
+        for gone in ("show_dialog", "show_message", "get_record", "tech_costs", "detail_costs"):
+            self.assertNotIn(gone, self.source)
 
-    def test_cure_row_truth_is_withdrawn(self) -> None:
-        # The helper no longer carries the old inline Cure All loop (which
-        # counted into villager record 0 +0x77C); its row 5 just returns.
-        # tests/test_vv5_origins_cure_helper.py runs the rendered bytes.
-        self.assertIn("Full Heal/Cure All", self.feature["description"])
-        self.assertNotIn("30,000", self.feature["description"])
-        cure = next(
-            item for item in self.feature["patches"] if int(item["offset"], 0) == 0x94EA0
+    def test_cure_and_village_wide_caves_are_gone(self) -> None:
+        # The Cure stub (0x94B32), the village-wide preflight (0x94B37) and
+        # the dispatch helper (0x94EA0) were reachable only from the legacy
+        # Tech menu. Full Heal/Cure All is the Task9 action.
+        offsets = {int(item["offset"], 0) for item in self.feature["patches"]}
+        self.assertFalse(offsets & {0x94B32, 0x94B37, 0x94EA0})
+        task9 = json.loads(
+            (ROOT / "data" / "vv5_task9_native_actions.json").read_text(encoding="utf-8")
         )
-        purpose = cure["purpose"].casefold()
-        self.assertIn("withdrawn", purpose)
-        self.assertIn("unavailable", purpose)
-        self.assertIn("without changing any villager or statistic", purpose)
-        self.assertNotIn("preserve cure", purpose)
-        self.assertNotIn("eb5f", purpose)
-        self.assertNotIn("byte-identical", purpose)
+        self.assertIn("Full Heal/Cure All", task9["description"])
+        self.assertNotIn("30,000", task9["description"])
 
     def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
@@ -311,11 +314,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn("preserve cure", section)
 
     def test_barrel_uses_native_index_and_dynamic_150_256_guard(self) -> None:
-        self.assertIn("call 0x4944C0", self.source)
-        self.assertIn("mov ecx, dword ptr [0x41F1E6]", self.source)
-        self.assertIn("sub ecx, 3", self.source)
-        self.assertIn("or dword ptr [0x51D388], 4", self.source)
-        self.assertIn("mov esi, 25", self.source)
+        # The purchase and its room check are Task9's; the base keeps the
+        # selector that consumes the marker.
+        self.assertIn("call 0x4944C0", self.task9_source)
+        self.assertIn("or dword ptr [0x51D388], 4", self.task9_source)
+        self.assertIn("mov esi, 26", self.source)
         self.assertIn("and dword ptr [0x51D388], 0xFFFFFFFB", self.source)
         # This used to also assert that expanded-256 rewrote the slot-bound
         # immediate at 0x1F1E6 from 150 to 256. That data is removed. The stock
@@ -397,13 +400,15 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn(bytes.fromhex("E96E67C6FF"), rendered_body)
 
     def test_doublers_are_save_scoped_and_encode_candidate_guards(self) -> None:
+        # The wrappers (base payload) read the save-scoped ownership bits ...
         self.assertIn("test dword ptr [0x51D388], 1", self.source)
         self.assertIn("test dword ptr [0x51D388], 2", self.source)
-        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.source)
-        self.assertIn("cmp ebx, 4", self.source)
-        self.assertIn("or dword ptr [0x51D388], 2", self.source)
         self.assertIn("test esi, esi", self.source)
         self.assertIn("test eax, eax", self.source)
+        # ... which the Task9 Tech menu sets and clears.
+        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.task9_source)
+        self.assertIn("or dword ptr [0x51D388], edi", self.task9_source)
+        self.assertIn("and dword ptr [0x51D388], eax", self.task9_source)
         manifest = json.loads((ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8"))
         evidence = manifest["doubler_evidence"]
         contract = manifest["doubler_composition_contract"]
@@ -460,9 +465,9 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 63], wrapper)
 
     def test_tech_mode_marker_and_purchase_matrix(self) -> None:
-        self.assertIn("tech_owned_remove", self.source)
-        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.source)
-        self.assertIn("or dword ptr [0x51D388], 1", self.source)
+        self.assertIn("tech_not_owned", self.task9_source)
+        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.task9_source)
+        self.assertIn("or dword ptr [0x51D388], edi", self.task9_source)
         overrides = self.feature["patch_mode_overrides"]
         for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
             entries = overrides[mode]
@@ -534,12 +539,12 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 43], wrapper)
 
     def test_food_mode_marker_and_purchase_matrix(self) -> None:
-        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.source)
-        self.assertIn("or eax, 0x0800", self.source)
-        self.assertIn("or eax, 0x1000", self.source)
-        self.assertIn("food_owned", self.source)
-        self.assertIn("food_owned_remove", self.source)
-        self.assertIn("or dword ptr [0x51D388], 2", self.source)
+        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.task9_source)
+        self.assertIn("or eax, 0x800", self.task9_source)
+        self.assertIn("or eax, 0x1000", self.task9_source)
+        self.assertIn("food_not_owned", self.task9_source)
+        self.assertIn("and dword ptr [0x51D388], eax", self.task9_source)
+        self.assertIn("or dword ptr [0x51D388], edi", self.task9_source)
         self.assertEqual(self.stock[0x1F1E6 : 0x1F1EA], bytes.fromhex("96000000"))
         overrides = self.feature["patch_mode_overrides"]
         self.assertEqual(set(overrides), {"experimental_expanded_256", "experimental_expanded_256_progression"})
@@ -632,51 +637,16 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         digest = hashlib.sha256(
             json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest().upper()
-        # Re-pinned when the dead row-5 Cure All loop (which counted into
-        # villager record 0 +0x77C) was removed from the 0x94EA0 helper.
+        # Re-pinned when the unreachable legacy menus, helpers and the
+        # 0x94B32/0x94B37/0x94EA0 caves were removed from the base payload.
         self.assertEqual(
             digest,
-            "6CB2ABD5E6CB750DB129B572E62901EF3D1C5648DEE75CE3F3237AD1BD46402E",
+            "16891ED0ECF4166941A95993B6196FC22ED1A448306467E1DAC92AC88D8D0F61",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
             "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9",
         )
-
-    def test_six_float_skills_and_age_companions_are_written(self) -> None:
-        for offset in (7260, 7264, 7268, 7272, 7276, 7280):
-            self.assertIn(
-                f"mov dword ptr [edx + {offset}], 0x42C80000", self.source
-            )
-        self.assertIn("cmp eax, 100", self.source)
-        self.assertIn("mov eax, 100", self.source)
-        self.assertIn("mov eax, 360", self.source)
-        self.assertIn("add dword ptr [edx + 7228], ecx", self.source)
-        self.assertIn("add dword ptr [edx + 7244], ecx", self.source)
-
-    def test_running_changes_only_selected_record_preferences(self) -> None:
-        self.assertIn("lea ecx, [edx + 8028]", self.source)
-        self.assertIn("lea ecx, [edx + 8040]", self.source)
-        self.assertIn("RUNNING_PREFERENCE_ID = 38", self.source)
-        self.assertIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.source)
-        self.assertIn("mov dword ptr [ecx], -1", self.source)
-        self.assertIn("all Like slots are full", self.source)
-        running_block = self.source.split("running:", 1)[1].split(
-            "detail_success:", 1
-        )[0]
-        for forbidden in ("0x17D7C", "movement", "speed"):
-            self.assertNotIn(forbidden, running_block)
-
-    def test_all_individual_origins_actions_preflight_current_believer(self) -> None:
-        detail = self.source.split('"detail_menu",', 1)[1].split('"tech_increment",', 1)[0]
-        for check in (
-            "cmp byte ptr [edx + 0x1CD4], 0",
-            "cmp byte ptr [edx + 0x1CE1], 0",
-            "cmp dword ptr [edx + 0x1C40], 0",
-            "cmp byte ptr [edx + 0x1CEC], 0",
-        ):
-            self.assertGreaterEqual(detail.count(check), 2)
-        self.assertNotIn("mov byte ptr [edx + 0x1CEC]", detail)
 
     def test_composes_with_every_vv5_feature_in_public_modes(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")

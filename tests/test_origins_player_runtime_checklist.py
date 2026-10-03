@@ -90,7 +90,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     self.assertNotIn("runtime/player", description.casefold())
                     self.assertNotRegex(description, r"\b0x[0-9a-f]+\b")
             self.assertIn("Tech screen", wide["description"])
-            self.assertIn("Make Villagers Young Adults", wide["description"])
+            if game == 5:
+                # New Believers names its rows as its Task9 Upgrades menu
+                # shows them (the old Village-Wide extension was unreachable).
+                self.assertIn("Grant Running to All Villagers", wide["description"])
+                self.assertIn("All Villagers are Exactly 18", wide["description"])
+            else:
+                self.assertIn("Make Villagers Young Adults", wide["description"])
             self.assertIs(origins.get("enabled", True), True)
             self.assertIs(origins.get("catalog_enabled", True), True)
             self.assertIs(origins.get("catalog_hidden", False), False)
@@ -100,11 +106,17 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             "vv2": (("0x7E4", "0x7E8", "0x7EC", "0x7F0", "0x7F4"), "100"),
             "vv3": (("0xEAC", "0xEB0", "0xEB4", "0xEB8", "0xEBC"), "100"),
             "vv4": (("0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C"), "0x42C80000"),
-            "vv5": (("7260", "7264", "7268", "7272", "7276", "7280"), "0x42C80000"),
+            "vv5": (("0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"), "0x42C80000"),
         }
         for game, (offsets, value) in expected.items():
             with self.subTest(game=game):
-                source = (ROOT / "scripts" / f"build_{game}_origins_feature.py").read_text(encoding="utf-8")
+                # New Believers' mastery writers live in its Task9 page.
+                builder = (
+                    "build_vv5_task9_native_actions.py"
+                    if game == "vv5"
+                    else f"build_{game}_origins_feature.py"
+                )
+                source = (ROOT / "scripts" / builder).read_text(encoding="utf-8")
                 for offset in offsets:
                     self.assertIn(offset, source)
                 if game in (1, 2, 3):

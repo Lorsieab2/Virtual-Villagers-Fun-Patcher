@@ -31,18 +31,9 @@ EXPANDED_PAYLOAD_VA = 0x8EB000
 PAYLOAD_SIZE = 0x1000
 STRINGS_OFFSET = 0xD00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
-HEAL_CAVE_FILE_OFFSET = 0x94B32
-CURE_ENTRY_FILE_OFFSET = 0x94EA0
-CURE_ENTRY_VA = IMAGE_BASE + CURE_ENTRY_FILE_OFFSET
-HEAL_CAVE_VA = CURE_ENTRY_VA
-VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x94C20
-VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x94C40
-VILLAGE_PREFLIGHT_FILE_OFFSET = 0x94B37
-VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xAEF60
 TECH_BUTTON_EVENT = 13
 DETAIL_BUTTON_EVENT = 13  # native VV5 Detail constructor/handler event
-DETAIL_NATIVE_HANDLER_VA = 0x44B560
 
 # The VV5 IDA relocation ledger used to live here: three hand-recorded tables
 # exported from IDA Pro 9.4, pinning exact bytes at fixed payload offsets, plus
@@ -98,8 +89,7 @@ BARREL_SELECTOR_BODY_SHA256 = hashlib.sha256(BARREL_SELECTOR_BODY_REPAIRED).hexd
 # The cave sits in the free .text tail, measured against a RENDERED image with
 # every fun patch applied and every VV5 manifest's claims overlaid, not
 # against the stock file. Content ends at 0x49472F and resumes at 0x494840 in
-# both catalog modes, and no Origins cave is hardcoded inside that window --
-# the nearest are the Cure/preflight caves at 0x494B32/0x494B37 above it.
+# both catalog modes, and no Origins cave is hardcoded inside that window.
 RESET_CAVE_FILE_OFFSET = 0x00094730
 RESET_CAVE_VA = 0x00494730
 RESET_CAVE_SIZE = 0x62
@@ -160,40 +150,11 @@ def main() -> None:
 
     strings = bytearray()
     s: dict[str, int] = {}
-    for name, value in (
-        ("button", "Upgrades"),
-        ("tech_title", "Origins Upgrades"),
-        ("detail_title", "Villager Upgrades"),
-        ("purchased", "Purchased."),
-        ("removed", "Removed."),
-        ("not_enough", "Not enough tech points."),
-        (
-            "doubler_unavailable",
-            "Unavailable: exact-build doubler behavior is not yet fully verified.",
-        ),
-        # Time Warp's paused refusal is the companion's now, shown from
-        # there alongside the prompt that names the speed and the years.
-        ("time_done", "Time Warp advanced every villager by 3 displayed years."),
-        ("capacity", "The village population is already at maximum capacity."),
-        ("vv5_unsafe_native", "Unavailable: this VV5 native path is not verified safe for Heathens."),
-        ("running_unavailable", "Running cannot be added because all Like slots are full."),
-        ("icons_dll", "VVFP Origins Icons.dll"),
-        ("time_warp_export", "ShowVv5TimeWarp"),
-        ("dialog_export", "ShowOriginsUpgradeMenuState"),
-        ("show_result_export", "ShowOriginsVillageWideResult"),
-        ("user32", "USER32.dll"),
-        ("message_box", "MessageBoxA"),
-        ("cure_all", "Cure all Villagers"),
-    ):
-        add_c_string(strings, s, name, value)
-    while len(strings) % 4:
-        strings.append(0)
-    s["tech_costs"] = STRINGS_VA + len(strings)
-    for value in (50000, 30000, 75000, 500000, 500000, 30000):
-        strings.extend(value.to_bytes(4, "little"))
-    s["detail_costs"] = STRINGS_VA + len(strings)
-    for value in (50000, 100000, 40000, 50000):
-        strings.extend(value.to_bytes(4, "little"))
+    # Only the Upgrades button label is read by live code (the two
+    # constructors). Every other string, and the old Tech/Detail price
+    # tables, belonged to the legacy .shr menus, which never run: Task9
+    # replaces both menu entries with absolute jumps to its own page.
+    add_c_string(strings, s, "button", "Upgrades")
     if len(strings) > PAYLOAD_SIZE - STRINGS_OFFSET:
         raise RuntimeError("VV5 Origins strings exceed payload allowance")
 
@@ -203,9 +164,6 @@ def main() -> None:
         "detail_handler": PAYLOAD_VA + 0x0C0,
         "detail_ctor": PAYLOAD_VA + 0x100,
         "barrel_selector": PAYLOAD_VA + 0x180,
-        "show_dialog": PAYLOAD_VA + 0x1C0,
-        "show_message": PAYLOAD_VA + 0x210,
-        "get_record": PAYLOAD_VA + 0x270,
         "tech_menu": PAYLOAD_VA + 0x2C0,
         "detail_menu": PAYLOAD_VA + 0x600,
         "tech_increment": PAYLOAD_VA + 0xA00,
@@ -395,523 +353,13 @@ def main() -> None:
             jmp 0x41891A
         """,
     )
-    put(
-        "show_dialog",
-        f"""
-            push ebx
-            push esi
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x4951E0]
-            test eax, eax
-            je unavailable
-            push 0x{s['dialog_export']:X}
-            push eax
-            call dword ptr [0x4951DC]
-            test eax, eax
-            je unavailable
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
-            jne no_village_wide
-            or dword ptr [esp + 0x10], 0x20000
-        no_village_wide:
-            push dword ptr [esp + 0x10]
-            push dword ptr [esp + 0x10]
-            call eax
-            pop esi
-            pop ebx
-            ret 8
-        unavailable:
-            mov eax, -1
-            pop esi
-            pop ebx
-            ret 8
-        """,
-    )
-    put(
-        "show_message",
-        f"""
-            push ebx
-            push esi
-            mov ebx, dword ptr [esp + 0x0C]
-            mov esi, dword ptr [esp + 0x10]
-            push 0x{s['user32']:X}
-            call dword ptr [0x4951E0]
-            test eax, eax
-            je done
-            push 0x{s['message_box']:X}
-            push eax
-            call dword ptr [0x4951DC]
-            test eax, eax
-            je done
-            push 0
-            push ebx
-            push esi
-            push 0
-            call eax
-        done:
-            pop esi
-            pop ebx
-            ret 8
-        """,
-    )
-    put(
-        "get_record",
-        """
-            push ebx
-            call 0x425950
-            mov ebx, dword ptr [eax + 0x17E24]
-            push ebx
-            mov ecx, 0x554148
-            call 0x471840
-            test al, al
-            je invalid
-            push ebx
-            mov ecx, 0x554148
-            call 0x46F950
-            pop ebx
-            ret
-        invalid:
-            xor eax, eax
-            pop ebx
-            ret
-        """,
-    )
-    put(
-        "tech_menu",
-        f"""
-            push ebx
-            push esi
-            push edi
-            push ebp
-            mov esi, ecx
-        menu:
-            xor eax, eax
-            test dword ptr [0x51D388], 1
-            jnz tech_owned
-            cmp dword ptr [0x41F1E6], 0x96
-            je tech_clear
-            or eax, 0x0800
-            jmp tech_clear
-        tech_owned:
-            or eax, 8
-        tech_clear:
-            test dword ptr [0x51D388], 2
-            jnz food_owned
-            cmp dword ptr [0x41F1E6], 0x96
-            je food_clear
-            or eax, 0x1000
-            jmp food_clear
-        food_owned:
-            or eax, 16
-        food_clear:
-            # A pending Island Event or Barrel of Babies must not be sold
-            # again: both are queued by zeroing the same [manager+0x17D3C]
-            # countdown, so a second purchase changes nothing while still
-            # charging full price. Setting these bits makes the companion
-            # DLL draw those rows as disabled "Unavailable" buttons, so the
-            # row cannot be clicked and the charge path is never entered --
-            # no refusal string needed, which matters because this block is
-            # nearly full.
-            #
-            # A pending event blocks BOTH rows, since the barrel rides the
-            # very same countdown; an already-armed barrel (flag bit 4 in
-            # 0x51D388) additionally blocks its own row. The manager comes
-            # from 0x425950, the same getter preflight uses.
-            #
-            # Inlined rather than given its own cave: it sits inside
-            # tech_menu's own slot, which has room, so no payload byte
-            # position outside this routine moves.
-            push eax
-            call 0x425950
-            mov ecx, eax
-            pop eax
-            cmp dword ptr [ecx + 0x17D3C], 0
-            jne pending_barrel
-            or eax, 0x800000
-            or eax, 0x1000000
-            jmp pending_done
-        pending_barrel:
-            test dword ptr [0x51D388], 4
-            jz pending_done
-            or eax, 0x1000000
-        pending_done:
-            push eax
-            push 0
-            call 0x{entry['show_dialog']:X}
-            cmp eax, -1
-            je done
-            mov ebx, eax
-            cmp ebx, 3
-            jb preflight
-            cmp ebx, 5
-            jae preflight
-            cmp ebx, 4
-            je remove_food
-            test dword ptr [0x51D388], 1
-            jnz tech_owned_remove
-            cmp dword ptr [0x41F1E6], 0x96
-            jne doubler_unavailable
-            jmp preflight
-        tech_owned_remove:
-            and dword ptr [0x51D388], 0xFFFFFFFE
-            mov eax, 0x{s['removed']:X}
-            jmp status
-        remove_food:
-            test dword ptr [0x51D388], 2
-            jnz food_owned_remove
-            cmp dword ptr [0x41F1E6], 0x96
-            jne doubler_unavailable
-            jmp preflight
-        food_owned_remove:
-            and dword ptr [0x51D388], 0xFFFFFFFD
-            mov eax, 0x{s['removed']:X}
-            jmp status
-        preflight:
-            call 0x425950
-            mov edi, eax
-            cmp ebx, 2
-            ja native_safe_row
-            mov eax, 0x{s['vv5_unsafe_native']:X}
-            jmp status
-        native_safe_row:
-            cmp ebx, 0
-            jne barrel_check
-            # Paused is no longer refused.  Every speed option must advance
-            # three villager years, and the normalisation above maps the
-            # paused sentinel 999 onto the normal-speed code.
-            jmp charge
-        barrel_check:
-            cmp ebx, 2
-            jne charge
-            call 0x4944C0
-            mov ecx, dword ptr [0x41F1E6]
-            sub ecx, 3
-            cmp eax, ecx
-            jbe charge
-            mov eax, 0x{s['capacity']:X}
-            jmp status
-        charge:
-            cmp ebx, 6
-            jb legacy_charge
-            cmp ebx, 8
-            ja menu
-            call 0x{VILLAGE_PREFLIGHT_VA:X}
-            test eax, eax
-            jz menu
-            cmp dword ptr [0x51D5F8], 1000000
-            jb insufficient
-            mov eax, -1000000
-            push eax
-            mov ecx, 0x51D5F8
-            call 0x4237B0
-            jmp do_village_wide
-        legacy_charge:
-            mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
-            cmp dword ptr [0x51D5F8], eax
-            jb insufficient
-            # Time Warp (row 0) is owned by the companion DLL: what it
-            # advances, what its prompt must say, and whether it may run at
-            # all all depend on the game speed at this instant -- and VV5
-            # alone folds a per-villager aging rate into the conversion, so
-            # the advance is not one number for the whole village. The DLL
-            # confirms and applies; the charge stays here, because VV5 pays
-            # through the game's own tech-point routine and that call is
-            # already in this handler.
-            #
-            # EAX holds the cost and has just cleared the afford check. Keep a
-            # copy across the call: LoadLibraryA and GetProcAddress are both
-            # stdcall and clean their own arguments, and ShowVv5TimeWarp@4
-            # consumes the one that is pushed for it.
-            cmp ebx, 0
-            jne tw_charge_ok
-            push eax
-            push eax
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x4951E0]
-            test eax, eax
-            je time_warp_unavailable
-            push 0x{s['time_warp_export']:X}
-            push eax
-            call dword ptr [0x4951DC]
-            test eax, eax
-            je time_warp_unavailable
-            call eax
-            pop ecx
-            # 0 = the player cancelled: say nothing and reopen the menu, the
-            # same as Cancel on every other row. 2 = refused with the reason
-            # already shown, so close without charging. 1 = applied, so charge.
-            test eax, eax
-            jz menu
-            cmp eax, 1
-            jne done
-            mov eax, ecx
-            neg eax
-            push eax
-            mov ecx, 0x51D5F8
-            call 0x4237B0
-            jmp done
-        time_warp_unavailable:
-            add esp, 8
-            jmp done
-        tw_charge_ok:
-            neg eax
-            push eax
-            mov ecx, 0x51D5F8
-            call 0x4237B0
-            cmp ebx, 1
-            je island_event
-            cmp ebx, 2
-            je barrel
-            cmp ebx, 3
-            je tech_doubler
-            cmp ebx, 4
-            je food_doubler
-            cmp ebx, 5
-            je cure
-            call 0x{HEAL_CAVE_VA:X}
-            nop
-            jmp success
-
-
-        cure:
-            call 0x{HEAL_CAVE_VA:X}
-            jmp done
-            nop
-            nop
-            nop
-        do_village_wide:
-            call 0x{HEAL_CAVE_VA:X}
-            jmp done
-        island_event:
-            mov dword ptr [edi + 0x17D3C], 0
-            jmp success
-        barrel:
-            or dword ptr [0x51D388], 4
-            mov dword ptr [edi + 0x17D3C], 0
-            jmp success
-        tech_doubler:
-            or dword ptr [0x51D388], 1
-            jmp success
-        food_doubler:
-            or dword ptr [0x51D388], 2
-        success:
-            mov eax, 0x{s['purchased']:X}
-            jmp status
-        insufficient:
-            mov eax, 0x{s['not_enough']:X}
-            jmp status
-        doubler_unavailable:
-            mov eax, 0x{s['doubler_unavailable']:X}
-        status:
-            push eax
-            push 0x{s['tech_title']:X}
-            call 0x{entry['show_message']:X}
-            jmp done
-            nop
-            nop
-            nop
-        done:
-            pop ebp
-            pop edi
-            pop esi
-            pop ebx
-            ret
-        """,
-    )
-    put(
-        "detail_menu",
-        f"""
-            push ebx
-            push esi
-            push edi
-            push ebp
-            mov esi, ecx
-        menu:
-            call 0x{entry['get_record']:X}
-            test eax, eax
-            je done
-            mov edx, eax
-            cmp byte ptr [edx + 0x1CD4], 0
-            je done
-            cmp byte ptr [edx + 0x1CE1], 0
-            jne done
-            cmp dword ptr [edx + 0x1C40], 0
-            jle done
-            cmp byte ptr [edx + 0x1CEC], 0
-            jne done
-            xor edi, edi
-            cmp dword ptr [edx + 7052], 100
-            ja youth_open
-            or edi, 1
-        youth_open:
-            cmp dword ptr [edx + 7260], 0x42C80000
-            jb mastery_open
-            cmp dword ptr [edx + 7264], 0x42C80000
-            jb mastery_open
-            cmp dword ptr [edx + 7268], 0x42C80000
-            jb mastery_open
-            cmp dword ptr [edx + 7272], 0x42C80000
-            jb mastery_open
-            cmp dword ptr [edx + 7276], 0x42C80000
-            jb mastery_open
-            cmp dword ptr [edx + 7280], 0x42C80000
-            jb mastery_open
-            or edi, 2
-        mastery_open:
-            xor ebp, ebp
-            lea eax, [edx + 8028]
-            mov ecx, 3
-        like_scan:
-            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
-            je like_found
-            cmp dword ptr [eax], -1
-            jne like_next
-            or ebp, 1
-        like_next:
-            add eax, 4
-            dec ecx
-            jne like_scan
-            test ebp, 1
-            jnz dislikes
-            or edi, 0x400
-            jmp dislikes
-        like_found:
-            or ebp, 2
-        dislikes:
-            lea eax, [edx + 8040]
-            mov ecx, 3
-        dislike_scan:
-            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
-            jne dislike_next
-            or ebp, 4
-        dislike_next:
-            add eax, 4
-            dec ecx
-            jne dislike_scan
-            test ebp, 2
-            jz age_state
-            test ebp, 4
-            jnz age_state
-            or edi, 4
-        age_state:
-            cmp dword ptr [edx + 7052], 360
-            jne show
-            or edi, 8
-        show:
-            push edi
-            push 1
-            call 0x{entry['show_dialog']:X}
-            cmp eax, -1
-            je done
-            mov ebx, eax
-            call 0x{entry['get_record']:X}
-            test eax, eax
-            je done
-            mov edx, eax
-            cmp byte ptr [edx + 0x1CD4], 0
-            je done
-            cmp byte ptr [edx + 0x1CE1], 0
-            jne done
-            cmp dword ptr [edx + 0x1C40], 0
-            jle done
-            cmp byte ptr [edx + 0x1CEC], 0
-            jne done
-            cmp ebx, 2
-            jne detail_charge
-            lea eax, [edx + 8028]
-            mov ecx, 3
-        running_preflight:
-            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
-            je detail_charge
-            cmp dword ptr [eax], -1
-            je detail_charge
-            add eax, 4
-            dec ecx
-            jne running_preflight
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
-        detail_charge:
-            mov eax, dword ptr [0x{s['detail_costs']:X} + ebx*4]
-            cmp dword ptr [0x51D5F8], eax
-            jb detail_insufficient
-            neg eax
-            push eax
-            mov ecx, 0x51D5F8
-            call 0x4237B0
-            cmp ebx, 0
-            je youth
-            cmp ebx, 1
-            je mastery
-            cmp ebx, 2
-            je running
-            mov eax, 360
-            jmp set_age
-        youth:
-            mov eax, dword ptr [edx + 7052]
-            sub eax, 700
-            cmp eax, 100
-            jge set_age
-            mov eax, 100
-        set_age:
-            mov ecx, eax
-            sub ecx, dword ptr [edx + 7052]
-            mov dword ptr [edx + 7052], eax
-            add dword ptr [edx + 7228], ecx
-            cmp dword ptr [edx + 7244], 0
-            je detail_success
-            add dword ptr [edx + 7244], ecx
-            jmp detail_success
-        mastery:
-            mov dword ptr [edx + 7260], 0x42C80000
-            mov dword ptr [edx + 7264], 0x42C80000
-            mov dword ptr [edx + 7268], 0x42C80000
-            mov dword ptr [edx + 7272], 0x42C80000
-            mov dword ptr [edx + 7276], 0x42C80000
-            mov dword ptr [edx + 7280], 0x42C80000
-            jmp detail_success
-        running:
-            lea ecx, [edx + 8028]
-            mov eax, 3
-        find_like:
-            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            je remove_dislikes
-            cmp dword ptr [ecx], -1
-            je store_like
-            add ecx, 4
-            dec eax
-            jne find_like
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
-        store_like:
-            mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-        remove_dislikes:
-            lea ecx, [edx + 8040]
-            mov eax, 3
-        remove_loop:
-            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            jne remove_next
-            mov dword ptr [ecx], -1
-        remove_next:
-            add ecx, 4
-            dec eax
-            jne remove_loop
-        detail_success:
-            mov eax, 0x{s['purchased']:X}
-            jmp detail_status
-        detail_insufficient:
-            mov eax, 0x{s['not_enough']:X}
-        detail_status:
-            push eax
-            push 0x{s['detail_title']:X}
-            call 0x{entry['show_message']:X}
-            jmp menu
-        done:
-            pop ebp
-            pop edi
-            pop esi
-            pop ebx
-            ret
-        """,
-    )
+    # The Tech and Detail menu entries. Task9 owns both menus: its generator
+    # overwrites each of these entries with an absolute jump into the
+    # appended .vv5t9 page (`mov eax, page; jmp eax`), and the shipped
+    # manifest is Task9's. Here they are bare returns, so this base payload
+    # carries no second, unreachable copy of the menus.
+    put("tech_menu", "ret")
+    put("detail_menu", "ret")
     tech_wrapper_expected = bytes.fromhex(
         "8B44240485C07E2BF70588D3510001000000741F"
         "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
@@ -987,116 +435,6 @@ def main() -> None:
             }
         )
 
-    # The Origins dispatch helper the legacy .shr Tech handler calls with the
-    # menu row in EBX. Row 5 was the old inline Cure All loop; it is withdrawn
-    # (the shipped Full Heal/Cure All is the Task9 action, which clears
-    # sickness and credits People Cured 0x51D368 per cured Believer), so row
-    # 5 returns without touching any villager or statistic. The withdrawn loop
-    # was also wrong: it incremented 0x55490C, which is not a statistic but
-    # villager record 0 (0x554190) +0x77C -- the action queue's entry 21,
-    # field +0x44 -- so it must not come back.
-    cure_code = assemble(
-        f"""
-            cmp ebx, 6
-            jae village_wide
-            cmp ebx, 5
-            je withdrawn_cure
-            or dword ptr [0x51D388], 2
-        withdrawn_cure:
-            ret
-        village_wide:
-            push ebx
-            push ebp
-            push ecx
-            push edx
-            push esi
-            push edi
-            mov eax, ebx
-            mov ecx, 0x554190
-            mov edx, dword ptr [0x41F1E6]
-            call 0x{VILLAGE_WIDE_ENTRY_VA:X}
-            mov ebp, eax
-            mov edi, edx
-            mov esi, ecx
-            mov eax, 0x{s['show_result_export']:X}
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x4951E0]
-            test eax, eax
-            je village_result_done
-            push 0x{s['show_result_export']:X}
-            push eax
-            call dword ptr [0x4951DC]
-            test eax, eax
-            je village_result_done
-            push esi
-            push edi
-            push ebp
-            push ebx
-            call eax
-        village_result_done:
-            pop edi
-            pop esi
-            pop edx
-            pop ecx
-            pop ebp
-            pop ebx
-            ret
-        """,
-        HEAL_CAVE_VA,
-    )
-    preflight_code = assemble(
-        f"""
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 4:X}], 0x0055574F
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 8:X}], 0x00200001
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x10:X}], 3
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x14:X}], 0
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x18:X}], 0
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
-            jne preflight_invalid
-            mov eax, 0x{s['show_result_export']:X}
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x4951E0]
-            test eax, eax
-            je preflight_invalid
-            push 0x{s['show_result_export']:X}
-            push eax
-            call dword ptr [0x4951DC]
-            test eax, eax
-            je preflight_invalid
-            mov eax, 1
-            ret
-        preflight_invalid:
-            xor eax, eax
-            ret
-        """,
-        VILLAGE_PREFLIGHT_VA,
-    )
-    patch(
-        HEAL_CAVE_FILE_OFFSET,
-        b"\0" * 5,
-        rel32_jump(IMAGE_BASE + HEAL_CAVE_FILE_OFFSET, CURE_ENTRY_VA),
-        "redirect the shared VV5 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
-    )
-    patch(
-        CURE_ENTRY_FILE_OFFSET,
-        b"\0" * len(cure_code),
-        cure_code,
-        "install the Origins dispatch helper; the withdrawn Cure command 5 is unavailable and returns without changing any villager or statistic (Full Heal/Cure All is the Task9 action)",
-    )
-    patch(
-        VILLAGE_PREFLIGHT_FILE_OFFSET,
-        b"\0" * len(preflight_code),
-        preflight_code,
-        "validate the complete optional Origins header and result-export dependency before any village-wide charge",
-    )
-
     patch(0x28C, bytes.fromhex("400000D0"), bytes.fromhex("400000F0"),
           "make the stock shared payload section executable")
     patch(BARREL_SELECTOR_HOOK_FILE_OFFSET, BARREL_SELECTOR_HOOK_STOCK,
@@ -1130,7 +468,7 @@ def main() -> None:
             + bytes(payload[0x180:0x180 + len(BARREL_SELECTOR_BODY_REPAIRED)]).hex().upper()
         )
     patch(PAYLOAD_FILE_OFFSET, b"\0" * len(payload), bytes(payload),
-          "install the VV5 Origins menus and mechanics in the unused .shr section")
+          "install the VV5 Origins Upgrades buttons, menu entries, Barrel selector and doubler wrappers in the unused .shr section")
 
     # THE TRIBE-DELETE STUB AND ITS HOOK.
     #
@@ -1234,7 +572,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xAEF60", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
+        "description": "Base layer of the VV5 Origins upgrades: adds the Upgrades buttons to the Tech and Villager Details screens, the Barrel of Babies event selector, and the Tech and Food Point Doubler wrappers. The menus behind the buttons are supplied by the Task9 page (data/vv5_task9_native_actions.json), which is the record the patcher ships for this feature.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -1322,11 +660,6 @@ def main() -> None:
             "new_purchase": "Tech and Food available in stock layout at 500,000 tech points after their exact positive-whitelist wrappers; both unavailable in expanded-256",
             "existing_owned": "removable at zero cost with zero refund",
             "repurchase": "full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases",
-        },
-        "native_event_safety": {
-            "disabled_rows": ["Time Warp", "Island Event", "Barrel of Babies"],
-            "reason": "VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.",
-            "evidence_status": "STOP; no charge or native call is made for these rows",
         },
         "provenance": {"vv5_mockups": VV5_PROVENANCE},
         "patches": patches,

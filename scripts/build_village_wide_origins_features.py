@@ -49,7 +49,6 @@ CONFIG = {
         "slot_count": 4,
         "running_preference_id": 38,
         "bound": "edx",
-        "heathen": False,
         "master_value": 100,
         "report_running_granted": True,
         "report_mastery_counts": True,
@@ -93,7 +92,6 @@ CONFIG = {
         "slot_count": 62,
         "running_preference_id": 38,
         "bound": "edx",
-        "heathen": False,
         "master_value": 100,
         # VV2's own ShowOriginsVillageWideResult call site (shared with VV1
         # via #include, scripts/build_vv2_origins_feature.py) always displays
@@ -139,7 +137,6 @@ CONFIG = {
         "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
-        "heathen": False,
         "master_value": 100,
         # See vv2: full-Like villagers still lose a Running Dislike.
         "always_clear_running_dislike": True,
@@ -179,42 +176,7 @@ CONFIG = {
         "native_like_add": 0x45D2D0,     # add element to array[ecx] (dedup)
         "native_like_remove": 0x45D1C0,  # remove element from array[ecx]
         "bound": "edx",
-        "heathen": False,
         "master_value": 0x42C80000,
-    },
-    "vv5": {
-        "title": "Virtual Villagers - New Believers",
-        "running_preference_id": 38,
-        "exe": "Virtual Villagers - New Believers.exe",
-        "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
-        "cave_offset": 0x94339,
-        "cave_va": 0x494339,
-        "payload_offset": 0x94C20,
-        "code_size": 0x260,
-        "mastery_code_offset": 0x150,
-        "age_code_offset": 0x1F0,
-        "stride": 0x2F44,
-        "first": "ecx",
-        "active": 0x1CD4,
-        "heathen_active_guard": 0x1CE1,
-        "faction": 0x1CEC,
-        "health": 0x1C40,
-        "age": 0x1B8C,
-        "skills": (7260, 7264, 7268, 7272, 7276, 7280),
-        "likes": 8028,
-        "dislikes": 8040,
-        "slot_count": 3,
-        "running_preference_id": 38,
-        "bound": "edx",
-        "heathen": True,
-        "master_value": 0x42C80000,
-        "native_running": 0x464F90,
-        "native_running_insert": 0x464AD0,
-        "native_running_remove": 0x4649E0,
-        "native_mastery": 0x475730,
-        # See vv2: full-Like villagers still lose a Running Dislike. VV5's
-        # native_running branch honours the same flag.
-        "always_clear_running_dislike": True,
     },
 }
 
@@ -257,24 +219,12 @@ def _eligibility(config: dict, label: str) -> str:
                 f"jne {label}",
             ]
         )
-    if config["heathen"]:
-        result.extend(
-            [
-                f"cmp byte ptr [esi + {_hex_word(config['heathen_active_guard'])}], 0",
-                f"jne {label}",
-                f"cmp dword ptr [esi + {_hex_word(health)}], 0",
-                f"jle {label}",
-                f"cmp byte ptr [esi + {_hex_word(config['faction'])}], 0",
-                f"jne {label}",
-            ]
-        )
-    else:
-        result.extend(
-            [
-                f"cmp dword ptr [esi + {_hex_word(health)}], 0",
-                f"jle {label}",
-            ]
-        )
+    result.extend(
+        [
+            f"cmp dword ptr [esi + {_hex_word(health)}], 0",
+            f"jle {label}",
+        ]
+    )
     return "\n".join(result)
 
 
@@ -291,8 +241,8 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     # knowing the optional implementation's internal layout.
     entry_va = code_va
     running_va = code_va + 0x50
-    mastery_va = code_va + config.get("mastery_code_offset", 0x190) - 0x20
-    age_va = code_va + config.get("age_code_offset", 0x250) - 0x20
+    mastery_va = code_va + 0x190 - 0x20
+    age_va = code_va + config["age_code_offset"] - 0x20
     code = bytearray(b"\0" * config.get("code_size", 0x390))
 
     def put(va: int, source: str) -> None:
@@ -388,87 +338,6 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             pop ebp
             ret
         """
-    elif config.get("native_running"):
-        slot_count = config["slot_count"]
-        # Same always_clear_running_dislike contract as the generic branch
-        # below: a full-Like villager is counted in EAX and then falls into
-        # the Dislike scan so any Running Dislike is still removed (and
-        # counted in ECX).
-        native_full_like_target = (
-            "running_remove_dislikes"
-            if config.get("always_clear_running_dislike")
-            else "running_next"
-        )
-        running_source = f"""
-            push ebp
-            push ebx
-            push esi
-            push edi
-            mov ebx, edx
-            {_record_setup(config)}
-            xor edi, edi
-            xor ebp, ebp
-            push 0
-        running_loop:
-            test ebx, ebx
-            jz running_done
-            {_eligibility(config, 'running_next')}
-            push {_hex_word(config['running_preference_id'])}
-            lea ecx, [esi + {_hex_word(config['likes'])}]
-            call {_hex_word(config['native_running'])}
-            test al, al
-            jnz running_existing
-            mov edx, -1
-            xor eax, eax
-        running_scan:
-            cmp dword ptr [esi+eax*4+{_hex_word(config['likes'])}], -1
-            jne running_like_next
-            cmp edx, -1
-            jne running_like_next
-            mov edx, eax
-        running_like_next:
-            inc eax
-            cmp eax, {slot_count}
-            jb running_scan
-            cmp edx, -1
-            jne running_insert
-            inc edi
-            jmp {native_full_like_target}
-            running_existing:
-                inc ebp
-                jmp running_next
-        running_insert:
-            push {_hex_word(config['running_preference_id'])}
-            lea ecx, [esi + {_hex_word(config['likes'])}]
-            call {_hex_word(config['native_running_insert'])}
-        running_remove_dislikes:
-            xor eax, eax
-        running_dislike_check:
-            cmp dword ptr [esi+eax*4+{_hex_word(config['dislikes'])}], {_hex_word(config['running_preference_id'])}
-            jne running_dislike_next
-            push {_hex_word(config['running_preference_id'])}
-            lea ecx, [esi + {_hex_word(config['dislikes'])}]
-            call {_hex_word(config['native_running_remove'])}
-            inc dword ptr [esp]
-        running_dislike_next:
-            inc eax
-            cmp eax, {slot_count}
-            jb running_dislike_check
-        running_next:
-            add esi, {_hex_word(config['stride'])}
-            dec ebx
-            jmp running_loop
-        running_done:
-            mov ecx, dword ptr [esp]
-            add esp, 4
-            mov eax, edi
-            mov edx, ebp
-            pop edi
-            pop esi
-            pop ebx
-            pop ebp
-            ret
-        """
     else:
         slot_count = config["slot_count"]
         # report_running_granted is opt-in (VV1 only as of this writing) so
@@ -493,7 +362,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         else:
             granted_store = ""
         # always_clear_running_dislike is set for every game that reaches
-        # this branch (VV1, VV2, VV3) and for VV5's native_running branch;
+        # this branch (VV1, VV2, VV3);
         # VV4's native helper path clears unconditionally. It stays a flag
         # only so a game that genuinely needs the old skip can say so.
         # Before VV2 and VV3 opted in, their full-Like branch skipped the
@@ -673,26 +542,6 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
                 zip(config["skills"], config["skill_codes"])
             )
         )
-    elif config.get("native_mastery"):
-        skill_writes = f"""
-            xor edi, edi
-        mastery_skill_loop:
-            cmp edi, {len(config['skills'])}
-            jae mastery_skills_done
-            cmp dword ptr [esi+edi*4+{_hex_word(config['skills'][0])}], {_hex_word(config['master_value'])}
-            je mastery_skill_next
-            push {_hex_word(config['master_value'])}
-            fld dword ptr [esp]
-            fsub dword ptr [esi+edi*4+{_hex_word(config['skills'][0])}]
-            fstp dword ptr [esp]
-            push edi
-            lea ecx, [esi+edi*4+{_hex_word(config['skills'][0])}]
-            call {_hex_word(config['native_mastery'])}
-        mastery_skill_next:
-            inc edi
-            jmp mastery_skill_loop
-        mastery_skills_done:
-        """
     else:
         skill_writes = "\n".join(
             f"mov dword ptr [esi + {_hex_word(offset)}], {_hex_word(config['master_value'])}"
@@ -972,7 +821,7 @@ def main() -> None:
                 "feature rather than this optional payload. The point doublers do "
                 "not double Island Event or Duplicate Collectible tech gains."
             )
-        elif game_id == "vv4":
+        else:  # vv4
             description += (
                 " The Tech screen also offers Time Warp, Island Event, Barrel of "
                 "Babies, Food and Tech Point Doublers, Full Heal/Cure All, All "
@@ -982,20 +831,6 @@ def main() -> None:
                 "Full Mastery, Running, Set Age to 18, and Change Appearance, and "
                 "the Heathen mask cosmetics are included. The point doublers do not "
                 "double Island Event or Duplicate Collectible tech gains."
-            )
-        else:
-            description += (
-                " The Tech screen also offers Time Warp, Island Event, Barrel of "
-                "Babies, Tech and Food Point Doublers, Full Heal/Cure All, All "
-                "Villagers are Exactly 18, Complete and Reset All Collections, "
-                "Equal Division of Labor with and without Parenting, and Change "
-                "Appearance for All, the Villager Details screen grants Youth, Full "
-                "Mastery, Running, Set Age to 18, and Change Appearance, and the "
-                "Heathen mask cosmetics are included. The point doublers do not "
-                "double Island Event or Duplicate Collectible tech gains. The "
-                "Village-Wide Running, Full Mastery and Make Villagers Young "
-                "Adults process only Believers and skip Heathens; Change "
-                "Appearance for All changes every villager, Heathens included."
             )
         record_fields = {
             "stride": f"0x{config['stride']:X}",
@@ -1046,7 +881,6 @@ def main() -> None:
                     "vv2": "0x8B808",
                     "vv3": "0x97488",
                     "vv4": "0xA0CD8",
-                    "vv5": "0xAEF60",
                 }[game_id],
                 "entry_name": "running",
             },
@@ -1115,21 +949,64 @@ def main() -> None:
         # static/runtime-playtest options. It does not claim player or runtime
         # GO, and the package documentation preserves the reported crash gates.
         feature["enabled"] = enabled
-        if game_id == "vv5":
-            feature["explicit_non_changes"].append(
-                "VV5 Heathens are excluded from all three village-wide operations."
-            )
-            feature["record_fields"].update(
-                {
-                    "heathen_active_guard_offset": f"0x{config['heathen_active_guard']:X}",
-                    "faction_offset": f"0x{config['faction']:X}",
-                    "eligibility": "active != 0, heathen-active guard == 0, faction == believer (0), health > 0",
-                }
-            )
         manifest_path = ROOT / "data" / f"{feature_id}.json"
         manifest_path.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8", newline="")
         print(f"{game_id}: {len(payload):#x} bytes -> {manifest_path}")
 
 
+# VV5's public row carries no payload of its own.
+#
+# It used to install a 640-byte signed extension at 0x494C20 that the base
+# Origins Tech menu called for rows 6-8.  That menu is the legacy .shr one,
+# which never runs: the Task9 page replaces both Origins menu entries with
+# absolute jumps into its own page, and Task9 implements every village-wide
+# upgrade itself.  Nothing in any shipped build reached the extension, so it
+# was removed rather than kept.  The row stays the player's route to the
+# Origins upgrades: ticking it installs the internal base (the Task9 record).
+VV5_ROUTE = {
+    "id": "vv5_origins_village_wide_upgrades",
+    "game_id": "vv5",
+    "name": "Enable Origins Tech, Details, and Village-Wide Upgrades",
+    "description": (
+        "Includes the Origins Tech screen and Villager Details-screen buttons "
+        "and their upgrades through the internal Origins prerequisite, which "
+        "supplies every upgrade; this row adds no code of its own. The Tech "
+        "screen's Upgrades menu offers Time Warp, Island Event, Barrel of "
+        "Babies, Tech and Food Point Doublers, Full Heal/Cure All, Grant "
+        "Running to All Villagers, Grant Full Mastery to All Villagers, All "
+        "Villagers are Exactly 18, Complete and Reset All Collections, Equal "
+        "Division of Labor with and without Parenting, and Change Appearance "
+        "for All, the Villager Details screen grants Youth, Full Mastery, "
+        "Running, Set Age to 18, and Change Appearance, and the Heathen mask "
+        "cosmetics are included. The point doublers do not double Island "
+        "Event or Duplicate Collectible tech gains. The village-wide Running, "
+        "Full Mastery and Exactly 18 upgrades process only Believers and skip "
+        "Heathens; Change Appearance for All changes every villager, Heathens "
+        "included."
+    ),
+    "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
+    "dependencies": ["vv5_enable_origins_exclusive_features"],
+    "behavior_changes": [
+        "Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route.",
+        "Every upgrade, including the village-wide Running, Full Mastery and Exactly 18 rows, is implemented by the base feature's Task9 page; this row writes no bytes of its own.",
+    ],
+    "explicit_non_changes": [
+        "This row installs no executable bytes and no companion file of its own.",
+        "VV5 Heathens are excluded from the village-wide Running, Full Mastery and Exactly 18 upgrades.",
+    ],
+    "evidence_status": "route-only record; the upgrades it exposes are the base feature's",
+    "companion_files": [],
+    "patches": [],
+    "enabled": True,
+}
+
+
+def write_vv5_route() -> None:
+    manifest_path = ROOT / "data" / "vv5_origins_village_wide_upgrades.json"
+    manifest_path.write_text(json.dumps(VV5_ROUTE, indent=2) + "\n", encoding="utf-8", newline="")
+    print(f"vv5: route only -> {manifest_path}")
+
+
 if __name__ == "__main__":
     main()
+    write_vv5_route()
