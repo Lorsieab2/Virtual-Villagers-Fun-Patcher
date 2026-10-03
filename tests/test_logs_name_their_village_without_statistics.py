@@ -54,12 +54,14 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         present = function(source, "village_publisher_present")
         self.assertIn("return statistics_publisher_present() || cause_of_death_publishes();", present)
         cause = function(source, "cause_of_death_publishes")
-        # Shipped but not loaded yet: it will name the village, so wait.
-        self.assertIn('GetModuleHandleW(L"VVFP Cause of Death.dll")', cause)
-        self.assertIn("if (module == NULL) {\n        return 1;", cause)
-        # Loaded and refused: never -- and that is final.
+        # Not loaded yet: this DLL loads it rather than assume it will load
+        # (#512 review) -- a file that cannot load, or lacks the exports,
+        # will never name a village, which is final like a refusal.
+        self.assertIn("GetModuleHandleW(file)", cause)
+        self.assertIn("module = LoadLibraryW(path);", cause)
+        self.assertIn('|| GetProcAddress(module, "VvfpCauseInstall") == NULL) {\n            cause_state = -1;', cause)
         self.assertIn('GetProcAddress(module, "VvfpCauseNamesVillage")', cause)
-        self.assertIn("if (names == NULL || names() == -1) {\n        state = -1;", cause)
+        self.assertIn("if (names() == -1) {\n        cause_state = -1;", cause)
 
     def test_with_no_publisher_held_records_go_first(self) -> None:
         emit = function(PARENTAGE.read_text(encoding="utf-8"), "emit_record")

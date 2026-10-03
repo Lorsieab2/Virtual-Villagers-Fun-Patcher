@@ -2170,31 +2170,63 @@ static int statistics_publisher_present(void) {
 }
 
 /* Whether "VVFP Cause of Death.dll" will name the village at each save (see
-   above). Shipped beside the executable but not loaded yet -- the Origins
-   companion loads it once a village is shown, after the load-time catch-up
-   -- it will, so records wait for it. Loaded, it says itself: 1 installed,
-   0 not installed yet, -1 refused. A refusal is final. */
+   above). It says itself: 1 installed, 0 not installed yet (the Origins
+   companion installs it once a village is shown, after the load-time
+   catch-up, so records wait for it), -1 refused. A refusal is final.
+
+   Asked before the companion has loaded it, this DLL loads it -- by full
+   path from the executable's folder, as the companion does, never from
+   DllMain -- rather than assume it will load. Codex (#512 review): a
+   shipped file that cannot load, or that lacks the exports, will never name
+   a village, and treating it as a publisher held every record until exit,
+   where it was lost. Either is final, like a refusal. Loading it early runs
+   nothing but its DllMain; the companion's own load later shares the
+   module. */
 typedef int (__stdcall *cause_names_village_t)(void);
 
-static int cause_of_death_publishes(void) {
-    static int state;                 /* 0 undecided, -1 never */
-    HMODULE module;
-    cause_names_village_t names;
+static int cause_state;               /* 0 undecided, -1 never */
 
-    if (state != 0) {
+static int cause_of_death_publishes(void) {
+    static cause_names_village_t names;
+    wchar_t path[MAX_PATH];
+    wchar_t *slash;
+    DWORD n;
+    HMODULE module;
+    static const wchar_t file[] = L"VVFP Cause of Death.dll";
+
+    if (cause_state != 0) {
         return 0;
     }
     if (!deaths_recorder_present()) {
-        state = -1;
+        cause_state = -1;
         return 0;
     }
-    module = GetModuleHandleW(L"VVFP Cause of Death.dll");
-    if (module == NULL) {
-        return 1;
+    if (names == NULL) {
+        module = GetModuleHandleW(file);
+        if (module == NULL) {
+            n = GetModuleFileNameW(NULL, path, MAX_PATH);
+            slash = n != 0 && n < MAX_PATH ? wcsrchr(path, L'\\') : NULL;
+            if (slash == NULL
+                || (size_t)(slash + 1 - path) + sizeof(file) / sizeof(file[0]) > MAX_PATH) {
+                cause_state = -1;
+                return 0;
+            }
+            wcscpy(slash + 1, file);
+            module = LoadLibraryW(path);
+        }
+        if (module == NULL
+            || GetProcAddress(module, "VvfpCauseInstall") == NULL) {
+            cause_state = -1;
+            return 0;
+        }
+        names = (cause_names_village_t)GetProcAddress(module, "VvfpCauseNamesVillage");
+        if (names == NULL) {
+            cause_state = -1;
+            return 0;
+        }
     }
-    names = (cause_names_village_t)GetProcAddress(module, "VvfpCauseNamesVillage");
-    if (names == NULL || names() == -1) {
-        state = -1;
+    if (names() == -1) {
+        cause_state = -1;
         return 0;
     }
     return 1;

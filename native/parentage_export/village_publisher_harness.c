@@ -30,6 +30,7 @@
         unlabelled -- held ones first, in order -- exactly as with neither
         companion. Uses the TEST build of the companion, renamed beside the
         harness, whose install is refused here because no game is mapped.
+     6b. Cause of Death shipped but unable to load: the same, at once.
      7. Neither companion: records are written at once, unlabelled, as
         before.
 
@@ -56,6 +57,7 @@ typedef int (__stdcall *birth_t)(int, const char *, int, int, const char *, int,
                                  const char *, int, int, const void *);
 typedef int (__stdcall *publish_t)(int, const void *, int);
 typedef int (__stdcall *install_t)(int, const void *);
+typedef int (__stdcall *setup_t)(int, const void *, void *);
 
 enum { DEATH = 2 };
 
@@ -187,6 +189,30 @@ static void stand_in(const char *name, int present) {
     }
 }
 
+/* Unload every reference to the Cause of Death companion, so the next phase
+   starts without it (the parentage DLL may have loaded it itself). */
+static void drop_cause(void) {
+    HMODULE h;
+    while ((h = GetModuleHandleA("VVFP Cause of Death.dll")) != NULL) {
+        FreeLibrary(h);
+    }
+}
+
+/* The companion beside the executable: its TEST build (which loads, and
+   reports it is not installed yet), or an empty file that cannot load. */
+static void cause_beside(const char *test_dll, int loadable) {
+    char path[MAX_PATH];
+    drop_cause();
+    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+    path[MAX_PATH - 1] = 0;
+    if (loadable) {
+        CopyFileA(test_dll, path, FALSE);
+    } else {
+        HANDLE h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+    }
+}
+
 static void load(void) {
     dll = LoadLibraryA(dll_path);
     if (dll == NULL) { printf("cannot load %s\n", dll_path); ExitProcess(2); }
@@ -231,6 +257,7 @@ int main(int argc, char **argv) {
     char expected[160];
     int game;
 
+    setvbuf(stdout, NULL, _IONBF, 0);
     if (argc < 3) {
         printf("usage: village_publisher_harness <parentage dll> <cause of death test dll>\n");
         return 2;
@@ -239,7 +266,7 @@ int main(int argc, char **argv) {
     if (!locate()) return 2;
     wipe(1);
     stand_in("VVFP Statistics Export.dll", 0);
-    stand_in("VVFP Cause of Death.dll", 1);
+    cause_beside(argv[2], 1);
 
     for (game = 1; game <= 5; ++game) {
         unsigned char *buffer;
@@ -252,6 +279,18 @@ int main(int argc, char **argv) {
         villager(2, "Cala", 300, 1, 2);
         vv_village_publish("");         /* a new session: nothing named yet */
         load();
+        {
+            /* The companion as the game has it once installed: its TEST
+               build, pointed at this table (no game image is mapped here,
+               so its own table addresses cannot be read). */
+            char cause[MAX_PATH];
+            HMODULE companion;
+            setup_t setup;
+            _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+            companion = LoadLibraryA(cause);
+            setup = companion != NULL ? (setup_t)GetProcAddress(companion, "VvfpCauseTestSetup") : NULL;
+            CHECK(setup != NULL && setup(game, NULL, records) == 1, "Cause of Death is installed");
+        }
 
         /* 1: before the first save, records are held. */
         CHECK(birth(game, "", -1, -1, "Ana", 3, 4, "Bonedry", 7, 9, rec(2)) == 1,
@@ -300,6 +339,7 @@ int main(int argc, char **argv) {
 
         free(buffer);
         FreeLibrary(dll);
+        drop_cause();
         free_table(game);
         wipe(0);
     }
@@ -334,6 +374,7 @@ int main(int argc, char **argv) {
         install_t install;
         const char *shipped = dll_path;
         _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+        drop_cause();
         CHECK(CopyFileA(argv[2], cause, FALSE), "the companion's TEST build is beside the harness");
         /* The companion loads the parentage DLL from the executable's folder,
            so this phase uses that copy: one module, one queue. */
@@ -359,6 +400,7 @@ int main(int argc, char **argv) {
               "is written at once, unlabelled, after the held one, in order");
         if (companion != NULL) FreeLibrary(companion);
         FreeLibrary(dll);
+        drop_cause();
         free_table(3);
         DeleteFileA(cause);
         DeleteFileA(beside);
@@ -366,8 +408,28 @@ int main(int argc, char **argv) {
         wipe(0);
     }
 
+    /* 6b: Cause of Death shipped but unloadable (#512 review): it can never
+       name a village, so records are written at once, unlabelled -- not
+       held until exit. */
+    printf("Virtual Villagers 3: Cause of Death cannot load\n");
+    cause_beside(argv[2], 0);
+    g = &LAYOUTS[2];
+    records = alloc_table(3);
+    villager(0, "Ana", 600, 3, 4);
+    villager(1, "Bonedry", 1234, 7, 9);
+    load();
+    vv_village_publish("");
+    CHECK(write_record(3, DEATH, rec(1), 1, BURIED, NULL, 1) == 1 && read_deaths(3)
+          && STARTS("Death 1\r\n  Name: Bonedry\r\n"),
+          "a death is written at once, unlabelled, not held for a companion that cannot load");
+    FreeLibrary(dll);
+    drop_cause();
+    free_table(3);
+    wipe(0);
+
     /* 7: neither companion. */
     printf("Virtual Villagers 3: neither companion\n");
+    drop_cause();
     stand_in("VVFP Cause of Death.dll", 0);
     g = &LAYOUTS[2];
     records = alloc_table(3);
