@@ -105,7 +105,9 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertIn("MASK_BIRTH_DIRTY_VA = DATA_SCRATCH_BASE_VA + 0x1FC", self.generator)
         self.assertIn("mov byte ptr [0x{MASK_BIRTH_DIRTY_VA:X}], 1", self.generator)
         self.assertIn("C605FC11490001", cave["after"])
-        self.assertIn("mov ecx, dword ptr [esp + 0x30]", self.generator)
+        self.assertIn("mov ecx, dword ptr [esp + 0x34]", self.generator)
+        self.assertNotIn("mov ecx, dword ptr [esp + 0x30]", self.generator)
+        self.assertIn("608B4C243481F9", cave["after"])
         self.assertIn("MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B", self.generator)
         self.assertIn(
             "exact sub_43C350 allocation boundary at 0x43C393",

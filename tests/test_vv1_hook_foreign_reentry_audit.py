@@ -170,10 +170,12 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       untouched). No stock re-entry is added.
 #   0x3C393                         confirmed.  Exact stock sub_43C350 selects
 #       the first free record, sets its occupied/faction bytes at this
-#       boundary, and keeps the selected record index in [esp+0x10]. The cave
-#       replays those two stores, pushad/popad-brackets a bounds-checked clear
-#       of the patch-owned mask nibble for that exact index, and resumes at
-#       0x43C39B. No villager-record bytes or incoming flags are consumed by
+#       boundary, and keeps the selected record index in the local written as
+#       [esp+0x10]; 0x43C391 `push 0x4e` precedes the splice, so here it is
+#       [esp+0x14] ([esp+0x34] after pushad -- [esp+0x30] is the caller's
+#       saved EBX, which the first review missed). The cave replays those two
+#       stores, pushad/popad-brackets a bounds-checked clear of the patch-owned
+#       mask nibble for that exact index, and resumes at 0x43C39B. No villager-record bytes or incoming flags are consumed by
 #       the clear path.
 #   No entry in this review was unsafe or unknown. The hashes below are the
 #   post-review generated cave bytes.
@@ -461,7 +463,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # Re-reviewed for v1.35.45: the three-child one-shot's clear is removed
     # with the flag itself; one absolute store fewer, nothing else changes.
     ("vv1_enable_origins_exclusive_features", "0x2ED0"): "08F2B73E12E206FA84370D0524044FFC261AA9760A11930AD0D35E0AFBE439BE",
-    ("vv1_enable_origins_exclusive_features", "0x3C393"): "323F30C734F89D8ABAF15C4C864AC78A0320AE634B5D4D99EA826801C35F8044",
+    ("vv1_enable_origins_exclusive_features", "0x3C393"): "D5FC3AE7C5A990A28E182EAC7C8A2D55696B8699FFD5043F27270E1366768445",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock
     # at the NATURAL resume (0x43779F=splice+7, 0x438909=splice+9), so no
