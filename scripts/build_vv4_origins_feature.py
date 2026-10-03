@@ -174,6 +174,10 @@ BARREL_CHECK1_VA = 0x728B40
 BARREL_CHECK2_FILE_OFFSET = 0xCCB60
 BARREL_CHECK2_VA = 0x728B60
 BARREL_RECORD_LIMIT = 150               # villager record array size (0x467499 imm)
+# The villager manager: ECX for the stock population counter 0x467610 and the
+# barrel room-check 0x468350. Records at +0x44, stride 0x2E3C, occupied byte
+# at record +0x1CC4 (manager +0x1D08).
+VV4_VILLAGER_MANAGER_VA = 0x50E568
 # Barrel purchase gate: refuse (no charge) only when the 3 children would not fit
 # in the record array. The tiered growth cap is intentionally NOT used here -- the
 # purchased barrel is allowed to push past it, up to the array limit.
@@ -2198,16 +2202,19 @@ def main() -> None:
             # reads as small while its slots are nearly all taken -- and the
             # spawn's own per-child room check then stops partway.
             #
-            # Layout from that counter: records at manager+0x1D08, stride
-            # 0x2E3C, 150 slots, occupied byte at +0. eax already holds the
-            # world singleton, and it was null-checked above.
+            # Layout from that counter, which is called with ECX = the
+            # villager manager 0x{VV4_VILLAGER_MANAGER_VA:X}: occupied bytes at
+            # manager+0x1D08 (record +0x44, flag +0x1CC4), stride 0x2E3C, 150
+            # slots. The walk starts at that static table itself. It used to
+            # start at the WORLD singleton [0x4CB51C] + 0x1D08 instead -- a
+            # different, 0x171C8-byte heap object -- so it counted three zero
+            # bytes in the world and reported room whatever the villager
+            # table held; measured live, a village with one free slot was
+            # still offered the barrel and received one child.
             push ecx
             push ebx
             push esi
-            mov ecx, dword ptr [0x4CB51C]
-            test ecx, ecx
-            jz pending_rows_slots_ok
-            add ecx, 0x1D08
+            mov ecx, 0x{VV4_VILLAGER_MANAGER_VA + 0x1D08:X}
             xor esi, esi
             mov ebx, 0x96
         pending_rows_count:
