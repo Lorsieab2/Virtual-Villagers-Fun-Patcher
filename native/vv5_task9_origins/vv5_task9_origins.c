@@ -5,9 +5,11 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
-   150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20. The
+   150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
+   256 Villagers (Experimental), 256 x 4 bits = 128 bytes at 0x7F1400). The
    safest way to persist it is OUTSIDE the game's save flow (VV5's autosave does
    not re-run get_save_path, so an exe save-hook never fires). Instead the native
    code writes it from the chooser (WriteMaskSidecar, on OK) and the render path
@@ -18,17 +20,63 @@
    village slot at 0x7B1D7C, so each village keeps its own sidecar instead of one
    shared file bleeding masks across slots. The sidecar is a SEPARATE file from the
    .ldw, so it can never corrupt a save. */
-#define MASK_TABLE_BYTES 75
+/* The villager slots: 150, or 256 with 256 Villagers (Experimental).  The
+   record base, the slot count and the mask table are read from the running
+   executable (native/shared/vv5_villager_table.h), so this one DLL serves
+   either build; tables here are sized for the larger one and every walk
+   stops at vv5_slots(). */
+#define VV5_MAX_VILLAGERS 256
+#define MASK_TABLE_MAX_BYTES (VV5_MAX_VILLAGERS / 2)
+
+static unsigned int g_vv5_rec_base;
+static int g_vv5_slots;
+
+static void vv5_locate(void) {
+    unsigned int rva, slots;
+    if (g_vv5_rec_base != 0) {
+        return;
+    }
+    vv5_villager_table((const unsigned char *)(UINT_PTR)0x400000u, &rva, &slots);
+    g_vv5_slots = (int)slots;
+    g_vv5_rec_base = 0x400000u + rva + 0x48u;
+}
+
+static unsigned int vv5_rec_base(void) {
+    vv5_locate();
+    return g_vv5_rec_base;
+}
+
+static int vv5_slots(void) {
+    vv5_locate();
+    return g_vv5_slots;
+}
+
+/* The nibble table: 0x7B1D20 (75 bytes) in a 150-slot build, 0x7F1400 (128
+   bytes) in the 256 build, where the page's mask helpers are composed to it. */
+static unsigned char *vv5_mask_table(void) {
+    return (unsigned char *)(UINT_PTR)(vv5_slots() == 256 ? VV5_256_MASK_TABLE : VV5_STOCK_MASK_TABLE);
+}
+
+static DWORD vv5_mask_table_bytes(void) {
+    return (DWORD)vv5_slots() / 2u;
+}
+
 /* 'VM05' -- a mask sidecar bound to the living roster of the village that
-   wrote it (see VV5 VILLAGE IDENTITY below).  The two earlier formats are
-   rejected by this magic rather than misread: the original untagged 75-byte
-   file has no header at all, and v1.35.13's 'VM01' carried a tag read from
-   the wrong object, which is why it never got written in the first place. */
+   wrote it (see VV5 VILLAGE IDENTITY below): the magic, 150 roster hashes and
+   the 75-byte table.  The two earlier formats are rejected by this magic
+   rather than misread: the original untagged 75-byte file has no header at
+   all, and v1.35.13's 'VM01' carried a tag read from the wrong object, which
+   is why it never got written in the first place.  'VM25' is the same for
+   the 256 Villagers build: 256 hashes and a 128-byte table.  Each build
+   writes its own format (a 150-slot build's files are byte-for-byte what
+   they always were) and reads both, so a village copied from a 150-slot
+   build keeps its masks in the 256 build. */
 #define VV5_MASK_SIDECAR_MAGIC 0x35304D56u
+#define VV5_MASK_SIDECAR_MAGIC_256 0x35324D56u
 /* Current save slot, written by the exe slot_capture detour (0 until the first
    save/load; village slots are >=1, slot 0 is the meta file). */
 #define VV5_SLOT_SCRATCH 0x007B1D7Cu
-#define VV5_MASK_TABLE 0x007B1D20u /* nibble-packed side-table, 150 villagers */
+#define VV5_MASK_TABLE vv5_mask_table() /* nibble-packed side-table, one nibble per slot */
 
 static HINSTANCE module_instance;
 static HWND origins_owner;
@@ -268,13 +316,12 @@ static int build_mask_sidecar_path(char *out) {
    owner's running village (104 living villagers, names and ages where these
    offsets say): the array sits at exe 0x554148 (the same object the save
    routine gathers into buffer+0xC90C), records start 0x48 in, stride 0x2F44,
-   150 slots, active byte at +0x1CD4, name at +0x1B9C (25 bytes). */
-#define VV5_VILLAGERS_VA    0x00554148u
-/* Records start 0x48 into that object: 0x554190, the same VV5_RECORD_BASE the
-   barrel-capacity check below uses, with the same stride. */
-#define VV5_ROSTER_RECORDS  (VV5_VILLAGERS_VA + 0x48u)
+   150 slots, active byte at +0x1CD4, name at +0x1B9C (25 bytes).  With 256
+   Villagers the object is at 0x800000 with 256 slots (vv5_rec_base,
+   vv5_slots). */
+#define VV5_ROSTER_RECORDS  vv5_rec_base()
 #define VV5_ROSTER_STRIDE   0x2F44u
-#define VV5_RECORD_COUNT    150
+#define VV5_RECORD_COUNT    VV5_MAX_VILLAGERS
 #define VV5_ACTIVE_OFFSET   0x1CD4u
 #define VV5_NAME_OFFSET     0x1B9Cu
 #define VV5_NAME_CAPACITY   0x19
@@ -285,13 +332,15 @@ static int g_vv5_have_roster;
 static int g_vv5_slot;                 /* the slot the table was loaded for */
 static DWORD g_vv5_sync_tick;          /* last roster check, GetTickCount */
 
-/* Fill out[] from the live records.  Returns the number of living villagers;
-   0 means "no village is loaded", and every caller treats that as unknown. */
+/* Fill out[] from the live records (slots past this build's count read as
+   inactive).  Returns the number of living villagers; 0 means "no village is
+   loaded", and every caller treats that as unknown. */
 static int vv5_roster_snapshot(unsigned int *out) {
     const unsigned char *base =
         (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
-    int i, live = 0;
-    for (i = 0; i < VV5_RECORD_COUNT; ++i) {
+    int i, live = 0, slots = vv5_slots();
+    memset(out, 0, VV5_RECORD_COUNT * sizeof(unsigned int));
+    for (i = 0; i < slots; ++i) {
         const unsigned char *rec = base + (unsigned int)i * VV5_ROSTER_STRIDE;
         const unsigned char *name;
         unsigned int h = 2166136261u;          /* FNV-1a */
@@ -365,8 +414,8 @@ static int vv5_roster_equal(const unsigned int *a, const unsigned int *b) {
     return 1;
 }
 
-/* Persist the mask side-table (75 bytes at exe 0x7B1D20, passed in) together
-   with the roster it belongs to.  Called from the chooser on OK and whenever
+/* Persist the mask side-table (75 bytes at exe 0x7B1D20, or 128 at 0x7F1400
+   with 256 Villagers; passed in) together with the roster it belongs to.  Called from the chooser on OK and whenever
    the roster changes under the same village.  A village that has never been
    identified writes nothing: an unsnapshotted file could never be matched,
    and writing one would recreate the very bleed this exists to stop.  Never
@@ -376,22 +425,33 @@ static int vv5_roster_equal(const unsigned int *a, const unsigned int *b) {
    been found missing, or -- present but invalid -- been moved aside intact. */
 static vv_sidecar_gate g_vv5_mask_gate;
 
-#define VV5_MASK_SIDECAR_BYTES (4 + sizeof(g_vv5_roster) + MASK_TABLE_BYTES)
+/* A file of `count` slots: the magic, `count` roster hashes, `count` / 2
+   table bytes. */
+#define VV5_MASK_SIDECAR_BYTES_FOR(count) (4 + (count) * sizeof(unsigned int) + (count) / 2)
+#define VV5_MASK_SIDECAR_MAX_BYTES VV5_MASK_SIDECAR_BYTES_FOR(VV5_MAX_VILLAGERS)
 
-static int vv5_mask_sidecar_valid(const unsigned char *data, DWORD len,
-                                  void *ctx) {
+/* The slot count a sidecar was written for -- 150 ('VM05') or 256 ('VM25')
+   -- or 0 when it is neither or too short for its own format. */
+static int vv5_mask_sidecar_count(const unsigned char *data, DWORD len) {
     unsigned int magic;
-    (void)ctx;
-    if (len < VV5_MASK_SIDECAR_BYTES) {
+    int count;
+    if (len < 4) {
         return 0;
     }
     memcpy(&magic, data, sizeof(magic));
-    return magic == VV5_MASK_SIDECAR_MAGIC;
+    count = magic == VV5_MASK_SIDECAR_MAGIC ? 150 : magic == VV5_MASK_SIDECAR_MAGIC_256 ? 256 : 0;
+    return count != 0 && len >= VV5_MASK_SIDECAR_BYTES_FOR((DWORD)count) ? count : 0;
+}
+
+static int vv5_mask_sidecar_valid(const unsigned char *data, DWORD len,
+                                  void *ctx) {
+    (void)ctx;
+    return vv5_mask_sidecar_count(data, len) != 0;
 }
 
 __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table) {
     char path[MAX_PATH];
-    unsigned int magic = VV5_MASK_SIDECAR_MAGIC;
+    unsigned int magic = vv5_slots() == 256 ? VV5_MASK_SIDECAR_MAGIC_256 : VV5_MASK_SIDECAR_MAGIC;
     const void *parts[3];
     DWORD sizes[3];
     if (table == NULL || !g_vv5_have_roster) {
@@ -410,8 +470,8 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
        payload goes to "<path>.tmp", each write is checked, and only a
        complete, flushed file replaces the published one. */
     parts[0] = &magic;        sizes[0] = sizeof(magic);
-    parts[1] = g_vv5_roster;  sizes[1] = sizeof(g_vv5_roster); /* binds the file to its village */
-    parts[2] = table;         sizes[2] = MASK_TABLE_BYTES;
+    parts[1] = g_vv5_roster;  sizes[1] = (DWORD)vv5_slots() * sizeof(unsigned int); /* binds the file to its village */
+    parts[2] = table;         sizes[2] = vv5_mask_table_bytes();
     (void)vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3);
 }
 
@@ -427,8 +487,11 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
     char path[MAX_PATH];
     DWORD got = 0;
     unsigned int filesnap[VV5_RECORD_COUNT];
-    unsigned char file[VV5_MASK_SIDECAR_BYTES];
-    unsigned char buf[MASK_TABLE_BYTES];
+    unsigned char file[VV5_MASK_SIDECAR_MAX_BYTES];
+    unsigned char buf[MASK_TABLE_MAX_BYTES];
+    DWORD table_bytes = vv5_mask_table_bytes();
+    int count;
+    int kept;
     int i;
     int status;
     /* FAIL CLOSED: the clear precedes EVERY exit.
@@ -441,7 +504,7 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
 
        The refusal is still REPORTED, so the caller does not latch the roster
        and adopt an empty table as this village's state. */
-    memset(table, 0, MASK_TABLE_BYTES);
+    memset(table, 0, table_bytes);
     vv_sidecar_gate_bind(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH);
     if (vv_sidecar_gate_throttled(&g_vv5_mask_gate)) {
         return 0;               /* blocked a moment ago: no I/O until the retry */
@@ -466,16 +529,23 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
        snapshot shares at most a coincidence with the village on screen.
        That is a valid file of another village, not a damaged one: it stays
        in place, as before, for this village's first write to replace. */
-    memcpy(filesnap, file + 4, sizeof(filesnap));
-    memcpy(buf, file + 4 + sizeof(filesnap), sizeof(buf));
+    /* The file's own slot count (150 or 256, validated above).  Slots past
+       this build's count are not loaded; slots past the file's stay
+       unmasked and out of the roster comparison. */
+    count = vv5_mask_sidecar_count(file, got);
+    kept = count < vv5_slots() ? count : vv5_slots();
+    memset(filesnap, 0, sizeof(filesnap));
+    memset(buf, 0, sizeof(buf));
+    memcpy(filesnap, file + 4, (size_t)kept * sizeof(unsigned int));
+    memcpy(buf, file + 4 + (size_t)count * sizeof(unsigned int), (size_t)kept / 2);
     if (vv5_roster_same(filesnap, live)) {
         /* Sidecars are user-writable: only 0 (none) through 5 are valid
            nibbles, so normalise before publishing to the render thunks. */
-        for (i = 0; i < MASK_TABLE_BYTES; ++i) {
+        for (i = 0; i < (int)table_bytes; ++i) {
             if ((buf[i] & 0x0Fu) >= VV5_MASK_COUNT) buf[i] &= 0xF0u;
             if ((buf[i] >> 4) >= VV5_MASK_COUNT) buf[i] &= 0x0Fu;
         }
-        memcpy(table, buf, sizeof(buf));
+        memcpy(table, buf, table_bytes);
     }
     return 1;
 }
@@ -761,7 +831,7 @@ enum {
    game's own population counter skips it, so a village full of bodies reads as
    small while its slots are nearly all taken -- and the barrel then spawns
    fewer children than it charged for, sometimes none. */
-#define VV5_RECORD_BASE      0x554190
+#define VV5_RECORD_BASE      vv5_rec_base()
 #define VV5_RECORD_STRIDE    0x2F44
 #define VV5_SLOT_BOUND_PTR   0x41F1E6
 #define VV5_OFF_ACTIVE       0x1CD4
@@ -1099,9 +1169,9 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
 #define IDC_CAF_BODIES_RAND  3261
 
 /* VV5 game globals (non-ASLR, absolute) */
-#define VV5_REC_BASE   0x00554190u
+#define VV5_REC_BASE   vv5_rec_base()   /* 0x554190, or 0x800048 with 256 Villagers */
 #define VV5_REC_STRIDE 0x2F44u
-#define VV5_REC_COUNT  150
+#define VV5_REC_COUNT  VV5_MAX_VILLAGERS /* array sizes; every walk stops at vv5_slots() */
 #define VV5_OFF_ACTIVE 0x1CD4      /* byte, 0 = free/dead */
 #define VV5_OFF_SEX    0x1B90      /* dword, 0 = male, 1 = female */
 #define VV5_OFF_AGE    0x1B8C      /* dword */
@@ -1230,8 +1300,8 @@ static void caf_shuffle(int *a, int n) {
 static int caf_apply(void) {
     int active[VV5_REC_COUNT];
     int sex_of[VV5_REC_COUNT];
-    int na = 0, i, touched = 0;
-    for (i = 0; i < VV5_REC_COUNT; ++i) {
+    int na = 0, i, touched = 0, slots = vv5_slots();
+    for (i = 0; i < slots; ++i) {
         unsigned char *r = caf_rec(i);
         if (r[VV5_OFF_ACTIVE] == 0) continue;
         active[na] = i;
@@ -1526,8 +1596,8 @@ typedef void(__fastcall *vv5_charge_fn)(void *balance, int unused_edx, int delta
    so needs the count before either. */
 static int vv5_village_occupied(void) {
     const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_REC_BASE;
-    int i, occupied = 0;
-    for (i = 0; i < VV5_REC_COUNT; ++i) {
+    int i, occupied = 0, slots = vv5_slots();
+    for (i = 0; i < slots; ++i) {
         if (base[(size_t)i * VV5_REC_STRIDE + VV5_OFF_ACTIVE] != 0) {
             ++occupied;
         }
@@ -1540,7 +1610,7 @@ static int vv5_time_warp_apply(int speed, int years) {
     unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
     int units = years * VV5_TW_UNITS_PER_YEAR;   /* the base-rate credit */
     int delta = units * 60 * speed;              /* the real seconds it costs */
-    int i, occupied = vv5_village_occupied();
+    int i, occupied = vv5_village_occupied(), slots = vv5_slots();
 
     if (occupied == 0) {
         return 0;
@@ -1558,7 +1628,7 @@ static int vv5_time_warp_apply(int speed, int years) {
     }
 
     /* Half two: exact ages, past the clamp. */
-    for (i = 0; i < VV5_REC_COUNT; ++i) {
+    for (i = 0; i < slots; ++i) {
         unsigned char *rec = base + (size_t)i * VV5_REC_STRIDE;
         int rate;
         if (rec[VV5_OFF_ACTIVE] == 0) {
@@ -1639,7 +1709,7 @@ static int vv5_story_index(void *record) {
         return -1;
     }
     delta = (unsigned int)(UINT_PTR)record - VV5_REC_BASE;
-    if (delta % VV5_REC_STRIDE != 0 || delta / VV5_REC_STRIDE >= VV5_REC_COUNT) {
+    if (delta % VV5_REC_STRIDE != 0 || delta / VV5_REC_STRIDE >= (unsigned int)vv5_slots()) {
         return -1;
     }
     return (int)(delta / VV5_REC_STRIDE);
@@ -2048,7 +2118,7 @@ static const char *vpl_pos(unsigned int n) { return n == 1 ? "Villager's" : "Vil
    mothers, and adults. The per-profession, per-sex breakdown does not fit
    ShowVV5Task9Result's two counts, so this composes and shows its own result. */
 #define VV5_ED_STRIDE     0x2F44
-#define VV5_ED_COUNT      150
+#define VV5_ED_COUNT      vv5_slots()   /* 150, or 256 with 256 Villagers */
 #define VV5_ED_ACTIVE     0x1CD4
 #define VV5_ED_MASK       0x1CE1
 #define VV5_ED_FACTION    0x1CEC

@@ -748,6 +748,18 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 ### Optional features
 
+#### 256 Villagers (Experimental) (`vv3_population_256`)
+
+EXPERIMENTAL. Gives The Secret City 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 221 plus the collection and Magic Level 3 bonuses (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 125 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Secret City - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
+- Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 125. Nothing changes for a build that does not tick this patch.
+- Dependencies: none
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live-tested with the game driven through its memory (an old save upgraded, filled to 256, triplets born into slots 200, 253 and 254 and a baby into slot 255, saved and reloaded); a hands-on live pass is pending
+- Guarded executable edits: 570; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Birth Control (`vv3_birth_control`)
 
 Requires BOTH parenting skill and the checked preference before a villager will initiate Embracing. The native chooser's score floor remains in force and the scanned candidate stays in the stock internal-age 360..999 range, but the 25% non-preference fallback is removed: a roll that admitted one unchecked villager in four is the reported leak. The initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
@@ -997,6 +1009,18 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 ### Optional features
 
+#### 256 Villagers (Experimental) (`vv4_population_256`)
+
+EXPERIMENTAL. Gives The Tree of Life 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 231 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 115 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Tree of Life - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
+- Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 115. Nothing changes for a build that does not tick this patch.
+- Dependencies: none
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live-tested with the game driven through its memory (an old save upgraded, filled to 256, triplets born into slots 253, 254 and 255, saved and reloaded); a hands-on live pass is pending
+- Guarded executable edits: 453; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Builders and Healers Work First (`vv4_builders_and_healers_work_first`)
 
 Builders and healers are more likely to do their own work first, at any food level -- about three times in four each time the game chooses what they do; the rest of the time the game chooses exactly as it always has, and the one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. When it steps in: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. This also applies during catch-up -- the time that passes while the game is closed, and Time Warp: each time catch-up chooses work for a builder or healer, about three times in four they are first given their own job (a builder only while it has hut work, as above), so they keep gaining skill while you are away; the rest of the time, and whenever there is nothing of theirs to do, catch-up's own choice stands. Villagers with any other job are untouched. Catch-up's low-food rule still wins: at 250 food or less a villager with Farming 20 or more farms, whatever their job. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, whose stub does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.
@@ -1190,6 +1214,18 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 Supported stock identity is the exact `Virtual Villagers - New Believers.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 13 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
+
+#### 256 Villagers (Experimental) (`vv5_population_256`)
+
+EXPERIMENTAL. Gives New Believers 256 villager slots (0 to 255) instead of 150 (believers, Heathens and Reanimate stand-ins share them, as in the stock game). The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, Heathens, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 241 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 105 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - New Believers - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
+- Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 105. Nothing changes for a build that does not tick this patch.
+- Dependencies: none
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live-tested with the game driven through its memory (an old save upgraded, filled to 255, triplets born into slots 200, 253 and 254, saved and reloaded); a hands-on live pass is pending
+- Guarded executable edits: 669; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Builders and Healers Work First (`vv5_builders_and_healers_work_first`)
 

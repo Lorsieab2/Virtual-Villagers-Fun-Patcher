@@ -2,7 +2,10 @@
 
    Every address below was traced in the stock executable and is identical in
    the three renders (docs/story-cheat-upgrades.md).  The villager manager is
-   0x50E568; record i at 0x50E5AC + i*0x2E3C, 150 records.
+   0x50E568; record i at 0x50E5AC + i*0x2E3C, 150 records -- or, with 256
+   Villagers (Experimental), 0x800000 and 256 records: both are read from the
+   executable (native/shared/vv4_villager_table.h), so this one DLL serves
+   either build.
 
    DELIVERY.  The island-event selector 0x418000 has chosen at 0x4180F7 (the
    Pick Island Event site): with a custom event armed, the changes are made
@@ -11,10 +14,40 @@
    0x32A / 0x32B, The Salty Air's, which have no event object and which no
    code names. */
 
-#define C4_MANAGER 0x50E568u
-#define C4_RECORDS 0x50E5ACu
+#include "../shared/vv4_villager_table.h"
+
+static unsigned int c4_table_manager;
+static int c4_table_count;
+
+/* The manager and its slot count, as the executable names them; read once.
+   The image is not relocatable, so its base is 0x400000. */
+static void c4_locate(void) {
+    unsigned int rva, slots;
+    if (c4_table_manager != 0) {
+        return;
+    }
+    vv4_villager_table((const unsigned char *)(uintptr_t)0x400000u, &rva, &slots);
+    c4_table_count = (int)slots;
+    c4_table_manager = 0x400000u + rva;
+}
+
+static unsigned int c4_manager(void) {
+    c4_locate();
+    return c4_table_manager;
+}
+
+static int c4_count(void) {
+    c4_locate();
+    return c4_table_count;
+}
+
+#define C4_MANAGER c4_manager()
+#define C4_RECORDS (c4_manager() + 0x44u)
 #define C4_STRIDE 0x2E3Cu
-#define C4_COUNT 150
+#define C4_COUNT c4_count()
+/* The adapter's record count at compile time: the stock table.  The adapter
+   handed out at run time (c4_adapter) carries the executable's own count. */
+#define C4_STOCK_COUNT 150
 #define C4_FOOD 0x4D6DD0u
 #define C4_TECH 0x4D6F88u
 #define C4_TITLE_ID 0x32A
@@ -34,7 +67,7 @@ static int c4_listed(const unsigned char *r) {
 }
 
 /* Records in use (corpses keep theirs until buried) plus the babies on the
-   way, against the 150 records. */
+   way, against the records (150, or 256). */
 static int c4_demand(void) {
     int i;
     int n = 0;
@@ -62,12 +95,13 @@ static const char *c4_arm_refusal(void) {
 }
 
 /* The game's own room predicate 0x468350 (the mode's cap, the housing
-   gates) and the 150 records. */
+   gates) and the physical records. */
 static int c4_room(void) {
     return (TC0(0x468350u, C4_MANAGER) & 0xFF) != 0 && c4_demand() < C4_COUNT;
 }
 
 static const ce_adapter C4_ADAPTER;
+static const ce_adapter *c4_adapter(void);
 
 /* 0x467D10 (thiscall on the manager: attribute, skill, value, sex, age; ret
    0x14) -- the creator the Daredevil Barrel uses.  Attribute -1 is the
@@ -81,7 +115,7 @@ static int c4_spawn(const ce_spawn *s) {
     if (index < 0 || index >= C4_COUNT) {
         return -1;
     }
-    ce_apply_spawn_record(&C4_ADAPTER, c4_record(index), s);
+    ce_apply_spawn_record(c4_adapter(), c4_record(index), s);
     return index;
 }
 
@@ -565,7 +599,7 @@ static const ce_adapter C4_ADAPTER = {
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Tree of Life",
     0x118, 40, 1100,
-    C4_COUNT, 0x19,
+    C4_STOCK_COUNT, 0x19,
     0x1B9C, 0x1B90, 0x1B8C, 0x1BB8, 0x1BBC, 0x1E60, 0x1E6C, 0x1C5C,
     0, 1,
     3, 79,
@@ -672,4 +706,17 @@ __declspec(naked) static void c4_title_stub(void) {
         push 0x4404DE
         ret
     }
+}
+
+/* C4_ADAPTER with the executable's own slot count (150, or 256 with 256
+   Villagers). */
+static const ce_adapter *c4_adapter(void) {
+    static ce_adapter adapter;
+    static int ready;
+    if (!ready) {
+        adapter = C4_ADAPTER;
+        adapter.record_count = c4_count();
+        ready = 1;
+    }
+    return &adapter;
 }

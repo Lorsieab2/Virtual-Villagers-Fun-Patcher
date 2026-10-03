@@ -17,7 +17,9 @@ PHYSICAL POPULATION LIMITS
 
 A New Home and The Lost Children have 256 stock villager records.
 The Secret City, The Tree of Life, and New Believers have 150 stock records.
-Expanded-256 population modes have been removed from the patcher.
+The old Expanded-256 population modes have been removed from the patcher; for
+those three games, the optional "256 Villagers (Experimental)" patch gives 256
+slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
 2. Choose one of the three population modes:
@@ -58,12 +60,14 @@ Expanded-256 population modes have been removed from the patcher.
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works" and/or
-   "Enable Origins Tech, Details, and Village-Wide Upgrades". VV3 selected-villager Running and
+   "Enable Origins Tech, Details, and Village-Wide Upgrades" and/or the
+   experimental "256 Villagers (Experimental)". VV3 selected-villager Running and
    Full Heal / Cure All are disabled, catalog-hidden, and absent from GUI, CLI,
    and Select All. Their retained candidate records are evidence only.
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins Tech,
-   Details, and Village-Wide Upgrades". VV4 remains the untouched vanilla Breeding and Embracing
+   Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
+   (Experimental)". VV4 remains the untouched vanilla Breeding and Embracing
    reference unless you check "Manual Drop-Breeding overrides Birth Control"
    (step 8), which changes only the manual drop's 50-and-over refusal; the
    historical Birth Control candidate is rejected/superseded and is not
@@ -72,7 +76,8 @@ Expanded-256 population modes have been removed from the patcher.
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or
    "VV4 Nursery School Divisor Parity" and/or
-   "Enable Origins Tech, Details, and Village-Wide Upgrades".
+   "Enable Origins Tech, Details, and Village-Wide Upgrades" and/or the
+   experimental "256 Villagers (Experimental)".
 8. Optional for any game: check that game's "Write Village Statistics to Text
    File" feature. It refreshes a separate "Village Statistics - Save N.txt"
    file after each successful save of slots 1 through 5.
@@ -111,10 +116,11 @@ PATCH ONE GAME
 
 OPTIONAL PATCH SELECTION
 
-Use "Select All Patches" to turn on every optional fun patch at once. Use
-"Default Patches" for the default selection, "Owner's Defaults" for every patch
-except Learning Skills Never Fails, and "Deselect All Patches" to turn them all
-off. These buttons do not change the
+Use "Select All Patches" to turn on every optional fun patch at once except
+256 Villagers (Experimental), which you tick yourself. Use "Default Patches" for the default
+selection, "Owner's Defaults" for every patch except Learning Skills Never
+Fails, Story / Cheat Upgrades and 256 Villagers (Experimental), and "Deselect
+All Patches" to turn them all off. These buttons do not change the
 selected population mode. Optional patches are grouped under the five
 game-title headers, in order: Virtual Villagers - A New Home, The Lost
 Children, The Secret City, The Tree of Life, and New Believers. Shared/all-games
@@ -132,6 +138,9 @@ All three modes and optional-patch combinations use:
 
 Mode and optional-patch details are recorded in the modified EXE's adjacent
 .patch-log.json file instead of being added to the EXE or save-folder name.
+The one exception is 256 Villagers (Experimental): a game built with it is
+named "(name of game) - Modded 256" (folder and EXE), so that its saves go to
+a separate save folder (see 256 VILLAGERS (EXPERIMENTAL)).
 
 For each game, the patcher creates one complete copy named
 "(Game name) - Modded". The copied folder keeps every original file and
@@ -148,6 +157,38 @@ restored automatically is kept in a ".recovery-<id>" folder, never deleted.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
 patcher remembers the selected population mode, output parent, single-game EXE path, and
 all five folder paths. Vanilla and Modded links open their respective folders.
+
+256 VILLAGERS (EXPERIMENTAL)
+
+Optional for The Secret City, The Tree of Life and New Believers, and off by
+default: "256 Villagers (Experimental)" gives the game 256 villager slots
+(numbered 0 to 255) instead of 150. In a 256 build:
+- Immediate Fixed Max Pop allows 256 at once.
+- Collection Progression Max Pop starts at 221 in The Secret City (plus 0-25
+  collection points and 10 from Magic level 3), 231 in The Tree of Life (plus
+  0-25) and 241 in New Believers (plus 0-15), reaching 256 with everything.
+- No Population Increase keeps the stock cap (125, 115, 105); only the table
+  is larger.
+- Twins, triplets and Island Events are guarded at 256 instead of 150.
+
+Saves: the 256 build is named "(name of game) - Modded 256.exe" and keeps its
+saves, logs and data files in its own folder,
+Documents\LDW\(name of game) - Modded 256\, never in the ordinary "- Modded"
+save folder. The patcher does not copy saves into it. To carry on an existing
+village, copy its .ldw save files from Documents\LDW\(name of game) - Modded\
+into the "- Modded 256" folder yourself. The village loads with all its
+villagers; the first time the game saves it, it is written in a longer
+256-slot format, and from then on it opens only in a 256 build. Keep the
+ordinary "- Modded" saves as a backup.
+
+The Secret City and The Tree of Life: the base game damages a save made with
+exactly 150 villagers so that it no longer loads. With "Fix Vanilla Bugs"
+ticked (it is on by default), the 256 build loads such a save with all 150
+villagers; without it, that save is refused as in the base game.
+
+This patch is experimental: it has passed the patcher's build tests and live
+tests that filled villages to the last slots, but it has had far less play
+than the other patches.
 
 SAFE MULTIPLE BIRTHS
 

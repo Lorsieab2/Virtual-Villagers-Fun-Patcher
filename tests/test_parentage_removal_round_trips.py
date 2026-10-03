@@ -107,10 +107,13 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
             )
 
             feature = patcher.get_fun_patch(feature_id)
+            # 256 Villagers (Experimental) is a different executable whose
+            # features are not removed one by one; it is not part of "every".
             every = [
                 item.id
                 for item in catalog
                 if item.game_id == game_id and "candidate" not in item.id
+                and item.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
             ]
             without_origins = [
                 item

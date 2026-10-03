@@ -23,7 +23,9 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher_gui import (  # noqa: E402
     DEFAULT_OFF_FUN_PATCH_IDS,
+    SELECT_ALL_OFF_FUN_PATCH_IDS,
     default_fun_patch_selection,
+    select_all_fun_patch_selection,
 )
 
 GUI = ROOT / "src" / "vv_fun_patcher_gui.py"
@@ -103,7 +105,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_everyone_collects_like_vv1")
                   or p.endswith("_super_secret_golden_mushroom")
                   or p.endswith("_manual_drop_breeding_overrides_birth_control")
-                  or p.endswith("_story_cheat_upgrades")})
+                  or p.endswith("_story_cheat_upgrades")
+                  # 256 Villagers (Experimental): off by default -- it moves
+                  # the villager table and changes the save format.
+                  or p in ("vv3_population_256", "vv4_population_256", "vv5_population_256")})
 
     def test_story_cheat_upgrades_is_off_by_default_in_all_five(self) -> None:
         """The owner: Story / Cheat Upgrades is a default-off patch."""
@@ -162,13 +167,23 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         """Default Patches is a new button, not a redefinition of Select All.
 
         A player who wants every patch, including the ones the default holds
-        back, must still have a control that does that.
+        back, must still have a control that does that -- except 256 Villagers
+        (Experimental), which the owner wants left off even by Select All,
+        because it makes a separate "- Modded 256" game with its own saves.
         """
         source = GUI.read_text(encoding="utf-8")
         body = source[source.index("def _select_all_fun_patches("):]
         body = body[:body.index("\n    def ")]
-        self.assertIn("set(True)", body)
+        self.assertIn("select_all_fun_patch_selection(patch_id)", body)
         self.assertNotIn("default_fun_patch_selection", body)
+
+        experimental = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
+        self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), experimental)
+        ids = fun_patch_ids()
+        self.assertTrue(experimental <= ids)
+        for patch_id in sorted(ids):
+            self.assertEqual(select_all_fun_patch_selection(patch_id),
+                             patch_id not in experimental, patch_id)
 
 
 if __name__ == "__main__":

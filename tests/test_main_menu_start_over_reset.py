@@ -397,7 +397,10 @@ class FullCatalogTests(unittest.TestCase):
     Origins at once: the hook still lands exactly once and nothing overlaps."""
 
     def test_every_public_feature_and_every_non_origins_feature(self) -> None:
-        public = list(vp.load_public_fun_patches())
+        # 256 Villagers (Experimental) builds a different executable; its
+        # compositions are tested in tests/test_vv3_population_256.py.
+        public = [p for p in vp.load_public_fun_patches()
+                  if p.id not in vp.EXPERIMENTAL_FUN_PATCH_IDS]
         base = set(vp.INTERNAL_ORIGINS_BASE_FEATURE_ID_SET)
         for game in EXE:
             build = _build(game)

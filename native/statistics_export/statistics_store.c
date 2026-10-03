@@ -64,6 +64,7 @@
 
 #include "statistics_store.h"
 #include "save_folder.h"
+#include "vv3_villager_table.h"
 
 enum {
     GAME_VV1 = 1, GAME_VV2, GAME_VV3, GAME_VV4, GAME_VV5
@@ -634,12 +635,17 @@ static int count_memorial(const vvs_context *c, const game_layout *g) {
 
 static int living_chief(const vvs_context *c, const game_layout *g) {
     unsigned int i;
+    unsigned int table = g->villagers_rva;
+    unsigned int slots = g->villager_slots;
     const unsigned char *villagers;
     if (g->villagers_rva == 0 || c->module == NULL) {
         return 0;
     }
-    villagers = c->module + g->villagers_rva;
-    for (i = 0; i < g->villager_slots; ++i) {
+    if (g->game_id == GAME_VV3) {
+        vv3_villager_table(c->module, &table, &slots);
+    }
+    villagers = c->module + table;
+    for (i = 0; i < slots; ++i) {
         const unsigned char *record = villagers + g->villager_base + i * g->villager_stride;
         if (record[g->villager_active] == 1 && record[g->villager_chief] != 0) {
             return 1;

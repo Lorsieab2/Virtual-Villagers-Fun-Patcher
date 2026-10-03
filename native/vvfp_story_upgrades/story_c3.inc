@@ -2,7 +2,10 @@
 
    Every address below was traced in the stock executable and is identical in
    the three renders (docs/story-cheat-upgrades.md).  The village is
-   0x59E110; record i at 0x59E124 + i*0x1F8C, 150 records.
+   0x59E110; record i at 0x59E124 + i*0x1F8C, 150 records -- or, with 256
+   Villagers (Experimental), 0x800000 and 256 records: both are read from the
+   executable (native/shared/vv3_villager_table.h), so this one DLL serves
+   either build.
 
    DELIVERY.  The island-event selector 0x419B30 has chosen at 0x419BDB (the
    Pick Island Event site): with a custom event armed, the changes are made
@@ -12,10 +15,41 @@
    leaves empty and no code or string names.  The Origins Barrel's call of
    the same selector (every slot the barrel) never takes it. */
 
-#define C3_VILLAGE 0x59E110u
-#define C3_RECORDS 0x59E124u
+#include "../shared/vv3_villager_table.h"
+
+static unsigned int c3_table_village;
+static int c3_table_count;
+
+/* The village (population manager) and its slot count, as the executable
+   names them; read once.  The image is not relocatable, so its base is
+   0x400000. */
+static void c3_locate(void) {
+    unsigned int rva, slots;
+    if (c3_table_village != 0) {
+        return;
+    }
+    vv3_villager_table((const unsigned char *)(uintptr_t)0x400000u, &rva, &slots);
+    c3_table_count = (int)slots;
+    c3_table_village = 0x400000u + rva;
+}
+
+static unsigned int c3_village(void) {
+    c3_locate();
+    return c3_table_village;
+}
+
+static int c3_count(void) {
+    c3_locate();
+    return c3_table_count;
+}
+
+#define C3_VILLAGE c3_village()
+#define C3_RECORDS (c3_village() + 0x14u)
 #define C3_STRIDE 0x1F8Cu
-#define C3_COUNT 150
+#define C3_COUNT c3_count()
+/* The adapter's record count at compile time: the stock table.  The adapter
+   handed out at run time (c3_adapter) carries the executable's own count. */
+#define C3_STOCK_COUNT 150
 #define C3_FOOD 0x582490u
 #define C3_TECH 0x582644u
 #define C3_TITLE_ID 0x4CB
@@ -33,8 +67,8 @@ static int c3_listed(const unsigned char *r) {
     return r[0xF10] != 0 && *(const int *)(r + 0xE78) > 0;
 }
 
-/* Records in use plus the babies on the way: the 150 records are the
-   physical limit, which the game's room predicate does not count. */
+/* Records in use plus the babies on the way: the records (150, or 256) are
+   the physical limit, which the game's room predicate does not count. */
 static int c3_demand(void) {
     int i;
     int n = 0;
@@ -62,12 +96,13 @@ static const char *c3_arm_refusal(void) {
 }
 
 /* The game's own room predicate 0x45FE30 (the mode's cap, the building
-   gates) and the 150 records. */
+   gates) and the physical records. */
 static int c3_room(void) {
     return (TC0(0x45FE30u, C3_VILLAGE) & 0xFF) != 0 && c3_demand() < C3_COUNT;
 }
 
 static const ce_adapter C3_ADAPTER;
+static const ce_adapter *c3_adapter(void);
 
 /* 0x45FF50 (thiscall on the village: family, skill, value, sex, age; ret
    0x14) -- the creator The Canoe and the Barrel use.  Family -1 is the
@@ -81,7 +116,7 @@ static int c3_spawn(const ce_spawn *s) {
     if (index < 0 || index >= C3_COUNT) {
         return -1;
     }
-    ce_apply_spawn_record(&C3_ADAPTER, c3_record(index), s);
+    ce_apply_spawn_record(c3_adapter(), c3_record(index), s);
     return index;
 }
 
@@ -578,7 +613,7 @@ static const ce_adapter C3_ADAPTER = {
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Secret City",
     0x118, 40, 1100,
-    C3_COUNT, 0x19,
+    C3_STOCK_COUNT, 0x19,
     0xDD4, 0xDC8, 0xDC4, 0xDF0, 0xDF4, 0xFB4, 0xFC0, 0xEAC,
     0, 1,
     3, 79,
@@ -685,4 +720,17 @@ __declspec(naked) static void c3_title_stub(void) {
         push 0x468FCE
         ret
     }
+}
+
+/* C3_ADAPTER with the executable's own slot count (150, or 256 with 256
+   Villagers). */
+static const ce_adapter *c3_adapter(void) {
+    static ce_adapter adapter;
+    static int ready;
+    if (!ready) {
+        adapter = C3_ADAPTER;
+        adapter.record_count = c3_count();
+        ready = 1;
+    }
+    return &adapter;
 }

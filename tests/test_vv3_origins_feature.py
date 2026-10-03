@@ -387,6 +387,8 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             for patch in load_fun_patches()
             if patch.game_id == "vv3"
             and patch.id != "vv3_full_heal_cure_all_candidate"
+            # the 256-slot build is composed in tests/test_vv3_population_256.py
+            and patch.id != "vv3_population_256"
         ]
         self.assertIn("vv3_enable_origins_exclusive_features", patch_ids)
         for mode in MODES:

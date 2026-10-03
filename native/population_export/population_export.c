@@ -57,6 +57,9 @@
 #include <windows.h>
 #include "save_folder.h"
 #include "custom_titles.h"
+#include "vv3_villager_table.h"
+#include "vv4_villager_table.h"
+#include "vv5_villager_table.h"
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
@@ -1311,6 +1314,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     const char *village
 ) {
     const struct game_layout *g;
+    struct game_layout located;
     const unsigned char *module = (const unsigned char *)module_pointer;
     const unsigned char *villagers;
     unsigned int index;
@@ -1327,17 +1331,25 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     if (village == NULL) {
         village = "";
     }
-    g = &GAME_LAYOUTS[game_id];
-    if (!layout_is_sane(g)) {
-        return 0;
-    }
-    load_custom_titles(game_id, g, village);
     if (module == NULL) {
         module = (const unsigned char *)GetModuleHandleW(NULL);
     }
     if (module == NULL) {
         return 0;
     }
+    located = GAME_LAYOUTS[game_id];
+    if (game_id == GAME_VV3) {
+        vv3_villager_table(module, &located.villagers_rva, &located.slots);
+    } else if (game_id == GAME_VV4) {
+        vv4_villager_table(module, &located.villagers_rva, &located.slots);
+    } else if (game_id == GAME_VV5) {
+        vv5_villager_table(module, &located.villagers_rva, &located.slots);
+    }
+    g = &located;
+    if (!layout_is_sane(g)) {
+        return 0;
+    }
+    load_custom_titles(game_id, g, village);
     villagers = module + g->villagers_rva;
     if (g->villagers_rva_is_pointer) {
         /* Lazily allocated: null until the game first builds the village, so

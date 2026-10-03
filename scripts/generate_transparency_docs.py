@@ -413,6 +413,11 @@ def build_document() -> str:
                 }
             ) if isinstance(composition, dict) else []
             guarded = len(raw.get("patches", []))
+            # 256 Villagers keeps its rows in its own body, applied after
+            # every other patch (src/vv_fun_patcher.py _apply_population_256).
+            population_256 = raw.get("population_256")
+            if isinstance(population_256, dict):
+                guarded += len(population_256.get("rows", []))
             if guarded or not composition_counts:
                 lines.append(
                     f"- Guarded executable edits: {guarded}; every edit has an exact purpose and before/after guard in the manifest."

@@ -68,6 +68,9 @@
 #include <stdint.h>
 #include "sidecar_io.h"
 #include "save_folder.h"
+#include "vv3_villager_table.h"
+#include "vv4_villager_table.h"
+#include "vv5_villager_table.h"
 
 /* ---- Counters the tests read (TEST build only) ---------------------------- */
 #ifdef VVFP_TEST
@@ -180,7 +183,11 @@ struct game_records {
 
 #define RECORDS_MAX 256
 
-static const struct game_records REC[6] = {
+/* The Secret City's, The Tree of Life's and New Believers' table and slot
+   count are the stock ones below until the installer reads them from the
+   running executable (cod_locate_table): 256 Villagers (Experimental) moves
+   each table to 0x800000 and gives it 256 slots. */
+static struct game_records REC[6] = {
     { 0 },
     /* A New Home: array [0x48B614] */
     { 0x48B614u, 1, 0u, 0x3D8u, 256u, 0x28u, 0x344u, 0x348u, 0x370u, 0x1Cu, 0x350u,
@@ -204,6 +211,25 @@ static const struct game_records REC[6] = {
    their own villager table here. */
 static unsigned char *test_table;
 #endif
+
+/* The Secret City, The Tree of Life, New Believers: the villager table and
+   its slot count where the executable itself says they are -- the
+   `mov ecx, MANAGER` and the slot-count immediate the other companions read
+   (native/shared/vvN_villager_table.h) -- so one DLL serves the 150-slot
+   build and the 256 one.  Anything unrecognised keeps the stock table. */
+static void cod_locate_table(void) {
+    const unsigned char *module = (const unsigned char *)(uintptr_t)0x400000u;
+    unsigned int rva;
+    unsigned int slots;
+    switch (g_game) {
+    case 3: vv3_villager_table(module, &rva, &slots); break;
+    case 4: vv4_villager_table(module, &rva, &slots); break;
+    case 5: vv5_villager_table(module, &rva, &slots); break;
+    default: return;
+    }
+    REC[g_game].table = 0x400000u + rva;
+    REC[g_game].slots = slots;
+}
 
 /* The first record, or NULL while the game has not built the table. */
 static unsigned char *cod_records(void) {
@@ -533,6 +559,7 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
     if (host != NULL && ((const cod_host *)host)->size >= (int)sizeof(cod_host)) {
         g_host = (const cod_host *)host;
     }
+    cod_locate_table();
     site_count = 0;
     if (game <= 2) {
         vv12_sites();
