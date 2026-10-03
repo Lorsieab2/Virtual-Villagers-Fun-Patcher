@@ -621,9 +621,11 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 self.assertEqual(removed, parent)
 
     def test_stock_composition_with_complete_current_vv3_catalog_is_exact(self) -> None:
+        # 256 Villagers (Experimental) builds a different executable; its
+        # compositions are tested in tests/test_vv3_population_256.py.
         selected = [
             item.id for item in patcher.load_fun_patches()
-            if item.game_id == "vv3"
+            if item.game_id == "vv3" and item.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
         ]
         self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", selected)
         for mode, expected in STOCK_CATALOG_COMPOSITION_RESULTS.items():

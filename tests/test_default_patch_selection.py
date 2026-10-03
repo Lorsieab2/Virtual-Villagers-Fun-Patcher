@@ -103,7 +103,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_everyone_collects_like_vv1")
                   or p.endswith("_super_secret_golden_mushroom")
                   or p.endswith("_manual_drop_breeding_overrides_birth_control")
-                  or p.endswith("_story_cheat_upgrades")})
+                  or p.endswith("_story_cheat_upgrades")
+                  # 256 Villagers (Experimental): off by default -- it moves
+                  # the villager table and changes the save format.
+                  or p == "vv3_population_256"})
 
     def test_story_cheat_upgrades_is_off_by_default_in_all_five(self) -> None:
         """The owner: Story / Cheat Upgrades is a default-off patch."""

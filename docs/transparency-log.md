@@ -748,6 +748,18 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 ### Optional features
 
+#### 256 Villagers (Experimental) (`vv3_population_256`)
+
+EXPERIMENTAL. Gives The Secret City 256 villager slots instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 221 plus the collection and Magic Level 3 bonuses (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 125 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves in their own "Virtual Villagers - The Secret City - Modded 256" folder, so they never mix with 150-slot saves: a 256 save cannot be opened by a 150-slot game. Copy an old save into that folder and it loads, then is saved in the 256 format from then on. Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
+- Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 125. Nothing changes for a build that does not tick this patch.
+- Dependencies: none
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live confirmation pending
+- Guarded executable edits: 570; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Birth Control (`vv3_birth_control`)
 
 Requires BOTH parenting skill and the checked preference before a villager will initiate Embracing. The native chooser's score floor remains in force and the scanned candidate stays in the stock internal-age 360..999 range, but the 25% non-preference fallback is removed: a roll that admitted one unchecked villager in four is the reported leak. The initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.

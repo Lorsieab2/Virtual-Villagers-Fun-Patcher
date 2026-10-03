@@ -63,6 +63,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Story / Cheat Upgrades (all five games) is off by default, and
     # Owner's Defaults leaves it off too (see OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
+    # 256 Villagers (Experimental) is off by default and under Owner's
+    # Defaults: it moves the villager table and changes the save format.
+    + ["vv3_population_256"]
 )
 
 # Patches the Owner's Defaults button leaves OFF, by exact id.  Owner's
@@ -71,6 +74,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
     + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
+    + ["vv3_population_256"]
 )
 
 

@@ -1652,13 +1652,15 @@
           "offset": "0x5EFC5",
           "before": "E8969BFCFF69DB1C0100005F5EC684186C780000005DB0015BC20400909090909090909090909090909090",
           "after": "81FB96000000730DE88E9BFCFFC684386C780000005F5E5DB0015BC2040090909090909090909090909090",
-          "purpose": "150 villagers, save: 0x45EF80 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x2AD -> 0x200)"
+          "purpose": "150 villagers, save: 0x45EF80 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x2AD -> 0x200)",
+          "yield_to": {"feature": "vv3_population_256"}
         },
         {
           "offset": "0x5C88D",
           "before": "743233F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C010000E8AAC2FCFF8A8C306C78000084C975D05F5EB0015BC2040090909090909090",
           "after": "743933F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C01000081FE68A60000730FE8A2C2FCFF80BC306C7800000075C95F5EB0015BC20400",
-          "purpose": "150 villagers, load: 0x45C860 stops after the 150th saved villager instead of reading past the table into the next block"
+          "purpose": "150 villagers, load: 0x45C860 stops after the 150th saved villager instead of reading past the table into the next block",
+          "yield_to": {"feature": "vv3_population_256"}
         },
         {
           "offset": "0x35710",
