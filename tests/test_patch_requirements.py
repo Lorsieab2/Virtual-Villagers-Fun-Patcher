@@ -158,6 +158,44 @@ class PatchRequirementTests(unittest.TestCase):
         for game in ("vv2", "vv3", "vv4", "vv5"):
             self.assertEqual(by[f"{game}_write_village_statistics"].get("needs_on", []), [])
 
+    def test_256_villagers_needs_fix_vanilla_bugs_through_the_prerequisite_ui(self):
+        # Codex (#509 review): ticking 256 Villagers with Fix Vanilla Bugs off
+        # cannot load a village the base game's exactly-150 save bug already
+        # damaged, so The Secret City's and The Tree of Life's 256 rows name it
+        # as a soft prerequisite: stated under the description and confirmed
+        # before patching, never ticked for the player.
+        catalog = patcher.load_fun_patches()
+        by = {patch.id: patch for patch in catalog}
+        for game in ("vv3", "vv4"):
+            with self.subTest(game=game):
+                row = json.loads(
+                    (ROOT / "data" / f"{game}_population_256_feature.json").read_text(encoding="utf-8")
+                )
+                self.assertEqual([e["id"] for e in row["needs_on"]], [f"{game}_fix_vanilla_bugs"])
+                self.assertNotIn("dependencies", row)
+                self.assertIn(
+                    "Needs Fix Vanilla Bugs on for loading a village that the base game's "
+                    "exactly-150-villager save bug has already damaged",
+                    patcher.patch_requirement_text(by[f"{game}_population_256"], catalog),
+                )
+                self.assertIn(
+                    "Needed by 256 Villagers (Experimental) for loading a village",
+                    patcher.patch_requirement_text(by[f"{game}_fix_vanilla_bugs"], catalog),
+                )
+                body = patcher.unmet_needs_on_text([f"{game}_population_256"], catalog)
+                self.assertIn("- 256 Villagers (Experimental)\n    needs Fix Vanilla Bugs on", body)
+                self.assertEqual(
+                    patcher.unmet_needs_on_text(
+                        [f"{game}_population_256", f"{game}_fix_vanilla_bugs"], catalog
+                    ),
+                    "",
+                )
+        # New Believers' base game has no exactly-150 save bug to repair.
+        self.assertEqual(
+            json.loads((ROOT / "data" / "vv5_population_256_feature.json").read_text(encoding="utf-8")).get("needs_on", []),
+            [],
+        )
+
     def test_the_readme_rows_state_the_links_in_bold(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("**Needs Write Births and Conceptions Log to Text File on for the father", readme)

@@ -708,6 +708,13 @@ def main() -> int:
         "name": "256 Villagers (Experimental)",
         "description": DESCRIPTION,
         "output_tag": "256 Villagers",
+        # A soft prerequisite (Codex, #509 review): 256 still applies and works
+        # without Fix Vanilla Bugs, but a village the base game's
+        # exactly-150-villager save bug already damaged then cannot load. Stated
+        # through the prerequisite UI -- the sentence under the description and
+        # the confirmation before patching -- never by ticking anything.
+        "needs_on": [{"id": "vv3_fix_vanilla_bugs",
+                      "for": "loading a village that the base game's exactly-150-villager save bug has already damaged (without it such a village does not load)"}],
         "behavior_changes": [
             "The villager table has 256 slots; the population modes that raise the cap reach 256.",
             "Saves hold up to 256 villagers in a longer save file that only this build reads.",
