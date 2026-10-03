@@ -71,7 +71,8 @@ Housing gates remain in place.
 All three modes apply the game's existing automatic physical-capacity safety;
 it only clamps allocations at the physical record limit and does not change
 the selected mode's social cap or collection/progression behavior. All three
-modes use the stable short `- Modded` name. The selected mode,
+modes use the stable short `- Modded` name (a build with **256 Villagers
+(Experimental)** ticked is named `- Modded 256` instead; see below). The selected mode,
 optional patches, hashes, and applied edits remain identified in the adjacent
 `.patch-log.json`.
 
@@ -79,6 +80,32 @@ In A New Home, the automatic safety also preflights the stock two-villager
 creation path: when only one physical record remains it creates one villager,
 and when the 256-record pool is full it skips the second creation. This keeps
 the stock allocator from scanning past its physical record array.
+
+### 256 Villagers (Experimental)
+
+The Secret City, The Tree of Life and New Believers each have an optional
+**256 Villagers (Experimental)** patch, off by default, that enlarges the game's
+villager table from 150 slots to 256 (numbered 0 to 255, as the game counts
+them). With it ticked, the two increased modes reach 256 instead of 150, and
+No Population Increase is unchanged:
+
+| Game | No Population Increase | Collection Progression maximum | Immediate Fixed maximum |
+|---|---:|---:|---:|
+| The Secret City | 125 | 221 to 256 | 256 |
+| The Tree of Life | 115 | 231 to 256 | 256 |
+| New Believers | 105 | 241 to 256 | 256 |
+
+Collection Progression keeps the same bonuses as the ordinary build (The Secret
+City: 0-25 collection points plus 10 from Magic level 3; The Tree of Life: 0-25;
+New Believers: 0-15) on a higher base, so everything collected reaches 256.
+
+A build with it is named **`(Game name) - Modded 256.exe`**, in a
+**`(Game name) - Modded 256`** folder, and keeps its saves and the patcher's
+logs in its own save folder, `Documents\LDW\(Game name) - Modded 256\`, apart
+from the ordinary `- Modded` saves. The patcher does not copy any saves there;
+how to bring an existing village across is in each game's entry below. The
+slot-safety guards for twins, triplets and Island Events work at 256 in these
+builds.
 
 ## Optional patches by game
 
@@ -489,6 +516,19 @@ Every death that leaves a body is written to the Deaths log ('Virtual Villagers 
 
 - Patch ID: `vv3_cause_of_death`
 
+**256 Villagers (Experimental)**
+
+Gives The Secret City 256 villager slots (numbered 0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory, and every part of the game that goes through it -- births, Island Events, the Villager Details screen, saving and loading -- is widened to match. The population modes' caps in a 256 build: Immediate Fixed Max Pop allows 256 at once; Collection Progression Max Pop starts at 221 and adds 0-25 collection points plus 10 from Magic level 3, reaching 256 with everything; No Population Increase keeps the stock cap of 125, and only the table is larger.
+
+**Where its saves go.** A build with this patch is named 'Virtual Villagers - The Secret City - Modded 256.exe' (in a 'Virtual Villagers - The Secret City - Modded 256' folder) and keeps its saves, and the patcher's logs and data files, in its own folder, 'Documents\LDW\Virtual Villagers - The Secret City - Modded 256\', so they never mix with the 150-slot saves of the ordinary '- Modded' build. The patcher does not fill that folder: to carry on an existing village, copy its save files (the .ldw files) from 'Documents\LDW\Virtual Villagers - The Secret City - Modded\' into it yourself. The old save loads with all its villagers. The first time the game saves it, it is written in a longer 256-slot format, and from then on it opens only in a 256 build; a 150-slot game cannot read it. Keep your ordinary '- Modded' saves as a backup.
+
+**Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** The base game damages a save made with exactly 150 villagers so that it will not load (see Fix Vanilla Bugs above); with Fix Vanilla Bugs ticked, the 256 build loads such a save with all 150 villagers and saves it in the 256 format. A 256 build cannot itself make that damage.
+
+**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches ticks it too; Default Patches and Owner's Defaults leave it off.
+
+- Population modes: stock, collection_progression, immediate_fixed
+- Patch ID: `vv3_population_256`
+
 ### Virtual Villagers - The Tree of Life
 
 **Complete Fish Scales = Golden Fish in Nets**
@@ -563,6 +603,19 @@ Every death that leaves a body is written to the Deaths log ('Virtual Villagers 
 Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. **Needs no other patch.**
 
 - Patch ID: `vv4_fix_vanilla_bugs`
+
+**256 Villagers (Experimental)**
+
+Gives The Tree of Life 256 villager slots (numbered 0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory, and every part of the game that goes through it -- births, Island Events, the Villager Details screen, saving and loading -- is widened to match. The population modes' caps in a 256 build: Immediate Fixed Max Pop allows 256 at once; Collection Progression Max Pop starts at 231 and adds 0-25 collection points, reaching 256 with everything; No Population Increase keeps the stock cap of 115, and only the table is larger.
+
+**Where its saves go.** A build with this patch is named 'Virtual Villagers - The Tree of Life - Modded 256.exe' (in a 'Virtual Villagers - The Tree of Life - Modded 256' folder) and keeps its saves, and the patcher's logs and data files, in its own folder, 'Documents\LDW\Virtual Villagers - The Tree of Life - Modded 256\', so they never mix with the 150-slot saves of the ordinary '- Modded' build. The patcher does not fill that folder: to carry on an existing village, copy its save files (the .ldw files) from 'Documents\LDW\Virtual Villagers - The Tree of Life - Modded\' into it yourself. The old save loads with all its villagers. The first time the game saves it, it is written in a longer 256-slot format, and from then on it opens only in a 256 build; a 150-slot game cannot read it. Keep your ordinary '- Modded' saves as a backup.
+
+**Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** The base game damages a save made with exactly 150 villagers so that it will not load (see Fix Vanilla Bugs above); with Fix Vanilla Bugs ticked, the 256 build loads such a save with all 150 villagers and saves it in the 256 format. A 256 build cannot itself make that damage.
+
+**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches ticks it too; Default Patches and Owner's Defaults leave it off.
+
+- Population modes: stock, collection_progression, immediate_fixed
+- Patch ID: `vv4_population_256`
 
 ### Virtual Villagers - New Believers
 
@@ -670,6 +723,17 @@ restore the exact base-game files when the patch is not selected.
 Every death that leaves a body is written to the Deaths log ('Virtual Villagers 5 Deaths Log <n>.txt' in the 'Virtual Villagers Fun Patcher Logs\Deaths' folder beside the game's saves) when it is final: when the body is buried, with the skill line and epitaph the grave was given, or when the game removes a body nobody buried ("no grave"). Each Death record gives the villager's name, head, body, likes and dislikes, their age at death in the game's own units (20 per year, as the Village Population log prints Age), the cause, the grave and the epitaph. A villager brought back to life gets no Death record. A villager taken by the Custom Island Event's "Disappears" gets a "Disappeared" record (the game itself has no such event), and editing a grave's epitaph adds an "Epitaph changed" record with the old and new text. At every save, the village is checked against the one saved before: a villager who left with no Death or Disappeared record, or arrived with no birth or known arrival, is written with everything known about them to the Unaccounted Villagers log ('Virtual Villagers 5 Unaccounted Villagers Log <n>.txt' in 'Virtual Villagers Fun Patcher Logs\Unaccounted Villagers'). Both logs are headed with the village and its save slot, are created when a village is started and again after Start Over (which deletes them with the village), only ever grow, and start a new numbered file after every 256 records. The village as it was at each save is kept in 'Virtual Villagers Fun Patcher Data\Virtual Villagers 5 Village Roster - Save <n>.dat'; Start Over deletes it. The cause is the one New Believers itself records and shows on the grave. **The first save after this patch is installed only starts the check: nothing is reported about anything that happened before it.** **The patch's DLL is loaded once a village is shown; anything that happens before that in a session is not seen -- a villager who died or was buried then gets no Death record, and the next save lists them in the Unaccounted Villagers log instead.** **The logs are written by Write Births and Conceptions Log to Text File's DLL: with that patch off, none of them is written.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the game runs unchanged.
 
 - Patch ID: `vv5_cause_of_death`
+
+**256 Villagers (Experimental)**
+
+Gives New Believers 256 villager slots (numbered 0 to 255) instead of 150 (believers, Heathens and Reanimate stand-ins share them, as in the stock game). The game's villager table is moved to a new, larger place in memory, and every part of the game that goes through it -- births, Heathens, Island Events, the Villager Details screen, saving and loading -- is widened to match. The population modes' caps in a 256 build: Immediate Fixed Max Pop allows 256 at once; Collection Progression Max Pop starts at 241 and adds 0-15 collection points, reaching 256 with everything; No Population Increase keeps the stock cap of 105, and only the table is larger.
+
+**Where its saves go.** A build with this patch is named 'Virtual Villagers - New Believers - Modded 256.exe' (in a 'Virtual Villagers - New Believers - Modded 256' folder) and keeps its saves, and the patcher's logs and data files, in its own folder, 'Documents\LDW\Virtual Villagers - New Believers - Modded 256\', so they never mix with the 150-slot saves of the ordinary '- Modded' build. The patcher does not fill that folder: to carry on an existing village, copy its save files (the .ldw files) from 'Documents\LDW\Virtual Villagers - New Believers - Modded\' into it yourself. The old save loads with all its villagers. The first time the game saves it, it is written in a longer 256-slot format, and from then on it opens only in a 256 build; a 150-slot game cannot read it. Keep your ordinary '- Modded' saves as a backup.
+
+**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches ticks it too; Default Patches and Owner's Defaults leave it off.
+
+- Population modes: stock, collection_progression, immediate_fixed
+- Patch ID: `vv5_population_256`
 
 ## The Origins upgrades menus
 
@@ -990,7 +1054,7 @@ This lets reproduction fill the final slot without permitting the population to 
 
 ### Island Event population safety
 
-All five games also contain Island Events that add villagers. The patcher guards every identified direct population-adding outcome: repeated allocations stop when the selected physical pool fills, and VV4/VV5 Abandoned Infants is reduced from six babies when fewer than six physical slots remain. VV3-VV5 use their verified 150-record boundary. Events that remove villagers are unchanged. VV5 conversions and The Defector are unchanged because they reclassify existing records instead of allocating new ones.
+All five games also contain Island Events that add villagers. The patcher guards every identified direct population-adding outcome: repeated allocations stop when the selected physical pool fills, and VV4/VV5 Abandoned Infants is reduced from six babies when fewer than six physical slots remain. VV3-VV5 use their verified 150-record boundary, or 256 in a build with 256 Villagers (Experimental). Events that remove villagers are unchanged. VV5 conversions and The Defector are unchanged because they reclassify existing records instead of allocating new ones.
 
 ## Requirements
 
@@ -1044,12 +1108,14 @@ The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modif
 The **Additional fun patches** section is grouped in game order, with each
 game's patches sorted by patch name. It includes **Select All Patches**,
 **Default Patches**, **Owner's Defaults** (every patch except Learning Skills
-Never Fails) and **Deselect All Patches** buttons. They change every optional
+Never Fails, Story / Cheat Upgrades and 256 Villagers (Experimental)) and
+**Deselect All Patches** buttons. They change every optional
 fun-patch checkbox at once without changing the selected population mode, and the
 selection is remembered normally.
 
 For every selected game, all three modes create **`(Game name) - Modded`**
-containing **`(Game name) - Modded.exe`**. By default the selected folder is beside the
+containing **`(Game name) - Modded.exe`** (**`(Game name) - Modded 256`** and
+**`(Game name) - Modded 256.exe`** when 256 Villagers (Experimental) is ticked). By default the selected folder is beside the
 supplied original; the GUI's **Modded output location** chooser can place all
 selected games under another parent folder. It copies every file and subfolder
 from the original game folder, verifies the copied files by SHA-256, keeps the

@@ -750,14 +750,14 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 #### 256 Villagers (Experimental) (`vv3_population_256`)
 
-EXPERIMENTAL. Gives The Secret City 256 villager slots instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 221 plus the collection and Magic Level 3 bonuses (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 125 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves in their own "Virtual Villagers - The Secret City - Modded 256" folder, so they never mix with 150-slot saves: a 256 save cannot be opened by a 150-slot game. Copy an old save into that folder and it loads, then is saved in the 256 format from then on. Off by default.
+EXPERIMENTAL. Gives The Secret City 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 221 plus the collection and Magic Level 3 bonuses (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 125 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Secret City - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
 
 **Requires no other patch to be ticked.**
 
 - Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
 - Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 125. Nothing changes for a build that does not tick this patch.
 - Dependencies: none
-- Evidence status: static exact-build implementation with emulation of the replaced routines; live confirmation pending
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live-tested with the game driven through its memory (an old save upgraded, filled to 256, triplets born into slots 200, 253 and 254 and a baby into slot 255, saved and reloaded); a hands-on live pass is pending
 - Guarded executable edits: 570; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Birth Control (`vv3_birth_control`)
@@ -1011,14 +1011,14 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 #### 256 Villagers (Experimental) (`vv4_population_256`)
 
-EXPERIMENTAL. Gives The Tree of Life 256 villager slots instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 231 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 115 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves in their own "Virtual Villagers - The Tree of Life - Modded 256" folder, so they never mix with 150-slot saves: a 256 save cannot be opened by a 150-slot game. Copy an old save into that folder and it loads, then is saved in the 256 format from then on. Off by default.
+EXPERIMENTAL. Gives The Tree of Life 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 231 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 115 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Tree of Life - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
 
 **Requires no other patch to be ticked.**
 
 - Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
 - Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 115. Nothing changes for a build that does not tick this patch.
 - Dependencies: none
-- Evidence status: static exact-build implementation with emulation of the replaced routines; live confirmation pending
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live-tested with the game driven through its memory (an old save upgraded, filled to 256, triplets born into slots 253, 254 and 255, saved and reloaded); a hands-on live pass is pending
 - Guarded executable edits: 453; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Builders and Healers Work First (`vv4_builders_and_healers_work_first`)
@@ -1217,14 +1217,14 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 #### 256 Villagers (Experimental) (`vv5_population_256`)
 
-EXPERIMENTAL. Gives New Believers 256 villager slots instead of 150 (believers, Heathens and Reanimate stand-ins share them, as in the stock game). The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, Heathens, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 241 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 105 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves in their own "Virtual Villagers - New Believers - Modded 256" folder, so they never mix with 150-slot saves: a 256 save cannot be opened by a 150-slot game. Copy an old save into that folder and it loads, then is saved in the 256 format from then on. Off by default.
+EXPERIMENTAL. Gives New Believers 256 villager slots (0 to 255) instead of 150 (believers, Heathens and Reanimate stand-ins share them, as in the stock game). The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, Heathens, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 241 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 105 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - New Believers - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. Off by default.
 
 **Requires no other patch to be ticked.**
 
 - Behavior changes: The villager table has 256 slots; the population modes that raise the cap reach 256. Saves hold up to 256 villagers in a longer save file that only this build reads.
 - Explicit non-changes/exclusions: No Population Increase keeps the stock cap of 105. Nothing changes for a build that does not tick this patch.
 - Dependencies: none
-- Evidence status: static exact-build implementation with emulation of the replaced routines; live confirmation pending
+- Evidence status: static exact-build implementation with emulation of the replaced routines; live-tested with the game driven through its memory (an old save upgraded, filled to 255, triplets born into slots 200, 253 and 254, saved and reloaded); a hands-on live pass is pending
 - Guarded executable edits: 669; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Builders and Healers Work First (`vv5_builders_and_healers_work_first`)
