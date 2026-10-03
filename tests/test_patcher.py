@@ -1478,7 +1478,7 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn('text="Deselect All Patches"', source)
         self.assertIn("def _select_all_fun_patches", source)
         self.assertIn("def _deselect_all_fun_patches", source)
-        self.assertIn("variable.set(True)", source)
+        self.assertIn("variable.set(select_all_fun_patch_selection(patch_id))", source)
         self.assertIn("variable.set(False)", source)
 
     def test_fun_patch_labels_use_game_subtitles(self) -> None:

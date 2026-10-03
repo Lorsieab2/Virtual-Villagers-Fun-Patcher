@@ -548,7 +548,7 @@ Gives The Secret City 256 villager slots (numbered 0 to 255) instead of 150. The
 
 **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** The base game damages a save made with exactly 150 villagers so that it will not load (see Fix Vanilla Bugs above); with Fix Vanilla Bugs ticked, the 256 build loads such a save with all 150 villagers and saves it in the 256 format. A 256 build cannot itself make that damage.
 
-**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches ticks it too; Default Patches and Owner's Defaults leave it off.
+**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches, Default Patches and Owner's Defaults all leave it off; tick it yourself to use it.
 
 - Population modes: stock, collection_progression, immediate_fixed
 - Patch ID: `vv3_population_256`
@@ -648,7 +648,7 @@ Gives The Tree of Life 256 villager slots (numbered 0 to 255) instead of 150. Th
 
 **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** The base game damages a save made with exactly 150 villagers so that it will not load (see Fix Vanilla Bugs above); with Fix Vanilla Bugs ticked, the 256 build loads such a save with all 150 villagers and saves it in the 256 format. A 256 build cannot itself make that damage.
 
-**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches ticks it too; Default Patches and Owner's Defaults leave it off.
+**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches, Default Patches and Owner's Defaults all leave it off; tick it yourself to use it.
 
 - Population modes: stock, collection_progression, immediate_fixed
 - Patch ID: `vv4_population_256`
@@ -790,7 +790,7 @@ Gives New Believers 256 villager slots (numbered 0 to 255) instead of 150 (belie
 
 **Where its saves go.** A build with this patch is named 'Virtual Villagers - New Believers - Modded 256.exe' (in a 'Virtual Villagers - New Believers - Modded 256' folder) and keeps its saves, and the patcher's logs and data files, in its own folder, 'Documents\LDW\Virtual Villagers - New Believers - Modded 256\', so they never mix with the 150-slot saves of the ordinary '- Modded' build. The patcher does not fill that folder: to carry on an existing village, copy its save files (the .ldw files) from 'Documents\LDW\Virtual Villagers - New Believers - Modded\' into it yourself. The old save loads with all its villagers. The first time the game saves it, it is written in a longer 256-slot format, and from then on it opens only in a 256 build; a 150-slot game cannot read it. Keep your ordinary '- Modded' saves as a backup.
 
-**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches ticks it too; Default Patches and Owner's Defaults leave it off.
+**This patch is experimental and off by default.** It has passed the patcher's build tests and live tests that filled the village to the last slots, but it has had far less play than the other patches. Select All Patches, Default Patches and Owner's Defaults all leave it off; tick it yourself to use it.
 
 - Population modes: stock, collection_progression, immediate_fixed
 - Patch ID: `vv5_population_256`

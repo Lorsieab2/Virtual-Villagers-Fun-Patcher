@@ -77,6 +77,18 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
 )
 
+# Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
+# All must not tick 256 Villagers (Experimental) -- it turns the build into a
+# separate "- Modded 256" game with its own save folder and save format.
+SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
+    ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
+)
+
+
+def select_all_fun_patch_selection(patch_id: str) -> bool:
+    """Whether the Select All Patches button ticks this."""
+    return patch_id not in SELECT_ALL_OFF_FUN_PATCH_IDS
+
 
 def default_fun_patch_selection(patch_id: str) -> bool:
     """Whether a fresh install, or the Default Patches button, ticks this."""
@@ -909,15 +921,16 @@ class App(tk.Tk):
         self._save_settings()
 
     def _select_all_fun_patches(self) -> None:
-        for variable in self.fun_patch_vars.values():
-            variable.set(True)
+        for patch_id, variable in self.fun_patch_vars.items():
+            variable.set(select_all_fun_patch_selection(patch_id))
         self._last_fun_selection = set()
         self._fun_patch_changed()
 
     def _default_fun_patches(self) -> None:
         """Restore the default selection: everything except the deny-list.
 
-        Distinct from Select All, which really does tick everything. This is
+        Distinct from Select All, which ticks everything except 256 Villagers
+        (Experimental). This is
         the selection a fresh install starts with, so a player who has been
         experimenting can get back to it without knowing which patches the
         default holds back.
