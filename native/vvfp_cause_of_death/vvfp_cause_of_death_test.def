@@ -7,6 +7,8 @@ EXPORTS
     VvfpCauseNoteArrival=_VvfpCauseNoteArrival@8
     VvfpCauseNamesVillage=_VvfpCauseNamesVillage@0
     VvfpCauseArmSave=_VvfpCauseArmSave@4
+    VvfpCauseScanGraves=_VvfpCauseScanGraves@8
+    VvfpCauseRepairGraves=_VvfpCauseRepairGraves@12
     VvfpCauseTestSetup=_VvfpCauseTestSetup@12
     VvfpCauseTestDied=_VvfpCauseTestDied@8
     VvfpCauseTestBuried=_VvfpCauseTestBuried@8
@@ -17,5 +19,6 @@ EXPORTS
     VvfpCauseTestArm=_VvfpCauseTestArm@4
     VvfpCauseTestEpitaph=_VvfpCauseTestEpitaph@8
     VvfpCauseTestGrave=_VvfpCauseTestGrave@12
+    VvfpCauseTestRoster=_VvfpCauseTestRoster@8
     VvfpCauseStats DATA
     VvfpCauseRollTest DATA
