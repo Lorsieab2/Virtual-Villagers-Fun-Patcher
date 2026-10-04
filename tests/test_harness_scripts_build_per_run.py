@@ -38,6 +38,10 @@ GUID_FOLDER = re.compile(
 
 class HarnessScriptsBuildPerRun(unittest.TestCase):
     def test_the_set_of_scripts_is_the_measured_one(self) -> None:
+        # 17 when this test was written, plus build_vv5_mask_identity_harness.ps1
+        # (#518), which landed alongside it and follows the same rules, and the
+        # two data-folder harnesses (build_data_subfolder_harness.ps1,
+        # build_data_writer_paths_harness.ps1).
         self.assertEqual(len(SCRIPTS), 20, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:

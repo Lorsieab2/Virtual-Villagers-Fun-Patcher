@@ -21,8 +21,11 @@
                 no roster is known, which counts as "the records moved"
      live[i]    the identity of the villager in record i now (0 = empty record)
    Rules, the same as the VV1 parentage sidecar's:
-     - an entry whose identity is held by exactly one entry and exactly one
-       living villager goes to that villager's record, wherever it is;
+     - an entry whose identity is held by exactly one entry -- and by one
+       record of the whole stored roster, masked or not (Codex, #516: a
+       masked twin who died must not hand her mask to the unmasked one) --
+       and exactly one living villager goes to that villager's record,
+       wherever it is;
      - an entry whose identity is NOT unique is never guessed at: it stays at
        its own record only when the roster did not move at all (decided over
        the WHOLE roster by vv_roster_moved, not from the entries that could be
@@ -90,6 +93,7 @@ static int vv_mask_follow(int n, const unsigned char *value, const unsigned int 
             continue;
         }
         if (vv_mask_follow_count(stored, value, n, stored[i], 0) == 1
+            && (roster == 0 || vv_mask_follow_count(roster, 0, n, stored[i], 0) <= 1)
             && vv_mask_follow_count(live, 0, n, stored[i], &where) == 1
             && !(down_only && where > i)) {
             target[i] = where;
@@ -126,6 +130,35 @@ static int vv_mask_follow(int n, const unsigned char *value, const unsigned int 
         changed |= new_value[i] != value[i] || (new_value[i] != 0 && new_stored[i] != stored[i]);
     }
     return changed;
+}
+
+/* A RENAME, seen while the village stays loaded.  The identities hash the
+   name, so a villager the player renames would otherwise look like a new
+   occupant of their record: their mask dropped, and in a village of one or
+   two the whole roster taken for another village's (Codex, #516).  A rename
+   is told from everything else by what it cannot do: it changes exactly ONE
+   record between two looks at the roster, and keeps the part of the identity
+   that is not the name (`*_stable`: gender and parents, say; 0 for an empty
+   record).  A repack changes at least two records (the villager who moved
+   down and the record they left), a death empties a record and a birth fills
+   one (stable 0 on one side), and a newborn in a dead villager's record
+   between two looks has other parents.  Returns that record, or -1 when the
+   change is not a rename (or there is none). */
+static int vv_roster_renamed(int n, const unsigned int *was, const unsigned int *was_stable,
+                             const unsigned int *now, const unsigned int *now_stable) {
+    int i, at = -1;
+    for (i = 0; i < n; ++i) {
+        if (was[i] != now[i]) {
+            if (at >= 0) {
+                return -1;            /* more than one record changed */
+            }
+            at = i;
+        }
+    }
+    if (at < 0 || was_stable[at] == 0 || was_stable[at] != now_stable[at]) {
+        return -1;
+    }
+    return at;
 }
 
 #endif

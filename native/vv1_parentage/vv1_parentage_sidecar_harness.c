@@ -536,6 +536,102 @@ static void follow_cases(void) {
     check(every_child_follows(after_load),
           "a repack between two frames of play is followed, and the inference does not wipe the moved villagers");
 
+    /* 21. Codex (#516): the player renames Nishi [5] (Kito and Chika's
+           daughter) during play.  Same record, gender, family scalar and
+           age: she keeps her parents, the rest of the village keeps theirs,
+           and no birth is inferred. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    vv1_frame(after_load, 0);
+    lstrcpyA((char *)after_load + 5 * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, "Renamed");
+    for (i = 0; i < 2; ++i) {
+        if (vv1_parents_sync_core(SLOT, after_load)) {
+            vv1_frame(after_load, 0);
+        }
+    }
+    check(has_parents(5, 1) && every_child_follows(after_load) && g_birth_count == 0,
+          "a villager renamed during play keeps her parents, and no birth is inferred");
+    check(lstrcmpA(g_roster[5].name, "Renamed") == 0, "... and the table is bound to her new name");
+
+    /* 22. ...and after a quit and a reload she is still found under it. */
+    fresh();
+    for (i = 0; i < VV1_NEW_VILLAGE_STRIKES + 2 && !g_loaded_slot; ++i) {
+        vv1_parents_sync_core(SLOT, after_load);
+    }
+    check(g_loaded_slot == SLOT && has_parents(5, 1) && every_child_follows(after_load),
+          "the renamed villager's parents survive a reload");
+
+    /* 23. A village of one: her only villager renamed.  The overlap with the
+           bound roster would be nobody; the rename keeps the table. */
+    DeleteFileA(path);
+    fresh();
+    memset(before_load, 0, sizeof(before_load));
+    put(before_load, 0, "Nishi", 0, 39);
+    vv1_take_roster(before_load, g_roster);
+    set_parents(0, 1);
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    lstrcpyA((char *)after_load + VV1_NAME_OFFSET, "Solo");
+    for (i = 0; i < VV1_NEW_VILLAGE_STRIKES + 2; ++i) {
+        if (vv1_parents_sync_core(SLOT, after_load)) {
+            vv1_frame(after_load, 0);
+        }
+    }
+    check(has_parents(0, 1) && lstrcmpA(g_roster[0].name, "Solo") == 0,
+          "renaming the only villager of a village of one keeps the table");
+
+    /* 24. Not a rename: a newborn in a dead villager's record between two
+           frames (same gender and scalar, but a baby): a new occupant. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    vv1_frame(after_load, 0);
+    lstrcpyA((char *)after_load + 5 * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, "Baby");
+    *(int *)(after_load + 5 * VV1_RECORD_STRIDE + VV1_AGE_OFFSET) = 0;
+    vv1_frame(after_load, 0);
+    check(g_birth_count == 1 && has_parents(5, 0), "a baby in a dead villager's record is a new occupant, not a rename");
+
+    /* 25. Not a rename: a rename and a birth seen at once change two records;
+           the follow decides, as before. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    lstrcpyA((char *)after_load + 5 * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, "Renamed");
+    put(after_load, OWNER_VILLAGERS, "Newcomer", 1, 77);
+    check(vv1_roster_renamed(g_roster) == -1, "(the bound roster against itself is no rename)");
+    {
+        static vv1_occupant now2[VV1_RECORD_COUNT];
+        vv1_take_roster(after_load, now2);
+        check(vv1_roster_renamed(now2) == -1, "a rename seen together with a birth is not taken for a rename");
+    }
+
+    /* 26. A Start Over into the same slot whose founders happen to have the
+           old village's genders and family scalars, record by record: every
+           record changed, so none of it is a rename. */
+    {
+        static vv1_occupant now3[VV1_RECORD_COUNT];
+        static char renamed[OWNER_VILLAGERS][16];
+        memcpy(after_load, before_load, sizeof(after_load));
+        for (i = 0; i < OWNER_VILLAGERS; ++i) {
+            wsprintfA(renamed[i], "New%d", i);
+            lstrcpyA((char *)after_load + i * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, renamed[i]);
+        }
+        vv1_take_roster(after_load, now3);
+        check(vv1_roster_renamed(now3) == -1,
+              "a new village with the old genders and family scalars is not a rename");
+
+        /* 27. One record's occupant changed to a grown villager of the same
+               gender but another family scalar: an arrival, not a rename. */
+        memcpy(after_load, before_load, sizeof(after_load));
+        put(after_load, 5, "Stranger", 0, 77);
+        vv1_take_roster(after_load, now3);
+        check(vv1_roster_renamed(now3) == -1, "another family's villager in a record is not a rename");
+    }
+
     DeleteFileA(path);
 }
 

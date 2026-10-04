@@ -273,7 +273,7 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
             "parts[0] = &magic;\n    sizes[0] = sizeof(magic);",
             "parts[1] = VV_MASK_TABLE;\n    sizes[1] = VV_MASK_TABLE_BYTES;",
             "parts[2] = roster;\n    sizes[2] = sizeof(roster);",
-            "return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3);",
+            "if (!vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3)) {",
         ):
             self.assertIn(expected, write)
         # nothing is written against the old record numbers, or without the
@@ -431,3 +431,22 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Vv1MaskRosterCurrentTests(unittest.TestCase):
+    """Codex (#516, round 2): A New Home follows the mask table only at a
+    load, by the identities the file holds -- so a villager renamed and never
+    written again was looked for under the old name and lost the mask.  Every
+    roster change is written while there are masks."""
+
+    def test_the_tick_keeps_the_file_roster_current(self) -> None:
+        source = (Path(__file__).resolve().parents[1] / "native" / "vv1_origins_icons"
+                  / "vv1_origins_icons.c").read_text(encoding="utf-8")
+        tick = source.split("__declspec(dllexport) void __stdcall Vv1MaskTick(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertTrue(tick.rstrip().endswith("vv1_mask_roster_current();"))
+        current = source.split("static void vv1_mask_roster_current(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("memcmp(live, vv1_mask_written, sizeof(live)) == 0", current)
+        self.assertIn("vv1_mask_sidecar_save();", current)
+        self.assertIn("if (!vv1_mask_written_known || vv1_mask_follow_pending) {", current)
+        save = source.split("static int vv1_mask_sidecar_save(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertLess(save.index("vv_sidecar_publish("), save.index("memcpy(vv1_mask_written, roster, sizeof(roster));"))

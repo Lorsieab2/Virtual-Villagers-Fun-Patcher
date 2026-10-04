@@ -133,7 +133,6 @@ int main(int argc, char **argv) {
         unsigned int magic = 0; DWORD got;
         if (h != INVALID_HANDLE_VALUE) { ReadFile(h, &magic, 4, &got, NULL); CloseHandle(h); }
         CHECK(size == 4 + 150 * 4 + TABLE_BYTES, "file is magic + 150 roster dwords + 75-byte table (%lu bytes)", size);
-        /* 'VM06': the identity roster #516 introduced (masks follow villagers). */
         CHECK(magic == 0x36304D56u, "file magic is 'VM06' (%08x)", magic);
     }
 

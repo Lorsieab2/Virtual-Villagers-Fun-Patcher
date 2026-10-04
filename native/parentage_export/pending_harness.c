@@ -405,6 +405,43 @@ int main(int argc, char **argv) {
     CHECK(save(VILLAGE) == 1 && read_log() && count("Conception ") == 9 && noted("  Mother: Saka\r\n") == 0,
           "...once, and without the Note");
 
+    printf("-- one lookalike is not the saved tribe, however its records line up (Codex #516) --\n");
+    /* The saved tribe: eight villagers in records 0, 2, 3, ... 8, two
+       lookalikes ("Twin", same looks) at 2 and 3 -- the one at 3 is rank 2.
+       Then a different tribe whose only lookalike sits at record 2: it is
+       record 2's member at its slot AND record 3's member at its rank.
+       Counted once, one of eight is under the quarter: not the saved tribe,
+       so its conception is held, not written under the old header. */
+    {
+        static const char *was[] = { "Ana", "Twin", "Twin", "Bo", "Cy", "Di", "Ed", "Fa" };
+        static const int slot_of[] = { 0, 2, 3, 4, 5, 6, 7, 8 };
+        int k;
+        memset(records, 0, BASE + SLOTS * STRIDE);
+        for (k = 0; k < 8; ++k) {
+            villager(slot_of[k], was[k], 500, k == 1 || k == 2 ? 7 : 20 + k, k == 1 || k == 2 ? 7 : 30 + k);
+        }
+        CHECK(save(VILLAGE) == 1 && read_log() && count("Conception ") == 9, "setup: a saved tribe of eight with two lookalikes");
+        memset(records, 0, BASE + SLOTS * STRIDE);
+        villager(0, "Xantha", 480, 40, 41);
+        villager(1, "Yorrik", 470, 42, 43);
+        villager(2, "Twin", 500, 7, 7);
+        villager(3, "Quillo", 460, 44, 45);
+        conceive(0, 1);
+        CHECK(write(3, records, rec(0), rec(1)) == 1, "the other tribe's conception is accepted");
+        CHECK(read_log() && count("Conception ") == 9 && strstr(logtext, "  Mother: Xantha\r\n") == NULL,
+              "ONE LOOKALIKE COUNTS ONCE: the other tribe's conception is not written under the saved header");
+        /* Back to the saved tribe, so what follows is unchanged: the held
+           record is written at that tribe's next save.  (Whether it is
+           labelled is the LOOSE rule's call, from the held tribe's side: one
+           shared villager is a quarter of that tribe of four.) */
+        memset(records, 0, BASE + SLOTS * STRIDE);
+        for (k = 0; k < 8; ++k) {
+            villager(slot_of[k], was[k], 500, k == 1 || k == 2 ? 7 : 20 + k, k == 1 || k == 2 ? 7 : 30 + k);
+        }
+        CHECK(save(VILLAGE) == 1 && read_log() && count("Conception ") == 10 && strstr(logtext, "  Mother: Xantha\r\n") != NULL,
+              "...it is held, and written at the next save");
+    }
+
     printf("-- Start Over: a simulation, then a new tribe, while the old header is still published --\n");
     memset(records, 0, BASE + SLOTS * STRIDE);
     villager(0, "Moana", 470, 5, 5);
@@ -416,12 +453,12 @@ int main(int argc, char **argv) {
     villager(1, "Tane", 450, 3, 17);
     conceive(0, 1);
     CHECK(write(3, records, rec(0), rec(1)) == 1, "the new tribe's conception is accepted");
-    CHECK(read_log() && count("Conception ") == 9 && strstr(logtext, "Vaea") == NULL
+    CHECK(read_log() && count("Conception ") == 10 && strstr(logtext, "Vaea") == NULL
           && strstr(logtext, "Moana") == NULL,
           "neither is written under the OLD tribe's header");
     vv_village_publish(VILLAGE2);
     CHECK(save(VILLAGE2) == 1, "the new tribe's first save");
-    CHECK(read_log() && count("Conception ") == 9 && strstr(logtext, "Vaea") == NULL,
+    CHECK(read_log() && count("Conception ") == 10 && strstr(logtext, "Vaea") == NULL,
           "the old tribe's log is untouched");
     CHECK(read_log_n(2) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
           "the new tribe gets its own headed log");

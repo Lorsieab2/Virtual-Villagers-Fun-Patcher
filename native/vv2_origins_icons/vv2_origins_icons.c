@@ -1585,6 +1585,11 @@ static int vv2_mask_sidecar_path(char *out) {
    appended page carries none of it. */
 static unsigned int g_vv2_roster[VV2_RECORD_COUNT];
 static int g_vv2_have_roster;
+/* The part of each of those identities a rename does not change -- gender
+   and the parents' names -- taken at the same moment (memory only; 0 for an
+   empty record).  How the village sync tells a rename from a new occupant
+   (vv_roster_renamed, native/shared/mask_follow.h). */
+static unsigned int g_vv2_stable[VV2_RECORD_COUNT];
 /* The save slot the table was loaded for.  The sidecar is keyed per slot, so
    a slot change must re-read that slot's file even when the roster still
    matches -- which it does whenever the owner copies a save between slots.
@@ -1650,6 +1655,28 @@ static int vv2_roster_identities(const unsigned char *base, unsigned int *out) {
         ++live;
     }
     return live;
+}
+
+/* Fill out[] with the part of each living record's identity that a rename
+   leaves alone: gender and the parents' names.  0 for an empty record. */
+static void vv2_roster_stables(const unsigned char *base, unsigned int *out) {
+    int i, k;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        const unsigned char *rec = base + (unsigned int)i * VV2_RECORD_STRIDE;
+        unsigned int h = 2166136261u;
+        out[i] = 0;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) {
+            continue;
+        }
+        for (k = 0; k < 4; ++k) {
+            h = (h ^ rec[VV2_IDENTITY_SEX + k]) * 16777619u;
+        }
+        h = vv2_fnv_text(h, rec + VV2_FATHER_OFFSET, VV2_NAME_CAPACITY);
+        h = (h ^ 0xFEu) * 16777619u;
+        h = vv2_fnv_text(h, rec + VV2_MOTHER_OFFSET, VV2_NAME_CAPACITY);
+        h = (h ^ 0xFDu) * 16777619u;
+        out[i] = h ? h : 1u;
+    }
 }
 
 /* How many of the recorded villagers in `a` are in `b` at the same record
@@ -1909,6 +1936,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
    is not the one about to appear. */
 __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     unsigned int cur[VV2_RECORD_COUNT];
+    unsigned int cur_stable[VV2_RECORD_COUNT];
     int slot = VV2_MASK_SLOT;   /* published by the slot stub; 0 = none yet */
     int i;
     if (base == 0 || slot <= 0) {
@@ -1916,6 +1944,22 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     }
     if (vv2_roster_identities(base, cur) == 0) {
         return 0;               /* unknown village -> do not touch anything */
+    }
+    vv2_roster_stables(base, cur_stable);
+    /* A RENAME (Codex, #516).  The identity hashes the name, so a villager
+       the player renames would read as a new occupant: their mask dropped by
+       the follow, and in a village of one or two the roster taken for
+       another village's and every mask cleared.  One record changed, its
+       gender and parents unchanged: the same villager.  The mask stays on
+       its record, which takes the new identity, and the file says so now. */
+    if (g_vv2_have_roster && slot == g_vv2_slot) {
+        int renamed = vv_roster_renamed(VV2_RECORD_COUNT, g_vv2_roster, g_vv2_stable, cur, cur_stable);
+        if (renamed >= 0) {
+            g_vv2_roster[renamed] = cur[renamed];
+            memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));
+            vv2_mask_sidecar_save();
+            return 1;
+        }
     }
     /* Same village means the same SLOT and a roster majority.  A slot change
        always reloads: the file is keyed per slot, and two slots can hold
@@ -1927,6 +1971,7 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
                hands it the dead villager's mask. */
             vv2_mask_follow(g_vv2_roster, cur, 0);
             memcpy(g_vv2_roster, cur, sizeof(cur));
+            memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));
             vv2_mask_sidecar_save();
         }
         return 1;               /* same village -> keep the masks as they are */
@@ -1946,6 +1991,7 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
         return 0;               /* stay pending; retried on the next call */
     }
     memcpy(g_vv2_roster, cur, sizeof(cur));
+    memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));
     g_vv2_have_roster = 1;
     g_vv2_slot = slot;
     if (g_vv2_rewrite_after_load) {
