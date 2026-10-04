@@ -143,7 +143,7 @@ def build() -> dict:
             "events' own text and effects are unchanged.",
             "No save data changes.",
         ],
-        "evidence_status": "static exact-build evidence and emulated chooser; live in-game confirmation pending",
+        "evidence_status": "static exact-build evidence, emulated choosers and handlers, and live in-game confirmation (both events, both Furry Food choices, with and without food)",
         "companion_files": [],
         "patches": [
             patch(ISLAND_ENTRY, struct.pack("<I", island_stub),

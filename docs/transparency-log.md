@@ -314,7 +314,7 @@ A New Home has two island events whose story and effects are complete in the gam
 - Behavior changes: A Mighty Storm (island event 1) can be chosen by the game's own island-event roll when the village has stored food; it then runs exactly as the game wrote it (all stored food is lost). The Furry Food (villager encounter 5) can be chosen by the game's own encounter roll when the village has stored food; both of its choices run exactly as the game wrote them. Each is offered with the same first-roll chance as every other event whose condition holds (1 in 15 among the island events, 1 in 16 among the encounters); with no stored food the game rolls again, as it does for any event that cannot happen.
 - Explicit non-changes/exclusions: How often island events happen, the other events, their odds and conditions, and the events' own text and effects are unchanged. No save data changes.
 - Dependencies: none
-- Evidence status: static exact-build evidence and emulated chooser; live in-game confirmation pending
+- Evidence status: static exact-build evidence, emulated choosers and handlers, and live in-game confirmation (both events, both Furry Food choices, with and without food)
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
 #### School Lessons Grant Skill (`vv1_school_lessons_grant_skill`)
