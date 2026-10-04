@@ -1020,8 +1020,9 @@ class DeadEventTests(unittest.TestCase):
         self.assertEqual(never, {4, 18, 20, 26})
         offered = {e["slot"] for e in story_island_events.EVENTS["vv2"] if e["slot"] >> 6 == 0}
         # Case 4 has no body; the other three work and are offered as never
-        # happening in the original game.
-        self.assertEqual(offered, set(range(28)) - {4})
+        # happening in the original game.  28-30 are Restore Missing Island
+        # Events' lore pages (delivered as case 4 of that row's build).
+        self.assertEqual(offered, (set(range(28)) - {4}) | {28, 29, 30})
         for dead in (18, 20, 26):
             self.assertIn(dead, outcomes.DEAD_NOTES["vv2"])
             self.assertIn(dead, outcomes.UNLOCKED["vv2"])

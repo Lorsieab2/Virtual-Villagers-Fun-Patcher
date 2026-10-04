@@ -26,6 +26,7 @@ EXPORTS
     VvfpStoryProbeSite=_VvfpStoryProbeSite@20
     VvfpStoryProbeArm=_VvfpStoryProbeArm@12
     VvfpStoryProbeSetPick=_VvfpStoryProbeSetPick@12
+    VvfpStoryProbeInstallPageRoll=_VvfpStoryProbeInstallPageRoll@0
     VvfpStoryProbeSetTick=_VvfpStoryProbeSetTick@4
     VvfpStoryProbeFailWrite=_VvfpStoryProbeFailWrite@4
     VvfpStoryProbePending=_VvfpStoryProbePending@4
