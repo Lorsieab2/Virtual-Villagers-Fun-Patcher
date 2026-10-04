@@ -111,6 +111,14 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             # the pregnancy stash
             "an expecting mother's baby gets the father of her last logged conception",
             "a pregnancy the log does not hold keeps its stash",
+            # the session the check runs in (the load-time catch-up delivers before anyone is asked)
+            "a catch-up birth before the check takes the father the log confirms, not the drifted stash",
+            "... and the stash itself is not changed before the player is asked",
+            "a villager born this session is never cleared for want of a Birth record the log has not written yet",
+            "... and keeps both parents through the repair",
+            "a conception made this session gives its own father",
+            "... and its stash is never 'corrected' from an older conception",
+            "after the check has run, a birth takes the stash as it always did",
             # failing closed
             "an unreadable Births log: nothing changed, no marker",
             "... and once it can be read, the next load repairs",

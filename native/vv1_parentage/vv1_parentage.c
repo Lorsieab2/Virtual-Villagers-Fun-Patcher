@@ -271,6 +271,15 @@ static int g_blocked_slot;                    /* the slot whose sidecar is there
 static int g_blocked_wait;                    /* sync calls before that sidecar is tried again */
 static int g_may_replace;                     /* the file at the path is one this table may replace */
 static int g_load_followed;                   /* the last load moved entries: the file is behind the table */
+/* What happened to each record THIS SESSION, for the first-load cross-check
+   (vv1_crosscheck.inc).  The parentage log holds a session's records in
+   memory until the village is saved, so a villager born this session -- the
+   load-time catch-up delivers most births -- has no Birth record in the log
+   FILE yet, and a stash set by a conception this session has no Conception
+   record there either: the check must leave both alone.  The flags follow
+   their villagers exactly as the entries do. */
+static unsigned char g_session_born[VV1_RECORD_COUNT];   /* arrived this session (born, or a new occupant) */
+static unsigned char g_session_stash[VV1_RECORD_COUNT];  /* the stash was set by a conception this session */
 
 /* What an attempt to load the sidecar found. */
 #define VV1_LOAD_NONE      0      /* no file (or an invalid one, now set aside): nothing to lose */
@@ -291,11 +300,27 @@ static int vv1_slot(void) {
 }
 
 static unsigned char vv1_plus_one(int value);
+static int vv1_xc_confirmed_father(const unsigned char *mother, vv1_parent_entry *out);
+static void vv1_xc_prepare_fathers(int slot, const unsigned char *records);
 
 /* Fill child c's father from mother m's pregnancy stash, or -- when she has
    none, a fatherless delivery -- from the "Unknown" 0/0 fallback.  Never
    called for a spawn, which has no delivering mother. */
-static void vv1_set_father(int c, int m) {
+static void vv1_set_father(int c, int m, const unsigned char *mother) {
+    vv1_parent_entry confirmed;
+    /* A stash that came from before the first-load cross-check ran may have
+       drifted onto this mother from another villager.  While that check has
+       not run, a pregnancy she brought into this session takes its father
+       from her last conception in the Births log -- the record the stash was
+       copied from -- whenever the log confirms one (vv1_crosscheck.inc); a
+       birth is never logged with a drifted father.  A conception made THIS
+       session set the stash itself, and is always right. */
+    if (!g_session_stash[m] && mother != NULL && vv1_xc_confirmed_father(mother, &confirmed)) {
+        g_entries[c].father_head = confirmed.stash_head;
+        g_entries[c].father_body = confirmed.stash_body;
+        memcpy(g_entries[c].father_name, confirmed.stash_name, VV1_NAME_CAPACITY);
+        return;
+    }
     /* The father is the one stashed against the mother at conception.  When
        she has no stash (a delivery with no captured father) the father is
        simply left blank: only the mother is recorded, as the manifest
@@ -472,6 +497,7 @@ static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *
 static int vv1_follow_roster(const vv1_occupant *now) {
     static vv1_parent_entry moved[VV1_RECORD_COUNT];
     static vv1_occupant kept[VV1_RECORD_COUNT];
+    unsigned char born[VV1_RECORD_COUNT], stashed[VV1_RECORD_COUNT];
     int from[VV1_RECORD_COUNT];
     int j;
     /* Did anyone move?  Decided over the WHOLE roster (Codex, #516), not from
@@ -514,18 +540,27 @@ static int vv1_follow_roster(const vv1_occupant *now) {
             kept[j] = now[j];
             if (from[j] >= 0) {
                 moved[j] = g_entries[from[j]];
+                born[j] = g_session_born[from[j]];
+                stashed[j] = g_session_stash[from[j]];
             } else {
                 memset(&moved[j], 0, sizeof(moved[j]));
+                born[j] = 1;                /* a new occupant: nothing of theirs is in the log file yet */
+                stashed[j] = 0;
             }
         } else if (g_roster[j].gender && vv1_count_occupant(now, &g_roster[j], NULL) == 0) {
             kept[j] = g_roster[j];          /* away or dead, and nobody holds the record: kept */
             kept[j].departed = 1;
             moved[j] = g_entries[j];
+            born[j] = g_session_born[j];
+            stashed[j] = g_session_stash[j];
         } else {
             memset(&kept[j], 0, sizeof(kept[j]));
             memset(&moved[j], 0, sizeof(moved[j]));
+            born[j] = stashed[j] = 0;
         }
     }
+    memcpy(g_session_born, born, sizeof(born));
+    memcpy(g_session_stash, stashed, sizeof(stashed));
     memcpy(g_entries, moved, sizeof(g_entries));
     memcpy(g_roster, kept, sizeof(g_roster));
     return repacked;
@@ -880,6 +915,8 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
     memset(g_entries, 0, sizeof(g_entries));
     memcpy(g_roster, roster, sizeof(g_roster));
     memcpy(g_entries, buf, sizeof(buf));
+    memset(g_session_born, 0, sizeof(g_session_born));
+    memset(g_session_stash, 0, sizeof(g_session_stash));
     /* Names are printed and drawn: whatever the file holds, every
        name ends inside its own buffer. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
@@ -921,6 +958,8 @@ static void vv1_parents_blocked(int slot) {
 static void vv1_parents_reset(void) {
     memset(g_entries, 0, sizeof(g_entries));
     memset(g_roster, 0, sizeof(g_roster));
+    memset(g_session_born, 0, sizeof(g_session_born));
+    memset(g_session_stash, 0, sizeof(g_session_stash));
 }
 
 /* Make sure the table on hand belongs to the village on screen.  Returns
@@ -993,6 +1032,7 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             g_loaded_slot = slot;   /* the file is this village's: it is loaded */
             g_strikes = 0;
             g_may_replace = 1;
+            vv1_xc_prepare_fathers(slot, records);
             if (g_load_followed) {
                 vv1_parents_save(slot, records);   /* the followed table, written back */
             }
@@ -1011,6 +1051,7 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             g_loaded_slot = slot;
             g_strikes = 0;
             g_may_replace = (result == VV1_LOAD_OTHER);
+            vv1_xc_prepare_fathers(slot, records);
             return slot;
         }
         return 0;                 /* still settling: the table is untouched */
@@ -1031,6 +1072,7 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
         if (result != VV1_LOAD_MATCHED) {
             vv1_parents_reset();  /* another village in this slot: start empty */
         }
+        vv1_xc_prepare_fathers(slot, records);
         g_may_replace = (result != VV1_LOAD_NONE);
         if (result == VV1_LOAD_MATCHED && g_load_followed) {
             vv1_parents_save(slot, records);
@@ -1161,6 +1203,7 @@ static int vv1_stash(const unsigned char *records, const unsigned char *mother,
     g_entries[index].stash_head = vv1_plus_one(*(const int *)(father + VV1_HEAD_OFFSET));
     g_entries[index].stash_body = vv1_plus_one(*(const int *)(father + VV1_BODY_OFFSET));
     vv1_copy_name(father, g_entries[index].stash_name);
+    g_session_stash[index] = 1;
     return (int)index;
 }
 
@@ -1266,9 +1309,11 @@ static int vv1_tick_over(const unsigned char *records) {
                frame; a villager who merely MOVED never gets here, because a
                move retires this snapshot.) */
             memset(&g_entries[i], 0, sizeof(g_entries[i]));
+            g_session_born[i] = 1;
+            g_session_stash[i] = 0;
             if (matches == 1) {
                 const unsigned char *mrec = records + (unsigned int)mother * VV1_RECORD_STRIDE;
-                vv1_set_father(i, mother);
+                vv1_set_father(i, mother, mrec);
                 g_entries[i].mother_head = vv1_plus_one(*(const int *)(mrec + VV1_HEAD_OFFSET));
                 g_entries[i].mother_body = vv1_plus_one(*(const int *)(mrec + VV1_BODY_OFFSET));
                 vv1_copy_name(mrec, g_entries[i].mother_name);
@@ -1302,6 +1347,7 @@ static int vv1_spend_stashes(const unsigned char *records) {
                 g_entries[i].stash_head = 0;
                 g_entries[i].stash_body = 0;
                 memset(g_entries[i].stash_name, 0, VV1_NAME_CAPACITY);
+                g_session_stash[i] = 0;
                 changed = 1;
             }
         }
@@ -1356,7 +1402,9 @@ static int vv1_born(const unsigned char *records, const unsigned char *child,
         return -1;
     }
     memset(&g_entries[c], 0, sizeof(g_entries[c]));
-    vv1_set_father((int)c, (int)m);
+    g_session_born[c] = 1;
+    g_session_stash[c] = 0;
+    vv1_set_father((int)c, (int)m, mother);
     g_entries[c].mother_head = vv1_plus_one(*(const int *)(mother + VV1_HEAD_OFFSET));
     g_entries[c].mother_body = vv1_plus_one(*(const int *)(mother + VV1_BODY_OFFSET));
     vv1_copy_name(mother, g_entries[c].mother_name);

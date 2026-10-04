@@ -255,6 +255,9 @@ static void fresh(void) {
     g_blocked_wait = 0;
     g_may_replace = 0;
     g_asked = 0;
+    memset(g_session_born, 0, sizeof(g_session_born));
+    memset(g_session_stash, 0, sizeof(g_session_stash));
+    g_xc_father_count = 0;
 }
 
 /* Write a sidecar holding `entries` against `records`' roster, as an earlier
@@ -633,6 +636,98 @@ static void stash_cases(void) {
     check(lstrcmpA(g_entries[0].stash_name, "Howi") == 0, "a pregnancy the log does not hold keeps its stash");
 }
 
+/* The load-time catch-up delivers babies before the village is on screen,
+   and the session's log records are only written at the next save. */
+static void session_cases(void) {
+    static vv1_parent_entry entries[VV1_RECORD_COUNT];
+    static const villager baba = { "Baba", 0, 39, 3, 3, 0 };
+    unsigned char *mrec, *crec;
+    int asked, c;
+
+    /* Chapa is expecting; her last logged conception names Usutu; the
+       drifted table's stash says Howi. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_conception_of(find("Chapa"), find("Usutu"));
+    log_save(1);
+    memset(village, 0, sizeof(village));
+    put(village, 0, find("Chapa"), 900);
+    put(village, 1, find("Usutu"), 0);
+    put(village, 2, find("Howi"), 0);
+    memset(entries, 0, sizeof(entries));
+    true_entry(find("Chapa"), &entries[0]);
+    lstrcpyA(entries[0].stash_name, "Howi"); entries[0].stash_head = 4; entries[0].stash_body = 12;
+    true_entry(find("Usutu"), &entries[1]);
+    true_entry(find("Howi"), &entries[2]);
+    write_sidecar(village, entries);
+
+    /* The load, then a catch-up birth -- before anyone is asked anything. */
+    load_only(village);
+    mrec = village;
+    crec = village + 3u * VV1_RECORD_STRIDE;
+    put(village, 3, &baba, 0);
+    *(int *)(crec + VV1_AGE_OFFSET) = 40;
+    c = vv1_born(village, crec, mrec);
+    check(c == 3 && lstrcmpA(g_entries[3].father_name, "Usutu") == 0 && g_entries[3].father_head == 22
+          && lstrcmpA(g_entries[3].mother_name, "Chapa") == 0,
+          "a catch-up birth before the check takes the father the log confirms, not the drifted stash");
+    check(lstrcmpA(g_entries[0].stash_name, "Howi") == 0, "... and the stash itself is not changed before the player is asked");
+
+    /* The newborn has no Birth record in the log FILE yet: it is left alone. */
+    asked = vv1_xc_scan(SLOT, village, &g_plan);
+    {
+        int i, newborn_listed = 0;
+        for (i = 0; i < g_plan.count; ++i) newborn_listed |= g_plan.changes[i].index == 3;
+        check(asked == 1 && !newborn_listed && g_plan.stashes == 1 && g_plan.cleared == 0,
+              "a villager born this session is never cleared for want of a Birth record the log has not written yet");
+    }
+    check(vv1_xc_apply(SLOT, village) == 1 && lstrcmpA(g_entries[3].mother_name, "Chapa") == 0
+          && lstrcmpA(g_entries[3].father_name, "Usutu") == 0,
+          "... and keeps both parents through the repair");
+
+    /* A conception made this session is always right: its stash is used. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_conception_of(find("Chapa"), find("Usutu"));
+    log_save(1);
+    memset(village, 0, sizeof(village));
+    put(village, 0, find("Chapa"), 900);
+    put(village, 1, find("Usutu"), 0);
+    put(village, 2, find("Howi"), 0);
+    write_sidecar(village, entries);
+    load_only(village);
+    vv1_stash(village, village, village + 2u * VV1_RECORD_STRIDE);   /* Chapa conceives by Howi now */
+    put(village, 3, &baba, 0);
+    c = vv1_born(village, village + 3u * VV1_RECORD_STRIDE, village);
+    check(c == 3 && lstrcmpA(g_entries[3].father_name, "Howi") == 0,
+          "a conception made this session gives its own father");
+    asked = vv1_xc_scan(SLOT, village, &g_plan);
+    check(g_plan.stashes == 0, "... and its stash is never 'corrected' from an older conception");
+
+    /* Once the check has run, the stash is the log's: births use it. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_conception_of(find("Chapa"), find("Usutu"));
+    log_save(1);
+    memset(village, 0, sizeof(village));
+    put(village, 0, find("Chapa"), 900);
+    put(village, 1, find("Usutu"), 0);
+    put(village, 2, find("Howi"), 0);
+    write_sidecar(village, entries);
+    vv1_xc_marker_write(SLOT, VV1_XC_RESULT_CLEAN, NULL);
+    load_only(village);
+    put(village, 3, &baba, 0);
+    c = vv1_born(village, village + 3u * VV1_RECORD_STRIDE, village);
+    check(c == 3 && lstrcmpA(g_entries[3].father_name, "Howi") == 0,
+          "after the check has run, a birth takes the stash as it always did");
+}
+
 static void failure_cases(void) {
     static unsigned char before[16 + sizeof(g_roster) + sizeof(g_entries)];
     static unsigned char after[sizeof(before)];
@@ -743,6 +838,7 @@ int main(int argc, char **argv) {
     clean_and_no_log_cases();
     ambiguity_cases();
     stash_cases();
+    session_cases();
     failure_cases();
     many_files_case();
 

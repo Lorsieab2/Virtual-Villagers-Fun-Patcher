@@ -564,8 +564,126 @@ static int vv1_xc_has_stash(const vv1_parent_entry *e) {
     return e->stash_head || e->stash_body || e->stash_name[0];
 }
 
+/* The father of the pregnancy a mother is carrying, as the log confirms it:
+   the father of her LAST logged conception (matched by name, head and body),
+   when no Birth by her follows it in the log and it names a father.  1 and
+   *father filled, or 0: the log cannot say. */
+static int vv1_xc_last_father(const vv1_xc_log *log, const char *name, int head, int body,
+                              const vv1_xc_person **father) {
+    int k, last = -1;
+    for (k = 0; k < log->count; ++k) {
+        const vv1_xc_record *r = &log->items[k];
+        if (r->kind == 2 && r->header == log->village_header && vv1_xc_is(&r->mother, name, head, body)) {
+            last = k;
+        }
+    }
+    if (last < 0) {
+        return 0;
+    }
+    for (k = last + 1; k < log->count; ++k) {
+        const vv1_xc_record *r = &log->items[k];
+        if (r->kind == 1 && r->header == log->village_header && vv1_xc_is(&r->mother, name, head, body)) {
+            return 0;                     /* she delivered after it: this pregnancy is not in the log */
+        }
+    }
+    if (!log->items[last].father.present || !log->items[last].father.name[0]) {
+        return 0;
+    }
+    *father = &log->items[last].father;
+    return 1;
+}
+
+/* How many living villagers share this name, head and body. */
+static int vv1_xc_shared(const unsigned char *records, const char *name, int head, int body) {
+    int k, shared = 0;
+    for (k = 0; k < VV1_RECORD_COUNT; ++k) {
+        const unsigned char *other = records + (unsigned int)k * VV1_RECORD_STRIDE;
+        char other_name[VV1_NAME_CAPACITY];
+        if (!other[VV1_OCCUPIED_OFFSET]) continue;
+        vv1_copy_name(other, other_name);
+        if (*(const int *)(other + VV1_HEAD_OFFSET) == head && *(const int *)(other + VV1_BODY_OFFSET) == body
+            && strncmp(other_name, name, VV1_NAME_CAPACITY) == 0) {
+            ++shared;
+        }
+    }
+    return shared;
+}
+
+/* THE PREGNANCIES BROUGHT INTO THE SESSION.  The load-time catch-up delivers
+   most babies before the village is even on screen -- long before the player
+   can be asked -- and each newborn takes its father from its mother's stash.
+   A stash the old builds let drift would give the newborn, and its Birth
+   record, someone else's father, and the log is never rewritten.  So when a
+   village is loaded and its check has not run yet, the father the Births log
+   confirms for each pregnancy is learnt here, by the mother's identity, and
+   vv1_set_father uses it in place of her stash.  Nothing on disk changes:
+   the stash itself is repaired only if the player chooses Repair. */
+#define VV1_XC_FATHERS VV1_RECORD_COUNT
+static struct {
+    char mother[VV1_NAME_CAPACITY];
+    int head, body;
+    vv1_parent_entry father;      /* in the stash fields */
+} g_xc_fathers[VV1_XC_FATHERS];
+static int g_xc_father_count;
+
+static void vv1_xc_prepare_fathers(int slot, const unsigned char *records) {
+    vv1_xc_log log;
+    int j;
+    g_xc_father_count = 0;
+    if (records == NULL || vv1_xc_marker_state(slot) != 0 || vv1_xc_read_log(&log, slot) != 1) {
+        return;                       /* checked already, or nothing to learn from */
+    }
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        const unsigned char *rec = records + (unsigned int)j * VV1_RECORD_STRIDE;
+        const vv1_xc_person *father;
+        char name[VV1_NAME_CAPACITY];
+        int head, body;
+        if (!rec[VV1_OCCUPIED_OFFSET] || *(const int *)(rec + VV1_DUE_OFFSET) == 0) {
+            continue;
+        }
+        vv1_copy_name(rec, name);
+        head = *(const int *)(rec + VV1_HEAD_OFFSET);
+        body = *(const int *)(rec + VV1_BODY_OFFSET);
+        if (vv1_xc_shared(records, name, head, body) == 1
+            && vv1_xc_last_father(&log, name, head, body, &father)) {
+            memset(&g_xc_fathers[g_xc_father_count], 0, sizeof(g_xc_fathers[0]));
+            lstrcpynA(g_xc_fathers[g_xc_father_count].mother, name, VV1_NAME_CAPACITY);
+            g_xc_fathers[g_xc_father_count].head = head;
+            g_xc_fathers[g_xc_father_count].body = body;
+            vv1_xc_set(&g_xc_fathers[g_xc_father_count].father.stash_head,
+                       &g_xc_fathers[g_xc_father_count].father.stash_body,
+                       g_xc_fathers[g_xc_father_count].father.stash_name, father);
+            ++g_xc_father_count;
+        }
+    }
+    vv1_xc_free(&log);
+}
+
+/* The father the log confirmed for this mother's pregnancy, if any. */
+static int vv1_xc_confirmed_father(const unsigned char *mother, vv1_parent_entry *out) {
+    char name[VV1_NAME_CAPACITY];
+    int i, head, body;
+    if (g_xc_father_count == 0) {
+        return 0;
+    }
+    vv1_copy_name(mother, name);
+    head = *(const int *)(mother + VV1_HEAD_OFFSET);
+    body = *(const int *)(mother + VV1_BODY_OFFSET);
+    for (i = 0; i < g_xc_father_count; ++i) {
+        if (g_xc_fathers[i].head == head && g_xc_fathers[i].body == body
+            && strncmp(g_xc_fathers[i].mother, name, VV1_NAME_CAPACITY) == 0) {
+            *out = g_xc_fathers[i].father;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* Work out, read-only, what the log says each living villager's entry should
-   be, against the table as it stands (already followed to its villagers). */
+   be, against the table as it stands (already followed to its villagers).
+   A villager who arrived this session, and a stash set by a conception this
+   session, are not in the log FILE yet (the session's records are written at
+   the next save) and are left exactly as they are. */
 static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *log, vv1_xc_plan *plan) {
     int j, k;
     memset(plan, 0, sizeof(*plan));
@@ -576,22 +694,13 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
         const vv1_xc_record *first = NULL;
         vv1_parent_entry after;
         int stash_changed = 0;
-        if (!rec[VV1_OCCUPIED_OFFSET]) {
+        if (!rec[VV1_OCCUPIED_OFFSET] || g_session_born[j]) {
             continue;
         }
         vv1_copy_name(rec, name);
         head = *(const int *)(rec + VV1_HEAD_OFFSET);
         body = *(const int *)(rec + VV1_BODY_OFFSET);
-        for (k = 0; k < VV1_RECORD_COUNT; ++k) {
-            const unsigned char *other = records + (unsigned int)k * VV1_RECORD_STRIDE;
-            char other_name[VV1_NAME_CAPACITY];
-            if (!other[VV1_OCCUPIED_OFFSET]) continue;
-            vv1_copy_name(other, other_name);
-            if (*(const int *)(other + VV1_HEAD_OFFSET) == head && *(const int *)(other + VV1_BODY_OFFSET) == body
-                && strncmp(other_name, name, VV1_NAME_CAPACITY) == 0) {
-                ++shared;
-            }
-        }
+        shared = vv1_xc_shared(records, name, head, body);
         for (k = 0; k < log->count; ++k) {
             const vv1_xc_record *r = &log->items[k];
             if (r->kind != 1 || r->header != log->village_header) continue;
@@ -628,29 +737,13 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
 
         /* The pregnancy stash, for a mother carrying now: the father of her
            last logged conception, when nothing she delivered follows it. */
-        if (*(const int *)(rec + VV1_DUE_OFFSET) != 0 && shared == 1) {
-            int last = -1;
-            for (k = 0; k < log->count; ++k) {
-                const vv1_xc_record *r = &log->items[k];
-                if (r->kind == 2 && r->header == log->village_header && vv1_xc_is(&r->mother, name, head, body)) {
-                    last = k;
-                }
-            }
-            if (last >= 0) {
-                int delivered = 0;
-                for (k = last + 1; k < log->count; ++k) {
-                    const vv1_xc_record *r = &log->items[k];
-                    if (r->kind == 1 && r->header == log->village_header && vv1_xc_is(&r->mother, name, head, body)) {
-                        delivered = 1;
-                        break;
-                    }
-                }
-                if (!delivered && log->items[last].father.present && log->items[last].father.name[0]) {
-                    vv1_xc_set(&after.stash_head, &after.stash_body, after.stash_name, &log->items[last].father);
-                    stash_changed = after.stash_head != g_entries[j].stash_head
-                        || after.stash_body != g_entries[j].stash_body
-                        || strncmp(after.stash_name, g_entries[j].stash_name, VV1_NAME_CAPACITY) != 0;
-                }
+        if (*(const int *)(rec + VV1_DUE_OFFSET) != 0 && shared == 1 && !g_session_stash[j]) {
+            const vv1_xc_person *father;
+            if (vv1_xc_last_father(log, name, head, body, &father)) {
+                vv1_xc_set(&after.stash_head, &after.stash_body, after.stash_name, father);
+                stash_changed = after.stash_head != g_entries[j].stash_head
+                    || after.stash_body != g_entries[j].stash_body
+                    || strncmp(after.stash_name, g_entries[j].stash_name, VV1_NAME_CAPACITY) != 0;
             }
         }
         if (what != VV1_XC_SAME || stash_changed) {
@@ -925,5 +1018,6 @@ static int vv1_xc_apply(int slot, const unsigned char *records) {
     vv1_xc_note(&log, &plan, records, none ? NULL : backup);
     vv1_xc_free(&log);
     vv1_xc_marker_write(slot, VV1_XC_RESULT_REPAIRED, &plan);
+    g_xc_father_count = 0;            /* the stashes are the log's now */
     return 1;
 }
