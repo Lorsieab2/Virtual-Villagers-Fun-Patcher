@@ -167,6 +167,10 @@ static void remove_tree(const char *dir) {
         FindClose(s);
     }
     RemoveDirectoryA(dir);
+    /* Every step starts from a cleared tree as a new launch would: the
+       resolver's per-session memory of loose paths (data_subfolder.h,
+       rule 7) is that launch's, not this process's. */
+    vv_data_kept_count = 0;
 }
 
 static void scenario(int slot) {
