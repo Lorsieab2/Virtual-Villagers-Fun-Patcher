@@ -117,7 +117,7 @@ static void wipe(void) {
 /* Resolve the masks file for slot 1 from a fresh Data-folder buffer. */
 static int resolve(char *out) {
     lstrcpyA(out, g_data);
-    return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, NAME, (int)sizeof(".tmp"));
+    return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
 }
 
 static int accept_all(const unsigned char *data, DWORD len, void *ctx) {
@@ -247,14 +247,25 @@ int main(int argc, char **argv) {
     CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_moved) == 0 && g_moves == 0, "the folder's path; nothing moved");
     RemoveDirectoryA(g_loose);
 
-    printf("10. a path that would not fit is refused, leaving the buffer as it was\n");
+    printf("10. lengths: room for the longest set-aside name, else the loose file, else nothing\n");
+    CHECK(VV_DATA_RESERVE == (int)sizeof(".unreadable-4294967295-999"),
+          "the reserve is sidecar_io's longest suffix, \".unreadable-<ticks>-<n>\", and the NUL");
     wipe();
     lstrcpyA(out, g_data);
-    r = vv_data_file_path(out, lstrlenA(g_moved) + 4, VV_DATA_SUB_MASKS, NAME, (int)sizeof(".tmp"));
-    CHECK(r == VV_DATA_PATH_FAILED && lstrcmpA(out, g_data) == 0, "one char short of the .tmp: refused");
+    r = vv_data_file_path(out, lstrlenA(g_loose) + VV_DATA_RESERVE - 1, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
+    CHECK(r == VV_DATA_PATH_FAILED && lstrcmpA(out, g_data) == 0,
+          "even the loose path is one char short: refused, buffer left as it was");
+    write_bytes(g_loose, "LONG");
     lstrcpyA(out, g_data);
-    r = vv_data_file_path(out, lstrlenA(g_moved) + 5, VV_DATA_SUB_MASKS, NAME, (int)sizeof(".tmp"));
-    CHECK(r == VV_DATA_PATH_FOLDER, "exactly enough: accepted");
+    r = vv_data_file_path(out, lstrlenA(g_moved) + VV_DATA_RESERVE - 1, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
+    CHECK(r == VV_DATA_PATH_LOOSE && lstrcmpiA(out, g_loose) == 0,
+          "only the folder's path is too long: the loose file, in place");
+    CHECK(g_moves == 0 && GetFileAttributesA(g_sub) == INVALID_FILE_ATTRIBUTES
+          && lstrcmpA(read_text(g_loose), "LONG") == 0, "nothing moved, no folder made, the file intact");
+    lstrcpyA(out, g_data);
+    r = vv_data_file_path(out, lstrlenA(g_moved) + VV_DATA_RESERVE, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpA(read_text(g_moved), "LONG") == 0,
+          "exactly enough for the folder's path: moved in");
 
     wipe();
     RemoveDirectoryA(g_data);

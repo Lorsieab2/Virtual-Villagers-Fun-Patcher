@@ -446,8 +446,8 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
        persisted, never a stack smash). Reserve a conservative 32-byte suffix
        budget for the slot and extension rather than hand-counting it. */
     if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
-            + sizeof("\\LDW\\\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_MASKS
-                     "\\Virtual Villagers 1 Village Masks - Save 0.dat.tmp") > n) {
+            + sizeof("\\LDW\\\\" VV_DATA_FOLDER
+                     "\\Virtual Villagers 1 Village Masks - Save 0.dat") > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
@@ -465,7 +465,7 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
     {
         char name[64];
         wsprintfA(name, "Virtual Villagers 1 Village Masks - Save %u.dat", (unsigned int)slot);
-        if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_MASKS, name, (int)sizeof(".tmp"))) {
+        if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_MASKS, name, VV_DATA_RESERVE)) {
             return 0;
         }
     }

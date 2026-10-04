@@ -77,6 +77,13 @@
 #define VV_DATA_PATH_FOLDER   1   /* the file in its kind's folder (rules 1, 2, 5) */
 #define VV_DATA_PATH_LOOSE    2   /* the loose file in the Data folder (rules 3, 4, 5) */
 
+/* The longest name native/shared/sidecar_io.h (and the parentage
+   companion's own set-aside) appends to a data file's path, with the NUL:
+   ".unreadable-<32-bit ticks>-<0..999>". Every caller reserves this, so a
+   file that turns out to be unreadable can always be moved aside instead of
+   blocking its slot for good. */
+#define VV_DATA_RESERVE ((int)sizeof(".unreadable-4294967295-999"))
+
 /* The harness substitutes a failing move here to prove rule 3. Shipped
    builds always call MoveFileExA. */
 #ifndef VV_DATA_MOVE_FILE
@@ -125,12 +132,24 @@ static int vv_data_file_path(char *out, int cap, const char *sub,
         return VV_DATA_PATH_FAILED;
     }
     dir_len = lstrlenA(out);
-    /* The longer of the two paths is the one in the folder; both have to
-       fit with the caller's reserve, and in MAX_PATH for the local copies. */
+    /* Rule 6, length. A path is usable only if the caller's whole reserve
+       still fits after it, in OUT and in MAX_PATH (sidecar_io.h builds its
+       ".tmp" and ".unreadable-<ticks>-<n>" names in MAX_PATH buffers).
+       The loose path is the shorter of the two: if even it does not fit,
+       nothing is usable. If only the folder's does not fit -- the folder's
+       name is what pushed it over -- the loose file is used where it is and
+       nothing is moved, exactly as before the folders existed, so a long
+       Documents path or exe name never costs the player a working file. */
     if (dir_len == 0
-        || dir_len + 1 + lstrlenA(sub) + 1 + lstrlenA(name) + reserve > cap
-        || dir_len + 1 + lstrlenA(sub) + 1 + lstrlenA(name) + 1 > MAX_PATH) {
+        || dir_len + 1 + lstrlenA(name) + reserve > cap
+        || dir_len + 1 + lstrlenA(name) + reserve > MAX_PATH) {
         return VV_DATA_PATH_FAILED;
+    }
+    if (dir_len + 1 + lstrlenA(sub) + 1 + lstrlenA(name) + reserve > cap
+        || dir_len + 1 + lstrlenA(sub) + 1 + lstrlenA(name) + reserve > MAX_PATH) {
+        lstrcatA(out, "\\");
+        lstrcatA(out, name);
+        return VV_DATA_PATH_LOOSE;
     }
     lstrcpyA(dir, out);
     wsprintfA(folder, "%s\\%s", dir, sub);

@@ -853,7 +853,7 @@ static int vv_build_sidecar_path(char *out, int slot) {
        The data file now lives in a clearly named folder rather than loose
        beside the saves, so the bound covers that component too. */
     if (lstrlenA(out) + (int)(sizeof("\\LDW\\") - 1) + lstrlenA(base) +
-        (int)sizeof("\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_MASKS "\\Village Masks - Save 0.dat.tmp") > MAX_PATH) {
+        (int)sizeof("\\" VV_DATA_FOLDER "\\Village Masks - Save 0.dat") > MAX_PATH) {
         return 0;
     }
     lstrcatA(out, "\\LDW");
@@ -871,7 +871,7 @@ static int vv_build_sidecar_path(char *out, int slot) {
         char name[32];
         lstrcpyA(name, "Village Masks - Save 0.dat");
         name[sizeof("Village Masks - Save ") - 1] = (char)('0' + slot);
-        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, (int)sizeof(".tmp"))) {
+        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, VV_DATA_RESERVE)) {
             return 0;
         }
     }

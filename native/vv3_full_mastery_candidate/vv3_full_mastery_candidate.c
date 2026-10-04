@@ -1237,7 +1237,7 @@ static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
     dot = NULL;
     for (p = base; *p; ++p) if (*p == '.') dot = p;
     if (dot) *dot = '\0';                                  /* strip extension */
-    if (lstrlenA(docs) + lstrlenA(base) + (int)sizeof("\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_MASKS "\\Village Masks - Save 00.dat.tmp") + 8 >= cap) return 0;
+    if (lstrlenA(docs) + lstrlenA(base) + (int)sizeof("\\" VV_DATA_FOLDER "\\Village Masks - Save 00.dat") + 8 >= cap) return 0;
     wsprintfA(dir, "%s\\LDW", docs);                       CreateDirectoryA(dir, NULL);
     wsprintfA(dir, "%s\\LDW\\%s", docs, base);             CreateDirectoryA(dir, NULL);
     wsprintfA(dir, "%s\\LDW\\%s\\" VV_DATA_FOLDER, docs, base); CreateDirectoryA(dir, NULL);
@@ -1249,7 +1249,7 @@ static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
         char name[64];
         lstrcpyA(out, dir);
         wsprintfA(name, "Village Masks - Save %d.dat", slot);
-        if (!vv_data_file_path(out, cap, VV_DATA_SUB_MASKS, name, (int)sizeof(".tmp"))) {
+        if (!vv_data_file_path(out, cap, VV_DATA_SUB_MASKS, name, VV_DATA_RESERVE)) {
             return 0;
         }
     }

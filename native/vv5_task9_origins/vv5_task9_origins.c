@@ -259,7 +259,7 @@ static int build_mask_sidecar_path(char *out) {
        and wsprintfA/lstrcatA do not perform destination-size checks. */
     docs_len = lstrlenA(docs);
     base_len = lstrlenA(base);
-    if (docs_len + 5 + base_len + (int)sizeof("\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_MASKS "\\Village Masks - Save 5.dat.tmp") > MAX_PATH) {
+    if (docs_len + 5 + base_len + (int)sizeof("\\" VV_DATA_FOLDER "\\Village Masks - Save 5.dat") > MAX_PATH) {
         return 0;
     }
     /* ensure Documents\LDW and Documents\LDW\<base> exist (CreateDirectory is a
@@ -293,7 +293,7 @@ static int build_mask_sidecar_path(char *out) {
     {
         char name[32];
         wsprintfA(name, "Village Masks - Save %d.dat", slot);
-        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, (int)sizeof(".tmp"))) {
+        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, VV_DATA_RESERVE)) {
             return 0;
         }
     }

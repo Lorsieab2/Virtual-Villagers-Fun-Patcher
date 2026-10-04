@@ -298,12 +298,12 @@ static int cod_build_path(int slot, char *out) {
        not move the loose file is the one read and written
        (native/shared/data_subfolder.h). */
     if (!vv_save_subfolder(out, VV_DATA_FOLDER,
-                           (int)sizeof("\\" VV_DATA_SUB_GRAVES
-                                       "\\Virtual Villagers 1 Graves - Save 0.dat.tmp"))) {
+                           (int)sizeof(
+                                       "\\Virtual Villagers 1 Graves - Save 0.dat"))) {
         return 0;
     }
     wsprintfA(name, "Virtual Villagers %d Graves - Save %d.dat", g_game, slot);
-    return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_GRAVES, name, (int)sizeof(".tmp")) != 0;
+    return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_GRAVES, name, VV_DATA_RESERVE) != 0;
 }
 
 static void cod_forget(void) {

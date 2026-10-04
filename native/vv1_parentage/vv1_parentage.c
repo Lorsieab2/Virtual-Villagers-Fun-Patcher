@@ -654,8 +654,8 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
         *dot = '\0';
     }
     if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
-            + sizeof("\\LDW\\\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_PARENTAGE
-                     "\\Virtual Villagers 1 Parentage Records - Save 0.dat.tmp") > n) {
+            + sizeof("\\LDW\\\\" VV_DATA_FOLDER
+                     "\\Virtual Villagers 1 Parentage Records - Save 0.dat") > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
@@ -674,7 +674,7 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
     {
         char name[64];
         wsprintfA(name, "Virtual Villagers 1 Parentage Records - Save %u.dat", (unsigned int)slot);
-        if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE, name, (int)sizeof(".tmp"))) {
+        if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE, name, VV_DATA_RESERVE)) {
             return 0;
         }
     }
