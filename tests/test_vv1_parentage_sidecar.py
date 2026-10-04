@@ -136,9 +136,13 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
             "a duplicate that happens to keep its record during a repack is not guessed at either",
             "two villagers with one name but different family scalars each keep their own parents",
             "a villager who dies keeps the entry while the record stays empty",
+            "... and the roster, on disk too, marks her record departed (so a reload ranks the living)",
             "a new occupant of that record inherits nothing",
             "a villager who comes back in another record takes the entry with her, and leaves none behind",
             "a repack between two frames of play is followed, and the inference does not wipe the moved villagers",
+            "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)",
+            "one coincidental identity elsewhere is not the same village: the new Penyo gets no parents",
+            "a survivor at her packed record (her rank) is this village even without a majority",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

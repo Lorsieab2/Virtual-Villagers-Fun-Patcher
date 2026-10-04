@@ -432,6 +432,9 @@ static void follow_cases(void) {
     play(after_load, 2);
     check(has_parents(15, 2) && lstrcmpA(g_roster[15].name, "Lisha") == 0,
           "a villager who dies keeps the entry while the record stays empty");
+    check(g_roster[15].departed == 1 && read_all(path, file_now, sizeof(file_now), &size)
+          && file_now[12 + 15 * sizeof(vv1_occupant) + 1] == 1,
+          "... and the roster, on disk too, marks her record departed (so a reload ranks the living)");
     put(after_load, 15, "Baby", 0, 39);
     play(after_load, 2);
     check(has_parents(15, 0), "a new occupant of that record inherits nothing");
@@ -449,6 +452,70 @@ static void follow_cases(void) {
     play(after_load, 2);
     check(has_parents(30, 1) && has_parents(16, 0),
           "a villager who comes back in another record takes the entry with her, and leaves none behind");
+
+    /* 18. Codex (#516): a repack made of nothing but duplicates.  Record 0
+           died; identical twins at 1 and 2 (one name, gender and scalar,
+           different parents) come back at 0 and 1.  No unique villager
+           moved, but the roster did: neither twin is guessed at. */
+    DeleteFileA(path);
+    fresh();
+    memset(before_load, 0, sizeof(before_load));
+    put(before_load, 0, "Gone", 1, 7);
+    put(before_load, 1, "Twin", 1, 5);
+    put(before_load, 2, "Twin", 1, 5);
+    vv1_take_roster(before_load, g_roster);
+    set_parents(1, 1);
+    set_parents(2, 2);
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Twin", 1, 5);
+    put(after_load, 1, "Twin", 1, 5);
+    play(after_load, 2);
+    check(g_loaded_slot == SLOT && has_parents(0, 0) && has_parents(1, 0),
+          "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)");
+
+    /* 19. Codex (#516): another village in the slot that shares ONE identity
+           with the old roster, at another record, is not the old village. */
+    write_owner_sidecar();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Penyo", 0, 50);       /* the old village had a Penyo (Ghali and Onawa's) at 6 */
+    put(after_load, 1, "Moana", 0, 12);
+    put(after_load, 2, "Tane", 1, 13);
+    put(after_load, 3, "Rua", 1, 14);
+    put(after_load, 4, "Kiri", 0, 15);
+    play(after_load, FRAMES);
+    check(g_loaded_slot == SLOT && has_parents(0, 0),
+          "one coincidental identity elsewhere is not the same village: the new Penyo gets no parents");
+
+    /* 20. Ghali, Kito and Chika died before the quit (their records marked
+           departed); after the reload Onawa is the only survivor, at record
+           0 -- her rank -- with four newborns from the catch-up beside her.
+           One unique identity of five on screen is no majority, but a
+           villager at her exact packed record is this village. */
+    DeleteFileA(path);
+    fresh();
+    lay_out(before_load, NULL, NULL);
+    vv1_take_roster(before_load, g_roster);
+    g_roster[0].departed = 1; g_roster[1].departed = 1; g_roster[2].departed = 1;
+    for (i = 0; i < 3; ++i) {
+        before_load[i * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] = 0;   /* they died before the quit */
+    }
+    for (i = 0; i < OWNER_VILLAGERS; ++i) {
+        set_parents(i, owner_village[i].couple);
+    }
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Onawa", 0, 50);
+    put(after_load, 1, "Baby1", 0, 50);
+    put(after_load, 2, "Baby2", 1, 50);
+    put(after_load, 3, "Baby3", 0, 39);
+    put(after_load, 4, "Baby4", 1, 39);
+    check(vv1_parents_sync_core(SLOT, after_load) == SLOT,
+          "a survivor at her packed record (her rank) is this village even without a majority");
 
     /* 17. The same village loaded again in the same session (back to the
            menu, Continue): the array is repacked between two frames while the

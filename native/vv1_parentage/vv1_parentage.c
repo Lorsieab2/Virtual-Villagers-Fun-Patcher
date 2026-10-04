@@ -241,7 +241,10 @@ typedef struct {
 
 typedef struct {
     unsigned char gender;                     /* 1 male, 2 female; 0 = the slot was empty */
-    unsigned char spare[3];
+    unsigned char departed;                   /* 1: the record was EMPTY then, and this is the
+                                                 villager who had held it (vv1_follow_roster);
+                                                 0 in every file an earlier build wrote */
+    unsigned char spare[2];
     int scalar;                               /* +0x36C, set once at creation */
     char name[VV1_NAME_CAPACITY];
 } vv1_occupant;                               /* 36 bytes */
@@ -394,12 +397,40 @@ static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *
     if (!recorded || !living) {
         return -1;
     }
-    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-        if (now[i].gender && vv1_count_occupant(roster, &now[i], NULL) > 0) {
-            return 1;
+    /* A villager at an exact position: the record the roster names for them,
+       or their RANK among the roster's living villagers -- the record a
+       packed load puts them in.  As positional as the old same-record test,
+       so a Start Over's founders still need a coincidence on one of two exact
+       records. */
+    {
+        int rank = 0;
+        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+            if (!roster[i].gender || roster[i].departed) {
+                continue;
+            }
+            if (vv1_same_occupant(&roster[i], &now[i]) || vv1_same_occupant(&roster[i], &now[rank])) {
+                return 1;
+            }
+            ++rank;
         }
     }
-    return 0;
+    /* Otherwise anywhere -- but one coincidence is not a village (Codex,
+       #516: names come from a fixed pool and the family scalar repeats).  A
+       strict majority of the smaller roster must be found, each identity
+       unique on both sides. */
+    {
+        int recorded_living = 0, on_screen = 0, found = 0, need;
+        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+            recorded_living += roster[i].gender && !roster[i].departed;
+            on_screen += now[i].gender != 0;
+            if (now[i].gender && vv1_count_occupant(now, &now[i], NULL) == 1
+                && vv1_count_occupant(roster, &now[i], NULL) == 1) {
+                ++found;
+            }
+        }
+        need = (recorded_living < on_screen ? recorded_living : on_screen) / 2 + 1;
+        return found >= need;
+    }
 }
 
 /* MAKE THE TABLE FOLLOW THE VILLAGERS.
@@ -443,7 +474,22 @@ static int vv1_follow_roster(const vv1_occupant *now) {
     static vv1_occupant kept[VV1_RECORD_COUNT];
     int from[VV1_RECORD_COUNT];
     int j;
+    /* Did anyone move?  Decided over the WHOLE roster (Codex, #516), not from
+       the villagers that could be placed: a repack of nothing but duplicate
+       identities is still a repack.  A record that held a living villager
+       and holds someone else now, or a living villager of the roster found in
+       another record while theirs is empty, is a move; a birth into an empty
+       record, a death, or a newborn in a departed villager's record is not. */
     int repacked = 0;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (!g_roster[j].gender || g_roster[j].departed) {
+            continue;
+        }
+        if (now[j].gender ? !vv1_same_occupant(&g_roster[j], &now[j])
+                          : vv1_count_occupant(now, &g_roster[j], NULL) > 0) {
+            repacked = 1;
+        }
+    }
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         int at = -1;
         from[j] = -1;
@@ -473,6 +519,7 @@ static int vv1_follow_roster(const vv1_occupant *now) {
             }
         } else if (g_roster[j].gender && vv1_count_occupant(now, &g_roster[j], NULL) == 0) {
             kept[j] = g_roster[j];          /* away or dead, and nobody holds the record: kept */
+            kept[j].departed = 1;
             moved[j] = g_entries[j];
         } else {
             memset(&kept[j], 0, sizeof(kept[j]));
@@ -492,6 +539,9 @@ static int vv1_roster_in_step(const vv1_occupant *now) {
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         if (now[j].gender && !vv1_same_occupant(&g_roster[j], &now[j])) {
             return 0;
+        }
+        if (!now[j].gender && g_roster[j].gender && !g_roster[j].departed) {
+            return 0;           /* a death: the roster marks the record departed */
         }
     }
     return 1;
