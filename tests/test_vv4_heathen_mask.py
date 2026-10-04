@@ -147,7 +147,7 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("vv_clear_mask_state();", sync)
         self.assertIn("g_sidecar_loaded = (slot == 0) ? 1 : 0;", sync)
         self.assertIn("slot < 1 || slot > 5", self.c)
-        self.assertIn("out[i] = (char)('0' + slot);", self.c)
+        self.assertIn("name[sizeof(\"Village Masks - Save \") - 1] = (char)('0' + slot);", self.c)
 
     def test_sidecar_write_is_transactional_with_exact_four_writes(self) -> None:
         write = self.c.split("static void vv_write_mask_sidecar(void) {", 1)[1].split(
@@ -185,7 +185,9 @@ class DllStorageContractTests(unittest.TestCase):
             "\n}", 1
         )[0]
         guard = 'lstrlenA(out) + (int)(sizeof("\\\\LDW\\\\") - 1) + lstrlenA(base) +'
-        suffix = '\\\\Virtual Villagers Fun Patcher Data\\\\Village Masks - Save 0.dat") > MAX_PATH'
+        # The whole path in the masks' own folder, and the ".tmp" the
+        # atomic write appends to it (native/shared/data_subfolder.h).
+        suffix = '(int)sizeof("\\\\" VV_DATA_FOLDER "\\\\" VV_DATA_SUB_MASKS "\\\\Village Masks - Save 0.dat.tmp") > MAX_PATH'
         self.assertIn(guard, builder)
         self.assertIn(suffix, builder)
         # sizeof(suffix) includes the NUL. The guard must precede every
@@ -193,8 +195,9 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertLess(builder.index(guard), builder.index('lstrcatA(out, "\\\\LDW");'))
         # The length repair must not broaden or rename the existing slot files.
         self.assertIn("slot < 1 || slot > 5", builder)
-        self.assertIn("out[i] = (char)('0' + slot);", builder)
-        self.assertIn('lstrcatA(out, ".dat");', builder)
+        self.assertIn("name[sizeof(\"Village Masks - Save \") - 1] = (char)('0' + slot);", builder)
+        self.assertIn('lstrcpyA(name, "Village Masks - Save 0.dat");', builder)
+        self.assertIn("vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name,", builder)
 
     def test_render_atlas_path_checks_complete_max_path_budget_before_appending(self) -> None:
         renderer = self.c.split("static void vv4_mask_render_init(void)", 1)[1].split(

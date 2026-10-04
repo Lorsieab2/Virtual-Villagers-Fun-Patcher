@@ -57,8 +57,10 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         )
         self.assertIn("#define VV_MASK_FIRST_SAVE_SLOT 1", self.source)
         self.assertIn("#define VV_MASK_LAST_SAVE_SLOT 5", self.source)
-        self.assertIn("Virtual Villagers Fun Patcher Data\\\\Virtual Villagers 1 Village Masks - Save %u.dat",
+        # The file is in its own folder (native/shared/data_subfolder.h).
+        self.assertIn('wsprintfA(name, "Virtual Villagers 1 Village Masks - Save %u.dat", (unsigned int)slot);',
                       self.source)
+        self.assertIn("vv_data_file_path(out, (int)n, VV_DATA_SUB_MASKS, name,", self.source)
         self.assertNotIn("vv1_masks.dat", self.source)
         self.assertNotIn("vv1_masks.dat", self.generator)
         self.assertIn("MASK_SAVE_SLOT_VA = DATA_SCRATCH_BASE_VA + 0x1F4", self.generator)
