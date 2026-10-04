@@ -108,6 +108,93 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
 
+    def test_the_parents_follow_the_villager_not_the_record(self):
+        """A New Home compacts its villager array when a save is loaded; the
+        owner's Lisha showed Kito and Chika as parents after their deaths
+        because the table stayed with the record index."""
+        out = self.result.stdout
+        for case in (
+            "the load writes the followed table back at once (Lisha and her father at record 13 in the file)",
+            "the compacted village is still this village's sidecar",
+            "after a load that compacted the array, every child keeps its own parents",
+            "... Lisha [15 -> 13] is still Ghali and Onawa's",
+            "... Kaimi [16 -> 14] is still Kito and Chika's",
+            "... Nishi [5 -> 3] is still Kito and Chika's",
+            "a grown arrival in a record a child used to hold has no parents",
+            "the pregnancy stash follows the mother (Chapa [7 -> 5] still carries Usutu's child)",
+            "... and nobody else inherits a stash",
+            "the record past the end of the packed array keeps nothing of Kaimi's",
+            "the followed table was written back",
+            "the rewritten sidecar loads in step: the same parents, nothing moves twice",
+            "a death at record 0 shifts everyone, and the table still follows them all",
+            "... all twelve children's parents are in it",
+            "... and the sidecar written afterwards holds them too",
+            "two villagers with the same identity are left unknown after a repack, never guessed",
+            "... while everyone else still follows",
+            "... but when nothing moved, the same two keep the parents at their own records",
+            "... and the newcomer starts unknown",
+            "a duplicate that happens to keep its record during a repack is not guessed at either",
+            "two villagers with one name but different family scalars each keep their own parents",
+            "a villager who dies keeps the entry while the record stays empty",
+            "... and the roster, on disk too, marks her record departed (so a reload ranks the living)",
+            "a new occupant of that record inherits nothing",
+            "a villager who comes back in another record takes the entry with her, and leaves none behind",
+            "a repack between two frames of play is followed, and the inference does not wipe the moved villagers",
+            "a villager renamed during play keeps her parents, and no birth is inferred",
+            "... and the table is bound to her new name",
+            "the renamed villager's parents survive a reload",
+            "renaming the only villager of a village of one keeps the table",
+            "a baby in a dead villager's record is a new occupant, not a rename",
+            "(the bound roster against itself is no rename)",
+            "a rename seen together with a birth is not taken for a rename",
+            "a new village with the old genders and family scalars is not a rename",
+            "another family's villager in a record is not a rename",
+            "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)",
+            "one coincidental identity elsewhere is not the same village: the new Penyo gets no parents",
+            "a survivor at her packed record (her rank) is this village even without a majority",
+        ):
+            with self.subTest(case=case):
+                self.assertIn("PASS " + case, out)
+
+
+class Vv1ParentageProbeHarnessTests(unittest.TestCase):
+    """native/vv1_parentage/vv1_parentage_harness.c drives the birth inference
+    and the roster verdict through the TEST build's probe seams.  It was only
+    ever run by hand; run it here so its checks guard every change."""
+
+    @classmethod
+    def setUpClass(cls):
+        vs, sdk, ver = _toolchain()
+        cl = vs / "bin" / "Hostx64" / "x86" / "cl.exe"
+        if not cl.exists():
+            raise unittest.SkipTest("MSVC x86 toolchain not installed")
+        cls.work = Path(tempfile.mkdtemp())
+        exe = cls.work / "vv1_parentage_harness.exe"
+        cmd = [str(cl), "/nologo", "/W3", "/MT",
+               "/I", str(vs / "include"), "/I", str(sdk / "Include" / ver / "um"),
+               "/I", str(sdk / "Include" / ver / "shared"), "/I", str(sdk / "Include" / ver / "ucrt"),
+               str(NATIVE / "vv1_parentage_harness.c"),
+               f"/Fe{exe}", f"/Fo{cls.work}\\",
+               "/link",
+               f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
+               f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}",
+               "kernel32.lib", "user32.lib", "shell32.lib"]
+        build = subprocess.run(cmd, capture_output=True, text=True, cwd=cls.work)
+        if build.returncode != 0:
+            raise AssertionError(build.stdout[-3000:] + build.stderr[-3000:])
+        dll = ROOT / "tests" / "test_dlls" / "VVFP VV1 Parentage.test.dll"
+        cls.result = subprocess.run([str(exe), str(dll)], capture_output=True, text=True, timeout=300)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(getattr(cls, "work", ""), ignore_errors=True)
+
+    def test_every_check_passes(self):
+        out = self.result.stdout
+        self.assertIn("== 0 failure(s) ==", out, out)
+        self.assertEqual(self.result.returncode, 0, out)
+        self.assertNotIn("FAIL", out, out)
+
 
 if __name__ == "__main__":
     unittest.main()

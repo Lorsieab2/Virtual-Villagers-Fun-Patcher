@@ -18,6 +18,10 @@
 #include <stdio.h>
 #include <string.h>
 
+/* The test DLL's sync builds its sidecar path under Documents\LDW\<this
+   exe's basename>\ and creates those folders; this leaves LDW as it found it. */
+#include "../shared/harness_ldw_tree.h"
+
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
                               else { printf("  FAIL " __VA_ARGS__); printf("\n"); failures++; } } while (0)
@@ -86,6 +90,7 @@ static int same(const int *e, int fh, int fb, int mh, int mb) {
 
 int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IONBF, 0);   /* every line reaches the console even if a check crashes */
+    harness_ldw_tree_begin();           /* first: nothing may be written under LDW before it */
     HMODULE dll; reset_t reset; conceive_t conceive; tick_t tick; entry_t entry; names_t names; births_t births; layout_t layout; born_t born; roster_t roster; overlap_t overlap; sync_t sync; bind_t bind;
     static unsigned char fp[256 * 64];
     int e[4];

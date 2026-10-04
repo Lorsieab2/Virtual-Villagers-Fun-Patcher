@@ -35,8 +35,10 @@ DLL = ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll"
 POPULATION = ROOT / "native" / "population_export" / "population_export.c"
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
 
-MAGIC = 0x35304D56          # 'VM05'
-MAGIC_256 = 0x35324D56      # 'VM25', the 256 Villagers build's sidecar
+MAGIC = 0x35304D56          # 'VM05' (name roster; still read)
+MAGIC_256 = 0x35324D56      # 'VM25', the 256 Villagers build's sidecar (still read)
+MAGIC_V6 = 0x36304D56       # 'VM06': the identity roster this build writes
+MAGIC_V6_256 = 0x36324D56   # 'VM26'
 OLD_TAGGED_MAGIC = 0x31304D56   # 'VM01', v1.35.13's never-written format
 WRONG_TAG_A = 0x4DBFC8 + 8 + 0x328
 WRONG_TAG_B = 0x4DBFC8 + 8 + 0x338
@@ -153,31 +155,47 @@ class Vv5RosterIdentityTest(unittest.TestCase):
 
     def test_sidecar_format_is_magic_roster_table(self) -> None:
         self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC"), MAGIC)
+        self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC_V6"), MAGIC_V6)
+        self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC_V6_256"), MAGIC_V6_256)
         write = self._function("__declspec(dllexport) void __stdcall WriteMaskSidecar(")
         # The write is now an atomic publish through native/shared/sidecar_io.h
         # (tests/test_mask_sidecar_durability.py); the payload is unchanged.
         self.assertLess(write.index("!g_vv5_have_roster"), write.index("vv_sidecar_publish("),
                         "an unidentified village must not write a file")
         self.assertRegex(write, r"parts\[0\]\s*=\s*&magic;\s*sizes\[0\]\s*=\s*sizeof\(magic\);")
-        # each build writes its own slot count: 150 ('VM05') or 256 ('VM25')
+        # each build writes its own slot count, in the identity format: 150
+        # ('VM06') or 256 ('VM26'); the name-roster 'VM05' / 'VM25' are read
         self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC_256"), MAGIC_256)
-        self.assertIn("vv5_slots() == 256 ? VV5_MASK_SIDECAR_MAGIC_256 : VV5_MASK_SIDECAR_MAGIC", write)
+        self.assertIn("vv5_slots() == 256 ? VV5_MASK_SIDECAR_MAGIC_V6_256 : VV5_MASK_SIDECAR_MAGIC_V6", write)
         self.assertRegex(write, r"parts\[1\]\s*=\s*g_vv5_roster;\s*sizes\[1\]\s*=\s*\(DWORD\)vv5_slots\(\)\s*\*\s*sizeof\(unsigned int\);")
         self.assertRegex(write, r"parts\[2\]\s*=\s*table;\s*sizes\[2\]\s*=\s*vv5_mask_table_bytes\(\);")
         self.assertIn("vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3)", write)
         load = self._function("static int vv5_mask_sidecar_load(")
         self.assertLess(load.index("memset(table, 0, table_bytes)"), load.index("return"),
                         "fail closed: the clear must precede EVERY exit, including a failed path")
-        self.assertIn("vv5_roster_same(filesnap, live)", load)
+        self.assertIn("vv5_roster_same(filesnap, against)", load)
         self.assertNotIn("header[1] != tag", load)
+        # A reload packs the records: every restored mask is moved to its
+        # villager by the identity the file holds (name-only files: down only)
+        self.assertIn("vv5_mask_follow_table(table, filesnap, against, weak)", load)
+        self.assertIn("weak = magic == VV5_MASK_SIDECAR_MAGIC || magic == VV5_MASK_SIDECAR_MAGIC_256;", load)
+        overlap = self._function("static int vv5_roster_overlap(")
+        self.assertIn("if (a[i] == b[i] || a[i] == b[rank]) {", overlap)
 
     def test_sync_reloads_only_when_the_village_changed(self) -> None:
         sync = self._function("__declspec(dllexport) int __stdcall Vv5MaskSync(")
         self.assertRegex(sync, r"if\s*\(\s*slot\s*<=\s*0\s*\)\s*\{\s*return 0;")
-        self.assertRegex(sync, r"if\s*\(\s*vv5_roster_snapshot\(cur\)\s*==\s*0\s*\)\s*\{\s*return 0;")
+        self.assertRegex(sync, r"if\s*\(\s*vv5_roster_identities\(cur,\s*cur_stable\)\s*==\s*0\s*\)\s*\{\s*return 0;")
         self.assertRegex(sync, r"g_vv5_have_roster\s*&&\s*slot\s*==\s*g_vv5_slot\s*&&\s*vv5_roster_same\(g_vv5_roster,\s*cur\)")
         # a birth or death under the same village re-persists the snapshot
-        self.assertRegex(sync, r"if\s*\(\s*!vv5_roster_equal\(g_vv5_roster,\s*cur\)\s*\)\s*\{\s*memcpy\(g_vv5_roster,\s*cur,\s*sizeof\(cur\)\);\s*WriteMaskSidecar\(table\);")
+        changed = sync.split("if (!vv5_roster_equal(g_vv5_roster, cur)) {", 1)[1].split("return 1;", 1)[0]
+        # each mask follows its villager first (a reused record drops it)
+        self.assertLess(changed.index("vv5_mask_follow_table(table, g_vv5_roster, cur, 0);"),
+                        changed.index("memcpy(g_vv5_roster, cur, sizeof(cur));"))
+        self.assertLess(changed.index("memcpy(g_vv5_roster, cur, sizeof(cur));"),
+                        changed.index("WriteMaskSidecar(table);"))
+        # a load that moved masks (or read the old format) is written back
+        self.assertIn("if (g_vv5_rewrite_after_load) {", sync)
         # a replacement clears and reloads through the roster-checked loader
         self.assertIn("vv5_mask_sidecar_load(table, cur)", sync)
         self.assertLess(sync.index("vv5_mask_sidecar_load(table, cur)"), sync.index("g_vv5_have_roster = 1;"))
@@ -214,8 +232,34 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         self.assertIn(b"Vv5MaskSync\0", blob, "built DLL does not export Vv5MaskSync")
         self.assertNotIn(struct.pack("<I", WRONG_TAG_A), blob, "built DLL still reads the wrong tag address")
         self.assertIn(struct.pack("<I", MAGIC_256), blob, "built DLL lacks the 'VM25' magic of the 256 build")
+        self.assertIn(struct.pack("<I", MAGIC_V6), blob, "built DLL lacks the 'VM06' magic")
+        self.assertIn(struct.pack("<I", MAGIC_V6_256), blob, "built DLL lacks the 'VM26' magic")
         self.assertIn(struct.pack("<I", 0x154148), blob, "built DLL does not locate the stock villager table")
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Vv5RenameTest(unittest.TestCase):
+    """Codex (#516, round 2): a villager renamed while the village is loaded
+    keeps the mask -- recognised by native/shared/mask_follow.h's
+    vv_roster_renamed before the same-village test, adopted, written."""
+
+    def test_a_renamed_villager_keeps_the_mask(self) -> None:
+        source = (Path(__file__).resolve().parents[1] / "native" / "vv5_task9_origins"
+                  / "vv5_task9_origins.c").read_text(encoding="utf-8")
+        sync = source[source.index("__declspec(dllexport) int __stdcall Vv5MaskSync("):]
+        sync = sync[:sync.index("\n}\n") + 3]
+        renamed = sync.index("int renamed = vv_roster_renamed(VV5_RECORD_COUNT, g_vv5_roster, g_vv5_stable, cur, cur_stable);")
+        self.assertLess(renamed, sync.index("vv5_roster_same(g_vv5_roster, cur)"))
+        block = sync[renamed:sync.index("return 1;", renamed)]
+        self.assertIn("g_vv5_roster[renamed] = cur[renamed];", block)
+        self.assertIn("WriteMaskSidecar(table);", block)
+        self.assertEqual(sync.count("memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));"), 3)
+        stable = source[source.index("static unsigned int vv5_stable("):]
+        stable = stable[:stable.index("\n}\n")]
+        self.assertNotIn("VV5_NAME_OFFSET", stable)
+        self.assertIn("VV5_SEX_OFFSET", stable)
+        self.assertIn("VV5_FATHER_OFFSET", stable)
+        self.assertIn("VV5_MOTHER_OFFSET", stable)

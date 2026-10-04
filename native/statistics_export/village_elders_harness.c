@@ -270,6 +270,70 @@ int wmain(int argc, wchar_t **argv) {
         check(aside == 2, "... and it is kept aside beside the earlier one");
     }
 
+    /* A RELOAD MOVES THE ELDERS.  The games load a save packed into records
+       0, 1, 2, ...; rank_of_slot says where the previous save's villagers
+       come back.  Ana [3] and Bo [4] are elders; the villager at record 2
+       died before the quit, so the reload puts Ana at 2 and Bo at 3 -- Bo
+       where Ana's line was. */
+    {
+        static int ranks[SLOTS];
+        int s;
+        DeleteFileW(dat);
+        memset(villagers, 0, sizeof(villagers));
+        memset(graves, 0, sizeof(graves));
+        l = layout(0);
+        set_villager(0, "Kai", "", "", 1, 300);
+        set_villager(1, "Xan", "", "", 0, 300);
+        set_villager(3, "Ana", "", "", 3, 600);
+        set_villager(4, "Bo", "", "", 4, 600);
+        check(vv_village_elders_file(4, dat, tmp, &l) == 2, "setup: Ana [3] and Bo [4] are the village's two elders");
+        for (s = 0; s < (int)SLOTS; ++s) ranks[s] = -1;
+        ranks[0] = 0; ranks[1] = 1; ranks[3] = 2; ranks[4] = 3;           /* the quit save's roster */
+        memset(villagers, 0, sizeof(villagers));
+        set_villager(0, "Kai", "", "", 1, 300);
+        set_villager(1, "Xan", "", "", 0, 300);
+        set_villager(2, "Ana", "", "", 3, 600);
+        set_villager(3, "Bo", "", "", 4, 600);
+        l.rank_of_slot = ranks; l.rank_slots = SLOTS;
+        check(vv_village_elders_file(4, dat, tmp, &l) == 2,
+              "a reload that moves both elders down a record still counts two elders");
+        check(file_contains(dat, "E\t2\tAna\t\t\t0\t1") && file_contains(dat, "E\t3\tBo\t\t\t0\t1"),
+              "... each line follows its own elder (Bo does not take over Ana's line)");
+        /* The next quit after Xan's death, then a reload that also brings
+           Bo back renamed: his line follows him by the record alone. */
+        for (s = 0; s < (int)SLOTS; ++s) ranks[s] = s < 4 ? s : -1;      /* no reload between these saves */
+        rec(1)[ACTIVE] = 0;                                                /* Xan dies */
+        check(vv_village_elders_file(4, dat, tmp, &l) == 2, "setup: a death between two saves changes nothing");
+        for (s = 0; s < (int)SLOTS; ++s) ranks[s] = -1;
+        ranks[0] = 0; ranks[2] = 1; ranks[3] = 2;
+        memset(villagers, 0, sizeof(villagers));
+        set_villager(0, "Kai", "", "", 1, 300);
+        set_villager(1, "Ana", "", "", 3, 600);
+        set_villager(2, "Bob", "", "", 4, 600);
+        check(vv_village_elders_file(4, dat, tmp, &l) == 2,
+              "a renamed elder moved by a reload keeps his line: still two elders");
+        check(file_contains(dat, "E\t1\tAna\t\t\t0\t1") && file_contains(dat, "E\t2\tBob\t\t\t0\t1"),
+              "... the lines are Ana [1] and Bob [2]");
+        /* No reload at all, with a hole below them: where a reload WOULD put
+           Ana (record 2) is where Bo already is.  His own line must win. */
+        DeleteFileW(dat);
+        memset(villagers, 0, sizeof(villagers));
+        l.rank_of_slot = NULL; l.rank_slots = 0;
+        set_villager(0, "Kai", "", "", 1, 300);
+        set_villager(2, "Bo", "", "", 2, 600);
+        set_villager(3, "Ana", "", "", 3, 600);
+        check(vv_village_elders_file(4, dat, tmp, &l) == 1, "setup: Ana [3] is an elder first");
+        set_skill(2, 2, 95.0f);
+        check(vv_village_elders_file(4, dat, tmp, &l) == 2, "setup: then Bo [2]");
+        for (s = 0; s < (int)SLOTS; ++s) ranks[s] = -1;
+        ranks[0] = 0; ranks[2] = 1; ranks[3] = 2;                         /* record 1 empty at that save */
+        l.rank_of_slot = ranks; l.rank_slots = SLOTS;
+        check(vv_village_elders_file(4, dat, tmp, &l) == 2
+              && file_contains(dat, "E\t2\tBo\t\t\t0\t1") && file_contains(dat, "E\t3\tAna\t\t\t0\t1"),
+              "with no reload, an elder whose record is another line's reload record keeps his own line");
+        DeleteFileW(dat);
+    }
+
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
 }

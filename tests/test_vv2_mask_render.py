@@ -619,10 +619,16 @@ def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
 
     load = source[source.index("static int vv2_mask_sidecar_load("):]
     load = load[:load.index(chr(10) + "}" + chr(10)) + 3]
-    assert "vv2_roster_same(filesnap, live)" in load, (
+    assert "vv2_roster_same(filesnap, against)" in load, (
         "the mask sidecar is applied without checking that its roster shares "
         "a living villager with the village on screen, so a Start Over in the "
         "same slot restores the dead village's masks")
+    # The game loads a save packed into records 0, 1, 2, ...: every restored
+    # mask is moved to its villager by the identity the file holds ('VM06':
+    # name, gender, parents; a 'VM04' name roster moves masks only down).
+    assert "0x36304D56u" in source, "the identity-roster sidecar 'VM06' is missing"
+    assert "g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak) || weak;" in load
+    assert "weak = magic == VV2_MASK_SIDECAR_MAGIC;" in load
 
     save = source[source.index("static void vv2_mask_sidecar_save("):]
     save = save[:save.index(chr(10) + "}" + chr(10)) + 3]
@@ -655,7 +661,7 @@ def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
     sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
 
     overlap = sync.index("vv2_roster_same(g_vv2_roster, cur)")
-    reload = sync.index("vv2_mask_sidecar_load(cur)")
+    reload = sync.index("vv2_mask_sidecar_load(base, cur)")
     assert overlap < reload, (
         "the reload is not gated behind the overlap check")
     same_village_return = sync.index("return 1;", overlap)   # the same-village exit
@@ -667,6 +673,10 @@ def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
     adopt = sync.index("memcpy(g_vv2_roster, cur, sizeof(cur));")
     assert overlap < adopt < same_village_return, (
         "a changed-but-overlapping roster is not adopted as the same village")
+    # ...after each mask has followed its villager (a reused record no longer
+    # hands a newborn the dead villager's mask)
+    follow = sync.index("vv2_mask_follow(g_vv2_roster, cur, 0);")
+    assert overlap < follow < adopt, "the in-session follow must precede adopting the new roster"
     # The exact-hash export must not come back.
     assert "Vv2VillageTag" not in source, (
         "the exact-hash village tag is back; it reads births and deaths as a "
@@ -785,7 +795,7 @@ def test_a_replacement_resets_the_previous_villages_latches() -> None:
     sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
     same_return = sync.index("return 1;               /* same village")
     reset = sync.index("VV2_SEEN_ALIVE[i] = 0;")
-    reload = sync.index("vv2_mask_sidecar_load(cur)")
+    reload = sync.index("vv2_mask_sidecar_load(base, cur)")
     assert same_return < reset < reload, (
         "the latches are not reset on the replaced path before the reload")
 
@@ -809,7 +819,34 @@ def test_a_slot_change_always_reloads_even_when_the_roster_overlaps() -> None:
         "to a copied save keeps the previous slot's masks")
     assert "g_vv2_slot = slot;" in sync, (
         "the reload path does not record the slot it loaded for")
-    assert sync.index("g_vv2_slot = slot;") > sync.index("vv2_mask_sidecar_load(cur)"), (
+    assert sync.index("g_vv2_slot = slot;") > sync.index("vv2_mask_sidecar_load(base, cur)"), (
         "the slot must be adopted with the reload, not before it")
     assert "slot <= 0" in sync, (
         "an unpublished slot must count as unknown, not clear the masks")
+
+
+def test_a_renamed_villager_keeps_the_mask() -> None:
+    """Codex (#516, round 2): the identity hashes the name, so a villager the
+    player renamed read as a new occupant -- the follow dropped the mask, and
+    in a village of one or two the roster looked replaced and every mask was
+    cleared.  The sync now recognises a rename (one record changed, its
+    gender and parents unchanged: native/shared/mask_follow.h's
+    vv_roster_renamed) BEFORE the same-village test, keeps the mask, adopts
+    the new identity and writes the file at once."""
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+    renamed = sync.index("int renamed = vv_roster_renamed(VV2_RECORD_COUNT, g_vv2_roster, g_vv2_stable, cur, cur_stable);")
+    assert renamed < sync.index("vv2_roster_same(g_vv2_roster, cur)")
+    block = sync[renamed:sync.index("return 1;", renamed)]
+    assert "g_vv2_roster[renamed] = cur[renamed];" in block
+    assert "vv2_mask_sidecar_save();" in block
+    assert "memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));" in block
+    # every adoption of the roster takes the stable fields with it
+    assert sync.count("memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));") == 3
+    # the stable part leaves the name out: gender and the parents only
+    stables = source[source.index("static void vv2_roster_stables("):]
+    stables = stables[:stables.index(chr(10) + "}" + chr(10))]
+    assert "VV2_NAME_OFFSET" not in stables
+    assert "VV2_IDENTITY_SEX" in stables and "VV2_FATHER_OFFSET" in stables and "VV2_MOTHER_OFFSET" in stables
