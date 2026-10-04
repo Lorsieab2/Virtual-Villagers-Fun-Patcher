@@ -1,5 +1,4 @@
 param(
-    [string]$OutDir = (Join-Path $env:TEMP "vvfp_data_writer_paths_harness"),
     [int[]]$Writers = @(1, 2, 3, 4, 5, 6, 7, 8)
 )
 
@@ -11,7 +10,9 @@ $ErrorActionPreference = "Stop"
 # Home's parentage records, the Cause of Death graves and roster). The
 # Documents folder is redirected to a scratch folder under %TEMP%, so nothing
 # touches Documents\LDW or any save. Exit code 0 means every check passed.
-# Nothing is left in the repository.
+#
+# Each run builds into its own folder under %TEMP% and removes it afterwards,
+# like every harness script (tests/test_harness_scripts_build_per_run.py).
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $sharedRoot = Join-Path $projectRoot "native\shared"
@@ -19,12 +20,13 @@ $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
 $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231"
 
-New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
+$runDir = Join-Path $env:TEMP ("vvfp_dwp_" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Path $runDir -Force | Out-Null
 $failed = @()
-Push-Location $OutDir
+Push-Location $runDir
 try {
     foreach ($writer in $Writers) {
-        $exe = Join-Path $OutDir "data_writer_paths_harness_$writer.exe"
+        $exe = Join-Path $runDir "data_writer_paths_harness_$writer.exe"
         $link = @(
             "/link",
             ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")),
@@ -41,6 +43,7 @@ try {
         }
         & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
             /nologo /O2 /MT /W3 `
+            ("/Fo" + $runDir + "\") `
             ("/DVV_WRITER=$writer") `
             /I (Join-Path $vsTools "include") `
             /I (Join-Path $sdkRoot "Include\$sdkVersion\um") `
@@ -52,20 +55,16 @@ try {
         if ($LASTEXITCODE -ne 0) {
             throw "Data writer paths harness $writer compilation failed."
         }
-        $scratch = Join-Path $env:TEMP ("vvfpdw" + $writer + "-" + [guid]::NewGuid().ToString("N").Substring(0, 8))
-        try {
-            & $exe $scratch
-            if ($LASTEXITCODE -ne 0) {
-                $failed += $writer
-            }
-        } finally {
-            if (Test-Path -LiteralPath $scratch) {
-                Remove-Item -LiteralPath $scratch -Recurse -Force
-            }
+        # A short scratch path: the writers' MAX_PATH budgets include it.
+        $scratch = Join-Path $runDir ("d" + $writer)
+        & $exe $scratch
+        if ($LASTEXITCODE -ne 0) {
+            $failed += $writer
         }
     }
 } finally {
     Pop-Location
+    Remove-Item -LiteralPath $runDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 if ($failed.Count -gt 0) {
     throw ("Data writer paths harness reported failures for writer(s): " + ($failed -join ", "))

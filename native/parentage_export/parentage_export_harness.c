@@ -16,9 +16,10 @@
    dislikes -- never another villager's, even one sharing his name.
 
    The DLL writes under Documents\LDW\<this exe's basename>\, exactly where a
-   game of that name would keep its saves.  The harness starts with that
-   folder empty and removes it when done, so nothing is left behind and no
-   player's folder is touched.
+   game of that name would keep its saves.  harness_ldw_tree_begin() refuses
+   to run unless that folder is absent, and each game's logs are removed when
+   that game is done, so every game starts from an empty folder, nothing is
+   left behind and no player's folder is touched.
 
    Usage:  parentage_export_harness.exe "<path to VVFP Parentage Export.dll>"
    Exit code 0 when every check passes. */
@@ -195,7 +196,6 @@ static void run_game(write_t write, const struct layout *layout) {
     int ok;
     g = layout;
     printf("== VV%d: %s ==\n", g->game, g->title);
-    remove_logs();
     records = (unsigned char *)calloc(1, g->base + g->slots * g->stride);
 
     /* Aisha, 22, likes turnips (slot 0); her first dislike slot holds an index
