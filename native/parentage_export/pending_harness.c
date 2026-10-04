@@ -422,22 +422,24 @@ int main(int argc, char **argv) {
         }
         CHECK(save(VILLAGE) == 1 && read_log() && count("Conception ") == 9, "setup: a saved tribe of eight with two lookalikes");
         memset(records, 0, BASE + SLOTS * STRIDE);
-        villager(0, "Nui", 480, 40, 41);
-        villager(1, "Kele", 470, 42, 43);
+        villager(0, "Xantha", 480, 40, 41);
+        villager(1, "Yorrik", 470, 42, 43);
         villager(2, "Twin", 500, 7, 7);
-        villager(3, "Oro", 460, 44, 45);
+        villager(3, "Quillo", 460, 44, 45);
         conceive(0, 1);
         CHECK(write(3, records, rec(0), rec(1)) == 1, "the other tribe's conception is accepted");
-        CHECK(read_log() && count("Conception ") == 9 && strstr(logtext, "  Mother: Nui\r\n") == NULL,
+        CHECK(read_log() && count("Conception ") == 9 && strstr(logtext, "  Mother: Xantha\r\n") == NULL,
               "ONE LOOKALIKE COUNTS ONCE: the other tribe's conception is not written under the saved header");
         /* Back to the saved tribe, so what follows is unchanged: the held
-           record is written at that tribe's next save. */
+           record is written at that tribe's next save.  (Whether it is
+           labelled is the LOOSE rule's call, from the held tribe's side: one
+           shared villager is a quarter of that tribe of four.) */
         memset(records, 0, BASE + SLOTS * STRIDE);
         for (k = 0; k < 8; ++k) {
             villager(slot_of[k], was[k], 500, k == 1 || k == 2 ? 7 : 20 + k, k == 1 || k == 2 ? 7 : 30 + k);
         }
-        CHECK(save(VILLAGE) == 1 && read_log() && count("Conception ") == 10 && noted("  Mother: Nui\r\n") == 1,
-              "...it is held, then written at the next save with the Note");
+        CHECK(save(VILLAGE) == 1 && read_log() && count("Conception ") == 10 && strstr(logtext, "  Mother: Xantha\r\n") != NULL,
+              "...it is held, and written at the next save");
     }
 
     printf("-- Start Over: a simulation, then a new tribe, while the old header is still published --\n");

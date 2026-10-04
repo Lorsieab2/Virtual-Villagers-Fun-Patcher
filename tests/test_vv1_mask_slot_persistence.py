@@ -271,7 +271,7 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
             "parts[0] = &magic;\n    sizes[0] = sizeof(magic);",
             "parts[1] = VV_MASK_TABLE;\n    sizes[1] = VV_MASK_TABLE_BYTES;",
             "parts[2] = roster;\n    sizes[2] = sizeof(roster);",
-            "return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3);",
+            "if (!vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3)) {",
         ):
             self.assertIn(expected, write)
         # nothing is written against the old record numbers, or without the
