@@ -4,6 +4,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
+#include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -824,7 +825,7 @@ static int vv_build_sidecar_path(char *out, int slot) {
        The data file now lives in a clearly named folder rather than loose
        beside the saves, so the bound covers that component too. */
     if (lstrlenA(out) + (int)(sizeof("\\LDW\\") - 1) + lstrlenA(base) +
-        (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 0.dat") > MAX_PATH) {
+        (int)sizeof("\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_MASKS "\\Village Masks - Save 0.dat.tmp") > MAX_PATH) {
         return 0;
     }
     lstrcatA(out, "\\LDW");
@@ -832,13 +833,20 @@ static int vv_build_sidecar_path(char *out, int slot) {
     lstrcatA(out, "\\");
     lstrcatA(out, base);
     CreateDirectoryA(out, NULL);
-    lstrcatA(out, "\\Virtual Villagers Fun Patcher Data");
+    lstrcatA(out, "\\" VV_DATA_FOLDER);
     CreateDirectoryA(out, NULL);
-    lstrcatA(out, "\\Village Masks - Save ");
-    i = lstrlenA(out);
-    out[i] = (char)('0' + slot);
-    out[i + 1] = '\0';
-    lstrcatA(out, ".dat");
+    /* The masks have a folder of their own inside it, "Village Masks". A
+       file an older build left loose in the Data folder is moved in on the
+       way (native/shared/data_subfolder.h); if it will not move, the loose
+       file is the one read and written, so nothing is shadowed. */
+    {
+        char name[32];
+        lstrcpyA(name, "Village Masks - Save 0.dat");
+        name[sizeof("Village Masks - Save ") - 1] = (char)('0' + slot);
+        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, (int)sizeof(".tmp"))) {
+            return 0;
+        }
+    }
     /* A player upgrading from a build that wrote the loose name still has
        their masks under it; move it into place so it is not lost. */
     /* A legacy file that exists and will not move means the masks

@@ -1,6 +1,8 @@
 /* See save_reset.h. Deletes this patcher's state for one erased village. */
 #include "save_reset.h"
 #include "save_folder.h"
+#define VV_DATA_SUBFOLDER_NAMES_ONLY   /* the folder names; nothing is moved here */
+#include "data_subfolder.h"
 
 #include <windows.h>
 
@@ -37,23 +39,48 @@ int vv_reset_refused_paths = 0;
     "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Graves - Save %d.dat"
 #define ROSTER_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Village Roster - Save %d.dat"
-#define SIDECAR_FORMAT_COUNT 9
+/* EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h). The masks,
+   the graves, VV1's parentage records and the Unaccounted Villagers roster
+   used to be written loose in "Virtual Villagers Fun Patcher Data" and now
+   live in a folder each. A companion moves a loose file in when it first
+   reads it -- but a file it could not move, or one for a slot never loaded
+   since the upgrade, is still loose. Start Over removes the village's file
+   at BOTH places, so neither copy can bring an erased village's state back. */
+#define DATA_FORMAT(sub, name) \
+    "%s\\Virtual Villagers Fun Patcher Data\\" sub "\\" name " - Save %d.dat"
+#define SIDECAR_FORMAT_COUNT 13
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
-    /* VV1 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
+    /* VV1 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %d.dat",
+               DATA_FORMAT(VV_DATA_SUB_PARENTAGE, "Virtual Villagers 1 Parentage Records"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %d.dat",
                "%s\\vv1_masks_%d.dat", "%s\\vv1_doublers_%d.dat",
-               "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("1"),
+               "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 1 Graves"), CAUSE_OF_DEATH_FORMAT("1"),
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Village Roster"),
                ROSTER_FORMAT("1") },
-    /* VV2 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
-               "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("2"),
-               ROSTER_FORMAT("2"), 0, 0, 0, 0 },
-    /* VV3 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("3"), 0, 0, 0, 0, 0 },
-    /* VV4 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("4"), 0, 0, 0, 0, 0 },
-    /* VV5 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("5"), 0, 0, 0, 0, 0 },
+    /* VV2 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 2 Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
+               "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 2 Graves"), CAUSE_OF_DEATH_FORMAT("2"),
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 2 Village Roster"),
+               ROSTER_FORMAT("2"), 0, 0, 0, 0, 0 },
+    /* VV3 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Village Roster"),
+               ROSTER_FORMAT("3"), 0, 0, 0, 0, 0, 0, 0 },
+    /* VV4 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Village Roster"),
+               ROSTER_FORMAT("4"), 0, 0, 0, 0, 0, 0, 0 },
+    /* VV5 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Village Roster"),
+               ROSTER_FORMAT("5"), 0, 0, 0, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are
@@ -290,17 +317,23 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        This is NOT a round number. wsprintfA takes no destination bound, so a
        reserve shorter than the longest suffix is a stack overrun rather than
        a truncation -- and the data files' names grew when they moved into
-       their own folder. The longest is VV1's parentage sidecar:
+       their own folder, and again when each kind got a folder of its own.
 
-           "\\Virtual Villagers Fun Patcher Data"
-           "\\Virtual Villagers 1 Parentage Records - Save 0.dat"
-
-       sizeof includes the NUL, so this is the exact figure rather than a
-       guess at it, and it recomputes if either name is ever edited. */
-    if (!vv_save_folder(folder, (int)sizeof(
-            "\\Virtual Villagers Fun Patcher Data"
-            "\\Virtual Villagers 1 Parentage Records - Save 0.dat"))) {
-        return -1;              /* unresolved path is never a deletion target */
+       So the figure is measured from the table itself rather than written
+       down: each format is "%s" + tail + "%d" + ".dat"-ish, and formats to
+       the folder plus (format length - 4) + one slot digit + the NUL. It
+       recomputes whenever a name is edited or a row added. */
+    {
+        int reserve = 0;
+        for (i = 0; i < SIDECAR_FORMAT_COUNT; ++i) {
+            const char *fmt = SIDECAR_FORMATS[game - 1][i];
+            if (fmt != NULL && lstrlenA(fmt) - 4 + 2 > reserve) {
+                reserve = lstrlenA(fmt) - 4 + 2;
+            }
+        }
+        if (!vv_save_folder(folder, reserve)) {
+            return -1;          /* unresolved path is never a deletion target */
+        }
     }
 
     for (i = 0; i < SIDECAR_FORMAT_COUNT; ++i) {

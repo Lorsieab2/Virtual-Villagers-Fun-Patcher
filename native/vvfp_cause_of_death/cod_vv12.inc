@@ -292,13 +292,18 @@ static DWORD cod_serialise(void) {
 }
 
 static int cod_build_path(int slot, char *out) {
-    char folder[MAX_PATH];
-    if (!vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Data",
-                           (int)sizeof("\\Virtual Villagers 1 Graves - Save 0.dat"))) {
+    char name[64];
+    /* "Virtual Villagers Fun Patcher Data\Graves\": a file an older build
+       left loose in the Data folder is moved in on the way, and if it will
+       not move the loose file is the one read and written
+       (native/shared/data_subfolder.h). */
+    if (!vv_save_subfolder(out, VV_DATA_FOLDER,
+                           (int)sizeof("\\" VV_DATA_SUB_GRAVES
+                                       "\\Virtual Villagers 1 Graves - Save 0.dat.tmp"))) {
         return 0;
     }
-    wsprintfA(out, "%s\\Virtual Villagers %d Graves - Save %d.dat", folder, g_game, slot);
-    return 1;
+    wsprintfA(name, "Virtual Villagers %d Graves - Save %d.dat", g_game, slot);
+    return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_GRAVES, name, (int)sizeof(".tmp")) != 0;
 }
 
 static void cod_forget(void) {

@@ -149,6 +149,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <string.h>
+#include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -603,7 +604,8 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
         *dot = '\0';
     }
     if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
-            + sizeof("\\LDW\\\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save 0.dat") > n) {
+            + sizeof("\\LDW\\\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_PARENTAGE
+                     "\\Virtual Villagers 1 Parentage Records - Save 0.dat.tmp") > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
@@ -612,9 +614,20 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
     CreateDirectoryA(out, NULL);
     /* The data files live in their own clearly named folder now, so that
        component has to exist before the file is opened. */
-    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    wsprintfA(out, "%s\\LDW\\%s\\" VV_DATA_FOLDER, docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %u.dat", docs, base, (unsigned int)slot);
+    /* ...and the parent records have a folder of their own inside it,
+       "Parentage Records". A file an older build left loose in the Data
+       folder is moved in on the way (native/shared/data_subfolder.h); if it
+       will not move, the loose file is the one read and written, so nothing
+       is shadowed. */
+    {
+        char name[64];
+        wsprintfA(name, "Virtual Villagers 1 Parentage Records - Save %u.dat", (unsigned int)slot);
+        if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE, name, (int)sizeof(".tmp"))) {
+            return 0;
+        }
+    }
     /* A player upgrading from a build that wrote the loose name still
        has their state under it; move it into place so it is not lost. */
     /* A legacy file that exists and will not move means the parent records

@@ -1489,7 +1489,7 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     }
     if (base[0] == 0) return 0;                     /* no usable basename -> skip */
     /* MAX_PATH budget: docs + "\LDW\" + basename + "v2_masks_NN.dat" */
-    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save 00.dat") >= MAX_PATH) {
+    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_MASKS "\\Virtual Villagers 2 Village Masks - Save 00.dat.tmp") >= MAX_PATH) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
@@ -1509,7 +1509,17 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
        games now match it. A pre-load read simply finds nothing, which is
        correct: a village that has not been loaded has no masks to show. */
     if (slot <= 0) return 0;
-    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat", docs, base, slot);
+    /* The masks have a folder of their own inside it, "Village Masks". A
+       file an older build left loose in the Data folder is moved in on the
+       way (native/shared/data_subfolder.h); if it will not move, the loose
+       file is the one read and written, so nothing is shadowed. */
+    {
+        char name[64];
+        wsprintfA(name, "Virtual Villagers 2 Village Masks - Save %d.dat", slot);
+        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, (int)sizeof(".tmp"))) {
+            return 0;
+        }
+    }
     /* A player upgrading from a build that wrote the loose name still
        has their masks under it; move them into place. */
     /* A legacy file that exists and will not move means the masks

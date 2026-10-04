@@ -7,6 +7,7 @@
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
+#include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
@@ -258,7 +259,7 @@ static int build_mask_sidecar_path(char *out) {
        and wsprintfA/lstrcatA do not perform destination-size checks. */
     docs_len = lstrlenA(docs);
     base_len = lstrlenA(base);
-    if (docs_len + 5 + base_len + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 5.dat") > MAX_PATH) {
+    if (docs_len + 5 + base_len + (int)sizeof("\\" VV_DATA_FOLDER "\\" VV_DATA_SUB_MASKS "\\Village Masks - Save 5.dat.tmp") > MAX_PATH) {
         return 0;
     }
     /* ensure Documents\LDW and Documents\LDW\<base> exist (CreateDirectory is a
@@ -284,7 +285,18 @@ static int build_mask_sidecar_path(char *out) {
     if (slot <= 0) {
         return 0;
     }
-    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat", docs, base, slot);
+    /* The masks have a folder of their own inside it, "Village Masks". A
+       file an older build left loose in the Data folder is moved in on the
+       way (native/shared/data_subfolder.h); if it will not move, the loose
+       file is the one read and written, so nothing is shadowed. `out`
+       still holds the Data folder from just above. */
+    {
+        char name[32];
+        wsprintfA(name, "Village Masks - Save %d.dat", slot);
+        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, (int)sizeof(".tmp"))) {
+            return 0;
+        }
+    }
     /* A player upgrading from a build that wrote the loose name still
        has their masks under it; move them into place. */
     /* A legacy file that exists and will not move means the masks
