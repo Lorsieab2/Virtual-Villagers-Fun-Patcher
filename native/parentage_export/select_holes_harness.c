@@ -23,6 +23,7 @@ int select_log_file(const struct game_layout *g, const char *village,
                     wchar_t *destination, int *existing_records, int for_birth);
 const struct game_layout *vv_parentage_layout(int game);
 int vv_parentage_log_folder(wchar_t *out);
+int __stdcall EnsureParentageLog(int game_id, const char *village);
 
 static int failures = 0;
 
@@ -315,6 +316,85 @@ int main(void) {
         wsprintfW(odd, L"%ls\\%ls 04096.txt", folder, stem);
         DeleteFileW(odd);
         remove_log(folder, stem, 2);
+    }
+
+    /* A RENAMED TRIBE KEEPS ITS LOG.
+
+       Rename Tribe changes the name in a closed game's save and appends
+       "Tribe renamed from <old> to <new> on <date>" to the village's logs,
+       never touching the header. The next save publishes the NEW header, so
+       selection must follow the note: the same file, the same running total,
+       and no new file -- otherwise the first record after a rename starts a
+       fresh log as if the village were new. */
+    {
+        static const char NOTE[] = "Tribe renamed from Old Name to New Name on 2026-10-04\r\n";
+        static const char NOTE2[] = "Tribe renamed from New Name to Third on 2026-10-05\r\n";
+        wchar_t path[MAX_PATH];
+        HANDLE h;
+        DWORD wrote;
+        for (i = 1; i <= 8; ++i) {
+            remove_log(folder, stem, i);
+        }
+        write_log(folder, stem, 1, "Village: Old Name (Save 1)", 3);
+        wsprintfW(path, L"%ls\\%ls 1.txt", folder, stem);
+        h = CreateFileW(path, FILE_APPEND_DATA, 0, NULL, OPEN_EXISTING,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h != INVALID_HANDLE_VALUE) {
+            WriteFile(h, NOTE, lstrlenA(NOTE), &wrote, NULL);
+            CloseHandle(h);
+        }
+        check(present(folder, stem, 1), "setup: the renamed village's file 1 exists");
+        if (select_log_file(g, "Village: New Name (Save 1)\n", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", folder, stem);
+            printf("  renamed    -> %ls (existing=%d)\n", chosen, records);
+            check(lstrcmpiW(chosen, expect) == 0,
+                  "A CONCEPTION AFTER A RENAME STAYS IN THE VILLAGE'S FILE 1");
+            check(records == 3, "and continues its running total (3)");
+        } else {
+            check(0, "select_log_file returned a path after a rename");
+        }
+        if (select_log_file(g, "Village: New Name (Save 1)\n", chosen, &records, 1)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", folder, stem);
+            check(lstrcmpiW(chosen, expect) == 0,
+                  "A BIRTH AFTER A RENAME STAYS IN FILE 1 beside its conception");
+        } else {
+            check(0, "select_log_file returned a path for a birth after a rename");
+        }
+        /* The old name is no longer this file's village. */
+        if (select_log_file(g, "Village: Old Name (Save 1)\n", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", folder, stem);
+            check(lstrcmpiW(chosen, expect) != 0,
+                  "the OLD name no longer selects the renamed village's file");
+        }
+        /* EnsureParentageLog runs after every save: it must find the file,
+           not head a new one for the "new" village. */
+        EnsureParentageLog(1, "Village: New Name (Save 1)\n");
+        check(!present(folder, stem, 2),
+              "THE SAVE AFTER A RENAME CREATES NO NEW LOG (no rollover)");
+        /* A second rename chains. */
+        h = CreateFileW(path, FILE_APPEND_DATA, 0, NULL, OPEN_EXISTING,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h != INVALID_HANDLE_VALUE) {
+            WriteFile(h, NOTE2, lstrlenA(NOTE2), &wrote, NULL);
+            CloseHandle(h);
+        }
+        if (select_log_file(g, "Village: Third (Save 1)\n", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", folder, stem);
+            check(lstrcmpiW(chosen, expect) == 0,
+                  "A SECOND RENAME CHAINS: the newest name selects file 1");
+        } else {
+            check(0, "select_log_file returned a path after a second rename");
+        }
+        /* The note names the slot only through the header: the same new name
+           in ANOTHER slot is another village. */
+        if (select_log_file(g, "Village: Third (Save 2)\n", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", folder, stem);
+            check(lstrcmpiW(chosen, expect) != 0,
+                  "the new name in a different save slot is another village");
+        }
+        for (i = 1; i <= 8; ++i) {
+            remove_log(folder, stem, i);
+        }
     }
 
     if (failures) {
