@@ -750,6 +750,10 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     }
     if (install_state[game] == 0) {
         install_state[game] = install(game) ? 1 : -1;
+        if (install_state[game] == 1 && game == 2) {
+            /* Restore Missing Island Events' lore pages, when that row is ticked. */
+            vv2_install_page_roll();
+        }
     }
     if (install_state[game] == 1) {
         /* The Origins companion calls this from its per-frame path: the
@@ -986,6 +990,14 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetPick(int game, int position
     pick_event = &g->events[position];
     pick_village = story_village_now(game);
     return pick_slot;
+}
+
+/* The Lost Children: point Restore Missing Island Events' page roll at the
+   companion as VvfpStoryInstall does (the tests arm without installing).
+   Returns whether it is installed. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeInstallPageRoll(void) {
+    vv2_install_page_roll();
+    return vv2_page_installed;
 }
 
 /* Make the n-th memory write of the next install fail (-1 = none). */
