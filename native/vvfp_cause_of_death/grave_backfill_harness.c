@@ -17,9 +17,13 @@
      0 Kito  1410  1 Chika 1428  2 Ghali 1434  3 Onawa 1379
      4 Dup    900  5 Dup    900  (two graves alike: name, age, skill line)
      6 Lonely 600  (never in the Village History log)
+     20 Tupa 1222  (an Adept Scientist's grave)
    -- a Deaths log written by an older build with Death records for Ghali,
    Onawa, ONE Dup and a "no grave" Lonely (the owner's A New Home: Ghali and
-   Onawa recorded, Kito and Chika buried before the log existed), another
+   Onawa recorded, Kito and Chika buried before the log existed), a record
+   for Tupa appended by hand in exactly the shape the owner appended Kito's
+   and Chika's (its own "Recorded:" line, and "Master Scientist" where the
+   grave says Adept), another
    village's log with a Kito record, and a Village History log in the
    population exporter's own format (Kito and Chika as the owner's last
    snapshot has them; a living namesake Kito, listed older than the dead
@@ -30,8 +34,10 @@
         "Not now" (and no answer at all) records nothing at the save.
      1. After Repair, the save records exactly Kito, Chika, the second Dup and Lonely, in
         burial order, numbered on from the log; Ghali, Onawa and the first
-        Dup are not recorded again; the other village's Kito counts for
-        nothing; the "no grave" Lonely record is not Lonely's grave.
+        Dup are not recorded again; nor is Tupa, whose hand-written record
+        is recognised by name and age at death; the other village's Kito
+        counts for nothing; the "no grave" Lonely record is not Lonely's
+        grave.
      2. Each record carries the grave's name, age at death, skill line,
         cause (A New Home / The Lost Children from the graves file; the later
         games from the entry) and epitaph, the head, body, likes and dislikes
@@ -433,7 +439,11 @@ static void write_old_logs(void) {
         "  Epitaph: (none)\n  Head: 4\n  Body: 4\n  Likes: (none)\n  Dislikes: (none)\n\n"
         "Death 4\n  Name: Lonely\n  Age at death: 600\n  Cause of death: Unknown causes\n"
         "  Grave: no grave (never buried: the game removed the body)\n  Epitaph: (none)\n"
-        "  Head: 1\n  Body: 1\n  Likes: (none)\n  Dislikes: (none)\n\n",
+        "  Head: 1\n  Body: 1\n  Likes: (none)\n  Dislikes: (none)\n\n"
+        "Death 5\n  Name: Tupa\n  Age at death: 1222\n  Cause of death: Old age\n  Grave: Master Scientist\n"
+        "  Epitaph: Dedicated Student\n  Head: 0\n  Body: 18\n  Likes: exploring\n  Dislikes: resting\n"
+        "  Recorded: afterwards (died before this log existed); from the grave and the last Village History"
+        " snapshot, 2026-10-01 16:21:22\n\n",
         MASTER[game][4], MASTER[game][game >= 3 ? 0 : 1]);
     deaths_path(1, path);
     write_text(path, d);
@@ -542,6 +552,7 @@ int main(int argc, char **argv) {
         dig(4, "Dup", 900, game >= 3 ? -1 : 0, 0, 0, NULL);
         dig(5, "Dup", 900, game >= 3 ? -1 : 0, 0, 0, NULL);
         dig(6, "Lonely", 600, game >= 3 ? -1 : 0, 0, -1, NULL);
+        dig(20, "Tupa", 1222, 3, 60, cause_value, "Dedicated Student");
         write_history();
         write_old_logs();
         write_graves_file();
@@ -586,16 +597,18 @@ int main(int argc, char **argv) {
         read_into(path);
         CHECK(count_of(text, "\r\n  Name: Ghali\r\n") == 1 && count_of(text, "\r\n  Name: Onawa\r\n") == 1,
               "Ghali and Onawa are not recorded again");
-        CHECK(death(5, "Kito") && death(6, "Chika") && death(7, "Dup") && death(8, "Lonely")
-              && !strstr(text, "Death 9"), "Kito, Chika, the second Dup and Lonely are recorded, in burial order");
+        CHECK(death(6, "Kito") && death(7, "Chika") && death(8, "Dup") && death(9, "Lonely")
+              && !strstr(text, "Death 10"), "Kito, Chika, the second Dup and Lonely are recorded, in burial order");
+        CHECK(count_of(text, "\r\n  Name: Tupa\r\n") == 1,
+              "the record appended by hand in the owner's shape counts for Tupa's grave (name, age at death)");
         CHECK(count_of(text, "\r\n  Name: Dup\r\n") == 2, "two Dup graves, two Dup records");
         {
-            const char *k = death(5, "Kito");
-            const char *c = death(6, "Chika");
-            const char *l = death(8, "Lonely");
+            const char *k = death(6, "Kito");
+            const char *c = death(7, "Chika");
+            const char *l = death(9, "Lonely");
             char want[1024];
             _snprintf(want, sizeof want,
-                "Death 5\r\n  Name: Kito\r\n  Age at death: 1410\r\n  Cause of death: Old age\r\n"
+                "Death 6\r\n  Name: Kito\r\n  Age at death: 1410\r\n  Cause of death: Old age\r\n"
                 "  Grave: %s\r\n  Epitaph: %s\r\n  Head: 0\r\n  Body: 18\r\n  Likes: exploring\r\n"
                 "  Dislikes: resting\r\n  Recorded from the grave: this death was not seen when it happened"
                 " (it came before\r\n    this log was kept, or while the game was catching up on time away)\r\n"
@@ -632,7 +645,7 @@ int main(int argc, char **argv) {
                       "the epitaph is the grave's");
             }
         }
-        CHECK(read_into(logged) == 16 + 7 * 8, "the graves file covers all seven graves");
+        CHECK(read_into(logged) == 16 + 8 * 8, "the graves file covers all eight graves");
         CHECK(scan_graves(game, 1) == 0, "the scan now finds nothing missing");
         read_into(path);
         lstrcpynA(first, text, sizeof first);

@@ -31,15 +31,33 @@ BUILD = ROOT / "scripts" / "build_grave_backfill_harness.ps1"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
-CHECKS_PER_GAME = 28
+CHECKS_PER_GAME = 29
 
 
 class GraveBackfillSource(unittest.TestCase):
     def test_the_parentage_dll_exports_the_call(self):
-        self.assertIn("RecordGravesMissingFromLog=_RecordGravesMissingFromLog@20",
+        self.assertIn("RecordGravesMissingFromLog=_RecordGravesMissingFromLog@24",
                       (PARENTAGE / "parentage_export.def").read_text(encoding="utf-8"))
         self.assertIn('#include "grave_backfill.inc"',
                       (PARENTAGE / "parentage_export.c").read_text(encoding="utf-8"))
+
+    def test_cause_of_death_exports_the_scan_and_the_answer(self):
+        for name in ("vvfp_cause_of_death.def", "vvfp_cause_of_death_test.def"):
+            text = (COD / name).read_text(encoding="utf-8")
+            self.assertIn("VvfpCauseScanGraves=_VvfpCauseScanGraves@8", text)
+            self.assertIn("VvfpCauseRepairGraves=_VvfpCauseRepairGraves@12", text)
+        self.assertIn("SavedVillageHeader=_SavedVillageHeader@16",
+                      (ROOT / "native" / "save_reset_export" / "save_reset_export.def").read_text(encoding="utf-8"))
+
+    def test_nothing_is_written_without_repair(self):
+        source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
+        save = source[source.index("static void backfill_at_save("):]
+        save = save[:save.index("\n}\n")]
+        self.assertIn("!repair_chosen[slot]", save)
+        scan = source[source.index("VvfpCauseScanGraves(int game, int slot)"):]
+        scan = scan[:scan.index("\n}\n")]
+        self.assertIn("record_graves(g_game, NULL, slot, facts, count, 0)", scan)
+        self.assertNotIn("logged_publish", scan)
 
     def test_the_backfill_runs_at_the_save_before_the_reconciliation(self):
         roster = (COD / "cod_roster.inc").read_text(encoding="utf-8")

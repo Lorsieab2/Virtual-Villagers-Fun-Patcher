@@ -12,17 +12,20 @@
    that in its own file); this decides the rest and files a record for each
    grave the log lacks.
 
-   WHICH GRAVES THE LOG ALREADY HAS.  A Death record names the villager, the
-   age at death and the grave's skill line -- exactly what a grave holds, as
-   the burial record printed it -- so a grave and its record share that key.
-   Names repeat and two graves can share all three, so it is a count, never a
-   lookup: the village's Death records with a key (in its Deaths log files,
-   and those still held for the next save), less the graves with that key
-   already known to be covered, are matched to the uncovered graves with it in
-   burial order; only the graves left over get a record.  (A record whose grave
-   line is "no grave ..." can match no grave: a grave's line is its skill.)
-   So a grave is never recorded twice, and when in doubt the existing record
-   is taken to be its record.
+   WHICH GRAVES THE LOG ALREADY HAS.  A Death record names the villager and
+   the age at death -- exactly what a grave holds, the age in the game's own
+   units -- so a grave and its record share that key.  The skill line is not
+   part of it: a record written another way (by hand, or by an older build)
+   may word it differently, and the name with the exact age at death is
+   already the strongest identity both hold.  Names repeat and two graves can
+   share both, so it is a count, never a lookup: the village's Death records
+   with a key (in its Deaths log files, and those still held for the next
+   save), less the graves with that key already known to be covered, are
+   matched to the uncovered graves with it in burial order; only the graves
+   left over get a record.  A record whose grave line is "no grave ..." is a
+   body that was never buried, so it is no grave's record.  So a grave is
+   never recorded twice, and when in doubt the existing record is taken to be
+   its record.
 
    WHAT THE RECORD SAYS.  The name, the age at death, the skill line, the
    epitaph and -- where the game or the patcher's graves file keeps it -- the
@@ -94,7 +97,8 @@ static int keep_death_key(const struct death_key *key) {
 /* Ends the record being read; 0 only when it could not be kept. */
 static int death_reader_close(struct death_reader *r) {
     int ok = 1;
-    if (r->open && r->have_name && r->have_age && r->have_grave) {
+    if (r->open && r->have_name && r->have_age
+        && !(r->have_grave && strncmp(r->key.grave, "no grave", 8) == 0)) {
         ok = keep_death_key(&r->key);
     }
     memset(r, 0, sizeof(*r));
@@ -559,7 +563,7 @@ static int saved_village_header(int game_id, int slot, char *out, int size) {
 }
 
 static int same_key(const struct death_key *key, const char *name, const vv_grave_fact *f) {
-    return key->age == f->age && strcmp(key->name, name) == 0 && strcmp(key->grave, f->grave) == 0;
+    return key->age == f->age && strcmp(key->name, name) == 0;
 }
 
 __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
@@ -638,8 +642,7 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
             }
         }
         for (j = 0; j < count; ++j) {
-            if (j == i || graves[j].age != graves[i].age || strcmp(names[j], names[i]) != 0
-                || strcmp(graves[j].grave, graves[i].grave) != 0) {
+            if (j == i || graves[j].age != graves[i].age || strcmp(names[j], names[i]) != 0) {
                 continue;
             }
             if (graves[j].covered || graves[j].outcome == VV_GRAVE_IN_LOG) {

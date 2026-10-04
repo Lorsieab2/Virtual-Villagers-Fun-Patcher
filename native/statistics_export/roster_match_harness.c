@@ -41,6 +41,18 @@ int main(void) {
     check(vv_roster_same_villager("3\tMoku\t0000ABCD", "3\tMoku\t00001234") == 1, "same slot and name only is a weak match");
     check(vv_roster_same_villager("3\tMoku\t0000ABCD", "4\tMoku\t0000ABCD") == 0, "a different slot is never the same villager");
     check(vv_roster_same_villager("13\tMoku\t0000ABCD", "1\tMoku\t0000ABCD") == 0, "slot 13 is not slot 1");
+    check(vv_roster_same_villager("3\tMoku\t-", "3\tLani\t-") == 0,
+          "two villagers with nothing to fingerprint are not the same by fingerprint");
+    check(vv_roster_same_villager("3\tMoku\t-", "3\tMoku\t-") == 1,
+          "with nothing to fingerprint, the same name is a weak match");
+    check(vv_roster_same_villager("3\tMoku\t5B517625", "3\tMoku\t-") == 1,
+          "an older roster's empty fingerprint against no fingerprint is a weak match");
+    reset();
+    add(was, &was_n, 0, "Ata", 0x11); add(was, &was_n, 1, "Bea", 0x22); add(was, &was_n, 2, "Cai", 0x33);
+    _snprintf_s(was[was_n++], ROW, _TRUNCATE, "3\tDuk\t-");
+    add(now, &now_n, 0, "Tui", 0x44); add(now, &now_n, 1, "Rua", 0x55); add(now, &now_n, 2, "Ika", 0x66);
+    _snprintf_s(now[now_n++], ROW, _TRUNCATE, "3\tPeni\t-");
+    check(!same(), "another village whose villager has nothing to fingerprint is still another village");
 
     /* The owner's rule: any shared villager is the same village. */
     reset();
