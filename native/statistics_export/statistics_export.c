@@ -1288,7 +1288,22 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
         }
         name[i] = '\0';
         {
+            /* A villager with no likes, no dislikes and no parents has
+               nothing to fingerprint: every such villager would share one
+               value (21 of the owner's 28 A New Home villagers did), and
+               any two villages' would match.  "-" says so; roster_match.c
+               then compares the name alone. */
             unsigned int h = 2166136261u;
+            int any = 0;
+            for (i = 0; i < 2u * r->preference_slots; ++i) {
+                unsigned int base = i < r->preference_slots ? r->likes : r->dislikes;
+                if (*(const int *)(record + base + (i % r->preference_slots) * 4u) >= 0) {
+                    any = 1;
+                }
+            }
+            if (r->father_name != 0u && (record[r->father_name] != 0 || record[r->mother_name] != 0)) {
+                any = 1;
+            }
             h = fnv(h, record + r->likes, r->preference_slots * 4u);
             h = fnv(h, record + r->dislikes, r->preference_slots * 4u);
             if (r->father_name != 0u) {
@@ -1296,7 +1311,11 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
                 h = fnv(h, (const unsigned char *)"|", 1u);
                 h = fnv(h, record + r->mother_name, bounded_len(record + r->mother_name, r->parent_name_capacity));
             }
-            _snprintf_s(rows[count], ROSTER_ROW, _TRUNCATE, "%u\t%s\t%08X", slot, name, h);
+            if (any) {
+                _snprintf_s(rows[count], ROSTER_ROW, _TRUNCATE, "%u\t%s\t%08X", slot, name, h);
+            } else {
+                _snprintf_s(rows[count], ROSTER_ROW, _TRUNCATE, "%u\t%s\t-", slot, name);
+            }
         }
         ++count;
     }

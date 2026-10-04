@@ -73,6 +73,7 @@
 #include <stdint.h>
 #include "sidecar_io.h"
 #include "save_folder.h"
+#include "grave_backfill.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
@@ -91,6 +92,7 @@ struct vvfp_cause_stats {
     int arrived;         /* arrivals accounted */
     int unaccounted;     /* Unaccounted records */
     int armed;           /* save hook armed ahead of the install */
+    int backfilled;      /* Death records written from a grave no hook saw */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -336,6 +338,8 @@ static int log_state;            /* 0 = not tried, 1 = resolved, -1 = unavailabl
 static write_record_fn write_record;
 static publish_village_fn publish_village;
 static release_held_fn release_held;
+/* RecordGravesMissingFromLog (cod_backfill.inc). */
+static vv_record_graves_fn record_graves;
 
 /* "VVFP Parentage Export.dll", loaded by full path from the executable's
    folder the first time; absent (the Births and Conceptions row off), no
@@ -357,6 +361,7 @@ static int cod_log_ready(void) {
                 write_record = (write_record_fn)GetProcAddress(module, "WriteVillageRecord");
                 publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
                 release_held = (release_held_fn)GetProcAddress(module, "ReleaseHeldRecords");
+                record_graves = (vv_record_graves_fn)GetProcAddress(module, "RecordGravesMissingFromLog");
                 if (write_record != NULL) {
                     log_state = 1;
                 }
@@ -571,11 +576,18 @@ static int install_state;   /* 0 = not tried, 1 = installed, -1 = refused */
    it. */
 static int save_armed;
 
+/* cod_backfill.inc: the graves no hook saw, at each save. */
+static void backfill_at_save(int slot, const void *save_buffer);
+static void backfill_mark(int place, unsigned int fingerprint);
+static int backfill_accounts_for(const unsigned char *kept);
+static void backfill_reset(int slot);
+
 #include "cod_roster.inc"
 #include "cod_gone.inc"
 #include "cod_vv12.inc"
 #include "cod_vv345.inc"
 #include "cod_epitaph_edit.inc"
+#include "cod_backfill.inc"
 
 /* ---- Exports --------------------------------------------------------------- */
 
@@ -701,6 +713,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
         vv12_reset(slot);
     }
     roster_reset(slot);
+    backfill_reset(slot);
     memset(seen_alive, 0, sizeof seen_alive);
     memset(temporary, 0, sizeof temporary);
 }

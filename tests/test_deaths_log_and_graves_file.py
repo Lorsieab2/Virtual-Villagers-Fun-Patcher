@@ -72,10 +72,13 @@ class DeathsLogSource(unittest.TestCase):
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Deaths"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
         self.assertIn("for (pass = 0; pass < 6; ++pass) {", source)
-        self.assertRegex(source, r'CAUSE_OF_DEATH_FORMAT\("1"\),\s+ROSTER_FORMAT\("1"\) \}')
-        self.assertRegex(source, r'CAUSE_OF_DEATH_FORMAT\("2"\),\s+ROSTER_FORMAT\("2"\), 0, 0, 0, 0 \}')
+        self.assertRegex(source, r'CAUSE_OF_DEATH_FORMAT\("1"\),\s+ROSTER_FORMAT\("1"\), GRAVES_LOGGED_FORMAT\("1"\) \}')
+        self.assertRegex(
+            source, r'CAUSE_OF_DEATH_FORMAT\("2"\),\s+ROSTER_FORMAT\("2"\), GRAVES_LOGGED_FORMAT\("2"\), 0, 0, 0, 0 \}')
         for n in (3, 4, 5):
-            self.assertIn(f'ROSTER_FORMAT("{n}"), 0, 0, 0, 0, 0 }}', source)
+            self.assertRegex(source, rf'ROSTER_FORMAT\("{n}"\),\s+GRAVES_LOGGED_FORMAT\("{n}"\), 0, 0, 0, 0, 0 \}}')
+        # The grave backfill's file (cod_backfill.inc) goes with the Deaths log.
+        self.assertIn('"%s\\\\Virtual Villagers Fun Patcher Data\\\\Deaths\\\\Virtual Villagers " n " Graves Logged - Save %d.dat"', source)
         self.assertIn('" Graves - Save %d.dat"', source)
         self.assertIn('" Village Roster - Save %d.dat"', source)
 

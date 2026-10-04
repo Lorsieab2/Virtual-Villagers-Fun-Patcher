@@ -8,3 +8,4 @@ EXPORTS
     WriteVillageRecord=_WriteVillageRecord@28
     PublishVillageAtSave=_PublishVillageAtSave@12
     ReleaseHeldRecords=_ReleaseHeldRecords@4
+    RecordGravesMissingFromLog=_RecordGravesMissingFromLog@24
