@@ -769,6 +769,9 @@ class App(tk.Tk):
         self._folder_link(
             links, "Back Up Saves", self._back_up_single_saves
         ).pack(side="left", padx=(18, 0))
+        self._folder_link(
+            links, "Restore Saves...", self._restore_single_saves
+        ).pack(side="left", padx=(18, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -817,6 +820,11 @@ class App(tk.Tk):
                 "Back up saves",
                 lambda game=build: self._back_up_saves([game]),
             ).grid(row=row, column=5, padx=(12, 0), pady=4)
+            self._folder_link(
+                grid,
+                "Restore saves...",
+                lambda game=build: self._restore_saves(game),
+            ).grid(row=row, column=6, padx=(12, 0), pady=4)
         grid.columnconfigure(1, weight=1)
         actions = ttk.Frame(tab)
         actions.pack(fill="x", pady=(10, 0))
@@ -1589,7 +1597,13 @@ class App(tk.Tk):
     # -- Back Up Saves ------------------------------------------------------
 
     def _back_up_single_saves(self) -> None:
-        """Back Up Saves for the game chosen on the One Game tab.
+        """Back Up Saves for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            self._back_up_saves([build])
+
+    def _single_build(self):
+        """The game chosen on the One Game tab, or None (after telling the player).
 
         The game is named by the chosen EXE's file name ("<title>.exe" or a
         built "<title> - Modded....exe"), which needs no hashing; only an exe
@@ -1598,7 +1612,7 @@ class App(tk.Tk):
         value = self.exe_var.get().strip()
         if not value:
             messagebox.showinfo("Choose a game", "Choose an original game EXE first.")
-            return
+            return None
         stem = Path(value).stem.casefold()
         build = next(
             (item for item in self.builds if stem.startswith(item.title.casefold())),
@@ -1609,8 +1623,8 @@ class App(tk.Tk):
                 build = identify(Path(value))
             except (PatcherError, OSError) as exc:
                 messagebox.showerror("Cannot tell which game this is", str(exc))
-                return
-        self._back_up_saves([build])
+                return None
+        return build
 
     def _back_up_saves(self, builds) -> None:
         """Let the player pick save folders, then pause each game and copy.
@@ -1775,6 +1789,235 @@ class App(tk.Tk):
         dialog.update_idletasks()
         dialog.grab_set()
         dialog.focus_set()
+
+    # -- Restore Saves -----------------------------------------------------
+
+    def _restore_single_saves(self) -> None:
+        build = self._single_build()
+        if build is not None:
+            self._restore_saves(build)
+
+    def _restore_saves(self, build) -> None:
+        """List this game's backups so the player can restore or delete one."""
+        documents = vv_save_backup.documents_folder()
+        if documents is None:
+            messagebox.showerror(
+                "Restore Saves",
+                "Windows did not report where your Documents folder is, so the "
+                "save folders cannot be found.",
+            )
+            return
+        folders = vv_save_backup.find_save_folders(build.title, documents)
+        if not any(vv_save_backup.list_backups(folder) for folder in folders):
+            messagebox.showinfo(
+                "Restore Saves",
+                f"There are no backups of {build.title} yet.\n\nUse Back Up Saves "
+                "to make one.",
+            )
+            return
+        self._show_restore_window(build, folders)
+
+    def _show_restore_window(self, build, folders) -> None:
+        dialog = tk.Toplevel(self)
+        dialog.title(f"Restore Saves - {build.title.removeprefix('Virtual Villagers - ')}")
+        dialog.transient(self)
+        frame = ttk.Frame(dialog, padding=16)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(
+            frame, text="Choose a backup to restore:", font=("Segoe UI", 10, "bold")
+        ).pack(anchor="w")
+        ttk.Label(
+            frame,
+            text=(
+                "Newest first. The game must be closed: quit it from its own menu "
+                "before restoring. Your saves as they are now are backed up first, "
+                "as \"Backup <date> (before restore)\", so a restore can be undone."
+            ),
+            wraplength=700,
+            justify="left",
+        ).pack(anchor="w", pady=(4, 8))
+        listbox = tk.Listbox(frame, width=110, height=12, exportselection=False)
+        listbox.pack(fill="both", expand=True)
+        details = ttk.Label(frame, text="", wraplength=700, justify="left")
+        details.pack(anchor="w", pady=(6, 0))
+        scope = tk.StringVar(value="whole")
+        slot_choice = tk.StringVar()
+        options = ttk.Frame(frame)
+        options.pack(anchor="w", pady=(8, 0))
+        ttk.Radiobutton(
+            options, text="The whole save folder", value="whole", variable=scope
+        ).grid(row=0, column=0, sticky="w")
+        ttk.Radiobutton(
+            options, text="One save slot only:", value="slot", variable=scope
+        ).grid(row=1, column=0, sticky="w")
+        slots = ttk.Combobox(options, textvariable=slot_choice, state="readonly", width=50)
+        slots.grid(row=1, column=1, sticky="w", padx=(8, 0))
+        entries: list[tuple[Path, object]] = []
+
+        def describe(folder, info) -> str:
+            villages = ", ".join(
+                f"Save {slot}: {name or '(no name)'}" for slot, name in info.villages.items()
+            ) or "no village saves"
+            variant = folder.name.removeprefix(build.title + " - ")
+            return (
+                f"{info.label}   [{variant}]   {villages}   "
+                f"{info.file_count} files, {vv_save_backup.describe_size(info.size)}"
+            )
+
+        def refresh() -> None:
+            entries.clear()
+            listbox.delete(0, "end")
+            listed = [
+                (folder, info)
+                for folder in folders
+                for info in vv_save_backup.list_backups(folder)
+            ]
+            listed.sort(key=lambda item: item[1].when, reverse=True)
+            for folder, info in listed:
+                entries.append((folder, info))
+                listbox.insert("end", describe(folder, info))
+            if entries:
+                listbox.selection_set(0)
+            selected()
+
+        def current():
+            chosen = listbox.curselection()
+            return entries[chosen[0]] if chosen else None
+
+        def selected(_event=None) -> None:
+            item = current()
+            if item is None:
+                details.configure(text="")
+                slots.configure(values=[])
+                slot_choice.set("")
+                return
+            folder, info = item
+            details.configure(text=f"Backup folder: {info.path}")
+            values = [
+                f"Save {slot}: {name or '(no name)'}" for slot, name in info.villages.items()
+            ]
+            slots.configure(values=values)
+            slot_choice.set(values[0] if values else "")
+
+        def chosen_slot():
+            if scope.get() != "slot":
+                return None
+            text = slot_choice.get()
+            if not text.startswith("Save "):
+                return False
+            return int(text.split(":", 1)[0].removeprefix("Save "))
+
+        def restore() -> None:
+            item = current()
+            if item is None:
+                return
+            slot = chosen_slot()
+            if slot is False:
+                messagebox.showinfo(
+                    "Restore Saves", "This backup holds no village save to choose.",
+                    parent=dialog,
+                )
+                return
+            self._run_restore(dialog, item[0], item[1], slot)
+            refresh()
+
+        def delete() -> None:
+            item = current()
+            if item is None:
+                return
+            folder, info = item
+            if not messagebox.askyesno(
+                "Delete Backup",
+                f"Delete this backup permanently?\n\n{describe(folder, info)}\n\n"
+                f"{info.path}\n\nYour current saves are not affected.",
+                parent=dialog,
+            ):
+                return
+            try:
+                vv_save_backup.delete_backup(folder, info.path)
+            except (vv_save_backup.BackupError, OSError) as exc:
+                messagebox.showerror("Delete Backup", str(exc), parent=dialog)
+            refresh()
+
+        listbox.bind("<<ListboxSelect>>", selected)
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(14, 0))
+        ttk.Button(buttons, text="Restore...", command=restore).pack(side="left")
+        ttk.Button(buttons, text="Delete Backup...", command=delete).pack(
+            side="left", padx=(8, 0)
+        )
+        ttk.Button(buttons, text="Close", command=dialog.destroy).pack(
+            side="left", padx=(8, 0)
+        )
+        refresh()
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+        dialog.update_idletasks()
+        dialog.grab_set()
+        dialog.focus_set()
+
+    def _run_restore(self, parent, folder: Path, info, slot) -> None:
+        """Confirm exactly what will change, then restore with the game closed."""
+        if vv_save_backup.running_game_count(folder):
+            messagebox.showerror(
+                "Restore Saves",
+                f"{vv_save_backup.game_exe_name(folder)} is running.\n\nQuit the game "
+                "from its own menu first, then restore: a running game writes its "
+                "village over the restored save when it quits. Nothing was changed.",
+                parent=parent,
+            )
+            return
+        try:
+            plan = vv_save_backup.plan_restore(folder, info.path, slot)
+        except (vv_save_backup.BackupError, OSError) as exc:
+            messagebox.showerror("Restore Saves", str(exc), parent=parent)
+            return
+        if plan.changes == 0:
+            messagebox.showinfo(
+                "Restore Saves",
+                "Your saves already match this backup; there is nothing to restore.",
+                parent=parent,
+            )
+            return
+        what = "the whole save folder" if slot is None else f"Save {slot} only"
+        lines = (
+            [f"Replace: {path}" for path in plan.replace]
+            + [f"Add: {path}" for path in plan.add]
+            + [f"Remove: {path}" for path in plan.remove]
+        )
+        shown = "\n".join(lines[:20])
+        if len(lines) > 20:
+            shown += f"\n... and {len(lines) - 20} more"
+        if not messagebox.askyesno(
+            "Restore Saves",
+            f"Restore {what} of {folder.name} from the backup of {info.label}?\n\n"
+            f"{len(plan.replace)} file(s) will be replaced, {len(plan.add)} added and "
+            f"{len(plan.remove)} removed:\n\n{shown}\n\nYour saves as they are now "
+            "are backed up first, so this can be undone.",
+            parent=parent,
+        ):
+            return
+        try:
+            result = self._run_with_wait(
+                "Restoring saves…",
+                lambda: vv_save_backup.restore_backup(folder, info.path, slot),
+            )
+        except (vv_save_backup.BackupError, OSError) as exc:
+            self.status_var.set("Restore Saves: the restore did not complete.")
+            messagebox.showerror("Restore Saves", str(exc), parent=parent)
+            return
+        undo = (
+            f"\n\nYour saves from before the restore are in:\n"
+            f"{result.before_restore.backup_folder}"
+            if result.before_restore
+            else ""
+        )
+        self.status_var.set(f"Restore Saves: {folder.name} restored from {info.label}.")
+        messagebox.showinfo(
+            "Restore Saves",
+            f"Restored {what} from the backup of {info.label}: every file was "
+            f"checked against the backup.{undo}",
+            parent=parent,
+        )
 
     def _close(self) -> None:
         self._save_settings()

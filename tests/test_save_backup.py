@@ -573,5 +573,396 @@ class GuiTests(unittest.TestCase):
         self.assertIn('"src/vv_save_backup.py"', release)
 
 
+# ---------------------------------------------------------------------------
+# Restore
+# ---------------------------------------------------------------------------
+
+def save_bytes(game: int, village: str, filler: int = 0, expanded: bool = False) -> bytes:
+    """A save file the games (and the reader) accept, naming ``village``."""
+    header = backup._SAVE_HEADER[game]
+    length = backup._SAVE_BUFFERS[game][1 if expanded else 0]
+    data = bytearray(header + length)
+    data[0:4] = b"ldwg"
+    at = backup._SAVE_LENGTH_AT[game]
+    data[at:at + 4] = length.to_bytes(4, "little")
+    name_at = header + backup._NAME_OFFSET[game]
+    encoded = village.encode("ascii")
+    data[name_at:name_at + len(encoded)] = encoded
+    data[-1] = filler          # lets two saves of one village differ
+    return bytes(data)
+
+
+GAME_TITLES = {
+    1: "Virtual Villagers - A New Home",
+    2: "Virtual Villagers - The Lost Children",
+    3: "Virtual Villagers - The Secret City",
+    4: "Virtual Villagers - The Tree of Life",
+    5: "Virtual Villagers - New Believers",
+}
+# Each game's own save base name (A New Home's saves are "Virtual Villagers<N>.ldw").
+SAVE_BASE = {1: "Virtual Villagers", 2: GAME_TITLES[2], 3: GAME_TITLES[3],
+             4: GAME_TITLES[4], 5: GAME_TITLES[5]}
+LOGS = "Virtual Villagers Fun Patcher Logs"
+DATA = "Virtual Villagers Fun Patcher Data"
+
+
+class RestoreBase(TempDocuments):
+    game = 3
+    suffix = "Modded"
+
+    def make_village(self, filler=0):
+        g = self.game
+        folder = self.ldw / f"{GAME_TITLES[g]} - {self.suffix}"
+        base = SAVE_BASE[g]
+        expanded = "256" in self.suffix
+        write(folder / f"{base}0.ldw", b"meta" + bytes([filler]))
+        for slot, village in ((1, "Kalahuna"), (2, "Elsewhere")):
+            write(folder / f"{base}{slot}.ldw", save_bytes(g, village, filler, expanded))
+            write(folder / f"{base}{slot + 20}.ldw", save_bytes(g, village, filler + 1, expanded))
+            write(folder / DATA / "Village Statistics" / f"Village Statistics - Save {slot}.dat",
+                  f"stats {slot} {filler}".encode())
+            write(folder / LOGS / "Village Statistics" / f"Village Statistics v2 - Save {slot}.txt",
+                  f"Village: {village} (Save {slot})\r\n{filler}\r\n".encode())
+            write(folder / LOGS / "Births and Conceptions" /
+                  f"Virtual Villagers {g} Births and Conceptions Log {slot}.txt",
+                  f"Village: {village} (Save {slot})\r\nrecord {filler}\r\n".encode())
+        return folder
+
+    def snapshot(self, folder):
+        return {
+            str(r): (folder / r).read_bytes() for r in backup.files_to_back_up(folder)
+        }
+
+    def backups_snapshot(self, folder):
+        root = folder / "Backups"
+        return {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+
+class ListingTests(RestoreBase):
+    def test_names_and_slots_are_read_for_every_game_and_256(self) -> None:
+        for game in range(1, 6):
+            for suffix in (["Modded", "Modded 256"] if game >= 3 else ["Modded"]):
+                with self.subTest(game=game, suffix=suffix):
+                    self.game, self.suffix = game, suffix
+                    folder = self.make_village()
+                    self.assertEqual(backup.game_number(folder), game)
+                    self.assertEqual(
+                        backup.slot_villages(game, folder), {1: "Kalahuna", 2: "Elsewhere"}
+                    )
+                    first = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+                    second = backup.copy_save_folder(folder, datetime(2026, 1, 2, 9, 0, 0))
+                    listed = backup.list_backups(folder)
+                    self.assertEqual([i.path for i in listed],
+                                     [second.backup_folder, first.backup_folder])
+                    self.assertEqual(listed[0].villages, {1: "Kalahuna", 2: "Elsewhere"})
+                    self.assertEqual(listed[0].file_count, second.file_count)
+                    self.assertEqual(listed[0].size, second.total_bytes)
+
+    def test_an_invalid_save_has_no_name(self) -> None:
+        folder = self.make_village()
+        bad = write(folder / "x1.ldw", b"ldwg" + bytes(40))
+        self.assertIsNone(backup.read_village_name(3, bad))
+        wrong_length = bytearray(save_bytes(3, "Kalahuna"))
+        wrong_length[8] ^= 1
+        self.assertIsNone(backup.read_village_name(3, write(folder / "y1.ldw", bytes(wrong_length))))
+
+    def test_incomplete_and_foreign_folders_are_not_listed_and_order_is_newest_first(self) -> None:
+        folder = self.make_village()
+        root = folder / "Backups"
+        for name in ("Backup 2026-01-01 09-00-00", "Backup 2026-01-01 09-00-00 (2)",
+                     "Backup 2026-01-03 09-00-00 (before restore)",
+                     "Backup 2026-01-02 09-00-00 INCOMPLETE", "My stuff",
+                     "Backup 2026-13-40 99-00-00"):
+            write(root / name / "Virtual Villagers - The Secret City1.ldw", b"x")
+        names = [i.path.name for i in backup.list_backups(folder)]
+        self.assertEqual(names, ["Backup 2026-01-03 09-00-00 (before restore)",
+                                 "Backup 2026-01-01 09-00-00 (2)",
+                                 "Backup 2026-01-01 09-00-00"])
+        self.assertTrue(backup.list_backups(folder)[0].before_restore)
+
+
+class AttributionTests(RestoreBase):
+    def test_every_patcher_file_kind_is_attributed_to_its_slot(self) -> None:
+        folder = self.ldw / "Virtual Villagers - A New Home - Modded"
+        cases = {
+            "Virtual Villagers0.ldw": "meta",
+            "Virtual Villagers1.ldw": 1, "Virtual Villagers22.ldw": 2,
+            "Virtual Villagers43.ldw": 3, "Virtual Villagers5.ldw": 5,
+            "Virtual Villagers7.ldw": "unknown",
+            "Virtual Villagers1 - Copy.ldw": "unknown",
+            "ldwLog.txt": "engine log",
+            "vv1_masks_2.dat": 2, "vv1_doublers_3.dat": 3, "vv1_parents_4.dat": 4,
+            "vvfp_masks_5.dat": 5, "vv2_masks_1.dat": 1,
+            "Village Statistics - Save 4.txt": 4,
+            f"{DATA}/Virtual Villagers 1 Village Masks - Save 1.dat": 1,
+            f"{DATA}/Virtual Villagers 1 Origins Doublers - Save 2.dat": 2,
+            f"{DATA}/Virtual Villagers 1 Parentage Records - Save 3.dat": 3,
+            f"{DATA}/Village Masks - Save 4.dat": 4,
+            f"{DATA}/Custom Titles/Custom Titles - Save 5.dat": 5,
+            f"{DATA}/Virtual Villagers 1 Graves - Save 1.dat": 1,
+            f"{DATA}/Virtual Villagers 1 Village Roster - Save 2.dat": 2,
+            f"{DATA}/Village Statistics/Village Statistics - Save 3.dat": 3,
+            f"{DATA}/Village Statistics/Village Statistics - Save 3.dat.tmp": 3,
+            f"{DATA}/Stew Discoveries/Stew Discoveries - Save 4.dat": 4,
+            f"{DATA}/Village Elders/Village Elders - Save 5.dat": 5,
+            f"{DATA}/Village Elders/Village Elders - Save 5.dat.unreadable-1.dat": 5,
+            f"{LOGS}/Village Statistics/Village Statistics - Save 1.txt": 1,
+            f"{LOGS}/Village Statistics/Village Statistics v2 - Save 2.txt": 2,
+        }
+        for name, expected in cases.items():
+            write(folder / name, b"data")
+        headed = {
+            f"{LOGS}/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 7.txt":
+                ("Village: Kalahuna (Save 3)\r\n", 3),
+            f"{LOGS}/Deaths/Virtual Villagers 1 Deaths Log 1.txt":
+                ("Village: Kalahuna (Save 2)\r\n", 2),
+            f"{LOGS}/Unaccounted Villagers/Virtual Villagers 1 Unaccounted Villagers Log 1.txt":
+                ("Village: X (Save 4)\r\n", 4),
+            f"{LOGS}/Tribe Population/Village Population 9.txt":
+                ("Virtual Villagers: A New Home Village Population\r\nVillage: K (Save 5)\r\n", 5),
+            f"{LOGS}/Tribe History/Village History 1.txt":
+                ("Virtual Villagers: A New Home Village History\r\nVillage: K (Save 1)\r\n", 1),
+            f"{LOGS}/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 8.txt":
+                ("no header, written before the village had a name\r\n", "unknown"),
+        }
+        for name, (text, expected) in headed.items():
+            write(folder / name, text.encode())
+            cases[name] = expected
+        for name, expected in cases.items():
+            with self.subTest(name=name):
+                self.assertEqual(backup.file_slot(Path(name), folder), expected)
+
+
+class RestoreTests(RestoreBase):
+    def restore(self, folder, chosen, slot=None, processes=None, now=None):
+        return backup.restore_backup(
+            folder, chosen, slot, processes or FakeProcesses(), now or datetime(2026, 2, 1, 8, 0, 0)
+        )
+
+    def test_whole_restore_puts_the_backup_back_and_saves_the_present_first(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        wanted = self.snapshot(folder)
+        # Play on: every file changes, a new log page appears, one file vanishes.
+        self.make_village(filler=7)
+        write(folder / LOGS / "Births and Conceptions" /
+              "Virtual Villagers 3 Births and Conceptions Log 3.txt", b"Village: Kalahuna (Save 1)\r\n")
+        (folder / DATA / "Village Statistics" / "Village Statistics - Save 2.dat").unlink()
+        present = self.snapshot(folder)
+        backups_before = self.backups_snapshot(folder)
+
+        result = self.restore(folder, made.backup_folder)
+        self.assertEqual(self.snapshot(folder), wanted)
+        self.assertIn(Path(LOGS, "Births and Conceptions",
+                           "Virtual Villagers 3 Births and Conceptions Log 3.txt"), result.plan.remove)
+        self.assertEqual(result.before_restore.backup_folder.name,
+                         "Backup 2026-02-01 08-00-00 (before restore)")
+        safety = result.before_restore.backup_folder
+        self.assertEqual(
+            {str(r): (safety / r).read_bytes() for r in backup.files_to_back_up(safety)}, present
+        )
+        # No earlier backup was touched.
+        after = self.backups_snapshot(folder)
+        for key, value in backups_before.items():
+            self.assertEqual(after[key], value)
+        # ...and the restore can itself be undone.
+        backup.restore_backup(folder, safety, None, FakeProcesses(), datetime(2026, 2, 1, 8, 0, 1))
+        self.assertEqual(self.snapshot(folder), present)
+
+    def test_one_slot_is_restored_and_the_other_left_alone(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        wanted = self.snapshot(folder)
+        self.make_village(filler=7)
+        # The meta save is unchanged, so the slot can be restored alone.
+        write(folder / "Virtual Villagers - The Secret City0.ldw", b"meta\x01")
+        present = self.snapshot(folder)
+        result = self.restore(folder, made.backup_folder, slot=1)
+        now = self.snapshot(folder)
+        for key in now:
+            owner = backup.file_slot(Path(key), folder)
+            expected = wanted[key] if owner == 1 else present[key]
+            self.assertEqual(now[key], expected, key)
+        self.assertTrue(result.plan.replace)
+        self.assertTrue(all(backup.file_slot(p, folder) == 1 for p in result.plan.replace))
+
+    def test_a_slot_restore_is_refused_when_the_meta_save_differs(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        self.make_village(filler=7)
+        present = self.snapshot(folder)
+        with self.assertRaises(backup.RestoreRefused) as caught:
+            self.restore(folder, made.backup_folder, slot=1)
+        self.assertIn("slot 0", str(caught.exception))
+        self.assertEqual(self.snapshot(folder), present)
+        self.assertEqual(len(backup.list_backups(folder)), 1, "no safety backup was made")
+
+    def test_a_slot_restore_is_refused_for_an_unattributable_file(self) -> None:
+        folder = self.make_village(filler=1)
+        write(folder / DATA / "mystery.dat", b"one")
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        write(folder / DATA / "mystery.dat", b"two")
+        with self.assertRaises(backup.RestoreRefused) as caught:
+            self.restore(folder, made.backup_folder, slot=1)
+        self.assertIn("mystery.dat", str(caught.exception))
+        # The same file, unchanged, does not stand in the way.
+        write(folder / DATA / "mystery.dat", b"one")
+        self.restore(folder, made.backup_folder, slot=1)
+
+    def test_a_log_page_now_owned_by_another_village_is_never_overwritten(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        page = folder / LOGS / "Births and Conceptions" / "Virtual Villagers 3 Births and Conceptions Log 1.txt"
+        write(page, b"Village: Elsewhere (Save 2)\r\n")      # page 1 reused by Save 2
+        with self.assertRaises(backup.RestoreRefused):
+            self.restore(folder, made.backup_folder, slot=1)
+        self.assertEqual(page.read_bytes(), b"Village: Elsewhere (Save 2)\r\n")
+
+    def test_a_running_game_is_never_restored_into(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        self.make_village(filler=7)
+        present = self.snapshot(folder)
+        processes = FakeProcesses(pids=[42])
+        with self.assertRaises(backup.RestoreRefused) as caught:
+            self.restore(folder, made.backup_folder, processes=processes)
+        self.assertIn("Quit the game from its own menu", str(caught.exception))
+        self.assertEqual(self.snapshot(folder), present)
+        self.assertNotIn("suspend", [e[0] for e in processes.events], "never paused or killed")
+        self.assertEqual(len(backup.list_backups(folder)), 1)
+
+    def test_a_game_started_during_the_safety_backup_stops_the_restore(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        self.make_village(filler=7)
+        present = self.snapshot(folder)
+
+        class StartsLater(FakeProcesses):
+            def find(self, exe_name):
+                super().find(exe_name)
+                return [42] if len(self.events) > 1 else []
+
+        with self.assertRaises(backup.RestoreRefused):
+            self.restore(folder, made.backup_folder, processes=StartsLater())
+        self.assertEqual(self.snapshot(folder), present)
+
+    def test_a_failure_part_way_puts_every_file_back(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        self.make_village(filler=7)
+        write(folder / "extra.txt", b"only now")
+        present = self.snapshot(folder)
+        real = backup._place
+        calls = {"n": 0}
+
+        def fail_third(source, target):
+            calls["n"] += 1
+            if calls["n"] == 3:
+                raise OSError("disk full")
+            return real(source, target)
+
+        with mock.patch.object(backup, "_place", side_effect=fail_third):
+            with self.assertRaises(backup.BackupError) as caught:
+                self.restore(folder, made.backup_folder)
+        self.assertIn("Every file was put back", str(caught.exception))
+        self.assertEqual(self.snapshot(folder), present)
+        self.assertFalse(list(folder.rglob("*" + backup._TEMP_SUFFIX)))
+
+    def test_a_failed_removal_also_rolls_back(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        self.make_village(filler=7)
+        write(folder / "a.txt", b"a")
+        write(folder / "b.txt", b"b")
+        present = self.snapshot(folder)
+        real_unlink = Path.unlink
+
+        def unlink(self_path, *args, **kwargs):
+            if self_path.name == "b.txt":
+                raise PermissionError("in use")
+            return real_unlink(self_path, *args, **kwargs)
+
+        with mock.patch.object(Path, "unlink", unlink):
+            with self.assertRaises(backup.BackupError):
+                self.restore(folder, made.backup_folder)
+        self.assertEqual(self.snapshot(folder), present)
+
+    def test_a_copy_that_does_not_verify_is_never_put_in_place(self) -> None:
+        folder = self.make_village(filler=1)
+        target = folder / "Virtual Villagers - The Secret City1.ldw"
+        original = target.read_bytes()
+        source = write(Path(self._tmp.name) / "src.ldw", b"new")
+        real = backup._hash_file
+
+        def lie(path):
+            size, digest = real(path)
+            return (size, "0" * 64) if path.name.endswith(backup._TEMP_SUFFIX) else (size, digest)
+
+        with mock.patch.object(backup, "_hash_file", side_effect=lie):
+            with self.assertRaises(backup.BackupError):
+                backup._place(source, target)
+        self.assertEqual(target.read_bytes(), original)
+
+    def test_only_its_own_backups_can_be_restored_or_deleted(self) -> None:
+        folder = self.make_village()
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        other = self.ldw / "elsewhere" / "Backup 2026-01-01 09-00-00"
+        write(other / "x.ldw", b"x")
+        incomplete = write(folder / "Backups" / "Backup 2026-01-01 09-00-01 INCOMPLETE" / "x", b"x").parent
+        for bad in (other, incomplete, folder, folder / "Backups", folder / DATA):
+            with self.subTest(bad=bad):
+                with self.assertRaises(backup.RestoreRefused):
+                    backup.delete_backup(folder, bad)
+                with self.assertRaises(backup.RestoreRefused):
+                    backup.plan_restore(folder, bad)
+        self.assertTrue(other.is_dir() and incomplete.is_dir() and (folder / DATA).is_dir())
+        backup.delete_backup(folder, made.backup_folder)
+        self.assertFalse(made.backup_folder.exists())
+        self.assertTrue((folder / "Virtual Villagers - The Secret City1.ldw").is_file())
+
+    def test_deleting_one_backup_leaves_the_others(self) -> None:
+        folder = self.make_village()
+        first = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        second = backup.copy_save_folder(folder, datetime(2026, 1, 2, 9, 0, 0))
+        keep = self.backups_snapshot(folder)
+        backup.delete_backup(folder, first.backup_folder)
+        after = self.backups_snapshot(folder)
+        self.assertEqual(after, {k: v for k, v in keep.items() if k.startswith(second.backup_folder.name)})
+
+    def test_a_restore_never_writes_into_any_backup(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        other = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 5))
+        self.make_village(filler=7)
+        keep = self.backups_snapshot(folder)
+        self.restore(folder, made.backup_folder)
+        self.restore(folder, other.backup_folder, slot=None, now=datetime(2026, 2, 1, 8, 0, 9))
+        after = self.backups_snapshot(folder)
+        for key, value in keep.items():
+            self.assertEqual(after[key], value, key)
+
+
+class RestoreGuiTests(unittest.TestCase):
+    setUpClass = classmethod(GuiTests.setUpClass.__func__)
+    method = GuiTests.method
+
+    def test_restore_sits_beside_back_up_on_both_tabs(self) -> None:
+        single = ast.get_source_segment(self.source, self.method("_build_single_tab"))
+        self.assertIn('links, "Restore Saves...", self._restore_single_saves', single)
+        bulk = ast.get_source_segment(self.source, self.method("_build_all_tab"))
+        self.assertIn('"Restore saves..."', bulk)
+        self.assertIn("self._restore_saves(game)", bulk)
+
+    def test_the_restore_window_lists_restores_and_deletes_through_the_module(self) -> None:
+        window = ast.get_source_segment(self.source, self.method("_show_restore_window"))
+        self.assertIn("vv_save_backup.list_backups(", window)
+        self.assertIn("vv_save_backup.delete_backup(", window)
+        run = ast.get_source_segment(self.source, self.method("_run_restore"))
+        self.assertIn("vv_save_backup.plan_restore(", run)
+        self.assertIn("vv_save_backup.restore_backup(", run)
+        self.assertIn("self._run_with_wait(", run)
+        self.assertIn("askyesno", run)
+
+
 if __name__ == "__main__":
     unittest.main()
