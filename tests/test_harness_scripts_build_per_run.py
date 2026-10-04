@@ -38,7 +38,7 @@ GUID_FOLDER = re.compile(
 
 class HarnessScriptsBuildPerRun(unittest.TestCase):
     def test_the_set_of_scripts_is_the_measured_one(self) -> None:
-        self.assertEqual(len(SCRIPTS), 19, [path.name for path in SCRIPTS])
+        self.assertEqual(len(SCRIPTS), 20, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:
