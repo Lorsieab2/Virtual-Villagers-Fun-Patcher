@@ -1034,6 +1034,22 @@ class CodexFollowUpTests(RestoreBase):
         self.assertEqual(made.backup_folder.name, "Backup 2026-10-04 13-05-22")
         self.assertEqual([i.path for i in backup.list_backups(folder)], [made.backup_folder])
 
+    def test_a_briefly_held_folder_is_still_given_its_name(self) -> None:
+        folder = self.make_village()
+        real = Path.rename
+        calls = {"n": 0}
+
+        def held_once(self_path, target):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise PermissionError("OneDrive has it")
+            return real(self_path, target)
+
+        with mock.patch.object(backup, "DELETE_RETRY_SECONDS", 0),              mock.patch.object(Path, "rename", held_once):
+            made = backup.copy_save_folder(folder, NOW)
+        self.assertEqual(made.backup_folder.name, "Backup 2026-10-04 13-05-22")
+        self.assertTrue(made.backup_folder.is_dir())
+
     def test_a_second_failed_backup_in_one_second_is_still_set_aside(self) -> None:
         folder = self.make_village()
         with mock.patch.object(backup, "_copy_one", side_effect=OSError("disk full")):
@@ -1063,6 +1079,18 @@ class CodexFollowUpTests(RestoreBase):
         except (OSError, NotImplementedError):
             self.skipTest("this account cannot create symbolic links")
         self.assertNotIn(Path("linked.txt"), backup.files_to_back_up(folder))
+
+    def test_files_are_checked_for_links_too(self) -> None:
+        # Creating a real symbolic link needs a privilege most accounts lack,
+        # so the test above often skips; this pins that files are asked too.
+        folder = self.make_village()
+        real = backup._is_link
+        with mock.patch.object(
+            backup, "_is_link", side_effect=lambda path: path.name.endswith("0.ldw") or real(path)
+        ):
+            names = [r.name for r in backup.files_to_back_up(folder)]
+        self.assertNotIn("Virtual Villagers - The Secret City0.ldw", names)
+        self.assertIn("Virtual Villagers - The Secret City1.ldw", names)
 
     @unittest.skipUnless(sys.platform == "win32", "Windows process API")
     def test_an_unfinished_process_list_fails_closed(self) -> None:
