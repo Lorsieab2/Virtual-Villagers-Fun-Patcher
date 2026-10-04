@@ -125,6 +125,14 @@ NUMERIC_KEYS_FEATURE_PATHS = (
     ROOT / "data" / "vv1_number_keys_feature.json",
     ROOT / "data" / "vv2_numeric_keys_tip_feature.json",
 )
+# Restore Missing Island Events: A New Home's and The Lost Children's island
+# events the original game contains but never runs, put into the game's own
+# random roll, plus (The Lost Children) the lore pages whose text the game
+# ships without code.  Executable bytes only, each guarded in place.
+RESTORE_MISSING_ISLAND_EVENTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{game_number}_restore_missing_island_events_feature.json"
+    for game_number in (1, 2)
+)
 # Show Parents in Details Screen: A New Home's true-parentage companion, which
 # keeps every villager's parents in a sidecar and draws them in the portrait.
 SHOW_PARENTS_FEATURE_PATHS = (ROOT / "data" / "vv1_show_parents_feature.json",)
@@ -3879,6 +3887,11 @@ def _load_fun_patch_records(
             if record.get("enabled", True):
                 items.append(record)
     for feature_path in NUMERIC_KEYS_FEATURE_PATHS:
+        if feature_path.is_file():
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
+    for feature_path in RESTORE_MISSING_ISLAND_EVENTS_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

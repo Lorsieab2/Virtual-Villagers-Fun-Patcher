@@ -1,0 +1,63 @@
+{
+  "id": "vv2_restore_missing_island_events",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Restore Missing Island Events",
+  "description": "Lets the island events the original game contains but never runs happen. The Mosquito Swarm (some villagers fall ill and the adults take refuge in the water), The Dragonfly Migration (every villager is restored to full health and cured) and Science Awareness Day (the children gain research skill) join the game's own random island-event roll with the same chance as a typical event. Three events whose text the game ships but never shows are added as rarer no-choice events, each a third as likely as a typical event: The Tattered Diary, The Doctrine of Magicians and The Doctrine of Naturalists, pages of Isola's lore a villager finds; they change nothing else. **Needs no other patch.** With Story / Cheat Upgrades, Pick Island Event also offers the three new events.",
+  "output_tag": "Missing Island Events",
+  "behavior_changes": [
+    "The single-result island-event chooser (0x434570) accepts cases 18, 20 and 26 like every unconditional case: each is drawn 1 time in 28, as The Heat Wave or The West Wind are.",
+    "The Mosquito Swarm runs the game's own case 18: each living villager has a 20% chance to fall sick, and every adult who is not pregnant stops what they are doing and goes to the pond (\"Enjoying the pond\", the game's swim).",
+    "The Dragonfly Migration runs the game's own case 20: every living villager's health becomes 100 and their sickness is cured.",
+    "Science Awareness Day runs the game's own case 26: every living child gains 3 to 7 Research skill points (capped at 100).",
+    "Case 4 (no body or text in the original game) is drawn 1 time in 28 and shows one of The Tattered Diary, The Doctrine of Magicians or The Doctrine of Naturalists (rand(3)), the game's own English texts 698-700, in the ordinary single-result popup."
+  ],
+  "explicit_non_changes": [
+    "The lore pages change nothing but the popup: no food, tech, villager, skill or save value.",
+    "The Mosquito Swarm and The Dragonfly Migration stay independent, as in the game's own code: neither sets or reads anything the other uses.",
+    "Every other island event, the family weights, the 10-draw retry, the event timer and the Island Events Seen counter are the base game's own.",
+    "No executable space is claimed: the lore-page body replaces stock code that can never run, and the five other edits are entries of the game's own jump tables."
+  ],
+  "evidence_status": "static exact-build evidence; emulation of the real chooser, runner and trigger code proving each event's odds and effects; live test pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x348B0",
+      "before": "24484300",
+      "after": "22484300",
+      "purpose": "The Mosquito Swarm (single-result case 18): the chooser's condition table entry 0x4348B0 now accepts the draw (0x434822, as every unconditional case) instead of always rejecting it (0x434824)"
+    },
+    {
+      "offset": "0x348B8",
+      "before": "24484300",
+      "after": "22484300",
+      "purpose": "The Dragonfly Migration (single-result case 20): the chooser's condition table entry 0x4348B8 now accepts the draw (0x434822, as every unconditional case) instead of always rejecting it (0x434824)"
+    },
+    {
+      "offset": "0x348D0",
+      "before": "24484300",
+      "after": "22484300",
+      "purpose": "Science Awareness Day (single-result case 26): the chooser's condition table entry 0x4348D0 now accepts the draw (0x434822, as every unconditional case) instead of always rejecting it (0x434824)"
+    },
+    {
+      "offset": "0x34878",
+      "before": "24484300",
+      "after": "22484300",
+      "purpose": "case 4 (the three lore pages): condition table entry 0x434878 accepts the draw (0x434822) instead of always rejecting it"
+    },
+    {
+      "offset": "0x34504",
+      "before": "ED444300",
+      "after": "32F04200",
+      "purpose": "case 4: the case runner's jump table entry 0x434504 now runs the lore-page body at 0x42F032 instead of going straight to the epilogue 0x4344ED"
+    },
+    {
+      "offset": "0x2F032",
+      "before": "8B4E186A65E8D4FF00008B46108B881CE50200415789881CE50200538D4C246CE889580000C784244451000003000000E9A0000000",
+      "after": "6A03E86741FDFF83C40405BA0200008B8DAC50000050E833260100508D8D7F27000051E86392030083C408E98B540000CCCCCCCCCC",
+      "purpose": "case 4 body, over the trigger's never-taken positive-kind branch (0x42F032-0x42F066; 0x426110 always returns 0): rand(3) at 0x42F034 picks string 698, 699 or 700 (The Tattered Diary, The Doctrine of Magicians, The Doctrine of Naturalists), copied into the popup text exactly as every other case does; nothing else changes; 5 int3 bytes follow"
+    }
+  ]
+}
