@@ -617,8 +617,26 @@ int main(int argc, char **argv) {
                   "\"Not now\": the save records nothing");
         }
 
-        /* 1, 2: Repair, and the save. */
+        /* 1, 2: Repair, and the save -- first with a Village History file
+           that cannot be read (locked): nothing is decided from part of the
+           history (Codex, #524), and the graves wait for the next save. */
         repair_graves(game, 1, 1);
+        {
+            char locked_path[MAX_PATH];
+            HANDLE locked;
+            _snprintf(locked_path, MAX_PATH,
+                      "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 2.txt", root);
+            write_text(locked_path, "=== Virtual Villagers 9 -- 2026-10-03 00:00:00 ===\n");
+            locked = CreateFileA(locked_path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+            save_done(1, buffer);
+            deaths_path(1, path);
+            read_into(path);
+            CHECK(locked != INVALID_HANDLE_VALUE && strstr(text, "Kito") == NULL
+                  && GetFileAttributesA(logged) == INVALID_FILE_ATTRIBUTES,
+                  "with a History file that cannot be read, the save decides nothing");
+            if (locked != INVALID_HANDLE_VALUE) CloseHandle(locked);
+            DeleteFileA(locked_path);
+        }
         save_done(1, buffer);
         deaths_path(1, path);
         read_into(path);

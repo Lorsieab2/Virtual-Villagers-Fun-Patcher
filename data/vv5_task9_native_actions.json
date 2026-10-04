@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "0BBCF0097D01077903952789576736DE3D6F290DDAD4ECF7D4273CC5D4F6C954",
-      "size": 137216
+      "sha256": "49310718E6BBDCF776D12F7B614A3529994415666D1F188620DD0EE67E59AC74",
+      "size": 138240
     }
   ],
   "doubler_evidence": {
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "BA703E875377DEB2912CCB34E277AA8A4E0016F3A23F998E303FFB4B8B5DC192",
-  "base_file_sha256": "BA703E875377DEB2912CCB34E277AA8A4E0016F3A23F998E303FFB4B8B5DC192",
+  "base_source_text_sha256": "C95D8737DAC2FAA28BD116D068E83E9122F063ADD5E9D11B94B763DE952E4AEE",
+  "base_file_sha256": "C95D8737DAC2FAA28BD116D068E83E9122F063ADD5E9D11B94B763DE952E4AEE",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "5D5260F85F80225BFB75F1A3B5BC055680EAFAF43D7ECD4B71D919394B9A1CA7"
+      "source_text_sha256": "52B474129161BC2263CC9F9C625755E18C190894545E0D90192925BE1F0C968A"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "BA703E875377DEB2912CCB34E277AA8A4E0016F3A23F998E303FFB4B8B5DC192"
+      "source_text_sha256": "C95D8737DAC2FAA28BD116D068E83E9122F063ADD5E9D11B94B763DE952E4AEE"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "BB3B7A7A2D3B72E55054EE6A112F6EF7191ACD4C00AADC52845E608DE5FD1960"
+  "task9_map_canonical_sha256": "559781CFA49F92239F3A034D055C9FF532941FF42D59792CDCB64882E53BC8D7"
 }

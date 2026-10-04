@@ -341,8 +341,13 @@ static void history_villager_done(struct history_villager *v, struct backfill_ta
    and its "Village:" line names this village.  A villager counts only once
    its record has ended with the blank line the exporter writes after it: a
    record cut short (an interrupted append, the file's end) is dropped, never
-   finished with "(none)" for the lines it lost (Codex, #524). */
-static void read_history(int game_id, const char *village, struct backfill_target *targets, int count) {
+   finished with "(none)" for the lines it lost (Codex, #524).
+
+   0 when a History file that exists cannot be read to its end (locked, a
+   read error): a newer snapshot in it could show a candidate outlived the
+   grave, so nothing is decided from the files that could be read, and the
+   graves are asked about again at the next save (Codex, #524). */
+static int read_history(int game_id, const char *village, struct backfill_target *targets, int count) {
     wchar_t folder[MAX_LOG_PATH];
     wchar_t path[MAX_LOG_PATH];
     char line[512];
@@ -358,7 +363,7 @@ static void read_history(int game_id, const char *village, struct backfill_targe
     trim_line(current);
     _snprintf_s(heading, sizeof heading, _TRUNCATE, "=== Virtual Villagers %d -- ", game_id);
     if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
-        return;
+        return 0;
     }
     ceiling = highest_log_number(L"Village History", folder);
     for (number = 1; number <= ceiling; ++number) {
@@ -367,11 +372,14 @@ static void read_history(int game_id, const char *village, struct backfill_targe
         int expect_village = 0;
         if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
                          folder, number) < 0) {
-            return;
+            return 0;
+        }
+        if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+            continue;                         /* a number never written */
         }
         file = _wfopen(path, L"rb");
         if (file == NULL) {
-            continue;
+            return 0;
         }
         memset(&v, 0, sizeof v);
         when[0] = '\0';
@@ -430,8 +438,13 @@ static void read_history(int game_id, const char *village, struct backfill_targe
                 lstrcpynA(v.dislikes, value, (int)sizeof v.dislikes);
             }
         }
+        if (ferror(file)) {
+            fclose(file);
+            return 0;
+        }
         fclose(file);                         /* a villager still open at the end: dropped */
     }
+    return 1;
 }
 
 /* Who is in the village now: an identity still here is not a grave's. */
@@ -708,8 +721,15 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
             ++target_count;
         }
     }
+    if (target_count > 0 && !read_history(game_id, village, targets, target_count)) {
+        for (i = 0; i < count; ++i) {
+            graves[i].outcome = VV_GRAVE_UNDECIDED;
+        }
+        free(names);
+        free(targets);
+        return -1;
+    }
     if (target_count > 0) {
-        read_history(game_id, village, targets, target_count);
         mark_alive(game_id, targets, target_count);
         choose_identities(targets, target_count);
         for (i = 0; i < target_count; ++i) {
