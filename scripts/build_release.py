@@ -80,6 +80,7 @@ FILES = [
     "data/vv2_improved_pathfinding_feature.json",
     "data/vv1_watering_trains_building_feature.json",
     "data/vv1_misc_text_fixes_feature.json",
+    "data/vv1_restore_missing_island_events_feature.json",
     "data/vv1_builders_fix_huts_feature.json",
     "data/vv2_builders_fix_huts_feature.json",
     "data/vv3_builders_fix_huts_feature.json",
