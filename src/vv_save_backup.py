@@ -308,11 +308,18 @@ def _finish_backup(staging: Path, now: datetime, suffix: str) -> Path:
         final = staging.with_name(name)
         if final.exists():
             continue
-        try:
-            staging.rename(final)
-        except FileExistsError:
-            continue
-        return final
+        for attempt in range(DELETE_ATTEMPTS):
+            try:
+                staging.rename(final)
+                return final
+            except FileExistsError:
+                break
+            except PermissionError:
+                # A sync or indexing program (OneDrive) can hold a folder it
+                # has just seen created for a moment.
+                if attempt == DELETE_ATTEMPTS - 1:
+                    raise
+                time.sleep(DELETE_RETRY_SECONDS)
     raise BackupError(f"No free name for the backup in {staging.parent}.")
 
 
