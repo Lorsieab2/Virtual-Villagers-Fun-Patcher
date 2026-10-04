@@ -12,7 +12,8 @@
    drives the real "VVFP Parentage Export.dll" in all five games' record
    geometry, against real files under
    Documents\LDW\<this exe's basename>\Virtual Villagers Fun Patcher Logs\,
-   which it empties first and removes afterwards:
+   which harness_ldw_tree_begin() guarantees did not exist before the run
+   and which the harness removes afterwards:
 
      1. Cause of Death shipped, no Village Statistics: a Birth and a Death
         before the first save are HELD -- nothing on disk.
@@ -274,7 +275,6 @@ int main(int argc, char **argv) {
     }
     dll_path = argv[1];
     if (!locate()) return 2;
-    wipe(1);
     stand_in("VVFP Statistics Export.dll", 0);
     cause_beside(argv[2], 1);
 

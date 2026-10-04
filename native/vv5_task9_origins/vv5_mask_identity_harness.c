@@ -6,8 +6,10 @@
    the exports are driven the way the appended page and the chooser drive
    them: Vv5MaskSync on draws and WriteMaskSidecar on chooser OK.
 
-   The DLL writes Documents\LDW\<this harness's basename>\vvfp_masks_1.dat.
-   The harness removes that file and, if it is then empty, that folder.
+   The DLL writes Documents\LDW\<this harness's basename>\Virtual Villagers
+   Fun Patcher Data\Village Masks - Save 1.dat (vv5_task9_origins.c,
+   build_mask_sidecar_path). The harness removes that file and, if it is then
+   empty, that folder.
 
    Usage:  vv5_mask_identity_harness.exe "<path to VVFP VV5 Task9 Origins Icons.dll>"
    Exit code 0 when every check passes. */
@@ -87,13 +89,23 @@ int main(int argc, char **argv) {
     CHECK(sync && writes, "Vv5MaskSync / WriteMaskSidecar resolve");
     if (!(sync && writes)) return 1;
 
-    /* where the DLL will write */
-    SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE);
-    GetModuleFileNameA(NULL, exe, MAX_PATH);
-    base = strrchr(exe, '\\'); base = base ? base + 1 : exe; dot = strrchr(base, '.'); if (dot) *dot = 0;
-    sprintf(folder, "%s\\LDW\\%s", docs, base);
-    sprintf(file, "%s\\vvfp_masks_1.dat", folder);
-    DeleteFileA(file);
+    /* where the DLL will write. Bounded, and refused when it does not fit, as
+       the companion's own build_mask_sidecar_path refuses an overlong path. */
+    {
+        DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+        int a, b;
+        if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE) || n == 0 || n >= MAX_PATH) {
+            printf("cannot resolve Documents or this executable's path\n");
+            return 2;
+        }
+        base = strrchr(exe, '\\'); base = base ? base + 1 : exe; dot = strrchr(base, '.'); if (dot) *dot = 0;
+        a = _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+        b = a < 0 || a >= MAX_PATH ? -1 : _snprintf(file, MAX_PATH, "%s\\Village Masks - Save 1.dat", folder);
+        if (b < 0 || b >= MAX_PATH) {
+            printf("the sidecar path does not fit in MAX_PATH; not running\n");
+            return 2;
+        }
+    }
 
     printf("== nothing known: no slot, no villagers ==\n");
     CHECK(sync() == 0, "sync with slot 0 reports unknown");

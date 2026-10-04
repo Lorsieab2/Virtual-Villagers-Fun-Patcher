@@ -1,5 +1,5 @@
 param(
-    [string]$OutDir = (Join-Path $env:TEMP "vvfp_village_publisher_harness")
+    [string]$OutDir = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,6 +14,13 @@ $ErrorActionPreference = "Stop"
 # game's villager table where the DLL reads it. Exit code 0 means every
 # check passed. The harness executable is left in -OutDir, never in the
 # repository.
+#
+# Without -OutDir each run builds into its own folder under %TEMP% and removes
+# it afterwards. One shared %TEMP% folder made concurrent runs (two worktrees,
+# two suites) fail with C1083/LNK1104 or run each other's executable. The
+# executable keeps its basename, which names its LDW save folder and the
+# harness_ldw_tree.h mutex that serialises the runs themselves. With -OutDir
+# the caller owns that folder and the executable is left in it.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\parentage_export"
@@ -24,11 +31,16 @@ $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
 $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231"
 
+$ownsOutDir = -not $OutDir
+if ($ownsOutDir) {
+    $OutDir = Join-Path $env:TEMP ("vvfp_village_publisher_harness_" + [guid]::NewGuid().ToString("N"))
+}
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 Push-Location $OutDir
 try {
     & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
         /nologo `
+        ("/Fo" + $OutDir + "\") `
         /O2 `
         /MT `
         /I (Join-Path $vsTools "include") `
@@ -58,4 +70,7 @@ try {
     }
 } finally {
     Pop-Location
+    if ($ownsOutDir) {
+        Remove-Item -LiteralPath $OutDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
 }
