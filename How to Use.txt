@@ -523,7 +523,7 @@ Fun Patcher Data", one file per save slot:
 (The Unaccounted Villagers roster is not the "Village Roster - Save <slot>.dat"
 in Village Statistics\: that one is the statistics' own, and a different file.)
 
-MOVED FROM AN OLDER BUILD. Builds before v1.35.57 wrote the masks, parentage
+MOVED FROM AN OLDER BUILD. Builds before v1.35.58 wrote the masks, parentage
 records, graves and Unaccounted Villagers roster loose in "Virtual Villagers
 Fun Patcher Data" itself. The first time this build needs one of those files
 it moves it into its folder; it never moves one over a file already there --
