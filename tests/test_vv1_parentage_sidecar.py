@@ -165,7 +165,7 @@ class Vv1ParentageProbeHarnessTests(unittest.TestCase):
                "/link",
                f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
                f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}",
-               "kernel32.lib", "user32.lib"]
+               "kernel32.lib", "user32.lib", "shell32.lib"]
         build = subprocess.run(cmd, capture_output=True, text=True, cwd=cls.work)
         if build.returncode != 0:
             raise AssertionError(build.stdout[-3000:] + build.stderr[-3000:])
