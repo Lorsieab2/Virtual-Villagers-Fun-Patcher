@@ -3,6 +3,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -229,6 +230,11 @@ static unsigned char g_slot_seen_alive[VV_MAX_VILLAGERS];
    fingerprint mismatch. */
 static unsigned char g_slot_identity_ready[VV_MAX_VILLAGERS];
 
+/* The identity the fingerprints in g_mask_fp were taken with: 3, or 2 while
+   a version-2 file (gender and name only) waits for its first follow, which
+   rewrites every entry it can place with the version-3 identity. */
+static unsigned int g_fp_version = 3u;
+
 /* The save builder cave records the game's selected save number here. This is
    patch-owned .shr storage, not a villager field or a save byte. The builder
    passes the slot as its first stack argument and is entered for every save;
@@ -250,6 +256,7 @@ static void vv_clear_mask_state(void) {
         g_slot_seen_alive[i] = 0;
         g_slot_identity_ready[i] = 0;
     }
+    g_fp_version = 3u;
 }
 
 static int vv_captured_save_slot(void) {
@@ -286,6 +293,10 @@ static void vv_prepare_mask_state(void) {
 
 /* Clear masks whose slot has been freed/reused by the game. Read-only over the
    villager array; called once per frame from the present-path surface cache. */
+static unsigned int vv_identity(const unsigned char *villager);
+static unsigned int vv_fingerprint(const unsigned char *villager);
+static int vv_mask_follow_table(void);
+
 static int vv_mask_sweep(void) {
     int idx;
     int changed = 0;
@@ -305,10 +316,77 @@ static int vv_mask_sweep(void) {
             changed = 1;
         }
     }
+    changed |= vv_mask_follow_table();
     return changed;
 }
 
-static unsigned int vv_fingerprint(const unsigned char *villager) {
+/* MASKS FOLLOW THEIR VILLAGERS.  Every game loads a save packed into records
+   0, 1, 2, ..., so after a death and a reload everyone behind the dead
+   villager is in a lower record.  Once every occupied record has been seen
+   on two sweeps (its identity readable: the same gate the old mismatch
+   clear used), each mask is moved to the record of the one villager who
+   carries its stored identity (native/shared/mask_follow.h).  A version-2
+   table (gender and name) is then rewritten with version-3 identities,
+   taken from the villager now holding each mask; an entry with nobody to
+   take one from cannot be carried into the new file and is dropped.
+   Returns 1 when the table changed (the caller persists it). */
+static int vv_mask_follow_table(void) {
+    static unsigned int live[VV_MAX_VILLAGERS];
+    static unsigned char moved_mask[VV_MAX_VILLAGERS];
+    static unsigned int moved_fp[VV_MAX_VILLAGERS];
+    int slots = vv_slots();
+    int idx;
+    int anyone = 0;
+    int changed;
+    for (idx = 0; idx < slots; idx++) {
+        const unsigned char *rec =
+            (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+        live[idx] = 0;
+        if (rec[VV_OCCUPIED_OFFSET] == 0) {
+            continue;
+        }
+        if (!g_slot_identity_ready[idx]) {
+            return 0;                   /* still loading: nothing is concluded yet */
+        }
+        anyone = 1;
+        live[idx] = vv_identity(rec);
+    }
+    if (!anyone) {
+        return 0;
+    }
+    changed = vv_mask_follow(slots, g_mask_by_index, g_mask_fp, live, 0, moved_mask, moved_fp);
+    if (g_fp_version == 2u) {
+        for (idx = 0; idx < slots; idx++) {
+            if (moved_mask[idx] != 0) {
+                if (live[idx] != 0) {
+                    moved_fp[idx] = vv_fingerprint(
+                        (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE));
+                } else {
+                    moved_mask[idx] = 0;
+                    moved_fp[idx] = 0;
+                }
+            }
+        }
+        g_fp_version = 3u;
+        changed = 1;
+    }
+    for (idx = 0; idx < slots; idx++) {
+        g_mask_by_index[idx] = moved_mask[idx];
+        g_mask_fp[idx] = moved_fp[idx];
+    }
+    return changed;
+}
+
+/* The villager's parents' names, 25 bytes each, set at birth and never
+   changed: the "two externally supplied names written onto the villager" by
+   0x45F3B3 (see VV_NAME_OFFSET above), read by the statistics companion and
+   the population exporter as father +0x1BC0 and mother +0x1BD9.  Empty for
+   founders and arrivals. */
+#define VV_FATHER_NAME_OFFSET 0x1BC0u
+#define VV_MOTHER_NAME_OFFSET 0x1BD9u
+
+/* Version 2 identity: gender and name. */
+static unsigned int vv_fingerprint_v2(const unsigned char *villager) {
     unsigned int h = 2166136261u;               /* FNV-1a */
     unsigned int sex = *(const unsigned int *)(villager + VV_SEX_OFFSET);
     const unsigned char *name = villager + VV_NAME_OFFSET;
@@ -323,6 +401,31 @@ static unsigned int vv_fingerprint(const unsigned char *villager) {
        never reaches.  VV3's fingerprint already does this. */
     h = (h ^ 0xFFu) * 16777619u;
     return h ? h : 1u;                           /* reserve 0 = "no fp stored" */
+}
+
+/* Version 3 identity: gender, name AND the parents' names.  A reload
+   renumbers the villagers (every game loads a save packed into records 0,
+   1, 2, ...), so a mask is now moved to wherever its villager is
+   (vv_mask_follow_table) -- and gender plus name alone would let a dead
+   masked villager's mask move to a living namesake.  With the parents in it
+   only a sibling of the same name and gender could share it, and a shared
+   identity is never guessed at. */
+static unsigned int vv_fingerprint(const unsigned char *villager) {
+    unsigned int h = vv_fingerprint_v2(villager);
+    int i;
+    for (i = 0; i < 25 && villager[VV_FATHER_NAME_OFFSET + i]; i++) {
+        h = (h ^ villager[VV_FATHER_NAME_OFFSET + i]) * 16777619u;
+    }
+    h = (h ^ 0xFEu) * 16777619u;
+    for (i = 0; i < 25 && villager[VV_MOTHER_NAME_OFFSET + i]; i++) {
+        h = (h ^ villager[VV_MOTHER_NAME_OFFSET + i]) * 16777619u;
+    }
+    h = (h ^ 0xFDu) * 16777619u;
+    return h ? h : 1u;
+}
+
+static unsigned int vv_identity(const unsigned char *villager) {
+    return g_fp_version == 2u ? vv_fingerprint_v2(villager) : vv_fingerprint(villager);
 }
 
 static int vv_villager_index(const unsigned char *villager) {
@@ -364,16 +467,13 @@ static int vv_get_mask(const unsigned char *villager) {
        save's sidecar immediately, preventing a later frame/process from
        resurrecting the deceased villager's mask. */
     if (g_mask_fp[idx] != 0) {
-        fp = vv_fingerprint(villager);
+        fp = vv_identity(villager);
         if (g_mask_fp[idx] != fp) {
-            if (g_slot_identity_ready[idx] || !g_sidecar_loaded ||
-                g_current_slot == 0) {
-                g_mask_by_index[idx] = 0;
-                g_mask_fp[idx] = 0;
-                if (g_current_slot > 0) {
-                    vv_write_mask_sidecar();
-                }
-            }
+            /* Not this villager's mask -- but not necessarily stale: after a
+               reload its villager is in another record, and the sweep's
+               vv_mask_follow_table moves it there (or drops it once nobody
+               carries it).  Clearing it here, before that, lost the mask of
+               everyone behind a death. */
             return 0;
         }
     } else {
@@ -402,7 +502,7 @@ static int vv_peek_mask(const unsigned char *villager) {
     if (idx < 0) return 0;
     m = g_mask_by_index[idx];
     if (m == 0 || m >= VV_MASK_COUNT || g_mask_fp[idx] == 0) return 0;
-    if (g_mask_fp[idx] != vv_fingerprint(villager)) return 0;
+    if (g_mask_fp[idx] != vv_identity(villager)) return 0;
     return (int)m;
 }
 
@@ -427,7 +527,7 @@ static void vv_set_mask(unsigned char *villager, int mask) {
     }
     if (mask > 0 && mask < VV_MASK_COUNT) {
         g_mask_by_index[idx] = (unsigned char)mask;
-        g_mask_fp[idx] = vv_fingerprint(villager);
+        g_mask_fp[idx] = vv_identity(villager);
     } else {
         g_mask_by_index[idx] = 0;
         g_mask_fp[idx] = 0;
@@ -630,7 +730,11 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
    files must not be read: the version gate makes them ignored outright, which
    restores a save as all-unmasked, rather than silently matching stale
    fingerprints and putting masks on the wrong villagers. */
-#define VV_SIDECAR_VERSION 2u
+#define VV_SIDECAR_VERSION 3u
+/* Version 3 (this build) stores the version-3 identity (gender, name and
+   the parents' names); a version-2 file is still read, its gender-and-name
+   fingerprints kept until the first follow rewrites them (vv_identity). */
+#define VV_SIDECAR_VERSION_V2 2u
 
 /* Move a sidecar left by an older build into the name this one reads.
 
@@ -775,7 +879,8 @@ static int vv_mask_sidecar_valid(const unsigned char *data, DWORD len,
     (void)ctx;
     return len >= 12
         && data[0] == 'V' && data[1] == 'V' && data[2] == 'M' && data[3] == 'K'
-        && vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION
+        && (vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION
+            || vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION_V2)
         && vv_mask_sidecar_count_ok(vv_sidecar_u32(data + 8))
         && len >= VV4_MASK_SIDECAR_BYTES_FOR(vv_sidecar_u32(data + 8));
 }
@@ -797,7 +902,7 @@ static void vv_write_mask_sidecar(void) {
     if (!vv_build_sidecar_path(path, g_current_slot)) {
         return;
     }
-    header[0] = VV_SIDECAR_VERSION;
+    header[0] = g_fp_version;       /* the identity the fingerprints were taken with */
     header[1] = (unsigned int)vv_slots();
     /* Written to "<path>.tmp", every write checked, flushed, then moved over
        the published file, which stays byte-for-byte intact on any failure. */
@@ -846,6 +951,7 @@ static int vv_read_mask_sidecar(void) {
            count stay unmasked. */
         count = (int)vv_sidecar_u32(file + 8);
         fps = file + 12 + count;
+        g_fp_version = vv_sidecar_u32(file + 4);
         if (count > vv_slots()) {
             count = vv_slots();
         }

@@ -246,15 +246,27 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("vv_build_sidecar_path(path, g_current_slot)", write)
 
     def test_fingerprint_uses_stable_fields_only(self) -> None:
-        fp = self.c.split("vv_fingerprint(", 1)[1].split("}", 1)[0]
-        self.assertIn("VV_SEX_OFFSET", fp)     # gender (stable)
-        self.assertIn("VV_NAME_OFFSET", fp)    # name (stable)
-        # Mutable fields must NOT be in the fingerprint (they'd false-invalidate
+        v2 = self.c.split("static unsigned int vv_fingerprint_v2(const unsigned char *villager) {", 1)[1]
+        v2 = v2.split("\n}", 1)[0]
+        v3 = self.c.split("static unsigned int vv_fingerprint(const unsigned char *villager) {", 1)[1]
+        v3 = v3.split("\n}", 1)[0]
+        # Version 2 (still read): gender and name.  Version 3 (written): the
+        # same plus the parents' names, so a mask that follows its villager
+        # through a reload cannot move to a living namesake of a dead one.
+        self.assertIn("VV_SEX_OFFSET", v2)     # gender (stable)
+        self.assertIn("VV_NAME_OFFSET", v2)    # name (stable)
+        self.assertIn("vv_fingerprint_v2(villager)", v3)
+        self.assertIn("VV_FATHER_NAME_OFFSET", v3)
+        self.assertIn("VV_MOTHER_NAME_OFFSET", v3)
+        self.assertIn("#define VV_FATHER_NAME_OFFSET 0x1BC0u", self.c)
+        self.assertIn("#define VV_MOTHER_NAME_OFFSET 0x1BD9u", self.c)
+        # Mutable fields must NOT be in either (they'd false-invalidate
         # a living villager's mask when they change via upgrades/aging).
-        self.assertNotIn("LIKES", fp)
-        self.assertNotIn("DISLIKE", fp)
-        self.assertNotIn("HEAD_OFFSET", fp)
-        self.assertNotIn("BODY_OFFSET", fp)
+        for fp in (v2, v3):
+            self.assertNotIn("LIKES", fp)
+            self.assertNotIn("DISLIKE", fp)
+            self.assertNotIn("HEAD_OFFSET", fp)
+            self.assertNotIn("BODY_OFFSET", fp)
 
     def test_lookup_rejects_and_persists_reused_slot_identity_mismatch(self) -> None:
         lookup = self.c.split("static int vv_get_mask(", 1)[1].split(
@@ -263,13 +275,24 @@ class DllStorageContractTests(unittest.TestCase):
         # The present sweep can see an old and replacement villager as occupied
         # on adjacent callbacks.  The lookup must therefore validate the live
         # stable fingerprint before returning an index-keyed mask.
-        self.assertIn("fp = vv_fingerprint(villager);", lookup)
+        self.assertIn("fp = vv_identity(villager);", lookup)
         self.assertIn("if (g_mask_fp[idx] != fp)", lookup)
-        self.assertIn("g_mask_by_index[idx] = 0;", lookup)
-        self.assertIn("g_mask_fp[idx] = 0;", lookup)
-        self.assertIn("vv_write_mask_sidecar();", lookup)
-        self.assertIn("g_slot_identity_ready[idx]", lookup)
-        self.assertIn("g_current_slot == 0", lookup)
+        # A mismatch is NOT cleared here any more: after a reload the mask's
+        # villager is in another record, and the sweep's follow moves it there
+        # -- or drops it, and persists that, once nobody carries its identity
+        # (a reused record).  Clearing in the lookup lost the masks of
+        # everyone behind a death.
+        mismatch = lookup.split("if (g_mask_fp[idx] != fp)", 1)[1].split("} else {", 1)[0]
+        self.assertNotIn("g_mask_by_index[idx] = 0;", mismatch)
+        self.assertNotIn("vv_write_mask_sidecar();", mismatch)
+        self.assertIn("return 0;", mismatch)
+        follow = self.c.split("static int vv_mask_follow_table(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("if (!g_slot_identity_ready[idx]) {", follow)
+        self.assertIn("vv_mask_follow(slots, g_mask_by_index, g_mask_fp, live, 0, moved_mask, moved_fp);", follow)
+        sweep_body = self.c.split("static int vv_mask_sweep(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("changed |= vv_mask_follow_table();", sweep_body)
+        cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vv_write_mask_sidecar();", cache)
         sweep = self.c.split("static int vv_mask_sweep(void)", 1)[1].split(
             "static unsigned int vv_fingerprint", 1
         )[0]
@@ -284,13 +307,9 @@ class DllStorageContractTests(unittest.TestCase):
             sweep.index("g_slot_identity_ready[idx] = 1;"),
             sweep.index("g_slot_seen_alive[idx] = 1;"),
         )
-        self.assertIn("if (g_slot_identity_ready[idx] || !g_sidecar_loaded ||", lookup)
-        # A mismatch must be decided before the successful value is returned;
-        # the load-frame exception only defers invalidation until a prior
-        # completed sweep has promoted the slot and cannot publish the stale
-        # value.
+        # A mismatch must be decided before the successful value is returned.
         self.assertLess(lookup.index("if (g_mask_fp[idx] != fp)"), lookup.rindex("return 0;"))
-        self.assertLess(lookup.index("g_mask_by_index[idx] = 0;"), lookup.index("return (int)m;"))
+        self.assertLess(lookup.index("if (g_mask_fp[idx] != fp)"), lookup.index("return (int)m;"))
 
     def test_no_villager_record_byte_is_written_for_the_mask(self) -> None:
         # The abandoned design stored the mask in the record at +0x1BC4 (which
