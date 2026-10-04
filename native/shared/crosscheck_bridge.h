@@ -160,8 +160,8 @@ static void vvfp_xc_compose(void) {
                     c[2], "villager has", "villagers have");
         vvfp_xc_add("- %d %s no parents recorded. They will be filled in from the Births log.\r\n",
                     c[3], "villager has", "villagers have");
-        vvfp_xc_add("- %d expecting %s the wrong father recorded for the baby. It will be corrected.\r\n",
-                    c[4], "mother has", "mothers have");
+        vvfp_xc_add("- %d %s the wrong father recorded for a pregnancy. It will be corrected from her last "
+                    "conception in the Births log.\r\n", c[4], "mother has", "mothers have");
         lstrcatA(vvfp_xc.text, "  (The parentage file is backed up first; every change is listed in the Repairs "
                                "log.)\r\n");
     }

@@ -737,9 +737,28 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
 
         /* The pregnancy stash, for a mother carrying now: the father of her
            last logged conception, when nothing she delivered follows it. */
-        if (*(const int *)(rec + VV1_DUE_OFFSET) != 0 && shared == 1 && !g_session_stash[j]) {
-            const vv1_xc_person *father;
-            if (vv1_xc_last_father(log, name, head, body, &father)) {
+        /* ... or one who WAS carrying when the village was loaded: the
+           catch-up may have delivered her before the check, and a delivery
+           reported before the first frame leaves her stash in place -- after
+           a crash, the same old save would deliver that pregnancy again from
+           it. */
+        if (shared == 1 && !g_session_stash[j]) {
+            const vv1_xc_person *father = NULL;
+            vv1_parent_entry carried;
+            vv1_xc_person from_load;
+            if (*(const int *)(rec + VV1_DUE_OFFSET) != 0) {
+                if (!vv1_xc_last_father(log, name, head, body, &father)) {
+                    father = NULL;
+                }
+            } else if (vv1_xc_confirmed_father(rec, &carried)) {
+                memset(&from_load, 0, sizeof(from_load));
+                from_load.present = 1;
+                from_load.head = carried.stash_head ? carried.stash_head - 1 : VV1_XC_UNSET;
+                from_load.body = carried.stash_body ? carried.stash_body - 1 : VV1_XC_UNSET;
+                memcpy(from_load.name, carried.stash_name, VV1_NAME_CAPACITY);
+                father = &from_load;
+            }
+            if (father != NULL) {
                 vv1_xc_set(&after.stash_head, &after.stash_body, after.stash_name, father);
                 stash_changed = after.stash_head != g_entries[j].stash_head
                     || after.stash_body != g_entries[j].stash_body
@@ -910,7 +929,7 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
         }
         if (c->stash) {
             len = (size_t)lstrlenA(text);
-            wsprintfA(text + len, "  Expecting: %s -- carrying %s's child (was %s)\r\n", name,
+            wsprintfA(text + len, "  Pregnancy: %s -- father %s (was %s)\r\n", name,
                       c->after.stash_name, c->before.stash_name[0] ? c->before.stash_name : "unknown");
         }
     }

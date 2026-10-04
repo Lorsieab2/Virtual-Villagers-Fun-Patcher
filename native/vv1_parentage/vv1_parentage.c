@@ -915,8 +915,6 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
     memset(g_entries, 0, sizeof(g_entries));
     memcpy(g_roster, roster, sizeof(g_roster));
     memcpy(g_entries, buf, sizeof(buf));
-    memset(g_session_born, 0, sizeof(g_session_born));
-    memset(g_session_stash, 0, sizeof(g_session_stash));
     /* Names are printed and drawn: whatever the file holds, every
        name ends inside its own buffer. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
@@ -942,6 +940,11 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
            keep the old layout until the next birth or death. */
         g_load_followed = memcmp(g_roster, roster, sizeof(g_roster)) != 0;
     }
+    /* The session starts here: a villager the file does not know is one born
+       in a session since it was written (their Birth record IS in the log
+       file), not one who arrived in this one. */
+    memset(g_session_born, 0, sizeof(g_session_born));
+    memset(g_session_stash, 0, sizeof(g_session_stash));
     return VV1_LOAD_MATCHED;
 }
 

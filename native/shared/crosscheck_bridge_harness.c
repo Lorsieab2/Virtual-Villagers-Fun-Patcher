@@ -141,7 +141,7 @@ int main(void) {
           && strstr(g_text, "Repair them now?") != NULL && strstr(g_text, "\"Not now\" changes nothing") != NULL,
           "... and the prompt says plainly what was found and what will happen");
     check(strstr(g_text, "villagers have parents the Births log cannot tell apart") == NULL
-          && strstr(g_text, "expecting") == NULL, "... and says nothing of what was not found");
+          && strstr(g_text, "pregnancy") == NULL, "... and says nothing of what was not found");
     check(g_applies == 0 && g_repair_calls == 0, "Not now: nothing is repaired");
     play(1, 1, 20000, 16);
     check(g_boxes == 1 && g_parent_scans == 1, "... and the same load does not ask again");

@@ -618,7 +618,7 @@ static void stash_cases(void) {
     check(asked == 1 && lstrcmpA(g_entries[0].stash_name, "Usutu") == 0
           && g_entries[0].stash_head == 22 && g_entries[0].stash_body == 3,
           "an expecting mother's baby gets the father of her last logged conception");
-    check(strstr(slurp(repairs), "Expecting: Chapa -- carrying Usutu's child (was Howi)") != NULL,
+    check(strstr(slurp(repairs), "Pregnancy: Chapa -- father Usutu (was Howi)") != NULL,
           "... and the Repairs log says so");
 
     /* ... but when she delivered after her last logged conception, this
@@ -670,6 +670,7 @@ static void session_cases(void) {
     put(village, 3, &baba, 0);
     *(int *)(crec + VV1_AGE_OFFSET) = 40;
     c = vv1_born(village, crec, mrec);
+    *(int *)(mrec + VV1_DUE_OFFSET) = 0;             /* the delivery ends the pregnancy */
     check(c == 3 && lstrcmpA(g_entries[3].father_name, "Usutu") == 0 && g_entries[3].father_head == 22
           && lstrcmpA(g_entries[3].mother_name, "Chapa") == 0,
           "a catch-up birth before the check takes the father the log confirms, not the drifted stash");
@@ -680,12 +681,38 @@ static void session_cases(void) {
     {
         int i, newborn_listed = 0;
         for (i = 0; i < g_plan.count; ++i) newborn_listed |= g_plan.changes[i].index == 3;
-        check(asked == 1 && !newborn_listed && g_plan.stashes == 1 && g_plan.cleared == 0,
+        check(asked == 1 && !newborn_listed && g_plan.cleared == 0,
               "a villager born this session is never cleared for want of a Birth record the log has not written yet");
+        check(g_plan.stashes == 1,
+              "... and the stash of a pregnancy the catch-up already delivered is corrected too (a crash would deliver it again)");
     }
     check(vv1_xc_apply(SLOT, village) == 1 && lstrcmpA(g_entries[3].mother_name, "Chapa") == 0
           && lstrcmpA(g_entries[3].father_name, "Usutu") == 0,
           "... and keeps both parents through the repair");
+
+    /* A villager the file does not know -- born in a later session than the
+       file's, with a Birth record in the log -- is not a newborn of THIS
+       session: the check fills them in. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_save(1);
+    memset(village, 0, sizeof(village));
+    put(village, 0, find("Usutu"), 0);
+    put(village, 1, find("Howi"), 0);
+    {
+        static vv1_parent_entry known[VV1_RECORD_COUNT];
+        true_entry(find("Usutu"), &known[0]);
+        true_entry(find("Howi"), &known[1]);
+        write_sidecar(village, known);               /* the file: Usutu and Howi */
+    }
+    put(village, 2, find("Lisha"), 0);               /* the save: Lisha too */
+    load_only(village);
+    asked = vv1_xc_scan(SLOT, village, &g_plan);
+    check(asked == 1 && g_plan.filled == 1 && vv1_xc_apply(SLOT, village) == 1
+          && lstrcmpA(g_entries[2].father_name, "Ghali") == 0,
+          "a villager the old file never knew, with a Birth record, is filled in (not taken for a newborn)");
 
     /* A conception made this session is always right: its stash is used. */
     clear_files();
