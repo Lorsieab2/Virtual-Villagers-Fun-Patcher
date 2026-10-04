@@ -52,6 +52,9 @@
 
 #define ARRIVAL_HOW 48
 
+static vv_arrival_fact arrival_facts[RECORDS_MAX];
+static int arrival_fact_index[RECORDS_MAX];
+
 static struct {
     signed char tag;            /* report_tag() when made: the slot it counts for */
     unsigned char state;
@@ -75,22 +78,62 @@ static void arrival_noted_birth(int index) {
     }
 }
 
-/* A New Home's four child-creation calls: the creator's return address. */
-static int vv1_birth_return(unsigned int ret) {
-    return ret == 0x42EF64u || ret == 0x42EFD5u || ret == 0x42F026u || ret == 0x42F072u;
+#include "cod_arrival_sites.inc"
+
+/* The first marker on the stack above the creator's hook: the innermost call
+   of the path that made the villager (cod_arrival_sites.inc).  NULL when
+   none is there. */
+static const struct arrival_marker *arrival_marker_of(const unsigned int *regs) {
+    const struct arrival_marker *table = NULL;
+    int count = 0;
+    const unsigned int *at;
+    const unsigned int *end;
+    const NT_TIB *tib = (const NT_TIB *)NtCurrentTeb();
+    int k;
+    if (regs == NULL) {
+        return NULL;
+    }
+    arrival_markers(&table, &count);
+    if (table == NULL || count == 0) {
+        return NULL;
+    }
+    at = (const unsigned int *)(uintptr_t)regs[R_ESP];
+    end = (const unsigned int *)((const unsigned char *)at + ARRIVAL_STACK_SCAN);
+    /* Never past the thread's own stack. */
+    if ((const void *)end > tib->StackBase || end < at) {
+        end = (const unsigned int *)tib->StackBase;
+    }
+#ifdef VVFP_TEST
+    if (test_stack_end != NULL) {
+        end = test_stack_end;
+    }
+#endif
+    for (; at < end; ++at) {
+        for (k = 0; k < count; ++k) {
+            if (*at == table[k].ret) {
+                return &table[k];
+            }
+        }
+    }
+    return NULL;
 }
 
-/* A creator made `index`: `creator_return` is its return address where the
-   hook knows it (A New Home), else 0. */
-static void arrival_created(int index, unsigned int creator_return) {
+/* A creator made `index`; `regs` are the registers at its hook (NULL: not
+   known). */
+static void arrival_created(int index, const unsigned int *regs) {
+    const struct arrival_marker *m;
     if (index < 0 || index >= RECORDS_MAX) {
         return;
     }
+    m = arrival_marker_of(regs);
     arrivals[index].tag = report_tag();
     arrivals[index].state = ARRIVAL_MADE;
-    arrivals[index].born = (unsigned char)(g_game == 1 && vv1_birth_return(creator_return));
+    arrivals[index].born = (unsigned char)(m != NULL && m->kind == MARK_BIRTH);
     arrivals[index].age = 0;
     arrivals[index].how[0] = '\0';
+    if (m != NULL && m->label != NULL) {
+        lstrcpynA(arrivals[index].how, m->label, ARRIVAL_HOW);
+    }
     faction_seen[index] = -1;
 }
 
@@ -180,20 +223,33 @@ static void arrival_departed(int index) {
     faction_seen[index] = -1;
 }
 
+static int arrival_gather(int mode);
+
 /* At a save of `slot`, before the reconciliation lists anyone: the
-   arrivals made for it are written when the village is the one saved before
-   (`same_village`); a new village's founders are not. */
+   arrivals made for it get their records; and when no village was saved in
+   the slot before (`same_village` 0: a new village, or one started over),
+   its founders -- every villager the log has no record for, while the log
+   has recorded nothing yet -- get "How: Founder". */
 static void arrival_save(int slot, int same_village) {
     int i;
+    int count;
     for (i = 0; i < RECORDS_MAX && (unsigned int)i < REC[g_game].slots; ++i) {
         if (arrivals[i].state == ARRIVAL_NONE || !report_counts(arrivals[i].tag, slot)) {
             continue;
         }
         arrival_decide(i);
-        if (arrivals[i].state == ARRIVAL_PENDING && same_village) {
+        if (arrivals[i].state == ARRIVAL_PENDING) {
             arrival_write(i);
         }
         arrivals[i].state = ARRIVAL_NONE;
+    }
+    if (same_village || !cod_log_ready() || record_arrivals == NULL) {
+        return;
+    }
+    count = arrival_gather(VV_ARRIVAL_FOUNDERS);
+    if (count > 0 && record_arrivals(g_game, arrival_save_buffer, slot, arrival_facts, count,
+                                     VV_ARRIVAL_FOUNDERS) > 0) {
+        COD_COUNT(founders);
     }
 }
 
@@ -211,9 +267,6 @@ static void arrival_reset(int slot) {
 }
 
 /* ---- The backfill ---------------------------------------------------------- */
-
-static vv_arrival_fact arrival_facts[RECORDS_MAX];
-static int arrival_fact_index[RECORDS_MAX];
 
 /* Whether this install writes Birth records for every birth: in A New Home
    only with Show Parents in Details Screen ("VVFP VV1 Parentage.dll"). */
@@ -239,8 +292,10 @@ static int births_are_logged(void) {
 }
 
 /* The village's villagers who could have arrived: members, believers, and
-   (The Lost Children on) with no parents on their record. */
-static int arrival_gather(void) {
+   (The Lost Children on) with no parents on their record.  `mode` says what
+   their age line is: unknown for the backfill, their age for a new
+   village's founders. */
+static int arrival_gather(int mode) {
     static const unsigned int PARENTS[6][2] = {
         { 0, 0 }, { 0, 0 }, { 0x57Du, 0x596u }, { 0xDF8u, 0xE11u },
         { 0x1BC0u, 0x1BD9u }, { 0x1BC0u, 0x1BD9u },
@@ -264,8 +319,13 @@ static int arrival_gather(void) {
         f = &arrival_facts[n];
         memset(f, 0, sizeof *f);
         f->record = record;
-        wsprintfA(f->before, "  Age at arrival: (unknown)\n  Age when recorded: %d\n  Sex: %s\n",
-                  rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
+        if (mode == VV_ARRIVAL_FOUNDERS) {
+            wsprintfA(f->before, "  Age at arrival: %d\n  Sex: %s\n",
+                      rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
+        } else {
+            wsprintfA(f->before, "  Age at arrival: (unknown)\n  Age when recorded: %d\n  Sex: %s\n",
+                      rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
+        }
         arrival_fact_index[n] = (int)i;
         ++n;
     }
@@ -286,11 +346,11 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
         || !arrival_backfill_ready() || vv_arrival_marker_present(g_game, slot)) {
         return;
     }
-    count = arrival_gather();
+    count = arrival_gather(VV_ARRIVAL_APPLY);
     if (count < 0) {
         return;
     }
-    if (count > 0 && record_arrivals(g_game, save_buffer, slot, arrival_facts, count, 1) < 0) {
+    if (count > 0 && record_arrivals(g_game, save_buffer, slot, arrival_facts, count, VV_ARRIVAL_APPLY) < 0) {
         return;
     }
     for (i = 0; i < count; ++i) {
@@ -334,11 +394,11 @@ __declspec(dllexport) int __stdcall VvfpCauseScanArrivals(int game, int slot) {
     if (!births_are_logged() || vv_arrival_marker_present(game, slot)) {
         return 0;
     }
-    count = arrival_gather();
+    count = arrival_gather(VV_ARRIVAL_COUNT);
     if (count <= 0) {
         return count;
     }
-    return record_arrivals(g_game, NULL, slot, arrival_facts, count, 0);
+    return record_arrivals(g_game, NULL, slot, arrival_facts, count, VV_ARRIVAL_COUNT);
 }
 
 __declspec(dllexport) void __stdcall VvfpCauseRepairArrivals(int game, int slot, int repair) {

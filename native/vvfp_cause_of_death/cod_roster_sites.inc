@@ -32,23 +32,9 @@
 
 static int standin_pending;
 
-/* A New Home's creators: where the creator's own return address is at the
-   hook (the stack the creator has built by then: fresh 0x43C350 sub esp,0x30,
-   four pushes and push 0x4E -> +0x44; copy 0x43C840 sub esp,0x20, four
-   pushes and push 0x4E -> +0x34), so a birth is told by its call
-   (cod_arrivals.inc). */
-static unsigned int creator_return(int site, const unsigned int *regs) {
-    if (g_game == 1 && sites[site].va == 0x43C39Bu) {
-        return reg_stack(regs, 0x44);
-    }
-    if (g_game == 1 && sites[site].va == 0x43C888u) {
-        return reg_stack(regs, 0x34);
-    }
-    return 0;
-}
-
 static void roster_created(int site, const unsigned int *regs) {
     int index = cod_index_of((const unsigned char *)(uintptr_t)regs[R_ESI]);
+    (void)site;
     if (index < 0) {
         return;
     }
@@ -56,7 +42,7 @@ static void roster_created(int site, const unsigned int *regs) {
     standin_pending = 0;
     if (!temporary[index]) {
         roster_arrived(index);
-        arrival_created(index, creator_return(site, regs));
+        arrival_created(index, regs);  /* how they came (cod_arrivals.inc) */
     }
 }
 

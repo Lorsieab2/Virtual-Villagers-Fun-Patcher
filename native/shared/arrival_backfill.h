@@ -72,6 +72,16 @@ enum {
     VV_ARRIVAL_QUEUED = 5       /* their record was made now, and is held for the save */
 };
 
+/* RecordArrivalsMissingFromLog's `apply`. */
+enum {
+    VV_ARRIVAL_COUNT = 0,       /* count the villagers with no record; write nothing */
+    VV_ARRIVAL_APPLY = 1,       /* the backfill: "How: Founder" for a villager in the
+                                   village's first Village History snapshot, else
+                                   "How: unknown", and the "Recorded afterwards" note */
+    VV_ARRIVAL_FOUNDERS = 2     /* a new village's first save: only when its log has
+                                   recorded nothing yet, each gets "How: Founder" */
+};
+
 typedef struct {
     const void *record;             /* in: the villager's live record */
     char before[VV_ARRIVAL_BEFORE]; /* in: the lines after "Name:" (age, sex) */
@@ -85,7 +95,10 @@ typedef struct {
    0 nothing is written and the count of villagers with no record is
    returned; with 1 each gets an Arrived record (the backfill's own "How" and
    "Note" lines) and the count written is returned.  -1 when nothing could be
-   decided. */
+   decided.  With `apply` VV_ARRIVAL_FOUNDERS (a new village's first save:
+   no roster saved before) the villagers get "How: Founder" records, and only
+   when the village's log holds no Conception, Birth or Arrived record yet;
+   `before` then carries their real age. */
 typedef int (__stdcall *vv_record_arrivals_fn)(int game, const void *save_buffer, int slot,
                                                vv_arrival_fact *facts, int count, int apply);
 

@@ -360,8 +360,8 @@ static void write_old_logs(void) {
         "Birth\n  Child: Hea\n    Head: 9\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Skills:\n    Breeding   0\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
-        "Arrived 1\n  Name: Thabo\n  Age at arrival: (unknown)\n  Age when recorded: 1003\n  Sex: Male\n"
-        "  Head: 16\n  Body: 12\n  Likes: (none)\n  Dislikes: (none)\n  How: Custom Island Event\n"
+        "Arrived 1\n  Name: Thabo\n  Age at arrival: 980 (about; hand-written)\n  Sex: Male\n"
+        "  Head: 16\n  Body: 12\n  How: Custom Island Event\n"
         "  Note: Recorded afterwards (arrived before this log existed)\n\n"
         "Arrived 3\n  Name: Dup\n  Age at arrival: 480\n  Sex: Male\n  Head: 2\n  Body: 2\n"
         "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n");
@@ -407,7 +407,7 @@ static void clean(void) {
 }
 
 /* The record's frozen shape up to its Skills block, and after it. */
-static int has_backfill_record(int number, const char *name, int age, int head, int body) {
+static int has_backfill_record(int number, const char *name, int age, int head, int body, const char *how) {
     char want[512];
     const char *at;
     const char *sex = game <= 2 ? "Male" : "Female";
@@ -420,9 +420,28 @@ static int has_backfill_record(int number, const char *name, int age, int head, 
         return 0;
     }
     at = strstr(at, "\r\n  How: ");
-    return at != NULL
-        && strncmp(at, "\r\n  How: unknown\r\n  Note: Recorded afterwards (arrived before this log existed)\r\n\r\n",
-                   strlen("\r\n  How: unknown\r\n  Note: Recorded afterwards (arrived before this log existed)\r\n\r\n")) == 0;
+    _snprintf(want, sizeof want,
+              "\r\n  How: %s\r\n  Note: Recorded afterwards (arrived before this log existed)\r\n\r\n", how);
+    return at != NULL && strncmp(at, want, strlen(want)) == 0;
+}
+
+/* The Village History log as the population exporter writes it: Huata (and
+   a dead founder, Kito) in this village's first snapshot; Silko only later;
+   another village's first snapshot has a Silko too. */
+static void write_history(void) {
+    char path[MAX_PATH];
+    static char h[4096];
+    _snprintf(path, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 1.txt", root);
+    _snprintf(h, sizeof h,
+        "=== Virtual Villagers -- 2026-09-01 10:00:00 ===\nVillage: Other Tribe (Save 2)\n\n"
+        "Villager 1\n  Name: Silko\n  Age: 600\n  Head: 4\n  Body: 14\n\n\n"
+        "=== Virtual Villagers -- 2026-09-02 10:00:00 ===\nVillage: Arrival Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Huata\n  Age: 400\n  Head: 8\n  Body: 1\n  Likes: ants\n\n"
+        "Villager 2\n  Name: Kito\n  Age: 420\n  Head: 0\n  Body: 18\n\n\n"
+        "=== Virtual Villagers -- 2026-09-03 10:00:00 ===\nVillage: Arrival Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Huata\n  Age: 500\n  Head: 8\n  Body: 1\n\n"
+        "Villager 2\n  Name: Silko\n  Age: 600\n  Head: 4\n  Body: 14\n\n\n");
+    write_text(path, h);
 }
 
 int main(int argc, char **argv) {
@@ -462,6 +481,7 @@ int main(int argc, char **argv) {
         }
         *(int *)(rec(0) + g->likes) = 0;          /* "ants": never part of the key */
         write_old_logs();
+        write_history();
         write_save_file();
         vv_village_publish("");
         load();
@@ -502,10 +522,13 @@ int main(int argc, char **argv) {
         repair_arrivals(game, 1, 1);
         save_done(1, buffer);
         read_into(path);
-        CHECK(has_backfill_record(4, "Huata", 1090, 8, 1) && has_backfill_record(5, "Silko", 663, 4, 14)
-              && has_backfill_record(6, "Dup", 500, 2, 2) && has_backfill_record(7, "Ponui", 663, 9, 15)
+        CHECK(has_backfill_record(4, "Huata", 1090, 8, 1, "Founder")
+              && has_backfill_record(5, "Silko", 663, 4, 14, "unknown")
+              && has_backfill_record(6, "Dup", 500, 2, 2, "unknown")
+              && has_backfill_record(7, "Ponui", 663, 9, 15, "unknown")
               && strstr(text, "Arrived 8") == NULL,
-              "Huata, Silko, the second Dup and Ponui get Arrived 4-7, in the frozen format");
+              "Huata, Silko, the second Dup and Ponui get Arrived 4-7, in the frozen format;"
+              " Huata, in the village's first History snapshot, is a Founder, Silko (later) is not");
         {
             /* The record as written, for the reader of the output. */
             const char *h = strstr(text, "Arrived 4\r\n");
@@ -514,7 +537,7 @@ int main(int argc, char **argv) {
                 printf("%.*s\n", (int)(end - h), h);
             }
         }
-        if (!has_backfill_record(4, "Huata", 1090, 8, 1)) {
+        if (!has_backfill_record(4, "Huata", 1090, 8, 1, "Founder")) {
             const char *h = strstr(text, "  Name: Huata");
             printf("--- got:\n%.900s\n", h != NULL ? h - 12 : text);
         }
@@ -617,18 +640,23 @@ int main(int argc, char **argv) {
                 rec(i)[g->active] = 0;
             }
         }
+        /* Made before this companion was watching, as a new village's
+           founders are. */
         villager(0, "Founda", 400, 1, 1, 0);
-        created(0, 0);
         villager(1, "Foundb", 420, 2, 1, 0);
-        created(1, 0);
-        arrival_tick();
         save_done(1, buffer);                 /* the new village's first save */
         births_path(3, path);                 /* after the other village's file 2 */
         CHECK(read_into(path) > 0 && strncmp(text, "Village: Arrival Tribe (Save 1)", 31) == 0
-              && strstr(text, "Arrived") == NULL,
-              "the new village's founders get no Arrived record");
+              && record_has("Founda", "  Age at arrival: 400\r\n") && record_has("Founda", "  How: Founder\r\n\r\n")
+              && record_has("Foundb", "  How: Founder\r\n\r\n") && strstr(text, "Note:") == NULL
+              && strstr(text, "Arrived 1\r\n") == NULL,
+              "the new village's founders get \"How: Founder\" at its first save, numbered on");
         CHECK(file_exists(marker), "its new log brings the marker back");
         CHECK(scan_arrivals(game, 1) == 0, "...so the scan finds nothing to ask about");
+        lstrcpynA(first, text, sizeof first);
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(strcmp(first, text) == 0, "...and the next save writes nothing more");
 
         unload();
         free(buffer);
