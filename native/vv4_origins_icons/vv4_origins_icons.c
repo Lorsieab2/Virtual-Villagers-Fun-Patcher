@@ -240,6 +240,13 @@ static unsigned int g_fp_version = 3u;
    version-2 file has none, which counts as "moved". */
 static unsigned int g_mask_roster[VV_MAX_VILLAGERS];
 static int g_mask_roster_known;
+/* The part of each record's identity a rename does not change (gender and
+   the parents' names), taken with g_mask_roster on the last follow; memory
+   only, 0 for an empty record.  How a rename is told from a new occupant
+   (vv_roster_renamed, native/shared/mask_follow.h).  Unknown again whenever
+   the roster is replaced from a file or reset. */
+static unsigned int g_mask_stable[VV_MAX_VILLAGERS];
+static int g_mask_stable_known;
 
 /* The save builder cave records the game's selected save number here. This is
    patch-owned .shr storage, not a villager field or a save byte. The builder
@@ -265,6 +272,7 @@ static void vv_clear_mask_state(void) {
     }
     g_fp_version = 3u;
     g_mask_roster_known = 0;
+    g_mask_stable_known = 0;
 }
 
 static int vv_captured_save_slot(void) {
@@ -303,7 +311,9 @@ static void vv_prepare_mask_state(void) {
    villager array; called once per frame from the present-path surface cache. */
 static unsigned int vv_identity(const unsigned char *villager);
 static unsigned int vv_fingerprint(const unsigned char *villager);
+static unsigned int vv_stable_identity(const unsigned char *villager);
 static int vv_mask_follow_table(void);
+
 
 static int vv_mask_sweep(void) {
     int idx;
@@ -351,16 +361,20 @@ static int vv_mask_sweep(void) {
    Returns 1 when the table changed (the caller persists it). */
 static int vv_mask_follow_table(void) {
     static unsigned int live[VV_MAX_VILLAGERS];
+    static unsigned int live_stable[VV_MAX_VILLAGERS];
     static unsigned char moved_mask[VV_MAX_VILLAGERS];
     static unsigned int moved_fp[VV_MAX_VILLAGERS];
     int slots = vv_slots();
     int idx;
     int anyone = 0;
+    int any_mask = 0;
+    int roster_delta = 0;
     int changed;
     for (idx = 0; idx < slots; idx++) {
         const unsigned char *rec =
             (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
         live[idx] = 0;
+        live_stable[idx] = 0;
         if (rec[VV_OCCUPIED_OFFSET] == 0) {
             continue;
         }
@@ -369,9 +383,24 @@ static int vv_mask_follow_table(void) {
         }
         anyone = 1;
         live[idx] = vv_identity(rec);
+        live_stable[idx] = vv_stable_identity(rec);
     }
     if (!anyone) {
         return 0;
+    }
+    /* A RENAME (Codex, #516).  The identity hashes the name, so a villager
+       the player renames read as a new occupant and lost the mask.  One
+       record changed since the last look, its gender and parents unchanged:
+       the same villager -- the mask stays and takes the new identity. */
+    if (g_mask_roster_known && g_mask_stable_known) {
+        int renamed = vv_roster_renamed(slots, g_mask_roster, g_mask_stable, live, live_stable);
+        if (renamed >= 0) {
+            if (g_mask_by_index[renamed] != 0 && g_mask_fp[renamed] == g_mask_roster[renamed]) {
+                g_mask_fp[renamed] = live[renamed];
+            }
+            g_mask_roster[renamed] = live[renamed];
+            roster_delta = 1;
+        }
     }
     changed = vv_mask_follow(slots, g_mask_by_index, g_mask_fp,
                              g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);
@@ -393,10 +422,21 @@ static int vv_mask_follow_table(void) {
     for (idx = 0; idx < slots; idx++) {
         g_mask_by_index[idx] = moved_mask[idx];
         g_mask_fp[idx] = moved_fp[idx];
+        any_mask |= moved_mask[idx] != 0;
         if (g_mask_roster[idx] != live[idx]) {
             g_mask_roster[idx] = live[idx];   /* the table is keyed to the villagers here now */
-            changed |= !g_mask_roster_known || g_mask_by_index[idx] != 0;
+            roster_delta = 1;
         }
+        g_mask_stable[idx] = live_stable[idx];
+    }
+    g_mask_stable_known = 1;
+    /* ANY ROSTER CHANGE IS WRITTEN (Codex, #516), not only one on a masked
+       record: the whole roster decides on the next load whether anybody
+       moved, so an unmasked death and birth left out of the file would read
+       as a repack there and drop an ambiguous identity's mask.  A table with
+       no masks has nothing a stale roster could cost. */
+    if (roster_delta && any_mask) {
+        changed = 1;
     }
     if (!g_mask_roster_known) {
         g_mask_roster_known = 1;
@@ -441,6 +481,23 @@ static unsigned int vv_fingerprint_v2(const unsigned char *villager) {
 static unsigned int vv_fingerprint(const unsigned char *villager) {
     unsigned int h = vv_fingerprint_v2(villager);
     int i;
+    for (i = 0; i < 25 && villager[VV_FATHER_NAME_OFFSET + i]; i++) {
+        h = (h ^ villager[VV_FATHER_NAME_OFFSET + i]) * 16777619u;
+    }
+    h = (h ^ 0xFEu) * 16777619u;
+    for (i = 0; i < 25 && villager[VV_MOTHER_NAME_OFFSET + i]; i++) {
+        h = (h ^ villager[VV_MOTHER_NAME_OFFSET + i]) * 16777619u;
+    }
+    h = (h ^ 0xFDu) * 16777619u;
+    return h ? h : 1u;
+}
+
+/* What a rename leaves alone: gender and the parents' names.  Never 0. */
+static unsigned int vv_stable_identity(const unsigned char *villager) {
+    unsigned int h = 2166136261u;
+    unsigned int sex = *(const unsigned int *)(villager + VV_SEX_OFFSET);
+    int i;
+    for (i = 0; i < 4; i++) { h = (h ^ ((unsigned char *)&sex)[i]) * 16777619u; }
     for (i = 0; i < 25 && villager[VV_FATHER_NAME_OFFSET + i]; i++) {
         h = (h ^ villager[VV_FATHER_NAME_OFFSET + i]) * 16777619u;
     }
@@ -990,6 +1047,7 @@ static int vv_read_mask_sidecar(void) {
         fps = file + 12 + count;
         g_fp_version = vv_sidecar_u32(file + 4);
         g_mask_roster_known = g_fp_version == VV_SIDECAR_VERSION;
+        g_mask_stable_known = 0;
         if (count > vv_slots()) {
             count = vv_slots();
         }

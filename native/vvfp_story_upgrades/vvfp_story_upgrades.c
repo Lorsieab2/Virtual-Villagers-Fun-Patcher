@@ -530,6 +530,7 @@ static unsigned char *story_record(int game, int index);
 static int story_record_index(int game, const unsigned char *record);
 static int story_record_present(int game, const unsigned char *record);
 static unsigned int story_title_identity(int game, const unsigned char *record);
+static unsigned int story_title_stable(int game, const unsigned char *record);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
 static int titles_rebind(int game, int index, unsigned int before);
@@ -591,6 +592,19 @@ static unsigned int story_title_identity(int game, const unsigned char *record) 
     const ce_adapter *a = ce_adapter_for(game);
     return a != NULL ? vv_title_identity(record, a->off_name, (unsigned int)a->name_bytes, a->off_likes,
                                          a->off_dislikes, (unsigned int)a->pref_slots) : 0;
+}
+
+/* What a rename leaves of the title identity: the sex, likes and dislikes
+   (story_titles.inc tells a rename from a new occupant by it).  Never 0. */
+static unsigned int story_title_stable(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    unsigned int h;
+    if (a == NULL) {
+        return 0;
+    }
+    h = vv_title_identity(record, a->off_name, 0u, a->off_likes, a->off_dislikes, (unsigned int)a->pref_slots);
+    h = (h ^ (unsigned int)*(const int *)(record + a->off_sex)) * 16777619u;
+    return h ? h : 1u;
 }
 
 #include "story_titles.inc"

@@ -2452,9 +2452,16 @@ static int still_counts(const struct tribe_member *then, const struct tribe_memb
    within the session each villager behind it is at its RANK among then's
    members (they are taken in record order), not its old record; compared by
    record alone the tribe looked replaced, and its records were held to the
-   next save. */
+   next save.
+
+   Each villager on screen counts for ONE recorded member at most (Codex,
+   #516): a record can be one member's old slot and another member's rank,
+   and two lookalikes recorded at both would let one villager count twice --
+   enough, in a tribe of eight, for a replaced tribe to pass as the saved
+   one and have its records filed under the old village's header. */
 static int same_tribe(const struct tribe *then, const struct tribe *now, int needed) {
     static int at[TRIBE_SLOTS];
+    static unsigned char used[TRIBE_SLOTS];
     int i;
     int counted = 0;
 
@@ -2463,6 +2470,7 @@ static int same_tribe(const struct tribe *then, const struct tribe *now, int nee
     }
     for (i = 0; i < TRIBE_SLOTS; ++i) {
         at[i] = -1;
+        used[i] = 0;
     }
     for (i = 0; i < now->count; ++i) {
         at[now->member[i].slot] = i;
@@ -2470,8 +2478,12 @@ static int same_tribe(const struct tribe *then, const struct tribe *now, int nee
     for (i = 0; i < then->count; ++i) {
         int here = at[then->member[i].slot];
         int reloaded = at[i];
-        if ((here >= 0 && still_counts(&then->member[i], &now->member[here], needed))
-            || (reloaded >= 0 && still_counts(&then->member[i], &now->member[reloaded], needed))) {
+        if (here >= 0 && !used[here] && still_counts(&then->member[i], &now->member[here], needed)) {
+            used[here] = 1;
+            ++counted;
+        } else if (reloaded >= 0 && !used[reloaded]
+                   && still_counts(&then->member[i], &now->member[reloaded], needed)) {
+            used[reloaded] = 1;
             ++counted;
         }
     }

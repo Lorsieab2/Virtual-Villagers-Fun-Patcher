@@ -734,3 +734,34 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Vv4RenameAndRosterTests(unittest.TestCase):
+    """Codex (#516, round 2): a renamed villager keeps the mask (the follow
+    recognises the rename by gender and parents and moves the identity
+    with it), and any roster change is written while there are masks --
+    a stale roster would read as a repack on the next load."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.c = (Path(__file__).resolve().parents[1] / "native" / "vv4_origins_icons"
+                 / "vv4_origins_icons.c").read_text(encoding="utf-8")
+        cls.follow = cls.c.split("static int vv_mask_follow_table(void) {", 1)[1].split("\n}", 1)[0]
+
+    def test_a_rename_is_carried_before_the_follow(self) -> None:
+        renamed = self.follow.index("int renamed = vv_roster_renamed(slots, g_mask_roster, g_mask_stable, live, live_stable);")
+        self.assertLess(renamed, self.follow.index("changed = vv_mask_follow("))
+        block = self.follow[renamed:self.follow.index("changed = vv_mask_follow(")]
+        self.assertIn("g_mask_fp[renamed] = live[renamed];", block)
+        self.assertIn("g_mask_roster[renamed] = live[renamed];", block)
+        self.assertIn("roster_delta = 1;", block)
+        stable = self.c.split("static unsigned int vv_stable_identity(const unsigned char *villager) {", 1)[1].split("\n}", 1)[0]
+        self.assertNotIn("VV_NAME_OFFSET", stable)
+        self.assertIn("VV_FATHER_NAME_OFFSET", stable)
+
+    def test_every_roster_change_is_written_while_masks_exist(self) -> None:
+        self.assertIn("if (roster_delta && any_mask) {\n        changed = 1;", self.follow)
+        self.assertNotIn("changed |= !g_mask_roster_known || g_mask_by_index[idx] != 0;", self.follow)
+
+    def test_the_stable_fields_are_unknown_after_a_load_or_reset(self) -> None:
+        self.assertEqual(self.c.count("g_mask_stable_known = 0;"), 2)
