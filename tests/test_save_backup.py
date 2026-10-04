@@ -385,9 +385,26 @@ class PauseTests(TempDocuments):
                     raise backup.BackupError("could not resume 222")
 
         processes = OneResumeFails(pids=[111, 222])
-        with self.assertRaises(backup.BackupError):
-            backup.back_up_save_folder(folder, processes, NOW)
+        result = backup.back_up_save_folder(folder, processes, NOW)
         self.assertIn(("resume", 111), processes.events)
+        # Codex on #521: the backup was made and verified, so it is reported
+        # as made -- with the resume problem beside it, not instead of it.
+        self.assertEqual(result.file_count, 5)
+        self.assertEqual(result.resume_problems, ["could not resume 222"])
+        self.assertTrue(result.backup_folder.is_dir())
+
+    def test_a_resume_problem_on_a_failed_copy_is_noted_on_the_error(self) -> None:
+        folder = self.save_folder()
+
+        class ResumeFails(FakeProcesses):
+            def resume(self, handle):
+                super().resume(handle)
+                raise backup.BackupError("could not resume")
+
+        with mock.patch.object(backup, "copy_save_folder", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError) as caught:
+                backup.back_up_save_folder(folder, ResumeFails(pids=[1]), NOW)
+        self.assertIn("could not resume", " ".join(getattr(caught.exception, "__notes__", [])))
 
 
 @unittest.skipUnless(sys.platform == "win32", "Windows process API")
@@ -866,7 +883,7 @@ class RestoreTests(RestoreBase):
                 self.restore(folder, made.backup_folder)
         self.assertIn("Every file was put back", str(caught.exception))
         self.assertEqual(self.snapshot(folder), present)
-        self.assertFalse(list(folder.rglob("*" + backup._TEMP_SUFFIX)))
+        self.assertFalse(list(folder.rglob(backup._TEMP_GLOB)))
 
     def test_a_failed_removal_also_rolls_back(self) -> None:
         folder = self.make_village(filler=1)
@@ -896,7 +913,7 @@ class RestoreTests(RestoreBase):
 
         def lie(path):
             size, digest = real(path)
-            return (size, "0" * 64) if path.name.endswith(backup._TEMP_SUFFIX) else (size, digest)
+            return (size, "0" * 64) if ".vvfp-restore-" in path.name else (size, digest)
 
         with mock.patch.object(backup, "_hash_file", side_effect=lie):
             with self.assertRaises(backup.BackupError):
@@ -997,6 +1014,112 @@ class DeleteBackupTests(RestoreBase):
             backup.delete_backup(folder, made.backup_folder)
         self.assertEqual(list((folder / "Backups").iterdir()), [])
 
+
+class CodexFollowUpTests(RestoreBase):
+    """The review findings on #521, each pinned."""
+
+    def test_a_backup_is_made_under_a_name_that_is_never_listed(self) -> None:
+        folder = self.make_village()
+        seen = []
+        real = backup._copy_one
+
+        def watch(source, destination):
+            seen.append(destination.relative_to(folder / "Backups").parts[0])
+            self.assertEqual(backup.list_backups(folder), [], "listed while being made")
+            return real(source, destination)
+
+        with mock.patch.object(backup, "_copy_one", side_effect=watch):
+            made = backup.copy_save_folder(folder, NOW)
+        self.assertTrue(all(name.endswith(" (in progress)") for name in seen))
+        self.assertEqual(made.backup_folder.name, "Backup 2026-10-04 13-05-22")
+        self.assertEqual([i.path for i in backup.list_backups(folder)], [made.backup_folder])
+
+    def test_a_second_failed_backup_in_one_second_is_still_set_aside(self) -> None:
+        folder = self.make_village()
+        with mock.patch.object(backup, "_copy_one", side_effect=OSError("disk full")):
+            for _ in range(2):
+                with self.assertRaises(backup.BackupError):
+                    backup.copy_save_folder(folder, NOW)
+        names = sorted(p.name for p in (folder / "Backups").iterdir())
+        self.assertEqual(names, ["Backup 2026-10-04 13-05-22 INCOMPLETE",
+                                 "Backup 2026-10-04 13-05-22 INCOMPLETE (2)"])
+        self.assertEqual(backup.list_backups(folder), [])
+
+    @unittest.skipUnless(sys.platform == "win32", "junctions are a Windows feature")
+    def test_a_junction_is_recognised_without_path_is_junction(self) -> None:
+        import _winapi
+        folder = self.make_village()
+        _winapi.CreateJunction(str(self.documents), str(folder / "link"))
+        with mock.patch.object(Path, "is_junction", create=True, new=None):
+            self.assertTrue(backup._is_link(folder / "link"))
+            self.assertFalse(backup._is_link(folder / DATA))
+            self.assertFalse(any(r.parts[0] == "link" for r in backup.files_to_back_up(folder)))
+
+    def test_a_linked_file_is_not_copied(self) -> None:
+        folder = self.make_village()
+        outside = write(Path(self._tmp.name) / "outside.txt", b"not a save")
+        try:
+            os.symlink(outside, folder / "linked.txt")
+        except (OSError, NotImplementedError):
+            self.skipTest("this account cannot create symbolic links")
+        self.assertNotIn(Path("linked.txt"), backup.files_to_back_up(folder))
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows process API")
+    def test_an_unfinished_process_list_fails_closed(self) -> None:
+        processes = backup.WindowsProcesses()
+        with mock.patch.object(backup.ctypes, "get_last_error", return_value=5):
+            with self.assertRaises(backup.BackupError):
+                processes.find("Virtual Villagers - A New Home - Modded.exe")
+
+    def test_only_patcher_files_are_given_a_slot(self) -> None:
+        folder = self.ldw / "Virtual Villagers - A New Home - Modded"
+        for name, expected in {
+            "My Save 1 notes.txt": "unknown",
+            "Notes - Save 1.txt": "unknown",
+            "Other Mod/Thing - Save 1.dat": "unknown",
+            "Other Mod/Village: x (Save 1).txt": "unknown",
+            "Village Statistics - Save 1.txt": 1,
+            f"{DATA}/Village Masks - Save 2.dat": 2,
+            f"{DATA}/Village Masks - Save 2.dat.bak": "unknown",
+        }.items():
+            with self.subTest(name=name):
+                write(folder / name, b"Village: K (Save 1)\r\n")
+                self.assertEqual(backup.file_slot(Path(name), folder), expected)
+
+    def test_a_file_that_looks_like_a_temporary_is_never_touched(self) -> None:
+        folder = self.make_village()
+        target = folder / "Virtual Villagers - The Secret City1.ldw"
+        lookalike = write(folder / "Virtual Villagers - The Secret City1.ldw.vvfp-restore-aaaaaaaaaaaa.tmp", b"mine")
+        source = write(Path(self._tmp.name) / "src.ldw", b"restored")
+        ids = iter(["a" * 32, "b" * 32])
+
+        class FakeUuid:
+            def __init__(self, value):
+                self.hex = value
+
+        with mock.patch.object(backup.uuid, "uuid4", side_effect=lambda: FakeUuid(next(ids))):
+            backup._place(source, target)
+        self.assertEqual(target.read_bytes(), b"restored")
+        self.assertEqual(lookalike.read_bytes(), b"mine")
+
+    def test_a_game_started_while_files_are_changed_stops_and_rolls_back(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        self.make_village(filler=7)
+        write(folder / "extra.txt", b"only now")
+        present = self.snapshot(folder)
+
+        class StartsMidway(FakeProcesses):
+            def find(self, exe_name):
+                super().find(exe_name)
+                return [42] if len(self.events) > 4 else []
+
+        with self.assertRaises(backup.BackupError) as caught:
+            backup.restore_backup(folder, made.backup_folder, None, StartsMidway(),
+                                  datetime(2026, 2, 1, 8, 0, 0))
+        self.assertIn("started during the restore", str(caught.exception))
+        self.assertEqual(self.snapshot(folder), present)
+
 class RestoreGuiTests(unittest.TestCase):
     setUpClass = classmethod(GuiTests.setUpClass.__func__)
     method = GuiTests.method
@@ -1007,6 +1130,22 @@ class RestoreGuiTests(unittest.TestCase):
         bulk = ast.get_source_segment(self.source, self.method("_build_all_tab"))
         self.assertIn('"Restore saves..."', bulk)
         self.assertIn("self._restore_saves(game)", bulk)
+
+    def test_restore_planning_runs_off_the_main_thread(self) -> None:
+        run = ast.get_source_segment(self.source, self.method("_run_restore"))
+        self.assertIn("lambda: vv_save_backup.plan_restore(folder, info.path, slot)", run)
+        self.assertEqual(run.count("vv_save_backup.plan_restore("), 1)
+
+    def test_long_dialogs_scroll(self) -> None:
+        for name in ("_show_backup_chooser", "_show_backup_results"):
+            body = ast.get_source_segment(self.source, self.method(name))
+            self.assertIn("self._scrolling_dialog(", body, name)
+        helper = ast.get_source_segment(self.source, self.method("_scrolling_dialog"))
+        self.assertIn("ttk.Scrollbar", helper)
+
+    def test_a_resume_problem_is_shown(self) -> None:
+        results = ast.get_source_segment(self.source, self.method("_show_backup_results"))
+        self.assertIn("result.resume_problems", results)
 
     def test_the_restore_window_lists_restores_and_deletes_through_the_module(self) -> None:
         window = ast.get_source_segment(self.source, self.method("_show_restore_window"))

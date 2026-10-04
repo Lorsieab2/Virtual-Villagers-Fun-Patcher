@@ -49,6 +49,7 @@ import shutil
 import stat
 import sys
 import time
+import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -191,14 +192,24 @@ def game_exe_name(save_folder: Path) -> str:
 # ---------------------------------------------------------------------------
 
 
+_IO_REPARSE_TAG_MOUNT_POINT = 0xA0000003
+
+
 def _is_link(path: Path) -> bool:
-    """A symbolic link or junction, which the copy never walks into."""
+    """A symbolic link or junction, which the copy never follows.
+
+    A junction is recognised by its reparse tag, which every supported Python
+    reports on Windows (Path.is_junction only exists from Python 3.12). Other
+    reparse points -- OneDrive's cloud files and folders -- are ordinary
+    content and are copied.
+    """
     if path.is_symlink():
         return True
-    is_junction = getattr(path, "is_junction", None)
-    if is_junction is not None:
-        return bool(is_junction())
-    return False
+    try:
+        tag = getattr(path.lstat(), "st_reparse_tag", 0)
+    except OSError:
+        return False
+    return tag == _IO_REPARSE_TAG_MOUNT_POINT
 
 
 def files_to_back_up(save_folder: Path) -> list[Path]:
@@ -218,7 +229,7 @@ def files_to_back_up(save_folder: Path) -> list[Path]:
             if entry.is_dir():
                 if not _is_link(entry):
                     walk(entry, relative / entry.name)
-            elif entry.is_file():
+            elif entry.is_file() and not _is_link(entry):
                 files.append(relative / entry.name)
 
     walk(save_folder, Path())
@@ -243,6 +254,7 @@ class BackupResult:
     backup_folder: Path
     files: list[CopiedFile] = field(default_factory=list)
     paused: int = 0          # how many game processes were paused for the copy
+    resume_problems: list[str] = field(default_factory=list)
 
     @property
     def file_count(self) -> int:
@@ -257,27 +269,70 @@ def backup_folder_name(now: datetime) -> str:
     return f"{BACKUP_PREFIX}{now.strftime('%Y-%m-%d %H-%M-%S')}"
 
 
-def _new_backup_folder(save_folder: Path, now: datetime, suffix: str = "") -> Path:
-    """Create and return a backup folder that did not exist before.
+IN_PROGRESS = " (in progress)"
 
-    mkdir(exist_ok=False) is the claim: if the name is taken (two backups in
-    one second, or one made by hand) the next free " (2)", " (3)" ... is used,
-    so an existing backup is never written into.
-    """
-    backups = save_folder / BACKUPS_FOLDER
-    backups.mkdir(exist_ok=True)
+
+def _backup_names(now: datetime, suffix: str) -> Iterator[str]:
     base = backup_folder_name(now)
     for attempt in range(1, 1000):
         name = base if attempt == 1 else f"{base} ({attempt})"
-        if suffix:
-            name = f"{name} {suffix}"
-        candidate = backups / name
+        yield f"{name} {suffix}" if suffix else name
+
+
+def _new_backup_folder(save_folder: Path, now: datetime, suffix: str = "") -> Path:
+    """Create and return a new, empty "... (in progress)" folder.
+
+    The backup is made under this name, which list_backups never offers, and
+    is renamed to its final name only once every file has been verified -- so
+    a copy that fails or is interrupted can never look like a usable backup.
+    mkdir(exist_ok=False) is the claim, and a name whose final folder already
+    exists is skipped, so an existing backup is never written into.
+    """
+    backups = save_folder / BACKUPS_FOLDER
+    backups.mkdir(exist_ok=True)
+    for name in _backup_names(now, suffix):
+        if (backups / name).exists():
+            continue
+        candidate = backups / (name + IN_PROGRESS)
         try:
             candidate.mkdir()
         except FileExistsError:
             continue
         return candidate
-    raise BackupError(f"Too many backups named {base} in {backups}.")
+    raise BackupError(f"Too many backups named {backup_folder_name(now)} in {backups}.")
+
+
+def _finish_backup(staging: Path, now: datetime, suffix: str) -> Path:
+    """Give a verified backup its final name: the first one still free."""
+    for name in _backup_names(now, suffix):
+        final = staging.with_name(name)
+        if final.exists():
+            continue
+        try:
+            staging.rename(final)
+        except FileExistsError:
+            continue
+        return final
+    raise BackupError(f"No free name for the backup in {staging.parent}.")
+
+
+def _set_aside(staging: Path, label: str) -> Path:
+    """Rename a failed backup "... INCOMPLETE", "... INCOMPLETE (2)" ...
+
+    If no rename succeeds it stays "... (in progress)", which is not offered
+    as a backup either.
+    """
+    base = staging.name.removesuffix(IN_PROGRESS) + label
+    for attempt in range(1, 100):
+        target = staging.with_name(base if attempt == 1 else f"{base} ({attempt})")
+        if target.exists():
+            continue
+        try:
+            staging.rename(target)
+        except OSError:
+            continue
+        return target
+    return staging
 
 
 def _hash_file(path: Path) -> tuple[int, str]:
@@ -335,20 +390,17 @@ def copy_save_folder(
     relatives = files_to_back_up(save_folder)
     if not relatives:
         raise BackupError(f"There is nothing to back up in {save_folder}.")
-    backup = _new_backup_folder(save_folder, now or datetime.now(), suffix)
-    result = BackupResult(save_folder, backup)
+    when = now or datetime.now()
+    staging = _new_backup_folder(save_folder, when, suffix)
+    result = BackupResult(save_folder, staging)
     try:
         for relative in relatives:
-            copied = _copy_one(save_folder / relative, backup / relative)
+            copied = _copy_one(save_folder / relative, staging / relative)
             copied.relative = relative
             result.files.append(copied)
+        result.backup_folder = _finish_backup(staging, when, suffix)
     except (OSError, BackupError) as exc:
-        incomplete = backup.with_name(backup.name + " INCOMPLETE")
-        try:
-            backup.rename(incomplete)
-            where = incomplete
-        except OSError:
-            where = backup
+        where = _set_aside(staging, INCOMPLETE)
         reason = exc if isinstance(exc, BackupError) else f"{type(exc).__name__}: {exc}"
         raise BackupError(
             f"The backup could not be completed ({reason}). The partial copy "
@@ -374,6 +426,7 @@ class WindowsProcesses:
     PROCESS_SUSPEND_RESUME = 0x0800
     PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
     TH32CS_SNAPPROCESS = 0x00000002
+    ERROR_NO_MORE_FILES = 18
 
     def __init__(self) -> None:
         from ctypes import wintypes
@@ -437,6 +490,14 @@ class WindowsProcesses:
                 if entry.szExeFile.casefold() == exe_name.casefold():
                     pids.append(int(entry.th32ProcessID))
                 more = k.Process32NextW(snapshot, ctypes.byref(entry))
+            # FALSE means either "no more processes" or a failure; only the
+            # first is a complete list.
+            error = ctypes.get_last_error()
+            if error != self.ERROR_NO_MORE_FILES:
+                raise BackupError(
+                    "Could not read the whole list of running programs to check "
+                    f"whether the game is running (error {error})."
+                )
         finally:
             k.CloseHandle(snapshot)
         return pids
@@ -492,30 +553,47 @@ class WindowsProcesses:
             self._kernel32.CloseHandle(handle)
 
 
+@dataclass
+class Pause:
+    count: int = 0                                   # processes paused
+    problems: list[str] = field(default_factory=list)  # resumes that failed
+
+
 @contextmanager
 def paused_game(
     exe_name: str, processes: ProcessController
-) -> Iterator[int]:
+) -> Iterator[Pause]:
     """Suspend every running process of ``exe_name``; always resume them.
 
-    Yields how many were paused (0 when the game is not running). If any
-    process cannot be paused, the ones already paused are resumed and
-    PauseRefused is raised before the caller copies anything.
+    If any process cannot be paused, the ones already paused are resumed and
+    PauseRefused is raised before the caller copies anything. Every paused
+    process is resumed even if another's resume fails; a failed resume is
+    recorded in ``Pause.problems`` (or noted on the error already on its way
+    out), so a backup that succeeded is still reported as made.
     """
+    pause = Pause()
     paused: list[object] = []
+    failure: BaseException | None = None
     try:
         for pid in processes.find(exe_name):
             paused.append(processes.suspend(pid, exe_name))
-        yield len(paused)
+        pause.count = len(paused)
+        yield pause
+    except BaseException as exc:
+        failure = exc
+        raise
     finally:
-        errors: list[BaseException] = []
+        errors: list[str] = []
         for handle in reversed(paused):
             try:
                 processes.resume(handle)
-            except BaseException as exc:  # resume the rest before reporting
-                errors.append(exc)
+            except Exception as exc:  # resume the rest before reporting
+                errors.append(str(exc))
         if errors:
-            raise errors[0]
+            if failure is not None:
+                failure.add_note("The game could not be resumed: " + "; ".join(errors))
+            else:
+                pause.problems.extend(errors)
 
 
 def back_up_save_folder(
@@ -525,9 +603,10 @@ def back_up_save_folder(
 ) -> BackupResult:
     """Pause the game that uses ``save_folder`` (if running), copy, resume."""
     controller = processes if processes is not None else WindowsProcesses()
-    with paused_game(game_exe_name(save_folder), controller) as count:
+    with paused_game(game_exe_name(save_folder), controller) as pause:
         result = copy_save_folder(save_folder, now)
-        result.paused = count
+    result.paused = pause.count
+    result.resume_problems = list(pause.problems)
     return result
 
 
@@ -562,7 +641,7 @@ def describe_size(size: int) -> str:
 BEFORE_RESTORE = "(before restore)"
 INCOMPLETE = " INCOMPLETE"
 _BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before restore\)))?$")
-_TEMP_SUFFIX = ".vvfp-restore.tmp"
+_TEMP_GLOB = "*.vvfp-restore-*.tmp"
 
 # The game's save file: a small file header, then the save buffer (measured
 # per game; see native/save_reset_export/save_reset_export.c and
@@ -584,8 +663,17 @@ _NAME_MAX = 64
 _LEGACY_SLOT_FILE = re.compile(
     r"^(?:vv1_masks|vv1_doublers|vv1_parents|vv2_masks|vvfp_masks)_([1-5])\.dat$", re.I
 )
-# Every patcher data file and per-save log names its slot as "Save <slot>".
-_SAVE_N = re.compile(r"\bSave ([1-5])(?![0-9])")
+# Every patcher data file and per-save log names its slot as
+# "<stem> - Save <slot>.dat|.txt", with the companions' ".tmp" and
+# ".unreadable-..." variants. Only files inside the patcher's own folders (and
+# the one statistics log that used to sit beside the saves) are attributed.
+_SAVE_N = re.compile(r" - Save ([1-5])\.(?:dat|txt)(?:\.tmp|\.unreadable-[^\\/]*)?$", re.I)
+_PATCHER_FOLDERS = (
+    "virtual villagers fun patcher logs",
+    "virtual villagers fun patcher data",
+    "vvfp logs",
+)
+_LOG_FOLDERS = ("virtual villagers fun patcher logs", "vvfp logs")
 # Village-headed logs (births, deaths, unaccounted, population pages) are
 # numbered by roll-over, not by slot; their header names the slot instead.
 _HEADER_SAVE_N = re.compile(r"^Village: .*\(Save ([1-5])\)\s*$")
@@ -731,13 +819,19 @@ def file_slot(relative: Path, folder: Path) -> int | str:
             return "unknown"
         if name.casefold() == ENGINE_LOG.casefold():
             return "engine log"
-    match = _LEGACY_SLOT_FILE.match(name)
-    if match:
-        return int(match.group(1))
+    top = relative.parts[0].casefold()
+    if len(relative.parts) == 1:
+        match = _LEGACY_SLOT_FILE.match(name)
+        if match:
+            return int(match.group(1))
+        match = re.fullmatch(r"Village Statistics - Save ([1-5])\.txt", name, re.I)
+        return int(match.group(1)) if match else "unknown"
+    if top not in _PATCHER_FOLDERS:
+        return "unknown"
     match = _SAVE_N.search(name)
     if match:
         return int(match.group(1))
-    if name.lower().endswith(".txt"):
+    if top in _LOG_FOLDERS and name.lower().endswith(".txt"):
         try:
             with (folder / relative).open("r", encoding="utf-8", errors="replace") as handle:
                 head = [handle.readline() for _ in range(3)]
@@ -855,20 +949,27 @@ def _place(source: Path, target: Path) -> None:
     so the target is at every moment either its old file or the new one.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
-    temp = target.with_name(target.name + _TEMP_SUFFIX)
-    if temp.exists():
-        temp.unlink()
     expected = _hash_file(source)
-    with source.open("rb") as reader, temp.open("xb") as writer:
-        while True:
-            chunk = reader.read(HASH_CHUNK)
-            if not chunk:
-                break
-            writer.write(chunk)
-    if _hash_file(temp) != expected:
-        temp.unlink()
-        raise BackupError(f"The restored copy of {target.name} did not match the backup.")
-    os.replace(temp, target)
+    while True:
+        temp = target.with_name(f"{target.name}.vvfp-restore-{uuid.uuid4().hex[:12]}.tmp")
+        try:
+            writer = temp.open("xb")     # a name nothing else holds
+        except FileExistsError:
+            continue
+        break
+    try:
+        with source.open("rb") as reader, writer:
+            while True:
+                chunk = reader.read(HASH_CHUNK)
+                if not chunk:
+                    break
+                writer.write(chunk)
+        if _hash_file(temp) != expected:
+            raise BackupError(f"The restored copy of {target.name} did not match the backup.")
+        os.replace(temp, target)
+    finally:
+        if temp.exists():
+            temp.unlink()
     if _hash_file(target) != expected:
         raise BackupError(f"{target.name} did not match the backup after it was restored.")
 
@@ -918,11 +1019,19 @@ def restore_backup(
             f"{before.backup_folder if before else 'the save folder'}."
         )
     done: list[Path] = []
+    started = (
+        f"{game_exe_name(save_folder)} was started during the restore. Quit it from "
+        "its own menu and restore again."
+    )
     try:
         for relative in plan.replace + plan.add:
+            if _game_running(save_folder, controller):
+                raise BackupError(started)
             done.append(relative)
             _place(backup / relative, save_folder / relative)
         for relative in plan.remove:
+            if _game_running(save_folder, controller):
+                raise BackupError(started)
             done.append(relative)
             (save_folder / relative).unlink()
     except (OSError, BackupError) as exc:
@@ -950,9 +1059,6 @@ def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path])
                 _place(original, target)
             elif target.exists():
                 target.unlink()
-            temp = target.with_name(target.name + _TEMP_SUFFIX)
-            if temp.exists():
-                temp.unlink()
         except (OSError, BackupError):
             problems.append(str(relative))
     return problems

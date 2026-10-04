@@ -1659,12 +1659,41 @@ class App(tk.Tk):
             return
         self._show_backup_chooser(found)
 
-    def _show_backup_chooser(self, found) -> None:
+    def _scrolling_dialog(self, title: str):
+        """A dialog whose content scrolls once it is taller than the screen.
+
+        With All 5 games and several variants each, the chooser and the
+        results can list twenty folders; unbounded, the last ones and the
+        buttons would fall off the bottom of the screen.
+        """
         dialog = tk.Toplevel(self)
-        dialog.title("Back Up Saves")
+        dialog.title(title)
         dialog.transient(self)
-        frame = ttk.Frame(dialog, padding=16)
-        frame.pack(fill="both", expand=True)
+        canvas = tk.Canvas(dialog, borderwidth=0, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(dialog, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+        frame = ttk.Frame(canvas, padding=16)
+        window = canvas.create_window((0, 0), window=frame, anchor="nw")
+
+        def fit(_event=None) -> None:
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            height = min(frame.winfo_reqheight(), dialog.winfo_screenheight() - 160)
+            canvas.configure(width=frame.winfo_reqwidth(), height=height)
+
+        frame.bind("<Configure>", fit)
+        canvas.bind(
+            "<Configure>", lambda event: canvas.itemconfigure(window, width=event.width)
+        )
+        dialog.bind(
+            "<MouseWheel>",
+            lambda event: canvas.yview_scroll(-1 if event.delta > 0 else 1, "units"),
+        )
+        return dialog, frame
+
+    def _show_backup_chooser(self, found) -> None:
+        dialog, frame = self._scrolling_dialog("Back Up Saves")
         ttk.Label(
             frame,
             text="Choose the save folders to back up:",
@@ -1744,11 +1773,7 @@ class App(tk.Tk):
         self._show_backup_results(outcomes)
 
     def _show_backup_results(self, outcomes) -> None:
-        dialog = tk.Toplevel(self)
-        dialog.title("Back Up Saves")
-        dialog.transient(self)
-        frame = ttk.Frame(dialog, padding=16)
-        frame.pack(fill="both", expand=True)
+        dialog, frame = self._scrolling_dialog("Back Up Saves")
         for folder, result, error in outcomes:
             ttk.Label(frame, text=folder.name, font=("Segoe UI", 10, "bold")).pack(
                 anchor="w", pady=(8, 0)
@@ -1779,6 +1804,19 @@ class App(tk.Tk):
             ttk.Label(
                 frame, text="\n".join(lines), wraplength=640, justify="left"
             ).pack(anchor="w", padx=(14, 0))
+            if result.resume_problems:
+                ttk.Label(
+                    frame,
+                    text=(
+                        "The backup is complete, but the game could not be resumed: "
+                        + "; ".join(result.resume_problems)
+                        + ". If it stays frozen, close it from Task Manager; the "
+                        "backup above is safe."
+                    ),
+                    wraplength=640,
+                    justify="left",
+                    foreground="#a01010",
+                ).pack(anchor="w", padx=(14, 0))
             self._folder_link(
                 frame,
                 "Open Backup Folder",
@@ -1972,7 +2010,12 @@ class App(tk.Tk):
             )
             return
         try:
-            plan = vv_save_backup.plan_restore(folder, info.path, slot)
+            # Hashes both copies of every file, which can take a while on a
+            # network Documents: off the main thread, behind the wait window.
+            plan = self._run_with_wait(
+                "Checking the backup\u2026",
+                lambda: vv_save_backup.plan_restore(folder, info.path, slot),
+            )
         except (vv_save_backup.BackupError, OSError) as exc:
             messagebox.showerror("Restore Saves", str(exc), parent=parent)
             return
