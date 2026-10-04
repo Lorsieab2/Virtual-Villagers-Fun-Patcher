@@ -114,6 +114,35 @@ PATCH ONE GAME
 4. Use "Open Vanilla EXE Folder" or "Open Modified EXE Folder" to open the
    selected game's folder in File Explorer.
 
+BACK UP SAVES
+
+The patcher can copy your modded games' saves for you, in all five games.
+
+1. On the One Game tab, choose the game's EXE and click "Back Up Saves".
+   On the All 5 Games tab, click "Back up saves" on a game's row, or
+   "Back Up Saves (All 5)..." for every game at once.
+2. A window lists that game's save folders in Documents\LDW: the
+   "(Game name) - Modded" folder, "- Modded 256" for a 256 Villagers build,
+   and any other "- Modded..." folder there. Folders the patcher's own builds
+   use are ticked; tick or untick any of them, then click "Back Up Selected".
+3. Each chosen folder is copied -- your .ldw saves, the "Virtual Villagers
+   Fun Patcher Logs" and "Virtual Villagers Fun Patcher Data" folders and
+   everything else in it -- into a new folder inside it:
+       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS
+   Every copied file is checked against the original. An earlier backup is
+   never replaced, and nothing in the patcher ever reads or deletes the
+   Backups folder (Start Over leaves it alone).
+4. If the game is running, it is paused for the copy and then carries on by
+   itself; it is never closed. These games save only when you quit them
+   normally, so a backup made while a game is running holds the village as of
+   its last save. If the game cannot be paused, nothing is copied and the
+   window says why.
+5. The result window shows how many files were copied and their size, with an
+   "Open Backup Folder" link.
+
+To restore a backup, quit the game, then copy the files from the backup folder
+back into the save folder.
+
 OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once except

@@ -13,6 +13,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
+import vv_save_backup
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -765,6 +766,9 @@ class App(tk.Tk):
         self._folder_link(
             links, "Open Modified EXE Folder", self._open_single_modified_folder
         ).pack(side="left", padx=(18, 0))
+        self._folder_link(
+            links, "Back Up Saves", self._back_up_single_saves
+        ).pack(side="left", padx=(18, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -808,6 +812,11 @@ class App(tk.Tk):
                 "Modified folder",
                 lambda game_id=build.id: self._open_bulk_folder(game_id, True),
             ).grid(row=row, column=4, padx=(12, 0), pady=4)
+            self._folder_link(
+                grid,
+                "Back up saves",
+                lambda game=build: self._back_up_saves([game]),
+            ).grid(row=row, column=5, padx=(12, 0), pady=4)
         grid.columnconfigure(1, weight=1)
         actions = ttk.Frame(tab)
         actions.pack(fill="x", pady=(10, 0))
@@ -825,6 +834,11 @@ class App(tk.Tk):
         ttk.Button(
             actions, text="Patch All 5", command=self._apply_all
         ).pack(side="left", padx=(8, 0))
+        ttk.Button(
+            actions,
+            text="Back Up Saves (All 5)...",
+            command=lambda: self._back_up_saves(list(self.builds)),
+        ).pack(side="left", padx=(16, 0))
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -1571,6 +1585,196 @@ class App(tk.Tk):
                     messagebox.showerror("Cannot locate modified folder", str(exc))
                     return
         self._open_folder(target)
+
+    # -- Back Up Saves ------------------------------------------------------
+
+    def _back_up_single_saves(self) -> None:
+        """Back Up Saves for the game chosen on the One Game tab.
+
+        The game is named by the chosen EXE's file name ("<title>.exe" or a
+        built "<title> - Modded....exe"), which needs no hashing; only an exe
+        renamed past recognition is identified by its contents.
+        """
+        value = self.exe_var.get().strip()
+        if not value:
+            messagebox.showinfo("Choose a game", "Choose an original game EXE first.")
+            return
+        stem = Path(value).stem.casefold()
+        build = next(
+            (item for item in self.builds if stem.startswith(item.title.casefold())),
+            None,
+        )
+        if build is None:
+            try:
+                build = identify(Path(value))
+            except (PatcherError, OSError) as exc:
+                messagebox.showerror("Cannot tell which game this is", str(exc))
+                return
+        self._back_up_saves([build])
+
+    def _back_up_saves(self, builds) -> None:
+        """Let the player pick save folders, then pause each game and copy.
+
+        Lists every Documents\\LDW\\<title> - Modded... folder of the given
+        games. The folders of games the patcher built are ticked; others (a
+        copy the player made, say) are listed unticked.
+        """
+        documents = vv_save_backup.documents_folder()
+        if documents is None:
+            messagebox.showerror(
+                "Back Up Saves",
+                "Windows did not report where your Documents folder is, so the "
+                "save folders cannot be found.",
+            )
+            return
+        found = [
+            (build, folder)
+            for build in builds
+            for folder in vv_save_backup.find_save_folders(build.title, documents)
+        ]
+        if not found:
+            names = ", ".join(
+                build.title.removeprefix("Virtual Villagers - ") for build in builds
+            )
+            messagebox.showinfo(
+                "Back Up Saves",
+                f"No modded save folders were found for {names} in "
+                f"{documents / 'LDW'}.\n\nA modded game makes its save folder the "
+                "first time it is played.",
+            )
+            return
+        self._show_backup_chooser(found)
+
+    def _show_backup_chooser(self, found) -> None:
+        dialog = tk.Toplevel(self)
+        dialog.title("Back Up Saves")
+        dialog.transient(self)
+        frame = ttk.Frame(dialog, padding=16)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(
+            frame,
+            text="Choose the save folders to back up:",
+            font=("Segoe UI", 10, "bold"),
+        ).pack(anchor="w")
+        ttk.Label(
+            frame,
+            text=(
+                "Each folder is copied into a new dated folder inside it: "
+                "<save folder>\\Backups\\Backup <date and time>. "
+                "If the game is running it is paused for the copy and then "
+                "resumes by itself. These games save only when you quit "
+                "normally, so a backup made while a game is running holds the "
+                "village as of its last save."
+            ),
+            wraplength=640,
+            justify="left",
+        ).pack(anchor="w", pady=(4, 10))
+        choices: list[tuple[Path, tk.BooleanVar]] = []
+        current = None
+        for build, folder in found:
+            if build is not current:
+                current = build
+                ttk.Label(frame, text=build.title).pack(anchor="w", pady=(6, 0))
+            label = folder.name
+            if vv_save_backup.running_game_count(folder):
+                label += "   (running: will be paused for the copy)"
+            var = tk.BooleanVar(
+                value=vv_save_backup.is_patcher_save_folder(build.title, folder.name)
+            )
+            ttk.Checkbutton(frame, text=label, variable=var).pack(
+                anchor="w", padx=(14, 0)
+            )
+            choices.append((folder, var))
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(14, 0))
+
+        def start() -> None:
+            chosen = [folder for folder, var in choices if var.get()]
+            if not chosen:
+                messagebox.showinfo(
+                    "Back Up Saves", "Tick at least one save folder.", parent=dialog
+                )
+                return
+            dialog.destroy()
+            self._run_backups(chosen)
+
+        ttk.Button(buttons, text="Back Up Selected", command=start).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=dialog.destroy).pack(
+            side="left", padx=(8, 0)
+        )
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+        dialog.update_idletasks()
+        dialog.grab_set()
+        dialog.focus_set()
+
+    def _run_backups(self, folders: list[Path]) -> None:
+        def work():
+            outcomes = []
+            for folder in folders:
+                try:
+                    outcomes.append(
+                        (folder, vv_save_backup.back_up_save_folder(folder), None)
+                    )
+                except (vv_save_backup.BackupError, OSError) as exc:
+                    outcomes.append((folder, None, str(exc)))
+            return outcomes
+
+        outcomes = self._run_with_wait(
+            "Backing up saves…\n\nA running game is paused for the copy.",
+            work,
+        )
+        made = sum(1 for _folder, result, _error in outcomes if result is not None)
+        self.status_var.set(
+            f"Back Up Saves: {made} of {len(outcomes)} save folder(s) backed up."
+        )
+        self._show_backup_results(outcomes)
+
+    def _show_backup_results(self, outcomes) -> None:
+        dialog = tk.Toplevel(self)
+        dialog.title("Back Up Saves")
+        dialog.transient(self)
+        frame = ttk.Frame(dialog, padding=16)
+        frame.pack(fill="both", expand=True)
+        for folder, result, error in outcomes:
+            ttk.Label(frame, text=folder.name, font=("Segoe UI", 10, "bold")).pack(
+                anchor="w", pady=(8, 0)
+            )
+            if result is None:
+                ttk.Label(
+                    frame,
+                    text=f"NOT backed up: {error}",
+                    wraplength=640,
+                    justify="left",
+                    foreground="#a01010",
+                ).pack(anchor="w", padx=(14, 0))
+                continue
+            lines = [
+                f"Backed up {result.file_count} file(s), "
+                f"{vv_save_backup.describe_size(result.total_bytes)}; every copy "
+                "was checked against the original (size and SHA-256).",
+                f"Backup folder: {result.backup_folder}",
+            ]
+            if result.paused:
+                lines.append(
+                    "The game was running: it was paused for the copy and has "
+                    "resumed. The backup holds the village as of its last save "
+                    "(the game saves when you quit it normally)."
+                )
+            else:
+                lines.append("The game was not running.")
+            ttk.Label(
+                frame, text="\n".join(lines), wraplength=640, justify="left"
+            ).pack(anchor="w", padx=(14, 0))
+            self._folder_link(
+                frame,
+                "Open Backup Folder",
+                lambda path=result.backup_folder: self._open_folder(path),
+            ).pack(anchor="w", padx=(14, 0), pady=(2, 0))
+        ttk.Button(frame, text="Close", command=dialog.destroy).pack(pady=(16, 0))
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+        dialog.update_idletasks()
+        dialog.grab_set()
+        dialog.focus_set()
 
     def _close(self) -> None:
         self._save_settings()
