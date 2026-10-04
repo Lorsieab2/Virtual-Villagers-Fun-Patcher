@@ -468,6 +468,21 @@ int main(void) {
     g_slot = 1;
     DeleteFileA(path2);
 
+    /* The first lookup's own follow does not run the death sweep: a title
+       set before any tick, with another villager in its record at that
+       lookup, is not shown -- and is still there once its villager is. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai");
+    check(titles_set(3, 1, "Before Any Tick") == 1, "setup: a title set before any tick");
+    lstrcpynA((char *)g_records[1] + 1, "Kaj", NAME_BYTES);
+    check(titles_lookup(3, g_records[1]) == NULL, "another villager in the record is not shown the title");
+    lstrcpynA((char *)g_records[1] + 1, "Kai", NAME_BYTES);
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Before Any Tick") == 0,
+          "the first lookup's follow does not sweep: the title is still there for its villager");
+
     /* -- Codex (#516, round 2): a villager renamed during play ----------- */
     new_session();
     DeleteFileA(path1);

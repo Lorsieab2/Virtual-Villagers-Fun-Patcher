@@ -151,7 +151,7 @@ static void titles_remove_at(int i) {
 }
 
 static int titles_live_count(int game, unsigned int identity, int *where);
-static void titles_tick(int game);
+static void titles_pass(int game, int sweep);
 
 /* The custom title of the villager in `record`, or NULL. */
 static const char *titles_lookup(int game, const unsigned char *record) {
@@ -169,9 +169,10 @@ static const char *titles_lookup(int game, const unsigned char *record) {
        screen: a table just read from its file still has the records of the
        last save, and after a reload one of them may hold someone else with
        the same identity -- a twin -- until the follow drops it.  So the
-       first lookup of a table runs that follow itself (titles_tick). */
+       first lookup of a table runs that look and follow itself -- not the
+       death sweep, which stays the per-frame tick's (titles_pass). */
     if (!titles.roster_anyone) {
-        titles_tick(game);
+        titles_pass(game, 0);
         if (!titles.roster_anyone) {
             return NULL;
         }
@@ -387,7 +388,7 @@ static int titles_take_roster(int game, unsigned int *ids, unsigned int *stable)
 /* Once per frame (from the Origins companion's tick): bind to the slot,
    detect a Start Over, move titles to where their villagers are now, and
    drop the titles of villagers that are gone. */
-static void titles_tick(int game) {
+static void titles_pass(int game, int sweep) {
     static unsigned int now[TITLES_ROSTER];
     static unsigned int now_stable[TITLES_ROSTER];
     int i;
@@ -431,7 +432,7 @@ static void titles_tick(int game) {
         }
     }
     changed |= titles_follow(game, moved);
-    for (i = titles.count - 1; i >= 0; --i) {
+    for (i = titles.count - 1; sweep && i >= 0; --i) {
         const unsigned char *record = story_record(game, (int)titles.entries[i].index);
         int match = record != NULL && story_record_present(game, record)
             && titles.entries[i].fingerprint == story_title_identity(game, record);
@@ -445,4 +446,8 @@ static void titles_tick(int game) {
     if (changed) {
         titles_publish();
     }
+}
+
+static void titles_tick(int game) {
+    titles_pass(game, 1);
 }

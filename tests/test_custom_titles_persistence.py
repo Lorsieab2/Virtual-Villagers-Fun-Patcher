@@ -88,6 +88,8 @@ class CustomTitlesFile(unittest.TestCase):
             "a namesake born in the same session does not inherit the title",
             "a lookup before any tick follows the table first: the twin's title is dropped, not shown",
             "a slot switched back to is followed afresh: the twin's title is not shown on the old look",
+            "another villager in the record is not shown the title",
+            "the first lookup's follow does not sweep: the title is still there for its villager",
             "A RENAMED VILLAGER KEEPS THE TITLE",
             "... and the file has it under the new name",
             "a different villager in the record is not a rename: the title goes",
