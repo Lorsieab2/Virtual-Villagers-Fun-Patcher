@@ -28,7 +28,9 @@
    EXACTLY ONCE.  Which graves the log already has is kept here, per save
    slot:
        <save folder>\Virtual Villagers Fun Patcher Data\Deaths\
-           Graves Logged - Save S.dat
+           Virtual Villagers N Graves Logged - Save S.dat
+   (named for the game, as the graves and roster files are: renamed
+   executables of two games can share one save folder -- Codex, #524)
    (format below): each grave whose Death record is in the log -- written at
    its burial (noted then, kept at the next save of that slot), found already
    there, or written from the grave now.  A grave is identified by its place
@@ -130,8 +132,12 @@ static int logged_bind(int slot) {
         logged.path[0] = '\0';
         vv_sidecar_gate_bind(&logged.gate, 0x200 + g_game * 16 + slot);
     }
-    if (logged.path[0] == '\0' && !cod_data_path(logged.path, "Deaths", "Graves Logged", slot)) {
-        return 0;
+    if (logged.path[0] == '\0') {
+        char stem[48];
+        wsprintfA(stem, "Virtual Villagers %d Graves Logged", g_game);
+        if (!cod_data_path(logged.path, "Deaths", stem, slot)) {
+            return 0;
+        }
     }
     result = vv_sidecar_load(&logged.gate, logged.path, logged_buffer, sizeof logged_buffer,
                              &length, logged_validate, NULL);
@@ -403,11 +409,14 @@ static void backfill_at_save(int slot, const void *save_buffer) {
             if (facts[i].covered) {
                 continue;
             }
+            /* Covered only when its record is on disk: one merely held for
+               the save is lost if the game ends first (Codex, #524), and is
+               found in the log -- or recorded again -- next time. */
             if (facts[i].outcome == VV_GRAVE_IN_LOG || facts[i].outcome == VV_GRAVE_RECORDED) {
                 logged_fp[facts[i].place] = fact_fp[i];
                 logged.dirty = 1;
             }
-            if (facts[i].outcome == VV_GRAVE_RECORDED) {
+            if (facts[i].outcome == VV_GRAVE_RECORDED || facts[i].outcome == VV_GRAVE_QUEUED) {
                 recorded_used[recorded_now_count] = 0;
                 recorded_now[recorded_now_count++] = i;
                 COD_COUNT(backfilled);
@@ -474,11 +483,20 @@ __declspec(dllexport) void __stdcall VvfpCauseRepairGraves(int game, int slot, i
     repair_chosen[slot] = (signed char)(repair != 0);
 }
 
+/* Head and body on a villager record, every game (the parentage DLL's
+   layout); both lie inside the bytes the roster keeps of a villager. */
+static const unsigned int LOOKS[6][2] = {
+    { 0, 0 }, { 0x360u, 0x364u }, { 0x548u, 0x54Cu }, { 0xDF0u, 0xDF4u },
+    { 0x1BB8u, 0x1BBCu }, { 0x1BB8u, 0x1BBCu },
+};
+
 /* A villager the last save held, gone with no report: the grave recorded
-   from at this save with the same name and an age at death at least the age
-   they were saved at accounts for them -- one grave for one villager, and
-   only when exactly one such grave is left (otherwise they stay
-   unaccounted). */
+   from at this save accounts for them when it is theirs by more than a name
+   (Codex, #524: names come from fixed pools) -- the same name, an age at
+   death at least the age they were saved at, AND the head and body the
+   Village History log gave the grave's villager, which are theirs.  One
+   grave for one villager, and only when exactly one such grave is left;
+   otherwise they stay unaccounted. */
 static int backfill_accounts_for(const unsigned char *kept) {
     const struct game_records *r = &REC[g_game];
     int found = -1;
@@ -487,7 +505,9 @@ static int backfill_accounts_for(const unsigned char *kept) {
         const vv_grave_fact *f = &facts[recorded_now[i]];
         unsigned int n;
         int same = 1;
-        if (recorded_used[i] || f->age < rec_age(kept)) {
+        if (recorded_used[i] || f->age < rec_age(kept) || !f->identified
+            || f->head != *(const int *)(kept + LOOKS[g_game][0])
+            || f->body != *(const int *)(kept + LOOKS[g_game][1])) {
             continue;
         }
         for (n = 0; n < r->name_capacity && n < VV_GRAVE_NAME; ++n) {

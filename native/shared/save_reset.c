@@ -39,8 +39,8 @@ int vv_reset_refused_paths = 0;
     "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Village Roster - Save %d.dat"
 /* ...and which graves already have their Death record in the Deaths log
    (native/vvfp_cause_of_death/cod_backfill.inc), deleted with that log. */
-#define GRAVES_LOGGED_FORMAT \
-    "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Graves Logged - Save %d.dat"
+#define GRAVES_LOGGED_FORMAT(n) \
+    "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"
 #define SIDECAR_FORMAT_COUNT 10
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
@@ -48,19 +48,19 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %d.dat",
                "%s\\vv1_masks_%d.dat", "%s\\vv1_doublers_%d.dat",
                "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("1"),
-               ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT },
+               ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT("1") },
     /* VV2 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
                "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("2"),
-               ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT, 0, 0, 0, 0 },
+               ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT("2"), 0, 0, 0, 0 },
     /* VV3 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("3"),
-               GRAVES_LOGGED_FORMAT, 0, 0, 0, 0, 0 },
+               GRAVES_LOGGED_FORMAT("3"), 0, 0, 0, 0, 0 },
     /* VV4 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("4"),
-               GRAVES_LOGGED_FORMAT, 0, 0, 0, 0, 0 },
+               GRAVES_LOGGED_FORMAT("4"), 0, 0, 0, 0, 0 },
     /* VV5 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("5"),
-               GRAVES_LOGGED_FORMAT, 0, 0, 0, 0, 0 },
+               GRAVES_LOGGED_FORMAT("5"), 0, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are

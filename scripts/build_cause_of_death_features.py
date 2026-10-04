@@ -176,7 +176,7 @@ def logs_text(n: str, game: str) -> str:
         "patch knows it) with the head, body, likes and dislikes of the villager's last Village "
         "History snapshot (\"(unknown)\" when that does not settle who it was), and marked "
         "\"Recorded from the grave\". Which graves have their record is kept in 'Virtual Villagers "
-        "Fun Patcher Data\\Deaths\\Graves Logged - Save <n>.dat', so no grave is recorded twice; "
+        f"Fun Patcher Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat', so no grave is recorded twice; "
         "Start Over deletes it. "
         "At every save, the village is checked against the one saved before: a villager who left "
         "with no Death or Disappeared record, or arrived with no birth or known arrival, is written "
@@ -262,7 +262,7 @@ def manifest(game: str, sha: str) -> dict:
         ]
     changes += [
         "The listed removals of a living villager write a Disappeared record before the game takes them; the Custom Island Event's \"Disappears\" is reported by the Story / Cheat Upgrades DLL.",
-        "Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher Data\\Deaths\\Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
+        f"Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
         "The grave's Done writes an Epitaph changed record when the epitaph's text changed.",
         "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
         f"The roster is kept in 'Virtual Villagers Fun Patcher Data\\Virtual Villagers {n} Village Roster - Save <n>.dat' (written atomically; deleted by Start Over).",

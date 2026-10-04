@@ -31,7 +31,7 @@ BUILD = ROOT / "scripts" / "build_grave_backfill_harness.ps1"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
-CHECKS_PER_GAME = 29
+CHECKS_PER_GAME = 34
 
 
 class GraveBackfillSource(unittest.TestCase):
@@ -76,7 +76,8 @@ class GraveBackfillSource(unittest.TestCase):
 
     def test_the_data_file_has_its_own_folder_and_one_path_helper(self):
         source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
-        self.assertIn('cod_data_path(logged.path, "Deaths", "Graves Logged", slot)', source)
+        self.assertIn('wsprintfA(stem, "Virtual Villagers %d Graves Logged", g_game);', source)
+        self.assertIn('cod_data_path(logged.path, "Deaths", stem, slot)', source)
         self.assertEqual(source.count("vv_save_subfolder("), 1)
 
     def test_start_over_forgets_the_slot(self):

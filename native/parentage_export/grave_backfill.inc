@@ -49,6 +49,7 @@ struct death_key {
     char name[BACKFILL_NAME];
     int age;
     char grave[VV_GRAVE_LINE];
+    int held;              /* a record still held for the save, not on disk */
 };
 
 static struct death_key *death_keys;
@@ -174,19 +175,34 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
                 return 0;
             }
         }
+        /* fgets stops at an I/O error as it does at the end: a log read only
+           in part decides nothing (Codex, #524). */
+        if (ferror(file)) {
+            fclose(file);
+            return 0;
+        }
         fclose(file);
         if (!death_reader_close(&reader)) {
             return 0;
         }
     }
-    /* Held records: written at the next save, so already this village's. */
-    for (i = 0; i < pending_count; ++i) {
-        const char *at;
-        if (pending[i].game_id != game_id || pending[i].kind != KIND_DEATH || pending[i].text == NULL) {
-            continue;
-        }
-        memset(&reader, 0, sizeof reader);
-        reader.open = 1;
+    /* Held records: written at the next save.  Only those taken from the
+       tribe loaded now (or whose tribe was never known) can be this village's
+       (Codex, #524); a match on one is never kept as covered (VV_GRAVE_HELD). */
+    {
+        int now_known = tribes_ready() && take_tribe(game_id, NULL, scratch_tribe);
+        for (i = 0; i < pending_count; ++i) {
+            const char *at;
+            int first = death_key_count;
+            if (pending[i].game_id != game_id || pending[i].kind != KIND_DEATH || pending[i].text == NULL) {
+                continue;
+            }
+            if (now_known && pending[i].tribe >= 0
+                && !same_tribe(&held_tribes[pending[i].tribe], scratch_tribe, TRIBE_LOOSE)) {
+                continue;
+            }
+            memset(&reader, 0, sizeof reader);
+            reader.open = 1;
         at = pending[i].text;
         while (*at != '\0') {
             const char *end = strchr(at, '\n');
@@ -200,9 +216,13 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
                 return 0;
             }
             at = end != NULL ? end + 1 : at + strlen(at);
-        }
-        if (!death_reader_close(&reader)) {
-            return 0;
+            }
+            if (!death_reader_close(&reader)) {
+                return 0;
+            }
+            for (; first < death_key_count; ++first) {
+                death_keys[first].held = 1;
+            }
         }
     }
     return 1;
@@ -233,6 +253,7 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
 
 struct identity {
     int head, body;
+    int seen_age;          /* the age at its latest snapshot, whatever it was */
     int last_age;          /* the age at its latest snapshot within the grave's age */
     int outlived;          /* listed older than the grave's age */
     int alive;             /* in the village now */
@@ -289,7 +310,16 @@ static void history_villager_done(struct history_villager *v, struct backfill_ta
             id->head = v->head;
             id->body = v->body;
             id->last_age = -1;
+            id->seen_age = -1;
         }
+        /* Younger than at its last snapshot: made young again (the Origins
+           Youth upgrade) or an older save restored.  Whatever age it was
+           listed at before no longer says it outlived the grave (Codex,
+           #524). */
+        if (v->age < id->seen_age) {
+            id->outlived = 0;
+        }
+        id->seen_age = v->age;
         if (v->age > target->fact->age) {
             id->outlived = 1;
         } else {
@@ -589,6 +619,7 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
     }
     for (i = 0; i < count; ++i) {
         graves[i].outcome = VV_GRAVE_UNDECIDED;
+        graves[i].identified = 0;
     }
     g = layout_of(game_id);
     if (!layout_is_usable(g)) {
@@ -629,28 +660,37 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
                         g->name_capacity < VV_GRAVE_NAME - 1 ? g->name_capacity : VV_GRAVE_NAME - 1);
     }
     /* Which uncovered graves the log already has a record for: per key, the
-       records less the covered graves, in burial order. */
+       records less the covered graves, in burial order -- first those on
+       disk (VV_GRAVE_IN_LOG), then those still held (VV_GRAVE_HELD). */
     for (i = 0; i < count; ++i) {
-        int records = 0;
+        int on_disk = 0;
+        int held = 0;
         int taken = 0;
         if (graves[i].covered) {
             continue;
         }
         for (j = 0; j < death_key_count; ++j) {
             if (same_key(&death_keys[j], names[i], &graves[i])) {
-                ++records;
+                if (death_keys[j].held) {
+                    ++held;
+                } else {
+                    ++on_disk;
+                }
             }
         }
         for (j = 0; j < count; ++j) {
             if (j == i || graves[j].age != graves[i].age || strcmp(names[j], names[i]) != 0) {
                 continue;
             }
-            if (graves[j].covered || graves[j].outcome == VV_GRAVE_IN_LOG) {
+            if (graves[j].covered || graves[j].outcome == VV_GRAVE_IN_LOG
+                || graves[j].outcome == VV_GRAVE_HELD) {
                 ++taken;
             }
         }
-        if (records > taken) {
+        if (on_disk > taken) {
             graves[i].outcome = VV_GRAVE_IN_LOG;
+        } else if (on_disk + held > taken) {
+            graves[i].outcome = VV_GRAVE_HELD;
         } else if (!apply) {
             graves[i].outcome = VV_GRAVE_MISSING;
             ++recorded;
@@ -665,8 +705,17 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
         mark_alive(game_id, targets, target_count);
         choose_identities(targets, target_count);
         for (i = 0; i < target_count; ++i) {
+            int held_before = pending_count;
+            vv_grave_fact *f = targets[i].fact;
             if (write_backfill(game_id, &targets[i])) {
-                targets[i].fact->outcome = VV_GRAVE_RECORDED;
+                /* On disk, or held for the save (a publisher not yet run, a
+                   locked log): only a record on disk is durable. */
+                f->outcome = pending_count > held_before ? VV_GRAVE_QUEUED : VV_GRAVE_RECORDED;
+                if (targets[i].chosen >= 0) {
+                    f->identified = 1;
+                    f->head = targets[i].identity[targets[i].chosen].head;
+                    f->body = targets[i].identity[targets[i].chosen].body;
+                }
                 ++recorded;
             }
         }

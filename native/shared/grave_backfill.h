@@ -32,8 +32,13 @@
 enum {
     VV_GRAVE_UNDECIDED = 0,     /* nothing decided: asked again at the next save */
     VV_GRAVE_IN_LOG = 1,        /* the log already has its Death record */
-    VV_GRAVE_RECORDED = 2,      /* its Death record was written (or queued) now */
-    VV_GRAVE_MISSING = 3        /* no record: one would be written (apply 0) */
+    VV_GRAVE_RECORDED = 2,      /* its Death record is on disk now */
+    VV_GRAVE_MISSING = 3,       /* no record: one would be written (apply 0) */
+    /* Its record is only held in memory for the next save (Codex, #524): not
+       yet durable, so Cause of Death does not keep the grave as covered --
+       the next save or load finds it in the log, or records it again. */
+    VV_GRAVE_HELD = 4,          /* matched by a record still held for the save */
+    VV_GRAVE_QUEUED = 5         /* its record was made now, and is held for the save */
 };
 
 typedef struct {
@@ -41,6 +46,9 @@ typedef struct {
     int age;                        /* the age at death the grave holds, in age units */
     int covered;                    /* in: already known to have a record (kept by Cause of Death) */
     int outcome;                    /* out: VV_GRAVE_* */
+    int identified;                 /* out (RECORDED/QUEUED): 1 when the Village History
+                                       log said who it was -- head and body below */
+    int head, body;
     char name[VV_GRAVE_NAME];       /* as the grave holds it, NUL-terminated */
     char grave[VV_GRAVE_LINE];      /* the skill line: a Death record's "Grave:" */
     char cause[VV_GRAVE_CAUSE];     /* a Death record's "Cause of death:" */
@@ -53,8 +61,8 @@ typedef struct {
    buffer (a village just loaded) the slot's own save file names it ("VVFP Save
    Reset.dll", SavedVillageHeader).  With `apply` 0 nothing is written: each
    grave the log lacks is VV_GRAVE_MISSING and the count of them is returned.
-   With 1 their records are written (VV_GRAVE_RECORDED) and the count written
-   or queued is returned.  -1 when nothing could be decided (the village
+   With 1 their records are written (VV_GRAVE_RECORDED, or VV_GRAVE_QUEUED
+   while held for the save) and the count of them is returned.  -1 when nothing could be decided (the village
    unknown, a log unreadable): every outcome is then VV_GRAVE_UNDECIDED. */
 typedef int (__stdcall *vv_record_graves_fn)(int game, const void *save_buffer, int slot,
                                              vv_grave_fact *graves, int count, int apply);

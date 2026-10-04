@@ -57,6 +57,14 @@
         NOT an Unaccounted record.
      6. Start Over deletes the graves file.
 
+   And from Codex's review of #524: a record from the grave that is only
+   held for the save (the village not yet named) and lost with the session
+   leaves the grave uncovered, so the next scan finds it again; a villager
+   made young again (listed older once, then younger) is still found; and a
+   departure is accounted for only by a grave whose History looks are the
+   villager's own -- Rua, known to her grave only by name and age, stays
+   Unaccounted.
+
    "VVFP Save Reset.dll" (shipped) is copied beside the harness too: the scan
    at load names the village from the slot's own save file through it, so a
    synthetic save "Virtual Villagers1.ldw" is written in the save folder.
@@ -301,7 +309,8 @@ static void deaths_path(int number, char *out) {
 }
 
 static void logged_path(char *out) {
-    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Graves Logged - Save 1.dat", root);
+    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers %d Graves Logged - Save 1.dat",
+              root, game);
 }
 
 static int count_of(const char *haystack, const char *needle) {
@@ -407,18 +416,21 @@ static void write_history(void) {
         "  Skills:\n    Breeding   0\n\n"
         "Villager 2\n  Name: Chika\n  Age: 520\n  Head: 19\n  Body: 17\n  Likes: playing\n  Skills:\n    Breeding   0\n\n"
         "Villager 3\n  Name: Ghali\n  Age: 447\n  Head: 6\n  Body: 1\n  Likes: caves\n\n"
-        "Villager 4\n  Name: Lonely\n  Age: 500\n  Head: 9\n  Body: 9\n\n\n"
+        "Villager 4\n  Name: Lonely\n  Age: 500\n  Head: 9\n  Body: 9\n\n"
+        "Villager 5\n  Name: Youth\n  Age: 900\n  Head: 7\n  Body: 7\n  Likes: rain\n\n\n"
         "=== %s -- 2026-10-01 16:21:22 ===\nVillage: Backfill Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Kito\n  Age: 1276\n  Head: 0\n  Body: 18\n  Likes: exploring\n  Dislikes: resting\n"
         "  Parents:\n    Father: Ghali\n      Head: 77\n      Body: 77\n  Skills:\n    Research   100\n\n"
         "Villager 2\n  Name: Chika\n  Age: 1294\n  Head: 19\n  Body: 17\n  Likes: playing\n  Skills:\n    Healing    100\n\n"
         "Villager 3\n  Name: Dup\n  Age: 850\n  Head: 4\n  Body: 4\n\n"
-        "Villager 4\n  Name: Lonely\n  Age: 700\n  Head: 9\n  Body: 9\n\n\n"
+        "Villager 4\n  Name: Lonely\n  Age: 700\n  Head: 9\n  Body: 9\n\n"
+        "Villager 5\n  Name: Youth\n  Age: 300\n  Head: 7\n  Body: 7\n  Likes: stars\n\n\n"
         "=== %s -- 2026-10-01 18:00:00 ===\nVillage: Other Tribe (Save 2)\n\n"
         "Villager 1\n  Name: Chika\n  Age: 1300\n  Head: 1\n  Body: 1\n  Likes: ants\n\n\n"
         "=== %s -- 2026-10-02 09:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Kito\n  Age: 1300\n  Head: 5\n  Body: 5\n  Likes: drums\n\n"
-        "Villager 2\n  Name: Ana\n  Age: 600\n  Head: 3\n  Body: 3\n\n\n",
+        "Villager 2\n  Name: Ana\n  Age: 600\n  Head: 3\n  Body: 3\n\n"
+        "Villager 3\n  Name: Bolo\n  Age: 690\n  Head: 8\n  Body: 8\n\n\n",
         t, t, t, t);
     write_text(path, h);
 }
@@ -553,6 +565,7 @@ int main(int argc, char **argv) {
         dig(5, "Dup", 900, game >= 3 ? -1 : 0, 0, 0, NULL);
         dig(6, "Lonely", 600, game >= 3 ? -1 : 0, 0, -1, NULL);
         dig(20, "Tupa", 1222, 3, 60, cause_value, "Dedicated Student");
+        dig(21, "Youth", 800, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* made young again once */
         write_history();
         write_old_logs();
         write_graves_file();
@@ -573,7 +586,7 @@ int main(int argc, char **argv) {
                       "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers %d Graves - Save 1.dat", root, game);
             graves_before = read_into(graves_file);
             logged_path(logged);
-            CHECK(scan_graves(game, 1) == 4, "the scan counts the four graves the log lacks");
+            CHECK(scan_graves(game, 1) == 5, "the scan counts the five graves the log lacks");
             CHECK(scan_graves(game, 2) == -1, "...and none for a slot with no save");
             read_into(path);
             CHECK(strcmp(before_log, text) == 0 && GetFileAttributesA(logged) == INVALID_FILE_ATTRIBUTES
@@ -598,7 +611,14 @@ int main(int argc, char **argv) {
         CHECK(count_of(text, "\r\n  Name: Ghali\r\n") == 1 && count_of(text, "\r\n  Name: Onawa\r\n") == 1,
               "Ghali and Onawa are not recorded again");
         CHECK(death(6, "Kito") && death(7, "Chika") && death(8, "Dup") && death(9, "Lonely")
-              && !strstr(text, "Death 10"), "Kito, Chika, the second Dup and Lonely are recorded, in burial order");
+              && death(10, "Youth") && !strstr(text, "Death 11"),
+              "Kito, Chika, the second Dup, Lonely and Youth are recorded, in burial order");
+        {
+            const char *y = death(10, "Youth");
+            CHECK(y != NULL && strstr(y, "  Head: 7\r\n  Body: 7\r\n  Likes: stars\r\n") != NULL
+                  && strstr(y, "(age 300 then)") != NULL,
+                  "a villager made young again is still found: listed older once, then younger");
+        }
         CHECK(count_of(text, "\r\n  Name: Tupa\r\n") == 1,
               "the record appended by hand in the owner's shape counts for Tupa's grave (name, age at death)");
         CHECK(count_of(text, "\r\n  Name: Dup\r\n") == 2, "two Dup graves, two Dup records");
@@ -645,7 +665,7 @@ int main(int argc, char **argv) {
                       "the epitaph is the grave's");
             }
         }
-        CHECK(read_into(logged) == 16 + 8 * 8, "the graves file covers all eight graves");
+        CHECK(read_into(logged) == 16 + 9 * 8, "the graves file covers all nine graves");
         CHECK(scan_graves(game, 1) == 0, "the scan now finds nothing missing");
         read_into(path);
         lstrcpynA(first, text, sizeof first);
@@ -710,24 +730,42 @@ int main(int argc, char **argv) {
         ensure_village(game, VILLAGE, table);       /* the statistics companion's publish */
         read_into(path);
         CHECK(count_of(text, "\r\n  Name: Heldo\r\n") == 1, "...then it is written, once");
+        /* A grave recorded from at a save whose record is only held (the
+           statistics companion has not named the village yet), and the game
+           ends before it is written: the grave is not taken as covered. */
+        dig(10, "Qued", 820, game >= 3 ? -1 : 0, 0, 0, NULL);
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(strstr(text, "Qued") == NULL, "a record from the grave before the village is named is held");
         stand_in("VVFP Statistics Export.dll", 0);
-        unload();
+        unload();                                   /* ...and lost with the session */
         vv_village_publish("");
         load();
+        CHECK(scan_graves(game, 1) == 1, "...so the next session's scan finds that grave missing again");
         repair_graves(game, 1, 1);
 
         /* 5: the load-time catch-up buried Bolo, whom the last save held. */
-        save_done(1, buffer);                       /* the roster: Ana, Kito, Bolo */
+        villager(5, "Rua", 650, 0, 0);             /* head 0, body 0; never in the Village History log; her
+                                                       unreported arrival is one record */
+        save_done(1, buffer);                       /* the roster: Ana, Kito, Bolo, Rua */
+        read_into(path);
+        CHECK(count_of(text, "\r\n  Name: Qued\r\n") == 1, "...and that save records it, once");
         rec(2)[g->active] = 0;                      /* gone with no report */
+        rec(5)[g->active] = 0;
         dig(9, "Bolo", 705, game >= 3 ? -1 : 0, 0, -1, NULL);
+        dig(11, "Rua", 660, game >= 3 ? -1 : 0, 0, -1, NULL);
         save_done(1, buffer);
         read_into(path);
-        CHECK(count_of(text, "\r\n  Name: Bolo\r\n") == 1, "Bolo's grave is recorded from");
+        CHECK(count_of(text, "\r\n  Name: Bolo\r\n") == 1 && count_of(text, "\r\n  Name: Rua\r\n") == 1,
+              "Bolo's and Rua's graves are recorded from");
         _snprintf(line, sizeof line,
                   "%s\\Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
                   root, game);
         read_into(line);
-        CHECK(strstr(text, "Bolo") == NULL && stats[9] == 0, "...and Bolo is not Unaccounted");
+        CHECK(strstr(text, "Bolo") == NULL, "...Bolo, whose History looks are his, is not Unaccounted");
+        CHECK(count_of(text, "Left the village with no Death or Disappeared record") == 1
+              && strstr(text, "  Name: Rua\r\n  What: Left the village") != NULL,
+              "...Rua, known to the grave only by name and age, stays Unaccounted");
 
         /* 6: Start Over. */
         reset(game, 1);
