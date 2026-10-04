@@ -38,7 +38,7 @@ GUID_FOLDER = re.compile(
 
 class HarnessScriptsBuildPerRun(unittest.TestCase):
     def test_the_set_of_scripts_is_the_measured_one(self) -> None:
-        self.assertEqual(len(SCRIPTS), 17, [path.name for path in SCRIPTS])
+        self.assertEqual(len(SCRIPTS), 19, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:
@@ -62,7 +62,7 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
 
     def test_an_out_dir_from_the_caller_is_left_to_the_caller(self) -> None:
         takes_out_dir = [path for path in SCRIPTS if "[string]$OutDir" in path.read_text(encoding="utf-8")]
-        self.assertEqual(len(takes_out_dir), 9)
+        self.assertEqual(len(takes_out_dir), 10)
         for path in takes_out_dir:
             text = path.read_text(encoding="utf-8")
             with self.subTest(script=path.name):
