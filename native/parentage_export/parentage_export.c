@@ -2478,7 +2478,10 @@ static int same_tribe(const struct tribe *then, const struct tribe *now, int nee
     for (i = 0; i < then->count; ++i) {
         int here = at[then->member[i].slot];
         int reloaded = at[i];
-        if (here >= 0 && !used[here] && still_counts(&then->member[i], &now->member[here], needed)) {
+        /* A record taken at its slot cannot have been taken before: only a
+           member of lower rank could have, and its rank is its index -- so
+           only the rank match needs the check. */
+        if (here >= 0 && still_counts(&then->member[i], &now->member[here], needed)) {
             used[here] = 1;
             ++counted;
         } else if (reloaded >= 0 && !used[reloaded]
