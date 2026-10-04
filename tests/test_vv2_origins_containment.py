@@ -51,6 +51,9 @@ REMAINING = {
     # the Crystal Ball's chooser case and Keep-it swap re-encoded in place;
     # owns no Origins bytes
     "vv2_fix_vanilla_bugs",
+    # five jump-table entries and the case-4 body over the island-event
+    # trigger's dead positive-kind branch; owns no Origins bytes
+    "vv2_restore_missing_island_events",
 }
 
 

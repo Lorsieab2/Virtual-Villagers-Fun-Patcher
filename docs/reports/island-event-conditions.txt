@@ -869,6 +869,10 @@ EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
   Then: Nothing (never runs).
   Repeat: Never.
   Code: chooser 0x434570: table 0x434868[4] = 0x434824 (bl stays 0)
+  With Restore Missing Island Events (vv2_restore_missing_island_events): table 0x434868[4] =
+    0x434822 and runner table 0x4344F4[4] = 0x42F032, a body that shows one of strings 698-700
+    (The Tattered Diary, The Doctrine of Magicians, The Doctrine of Naturalists) by rand(3); no
+    other effect. Drawn 1 in 28 like any unconditional case, so each page is a third as likely.
 
 [slot 18] The Mosquito Swarm
   Needs:
@@ -877,6 +881,10 @@ EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
   Then: Nothing (never runs).
   Repeat: Never.
   Code: chooser 0x434570: table 0x434868[18] = 0x434824 (bl stays 0)
+  With Restore Missing Island Events (vv2_restore_missing_island_events): table 0x434868[18] =
+    0x434822, so it is drawn 1 in 28 like any unconditional case. The chooser's stray labels
+    `cmp ebp, 0x2AD` / `cmp ebp, 0x2B7` (0x434617-0x434820) are the STRING ids of The Dragonfly
+    Migration and Science Awareness Day written where case numbers belonged.
 
 [slot 20] The Dragonfly Migration
   Needs:
@@ -885,6 +893,10 @@ EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
   Then: Nothing (never runs).
   Repeat: Never.
   Code: chooser 0x434570: table 0x434868[20] = 0x434824 (bl stays 0)
+  With Restore Missing Island Events (vv2_restore_missing_island_events): table 0x434868[20] =
+    0x434822, so it is drawn 1 in 28 like any unconditional case. The chooser's stray labels
+    `cmp ebp, 0x2AD` / `cmp ebp, 0x2B7` (0x434617-0x434820) are the STRING ids of The Dragonfly
+    Migration and Science Awareness Day written where case numbers belonged.
 
 [slot 26] Science Awareness Day
   Needs:
@@ -893,6 +905,10 @@ EVENTS THAT CAN NEVER HAPPEN (developer-dead; not offered by Pick Island Event)
   Then: Nothing (never runs).
   Repeat: Never.
   Code: chooser 0x434570: table 0x434868[26] = 0x434824 (bl stays 0)
+  With Restore Missing Island Events (vv2_restore_missing_island_events): table 0x434868[26] =
+    0x434822, so it is drawn 1 in 28 like any unconditional case. The chooser's stray labels
+    `cmp ebp, 0x2AD` / `cmp ebp, 0x2B7` (0x434617-0x434820) are the STRING ids of The Dragonfly
+    Migration and Science Awareness Day written where case numbers belonged.
 
 ====================================================================================================
 THE SECRET CITY  (VV3)
