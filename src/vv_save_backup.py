@@ -243,11 +243,17 @@ class BackupResult:
         return sum(item.size for item in self.files)
 
 
-def backup_folder_name(now: datetime) -> str:
-    return f"{BACKUP_PREFIX}{now.strftime('%Y-%m-%d %H-%M-%S')}"
+def backup_folder_name(now: datetime, label: str = "") -> str:
+    """ "Backup <date and time>", plus " <label>" when one is given.
+
+    Rename Tribe labels its automatic backup "(before rename)", so the player
+    can tell it from the backups they made themselves.
+    """
+    name = f"{BACKUP_PREFIX}{now.strftime('%Y-%m-%d %H-%M-%S')}"
+    return f"{name} {label}" if label else name
 
 
-def _new_backup_folder(save_folder: Path, now: datetime) -> Path:
+def _new_backup_folder(save_folder: Path, now: datetime, label: str = "") -> Path:
     """Create and return a backup folder that did not exist before.
 
     mkdir(exist_ok=False) is the claim: if the name is taken (two backups in
@@ -256,7 +262,7 @@ def _new_backup_folder(save_folder: Path, now: datetime) -> Path:
     """
     backups = save_folder / BACKUPS_FOLDER
     backups.mkdir(exist_ok=True)
-    base = backup_folder_name(now)
+    base = backup_folder_name(now, label)
     for attempt in range(1, 1000):
         name = base if attempt == 1 else f"{base} ({attempt})"
         candidate = backups / name
@@ -309,7 +315,9 @@ def _copy_one(source: Path, destination: Path) -> CopiedFile:
     return CopiedFile(Path(), size, expected)
 
 
-def copy_save_folder(save_folder: Path, now: datetime | None = None) -> BackupResult:
+def copy_save_folder(
+    save_folder: Path, now: datetime | None = None, label: str = ""
+) -> BackupResult:
     """Copy the save folder into a new Backups\\Backup <date> folder inside it.
 
     On any failure the partial backup is renamed "... INCOMPLETE" (never
@@ -321,7 +329,7 @@ def copy_save_folder(save_folder: Path, now: datetime | None = None) -> BackupRe
     relatives = files_to_back_up(save_folder)
     if not relatives:
         raise BackupError(f"There is nothing to back up in {save_folder}.")
-    backup = _new_backup_folder(save_folder, now or datetime.now())
+    backup = _new_backup_folder(save_folder, now or datetime.now(), label)
     result = BackupResult(save_folder, backup)
     try:
         for relative in relatives:
