@@ -401,10 +401,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # the size is unchanged and only the digest moves. Same size again,
         # new digest, when it learned to read the villager table, slot count
         # and mask table from the image (256 Villagers (Experimental)).
-        self.assertEqual(vv5_companion["size"], 1780224)
+        # Larger when its mask sidecar learned to follow each villager
+        # through a reload (identity roster, native/shared/mask_follow.h).
+        self.assertEqual(vv5_companion["size"], 1781760)
         self.assertEqual(
             vv5_companion["sha256"],
-            "E66F4C969A9DE02F81F8C48A74B28638F593EA45A86AB1CDE93F413AD40476A2",
+            "38263062E523AA4C0E292FE7AF1DB85308D2900012102DDCCB97DF4A069634F7",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
