@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../shared/harness_ldw_tree.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -339,6 +340,7 @@ static void run_game(write_t write, const struct layout *layout) {
 }
 
 int main(int argc, char **argv) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll; write_t write; int i;
     if (argc < 2) { fprintf(stderr, "usage: %s <VVFP Parentage Export.dll>\n", argv[0]); return 2; }
     if (!locate_folder()) { fprintf(stderr, "cannot resolve Documents\\LDW\n"); return 2; }

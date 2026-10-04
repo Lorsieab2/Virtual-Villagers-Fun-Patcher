@@ -235,6 +235,12 @@ static unsigned char g_slot_identity_ready[VV_MAX_VILLAGERS];
    a version-2 file (gender and name only) waits for its first follow, which
    rewrites every entry it can place with the version-3 identity. */
 static unsigned int g_fp_version = 3u;
+/* The identity of EVERY occupied record (0 = empty) when the table was keyed:
+   it decides whether the villagers moved at all, which an ambiguous identity
+   needs (native/shared/mask_follow.h).  Stored in a version-3 file; a
+   version-2 file has none, which counts as "moved". */
+static unsigned int g_mask_roster[VV_MAX_VILLAGERS];
+static int g_mask_roster_known;
 
 /* The save builder cave records the game's selected save number here. This is
    patch-owned .shr storage, not a villager field or a save byte. The builder
@@ -256,8 +262,10 @@ static void vv_clear_mask_state(void) {
         g_mask_fp[i] = 0;
         g_slot_seen_alive[i] = 0;
         g_slot_identity_ready[i] = 0;
+        g_mask_roster[i] = 0;
     }
     g_fp_version = 3u;
+    g_mask_roster_known = 0;
 }
 
 static int vv_captured_save_slot(void) {
@@ -310,14 +318,25 @@ static int vv_mask_sweep(void) {
                 g_slot_identity_ready[idx] = 1;
             }
             g_slot_seen_alive[idx] = 1;              /* slot currently holds a villager */
-        } else if (g_slot_seen_alive[idx] && g_mask_by_index[idx] != 0) {
+        }
+    }
+    /* FOLLOW BEFORE CLEARING (Codex, #516).  After a reload in the same
+       process the seen-alive latches still describe the old layout, so the
+       records the repack emptied at the top read "was alive, now free".
+       Cleared first, their masks were lost before they could be moved to the
+       villagers who now sit lower; moved first, what is left on an empty
+       record really belonged to a villager who is gone. */
+    changed |= vv_mask_follow_table();
+    for (idx = 0; idx < slots; idx++) {
+        const unsigned char *rec =
+            (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+        if (rec[VV_OCCUPIED_OFFSET] == 0 && g_slot_seen_alive[idx] && g_mask_by_index[idx] != 0) {
             g_mask_by_index[idx] = 0;                /* was alive, now freed -> drop mask */
             g_mask_fp[idx] = 0;
             g_slot_identity_ready[idx] = 0;
             changed = 1;
         }
     }
-    changed |= vv_mask_follow_table();
     return changed;
 }
 
@@ -355,7 +374,8 @@ static int vv_mask_follow_table(void) {
     if (!anyone) {
         return 0;
     }
-    changed = vv_mask_follow(slots, g_mask_by_index, g_mask_fp, live, 0, moved_mask, moved_fp);
+    changed = vv_mask_follow(slots, g_mask_by_index, g_mask_fp,
+                             g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);
     if (g_fp_version == 2u) {
         for (idx = 0; idx < slots; idx++) {
             if (moved_mask[idx] != 0) {
@@ -374,6 +394,14 @@ static int vv_mask_follow_table(void) {
     for (idx = 0; idx < slots; idx++) {
         g_mask_by_index[idx] = moved_mask[idx];
         g_mask_fp[idx] = moved_fp[idx];
+        if (g_mask_roster[idx] != live[idx]) {
+            g_mask_roster[idx] = live[idx];   /* the table is keyed to the villagers here now */
+            changed |= !g_mask_roster_known || g_mask_by_index[idx] != 0;
+        }
+    }
+    if (!g_mask_roster_known) {
+        g_mask_roster_known = 1;
+        changed = 1;
     }
     return changed;
 }
@@ -870,6 +898,9 @@ static vv_sidecar_gate g_mask_gate;
    its masks; a build writes its own count, so a 150-slot build's files are
    byte-for-byte what they always were. */
 #define VV4_MASK_SIDECAR_BYTES_FOR(count) \
+    (4 + 2 * sizeof(unsigned int) + (count) + 2 * (count) * sizeof(unsigned int))
+/* A version-2 file stops after the fingerprints; version 3 adds the roster. */
+#define VV4_MASK_SIDECAR_V2_BYTES_FOR(count) \
     (4 + 2 * sizeof(unsigned int) + (count) + (count) * sizeof(unsigned int))
 #define VV4_MASK_SIDECAR_BYTES VV4_MASK_SIDECAR_BYTES_FOR(VV_MAX_VILLAGERS)
 
@@ -890,14 +921,16 @@ static int vv_mask_sidecar_valid(const unsigned char *data, DWORD len,
         && (vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION
             || vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION_V2)
         && vv_mask_sidecar_count_ok(vv_sidecar_u32(data + 8))
-        && len >= VV4_MASK_SIDECAR_BYTES_FOR(vv_sidecar_u32(data + 8));
+        && len >= (vv_sidecar_u32(data + 4) == VV_SIDECAR_VERSION
+                   ? VV4_MASK_SIDECAR_BYTES_FOR(vv_sidecar_u32(data + 8))
+                   : VV4_MASK_SIDECAR_V2_BYTES_FOR(vv_sidecar_u32(data + 8)));
 }
 
 static void vv_write_mask_sidecar(void) {
     char path[MAX_PATH];
     unsigned int header[2];
-    const void *parts[4];
-    DWORD sizes[4];
+    const void *parts[5];
+    DWORD sizes[5];
     vv_prepare_mask_state();
     /* NEVER BEFORE THE LOAD SETTLED.  This used to write whatever the load
        had left: a present file that could not be opened, or one that failed
@@ -918,7 +951,11 @@ static void vv_write_mask_sidecar(void) {
     parts[1] = header;            sizes[1] = sizeof(header);
     parts[2] = g_mask_by_index;   sizes[2] = header[1];
     parts[3] = g_mask_fp;         sizes[3] = header[1] * (DWORD)sizeof(unsigned int);
-    (void)vv_sidecar_publish(&g_mask_gate, path, parts, sizes, 4);
+    /* Version 3 adds who held each record when the table was keyed; a table
+       still in version-2 fingerprints (not yet followed) has no roster, and
+       is written back in its own version-2 shape. */
+    parts[4] = g_mask_roster;     sizes[4] = header[1] * (DWORD)sizeof(unsigned int);
+    (void)vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);
 }
 
 static int vv_read_mask_sidecar(void) {
@@ -960,12 +997,15 @@ static int vv_read_mask_sidecar(void) {
         count = (int)vv_sidecar_u32(file + 8);
         fps = file + 12 + count;
         g_fp_version = vv_sidecar_u32(file + 4);
+        g_mask_roster_known = g_fp_version == VV_SIDECAR_VERSION;
         if (count > vv_slots()) {
             count = vv_slots();
         }
         for (i = 0; i < count; i++) {
             g_mask_by_index[i] = (masks[i] < VV_MASK_COUNT) ? masks[i] : 0;
             g_mask_fp[i] = vv_sidecar_u32(fps + i * 4);
+            g_mask_roster[i] = g_mask_roster_known
+                ? vv_sidecar_u32(file + 12 + (size_t)vv_sidecar_u32(file + 8) * 5u + (size_t)i * 4u) : 0u;
         }
     }
     return 1;

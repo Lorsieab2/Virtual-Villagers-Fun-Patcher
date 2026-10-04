@@ -76,6 +76,9 @@ class CustomTitlesFile(unittest.TestCase):
             "two villagers sharing the title's identity: neither is given it",
             "a surviving Kai is not given either Kai's title",
             "... and the file still loads with both entries (no record listed twice)",
+            "AN IDENTITY TWO VILLAGERS SHARE IS NOT KEPT ON THE TITLE'S OLD RECORD: neither shows it",
+            "A PURE MOVE IS WRITTEN BACK: the next session finds Kai's title at record 0",
+            "... and the entry is not moved onto either of them (still record 2)",
         ):
             with self.subTest(case=case):
                 self.assertIn(case, text)

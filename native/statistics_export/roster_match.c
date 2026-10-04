@@ -63,40 +63,54 @@ static void ranked_row(const char *row, int rank, char *out, size_t size) {
     }
 }
 
+/* How row i of the recorded roster matches a living row: at its record or
+   at its rank (rows are written in record order, so row i is rank i),
+   whichever is the stronger. */
+static int match_at(const char *was, int i, const char *now_row, int row_size) {
+    char ranked[128];
+    int same = vv_roster_same_villager(was + i * row_size, now_row);
+    if (same < 2) {
+        ranked_row(was + i * row_size, i, ranked, sizeof(ranked));
+        if (ranked[0] != '\0') {
+            int at_rank = vv_roster_same_villager(ranked, now_row);
+            if (at_rank > same) {
+                same = at_rank;
+            }
+        }
+    }
+    return same;
+}
+
 int vv_roster_same_village(const char *was, int was_count, const char *now, int now_count, int row_size) {
     char used[VV_ROSTER_MAX];
-    char ranked[128];
-    int i, j, same, strong = 0, matched = 0, smaller;
+    int i, j, matched = 0, smaller;
     if (was_count > VV_ROSTER_MAX) {
         was_count = VV_ROSTER_MAX;
     }
     if (was_count <= 0 || now_count <= 0) {
         return 1;                                  /* nothing to compare */
     }
-    memset(used, 0, sizeof(used));
+    /* Any fingerprint match decides it -- looked for across the whole roster
+       FIRST (Codex, #516): a name-only match consumed earlier could hide a
+       later recorded row whose fingerprint is the living villager's. */
     for (j = 0; j < now_count; ++j) {
         for (i = 0; i < was_count; ++i) {
-            if (used[i]) {
-                continue;
-            }
-            same = vv_roster_same_villager(was + i * row_size, now + j * row_size);
-            if (same == 0) {
-                /* rows are written in record order, so row i is rank i */
-                ranked_row(was + i * row_size, i, ranked, sizeof(ranked));
-                if (ranked[0] != '\0') {
-                    same = vv_roster_same_villager(ranked, now + j * row_size);
-                }
-            }
-            if (same != 0) {
-                used[i] = 1;
-                ++matched;
-                strong += same == 2;
-                break;
+            if (match_at(was, i, now + j * row_size, row_size) == 2) {
+                return 1;                          /* a shared villager */
             }
         }
     }
-    if (strong > 0) {
-        return 1;                                  /* a shared villager */
+    /* Otherwise name-only matches, each recorded row used once, decide only
+       as a strict majority of the smaller roster. */
+    memset(used, 0, sizeof(used));
+    for (j = 0; j < now_count; ++j) {
+        for (i = 0; i < was_count; ++i) {
+            if (!used[i] && match_at(was, i, now + j * row_size, row_size) != 0) {
+                used[i] = 1;
+                ++matched;
+                break;
+            }
+        }
     }
     smaller = was_count < now_count ? was_count : now_count;
     return matched * 2 > smaller;

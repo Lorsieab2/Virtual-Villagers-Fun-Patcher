@@ -76,13 +76,23 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
             "scripts/build_vv1_heathen_mask_sheets.py",
         )
 
-    def test_every_sheet_is_seven_facings_on_the_head_atlas_pitch(self) -> None:
-        for index in range(1, 6):
-            path = ROOT / "assets" / "origins" / f"m{index}.png"
-            with self.subTest(sheet=path.name):
-                w, h = Image.open(path).size
-                self.assertEqual(w, self.sheets.CELL_W * self.sheets.FACINGS)
-                self.assertEqual(h, self.sheets.SHEET_CELL_H)
+    def test_atlas_is_seven_facings_by_one_row_per_mask(self) -> None:
+        w, h = Image.open(self.sheets.ATLAS_PNG).size
+        self.assertEqual(w, self.sheets.CELL_W * self.sheets.FACINGS)
+        self.assertEqual(h, self.sheets.SHEET_CELL_H * len(self.sheets.COLOURS))
+
+    def test_only_the_atlas_and_preview_are_generated(self) -> None:
+        """The game draws every mask from mask_atlas.png (the companion's
+        Vv1GetMaskSprite); no per-colour sheet is read by any build, so none
+        may be written or shipped."""
+        self.assertEqual(
+            sorted(path.name for path, _ in self.sheets.build()),
+            ["mask.bmp", "mask_atlas.png"],
+        )
+        self.assertEqual(
+            sorted(p.name for p in (ROOT / "assets" / "origins").glob("m[0-9].png")),
+            [],
+        )
 
     def test_gridded_art_is_used_verbatim(self) -> None:
         """For the strip colours: every pixel the sheet keeps is the supplied

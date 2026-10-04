@@ -326,6 +326,13 @@ int main(void) {
     titles_tick(3);
     check(titles_lookup(3, g_records[0]) == NULL && titles_lookup(3, g_records[3]) == NULL,
           "two villagers sharing the title's identity: neither is given it");
+    {
+        int k, kai_at = -2;
+        for (k = 0; k < titles.count; ++k) {
+            if (lstrcmpA(titles.entries[k].title, "Kai Title") == 0) kai_at = (int)titles.entries[k].index;
+        }
+        check(kai_at == 2, "... and the entry is not moved onto either of them (still record 2)");
+    }
     seen = titles_lookup(3, g_records[1]);
     check(seen != NULL && lstrcmpA(seen, "Moku Title") == 0, "... while Moku's still follows her");
     /* Two titled villagers of one identity, one of whom died before the
@@ -345,6 +352,36 @@ int main(void) {
     new_session();
     check(titles_lookup(3, g_records[1]) == NULL && titles.loaded && titles.count == 2,
           "... and the file still loads with both entries (no record listed twice)");
+    /* A move and nothing else (no stale entry dropped) is written back too. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai");
+    check(titles_set(3, 1, "Moved Only") == 1, "setup: Kai [1] has a title, Lani [0] none");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Lani");
+    titles_tick(3);
+    new_session();
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Moved Only") == 0, "A PURE MOVE IS WRITTEN BACK: the next session finds Kai's title at record 0");
+
+    /* Codex (#516): a titled Kai at record 5 and an identical untitled Kai at
+       6; a death below moves them to 4 and 5.  Record 5 still carries the
+       title's identity -- but it is the OTHER Kai now.  Neither shows it. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(5, "Kai"); villager(6, "Kai");
+    check(titles_set(3, 5, "Only This Kai") == 1, "setup: one of two identical villagers has a title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(4, "Kai"); villager(5, "Kai");
+    titles_tick(3);
+    check(titles_lookup(3, g_records[5]) == NULL && titles_lookup(3, g_records[4]) == NULL,
+          "AN IDENTITY TWO VILLAGERS SHARE IS NOT KEPT ON THE TITLE'S OLD RECORD: neither shows it");
+    check(titles.count == 1, "... and the title is not thrown away");
+    DeleteFileA(path1);
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
     villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");

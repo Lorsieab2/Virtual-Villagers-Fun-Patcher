@@ -64,38 +64,45 @@ class SaveResetReservesCoverTheirAppendsTests(unittest.TestCase):
         )
 
     def test_the_narrow_sidecar_reserve_covers_the_longest_name(self) -> None:
-        """The sidecars are formatted straight onto the save folder."""
-        text = source()
-        names = re.findall(r'"%s(\\\\[^"]*?)"', text)
-        self.assertTrue(names, "no sidecar formats found -- the pattern moved")
-        longest = max(names, key=len).replace("\\\\", "\\")
-        # "%d" is replaced by a single-digit slot.
-        tail = len(longest.replace("%d", "5")) + 1  # + NUL
+        """The sidecars are formatted straight onto the save folder.
 
-        # The reserve is written as a sizeof over the two literal halves.
-        reserve_literals = re.search(
-            r"vv_save_folder\(folder, \(int\)sizeof\(\s*"
-            r'"([^"]*)"\s*"([^"]*)"\s*\)\)',
+        Since each kind of data file got a folder of its own, the reserve is
+        measured from SIDECAR_FORMATS by the code itself rather than written
+        as a sizeof: every format is "%s" + tail + "%d" + ".dat", so it
+        formats to the folder plus (len(format) - 4) + one slot digit, and
+        the reserve must be at least that plus the NUL -- len(format) - 2.
+        This checks both that the code computes exactly that over every
+        format of the game's row before resolving the folder, and that the
+        figure covers the longest format actually in the table (the
+        DATA_FORMAT rows expanded the way the preprocessor does)."""
+        text = source()
+        self.assertIn(
+            "if (fmt != NULL && lstrlenA(fmt) - 4 + 2 > reserve) {\n"
+            "                reserve = lstrlenA(fmt) - 4 + 2;",
             text,
+            "the sidecar reserve is no longer len(format) - 2 over the row",
         )
-        self.assertIsNotNone(
-            reserve_literals, "the sidecar reserve is no longer a sizeof pair"
-        )
-        assert reserve_literals is not None
-        reserve = (
-            len(
-                (reserve_literals.group(1) + reserve_literals.group(2)).replace(
-                    "\\\\", "\\"
-                )
-            )
-            + 1  # sizeof includes the NUL
-        )
-        self.assertGreaterEqual(
-            reserve,
-            tail,
-            f"the sidecar reserve is {reserve} but the longest name appends "
-            f"{tail}: {longest!r}",
-        )
+        self.assertIn("const char *fmt = SIDECAR_FORMATS[game - 1][i];", text)
+        self.assertIn("if (!vv_save_folder(folder, reserve)) {", text)
+        # The reserve loop runs before the deletion loop formats anything.
+        self.assertLess(text.index("vv_save_folder(folder, reserve)"),
+                        text.index("wsprintfA(path, fmt, folder, slot);"))
+        # Expand the table and measure the real longest tail.
+        macros = dict(re.findall(r'#define (VV_DATA_SUB_\w+)\s+"([^"]*)"',
+                                 (ROOT / "native" / "shared" / "data_subfolder.h").read_text(encoding="utf-8")))
+        table = text.split("static const char *const SIDECAR_FORMATS", 1)[1].split("};", 1)[0]
+        formats = []
+        for sub, name in re.findall(r'DATA_FORMAT\((VV_DATA_SUB_\w+), "([^"]*)"\)', table):
+            formats.append("%s\\Virtual Villagers Fun Patcher Data\\" + macros[sub] + "\\" + name + " - Save %d.dat")
+        for n in re.findall(r'CAUSE_OF_DEATH_FORMAT\("(\d)"\)', table):
+            formats.append("%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " + n + " Graves - Save %d.dat")
+        for n in re.findall(r'ROSTER_FORMAT\("(\d)"\)', table):
+            formats.append("%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " + n + " Village Roster - Save %d.dat")
+        formats += [f.replace("\\\\", "\\") for f in re.findall(r'"(%s\\\\[^"]*)"', table)]
+        self.assertGreaterEqual(len(formats), 30, "the table was not read")
+        longest = max(formats, key=len)
+        tail = len(longest.replace("%s", "").replace("%d", "5")) + 1   # + NUL
+        self.assertEqual(len(longest) - 2, tail, longest)
 
     def test_every_subfolder_reserve_covers_its_own_append(self) -> None:
         """`reserve` here covers only what the CALLER appends after `sub`.

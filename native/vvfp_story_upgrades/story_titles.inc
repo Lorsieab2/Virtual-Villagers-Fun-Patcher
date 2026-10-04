@@ -137,6 +137,8 @@ static void titles_remove_at(int i) {
     titles.seen[titles.count] = 0;
 }
 
+static int titles_live_count(int game, unsigned int identity, int *where);
+
 /* The custom title of the villager in `record`, or NULL. */
 static const char *titles_lookup(int game, const unsigned char *record) {
     int index;
@@ -152,6 +154,14 @@ static const char *titles_lookup(int game, const unsigned char *record) {
     i = titles_find((unsigned int)index);
     if (i < 0 || titles.entries[i].fingerprint != story_title_identity(game, record)) {
         return NULL;
+    }
+    {
+        /* Two living villagers who carry the title's identity: which of them
+           it was set for cannot be told after a reload, so neither shows it. */
+        int where = -1;
+        if (titles_live_count(game, titles.entries[i].fingerprint, &where) != 1) {
+            return NULL;
+        }
     }
     return titles.entries[i].title;
 }
@@ -281,9 +291,13 @@ static int titles_follow(int game) {
         int where = -1;
         int duplicate = 0;
         target[i] = -1;
+        /* Still where it was.  (If another living villager carries the same
+           identity, the one at this record may be the OTHER one after a
+           reload -- Codex, #516 -- so titles_lookup and the exporter show an
+           ambiguous title on neither; it is kept here, not guessed at.) */
         if (record != NULL && story_record_present(game, record)
             && titles.entries[i].fingerprint == story_title_identity(game, record)) {
-            target[i] = (int)titles.entries[i].index;   /* still where it was */
+            target[i] = (int)titles.entries[i].index;
             continue;
         }
         for (j = 0; j < titles.count; ++j) {

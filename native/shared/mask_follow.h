@@ -16,13 +16,18 @@
    Inputs, n records each:
      value[i]   the entry at record i (0 = none)
      stored[i]  the identity stored with that entry (0 = unknown)
+     roster[i]  the identity of whoever held record i when the table was keyed
+                (0 = empty), for EVERY record, masked or not -- or NULL when
+                no roster is known, which counts as "the records moved"
      live[i]    the identity of the villager in record i now (0 = empty record)
    Rules, the same as the VV1 parentage sidecar's:
      - an entry whose identity is held by exactly one entry and exactly one
        living villager goes to that villager's record, wherever it is;
      - an entry whose identity is NOT unique is never guessed at: it stays at
-       its own record only when nothing moved at all and the villager there
-       still carries it, and is otherwise dropped;
+       its own record only when the roster did not move at all (decided over
+       the WHOLE roster by vv_roster_moved, not from the entries that could be
+       placed -- a repack of nothing but duplicates is still a repack) and the
+       villager there still carries it, and is otherwise dropped;
      - an entry whose villager is in no record stays where it was while that
        record is empty (dead or away: the game's own death sweep decides),
        and is dropped as soon as anyone else holds that record;
@@ -51,12 +56,32 @@ static int vv_mask_follow_count(const unsigned int *ids, const unsigned char *on
     return c;
 }
 
+/* Did the villagers move between `roster` and `live`?  Yes when a record
+   that held someone holds someone ELSE now, or when a villager whose record
+   is empty now is living in another record.  A birth into an empty record
+   and a death are not moves.  An unknown roster (NULL) counts as moved. */
+static int vv_roster_moved(int n, const unsigned int *roster, const unsigned int *live) {
+    int i;
+    if (roster == 0) {
+        return 1;
+    }
+    for (i = 0; i < n; ++i) {
+        if (roster[i] != 0 && live[i] != 0 && roster[i] != live[i]) {
+            return 1;
+        }
+        if (roster[i] != 0 && live[i] == 0 && vv_mask_follow_count(live, 0, n, roster[i], 0) > 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int vv_mask_follow(int n, const unsigned char *value, const unsigned int *stored,
-                          const unsigned int *live, int down_only,
+                          const unsigned int *roster, const unsigned int *live, int down_only,
                           unsigned char *new_value, unsigned int *new_stored) {
     int target[VV_MASK_FOLLOW_MAX];
     int i;
-    int repacked = 0;
+    int repacked = vv_roster_moved(n, roster, live);
     int changed = 0;
     for (i = 0; i < n; ++i) {
         int where = -1;

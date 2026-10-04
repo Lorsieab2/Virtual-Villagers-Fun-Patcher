@@ -128,12 +128,13 @@ class DescriptionsMatchTheCatalogTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn(
-            "Virtual Villagers Fun Patcher Data\\\\Virtual Villagers 1 Parentage Records - Save %u.dat",
+            'wsprintfA(name, "Virtual Villagers 1 Parentage Records - Save %u.dat"',
             source,
         )
+        self.assertIn("VV_DATA_SUB_PARENTAGE", source)
         self.assertIn(
             "'Virtual Villagers 1 Parentage Records - Save <slot>.dat' in the "
-            "'Virtual Villagers Fun Patcher Data' folder",
+            "'Virtual Villagers Fun Patcher Data\\Parentage Records' folder",
             manifest["description"],
         )
         self.assertNotIn("vv1_parents_", manifest["description"])
