@@ -441,6 +441,18 @@ class SafetyTests(SaveFolderTest):
         }
         self.assertEqual(copied, before, "the backup holds every file as it was before the rename")
 
+    def test_the_before_rename_backup_is_offered_by_restore_saves(self) -> None:
+        game, folder = self.make_folder("huttest", 5, "Modded")
+        original = game.save_path(folder, 1).read_bytes()
+        result = rename.rename_tribe(game, folder, 1, "New Name", FakeProcesses(), NOW)
+        listed = backup.list_backups(folder)
+        self.assertEqual([info.path for info in listed], [result.backup.backup_folder])
+        self.assertTrue(listed[0].before_rename)
+        self.assertFalse(listed[0].before_restore)
+        self.assertEqual(listed[0].label, "2026-10-04 15:30:00 (before rename)")
+        self.assertEqual(listed[0].villages, {1: "Kalahuna Tribe 5"})
+        self.assertEqual((result.backup.backup_folder / game.save_path(folder, 1).name).read_bytes(), original)
+
     def test_a_failed_backup_changes_nothing(self) -> None:
         game, folder = self.make_folder("huttest", 1, "Modded")
         before = self.snapshot(folder)
@@ -721,7 +733,7 @@ class NativeReadersFollowTheNoteTests(unittest.TestCase):
 
 
 class FolderTests(unittest.TestCase):
-    def test_modded_folders_first_then_the_stock_games_own(self) -> None:
+    def test_the_modded_folders_back_up_and_restore_list(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             documents = Path(tmp)
             title = rename.GAMES[2].title
@@ -729,7 +741,11 @@ class FolderTests(unittest.TestCase):
                 (documents / "LDW" / name).mkdir(parents=True)
             self.assertEqual(
                 [path.name for path in rename.rename_folders(title, documents)],
-                [f"{title} - Modded", f"{title} - Modded 256", title],
+                [f"{title} - Modded", f"{title} - Modded 256"],
+            )
+            self.assertEqual(
+                rename.rename_folders(title, documents),
+                backup.find_save_folders(title, documents),
             )
             self.assertEqual(rename.rename_folders(title, None), [])
 
@@ -737,14 +753,14 @@ class FolderTests(unittest.TestCase):
 class GuiTests(unittest.TestCase):
     SOURCE = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
 
-    def test_the_link_sits_beside_back_up_saves(self) -> None:
+    def test_the_link_sits_beside_back_up_and_restore_saves(self) -> None:
         self.assertRegex(
             self.SOURCE,
-            r'"Back Up Saves", self\._back_up_single_saves\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
-            r'self\._folder_link\(\s*links, "Rename Tribe", self\._rename_single_tribe',
+            r'"Restore Saves\.\.\.", self\._restore_single_saves\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
+            r'self\._folder_link\(\s*links, "Rename Tribe\.\.\.", self\._rename_single_tribe',
         )
-        self.assertIn('"Rename tribe"', self.SOURCE)
-        self.assertIn('text="Rename Tribe..."', self.SOURCE)
+        self.assertIn('"Rename tribe...",\n                lambda game=build: self._rename_tribe(game)', self.SOURCE)
+        self.assertIn('text="Rename Tribe...",\n            command=lambda: self._rename_tribe(None)', self.SOURCE)
 
     def test_the_rename_runs_off_the_main_thread_through_the_module(self) -> None:
         self.assertIn("import vv_tribe_rename", self.SOURCE)

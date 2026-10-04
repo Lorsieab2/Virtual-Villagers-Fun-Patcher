@@ -140,8 +140,31 @@ The patcher can copy your modded games' saves for you, in all five games.
 5. The result window shows how many files were copied and their size, with an
    "Open Backup Folder" link.
 
-To restore a backup, quit the game, then copy the files from the backup folder
-back into the save folder.
+RESTORE SAVES
+
+1. Quit the game from its own menu first. A restore is refused while the game
+   is running, because a running game writes its village over the restored
+   save when it quits. The patcher never closes the game for you.
+2. Click "Restore Saves..." on the One Game tab, or "Restore saves..." on a
+   game's row on the All 5 Games tab.
+3. The window lists that game's backups, newest first, each with its date and
+   time, which variant ("Modded", "Modded 256" ...) it came from, the village
+   in each save slot, and its size.
+4. Choose "The whole save folder" or "One save slot only" and the slot, then
+   click "Restore...". A confirmation lists exactly which files will be
+   replaced, added and removed.
+   One slot restores only that slot's saves and that slot's patcher files.
+   It is refused, and the window says why, when the backup and your saves
+   differ in a file that belongs to no single slot (the game's shared slot 0
+   save, or a patcher file that does not say which save it is for); restore
+   the whole save folder instead.
+5. Before anything is changed, your saves as they are now are backed up as
+   "Backup (date) (before restore)", so every restore can be undone by
+   restoring that backup. Each file is put in place only after its copy has
+   been checked against the backup; if anything goes wrong, every file already
+   changed is put back.
+6. "Delete Backup..." deletes the chosen backup after asking. A restore never
+   changes or deletes any backup.
 
 RENAME TRIBE
 
@@ -149,11 +172,11 @@ The patcher can change a tribe's name inside its save, in all five games.
 
 1. Quit the game first (from its own menu). A game that is running is
    refused: it saves when you quit it, which would put the old name back.
-2. On the One Game tab, choose the game's EXE and click "Rename Tribe". On
-   the All 5 Games tab, click "Rename tribe" on a game's row, or
-   "Rename Tribe..." to pick any game.
-3. Pick the game, the save folder (every "- Modded..." folder, then the
-   stock game's own) and the tribe. Each save slot is listed with its
+2. On the One Game tab, choose the game's EXE and click "Rename Tribe...".
+   On the All 5 Games tab, click "Rename tribe..." on a game's row, or
+   "Rename Tribe..." below them to pick any game.
+3. Pick the game, the save folder (every "- Modded..." folder, as Back Up
+   Saves lists them) and the tribe. Each save slot is listed with its
    current name.
 4. Type the new name. The counter shows the game's own limit: 31 characters
    in A New Home and The Lost Children, 19 in The Secret City, The Tree of
@@ -162,6 +185,7 @@ The patcher can change a tribe's name inside its save, in all five games.
    long or uses those characters is refused, never cut short.
 5. Click "Rename". The save folder is backed up first, into
        (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before rename)
+   Restore Saves lists that backup like any other, so a rename can be undone.
    Then the name is changed in the slot's save, its older copies and the
    slot list. Every file is checked after writing; if anything fails, every
    file is put back as it was.

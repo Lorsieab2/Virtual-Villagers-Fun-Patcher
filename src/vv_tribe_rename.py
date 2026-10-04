@@ -72,7 +72,7 @@ from pathlib import Path
 import vv_save_backup
 
 MAGIC = b"ldwg"
-BACKUP_LABEL = "(before rename)"
+BACKUP_LABEL = vv_save_backup.BEFORE_RENAME
 # The slot-select screen's word for an empty slot.
 EMPTY_SLOT = "NEW PLAYER"
 SLOTS = (1, 2, 3, 4, 5)
@@ -643,7 +643,7 @@ def rename_tribe(
     old, changes = plan_save_changes(game, folder, slot, new_name)
     notes = plan_log_notes(game, folder, slot, old, new_name, when)
     try:
-        backup = vv_save_backup.copy_save_folder(folder, when, BACKUP_LABEL)
+        backup = vv_save_backup.copy_save_folder(folder, when, suffix=BACKUP_LABEL)
     except vv_save_backup.BackupError as exc:
         raise RenameError(f"The backup before renaming failed, so nothing was changed. {exc}") from exc
     # The backup took a moment; the game may have been started meanwhile.
@@ -701,11 +701,8 @@ def rename_tribe(
 
 
 def rename_folders(title: str, documents: Path | None) -> list[Path]:
-    """The save folders Rename Tribe offers for ``title``: every modded one,
-    then the stock game's own."""
-    folders = vv_save_backup.find_save_folders(title, documents)
-    if documents is not None:
-        stock = documents / "LDW" / title
-        if stock.is_dir():
-            folders.append(stock)
-    return folders
+    """The save folders Rename Tribe offers for ``title``: the same
+    "<title> - Modded..." folders Back Up and Restore Saves list (the patched
+    games' saves), patcher-made ones first. The stock game's own folder is
+    not offered."""
+    return vv_save_backup.find_save_folders(title, documents)
