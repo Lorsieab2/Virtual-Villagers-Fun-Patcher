@@ -125,6 +125,15 @@ int main(void) {
     check(vv_roster_same_villager("3\tMoku\t0000ABCD", "1\tMoku\t0000ABCD") == 0,
           "a villager at neither its recorded record nor its rank is not matched by the pair test");
 
+    /* Codex (#516): a saved Kai at record 2 died during the catch-up; the
+       other saved Kai (rank 2) survives at record 2 beside two newborns.  A
+       name-only match of the dead Kai must not hide the survivor's
+       fingerprint match. */
+    reset();
+    add(was, &was_n, 0, "Ata", 0x11); add(was, &was_n, 2, "Kai", 0x21); add(was, &was_n, 3, "Kai", 0x22);
+    add(now, &now_n, 0, "New1", 0x91); add(now, &now_n, 1, "New2", 0x92); add(now, &now_n, 2, "Kai", 0x22);
+    check(same(), "a fingerprint match is found even when a same-name row could be taken first");
+
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
 }
