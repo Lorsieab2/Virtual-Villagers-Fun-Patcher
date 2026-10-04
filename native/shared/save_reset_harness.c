@@ -251,6 +251,16 @@ int main(void) {
             check(!exists(t1), what);
             wsprintfA(what, "custom titles of slot 2 survive a slot-1 reset (game %d)", game);
             check(exists(t2), what);
+            /* other_game is "vv2_masks_1.dat": the "another game's sidecar"
+               fixture for the VV1 resets, but VV2's OWN slot-1 sidecar, so
+               this loop's VV2 slot-1 Start Over rightly deletes it. Assert
+               that, then put it back so the survivor checks further down
+               still have it to test (they failed on every run from #495
+               until this restore: the fixture was gone, not the reset wrong). */
+            if (game == 2) {
+                check(!exists(other_game), "VV2 slot-1 reset deletes VV2's own slot-1 sidecar");
+                touch(other_game);
+            }
         }
         DeleteFileA(t2);
     }
@@ -429,8 +439,10 @@ int main(void) {
     check(vv_reset_slot_state(1, -1, VILLAGE) == -1, "negative slot refused");
     check(vv_reset_slot_state(0, 1, VILLAGE) == -1, "game 0 refused");
     check(vv_reset_slot_state(6, 1, VILLAGE) == -1, "game 6 refused");
-    check(exists(mask2) && exists(save1) && exists(other_game),
-          "survivors still present after all five refusals");
+    /* One check per survivor, so a failure names the file that went. */
+    check(exists(mask2), "survivor: VV1 slot-2 sidecar present after all five refusals");
+    check(exists(save1), "survivor: the game's own .ldw present after all five refusals");
+    check(exists(other_game), "survivor: VV2 slot-1 sidecar present after all five refusals");
 
     /* The two guards above are easy to write and easy to get wrong. Mutation
        testing showed an earlier version of this harness could not tell a
