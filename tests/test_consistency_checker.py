@@ -154,6 +154,18 @@ class Vv3Fixture(unittest.TestCase):
         self.assertTrue(checker.is_elder(3, roster[0]) and not checker.is_elder(3, roster[1]))
         self.assertEqual(rep.wrong, 0)
 
+    def test_the_256_villager_extension_is_read_after_the_150(self):
+        data = bytearray(77608 + 20 + 2 * 0x11C)
+        for k, (base, names) in enumerate(((30832, ("Vinapu", "Manaka")), (77608, ("Fill150", "Fill151")))):
+            for i, name in enumerate(names):
+                e = base + i * 0x11C
+                struct.pack_into("<I", data, e, 1)
+                data[e + 20:e + 20 + len(name)] = name.encode()
+                struct.pack_into("<i", data, e + 20 + 28, 3)
+        roster = checker.vv25_roster(3, bytes(data), [])
+        self.assertEqual([(v.rank, v.name) for v in roster],
+                         [(0, "Vinapu"), (1, "Manaka"), (2, "Fill150"), (3, "Fill151")])
+
 
 if __name__ == "__main__":
     unittest.main()

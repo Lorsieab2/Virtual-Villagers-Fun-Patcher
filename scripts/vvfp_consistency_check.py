@@ -161,7 +161,7 @@ LAYOUTS = {
     4: SaveLayout(0x104, 0x19, -0x0C, 1, -0x10, 0x1C, 0x20, 0xC0, 5, True, 0x24, 0x3D, 0x19),
     5: SaveLayout(0x118, 0x19, -0x0C, 1, -0x10, 0x1C, 0x20, 0xC0, 6, True, 0x24, 0x3D, 0x19),
 }
-NAME_RE = re.compile(rb"[A-Z][A-Za-z' -]{1,23}\0")
+NAME_RE = re.compile(rb"[A-Z][A-Za-z0-9' -]{1,23}\0")
 
 
 def plausible(data: bytes, p: int, lay: SaveLayout) -> bool:
@@ -195,10 +195,26 @@ def vv25_roster(game: int, data: bytes, hint_names: list[str]) -> list[Villager]
     if start is None:
         raise ValueError("no villager table found")
     out = []
-    p = start
+    starts = [start]
+    # 256 Villagers (Experimental): villagers 151-256 are kept in an extension the patched game
+    # appends to the save, as a second run of the same entries further on.
+    end = start
+    while plausible(data, end, lay):
+        end += lay.stride
+    for m in NAME_RE.finditer(data, end):
+        if plausible(data, m.start(), lay) and plausible(data, m.start() + lay.stride, lay):
+            starts.append(m.start())
+            break
+    for p in starts:
+        out.extend(_entries(data, p, lay, len(out)))
+    return out
+
+
+def _entries(data: bytes, p: int, lay: SaveLayout, first: int) -> list[Villager]:
+    out = []
     while plausible(data, p, lay):
         skills = [(f32 if lay.skills_float else i32)(data, p + lay.skills + 4 * k) for k in range(lay.skill_count)]
-        out.append(Villager(rank=len(out), name=cstr(data, p, lay.name_cap),
+        out.append(Villager(rank=first + len(out), name=cstr(data, p, lay.name_cap),
                             male=i32(data, p + lay.gender) == lay.male_value,
                             age=i32(data, p + lay.age), head=i32(data, p + lay.head), body=i32(data, p + lay.body),
                             skills=skills,

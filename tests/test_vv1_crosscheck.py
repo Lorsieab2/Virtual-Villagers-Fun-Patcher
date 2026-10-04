@@ -94,7 +94,7 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "the marker records that the check ran and repaired",
             "... and lists Lisha's correction",
             "the repaired sidecar on disk loads with every villager's true parents",
-            "the next load does not ask again: it runs once per village",
+            "the next load does not ask again: it runs once per village (the scan answers 'nothing', not 'later')",
             "... and changes nothing, backs nothing up, notes nothing",
             # nothing to repair
             "a table already in step with the log: no prompt",
@@ -102,6 +102,7 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "no Births log: no prompt, nothing changed",
             "a log with no Birth record clears nobody: treated as no log",
             "another slot's births are never used",
+            "a log that goes on to another slot's village still repairs this one from its own section",
             # ambiguity is never guessed at
             "Birth records that disagree for one villager: the parents are set to unknown, never guessed",
             "identical twins whose Birth records agree both get those parents",

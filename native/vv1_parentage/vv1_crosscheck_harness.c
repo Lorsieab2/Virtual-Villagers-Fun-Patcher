@@ -436,7 +436,8 @@ static void owner_scenario(void) {
         read_all(sidecar, repaired, sizeof(repaired), &a);
         asked = load_and_check(after_load, IDYES);
         read_all(sidecar, again, sizeof(again), &b);
-        check(asked == 0, "the next load does not ask again: it runs once per village");
+        check(asked == 0 && vv1_xc_scan(SLOT, after_load, &g_plan) == 0,
+              "the next load does not ask again: it runs once per village (the scan answers 'nothing', not 'later')");
         check(a == b && memcmp(repaired, again, a) == 0 && file_size(repairs) == note_size && !exists(backup2),
               "... and changes nothing, backs nothing up, notes nothing");
     }
@@ -499,6 +500,18 @@ static void clean_and_no_log_cases(void) {
     write_sidecar(village, entries);
     asked = load_and_check(village, IDYES);
     check(asked == 0 && marker_result() == VV1_XC_RESULT_NO_LOG, "another slot's births are never used");
+
+    /* ... and another slot's section AFTER this village's does not hide this village's. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    lstrcatA(logtext, "Village: Other Tribe (Save 2)\n");
+    log_save(1);
+    write_drifted_owner_sidecar();
+    asked = load_and_check(after_load, IDYES);
+    check(asked == 1 && g_applied == 1 && all_true(after_load),
+          "a log that goes on to another slot's village still repairs this one from its own section");
 }
 
 static void ambiguity_cases(void) {
