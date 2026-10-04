@@ -1,0 +1,164 @@
+/* Make a per-villager table follow its villagers when the game renumbers
+   them.
+
+   Every game saves only its occupied villager records, packed in record
+   order, and loads them into records 0, 1, 2, ... (seen live in A New Home
+   and The Lost Children; emulated for The Secret City, The Tree of Life and
+   New Believers).  So after a death and a reload everyone behind the dead
+   villager is in a lower record, and a table kept by record index -- the
+   Origins mask tables -- attaches each entry to whoever now sits at its old
+   index.
+
+   vv_mask_follow re-keys such a table by the identity stored beside each
+   entry.  It is pure (arrays in, arrays out: no game memory, no files), so
+   tests/test_mask_follow.py drives it through native/shared/mask_follow_harness.c.
+
+   Inputs, n records each:
+     value[i]   the entry at record i (0 = none)
+     stored[i]  the identity stored with that entry (0 = unknown)
+     roster[i]  the identity of whoever held record i when the table was keyed
+                (0 = empty), for EVERY record, masked or not -- or NULL when
+                no roster is known, which counts as "the records moved"
+     live[i]    the identity of the villager in record i now (0 = empty record)
+   Rules, the same as the VV1 parentage sidecar's:
+     - an entry whose identity is held by exactly one entry -- and by one
+       record of the whole stored roster, masked or not (Codex, #516: a
+       masked twin who died must not hand her mask to the unmasked one) --
+       and exactly one living villager goes to that villager's record,
+       wherever it is;
+     - an entry whose identity is NOT unique is never guessed at: it stays at
+       its own record only when the roster did not move at all (decided over
+       the WHOLE roster by vv_roster_moved, not from the entries that could be
+       placed -- a repack of nothing but duplicates is still a repack) and the
+       villager there still carries it, and is otherwise dropped;
+     - an entry whose villager is in no record stays where it was while that
+       record is empty (dead or away: the game's own death sweep decides),
+       and is dropped as soon as anyone else holds that record;
+     - with down_only, a move to a HIGHER record is refused (a packed load
+       only ever moves villagers down) -- for files that hold only a weak
+       identity, such as a name hash.
+   Outputs new_value[n] and new_stored[n] (an entry keeps its stored
+   identity).  n is at most VV_MASK_FOLLOW_MAX (every game has 150 or 256
+   records).  Returns 1 when anything changed. */
+#ifndef VV_MASK_FOLLOW_H
+#define VV_MASK_FOLLOW_H
+
+#define VV_MASK_FOLLOW_MAX 256
+
+static int vv_mask_follow_count(const unsigned int *ids, const unsigned char *only_where,
+                                int n, unsigned int id, int *where) {
+    int i, c = 0;
+    for (i = 0; i < n; ++i) {
+        if (ids[i] == id && (only_where == 0 || only_where[i] != 0)) {
+            ++c;
+            if (where != 0) {
+                *where = i;
+            }
+        }
+    }
+    return c;
+}
+
+/* Did the villagers move between `roster` and `live`?  Yes when a record
+   that held someone holds someone ELSE now, or when a villager whose record
+   is empty now is living in another record.  A birth into an empty record
+   and a death are not moves.  An unknown roster (NULL) counts as moved. */
+static int vv_roster_moved(int n, const unsigned int *roster, const unsigned int *live) {
+    int i;
+    if (roster == 0) {
+        return 1;
+    }
+    for (i = 0; i < n; ++i) {
+        if (roster[i] != 0 && live[i] != 0 && roster[i] != live[i]) {
+            return 1;
+        }
+        if (roster[i] != 0 && live[i] == 0 && vv_mask_follow_count(live, 0, n, roster[i], 0) > 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int vv_mask_follow(int n, const unsigned char *value, const unsigned int *stored,
+                          const unsigned int *roster, const unsigned int *live, int down_only,
+                          unsigned char *new_value, unsigned int *new_stored) {
+    int target[VV_MASK_FOLLOW_MAX];
+    int i;
+    int repacked = vv_roster_moved(n, roster, live);
+    int changed = 0;
+    for (i = 0; i < n; ++i) {
+        int where = -1;
+        target[i] = -1;
+        if (value[i] == 0 || stored[i] == 0) {
+            continue;
+        }
+        if (vv_mask_follow_count(stored, value, n, stored[i], 0) == 1
+            && (roster == 0 || vv_mask_follow_count(roster, 0, n, stored[i], 0) <= 1)
+            && vv_mask_follow_count(live, 0, n, stored[i], &where) == 1
+            && !(down_only && where > i)) {
+            target[i] = where;
+            if (where != i) {
+                repacked = 1;
+            }
+        }
+    }
+    for (i = 0; i < n; ++i) {
+        if (value[i] != 0 && stored[i] != 0 && target[i] < 0 && !repacked && live[i] == stored[i]) {
+            target[i] = i;            /* an ambiguous identity, where nothing moved */
+        }
+    }
+    for (i = 0; i < n; ++i) {
+        new_value[i] = 0;
+        new_stored[i] = 0;
+    }
+    for (i = 0; i < n; ++i) {
+        if (value[i] != 0 && target[i] >= 0) {
+            new_value[target[i]] = value[i];
+            new_stored[target[i]] = stored[i];
+        }
+    }
+    /* An entry nobody holds stays only while its record is empty -- and an
+       empty record is never another entry's target, since every target is
+       where a living villager is. */
+    for (i = 0; i < n; ++i) {
+        if (value[i] != 0 && target[i] < 0 && live[i] == 0) {
+            new_value[i] = value[i];  /* away or dead, its record still empty: kept */
+            new_stored[i] = stored[i];
+        }
+    }
+    for (i = 0; i < n; ++i) {
+        changed |= new_value[i] != value[i] || (new_value[i] != 0 && new_stored[i] != stored[i]);
+    }
+    return changed;
+}
+
+/* A RENAME, seen while the village stays loaded.  The identities hash the
+   name, so a villager the player renames would otherwise look like a new
+   occupant of their record: their mask dropped, and in a village of one or
+   two the whole roster taken for another village's (Codex, #516).  A rename
+   is told from everything else by what it cannot do: it changes exactly ONE
+   record between two looks at the roster, and keeps the part of the identity
+   that is not the name (`*_stable`: gender and parents, say; 0 for an empty
+   record).  A repack changes at least two records (the villager who moved
+   down and the record they left), a death empties a record and a birth fills
+   one (stable 0 on one side), and a newborn in a dead villager's record
+   between two looks has other parents.  Returns that record, or -1 when the
+   change is not a rename (or there is none). */
+static int vv_roster_renamed(int n, const unsigned int *was, const unsigned int *was_stable,
+                             const unsigned int *now, const unsigned int *now_stable) {
+    int i, at = -1;
+    for (i = 0; i < n; ++i) {
+        if (was[i] != now[i]) {
+            if (at >= 0) {
+                return -1;            /* more than one record changed */
+            }
+            at = i;
+        }
+    }
+    if (at < 0 || was_stable[at] == 0 || was_stable[at] != now_stable[at]) {
+        return -1;
+    }
+    return at;
+}
+
+#endif

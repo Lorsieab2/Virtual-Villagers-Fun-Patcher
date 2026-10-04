@@ -286,6 +286,13 @@ static int g_save_id;
 static int g_elders_ready;
 static int g_elders_value;
 
+/* Village Elders follows each elder to the record a reload puts them in:
+   the games save their occupied records packed and load them into records
+   0, 1, 2, ..., so the villager the previous save recorded at record s comes
+   back at its rank in that roster.  Built from the roster this save's
+   village_changed read (g_roster_was, rows in record order). */
+static void elders_ranks(struct elders_layout *l);
+
 static int village_elders_for(int game_id) {
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     struct elders_layout l;
@@ -330,6 +337,7 @@ static int village_elders_for(int game_id) {
     } else {
         return -1;
     }
+    elders_ranks(&l);
     g_elders_value = vv_village_elders(game_id, g_save_id, &l);
     g_elders_ready = 1;
     return g_elders_value;
@@ -377,6 +385,7 @@ static int vv1_village_elders(const unsigned char *manager) {
     l.skill_count = 5u;
     l.skills_are_float = 0;
     l.master_int = 90;
+    elders_ranks(&l);
     g_elders_value = vv_village_elders(GAME_VV1, g_save_id, &l);
     g_elders_ready = 1;
     return g_elders_value;
@@ -1187,7 +1196,10 @@ typedef int (__fastcall *save_writer)(void *manager, void *unused,
    likes and dislikes arrays and, where the record stores them, the parents'
    names. A recorded villager and a living one are the same when they share
    the slot AND either the name or the fingerprint, so a player renaming
-   villagers never looks like a new village. If the next save's living
+   villagers never looks like a new village. "The slot" is the record the
+   villager held when the roster was written OR its rank in that roster:
+   the games load a save packed into records 0, 1, 2, ..., so after a
+   reload everyone behind a death is at its rank (roster_match.c). If the next save's living
    roster shares no villager with the recorded one, the slot now holds a
    different village. The decision is made before the stock save, but it is
    committed only AFTER the save succeeds: the three .dat files are then
@@ -1314,6 +1326,7 @@ static int move_aside(const wchar_t *path, unsigned long long stamp) {
 }
 
 static int g_roster_now_count;
+static int g_roster_was_count;        /* rows of g_roster_was read by this save's village_changed */
 
 static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
     wchar_t folder[MAX_PATH];
@@ -1350,6 +1363,7 @@ static int village_changed(int game_id, int save_id) {
     char line[128];
     int was = 0;
     int i;
+    g_roster_was_count = 0;
     g_roster_now_count = living_roster(game_id, g_roster_now);
     if (!roster_paths(save_id, roster, temporary)) {
         return ROSTER_LOCKED;
@@ -1383,11 +1397,28 @@ static int village_changed(int game_id, int save_id) {
         ++was;
     }
     fclose(f);
+    g_roster_was_count = was;         /* where these villagers come back after a reload: Village Elders */
     if (was == 0 || g_roster_now_count == 0) {
         return ROSTER_SAME;           /* nothing to compare */
     }
     return vv_roster_same_village(&g_roster_was[0][0], was, &g_roster_now[0][0], g_roster_now_count,
                                   ROSTER_ROW) ? ROSTER_SAME : ROSTER_NEW;
+}
+
+static void elders_ranks(struct elders_layout *l) {
+    static int rank_of_slot[ROSTER_MAX];
+    int i;
+    for (i = 0; i < ROSTER_MAX; ++i) {
+        rank_of_slot[i] = -1;
+    }
+    for (i = 0; i < g_roster_was_count; ++i) {
+        int slot = atoi(g_roster_was[i]);
+        if (slot >= 0 && slot < ROSTER_MAX) {     /* the file's own number: never trusted as an index */
+            rank_of_slot[slot] = i;
+        }
+    }
+    l->rank_of_slot = rank_of_slot;
+    l->rank_slots = ROSTER_MAX;
 }
 
 /* AFTER the stock save succeeded: for a new village, move the slot's three

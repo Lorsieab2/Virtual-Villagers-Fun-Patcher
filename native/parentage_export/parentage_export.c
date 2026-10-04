@@ -2472,26 +2472,48 @@ static int still_counts(const struct tribe_member *then, const struct tribe_memb
 }
 
 /* Whether `now` is still the tribe `then` was: at least a quarter of then's
-   villagers, and at least one, still count in the same slots. */
+   villagers, and at least one, still count in the same slots -- or in the
+   slot a reload puts them in.  Every game saves its occupied records packed
+   and loads them into records 0, 1, 2, ..., so after a death and a reload
+   within the session each villager behind it is at its RANK among then's
+   members (they are taken in record order), not its old record; compared by
+   record alone the tribe looked replaced, and its records were held to the
+   next save.
+
+   Each villager on screen counts for ONE recorded member at most (Codex,
+   #516): a record can be one member's old slot and another member's rank,
+   and two lookalikes recorded at both would let one villager count twice --
+   enough, in a tribe of eight, for a replaced tribe to pass as the saved
+   one and have its records filed under the old village's header. */
 static int same_tribe(const struct tribe *then, const struct tribe *now, int needed) {
-    int i = 0;
-    int j = 0;
+    static int at[TRIBE_SLOTS];
+    static unsigned char used[TRIBE_SLOTS];
+    int i;
     int counted = 0;
 
     if (then->game != now->game || then->count == 0) {
         return 0;
     }
-    while (i < then->count && j < now->count) {
-        if (then->member[i].slot < now->member[j].slot) {
-            ++i;
-        } else if (then->member[i].slot > now->member[j].slot) {
-            ++j;
-        } else {
-            if (still_counts(&then->member[i], &now->member[j], needed)) {
-                ++counted;
-            }
-            ++i;
-            ++j;
+    for (i = 0; i < TRIBE_SLOTS; ++i) {
+        at[i] = -1;
+        used[i] = 0;
+    }
+    for (i = 0; i < now->count; ++i) {
+        at[now->member[i].slot] = i;
+    }
+    for (i = 0; i < then->count; ++i) {
+        int here = at[then->member[i].slot];
+        int reloaded = at[i];
+        /* A record taken at its slot cannot have been taken before: only a
+           member of lower rank could have, and its rank is its index -- so
+           only the rank match needs the check. */
+        if (here >= 0 && still_counts(&then->member[i], &now->member[here], needed)) {
+            used[here] = 1;
+            ++counted;
+        } else if (reloaded >= 0 && !used[reloaded]
+                   && still_counts(&then->member[i], &now->member[reloaded], needed)) {
+            used[reloaded] = 1;
+            ++counted;
         }
     }
     return counted >= 1 && counted * 4 >= then->count;

@@ -26,7 +26,10 @@
    the villager array plus the latest name and parents' names seen there.
    "open" = 1 while every save still finds an elder in that slot -- the line
    IS that villager, followed through renames (identity is slot continuity,
-   never the name). "gone" = 1 once that villager has been matched to their
+   never the name) and through the renumbering a reload does (the packed
+   load puts each villager at its rank in the previous save's roster, which
+   the statistics companion hands over). "gone" = 1 once that villager has
+   been matched to their
    grave. "G" = an elder known only from a grave the game
    flagged. The row prints the number of lines.
 
@@ -237,6 +240,18 @@ static int add(char kind, int slot, const char *name, const char *father, const 
     return 1;
 }
 
+/* Has a line already been given to the elder in this record during this
+   save (a line takes the record it was matched in)? */
+static int slot_claimed(int slot) {
+    int i;
+    for (i = 0; i < g_count; ++i) {
+        if (g_elders[i].kind == 'E' && g_elders[i].seen && g_elders[i].slot == slot) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int grave_occupied(const struct elders_layout *l, unsigned int index) {
     int occupancy;
     memcpy(&occupancy, l->graves + index * l->grave_stride + l->grave_occupied, sizeof(occupancy));
@@ -292,45 +307,66 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
        next save, so a save always sees the slot empty or holding a
        non-elder in between: the line closes then, and a later elder in that
        slot is a new villager. */
+    /* A RELOAD MOVES THEM.  The games save only their occupied records,
+       packed, and load them into records 0, 1, 2, ...: after a death and a
+       reload every villager behind the dead one is in a lower record (A New
+       Home, seen live).  Followed by record alone, an elder who moved from
+       record 16 to 15 took over the line of whoever had held 15 -- renamed to
+       them -- and an elder moving into a record with no open line was
+       counted a second time.  So a line also follows its villager to the
+       record the packed load puts it in (l->rank_of_slot, from the roster
+       the previous save recorded).  Matching runs in two passes over all the
+       living elders: first the same record or that reload record WITH the
+       same name, so nobody's line is taken by a neighbour; then the same
+       record or reload record alone, which keeps a renamed elder's line. */
     if (l->villagers != NULL) {
         unsigned int slot;
         int i;
+        int pass;
         for (i = 0; i < g_count; ++i) {
             g_elders[i].seen = 0;
         }
-        for (slot = 0; slot < l->slots; ++slot) {
-            const unsigned char *record = l->villagers + l->record_base + slot * l->stride;
-            char name[NAME_MAX_CHARS];
-            char father[NAME_MAX_CHARS];
-            char mother[NAME_MAX_CHARS];
-            struct elder *line = NULL;
-            if (record[l->active] != 1 || mastered_skills(record, l) < 3) {
-                continue;
-            }
-            /* Only the player's own villagers: New Believers keeps its
-               heathens in the same array, and the Heathen Chief is born with
-               every skill at 100 -- a live read showed him as the village's
-               only "elder". A converted heathen joins the tribe and counts. */
-            if (l->tribe != 0u && record[l->tribe] != 0) {
-                continue;
-            }
-            copy_name(name, record + l->name, l->name_capacity);
-            copy_name(father, l->father_name ? record + l->father_name : NULL, l->parent_name_capacity);
-            copy_name(mother, l->mother_name ? record + l->mother_name : NULL, l->parent_name_capacity);
-            for (i = 0; i < g_count && line == NULL; ++i) {
-                if (g_elders[i].kind == 'E' && g_elders[i].open && g_elders[i].slot == (int)slot) {
-                    line = &g_elders[i];
+        for (pass = 0; pass < 3; ++pass) {
+            for (slot = 0; slot < l->slots; ++slot) {
+                const unsigned char *record = l->villagers + l->record_base + slot * l->stride;
+                char name[NAME_MAX_CHARS];
+                char father[NAME_MAX_CHARS];
+                char mother[NAME_MAX_CHARS];
+                struct elder *line = NULL;
+                if (record[l->active] != 1 || mastered_skills(record, l) < 3 || slot_claimed((int)slot)) {
+                    continue;
                 }
-            }
-            if (line != NULL) {
-                /* the same villager: keep the line current through renames */
-                strncpy_s(line->name, sizeof(line->name), name, _TRUNCATE);
-                strncpy_s(line->father, sizeof(line->father), father, _TRUNCATE);
-                strncpy_s(line->mother, sizeof(line->mother), mother, _TRUNCATE);
-                line->seen = 1;
-            } else if (add('E', (int)slot, name, father, mother, 0)) {
-                g_elders[g_count - 1].open = 1;
-                g_elders[g_count - 1].seen = 1;
+                /* Only the player's own villagers: New Believers keeps its
+                   heathens in the same array, and the Heathen Chief is born with
+                   every skill at 100 -- a live read showed him as the village's
+                   only "elder". A converted heathen joins the tribe and counts. */
+                if (l->tribe != 0u && record[l->tribe] != 0) {
+                    continue;
+                }
+                copy_name(name, record + l->name, l->name_capacity);
+                copy_name(father, l->father_name ? record + l->father_name : NULL, l->parent_name_capacity);
+                copy_name(mother, l->mother_name ? record + l->mother_name : NULL, l->parent_name_capacity);
+                for (i = 0; i < g_count && line == NULL && pass < 2; ++i) {
+                    const struct elder *e = &g_elders[i];
+                    int at_reload = l->rank_of_slot != NULL && e->slot >= 0
+                        && (unsigned int)e->slot < l->rank_slots && l->rank_of_slot[e->slot] == (int)slot;
+                    if (e->kind == 'E' && e->open && !e->seen && (e->slot == (int)slot || at_reload)
+                        && (pass == 1 || strcmp(e->name, name) == 0)) {
+                        line = &g_elders[i];
+                    }
+                }
+                if (line != NULL) {
+                    /* the same villager: keep the line current through renames
+                       and the record it is in now */
+                    line->slot = (int)slot;
+                    strncpy_s(line->name, sizeof(line->name), name, _TRUNCATE);
+                    strncpy_s(line->father, sizeof(line->father), father, _TRUNCATE);
+                    strncpy_s(line->mother, sizeof(line->mother), mother, _TRUNCATE);
+                    line->seen = 1;
+                } else if (pass == 2 && add('E', (int)slot, name, father, mother, 0)) {
+                    g_elders[g_count - 1].open = 1;
+                    g_elders[g_count - 1].seen = 1;
+                }
             }
         }
         for (i = 0; i < g_count; ++i) {

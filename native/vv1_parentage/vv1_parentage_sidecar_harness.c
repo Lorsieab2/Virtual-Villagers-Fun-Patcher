@@ -199,6 +199,442 @@ static int loaded_alba(void) {
         && g_entries[5].father_head == 4 && g_entries[5].mother_body == 7;
 }
 
+/* ---- the parents follow the villager, not the record index ----------
+
+   A New Home compacts its villager array when a save is loaded: the dead
+   are dropped and everyone after them comes back lower.  The owner's own
+   village is the model: Ghali [0] and Onawa [3] and Kito [1] and Chika [2]
+   are founders with children alternating between the two couples; Kito and
+   Chika die, and after the next load every child is two records lower.  The
+   old code kept each entry at its index, so Lisha showed Kito and Chika and
+   Kaimi showed Ghali and Onawa -- and Silko, a grown arrival with no parents,
+   showed whoever had held his record. */
+
+static unsigned char before_load[VV1_RECORD_COUNT * VV1_RECORD_STRIDE];
+static unsigned char after_load[VV1_RECORD_COUNT * VV1_RECORD_STRIDE];
+
+typedef struct { const char *name; int male; int scalar; int couple; } kin;   /* couple: 0 none, 1 Kito+Chika, 2 Ghali+Onawa */
+
+static const kin owner_village[] = {
+    { "Ghali", 1, 45, 0 }, { "Kito", 1, 19, 0 }, { "Chika", 0, 39, 0 }, { "Onawa", 0, 50, 0 },
+    { "Huata", 0, 36, 0 }, { "Nishi", 0, 39, 1 }, { "Penyo", 0, 50, 2 }, { "Chapa", 0, 39, 1 },
+    { "Pupa", 0, 50, 2 }, { "Howi", 1, 39, 1 }, { "Usutu", 1, 50, 2 }, { "Yepa", 0, 39, 1 },
+    { "Iruwa", 0, 50, 2 }, { "Goro", 1, 39, 1 }, { "Hawa", 0, 50, 2 }, { "Lisha", 0, 50, 2 },
+    { "Kaimi", 0, 39, 1 },
+};
+#define OWNER_VILLAGERS ((int)(sizeof(owner_village) / sizeof(owner_village[0])))
+
+static void set_parents(int index, int couple) {
+    vv1_parent_entry *e = &g_entries[index];
+    memset(e, 0, sizeof(*e));
+    if (couple == 1) {
+        lstrcpyA(e->father_name, "Kito"); e->father_head = 2; e->father_body = 20;
+        lstrcpyA(e->mother_name, "Chika"); e->mother_head = 21; e->mother_body = 19;
+    } else if (couple == 2) {
+        lstrcpyA(e->father_name, "Ghali"); e->father_head = 8; e->father_body = 3;
+        lstrcpyA(e->mother_name, "Onawa"); e->mother_head = 18; e->mother_body = 4;
+    }
+}
+
+static int has_parents(int index, int couple) {
+    const vv1_parent_entry *e = &g_entries[index];
+    if (couple == 1) {
+        return lstrcmpA(e->father_name, "Kito") == 0 && lstrcmpA(e->mother_name, "Chika") == 0
+            && e->father_head == 2 && e->mother_body == 19;
+    }
+    if (couple == 2) {
+        return lstrcmpA(e->father_name, "Ghali") == 0 && lstrcmpA(e->mother_name, "Onawa") == 0
+            && e->father_head == 8 && e->mother_body == 4;
+    }
+    return e->father_head == 0 && e->father_body == 0 && e->mother_head == 0 && e->mother_body == 0
+        && e->father_name[0] == 0 && e->mother_name[0] == 0
+        && e->stash_head == 0 && e->stash_name[0] == 0;
+}
+
+/* Lay the village out packed, skipping the villagers in `dead`, then add
+   the given arrivals.  Returns how many records are occupied. */
+static int lay_out(unsigned char *records, const char *dead_a, const char *dead_b) {
+    int i, at = 0;
+    memset(records, 0, VV1_RECORD_COUNT * VV1_RECORD_STRIDE);
+    for (i = 0; i < OWNER_VILLAGERS; ++i) {
+        if ((dead_a && lstrcmpA(owner_village[i].name, dead_a) == 0)
+            || (dead_b && lstrcmpA(owner_village[i].name, dead_b) == 0)) {
+            continue;
+        }
+        put(records, at++, owner_village[i].name, owner_village[i].male, owner_village[i].scalar);
+    }
+    return at;
+}
+
+static int where(const unsigned char *records, const char *name) {
+    int i;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
+        if (rec[VV1_OCCUPIED_OFFSET] && lstrcmpA((const char *)rec + VV1_NAME_OFFSET, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* The owner's sidecar as the session before the load left it: every child's
+   parents at its own record, Chapa [7] pregnant by Usutu. */
+static void write_owner_sidecar(void) {
+    int i;
+    DeleteFileA(path);
+    fresh();
+    lay_out(before_load, NULL, NULL);
+    vv1_take_roster(before_load, g_roster);
+    for (i = 0; i < OWNER_VILLAGERS; ++i) {
+        set_parents(i, owner_village[i].couple);
+    }
+    lstrcpyA(g_entries[7].stash_name, "Usutu"); g_entries[7].stash_head = 20; g_entries[7].stash_body = 3;
+    g_may_replace = 1;
+    if (!vv1_parents_save(SLOT, before_load)) {
+        printf("FAIL setup: could not write the owner's sidecar\n");
+        ++failures;
+    }
+    fresh();
+}
+
+/* The owner's sidecar with record `at` replaced by another villager of the
+   given identity and parents (a second Howi, say). */
+static void write_dup_sidecar(int at, const char *name, int male, int scalar, int couple) {
+    int i;
+    DeleteFileA(path);
+    fresh();
+    lay_out(before_load, NULL, NULL);
+    put(before_load, at, name, male, scalar);
+    vv1_take_roster(before_load, g_roster);
+    for (i = 0; i < OWNER_VILLAGERS; ++i) {
+        set_parents(i, owner_village[i].couple);
+    }
+    set_parents(at, couple);
+    g_may_replace = 1;
+    if (!vv1_parents_save(SLOT, before_load)) {
+        printf("FAIL setup: could not write the duplicate sidecar\n");
+        ++failures;
+    }
+    fresh();
+}
+
+static int every_child_follows(const unsigned char *records) {
+    int i;
+    for (i = 0; i < OWNER_VILLAGERS; ++i) {
+        int at = where(records, owner_village[i].name);
+        if (at >= 0 && !has_parents(at, owner_village[i].couple)) {
+            printf("  ... %s at [%d] has father '%s' mother '%s'\n", owner_village[i].name, at,
+                   g_entries[at].father_name, g_entries[at].mother_name);
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static void follow_cases(void) {
+    int at, i, n;
+    static unsigned char file_now[sizeof(good)];
+    DWORD size = 0;
+
+    /* 12. The owner's scenario: Kito [1] and Chika [2] die; the load packs
+           everyone after them two records lower; Silko arrives grown. */
+    write_owner_sidecar();
+    n = lay_out(after_load, "Kito", "Chika");
+    put(after_load, n, "Silko", 1, 1);
+    /* One sync and nothing else -- no birth, no death, no export: the
+       followed table must reach the file by itself. */
+    check(vv1_parents_sync_core(SLOT, after_load) == SLOT
+          && read_all(path, file_now, sizeof(file_now), &size) && size == good_size
+          && lstrcmpA((const char *)file_now + 12 + 13 * sizeof(vv1_occupant) + 8, "Lisha") == 0
+          && lstrcmpA((const char *)file_now + 12 + sizeof(g_roster) + 13 * sizeof(vv1_parent_entry) + 8, "Ghali") == 0,
+          "the load writes the followed table back at once (Lisha and her father at record 13 in the file)");
+    play(after_load, 2);
+    check(g_loaded_slot == SLOT, "the compacted village is still this village's sidecar");
+    check(every_child_follows(after_load), "after a load that compacted the array, every child keeps its own parents");
+    at = where(after_load, "Lisha");
+    check(at == 13 && has_parents(at, 2), "... Lisha [15 -> 13] is still Ghali and Onawa's");
+    at = where(after_load, "Kaimi");
+    check(at == 14 && has_parents(at, 1), "... Kaimi [16 -> 14] is still Kito and Chika's");
+    at = where(after_load, "Nishi");
+    check(at == 3 && has_parents(at, 1), "... Nishi [5 -> 3] is still Kito and Chika's");
+    at = where(after_load, "Silko");
+    check(at == 15 && has_parents(at, 0), "a grown arrival in a record a child used to hold has no parents");
+    at = where(after_load, "Chapa");
+    check(at == 5 && lstrcmpA(g_entries[at].stash_name, "Usutu") == 0 && g_entries[at].stash_head == 20,
+          "the pregnancy stash follows the mother (Chapa [7 -> 5] still carries Usutu's child)");
+    check(lstrcmpA(g_entries[3].stash_name, "") == 0 && lstrcmpA(g_entries[2].stash_name, "") == 0,
+          "... and nobody else inherits a stash");
+    check(has_parents(16, 0), "the record past the end of the packed array keeps nothing of Kaimi's");
+    /* the file written after the follow is in step: reading it again changes nothing */
+    check(read_all(path, file_now, sizeof(file_now), &size) && size == good_size,
+          "the followed table was written back");
+    fresh();
+    play(after_load, 2);
+    check(every_child_follows(after_load) && has_parents(15, 0),
+          "the rewritten sidecar loads in step: the same parents, nothing moves twice");
+
+    /* 13. A death at record 0: nobody is at their old index any more.  The
+           old same-index village test called that "another village" and,
+           after the strike window, replaced the whole table with an empty
+           one. */
+    write_owner_sidecar();
+    lay_out(after_load, "Ghali", NULL);
+    play(after_load, FRAMES);
+    check(g_loaded_slot == SLOT && every_child_follows(after_load),
+          "a death at record 0 shifts everyone, and the table still follows them all");
+    for (i = 0, n = 0; i < VV1_RECORD_COUNT; ++i) {
+        if (g_entries[i].mother_name[0]) ++n;
+    }
+    check(n == 12, "... all twelve children's parents are in it");
+    fresh();
+    play(after_load, 2);
+    check(every_child_follows(after_load), "... and the sidecar written afterwards holds them too");
+
+    /* 14. Two villagers who share name, gender and scalar are ambiguous: after
+           a repack neither is guessed at. */
+    write_dup_sidecar(13, "Howi", 1, 39, 2);   /* Goro [13] becomes a second Howi */
+    lay_out(after_load, "Kito", "Chika");
+    put(after_load, 11, "Howi", 1, 39);   /* the second Howi, two lower; Goro is gone */
+    play(after_load, 2);
+    check(has_parents(7, 0) && has_parents(11, 0),
+          "two villagers with the same identity are left unknown after a repack, never guessed");
+    check(has_parents(where(after_load, "Lisha"), 2), "... while everyone else still follows");
+    /* The same two when nothing moved (only a birth elsewhere): kept in place. */
+    write_dup_sidecar(13, "Howi", 1, 39, 2);
+    memcpy(after_load, before_load, sizeof(after_load));
+    put(after_load, 20, "Newborn", 0, 50);
+    play(after_load, 2);
+    check(has_parents(9, 1) && has_parents(13, 2),
+          "... but when nothing moved, the same two keep the parents at their own records");
+    check(has_parents(20, 0), "... and the newcomer starts unknown");
+    /* One of the two below the deaths keeps its record while everyone after
+       moves: still ambiguous, because a repack happened -- not kept in place. */
+    write_dup_sidecar(0, "Howi", 1, 39, 2);    /* Ghali [0] becomes a second Howi */
+    lay_out(after_load, "Kito", "Chika");
+    put(after_load, 0, "Howi", 1, 39);
+    play(after_load, 2);
+    check(has_parents(0, 0) && has_parents(7, 0),
+          "a duplicate that happens to keep its record during a repack is not guessed at either");
+    /* The same name and gender with another family scalar is someone else. */
+    write_dup_sidecar(13, "Howi", 1, 50, 2);
+    lay_out(after_load, "Kito", "Chika");
+    put(after_load, 11, "Howi", 1, 50);
+    play(after_load, 2);
+    check(has_parents(7, 1) && has_parents(11, 2),
+          "two villagers with one name but different family scalars each keep their own parents");
+
+    /* 15. During play a death leaves the record empty: the entry stays,
+           under the villager's identity, until someone else holds it. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    after_load[15 * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] = 0;   /* Lisha dies */
+    play(after_load, 2);
+    check(has_parents(15, 2) && lstrcmpA(g_roster[15].name, "Lisha") == 0,
+          "a villager who dies keeps the entry while the record stays empty");
+    check(g_roster[15].departed == 1 && read_all(path, file_now, sizeof(file_now), &size)
+          && file_now[12 + 15 * sizeof(vv1_occupant) + 1] == 1,
+          "... and the roster, on disk too, marks her record departed (so a reload ranks the living)");
+    put(after_load, 15, "Baby", 0, 39);
+    play(after_load, 2);
+    check(has_parents(15, 0), "a new occupant of that record inherits nothing");
+
+    /* 16. A villager who was away and comes back in another record is
+           found again by identity. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    after_load[16 * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] = 0;   /* Kaimi away */
+    play(after_load, 2);
+    put(after_load, 40, "Tiny", 1, 50);                              /* a birth meanwhile */
+    play(after_load, 2);
+    put(after_load, 30, "Kaimi", 0, 39);
+    play(after_load, 2);
+    check(has_parents(30, 1) && has_parents(16, 0),
+          "a villager who comes back in another record takes the entry with her, and leaves none behind");
+
+    /* 18. Codex (#516): a repack made of nothing but duplicates.  Record 0
+           died; identical twins at 1 and 2 (one name, gender and scalar,
+           different parents) come back at 0 and 1.  No unique villager
+           moved, but the roster did: neither twin is guessed at. */
+    DeleteFileA(path);
+    fresh();
+    memset(before_load, 0, sizeof(before_load));
+    put(before_load, 0, "Gone", 1, 7);
+    put(before_load, 1, "Twin", 1, 5);
+    put(before_load, 2, "Twin", 1, 5);
+    vv1_take_roster(before_load, g_roster);
+    set_parents(1, 1);
+    set_parents(2, 2);
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Twin", 1, 5);
+    put(after_load, 1, "Twin", 1, 5);
+    play(after_load, 2);
+    check(g_loaded_slot == SLOT && has_parents(0, 0) && has_parents(1, 0),
+          "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)");
+
+    /* 19. Codex (#516): another village in the slot that shares ONE identity
+           with the old roster, at another record, is not the old village. */
+    write_owner_sidecar();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Penyo", 0, 50);       /* the old village had a Penyo (Ghali and Onawa's) at 6 */
+    put(after_load, 1, "Moana", 0, 12);
+    put(after_load, 2, "Tane", 1, 13);
+    put(after_load, 3, "Rua", 1, 14);
+    put(after_load, 4, "Kiri", 0, 15);
+    play(after_load, FRAMES);
+    check(g_loaded_slot == SLOT && has_parents(0, 0),
+          "one coincidental identity elsewhere is not the same village: the new Penyo gets no parents");
+
+    /* 20. Ghali, Kito and Chika died before the quit (their records marked
+           departed); after the reload Onawa is the only survivor, at record
+           0 -- her rank -- with four newborns from the catch-up beside her.
+           One unique identity of five on screen is no majority, but a
+           villager at her exact packed record is this village. */
+    DeleteFileA(path);
+    fresh();
+    lay_out(before_load, NULL, NULL);
+    vv1_take_roster(before_load, g_roster);
+    g_roster[0].departed = 1; g_roster[1].departed = 1; g_roster[2].departed = 1;
+    for (i = 0; i < 3; ++i) {
+        before_load[i * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] = 0;   /* they died before the quit */
+    }
+    for (i = 0; i < OWNER_VILLAGERS; ++i) {
+        set_parents(i, owner_village[i].couple);
+    }
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Onawa", 0, 50);
+    put(after_load, 1, "Baby1", 0, 50);
+    put(after_load, 2, "Baby2", 1, 50);
+    put(after_load, 3, "Baby3", 0, 39);
+    put(after_load, 4, "Baby4", 1, 39);
+    check(vv1_parents_sync_core(SLOT, after_load) == SLOT,
+          "a survivor at her packed record (her rank) is this village even without a majority");
+
+    /* 17. The same village loaded again in the same session (back to the
+           menu, Continue): the array is repacked between two frames while the
+           per-frame birth inference holds a snapshot of the old layout.  That
+           snapshot must not see the moved villagers as new occupants -- the
+           inference starts a new occupant's entry over. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    vv1_frame(after_load, 0);                 /* the inference's snapshot of this layout */
+    vv1_frame(after_load, 0);
+    n = lay_out(after_load, "Kito", "Chika");
+    for (i = 0; i < 2; ++i) {
+        if (vv1_parents_sync_core(SLOT, after_load)) {
+            vv1_frame(after_load, 0);
+        }
+    }
+    check(every_child_follows(after_load),
+          "a repack between two frames of play is followed, and the inference does not wipe the moved villagers");
+
+    /* 21. Codex (#516): the player renames Nishi [5] (Kito and Chika's
+           daughter) during play.  Same record, gender, family scalar and
+           age: she keeps her parents, the rest of the village keeps theirs,
+           and no birth is inferred. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    vv1_frame(after_load, 0);
+    lstrcpyA((char *)after_load + 5 * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, "Renamed");
+    for (i = 0; i < 2; ++i) {
+        if (vv1_parents_sync_core(SLOT, after_load)) {
+            vv1_frame(after_load, 0);
+        }
+    }
+    check(has_parents(5, 1) && every_child_follows(after_load) && g_birth_count == 0,
+          "a villager renamed during play keeps her parents, and no birth is inferred");
+    check(lstrcmpA(g_roster[5].name, "Renamed") == 0, "... and the table is bound to her new name");
+
+    /* 22. ...and after a quit and a reload she is still found under it. */
+    fresh();
+    for (i = 0; i < VV1_NEW_VILLAGE_STRIKES + 2 && !g_loaded_slot; ++i) {
+        vv1_parents_sync_core(SLOT, after_load);
+    }
+    check(g_loaded_slot == SLOT && has_parents(5, 1) && every_child_follows(after_load),
+          "the renamed villager's parents survive a reload");
+
+    /* 23. A village of one: her only villager renamed.  The overlap with the
+           bound roster would be nobody; the rename keeps the table. */
+    DeleteFileA(path);
+    fresh();
+    memset(before_load, 0, sizeof(before_load));
+    put(before_load, 0, "Nishi", 0, 39);
+    vv1_take_roster(before_load, g_roster);
+    set_parents(0, 1);
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    lstrcpyA((char *)after_load + VV1_NAME_OFFSET, "Solo");
+    for (i = 0; i < VV1_NEW_VILLAGE_STRIKES + 2; ++i) {
+        if (vv1_parents_sync_core(SLOT, after_load)) {
+            vv1_frame(after_load, 0);
+        }
+    }
+    check(has_parents(0, 1) && lstrcmpA(g_roster[0].name, "Solo") == 0,
+          "renaming the only villager of a village of one keeps the table");
+
+    /* 24. Not a rename: a newborn in a dead villager's record between two
+           frames (same gender and scalar, but a baby): a new occupant. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    vv1_frame(after_load, 0);
+    lstrcpyA((char *)after_load + 5 * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, "Baby");
+    *(int *)(after_load + 5 * VV1_RECORD_STRIDE + VV1_AGE_OFFSET) = 0;
+    vv1_frame(after_load, 0);
+    check(g_birth_count == 1 && has_parents(5, 0), "a baby in a dead villager's record is a new occupant, not a rename");
+
+    /* 25. Not a rename: a rename and a birth seen at once change two records;
+           the follow decides, as before. */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    lstrcpyA((char *)after_load + 5 * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, "Renamed");
+    put(after_load, OWNER_VILLAGERS, "Newcomer", 1, 77);
+    check(vv1_roster_renamed(g_roster) == -1, "(the bound roster against itself is no rename)");
+    {
+        static vv1_occupant now2[VV1_RECORD_COUNT];
+        vv1_take_roster(after_load, now2);
+        check(vv1_roster_renamed(now2) == -1, "a rename seen together with a birth is not taken for a rename");
+    }
+
+    /* 26. A Start Over into the same slot whose founders happen to have the
+           old village's genders and family scalars, record by record: every
+           record changed, so none of it is a rename. */
+    {
+        static vv1_occupant now3[VV1_RECORD_COUNT];
+        static char renamed[OWNER_VILLAGERS][16];
+        memcpy(after_load, before_load, sizeof(after_load));
+        for (i = 0; i < OWNER_VILLAGERS; ++i) {
+            wsprintfA(renamed[i], "New%d", i);
+            lstrcpyA((char *)after_load + i * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, renamed[i]);
+        }
+        vv1_take_roster(after_load, now3);
+        check(vv1_roster_renamed(now3) == -1,
+              "a new village with the old genders and family scalars is not a rename");
+
+        /* 27. One record's occupant changed to a grown villager of the same
+               gender but another family scalar: an arrival, not a rename. */
+        memcpy(after_load, before_load, sizeof(after_load));
+        put(after_load, 5, "Stranger", 0, 77);
+        vv1_take_roster(after_load, now3);
+        check(vv1_roster_renamed(now3) == -1, "another family's villager in a record is not a rename");
+    }
+
+    DeleteFileA(path);
+}
+
 /* A New Home's villager pointer (0x0048B614) and save slot (0x004911F4),
    which Vv1ParentageSetParents reads (case 11), live on this page.  By the
    time main runs the CRT heap has usually reserved it, so the harness runs
@@ -448,6 +884,8 @@ int main(int argc, char **argv) {
             *(unsigned char **)0x0048B614u = NULL;
         }
     }
+
+    follow_cases();
 
     DeleteFileA(path);
     printf("%d failure(s)\n", failures);
