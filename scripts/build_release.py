@@ -159,6 +159,9 @@ FILES = [
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
+    # Back Up Saves; the GUI imports it, so the patcher window cannot open
+    # without it.
+    "src/vv_save_backup.py",
     "src/transparency.py",
     "src/expanded_atomic_writer.py",
     "src/vv5_full_heal.py",
