@@ -358,10 +358,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Upgrades part 2): the second Tech-menu button and the host table
         # (save slot, mask store) it hands the story companion.
         # Re-pinned when it learned Pick Gong of Wonder Outcome (v1.35.46): a
-        # third Tech-menu button, outside the Island Event lock.
+        # third Tech-menu button, outside the Island Event lock. Re-pinned
+        # (v1.35.57) when the companion stopped exporting the unreachable
+        # ShowOriginsVillageWideResult; none of its other source changed.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "59FA7619FB8C4EC5FAA6FDF66E3EFA8295AACE9EA2C50BBD2BCC12BE8F2C714B",
+            "54EB935D15C3356ED49036080712C6C4A72998373AC9A2477813F1458EC1247F",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
