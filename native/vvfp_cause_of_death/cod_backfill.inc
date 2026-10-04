@@ -335,16 +335,21 @@ static int backfill_survey(int slot) {
     if (count < 0) {
         return -1;
     }
-    /* A place covered for another grave than the one there now (the save
-       was replaced, or the grave is gone) is not covered. */
+    /* A place covered for another grave than the one there now means the
+       file is not this graveyard's: graves are never moved or removed, so
+       the save was replaced (another village, or an older copy).  Then none
+       of its coverage is trusted -- a grave of the new village that happens
+       to share a place, a name and an age with the old one's is checked
+       against the log like the rest (Codex, #524). */
     for (place = 0; place < cod_grave_places(); ++place) {
         unsigned int now = 0;
         if (k < count && facts[k].place == place) {
             now = fact_fp[k++];
         }
         if (logged_fp[place] != 0u && logged_fp[place] != now) {
-            logged_fp[place] = 0u;
+            memset(logged_fp, 0, sizeof logged_fp);
             logged.dirty = 1;
+            break;
         }
     }
     for (i = 0; i < count; ++i) {

@@ -729,6 +729,17 @@ int main(int argc, char **argv) {
                   "with the Deaths log deleted, the graves file still says every grave is covered");
             DeleteFileA(third);
         }
+        /* The save replaced outside the game by another village whose grave
+           0 differs (Codex, #524): the graves file is no longer this
+           village's, so none of its coverage is trusted -- with no log on
+           disk, every grave (all nine) is missing, not only grave 0. */
+        strncpy((char *)grave_at(0), "Zito", gl->name_cap - 1);
+        {
+            int missing = scan_graves(game, 1);
+            CHECK(missing == 9, "a replaced save trusts none of the graves file's coverage");
+            if (missing != 9) printf("       (scan said %d)\n", missing);
+        }
+        strncpy((char *)grave_at(0), "Kito", gl->name_cap - 1);
         {
             FILE *f = fopen(path, "wb");          /* put the log back as it was */
             if (f) { fwrite(first, 1, strlen(first), f); fclose(f); }
