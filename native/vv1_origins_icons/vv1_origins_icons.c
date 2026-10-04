@@ -7,6 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
    companion.  The Lost Children's companion includes this file and sets 2. */
@@ -186,10 +187,13 @@ static int vv1_mask_current_slot(void) {
     return (int)slot;
 }
 
+static void vv1_mask_forget_loaded(void);
+
 static void vv1_mask_clear_state(void) {
     memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
     memset(vv1_mask_seen_alive, 0, sizeof(vv1_mask_seen_alive));
     VV_MASK_BIRTH_DIRTY = 0;
+    vv1_mask_forget_loaded();
 }
 
 /* Synchronize the DLL's latches with the executable-captured slot.  The exe
@@ -272,6 +276,73 @@ static int vv1_mask_sweep_dead(void) {
    it happens from Vv1MaskRestore (called by the exe at startup, outside the
    lock) and from the picker's own open/commit handlers. */
 #define VV_MASK_SIDECAR_MAGIC 0x31304D56u  /* 'V' 'M' '0' '1' */
+/* 'VM02' (this build): the same table followed by the IDENTITY of the
+   villager in each of the 256 records when it was written (name, gender and
+   the family scalar +0x36C -- the identity the parentage sidecar uses).  A
+   New Home loads a save packed into records 0, 1, 2, ...: after a death and
+   a reload everyone behind it is in a lower record, and a 'VM01' table --
+   record indexes and nothing else -- put each mask on whoever now sat at its
+   old record.  With the identities each mask is moved to its villager
+   (vv1_mask_follow_loaded).  A 'VM01' file cannot be followed (it never said
+   who held each record); it is read as before and written back as 'VM02'
+   once the village is up, so it follows from the next reload on. */
+#define VV_MASK_SIDECAR_MAGIC_V2 0x32304D56u  /* 'V' 'M' '0' '2' */
+#define VV_MASK_NAME_OFFSET 0x370
+#define VV_MASK_NAME_BYTES 0x1C
+#define VV_MASK_SCALAR_OFFSET 0x36C
+
+/* The identity stored with each table entry in a 'VM02' file, and the table
+   as that file held it: the follow works from these, not from the live
+   table, because the game's own newborn clear (a birth during the catch-up
+   that runs on load, before the first frame) writes the live table by the
+   NEW record numbers while it still holds the old layout. */
+static unsigned int vv1_mask_file_roster[VV_MASK_SLOTS];
+static unsigned char vv1_mask_file_table[VV_MASK_TABLE_BYTES];
+static int vv1_mask_follow_pending;   /* a 'VM02' table waits for its village to follow */
+/* The identities the file was last written with (vv1_mask_sidecar_save).
+   Kept current on every roster change (vv1_mask_roster_current): a
+   villager renamed and never written again would be followed on the next
+   load by their OLD name -- found nowhere, and the mask dropped. */
+static unsigned int vv1_mask_written[VV_MASK_SLOTS];
+static int vv1_mask_written_known;
+static int vv1_mask_rewrite_pending;  /* a 'VM01' table waits to be written back as 'VM02' */
+
+static unsigned int vv1_mask_identity(const unsigned char *rec) {
+    unsigned int h = 2166136261u;
+    int k;
+    for (k = 0; k < VV_MASK_NAME_BYTES && rec[VV_MASK_NAME_OFFSET + k]; ++k) {
+        h = (h ^ rec[VV_MASK_NAME_OFFSET + k]) * 16777619u;
+    }
+    h = (h ^ 0xFFu) * 16777619u;
+    for (k = 0; k < 4; ++k) {
+        h = (h ^ rec[VV_GENDER_OFFSET + k]) * 16777619u;
+    }
+    for (k = 0; k < 4; ++k) {
+        h = (h ^ rec[VV_MASK_SCALAR_OFFSET + k]) * 16777619u;
+    }
+    return h ? h : 1u;
+}
+
+/* The identity of each occupied record now; returns how many are occupied
+   (0: no village on screen yet). */
+static int vv1_mask_live_roster(unsigned int *out) {
+    unsigned char *base = VV_MASK_MANAGER;
+    int i, n = 0;
+    for (i = 0; i < VV_MASK_SLOTS; ++i) {
+        out[i] = 0;
+    }
+    if (base == NULL) {
+        return 0;
+    }
+    for (i = 0; i < VV_MASK_SLOTS; ++i) {
+        const unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        if (rec[VV_OCCUPIED_OFFSET] == 1) {
+            out[i] = vv1_mask_identity(rec);
+            ++n;
+        }
+    }
+    return n;
+}
 /* MIGRATE A SIDECAR LEFT BY AN OLDER BUILD.
 
    The data files moved into "Virtual Villagers Fun Patcher Data" under
@@ -419,14 +490,18 @@ static int vv1_mask_sidecar_valid(const unsigned char *data, DWORD len,
         return 0;
     }
     memcpy(&magic, data, sizeof(magic));
+    if (magic == VV_MASK_SIDECAR_MAGIC_V2) {
+        return len >= sizeof(magic) + VV_MASK_TABLE_BYTES + sizeof(vv1_mask_file_roster);
+    }
     return magic == VV_MASK_SIDECAR_MAGIC;
 }
 
 static int vv1_mask_sidecar_save(void) {
     char path[MAX_PATH];
-    unsigned int magic = VV_MASK_SIDECAR_MAGIC;
-    const void *parts[2];
-    DWORD sizes[2];
+    unsigned int magic = VV_MASK_SIDECAR_MAGIC_V2;
+    static unsigned int roster[VV_MASK_SLOTS];
+    const void *parts[3];
+    DWORD sizes[3];
     int slot = vv1_mask_prepare_slot();
     /* NEVER BEFORE THE LOAD SETTLED.  A slot whose file has not been read,
        or is present but could not be opened, still holds the player's masks
@@ -438,17 +513,99 @@ static int vv1_mask_sidecar_save(void) {
     }
     /* Written to "<path>.tmp", every write checked, flushed, then moved over
        the published file -- which stays byte-for-byte intact on any failure. */
+    /* NEVER BEFORE THE FOLLOW.  Until the loaded table has been moved to its
+       villagers, the records it would be stored against are the wrong ones. */
+    if (vv1_mask_follow_pending) {
+        return 0;
+    }
+    /* Who holds each record: records do not move during play (only a load
+       packs them), so this is the identity every entry belongs to.  With no
+       village on screen the identities are not known, and nothing is written
+       that could not be followed. */
+    if (vv1_mask_live_roster(roster) == 0) {
+        return 0;
+    }
     parts[0] = &magic;
     sizes[0] = sizeof(magic);
     parts[1] = VV_MASK_TABLE;
     sizes[1] = VV_MASK_TABLE_BYTES;
-    return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 2);
+    parts[2] = roster;
+    sizes[2] = sizeof(roster);
+    if (!vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3)) {
+        return 0;
+    }
+    memcpy(vv1_mask_written, roster, sizeof(roster));
+    vv1_mask_written_known = 1;
+    return 1;
+}
+
+/* KEEP THE FILE'S ROSTER CURRENT (Codex, #516).  Records do not move during
+   play, but who is in them is written only when the table is: a villager
+   the player renames keeps their mask on screen, yet the file still names
+   them by their old name, and the next load's follow looks for that name,
+   finds nobody and drops the mask.  So any change to the roster -- a
+   rename, a birth, a death -- is written while there are masks to lose. */
+static void vv1_mask_roster_current(void) {
+    static unsigned int live[VV_MASK_SLOTS];
+    int i, any = 0;
+    if (!vv1_mask_written_known || vv1_mask_follow_pending) {
+        return;
+    }
+    for (i = 0; i < VV_MASK_TABLE_BYTES; ++i) {
+        any |= VV_MASK_TABLE[i] != 0;
+    }
+    if (!any || vv1_mask_live_roster(live) == 0
+        || memcmp(live, vv1_mask_written, sizeof(live)) == 0) {
+        return;
+    }
+    vv1_mask_sidecar_save();
+}
+
+/* Move the loaded table to the villagers' records now, once the village is
+   on screen (native/shared/mask_follow.h).  Works from the file's own table
+   and identities (see vv1_mask_file_table).  Then writes the table back --
+   'VM02', against the records as they are now.  A 'VM01' table has nothing
+   to follow by and is only written back.  Returns 1 when it ran. */
+/* A slot change: the loaded table and its identities belong to another
+   village. */
+static void vv1_mask_forget_loaded(void) {
+    vv1_mask_follow_pending = 0;
+    vv1_mask_rewrite_pending = 0;
+}
+
+static int vv1_mask_follow_loaded(void) {
+    static unsigned int live[VV_MASK_SLOTS];
+    static unsigned char value[VV_MASK_SLOTS], moved[VV_MASK_SLOTS];
+    static unsigned int moved_id[VV_MASK_SLOTS];
+    int i;
+    if (!vv1_mask_follow_pending && !vv1_mask_rewrite_pending) {
+        return 0;
+    }
+    if (vv1_mask_live_roster(live) == 0) {
+        return 0;                       /* no village yet: wait */
+    }
+    if (vv1_mask_follow_pending) {
+        for (i = 0; i < VV_MASK_SLOTS; ++i) {
+            unsigned char packed = vv1_mask_file_table[i >> 1];
+            value[i] = (unsigned char)((i & 1) ? packed >> 4 : packed & 0x0F);
+        }
+        vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, vv1_mask_file_roster, live, 0, moved, moved_id);
+        memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
+        for (i = 0; i < VV_MASK_SLOTS; ++i) {
+            VV_MASK_TABLE[i >> 1] |= (unsigned char)((i & 1) ? moved[i] << 4 : moved[i]);
+        }
+        vv1_mask_follow_pending = 0;
+    }
+    if (vv1_mask_sidecar_save()) {
+        vv1_mask_rewrite_pending = 0;
+    }
+    return 1;
 }
 
 static void vv1_mask_sidecar_load(void) {
     char path[MAX_PATH];
     DWORD got;
-    unsigned char buf[sizeof(unsigned int) + VV_MASK_TABLE_BYTES];
+    unsigned char buf[sizeof(unsigned int) + VV_MASK_TABLE_BYTES + sizeof(vv1_mask_file_roster)];
     int slot = vv1_mask_prepare_slot();
     /* Missing, malformed, or unreadable sidecars must not leave a previous
        slot's in-memory choices visible. Slot changes already clear this in
@@ -473,7 +630,20 @@ static void vv1_mask_sidecar_load(void) {
     if (vv_sidecar_load(&vv1_mask_gate, path, buf, sizeof(buf), &got,
                         vv1_mask_sidecar_valid, NULL) == VV_SIDECAR_LOAD_VALID) {
         int swept;
+        unsigned int magic;
         memcpy(VV_MASK_TABLE, buf + sizeof(unsigned int), VV_MASK_TABLE_BYTES);
+        memcpy(&magic, buf, sizeof(magic));
+        if (magic == VV_MASK_SIDECAR_MAGIC_V2) {
+            memcpy(vv1_mask_file_table, buf + sizeof(unsigned int), VV_MASK_TABLE_BYTES);
+            memcpy(vv1_mask_file_roster, buf + sizeof(unsigned int) + VV_MASK_TABLE_BYTES,
+                   sizeof(vv1_mask_file_roster));
+            vv1_mask_follow_pending = 1;
+            vv1_mask_rewrite_pending = 0;
+        } else {
+            vv1_mask_follow_pending = 0;
+            vv1_mask_rewrite_pending = 1;
+        }
+        vv1_mask_follow_loaded();   /* at once when the village is already up (the picker's reload) */
         /* Drop any restored mask whose slot isn't a live villager now -- this
            clears entries left by villagers who died since the save, and (for a
            different village loaded from the same folder) any freed slots. */
@@ -1583,6 +1753,10 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
             return;
         }
     }
+    /* A table loaded before its village existed is moved to its villagers on
+       the first frame they are on screen -- before the death sweep, which
+       must judge records by the villagers in them, not the ones that were. */
+    vv1_mask_follow_loaded();
     birth_dirty = VV_MASK_BIRTH_DIRTY != 0;
     swept = vv1_mask_sweep_dead();
     if (swept || birth_dirty) {
@@ -1593,6 +1767,7 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
             VV_MASK_BIRTH_DIRTY = 0;
         }
     }
+    vv1_mask_roster_current();
 }
 
 static HINSTANCE module_instance;

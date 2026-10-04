@@ -18,13 +18,27 @@
    bound to the village by its LIVING ROSTER, the way the later games'
    companions identify a village: the file carries, per record index, the
    name, gender and family scalar (+0x36C) of whoever held that slot when it
-   was written, and it is the village's when at least one living villager
-   still matches its slot.  Births and deaths change a roster, so overlap is
-   the test, never an exact match; head and body are left out of the
+   was written, and it is the village's when at least one living villager is
+   in that roster -- at any index, because the game compacts its villager
+   array when it loads a save.  Births and deaths change a roster, so overlap
+   is the test, never an exact match; head and body are left out of the
    fingerprint because the Origins upgrades change them for a whole village
    at once.  A file left by a previous village in a reused slot (Start Over
    keeps the slot) shares nobody with the new founders and is ignored rather
    than handing the new village someone else's parents.
+
+   THE ENTRIES FOLLOW THE VILLAGERS, NOT THE INDEX.  The load packs the
+   living villagers into records 0, 1, 2, ... so after a death everyone
+   behind it comes back one record lower.  Whenever the villagers on screen
+   are not the ones the roster names for their records, vv1_follow_roster
+   moves every entry -- parents and pregnancy stash -- to the record its
+   villager holds now, matched by the full identity (never the name alone);
+   a villager whose identity is shared by another is left unknown rather
+   than guessed, and a new occupant starts unknown.  An earlier build kept
+   the entries at their indices: the owner's Lisha, daughter of Ghali and
+   Onawa, showed Kito and Chika after their deaths, and Silko, a grown
+   arrival, showed Ghali and Onawa.  A sidecar that earlier build wrote
+   before such a load is re-keyed on its first load here.
 
    NOT the "village tag" at state+0x184 the doubler sidecar binds with: that
    dword is record 0's last-update clock (file +0x188, the first dword of
@@ -87,12 +101,13 @@
      companion's own WriteParentageBirth so it lands in the same numbered,
      village-headed file as the conception records.
 
-   AN ENTRY IS NEVER ERASED.  Villagers can be made younger (the Origins
-   "Make Villagers Young Adults" and time-warp rows), and the owner asked that
-   the parents come back when a villager drops under 18 again.  So an entry
-   outlives the villager: death leaves it in place, and only a NEW occupant of
-   the same record index starts it over -- that is a different villager, and
-   giving them the previous tenant's parents would be a lie.
+   AN ENTRY OUTLIVES ITS VILLAGER'S YOUTH.  Villagers can be made younger
+   (the Origins "Make Villagers Young Adults" and time-warp rows), and the
+   owner asked that the parents come back when a villager drops under 18
+   again, so growing up never touches an entry.  Death leaves it in place,
+   under the villager's identity, while the record stays empty; a NEW
+   occupant of that record starts it over -- that is a different villager,
+   and giving them the previous tenant's parents would be a lie.
 
    THE DETAILS SCREEN.  sub_437340 draws the portrait as two cells of the
    game's own atlases -- body, then head -- through the engine's scaled draw
@@ -226,7 +241,10 @@ typedef struct {
 
 typedef struct {
     unsigned char gender;                     /* 1 male, 2 female; 0 = the slot was empty */
-    unsigned char spare[3];
+    unsigned char departed;                   /* 1: the record was EMPTY then, and this is the
+                                                 villager who had held it (vv1_follow_roster);
+                                                 0 in every file an earlier build wrote */
+    unsigned char spare[2];
     int scalar;                               /* +0x36C, set once at creation */
     char name[VV1_NAME_CAPACITY];
 } vv1_occupant;                               /* 36 bytes */
@@ -245,6 +263,8 @@ static int g_prev_litter[VV1_RECORD_COUNT];
 static int g_prev_due[VV1_RECORD_COUNT];
 static int g_prev_variant[VV1_RECORD_COUNT];
 static char g_prev_name[VV1_RECORD_COUNT][VV1_NAME_CAPACITY];
+static int g_prev_gender[VV1_RECORD_COUNT];
+static int g_prev_age[VV1_RECORD_COUNT];
 static unsigned char g_spend[VV1_RECORD_COUNT];   /* a delivery ended this frame: spend the stash after logging */
 static int g_have_prev;
 static vv1_birth g_births[VV1_RECORD_COUNT];  /* births seen by the last tick */
@@ -252,6 +272,7 @@ static int g_birth_count;
 static int g_blocked_slot;                    /* the slot whose sidecar is there but could not be read */
 static int g_blocked_wait;                    /* sync calls before that sidecar is tried again */
 static int g_may_replace;                     /* the file at the path is one this table may replace */
+static int g_load_followed;                   /* the last load moved entries: the file is behind the table */
 
 /* What an attempt to load the sidecar found. */
 #define VV1_LOAD_NONE      0      /* no file (or an invalid one, now set aside): nothing to lose */
@@ -327,36 +348,243 @@ static void vv1_take_roster(const unsigned char *records, vv1_occupant *out) {
     }
 }
 
+/* The same villager: an occupied roster entry with the same gender, family
+   scalar and name.  Never a name alone -- names come from a fixed pool. */
+static int vv1_same_occupant(const vv1_occupant *a, const vv1_occupant *b) {
+    return a->gender != 0 && a->gender == b->gender && a->scalar == b->scalar
+        && strncmp(a->name, b->name, VV1_NAME_CAPACITY) == 0;
+}
+
+/* How many entries of `roster` are this villager; *where gets the last. */
+static int vv1_count_occupant(const vv1_occupant *roster, const vv1_occupant *who, int *where) {
+    int i, n = 0;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        if (vv1_same_occupant(&roster[i], who)) {
+            ++n;
+            if (where != NULL) {
+                *where = i;
+            }
+        }
+    }
+    return n;
+}
+
 /* Does the village on screen share a villager with a recorded roster?
-   1: at least one living record still matches its slot -- the village is
-      the recorded one (births and deaths since are expected).
-   0: villagers are on screen, the roster names some, and none match -- a
+   1: at least one living villager is in the recorded roster, AT ANY INDEX --
+      the village is the recorded one (births and deaths since are expected,
+      and so is a repack: A New Home compacts its villager array when a save
+      is loaded, so everyone after a dead villager comes back one record
+      lower per death).
+   0: villagers are on screen, the roster names some, and none is there -- a
       different village (Start Over, or another save copied into the slot).
   -1: nothing to compare: the roster is empty, or nobody is on screen (the
-      array is being rebuilt; not a verdict either way). */
+      array is being rebuilt; not a verdict either way).
+
+   This used to demand the match at the SAME index.  After a load that
+   compacted the array past a death at record 0, nobody was at their old
+   index any more, the verdict was "another village", and after the strike
+   window the village's whole table was replaced by an empty one. */
 static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *roster) {
+    static vv1_occupant now[VV1_RECORD_COUNT];
     int i, recorded = 0, living = 0;
+    vv1_take_roster(records, now);
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
-        char name[VV1_NAME_CAPACITY];
         if (roster[i].gender) {
             recorded = 1;
         }
-        if (!rec[VV1_OCCUPIED_OFFSET]) {
+        if (now[i].gender) {
+            living = 1;
+        }
+    }
+    if (!recorded || !living) {
+        return -1;
+    }
+    /* A villager at an exact position: the record the roster names for them,
+       or their RANK among the roster's living villagers -- the record a
+       packed load puts them in.  As positional as the old same-record test,
+       so a Start Over's founders still need a coincidence on one of two exact
+       records. */
+    {
+        int rank = 0;
+        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+            if (!roster[i].gender || roster[i].departed) {
+                continue;
+            }
+            if (vv1_same_occupant(&roster[i], &now[i]) || vv1_same_occupant(&roster[i], &now[rank])) {
+                return 1;
+            }
+            ++rank;
+        }
+    }
+    /* Otherwise anywhere -- but one coincidence is not a village (Codex,
+       #516: names come from a fixed pool and the family scalar repeats).  A
+       strict majority of the smaller roster must be found, each identity
+       unique on both sides. */
+    {
+        int recorded_living = 0, on_screen = 0, found = 0, need;
+        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+            recorded_living += roster[i].gender && !roster[i].departed;
+            on_screen += now[i].gender != 0;
+            if (now[i].gender && vv1_count_occupant(now, &now[i], NULL) == 1
+                && vv1_count_occupant(roster, &now[i], NULL) == 1) {
+                ++found;
+            }
+        }
+        need = (recorded_living < on_screen ? recorded_living : on_screen) / 2 + 1;
+        return found >= need;
+    }
+}
+
+/* MAKE THE TABLE FOLLOW THE VILLAGERS.
+
+   The table is kept per record index, and the roster beside it says who
+   held each index when it was written.  An index is not a villager: A New
+   Home compacts its villager array when a save is loaded -- the dead are
+   dropped and everyone after them comes back lower -- so the parents
+   written against record 13 belonged, after two deaths below it, to
+   whoever now sits at record 11.  Copied index for index, the owner's
+   Lisha (daughter of Ghali and Onawa) was shown as Kito and Chika's, and
+   Silko, a grown arrival with no parents at all, as Ghali and Onawa's
+   (read from the owner's own sidecar before and after such a load).
+
+   So whenever the live roster differs from the one the table was written
+   with, every entry is moved to wherever its villager is now:
+
+     - a living villager whose identity (gender, family scalar and name: the
+       roster's three fields, never the name alone) appears exactly once in
+       the recorded roster and exactly once on screen takes that entry,
+       wherever it was -- parents, and the pregnancy stash with her;
+     - an identity that is NOT unique (two villagers who share all three) is
+       ambiguous, and is never guessed at: such a villager keeps the entry
+       at its own index only when nothing has moved at all and that index
+       recorded the same identity, and is otherwise left unknown;
+     - a villager the roster does not know is a new occupant: unknown, until
+       a birth fills it in;
+     - an entry whose villager is no longer on screen stays where it was,
+       under that villager's identity in the roster, for as long as its
+       record stays empty -- the old promise that death leaves an entry in
+       place, which also lets a villager who was only away for a while be
+       found again by identity -- and is dropped the moment anyone else
+       holds that record: nobody may inherit it.
+
+   An entry also outlives its villager's youth: a grown villager keeps it,
+   so the parents return if Origins makes them young again.  Returns 1 when
+   anyone moved to another index (the per-frame snapshot no longer describes
+   the same villagers, and the caller drops it). */
+static int vv1_follow_roster(const vv1_occupant *now) {
+    static vv1_parent_entry moved[VV1_RECORD_COUNT];
+    static vv1_occupant kept[VV1_RECORD_COUNT];
+    int from[VV1_RECORD_COUNT];
+    int j;
+    /* Did anyone move?  Decided over the WHOLE roster (Codex, #516), not from
+       the villagers that could be placed: a repack of nothing but duplicate
+       identities is still a repack.  A record that held a living villager
+       and holds someone else now, or a living villager of the roster found in
+       another record while theirs is empty, is a move; a birth into an empty
+       record, a death, or a newborn in a departed villager's record is not. */
+    int repacked = 0;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (!g_roster[j].gender || g_roster[j].departed) {
             continue;
         }
-        living = 1;
-        if (!roster[i].gender) {
+        if (now[j].gender ? !vv1_same_occupant(&g_roster[j], &now[j])
+                          : vv1_count_occupant(now, &g_roster[j], NULL) > 0) {
+            repacked = 1;
+        }
+    }
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        int at = -1;
+        from[j] = -1;
+        if (!now[j].gender) {
             continue;
         }
-        vv1_copy_name(rec, name);
-        if (roster[i].gender == ((*(const int *)(rec + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) ? 1 : 2)
-            && roster[i].scalar == *(const int *)(rec + VV1_VARIANT_OFFSET)
-            && strncmp(roster[i].name, name, VV1_NAME_CAPACITY) == 0) {
+        if (vv1_count_occupant(now, &now[j], NULL) == 1
+            && vv1_count_occupant(g_roster, &now[j], &at) == 1) {
+            from[j] = at;
+            if (at != j) {
+                repacked = 1;
+            }
+        }
+    }
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (now[j].gender && from[j] < 0 && !repacked && vv1_same_occupant(&g_roster[j], &now[j])) {
+            from[j] = j;          /* an ambiguous identity, where nothing moved: its own index */
+        }
+    }
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (now[j].gender) {
+            kept[j] = now[j];
+            if (from[j] >= 0) {
+                moved[j] = g_entries[from[j]];
+            } else {
+                memset(&moved[j], 0, sizeof(moved[j]));
+            }
+        } else if (g_roster[j].gender && vv1_count_occupant(now, &g_roster[j], NULL) == 0) {
+            kept[j] = g_roster[j];          /* away or dead, and nobody holds the record: kept */
+            kept[j].departed = 1;
+            moved[j] = g_entries[j];
+        } else {
+            memset(&kept[j], 0, sizeof(kept[j]));
+            memset(&moved[j], 0, sizeof(moved[j]));
+        }
+    }
+    memcpy(g_entries, moved, sizeof(g_entries));
+    memcpy(g_roster, kept, sizeof(g_roster));
+    return repacked;
+}
+
+/* Is the table in step with the villagers on screen: every occupied record
+   holds the villager the roster names for it?  (An empty record may still
+   carry a departed villager's identity: see vv1_follow_roster.) */
+static int vv1_roster_in_step(const vv1_occupant *now) {
+    int j;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (now[j].gender && !vv1_same_occupant(&g_roster[j], &now[j])) {
+            return 0;
+        }
+        if (!now[j].gender && g_roster[j].gender && !g_roster[j].departed) {
+            return 0;           /* a death: the roster marks the record departed */
+        }
+    }
+    return 1;
+}
+
+/* A RENAME (Codex, #516): the one record whose occupant changed since the
+   roster was bound, when nothing else did, and the villager there has the
+   gender and family scalar of the one the roster names -- only the name
+   differs.  Players rename villagers; read as a new occupant, the follow
+   dropped their parents, and in a village of one or two the roster shared
+   nobody with the table and the whole table was replaced.  A death, a birth
+   or a repack changes a record to nobody, from nobody, or more than one
+   record.  (native/shared/mask_follow.h's vv_roster_renamed, over occupants.)
+   Returns the record, or -1. */
+static int vv1_roster_renamed(const vv1_occupant *now) {
+    int j, at = -1;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        int was_living = g_roster[j].gender && !g_roster[j].departed;
+        if (was_living ? !vv1_same_occupant(&g_roster[j], &now[j]) : now[j].gender != 0) {
+            if (at >= 0) {
+                return -1;            /* more than one record changed */
+            }
+            at = j;
+        }
+    }
+    if (at < 0 || !g_roster[at].gender || g_roster[at].departed || !now[at].gender
+        || g_roster[at].gender != now[at].gender || g_roster[at].scalar != now[at].scalar) {
+        return -1;
+    }
+    return at;
+}
+
+/* Does a roster name anybody at all? */
+static int vv1_roster_names_anyone(const vv1_occupant *roster) {
+    int j;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (roster[j].gender) {
             return 1;
         }
     }
-    return (recorded && living) ? 0 : -1;
+    return 0;
 }
 
 /* ---- the sidecar ------------------------------------------------------ */
@@ -510,10 +738,22 @@ static int vv1_parents_save(int slot, const unsigned char *records) {
     if (records == NULL) {
         return 0;
     }
-    /* The roster is taken before the path, so a save that cannot proceed
+    /* The roster is bound before the path, so a save that cannot proceed
        (a legacy file that will not migrate) is not retried every frame by
-       the roster comparison in vv1_parents_sync_core. */
-    vv1_take_roster(records, g_roster);
+       the roster comparison in vv1_parents_sync_core.  Every occupied record
+       is named for whoever holds it -- by now the sync has moved each entry
+       to its villager, so this only confirms it -- and an empty record keeps
+       the departed villager the roster names for it (vv1_follow_roster). */
+    {
+        static vv1_occupant now[VV1_RECORD_COUNT];
+        int j;
+        vv1_take_roster(records, now);
+        for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+            if (now[j].gender) {
+                g_roster[j] = now[j];
+            }
+        }
+    }
     if (!vv1_parents_path(path, sizeof(path), slot)) {
         return 0;
     }
@@ -676,6 +916,24 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
         g_entries[i].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
         g_entries[i].stash_name[VV1_NAME_CAPACITY - 1] = '\0';
     }
+    /* The file was written against the array as it stood then; the game
+       compacts that array when it loads a save, so every entry is moved to
+       its villager before anyone reads it.  A file written by an earlier
+       build is re-keyed the same way on its first load.  (A roster that
+       names nobody has no identities to follow: its table is taken as it
+       stands, as before.) */
+    g_load_followed = 0;
+    if (vv1_roster_names_anyone(g_roster)) {
+        static vv1_occupant now[VV1_RECORD_COUNT];
+        vv1_take_roster(records, now);
+        if (vv1_follow_roster(now)) {
+            g_have_prev = 0;
+        }
+        /* Anything that moved is written back at once (by the caller, which
+           owns the replace permission): left in memory only, the file would
+           keep the old layout until the next birth or death. */
+        g_load_followed = memcmp(g_roster, roster, sizeof(g_roster)) != 0;
+    }
     return VV1_LOAD_MATCHED;
 }
 
@@ -764,6 +1022,9 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             g_loaded_slot = slot;   /* the file is this village's: it is loaded */
             g_strikes = 0;
             g_may_replace = 1;
+            if (g_load_followed) {
+                vv1_parents_save(slot, records);   /* the followed table, written back */
+            }
             return slot;
         }
         if (result == VV1_LOAD_BLOCKED) {
@@ -783,6 +1044,14 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
         }
         return 0;                 /* still settling: the table is untouched */
     }
+    /* A rename first: before the overlap is asked, which in a village of one
+       or two would otherwise find nobody it knows. */
+    vv1_take_roster(records, now);
+    if (vv1_roster_renamed(now) >= 0) {
+        g_strikes = 0;
+        vv1_parents_save(slot, records);      /* binds the new name to the record */
+        return slot;
+    }
     switch (vv1_roster_overlap(records, g_roster)) {
     case 0:
         g_have_prev = 0;
@@ -800,12 +1069,22 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             vv1_parents_reset();  /* another village in this slot: start empty */
         }
         g_may_replace = (result != VV1_LOAD_NONE);
+        if (result == VV1_LOAD_MATCHED && g_load_followed) {
+            vv1_parents_save(slot, records);
+        }
         break;
     case 1:
         g_strikes = 0;
         vv1_take_roster(records, now);
-        if (memcmp(now, g_roster, sizeof(now)) != 0) {
-            vv1_parents_save(slot, records);   /* takes the roster; a death or an arrival is rare */
+        if (!vv1_roster_in_step(now)) {
+            /* Somebody new, or somebody somewhere else (a repack): every
+               entry goes to its villager first, then the file is rewritten.
+               A move also retires the per-frame snapshot, which was taken of
+               other villagers at those indices. */
+            if (vv1_follow_roster(now)) {
+                g_have_prev = 0;
+            }
+            vv1_parents_save(slot, records);
         }
         break;
     default:
@@ -931,6 +1210,8 @@ static void vv1_take_baseline(const unsigned char *records) {
         g_prev_due[i] = *(const int *)(rec + VV1_DUE_OFFSET);
         g_prev_variant[i] = *(const int *)(rec + VV1_VARIANT_OFFSET);
         memcpy(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+        g_prev_gender[i] = *(const int *)(rec + VV1_GENDER_OFFSET);
+        g_prev_age[i] = *(const int *)(rec + VV1_AGE_OFFSET);
     }
     memset(g_spend, 0, sizeof(g_spend));
     g_have_prev = 1;
@@ -975,15 +1256,20 @@ static int vv1_tick_over(const unsigned char *records) {
     /* Records with a NEW occupant this frame.  "Became occupied" is not
        enough: a death and a new villager in the same slot can both happen
        between two frames, leaving the slot occupied in both snapshots.  So
-       a record is new when it is occupied and either was not, or its name
-       or look-alike variant changed -- neither changes during a life, and
-       a new villager (born or founder) is given both afresh. */
+       a record is new when it is occupied and either was not, or its
+       look-alike variant changed, or its name did and the villager is not
+       the same one renamed.  The player can rename a villager (Codex, #516):
+       that keeps the variant, the gender and the age, while a new villager
+       in a dead one's record arrives younger (a newborn) or of another
+       variant -- read as new, a rename wiped the villager's parents. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
         const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
         if (rec[VV1_OCCUPIED_OFFSET]
             && (!g_prev_occupied[i]
                 || g_prev_variant[i] != *(const int *)(rec + VV1_VARIANT_OFFSET)
-                || memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) != 0)) {
+                || (memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) != 0
+                    && (g_prev_gender[i] != *(const int *)(rec + VV1_GENDER_OFFSET)
+                        || *(const int *)(rec + VV1_AGE_OFFSET) < g_prev_age[i])))) {
             int variant = *(const int *)(rec + VV1_VARIANT_OFFSET);
             int age = *(const int *)(rec + VV1_AGE_OFFSET);
             int mother = -1;
@@ -1019,8 +1305,10 @@ static int vv1_tick_over(const unsigned char *records) {
                 }
             }
             /* A reused slot starts unknown: this is a different villager, and
-               the previous tenant's parents are not theirs.  This is the ONLY
-               way an entry is ever cleared. */
+               the previous tenant's parents are not theirs.  (The sync's
+               vv1_follow_roster has normally done this already, before the
+               frame; a villager who merely MOVED never gets here, because a
+               move retires this snapshot.) */
             memset(&g_entries[i], 0, sizeof(g_entries[i]));
             if (matches == 1) {
                 const unsigned char *mrec = records + (unsigned int)mother * VV1_RECORD_STRIDE;
@@ -1120,6 +1408,8 @@ static int vv1_born(const unsigned char *records, const unsigned char *child,
         g_prev_occupied[c] = child[VV1_OCCUPIED_OFFSET];
         g_prev_variant[c] = *(const int *)(child + VV1_VARIANT_OFFSET);
         memcpy(g_prev_name[c], child + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+        g_prev_gender[c] = *(const int *)(child + VV1_GENDER_OFFSET);
+        g_prev_age[c] = *(const int *)(child + VV1_AGE_OFFSET);
     }
     return (int)c;
 }

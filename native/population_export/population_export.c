@@ -902,6 +902,30 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
     }
 }
 
+/* A title whose identity two living villagers carry cannot be placed on
+   either after a reload renumbered them (the Story companion shows it on
+   neither): leave it out of this export. */
+static void drop_ambiguous_titles(const struct game_layout *g, const unsigned char *villagers) {
+    int i, kept = 0;
+    unsigned int index;
+    for (i = 0; i < g_custom_title_count; ++i) {
+        int carriers = 0;
+        for (index = 0; index < g->slots; ++index) {
+            const unsigned char *record = villagers + g->record_base + index * g->stride;
+            if (*(const unsigned char *)(record + g->active) == 1
+                && vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                     g->dislikes, g->preference_slots)
+                   == g_custom_titles[i].fingerprint) {
+                ++carriers;
+            }
+        }
+        if (carriers <= 1) {
+            g_custom_titles[kept++] = g_custom_titles[i];
+        }
+    }
+    g_custom_title_count = kept;
+}
+
 static const char *custom_title_of(const struct game_layout *g, const unsigned char *record, int index) {
     int i;
     for (i = 0; i < g_custom_title_count; ++i) {
@@ -1359,6 +1383,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
             return 0;
         }
     }
+    drop_ambiguous_titles(g, villagers);
 
     /* The first file is opened unconditionally, not lazily on the first live
        villager.

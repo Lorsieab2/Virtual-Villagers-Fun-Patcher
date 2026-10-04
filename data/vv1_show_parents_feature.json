@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Show Parents in Details Screen",
-  "description": "Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads \"Son of <name>\" or \"Daughter of <name>\". The record is kept in 'Virtual Villagers 1 Parentage Records - Save <slot>.dat' in the 'Virtual Villagers Fun Patcher Data' folder beside the saves (Documents\\LDW\\<game executable name>\\), never inside a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL. **Needs Write Births and Conceptions Log to Text File on for the father**, which its conception hook supplies: with that patch off only the mother is recorded.",
+  "description": "Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads \"Son of <name>\" or \"Daughter of <name>\". The record is kept in 'Virtual Villagers 1 Parentage Records - Save <slot>.dat' in the 'Virtual Villagers Fun Patcher Data' folder beside the saves (Documents\\LDW\\<game executable name>\\), never inside a villager record or the save itself. Each villager's entry follows that villager when the game renumbers its villagers on a load, and is never erased by death, ageing or de-ageing; a new villager starts with none. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL. **Needs Write Births and Conceptions Log to Text File on for the father**, which its conception hook supplies: with that patch off only the mother is recorded.",
   "output_tag": "Show Parents",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"
@@ -24,14 +24,14 @@
   "explicit_non_changes": [
     "This row changes no executable bytes itself: it is the companion DLL alone, reached through hooks the Origins row (the birth hook, the per-frame tick, the portrait hook) and the parentage log row (the conception hook) install.",
     "No villager record field and no byte of the save is written; the record lives only in the sidecar beside the save.",
-    "A recorded entry is never erased by death, ageing or de-ageing; only a new occupant of the same record slot resets it.",
+    "A recorded entry is never erased by death, ageing or de-ageing, and it follows its villager -- matched by name, gender and family scalar -- when the game renumbers the villagers on a load; a new occupant of a record starts unknown, and two villagers who share all three are left unknown after a renumbering rather than guessed.",
     "Founders, villagers born before the patch, and (without the hook) a birth whose parents cannot be told apart -- two mothers with the same father delivering in one frame -- are left unknown rather than guessed."
   ],
   "companion_files": [
     {
       "source": "assets/parentage/VVFP VV1 Parentage.dll",
       "destination": "VVFP VV1 Parentage.dll",
-      "sha256": "A88AF77F72B381DFAC331B9D18B71FB279CD49A25DE246C34DBD1EB99613F2BE"
+      "sha256": "213BE23C7685A0A47EA65C1DAD2D81B48948A5D9F48A7BB90D07CC4BC8E7D37E"
     }
   ],
   "patches": []

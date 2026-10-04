@@ -29,6 +29,14 @@ struct elders_layout {
     unsigned int grave_name;
     unsigned int grave_name_capacity;
     unsigned int grave_elder_flag;     /* u8 the game's burial writer stores, 0 = none */
+    /* Where the previous save's villagers are after a reload: the games save
+       their occupied records packed and load them into records 0, 1, 2, ...,
+       so rank_of_slot[s] is the record the villager the previous save found
+       at record s comes back in (its rank among that save's living
+       villagers), -1 when that save found nobody there.  NULL (or
+       rank_slots 0) when the previous roster is not known. */
+    const int *rank_of_slot;
+    unsigned int rank_slots;
 };
 
 /* Update the save's Village Elders .dat and return the number of elders,

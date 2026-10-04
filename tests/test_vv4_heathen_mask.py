@@ -164,7 +164,8 @@ class DllStorageContractTests(unittest.TestCase):
             "header[1] = (unsigned int)vv_slots();",
             "parts[2] = g_mask_by_index;   sizes[2] = header[1];",
             "parts[3] = g_mask_fp;         sizes[3] = header[1] * (DWORD)sizeof(unsigned int);",
-            "vv_sidecar_publish(&g_mask_gate, path, parts, sizes, 4);",
+            "vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);",
+            "parts[4] = g_mask_roster;     sizes[4] = header[1] * (DWORD)sizeof(unsigned int);",
         ):
             self.assertIn(expected, write)
         for raw in ("CreateFileA", "WriteFile(", "MoveFileExA", "DeleteFileA(path);"):
@@ -246,15 +247,27 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("vv_build_sidecar_path(path, g_current_slot)", write)
 
     def test_fingerprint_uses_stable_fields_only(self) -> None:
-        fp = self.c.split("vv_fingerprint(", 1)[1].split("}", 1)[0]
-        self.assertIn("VV_SEX_OFFSET", fp)     # gender (stable)
-        self.assertIn("VV_NAME_OFFSET", fp)    # name (stable)
-        # Mutable fields must NOT be in the fingerprint (they'd false-invalidate
+        v2 = self.c.split("static unsigned int vv_fingerprint_v2(const unsigned char *villager) {", 1)[1]
+        v2 = v2.split("\n}", 1)[0]
+        v3 = self.c.split("static unsigned int vv_fingerprint(const unsigned char *villager) {", 1)[1]
+        v3 = v3.split("\n}", 1)[0]
+        # Version 2 (still read): gender and name.  Version 3 (written): the
+        # same plus the parents' names, so a mask that follows its villager
+        # through a reload cannot move to a living namesake of a dead one.
+        self.assertIn("VV_SEX_OFFSET", v2)     # gender (stable)
+        self.assertIn("VV_NAME_OFFSET", v2)    # name (stable)
+        self.assertIn("vv_fingerprint_v2(villager)", v3)
+        self.assertIn("VV_FATHER_NAME_OFFSET", v3)
+        self.assertIn("VV_MOTHER_NAME_OFFSET", v3)
+        self.assertIn("#define VV_FATHER_NAME_OFFSET 0x1BC0u", self.c)
+        self.assertIn("#define VV_MOTHER_NAME_OFFSET 0x1BD9u", self.c)
+        # Mutable fields must NOT be in either (they'd false-invalidate
         # a living villager's mask when they change via upgrades/aging).
-        self.assertNotIn("LIKES", fp)
-        self.assertNotIn("DISLIKE", fp)
-        self.assertNotIn("HEAD_OFFSET", fp)
-        self.assertNotIn("BODY_OFFSET", fp)
+        for fp in (v2, v3):
+            self.assertNotIn("LIKES", fp)
+            self.assertNotIn("DISLIKE", fp)
+            self.assertNotIn("HEAD_OFFSET", fp)
+            self.assertNotIn("BODY_OFFSET", fp)
 
     def test_lookup_rejects_and_persists_reused_slot_identity_mismatch(self) -> None:
         lookup = self.c.split("static int vv_get_mask(", 1)[1].split(
@@ -263,13 +276,31 @@ class DllStorageContractTests(unittest.TestCase):
         # The present sweep can see an old and replacement villager as occupied
         # on adjacent callbacks.  The lookup must therefore validate the live
         # stable fingerprint before returning an index-keyed mask.
-        self.assertIn("fp = vv_fingerprint(villager);", lookup)
+        self.assertIn("fp = vv_identity(villager);", lookup)
         self.assertIn("if (g_mask_fp[idx] != fp)", lookup)
-        self.assertIn("g_mask_by_index[idx] = 0;", lookup)
-        self.assertIn("g_mask_fp[idx] = 0;", lookup)
-        self.assertIn("vv_write_mask_sidecar();", lookup)
-        self.assertIn("g_slot_identity_ready[idx]", lookup)
-        self.assertIn("g_current_slot == 0", lookup)
+        # A mismatch is NOT cleared here any more: after a reload the mask's
+        # villager is in another record, and the sweep's follow moves it there
+        # -- or drops it, and persists that, once nobody carries its identity
+        # (a reused record).  Clearing in the lookup lost the masks of
+        # everyone behind a death.
+        mismatch = lookup.split("if (g_mask_fp[idx] != fp)", 1)[1].split("} else {", 1)[0]
+        self.assertNotIn("g_mask_by_index[idx] = 0;", mismatch)
+        self.assertNotIn("vv_write_mask_sidecar();", mismatch)
+        self.assertIn("return 0;", mismatch)
+        follow = self.c.split("static int vv_mask_follow_table(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("if (!g_slot_identity_ready[idx]) {", follow)
+        self.assertIn("vv_mask_follow(slots, g_mask_by_index, g_mask_fp,\n"
+                      "                             g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);",
+                      follow)
+        sweep_body = self.c.split("static int vv_mask_sweep(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("changed |= vv_mask_follow_table();", sweep_body)
+        # Codex (#516): after a reload in the same process the seen-alive
+        # latches describe the old layout, so the follow must run BEFORE the
+        # clear of vacated records, or those masks are erased first.
+        self.assertLess(sweep_body.index("changed |= vv_mask_follow_table();"),
+                        sweep_body.index("g_mask_by_index[idx] = 0;                /* was alive, now freed"))
+        cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vv_write_mask_sidecar();", cache)
         sweep = self.c.split("static int vv_mask_sweep(void)", 1)[1].split(
             "static unsigned int vv_fingerprint", 1
         )[0]
@@ -284,13 +315,9 @@ class DllStorageContractTests(unittest.TestCase):
             sweep.index("g_slot_identity_ready[idx] = 1;"),
             sweep.index("g_slot_seen_alive[idx] = 1;"),
         )
-        self.assertIn("if (g_slot_identity_ready[idx] || !g_sidecar_loaded ||", lookup)
-        # A mismatch must be decided before the successful value is returned;
-        # the load-frame exception only defers invalidation until a prior
-        # completed sweep has promoted the slot and cannot publish the stale
-        # value.
+        # A mismatch must be decided before the successful value is returned.
         self.assertLess(lookup.index("if (g_mask_fp[idx] != fp)"), lookup.rindex("return 0;"))
-        self.assertLess(lookup.index("g_mask_by_index[idx] = 0;"), lookup.index("return (int)m;"))
+        self.assertLess(lookup.index("if (g_mask_fp[idx] != fp)"), lookup.index("return (int)m;"))
 
     def test_no_villager_record_byte_is_written_for_the_mask(self) -> None:
         # The abandoned design stored the mask in the record at +0x1BC4 (which
@@ -707,3 +734,34 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Vv4RenameAndRosterTests(unittest.TestCase):
+    """Codex (#516, round 2): a renamed villager keeps the mask (the follow
+    recognises the rename by gender and parents and moves the identity
+    with it), and any roster change is written while there are masks --
+    a stale roster would read as a repack on the next load."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.c = (Path(__file__).resolve().parents[1] / "native" / "vv4_origins_icons"
+                 / "vv4_origins_icons.c").read_text(encoding="utf-8")
+        cls.follow = cls.c.split("static int vv_mask_follow_table(void) {", 1)[1].split("\n}", 1)[0]
+
+    def test_a_rename_is_carried_before_the_follow(self) -> None:
+        renamed = self.follow.index("int renamed = vv_roster_renamed(slots, g_mask_roster, g_mask_stable, live, live_stable);")
+        self.assertLess(renamed, self.follow.index("changed = vv_mask_follow("))
+        block = self.follow[renamed:self.follow.index("changed = vv_mask_follow(")]
+        self.assertIn("g_mask_fp[renamed] = live[renamed];", block)
+        self.assertIn("g_mask_roster[renamed] = live[renamed];", block)
+        self.assertIn("roster_delta = 1;", block)
+        stable = self.c.split("static unsigned int vv_stable_identity(const unsigned char *villager) {", 1)[1].split("\n}", 1)[0]
+        self.assertNotIn("VV_NAME_OFFSET", stable)
+        self.assertIn("VV_FATHER_NAME_OFFSET", stable)
+
+    def test_every_roster_change_is_written_while_masks_exist(self) -> None:
+        self.assertIn("if (roster_delta && any_mask) {\n        changed = 1;", self.follow)
+        self.assertNotIn("changed |= !g_mask_roster_known || g_mask_by_index[idx] != 0;", self.follow)
+
+    def test_the_stable_fields_are_unknown_after_a_load_or_reset(self) -> None:
+        self.assertEqual(self.c.count("g_mask_stable_known = 0;"), 2)

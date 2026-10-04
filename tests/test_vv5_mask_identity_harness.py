@@ -41,7 +41,7 @@ class Vv5MaskIdentityHarnessRunsTests(unittest.TestCase):
             "ok   chooser write created ",
             "Virtual Villagers Fun Patcher Data\\Village Masks - Save 1.dat",
             "ok   file is magic + 150 roster dwords + 75-byte table",
-            "ok   file magic is 'VM05'",
+            "ok   file magic is 'VM06'",
             "ok   back to slot 1: A's masks reload from its file",
         ):
             with self.subTest(case=case):

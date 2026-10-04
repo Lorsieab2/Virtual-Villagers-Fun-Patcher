@@ -141,6 +141,13 @@ static unsigned int story_title_identity(int game, const unsigned char *record) 
     return vv_title_fingerprint(record + 1, NAME_BYTES);
 }
 
+/* What a rename leaves alone: byte [40] stands for the sex, likes and
+   dislikes (0 in every villager() unless a case sets it). */
+static unsigned int story_title_stable(int game, const unsigned char *record) {
+    (void)game;
+    return 1u + record[40];
+}
+
 static void villager(int index, const char *name) {
     memset(g_records[index], 0, sizeof g_records[index]);
     g_records[index][0] = 1;
@@ -285,6 +292,224 @@ int main(void) {
     check(seen != NULL && lstrcmpA(seen, "Kept Title") == 0 && titles_lookup(3, g_records[2]) == NULL,
           "and the file agrees with what memory showed");
     DeleteFileA(path1);
+
+    /* -- a reload renumbers the villagers: the titles follow them --------
+       The games load a save packed into records 0, 1, 2, ...: Hina [0] dies,
+       and after the reload Kai, Lani and Moku are each one record lower. */
+    new_session();
+    g_slot = 1;
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani"); villager(3, "Moku");
+    check(titles_set(3, 0, "Matriarch") == 1 && titles_set(3, 1, "Kai Title") == 1
+          && titles_set(3, 3, "Moku Title") == 1, "setup: Hina, Kai and Moku have titles");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Lani"); villager(2, "Moku");
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0, "AFTER A RELOAD KAI [1 -> 0] KEEPS HIS TITLE");
+    seen = titles_lookup(3, g_records[2]);
+    check(seen != NULL && lstrcmpA(seen, "Moku Title") == 0, "... and Moku [3 -> 2] keeps hers");
+    check(titles_lookup(3, g_records[1]) == NULL, "... Lani, now in Kai's old record, is given nothing");
+    check(titles.count == 2, "... and the dead Hina's title, on the record Kai holds now, is dropped");
+    new_session();
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && file_size(path1) == 16 + 80,
+          "THE FOLLOWED TITLES ARE WRITTEN BACK: a new session reads them at their new records");
+    /* The same within one session (a reload without leaving the game): the
+       sweep must not take a villager who merely moved for one who died. */
+    titles_tick(3);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Moku"); villager(2, "Kai");
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[2]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && titles.count == 2,
+          "A VILLAGER WHO MOVED IN THIS SESSION IS NOT SWEPT AWAY AS DEAD");
+    /* Two villagers of one identity: nothing is guessed. */
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Moku"); villager(3, "Kai");
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL && titles_lookup(3, g_records[3]) == NULL,
+          "two villagers sharing the title's identity: neither is given it");
+    {
+        int k, kai_at = -2;
+        for (k = 0; k < titles.count; ++k) {
+            if (lstrcmpA(titles.entries[k].title, "Kai Title") == 0) kai_at = (int)titles.entries[k].index;
+        }
+        check(kai_at == -2, "... and after the reload the entry is dropped, not kept for either of them");
+    }
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Moku Title") == 0, "... while Moku's still follows her");
+    /* Codex (#516, round 2): one of the two Kais dies later in the session;
+       the title must not come back on the survivor, who may never have had it. */
+    g_records[3][0] = 0;
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL,
+          "A TITLE DROPPED AS AMBIGUOUS NEVER REAPPEARS WHEN ONE OF THE TWO DIES");
+    /* Two titled villagers of one identity, one of whom died before the
+       reload: the survivor could be either, so neither title is given --
+       and the file never lists one record twice (it would be unreadable). */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); villager(3, "Kai");
+    check(titles_set(3, 1, "First Kai") == 1 && titles_set(3, 3, "Second Kai") == 1,
+          "setup: two villagers named Kai, each with a title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Lani");
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL, "a surviving Kai is not given either Kai's title");
+    new_session();
+    check(titles_lookup(3, g_records[1]) == NULL && titles.loaded && titles.count == 0,
+          "... both entries are dropped, and the file still loads (no record listed twice)");
+    /* A move and nothing else (no stale entry dropped) is written back too. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai");
+    check(titles_set(3, 1, "Moved Only") == 1, "setup: Kai [1] has a title, Lani [0] none");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Lani");
+    titles_tick(3);
+    new_session();
+    titles_sync(3);                              /* the file as written, before any follow */
+    check(titles.loaded && titles.count == 1 && titles.entries[0].index == 0,
+          "A PURE MOVE IS WRITTEN BACK: the next session finds Kai's title at record 0");
+
+    /* Codex (#516): a titled Kai at record 5 and an identical untitled Kai at
+       6; a death below moves them to 4 and 5.  Record 5 still carries the
+       title's identity -- but it is the OTHER Kai now.  Neither shows it. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(5, "Kai"); villager(6, "Kai");
+    check(titles_set(3, 5, "Only This Kai") == 1, "setup: one of two identical villagers has a title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(4, "Kai"); villager(5, "Kai");
+    titles_tick(3);
+    check(titles_lookup(3, g_records[5]) == NULL && titles_lookup(3, g_records[4]) == NULL,
+          "AN IDENTITY TWO VILLAGERS SHARE IS NOT KEPT ON THE TITLE'S OLD RECORD: neither shows it");
+    check(titles.count == 0, "... and the title is dropped, so it cannot come back on either");
+    /* ...not even once one of them dies and the identity is unique again. */
+    g_records[5][0] = 0;
+    titles_tick(3);
+    check(titles_lookup(3, g_records[4]) == NULL, "the surviving twin is not given it later");
+
+    /* With nothing moved (the same session, no reload), a title set on one
+       of two identical villagers stays where it was set. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(5, "Kai"); villager(6, "Kai");
+    titles_tick(3);
+    check(titles_set(3, 5, "Set In Session") == 1, "setup: a title set in session on one of two twins");
+    titles_tick(3);
+    titles_tick(3);
+    check(titles.count == 1 && titles.entries[0].index == 5,
+          "with nothing moved, the twin's title is kept on the record it was set on");
+    seen = titles_lookup(3, g_records[5]);
+    check(seen != NULL && lstrcmpA(seen, "Set In Session") == 0 && titles_lookup(3, g_records[6]) == NULL,
+          "... and shown there, on that twin only");
+    lstrcpynA((char *)g_records[0] + 1, "Leilani", NAME_BYTES);    /* someone else is renamed */
+    titles_tick(3);
+    check(titles.count == 1 && titles_lookup(3, g_records[5]) != NULL,
+          "another villager's rename is not a move: the twin's title stays");
+    /* A namesake born in this session is not the titled villager: a title
+       read from its file whose villager is away keeps waiting at its record;
+       with nothing moved it does not jump to a newborn of the same name. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(7, "Moana");
+    titles_tick(3);
+    check(titles_set(3, 7, "Moana Title") == 1, "setup: Moana [7] has a title");
+    new_session();
+    g_records[7][0] = 0;                                          /* away */
+    titles_tick(3);
+    titles_tick(3);
+    villager(2, "Moana");                                         /* a namesake, born into record 2 */
+    titles_tick(3);
+    check(titles_lookup(3, g_records[2]) == NULL && titles.count == 1 && titles.entries[0].index == 7,
+          "a namesake born in the same session does not inherit the title");
+    memset(g_records[2], 0, sizeof g_records[2]);
+    villager(5, "Kai"); villager(6, "Kai");
+    /* the twins' file again, for the next case */
+    new_session();
+    DeleteFileA(path1);
+    titles_tick(3);
+    check(titles_set(3, 5, "Set In Session") == 1, "setup: the twin's title again");
+    /* A table just read from its file is followed before anything is shown:
+       its first lookup -- before any tick -- already drops the twin's title
+       as ambiguous (a reload may have moved them). */
+    new_session();
+    check(titles_lookup(3, g_records[5]) == NULL && titles.count == 0,
+          "a lookup before any tick follows the table first: the twin's title is dropped, not shown");
+
+    /* Another save slot is another village loaded: its file is followed
+       afresh (the last look belonged to the other slot), so a twin's title
+       in it is dropped as ambiguous rather than shown on record 5. */
+    new_session();
+    g_slot = 2;
+    DeleteFileA(path2);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(5, "Kai"); villager(6, "Kai");
+    titles_tick(3);
+    check(titles_set(3, 5, "Slot Two Twin") == 1, "setup: slot 2 has a twin's title");
+    g_slot = 1;
+    titles_tick(3);
+    g_slot = 2;
+    check(titles_lookup(3, g_records[5]) == NULL,
+          "a slot switched back to is followed afresh: the twin's title is not shown on the old look");
+    g_slot = 1;
+    DeleteFileA(path2);
+
+    /* The first lookup's own follow does not run the death sweep: a title
+       set before any tick, with another villager in its record at that
+       lookup, is not shown -- and is still there once its villager is. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai");
+    check(titles_set(3, 1, "Before Any Tick") == 1, "setup: a title set before any tick");
+    lstrcpynA((char *)g_records[1] + 1, "Kaj", NAME_BYTES);
+    check(titles_lookup(3, g_records[1]) == NULL, "another villager in the record is not shown the title");
+    lstrcpynA((char *)g_records[1] + 1, "Kai", NAME_BYTES);
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Before Any Tick") == 0,
+          "the first lookup's follow does not sweep: the title is still there for its villager");
+
+    /* -- Codex (#516, round 2): a villager renamed during play ----------- */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); villager(2, "Moku");
+    titles_tick(3);
+    check(titles_set(3, 1, "Renamed Hero") == 1, "setup: Kai [1] has a title");
+    titles_tick(3);
+    lstrcpynA((char *)g_records[1] + 1, "Kainoa", NAME_BYTES);    /* the player renames him */
+    titles_tick(3);
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Renamed Hero") == 0, "A RENAMED VILLAGER KEEPS THE TITLE");
+    new_session();
+    seen = titles_lookup(3, g_records[1]);
+    check(seen != NULL && lstrcmpA(seen, "Renamed Hero") == 0, "... and the file has it under the new name");
+    /* Not a rename: another villager (other likes) in the record. */
+    titles_tick(3);
+    lstrcpynA((char *)g_records[1] + 1, "Stranger", NAME_BYTES);
+    g_records[1][40] = 9;
+    titles_tick(3);
+    check(titles_lookup(3, g_records[1]) == NULL && titles.count == 0,
+          "a different villager in the record is not a rename: the title goes");
+    DeleteFileA(path1);
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");
 
     /* -- Start Over: the reset deletes the slot's file, every game ------- */
     for (game = 1; game <= 5; ++game) {

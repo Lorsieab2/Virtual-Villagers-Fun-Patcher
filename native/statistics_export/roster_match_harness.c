@@ -93,6 +93,47 @@ int main(void) {
     add(now, &now_n, 0, "Ata", 0x11);
     check(same(), "each recorded row is used at most once and a match still counts");
 
+    /* The games save only their occupied records, packed, and load them into
+       records 0, 1, 2, ...: after a reload every villager behind a death sits
+       at its RANK in the roster the last save recorded, not its old record.
+       (A death during play leaves its record empty until the game is quit;
+       the quit's save records the roster with that hole, and the next load
+       closes it.) */
+    reset();
+    {
+        static const char *names[] = { "Ata", "Bea", "Cai", "Dov", "Eli", "Fen", "Gil", "Hal", "Ira", "Jon" };
+        for (i = 1; i < 10; ++i) {
+            add(was, &was_n, i, names[i], 0x3000 + i);                      /* record 0 died before the quit */
+        }
+        for (i = 1; i < 10; ++i) {
+            add(now, &now_n, i - 1, names[i], 0x3000 + i);                  /* the reload moved all down one */
+        }
+    }
+    check(same(), "a death at record 0 and a reload that moves everyone down is still the same village");
+
+    reset();
+    add(was, &was_n, 0, "Ata", 0x11); add(was, &was_n, 4, "Bea", 0x22);    /* records 1-3 died */
+    add(now, &now_n, 0, "Ata", 0x44); add(now, &now_n, 1, "Bea", 0x22);    /* Bea reloaded at her rank, 1 */
+    check(same(), "a survivor found at her rank in the recorded roster is a shared villager");
+
+    reset();
+    for (i = 0; i < 20; ++i) {
+        add(was, &was_n, 2 * i, i == 3 ? "Moku" : "Old", 0x2000 + i);
+        add(now, &now_n, i, i == 3 ? "Moku" : "New", 0x9000 + i);
+    }
+    check(!same(), "a new village sharing one founder's name at a recorded rank is still a new village");
+    check(vv_roster_same_villager("3\tMoku\t0000ABCD", "1\tMoku\t0000ABCD") == 0,
+          "a villager at neither its recorded record nor its rank is not matched by the pair test");
+
+    /* Codex (#516): a saved Kai at record 2 died during the catch-up; the
+       other saved Kai (rank 2) survives at record 2 beside two newborns.  A
+       name-only match of the dead Kai must not hide the survivor's
+       fingerprint match. */
+    reset();
+    add(was, &was_n, 0, "Ata", 0x11); add(was, &was_n, 2, "Kai", 0x21); add(was, &was_n, 3, "Kai", 0x22);
+    add(now, &now_n, 0, "New1", 0x91); add(now, &now_n, 1, "New2", 0x92); add(now, &now_n, 2, "Kai", 0x22);
+    check(same(), "a fingerprint match is found even when a same-name row could be taken first");
+
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
 }
