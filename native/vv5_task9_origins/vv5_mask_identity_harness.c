@@ -6,8 +6,10 @@
    the exports are driven the way the appended page and the chooser drive
    them: Vv5MaskSync on draws and WriteMaskSidecar on chooser OK.
 
-   The DLL writes Documents\LDW\<this harness's basename>\vvfp_masks_1.dat.
-   The harness removes that file and, if it is then empty, that folder.
+   The DLL writes Documents\LDW\<this harness's basename>\Virtual Villagers
+   Fun Patcher Data\Village Masks - Save 1.dat (vv5_task9_origins.c,
+   build_mask_sidecar_path). The harness removes that file and, if it is then
+   empty, that folder.
 
    Usage:  vv5_mask_identity_harness.exe "<path to VVFP VV5 Task9 Origins Icons.dll>"
    Exit code 0 when every check passes. */
@@ -91,9 +93,8 @@ int main(int argc, char **argv) {
     SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE);
     GetModuleFileNameA(NULL, exe, MAX_PATH);
     base = strrchr(exe, '\\'); base = base ? base + 1 : exe; dot = strrchr(base, '.'); if (dot) *dot = 0;
-    sprintf(folder, "%s\\LDW\\%s", docs, base);
-    sprintf(file, "%s\\vvfp_masks_1.dat", folder);
-    DeleteFileA(file);
+    sprintf(folder, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    sprintf(file, "%s\\Village Masks - Save 1.dat", folder);
 
     printf("== nothing known: no slot, no villagers ==\n");
     CHECK(sync() == 0, "sync with slot 0 reports unknown");

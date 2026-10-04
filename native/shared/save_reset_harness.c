@@ -253,6 +253,10 @@ int main(void) {
             check(exists(t2), what);
         }
         DeleteFileA(t2);
+        /* The game-2 pass above rightly took VV2's slot-1 sidecar, which is
+           the "another game's sidecar" fixture; put it back for the survivor
+           checks further down. */
+        touch(other_game);
     }
 
     /* The statistics companion's per-slot data: the counters, the stew
