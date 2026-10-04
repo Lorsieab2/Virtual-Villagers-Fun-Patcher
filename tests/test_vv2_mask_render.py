@@ -137,7 +137,7 @@ def test_dll_exports_the_sidecar_save_used_by_the_sweep() -> None:
     assert "Vv2MaskSaveSidecar=_Vv2MaskSaveSidecar@0" in (
         ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.def"
     ).read_text(encoding="utf-8")
-    assert "__declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void)" in DLL
+    assert "void __stdcall Vv2MaskSaveSidecar(void)" in DLL
     assert "vv2_mask_sidecar_save();" in DLL
 
 

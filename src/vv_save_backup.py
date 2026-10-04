@@ -646,8 +646,11 @@ def describe_size(size: int) -> str:
 # backup is never modified by a restore; only Delete Backup removes one.
 
 BEFORE_RESTORE = "(before restore)"
+# Rename Tribe (src/vv_tribe_rename.py) backs the folder up first under this
+# label; such a backup is listed and restored like any other.
+BEFORE_RENAME = "(before rename)"
 INCOMPLETE = " INCOMPLETE"
-_BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before restore\)))?$")
+_BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before (?:restore|rename)\)))?$")
 _TEMP_GLOB = "*.vvfp-restore-*.tmp"
 
 # The game's save file: a small file header, then the save buffer (measured
@@ -700,12 +703,15 @@ class BackupInfo:
     file_count: int
     size: int
     villages: dict[int, str]     # slot -> village name ("" when unreadable)
+    before_rename: bool = False
 
     @property
     def label(self) -> str:
         text = self.when.strftime("%Y-%m-%d %H:%M:%S")
         if self.before_restore:
             text += " " + BEFORE_RESTORE
+        if self.before_rename:
+            text += " " + BEFORE_RENAME
         return text
 
 
@@ -755,7 +761,8 @@ def read_village_name(game: int, path: Path) -> str | None:
     return name.decode("ascii")
 
 
-def _parse_backup_name(name: str) -> tuple[datetime, int, bool] | None:
+def _parse_backup_name(name: str) -> tuple[datetime, int, str] | None:
+    """(when, sequence, label) -- the label "", BEFORE_RESTORE or BEFORE_RENAME."""
     match = _BACKUP_NAME.match(name)
     if not match:
         return None
@@ -763,7 +770,7 @@ def _parse_backup_name(name: str) -> tuple[datetime, int, bool] | None:
         when = datetime.strptime(match.group(1), "%Y-%m-%d %H-%M-%S")
     except ValueError:
         return None
-    return when, int(match.group(2) or 1), bool(match.group(3))
+    return when, int(match.group(2) or 1), match.group(3) or ""
 
 
 def slot_villages(game: int, folder: Path) -> dict[int, str]:
@@ -799,11 +806,18 @@ def list_backups(save_folder: Path) -> list[BackupInfo]:
         parsed = _parse_backup_name(entry.name)
         if parsed is None or not entry.is_dir() or _is_link(entry):
             continue
-        when, sequence, before = parsed
+        when, sequence, label = parsed
         files = files_to_back_up(entry)
         size = sum((entry / relative).stat().st_size for relative in files)
         villages = slot_villages(game, entry) if game else {}
-        found.append((when, sequence, BackupInfo(entry, when, before, len(files), size, villages)))
+        found.append((
+            when,
+            sequence,
+            BackupInfo(
+                entry, when, label == BEFORE_RESTORE, len(files), size, villages,
+                before_rename=label == BEFORE_RENAME,
+            ),
+        ))
     found.sort(key=lambda item: (item[0], item[1]), reverse=True)
     return [info for _when, _sequence, info in found]
 

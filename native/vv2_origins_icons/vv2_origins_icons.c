@@ -21,6 +21,12 @@
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 #include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */
 
+/* Exports come only from vv2_origins_icons.def, under the undecorated names the
+   executable's stubs pass to GetProcAddress (plus ShowVV2AppearanceForAll at
+   ordinal 100).  Nothing here is __declspec(dllexport): that would add a second,
+   decorated "_Name@N" export that no stub, companion or test ever resolves.
+   Vv2MaskSyncVillage is called only by Vv2MaskSweep, so it is not exported. */
+
 /* Task9-style prompt action / result codes and forward declarations, hoisted so
    the ApplyVV2* reporters below can route through the shared result renderer
    defined later in this file. */
@@ -40,7 +46,7 @@ enum {
     VV2_RES_INVALID = 3, VV2_RES_NO_SLOT = 4, VV2_RES_REMOVED = 5,
     VV2_RES_PURCHASED = 6, VV2_RES_POP_FULL = 7, VV2_RES_DISLIKE_ONLY = 8
 };
-__declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
+void __stdcall ShowVV2UpgradeResult(
     int action, int status, unsigned int amount_a, unsigned int amount_b,
     unsigned int amount_c, unsigned int amount_d
 );
@@ -260,7 +266,7 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
     return FALSE;
 }
 
-__declspec(dllexport) int __stdcall ShowVV2UpgradeMenuState(
+int __stdcall ShowVV2UpgradeMenuState(
     int villager_menu,
     int dialog_state
 ) {
@@ -283,7 +289,7 @@ __declspec(dllexport) int __stdcall ShowVV2UpgradeMenuState(
 /* Full Heal / Cure All result message. sick = villagers whose sickness was
    cleared; health = villagers restored to full health. When both are zero the
    caller charged nothing. */
-__declspec(dllexport) void __stdcall ShowVV2CureResult(int sick, int health) {
+void __stdcall ShowVV2CureResult(int sick, int health) {
     char message[256];
     if (sick == 0 && health == 0) {
         MessageBoxA(
@@ -357,7 +363,7 @@ static int vv2_remove_running_dislikes(int *dislikes) {
     return removed;
 }
 
-__declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
+int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
     int already_like = 0, full_likes = 0, granted = 0, removed_dislike = 0;
     int i, j;
     unsigned char *record = base;
@@ -411,7 +417,7 @@ __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
     return 1;
 }
 
-__declspec(dllexport) int __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
+int __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
     int granted = 0, already_mastered = 0;
     int i;
     unsigned char *record = base;
@@ -451,7 +457,7 @@ __declspec(dllexport) int __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
    years) regardless of current age.  Per the spec this touches ONLY the raw age
    field -- never the paired age field or pregnancy timer.  Returns 1 if any
    villager changed (so the Tech menu charges), 0 if all were already 18. */
-__declspec(dllexport) int __stdcall ApplyVV2AgeToAll(unsigned char *base) {
+int __stdcall ApplyVV2AgeToAll(unsigned char *base) {
     int changed = 0, already = 0;
     int i;
     unsigned char *record = base;
@@ -495,7 +501,7 @@ typedef int(__fastcall *vv2_fire_goal_t)(
     void *player, int edx_ignored, int message_id, int flag
 );
 
-__declspec(dllexport) int __stdcall ApplyVV2Collections(
+int __stdcall ApplyVV2Collections(
     unsigned char *player,
     int mode
 ) {
@@ -564,7 +570,7 @@ __declspec(dllexport) int __stdcall ApplyVV2Collections(
 #define VV2_SEX_OFFSET        0x538
 #define VV2_PREFERENCE_OFFSET 0x7F8
 
-__declspec(dllexport) int __stdcall ApplyVV2EqualDivision(
+int __stdcall ApplyVV2EqualDivision(
     unsigned char *base,
     int parenting
 ) {
@@ -711,7 +717,7 @@ static const char *vv2_action_cost(int action) {
 /* Task9-style purchase confirmation: an OK/Cancel box naming the action and its
    cost.  Returns 1 on OK, 0 on Cancel.  The payload passes only the action id;
    the price table above mirrors the payload's tech_costs / detail_costs. */
-__declspec(dllexport) int __stdcall ConfirmVV2Upgrade(int action) {
+int __stdcall ConfirmVV2Upgrade(int action) {
     char message[448];
     wsprintfA(
         message,
@@ -726,7 +732,7 @@ __declspec(dllexport) int __stdcall ConfirmVV2Upgrade(int action) {
     ) == IDOK;
 }
 
-__declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
+void __stdcall ShowVV2UpgradeResult(
     int action,
     int status,
     unsigned int amount_a,
@@ -1094,7 +1100,7 @@ static int vv2_time_warp_apply(unsigned char *base, int speed, int years) {
 #define VV2_TW_CANCELLED 0
 #define VV2_TW_APPLIED   1
 #define VV2_TW_REFUSED   2
-__declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
+int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
     unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
     const char *title = vv2_result_title(VV2_ACT_TIME_WARP);
     char message[448];
@@ -1181,7 +1187,7 @@ static int vv2_barrel_has_room(void *pool) {
         <= vv2_population_cap(collection_done, pool);
 }
 
-__declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
+int __stdcall GateVV2Barrel(void *pool) {
     if (!vv2_barrel_has_room(pool)) {
         ShowVV2UpgradeResult(VV2_ACT_BARREL, VV2_RES_POP_FULL, 0, 0, 0, 0);
         return 0;
@@ -1195,7 +1201,7 @@ __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
    count.  A retry every cue period must not raise the "close to maximum"
    dialog each time, which is the only reason this is separate from
    GateVV2Barrel -- the arithmetic is identical. */
-__declspec(dllexport) int __stdcall GateVV2BarrelSilent(void *pool) {
+int __stdcall GateVV2BarrelSilent(void *pool) {
     return vv2_barrel_has_room(pool);
 }
 
@@ -1924,7 +1930,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
    0 when nothing is known -- and on 0 the caller must not sweep or persist,
    because the latches and the slot number may both belong to a village that
    is not the one about to appear. */
-__declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
+static int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     unsigned int cur[VV2_RECORD_COUNT];
     unsigned int cur_stable[VV2_RECORD_COUNT];
     int slot = VV2_MASK_SLOT;   /* published by the slot stub; 0 = none yet */
@@ -2002,7 +2008,7 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
 /* base = record[0], forwarded from the compositor's ECX before any call could
    clobber it, so the sweep walks exactly the array the game is about to draw.
    A null base means the hook fired with no village; do nothing. */
-__declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
+void __stdcall Vv2MaskSweep(unsigned char *base) {
     int i;
     vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
     vvfp_fix_huts_bridge(2);    /* fix-huts companion: once, fail-open */
@@ -2050,7 +2056,7 @@ __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
    village loaded the snapshot is empty, nothing can match, and the table is
    simply left cleared -- the same fail-closed result as every other path. */
 typedef unsigned char *(__stdcall *vv2_restore_record_array_fn)(void);
-__declspec(dllexport) void __stdcall Vv2MaskRestore(void) {
+void __stdcall Vv2MaskRestore(void) {
     unsigned int cur[VV2_RECORD_COUNT];
     unsigned char *base = ((vv2_restore_record_array_fn)0x0044F4E0)();
     int i;
@@ -2065,7 +2071,7 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) {
     (void)vv2_mask_sidecar_load(base, cur);
 }
 /* exe-callable so the appearance handler can persist right after committing .mtab */
-__declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
+void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
 
 /* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
    The save slot the mask sidecar is keyed by, and one villager's mask, set
@@ -2231,7 +2237,7 @@ done:
    passed while the game was closed) ahead of the compositor (0x42FAD0).
    Each bridge installs once; the sweep keeps calling them, a no-op after
    this. */
-__declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
+void __stdcall Vv2ExtractAtlas(void) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
     int i, last = -1, dirlen;
@@ -2312,7 +2318,7 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
    object (tech balance at +0x2EADC); record = the villager record base; idx = its
    record index (the .mtab entry).  Returns 1 if a change was applied.  The DLL
    only ever writes its own sidecar file, never the GAME save. */
-__declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
+int __stdcall ShowVV2AppearanceChooser(
     void *player,
     unsigned char *record,
     int idx
@@ -2743,7 +2749,7 @@ typedef unsigned char *(__stdcall *vv2_record_array_fn)(void);
    other apply paths use) itself, so the exe dispatch is a one-arg call with no
    handler growth.  On OK — with a real change and enough points — charges 450k,
    applies to all villagers, and persists the mask table to the sidecar. */
-__declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
+int __stdcall ShowVV2AppearanceForAll(void *player) {
     INT_PTR result;
     int changed_head;
     unsigned char *base;
