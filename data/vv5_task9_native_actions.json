@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "42496ED028AE39971F1E71B94FE54EC452C292F089CE2E9C859726B1F01A973F",
-      "size": 136704
+      "sha256": "0D3565670620ED41C35E2A3F8841420A554D443E6FD828400AA2453BE261B7E6",
+      "size": 137216
     }
   ],
   "doubler_evidence": {
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "3F8092CDCCAD28468659B7A6EDD27C1262B4DF061818E478A6F84D135978D759",
-  "base_file_sha256": "3F8092CDCCAD28468659B7A6EDD27C1262B4DF061818E478A6F84D135978D759",
+  "base_source_text_sha256": "EF619D61AB01E8C36BD8B8C884FC6AB9A8D183638357F7BBF57EA3217B61F88D",
+  "base_file_sha256": "EF619D61AB01E8C36BD8B8C884FC6AB9A8D183638357F7BBF57EA3217B61F88D",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "EEB074D964A159DBC36D8EAE9243BF467631D2E0FD7B5E0FAE50E97865F7F989"
+      "source_text_sha256": "677486302FA6DC1E29883EEF0927AF2B1B406CE6D6C93B96ABC32C4E139D5793"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "3F8092CDCCAD28468659B7A6EDD27C1262B4DF061818E478A6F84D135978D759"
+      "source_text_sha256": "EF619D61AB01E8C36BD8B8C884FC6AB9A8D183638357F7BBF57EA3217B61F88D"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "315F3590FAD046A2462D72AEC14381EA030A1011DA25A68C5C830070EE5B0589"
+  "task9_map_canonical_sha256": "59D160EE80F5D48845353B33488A30CC4517B1BA0F070872650285A22786A0F8"
 }
