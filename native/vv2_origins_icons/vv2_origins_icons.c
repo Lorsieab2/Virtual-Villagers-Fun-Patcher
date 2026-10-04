@@ -17,6 +17,7 @@
 #define VV_DETAILS_MASK_X_NUDGE_PX 4
 #define VV_STORY_GAME 2   /* Story / Cheat Upgrades: this is The Lost Children */
 #include "../vv1_origins_icons/vv1_origins_icons.c"
+#include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 #include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */
 
@@ -1435,8 +1436,12 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
    i.e. NOT beside the saves (caught by the VV1 chat, verified on disk 2026-08-26;
    VV1/VV3/VV4 already derive from the basename and land correctly).
    Win32-only (wsprintfA/memcpy = intrinsics) to stay CRT-less.
-   NEVER call from DllMain (loader lock + SHGetFolderPath). Index-keyed: relies on
-   villagers reloading into the same record slots (positional VV2 save). ---- */
+   NEVER call from DllMain (loader lock + SHGetFolderPath). Index-keyed -- and
+   the game does NOT reload villagers into the same records: it saves only
+   its occupied records, packed, and loads them into records 0, 1, 2, ...
+   (seen live: a record cleared below six villagers, a save and a relaunch,
+   and all six came back one record lower).  So the table is re-keyed by
+   each villager's identity whenever the records move (vv2_mask_follow). ---- */
 /* 'VM04'.  Bumped from 'VM03' when the single village tag became a per-slot
    roster snapshot -- see the overlap rule at vv2_roster_overlap.  Bumped
    from 'VM02' before that when a village binding was first added.
@@ -1448,6 +1453,13 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
    loses its mask CHOICES once, recovered in seconds from the chooser, rather
    than wearing another village's masks. */
 #define VV2_MASK_SIDECAR_MAGIC 0x34304D56u  /* 'V','M','0','4' */
+/* 'VM06' (this build): the same shape, but each roster entry is the
+   villager's IDENTITY -- name, gender and the parents' names -- not the name
+   alone, so a mask moved to its villager after a reload cannot go to a
+   living namesake of a dead one.  A 'VM04' file is still read (its name
+   roster binds the village and moves masks only DOWN a record, what a
+   packed load does) and is rewritten in this format at once. */
+#define VV2_MASK_SIDECAR_MAGIC_V6 0x36304D56u
 
 static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     char docs[MAX_PATH];
@@ -1546,6 +1558,11 @@ static int vv2_mask_sidecar_path(char *out) {
    conception, so hashing it would collide across unrelated villagers. */
 #define VV2_NAME_OFFSET     0x564
 #define VV2_NAME_CAPACITY   0x18
+/* The villager's OWN parents' names (set at birth, empty for founders and
+   arrivals): the population exporter's VV2 row, 0x57D / 0x596, 0x18 each. */
+#define VV2_FATHER_OFFSET   0x57D
+#define VV2_MOTHER_OFFSET   0x596
+#define VV2_IDENTITY_SEX    0x538      /* dword, 1 = male, 2 = female */
 
 /* The per-frame sweep's state in the R/W .mtab page: the seen-alive latch
    (one byte per record) and the cleared-this-pass flag.  Declared here
@@ -1589,16 +1606,75 @@ static int vv2_roster_snapshot(const unsigned char *base,
     return live;
 }
 
-/* How many living (slot, name) pairs two rosters share. */
-static int vv2_roster_overlap(const unsigned int *a, const unsigned int *b) {
-    int i, n = 0;
+static unsigned int vv2_fnv_text(unsigned int h, const unsigned char *text, int capacity) {
+    int k;
+    for (k = 0; k < capacity && text[k]; ++k) {
+        h = (h ^ text[k]) * 16777619u;
+    }
+    return h;
+}
+
+/* Fill out[] with each living record's identity: name, gender and the
+   parents' names, none of which changes during a life.  Never 0 for a
+   living record.  Returns the number of living villagers. */
+static int vv2_roster_identities(const unsigned char *base, unsigned int *out) {
+    int i, live = 0;
     for (i = 0; i < VV2_RECORD_COUNT; ++i) {
-        if (a[i] != 0 && a[i] == b[i]) {
+        const unsigned char *rec = base + (unsigned int)i * VV2_RECORD_STRIDE;
+        unsigned int h;
+        int k;
+        out[i] = 0;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) {
+            continue;
+        }
+        h = vv2_fnv_text(2166136261u, rec + VV2_NAME_OFFSET, VV2_NAME_CAPACITY);
+        h = (h ^ 0xFFu) * 16777619u;
+        for (k = 0; k < 4; ++k) {
+            h = (h ^ rec[VV2_IDENTITY_SEX + k]) * 16777619u;
+        }
+        h = vv2_fnv_text(h, rec + VV2_FATHER_OFFSET, VV2_NAME_CAPACITY);
+        h = (h ^ 0xFEu) * 16777619u;
+        h = vv2_fnv_text(h, rec + VV2_MOTHER_OFFSET, VV2_NAME_CAPACITY);
+        h = (h ^ 0xFDu) * 16777619u;
+        out[i] = h ? h : 1u;
+        ++live;
+    }
+    return live;
+}
+
+/* How many of the recorded villagers in `a` are in `b` at the same record
+   or at their RANK in `a` -- the record a packed load puts them in.  Both
+   are exact positions, so a coincidence still has to land on one of two
+   records. */
+static int vv2_roster_overlap(const unsigned int *a, const unsigned int *b) {
+    int i, n = 0, rank = 0;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        if (a[i] == 0) {
+            continue;
+        }
+        if (a[i] == b[i] || a[i] == b[rank]) {
             ++n;
         }
+        ++rank;
     }
     return n;
 }
+
+/* Move each mask from the record `stored` names to where that villager is
+   in `live` (native/shared/mask_follow.h); `weak` for a name-only roster,
+   which only moves a mask DOWN a record.  Returns 1 when the table changed. */
+static int vv2_mask_follow(const unsigned int *stored, const unsigned int *live, int weak) {
+    static unsigned char moved[VV2_RECORD_COUNT];
+    static unsigned int moved_id[VV2_RECORD_COUNT];
+    if (!vv_mask_follow(VV2_RECORD_COUNT, VV2_MASK_TABLE, stored, live, weak, moved, moved_id)) {
+        return 0;
+    }
+    memcpy(VV2_MASK_TABLE, moved, VV2_MASK_TABLE_BYTES);
+    return 1;
+}
+
+/* Set by the load when the restored table must be written back at once. */
+static int g_vv2_rewrite_after_load;
 
 static int vv2_roster_living(const unsigned int *a) {
     int i, n = 0;
@@ -1682,12 +1758,12 @@ static int vv2_mask_sidecar_valid(const unsigned char *data, DWORD len,
     (void)ctx;
     if (len < VV2_MASK_SIDECAR_BYTES) return 0;
     memcpy(&m, data, 4);
-    return m == VV2_MASK_SIDECAR_MAGIC;
+    return m == VV2_MASK_SIDECAR_MAGIC || m == VV2_MASK_SIDECAR_MAGIC_V6;
 }
 
 static void vv2_mask_sidecar_save(void) {
     char path[MAX_PATH];
-    unsigned int m = VV2_MASK_SIDECAR_MAGIC;
+    unsigned int m = VV2_MASK_SIDECAR_MAGIC_V6;
     const void *parts[3];
     DWORD sizes[3];
     if (!vv2_mask_table_ok()) return;          /* no .mtab -> nothing to persist */
@@ -1714,10 +1790,14 @@ static void vv2_mask_sidecar_save(void) {
 /* 1 when the load settled (read, legitimately absent, or an invalid file
    moved aside), 0 when it must stay pending: the path was refused, or the
    file is present but cannot be opened.  Pending never permits a write. */
-static int vv2_mask_sidecar_load(const unsigned int *live) {
+static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *live) {
     char path[MAX_PATH];
     DWORD g;
     unsigned int filesnap[VV2_RECORD_COUNT];
+    unsigned int names[VV2_RECORD_COUNT];
+    const unsigned int *against = live;
+    unsigned int magic;
+    int weak;
     unsigned char file[VV2_MASK_SIDECAR_BYTES];
     unsigned char buf[VV2_MASK_TABLE_BYTES];
     int i;
@@ -1732,6 +1812,7 @@ static int vv2_mask_sidecar_load(const unsigned int *live) {
        roster and adopt an empty table as this village's state. */
     if (vv2_mask_table_ok())
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
+    g_vv2_rewrite_after_load = 0;
     vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT);
     if (vv_sidecar_gate_throttled(&g_vv2_mask_gate)) return 0; /* retry window: no I/O */
     if (!vv2_mask_sidecar_path(path)) {
@@ -1769,14 +1850,30 @@ static int vv2_mask_sidecar_load(const unsigned int *live) {
        as before, for this village's first write to replace. */
     memcpy(filesnap, file + 4, sizeof(filesnap));
     memcpy(buf, file + 4 + sizeof(filesnap), sizeof(buf));
-    if (vv2_roster_same(filesnap, live)) {
+    memcpy(&magic, file, sizeof(magic));
+    weak = magic == VV2_MASK_SIDECAR_MAGIC;
+    if (weak) {
+        /* a name-only file is compared with names (none while no village is up) */
+        if (base != 0) {
+            vv2_roster_snapshot(base, names);
+        } else {
+            memset(names, 0, sizeof(names));
+        }
+        against = names;
+    }
+    if (vv2_roster_same(filesnap, against)) {
         /* Sidecars are user-writable and older builds did not constrain every
            byte. Normalize before publishing anything to the render thunks:
            only 0 (none) through 5 (the five atlas rows) are valid. */
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) {
             if (buf[i] >= VV2_MASK_COUNT) buf[i] = 0;
         }
-        if (vv2_mask_table_ok()) memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
+        if (vv2_mask_table_ok()) {
+            memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
+            /* Written against the records as they were; a reload has packed
+               them since.  Each mask goes to its villager. */
+            g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak) || weak;
+        }
     }
     return 1;
 }
@@ -1807,7 +1904,7 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     if (base == 0 || slot <= 0) {
         return 0;               /* nothing known yet -> do not touch anything */
     }
-    if (vv2_roster_snapshot(base, cur) == 0) {
+    if (vv2_roster_identities(base, cur) == 0) {
         return 0;               /* unknown village -> do not touch anything */
     }
     /* Same village means the same SLOT and a roster majority.  A slot change
@@ -1815,6 +1912,10 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
        overlapping rosters when a save has been copied between them. */
     if (g_vv2_have_roster && slot == g_vv2_slot && vv2_roster_same(g_vv2_roster, cur)) {
         if (!vv2_roster_equal(g_vv2_roster, cur)) {
+            /* A birth, a death, or villagers renumbered: each mask goes to
+               its villager -- and a record reused by a newborn no longer
+               hands it the dead villager's mask. */
+            vv2_mask_follow(g_vv2_roster, cur, 0);
             memcpy(g_vv2_roster, cur, sizeof(cur));
             vv2_mask_sidecar_save();
         }
@@ -1831,12 +1932,16 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
        adopted anyway, so an empty table sat latched with no retry and
        the next write migrated the real file and truncated it. Found in
        review. */
-    if (!vv2_mask_sidecar_load(cur)) {
+    if (!vv2_mask_sidecar_load(base, cur)) {
         return 0;               /* stay pending; retried on the next call */
     }
     memcpy(g_vv2_roster, cur, sizeof(cur));
     g_vv2_have_roster = 1;
     g_vv2_slot = slot;
+    if (g_vv2_rewrite_after_load) {
+        vv2_mask_sidecar_save();    /* the followed table, in this build's format */
+        g_vv2_rewrite_after_load = 0;
+    }
     return 1;
 }
 
@@ -1906,12 +2011,12 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) {
     if (base == 0) {
         for (i = 0; i < VV2_RECORD_COUNT; ++i) cur[i] = 0;
     } else {
-        vv2_roster_snapshot(base, cur);
+        vv2_roster_identities(base, cur);
     }
     /* The other load site. The loader now builds its path before it
        clears anything, so a refusal leaves the table untouched and the
        next call retries. Found in review. */
-    (void)vv2_mask_sidecar_load(cur);
+    (void)vv2_mask_sidecar_load(base, cur);
 }
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }

@@ -359,9 +359,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # (save slot, mask store) it hands the story companion.
         # Re-pinned when it learned Pick Gong of Wonder Outcome (v1.35.46): a
         # third Tech-menu button, outside the Island Event lock.
+        # Re-pinned when its mask sidecar learned to follow each villager
+        # through a reload (identity roster 'VM06', native/shared/mask_follow.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "59FA7619FB8C4EC5FAA6FDF66E3EFA8295AACE9EA2C50BBD2BCC12BE8F2C714B",
+            "DB9182ADCE692E46C64FCD4B3E1F2553A391E31A490F59727F0C1D91C71F189D",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
