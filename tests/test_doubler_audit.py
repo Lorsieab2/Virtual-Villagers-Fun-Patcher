@@ -363,9 +363,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # ShowOriginsVillageWideResult; none of its other source changed.
         # Re-pinned when its mask sidecar learned to follow each villager
         # through a reload (identity roster 'VM06', native/shared/mask_follow.h).
+        # Re-pinned when it stopped shipping exports nothing resolves: the 21
+        # shared A New Home functions (now compiled for VV1 only), the decorated
+        # "_Name@N" twins of its own exports, and Vv2MaskSyncVillage (called
+        # only inside the DLL). Every name the executable resolves, and ordinal
+        # 100, keep their ordinals.
+        # Re-pinned when its village frame began driving the first-load
+        # cross-check prompt (native/shared/crosscheck_bridge.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "F299F084150E2B8FC26A01B2543A5A1844A3C7080ADDFD58D075B8F9E102E53B",
+            "DD1756BAE30F26FC42F1DCA24AA92B3E3839E6E10241FEFB99F129DAF8303218",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

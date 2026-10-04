@@ -11,7 +11,12 @@
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
-   companion.  The Lost Children's companion includes this file and sets 2. */
+   companion.  The Lost Children's companion includes this file and sets 2.
+   Every export below is A New Home's own and sits under VV_STORY_GAME == 1:
+   The Lost Children's executable resolves only the ShowVV2* / ApplyVV2* /
+   GateVV2* / ConfirmVV2Upgrade / Vv2* names its own source defines (and
+   ShowVV2AppearanceForAll by ordinal 100), so building these into its
+   companion would only ship unreachable entries. */
 #ifndef VV_STORY_GAME
 #define VV_STORY_GAME 1
 #endif
@@ -740,9 +745,11 @@ static void *vv1_portrait_mask_atlas(void) {
    from the draw path is safe. Returns NULL on failure; the hook then skips the
    mask (fail-open) rather than drawing garbage. Shares the single cached atlas
    with the Details portrait, so both paths use the same sprite. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) void *__stdcall Vv1GetMaskSprite(void) {
     return vv1_portrait_mask_atlas();
 }
+#endif
 
 /* Called by the shared sub_437340 wrapper AFTER the stock head was drawn from a
    duplicate tuple. `draw_wrapper` is the exact ECX received by 0x409410, and
@@ -755,6 +762,7 @@ static void vv1_parentage_bridge_draw(void *gameobj, void *record,
 static void vv1_sort_bridge_draw(void *gameobj, void *record,
                                  void *draw_wrapper, const int *args);        /* likewise */
 
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
                                                         void *record,
                                                         void *draw_wrapper,
@@ -824,6 +832,7 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
     }
     return 1;
 }
+#endif
 
 /* Exe-callable, exported so the patch can restore masks once at startup
    (outside the loader lock). __stdcall/no args to match the exe's own
@@ -847,6 +856,7 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
 #define VV_GOLDEN_CHILD_MARK   0xC7
 #define VV_IS_GOLDEN_CHILD(rec) (*(const int *)((rec) + VV_GOLDEN_CHILD_OFFSET) == VV_GOLDEN_CHILD_MARK)
 
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
                                                              int single_mask) {
     unsigned char *base = VV_MASK_MANAGER;
@@ -938,6 +948,7 @@ __declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
 __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
     vv1_mask_sidecar_load();
 }
+#endif
 
 /* --- Doubler ownership sidecar ------------------------------------------
    The Origins tech/food point doublers record ownership in two fields of the
@@ -1183,6 +1194,7 @@ static int vv1_doubler_retire_sidecar(int slot) {
    Retiring the file is NOT done here, even though a save has just happened,
    because this epilogue cannot tell whether the write succeeded.  It happens
    on the load path, where the marker read back from the .ldw is the proof. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
     (void)state;
     return 0;
@@ -1327,6 +1339,7 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     CloseHandle(file);
     return 0;
 }
+#endif
 
 /* Called once from the main village render tick on every frame, after the
    one-shot restore gate. This is deliberately separate from Details and from
@@ -1400,12 +1413,14 @@ static void vv1_numkeys_bridge(void) {
 
 /* Called by the generated native-update hook.  A missing optional companion
    is a stock-compatible no-op. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall Vv1NumberKeysUpdate(void *screen) {
     if (!vv1_numkeys_resolve()) {
         return 0;
     }
     return vv1_numkeys_update(screen);
 }
+#endif
 
 /* ---- the VV1 parentage companion ------------------------------------------
 
@@ -1690,12 +1705,14 @@ static int vv1_sort_resolve(void) {
 
 /* The executable's Details-arrow stubs (0x44A7FF / 0x44A8B4): the stock
    candidate and the direction; returns the index to select. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall Vv1SortStep(int candidate, int direction) {
     if (!vv1_sort_resolve()) {
         return candidate;
     }
     return vv1_sort_step(candidate, direction);
 }
+#endif
 
 static void vv1_sort_bridge_draw(void *gameobj, void *record, void *draw_wrapper, const int *args) {
     if (vv1_sort_resolve()) {
@@ -1720,6 +1737,7 @@ static void vv1_parentage_bridge_draw(void *gameobj, void *record,
    after each of its four child-creation calls): the newborn's record,
    already named, and its mother's.  Forwarded to the parentage companion; a
    missing companion is a no-op. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall Vv1Born(void *child, void *mother) {
     if (!vv1_parentage_resolve()) {
         return 0;
@@ -1775,6 +1793,7 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     }
     vv1_mask_roster_current();
 }
+#endif
 
 static HINSTANCE module_instance;
 
@@ -2521,6 +2540,7 @@ static INT_PTR CALLBACK appearance_dialog(
     return FALSE;
 }
 
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     int villager_ptr
 ) {
@@ -2980,6 +3000,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
     }
     return show_upgrade_menu(villager_menu, dialog_state);
 }
+#endif
 
 /* Row names for the confirmation prompt below. Kept here rather than as
    ASM string-table entries: the .shr string budget is already tight, and
@@ -3072,6 +3093,7 @@ static const char *vv1_detail_row_name(int row) {
    for parity across games. Only ever called for a real purchase, not
    for removing an owned doubler -- the caller (menu) only reaches this
    on the Buy path, after it already knows the row isn't being removed. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
     int is_detail,
     int row,
@@ -3095,6 +3117,7 @@ __declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
         MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
     ) == IDOK;
 }
+#endif
 
 /* Full Heal/Cure All Villagers: the .shr helper only calls this once it
    already knows at least one villager was sick or below full health (and
@@ -3112,6 +3135,7 @@ static const char *vv_villagers_word_uc(int n) { return n == 1 ? "Villager" : "V
 static const char *vv_villagers_possessive(int n) { return n == 1 ? "Villager's" : "Villagers'"; }
 
 
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     int sick_cured,
     int healed_restored
@@ -3133,6 +3157,7 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     );
     return 0;
 }
+#endif
 
 /* Grant Running to All Villagers: reports each outcome on its own line, in
    the exact order and wording the OFFICIAL Origins Upgrade Prompts
@@ -3213,6 +3238,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
    (+0x36C == 0xC7, the game's test -- see VV_IS_GOLDEN_CHILD) rather than
    assuming there is exactly one, so this reports however many were
    actually skipped for that reason, same as every other count here. */
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
     int granted,
     int already,
@@ -3340,6 +3366,7 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
     );
     return 0;
 }
+#endif
 
 /* No-change wording for the Tech screen's three village-wide rows (Grant
    Running to All Villagers, Grant Full Mastery to All Villagers, Set All
@@ -3539,6 +3566,7 @@ static int vv1_time_warp_apply(int speed, int years) {
 #define VV1_TW_CANCELLED 0
 #define VV1_TW_APPLIED   1
 #define VV1_TW_REFUSED   2
+#if VV_STORY_GAME == 1
 __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
     int gamectx_ptr,
     int cost
@@ -3663,3 +3691,4 @@ __declspec(dllexport) int __stdcall ShowOriginsRowMessage(
     );
     return 0;
 }
+#endif
