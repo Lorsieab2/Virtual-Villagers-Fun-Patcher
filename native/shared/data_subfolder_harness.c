@@ -112,6 +112,7 @@ static void wipe(void) {
     g_fail_move = 0;
     g_race_move = 0;
     g_deny[0] = '\0';
+    vv_data_kept_count = 0;       /* each scenario is a new launch */
 }
 
 /* Resolve the masks file for slot 1 from a fresh Data-folder buffer. */
@@ -192,9 +193,20 @@ int main(int argc, char **argv) {
         wsprintfA(tmp, "%s.tmp", g_loose);
         CHECK(lstrcmpA(read_text(g_loose), "UPDATED") == 0 && !exists(tmp) && !exists(g_moved),
               "it replaced the loose file through a .tmp beside it; nothing in the folder");
+        /* Later in the same session the move would succeed, but the gate
+           is bound to the loose path: the companion must be handed it. */
+        r = resolve(out);
+        CHECK(r == VV_DATA_PATH_LOOSE && lstrcmpiA(out, g_loose) == 0 && g_moves == 1,
+              "later in the same session: the loose path again, no second move");
+        parts[0] = "UPDATED2";
+        sizes[0] = 8;
+        CHECK(vv_sidecar_publish(&gate, out, parts, sizes, 1)
+              && lstrcmpA(read_text(g_loose), "UPDATED2") == 0,
+              "so the next save still lands (it would be refused at a moved path)");
     }
+    vv_data_kept_count = 0;           /* the next launch */
     r = resolve(out);
-    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpA(read_text(g_moved), "UPDATED") == 0 && !exists(g_loose),
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpA(read_text(g_moved), "UPDATED2") == 0 && !exists(g_loose),
           "the next launch moves it in, with what was written meanwhile");
 
     printf("5. the move fails for real (the loose file is open without delete sharing)\n");
@@ -262,10 +274,22 @@ int main(int argc, char **argv) {
           "only the folder's path is too long: the loose file, in place");
     CHECK(g_moves == 0 && GetFileAttributesA(g_sub) == INVALID_FILE_ATTRIBUTES
           && lstrcmpA(read_text(g_loose), "LONG") == 0, "nothing moved, no folder made, the file intact");
+    vv_data_kept_count = 0;           /* the next launch */
     lstrcpyA(out, g_data);
     r = vv_data_file_path(out, lstrlenA(g_moved) + VV_DATA_RESERVE, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
     CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpA(read_text(g_moved), "LONG") == 0,
           "exactly enough for the folder's path: moved in");
+    /* The file is in its folder now; the path grows (a longer Documents
+       folder): it is still that file, never a loose namesake. */
+    vv_data_kept_count = 0;
+    lstrcpyA(out, g_data);
+    r = vv_data_file_path(out, lstrlenA(g_moved) + VV_DATA_RESERVE - 1, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_moved) == 0 && !exists(g_loose),
+          "a file already in the folder whose path is too long for the reserve: still that file");
+    lstrcpyA(out, g_data);
+    r = vv_data_file_path(out, lstrlenA(g_moved) + (int)sizeof(".tmp") - 1, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
+    CHECK(r == VV_DATA_PATH_FAILED && lstrcmpA(out, g_data) == 0 && !exists(g_loose),
+          "...and if not even its .tmp fits: refused, no loose file started beside it");
 
     wipe();
     RemoveDirectoryA(g_data);

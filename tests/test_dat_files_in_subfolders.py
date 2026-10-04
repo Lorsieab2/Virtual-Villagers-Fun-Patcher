@@ -145,7 +145,7 @@ class DatFilesInSubfolders(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("all checks passed", result.stdout)
         self.assertNotIn("FAIL", result.stdout)
-        self.assertEqual(result.stdout.count("  ok   "), 35)
+        self.assertEqual(result.stdout.count("  ok   "), 39)
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
     def test_every_writers_real_path_builder(self) -> None:

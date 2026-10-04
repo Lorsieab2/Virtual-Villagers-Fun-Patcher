@@ -66,27 +66,34 @@ class SaveResetReservesCoverTheirAppendsTests(unittest.TestCase):
     def test_the_narrow_sidecar_reserve_covers_the_longest_name(self) -> None:
         """The sidecars are formatted straight onto the save folder.
 
-        Since each kind of data file got a folder of its own, the reserve is
-        measured from SIDECAR_FORMATS by the code itself rather than written
-        as a sizeof: every format is "%s" + tail + "%d" + ".dat", so it
-        formats to the folder plus (len(format) - 4) + one slot digit, and
-        the reserve must be at least that plus the NUL -- len(format) - 2.
-        This checks both that the code computes exactly that over every
-        format of the game's row before resolving the folder, and that the
-        figure covers the longest format actually in the table (the
-        DATA_FORMAT rows expanded the way the preprocessor does)."""
+        Since each kind of data file got a folder of its own, every format
+        is bounded by the code itself from SIDECAR_FORMATS: each is "%s" +
+        tail + "%d" + ".dat", so it formats to the folder plus
+        (len(format) - 4) + one slot digit, and needs len(format) - 2 with
+        the NUL. The folder is resolved with the SHORTEST format's room (so
+        a longest nested name that does not fit never blocks deleting a
+        shorter loose file -- Codex on #519), and each format is checked
+        against MAX_PATH just before wsprintfA formats it. This checks both
+        that the code does exactly that, and that the formula is the real
+        length of the longest format in the table (the DATA_FORMAT rows
+        expanded the way the preprocessor does)."""
         text = source()
         self.assertIn(
-            "if (fmt != NULL && lstrlenA(fmt) - 4 + 2 > reserve) {\n"
+            "if (fmt != NULL && (reserve == 0 || lstrlenA(fmt) - 4 + 2 < reserve)) {\n"
             "                reserve = lstrlenA(fmt) - 4 + 2;",
             text,
-            "the sidecar reserve is no longer len(format) - 2 over the row",
+            "the folder is no longer resolved with the shortest format's room",
         )
         self.assertIn("const char *fmt = SIDECAR_FORMATS[game - 1][i];", text)
         self.assertIn("if (!vv_save_folder(folder, reserve)) {", text)
-        # The reserve loop runs before the deletion loop formats anything.
+        # The reserve loop runs before the deletion loop formats anything,
+        # and every format is bounded immediately before it is formatted.
         self.assertLess(text.index("vv_save_folder(folder, reserve)"),
                         text.index("wsprintfA(path, fmt, folder, slot);"))
+        bound = "if (lstrlenA(folder) + lstrlenA(fmt) - 4 + 2 > MAX_PATH) {\n            continue;"
+        self.assertIn(bound, text)
+        between = text[text.index(bound):text.index("wsprintfA(path, fmt, folder, slot);")]
+        self.assertNotIn("wsprintf", between)
         # Expand the table and measure the real longest tail.
         macros = dict(re.findall(r'#define (VV_DATA_SUB_\w+)\s+"([^"]*)"',
                                  (ROOT / "native" / "shared" / "data_subfolder.h").read_text(encoding="utf-8")))

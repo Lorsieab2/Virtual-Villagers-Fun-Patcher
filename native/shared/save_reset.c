@@ -312,22 +312,28 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     if (game < 1 || game > 5 || slot < 1 || slot > 5) {
         return -1;
     }
-    /* Reserve the longest tail any name below appends.
+    /* Every name below is formatted onto the save folder with wsprintfA,
+       which takes no destination bound, so each one is bounded before it is
+       formatted -- a name that would not fit in MAX_PATH is skipped, never
+       overrun. Such a file cannot exist: the companion that writes it
+       refuses the same path.
 
-       This is NOT a round number. wsprintfA takes no destination bound, so a
-       reserve shorter than the longest suffix is a stack overrun rather than
-       a truncation -- and the data files' names grew when they moved into
-       their own folder, and again when each kind got a folder of its own.
+       The folder is resolved with the SHORTEST name's room, not the
+       longest's. On a long Documents path or exe name the longest (a nested
+       Unaccounted Villagers roster) may not fit while a shorter one -- a
+       loose mask file, which data_subfolder.h falls back to exactly then --
+       still does, and refusing the whole reset over the longest left that
+       file behind for the next village (Codex, #519).
 
-       So the figure is measured from the table itself rather than written
-       down: each format is "%s" + tail + "%d" + ".dat"-ish, and formats to
-       the folder plus (format length - 4) + one slot digit + the NUL. It
-       recomputes whenever a name is edited or a row added. */
+       Each format is "%s" + tail + "%d" + ".dat"-ish, so it formats to the
+       folder plus (format length - 4) + one slot digit; with the NUL that is
+       format length - 2. Measured from the table, so it recomputes whenever
+       a name is edited or a row added. */
     {
         int reserve = 0;
         for (i = 0; i < SIDECAR_FORMAT_COUNT; ++i) {
             const char *fmt = SIDECAR_FORMATS[game - 1][i];
-            if (fmt != NULL && lstrlenA(fmt) - 4 + 2 > reserve) {
+            if (fmt != NULL && (reserve == 0 || lstrlenA(fmt) - 4 + 2 < reserve)) {
                 reserve = lstrlenA(fmt) - 4 + 2;
             }
         }
@@ -340,6 +346,9 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
         const char *fmt = SIDECAR_FORMATS[game - 1][i];
         if (fmt == NULL) {
             continue;   /* a hole, not the end: the rows are not packed */
+        }
+        if (lstrlenA(folder) + lstrlenA(fmt) - 4 + 2 > MAX_PATH) {
+            continue;   /* would not fit in path[]: no companion can have written it */
         }
         wsprintfA(path, fmt, folder, slot);
         removed += delete_if_present(path);

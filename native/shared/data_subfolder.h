@@ -47,6 +47,15 @@
  *      settling on an empty file in the folder that would hide it.
  *   5. Neither exists: the folder path, when the folder exists or could be
  *      made; otherwise the loose path, so the data is still kept.
+ *   6. Length: every path must leave room for the longest name the
+ *      companions append (VV_DATA_RESERVE). When only the folder's longer
+ *      path does not, a file already in the folder is still used (refused if
+ *      not even its ".tmp" fits -- never swapped for a loose namesake), and
+ *      otherwise the loose file is used where it is, without moving it.
+ *   7. Once a process has been handed the loose path for a file, it keeps
+ *      getting it for the rest of the session, so the path a companion
+ *      loaded from is the path it saves to; the move waits for the next
+ *      launch.
  *
  * Every companion's atomic write derives its ".tmp" from the path returned
  * here, so the temporary file is always in the same folder as the file it
@@ -108,6 +117,29 @@ static int vv_data_probe(const char *path) {
         ? VV_DATA_ABSENT : VV_DATA_UNKNOWN;
 }
 
+/* Rule 7's memory: the loose paths this process has been handed, so it is
+   handed the same path every time (a DLL's statics live as long as the
+   game's session). Sixteen is several times the files one companion keeps
+   for one slot at a time; a full table only means a later file is not
+   remembered, which is the behaviour without this rule. */
+#define VV_DATA_KEPT_MAX 16
+static char vv_data_kept[VV_DATA_KEPT_MAX][MAX_PATH];
+static int vv_data_kept_count;
+
+static int vv_data_keep_loose(char *out, const char *loose) {
+    int i;
+    for (i = 0; i < vv_data_kept_count; ++i) {
+        if (lstrcmpiA(vv_data_kept[i], loose) == 0) {
+            break;
+        }
+    }
+    if (i == vv_data_kept_count && vv_data_kept_count < VV_DATA_KEPT_MAX) {
+        lstrcpyA(vv_data_kept[vv_data_kept_count++], loose);
+    }
+    lstrcpyA(out, loose);
+    return VV_DATA_PATH_LOOSE;
+}
+
 /* On entry OUT holds "<save folder>\Virtual Villagers Fun Patcher Data" (the
    folder must already exist; every caller creates it first). SUB is one of the
    VV_DATA_SUB_* names and NAME the file's own name. CAP is OUT's size in
@@ -126,35 +158,68 @@ static int vv_data_file_path(char *out, int cap, const char *sub,
     int folder_ok;
     int loose_state;
     int dir_len;
+    int loose_len;
+    int moved_len;
+    int limit;
+    int i;
 
     if (out == NULL || sub == NULL || name == NULL || sub[0] == '\0'
         || name[0] == '\0' || cap <= 0 || reserve < 1) {
         return VV_DATA_PATH_FAILED;
     }
     dir_len = lstrlenA(out);
-    /* Rule 6, length. A path is usable only if the caller's whole reserve
-       still fits after it, in OUT and in MAX_PATH (sidecar_io.h builds its
-       ".tmp" and ".unreadable-<ticks>-<n>" names in MAX_PATH buffers).
-       The loose path is the shorter of the two: if even it does not fit,
-       nothing is usable. If only the folder's does not fit -- the folder's
-       name is what pushed it over -- the loose file is used where it is and
-       nothing is moved, exactly as before the folders existed, so a long
-       Documents path or exe name never costs the player a working file. */
-    if (dir_len == 0
-        || dir_len + 1 + lstrlenA(name) + reserve > cap
-        || dir_len + 1 + lstrlenA(name) + reserve > MAX_PATH) {
+    limit = cap < MAX_PATH ? cap : MAX_PATH;
+    loose_len = dir_len + 1 + lstrlenA(name);
+    moved_len = dir_len + 1 + lstrlenA(sub) + 1 + lstrlenA(name);
+    if (dir_len == 0 || loose_len + 1 > MAX_PATH) {
         return VV_DATA_PATH_FAILED;
     }
-    if (dir_len + 1 + lstrlenA(sub) + 1 + lstrlenA(name) + reserve > cap
-        || dir_len + 1 + lstrlenA(sub) + 1 + lstrlenA(name) + reserve > MAX_PATH) {
-        lstrcatA(out, "\\");
-        lstrcatA(out, name);
-        return VV_DATA_PATH_LOOSE;
-    }
     lstrcpyA(dir, out);
+    wsprintfA(loose, "%s\\%s", dir, name);
+
+    /* Rule 7, one answer per session. Once this process has been handed the
+       loose path for a file, it keeps getting it: the companion's load gate
+       is bound to the path it loaded, and a later call that succeeded in
+       moving the file would hand back a different path the gate refuses to
+       publish to -- so changes would silently stop being saved for the rest
+       of the session. The move is tried again at the next launch. */
+    for (i = 0; i < vv_data_kept_count; ++i) {
+        if (lstrcmpiA(vv_data_kept[i], loose) == 0) {
+            if (loose_len + reserve > limit) {
+                return VV_DATA_PATH_FAILED;
+            }
+            lstrcpyA(out, loose);
+            return VV_DATA_PATH_LOOSE;
+        }
+    }
+
+    /* Rule 6, length. A path is usable only if the caller's whole reserve
+       still fits after it, in OUT and in MAX_PATH (sidecar_io.h builds its
+       ".tmp" and ".unreadable-<ticks>-<n>" names in MAX_PATH buffers). */
+    if (moved_len + reserve > limit) {
+        /* The folder's path leaves too little room. A file already in the
+           folder is still the one: it is used when its own atomic write
+           (".tmp") fits, and refused otherwise -- never swapped for a loose
+           namesake, which would start the slot empty beside it. Only when
+           the folder holds nothing is the loose file used where it is, and
+           nothing is moved, exactly as before the folders existed. */
+        if (moved_len + 1 <= MAX_PATH) {
+            wsprintfA(moved, "%s\\%s\\%s", dir, sub, name);
+            if (vv_data_probe(moved) != VV_DATA_ABSENT) {
+                if (moved_len + (int)sizeof(".tmp") > limit) {
+                    return VV_DATA_PATH_FAILED;
+                }
+                lstrcpyA(out, moved);
+                return VV_DATA_PATH_FOLDER;
+            }
+        }
+        if (loose_len + reserve > limit) {
+            return VV_DATA_PATH_FAILED;
+        }
+        return vv_data_keep_loose(out, loose);
+    }
     wsprintfA(folder, "%s\\%s", dir, sub);
     wsprintfA(moved, "%s\\%s\\%s", dir, sub, name);
-    wsprintfA(loose, "%s\\%s", dir, name);
 
     /* Rule 1: already in the folder. Anything that is not "absent" counts --
        a file present but locked is still the one to use, and the sidecar
@@ -169,13 +234,15 @@ static int vv_data_file_path(char *out, int cap, const char *sub,
     if (loose_state == VV_DATA_ABSENT || loose_state == VV_DATA_DIRECTORY) {
         /* Rule 5: nothing loose to move (a directory of that name is not
            ours). */
-        lstrcpyA(out, folder_ok ? moved : loose);
-        return folder_ok ? VV_DATA_PATH_FOLDER : VV_DATA_PATH_LOOSE;
+        if (folder_ok) {
+            lstrcpyA(out, moved);
+            return VV_DATA_PATH_FOLDER;
+        }
+        return vv_data_keep_loose(out, loose);
     }
     if (loose_state == VV_DATA_UNKNOWN) {
         /* Rule 4: it may be there; do not guess it away. */
-        lstrcpyA(out, loose);
-        return VV_DATA_PATH_LOOSE;
+        return vv_data_keep_loose(out, loose);
     }
     /* Rule 2: move it. No MOVEFILE_REPLACE_EXISTING, ever. */
     if (folder_ok && VV_DATA_MOVE_FILE(loose, moved)) {
@@ -189,8 +256,7 @@ static int vv_data_file_path(char *out, int cap, const char *sub,
         lstrcpyA(out, moved);
         return VV_DATA_PATH_FOLDER;
     }
-    lstrcpyA(out, loose);
-    return VV_DATA_PATH_LOOSE;
+    return vv_data_keep_loose(out, loose);
 }
 
 #endif /* VV_DATA_SUBFOLDER_NAMES_ONLY */
