@@ -135,6 +135,12 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "an existing backup is never replaced: the next free name is used",
             "a damaged marker is set aside and the check runs",
             "numbered log files are read in number order (file 10 after file 2)",
+            # Codex on #522, third round
+            "a Births log cut off mid-record is unreadable: nothing asked, nothing changed, no marker",
+            "... and so is one whose Birth names no child",
+            "... and one whose parent has no head or body",
+            "a full village of long names, every one corrected twice: repaired",
+            "... and every one of the 512 changes is in the Repairs log, past 64 KiB, ending with the backup",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

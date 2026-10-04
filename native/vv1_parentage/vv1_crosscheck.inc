@@ -85,6 +85,9 @@
 #define VV1_XC_UNSET            (-2147483647 - 1)
 #define VV1_XC_BACKUP_SUFFIX    ".before-v1.35.58-repair"
 #define VV1_XC_REPAIRS_PER_FILE 256
+#define VV1_XC_NOTE_PER_CHANGE  512           /* the two lines one change can add, with room to spare */
+#define VV1_XC_NOTE_TAIL        (MAX_PATH + 64)  /* the Backup line */
+#define VV1_XC_NOTE_FIXED       (VV1_XC_HEADER_CAPACITY + 512 + VV1_XC_NOTE_TAIL)
 
 /* What the marker says about the slot. */
 #define VV1_XC_RESULT_CLEAN     1    /* checked: nothing to change */
@@ -117,6 +120,7 @@ typedef struct {
     int header_count;
     int village_header;           /* the slot's latest header: the village the records are kept from */
     int overflow;                 /* more villages for this slot than the table holds: not read */
+    int damaged;                  /* a record of this village cut short (no name, head or body): not read */
 } vv1_xc_log;
 
 typedef struct {
@@ -370,6 +374,37 @@ static int vv1_xc_header_index(vv1_xc_log *log, const char *line) {
     return log->header_count++;
 }
 
+/* A person a record names is complete when the record leaves them out, names
+   nobody ("(unknown)" parses to an empty name), or gives the name with both a
+   head and a body. */
+static int vv1_xc_person_whole(const vv1_xc_person *p) {
+    return !p->present || p->name[0] == '\0' || (p->head != VV1_XC_UNSET && p->body != VV1_XC_UNSET);
+}
+
+/* End a record.  A Birth needs its child's name, head and body, a Conception
+   its mother's, and every parent it names needs a head and a body; one of this
+   village's records that falls short of that -- a log cut off or damaged
+   mid-record -- is not a source of truth: the whole log is treated as
+   unreadable and nothing is changed (Codex, #522: a fragment would otherwise
+   count as the village's Births and clear the parents of everyone it does not
+   name). */
+static int vv1_xc_finish(vv1_xc_log *log, vv1_xc_record *rec, int in_slot, int header) {
+    const vv1_xc_person *key_person;
+    if (!in_slot || (rec->kind != 1 && rec->kind != 2)) {
+        return 1;
+    }
+    key_person = rec->kind == 1 ? &rec->child : &rec->mother;
+    if (!key_person->present || key_person->name[0] == '\0'
+        || key_person->head == VV1_XC_UNSET || key_person->body == VV1_XC_UNSET
+        || !vv1_xc_person_whole(&rec->mother) || !vv1_xc_person_whole(&rec->father)
+        || !vv1_xc_person_whole(&rec->child)) {
+        log->damaged = 1;
+        return 1;
+    }
+    rec->header = header;
+    return vv1_xc_push(log, rec);
+}
+
 /* One file's text, in the same blocks the owner's repair tool reads: a
    "Village:" line names the village (and slot) the following records belong
    to; a record is "Birth" or "Conception <n>" up to the next blank line; a
@@ -399,13 +434,7 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
             blank = *trimmed == '\0';
             if (blank || line[0] != ' ') {
                 /* The end of a record: a blank line, or any line starting a new one. */
-                if (rec.kind == 1 && rec.child.present && in_slot) {
-                    rec.header = header;
-                    if (!vv1_xc_push(log, &rec)) return 0;
-                } else if (rec.kind == 2 && rec.mother.present && in_slot) {
-                    rec.header = header;
-                    if (!vv1_xc_push(log, &rec)) return 0;
-                }
+                if (!vv1_xc_finish(log, &rec, in_slot, header)) return 0;
                 memset(&rec, 0, sizeof(rec));
                 person = NULL;
             }
@@ -455,11 +484,7 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
         line = next;
     }
     /* A file that ends without a blank line still ends its last record. */
-    if (in_slot && ((rec.kind == 1 && rec.child.present) || (rec.kind == 2 && rec.mother.present))) {
-        rec.header = header;
-        if (!vv1_xc_push(log, &rec)) return 0;
-    }
-    return 1;
+    return vv1_xc_finish(log, &rec, in_slot, header);
 }
 
 /* Read every "Virtual Villagers 1 Births and Conceptions Log <n>.txt", in
@@ -542,9 +567,9 @@ static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
             return -1;
         }
     }
-    if (log->overflow) {
+    if (log->overflow || log->damaged) {
         vv1_xc_free(log);
-        return -1;                        /* which village is the latest cannot be told: change nothing */
+        return -1;                        /* which village is the latest, or what a record says, cannot be told: change nothing */
     }
     return log->village_header >= 0 ? 1 : 0;
 }
@@ -885,7 +910,7 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
     char *existing = NULL;
     const char *header = log->village_header >= 0 ? log->headers[log->village_header] : "";
     int file_number = 1, repairs = 0, need_header = 1, i;
-    size_t len;
+    size_t len, cap;
     SYSTEMTIME now;
     HANDLE file;
     DWORD size, got = 0;
@@ -938,7 +963,14 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
             need_header = 1;
         }
     }
-    text = (char *)HeapAlloc(GetProcessHeap(), 0, 64 * 1024);
+    /* Sized from the plan, so every change is listed (Codex, #522: a fixed
+       64 KiB could not hold an Expanded-256 village's worst case, and the
+       entries past it were dropped from the note while the table still
+       changed).  Each change takes at most VV1_XC_NOTE_PER_CHANGE bytes -- two
+       lines of a 27-character name and two "father X, mother Y" texts of at
+       most 95 -- and the guard below refuses rather than truncate. */
+    cap = VV1_XC_NOTE_FIXED + (size_t)plan->count * VV1_XC_NOTE_PER_CHANGE;
+    text = (char *)HeapAlloc(GetProcessHeap(), 0, cap);
     if (text == NULL) {
         return 0;
     }
@@ -958,7 +990,10 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
         char name[VV1_NAME_CAPACITY];
         char was[96], now_text[96];
         len = (size_t)lstrlenA(text);
-        if (len + 400 > 64 * 1024) break;
+        if (len + VV1_XC_NOTE_PER_CHANGE + VV1_XC_NOTE_TAIL > cap) {
+            HeapFree(GetProcessHeap(), 0, text);   /* cannot happen by the sizing above; never a short note */
+            return 0;
+        }
         vv1_copy_name(records + (unsigned int)c->index * VV1_RECORD_STRIDE, name);
         vv1_xc_who(was, sizeof(was), &c->before);
         vv1_xc_who(now_text, sizeof(now_text), &c->after);

@@ -273,11 +273,27 @@ def parse_person(lines: list[str], start: int, label: str) -> Person:
     return person
 
 
-def births_log(game_dir: Path, game: int, slot: int) -> tuple[list[LogRecord], list[Path]]:
+class BirthsLog(list):
+    """The village's records, plus `village` (its latest "Village:" line for the slot, or None)
+    and `damaged` (one of its records was cut short: the in-game check reads such a log as
+    unreadable and changes nothing)."""
+    village: str | None = None
+    damaged: bool = False
+
+
+def whole(p: Person | None) -> bool:
+    return p is None or not p.name or (p.head is not None and p.body is not None)
+
+
+def births_log(game_dir: Path, game: int, slot: int) -> tuple[BirthsLog, list[Path]]:
     """This slot's Birth and Conception records, in log order, from every numbered file (the
-    same reading the in-game cross-check and the owner's repair tool do)."""
+    same reading the in-game cross-check and the owner's repair tool do).  The village is the
+    slot's LATEST header, whether or not a record follows it yet (Codex, #522: a new village
+    whose header is all its file holds so far is not the previous village)."""
     files = numbered(game_dir / LOGS / "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log")
     records: list[LogRecord] = []
+    latest = None
+    damaged_in: set[str] = set()
     for path in files:
         text = path.read_text(encoding="latin-1").replace("\r\n", "\n")
         header = None
@@ -287,6 +303,8 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[list[LogRecord], l
             if heads:
                 header = heads[-1].rstrip()
                 lines = [l for l in lines if not l.startswith("Village:")]
+                if header.endswith(f"(Save {slot})"):
+                    latest = header
             if not lines or header is None or not header.endswith(f"(Save {slot})"):
                 continue
             kind = lines[0].strip()
@@ -303,6 +321,12 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[list[LogRecord], l
                 m = re.match(r"\s*Babies in pregnancy:\s*(\d+)", line)
                 if m:
                     rec.babies = int(m.group(1))
+            if kind == "Birth" or kind.startswith("Conception"):
+                main = rec.child if kind == "Birth" else rec.mother
+                if (main is None or not main.name or main.head is None or main.body is None
+                        or not whole(rec.mother) or not whole(rec.father) or not whole(rec.child)):
+                    damaged_in.add(header)        # cut short: the game reads the whole log as unreadable
+                    continue
             if kind == "Birth" and rec.child:
                 rec.kind = "birth"
             elif kind.startswith("Conception") and rec.mother:
@@ -310,10 +334,10 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[list[LogRecord], l
             else:
                 continue
             records.append(rec)
-    if records:
-        latest = records[-1].village
-        records = [r for r in records if r.village == latest]
-    return records, files
+    out = BirthsLog(r for r in records if r.village == latest)
+    out.village = latest
+    out.damaged = latest in damaged_in
+    return out, files
 
 
 def numbered_records(game_dir: Path, folder: str, stem: str, marker: str, slot: int) -> tuple[list[str], list[Path]]:
@@ -381,6 +405,10 @@ def history_last(game_dir: Path, slot: int) -> tuple[str, list[dict]] | None:
 
 def key(name: str, head, body) -> tuple:
     return (name, head, body)
+
+
+def enc_body(p: Person | None) -> int:
+    return 0 if p is None or p.body is None or not 0 <= p.body <= 253 else p.body + 1
 
 
 def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: list[LogRecord], rep: Report) -> None:
@@ -478,7 +506,7 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
                                                  == key(v.name, v.head, v.body) for r in births[convs[-1] + 1:]):
                 f = births[convs[-1]].father
                 if f and f.name:
-                    if cur["stash"] == f.name and cur["sh"] == enc(f):
+                    if cur["stash"] == f.name and cur["sh"] == enc(f) and cur["sb"] == enc_body(f):
                         rep.add(label, "OK", f"{v.name} is expecting {f.name}'s child, as her last conception says")
                     else:
                         wrong += 1
@@ -791,7 +819,15 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
     return len(deaths)
 
 
-def check_marker(game_dir: Path, slot: int, game: int, rep: Report) -> None:
+def village_id(header: str) -> int:
+    """vv1_xc_village_id: FNV-1a of the village's Births-log header line, never 0."""
+    h = 2166136261
+    for c in header.encode("latin-1"):
+        h = ((h ^ c) * 16777619) & 0xFFFFFFFF
+    return h or 1
+
+
+def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str | None = None) -> None:
     path = game_dir / DATA / "Cross-Check" / f"Virtual Villagers {game} Cross-Check - Save {slot}.dat"
     label = f"{DATA}\\Cross-Check"
     if game != 1:
@@ -800,11 +836,19 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report) -> None:
         rep.add(label, "NOTE", "the first-load cross-check has not run for this slot yet (it runs at the next load)")
         return
     data = path.read_bytes()
-    if len(data) == 48 and data[:4] == b"VXC1":
-        result = {1: "clean", 2: "repaired", 3: "no Births log to check against"}.get(struct.unpack_from("<I", data, 16)[0], "?")
-        rep.add(label, "OK", f"the first-load cross-check ran: {result}")
-    else:
-        rep.add(label, "UNCHECKED", "not a cross-check marker")
+    if len(data) != 48 or data[:4] != b"VXC1":
+        rep.add(label, "UNCHECKED", "not a cross-check marker (the game sets it aside and runs the check)")
+        return
+    words = struct.unpack("<12I", data)
+    result = {1: "clean", 2: "repaired", 3: "no Births log to check against"}.get(words[4])
+    if words[1] != 1 or words[2] != 1 or words[3] != slot or result is None:
+        rep.add(label, "UNCHECKED", "a marker for another game, slot or version (the game sets it aside and runs the check)")
+        return
+    if village is not None and words[11] != village_id(village):
+        rep.add(label, "NOTE", "the marker is another village's (an earlier village in this slot): the check runs at "
+                               "this village's next load")
+        return
+    rep.add(label, "OK", f"the first-load cross-check ran for this village: {result}")
 
 
 def detect_game(game_dir: Path, slot: int) -> int:
@@ -829,6 +873,11 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
         return rep
     rep.add(save.name, "OK", f"{GAME_TITLES[game]}, Save {slot}: {len(roster)} living villagers read from the save")
     births, files = births_log(game_dir, game, slot)
+    if births.damaged:
+        rep.add(f"{LOGS}\\Births and Conceptions", "UNCHECKED",
+                "a record of this village is cut short (no name, head or body): the game's check treats the log as "
+                "unreadable and changes nothing, and so does this one")
+        births = BirthsLog()
     rep.add(f"{LOGS}\\Births and Conceptions", "OK" if files else "NOTE",
             f"{sum(r.kind == 'birth' for r in births)} Birth and {sum(r.kind == 'conception' for r in births)} "
             f"Conception records for this village in {len(files)} file(s)")
@@ -847,7 +896,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     check_graves(game_dir, slot, game, deaths, rep)
     check_rosters(game_dir, slot, game, roster, rep)
     check_stews(game_dir, slot, game, rep)
-    check_marker(game_dir, slot, game, rep)
+    check_marker(game_dir, slot, game, rep, births.village)
     return rep
 
 

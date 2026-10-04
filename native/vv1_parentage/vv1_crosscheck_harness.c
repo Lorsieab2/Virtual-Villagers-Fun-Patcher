@@ -199,7 +199,7 @@ static void clear_files(void) {
 
 /* ---- the Births log ---------------------------------------------------- */
 
-static char logtext[128 * 1024];
+static char logtext[1024 * 1024];
 
 static void log_begin(const char *village_line) {
     wsprintfA(logtext, "%s\n", village_line);
@@ -901,6 +901,96 @@ static void many_files_case(void) {
           "numbered log files are read in number order (file 10 after file 2)");
 }
 
+/* ---- Codex on #522, third round ----------------------------------------- */
+
+static int count_lines_starting(const char *text, const char *prefix) {
+    int n = 0;
+    size_t len = (size_t)lstrlenA(prefix);
+    const char *p = text;
+    while (*p) {
+        if (strncmp(p, prefix, len) == 0) ++n;
+        while (*p && *p != '\n') ++p;
+        if (*p) ++p;
+    }
+    return n;
+}
+
+static void damaged_log_cases(void) {
+    static unsigned char before[16 + sizeof(g_roster) + sizeof(g_entries)];
+    static unsigned char after[sizeof(before)];
+    DWORD a = 0, b = 0;
+    int asked;
+    static const char *const fragments[] = {
+        "Birth\n  Child: Lisha\n",                      /* cut off before the child's head and body */
+        "Birth\n  Child:\n    Head: 3\n    Body: 4\n",   /* a child with no name */
+        "Birth\n  Child: Lisha\n    Head: 13\n    Body: 10\n  Mother: Onawa\n",   /* a parent with no looks */
+    };
+    int k;
+    for (k = 0; k < 3; ++k) {
+        clear_files();
+        conceptions = 0;
+        log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+        log_owner_births();
+        lstrcatA(logtext, fragments[k]);
+        log_save(1);
+        write_drifted_owner_sidecar();
+        read_all(sidecar, before, sizeof(before), &a);
+        asked = load_and_check(after_load, IDYES);
+        read_all(sidecar, after, sizeof(after), &b);
+        check(asked == 0 && a == b && memcmp(before, after, a) == 0 && !exists(marker) && !exists(repairs),
+              k == 0 ? "a Births log cut off mid-record is unreadable: nothing asked, nothing changed, no marker"
+              : k == 1 ? "... and so is one whose Birth names no child"
+                       : "... and one whose parent has no head or body");
+    }
+}
+
+/* An Expanded-256 village where every villager has a 27-character name and
+   needs both a parent correction and a pregnancy correction: every change is
+   in the note, however long it is. */
+static char big_names[VV1_RECORD_COUNT][VV1_NAME_CAPACITY];
+static void big_note_case(void) {
+    static vv1_parent_entry entries[VV1_RECORD_COUNT];
+    static const villager father = { "Faaaaaaaaaaaaaaaaaaaaaaaaaa", 1, 1, 11, 12, 0 };
+    static const villager mother = { "Maaaaaaaaaaaaaaaaaaaaaaaaaa", 0, 2, 13, 14, 0 };
+    static const villager mate = { "Saaaaaaaaaaaaaaaaaaaaaaaaaa", 1, 3, 15, 16, 0 };
+    villager v;
+    int i, asked;
+    char *note;
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    memset(village, 0, sizeof(village));
+    memset(entries, 0, sizeof(entries));
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        wsprintfA(big_names[i], "Nnnnnnnnnnnnnnnnnnnnnnn%04d", i);
+        v.name = big_names[i];
+        v.male = 0;
+        v.scalar = 1000 + i;
+        v.head = i % 60;
+        v.body = (i * 7) % 60;
+        v.couple = 0;
+        put(village, i, &v, 900);
+        log_birth_of(&v, &mother, &father);
+        log_conception_of(&v, &mate);
+        lstrcpyA(entries[i].father_name, "Wfffffffffffffffffffffffff");
+        lstrcpyA(entries[i].mother_name, "Wmmmmmmmmmmmmmmmmmmmmmmmmm");
+        entries[i].father_head = 1; entries[i].father_body = 1;
+        entries[i].mother_head = 1; entries[i].mother_body = 1;
+        lstrcpyA(entries[i].stash_name, "Wsssssssssssssssssssssssss");
+        entries[i].stash_head = 1; entries[i].stash_body = 1;
+    }
+    log_save(1);
+    write_sidecar(village, entries);
+    asked = load_and_check(village, IDYES);
+    note = slurp(repairs);
+    check(asked == 1 && g_applied == 1 && g_plan.corrected == VV1_RECORD_COUNT && g_plan.stashes == VV1_RECORD_COUNT,
+          "a full village of long names, every one corrected twice: repaired");
+    check(count_lines_starting(note, "  Corrected: ") == VV1_RECORD_COUNT
+          && count_lines_starting(note, "  Pregnancy: ") == VV1_RECORD_COUNT
+          && strstr(note, "  Backup: ") != NULL && file_size(repairs) > 64 * 1024,
+          "... and every one of the 512 changes is in the Repairs log, past 64 KiB, ending with the backup");
+}
+
 int main(int argc, char **argv) {
     char game[MAX_PATH];
     if (argc < 2) {
@@ -923,6 +1013,8 @@ int main(int argc, char **argv) {
     session_cases();
     failure_cases();
     many_files_case();
+    damaged_log_cases();
+    big_note_case();
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

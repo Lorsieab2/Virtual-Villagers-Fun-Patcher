@@ -128,6 +128,73 @@ class Vv1Fixture(unittest.TestCase):
         self.assertEqual(snapshot(game), files)
 
 
+    # ---- Codex on #522, third round ------------------------------------------------------
+
+    def births_file(self, game: Path, n: int = 1) -> Path:
+        return game / LOGS / "Births and Conceptions" / f"Virtual Villagers 1 Births and Conceptions Log {n}.txt"
+
+    def test_a_new_village_whose_header_is_all_its_log_holds_is_not_the_old_one(self):
+        game = self.build(drifted=True)
+        self.births_file(game, 2).write_text("Village: Another Tribe (Save 1)\n", encoding="latin-1")
+        births, _ = checker.births_log(game, 1, 1)
+        self.assertEqual(births.village, "Village: Another Tribe (Save 1)")
+        self.assertEqual(len(births), 0, "the previous village's records are not this village's")
+        rep = checker.check(game, 1)
+        self.assertEqual(rep.wrong, 0, rep.render())
+
+    def test_an_expecting_mothers_father_is_compared_by_body_too(self):
+        game = self.build(drifted=False)
+        save = bytearray((game / "Virtual Villagers1.ldw").read_bytes())
+        after = [v for v in OWNER if v[0] not in ("Kito", "Chika")] + [SILKO]
+        lisha = [v[0] for v in after].index("Lisha")
+        struct.pack_into("<i", save, 0x184 + lisha * 0x9C - 0x33C + 0x358, 900)
+        (game / "Virtual Villagers1.ldw").write_bytes(bytes(save))
+        goro = BY_NAME["Goro"]
+        with self.births_file(game).open("a", encoding="latin-1") as f:
+            f.write(f"Conception 1\n  Mother: Lisha\n    Head: 13\n    Body: 10\n"
+                    f"  Father: Goro\n    Head: {goro[3]}\n    Body: {goro[4]}\n  Babies in pregnancy: 1\n\n")
+        dat = game / DATA / "Virtual Villagers 1 Parentage Records - Save 1.dat"
+        data = bytearray(dat.read_bytes())
+        e = 12 + 256 * 36 + lisha * 92
+        data[e + 4] = goro[3] + 1
+        data[e + 5] = goro[4] + 1
+        data[e + 64:e + 64 + 4] = b"Goro"
+        dat.write_bytes(bytes(data))
+        self.assertEqual(checker.check(game, 1).wrong, 0)
+        data[e + 5] = goro[4] + 2                      # the right name and head, the wrong body
+        dat.write_bytes(bytes(data))
+        rep = checker.check(game, 1)
+        self.assertTrue(any(v == "WRONG" and t.startswith("Lisha is expecting") for _, v, t in rep.lines), rep.render())
+
+    def marker(self, game: Path, words) -> None:
+        folder = game / DATA / "Cross-Check"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "Virtual Villagers 1 Cross-Check - Save 1.dat").write_bytes(struct.pack("<4s11I", b"VXC1", *words))
+
+    def test_the_marker_counts_only_for_its_own_village_and_slot(self):
+        game = self.build(drifted=False)
+        here = checker.village_id("Village: Kalahuna Tribe 1 (Save 1)")
+
+        def verdict():
+            return [(v, t) for f, v, t in checker.check(game, 1).lines if f.endswith("Cross-Check")][0]
+        self.marker(game, [1, 1, 1, 2, 0, 0, 0, 0, 0, 0, here])
+        self.assertEqual(verdict(), ("OK", "the first-load cross-check ran for this village: repaired"))
+        self.marker(game, [1, 1, 1, 2, 0, 0, 0, 0, 0, 0, here ^ 1])
+        self.assertEqual(verdict()[0], "NOTE")
+        self.assertIn("another village's", verdict()[1])
+        self.marker(game, [1, 1, 2, 2, 0, 0, 0, 0, 0, 0, here])        # another slot's
+        self.assertEqual(verdict()[0], "UNCHECKED")
+        self.marker(game, [1, 1, 1, 9, 0, 0, 0, 0, 0, 0, here])        # no such result
+        self.assertEqual(verdict()[0], "UNCHECKED")
+
+    def test_a_record_cut_short_makes_the_log_unchecked_as_the_game_does(self):
+        game = self.build(drifted=True)
+        with self.births_file(game).open("a", encoding="latin-1") as f:
+            f.write("Birth\n  Child: Lisha\n")
+        rep = checker.check(game, 1)
+        self.assertEqual(rep.wrong, 0, rep.render())
+        self.assertIn("cut short", rep.render())
+
 class Vv3Fixture(unittest.TestCase):
     def test_the_secret_citys_packed_villager_table_is_read(self):
         game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "Virtual Villagers - The Secret City - Modded"
