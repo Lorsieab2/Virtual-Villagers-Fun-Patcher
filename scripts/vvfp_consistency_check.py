@@ -512,6 +512,13 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
                         wrong += 1
                         rep.add(label, "WRONG", f"{v.name} is expecting: recorded father {cur['stash'] or '(unknown)'}, "
                                                 f"her last conception says {f.name} (repairable)")
+        elif (shared == 1 and i32(v.raw, 0x35C - VV1_BASE) == 0
+              and (cur["stash"] or cur["sh"] or cur["sb"])):
+            # A stale expected father: the save says this villager is not expecting (due and litter
+            # both 0), yet the table still holds a father for a pregnancy (owner, 2026-10-04).
+            wrong += 1
+            rep.add(label, "WRONG", f"{v.name} is not expecting, but an expected father "
+                                    f"{cur['stash'] or '(unnamed)'} is still recorded (stale: cleared on repair)")
     if not wrong:
         rep.add(label, "OK", "every living villager's recorded parents agree with the Births log")
 

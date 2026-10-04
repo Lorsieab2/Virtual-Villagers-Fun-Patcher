@@ -127,6 +127,7 @@ typedef struct {
     int index;
     int what;                     /* VV1_XC_* */
     int stash;                    /* 1 when the pregnancy stash changes too */
+    int stale;                    /* 1 when a stale expected father is cleared */
     vv1_parent_entry before, after;
 } vv1_xc_change;
 
@@ -134,6 +135,7 @@ typedef struct {
     vv1_xc_change changes[VV1_RECORD_COUNT];
     int count;
     int corrected, filled, cleared, ambiguous, stashes;
+    int stale;                    /* expected fathers left on villagers who are not expecting */
 } vv1_xc_plan;
 
 /* ---- paths ------------------------------------------------------------- */
@@ -265,7 +267,7 @@ static int vv1_xc_marker_write(int slot, int result, const vv1_xc_plan *plan, un
     data[5] = plan ? (unsigned int)plan->corrected : 0u;
     data[6] = plan ? (unsigned int)plan->filled : 0u;
     data[7] = plan ? (unsigned int)(plan->cleared + plan->ambiguous) : 0u;
-    data[8] = plan ? (unsigned int)plan->stashes : 0u;
+    data[8] = plan ? (unsigned int)(plan->stashes + plan->stale) : 0u;
     data[9] = now.dwLowDateTime;
     data[10] = now.dwHighDateTime;
     data[11] = village;
@@ -675,13 +677,16 @@ static struct {
     char mother[VV1_NAME_CAPACITY];
     int head, body;
     vv1_parent_entry father;      /* in the stash fields */
+    int known;                    /* the Births log names the father */
 } g_xc_fathers[VV1_XC_FATHERS];
 static int g_xc_father_count;
+static int g_xc_carry_ready;      /* the list below describes the village as it was loaded */
 
 static void vv1_xc_prepare_fathers(int slot, const unsigned char *records) {
     vv1_xc_log log;
     int j;
     g_xc_father_count = 0;
+    g_xc_carry_ready = 0;
     if (records == NULL || vv1_xc_read_log(&log, slot) != 1) {
         return;                       /* nothing to learn from */
     }
@@ -700,19 +705,46 @@ static void vv1_xc_prepare_fathers(int slot, const unsigned char *records) {
         vv1_copy_name(rec, name);
         head = *(const int *)(rec + VV1_HEAD_OFFSET);
         body = *(const int *)(rec + VV1_BODY_OFFSET);
-        if (vv1_xc_shared(records, name, head, body) == 1
-            && vv1_xc_last_father(&log, name, head, body, &father)) {
+        /* Every mother carrying at the load is listed -- with the father the
+           log confirms, when it does -- so a stash a catch-up delivery left
+           in place is never taken for a stale one (the same old save would
+           deliver that pregnancy again after a crash). */
+        if (vv1_xc_shared(records, name, head, body) == 1) {
             memset(&g_xc_fathers[g_xc_father_count], 0, sizeof(g_xc_fathers[0]));
             lstrcpynA(g_xc_fathers[g_xc_father_count].mother, name, VV1_NAME_CAPACITY);
             g_xc_fathers[g_xc_father_count].head = head;
             g_xc_fathers[g_xc_father_count].body = body;
-            vv1_xc_set(&g_xc_fathers[g_xc_father_count].father.stash_head,
-                       &g_xc_fathers[g_xc_father_count].father.stash_body,
-                       g_xc_fathers[g_xc_father_count].father.stash_name, father);
+            if (vv1_xc_last_father(&log, name, head, body, &father)) {
+                vv1_xc_set(&g_xc_fathers[g_xc_father_count].father.stash_head,
+                           &g_xc_fathers[g_xc_father_count].father.stash_body,
+                           g_xc_fathers[g_xc_father_count].father.stash_name, father);
+                g_xc_fathers[g_xc_father_count].known = 1;
+            }
             ++g_xc_father_count;
         }
     }
     vv1_xc_free(&log);
+    g_xc_carry_ready = 1;
+}
+
+/* Was this villager carrying when the village was loaded?  -1 when that is not
+   known (the list was not taken for this load). */
+static int vv1_xc_was_carrying(const unsigned char *mother) {
+    char name[VV1_NAME_CAPACITY];
+    int i, head, body;
+    if (!g_xc_carry_ready) {
+        return -1;
+    }
+    vv1_copy_name(mother, name);
+    head = *(const int *)(mother + VV1_HEAD_OFFSET);
+    body = *(const int *)(mother + VV1_BODY_OFFSET);
+    for (i = 0; i < g_xc_father_count; ++i) {
+        if (g_xc_fathers[i].head == head && g_xc_fathers[i].body == body
+            && strncmp(g_xc_fathers[i].mother, name, VV1_NAME_CAPACITY) == 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* The father the log confirmed for this mother's pregnancy, if any. */
@@ -726,7 +758,7 @@ static int vv1_xc_confirmed_father(const unsigned char *mother, vv1_parent_entry
     head = *(const int *)(mother + VV1_HEAD_OFFSET);
     body = *(const int *)(mother + VV1_BODY_OFFSET);
     for (i = 0; i < g_xc_father_count; ++i) {
-        if (g_xc_fathers[i].head == head && g_xc_fathers[i].body == body
+        if (g_xc_fathers[i].known && g_xc_fathers[i].head == head && g_xc_fathers[i].body == body
             && strncmp(g_xc_fathers[i].mother, name, VV1_NAME_CAPACITY) == 0) {
             *out = g_xc_fathers[i].father;
             return 1;
@@ -749,7 +781,7 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
         int head, body, shared = 0, matches = 0, named = 0, agree = 1, what = VV1_XC_SAME;
         const vv1_xc_record *first = NULL;
         vv1_parent_entry after;
-        int stash_changed = 0;
+        int stash_changed = 0, stale = 0;
         if (!rec[VV1_OCCUPIED_OFFSET] || g_session_born[j]) {
             continue;
         }
@@ -819,13 +851,28 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
                 stash_changed = after.stash_head != g_entries[j].stash_head
                     || after.stash_body != g_entries[j].stash_body
                     || strncmp(after.stash_name, g_entries[j].stash_name, VV1_NAME_CAPACITY) != 0;
+            } else if (*(const int *)(rec + VV1_DUE_OFFSET) == 0
+                       && *(const int *)(rec + VV1_LITTER_OFFSET) == 0
+                       && vv1_xc_was_carrying(rec) == 0 && vv1_xc_has_stash(&g_entries[j])) {
+                /* A STALE STASH (owner, 2026-10-04): an expected father kept
+                   on a villager who is not expecting now and was not at the
+                   load either -- the game's own record says so.  It is spent
+                   only when the tick sees the delivery, so a delivery the
+                   catch-up made in an earlier session left it behind; the
+                   owner's village had seven.  A next fatherless delivery
+                   would hand it on.  Cleared. */
+                vv1_xc_person none;
+                memset(&none, 0, sizeof(none));
+                vv1_xc_set(&after.stash_head, &after.stash_body, after.stash_name, &none);
+                stale = 1;
             }
         }
-        if (what != VV1_XC_SAME || stash_changed) {
+        if (what != VV1_XC_SAME || stash_changed || stale) {
             vv1_xc_change *c = &plan->changes[plan->count++];
             c->index = j;
             c->what = what;
             c->stash = stash_changed;
+            c->stale = stale;
             c->before = g_entries[j];
             c->after = after;
             if (what == VV1_XC_CORRECTED) ++plan->corrected;
@@ -833,6 +880,7 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
             if (what == VV1_XC_CLEARED) ++plan->cleared;
             if (what == VV1_XC_AMBIGUOUS) ++plan->ambiguous;
             if (stash_changed) ++plan->stashes;
+            if (stale) ++plan->stale;
         }
     }
 }
@@ -1005,6 +1053,11 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
             wsprintfA(text + len, "  Set to unknown: %s -- no Birth record in the log (was %s)\r\n", name, was);
         } else if (c->what == VV1_XC_AMBIGUOUS) {
             wsprintfA(text + len, "  Set to unknown: %s -- the log cannot tell (was %s)\r\n", name, was);
+        }
+        if (c->stale) {
+            len = (size_t)lstrlenA(text);
+            wsprintfA(text + len, "  Pregnancy over: %s -- expected father %s cleared (not expecting)\r\n", name,
+                      c->before.stash_name[0] ? c->before.stash_name : "(unnamed)");
         }
         if (c->stash) {
             len = (size_t)lstrlenA(text);

@@ -15,7 +15,15 @@
      - graves with no Death record in the village's Deaths log, every game
        ("VVFP Cause of Death.dll": VvfpCauseScanGraves and
        VvfpCauseRepairGraves; the records are written at the village's next
-       save, where its header is certain).
+       save, where its header is certain);
+     - villagers with neither a Birth nor an Arrived record in the Births
+       log, every game ("VVFP Cause of Death.dll": VvfpCauseScanArrivals and
+       VvfpCauseRepairArrivals, the same contract as the graves pair).
+
+   A New Home's expected fathers left on villagers who are not expecting are
+   part of the first item.  The later games keep the expected father in the
+   game's own record (the mother's, set and spent by the game), so the
+   patcher has no copy of it to go stale there.
 
    Each is found through its own companion's exports, by the module name
    that companion was loaded under (GetModuleHandle: the folder it was
@@ -90,8 +98,9 @@ static struct {
     int retries;
     int asked_game, asked_slot;
     int parents_found;            /* the parentage scan said 1 */
-    int counts[5];
+    int counts[6];
     int graves;                   /* graves missing from the Deaths log, when > 0 */
+    int arrivals;                 /* villagers with no Birth or Arrived record, when > 0 */
     volatile LONG answer;         /* 0 while the prompt is open; IDYES or IDNO */
     HANDLE thread;
     char text[2048];
@@ -162,6 +171,8 @@ static void vvfp_xc_compose(void) {
                     c[3], "villager has", "villagers have");
         vvfp_xc_add("- %d %s the wrong father recorded for a pregnancy. The father will be corrected "
                     "from the mother's last conception in the Births log.\r\n", c[4], "mother has", "mothers have");
+        vvfp_xc_add("- %d %s an expected father recorded for a pregnancy that is over. It will be cleared.\r\n",
+                    c[5], "villager has", "villagers have");
         lstrcatA(vvfp_xc.text, "  (The parentage file is backed up first; every change is listed in the Repairs "
                                "log.)\r\n");
     }
@@ -169,6 +180,11 @@ static void vvfp_xc_compose(void) {
         vvfp_xc_add("- %d %s no record in the Deaths log (buried before the log existed). Their Death records "
                     "will be added the next time you save and quit the game.\r\n",
                     vvfp_xc.graves, "grave has", "graves have");
+    }
+    if (vvfp_xc.arrivals > 0) {
+        vvfp_xc_add("- %d %s no Birth or Arrived record in the Births log (arrived before that record existed). "
+                    "Their Arrived records will be added the next time you save and quit the game.\r\n",
+                    vvfp_xc.arrivals, "villager has", "villagers have");
     }
     lstrcatA(vvfp_xc.text, "\r\nRepair them now?\r\n\r\n\"Not now\" changes nothing; you will be asked again the "
                            "next time this village is loaded.");
@@ -207,13 +223,20 @@ static void vvfp_xc_answered(int game) {
             repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
         }
     }
+    if (vvfp_xc.arrivals > 0) {
+        /* The same contract as the graves pair (feat/arrived-records). */
+        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairArrivals");
+        if (repair_graves != NULL) {
+            repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
+        }
+    }
 }
 
 /* Examine the village: scan every part; ask when anything was found. */
 static void vvfp_xc_examine(int game, int slot, DWORD now) {
     vvfp_xc_scan_parents_fn scan_parents = NULL;
-    vvfp_xc_scan_graves_fn scan_graves;
-    int parents = 0, graves = 0, pending;
+    vvfp_xc_scan_graves_fn scan_graves, scan_arrivals;
+    int parents = 0, graves = 0, arrivals = 0, pending;
     memset(vvfp_xc.counts, 0, sizeof(vvfp_xc.counts));
     if (game == 1) {
         scan_parents = (vvfp_xc_scan_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckScan");
@@ -221,7 +244,9 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     }
     scan_graves = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanGraves");
     graves = scan_graves != NULL ? scan_graves(game, slot) : 0;
-    pending = parents < 0 || graves < 0;
+    scan_arrivals = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanArrivals");
+    arrivals = scan_arrivals != NULL ? scan_arrivals(game, slot) : 0;
+    pending = parents < 0 || graves < 0 || arrivals < 0;
     if (pending && vvfp_xc.retries < VVFP_XC_RETRIES) {
         ++vvfp_xc.retries;            /* one of them cannot tell yet: ask once, for everything */
         vvfp_xc.next_try = now + VVFP_XC_RETRY_MS;
@@ -229,7 +254,8 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     }
     vvfp_xc.parents_found = parents == 1;
     vvfp_xc.graves = graves > 0 ? graves : 0;
-    if (!vvfp_xc.parents_found && vvfp_xc.graves == 0) {
+    vvfp_xc.arrivals = arrivals > 0 ? arrivals : 0;
+    if (!vvfp_xc.parents_found && vvfp_xc.graves == 0 && vvfp_xc.arrivals == 0) {
         vvfp_xc.state = VVFP_XC_DECIDED;   /* nothing to ask about on this load */
         return;
     }

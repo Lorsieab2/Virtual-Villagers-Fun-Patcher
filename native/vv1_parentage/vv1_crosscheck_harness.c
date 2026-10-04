@@ -990,6 +990,67 @@ static void big_note_case(void) {
           && strstr(note, "  Backup: ") != NULL && file_size(repairs) > 64 * 1024,
           "... and every one of the 512 changes is in the Repairs log, past 64 KiB, ending with the backup");
 }
+/* ---- stale expected fathers (owner, 2026-10-04) -------------------------- */
+
+static void stale_stash_cases(void) {
+    static vv1_parent_entry entries[VV1_RECORD_COUNT];
+    int asked, f;
+    char *note;
+    /* Chapa delivered in an earlier session's catch-up and is not expecting;
+       her stash (Usutu) was never spent.  Usutu, a man, holds one too. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_save(1);
+    memset(village, 0, sizeof(village));
+    put(village, 0, find("Chapa"), 0);
+    put(village, 1, find("Usutu"), 0);
+    put(village, 2, find("Howi"), 0);
+    memset(entries, 0, sizeof(entries));
+    true_entry(find("Chapa"), &entries[0]);
+    true_entry(find("Usutu"), &entries[1]);
+    true_entry(find("Howi"), &entries[2]);
+    lstrcpyA(entries[0].stash_name, "Usutu"); entries[0].stash_head = 22; entries[0].stash_body = 3;
+    lstrcpyA(entries[1].stash_name, "Kito"); entries[1].stash_head = 1; entries[1].stash_body = 19;
+    write_sidecar(village, entries);
+    asked = load_and_check(village, IDYES);
+    note = slurp(repairs);
+    check(asked == 1 && g_plan.stale == 2 && g_applied == 1, "a stale expected father on villagers not expecting is found");
+    check(!vv1_xc_has_stash(&g_entries[0]) && !vv1_xc_has_stash(&g_entries[1])
+          && lstrcmpA(g_entries[0].father_name, "Kito") == 0,
+          "... and Repair clears it, and only it");
+    check(strstr(note, "  Pregnancy over: Chapa -- expected father Usutu cleared (not expecting)") != NULL,
+          "... and the Repairs log says so");
+
+    /* Chapa was carrying when the village was loaded and the catch-up
+       delivered her before the check: her stash is NOT stale (the same save
+       would deliver that pregnancy again after a crash). */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_save(1);
+    put(village, 0, find("Chapa"), 900);
+    entries[1].stash_head = 0; entries[1].stash_body = 0; entries[1].stash_name[0] = '\0';
+    write_sidecar(village, entries);
+    fresh();
+    for (f = 0; f < 3; ++f) {
+        vv1_parents_sync_core(SLOT, village);         /* the load, while she is carrying */
+    }
+    *(int *)(village + VV1_DUE_OFFSET) = 0;          /* the catch-up delivers her */
+    asked = vv1_xc_scan(SLOT, village, &g_plan) == 1;
+    check(g_plan.stale == 0 && lstrcmpA(g_entries[0].stash_name, "Usutu") == 0,
+          "a mother the catch-up delivered after the load keeps her stash: it is not stale");
+
+    /* ... nor is anything cleared when the load's list was never taken. */
+    g_xc_carry_ready = 0;
+    g_xc_father_count = 0;
+    DeleteFileA(marker);                             /* the scan above found nothing and recorded so */
+    vv1_xc_scan(SLOT, village, &g_plan);
+    check(g_plan.stale == 0, "without the load's list of expecting mothers, no stash is called stale");
+    (void)asked;
+}
 
 int main(int argc, char **argv) {
     char game[MAX_PATH];
@@ -1015,6 +1076,7 @@ int main(int argc, char **argv) {
     many_files_case();
     damaged_log_cases();
     big_note_case();
+    stale_stash_cases();
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

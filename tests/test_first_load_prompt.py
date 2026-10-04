@@ -98,6 +98,10 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "an answer given while another village was loaded repairs nothing",
             "with neither companion loaded, nothing is asked",
             "no village on screen (or no slot): nothing is examined",
+            "stale expected fathers: the prompt lists them",
+            "villagers with no Birth or Arrived record are asked about in all five games, and the answer is passed on",
+            "an arrivals scan that cannot tell yet holds the prompt back, like the others",
+            "parents, graves and arrivals together: one prompt, and Repair repairs all three",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

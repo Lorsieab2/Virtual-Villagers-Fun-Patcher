@@ -166,6 +166,20 @@ class Vv1Fixture(unittest.TestCase):
         rep = checker.check(game, 1)
         self.assertTrue(any(v == "WRONG" and t.startswith("Lisha is expecting") for _, v, t in rep.lines), rep.render())
 
+    def test_a_stale_expected_father_on_a_villager_not_expecting_is_wrong(self):
+        game = self.build(drifted=False)
+        after = [v for v in OWNER if v[0] not in ("Kito", "Chika")] + [SILKO]
+        hawa = [v[0] for v in after].index("Hawa")
+        dat = game / DATA / "Virtual Villagers 1 Parentage Records - Save 1.dat"
+        data = bytearray(dat.read_bytes())
+        e = 12 + 256 * 36 + hawa * 92
+        data[e + 4], data[e + 5] = 5, 6
+        data[e + 64:e + 64 + 5] = b"Ponui"
+        dat.write_bytes(bytes(data))
+        rep = checker.check(game, 1)
+        self.assertTrue(any(v == "WRONG" and t.startswith("Hawa is not expecting, but an expected father Ponui")
+                            for _, v, t in rep.lines), rep.render())
+
     def marker(self, game: Path, words) -> None:
         folder = game / DATA / "Cross-Check"
         folder.mkdir(parents=True, exist_ok=True)

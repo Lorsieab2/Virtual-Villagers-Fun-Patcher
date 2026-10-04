@@ -19,8 +19,9 @@ static int g_answer = IDNO;
 static char g_text[2048];
 
 /* The companions. */
-static int g_parents = 0, g_counts[5];
+static int g_parents = 0, g_counts[6];
 static int g_graves = 0;
+static int g_arrivals = 0, g_arrival_scans, g_arrival_calls, g_arrival_game, g_arrival_answer;
 static int g_parent_scans, g_grave_scans, g_applies, g_apply_result = 1;
 static int g_repair_calls, g_repair_game, g_repair_slot, g_repair_answer;
 static int g_have_parentage = 1, g_have_cause = 1;
@@ -43,6 +44,10 @@ static int __stdcall fake_scan_parents(int *counts) {
 }
 static int __stdcall fake_apply_parents(void) { ++g_applies; return g_apply_result; }
 static int __stdcall fake_scan_graves(int game, int slot) { (void)game; (void)slot; ++g_grave_scans; return g_graves; }
+static int __stdcall fake_scan_arrivals(int game, int slot) { (void)game; (void)slot; ++g_arrival_scans; return g_arrivals; }
+static void __stdcall fake_repair_arrivals(int game, int slot, int repair) {
+    (void)slot; ++g_arrival_calls; g_arrival_game = game; g_arrival_answer = repair;
+}
 static void __stdcall fake_repair_graves(int game, int slot, int repair) {
     ++g_repair_calls; g_repair_game = game; g_repair_slot = slot; g_repair_answer = repair;
 }
@@ -55,6 +60,8 @@ static FARPROC harness_proc(const char *module, const char *name) {
     if (lstrcmpA(module, "VVFP Cause of Death.dll") == 0 && g_have_cause) {
         if (lstrcmpA(name, "VvfpCauseScanGraves") == 0) return (FARPROC)fake_scan_graves;
         if (lstrcmpA(name, "VvfpCauseRepairGraves") == 0) return (FARPROC)fake_repair_graves;
+        if (lstrcmpA(name, "VvfpCauseScanArrivals") == 0) return (FARPROC)fake_scan_arrivals;
+        if (lstrcmpA(name, "VvfpCauseRepairArrivals") == 0) return (FARPROC)fake_repair_arrivals;
     }
     return NULL;
 }
@@ -87,6 +94,8 @@ static void reset(void) {
     g_parents = 0;
     memset(g_counts, 0, sizeof(g_counts));
     g_graves = 0;
+    g_arrivals = g_arrival_scans = g_arrival_calls = g_arrival_game = 0;
+    g_arrival_answer = -1;
     g_parent_scans = g_grave_scans = g_applies = 0;
     g_apply_result = 1;
     g_repair_calls = g_repair_game = g_repair_slot = 0;
@@ -250,6 +259,45 @@ int main(void) {
     g_slot = 0;
     play(1, 1, 10000, 16);
     check(g_parent_scans == 0 && g_boxes == 0, "no village on screen (or no slot): nothing is examined");
+
+    /* A New Home's stale expected fathers are listed with the parents. */
+    reset();
+    g_parents = 1; g_counts[5] = 7;
+    play(1, 1, 8000, 16);
+    check(g_boxes == 1 && strstr(g_text, "7 villagers have an expected father recorded for a pregnancy that is over. "
+                                         "It will be cleared.") != NULL,
+          "stale expected fathers: the prompt lists them");
+
+    /* Arrivals with no record, in every game: Not now and Repair are passed on, and they share the one prompt. */
+    {
+        int game;
+        for (game = 1; game <= 5; ++game) {
+            reset();
+            g_arrivals = 2;
+            g_answer = game % 2 ? IDYES : IDNO;
+            play(game, 1, 8000, 16);
+            if (!(g_boxes == 1 && g_arrival_calls == 1 && g_arrival_game == game
+                  && g_arrival_answer == (game % 2 ? 1 : 0)
+                  && strstr(g_text, "2 villagers have no Birth or Arrived record in the Births log") != NULL
+                  && strstr(g_text, "Their Arrived records will be added the next time you save and quit") != NULL)) {
+                break;
+            }
+        }
+        check(game == 6, "villagers with no Birth or Arrived record are asked about in all five games, and the answer is passed on");
+    }
+    reset();
+    g_arrivals = -1;
+    g_graves = 1;
+    play(4, 1, VVFP_XC_SETTLE_MS + 100, 16);
+    check(g_boxes == 0, "an arrivals scan that cannot tell yet holds the prompt back, like the others");
+    reset();
+    g_parents = 1; g_counts[0] = 1;
+    g_graves = 1;
+    g_arrivals = 1;
+    g_answer = IDYES;
+    play(1, 1, 8000, 16);
+    check(g_boxes == 1 && g_applies == 1 && g_repair_calls == 1 && g_arrival_calls == 1 && g_arrival_answer == 1,
+          "parents, graves and arrivals together: one prompt, and Repair repairs all three");
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

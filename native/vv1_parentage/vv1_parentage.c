@@ -1712,8 +1712,9 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
    now prompt the Origins companion shows (native/shared/crosscheck_bridge.h).
 
    Scan: -1 cannot tell yet (ask again later); 0 nothing to repair; 1 found
-   something, with counts[0..4] = corrected, set to unknown (no Birth record),
-   set to unknown (ambiguous), filled in, expecting mothers corrected.  It only
+   something, with counts[0..5] = corrected, set to unknown (no Birth record),
+   set to unknown (ambiguous), filled in, expecting mothers corrected, stale
+   expected fathers cleared (villagers not expecting).  It only
    reads, except that a check that found nothing records that it ran.
 
    Apply: the player chose Repair.  1 done, 0 nothing could be changed (the
@@ -1732,6 +1733,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
         counts[2] = plan.ambiguous;
         counts[3] = plan.filled;
         counts[4] = plan.stashes;
+        counts[5] = plan.stale;
     }
     return found;
 }

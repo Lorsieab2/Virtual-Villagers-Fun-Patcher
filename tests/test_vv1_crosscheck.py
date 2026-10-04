@@ -141,6 +141,12 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "... and one whose parent has no head or body",
             "a full village of long names, every one corrected twice: repaired",
             "... and every one of the 512 changes is in the Repairs log, past 64 KiB, ending with the backup",
+            # stale expected fathers (owner, 2026-10-04)
+            "a stale expected father on villagers not expecting is found",
+            "... and Repair clears it, and only it",
+            "... and the Repairs log says so",
+            "a mother the catch-up delivered after the load keeps her stash: it is not stale",
+            "without the load's list of expecting mothers, no stash is called stale",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
