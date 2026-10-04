@@ -68,11 +68,11 @@ class GraveBackfillSource(unittest.TestCase):
         self.assertLess(done.index("backfill_at_save(slot, save_buffer);"),
                         done.index("roster_reconcile(slot);"))
 
-    def test_every_burial_record_marks_its_grave(self):
-        self.assertIn("backfill_mark(slot, e.entry.fingerprint);",
-                      (COD / "cod_vv12.inc").read_text(encoding="utf-8"))
-        self.assertIn("backfill_mark(written_slot, v345_fingerprint(entry));",
-                      (COD / "cod_vv345.inc").read_text(encoding="utf-8"))
+    def test_a_burial_record_is_never_taken_as_coverage_on_trust(self):
+        # Codex, #524: a burial's record may only be held for the save, so
+        # its grave is checked against the log on disk like any other.
+        for name in ("cod_vv12.inc", "cod_vv345.inc", "cod_backfill.inc", "vvfp_cause_of_death.c"):
+            self.assertNotIn("backfill_mark", (COD / name).read_text(encoding="utf-8"))
 
     def test_the_data_file_has_its_own_folder_and_one_path_helper(self):
         source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")

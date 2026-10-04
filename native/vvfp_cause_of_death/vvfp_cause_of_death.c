@@ -578,7 +578,6 @@ static int save_armed;
 
 /* cod_backfill.inc: the graves no hook saw, at each save. */
 static void backfill_at_save(int slot, const void *save_buffer);
-static void backfill_mark(int place, unsigned int fingerprint);
 static int backfill_accounts_for(const unsigned char *kept);
 static void backfill_reset(int slot);
 

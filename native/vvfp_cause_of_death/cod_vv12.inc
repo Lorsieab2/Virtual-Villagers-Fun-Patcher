@@ -513,9 +513,7 @@ static void cod_buried(int index, int found, int slot) {
         cod_printable(epitaph, sizeof epitaph, (const char *)grave + GRV[2].epitaph,
                       (int)GRV[2].epitaph_capacity);
     }
-    if (cod_log_death(record, cause, title, epitaph)) {
-        backfill_mark(slot, e.entry.fingerprint);   /* covered from the next save */
-    }
+    cod_log_death(record, cause, title, epitaph);
 }
 
 static void vv1_buried(int site, const unsigned int *regs) {

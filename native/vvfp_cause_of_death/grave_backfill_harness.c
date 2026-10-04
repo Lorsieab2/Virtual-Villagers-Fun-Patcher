@@ -95,6 +95,7 @@ typedef void (__stdcall *reset_t)(int, int);
 typedef void (__stdcall *roster_t)(void *, void *);
 typedef int (__stdcall *scan_t)(int, int);
 typedef void (__stdcall *repair_t)(int, int, int);
+typedef void (__stdcall *buried_t)(int, int);
 
 /* Each game's villager record, as both DLLs' tables have it. */
 struct layout {
@@ -339,6 +340,7 @@ static reset_t reset;
 static roster_t set_roster;
 static scan_t scan_graves;
 static repair_t repair_graves;
+static buried_t test_buried;           /* A New Home / The Lost Children: the burial hook's own path */
 static int *stats;
 
 static int __stdcall host_slot(void) { return 1; }
@@ -361,6 +363,7 @@ static void load(void) {
     stats = (int *)GetProcAddress(cause, "VvfpCauseStats");
     scan_graves = (scan_t)GetProcAddress(cause, "VvfpCauseScanGraves");
     repair_graves = (repair_t)GetProcAddress(cause, "VvfpCauseRepairGraves");
+    test_buried = (buried_t)GetProcAddress(cause, "VvfpCauseTestBuried");
     if (!write_record || !ensure_village || !setup || !save_done || !tick || !reset || !set_roster || !stats
         || !scan_graves || !repair_graves
         || GetProcAddress(parentage, "RecordGravesMissingFromLog") == NULL) {
@@ -408,7 +411,12 @@ static void stand_in(const char *name, int present) {
 static void write_history(void) {
     char path[MAX_PATH];
     static char h[8192];
-    const char *t = game == 1 ? "Virtual Villagers 1" : "Virtual Villagers";
+    char t[32], other[32];
+    /* The population exporter's heading names the game; another game's
+       snapshot of a village with the same name and slot (renamed games can
+       share a save folder) is not this village's. */
+    _snprintf(t, sizeof t, "Virtual Villagers %d", game);
+    _snprintf(other, sizeof other, "Virtual Villagers %d", game % 5 + 1);
     _snprintf(path, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 1.txt", root);
     _snprintf(h, sizeof h,
         "=== %s -- 2026-09-26 14:30:48 ===\nVillage: Backfill Tribe (Save 1)\n\n"
@@ -430,8 +438,14 @@ static void write_history(void) {
         "=== %s -- 2026-10-02 09:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Kito\n  Age: 1300\n  Head: 5\n  Body: 5\n  Likes: drums\n\n"
         "Villager 2\n  Name: Ana\n  Age: 600\n  Head: 3\n  Body: 3\n\n"
-        "Villager 3\n  Name: Bolo\n  Age: 690\n  Head: 8\n  Body: 8\n\n\n",
-        t, t, t, t);
+        "Villager 3\n  Name: Bolo\n  Age: 690\n  Head: 8\n  Body: 8\n\n\n"
+        "=== %s -- 2026-10-02 10:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Chika\n  Age: 1310\n  Head: 1\n  Body: 1\n  Likes: ants\n\n\n"
+        /* A snapshot cut short by an interrupted append: Chika's record has
+           no likes and never ends. */
+        "=== %s -- 2026-10-03 11:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Chika\n  Age: 1320\n  Head: 19\n  Body: 17\n",
+        t, t, t, t, other, t);
     write_text(path, h);
 }
 
@@ -641,8 +655,9 @@ int main(int argc, char **argv) {
                 printf("--- got:\n%.700s\n--- want:\n%s\n", k, want);
             }
             CHECK(c != NULL && strstr(c, "  Head: 19\r\n  Body: 17\r\n  Likes: playing\r\n  Dislikes: (none)\r\n") != NULL
+                  && strstr(c, "16:21:22 (age 1294 then)") != NULL
                   && strstr(c, "  Cause of death: ") != NULL,
-                  "Chika's looks are hers, not the other village's Chika");
+                  "Chika's looks are hers: not the other village's, nor another game's, nor a record cut short");
             if (game <= 2) {
                 CHECK(c != NULL && strstr(c, "  Cause of death: (not recorded:") != NULL,
                       "a grave the graves file has no cause for says so");
@@ -734,6 +749,15 @@ int main(int argc, char **argv) {
            statistics companion has not named the village yet), and the game
            ends before it is written: the grave is not taken as covered. */
         dig(10, "Qued", 820, game >= 3 ? -1 : 0, 0, 0, NULL);
+        if (game <= 2) {
+            /* ...and a burial the hook records while its record can only be
+               held (Codex, #524): the grave is not taken on trust either. */
+            villager(6, "Lostie", 830, 2, 2);
+            *(int *)(rec(6) + g->health) = 0;
+            dig(12, "Lostie", 830, 0, 0, 0, NULL);
+            test_buried(6, 12);
+            rec(6)[g->active] = 0;
+        }
         save_done(1, buffer);
         read_into(path);
         CHECK(strstr(text, "Qued") == NULL, "a record from the grave before the village is named is held");
@@ -741,7 +765,8 @@ int main(int argc, char **argv) {
         unload();                                   /* ...and lost with the session */
         vv_village_publish("");
         load();
-        CHECK(scan_graves(game, 1) == 1, "...so the next session's scan finds that grave missing again");
+        CHECK(scan_graves(game, 1) == (game <= 2 ? 2 : 1),
+              "...so the next session's scan finds that grave (and a held burial's) missing again");
         repair_graves(game, 1, 1);
 
         /* 5: the load-time catch-up buried Bolo, whom the last save held. */
@@ -749,7 +774,9 @@ int main(int argc, char **argv) {
                                                        unreported arrival is one record */
         save_done(1, buffer);                       /* the roster: Ana, Kito, Bolo, Rua */
         read_into(path);
-        CHECK(count_of(text, "\r\n  Name: Qued\r\n") == 1, "...and that save records it, once");
+        CHECK(count_of(text, "\r\n  Name: Qued\r\n") == 1
+              && count_of(text, "\r\n  Name: Lostie\r\n") == (game <= 2 ? 1 : 0),
+              "...and that save records it, once");
         rec(2)[g->active] = 0;                      /* gone with no report */
         rec(5)[g->active] = 0;
         dig(9, "Bolo", 705, game >= 3 ? -1 : 0, 0, -1, NULL);

@@ -335,11 +335,19 @@ static void history_villager_done(struct history_villager *v, struct backfill_ta
 
 /* The Village History files, oldest first, each read once for every grave
    being recorded. */
-static void read_history(const char *village, struct backfill_target *targets, int count) {
+/* A snapshot counts only when its heading names this game ("=== Virtual
+   Villagers <n> -- ..."; renamed games can share a save folder, and with it
+   the Village History files, under the same village name -- Codex, #524)
+   and its "Village:" line names this village.  A villager counts only once
+   its record has ended with the blank line the exporter writes after it: a
+   record cut short (an interrupted append, the file's end) is dropped, never
+   finished with "(none)" for the lines it lost (Codex, #524). */
+static void read_history(int game_id, const char *village, struct backfill_target *targets, int count) {
     wchar_t folder[MAX_LOG_PATH];
     wchar_t path[MAX_LOG_PATH];
     char line[512];
     char current[256];
+    char heading[32];
     char when[32];
     struct history_villager v;
     int ceiling;
@@ -348,6 +356,7 @@ static void read_history(const char *village, struct backfill_target *targets, i
 
     _snprintf_s(current, sizeof current, _TRUNCATE, "%s", village);
     trim_line(current);
+    _snprintf_s(heading, sizeof heading, _TRUNCATE, "=== Virtual Villagers %d -- ", game_id);
     if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
         return;
     }
@@ -371,9 +380,9 @@ static void read_history(const char *village, struct backfill_target *targets, i
             trim_line(line);
             if (strncmp(line, "=== ", 4) == 0) {
                 const char *dash = strstr(line, " -- ");
-                history_villager_done(&v, targets, count, when);
+                memset(&v, 0, sizeof v);          /* a villager not ended: dropped */
                 ours = 0;
-                expect_village = 1;
+                expect_village = strncmp(line, heading, strlen(heading)) == 0;
                 when[0] = '\0';
                 if (dash != NULL) {
                     lstrcpynA(when, dash + 4, (int)sizeof when);
@@ -393,7 +402,7 @@ static void read_history(const char *village, struct backfill_target *targets, i
                 continue;
             }
             if (strncmp(line, "Villager ", 9) == 0) {
-                history_villager_done(&v, targets, count, when);
+                memset(&v, 0, sizeof v);          /* a villager not ended: dropped */
                 v.open = 1;
                 continue;
             }
@@ -421,8 +430,7 @@ static void read_history(const char *village, struct backfill_target *targets, i
                 lstrcpynA(v.dislikes, value, (int)sizeof v.dislikes);
             }
         }
-        history_villager_done(&v, targets, count, when);
-        fclose(file);
+        fclose(file);                         /* a villager still open at the end: dropped */
     }
 }
 
@@ -701,7 +709,7 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
         }
     }
     if (target_count > 0) {
-        read_history(village, targets, target_count);
+        read_history(game_id, village, targets, target_count);
         mark_alive(game_id, targets, target_count);
         choose_identities(targets, target_count);
         for (i = 0; i < target_count; ++i) {

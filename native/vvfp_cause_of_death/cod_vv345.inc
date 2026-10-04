@@ -146,11 +146,8 @@ static void v345_buried(int site, const unsigned int *regs) {
     } else {
         lstrcpyA(epitaph, "(none: only the first 50 graves get a gravestone)");
     }
-    /* The cause the entry keeps: the record's own, copied by the writer.
-       The grave is covered from the next save (cod_backfill.inc). */
-    if (cod_log_death(record, *(const int *)(entry + V345[g_game].e_cause), title, epitaph)) {
-        backfill_mark(written_slot, v345_fingerprint(entry));
-    }
+    /* The cause the entry keeps: the record's own, copied by the writer. */
+    cod_log_death(record, *(const int *)(entry + V345[g_game].e_cause), title, epitaph);
 }
 
 static void v345_decayed_record(const unsigned char *record) {
