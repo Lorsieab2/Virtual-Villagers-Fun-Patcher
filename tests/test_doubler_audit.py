@@ -365,7 +365,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # through a reload (identity roster 'VM06', native/shared/mask_follow.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "B704DBF28B08D22F14667F9C0C0669C2A649C4820DF62365137D775B357A38CD",
+            "F299F084150E2B8FC26A01B2543A5A1844A3C7080ADDFD58D075B8F9E102E53B",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
