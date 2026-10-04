@@ -6,7 +6,7 @@ player's real save folder. Two harnesses left eight empty folders there per
 run (measured before native/shared/harness_ldw_tree.h existed): the
 companion's log and data folders and the per-harness folder itself.
 
-The header serialises runs of one harness (case-folded lock name), refuses to
+The header serialises every harness run (one Global\\ lock per Documents folder), refuses to
 run at all when the harness's folder already exists -- several harnesses
 start by emptying it -- and, at exit (normal, exit() or a crash), removes the
 folder the run created, never entering or removing a junction. These checks keep every such
@@ -100,6 +100,26 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
         self.assertIn("atexit(harness_ldw_tree_end);", text)
         self.assertIn("SetUnhandledExceptionFilter(harness_ldw_on_crash);", text)
 
+    def test_one_global_lock_keyed_to_documents_comes_before_any_existence_check(self) -> None:
+        """Every harness, in every Windows session, shares one lock per
+        Documents folder, so whether LDW and LDW\\<harness> existed is decided
+        by one run at a time. A per-harness or per-session (Local\\) lock let
+        two different harnesses, or one harness in two sessions, overlap."""
+        text = HEADER.read_text(encoding="utf-8")
+        begin = text[text.index("static void harness_ldw_tree_begin(void)"):]
+        self.assertIn('L"Global\\\\vvfp-harness-ldw-%016llx", hash', begin)
+        self.assertNotIn("Local\\\\", text)
+        # The key is the case-folded Documents path, not the harness name.
+        self.assertIn("LCMapStringEx(LOCALE_NAME_INVARIANT, LCMAP_LOWERCASE, docs, -1,", begin)
+        self.assertIn("for (c = folded; *c; ++c) {", begin)
+        lock = begin.index("mutex = CreateMutexW(NULL, FALSE, name);")
+        wait = begin.index("WaitForSingleObject(mutex, INFINITE)")
+        self.assertLess(lock, wait)
+        for check in ("harness_ldw_exists(harness_ldw_tree)", "harness_ldw_exists(harness_ldw_root)"):
+            self.assertLess(wait, begin.index(check), check)
+        # A lock that cannot be had is a refusal, never an unprotected run.
+        self.assertIn('harness_ldw_refuse(L"cannot take the harness lock for ", docs);', begin)
+
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
     def test_the_header_keeps_everything_that_was_there(self) -> None:
         """Runs the header for real against a throwaway Documents folder:
@@ -119,7 +139,7 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("== 0 failure(s) ==", result.stdout)
         for scenario in ("absent", "junction", "tree-link", "pre-tree", "pre-root",
-                         "link-inside", "exit", "crash", "overlap", "case"):
+                         "link-inside", "exit", "crash", "overlap", "case", "names"):
             self.assertIn(f"== {scenario}:", result.stdout)
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

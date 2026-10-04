@@ -10,9 +10,11 @@
 
    harness_ldw_tree_begin() runs first in main(), before the harness touches
    anything. It
-     1. takes a per-harness named mutex (case-folded name, since the folder it
-        guards is case-insensitive) and holds it until the process ends, so
-        two runs of one harness never overlap;
+     1. takes ONE lock shared by every harness and every Windows session
+        (Global\, keyed to the case-folded Documents path) and holds it until
+        the process ends, so no two harness runs overlap -- not two runs of
+        one harness, and not two different harnesses deciding whether LDW
+        itself was there;
      2. REFUSES TO RUN if LDW\<basename> already exists, as anything at all
         (folder, file, junction): it prints the path and exits with code 2
         before the harness can empty or overwrite a single file there. A
@@ -126,7 +128,7 @@ static void harness_ldw_refuse(const wchar_t *why, const wchar_t *what) {
 
 /* Call first in main(), before anything can write under Documents\LDW. */
 static void harness_ldw_tree_begin(void) {
-    wchar_t docs[MAX_PATH], exe[HARNESS_LDW_PATH], name[HARNESS_LDW_PATH + 32];
+    wchar_t docs[MAX_PATH], exe[HARNESS_LDW_PATH], name[64];
     wchar_t *base, *dot, *c;
     HANDLE mutex;
     int n;
@@ -147,24 +149,31 @@ static void harness_ldw_tree_begin(void) {
         harness_ldw_refuse(L"cannot form the harness folder path for ", base);
     }
 
-    /* One run of this harness at a time, per user session. Mutex names are
-       case-sensitive and the folder is not, so the name is case-folded. The
-       handle is never closed: the system releases it when the process ends,
-       after the exit handler has swept. An abandoned mutex (a run that was
-       killed) still counts as acquired. */
-    _snwprintf(name, HARNESS_LDW_PATH + 32, L"Local\\vvfp-harness-ldw-%ls", base);
-    name[HARNESS_LDW_PATH + 31] = 0;
-    for (c = name + 6; *c; ++c) if (*c == L'\\') *c = L'_';
+    /* ONE lock for every harness that writes under this Documents folder, in
+       every Windows session: Global\, keyed to the case-folded Documents path
+       (FNV-1a 64 of the lower-cased path; the folder is case-insensitive,
+       mutex names are not). It is taken before either existence check, so
+       whether LDW and LDW\<basename> existed is decided by one run at a time,
+       and held until the process ends -- the handle is never closed; the
+       system releases it after the exit handler has swept. An abandoned
+       mutex (a run that was killed) still counts as acquired. If the lock
+       cannot be created or taken, the harness does not run. */
     {   /* kernel32 only: not every harness links user32 */
-        wchar_t folded[HARNESS_LDW_PATH + 32];
-        int len = LCMapStringEx(LOCALE_NAME_INVARIANT, LCMAP_LOWERCASE, name + 6, -1,
-                                folded, HARNESS_LDW_PATH + 26, NULL, NULL, 0);
-        if (len <= 0) harness_ldw_refuse(L"cannot case-fold the name of ", base);
-        lstrcpynW(name + 6, folded, HARNESS_LDW_PATH + 26);
+        wchar_t folded[MAX_PATH];
+        unsigned long long hash = 1469598103934665603ULL;
+        int len = LCMapStringEx(LOCALE_NAME_INVARIANT, LCMAP_LOWERCASE, docs, -1,
+                                folded, MAX_PATH, NULL, NULL, 0);
+        if (len <= 0) harness_ldw_refuse(L"cannot case-fold ", docs);
+        for (c = folded; *c; ++c) {
+            hash ^= (unsigned short)*c;
+            hash *= 1099511628211ULL;
+        }
+        _snwprintf(name, 64, L"Global\\vvfp-harness-ldw-%016llx", hash);
+        name[63] = 0;
     }
     mutex = CreateMutexW(NULL, FALSE, name);
     if (mutex == NULL || WaitForSingleObject(mutex, INFINITE) == WAIT_FAILED) {
-        harness_ldw_refuse(L"cannot serialise runs of ", base);
+        harness_ldw_refuse(L"cannot take the harness lock for ", docs);
     }
 
     /* Nothing that is already there may be emptied or overwritten. */

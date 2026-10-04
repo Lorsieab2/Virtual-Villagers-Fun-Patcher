@@ -26,6 +26,9 @@
                   waits, so the first run's exit cannot delete its files
      case         the same, with the first run's exe name in upper case: the
                   folder is the same, so the lock must be too
+     names        two DIFFERENT harnesses overlap while LDW is absent: the
+                  second waits, so whether LDW was there is decided by one run
+                  at a time, and LDW is removed at the end
 
    Built and run by scripts/build_harness_ldw_tree_harness.ps1. */
 #include <windows.h>
@@ -165,6 +168,12 @@ static int child_main(const wchar_t *mode) {
             FindClose(h);
         }
         write_tree();
+        return 0;
+    }
+    if (!wcscmp(mode, L"hold-write")) {   /* first run: creates LDW and its tree, then holds */
+        write_tree();
+        path_of(p, docs, L"hold started"); touch(p);
+        Sleep(2000);
         return 0;
     }
     if (!wcscmp(mode, L"hold")) {   /* first run: holds the harness, writes nothing */
@@ -343,6 +352,37 @@ int main(int argc, char **argv) {
         check(!exists(tree), "and this run cleaned up its own tree");
         for (i = 0; i < 100 && !DeleteFileW(upper_exe); ++i) Sleep(50);
         wipe(upper_dir);
+    }
+
+    printf("== names: two different harnesses overlap while LDW is absent ==\n");
+    fresh();
+    {
+        /* The first creates LDW; the second must not start until the first
+           has finished, or it records LDW as pre-existing and leaves it. */
+        wchar_t other_dir[MAX_PATH], other_exe[MAX_PATH], other_tree[MAX_PATH], line[2048];
+        _snwprintf(other_dir, MAX_PATH, L"%lsvvfp_harness_ldw_other_%lu", temp, GetCurrentProcessId());
+        other_dir[MAX_PATH - 1] = 0;
+        wipe(other_dir);
+        CreateDirectoryW(other_dir, NULL);
+        _snwprintf(other_exe, MAX_PATH, L"%ls\\harness_ldw_tree_other.exe", other_dir);
+        other_exe[MAX_PATH - 1] = 0;
+        path_of(other_tree, ldw, L"harness_ldw_tree_other");
+        check(CopyFileW(exe, other_exe, FALSE) != 0, "setup: a copy of this exe under another name");
+        check(!exists(ldw), "setup: no LDW");
+        _snwprintf(line, 2048, L"\"%ls\" child hold-write", other_exe);
+        line[2047] = 0;
+        run(line, 0);
+        path_of(p, docs, L"hold started");
+        for (i = 0; i < 200 && !exists(p); ++i) Sleep(25);
+        check(exists(p) && exists(other_tree), "setup: the other harness made LDW and its tree");
+        check(child(L"late") == 0, "this harness's run finished");
+        path_of(p, docs, L"late kept its file");
+        check(exists(p), "this run's file survived the other run's exit");
+        check(!exists(other_tree), "the other harness's tree is removed");
+        check(!exists(tree), "this harness's tree is removed");
+        check(!exists(ldw), "LDW, WHICH NEITHER RUN FOUND, IS REMOVED -- nothing is left");
+        for (i = 0; i < 100 && !DeleteFileW(other_exe); ++i) Sleep(50);
+        wipe(other_dir);
     }
 
     wipe(docs);
