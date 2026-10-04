@@ -3,7 +3,8 @@
    Drives the TEST build of "VVFP Cause of Death.dll" (its VvfpCauseTest*
    exports call the same routines the detours call) against real files under
    Documents\LDW\<this exe's basename>\Virtual Villagers Fun Patcher Data\,
-   which the harness empties first and removes afterwards.
+   which harness_ldw_tree_begin() guarantees did not exist before the run
+   and which the harness removes afterwards.
 
    THE GRAVES FILE (A New Home):
      1. A death and its burial, then the tick: the file for the slot exists
@@ -265,7 +266,6 @@ int main(int argc, char **argv) {
     }
     dll_path = argv[1];
     if (!locate()) return 2;
-    wipe();
     array = (unsigned char *)VirtualAlloc(NULL, MANAGER + 0x100, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     manager = (unsigned char *)VirtualAlloc(NULL, 0xB000, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     *(unsigned char **)(array + MANAGER) = manager;
