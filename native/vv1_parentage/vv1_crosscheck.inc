@@ -1,4 +1,4 @@
-/* THE FIRST-LOAD CROSS-CHECK (v1.35.57) -- included by vv1_parentage.c.
+/* THE FIRST-LOAD CROSS-CHECK (v1.35.58) -- included by vv1_parentage.c.
 
    WHY.  Before v1.35.57 this table was kept by record index, and A New Home
    packs its villager array when a save is loaded: after a death, everyone
@@ -49,7 +49,7 @@
    never during the load-time catch-up.  "Not now" changes nothing at all and
    the question comes back the next time this village is loaded; "Repair"
    (Vv1ParentageCrossCheckApply) first copies the parentage file to
-   "<name>.before-v1.35.57-repair" beside itself, then writes the rebuilt
+   "<name>.before-v1.35.58-repair" beside itself, then writes the rebuilt
    table through the same atomic save every other change uses, lists every
    change in the Repairs log, and records that the check ran.
 
@@ -83,7 +83,7 @@
 #define VV1_XC_MAX_HEADERS      64
 #define VV1_XC_HEADER_CAPACITY  160
 #define VV1_XC_UNSET            (-2147483647 - 1)
-#define VV1_XC_BACKUP_SUFFIX    ".before-v1.35.57-repair"
+#define VV1_XC_BACKUP_SUFFIX    ".before-v1.35.58-repair"
 #define VV1_XC_REPAIRS_PER_FILE 256
 
 /* What the marker says about the slot. */
@@ -671,7 +671,7 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
 
 /* ---- the backup and the Repairs log ------------------------------------ */
 
-/* Copy the parentage file to "<name>.before-v1.35.57-repair" (or "-2", "-3"
+/* Copy the parentage file to "<name>.before-v1.35.58-repair" (or "-2", "-3"
    ... when that is taken), never replacing anything.  1 copied, 0 failed;
    *none is set when there was no file to copy. */
 static int vv1_xc_backup(int slot, char *backup, size_t n, int *none) {

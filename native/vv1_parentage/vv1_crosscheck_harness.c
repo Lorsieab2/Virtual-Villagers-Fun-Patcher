@@ -420,7 +420,7 @@ static void owner_scenario(void) {
           "... and lists Lisha's correction");
     check(strstr(note, "Set to unknown: Silko -- no Birth record in the log (was father Ghali, mother Onawa)") != NULL,
           "... and Silko's");
-    check(strstr(note, "Backup: Virtual Villagers 1 Parentage Records - Save 1.dat.before-v1.35.57-repair") != NULL,
+    check(strstr(note, "Backup: Virtual Villagers 1 Parentage Records - Save 1.dat.before-v1.35.58-repair") != NULL,
           "... and names the backup");
 
     /* What is on disk is what is shown: a new process loads the repaired file. */

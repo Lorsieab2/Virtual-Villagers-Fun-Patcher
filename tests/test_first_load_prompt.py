@@ -1,6 +1,6 @@
 """The first-load Repair / Not now prompt (native/shared/crosscheck_bridge.h).
 
-v1.35.57 cross-checks a village's records against their sources of truth the
+v1.35.58 cross-checks a village's records against their sources of truth the
 first time it loads a village, and the owner's rule is that "the player should
 be notified first before any fix runs".  The header every game's Origins
 companion includes decides when to look, asks ONE question for everything

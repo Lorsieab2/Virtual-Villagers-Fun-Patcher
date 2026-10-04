@@ -1,4 +1,4 @@
-# The first-load cross-check (v1.35.57)
+# The first-load cross-check (v1.35.58)
 
 Before v1.35.57 the patcher kept some per-villager data by villager **record index**. Every game
 packs its villager array when a save is loaded, so after a death everyone behind it comes back one
@@ -6,7 +6,7 @@ record lower, and data kept by index drifted onto the wrong villagers. v1.35.57 
 follow the villager from now on, but data that had *already* drifted is stored against the wrong
 identity and cannot be seen from the file alone.
 
-v1.35.57 therefore checks every log and data file it keeps against a source of truth, and repairs
+v1.35.58 therefore checks every log and data file it keeps against a source of truth, and repairs
 what is **confirmed** wrong -- but only after asking the player.
 
 ## The prompt
@@ -25,7 +25,7 @@ on the game's own thread. When nothing is found, nothing is shown.
 
 * **Not now** changes nothing and records nothing; the next load asks again.
 * **Repair** repairs each part through the companion that owns it: the file is backed up beside
-  itself (`<name>.before-v1.35.57-repair`, never replacing an existing backup), written atomically,
+  itself (`<name>.before-v1.35.58-repair`, never replacing an existing backup), written atomically,
   every change is listed in a log, and the check is marked done.
 
 ## What is checked, per file
