@@ -123,10 +123,82 @@ __declspec(naked) static void vv2_unlock_a_stub(void) {
     }
 }
 
+/* ---- Restore Missing Island Events (its own row) ----------------------------
+
+   The row points the single-result condition table (0x434868) entries of
+   cases 18, 20 and 26 at its accept target 0x434822, and gives the empty
+   case 4 a body (VV2_LORE_BODY at 0x42F032, runner table 0x4344F4[4]) whose
+   rand(3) at VV2_LORE_PAGE_SITE picks one of three lore pages.  With the row
+   the three restored events are ordinary events here, and the pages (slots
+   28-30, past the case roll) can be picked: the case roll answers 4 and the
+   page roll answers the page.  Without the row nothing here is installed. */
+#define VV2_CONDITION_TABLE 0x434868u
+#define VV2_RUNNER_TABLE 0x4344F4u
+#define VV2_ACCEPT 0x434822u
+#define VV2_LORE_HOST 4
+#define VV2_LORE_FIRST 28
+#define VV2_LORE_COUNT 3
+
+/* Whether single-result case `index` is accepted by the chooser's own table
+   (the row's edit of 18, 20 or 26). */
+static int vv2_case_accepted(int index) {
+    return read_u32(VV2_CONDITION_TABLE + 4u * (unsigned int)index) == VV2_ACCEPT;
+}
+
+/* Whether the row's case-4 body is there, read once before the page site is
+   written (afterwards the call at the page site is this companion's). */
+static int vv2_lore_state = -1;
+static int vv2_lore_ready(void) {
+    if (vv2_lore_state < 0) {
+        vv2_lore_state = vv2_case_accepted(VV2_LORE_HOST)
+            && read_u32(VV2_RUNNER_TABLE + 4u * VV2_LORE_HOST) == VV2_LORE_BODY_VA
+            && mem_matches(VV2_LORE_BODY_VA, VV2_LORE_BODY, (int)sizeof VV2_LORE_BODY);
+    }
+    return vv2_lore_state;
+}
+
+/* The page a pick delivers, set by the case roll just before case 4 runs. */
+static int vv2_page_pick = -1;
+static int vv2_page_installed;
+
+/* VV2_LORE_PAGE_SITE: rand(3) in the case-4 body. */
+static int __cdecl vv2_page_roll(int bound) {
+    int page = vv2_page_pick;
+    vv2_page_pick = -1;
+    if (page >= 0 && page < bound) {
+        return page;
+    }
+    return VV2_RAND(bound);
+}
+
+/* Called once the game's sites are installed: points the page roll at
+   vv2_page_roll when the row's body is there. */
+static void vv2_install_page_roll(void) {
+    unsigned char call[5];
+    unsigned int rel;
+    if (vv2_page_installed || !vv2_lore_ready()) {
+        return;
+    }
+    rel = (unsigned int)((uintptr_t)vv2_page_roll - (VV2_LORE_PAGE_SITE + 5u));
+    call[0] = 0xE8;
+    memcpy(call + 1, &rel, 4);
+    vv2_page_installed = mem_write(VV2_LORE_PAGE_SITE, call, 5);
+}
+
 static int vv2_event_roll(int family, int bound) {
     int slot;
     oc_reroll(2);
     slot = vv2_peek();
+    if (slot >= 0 && family == VV2_FAMILY_C && VV2_SLOT_INDEX(slot) >= VV2_LORE_FIRST
+        && VV2_SLOT_INDEX(slot) < VV2_LORE_FIRST + VV2_LORE_COUNT && vv2_page_installed) {
+        /* A lore page: case 4 (accepted by the row's table), then its page. */
+        vv2_page_pick = VV2_SLOT_INDEX(slot) - VV2_LORE_FIRST;
+        pick_slot = -1;
+        STORY_COUNT(delivered);
+        last_failed_event = NULL;
+        oc_delivered(2, NULL);
+        return VV2_LORE_HOST;
+    }
     if (slot < 0 || VV2_SLOT_FAMILY(slot) != family || VV2_SLOT_INDEX(slot) >= bound) {
         return VV2_RAND(bound);
     }
@@ -260,8 +332,11 @@ static int vv2_possible(const story_event *e) {
     if (family == VV2_FAMILY_C) {
         switch (index) {
         /* The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day:
-           the selector's condition table maps them to the never-valid 0x434824. */
-        case 18: case 20: case 26: return 0;
+           the selector's condition table maps them to the never-valid
+           0x434824 -- unless Restore Missing Island Events accepts them. */
+        case 18: case 20: case 26: return vv2_case_accepted(index);
+        /* The lore pages exist only with that row's case-4 body. */
+        case 28: case 29: case 30: return vv2_page_installed;
         case 8: return graves(world, NULL) != 0;
         case 11: case 14: case 17: return advanced(world, NULL) != 0;
         case 15: return vv2_any_villager(pool, 0x168, -1, 0, 1) && advanced(world, NULL) != 0;
