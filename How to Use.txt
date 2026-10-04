@@ -143,6 +143,32 @@ The patcher can copy your modded games' saves for you, in all five games.
 To restore a backup, quit the game, then copy the files from the backup folder
 back into the save folder.
 
+RENAME TRIBE
+
+The patcher can change a tribe's name inside its save, in all five games.
+
+1. Quit the game first (from its own menu). A game that is running is
+   refused: it saves when you quit it, which would put the old name back.
+2. On the One Game tab, choose the game's EXE and click "Rename Tribe". On
+   the All 5 Games tab, click "Rename tribe" on a game's row, or
+   "Rename Tribe..." to pick any game.
+3. Pick the game, the save folder (every "- Modded..." folder, then the
+   stock game's own) and the tribe. Each save slot is listed with its
+   current name.
+4. Type the new name. The counter shows the game's own limit: 31 characters
+   in A New Home and The Lost Children, 19 in The Secret City, The Tree of
+   Life and New Believers. A New Home and The Lost Children cannot draw
+   # $ % & ( ) * + ; < = > @ [ \ ] ^ _ { } | ~ in a name. A name that is too
+   long or uses those characters is refused, never cut short.
+5. Click "Rename". The save folder is backed up first, into
+       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before rename)
+   Then the name is changed in the slot's save, its older copies and the
+   slot list. Every file is checked after writing; if anything fails, every
+   file is put back as it was.
+6. The patcher's logs carry on for the same village. Nothing already in them
+   is changed; each gets one line, "Tribe renamed from <old> to <new> on
+   <date>", and new records keep going into the same logs under the new name.
+
 OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once except
