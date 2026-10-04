@@ -98,7 +98,7 @@
     },
     {
       "path": "data/candidates/vv5_expanded_time_warp_map.json",
-      "sha256": "1D8C4C4ACF523A7D411E7298B03224D0245D796CE6924D4F0358DF7F942A53A0"
+      "sha256": "922FAA5AC616CB6C1226B8CB0A06A8E117841C8A5206093DB42985AEF65D1BE4"
     },
     {
       "path": "data/candidates/vv5_individual_running_candidate.json",
@@ -142,7 +142,7 @@
     },
     {
       "path": "data/vv5_expanded_time_warp.json",
-      "sha256": "7F4C895FDA077EF78571035B2531A4D119CAE600380EE33377528A7F296E5B4A"
+      "sha256": "7B8ACA7ADA4BC00179BA13C323A25901B7214AC270EC5B3C0BF443ACAAE86B6D"
     },
     {
       "path": "data/vv5_origins_feature.json",
