@@ -97,6 +97,7 @@ FILES = [
     "data/vv4_work_first_feature.json",
     "data/vv5_work_first_feature.json",
     "data/vv2_numeric_keys_tip_feature.json",
+    "data/vv2_restore_missing_island_events_feature.json",
     "data/vv5_playing_in_the_dirt_feature.json",
     "data/vv1_story_cheat_upgrades_feature.json",
     "data/vv2_story_cheat_upgrades_feature.json",
@@ -160,6 +161,9 @@ FILES = [
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
+    # Back Up Saves; the GUI imports it, so the patcher window cannot open
+    # without it.
+    "src/vv_save_backup.py",
     "src/transparency.py",
     "src/expanded_atomic_writer.py",
     "src/vv5_full_heal.py",

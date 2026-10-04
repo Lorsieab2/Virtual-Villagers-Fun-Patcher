@@ -81,9 +81,36 @@ class VillageEldersHarnessTests(unittest.TestCase):
                      "a v1 elders file is not read as v2",
                      "a heathen with every skill mastered is not a Village Elder",
                      "the same villager, converted, is one Village Elder",
-                     "... and it is kept aside beside the earlier one"):
+                     "... and it is kept aside beside the earlier one",
+                     "with no reload, an elder whose record is another line's reload record keeps his own line",
+                     "a reload that moves both elders down a record still counts two elders",
+                     "... each line follows its own elder (Bo does not take over Ana's line)",
+                     "a renamed elder moved by a reload keeps his line: still two elders",
+                     "... the lines are Ana [1] and Bob [2]"):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
+
+
+class ReloadRanksReachTheEldersTests(unittest.TestCase):
+    """The games load a save packed into records 0, 1, 2, ...; Village Elders
+    follows each elder there from the roster the previous save recorded.  The
+    harness drives vv_village_elders_file with ranks; this pins that the DLL
+    actually hands it the ranks, from the roster village_changed read."""
+
+    def test_the_dll_passes_the_reload_ranks(self):
+        source = (NATIVE / "statistics_export.c").read_text(encoding="utf-8")
+        calls = re.findall(r"(\n[^\n]*\n)\s*g_elders_value = vv_village_elders\(", source)
+        self.assertEqual(len(calls), 2, "both elder layouts (VV1 and VV3-VV5)")
+        for before in calls:
+            self.assertIn("elders_ranks(&l);", before)
+        changed = source[source.index("static int village_changed("):]
+        changed = changed[:changed.index("\n}\n")]
+        self.assertIn("g_roster_was_count = 0;", changed)
+        self.assertIn("g_roster_was_count = was;", changed)
+        ranks = source[source.index("static void elders_ranks(struct elders_layout *l) {"):]
+        ranks = ranks[:ranks.index("\n}\n")]
+        self.assertIn("rank_of_slot[slot] = i;", ranks)
+        self.assertIn("l->rank_of_slot = rank_of_slot;", ranks)
 
 
 if __name__ == "__main__":

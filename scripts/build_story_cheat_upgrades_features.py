@@ -309,6 +309,13 @@ CUSTOM_SITE_ROUTINES = {
 PARENTAGE_SITES = {"vv1": 0x43BC39, "vv2": 0x44BAD8, "vv3": 0x455BF3, "vv4": 0x45E8E4,
                    "vv5": 0x465F34}
 
+# The Lost Children's Restore Missing Island Events row: the case-4 body
+# (scripts/build_vv2_restore_missing_island_events_feature.py) and its
+# rand(3) page roll, the site Pick Island Event answers for a picked page.
+VV2_LORE_BODY_VA = 0x42F032
+VV2_LORE_BODY_LENGTH = 48
+VV2_LORE_PAGE_SITE = 0x42F034
+
 # Each game's rand(bound) routine (cdecl): the outcome sites call it.
 RAND = {"vv1": 0x402F10, "vv2": 0x4031A0, "vv3": 0x4032D0, "vv4": 0x4036D0, "vv5": 0x403660}
 
@@ -543,6 +550,19 @@ def build() -> None:
         lines.append(f"#define {tag}_WRITE_COUNT {len(writes)}")
         for name, (va, expect) in sites.items():
             lines.append(_c_bytes(name, expect))
+        if game == "vv2":
+            # Restore Missing Island Events (its own row): the case-4 lore-page
+            # body.  The companion offers the three pages, and answers the
+            # body's rand(3) for a picked page, only when exactly these bytes
+            # are there.
+            lore = full_render.read(VV2_LORE_BODY_VA, VV2_LORE_BODY_LENGTH)
+            if lore == stock_image.read(VV2_LORE_BODY_VA, VV2_LORE_BODY_LENGTH):
+                raise SystemExit("vv2: the Restore Missing Island Events row's case-4 body is missing")
+            if lore[2:7] != bytes([0xE8]) + struct.pack("<i", RAND[game] - (VV2_LORE_PAGE_SITE + 5)):
+                raise SystemExit("vv2: the case-4 body does not start with push 3; call rand")
+            lines.append(f"#define VV2_LORE_BODY_VA 0x{VV2_LORE_BODY_VA:X}u")
+            lines.append(f"#define VV2_LORE_PAGE_SITE 0x{VV2_LORE_PAGE_SITE:X}u")
+            lines.append(_c_bytes("VV2_LORE_BODY", lore))
         lines.append(f"#define {tag}_PARENTAGE_SITE 0x{parentage_va:X}u")
         lines.append(_c_bytes(f"{tag}_PARENTAGE_STOCK", parentage_stock))
         events = story_island_events.EVENTS[game]

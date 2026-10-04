@@ -361,9 +361,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # third Tech-menu button, outside the Island Event lock. Re-pinned
         # (v1.35.57) when the companion stopped exporting the unreachable
         # ShowOriginsVillageWideResult; none of its other source changed.
+        # Re-pinned when its mask sidecar learned to follow each villager
+        # through a reload (identity roster 'VM06', native/shared/mask_follow.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "54EB935D15C3356ED49036080712C6C4A72998373AC9A2477813F1458EC1247F",
+            "B704DBF28B08D22F14667F9C0C0669C2A649C4820DF62365137D775B357A38CD",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

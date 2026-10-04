@@ -530,6 +530,7 @@ static unsigned char *story_record(int game, int index);
 static int story_record_index(int game, const unsigned char *record);
 static int story_record_present(int game, const unsigned char *record);
 static unsigned int story_title_identity(int game, const unsigned char *record);
+static unsigned int story_title_stable(int game, const unsigned char *record);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
 static int titles_rebind(int game, int index, unsigned int before);
@@ -591,6 +592,19 @@ static unsigned int story_title_identity(int game, const unsigned char *record) 
     const ce_adapter *a = ce_adapter_for(game);
     return a != NULL ? vv_title_identity(record, a->off_name, (unsigned int)a->name_bytes, a->off_likes,
                                          a->off_dislikes, (unsigned int)a->pref_slots) : 0;
+}
+
+/* What a rename leaves of the title identity: the sex, likes and dislikes
+   (story_titles.inc tells a rename from a new occupant by it).  Never 0. */
+static unsigned int story_title_stable(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    unsigned int h;
+    if (a == NULL) {
+        return 0;
+    }
+    h = vv_title_identity(record, a->off_name, 0u, a->off_likes, a->off_dislikes, (unsigned int)a->pref_slots);
+    h = (h ^ (unsigned int)*(const int *)(record + a->off_sex)) * 16777619u;
+    return h ? h : 1u;
 }
 
 #include "story_titles.inc"
@@ -736,6 +750,10 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     }
     if (install_state[game] == 0) {
         install_state[game] = install(game) ? 1 : -1;
+        if (install_state[game] == 1 && game == 2) {
+            /* Restore Missing Island Events' lore pages, when that row is ticked. */
+            vv2_install_page_roll();
+        }
     }
     if (install_state[game] == 1) {
         /* The Origins companion calls this from its per-frame path: the
@@ -972,6 +990,14 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetPick(int game, int position
     pick_event = &g->events[position];
     pick_village = story_village_now(game);
     return pick_slot;
+}
+
+/* The Lost Children: point Restore Missing Island Events' page roll at the
+   companion as VvfpStoryInstall does (the tests arm without installing).
+   Returns whether it is installed. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeInstallPageRoll(void) {
+    vv2_install_page_roll();
+    return vv2_page_installed;
 }
 
 /* Make the n-th memory write of the next install fail (-1 = none). */
