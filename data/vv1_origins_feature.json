@@ -25,31 +25,6 @@
       "sha256": "42496ED028AE39971F1E71B94FE54EC452C292F089CE2E9C859726B1F01A973F"
     },
     {
-      "source": "assets/origins/m1.png",
-      "destination": "Images/m1.png",
-      "sha256": "82AFF9E72763F7A4FB027A750AF063089986755E0E9245A21AC21CE3277B0AB5"
-    },
-    {
-      "source": "assets/origins/m2.png",
-      "destination": "Images/m2.png",
-      "sha256": "2C823B40839A926DB8166D0ACF2B3533054A1DA4A53ED0C0899A9E6BDFF12FDE"
-    },
-    {
-      "source": "assets/origins/m3.png",
-      "destination": "Images/m3.png",
-      "sha256": "8E52D6CB99184F4B96210B600D813EEF0EEFC61B70F3A6A9920D6974B858F6AA"
-    },
-    {
-      "source": "assets/origins/m4.png",
-      "destination": "Images/m4.png",
-      "sha256": "0EF694014BEC56299A1EE9144D7F6ED14C059ECDF1205A275CE704DC1E65BAE3"
-    },
-    {
-      "source": "assets/origins/m5.png",
-      "destination": "Images/m5.png",
-      "sha256": "936C5EF2D59E62F18204B5FE2C19E11D94A9BC09469E83697207B2AD2E0C5D75"
-    },
-    {
       "source": "assets/origins/mask_atlas.png",
       "destination": "Images/mask_atlas.png",
       "sha256": "3E79BB89CBA9CE75F771FEF92BA7EDE4E0444F71EAABA2F6E6D3DCA190CB0897"

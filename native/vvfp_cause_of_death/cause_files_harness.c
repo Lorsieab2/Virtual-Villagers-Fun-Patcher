@@ -45,6 +45,7 @@
 #include <string.h>
 
 #include "save_reset.h"
+#include "../shared/harness_ldw_tree.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -137,7 +138,7 @@ static void load(void) {
     dll = LoadLibraryA(dll_path);
     if (dll == NULL) {
         printf("cannot load %s\n", dll_path);
-        ExitProcess(2);
+        exit(2);
     }
     setup = (setup_t)GetProcAddress(dll, "VvfpCauseTestSetup");
     died_raw = (index_cause_t)GetProcAddress(dll, "VvfpCauseTestDied");
@@ -154,7 +155,7 @@ static void load(void) {
     if (!setup || !died_raw || !buried || !decayed || !arrived || !saved || !edit_epitaph || !tick
         || !reset || !grave_of || !roll || !stats) {
         printf("missing exports\n");
-        ExitProcess(2);
+        exit(2);
     }
     setup(1, &host, array);
     *roll = 1;
@@ -252,6 +253,7 @@ static void game_reload(void) {
 }
 
 int main(int argc, char **argv) {
+    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char path[MAX_PATH], tmp[MAX_PATH];
     unsigned char buf[0x40000];
     long n;

@@ -974,15 +974,6 @@ MASK_THIRD_DETOUR_ORIGINAL_BYTES = bytes.fromhex("8B4E30518BCE")
 # mov ecx,[esi+0x30] ; push ecx ; mov ecx,esi
 MASK_THIRD_RESUME_VA = 0x409142  # native "mov [esi+0x78],eax" right after the displaced trio
 
-# Callable import thunks (jmp dword ptr [IAT slot]) for SDL2/SDL2_image --
-# found via Ghidra decompiling FUN_00403d00 (SDL_UpperBlit(src, srcrect,
-# dst, dstrect), the primitive under every native sprite blit in this
-# build) back to its real caller; grepping the raw .text bytes for a
-# direct reference to either IAT slot finds nothing because application
-# code calls these fixed jump-table thunks, never the IAT slot itself.
-SDL_UPPERBLIT_THUNK_VA = 0x44A9AC
-IMG_LOAD_THUNK_VA = 0x44AA78
-
 
 def assemble(source: str, address: int) -> bytes:
     encoding, _ = Ks(KS_ARCH_X86, KS_MODE_32).asm(source, address)
@@ -2866,12 +2857,10 @@ def main() -> None:
     # This hook is purely additive: it never reads or writes any field the
     # native engine itself uses for anything else (deliberately NOT the
     # real nursing-baby-icon flag at +0x29 -- see vv1_origins_icons.c's own
-    # comment on VV_MASK_OFFSET for why that would have been wrong). It
-    # draws by calling SDL_UpperBlit directly with a real SDL_Surface* from
-    # IMG_Load, rather than replicating the game's own multi-level sprite-
-    # wrapper class -- confirmed via Ghidra that IMG_Load/SDL_UpperBlit are
-    # both directly callable at fixed addresses in this exact build (no
-    # GetProcAddress needed).
+    # comment on VV_MASK_OFFSET for why that would have been wrong). The
+    # mask itself is drawn through the game's own sprite draw from the
+    # companion's mask_atlas.png sprite (the first build's IMG_Load +
+    # SDL_UpperBlit of five per-colour PNGs is retired).
     #
 # The original per-frame SDL-blit implementation was replaced by the shared
 # all-pose renderer. Writable mask state lives in .data (see the W^X split),
@@ -4486,18 +4475,9 @@ def main() -> None:
             },
         ] + [
             {
-                "source": f"assets/origins/m{n}.png",
-                "destination": f"Images/m{n}.png",
-                "sha256": hashlib.sha256(
-                    (ROOT / "assets" / "origins" / f"m{n}.png").read_bytes()
-                ).hexdigest().upper(),
-            }
-            for n in range(1, 6)
-        ] + [
-            {
-                # Portrait ("bighead") mask atlas: the DLL's Vv1DrawPortraitMask
-                # builds an engine sprite from Images/mask_atlas.png, so it must
-                # ship alongside the per-colour world sheets (m1-m5).
+                # The one mask image: the DLL builds an engine sprite from
+                # Images/mask_atlas.png (Vv1GetMaskSprite), and both the
+                # village draw and the Details portrait draw read that sprite.
                 "source": "assets/origins/mask_atlas.png",
                 "destination": "Images/mask_atlas.png",
                 "sha256": hashlib.sha256(

@@ -4,24 +4,29 @@
    it would in a game: Documents\LDW\<this exe's basename>\..., i.e. inside the
    real LDW save folder. The harnesses deleted their own files, but folders the
    companion created on the way (log and data folders, the per-exe folder, and
-   LDW itself on a machine that had none) were left behind after every run.
+   LDW itself on a machine that had none) were left behind after every run --
+   and several harnesses begin by emptying their folder, which would delete
+   anything that was already there.
 
-   harness_ldw_tree_begin() runs first in main(). It
-     1. takes a per-harness named mutex and holds it until the process ends,
-        so two runs of the same harness never overlap: everything that appears
-        under LDW\<basename> while it is held was made by THIS run;
-     2. records whether LDW and LDW\<basename> exist (any kind of entry,
-        including a junction or symbolic link), and, when the per-exe folder
-        already exists, every entry below it.
-   At process exit -- a normal return, exit(), or an unhandled crash -- it
-   removes what this run created and nothing else:
-     - nothing that existed before the run is ever removed, file or folder;
-     - a reparse point (junction, symbolic link) is never removed and never
-       entered, wherever it is; LDW relocated by a junction stays connected;
-     - LDW\<basename> new: its files and folders are removed, then the folder;
-     - LDW\<basename> already there: only new folders, and only while empty;
-       no file below it is touched, new or old;
-     - LDW new and now an empty ordinary folder: removed.
+   harness_ldw_tree_begin() runs first in main(), before the harness touches
+   anything. It
+     1. takes ONE lock shared by every harness and every Windows session
+        (Global\, keyed to the case-folded Documents path) and holds it until
+        the process ends, so no two harness runs overlap -- not two runs of
+        one harness, and not two different harnesses deciding whether LDW
+        itself was there;
+     2. REFUSES TO RUN if LDW\<basename> already exists, as anything at all
+        (folder, file, junction): it prints the path and exits with code 2
+        before the harness can empty or overwrite a single file there. A
+        leftover from a run that was killed must be removed by hand.
+   So everything under LDW\<basename> at exit was made by this run, and the
+   exit step -- a normal return, exit(), or an unhandled crash -- removes it:
+     - LDW\<basename>: its files and folders, then the folder itself; a
+       reparse point (junction, symbolic link) inside it is neither entered
+       nor removed;
+     - LDW: only if this run created it, it is an ordinary folder (never a
+       junction) and it is empty. A pre-existing LDW, including one relocated
+       by a junction, is never removed.
 
    Paths are wide throughout, as the companions' own are, and are derived at
    run time from the Documents folder and this exe's own name, so nothing here
@@ -47,17 +52,12 @@
 #endif
 
 #define HARNESS_LDW_PATH 1024
-#define HARNESS_LDW_MAX_ENTRIES 512
 
 static wchar_t harness_ldw_root[HARNESS_LDW_PATH];   /* Documents\LDW */
 static wchar_t harness_ldw_tree[HARNESS_LDW_PATH];   /* Documents\LDW\<basename> */
 static int harness_ldw_ready;
 static int harness_ldw_done;
 static int harness_ldw_root_existed;
-static int harness_ldw_tree_existed;
-static int harness_ldw_kept_overflow;   /* too many to record: remove nothing below */
-static wchar_t (*harness_ldw_kept)[HARNESS_LDW_PATH];
-static int harness_ldw_kept_count;
 
 /* Any entry at all, of any kind: existence is never decided by whether it is
    safe to walk. */
@@ -78,45 +78,9 @@ static int harness_ldw_join(wchar_t *out, const wchar_t *folder, const wchar_t *
     return n > 0 && n < HARNESS_LDW_PATH;
 }
 
-/* Every entry below `folder`, files and folders alike, never entering a
-   reparse point. */
-static void harness_ldw_record(const wchar_t *folder) {
-    wchar_t pattern[HARNESS_LDW_PATH], path[HARNESS_LDW_PATH];
-    WIN32_FIND_DATAW f;
-    HANDLE h;
-    if (!harness_ldw_join(pattern, folder, L"*")) { harness_ldw_kept_overflow = 1; return; }
-    h = FindFirstFileW(pattern, &f);
-    if (h == INVALID_HANDLE_VALUE) return;
-    do {
-        if (!wcscmp(f.cFileName, L".") || !wcscmp(f.cFileName, L"..")) continue;
-        if (!harness_ldw_join(path, folder, f.cFileName)
-            || harness_ldw_kept_count >= HARNESS_LDW_MAX_ENTRIES) {
-            harness_ldw_kept_overflow = 1;
-            continue;
-        }
-        lstrcpynW(harness_ldw_kept[harness_ldw_kept_count++], path, HARNESS_LDW_PATH);
-        if ((f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            && !(f.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
-            harness_ldw_record(path);
-        }
-    } while (FindNextFileW(h, &f));
-    FindClose(h);
-}
-
-static int harness_ldw_was_kept(const wchar_t *path) {
-    int i;
-    for (i = 0; i < harness_ldw_kept_count; ++i) {
-        if (lstrcmpiW(harness_ldw_kept[i], path) == 0) return 1;
-    }
-    return 0;
-}
-
-/* Depth first below `folder`. A reparse point is skipped outright: neither
-   entered nor removed. `owned`: the folder did not exist before this run and
-   no other run of this harness can have written to it (the mutex), so its
-   files go too. Otherwise only folders that are not on the start-up list go,
-   and RemoveDirectory only succeeds on an empty one. */
-static void harness_ldw_sweep(const wchar_t *folder, int owned) {
+/* Depth first below a folder this run created. A reparse point is skipped
+   outright: neither entered nor removed. */
+static void harness_ldw_sweep(const wchar_t *folder) {
     wchar_t pattern[HARNESS_LDW_PATH], path[HARNESS_LDW_PATH];
     WIN32_FIND_DATAW f;
     HANDLE h;
@@ -127,14 +91,10 @@ static void harness_ldw_sweep(const wchar_t *folder, int owned) {
         if (!wcscmp(f.cFileName, L".") || !wcscmp(f.cFileName, L"..")) continue;
         if (f.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) continue;
         if (!harness_ldw_join(path, folder, f.cFileName)) continue;
-        if (!owned && harness_ldw_was_kept(path)) {
-            if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) harness_ldw_sweep(path, 0);
-            continue;
-        }
         if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-            harness_ldw_sweep(path, owned);
+            harness_ldw_sweep(path);
             RemoveDirectoryW(path);
-        } else if (owned) {
+        } else {
             SetFileAttributesW(path, FILE_ATTRIBUTE_NORMAL);
             DeleteFileW(path);
         }
@@ -145,17 +105,13 @@ static void harness_ldw_sweep(const wchar_t *folder, int owned) {
 static void harness_ldw_tree_end(void) {
     if (!harness_ldw_ready || harness_ldw_done) return;
     harness_ldw_done = 1;
-    /* Only ever below an ordinary LDW: a junction LDW is never entered. */
-    if (!harness_ldw_plain_dir(harness_ldw_root)) return;
-    if (!harness_ldw_tree_existed) {
-        if (harness_ldw_plain_dir(harness_ldw_tree)) {
-            harness_ldw_sweep(harness_ldw_tree, 1);
-            RemoveDirectoryW(harness_ldw_tree);
-        }
-    } else if (harness_ldw_plain_dir(harness_ldw_tree) && !harness_ldw_kept_overflow) {
-        harness_ldw_sweep(harness_ldw_tree, 0);
+    if (harness_ldw_plain_dir(harness_ldw_tree)) {
+        harness_ldw_sweep(harness_ldw_tree);
+        RemoveDirectoryW(harness_ldw_tree);
     }
-    if (!harness_ldw_root_existed) RemoveDirectoryW(harness_ldw_root);
+    if (!harness_ldw_root_existed && harness_ldw_plain_dir(harness_ldw_root)) {
+        RemoveDirectoryW(harness_ldw_root);
+    }
 }
 
 static LONG WINAPI harness_ldw_on_crash(EXCEPTION_POINTERS *info) {
@@ -164,43 +120,68 @@ static LONG WINAPI harness_ldw_on_crash(EXCEPTION_POINTERS *info) {
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
+/* Exit before the harness has touched anything. */
+static void harness_ldw_refuse(const wchar_t *why, const wchar_t *what) {
+    fwprintf(stderr, L"harness: %ls%ls; not running\n", why, what);
+    exit(2);
+}
+
 /* Call first in main(), before anything can write under Documents\LDW. */
 static void harness_ldw_tree_begin(void) {
-    wchar_t docs[MAX_PATH], exe[HARNESS_LDW_PATH], name[HARNESS_LDW_PATH + 32];
+    wchar_t docs[MAX_PATH], exe[HARNESS_LDW_PATH], name[64];
     wchar_t *base, *dot, *c;
     HANDLE mutex;
+    int n;
     if (harness_ldw_ready) return;
-    if (!HARNESS_LDW_DOCUMENTS(docs)) return;
-    if (GetModuleFileNameW(NULL, exe, HARNESS_LDW_PATH) == 0) return;
+    if (!HARNESS_LDW_DOCUMENTS(docs)) harness_ldw_refuse(L"cannot resolve Documents", L"");
+    if (GetModuleFileNameW(NULL, exe, HARNESS_LDW_PATH) == 0) {
+        harness_ldw_refuse(L"cannot resolve this executable's name", L"");
+    }
     exe[HARNESS_LDW_PATH - 1] = 0;
     base = wcsrchr(exe, L'\\');
     base = base != NULL ? base + 1 : exe;
     dot = wcsrchr(base, L'.');
     if (dot != NULL) *dot = 0;
-    if (*base == 0) return;
-    if (_snwprintf(harness_ldw_root, HARNESS_LDW_PATH, L"%ls\\LDW", docs) <= 0) return;
+    n = _snwprintf(harness_ldw_root, HARNESS_LDW_PATH, L"%ls\\LDW", docs);
     harness_ldw_root[HARNESS_LDW_PATH - 1] = 0;
-    if (!harness_ldw_join(harness_ldw_tree, harness_ldw_root, base)) return;
-
-    /* One run of this harness at a time, per user session. The handle is
-       never closed: the system releases it when the process ends, after the
-       exit handler has swept. An abandoned mutex (a run that was killed)
-       still counts as acquired. */
-    _snwprintf(name, HARNESS_LDW_PATH + 32, L"Local\\vvfp-harness-ldw-%ls", base);
-    name[HARNESS_LDW_PATH + 31] = 0;
-    for (c = name + 6; *c; ++c) if (*c == L'\\') *c = L'_';
-    mutex = CreateMutexW(NULL, FALSE, name);
-    if (mutex == NULL) return;   /* no exclusion: clean up nothing */
-    if (WaitForSingleObject(mutex, INFINITE) == WAIT_FAILED) return;
-
-    harness_ldw_root_existed = harness_ldw_exists(harness_ldw_root);
-    harness_ldw_tree_existed = harness_ldw_exists(harness_ldw_tree);
-    if (harness_ldw_tree_existed && harness_ldw_plain_dir(harness_ldw_tree)
-        && harness_ldw_plain_dir(harness_ldw_root)) {
-        harness_ldw_kept = calloc(HARNESS_LDW_MAX_ENTRIES, sizeof *harness_ldw_kept);
-        if (harness_ldw_kept == NULL) harness_ldw_kept_overflow = 1;
-        else harness_ldw_record(harness_ldw_tree);
+    if (*base == 0 || n <= 0 || n >= HARNESS_LDW_PATH
+        || !harness_ldw_join(harness_ldw_tree, harness_ldw_root, base)) {
+        harness_ldw_refuse(L"cannot form the harness folder path for ", base);
     }
+
+    /* ONE lock for every harness that writes under this Documents folder, in
+       every Windows session: Global\, keyed to the case-folded Documents path
+       (FNV-1a 64 of the lower-cased path; the folder is case-insensitive,
+       mutex names are not). It is taken before either existence check, so
+       whether LDW and LDW\<basename> existed is decided by one run at a time,
+       and held until the process ends -- the handle is never closed; the
+       system releases it after the exit handler has swept. An abandoned
+       mutex (a run that was killed) still counts as acquired. If the lock
+       cannot be created or taken, the harness does not run. */
+    {   /* kernel32 only: not every harness links user32 */
+        wchar_t folded[MAX_PATH];
+        unsigned long long hash = 1469598103934665603ULL;
+        int len = LCMapStringEx(LOCALE_NAME_INVARIANT, LCMAP_LOWERCASE, docs, -1,
+                                folded, MAX_PATH, NULL, NULL, 0);
+        if (len <= 0) harness_ldw_refuse(L"cannot case-fold ", docs);
+        for (c = folded; *c; ++c) {
+            hash ^= (unsigned short)*c;
+            hash *= 1099511628211ULL;
+        }
+        _snwprintf(name, 64, L"Global\\vvfp-harness-ldw-%016llx", hash);
+        name[63] = 0;
+    }
+    mutex = CreateMutexW(NULL, FALSE, name);
+    if (mutex == NULL || WaitForSingleObject(mutex, INFINITE) == WAIT_FAILED) {
+        harness_ldw_refuse(L"cannot take the harness lock for ", docs);
+    }
+
+    /* Nothing that is already there may be emptied or overwritten. */
+    if (harness_ldw_exists(harness_ldw_tree)) {
+        harness_ldw_refuse(L"remove it by hand if it is a leftover -- it already exists: ",
+                           harness_ldw_tree);
+    }
+    harness_ldw_root_existed = harness_ldw_exists(harness_ldw_root);
     harness_ldw_ready = 1;
     atexit(harness_ldw_tree_end);
     SetUnhandledExceptionFilter(harness_ldw_on_crash);
