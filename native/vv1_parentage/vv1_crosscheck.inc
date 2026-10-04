@@ -1,0 +1,929 @@
+/* THE FIRST-LOAD CROSS-CHECK (v1.35.57) -- included by vv1_parentage.c.
+
+   WHY.  Before v1.35.57 this table was kept by record index, and A New Home
+   packs its villager array when a save is loaded: after a death, everyone
+   behind it comes back one record lower, and the parents went with the
+   INDEX, not the villager.  v1.35.57 makes every entry follow its villager
+   (vv1_follow_roster), but a table that had ALREADY drifted is stored against
+   the wrong identities, and following it only carries the wrong parents
+   faithfully onwards: nothing in the file itself can tell.  The owner's Lisha
+   (daughter of Ghali and Onawa) was recorded as Kito and Chika's, and Silko,
+   a grown arrival with no parents at all, as Ghali and Onawa's.
+
+   THE SOURCE OF TRUTH.  Every birth this companion records is written to the
+   village's Births and Conceptions log the moment it is seen, with the
+   child's name, head and body and both parents' -- and the log, unlike the
+   table, is never rewritten.  So once per village, the first time this build
+   loads it, the parents of every LIVING villager are rebuilt from the log,
+   the way the owner's own repair was done (owner, 2026-10-03: "the first time
+   v1.35.57 loads a village, rebuild the parents from that village's Births
+   log, once, with a backup"):
+
+     - a villager matched to Birth records by name, head AND body (never the
+       name alone: names come from a fixed pool), where every matching record
+       names the same two parents and there are at least as many of those
+       records as living villagers sharing the three, gets those parents;
+     - matching records that disagree, or more living villagers sharing the
+       three than Birth records for them, is ambiguous: the parents are set
+       to unknown, never guessed;
+     - a villager with no Birth record of that name at all -- a founder or a
+       grown arrival -- has no parents (the owner's rule: villagers not
+       spawned by a conception have none);
+     - a villager whose NAME has Birth records but none with their head and
+       body (an Origins appearance upgrade changed them since birth) cannot be
+       confirmed either way, and is left exactly as it is;
+     - a pregnant mother's stash -- the father her baby will get -- is set
+       from her LAST logged conception (matched the same way) only when no
+       Birth by her follows it, and only when that names a father; otherwise
+       it cannot be confirmed and is left as it is.
+
+   Departed villagers' entries, and anything else in the file, are not
+   touched.
+
+   THE PLAYER DECIDES FIRST (owner: "the player should be notified first
+   before any fix runs").  The scan (Vv1ParentageCrossCheckScan) only reads.
+   When it finds nothing to change it records that it ran, silently.  When it
+   finds something, the Origins companion says what, in its one Repair / Not
+   now prompt for everything the first load found (native/shared/
+   crosscheck_bridge.h), once the village has been on screen for a moment --
+   never during the load-time catch-up.  "Not now" changes nothing at all and
+   the question comes back the next time this village is loaded; "Repair"
+   (Vv1ParentageCrossCheckApply) first copies the parentage file to
+   "<name>.before-v1.35.57-repair" beside itself, then writes the rebuilt
+   table through the same atomic save every other change uses, lists every
+   change in the Repairs log, and records that the check ran.
+
+   WHY A REPAIRS LOG.  The player has to be able to see what changed, and
+   none of the existing logs is about the patcher's own records: the
+   Unaccounted Villagers log is for villagers who left or arrived with no
+   record of why, and the Births log is never rewritten or annotated.  So the
+   note goes to "Virtual Villagers Fun Patcher Logs\Repairs\Virtual Villagers
+   1 Repairs Log <n>.txt": the village's own header line (copied from its
+   Births log), then one numbered "Repair <n>" record per repair, one line per
+   villager changed, in the same shape as every other numbered log.
+
+   ONCE PER VILLAGE.  "Virtual Villagers Fun Patcher Data\Cross-Check\
+   Virtual Villagers 1 Cross-Check - Save N.dat" records that it ran for that
+   slot.  It is written last, after the table and the note, so an
+   interruption anywhere before it simply runs the check again on the next
+   load -- which then finds the rebuilt table already in step and changes
+   nothing.
+
+   FAILS CLOSED.  A Births log that is there but cannot be read, a backup
+   that cannot be made, a table that cannot be written: nothing is changed,
+   the marker is not written, and the check runs again on the next load.  A
+   slot with no Births log, or one with no Birth record for this village, has
+   nothing to check against: the marker records that, and nothing is
+   changed. */
+
+#define VV1_XC_MAGIC            0x31435856u   /* 'V' 'X' 'C' '1' */
+#define VV1_XC_VERSION          1u
+#define VV1_XC_MAX_LOG_FILES    4096          /* the exporters' own roll-over ceiling */
+#define VV1_XC_MAX_FILE_BYTES   (16u * 1024u * 1024u)
+#define VV1_XC_MAX_HEADERS      64
+#define VV1_XC_HEADER_CAPACITY  160
+#define VV1_XC_UNSET            (-2147483647 - 1)
+#define VV1_XC_BACKUP_SUFFIX    ".before-v1.35.57-repair"
+#define VV1_XC_REPAIRS_PER_FILE 256
+
+/* What the marker says about the slot. */
+#define VV1_XC_RESULT_CLEAN     1    /* checked: nothing to change */
+#define VV1_XC_RESULT_REPAIRED  2    /* checked, the player chose Repair, and it was done */
+#define VV1_XC_RESULT_NO_LOG    3    /* no Births log for this village: nothing to check against */
+
+/* What the check found for one living villager. */
+#define VV1_XC_SAME        0
+#define VV1_XC_CORRECTED   1    /* the log names other parents than the table */
+#define VV1_XC_FILLED      2    /* the table knew none; the log names them */
+#define VV1_XC_CLEARED     3    /* the table names parents the log says this villager cannot have */
+#define VV1_XC_AMBIGUOUS   4    /* the table names parents; the log cannot tell which are right */
+
+typedef struct {
+    char name[VV1_NAME_CAPACITY];
+    int head, body;               /* VV1_XC_UNSET when the log gave none */
+    int present;
+} vv1_xc_person;
+
+typedef struct {
+    int kind;                     /* 1 Birth, 2 Conception */
+    int header;                   /* index into the run's header table */
+    vv1_xc_person child, mother, father;
+} vv1_xc_record;
+
+typedef struct {
+    vv1_xc_record *items;
+    int count, capacity;
+    char headers[VV1_XC_MAX_HEADERS][VV1_XC_HEADER_CAPACITY];
+    int header_count;
+    int village_header;           /* the slot's latest header: the village the records are kept from */
+} vv1_xc_log;
+
+typedef struct {
+    int index;
+    int what;                     /* VV1_XC_* */
+    int stash;                    /* 1 when the pregnancy stash changes too */
+    vv1_parent_entry before, after;
+} vv1_xc_change;
+
+typedef struct {
+    vv1_xc_change changes[VV1_RECORD_COUNT];
+    int count;
+    int corrected, filled, cleared, ambiguous, stashes;
+} vv1_xc_plan;
+
+/* ---- paths ------------------------------------------------------------- */
+
+/* "<My Documents>\LDW\<exe basename>", creating both; `reserve` is what the
+   caller will still append (with its backslash and NUL). */
+static int vv1_xc_game_folder(char *out, size_t n, size_t reserve) {
+    char docs[MAX_PATH];
+    char exe[MAX_PATH];
+    char *base;
+    char *dot;
+    DWORD exelen;
+    if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) {
+        return 0;
+    }
+    exelen = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (exelen == 0 || exelen >= MAX_PATH) {
+        return 0;
+    }
+    base = strrchr(exe, '\\');
+    base = base ? base + 1 : exe;
+    dot = strrchr(base, '.');
+    if (dot != NULL) {
+        *dot = '\0';
+    }
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + sizeof("\\LDW\\") + reserve > n) {
+        return 0;
+    }
+    wsprintfA(out, "%s\\LDW", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    CreateDirectoryA(out, NULL);
+    return 1;
+}
+
+/* "<game folder>\<a>\<b>", creating both levels. */
+static int vv1_xc_subfolder(char *out, size_t n, const char *a, const char *b, size_t reserve) {
+    size_t need = (size_t)lstrlenA(a) + (size_t)lstrlenA(b) + 2 + reserve;
+    if (!vv1_xc_game_folder(out, n, need)) {
+        return 0;
+    }
+    lstrcatA(out, "\\");
+    lstrcatA(out, a);
+    CreateDirectoryA(out, NULL);
+    lstrcatA(out, "\\");
+    lstrcatA(out, b);
+    CreateDirectoryA(out, NULL);
+    return 1;
+}
+
+static int vv1_xc_marker_path(char *out, size_t n, int slot) {
+    if (!vv1_xc_subfolder(out, n, "Virtual Villagers Fun Patcher Data", "Cross-Check",
+                          sizeof("\\Virtual Villagers 1 Cross-Check - Save 0.dat.tmp"))) {
+        return 0;
+    }
+    wsprintfA(out + lstrlenA(out), "\\Virtual Villagers 1 Cross-Check - Save %d.dat", slot);
+    return 1;
+}
+
+/* ---- the marker -------------------------------------------------------- */
+
+/* 1: the check has run for this slot.  0: it has not (no marker, or one that
+   was not a marker and is now set aside).  -1: a marker is there and cannot
+   be read, or a bad one cannot be moved: do nothing this load. */
+static int vv1_xc_marker_state(int slot) {
+    char path[MAX_PATH];
+    unsigned int header[4];
+    HANDLE file;
+    DWORD error;
+    int sound;
+    if (!vv1_xc_marker_path(path, sizeof(path), slot)) {
+        return -1;
+    }
+    file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        error = GetLastError();
+        return (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND) ? 0 : -1;
+    }
+    sound = vv1_read_exact(file, header, sizeof(header));
+    CloseHandle(file);
+    if (sound < 0) {
+        return -1;
+    }
+    if (sound == 1 && header[0] == VV1_XC_MAGIC && header[1] == VV1_XC_VERSION
+        && header[2] == 1u && header[3] == (unsigned int)slot) {
+        return 1;
+    }
+    return vv1_set_aside(path) ? 0 : -1;
+}
+
+/* Record that the check ran: magic, version, game, slot, result, the four
+   counts, and when.  Temporary file, flushed, then renamed over. */
+static int vv1_xc_marker_write(int slot, int result, const vv1_xc_plan *plan) {
+    char path[MAX_PATH];
+    char tmp[MAX_PATH];
+    unsigned int data[11];
+    FILETIME now;
+    HANDLE file;
+    DWORD wrote;
+    BOOL ok;
+    if (!vv1_xc_marker_path(path, sizeof(path), slot)
+        || lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
+        return 0;
+    }
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    GetSystemTimeAsFileTime(&now);
+    data[0] = VV1_XC_MAGIC;
+    data[1] = VV1_XC_VERSION;
+    data[2] = 1u;
+    data[3] = (unsigned int)slot;
+    data[4] = (unsigned int)result;
+    data[5] = plan ? (unsigned int)plan->corrected : 0u;
+    data[6] = plan ? (unsigned int)plan->filled : 0u;
+    data[7] = plan ? (unsigned int)(plan->cleared + plan->ambiguous) : 0u;
+    data[8] = plan ? (unsigned int)plan->stashes : 0u;
+    data[9] = now.dwLowDateTime;
+    data[10] = now.dwHighDateTime;
+    file = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ok = WriteFile(file, data, sizeof(data), &wrote, NULL) && wrote == sizeof(data);
+    ok = ok && FlushFileBuffers(file);
+    ok = CloseHandle(file) && ok;
+    if (!ok || !MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);
+        return 0;
+    }
+    return 1;
+}
+
+/* ---- reading the Births and Conceptions log ---------------------------- */
+
+static int vv1_xc_push(vv1_xc_log *log, const vv1_xc_record *rec) {
+    if (log->count == log->capacity) {
+        int grown = log->capacity ? log->capacity * 2 : 256;
+        vv1_xc_record *items = log->items
+            ? (vv1_xc_record *)HeapReAlloc(GetProcessHeap(), 0, log->items, (SIZE_T)grown * sizeof(*items))
+            : (vv1_xc_record *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)grown * sizeof(*items));
+        if (items == NULL || grown > 1000000) {
+            return 0;
+        }
+        log->items = items;
+        log->capacity = grown;
+    }
+    log->items[log->count++] = *rec;
+    return 1;
+}
+
+static void vv1_xc_free(vv1_xc_log *log) {
+    if (log->items != NULL) {
+        HeapFree(GetProcessHeap(), 0, log->items);
+    }
+    log->items = NULL;
+    log->count = log->capacity = 0;
+}
+
+/* Does `line` start with `word`? */
+static int vv1_xc_starts(const char *line, const char *word) {
+    return strncmp(line, word, lstrlenA(word)) == 0;
+}
+
+static int vv1_xc_int(const char *text, int *out) {
+    int sign = 1, value = 0, digits = 0;
+    while (*text == ' ' || *text == '\t') ++text;
+    if (*text == '-') { sign = -1; ++text; }
+    while (*text >= '0' && *text <= '9' && digits < 9) {
+        value = value * 10 + (*text - '0');
+        ++text;
+        ++digits;
+    }
+    if (!digits) {
+        return 0;
+    }
+    *out = sign * value;
+    return 1;
+}
+
+static void vv1_xc_person_start(vv1_xc_person *p, const char *after_colon) {
+    int i = 0;
+    while (*after_colon == ' ' || *after_colon == '\t') ++after_colon;
+    memset(p, 0, sizeof(*p));
+    while (after_colon[i] && i + 1 < VV1_NAME_CAPACITY) {
+        p->name[i] = after_colon[i];
+        ++i;
+    }
+    while (i > 0 && (p->name[i - 1] == ' ' || p->name[i - 1] == '\t')) --i;
+    p->name[i] = '\0';
+    p->head = VV1_XC_UNSET;
+    p->body = VV1_XC_UNSET;
+    p->present = 1;
+}
+
+/* The slot a "Village: <name> (Save N)" line is for, or 0. */
+static int vv1_xc_header_slot(const char *line) {
+    int len = lstrlenA(line);
+    if (len >= 9 && line[len - 1] == ')' && line[len - 3] == ' ' && line[len - 2] >= '1' && line[len - 2] <= '5'
+        && strncmp(line + len - 9, " (Save ", 7) == 0) {
+        return line[len - 2] - '0';
+    }
+    return 0;
+}
+
+static int vv1_xc_header_index(vv1_xc_log *log, const char *line) {
+    int i;
+    for (i = 0; i < log->header_count; ++i) {
+        if (lstrcmpA(log->headers[i], line) == 0) {
+            return i;
+        }
+    }
+    if (log->header_count >= VV1_XC_MAX_HEADERS || lstrlenA(line) >= VV1_XC_HEADER_CAPACITY) {
+        return -1;
+    }
+    lstrcpyA(log->headers[log->header_count], line);
+    return log->header_count++;
+}
+
+/* One file's text, in the same blocks the owner's repair tool reads: a
+   "Village:" line names the village (and slot) the following records belong
+   to; a record is "Birth" or "Conception <n>" up to the next blank line; a
+   "Child:", "Mother:" or "Father:" line starts a person, whose first "Head:"
+   and "Body:" lines after it are theirs, and a "Skills", "Babies in
+   pregnancy" or "Note" line ends that person.  Returns 0 when memory ran out. */
+static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
+    vv1_xc_record rec;
+    vv1_xc_person *person = NULL;
+    int header = -1;              /* each file begins with its own header */
+    int in_slot = 0;
+    char *line = text;
+    memset(&rec, 0, sizeof(rec));
+    for (;;) {
+        char *end = line;
+        char *next;
+        int last;
+        while (*end && *end != '\n') ++end;
+        last = *end == '\0';
+        next = end + (last ? 0 : 1);
+        *end = '\0';
+        if (end > line && end[-1] == '\r') end[-1] = '\0';
+        {
+            char *trimmed = line;
+            int blank;
+            while (*trimmed == ' ' || *trimmed == '\t') ++trimmed;
+            blank = *trimmed == '\0';
+            if (blank || line[0] != ' ') {
+                /* The end of a record: a blank line, or any line starting a new one. */
+                if (rec.kind == 1 && rec.child.present && in_slot) {
+                    rec.header = header;
+                    if (!vv1_xc_push(log, &rec)) return 0;
+                } else if (rec.kind == 2 && rec.mother.present && in_slot) {
+                    rec.header = header;
+                    if (!vv1_xc_push(log, &rec)) return 0;
+                }
+                memset(&rec, 0, sizeof(rec));
+                person = NULL;
+            }
+            if (!blank) {
+                if (vv1_xc_starts(line, "Village:")) {
+                    char *e = line + lstrlenA(line);
+                    while (e > line && (e[-1] == ' ' || e[-1] == '\t')) *--e = '\0';
+                    in_slot = vv1_xc_header_slot(line) == slot;
+                    header = in_slot ? vv1_xc_header_index(log, line) : -1;
+                    if (in_slot && header < 0) {
+                        in_slot = 0;      /* more villages than the table holds: not read */
+                    }
+                    if (in_slot) {
+                        log->village_header = header;
+                    }
+                } else if (line[0] != ' ') {
+                    if (lstrcmpA(line, "Birth") == 0) {
+                        rec.kind = 1;
+                    } else if (vv1_xc_starts(line, "Conception")) {
+                        rec.kind = 2;
+                    }
+                } else if (rec.kind) {
+                    if (vv1_xc_starts(trimmed, "Child:")) {
+                        person = &rec.child;
+                        vv1_xc_person_start(person, trimmed + 6);
+                    } else if (vv1_xc_starts(trimmed, "Mother:")) {
+                        person = &rec.mother;
+                        vv1_xc_person_start(person, trimmed + 7);
+                    } else if (vv1_xc_starts(trimmed, "Father:")) {
+                        person = &rec.father;
+                        vv1_xc_person_start(person, trimmed + 7);
+                    } else if (vv1_xc_starts(trimmed, "Skills") || vv1_xc_starts(trimmed, "Babies in pregnancy")
+                               || vv1_xc_starts(trimmed, "Note")) {
+                        person = NULL;
+                    } else if (person != NULL && vv1_xc_starts(trimmed, "Head:")) {
+                        if (person->head == VV1_XC_UNSET) vv1_xc_int(trimmed + 5, &person->head);
+                    } else if (person != NULL && vv1_xc_starts(trimmed, "Body:")) {
+                        if (person->body == VV1_XC_UNSET) vv1_xc_int(trimmed + 5, &person->body);
+                    }
+                }
+            }
+        }
+        if (last) {
+            break;
+        }
+        line = next;
+    }
+    /* A file that ends without a blank line still ends its last record. */
+    if (in_slot && ((rec.kind == 1 && rec.child.present) || (rec.kind == 2 && rec.mother.present))) {
+        rec.header = header;
+        if (!vv1_xc_push(log, &rec)) return 0;
+    }
+    return 1;
+}
+
+/* Read every "Virtual Villagers 1 Births and Conceptions Log <n>.txt", in
+   number order, keeping this slot's records.  1: read (records may be none);
+   0: there is no Births log for this village at all; -1: a file is there and
+   could not be read whole -- the caller changes nothing. */
+static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
+    char folder[MAX_PATH];
+    char pattern[MAX_PATH];
+    char path[MAX_PATH];
+    static int numbers[VV1_XC_MAX_LOG_FILES];
+    int count = 0, i, j;
+    WIN32_FIND_DATAA found;
+    HANDLE find;
+    memset(log, 0, sizeof(*log));
+    log->village_header = -1;
+    if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs",
+                          "Births and Conceptions",
+                          sizeof("\\Virtual Villagers 1 Births and Conceptions Log 4294967295.txt"))) {
+        return -1;
+    }
+    wsprintfA(pattern, "%s\\Virtual Villagers 1 Births and Conceptions Log *.txt", folder);
+    find = FindFirstFileA(pattern, &found);
+    if (find == INVALID_HANDLE_VALUE) {
+        DWORD error = GetLastError();
+        return (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND || error == ERROR_NO_MORE_FILES) ? 0 : -1;
+    }
+    do {
+        const char *tail = found.cFileName + sizeof("Virtual Villagers 1 Births and Conceptions Log ") - 1;
+        int n = 0, digits = 0;
+        if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
+        while (*tail >= '0' && *tail <= '9' && digits < 6) { n = n * 10 + (*tail - '0'); ++tail; ++digits; }
+        if (!digits || lstrcmpiA(tail, ".txt") != 0 || n < 1) continue;
+        if (count >= VV1_XC_MAX_LOG_FILES) { FindClose(find); return -1; }
+        numbers[count++] = n;
+    } while (FindNextFileA(find, &found));
+    FindClose(find);
+    for (i = 1; i < count; ++i) {             /* number order: 2 before 10 */
+        int v = numbers[i];
+        for (j = i; j > 0 && numbers[j - 1] > v; --j) numbers[j] = numbers[j - 1];
+        numbers[j] = v;
+    }
+    for (i = 0; i < count; ++i) {
+        HANDLE file;
+        DWORD size, got = 0;
+        char *text;
+        int ok;
+        wsprintfA(path, "%s\\Virtual Villagers 1 Births and Conceptions Log %d.txt", folder, numbers[i]);
+        file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                           NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (file == INVALID_HANDLE_VALUE) {
+            vv1_xc_free(log);
+            return -1;
+        }
+        size = GetFileSize(file, NULL);
+        if (size == INVALID_FILE_SIZE || size > VV1_XC_MAX_FILE_BYTES) {
+            CloseHandle(file);
+            vv1_xc_free(log);
+            return -1;
+        }
+        text = (char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)size + 1);
+        if (text == NULL) {
+            CloseHandle(file);
+            vv1_xc_free(log);
+            return -1;
+        }
+        ok = size == 0 || (ReadFile(file, text, size, &got, NULL) && got == size);
+        CloseHandle(file);
+        text[ok ? size : 0] = '\0';
+        if (ok) {
+            DWORD k;
+            for (k = 0; k < size; ++k) {
+                if (text[k] == '\0') text[k] = ' ';   /* a stray NUL never cuts a file short */
+            }
+            ok = vv1_xc_parse(log, text, slot);
+        }
+        HeapFree(GetProcessHeap(), 0, text);
+        if (!ok) {
+            vv1_xc_free(log);
+            return -1;
+        }
+    }
+    return log->village_header >= 0 ? 1 : 0;
+}
+
+/* ---- the plan ---------------------------------------------------------- */
+
+static int vv1_xc_same_person(const vv1_xc_person *a, const vv1_xc_person *b) {
+    return a->present == b->present && a->head == b->head && a->body == b->body
+        && strncmp(a->name, b->name, VV1_NAME_CAPACITY) == 0;
+}
+
+/* The child of record `r` is this living villager: name, head and body. */
+static int vv1_xc_is(const vv1_xc_person *p, const char *name, int head, int body) {
+    return p->present && p->head == head && p->body == body
+        && strncmp(p->name, name, VV1_NAME_CAPACITY) == 0;
+}
+
+static void vv1_xc_set(unsigned char *head, unsigned char *body, char *name, const vv1_xc_person *p) {
+    if (p->present && p->name[0]) {
+        *head = p->head == VV1_XC_UNSET ? 0 : vv1_plus_one(p->head);
+        *body = p->body == VV1_XC_UNSET ? 0 : vv1_plus_one(p->body);
+        memset(name, 0, VV1_NAME_CAPACITY);
+        lstrcpynA(name, p->name, VV1_NAME_CAPACITY);
+    } else {
+        *head = 0;
+        *body = 0;
+        memset(name, 0, VV1_NAME_CAPACITY);
+    }
+}
+
+static int vv1_xc_parents_equal(const vv1_parent_entry *a, const vv1_parent_entry *b) {
+    return a->father_head == b->father_head && a->father_body == b->father_body
+        && a->mother_head == b->mother_head && a->mother_body == b->mother_body
+        && strncmp(a->father_name, b->father_name, VV1_NAME_CAPACITY) == 0
+        && strncmp(a->mother_name, b->mother_name, VV1_NAME_CAPACITY) == 0;
+}
+
+static int vv1_xc_has_parents(const vv1_parent_entry *e) {
+    return e->father_head || e->father_body || e->mother_head || e->mother_body
+        || e->father_name[0] || e->mother_name[0];
+}
+
+static int vv1_xc_has_stash(const vv1_parent_entry *e) {
+    return e->stash_head || e->stash_body || e->stash_name[0];
+}
+
+/* Work out, read-only, what the log says each living villager's entry should
+   be, against the table as it stands (already followed to its villagers). */
+static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *log, vv1_xc_plan *plan) {
+    int j, k;
+    memset(plan, 0, sizeof(*plan));
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        const unsigned char *rec = records + (unsigned int)j * VV1_RECORD_STRIDE;
+        char name[VV1_NAME_CAPACITY];
+        int head, body, shared = 0, matches = 0, named = 0, agree = 1, what = VV1_XC_SAME;
+        const vv1_xc_record *first = NULL;
+        vv1_parent_entry after;
+        int stash_changed = 0;
+        if (!rec[VV1_OCCUPIED_OFFSET]) {
+            continue;
+        }
+        vv1_copy_name(rec, name);
+        head = *(const int *)(rec + VV1_HEAD_OFFSET);
+        body = *(const int *)(rec + VV1_BODY_OFFSET);
+        for (k = 0; k < VV1_RECORD_COUNT; ++k) {
+            const unsigned char *other = records + (unsigned int)k * VV1_RECORD_STRIDE;
+            char other_name[VV1_NAME_CAPACITY];
+            if (!other[VV1_OCCUPIED_OFFSET]) continue;
+            vv1_copy_name(other, other_name);
+            if (*(const int *)(other + VV1_HEAD_OFFSET) == head && *(const int *)(other + VV1_BODY_OFFSET) == body
+                && strncmp(other_name, name, VV1_NAME_CAPACITY) == 0) {
+                ++shared;
+            }
+        }
+        for (k = 0; k < log->count; ++k) {
+            const vv1_xc_record *r = &log->items[k];
+            if (r->kind != 1 || r->header != log->village_header) continue;
+            if (strncmp(r->child.name, name, VV1_NAME_CAPACITY) == 0) ++named;
+            if (!vv1_xc_is(&r->child, name, head, body)) continue;
+            ++matches;
+            if (first == NULL) {
+                first = r;
+            } else if (!vv1_xc_same_person(&first->father, &r->father)
+                       || !vv1_xc_same_person(&first->mother, &r->mother)) {
+                agree = 0;
+            }
+        }
+        after = g_entries[j];
+        if (matches > 0 && agree && matches >= shared) {
+            vv1_xc_set(&after.father_head, &after.father_body, after.father_name, &first->father);
+            vv1_xc_set(&after.mother_head, &after.mother_body, after.mother_name, &first->mother);
+            if (!vv1_xc_parents_equal(&after, &g_entries[j])) {
+                what = vv1_xc_has_parents(&g_entries[j]) ? VV1_XC_CORRECTED : VV1_XC_FILLED;
+            }
+        } else if (matches > 0 || named == 0) {
+            /* Ambiguous (records disagree, or more living villagers share the
+               three than there are births), or no Birth record of this name
+               at all: no parents. */
+            vv1_xc_person none;
+            memset(&none, 0, sizeof(none));
+            vv1_xc_set(&after.father_head, &after.father_body, after.father_name, &none);
+            vv1_xc_set(&after.mother_head, &after.mother_body, after.mother_name, &none);
+            if (vv1_xc_has_parents(&g_entries[j])) {
+                what = matches > 0 ? VV1_XC_AMBIGUOUS : VV1_XC_CLEARED;
+            }
+        }
+        /* else: Birth records of this name, none with these looks -- left as it is. */
+
+        /* The pregnancy stash, for a mother carrying now: the father of her
+           last logged conception, when nothing she delivered follows it. */
+        if (*(const int *)(rec + VV1_DUE_OFFSET) != 0 && shared == 1) {
+            int last = -1;
+            for (k = 0; k < log->count; ++k) {
+                const vv1_xc_record *r = &log->items[k];
+                if (r->kind == 2 && r->header == log->village_header && vv1_xc_is(&r->mother, name, head, body)) {
+                    last = k;
+                }
+            }
+            if (last >= 0) {
+                int delivered = 0;
+                for (k = last + 1; k < log->count; ++k) {
+                    const vv1_xc_record *r = &log->items[k];
+                    if (r->kind == 1 && r->header == log->village_header && vv1_xc_is(&r->mother, name, head, body)) {
+                        delivered = 1;
+                        break;
+                    }
+                }
+                if (!delivered && log->items[last].father.present && log->items[last].father.name[0]) {
+                    vv1_xc_set(&after.stash_head, &after.stash_body, after.stash_name, &log->items[last].father);
+                    stash_changed = after.stash_head != g_entries[j].stash_head
+                        || after.stash_body != g_entries[j].stash_body
+                        || strncmp(after.stash_name, g_entries[j].stash_name, VV1_NAME_CAPACITY) != 0;
+                }
+            }
+        }
+        if (what != VV1_XC_SAME || stash_changed) {
+            vv1_xc_change *c = &plan->changes[plan->count++];
+            c->index = j;
+            c->what = what;
+            c->stash = stash_changed;
+            c->before = g_entries[j];
+            c->after = after;
+            if (what == VV1_XC_CORRECTED) ++plan->corrected;
+            if (what == VV1_XC_FILLED) ++plan->filled;
+            if (what == VV1_XC_CLEARED) ++plan->cleared;
+            if (what == VV1_XC_AMBIGUOUS) ++plan->ambiguous;
+            if (stash_changed) ++plan->stashes;
+        }
+    }
+}
+
+/* ---- the backup and the Repairs log ------------------------------------ */
+
+/* Copy the parentage file to "<name>.before-v1.35.57-repair" (or "-2", "-3"
+   ... when that is taken), never replacing anything.  1 copied, 0 failed;
+   *none is set when there was no file to copy. */
+static int vv1_xc_backup(int slot, char *backup, size_t n, int *none) {
+    char path[MAX_PATH];
+    int k;
+    *none = 0;
+    backup[0] = '\0';
+    if (!vv1_parents_path(path, sizeof(path), slot)
+        || (size_t)lstrlenA(path) + sizeof(VV1_XC_BACKUP_SUFFIX "-999") > n) {
+        return 0;
+    }
+    if (GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES) {
+        DWORD error = GetLastError();
+        if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND) {
+            *none = 1;
+            return 1;
+        }
+        return 0;
+    }
+    for (k = 1; k < 1000; ++k) {
+        if (k == 1) {
+            wsprintfA(backup, "%s" VV1_XC_BACKUP_SUFFIX, path);
+        } else {
+            wsprintfA(backup, "%s" VV1_XC_BACKUP_SUFFIX "-%d", path, k);
+        }
+        if (CopyFileA(path, backup, TRUE)) {
+            return 1;
+        }
+        if (GetLastError() != ERROR_FILE_EXISTS && GetLastError() != ERROR_ALREADY_EXISTS) {
+            break;
+        }
+    }
+    backup[0] = '\0';
+    return 0;
+}
+
+static void vv1_xc_who(char *out, size_t n, const vv1_parent_entry *e) {
+    if (!vv1_xc_has_parents(e)) {
+        lstrcpynA(out, "no parents", (int)n);
+        return;
+    }
+    wsprintfA(out, "father %s, mother %s",
+              e->father_name[0] ? e->father_name : "(unknown)",
+              e->mother_name[0] ? e->mother_name : "(unknown)");
+}
+
+/* Append one "Repair <n>" record listing every change to "Virtual Villagers
+   Fun Patcher Logs\Repairs\Virtual Villagers 1 Repairs Log <n>.txt", under the
+   village's own header line.  A note: a failure here undoes nothing. */
+static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const unsigned char *records,
+                       const char *backup) {
+    char folder[MAX_PATH];
+    char path[MAX_PATH];
+    char *text;
+    char *existing = NULL;
+    const char *header = log->village_header >= 0 ? log->headers[log->village_header] : "";
+    int file_number = 1, repairs = 0, need_header = 1, i;
+    size_t len;
+    SYSTEMTIME now;
+    HANDLE file;
+    DWORD size, wrote, got = 0;
+    BOOL ok;
+    if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs", "Repairs",
+                          sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
+        return 0;
+    }
+    /* The highest numbered file that is there; a new one past it when full. */
+    for (;;) {
+        wsprintfA(path, "%s\\Virtual Villagers 1 Repairs Log %d.txt", folder, file_number + 1);
+        if (GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES || file_number >= 99999) break;
+        ++file_number;
+    }
+    wsprintfA(path, "%s\\Virtual Villagers 1 Repairs Log %d.txt", folder, file_number);
+    file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file != INVALID_HANDLE_VALUE) {
+        size = GetFileSize(file, NULL);
+        if (size != INVALID_FILE_SIZE && size < VV1_XC_MAX_FILE_BYTES) {
+            existing = (char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (SIZE_T)size + 1);
+            if (existing != NULL && !(ReadFile(file, existing, size, &got, NULL) && got == size)) {
+                HeapFree(GetProcessHeap(), 0, existing);
+                existing = NULL;
+            }
+        }
+        CloseHandle(file);
+        if (existing == NULL) {
+            return 0;
+        }
+        {
+            const char *p = existing;
+            const char *last_header = NULL;
+            while (*p) {
+                if (vv1_xc_starts(p, "Repair ")) ++repairs;
+                if (vv1_xc_starts(p, "Village:")) last_header = p;
+                while (*p && *p != '\n') ++p;
+                if (*p) ++p;
+            }
+            if (last_header != NULL) {
+                size_t hl = (size_t)lstrlenA(header);
+                need_header = !(strncmp(last_header, header, hl) == 0
+                                && (last_header[hl] == '\r' || last_header[hl] == '\n' || last_header[hl] == '\0'));
+            }
+        }
+        HeapFree(GetProcessHeap(), 0, existing);
+        if (repairs >= VV1_XC_REPAIRS_PER_FILE) {
+            ++file_number;
+            wsprintfA(path, "%s\\Virtual Villagers 1 Repairs Log %d.txt", folder, file_number);
+            repairs = 0;
+            need_header = 1;
+        }
+    }
+    text = (char *)HeapAlloc(GetProcessHeap(), 0, 64 * 1024);
+    if (text == NULL) {
+        return 0;
+    }
+    GetLocalTime(&now);
+    text[0] = '\0';
+    if (need_header) {
+        wsprintfA(text, "%s\r\n", header);
+    }
+    len = (size_t)lstrlenA(text);
+    wsprintfA(text + len,
+              "Repair %d\r\n"
+              "  Date: %04u-%02u-%02u %02u:%02u:%02u\r\n"
+              "  Checked: the parents recorded for each living villager, against the Births and Conceptions log\r\n",
+              repairs + 1, now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond);
+    for (i = 0; i < plan->count; ++i) {
+        const vv1_xc_change *c = &plan->changes[i];
+        char name[VV1_NAME_CAPACITY];
+        char was[96], now_text[96];
+        len = (size_t)lstrlenA(text);
+        if (len + 400 > 64 * 1024) break;
+        vv1_copy_name(records + (unsigned int)c->index * VV1_RECORD_STRIDE, name);
+        vv1_xc_who(was, sizeof(was), &c->before);
+        vv1_xc_who(now_text, sizeof(now_text), &c->after);
+        if (c->what == VV1_XC_CORRECTED) {
+            wsprintfA(text + len, "  Corrected: %s -- now %s (was %s)\r\n", name, now_text, was);
+        } else if (c->what == VV1_XC_FILLED) {
+            wsprintfA(text + len, "  Filled in: %s -- %s\r\n", name, now_text);
+        } else if (c->what == VV1_XC_CLEARED) {
+            wsprintfA(text + len, "  Set to unknown: %s -- no Birth record in the log (was %s)\r\n", name, was);
+        } else if (c->what == VV1_XC_AMBIGUOUS) {
+            wsprintfA(text + len, "  Set to unknown: %s -- the log cannot tell (was %s)\r\n", name, was);
+        }
+        if (c->stash) {
+            len = (size_t)lstrlenA(text);
+            wsprintfA(text + len, "  Expecting: %s -- carrying %s's child (was %s)\r\n", name,
+                      c->after.stash_name, c->before.stash_name[0] ? c->before.stash_name : "unknown");
+        }
+    }
+    len = (size_t)lstrlenA(text);
+    if (backup != NULL && backup[0]) {
+        const char *leaf = strrchr(backup, '\\');
+        wsprintfA(text + len, "  Backup: %s\r\n\r\n", leaf ? leaf + 1 : backup);
+    } else {
+        lstrcpyA(text + len, "  Backup: none (there was no parentage file)\r\n\r\n");
+    }
+    file = CreateFileA(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        HeapFree(GetProcessHeap(), 0, text);
+        return 0;
+    }
+    ok = WriteFile(file, text, (DWORD)lstrlenA(text), &wrote, NULL) && wrote == (DWORD)lstrlenA(text);
+    ok = FlushFileBuffers(file) && ok;
+    CloseHandle(file);
+    HeapFree(GetProcessHeap(), 0, text);
+    return ok ? 1 : 0;
+}
+
+/* ---- the check --------------------------------------------------------- */
+
+/* What the scan found: -1 cannot tell yet (no village, the table not this
+   village's, a log or marker there and unreadable) -- ask again later; 0
+   nothing to repair (the check had run, or it ran now and found nothing, or
+   there is no Births log to check against: the marker records it); 1 found
+   something: the plan is filled in and nothing has been changed. */
+static int vv1_xc_scan(int slot, const unsigned char *records, vv1_xc_plan *plan) {
+    vv1_xc_log log;
+    int state, read, i;
+    memset(plan, 0, sizeof(*plan));
+    if (records == NULL || slot < 1 || slot > 5) {
+        return -1;
+    }
+    state = vv1_xc_marker_state(slot);
+    if (state != 0) {
+        return state > 0 ? 0 : -1;          /* ran before, or the marker cannot be read */
+    }
+    read = vv1_xc_read_log(&log, slot);
+    if (read < 0) {
+        return -1;                          /* the log is there and unreadable: later */
+    }
+    if (read == 1) {
+        /* A log that holds this village's conceptions but not one Birth
+           cannot say who was born here: as good as none.  (Every birth this
+           companion records is logged as it happens, so a village with
+           children has Birth records.) */
+        int births = 0;
+        for (i = 0; i < log.count; ++i) {
+            births += log.items[i].kind == 1 && log.items[i].header == log.village_header;
+        }
+        if (births == 0) {
+            read = 0;
+        }
+    }
+    if (read == 0) {
+        vv1_xc_free(&log);
+        vv1_xc_marker_write(slot, VV1_XC_RESULT_NO_LOG, NULL);
+        return 0;
+    }
+    vv1_xc_plan_build(records, &log, plan);
+    vv1_xc_free(&log);
+    if (plan->count == 0) {
+        vv1_xc_marker_write(slot, VV1_XC_RESULT_CLEAN, plan);
+        return 0;
+    }
+    return 1;
+}
+
+/* The player chose Repair: rebuild the plan from the log as it stands now
+   (the same rules; a birth since the prompt is already right), back the file
+   up, write the table, note every change, and record that the check ran.
+   1: done (or nothing was left to do); 0: nothing was changed -- the log, a
+   backup or the table could not be read or written -- and the next load asks
+   again. */
+static int vv1_xc_apply(int slot, const unsigned char *records) {
+    static vv1_xc_plan plan;
+    static vv1_parent_entry saved[VV1_RECORD_COUNT];
+    vv1_xc_log log;
+    char backup[MAX_PATH];
+    int found, read, i, none;
+    found = vv1_xc_scan(slot, records, &plan);
+    if (found <= 0) {
+        return found == 0;
+    }
+    read = vv1_xc_read_log(&log, slot);
+    if (read <= 0) {
+        return 0;
+    }
+    if (!vv1_xc_backup(slot, backup, sizeof(backup), &none)) {
+        vv1_xc_free(&log);
+        return 0;
+    }
+    memcpy(saved, g_entries, sizeof(saved));
+    for (i = 0; i < plan.count; ++i) {
+        g_entries[plan.changes[i].index] = plan.changes[i].after;
+    }
+    if (!vv1_parents_save(slot, records)) {
+        memcpy(g_entries, saved, sizeof(g_entries));   /* not written: not shown either */
+        vv1_xc_free(&log);
+        return 0;
+    }
+    vv1_xc_note(&log, &plan, records, none ? NULL : backup);
+    vv1_xc_free(&log);
+    vv1_xc_marker_write(slot, VV1_XC_RESULT_REPAIRED, &plan);
+    return 1;
+}

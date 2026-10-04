@@ -3,6 +3,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
@@ -1218,6 +1219,9 @@ __declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
 __declspec(dllexport) void __stdcall Vv4MaskDrawRecord(unsigned char *villager,
                                                        int x, int y, int frame,
                                                        int scale_pct) {
+    /* The first-load cross-check, from the head draw: only a village draws
+       heads (the present hook above also runs at the menus). */
+    vvfp_crosscheck_bridge(4, villager != NULL);
     vv4_blit_mask(vv_get_mask(villager), x, y, frame, scale_pct);
 }
 

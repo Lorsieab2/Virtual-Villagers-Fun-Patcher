@@ -1375,6 +1375,9 @@ static void vv1_entry_out(int index, int *out) {
     out[3] = vv1_decode(g_entries[index].mother_body);
 }
 
+/* The first-load cross-check against the Births and Conceptions log. */
+#include "vv1_crosscheck.inc"
+
 /* ---- the Details screen ----------------------------------------------- */
 
 typedef unsigned int (__cdecl *sdl_get_mouse_state_t)(int *x, int *y);
@@ -1606,6 +1609,42 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
         vv1_parents_save(slot, vv1_records());
     }
     return 1;
+}
+
+/* THE FIRST-LOAD CROSS-CHECK (vv1_crosscheck.inc), for the one Repair / Not
+   now prompt the Origins companion shows (native/shared/crosscheck_bridge.h).
+
+   Scan: -1 cannot tell yet (ask again later); 0 nothing to repair; 1 found
+   something, with counts[0..4] = corrected, set to unknown (no Birth record),
+   set to unknown (ambiguous), filled in, expecting mothers corrected.  It only
+   reads, except that a check that found nothing records that it ran.
+
+   Apply: the player chose Repair.  1 done, 0 nothing could be changed (the
+   next load asks again). */
+__declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
+    static vv1_xc_plan plan;
+    int slot = vv1_parents_sync();
+    int found;
+    if (!slot) {
+        return -1;
+    }
+    found = vv1_xc_scan(slot, vv1_records(), &plan);
+    if (counts != NULL) {
+        counts[0] = plan.corrected;
+        counts[1] = plan.cleared;
+        counts[2] = plan.ambiguous;
+        counts[3] = plan.filled;
+        counts[4] = plan.stashes;
+    }
+    return found;
+}
+
+__declspec(dllexport) int __stdcall Vv1ParentageCrossCheckApply(void) {
+    int slot = vv1_parents_sync();
+    if (!slot) {
+        return 0;
+    }
+    return vv1_xc_apply(slot, vv1_records());
 }
 
 /* From the Origins companion's Details portrait hook, once per frame after

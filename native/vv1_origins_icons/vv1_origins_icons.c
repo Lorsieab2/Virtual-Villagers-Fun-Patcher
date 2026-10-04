@@ -7,6 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
@@ -1707,6 +1708,10 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     vvfp_cause_bridge(1);  /* cause of death companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     slot = vv1_mask_prepare_slot();
+    /* The first-load cross-check: once the village has been on screen a
+       moment, ONE Repair / Not now prompt for whatever its records disagree
+       with their sources of truth on (crosscheck_bridge.h). */
+    vvfp_crosscheck_bridge(1, slot != 0);
     if (!slot) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }
