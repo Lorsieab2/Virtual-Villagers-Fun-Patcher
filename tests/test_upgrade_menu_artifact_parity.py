@@ -405,10 +405,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # through a reload (identity roster, native/shared/mask_follow.h).
         # Larger again when the mask file moved into "Village Masks"
         # (native/shared/data_subfolder.h).
-        self.assertEqual(vv5_companion["size"], 1782272)
+        self.assertEqual(vv5_companion["size"], 1782784)
         self.assertEqual(
             vv5_companion["sha256"],
-            "71C5E59775BF730DD1CF86129118B805E6924CDC56A7A770B955F31FE835E5DE",
+            "2BFD86F414B74536174C94888A170D17C90BC1685C29D41464B1849C4D127A76",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

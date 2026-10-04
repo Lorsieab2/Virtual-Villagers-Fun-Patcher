@@ -367,7 +367,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # loose copy moved in (native/shared/data_subfolder.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "7B45DC0DCA68BBBEACA15CD5B9D623973F8DD41DDE2EB74AEA381F188AAA2971",
+            "FA9ED73A1B0A5AECA89591D66038F1AC5FA67EFD09DF4C5D7E36654F0D434434",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

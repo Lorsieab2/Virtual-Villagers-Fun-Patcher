@@ -185,9 +185,11 @@ class DllStorageContractTests(unittest.TestCase):
             "\n}", 1
         )[0]
         guard = 'lstrlenA(out) + (int)(sizeof("\\\\LDW\\\\") - 1) + lstrlenA(base) +'
-        # The whole path in the masks' own folder, and the ".tmp" the
-        # atomic write appends to it (native/shared/data_subfolder.h).
-        suffix = '(int)sizeof("\\\\" VV_DATA_FOLDER "\\\\" VV_DATA_SUB_MASKS "\\\\Village Masks - Save 0.dat.tmp") > MAX_PATH'
+        # The caller bounds the loose path in the Data folder; whether the
+        # masks' own folder (and the set-aside reserve) still fits is
+        # vv_data_file_path's to decide (native/shared/data_subfolder.h).
+        suffix = '(int)sizeof("\\\\" VV_DATA_FOLDER "\\\\Village Masks - Save 0.dat") > MAX_PATH'
+        self.assertIn("vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name, VV_DATA_RESERVE)", builder)
         self.assertIn(guard, builder)
         self.assertIn(suffix, builder)
         # sizeof(suffix) includes the NUL. The guard must precede every

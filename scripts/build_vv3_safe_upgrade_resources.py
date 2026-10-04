@@ -62,8 +62,10 @@ FOUNDATION_OUTPUT = (
 # (native/shared/data_subfolder.h): "Village Masks - Save N.dat" is now read
 # and written in "Virtual Villagers Fun Patcher Data\Village Masks", and a
 # copy an older build left loose in the Data folder is moved there (never
-# over an existing file; if it will not move, the loose file stays in use).
-SOURCE_SHA256 = "804213F76D2D12F24D1C421100819E74CCFEF3CAFA5D3B3B4CCEA19F8B0D7CD2"
+# over an existing file; if it will not move, the loose file stays in use),
+# and then again when it reserved room for a set-aside name and kept a
+# loose file whose folder path would not fit.
+SOURCE_SHA256 = "729622DD32C0305A3FD2FFBFAEF3E37CDA23C413429AD1B59C569A8629579043"
 SOURCE_SIZE = 1908224
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

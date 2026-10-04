@@ -99,7 +99,9 @@ int main(int argc, char **argv) {
             return 2;
         }
         base = strrchr(exe, '\\'); base = base ? base + 1 : exe; dot = strrchr(base, '.'); if (dot) *dot = 0;
-        a = _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+        /* The masks have their own folder (native/shared/data_subfolder.h). */
+        a = _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks",
+                      docs, base);
         b = a < 0 || a >= MAX_PATH ? -1 : _snprintf(file, MAX_PATH, "%s\\Village Masks - Save 1.dat", folder);
         if (b < 0 || b >= MAX_PATH) {
             printf("the sidecar path does not fit in MAX_PATH; not running\n");
@@ -131,7 +133,8 @@ int main(int argc, char **argv) {
         unsigned int magic = 0; DWORD got;
         if (h != INVALID_HANDLE_VALUE) { ReadFile(h, &magic, 4, &got, NULL); CloseHandle(h); }
         CHECK(size == 4 + 150 * 4 + TABLE_BYTES, "file is magic + 150 roster dwords + 75-byte table (%lu bytes)", size);
-        CHECK(magic == 0x35304D56u, "file magic is 'VM05' (%08x)", magic);
+        /* 'VM06': the identity roster #516 introduced (masks follow villagers). */
+        CHECK(magic == 0x36304D56u, "file magic is 'VM06' (%08x)", magic);
     }
 
     printf("== same village across events ==\n");
@@ -175,6 +178,14 @@ int main(int argc, char **argv) {
 
     DeleteFileA(file);
     RemoveDirectoryA(folder);   /* only succeeds if empty: never removes anything else */
+    {
+        /* ...and the Data folder above it, on the same terms. */
+        char *slash = strrchr(folder, '\\');
+        if (slash != NULL) {
+            *slash = 0;
+            RemoveDirectoryA(folder);
+        }
+    }
     printf("== cleanup: %s removed; folder removed if empty ==\n", file);
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
