@@ -376,6 +376,33 @@ int main(int argc, char **argv) {
         CHECK(count("Village: ") == 1, "still exactly one header");
     }
 
+    printf("-- a reload within the session renumbers the villagers --\n");
+    /* Tikina dies; the quit's save records the table with her record empty;
+       the reload packs everyone into records 0, 1, 2, ...  The tribe is the
+       same, so a conception right after it goes straight to the log. */
+    rec(0)[ACTIVE] = 0;
+    CHECK(save(VILLAGE) == 1, "the save before the reload");
+    {
+        static unsigned char packed[BASE + SLOTS * STRIDE];
+        int from, to = 0;
+        memset(packed, 0, sizeof packed);
+        for (from = 0; from < SLOTS; ++from) {
+            if (rec(from)[ACTIVE] == 1) {
+                memcpy(packed + BASE + to * STRIDE, rec(from), STRIDE);
+                ++to;
+            }
+        }
+        memcpy(records, packed, sizeof packed);
+    }
+    CHECK(strncmp((const char *)rec(0) + NAME, "Koro", 5) == 0
+          && strncmp((const char *)rec(5) + NAME, "Saka", 5) == 0, "setup: Koro is now record 0, Saka record 5");
+    conceive(5, 0);
+    CHECK(write(3, records, rec(5), rec(0)) == 1, "a conception after the reload is accepted");
+    CHECK(read_log() && strstr(logtext, "Conception 9\r\n  Mother: Saka\r\n") != NULL,
+          "it is written at once: the renumbered table is still the saved tribe");
+    CHECK(save(VILLAGE) == 1 && read_log() && count("Conception ") == 9 && noted("  Mother: Saka\r\n") == 0,
+          "...once, and without the Note");
+
     printf("-- Start Over: a simulation, then a new tribe, while the old header is still published --\n");
     memset(records, 0, BASE + SLOTS * STRIDE);
     villager(0, "Moana", 470, 5, 5);
@@ -387,12 +414,12 @@ int main(int argc, char **argv) {
     villager(1, "Tane", 450, 3, 17);
     conceive(0, 1);
     CHECK(write(3, records, rec(0), rec(1)) == 1, "the new tribe's conception is accepted");
-    CHECK(read_log() && count("Conception ") == 8 && strstr(logtext, "Vaea") == NULL
+    CHECK(read_log() && count("Conception ") == 9 && strstr(logtext, "Vaea") == NULL
           && strstr(logtext, "Moana") == NULL,
           "neither is written under the OLD tribe's header");
     vv_village_publish(VILLAGE2);
     CHECK(save(VILLAGE2) == 1, "the new tribe's first save");
-    CHECK(read_log() && count("Conception ") == 8 && strstr(logtext, "Vaea") == NULL,
+    CHECK(read_log() && count("Conception ") == 9 && strstr(logtext, "Vaea") == NULL,
           "the old tribe's log is untouched");
     CHECK(read_log_n(2) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
           "the new tribe gets its own headed log");
