@@ -726,7 +726,7 @@ class GuiTests(unittest.TestCase):
 
     def test_the_counter_and_the_refusals_come_from_the_module(self) -> None:
         self.assertIn("vv_tribe_rename.name_problem(", self.SOURCE)
-        self.assertIn("game.max_length", self.SOURCE)
+        self.assertIn("saves.max_length", self.SOURCE)
 
     def test_the_module_ships_in_the_release(self) -> None:
         build = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

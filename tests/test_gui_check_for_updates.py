@@ -150,19 +150,24 @@ class ReleasesLinkTests(unittest.TestCase):
 
     def test_no_third_party_package_is_imported(self) -> None:
         """The README promises the patcher needs no third-party packages."""
-        # The patcher's own modules; vv_save_backup (Back Up Saves) is held to
-        # the same promise by the check below.
-        own = {"vv_fun_patcher", "transparency", "vv_save_backup"}
+        # The patcher's own modules; vv_save_backup (Back Up Saves) and
+        # vv_tribe_rename (Rename Tribe) are held to the same promise below.
+        own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
-        backup = ast.parse((ROOT / "src" / "vv_save_backup.py").read_text(encoding="utf-8"))
-        imported = set()
-        for node in ast.walk(backup):
-            if isinstance(node, ast.Import):
-                imported.update(alias.name.split(".")[0] for alias in node.names)
-            elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-                imported.add(node.module.split(".")[0])
-        self.assertEqual(imported - set(sys.stdlib_module_names), set())
+        for module, may_import in (
+            ("vv_save_backup", set()),
+            ("vv_tribe_rename", {"vv_save_backup"}),
+        ):
+            tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
+            imported = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    imported.update(alias.name.split(".")[0] for alias in node.names)
+                elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+                    imported.add(node.module.split(".")[0])
+            with self.subTest(module=module):
+                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import, set())
 
 
 if __name__ == "__main__":
