@@ -262,14 +262,30 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         )[0]
         # The temp-file / checked-write / flush / replace sequence now lives in
         # native/shared/sidecar_io.h and is exercised against real files by
-        # tests/test_mask_sidecar_durability.py.  The format is unchanged:
-        # the 'VM01' magic, then the 128-byte table.
+        # tests/test_mask_sidecar_durability.py.  The format is 'VM02': the
+        # magic, the 128-byte table, then the identity of the villager in
+        # each record, so a reload that packs the records can move each mask
+        # to its villager ('VM01' -- table only -- is still read).
         for expected in (
+            "unsigned int magic = VV_MASK_SIDECAR_MAGIC_V2;",
             "parts[0] = &magic;\n    sizes[0] = sizeof(magic);",
             "parts[1] = VV_MASK_TABLE;\n    sizes[1] = VV_MASK_TABLE_BYTES;",
-            "return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 2);",
+            "parts[2] = roster;\n    sizes[2] = sizeof(roster);",
+            "return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3);",
         ):
             self.assertIn(expected, write)
+        # nothing is written against the old record numbers, or without the
+        # identities of the villagers on screen
+        self.assertLess(write.index("if (vv1_mask_follow_pending) {"), write.index("vv_sidecar_publish("))
+        self.assertLess(write.index("if (vv1_mask_live_roster(roster) == 0) {"), write.index("vv_sidecar_publish("))
+        load = self.source.split("static void vv1_mask_sidecar_load(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vv1_mask_follow_pending = 1;", load)
+        self.assertIn("vv1_mask_follow_loaded();", load)
+        follow = self.source.split("static int vv1_mask_follow_loaded(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, live, 0, moved, moved_id);",
+                      follow)
+        tick = self.source.split("__declspec(dllexport) void __stdcall Vv1MaskTick(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertLess(tick.index("vv1_mask_follow_loaded();"), tick.index("swept = vv1_mask_sweep_dead();"))
         for raw in ("CreateFileA", "WriteFile(", "MoveFileExA", "DeleteFileA(path);"):
             self.assertNotIn(raw, write)
         self.assertLess(write.index("vv_sidecar_gate_ready(&vv1_mask_gate, slot)"),
