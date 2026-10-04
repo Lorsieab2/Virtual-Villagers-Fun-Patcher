@@ -394,7 +394,11 @@ static void backfill_at_save(int slot, const void *save_buffer) {
                 logged_fp[facts[i].place] = fact_fp[i];
                 logged.dirty = 1;
             }
-            if (facts[i].outcome == VV_GRAVE_RECORDED || facts[i].outcome == VV_GRAVE_QUEUED) {
+            /* Only a record on disk accounts for a departure: one merely
+               held is lost if the game ends before it is written, and the
+               roster about to be saved would then hold neither (Codex,
+               #524) -- the villager stays Unaccounted instead. */
+            if (facts[i].outcome == VV_GRAVE_RECORDED) {
                 recorded_used[recorded_now_count] = 0;
                 recorded_now[recorded_now_count++] = i;
                 COD_COUNT(backfilled);

@@ -342,16 +342,23 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        This is NOT a round number. wsprintfA takes no destination bound, so a
        reserve shorter than the longest suffix is a stack overrun rather than
        a truncation -- and the data files' names grew when they moved into
-       their own folder. The longest is VV1's parentage sidecar:
+       their own folder. The longest is the grave backfill's file, longer
+       than VV1's parentage sidecar (Codex, #524):
 
-           "\\Virtual Villagers Fun Patcher Data"
-           "\\Virtual Villagers 1 Parentage Records - Save 0.dat"
+           "\\Virtual Villagers Fun Patcher Data\\Deaths"
+           "\\Virtual Villagers 1 Graves Logged - Save 0.dat"
 
        sizeof includes the NUL, so this is the exact figure rather than a
-       guess at it, and it recomputes if either name is ever edited. */
+       guess at it, and it recomputes if either name is ever edited.  The
+       typedef below fails to compile if the parentage name ever outgrows it. */
+    typedef char reserve_covers_every_name[
+        sizeof("\\Virtual Villagers Fun Patcher Data\\Deaths"
+               "\\Virtual Villagers 1 Graves Logged - Save 0.dat")
+        >= sizeof("\\Virtual Villagers Fun Patcher Data"
+                  "\\Virtual Villagers 1 Parentage Records - Save 0.dat") ? 1 : -1];
     if (!vv_save_folder(folder, (int)sizeof(
-            "\\Virtual Villagers Fun Patcher Data"
-            "\\Virtual Villagers 1 Parentage Records - Save 0.dat"))) {
+            "\\Virtual Villagers Fun Patcher Data\\Deaths"
+            "\\Virtual Villagers 1 Graves Logged - Save 0.dat"))) {
         return -1;              /* unresolved path is never a deletion target */
     }
 

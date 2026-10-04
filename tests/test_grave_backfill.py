@@ -31,7 +31,7 @@ BUILD = ROOT / "scripts" / "build_grave_backfill_harness.ps1"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
-CHECKS_PER_GAME = 36
+CHECKS_PER_GAME = 37
 
 
 class GraveBackfillSource(unittest.TestCase):
@@ -48,6 +48,34 @@ class GraveBackfillSource(unittest.TestCase):
             self.assertIn("VvfpCauseRepairGraves=_VvfpCauseRepairGraves@12", text)
         self.assertIn("SavedVillageHeader=_SavedVillageHeader@16",
                       (ROOT / "native" / "save_reset_export" / "save_reset_export.def").read_text(encoding="utf-8"))
+
+    def test_only_a_record_on_disk_accounts_for_a_departure(self):
+        # Codex, #524: a record from the grave that is only held for the save
+        # (VV_GRAVE_QUEUED) is lost if the game ends first, so it must not
+        # suppress the departed villager's Unaccounted record.
+        source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
+        save = source[source.index("static void backfill_at_save("):]
+        save = save[:save.index("\n}\n")]
+        gate = save[:save.index("recorded_now[recorded_now_count++] = i;")]
+        gate = gate[gate.rindex("if ("):]
+        self.assertEqual(gate.split("{")[0].strip(), "if (facts[i].outcome == VV_GRAVE_RECORDED)")
+
+    def test_start_over_reserves_room_for_the_longest_file_name(self):
+        # Codex, #524: wsprintfA has no bound, so the reserve vv_reset_slot_state
+        # asks of the save folder must cover the longest name it formats -- the
+        # graves file, now longer than the parentage sidecar.
+        import re as _re
+        source = (ROOT / "native" / "shared" / "save_reset.c").read_text(encoding="utf-8")
+        state = source[source.index("int vv_reset_slot_state("):]
+        reserve = state[state.index("if (!vv_save_folder(folder, (int)sizeof("):]
+        reserve = reserve[:reserve.index(")))")]
+        literal = "".join(_re.findall(r'"((?:[^"\\]|\\.)*)"', reserve)).replace("\\\\", "\\")
+        logged = source[source.index("#define GRAVES_LOGGED_FORMAT(n)"):]
+        logged = logged[:logged.index("#define SIDECAR_FORMAT_COUNT")]
+        name = "".join(_re.findall(r'"((?:[^"\\]|\\.)*)"', logged)).replace("\\\\", "\\")
+        suffix = name.replace("%s", "").replace("%d", "0")      # the game digit `n` is one more
+        self.assertGreaterEqual(len(literal), len(suffix) + 1)
+        self.assertIn("Graves Logged - Save 0.dat", literal)
 
     def test_nothing_is_written_without_repair(self):
         source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")

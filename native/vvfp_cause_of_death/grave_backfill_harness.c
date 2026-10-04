@@ -444,8 +444,19 @@ static void write_history(void) {
         /* A snapshot cut short by an interrupted append: Chika's record has
            no likes and never ends. */
         "=== %s -- 2026-10-03 11:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
-        "Villager 1\n  Name: Chika\n  Age: 1320\n  Head: 19\n  Body: 17\n",
+        "Villager 1\n  Name: Chika\n  Age: 1320\n  Head: 19\n  Body: 17\n"
+        /* The Rename Tribe tool's note (village_rename.h), appended to the
+           newest file: the village was "Oldname Tribe" before. */
+        "Tribe renamed from Oldname Tribe to Backfill Tribe on 2026-09-21 (Save 1)\n",
         t, t, t, t, other, t);
+    write_text(path, h);
+    /* An older build's unnumbered history, not yet moved to file 1 (the
+       population exporter moves it at a save, possibly after this backfill),
+       holding the village under its old name: Renny's only snapshot. */
+    _snprintf(path, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", root);
+    _snprintf(h, sizeof h,
+        "=== %s -- 2026-09-20 10:00:00 ===\nVillage: Oldname Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Renny\n  Age: 700\n  Head: 6\n  Body: 6\n  Likes: honey\n\n\n", t);
     write_text(path, h);
 }
 
@@ -480,6 +491,14 @@ static void write_old_logs(void) {
         MASTER[game][3]);
     deaths_path(2, path);
     write_text(path, d);
+    /* A file of this village whose only record was cut short by an
+       interrupted append: Chika's name and age at death, no grave line, no
+       ending blank line.  It is no grave's record (Codex, #524).  Removed
+       after the first Repair save (a fourth file would move the new log
+       the Deaths-log-deleted case expects to be file 3). */
+    deaths_path(4, path);
+    write_text(path, "Village: Backfill Tribe (Save 1)\n"
+                     "Death 99\n  Name: Chika\n  Age at death: 1428\n  Cause of death: Old age\n");
 }
 
 /* A New Home's and The Lost Children's graves file: Kito's cause (and in A
@@ -580,6 +599,7 @@ int main(int argc, char **argv) {
         dig(6, "Lonely", 600, game >= 3 ? -1 : 0, 0, -1, NULL);
         dig(20, "Tupa", 1222, 3, 60, cause_value, "Dedicated Student");
         dig(21, "Youth", 800, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* made young again once */
+        dig(22, "Renny", 720, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* listed only before a rename */
         write_history();
         write_old_logs();
         write_graves_file();
@@ -600,7 +620,7 @@ int main(int argc, char **argv) {
                       "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers %d Graves - Save 1.dat", root, game);
             graves_before = read_into(graves_file);
             logged_path(logged);
-            CHECK(scan_graves(game, 1) == 5, "the scan counts the five graves the log lacks");
+            CHECK(scan_graves(game, 1) == 6, "the scan counts the six graves the log lacks");
             CHECK(scan_graves(game, 2) == -1, "...and none for a slot with no save");
             read_into(path);
             CHECK(strcmp(before_log, text) == 0 && GetFileAttributesA(logged) == INVALID_FILE_ATTRIBUTES
@@ -643,8 +663,14 @@ int main(int argc, char **argv) {
         CHECK(count_of(text, "\r\n  Name: Ghali\r\n") == 1 && count_of(text, "\r\n  Name: Onawa\r\n") == 1,
               "Ghali and Onawa are not recorded again");
         CHECK(death(6, "Kito") && death(7, "Chika") && death(8, "Dup") && death(9, "Lonely")
-              && death(10, "Youth") && !strstr(text, "Death 11"),
-              "Kito, Chika, the second Dup, Lonely and Youth are recorded, in burial order");
+              && death(10, "Youth") && death(11, "Renny") && !strstr(text, "Death 12"),
+              "Kito, Chika, the second Dup, Lonely, Youth and Renny are recorded, in burial order");
+        {
+            const char *r = death(11, "Renny");
+            CHECK(r != NULL && strstr(r, "  Head: 6\r\n  Body: 6\r\n  Likes: honey\r\n  Dislikes: (none)\r\n") != NULL
+                  && strstr(r, "2026-09-20 10:00:00 (age 700 then)") != NULL,
+                  "a villager listed only before a rename, in the unnumbered older history, is identified");
+        }
         {
             const char *y = death(10, "Youth");
             CHECK(y != NULL && strstr(y, "  Head: 7\r\n  Body: 7\r\n  Likes: stars\r\n") != NULL
@@ -675,7 +701,8 @@ int main(int argc, char **argv) {
             CHECK(c != NULL && strstr(c, "  Head: 19\r\n  Body: 17\r\n  Likes: playing\r\n  Dislikes: (none)\r\n") != NULL
                   && strstr(c, "16:21:22 (age 1294 then)") != NULL
                   && strstr(c, "  Cause of death: ") != NULL,
-                  "Chika's looks are hers: not the other village's, nor another game's, nor a record cut short");
+                  "Chika's looks are hers: not the other village's, nor another game's, nor a record cut short;"
+                  " and a Death record cut short is not her grave's");
             if (game <= 2) {
                 CHECK(c != NULL && strstr(c, "  Cause of death: (not recorded:") != NULL,
                       "a grave the graves file has no cause for says so");
@@ -698,10 +725,12 @@ int main(int argc, char **argv) {
                       "the epitaph is the grave's");
             }
         }
-        CHECK(read_into(logged) == 16 + 9 * 8, "the graves file covers all nine graves");
+        CHECK(read_into(logged) == 16 + 10 * 8, "the graves file covers all ten graves");
         CHECK(scan_graves(game, 1) == 0, "the scan now finds nothing missing");
         read_into(path);
         lstrcpynA(first, text, sizeof first);
+        deaths_path(4, path);
+        DeleteFileA(path);                         /* the cut-short record's file (write_old_logs) */
         deaths_path(2, path);
         read_into(path);
         CHECK(count_of(text, "Death ") == 1, "the other village's log is untouched");
@@ -732,12 +761,12 @@ int main(int argc, char **argv) {
         /* The save replaced outside the game by another village whose grave
            0 differs (Codex, #524): the graves file is no longer this
            village's, so none of its coverage is trusted -- with no log on
-           disk, every grave (all nine) is missing, not only grave 0. */
+           disk, every grave (all ten) is missing, not only grave 0. */
         strncpy((char *)grave_at(0), "Zito", gl->name_cap - 1);
         {
             int missing = scan_graves(game, 1);
-            CHECK(missing == 9, "a replaced save trusts none of the graves file's coverage");
-            if (missing != 9) printf("       (scan said %d)\n", missing);
+            CHECK(missing == 10, "a replaced save trusts none of the graves file's coverage");
+            if (missing != 10) printf("       (scan said %d)\n", missing);
         }
         strncpy((char *)grave_at(0), "Kito", gl->name_cap - 1);
         {
