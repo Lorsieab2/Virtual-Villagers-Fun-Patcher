@@ -4,7 +4,7 @@ The owner's request: "a 'Rename Tribe' feature ... Just renames the savefile
 internally. (Conforming to the natural character limit)".
 
 Where the name lives (measured on the owner's saves, read-only, and in the
-five stock executables -- see docs/rename-tribe.md for the evidence)
+five stock executables -- see docs/rename-tribe.md for the evidence table)
     * The slot save "<base><slot>.ldw" is a small file header ("ldwg", the
       buffer length) and the save buffer. The name is a NUL-terminated ASCII
       string at a fixed buffer offset, the same one the patcher's own log
