@@ -553,7 +553,7 @@ static int vv5_mask_follow_table(unsigned char *table, const unsigned int *store
     for (i = 0; i < slots; ++i) {
         value[i] = (unsigned char)((i & 1) ? (table[i >> 1] >> 4) & 0x0Fu : table[i >> 1] & 0x0Fu);
     }
-    if (!vv_mask_follow(slots, value, stored, live, weak, moved, moved_id)) {
+    if (!vv_mask_follow(slots, value, stored, stored, live, weak, moved, moved_id)) {
         return 0;
     }
     memset(table, 0, vv5_mask_table_bytes());

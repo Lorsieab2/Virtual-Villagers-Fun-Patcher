@@ -556,7 +556,7 @@ static int vv1_mask_follow_loaded(void) {
             unsigned char packed = vv1_mask_file_table[i >> 1];
             value[i] = (unsigned char)((i & 1) ? packed >> 4 : packed & 0x0F);
         }
-        vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, live, 0, moved, moved_id);
+        vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, vv1_mask_file_roster, live, 0, moved, moved_id);
         memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
         for (i = 0; i < VV_MASK_SLOTS; ++i) {
             VV_MASK_TABLE[i >> 1] |= (unsigned char)((i & 1) ? moved[i] << 4 : moved[i]);

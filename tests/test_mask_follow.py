@@ -79,6 +79,10 @@ class MaskFollowHarnessTests(unittest.TestCase):
             "... while a strong identity may move either way",
             "an entry keeps its own identity when it moves",
             "an entry with no identity on someone's record is dropped",
+            "a repack of nothing but duplicates is still a repack: the twin's mask is not kept in place",
+            "a birth into an empty record does not unseat an ambiguous identity",
+            "with no roster, an ambiguous identity is dropped and a unique one kept",
+            "a villager found in another record counts as a move: the twin's mask is not kept",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

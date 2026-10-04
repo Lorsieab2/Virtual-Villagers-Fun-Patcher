@@ -164,7 +164,8 @@ class DllStorageContractTests(unittest.TestCase):
             "header[1] = (unsigned int)vv_slots();",
             "parts[2] = g_mask_by_index;   sizes[2] = header[1];",
             "parts[3] = g_mask_fp;         sizes[3] = header[1] * (DWORD)sizeof(unsigned int);",
-            "vv_sidecar_publish(&g_mask_gate, path, parts, sizes, 4);",
+            "vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);",
+            "parts[4] = g_mask_roster;     sizes[4] = header[1] * (DWORD)sizeof(unsigned int);",
         ):
             self.assertIn(expected, write)
         for raw in ("CreateFileA", "WriteFile(", "MoveFileExA", "DeleteFileA(path);"):
@@ -288,9 +289,16 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("return 0;", mismatch)
         follow = self.c.split("static int vv_mask_follow_table(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("if (!g_slot_identity_ready[idx]) {", follow)
-        self.assertIn("vv_mask_follow(slots, g_mask_by_index, g_mask_fp, live, 0, moved_mask, moved_fp);", follow)
+        self.assertIn("vv_mask_follow(slots, g_mask_by_index, g_mask_fp,\n"
+                      "                             g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);",
+                      follow)
         sweep_body = self.c.split("static int vv_mask_sweep(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("changed |= vv_mask_follow_table();", sweep_body)
+        # Codex (#516): after a reload in the same process the seen-alive
+        # latches describe the old layout, so the follow must run BEFORE the
+        # clear of vacated records, or those masks are erased first.
+        self.assertLess(sweep_body.index("changed |= vv_mask_follow_table();"),
+                        sweep_body.index("g_mask_by_index[idx] = 0;                /* was alive, now freed"))
         cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
         self.assertIn("vv_write_mask_sidecar();", cache)
         sweep = self.c.split("static int vv_mask_sweep(void)", 1)[1].split(

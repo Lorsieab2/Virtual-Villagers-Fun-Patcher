@@ -1666,7 +1666,7 @@ static int vv2_roster_overlap(const unsigned int *a, const unsigned int *b) {
 static int vv2_mask_follow(const unsigned int *stored, const unsigned int *live, int weak) {
     static unsigned char moved[VV2_RECORD_COUNT];
     static unsigned int moved_id[VV2_RECORD_COUNT];
-    if (!vv_mask_follow(VV2_RECORD_COUNT, VV2_MASK_TABLE, stored, live, weak, moved, moved_id)) {
+    if (!vv_mask_follow(VV2_RECORD_COUNT, VV2_MASK_TABLE, stored, stored, live, weak, moved, moved_id)) {
         return 0;
     }
     memcpy(VV2_MASK_TABLE, moved, VV2_MASK_TABLE_BYTES);

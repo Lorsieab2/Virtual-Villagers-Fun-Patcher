@@ -35,7 +35,8 @@ static void village(unsigned int *ids, int count, int dead) {
 }
 
 static int follow(int down_only) {
-    return vv_mask_follow(N, value, stored, live, down_only, new_value, new_stored);
+    /* in these cases the stored identities ARE the whole roster */
+    return vv_mask_follow(N, value, stored, stored, live, down_only, new_value, new_stored);
 }
 
 int main(void) {
@@ -160,6 +161,46 @@ int main(void) {
     live[4] = 104;
     follow(0);
     check(new_value[4] == 0, "an entry with no identity on someone's record is dropped");
+
+    /* 12. Codex (#516): twins of one identity at records 5 and 6, only the
+           one at 5 masked; a death below moves both down to 4 and 5.  No
+           UNIQUE masked entry moved, but the roster did: record 5 now holds
+           the OTHER twin, so the mask is not kept there. */
+    reset();
+    village(stored, 8, -1);
+    stored[5] = 900; stored[6] = 900;
+    value[5] = 2;
+    village(live, 8, 0);
+    live[4] = 900; live[5] = 900;
+    changed = follow(0);
+    check(changed && new_value[4] == 0 && new_value[5] == 0,
+          "a repack of nothing but duplicates is still a repack: the twin's mask is not kept in place");
+
+    /* 13. A birth into an empty record is not a repack: twins kept. */
+    reset();
+    village(stored, 8, -1);
+    stored[5] = 900; stored[6] = 900; value[5] = 2;
+    village(live, 8, -1);
+    live[5] = 900; live[6] = 900; live[9] = 555;
+    follow(0);
+    check(new_value[5] == 2, "a birth into an empty record does not unseat an ambiguous identity");
+
+    /* 14. No roster known (NULL): counted as moved -- an ambiguous identity is
+           never kept, a unique one still follows. */
+    reset();
+    stored[5] = 900; stored[6] = 900; value[5] = 2;
+    stored[3] = 300; value[3] = 1;
+    live[5] = 900; live[6] = 900; live[3] = 300;
+    vv_mask_follow(N, value, stored, NULL, live, 0, new_value, new_stored);
+    check(new_value[5] == 0 && new_value[3] == 1, "with no roster, an ambiguous identity is dropped and a unique one kept");
+
+    /* 15. A villager who left a record and is now in another (an empty one)
+           is a move too, even when no record changed holder. */
+    reset();
+    stored[3] = 900; stored[4] = 900; stored[7] = 777; value[3] = 2;
+    live[3] = 900; live[4] = 900; live[1] = 777;
+    follow(0);
+    check(new_value[3] == 0, "a villager found in another record counts as a move: the twin's mask is not kept");
 
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;

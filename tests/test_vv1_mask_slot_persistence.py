@@ -282,7 +282,7 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertIn("vv1_mask_follow_pending = 1;", load)
         self.assertIn("vv1_mask_follow_loaded();", load)
         follow = self.source.split("static int vv1_mask_follow_loaded(void) {", 1)[1].split("\n}", 1)[0]
-        self.assertIn("vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, live, 0, moved, moved_id);",
+        self.assertIn("vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, vv1_mask_file_roster, live, 0, moved, moved_id);",
                       follow)
         tick = self.source.split("__declspec(dllexport) void __stdcall Vv1MaskTick(void) {", 1)[1].split("\n}", 1)[0]
         self.assertLess(tick.index("vv1_mask_follow_loaded();"), tick.index("swept = vv1_mask_sweep_dead();"))
