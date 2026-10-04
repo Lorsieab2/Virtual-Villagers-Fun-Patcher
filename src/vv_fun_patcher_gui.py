@@ -1919,6 +1919,11 @@ class App(tk.Tk):
                 )
                 return
             self._run_restore(dialog, item[0], item[1], slot)
+            # The "Please wait" window took the grab and released it on
+            # closing; take it back so the main window stays inert behind
+            # this one, as it was before the restore.
+            if dialog.winfo_exists():
+                dialog.grab_set()
             refresh()
 
         def delete() -> None:
