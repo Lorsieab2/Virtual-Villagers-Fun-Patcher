@@ -24,7 +24,10 @@ jobs:
     # defects -- the suite is correctly refusing to certify behaviour on a
     # platform the tool does not support.
     runs-on: windows-latest
-    timeout-minutes: 20
+    # Raised from 20 on 2026-10-04: the suite had grown to ~20 minutes on
+    # windows-latest, so runs were cancelled mid-suite (2856c2ee, #525) with
+    # no failure, only a timeout.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
