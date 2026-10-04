@@ -23,8 +23,9 @@
 
    The statistics companion is detected by its file beside the executable, so
    the harness creates an empty stand-in there and removes it when done. Logs
-   go under Documents\LDW\<this exe's basename>\, which the harness empties
-   first and removes afterwards.
+   go under Documents\LDW\<this exe's basename>\, which
+   harness_ldw_tree_begin() guarantees did not exist before the run and which
+   the harness removes afterwards.
 
    Usage:  pending_harness.exe "<path to VVFP Parentage Export.dll>"
    Exit code 0 when every check passes. */
@@ -236,8 +237,7 @@ int main(int argc, char **argv) {
         printf("could not locate Documents or this executable\n");
         return 2;
     }
-    remove_logs();
-    stand_in = CreateFileA(marker, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    stand_in =CreateFileA(marker, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
     if (stand_in == INVALID_HANDLE_VALUE) {
         printf("could not create the statistics stand-in beside the harness\n");
         return 2;
