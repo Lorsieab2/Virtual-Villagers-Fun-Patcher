@@ -31,6 +31,7 @@ from __future__ import annotations
 import pathlib
 import shutil
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -554,6 +555,48 @@ class PopulationPagesAreMatchedByVillageTests(unittest.TestCase):
         blob = self.DLL_PATH.read_bytes()
         self.assertIn("%ls\\Village Population *.txt".encode("utf-16-le"), blob)
         self.assertNotIn("%ls\\Village Population %d.txt".encode("utf-16-le"), blob)
+
+
+CL = pathlib.Path(
+    r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC"
+    r"\14.51.36231\bin\Hostx64\x86\cl.exe"
+)
+
+
+class SaveResetHarnessRunsTests(unittest.TestCase):
+    """The on-disk reset harness is BUILT AND RUN, not only read as text.
+
+    Until this test no part of the suite ran scripts/build_save_reset_harness.ps1,
+    and the harness failed on every run from #495 onward without anyone seeing
+    it: its custom-titles loop Starts Over slot 1 in all five games, and VV2's
+    slot-1 Start Over rightly deletes "vv2_masks_1.dat" -- the very file the
+    later "survivors" check used as "another game's sidecar". The shipped reset
+    was right; the fixture had been consumed. The harness now asserts that
+    deletion and restores the file, and this test keeps it green.
+    """
+
+    BUILD = ROOT / "scripts" / "build_save_reset_harness.ps1"
+
+    @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
+    def test_the_harness_passes(self) -> None:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(self.BUILD)],
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        self.assertIn("OK (0 failures)", result.stdout)
+        self.assertNotIn("[FAIL]", result.stdout)
+        for case in (
+            "[PASS] VV2 slot-1 reset deletes VV2's own slot-1 sidecar",
+            "[PASS] survivor: VV1 slot-2 sidecar present after all five refusals",
+            "[PASS] survivor: the game's own .ldw present after all five refusals",
+            "[PASS] survivor: VV2 slot-1 sidecar present after all five refusals",
+        ):
+            with self.subTest(case=case):
+                self.assertIn(case, result.stdout)
 
 
 if __name__ == "__main__":
