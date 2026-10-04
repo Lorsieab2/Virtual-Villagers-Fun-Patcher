@@ -177,7 +177,9 @@ class LayoutTests(unittest.TestCase):
 
 class NameRuleTests(unittest.TestCase):
     def test_the_limits_are_each_games_own(self) -> None:
-        self.assertEqual([game.max_length for game in rename.GAMES], [32, 32, 20, 20, 20])
+        # What each game's own name entry stores: GetText(buffer, 32 or 20)
+        # keeps one character fewer than the entry lets you type.
+        self.assertEqual([game.max_length for game in rename.GAMES], [31, 31, 19, 19, 19])
         for game in rename.GAMES:
             with self.subTest(game=game.number):
                 # The name and its terminator fit both fields it is written to.
@@ -200,15 +202,33 @@ class NameRuleTests(unittest.TestCase):
 
     def test_printable_punctuation_and_digits_are_allowed(self) -> None:
         game = rename.GAMES[4]
-        for name in ("Testificate!!!", "HeathenParentSave1.0", "Poop", "A-B_C (2)"):
+        for name in ("Testificate!!!", "HeathenParentSave1", "Poop", "A-B_C (2) #~"):
             with self.subTest(name=name):
                 self.assertIsNone(rename.name_problem(game, name))
 
-    def test_empty_padded_and_empty_slot_names_are_refused(self) -> None:
+    def test_characters_the_first_two_games_cannot_draw_are_refused_there_only(self) -> None:
+        for character in "#$%&()*+;<=>@[\\]^_{}|~":
+            with self.subTest(character=character):
+                for game in rename.GAMES[:2]:
+                    self.assertIsNotNone(rename.name_problem(game, f"Tribe {character}"))
+                for game in rename.GAMES[2:]:
+                    self.assertIsNone(rename.name_problem(game, f"Tribe {character}"))
+        for game in rename.GAMES[:2]:
+            self.assertIsNone(rename.name_problem(game, "Test!!! 1.0, 'B' - \"C\"?/:"))
+
+    def test_spaces_are_kept_as_the_game_keeps_them(self) -> None:
         game = rename.GAMES[2]
-        for name in ("", " Lead", "Trail ", "NEW PLAYER", "new player"):
+        for name in (" Lead", "Trail ", "Two  Spaces"):
+            with self.subTest(name=name):
+                self.assertIsNone(rename.name_problem(game, name))
+
+    def test_empty_blank_and_empty_slot_names_are_refused(self) -> None:
+        game = rename.GAMES[2]
+        for name in ("", " ", "   ", "NEW PLAYER"):
             with self.subTest(name=name):
                 self.assertIsNotNone(rename.name_problem(game, name))
+        # The game compares with "NEW PLAYER" exactly; other casings are names.
+        self.assertIsNone(rename.name_problem(game, "New Player"))
 
     def test_a_too_long_name_is_refused_and_never_truncated(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -303,18 +323,25 @@ class RoundTripTests(SaveFolderTest):
         self.assertEqual(rename.save_name(game, renamed), "Older Save")
         self.assertEqual(renamed[: 12 + game.name_offset], data[: 12 + game.name_offset])
 
-    def test_an_empty_or_unlisted_slot_is_refused(self) -> None:
+    def test_a_slot_with_no_save_is_refused(self) -> None:
         game, folder = self.make_folder("huttest", 3, "Modded")
+        before = self.snapshot(folder)
         with self.assertRaises(rename.RenameError):
             rename.rename_tribe(game, folder, 2, "Nobody", FakeProcesses(), NOW)
-        # A save the slot screen shows as empty is not a tribe to the game.
-        game.save_path(folder, 2).write_bytes(fixture("vv3-huttest-1"))
-        before = self.snapshot(folder)
-        with self.assertRaises(rename.RenameError) as caught:
-            rename.rename_tribe(game, folder, 2, "Nobody", FakeProcesses(), NOW)
-        self.assertIn("empty", str(caught.exception))
         self.assertEqual(self.snapshot(folder), before)
         self.assertFalse((folder / "Backups").exists(), "a refusal makes no backup")
+
+    def test_a_save_the_slot_list_still_calls_empty_is_a_tribe(self) -> None:
+        # The game refills the slot list from the saves at startup, so a save
+        # whose list entry still reads NEW PLAYER is shown under its own name.
+        game, folder = self.make_folder("huttest", 3, "Modded")
+        game.save_path(folder, 2).write_bytes(fixture("vv3-huttest-1"))
+        self.assertEqual(rename.read_slots(game, folder)[1].label, "Save 2: Kalahuna Tribe 3 N")
+        self.assertIsNone(rename.read_slots(game, folder)[1].problem)
+        rename.rename_tribe(game, folder, 2, "Second", FakeProcesses(), NOW)
+        index = game.index_path(folder).read_bytes()
+        self.assertEqual(rename.index_name(game, index, 2), "Second")
+        self.assertEqual(rename.index_name(game, index, 1), "Kalahuna Tribe 3 N")
 
     def test_the_slot_list_shows_every_slot(self) -> None:
         game, folder = self.make_folder("huttest", 5, "Modded")
@@ -326,14 +353,14 @@ class RoundTripTests(SaveFolderTest):
         self.assertTrue(all(info.problem for info in slots[1:]))
         self.assertEqual(slots[1].label, "Save 2: (empty)")
 
-    def test_a_slot_screen_name_that_differs_is_shown_and_then_fixed(self) -> None:
+    def test_a_slot_list_name_that_differs_is_brought_into_line(self) -> None:
         game, folder = self.make_folder("huttest", 3, "Modded")
         index = bytearray(game.index_path(folder).read_bytes())
         start = game.index_offset(1)
         index[start:start + 21] = b"Kalahuna Tribe 3 M".ljust(21, b"\0")
         game.index_path(folder).write_bytes(bytes(index))
         info = rename.read_slots(game, folder)[0]
-        self.assertIn('slot screen shows "Kalahuna Tribe 3 M"', info.label)
+        self.assertEqual(info.label, "Save 1: Kalahuna Tribe 3 N", "the save's name, as the game shows")
         rename.rename_tribe(game, folder, 1, "One Name", FakeProcesses(), NOW)
         self.assertEqual(rename.index_name(game, game.index_path(folder).read_bytes(), 1), "One Name")
 

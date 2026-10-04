@@ -10,18 +10,29 @@ five stock executables -- see docs/rename-tribe.md for the evidence)
       string at a fixed buffer offset, the same one the patcher's own log
       headers read (native/shared/village_identity.c).
     * The game also keeps two older generations of each slot,
-      "<base>2<slot>.ldw" and "<base>4<slot>.ldw", with the same layout.
-    * The slot index "<base>0.ldw" holds the five names the slot-select screen
-      shows, as fixed-width fields.
-    The name is renamed in the slot save, in each generation that holds the
-    same village under the same name, and in the index. Nothing else in the
-    file changes: no checksum covers the buffer.
+      "<base>2<slot>.ldw" and "<base>4<slot>.ldw" (its writer rotates slot ->
+      slot+20 before every save). The game never reads them back, but they
+      are the same village, so a generation still holding the old name is
+      renamed too and one holding anything else is left alone.
+    * The slot list "<base>0.ldw" keeps the five names as fixed-width fields
+      (33 bytes in A New Home and The Lost Children, 21 in the later three).
+      At startup the game refills it from the saves, so it is a cache; it is
+      updated too, so the two never disagree.
+    Only the name bytes change, and the rest of the name field is zeroed. The
+    loader checks nothing but the "ldwg" magic and the length: there is no
+    checksum, and the save name is never compared with the slot list.
 
 The limit
-    Each game's own new-tribe text entry stops at a fixed length (A New Home
-    and The Lost Children: 32 characters; the later three: 20), the same width
-    the slot index reserves. A longer name, or a character the entry would
-    not accept, is refused -- never truncated.
+    The games' name entry lets you type 32 characters (A New Home and The
+    Lost Children) or 20 (the later three), and then stores the text with
+    GetText(buffer, 32 or 20), which keeps one character fewer: every name a
+    game itself makes is at most 31 or 19 characters. That is the limit here,
+    and it also keeps clear of the 24-byte copy the later games make of the
+    name when a village restarts. Only printable ASCII reaches the entry,
+    and A New Home's and The Lost Children's font cannot draw
+    # $ % & ( ) * + ; < = > @ [ \\ ] ^ _ { } | ~ (it draws an "A"), so those
+    are refused there. Spaces are kept as typed, as the games keep them. A
+    name that breaks the rule is refused -- never truncated.
 
 Safety
     * The game must be closed: a running game rewrites its save when it quits,
@@ -113,12 +124,12 @@ class GameSaves:
 GAMES: tuple[GameSaves, ...] = (
     GameSaves(
         1, "Virtual Villagers - A New Home", "Virtual Villagers",
-        0x8, (0x0ABDC,), (12,), 12, 22, 33, 32, 33,
+        0x8, (0x0ABDC,), (12,), 12, 22, 33, 31, 33,
     ),
     GameSaves(
         2, "Virtual Villagers - The Lost Children",
         "Virtual Villagers - The Lost Children",
-        0x8, (0x30370,), (12,), 12, 22, 33, 32, 33,
+        0x8, (0x30370,), (12,), 12, 22, 33, 31, 33,
     ),
     # The 256 Villagers (Experimental) builds write a longer buffer -- the
     # stock bytes unchanged, then villagers 150..255 -- so the name is at the
@@ -126,19 +137,19 @@ GAMES: tuple[GameSaves, ...] = (
     GameSaves(
         3, "Virtual Villagers - The Secret City",
         "Virtual Villagers - The Secret City",
-        0x12ECC, (0x12F1C, 0x1A4B4), (12,), 12, 22, 21, 20, 21,
+        0x12ECC, (0x12F1C, 0x1A4B4), (12,), 12, 22, 21, 19, 21,
     ),
     # Saves made by older releases of The Tree of Life have a 12-byte header;
     # current ones 24.
     GameSaves(
         4, "Virtual Villagers - The Tree of Life",
         "Virtual Villagers - The Tree of Life",
-        0x170B8, (0x1710C, 0x1DCB4), (24, 12), 24, 34, 21, 20, 21,
+        0x170B8, (0x1710C, 0x1DCB4), (24, 12), 24, 34, 21, 19, 21,
     ),
     GameSaves(
         5, "Virtual Villagers - New Believers",
         "Virtual Villagers - New Believers",
-        0x17D14, (0x17D78, 0x1F168), (24,), 24, 34, 21, 20, 21,
+        0x17D14, (0x17D78, 0x1F168), (24,), 24, 34, 21, 19, 21,
     ),
 )
 
@@ -154,27 +165,43 @@ def game_for_title(title: str) -> GameSaves:
 # The name rule
 # ---------------------------------------------------------------------------
 
-# What the games' text entry accepts: printable ASCII, the characters their
-# fonts draw.
-ALLOWED_CHARACTERS = frozenset(chr(code) for code in range(0x20, 0x7F))
+# What the games' text entry accepts. Its key filter takes 0x20..0xFF, but
+# the SDL text handler in front of it passes only single-byte input, so what
+# reaches a name is printable ASCII (A New Home 0x403B9B, The Lost Children
+# 0x403E3B, The Secret City 0x40445B, The Tree of Life 0x404A3B, New
+# Believers 0x4049CB).
+PRINTABLE = frozenset(chr(code) for code in range(0x20, 0x7F))
+# A New Home's and The Lost Children's font has no glyph for these; the game
+# draws each of them as an "A". The later three draw all of printable ASCII.
+UNDRAWABLE_VV1_VV2 = frozenset("#$%&()*+;<=>@[\\]^_{}|~")
+
+
+def allowed_characters(game: GameSaves) -> frozenset[str]:
+    if game.number in (1, 2):
+        return PRINTABLE - UNDRAWABLE_VV1_VV2
+    return PRINTABLE
 
 
 def name_problem(game: GameSaves, name: str) -> str | None:
-    """Why ``name`` cannot be a tribe name in ``game``, or None if it can."""
+    """Why ``name`` cannot be a tribe name in ``game``, or None if it can.
+
+    The rule is the game's own: at most ``max_length`` characters (what its
+    name entry stores), characters it accepts and can draw, and never empty.
+    Spaces are kept as typed, as the game keeps them, but a name of nothing
+    but spaces is refused: it would show as a blank slot.
+    """
     if not name:
         return "Type a name."
-    bad = sorted({ch for ch in name if ch not in ALLOWED_CHARACTERS})
+    short = game.title.removeprefix("Virtual Villagers - ")
+    bad = sorted({ch for ch in name if ch not in allowed_characters(game)})
     if bad:
         shown = " ".join(repr(ch) for ch in bad)
-        return f"The game cannot use these characters: {shown}."
-    if name != name.strip(" "):
-        return "A name cannot start or end with a space."
+        return f"{short} cannot use these characters in a name: {shown}."
     if len(name) > game.max_length:
-        return (
-            f"{len(name)} characters is too long: {game.title.removeprefix('Virtual Villagers - ')} "
-            f"allows at most {game.max_length}."
-        )
-    if name.casefold() == EMPTY_SLOT.casefold():
+        return f"{len(name)} characters is too long: {short} allows at most {game.max_length}."
+    if not name.strip(" "):
+        return "A name cannot be only spaces."
+    if name == EMPTY_SLOT:
         return f'"{EMPTY_SLOT}" is how the game marks an empty slot.'
     return None
 
@@ -240,48 +267,45 @@ def index_name(game: GameSaves, data: bytes, slot: int) -> str | None:
 class SlotInfo:
     slot: int
     name: str | None            # the name in the slot's save, or None
-    shown: str | None           # what the slot-select screen shows
     problem: str | None = None  # why it cannot be renamed, if it cannot
 
     @property
     def label(self) -> str:
         if self.name is None:
             return f"Save {self.slot}: (empty)"
-        text = f"Save {self.slot}: {self.name}"
-        if self.shown is not None and self.shown != self.name and self.shown != EMPTY_SLOT:
-            text += f'   (slot screen shows "{self.shown}")'
-        return text
+        return f"Save {self.slot}: {self.name}"
 
 
 def read_slots(game: GameSaves, folder: Path) -> list[SlotInfo]:
-    """Each slot's tribe name, as the save and the slot screen hold it."""
+    """Each slot's tribe name, from its save.
+
+    That is what the slot-select screen shows: at startup every game loads
+    each slot's save and copies its name into the slot list (A New Home
+    0x41D260, The Lost Children 0x426410, The Secret City 0x4285E0), so the
+    list's own names are only a cache of the saves'.
+    """
     try:
         index = game.index_path(folder).read_bytes()
     except OSError:
         index = b""
+    index_ok = bool(index) and index_name(game, index, 1) is not None
     slots: list[SlotInfo] = []
     for slot in SLOTS:
-        shown = index_name(game, index, slot) if index else None
         path = game.save_path(folder, slot)
         try:
             data = path.read_bytes()
         except FileNotFoundError:
-            slots.append(SlotInfo(slot, None, shown, "This slot has no tribe."))
+            slots.append(SlotInfo(slot, None, "This slot has no tribe."))
             continue
         except OSError as exc:
-            slots.append(SlotInfo(slot, None, shown, f"The save could not be read: {exc}"))
+            slots.append(SlotInfo(slot, None, f"The save could not be read: {exc}"))
             continue
         name = save_name(game, data)
-        info = SlotInfo(slot, name, shown)
+        info = SlotInfo(slot, name)
         if name is None:
             info.problem = f"{path.name} is not a {game.title} save this tool can read."
-        elif not index or shown is None:
+        elif not index_ok:
             info.problem = f"The slot list file {game.index_path(folder).name} could not be read."
-        elif shown == EMPTY_SLOT and name != EMPTY_SLOT:
-            info.problem = (
-                "The slot-select screen shows this slot as empty, so the game "
-                "does not treat it as a tribe."
-            )
         slots.append(info)
     return slots
 
@@ -541,14 +565,8 @@ def plan_save_changes(
         index = index_file.read_bytes()
     except OSError as exc:
         raise RenameError(f"Could not read the slot list {index_file.name}: {exc}") from exc
-    shown = index_name(game, index, slot)
-    if shown is None:
+    if index_name(game, index, slot) is None:
         raise RenameError(f"The slot list {index_file.name} is not one this tool can read.")
-    if shown == EMPTY_SLOT and old != EMPTY_SLOT:
-        raise RenameError(
-            f"The slot-select screen shows Save {slot} as empty, so the game does "
-            "not treat it as a tribe. Nothing was changed."
-        )
     changes = [
         FileChange(save, data, _with_name(data, layout[0] + game.name_offset, game.save_field, new_name))
     ]
