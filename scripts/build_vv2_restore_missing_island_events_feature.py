@@ -211,7 +211,11 @@ def main() -> None:
         ],
         "evidence_status": (
             "static exact-build evidence; emulation of the real chooser, runner and trigger code "
-            "proving each event's odds and effects; live test pending"
+            "proving each event's odds and effects; and a live test (v1.35.58 test build, "
+            "2026-10-04, every public VV2 patch): all six events picked through Pick Island Event and "
+            "clicked through, each popup showing the game's own text, with the Swarm's sickness and "
+            "pond, the Migration's heal and cure and Science Day's child Research read back from "
+            "memory, and the three pages changing nothing but the Island Events Seen counter"
         ),
         "companion_files": [],
         "patches": patches,
