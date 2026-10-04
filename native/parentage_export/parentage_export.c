@@ -3697,26 +3697,6 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
 
 static int create_extra_log(const struct game_layout *g, int family, const char *village);
 
-/* The save slot a village header names: "Village: <name> (Save <n>)", or
-   "Save <n>" for a village with no name (vv_village_header). 0 when it names
-   none. */
-static int village_header_slot(const char *village) {
-    const char *at = NULL;
-    const char *scan = village;
-    if (strncmp(village, "Save ", 5) == 0 && village[5] >= '1' && village[5] <= '5'
-        && (village[6] == '\n' || village[6] == '\r' || village[6] == '\0')) {
-        return village[5] - '0';
-    }
-    while ((scan = strstr(scan, "(Save ")) != NULL) {
-        at = scan;
-        scan += 6;
-    }
-    if (at == NULL || at[6] < '1' || at[6] > '5' || at[7] != ')') {
-        return 0;
-    }
-    return at[6] - '0';
-}
-
 static int ensure_parentage_log(
     int game_id,
     const char *village,
@@ -3727,8 +3707,6 @@ static int ensure_parentage_log(
     int existing = 0;
     FILE *file;
     int had_content;
-    int had_log;
-    int created;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
@@ -3742,12 +3720,6 @@ static int ensure_parentage_log(
            and an unattributable log is worse than an absent one. */
         return 0;
     }
-    /* Whether this village had a Births and Conceptions log before this
-       save -- asked before the held records are written, which may create
-       it.  A log started now has nobody who arrived before it: the slot's
-       Arrived backfill is marked done (native/shared/arrival_backfill.h). */
-    had_log = select_log_file(g, village, path, &existing, 1)
-        && GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES;
     /* The village has just been saved, so it is known: remember the tribe it
        holds, then write any records held since before this save under its
        header. See emit_record. */
@@ -3781,28 +3753,23 @@ static int ensure_parentage_log(
         return 0;
     }
     if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
-        created = 1;            /* this village already has a log */
-    } else {
-        /* Measured BEFORE the open, which would create the file. */
-        had_content = log_file_has_content(path);
-        file = _wfopen(path, L"a");
-        if (file == NULL) {
+        return 1;               /* this village already has a log */
+    }
+    /* Measured BEFORE the open, which would create the file. */
+    had_content = log_file_has_content(path);
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    /* Brand new means nothing on disk -- measured before the open, since
+       opening creates the file. See log_file_has_content. */
+    if (!had_content) {
+        if (fprintf(file, "%s", village) < 0) {
+            fclose(file);
             return 0;
         }
-        /* Brand new means nothing on disk -- measured before the open, since
-           opening creates the file. See log_file_has_content. */
-        if (!had_content) {
-            if (fprintf(file, "%s", village) < 0) {
-                fclose(file);
-                return 0;
-            }
-        }
-        created = fclose(file) == 0;
     }
-    if (created && !had_log && village_header_slot(village) != 0) {
-        (void)vv_arrival_marker_write(game_id, village_header_slot(village));
-    }
-    return created;
+    return fclose(file) == 0;
 }
 
 /* The Deaths log's counterpart of the above: created empty but headed, and

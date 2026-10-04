@@ -439,7 +439,6 @@ static void roster_reset(int slot) {
    (VvfpCauseArmSave) nothing has been watching departures and arrivals, so
    a reconciliation would report everyone who changed. */
 static void cod_save_done(int slot, const void *save_buffer) {
-    arrival_save_buffer = save_buffer;     /* names the village for a new village's founders */
     cod_publish_village(save_buffer, slot);
     if (install_state == 1) {
         /* Every grave in the Deaths log first, so the reconciliation knows

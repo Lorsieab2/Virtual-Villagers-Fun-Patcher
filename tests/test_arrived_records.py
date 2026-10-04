@@ -31,9 +31,13 @@ TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
 SHARED = ROOT / "native" / "shared"
-# 27 in every game, one more in A New Home (no Show Parents), two more in New
+# 30 in every game, one more in A New Home (no Show Parents), two more in New
 # Believers (the Heathens).
-CHECKS = 27 * 5 + 1 + 2
+CHECKS = 30 * 5 + 1 + 2
+STOCK = ROOT / "research" / "stock-executables"
+TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
+          5: "New Believers"}
+TABLES = {1: "MARKERS_VV1", 2: "MARKERS_VV2", 3: "MARKERS_VV3", 4: "MARKERS_VV4", 5: "MARKERS_VV5"}
 
 
 def body(source: str, head: str) -> str:
@@ -65,7 +69,7 @@ class ArrivedRecordSource(unittest.TestCase):
         self.assertIn("!arrivals_repair[slot]", save)
         self.assertIn("vv_arrival_marker_present(g_game, slot)", save)
         scan = body(source, "VvfpCauseScanArrivals(int game, int slot)")
-        self.assertIn("record_arrivals(g_game, NULL, slot, arrival_facts, count, 0)", scan)
+        self.assertIn("record_arrivals(g_game, NULL, slot, arrival_facts, count, VV_ARRIVAL_COUNT)", scan)
         self.assertNotIn("marker_write", scan)
 
     def test_the_backfill_runs_at_the_save_before_the_reconciliation(self):
@@ -83,9 +87,18 @@ class ArrivedRecordSource(unittest.TestCase):
         roster = (COD / "cod_roster.inc").read_text(encoding="utf-8")
         self.assertIn("arrival_noted_birth(cod_index_of((const unsigned char *)record));",
                       body(roster, "VvfpCauseNoteArrival(int game, const void *record)"))
+        sites = (COD / "cod_arrival_sites.inc").read_text(encoding="utf-8")
+        for site in ("0x42EF64u", "0x42EFD5u", "0x42F026u", "0x42F072u", "0x4242FDu", "0x44F602u",
+                     "0x45FFD2u", "0x45F2ABu", "0x467D92u", "0x471EA2u", "0x46FDCEu"):
+            self.assertIn(f"{site}, ", sites)
         arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
-        for site in ("0x42EF64u", "0x42EFD5u", "0x42F026u", "0x42F072u"):
-            self.assertIn(site, arrivals)
+        self.assertIn("m->kind == MARK_BIRTH || m->kind == MARK_TEMPORARY", arrivals)
+        # Read at fixed places, never searched for (stale locals).
+        self.assertIn("reg_stack(regs, m->offset) != m->value", arrivals)
+
+    def test_founders_only_at_a_first_save(self):
+        arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
+        self.assertIn("(!arrivals[i].founder || !same_village)", body(arrivals, "static void arrival_save("))
 
     def test_the_custom_island_event_names_its_villagers(self):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
@@ -107,6 +120,47 @@ class ArrivedRecordSource(unittest.TestCase):
         write = body(source, "static int vv_arrival_marker_write(int game, int slot)")
         self.assertIn("GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES", write)
         self.assertNotIn("MOVEFILE_REPLACE_EXISTING", write)
+
+
+def marker_values(game: int) -> list[int]:
+    """Every return address in that game's marker table (value and need_value)."""
+    source = (COD / "cod_arrival_sites.inc").read_text(encoding="utf-8")
+    defines = dict(re.findall(r"#define (VV\d_\w+) (0x[0-9A-F]+u, 0x[0-9A-F]+u)", source))
+    table = source[source.index(f"static const struct arrival_marker {TABLES[game]}[] = {{"):]
+    table = table[:table.index("};")]
+    for name, value in defines.items():
+        table = table.replace(name, value)
+    values = []
+    for row in re.findall(r"\{ (0x[0-9A-F]+u), (0x[0-9A-F]+u), (0x[0-9A-F]+u), (\w+), (\w+),", table):
+        values.append(int(row[2].rstrip("u"), 16))
+        if row[4] != "0":
+            values.append(int(row[4].rstrip("u"), 16))
+    seeds = re.findall(r"VV3_SEED\((0x[0-9A-F]+)u\)", table)
+    if seeds:
+        block = source[source.index("#define VV3_SEED(l2)"):]
+        block = block[:block.index("static const")]
+        values += [int(v, 16) for v in re.findall(r"(0x[0-9A-F]+)u, 0x190u", block)]
+        values += [int(v, 16) for v in seeds]
+    return values
+
+
+class ArrivalMarkersAreReturnAddresses(unittest.TestCase):
+    """Each marker is read at a fixed place on the stack and must be the
+    address right after a call in the stock executable (cod_arrival_sites.inc):
+    a `call rel32` (E8) or the event dispatcher's `call [edx+0x2C]` (FF 52 2C)."""
+
+    def test_every_marker_follows_a_call(self):
+        import pefile
+        for game in range(1, 6):
+            exe = STOCK / f"Virtual Villagers - {TITLES[game]}.exe"
+            pe = pefile.PE(str(exe))
+            values = marker_values(game)
+            self.assertGreater(len(values), 5, game)
+            for value in values:
+                rva = value - pe.OPTIONAL_HEADER.ImageBase
+                before = pe.get_data(rva - 5, 5)
+                self.assertTrue(before[0] == 0xE8 or before[2:] == bytes([0xFF, 0x52, 0x2C]),
+                                f"VV{game} {value:#x} does not follow a call: {before.hex()}")
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

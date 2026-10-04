@@ -178,22 +178,22 @@ def logs_text(n: str, game: str) -> str:
         "\"Recorded from the grave\". Which graves have their record is kept in 'Virtual Villagers "
         f"Fun Patcher Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat', so no grave is recorded twice; "
         "Start Over deletes it. "
-        "Every villager who joins the village without being born into it -- an island event's "
-        "newcomer, the Barrel O' Babies, the Custom Island Event's new villagers" + (
+        "Every villager who joins the village without being born into it -- a new village's "
+        "founders, an island event's newcomer, the Barrel of Babies, the Custom Island Event's new villagers" + (
             ", a Heathen converted to a believer (a Heathen is never a villager)" if game == "vv5" else "") + " -- "
         f"gets an \"Arrived\" record in the Births and Conceptions log ('Virtual Villagers {n} Births and "
         "Conceptions Log <n>.txt'), written at the next save: the name, the age when they arrived, sex, "
-        "head, body, likes, dislikes, skills, and how they came (\"Custom Island Event\""
-        + (", \"Converted from the Heathens\"" if game == "vv5" else "") + ", or \"unknown\": "
-        "the game's own events are not told apart). A birth is never an arrival, and a new village's "
-        "founders are not arrivals. Villagers already in a village who arrived before this record "
+        "head, body, likes, dislikes, skills, and how they came (\"Founder\", the island event's title, "
+        "\"Barrel of Babies\", \"Custom Island Event\""
+        + (", \"Converted from the Heathens\"" if game == "vv5" else "") + ", or \"unknown\"). "
+        "A birth is never an arrival. Villagers already in a village who arrived before this record "
         "existed (no Birth or Arrived record with their name, head and body) are found when the "
         "village is loaded and listed for the player to repair; only if they choose Repair does "
         "each get one, at the next save, marked \"Recorded afterwards (arrived before this log "
-        "existed)\" with how they came unknown -- exactly once: 'Virtual Villagers Fun Patcher "
-        f"Data\\Arrivals\\Virtual Villagers {n} Arrivals Recorded - Save <n>.dat' then says it is done "
-        "(it is also written when a village's Births and Conceptions log is first created); Start "
-        "Over deletes it. "
+        "existed)\", as \"Founder\" when the village's first Village History snapshot lists them and "
+        "otherwise with how they came unknown -- exactly once: 'Virtual Villagers Fun Patcher "
+        f"Data\\Arrivals\\Virtual Villagers {n} Arrivals Recorded - Save <n>.dat' then says it is done; "
+        "Start Over deletes it. "
         + ("In A New Home a villager born here is told by their Birth record, which Show Parents in "
            "Details Screen writes: **without that patch no Arrived record is backfilled.** "
            if game == "vv1" else "") +
@@ -285,7 +285,7 @@ def manifest(game: str, sha: str) -> dict:
         "The grave's Done writes an Epitaph changed record when the epitaph's text changed.",
         "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
         f"The roster is kept in 'Virtual Villagers Fun Patcher Data\\Virtual Villagers {n} Village Roster - Save <n>.dat' (written atomically; deleted by Start Over).",
-        "Arrivals: a villager a creator made that the Births and Conceptions log did not note as a birth (A New Home: nor made by the delivery's four child-creation calls) is decided at the next tick and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy)" + ("; a Heathen made by a creator is not one, and a Heathen whose faction byte +0x1CEC the tick sees cleared is (\"Converted from the Heathens\")" if game == "vv5" else "") + ". A save with no village saved before (a new village, Start Over) writes none: those are founders.",
+        "Arrivals: a villager a creator made that is neither a birth (the path's own return addresses, read at fixed places on the stack, or the Births and Conceptions log's note) nor a record the game takes away again is decided at the next tick, named by its path (Founder, the island event, Barrel of Babies), and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy)" + ("; a Heathen made by a creator is not one, and a Heathen whose faction byte +0x1CEC the tick sees cleared is (\"Converted from the Heathens\")" if game == "vv5" else "") + ". A founder is written only at a save with no village saved in the slot before.",
         f"Arrivals before this record existed: VvfpCauseScanArrivals counts, writing nothing, the villagers (believers{', with no parents on their record' if game != 'vv1' else ''}) the village's Births and Conceptions log has no Birth or Arrived record for (name, head and body), for the first-load check; VvfpCauseRepairArrivals records the answer. Only after Repair, at the next save, each gets an Arrived record filed by RecordArrivalsMissingFromLog in \"VVFP Parentage Export.dll\", and none is an Unaccounted record; once all are on disk 'Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers {n} Arrivals Recorded - Save <n>.dat' (deleted by Start Over) ends the backfill for good.",
         "All records are written through WriteVillageRecord in \"VVFP Parentage Export.dll\".",
     ]

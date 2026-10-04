@@ -28,7 +28,8 @@
          Parents:                              (only when the record keeps any)
            Father: <name | (none)>
            Mother: <name | (none)>
-         How: <Custom Island Event | Converted from the Heathens | unknown>
+         How: <Founder | the island event's title | Barrel of Babies |
+               Custom Island Event | Converted from the Heathens | unknown>
          Note: Recorded afterwards (arrived before this log existed)   (backfill only)
        <blank line>
 
@@ -47,11 +48,9 @@
 
    THE MARKER.  "<save folder>\Virtual Villagers Fun Patcher Data\Arrivals\
    Virtual Villagers N Arrivals Recorded - Save S.dat": 16 bytes, 'VCA1',
-   version 1, game, slot.  It says the slot needs no backfill: written once
-   the backfill has put every missing record on disk, and when a village's
-   Births and Conceptions log is first created (a new village, or after Start
-   Over: its founders are not arrivals and nothing predates the log).  Start
-   Over deletes it with the village (native/shared/save_reset.c). */
+   version 1, game, slot.  It says the slot's backfill is done: written once
+   the backfill has put every missing record on disk.  Start Over deletes it
+   with the village (native/shared/save_reset.c). */
 #ifndef VV_ARRIVAL_BACKFILL_H
 #define VV_ARRIVAL_BACKFILL_H
 
@@ -75,11 +74,9 @@ enum {
 /* RecordArrivalsMissingFromLog's `apply`. */
 enum {
     VV_ARRIVAL_COUNT = 0,       /* count the villagers with no record; write nothing */
-    VV_ARRIVAL_APPLY = 1,       /* the backfill: "How: Founder" for a villager in the
+    VV_ARRIVAL_APPLY = 1        /* the backfill: "How: Founder" for a villager in the
                                    village's first Village History snapshot, else
                                    "How: unknown", and the "Recorded afterwards" note */
-    VV_ARRIVAL_FOUNDERS = 2     /* a new village's first save: only when its log has
-                                   recorded nothing yet, each gets "How: Founder" */
 };
 
 typedef struct {
@@ -95,10 +92,7 @@ typedef struct {
    0 nothing is written and the count of villagers with no record is
    returned; with 1 each gets an Arrived record (the backfill's own "How" and
    "Note" lines) and the count written is returned.  -1 when nothing could be
-   decided.  With `apply` VV_ARRIVAL_FOUNDERS (a new village's first save:
-   no roster saved before) the villagers get "How: Founder" records, and only
-   when the village's log holds no Conception, Birth or Arrived record yet;
-   `before` then carries their real age. */
+   decided. */
 typedef int (__stdcall *vv_record_arrivals_fn)(int game, const void *save_buffer, int slot,
                                                vv_arrival_fact *facts, int count, int apply);
 

@@ -597,6 +597,17 @@ Village Statistics to Text File is on, or with its next record, unlabelled,
 when it is off -- but the older records in it are not recoverable. Keep a
 copy if you want that history.
 
+The same log also gets an "Arrived" record for every villager who joins the
+village without being born into it -- a new village's founders ("How:
+Founder"), an island event's newcomers (the event's name), the Barrel of
+Babies, the Custom Island Event's new villagers -- when the Cause of Death
+patch is on. Villagers already in a village who arrived before v1.35.58 are
+offered an Arrived record once, by the Repair / Not now question shown when
+the village is loaded; that it has been done is kept in
+"Virtual Villagers Fun Patcher Data\Arrivals\Virtual Villagers <N> Arrivals
+Recorded - Save <slot>.dat" (deleting it only means the question can come
+back; Start Over deletes it).
+
 The A New Home doubler file is retired. Older builds wrote it to record which
 Origins tech and food point doublers a village had bought, because the save did
 not keep them. The save keeps them now, and this build never writes the file.

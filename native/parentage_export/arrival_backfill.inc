@@ -28,9 +28,7 @@ struct arrival_key {
 static struct arrival_key *arrival_keys;
 static int arrival_key_count;
 static int arrival_key_capacity;
-/* The village's Conception records, on disk: a log with none, no Birth and
-   no Arrived record has recorded nothing yet. */
-static int arrival_conceptions;
+
 
 static int keep_arrival_key(const struct arrival_key *key) {
     if (arrival_key_count >= arrival_key_capacity) {
@@ -82,9 +80,7 @@ static const char *arrival_value(const char *line, const char *prefix) {
 static int arrival_reader_line(struct arrival_reader *r, char *line) {
     const char *value;
     trim_line(line);
-    if (strncmp(line, "Conception ", 11) == 0 && !r->held) {
-        ++arrival_conceptions;
-    }
+
     if (strcmp(line, "Birth") == 0) {
         if (!arrival_reader_close(r)) {
             return 0;
@@ -145,7 +141,6 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
     int i;
 
     arrival_key_count = 0;
-    arrival_conceptions = 0;
     *files = 0;
     if (!build_family_log_path(g, LOG_BIRTHS, 1, path)
         || !vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
@@ -359,8 +354,6 @@ static const char ARRIVAL_BACKFILL_AFTER[] =
 static const char ARRIVAL_BACKFILL_FOUNDER[] =
     "  How: Founder\n"
     "  Note: Recorded afterwards (arrived before this log existed)\n";
-static const char ARRIVAL_FOUNDER[] =
-    "  How: Founder\n";
 
 __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
     int game_id,
@@ -381,7 +374,7 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || slot < 1 || slot > 5
         || facts == NULL || count < 0 || count > TRIBE_SLOTS
-        || apply < VV_ARRIVAL_COUNT || apply > VV_ARRIVAL_FOUNDERS) {
+        || apply < VV_ARRIVAL_COUNT || apply > VV_ARRIVAL_APPLY) {
         return -1;
     }
     for (i = 0; i < count; ++i) {
@@ -408,11 +401,8 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
     if (!read_village_arrivals(g, game_id, village, &files)) {
         return -1;
     }
-    if (count == 0 || (files == 0 && apply != VV_ARRIVAL_FOUNDERS)) {
+    if (count == 0 || files == 0) {
         return 0;                     /* the log has not started: nothing predates it */
-    }
-    if (apply == VV_ARRIVAL_FOUNDERS && (arrival_key_count > 0 || arrival_conceptions > 0)) {
-        return 0;                     /* the log has records: not a new village's */
     }
     if (apply == VV_ARRIVAL_APPLY) {
         read_first_snapshot(village);
@@ -475,9 +465,8 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
             ++result;
         } else {
             int held_before = pending_count;
-            const char *after = apply == VV_ARRIVAL_FOUNDERS ? ARRIVAL_FOUNDER
-                : is_founder(i, names, heads, bodies, count) ? ARRIVAL_BACKFILL_FOUNDER
-                : ARRIVAL_BACKFILL_AFTER;
+            const char *after = is_founder(i, names, heads, bodies, count)
+                ? ARRIVAL_BACKFILL_FOUNDER : ARRIVAL_BACKFILL_AFTER;
             if (WriteVillageRecord(game_id, KIND_ARRIVED, facts[i].record, 1, facts[i].before,
                                    after, 2)) {
                 /* On disk, or held for the save: only a record on disk is

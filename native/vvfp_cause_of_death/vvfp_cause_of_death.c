@@ -98,7 +98,6 @@ struct vvfp_cause_stats {
     int backfilled;      /* Death records written from a grave no hook saw */
     int arrivals;        /* Arrived records written for an arrival seen live */
     int arrivals_backfilled;  /* Arrived records written by the backfill */
-    int founders;        /* a new village's first save that recorded its founders */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -229,8 +228,6 @@ static int test_arm;
 /* ...and whether A New Home's Birth records are written (Show Parents in
    Details Screen): 1 yes, -1 no, 0 look beside the executable. */
 static int test_vv1_births;
-/* ...and where the stack they hand the creators' hook ends. */
-static const unsigned int *test_stack_end;
 #endif
 
 /* The Secret City, The Tree of Life, New Believers: the villager table and
@@ -598,8 +595,7 @@ static int backfill_accounts_for(const unsigned char *kept);
 static void backfill_reset(int slot);
 
 /* cod_arrivals.inc: the Arrived records. */
-static void arrival_created(int index, const unsigned int *regs);
-static const void *arrival_save_buffer;
+static void arrival_created(int index, unsigned int site_va, const unsigned int *regs);
 static void arrival_tick(void);
 static void arrival_departed(int index);
 static void arrival_save(int slot, int same_village);

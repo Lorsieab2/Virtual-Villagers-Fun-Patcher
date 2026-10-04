@@ -92,19 +92,34 @@ __declspec(dllexport) void __stdcall VvfpCauseTestRoster(void *entries, void *gr
     test_gravestones = (unsigned char *)gravestones;
 }
 
-/* A creator made `index` (cod_roster_sites.inc's roster_created), with
-   `marker` (0: none) as the one return address on the stack above the hook. */
+/* A creator made `index` (cod_roster_sites.inc's roster_created) on the
+   path whose marker value is `marker` (0: none): the stack the hook sees is
+   built with that marker -- and the one it needs -- at their own places. */
 __declspec(dllexport) void __stdcall VvfpCauseTestCreated(int index, unsigned int marker) {
-    unsigned int stack[4] = { 0x12345678u, marker, 0u, 0u };
+    static unsigned int stack[0x100];
     unsigned int regs[9];
+    unsigned int site = 0;
+    const struct arrival_marker *table = NULL;
+    int count = 0;
+    int k;
+    memset(stack, 0, sizeof stack);
     memset(regs, 0, sizeof regs);
     regs[R_ESP] = (unsigned int)(uintptr_t)stack;
-    test_stack_end = stack + 4;
+    arrival_markers(&table, &count);
+    for (k = 0; k < count && marker != 0u; ++k) {
+        if (table[k].value == marker) {
+            site = table[k].site;
+            stack[table[k].offset / 4] = marker;
+            if (table[k].need_offset != 0u) {
+                stack[table[k].need_offset / 4] = table[k].need_value;
+            }
+            break;
+        }
+    }
     if (index >= 0 && index < RECORDS_MAX && !temporary[index]) {
         roster_arrived(index);
-        arrival_created(index, regs);
+        arrival_created(index, site, regs);
     }
-    test_stack_end = NULL;
 }
 
 /* The arrivals' part of the per-frame tick (cod_arrivals.inc). */

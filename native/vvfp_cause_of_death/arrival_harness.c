@@ -37,9 +37,12 @@
         log's note; A New Home's child-creation call even without it); a
         Heathen made by the creator is not; a Heathen converted to a believer
         is ("Converted from the Heathens").  None of them is Unaccounted.
-     4. Start Over deletes the marker; the new village's founders get no
-        Arrived record, its new log brings the marker back, and the scan
-        then finds nothing.
+     4. Start Over deletes the marker; the new village's founders, made by the
+        seeding, get "How: Founder" at its first save (and the seeding's
+        records in a village saved before -- a load overwrites them -- never
+        do); one not seen made is offered by the backfill.
+   And each game's markers (cod_arrival_sites.inc): a birth path is never an
+   arrival, a stock event's newcomer is named by the event.
 
    Usage:  arrival_harness.exe "<parentage dll>" "<cause of death test dll>" "<save reset dll>"
    Exit code 0 when every check passes. */
@@ -91,6 +94,16 @@ static const struct layout LAYOUTS[5] = {
       0x1F5C, 0x1F68, 3, 0x1BC0 },
 };
 #define VV5_FACTION 0x1CEC
+
+/* One marker per game from cod_arrival_sites.inc: a birth, a founder, a
+   stock event and its label, as the creators' hook would find them. */
+static const struct { unsigned int birth, founder, event; const char *label; } MARK[5] = {
+    { 0x42EFD5u, 0x41C50Eu, 0x42C3F4u, "A Mysterious Crate (watertight)" },
+    { 0x44F602u, 0x4252F7u, 0x43446Cu, "Old Friends" },
+    { 0x45FFD2u, 0x41B7E4u, 0x414DB4u, "The Canoe from the Other Side" },
+    { 0x467D92u, 0x43B929u, 0x4148D4u, "The Canoe from the Other Side" },
+    { 0x471EA2u, 0x43E317u, 0x415559u, "News From Another Tribe" },
+};
 
 static const struct layout *g;
 static int game;
@@ -575,10 +588,11 @@ int main(int argc, char **argv) {
         created(10, 0);
         arrived_by(game, 10, "Custom Island Event");
         villager(11, "Babe", 0, 6, 6, 1);
-        created(11, game == 1 ? 0x42EFD5u : 0u);
-        if (game != 1) {
-            note_birth(game, rec(11));
-        }
+        created(11, MARK[game - 1].birth);   /* a birth path, with no Births log note */
+        villager(15, "Canoe", 540, 7, 2, 0);
+        created(15, MARK[game - 1].event);
+        villager(16, "Seed", 300, 7, 3, 0);
+        created(16, MARK[game - 1].founder);  /* the seeding, in a village saved before */
         villager(12, "Twin", 0, 6, 7, 1);
         created(12, 0);
         note_birth(game, rec(12));          /* the Births log's note, every game */
@@ -612,7 +626,14 @@ int main(int argc, char **argv) {
             CHECK(gone != NULL && record_has("Gone", "  Age at arrival: 650\r\n"),
                   "one who arrived and was buried before the save has the record too");
             CHECK(strstr(text, "  Name: Babe\r\n") == NULL && strstr(text, "  Name: Twin\r\n") == NULL,
-                  "a birth is never an arrival");
+                  "a birth is never an arrival (its path's marker, or the Births log's note)");
+            {
+                char how[96];
+                _snprintf(how, sizeof how, "  How: %s\r\n\r\n", MARK[game - 1].label);
+                CHECK(record_has("Canoe", how), "a stock event's newcomer: How: %s", MARK[game - 1].label);
+            }
+            CHECK(strstr(text, "  Name: Seed\r\n") == NULL,
+                  "the seeding's records in a village saved before are not founders (a load overwrites them)");
             CHECK(count_of(text, "  Name: Newcomer\r\n") == 1 && count_of(text, "  Name: Cie\r\n") == 1
                   && count_of(text, "  Name: Gone\r\n") == 1, "each written once");
             if (game == 5) {
@@ -636,14 +657,16 @@ int main(int argc, char **argv) {
         CHECK(!file_exists(marker), "Start Over deletes the marker");
         {
             int i;
-            for (i = 0; i < 16; ++i) {
+            for (i = 0; i < 32; ++i) {
                 rec(i)[g->active] = 0;
             }
         }
-        /* Made before this companion was watching, as a new village's
-           founders are. */
         villager(0, "Founda", 400, 1, 1, 0);
+        created(0, MARK[game - 1].founder);
         villager(1, "Foundb", 420, 2, 1, 0);
+        created(1, MARK[game - 1].founder);
+        arrival_tick();
+        *(int *)(rec(0) + g->age) = 410;
         save_done(1, buffer);                 /* the new village's first save */
         births_path(3, path);                 /* after the other village's file 2 */
         CHECK(read_into(path) > 0 && strncmp(text, "Village: Arrival Tribe (Save 1)", 31) == 0
@@ -651,8 +674,14 @@ int main(int argc, char **argv) {
               && record_has("Foundb", "  How: Founder\r\n\r\n") && strstr(text, "Note:") == NULL
               && strstr(text, "Arrived 1\r\n") == NULL,
               "the new village's founders get \"How: Founder\" at its first save, numbered on");
-        CHECK(file_exists(marker), "its new log brings the marker back");
-        CHECK(scan_arrivals(game, 1) == 0, "...so the scan finds nothing to ask about");
+        printf("  (scan %d, marker %d, save %d)\n", scan_arrivals(game, 1), file_exists(marker),
+               file_exists(path));
+        CHECK(!file_exists(marker) && scan_arrivals(game, 1) == 0,
+              "...so the scan finds nothing to ask about (no marker needed)");
+        /* A founder the companion did not see made (a new village before
+           it was installed) is offered by the backfill, as a founder. */
+        villager(2, "Foundc", 430, 3, 1, 0);
+        CHECK(scan_arrivals(game, 1) == 1, "an unseen founder is offered by the backfill");
         lstrcpynA(first, text, sizeof first);
         save_done(1, buffer);
         read_into(path);

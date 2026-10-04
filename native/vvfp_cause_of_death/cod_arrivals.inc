@@ -6,12 +6,11 @@
    WHO ARRIVES.  Every villager the game's own creators make is reported here
    (roster_created, cod_roster_sites.inc): a birth, an island event's
    newcomer, the Barrel O' Babies, the Custom Island Event's new villagers.
-   A birth is not an arrival: the Births and Conceptions log records it and
-   says so (VvfpCauseNoteArrival), from the birth hook that runs right after
-   the creator, in the same frame.  A New Home's Birth records come from Show
-   Parents in Details Screen, so there a birth is also told by the creator's
-   own return address -- one of the four child-creation calls of the delivery
-   (0x42EF5F, 0x42EFD0, 0x42F021, 0x42F06D) -- with that row off as well.
+   A birth is not an arrival: the path that made it says so (a marker of the
+   delivery, cod_arrival_sites.inc), and so does the Births and Conceptions
+   log (VvfpCauseNoteArrival, from the birth hook right after the creator, in
+   the same frame).  A record the game makes and takes away again (The Lost
+   Children's stranger, the ghosts, the stand-ins) is not one either.
    Everything else the creators make is an arrival.
 
    New Believers: a Heathen is never a villager (the owner), so a Heathen
@@ -20,18 +19,20 @@
    (the setter 0x466880): the tick sees a record it saw as a Heathen become a
    believer, and that is an arrival, "Converted from the Heathens".
 
-   HOW THEY CAME.  "Custom Island Event" when the Story / Cheat Upgrades
-   companion says its event made them (VvfpCauseArrivedBy); "Converted from
-   the Heathens"; otherwise "unknown" -- the stock events' newcomers are made
-   by the same creators from many places, and nothing here names the event.
+   HOW THEY CAME (the owner's words for the "How:" line).  The path's marker
+   names it: "Founder" (the new-village seeding), the island event's title,
+   "Barrel of Babies" (natural or bought: the purchase runs the game's own
+   barrel); "Custom Island Event" when the Story / Cheat Upgrades companion
+   says its event made them (VvfpCauseArrivedBy); "Converted from the
+   Heathens"; "unknown" on any other path.
 
    WHEN.  The arrival is decided at the first tick after the creator (the
    birth note has come by then, the event has written the villager's name,
    age and looks), and its age then is the age at arrival.  The record is
    written at the next save of the slot it was made in, where the logs are
-   named -- and only when that save's roster reconciliation recognises the
-   village saved before (have_previous): a new village's founders, made with
-   no saved roster (a new slot, Start Over), are not arrivals.  A villager
+   named.  A founder is written only at a save with no village saved in the
+   slot before (the reconciliation's have_previous): the seeding also runs
+   ahead of loads that overwrite what it made.  A villager
    who arrived and leaves (a burial, a disappearance) before that save gets
    the record at the departure, while the record still holds them.  Either
    way the arrival is reported to the reconciliation, so the Unaccounted
@@ -43,8 +44,11 @@
    their record -- a villager with parents was born) are handed to
    RecordArrivalsMissingFromLog, which counts those with no Birth or Arrived
    record; after Repair, at the next save, each gets an Arrived record marked
-   "Recorded afterwards", and once all are on disk the slot's marker says it
-   is done, for good. */
+   "Recorded afterwards" -- "How: Founder" when the village's first Village
+   History snapshot lists them, else "unknown" -- and once all are on disk the
+   slot's marker says it is done, for good.  A new village's founders this
+   companion did not see made (it is installed once a village is shown) are
+   found the same way. */
 
 #define ARRIVAL_NONE 0
 #define ARRIVAL_MADE 1          /* made by a creator, not yet decided */
@@ -58,7 +62,8 @@ static int arrival_fact_index[RECORDS_MAX];
 static struct {
     signed char tag;            /* report_tag() when made: the slot it counts for */
     unsigned char state;
-    unsigned char born;         /* a birth (VvfpCauseNoteArrival, or A New Home's creator caller) */
+    unsigned char born;         /* a birth: the Births log's note, or a birth path's marker */
+    unsigned char founder;      /* made by the new-village seeding */
     int age;                    /* at arrival */
     char how[ARRIVAL_HOW];
 } arrivals[RECORDS_MAX];
@@ -80,55 +85,42 @@ static void arrival_noted_birth(int index) {
 
 #include "cod_arrival_sites.inc"
 
-/* The first marker on the stack above the creator's hook: the innermost call
-   of the path that made the villager (cod_arrival_sites.inc).  NULL when
-   none is there. */
-static const struct arrival_marker *arrival_marker_of(const unsigned int *regs) {
+/* The marker naming the path that made the villager at the hook `site_va`:
+   each is read at its own fixed place in the stack (cod_arrival_sites.inc),
+   never searched for.  NULL when none matches. */
+static const struct arrival_marker *arrival_marker_of(unsigned int site_va, const unsigned int *regs) {
     const struct arrival_marker *table = NULL;
     int count = 0;
-    const unsigned int *at;
-    const unsigned int *end;
-    const NT_TIB *tib = (const NT_TIB *)NtCurrentTeb();
     int k;
     if (regs == NULL) {
         return NULL;
     }
     arrival_markers(&table, &count);
-    if (table == NULL || count == 0) {
-        return NULL;
-    }
-    at = (const unsigned int *)(uintptr_t)regs[R_ESP];
-    end = (const unsigned int *)((const unsigned char *)at + ARRIVAL_STACK_SCAN);
-    /* Never past the thread's own stack. */
-    if ((const void *)end > tib->StackBase || end < at) {
-        end = (const unsigned int *)tib->StackBase;
-    }
-#ifdef VVFP_TEST
-    if (test_stack_end != NULL) {
-        end = test_stack_end;
-    }
-#endif
-    for (; at < end; ++at) {
-        for (k = 0; k < count; ++k) {
-            if (*at == table[k].ret) {
-                return &table[k];
-            }
+    for (k = 0; k < count; ++k) {
+        const struct arrival_marker *m = &table[k];
+        if (m->site != site_va || reg_stack(regs, m->offset) != m->value) {
+            continue;
         }
+        if (m->need_offset != 0u && reg_stack(regs, m->need_offset) != m->need_value) {
+            continue;
+        }
+        return m;
     }
     return NULL;
 }
 
-/* A creator made `index`; `regs` are the registers at its hook (NULL: not
+/* A creator made `index`, at the hook `site_va` with `regs` (NULL: not
    known). */
-static void arrival_created(int index, const unsigned int *regs) {
+static void arrival_created(int index, unsigned int site_va, const unsigned int *regs) {
     const struct arrival_marker *m;
     if (index < 0 || index >= RECORDS_MAX) {
         return;
     }
-    m = arrival_marker_of(regs);
+    m = arrival_marker_of(site_va, regs);
     arrivals[index].tag = report_tag();
     arrivals[index].state = ARRIVAL_MADE;
-    arrivals[index].born = (unsigned char)(m != NULL && m->kind == MARK_BIRTH);
+    arrivals[index].born = (unsigned char)(m != NULL && (m->kind == MARK_BIRTH || m->kind == MARK_TEMPORARY));
+    arrivals[index].founder = (unsigned char)(m != NULL && m->kind == MARK_FOUNDER);
     arrivals[index].age = 0;
     arrivals[index].how[0] = '\0';
     if (m != NULL && m->label != NULL) {
@@ -223,33 +215,23 @@ static void arrival_departed(int index) {
     faction_seen[index] = -1;
 }
 
-static int arrival_gather(int mode);
-
 /* At a save of `slot`, before the reconciliation lists anyone: the
-   arrivals made for it get their records; and when no village was saved in
-   the slot before (`same_village` 0: a new village, or one started over),
-   its founders -- every villager the log has no record for, while the log
-   has recorded nothing yet -- get "How: Founder". */
+   arrivals made for it get their records.  A founder -- made by the
+   new-village seeding -- only at a save with no village saved in the slot
+   before (`same_village` 0: the new village's first save): the seeding also
+   runs ahead of a load that then overwrites what it made (The Lost
+   Children's startup scan), and those were never this village's. */
 static void arrival_save(int slot, int same_village) {
     int i;
-    int count;
     for (i = 0; i < RECORDS_MAX && (unsigned int)i < REC[g_game].slots; ++i) {
         if (arrivals[i].state == ARRIVAL_NONE || !report_counts(arrivals[i].tag, slot)) {
             continue;
         }
         arrival_decide(i);
-        if (arrivals[i].state == ARRIVAL_PENDING) {
+        if (arrivals[i].state == ARRIVAL_PENDING && (!arrivals[i].founder || !same_village)) {
             arrival_write(i);
         }
         arrivals[i].state = ARRIVAL_NONE;
-    }
-    if (same_village || !cod_log_ready() || record_arrivals == NULL) {
-        return;
-    }
-    count = arrival_gather(VV_ARRIVAL_FOUNDERS);
-    if (count > 0 && record_arrivals(g_game, arrival_save_buffer, slot, arrival_facts, count,
-                                     VV_ARRIVAL_FOUNDERS) > 0) {
-        COD_COUNT(founders);
     }
 }
 
@@ -292,10 +274,8 @@ static int births_are_logged(void) {
 }
 
 /* The village's villagers who could have arrived: members, believers, and
-   (The Lost Children on) with no parents on their record.  `mode` says what
-   their age line is: unknown for the backfill, their age for a new
-   village's founders. */
-static int arrival_gather(int mode) {
+   (The Lost Children on) with no parents on their record. */
+static int arrival_gather(void) {
     static const unsigned int PARENTS[6][2] = {
         { 0, 0 }, { 0, 0 }, { 0x57Du, 0x596u }, { 0xDF8u, 0xE11u },
         { 0x1BC0u, 0x1BD9u }, { 0x1BC0u, 0x1BD9u },
@@ -319,13 +299,8 @@ static int arrival_gather(int mode) {
         f = &arrival_facts[n];
         memset(f, 0, sizeof *f);
         f->record = record;
-        if (mode == VV_ARRIVAL_FOUNDERS) {
-            wsprintfA(f->before, "  Age at arrival: %d\n  Sex: %s\n",
-                      rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
-        } else {
-            wsprintfA(f->before, "  Age at arrival: (unknown)\n  Age when recorded: %d\n  Sex: %s\n",
-                      rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
-        }
+        wsprintfA(f->before, "  Age at arrival: (unknown)\n  Age when recorded: %d\n  Sex: %s\n",
+                  rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
         arrival_fact_index[n] = (int)i;
         ++n;
     }
@@ -346,7 +321,7 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
         || !arrival_backfill_ready() || vv_arrival_marker_present(g_game, slot)) {
         return;
     }
-    count = arrival_gather(VV_ARRIVAL_APPLY);
+    count = arrival_gather();
     if (count < 0) {
         return;
     }
@@ -394,7 +369,7 @@ __declspec(dllexport) int __stdcall VvfpCauseScanArrivals(int game, int slot) {
     if (!births_are_logged() || vv_arrival_marker_present(game, slot)) {
         return 0;
     }
-    count = arrival_gather(VV_ARRIVAL_COUNT);
+    count = arrival_gather();
     if (count <= 0) {
         return count;
     }
