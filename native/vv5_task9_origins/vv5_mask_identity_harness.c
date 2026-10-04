@@ -89,12 +89,23 @@ int main(int argc, char **argv) {
     CHECK(sync && writes, "Vv5MaskSync / WriteMaskSidecar resolve");
     if (!(sync && writes)) return 1;
 
-    /* where the DLL will write */
-    SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE);
-    GetModuleFileNameA(NULL, exe, MAX_PATH);
-    base = strrchr(exe, '\\'); base = base ? base + 1 : exe; dot = strrchr(base, '.'); if (dot) *dot = 0;
-    sprintf(folder, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
-    sprintf(file, "%s\\Village Masks - Save 1.dat", folder);
+    /* where the DLL will write. Bounded, and refused when it does not fit, as
+       the companion's own build_mask_sidecar_path refuses an overlong path. */
+    {
+        DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+        int a, b;
+        if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE) || n == 0 || n >= MAX_PATH) {
+            printf("cannot resolve Documents or this executable's path\n");
+            return 2;
+        }
+        base = strrchr(exe, '\\'); base = base ? base + 1 : exe; dot = strrchr(base, '.'); if (dot) *dot = 0;
+        a = _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+        b = a < 0 || a >= MAX_PATH ? -1 : _snprintf(file, MAX_PATH, "%s\\Village Masks - Save 1.dat", folder);
+        if (b < 0 || b >= MAX_PATH) {
+            printf("the sidecar path does not fit in MAX_PATH; not running\n");
+            return 2;
+        }
+    }
 
     printf("== nothing known: no slot, no villagers ==\n");
     CHECK(sync() == 0, "sync with slot 0 reports unknown");
