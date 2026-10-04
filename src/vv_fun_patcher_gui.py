@@ -2128,6 +2128,7 @@ class App(tk.Tk):
         name_var = tk.StringVar()
         counter_var = tk.StringVar()
         problem_var = tk.StringVar()
+        note_var = tk.StringVar()
         state: dict = {"folders": [], "slots": []}
 
         ttk.Label(frame, text="Game:").grid(row=1, column=0, sticky="w")
@@ -2150,8 +2151,11 @@ class App(tk.Tk):
             frame, textvariable=problem_var, foreground="#a01010",
             wraplength=560, justify="left",
         ).grid(row=5, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        ttk.Label(
+            frame, textvariable=note_var, wraplength=560, justify="left",
+        ).grid(row=6, column=0, columnspan=3, sticky="w", pady=(2, 0))
         buttons = ttk.Frame(frame)
-        buttons.grid(row=6, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        buttons.grid(row=7, column=0, columnspan=3, sticky="w", pady=(12, 0))
         rename_button = ttk.Button(buttons, text="Rename")
         rename_button.pack(side="left")
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
@@ -2185,6 +2189,13 @@ class App(tk.Tk):
                 if problem is None and name == info.name:
                     problem = "That is already this tribe's name."
             problem_var.set(problem or "")
+            note_var.set(
+                "Allowed. The game's Change Tribe screen will show this name cut "
+                "short, as it does long names the game itself makes; the game "
+                "keeps and shows the whole name everywhere else."
+                if problem is None and name and vv_tribe_rename.shown_shortened(saves, name)
+                else ""
+            )
             ok = problem is None and bool(name)
             rename_button.configure(state="normal" if ok else "disabled")
 

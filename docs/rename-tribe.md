@@ -27,8 +27,16 @@ results are in the pull request.
 | Spaces | kept as typed, never trimmed | same | same | same | same |
 | Empty name | refused (restores "NEW PLAYER") | same | same | same | same |
 | "NEW PLAYER" | the slot screen's empty-slot marker, compared exactly (0x413EE3) | same | same | same | same |
-| Name shown in the game | slot screen; "Player: " + name (0x426100) | slot screen; "Tribe: " + name (0x431D56) | slot screen | slot screen | slot screen |
+| Name shown in the game (live) | title menu "Player: <name>"; Change Player screen | title menu "Tribe: <name>"; Change Tribe screen | title menu "Current Tribe: <name>"; Change Tribe | title menu; Change Tribe | title menu; Change Tribe |
+| Change Tribe slot button width (26-space placeholder, ldwarialbold) | 181 px: the button drops characters from the end while wider (live: kept `abcdefghijklmnopqrt` 180 px, dropped the `s` of `...qrs` 182 px) | 181 px | 130 px (live: kept `abcdefghijklmr` 130 px) | 130 px | 130 px |
+| First-tribe dialog (live) | stored 31 of 40 typed characters, no width cap | (same code) | stored 19 of 25 typed, no width cap | (same code) | (same code) |
 | Longest safe name | 32 (the 33-byte slot list field) | 32 | 20 (21-byte field; the restart copy uses a 24-byte stack local, so over 23 would break the stack) | 20 | 20 |
+
+The games therefore make names up to 31 or 19 characters themselves (the
+first-tribe dialog), and the Change Tribe screen shows any name wider than its
+button cut short -- only the display; the save keeps the whole name, and the
+title menu shows it in full (seen live in all five games). Rename Tribe allows
+such a name and says so in the window.
 
 So the rename writes the new name, NUL-padded to the field, into the slot
 save, into each older generation that still holds the same name, and into the

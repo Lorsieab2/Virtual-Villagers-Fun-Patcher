@@ -243,6 +243,81 @@ class NameRuleTests(unittest.TestCase):
             self.assertEqual({p.name: p.read_bytes() for p in folder.iterdir()}, before)
 
 
+class SlotButtonWidthTests(unittest.TestCase):
+    """The Change Tribe slot buttons cut long names short on screen.
+
+    Measured live on test copies: A New Home's button kept the typed
+    "abcdefghijklmnopqrt" (180 px) and dropped the "s" of "...qrs" (182 px);
+    The Secret City's kept "abcdefghijklmr" (130 px) and dropped the "n" of
+    "...lmn" (134 px). Both games' first-tribe dialogs stored 31 and 19
+    characters with no width cap, so a wide name is one the games make
+    themselves: it is allowed, and the window only notes the shortened display.
+    """
+
+    def test_the_buttons_are_181_and_130_pixels(self) -> None:
+        self.assertEqual([rename.slot_button_width(game) for game in rename.GAMES], [181, 181, 130, 130, 130])
+
+    def test_the_live_measurements(self) -> None:
+        vv1, vv3 = rename.GAMES[0], rename.GAMES[2]
+        self.assertEqual(rename.text_width(vv1, "abcdefghijklmnopqrt"), 180)
+        self.assertEqual(rename.text_width(vv1, "abcdefghijklmnopqrs"), 182)
+        self.assertFalse(rename.shown_shortened(vv1, "abcdefghijklmnopqrt"))
+        self.assertTrue(rename.shown_shortened(vv1, "abcdefghijklmnopqrs"))
+        self.assertEqual(rename.text_width(vv3, "abcdefghijklmr"), 130)
+        self.assertFalse(rename.shown_shortened(vv3, "abcdefghijklmr"))
+        self.assertTrue(rename.shown_shortened(vv3, "abcdefghijklmn"))
+        # What the screens showed for the renamed tribes.
+        self.assertFalse(rename.shown_shortened(vv1, "Live Rename Test T"))
+        self.assertTrue(rename.shown_shortened(vv1, "Live Rename Test Tr"))
+        self.assertFalse(rename.shown_shortened(vv3, "Secret City Re"))
+        self.assertTrue(rename.shown_shortened(vv3, "Secret City Ren"))
+
+    def test_a_wide_name_is_still_allowed(self) -> None:
+        for game in rename.GAMES:
+            with self.subTest(game=game.number):
+                name = "W" * game.max_length
+                self.assertTrue(rename.shown_shortened(game, name))
+                self.assertIsNone(rename.name_problem(game, name))
+
+    STOCK = ROOT / "research" / "stock-executables"
+    TABLES = {1: ("A New Home", 0x486888, 1), 2: ("The Lost Children", 0x4958A8, 1),
+              3: ("The Secret City", 0x4A6A80, 0), 4: ("The Tree of Life", 0x4BA140, 0),
+              5: ("New Believers", 0x4C7FE0, 0)}
+
+    @unittest.skipUnless((ROOT / "research" / "stock-executables").is_dir(), "stock executables not present")
+    def test_the_widths_are_the_executables_glyph_tables(self) -> None:
+        import struct
+        for number, (short, va, spacing) in self.TABLES.items():
+            with self.subTest(game=number):
+                exe = (self.STOCK / f"Virtual Villagers - {short}.exe").read_bytes()
+                pe = struct.unpack_from("<I", exe, 0x3C)[0]
+                sections = struct.unpack_from("<H", exe, pe + 6)[0]
+                optional = struct.unpack_from("<H", exe, pe + 20)[0]
+                base = struct.unpack_from("<I", exe, pe + 24 + 28)[0]
+                table = pe + 24 + optional
+                offset = None
+                for index in range(sections):
+                    vsize, vaddr, rsize, raw = struct.unpack_from("<IIII", exe, table + 40 * index + 8)
+                    if vaddr <= va - base < vaddr + max(vsize, rsize):
+                        offset = va - base - vaddr + raw
+                self.assertIsNotNone(offset)
+                glyphs = {}
+                first = None
+                while True:
+                    code, left, _top, right, _bottom = struct.unpack_from("<5i", exe, offset)
+                    if code == 0:
+                        break
+                    first = right - left if first is None else first
+                    glyphs.setdefault(code & 0xFF if code < 0 else code, right - left)
+                    offset += 20
+                game = rename.GAMES[number - 1]
+                for code in range(0x20, 0x7F):
+                    self.assertEqual(
+                        rename.text_width(game, chr(code)), glyphs.get(code, first), repr(chr(code))
+                    )
+                self.assertEqual(rename._font(game)[1], spacing)
+
+
 # ---------------------------------------------------------------------------
 # Round trips on every game
 # ---------------------------------------------------------------------------

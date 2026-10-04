@@ -176,6 +176,64 @@ PRINTABLE = frozenset(chr(code) for code in range(0x20, 0x7F))
 UNDRAWABLE_VV1_VV2 = frozenset("#$%&()*+;<=>@[\\]^_{}|~")
 
 
+# The width, in pixels, of each printable character (0x20..0x7E) in the font
+# the Change Player / Change Tribe slot buttons use (ldwarialbold), read from
+# the glyph tables in the executables: A New Home 0x486888 and The Lost
+# Children 0x4958A8 (one pixel between characters), The Secret City 0x4A6A80,
+# The Tree of Life 0x4BA140 and New Believers 0x4C7FE0 (none). A glyph the
+# font lacks is drawn as its first one.
+_GLYPHS_VV1_VV2 = (
+    6, 4, 8, 13, 13, 13, 13, 4, 13, 13, 13, 13, 3, 5, 3, 10, 9, 7, 9, 10, 10, 10, 9, 9,
+    10, 9, 4, 13, 13, 13, 13, 10, 13, 13, 12, 11, 12, 10, 9, 13, 11, 4, 9, 12, 10, 14,
+    11, 13, 10, 14, 13, 11, 10, 12, 13, 17, 12, 12, 12, 13, 13, 13, 13, 13, 3, 9, 10,
+    9, 10, 9, 7, 10, 9, 3, 5, 10, 4, 15, 9, 10, 10, 10, 6, 9, 7, 10, 10, 14, 10, 9, 9,
+    13, 13, 13, 13,
+)
+_GLYPHS_VV3_VV5 = (
+    5, 5, 9, 10, 10, 17, 13, 4, 6, 6, 7, 11, 5, 6, 5, 5, 10, 10, 10, 10, 10, 10, 10, 10,
+    10, 10, 7, 7, 11, 11, 11, 11, 18, 13, 13, 13, 13, 12, 11, 14, 13, 5, 10, 13, 11, 15,
+    13, 14, 12, 14, 13, 12, 11, 13, 13, 17, 12, 13, 10, 1, 5, 6, 11, 10, 6, 10, 11, 10,
+    11, 11, 6, 11, 11, 5, 5, 10, 5, 17, 11, 11, 11, 11, 7, 10, 6, 11, 11, 15, 11, 11, 9,
+    4, 4, 7, 11,
+)
+# Each slot button is made with a 26-space placeholder, which sets its width.
+SLOT_BUTTON_PLACEHOLDER = 26
+
+
+def _font(game: GameSaves) -> tuple[tuple[int, ...], int]:
+    return (_GLYPHS_VV1_VV2, 1) if game.number in (1, 2) else (_GLYPHS_VV3_VV5, 0)
+
+
+def text_width(game: GameSaves, text: str) -> int:
+    """How wide ``text`` is on a slot button, in the game's own pixels."""
+    glyphs, spacing = _font(game)
+    if not text:
+        return 0
+    def glyph(ch: str) -> int:
+        code = ord(ch)
+        return glyphs[code - 0x20] if 0x20 <= code < 0x7F else glyphs[0]
+
+    return sum(glyph(ch) + spacing for ch in text) - spacing
+
+
+def slot_button_width(game: GameSaves) -> int:
+    """181 pixels in A New Home and The Lost Children, 130 in the later three."""
+    return text_width(game, " " * SLOT_BUTTON_PLACEHOLDER)
+
+
+def shown_shortened(game: GameSaves, name: str) -> bool:
+    """Whether the Change Tribe screen would show ``name`` cut short.
+
+    Measured live: a slot button drops characters from the end while its text
+    is wider than the button (A New Home kept "abcdefghijklmnopqrt", 180 px,
+    and refused "...qrs", 182 px; The Secret City kept "abcdefghijklmr", 130
+    px). The first-tribe dialog has no such cap, so the games themselves make
+    names up to 31 or 19 characters that this screen shows shortened; only the
+    display is affected, and such a name is allowed.
+    """
+    return text_width(game, name) > slot_button_width(game)
+
+
 def allowed_characters(game: GameSaves) -> frozenset[str]:
     if game.number in (1, 2):
         return PRINTABLE - UNDRAWABLE_VV1_VV2
