@@ -1708,13 +1708,14 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     vvfp_cause_bridge(1);  /* cause of death companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     slot = vv1_mask_prepare_slot();
-    /* The first-load cross-check: once the village has been on screen a
-       moment, ONE Repair / Not now prompt for whatever its records disagree
-       with their sources of truth on (crosscheck_bridge.h). */
-    vvfp_crosscheck_bridge(1, slot != 0);
     if (!slot) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }
+    /* The first-load cross-check: once the village has been on screen a
+       moment, ONE Repair / Not now prompt for whatever its records disagree
+       with their sources of truth on (crosscheck_bridge.h).  No village frame
+       for a while (the menus, a load) is a new load to it. */
+    vvfp_crosscheck_bridge(1, 1);
     if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
         /* This slot's sidecar has not loaded: never read yet, or present but
            unopenable when last tried.  Retry here -- the load itself is a
