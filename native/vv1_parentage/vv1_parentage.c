@@ -267,6 +267,8 @@ static int g_prev_gender[VV1_RECORD_COUNT];
 static int g_prev_age[VV1_RECORD_COUNT];
 static unsigned char g_spend[VV1_RECORD_COUNT];   /* a delivery ended this frame: spend the stash after logging */
 static unsigned char g_idle[VV1_RECORD_COUNT];    /* settled frames a stashed mother has been seen NOT pregnant */
+static int g_save_owed;                       /* a spent stash is not on disk yet: the slot it is owed to, 0 = none */
+static int g_save_wait;                       /* ticks before that save is tried again */
 static int g_have_prev;
 static vv1_birth g_births[VV1_RECORD_COUNT];  /* births seen by the last tick */
 static int g_birth_count;
@@ -1199,6 +1201,7 @@ static int vv1_stash(const unsigned char *records, const unsigned char *mother,
     g_entries[index].stash_head = vv1_plus_one(*(const int *)(father + VV1_HEAD_OFFSET));
     g_entries[index].stash_body = vv1_plus_one(*(const int *)(father + VV1_BODY_OFFSET));
     vv1_copy_name(father, g_entries[index].stash_name);
+    g_idle[index] = 0;            /* a captured conception: this stash is the current pregnancy's */
     return (int)index;
 }
 
@@ -1376,24 +1379,29 @@ static int vv1_spend_stashes(const unsigned char *records) {
    for VV1_NEW_VILLAGE_STRIKES consecutive frames is spent: every birth of
    that pregnancy came before the due field was cleared, so it has already
    been given its father, and a whole strike window keeps a record the game
-   is still rebuilding from being read as "not pregnant".  An empty record
-   (she died, or is away) is left alone: her stash follows her identity like
-   the rest of her entry, and nobody can be born from it meanwhile.  This
-   also spends the stale stashes an earlier build left in its file.  Returns
-   1 when a stash was spent. */
+   is still rebuilding from being read as "not pregnant".  "Pregnant" is the
+   due field alone: the stock Mysterious Vial's toddler result (0x419CC1,
+   without Fix Vanilla Bugs) clears it and leaves a twin or triplet litter
+   counter at 2 or 3, so a non-zero counter with due zero is a pregnancy
+   that is over.  A mother seen NOT pregnant who is pregnant again without
+   a captured conception (vv1_stash restarts the count) started a pregnancy
+   the stash does not describe: it is spent at once, never handed to that
+   child.  An empty record (she died, or is away) is left alone: her stash
+   follows her identity like the rest of her entry, and nobody can be born
+   from it meanwhile.  This also spends the stale stashes an earlier build
+   left in its file.  Returns 1 when a stash was spent. */
 static int vv1_spend_ended_pregnancies(const unsigned char *records) {
     int i;
     int changed = 0;
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
         const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
         if (!(g_entries[i].stash_head || g_entries[i].stash_body || g_entries[i].stash_name[0])
-            || !rec[VV1_OCCUPIED_OFFSET]
-            || *(const int *)(rec + VV1_DUE_OFFSET) != 0
-            || *(const int *)(rec + VV1_LITTER_OFFSET) != 0) {
+            || !rec[VV1_OCCUPIED_OFFSET]) {
             g_idle[i] = 0;
             continue;
         }
-        if (++g_idle[i] >= VV1_NEW_VILLAGE_STRIKES) {
+        if (*(const int *)(rec + VV1_DUE_OFFSET) != 0 ? g_idle[i] > 0
+                                                       : ++g_idle[i] >= VV1_NEW_VILLAGE_STRIKES) {
             g_entries[i].stash_head = 0;
             g_entries[i].stash_body = 0;
             memset(g_entries[i].stash_name, 0, VV1_NAME_CAPACITY);
@@ -1701,8 +1709,19 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
     if (!slot) {
         return 0;
     }
+    if (g_save_owed != slot) {
+        g_save_owed = 0;          /* another village's table: nothing of this one is owed */
+    }
     if (vv1_frame(vv1_records(), 1)) {
-        vv1_parents_save(slot, vv1_records());
+        /* A change made here -- a stash spent by the sweep above all -- is
+           made once: if the file is locked at that moment, the old stash
+           would come back on the next load.  So it stays owed, and the save
+           is tried again a strike window later until it lands. */
+        g_save_owed = vv1_parents_save(slot, vv1_records()) ? 0 : slot;
+        g_save_wait = VV1_NEW_VILLAGE_STRIKES;
+    } else if (g_save_owed && --g_save_wait <= 0) {
+        g_save_owed = vv1_parents_save(slot, vv1_records()) ? 0 : slot;
+        g_save_wait = VV1_NEW_VILLAGE_STRIKES;
     }
     return 1;
 }

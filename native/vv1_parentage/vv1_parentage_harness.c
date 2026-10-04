@@ -507,26 +507,50 @@ int main(int argc, char **argv) {
             for (frame = 0; frame < 200; ++frame) { if (frame % 50 == 0) drop(); tick(records); }
             born_from(8, 0, "LongWait"); born(records, rec(8), rec(0));
             entry(8, e); CHECK(same(e, 7, 2, 4, 9), "a pregnancy 200 frames long keeps its father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
-            /* 6. not pregnant for one frame short of the window: kept (the
-                  drop hides the delivery from the frame-to-frame spend) */
+            /* 6. pregnant again, unseen, before the window ended (Codex, #530):
+                  the stash is not this pregnancy's, so it is spent at once
+                  (the drop hides the delivery from the frame-to-frame spend) */
             drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
             for (frame = 0; frame < 29; ++frame) tick(records);
             *(int *)(rec(0) + DUE) = 1400; tick(records);
             born_from(14, 0, "Edge"); born(records, rec(14), rec(0));
-            entry(14, e); CHECK(same(e, 7, 2, 4, 9), "fewer than %d settled frames not pregnant: the stash is kept (%d,%d,%d,%d)", 30, e[0], e[1], e[2], e[3]);
-            /* 7. a litter still being delivered (counter non-zero) keeps it */
+            entry(14, e); CHECK(same(e, -1, -1, 4, 9), "an unseen conception 29 frames after the pregnancy ended does not revive the old father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* 6b. a captured conception in that window makes the stash current */
             *(int *)(rec(0) + DUE) = 0; tick(records);
-            conceived(conceive, 0, 1); *(int *)(rec(0) + LITTER) = 2; tick(records);
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1401; tick(records);
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
+            for (frame = 0; frame < 20; ++frame) tick(records);
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1402; tick(records);
+            for (frame = 0; frame < 10; ++frame) tick(records);
+            born_from(14, 0, "Seen"); born(records, rec(14), rec(0));
+            entry(14, e); CHECK(same(e, 7, 2, 4, 9), "a conception captured inside the window keeps its father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* 6c. not pregnant one frame short of the window, then the
+                  record is read again: nothing is spent early */
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
+            for (frame = 0; frame < 29; ++frame) tick(records);
+            born_from(14, 0, "Edge2"); born(records, rec(14), rec(0));
+            entry(14, e); CHECK(same(e, 7, 2, 4, 9), "after %d settled frames not pregnant the stash is still there (%d,%d,%d,%d)", 29, e[0], e[1], e[2], e[3]);
+            tick(records);
+            born_from(14, 0, "Edge3"); born(records, rec(14), rec(0));
+            entry(14, e); CHECK(same(e, -1, -1, 4, 9), "...and the %dth spends it (%d,%d,%d,%d)", 30, e[0], e[1], e[2], e[3]);
+            /* 7. the stock Mysterious Vial (toddler result, Fix Vanilla Bugs
+                  off) clears due and leaves a twin litter counter at 2: the
+                  pregnancy is over, and so is the stash (Codex, #530) */
+            *(int *)(rec(0) + DUE) = 0; tick(records);
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1450; *(int *)(rec(0) + LITTER) = 2; tick(records);
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);   /* the vial: due 0, litter still 2 */
             for (frame = 0; frame < 41; ++frame) tick(records);
-            born_from(15, 0, "LitterA"); born(records, rec(15), rec(0));
-            entry(15, e); CHECK(same(e, 7, 2, 4, 9), "a non-zero litter counter is a pregnancy: the stash is kept (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            *(int *)(rec(0) + DUE) = 1460; tick(records);
+            born_from(15, 0, "AfterVial"); born(records, rec(15), rec(0));
+            entry(15, e); CHECK(same(e, -1, -1, 4, 9), "a litter counter left at 2 by the vial is not a pregnancy: the stash is spent (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            *(int *)(rec(0) + DUE) = 0; *(int *)(rec(0) + LITTER) = 0; tick(records);
             /* 8. the count starts over when the baseline is dropped (a load or
                   repack may have put someone else in the record) */
-            drop(); *(int *)(rec(0) + LITTER) = 0; tick(records);
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1500; tick(records);
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
             for (frame = 0; frame < 20; ++frame) tick(records);
             drop(); tick(records);
             for (frame = 0; frame < 15; ++frame) tick(records);
-            *(int *)(rec(0) + DUE) = 1500; tick(records);
             born_from(16, 0, "Restart"); born(records, rec(16), rec(0));
             entry(16, e); CHECK(same(e, 7, 2, 4, 9), "20 + 15 frames across a dropped baseline are not one window: kept (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
             (void)kept;
