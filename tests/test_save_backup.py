@@ -942,6 +942,61 @@ class RestoreTests(RestoreBase):
             self.assertEqual(after[key], value, key)
 
 
+
+class DeleteBackupTests(RestoreBase):
+    """Found live: OneDrive marks folders read-only, and a plain rmtree then
+    stopped part-way, leaving a half-emptied backup that was still listed."""
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows file attributes")
+    def test_read_only_files_and_folders_are_deleted(self) -> None:
+        import ctypes
+        folder = self.make_village()
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        inner = made.backup_folder / DATA / "Village Statistics"
+        for path in (inner, inner / "Village Statistics - Save 1.dat", made.backup_folder / DATA):
+            self.assertTrue(ctypes.windll.kernel32.SetFileAttributesW(str(path), 1))  # READONLY
+        backup.delete_backup(folder, made.backup_folder)
+        self.assertEqual(list((folder / "Backups").iterdir()), [])
+
+    def test_a_refused_rename_deletes_nothing(self) -> None:
+        folder = self.make_village()
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        keep = self.backups_snapshot(folder)
+        with mock.patch.object(Path, "rename", side_effect=PermissionError("in use")):
+            with self.assertRaises(backup.BackupError) as caught:
+                backup.delete_backup(folder, made.backup_folder)
+        self.assertIn("nothing was deleted", str(caught.exception))
+        self.assertEqual(self.backups_snapshot(folder), keep)
+        self.assertEqual(len(backup.list_backups(folder)), 1)
+
+    def test_a_delete_that_cannot_finish_never_leaves_a_listed_backup(self) -> None:
+        folder = self.make_village()
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        with mock.patch.object(backup, "DELETE_RETRY_SECONDS", 0), \
+             mock.patch.object(backup.shutil, "rmtree", side_effect=PermissionError("locked")):
+            with self.assertRaises(backup.BackupError) as caught:
+                backup.delete_backup(folder, made.backup_folder)
+        self.assertIn("(deleting)", str(caught.exception))
+        self.assertEqual(backup.list_backups(folder), [])
+        self.assertTrue((folder / "Virtual Villagers - The Secret City1.ldw").is_file())
+
+    def test_a_briefly_locked_file_is_retried(self) -> None:
+        folder = self.make_village()
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        real = backup.shutil.rmtree
+        calls = {"n": 0}
+
+        def flaky(path, **kwargs):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise PermissionError("held by the indexer")
+            return real(path, **kwargs)
+
+        with mock.patch.object(backup, "DELETE_RETRY_SECONDS", 0), \
+             mock.patch.object(backup.shutil, "rmtree", side_effect=flaky):
+            backup.delete_backup(folder, made.backup_folder)
+        self.assertEqual(list((folder / "Backups").iterdir()), [])
+
 class RestoreGuiTests(unittest.TestCase):
     setUpClass = classmethod(GuiTests.setUpClass.__func__)
     method = GuiTests.method

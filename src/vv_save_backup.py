@@ -46,7 +46,9 @@ import hashlib
 import os
 import re
 import shutil
+import stat
 import sys
+import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -956,7 +958,58 @@ def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path])
     return problems
 
 
+DELETING = " (deleting)"
+DELETE_ATTEMPTS = 5
+DELETE_RETRY_SECONDS = 0.5
+
+
+def _clear_read_only(path: str) -> None:
+    """Clear the read-only attribute, which OneDrive and Explorer set on folders."""
+    try:
+        os.chmod(path, stat.S_IWRITE | stat.S_IREAD)
+    except OSError:
+        pass
+
+
 def delete_backup(save_folder: Path, backup: Path) -> None:
-    """Delete one backup folder, which must be one of this save folder's backups."""
+    """Delete one backup folder, which must be one of this save folder's backups.
+
+    The folder is first renamed "... (deleting)", which takes it off the list
+    in one step, so a delete that is interrupted part-way never leaves a
+    half-emptied folder that still looks like a usable backup. Read-only
+    files and folders (OneDrive marks folders read-only) are made writable as
+    they are removed, and a file briefly held by a sync or indexing program is
+    retried. If the rename itself is refused nothing has been deleted.
+    """
     _require_backup_of(save_folder, backup)
-    shutil.rmtree(backup)
+    doomed = backup.with_name(backup.name + DELETING)
+    try:
+        backup.rename(doomed)
+    except OSError as exc:
+        raise BackupError(
+            f"The backup could not be deleted ({exc}); nothing was deleted. "
+            "If another program has it open, close that and try again."
+        ) from exc
+
+    def retry_writable(function, path, _error):
+        _clear_read_only(path)
+        parent = os.path.dirname(path)
+        if parent:
+            _clear_read_only(parent)
+        function(path)
+
+    last: OSError | None = None
+    for attempt in range(DELETE_ATTEMPTS):
+        try:
+            shutil.rmtree(doomed, onexc=retry_writable)
+            return
+        except FileNotFoundError:
+            return
+        except OSError as exc:
+            last = exc
+            time.sleep(DELETE_RETRY_SECONDS)
+    raise BackupError(
+        f"The backup was taken off the list but its folder could not be removed "
+        f"completely ({last}). You can delete {doomed} yourself; it is no longer "
+        "a usable backup."
+    )
