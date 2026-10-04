@@ -1181,10 +1181,13 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2 };
      DEATH        deaths family, numbered "Death <n>"
      DISAPPEARED  deaths family, "Disappeared", never rolls
      EPITAPH      deaths family, "Epitaph changed", never rolls
-     UNACCOUNTED  unaccounted family, numbered "Unaccounted <n>" */
+     UNACCOUNTED  unaccounted family, numbered "Unaccounted <n>"
+     ARRIVED      births family, "Arrived <n>" (its own running count), never
+                  rolls -- a villager who joined without being born here
+                  (native/shared/arrival_backfill.h) */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
-    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5
+    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6
 };
 
 #define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Deaths"
@@ -1403,7 +1406,7 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     /* A record marker as the first line means the file has no header. */
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
-        || strncmp(line, "Epitaph changed", 15) == 0) {
+        || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0) {
         return 0;
     }
     /* Trim the line ending, which is CRLF on disk because the log is written
@@ -2552,6 +2555,47 @@ static int saved_tribe_still_loaded(int game_id) {
     return same_tribe(saved_tribe, scratch_tribe, TRIBE_STRICT);
 }
 
+/* The Arrived records already in the game's Births and Conceptions files --
+   every file, every village, as a Conception's number counts them -- so the
+   next one's "Arrived <n>" continues the running count.  -1 when a file
+   cannot be read. */
+static int count_arrived_records(const struct game_layout *g) {
+    wchar_t folder[MAX_PATH];
+    wchar_t path[MAX_LOG_PATH];
+    char line[512];
+    int ceiling;
+    int number;
+    int total = 0;
+    if (!vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
+        return -1;
+    }
+    ceiling = highest_log_number(family_stem(g, LOG_BIRTHS), folder);
+    for (number = 1; number <= ceiling; ++number) {
+        FILE *file;
+        if (!build_family_log_path(g, LOG_BIRTHS, number, path)) {
+            return -1;
+        }
+        if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+            continue;
+        }
+        file = _wfopen(path, L"rb");
+        if (file == NULL) {
+            return -1;
+        }
+        while (fgets(line, (int)sizeof line, file) != NULL) {
+            if (strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
+                ++total;
+            }
+        }
+        if (ferror(file)) {
+            fclose(file);
+            return -1;
+        }
+        fclose(file);
+    }
+    return total;
+}
+
 /* What append_record reports. A record that fails with its file restored is
    safe to retry; one whose file could not be restored is not. */
 #define APPEND_WRITTEN        1
@@ -2570,6 +2614,7 @@ static int append_record(
 ) {
     wchar_t path[MAX_LOG_PATH];
     int existing_records;
+    int arrived_before = 0;
     int had_content;
     int written;
     LONGLONG original_size;
@@ -2578,6 +2623,15 @@ static int append_record(
     if (!select_family_log_file(g, log_family_of(kind), village, path,
                                 &existing_records, !kind_is_numbered(kind))) {
         return 0;
+    }
+    if (kind == KIND_ARRIVED) {
+        /* Its number: the Arrived records already written, in every file.
+           A file that cannot be read leaves the record held for a retry --
+           numbered wrong would be worse than numbered later. */
+        arrived_before = count_arrived_records(g);
+        if (arrived_before < 0) {
+            return APPEND_RETRY;
+        }
     }
     /* Text mode, so each \n becomes the CRLF Notepad needs; see the note in
        WriteParentageRecordWithFather. Content measured BEFORE the open, which
@@ -2595,7 +2649,9 @@ static int append_record(
         }
     }
     if (written) {
-        if (!kind_is_numbered(kind)) {
+        if (kind == KIND_ARRIVED) {
+            written = fprintf(file, "Arrived %d\n%s", arrived_before + 1, text) >= 0;
+        } else if (!kind_is_numbered(kind)) {
             written = fprintf(file, "%s", text) >= 0;
         } else {
             /* "Conception <n>", "Death <n>" or "Unaccounted <n>": the running total across the
@@ -3375,7 +3431,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_UNACCOUNTED) {
+        || kind < KIND_DEATH || kind > KIND_ARRIVED) {
         return 0;
     }
     g = layout_of(game_id);
@@ -3449,6 +3505,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
 }
 
 #include "grave_backfill.inc"
+#include "arrival_backfill.inc"
 
 /* Whether this install records deaths: "VVFP Cause of Death.dll" ships only
    with its row, so its presence beside the executable is the test, exactly as
@@ -3640,6 +3697,26 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
 
 static int create_extra_log(const struct game_layout *g, int family, const char *village);
 
+/* The save slot a village header names: "Village: <name> (Save <n>)", or
+   "Save <n>" for a village with no name (vv_village_header). 0 when it names
+   none. */
+static int village_header_slot(const char *village) {
+    const char *at = NULL;
+    const char *scan = village;
+    if (strncmp(village, "Save ", 5) == 0 && village[5] >= '1' && village[5] <= '5'
+        && (village[6] == '\n' || village[6] == '\r' || village[6] == '\0')) {
+        return village[5] - '0';
+    }
+    while ((scan = strstr(scan, "(Save ")) != NULL) {
+        at = scan;
+        scan += 6;
+    }
+    if (at == NULL || at[6] < '1' || at[6] > '5' || at[7] != ')') {
+        return 0;
+    }
+    return at[6] - '0';
+}
+
 static int ensure_parentage_log(
     int game_id,
     const char *village,
@@ -3650,6 +3727,8 @@ static int ensure_parentage_log(
     int existing = 0;
     FILE *file;
     int had_content;
+    int had_log;
+    int created;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
@@ -3663,6 +3742,12 @@ static int ensure_parentage_log(
            and an unattributable log is worse than an absent one. */
         return 0;
     }
+    /* Whether this village had a Births and Conceptions log before this
+       save -- asked before the held records are written, which may create
+       it.  A log started now has nobody who arrived before it: the slot's
+       Arrived backfill is marked done (native/shared/arrival_backfill.h). */
+    had_log = select_log_file(g, village, path, &existing, 1)
+        && GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES;
     /* The village has just been saved, so it is known: remember the tribe it
        holds, then write any records held since before this save under its
        header. See emit_record. */
@@ -3696,23 +3781,28 @@ static int ensure_parentage_log(
         return 0;
     }
     if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
-        return 1;               /* this village already has a log */
-    }
-    /* Measured BEFORE the open, which would create the file. */
-    had_content = log_file_has_content(path);
-    file = _wfopen(path, L"a");
-    if (file == NULL) {
-        return 0;
-    }
-    /* Brand new means nothing on disk -- measured before the open, since
-       opening creates the file. See log_file_has_content. */
-    if (!had_content) {
-        if (fprintf(file, "%s", village) < 0) {
-            fclose(file);
+        created = 1;            /* this village already has a log */
+    } else {
+        /* Measured BEFORE the open, which would create the file. */
+        had_content = log_file_has_content(path);
+        file = _wfopen(path, L"a");
+        if (file == NULL) {
             return 0;
         }
+        /* Brand new means nothing on disk -- measured before the open, since
+           opening creates the file. See log_file_has_content. */
+        if (!had_content) {
+            if (fprintf(file, "%s", village) < 0) {
+                fclose(file);
+                return 0;
+            }
+        }
+        created = fclose(file) == 0;
     }
-    return fclose(file) == 0;
+    if (created && !had_log && village_header_slot(village) != 0) {
+        (void)vv_arrival_marker_write(game_id, village_header_slot(village));
+    }
+    return created;
 }
 
 /* The Deaths log's counterpart of the above: created empty but headed, and

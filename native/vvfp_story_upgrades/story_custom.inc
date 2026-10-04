@@ -807,6 +807,20 @@ static void ce_tell_cause_of_death(int game, int index) {
     }
 }
 
+/* ...and its new villagers, which are not births: each gets an "Arrived"
+   record, "Custom Island Event", in the Births and Conceptions log
+   (cod_arrivals.inc).  Told right after the game's creator made them, in the
+   same frame.  Absent (its row off): nothing. */
+static void ce_tell_arrival(int game, int index) {
+    typedef void (__stdcall *arrived_fn)(int, int, const char *);
+    HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
+    arrived_fn arrived = module != NULL
+        ? (arrived_fn)GetProcAddress(module, "VvfpCauseArrivedBy") : NULL;
+    if (arrived != NULL) {
+        arrived(game, index, "Custom Island Event");
+    }
+}
+
 static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     int i;
     int j;
@@ -1016,6 +1030,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                     break;
                 }
                 ++r->born;
+                ce_tell_arrival(e->game, index);
                 if ((a->caps & CAP_TITLE) && s->title[0] != '\0'
                     && !titles_set(e->game, index, s->title)) {
                     ++r->refused;

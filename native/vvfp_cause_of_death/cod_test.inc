@@ -91,3 +91,27 @@ __declspec(dllexport) void __stdcall VvfpCauseTestRoster(void *entries, void *gr
     test_roster = (unsigned char *)entries;
     test_gravestones = (unsigned char *)gravestones;
 }
+
+/* A creator made `index` (cod_roster_sites.inc's roster_created), with the
+   creator's return address where A New Home's hook reads one. */
+__declspec(dllexport) void __stdcall VvfpCauseTestCreated(int index, unsigned int creator_ret) {
+    if (index >= 0 && index < RECORDS_MAX && !temporary[index]) {
+        roster_arrived(index);
+        arrival_created(index, creator_ret);
+    }
+}
+
+/* The arrivals' part of the per-frame tick (cod_arrivals.inc). */
+__declspec(dllexport) void __stdcall VvfpCauseTestArrivalTick(void) {
+    arrival_tick();
+}
+
+/* Whether A New Home's Birth records are written: 1 yes, -1 no, 0 look. */
+__declspec(dllexport) void __stdcall VvfpCauseTestVv1Births(int outcome) {
+    test_vv1_births = outcome;
+}
+
+/* A departure the hooks report (a burial, a removal, a disappearance). */
+__declspec(dllexport) void __stdcall VvfpCauseTestDeparted(int index) {
+    roster_departed(index, cod_record(index));
+}

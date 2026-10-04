@@ -96,6 +96,7 @@ static int report_counts(signed char tag, int slot) {
    record holds next. */
 static void roster_departed(int index, const unsigned char *record) {
     (void)record;
+    arrival_departed(index);          /* an arrival not yet written: now */
     if (index >= 0 && index < RECORDS_MAX) {
         departed[index] = report_tag();
         arrived[index] = REPORT_NONE;
@@ -332,6 +333,10 @@ static void roster_reconcile(int slot) {
             have_previous = 0;        /* another village's roster */
         }
     }
+    /* The arrivals made for this slot get their Arrived records -- unless
+       there is no village saved before to arrive in: a new village's
+       founders (cod_arrivals.inc). */
+    arrival_save(slot, have_previous);
     if (have_previous) {
         for (i = 0; i < r->slots; ++i) {
             unsigned char *now_record = records + (size_t)i * r->stride;
@@ -439,6 +444,9 @@ static void cod_save_done(int slot, const void *save_buffer) {
         /* Every grave in the Deaths log first, so the reconciliation knows
            the villagers whose graves were recorded from now. */
         backfill_at_save(slot, save_buffer);
+        /* ...and every villager who arrived before the Arrived record
+           existed, after Repair (cod_arrivals.inc). */
+        arrival_backfill_at_save(slot, save_buffer);
         roster_reconcile(slot);
     }
 }
@@ -493,4 +501,5 @@ __declspec(dllexport) void __stdcall VvfpCauseNoteArrival(int game, const void *
     }
     g_game = game;
     roster_arrived(cod_index_of((const unsigned char *)record));
+    arrival_noted_birth(cod_index_of((const unsigned char *)record));   /* a birth, not an arrival */
 }
