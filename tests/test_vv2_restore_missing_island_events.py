@@ -201,6 +201,10 @@ class ByteTests(unittest.TestCase):
                 for i in (4, 18, 20, 26):
                     self.assertEqual(_u32(data, CONDITION_TABLE + 4 * i), ACCEPT)
                 self.assertEqual(_u32(data, RUNNER_TABLE + 16), CAVE)
+                # The body ends in its jmp to the epilogue; the rest of the dead
+                # branch's first half is int3.
+                self.assertEqual(data[0x2F05D], 0xE9)
+                self.assertEqual(data[0x2F062:0x2F067], b"\xCC" * 5)
                 self.assertEqual(stock[0x26110:0x26113], data[0x26110:0x26113])
 
     def test_every_public_vv2_patch_no_overlap_in_every_mode(self):
