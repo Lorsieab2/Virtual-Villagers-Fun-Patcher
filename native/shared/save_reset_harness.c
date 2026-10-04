@@ -531,6 +531,58 @@ int main(void) {
         check(delete_if_present_w(victim_w) == 1, "a real wide path IS deleted");
     }
 
+    /* A RENAMED TRIBE'S LOGS GO WITH IT. Rename Tribe never rewrites a
+       header; it appends "Tribe renamed from <old> to <new> on <date>". A
+       Start Over of the renamed village reads the NEW name from its save, so
+       the reset must follow the note to recognise the logs headed with the
+       old name -- and must still leave a log that only mentions the name. */
+    {
+        static const char RENAMED[] = "Village: Kalahuna Two (Save 1)\n";
+        static const char TWICE[] = "Village: Third Name (Save 1)\n";
+        char log3[MAX_PATH];
+        wsprintfA(log3, "%s\\Virtual Villagers 1 Births and Conceptions Log 3.txt", pardir);
+
+        write_text(log1, "Village: Kalahuna (Save 1)\nConception 1\n  Mother: A\n\n"
+                         "Tribe renamed from Kalahuna to Kalahuna Two on 2026-10-04\n");
+        write_text(pop1, "Virtual Villagers: A New Home Village Population\n"
+                         "Village: Kalahuna (Save 1)\n\n1. Someone\n"
+                         "Tribe renamed from Kalahuna to Kalahuna Two on 2026-10-04\n");
+        /* The old name without a note: another village now, never erased. */
+        write_text(log3, "Village: Kalahuna (Save 1)\nConception 2\n");
+        check(exists(log1) && exists(pop1) && exists(log3),
+              "renamed-village logs created (nonzero denominator)");
+        vv_reset_slot_state(1, 1, RENAMED);
+        check(!exists(log1), "A RENAMED VILLAGE'S BIRTHS LOG IS DELETED BY ITS START OVER");
+        check(!exists(pop1), "a renamed village's population page is deleted by its Start Over");
+        check(exists(log3), "a log still headed with the old name and no note SURVIVES");
+
+        /* Renamed twice: the notes chain in order. */
+        write_text(log1, "Village: Kalahuna (Save 1)\r\n"
+                         "Tribe renamed from Kalahuna to Kalahuna Two on 2026-10-04\r\n"
+                         "Conception 3\r\n"
+                         "Tribe renamed from Kalahuna Two to Third Name on 2026-10-05\r\n");
+        vv_reset_slot_state(1, 1, RENAMED);
+        check(exists(log1), "after a second rename the middle name no longer matches");
+        vv_reset_slot_state(1, 1, TWICE);
+        check(!exists(log1), "A TWICE-RENAMED VILLAGE'S LOG IS DELETED UNDER ITS NEWEST NAME");
+
+        /* A note for some other name is ignored. */
+        write_text(log1, "Village: Kalahuna (Save 1)\n"
+                         "Tribe renamed from Somebody Else to Kalahuna Two on 2026-10-04\n");
+        vv_reset_slot_state(1, 1, RENAMED);
+        check(exists(log1), "a note whose old name is not the header's is ignored");
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(!exists(log1), "and the log still belongs to its own header's village");
+
+        /* An indented line (inside a record) is not a note. */
+        write_text(log1, "Village: Kalahuna (Save 1)\n"
+                         "  Tribe renamed from Kalahuna to Kalahuna Two on 2026-10-04\n");
+        vv_reset_slot_state(1, 1, RENAMED);
+        check(exists(log1), "an indented look-alike line is not a note");
+        DeleteFileA(log1);
+        DeleteFileA(log3);
+    }
+
     /* A BACKUP SURVIVES START OVER. The patcher's Back Up Saves copies the
        whole save folder into <save folder>\Backups\Backup <date>\, with the
        same file names and log subfolders. A Start Over of the backed-up

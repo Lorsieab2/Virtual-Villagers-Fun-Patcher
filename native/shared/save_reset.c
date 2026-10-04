@@ -3,6 +3,7 @@
 #include "save_folder.h"
 #define VV_DATA_SUBFOLDER_NAMES_ONLY   /* the folder names; nothing is moved here */
 #include "data_subfolder.h"
+#include "village_rename.h"
 
 #include <windows.h>
 
@@ -130,15 +131,34 @@ int vv_test_delete_if_present(const char *path);
 /* The same test against a later line: LINE_INDEX lines are skipped first.
    The Village Population roster opens with its title and puts the village
    header on its SECOND line, so it is matched with line_index 1. */
+/* A RENAMED TRIBE'S LOGS ARE STILL ITS OWN. The patcher's Rename Tribe tool
+   never rewrites a header; it appends "Tribe renamed from <old> to <new> on
+   <date>" to each of the village's logs, and the header a file stands for
+   follows every such line in order (village_rename.h). So the whole file is
+   read, line by line, and the recovered header has each note applied before
+   it is compared. Without this a Start Over of a renamed village would read
+   its NEW name from the save and leave every log it kept under the old one.
+
+   Lines are assembled from fixed reads; a line longer than the buffer is
+   skipped whole (it is a record line, never a header or a note), so nothing
+   past the buffer is ever written. */
+#define RESET_LINE_MAX 512
+
 static int log_line_matches(const wchar_t *path, const char *village,
                             int line_index) {
     HANDLE f;
-    char text[512];
-    char *line;
+    char chunk[4096];
+    char line[RESET_LINE_MAX];
+    char header[RESET_LINE_MAX];
     char want[256];
     DWORD got = 0;
     DWORD i;
     int n;
+    int used = 0;
+    int overlong = 0;
+    int line_number = 0;
+    int have_header = 0;
+    int at_end = 0;
 
     if (village == NULL || village[0] == '\0') {
         return 0;
@@ -148,27 +168,52 @@ static int log_line_matches(const wchar_t *path, const char *village,
     if (f == INVALID_HANDLE_VALUE) {
         return 0;
     }
-    if (!ReadFile(f, text, sizeof(text) - 1, &got, NULL)) {
-        CloseHandle(f);
-        return 0;
+    header[0] = '\0';
+    while (!at_end) {
+        if (!ReadFile(f, chunk, sizeof(chunk), &got, NULL)) {
+            CloseHandle(f);
+            return 0;
+        }
+        if (got == 0) {
+            at_end = 1;
+            chunk[0] = '\n';    /* end the last line as if it had a newline */
+            got = used > 0 || overlong ? 1 : 0;
+        }
+        for (i = 0; i < got; ++i) {
+            char c = chunk[i];
+            if (c != '\n') {
+                if (used < RESET_LINE_MAX - 1) {
+                    line[used++] = c;
+                } else {
+                    overlong = 1;
+                }
+                continue;
+            }
+            /* One whole line, without its line ending. */
+            while (used > 0 && line[used - 1] == '\r') {
+                --used;
+            }
+            line[used] = '\0';
+            if (line_number == line_index) {
+                if (!overlong) {
+                    lstrcpynA(header, line, (int)sizeof(header));
+                    have_header = header[0] != '\0';
+                }
+                if (!have_header) {
+                    CloseHandle(f);
+                    return 0;
+                }
+            } else if (line_number > line_index && have_header && !overlong) {
+                (void)vv_rename_apply(header, sizeof(header), line);
+            }
+            ++line_number;
+            used = 0;
+            overlong = 0;
+        }
     }
     CloseHandle(f);
-    text[got] = '\0';
-    line = text;
-    for (i = 0; i < got && line_index > 0; ++i) {
-        if (text[i] == '\n') {
-            line = text + i + 1;
-            --line_index;
-        }
-    }
-    if (line_index > 0) {
+    if (!have_header) {
         return 0;               /* the file ends before the header line */
-    }
-    for (i = (DWORD)(line - text); i < got; ++i) {
-        if (text[i] == '\r' || text[i] == '\n') {
-            text[i] = '\0';
-            break;
-        }
     }
     /* The published header carries its own trailing newline; compare first
        lines only. */
@@ -180,7 +225,7 @@ static int log_line_matches(const wchar_t *path, const char *village,
     if (want[0] == '\0') {
         return 0;
     }
-    return lstrcmpA(line, want) == 0;
+    return lstrcmpA(header, want) == 0;
 }
 
 static int log_header_matches(const wchar_t *path, const char *village) {

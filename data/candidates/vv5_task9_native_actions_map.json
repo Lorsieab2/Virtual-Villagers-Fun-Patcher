@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 24626,
-    "file_sha256": "770894F2AC61E9E214111C19A8B2E4D104479242056D41C17C00D70B25C17F4F",
-    "source_text_sha256": "770894F2AC61E9E214111C19A8B2E4D104479242056D41C17C00D70B25C17F4F"
+    "file_sha256": "52376409739A4225D046357E9A8B373F047988CBF381D8B033F38C940B634A08",
+    "source_text_sha256": "52376409739A4225D046357E9A8B373F047988CBF381D8B033F38C940B634A08"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "1BD07C35BB78BFBCFBFB130A6648344951BFE92A352896F0FCB9188E7A94AF5B"
+      "source_text_sha256": "A243D87131D2A858FFECE75F2D1E6BE60CE1AF43637104F22589B6D4D7574901"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "770894F2AC61E9E214111C19A8B2E4D104479242056D41C17C00D70B25C17F4F"
+      "source_text_sha256": "52376409739A4225D046357E9A8B373F047988CBF381D8B033F38C940B634A08"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",

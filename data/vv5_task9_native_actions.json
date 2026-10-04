@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "C5955AA21C2BF9E6DE585825906BAEB03072CEBE525C7EE6D4E67D6782C976D3",
-      "size": 138240
+      "sha256": "AF0159D068D9BBA32A87B9DDCDEE2F838F2E08CE14A759F7CF9913997A91C1C6",
+      "size": 139264
     }
   ],
   "doubler_evidence": {
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "770894F2AC61E9E214111C19A8B2E4D104479242056D41C17C00D70B25C17F4F",
-  "base_file_sha256": "770894F2AC61E9E214111C19A8B2E4D104479242056D41C17C00D70B25C17F4F",
+  "base_source_text_sha256": "52376409739A4225D046357E9A8B373F047988CBF381D8B033F38C940B634A08",
+  "base_file_sha256": "52376409739A4225D046357E9A8B373F047988CBF381D8B033F38C940B634A08",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "1BD07C35BB78BFBCFBFB130A6648344951BFE92A352896F0FCB9188E7A94AF5B"
+      "source_text_sha256": "A243D87131D2A858FFECE75F2D1E6BE60CE1AF43637104F22589B6D4D7574901"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "770894F2AC61E9E214111C19A8B2E4D104479242056D41C17C00D70B25C17F4F"
+      "source_text_sha256": "52376409739A4225D046357E9A8B373F047988CBF381D8B033F38C940B634A08"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "71992ABAFC7E24538076FFF9F1FA7D97E539D9F6A6CABEA23A10F0D88A83E2B1"
+  "task9_map_canonical_sha256": "5E646FEA5E87448EC78BBF733D8557021E04F4513F2CFDA69129845EDD70FFC6"
 }
