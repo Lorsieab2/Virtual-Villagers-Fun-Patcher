@@ -14,6 +14,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
 import vv_save_backup
+import vv_tribe_rename
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -772,6 +773,9 @@ class App(tk.Tk):
         self._folder_link(
             links, "Restore Saves...", self._restore_single_saves
         ).pack(side="left", padx=(18, 0))
+        self._folder_link(
+            links, "Rename Tribe...", self._rename_single_tribe
+        ).pack(side="left", padx=(18, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -825,6 +829,11 @@ class App(tk.Tk):
                 "Restore saves...",
                 lambda game=build: self._restore_saves(game),
             ).grid(row=row, column=6, padx=(12, 0), pady=4)
+            self._folder_link(
+                grid,
+                "Rename tribe...",
+                lambda game=build: self._rename_tribe(game),
+            ).grid(row=row, column=7, padx=(12, 0), pady=4)
         grid.columnconfigure(1, weight=1)
         actions = ttk.Frame(tab)
         actions.pack(fill="x", pady=(10, 0))
@@ -847,6 +856,11 @@ class App(tk.Tk):
             text="Back Up Saves (All 5)...",
             command=lambda: self._back_up_saves(list(self.builds)),
         ).pack(side="left", padx=(16, 0))
+        ttk.Button(
+            actions,
+            text="Rename Tribe...",
+            command=lambda: self._rename_tribe(None),
+        ).pack(side="left", padx=(8, 0))
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -2066,6 +2080,203 @@ class App(tk.Tk):
             f"checked against the backup.{undo}",
             parent=parent,
         )
+
+    # -- Rename Tribe -------------------------------------------------------
+
+    def _rename_single_tribe(self) -> None:
+        """Rename Tribe for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            self._rename_tribe(build)
+
+    def _rename_tribe(self, build) -> None:
+        """Pick a game, its save folder and a slot, then type the new name.
+
+        The slot list is read from the saves and is only for choosing; the
+        counter and every refusal come from vv_tribe_rename, which holds each
+        game's own limit. The rename itself runs off the main thread.
+        """
+        documents = vv_save_backup.documents_folder()
+        if documents is None:
+            messagebox.showerror(
+                "Rename Tribe",
+                "Windows did not report where your Documents folder is, so the "
+                "save folders cannot be found.",
+            )
+            return
+        titles = [item.title for item in self.builds]
+        dialog = tk.Toplevel(self)
+        dialog.title("Rename Tribe")
+        dialog.transient(self)
+        frame = ttk.Frame(dialog, padding=16)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(
+            frame,
+            text=(
+                "Changes the tribe's name inside its save. The game must be "
+                "closed: it saves when you quit it, which would put the old "
+                "name back. The save folder is backed up first, into "
+                "<save folder>\\Backups\\Backup <date and time> (before rename), "
+                "and the patcher's logs get one line noting the new name."
+            ),
+            wraplength=560,
+            justify="left",
+        ).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 10))
+
+        game_var = tk.StringVar(value=build.title if build is not None else titles[0])
+        folder_var = tk.StringVar()
+        name_var = tk.StringVar()
+        counter_var = tk.StringVar()
+        problem_var = tk.StringVar()
+        note_var = tk.StringVar()
+        state: dict = {"folders": [], "slots": []}
+
+        ttk.Label(frame, text="Game:").grid(row=1, column=0, sticky="w")
+        game_box = ttk.Combobox(
+            frame, textvariable=game_var, values=titles, state="readonly", width=48
+        )
+        game_box.grid(row=1, column=1, columnspan=2, sticky="we", pady=2)
+        ttk.Label(frame, text="Save folder:").grid(row=2, column=0, sticky="w")
+        folder_box = ttk.Combobox(frame, textvariable=folder_var, state="readonly", width=48)
+        folder_box.grid(row=2, column=1, columnspan=2, sticky="we", pady=2)
+        ttk.Label(frame, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
+        slot_list = tk.Listbox(frame, height=5, width=60, exportselection=False)
+        slot_list.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
+        ttk.Label(frame, text="New name:").grid(row=4, column=0, sticky="w", pady=(8, 0))
+        name_entry = ttk.Entry(frame, textvariable=name_var, width=36)
+        name_entry.grid(row=4, column=1, sticky="w", pady=(8, 0))
+        counter = ttk.Label(frame, textvariable=counter_var)
+        counter.grid(row=4, column=2, sticky="w", padx=(8, 0), pady=(8, 0))
+        ttk.Label(
+            frame, textvariable=problem_var, foreground="#a01010",
+            wraplength=560, justify="left",
+        ).grid(row=5, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        ttk.Label(
+            frame, textvariable=note_var, wraplength=560, justify="left",
+        ).grid(row=6, column=0, columnspan=3, sticky="w", pady=(2, 0))
+        buttons = ttk.Frame(frame)
+        buttons.grid(row=7, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        rename_button = ttk.Button(buttons, text="Rename")
+        rename_button.pack(side="left")
+        ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
+
+        def game() -> vv_tribe_rename.GameSaves:
+            return vv_tribe_rename.game_for_title(game_var.get())
+
+        def chosen_slot():
+            picked = slot_list.curselection()
+            if not picked:
+                return None
+            return state["slots"][picked[0]]
+
+        def refresh_check(*_args) -> None:
+            saves = game()
+            name = name_var.get()
+            counter_var.set(f"{len(name)} / {saves.max_length} characters")
+            counter.configure(
+                foreground="#a01010" if len(name) > saves.max_length else ""
+            )
+            problem = None
+            info = chosen_slot()
+            if not state["folders"]:
+                problem = "No save folder was found for this game."
+            elif info is None:
+                problem = "Choose a tribe."
+            elif info.problem:
+                problem = info.problem
+            elif name:
+                problem = vv_tribe_rename.name_problem(saves, name)
+                if problem is None and name == info.name:
+                    problem = "That is already this tribe's name."
+            problem_var.set(problem or "")
+            note_var.set(
+                "Allowed. The game's Change Tribe screen will show this name cut "
+                "short, as it does long names the game itself makes; the game "
+                "keeps and shows the whole name everywhere else."
+                if problem is None and name and vv_tribe_rename.shown_shortened(saves, name)
+                else ""
+            )
+            ok = problem is None and bool(name)
+            rename_button.configure(state="normal" if ok else "disabled")
+
+        def load_slots(*_args) -> None:
+            slot_list.delete(0, "end")
+            state["slots"] = []
+            index = folder_box.current()
+            if 0 <= index < len(state["folders"]):
+                state["slots"] = vv_tribe_rename.read_slots(game(), state["folders"][index])
+                for info in state["slots"]:
+                    slot_list.insert("end", info.label)
+                first = next(
+                    (n for n, info in enumerate(state["slots"]) if not info.problem), None
+                )
+                if first is not None:
+                    slot_list.selection_set(first)
+            refresh_check()
+
+        def load_folders(*_args) -> None:
+            state["folders"] = vv_tribe_rename.rename_folders(game_var.get(), documents)
+            folder_box.configure(values=[folder.name for folder in state["folders"]])
+            if state["folders"]:
+                folder_box.current(0)
+            else:
+                folder_var.set("")
+            load_slots()
+
+        def start() -> None:
+            info = chosen_slot()
+            if info is None or not state["folders"]:
+                return
+            folder = state["folders"][folder_box.current()]
+            saves = game()
+            new_name = name_var.get()
+            problem = vv_tribe_rename.name_problem(saves, new_name)
+            if problem is not None:
+                messagebox.showerror("Rename Tribe", problem, parent=dialog)
+                return
+            if not messagebox.askyesno(
+                "Rename Tribe",
+                f"Rename \"{info.name}\" (Save {info.slot}) in {folder.name} to "
+                f"\"{new_name}\"?\n\nThe save folder is backed up first.",
+                parent=dialog,
+            ):
+                return
+            try:
+                result = self._run_with_wait(
+                    "Renaming the tribe…\n\nThe save folder is backed up first.",
+                    lambda: vv_tribe_rename.rename_tribe(saves, folder, info.slot, new_name),
+                )
+            except (vv_tribe_rename.RenameError, vv_save_backup.BackupError, OSError) as exc:
+                self.status_var.set("Rename Tribe: nothing was renamed.")
+                messagebox.showerror("Rename Tribe", str(exc), parent=dialog)
+                load_slots()
+                return
+            self.status_var.set(
+                f"Rename Tribe: {result.old_name} is now {result.new_name}."
+            )
+            messagebox.showinfo(
+                "Rename Tribe",
+                f"\"{result.old_name}\" is now \"{result.new_name}\" "
+                f"(Save {result.slot}, {folder.name}).\n\n"
+                f"{len(result.changed)} save file(s) changed and read back; "
+                f"{len(result.notes)} log(s) noted the rename.\n\n"
+                f"Backup: {result.backup.backup_folder}",
+                parent=dialog,
+            )
+            name_var.set("")
+            load_slots()
+
+        rename_button.configure(command=start)
+        game_box.bind("<<ComboboxSelected>>", load_folders)
+        folder_box.bind("<<ComboboxSelected>>", load_slots)
+        slot_list.bind("<<ListboxSelect>>", refresh_check)
+        name_var.trace_add("write", refresh_check)
+        frame.columnconfigure(1, weight=1)
+        load_folders()
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+        dialog.update_idletasks()
+        dialog.grab_set()
+        name_entry.focus_set()
 
     def _close(self) -> None:
         self._save_settings()
