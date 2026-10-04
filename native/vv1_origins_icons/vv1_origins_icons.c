@@ -300,6 +300,12 @@ static int vv1_mask_sweep_dead(void) {
 static unsigned int vv1_mask_file_roster[VV_MASK_SLOTS];
 static unsigned char vv1_mask_file_table[VV_MASK_TABLE_BYTES];
 static int vv1_mask_follow_pending;   /* a 'VM02' table waits for its village to follow */
+/* The identities the file was last written with (vv1_mask_sidecar_save).
+   Kept current on every roster change (vv1_mask_roster_current): a
+   villager renamed and never written again would be followed on the next
+   load by their OLD name -- found nowhere, and the mask dropped. */
+static unsigned int vv1_mask_written[VV_MASK_SLOTS];
+static int vv1_mask_written_known;
 static int vv1_mask_rewrite_pending;  /* a 'VM01' table waits to be written back as 'VM02' */
 
 static unsigned int vv1_mask_identity(const unsigned char *rec) {
@@ -526,7 +532,34 @@ static int vv1_mask_sidecar_save(void) {
     sizes[1] = VV_MASK_TABLE_BYTES;
     parts[2] = roster;
     sizes[2] = sizeof(roster);
-    return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3);
+    if (!vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 3)) {
+        return 0;
+    }
+    memcpy(vv1_mask_written, roster, sizeof(roster));
+    vv1_mask_written_known = 1;
+    return 1;
+}
+
+/* KEEP THE FILE'S ROSTER CURRENT (Codex, #516).  Records do not move during
+   play, but who is in them is written only when the table is: a villager
+   the player renames keeps their mask on screen, yet the file still names
+   them by their old name, and the next load's follow looks for that name,
+   finds nobody and drops the mask.  So any change to the roster -- a
+   rename, a birth, a death -- is written while there are masks to lose. */
+static void vv1_mask_roster_current(void) {
+    static unsigned int live[VV_MASK_SLOTS];
+    int i, any = 0;
+    if (!vv1_mask_written_known || vv1_mask_follow_pending) {
+        return;
+    }
+    for (i = 0; i < VV_MASK_TABLE_BYTES; ++i) {
+        any |= VV_MASK_TABLE[i] != 0;
+    }
+    if (!any || vv1_mask_live_roster(live) == 0
+        || memcmp(live, vv1_mask_written, sizeof(live)) == 0) {
+        return;
+    }
+    vv1_mask_sidecar_save();
 }
 
 /* Move the loaded table to the villagers' records now, once the village is
@@ -1740,6 +1773,7 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
             VV_MASK_BIRTH_DIRTY = 0;
         }
     }
+    vv1_mask_roster_current();
 }
 
 static HINSTANCE module_instance;

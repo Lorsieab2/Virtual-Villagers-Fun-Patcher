@@ -4,7 +4,8 @@
    EnsureParentageLogForVillage the population exporter calls after every
    save) in all five games' record geometry, against real files under
    Documents\LDW\<this exe's basename>\Virtual Villagers Fun Patcher Logs\,
-   which the harness empties first and removes afterwards:
+   which harness_ldw_tree_begin() guarantees did not exist before the run
+   and which the harness removes afterwards:
 
      1. With "VVFP Cause of Death.dll" beside the executable, a village's
         first save creates its Deaths and Unaccounted Villagers logs, headed
@@ -245,7 +246,6 @@ int main(int argc, char **argv) {
     if (argc < 2) { printf("usage: death_log_harness <dll>\n"); return 2; }
     dll_path = argv[1];
     if (!locate()) return 2;
-    wipe(1);
     stand_in("VVFP Statistics Export.dll", 1);
     stand_in("VVFP Cause of Death.dll", 1);
 

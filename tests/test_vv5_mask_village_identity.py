@@ -185,7 +185,7 @@ class Vv5RosterIdentityTest(unittest.TestCase):
     def test_sync_reloads_only_when_the_village_changed(self) -> None:
         sync = self._function("__declspec(dllexport) int __stdcall Vv5MaskSync(")
         self.assertRegex(sync, r"if\s*\(\s*slot\s*<=\s*0\s*\)\s*\{\s*return 0;")
-        self.assertRegex(sync, r"if\s*\(\s*vv5_roster_identities\(cur\)\s*==\s*0\s*\)\s*\{\s*return 0;")
+        self.assertRegex(sync, r"if\s*\(\s*vv5_roster_identities\(cur,\s*cur_stable\)\s*==\s*0\s*\)\s*\{\s*return 0;")
         self.assertRegex(sync, r"g_vv5_have_roster\s*&&\s*slot\s*==\s*g_vv5_slot\s*&&\s*vv5_roster_same\(g_vv5_roster,\s*cur\)")
         # a birth or death under the same village re-persists the snapshot
         changed = sync.split("if (!vv5_roster_equal(g_vv5_roster, cur)) {", 1)[1].split("return 1;", 1)[0]
@@ -239,3 +239,27 @@ class Vv5RosterIdentityTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Vv5RenameTest(unittest.TestCase):
+    """Codex (#516, round 2): a villager renamed while the village is loaded
+    keeps the mask -- recognised by native/shared/mask_follow.h's
+    vv_roster_renamed before the same-village test, adopted, written."""
+
+    def test_a_renamed_villager_keeps_the_mask(self) -> None:
+        source = (Path(__file__).resolve().parents[1] / "native" / "vv5_task9_origins"
+                  / "vv5_task9_origins.c").read_text(encoding="utf-8")
+        sync = source[source.index("__declspec(dllexport) int __stdcall Vv5MaskSync("):]
+        sync = sync[:sync.index("\n}\n") + 3]
+        renamed = sync.index("int renamed = vv_roster_renamed(VV5_RECORD_COUNT, g_vv5_roster, g_vv5_stable, cur, cur_stable);")
+        self.assertLess(renamed, sync.index("vv5_roster_same(g_vv5_roster, cur)"))
+        block = sync[renamed:sync.index("return 1;", renamed)]
+        self.assertIn("g_vv5_roster[renamed] = cur[renamed];", block)
+        self.assertIn("WriteMaskSidecar(table);", block)
+        self.assertEqual(sync.count("memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));"), 3)
+        stable = source[source.index("static unsigned int vv5_stable("):]
+        stable = stable[:stable.index("\n}\n")]
+        self.assertNotIn("VV5_NAME_OFFSET", stable)
+        self.assertIn("VV5_SEX_OFFSET", stable)
+        self.assertIn("VV5_FATHER_OFFSET", stable)
+        self.assertIn("VV5_MOTHER_OFFSET", stable)

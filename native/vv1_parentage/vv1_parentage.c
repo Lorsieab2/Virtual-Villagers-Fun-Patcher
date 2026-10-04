@@ -263,6 +263,8 @@ static int g_prev_litter[VV1_RECORD_COUNT];
 static int g_prev_due[VV1_RECORD_COUNT];
 static int g_prev_variant[VV1_RECORD_COUNT];
 static char g_prev_name[VV1_RECORD_COUNT][VV1_NAME_CAPACITY];
+static int g_prev_gender[VV1_RECORD_COUNT];
+static int g_prev_age[VV1_RECORD_COUNT];
 static unsigned char g_spend[VV1_RECORD_COUNT];   /* a delivery ended this frame: spend the stash after logging */
 static int g_have_prev;
 static vv1_birth g_births[VV1_RECORD_COUNT];  /* births seen by the last tick */
@@ -580,6 +582,33 @@ static int vv1_roster_in_step(const vv1_occupant *now) {
         }
     }
     return 1;
+}
+
+/* A RENAME (Codex, #516): the one record whose occupant changed since the
+   roster was bound, when nothing else did, and the villager there has the
+   gender and family scalar of the one the roster names -- only the name
+   differs.  Players rename villagers; read as a new occupant, the follow
+   dropped their parents, and in a village of one or two the roster shared
+   nobody with the table and the whole table was replaced.  A death, a birth
+   or a repack changes a record to nobody, from nobody, or more than one
+   record.  (native/shared/mask_follow.h's vv_roster_renamed, over occupants.)
+   Returns the record, or -1. */
+static int vv1_roster_renamed(const vv1_occupant *now) {
+    int j, at = -1;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        int was_living = g_roster[j].gender && !g_roster[j].departed;
+        if (was_living ? !vv1_same_occupant(&g_roster[j], &now[j]) : now[j].gender != 0) {
+            if (at >= 0) {
+                return -1;            /* more than one record changed */
+            }
+            at = j;
+        }
+    }
+    if (at < 0 || !g_roster[at].gender || g_roster[at].departed || !now[at].gender
+        || g_roster[at].gender != now[at].gender || g_roster[at].scalar != now[at].scalar) {
+        return -1;
+    }
+    return at;
 }
 
 /* Does a roster name anybody at all? */
@@ -1059,6 +1088,14 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
         }
         return 0;                 /* still settling: the table is untouched */
     }
+    /* A rename first: before the overlap is asked, which in a village of one
+       or two would otherwise find nobody it knows. */
+    vv1_take_roster(records, now);
+    if (vv1_roster_renamed(now) >= 0) {
+        g_strikes = 0;
+        vv1_parents_save(slot, records);      /* binds the new name to the record */
+        return slot;
+    }
     switch (vv1_roster_overlap(records, g_roster)) {
     case 0:
         g_have_prev = 0;
@@ -1219,6 +1256,8 @@ static void vv1_take_baseline(const unsigned char *records) {
         g_prev_due[i] = *(const int *)(rec + VV1_DUE_OFFSET);
         g_prev_variant[i] = *(const int *)(rec + VV1_VARIANT_OFFSET);
         memcpy(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+        g_prev_gender[i] = *(const int *)(rec + VV1_GENDER_OFFSET);
+        g_prev_age[i] = *(const int *)(rec + VV1_AGE_OFFSET);
     }
     memset(g_spend, 0, sizeof(g_spend));
     g_have_prev = 1;
@@ -1263,15 +1302,20 @@ static int vv1_tick_over(const unsigned char *records) {
     /* Records with a NEW occupant this frame.  "Became occupied" is not
        enough: a death and a new villager in the same slot can both happen
        between two frames, leaving the slot occupied in both snapshots.  So
-       a record is new when it is occupied and either was not, or its name
-       or look-alike variant changed -- neither changes during a life, and
-       a new villager (born or founder) is given both afresh. */
+       a record is new when it is occupied and either was not, or its
+       look-alike variant changed, or its name did and the villager is not
+       the same one renamed.  The player can rename a villager (Codex, #516):
+       that keeps the variant, the gender and the age, while a new villager
+       in a dead one's record arrives younger (a newborn) or of another
+       variant -- read as new, a rename wiped the villager's parents. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
         const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
         if (rec[VV1_OCCUPIED_OFFSET]
             && (!g_prev_occupied[i]
                 || g_prev_variant[i] != *(const int *)(rec + VV1_VARIANT_OFFSET)
-                || memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) != 0)) {
+                || (memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) != 0
+                    && (g_prev_gender[i] != *(const int *)(rec + VV1_GENDER_OFFSET)
+                        || *(const int *)(rec + VV1_AGE_OFFSET) < g_prev_age[i])))) {
             int variant = *(const int *)(rec + VV1_VARIANT_OFFSET);
             int age = *(const int *)(rec + VV1_AGE_OFFSET);
             int mother = -1;
@@ -1415,6 +1459,8 @@ static int vv1_born(const unsigned char *records, const unsigned char *child,
         g_prev_occupied[c] = child[VV1_OCCUPIED_OFFSET];
         g_prev_variant[c] = *(const int *)(child + VV1_VARIANT_OFFSET);
         memcpy(g_prev_name[c], child + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+        g_prev_gender[c] = *(const int *)(child + VV1_GENDER_OFFSET);
+        g_prev_age[c] = *(const int *)(child + VV1_AGE_OFFSET);
     }
     return (int)c;
 }

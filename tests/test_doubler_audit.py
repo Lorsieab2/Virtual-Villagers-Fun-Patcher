@@ -363,11 +363,9 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # ShowOriginsVillageWideResult; none of its other source changed.
         # Re-pinned when its mask sidecar learned to follow each villager
         # through a reload (identity roster 'VM06', native/shared/mask_follow.h).
-        # Re-pinned (v1.35.58) when it learned the first-load cross-check's one
-        # Repair / Not now prompt (native/shared/crosscheck_bridge.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "B79234DA915DF7F60AB2E1880BE5F8F9EF3F08A518FEF8662C2F24EE790FCB30",
+            "B704DBF28B08D22F14667F9C0C0669C2A649C4820DF62365137D775B357A38CD",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

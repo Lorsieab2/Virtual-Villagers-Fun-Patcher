@@ -823,3 +823,30 @@ def test_a_slot_change_always_reloads_even_when_the_roster_overlaps() -> None:
         "the slot must be adopted with the reload, not before it")
     assert "slot <= 0" in sync, (
         "an unpublished slot must count as unknown, not clear the masks")
+
+
+def test_a_renamed_villager_keeps_the_mask() -> None:
+    """Codex (#516, round 2): the identity hashes the name, so a villager the
+    player renamed read as a new occupant -- the follow dropped the mask, and
+    in a village of one or two the roster looked replaced and every mask was
+    cleared.  The sync now recognises a rename (one record changed, its
+    gender and parents unchanged: native/shared/mask_follow.h's
+    vv_roster_renamed) BEFORE the same-village test, keeps the mask, adopts
+    the new identity and writes the file at once."""
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+    renamed = sync.index("int renamed = vv_roster_renamed(VV2_RECORD_COUNT, g_vv2_roster, g_vv2_stable, cur, cur_stable);")
+    assert renamed < sync.index("vv2_roster_same(g_vv2_roster, cur)")
+    block = sync[renamed:sync.index("return 1;", renamed)]
+    assert "g_vv2_roster[renamed] = cur[renamed];" in block
+    assert "vv2_mask_sidecar_save();" in block
+    assert "memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));" in block
+    # every adoption of the roster takes the stable fields with it
+    assert sync.count("memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));") == 3
+    # the stable part leaves the name out: gender and the parents only
+    stables = source[source.index("static void vv2_roster_stables("):]
+    stables = stables[:stables.index(chr(10) + "}" + chr(10))]
+    assert "VV2_NAME_OFFSET" not in stables
+    assert "VV2_IDENTITY_SEX" in stables and "VV2_FATHER_OFFSET" in stables and "VV2_MOTHER_OFFSET" in stables

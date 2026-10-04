@@ -83,6 +83,18 @@ class MaskFollowHarnessTests(unittest.TestCase):
             "a birth into an empty record does not unseat an ambiguous identity",
             "with no roster, an ambiguous identity is dropped and a unique one kept",
             "a villager found in another record counts as a move: the twin's mask is not kept",
+            "a masked twin who died does not hand her mask to the unmasked twin",
+            "a rename: one record, same stable fields, old identity gone, new one new",
+            "one of eight villagers renamed is found",
+            "a new occupant with other stable fields is not a rename",
+            "two records changed at once is not a rename",
+            "one of two identical twins renamed is a rename",
+            "a sibling moving down into a dead sibling's record is not a rename",
+            "a birth is not a rename",
+            "... nor with no roster known",
+            "a death is not a rename",
+            "no change is not a rename",
+            "unknown stable fields are never a rename",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

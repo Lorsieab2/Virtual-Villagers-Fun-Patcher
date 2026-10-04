@@ -11,6 +11,7 @@
 static int failures;
 static unsigned char value[N], new_value[N];
 static unsigned int stored[N], live[N], new_stored[N];
+static unsigned int roster[N], was_stable[N], now_stable[N];
 
 static void check(int ok, const char *what) {
     printf("%s %s\n", ok ? "PASS" : "FAIL", what);
@@ -21,6 +22,9 @@ static void reset(void) {
     memset(value, 0, sizeof value);
     memset(stored, 0, sizeof stored);
     memset(live, 0, sizeof live);
+    memset(roster, 0, sizeof roster);
+    memset(was_stable, 0, sizeof was_stable);
+    memset(now_stable, 0, sizeof now_stable);
 }
 
 /* A village laid out in records 0.. with identities 100+k; `dead` (or -1)
@@ -120,6 +124,8 @@ int main(void) {
     live[0] = 400;
     follow(0);
     check(new_value[0] == 0, "two masked entries of one identity and one such villager left: neither is guessed");
+    vv_mask_follow(N, value, stored, NULL, live, 0, new_value, new_stored);
+    check(new_value[0] == 0, "... nor with no roster known");
 
     /* 7. The same two when nothing moved: kept in place. */
     reset();
@@ -201,6 +207,80 @@ int main(void) {
     live[3] = 900; live[4] = 900; live[1] = 777;
     follow(0);
     check(new_value[3] == 0, "a villager found in another record counts as a move: the twin's mask is not kept");
+
+    /* 16. Codex (#516): twins of one identity at 3 (masked) and 4 (not).
+           The masked twin died; on the reload the unmasked one moves down to
+           3.  Only ONE masked entry has the identity, but the whole roster
+           has two: whose mask it is cannot be told, so it is not given. */
+    reset();
+    village(roster, 8, -1);
+    roster[3] = 900; roster[4] = 900;
+    memcpy(stored, roster, sizeof stored);
+    value[3] = 2;
+    village(live, 8, 3);
+    live[3] = 900;                              /* the unmasked twin, moved down */
+    vv_mask_follow(N, value, stored, roster, live, 0, new_value, new_stored);
+    check(new_value[3] == 0 && new_value[2] == 0 && new_value[4] == 0,
+          "a masked twin who died does not hand her mask to the unmasked twin");
+
+    /* 17. The rename rule.  A village of one: Kai renamed. */
+    reset();
+    roster[0] = 111; was_stable[0] = 7;
+    live[0] = 222;   now_stable[0] = 7;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == 0,
+          "a rename: one record, same stable fields, old identity gone, new one new");
+
+    /* 18. Several villagers, one renamed. */
+    reset();
+    village(roster, 8, -1); village(live, 8, -1);
+    for (changed = 0; changed < 8; ++changed) {
+        was_stable[changed] = now_stable[changed] = 50u + (unsigned int)changed;
+    }
+    live[5] = 999;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == 5, "one of eight villagers renamed is found");
+
+    /* 19. Not a rename: the stable fields changed (a death and a birth into
+           the same record between two looks). */
+    now_stable[5] = 51;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1,
+          "a new occupant with other stable fields is not a rename");
+
+    /* 20. Not a rename: two records changed. */
+    now_stable[5] = 55;
+    live[6] = 998;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1, "two records changed at once is not a rename");
+
+    /* 21. One of two identical twins renamed: still a rename (the other
+           twin keeps the old identity). */
+    reset();
+    roster[4] = 104; roster[7] = 104; was_stable[4] = was_stable[7] = 9;
+    live[4] = 333;   live[7] = 104;   now_stable[4] = now_stable[7] = 9;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == 4,
+          "one of two identical twins renamed is a rename");
+
+    /* 22. A repack of same-stable siblings changes two records: not a rename. */
+    reset();
+    roster[4] = 104; roster[5] = 105; was_stable[4] = was_stable[5] = 9;
+    live[4] = 105;                    now_stable[4] = 9;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1,
+          "a sibling moving down into a dead sibling's record is not a rename");
+
+    /* 23. Not a rename: a death (the record empty now), a birth into an
+           empty record, or nothing changed. */
+    reset();
+    roster[2] = 102; was_stable[2] = 4;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1, "a death is not a rename");
+    reset();
+    live[2] = 102; now_stable[2] = 4;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1, "a birth is not a rename");
+    roster[2] = 102; was_stable[2] = 4;
+    live[2] = 102; now_stable[2] = 4;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1, "no change is not a rename");
+
+    /* 24. Unknown stable fields (0) never make a rename. */
+    reset();
+    roster[0] = 111; live[0] = 222;
+    check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1, "unknown stable fields are never a rename");
 
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;

@@ -345,6 +345,11 @@ static int build_mask_sidecar_path(char *out) {
 
 static unsigned int g_vv5_roster[VV5_RECORD_COUNT];
 static int g_vv5_have_roster;
+/* The part of each of those identities a rename does not change -- gender
+   and the parents' names -- taken at the same moment (memory only; 0 for an
+   empty record).  How the sync tells a rename from a new occupant
+   (vv_roster_renamed, native/shared/mask_follow.h). */
+static unsigned int g_vv5_stable[VV5_RECORD_COUNT];
 static int g_vv5_slot;                 /* the slot the table was loaded for */
 static DWORD g_vv5_sync_tick;          /* last roster check, GetTickCount */
 
@@ -372,20 +377,37 @@ static unsigned int vv5_identity(const unsigned char *rec) {
     return h ? h : 1u;
 }
 
+/* The part of a living record's identity that a rename leaves alone:
+   gender and the parents' names.  Never 0. */
+static unsigned int vv5_stable(const unsigned char *rec) {
+    unsigned int h = 2166136261u;
+    int k;
+    for (k = 0; k < 4; ++k) {
+        h = (h ^ rec[VV5_SEX_OFFSET + k]) * 16777619u;
+    }
+    h = vv5_fnv_text(h, rec + VV5_FATHER_OFFSET, VV5_NAME_CAPACITY);
+    h = (h ^ 0xFEu) * 16777619u;
+    h = vv5_fnv_text(h, rec + VV5_MOTHER_OFFSET, VV5_NAME_CAPACITY);
+    h = (h ^ 0xFDu) * 16777619u;
+    return h ? h : 1u;
+}
+
 /* Fill out[] with the identity of each living record (slots past this
    build's count read as inactive).  Returns the number of living villagers;
    0 means "no village is loaded", and every caller treats that as unknown. */
-static int vv5_roster_identities(unsigned int *out) {
+static int vv5_roster_identities(unsigned int *out, unsigned int *stable) {
     const unsigned char *base =
         (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
     int i, live = 0, slots = vv5_slots();
     memset(out, 0, VV5_RECORD_COUNT * sizeof(unsigned int));
+    memset(stable, 0, VV5_RECORD_COUNT * sizeof(unsigned int));
     for (i = 0; i < slots; ++i) {
         const unsigned char *rec = base + (unsigned int)i * VV5_ROSTER_STRIDE;
         if (rec[VV5_ACTIVE_OFFSET] == 0) {
             continue;
         }
         out[i] = vv5_identity(rec);
+        stable[i] = vv5_stable(rec);
         ++live;
     }
     return live;
@@ -729,6 +751,7 @@ __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
 
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     unsigned int cur[VV5_RECORD_COUNT];
+    unsigned int cur_stable[VV5_RECORD_COUNT];
     unsigned char *table = (unsigned char *)VV5_MASK_TABLE;
     DWORD now = GetTickCount();
     int slot;
@@ -744,8 +767,23 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     if (slot <= 0) {
         return 0;                   /* nothing known yet -> do not touch anything */
     }
-    if (vv5_roster_identities(cur) == 0) {
+    if (vv5_roster_identities(cur, cur_stable) == 0) {
         return 0;                   /* unknown village -> do not touch anything */
+    }
+    /* A RENAME (Codex, #516).  The identity hashes the name, so a villager
+       the player renames would read as a new occupant: their mask dropped by
+       the follow, and in a village of one or two the roster taken for
+       another village's and every mask cleared.  One record changed, its
+       gender and parents unchanged: the same villager.  The mask stays on
+       its record, which takes the new identity, and the file says so now. */
+    if (g_vv5_have_roster && slot == g_vv5_slot) {
+        int renamed = vv_roster_renamed(VV5_RECORD_COUNT, g_vv5_roster, g_vv5_stable, cur, cur_stable);
+        if (renamed >= 0) {
+            g_vv5_roster[renamed] = cur[renamed];
+            memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));
+            WriteMaskSidecar(table);
+            return 1;
+        }
     }
     /* Same village means the same SLOT and a roster majority.  A slot change
        always reloads: the file is keyed per slot, and two slots can hold
@@ -757,6 +795,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
                hands it the dead villager's mask. */
             vv5_mask_follow_table(table, g_vv5_roster, cur, 0);
             memcpy(g_vv5_roster, cur, sizeof(cur));
+            memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));
             WriteMaskSidecar(table);
         }
         return 1;                   /* same village -> keep the masks as they are */
@@ -770,6 +809,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
         return 0;               /* stay pending; retried on the next call */
     }
     memcpy(g_vv5_roster, cur, sizeof(cur));
+    memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));
     g_vv5_have_roster = 1;
     g_vv5_slot = slot;
     if (g_vv5_rewrite_after_load) {
