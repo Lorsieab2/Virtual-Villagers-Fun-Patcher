@@ -217,7 +217,7 @@ def main() -> None:
         "patches": patches,
     }
     OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print("wrote", OUT.relative_to(ROOT), len(patches), "patches; case-4 body", len(body), "bytes")
+    print("wrote", OUT.name, len(patches), "patches; case-4 body", len(body), "bytes")
 
 
 if __name__ == "__main__":
