@@ -91,11 +91,6 @@ int main(void) {
     }
     printf("folder: %ls\n", folder);
 
-    /* Clear anything a previous run left. */
-    for (i = 1; i <= 8; ++i) {
-        remove_log(folder, stem, i);
-    }
-
     /* THE LAYOUT A RESET LEAVES BEHIND.
        Village A owned 1 and 3 and has been reset; village B owns 2 and 4. */
     write_log(folder, stem, 2, "Bravo", 5);
