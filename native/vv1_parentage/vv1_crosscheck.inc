@@ -116,6 +116,7 @@ typedef struct {
     char headers[VV1_XC_MAX_HEADERS][VV1_XC_HEADER_CAPACITY];
     int header_count;
     int village_header;           /* the slot's latest header: the village the records are kept from */
+    int overflow;                 /* more villages for this slot than the table holds: not read */
 } vv1_xc_log;
 
 typedef struct {
@@ -190,12 +191,26 @@ static int vv1_xc_marker_path(char *out, size_t n, int slot) {
 
 /* ---- the marker -------------------------------------------------------- */
 
-/* 1: the check has run for this slot.  0: it has not (no marker, or one that
-   was not a marker and is now set aside).  -1: a marker is there and cannot
-   be read, or a bad one cannot be moved: do nothing this load. */
-static int vv1_xc_marker_state(int slot) {
+/* The village a marker is for: FNV-1a of the village's own header line in its
+   Births log ("Village: <name> (Save N)"), 0 when it has none.  A marker
+   counts only for the village it names, so a slot that now holds another
+   village (a save copied in, a Start Over the reset could not clear) is
+   checked again. */
+static unsigned int vv1_xc_village_id(const char *header) {
+    unsigned int h = 2166136261u;
+    while (header != NULL && *header) {
+        h = (h ^ (unsigned char)*header++) * 16777619u;
+    }
+    return header == NULL ? 0u : (h ? h : 1u);
+}
+
+/* 1: the check has run for this village.  0: it has not (no marker, one for
+   another village, or one that was not a marker and is now set aside).  -1:
+   a marker is there and cannot be read, or a bad one cannot be moved: do
+   nothing this load. */
+static int vv1_xc_marker_state(int slot, unsigned int village) {
     char path[MAX_PATH];
-    unsigned int header[4];
+    unsigned int header[12];
     HANDLE file;
     DWORD error;
     int sound;
@@ -215,17 +230,18 @@ static int vv1_xc_marker_state(int slot) {
     }
     if (sound == 1 && header[0] == VV1_XC_MAGIC && header[1] == VV1_XC_VERSION
         && header[2] == 1u && header[3] == (unsigned int)slot) {
-        return 1;
+        return header[11] == village ? 1 : 0;
     }
     return vv1_set_aside(path) ? 0 : -1;
 }
 
 /* Record that the check ran: magic, version, game, slot, result, the four
-   counts, and when.  Temporary file, flushed, then renamed over. */
-static int vv1_xc_marker_write(int slot, int result, const vv1_xc_plan *plan) {
+   counts, when, and the village (vv1_xc_village_id).  Temporary file,
+   flushed, then renamed over. */
+static int vv1_xc_marker_write(int slot, int result, const vv1_xc_plan *plan, unsigned int village) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
-    unsigned int data[11];
+    unsigned int data[12];
     FILETIME now;
     HANDLE file;
     DWORD wrote;
@@ -248,6 +264,7 @@ static int vv1_xc_marker_write(int slot, int result, const vv1_xc_plan *plan) {
     data[8] = plan ? (unsigned int)plan->stashes : 0u;
     data[9] = now.dwLowDateTime;
     data[10] = now.dwHighDateTime;
+    data[11] = village;
     file = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
         return 0;
@@ -321,7 +338,12 @@ static void vv1_xc_person_start(vv1_xc_person *p, const char *after_colon) {
     p->name[i] = '\0';
     p->head = VV1_XC_UNSET;
     p->body = VV1_XC_UNSET;
-    p->present = 1;
+    /* WriteParentageBirth prints a parent it never captured as "(unknown)"
+       (and the logs print "(none)" for no name): no parent, never a name. */
+    p->present = lstrcmpA(p->name, "(unknown)") != 0 && lstrcmpA(p->name, "(none)") != 0;
+    if (!p->present) {
+        p->name[0] = '\0';
+    }
 }
 
 /* The slot a "Village: <name> (Save N)" line is for, or 0. */
@@ -394,7 +416,8 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
                     in_slot = vv1_xc_header_slot(line) == slot;
                     header = in_slot ? vv1_xc_header_index(log, line) : -1;
                     if (in_slot && header < 0) {
-                        in_slot = 0;      /* more villages than the table holds: not read */
+                        in_slot = 0;      /* more villages than the table holds: the latest cannot be told */
+                        log->overflow = 1;
                     }
                     if (in_slot) {
                         log->village_header = header;
@@ -519,6 +542,10 @@ static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
             return -1;
         }
     }
+    if (log->overflow) {
+        vv1_xc_free(log);
+        return -1;                        /* which village is the latest cannot be told: change nothing */
+    }
     return log->village_header >= 0 ? 1 : 0;
 }
 
@@ -630,8 +657,12 @@ static void vv1_xc_prepare_fathers(int slot, const unsigned char *records) {
     vv1_xc_log log;
     int j;
     g_xc_father_count = 0;
-    if (records == NULL || vv1_xc_marker_state(slot) != 0 || vv1_xc_read_log(&log, slot) != 1) {
-        return;                       /* checked already, or nothing to learn from */
+    if (records == NULL || vv1_xc_read_log(&log, slot) != 1) {
+        return;                       /* nothing to learn from */
+    }
+    if (vv1_xc_marker_state(slot, vv1_xc_village_id(log.headers[log.village_header])) != 0) {
+        vv1_xc_free(&log);
+        return;                       /* this village was checked already */
     }
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         const unsigned char *rec = records + (unsigned int)j * VV1_RECORD_STRIDE;
@@ -833,8 +864,21 @@ static void vv1_xc_who(char *out, size_t n, const vv1_parent_entry *e) {
 /* Append one "Repair <n>" record listing every change to "Virtual Villagers
    Fun Patcher Logs\Repairs\Virtual Villagers 1 Repairs Log <n>.txt", under the
    village's own header line.  A note: a failure here undoes nothing. */
+static int vv1_xc_append(const char *path, const char *text) {
+    HANDLE file = CreateFileA(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    DWORD wrote;
+    BOOL ok;
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ok = WriteFile(file, text, (DWORD)lstrlenA(text), &wrote, NULL) && wrote == (DWORD)lstrlenA(text);
+    ok = FlushFileBuffers(file) && ok;
+    CloseHandle(file);
+    return ok ? 1 : 0;
+}
+
 static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const unsigned char *records,
-                       const char *backup) {
+                       const char *backup, char *path_out) {
     char folder[MAX_PATH];
     char path[MAX_PATH];
     char *text;
@@ -844,8 +888,8 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
     size_t len;
     SYSTEMTIME now;
     HANDLE file;
-    DWORD size, wrote, got = 0;
-    BOOL ok;
+    DWORD size, got = 0;
+    int ok;
     if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs", "Repairs",
                           sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
         return 0;
@@ -936,19 +980,15 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
     len = (size_t)lstrlenA(text);
     if (backup != NULL && backup[0]) {
         const char *leaf = strrchr(backup, '\\');
-        wsprintfA(text + len, "  Backup: %s\r\n\r\n", leaf ? leaf + 1 : backup);
+        wsprintfA(text + len, "  Backup: %s\r\n", leaf ? leaf + 1 : backup);
     } else {
-        lstrcpyA(text + len, "  Backup: none (there was no parentage file)\r\n\r\n");
+        lstrcpyA(text + len, "  Backup: none (there was no parentage file)\r\n");
     }
-    file = CreateFileA(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE) {
-        HeapFree(GetProcessHeap(), 0, text);
-        return 0;
-    }
-    ok = WriteFile(file, text, (DWORD)lstrlenA(text), &wrote, NULL) && wrote == (DWORD)lstrlenA(text);
-    ok = FlushFileBuffers(file) && ok;
-    CloseHandle(file);
+    ok = vv1_xc_append(path, text);
     HeapFree(GetProcessHeap(), 0, text);
+    if (ok && path_out != NULL) {
+        lstrcpyA(path_out, path);
+    }
     return ok ? 1 : 0;
 }
 
@@ -962,17 +1002,20 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
 static int vv1_xc_scan(int slot, const unsigned char *records, vv1_xc_plan *plan) {
     vv1_xc_log log;
     int state, read, i;
+    unsigned int village;
     memset(plan, 0, sizeof(*plan));
     if (records == NULL || slot < 1 || slot > 5) {
         return -1;
     }
-    state = vv1_xc_marker_state(slot);
-    if (state != 0) {
-        return state > 0 ? 0 : -1;          /* ran before, or the marker cannot be read */
-    }
     read = vv1_xc_read_log(&log, slot);
     if (read < 0) {
         return -1;                          /* the log is there and unreadable: later */
+    }
+    village = read == 1 ? vv1_xc_village_id(log.headers[log.village_header]) : 0u;
+    state = vv1_xc_marker_state(slot, village);
+    if (state != 0) {
+        vv1_xc_free(&log);
+        return state > 0 ? 0 : -1;          /* this village ran before, or the marker cannot be read */
     }
     if (read == 1) {
         /* A log that holds this village's conceptions but not one Birth
@@ -989,13 +1032,13 @@ static int vv1_xc_scan(int slot, const unsigned char *records, vv1_xc_plan *plan
     }
     if (read == 0) {
         vv1_xc_free(&log);
-        vv1_xc_marker_write(slot, VV1_XC_RESULT_NO_LOG, NULL);
+        vv1_xc_marker_write(slot, VV1_XC_RESULT_NO_LOG, NULL, village);
         return 0;
     }
     vv1_xc_plan_build(records, &log, plan);
     vv1_xc_free(&log);
     if (plan->count == 0) {
-        vv1_xc_marker_write(slot, VV1_XC_RESULT_CLEAN, plan);
+        vv1_xc_marker_write(slot, VV1_XC_RESULT_CLEAN, plan, village);
         return 0;
     }
     return 1;
@@ -1003,16 +1046,20 @@ static int vv1_xc_scan(int slot, const unsigned char *records, vv1_xc_plan *plan
 
 /* The player chose Repair: rebuild the plan from the log as it stands now
    (the same rules; a birth since the prompt is already right), back the file
-   up, write the table, note every change, and record that the check ran.
-   1: done (or nothing was left to do); 0: nothing was changed -- the log, a
-   backup or the table could not be read or written -- and the next load asks
-   again. */
+   up, note every change in the Repairs log, write the table, and record that
+   the check ran.  The note comes before the table so a repair is never made
+   without its record: a note that cannot be written stops the repair (the
+   backup just made is removed again), and a table that then cannot be
+   written is noted as not applied.  1: done (or nothing was left to do); 0:
+   nothing was changed, and the next load asks again. */
 static int vv1_xc_apply(int slot, const unsigned char *records) {
     static vv1_xc_plan plan;
     static vv1_parent_entry saved[VV1_RECORD_COUNT];
     vv1_xc_log log;
     char backup[MAX_PATH];
+    char note[MAX_PATH];
     int found, read, i, none;
+    unsigned int village;
     found = vv1_xc_scan(slot, records, &plan);
     if (found <= 0) {
         return found == 0;
@@ -1025,18 +1072,29 @@ static int vv1_xc_apply(int slot, const unsigned char *records) {
         vv1_xc_free(&log);
         return 0;
     }
+    if (!vv1_xc_note(&log, &plan, records, none ? NULL : backup, note)) {
+        if (!none) {
+            DeleteFileA(backup);          /* this call's own copy: nothing was repaired */
+        }
+        vv1_xc_free(&log);
+        return 0;
+    }
+    village = vv1_xc_village_id(log.headers[log.village_header]);
+    vv1_xc_free(&log);
     memcpy(saved, g_entries, sizeof(saved));
     for (i = 0; i < plan.count; ++i) {
         g_entries[plan.changes[i].index] = plan.changes[i].after;
     }
     if (!vv1_parents_save(slot, records)) {
         memcpy(g_entries, saved, sizeof(g_entries));   /* not written: not shown either */
-        vv1_xc_free(&log);
+        vv1_xc_append(note, "  Not applied: the parentage file could not be written; nothing was changed.\r\n\r\n");
+        if (!none) {
+            DeleteFileA(backup);
+        }
         return 0;
     }
-    vv1_xc_note(&log, &plan, records, none ? NULL : backup);
-    vv1_xc_free(&log);
-    vv1_xc_marker_write(slot, VV1_XC_RESULT_REPAIRED, &plan);
+    vv1_xc_append(note, "\r\n");          /* the record's closing blank line */
+    vv1_xc_marker_write(slot, VV1_XC_RESULT_REPAIRED, &plan, village);
     g_xc_father_count = 0;            /* the stashes are the log's now */
     return 1;
 }

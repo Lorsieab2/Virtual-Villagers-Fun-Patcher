@@ -190,6 +190,7 @@ def table_start(data: bytes, lay: SaveLayout, hint_names: list[str]) -> int | No
 
 
 def vv25_roster(game: int, data: bytes, hint_names: list[str]) -> list[Villager]:
+    # VV2 keeps all 256 slots in one table; VV3-VV5 keep 150 there and the rest in the extension.
     lay = LAYOUTS[game]
     start = table_start(data, lay, hint_names)
     if start is None:
@@ -201,10 +202,12 @@ def vv25_roster(game: int, data: bytes, hint_names: list[str]) -> list[Villager]
     end = start
     while plausible(data, end, lay):
         end += lay.stride
-    for m in NAME_RE.finditer(data, end):
-        if plausible(data, m.start(), lay) and plausible(data, m.start() + lay.stride, lay):
-            starts.append(m.start())
-            break
+    if game != 2:
+        # Past the whole 150-entry table, never inside it; one villager is enough (151 living).
+        for m in NAME_RE.finditer(data, max(end, start + 150 * lay.stride)):
+            if plausible(data, m.start(), lay):
+                starts.append(m.start())
+                break
     for p in starts:
         out.extend(_entries(data, p, lay, len(out)))
     return out
@@ -256,6 +259,8 @@ def numbered(folder: Path, stem: str) -> list[Path]:
 def parse_person(lines: list[str], start: int, label: str) -> Person:
     m = re.match(r"\s*%s:\s*(.*)$" % label, lines[start])
     person = Person(m.group(1).strip(), None, None)
+    if person.name in ("(unknown)", "(none)"):
+        return None                       # WriteParentageBirth's "never captured": no parent
     for line in lines[start + 1:]:
         if re.match(r"\s*(Child|Mother|Father|Skills|Babies in pregnancy|Note)\b", line):
             break
@@ -289,6 +294,8 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[list[LogRecord], l
             for k, line in enumerate(lines):
                 if re.match(r"\s*Child:", line):
                     rec.child = parse_person(lines, k, "Child")
+                    if rec.child is None:
+                        rec.child = Person("", None, None)
                 elif re.match(r"\s*Mother:", line):
                     rec.mother = parse_person(lines, k, "Mother")
                 elif re.match(r"\s*Father:", line):
@@ -432,9 +439,9 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
         shared = sum(key(w.name, w.head, w.body) == key(v.name, v.head, v.body) for w in roster)
         matches = [b for b in bs if b.child and key(b.child.name, b.child.head, b.child.body) == key(v.name, v.head, v.body)]
         named = [b for b in bs if b.child and b.child.name == v.name]
-        agree = all((m.father and m.father.name, m.father and m.father.head, m.mother and m.mother.name)
-                    == (matches[0].father and matches[0].father.name, matches[0].father and matches[0].father.head,
-                        matches[0].mother and matches[0].mother.name) for m in matches)
+        def parents(b):
+            return tuple((p.name, p.head, p.body) if p else None for p in (b.father, b.mother))
+        agree = all(parents(m) == parents(matches[0]) for m in matches)   # every field, as the game's repair
         has = bool(cur["father"] or cur["mother"] or cur["fh"] or cur["fb"] or cur["mh"] or cur["mb"])
         now = f"father {cur['father'] or '(unknown)'}, mother {cur['mother'] or '(unknown)'}" if has else "no parents"
 
@@ -552,10 +559,13 @@ def check_elders(game_dir: Path, slot: int, game: int, roster: list[Villager], r
         rep.add(label, "UNCHECKED", "no Village Elders file")
         return None
     lines = path.read_text(encoding="latin-1").replace("\r\n", "\n").split("\n")
-    if not lines or lines[0] != f"VVFP VILLAGE ELDERS v2 game={game}" or not lines[1].startswith("graves_seen="):
+    if len(lines) < 2 or lines[0] != f"VVFP VILLAGE ELDERS v2 game={game}" or not lines[1].startswith("graves_seen="):
         rep.add(label, "UNCHECKED", "not a v2 Village Elders file for this game")
         return None
     rows = [l.split("\t") for l in lines[2:] if l]
+    if any(len(r) < 7 for r in rows):
+        rep.add(label, "UNCHECKED", "a line of the Village Elders file is not a whole line")
+        return None
     open_lines = [r for r in rows if r[0] == "E" and r[6] == "1"]
     living_elders = [v for v in roster if is_elder(game, v)]
     for r in open_lines:
@@ -790,7 +800,7 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report) -> None:
         rep.add(label, "NOTE", "the first-load cross-check has not run for this slot yet (it runs at the next load)")
         return
     data = path.read_bytes()
-    if len(data) == 44 and data[:4] == b"VXC1":
+    if len(data) == 48 and data[:4] == b"VXC1":
         result = {1: "clean", 2: "repaired", 3: "no Births log to check against"}.get(struct.unpack_from("<I", data, 16)[0], "?")
         rep.add(label, "OK", f"the first-load cross-check ran: {result}")
     else:

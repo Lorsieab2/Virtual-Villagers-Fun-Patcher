@@ -723,6 +723,10 @@ static void vv_ensure_bighead_atlas(void) {
    the live stable identity, and return its mask (0 = none). */
 __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
+    /* The first-load cross-check, from the head-draw caves (world and
+       Details): only a village draws heads -- the present hook also runs at
+       the menus -- and this is the export those caves call. */
+    vvfp_crosscheck_bridge(4, villager != NULL);
     vv_prepare_mask_state();
     vv_ensure_mask_atlas();
     vv_ensure_bighead_atlas();
@@ -1219,9 +1223,6 @@ __declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
 __declspec(dllexport) void __stdcall Vv4MaskDrawRecord(unsigned char *villager,
                                                        int x, int y, int frame,
                                                        int scale_pct) {
-    /* The first-load cross-check, from the head draw: only a village draws
-       heads (the present hook above also runs at the menus). */
-    vvfp_crosscheck_bridge(4, villager != NULL);
     vv4_blit_mask(vv_get_mask(villager), x, y, frame, scale_pct);
 }
 

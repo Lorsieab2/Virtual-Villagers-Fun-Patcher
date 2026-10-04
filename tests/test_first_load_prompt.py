@@ -32,7 +32,7 @@ COMPANIONS = {
     1: ("native/vv1_origins_icons/vv1_origins_icons.c", "Vv1MaskTick"),
     2: ("native/vv2_origins_icons/vv2_origins_icons.c", "Vv2MaskSweep"),
     3: ("native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c", "VV3WorldMaskDrawAt"),
-    4: ("native/vv4_origins_icons/vv4_origins_icons.c", "Vv4MaskDrawRecord"),
+    4: ("native/vv4_origins_icons/vv4_origins_icons.c", "Vv4MaskGetForRecord"),
     5: ("native/vv5_task9_origins/vv5_task9_origins.c", "Vv5MaskSync"),
 }
 

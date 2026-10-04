@@ -167,5 +167,34 @@ class Vv3Fixture(unittest.TestCase):
                          [(0, "Vinapu"), (1, "Manaka"), (2, "Fill150"), (3, "Fill151")])
 
 
+    def test_a_single_villager_in_the_256_extension_is_read(self):
+        data = bytearray(77608 + 20 + 0x11C)
+        for base, name in ((30832, "Vinapu"), (77608, "Fill150")):
+            struct.pack_into("<I", data, base, 1)
+            data[base + 20:base + 20 + len(name)] = name.encode()
+            struct.pack_into("<i", data, base + 20 + 28, 3)
+        self.assertEqual([v.name for v in checker.vv25_roster(3, bytes(data), [])], ["Vinapu", "Fill150"])
+
+
+class ParsingFixtures(unittest.TestCase):
+    def test_unknown_parents_are_no_parents_and_disagreement_is_any_field(self):
+        game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "g"
+        (game / LOGS / "Births and Conceptions").mkdir(parents=True)
+        (game / LOGS / "Births and Conceptions" / "Virtual Villagers 1 Births and Conceptions Log 1.txt").write_text(
+            "Village: T (Save 1)\nBirth\n  Child: Ama\n    Head: 1\n    Body: 2\n  Mother: Chika\n    Head: 19\n"
+            "    Body: 17\n  Father: (unknown)\n    Head: -1\n    Body: -1\n\n", encoding="latin-1")
+        births, _ = checker.births_log(game, 1, 1)
+        self.assertIsNone(births[0].father)
+        self.assertEqual(births[0].mother.name, "Chika")
+
+    def test_a_truncated_elders_file_is_unchecked_not_a_crash(self):
+        game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "g"
+        (game / DATA / "Village Elders").mkdir(parents=True)
+        (game / DATA / "Village Elders" / "Village Elders - Save 1.dat").write_text("VVFP VILLAGE ELDERS v2 game=3")
+        rep = checker.Report()
+        self.assertIsNone(checker.check_elders(game, 1, 3, [], rep))
+        self.assertEqual(rep.lines[0][1], "UNCHECKED")
+
+
 if __name__ == "__main__":
     unittest.main()

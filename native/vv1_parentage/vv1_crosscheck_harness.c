@@ -334,7 +334,7 @@ static int all_true(const unsigned char *records) {
 }
 
 static unsigned int marker_result(void) {
-    unsigned int data[11];
+    unsigned int data[12];
     DWORD size = 0;
     if (!read_all(marker, data, sizeof(data), &size) || size != sizeof(data)) return 0;
     return data[0] == VV1_XC_MAGIC && data[3] == SLOT ? data[4] : 0;
@@ -747,7 +747,7 @@ static void session_cases(void) {
     put(village, 1, find("Usutu"), 0);
     put(village, 2, find("Howi"), 0);
     write_sidecar(village, entries);
-    vv1_xc_marker_write(SLOT, VV1_XC_RESULT_CLEAN, NULL);
+    vv1_xc_marker_write(SLOT, VV1_XC_RESULT_CLEAN, NULL, vv1_xc_village_id("Village: Kalahuna Tribe 1 (Save 1)"));
     load_only(village);
     put(village, 3, &baba, 0);
     c = vv1_born(village, village + 3u * VV1_RECORD_STRIDE, village);
@@ -796,9 +796,64 @@ static void failure_cases(void) {
           "a repair that cannot be written changes nothing on disk, and says so");
     check(lstrcmpA(g_entries[where(after_load, "Lisha")].father_name, "Kito") == 0,
           "... nor in memory (the old parents still show, as on disk)");
-    check(!exists(marker) && !exists(repairs), "... and records nothing, so the next load tries again");
+    check(!exists(marker) && !exists(backup1), "... and marks nothing done (its own backup removed), so the next load tries again");
+    check(strstr(slurp(repairs), "  Not applied: the parentage file could not be written; nothing was changed.") != NULL,
+          "... and the Repairs log says the repair was not applied");
     RemoveDirectoryA(tmpdir);
-    DeleteFileA(backup1);
+
+    /* A Repairs log that cannot be written stops the repair: no change without its record. */
+    clear_files();
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_save(1);
+    write_drifted_owner_sidecar();
+    read_all(sidecar, before, sizeof(before), &a);
+    CreateDirectoryA(repairs, NULL);             /* the note's file name is taken by a folder */
+    asked = load_and_check(after_load, IDYES);
+    read_all(sidecar, after, sizeof(after), &b);
+    check(asked == 1 && g_applied == 0 && a == b && memcmp(before, after, a) == 0 && !exists(marker) && !exists(backup1),
+          "a repair whose note cannot be written is not made at all");
+    RemoveDirectoryA(repairs);
+
+    /* A marker for another village in this slot (a save copied in) does not stop the check. */
+    clear_files();
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_save(1);
+    write_drifted_owner_sidecar();
+    vv1_xc_marker_write(SLOT, VV1_XC_RESULT_CLEAN, NULL, vv1_xc_village_id("Village: Another Tribe (Save 1)"));
+    asked = load_and_check(after_load, IDYES);
+    check(asked == 1 && g_applied == 1, "a marker left by another village in the slot does not count for this one");
+
+    /* A parent the log could not name is no parent. */
+    clear_files();
+    lstrcpyA(logtext, "Village: Kalahuna Tribe 1 (Save 1)\nBirth\n  Child: Nishi\n    Head: 7\n    Body: 3\n"
+                      "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: (unknown)\n    Head: -1\n    Body: -1\n\n");
+    log_save(1);
+    memset(village, 0, sizeof(village));
+    put(village, 0, find("Nishi"), 0);
+    {
+        static vv1_parent_entry none[VV1_RECORD_COUNT];
+        write_sidecar(village, none);
+    }
+    asked = load_and_check(village, IDYES);
+    check(asked == 1 && g_applied == 1 && g_entries[0].father_name[0] == '\0' && g_entries[0].father_head == 0
+          && lstrcmpA(g_entries[0].mother_name, "Chika") == 0,
+          "a Birth record's \"(unknown)\" father is no father, never the name \"(unknown)\"");
+
+    /* More villages for this slot than the header table holds: change nothing. */
+    clear_files();
+    logtext[0] = '\0';
+    {
+        int k;
+        for (k = 0; k < VV1_XC_MAX_HEADERS + 2; ++k) {
+            wsprintfA(logtext + lstrlenA(logtext), "Village: Tribe %d (Save 1)\nBirth\n  Child: Nishi\n    Head: 7\n"
+                      "    Body: 3\n  Mother: Onawa\n    Head: 16\n    Body: 2\n\n", k);
+        }
+    }
+    log_save(1);
+    asked = load_and_check(village, IDYES);
+    check(asked == 0 && !exists(marker), "a log naming more villages than can be told apart changes nothing");
 
     /* A backup name already taken is never replaced. */
     clear_files();
