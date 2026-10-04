@@ -9,11 +9,13 @@
      absent       no LDW at all: the child's whole tree, and LDW, are removed
      junction     LDW is a junction to another folder: the junction and the
                   folder's own file survive (a relocated save folder must
-                  never be disconnected)
-     tree-link    LDW\<harness> is a junction: it and its target survive
-     pre-tree     LDW\<harness> already holds files and folders, one of them
-                  empty: every one survives; only a new empty folder goes,
-                  and no file is deleted, new or old
+                  never be disconnected); the run's own folder inside it goes
+     tree-link    LDW\<harness> is a junction: the run refuses to start; the
+                  junction and its target survive
+     pre-tree     LDW\<harness> already holds a .txt log and an empty folder,
+                  and the run's first step empties its log folder (as several
+                  harnesses do): the run refuses to start before that step,
+                  so both survive
      pre-root     LDW holds another game's folder: it survives, the new tree
                   goes, LDW stays
      link-inside  the run itself makes a junction inside its new tree, to a
@@ -22,6 +24,8 @@
      crash        the child dies of an access violation: still cleaned
      overlap      a second run starts while the first is still running: it
                   waits, so the first run's exit cannot delete its files
+     case         the same, with the first run's exe name in upper case: the
+                  folder is the same, so the lock must be too
 
    Built and run by scripts/build_harness_ldw_tree_harness.ps1. */
 #include <windows.h>
@@ -145,11 +149,22 @@ static int child_main(const wchar_t *mode) {
         *(volatile int *)0 = 1;
         return 0;
     }
-    if (!wcscmp(mode, L"pre-tree")) {
-        path_of(p, tree, L"new empty"); CreateDirectoryW(p, NULL);
-        path_of(p, tree, L"new full"); CreateDirectoryW(p, NULL);
-        path_of(p, tree, L"new full\\new.txt"); touch(p);
-        path_of(p, tree, L"old dir\\new beside old.txt"); touch(p);
+    if (!wcscmp(mode, L"wipe")) {
+        /* What several harnesses do first: empty their log folder. */
+        wchar_t pattern[MAX_PATH], one[MAX_PATH];
+        WIN32_FIND_DATAW f;
+        HANDLE h;
+        path_of(pattern, tree, L"Logs\\Deaths\\*.txt");
+        h = FindFirstFileW(pattern, &f);
+        if (h != INVALID_HANDLE_VALUE) {
+            do {
+                path_of(p, tree, L"Logs\\Deaths");
+                path_of(one, p, f.cFileName);
+                DeleteFileW(one);
+            } while (FindNextFileW(h, &f));
+            FindClose(h);
+        }
+        write_tree();
         return 0;
     }
     if (!wcscmp(mode, L"hold")) {   /* first run: holds the harness, writes nothing */
@@ -164,7 +179,7 @@ static int child_main(const wchar_t *mode) {
         if (exists(p)) { path_of(p, docs, L"late kept its file"); touch(p); }
         return 0;
     }
-    return 2;
+    return 9;
 }
 
 static void fresh(void) {
@@ -216,6 +231,8 @@ int main(int argc, char **argv) {
     check(is_link(ldw), "THE LDW JUNCTION SURVIVES");
     path_of(p, target, L"player save.ldw");
     check(exists(p), "the relocated folder's own file survives");
+    path_of(p, target, base);
+    check(!exists(p), "the run's own folder inside it is still removed");
     RemoveDirectoryW(ldw);
     wipe(target);
 
@@ -226,7 +243,7 @@ int main(int argc, char **argv) {
     path_of(p, target, L"keep.txt"); touch(p);
     junction(tree, target);
     check(is_link(tree), "setup: the harness folder is a junction");
-    check(child(L"write") == 0, "child ran");
+    check(child(L"write") == 2, "the run refuses to start");
     check(is_link(tree), "the junction survives");
     path_of(p, target, L"keep.txt");
     check(exists(p), "its target's file survives");
@@ -234,21 +251,19 @@ int main(int argc, char **argv) {
     RemoveDirectoryW(tree);
     wipe(target);
 
-    printf("== pre-tree: the harness folder already holds files and folders ==\n");
+    printf("== pre-tree: the harness folder already holds a log, and the run empties its log folder first ==\n");
     fresh();
     CreateDirectoryW(ldw, NULL);
     CreateDirectoryW(tree, NULL);
-    path_of(p, tree, L"old.txt"); touch(p);
-    path_of(p, tree, L"old dir"); CreateDirectoryW(p, NULL);
-    path_of(p, tree, L"old dir\\old.txt"); touch(p);
+    path_of(p, tree, L"Logs"); CreateDirectoryW(p, NULL);
+    path_of(p, tree, L"Logs\\Deaths"); CreateDirectoryW(p, NULL);
+    path_of(p, tree, L"Logs\\Deaths\\Deaths Log 1.txt"); touch(p);
     path_of(p, tree, L"old empty"); CreateDirectoryW(p, NULL);
-    check(child(L"pre-tree") == 0, "child ran");
-    path_of(p, tree, L"old.txt"); check(exists(p), "a pre-existing file survives");
-    path_of(p, tree, L"old dir\\old.txt"); check(exists(p), "a pre-existing nested file survives");
-    path_of(p, tree, L"old empty"); check(exists(p), "A PRE-EXISTING EMPTY FOLDER SURVIVES");
-    path_of(p, tree, L"new empty"); check(!exists(p), "a new empty folder is removed");
-    path_of(p, tree, L"new full\\new.txt"); check(exists(p), "no file is deleted in a pre-existing tree");
-    path_of(p, tree, L"old dir\\new beside old.txt"); check(exists(p), "not even a new one");
+    check(child(L"wipe") == 2, "the run refuses to start");
+    path_of(p, tree, L"Logs\\Deaths\\Deaths Log 1.txt");
+    check(exists(p), "THE PRE-EXISTING .txt SURVIVES the run's own emptying step");
+    path_of(p, tree, L"old empty"); check(exists(p), "a pre-existing empty folder survives");
+    path_of(p, tree, L"Data"); check(!exists(p), "the run wrote nothing");
 
     printf("== pre-root: LDW already holds a game's folder ==\n");
     fresh();
@@ -299,6 +314,35 @@ int main(int argc, char **argv) {
         path_of(p, docs, L"late kept its file");
         check(exists(p), "THE FIRST RUN'S EXIT DID NOT DELETE THE SECOND RUN'S FILE");
         check(!exists(tree), "and the second run cleaned up its own tree");
+    }
+
+    printf("== case: the first run's exe name is spelt in other letter case ==\n");
+    fresh();
+    {
+        /* Same folder (names are case-insensitive), so the same lock. */
+        wchar_t upper_dir[MAX_PATH], upper_exe[MAX_PATH], upper_base[MAX_PATH], line[2048];
+        _snwprintf(upper_dir, MAX_PATH, L"%lsvvfp_harness_ldw_case_%lu", temp, GetCurrentProcessId());
+        upper_dir[MAX_PATH - 1] = 0;
+        wipe(upper_dir);
+        CreateDirectoryW(upper_dir, NULL);
+        lstrcpynW(upper_base, base, MAX_PATH);
+        CharUpperBuffW(upper_base, (DWORD)wcslen(upper_base));
+        _snwprintf(upper_exe, MAX_PATH, L"%ls\\%ls.exe", upper_dir, upper_base);
+        upper_exe[MAX_PATH - 1] = 0;
+        check(CopyFileW(exe, upper_exe, FALSE) != 0, "setup: an upper-case copy of this exe");
+        check(lstrcmpW(upper_base, base) != 0, "setup: the two names differ in case");
+        _snwprintf(line, 2048, L"\"%ls\" child hold", upper_exe);
+        line[2047] = 0;
+        run(line, 0);
+        path_of(p, docs, L"hold started");
+        for (i = 0; i < 200 && !exists(p); ++i) Sleep(25);
+        check(exists(p), "setup: the upper-case run is under way");
+        check(child(L"late") == 0, "the lower-case run finished");
+        path_of(p, docs, L"late kept its file");
+        check(exists(p), "THE OTHER-CASE RUN WAITED: its exit did not delete this run's file");
+        check(!exists(tree), "and this run cleaned up its own tree");
+        for (i = 0; i < 100 && !DeleteFileW(upper_exe); ++i) Sleep(50);
+        wipe(upper_dir);
     }
 
     wipe(docs);

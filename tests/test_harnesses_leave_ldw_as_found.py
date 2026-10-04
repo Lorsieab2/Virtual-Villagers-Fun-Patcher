@@ -6,9 +6,10 @@ player's real save folder. Two harnesses left eight empty folders there per
 run (measured before native/shared/harness_ldw_tree.h existed): the
 companion's log and data folders and the per-harness folder itself.
 
-The header serialises runs of one harness, records at start-up what already
-exists and, at exit (normal, exit() or a crash), removes only what the run
-created, never entering or removing a junction. These checks keep every such
+The header serialises runs of one harness (case-folded lock name), refuses to
+run at all when the harness's folder already exists -- several harnesses
+start by emptying it -- and, at exit (normal, exit() or a crash), removes the
+folder the run created, never entering or removing a junction. These checks keep every such
 harness wired to it -- the include, the call as the first statement of
 main(), no ExitProcess() that would skip the exit handler -- and run the
 header itself against a throwaway Documents folder.
@@ -118,8 +119,54 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("== 0 failure(s) ==", result.stdout)
         for scenario in ("absent", "junction", "tree-link", "pre-tree", "pre-root",
-                         "link-inside", "exit", "crash", "overlap"):
+                         "link-inside", "exit", "crash", "overlap", "case"):
             self.assertIn(f"== {scenario}:", result.stdout)
+
+    @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
+    def test_death_log_harness_never_empties_a_folder_it_did_not_make(self) -> None:
+        """The death-log harness starts by deleting every .txt in its log
+        folders. Pre-seed one there, in the real Documents\\LDW the harness
+        itself writes to, and run the real harness: it must refuse to start
+        and leave the file alone. The seed is this test's own file, in the
+        harness's own folder; if that folder already exists the test does not
+        touch it."""
+        import ctypes
+        import tempfile
+
+        buffer = ctypes.create_unicode_buffer(1024)
+        if ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buffer) != 0:
+            self.skipTest("Documents cannot be resolved")
+        folder = Path(buffer.value) / "LDW" / "death_log_harness"
+        if folder.exists():
+            self.skipTest(f"{folder} already exists; not touching it")
+        with tempfile.TemporaryDirectory() as out:
+            built = subprocess.run(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                 str(ROOT / "scripts" / "build_death_log_harness.ps1"), "-OutDir", out],
+                capture_output=True, text=True, timeout=300,
+            )
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            self.assertFalse(folder.exists(), "a normal run left its folder behind")
+            deaths = folder / "Virtual Villagers Fun Patcher Logs" / "Deaths"
+            deaths.mkdir(parents=True)
+            seed = deaths / "Virtual Villagers 1 Deaths Log 1.txt"
+            seed.write_text("not the harness's\n", encoding="utf-8")
+            try:
+                run = subprocess.run(
+                    [str(Path(out) / "death_log_harness.exe"),
+                     str(ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll")],
+                    capture_output=True, text=True, timeout=120,
+                )
+                self.assertEqual(run.returncode, 2, run.stdout + run.stderr)
+                self.assertIn("already exists", run.stderr)
+                self.assertEqual(seed.read_text(encoding="utf-8"), "not the harness's\n")
+            finally:
+                seed.unlink(missing_ok=True)
+                for empty in (deaths, deaths.parent, folder):
+                    try:
+                        empty.rmdir()
+                    except OSError:
+                        pass
 
 if __name__ == "__main__":
     unittest.main()
