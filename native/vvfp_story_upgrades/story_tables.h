@@ -536,7 +536,7 @@ static const oc_control VV1_OC_CONTROLS[] = {
 };
 static const oc_event VV1_OC_EVENTS[] = {
     { 0, 0, 0, 1, 0, 0, NULL },
-    { 1, 0, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 1, 0, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works. With Restore Missing Island Events ticked it also happens on its own when the village has stored food." },
     { 2, 0, 0, 1, 0, 0, NULL },
     { 5, 0, 0, 1, 0, 0, NULL },
     { 6, 0, 1, 0, 0, 0, NULL },
@@ -551,7 +551,7 @@ static const oc_event VV1_OC_EVENTS[] = {
     { 66, 22, 1, 0, 0, 0, NULL },
     { 67, 23, 7, 0, 0, 0, NULL },
     { 68, 30, 2, 0, 0, 0, NULL },
-    { 69, 32, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 69, 32, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works. With Restore Missing Island Events ticked it also happens on its own when the village has stored food." },
     { 70, 32, 2, 0, 0, 0, NULL },
     { 71, 34, 1, 0, 0, 0, NULL },
     { 72, 35, 2, 0, 0, 0, NULL },
@@ -575,7 +575,7 @@ static const oc_event VV1_OC_EVENTS[] = {
 #define VV1_OC_EVENT_COUNT 36
 static const story_event VV1_EVENTS[] = {
     { 0, "The Bad Little Monkey", "", "A monkey ransacks the research table: the tribe loses tech points.", "nothing beyond an island event being possible" },
-    { 1, "A Mighty Storm", "", "A typhoon strikes in the night and washes away all of the stored food.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
+    { 1, "A Mighty Storm", "", "A typhoon strikes in the night and washes away all of the stored food.", "stored food, with Restore Missing Island Events ticked (without it the original game never runs it; picking it makes it happen)" },
     { 2, "The Plague of Parrots", "", "A flock of wild parrots eats many of the berries.", "nothing beyond an island event being possible" },
     { 3, "A Plague of Locusts", "", "Locusts devour the crops in the field.", "crops growing in the farm field" },
     { 4, "The Measles Epidemic", "", "Every child in the village falls ill with measles.", "at least one living child" },
@@ -594,7 +594,7 @@ static const story_event VV1_EVENTS[] = {
     { 66, "The Old Drum", "", "A villager finds a heavy old drum: cut it open, or keep it.", "nothing beyond an island event being possible" },
     { 67, "The Mysterious Face", "", "A villager sees a face in the trees: take a closer look (risky), or back away.", "nothing beyond an island event being possible" },
     { 68, "The Visitor", "", "A stranger in a boat asks for plants and seeds: help him, or refuse.", "the tribe's medicine below its highest level (the visitor raises it)" },
-    { 69, "The Furry Food", "", "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
+    { 69, "The Furry Food", "", "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.", "stored food, with Restore Missing Island Events ticked (without it the original game never runs it; picking it makes it happen)" },
     { 70, "A Mysterious Vial", "red liquid", "A villager finds a vial of oily red liquid: drink it (risky), or pour it out.", "nothing beyond an island event being possible" },
     { 71, "The Troubled Child", "", "An unusually bright child needs direction: farming, or research.", "at least one living child" },
     { 72, "A Mysterious Vial", "blue liquid", "A villager finds a vial of oily blue liquid: drink it, or pour it out.", "nothing beyond an island event being possible" },

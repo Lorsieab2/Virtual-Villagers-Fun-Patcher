@@ -305,6 +305,18 @@ The clothing shortcut cycles the selected active villager through the stock outf
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Restore Missing Island Events (`vv1_restore_missing_island_events`)
+
+A New Home has two island events whose story and effects are complete in the game but which the original game never picks: A Mighty Storm (a typhoon washes away all of the stored food) and The Furry Food (the stored food goes moldy: remove the moldy pieces and some villagers get stomach trouble, or throw out all the food). This adds both to the game's normal random island events, with the same chance as any other event, whenever the village has stored food to lose. Their text and effects are the game's own. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A Mighty Storm (island event 1) can be chosen by the game's own island-event roll when the village has stored food; it then runs exactly as the game wrote it (all stored food is lost). The Furry Food (villager encounter 5) can be chosen by the game's own encounter roll when the village has stored food; both of its choices run exactly as the game wrote them. Each is offered with the same first-roll chance as every other event whose condition holds (1 in 15 among the island events, 1 in 16 among the encounters); with no stored food the game rolls again, as it does for any event that cannot happen.
+- Explicit non-changes/exclusions: How often island events happen, the other events, their odds and conditions, and the events' own text and effects are unchanged. No save data changes.
+- Dependencies: none
+- Evidence status: static exact-build evidence and emulated chooser; live in-game confirmation pending
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
 #### School Lessons Grant Skill (`vv1_school_lessons_grant_skill`)
 
 Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.

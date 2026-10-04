@@ -23,6 +23,10 @@ from __future__ import annotations
 ALWAYS = "nothing beyond an island event being possible"
 # A developer-dead event proven to work: its own condition never holds.
 NEVER = "nothing it can have: the original game never runs it (picking it makes it happen)"
+# A New Home's two developer-dead events that Restore Missing Island Events
+# re-admits to the game's own roll when the village has stored food.
+VV1_RESTORED = ("stored food, with Restore Missing Island Events ticked (without it the original "
+                "game never runs it; picking it makes it happen)")
 
 # A New Home families (story_vv1.inc).
 VV1_ISLAND, VV1_ENCOUNTER, VV1_CRATE = 0, 1, 2
@@ -51,7 +55,7 @@ EVENTS: dict[str, list[dict]] = {
            "A monkey ransacks the research table: the tribe loses tech points."),
         _e(_slot(VV1_ISLAND, 1), "A Mighty Storm",
            "A typhoon strikes in the night and washes away all of the stored food.",
-           requires=NEVER),
+           requires=VV1_RESTORED),
         _e(_slot(VV1_ISLAND, 2), "The Plague of Parrots",
            "A flock of wild parrots eats many of the berries."),
         _e(_slot(VV1_ISLAND, 3), "A Plague of Locusts",
@@ -98,7 +102,7 @@ EVENTS: dict[str, list[dict]] = {
         _e(_slot(VV1_ENCOUNTER, 5), "The Furry Food",
            "The stored food goes moldy: remove the moldy pieces (some villagers get stomach "
            "trouble), or throw out all the food.",
-           requires=NEVER),
+           requires=VV1_RESTORED),
         _e(_slot(VV1_ENCOUNTER, 6), "A Mysterious Vial",
            "A villager finds a vial of oily red liquid: drink it (risky), or pour it out.",
            variant="red liquid"),
