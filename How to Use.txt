@@ -114,6 +114,58 @@ PATCH ONE GAME
 4. Use "Open Vanilla EXE Folder" or "Open Modified EXE Folder" to open the
    selected game's folder in File Explorer.
 
+BACK UP SAVES
+
+The patcher can copy your modded games' saves for you, in all five games.
+
+1. On the One Game tab, choose the game's EXE and click "Back Up Saves".
+   On the All 5 Games tab, click "Back up saves" on a game's row, or
+   "Back Up Saves (All 5)..." for every game at once.
+2. A window lists that game's save folders in Documents\LDW: the
+   "(Game name) - Modded" folder, "- Modded 256" for a 256 Villagers build,
+   and any other "- Modded..." folder there. Folders the patcher's own builds
+   use are ticked; tick or untick any of them, then click "Back Up Selected".
+3. Each chosen folder is copied -- your .ldw saves, the "Virtual Villagers
+   Fun Patcher Logs" and "Virtual Villagers Fun Patcher Data" folders and
+   everything else in it -- into a new folder inside it:
+       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS
+   Every copied file is checked against the original. An earlier backup is
+   never replaced, and nothing in the patcher ever reads or deletes the
+   Backups folder (Start Over leaves it alone).
+4. If the game is running, it is paused for the copy and then carries on by
+   itself; it is never closed. These games save only when you quit them
+   normally, so a backup made while a game is running holds the village as of
+   its last save. If the game cannot be paused, nothing is copied and the
+   window says why.
+5. The result window shows how many files were copied and their size, with an
+   "Open Backup Folder" link.
+
+RESTORE SAVES
+
+1. Quit the game from its own menu first. A restore is refused while the game
+   is running, because a running game writes its village over the restored
+   save when it quits. The patcher never closes the game for you.
+2. Click "Restore Saves..." on the One Game tab, or "Restore saves..." on a
+   game's row on the All 5 Games tab.
+3. The window lists that game's backups, newest first, each with its date and
+   time, which variant ("Modded", "Modded 256" ...) it came from, the village
+   in each save slot, and its size.
+4. Choose "The whole save folder" or "One save slot only" and the slot, then
+   click "Restore...". A confirmation lists exactly which files will be
+   replaced, added and removed.
+   One slot restores only that slot's saves and that slot's patcher files.
+   It is refused, and the window says why, when the backup and your saves
+   differ in a file that belongs to no single slot (the game's shared slot 0
+   save, or a patcher file that does not say which save it is for); restore
+   the whole save folder instead.
+5. Before anything is changed, your saves as they are now are backed up as
+   "Backup (date) (before restore)", so every restore can be undone by
+   restoring that backup. Each file is put in place only after its copy has
+   been checked against the backup; if anything goes wrong, every file already
+   changed is put back.
+6. "Delete Backup..." deletes the chosen backup after asking. A restore never
+   changes or deletes any backup.
+
 OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once except

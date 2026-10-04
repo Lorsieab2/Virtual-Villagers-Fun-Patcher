@@ -454,6 +454,50 @@ int main(void) {
         check(delete_if_present_w(victim_w) == 1, "a real wide path IS deleted");
     }
 
+    /* A BACKUP SURVIVES START OVER. The patcher's Back Up Saves copies the
+       whole save folder into <save folder>\Backups\Backup <date>\, with the
+       same file names and log subfolders. A Start Over of the backed-up
+       village must leave every one of those copies alone: they are the
+       player's way back. Each copy carries the erased village's own header,
+       so only the location protects it. */
+    {
+        char bdir[MAX_PATH], blogs[MAX_PATH], bpop[MAX_PATH], bpar[MAX_PATH];
+        char bmask[MAX_PATH], bstats[MAX_PATH], bsave[MAX_PATH];
+        char bpop1[MAX_PATH], blog1[MAX_PATH];
+        static const char ERASED_PAGE[] =
+            "Virtual Villagers: A New Home Village Population\n"
+            "Village: Kalahuna (Save 1)\n\n1. Someone\n";
+
+        wsprintfA(bdir, "%s\\Backups", folder);
+        CreateDirectoryA(bdir, NULL);
+        wsprintfA(bdir, "%s\\Backups\\Backup 2026-10-04 13-05-22", folder);
+        CreateDirectoryA(bdir, NULL);
+        wsprintfA(blogs, "%s\\Virtual Villagers Fun Patcher Logs", bdir);
+        CreateDirectoryA(blogs, NULL);
+        wsprintfA(bpop, "%s\\Tribe Population", blogs);
+        CreateDirectoryA(bpop, NULL);
+        wsprintfA(bpar, "%s\\Births and Conceptions", blogs);
+        CreateDirectoryA(bpar, NULL);
+        wsprintfA(bmask, "%s\\vv1_masks_1.dat", bdir);
+        wsprintfA(bstats, "%s\\Village Statistics - Save 1.txt", bdir);
+        wsprintfA(bsave, "%s\\Virtual Villagers1.ldw", bdir);
+        wsprintfA(bpop1, "%s\\Village Population 1.txt", bpop);
+        wsprintfA(blog1, "%s\\Virtual Villagers 1 Births and Conceptions Log 1.txt", bpar);
+        touch(bmask); touch(bstats); touch(bsave);
+        write_text(bpop1, ERASED_PAGE);
+        write_text(blog1, VILLAGE);
+        /* and the live copies the reset should take, so it demonstrably ran */
+        touch(mask1); touch(stats1); write_text(log1, VILLAGE); write_text(pop1, ERASED_PAGE);
+        check(exists(bmask) && exists(bstats) && exists(bsave) && exists(bpop1)
+              && exists(blog1), "backup copies created (nonzero denominator)");
+
+        removed = vv_reset_slot_state(1, 1, VILLAGE);
+        check(removed >= 4 && !exists(mask1) && !exists(stats1) && !exists(log1)
+              && !exists(pop1), "the reset removed the live slot-1 files");
+        check(exists(bmask) && exists(bstats) && exists(bsave) && exists(bpop1)
+              && exists(blog1), "A BACKUP SURVIVES START OVER (every copied file)");
+    }
+
     /* Clean up what the harness made. */
     DeleteFileA(mask2); DeleteFileA(save1); DeleteFileA(other_game);
     DeleteFileA(stats2); DeleteFileA(pop2); DeleteFileA(log_other);
