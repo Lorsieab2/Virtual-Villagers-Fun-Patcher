@@ -10,8 +10,8 @@
    running, and only if there's a problem."  Both are built.  Later the
    same day: "Can you make the check logs automatically default on? (With a
    message in the prompt on how to turn the toggle off)" -- the setting is
-   ON by default and the quit-time box ends with how to turn it off.  NOTHING HERE EVER SHOWS ANYTHING WHILE A VILLAGE IS
-   BEING PLAYED.
+   ON by default and the quit-time box ends with how to turn it off.
+   NOTHING HERE EVER SHOWS ANYTHING WHILE A VILLAGE IS BEING PLAYED.
 
    WHAT IS CHECKED AND REPAIRED.  Only what a source of truth confirms wrong
    AND the patcher can put right (docs/first-load-cross-check.md has the full
@@ -68,8 +68,8 @@
                  the player quits after playing that village.
 
       The box always ends with how to stop these checks (VVFP_XC_HOW_TO_STOP):
-      the setting is written into the game when it is patched, so it is
-      untick the box in the patcher and patch the game again.
+      the setting is written into the game when it is patched, so turning
+      it off means unticking the box and patching the game again.
 
       When it is OFF, nothing is scanned and nothing is asked, ever.
 
