@@ -626,9 +626,11 @@ class RemovalTests(unittest.TestCase):
 @unittest.skipUnless(HAVE_STOCK, "requires all five stock executables")
 class PlacementGuardTests(unittest.TestCase):
     def test_render_refuses_a_stub_the_image_would_not_map_as_code(self) -> None:
-        # VV4 .rdata tail without Origins: mapped, not executable.
+        # VV4 .rsrc (zero bytes): mapped, never executable.  (Its .rdata tail, the
+        # example this used before, is executable in every build now: the
+        # safety layer's record guards live there.)
         saved = vp.MAIN_MENU_START_OVER_CAVE["vv4"]["carrier"]
-        vp.MAIN_MENU_START_OVER_CAVE["vv4"]["carrier"] = {"file": 0xB7800, "va": 0x4B7800}
+        vp.MAIN_MENU_START_OVER_CAVE["vv4"]["carrier"] = {"file": 0xCF900, "va": 0x72B900}
         try:
             with self.assertRaises(vp.PatcherError):
                 vp.render_patched_bytes(

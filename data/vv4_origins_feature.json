@@ -390,19 +390,19 @@
     {
       "offset": "0xCCC00",
       "before": "0000000000000000000000000000000000000000000000000000000000000000",
-      "after": "56B968E55000E805EAD3FF83C0033D960000007E0431C05EC3B8010000005EC3",
+      "after": "56B968E55000E8E504D6FF83C0033D960000007E0431C05EC3B8010000005EC3",
       "purpose": "Barrel purchase gate: refuse (no charge) only when population (0x467610) + 3 would exceed the 150-slot record array"
     },
     {
       "offset": "0xCCB40",
       "before": "0000000000000000000000000000000000000000000000000000000000000000",
-      "after": "803D008B7200007412E8C2EAD3FF3D960000007D03B001C330C0C3E9F0F7D3FF",
+      "after": "803D008B7200007412E8A205D6FF3D960000007D03B001C330C0C3E9F0F7D3FF",
       "purpose": "purchased-barrel room-check 1 (before child 2): report room up to the record array when the purchase flag is set, else the stock tiered check"
     },
     {
       "offset": "0xCCB60",
       "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "803D008B7200007419C605008B720000E89BEAD3FF3D960000007D03B001C330C0C3E9C9F7D3FF",
+      "after": "803D008B7200007419C605008B720000E87B05D6FF3D960000007D03B001C330C0C3E9C9F7D3FF",
       "purpose": "purchased-barrel room-check 2 (before child 3): as check 1, and clears the purchase flag so it applies to exactly one barrel"
     },
     {
