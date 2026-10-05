@@ -311,6 +311,13 @@ static int arrival_gather(int births) {
                 f->outcome = VV_ARRIVAL_CONTEXT;
             }
         }
+        /* Made by a creator this session, its own record not written yet:
+           the live record is theirs (arrival_save, right after the backfill
+           at the same save), never the backfill's as well.  The owner's
+           v1.35.58 preview gave a Custom Island Event's villager both. */
+        if (arrivals[i].state != ARRIVAL_NONE) {
+            f->outcome = VV_ARRIVAL_CONTEXT;
+        }
         wsprintfA(f->before, "  Age at arrival: (unknown)\n  Age when recorded: %d\n  Sex: %s\n",
                   rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
         arrival_fact_index[n] = (int)i;

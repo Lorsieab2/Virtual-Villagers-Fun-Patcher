@@ -124,7 +124,11 @@ def _emulate(image: bytes, entry: int, stop: int, *, stack_slots, regs, rolls,
 
     for index in range(SLOTS):
         record = _record(index)
-        uc.mem_write(record + 0x28, b"\x01")
+        # The last few records are free: with every record taken the safety
+        # layer's litter guard (scripts/build_slot_guards.py) rightly refuses
+        # twins and triplets, which the stock game would make.
+        if index < SLOTS - 8:
+            uc.mem_write(record + 0x28, b"\x01")
         w32(record + 0x36C, _field_36c(index))
         w32(record + 0x34C, 0x2000 + index)
         w32(record + 0x350, genders.get(index, 1))

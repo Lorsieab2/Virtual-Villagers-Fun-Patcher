@@ -3507,6 +3507,7 @@ enum {
    file with its own VV_AGE_OFFSET (0x530), which would silently retarget this
    VV1-only code. Every VV1 Time Warp constant is game-scoped for that reason. */
 #define VV1_TW_AGE_OFFSET        0x348
+#define VV1_TW_HEALTH_OFFSET     0x344    /* 0 or less: a body (0x42EF05)       */
 
 /* Speed codes are the engine's own divisors, written by the speed menu at
    0x004294C4 / 0x0042950A / 0x0042954D.  A year is 20 * 60 * code seconds:
@@ -3582,6 +3583,14 @@ static int vv1_time_warp_apply(int speed, int years) {
            Child's marker alone would not keep it a child, it would age it by
            the clamped 2.55 / 4.3 / 8.6 years instead of not at all. */
         *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) += delta;
+        /* A body holds its record but no longer ages: the engine's tick ages
+           only the living.  Credited, a corpse lying through a warp aged with
+           the village -- its age at death in the Deaths log grew, and Cause of
+           Death, which knows a body by its name and age, lost its cause ("not
+           recorded": the owner's Time Warps of 2026-10-05). */
+        if (*(int *)(rec + VV1_TW_HEALTH_OFFSET) <= 0) {
+            continue;
+        }
         if (VV_IS_GOLDEN_CHILD(rec)) {
             /* Hardcoded to remain a child, the same categorical exclusion
                Set Age to 18 already makes (VV1_ROWMSG_IS_GOLDEN_CHILD). */

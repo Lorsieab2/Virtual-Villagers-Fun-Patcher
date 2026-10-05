@@ -120,10 +120,17 @@ class VV5OriginsCarriesNoUnreachableCode(unittest.TestCase):
                     self.assertEqual(unreached(image, base, live, *PAGE), [], "Task9 page")
 
     def test_removed_regions_are_back_to_stock_zero(self) -> None:
-        stock = STOCK.read_bytes()
+        build = next(b for b in vfp.load_builds() if b.id == "vv5")
         for scope in ("alone", "full"):
             for mode in MODES:
                 image = render(scope, mode)
+                # The image with no patch selected: stock plus the automatic
+                # layers (the safety layer's record guards use part of this
+                # tail since v1.35.58, scripts/build_record_guards_vv345.py).
+                # (With 256 Villagers in the selection, its rescaled rows.)
+                table = ["vv5_population_256"] if scope == "full" and any(
+                    p.id == "vv5_population_256" for p in vfp.load_public_fun_patches()) else []
+                stock, _ = vfp.render_patched_bytes(STOCK, build, mode, table)
                 for lo, hi, what in (
                     (0x94B32, 0x94BB0, "Cure stub and village-wide preflight"),
                     (0x94C20, 0x94EA0, "village-wide extension"),
