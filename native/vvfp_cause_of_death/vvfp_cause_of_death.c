@@ -564,8 +564,29 @@ static int cod_install_sites(int first) {
 
 static unsigned int seen_alive[RECORDS_MAX];   /* name hash, 0 = not seen alive */
 /* A record the game filled for something other than a member of the tribe
-   (cod_roster_sites.inc), while it holds it. */
+   (cod_roster_sites.inc), while it holds it -- and whom it holds: the name
+   hash of the stranger or stand-in (0 until it is named).  A load refills
+   every record in one call, with no creator and no tick between (New
+   Believers 0x46FA20 resets and reads them all; its tick runs only at
+   buildSavePath, before the load), so the mark alone outlived its holder
+   and the villager the load put in that record was taken for him: never
+   one of the tribe, her death or disappearance never logged. */
 static unsigned char temporary[RECORDS_MAX];
+static unsigned int temporary_name[RECORDS_MAX];
+
+/* Is `record` (index `index`) still the temporary record it was marked as?
+   A record that now holds someone else is the tribe's: the mark goes. */
+static int cod_temporary(int index, const unsigned char *record) {
+    if (!temporary[index]) {
+        return 0;
+    }
+    if (temporary_name[index] != 0 && temporary_name[index] != cod_name_hash(record)) {
+        temporary[index] = 0;
+        temporary_name[index] = 0;
+        return 0;
+    }
+    return 1;
+}
 static int install_state;   /* 0 = not tried, 1 = installed, -1 = refused */
 /* The save hook alone, armed ahead of the install (VvfpCauseArmSave): it
    is sites[0] from then on, and the install adds every other site after
@@ -621,6 +642,8 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
 /* Every frame: whom the tick sees alive, the temporary records still held,
    and A New Home's and The Lost Children's graves file and the deaths no
    site reported. */
+static int temporary_slot = -1;  /* the village the temporary marks belong to */
+
 __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     unsigned char *records;
     int i;
@@ -629,10 +652,26 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     }
     standin_pending = 0;
     records = cod_records();
+    if (cod_slot() != temporary_slot) {
+        /* Another village: nothing of the last one's is temporary here.
+           (The first tick only learns the slot: nothing came before it.) */
+        if (temporary_slot >= 0) {
+            memset(temporary, 0, sizeof temporary);
+            memset(temporary_name, 0, sizeof temporary_name);
+        }
+        temporary_slot = cod_slot();
+    }
     for (i = 0; i < RECORDS_MAX; ++i) {
-        if (temporary[i] && (records == NULL || (unsigned int)i >= REC[g_game].slots
-                             || !rec_present(records + (size_t)i * REC[g_game].stride))) {
+        const unsigned char *record;
+        if (!temporary[i]) {
+            continue;
+        }
+        if (records == NULL || (unsigned int)i >= REC[g_game].slots
+            || !rec_present(record = records + (size_t)i * REC[g_game].stride)) {
             temporary[i] = 0;
+            temporary_name[i] = 0;
+        } else if (temporary_name[i] == 0) {
+            temporary_name[i] = cod_name_hash(record);   /* named by now (New Believers' 0x420015) */
         }
     }
     if (g_game <= 2) {
@@ -704,6 +743,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     roster_reset(slot);
     memset(seen_alive, 0, sizeof seen_alive);
     memset(temporary, 0, sizeof temporary);
+    memset(temporary_name, 0, sizeof temporary_name);
 }
 
 #ifdef VVFP_TEST
