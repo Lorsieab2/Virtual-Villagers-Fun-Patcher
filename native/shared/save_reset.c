@@ -40,13 +40,9 @@ int vv_reset_refused_paths = 0;
     "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Graves - Save %d.dat"
 #define ROSTER_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Village Roster - Save %d.dat"
-/* ...and which graves already have their Death record in the Deaths log
-   (native/vvfp_cause_of_death/cod_backfill.inc), deleted with that log. */
-#define GRAVES_LOGGED_FORMAT(n) \
-    "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"
 /* ...and that the slot's villagers who arrived before the Arrived record
-   existed have theirs (native/shared/arrival_backfill.h): the village
-   started after the reset gets its own when its Births log is created. */
+   existed have theirs (native/shared/arrival_backfill.h), in its own
+   "Arrivals" folder: the village started after the reset is asked again. */
 #define ARRIVALS_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers " n " Arrivals Recorded - Save %d.dat"
 /* EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h). The masks,
@@ -58,6 +54,11 @@ int vv_reset_refused_paths = 0;
    at BOTH places, so neither copy can bring an erased village's state back. */
 #define DATA_FORMAT(sub, name) \
     "%s\\Virtual Villagers Fun Patcher Data\\" sub "\\" name " - Save %d.dat"
+/* ...and which graves already have their Death record in the Deaths log
+   (native/vvfp_cause_of_death/cod_backfill.inc), deleted with that log.  It
+   was never written loose: it has always been in its own "Deaths" folder. */
+#define GRAVES_LOGGED_FORMAT(n) \
+    "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"
 #define SIDECAR_FORMAT_COUNT 15
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),

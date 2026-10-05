@@ -1293,11 +1293,17 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
                value (21 of the owner's 28 A New Home villagers did), and
                any two villages' would match.  "-" says so; roster_match.c
                then compares the name alone. */
+            /* Empty is -1 OR an index past the end of the game's preference
+               list -- both occur in real villages (population_export.c,
+               first_preference; Codex, #524): 47 entries in A New Home, 62
+               in The Lost Children, 79 in the later three. */
+            static const int PREFERENCES[6] = { 0, 47, 62, 79, 79, 79 };
             unsigned int h = 2166136261u;
             int any = 0;
             for (i = 0; i < 2u * r->preference_slots; ++i) {
                 unsigned int base = i < r->preference_slots ? r->likes : r->dislikes;
-                if (*(const int *)(record + base + (i % r->preference_slots) * 4u) >= 0) {
+                int value = *(const int *)(record + base + (i % r->preference_slots) * 4u);
+                if (value >= 0 && value < PREFERENCES[game_id]) {
                     any = 1;
                 }
             }

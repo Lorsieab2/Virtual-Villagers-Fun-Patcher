@@ -31,7 +31,7 @@ BUILD = ROOT / "scripts" / "build_grave_backfill_harness.ps1"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
-CHECKS_PER_GAME = 34
+CHECKS_PER_GAME = 37
 
 
 class GraveBackfillSource(unittest.TestCase):
@@ -48,6 +48,17 @@ class GraveBackfillSource(unittest.TestCase):
             self.assertIn("VvfpCauseRepairGraves=_VvfpCauseRepairGraves@12", text)
         self.assertIn("SavedVillageHeader=_SavedVillageHeader@16",
                       (ROOT / "native" / "save_reset_export" / "save_reset_export.def").read_text(encoding="utf-8"))
+
+    def test_only_a_record_on_disk_accounts_for_a_departure(self):
+        # Codex, #524: a record from the grave that is only held for the save
+        # (VV_GRAVE_QUEUED) is lost if the game ends first, so it must not
+        # suppress the departed villager's Unaccounted record.
+        source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
+        save = source[source.index("static void backfill_at_save("):]
+        save = save[:save.index("\n}\n")]
+        gate = save[:save.index("recorded_now[recorded_now_count++] = i;")]
+        gate = gate[gate.rindex("if ("):]
+        self.assertEqual(gate.split("{")[0].strip(), "if (facts[i].outcome == VV_GRAVE_RECORDED)")
 
     def test_nothing_is_written_without_repair(self):
         source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
@@ -68,11 +79,11 @@ class GraveBackfillSource(unittest.TestCase):
         self.assertLess(done.index("backfill_at_save(slot, save_buffer);"),
                         done.index("roster_reconcile(slot);"))
 
-    def test_every_burial_record_marks_its_grave(self):
-        self.assertIn("backfill_mark(slot, e.entry.fingerprint);",
-                      (COD / "cod_vv12.inc").read_text(encoding="utf-8"))
-        self.assertIn("backfill_mark(written_slot, v345_fingerprint(entry));",
-                      (COD / "cod_vv345.inc").read_text(encoding="utf-8"))
+    def test_a_burial_record_is_never_taken_as_coverage_on_trust(self):
+        # Codex, #524: a burial's record may only be held for the save, so
+        # its grave is checked against the log on disk like any other.
+        for name in ("cod_vv12.inc", "cod_vv345.inc", "cod_backfill.inc", "vvfp_cause_of_death.c"):
+            self.assertNotIn("backfill_mark", (COD / name).read_text(encoding="utf-8"))
 
     def test_the_data_file_has_its_own_folder_and_one_path_helper(self):
         source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")

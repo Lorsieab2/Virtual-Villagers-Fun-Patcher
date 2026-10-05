@@ -95,11 +95,15 @@ static int keep_death_key(const struct death_key *key) {
     return 1;
 }
 
-/* Ends the record being read; 0 only when it could not be kept. */
-static int death_reader_close(struct death_reader *r) {
+/* Ends the record being read; 0 only when it could not be kept.  A record
+   counts only when it `ended` with the blank line every record is written
+   with, and has its name, age at death and grave: one cut short by an
+   interrupted append (the next "Death <n>", the file's end) is no grave's
+   record (Codex, #524). */
+static int death_reader_close(struct death_reader *r, int ended) {
     int ok = 1;
-    if (r->open && r->have_name && r->have_age
-        && !(r->have_grave && strncmp(r->key.grave, "no grave", 8) == 0)) {
+    if (ended && r->open && r->have_name && r->have_age && r->have_grave
+        && strncmp(r->key.grave, "no grave", 8) != 0) {
         ok = keep_death_key(&r->key);
     }
     memset(r, 0, sizeof(*r));
@@ -112,14 +116,14 @@ static int death_reader_line(struct death_reader *r, char *line) {
     const char *value;
     trim_line(line);
     if (strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9') {
-        if (!death_reader_close(r)) {
+        if (!death_reader_close(r, 0)) {
             return 0;
         }
         r->open = 1;
         return 1;
     }
     if (line[0] != ' ') {
-        return death_reader_close(r);      /* a blank line, a heading, another kind */
+        return death_reader_close(r, 1);   /* a blank line, a heading, another kind */
     }
     if (!r->open) {
         return 1;
@@ -182,7 +186,7 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
             return 0;
         }
         fclose(file);
-        if (!death_reader_close(&reader)) {
+        if (!death_reader_close(&reader, 0)) {
             return 0;
         }
     }
@@ -217,7 +221,7 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
             }
             at = end != NULL ? end + 1 : at + strlen(at);
             }
-            if (!death_reader_close(&reader)) {
+            if (!death_reader_close(&reader, 0)) {
                 return 0;
             }
             for (; first < death_key_count; ++first) {
@@ -335,45 +339,165 @@ static void history_villager_done(struct history_villager *v, struct backfill_ta
 
 /* The Village History files, oldest first, each read once for every grave
    being recorded. */
-static void read_history(const char *village, struct backfill_target *targets, int count) {
+/* A snapshot counts only when its heading names this game ("=== Virtual
+   Villagers <n> -- ..."; renamed games can share a save folder, and with it
+   the Village History files, under the same village name -- Codex, #524)
+   and its "Village:" line names this village.  A villager counts only once
+   its record has ended with the blank line the exporter writes after it: a
+   record cut short (an interrupted append, the file's end) is dropped, never
+   finished with "(none)" for the lines it lost (Codex, #524).
+
+   0 when a History file that exists cannot be read to its end (locked, a
+   read error): a newer snapshot in it could show a candidate outlived the
+   grave, so nothing is decided from the files that could be read, and the
+   graves are asked about again at the next save (Codex, #524). */
+/* The Village History files, oldest first: -1 the unnumbered file an older
+   build kept in the retired "VVFP Logs" folder, 0 the unnumbered file in
+   today's folder (both moved to "Village History 1.txt" by the population
+   exporter, which on a village's first patched save may run after this --
+   Codex, #524), then "Village History <n>.txt".  0 when there is no path. */
+static int history_path(const wchar_t *folder, int number, wchar_t *out) {
+    if (number == -1) {
+        wchar_t root[MAX_LOG_PATH];
+        return vv_save_folder_w(root, 96)
+            && _snwprintf_s(out, MAX_LOG_PATH, _TRUNCATE,
+                            L"%ls\\VVFP Logs\\Tribe History\\Village History.txt", root) >= 0;
+    }
+    if (number == 0) {
+        return _snwprintf_s(out, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History.txt", folder) >= 0;
+    }
+    return _snwprintf_s(out, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
+                        folder, number) >= 0;
+}
+
+/* The names this village's snapshots were headed with.  The Rename Tribe
+   tool never rewrites a snapshot: it appends "Tribe renamed from <old> to
+   <new> on YYYY-MM-DD (Save <n>)" to the newest History file
+   (village_rename.h), so the snapshots before it still say "Village: <old>
+   (Save <n>)" (Codex, #524).  Starting from the header now, each such note
+   naming one of the headers known so far adds the header it was renamed
+   from; a chain of renames is followed back to the first name. */
+#define HISTORY_ALIASES 16
+#define HISTORY_NOTES 64
+
+static int history_aliases(const char *current, char notes[][256], int note_count,
+                           char aliases[][256]) {
+    int count = 1;
+    int k;
+    int grew = 1;
+    lstrcpynA(aliases[0], current, 256);
+    while (grew) {
+        grew = 0;
+        for (k = 0; k < count && count < HISTORY_ALIASES; ++k) {
+            const char *save = NULL;
+            const char *scan = aliases[k];
+            const char *name = aliases[k] + VV_RENAME_HEADER_PREFIX_LENGTH;
+            size_t name_length;
+            int j;
+            for (;;) {                        /* the LAST " (Save " */
+                const char *hit = strstr(scan, " (Save ");
+                if (hit == NULL) {
+                    break;
+                }
+                save = hit;
+                scan = hit + 1;
+            }
+            if (save == NULL || strncmp(aliases[k], VV_RENAME_HEADER_PREFIX, VV_RENAME_HEADER_PREFIX_LENGTH) != 0) {
+                continue;
+            }
+            name_length = (size_t)(save - name);
+            for (j = 0; j < note_count; ++j) {
+                /* "Tribe renamed from <old> to <name> on YYYY-MM-DD<save>" */
+                const char *note = notes[j];
+                size_t length = strlen(note);
+                size_t save_length = strlen(save);
+                size_t tail = 4 + name_length + VV_RENAME_DATE_TAIL + save_length;   /* " to " name date save */
+                char older[256];
+                int m;
+                int known = 0;
+                if (length <= VV_RENAME_PREFIX_LENGTH + tail
+                    || strcmp(note + length - save_length, save) != 0
+                    || strncmp(note + length - tail, " to ", 4) != 0
+                    || strncmp(note + length - tail + 4, name, name_length) != 0
+                    || strncmp(note + length - save_length - VV_RENAME_DATE_TAIL, " on ", 4) != 0) {
+                    continue;
+                }
+                _snprintf_s(older, sizeof older, _TRUNCATE, "%s%.*s%s", VV_RENAME_HEADER_PREFIX,
+                            (int)(length - VV_RENAME_PREFIX_LENGTH - tail),
+                            note + VV_RENAME_PREFIX_LENGTH, save);
+                for (m = 0; m < count; ++m) {
+                    known |= strcmp(aliases[m], older) == 0;
+                }
+                if (!known && count < HISTORY_ALIASES) {
+                    lstrcpynA(aliases[count++], older, 256);
+                    grew = 1;
+                }
+            }
+        }
+    }
+    return count;
+}
+
+static int read_history(int game_id, const char *village, struct backfill_target *targets, int count) {
     wchar_t folder[MAX_LOG_PATH];
     wchar_t path[MAX_LOG_PATH];
     char line[512];
     char current[256];
+    char heading[32];
     char when[32];
     struct history_villager v;
     int ceiling;
     int number;
+    int pass;
     size_t n;
+    static char notes[HISTORY_NOTES][256];
+    static char aliases[HISTORY_ALIASES][256];
+    int note_count = 0;
+    int alias_count = 1;
 
     _snprintf_s(current, sizeof current, _TRUNCATE, "%s", village);
     trim_line(current);
+    _snprintf_s(heading, sizeof heading, _TRUNCATE, "=== Virtual Villagers %d -- ", game_id);
     if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
-        return;
+        return 0;
     }
     ceiling = highest_log_number(L"Village History", folder);
-    for (number = 1; number <= ceiling; ++number) {
+    lstrcpynA(aliases[0], current, 256);
+    /* Pass 0 gathers the rename notes, pass 1 the snapshots. */
+    for (pass = 0; pass < 2; ++pass) {
+    if (pass == 1) {
+        alias_count = history_aliases(current, notes, note_count, aliases);
+    }
+    for (number = -1; number <= ceiling; ++number) {
         FILE *file;
         int ours = 0;
         int expect_village = 0;
-        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
-                         folder, number) < 0) {
-            return;
+        if (!history_path(folder, number, path)) {
+            return 0;
+        }
+        if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+            continue;                         /* a number never written */
         }
         file = _wfopen(path, L"rb");
         if (file == NULL) {
-            continue;
+            return 0;
         }
         memset(&v, 0, sizeof v);
         when[0] = '\0';
         while (fgets(line, (int)sizeof line, file) != NULL) {
             const char *value;
             trim_line(line);
+            if (pass == 0) {
+                if (vv_rename_is_note(line) && note_count < HISTORY_NOTES) {
+                    lstrcpynA(notes[note_count++], line, 256);
+                }
+                continue;
+            }
             if (strncmp(line, "=== ", 4) == 0) {
                 const char *dash = strstr(line, " -- ");
-                history_villager_done(&v, targets, count, when);
+                memset(&v, 0, sizeof v);          /* a villager not ended: dropped */
                 ours = 0;
-                expect_village = 1;
+                expect_village = strncmp(line, heading, strlen(heading)) == 0;
                 when[0] = '\0';
                 if (dash != NULL) {
                     lstrcpynA(when, dash + 4, (int)sizeof when);
@@ -385,15 +509,19 @@ static void read_history(const char *village, struct backfill_target *targets, i
                 continue;
             }
             if (expect_village) {
+                int a;
                 expect_village = 0;
-                ours = current[0] != '\0' && strcmp(line, current) == 0;
+                ours = 0;
+                for (a = 0; a < alias_count; ++a) {
+                    ours |= aliases[a][0] != '\0' && strcmp(line, aliases[a]) == 0;
+                }
                 continue;
             }
             if (!ours) {
                 continue;
             }
             if (strncmp(line, "Villager ", 9) == 0) {
-                history_villager_done(&v, targets, count, when);
+                memset(&v, 0, sizeof v);          /* a villager not ended: dropped */
                 v.open = 1;
                 continue;
             }
@@ -421,9 +549,14 @@ static void read_history(const char *village, struct backfill_target *targets, i
                 lstrcpynA(v.dislikes, value, (int)sizeof v.dislikes);
             }
         }
-        history_villager_done(&v, targets, count, when);
-        fclose(file);
+        if (ferror(file)) {
+            fclose(file);
+            return 0;
+        }
+        fclose(file);                         /* a villager still open at the end: dropped */
     }
+    }
+    return 1;
 }
 
 /* Who is in the village now: an identity still here is not a grave's. */
@@ -700,8 +833,15 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
             ++target_count;
         }
     }
+    if (target_count > 0 && !read_history(game_id, village, targets, target_count)) {
+        for (i = 0; i < count; ++i) {
+            graves[i].outcome = VV_GRAVE_UNDECIDED;
+        }
+        free(names);
+        free(targets);
+        return -1;
+    }
     if (target_count > 0) {
-        read_history(village, targets, target_count);
         mark_alive(game_id, targets, target_count);
         choose_identities(targets, target_count);
         for (i = 0; i < target_count; ++i) {

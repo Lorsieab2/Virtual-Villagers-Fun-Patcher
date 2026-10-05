@@ -81,6 +81,8 @@ class DeathsLogSource(unittest.TestCase):
             self.assertRegex(source, r'DATA_FORMAT\(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers %d Village Roster"\),'
                                      r'\s+ROSTER_FORMAT\("%d"\)' % (n, n))
         # The grave backfill's file (cod_backfill.inc) goes with the Deaths log.
+        for n in range(1, 6):
+            self.assertRegex(source, r'ROSTER_FORMAT\("%d"\), GRAVES_LOGGED_FORMAT\("%d"\)' % (n, n))
         self.assertIn('"%s\\\\Virtual Villagers Fun Patcher Data\\\\Deaths\\\\Virtual Villagers " n " Graves Logged - Save %d.dat"', source)
         self.assertIn('" Graves - Save %d.dat"', source)
         self.assertIn('" Village Roster - Save %d.dat"', source)

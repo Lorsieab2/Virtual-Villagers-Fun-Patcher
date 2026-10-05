@@ -31,9 +31,11 @@
            Virtual Villagers N Graves Logged - Save S.dat
    (named for the game, as the graves and roster files are: renamed
    executables of two games can share one save folder -- Codex, #524)
-   (format below): each grave whose Death record is in the log -- written at
-   its burial (noted then, kept at the next save of that slot), found already
-   there, or written from the grave now.  A grave is identified by its place
+   (format below): each grave whose Death record is in the log on disk --
+   found there at a save, or written from the grave then.  A burial's own
+   record is not taken on trust: it may still be held for the save, and is
+   lost if the game ends first (Codex, #524), so its grave is checked against
+   the log like any other until the record is there.  A grave is identified by its place
    (graves and entries are filled lowest-free-first and never moved) and the
    fingerprint of its name and age at death; a place now holding another
    grave (a replaced save) is not covered.  Only graves not in the file are
@@ -76,12 +78,6 @@ static struct {
 } logged;
 
 static unsigned char logged_buffer[LOGGED_HEADER + LOGGED_MAX * LOGGED_ENTRY];
-
-/* Burials whose Death record the hook wrote since the last save, kept for
-   that save of the slot they were made in (report_tag, cod_roster.inc). */
-#define MARKS_MAX 256
-static struct { signed char tag; short place; unsigned int fingerprint; } marks[MARKS_MAX];
-static int mark_count;
 
 static int cod_grave_places(void) {
     return g_game <= 2 ? GRAVES : V345_ENTRIES;
@@ -187,22 +183,6 @@ static void logged_publish(void) {
         logged.dirty = 0;
         COD_COUNT(published);
     }
-}
-
-/* A burial's Death record was written (or queued) for the grave at
-   `place`: it is covered from the next save of this slot. */
-static void backfill_mark(int place, unsigned int fingerprint) {
-    if (place < 0 || place >= cod_grave_places() || fingerprint == 0u) {
-        return;
-    }
-    if (mark_count < MARKS_MAX) {
-        marks[mark_count].tag = report_tag();
-        marks[mark_count].place = (short)place;
-        marks[mark_count].fingerprint = fingerprint;
-        ++mark_count;
-    }
-    /* A full journal only means the log is read for the rest: the parentage
-       DLL finds their records there. */
 }
 
 /* ---- The graves, as each game holds them ---------------------------------- */
@@ -339,8 +319,8 @@ static unsigned char recorded_used[LOGGED_MAX];
    before any fix runs".  Not asked, or "Not now": nothing is written. */
 static signed char repair_chosen[6];
 
-/* The slot's graves into facts[], each marked covered when the file (or a
-   burial recorded since the last save) says its Death record is in the log.
+/* The slot's graves into facts[], each marked covered when the file says
+   its Death record is in the log.
    The count, or -1 when the graves or the file cannot be read now.  Nothing
    is written: logged_fp is brought up to date in memory (logged.dirty). */
 static int backfill_survey(int slot) {
@@ -351,27 +331,25 @@ static int backfill_survey(int slot) {
     if (!logged_bind(slot)) {
         return -1;
     }
-    /* The burials recorded since the last save of this slot. */
-    for (i = 0; i < mark_count; ++i) {
-        if (report_counts(marks[i].tag, slot) && logged_fp[marks[i].place] != marks[i].fingerprint) {
-            logged_fp[marks[i].place] = marks[i].fingerprint;
-            logged.dirty = 1;
-        }
-    }
     count = backfill_gather();
     if (count < 0) {
         return -1;
     }
-    /* A place covered for another grave than the one there now (the save
-       was replaced, or the grave is gone) is not covered. */
+    /* A place covered for another grave than the one there now means the
+       file is not this graveyard's: graves are never moved or removed, so
+       the save was replaced (another village, or an older copy).  Then none
+       of its coverage is trusted -- a grave of the new village that happens
+       to share a place, a name and an age with the old one's is checked
+       against the log like the rest (Codex, #524). */
     for (place = 0; place < cod_grave_places(); ++place) {
         unsigned int now = 0;
         if (k < count && facts[k].place == place) {
             now = fact_fp[k++];
         }
         if (logged_fp[place] != 0u && logged_fp[place] != now) {
-            logged_fp[place] = 0u;
+            memset(logged_fp, 0, sizeof logged_fp);
             logged.dirty = 1;
+            break;
         }
     }
     for (i = 0; i < count; ++i) {
@@ -416,7 +394,11 @@ static void backfill_at_save(int slot, const void *save_buffer) {
                 logged_fp[facts[i].place] = fact_fp[i];
                 logged.dirty = 1;
             }
-            if (facts[i].outcome == VV_GRAVE_RECORDED || facts[i].outcome == VV_GRAVE_QUEUED) {
+            /* Only a record on disk accounts for a departure: one merely
+               held is lost if the game ends before it is written, and the
+               roster about to be saved would then hold neither (Codex,
+               #524) -- the villager stays Unaccounted instead. */
+            if (facts[i].outcome == VV_GRAVE_RECORDED) {
                 recorded_used[recorded_now_count] = 0;
                 recorded_now[recorded_now_count++] = i;
                 COD_COUNT(backfilled);
@@ -424,16 +406,6 @@ static void backfill_at_save(int slot, const void *save_buffer) {
         }
     }
     logged_publish();
-    if (!logged.dirty) {
-        /* The marks for this slot are in the file now. */
-        int kept = 0;
-        for (i = 0; i < mark_count; ++i) {
-            if (!report_counts(marks[i].tag, slot)) {
-                marks[kept++] = marks[i];
-            }
-        }
-        mark_count = kept;
-    }
 }
 
 /* ---- For the first-load cross-check's popup --------------------------------
@@ -537,7 +509,6 @@ static int backfill_accounts_for(const unsigned char *kept) {
 }
 
 static void backfill_reset(int slot) {
-    int i, kept = 0;
     if (slot == logged.slot) {
         vv_sidecar_gate_bind(&logged.gate, -1);
         logged.slot = 0;
@@ -545,12 +516,6 @@ static void backfill_reset(int slot) {
         logged.dirty = 0;
         memset(logged_fp, 0, sizeof logged_fp);
     }
-    for (i = 0; i < mark_count; ++i) {
-        if (marks[i].tag != slot) {
-            marks[kept++] = marks[i];
-        }
-    }
-    mark_count = kept;
     recorded_now_count = 0;
     if (slot >= 1 && slot <= 5) {
         repair_chosen[slot] = 0;      /* the answer was for the village erased */

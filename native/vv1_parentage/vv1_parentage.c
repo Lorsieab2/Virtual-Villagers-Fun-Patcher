@@ -267,6 +267,9 @@ static char g_prev_name[VV1_RECORD_COUNT][VV1_NAME_CAPACITY];
 static int g_prev_gender[VV1_RECORD_COUNT];
 static int g_prev_age[VV1_RECORD_COUNT];
 static unsigned char g_spend[VV1_RECORD_COUNT];   /* a delivery ended this frame: spend the stash after logging */
+static unsigned char g_idle[VV1_RECORD_COUNT];    /* settled frames a stashed mother has been seen NOT pregnant */
+static int g_save_owed;                       /* a spent stash is not on disk yet: the slot it is owed to, 0 = none */
+static int g_save_wait;                       /* ticks before that save is tried again */
 static int g_have_prev;
 static vv1_birth g_births[VV1_RECORD_COUNT];  /* births seen by the last tick */
 static int g_birth_count;
@@ -1211,6 +1214,7 @@ static int vv1_stash(const unsigned char *records, const unsigned char *mother,
     g_entries[index].stash_head = vv1_plus_one(*(const int *)(father + VV1_HEAD_OFFSET));
     g_entries[index].stash_body = vv1_plus_one(*(const int *)(father + VV1_BODY_OFFSET));
     vv1_copy_name(father, g_entries[index].stash_name);
+    g_idle[index] = 0;            /* a captured conception: this stash is the current pregnancy's */
     return (int)index;
 }
 
@@ -1242,6 +1246,7 @@ static int vv1_tick_over(const unsigned char *records) {
     int delivered_count = 0;
     g_birth_count = 0;
     if (!g_have_prev) {
+        memset(g_idle, 0, sizeof(g_idle));   /* other villagers, or none settled yet: count afresh */
         vv1_take_baseline(records);   /* first sight: infer nothing */
         return 0;
     }
@@ -1367,6 +1372,59 @@ static int vv1_spend_stashes(const unsigned char *records) {
     return changed;
 }
 
+/* A STASH IS ONLY EVER A PREGNANT MOTHER'S.  The conception routine
+   sub_43BBC0 sets her due field (+0x358, from +0x34C at 0x43BBFA) before
+   the success exits the conception hook sits on, and only a delivery
+   (0x42F0B2/0x42F0C7) or a reset of the record clears it again -- so a
+   stash whose mother is in her record with due and litter both zero is a
+   pregnancy that has ended.  vv1_spend_stashes only ever sees the END of a
+   delivery as a change between two frames of one baseline, and the
+   baseline is dropped at every load, slot change and repack: a delivery
+   during the load-time catch-up (where most births happen) or in the frame
+   a repack retired the baseline was never seen, and the father stayed
+   stashed against a mother who had already delivered.  The owner's own
+   save held seven such stashes (Huata, Penyo, Chapa, Pupa, Yepa, Iruwa,
+   Hawa), every one with the birth logged, the right father on the children
+   and nobody pregnant -- and a stale stash hands the OLD father to her next
+   birth whose conception was not seen.
+
+   So, every settled frame, a stash whose mother has been seen not pregnant
+   for VV1_NEW_VILLAGE_STRIKES consecutive frames is spent: every birth of
+   that pregnancy came before the due field was cleared, so it has already
+   been given its father, and a whole strike window keeps a record the game
+   is still rebuilding from being read as "not pregnant".  "Pregnant" is the
+   due field alone: the stock Mysterious Vial's toddler result (0x419CC1,
+   without Fix Vanilla Bugs) clears it and leaves a twin or triplet litter
+   counter at 2 or 3, so a non-zero counter with due zero is a pregnancy
+   that is over.  A mother seen NOT pregnant who is pregnant again without
+   a captured conception (vv1_stash restarts the count) started a pregnancy
+   the stash does not describe: it is spent at once, never handed to that
+   child.  An empty record (she died, or is away) is left alone: her stash
+   follows her identity like the rest of her entry, and nobody can be born
+   from it meanwhile.  This also spends the stale stashes an earlier build
+   left in its file.  Returns 1 when a stash was spent. */
+static int vv1_spend_ended_pregnancies(const unsigned char *records) {
+    int i;
+    int changed = 0;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
+        if (!(g_entries[i].stash_head || g_entries[i].stash_body || g_entries[i].stash_name[0])
+            || !rec[VV1_OCCUPIED_OFFSET]) {
+            g_idle[i] = 0;
+            continue;
+        }
+        if (*(const int *)(rec + VV1_DUE_OFFSET) != 0 ? g_idle[i] > 0
+                                                       : ++g_idle[i] >= VV1_NEW_VILLAGE_STRIKES) {
+            g_entries[i].stash_head = 0;
+            g_entries[i].stash_body = 0;
+            memset(g_entries[i].stash_name, 0, VV1_NAME_CAPACITY);
+            g_idle[i] = 0;
+            changed = 1;
+        }
+    }
+    return changed;
+}
+
 /* One whole frame: infer, log, spend, in that order.  Returns 1 when the
    table changed and the sidecar should be rewritten. */
 static int vv1_frame(const unsigned char *records, int log) {
@@ -1384,6 +1442,9 @@ static int vv1_frame(const unsigned char *records, int log) {
         }
     }
     if (vv1_spend_stashes(records)) {
+        changed = 1;
+    }
+    if (vv1_spend_ended_pregnancies(records)) {
         changed = 1;
     }
     return changed;
@@ -1661,8 +1722,19 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
     if (!slot) {
         return 0;
     }
+    if (g_save_owed != slot) {
+        g_save_owed = 0;          /* another village's table: nothing of this one is owed */
+    }
     if (vv1_frame(vv1_records(), 1)) {
-        vv1_parents_save(slot, vv1_records());
+        /* A change made here -- a stash spent by the sweep above all -- is
+           made once: if the file is locked at that moment, the old stash
+           would come back on the next load.  So it stays owed, and the save
+           is tried again a strike window later until it lands. */
+        g_save_owed = vv1_parents_save(slot, vv1_records()) ? 0 : slot;
+        g_save_wait = VV1_NEW_VILLAGE_STRIKES;
+    } else if (g_save_owed && --g_save_wait <= 0) {
+        g_save_owed = vv1_parents_save(slot, vv1_records()) ? 0 : slot;
+        g_save_wait = VV1_NEW_VILLAGE_STRIKES;
     }
     return 1;
 }
@@ -1830,6 +1902,32 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeConceive(const void *record
                                                               const void *father) {
     return vv1_stash((const unsigned char *)records, (const unsigned char *)mother,
                      (const unsigned char *)father);
+}
+
+/* What a load, a slot change or a repack does to the per-frame inference:
+   the baseline is dropped (the table is kept), so the next frame only
+   retakes it -- a delivery between the two is never seen as a change. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeDropBaseline(void) {
+    g_have_prev = 0;
+    return 1;
+}
+
+/* The load's compaction, without the file: every entry follows its villager
+   to the record it holds now in `records` (vv1_follow_roster against the
+   roster last bound), and a move drops the baseline as the sync does.
+   Returns 1 when anyone moved. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeFollow(const void *records) {
+    static vv1_occupant now[VV1_RECORD_COUNT];
+    int moved;
+    if (records == NULL) {
+        return -1;
+    }
+    vv1_take_roster((const unsigned char *)records, now);
+    moved = vv1_follow_roster(now);
+    if (moved) {
+        g_have_prev = 0;
+    }
+    return moved;
 }
 
 /* The exact birth without the log or the file. */

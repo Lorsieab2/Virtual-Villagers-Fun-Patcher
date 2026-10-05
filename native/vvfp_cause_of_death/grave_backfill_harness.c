@@ -95,6 +95,7 @@ typedef void (__stdcall *reset_t)(int, int);
 typedef void (__stdcall *roster_t)(void *, void *);
 typedef int (__stdcall *scan_t)(int, int);
 typedef void (__stdcall *repair_t)(int, int, int);
+typedef void (__stdcall *buried_t)(int, int);
 
 /* Each game's villager record, as both DLLs' tables have it. */
 struct layout {
@@ -339,6 +340,7 @@ static reset_t reset;
 static roster_t set_roster;
 static scan_t scan_graves;
 static repair_t repair_graves;
+static buried_t test_buried;           /* A New Home / The Lost Children: the burial hook's own path */
 static int *stats;
 
 static int __stdcall host_slot(void) { return 1; }
@@ -361,6 +363,7 @@ static void load(void) {
     stats = (int *)GetProcAddress(cause, "VvfpCauseStats");
     scan_graves = (scan_t)GetProcAddress(cause, "VvfpCauseScanGraves");
     repair_graves = (repair_t)GetProcAddress(cause, "VvfpCauseRepairGraves");
+    test_buried = (buried_t)GetProcAddress(cause, "VvfpCauseTestBuried");
     if (!write_record || !ensure_village || !setup || !save_done || !tick || !reset || !set_roster || !stats
         || !scan_graves || !repair_graves
         || GetProcAddress(parentage, "RecordGravesMissingFromLog") == NULL) {
@@ -408,7 +411,12 @@ static void stand_in(const char *name, int present) {
 static void write_history(void) {
     char path[MAX_PATH];
     static char h[8192];
-    const char *t = game == 1 ? "Virtual Villagers 1" : "Virtual Villagers";
+    char t[32], other[32];
+    /* The population exporter's heading names the game; another game's
+       snapshot of a village with the same name and slot (renamed games can
+       share a save folder) is not this village's. */
+    _snprintf(t, sizeof t, "Virtual Villagers %d", game);
+    _snprintf(other, sizeof other, "Virtual Villagers %d", game % 5 + 1);
     _snprintf(path, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 1.txt", root);
     _snprintf(h, sizeof h,
         "=== %s -- 2026-09-26 14:30:48 ===\nVillage: Backfill Tribe (Save 1)\n\n"
@@ -430,8 +438,25 @@ static void write_history(void) {
         "=== %s -- 2026-10-02 09:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Kito\n  Age: 1300\n  Head: 5\n  Body: 5\n  Likes: drums\n\n"
         "Villager 2\n  Name: Ana\n  Age: 600\n  Head: 3\n  Body: 3\n\n"
-        "Villager 3\n  Name: Bolo\n  Age: 690\n  Head: 8\n  Body: 8\n\n\n",
-        t, t, t, t);
+        "Villager 3\n  Name: Bolo\n  Age: 690\n  Head: 8\n  Body: 8\n\n\n"
+        "=== %s -- 2026-10-02 10:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Chika\n  Age: 1310\n  Head: 1\n  Body: 1\n  Likes: ants\n\n\n"
+        /* A snapshot cut short by an interrupted append: Chika's record has
+           no likes and never ends. */
+        "=== %s -- 2026-10-03 11:00:00 ===\nVillage: Backfill Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Chika\n  Age: 1320\n  Head: 19\n  Body: 17\n"
+        /* The Rename Tribe tool's note (village_rename.h), appended to the
+           newest file: the village was "Oldname Tribe" before. */
+        "Tribe renamed from Oldname Tribe to Backfill Tribe on 2026-09-21 (Save 1)\n",
+        t, t, t, t, other, t);
+    write_text(path, h);
+    /* An older build's unnumbered history, not yet moved to file 1 (the
+       population exporter moves it at a save, possibly after this backfill),
+       holding the village under its old name: Renny's only snapshot. */
+    _snprintf(path, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", root);
+    _snprintf(h, sizeof h,
+        "=== %s -- 2026-09-20 10:00:00 ===\nVillage: Oldname Tribe (Save 1)\n\n"
+        "Villager 1\n  Name: Renny\n  Age: 700\n  Head: 6\n  Body: 6\n  Likes: honey\n\n\n", t);
     write_text(path, h);
 }
 
@@ -466,6 +491,14 @@ static void write_old_logs(void) {
         MASTER[game][3]);
     deaths_path(2, path);
     write_text(path, d);
+    /* A file of this village whose only record was cut short by an
+       interrupted append: Chika's name and age at death, no grave line, no
+       ending blank line.  It is no grave's record (Codex, #524).  Removed
+       after the first Repair save (a fourth file would move the new log
+       the Deaths-log-deleted case expects to be file 3). */
+    deaths_path(4, path);
+    write_text(path, "Village: Backfill Tribe (Save 1)\n"
+                     "Death 99\n  Name: Chika\n  Age at death: 1428\n  Cause of death: Old age\n");
 }
 
 /* A New Home's and The Lost Children's graves file: Kito's cause (and in A
@@ -566,6 +599,7 @@ int main(int argc, char **argv) {
         dig(6, "Lonely", 600, game >= 3 ? -1 : 0, 0, -1, NULL);
         dig(20, "Tupa", 1222, 3, 60, cause_value, "Dedicated Student");
         dig(21, "Youth", 800, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* made young again once */
+        dig(22, "Renny", 720, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* listed only before a rename */
         write_history();
         write_old_logs();
         write_graves_file();
@@ -586,7 +620,7 @@ int main(int argc, char **argv) {
                       "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers %d Graves - Save 1.dat", root, game);
             graves_before = read_into(graves_file);
             logged_path(logged);
-            CHECK(scan_graves(game, 1) == 5, "the scan counts the five graves the log lacks");
+            CHECK(scan_graves(game, 1) == 6, "the scan counts the six graves the log lacks");
             CHECK(scan_graves(game, 2) == -1, "...and none for a slot with no save");
             read_into(path);
             CHECK(strcmp(before_log, text) == 0 && GetFileAttributesA(logged) == INVALID_FILE_ATTRIBUTES
@@ -603,16 +637,40 @@ int main(int argc, char **argv) {
                   "\"Not now\": the save records nothing");
         }
 
-        /* 1, 2: Repair, and the save. */
+        /* 1, 2: Repair, and the save -- first with a Village History file
+           that cannot be read (locked): nothing is decided from part of the
+           history (Codex, #524), and the graves wait for the next save. */
         repair_graves(game, 1, 1);
+        {
+            char locked_path[MAX_PATH];
+            HANDLE locked;
+            _snprintf(locked_path, MAX_PATH,
+                      "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 2.txt", root);
+            write_text(locked_path, "=== Virtual Villagers 9 -- 2026-10-03 00:00:00 ===\n");
+            locked = CreateFileA(locked_path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+            save_done(1, buffer);
+            deaths_path(1, path);
+            read_into(path);
+            CHECK(locked != INVALID_HANDLE_VALUE && strstr(text, "Kito") == NULL
+                  && GetFileAttributesA(logged) == INVALID_FILE_ATTRIBUTES,
+                  "with a History file that cannot be read, the save decides nothing");
+            if (locked != INVALID_HANDLE_VALUE) CloseHandle(locked);
+            DeleteFileA(locked_path);
+        }
         save_done(1, buffer);
         deaths_path(1, path);
         read_into(path);
         CHECK(count_of(text, "\r\n  Name: Ghali\r\n") == 1 && count_of(text, "\r\n  Name: Onawa\r\n") == 1,
               "Ghali and Onawa are not recorded again");
         CHECK(death(6, "Kito") && death(7, "Chika") && death(8, "Dup") && death(9, "Lonely")
-              && death(10, "Youth") && !strstr(text, "Death 11"),
-              "Kito, Chika, the second Dup, Lonely and Youth are recorded, in burial order");
+              && death(10, "Youth") && death(11, "Renny") && !strstr(text, "Death 12"),
+              "Kito, Chika, the second Dup, Lonely, Youth and Renny are recorded, in burial order");
+        {
+            const char *r = death(11, "Renny");
+            CHECK(r != NULL && strstr(r, "  Head: 6\r\n  Body: 6\r\n  Likes: honey\r\n  Dislikes: (none)\r\n") != NULL
+                  && strstr(r, "2026-09-20 10:00:00 (age 700 then)") != NULL,
+                  "a villager listed only before a rename, in the unnumbered older history, is identified");
+        }
         {
             const char *y = death(10, "Youth");
             CHECK(y != NULL && strstr(y, "  Head: 7\r\n  Body: 7\r\n  Likes: stars\r\n") != NULL
@@ -641,8 +699,10 @@ int main(int argc, char **argv) {
                 printf("--- got:\n%.700s\n--- want:\n%s\n", k, want);
             }
             CHECK(c != NULL && strstr(c, "  Head: 19\r\n  Body: 17\r\n  Likes: playing\r\n  Dislikes: (none)\r\n") != NULL
+                  && strstr(c, "16:21:22 (age 1294 then)") != NULL
                   && strstr(c, "  Cause of death: ") != NULL,
-                  "Chika's looks are hers, not the other village's Chika");
+                  "Chika's looks are hers: not the other village's, nor another game's, nor a record cut short;"
+                  " and a Death record cut short is not her grave's");
             if (game <= 2) {
                 CHECK(c != NULL && strstr(c, "  Cause of death: (not recorded:") != NULL,
                       "a grave the graves file has no cause for says so");
@@ -665,10 +725,12 @@ int main(int argc, char **argv) {
                       "the epitaph is the grave's");
             }
         }
-        CHECK(read_into(logged) == 16 + 9 * 8, "the graves file covers all nine graves");
+        CHECK(read_into(logged) == 16 + 10 * 8, "the graves file covers all ten graves");
         CHECK(scan_graves(game, 1) == 0, "the scan now finds nothing missing");
         read_into(path);
         lstrcpynA(first, text, sizeof first);
+        deaths_path(4, path);
+        DeleteFileA(path);                         /* the cut-short record's file (write_old_logs) */
         deaths_path(2, path);
         read_into(path);
         CHECK(count_of(text, "Death ") == 1, "the other village's log is untouched");
@@ -696,6 +758,17 @@ int main(int argc, char **argv) {
                   "with the Deaths log deleted, the graves file still says every grave is covered");
             DeleteFileA(third);
         }
+        /* The save replaced outside the game by another village whose grave
+           0 differs (Codex, #524): the graves file is no longer this
+           village's, so none of its coverage is trusted -- with no log on
+           disk, every grave (all ten) is missing, not only grave 0. */
+        strncpy((char *)grave_at(0), "Zito", gl->name_cap - 1);
+        {
+            int missing = scan_graves(game, 1);
+            CHECK(missing == 10, "a replaced save trusts none of the graves file's coverage");
+            if (missing != 10) printf("       (scan said %d)\n", missing);
+        }
+        strncpy((char *)grave_at(0), "Kito", gl->name_cap - 1);
         {
             FILE *f = fopen(path, "wb");          /* put the log back as it was */
             if (f) { fwrite(first, 1, strlen(first), f); fclose(f); }
@@ -734,6 +807,15 @@ int main(int argc, char **argv) {
            statistics companion has not named the village yet), and the game
            ends before it is written: the grave is not taken as covered. */
         dig(10, "Qued", 820, game >= 3 ? -1 : 0, 0, 0, NULL);
+        if (game <= 2) {
+            /* ...and a burial the hook records while its record can only be
+               held (Codex, #524): the grave is not taken on trust either. */
+            villager(6, "Lostie", 830, 2, 2);
+            *(int *)(rec(6) + g->health) = 0;
+            dig(12, "Lostie", 830, 0, 0, 0, NULL);
+            test_buried(6, 12);
+            rec(6)[g->active] = 0;
+        }
         save_done(1, buffer);
         read_into(path);
         CHECK(strstr(text, "Qued") == NULL, "a record from the grave before the village is named is held");
@@ -741,7 +823,8 @@ int main(int argc, char **argv) {
         unload();                                   /* ...and lost with the session */
         vv_village_publish("");
         load();
-        CHECK(scan_graves(game, 1) == 1, "...so the next session's scan finds that grave missing again");
+        CHECK(scan_graves(game, 1) == (game <= 2 ? 2 : 1),
+              "...so the next session's scan finds that grave (and a held burial's) missing again");
         repair_graves(game, 1, 1);
 
         /* 5: the load-time catch-up buried Bolo, whom the last save held. */
@@ -749,7 +832,9 @@ int main(int argc, char **argv) {
                                                        unreported arrival is one record */
         save_done(1, buffer);                       /* the roster: Ana, Kito, Bolo, Rua */
         read_into(path);
-        CHECK(count_of(text, "\r\n  Name: Qued\r\n") == 1, "...and that save records it, once");
+        CHECK(count_of(text, "\r\n  Name: Qued\r\n") == 1
+              && count_of(text, "\r\n  Name: Lostie\r\n") == (game <= 2 ? 1 : 0),
+              "...and that save records it, once");
         rec(2)[g->active] = 0;                      /* gone with no report */
         rec(5)[g->active] = 0;
         dig(9, "Bolo", 705, game >= 3 ? -1 : 0, 0, -1, NULL);
