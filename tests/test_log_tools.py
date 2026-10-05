@@ -57,6 +57,8 @@ def markers_of(game: int, slot: int) -> list[str]:
     ]
     if game == 1:
         names.append(f"{DATA}/Cross-Check/Virtual Villagers 1 Cross-Check - Save {slot}.dat")
+    else:
+        names.append(f"{DATA}/Births/Virtual Villagers {game} Births Recorded - Save {slot}.dat")
     return names
 
 
@@ -279,7 +281,8 @@ class RearmTests(FolderTest):
         xc = (ROOT / "native" / "vv1_parentage" / "vv1_crosscheck.inc").read_text(encoding="utf-8")
         self.assertIn('"Virtual Villagers Fun Patcher Data", "Cross-Check"', xc)
         self.assertIn(r'"\\Virtual Villagers 1 Cross-Check - Save %d.dat", slot', xc)
-        self.assertEqual(len(tools.REARM_MARKERS), 3)
+        self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Births\\Virtual Villagers " n " Births Recorded - Save %d.dat"', reset)
+        self.assertEqual(len(tools.REARM_MARKERS), 4)
         for number in range(1, 6):
             self.assertEqual(
                 sorted(p.relative_to(Path("F")).as_posix().replace("\\", "/")
