@@ -210,6 +210,34 @@ class TheQuitHookFollowsTheQuitSave(unittest.TestCase):
                          [QUIT[g][3] for g in GAMES])
 
 
+@unittest.skipUnless(STOCK_PRESENT, "the stock executables are not in this checkout (research/stock-executables)")
+class NoPatchTouchesTheShutdown(unittest.TestCase):
+    """Every population mode, every public patch (256 Villagers included):
+    the shutdown, from its first byte through the hook's five, is the stock
+    one -- so the saves, the slot field and the hook's bytes are what the
+    tests above proved, in every build."""
+
+    def test_the_shutdown_is_stock_in_every_mode(self):
+        for game in GAMES:
+            build = build_of(game)
+            stock = stock_path(game).read_bytes()
+            stock_pe = pefile.PE(data=stock, fast_load=True)
+            vtable, site, _bytes, _field = QUIT[game]
+            image = Image(game)
+            shutdown = image.dword(vtable + 0x14)
+            at = stock_pe.get_offset_from_rva(shutdown - 0x400000)
+            want = stock[at:at + site + 5 - shutdown]
+            ids = [p.id for p in vfp.load_fun_patches()
+                   if p.game_id == game and not p.raw.get("catalog_hidden")
+                   and p.raw.get("catalog_enabled", True) and p.raw.get("enabled", True)]
+            for mode in ("stock", "collection_progression", "immediate_fixed"):
+                with self.subTest(game=game, mode=mode):
+                    data, _applied = vfp.render_patched_bytes(stock_path(game), build, mode, ids)
+                    pe = pefile.PE(data=bytes(data), fast_load=True)
+                    off = pe.get_offset_from_rva(shutdown - 0x400000)
+                    self.assertEqual(bytes(data[off:off + len(want)]), want)
+
+
 class TheSettingsSaveRunsNoPatcherHook(unittest.TestCase):
     """Between the quit save and the hook only the settings save (slot 0)
     runs; every companion save hook takes slots 1-5 only."""
