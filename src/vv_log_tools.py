@@ -3,7 +3,9 @@
 The owner (2026-10-04): beside Back Up / Restore Saves and Rename Tribe, a
 "Check Logs..." that shows, for one village, whether every log and data file
 the patcher keeps agrees with its save, and a "Repair Logs..." that has the
-game itself check and repair them at the village's next load.
+game itself repair them.  The owner (2026-10-05): no repair prompt during
+gameplay -- "Repair Logs" is the player's own go-ahead, and the game repairs
+without asking.
 
 CHECK LOGS is the read-only checker scripts/vvfp_consistency_check.py, run
 in-process: the same function the command line runs, so the window shows
@@ -12,22 +14,35 @@ files for reading, so it may run while the game is running, and it never
 writes, moves or creates anything.  The Backups folder is never read.
 
 REPAIR LOGS does not repair anything in Python.  The repairs belong to the
-game's own first-load cross-check (docs/first-load-cross-check.md): the first
-time a village has been on screen for a few seconds after a load, the Origins
-companion asks ONE Repair / Not now question for everything it finds.  Each
-part of that check runs once per village and then records that it is done in
-a marker file; while a marker is there that part finds nothing and is never
-asked about again.  Repair Logs clears exactly those markers (REARM_MARKERS,
-the one list), so the next load checks everything again and asks before
-changing anything.  Clearing a marker never loses data: each one only says
-"already checked", and the check it re-arms counts what the logs already hold
-before writing anything, so nothing is ever written twice.  The game must be
-closed (it is never paused or closed for this), and the save folder is backed
-up first with Back Up Saves' own copier, labelled "(before repair re-arm)".
+game's own cross-check (native/shared/crosscheck_bridge.h,
+docs/first-load-cross-check.md), which never shows anything while a village
+is being played.  Repair Logs is the player's approval, given beforehand with
+the game closed (it is never paused or closed for this):
+
+  1. the save folder is backed up with Back Up Saves' own copier, labelled
+     "(before repair re-arm)";
+  2. the "already checked" markers of the slot are cleared (REARM_MARKERS,
+     the one list): each part of the check runs once per village and records
+     that it is done in a marker, and while a marker is there that part finds
+     nothing.  Clearing one never loses data: it only says "already
+     checked", and the check it re-arms counts what the logs already hold
+     before writing anything, so nothing is ever written twice;
+  3. the slot's approval file is written (APPROVAL: 16 bytes, 'VRA1',
+     version 1, game, slot).
+
+The next time that village is played -- whatever the "Check logs
+automatically" setting -- the game repairs everything confirmed wrong
+WITHOUT asking: A New Home's parents as soon as the village has settled, the
+rest at its next save (the quit save at the latest), anything still left
+right after the quit save; every change is backed up and listed in the
+Repairs log.  Then the game deletes the approval: it is used once.  Start Over
+deletes it with the village (native/shared/save_reset.c).
 """
 from __future__ import annotations
 
 import importlib.util
+import os
+import struct
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -116,7 +131,7 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
 
 
 # ---------------------------------------------------------------------------
-# Repair Logs: re-arm the first-load cross-check
+# Repair Logs: approve the repair, and re-arm the check
 # ---------------------------------------------------------------------------
 
 
@@ -130,9 +145,9 @@ class Marker:
     source: str                 # the native code that writes and reads it
 
 
-# EVERY marker that stops a part of the first-load cross-check from asking
-# again.  Re-arming clears these and nothing else; a new once-per-village part
-# of the check adds its marker here.
+# EVERY marker that stops a part of the cross-check from finding anything
+# again.  Repair Logs clears these and nothing else; a new once-per-village
+# part of the check adds its marker here.
 REARM_MARKERS: tuple[Marker, ...] = (
     Marker(
         "A New Home's parents checked against the Births and Conceptions log",
@@ -161,6 +176,25 @@ REARM_MARKERS: tuple[Marker, ...] = (
 )
 
 
+# The player's approval for one slot (native/shared/crosscheck_bridge.h reads
+# it, uses it once and deletes it; native/shared/save_reset.c deletes it at
+# Start Over).
+APPROVAL = DATA + r"\Cross-Check\Virtual Villagers {game} Repair Approved - Save {slot}.dat"
+APPROVAL_MAGIC = 0x31415256          # 'V' 'R' 'A' '1'
+APPROVAL_VERSION = 1
+
+
+def approval_path(folder: Path, game: int, slot: int) -> Path:
+    """Where the approval for ``game``'s ``slot`` is (present or not)."""
+    if game not in (1, 2, 3, 4, 5) or slot not in (1, 2, 3, 4, 5):
+        raise LogToolError(f"There is no game {game} save slot {slot}.")
+    return Path(folder) / APPROVAL.format(game=game, slot=slot)
+
+
+def approval_bytes(game: int, slot: int) -> bytes:
+    return struct.pack("<4I", APPROVAL_MAGIC, APPROVAL_VERSION, game, slot)
+
+
 def marker_paths(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]]:
     """Each marker of ``game`` for ``slot`` and where it would be (present or not)."""
     if game not in (1, 2, 3, 4, 5) or slot not in (1, 2, 3, 4, 5):
@@ -177,11 +211,12 @@ def present_markers(folder: Path, game: int, slot: int) -> list[tuple[Marker, Pa
 
 
 @dataclass
-class RearmResult:
+class ApprovalResult:
     folder: Path
     slot: int
     game: int
     cleared: list[Path]
+    approval: Path
     backup: vv_save_backup.BackupResult
 
 
@@ -200,20 +235,23 @@ def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController
         )
 
 
-def rearm(
+def approve_repair(
     folder: Path,
     game: int,
     slot: int,
     processes: vv_save_backup.ProcessController | None = None,
     now: datetime | None = None,
-) -> RearmResult:
-    """Clear the slot's cross-check markers so the next load checks and asks again.
+) -> ApprovalResult:
+    """Approve the game repairing the slot's village the next time it is played.
 
     Refused (nothing changed) while the game is running.  The save folder is
-    backed up first; then only the markers in REARM_MARKERS are removed.
+    backed up first; then only the markers in REARM_MARKERS are removed, and
+    the approval file is written (atomically: a temporary file moved into
+    place).
     """
     folder = Path(folder)
     targets = marker_paths(folder, game, slot)
+    approval = approval_path(folder, game, slot)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     _refuse_if_running(folder, controller)
     try:
@@ -233,11 +271,25 @@ def rearm(
         except OSError as exc:
             raise LogToolError(
                 f"{path.name} could not be cleared ({exc}). "
-                f"{len(cleared)} marker(s) were cleared before it; the backup is in "
-                f"{backup.backup_folder}."
+                f"{len(cleared)} marker(s) were cleared before it and nothing was "
+                f"approved; the backup is in {backup.backup_folder}."
             ) from exc
         cleared.append(path)
     left = [path for _marker, path in targets if path.exists()]
     if left:
-        raise LogToolError(f"{left[0].name} is still there after clearing it.")
-    return RearmResult(folder, slot, game, cleared, backup)
+        raise LogToolError(f"{left[0].name} is still there after clearing it. Nothing was approved.")
+    temporary = approval.with_name(approval.name + ".tmp")
+    try:
+        approval.parent.mkdir(parents=True, exist_ok=True)
+        temporary.write_bytes(approval_bytes(game, slot))
+        os.replace(temporary, approval)
+    except OSError as exc:
+        try:
+            temporary.unlink()
+        except OSError:
+            pass
+        raise LogToolError(
+            f"The approval could not be written ({exc}). The game will not repair "
+            f"anything; the backup is in {backup.backup_folder}."
+        ) from exc
+    return ApprovalResult(folder, slot, game, cleared, approval, backup)

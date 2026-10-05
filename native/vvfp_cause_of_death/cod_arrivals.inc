@@ -38,8 +38,8 @@
    way the arrival is reported to the reconciliation, so the Unaccounted
    Villagers log never lists them.
 
-   THE BACKFILL.  VvfpCauseScanArrivals / VvfpCauseRepairArrivals, for the
-   first-load prompt, like the graves': the village's villagers (believers,
+   THE BACKFILL.  VvfpCauseScanArrivals / VvfpCauseRepairArrivals (and
+   ...Now), for the cross-check, like the graves': the village's villagers (believers,
    and in The Lost Children to New Believers only those with no parents on
    their record -- a villager with parents was born) are handed to
    RecordArrivalsMissingFromLog, which counts those with no Birth or Arrived
@@ -324,12 +324,14 @@ static int arrival_backfill_ready(void) {
 }
 
 /* At a save of `slot`, after Repair: each villager the log has no record
-   for gets one; the marker once every one is on disk. */
+   for gets one; the marker once every one is on disk.  `save_buffer` NULL:
+   right after the quit save (VvfpCauseRepairArrivalsNow), the header read
+   back from the saved file. */
 static void arrival_backfill_at_save(int slot, const void *save_buffer) {
     int count;
     int i;
     int done = 1;
-    if (install_state != 1 || save_buffer == NULL || slot < 1 || slot > 5 || !arrivals_repair[slot]
+    if (install_state != 1 || slot < 1 || slot > 5 || !arrivals_repair[slot]
         || !arrival_backfill_ready() || vv_arrival_marker_present(g_game, slot)) {
         return;
     }
@@ -358,16 +360,16 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
     }
 }
 
-/* ---- For the first-load cross-check's popup --------------------------------
+/* ---- For the cross-check (native/shared/crosscheck_bridge.h) ---------------
 
    VvfpCauseScanArrivals(game, slot): how many of the village's villagers
    have neither a Birth nor an Arrived record in its Births and Conceptions
    log, writing nothing -- 0 once the slot's marker is there, -1 when that
    cannot be told now.  Call it once the village is loaded.
-   VvfpCauseRepairArrivals(game, slot, repair): the player's answer.  1
-   (Repair): at the village's next save each gets an Arrived record marked
-   "Recorded afterwards (arrived before this log existed)", how they came
-   unknown; 0 (Not now): nothing, and the next load asks again. */
+   VvfpCauseRepairArrivals(game, slot, repair): the player's go-ahead, given
+   before a save.  1 (Repair): at the village's next save each gets an
+   Arrived record marked "Recorded afterwards (arrived before this log
+   existed)", how they came unknown; 0: nothing. */
 __declspec(dllexport) int __stdcall VvfpCauseScanArrivals(int game, int slot) {
     int count;
     if (install_state == -1 || game < 1 || game > 5 || (g_game != 0 && game != g_game)
@@ -398,6 +400,20 @@ __declspec(dllexport) void __stdcall VvfpCauseRepairArrivals(int game, int slot,
     arrivals_repair[slot] = (signed char)(repair != 0);
 }
 
+/* VvfpCauseRepairArrivalsNow(game, slot): Repair, answered right after the
+   game's quit save (native/shared/crosscheck_bridge.h): the Arrived records
+   are written now from the villagers that save just wrote, as the next save
+   would write them (the header read back from the saved file), and the
+   marker once all are on disk.  1 when nothing is left to record. */
+__declspec(dllexport) int __stdcall VvfpCauseRepairArrivalsNow(int game, int slot) {
+    if (install_state != 1 || game != g_game || slot < 1 || slot > 5) {
+        return 0;
+    }
+    arrivals_repair[slot] = 1;
+    arrival_backfill_at_save(slot, NULL);
+    return VvfpCauseScanArrivals(game, slot) == 0;
+}
+
 /* The Story / Cheat Upgrades companion: its Custom Island Event made the
    villager in `index` (right after the creator, in the same frame). */
 __declspec(dllexport) void __stdcall VvfpCauseArrivedBy(int game, int index, const char *how) {
@@ -425,7 +441,7 @@ static void births_backfill_at_save(int slot, const void *save_buffer) {
     int count;
     int i;
     int done = 1;
-    if (install_state != 1 || save_buffer == NULL || slot < 1 || slot > 5 || !births_repair[slot]
+    if (install_state != 1 || slot < 1 || slot > 5 || !births_repair[slot]
         || !births_backfill_ready() || vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot)) {
         return;
     }
@@ -491,4 +507,16 @@ __declspec(dllexport) void __stdcall VvfpCauseRepairBirths(int game, int slot, i
         return;
     }
     births_repair[slot] = (signed char)(repair != 0);
+}
+
+/* VvfpCauseRepairBirthsNow(game, slot): the same for the Birth records
+   written from the save (The Lost Children to New Believers).  1 when
+   nothing is left to record. */
+__declspec(dllexport) int __stdcall VvfpCauseRepairBirthsNow(int game, int slot) {
+    if (install_state != 1 || game < 2 || game != g_game || slot < 1 || slot > 5) {
+        return 0;
+    }
+    births_repair[slot] = 1;
+    births_backfill_at_save(slot, NULL);
+    return VvfpCauseScanBirths(game, slot) == 0;
 }

@@ -43,6 +43,13 @@
         do); one not seen made is offered by the backfill.
    And each game's markers (cod_arrival_sites.inc): a birth path is never an
    arrival, a stock event's newcomer is named by the event.
+     5. Repair answered right after the game's quit save (the cross-check's
+        quit prompt, native/shared/crosscheck_bridge.h), when no later save
+        will come: VvfpCauseRepairArrivalsNow writes the same Arrived records
+        there and then from the villagers that save wrote (the header read
+        back from the saved file) and the marker; VvfpCauseRepairBirthsNow
+        the Birth records from the save (The Lost Children on; nothing in A
+        New Home); a second call writes nothing.
 
    Usage:  arrival_harness.exe "<parentage dll>" "<cause of death test dll>" "<save reset dll>"
    Exit code 0 when every check passes. */
@@ -506,6 +513,88 @@ static int has_birth_backfill(const char *child, int head, int body) {
     return 0;
 }
 
+typedef int (__stdcall *now_t)(int, int);
+
+/* 5: Repair answered right after the quit save. */
+static void quit_cases(void) {
+    char path[MAX_PATH], marker[MAX_PATH], bmarker[MAX_PATH], first[1 << 13];
+    unsigned char *buffer;
+    now_t arrivals_now = (now_t)GetProcAddress(cause, "VvfpCauseRepairArrivalsNow");
+    now_t births_now = (now_t)GetProcAddress(cause, "VvfpCauseRepairBirthsNow");
+    int i, done;
+    CHECK(arrivals_now != NULL && births_now != NULL, "quit: the DLL exports both repairs at the quit");
+    if (arrivals_now == NULL || births_now == NULL) return;
+    reset(game, 1);                       /* a new village in the slot */
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    villager(0, "Huata", 1090, 8, 1, 0);
+    villager(1, "Nishi", 900, 9, 3, 1);
+    villager(2, "Silko", 663, 4, 14, 0);
+    villager(3, "Thabo", 1003, 16, 12, 0);
+    villager(4, "Dup", 500, 2, 2, 0);
+    villager(5, "Dup", 500, 2, 2, 0);
+    villager(17, "Thabo", 1003, 15, 12, 0);
+    if (game != 1) {
+        parented(19, "Kid", 4, 4);
+    }
+    write_old_logs();
+    write_history();
+    write_save_file();
+    vv_village_publish("");
+    buffer = save_buffer("Arrival Tribe");
+    births_path(1, path);
+    marker_path(marker);
+    births_marker_path(bmarker);
+    read_into(path);
+    lstrcpynA(first, text, sizeof first);
+    save_done(1, buffer);                 /* the quit save: nothing answered yet */
+    read_into(path);
+    CHECK(strcmp(first, text) == 0 && !file_exists(marker) && !file_exists(bmarker),
+          "quit: the quit save, with no answer yet, records nothing");
+    done = arrivals_now(game, 1);
+    read_into(path);
+    CHECK(done == 1 && has_backfill_record(4, "Huata", 1090, 8, 1, "Founder")
+          && has_backfill_record(5, "Silko", 663, 4, 14, "unknown")
+          && has_backfill_record(6, "Dup", 500, 2, 2, "unknown")
+          && has_backfill_record(7, "Thabo", 1003, 15, 12, "unknown")
+          && strstr(text, "Arrived 8") == NULL && strncmp(text, "Village: Arrival Tribe (Save 1)", 31) == 0,
+          "quit: Repair right after the quit save writes Huata, Silko, the second Dup and the other Thabo"
+          " there and then, in the village's own log");
+    CHECK(file_exists(marker) && scan_arrivals(game, 1) == 0, "quit: ...the marker is written; the scan finds nothing");
+    lstrcpynA(first, text, sizeof first);
+    done = arrivals_now(game, 1);
+    read_into(path);
+    CHECK(done == 1 && strcmp(first, text) == 0, "quit: ...and a second Repair writes nothing");
+    done = births_now(game, 1);
+    read_into(path);
+    if (game == 1) {
+        CHECK(done == 0 && strcmp(first, text) == 0 && !file_exists(bmarker),
+              "quit: A New Home keeps no parents -- no Birth records to write at the quit");
+    } else {
+        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4) && count_of(text, "born before this log existed") == 1
+              && file_exists(bmarker),
+              "quit: the Birth record from the save is written there and then, and its marker");
+    }
+    lstrcpynA(first, text, sizeof first);
+    births_now(game, 1);
+    read_into(path);
+    CHECK(strcmp(first, text) == 0, "quit: ...and a second Repair writes nothing");
+    {
+        /* Repair Logs' approval for the slot (src/vv_log_tools.py) goes with
+           the village at Start Over. */
+        char approval[MAX_PATH];
+        _snprintf(approval, MAX_PATH,
+                  "%s\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save 1.dat",
+                  root, game);
+        write_text(approval, "VRA1");
+        CHECK(file_exists(approval), "quit: (an approval for the slot is there)");
+        reset(game, 1);
+        vv_reset_slot_state(game, 1, "Village: Arrival Tribe (Save 1)\n");
+        CHECK(!file_exists(approval), "quit: Start Over deletes the slot's Repair Logs approval");
+    }
+    free(buffer);
+}
+
 static void births_cases(void) {
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH], before_log[1 << 13];
     unsigned char *buffer;
@@ -881,6 +970,7 @@ int main(int argc, char **argv) {
         CHECK(strcmp(first, text) == 0, "...and the next save writes nothing more");
 
         births_cases();
+        quit_cases();
         unload();
         free(buffer);
         free_game();

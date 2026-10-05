@@ -814,24 +814,24 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "88423D30DAE5636E5DF9A637775254AA409AC45D521C52DA29FE42643694EB01",
-    "map": "B3FD1C53F82687984B4770112C7675D0B2639F77DE41E27E42219B50E55DA191",
+    "manifest": "63925E811B4F03449C96471B3BCAC3C7A81B165344FF6A6B4FF781A736E2A653",
+    "map": "73137195D7DB32F5F67DFBB2FF7C513B97FD8B71D2799B4AF138EA6C23985E06",
 }
-VV5_TASK9_DLL_SHA256 = "D17ABA6AD1F242CA6CAB0BF25CC2DBA0320F43B52859871E09389D3F6CF29229"
+VV5_TASK9_DLL_SHA256 = "068C67F21EE1885CB677A057EA3FE7A741C9683DF27D1C974E6882FB2C040EBF"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "1D6B08A7A8DDDE556E52BC14CAFDA08727D57B39E2737BF1D881627D423D682B"
-VV5_TASK9_SAVE_RESET_SIZE = 140800
+VV5_TASK9_SAVE_RESET_SHA256 = "F9753F42EB91EF6CFFC1BE4AA250312556CDFFD9D65FBB7B40A194D4A97FFC44"
+VV5_TASK9_SAVE_RESET_SIZE = 141312
 VV5_TASK9_PAGE_SHA256 = {
     "collection_progression": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
     "immediate_fixed": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
     "experimental_expanded_256": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
     "experimental_expanded_256_progression": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "6AAE58EBEBD2E1C1F423D84581185AB8421C73D50121606762F0AA011C0440C5"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "BDEE5D23234FF4F0DAF5121B557EF479373E435FBCCC49DEB519CA0378110362"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -1840,8 +1840,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "A0F7C2E2B531CFF3E06C210CA82ECA76E25EBA480DA8D8BF4FAAF2C7677AE064",
-    "task9_builder": "677F67840915CEA93BBEB33F18DD6623EE66B43E100FA6D3FFE89EBAA3D80544",
+    "builder": "BDDE5E462F78462FEB625CC0A1D61233A1BAA431DAD3E30F1353F29D0A7851AB",
+    "task9_builder": "815C8352580C83FB98B3F99A62BF9AFA892F7FA4FB49B9BD8FE3D659C56FAD5B",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1853,8 +1853,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "F39CB2E2AD937DB7CFA9F653F98AD9CDCFEE9624EB9F01A0A0E0761028A4B38A",
-        "map": "C193F6465BB4E92E62CD50166CA41255792F54C0FAF7766332FFE6447178C477",
+        "manifest": "CCE06197185840FB8B192577C22D9A759B1073C97B4E98BE6E4ACCCB2731D3E9",
+        "map": "BDE3F00EF1A533E23AFB79957002FC3D453C371F9199E01401A857B7CC9ECD42",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3276,7 +3276,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1790464,
+        "size": 1793536,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3634,7 +3634,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1790464,
+        "size": 1793536,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -10000,6 +10000,7 @@ def dry_run(
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
     *,
     playtest_output_root: Path | None = None,
+    check_logs_automatically: bool = False,
 ) -> dict[str, Any]:
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     _validate_playtest_feature_channels(
@@ -10033,7 +10034,8 @@ def dry_run(
         playtest_output_root=playtest_output_root,
     )
     fun_patches = _attach_automatic_companions(build.id, fun_patches)
-    _finalize_published_bytes(patched, build, fun_patches, applied)
+    _finalize_published_bytes(patched, build, fun_patches, applied,
+                              check_logs_automatically=check_logs_automatically)
     return _result(
         build,
         source,
@@ -10050,6 +10052,8 @@ def dry_run_all(
     patch_mode: str = DEFAULT_PATCH_MODE,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
+    *,
+    check_logs_automatically: bool = False,
 ) -> list[dict[str, Any]]:
     _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
@@ -10064,7 +10068,8 @@ def dry_run_all(
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
         fun_patches = _attach_automatic_companions(build.id, fun_patches)
-        _finalize_published_bytes(patched, build, fun_patches, applied)
+        _finalize_published_bytes(patched, build, fun_patches, applied,
+                                  check_logs_automatically=check_logs_automatically)
         results.append(
             _result(
                 build,
@@ -11860,6 +11865,15 @@ STARTUP_LOADER_COMPANIONS = (
     "VVFP VV1 Watering Builds.dll",
     "VVFP Golden Mushroom.dll",
 )
+# Bit 31 of the same word is not a companion: the "Check logs automatically"
+# setting (the patcher window, beside Check Logs / Repair Logs; OFF by
+# default), a per-install choice made when the build is created.  The Origins
+# companions read it (native/shared/crosscheck_bridge.h): when it is set, each
+# village the player plays is checked silently at load, and the player is
+# asked Repair / Not now when the game is closed, after its quit save, only
+# if something is confirmed wrong; when it is clear, nothing is checked or
+# asked during play.  So the companion list never grows past 30 entries.
+STARTUP_LOADER_CHECK_LOGS = 1 << 31
 
 
 def _startup_loader_mask(build_id: str, fun_patches: list[FunPatch]) -> int:
@@ -12077,13 +12091,15 @@ def _apply_startup_loader(
     build_id: str,
     fun_patches: list[FunPatch],
     applied: list[dict[str, str]] | None = None,
+    check_logs_automatically: bool = False,
 ) -> dict[str, Any] | None:
     """Append .vvfpst and route the C runtime's `call WinMain` through it.
 
     Only when the selection ships a companion DLL (otherwise None and nothing
     changes). In place; recomputes the PE checksum. Raises when the build
     needs the loader and it cannot be added, so no build ships companions
-    that would start late.
+    that would start late. `check_logs_automatically` sets
+    STARTUP_LOADER_CHECK_LOGS in the word the stub passes.
     """
     if build_id not in STARTUP_LOADER_WINMAIN_CALL or not _ships_companion_dll(fun_patches):
         return None
@@ -12131,7 +12147,8 @@ def _apply_startup_loader(
     block = _startup_loader_block(
         base + section_rva,
         int(build_id.removeprefix("vv")),
-        _startup_loader_mask(build_id, fun_patches),
+        _startup_loader_mask(build_id, fun_patches)
+        | (STARTUP_LOADER_CHECK_LOGS if check_logs_automatically else 0),
         slots[b"GetModuleFileNameA"],
         slots[b"LoadLibraryA"],
         slots[b"GetProcAddress"],
@@ -12177,6 +12194,11 @@ def _apply_startup_loader(
         "purpose": (
             "the startup loader: load VVFP Startup.dll by full path and call "
             "VvfpStartup(game), then the game's own WinMain"
+            + (
+                "; Check logs automatically: on"
+                if check_logs_automatically
+                else ""
+            )
         ),
         "owner": "automatic:startup_loader",
         "virtual_address": f"0x{base + section_rva:X}",
@@ -12200,14 +12222,19 @@ def _finalize_published_bytes(
     build: Build,
     fun_patches: list[FunPatch],
     applied: list[dict[str, str]],
+    check_logs_automatically: bool = False,
 ) -> None:
     """What every published build gets after rendering: the executable-name
     crash guard (VV1-VV3), then the game-start loader. The loader goes last,
     so the guard never wraps its GetModuleFileNameA call (the loader needs
-    the real path) and finds its cave before the image grows."""
+    the real path) and finds its cave before the image grows. The loader
+    carries the "Check logs automatically" setting (STARTUP_LOADER_CHECK_LOGS)."""
     if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
         _require_name_crash_immunity(data, build.input_name, applied)
-    _apply_startup_loader(data, build.id, fun_patches, applied)
+    _apply_startup_loader(
+        data, build.id, fun_patches, applied,
+        check_logs_automatically=check_logs_automatically,
+    )
 
 
 def apply_patch(
@@ -12222,6 +12249,7 @@ def apply_patch(
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
     *,
     playtest_output_root: Path | None = None,
+    check_logs_automatically: bool = False,
 ) -> tuple[Path, Path]:
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     _validate_playtest_feature_channels(
@@ -12294,7 +12322,8 @@ def apply_patch(
     # Then the game-start loader, for every build that ships a companion DLL
     # (see STARTUP_LOADER_DLL): every companion is loaded and armed at the
     # C runtime's call of WinMain, before any village loads.
-    _finalize_published_bytes(patched, build, fun_patches, applied)
+    _finalize_published_bytes(patched, build, fun_patches, applied,
+                              check_logs_automatically=check_logs_automatically)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
@@ -12482,6 +12511,8 @@ def apply_all(
     copy_saves: bool = False,
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
+    *,
+    check_logs_automatically: bool = False,
 ) -> list[tuple[Path, Path]]:
     _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
@@ -12541,9 +12572,22 @@ def apply_all(
                 copy_saves=copy_saves,
                 replace_modded_saves=replace_modded_saves,
                 save_root=save_root,
+                check_logs_automatically=check_logs_automatically,
             )
         )
     return results
+
+
+def _add_check_logs_arg(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--check-logs-automatically",
+        action="store_true",
+        help=(
+            "check each village's logs silently while it is played and, only "
+            "when something is confirmed wrong, ask Repair / Not now when the "
+            "game is closed (off by default)"
+        ),
+    )
 
 
 def _add_patch_mode_arg(parser: argparse.ArgumentParser) -> None:
@@ -12624,6 +12668,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     dry_cmd.add_argument("exe", type=Path)
     _add_patch_mode_arg(dry_cmd)
+    _add_check_logs_arg(dry_cmd)
     _add_fun_patch_args(dry_cmd)
     _add_playtest_feature_arg(dry_cmd)
     _add_output_root_arg(dry_cmd)
@@ -12634,6 +12679,7 @@ def _parser() -> argparse.ArgumentParser:
     apply_cmd.add_argument("exe", type=Path)
     apply_cmd.add_argument("--overwrite", action="store_true")
     _add_patch_mode_arg(apply_cmd)
+    _add_check_logs_arg(apply_cmd)
     _add_fun_patch_args(apply_cmd)
     _add_playtest_feature_arg(apply_cmd)
     _add_output_root_arg(apply_cmd)
@@ -12645,6 +12691,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     _add_all_source_args(dry_all_cmd)
     _add_patch_mode_arg(dry_all_cmd)
+    _add_check_logs_arg(dry_all_cmd)
     _add_fun_patch_args(dry_all_cmd)
     _add_output_root_arg(dry_all_cmd)
 
@@ -12654,6 +12701,7 @@ def _parser() -> argparse.ArgumentParser:
     apply_all_cmd.add_argument("--overwrite", action="store_true")
     _add_all_source_args(apply_all_cmd)
     _add_patch_mode_arg(apply_all_cmd)
+    _add_check_logs_arg(apply_all_cmd)
     _add_fun_patch_args(apply_all_cmd)
     _add_output_root_arg(apply_all_cmd)
     return parser
@@ -12722,6 +12770,7 @@ def main() -> int:
                         output_root=args.output_root,
                         playtest_disabled_feature_ids=args.playtest_disabled_feature,
                         playtest_output_root=args.playtest_output_root,
+                        check_logs_automatically=args.check_logs_automatically,
                     ),
                     indent=2,
                 )
@@ -12735,6 +12784,7 @@ def main() -> int:
                 output_root=args.output_root,
                 playtest_disabled_feature_ids=args.playtest_disabled_feature,
                 playtest_output_root=args.playtest_output_root,
+                check_logs_automatically=args.check_logs_automatically,
             )
             print(f"Created: {output}")
             print(f"Log: {log}")
@@ -12746,6 +12796,7 @@ def main() -> int:
                         args.patch_mode,
                         args.fun_patch,
                         output_root=args.output_root,
+                        check_logs_automatically=args.check_logs_automatically,
                     ),
                     indent=2,
                 )
@@ -12758,6 +12809,7 @@ def main() -> int:
                 args.overwrite,
                 args.fun_patch,
                 output_root=args.output_root,
+                check_logs_automatically=args.check_logs_automatically,
             )
             for output, log in results:
                 print(f"Created: {output}")

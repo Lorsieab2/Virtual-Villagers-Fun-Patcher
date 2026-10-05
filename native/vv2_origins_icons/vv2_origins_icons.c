@@ -2026,7 +2026,7 @@ void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_healers_study_bridge(2); /* healers-study companion: once, fail-open */
     vvfp_story_bridge(2);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
-    vvfp_crosscheck_bridge(2, base != 0);  /* the first-load cross-check (A New Home's header, compiled in) */
+    vvfp_crosscheck_bridge(2, base != 0);  /* the cross-check, silent while played (A New Home's header, compiled in) */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }
@@ -2250,6 +2250,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_healers_study_bridge(2));
     VVFP_STARTUP_GUARDED(vvfp_story_startup(2));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(2));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(2));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
 /* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\
