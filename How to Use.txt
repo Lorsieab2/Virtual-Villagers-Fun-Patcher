@@ -290,8 +290,32 @@ All three modes and optional-patch combinations use:
 (name of game) - Modded\
 (name of game) - Modded.exe
 
-Mode and optional-patch details are recorded in the modified EXE's adjacent
-.patch-log.json file instead of being added to the EXE or save-folder name.
+Mode and optional-patch details are recorded in the .patch-log.json file in
+the "Virtual Villagers Fun Patcher Files" folder beside the modified EXE,
+instead of being added to the EXE or save-folder name.
+
+THE PATCHER'S OWN FILES
+
+Everything the patcher adds to a Modded folder is in one subfolder named
+"Virtual Villagers Fun Patcher Files": every add-on DLL (VVFP ... .dll,
+including VVFP Startup.dll), images only those add-ons use, the
+.patch-log.json and the VVFP Transparency Log.txt. The game loads the add-ons
+from there by their full path (never from the current folder or the Windows
+DLL search), and works in a game folder whose name has accented or Japanese
+characters. A missing folder or DLL only switches that add-on off; the game
+always starts. If the output path is too long for Windows (260 characters),
+the patcher says so before writing anything: choose a shorter location.
+
+A few files must stay where the game itself looks for them, so they are not
+in that folder: replaced stock images and text (Visual Mods, Optional Text
+Changes, Guardians of Isola Rewrite, Assets\sm.xml) and new images the game's
+own image loader opens by name from Images (mask_atlas.png, vvfp_sort_band.png,
+vvfp_sort_radio.png, golden_mushroom.png, heathen_masks.png,
+vvfp_mask_atlas00.png, vvfp_bighead_mask_atlas00.png, bigheads_masks.png).
+
+Patching again over a Modded folder from an older version moves it to this
+layout: the old loose patcher DLLs, logs and add-on images beside the EXE are
+removed (only the patcher's own files; anything you added is kept).
 The one exception is 256 Villagers (Experimental): a game built with it is
 named "(name of game) - Modded 256" (folder and EXE), so that its saves go to
 a separate save folder (see 256 VILLAGERS (EXPERIMENTAL)).

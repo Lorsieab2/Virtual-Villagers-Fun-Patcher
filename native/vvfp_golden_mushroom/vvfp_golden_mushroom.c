@@ -42,13 +42,17 @@
    without this companion that roll always answers no.
 
    INSTALLED by the export whose ordinal is the game number (1, 3, 4, 5),
-   stdcall, no arguments.  The row's executable-side loader stub calls it:
-   LoadLibraryA("VVFP Golden Mushroom.dll") then GetProcAddress(module,
-   ordinal) at a call the game makes while loading its images.  Every site's
+   stdcall, no arguments.  "VVFP Startup.dll" loads this DLL from the
+   patcher's folder and calls it as the game opens; the row's
+   executable-side stub then finds the loaded module by name
+   (GetModuleHandleA("VVFP Golden Mushroom.dll"), which never searches for a
+   file) and calls GetProcAddress(module, ordinal) at a call the game makes
+   while loading its images.  Every site's
    stock bytes are verified first, all of a game's sites or none are written,
    and repeated calls do nothing more. */
 #include <windows.h>
 #include <string.h>
+#include "../shared/patcher_files.h"  /* the game's Images folder, by a wide path */
 
 /* ---- The golden sprite ----------------------------------------------------- */
 struct game_calls {
@@ -102,24 +106,14 @@ typedef void *(__cdecl *alloc_t)(unsigned int);
 /* thiscall through fastcall: ecx = this, edx unused, callee pops the rest. */
 typedef void *(__fastcall *ctor_t)(void *self, void *unused, const char *name, int cols, int rows);
 
-/* Is the image beside the game?  Checked before the game's own loader is
-   asked, so a missing file never reaches it. */
+/* Is the image in the game's Images folder?  Checked before the game's own
+   loader is asked, so a missing file never reaches it.  The image stays in
+   the game's own Images folder (not the patcher's): the game's sprite loader
+   opens it there by name.  The check builds a wide path from the
+   executable's own path (native/shared/patcher_files.h), so it also holds in
+   a game folder the ANSI code page cannot spell. */
 static int image_present(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    DWORD attributes;
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof(IMAGE_RELATIVE) > sizeof(path)) {
-        return 0;
-    }
-    memcpy(slash + 1, IMAGE_RELATIVE, sizeof(IMAGE_RELATIVE));
-    attributes = GetFileAttributesA(path);
-    return attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY);
+    return vvfp_game_file_exists(IMAGE_RELATIVE);
 }
 
 /* The golden sprite, built on first use; NULL when it cannot be drawn. */

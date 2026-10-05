@@ -213,9 +213,9 @@ class BridgeTests(unittest.TestCase):
         vv2 = ORIGINS_C["vv2"].read_text(encoding="utf-8")
         bridge = vv1[vv1.index("static void vvfp_pathfinding_bridge(int game_id)"):]
         bridge = bridge[:bridge.index("\n}")]
-        self.assertIn("GetModuleFileNameA(NULL, path, MAX_PATH)", bridge)
-        self.assertIn('lstrcpyA(slash + 1, "VVFP Improved Pathfinding.dll");', bridge)
-        self.assertIn("LoadLibraryA(path)", bridge, "by full path, never a bare name")
+        # By full path in the patcher's folder, wide (native/shared/patcher_files.h).
+        self.assertIn('vvfp_load_patcher_dll("VVFP Improved Pathfinding.dll")', bridge,
+                      "by full path, never a bare name")
         self.assertIn('GetProcAddress(companion, "VvfpPathfindingInstall")', bridge)
         self.assertIn("install(game_id)", bridge)
         # Called from each game's per-frame tick, outside DllMain.

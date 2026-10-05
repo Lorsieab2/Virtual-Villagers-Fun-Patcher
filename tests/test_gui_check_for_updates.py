@@ -153,15 +153,17 @@ class ReleasesLinkTests(unittest.TestCase):
         # The patcher's own modules; vv_save_backup (Back Up Saves) and
         # vv_tribe_rename (Rename Tribe) and vv_log_tools (Check / Repair
         # Logs) and vv_how_to_use (the "?" guides) are held to the same
-        # promise below.
+        # promise below; patcher_files (where the patcher's own files go)
+        # imports only the standard library.
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
-               "vv_how_to_use"}
+               "vv_how_to_use", "patcher_files"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         for module, may_import in (
             ("vv_save_backup", set()),
             ("vv_tribe_rename", {"vv_save_backup"}),
             ("vv_log_tools", {"vv_save_backup"}),
+            ("patcher_files", set()),
             ("vv_how_to_use", set()),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))

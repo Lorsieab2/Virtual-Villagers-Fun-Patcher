@@ -7,7 +7,7 @@
    which harness_ldw_tree_begin() guarantees did not exist before the run
    and which the harness removes afterwards:
 
-     1. With "VVFP Cause of Death.dll" beside the executable, a village's
+     1. With "VVFP Cause of Death.dll" in the patcher's folder, a village's
         first save creates its Deaths and Unaccounted Villagers logs, headed
         with the village, empty.
      2. A Death record is written in the same format in all five games: the
@@ -30,8 +30,9 @@
      8. Without "VVFP Cause of Death.dll" neither log is created.
 
    The statistics companion and the cause-of-death companion are detected by
-   their files beside the executable, so the harness creates empty stand-ins
-   there and removes them when done.
+   their files in "Virtual Villagers Fun Patcher Files" beside the
+   executable, so the harness creates empty stand-ins there and removes them
+   (and the folder) when done.
 
    Usage:  death_log_harness.exe "<path to VVFP Parentage Export.dll>"
    Exit code 0 when every check passes. */
@@ -121,6 +122,9 @@ static void villager(int i, const char *name, int age, int head, int body) {
 
 static char logs[MAX_PATH];
 static char exe_dir[MAX_PATH];
+/* "<exe_dir>\Virtual Villagers Fun Patcher Files": where the companions are
+   looked for, as in a patched game (native/shared/patcher_files.h). */
+static char files_dir[MAX_PATH];
 static HMODULE dll;
 static record_t write_record;
 static ensure_village_t ensure_village;
@@ -133,6 +137,8 @@ static int locate(void) {
     base = strrchr(exe, '\\');
     if (base == NULL) return 0;
     lstrcpynA(exe_dir, exe, (int)(base - exe) + 1);
+    _snprintf(files_dir, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Files", exe_dir);
+    files_dir[MAX_PATH - 1] = 0;
     ++base;
     dot = strrchr(base, '.');
     if (dot) *dot = 0;
@@ -173,10 +179,12 @@ static void wipe(int remove_dirs) {
 
 static void stand_in(const char *name, int present) {
     char path[MAX_PATH];
-    _snprintf(path, MAX_PATH, "%s\\%s", exe_dir, name);
+    _snprintf(path, MAX_PATH, "%s\\%s", files_dir, name);
     path[MAX_PATH - 1] = 0;
     if (present) {
-        HANDLE h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        HANDLE h;
+        CreateDirectoryA(files_dir, NULL);
+        h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
         if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
     } else {
         DeleteFileA(path);
@@ -395,6 +403,7 @@ int main(int argc, char **argv) {
     free_table(3);
 
     stand_in("VVFP Statistics Export.dll", 0);
+    RemoveDirectoryA(files_dir);   /* only when empty */
     wipe(1);
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

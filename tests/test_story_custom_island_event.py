@@ -697,7 +697,9 @@ class VillagerOptionTests(unittest.TestCase):
         story.village.put(2, sex="f", years=8, name="Kid")
         export = p.alloc(0x10)
         seen = []
-        p.api_handlers["LoadLibraryA"] = lambda q: (0x71000000, 4)
+        p.api_handlers["LoadLibraryExW"] = lambda q: (
+            0x71000000 if q.wstring(q.arg(0)).endswith(
+                "\\Virtual Villagers Fun Patcher Files\\VVFP VV1 Parentage.dll") else 0, 12)
         p.api_handlers["GetProcAddress"] = lambda q: (
             export if q.cstring(q.arg(1)) == "Vv1ParentageSetParents" else 0, 8)
 
@@ -792,13 +794,15 @@ def _room_until(story, limit):
 
 
 class ParentageLog:
-    """"VVFP Parentage Export.dll" as the companion finds it beside the game."""
+    """"VVFP Parentage Export.dll" as the companion finds it: by full path in
+    the patcher's folder beside the game (native/shared/patcher_files.h)."""
 
     def __init__(self, proc):
         self.calls = []
         export = proc.alloc(0x10)
-        proc.api_handlers["LoadLibraryA"] = lambda q: (
-            0x72000000 if q.cstring(q.arg(0)).endswith("VVFP Parentage Export.dll") else 0, 4)
+        proc.api_handlers["LoadLibraryExW"] = lambda q: (
+            0x72000000 if q.wstring(q.arg(0)).endswith(
+                "\\Virtual Villagers Fun Patcher Files\\VVFP Parentage Export.dll") else 0, 12)
         proc.api_handlers["GetProcAddress"] = lambda q: (
             export if q.cstring(q.arg(1)) == "WriteParentageRecordWithFather" else 0, 8)
 

@@ -502,7 +502,7 @@ class PublishedBuildShipsTheDllTests(unittest.TestCase):
                         fun_patch_ids=_ids(game, "statistics"),
                         output_root=work / "out",
                     )
-                    dll = output.parent / DLL
+                    dll = output.parent / "Virtual Villagers Fun Patcher Files" / DLL
                     self.assertTrue(dll.is_file(), "the hook's DLL was not shipped")
                     self.assertEqual(
                         vp.sha256(dll),

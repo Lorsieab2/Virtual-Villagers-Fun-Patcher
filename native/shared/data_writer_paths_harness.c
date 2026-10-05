@@ -55,6 +55,12 @@ static BOOL WINAPI harness_special_w(HWND owner, LPWSTR out, int csidl, BOOL cre
 #define SHGetSpecialFolderPathA harness_special_a
 #define SHGetSpecialFolderPathW harness_special_w
 
+#if VV_WRITER >= 1 && VV_WRITER <= 5
+/* The Origins companions link save_folder.c for the Repairs log
+   (native/shared/orphan_masks.h, v1.35.59); with Documents redirected
+   above, its folder resolves under the harness's scratch folder. */
+#include "save_folder.c"
+#endif
 #if VV_WRITER == 1
 #include "../vv1_origins_icons/vv1_origins_icons.c"
 #define KIND VV_DATA_SUB_MASKS

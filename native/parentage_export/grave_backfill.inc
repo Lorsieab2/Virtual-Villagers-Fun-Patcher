@@ -699,28 +699,14 @@ static int write_backfill(int game_id, const struct backfill_target *target) {
 }
 
 /* The header of the village the slot's own save file holds, from "VVFP Save
-   Reset.dll" beside the executable (shipped with this log's row); loaded by
-   full path, never from DllMain.  0 without it. */
+   Reset.dll" in the patcher's folder (shipped with this log's row); loaded
+   by full path, never from DllMain.  0 without it. */
 static int saved_village_header(int game_id, int slot, char *out, int size) {
     typedef int (__stdcall *saved_header_fn)(int, int, char *, int);
-    static const wchar_t file[] = L"VVFP Save Reset.dll";
-    wchar_t path[MAX_PATH];
-    wchar_t *slash;
-    DWORD n;
-    HMODULE module = GetModuleHandleW(file);
+    HMODULE module = vvfp_patcher_dll("VVFP Save Reset.dll");
     saved_header_fn header;
     if (module == NULL) {
-        n = GetModuleFileNameW(NULL, path, MAX_PATH);
-        slash = n != 0 && n < MAX_PATH ? wcsrchr(path, L'\\') : NULL;
-        if (slash == NULL
-            || (size_t)(slash + 1 - path) + sizeof(file) / sizeof(file[0]) > MAX_PATH) {
-            return 0;
-        }
-        wcscpy(slash + 1, file);
-        module = LoadLibraryW(path);
-        if (module == NULL) {
-            return 0;
-        }
+        return 0;
     }
     header = (saved_header_fn)GetProcAddress(module, "SavedVillageHeader");
     return header != NULL && header(game_id, slot, out, size);

@@ -75,8 +75,9 @@ it only clamps allocations at the physical record limit and does not change
 the selected mode's social cap or collection/progression behavior. All three
 modes use the stable short `- Modded` name (a build with **256 Villagers
 (Experimental)** ticked is named `- Modded 256` instead; see below). The selected mode,
-optional patches, hashes, and applied edits remain identified in the adjacent
-`.patch-log.json`.
+optional patches, hashes, and applied edits remain identified in the
+`.patch-log.json` in the Modded folder's `Virtual Villagers Fun Patcher Files`
+folder.
 
 In A New Home, the automatic safety also preflights the stock two-villager
 creation path: when only one physical record remains it creates one villager,
@@ -1237,13 +1238,53 @@ containing **`(Game name) - Modded.exe`** (**`(Game name) - Modded 256`** and
 supplied original; the GUI's **Modded output location** chooser can place all
 selected games under another parent folder. It copies every file and subfolder
 from the original game folder, verifies the copied files by SHA-256, keeps the
-stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The
+stock EXE in the copy, and adds the modified EXE plus, in its
+`Virtual Villagers Fun Patcher Files` folder, the add-ons and the
+`.patch-log.json` (see below). The
 original folder and original EXE are never edited, renamed, replaced, or
 deleted. Asset-swap patches such as VV1 Visual Mods, VV4 Optional
 Text changes, and the VV5 Guardians of Isola Rewrite replace their listed image
 and text files inside that copy only; the base-game files are restored whenever
 the patch is not selected. Applying another population mode refreshes that mode's same short folder
 after confirmation.
+
+### The patcher's own files
+
+Every file the patcher adds to a Modded folder is in one subfolder,
+**`Virtual Villagers Fun Patcher Files`**, beside the modified EXE: every add-on
+DLL (`VVFP ... .dll`, including `VVFP Startup.dll`), the images only those
+DLLs read, the `.patch-log.json` and the `VVFP Transparency Log.txt`. The game
+folder itself holds only the game's own files, the modified EXE and that one
+folder. The add-ons are always loaded from that folder by their full path,
+built from the modified EXE's own location (never from the current folder or
+the Windows DLL search order), and with Unicode paths, so a game installed in
+a folder with accented or Japanese characters in its name still loads every
+add-on and writes its logs. A missing folder or DLL just switches that add-on
+off; the game always starts. If the Modded folder's path is so long that an
+add-on's path would reach Windows' 260-character limit, the patcher says so
+and writes nothing, so choose a shorter output location.
+
+The only patcher files outside that folder are ones the game itself opens
+from its own folders by name, so they must stay where the game looks:
+
+| File | Why it stays in place |
+| --- | --- |
+| A New Home's Visual Mods images (`Images\garden_restored.png`, `lagoon_restored.jpg`, `MapX1Y2.jpg`, `MapX2Y1.jpg`) | replace stock images the game opens from `Images` |
+| `Images\mask_atlas.png` (A New Home Origins) | the game's own sprite loader opens it by name |
+| `Images\vvfp_sort_band.png`, `Images\vvfp_sort_radio.png` (A New Home Sort By) | the game's own sprite loader opens them by name |
+| `Images\golden_mushroom.png` (Super-Secret Golden Mushroom) | the game's own sprite loader opens it by name |
+| `Images\heathen_masks.png` (The Lost Children / The Secret City Origins; written by the add-on when the game starts) | the game's own sprite loader opens it by name |
+| `Images\vvfp_mask_atlas00.png`, `Images\vvfp_bighead_mask_atlas00.png` (The Tree of Life Origins) | the game's own sprite loader opens them by name |
+| `Images\bigheads_masks.png` (New Believers Origins) | the game's own sprite table names it |
+| `Assets\sm.xml` (The Tree of Life Optional Text Changes, New Believers Guardians of Isola Rewrite) | replaces the game's own string table |
+| New Believers' Guardians of Isola Rewrite images | replace stock images the game opens from `Images` |
+
+Patching again over a Modded folder made by an older version moves
+everything into the new layout: the loose `VVFP ... .dll` files, the loose
+images only the add-ons read, the old `.patch-log.json` and the old
+`VVFP Transparency Log.txt` beside the EXE are removed (only files the
+patcher itself installed, matched by name and, for non-DLL files, by
+content), and files you added yourself are kept.
 
 ## Exact-build safety
 
@@ -1252,7 +1293,8 @@ Support is bound to the exact SHA-256 and size of each researched stock executab
 Every build that ships a companion DLL also ships `VVFP Startup.dll` and gets
 one more small section, `.vvfpst` (4,096 bytes, read and execute only). It
 replaces the game's own start-up call of `WinMain`: before the game opens its
-window, it loads `VVFP Startup.dll` from the game's own folder (by full path),
+window, it loads `VVFP Startup.dll` from the `Virtual Villagers Fun Patcher
+Files` folder beside the EXE (by full path, with a Unicode path),
 which loads and arms the patcher companions this build ships (never a stray
 DLL left in the folder), and then the game starts exactly as before. So every
 patch is running before the title screen and before any village loads --

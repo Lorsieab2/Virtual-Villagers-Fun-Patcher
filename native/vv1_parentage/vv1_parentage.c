@@ -150,6 +150,7 @@
 #include <shlobj.h>
 #include <string.h>
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
+#include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -1181,9 +1182,6 @@ static int g_log_state;           /* 0 = not tried, 1 = resolved, -1 = unavailab
 static vv1_write_birth_t g_write_birth;
 
 static vv1_write_birth_t vv1_log_writer(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     if (g_log_state == 1) {
         return g_write_birth;
@@ -1192,17 +1190,7 @@ static vv1_write_birth_t vv1_log_writer(void) {
         return NULL;
     }
     g_log_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return NULL;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Parentage Export.dll") > sizeof(path)) {
-        return NULL;
-    }
-    lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
     if (companion == NULL) {
         return NULL;              /* the log row is off: births are kept, not logged */
     }

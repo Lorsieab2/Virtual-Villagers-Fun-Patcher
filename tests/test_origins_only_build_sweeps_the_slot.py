@@ -155,7 +155,7 @@ def _build(game: str, spec: dict) -> tuple[pathlib.Path, dict]:
         raise AssertionError(f"{game}: no output folder produced")
     folder = folders[0]
     log = json.loads(
-        next(folder.glob("*.patch-log.json")).read_text(encoding="utf-8")
+        next((folder / "Virtual Villagers Fun Patcher Files").glob("*.patch-log.json")).read_text(encoding="utf-8")
     )
     return folder, log
 
@@ -184,7 +184,7 @@ class OriginsOnlyBuildSweepsTheSlotTests(unittest.TestCase):
         for game, (folder, _log) in sorted(self.builds.items()):
             with self.subTest(game=game):
                 self.assertTrue(
-                    (folder / "VVFP Save Reset.dll").is_file(),
+                    (folder / "Virtual Villagers Fun Patcher Files" / "VVFP Save Reset.dll").is_file(),
                     f"{game}: the stub resolves VVFP Save Reset.dll by name, but "
                     "the build does not ship it -- the sweep is silently lost",
                 )

@@ -17,6 +17,7 @@
 #define VVFP_CAUSE_BRIDGE_H
 
 #include <windows.h>
+#include "patcher_files.h"
 #include <string.h>
 
 #define VVFP_CAUSE_DLL "VVFP Cause of Death.dll"
@@ -34,25 +35,13 @@ static vvfp_cause_tick_fn vvfp_cause_tick;
    detours, so every event of the first load-time catch-up already goes
    through them.  Every later call is a no-op. */
 static int vvfp_cause_install_once(int game) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE module;
     vvfp_cause_install_fn install;
     if (vvfp_cause_state != 0) {
         return vvfp_cause_state == 1;
     }
     vvfp_cause_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL || (size_t)(slash + 1 - path) + sizeof(VVFP_CAUSE_DLL) > sizeof(path)) {
-        return 0;
-    }
-    lstrcpyA(slash + 1, VVFP_CAUSE_DLL);
-    module = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    module = vvfp_startup_ships(VVFP_CAUSE_DLL) ? vvfp_load_patcher_dll(VVFP_CAUSE_DLL) : NULL;
     if (module == NULL) {
         return 0;                     /* not shipped: the row is off */
     }

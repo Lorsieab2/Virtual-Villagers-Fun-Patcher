@@ -199,15 +199,19 @@ class Machine:
             mu.emu_stop()
         elif addr in self.fakes:
             name = self.fakes[addr]
-            if name == "GetModuleFileNameA":
+            if name == "GetModuleFileNameW":
+                # The image check builds a wide path from the executable's
+                # own path (native/shared/patcher_files.h).
                 _, buf, n = self._args(3)
-                path = b"C:\\Games\\Village\\game.exe\0"
-                mu.mem_write(buf, path)
-                self.calls.append(("GetModuleFileNameA",))
-                self._ret(len(path) - 1, 3)
-            elif name == "GetFileAttributesA":
+                path = "C:\\Games\\Village\\game.exe"
+                mu.mem_write(buf, path.encode("utf-16-le") + b"\0\0")
+                self.calls.append(("GetModuleFileNameW",))
+                self._ret(len(path), 3)
+            elif name == "GetFileAttributesW":
                 path, = self._args(1)
-                self.calls.append(("GetFileAttributesA", self._cstr(path)))
+                raw = bytes(mu.mem_read(path, 1024))
+                end = next(i for i in range(0, len(raw), 2) if raw[i:i + 2] == b"\0\0")
+                self.calls.append(("GetFileAttributesW", raw[:end].decode("utf-16-le")))
                 self._ret(0x20 if self.image_present else 0xFFFFFFFF, 1)
             elif name == "VirtualQuery":
                 a, mbi, n = self._args(3)
@@ -507,8 +511,10 @@ class NewHomeDrawTests(unittest.TestCase):
         self.assertEqual(m.mu.reg_read(UC_X86_REG_ESP), esp)
         self.assertEqual(struct.unpack("<5I", m.mu.mem_read(esp, 20)), (SENTINEL, NEW_SPRITE, 106, 202, 0))
         self._regs_intact(m, RENDERER)      # ecx = [holder], as the thunk loads it
-        self.assertEqual(m.calls, [("GetModuleFileNameA",),
-                                   ("GetFileAttributesA", b"C:\\Games\\Village\\Images\\golden_mushroom.png"),
+        # The image stays in the game's own Images folder (the game's sprite
+        # loader opens it there), checked by a wide path.
+        self.assertEqual(m.calls, [("GetModuleFileNameW",),
+                                   ("GetFileAttributesW", "C:\\Games\\Village\\Images\\golden_mushroom.png"),
                                    ("alloc", 0x34), ("ctor", NEW_SPRITE, b"golden_mushroom.png", 1, 1)])
         # built once: the next golden draw reuses it
         self._frame(m, x=5, y=6)
