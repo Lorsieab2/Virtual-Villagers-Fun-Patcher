@@ -14,6 +14,16 @@
    creators' locals are partly uninitialised and can hold return addresses
    left by earlier calls.
 
+   A SLOT THE STORY / CHEAT UPGRADES COMPANION REWROTE.  Its outcome
+   "scope calls" (native/vvfp_story_upgrades/story_outcomes.inc) put their
+   own return address in place of the game's for as long as the call runs,
+   and some are the very calls these markers read: A New Home's 0x41974A,
+   The Secret City's barrels (0x415350, 0x415393, 0x4153D6), canoe
+   (0x414DAF) and amber vial (0x41783B).  Such a slot is read through that
+   companion (VvfpStoryCallerReturn), which hands back the game's own
+   address -- the owner's v1.35.58 live pass had "How: unknown" for The
+   Secret City's barrels and canoe.
+
    MARK_BIRTH: a child of a delivery (never an arrival, whatever the Births
    log says); MARK_FOUNDER: the new-village seeding; MARK_TEMPORARY: a record
    the game makes and takes away again; MARK_EVENT: `label` is what the
@@ -46,7 +56,17 @@ struct arrival_marker {
        0x42431C/0x424326), string 0x14A "...gave birth to a special, golden
        child!";
      the new-village initialiser 0x41C000 (allocates the villager array,
-       sets the first island-event time at 0x41C4A9): seven seeding calls;
+       sets the first island-event time at 0x41C4A9): seven seeding calls
+       (0x41C50E ... 0x41C648), whose caller's return address is at +0x90
+       (0x44 + 4 + the initialiser's 0x48 bytes at each call).  Founders
+       when the initialiser makes a new tribe in an empty slot (0x414020),
+       names the first tribe (0x415491) or starts over (0x41C7E5) -- the
+       same three callers as The Secret City's 0x41B7E4 / 0x41BA0F /
+       0x4283F2; temporary when a load follows and overwrites them: the
+       startup scan (0x41D26D) and the no-save-yet default (0x41D23A).  The
+       owner's v1.35.58 live pass: an existing village's villagers, loaded
+       over the startup scan's seeding, were written as "How: Founder" at
+       its first save on a folder with no Village Roster file;
      the island body 0x427CA0, case 12 (`jmp [eax*4+0x428430]` -> 0x4281E7,
        string 0x1E3 "The Barrel O` Babies"): one to three babies by
        magnitude -- also the Origins purchase, which runs this same case;
@@ -57,19 +77,21 @@ struct arrival_marker {
        newcomer to the village": one newcomer. */
 #define VV1_FRESH 0x43C39Bu, 0x44u
 #define VV1_COPY 0x43C888u, 0x34u
+#define VV1_RESET 0x43C39Bu, 0x90u
+#define VV1_SEED(l2) \
+    { VV1_RESET, 0x414020u, 0x44u, (l2), MARK_FOUNDER, "Founder" }, \
+    { VV1_RESET, 0x415491u, 0x44u, (l2), MARK_FOUNDER, "Founder" }, \
+    { VV1_RESET, 0x41C7E5u, 0x44u, (l2), MARK_FOUNDER, "Founder" }, \
+    { VV1_RESET, 0x41D23Au, 0x44u, (l2), MARK_TEMPORARY, NULL }, \
+    { VV1_RESET, 0x41D26Du, 0x44u, (l2), MARK_TEMPORARY, NULL }
 static const struct arrival_marker MARKERS_VV1[] = {
     { VV1_FRESH, 0x42EF64u, 0, 0, MARK_BIRTH, NULL },
     { VV1_FRESH, 0x42EFD5u, 0, 0, MARK_BIRTH, NULL },
     { VV1_COPY, 0x42F026u, 0, 0, MARK_BIRTH, NULL },
     { VV1_COPY, 0x42F072u, 0, 0, MARK_BIRTH, NULL },
     { VV1_FRESH, 0x4242FDu, 0, 0, MARK_BIRTH, NULL },
-    { VV1_FRESH, 0x41C50Eu, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV1_FRESH, 0x41C54Eu, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV1_FRESH, 0x41C576u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV1_FRESH, 0x41C5B6u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV1_FRESH, 0x41C5EBu, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV1_FRESH, 0x41C613u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV1_FRESH, 0x41C648u, 0, 0, MARK_FOUNDER, "Founder" },
+    VV1_SEED(0x41C50Eu), VV1_SEED(0x41C54Eu), VV1_SEED(0x41C576u), VV1_SEED(0x41C5B6u),
+    VV1_SEED(0x41C5EBu), VV1_SEED(0x41C613u), VV1_SEED(0x41C648u),
     { VV1_FRESH, 0x428268u, 0, 0, MARK_EVENT, "Barrel of Babies" },
     { VV1_FRESH, 0x4282CBu, 0, 0, MARK_EVENT, "Barrel of Babies" },
     { VV1_FRESH, 0x4282E8u, 0, 0, MARK_EVENT, "Barrel of Babies" },
@@ -90,7 +112,12 @@ static const struct arrival_marker MARKERS_VV1[] = {
    0x44CF04: sub esp,0x20, four pushes, push 0x4E -> +0x34).  The fresh
    creator's callers:
      the world reset 0x424C80: eight seeding calls, right after 0x42529B sets
-       the next island event to now + 15 minutes;
+       the next island event to now + 15 minutes; its caller's return
+       address at +0x1D0.  Founders for a new tribe in an empty slot
+       (0x4150B0), the first tribe's naming (0x41AC11) and Start Over
+       (0x425605); temporary for the startup scan (0x42641D) and the
+       no-save-yet default (0x4263F0), which a load overwrites (A New
+       Home's, above);
      the birth wrapper 0x44F5C0 (its one caller is the delivery, 0x43BE8E):
        the creator returns to 0x44F602;
      the event wrapper 0x44F580 (the creator returns to 0x44F5B0; its own
@@ -111,18 +138,19 @@ static const struct arrival_marker MARKERS_VV1[] = {
 #define VV2_EVENT 0x44C84Fu, 0x1BCu
 #define VV2_VIA_EVENT 0x180u, 0x44F5B0u
 #define VV2_COPY 0x44CF04u, 0x34u
+#define VV2_RESET 0x44C84Fu, 0x1D0u
+#define VV2_SEED(l2) \
+    { VV2_RESET, 0x4150B0u, 0x180u, (l2), MARK_FOUNDER, "Founder" }, \
+    { VV2_RESET, 0x41AC11u, 0x180u, (l2), MARK_FOUNDER, "Founder" }, \
+    { VV2_RESET, 0x425605u, 0x180u, (l2), MARK_FOUNDER, "Founder" }, \
+    { VV2_RESET, 0x4263F0u, 0x180u, (l2), MARK_TEMPORARY, NULL }, \
+    { VV2_RESET, 0x42641Du, 0x180u, (l2), MARK_TEMPORARY, NULL }
 static const struct arrival_marker MARKERS_VV2[] = {
     { VV2_FRESH, 0x44F602u, 0, 0, MARK_BIRTH, NULL },
     { VV2_COPY, 0x43BEE4u, 0, 0, MARK_BIRTH, NULL },
     { VV2_COPY, 0x43BF30u, 0, 0, MARK_BIRTH, NULL },
-    { VV2_FRESH, 0x4252F7u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV2_FRESH, 0x42534Cu, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV2_FRESH, 0x425380u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV2_FRESH, 0x4253B1u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV2_FRESH, 0x4253E2u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV2_FRESH, 0x425413u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV2_FRESH, 0x425439u, 0, 0, MARK_FOUNDER, "Founder" },
-    { VV2_FRESH, 0x42545Du, 0, 0, MARK_FOUNDER, "Founder" },
+    VV2_SEED(0x4252F7u), VV2_SEED(0x42534Cu), VV2_SEED(0x425380u), VV2_SEED(0x4253B1u),
+    VV2_SEED(0x4253E2u), VV2_SEED(0x425413u), VV2_SEED(0x425439u), VV2_SEED(0x42545Du),
     { VV2_EVENT, 0x41F963u, VV2_VIA_EVENT, MARK_TEMPORARY, NULL },
     { VV2_EVENT, 0x4209A9u, VV2_VIA_EVENT, MARK_EVENT, "The Savage Child" },
     { VV2_EVENT, 0x434107u, VV2_VIA_EVENT, MARK_EVENT, "Barrel of Babies" },

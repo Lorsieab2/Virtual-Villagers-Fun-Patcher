@@ -122,6 +122,48 @@ __declspec(dllexport) void __stdcall VvfpCauseTestCreated(int index, unsigned in
     }
 }
 
+/* ...the same, with a Story / Cheat Upgrades scope call in progress on the
+   marker's own call (cod_arrival_sites.inc): the slot holds that
+   companion's return address, and its VvfpStoryCallerReturn (stood in for
+   here) names the game's for that very slot only. */
+static unsigned int scoped_slot, scoped_value;
+#define SCOPE_BACK 0x0BAC5C0Bu
+
+static unsigned int __stdcall test_scope_caller(unsigned int slot) {
+    return slot == scoped_slot && *(const unsigned int *)(uintptr_t)slot == SCOPE_BACK ? scoped_value : 0u;
+}
+
+__declspec(dllexport) void __stdcall VvfpCauseTestCreatedScoped(int index, unsigned int marker, int story) {
+    static unsigned int stack[0x100];
+    unsigned int regs[9];
+    unsigned int site = 0;
+    const struct arrival_marker *table = NULL;
+    int count = 0;
+    int k;
+    memset(stack, 0, sizeof stack);
+    memset(regs, 0, sizeof regs);
+    regs[R_ESP] = (unsigned int)(uintptr_t)stack;
+    arrival_markers(&table, &count);
+    for (k = 0; k < count; ++k) {
+        if (table[k].value == marker) {
+            site = table[k].site;
+            stack[table[k].offset / 4] = SCOPE_BACK;
+            scoped_slot = (unsigned int)(uintptr_t)&stack[table[k].offset / 4];
+            scoped_value = marker;
+            if (table[k].need_offset != 0u) {
+                stack[table[k].need_offset / 4] = table[k].need_value;
+            }
+            break;
+        }
+    }
+    test_story_caller = story ? test_scope_caller : NULL;
+    if (index >= 0 && index < RECORDS_MAX && !temporary[index]) {
+        roster_arrived(index);
+        arrival_created(index, site, regs);
+    }
+    test_story_caller = NULL;
+}
+
 /* The arrivals' part of the per-frame tick (cod_arrivals.inc). */
 __declspec(dllexport) void __stdcall VvfpCauseTestArrivalTick(void) {
     arrival_tick();

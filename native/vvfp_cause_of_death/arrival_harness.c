@@ -75,6 +75,7 @@ typedef void (__stdcall *reset_t)(int, int);
 typedef int (__stdcall *scan_t)(int, int);
 typedef void (__stdcall *repair_t)(int, int, int);
 typedef void (__stdcall *created_t)(int, unsigned int);
+typedef void (__stdcall *created_scoped_t)(int, unsigned int, int);
 typedef void (__stdcall *void_t)(void);
 typedef void (__stdcall *int_t)(int);
 typedef void (__stdcall *note_t)(int, const void *);
@@ -103,13 +104,20 @@ static const struct layout LAYOUTS[5] = {
 #define VV5_FACTION 0x1CEC
 
 /* One marker per game from cod_arrival_sites.inc: a birth, a founder, a
-   stock event and its label, as the creators' hook would find them. */
-static const struct { unsigned int birth, founder, event; const char *label; } MARK[5] = {
-    { 0x42EFD5u, 0x41C50Eu, 0x42C3F4u, "A Mysterious Crate (watertight)" },
-    { 0x44F602u, 0x4252F7u, 0x43446Cu, "Old Friends" },
-    { 0x45FFD2u, 0x41B7E4u, 0x414DB4u, "The Canoe from the Other Side" },
-    { 0x467D92u, 0x43B929u, 0x4148D4u, "The Canoe from the Other Side" },
-    { 0x471EA2u, 0x43E317u, 0x415559u, "News From Another Tribe" },
+   stock event and its label, as the creators' hook would find them; the
+   seeding the startup scan runs ahead of a load (0: none in that game);
+   and an event whose own call a Story / Cheat Upgrades scope call holds
+   (0: none). */
+static const struct {
+    unsigned int birth, founder, event; const char *label; unsigned int scan, scoped; const char *scoped_label;
+} MARK[5] = {
+    { 0x42EFD5u, 0x414020u, 0x42C3F4u, "A Mysterious Crate (watertight)", 0x41D26Du,
+      0x41974Fu, "The Mysterious Face" },
+    { 0x44F602u, 0x4150B0u, 0x43446Cu, "Old Friends", 0x42641Du, 0, NULL },
+    { 0x45FFD2u, 0x41B7E4u, 0x414DB4u, "The Canoe from the Other Side", 0x4285EAu,
+      0x415355u, "Barrel of Babies" },
+    { 0x467D92u, 0x43B929u, 0x4148D4u, "The Canoe from the Other Side", 0, 0, NULL },
+    { 0x471EA2u, 0x43E317u, 0x415559u, "News From Another Tribe", 0, 0, NULL },
 };
 
 static const struct layout *g;
@@ -297,6 +305,7 @@ static reset_t reset;
 static scan_t scan_arrivals;
 static repair_t repair_arrivals;
 static created_t created;
+static created_scoped_t created_scoped;
 static void_t arrival_tick;
 static int_t vv1_births;
 static int_t departed;
@@ -320,13 +329,14 @@ static void load(void) {
     scan_arrivals = (scan_t)GetProcAddress(cause, "VvfpCauseScanArrivals");
     repair_arrivals = (repair_t)GetProcAddress(cause, "VvfpCauseRepairArrivals");
     created = (created_t)GetProcAddress(cause, "VvfpCauseTestCreated");
+    created_scoped = (created_scoped_t)GetProcAddress(cause, "VvfpCauseTestCreatedScoped");
     arrival_tick = (void_t)GetProcAddress(cause, "VvfpCauseTestArrivalTick");
     vv1_births = (int_t)GetProcAddress(cause, "VvfpCauseTestVv1Births");
     departed = (int_t)GetProcAddress(cause, "VvfpCauseTestDeparted");
     note_birth = (note_t)GetProcAddress(cause, "VvfpCauseNoteArrival");
     arrived_by = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedBy");
     if (!ensure_village || !setup || !save_done || !reset || !scan_arrivals || !repair_arrivals || !created
-        || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by
+        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by
         || GetProcAddress(parentage, "RecordArrivalsMissingFromLog") == NULL) {
         printf("missing exports\n");
         exit(2);
@@ -889,6 +899,12 @@ int main(int argc, char **argv) {
         created(15, MARK[game - 1].event);
         villager(16, "Seed", 300, 7, 3, 0);
         created(16, MARK[game - 1].founder);  /* the seeding, in a village saved before */
+        if (MARK[game - 1].scoped != 0u) {
+            /* The owner's v1.35.58 live pass (The Secret City): a picked
+               barrel, its call held by a Story / Cheat Upgrades scope call. */
+            villager(17, "Scoped", 200, 8, 3, 0);
+            created_scoped(17, MARK[game - 1].scoped, 1);
+        }
         villager(12, "Twin", 0, 6, 7, 1);
         created(12, 0);
         note_birth(game, rec(12));          /* the Births log's note, every game */
@@ -929,6 +945,13 @@ int main(int argc, char **argv) {
                 _snprintf(how, sizeof how, "  How: %s\r\n\r\n", MARK[game - 1].label);
                 CHECK(record_has("Canoe", how), "a stock event's newcomer: How: %s", MARK[game - 1].label);
             }
+            if (MARK[game - 1].scoped != 0u) {
+                char how2[96];
+                _snprintf(how2, sizeof how2, "  How: %s\r\n\r\n", MARK[game - 1].scoped_label);
+                CHECK(record_has("Scoped", how2),
+                      "an event whose call a Story / Cheat Upgrades scope call holds: How: %s (that companion"
+                      " names the game's return address)", MARK[game - 1].scoped_label);
+            }
             CHECK(strstr(text, "  Name: Seed\r\n") == NULL,
                   "the seeding's records in a village saved before are not founders (a load overwrites them)");
             CHECK(count_of(text, "  Name: Newcomer\r\n") == 1 && count_of(text, "  Name: Cie\r\n") == 1
@@ -962,6 +985,18 @@ int main(int argc, char **argv) {
         created(0, MARK[game - 1].founder);
         villager(1, "Foundb", 420, 2, 1, 0);
         created(1, MARK[game - 1].founder);
+        /* The owner's v1.35.58 live pass (A New Home, The Lost Children): the
+           startup scan's seeding, then a load over it -- the village's own
+           villagers in those records at a first save with no Village Roster
+           file -- and a "founder" whose record keeps parents. */
+        if (MARK[game - 1].scan != 0u) {
+            villager(4, "Loaded", 1264, 8, 1, 0);
+            created(4, MARK[game - 1].scan);
+        }
+        if (game >= 2) {
+            villager(5, "Parented", 1461, 3, 3, 1);
+            created(5, MARK[game - 1].founder);
+        }
         arrival_tick();
         *(int *)(rec(0) + g->age) = 410;
         save_done(1, buffer);                 /* the new village's first save */
@@ -971,6 +1006,10 @@ int main(int argc, char **argv) {
               && record_has("Foundb", "  How: Founder\r\n\r\n") && strstr(text, "Note:") == NULL
               && strstr(text, "Arrived 1\r\n") == NULL,
               "the new village's founders get \"How: Founder\" at its first save, numbered on");
+        CHECK(strstr(text, "  Name: Loaded\r\n") == NULL && strstr(text, "  Name: Parented\r\n") == NULL,
+              "...but never a villager a load put over the startup scan's seeding, nor one with parents");
+        rec(4)[g->active] = 0;
+        rec(5)[g->active] = 0;
         printf("  (scan %d, marker %d, save %d)\n", scan_arrivals(game, 1), file_exists(marker),
                file_exists(path));
         CHECK(!file_exists(marker) && scan_arrivals(game, 1) == 0,

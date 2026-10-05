@@ -88,23 +88,49 @@ static void arrival_noted_birth(int index) {
 
 #include "cod_arrival_sites.inc"
 
+/* The return address in the stack slot `offset` above the hook's esp: the
+   game's own, even while a Story / Cheat Upgrades scope call has its own
+   there (cod_arrival_sites.inc) -- that companion says whose it is. */
+typedef unsigned int (__stdcall *story_caller_fn)(unsigned int slot);
+#ifdef VVFP_TEST
+static story_caller_fn test_story_caller;
+#endif
+
+static story_caller_fn arrival_story_caller(void) {
+    HMODULE story;
+#ifdef VVFP_TEST
+    if (test_story_caller != NULL) {
+        return test_story_caller;
+    }
+#endif
+    story = GetModuleHandleA("VVFP Story Upgrades.dll");
+    return story != NULL ? (story_caller_fn)GetProcAddress(story, "VvfpStoryCallerReturn") : NULL;
+}
+
+static unsigned int arrival_slot(const unsigned int *regs, unsigned int offset, story_caller_fn caller) {
+    unsigned int game_return = caller != NULL ? caller(regs[R_ESP] + offset) : 0u;
+    return game_return != 0u ? game_return : reg_stack(regs, offset);
+}
+
 /* The marker naming the path that made the villager at the hook `site_va`:
    each is read at its own fixed place in the stack (cod_arrival_sites.inc),
    never searched for.  NULL when none matches. */
 static const struct arrival_marker *arrival_marker_of(unsigned int site_va, const unsigned int *regs) {
     const struct arrival_marker *table = NULL;
+    story_caller_fn caller;
     int count = 0;
     int k;
     if (regs == NULL) {
         return NULL;
     }
+    caller = arrival_story_caller();
     arrival_markers(&table, &count);
     for (k = 0; k < count; ++k) {
         const struct arrival_marker *m = &table[k];
-        if (m->site != site_va || reg_stack(regs, m->offset) != m->value) {
+        if (m->site != site_va || arrival_slot(regs, m->offset, caller) != m->value) {
             continue;
         }
-        if (m->need_offset != 0u && reg_stack(regs, m->need_offset) != m->need_value) {
+        if (m->need_offset != 0u && arrival_slot(regs, m->need_offset, caller) != m->need_value) {
             continue;
         }
         return m;
@@ -136,14 +162,28 @@ static int arrival_heathen(const unsigned char *record) {
     return REC[g_game].heathen != 0u && record[REC[g_game].heathen] != 0;
 }
 
+/* Born in the village: the record keeps their parents' names (The Lost
+   Children on; A New Home keeps none). */
+static int arrival_parented(const unsigned char *record) {
+    static const unsigned int PARENTS[6][2] = {
+        { 0, 0 }, { 0, 0 }, { 0x57Du, 0x596u }, { 0xDF8u, 0xE11u },
+        { 0x1BC0u, 0x1BD9u }, { 0x1BC0u, 0x1BD9u },
+    };
+    return PARENTS[g_game][0] != 0u
+        && (record[PARENTS[g_game][0]] != 0 || record[PARENTS[g_game][1]] != 0);
+}
+
 /* Decide a made record: a birth, a Heathen or gone -> nothing; otherwise an
-   arrival, aged as it is now. */
+   arrival, aged as it is now.  A "founder" whose record keeps parents was
+   born in a village a load put there (the seeding ran ahead of it): never
+   an arrival (the owner's v1.35.58 live pass, Miki and Mem). */
 static void arrival_decide(int index) {
     const unsigned char *record = cod_record(index);
     if (arrivals[index].state != ARRIVAL_MADE) {
         return;
     }
-    if (arrivals[index].born || record == NULL || !roster_member(record) || arrival_heathen(record)) {
+    if (arrivals[index].born || record == NULL || !roster_member(record) || arrival_heathen(record)
+        || (arrivals[index].founder && arrival_parented(record))) {
         arrivals[index].state = ARRIVAL_NONE;
         return;
     }
@@ -284,10 +324,6 @@ static int births_are_logged(void) {
    are only counted (a name they share decides nothing).  -1 when the
    records are not there. */
 static int arrival_gather(int births) {
-    static const unsigned int PARENTS[6][2] = {
-        { 0, 0 }, { 0, 0 }, { 0x57Du, 0x596u }, { 0xDF8u, 0xE11u },
-        { 0x1BC0u, 0x1BD9u }, { 0x1BC0u, 0x1BD9u },
-    };
     unsigned char *records = cod_records();
     int n = 0;
     unsigned int i;
@@ -303,13 +339,9 @@ static int arrival_gather(int births) {
         f = &arrival_facts[n];
         memset(f, 0, sizeof *f);
         f->record = record;
-        {
-            /* Born here: the record keeps their parents (never in A New Home). */
-            int parented = PARENTS[g_game][0] != 0u
-                && (record[PARENTS[g_game][0]] != 0 || record[PARENTS[g_game][1]] != 0);
-            if (parented != births) {
-                f->outcome = VV_ARRIVAL_CONTEXT;
-            }
+        /* Born here: the record keeps their parents (never in A New Home). */
+        if (arrival_parented(record) != births) {
+            f->outcome = VV_ARRIVAL_CONTEXT;
         }
         /* Made by a creator this session, its own record not written yet:
            the live record is theirs (arrival_save, right after the backfill
