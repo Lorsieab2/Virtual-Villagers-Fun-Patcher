@@ -551,12 +551,23 @@ static int vv5_mask_sidecar_valid(const unsigned char *data, DWORD len,
     return vv5_mask_sidecar_count(data, len) != 0;
 }
 
+/* The identity each entry was stored with (orphan_masks.h, vv_om_track):
+   the roster says 0 for a record nobody holds, so an entry left on a record
+   that empties -- New Believers keeps a dead villager's mask there until
+   someone takes the record -- keeps it only here.  Reset by every load; a
+   'VM05' / 'VM25' file's name hashes become identities there
+   (vv_om_from_names). */
+static unsigned int g_vv5_mask_id[VV5_MAX_VILLAGERS];
+
 /* 1 when the table is on disk (the orphan repair needs to know). */
 static int vv5_write_mask_sidecar(const unsigned char *table) {
     char path[MAX_PATH];
     unsigned int magic = vv5_slots() == 256 ? VV5_MASK_SIDECAR_MAGIC_V6_256 : VV5_MASK_SIDECAR_MAGIC_V6;
+    static unsigned int written_roster[VV5_RECORD_COUNT];
+    static unsigned char value[VV5_RECORD_COUNT];
     const void *parts[3];
     DWORD sizes[3];
+    int i;
     if (table == NULL || !g_vv5_have_roster) {
         return 0;                   /* unknown village -> do not write */
     }
@@ -573,7 +584,14 @@ static int vv5_write_mask_sidecar(const unsigned char *table) {
        payload goes to "<path>.tmp", each write is checked, and only a
        complete, flushed file replaces the published one. */
     parts[0] = &magic;        sizes[0] = sizeof(magic);
-    parts[1] = g_vv5_roster;  sizes[1] = (DWORD)vv5_slots() * sizeof(unsigned int); /* binds the file to its village */
+    /* The roster binds the file to its village; an empty record keeps the
+       identity of an ambiguous mask left on it (vv_om_roster_to_write). */
+    for (i = 0; i < VV5_RECORD_COUNT; ++i) {
+        value[i] = (unsigned char)(i < vv5_slots()
+                                   ? ((i & 1) ? (table[i >> 1] >> 4) & 0x0Fu : table[i >> 1] & 0x0Fu) : 0);
+    }
+    vv_om_roster_to_write(VV5_RECORD_COUNT, g_vv5_roster, value, g_vv5_mask_id, written_roster);
+    parts[1] = written_roster; sizes[1] = (DWORD)vv5_slots() * sizeof(unsigned int);
     parts[2] = table;         sizes[2] = vv5_mask_table_bytes();
     return vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3);
 }
@@ -586,14 +604,6 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
    villagers are in `live` (native/shared/mask_follow.h).  `weak` for a
    name-only roster: then a mask only moves DOWN a record.  Returns 1 when
    the table changed. */
-/* The identity each entry was stored with (orphan_masks.h, vv_om_track):
-   the roster says 0 for a record nobody holds, so an entry left on a record
-   that empties -- New Believers keeps a dead villager's mask there until
-   someone takes the record -- keeps it only here.  A 'VM05' / 'VM25' file's
-   are name hashes (g_vv5_mask_id_weak).  Reset by every load. */
-static unsigned int g_vv5_mask_id[VV5_MAX_VILLAGERS];
-static unsigned char g_vv5_mask_id_weak[VV5_MAX_VILLAGERS];
-
 static int vv5_mask_follow_table(unsigned char *table, const unsigned int *stored,
                                  const unsigned int *live, int weak) {
     static unsigned char value[VV5_MAX_VILLAGERS], moved[VV5_MAX_VILLAGERS];
@@ -603,7 +613,7 @@ static int vv5_mask_follow_table(unsigned char *table, const unsigned int *store
         value[i] = (unsigned char)((i & 1) ? (table[i >> 1] >> 4) & 0x0Fu : table[i >> 1] & 0x0Fu);
     }
     changed = vv_mask_follow(slots, value, stored, stored, live, weak, moved, moved_id);
-    vv_om_track(slots, moved, moved_id, weak, g_vv5_mask_id, g_vv5_mask_id_weak);
+    vv_om_track(slots, moved, moved_id, g_vv5_mask_id);
     if (!changed) {
         return 0;
     }
@@ -653,7 +663,6 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
        and adopt an empty table as this village's state. */
     memset(table, 0, table_bytes);
     memset(g_vv5_mask_id, 0, sizeof(g_vv5_mask_id));
-    memset(g_vv5_mask_id_weak, 0, sizeof(g_vv5_mask_id_weak));
     g_vv5_rewrite_after_load = 0;
     vv_sidecar_gate_bind(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH);
     if (vv_sidecar_gate_throttled(&g_vv5_mask_gate)) {
@@ -705,6 +714,9 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
         /* The file was written against the records as they were then; a
            reload has packed them since.  Each mask goes to its villager. */
         g_vv5_rewrite_after_load = vv5_mask_follow_table(table, filesnap, against, weak) || weak;
+        if (weak) {
+            vv_om_from_names(VV5_RECORD_COUNT, g_vv5_mask_id, names, live);
+        }
     }
     return 1;
 }
@@ -851,8 +863,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
 
 /* ---- The cross-check's orphan mask entries (orphan_masks.h) ---------------
    The table is kept by record and the file by roster: the identity each
-   entry was stored with is g_vv5_mask_id (name hashes from a 'VM05' /
-   'VM25' file, compared with the villagers' names).  An orphan: a mask on a
+   entry was stored with is g_vv5_mask_id.  An orphan: a mask on a
    record nobody holds whose identity -- none, or one no villager carries,
    Heathens and bodies awaiting burial included, since every active record
    is one the save holds -- is no villager's. */
@@ -863,7 +874,6 @@ static void vv5_om_put(int index, unsigned char value, unsigned int id) {
     *slot = (index & 1) ? (unsigned char)((*slot & 0x0F) | (value << 4))
                         : (unsigned char)((*slot & 0xF0) | value);
     g_vv5_mask_id[index] = id;
-    g_vv5_mask_id_weak[index] = 0;
 }
 
 static int vv5_om_publish(void) {
@@ -872,7 +882,7 @@ static int vv5_om_publish(void) {
 
 /* -1 until this slot's masks are loaded onto the village on screen. */
 static int vv5_om_scan(int slot, vv_om_list *out) {
-    static unsigned int ids[VV5_RECORD_COUNT], stable[VV5_RECORD_COUNT], names[VV5_RECORD_COUNT];
+    static unsigned int ids[VV5_RECORD_COUNT], stable[VV5_RECORD_COUNT];
     const unsigned char *table = (const unsigned char *)VV5_MASK_TABLE;
     int i, slots = vv5_slots();
     out->count = 0;
@@ -880,10 +890,9 @@ static int vv5_om_scan(int slot, vv_om_list *out) {
         || !vv_sidecar_gate_ready(&g_vv5_mask_gate, slot) || vv5_roster_identities(ids, stable) == 0) {
         return -1;
     }
-    vv5_roster_snapshot(names);
     for (i = 0; i < slots; ++i) {
         unsigned char value = (unsigned char)((i & 1) ? (table[i >> 1] >> 4) & 0x0Fu : table[i >> 1] & 0x0Fu);
-        if (vv_om_orphan(value, ids[i] != 0, g_vv5_mask_id[i], g_vv5_mask_id_weak[i] ? names : ids, slots)) {
+        if (vv_om_orphan(value, ids[i] != 0, g_vv5_mask_id[i], ids, slots)) {
             vv_om_add(out, i, value, g_vv5_mask_id[i]);
         }
     }

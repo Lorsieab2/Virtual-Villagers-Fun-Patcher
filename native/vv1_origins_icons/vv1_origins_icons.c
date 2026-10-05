@@ -324,7 +324,6 @@ static int vv1_mask_rewrite_pending;  /* a 'VM01' table waits to be written back
    nobody held, so an entry left on a record that is empty now keeps the
    identity it came with only here.  0 = none (a 'VM01' file has none). */
 static unsigned int vv1_mask_id[VV_MASK_SLOTS];
-static unsigned char vv1_mask_id_weak[VV_MASK_SLOTS];
 
 static unsigned int vv1_mask_identity(const unsigned char *rec) {
     unsigned int h = 2166136261u;
@@ -525,6 +524,22 @@ static int vv1_mask_sidecar_valid(const unsigned char *data, DWORD len,
     return magic == VV_MASK_SIDECAR_MAGIC;
 }
 
+/* The roster the file is written with (orphan_masks.h,
+   vv_om_roster_to_write): who holds each record, and on an empty record
+   whose mask belongs to an identity several villagers carry, that identity.
+   Returns how many records are occupied (0: no village on screen). */
+static int vv1_mask_roster_to_write(unsigned int *out) {
+    static unsigned int live[VV_MASK_SLOTS];
+    static unsigned char value[VV_MASK_SLOTS];
+    int i, n = vv1_mask_live_roster(live);
+    for (i = 0; i < VV_MASK_SLOTS; ++i) {
+        unsigned char packed = VV_MASK_TABLE[i >> 1];
+        value[i] = (unsigned char)((i & 1) ? packed >> 4 : packed & 0x0F);
+    }
+    vv_om_roster_to_write(VV_MASK_SLOTS, live, value, vv1_mask_id, out);
+    return n;
+}
+
 static int vv1_mask_sidecar_save(void) {
     char path[MAX_PATH];
     unsigned int magic = VV_MASK_SIDECAR_MAGIC_V2;
@@ -550,8 +565,9 @@ static int vv1_mask_sidecar_save(void) {
     /* Who holds each record: records do not move during play (only a load
        packs them), so this is the identity every entry belongs to.  With no
        village on screen the identities are not known, and nothing is written
-       that could not be followed. */
-    if (vv1_mask_live_roster(roster) == 0) {
+       that could not be followed.  (An empty record keeps the identity of an
+       ambiguous mask left on it: vv1_mask_roster_to_write.) */
+    if (vv1_mask_roster_to_write(roster) == 0) {
         return 0;
     }
     parts[0] = &magic;
@@ -583,7 +599,7 @@ static void vv1_mask_roster_current(void) {
     for (i = 0; i < VV_MASK_TABLE_BYTES; ++i) {
         any |= VV_MASK_TABLE[i] != 0;
     }
-    if (!any || vv1_mask_live_roster(live) == 0
+    if (!any || vv1_mask_roster_to_write(live) == 0
         || memcmp(live, vv1_mask_written, sizeof(live)) == 0) {
         return;
     }
@@ -621,7 +637,7 @@ static int vv1_mask_follow_loaded(void) {
         }
         vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, vv1_mask_file_roster, live, 0, moved, moved_id);
         memset(vv1_mask_id, 0, sizeof(vv1_mask_id));
-        vv_om_track(VV_MASK_SLOTS, moved, moved_id, 0, vv1_mask_id, vv1_mask_id_weak);
+        vv_om_track(VV_MASK_SLOTS, moved, moved_id, vv1_mask_id);
         memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
         for (i = 0; i < VV_MASK_SLOTS; ++i) {
             VV_MASK_TABLE[i >> 1] |= (unsigned char)((i & 1) ? moved[i] << 4 : moved[i]);
@@ -1784,7 +1800,6 @@ static void vv1_om_put(int index, unsigned char value, unsigned int id) {
     *slot = (index & 1) ? (unsigned char)((*slot & 0x0F) | (value << 4))
                         : (unsigned char)((*slot & 0xF0) | value);
     vv1_mask_id[index] = id;
-    vv1_mask_id_weak[index] = 0;
 }
 
 /* -1 until this slot's masks are loaded and followed onto the village. */

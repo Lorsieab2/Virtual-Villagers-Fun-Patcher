@@ -26,7 +26,10 @@
    An identity that ANY villager carries -- one, or several who cannot be
    told apart -- is never an orphan: that is the "ambiguous: keep" rule.  A
    name-only identity from an older file (The Lost Children 'VM04', New
-   Believers 'VM05'/'VM25') is compared with the villagers' names.
+   Believers 'VM05'/'VM25') is matched by the villagers' names at the load
+   (vv_om_from_names).  So that an ambiguous entry stays one, the roster a
+   roster-keyed file is written with keeps its identity on its empty record
+   (vv_om_roster_to_write).
 
    WHAT REPAIR DOES (vv_om_commit), on the game's own thread, at once (the
    mask file is the companion's own, written whenever the table changes, not
@@ -103,19 +106,58 @@ static void vv_om_add(vv_om_list *list, int index, unsigned char value, unsigned
    (The Lost Children, New Believers, A New Home) loses the identity of an
    entry on a record that empties -- the roster says 0 there -- so the one
    it was stored with is kept here, beside the table.  moved[] / moved_id[]
-   are vv_mask_follow's outputs; `weak` says they are name hashes.  An entry
-   the follow kept on its own record with no identity keeps the one noted
-   for it before. */
-static void vv_om_track(int n, const unsigned char *moved, const unsigned int *moved_id, int weak,
-                        unsigned int *id, unsigned char *id_weak) {
+   are vv_mask_follow's outputs.  An entry the follow kept on its own record
+   with no identity keeps the one noted for it before. */
+static void vv_om_track(int n, const unsigned char *moved, const unsigned int *moved_id, unsigned int *id) {
     int i;
     for (i = 0; i < n; ++i) {
         if (moved[i] == 0) {
             id[i] = 0;
-            id_weak[i] = 0;
         } else if (moved_id[i] != 0) {
             id[i] = moved_id[i];
-            id_weak[i] = (unsigned char)(weak != 0);
+        }
+    }
+}
+
+/* After a load from an older name-only file (The Lost Children 'VM04', New
+   Believers 'VM05' / 'VM25'), whose identities are name hashes: each becomes
+   the full identity of a villager who carries that name (names[] / ids[]:
+   the name hash and the identity of each record, 0 = empty) -- the one the
+   follow put it on, or, for one it could not place, a namesake, so it stays
+   a mask some villager carries and is kept -- or 0 when nobody has the
+   name. */
+static void vv_om_from_names(int n, unsigned int *id, const unsigned int *names, const unsigned int *ids) {
+    int i, j;
+    for (i = 0; i < n; ++i) {
+        unsigned int full = 0;
+        for (j = 0; j < n && id[i] != 0; ++j) {
+            if (names[j] != 0 && names[j] == id[i] && (j == i || full == 0)) {
+                full = ids[j];
+            }
+        }
+        id[i] = full;
+    }
+}
+
+/* The roster a roster-keyed mask file is written with: who holds each
+   record now (`live`, 0 = nobody) -- and, on a record nobody holds whose
+   mask is stored for an identity some villager still CARRIES (several alike,
+   so the follow could not tell whose it was), that identity.  Written as 0
+   it would read as "nobody's" at the next load and be taken for an orphan:
+   the ambiguous entry is kept, load after load, as the rule says.  Only that
+   case: an identity no villager carries is written as 0 as before (written,
+   a namesake born later would be handed the mask), and the record's roster
+   entry only ever says what the load that kept the mask was given.  `value`
+   and `id` are per record. */
+static void vv_om_roster_to_write(int n, const unsigned int *live, const unsigned char *value,
+                                  const unsigned int *id, unsigned int *out) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        out[i] = live[i];
+    }
+    for (i = 0; i < n; ++i) {
+        if (live[i] == 0 && value[i] != 0 && id[i] != 0 && vv_om_carried(live, n, id[i])) {
+            out[i] = id[i];
         }
     }
 }

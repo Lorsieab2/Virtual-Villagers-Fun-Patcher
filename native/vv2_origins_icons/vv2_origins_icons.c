@@ -1708,10 +1708,10 @@ static int vv2_roster_overlap(const unsigned int *a, const unsigned int *b) {
    which only moves a mask DOWN a record.  Returns 1 when the table changed. */
 /* The identity each entry was stored with (orphan_masks.h, vv_om_track):
    the roster says 0 for a record nobody holds, so an entry left on a record
-   that empties keeps the identity it was stored with only here.  A 'VM04'
-   file's are name hashes (g_vv2_mask_id_weak).  Reset by every load. */
+   that empties keeps the identity it was stored with only here.  Reset by
+   every load; a 'VM04' file's name hashes become identities there
+   (vv_om_from_names). */
 static unsigned int g_vv2_mask_id[VV2_RECORD_COUNT];
-static unsigned char g_vv2_mask_id_weak[VV2_RECORD_COUNT];
 /* The record array the per-frame sweep was last handed (0: no village). */
 static unsigned char *g_vv2_sweep_base;
 
@@ -1719,7 +1719,7 @@ static int vv2_mask_follow(const unsigned int *stored, const unsigned int *live,
     static unsigned char moved[VV2_RECORD_COUNT];
     static unsigned int moved_id[VV2_RECORD_COUNT];
     int changed = vv_mask_follow(VV2_RECORD_COUNT, VV2_MASK_TABLE, stored, stored, live, weak, moved, moved_id);
-    vv_om_track(VV2_RECORD_COUNT, moved, moved_id, weak, g_vv2_mask_id, g_vv2_mask_id_weak);
+    vv_om_track(VV2_RECORD_COUNT, moved, moved_id, g_vv2_mask_id);
     if (!changed) {
         return 0;
     }
@@ -1819,6 +1819,7 @@ static int vv2_mask_sidecar_valid(const unsigned char *data, DWORD len,
 static int vv2_mask_sidecar_save(void) {
     char path[MAX_PATH];
     unsigned int m = VV2_MASK_SIDECAR_MAGIC_V6;
+    static unsigned int written_roster[VV2_RECORD_COUNT];
     const void *parts[3];
     DWORD sizes[3];
     if (!vv2_mask_table_ok()) return 0;        /* no .mtab -> nothing to persist */
@@ -1833,7 +1834,10 @@ static int vv2_mask_sidecar_save(void) {
        payload goes to "<path>.tmp", each write is checked, and only a
        complete, flushed file replaces the published one. */
     parts[0] = &m;               sizes[0] = 4;
-    parts[1] = g_vv2_roster;     sizes[1] = sizeof(g_vv2_roster); /* binds the file to its village */
+    /* The roster binds the file to its village; an empty record keeps the
+       identity of an ambiguous mask left on it (vv_om_roster_to_write). */
+    vv_om_roster_to_write(VV2_RECORD_COUNT, g_vv2_roster, VV2_MASK_TABLE, g_vv2_mask_id, written_roster);
+    parts[1] = written_roster;   sizes[1] = sizeof(written_roster);
     parts[2] = VV2_MASK_TABLE;   sizes[2] = VV2_MASK_TABLE_BYTES;
     return vv_sidecar_publish(&g_vv2_mask_gate, path, parts, sizes, 3);
 }
@@ -1868,7 +1872,6 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
     if (vv2_mask_table_ok())
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
     memset(g_vv2_mask_id, 0, sizeof(g_vv2_mask_id));
-    memset(g_vv2_mask_id_weak, 0, sizeof(g_vv2_mask_id_weak));
     g_vv2_rewrite_after_load = 0;
     vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT);
     if (vv_sidecar_gate_throttled(&g_vv2_mask_gate)) return 0; /* retry window: no I/O */
@@ -1930,6 +1933,9 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
             /* Written against the records as they were; a reload has packed
                them since.  Each mask goes to its villager. */
             g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak) || weak;
+            if (weak) {
+                vv_om_from_names(VV2_RECORD_COUNT, g_vv2_mask_id, names, live);
+            }
         }
     }
     return 1;
@@ -2101,8 +2107,7 @@ void __stdcall Vv2MaskSaveSidecar(void) { (void)vv2_mask_sidecar_save(); }
 
 /* ---- The cross-check's orphan mask entries (orphan_masks.h) ---------------
    The table is kept by record and the file by roster: the identity each
-   entry was stored with is g_vv2_mask_id (name hashes from a 'VM04' file,
-   compared with the villagers' names).  An orphan: a mask on a record
+   entry was stored with is g_vv2_mask_id.  An orphan: a mask on a record
    nobody holds whose identity -- none, or one no villager carries -- is no
    villager's.  The record array is the one the sweep last drew. */
 static vv_om_list g_vv2_om_asked;
@@ -2110,12 +2115,11 @@ static vv_om_list g_vv2_om_asked;
 static void vv2_om_put(int index, unsigned char value, unsigned int id) {
     VV2_MASK_TABLE[index] = value;
     g_vv2_mask_id[index] = id;
-    g_vv2_mask_id_weak[index] = 0;
 }
 
 /* -1 until this slot's masks are loaded onto the village on screen. */
 static int vv2_om_scan(int slot, vv_om_list *out) {
-    static unsigned int ids[VV2_RECORD_COUNT], names[VV2_RECORD_COUNT];
+    static unsigned int ids[VV2_RECORD_COUNT];
     const unsigned char *base = g_vv2_sweep_base;
     int i;
     out->count = 0;
@@ -2124,11 +2128,9 @@ static int vv2_om_scan(int slot, vv_om_list *out) {
         || vv2_roster_identities(base, ids) == 0) {
         return -1;
     }
-    vv2_roster_snapshot(base, names);
     for (i = 0; i < VV2_RECORD_COUNT; ++i) {
         unsigned char value = VV2_MASK_TABLE[i];
-        if (vv_om_orphan(value, ids[i] != 0, g_vv2_mask_id[i], g_vv2_mask_id_weak[i] ? names : ids,
-                         VV2_RECORD_COUNT)) {
+        if (vv_om_orphan(value, ids[i] != 0, g_vv2_mask_id[i], ids, VV2_RECORD_COUNT)) {
             vv_om_add(out, i, value, g_vv2_mask_id[i]);
         }
     }

@@ -435,13 +435,20 @@ static void end_modal_over_game(HWND owner) {
    (health <= 0), so a village full of bodies reads as small while its slots
    are nearly all taken. The barrel then spawns fewer children than it charged
    for -- sometimes none. */
+/* Both immediates lie inside the executable's code.  A harness that runs
+   this source in a process of its own (native/shared/orphan_masks_game_harness.c)
+   has its own code there, so it names other addresses before the include. */
+#ifndef VV3_MANAGER_IMM_VA
 #define VV3_MANAGER_IMM_VA   0x4279B4
+#endif
 static UINT_PTR vv3_population_manager(void) {
     return (UINT_PTR)*(volatile unsigned int *)(UINT_PTR)VV3_MANAGER_IMM_VA;
 }
 #define VV3_RECORD_BASE      (vv3_population_manager() + 0x14u)
 #define VV3_RECORD_STRIDE    0x1F8C
+#ifndef VV3_SLOT_BOUND_PTR
 #define VV3_SLOT_BOUND_PTR   0x42883A
+#endif
 #define VV3_OFF_ACTIVE       0xF10
 #define VV3_BARREL_CHILDREN  3
 
@@ -921,7 +928,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
    purchase would change anything (so the payload can refund/skip on a no-op);
    the result reader formats the message from the stored counts. */
 #define VV3_REC_BASE   VV3_RECORD_BASE
-#define VV3_SLOTS_PTR  0x0042883Au
+#define VV3_SLOTS_PTR  VV3_SLOT_BOUND_PTR   /* 0x42883A: the save-state slot bound */
 #define VV3_STRIDE     0x1F8Cu
 #define VV3_ACTIVE     0xF10   /* byte: 0 = empty slot                */
 #define VV3_HEALTH     0xE78   /* int:  <= 0 = not a living villager  */
