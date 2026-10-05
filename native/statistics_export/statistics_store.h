@@ -104,4 +104,18 @@ int vvs_stew_identity(int game_id, int h1, int h2, int h3, int salt);
 /* Read a file's state without changing anything; for the harness. */
 int vvs_probe_file(const wchar_t *path, int game_id, int stews);
 
+/* The first-load reconcile (statistics_reconcile.inc).  The key a counter
+   kind has in this game's file, or NULL. */
+const char *vvs_counter_key(int game_id, int kind);
+/* A counter's value in a counters file (-1 in *value when the file holds no
+   such key); returns the file's VVS_FILE_* state. */
+int vvs_counter_peek(const wchar_t *path, int game_id, const char *key, long long *value);
+/* Raise a counter the file already holds to `to`: 1 raised, 0 already at or
+   above it (never lowered), -1 not read or not written (nothing changed). */
+int vvs_counter_raise(const wchar_t *path, int game_id, const char *key, long long to, long long *was);
+/* The graves the memorial holds now (-1: not reachable), and whether a
+   robed chief lives (The Secret City). */
+int vvs_memorial_graves(const vvs_context *context);
+int vvs_living_chief(const vvs_context *context);
+
 #endif /* VVFP_STATISTICS_STORE_H */

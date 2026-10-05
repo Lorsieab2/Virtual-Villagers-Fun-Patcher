@@ -99,6 +99,7 @@ struct vvfp_cause_stats {
     int backfilled;      /* Death records written from a grave no hook saw */
     int arrivals;        /* Arrived records written for an arrival seen live */
     int arrivals_backfilled;  /* Arrived records written by the backfill */
+    int births_backfilled;    /* Birth records written by the backfill (VV2-VV5) */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -351,6 +352,8 @@ static release_held_fn release_held;
 static vv_record_graves_fn record_graves;
 /* RecordArrivalsMissingFromLog (cod_arrivals.inc). */
 static vv_record_arrivals_fn record_arrivals;
+/* RecordBirthsMissingFromLog (cod_arrivals.inc). */
+static vv_record_births_fn record_births;
 
 /* "VVFP Parentage Export.dll", loaded by full path from the executable's
    folder the first time; absent (the Births and Conceptions row off), no
@@ -375,6 +378,7 @@ static int cod_log_ready(void) {
                 record_graves = (vv_record_graves_fn)GetProcAddress(module, "RecordGravesMissingFromLog");
                 record_arrivals = (vv_record_arrivals_fn)GetProcAddress(module,
                                                                         "RecordArrivalsMissingFromLog");
+                record_births = (vv_record_births_fn)GetProcAddress(module, "RecordBirthsMissingFromLog");
                 if (write_record != NULL) {
                     log_state = 1;
                 }
@@ -623,6 +627,7 @@ static void arrival_save(int slot, int same_village);
 static void arrival_reset(int slot);
 static void arrival_noted_birth(int index);
 static void arrival_backfill_at_save(int slot, const void *save_buffer);
+static void births_backfill_at_save(int slot, const void *save_buffer);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
