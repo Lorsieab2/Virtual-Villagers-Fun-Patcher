@@ -32,7 +32,7 @@ static int g_graves = 0;
 static int g_arrivals = 0;
 static int g_births = 0;
 static int g_stats = 0;
-static char g_stats_lines[512];
+static char g_stats_lines[1536];     /* as large as the bridge's own stats_text */
 static int g_parent_scans, g_scans, g_applies, g_apply_result = 1;
 static int g_have_parentage = 1, g_have_cause = 1, g_have_stats = 1;
 /* The at-the-next-save answers (Repair...) and the right-now repairs (...Now). */
@@ -193,6 +193,15 @@ static void clear_approvals(void) {
     }
 }
 
+/* The box ends by telling the player how to turn the checks off. */
+static const char how_to_stop[] =
+    "this village.\r\n\r\nTo stop these checks, untick 'Check logs automatically' in the "
+    "Virtual Villagers Fun Patcher and patch the game again.";
+static int ends_with_how_to_stop(void) {
+    int len = lstrlenA(g_text), tail = lstrlenA(how_to_stop);
+    return len >= tail && lstrcmpA(g_text + len - tail, how_to_stop) == 0;
+}
+
 static void reset(void) {
     memset(&vvfp_xc, 0, sizeof(vvfp_xc));
     g_now += 100000u;
@@ -312,9 +321,26 @@ int main(void) {
           && strstr(g_text, "\"Not now\" changes nothing") != NULL
           && strstr(g_text, "the next time you close the game after playing this village") != NULL,
           "... and the prompt says plainly what was found and what will happen");
+    check(ends_with_how_to_stop(), "... and it ends by saying how to turn the checks off");
     check(strstr(g_text, "cannot tell apart") == NULL && strstr(g_text, "pregnancy") == NULL,
           "... and says nothing of what was not found");
     check(nothing_repaired(), "Not now: nothing is repaired or passed on");
+
+    /* ---- The fullest box: every finding, huge counts, the longest stats text. ---- */
+    reset();
+    g_parents = 1;
+    for (game = 0; game < 6; ++game) g_counts[game] = 2000000000;
+    g_graves = g_arrivals = g_births = 2000000000; g_stats = 1;
+    memset(g_stats_lines, 'x', sizeof(g_stats_lines) - 3);
+    lstrcpyA(g_stats_lines + sizeof(g_stats_lines) - 4, "!\r\n");
+    play(1, 1, 8000, 16);
+    g_answer = IDNO;
+    vvfp_crosscheck_quit(1, 1);
+    check(g_boxes == 1 && strstr(g_text, "x!\r\n  (The Village Elders and Village Statistics files") != NULL
+          && strstr(g_text, "2000000000 mothers have the wrong father") != NULL
+          && strstr(g_text, "2000000000 villagers were born in the village") != NULL
+          && lstrlenA(g_text) < (int)sizeof(g_text) - 1 && ends_with_how_to_stop(),
+          "the fullest box still holds every finding, the statistics and how to turn the checks off");
 
     reset();
     g_parents = 1; g_counts[0] = 2;

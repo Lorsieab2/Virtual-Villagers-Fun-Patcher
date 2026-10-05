@@ -44,7 +44,7 @@ from vv_fun_patcher import (
 ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = ROOT / "patcher_local_settings.json"
 # The setting beside Check Logs / Repair Logs (STARTUP_LOADER_CHECK_LOGS in
-# vv_fun_patcher.py): off by default, remembered, written into every game the
+# vv_fun_patcher.py): on by default, remembered, written into every game the
 # window creates from then on.
 CHECK_LOGS_LABEL = (
     "Check logs automatically (games created from now on check each village "
@@ -423,9 +423,10 @@ class App(tk.Tk):
             self.exe_var = tk.StringVar()
             self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
             self.output_root_var = tk.StringVar()
-            # "Check logs automatically": OFF by default (owner, 2026-10-05);
-            # a per-install choice, written into each game built from now on.
-            self.check_logs_var = tk.BooleanVar(value=False)
+            # "Check logs automatically": ON by default (owner, 2026-10-05:
+            # "Can you make the check logs automatically default on?"); a
+            # per-install choice, written into each game built from now on.
+            self.check_logs_var = tk.BooleanVar(value=True)
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -1080,8 +1081,11 @@ class App(tk.Tk):
         saved_output_root = data.get("output_root", "")
         if isinstance(saved_output_root, str):
             self.output_root_var.set(saved_output_root)
-        saved_check_logs = data.get("check_logs_automatically", False)
-        self.check_logs_var.set(saved_check_logs is True)
+        # Only a saved False turns it off. A missing key -- a fresh install
+        # (no settings file) or a settings file from v1.35.57 or earlier,
+        # which never had this key -- keeps the ON default.
+        saved_check_logs = data.get("check_logs_automatically", True)
+        self.check_logs_var.set(saved_check_logs is not False)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:

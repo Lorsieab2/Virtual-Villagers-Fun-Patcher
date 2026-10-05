@@ -514,11 +514,22 @@ class GuiTests(unittest.TestCase):
         self.assertIn("finds nothing confirmed wrong", body)
         self.assertNotIn("paused_game", body)
 
-    def test_the_automatic_check_setting_is_off_by_default_remembered_and_built_in(self) -> None:
-        self.assertIn("self.check_logs_var = tk.BooleanVar(value=False)", self.SOURCE)
+    def test_the_automatic_check_setting_is_on_by_default_remembered_and_built_in(self) -> None:
+        # On by default (owner, 2026-10-05); only a saved False turns it off,
+        # so a fresh install or a settings file without the key comes out on.
+        self.assertIn("self.check_logs_var = tk.BooleanVar(value=True)", self.SOURCE)
+        self.assertNotIn("self.check_logs_var = tk.BooleanVar(value=False)", self.SOURCE)
         load = self.SOURCE[self.SOURCE.index("    def _load_settings("):self.SOURCE.index("    def _save_settings(")]
-        self.assertIn('saved_check_logs = data.get("check_logs_automatically", False)', load)
-        self.assertIn("self.check_logs_var.set(saved_check_logs is True)", load)
+        self.assertIn('saved_check_logs = data.get("check_logs_automatically", True)', load)
+        self.assertIn("self.check_logs_var.set(saved_check_logs is not False)", load)
+        self.assertEqual(load.count("self.check_logs_var.set("), 1)
+        # The patch-selection buttons never touch the setting.
+        for method in ("    def _select_all_fun_patches(", "    def _default_fun_patches(",
+                       "    def _owners_default_fun_patches("):
+                start = self.SOURCE.index(method)
+                body = self.SOURCE[start:self.SOURCE.index("\n    def ", start + 1)]
+                self.assertNotIn("check_logs_var", body)
+        self.assertEqual(self.SOURCE.count("self.check_logs_var.set("), 1)
         save = self.SOURCE[self.SOURCE.index("    def _save_settings("):self.SOURCE.index("    def _browse_exe(")]
         self.assertIn('"check_logs_automatically": bool(self.check_logs_var.get()),', save)
         # Beside Check Logs / Repair Logs on both tabs.
