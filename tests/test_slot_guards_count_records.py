@@ -47,6 +47,11 @@ import vv_fun_patcher as vfp  # noqa: E402
 STOCK = ROOT / "research" / "stock-executables"
 EXE = {"vv1": "Virtual Villagers - A New Home.exe", "vv2": "Virtual Villagers - The Lost Children.exe"}
 MODES = ("stock", "collection_progression", "immediate_fixed")
+HAVE_STOCK = all((STOCK / name).is_file() for name in (
+    "Virtual Villagers - A New Home.exe", "Virtual Villagers - The Lost Children.exe",
+    "Virtual Villagers - The Secret City.exe", "Virtual Villagers - The Tree of Life.exe",
+    "Virtual Villagers - New Believers.exe"))
+needs_stock = unittest.skipUnless(HAVE_STOCK, "the stock executables are not in this checkout (research/ is git-ignored)")
 
 ARRAY = 0x10000000            # the villager array (record 0)
 WORLD = 0x30000000            # the world object
@@ -141,6 +146,7 @@ def mother(game: str, index: int = 3) -> int:
     return ARRAY + index * (VV1 if game == "vv1" else VV2)["stride"]
 
 
+@needs_stock
 class VV1Guards(unittest.TestCase):
     CREATE, ROOM = 0x43C350, 0x43A1A0
 
@@ -250,6 +256,7 @@ class VV1Guards(unittest.TestCase):
                 self.assertEqual(m.reg(UC_X86_REG_EAX) & 0xFF, expect, (occupied, room))
 
 
+@needs_stock
 class VV2Guards(unittest.TestCase):
     EVENT, COPY, BIRTH, ROOM = 0x44F580, 0x44CEC0, 0x44F5C0, 0x44B310
 
@@ -342,6 +349,7 @@ class VV2Guards(unittest.TestCase):
                 self.assertEqual(m.reg(UC_X86_REG_ECX), ARRAY)
 
 
+@needs_stock
 class VV4OriginsBarrel(unittest.TestCase):
     """The Tree of Life's Origins Barrel (scripts/build_vv4_origins_feature.py):
     its purchase gate (0x728C00, three children) and its checks before the
@@ -411,6 +419,7 @@ class VV4OriginsBarrel(unittest.TestCase):
                     self.assertEqual(self.call(uc, va) & 0xFF, 1, f"{va:#x}")
 
 
+@needs_stock
 class VV3OriginsBarrelRecordCheck(unittest.TestCase):
     """The Secret City's Origins Barrel row and purchase preflight
     (native/vv3_full_mastery_candidate, vv3_has_free_villager_slots) ask
@@ -441,6 +450,7 @@ class VV3OriginsBarrelRecordCheck(unittest.TestCase):
         self.assertIn("return demand + wanted <= (int)bound;", body)
 
 
+@needs_stock
 class VV4VV5LitterGuards(unittest.TestCase):
     """The Tree of Life's and New Believers' twin and triplet guards ask the
     demand counter (occupied records plus every pregnant mother's babies),
@@ -603,6 +613,7 @@ def each345(test, games=("vv3", "vv4", "vv5")):
                     yield game, mode, slots
 
 
+@needs_stock
 class VV345RecordGuards(unittest.TestCase):
     def test_a_delivery_waits_until_its_whole_litter_fits(self):
         for game, mode, slots in each345(self):
