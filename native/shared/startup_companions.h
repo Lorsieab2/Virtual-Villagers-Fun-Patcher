@@ -68,4 +68,11 @@ static int vvfp_startup_ships(const char *name) {
     return 0;
 }
 
+/* One install at game start, on its own: a companion that faults inside its
+   install is abandoned (structured exception handling) and the next install
+   still runs, so one faulting add-on never leaves the others unarmed
+   (Codex, #537).  Every call in an Origins companion's VvfpStartup goes
+   through this. */
+#define VVFP_STARTUP_GUARDED(call)     __try { (void)(call); } __except (EXCEPTION_EXECUTE_HANDLER) { }
+
 #endif /* VVFP_STARTUP_COMPANIONS_H */

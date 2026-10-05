@@ -604,5 +604,114 @@ class DeepInstallFolders(unittest.TestCase):
                 self.assertEqual({m.name for m in machine.modules.values()} == set(shipped), starts)
 
 
+
+class AFaultingBridgeNeverStopsTheOthers(AFaultingCompanionNeverStopsTheGame):
+    """Codex (#537): one Origins companion runs many installs in its
+    VvfpStartup.  A fault in one of them (here Builders Fix Huts When Idle,
+    in the middle of A New Home's list) must not leave the installs after it
+    -- Story / Cheat Upgrades and Cause of Death -- unarmed.  Run for real
+    (32-bit) with the SHIPPED VVFP Startup.dll and the SHIPPED A New Home
+    Origins companion; the three companions are stand-ins: Fix Huts faults in
+    its install, Story and Cause of Death record that they were installed."""
+
+    test_a_fault_in_one_companion_skips_only_that_one = None   # the parent's own case runs there
+
+    FIX_HUTS = r"""
+#include <windows.h>
+#pragma comment(linker, "/EXPORT:VvfpFixHutsInstall=_VvfpFixHutsInstall@4")
+int __stdcall VvfpFixHutsInstall(int game) {
+    (void)game;
+    return *(volatile int *)0;
+}
+"""
+    RECORDER = r"""
+#include <windows.h>
+static void note(const char *what) {
+    char path[MAX_PATH];
+    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    HANDLE f;
+    DWORD w;
+    while (n > 0 && path[n - 1] != '\\') { --n; }
+    lstrcpyA(path + n, what);
+    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    if (f != INVALID_HANDLE_VALUE) { WriteFile(f, "1", 1, &w, NULL); CloseHandle(f); }
+}
+"""
+    STORY = RECORDER + r"""
+#pragma comment(linker, "/EXPORT:VvfpStoryInstall=_VvfpStoryInstall@4")
+#pragma comment(linker, "/EXPORT:VvfpStoryArm=_VvfpStoryArm@4")
+#pragma comment(linker, "/EXPORT:VvfpStoryActive=_VvfpStoryActive@4")
+#pragma comment(linker, "/EXPORT:VvfpStoryPickIslandEvent=_VvfpStoryPickIslandEvent@8")
+#pragma comment(linker, "/EXPORT:VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8")
+#pragma comment(linker, "/EXPORT:VvfpStoryAttachHost=_VvfpStoryAttachHost@8")
+int __stdcall VvfpStoryInstall(int g) { (void)g; return 1; }
+int __stdcall VvfpStoryArm(int g) { (void)g; note("story armed.txt"); return 1; }
+int __stdcall VvfpStoryActive(int g) { (void)g; return 1; }
+int __stdcall VvfpStoryPickIslandEvent(int g, HWND w) { (void)g; (void)w; return 0; }
+int __stdcall VvfpStoryCustomIslandEvent(int g, HWND w) { (void)g; (void)w; return 0; }
+int __stdcall VvfpStoryAttachHost(int g, const void *h) { (void)g; (void)h; return 1; }
+"""
+    CAUSE = RECORDER + r"""
+#pragma comment(linker, "/EXPORT:VvfpCauseInstall=_VvfpCauseInstall@8")
+#pragma comment(linker, "/EXPORT:VvfpCauseTick=_VvfpCauseTick@4")
+int __stdcall VvfpCauseInstall(int g, const void *h) { (void)g; (void)h; note("cause installed.txt"); return 1; }
+void __stdcall VvfpCauseTick(int g) { (void)g; }
+"""
+    HOST1 = r"""
+#include <windows.h>
+#include <stdio.h>
+typedef void (__stdcall *startup_fn)(int, unsigned int);
+int main(int argc, char **argv) {
+    char path[MAX_PATH];
+    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    HMODULE m;
+    startup_fn startup;
+    unsigned int shipped = (unsigned int)strtoul(argv[1], NULL, 0);
+    (void)argc;
+    while (n > 0 && path[n - 1] != '\\') { --n; }
+    lstrcpyA(path + n, "VVFP Startup.dll");
+    m = LoadLibraryA(path);
+    startup = m ? (startup_fn)GetProcAddress(m, "VvfpStartup") : NULL;
+    if (!startup) { puts("no loader"); return 2; }
+    startup(1, shipped);
+    puts("survived");
+    return 0;
+}
+"""
+
+    @unittest.skipUnless((TOOLCHAIN / "bin" / "Hostx64" / "x86" / "cl.exe").exists(), "MSVC is not installed")
+    def test_a_fault_in_one_bridge_skips_only_that_one(self):
+        import shutil
+        import subprocess
+        import tempfile
+        index = {name: i for i, name in enumerate(vfp.STARTUP_LOADER_COMPANIONS)}
+        bit = lambda name: 1 << (index[name] + 1)   # noqa: E731
+        shipped = 1 | bit("VVFP Fix Huts.dll") | bit("VVFP Story Upgrades.dll") | bit("VVFP Cause of Death.dll")
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            self.compile(folder, self.FIX_HUTS, "VVFP Fix Huts.dll", True)
+            self.compile(folder, self.STORY, "VVFP Story Upgrades.dll", True)
+            self.compile(folder, self.CAUSE, "VVFP Cause of Death.dll", True)
+            self.compile(folder, self.HOST1, "host.exe", False)
+            shutil.copy2(ROOT / vfp.STARTUP_LOADER_COMPANION["source"], folder / vfp.STARTUP_LOADER_DLL)
+            shutil.copy2(ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll",
+                         folder / "VVFP VV1 Origins Icons.dll")
+            result = subprocess.run([str(folder / "host.exe"), hex(shipped)], capture_output=True,
+                                    text=True, timeout=60)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("survived", result.stdout)
+            # The installs after the faulting one still ran.
+            self.assertTrue((folder / "story armed.txt").is_file())
+            self.assertTrue((folder / "cause installed.txt").is_file())
+            # Control: Fix Huts really is reached and really faults -- with
+            # its bit off nothing faults, and the others are armed the same.
+            for f in ("story armed.txt", "cause installed.txt"):
+                (folder / f).unlink()
+            result = subprocess.run([str(folder / "host.exe"), hex(shipped & ~bit("VVFP Fix Huts.dll"))],
+                                    capture_output=True, text=True, timeout=60)
+            self.assertEqual(result.returncode, 0)
+            self.assertTrue((folder / "cause installed.txt").is_file())
+
+
 if __name__ == "__main__":
     unittest.main()

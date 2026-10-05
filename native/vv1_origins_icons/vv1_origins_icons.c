@@ -1826,16 +1826,16 @@ void __stdcall Vv1MaskTick(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
-    (void)vv1_numkeys_resolve();     /* loaded; the event watch waits for the first frame */
-    vvfp_pathfinding_bridge(1);
-    vv1_watering_bridge();
-    vvfp_fix_huts_bridge(1);         /* loads and installs Builders and Healers Work First too */
-    vvfp_lesson_cap_bridge(1);
-    vvfp_healers_study_bridge(1);
-    (void)vvfp_story_startup(1);
-    (void)vvfp_cause_install_once(1);
-    (void)vv1_parentage_resolve();   /* loaded; its tick waits for the first frame */
-    (void)vv1_sort_resolve();
+    VVFP_STARTUP_GUARDED(vv1_numkeys_resolve());     /* loaded; the event watch waits for the first frame */
+    VVFP_STARTUP_GUARDED(vvfp_pathfinding_bridge(1));
+    VVFP_STARTUP_GUARDED(vv1_watering_bridge());
+    VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge(1));         /* loads and installs Builders and Healers Work First too */
+    VVFP_STARTUP_GUARDED(vvfp_lesson_cap_bridge(1));
+    VVFP_STARTUP_GUARDED(vvfp_healers_study_bridge(1));
+    VVFP_STARTUP_GUARDED(vvfp_story_startup(1));
+    VVFP_STARTUP_GUARDED(vvfp_cause_install_once(1));
+    VVFP_STARTUP_GUARDED(vv1_parentage_resolve());   /* loaded; its tick waits for the first frame */
+    VVFP_STARTUP_GUARDED(vv1_sort_resolve());
 }
 #endif
 

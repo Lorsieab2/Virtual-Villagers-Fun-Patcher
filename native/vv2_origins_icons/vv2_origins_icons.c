@@ -2244,12 +2244,12 @@ done:
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
-    vvfp_pathfinding_bridge(2);
-    vvfp_fix_huts_bridge(2);         /* loads and installs Builders and Healers Work First too */
-    vvfp_lesson_cap_bridge(2);
-    vvfp_healers_study_bridge(2);
-    (void)vvfp_story_startup(2);
-    (void)vvfp_cause_install_once(2);
+    VVFP_STARTUP_GUARDED(vvfp_pathfinding_bridge(2));
+    VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge(2));         /* loads and installs Builders and Healers Work First too */
+    VVFP_STARTUP_GUARDED(vvfp_lesson_cap_bridge(2));
+    VVFP_STARTUP_GUARDED(vvfp_healers_study_bridge(2));
+    VVFP_STARTUP_GUARDED(vvfp_story_startup(2));
+    VVFP_STARTUP_GUARDED(vvfp_cause_install_once(2));
 }
 
 /* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\

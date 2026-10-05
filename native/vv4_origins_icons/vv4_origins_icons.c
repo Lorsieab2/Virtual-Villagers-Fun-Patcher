@@ -1121,9 +1121,9 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
-    vvfp_fix_huts_bridge();          /* loads and installs Builders and Healers Work First too */
-    (void)vvfp_story_startup(4);
-    (void)vvfp_cause_install_once(4);
+    VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
+    VVFP_STARTUP_GUARDED(vvfp_story_startup(4));
+    VVFP_STARTUP_GUARDED(vvfp_cause_install_once(4));
 }
 
 void __stdcall Vv4MaskCacheSurface(void *surface) {

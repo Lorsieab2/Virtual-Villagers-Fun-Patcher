@@ -1631,8 +1631,8 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
-    (void)vvfp_story_startup(3);
-    (void)vvfp_cause_install_once(3);
+    VVFP_STARTUP_GUARDED(vvfp_story_startup(3));
+    VVFP_STARTUP_GUARDED(vvfp_cause_install_once(3));
 }
 
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(

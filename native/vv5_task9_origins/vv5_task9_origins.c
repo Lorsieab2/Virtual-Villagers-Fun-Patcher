@@ -773,9 +773,9 @@ __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
-    vvfp_fix_huts_bridge();          /* loads and installs Builders and Healers Work First too */
-    (void)vvfp_story_startup(5);
-    (void)vvfp_cause_install_once(5);
+    VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
+    VVFP_STARTUP_GUARDED(vvfp_story_startup(5));
+    VVFP_STARTUP_GUARDED(vvfp_cause_install_once(5));
 }
 
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
