@@ -586,9 +586,11 @@ __declspec(naked) static void oc_rand_stub(void) {
    opens the event's apply with the clicked choice; for the Gong of Wonder's
    use, opens the armed gong outcome), returning lowers it (and ends the
    armed outcome after the apply / the use).  The original return address is
-   kept on a small stack of our own. */
+   kept on a small stack of our own, with the stack slot it was taken from
+   (VvfpStoryCallerReturn). */
 #define OC_RETURN_DEPTH 16
 static unsigned int oc_returns[OC_RETURN_DEPTH];
+static unsigned int oc_return_slot[OC_RETURN_DEPTH];
 static int oc_return_scope[OC_RETURN_DEPTH];
 static int oc_return_top;
 static unsigned int oc_jump;
@@ -617,6 +619,7 @@ static unsigned int oc_scope_enter(const unsigned int *regs) {
             }
             if (oc_return_top < OC_RETURN_DEPTH) {
                 oc_returns[oc_return_top] = ret;
+                oc_return_slot[oc_return_top] = (unsigned int)(uintptr_t)&regs[8];
                 oc_return_scope[oc_return_top] = game * 1024 + i;
                 ++oc_return_top;
             }
@@ -722,6 +725,25 @@ __declspec(naked) static void oc_scope_stub(void) {
         popad
         jmp dword ptr [oc_jump]
     }
+}
+
+/* "VVFP Cause of Death.dll" reads return addresses at fixed places in the
+   stack to tell how a villager came (cod_arrival_sites.inc), and some of
+   them are scope calls' (The Secret City's barrels and canoe, A New Home's
+   Mysterious Face): while such a call runs, its slot holds oc_scope_back.
+   VvfpStoryCallerReturn(slot) is the game's own return address a scope
+   call in progress took from the stack slot at `slot`; 0 when no scope call
+   in progress took it.  (The owner's v1.35.58 live pass: The Secret City's
+   picked barrels and canoe were "How: unknown".) */
+__declspec(dllexport) unsigned int __stdcall VvfpStoryCallerReturn(unsigned int slot) {
+    int i;
+    for (i = oc_return_top - 1; i >= 0; --i) {
+        if (oc_return_slot[i] == slot && mem_readable(slot, 4)
+            && read_u32(slot) == (unsigned int)(uintptr_t)oc_scope_back) {
+            return oc_returns[i];
+        }
+    }
+    return 0;
 }
 
 /* ---- Installing -------------------------------------------------------------

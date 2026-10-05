@@ -9,3 +9,4 @@ EXPORTS
     VvfpStoryAttachHost=_VvfpStoryAttachHost@8
     VvfpStoryVillageReset=_VvfpStoryVillageReset@8
     VvfpStoryPickGongOutcome=_VvfpStoryPickGongOutcome@8
+    VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
