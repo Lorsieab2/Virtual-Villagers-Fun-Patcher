@@ -1300,6 +1300,18 @@ Clicking the curled vine beneath the on-screen Puzzles button shows a random in-
 - Evidence status: static + in-game verified (tip text and hou.ogg chime confirmed in playtest)
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Devoted Soul Epitaph (`vv5_devoted_soul_epitaph`)
+
+When a Devotee dies and is buried, the epitaph New Believers writes on the grave is chosen at random between "Respected Citizen" and "Devoted Soul", with equal chances. In the stock game every other job already gets one of two epitaphs on a coin flip (a Farmer is "Child of the Earth" or "Nature's Friend", and so on), but a Devotee was always "Respected Citizen", the game's default, which an adult with no skill at all also gets. A villager's job here is the one the grave names: their highest skill. Only Devotees change: the unskilled adult keeps "Respected Citizen", children and villagers with three or more master skills keep their own epitaphs, and every other job keeps its pair. The epitaph is stored in the grave like any other, so it is saved with the village, the player can still edit it, and the Deaths log records it.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Roster of the Dead writer (0x464C70) picks a buried Devotee's epitaph (grave job 5, Devotion the highest skill; an adult not taking the child or Esteemed Elder branch) as rand(100) through the game's own rand (0x403660): under 50 the stock "Respected Citizen" (string 0x305, eEulogyDefault), 50 or over "Devoted Soul" -- the same coin flip, on the same rand, that already gives every other job one of its two epitaphs. Was always "Respected Citizen". "Devoted Soul" (12 characters) is copied into the grave entry's epitaph, char[0x20] at entry +0x38, by the writer's own strncpy at 0x464E28, exactly as a string-table epitaph is; the entry is saved, shown and editable like any other.
+- Explicit non-changes/exclusions: The writer's job dispatch and its five cases (0x464D86..0x464E19, 147 bytes) are recoded in place as one case driven by a table of each job's first string id; the table and the "Devoted Soul" text live in the same bytes and the rest is int3 filler. No code is added outside the routine and no executable space is claimed; the five-entry jump table at 0x464E5C is left as it was, no longer used. Farmer, Parent, Doctor, Scientist and Builder get the same string id for the same rand value as stock; an adult with no skill (job -1) still gets "Respected Citizen" without a rand call, as stock; children ("Curious and Playful" / "Loving and Special"), three-or-more-master villagers ("Esteemed Elder", "Retired Chief") and every other field of the entry are unchanged. The grave dialog's epitaph editing is unchanged: a typed epitaph replaces the pick as in the stock game. The game's string table (Assets/sm.xml) is not changed.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Easier Devotee Training (`vv5_easier_devotee_training`)
 
 Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor. This acts only while you play: time that passes while the game is closed, and Time Warp, run the game's own catch-up, which this patch does not change (Builders and Healers Work First gives devotees their own catch-up boost).
