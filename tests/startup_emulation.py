@@ -103,6 +103,7 @@ class StartupMachine:
         mu.mem_map(STUBS, 0x10000)
         mu.mem_map(KERNEL32_BASE, 0x1000)
         self.kernel32_stubs: dict[str, int] = {}
+        self.load_flags: list[tuple[int, int]] = []
         self.modules: dict[str, Module] = {}
         self._next_base = MODULE_BASE
         self._next_heap = HEAP
@@ -265,6 +266,10 @@ class StartupMachine:
             # exactly as Windows would find the file there (the ANSI API's
             # '?' never matches a real folder name).
             full = text.lower() == (self.files_dir + base_name).lower()
+            if name.startswith("LoadLibraryEx"):
+                # Never a file handle; LOAD_WITH_ALTERED_SEARCH_PATH (8):
+                # anything the DLL imports is looked for beside it first.
+                self.load_flags.append((arg(1), arg(2)))
             if name.startswith("LoadLibrary"):
                 module = self._load(base_name) if full else None
             else:

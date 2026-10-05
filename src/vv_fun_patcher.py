@@ -12369,8 +12369,6 @@ def _route_companion_loads(
     module_handle = _import_slot(image, info, b"kernel32.dll", b"GetModuleHandleA")
     if load_library is None:
         return []
-    if module_handle is None:
-        raise PatcherError("Companion lookups: GetModuleHandleA is not imported.")
     base = info["image_base"]
     call = b"\xFF\x15" + struct.pack("<I", load_library)
     sites: list[dict[str, Any]] = []
@@ -12388,6 +12386,8 @@ def _route_companion_loads(
         at = image.find(call, at + 1)
     if not sites:
         return []
+    if module_handle is None:
+        raise PatcherError("Companion lookups: GetModuleHandleA is not imported.")
     after = b"\xFF\x15" + struct.pack("<I", module_handle)
     for site in sites:
         offset = site["offset"]
@@ -12411,30 +12411,52 @@ def _route_companion_loads(
 
 
 def _require_patcher_files_path_fits(
-    output_folder: Path, fun_patches: list[FunPatch]
+    output_folder: Path,
+    fun_patches: list[FunPatch],
+    output_name: str = "",
+    source_folder: Path | None = None,
 ) -> None:
-    """Refuse an output folder so deep that a companion's path in the
-    patcher's folder would reach Windows' MAX_PATH (260 characters).
+    """Refuse, before anything is written, an output folder so deep that a
+    path the patcher writes would reach Windows' MAX_PATH (260 characters).
 
-    The games are not long-path aware, so Windows would refuse to load such
-    a companion: the build would start, but none of its add-ons would. The
-    loaders fail safe either way (the game always starts); this tells the
-    player before anything is written, so they can choose a shorter folder.
+    Two limits meet here. The games are not long-path aware, so Windows would
+    refuse to load a companion past it: the build would start, but none of
+    its add-ons would (the loaders fail safe either way). And the patcher
+    itself writes through the hidden staging folder
+    (".<name>.staging-<32 hex>", 42 characters longer than the output) and
+    puts the patch log and the transparency log in the patcher's folder, so
+    on a default Windows install a deep enough folder would fail part way
+    through publishing. So every file the build will hold -- the game's own
+    files copied from `source_folder`, the modified executable, every
+    companion, both logs -- is measured in the staging folder and in the
+    output folder. The folder is taken as the player gave it
+    (os.path.abspath, not resolve(): a mapped or subst drive stays the short
+    path the game will see).
     """
-    longest = ""
+    relatives: list[str] = []
     for feature in fun_patches:
         for item in feature.raw.get("companion_files", []):
-            relative = str(_safe_companion_destination(item["destination"]))
-            if len(relative) > len(longest):
-                longest = relative
-    if not longest:
-        return
-    full = str(Path(output_folder).resolve() / longest)
-    if len(full) >= patcher_files.MAX_PATH:
+            relatives.append(str(_safe_companion_destination(item["destination"])))
+    if output_name:
+        relatives.append(output_name)
+        relatives.append(str(Path(*patcher_files.patch_log_relative_path(output_name).parts)))
+    relatives.append(str(Path(*patcher_files.TRANSPARENCY_RELATIVE_PATH.parts)))
+    if source_folder is not None and Path(source_folder).is_dir():
+        for path in Path(source_folder).rglob("*"):
+            if path.is_file():
+                relatives.append(str(path.relative_to(source_folder)))
+    output = Path(os.path.abspath(output_folder))
+    staging = output.parent / f".{output.name}.staging-{'0' * 32}"
+    worst = max(
+        (str(folder / relative) for folder in (output, staging) for relative in relatives),
+        key=len,
+    )
+    if len(worst) >= patcher_files.MAX_PATH:
         raise PatcherError(
-            "The output folder's path is too long for the game to load the patcher's "
-            f"add-ons ({len(full)} characters for {longest}; Windows allows "
-            f"{patcher_files.MAX_PATH - 1}). Choose an output folder with a shorter path."
+            "The output folder's path is too long: the patched game would need a path "
+            f"of {len(worst)} characters ({worst}), and Windows allows "
+            f"{patcher_files.MAX_PATH - 1}. Nothing was written. Choose an output "
+            "folder with a shorter path."
         )
 
 
@@ -12516,7 +12538,7 @@ def apply_patch(
     output = output_folder / output_name
     if output_folder.exists() and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
-    _require_patcher_files_path_fits(output_folder, fun_patches)
+    _require_patcher_files_path_fits(output_folder, fun_patches, output_name, source.parent)
     destination_precondition = _capture_tree_snapshot(output_folder)
     patched, applied = render_patched_bytes(
         source,

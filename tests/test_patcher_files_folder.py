@@ -28,6 +28,7 @@ its reason). Pinned here:
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -345,17 +346,38 @@ class ASourceFolderWithLooseCopies(unittest.TestCase):
 class ATooDeepOutputFolder(unittest.TestCase):
 
     def test_the_boundary(self):
+        """The longest path the build writes is measured in the hidden
+        staging folder (42 characters longer than the output) -- here the
+        patch log in the patcher's folder, which is longer than any DLL."""
         features = vfp._attach_automatic_companions(
             "vv1", vfp._selected_fun_patches(build_of("vv1"), ["vv1_builders_fix_huts"]))
-        longest = max((str(vfp._safe_companion_destination(i["destination"]))
-                       for f in features for i in f.raw.get("companion_files", [])), key=len)
-        base = Path(tempfile.gettempdir()).resolve()
-        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - len(longest) - 1
+        name = "Virtual Villagers - A New Home - Modded.exe"
+        log = str(Path(*patcher_files.patch_log_relative_path(name).parts))
+        longest_dll = max((str(vfp._safe_companion_destination(i["destination"]))
+                           for f in features for i in f.raw.get("companion_files", [])), key=len)
+        self.assertGreater(len(log), len(longest_dll))
+        base = Path(os.path.abspath(tempfile.gettempdir()))
+        # <base>\<folder>  and  <base>\.<folder>.staging-<32>\<log>
+        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - len(".staging-") - 1 - 32 - 1 - len(log)
         ok = base / ("o" * room)
-        self.assertEqual(len(str(ok / longest)), patcher_files.MAX_PATH - 1)
-        vfp._require_patcher_files_path_fits(ok, features)                     # 259: fits
+        staged = ok.parent / f".{ok.name}.staging-{'0' * 32}" / log
+        self.assertEqual(len(str(staged)), patcher_files.MAX_PATH - 1)
+        vfp._require_patcher_files_path_fits(ok, features, name)                       # 259: fits
         with self.assertRaises(vfp.PatcherError):
-            vfp._require_patcher_files_path_fits(base / ("o" * (room + 1)), features)   # 260
+            vfp._require_patcher_files_path_fits(base / ("o" * (room + 1)), features, name)   # 260
+        # The old check (only <output>\<longest DLL>) passed this folder.
+        self.assertLess(len(str(base / ("o" * (room + 1)) / longest_dll)), patcher_files.MAX_PATH)
+
+    def test_the_games_own_files_count_too(self):
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(holder.cleanup)
+        source = Path(holder.name) / "s"
+        (source / "Sounds" / ("x" * 60)).mkdir(parents=True)
+        (source / "Sounds" / ("x" * 60) / ("y" * 60 + ".ogg")).write_bytes(b"")
+        out = Path(os.path.abspath(tempfile.gettempdir())) / ("o" * 80)
+        vfp._require_patcher_files_path_fits(out, [], "g.exe")                      # without them: fits
+        with self.assertRaises(vfp.PatcherError):
+            vfp._require_patcher_files_path_fits(out, [], "g.exe", source)
 
     def test_nothing_is_written(self):
         game = "vv1"

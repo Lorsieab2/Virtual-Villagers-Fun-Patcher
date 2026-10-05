@@ -265,6 +265,8 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
         # ANSI API (which turns characters outside the code page into '?')
         # is never used to find a companion.
         self.assertEqual([c for c in loads if c[0] != "LoadLibraryExW"], [])
+        self.assertTrue(machine.load_flags)
+        self.assertEqual(set(machine.load_flags), {(0, 8)})     # no file handle; altered search path
         self.assertNotIn("GetModuleFileNameA", [c[0] for c in machine.calls])
         self.assertEqual({m.name.lower() for m in machine.modules.values()},
                          {n.lower() for n in shipped})

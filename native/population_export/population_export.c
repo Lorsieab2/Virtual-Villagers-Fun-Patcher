@@ -751,9 +751,6 @@ static ensure_parentage_log_for_village_t ensure_parentage_log_with_tribe;
 
 static void ensure_parentage_log_for_village(int game_id, const char *village,
                                              const unsigned char *villagers) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
 
     if (village == NULL || village[0] == '\0') {
