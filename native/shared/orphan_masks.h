@@ -87,9 +87,9 @@ static int vv_om_carried(const unsigned int *ids, int n, unsigned int id) {
 
 /* The rule, for one entry: a mask (`value` != 0) on a record nobody holds
    (`held` 0; always 0 where the table is not kept by record) whose stored
-   identity `id` is none, or no villager's in ids[0..n). */
+   identity `id` no villager in ids[0..n) carries -- which none (0) never is. */
 static int vv_om_orphan(unsigned char value, int held, unsigned int id, const unsigned int *ids, int n) {
-    return value != 0 && !held && (id == 0 || !vv_om_carried(ids, n, id));
+    return value != 0 && !held && !vv_om_carried(ids, n, id);
 }
 
 static void vv_om_add(vv_om_list *list, int index, unsigned char value, unsigned int id) {

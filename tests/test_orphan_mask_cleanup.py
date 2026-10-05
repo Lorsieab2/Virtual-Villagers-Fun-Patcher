@@ -126,7 +126,9 @@ class OrphanMaskHarnessTests(unittest.TestCase):
 
     def test_every_case_is_run_in_every_game(self):
         for game, result in self.results.items():
-            for case in CASES + (WEAK_CASES if game in (2, 5) else ()):
+            extra = (WEAK_CASES if game in (2, 5) else ()) + (
+                ("ok   before the follow has run, the scan cannot tell yet",) if game == 4 else ())
+            for case in CASES + extra:
                 with self.subTest(game=game, case=case):
                     self.assertIn(case, result.stdout)
 

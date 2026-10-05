@@ -494,6 +494,15 @@ int main(void) {
 
     printf("== the load ==\n");
     scenario_file();
+#if OM_GAME == 4
+    /* The Tree of Life follows its table on the second sweep that sees the
+       village: until then the entries are still where the file had them. */
+    CHECK(write_file(g_path, g_file, g_file_n), "the mask file is written before the village is followed");
+    g_current_slot = -1;
+    vv_prepare_mask_state();
+    vv_mask_sweep();
+    CHECK(vvfp_xc_masks_scan(game, SLOT) == -1, "before the follow has run, the scan cannot tell yet");
+#endif
     put_file_and_load();
     CHECK(table_is(HAS_BODY ? "1:1 5:3 6:4 7:2 8:5" : "1:1 5:3 6:4 7:2"),
           "the load keeps every entry where it was (nobody moved)");
