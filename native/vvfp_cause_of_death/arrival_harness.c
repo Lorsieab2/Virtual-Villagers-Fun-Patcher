@@ -721,6 +721,13 @@ int main(int argc, char **argv) {
         villager(7, "Ponui", 663, 9, 15, 0);
         CHECK(scan_arrivals(game, 1) == 5, "Ponui, arrived unseen, is found too");
         repair_arrivals(game, 1, 1);
+        /* ...and in the same session, after Repair and before that save, the
+           Custom Island Event makes Okwui (the owner's v1.35.58 preview: he
+           got the backfill's "Recorded afterwards" record AND his own). */
+        villager(20, "Okwui", 100, 19, 19, 0);
+        created(20, 0);
+        arrived_by(game, 20, "Custom Island Event");
+        arrival_tick();
         save_done(1, buffer);
         read_into(path);
         CHECK(has_backfill_record(4, "Huata", 1090, 8, 1, "Founder")
@@ -728,9 +735,17 @@ int main(int argc, char **argv) {
               && has_backfill_record(6, "Dup", 500, 2, 2, "unknown")
               && has_backfill_record(7, "Ponui", 663, 9, 15, "unknown")
               && has_backfill_record(8, "Thabo", 1003, 15, 12, "unknown")
-              && strstr(text, "Arrived 9") == NULL,
+              && strstr(text, "Arrived 10") == NULL,
               "Huata, Silko, the second Dup, Ponui and the other Thabo get Arrived 4-8, in the frozen format;"
               " Huata, in the village's first History snapshot, is a Founder, Silko (later) is not");
+        {
+            const char *okwui = arrived(9, "Okwui");
+            CHECK(count_of(text, "  Name: Okwui\r\n") == 1 && okwui != NULL
+                  && record_has("Okwui", "  Age at arrival: 100\r\n")
+                  && record_has("Okwui", "  How: Custom Island Event\r\n\r\n"),
+                  "a villager who arrives live in the session the backfill runs gets exactly one record,"
+                  " his own (Arrived 9, How: Custom Island Event), never the backfill's as well");
+        }
         {
             /* The record as written, for the reader of the output. */
             const char *h = strstr(text, "Arrived 4\r\n");

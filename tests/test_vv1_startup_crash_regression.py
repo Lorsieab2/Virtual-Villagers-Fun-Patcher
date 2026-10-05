@@ -19,32 +19,35 @@ class VV1StartupCrashRegressionTests(unittest.TestCase):
         game = next(item for item in builds["games"] if item["id"] == "vv1")
         patches = {int(item["offset"], 16): item for item in game["safety_patches"]}
 
-        # The first creation is allowed only with two slots available; the
-        # second is allowed only with one slot available. Both trampolines
-        # route through separate zero-filled caves and retain the stock call
-        # when the preflight succeeds. The count comes from live record flags.
+        # The first creation is allowed only with two records free, the
+        # second only with one. Each stock call becomes a CALL into its own
+        # guard (so the creator still sees the delivery's own return address,
+        # which Cause of Death's birth markers read), and the guard counts
+        # the live record flags. tests/test_slot_guards_count_records.py runs
+        # both guards in an emulator; this pins their shape.
         expected = {
-            0x2EF5F: (0x565E0, 0xFF),
-            0x2EFD0: (0x56840, 0x100),
+            0x2EF5F: 0x56580,
+            0x2EFD0: 0x565C8,
         }
-        for trampoline, (cave, threshold) in expected.items():
+        for trampoline, guard in expected.items():
             with self.subTest(trampoline=hex(trampoline)):
                 row = patches[trampoline]
                 after = bytes.fromhex(row["after"])
                 self.assertEqual(len(after), 5)
-                self.assertEqual(after[0], 0xE9)
+                self.assertEqual(after[0], 0xE8)
                 self.assertEqual(
                     trampoline + 0x400000 + 5 + struct.unpack("<i", after[1:])[0],
-                    cave + 0x400000,
+                    guard + 0x400000,
                 )
-                cave_bytes = bytes.fromhex(patches[cave]["after"])
-                self.assertEqual(cave_bytes[0], 0xE8)
-                self.assertEqual(cave_bytes[5], 0x3D)
-                self.assertEqual(cave_bytes[6:10], threshold.to_bytes(4, "little"))
-                self.assertEqual(cave_bytes[10], 0x73)
+        cave = bytes.fromhex(patches[0x56580]["after"])
+        # call the bounded count (0x456860) first, from both guards
+        for guard in (0x56580, 0x565C8):
+            o = guard - 0x56580 if guard < 0x565B0 else guard - 0x565B0
+            block = cave if guard < 0x565B0 else bytes.fromhex(patches[0x565B0]["after"])
+            self.assertEqual(block[o], 0xE8)
+            self.assertEqual(guard + 0x400000 + 5 + struct.unpack("<i", block[o + 1:o + 5])[0], 0x456860)
 
-        self.assertEqual(bytes.fromhex(patches[0x565E0]["before"]), bytes(32))
-        self.assertEqual(bytes.fromhex(patches[0x56840]["before"]), bytes(32))
+        self.assertEqual(bytes.fromhex(patches[0x56580]["before"]), bytes(len(cave)))
         self.assertEqual(bytes.fromhex(patches[0x56860]["before"]), bytes(32))
         self.assertEqual(
             bytes.fromhex(patches[0x56860]["after"]),

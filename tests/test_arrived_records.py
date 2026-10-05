@@ -31,10 +31,11 @@ TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
 SHARED = ROOT / "native" / "shared"
-# 32 in every game, one more in A New Home (no Show Parents), two more in New
+# 33 in every game (one: a live arrival in the backfill's session gets exactly
+# one record), one more in A New Home (no Show Parents), two more in New
 # Believers (the Heathens); then the Birth records' backfill: 3 in A New Home
 # (nothing to ask about, nothing written), 16 in each later game.
-CHECKS = 32 * 5 + 1 + 2 + 3 + 16 * 4
+CHECKS = 33 * 5 + 1 + 2 + 3 + 16 * 4
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -202,6 +203,46 @@ class ArrivalMarkersAreReturnAddresses(unittest.TestCase):
                 before = pe.get_data(rva - 5, 5)
                 self.assertTrue(before[0] == 0xE8 or before[2:] == bytes([0xFF, 0x52, 0x2C]),
                                 f"VV{game} {value:#x} does not follow a call: {before.hex()}")
+
+
+class ArrivalMarkersHoldInEveryRenderedBuild(unittest.TestCase):
+    """...and in the executable the patcher RENDERS, every population mode (and
+    The Secret City to New Believers' 256 Villagers builds): a guard that
+    called the creator from its own cave left the cave's return address
+    there, so A New Home's birth markers (0x42EF64, 0x42EFD5) never matched in
+    a patched build and its births were told apart only by the Births log's
+    note (the owner's v1.35.58 preview).  Each marker must still follow a call
+    there; tests/test_slot_guards_count_records.py runs the guards and checks
+    the creator sees exactly that address."""
+
+    def test_every_marker_follows_a_call_in_every_render(self):
+        import sys
+        import pefile
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_fun_patcher as vfp
+        builds = {b.id: b for b in vfp.load_builds()}
+        for game in range(1, 6):
+            exe = STOCK / f"Virtual Villagers - {TITLES[game]}.exe"
+            if not exe.is_file():
+                self.skipTest("no stock executables")
+            renders = [(mode, []) for mode in ("stock", "collection_progression", "immediate_fixed")]
+            if game >= 3:
+                renders.append(("immediate_fixed", [f"vv{game}_population_256"]))
+            for mode, features in renders:
+                try:
+                    data, _ = vfp.render_patched_bytes(exe, builds[f"vv{game}"], mode, features)
+                except vfp.PatcherError as error:
+                    self.fail(f"VV{game} {mode} {features}: {error}")
+                pe = pefile.PE(data=bytes(data))
+                for value in marker_values(game):
+                    before = pe.get_data(value - pe.OPTIONAL_HEADER.ImageBase - 6, 6)
+                    with self.subTest(game=game, mode=mode, features=features, marker=hex(value)):
+                        # A call; or a slot guard called from a six-byte
+                        # `push ebx; call <copy>` site, which hands the copy
+                        # creator the address past its nop -- this one.
+                        self.assertTrue(before[1] == 0xE8 or before[3:] == bytes([0xFF, 0x52, 0x2C])
+                                        or (before[0] == 0xE8 and before[5] == 0x90),
+                                        f"{value:#x} does not follow a call: {before.hex()}")
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

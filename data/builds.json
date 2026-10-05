@@ -61,62 +61,86 @@
         {
           "offset": "0x2EF5F",
           "before": "E8ECD30000",
-          "after": "E97C760200",
-          "purpose": "preflight the first creation in VV1's two-villager path so it cannot consume the last slot needed by the second creation"
-        },
-        {
-          "offset": "0x565E0",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E87B0200003DFF000000730AE85F5DFEFFE96E89FDFF83C414E99D89FDFF0000",
-          "purpose": "count occupied VV1 records and skip the first two-villager creation when fewer than two physical slots remain"
+          "after": "E81C760200",
+          "purpose": "the golden-child mother's extra child: through the record guard, the creator returning here"
         },
         {
           "offset": "0x2EFD0",
           "before": "E87BD30000",
-          "after": "E96B780200",
-          "purpose": "preflight the second creation in VV1's two-villager path so a full 256-slot table cannot enter the unbounded stock scan"
+          "after": "E8F3750200",
+          "purpose": "a delivery's first child: through the record guard, the creator returning here"
+        },
+        {
+          "offset": "0x3BC4E",
+          "before": "C7865C03000002000000",
+          "after": "6A02E88BA9010073F590",
+          "purpose": "twins at conception only when the records fit them; otherwise back to the twins roll's own branch (0x43BC4C), whatever that branch is composed to"
+        },
+        {
+          "offset": "0x3BC8C",
+          "before": "C7865C03000003000000",
+          "after": "6A03E84DA9010073F590",
+          "purpose": "triplets at conception only when the records fit them; otherwise back to the triplets roll's own branch (0x43BC8A)"
+        },
+        {
+          "offset": "0x2427B",
+          "before": "C7843994030000C7000000",
+          "after": "E81A2303000F8526010000",
+          "purpose": "the Golden Child puzzle fires only when a record is free: otherwise the drop is answered as when the puzzle is not ready (0x4243AC), and nothing is spent -- the latch, the hour and the pregnancy are kept"
+        },
+        {
+          "offset": "0x2F020",
+          "before": "53E81AD80000",
+          "after": "E88B75020090",
+          "purpose": "the delivery's twin copy through the record guard"
+        },
+        {
+          "offset": "0x2F06C",
+          "before": "53E8CED70000",
+          "after": "E83F75020090",
+          "purpose": "the delivery's triplet copy through the record guard"
+        },
+        {
+          "offset": "0x19700",
+          "before": "E89B0A0200",
+          "after": "E83BD10300",
+          "purpose": "the Mysterious Face asks for a free record too before its newcomer (0x41974A, which the Story companion detours at run time, is left as it is)"
+        },
+        {
+          "offset": "0x56580",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8DB0200003DFF0000007305E9BF5DFEFF5883C414E9018AFDFFE8C102000084E4750BC7843994030000C7000000C3",
+          "purpose": "the golden-child mother's extra child (0x42EF5F) only when two records are free, else the delivery's other child alone (0x42EF9B); the creator returns to 0x42EF64 as in the stock game. Then the Golden Child puzzle's check: the record count, and the puzzle's first write (the mother's +0x394 = 0xC7) only when a record is free -- ZF tells the drop handler which"
+        },
+        {
+          "offset": "0x565B0",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8AB02000084E4750958405350E97E62FEFF58E9E18AFDFFE89302000084E47505E97A5DFEFF5883C414E9CA8AFDFF",
+          "purpose": "a delivery's twin or triplet copy only when a record is free (else the rest of the litter is skipped, 0x42F0A9), returning to the delivery's own next instruction (0x42F026 / 0x42F072); then a delivery's first child only when a record is free, the creator returning to 0x42EFD5 as in the stock game"
+        },
+        {
+          "offset": "0x565E0",
+          "before": "0000000000000000000000000000000000000000000000000000000000",
+          "after": "89F9E8790200008B54240401D03D01010000730689965C030000C20400",
+          "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own singleton or twins branch is taken"
+        },
+        {
+          "offset": "0x56680",
+          "before": "0000000000000000000000000000000000000000",
+          "after": "E8DB01000084E47505E9C25CFEFF83C8FFC21400",
+          "purpose": "an island event's child only when a record is free: the creator with the caller's own return address, else -1 (the callers ignore the index)"
         },
         {
           "offset": "0x56840",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E81B0000003D00010000730AE8FF5AFEFFE97F87FDFF83C414E94B88FDFF0000",
-          "purpose": "count occupied VV1 records and skip the second two-villager creation when all 256 physical slots are occupied"
+          "before": "00000000000000000000000000000000000000000000",
+          "after": "51E85A39FEFF5984C0740AE81000000084E40F94C0C3",
+          "purpose": "the Mysterious Face's newcomer: the game's room predicate, and a free record"
         },
         {
           "offset": "0x56860",
           "before": "0000000000000000000000000000000000000000000000000000000000000000",
           "after": "5131C08D512831C9803A0074014081C2D80300004181F90001000072EB59C300",
           "purpose": "boundedly count occupied VV1 record flags from the manager argument across the 256-slot pool and preserve the caller register"
-        },
-        {
-          "offset": "0x3BC4E",
-          "before": "C7865C03000002000000",
-          "after": "E92DA901009090909090",
-          "purpose": "route twin selection through the 256-slot saturation guard"
-        },
-        {
-          "offset": "0x56580",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8710E0030081B8249E0000000100000F8D3057FEFFC7865C03000002000000E9B356FEFF",
-          "purpose": "allow a second baby only when another villager slot remains"
-        },
-        {
-          "offset": "0x3BC8C",
-          "before": "C7865C03000003000000",
-          "after": "E91FA901009090909090",
-          "purpose": "route triplet selection through the 256-slot saturation guard"
-        },
-        {
-          "offset": "0x565B0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8710E0030081B8249E0000000100000F8DF456FEFFC7865C03000003000000E9C156FEFF",
-          "purpose": "allow a third baby only when another villager slot remains"
-        },
-        {
-          "offset": "0x56680",
-          "before": "00000000000000000000000000000000000000000000000000",
-          "after": "81B9249E0000000100007D05E9BF5CFEFFB8FFFFFFFFC21400",
-          "purpose": "guard event-created villagers one allocation at a time against VV1's 256 physical slots"
         },
         {
           "offset": "0x28263",
@@ -243,46 +267,76 @@
       },
       "safety_patches": [
         {
-          "offset": "0x3BE8E",
-          "before": "E82D370100",
-          "after": "E98D800300",
-          "purpose": "guard singleton pregnancy delivery catch-up before the unbounded 256-slot allocator"
-        },
-        {
-          "offset": "0x73F20",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF83C42CE94A80FCFF",
-          "purpose": "defer singleton pregnancy delivery when all 256 physical villager slots are occupied while preserving the pregnancy marker"
-        },
-        {
           "offset": "0x4BA82",
           "before": "C7864405000002000000",
-          "after": "E9B98102009090909090",
-          "purpose": "route twin selection through the 256-slot saturation guard"
-        },
-        {
-          "offset": "0x73C40",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50091E8141CFBFF663D00010F83827EFDFFC7864405000002000000E9277EFDFF",
-          "purpose": "allow a second baby only when another villager slot remains"
+          "after": "6A02E8E781020073F590",
+          "purpose": "twins at conception only when the records fit them; otherwise back to the twins roll's own branch"
         },
         {
           "offset": "0x4BAB6",
           "before": "C7864405000003000000",
-          "after": "E9B58102009090909090",
-          "purpose": "route triplet selection through the 256-slot saturation guard"
+          "after": "6A03E8B381020073F590",
+          "purpose": "triplets at conception only when the records fit them; otherwise back to the triplets roll's own branch"
+        },
+        {
+          "offset": "0x3BE8E",
+          "before": "E82D370100",
+          "after": "E98D800300",
+          "purpose": "a delivery's first child only when a record is free"
+        },
+        {
+          "offset": "0x3BEDE",
+          "before": "53E8DC0F0100",
+          "after": "E86180030090",
+          "purpose": "the delivery's twin copy through the record guard"
+        },
+        {
+          "offset": "0x3BF2A",
+          "before": "53E8900F0100",
+          "after": "E81580030090",
+          "purpose": "the delivery's triplet copy through the record guard"
+        },
+        {
+          "offset": "0x217DF",
+          "before": "E82C9B0200",
+          "after": "E880270500",
+          "purpose": "The Silver Mirror asks for a free record too before its copy (0x4217F9)"
+        },
+        {
+          "offset": "0x73C40",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "518B89A405030031C08D5130B900010000803A0074014081C28CE400004975F159C3",
+          "purpose": "boundedly count the occupied records (the +0x30 byte; corpses included) across the 256-record pool from the world argument, preserving ecx"
         },
         {
           "offset": "0x73C70",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50091E8E41BFBFF663D00010F83527EFDFFC7864405000003000000E92B7EFDFF",
-          "purpose": "allow a third baby only when another villager slot remains"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8FD474E500E8C5FFFFFF8B54240401D03D010100007306899644050000C20400",
+          "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x73D00",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
-          "purpose": "guard event-created villagers one allocation at a time against VV2's 256 physical slots"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "518B8DA450000085C9741883B9A405030000740FE827FFFFFF5984E47506E95DB8FDFF5983C8FFC21400",
+          "purpose": "an island event's villager only when a record is free: the event wrapper with the caller's own return address, else -1"
+        },
+        {
+          "offset": "0x73F20",
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "608B0EE818FDFFFF84E461750AE88EB6FDFFE95C7FFCFF83C42CE94D80FCFF",
+          "purpose": "defer a delivery (the pregnancy is kept) while every record is occupied"
+        },
+        {
+          "offset": "0x73F44",
+          "before": "00000000000000000000000000000000000000000000000000000000",
+          "after": "518B0EE8F4FCFFFF5984E4750958405350E9668FFDFF58E90780FCFF",
+          "purpose": "a delivery's twin or triplet copy only when a record is free (else the rest of the litter is skipped, 0x43BF67), returning to the delivery's own next instruction"
+        },
+        {
+          "offset": "0x73F64",
+          "before": "000000000000000000000000000000000000000000000000000000000000",
+          "after": "51E8A673FDFF5984C07412518B89D474E500E8C5FCFFFF5984E40F94C0C3",
+          "purpose": "The Silver Mirror's copy: the game's room predicate, and a free record"
         },
         {
           "offset": "0x34102",
@@ -788,11 +842,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x3D483", "before": "7E76", "after": "EB76", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x3D5E0", "before": "7E7C", "after": "EB7C", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x3D72A", "before": "7E19", "after": "EB19", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x3D7F8", "before": "0F8F2EFFFFFF", "after": "909090909090", "purpose": "remove the Healing failure branch and fall through to stock skill gain"},
-        {"offset": "0x3D8AC", "before": "7E77", "after": "EB77", "purpose": "make the Parenting success target unconditional"}
+        {
+          "offset": "0x3D483",
+          "before": "7E76",
+          "after": "EB76",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x3D5E0",
+          "before": "7E7C",
+          "after": "EB7C",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x3D72A",
+          "before": "7E19",
+          "after": "EB19",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x3D7F8",
+          "before": "0F8F2EFFFFFF",
+          "after": "909090909090",
+          "purpose": "remove the Healing failure branch and fall through to stock skill gain"
+        },
+        {
+          "offset": "0x3D8AC",
+          "before": "7E77",
+          "after": "EB77",
+          "purpose": "make the Parenting success target unconditional"
+        }
       ]
     },
     {
@@ -811,11 +890,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x4E1E2", "before": "7E77", "after": "EB77", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x4E37B", "before": "0F8E8D000000", "after": "E98E00000090", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x4E4E2", "before": "7E2D", "after": "EB2D", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x4E5E5", "before": "7E2D", "after": "EB2D", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x4E6EA", "before": "0F8E8C000000", "after": "E98D00000090", "purpose": "make the Parenting success target unconditional"}
+        {
+          "offset": "0x4E1E2",
+          "before": "7E77",
+          "after": "EB77",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x4E37B",
+          "before": "0F8E8D000000",
+          "after": "E98E00000090",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x4E4E2",
+          "before": "7E2D",
+          "after": "EB2D",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x4E5E5",
+          "before": "7E2D",
+          "after": "EB2D",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x4E6EA",
+          "before": "0F8E8C000000",
+          "after": "E98D00000090",
+          "purpose": "make the Parenting success target unconditional"
+        }
       ]
     },
     {
@@ -834,11 +938,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x5A34E", "before": "0F8EBE000000", "after": "E9BF00000090", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x5A4FD", "before": "0F8EB6000000", "after": "E9B700000090", "purpose": "make the Parenting success target unconditional"},
-        {"offset": "0x5A67F", "before": "7E53", "after": "EB53", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x5A799", "before": "7E42", "after": "EB42", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x5A8A3", "before": "0F8EAC000000", "after": "E9AD00000090", "purpose": "make the Researching success target unconditional"}
+        {
+          "offset": "0x5A34E",
+          "before": "0F8EBE000000",
+          "after": "E9BF00000090",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x5A4FD",
+          "before": "0F8EB6000000",
+          "after": "E9B700000090",
+          "purpose": "make the Parenting success target unconditional"
+        },
+        {
+          "offset": "0x5A67F",
+          "before": "7E53",
+          "after": "EB53",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x5A799",
+          "before": "7E42",
+          "after": "EB42",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x5A8A3",
+          "before": "0F8EAC000000",
+          "after": "E9AD00000090",
+          "purpose": "make the Researching success target unconditional"
+        }
       ]
     },
     {
@@ -857,11 +986,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x62B21", "before": "0F8EEB000000", "after": "E9EC00000090", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x62D9F", "before": "0F8EED000000", "after": "E9EE00000090", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x62FAA", "before": "7E73", "after": "EB73", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x63136", "before": "7E5F", "after": "EB5F", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x632AF", "before": "0F8ED2000000", "after": "E9D300000090", "purpose": "make the Parenting success target unconditional"}
+        {
+          "offset": "0x62B21",
+          "before": "0F8EEB000000",
+          "after": "E9EC00000090",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x62D9F",
+          "before": "0F8EED000000",
+          "after": "E9EE00000090",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x62FAA",
+          "before": "7E73",
+          "after": "EB73",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x63136",
+          "before": "7E5F",
+          "after": "EB5F",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x632AF",
+          "before": "0F8ED2000000",
+          "after": "E9D300000090",
+          "purpose": "make the Parenting success target unconditional"
+        }
       ]
     },
     {
@@ -880,12 +1034,42 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x6B311", "before": "0F8EAE000000", "after": "E9AF00000090", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x6B4DD", "before": "0F8E9D000000", "after": "E99E00000090", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x6B6C7", "before": "7E73", "after": "EB73", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x6B853", "before": "7E5F", "after": "EB5F", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x6B9CC", "before": "0F8E95000000", "after": "E99600000090", "purpose": "make the Parenting success target unconditional"},
-        {"offset": "0x6BB7F", "before": "7E5F", "after": "EB5F", "purpose": "make the Devotion success target unconditional"}
+        {
+          "offset": "0x6B311",
+          "before": "0F8EAE000000",
+          "after": "E9AF00000090",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x6B4DD",
+          "before": "0F8E9D000000",
+          "after": "E99E00000090",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x6B6C7",
+          "before": "7E73",
+          "after": "EB73",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x6B853",
+          "before": "7E5F",
+          "after": "EB5F",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x6B9CC",
+          "before": "0F8E95000000",
+          "after": "E99600000090",
+          "purpose": "make the Parenting success target unconditional"
+        },
+        {
+          "offset": "0x6BB7F",
+          "before": "7E5F",
+          "after": "EB5F",
+          "purpose": "make the Devotion success target unconditional"
+        }
       ]
     },
     {
@@ -1652,15 +1836,19 @@
           "offset": "0x5EFC5",
           "before": "E8969BFCFF69DB1C0100005F5EC684186C780000005DB0015BC20400909090909090909090909090909090",
           "after": "81FB96000000730DE88E9BFCFFC684386C780000005F5E5DB0015BC2040090909090909090909090909090",
-          "purpose": "150 villagers, save: 0x45EF80 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x2AD -> 0x200)",
-          "yield_to": {"feature": "vv3_population_256"}
+          "purpose": "150 villagers, save: 0x45EF80 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x2AD -> 0x200)",
+          "yield_to": {
+            "feature": "vv3_population_256"
+          }
         },
         {
           "offset": "0x5C88D",
           "before": "743233F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C010000E8AAC2FCFF8A8C306C78000084C975D05F5EB0015BC2040090909090909090",
           "after": "743933F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C01000081FE68A60000730FE8A2C2FCFF80BC306C7800000075C95F5EB0015BC20400",
-          "purpose": "150 villagers, load: 0x45C860 stops after the 150th saved villager instead of reading past the table into the next block",
-          "yield_to": {"feature": "vv3_population_256"}
+          "purpose": "150 villagers, load: 0x45C860 stops after the 150th saved villager instead of reading past the table into the next block",
+          "yield_to": {
+            "feature": "vv3_population_256"
+          }
         },
         {
           "offset": "0x35710",
@@ -1688,25 +1876,29 @@
       ],
       "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded",
       "patches": [
-        {
-          "offset": "0x660F1",
-          "before": "E87A9DFBFF69DB040100005F5EC6841868C80000005DB0015BC20400CCCCCC",
-          "after": "81FB96000000730DE8729DFBFFC6843868C80000005F5E5DB0015BC20400CC",
-          "purpose": "Save: 0x4660A0 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x250 -> 0x200)",
-          "yield_to": {"feature": "vv4_population_256"}
-        },
-        {
-          "offset": "0x6613D",
-          "before": "743633F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF83C3018BF381C73C2E000069F604010000E8059DFBFF80BC3068C800000075CC5F5EB0015BC20400CCCCCC",
-          "after": "743933F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF81C60401000081FE58980000731581C73C2E0000E8029DFBFF80BC3068C800000075C95F5EB0015BC20400",
-          "purpose": "Load: 0x466110 stops after the 150th saved villager instead of reading past the table into the next block",
-          "yield_to": {"feature": "vv4_population_256"}
-        },
-        {
-          "offset": "0x387A0",
-          "before": "538B5C2408568B33578BF9E8C0FFFFFF3D001000007F4B8BCFE8B2FFFFFF3BF075408D7304B934000000F3A5BFD4000000BE888B4D008B0E33C085C9740F8B018B400C8D141F52FFD085C07C1583C60403F881FEF08B4D007CDC5F5EB0015BC204005F5E32C05BC20400CCCCCCCCCCCC",
-          "after": "538B5C2408568B335789CFE8C0FFFFFF3D001000007F4F39C6741189C130C939CE754380BBFCFEFFFF01753A8D73046A3459F3A5BFD4000000BE888B4D008B0E31C085C9740F8B018B400C8D141F52FFD085C07C1183C60401C781FEF08B4D007CDCB001EB0230C05F5E5BC20400CCCC",
-          "purpose": "Load: the progress block's size check 0x4387A0 also accepts a stored size that differs from the computed size only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game; the redundant second size computation is dropped to make room"
+        {
+          "offset": "0x660F1",
+          "before": "E87A9DFBFF69DB040100005F5EC6841868C80000005DB0015BC20400CCCCCC",
+          "after": "81FB96000000730DE8729DFBFFC6843868C80000005F5E5DB0015BC20400CC",
+          "purpose": "Save: 0x4660A0 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x250 -> 0x200)",
+          "yield_to": {
+            "feature": "vv4_population_256"
+          }
+        },
+        {
+          "offset": "0x6613D",
+          "before": "743633F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF83C3018BF381C73C2E000069F604010000E8059DFBFF80BC3068C800000075CC5F5EB0015BC20400CCCCCC",
+          "after": "743933F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF81C60401000081FE58980000731581C73C2E0000E8029DFBFF80BC3068C800000075C95F5EB0015BC20400",
+          "purpose": "Load: 0x466110 stops after the 150th saved villager instead of reading past the table into the next block",
+          "yield_to": {
+            "feature": "vv4_population_256"
+          }
+        },
+        {
+          "offset": "0x387A0",
+          "before": "538B5C2408568B33578BF9E8C0FFFFFF3D001000007F4B8BCFE8B2FFFFFF3BF075408D7304B934000000F3A5BFD4000000BE888B4D008B0E33C085C9740F8B018B400C8D141F52FFD085C07C1583C60403F881FEF08B4D007CDC5F5EB0015BC204005F5E32C05BC20400CCCCCCCCCCCC",
+          "after": "538B5C2408568B335789CFE8C0FFFFFF3D001000007F4F39C6741189C130C939CE754380BBFCFEFFFF01753A8D73046A3459F3A5BFD4000000BE888B4D008B0E31C085C9740F8B018B400C8D141F52FFD085C07C1183C60401C781FEF08B4D007CDCB001EB0230C05F5E5BC20400CCCC",
+          "purpose": "Load: the progress block's size check 0x4387A0 also accepts a stored size that differs from the computed size only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game; the redundant second size computation is dropped to make room"
         }
       ]
     },
