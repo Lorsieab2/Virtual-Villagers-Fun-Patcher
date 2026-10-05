@@ -342,5 +342,74 @@ class VV2Guards(unittest.TestCase):
                 self.assertEqual(m.reg(UC_X86_REG_ECX), ARRAY)
 
 
+class VV4OriginsBarrel(unittest.TestCase):
+    """The Tree of Life's Origins Barrel (scripts/build_vv4_origins_feature.py):
+    its purchase gate (0x728C00, three children) and its checks before the
+    second and third child (0x728B40 / 0x728B60, the purchased-barrel flag
+    set) count the records' demand -- every occupied record, corpses and
+    ghosts included, plus each pregnant mother's babies -- with the slot
+    layer's counter 0x4890F0, never the population counter 0x467610, which
+    skips corpses: the purchase could be charged and deliver nothing, or its
+    children take the records pending babies need.  Run in the render with
+    every public VV4 patch, both table sizes."""
+
+    TABLE = {150: 0x50E5AC, 256: 0x800044}
+    STRIDE = 0x2E3C
+
+    def render(self, extra):
+        build = next(b for b in vfp.load_builds() if b.id == "vv4")
+        feats = [f.id for f in vfp.load_public_fun_patches()
+                 if f.raw.get("game_id") == "vv4" and f.id != "vv4_population_256"] + extra
+        data, _ = vfp.render_patched_bytes(STOCK / "Virtual Villagers - The Tree of Life.exe", build,
+                                           "immediate_fixed", feats)
+        return pefile.PE(data=bytes(data))
+
+    def machine(self, pe, slots, living, corpses, pending):
+        uc = Uc(UC_ARCH_X86, UC_MODE_32)
+        for section in pe.sections:
+            va = 0x400000 + section.VirtualAddress
+            size = (max(section.Misc_VirtualSize, section.SizeOfRawData) + 0xFFF) & ~0xFFF
+            uc.mem_map(va, size)
+            uc.mem_write(va, section.get_data()[:size])
+        uc.mem_map(STACK, 0x10000)
+        uc.mem_map(SENTINEL & ~0xFFF, 0x1000)
+        table = self.TABLE[slots]
+        for i in range(living + corpses):
+            rec = table + i * self.STRIDE
+            uc.mem_write(rec + 0x1CC4, b"\x01")
+            uc.mem_write(rec + 0x1C40, struct.pack("<i", 50 if i < living else 0))
+        for i in range(pending):
+            rec = table + i * self.STRIDE
+            uc.mem_write(rec + 0x1C4C, struct.pack("<I", 300))
+            uc.mem_write(rec + 0x1C50, struct.pack("<I", 1))
+        return uc
+
+    def call(self, uc, va):
+        uc.reg_write(UC_X86_REG_ESP, STACK_TOP)
+        uc.mem_write(STACK_TOP, struct.pack("<I", SENTINEL))
+        uc.emu_start(va, SENTINEL, count=200000)
+        return uc.reg_read(UC_X86_REG_EAX)
+
+    def test_the_purchase_and_its_children_count_corpses_and_pending_babies(self):
+        for slots, extra in ((150, []), (256, ["vv4_population_256"])):
+            pe = self.render(extra)
+            n = slots - 150
+            with self.subTest(slots=slots):
+                # 140 living, 7 corpses, 2 babies owed: the population says
+                # 142 (three more fit), but 149 records are in demand.
+                uc = self.machine(pe, slots, 140 + n, 7, 2)
+                self.assertEqual(self.call(uc, 0x728C00), 0, "the purchase is refused, nothing charged")
+                uc = self.machine(pe, slots, 138 + n, 7, 2)   # 147 in demand: three fit
+                self.assertEqual(self.call(uc, 0x728C00), 1)
+                # the second and third child of a purchased barrel
+                for va in (0x728B40, 0x728B60):
+                    uc = self.machine(pe, slots, 140 + n, 8, 2)   # 150 in demand
+                    uc.mem_write(0x728B00, b"\x01")
+                    self.assertEqual(self.call(uc, va) & 0xFF, 0, f"{va:#x}: no record left for it")
+                    uc = self.machine(pe, slots, 139 + n, 8, 2)   # 149 in demand
+                    uc.mem_write(0x728B00, b"\x01")
+                    self.assertEqual(self.call(uc, va) & 0xFF, 1, f"{va:#x}")
+
+
 if __name__ == "__main__":
     unittest.main()
