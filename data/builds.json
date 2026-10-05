@@ -61,13 +61,13 @@
         {
           "offset": "0x2EF5F",
           "before": "E8ECD30000",
-          "after": "E81C760200",
-          "purpose": "the golden-child mother's extra child: through the record guard, the creator returning here"
+          "after": "E830760200",
+          "purpose": "the golden-child mother's delivery: through the record guard, the creator returning here"
         },
         {
           "offset": "0x2EFD0",
           "before": "E87BD30000",
-          "after": "E8F3750200",
+          "after": "E8DB750200",
           "purpose": "a delivery's first child: through the record guard, the creator returning here"
         },
         {
@@ -85,44 +85,32 @@
         {
           "offset": "0x2427B",
           "before": "C7843994030000C7000000",
-          "after": "E81A2303000F8526010000",
+          "after": "E8C02503000F8526010000",
           "purpose": "the Golden Child puzzle fires only when a record is free: otherwise the drop is answered as when the puzzle is not ready (0x4243AC), and nothing is spent -- the latch, the hour and the pregnancy are kept"
-        },
-        {
-          "offset": "0x2F020",
-          "before": "53E81AD80000",
-          "after": "E88B75020090",
-          "purpose": "the delivery's twin copy through the record guard"
-        },
-        {
-          "offset": "0x2F06C",
-          "before": "53E8CED70000",
-          "after": "E83F75020090",
-          "purpose": "the delivery's triplet copy through the record guard"
         },
         {
           "offset": "0x19700",
           "before": "E89B0A0200",
-          "after": "E83BD10300",
+          "after": "E8BFCE0300",
           "purpose": "the Mysterious Face asks for a free record too before its newcomer (0x41974A, which the Story companion detours at run time, is left as it is)"
         },
         {
           "offset": "0x56580",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8DB0200003DFF0000007305E9BF5DFEFF5883C414E9018AFDFFE8C102000084E4750BC7843994030000C7000000C3",
-          "purpose": "the golden-child mother's extra child (0x42EF5F) only when two records are free, else the delivery's other child alone (0x42EF9B); the creator returns to 0x42EF64 as in the stock game. Then the Golden Child puzzle's check: the record count, and the puzzle's first write (the mother's +0x394 = 0xC7) only when a record is free -- ZF tells the drop handler which"
+          "after": "E8DB0200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
+          "purpose": "a delivery's record demand: the occupied records plus the extra babies of the mother's litter (+0x35C: 2 twins, 3 triplets); the golden-child mother's delivery only when her two children and the litter fit, else it waits with the pregnancy kept (the arguments dropped, the tick goes on at 0x42F0CE); the creator returns to 0x42EF64 as in the stock game"
         },
         {
           "offset": "0x565B0",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8AB02000084E4750958405350E97E62FEFF58E9E18AFDFFE89302000084E47505E97A5DFEFF5883C414E9CA8AFDFF",
-          "purpose": "a delivery's twin or triplet copy only when a record is free (else the rest of the litter is skipped, 0x42F0A9), returning to the delivery's own next instruction (0x42F026 / 0x42F072); then a delivery's first child only when a record is free, the creator returning to 0x42EFD5 as in the stock game"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C0740AE88C02000084E40F94C0C3",
+          "purpose": "any other delivery only when its child and the litter fit, else it waits; the creator returns to 0x42EFD5 as in the stock game. Then the Mysterious Face's room question: the game's room predicate, and a free record"
         },
         {
           "offset": "0x565E0",
           "before": "0000000000000000000000000000000000000000000000000000000000",
           "after": "89F9E8790200008B54240401D03D01010000730689965C030000C20400",
-          "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own singleton or twins branch is taken"
+          "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x56680",
@@ -132,9 +120,9 @@
         },
         {
           "offset": "0x56840",
-          "before": "00000000000000000000000000000000000000000000",
-          "after": "51E85A39FEFF5984C0740AE81000000084E40F94C0C3",
-          "purpose": "the Mysterious Face's newcomer: the game's room predicate, and a free record"
+          "before": "000000000000000000000000000000000000000000",
+          "after": "E81B00000084E4750BC7843994030000C7000000C3",
+          "purpose": "the Golden Child puzzle's check: the record count, and the puzzle's first write (the mother's +0x394 = 0xC7) only when a record is free -- ZF tells the drop handler which"
         },
         {
           "offset": "0x56860",
@@ -282,19 +270,7 @@
           "offset": "0x3BE8E",
           "before": "E82D370100",
           "after": "E98D800300",
-          "purpose": "a delivery's first child only when a record is free"
-        },
-        {
-          "offset": "0x3BEDE",
-          "before": "53E8DC0F0100",
-          "after": "E86180030090",
-          "purpose": "the delivery's twin copy through the record guard"
-        },
-        {
-          "offset": "0x3BF2A",
-          "before": "53E8900F0100",
-          "after": "E81580030090",
-          "purpose": "the delivery's triplet copy through the record guard"
+          "purpose": "a delivery only when its whole litter fits in the records"
         },
         {
           "offset": "0x217DF",
@@ -334,15 +310,9 @@
         },
         {
           "offset": "0x73F20",
-          "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "608B0EE818FDFFFF84E461750AE88EB6FDFFE95C7FFCFF83C42CE94D80FCFF",
-          "purpose": "defer a delivery (the pregnancy is kept) while every record is occupied"
-        },
-        {
-          "offset": "0x73F44",
-          "before": "00000000000000000000000000000000000000000000000000000000",
-          "after": "518B0EE8F4FCFFFF5984E4750958405350E9668FFDFF58E90780FCFF",
-          "purpose": "a delivery's twin or triplet copy only when a record is free (else the rest of the litter is skipped, 0x43BF67), returning to the delivery's own next instruction"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "608B0EE818FDFFFF8B56048B943A4405000085D274014A01D03DFF00000061770AE87AB6FDFFE9487FFCFF83C42CE93980FCFF",
+          "purpose": "a delivery only when its child and the litter's extra babies (+0x544) fit in the records, else it waits with the pregnancy kept (the twin and triplet copies then always find their record)"
         },
         {
           "offset": "0x73F64",

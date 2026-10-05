@@ -19,35 +19,37 @@ class VV1StartupCrashRegressionTests(unittest.TestCase):
         game = next(item for item in builds["games"] if item["id"] == "vv1")
         patches = {int(item["offset"], 16): item for item in game["safety_patches"]}
 
-        # The first creation is allowed only with two records free, the
-        # second only with one. Each stock call becomes a CALL into its own
-        # guard (so the creator still sees the delivery's own return address,
-        # which Cause of Death's birth markers read), and the guard counts
-        # the live record flags. tests/test_slot_guards_count_records.py runs
-        # both guards in an emulator; this pins their shape.
+        # A delivery creates only when its whole litter fits in the records
+        # (the golden-child mother's: her Golden Child too); otherwise it
+        # waits with the pregnancy kept. Each stock call becomes a CALL into
+        # its own guard (so the creator still sees the delivery's own return
+        # address, which Cause of Death's birth markers read); both guards
+        # first ask the record demand at 0x456580, which calls the bounded
+        # count 0x456860. tests/test_slot_guards_count_records.py runs them in
+        # an emulator; this pins their shape.
         expected = {
-            0x2EF5F: 0x56580,
-            0x2EFD0: 0x565C8,
+            0x2EF5F: 0x456594,
+            0x2EFD0: 0x4565B0,
         }
+        cave = {0x456580: bytes.fromhex(patches[0x56580]["after"]),
+                0x4565B0: bytes.fromhex(patches[0x565B0]["after"])}
+
+        def at(va, n):
+            base = 0x456580 if va < 0x4565B0 else 0x4565B0
+            return cave[base][va - base:va - base + n]
+
         for trampoline, guard in expected.items():
             with self.subTest(trampoline=hex(trampoline)):
-                row = patches[trampoline]
-                after = bytes.fromhex(row["after"])
+                after = bytes.fromhex(patches[trampoline]["after"])
                 self.assertEqual(len(after), 5)
                 self.assertEqual(after[0], 0xE8)
-                self.assertEqual(
-                    trampoline + 0x400000 + 5 + struct.unpack("<i", after[1:])[0],
-                    guard + 0x400000,
-                )
-        cave = bytes.fromhex(patches[0x56580]["after"])
-        # call the bounded count (0x456860) first, from both guards
-        for guard in (0x56580, 0x565C8):
-            o = guard - 0x56580 if guard < 0x565B0 else guard - 0x565B0
-            block = cave if guard < 0x565B0 else bytes.fromhex(patches[0x565B0]["after"])
-            self.assertEqual(block[o], 0xE8)
-            self.assertEqual(guard + 0x400000 + 5 + struct.unpack("<i", block[o + 1:o + 5])[0], 0x456860)
+                self.assertEqual(trampoline + 0x400000 + 5 + struct.unpack("<i", after[1:])[0], guard)
+                call = at(guard, 5)
+                self.assertEqual(call[0], 0xE8)
+                self.assertEqual(guard + 5 + struct.unpack("<i", call[1:])[0], 0x456580)
+        demand = at(0x456580, 5)
+        self.assertEqual(0x456580 + 5 + struct.unpack("<i", demand[1:])[0], 0x456860)
 
-        self.assertEqual(bytes.fromhex(patches[0x56580]["before"]), bytes(len(cave)))
         self.assertEqual(bytes.fromhex(patches[0x56860]["before"]), bytes(32))
         self.assertEqual(
             bytes.fromhex(patches[0x56860]["after"]),

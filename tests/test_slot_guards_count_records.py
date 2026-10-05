@@ -142,7 +142,7 @@ def mother(game: str, index: int = 3) -> int:
 
 
 class VV1Guards(unittest.TestCase):
-    CREATE, COPY, ROOM = 0x43C350, 0x43C840, 0x43A1A0
+    CREATE, ROOM = 0x43C350, 0x43A1A0
 
     def each_mode(self):
         for mode in MODES:
@@ -189,36 +189,35 @@ class VV1Guards(unittest.TestCase):
             self.assertEqual(self.litter(mode, 0x43BC4E, 2, 120, babies_made=315), "kept")
             self.assertEqual(self.litter(mode, 0x43BC8C, 3, 120, babies_made=315), "kept")
 
-    def creation(self, mode, site, occupied, ret_expected, skip, args=5, creator=None):
-        creator = creator or self.CREATE
+    def delivery(self, mode, site, occupied, litter):
+        """The delivery's creation at `site` with the mother's litter field
+        (+0x35C: 0 one baby, 2 twins, 3 triplets): created with the stock
+        return address and the caller's arguments, or the delivery waits --
+        its arguments dropped, the tick going on at 0x42F0CE, the pregnancy
+        kept (never 0x42F0A9, where it is cleared)."""
         m = Machine("vv1", mode, occupied, corpses=5)
-        stack = tuple(range(0x100, 0x100 + args))
-        where = m.run(site, {creator: "created", skip: "skipped"},
-                      {UC_X86_REG_ECX: ARRAY, UC_X86_REG_EBX: 77}, stack=stack)
+        mom = 3 * 0x3D8
+        m.uc.mem_write(ARRAY + mom + 0x35C, struct.pack("<I", litter))
+        stack = tuple(range(0x100, 0x105))
+        where = m.run(site, {self.CREATE: "created", 0x42F0CE: "waits", 0x42F0A9: "pregnancy cleared"},
+                      {UC_X86_REG_ECX: ARRAY, UC_X86_REG_EDI: mom}, stack=stack)
         if where == "created":
-            self.assertEqual(m.dword(m.reg(UC_X86_REG_ESP)), ret_expected, "the stock return address")
+            self.assertEqual(m.dword(m.reg(UC_X86_REG_ESP)), site + 5, "the stock return address")
             self.assertEqual(m.reg(UC_X86_REG_ECX), ARRAY)
-            if creator == self.COPY:
-                self.assertEqual(m.dword(m.reg(UC_X86_REG_ESP) + 4), 77, "the copy's argument")
-            else:
-                self.assertEqual(m.reg(UC_X86_REG_ESP) + 4, m.esp0, "the caller's arguments in place")
-        else:
-            self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0 + 4 * args, "arguments dropped, stack balanced")
+            self.assertEqual(m.reg(UC_X86_REG_ESP) + 4, m.esp0, "the caller's arguments in place")
+        elif where == "waits":
+            self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0 + 0x14, "arguments dropped, stack balanced")
         return where
 
-    def test_a_delivery_creates_only_into_a_free_record(self):
+    def test_a_delivery_waits_until_its_whole_litter_fits(self):
         for mode in self.each_mode():
-            self.assertEqual(self.creation(mode, 0x42EFD0, 255, 0x42EFD5, 0x42F0A9), "created")
-            self.assertEqual(self.creation(mode, 0x42EFD0, 256, 0x42EFD5, 0x42F0A9), "skipped")
-            # the golden-child mother's extra child needs two records
-            self.assertEqual(self.creation(mode, 0x42EF5F, 254, 0x42EF64, 0x42EF9B), "created")
-            self.assertEqual(self.creation(mode, 0x42EF5F, 255, 0x42EF64, 0x42EF9B), "skipped")
-            for site in (0x42F020, 0x42F06C):
-                ret = site + 6
-                self.assertEqual(self.creation(mode, site, 255, ret, 0x42F0A9, args=0, creator=self.COPY),
-                                 "created")
-                self.assertEqual(self.creation(mode, site, 256, ret, 0x42F0A9, args=0, creator=self.COPY),
-                                 "skipped")
+            for litter, babies in ((0, 1), (2, 2), (3, 3)):
+                fits = 256 - babies
+                self.assertEqual(self.delivery(mode, 0x42EFD0, fits, litter), "created", litter)
+                self.assertEqual(self.delivery(mode, 0x42EFD0, fits + 1, litter), "waits", litter)
+                # the golden-child mother's delivery: her Golden Child too
+                self.assertEqual(self.delivery(mode, 0x42EF5F, fits - 1, litter), "created", litter)
+                self.assertEqual(self.delivery(mode, 0x42EF5F, fits, litter), "waits", litter)
 
     def test_island_events_create_only_into_a_free_record(self):
         for mode in self.each_mode():
@@ -293,33 +292,23 @@ class VV2Guards(unittest.TestCase):
                     self.assertEqual(m.reg(UC_X86_REG_EAX), 0xFFFFFFFF)
                     self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0 + 4 + 0x14)
 
-    def test_a_delivery_waits_for_a_free_record(self):
+    def test_a_delivery_waits_until_its_whole_litter_fits(self):
         for mode in self.each_mode():
-            for occupied, expect in ((255, "born"), (256, "deferred")):
-                m = Machine("vv2", mode, occupied, corpses=50)
-                m.uc.mem_write(OBJ, struct.pack("<II", WORLD, ARRAY))
-                stack = tuple(range(0x200, 0x200 + 11))
-                where = m.run(0x43BE8E, {self.BIRTH: "born", 0x43BF8C: "deferred"},
-                              {UC_X86_REG_ESI: OBJ, UC_X86_REG_ECX: ARRAY}, stack=stack)
-                self.assertEqual(where, expect)
-                if where == "deferred":
-                    self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0 + 0x2C)
-
-    def test_a_delivery_s_twin_and_triplet_copies_need_a_free_record(self):
-        for mode in self.each_mode():
-            for site in (0x43BEDE, 0x43BF2A):
-                for occupied, expect in ((255, "created"), (256, "skipped")):
+            for litter, babies in ((0, 1), (2, 2), (3, 3)):
+                for occupied, expect in ((256 - babies, "born"), (257 - babies, "waits")):
                     m = Machine("vv2", mode, occupied, corpses=50)
                     m.uc.mem_write(OBJ, struct.pack("<II", WORLD, ARRAY))
-                    where = m.run(site, {self.COPY: "created", 0x43BF67: "skipped"},
-                                  {UC_X86_REG_ESI: OBJ, UC_X86_REG_ECX: ARRAY, UC_X86_REG_EBX: 9})
-                    self.assertEqual(where, expect)
-                    if where == "created":
-                        self.assertEqual(m.dword(m.reg(UC_X86_REG_ESP)), site + 6, "stock return address")
-                        self.assertEqual(m.dword(m.reg(UC_X86_REG_ESP) + 4), 9)
-                        self.assertEqual(m.reg(UC_X86_REG_ECX), ARRAY)
+                    mom = 3 * 0xE48C
+                    m.uc.mem_write(ARRAY + mom + 0x544, struct.pack("<I", litter))
+                    stack = tuple(range(0x200, 0x200 + 11))
+                    where = m.run(0x43BE8E, {self.BIRTH: "born", 0x43BF8C: "waits", 0x43BF67: "cleared"},
+                                  {UC_X86_REG_ESI: OBJ, UC_X86_REG_ECX: ARRAY, UC_X86_REG_EDI: mom},
+                                  stack=stack)
+                    self.assertEqual(where, expect, (litter, occupied))
+                    if where == "waits":
+                        self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0 + 0x2C)
                     else:
-                        self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0)
+                        self.assertEqual(m.reg(UC_X86_REG_EDI), mom, "registers restored")
 
     def test_the_strange_request_and_the_savage_child_are_offered_only_with_a_free_record(self):
         # The two-choice event chooser (0x41F570) runs the rolled event's
