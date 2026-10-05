@@ -35,6 +35,18 @@
               "before": "90909090909090909090",
               "after": "3D00010000EB84909090",
               "purpose": "compare population with 256, then return to original housing branch"
+            },
+            {
+              "offset": "0x2F1EE",
+              "before": "83F85A7C20",
+              "after": "84E4742190",
+              "purpose": "\"maximum sustainable population\" notice (string 315) in the world tick 0x42E900: compare the population with this mode's 256 cap instead of the stock 90 (test ah, ah; jz = population below 256), so the notice no longer fires at 90 while the village can still grow"
+            },
+            {
+              "offset": "0x3DE45",
+              "before": "837C24185A7D3C",
+              "after": "807C241900753C",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x43DAD0: explain the refusal (\"There isn't enough housing!\", \"They're too hungry...\", \"That didn't go too well.\") below this mode's 256 cap instead of only below the stock 90, so pairs between 90 and 255 are no longer refused in silence"
             }
           ]
         },
@@ -53,6 +65,18 @@
               "before": "90909090909090909090",
               "after": "3D00010000EB84909090",
               "purpose": "compare population with 256, then return to original housing branch"
+            },
+            {
+              "offset": "0x2F1EE",
+              "before": "83F85A7C20",
+              "after": "84E4742190",
+              "purpose": "\"maximum sustainable population\" notice (string 315) in the world tick 0x42E900: compare the population with this mode's 256 cap instead of the stock 90 (test ah, ah; jz = population below 256), so the notice no longer fires at 90 while the village can still grow"
+            },
+            {
+              "offset": "0x3DE45",
+              "before": "837C24185A7D3C",
+              "after": "807C241900753C",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x43DAD0: explain the refusal (\"There isn't enough housing!\", \"They're too hungry...\", \"That didn't go too well.\") below this mode's 256 cap instead of only below the stock 90, so pairs between 90 and 255 are no longer refused in silence"
             }
           ]
         }
@@ -225,6 +249,12 @@
               "before": "9090909090909090909090909090",
               "after": "81C7E70000003BEFEBB690909090",
               "purpose": "use base 231 plus the original maximum 25 collection bonus"
+            },
+            {
+              "offset": "0x4FAF9",
+              "before": "837C24185A7D38",
+              "after": "807C2419007538",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x44F610: explain the refusal (\"They're too hungry...\", \"That didn't go too well.\") below this mode's cap (the population predicate 0x44B310 decides, as the 256 bound is never lower than the cap) instead of only below the stock 90, so pairs at 90 or more are no longer refused in silence"
             }
           ]
         },
@@ -237,6 +267,12 @@
               "before": "83FF147505BF19000000",
               "after": "BFA60000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
+            },
+            {
+              "offset": "0x4FAF9",
+              "before": "837C24185A7D38",
+              "after": "807C2419007538",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x44F610: explain the refusal (\"They're too hungry...\", \"That didn't go too well.\") below this mode's cap (the population predicate 0x44B310 decides, as the 256 bound is never lower than the cap) instead of only below the stock 90, so pairs at 90 or more are no longer refused in silence"
             }
           ]
         }
