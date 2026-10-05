@@ -15,8 +15,10 @@ village is being played.
 The owner (2026-10-05): "For the 'repair' popups that appear during gameplay, can you make them appear
 only if the player clicks the 'check logs' and 'repair' button? Or perhaps have a setting in the patcher
 that toggles the automatic check during gameplay. When it is toggled ON, it brings up the repair prompt
-when the game is closed, not while it is running, and only if there's a problem." Both are built, and
-the setting is **off by default**. Nothing is ever shown while a village is being played
+when the game is closed, not while it is running, and only if there's a problem." Both are built.
+Later the same day: "Can you make the check logs automatically default on? (With a message in the prompt
+on how to turn the toggle off)" -- the setting is **on by default**, and the quit-time box ends by saying
+how to turn it off. Nothing is ever shown while a village is being played
 (`native/shared/crosscheck_bridge.h`).
 
 ### "Check logs automatically" (the patcher setting)
@@ -25,14 +27,18 @@ A tick box beside **Check Logs...** / **Repair Logs...** on both tabs of the pat
 like the other settings (`patcher_local_settings.json`). It is a **per-install** choice, made when a game
 is created: the patcher writes it into that game's executable as bit 31 of the word the startup loader
 hands every companion at game start (`STARTUP_LOADER_CHECK_LOGS` in `src/vv_fun_patcher.py`,
-`VVFP_STARTUP_CHECK_LOGS` in `native/shared/startup_companions.h`; the patch log's startup-loader line says
-"Check logs automatically: on"). Changing the box changes the games created from then on; a game already
-created keeps its own setting until it is created again. The command line has
-`--check-logs-automatically` on `dry-run`, `apply`, `dry-run-all` and `apply-all`.
+`VVFP_STARTUP_CHECK_LOGS` in `native/shared/startup_companions.h`; the patch log's startup-loader line ends
+"Check logs automatically: on" or "... off"). Changing the box changes the games created from then on; a
+game already created keeps its own setting until it is created again. A fresh install, or a settings file
+from v1.35.57 or earlier (which never had the key), starts with the box ticked; only a saved untick turns
+it off. Default Patches, Owner's Defaults, Select All Patches and Deselect All Patches choose patches only and
+leave this box as it is. On the command line it is on by default for `dry-run`, `apply`, `dry-run-all`
+and `apply-all`; `--no-check-logs-automatically` turns it off (`--check-logs-automatically` is still
+accepted).
 
-* **Off** (default): nothing is scanned and nothing is asked, ever. Use **Check Logs...** and
+* **Off**: nothing is scanned and nothing is asked, ever. Use **Check Logs...** and
   **Repair Logs...**.
-* **On**: once a village has been on screen for a few seconds after it loads (never during the
+* **On** (default): once a village has been on screen for a few seconds after it loads (never during the
   load-time catch-up), each game's Origins companion scans it silently, reading only. Nothing is shown.
   When the player **closes the game** after playing a village the scan found something in, the game's
   own quit save runs first; right after it, before the game frees anything, the village is scanned
@@ -42,6 +48,12 @@ created keeps its own setting until it is created again. The command line has
   > its save and its logs, and found some it can put right: ... The game has already been saved.
   > Repair them now? "Not now" changes nothing; you will be asked again the next time you close the
   > game after playing this village.
+  >
+  > To stop these checks, untick 'Check logs automatically' in the Virtual Villagers Fun Patcher and
+  > patch the game again.
+
+  The last sentence is the same in all five games (`VVFP_XC_HOW_TO_STOP`): the setting is written into the
+  game when it is patched, so turning it off means unticking the box and patching the game again.
 
   The two buttons read **Repair** and **Not now**.
 

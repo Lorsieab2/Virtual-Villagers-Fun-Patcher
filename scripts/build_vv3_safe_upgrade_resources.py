@@ -68,8 +68,8 @@ FOUNDATION_OUTPUT = (
 # Recertified when the Origins Barrel's free-record check learned to read the
 # active flag as the byte it is and to count the babies pregnant mothers still
 # owe (v1.35.58, the Golden Child audit).
-SOURCE_SHA256 = "8450DC070A4E8056627AD86E9C14EF8050A044BC8533B5EEBE9B9CA3A17EF5F2"
-SOURCE_SIZE = 1917952
+SOURCE_SHA256 = "09FFC4C3DA69829FE05F6CCB8ECF7528B7A268F441086F26E4381F1CED90AD17"
+SOURCE_SIZE = 1918464
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

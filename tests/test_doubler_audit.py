@@ -378,7 +378,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # (a body is never aged).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "7B5DF4633D2DC0A07947A429C73441C671511FBC34B3F5B796C469BCA1DB86AA",
+            "32C7BF19E011116F400BF5FDF572673FB47D73B8F8C56E2452E28D41ABB4285D",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

@@ -7,9 +7,11 @@
    logs' and 'repair' button?  Or perhaps have a setting in the patcher that
    toggles the automatic check during gameplay.  When it is toggled ON, it
    brings up the repair prompt when the game is closed, not while it is
-   running, and only if there's a problem."  Both are built; the setting is
-   off by default.  NOTHING HERE EVER SHOWS ANYTHING WHILE A VILLAGE IS
-   BEING PLAYED.
+   running, and only if there's a problem."  Both are built.  Later the
+   same day: "Can you make the check logs automatically default on? (With a
+   message in the prompt on how to turn the toggle off)" -- the setting is
+   ON by default and the quit-time box ends with how to turn it off.
+   NOTHING HERE EVER SHOWS ANYTHING WHILE A VILLAGE IS BEING PLAYED.
 
    WHAT IS CHECKED AND REPAIRED.  Only what a source of truth confirms wrong
    AND the patcher can put right (docs/first-load-cross-check.md has the full
@@ -46,7 +48,7 @@
 
    TWO WAYS A REPAIR IS ALLOWED.
 
-   1. "Check logs automatically" (the patcher's setting, OFF by default; the
+   1. "Check logs automatically" (the patcher's setting, ON by default; the
       patcher writes it into the executable's startup loader as bit 31 of
       the companion bits, VVFP_STARTUP_CHECK_LOGS).  When it is ON, each
       load of a village is scanned silently once the village has been on
@@ -64,6 +66,10 @@
                  Repairs log, its marker written);
         Not now: nothing is written; the question comes back the next time
                  the player quits after playing that village.
+
+      The box always ends with how to stop these checks (VVFP_XC_HOW_TO_STOP):
+      the setting is written into the game when it is patched, so turning
+      it off means unticking the box and patching the game again.
 
       When it is OFF, nothing is scanned and nothing is asked, ever.
 
@@ -557,6 +563,20 @@ static void vvfp_xc_add(const char *format, int count, const char *one, const ch
     }
 }
 
+/* How the player turns the checks off: the setting is written into the game
+   when it is patched (the owner, 2026-10-05: "With a message in the prompt
+   on how to turn the toggle off"). */
+#define VVFP_XC_HOW_TO_STOP \
+    "To stop these checks, untick 'Check logs automatically' in the Virtual Villagers Fun Patcher " \
+    "and patch the game again."
+#define VVFP_XC_STATS_NOTE \
+    "  (The Village Elders and Village Statistics files are backed up first; every change " \
+    "is listed in the Repairs log.)\r\n"
+#define VVFP_XC_CLOSING \
+    "\r\nThe game has already been saved. Repair them now?\r\n\r\n\"Not now\" changes " \
+    "nothing; you will be asked again the next time you close the game after playing this " \
+    "village.\r\n\r\n" VVFP_XC_HOW_TO_STOP
+
 static void vvfp_xc_compose(void) {
     const int *c = vvfp_xc.counts;
     lstrcpyA(vvfp_xc.text, "Before the game closes: the Fun Patcher checked the records of the village you just "
@@ -590,15 +610,14 @@ static void vvfp_xc_compose(void) {
                     "existed). Their Birth records will be added from the save.\r\n",
                     vvfp_xc.births, "villager was", "villagers were");
     }
-    if (vvfp_xc.stats > 0 && (size_t)lstrlenA(vvfp_xc.text) + (size_t)lstrlenA(vvfp_xc.stats_text) + 400
-                                 < sizeof(vvfp_xc.text)) {
+    /* sizeof counts each terminator: room for the stats lines, their note,
+       the closing text and one terminator, with a byte to spare. */
+    if (vvfp_xc.stats > 0 && (size_t)lstrlenA(vvfp_xc.text) + (size_t)lstrlenA(vvfp_xc.stats_text)
+                                 + sizeof(VVFP_XC_STATS_NOTE) + sizeof(VVFP_XC_CLOSING) < sizeof(vvfp_xc.text)) {
         lstrcatA(vvfp_xc.text, vvfp_xc.stats_text);
-        lstrcatA(vvfp_xc.text, "  (The Village Elders and Village Statistics files are backed up first; every change "
-                               "is listed in the Repairs log.)\r\n");
+        lstrcatA(vvfp_xc.text, VVFP_XC_STATS_NOTE);
     }
-    lstrcatA(vvfp_xc.text, "\r\nThe game has already been saved. Repair them now?\r\n\r\n\"Not now\" changes "
-                           "nothing; you will be asked again the next time you close the game after playing this "
-                           "village.");
+    lstrcatA(vvfp_xc.text, VVFP_XC_CLOSING);
 }
 
 /* ---- At the quit --------------------------------------------------------- */

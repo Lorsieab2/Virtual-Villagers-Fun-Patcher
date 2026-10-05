@@ -231,13 +231,15 @@ class StartupLoaderPlacement(unittest.TestCase):
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
                 self.assertEqual(bin(mask).count("1"), len(shipped) - 1)    # all but the loader
-                block = vfp._startup_loader_block(va, int(game[2]), mask, slots[b"GetModuleFileNameA"],
+                # Check logs automatically is on by default: bit 31 rides with the companion bits.
+                block = vfp._startup_loader_block(va, int(game[2]), mask | vfp.STARTUP_LOADER_CHECK_LOGS,
+                                                  slots[b"GetModuleFileNameA"],
                                                   slots[b"LoadLibraryA"], slots[b"GetProcAddress"], winmain)
                 self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
                 self.assertEqual(pe.get_data(call_va - 0x400000, 5),
                                  b"\xE8" + struct.pack("<i", va + vfp.STARTUP_LOADER_CODE_OFFSET - (call_va + 5)))
 
-    def test_the_check_logs_setting_is_bit_31_and_off_by_default(self):
+    def test_the_check_logs_setting_is_bit_31_and_on_by_default(self):
         self.assertEqual(vfp.STARTUP_LOADER_CHECK_LOGS, 0x80000000)
         header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
         self.assertIn("#define VVFP_STARTUP_CHECK_LOGS 0x80000000u", header)
@@ -263,19 +265,32 @@ class StartupLoaderPlacement(unittest.TestCase):
                 pushed = b"\x68" + struct.pack("<I", mask | (vfp.STARTUP_LOADER_CHECK_LOGS if setting else 0))
                 self.assertIn(pushed, block)
                 record = next(r for r in applied if r.get("owner") == "automatic:startup_loader" and r.get("virtual_address"))
-                self.assertEqual("Check logs automatically: on" in record["purpose"], setting)
-        # The public entry points carry it, off unless asked for.
+                self.assertTrue(record["purpose"].endswith(
+                    "; Check logs automatically: " + ("on" if setting else "off")))
+        # Not asked either way: a published build carries bit 31 (on by default).
+        data, applied = vfp.render_patched_bytes(stock_path("vv2"), build, "collection_progression",
+                                                 list(selection))
+        vfp._finalize_published_bytes(data, build, features, applied)
+        self.assertIn(b"\x68" + struct.pack("<I", mask | vfp.STARTUP_LOADER_CHECK_LOGS), bytes(data))
+        # The public entry points carry it, on unless turned off.
         import inspect
+        for function in (vfp.dry_run, vfp.dry_run_all, vfp.apply_patch, vfp.apply_all,
+                         vfp._finalize_published_bytes, vfp._apply_startup_loader):
+            parameter = inspect.signature(function).parameters["check_logs_automatically"]
+            self.assertIs(parameter.default, True)
         for function in (vfp.dry_run, vfp.dry_run_all, vfp.apply_patch, vfp.apply_all):
             parameter = inspect.signature(function).parameters["check_logs_automatically"]
-            self.assertIs(parameter.default, False)
             self.assertEqual(parameter.kind, inspect.Parameter.KEYWORD_ONLY)
         parser = vfp._parser()
-        for command in ("dry-run", "apply"):
-            args = parser.parse_args([command, "x.exe"])
-            self.assertFalse(args.check_logs_automatically)
-            args = parser.parse_args([command, "x.exe", "--check-logs-automatically"])
-            self.assertTrue(args.check_logs_automatically)
+        for command in ("dry-run", "apply", "dry-run-all", "apply-all"):
+            base = ([command, "x.exe"] if command in ("dry-run", "apply")
+                    else [command] + [arg for game in GAMES for arg in (f"--{game}", "x")])
+            args = parser.parse_args(base)
+            self.assertIs(args.check_logs_automatically, True)
+            args = parser.parse_args(base + ["--check-logs-automatically"])
+            self.assertIs(args.check_logs_automatically, True)
+            args = parser.parse_args(base + ["--no-check-logs-automatically"])
+            self.assertIs(args.check_logs_automatically, False)
 
     def test_every_companion_dll_is_one_the_loader_knows(self):
         source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")

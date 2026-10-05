@@ -814,10 +814,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "408F3B23024F42D94BF9C6917108A0345E91A560D1DB1BC23F54D3C79FE1870C",
-    "map": "503AD03D968BA74A1D311C10220602DEC48C6864D602E9A131F08F4FF2FAB037",
+    "manifest": "F829DE6E6416C5A1003900708B0979BECB0B816972D199B52EC30E55A2DAA9FF",
+    "map": "CBEE633B4209FD724BB4B3BF307DA0C0F21E8E8599A0AF4807168C3E12A921D6",
 }
-VV5_TASK9_DLL_SHA256 = "27A31CC3D2093D38A0D0DACECBED6DB39A4B01E246C2B6BDBFA6FEE5CADB65BC"
+VV5_TASK9_DLL_SHA256 = "92E77EC5DDEF333CDE408AAFE3B84632C6C2104A46EC338134B51359678078FF"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -1861,7 +1861,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "28388FF3F7F4FEB0E51A43070F828B0EB2A6D6E4D4E8339BEAB23FE5A90CA629",
+    "builder": "6394B2BB76E0A2A3A2120BC87D3C161B9AC6800281A82785B47CC20408058E70",
     "task9_builder": "815C8352580C83FB98B3F99A62BF9AFA892F7FA4FB49B9BD8FE3D659C56FAD5B",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -1874,8 +1874,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "514FB77B1A0D007413D25B57CCD7A272D01E500412ECD3F9A8D81B4D1269B7BB",
-        "map": "25DB405D92334C78E9B6FFB1A10C48CD6CFEBF975CFF5BE347FC25D851211094",
+        "manifest": "1C5EA3584E41551901956FC374AA543DBA71182716CBB1220740B93047586404",
+        "map": "490D30FD811927D43D8762A1AF443527048ACF734F3127D32906F7256172E997",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -10037,7 +10037,7 @@ def dry_run(
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
     *,
     playtest_output_root: Path | None = None,
-    check_logs_automatically: bool = False,
+    check_logs_automatically: bool = True,
 ) -> dict[str, Any]:
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     _validate_playtest_feature_channels(
@@ -10090,7 +10090,7 @@ def dry_run_all(
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
     *,
-    check_logs_automatically: bool = False,
+    check_logs_automatically: bool = True,
 ) -> list[dict[str, Any]]:
     _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
@@ -11903,7 +11903,7 @@ STARTUP_LOADER_COMPANIONS = (
     "VVFP Golden Mushroom.dll",
 )
 # Bit 31 of the same word is not a companion: the "Check logs automatically"
-# setting (the patcher window, beside Check Logs / Repair Logs; OFF by
+# setting (the patcher window, beside Check Logs / Repair Logs; ON by
 # default), a per-install choice made when the build is created.  The Origins
 # companions read it (native/shared/crosscheck_bridge.h): when it is set, each
 # village the player plays is checked silently at load, and the player is
@@ -12128,7 +12128,7 @@ def _apply_startup_loader(
     build_id: str,
     fun_patches: list[FunPatch],
     applied: list[dict[str, str]] | None = None,
-    check_logs_automatically: bool = False,
+    check_logs_automatically: bool = True,
 ) -> dict[str, Any] | None:
     """Append .vvfpst and route the C runtime's `call WinMain` through it.
 
@@ -12230,12 +12230,8 @@ def _apply_startup_loader(
         "after": payload.hex().upper(),
         "purpose": (
             "the startup loader: load VVFP Startup.dll by full path and call "
-            "VvfpStartup(game), then the game's own WinMain"
-            + (
-                "; Check logs automatically: on"
-                if check_logs_automatically
-                else ""
-            )
+            "VvfpStartup(game), then the game's own WinMain; Check logs automatically: "
+            + ("on" if check_logs_automatically else "off")
         ),
         "owner": "automatic:startup_loader",
         "virtual_address": f"0x{base + section_rva:X}",
@@ -12259,7 +12255,7 @@ def _finalize_published_bytes(
     build: Build,
     fun_patches: list[FunPatch],
     applied: list[dict[str, str]],
-    check_logs_automatically: bool = False,
+    check_logs_automatically: bool = True,
 ) -> None:
     """What every published build gets after rendering: the executable-name
     crash guard (VV1-VV3), then the game-start loader. The loader goes last,
@@ -12286,7 +12282,7 @@ def apply_patch(
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
     *,
     playtest_output_root: Path | None = None,
-    check_logs_automatically: bool = False,
+    check_logs_automatically: bool = True,
 ) -> tuple[Path, Path]:
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     _validate_playtest_feature_channels(
@@ -12549,7 +12545,7 @@ def apply_all(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
     *,
-    check_logs_automatically: bool = False,
+    check_logs_automatically: bool = True,
 ) -> list[tuple[Path, Path]]:
     _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
@@ -12616,13 +12612,17 @@ def apply_all(
 
 
 def _add_check_logs_arg(parser: argparse.ArgumentParser) -> None:
+    # On by default (the owner, 2026-10-05); --no-check-logs-automatically
+    # turns it off, and --check-logs-automatically is still accepted.
     parser.add_argument(
         "--check-logs-automatically",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
+        default=True,
         help=(
             "check each village's logs silently while it is played and, only "
             "when something is confirmed wrong, ask Repair / Not now when the "
-            "game is closed (off by default)"
+            "game is closed (on by default; --no-check-logs-automatically "
+            "turns it off)"
         ),
     )
 
