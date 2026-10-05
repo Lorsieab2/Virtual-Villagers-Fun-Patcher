@@ -259,7 +259,7 @@ class StartupLoaderPlacement(unittest.TestCase):
                 slots = {i.name: i.address for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
                 block = vfp._startup_loader_block(
                     va, 2, mask | (vfp.STARTUP_LOADER_CHECK_LOGS if setting else 0),
-                    slots[b"GetModuleFileNameA"], slots[b"LoadLibraryA"], slots[b"GetProcAddress"],
+                    slots[b"GetModuleHandleA"], slots[b"GetProcAddress"],
                     vfp.STARTUP_LOADER_WINMAIN_CALL["vv2"][1])
                 self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
                 pushed = b"\x68" + struct.pack("<I", mask | (vfp.STARTUP_LOADER_CHECK_LOGS if setting else 0))
