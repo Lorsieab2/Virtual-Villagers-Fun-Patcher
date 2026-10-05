@@ -278,10 +278,9 @@ UNLOCKED: dict[str, dict[int, dict]] = {
     },
 }
 DEAD_NOTES: dict[str, dict[int, str]] = {
-    "vv1": {1: "Never happens in the original game (its condition always fails); its code and "
-               "text are complete and it works.",
-            (1 << 6) | 5: "Never happens in the original game (its condition always fails); its "
-                          "code and text are complete and it works."},
+    "vv1": {s: "Never happens in the original game (its condition always fails); its code and "
+               "text are complete and it works. With Restore Missing Island Events ticked it also "
+               "happens on its own when the village has stored food." for s in (1, (1 << 6) | 5)},
     "vv2": {s: "Never happens in the original game (its condition always fails); its code and "
                "text are complete and it works." for s in (18, 20, 26)},
     "vv4": {6: "Never happens in the original game (its condition always fails); its code and text "
