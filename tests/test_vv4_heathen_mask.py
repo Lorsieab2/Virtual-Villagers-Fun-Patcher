@@ -201,17 +201,6 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn('lstrcpyA(name, "Village Masks - Save 0.dat");', builder)
         self.assertIn("vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_MASKS, name,", builder)
 
-    def test_render_atlas_path_checks_complete_max_path_budget_before_appending(self) -> None:
-        renderer = self.c.split("static void vv4_mask_render_init(void)", 1)[1].split(
-            "\n}", 1
-        )[0]
-        guard = 'lstrlenA(path) + (int)sizeof("Images\\\\vvfp_mask_atlas.png") > MAX_PATH'
-        self.assertIn(guard, renderer)
-        self.assertLess(
-            renderer.index(guard),
-            renderer.index('lstrcatA(path, "Images\\\\vvfp_mask_atlas.png");'),
-        )
-
     def test_details_has_a_dedicated_vv5_style_three_facing_atlas(self) -> None:
         loader = self.c.split("static void vv_ensure_bighead_atlas(void)", 1)[1].split(
             "/* Head-draw caves call this", 1
@@ -235,7 +224,6 @@ class DllStorageContractTests(unittest.TestCase):
         for signature, table_token in (
             ("static int vv_get_mask(", "g_mask_by_index[idx]"),
             ("static void vv_set_mask(", "g_mask_by_index[idx]"),
-            ("Vv4MaskDraw(int index", "g_mask_by_index[index]"),
         ):
             body = self.c.split(signature, 1)[1].split("\n}", 1)[0]
             self.assertIn("vv_prepare_mask_state();", body, signature)
@@ -338,10 +326,14 @@ class DllStorageContractTests(unittest.TestCase):
                       "Red Mask", "Purple Mask", "Tribal Chief Mask"):
             self.assertIn(label, table)
 
-    def test_render_exports_are_declared(self) -> None:
+    def test_only_the_resolved_mask_exports_are_declared(self) -> None:
         d = DLL_DEF.read_text(encoding="utf-8", errors="replace")
         self.assertIn("Vv4MaskCacheSurface=_Vv4MaskCacheSurface@4 @110", d)
-        self.assertIn("Vv4MaskDrawRecord=_Vv4MaskDrawRecord@20 @112", d)
+        self.assertIn("Vv4MaskGetForRecord=_Vv4MaskGetForRecord@4 @114", d)
+        # The SDL blit exports (@111 Vv4MaskDraw, @112 Vv4MaskDrawRecord) were
+        # never resolved: the masks are drawn through the game's ldwImageGrid.
+        self.assertNotIn("Vv4MaskDraw=", d)
+        self.assertNotIn("Vv4MaskDrawRecord=", d)
 
 
 class OriginsManifestIntegrationTests(unittest.TestCase):
@@ -578,8 +570,11 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
             encoding="utf-8", errors="replace")
         cls.d = DLL_DEF.read_text(encoding="utf-8", errors="replace")
 
-    def test_export_declared(self) -> None:
-        self.assertIn("ShowVv4AppearanceForAll=_ShowVv4AppearanceForAll@0 @113", self.d)
+    def test_chooser_is_internal_not_exported(self) -> None:
+        # Only the Tech dialog's row 13, inside the DLL, opens the chooser; the
+        # executable never resolved ordinal 113, so it is no longer exported.
+        self.assertNotIn("ShowVv4AppearanceForAll", self.d)
+        self.assertIn("static int __stdcall ShowVv4AppearanceForAll(void) {", self.c)
 
     def test_dialog_214_matches_mockup(self) -> None:
         self.assertIn("214 DIALOGEX", self.rc)

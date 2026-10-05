@@ -59,7 +59,7 @@ def function(path: Path, name: str) -> str:
     """The body of a function DEFINITION (never a forward declaration)."""
     source = path.read_text(encoding="utf-8")
     start = re.search(
-        r"^(?:static [a-z ]+|__declspec\(dllexport\) \w+ __stdcall) \*?"
+        r"^(?:static [a-z ]+|(?:__declspec\(dllexport\) )?\w+ __stdcall) \*?"
         + re.escape(name) + r"\([^;{]*\)\s*\{",
         source,
         re.M,

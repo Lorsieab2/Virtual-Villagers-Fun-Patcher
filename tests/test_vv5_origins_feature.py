@@ -23,7 +23,9 @@ from vv_fun_patcher import (
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 MANIFEST = ROOT / "data/vv5_origins_feature.json"
 BUILDER = ROOT / "scripts/build_vv5_origins_feature.py"
-COMPANION = ROOT / "assets/origins/VVFP Origins Icons.dll"
+# VV5 installs the Task9 companion as "VVFP Origins Icons.dll"; the menus and
+# their labels live there.
+COMPANION = ROOT / "data/candidates/VVFP VV5 Task9 Origins Icons.dll"
 FEATURE_ID = "vv5_enable_origins_exclusive_features"
 
 
@@ -617,9 +619,12 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             digest,
             "16891ED0ECF4166941A95993B6196FC22ED1A448306467E1DAC92AC88D8D0F61",
         )
-        self.assertEqual(
-            self.feature["companion_files"][0]["sha256"],
-            "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9",
+        # The base record no longer lists the sourceless legacy
+        # assets/origins/VVFP Origins Icons.dll: the shipped VV5 record is the
+        # Task9 one, which installs its own companion under that name.
+        self.assertNotIn(
+            "assets/origins/VVFP Origins Icons.dll",
+            [item["source"] for item in self.feature["companion_files"]],
         )
 
     def test_composes_with_every_vv5_feature_in_public_modes(self) -> None:

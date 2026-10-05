@@ -17,7 +17,12 @@
    The Lost Children's executable resolves only the ShowVV2* / ApplyVV2* /
    GateVV2* / ConfirmVV2Upgrade / Vv2* names its own source defines (and
    ShowVV2AppearanceForAll by ordinal 100), so building these into its
-   companion would only ship unreachable entries. */
+   companion would only ship unreachable entries.
+   A New Home's exports come only from vv1_origins_icons.def, under the names
+   the executable's stubs pass to GetProcAddress.  Nothing here is
+   __declspec(dllexport): that would add a decorated "_Name@N" twin of each
+   export that nothing resolves.  Vv1MaskApplyDistribution is called only by
+   Change Appearance for All inside this DLL, so it is not exported. */
 #ifndef VV_STORY_GAME
 #define VV_STORY_GAME 1
 #endif
@@ -757,7 +762,7 @@ static void *vv1_portrait_mask_atlas(void) {
    mask (fail-open) rather than drawing garbage. Shares the single cached atlas
    with the Details portrait, so both paths use the same sprite. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) void *__stdcall Vv1GetMaskSprite(void) {
+void *__stdcall Vv1GetMaskSprite(void) {
     return vv1_portrait_mask_atlas();
 }
 #endif
@@ -774,7 +779,7 @@ static void vv1_sort_bridge_draw(void *gameobj, void *record,
                                  void *draw_wrapper, const int *args);        /* likewise */
 
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
+int __stdcall Vv1DrawPortraitMask(void *gameobj,
                                                         void *record,
                                                         void *draw_wrapper,
                                                         const int *args) {
@@ -868,7 +873,7 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
 #define VV_IS_GOLDEN_CHILD(rec) (*(const int *)((rec) + VV_GOLDEN_CHILD_OFFSET) == VV_GOLDEN_CHILD_MARK)
 
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
+static int __stdcall Vv1MaskApplyDistribution(int mode,
                                                              int single_mask) {
     unsigned char *base = VV_MASK_MANAGER;
     int rec_index[VV_MASK_SLOTS];
@@ -956,7 +961,7 @@ __declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
     return nchanged;
 }
 
-__declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
+void __stdcall Vv1MaskRestore(void) {
     vv1_mask_sidecar_load();
 }
 #endif
@@ -1206,7 +1211,7 @@ static int vv1_doubler_retire_sidecar(int slot) {
    because this epilogue cannot tell whether the write succeeded.  It happens
    on the load path, where the marker read back from the .ldw is the proof. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
+int __stdcall Vv1DoublerSave(void *state) {
     (void)state;
     return 0;
 }
@@ -1214,7 +1219,7 @@ __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
 /* Restore the two ownership flags for the current slot.  Returns 1 when a
    valid sidecar was applied.  On any failure the in-memory flags are left
    exactly as the game set them, so a missing sidecar behaves like today. */
-__declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
+int __stdcall Vv1DoublerRestore(void *state) {
     char path[MAX_PATH];
     HANDLE file;
     DWORD got;
@@ -1425,7 +1430,7 @@ static void vv1_numkeys_bridge(void) {
 /* Called by the generated native-update hook.  A missing optional companion
    is a stock-compatible no-op. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall Vv1NumberKeysUpdate(void *screen) {
+int __stdcall Vv1NumberKeysUpdate(void *screen) {
     if (!vv1_numkeys_resolve()) {
         return 0;
     }
@@ -1717,7 +1722,7 @@ static int vv1_sort_resolve(void) {
 /* The executable's Details-arrow stubs (0x44A7FF / 0x44A8B4): the stock
    candidate and the direction; returns the index to select. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall Vv1SortStep(int candidate, int direction) {
+int __stdcall Vv1SortStep(int candidate, int direction) {
     if (!vv1_sort_resolve()) {
         return candidate;
     }
@@ -1749,14 +1754,14 @@ static void vv1_parentage_bridge_draw(void *gameobj, void *record,
    already named, and its mother's.  Forwarded to the parentage companion; a
    missing companion is a no-op. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall Vv1Born(void *child, void *mother) {
+int __stdcall Vv1Born(void *child, void *mother) {
     if (!vv1_parentage_resolve()) {
         return 0;
     }
     return vv1_parentage_born(child, mother);
 }
 
-__declspec(dllexport) void __stdcall Vv1MaskTick(void) {
+void __stdcall Vv1MaskTick(void) {
     int swept;
     int birth_dirty;
     int slot;
@@ -2134,12 +2139,6 @@ static const char *block_reason_text(int reason, int row) {
            "It arrives a few seconds after this screen closes. Buying it again "
            "would charge you a second time for the same barrel, so close this "
            "screen and wait for it to arrive.";
-}
-
-/* Kept as a thin wrapper so existing callers that only need the yes/no
-   answer -- and the tests that pin them -- do not have to change. */
-static int row_purchase_pending(int villager_menu, int row, long state) {
-    return row_block_reason(villager_menu, row, state) != BLOCK_NONE;
 }
 
 static INT_PTR CALLBACK upgrade_dialog(
@@ -2552,7 +2551,7 @@ static INT_PTR CALLBACK appearance_dialog(
 }
 
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
+int __stdcall ShowOriginsAppearancePicker(
     int villager_ptr
 ) {
     unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)villager_ptr;
@@ -2885,7 +2884,7 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
    VV2's DLL-side-charge model, so the exe side is a single one-arg call with
    no charge logic to overrun a fixed handler box. Returns 1 if applied (the
    exe need do nothing further), 0 if cancelled or unaffordable. */
-__declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr) {
+int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr) {
     unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
     int *tech;
     HWND owner;
@@ -2952,14 +2951,14 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr)
     return 1;
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
+int __stdcall ShowOriginsUpgradeMenuState(
     int villager_menu,
     int dialog_state
 ) {
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
+int __stdcall ShowOriginsUpgradeMenu(
     int villager_menu,
     int state
 ) {
@@ -3105,7 +3104,7 @@ static const char *vv1_detail_row_name(int row) {
    for removing an owned doubler -- the caller (menu) only reaches this
    on the Buy path, after it already knows the row isn't being removed. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
+int __stdcall ShowOriginsPermanentChangeConfirm(
     int is_detail,
     int row,
     int cost
@@ -3147,7 +3146,7 @@ static const char *vv_villagers_possessive(int n) { return n == 1 ? "Villager's"
 
 
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall ShowOriginsCureResult(
+int __stdcall ShowOriginsCureResult(
     int sick_cured,
     int healed_restored
 ) {
@@ -3188,7 +3187,7 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
    carries no "ShowOriginsVillageWideResult" string to resolve, so building
    this export into the VV2 companion would only ship an unreachable entry. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
+int __stdcall ShowOriginsVillageWideResult(
     int command,
     int granted,
     int full_like_skipped,
@@ -3250,7 +3249,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
    assuming there is exactly one, so this reports however many were
    actually skipped for that reason, same as every other count here. */
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall ShowOriginsAgeResult(
+int __stdcall ShowOriginsAgeResult(
     int granted,
     int already,
     int golden_child
@@ -3302,7 +3301,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
    include_parenting selects how many of the 5 entries to report (4 for
    the No-Parenting row, which never reaches the trailing Breeding
    entry). */
-__declspec(dllexport) int __stdcall ShowOriginsEqualDivisionResult(
+int __stdcall ShowOriginsEqualDivisionResult(
     int granted,
     int golden_child_skipped,
     int include_parenting,
@@ -3352,7 +3351,7 @@ __declspec(dllexport) int __stdcall ShowOriginsEqualDivisionResult(
    Running's single count, mastery_va also has an early-exit failure path
    (mastery_failure) that a stack-based accumulator couldn't survive
    cleanly, so scratch memory was the only safe option for either count. */
-__declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
+int __stdcall ShowOriginsMasteryResult(
     int granted,
     int already_mastered
 ) {
@@ -3578,7 +3577,7 @@ static int vv1_time_warp_apply(int speed, int years) {
 #define VV1_TW_APPLIED   1
 #define VV1_TW_REFUSED   2
 #if VV_STORY_GAME == 1
-__declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
+int __stdcall ShowOriginsTimeWarp(
     int gamectx_ptr,
     int cost
 ) {
@@ -3657,7 +3656,7 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
     return VV1_TW_APPLIED;
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsRowMessage(
+int __stdcall ShowOriginsRowMessage(
     int is_detail,
     int row,
     int status

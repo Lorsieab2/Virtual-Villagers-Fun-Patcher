@@ -82,36 +82,6 @@ __declspec(dllimport) GpStatus __stdcall GdipDisposeImage(GpImage *image);
 
 static ULONG_PTR gdiplus_token = 0;
 
-#ifndef VV_AGE_OFFSET
-#define VV_AGE_OFFSET 0x348
-#endif
-#ifndef VV_SKILL_FARMING_OFFSET
-#define VV_SKILL_FARMING_OFFSET 0x3BC
-#endif
-#ifndef VV_SKILL_BUILDING_OFFSET
-#define VV_SKILL_BUILDING_OFFSET 0x3C0
-#endif
-#ifndef VV_SKILL_RESEARCH_OFFSET
-#define VV_SKILL_RESEARCH_OFFSET 0x3C4
-#endif
-#ifndef VV_SKILL_HEALING_OFFSET
-#define VV_SKILL_HEALING_OFFSET 0x3C8
-#endif
-#ifndef VV_SKILL_PARENTING_OFFSET
-#define VV_SKILL_PARENTING_OFFSET 0x3CC
-#endif
-#ifndef VV_LIKES_OFFSET
-#define VV_LIKES_OFFSET 0x398
-#endif
-#ifndef VV_DISLIKES_OFFSET
-#define VV_DISLIKES_OFFSET 0x3A8
-#endif
-#ifndef VV_LIKE_SLOT_COUNT
-#define VV_LIKE_SLOT_COUNT 4
-#endif
-#ifndef VV_ALREADY_LIKES_TEXT
-#define VV_ALREADY_LIKES_TEXT "Already 4 likes."
-#endif
 #ifndef VV_HEAD_OFFSET
 #define VV_HEAD_OFFSET 0x1BB8
 #endif
@@ -130,8 +100,9 @@ static ULONG_PTR gdiplus_token = 0;
 #endif
 /* Cosmetic Heathen-mask overlay. Each villager's mask selection is held in the
    DLL-owned side-table below (never in a villager record); the render caves
-   SDL_UpperBlit the chosen mask cell from Images/vvfp_mask_atlas.png on top of
-   the drawn head when the selection is non-zero.
+   draw the chosen mask cell through the game's own ldwImageGrid, built from
+   Images\vvfp_mask_atlas00.png (vv_ensure_mask_atlas), on top of the drawn head
+   when the selection is non-zero.
    0 = none, 1..5 = Blue/Orange/Red/Purple/Tribal Chief. */
 #ifndef VV_MASK_COUNT
 #define VV_MASK_COUNT 6   /* (None) + 5 masks */
@@ -662,7 +633,6 @@ static void *g_mask_atlas_obj = NULL;
 static int g_mask_atlas_tried = 0;
 static void *g_bighead_atlas_obj = NULL;
 static int g_bighead_atlas_tried = 0;
-static void *g_dest_surface;    /* fwd tentative def (real one below); diag use */
 
 static void vv_ensure_mask_atlas(void) {
     void *obj;
@@ -779,7 +749,7 @@ static void vv_ensure_bighead_atlas(void) {
 
 /* Head-draw caves call this: ensure the atlas is built + published, validate
    the live stable identity, and return its mask (0 = none). */
-__declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
+int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
     /* The first-load cross-check, from the head-draw caves (world and
        Details): only a village draws heads -- the present hook also runs at
@@ -1074,90 +1044,6 @@ static int vv_read_mask_sidecar(void) {
     return 1;
 }
 
-/* --- In-world / details mask render via SDL surface blit -------------------
-   VV4 is surface-based: the game blits every sprite with SDL_UpperBlit onto the
-   render-target surface at [screen_obj+0x30]. We blit the chosen mask on top
-   the same way. The mask atlas is the head-aligned Images/vvfp_mask_atlas.png
-   (8 frames x 5 masks of 40x65). All SDL entry points are resolved via
-   GetProcAddress (SDL_BlitScaled / SDL_SetSurfaceBlendMode are not in the exe's
-   imports), and EVERY pointer is null-guarded so a missing DLL/PNG degrades to
-   no-mask instead of crashing (renamed/moved exe safe). All state lives here in
-   the DLL's writable data -- never an executable section (W^X clean). */
-#define VV_R_CELL_W 40
-#define VV_R_CELL_H 65
-/* Screen anchor of the mask relative to the head-draw x/y (tuned in playtest). */
-#ifndef VV_R_DX
-#define VV_R_DX 0
-#endif
-#ifndef VV_R_DY
-#define VV_R_DY 0
-#endif
-#define VV_SDL_BLENDMODE_BLEND 1
-
-typedef struct { int x, y, w, h; } VvSdlRect;
-typedef void *(__cdecl *vv_IMG_Load_t)(const char *);
-typedef int (__cdecl *vv_SDL_UpperBlit_t)(void *, const VvSdlRect *, void *, VvSdlRect *);
-typedef int (__cdecl *vv_SDL_BlitScaled_t)(void *, const VvSdlRect *, void *, VvSdlRect *);
-typedef int (__cdecl *vv_SDL_SetSurfaceBlendMode_t)(void *, int);
-
-static void *g_mask_surface;   /* the 40x65-cell mask atlas (SDL_Surface*) */
-static void *g_dest_surface;   /* cached render target [screen_obj+0x30]    */
-static vv_IMG_Load_t p_IMG_Load;
-static vv_SDL_UpperBlit_t p_SDL_UpperBlit;
-static vv_SDL_BlitScaled_t p_SDL_BlitScaled;
-static vv_SDL_SetSurfaceBlendMode_t p_SDL_SetSurfaceBlendMode;
-static int g_mask_render_init;
-
-/* SDL_Surface field offsets (SDL2): w=+0x08, h=+0x0C, pitch=+0x10. */
-#define VV_SURF_W(s)     (*(int *)((char *)(s) + 0x08))
-#define VV_SURF_PITCH(s) (*(int *)((char *)(s) + 0x10))
-
-static void vv4_mask_render_init(void) {
-    HMODULE sdl, img;
-    char path[MAX_PATH];
-    DWORD n;
-    int i;
-    if (g_mask_render_init) {
-        return;
-    }
-    g_mask_render_init = 1;                 /* attempt once, even on failure */
-    sdl = GetModuleHandleA("SDL2.dll");
-    img = GetModuleHandleA("SDL2_image.dll");
-    if (sdl == NULL || img == NULL) {
-        return;
-    }
-    p_IMG_Load = (vv_IMG_Load_t)GetProcAddress(img, "IMG_Load");
-    p_SDL_UpperBlit = (vv_SDL_UpperBlit_t)GetProcAddress(sdl, "SDL_UpperBlit");
-    p_SDL_BlitScaled = (vv_SDL_BlitScaled_t)GetProcAddress(sdl, "SDL_BlitScaled");
-    p_SDL_SetSurfaceBlendMode =
-        (vv_SDL_SetSurfaceBlendMode_t)GetProcAddress(sdl, "SDL_SetSurfaceBlendMode");
-    if (p_IMG_Load == NULL) {
-        return;
-    }
-    /* exe-dir absolute path: <exe folder>\Images\vvfp_mask_atlas.png */
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    for (i = (int)n - 1; i >= 0; i--) {
-        if (path[i] == '\\' || path[i] == '/') {
-            path[i + 1] = '\0';
-            break;
-        }
-    }
-    /* lstrcatA has no destination bound. Include the complete relative atlas
-       path and its terminating NUL before appending it to the executable
-       directory; a redirected/renamed install that cannot fit fails open. */
-    if (lstrlenA(path) + (int)sizeof("Images\\vvfp_mask_atlas.png") > MAX_PATH) {
-        return;
-    }
-    lstrcatA(path, "Images\\vvfp_mask_atlas.png");
-    g_mask_surface = p_IMG_Load(path);      /* NULL on failure -> no mask, no crash */
-    if (g_mask_surface != NULL && p_SDL_SetSurfaceBlendMode != NULL) {
-        p_SDL_SetSurfaceBlendMode(g_mask_surface, VV_SDL_BLENDMODE_BLEND);
-    }
-}
-
 /* Called from the present-path hook every frame with the live render-target
    surface ([screen_obj+0x30]); read at the real site, never a guessed global. */
 /* "VVFP Fix Huts.dll" (Builders Fix Huts When Idle,: loaded by
@@ -1223,12 +1109,12 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     return &host;
 }
 
-__declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
+void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     vvfp_story_bridge(4);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
-    g_dest_surface = surface;
+    (void)surface;   /* the hook still passes the render target; nothing here draws */
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
     if (cleared && g_current_slot > 0) {
@@ -1236,60 +1122,6 @@ __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
            exact slot's sidecar in sync so a later process cannot resurrect it. */
         vv_write_mask_sidecar();
     }
-}
-
-/* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =
-   in-world, ~150/200 = Details (scales the cell AND the anchor offset). */
-static void vv4_blit_mask(int mask, int x, int y, int frame, int scale_pct) {
-    VvSdlRect src, dst;
-    vv4_mask_render_init();
-    if (g_dest_surface == NULL || g_mask_surface == NULL || p_SDL_UpperBlit == NULL) {
-        return;                              /* not ready -> no mask, no crash */
-    }
-    if (mask <= 0 || mask >= VV_MASK_COUNT) {
-        return;
-    }
-    /* SDL_UpperBlit format-converts as needed, so no dest-format guard here
-       (an earlier 32bpp pitch check silently skipped every in-world blit). */
-    if (frame < 0 || frame > 7) {
-        frame = 5;                           /* front-facing default */
-    }
-    src.x = frame * VV_R_CELL_W;
-    src.y = (mask - 1) * VV_R_CELL_H;
-    src.w = VV_R_CELL_W;
-    src.h = VV_R_CELL_H;
-    if (scale_pct > 0 && scale_pct != 100 && p_SDL_BlitScaled != NULL) {
-        dst.x = x + VV_R_DX * scale_pct / 100;
-        dst.y = y + VV_R_DY * scale_pct / 100;
-        dst.w = VV_R_CELL_W * scale_pct / 100;
-        dst.h = VV_R_CELL_H * scale_pct / 100;
-        p_SDL_BlitScaled(g_mask_surface, &src, g_dest_surface, &dst);
-    } else {
-        dst.x = x + VV_R_DX;
-        dst.y = y + VV_R_DY;
-        dst.w = VV_R_CELL_W;
-        dst.h = VV_R_CELL_H;
-        p_SDL_UpperBlit(g_mask_surface, &src, g_dest_surface, &dst);
-    }
-}
-
-/* By raw index (no fingerprint check) -- for callers that only have the index
-   (e.g. the Details screen's selected villager). */
-__declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
-                                                 int frame, int scale_pct) {
-    vv_prepare_mask_state();
-    if (index < 0 || index >= vv_slots()) {
-        return;
-    }
-    vv4_blit_mask((int)g_mask_by_index[index], x, y, frame, scale_pct);
-}
-
-/* Primary render entry: the head-draw hooks hold the villager RECORD (esi), so
-   this derives the index AND fingerprint-checks (slot-reuse safe). */
-__declspec(dllexport) void __stdcall Vv4MaskDrawRecord(unsigned char *villager,
-                                                       int x, int y, int frame,
-                                                       int scale_pct) {
-    vv4_blit_mask(vv_get_mask(villager), x, y, frame, scale_pct);
 }
 
 static HINSTANCE module_instance;
@@ -1606,7 +1438,7 @@ static void vv4_remove_detail_running_dislike(void) {
    self-contained -- it runs its own dialog, charge and apply -- so the menu
    invokes it directly rather than returning a row for the payload to dispatch.
    Defined further down; forward-declared here. */
-__declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void);
+static int __stdcall ShowVv4AppearanceForAll(void);
 #define ID_FORALL_ROW 13
 
 /* A pending Island Event or Barrel of Babies must not be sold again: both
@@ -1699,11 +1531,6 @@ static int row_block_reason(int villager_menu, int row, long state) {
         return BLOCK_ALREADY_PENDING;
     }
     return BLOCK_NONE;
-}
-
-/* Thin wrapper so callers needing only the yes/no answer are unchanged. */
-static int row_purchase_pending(int villager_menu, int row, long state) {
-    return row_block_reason(villager_menu, row, state) != BLOCK_NONE;
 }
 
 
@@ -2458,7 +2285,7 @@ static int fa_nothing_selected(void) {
            forall_state.female_mask == FA_NOCHANGE;
 }
 
-__declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
+static int __stdcall ShowVv4AppearanceForAll(void) {
     int affected;
     int delta = -vvfp_story_price(4, 450000);   /* 0 under Story / Cheat Upgrades */
     HWND owner = GetForegroundWindow();
@@ -2522,7 +2349,7 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
     return 1;
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
+int __stdcall ShowOriginsAppearancePicker(
     int villager_ptr
 ) {
     unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)villager_ptr;
@@ -2555,7 +2382,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
    "Not enough tech points.", etc.). Owned by the game's foreground window so
    it reliably appears on top -- a NULL owner could render behind the game
    window right after the menu dialog closed and never be seen. */
-__declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
+int __stdcall ShowOriginsUpgradeMessage(
     const char *title,
     const char *text
 ) {
@@ -2613,7 +2440,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
    source, so it carries its own copy. */
 static const char *vv_villagers_word(int n) { return n == 1 ? "villager" : "villagers"; }
 
-__declspec(dllexport) int __stdcall ShowOriginsCureResult(
+int __stdcall ShowOriginsCureResult(
     int sickness_cleared,
     int health_restored
 ) {
@@ -2706,7 +2533,7 @@ static void vv4_stat_add(int id, int amount) {
 
 /* Returns the number of collectibles newly marked found (0 => everything was
    already complete, so the caller can report no-change and refund the charge). */
-__declspec(dllexport) int __stdcall ApplyVV4CompleteCollections(void) {
+int __stdcall ApplyVV4CompleteCollections(void) {
     unsigned int *flags = (unsigned int *)(UINT_PTR)VV4_COLL_FLAG_BASE;
     int i, newly = 0;
     for (i = 0; i < VV4_COLL_FLAG_COUNT; ++i) {
@@ -2746,7 +2573,7 @@ __declspec(dllexport) int __stdcall ApplyVV4CompleteCollections(void) {
 }
 
 /* Returns the number of collectibles cleared (0 => nothing was collected). */
-__declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
+int __stdcall ApplyVV4ResetCollections(void) {
     unsigned int *flags = (unsigned int *)(UINT_PTR)VV4_COLL_FLAG_BASE;
     int i, cleared = 0;
     for (i = 0; i < VV4_COLL_FLAG_COUNT; ++i) {
@@ -2792,63 +2619,10 @@ __declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
     return cleared;
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
+int __stdcall ShowOriginsUpgradeMenuState(
     int villager_menu,
     int dialog_state
 ) {
-    return show_upgrade_menu(villager_menu, dialog_state);
-}
-
-__declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
-    int villager_menu,
-    int state
-) {
-    int dialog_state = 0;
-    if (villager_menu) {
-        unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)state;
-        int row;
-        int running_like = 0;
-        int running_dislike = 0;
-        int available_like = 0;
-        if (villager != NULL) {
-            if (*(int *)(villager + VV_AGE_OFFSET) <= 100) {
-                dialog_state |= 1 << 0;
-            }
-            if (*(int *)(villager + VV_SKILL_FARMING_OFFSET) == 100
-                && *(int *)(villager + VV_SKILL_BUILDING_OFFSET) == 100
-                && *(int *)(villager + VV_SKILL_RESEARCH_OFFSET) == 100
-                && *(int *)(villager + VV_SKILL_HEALING_OFFSET) == 100
-                && *(int *)(villager + VV_SKILL_PARENTING_OFFSET) == 100) {
-                dialog_state |= 1 << 1;
-            }
-            for (row = 0; row < VV_LIKE_SLOT_COUNT; ++row) {
-                int like = *(int *)(villager + VV_LIKES_OFFSET + row * 4);
-                if (like == 38) {
-                    running_like = 1;
-                } else if (like == -1) {
-                    available_like = 1;
-                }
-                if (*(int *)(villager + VV_DISLIKES_OFFSET + row * 4) == 38) {
-                    running_dislike = 1;
-                }
-            }
-            if (running_like) {
-                dialog_state |= 1 << 2;
-            } else if (!available_like) {
-                dialog_state |= 1 << (8 + 2);
-            }
-            if (*(int *)(villager + VV_AGE_OFFSET) == 360) {
-                dialog_state |= 1 << 3;
-            }
-        }
-    } else {
-        if ((state & 1) != 0) {
-            dialog_state |= 1 << 3;
-        }
-        if ((state & 2) != 0) {
-            dialog_state |= 1 << 4;
-        }
-    }
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
@@ -2987,7 +2761,6 @@ static int vv4_equal_division(int include_parenting) {
 #define VV4_TW_SPEED_PAUSED     999
 #define VV4_TW_WORLD_GETTER     0x0041FE70u
 #define VV4_TW_TIME_EPOCH_VA    0x004B8230u   /* 64-bit, low dword           */
-#define VV4_TW_PENDING_OFFSET   0x1C34
 #define VV4_TW_LAST_SEEN_OFFSET 0x1C38
 #define VV4_TW_AGE_OFFSET       0x1B8C
 #define VV4_TW_UNITS_PER_YEAR   20
@@ -3118,7 +2891,7 @@ static void vv4_format_cost(int value, char *out) {
      1  applied -- the caller charges;
      2  refused, with the reason already shown; the caller charges nothing and
         closes the menu, which is what every other refusal here does. */
-__declspec(dllexport) int __stdcall ShowVv4TimeWarp(int cost) {
+int __stdcall ShowVv4TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
     char message[448];
     HWND owner = GetForegroundWindow();
@@ -3171,10 +2944,10 @@ __declspec(dllexport) int __stdcall ShowVv4TimeWarp(int cost) {
     return VV4_TW_APPLIED;
 }
 
-__declspec(dllexport) int __stdcall ApplyVV4EqualDivisionParenting(void) {
+int __stdcall ApplyVV4EqualDivisionParenting(void) {
     return vv4_equal_division(1);
 }
-__declspec(dllexport) int __stdcall ApplyVV4EqualDivisionNoParenting(void) {
+int __stdcall ApplyVV4EqualDivisionNoParenting(void) {
     return vv4_equal_division(0);
 }
 
@@ -3285,7 +3058,7 @@ static void vv4_clear_full_slot_running_dislikes(void) {
    Dry-runs first: if nothing would change, report it with no charge and return
    0; otherwise show "Do you want to buy ... ?" and return 1 only on OK.
    Commands not yet converted return 1 (proceed with the old flow). */
-__declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
+int __stdcall ConfirmOriginsVillageWide(int command) {
     if (command == 6) {
         vv_scan_running();
         if (vw_granted == 0) {
@@ -3353,7 +3126,7 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
 }
 
 /* Counted result (OFFICIAL wording), using the stored dry-run counts. */
-__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
+int __stdcall ShowOriginsVillageWideResult(
     int command,
     int granted,
     int already_running_skipped,
@@ -3404,49 +3177,5 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
         MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
                     MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     }
-    return 0;
-}
-
-__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult20(
-    int command,
-    unsigned int granted,
-    unsigned int already_like,
-    unsigned int full_like,
-    unsigned int removed_dislike
-) {
-    char message[256];
-    char line[96];
-    if (command != 6) {
-        return 0;
-    }
-    wsprintfA(message, "Granted Running to %u %s", granted,
-              vv_villagers_word(granted));
-    wsprintfA(
-        line,
-        "\r\nSkipped over %u %s. Reason: already likes running",
-        already_like,
-        vv_villagers_word(already_like)
-    );
-    lstrcatA(message, line);
-    wsprintfA(
-        line,
-        "\r\nSkipped over %u %s. Reason: all like slots are occupied",
-        full_like,
-        vv_villagers_word(full_like)
-    );
-    lstrcatA(message, line);
-    wsprintfA(
-        line,
-        "\r\nRemoved running dislike from %u %s",
-        removed_dislike,
-        vv_villagers_word(removed_dislike)
-    );
-    lstrcatA(message, line);
-    MessageBoxA(
-        GetForegroundWindow(),
-        message,
-        "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION | VV_MB_FRONT
-    );
     return 0;
 }

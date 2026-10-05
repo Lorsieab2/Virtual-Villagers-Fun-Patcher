@@ -449,7 +449,7 @@ class NewHomeInstallsBeforeAnyCatchUpTests(unittest.TestCase):
 
     def test_the_tick_installs_fix_huts_before_any_village_check(self):
         source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
-        tick = source.split("__declspec(dllexport) void __stdcall Vv1MaskTick(void) {", 1)[1]
+        tick = source.split("void __stdcall Vv1MaskTick(void) {", 1)[1]
         self.assertLess(tick.index("vvfp_fix_huts_bridge(1);"), tick.index("vv1_mask_prepare_slot()"))
 
 
