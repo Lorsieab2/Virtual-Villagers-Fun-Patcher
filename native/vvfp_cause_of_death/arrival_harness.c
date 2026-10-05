@@ -492,6 +492,16 @@ int main(int argc, char **argv) {
         if (game == 5) {
             rec(6)[VV5_FACTION] = 1;
         }
+        /* Kept out of the backfill: a Heathen (never a villager), and a
+           villager whose record keeps parents (born here, before the log). */
+        villager(17, "Thabo", 1003, 15, 12, 0);   /* Thabo's name and body, another head */
+        if (game == 5) {
+            villager(18, "Pagan", 900, 3, 3, 0);
+            rec(18)[VV5_FACTION] = 1;
+        }
+        if (game != 1) {
+            villager(19, "Kid", 300, 4, 4, 1);
+        }
         *(int *)(rec(0) + g->likes) = 0;          /* "ants": never part of the key */
         write_old_logs();
         write_history();
@@ -509,7 +519,9 @@ int main(int argc, char **argv) {
             char before_log[1 << 13];
             read_into(path);
             lstrcpynA(before_log, text, sizeof before_log);
-            CHECK(scan_arrivals(game, 1) == 3, "the scan counts Huata, Silko and the second Dup");
+            CHECK(scan_arrivals(game, 1) == 4,
+                  "the scan counts Huata, Silko, the second Dup and the other Thabo (not a Heathen, not one"
+                  " with parents)");
             CHECK(scan_arrivals(game, 2) == -1, "...and cannot tell for a slot with no save");
             read_into(path);
             CHECK(strcmp(before_log, text) == 0 && !file_exists(marker), "...writing nothing: no log line, no marker");
@@ -531,7 +543,7 @@ int main(int argc, char **argv) {
         /* 1: Ponui arrived unseen since that save (the load-time catch-up);
            Repair, and the save. */
         villager(7, "Ponui", 663, 9, 15, 0);
-        CHECK(scan_arrivals(game, 1) == 4, "Ponui, arrived unseen, is found too");
+        CHECK(scan_arrivals(game, 1) == 5, "Ponui, arrived unseen, is found too");
         repair_arrivals(game, 1, 1);
         save_done(1, buffer);
         read_into(path);
@@ -539,8 +551,9 @@ int main(int argc, char **argv) {
               && has_backfill_record(5, "Silko", 663, 4, 14, "unknown")
               && has_backfill_record(6, "Dup", 500, 2, 2, "unknown")
               && has_backfill_record(7, "Ponui", 663, 9, 15, "unknown")
-              && strstr(text, "Arrived 8") == NULL,
-              "Huata, Silko, the second Dup and Ponui get Arrived 4-7, in the frozen format;"
+              && has_backfill_record(8, "Thabo", 1003, 15, 12, "unknown")
+              && strstr(text, "Arrived 9") == NULL,
+              "Huata, Silko, the second Dup, Ponui and the other Thabo get Arrived 4-8, in the frozen format;"
               " Huata, in the village's first History snapshot, is a Founder, Silko (later) is not");
         {
             /* The record as written, for the reader of the output. */
@@ -554,8 +567,11 @@ int main(int argc, char **argv) {
             const char *h = strstr(text, "  Name: Huata");
             printf("--- got:\n%.900s\n", h != NULL ? h - 12 : text);
         }
-        CHECK(count_of(text, "  Name: Thabo\r\n") == 1,
-              "Thabo's hand-appended record (name, head, body) is recognised: no duplicate");
+        CHECK(count_of(text, "  Name: Thabo\r\n") == 2,
+              "Thabo's hand-appended record (name, head, body) is recognised: no duplicate;"
+              " a namesake with another head is not him");
+        CHECK(strstr(text, "  Name: Pagan\r\n") == NULL && strstr(text, "  Name: Kid\r\n") == NULL,
+              "no record for a Heathen, nor for a villager whose record keeps parents");
         CHECK(count_of(text, "  Name: Dup\r\n") == 2, "two Dups, two records");
         CHECK(strstr(text, "  Name: Nishi\r\n") == NULL && strstr(text, "  Name: Hea\r\n") == NULL,
               "a villager born here, and a Heathen, get no Arrived record");
@@ -606,7 +622,7 @@ int main(int argc, char **argv) {
         arrival_tick();
         *(int *)(rec(9) + g->age) = 720;    /* aged since it arrived */
         departed(13);                        /* buried before the save */
-        rec(13)[g->active] = 0;
+        villager(13, "Reborn", 0, 1, 1, 1);  /* the record reused before the save */
         if (game == 5) {
             arrival_tick();
             rec(6)[VV5_FACTION] = 0;         /* Hea is converted */
@@ -624,7 +640,8 @@ int main(int argc, char **argv) {
             CHECK(c != NULL && record_has("Cie", "  How: Custom Island Event\r\n\r\n"),
                   "the Custom Island Event's new villager: How: Custom Island Event");
             CHECK(gone != NULL && record_has("Gone", "  Age at arrival: 650\r\n"),
-                  "one who arrived and was buried before the save has the record too");
+                  "one who arrived and was buried before the save has the record too, at the burial");
+            CHECK(strstr(text, "  Name: Reborn\r\n") == NULL, "...and whoever has the record now gets none");
             CHECK(strstr(text, "  Name: Babe\r\n") == NULL && strstr(text, "  Name: Twin\r\n") == NULL,
                   "a birth is never an arrival (its path's marker, or the Births log's note)");
             {

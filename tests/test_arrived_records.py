@@ -31,9 +31,9 @@ TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
 SHARED = ROOT / "native" / "shared"
-# 30 in every game, one more in A New Home (no Show Parents), two more in New
+# 32 in every game, one more in A New Home (no Show Parents), two more in New
 # Believers (the Heathens).
-CHECKS = 30 * 5 + 1 + 2
+CHECKS = 32 * 5 + 1 + 2
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
