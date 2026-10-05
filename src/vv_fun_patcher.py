@@ -11758,9 +11758,53 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "736B80E20E6958A0C1B0200900B7719CB795F1DEC52BAAE9FCD67C50F2E1752C",
+    "sha256": "657F92D3A3CE47C43760D34DCB51F97EEE02D0200B89947005C6A0AF9FA06D8A",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
+# The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
+# game's Origins companion, then these in order (native/vvfp_startup/
+# vvfp_startup.c: COMPANIONS, then GOLDEN_MUSHROOM). The stub passes the
+# bits of the DLLs THIS build ships, so a patcher DLL left in the folder by
+# another build (or copied with the game folder) is never loaded.
+STARTUP_LOADER_ORIGINS = {
+    "vv1": "VVFP VV1 Origins Icons.dll",
+    "vv2": "VVFP VV2 Origins Icons.dll",
+    "vv3": "VVFP Origins Icons.dll",
+    "vv4": "VVFP VV4 Origins Icons.dll",
+    "vv5": "VVFP Origins Icons.dll",
+}
+STARTUP_LOADER_COMPANIONS = (
+    "VVFP Parentage Export.dll",
+    "VVFP Statistics Export.dll",
+    "VVFP Population Export.dll",
+    "VVFP Save Reset.dll",
+    "VVFP Fix Huts.dll",
+    "VVFP Work First.dll",
+    "VVFP Lesson Cap.dll",
+    "VVFP Healers Study.dll",
+    "VVFP Improved Pathfinding.dll",
+    "VVFP Story Upgrades.dll",
+    "VVFP Cause of Death.dll",
+    "VVFP VV1 Parentage.dll",
+    "VVFP VV1 Number Keys.dll",
+    "VVFP VV1 Sort By.dll",
+    "VVFP VV1 Watering Builds.dll",
+    "VVFP Golden Mushroom.dll",
+)
+
+
+def _startup_loader_mask(build_id: str, fun_patches: list[FunPatch]) -> int:
+    """The bits of the companion DLLs this selection ships (see above)."""
+    shipped = {
+        str(item.get("destination", "")).casefold()
+        for feature in fun_patches
+        for item in feature.raw.get("companion_files", [])
+    }
+    mask = 1 if STARTUP_LOADER_ORIGINS[build_id].casefold() in shipped else 0
+    for index, name in enumerate(STARTUP_LOADER_COMPANIONS):
+        if name.casefold() in shipped:
+            mask |= 1 << (index + 1)
+    return mask
 STARTUP_LOADER_SECTION = b".vvfpst"
 # The C runtime's `call WinMain` (VA) and WinMain itself, per game: the
 # WinMainCRTStartup of each executable, right after GetStartupInfoA and the
@@ -11834,6 +11878,7 @@ def _attach_automatic_companions(
 def _startup_loader_block(
     block_va: int,
     game_number: int,
+    shipped_mask: int,
     get_module_file_name_iat: int,
     load_library_iat: int,
     get_proc_address_iat: int,
@@ -11844,10 +11889,12 @@ def _startup_loader_block(
     Entered by `call` in place of `call WinMain`:
 
         pushad; sub esp, 0x104; mov esi, esp
-        GetModuleFileNameA(NULL, esi, 0x104); fail or too long -> done
+        GetModuleFileNameA(NULL, esi, 0x104); failed or truncated -> done
         edi = the last backslash + 1 (none -> done)
+        the folder and the name do not fit in 0x104 bytes -> done
         copy "VVFP Startup.dll\\0" there
-        LoadLibraryA(esi) -> GetProcAddress(., "VvfpStartup") -> call (game)
+        LoadLibraryA(esi) -> GetProcAddress(., "VvfpStartup")
+          -> call (game, the bits of the companions this build ships)
       done:
         add esp, 0x104; popad; jmp WinMain
 
@@ -11877,8 +11924,8 @@ def _startup_loader_block(
     code += b"\xFF\x15" + u32(get_module_file_name_iat)
     code += b"\x85\xC0"                               # test eax, eax
     short(b"\x74", "done")
-    code += b"\x3D" + u32(STARTUP_LOADER_PATH_BYTES - len(name))   # cmp eax, room
-    short(b"\x73", "done")                            # jae: no room for the name
+    code += b"\x3D" + u32(STARTUP_LOADER_PATH_BYTES)   # cmp eax, 0x104
+    short(b"\x73", "done")                            # jae: truncated
     code += b"\x8D\x3C\x06"                           # lea edi, [esi+eax]
     labels["scan"] = len(code)
     code += b"\x4F"                                   # dec edi
@@ -11887,6 +11934,10 @@ def _startup_loader_block(
     code += b"\x80\x3F\x5C"                           # cmp byte [edi], '\\'
     short(b"\x75", "scan")
     code += b"\x47"                                   # inc edi
+    code += b"\x8D\x47" + bytes([len(name)])         # lea eax, [edi+len]
+    code += b"\x2B\xC6"                               # sub eax, esi
+    code += b"\x3D" + u32(STARTUP_LOADER_PATH_BYTES)   # cmp eax, 0x104
+    short(b"\x77", "done")                            # ja: the folder is too long
     code += b"\x56"                                   # push esi
     code += b"\xBE" + u32(block_va + STARTUP_LOADER_NAME_OFFSET)   # mov esi, name
     code += b"\xB9" + u32(len(name))                  # mov ecx, len
@@ -11901,6 +11952,7 @@ def _startup_loader_block(
     code += b"\xFF\x15" + u32(get_proc_address_iat)
     code += b"\x85\xC0"
     short(b"\x74", "done")
+    code += b"\x68" + u32(shipped_mask)              # push shipped
     code += b"\x6A" + bytes([game_number])            # push game
     code += b"\xFF\xD0"                               # call eax (stdcall)
     labels["done"] = len(code)
@@ -12010,6 +12062,7 @@ def _apply_startup_loader(
     block = _startup_loader_block(
         base + section_rva,
         int(build_id.removeprefix("vv")),
+        _startup_loader_mask(build_id, fun_patches),
         slots[b"GetModuleFileNameA"],
         slots[b"LoadLibraryA"],
         slots[b"GetProcAddress"],

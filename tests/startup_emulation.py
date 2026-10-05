@@ -74,12 +74,14 @@ class Access:
 class StartupMachine:
     """One emulated process at the C runtime's call of WinMain."""
 
-    def __init__(self, exe: bytes, exe_name: str, shipped: dict[str, Path]):
+    def __init__(self, exe: bytes, exe_name: str, shipped: dict[str, Path], game_dir: str = GAME_DIR):
         """exe: the published executable's bytes; shipped: the companion files
-        beside it (destination name -> source file)."""
+        beside it (destination name -> source file); game_dir: the folder
+        GetModuleFileNameA reports, ending in a backslash."""
         self.mu = mu = Uc(UC_ARCH_X86, UC_MODE_32)
         self.shipped = {name.lower(): path for name, path in shipped.items()}
-        self.exe_path = GAME_DIR + exe_name
+        self.game_dir = game_dir
+        self.exe_path = game_dir + exe_name
         self.stub_names: dict[int, str] = {}
         self._next_stub = STUBS
         mu.mem_map(STUBS, 0x10000)
@@ -154,7 +156,7 @@ class StartupMachine:
                 if e.name:
                     exports[e.name.decode()] = base + e.address
                 ordinals[e.ordinal] = base + e.address
-        module = Module(name, base, size, exports, ordinals, GAME_DIR + name)
+        module = Module(name, base, size, exports, ordinals, self.game_dir + name)
         self.modules[key] = module
         return module
 
@@ -208,7 +210,7 @@ class StartupMachine:
                 ret(EXE_BASE)
                 return
             base_name = text.replace("/", "\\").split("\\")[-1]
-            full = text.lower().startswith(GAME_DIR.lower())
+            full = text.lower().startswith(self.game_dir.lower())
             if name.startswith("LoadLibrary"):
                 module = self._load(base_name) if full else None
             else:

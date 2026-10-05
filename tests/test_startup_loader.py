@@ -209,7 +209,11 @@ class StartupLoaderPlacement(unittest.TestCase):
                 va = 0x400000 + section.VirtualAddress
                 call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
                 slots = {i.name: i.address for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
-                block = vfp._startup_loader_block(va, int(game[2]), slots[b"GetModuleFileNameA"],
+                features = vfp._attach_automatic_companions(game, vfp._selected_fun_patches(
+                    build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
+                mask = vfp._startup_loader_mask(game, features)
+                self.assertEqual(bin(mask).count("1"), len(shipped) - 1)    # all but the loader
+                block = vfp._startup_loader_block(va, int(game[2]), mask, slots[b"GetModuleFileNameA"],
                                                   slots[b"LoadLibraryA"], slots[b"GetProcAddress"], winmain)
                 self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
                 self.assertEqual(pe.get_data(call_va - 0x400000, 5),
@@ -222,6 +226,17 @@ class StartupLoaderPlacement(unittest.TestCase):
                    for item in p.raw.get("companion_files", [])
                    if str(item.get("destination", "")).lower().endswith(".dll")}
         self.assertEqual(shipped - named, set())
+
+    def test_the_loader_and_the_patcher_number_the_companions_alike(self):
+        source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
+        body = source[source.index("COMPANIONS[] = {"):]
+        body = body[:body.index("};")]
+        golden = re.search(r'GOLDEN_MUSHROOM\[\] = "([^"]+)"', source).group(1)
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', body)) + (golden,), vfp.STARTUP_LOADER_COMPANIONS)
+        origins = source[source.index("ORIGINS[VVFP_STARTUP_GAMES + 1] = {"):]
+        origins = re.findall(r'"([^"]+)"', origins[:origins.index("};")])
+        self.assertEqual(origins, [vfp.STARTUP_LOADER_ORIGINS[g] for g in GAMES])
+        self.assertLess(len(vfp.STARTUP_LOADER_COMPANIONS), 31)
 
     def test_every_origins_companion_exports_vvfpstartup(self):
         for game in GAMES:
@@ -309,6 +324,57 @@ class AMissingCompanionNeverStopsTheGame(unittest.TestCase):
                         self.assertEqual(loaded, set())
                     else:
                         self.assertEqual(loaded, set(present))
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class OnlyThisBuildsCompanions(unittest.TestCase):
+    """Codex (#537): a patcher DLL in the folder that this build does not ship
+    -- copied along with the game folder, or left by another build -- is
+    never loaded, so it can never install a patch nobody selected."""
+
+    def test_unshipped_dlls_in_the_folder_are_never_loaded(self):
+        stale = {
+            "vv1": ("VVFP VV1 Origins Icons.dll", "assets/origins/VVFP VV1 Origins Icons.dll"),
+            "vv3": ("VVFP Origins Icons.dll", "data/candidates/VVFP VV3 Safe Upgrades.dll"),
+        }
+        extra_names = {"VVFP Fix Huts.dll": ROOT / "assets" / "fix_huts" / "VVFP Fix Huts.dll",
+                       "VVFP Cause of Death.dll": ROOT / "assets" / "cause_of_death" / "VVFP Cause of Death.dll"}
+        for game, (origins, source) in stale.items():
+            with self.subTest(game=game):
+                selection = (f"{game}_write_village_statistics",)
+                exe, shipped, _ = published(game, "collection_progression", selection)
+                folder = dict(shipped, **extra_names, **{origins: ROOT / source})
+                machine = StartupMachine(exe, build_of(game).input_name, folder)
+                call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
+                machine.run_to_winmain(call_va, winmain)
+                self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class DeepInstallFolders(unittest.TestCase):
+    """Codex (#537): the stub checks the FOLDER plus the loader's name against
+    MAX_PATH, not the executable's whole path, so a deep folder whose
+    executable name alone would not fit still starts every companion."""
+
+    def test_a_deep_folder_still_starts_every_companion(self):
+        game = "vv3"
+        selection = tuple(i for i in public_ids(game) if i not in POPULATION_256)
+        exe, shipped, _ = published(game, "collection_progression", selection)
+        name = build_of(game).input_name
+        limit = vfp.STARTUP_LOADER_PATH_BYTES            # MAX_PATH, with the NUL
+        deepest = limit - 1 - len(name)                  # the executable's path is 259 characters
+        # The old check (the whole path against MAX_PATH less the loader's
+        # name) refused every path of 243 characters or more.
+        self.assertGreaterEqual(deepest + len(name), limit - len(vfp.STARTUP_LOADER_DLL) - 1)
+        for length, starts in ((deepest, True), (deepest + 1, False)):   # + 1: truncated
+            folder = "C:\\" + "d" * (length - 4) + "\\"
+            self.assertEqual(len(folder), length)
+            with self.subTest(folder_length=length):
+                machine = StartupMachine(exe, name, shipped, game_dir=folder)
+                call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
+                result = machine.run_to_winmain(call_va, winmain)
+                self.assertEqual(result["registers_at_winmain"], result["registers_before"])
+                self.assertEqual({m.name for m in machine.modules.values()} == set(shipped), starts)
 
 
 if __name__ == "__main__":
