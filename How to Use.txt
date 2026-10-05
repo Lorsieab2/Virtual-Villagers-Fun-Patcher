@@ -13,6 +13,16 @@ exact supported build and refuses anything that does not match, rather than
 risk patching an unverified executable. If your game is rejected, re-download
 it from ldw.com.
 
+THE "?" BUTTONS
+
+Every feature in the patcher window has a small "?" button beside it: every
+patch, every population mode, every button and link (Back Up Saves, Restore
+Saves, Rename Tribe, Check Logs, Repair Logs, the folder links, Validate, Dry
+Run, Create Modified EXE, Patch All 5 ...) and every setting (Check logs
+automatically). Click it for a short, plain guide: what it does, how to use it
+in the game, and anything to watch out for. On the All 5 Games tab, the "?"
+above each column of links is the guide for that link on every game's row.
+
 PHYSICAL POPULATION LIMITS
 
 A New Home and The Lost Children have 256 stock villager records.

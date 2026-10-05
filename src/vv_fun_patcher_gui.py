@@ -13,6 +13,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
+import vv_how_to_use
 import vv_log_tools
 import vv_save_backup
 import vv_tribe_rename
@@ -434,6 +435,11 @@ class App(tk.Tk):
             self.game_var = tk.StringVar(value="No game identified yet")
             self.last_output_dir: Path | None = None
             self.last_modified_paths: dict[str, Path] = {}
+            # The "?" guides: every key a "?" was made for (the tests read
+            # it), and the guide windows open now, so a second click on the
+            # same "?" brings its window forward instead of opening another.
+            self.help_keys: set[str] = set()
+            self._help_windows: dict[str, tk.Toplevel] = {}
             self._load_settings()
             # Record the starting selection as the baseline the dependency
             # closure diffs against. _load_settings does this only when a
@@ -493,6 +499,9 @@ class App(tk.Tk):
         viewport = ttk.Frame(self)
         viewport.pack(fill="both", expand=True)
         style = ttk.Style(self)
+        # The long "Check logs automatically" label wraps, so the "?" beside
+        # it stays inside the window.
+        style.configure("Wrapped.TCheckbutton", wraplength=760)
         self.content_canvas = tk.Canvas(
             viewport,
             background=style.lookup("TFrame", "background"),
@@ -555,9 +564,12 @@ class App(tk.Tk):
         update_box = ttk.Frame(blurb_row)
         update_box.pack(side="right", anchor="ne", padx=(12, 0))
         ttk.Label(update_box, text=PATCHER_VERSION).pack(anchor="e")
+        updates_row = ttk.Frame(update_box)
+        updates_row.pack(anchor="e", pady=(2, 0))
         self._folder_link(
-            update_box, "Check for updates", self._open_releases_page
-        ).pack(anchor="e", pady=(2, 0))
+            updates_row, "Check for updates", self._open_releases_page
+        ).pack(side="left")
+        self._help_button(updates_row, "check_for_updates").pack(side="left", padx=(4, 0))
         ttk.Label(
             blurb_row,
             text="Creates a verified complete copy of each game folder and adds the modified EXE there. Originals are never replaced.",
@@ -578,13 +590,18 @@ class App(tk.Tk):
         mode_box = ttk.LabelFrame(outer, text="Population mode", padding=10)
         mode_box.pack(fill="x", pady=(0, 10))
         for row, mode in enumerate(self.patch_modes):
+            mode_choice = ttk.Frame(mode_box)
+            mode_choice.grid(row=row, column=0, sticky="nw", padx=(0, 10), pady=3)
             ttk.Radiobutton(
-                mode_box,
+                mode_choice,
                 text=mode.name,
                 value=mode.id,
                 variable=self.patch_mode_var,
                 command=self._mode_changed,
-            ).grid(row=row, column=0, sticky="nw", padx=(0, 10), pady=3)
+            ).pack(side="left")
+            self._help_button(
+                mode_choice, vv_how_to_use.mode_key(mode.id), mode.name
+            ).pack(side="left", padx=(4, 0))
             ttk.Label(mode_box, text=mode.description, wraplength=650).grid(
                 row=row, column=1, sticky="w", pady=3
             )
@@ -605,21 +622,25 @@ class App(tk.Tk):
             text="Select All Patches",
             command=self._select_all_fun_patches,
         ).pack(side="left")
+        self._help_button(fun_actions, "select_all").pack(side="left", padx=(2, 0))
         ttk.Button(
             fun_actions,
             text="Default Patches",
             command=self._default_fun_patches,
         ).pack(side="left", padx=(8, 0))
+        self._help_button(fun_actions, "default_patches").pack(side="left", padx=(2, 0))
         ttk.Button(
             fun_actions,
             text="Owner's Defaults",
             command=self._owners_default_fun_patches,
         ).pack(side="left", padx=(8, 0))
+        self._help_button(fun_actions, "owners_defaults").pack(side="left", padx=(2, 0))
         ttk.Button(
             fun_actions,
             text="Deselect All Patches",
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
+        self._help_button(fun_actions, "deselect_all").pack(side="left", padx=(2, 0))
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -636,12 +657,17 @@ class App(tk.Tk):
                 ).grid(row=row, column=1, sticky="w", pady=(8, 2))
                 row += 1
                 for patch in patches:
+                    patch_row = ttk.Frame(mode_box)
+                    patch_row.grid(row=row, column=1, sticky="w", pady=3)
                     ttk.Checkbutton(
-                        mode_box,
+                        patch_row,
                         text=patch.name,
                         variable=self.fun_patch_vars[patch.id],
                         command=self._fun_patch_changed,
-                    ).grid(row=row, column=1, sticky="w", pady=3)
+                    ).pack(side="left")
+                    self._help_button(
+                        patch_row, vv_how_to_use.patch_key(patch.id), patch.name
+                    ).pack(side="left", padx=(4, 0))
                     row += 1
                     RichDescription(mode_box, patch.description, 620, requirement_font,
                                     description_font, description_background).grid(
@@ -664,12 +690,19 @@ class App(tk.Tk):
             row += 1
             for patch in patches:
                 game_name = header.removeprefix("Virtual Villagers - ")
+                patch_row = ttk.Frame(mode_box)
+                patch_row.grid(row=row, column=1, sticky="w", pady=3)
                 ttk.Checkbutton(
-                    mode_box,
+                    patch_row,
                     text=f"{patch.name} ({game_name})",
                     variable=self.fun_patch_vars[patch.id],
                     command=self._fun_patch_changed,
-                ).grid(row=row, column=1, sticky="w", pady=3)
+                ).pack(side="left")
+                self._help_button(
+                    patch_row,
+                    vv_how_to_use.patch_key(patch.id),
+                    f"{patch.name} ({game_name})",
+                ).pack(side="left", padx=(4, 0))
                 row += 1
                 RichDescription(mode_box, patch.description, 620, requirement_font,
                                 description_font, description_background).grid(
@@ -695,6 +728,7 @@ class App(tk.Tk):
             text="Choose Folder...",
             command=self._browse_output_root,
         ).grid(row=0, column=1)
+        self._help_button(output_box, "output_location").grid(row=0, column=2, padx=(4, 0))
         ttk.Label(
             output_box,
             text=(
@@ -703,7 +737,7 @@ class App(tk.Tk):
                 "its supplied original folder."
             ),
             wraplength=850,
-        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(7, 0))
+        ).grid(row=1, column=0, columnspan=3, sticky="w", pady=(7, 0))
         output_box.columnconfigure(0, weight=1)
 
         notebook = ttk.Notebook(outer)
@@ -729,7 +763,10 @@ class App(tk.Tk):
             command=self._open_output,
             state="disabled",
         )
-        self.open_button.pack(anchor="e", pady=(8, 0))
+        self.open_button.pack(side="right", anchor="e", pady=(8, 0))
+        self._help_button(status_box, "open_game_folder").pack(
+            side="right", anchor="e", padx=(0, 4), pady=(8, 0)
+        )
 
     def _open_releases_page(self) -> None:
         """Open the project's GitHub page. No version check, by design.
@@ -768,39 +805,57 @@ class App(tk.Tk):
             row=0, column=0, sticky="ew", padx=(0, 8)
         )
         ttk.Button(box, text="Browse...", command=self._browse_exe).grid(row=0, column=1)
+        self._help_button(box, "choose_exe").grid(row=0, column=2, padx=(4, 0))
         box.columnconfigure(0, weight=1)
         ttk.Label(box, textvariable=self.game_var, foreground="#245a9a").grid(
-            row=1, column=0, columnspan=2, sticky="w", pady=(8, 0)
+            row=1, column=0, columnspan=3, sticky="w", pady=(8, 0)
         )
-        links = ttk.Frame(box)
-        links.grid(row=2, column=0, columnspan=2, sticky="w", pady=(8, 0))
+        # Two rows of links, each with its "?": in one row, seven links and
+        # seven "?" are wider than the window.
+        folders = ttk.Frame(box)
+        folders.grid(row=2, column=0, columnspan=3, sticky="w", pady=(8, 0))
         self._folder_link(
-            links, "Open Vanilla EXE Folder", self._open_single_vanilla_folder
+            folders, "Open Vanilla EXE Folder", self._open_single_vanilla_folder
         ).pack(side="left")
+        self._help_button(folders, "open_vanilla_folder").pack(side="left", padx=(3, 0))
         self._folder_link(
-            links, "Open Modified EXE Folder", self._open_single_modified_folder
+            folders, "Open Modified EXE Folder", self._open_single_modified_folder
         ).pack(side="left", padx=(18, 0))
+        self._help_button(folders, "open_modified_folder").pack(side="left", padx=(3, 0))
+        links = ttk.Frame(box)
+        links.grid(row=3, column=0, columnspan=3, sticky="w", pady=(6, 0))
         self._folder_link(
             links, "Back Up Saves", self._back_up_single_saves
-        ).pack(side="left", padx=(18, 0))
+        ).pack(side="left")
+        self._help_button(links, "back_up_saves").pack(side="left", padx=(3, 0))
         self._folder_link(
             links, "Restore Saves...", self._restore_single_saves
         ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "restore_saves").pack(side="left", padx=(3, 0))
         self._folder_link(
             links, "Rename Tribe...", self._rename_single_tribe
         ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "rename_tribe").pack(side="left", padx=(3, 0))
         self._folder_link(
             links, "Check Logs...", self._check_single_logs
         ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "check_logs").pack(side="left", padx=(3, 0))
         self._folder_link(
             links, "Repair Logs...", self._repair_single_logs
         ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "repair_logs").pack(side="left", padx=(3, 0))
+        check_logs_row = ttk.Frame(box)
+        check_logs_row.grid(row=4, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Checkbutton(
-            box,
+            check_logs_row,
             text=CHECK_LOGS_LABEL,
             variable=self.check_logs_var,
             command=self._check_logs_changed,
-        ).grid(row=3, column=0, columnspan=2, sticky="w", pady=(6, 0))
+            style="Wrapped.TCheckbutton",
+        ).pack(side="left")
+        self._help_button(check_logs_row, "check_logs_automatically").pack(
+            side="left", anchor="n", padx=(4, 0)
+        )
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -809,8 +864,11 @@ class App(tk.Tk):
         actions = ttk.Frame(tab)
         actions.pack(fill="x")
         ttk.Button(actions, text="Validate", command=self._validate).pack(side="left")
-        ttk.Button(actions, text="Dry Run", command=self._dry_run).pack(side="left", padx=8)
-        ttk.Button(actions, text="Create Modified EXE", command=self._apply).pack(side="left")
+        self._help_button(actions, "validate").pack(side="left", padx=(2, 0))
+        ttk.Button(actions, text="Dry Run", command=self._dry_run).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "dry_run").pack(side="left", padx=(2, 0))
+        ttk.Button(actions, text="Create Modified EXE", command=self._apply).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "create_modified_exe").pack(side="left", padx=(2, 0))
 
     def _build_all_tab(self, tab: ttk.Frame) -> None:
         ttk.Label(
@@ -820,11 +878,28 @@ class App(tk.Tk):
         ).pack(anchor="w", pady=(0, 8))
         grid = ttk.Frame(tab)
         grid.pack(fill="both", expand=True)
-        for row, build in enumerate(self.builds):
+        # One "?" per column, above the five rows: the same feature on every
+        # row has the same guide, so five copies of each "?" would only add
+        # clutter.
+        for column, key in (
+            (2, "game_folders"),
+            (3, "open_vanilla_folder"),
+            (4, "open_modified_folder"),
+            (5, "back_up_saves"),
+            (6, "restore_saves"),
+            (7, "rename_tribe"),
+            (8, "check_logs"),
+            (9, "repair_logs"),
+        ):
+            self._help_button(grid, key).grid(
+                row=0, column=column, padx=(12, 0) if column > 2 else 0, pady=(0, 2)
+            )
+        for index, build in enumerate(self.builds):
+            row = index + 1
             short = build.title.removeprefix("Virtual Villagers - ")
             ttk.Label(
                 grid,
-                text=f"{row + 1}. {short} ({build.villager_slots} stock slots)",
+                text=f"{index + 1}. {short} ({build.villager_slots} stock slots)",
             ).grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
             ttk.Entry(grid, textvariable=self.all_folder_vars[build.id]).grid(
                 row=row, column=1, sticky="ew", padx=(0, 8), pady=4
@@ -877,41 +952,59 @@ class App(tk.Tk):
             text="Find All 5 in Parent Folder...",
             command=self._find_all,
         ).pack(side="left")
+        self._help_button(actions, "find_all_5").pack(side="left", padx=(2, 0))
         ttk.Button(
             actions, text="Validate All 5", command=self._validate_all
-        ).pack(side="left", padx=(16, 8))
+        ).pack(side="left", padx=(16, 0))
+        self._help_button(actions, "validate_all_5").pack(side="left", padx=(2, 0))
         ttk.Button(
             actions, text="Dry Run All 5", command=self._dry_run_all
-        ).pack(side="left")
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "dry_run_all_5").pack(side="left", padx=(2, 0))
         ttk.Button(
             actions, text="Patch All 5", command=self._apply_all
         ).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "patch_all_5").pack(side="left", padx=(2, 0))
+        # The save and log tools get a row of their own: with a "?" beside
+        # every button, one row is wider than the window.
+        save_tools = ttk.Frame(tab)
+        save_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(
-            actions,
+            save_tools,
             text="Back Up Saves (All 5)...",
             command=lambda: self._back_up_saves(list(self.builds)),
-        ).pack(side="left", padx=(16, 0))
+        ).pack(side="left")
+        self._help_button(save_tools, "back_up_saves").pack(side="left", padx=(2, 0))
         ttk.Button(
-            actions,
+            save_tools,
             text="Rename Tribe...",
             command=lambda: self._rename_tribe(None),
         ).pack(side="left", padx=(8, 0))
+        self._help_button(save_tools, "rename_tribe").pack(side="left", padx=(2, 0))
         ttk.Button(
-            actions,
+            save_tools,
             text="Check Logs...",
             command=lambda: self._log_tool(None, repair=False),
         ).pack(side="left", padx=(8, 0))
+        self._help_button(save_tools, "check_logs").pack(side="left", padx=(2, 0))
         ttk.Button(
-            actions,
+            save_tools,
             text="Repair Logs...",
             command=lambda: self._log_tool(None, repair=True),
         ).pack(side="left", padx=(8, 0))
+        self._help_button(save_tools, "repair_logs").pack(side="left", padx=(2, 0))
+        check_logs_row = ttk.Frame(tab)
+        check_logs_row.pack(anchor="w", pady=(8, 0))
         ttk.Checkbutton(
-            tab,
+            check_logs_row,
             text=CHECK_LOGS_LABEL,
             variable=self.check_logs_var,
             command=self._check_logs_changed,
-        ).pack(anchor="w", pady=(8, 0))
+            style="Wrapped.TCheckbutton",
+        ).pack(side="left")
+        self._help_button(check_logs_row, "check_logs_automatically").pack(
+            side="left", anchor="n", padx=(4, 0)
+        )
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -1603,6 +1696,64 @@ class App(tk.Tk):
         if self.last_output_dir is None:
             return
         self._open_folder(self.last_output_dir)
+
+    def _help_button(self, parent, key: str, title: str | None = None):
+        """A small "?" button that opens the brief guide for one feature.
+
+        The owner: "there should be a little How to Use button for every
+        feature in the entire patcher."  ``key`` names the guide in
+        data/how_to_use.json (vv_how_to_use); a key with no guide fails
+        here, while the window is built, never later on a click.
+        """
+        vv_how_to_use.guide(key, title)
+        self.help_keys.add(key)
+        return ttk.Button(
+            parent,
+            text="?",
+            width=2,
+            command=lambda: self._show_how_to_use(key, title),
+        )
+
+    def _show_how_to_use(self, key: str, title: str | None = None) -> tk.Toplevel:
+        """The small "How to use" window for one feature."""
+        window = self._help_windows.get(key)
+        if window is not None and window.winfo_exists():
+            window.deiconify()
+            window.lift()
+            window.focus_set()
+            return window
+        guide = vv_how_to_use.guide(key, title)
+        window = tk.Toplevel(self)
+        window.title(f"How to use: {guide.title}")
+        window.transient(self)
+        window.resizable(False, False)
+        frame = ttk.Frame(window, padding=16)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(
+            frame, text=guide.title, font=("Segoe UI", 11, "bold"),
+            wraplength=480, justify="left",
+        ).pack(anchor="w", pady=(0, 8))
+        for line in guide.lines:
+            ttk.Label(frame, text=line, wraplength=480, justify="left").pack(
+                anchor="w", pady=(0, 6)
+            )
+        close = ttk.Button(frame, text="Close", command=window.destroy)
+        close.pack(anchor="e", pady=(8, 0))
+        window.bind("<Escape>", lambda _event: window.destroy())
+        window.update_idletasks()
+        rect = None
+        if self.winfo_viewable():
+            rect = (self.winfo_rootx(), self.winfo_rooty(),
+                    self.winfo_width(), self.winfo_height())
+        x, y = centered_origin(
+            rect,
+            (window.winfo_reqwidth(), window.winfo_reqheight()),
+            (window.winfo_screenwidth(), window.winfo_screenheight()),
+        )
+        window.geometry(f"+{x}+{y}")
+        close.focus_set()
+        self._help_windows[key] = window
+        return window
 
     def _folder_link(self, parent, text: str, command):
         """A clickable, underlined link label.

@@ -8,6 +8,8 @@ The app uses the supplied transparent `Island.png` artwork as its title-bar icon
 
 `[Island image] Created with Codex AI. Made with love by Lorsieab2 :) [Island image]`
 
+**Every feature has a "?" button.** Beside every patch, population mode, button, link and setting in the patcher window there is a small **?**. Clicking it opens a short, plain guide: what the feature does, how to use it (where it shows up in the game, what to click), and anything to watch out for -- for example that a patch needs another patch, that the game must be closed first, or that 256 Villagers (Experimental) keeps its saves in its own folder. On the All 5 Games tab, the **?** above each column of links is the guide for that link on every game's row. The guides ship with the patcher in `data/how_to_use.json`, and a test refuses any public patch, mode, button or setting without one.
+
 The complete interface has a vertical scrollbar and supports mouse-wheel scrolling, so every patch option, game-folder field, action, and status message remains reachable on shorter displays.
 
 Optional patches are shown under deterministic game-title headers in this order:
