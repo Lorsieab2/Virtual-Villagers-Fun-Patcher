@@ -57,12 +57,12 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
                "/I", str(vs / "include"), "/I", str(sdk / "Include" / ver / "um"),
                "/I", str(sdk / "Include" / ver / "shared"), "/I", str(sdk / "Include" / ver / "ucrt"),
                "/I", str(SHARED),
-               str(SHARED / "crosscheck_bridge_harness.c"),
+               str(SHARED / "crosscheck_bridge_harness.c"), str(SHARED / "save_folder.c"),
                f"/Fe{exe}", f"/Fo{cls.work}\\",
                "/link",
                f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
                f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}",
-               "kernel32.lib", "user32.lib"]
+               "kernel32.lib", "user32.lib", "shell32.lib"]
         build = subprocess.run(cmd, capture_output=True, text=True, cwd=cls.work)
         if build.returncode != 0:
             raise AssertionError(build.stdout[-3000:] + build.stderr[-3000:])
@@ -111,6 +111,12 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "a statistics scan that cannot tell yet holds the prompt back",
             "without the statistics companion the rest is still asked",
             "everything found together: one prompt, and Repair repairs every part",
+            "orphan mask entries are asked about in all five games, and the answer is passed on",
+            "... in the singular for one",
+            "a mask scan that cannot tell yet holds the prompt back, like the others",
+            "... and the one prompt then covers both",
+            "no orphans: the masks are neither mentioned nor repaired",
+            "an answer given while another village was loaded removes no mask",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

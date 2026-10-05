@@ -28,6 +28,7 @@ static int g_have_parentage = 1, g_have_cause = 1;
 static int g_births = 0, g_birth_scans, g_birth_calls, g_birth_game, g_birth_answer;
 static int g_stats = 0, g_stats_scans, g_stats_calls, g_stats_game, g_stats_answer, g_have_stats = 1;
 static char g_stats_lines[512];
+static int g_masks = 0, g_mask_scans, g_mask_calls, g_mask_game, g_mask_slot, g_mask_answer;
 
 static int WINAPI harness_msgbox(HWND owner, LPCSTR text, LPCSTR caption, UINT type) {
     (void)owner; (void)caption;
@@ -98,7 +99,14 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     return &host;
 }
 #include "crosscheck_bridge.h"
+#include "orphan_masks.h"
 #undef MessageBoxA
+
+/* The companion's own orphan mask pair (orphan_masks.h), stood in for. */
+static int vvfp_xc_masks_scan(int game, int slot) { (void)game; (void)slot; ++g_mask_scans; return g_masks; }
+static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+    ++g_mask_calls; g_mask_game = game; g_mask_slot = slot; g_mask_answer = repair;
+}
 
 static int failures;
 static void check(int ok, const char *name) {
@@ -128,6 +136,8 @@ static void reset(void) {
     g_stats = g_stats_scans = g_stats_calls = g_stats_game = 0;
     g_stats_answer = -1;
     g_have_stats = 1;
+    g_masks = g_mask_scans = g_mask_calls = g_mask_game = g_mask_slot = 0;
+    g_mask_answer = -1;
     lstrcpyA(g_stats_lines, "- Villagers Buried is 3, but the Deaths log and the graves show 5 burials. "
                             "It will be raised to 5.\r\n");
 }
@@ -391,6 +401,62 @@ int main(void) {
     check(g_boxes == 1 && g_applies == 1 && g_repair_calls == 1 && g_arrival_calls == 1 && g_stats_calls == 1
           && g_stats_answer == 1 && g_birth_scans == 1 && g_birth_calls == 0,
           "everything found together: one prompt, and Repair repairs every part");
+
+    /* Orphan mask entries (v1.35.59), every game: the companion's own pair. */
+    {
+        int game;
+        for (game = 1; game <= 5; ++game) {
+            reset();
+            g_masks = 3;
+            g_slot = game;
+            g_answer = game % 2 ? IDYES : IDNO;
+            play(game, 1, 8000, 16);
+            if (!(g_boxes == 1 && g_mask_scans == 1 && g_mask_calls == 1 && g_mask_game == game && g_mask_slot == game
+                  && g_mask_answer == (game % 2 ? 1 : 0)
+                  && strstr(g_text, "- 3 mask entries for villagers who are no longer in the village. "
+                                    "They will be removed.") != NULL
+                  && strstr(g_text, "The Village Masks file is backed up first; every removal is listed in the "
+                                    "Repairs log.") != NULL)) {
+                break;
+            }
+        }
+        check(game == 6, "orphan mask entries are asked about in all five games, and the answer is passed on");
+    }
+    reset();
+    g_masks = 1;
+    play(2, 1, 8000, 16);
+    check(g_boxes == 1 && strstr(g_text, "- 1 mask entry for a villager who is no longer in the village. "
+                                         "It will be removed.") != NULL, "... in the singular for one");
+    reset();
+    g_masks = -1;
+    g_graves = 1;
+    play(5, 1, VVFP_XC_SETTLE_MS + 100, 16);
+    check(g_boxes == 0 && g_mask_scans == 1, "a mask scan that cannot tell yet holds the prompt back, like the others");
+    g_masks = 2;
+    play(5, 1, VVFP_XC_RETRY_MS + 200, 16);
+    check(g_boxes == 1 && strstr(g_text, "2 mask entries") != NULL && strstr(g_text, "1 grave has") != NULL,
+          "... and the one prompt then covers both");
+    reset();
+    g_masks = 0;
+    g_graves = 1;
+    play(4, 1, 8000, 16);
+    check(g_boxes == 1 && g_mask_calls == 0 && strstr(g_text, "mask") == NULL,
+          "no orphans: the masks are neither mentioned nor repaired");
+    reset();
+    g_masks = 1;
+    g_answer = IDYES;
+    {
+        DWORD t;
+        int spins;
+        for (t = 0; t < VVFP_XC_SETTLE_MS + 200 && vvfp_xc.state != VVFP_XC_ASKING; t += 16) {
+            vvfp_crosscheck_bridge(3, 1);
+            g_now += 16;
+        }
+        g_slot = 4;                 /* another village meanwhile */
+        for (spins = 0; spins < 500 && vvfp_xc.answer == 0; ++spins) Sleep(10);
+        vvfp_crosscheck_bridge(3, 1);
+    }
+    check(g_mask_calls == 1 && g_mask_answer == 0, "an answer given while another village was loaded removes no mask");
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
