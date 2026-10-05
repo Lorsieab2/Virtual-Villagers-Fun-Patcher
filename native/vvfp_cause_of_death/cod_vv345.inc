@@ -121,7 +121,7 @@ static void v345_buried(int site, const unsigned int *regs) {
     char epitaph[64];
     int index = cod_index_of(record);
     (void)site;
-    if (index < 0 || temporary[index] || rec_lookalike(record)) {
+    if (index < 0 || cod_temporary(index, record) || rec_lookalike(record)) {
         written_record = NULL;
         return;
     }
@@ -152,7 +152,7 @@ static void v345_buried(int site, const unsigned int *regs) {
 
 static void v345_decayed_record(const unsigned char *record) {
     int index = cod_index_of(record);
-    if (index < 0 || temporary[index] || rec_lookalike(record) || !rec_present(record)
+    if (index < 0 || cod_temporary(index, record) || rec_lookalike(record) || !rec_present(record)
         || rec_health(record) > 0) {
         return;
     }
