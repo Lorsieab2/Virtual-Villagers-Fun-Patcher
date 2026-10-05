@@ -43,8 +43,9 @@
         its file (atomically, native/shared/sidecar_io.h);
      4. each removal is listed in the Repairs log (repairs_log.h).
    A failure at 3 or 4 puts the entries back (and the file, after a failed
-   note), deletes this repair's backup and changes nothing: the next load
-   asks again.  "Not now" changes nothing.  Once removed, a scan finds
+   note) and changes nothing: the next load asks again.  This repair's
+   backup is deleted only when the file on disk is the one it copied -- if
+   the file could not be written back, the backup keeps the entries.  "Not now" changes nothing.  Once removed, a scan finds
    nothing more, so no marker is needed: the next load does not ask.
 
    Header-only and file-static; included once per Origins companion, after
@@ -206,6 +207,11 @@ static int vv_om_saved_header(int game, int slot, char *out, int size) {
 }
 #endif
 
+/* The Repairs log note (repairs_log.h); a harness stands in a failing one. */
+#ifndef VVFP_OM_NOTE
+#define VVFP_OM_NOTE(game, header, checked, body) vv_repairs_note(game, header, checked, body)
+#endif
+
 /* Copy `path` to "<path>.before-v1.35.59-repair" ("-2", "-3", ... when that
    is there; never replacing a file).  1: copied, or there is no file (then
    `*none` is 1); 0: no copy could be made. */
@@ -261,7 +267,7 @@ static int vv_om_commit(int game, int slot, const char *path, const vv_om_list *
     wchar_t wide[MAX_PATH], backup[MAX_PATH];
     char *body;
     size_t cap, len = 0, n;
-    int none, i, ok;
+    int none, i, ok, restored;
     if (entries->count == 0) {
         return 1;
     }
@@ -315,15 +321,18 @@ static int vv_om_commit(int game, int slot, const char *path, const vv_om_list *
         len += (size_t)_snprintf_s(body + len, cap - len, _TRUNCATE, "  Backup: none (there was no file)\r\n");
     }
     ok = table->publish();
-    if (ok && !vv_repairs_note(game, header, VV_OM_CHECKED, body)) {
+    restored = !ok;                   /* a failed write left the file as it was */
+    if (ok && !VVFP_OM_NOTE(game, header, VV_OM_CHECKED, body)) {
         ok = 0;                       /* no note, no change: the file goes back too */
         vv_om_put_back(entries, table);
-        table->publish();
+        restored = table->publish();
     } else if (!ok) {
         vv_om_put_back(entries, table);
     }
     HeapFree(GetProcessHeap(), 0, body);
-    if (!ok && backup[0]) {
+    /* The backup goes only when the file on disk is the one it copied: if
+       the write back failed, the removed entries are in nothing but it. */
+    if (!ok && restored && backup[0]) {
         DeleteFileW(backup);
     }
     return ok;

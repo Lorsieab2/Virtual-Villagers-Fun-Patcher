@@ -28,6 +28,8 @@
 static int g_fail_writes;
 static int g_header_ok = 1;
 static int g_header_calls;
+static int g_fail_note;          /* the Repairs log note fails */
+static int g_fail_after_note;    /* ... and every write after it */
 
 static BOOL WINAPI harness_write_file(HANDLE file, LPCVOID data, DWORD size, LPDWORD wrote, LPOVERLAPPED ov) {
     if (g_fail_writes) {
@@ -46,6 +48,8 @@ static int harness_header(int game, int slot, char *out, int size) {
     return 1;
 }
 
+static int harness_note(int game, const char *header, const char *checked, const char *body);
+#define VVFP_OM_NOTE(game, header, checked, body) harness_note(game, header, checked, body)
 #define VV_SIDECAR_WRITE_FILE harness_write_file
 #define VVFP_OM_HEADER(game, slot, out, size) harness_header(game, slot, out, size)
 #define VVFP_XC_NOW() 0u
@@ -373,6 +377,34 @@ static int write_file(const char *path, const unsigned char *buf, DWORD n) {
 
 static int exists(const char *path) { return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES; }
 
+static int harness_note(int game, const char *header, const char *checked, const char *body) {
+    if (g_fail_note) {
+        if (g_fail_after_note) g_fail_writes = 1;
+        return 0;
+    }
+    return vv_repairs_note(game, header, checked, body);
+}
+
+static int file_mask_is(int i, unsigned char v) {
+    static unsigned char f[8192];
+    return read_file(g_path, f, sizeof f) > 0 && file_mask(f, i) == v;
+}
+
+/* The companion's own writer (what the next table change runs). */
+static int publish(void) {
+#if OM_GAME == 1
+    return vv1_mask_sidecar_save();
+#elif OM_GAME == 2
+    return vv2_mask_sidecar_save();
+#elif OM_GAME == 3
+    return vv3_mask_write_sidecar();
+#elif OM_GAME == 4
+    return vv_write_mask_sidecar();
+#else
+    return vv5_om_publish();
+#endif
+}
+
 static char g_backup1[MAX_PATH], g_backup2[MAX_PATH];
 
 static int count_in(const char *path, const char *what) {
@@ -542,6 +574,27 @@ int main(void) {
     CHECK(!exists(g_backup1), "this repair's backup is gone again");
     CHECK(!exists(g_log), "nothing is listed");
     CHECK(table_is(HAS_BODY ? "1:1 5:3 6:4 7:2 8:5" : "1:1 5:3 6:4 7:2"), "the entries are back in the table");
+
+    printf("== Repair, the Repairs log failing ==\n");
+    g_fail_note = 1;
+    CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two");
+    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(file_mask_is(5, 3) && file_mask_is(6, 4), "the file is written back with both entries");
+    CHECK(!exists(g_backup1) && !exists(g_log), "no backup left, nothing listed");
+    CHECK(table_is(HAS_BODY ? "1:1 5:3 6:4 7:2 8:5" : "1:1 5:3 6:4 7:2"), "the entries are back in the table");
+    g_file_n = read_file(g_path, g_file, sizeof g_file);   /* as written back */
+    g_fail_after_note = 1;
+    CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two again");
+    vvfp_xc_masks_repair(game, SLOT, 1);
+    g_fail_note = g_fail_after_note = g_fail_writes = 0;
+    CHECK(exists(g_backup1), "when the file cannot be written back either, the backup is kept: it alone holds them");
+    CHECK(read_file(g_backup1, g_now, sizeof g_now) == g_file_n && memcmp(g_now, g_file, g_file_n) == 0,
+          "... and it is the file as it was");
+    CHECK(table_is(HAS_BODY ? "1:1 5:3 6:4 7:2 8:5" : "1:1 5:3 6:4 7:2"), "the entries are back in the table again");
+    CHECK(publish(), "the next write puts them back on disk");
+    CHECK(file_mask_is(5, 3) && file_mask_is(6, 4), "... both entries");
+    DeleteFileA(g_backup1);
+    g_file_n = read_file(g_path, g_file, sizeof g_file);
 
     printf("== Repair ==\n");
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two");
