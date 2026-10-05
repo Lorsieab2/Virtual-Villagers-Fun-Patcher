@@ -353,7 +353,10 @@ static void roster_reconcile(int slot) {
                    now is somebody else, whatever their name or sex. */
                 same = present && !report_counts(departed[i], slot)
                     && roster_same(roster_scratch, now_record);
-                if ((!present || !same) && !report_counts(departed[i], slot)) {
+                /* ...unless their grave was just recorded from (a burial no
+                   hook saw: the load-time catch-up; cod_backfill.inc). */
+                if ((!present || !same) && !report_counts(departed[i], slot)
+                    && !backfill_accounts_for(roster_scratch)) {
                     roster_log(roster_scratch, 0, (int)i,
                                "Left the village with no Death or Disappeared record", last_seen, now);
                 }
@@ -440,6 +443,9 @@ static void roster_reset(int slot) {
 static void cod_save_done(int slot, const void *save_buffer) {
     cod_publish_village(save_buffer, slot);
     if (install_state == 1) {
+        /* Every grave in the Deaths log first, so the reconciliation knows
+           the villagers whose graves were recorded from now. */
+        backfill_at_save(slot, save_buffer);
         roster_reconcile(slot);
     }
 }
