@@ -858,14 +858,24 @@ def build_safety_rows(vv5: dict) -> list[dict]:
         "0x945E0": "reserve no more than the lesser of six abandoned infants or the slots left of 256, "
                    "picked by the relocated manager",
     }
+    # The record guards (scripts/build_record_guards_vv345.py) carry their own
+    # 256-slot rescale.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "build_record_guards_vv345", ROOT / "scripts" / "build_record_guards_vv345.py")
+    guards = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(guards)
+    guard_rows = guards.rescale_256("vv5")
+    for offset, pairs in guard_rows.items():
+        edits[offset] = pairs
     for offset, src in stock_rows.items():
         after = src["after"]
         for old, new in edits.get(offset, []):
             assert after.count(old) == 1, (offset, old)
             after = after.replace(old, new)
         out.append({"offset": offset, "before": src["before"], "after": after,
-                    "purpose": purposes[offset]})
-    assert set(edits) <= set(stock_rows) and set(purposes) == set(stock_rows)
+                    "purpose": purposes.get(offset, src["purpose"])})
+    assert set(edits) <= set(stock_rows) and set(purposes) <= set(stock_rows)
     return out
 
 

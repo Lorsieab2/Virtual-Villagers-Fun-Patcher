@@ -3476,7 +3476,7 @@
    {
     "offset": "0x7B260",
     "before": "00000000000000000000000000000000000000000000000000000000000000",
-    "after": "E8B30000003DFD0000000F8F6DA9FDFFC786900E000003000000E94AA9FDFF",
+    "after": "E89BD024003DFE0000000F8F6DA9FDFFC786900E000003000000E94AA9FDFF",
     "purpose": "keep triplets only when three of the 256 villager slots remain"
    },
    {
@@ -3488,7 +3488,7 @@
    {
     "offset": "0x7B280",
     "before": "00000000000000000000000000000000000000000000000000000000000000",
-    "after": "E8930000003DFE0000000F8F5DA9FDFFC786900E000002000000E948A9FDFF",
+    "after": "E87BD024003DFF0000000F8F5DA9FDFFC786900E000002000000E948A9FDFF",
     "purpose": "keep twins only when two of the 256 villager slots remain"
    },
    {
@@ -3500,7 +3500,7 @@
    {
     "offset": "0x7B2E0",
     "before": "000000000000000000000000000000000000000000000000",
-    "after": "E8330000003D000100007D0B566858020000E99F9AF9FFC3",
+    "after": "E81BD024003D000100007D0B566858020000E99F9AF9FFC3",
     "purpose": "skip the event newcomer when all 256 slots are occupied or resume the complete stock outcome"
    },
    {
@@ -3512,7 +3512,7 @@
    {
     "offset": "0x7B300",
     "before": "0000000000000000000000000000000000000000000000",
-    "after": "E8130000003D000100007D0A68C8000000E90FA0F9FFC3",
+    "after": "E8FBCF24003D000100007D0A68C8000000E90FA0F9FFC3",
     "purpose": "skip the first barrel child when all 256 slots are occupied while retaining the stock later-child cap checks"
    },
    {
@@ -3520,6 +3520,84 @@
     "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
     "after": "515231C0BA14008000B90001000080BA100F00000074014081C28C1F00004975ED5A59C3",
     "purpose": "count occupied villager record slots (active byte) of the relocated 256-slot table"
+   },
+   {
+    "offset": "0x280",
+    "before": "04000000",
+    "after": "00100000",
+    "purpose": "map the whole .shr page, where the record guards live (the same write Everyone Tries On The Robe makes)"
+   },
+   {
+    "offset": "0x29C",
+    "before": "400000D0",
+    "after": "600000F0",
+    "purpose": "mark the .shr page executable for the record guards (the same write Everyone Tries On The Robe makes)"
+   },
+   {
+    "offset": "0xB4300",
+    "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "515231C0BA14008000B90001000080BA100F00000074104083BA8C0E00000074060382900E000081C28C1F00004975DE5A59C3",
+    "purpose": "count the records' demand: every occupied record (the active byte; corpses included) plus the babies each pregnant mother still owes"
+   },
+   {
+    "offset": "0xB4340",
+    "before": "00000000000000000000000000000000000000000000000000",
+    "after": "E8AB65D9FF50E8B5FFFFFF3D00010000587205B8FF7F0000C3",
+    "purpose": "the room predicate's count, or no room at any cap while the records' demand has no record left"
+   },
+   {
+    "offset": "0xB4360",
+    "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "8B86C000000085C0742250528B96C400000085D2750142E89C2FDBFF01D05A3D0101000058720339C0C385C0C3",
+    "purpose": "a delivery only when its whole litter fits in the free records, else it waits with the pregnancy kept"
+   },
+   {
+    "offset": "0xB4390",
+    "before": "0000000000000000000000000000000000000000000000",
+    "after": "85C0740FE867FFFFFF3DFF0000000F92C0EB0231C05EC3",
+    "purpose": "The Mysterious Vial: offered only with room for two copies"
+   },
+   {
+    "offset": "0xB43B0",
+    "before": "00000000000000000000000000000000000000000000",
+    "after": "83F8027D0EE846FFFFFF3D000100000F92C0C331C0C3",
+    "purpose": "The Crystal of Reflections: offered only with room for its reflection"
+   },
+   {
+    "offset": "0xB43D0",
+    "before": "000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "E82BFFFFFF3D00010000720C58C7460C000000005EC2040058578B7E046A2BFFE0",
+    "purpose": "The Crystal of Reflections' keep: a record checked before the likes change"
+   },
+   {
+    "offset": "0x5FE37",
+    "before": "E8B4EAFFFF",
+    "after": "E804852600",
+    "purpose": "the room predicate 0x45FE30 answers no room while the records' demand (occupied records, corpses included, plus every baby still owed) has no record left"
+   },
+   {
+    "offset": "0x60341",
+    "before": "8B86C000000085C00F84C3010000",
+    "after": "E81A8026000F84C6010000909090",
+    "purpose": "a delivery waits, the pregnancy kept, until its whole litter fits in the free records (the stock code cleared the pregnancy when the creator found no record)"
+   },
+   {
+    "offset": "0x178DA",
+    "before": "89460485C00F95C05EC3",
+    "after": "894604E9AE0A2B009090",
+    "purpose": "The Mysterious Vial is offered only with room for its two copies"
+   },
+   {
+    "offset": "0x1580C",
+    "before": "33C983F8020F9CC18AC1C3",
+    "after": "E99F2B2B00909090909090",
+    "purpose": "The Crystal of Reflections is offered only with room for its reflection"
+   },
+   {
+    "offset": "0x191EF",
+    "before": "578B7E046A2B",
+    "after": "E8DCF12A0090",
+    "purpose": "The Crystal of Reflections' keep checks for a record before it changes the villager's likes"
    }
   ],
   "code_pages": {

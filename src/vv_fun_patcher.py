@@ -864,6 +864,23 @@ EXPANDED_TIME_WARP_PATHS = {
 # build without Origins is handed it by _attach_start_over_reset below, which
 # never does so when Origins is selected, so this exemption is not what keeps
 # the hook single; it stays as the narrow allowance it always was.
+# SECTION PERMISSION HEADERS THE SAFETY LAYER SHARES WITH ONE FEATURE.
+#
+# The record guards of The Secret City and The Tree of Life
+# (scripts/build_record_guards_vv345.py) live in a page the loader already
+# maps -- VV3's .shr page, VV4's .rdata tail -- because those games' .text
+# tails are full.  Making that page executable is the very header write a
+# feature already makes for its own code there (Everyone Tries On The Robe,
+# Origins and its candidates).  The safety layer applies first in every
+# build; the feature then finds its own bytes already written.  Allowed only
+# for these exact header fields, with identical bytes on both sides.
+SHARED_SECTION_HEADERS = {
+    ("vv3", 0x280): ("04000000", "00100000"),
+    ("vv3", 0x29C): ("400000D0", "600000F0"),
+    ("vv4", 0x244): ("40000040", "40000060"),
+}
+
+
 RESET_HOOK_OWNERS = {
     "vv1": frozenset({
         "feature:vv1_enable_origins_exclusive_features",
@@ -9522,9 +9539,18 @@ def render_patched_bytes(
                         and prior_start == offset
                         and prior_end == end
                     )
+                    allowed_shared_section_header = (
+                        prior_owner == "automatic:safety"
+                        and prior_start == offset
+                        and prior_end == end
+                        and SHARED_SECTION_HEADERS.get((build.id, offset))
+                        == (before.hex().upper(), after.hex().upper())
+                        and after == data[offset:end]
+                    )
                     if (
                         allowed_vv5_individual_overlay
                         or allowed_vv5_running_overlay
+                        or allowed_shared_section_header
                         or allowed_vv3_individual_running_overlay
                         or allowed_vv3_individual_full_mastery_overlay
                         or allowed_vv3_full_heal_overlay
@@ -9547,9 +9573,10 @@ def render_patched_bytes(
                 # collision: it is allowed only when the bytes already present
                 # are EXACTLY what this patch would write, and only for the two
                 # features named for this game.
-                already_written = (
-                    actual == after
-                    and owner in RESET_HOOK_OWNERS.get(build.id, frozenset())
+                already_written = actual == after and (
+                    owner in RESET_HOOK_OWNERS.get(build.id, frozenset())
+                    or SHARED_SECTION_HEADERS.get((build.id, offset))
+                    == (before.hex().upper(), after.hex().upper())
                 )
                 if not already_written:
                     raise PatcherError(

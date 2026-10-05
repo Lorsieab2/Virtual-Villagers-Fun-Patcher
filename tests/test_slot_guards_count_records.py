@@ -505,5 +505,201 @@ class VV4VV5LitterGuards(unittest.TestCase):
                     self.assertEqual(self.run_guard(pe, game, slots, slots, g["twins"], twin), "refused")
 
 
+# ---- The Secret City, The Tree of Life, New Believers ----------------------------
+# scripts/build_record_guards_vv345.py.  Each guard runs from the image the
+# patcher renders with every public patch, in stock mode and Immediate Fixed,
+# with and without 256 Villagers.
+
+VV345 = {
+    "vv3": dict(exe="Virtual Villagers - The Secret City.exe", base={150: 0x59E124, 256: 0x800014},
+                manager={150: 0x59E110, 256: 0x800000}, stride=0x1F8C, active=0xF10, health=0xE78,
+                pregnant=0xE8C, litter=0xE90, delivery=0x460341, delivery_len=14, wait=0x460512,
+                pregnant_rel=0xC0),
+    "vv4": dict(exe="Virtual Villagers - The Tree of Life.exe", base={150: 0x50E5AC, 256: 0x800044},
+                manager={150: 0x50E568, 256: 0x800000}, stride=0x2E3C, active=0x1CC4, health=0x1C40,
+                pregnant=0x1C4C, litter=0x1C50, delivery=0x4687E4, delivery_len=11, wait=0x468A1A,
+                pregnant_rel=0x10),
+    "vv5": dict(exe="Virtual Villagers - New Believers.exe", base={150: 0x554190, 256: 0x800048},
+                manager={150: 0x554148, 256: 0x800000}, stride=0x2F44, active=0x1CD4, health=0x1C40,
+                pregnant=0x1C4C, litter=0x1C50, delivery=0x4730AF, delivery_len=11, wait=0x4732E1,
+                pregnant_rel=0x10),
+}
+_RENDERS: dict = {}
+
+
+def render345(game, mode, slots):
+    key = (game, mode, slots)
+    if key not in _RENDERS:
+        build = next(b for b in vfp.load_builds() if b.id == game)
+        feats = [f.id for f in vfp.load_public_fun_patches()
+                 if f.raw.get("game_id") == game and not f.id.endswith("population_256")]
+        if slots == 256:
+            feats.append(f"{game}_population_256")
+        data, _ = vfp.render_patched_bytes(STOCK / VV345[game]["exe"], build, mode, feats)
+        _RENDERS[key] = pefile.PE(data=bytes(data))
+    return _RENDERS[key]
+
+
+class Village345:
+    def __init__(self, game, mode, slots, occupied, corpses=0, pending=()):
+        g = self.g = VV345[game]
+        self.slots = slots
+        pe = render345(game, mode, slots)
+        self.uc = uc = Uc(UC_ARCH_X86, UC_MODE_32)
+        for section in pe.sections:
+            va = 0x400000 + section.VirtualAddress
+            size = (max(section.Misc_VirtualSize, section.SizeOfRawData) + 0xFFF) & ~0xFFF
+            uc.mem_map(va, size)
+            uc.mem_write(va, section.get_data()[:size])
+        uc.mem_map(STACK, 0x10000)
+        uc.mem_map(SENTINEL & ~0xFFF, 0x1000)
+        uc.mem_map(OBJ, 0x10000)
+        self.base = g["base"][slots]
+        for i in range(occupied):
+            r = self.rec(i)
+            uc.mem_write(r + g["active"], b"\x01")
+            uc.mem_write(r + g["health"], struct.pack("<i", 0 if i >= occupied - corpses else 60))
+        for i, babies in pending:
+            uc.mem_write(self.rec(i) + g["pregnant"], struct.pack("<I", 300))
+            uc.mem_write(self.rec(i) + g["litter"], struct.pack("<I", babies))
+        self.stops = {}
+        self.where = None
+        uc.hook_add(UC_HOOK_CODE, self._hook)
+
+    def rec(self, i):
+        return self.base + i * self.g["stride"]
+
+    def _hook(self, uc, address, size, user):
+        if address in self.stops:
+            self.where = self.stops[address]
+            uc.emu_stop()
+
+    def run(self, start, stops, regs=None, stack=()):
+        self.stops = dict(stops)
+        self.stops[SENTINEL] = "returned"
+        esp = STACK_TOP - 4 * len(stack)
+        for k, v in enumerate(stack):
+            self.uc.mem_write(esp + 4 * k, struct.pack("<I", v & 0xFFFFFFFF))
+        self.uc.reg_write(UC_X86_REG_ESP, esp)
+        self.esp0 = esp
+        for r, v in (regs or {}).items():
+            self.uc.reg_write(r, v & 0xFFFFFFFF)
+        self.where = None
+        self.uc.emu_start(start, 0xFFFFFFFF, count=400000)
+        return self.where
+
+    def reg(self, r):
+        return self.uc.reg_read(r)
+
+    def dword(self, va):
+        return struct.unpack("<I", self.uc.mem_read(va, 4))[0]
+
+
+def each345(test, games=("vv3", "vv4", "vv5")):
+    for game in games:
+        for mode in ("stock", "immediate_fixed"):
+            for slots in (150, 256):
+                with test.subTest(game=game, mode=mode, slots=slots):
+                    yield game, mode, slots
+
+
+class VV345RecordGuards(unittest.TestCase):
+    def test_a_delivery_waits_until_its_whole_litter_fits(self):
+        for game, mode, slots in each345(self):
+            g = VV345[game]
+            for babies in (1, 2, 3):
+                for occupied, expect in ((slots - babies, "delivers"), (slots - babies + 1, "waits")):
+                    # the mother is the first record, her babies owed; corpses fill the rest
+                    v = Village345(game, mode, slots, occupied, corpses=occupied // 3, pending=[(0, babies)])
+                    mother = v.rec(0)
+                    esi = mother + g["pregnant"] - g["pregnant_rel"]
+                    where = v.run(g["delivery"], {g["delivery"] + g["delivery_len"]: "delivers",
+                                                  g["wait"]: "waits"}, {UC_X86_REG_ESI: esi})
+                    self.assertEqual(where, expect, (babies, occupied))
+                    self.assertEqual(v.reg(UC_X86_REG_ESP), v.esp0)
+                    self.assertEqual(v.dword(mother + g["pregnant"]), 300, "the pregnancy is kept")
+                    if where == "delivers":
+                        self.assertEqual(v.reg(UC_X86_REG_EAX), 300, "eax as the stock code left it")
+            # not pregnant: no delivery, as before
+            v = Village345(game, mode, slots, 10)
+            where = v.run(g["delivery"], {g["delivery"] + g["delivery_len"]: "delivers", g["wait"]: "waits"},
+                          {UC_X86_REG_ESI: v.rec(0) + g["pregnant"] - g["pregnant_rel"]})
+            self.assertEqual(where, "waits")
+
+    ROOM = {"vv3": (0x45FE37, 0x45E8F0), "vv4": (0x468357, 0x467610), "vv5": (0x472BD7, 0x4713F0)}
+
+    def test_the_room_predicate_counts_corpses_and_babies_owed(self):
+        for game, mode, slots in each345(self):
+            site, population = self.ROOM[game]
+            for occupied, pending, full in ((slots - 3, [(0, 2)], False), (slots - 3, [(0, 2), (1, 1)], True),
+                                            (slots, [], True), (slots - 1, [], False)):
+                v = Village345(game, mode, slots, occupied, corpses=occupied // 2, pending=pending)
+                # the stock population count, stubbed to a small village
+                v.uc.mem_write(population, bytes([0xB8, 7, 0, 0, 0, 0xC3]))
+                where = v.run(site, {site + 5: "back"}, {UC_X86_REG_ECX: VV345[game]["manager"][slots]})
+                self.assertEqual(where, "back")
+                self.assertEqual(v.reg(UC_X86_REG_EAX), 0x7FFF if full else 7, (occupied, pending))
+                self.assertEqual(v.reg(UC_X86_REG_ECX), VV345[game]["manager"][slots])
+
+    def test_reanimate_is_refused_with_no_free_record(self):
+        for game, mode, slots in each345(self, ("vv5",)):
+            for occupied, refused in ((slots - 1, False), (slots, True)):
+                v = Village345(game, mode, slots, occupied, corpses=5)
+                where = v.run(0x42341A, {0x4206F0: "slot finder", 0x42341F: "refused"},
+                              {UC_X86_REG_EBX: OBJ}, stack=(0xFFFFFFFF,))
+                if refused:
+                    self.assertEqual(where, "refused")
+                    self.assertEqual(v.reg(UC_X86_REG_EAX), 0xFFFFFFFF, "answered as no free spell slot")
+                    self.assertEqual(v.reg(UC_X86_REG_ESP), v.esp0 + 4, "its argument popped as 0x4206F0 does")
+                else:
+                    self.assertEqual(where, "slot finder")
+                    self.assertEqual(v.reg(UC_X86_REG_ECX), OBJ)
+                    self.assertEqual(v.dword(v.reg(UC_X86_REG_ESP)), 0x42341F)
+
+    def test_the_vial_and_the_crystal_ask_for_records_first(self):
+        for game, mode, slots in each345(self, ("vv3",)):
+            # the Vial: two copies
+            for demand, offered in ((slots - 2, True), (slots - 1, False)):
+                v = Village345(game, mode, slots, demand, corpses=4)
+                where = v.run(0x4178DA, {}, {UC_X86_REG_EAX: 0x1234, UC_X86_REG_ESI: OBJ},
+                              stack=(0xAAAA, SENTINEL))
+                self.assertEqual(where, "returned")
+                self.assertEqual(v.reg(UC_X86_REG_EAX) & 0xFF, int(offered), demand)
+                self.assertEqual(v.dword(OBJ + 4), 0x1234, "the subject is kept as before")
+                self.assertEqual(v.reg(UC_X86_REG_ESI), 0xAAAA)
+            # the Crystal: one reflection (its own condition is eax < 2)
+            for demand, chapter, offered in ((slots - 1, 1, True), (slots, 1, False), (0, 2, False)):
+                v = Village345(game, mode, slots, demand, corpses=4)
+                where = v.run(0x41580C, {}, {UC_X86_REG_EAX: chapter}, stack=(SENTINEL,))
+                self.assertEqual(where, "returned")
+                self.assertEqual(v.reg(UC_X86_REG_EAX) & 0xFF, int(offered), (demand, chapter))
+            # the Crystal's keep: nothing changes without a record
+            for demand, kept in ((slots - 1, True), (slots, False)):
+                v = Village345(game, mode, slots, demand, corpses=4)
+                v.uc.mem_write(OBJ + 0xC, struct.pack("<I", 0x77))
+                where = v.run(0x4191EF, {0x4191F5: "likes change"},
+                              {UC_X86_REG_ESI: OBJ, UC_X86_REG_EDI: 0x5151},
+                              stack=(0xAAAA, SENTINEL, 0))
+                if kept:
+                    self.assertEqual(where, "likes change")
+                    self.assertEqual((v.dword(v.reg(UC_X86_REG_ESP)), v.dword(v.reg(UC_X86_REG_ESP) + 4)),
+                                     (0x2B, 0x5151), "push edi; push 0x2B as the stock code")
+                else:
+                    self.assertEqual(where, "returned")
+                    self.assertEqual(v.dword(OBJ + 0xC), 0, "answered as when the clone fails")
+                    self.assertEqual(v.reg(UC_X86_REG_ESP), v.esp0 + 12)
+
+    def test_the_secret_city_s_litter_guards_count_babies_owed(self):
+        for game, mode, slots in each345(self, ("vv3",)):
+            for guard, kept, refused, need in ((0x47B260, 0x455BC9, 0x455BDD, 3), (0x47B280, 0x455BE7, 0x455BED, 2)):
+                # the conceiving mother is in the table, her first baby owed;
+                # another mother owes one more
+                for others, expect in ((slots - need - 2, "kept"), (slots - need - 1, "refused")):
+                    v = Village345(game, mode, slots, others + 1, pending=[(others, 1), (0, 1)])
+                    where = v.run(guard, {kept: "kept", refused: "refused"},
+                                  {UC_X86_REG_ESI: v.rec(others)})
+                    self.assertEqual(where, expect, (hex(guard), others))
+
+
 if __name__ == "__main__":
     unittest.main()

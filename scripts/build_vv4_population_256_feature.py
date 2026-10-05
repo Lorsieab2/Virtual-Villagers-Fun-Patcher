@@ -741,6 +741,16 @@ def build_safety_rows(img: Image) -> list[dict]:
         "0x890C0": "reserve no more than the lesser of six abandoned infants or the slots left of 256, picked by the relocated manager",
         "0x890F0": "count VV4 physical villager demand for the 256-slot saturation guards: every occupied record of the relocated table plus the babies each pregnant mother still owes a record",
     }
+    # The record guards (scripts/build_record_guards_vv345.py) carry their own
+    # 256-slot rescale.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "build_record_guards_vv345", ROOT / "scripts" / "build_record_guards_vv345.py")
+    guards = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(guards)
+    guard_rows = guards.rescale_256("vv4")
+    for offset, pairs in guard_rows.items():
+        edits[offset] = pairs
     for offset, src in stock_rows.items():
         after = src["after"]
         for old, new in edits.get(offset, []):

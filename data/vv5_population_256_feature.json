@@ -4153,6 +4153,48 @@
     "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     "after": "E8DBFEFFFFF7D805000100007E1F83F8067E05B8060000006A006A006AFF6A01506AFFB900008000E843D4FDFFC3",
     "purpose": "reserve no more than the lesser of six abandoned infants or the slots left of 256, picked by the relocated manager"
+   },
+   {
+    "offset": "0x94BE0",
+    "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "515231C0BA48008000B90001000080BAD41C00000074014081C2442F00004975ED5A59C3",
+    "purpose": "count the occupied records (the active byte; corpses included)"
+   },
+   {
+    "offset": "0x94C10",
+    "before": "00000000000000000000000000000000000000000000000000",
+    "after": "E8DBC7FDFF50E8A5F8FFFF3D00010000587205B8FF7F0000C3",
+    "purpose": "the room predicate's count, or no room at any cap while the records' demand has no record left"
+   },
+   {
+    "offset": "0x94C30",
+    "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "8B461085C0741F50528B561485D2750142E89AFFFFFF01D05A3D0101000058720339C0C385C0C3",
+    "purpose": "a delivery only when its whole litter fits in the free records, else it waits with the pregnancy kept"
+   },
+   {
+    "offset": "0x94C60",
+    "before": "00000000000000000000000000000000000000000000000000",
+    "after": "E85BF8FFFF3D00010000720683C8FFC2040089D9E977BAF8FF",
+    "purpose": "Reanimate: refused while no record is free for its stand-in"
+   },
+   {
+    "offset": "0x72BD7",
+    "before": "E814E8FFFF",
+    "after": "E834200200",
+    "purpose": "the room predicate 0x472BD0 answers no room while the records' demand (every occupied record -- Heathens, corpses and stand-ins included -- plus every baby still owed) has no record left"
+   },
+   {
+    "offset": "0x730AF",
+    "before": "8B461085C00F8427020000",
+    "after": "E87C1B02000F8427020000",
+    "purpose": "a delivery waits, the pregnancy kept, until its whole litter fits in the free records (the stock code cleared the pregnancy when the creator found no record)"
+   },
+   {
+    "offset": "0x2341A",
+    "before": "8BCBE8CFD2FFFF",
+    "after": "E8411807009090",
+    "purpose": "Reanimate is refused, nothing spent, while no record is free for its stand-in (the stock spell wrote through a NULL record and crashed): answered as a cast with no free spell slot"
    }
   ],
   "code_pages": {
