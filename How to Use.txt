@@ -394,7 +394,8 @@ waits with the pregnancy kept until its whole litter fits; the room check
 counts every occupied record and every baby owed; A New Home's Golden
 Child puzzle fires only with a free record (the original game hid the
 child past the end of the table); New Believers' Reanimate is refused
-instead of crashing; the island events that add a villager are offered only
+instead of crashing, and the gray bar says "There's no room in your
+village to revive this person."; the island events that add a villager are offered only
 with room.
 
 Only the five exact researched stock builds are supported. Unknown, modified,

@@ -18,7 +18,9 @@ taken), but what the callers did with that -1 lost villagers and spent things
     has no record left;
   * New Believers' Reanimate (0x42341A) made its stand-in with no record
     check and crashed on a NULL record with every record taken: it is now
-    refused, nothing spent, like a cast with no free spell slot;
+    refused, nothing spent, like a cast with no free spell slot, and says
+    why in the gray message bar ("There's no room in your village to revive
+    this person.") as the game's own god-power refusals say theirs;
   * The Secret City's Mysterious Vial (two copies) and Crystal of
     Reflections (one) asked for no record at all, and the Crystal changed
     the villager's likes before a clone that could fail: both are offered
@@ -54,7 +56,10 @@ EXE = {"vv3": "Virtual Villagers - The Secret City.exe", "vv4": "Virtual Village
 KS = Ks(KS_ARCH_X86, KS_MODE_32)
 
 
-def asm(source: str, va: int) -> bytes:
+def asm(source: str | bytes, va: int) -> bytes:
+    """Assemble `source` at `va`; bytes (a block's text) are placed as they are."""
+    if isinstance(source, bytes):
+        return source
     encoding, _ = KS.asm(source, va)
     return bytes(encoding)
 
@@ -77,6 +82,17 @@ GAMES = {
                 cave_va=0x494BE0, cave_file=0x94BE0, headers=[],
                 base_256=0x800048),
 }
+# New Believers' gray message bar, where every god-power refusal is said:
+# Bar::SetText(stringId, param) @ 0x44EF60 (`this` = 0x520F68) looks the id up
+# in Assets/sm.xml and, for a string with no format and param -1, does
+# strncpy(bar, text, 0xFF), then [bar + 0x100] = the game clock (0x425950 ->
+# 0x4036E0) + 5: the bar's five-second display.  sm.xml has no string for
+# Reanimate's refusal and the patcher never changes the game's assets, so the
+# guard runs that same tail with its own text.
+VV5_BAR, VV5_BAR_UNTIL = 0x520F68, 0x520F68 + 0x100
+VV5_STRNCPY, VV5_CLOCK, VV5_SECONDS = 0x47D7C0, 0x425950, 0x4036E0
+REANIMATE_NO_ROOM = "There's no room in your village to revive this person."
+
 HEADER_PURPOSE = {
     "vv3": ["map the whole .shr page, where the record guards live (the same write Everyone Tries On The "
             "Robe makes)",
@@ -284,10 +300,21 @@ def layout(game: str):
         place("occupied", lambda: occupied(g))
         place("room", lambda: room_wrapper(g, 0x4713F0, 0x4944C0))
         place("delivery", lambda: delivery(g, 0x10, 0x14, names["occupied"]))
+        place("reanimate_text", lambda: REANIMATE_NO_ROOM.encode("ascii") + b"\0")
         place("reanimate", lambda: f"""
             call 0x4944C0
             cmp eax, {g['slots']:#x}
             jb ok
+            push 0xFF
+            push {names['reanimate_text']:#x}
+            push {VV5_BAR:#x}
+            call {VV5_STRNCPY:#x}
+            add esp, 0xC
+            call {VV5_CLOCK:#x}
+            mov ecx, eax
+            call {VV5_SECONDS:#x}
+            add eax, 5
+            mov dword ptr [{VV5_BAR_UNTIL:#x}], eax
             or eax, -1
             ret 4
         ok:
@@ -303,7 +330,8 @@ def layout(game: str):
              "stock code cleared the pregnancy when the creator found no record)"),
             (0x2341A, "8BCBE8CFD2FFFF", lambda: f"call {names['reanimate']:#x}; nop; nop",
              "Reanimate is refused, nothing spent, while no record is free for its stand-in (the stock "
-             "spell wrote through a NULL record and crashed): answered as a cast with no free spell slot"),
+             "spell wrote through a NULL record and crashed): answered as a cast with no free spell slot, "
+             "the gray message bar saying why"),
         ]
         existing, retarget = {}, {}
     return blocks, names, sites, existing, retarget
@@ -319,7 +347,10 @@ PURPOSE = {
     "vial": "The Mysterious Vial: offered only with room for two copies",
     "crystal": "The Crystal of Reflections: offered only with room for its reflection",
     "crystal_keep": "The Crystal of Reflections' keep: a record checked before the likes change",
-    "reanimate": "Reanimate: refused while no record is free for its stand-in",
+    "reanimate": "Reanimate: refused while no record is free for its stand-in, saying \"There's no room "
+                 "in your village to revive this person.\" in the gray message bar (the bar's own strncpy "
+                 "and five-second clock, as Bar::SetText 0x44EF60 shows the game's refusals)",
+    "reanimate_text": "Reanimate's refusal text for the gray message bar",
 }
 
 def rescale_256(game: str) -> dict[str, list[tuple[str, str]]]:

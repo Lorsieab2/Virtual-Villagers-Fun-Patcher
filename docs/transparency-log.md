@@ -1243,7 +1243,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 ### Automatic population and safety changes
 
-Supported stock identity is the exact `Virtual Villagers - New Believers.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 20 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+Supported stock identity is the exact `Virtual Villagers - New Believers.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 21 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
 
@@ -1259,7 +1259,7 @@ EXPERIMENTAL. Gives New Believers 256 villager slots (0 to 255) instead of 150 (
 - Evidence status: static exact-build implementation with emulation of the replaced routines; live-tested with the game driven through its memory (an old save upgraded, filled to 255, triplets born into slots 200, 253 and 254, saved and reloaded); a hands-on live pass is pending
 - Guarded executable edits: 669; every edit has an exact purpose and before/after guard in the manifest.
 - Of those, 1 stands aside when Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`) is also selected: that patch already replaced the same stock bytes with its own detour, and the rewrite inside its code (counted below) covers the instruction it moved.
-- Automatic safety edits: replaced, in every population mode, by its own 20 guarded safety edits for the 256-slot table.
+- Automatic safety edits: replaced, in every population mode, by its own 21 guarded safety edits for the 256-slot table.
 - Population-mode edits: replaced by its own guarded rows, stock=0, collection_progression=2, immediate_fixed=3; only the selected mode's rows are applied.
 - Guarded rewrites inside other selected patches' own code, applied only when that patch is also selected: Enable Origins-Exclusive Features + Heathen Mask Cosmetics (Task9 native actions) (`vv5_enable_origins_exclusive_features`) 23, Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`) 3, Write Births and Conceptions Log to Text File (`vv5_write_parentage_log`) 2; each pattern must occur exactly that many times in the bytes that patch wrote, or nothing is written.
 - Appends 4096 bytes of code (one page per population mode) as the new PE section `.vv256` at 0x7F0000, mapped as 0x337000 bytes whose remainder is zero-fill for the relocated villager table, the Details list and the save buffers; when the image ends before 0x7F0000, a zero-fill `.vv256z` section maps the gap. It rewrites 3 guarded regions of the PE headers to map them: the new section headers (40 bytes each), NumberOfSections and SizeOfImage. The appended bytes and every header change carry an exact before/after guard.
