@@ -1,0 +1,28 @@
+{
+  "id": "vv5_devoted_soul_epitaph",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Devoted Soul Epitaph",
+  "description": "When a Devotee dies and is buried, the epitaph New Believers writes on the grave is chosen at random between \"Respected Citizen\" and \"Devoted Soul\", with equal chances. In the stock game every other job already gets one of two epitaphs on a coin flip (a Farmer is \"Child of the Earth\" or \"Nature's Friend\", and so on), but a Devotee was always \"Respected Citizen\", the game's default, which an adult with no skill at all also gets. A villager's job here is the one the grave names: their highest skill. Only Devotees change: the unskilled adult keeps \"Respected Citizen\", children and villagers with three or more master skills keep their own epitaphs, and every other job keeps its pair. The epitaph is stored in the grave like any other, so it is saved with the village, the player can still edit it, and the Deaths log records it.",
+  "output_tag": "Devoted Soul Epitaph",
+  "behavior_changes": [
+    "The Roster of the Dead writer (0x464C70) picks a buried Devotee's epitaph (grave job 5, Devotion the highest skill; an adult not taking the child or Esteemed Elder branch) as rand(100) through the game's own rand (0x403660): under 50 the stock \"Respected Citizen\" (string 0x305, eEulogyDefault), 50 or over \"Devoted Soul\" -- the same coin flip, on the same rand, that already gives every other job one of its two epitaphs. Was always \"Respected Citizen\".",
+    "\"Devoted Soul\" (12 characters) is copied into the grave entry's epitaph, char[0x20] at entry +0x38, by the writer's own strncpy at 0x464E28, exactly as a string-table epitaph is; the entry is saved, shown and editable like any other."
+  ],
+  "explicit_non_changes": [
+    "The writer's job dispatch and its five cases (0x464D86..0x464E19, 147 bytes) are recoded in place as one case driven by a table of each job's first string id; the table and the \"Devoted Soul\" text live in the same bytes and the rest is int3 filler. No code is added outside the routine and no executable space is claimed; the five-entry jump table at 0x464E5C is left as it was, no longer used.",
+    "Farmer, Parent, Doctor, Scientist and Builder get the same string id for the same rand value as stock; an adult with no skill (job -1) still gets \"Respected Citizen\" without a rand call, as stock; children (\"Curious and Playful\" / \"Loving and Special\"), three-or-more-master villagers (\"Esteemed Elder\", \"Retired Chief\") and every other field of the entry are unchanged.",
+    "The grave dialog's epitaph editing is unchanged: a typed epitaph replaces the pick as in the stock game. The game's string table (Assets/sm.xml) is not changed."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x64D86",
+      "before": "8B462883F8040F8787000000FF24855C4E46006A64E8C0E8F9FF33C983C40483F8320F9DC181C106030000EB666A64E8A6E8F9FF33C983C40483F8320F9DC181C10E030000EB4C6A64E88CE8F9FF33C983C40483F8320F9DC181C10A030000EB326A64E872E8F9FF33C983C40483F8320F9DC181C108030000EB186A64E858E8F9FF33C983C40483F8320F9DC181C10C030000",
+      "after": "8B462883F8050F87870000000FB698C84D46006A64E8C0E8F9FF5933C983F8320F9DC183FB05750EE30C6A20B8CE4D4600E96C0000008D8C1900030000E951000000060A0C080E054465766F74656420536F756C00CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "purpose": "the Roster of the Dead writer's epitaph pick by job (0x464D86..0x464E19): mov eax,[esi+0x28] / cmp eax,5 / ja 0x464E19 (job -1 keeps 0x305) / movzx ebx, byte [eax+table] / push 0x64 / call rand / pop ecx / xor ecx,ecx / cmp eax,0x32 / setge cl / cmp ebx,5 / jne pick / jecxz pick / push 0x20 / mov eax,\"Devoted Soul\" / jmp 0x464E28 (the writer's strncpy) / pick: lea ecx,[ecx+ebx+0x300] / jmp 0x464E19; then the table 06 0A 0C 08 0E 05 (Farmer, Parent, Doctor, Scientist, Builder, Devotee) and \"Devoted Soul\\0\"; int3 filler"
+    }
+  ]
+}

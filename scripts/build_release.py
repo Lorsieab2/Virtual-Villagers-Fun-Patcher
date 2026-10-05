@@ -99,6 +99,7 @@ FILES = [
     "data/vv2_numeric_keys_tip_feature.json",
     "data/vv2_restore_missing_island_events_feature.json",
     "data/vv5_playing_in_the_dirt_feature.json",
+    "data/vv5_devoted_soul_epitaph_feature.json",
     "data/vv1_story_cheat_upgrades_feature.json",
     "data/vv2_story_cheat_upgrades_feature.json",
     "data/vv3_story_cheat_upgrades_feature.json",
