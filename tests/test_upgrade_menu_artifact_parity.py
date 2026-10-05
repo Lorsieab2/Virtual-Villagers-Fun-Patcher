@@ -407,10 +407,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # (native/shared/data_subfolder.h).
         # Larger again with the first-load cross-check prompt
         # (native/shared/crosscheck_bridge.h).
+        # Same size, new digest, with VvfpStartup: the runtime companions
+        # installed at game start by "VVFP Startup.dll".
         self.assertEqual(vv5_companion["size"], 1788416)
         self.assertEqual(
             vv5_companion["sha256"],
-            "FDBA2AC25F1001309251C27E166620B7DF3D45BFDDD6930743869F181E2A1A5F",
+            "A20FE944EADE6EBEE826F470C44E7DD3D6EFD80D4BDD1D78B57F1FF100EDA6B8",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

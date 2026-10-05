@@ -68,10 +68,16 @@ class NameCrashImmunityExemptionTests(unittest.TestCase):
         """
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
         lines = source.splitlines()
+        # Every publication path finalizes through _finalize_published_bytes,
+        # which holds the one call of the guard.
+        self.assertGreaterEqual(
+            sum("_finalize_published_bytes(patched" in line for line in lines), 3
+        )
         calls = [
             index
             for index, line in enumerate(lines)
-            if "_require_name_crash_immunity(patched" in line
+            if "_require_name_crash_immunity(" in line
+            and not line.lstrip().startswith("def ")
         ]
         self.assertTrue(calls, "no publication call sites found")
         for index in calls:
