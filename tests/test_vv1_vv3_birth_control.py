@@ -24,11 +24,17 @@ from vv_fun_patcher import (  # noqa: E402
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV1_PAGE_SHA256 = "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DDDC4"
+# Expanded modes re-pinned when the population notices began following the cap.
+# Justified before re-pinning: rendering each feature with and without the new
+# builds.json rows, the only differing bytes in Collection Progression and
+# Immediate Fixed are the PE CheckSum (0x150..0x152), the notice test
+# 0x2F1EE..0x2F1F2 and the refusal test 0x3DE45 / 0x3DE48..0x3DE4A. Stock is
+# unchanged.
 VV1_STANDALONE_RENDER_SHA256 = {
     "vv1_birth_control": {
         "stock": "B43E2AFC818803BF39C8841BA0DBFC975704C5131F1538C2D707AFFA75F71A5E",
-        "collection_progression": "5B271935EE0B4F59AD4261C284B10F189F307B5EE5336922F039E34C4C9649D5",
-        "immediate_fixed": "5B271935EE0B4F59AD4261C284B10F189F307B5EE5336922F039E34C4C9649D5",
+        "collection_progression": "38CB126A556D18078F1F59D9501EBB428C3A267E1B77ABE08CE0999C6343848A",
+        "immediate_fixed": "38CB126A556D18078F1F59D9501EBB428C3A267E1B77ABE08CE0999C6343848A",
     },
     # Re-pinned for the exact birth hook (Show Parents in Details Screen),
     # now four splices after the pregnancy tick's child-creation calls
@@ -84,8 +90,8 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # unchanged.
     "vv1_enable_origins_exclusive_features": {
         "stock": "F199787A44F0A76B7C15E460DCF5104961F13BCC641BCD7A1B023A4C8B171429",
-        "collection_progression": "FD2682716253F45262A4CEE1FBECC899D94619E3ACDBF56055B9DD535BAC780C",
-        "immediate_fixed": "FD2682716253F45262A4CEE1FBECC899D94619E3ACDBF56055B9DD535BAC780C",
+        "collection_progression": "5209BD817F6B4C0D88A399C8186888F83DE1CCEBC0930C0E579A720DD55FF946",
+        "immediate_fixed": "5209BD817F6B4C0D88A399C8186888F83DE1CCEBC0930C0E579A720DD55FF946",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
