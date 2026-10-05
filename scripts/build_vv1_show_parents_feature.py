@@ -53,7 +53,7 @@ def main() -> None:
             "portrait -- the father on the left facing right, the mother on the right "
             "facing left -- and hovering one reads \"Son of <name>\" or \"Daughter of "
             "<name>\". The record is kept in 'Virtual Villagers 1 Parentage Records - "
-            "Save <slot>.dat' in the 'Virtual Villagers Fun Patcher Data' folder beside "
+            "Save <slot>.dat' in the 'Virtual Villagers Fun Patcher Data\\Parentage Records' folder beside "
             "the saves (Documents\\LDW\\<game executable name>\\), never inside a "
             "villager record or the save itself. Each villager's entry follows that "
             "villager when the game renumbers its villagers on a load, and is never "

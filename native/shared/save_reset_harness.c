@@ -265,6 +265,83 @@ int main(void) {
         DeleteFileA(t2);
     }
 
+    /* EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h). The
+       masks, the graves, A New Home's parentage records and the Unaccounted
+       Villagers roster moved out of the Data folder's root into a folder
+       each; a file left loose by an older build (or one that would not move)
+       is still the village's. Start Over removes slot 1's at BOTH places and
+       leaves slot 2's at both, in every game that writes the kind -- and a
+       file of that name with anything after ".dat" (a backup the player made
+       by hand, a set-aside unreadable copy) is not the patcher's live file
+       and is never touched. */
+    {
+        struct kind { int game; const char *sub; const char *stem; };
+        static const struct kind KINDS[] = {
+            { 1, "Village Masks", "Virtual Villagers 1 Village Masks" },
+            { 2, "Village Masks", "Virtual Villagers 2 Village Masks" },
+            { 3, "Village Masks", "Village Masks" },
+            { 4, "Village Masks", "Village Masks" },
+            { 5, "Village Masks", "Village Masks" },
+            { 1, "Parentage Records", "Virtual Villagers 1 Parentage Records" },
+            { 1, "Graves", "Virtual Villagers 1 Graves" },
+            { 2, "Graves", "Virtual Villagers 2 Graves" },
+            { 1, "Unaccounted Villagers", "Virtual Villagers 1 Village Roster" },
+            { 2, "Unaccounted Villagers", "Virtual Villagers 2 Village Roster" },
+            { 3, "Unaccounted Villagers", "Virtual Villagers 3 Village Roster" },
+            { 4, "Unaccounted Villagers", "Virtual Villagers 4 Village Roster" },
+            { 5, "Unaccounted Villagers", "Virtual Villagers 5 Village Roster" },
+        };
+        char data_dir[MAX_PATH], sub_dir[MAX_PATH];
+        char new1[MAX_PATH], new2[MAX_PATH], old1[MAX_PATH], old2[MAX_PATH];
+        char backup1[MAX_PATH], aside1[MAX_PATH];
+        int k;
+        if (!vv_save_subfolder(data_dir, "Virtual Villagers Fun Patcher Data", 96)) {
+            printf("could not resolve the data folder\n");
+            return 2;
+        }
+        for (k = 0; k < (int)(sizeof KINDS / sizeof KINDS[0]); ++k) {
+            char what[200];
+            int other;
+            wsprintfA(sub_dir, "%s\\%s", data_dir, KINDS[k].sub);
+            CreateDirectoryA(sub_dir, NULL);
+            wsprintfA(new1, "%s\\%s - Save 1.dat", sub_dir, KINDS[k].stem);
+            wsprintfA(new2, "%s\\%s - Save 2.dat", sub_dir, KINDS[k].stem);
+            wsprintfA(old1, "%s\\%s - Save 1.dat", data_dir, KINDS[k].stem);
+            wsprintfA(old2, "%s\\%s - Save 2.dat", data_dir, KINDS[k].stem);
+            wsprintfA(backup1, "%s\\%s - Save 1.dat.before-repair", data_dir, KINDS[k].stem);
+            wsprintfA(aside1, "%s\\%s - Save 1.dat.unreadable-1-0", sub_dir, KINDS[k].stem);
+            touch(new1); touch(new2); touch(old1); touch(old2); touch(backup1); touch(aside1);
+            wsprintfA(what, "game %d %s: both places, both slots, exist before the reset (nonzero denominator)",
+                      KINDS[k].game, KINDS[k].sub);
+            check(exists(new1) && exists(new2) && exists(old1) && exists(old2), what);
+            /* Another game's reset is not this file's: a renamed install can
+               share a folder, and only the running game's own files go.
+               A New Home is the other game for every kind but its own, and
+               The Secret City is the other game for A New Home's. */
+            other = KINDS[k].game == 1 ? 3 : 1;
+            vv_reset_slot_state(other, 1, VILLAGE);
+            wsprintfA(what, "game %d %s: a reset of game %d leaves both copies of slot 1",
+                      KINDS[k].game, KINDS[k].sub, other);
+            check(exists(new1) && exists(old1), what);
+            vv_reset_slot_state(KINDS[k].game, 1, VILLAGE);
+            wsprintfA(what, "game %d %s: START OVER DELETES SLOT 1 IN ITS FOLDER", KINDS[k].game, KINDS[k].sub);
+            check(!exists(new1), what);
+            wsprintfA(what, "game %d %s: START OVER DELETES SLOT 1 LEFT LOOSE", KINDS[k].game, KINDS[k].sub);
+            check(!exists(old1), what);
+            wsprintfA(what, "game %d %s: slot 2 survives at both places", KINDS[k].game, KINDS[k].sub);
+            check(exists(new2) && exists(old2), what);
+            wsprintfA(what, "game %d %s: a hand-made backup and a set-aside copy are not touched",
+                      KINDS[k].game, KINDS[k].sub);
+            check(exists(backup1) && exists(aside1), what);
+            DeleteFileA(new2); DeleteFileA(old2); DeleteFileA(backup1); DeleteFileA(aside1);
+            RemoveDirectoryA(sub_dir);
+        }
+        /* The Lost Children's slot-1 resets above rightly took its loose
+           root-level mask file, which the survivor checks below use as
+           "another game's file"; put it back. */
+        touch(other_game);
+    }
+
     /* The statistics companion's per-slot data: the counters, the stew
        discoveries and the elders, each a .dat addressed by slot, plus the
        current "v2" statistics log. Start Over must clear slot 1's and leave

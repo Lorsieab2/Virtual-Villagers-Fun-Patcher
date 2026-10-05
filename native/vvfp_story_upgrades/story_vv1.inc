@@ -19,7 +19,8 @@
    A pick replaces exactly those rolls, ONCE each.  Both choosers re-roll a
    variant whose condition fails, so a value forced on every call would loop
    forever on an impossible event (island case 1 and encounter 5 always
-   fail); forced once, a failed condition falls back to the game's own
+   fail in the base game, and without stored food under Restore Missing
+   Island Events); forced once, a failed condition falls back to the game's own
    re-roll.  The chooser only offers events whose condition holds, so that
    fallback is the exception, not the route.  The trigger, magnitude, text,
    sound, event counter and rescheduling all run as stock.
@@ -217,6 +218,38 @@ static int vv1_base_possible(const story_event *e) {
            || VV1_SLOT_FAMILY(e->slot) == VV1_FAMILY_ENCOUNTER;
 }
 
+/* A New Home's "Restore Missing Island Events"
+   (vv1_restore_missing_island_events) re-aims the two dead condition-class
+   entries -- island class 5 (A Mighty Storm, case 1) and encounter class 4
+   (The Furry Food, variant 5), both the stock re-roll -- at stubs that accept
+   the event when the village has stored food (world+0xA2EC > 0).  The row's
+   own bytes, each table entry and the stub it points at, tell a build with
+   it from the base game, where the events never happen. */
+static const unsigned char VV1_STORM_ENTRY[4] = { 0xEF, 0x68, 0x45, 0x00 };
+static const unsigned char VV1_STORM_STUB[16] = {
+    0xE8, 0xED, 0xFF, 0xFF, 0xFF, 0x0F, 0x8E, 0xDC, 0x1B, 0xFD, 0xFF, 0xE9, 0x72, 0x1D, 0xFD, 0xFF
+};
+static const unsigned char VV1_FURRY_ENTRY[4] = { 0x70, 0x66, 0x45, 0x00 };
+static const unsigned char VV1_FURRY_STUB[16] = {
+    0xE8, 0x6C, 0x02, 0x00, 0x00, 0x0F, 0x8E, 0xB5, 0x22, 0xFC, 0xFF, 0xE9, 0xDD, 0x22, 0xFC, 0xFF
+};
+static const unsigned char VV1_RESTORED_FOOD_TEST[14] = {
+    0x8B, 0x0D, 0xDC, 0xAE, 0x48, 0x00, 0x83, 0xB9, 0xEC, 0xA2, 0x00, 0x00, 0x00, 0xC3
+};
+
+static int vv1_restored(unsigned int entry, const unsigned char *entry_bytes, unsigned int stub,
+                        const unsigned char *stub_bytes) {
+    return mem_matches(entry, entry_bytes, 4) && mem_matches(stub, stub_bytes, 16)
+           && mem_matches(0x4568E1u, VV1_RESTORED_FOOD_TEST, 14);
+}
+
+/* The restored events' condition: the row's stub, and stored food. */
+static int vv1_restored_possible(unsigned char *world, unsigned int entry,
+                                 const unsigned char *entry_bytes, unsigned int stub,
+                                 const unsigned char *stub_bytes) {
+    return vv1_restored(entry, entry_bytes, stub, stub_bytes) && *(int *)(world + 0xA2EC) > 0;
+}
+
 static int vv1_possible(const story_event *e) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
     unsigned char *records = *(unsigned char **)(uintptr_t)VV1_VILLAGERS_GLOBAL;
@@ -227,7 +260,8 @@ static int vv1_possible(const story_event *e) {
     }
     if (family == VV1_FAMILY_ISLAND) {
         switch (index) {
-        case 1: return 0;   /* A Mighty Storm: its class (0x4286A1 = 5) always re-rolls */
+        case 1:             /* A Mighty Storm: its class (0x4286A1 = 5) re-rolls in the base game */
+            return vv1_restored_possible(world, 0x42869Cu, VV1_STORM_ENTRY, 0x4568EFu, VV1_STORM_STUB);
         case 3: return *(int *)(world + 0xA2E4) >= 2;
         case 4: return vv1_any_villager(records, -1, VV1_CHILD_AGE);
         case 9: return world[0x9FB8] == 1;
@@ -239,7 +273,8 @@ static int vv1_possible(const story_event *e) {
         switch (index) {
         case 0: return *(int *)(world + 0xA2BC) < 3;
         case 4: return *(int *)(world + 0xA2D4) < 3;
-        case 5: return 0;   /* The Furry Food: its class (0x4189A9 = 4) always re-rolls */
+        case 5:             /* The Furry Food: its class (0x4189A9 = 4) re-rolls in the base game */
+            return vv1_restored_possible(world, 0x4189A0u, VV1_FURRY_ENTRY, 0x456670u, VV1_FURRY_STUB);
         case 7: case 9: return vv1_any_villager(records, -1, VV1_CHILD_AGE);
         default: return 1;
         }
