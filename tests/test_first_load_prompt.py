@@ -3,7 +3,7 @@
 v1.35.58 cross-checks a village's records against their sources of truth.
 The owner (2026-10-05) wants no repair prompt during gameplay: the game asks
 only when the player CLOSES it, after its own quit save, only when the
-patcher's "Check logs automatically" setting is on (off by default), and
+patcher's "Check logs automatically" setting is on (on by default), and
 only when something is confirmed wrong; "Repair Logs..." in the patcher
 window instead approves the repair beforehand, and the game then repairs
 without asking.  native/shared/crosscheck_bridge_harness.c runs the real
