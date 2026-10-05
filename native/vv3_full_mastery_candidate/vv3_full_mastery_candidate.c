@@ -6,6 +6,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 static HINSTANCE module_instance;
@@ -1376,6 +1377,68 @@ static int vv3_mask_prepare_slot(void) {
     }
     if (!g_vv3_mask_loaded) vv3_mask_read_sidecar(slot);
     return 1;
+}
+
+/* ---- The cross-check's orphan mask entries (orphan_masks.h) ---------------
+   The Secret City finds each mask by the fingerprint stored with it,
+   wherever its villager is (VV3_GetMaskForRecord), so the record an entry
+   sits at says nothing: an orphan is a mask whose fingerprint no villager
+   carries.  Every occupied record counts -- a body awaiting burial (health
+   0) as much as the living, since the save still holds it -- and one
+   fingerprint shared by several villagers (a collision group) is kept. */
+static vv_om_list g_vv3_om_asked;
+
+static void vv3_om_put(int index, unsigned char value, unsigned int id) {
+    g_vv3_mask[index] = value;
+    g_vv3_mask_fp[index] = id;
+}
+
+/* -1 until this slot's masks are loaded and its village is in the records. */
+static int vv3_om_scan(int slot, vv_om_list *out) {
+    static unsigned int ids[VV3_MASK_SLOTS];
+    const unsigned char *rec = (const unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int i, slots, anyone = 0;
+    out->count = 0;
+    if (slot < 1 || !vv3_mask_prepare_slot() || slot != g_vv3_mask_slot || !g_vv3_mask_loaded
+        || !vv_sidecar_gate_ready(&g_vv3_mask_gate, g_vv3_mask_slot)) {
+        return -1;
+    }
+    slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    if (slots < 0) slots = 0;
+    if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        ids[i] = 0;
+        if (i < slots && rec[(size_t)i * VV3_STRIDE + VV3_ACTIVE] != 0) {
+            ids[i] = vv3_mask_fingerprint(rec + (size_t)i * VV3_STRIDE);
+            anyone = 1;
+        }
+    }
+    if (!anyone) {
+        return -1;                    /* no village in the records yet */
+    }
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        if (vv_om_orphan(g_vv3_mask[i], 0, g_vv3_mask_fp[i], ids, VV3_MASK_SLOTS)) {
+            vv_om_add(out, i, g_vv3_mask[i], g_vv3_mask_fp[i]);
+        }
+    }
+    return out->count;
+}
+
+static int vvfp_xc_masks_scan(int game, int slot) {
+    return game == 3 ? vv3_om_scan(slot, &g_vv3_om_asked) : 0;
+}
+
+static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+    static vv_om_list now, gone;
+    static const vv_om_table table = { vv3_om_put, vv3_mask_write_sidecar, 0 };
+    char path[MAX_PATH];
+    if (game == 3 && repair && g_vv3_om_asked.count > 0 && vv3_om_scan(slot, &now) >= 0) {
+        vv_om_still(&g_vv3_om_asked, &now, &gone);
+        if (gone.count > 0 && vv3_mask_sidecar_path(path, sizeof(path), g_vv3_mask_slot)) {
+            (void)vv_om_commit(3, slot, path, &gone, &table);
+        }
+    }
+    g_vv3_om_asked.count = 0;
 }
 
 /* Resolve a captured live preimage only when one record owned it at the exact

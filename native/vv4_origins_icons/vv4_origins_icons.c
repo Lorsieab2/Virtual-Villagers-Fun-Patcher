@@ -4,6 +4,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -229,7 +230,7 @@ static int g_mask_stable_known;
 static int g_current_slot = 0;
 static int g_sidecar_loaded = 0;
 
-static void vv_write_mask_sidecar(void);
+static int vv_write_mask_sidecar(void);
 /* 1 when the load is settled (read, or legitimately absent), 0 when the
    path could not be built and the load must stay pending. */
 static int vv_read_mask_sidecar(void);
@@ -958,7 +959,8 @@ static int vv_mask_sidecar_valid(const unsigned char *data, DWORD len,
                    : VV4_MASK_SIDECAR_V2_BYTES_FOR(vv_sidecar_u32(data + 8)));
 }
 
-static void vv_write_mask_sidecar(void) {
+/* 1 when the table is on disk (the orphan repair needs to know). */
+static int vv_write_mask_sidecar(void) {
     char path[MAX_PATH];
     unsigned int header[2];
     const void *parts[5];
@@ -970,10 +972,10 @@ static void vv_write_mask_sidecar(void) {
        by it.  Checked before the path is built, so a blocked slot costs no
        file I/O. */
     if (!g_sidecar_loaded || !vv_sidecar_gate_ready(&g_mask_gate, g_current_slot)) {
-        return;
+        return 0;
     }
     if (!vv_build_sidecar_path(path, g_current_slot)) {
-        return;
+        return 0;
     }
     header[0] = g_fp_version;       /* the identity the fingerprints were taken with */
     header[1] = (unsigned int)vv_slots();
@@ -987,7 +989,7 @@ static void vv_write_mask_sidecar(void) {
        still in version-2 fingerprints (not yet followed) has no roster, and
        is written back in its own version-2 shape. */
     parts[4] = g_mask_roster;     sizes[4] = header[1] * (DWORD)sizeof(unsigned int);
-    (void)vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);
+    return vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);
 }
 
 static int vv_read_mask_sidecar(void) {
@@ -1042,6 +1044,60 @@ static int vv_read_mask_sidecar(void) {
         }
     }
     return 1;
+}
+
+/* ---- The cross-check's orphan mask entries (orphan_masks.h) ---------------
+   The table is kept by record, and each entry keeps the identity of the
+   villager it is for (g_mask_fp, the version-3 identity once the follow has
+   run).  An orphan: a mask on a record nobody holds whose identity no
+   villager carries -- the occupied records count, a body awaiting burial
+   (dead flag, health 0) as much as the living: the save still holds it. */
+static vv_om_list g_om_asked;
+
+static void vv4_om_put(int index, unsigned char value, unsigned int id) {
+    g_mask_by_index[index] = value;
+    g_mask_fp[index] = id;
+}
+
+/* -1 until this slot's masks are loaded and followed onto the village. */
+static int vv4_om_scan(int slot, vv_om_list *out) {
+    static unsigned int ids[VV_MAX_VILLAGERS];
+    int slots, i;
+    out->count = 0;
+    vv_prepare_mask_state();
+    if (slot < 1 || slot != g_current_slot || !g_sidecar_loaded
+        || !vv_sidecar_gate_ready(&g_mask_gate, g_current_slot) || !g_mask_stable_known || g_fp_version != 3u) {
+        return -1;
+    }
+    slots = vv_slots();
+    for (i = 0; i < slots; i++) {
+        const unsigned char *rec =
+            (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)i * VV_REC_STRIDE);
+        ids[i] = rec[VV_OCCUPIED_OFFSET] != 0 ? vv_identity(rec) : 0u;
+    }
+    for (i = 0; i < slots; i++) {
+        if (vv_om_orphan(g_mask_by_index[i], ids[i] != 0, g_mask_fp[i], ids, slots)) {
+            vv_om_add(out, i, g_mask_by_index[i], g_mask_fp[i]);
+        }
+    }
+    return out->count;
+}
+
+static int vvfp_xc_masks_scan(int game, int slot) {
+    return game == 4 ? vv4_om_scan(slot, &g_om_asked) : 0;
+}
+
+static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+    static vv_om_list now, gone;
+    static const vv_om_table table = { vv4_om_put, vv_write_mask_sidecar, 1 };
+    char path[MAX_PATH];
+    if (game == 4 && repair && g_om_asked.count > 0 && vv4_om_scan(slot, &now) >= 0) {
+        vv_om_still(&g_om_asked, &now, &gone);
+        if (gone.count > 0 && vv_build_sidecar_path(path, g_current_slot)) {
+            (void)vv_om_commit(4, slot, path, &gone, &table);
+        }
+    }
+    g_om_asked.count = 0;
 }
 
 /* Called from the present-path hook every frame with the live render-target

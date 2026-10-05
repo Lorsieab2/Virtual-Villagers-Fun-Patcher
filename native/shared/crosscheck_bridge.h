@@ -29,11 +29,19 @@
        VvfpStatisticsScanReconcile, which also writes the prompt's lines, and
        VvfpStatisticsRepairReconcile; statistics_reconcile.inc).  That companion
        is loaded by the executable only at its first save, so it is loaded
-       here, by full path from the executable's folder, when it is there.
+       here, by full path from the executable's folder, when it is there;
+     - orphan entries in the Village Masks file, every game (v1.35.59): an
+       entry whose stored villager identity no villager in the village
+       carries.  The masks are this companion's own, so its own
+       vvfp_xc_masks_scan and vvfp_xc_masks_repair (orphan_masks.h has the
+       rule) are called -- every Origins companion defines the pair after
+       its mask code; nothing is looked up.  Unlike the others the repair
+       is made at once: the mask file is written whenever the table
+       changes, not at a save.
 
    What is not repaired -- the Village Population and History logs (written
    from the game at every save), both Village Roster files (a mismatch IS
-   the evidence the next save uses), masks, custom titles, stews and the
+   the evidence the next save uses), custom titles, stews and the
    game's own statistics counters -- is reported by
    scripts/vvfp_consistency_check.py with the reason
    (docs/first-load-cross-check.md).
@@ -93,6 +101,15 @@ typedef void (__stdcall *vvfp_xc_repair_graves_fn)(int game, int slot, int repai
 typedef int (__stdcall *vvfp_xc_scan_text_fn)(int game, int slot, char *text, int cap);
 #define VVFP_XC_STATS_DLL     "VVFP Statistics Export.dll"
 
+/* The companion's own orphan mask entries (orphan_masks.h), defined by every
+   Origins companion after its mask code.  The scan: how many there are (it
+   notes them for the repair), 0 none, -1 cannot tell yet (the masks or the
+   village are not loaded); reads only.  The repair: with `repair` 1, removes
+   the ones the scan noted that are still orphans; with 0, changes nothing. */
+static int vvfp_xc_masks_scan(int game, int slot);
+static void vvfp_xc_masks_repair(int game, int slot, int repair);
+static void vv_om_describe(int count, char *text, size_t cap);
+
 /* The harness replaces these to stand in for the companions and the clock. */
 #ifndef VVFP_XC_PROC
 #define VVFP_XC_PROC(module, name) vvfp_xc_proc(module, name)
@@ -149,6 +166,7 @@ static struct {
     int arrivals;                 /* villagers with no Birth or Arrived record, when > 0 */
     int births;                   /* villagers born here with no Birth record, when > 0 */
     int stats;                    /* changes to the Elders and Statistics files, when > 0 */
+    int masks;                    /* orphan mask entries, when > 0 */
     char stats_text[1536];        /* their lines, from the statistics companion */
     volatile LONG answer;         /* 0 while the prompt is open; IDYES or IDNO */
     HANDLE thread;
@@ -247,6 +265,14 @@ static void vvfp_xc_compose(void) {
                                "and quit the game; they are backed up first and every change is listed in the "
                                "Repairs log.)\r\n");
     }
+    if (vvfp_xc.masks > 0) {
+        size_t len = (size_t)lstrlenA(vvfp_xc.text);
+        if (len + 400 < sizeof(vvfp_xc.text)) {
+            vv_om_describe(vvfp_xc.masks, vvfp_xc.text + len, sizeof(vvfp_xc.text) - len);
+            lstrcatA(vvfp_xc.text, "  (The Village Masks file is backed up first; every removal is listed in the "
+                                   "Repairs log.)\r\n");
+        }
+    }
     lstrcatA(vvfp_xc.text, "\r\nRepair them now?\r\n\r\n\"Not now\" changes nothing; you will be asked again the "
                            "next time this village is loaded.");
 }
@@ -303,6 +329,9 @@ static void vvfp_xc_answered(int game) {
             repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
         }
     }
+    if (vvfp_xc.masks > 0) {
+        vvfp_xc_masks_repair(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
+    }
 }
 
 /* Examine the village: scan every part; ask when anything was found. */
@@ -310,7 +339,7 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     vvfp_xc_scan_parents_fn scan_parents = NULL;
     vvfp_xc_scan_graves_fn scan_graves, scan_arrivals, scan_births;
     vvfp_xc_scan_text_fn scan_stats;
-    int parents = 0, graves = 0, arrivals = 0, births = 0, stats = 0, pending;
+    int parents = 0, graves = 0, arrivals = 0, births = 0, stats = 0, masks, pending;
     memset(vvfp_xc.counts, 0, sizeof(vvfp_xc.counts));
     if (game == 1) {
         scan_parents = (vvfp_xc_scan_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckScan");
@@ -325,7 +354,8 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     scan_stats = (vvfp_xc_scan_text_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsScanReconcile");
     vvfp_xc.stats_text[0] = '\0';
     stats = scan_stats != NULL ? scan_stats(game, slot, vvfp_xc.stats_text, (int)sizeof(vvfp_xc.stats_text)) : 0;
-    pending = parents < 0 || graves < 0 || arrivals < 0 || births < 0 || stats < 0;
+    masks = vvfp_xc_masks_scan(game, slot);
+    pending = parents < 0 || graves < 0 || arrivals < 0 || births < 0 || stats < 0 || masks < 0;
     if (pending && vvfp_xc.retries < VVFP_XC_RETRIES) {
         ++vvfp_xc.retries;            /* one of them cannot tell yet: ask once, for everything */
         vvfp_xc.next_try = now + VVFP_XC_RETRY_MS;
@@ -336,8 +366,9 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     vvfp_xc.arrivals = arrivals > 0 ? arrivals : 0;
     vvfp_xc.births = births > 0 ? births : 0;
     vvfp_xc.stats = stats > 0 && vvfp_xc.stats_text[0] != '\0' ? stats : 0;
+    vvfp_xc.masks = masks > 0 ? masks : 0;
     if (!vvfp_xc.parents_found && vvfp_xc.graves == 0 && vvfp_xc.arrivals == 0 && vvfp_xc.births == 0
-        && vvfp_xc.stats == 0) {
+        && vvfp_xc.stats == 0 && vvfp_xc.masks == 0) {
         vvfp_xc.state = VVFP_XC_DECIDED;   /* nothing to ask about on this load */
         return;
     }
