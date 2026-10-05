@@ -87,8 +87,15 @@ STRINGS = 0x3F000000
 INDEX = 7
 
 STDCALL_BYTES = {"GetModuleHandleA": 4, "LoadLibraryA": 4, "GetProcAddress": 8,
-                 "GetModuleFileNameA": 12, "lstrcpyA": 8, "VirtualQuery": 12, "VirtualProtect": 16,
+                 "GetModuleFileNameA": 12, "GetModuleFileNameW": 12, "LoadLibraryExW": 12,
+                 "GetFileAttributesW": 4, "lstrcpyA": 8, "VirtualQuery": 12, "VirtualProtect": 16,
                  "FlushInstructionCache": 12, "GetCurrentProcess": 0}
+
+# The emulated game's executable, and the patcher's folder beside it where
+# every companion lives (native/shared/patcher_files.h).  A companion loads
+# another one only by its full wide path in that folder.
+GAME_EXE_PATH = "C:\\Games\\VV\\game.exe"
+PATCHER_FILES_DIR = "C:\\Games\\VV\\Virtual Villagers Fun Patcher Files\\"
 
 FORCE_REAL, FORCE_PASS, FORCE_FAIL = 0, 1, 2
 
@@ -219,10 +226,46 @@ class Machine:
         sp = mu.reg_read(UC_X86_REG_ESP)
         arg = lambda k: struct.unpack("<I", mu.mem_read(sp + 4 + 4 * k, 4))[0]
         cstr = lambda va: bytes(mu.mem_read(va, 260)).split(b"\0")[0].decode("latin-1")
+
+        def wstr(va: int) -> str:
+            raw = bytes(mu.mem_read(va, 2048))
+            end = next(i for i in range(0, len(raw), 2) if raw[i:i + 2] == b"\0\0")
+            return raw[:end].decode("utf-16-le")
+
+        def in_patcher_files(text: str) -> bool:
+            base_name = text.split("\\")[-1]
+            return text.lower() == (PATCHER_FILES_DIR + base_name).lower()
+
         if name in ("GetModuleHandleA", "LoadLibraryA"):
-            m = self._module_by_name(cstr(arg(0)))
+            # The executable's own lookups (and GetModuleHandleA) name a
+            # companion by its bare name: that finds only a module already
+            # in the process (VVFP Startup.dll preloads every one).
+            text = cstr(arg(0))
+            m = self._module_by_name(text) if "\\" not in text and "/" not in text else None
             mu.reg_write(UC_X86_REG_EAX, BASES[m] if m else 0)
-            self.calls.append((name, cstr(arg(0))))
+            self.calls.append((name, text))
+        elif name == "LoadLibraryExW":
+            # A companion loads another only by its full path in the
+            # patcher's folder; a bare name or any other folder finds nothing.
+            text = wstr(arg(0))
+            m = self._module_by_name(text) if in_patcher_files(text) else None
+            mu.reg_write(UC_X86_REG_EAX, BASES[m] if m else 0)
+            self.calls.append((name, text))
+        elif name == "GetFileAttributesW":
+            text = wstr(arg(0))
+            there = in_patcher_files(text) and self._module_by_name(text) is not None
+            mu.reg_write(UC_X86_REG_EAX, 0x20 if there else 0xFFFFFFFF)
+            self.calls.append((name, text))
+        elif name == "GetModuleFileNameW":
+            module = next((m for m, b in BASES.items() if b == arg(0)), None) if arg(0) else None
+            path = (PATCHER_FILES_DIR + MODULE_FILE[module]) if module else GAME_EXE_PATH
+            n = arg(2)
+            if len(path) + 1 > n:
+                mu.mem_write(arg(1), path[: n - 1].encode("utf-16-le") + b"\0\0")
+                mu.reg_write(UC_X86_REG_EAX, n)
+            else:
+                mu.mem_write(arg(1), path.encode("utf-16-le") + b"\0\0")
+                mu.reg_write(UC_X86_REG_EAX, len(path))
         elif name == "GetProcAddress":
             module = next((m for m, b in BASES.items() if b == arg(0)), None)
             proc = cstr(arg(1))

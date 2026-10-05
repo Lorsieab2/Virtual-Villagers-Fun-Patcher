@@ -109,6 +109,7 @@ class Game:
         p.mu.mem_map(FAKE_PARENTAGE, 0x1000)
         p.mu.mem_map(WRITE_RECORD, 0x1000)
         p.api_handlers["LoadLibraryA"] = self._load_library
+        p.api_handlers["LoadLibraryExW"] = self._load_library_ex
         p.api_handlers["GetProcAddress"] = self._get_proc
         p.api_handlers["VirtualAlloc"] = lambda proc: (proc.alloc(proc.arg(1)), 16)
         p.api_handlers["VirtualFree"] = lambda proc: (1, 12)
@@ -126,6 +127,14 @@ class Game:
     def _load_library(self, proc):
         name = proc.cstring(proc.arg(0))
         return (FAKE_PARENTAGE if name.endswith("\\VVFP Parentage Export.dll") else 0), 4
+
+    def _load_library_ex(self, proc):
+        """By full path in the patcher's folder beside the executable, as the
+        companion loads it (native/shared/patcher_files.h); nothing else."""
+        name = proc.wstring(proc.arg(0))
+        folder = proc.exe_path.decode("latin-1").rsplit("\\", 1)[0]
+        wanted = folder + "\\Virtual Villagers Fun Patcher Files\\VVFP Parentage Export.dll"
+        return (FAKE_PARENTAGE if name == wanted else 0), 12
 
     def _get_proc(self, proc):
         name = proc.cstring(proc.arg(1))

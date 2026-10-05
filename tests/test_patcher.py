@@ -3531,7 +3531,7 @@ class StockIntegrationTests(unittest.TestCase):
                         DEFAULT_PATCH_MODE,
                         fun_patch_ids=[feature_id],
                     )
-                    companion = output.parent / "VVFP Statistics Export.dll"
+                    companion = output.parent / "Virtual Villagers Fun Patcher Files" / "VVFP Statistics Export.dll"
                     self.assertTrue(companion.is_file())
                     log = json.loads(log_path.read_text(encoding="utf-8"))
                     self.assertEqual(
@@ -4060,7 +4060,7 @@ class StockIntegrationTests(unittest.TestCase):
                 DEFAULT_PATCH_MODE,
                 fun_patch_ids=all_vv2_features,
             )
-            companion = output.parent / "VVFP VV2 Origins Icons.dll"
+            companion = output.parent / "Virtual Villagers Fun Patcher Files" / "VVFP VV2 Origins Icons.dll"
             self.assertTrue(companion.exists())
             log = json.loads(log_path.read_text(encoding="utf-8"))
             self.assertIn("vv2_enable_origins_exclusive_features", log["fun_patches"])

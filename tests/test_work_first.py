@@ -482,7 +482,8 @@ class RowTests(unittest.TestCase):
                 self.assertIn(f"data/{game}_work_first_feature.json", release)
                 self.assertIn(f"`{rid}`", readme)
         source = (ROOT / "native/vvfp_fix_huts/vvfp_fix_huts.c").read_text(encoding="utf-8")
-        self.assertIn('lstrcpyA(slash + 1, "VVFP Work First.dll")', source)
+        # By full path in the patcher's folder (native/shared/patcher_files.h).
+        self.assertIn('vvfp_load_patcher_dll("VVFP Work First.dll")', source)
         self.assertIn('GetProcAddress(work_first_module, "VvfpWorkFirstInstall")', source)
         self.assertIn(b"VVFP Work First.dll", (ROOT / "assets/fix_huts/VVFP Fix Huts.dll").read_bytes())
 

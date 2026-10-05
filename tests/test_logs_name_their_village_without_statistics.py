@@ -56,9 +56,12 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         cause = function(source, "cause_of_death_publishes")
         # Not loaded yet: this DLL loads it rather than assume it will load
         # (#512 review) -- a file that cannot load, or lacks the exports,
-        # will never name a village, which is final like a refusal.
-        self.assertIn("GetModuleHandleW(file)", cause)
-        self.assertIn("module = LoadLibraryW(path);", cause)
+        # will never name a village, which is final like a refusal. It is
+        # the already-loaded module, else loaded by its full path in the
+        # patcher's folder (native/shared/patcher_files.h), never by a bare
+        # name from the DLL search order.
+        self.assertIn('module = vvfp_patcher_dll("VVFP Cause of Death.dll");', cause)
+        self.assertNotIn("LoadLibrary", cause)
         self.assertIn('|| GetProcAddress(module, "VvfpCauseInstall") == NULL) {\n            cause_state = -1;', cause)
         self.assertIn('GetProcAddress(module, "VvfpCauseNamesVillage")', cause)
         self.assertIn("if (state == -1) {\n        cause_state = -1;", cause)

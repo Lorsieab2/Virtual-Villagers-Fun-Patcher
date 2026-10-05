@@ -2,8 +2,9 @@
    32-bit only.
 
    Drives the TEST build of "VVFP Cause of Death.dll" and the shipped "VVFP
-   Parentage Export.dll" and "VVFP Save Reset.dll" (all copied beside this
-   executable under their shipped names, as in a game), in all five games'
+   Parentage Export.dll" and "VVFP Save Reset.dll" (all copied into "Virtual
+   Villagers Fun Patcher Files" beside this executable under their shipped
+   names, as in a game), in all five games'
    geometry, against real files under Documents\LDW\<this exe's basename>\,
    which harness_ldw_tree.h leaves as it found them.
 
@@ -56,6 +57,7 @@
 #include "village_identity.h"
 #include "save_reset.h"
 #include "../shared/harness_ldw_tree.h"
+#include "patcher_files.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -166,6 +168,9 @@ static void villager(int i, const char *name, int age, int head, int body, int p
 
 static char root[MAX_PATH];
 static char exe_dir[MAX_PATH];
+/* "<exe_dir>\Virtual Villagers Fun Patcher Files": where the companions are,
+   as in a patched game (native/shared/patcher_files.h). */
+static char files_dir[MAX_PATH];
 
 static int locate(void) {
     char docs[MAX_PATH], exe[MAX_PATH], *base, *dot;
@@ -174,6 +179,8 @@ static int locate(void) {
     base = strrchr(exe, '\\');
     if (base == NULL) return 0;
     lstrcpynA(exe_dir, exe, (int)(base - exe) + 1);
+    _snprintf(files_dir, MAX_PATH, "%s\\" VVFP_PATCHER_FILES_FOLDER, exe_dir);
+    files_dir[MAX_PATH - 1] = 0;
     ++base;
     dot = strrchr(base, '.');
     if (dot) *dot = 0;
@@ -300,11 +307,9 @@ static int __stdcall host_slot(void) { return 1; }
 static struct { int size; int (__stdcall *slot)(void); } host = { 8, host_slot };
 
 static void load(void) {
-    char path[MAX_PATH];
-    _snprintf(path, MAX_PATH, "%s\\VVFP Parentage Export.dll", exe_dir);
-    parentage = LoadLibraryA(path);
-    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
-    cause = LoadLibraryA(path);
+    /* By full path in the patcher's folder, as the companions load each other. */
+    parentage = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+    cause = vvfp_load_patcher_dll("VVFP Cause of Death.dll");
     if (parentage == NULL || cause == NULL) { printf("cannot load the DLLs\n"); exit(2); }
     ensure_village = (ensure_village_t)GetProcAddress(parentage, "EnsureParentageLogForVillage");
     setup = (setup_t)GetProcAddress(cause, "VvfpCauseTestSetup");
@@ -346,7 +351,7 @@ static unsigned char *save_buffer(const char *name) {
 
 static void stand_in(const char *name, int present) {
     char path[MAX_PATH];
-    _snprintf(path, MAX_PATH, "%s\\%s", exe_dir, name);
+    _snprintf(path, MAX_PATH, "%s\\%s", files_dir, name);
     if (present) {
         HANDLE h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
         if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
@@ -645,11 +650,12 @@ int main(int argc, char **argv) {
         return 2;
     }
     if (!locate()) return 2;
-    _snprintf(path, MAX_PATH, "%s\\VVFP Parentage Export.dll", exe_dir);
+    CreateDirectoryA(files_dir, NULL);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Parentage Export.dll", files_dir);
     if (!CopyFileA(argv[1], path, FALSE)) { printf("cannot copy %s\n", argv[1]); return 2; }
-    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", files_dir);
     if (!CopyFileA(argv[2], path, FALSE)) { printf("cannot copy %s\n", argv[2]); return 2; }
-    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", files_dir);
     if (!CopyFileA(argv[3], path, FALSE)) { printf("cannot copy %s\n", argv[3]); return 2; }
     stand_in("VVFP Statistics Export.dll", 0);
 
@@ -886,12 +892,13 @@ int main(int argc, char **argv) {
         free_game();
     }
     clean();
-    _snprintf(path, MAX_PATH, "%s\\VVFP Parentage Export.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Parentage Export.dll", files_dir);
     DeleteFileA(path);
-    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", files_dir);
     DeleteFileA(path);
-    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", files_dir);
     DeleteFileA(path);
+    RemoveDirectoryA(files_dir);   /* only when empty */
     _snprintf(path, MAX_PATH, "%s\\Virtual Villagers1.ldw", root);
     DeleteFileA(path);
     printf("== %d failure(s) ==\n", failures);

@@ -12362,8 +12362,8 @@ def _route_companion_loads(
     anything changed. Returns the sites, each with the name it pushes."""
     try:
         info = _nci_pe_info(bytes(data))
-    except ValueError as exc:
-        raise PatcherError(f"Companion lookups: {exc}.") from exc
+    except (ValueError, struct.error):
+        return []                     # not a PE image: there is no call to route
     image = bytes(data)
     load_library = _import_slot(image, info, b"kernel32.dll", b"LoadLibraryA")
     module_handle = _import_slot(image, info, b"kernel32.dll", b"GetModuleHandleA")

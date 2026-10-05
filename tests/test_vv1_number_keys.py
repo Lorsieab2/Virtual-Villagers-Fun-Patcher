@@ -161,10 +161,9 @@ class OriginsBridgeTest(unittest.TestCase):
     def test_bridge_loads_from_the_exe_directory_and_ticks_every_frame(self) -> None:
         text = ORIGINS_C.read_text(encoding="utf-8")
         bridge = _function(text, "static int vv1_numkeys_resolve(")
-        self.assertIn("GetModuleFileNameA(NULL, path, MAX_PATH)", bridge)
-        self.assertIn('lstrcpyA(slash + 1, "VVFP VV1 Number Keys.dll")', bridge)
-        self.assertIn("LoadLibraryA(path)", bridge)
-        self.assertNotIn('LoadLibraryA("VVFP', bridge, "never by bare name: the search path is not ours")
+        # By full path in the patcher's folder, wide (native/shared/patcher_files.h).
+        self.assertIn('vvfp_load_patcher_dll("VVFP VV1 Number Keys.dll")', bridge)
+        self.assertNotIn("LoadLibrary", bridge, "never by bare name: the search path is not ours")
         self.assertIn('GetProcAddress(keys, "Vv1NumberKeysTick")', bridge)
         self.assertRegex(bridge, r"if\s*\(\s*vv1_numkeys_bridge_state\s*==\s*1\s*\)\s*\{\s*return\s+1;")
         self.assertRegex(bridge, r"keys\s*==\s*NULL\s*\)\s*\{\s*vv1_numkeys_bridge_state\s*=\s*-1;", "missing file: remembered, fail open")
