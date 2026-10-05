@@ -3,10 +3,11 @@
    (native/shared/grave_backfill.h has the hand-off and the reasons).
 
    The Deaths log records a death when it happens: at the burial, from a hook
-   "VVFP Cause of Death.dll" installs once a village is shown.  A grave dug
+   "VVFP Cause of Death.dll" installs (at game start since v1.35.58, through
+   "VVFP Startup.dll"; earlier, once a village was shown).  A grave dug
    before the log existed (the owner's A New Home: Kito and Chika, buried
-   before v1.35.51), or while the game was catching up on time away (the
-   load-time catch-up runs before that install), has no Death record, so the
+   before v1.35.51), or while an older build was catching up on time away
+   (its load-time catch-up ran before that install), has no Death record, so the
    log disagreed with the graveyard.  At each save Cause of Death hands every
    grave here, marked when it already knows the log has its record (it keeps
    that in its own file); this decides the rest and files a record for each

@@ -1617,6 +1617,24 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     return &host;
 }
 
+/* GAME START.  "VVFP Startup.dll" calls this from the executable's call of
+   WinMain -- the game's own thread, outside the loader lock, before the
+   game has a window, a village or a save slot.  The Secret City used to
+   install these two only when a villager was first drawn (VV3WorldMaskDrawAt)
+   or the Origins menu opened, both AFTER the load-time catch-up, so the
+   deaths, disappearances and arrivals of that catch-up never reached the
+   live hooks.  Now they are in place before the title screen.  Only loads
+   and installs: nothing here reads or writes the game's data or calls a
+   game routine.  The ticks stay on the world draw; both bridges are
+   install-once.  `game` is the executable's own number (3); `shipped` is
+   this build's companion bits (native/shared/startup_companions.h). */
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    (void)game;
+    vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
+    VVFP_STARTUP_GUARDED(vvfp_story_startup(3));
+    VVFP_STARTUP_GUARDED(vvfp_cause_install_once(3));
+}
+
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     void *record, void *sprite_obj, const int *args)
 {

@@ -21,3 +21,4 @@ EXPORTS
     Vv1DrawPortraitMask=_Vv1DrawPortraitMask@16
     Vv1GetMaskSprite=_Vv1GetMaskSprite@0
     ShowOriginsTimeWarp=_ShowOriginsTimeWarp@8
+    VvfpStartup=_VvfpStartup@8

@@ -47,8 +47,9 @@
    "Recorded afterwards" -- "How: Founder" when the village's first Village
    History snapshot lists them, else "unknown" -- and once all are on disk the
    slot's marker says it is done, for good.  A new village's founders this
-   companion did not see made (it is installed once a village is shown) are
-   found the same way. */
+   companion did not see made (made before this record existed, or by a
+   build that installed it only once a village was shown) are found the same
+   way. */
 
 #define ARRIVAL_NONE 0
 #define ARRIVAL_MADE 1          /* made by a creator, not yet decided */
