@@ -6,6 +6,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
@@ -550,20 +551,21 @@ static int vv5_mask_sidecar_valid(const unsigned char *data, DWORD len,
     return vv5_mask_sidecar_count(data, len) != 0;
 }
 
-__declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table) {
+/* 1 when the table is on disk (the orphan repair needs to know). */
+static int vv5_write_mask_sidecar(const unsigned char *table) {
     char path[MAX_PATH];
     unsigned int magic = vv5_slots() == 256 ? VV5_MASK_SIDECAR_MAGIC_V6_256 : VV5_MASK_SIDECAR_MAGIC_V6;
     const void *parts[3];
     DWORD sizes[3];
     if (table == NULL || !g_vv5_have_roster) {
-        return;                     /* unknown village -> do not write */
+        return 0;                   /* unknown village -> do not write */
     }
     /* Never before this slot's load settled: a file that is present but
        could not be opened still holds the masks this table lacks.  Checked
        before the path is built, so a blocked slot costs no file I/O. */
     if (!vv_sidecar_gate_ready(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH)
         || !build_mask_sidecar_path(path)) {
-        return;
+        return 0;
     }
     /* ATOMIC: this used to CREATE_ALWAYS the real file -- truncating it at
        once -- and ignore every WriteFile, so a crash or a full disk left a
@@ -573,22 +575,36 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
     parts[0] = &magic;        sizes[0] = sizeof(magic);
     parts[1] = g_vv5_roster;  sizes[1] = (DWORD)vv5_slots() * sizeof(unsigned int); /* binds the file to its village */
     parts[2] = table;         sizes[2] = vv5_mask_table_bytes();
-    (void)vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3);
+    return vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3);
+}
+
+__declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table) {
+    (void)vv5_write_mask_sidecar(table);
 }
 
 /* Move the masks in `table` from the records `stored` names to where those
    villagers are in `live` (native/shared/mask_follow.h).  `weak` for a
    name-only roster: then a mask only moves DOWN a record.  Returns 1 when
    the table changed. */
+/* The identity each entry was stored with (orphan_masks.h, vv_om_track):
+   the roster says 0 for a record nobody holds, so an entry left on a record
+   that empties -- New Believers keeps a dead villager's mask there until
+   someone takes the record -- keeps it only here.  A 'VM05' / 'VM25' file's
+   are name hashes (g_vv5_mask_id_weak).  Reset by every load. */
+static unsigned int g_vv5_mask_id[VV5_MAX_VILLAGERS];
+static unsigned char g_vv5_mask_id_weak[VV5_MAX_VILLAGERS];
+
 static int vv5_mask_follow_table(unsigned char *table, const unsigned int *stored,
                                  const unsigned int *live, int weak) {
     static unsigned char value[VV5_MAX_VILLAGERS], moved[VV5_MAX_VILLAGERS];
     static unsigned int moved_id[VV5_MAX_VILLAGERS];
-    int i, slots = vv5_slots();
+    int i, changed, slots = vv5_slots();
     for (i = 0; i < slots; ++i) {
         value[i] = (unsigned char)((i & 1) ? (table[i >> 1] >> 4) & 0x0Fu : table[i >> 1] & 0x0Fu);
     }
-    if (!vv_mask_follow(slots, value, stored, stored, live, weak, moved, moved_id)) {
+    changed = vv_mask_follow(slots, value, stored, stored, live, weak, moved, moved_id);
+    vv_om_track(slots, moved, moved_id, weak, g_vv5_mask_id, g_vv5_mask_id_weak);
+    if (!changed) {
         return 0;
     }
     memset(table, 0, vv5_mask_table_bytes());
@@ -636,6 +652,8 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
        The refusal is still REPORTED, so the caller does not latch the roster
        and adopt an empty table as this village's state. */
     memset(table, 0, table_bytes);
+    memset(g_vv5_mask_id, 0, sizeof(g_vv5_mask_id));
+    memset(g_vv5_mask_id_weak, 0, sizeof(g_vv5_mask_id_weak));
     g_vv5_rewrite_after_load = 0;
     vv_sidecar_gate_bind(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH);
     if (vv_sidecar_gate_throttled(&g_vv5_mask_gate)) {
@@ -829,6 +847,64 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
         g_vv5_rewrite_after_load = 0;
     }
     return 1;
+}
+
+/* ---- The cross-check's orphan mask entries (orphan_masks.h) ---------------
+   The table is kept by record and the file by roster: the identity each
+   entry was stored with is g_vv5_mask_id (name hashes from a 'VM05' /
+   'VM25' file, compared with the villagers' names).  An orphan: a mask on a
+   record nobody holds whose identity -- none, or one no villager carries,
+   Heathens and bodies awaiting burial included, since every active record
+   is one the save holds -- is no villager's. */
+static vv_om_list g_vv5_om_asked;
+
+static void vv5_om_put(int index, unsigned char value, unsigned int id) {
+    unsigned char *slot = &((unsigned char *)VV5_MASK_TABLE)[index >> 1];
+    *slot = (index & 1) ? (unsigned char)((*slot & 0x0F) | (value << 4))
+                        : (unsigned char)((*slot & 0xF0) | value);
+    g_vv5_mask_id[index] = id;
+    g_vv5_mask_id_weak[index] = 0;
+}
+
+static int vv5_om_publish(void) {
+    return vv5_write_mask_sidecar((const unsigned char *)VV5_MASK_TABLE);
+}
+
+/* -1 until this slot's masks are loaded onto the village on screen. */
+static int vv5_om_scan(int slot, vv_om_list *out) {
+    static unsigned int ids[VV5_RECORD_COUNT], stable[VV5_RECORD_COUNT], names[VV5_RECORD_COUNT];
+    const unsigned char *table = (const unsigned char *)VV5_MASK_TABLE;
+    int i, slots = vv5_slots();
+    out->count = 0;
+    if (slot < 1 || !g_vv5_have_roster || g_vv5_slot != slot || *(volatile int *)VV5_SLOT_SCRATCH != slot
+        || !vv_sidecar_gate_ready(&g_vv5_mask_gate, slot) || vv5_roster_identities(ids, stable) == 0) {
+        return -1;
+    }
+    vv5_roster_snapshot(names);
+    for (i = 0; i < slots; ++i) {
+        unsigned char value = (unsigned char)((i & 1) ? (table[i >> 1] >> 4) & 0x0Fu : table[i >> 1] & 0x0Fu);
+        if (vv_om_orphan(value, ids[i] != 0, g_vv5_mask_id[i], g_vv5_mask_id_weak[i] ? names : ids, slots)) {
+            vv_om_add(out, i, value, g_vv5_mask_id[i]);
+        }
+    }
+    return out->count;
+}
+
+static int vvfp_xc_masks_scan(int game, int slot) {
+    return game == 5 ? vv5_om_scan(slot, &g_vv5_om_asked) : 0;
+}
+
+static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+    static vv_om_list now, gone;
+    static const vv_om_table table = { vv5_om_put, vv5_om_publish, 1 };
+    char path[MAX_PATH];
+    if (game == 5 && repair && g_vv5_om_asked.count > 0 && vv5_om_scan(slot, &now) >= 0) {
+        vv_om_still(&g_vv5_om_asked, &now, &gone);
+        if (gone.count > 0 && build_mask_sidecar_path(path)) {
+            (void)vv_om_commit(5, slot, path, &gone, &table);
+        }
+    }
+    g_vv5_om_asked.count = 0;
 }
 
 /* ---------- VV5 Change Appearance chooser (VV2-style) ----------

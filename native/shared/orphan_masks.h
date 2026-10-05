@@ -254,10 +254,14 @@ static int vv_om_commit(int game, int slot, const char *path, const vv_om_list *
                                        "village (identity %08X)\r\n",
                                        vv_om_mask_name(entries->value[i]), table->by_record ? "record" : "entry",
                                        entries->index[i] + 1, entries->id[i]);
-        } else {
+        } else if (table->by_record) {
             len += (size_t)_snprintf_s(body + len, cap - len, _TRUNCATE,
                                        "  Mask removed: %s, record %d -- kept on a record no villager holds, with "
                                        "no villager's identity\r\n",
+                                       vv_om_mask_name(entries->value[i]), entries->index[i] + 1);
+        } else {
+            len += (size_t)_snprintf_s(body + len, cap - len, _TRUNCATE,
+                                       "  Mask removed: %s, entry %d -- kept with no villager's identity\r\n",
                                        vv_om_mask_name(entries->value[i]), entries->index[i] + 1);
         }
     }

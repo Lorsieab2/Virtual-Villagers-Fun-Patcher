@@ -25,6 +25,7 @@ if ($LASTEXITCODE -ne 0) {
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vv4_origins_icons.c") `
+    (Join-Path $projectRoot "native\shared\save_folder.c") `
     (Join-Path $outputRoot "vv4_origins_icons.res") `
     /link `
     /Brepro `
@@ -44,6 +45,7 @@ if ($LASTEXITCODE -ne 0) {
 @(
     (Join-Path $outputRoot "vv4_origins_icons.res"),
     (Join-Path $projectRoot "vv4_origins_icons.obj"),
+    (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "vv4_origins_icons.exp"),
     (Join-Path $projectRoot "vv4_origins_icons.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {

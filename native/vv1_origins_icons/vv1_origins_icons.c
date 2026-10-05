@@ -8,6 +8,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -318,6 +319,12 @@ static int vv1_mask_follow_pending;   /* a 'VM02' table waits for its village to
 static unsigned int vv1_mask_written[VV_MASK_SLOTS];
 static int vv1_mask_written_known;
 static int vv1_mask_rewrite_pending;  /* a 'VM01' table waits to be written back as 'VM02' */
+/* The identity each entry was stored with, noted by the load's follow
+   (orphan_masks.h, vv_om_track): the file's roster says 0 for a record
+   nobody held, so an entry left on a record that is empty now keeps the
+   identity it came with only here.  0 = none (a 'VM01' file has none). */
+static unsigned int vv1_mask_id[VV_MASK_SLOTS];
+static unsigned char vv1_mask_id_weak[VV_MASK_SLOTS];
 
 static unsigned int vv1_mask_identity(const unsigned char *rec) {
     unsigned int h = 2166136261u;
@@ -593,6 +600,7 @@ static void vv1_mask_roster_current(void) {
 static void vv1_mask_forget_loaded(void) {
     vv1_mask_follow_pending = 0;
     vv1_mask_rewrite_pending = 0;
+    memset(vv1_mask_id, 0, sizeof(vv1_mask_id));
 }
 
 static int vv1_mask_follow_loaded(void) {
@@ -612,6 +620,8 @@ static int vv1_mask_follow_loaded(void) {
             value[i] = (unsigned char)((i & 1) ? packed >> 4 : packed & 0x0F);
         }
         vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, vv1_mask_file_roster, live, 0, moved, moved_id);
+        memset(vv1_mask_id, 0, sizeof(vv1_mask_id));
+        vv_om_track(VV_MASK_SLOTS, moved, moved_id, 0, vv1_mask_id, vv1_mask_id_weak);
         memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
         for (i = 0; i < VV_MASK_SLOTS; ++i) {
             VV_MASK_TABLE[i >> 1] |= (unsigned char)((i & 1) ? moved[i] << 4 : moved[i]);
@@ -664,6 +674,7 @@ static void vv1_mask_sidecar_load(void) {
         } else {
             vv1_mask_follow_pending = 0;
             vv1_mask_rewrite_pending = 1;
+            memset(vv1_mask_id, 0, sizeof(vv1_mask_id));   /* a 'VM01' file stores no identities */
         }
         vv1_mask_follow_loaded();   /* at once when the village is already up (the picker's reload) */
         /* Drop any restored mask whose slot isn't a live villager now -- this
@@ -1759,6 +1770,57 @@ int __stdcall Vv1Born(void *child, void *mother) {
         return 0;
     }
     return vv1_parentage_born(child, mother);
+}
+
+/* ---- The cross-check's orphan mask entries (orphan_masks.h) ---------------
+   The table is kept by record and the file by roster: the identity each
+   entry was stored with is vv1_mask_id (noted by the load's follow).  An
+   orphan: a mask on a record nobody holds whose identity -- none, or one no
+   villager in the records carries -- is no villager's. */
+static vv_om_list g_vv1_om_asked;
+
+static void vv1_om_put(int index, unsigned char value, unsigned int id) {
+    unsigned char *slot = &VV_MASK_TABLE[index >> 1];
+    *slot = (index & 1) ? (unsigned char)((*slot & 0x0F) | (value << 4))
+                        : (unsigned char)((*slot & 0xF0) | value);
+    vv1_mask_id[index] = id;
+    vv1_mask_id_weak[index] = 0;
+}
+
+/* -1 until this slot's masks are loaded and followed onto the village. */
+static int vv1_om_scan(int slot, vv_om_list *out) {
+    static unsigned int live[VV_MASK_SLOTS];
+    int i;
+    out->count = 0;
+    if (slot < 1 || slot != vv1_mask_prepare_slot() || !vv_sidecar_gate_ready(&vv1_mask_gate, slot)
+        || vv1_mask_follow_pending || vv1_mask_live_roster(live) == 0) {
+        return -1;
+    }
+    for (i = 0; i < VV_MASK_SLOTS; ++i) {
+        unsigned char packed = VV_MASK_TABLE[i >> 1];
+        unsigned char value = (unsigned char)((i & 1) ? packed >> 4 : packed & 0x0F);
+        if (vv_om_orphan(value, live[i] != 0, vv1_mask_id[i], live, VV_MASK_SLOTS)) {
+            vv_om_add(out, i, value, vv1_mask_id[i]);
+        }
+    }
+    return out->count;
+}
+
+static int vvfp_xc_masks_scan(int game, int slot) {
+    return game == 1 ? vv1_om_scan(slot, &g_vv1_om_asked) : 0;
+}
+
+static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+    static vv_om_list now, gone;
+    static const vv_om_table table = { vv1_om_put, vv1_mask_sidecar_save, 1 };
+    char path[MAX_PATH];
+    if (game == 1 && repair && g_vv1_om_asked.count > 0 && vv1_om_scan(slot, &now) >= 0) {
+        vv_om_still(&g_vv1_om_asked, &now, &gone);
+        if (gone.count > 0 && vv1_mask_sidecar_path(path, sizeof(path), slot)) {
+            (void)vv_om_commit(1, slot, path, &gone, &table);
+        }
+    }
+    g_vv1_om_asked.count = 0;
 }
 
 void __stdcall Vv1MaskTick(void) {
