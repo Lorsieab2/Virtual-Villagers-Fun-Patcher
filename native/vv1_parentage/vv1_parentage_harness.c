@@ -51,6 +51,8 @@ typedef int (__stdcall *roster_t)(const void *, void *);
 typedef int (__stdcall *overlap_t)(const void *, const void *);
 typedef int (__stdcall *sync_t)(int, const void *);
 typedef int (__stdcall *bind_t)(const void *);
+typedef int (__stdcall *drop_t)(void);
+typedef int (__stdcall *follow_t)(const void *);
 
 static unsigned char records[COUNT * STRIDE];
 static unsigned char *rec(int i) { return records + i * STRIDE; }
@@ -419,6 +421,141 @@ int main(int argc, char **argv) {
         CHECK(held, "the slot changed while the previous village is still on screen: nothing is known (broke at frame %d)", frame);
     }
     entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...and slot 1's table is not overwritten meanwhile (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+
+    printf("== a stash outlives no pregnancy: deliveries the frame-to-frame tick never sees ==\n");
+    /* The owner's save (v1.35.57): seven mothers kept their father stash
+       after delivering -- the births logged with the right fathers, nobody
+       pregnant.  A load, a slot change and a repack all drop the per-frame
+       baseline, and the load-time catch-up delivers before the first frame
+       retakes it, so the due field's fall to zero was never seen and the
+       stash was never spent.  Each case ends with a birth whose conception
+       was NOT seen: it must get no father, not the stale one. */
+    {
+        drop_t drop = (drop_t)GetProcAddress(dll, "Vv1ParentageProbeDropBaseline");
+        follow_t follow = (follow_t)GetProcAddress(dll, "Vv1ParentageProbeFollow");
+        int frame, kept;
+        CHECK(drop && follow, "the baseline and follow seams resolve");
+        if (drop && follow) {
+            /* 1. a single baby delivered by the load-time catch-up */
+            reset();
+            memset(records, 0, sizeof records);
+            villager(0, "Bomani", 1, 1, 5); villager(1, "Huata", 4, 9, 17); villager(2, "Thabo", 7, 2, 30);
+            *(int *)(rec(1) + GENDER) = 2; *(int *)(rec(2) + GENDER) = 1; *(int *)(rec(0) + GENDER) = 1;
+            tick(records);
+            conceived(conceive, 1, 2); *(int *)(rec(1) + DUE) = 800; tick(records);
+            drop();                                            /* the player quits; the load drops the baseline */
+            born_from(9, 1, "CatchUp"); born(records, rec(9), rec(1));   /* catch-up: the hook fires... */
+            *(int *)(rec(1) + DUE) = 0;                        /* ...and 0x42F0B2 ends the delivery, all before the first frame */
+            entry(9, e); CHECK(same(e, 7, 2, 4, 9), "catch-up child: father Thabo through the hook (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            tick(records);                                     /* the first frame only retakes the baseline */
+            for (frame = 0; frame < 40; ++frame) tick(records);
+            *(int *)(rec(1) + DUE) = 900;                      /* pregnant again, the conception unseen */
+            tick(records);
+            born_from(10, 1, "Unseen"); born(records, rec(10), rec(1));
+            entry(10, e); CHECK(same(e, -1, -1, 4, 9), "catch-up delivery: the stash was spent, so a birth whose conception was unseen has no father, not Thabo (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            *(int *)(rec(1) + DUE) = 0; tick(records);
+
+            /* 2. twins delivered by the catch-up: both get the father, then it is spent */
+            conceived(conceive, 1, 2); *(int *)(rec(1) + DUE) = 1000; *(int *)(rec(1) + LITTER) = 2; tick(records);
+            drop();
+            born_from(11, 1, "TwinA"); born(records, rec(11), rec(1));
+            born_from(12, 1, "TwinB"); born(records, rec(12), rec(1));
+            *(int *)(rec(1) + DUE) = 0; *(int *)(rec(1) + LITTER) = 0;
+            entry(11, e); CHECK(same(e, 7, 2, 4, 9), "catch-up twin A: father Thabo (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            entry(12, e); CHECK(same(e, 7, 2, 4, 9), "catch-up twin B: the same father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            for (frame = 0; frame < 41; ++frame) tick(records);
+            *(int *)(rec(1) + DUE) = 1100; tick(records);
+            born_from(13, 1, "AfterTwins"); born(records, rec(13), rec(1));
+            entry(13, e); CHECK(same(e, -1, -1, 4, 9), "catch-up twins: the stash was spent after both (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            *(int *)(rec(1) + DUE) = 0; tick(records);
+
+            /* 3. a repack: Bomani [0] died, the load packs everyone one record
+                  lower, and the mother delivers at her new index */
+            memset(records, 0, sizeof records);
+            villager(0, "Bomani", 1, 1, 5); villager(1, "Penyo", 4, 9, 17); villager(2, "Goro", 7, 2, 30);
+            *(int *)(rec(0) + GENDER) = 1; *(int *)(rec(1) + GENDER) = 2; *(int *)(rec(2) + GENDER) = 1;
+            reset(); bind(records); tick(records);
+            conceived(conceive, 1, 2); *(int *)(rec(1) + DUE) = 800; tick(records);
+            {
+                static unsigned char keep[2 * STRIDE];
+                memcpy(keep, rec(1), 2 * STRIDE);
+                memset(records, 0, sizeof records);
+                memcpy(rec(0), keep, 2 * STRIDE);              /* Penyo [1] -> [0], Goro [2] -> [1] */
+            }
+            CHECK(follow(records) == 1, "the compaction moves the entries");
+            born_from(5, 0, "Packed"); born(records, rec(5), rec(0));
+            *(int *)(rec(0) + DUE) = 0;
+            entry(5, e); CHECK(same(e, 7, 2, 4, 9), "after the repack the stash followed Penyo: her child has Goro (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            for (frame = 0; frame < 41; ++frame) tick(records);
+            *(int *)(rec(0) + DUE) = 900; tick(records);
+            born_from(6, 0, "Unseen2"); born(records, rec(6), rec(0));
+            entry(6, e); CHECK(same(e, -1, -1, 4, 9), "repack: the stash was spent at her new index (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            *(int *)(rec(0) + DUE) = 0; tick(records);
+
+            /* 4. a stash an earlier build left behind: loaded with a mother who is not pregnant */
+            conceived(conceive, 0, 1);                         /* stashed, but the game never made her pregnant */
+            drop();
+            for (frame = 0; frame < 41; ++frame) tick(records);
+            *(int *)(rec(0) + DUE) = 950; tick(records);
+            born_from(7, 0, "Unseen3"); born(records, rec(7), rec(0));
+            entry(7, e); CHECK(same(e, -1, -1, 4, 9), "a stash loaded against a mother who is not pregnant is spent (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            *(int *)(rec(0) + DUE) = 0; tick(records);
+
+            /* 5. a real pregnancy keeps its stash however long it lasts, across drops */
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1200;
+            kept = 1;
+            for (frame = 0; frame < 200; ++frame) { if (frame % 50 == 0) drop(); tick(records); }
+            born_from(8, 0, "LongWait"); born(records, rec(8), rec(0));
+            entry(8, e); CHECK(same(e, 7, 2, 4, 9), "a pregnancy 200 frames long keeps its father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* 6. pregnant again, unseen, before the window ended (Codex, #530):
+                  the stash is not this pregnancy's, so it is spent at once
+                  (the drop hides the delivery from the frame-to-frame spend) */
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
+            for (frame = 0; frame < 29; ++frame) tick(records);
+            *(int *)(rec(0) + DUE) = 1400; tick(records);
+            born_from(14, 0, "Edge"); born(records, rec(14), rec(0));
+            entry(14, e); CHECK(same(e, -1, -1, 4, 9), "an unseen conception 29 frames after the pregnancy ended does not revive the old father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* 6b. a captured conception in that window makes the stash current */
+            *(int *)(rec(0) + DUE) = 0; tick(records);
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1401; tick(records);
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
+            for (frame = 0; frame < 20; ++frame) tick(records);
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1402; tick(records);
+            for (frame = 0; frame < 10; ++frame) tick(records);
+            born_from(14, 0, "Seen"); born(records, rec(14), rec(0));
+            entry(14, e); CHECK(same(e, 7, 2, 4, 9), "a conception captured inside the window keeps its father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* 6c. not pregnant one frame short of the window, then the
+                  record is read again: nothing is spent early */
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
+            for (frame = 0; frame < 29; ++frame) tick(records);
+            born_from(14, 0, "Edge2"); born(records, rec(14), rec(0));
+            entry(14, e); CHECK(same(e, 7, 2, 4, 9), "after %d settled frames not pregnant the stash is still there (%d,%d,%d,%d)", 29, e[0], e[1], e[2], e[3]);
+            tick(records);
+            born_from(14, 0, "Edge3"); born(records, rec(14), rec(0));
+            entry(14, e); CHECK(same(e, -1, -1, 4, 9), "...and the %dth spends it (%d,%d,%d,%d)", 30, e[0], e[1], e[2], e[3]);
+            /* 7. the stock Mysterious Vial (toddler result, Fix Vanilla Bugs
+                  off) clears due and leaves a twin litter counter at 2: the
+                  pregnancy is over, and so is the stash (Codex, #530) */
+            *(int *)(rec(0) + DUE) = 0; tick(records);
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1450; *(int *)(rec(0) + LITTER) = 2; tick(records);
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);   /* the vial: due 0, litter still 2 */
+            for (frame = 0; frame < 41; ++frame) tick(records);
+            *(int *)(rec(0) + DUE) = 1460; tick(records);
+            born_from(15, 0, "AfterVial"); born(records, rec(15), rec(0));
+            entry(15, e); CHECK(same(e, -1, -1, 4, 9), "a litter counter left at 2 by the vial is not a pregnancy: the stash is spent (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            *(int *)(rec(0) + DUE) = 0; *(int *)(rec(0) + LITTER) = 0; tick(records);
+            /* 8. the count starts over when the baseline is dropped (a load or
+                  repack may have put someone else in the record) */
+            conceived(conceive, 0, 1); *(int *)(rec(0) + DUE) = 1500; tick(records);
+            drop(); *(int *)(rec(0) + DUE) = 0; tick(records);
+            for (frame = 0; frame < 20; ++frame) tick(records);
+            drop(); tick(records);
+            for (frame = 0; frame < 15; ++frame) tick(records);
+            born_from(16, 0, "Restart"); born(records, rec(16), rec(0));
+            entry(16, e); CHECK(same(e, 7, 2, 4, 9), "20 + 15 frames across a dropped baseline are not one window: kept (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            (void)kept;
+        }
+    }
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
