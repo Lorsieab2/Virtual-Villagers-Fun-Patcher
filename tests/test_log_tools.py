@@ -526,9 +526,9 @@ class GuiTests(unittest.TestCase):
         # The patch-selection buttons never touch the setting.
         for method in ("    def _select_all_fun_patches(", "    def _default_fun_patches(",
                        "    def _owners_default_fun_patches(", "    def _deselect_all_fun_patches("):
-                start = self.SOURCE.index(method)
-                body = self.SOURCE[start:self.SOURCE.index("\n    def ", start + 1)]
-                self.assertNotIn("check_logs_var", body)
+            start = self.SOURCE.index(method)
+            body = self.SOURCE[start:self.SOURCE.index("\n    def ", start + 1)]
+            self.assertNotIn("check_logs_var", body)
         self.assertEqual(self.SOURCE.count("self.check_logs_var.set("), 1)
         save = self.SOURCE[self.SOURCE.index("    def _save_settings("):self.SOURCE.index("    def _browse_exe(")]
         self.assertIn('"check_logs_automatically": bool(self.check_logs_var.get()),', save)
