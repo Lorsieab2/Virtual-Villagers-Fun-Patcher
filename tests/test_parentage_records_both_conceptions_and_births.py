@@ -75,6 +75,10 @@ class BothRecordKindsTests(unittest.TestCase):
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
         birth = function(
             self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
+        # The "Birth" block itself is rendered by compose_birth (shared with
+        # the v1.35.58 Birth backfill), which WriteParentageBirth calls.
+        self.assertIn("compose_birth(", birth)
+        birth = function(self.source, "static int compose_birth(") + birth
         append = function(self.source, "static int append_record(")
         # The "Conception <n>" line is printed by append_record, because the
         # number is only known when the record is written -- which, for a
