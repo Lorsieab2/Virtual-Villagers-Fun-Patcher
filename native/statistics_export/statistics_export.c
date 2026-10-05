@@ -921,6 +921,14 @@ static void bind_store(int game_id, unsigned char *manager, int save_id) {
     g_store.stews_path = g_store_stews;
 }
 
+/* The first-load reconcile (statistics_reconcile.inc): set by
+   SaveVillageStatistics around WriteVillageStatistics when this save is the
+   same village's and its counters were flushed -- only then may a counter be
+   raised to what the logs prove (a pending count not yet in the file would
+   otherwise be added on top of a bound that already holds it). */
+static int g_rc_save_ok;
+static void rc_apply(int game, int slot, unsigned char *manager);
+
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
     int game_id,
     const void *manager_pointer,
@@ -957,6 +965,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     } else if (game_id != GAME_VV2) {
         village_elders_for(game_id);
     }
+    /* After Repair: what the save and the logs prove, before the log is
+       written so it prints the result. */
+    rc_apply(game_id, save_id, manager);
     /* Identify the village at the top of the log. The owner keeps several
        villages per game, so a log naming only the game cannot be matched to
        the village it describes, and these logs are meant to be
@@ -1515,6 +1526,7 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
     int primary = manager != NULL && save_id >= 1 && save_id <= 5
         && game_id >= GAME_VV1 && game_id <= GAME_VV5;
     int changed = 0;
+    int flushed = 0;
     if (primary) {
         bind_store(game_id, manager, save_id);
         /* Decided before the save, committed only after it succeeds. When
@@ -1524,7 +1536,7 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
            A failed save therefore changes nothing on disk. */
         changed = village_changed(game_id, save_id);
         if (changed == ROSTER_SAME) {
-            vvs_flush(&g_store);
+            flushed = vvs_flush(&g_store);
         }
     }
     result = ((save_writer)writer)(manager_pointer, NULL, buffer, size, save_id);
@@ -1535,8 +1547,12 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
            still be the previous village's: write nothing (no elder update,
            no log) until the next save completes it. */
         if (!is_new || committed) {
+            g_rc_save_ok = changed == ROSTER_SAME && (flushed & 1) != 0;
             WriteVillageStatistics(game_id, manager_pointer, save_id);
+            g_rc_save_ok = 0;
         }
     }
     return result;
 }
+
+#include "statistics_reconcile.inc"

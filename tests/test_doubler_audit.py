@@ -371,10 +371,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Re-pinned when the mask file moved into "Village Masks" with the
         # loose copy moved in (native/shared/data_subfolder.h).
         # Re-pinned when its village frame began driving the first-load
-        # cross-check prompt (native/shared/crosscheck_bridge.h).
+        # cross-check prompt (native/shared/crosscheck_bridge.h), and again
+        # when that prompt learned the Birth backfill and the Statistics and
+        # Elders reconcile.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "AF7F2D072900BBB68363EFAE0BBC9A0D5BF41672604D069FE32EB564AE383BCE",
+            "E439D5DFC0B2D72BA4CF6514CE4631E8D756774EC1E5873EA35D86F04FA197A2",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

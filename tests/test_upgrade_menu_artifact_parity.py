@@ -406,13 +406,14 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Larger again when the mask file moved into "Village Masks"
         # (native/shared/data_subfolder.h).
         # Larger again with the first-load cross-check prompt
-        # (native/shared/crosscheck_bridge.h).
-        # Same size, new digest, with VvfpStartup: the runtime companions
-        # installed at game start by "VVFP Startup.dll".
-        self.assertEqual(vv5_companion["size"], 1788416)
+        # (native/shared/crosscheck_bridge.h), and again when it learned the
+        # Birth backfill and the Statistics and Elders reconcile. Same size,
+        # new digest, with VvfpStartup: the runtime companions installed at
+        # game start by "VVFP Startup.dll".
+        self.assertEqual(vv5_companion["size"], 1789440)
         self.assertEqual(
             vv5_companion["sha256"],
-            "A20FE944EADE6EBEE826F470C44E7DD3D6EFD80D4BDD1D78B57F1FF100EDA6B8",
+            "AC65835DE80C63B03C36ACD5AFDC2BED75890228DD4C12D1C4CC5F2D607D79BE",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

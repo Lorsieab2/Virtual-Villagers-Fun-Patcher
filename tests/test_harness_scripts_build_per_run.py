@@ -43,8 +43,9 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # two data-folder harnesses (build_data_subfolder_harness.ps1,
         # build_data_writer_paths_harness.ps1),
         # build_grave_backfill_harness.ps1 (the Deaths log's grave backfill)
-        # and build_arrival_harness.ps1 (the Arrived records).
-        self.assertEqual(len(SCRIPTS), 22, [path.name for path in SCRIPTS])
+        # build_arrival_harness.ps1 (the Arrived records) and
+        # build_reconcile_harness.ps1 (the Elders and Statistics reconcile).
+        self.assertEqual(len(SCRIPTS), 23, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:
@@ -68,8 +69,9 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
 
     def test_an_out_dir_from_the_caller_is_left_to_the_caller(self) -> None:
         takes_out_dir = [path for path in SCRIPTS if "[string]$OutDir" in path.read_text(encoding="utf-8")]
-        # 10, and build_arrival_harness.ps1 (the Arrived records).
-        self.assertEqual(len(takes_out_dir), 11)
+        # 10, build_arrival_harness.ps1 (the Arrived records) and
+        # build_reconcile_harness.ps1 (the Elders and Statistics reconcile).
+        self.assertEqual(len(takes_out_dir), 12)
         for path in takes_out_dir:
             text = path.read_text(encoding="utf-8")
             with self.subTest(script=path.name):

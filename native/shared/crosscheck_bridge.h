@@ -18,7 +18,25 @@
        save, where its header is certain);
      - villagers with neither a Birth nor an Arrived record in the Births
        log, every game ("VVFP Cause of Death.dll": VvfpCauseScanArrivals and
-       VvfpCauseRepairArrivals, the same contract as the graves pair).
+       VvfpCauseRepairArrivals, the same contract as the graves pair);
+     - villagers the save says were born in the village (The Lost Children
+       to New Believers keep each villager's parents on the record) with no
+       Birth record: one is written from the save ("VVFP Cause of
+       Death.dll": VvfpCauseScanBirths and VvfpCauseRepairBirths, the same
+       contract);
+     - the Village Elders and Village Statistics files, where the save and
+       the logs prove more than they hold ("VVFP Statistics Export.dll":
+       VvfpStatisticsScanReconcile, which also writes the prompt's lines, and
+       VvfpStatisticsRepairReconcile; statistics_reconcile.inc).  That companion
+       is loaded by the executable only at its first save, so it is loaded
+       here, by full path from the executable's folder, when it is there.
+
+   What is not repaired -- the Village Population and History logs (written
+   from the game at every save), both Village Roster files (a mismatch IS
+   the evidence the next save uses), masks, custom titles, stews and the
+   game's own statistics counters -- is reported by
+   scripts/vvfp_consistency_check.py with the reason
+   (docs/first-load-cross-check.md).
 
    A New Home's expected fathers left on villagers who are not expecting are
    part of the first item.  The later games keep the expected father in the
@@ -72,6 +90,8 @@ typedef int (__stdcall *vvfp_xc_scan_parents_fn)(int *counts);
 typedef int (__stdcall *vvfp_xc_apply_parents_fn)(void);
 typedef int (__stdcall *vvfp_xc_scan_graves_fn)(int game, int slot);
 typedef void (__stdcall *vvfp_xc_repair_graves_fn)(int game, int slot, int repair);
+typedef int (__stdcall *vvfp_xc_scan_text_fn)(int game, int slot, char *text, int cap);
+#define VVFP_XC_STATS_DLL     "VVFP Statistics Export.dll"
 
 /* The harness replaces these to stand in for the companions and the clock. */
 #ifndef VVFP_XC_PROC
@@ -83,6 +103,32 @@ static FARPROC vvfp_xc_proc(const char *module, const char *name) {
 #endif
 #ifndef VVFP_XC_NOW
 #define VVFP_XC_NOW() GetTickCount()
+#endif
+/* A companion that may not be loaded yet (the statistics companion, loaded
+   by the executable at its first save): the one already loaded, else the
+   file of that name beside the executable, loaded by full path; NULL when
+   it is not there (its row is off). */
+#ifndef VVFP_XC_LOAD
+#define VVFP_XC_LOAD(module, name) vvfp_xc_load(module, name)
+static FARPROC vvfp_xc_load(const char *module, const char *name) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE m = GetModuleHandleA(module);
+    if (m == NULL) {
+        n = GetModuleFileNameA(NULL, path, MAX_PATH);
+        slash = n != 0 && n < MAX_PATH ? strrchr(path, '\\') : NULL;
+        if (slash == NULL || (size_t)(slash + 1 - path) + lstrlenA(module) + 1 > MAX_PATH) {
+            return NULL;
+        }
+        lstrcpyA(slash + 1, module);
+        if (GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES) {
+            return NULL;
+        }
+        m = LoadLibraryA(path);
+    }
+    return m != NULL ? GetProcAddress(m, name) : NULL;
+}
 #endif
 
 #define VVFP_XC_ARMED   0
@@ -101,9 +147,12 @@ static struct {
     int counts[6];
     int graves;                   /* graves missing from the Deaths log, when > 0 */
     int arrivals;                 /* villagers with no Birth or Arrived record, when > 0 */
+    int births;                   /* villagers born here with no Birth record, when > 0 */
+    int stats;                    /* changes to the Elders and Statistics files, when > 0 */
+    char stats_text[1536];        /* their lines, from the statistics companion */
     volatile LONG answer;         /* 0 while the prompt is open; IDYES or IDNO */
     HANDLE thread;
-    char text[2048];
+    char text[4096];
 } vvfp_xc;
 
 static HHOOK vvfp_xc_hook;
@@ -186,6 +235,18 @@ static void vvfp_xc_compose(void) {
                     "Their Arrived records will be added the next time you save and quit the game.\r\n",
                     vvfp_xc.arrivals, "villager has", "villagers have");
     }
+    if (vvfp_xc.births > 0) {
+        vvfp_xc_add("- %d %s born in the village but no Birth record in the Births log (born before that record "
+                    "existed). Their Birth records will be added from the save the next time you save and quit "
+                    "the game.\r\n", vvfp_xc.births, "villager was", "villagers were");
+    }
+    if (vvfp_xc.stats > 0 && (size_t)lstrlenA(vvfp_xc.text) + (size_t)lstrlenA(vvfp_xc.stats_text) + 400
+                                 < sizeof(vvfp_xc.text)) {
+        lstrcatA(vvfp_xc.text, vvfp_xc.stats_text);
+        lstrcatA(vvfp_xc.text, "  (The Village Elders and Village Statistics files are changed the next time you save "
+                               "and quit the game; they are backed up first and every change is listed in the "
+                               "Repairs log.)\r\n");
+    }
     lstrcatA(vvfp_xc.text, "\r\nRepair them now?\r\n\r\n\"Not now\" changes nothing; you will be asked again the "
                            "next time this village is loaded.");
 }
@@ -230,13 +291,26 @@ static void vvfp_xc_answered(int game) {
             repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
         }
     }
+    if (vvfp_xc.births > 0) {
+        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairBirths");
+        if (repair_graves != NULL) {
+            repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
+        }
+    }
+    if (vvfp_xc.stats > 0) {
+        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsRepairReconcile");
+        if (repair_graves != NULL) {
+            repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
+        }
+    }
 }
 
 /* Examine the village: scan every part; ask when anything was found. */
 static void vvfp_xc_examine(int game, int slot, DWORD now) {
     vvfp_xc_scan_parents_fn scan_parents = NULL;
-    vvfp_xc_scan_graves_fn scan_graves, scan_arrivals;
-    int parents = 0, graves = 0, arrivals = 0, pending;
+    vvfp_xc_scan_graves_fn scan_graves, scan_arrivals, scan_births;
+    vvfp_xc_scan_text_fn scan_stats;
+    int parents = 0, graves = 0, arrivals = 0, births = 0, stats = 0, pending;
     memset(vvfp_xc.counts, 0, sizeof(vvfp_xc.counts));
     if (game == 1) {
         scan_parents = (vvfp_xc_scan_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckScan");
@@ -246,7 +320,12 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     graves = scan_graves != NULL ? scan_graves(game, slot) : 0;
     scan_arrivals = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanArrivals");
     arrivals = scan_arrivals != NULL ? scan_arrivals(game, slot) : 0;
-    pending = parents < 0 || graves < 0 || arrivals < 0;
+    scan_births = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanBirths");
+    births = scan_births != NULL ? scan_births(game, slot) : 0;
+    scan_stats = (vvfp_xc_scan_text_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsScanReconcile");
+    vvfp_xc.stats_text[0] = '\0';
+    stats = scan_stats != NULL ? scan_stats(game, slot, vvfp_xc.stats_text, (int)sizeof(vvfp_xc.stats_text)) : 0;
+    pending = parents < 0 || graves < 0 || arrivals < 0 || births < 0 || stats < 0;
     if (pending && vvfp_xc.retries < VVFP_XC_RETRIES) {
         ++vvfp_xc.retries;            /* one of them cannot tell yet: ask once, for everything */
         vvfp_xc.next_try = now + VVFP_XC_RETRY_MS;
@@ -255,7 +334,10 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     vvfp_xc.parents_found = parents == 1;
     vvfp_xc.graves = graves > 0 ? graves : 0;
     vvfp_xc.arrivals = arrivals > 0 ? arrivals : 0;
-    if (!vvfp_xc.parents_found && vvfp_xc.graves == 0 && vvfp_xc.arrivals == 0) {
+    vvfp_xc.births = births > 0 ? births : 0;
+    vvfp_xc.stats = stats > 0 && vvfp_xc.stats_text[0] != '\0' ? stats : 0;
+    if (!vvfp_xc.parents_found && vvfp_xc.graves == 0 && vvfp_xc.arrivals == 0 && vvfp_xc.births == 0
+        && vvfp_xc.stats == 0) {
         vvfp_xc.state = VVFP_XC_DECIDED;   /* nothing to ask about on this load */
         return;
     }

@@ -355,13 +355,64 @@ static const char ARRIVAL_BACKFILL_FOUNDER[] =
     "  How: Founder\n"
     "  Note: Recorded afterwards (arrived before this log existed)\n";
 
-__declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
+/* The Birth record a backfill writes for a villager the save says was born
+   here (compose_birth, from the record alone), with its own note. */
+static const char BIRTH_BACKFILL_NOTE[] =
+    "  Note: Recorded afterwards (born before this log existed)\n";
+
+static int record_missing_core(int births, int game_id, const void *save_buffer, int slot,
+                               vv_arrival_fact *facts, int count, int apply,
+                               const unsigned char *context);
+
+/* What RecordArrivalsMissingFromLog and RecordBirthsMissingFromLog share:
+   `births` 0 writes Arrived records, 1 Birth records. */
+static int record_missing(
+    int births,
     int game_id,
     const void *save_buffer,
     int slot,
     vv_arrival_fact *facts,
     int count,
     int apply
+) {
+    unsigned char *context;
+    int result;
+    int i;
+
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || slot < 1 || slot > 5
+        || facts == NULL || count < 0 || count > TRIBE_SLOTS
+        || apply < VV_ARRIVAL_COUNT || apply > VV_ARRIVAL_APPLY) {
+        return -1;
+    }
+    /* A New Home keeps no parents on the record: nothing says who was born. */
+    if (births && game_id == GAME_VV1) {
+        return 0;
+    }
+    context = (unsigned char *)calloc((size_t)count + 1u, 1u);
+    if (context == NULL) {
+        return -1;
+    }
+    for (i = 0; i < count; ++i) {
+        /* A villager this call does not record (VV_ARRIVAL_CONTEXT, set by
+           the caller) is only counted: see the name rule below. */
+        context[i] = (unsigned char)(facts[i].outcome == VV_ARRIVAL_CONTEXT);
+        facts[i].outcome = context[i] ? VV_ARRIVAL_CONTEXT : VV_ARRIVAL_UNDECIDED;
+        facts[i].before[VV_ARRIVAL_BEFORE - 1] = '\0';
+    }
+    result = record_missing_core(births, game_id, save_buffer, slot, facts, count, apply, context);
+    free(context);
+    return result;
+}
+
+static int record_missing_core(
+    int births,
+    int game_id,
+    const void *save_buffer,
+    int slot,
+    vv_arrival_fact *facts,
+    int count,
+    int apply,
+    const unsigned char *context
 ) {
     const struct game_layout *g;
     char village_name[VV_VILLAGE_NAME_MAX];
@@ -372,15 +423,6 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
     int result = 0;
     int i, j;
 
-    if (game_id < GAME_VV1 || game_id > GAME_VV5 || slot < 1 || slot > 5
-        || facts == NULL || count < 0 || count > TRIBE_SLOTS
-        || apply < VV_ARRIVAL_COUNT || apply > VV_ARRIVAL_APPLY) {
-        return -1;
-    }
-    for (i = 0; i < count; ++i) {
-        facts[i].outcome = VV_ARRIVAL_UNDECIDED;
-        facts[i].before[VV_ARRIVAL_BEFORE - 1] = '\0';
-    }
     g = layout_of(game_id);
     if (!layout_is_usable(g)) {
         return -1;
@@ -404,7 +446,7 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
     if (count == 0 || files == 0) {
         return 0;                     /* the log has not started: nothing predates it */
     }
-    if (apply == VV_ARRIVAL_APPLY) {
+    if (apply == VV_ARRIVAL_APPLY && !births) {
         read_first_snapshot(village);
     }
     names = (char (*)[ARRIVAL_KEY_NAME])calloc((size_t)count, ARRIVAL_KEY_NAME);
@@ -437,8 +479,8 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
         int on_disk = 0;
         int held = 0;
         int taken = 0;
-        if (names[i][0] == '\0') {
-            continue;
+        if (names[i][0] == '\0' || context[i]) {
+            continue;                 /* not one of this call's villagers: counted below only */
         }
         for (j = 0; j < arrival_key_count; ++j) {
             const struct arrival_key *k = &arrival_keys[j];
@@ -487,6 +529,15 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
         } else if (!apply) {
             facts[i].outcome = VV_ARRIVAL_MISSING;
             ++result;
+        } else if (births) {
+            int held_before = pending_count;
+            char text[RECORD_TEXT_MAX];
+            if (compose_birth(game_id, NULL, -1, -1, NULL, -1, -1, NULL, -1, -1, facts[i].record,
+                              BIRTH_BACKFILL_NOTE, text, sizeof text)
+                && emit_record(game_id, KIND_BIRTH, NULL, text)) {
+                facts[i].outcome = pending_count > held_before ? VV_ARRIVAL_QUEUED : VV_ARRIVAL_RECORDED;
+                ++result;
+            }
         } else {
             int held_before = pending_count;
             const char *after = is_founder(i, names, heads, bodies, count)
@@ -504,4 +555,29 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
     free(heads);
     free(bodies);
     return result;
+}
+
+__declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
+    int game_id,
+    const void *save_buffer,
+    int slot,
+    vv_arrival_fact *facts,
+    int count,
+    int apply
+) {
+    return record_missing(0, game_id, save_buffer, slot, facts, count, apply);
+}
+
+/* native/shared/arrival_backfill.h: the Birth records a village's villagers
+   born before the Births log existed are missing (The Lost Children to New
+   Believers), from each villager's own record. */
+__declspec(dllexport) int __stdcall RecordBirthsMissingFromLog(
+    int game_id,
+    const void *save_buffer,
+    int slot,
+    vv_arrival_fact *facts,
+    int count,
+    int apply
+) {
+    return record_missing(1, game_id, save_buffer, slot, facts, count, apply);
 }

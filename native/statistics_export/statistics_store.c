@@ -925,3 +925,71 @@ int vvs_build_paths(int game_id, int save_id, wchar_t *counters, wchar_t *stews)
     }
     return 1;
 }
+
+/* ------------------------------------------------- the first-load reconcile
+
+   statistics_reconcile.inc raises a counter that is below what the save or
+   the logs prove, never lowers one.  These read and change one counter of a
+   slot's counters file, through the same reader and writer as the flush. */
+
+const char *vvs_counter_key(int game_id, int kind) {
+    const game_layout *g = layout_for(game_id);
+    int i;
+    if (g == NULL) {
+        return NULL;
+    }
+    for (i = 0; i < g->counter_count; ++i) {
+        if (g->counters[i].kind == kind) {
+            return g->counters[i].key;
+        }
+    }
+    return NULL;
+}
+
+int vvs_counter_peek(const wchar_t *path, int game_id, const char *key, long long *value) {
+    static counter_file file;
+    entry *e;
+    int state;
+    *value = -1;
+    if (path == NULL || path[0] == L'\0' || key == NULL) {
+        return VVS_FILE_UNREADABLE;
+    }
+    state = read_counter_file(path, game_id, &file);
+    if (state == VVS_FILE_OK && (e = find_entry(&file, key)) != NULL) {
+        *value = e->value;
+    }
+    return state;
+}
+
+int vvs_counter_raise(const wchar_t *path, int game_id, const char *key, long long to, long long *was) {
+    static counter_file file;
+    entry *e;
+    *was = -1;
+    if (path == NULL || key == NULL || read_counter_file(path, game_id, &file) != VVS_FILE_OK
+        || (e = find_entry(&file, key)) == NULL) {
+        return -1;
+    }
+    *was = e->value;
+    if (e->value >= to) {
+        return 0;                     /* never lowered */
+    }
+    e->value = to;
+    return write_counter_file(path, game_id, &file) ? 1 : -1;
+}
+
+int vvs_memorial_graves(const vvs_context *context) {
+    const game_layout *g = context != NULL ? layout_for(context->game_id) : NULL;
+    if (g == NULL || g->memorial_capacity == 0u
+        || (g->memorial_in_manager ? context->manager == NULL : context->module == NULL)) {
+        return -1;
+    }
+    return count_memorial(context, g);
+}
+
+int vvs_living_chief(const vvs_context *context) {
+    const game_layout *g = context != NULL ? layout_for(context->game_id) : NULL;
+    if (g == NULL || g->villagers_rva == 0u) {
+        return 0;
+    }
+    return living_chief(context, g);
+}

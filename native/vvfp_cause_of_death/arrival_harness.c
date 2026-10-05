@@ -457,6 +457,182 @@ static void write_history(void) {
     write_text(path, h);
 }
 
+/* ---- 5: Birth records backfilled from the save (The Lost Children on) ------
+
+   A fresh village "Birth Tribe": every villager whose record keeps parents
+   was born there.
+     0 Kid    parents on the record, no record in the log    -> a Birth record
+     1 Nishi  parents; her Birth record has another head (Change Appearance
+              since): the only Nishi on both sides           -> none
+     2 Twin \  two alike (name, head, body), parents; the log has one Birth
+     3 Twin /  Twin                                           -> one
+     4 Huata  no parents (an arrival, not a birth)           -> none
+     5 Arr    parents, and an Arrived record of the same three -> none
+     6 Sam    parents; 7 Sam no parents; the log's one Sam has another head:
+              a name two villagers carry decides nothing      -> one for 6
+     8 Pagan  New Believers: a Heathen with parents          -> none
+   A New Home keeps no parents on the record: nothing is ever asked or
+   written there. */
+static void births_marker_path(char *out) {
+    _snprintf(out, MAX_PATH,
+              "%s\\Virtual Villagers Fun Patcher Data\\Births\\Virtual Villagers %d Births Recorded - Save 1.dat",
+              root, game);
+}
+
+static void parented(int i, const char *name, int head, int body) {
+    villager(i, name, 600, head, body, 1);
+    if (g->father != 0) {
+        strcpy((char *)rec(i) + g->father + 0x19, "Chika");      /* the mother, 0x19 on */
+    }
+}
+
+static int has_birth_backfill(const char *child, int head, int body) {
+    char want[256];
+    const char *at, *end;
+    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Head: %d\r\n    Body: %d\r\n", child, head, body);
+    /* Any record of the child that is the backfill's (a hand-written one
+       of the same child may come first). */
+    for (at = strstr(text, want); at != NULL; at = strstr(at + 1, want)) {
+        static const char note[] = "\r\n  Note: Recorded afterwards (born before this log existed)";
+        size_t n = sizeof note - 1;
+        end = strstr(at, "\r\n\r\n");
+        if (end != NULL && (size_t)(end - at) > n
+            && strstr(at, "  Mother: Chika\r\n") != NULL && strstr(at, "  Mother: Chika\r\n") < end
+            && strstr(at, "  Father: Kito\r\n") != NULL && strstr(at, "  Father: Kito\r\n") < end
+            && strncmp(end - n, note, n) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void births_cases(void) {
+    char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH], before_log[1 << 13];
+    unsigned char *buffer;
+    scan_t scan_births = (scan_t)GetProcAddress(cause, "VvfpCauseScanBirths");
+    repair_t repair_births = (repair_t)GetProcAddress(cause, "VvfpCauseRepairBirths");
+    int i;
+    CHECK(scan_births != NULL && repair_births != NULL
+          && GetProcAddress(parentage, "RecordBirthsMissingFromLog") != NULL,
+          "births: the DLLs export the scan, the answer and the backfill");
+    if (scan_births == NULL || repair_births == NULL) return;
+    reset(game, 1);                       /* the companions stay loaded: a new village in the slot */
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    parented(0, "Kid", 4, 4);
+    parented(1, "Nishi", 9, 3);
+    parented(2, "Twin", 6, 6);
+    parented(3, "Twin", 6, 6);
+    villager(4, "Huata", 1090, 8, 1, 0);
+    parented(5, "Arr", 5, 5);
+    parented(6, "Sam", 2, 9);
+    villager(7, "Sam", 700, 3, 9, 0);
+    if (game == 5) {
+        parented(8, "Pagan", 7, 7);
+        rec(8)[VV5_FACTION] = 1;
+    }
+    births_path(1, path);
+    write_text(path,
+        "Village: Birth Tribe (Save 1)\n"
+        "Birth\n  Child: Nishi\n    Head: 7\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        "Birth\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        "Birth\n  Child: Sam\n    Head: 1\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        "Arrived 1\n  Name: Arr\n  Age at arrival: 300\n  Sex: Male\n  Head: 5\n  Body: 5\n"
+        "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n");
+    {
+        /* The slot's save names "Birth Tribe" (the scan at load reads it). */
+        static const DWORD HEADER[5] = { 12u, 12u, 12u, 24u, 24u };
+        static const DWORD LENGTH_AT[5] = { 8u, 8u, 8u, 16u, 16u };
+        static const DWORD BUFFER[5] = { 0x0ABDCu, 0x30370u, 0x12F1Cu, 0x1710Cu, 0x17D78u };
+        DWORD total = HEADER[game - 1] + BUFFER[game - 1];
+        unsigned char *data = (unsigned char *)calloc(1, total);
+        char save[MAX_PATH];
+        FILE *f;
+        memcpy(data, "ldwg", 4);
+        memcpy(data + LENGTH_AT[game - 1], &BUFFER[game - 1], 4);
+        strcpy((char *)data + HEADER[game - 1] + vv_village_name_offset(game), "Birth Tribe");
+        data[HEADER[game - 1] + vv_village_name_offset(game) + 40] = 0x7F;
+        _snprintf(save, MAX_PATH, "%s\\Virtual Villagers1.ldw", root);
+        f = fopen(save, "wb");
+        if (f) { fwrite(data, 1, total, f); fclose(f); }
+        free(data);
+    }
+    vv_village_publish("");
+    buffer = save_buffer("Birth Tribe");
+    births_marker_path(marker);
+    unaccounted_path(unacc);
+    read_into(path);
+    lstrcpynA(before_log, text, sizeof before_log);
+
+    if (game == 1) {
+        CHECK(scan_births(1, 1) == 0, "births: A New Home keeps no parents -- nothing to ask about");
+        repair_births(1, 1, 1);
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(strstr(text, "born before this log existed") == NULL && !file_exists(marker),
+              "births: ...and nothing is written there, even after Repair");
+        free(buffer);
+        return;
+    }
+    CHECK(scan_births(game, 1) == 3, "births: the scan counts Kid, the second Twin and the Sam with parents"
+                                     " (not Nishi, Huata, Arr or a Heathen)");
+    read_into(path);
+    CHECK(strcmp(before_log, text) == 0 && !file_exists(marker), "births: ...writing nothing");
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strcmp(before_log, text) == 0 && !file_exists(marker), "births: with no answer the save writes nothing");
+    repair_births(game, 1, 0);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strcmp(before_log, text) == 0 && !file_exists(marker), "births: \"Not now\" writes nothing");
+
+    repair_births(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(has_birth_backfill("Kid", 4, 4) && has_birth_backfill("Sam", 2, 9),
+          "births: after Repair the save writes Kid's and Sam's Birth records from the save, marked"
+          " \"Recorded afterwards (born before this log existed)\"");
+    {
+        const char *k = strstr(text, "  Child: Kid\r\n");
+        const char *end = k != NULL ? strstr(k, "\r\n\r\n") : NULL;
+        if (k != NULL && end != NULL) printf("%.*s\n", (int)(end - k + 2), k - 7);
+    }
+    CHECK(count_of(text, "  Child: Twin\r\n") == 2 && has_birth_backfill("Twin", 6, 6),
+          "births: two Twins, one record: one more is written");
+    CHECK(count_of(text, "  Child: Nishi\r\n") == 1 && strstr(text, "  Child: Huata\r\n") == NULL
+          && strstr(text, "  Child: Arr\r\n") == NULL && strstr(text, "  Child: Pagan\r\n") == NULL,
+          "births: none for Nishi (looks changed, the only one of the name), Huata (no parents), Arr (an Arrived"
+          " record), a Heathen");
+    CHECK(count_of(text, "born before this log existed") == 3, "births: exactly three written");
+    CHECK(file_exists(marker), "births: the marker is written once every record is on disk");
+    read_into(unacc);
+    CHECK(text[0] == 0 || (strstr(text, "  Name: Kid") == NULL && strstr(text, "  Name: Sam") == NULL),
+          "births: none of them is an Unaccounted record");
+    CHECK(scan_births(game, 1) == 0, "births: the scan now finds nothing");
+    read_into(path);
+    lstrcpynA(before_log, text, sizeof before_log);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strcmp(before_log, text) == 0, "births: a second save writes nothing");
+    unload();
+    load();                               /* a new session: the DLLs may load elsewhere */
+    scan_births = (scan_t)GetProcAddress(cause, "VvfpCauseScanBirths");
+    repair_births = (repair_t)GetProcAddress(cause, "VvfpCauseRepairBirths");
+    parented(9, "Late", 4, 8);            /* after the backfill: not the backfill's */
+    repair_births(game, 1, 1);
+    CHECK(scan_births(game, 1) == 0, "births: a new session's scan says 0 (the marker): exactly once");
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strstr(text, "  Child: Late\r\n") == NULL, "births: ...and its save writes no backfill");
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, "Village: Birth Tribe (Save 1)\n");
+    CHECK(!file_exists(marker), "births: Start Over deletes the marker");
+    free(buffer);
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH];
@@ -704,6 +880,7 @@ int main(int argc, char **argv) {
         read_into(path);
         CHECK(strcmp(first, text) == 0, "...and the next save writes nothing more");
 
+        births_cases();
         unload();
         free(buffer);
         free_game();

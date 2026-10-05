@@ -30,47 +30,69 @@ on the game's own thread. When nothing is found, nothing is shown.
 
 ## What is checked, per file
 
+v1.35.58 extends the prompt to every file that a source of truth can reconcile (owner, 2026-10-04: "I
+want everything to reconcile with the game saves"). Everything else stays report-only, and the checker
+prints why with each such file.
+
 | File | Game | Source of truth | "Confirmed wrong" means | Repaired in game? |
 |---|---|---|---|---|
 | Parentage Records (`Virtual Villagers 1 Parentage Records - Save N.dat`) | VV1 | Births and Conceptions log (written at each birth, never rewritten) | A living villager matched to Birth records by name, head **and** body, all naming the same parents, whose recorded parents differ; or recorded parents for a villager with no Birth record of that name (founder, grown arrival); or Birth records that disagree; or an expecting mother whose last logged conception names another father | **Yes** (prompt; `vv1_crosscheck.inc`); listed in the Repairs log |
 | Graves missing from the Deaths log | all | the game's own graves / Roster of the Dead | a grave with no Death record | **Yes** (prompt; the grave backfill in `VVFP Cause of Death.dll`, written at the next save) |
-| Births and Conceptions log | all | -- (it is the source) | -- | never rewritten; VV2-VV5 Birth records compared with the parents the save keeps (reported) |
+| Births log: villagers with no Birth or Arrived record | all | the save's living villagers | a villager with no parents on the record and no Birth or Arrived record | **Yes** (prompt; an Arrived record, "Recorded afterwards", at the next save) |
+| Births log: Birth records backfilled from the save | VV2-VV5 | each villager's own parents, kept on their save record for life | a living villager whose record keeps parents (born here) with neither a Birth nor an Arrived record of the same name, head and body (counted: two alike need two; a name only one record and one villager carry settles it when looks changed) | **Yes** (prompt; `RecordBirthsMissingFromLog` writes a Birth record from the save -- child's looks, likes, dislikes, skills, both parents -- marked "Recorded afterwards (born before this log existed)", at the next save). VV1 keeps no parents in the save: nothing to backfill |
+| Births and Conceptions log, otherwise | all | -- (it is the source) | -- | never rewritten; VV2-VV5 Birth records compared with the parents the save keeps (reported) |
 | Deaths, Unaccounted Villagers logs | all | graves; the save | a death also listed as unaccounted is reported | never rewritten |
-| Village Population log | all | the save | lists other villagers than the save | regenerated at every save; reported only |
-| Village History log | all | the save | -- | **never rewritten** (owner rule); its last snapshot is compared and reported |
-| Village Statistics log and .dat | all | the save, the logs | a row below what the save or a log proves (Highest Population, Oldest Villager, Babies Made, Twins, Villagers Buried, Village Elders) | reported only: the logs are lower bounds and the counters are cumulative |
-| Village Elders .dat | VV1, VV3-VV5 | the save's skills; the History snapshots | an open line for a non-elder; an elder with no line; a closed duplicate of an open line | reported only: a closed duplicate may stand for a dead elder whose line was renamed, and VV1 has no grave flags, so no complete source exists |
-| Village Masks .dat | all | **none** -- no save field or log records a mask | -- | not checkable; the load follows each mask by the identity stored with it |
-| Custom Titles .dat | all | the save's name, likes and dislikes (the title's fingerprint) | a title whose fingerprint fits no villager | reported only: the load already moves a title to its villager, and a title missing from the file may have been removed by the player |
+| Village Elders .dat | VV1, VV3, VV4 | the Village History log's snapshots of this village (skills at every save) | a villager a snapshot shows with Master (the game's own threshold: 90 in VV1, 88 later) in 3+ skills, not alive now, whose name is on no line | **Yes** (prompt; a closed line `E -1 <name> <father> <mother> 0 0`, at the next save; `statistics_reconcile.inc`). Living elders are added by every save already. Never removes a line |
+| Village Elders .dat | VV2 | -- | -- | not applicable: The Lost Children counts its elders itself (the game's counter, in the save) |
+| Village Elders .dat | VV5 | -- | -- | reported only: the History log lists the Heathens too, with nothing telling them apart (the Heathen Chief has every skill at 100), and Heathens never count (owner) |
+| Village Statistics .dat: Villagers Buried | all | this village's Death records whose Grave line names a grave; the graves the memorial holds | the counter below that | **Yes** (prompt; raised to the bound at the next save, never lowered) |
+| Village Statistics .dat: Twins Birthed | VV2 | this village's Conception records with "Babies in pregnancy: 2" (the patcher's counter counts at conception) | the counter below that | **Yes** (same) |
+| Village Statistics .dat: Chiefs Robed | VV3 | a living robed Tribal Chief | 0 while one lives | **Yes** (same) |
+| Village Statistics .dat: Food Gathered, Debris Cleared, Heathens Converted | VV4, VV5 | **none** | -- | reported only: no save field or log bounds them (the Arrived records' "Converted from the Heathens" also follow the Maker's conversions, which do not count) |
+| Village Statistics log: the game's own rows | all | the save | -- | reported only: Highest Population, Oldest Villager, Babies Made, Triplets, Tech Points, People Cured, Mushrooms Found, Island Events Seen, Puzzles Solved (and Twins outside VV2) are the GAME's counters, kept in the save and printed at every save, so the log cannot disagree with the save, and the patcher never changes the game's own counters |
+| Village Population log | all | the save | lists other villagers than the save | reported only: it is rewritten from the game at every save; a copy written at load would record the load-time catch-up the save may never keep, and its writer also files the Births log's held records early |
+| Village History log | all | the save | -- | **never rewritten** (owner rule); a snapshot is appended at every save, so the next save's is the save's; one appended at load would record unsaved state |
+| Village Masks .dat | all | **none** -- no save field or log records a mask | -- | not checkable; an entry whose villager is in no record shows on nobody and the game's own follow rule drops it as soon as anyone takes that record |
+| Custom Titles .dat | all | the save's name, likes and dislikes (the title's fingerprint) | -- | reported only: a dead villager's title is not an orphan, and graves keep no likes or dislikes, so no file can prove a title belongs to nobody |
 | Graves .dat | VV1, VV2 | the game's own graves | -- | self-validating: an entry is used only while its name-and-age fingerprint matches |
-| Village Roster .dat (Cause of Death; Statistics) | all | the save | -- | rewritten from the game at every save |
+| Village Roster .dat (Cause of Death; Statistics) | all | the last save | -- | not rebuilt: each is the record of the LAST SAVE the next save compares with; a mismatch is the evidence it uses (another village in the slot; villagers who left unaccounted for) |
 | `*.previous-village-*` statistics/stews/elders files | all | -- | set aside by the old roster match | reported only |
-| Stew Discoveries .dat | VV2-VV4 | -- | malformed | reported only |
+| Stew Discoveries .dat | VV2-VV4 | -- | malformed | reported only: VV3 and VV4 keep no record of stews made; VV2's found-recipe flags name recipes, not the herb combinations the file counts |
+
+The Village Elders and Statistics parts run only when the slot's Village Roster says the files are this
+village's (the next save sets another village's aside, as always), and only on a save whose counters
+were flushed, so a pending count is never added on top of a bound that already holds it.
 
 ## Once per village
 
 `Virtual Villagers Fun Patcher Data\Cross-Check\Virtual Villagers 1 Cross-Check - Save N.dat` records
 that the parentage check ran for the slot (clean, repaired, or no Births log to check against). It is
 written last, so an interruption simply runs the check again; the rebuilt table then matches the log
-and nothing changes. The grave backfill keeps its own coverage file and finds nothing once done.
+and nothing changes. The grave backfill keeps its own coverage file and finds nothing once done; the
+Arrived and Birth backfills keep `Arrivals\Virtual Villagers N Arrivals Recorded - Save S.dat` and
+`Births\Virtual Villagers N Births Recorded - Save S.dat` (VV2-VV5). The Elders and Statistics part
+needs no marker: once repaired its scan finds nothing.
 
 ## Asking again: Repair Logs
 
 The patcher window's **Repair Logs...** (src/vv_log_tools.py) re-arms the check for one slot with the
 game closed: after a "(before repair re-arm)" backup it clears exactly the markers in
-`vv_log_tools.REARM_MARKERS` -- the Cross-Check marker above (A New Home), and in every game
+`vv_log_tools.REARM_MARKERS` -- the Cross-Check marker above (A New Home), in every game
 `Deaths\Virtual Villagers N Graves Logged - Save S.dat` and
-`Arrivals\Virtual Villagers N Arrivals Recorded - Save S.dat` -- so the next load scans everything again
+`Arrivals\Virtual Villagers N Arrivals Recorded - Save S.dat`, and in The Lost Children to New Believers
+`Births\Virtual Villagers N Births Recorded - Save S.dat` -- so the next load scans everything again
 and asks before repairing. A new once-per-village part of the check adds its marker to that one list.
 **Check Logs...** runs the read-only checker below in the patcher itself.
 
 ## The Repairs log
 
-`Virtual Villagers Fun Patcher Logs\Repairs\Virtual Villagers 1 Repairs Log <n>.txt`: the village's
-own header line, then one numbered `Repair <n>` record per repair, one line per villager changed
-(`Corrected`, `Filled in`, `Set to unknown`, `Expecting`) and the backup's name. None of the existing
-logs fits: the Unaccounted Villagers log is about villagers who came and went unexplained, and the
-Births log is never annotated.
+`Virtual Villagers Fun Patcher Logs\Repairs\Virtual Villagers N Repairs Log <n>.txt`: the village's
+own header line, then one numbered `Repair <n>` record per repair (its date, what was checked against
+what), one line per change -- A New Home's parents (`Corrected`, `Filled in`, `Set to unknown`,
+`Expecting`); `Village Elder added: <name>`; `Villagers Buried raised: <was> -> <now>` and the like --
+and each backup's name (`native/shared/repairs_log.h`). None of the existing logs fits: the Unaccounted
+Villagers log is about villagers who came and went unexplained, and the Births log is never annotated
+(its backfilled records carry their own "Recorded afterwards" note).
 
 ## The read-only checker
 

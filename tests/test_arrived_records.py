@@ -32,8 +32,9 @@ COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
 SHARED = ROOT / "native" / "shared"
 # 32 in every game, one more in A New Home (no Show Parents), two more in New
-# Believers (the Heathens).
-CHECKS = 32 * 5 + 1 + 2
+# Believers (the Heathens); then the Birth records' backfill: 3 in A New Home
+# (nothing to ask about, nothing written), 16 in each later game.
+CHECKS = 32 * 5 + 1 + 2 + 3 + 16 * 4
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -117,7 +118,7 @@ class ArrivedRecordSource(unittest.TestCase):
 
     def test_the_marker_is_never_written_over_a_file_it_did_not_write(self):
         source = (SHARED / "arrival_backfill.h").read_text(encoding="utf-8")
-        write = body(source, "static int vv_arrival_marker_write(int game, int slot)")
+        write = body(source, "static int vv_backfill_marker_write(int which, int game, int slot)")
         self.assertIn("GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES", write)
         self.assertNotIn("MOVEFILE_REPLACE_EXISTING", write)
 
@@ -142,6 +143,46 @@ def marker_values(game: int) -> list[int]:
         values += [int(v, 16) for v in re.findall(r"(0x[0-9A-F]+)u, 0x190u", block)]
         values += [int(v, 16) for v in seeds]
     return values
+
+
+class BirthRecordBackfillSource(unittest.TestCase):
+    """The Birth records a village's villagers born before the Births log
+    existed are missing, written from each one's own save record after Repair
+    (The Lost Children to New Believers; native/shared/arrival_backfill.h)."""
+
+    def test_the_dlls_export_the_calls(self):
+        self.assertIn("RecordBirthsMissingFromLog=_RecordBirthsMissingFromLog@24",
+                      (PARENTAGE / "parentage_export.def").read_text(encoding="utf-8"))
+        for name in ("vvfp_cause_of_death.def", "vvfp_cause_of_death_test.def"):
+            text = (COD / name).read_text(encoding="utf-8")
+            self.assertIn("VvfpCauseScanBirths=_VvfpCauseScanBirths@8", text)
+            self.assertIn("VvfpCauseRepairBirths=_VvfpCauseRepairBirths@12", text)
+
+    def test_nothing_is_written_without_repair_and_only_once(self):
+        source = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
+        save = body(source, "static void births_backfill_at_save(")
+        self.assertIn("!births_repair[slot]", save)
+        self.assertIn("vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot)", save)
+        scan = body(source, "VvfpCauseScanBirths(int game, int slot)")
+        self.assertIn("record_births(g_game, NULL, slot, arrival_facts, count, VV_ARRIVAL_COUNT)", scan)
+        self.assertNotIn("marker_write", scan)
+        roster = (COD / "cod_roster.inc").read_text(encoding="utf-8")
+        done = body(roster, "static void cod_save_done(")
+        self.assertLess(done.index("births_backfill_at_save(slot, save_buffer);"), done.index("roster_reconcile(slot);"))
+
+    def test_the_record_is_the_birth_record_with_its_note(self):
+        source = (PARENTAGE / "arrival_backfill.inc").read_text(encoding="utf-8")
+        self.assertIn('"  Note: Recorded afterwards (born before this log existed)\\n"', source)
+        self.assertIn("if (births && game_id == GAME_VV1) {", source)
+        export = (PARENTAGE / "parentage_export.c").read_text(encoding="utf-8")
+        self.assertIn("static int compose_birth(", export)
+
+    def test_start_over_deletes_the_marker(self):
+        source = (SHARED / "save_reset.c").read_text(encoding="utf-8")
+        self.assertIn('"%s\\\\Virtual Villagers Fun Patcher Data\\\\Births\\\\Virtual Villagers " n '
+                      '" Births Recorded - Save %d.dat"', source)
+        for game in "2345":
+            self.assertIn(f'BIRTHS_FORMAT("{game}")', source)
 
 
 class ArrivalMarkersAreReturnAddresses(unittest.TestCase):

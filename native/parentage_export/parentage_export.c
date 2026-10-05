@@ -3254,15 +3254,20 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
    that cannot supply one still logs a complete birth. */
 static void tell_cause_of_death_birth(int game_id, const void *child_record);
 
-__declspec(dllexport) int __stdcall WriteParentageBirth(
+/* The Birth record's text (WriteParentageBirth's arguments), with `note`
+   -- a whole "  Note: ...\n" line, or NULL -- after the parents: the
+   backfill's "Recorded afterwards" (arrival_backfill.inc).  1 when composed. */
+static int compose_birth(
     int game_id,
     const char *child_name, int child_head, int child_body,
     const char *mother_name, int mother_head, int mother_body,
     const char *father_name, int father_head, int father_body,
-    const void *child_record
+    const void *child_record,
+    const char *note,
+    char *text,
+    size_t text_size
 ) {
     const struct game_layout *g;
-    char text[RECORD_TEXT_MAX];
     char child[MAX_NAME_BYTES];
     char mother[MAX_NAME_BYTES];
     char father[MAX_NAME_BYTES];
@@ -3385,7 +3390,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     skill_text(g, rec, skills, sizeof skills);
 
     written = _snprintf(
-        text, sizeof(text),
+        text, text_size,
         "Birth\n"
         "  Child: %s\n"
         "    Head: %d\n"
@@ -3399,17 +3404,35 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
         "  Father: %s\n"
         "    Head: %s\n"
         "    Body: %s\n"
+        "%s"
         "\n",
         child, child_head, child_body, child_likes, child_dislikes, skills,
         mother, mh, mb,
-        father, fh, fb
+        father, fh, fb,
+        note != NULL ? note : ""
     );
-    if (written < 0 || (size_t)written >= sizeof(text)) {
+    if (written < 0 || (size_t)written >= text_size) {
+        return 0;
+    }
+    return 1;
+}
+
+__declspec(dllexport) int __stdcall WriteParentageBirth(
+    int game_id,
+    const char *child_name, int child_head, int child_body,
+    const char *mother_name, int mother_head, int mother_body,
+    const char *father_name, int father_head, int father_body,
+    const void *child_record
+) {
+    char text[RECORD_TEXT_MAX];
+    if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
+                       mother_body, father_name, father_head, father_body, child_record, NULL,
+                       text, sizeof text)) {
         return 0;
     }
     /* The Unaccounted Villagers reconciliation counts this child as a known
        arrival, whether or not the record could be filed now. */
-    tell_cause_of_death_birth(game_id, rec);
+    tell_cause_of_death_birth(game_id, child_record);
     /* The child is the villager a held birth is re-checked against. */
     return emit_record(game_id, KIND_BIRTH, NULL, text);
 }
