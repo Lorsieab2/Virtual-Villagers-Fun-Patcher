@@ -54,14 +54,17 @@
    by the save, as always.
 
    ASK FIRST.  VvfpStatisticsScanReconcile (scan: reads only) lists what it found
-   for the prompt; VvfpStatisticsRepairReconcile takes the answer.  After Repair,
+   for the cross-check (native/shared/crosscheck_bridge.h), which never asks
+   while a village is played; VvfpStatisticsRepairReconcile takes the player's
+   go-ahead given before a save (Repair Logs), VvfpStatisticsRepairReconcileNow
+   a Repair answered right after the quit save.  After Repair,
    at the next save -- after the flush and the living-elder update, before
    the log is written, so the log shows the result -- the plan is made again
    from the files as they are then, each file that changes is backed up
    ("<file>.before-v1.35.58-repair", never replacing one), every change is
    listed in the Repairs log (native/shared/repairs_log.h) BEFORE it is
    made, and the files are written atomically.  "Not now" changes nothing
-   and the next load asks again.  No marker: once repaired, the scan finds
+   and the next quit asks again.  No marker: once repaired, the scan finds
    nothing, so the question is never asked again for the same files. */
 
 #include "repairs_log.h"
@@ -686,7 +689,7 @@ static void rc_leaf(char *out, size_t n, const wchar_t *path) {
    elders update): make the plan again, back up, note, change.  The answer
    is kept until the changes are on disk, so a failure is retried by the
    next save. */
-static void rc_apply(int game, int slot, unsigned char *manager) {
+static int rc_apply(int game, int slot, unsigned char *manager) {
     static struct rc_plan plan;
     char name[VV_VILLAGE_NAME_MAX];
     char village[VV_VILLAGE_NAME_MAX + 32];
@@ -696,28 +699,28 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
     size_t cap, len = 0;
     int none, i, ok = 1;
     if (!g_rc_save_ok || slot < 1 || slot > 5 || !g_rc_repair[slot]) {
-        return;
+        return 0;
     }
     if (!vv_village_name(game, manager, name) || !vv_village_header(village, sizeof village, name, slot)) {
-        return;
+        return 0;
     }
     rc_trim(village);
     rc_make_plan(game, slot, village, g_store.counters_path, &g_store, &plan);
     if (plan.changes == 0) {
         g_rc_repair[slot] = 0;        /* nothing left to do */
-        return;
+        return 0;
     }
     elders_backup[0] = counters_backup[0] = L'\0';
     if (plan.elders_add > 0 && (!rc_elders_path(slot, elders)
                                 || !vv_repair_backup(elders, elders_backup, MAX_PATH, &none) || none)) {
-        return;
+        return 0;
     }
     if (plan.buried_was >= 0 || plan.twins_was >= 0 || plan.chiefs_was >= 0) {
         if (!vv_repair_backup(g_store.counters_path, counters_backup, MAX_PATH, &none) || none) {
             if (elders_backup[0]) {
                 DeleteFileW(elders_backup);
             }
-            return;
+            return 0;
         }
     }
     cap = (size_t)plan.elders_add * (RC_NAME * 3 + 96) + 2048;
@@ -774,7 +777,7 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
         if (counters_backup[0]) {
             DeleteFileW(counters_backup);
         }
-        return;
+        return 0;
     }
     {
         long long was;
@@ -804,6 +807,54 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
             g_rc_repair[slot] = 0;
         }
     }
+    return 1;
+}
+
+/* The log written again after a quit-time Repair.  The TEST build counts
+   the call instead: the log's writers call the game's own routines (real
+   hours played, the puzzle predicates), which a harness does not map --
+   the shipped build always writes it (write_statistics_file, the very
+   function every save uses). */
+#ifdef VVFP_TEST
+__declspec(dllexport) int VvfpStatisticsTestLogRewrites = 0;
+#define RC_REWRITE_LOG(game, manager, slot, village) \
+    ((void)(game), (void)(manager), (void)(slot), (void)(village), ++VvfpStatisticsTestLogRewrites)
+#else
+#define RC_REWRITE_LOG(game, manager, slot, village) write_statistics_file(game, manager, slot, village)
+#endif
+
+/* VvfpStatisticsRepairReconcileNow(game, slot): the player chose Repair
+   right after the game's quit save (native/shared/crosscheck_bridge.h), when
+   no later save will come.  What rc_apply would have done at the next save
+   is done now, from the save just written: the same manager (the game frees
+   nothing before this), the store bound as that save bound it, its counters
+   already flushed into the file (the reconcile only runs when that save's
+   were), and the roster that save read.  Then the Village Statistics log
+   is written again, so it shows the repaired counters.  Only straight after
+   a successful save of this slot this session, and only when the reconcile
+   could have run at it.  1 when nothing is left to repair. */
+__declspec(dllexport) int __stdcall VvfpStatisticsRepairReconcileNow(int game, int slot) {
+    char name[VV_VILLAGE_NAME_MAX];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    unsigned char *manager = g_last_save.manager;
+    int changed;
+    if (game < GAME_VV1 || game > GAME_VV5 || slot < 1 || slot > 5 || g_last_save.slot != slot
+        || !g_last_save.reconcile_ok) {
+        return 0;
+    }
+    bind_store(game, manager, slot);
+    g_save_id = slot;
+    g_rc_repair[slot] = 1;
+    g_rc_save_ok = 1;
+    changed = rc_apply(game, slot, manager);
+    g_rc_save_ok = 0;
+    if (g_rc_repair[slot]) {
+        return 0;                     /* not done: nothing more is written now */
+    }
+    if (changed && vv_village_name(game, manager, name) && vv_village_header(village, sizeof village, name, slot)) {
+        (void)RC_REWRITE_LOG(game, manager, slot, village);
+    }
+    return 1;
 }
 
 #ifdef VVFP_TEST
@@ -830,6 +881,11 @@ __declspec(dllexport) int __stdcall VvfpStatisticsTestSave(int game, int slot, v
     }
     g_rc_save_ok = 1;
     rc_apply(game, slot, m);
+    /* ...and remembered as the session's last save, as SaveVillageStatistics
+       remembers a real one (for VvfpStatisticsRepairReconcileNow). */
+    g_last_save.slot = slot;
+    g_last_save.manager = m;
+    g_last_save.reconcile_ok = 1;
     g_rc_save_ok = 0;
     return g_rc_repair[slot] == 0;
 }

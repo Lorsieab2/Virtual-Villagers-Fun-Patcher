@@ -57,6 +57,13 @@
         unseen (the load-time catch-up), is recorded from the grave and is
         NOT an Unaccounted record.
      6. Start Over deletes the graves file.
+     7. Repair answered right after the game's quit save (the cross-check's
+        quit prompt, native/shared/crosscheck_bridge.h), when no later save
+        will come: VvfpCauseRepairGravesNow records the same graves there and
+        then from the state the save wrote, the village's header read back
+        from its saved file -- and with a History file it cannot read, it
+        decides nothing and says it is not done; a second call writes
+        nothing.
 
    And from Codex's review of #524: a record from the grave that is only
    held for the save (the village not yet named) and lost with the session
@@ -97,6 +104,7 @@ typedef void (__stdcall *reset_t)(int, int);
 typedef void (__stdcall *roster_t)(void *, void *);
 typedef int (__stdcall *scan_t)(int, int);
 typedef void (__stdcall *repair_t)(int, int, int);
+typedef int (__stdcall *now_t)(int, int);
 typedef void (__stdcall *buried_t)(int, int);
 
 /* Each game's villager record, as both DLLs' tables have it. */
@@ -347,6 +355,7 @@ static reset_t reset;
 static roster_t set_roster;
 static scan_t scan_graves;
 static repair_t repair_graves;
+static now_t repair_now;
 static buried_t test_buried;           /* A New Home / The Lost Children: the burial hook's own path */
 static int *stats;
 
@@ -368,9 +377,10 @@ static void load(void) {
     stats = (int *)GetProcAddress(cause, "VvfpCauseStats");
     scan_graves = (scan_t)GetProcAddress(cause, "VvfpCauseScanGraves");
     repair_graves = (repair_t)GetProcAddress(cause, "VvfpCauseRepairGraves");
+    repair_now = (now_t)GetProcAddress(cause, "VvfpCauseRepairGravesNow");
     test_buried = (buried_t)GetProcAddress(cause, "VvfpCauseTestBuried");
     if (!write_record || !ensure_village || !setup || !save_done || !tick || !reset || !set_roster || !stats
-        || !scan_graves || !repair_graves
+        || !scan_graves || !repair_graves || !repair_now
         || GetProcAddress(parentage, "RecordGravesMissingFromLog") == NULL) {
         printf("missing exports\n");
         exit(2);
@@ -564,6 +574,33 @@ static void clean(void) {
     }
 }
 
+/* The village every part starts from: three villagers, ten graves, the old
+   logs, the graves file and the save. */
+static int setup_village(int cause_value) {
+    if (!alloc_game()) {
+        return 0;
+    }
+    villager(0, "Ana", 600, 3, 3);
+    villager(1, "Kito", 1300, 5, 5);          /* a living namesake, listed older than Kito was */
+    villager(2, "Bolo", 700, 8, 8);
+    dig(0, "Kito", 1410, game >= 3 ? 3 : 3, 95, cause_value, "Inspired Inventor");
+    dig(1, "Chika", 1428, game >= 3 ? 2 : 5, 95, cause_value, "Guardian of Health");
+    dig(2, "Ghali", 1434, game >= 3 ? 4 : 4, 95, cause_value, "Inspired Architect");
+    dig(3, "Onawa", 1379, game >= 3 ? 0 : 1, 95, cause_value, "Child of the Earth");
+    dig(4, "Dup", 900, game >= 3 ? -1 : 0, 0, 0, NULL);
+    dig(5, "Dup", 900, game >= 3 ? -1 : 0, 0, 0, NULL);
+    dig(6, "Lonely", 600, game >= 3 ? -1 : 0, 0, -1, NULL);
+    dig(20, "Tupa", 1222, 3, 60, cause_value, "Dedicated Student");
+    dig(21, "Youth", 800, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* made young again once */
+    dig(22, "Renny", 720, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* listed only before a rename */
+    write_history();
+    write_old_logs();
+    write_graves_file();
+    write_save_file();
+    vv_village_publish("");
+    return 1;
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char path[MAX_PATH], logged[MAX_PATH];
@@ -592,25 +629,7 @@ int main(int argc, char **argv) {
         gl = &GRAVES[game - 1];
         printf("Virtual Villagers %d\n", game);
         clean();
-        if (!alloc_game()) { printf("cannot place the tables\n"); return 2; }
-        villager(0, "Ana", 600, 3, 3);
-        villager(1, "Kito", 1300, 5, 5);          /* a living namesake, listed older than Kito was */
-        villager(2, "Bolo", 700, 8, 8);
-        dig(0, "Kito", 1410, game >= 3 ? 3 : 3, 95, cause_value, "Inspired Inventor");
-        dig(1, "Chika", 1428, game >= 3 ? 2 : 5, 95, cause_value, "Guardian of Health");
-        dig(2, "Ghali", 1434, game >= 3 ? 4 : 4, 95, cause_value, "Inspired Architect");
-        dig(3, "Onawa", 1379, game >= 3 ? 0 : 1, 95, cause_value, "Child of the Earth");
-        dig(4, "Dup", 900, game >= 3 ? -1 : 0, 0, 0, NULL);
-        dig(5, "Dup", 900, game >= 3 ? -1 : 0, 0, 0, NULL);
-        dig(6, "Lonely", 600, game >= 3 ? -1 : 0, 0, -1, NULL);
-        dig(20, "Tupa", 1222, 3, 60, cause_value, "Dedicated Student");
-        dig(21, "Youth", 800, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* made young again once */
-        dig(22, "Renny", 720, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* listed only before a rename */
-        write_history();
-        write_old_logs();
-        write_graves_file();
-        write_save_file();
-        vv_village_publish("");
+        if (!setup_village(cause_value)) { printf("cannot place the tables\n"); return 2; }
         load();
         buffer = save_buffer("Backfill Tribe");
 
@@ -864,6 +883,51 @@ int main(int argc, char **argv) {
         _snprintf(path, MAX_PATH, "%s\\Virtual Villagers1.ldw", root);
         DeleteFileA(path);
         CHECK(GetFileAttributesA(logged) == INVALID_FILE_ATTRIBUTES, "Start Over deletes the graves file");
+
+        /* 7: Repair answered right after the quit save. */
+        unload();
+        free(buffer);
+        free_game();
+        clean();
+        if (!setup_village(cause_value)) { printf("cannot place the tables\n"); return 2; }
+        load();
+        buffer = save_buffer("Backfill Tribe");
+        save_done(1, buffer);                       /* the quit save: nothing answered yet */
+        deaths_path(1, path);
+        read_into(path);
+        CHECK(strstr(text, "Kito") == NULL, "the quit save, with no answer yet, records nothing");
+        {
+            char locked_path[MAX_PATH];
+            HANDLE locked;
+            int done;
+            _snprintf(locked_path, MAX_PATH,
+                      "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 2.txt", root);
+            write_text(locked_path, "=== Virtual Villagers 9 -- 2026-10-03 00:00:00 ===\n");
+            locked = CreateFileA(locked_path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+            done = repair_now(game, 1);
+            read_into(path);
+            CHECK(locked != INVALID_HANDLE_VALUE && done == 0 && strstr(text, "Kito") == NULL,
+                  "Repair right after the quit save, with a History file it cannot read: nothing, and not done");
+            if (locked != INVALID_HANDLE_VALUE) CloseHandle(locked);
+            DeleteFileA(locked_path);
+        }
+        {
+            int done = repair_now(game, 1);
+            read_into(path);
+            CHECK(done == 1 && death(6, "Kito") && death(7, "Chika") && death(8, "Dup") && death(9, "Lonely")
+                  && death(10, "Youth") && death(11, "Renny") && !strstr(text, "Death 12")
+                  && count_of(text, "\r\n  Name: Ghali\r\n") == 1 && strstr(text, "Village: Backfill Tribe (Save 1)") != NULL,
+                  "Repair right after the quit save records the six graves there and then, in the village's own log");
+        }
+        CHECK(read_into(logged) == 16 + 10 * 8 && scan_graves(game, 1) == 0,
+              "...the graves file covers every grave, and the scan finds nothing left");
+        read_into(path);
+        lstrcpynA(first, text, sizeof first);
+        {
+            int done = repair_now(game, 1);
+            read_into(path);
+            CHECK(done == 1 && strcmp(first, text) == 0, "...and a second Repair writes nothing");
+        }
 
         unload();
         free(buffer);

@@ -1936,9 +1936,11 @@ class RecordLimitTests(unittest.TestCase):
                 p = story.proc
                 room_va = {"vv1": 0x43A1A0, "vv3": 0x45FE30, "vv4": 0x468350, "vv5": 0x472BD0}[game]
                 this = v.base if game == "vv1" else {"vv3": 0x59E110, "vv4": 0x50E568, "vv5": 0x554148}[game]
-                # Only New Believers' renders count the
-                # records themselves (0x4944C0, corpses included).
-                self.assertEqual(p.call(room_va, [], ecx=this) & 0xFF, 0 if game == "vv5" else 1,
+                # The Secret City's, The Tree of Life's and New Believers'
+                # predicates count the records themselves since v1.35.58
+                # (scripts/build_record_guards_vv345.py); A New Home's guards
+                # sit at its creators instead.
+                self.assertEqual(p.call(room_va, [], ecx=this) & 0xFF, 1 if game == "vv1" else 0,
                                  "the game's own predicate alone")
 
 

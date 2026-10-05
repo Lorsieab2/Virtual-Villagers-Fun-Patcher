@@ -33,7 +33,7 @@ from unicorn import (
 )
 from unicorn.x86_const import (
     UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EDX,
-    UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP, UC_X86_REG_FS, UC_X86_REG_GDTR,
+    UC_X86_REG_EFLAGS, UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP, UC_X86_REG_FS, UC_X86_REG_GDTR,
     UC_X86_REG_SS, UC_X86_REG_DS, UC_X86_REG_ES,
 )
 
@@ -388,6 +388,45 @@ class StartupMachine:
             "return_address": struct.unpack("<I", mu.mem_read(sp, 4))[0],
             "arguments": struct.unpack("<4I", mu.mem_read(sp + 4, 16)),
             "expected_arguments": args,
+        }
+
+    def run_quit_hook(self, site: int, slot_field: int, slot: int, count: int = 2_000_000) -> dict:
+        """After run_to_winmain: enter the game's shutdown at the quit hook's
+        `site` as the shutdown reaches it -- esi the application, whose save
+        manager at +4 holds `slot` at `slot_field` -- and run until the
+        instruction after the five displaced bytes.  Returns the registers
+        and flags at both ends."""
+        mu = self.mu
+        app = 0x50000000
+        manager = app + 0x1000
+        mu.mem_map(app, 0x40000)
+        mu.mem_write(app + 4, struct.pack("<I", manager))
+        mu.mem_write(app + 8, struct.pack("<I", 0x0BAD0008))
+        mu.mem_write(app + 0xC, struct.pack("<I", 0x0BAD000C))
+        mu.mem_write(manager + slot_field, struct.pack("<I", slot))
+        regs = {UC_X86_REG_EAX: 0x11111111, UC_X86_REG_EBX: 0x22222222, UC_X86_REG_ECX: 0x33333333,
+                UC_X86_REG_EDX: 0x44444444, UC_X86_REG_ESI: app, UC_X86_REG_EDI: 0x66666666,
+                UC_X86_REG_EBP: STACK_TOP - 0x200}
+        for reg, value in regs.items():
+            mu.reg_write(reg, value)
+        esp = STACK_TOP - 0x9000
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        mu.reg_write(UC_X86_REG_EFLAGS, 0x202)
+        self.stop_at = site + 5
+        self.error = None
+        try:
+            mu.emu_start(site, 0, count=count)
+        except UcError as exc:
+            raise AssertionError(f"emulation fault {exc} at {mu.reg_read(UC_X86_REG_EIP):#x}") from None
+        if self.error:
+            raise AssertionError(self.error)
+        return {
+            "eip": mu.reg_read(UC_X86_REG_EIP),
+            "registers_before": regs,
+            "registers_after": {reg: mu.reg_read(reg) for reg in regs},
+            "esp_before": esp,
+            "esp_after": mu.reg_read(UC_X86_REG_ESP),
+            "zf": (mu.reg_read(UC_X86_REG_EFLAGS) >> 6) & 1,
         }
 
     def code(self, va: int, n: int) -> bytes:

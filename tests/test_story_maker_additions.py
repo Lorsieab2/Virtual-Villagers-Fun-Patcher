@@ -474,6 +474,35 @@ class StatusTests(unittest.TestCase):
                 ok, r, _ = s.apply(Event(village=0b1000))
                 self.assertEqual((r["refused"], len(s.calls[0x43C350])), (1, 2), "no room, no child")
 
+    def test_a_golden_child_from_the_event_is_a_custom_island_event_arrival(self):
+        """The owner's v1.35.58 preview: Okwui, the Golden Child this event made,
+        was logged "How: unknown" -- the event never told Cause of Death, which
+        names a creator call it does not know "unknown"."""
+        if not have_stock("vv1"):
+            self.skipTest("no stock executable")
+        for mode in MODES:
+            s = story("vv1", mode)
+            p = s.proc
+            told = []
+            export = p.alloc(0x10)
+            p.api_handlers["GetModuleHandleA"] = lambda q: (
+                0x73000000 if q.cstring(q.arg(0)) == "VVFP Cause of Death.dll" else 0, 4)
+            p.api_handlers["GetProcAddress"] = lambda q: (
+                export if q.cstring(q.arg(1)) == "VvfpCauseArrivedBy" else 0, 8)
+
+            def arrived(q):
+                told.append((q.arg(0), q.arg(1), q.cstring(q.arg(2))))
+                return 0, 12
+            p.stub(export, arrived)
+            p.api_handlers["GetSystemTimeAsFileTime"] = lambda q: (q.write(q.arg(0), bytes(8)) or 0, 4)
+            ok, r, _ = s.apply(Event(village=0b1000))
+            with self.subTest(mode=mode):
+                child = s.creations[0][0]
+                self.assertEqual(told, [(1, child, "Custom Island Event")])
+                s.room[0] = False
+                s.apply(Event(village=0b1000))
+                self.assertEqual(len(told), 1, "no child, nobody told")
+
     def test_a_tribal_chief_is_robed_by_the_games_own_routine(self):
         if not have_stock("vv3"):
             self.skipTest("no stock executable")

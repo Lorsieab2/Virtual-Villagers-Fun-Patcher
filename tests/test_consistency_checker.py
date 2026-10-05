@@ -262,7 +262,7 @@ class Vv1Fixture(unittest.TestCase):
         def verdict():
             return [(v, t) for f, v, t in checker.check(game, 1).lines if f.endswith("Cross-Check")][0]
         self.marker(game, [1, 1, 1, 2, 0, 0, 0, 0, 0, 0, here])
-        self.assertEqual(verdict(), ("OK", "the first-load cross-check ran for this village: repaired"))
+        self.assertEqual(verdict(), ("OK", "the cross-check ran for this village: repaired"))
         self.marker(game, [1, 1, 1, 2, 0, 0, 0, 0, 0, 0, here ^ 1])
         self.assertEqual(verdict()[0], "NOTE")
         self.assertIn("another village's", verdict()[1])

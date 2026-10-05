@@ -928,7 +928,18 @@ static void bind_store(int game_id, unsigned char *manager, int save_id) {
    raised to what the logs prove (a pending count not yet in the file would
    otherwise be added on top of a bound that already holds it). */
 static int g_rc_save_ok;
-static void rc_apply(int game, int slot, unsigned char *manager);
+static int rc_apply(int game, int slot, unsigned char *manager);
+/* The last primary save this session wrote and exported: its slot and
+   manager, and whether the reconcile could have run at it (g_rc_save_ok).
+   VvfpStatisticsRepairReconcileNow completes a Repair answered right after
+   it -- the quit save -- from exactly that state. */
+static struct {
+    int slot;
+    unsigned char *manager;
+    int reconcile_ok;
+} g_last_save;
+
+static int write_statistics_file(int game_id, unsigned char *manager, int save_id, const char *village);
 
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
     int game_id,
@@ -938,17 +949,10 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     /* The log reads the manager; the store's flush before the save is what
        zeroes the pending fields. */
     unsigned char *manager = (unsigned char *)manager_pointer;
-    wchar_t temporary[MAX_LONG_PATH];
-    wchar_t destination[MAX_LONG_PATH];
     char village_name[VV_VILLAGE_NAME_MAX];
     /* Room for the name plus the fixed wrapper text and the slot. */
     char village[VV_VILLAGE_NAME_MAX + 32];
-    FILE *file;
     int written;
-    int closed;
-    int vv5_total;
-    int vv5_solved;
-    unsigned char *module;
 
     if (manager == NULL || save_id < 1 || save_id > 5) {
         return 0;
@@ -993,8 +997,43 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
        this is the only moment in the process at which the village is known. */
     vv_village_publish(village);
 
-    if (!build_output_paths(save_id, temporary, destination)) {
+    /* The roster is exported independently of the statistics outcome.
+
+       These are two separate files with two separate failure modes: the
+       statistics destination can be held open by another process without
+       delete sharing while the roster destination is perfectly writable.
+       Returning early on a statistics failure used to skip the roster
+       entirely, so a save that the game reports as successful left the
+       roster describing a village that no longer exists -- stale in a way
+       that looks current, which is the failure this exporter exists to
+       avoid. Neither file's failure is actionable from inside the game, so
+       neither is allowed to suppress the other. */
+    written = write_statistics_file(game_id, manager, save_id, village);
+    if (written < 0) {
         return 0;
+    }
+    write_village_population(game_id, village);
+    return written;
+}
+
+/* The Village Statistics log of `save_id`, written from the manager and the
+   slot's .dat (temporary file, then moved over the log): 1 written, 0 not
+   (nothing left behind), -1 the paths could not be built.  From
+   WriteVillageStatistics at every save, and again by the reconcile's Repair
+   right after the quit save (statistics_reconcile.inc), so the log shows
+   the repaired counters. */
+static int write_statistics_file(int game_id, unsigned char *manager, int save_id, const char *village) {
+    wchar_t temporary[MAX_LONG_PATH];
+    wchar_t destination[MAX_LONG_PATH];
+    FILE *file;
+    int written;
+    int closed;
+    int vv5_total;
+    int vv5_solved;
+    unsigned char *module;
+
+    if (!build_output_paths(save_id, temporary, destination)) {
+        return -1;
     }
 
     /* Text mode, so each \n becomes the CRLF a Windows text viewer expects.
@@ -1005,9 +1044,7 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     if (file == NULL) {
         /* The statistics temporary could not be created, but the roster's own
            destination may be perfectly writable, and the game reports the save
-           as successful either way. See the note below the writers: neither
-           file's failure may suppress the other. */
-        write_village_population(game_id, village);
+           as successful either way (WriteVillageStatistics). */
         return 0;
     }
     if (game_id == GAME_VV1) {
@@ -1141,21 +1178,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         );
     }
     closed = fclose(file) == 0;
-
-    /* The roster is exported independently of the statistics outcome.
-
-       These are two separate files with two separate failure modes: the
-       statistics destination can be held open by another process without
-       delete sharing while the roster destination is perfectly writable.
-       Returning early on a statistics failure used to skip the roster
-       entirely, so a save that the game reports as successful left the
-       roster describing a village that no longer exists -- stale in a way
-       that looks current, which is the failure this exporter exists to
-       avoid. Neither file's failure is actionable from inside the game, so
-       neither is allowed to suppress the other. */
     if (!written || !closed) {
         DeleteFileW(temporary);
-        write_village_population(game_id, village);
         return 0;
     }
     if (!MoveFileExW(
@@ -1164,10 +1188,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
         )) {
         DeleteFileW(temporary);
-        write_village_population(game_id, village);
         return 0;
     }
-    write_village_population(game_id, village);
     return 1;
 }
 
@@ -1547,11 +1569,17 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
         /* After a rollover that did not fully commit, the files on disk may
            still be the previous village's: write nothing (no elder update,
            no log) until the next save completes it. */
+        g_last_save.slot = 0;
         if (!is_new || committed) {
             g_rc_save_ok = changed == ROSTER_SAME && (flushed & 1) != 0;
             WriteVillageStatistics(game_id, manager_pointer, save_id);
+            g_last_save.slot = save_id;
+            g_last_save.manager = manager;
+            g_last_save.reconcile_ok = g_rc_save_ok;
             g_rc_save_ok = 0;
         }
+    } else if (primary) {
+        g_last_save.slot = 0;         /* this save failed: nothing to complete from */
     }
     return result;
 }

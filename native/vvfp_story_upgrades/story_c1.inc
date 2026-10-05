@@ -359,6 +359,10 @@ static int c1_golden_child(void) {
         return 0;
     }
     *(int *)(c1_record(index) + 0x340) = TC0(0x402F70u, world);
+    /* He arrived by this event, as the spawns do (ce_apply): told now, in
+       the creator's frame.  Untold, Cause of Death logged him "How: unknown"
+       (the owner's v1.35.58 preview). */
+    ce_tell_arrival(1, index);
     if (world[0xA008] == 0) {
         world[0xA008] = 1;
         *(int *)(world + 0x9E80) = c1_hours();

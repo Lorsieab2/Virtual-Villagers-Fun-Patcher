@@ -373,10 +373,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Re-pinned when its village frame began driving the first-load
         # cross-check prompt (native/shared/crosscheck_bridge.h), and again
         # when that prompt learned the Birth backfill and the Statistics and
-        # Elders reconcile.
+        # Elders reconcile.  Re-pinned when rebuilt from the source merged
+        # with v1.35.58's repair-at-quit and the shared A New Home Time Warp
+        # (a body is never aged).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "D615C24F2213649097FA1ABFDC5ED5D1AC9BE80A48793732B2E8A79F11583F21",
+            "8D6BBB9D1B09682BE140DB7B99C2F44B85C5BAB37B7DE8722809F30131895965",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

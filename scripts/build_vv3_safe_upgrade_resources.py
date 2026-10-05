@@ -65,13 +65,16 @@ FOUNDATION_OUTPUT = (
 # over an existing file; if it will not move, the loose file stays in use),
 # and then again when it reserved room for a set-aside name and kept a
 # loose file whose folder path would not fit.
+# Recertified when the Origins Barrel's free-record check learned to read the
+# active flag as the byte it is and to count the babies pregnant mothers still
+# owe (v1.35.58, the Golden Child audit).
 # Recertified when every companion moved into "Virtual Villagers Fun Patcher
 # Files" (native/shared/patcher_files.h): the story, Cause of Death and other
 # install bridges load their DLLs by full path from that folder with the wide
 # API, and the Heathen mask atlas is written to the game's Images folder by a
 # wide path, so a game folder the ANSI code page cannot spell still works.
-SOURCE_SHA256 = "C6AE2DBAA4AD11B2A744237B0DA69C565ECE19F10E141BAD7B832007C6AE0FF4"
-SOURCE_SIZE = 1914880
+SOURCE_SHA256 = "222167A0233E0DF9953330C4F1BD378C7C03D714CBBC556E853E8BBDC2243B2C"
+SOURCE_SIZE = 1918464
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
