@@ -157,7 +157,11 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC"), MAGIC)
         self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC_V6"), MAGIC_V6)
         self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC_V6_256"), MAGIC_V6_256)
-        write = self._function("__declspec(dllexport) void __stdcall WriteMaskSidecar(")
+        # The export is a wrapper; the writer reports whether the table reached the disk (the
+        # orphan repair needs to know).
+        self.assertIn("(void)vv5_write_mask_sidecar(table);",
+                      self._function("__declspec(dllexport) void __stdcall WriteMaskSidecar("))
+        write = self._function("static int vv5_write_mask_sidecar(")
         # The write is now an atomic publish through native/shared/sidecar_io.h
         # (tests/test_mask_sidecar_durability.py); the payload is unchanged.
         self.assertLess(write.index("!g_vv5_have_roster"), write.index("vv_sidecar_publish("),
@@ -167,7 +171,10 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         # ('VM06') or 256 ('VM26'); the name-roster 'VM05' / 'VM25' are read
         self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC_256"), MAGIC_256)
         self.assertIn("vv5_slots() == 256 ? VV5_MASK_SIDECAR_MAGIC_V6_256 : VV5_MASK_SIDECAR_MAGIC_V6", write)
-        self.assertRegex(write, r"parts\[1\]\s*=\s*g_vv5_roster;\s*sizes\[1\]\s*=\s*\(DWORD\)vv5_slots\(\)\s*\*\s*sizeof\(unsigned int\);")
+        # the living roster, plus, on an empty record, the identity of an ambiguous mask left on it
+        self.assertIn("vv_om_roster_to_write(VV5_RECORD_COUNT, g_vv5_roster, value, g_vv5_mask_id, written_roster);",
+                      write)
+        self.assertRegex(write, r"parts\[1\]\s*=\s*written_roster;\s*sizes\[1\]\s*=\s*\(DWORD\)vv5_slots\(\)\s*\*\s*sizeof\(unsigned int\);")
         self.assertRegex(write, r"parts\[2\]\s*=\s*table;\s*sizes\[2\]\s*=\s*vv5_mask_table_bytes\(\);")
         self.assertIn("vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3)", write)
         load = self._function("static int vv5_mask_sidecar_load(")
