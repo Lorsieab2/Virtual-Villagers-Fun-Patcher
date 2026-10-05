@@ -14,3 +14,4 @@ EXPORTS
     Vv5MaskSync=_Vv5MaskSync@0
     ShowVv5TimeWarp=_ShowVv5TimeWarp@4
     Vv5InstallCompanions=_Vv5InstallCompanions@0
+    VvfpStartup=_VvfpStartup@8
