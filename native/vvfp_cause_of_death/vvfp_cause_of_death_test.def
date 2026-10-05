@@ -9,6 +9,9 @@ EXPORTS
     VvfpCauseArmSave=_VvfpCauseArmSave@4
     VvfpCauseScanGraves=_VvfpCauseScanGraves@8
     VvfpCauseRepairGraves=_VvfpCauseRepairGraves@12
+    VvfpCauseScanArrivals=_VvfpCauseScanArrivals@8
+    VvfpCauseRepairArrivals=_VvfpCauseRepairArrivals@12
+    VvfpCauseArrivedBy=_VvfpCauseArrivedBy@12
     VvfpCauseTestSetup=_VvfpCauseTestSetup@12
     VvfpCauseTestDied=_VvfpCauseTestDied@8
     VvfpCauseTestBuried=_VvfpCauseTestBuried@8
@@ -20,5 +23,9 @@ EXPORTS
     VvfpCauseTestEpitaph=_VvfpCauseTestEpitaph@8
     VvfpCauseTestGrave=_VvfpCauseTestGrave@12
     VvfpCauseTestRoster=_VvfpCauseTestRoster@8
+    VvfpCauseTestCreated=_VvfpCauseTestCreated@8
+    VvfpCauseTestArrivalTick=_VvfpCauseTestArrivalTick@0
+    VvfpCauseTestVv1Births=_VvfpCauseTestVv1Births@4
+    VvfpCauseTestDeparted=_VvfpCauseTestDeparted@4
     VvfpCauseStats DATA
     VvfpCauseRollTest DATA

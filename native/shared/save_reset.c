@@ -40,6 +40,11 @@ int vv_reset_refused_paths = 0;
     "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Graves - Save %d.dat"
 #define ROSTER_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers " n " Village Roster - Save %d.dat"
+/* ...and that the slot's villagers who arrived before the Arrived record
+   existed have theirs (native/shared/arrival_backfill.h), in its own
+   "Arrivals" folder: the village started after the reset is asked again. */
+#define ARRIVALS_FORMAT(n) \
+    "%s\\Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers " n " Arrivals Recorded - Save %d.dat"
 /* EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h). The masks,
    the graves, VV1's parentage records and the Unaccounted Villagers roster
    used to be written loose in "Virtual Villagers Fun Patcher Data" and now
@@ -54,7 +59,7 @@ int vv_reset_refused_paths = 0;
    was never written loose: it has always been in its own "Deaths" folder. */
 #define GRAVES_LOGGED_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"
-#define SIDECAR_FORMAT_COUNT 14
+#define SIDECAR_FORMAT_COUNT 15
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
@@ -65,28 +70,28 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 1 Graves"), CAUSE_OF_DEATH_FORMAT("1"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Village Roster"),
-               ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT("1") },
+               ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT("1"), ARRIVALS_FORMAT("1") },
     /* VV2 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 2 Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
                "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 2 Graves"), CAUSE_OF_DEATH_FORMAT("2"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 2 Village Roster"),
-               ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT("2"), 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT("2"), ARRIVALS_FORMAT("2"), 0, 0, 0, 0, 0 },
     /* VV3 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Village Roster"),
-               ROSTER_FORMAT("3"), GRAVES_LOGGED_FORMAT("3"), 0, 0, 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("3"), GRAVES_LOGGED_FORMAT("3"), ARRIVALS_FORMAT("3"), 0, 0, 0, 0, 0, 0, 0 },
     /* VV4 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Village Roster"),
-               ROSTER_FORMAT("4"), GRAVES_LOGGED_FORMAT("4"), 0, 0, 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("4"), GRAVES_LOGGED_FORMAT("4"), ARRIVALS_FORMAT("4"), 0, 0, 0, 0, 0, 0, 0 },
     /* VV5 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Village Roster"),
-               ROSTER_FORMAT("5"), GRAVES_LOGGED_FORMAT("5"), 0, 0, 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("5"), GRAVES_LOGGED_FORMAT("5"), ARRIVALS_FORMAT("5"), 0, 0, 0, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are

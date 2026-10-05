@@ -66,14 +66,17 @@
    companion; every site's stock bytes are checked first, all or nothing.
    VvfpCauseTick(game) runs every frame after that.  Two companions tell
    it what it cannot see for itself: the Story / Cheat Upgrades companion
-   the Custom Island Event's "Disappears" (VvfpCauseVanished), and the
-   Births and Conceptions log's every birth (VvfpCauseNoteArrival). */
+   the Custom Island Event's "Disappears" (VvfpCauseVanished) and its new
+   villagers (VvfpCauseArrivedBy), and the Births and Conceptions log's every
+   birth (VvfpCauseNoteArrival).  Every other villager who joins the village
+   gets an "Arrived" record (cod_arrivals.inc). */
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
 #include "sidecar_io.h"
 #include "save_folder.h"
 #include "grave_backfill.h"
+#include "arrival_backfill.h"
 #include "data_subfolder.h"   /* each kind of data file in its own folder */
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -94,6 +97,8 @@ struct vvfp_cause_stats {
     int unaccounted;     /* Unaccounted records */
     int armed;           /* save hook armed ahead of the install */
     int backfilled;      /* Death records written from a grave no hook saw */
+    int arrivals;        /* Arrived records written for an arrival seen live */
+    int arrivals_backfilled;  /* Arrived records written by the backfill */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -221,6 +226,9 @@ static struct game_records REC[6] = {
 static unsigned char *test_table;
 /* ...and say whether arming the save hook succeeds: 1 yes, -1 no, 0 try. */
 static int test_arm;
+/* ...and whether A New Home's Birth records are written (Show Parents in
+   Details Screen): 1 yes, -1 no, 0 look beside the executable. */
+static int test_vv1_births;
 #endif
 
 /* The Secret City, The Tree of Life, New Believers: the villager table and
@@ -329,7 +337,7 @@ static unsigned int cod_name_hash(const unsigned char *record) {
 
 /* ---- The log -------------------------------------------------------------- */
 
-enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5 };
+enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6 };
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);
@@ -341,6 +349,8 @@ static publish_village_fn publish_village;
 static release_held_fn release_held;
 /* RecordGravesMissingFromLog (cod_backfill.inc). */
 static vv_record_graves_fn record_graves;
+/* RecordArrivalsMissingFromLog (cod_arrivals.inc). */
+static vv_record_arrivals_fn record_arrivals;
 
 /* "VVFP Parentage Export.dll", loaded by full path from the executable's
    folder the first time; absent (the Births and Conceptions row off), no
@@ -363,6 +373,8 @@ static int cod_log_ready(void) {
                 publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
                 release_held = (release_held_fn)GetProcAddress(module, "ReleaseHeldRecords");
                 record_graves = (vv_record_graves_fn)GetProcAddress(module, "RecordGravesMissingFromLog");
+                record_arrivals = (vv_record_arrivals_fn)GetProcAddress(module,
+                                                                        "RecordArrivalsMissingFromLog");
                 if (write_record != NULL) {
                     log_state = 1;
                 }
@@ -603,12 +615,22 @@ static void backfill_at_save(int slot, const void *save_buffer);
 static int backfill_accounts_for(const unsigned char *kept);
 static void backfill_reset(int slot);
 
+/* cod_arrivals.inc: the Arrived records. */
+static void arrival_created(int index, unsigned int site_va, const unsigned int *regs);
+static void arrival_tick(void);
+static void arrival_departed(int index);
+static void arrival_save(int slot, int same_village);
+static void arrival_reset(int slot);
+static void arrival_noted_birth(int index);
+static void arrival_backfill_at_save(int slot, const void *save_buffer);
+
 #include "cod_roster.inc"
 #include "cod_gone.inc"
 #include "cod_vv12.inc"
 #include "cod_vv345.inc"
 #include "cod_epitaph_edit.inc"
 #include "cod_backfill.inc"
+#include "cod_arrivals.inc"
 
 /* ---- Exports --------------------------------------------------------------- */
 
@@ -689,6 +711,7 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
         vv12_tick();
     }
     seen_tick();
+    arrival_tick();
 }
 
 /* Arm the save hook alone, before the install (Codex, #512 review).
@@ -753,6 +776,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     }
     roster_reset(slot);
     backfill_reset(slot);
+    arrival_reset(slot);
     memset(seen_alive, 0, sizeof seen_alive);
     memset(temporary, 0, sizeof temporary);
     memset(temporary_name, 0, sizeof temporary_name);

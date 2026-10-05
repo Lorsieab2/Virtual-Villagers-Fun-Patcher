@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "89DF3142C3F65492A1951BB9D6FD12849680FC07F6EB02ED311DB27121467B91",
-      "size": 139776
+      "sha256": "9F4038AEB4E3E67421EE9B92D02693BEFD78102B2224D42C063952787005AF8B",
+      "size": 140288
     }
   ],
   "doubler_evidence": {
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "C4EB14193F0A539066C83A849DB47ECDE00DA8DDBB29D00D762B5807282B84F2",
-  "base_file_sha256": "C4EB14193F0A539066C83A849DB47ECDE00DA8DDBB29D00D762B5807282B84F2",
+  "base_source_text_sha256": "5F16863AFC0AD06AC3D03FA63FDFE54AEC6CEAF481C34A6B075F41D9550B4410",
+  "base_file_sha256": "5F16863AFC0AD06AC3D03FA63FDFE54AEC6CEAF481C34A6B075F41D9550B4410",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "5A65321148B5B3305DB097DF06B5B214F90D0DD19552AA47EE9AFB6E73EF5ACB"
+      "source_text_sha256": "C0FE32F403828F7993C12E66A48D0C6DB4AD7EA2467F3F2896C4709EE4F18F0C"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "C4EB14193F0A539066C83A849DB47ECDE00DA8DDBB29D00D762B5807282B84F2"
+      "source_text_sha256": "5F16863AFC0AD06AC3D03FA63FDFE54AEC6CEAF481C34A6B075F41D9550B4410"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "184F884984EA8BBD0562FB3E2C081016AB69579478D332A55A88C4CDE50E7DFD"
+  "task9_map_canonical_sha256": "1D75167C98BBCA92860A2F31F4D0F3EDEFB46C42079894BB577FB5C05AB5E23A"
 }

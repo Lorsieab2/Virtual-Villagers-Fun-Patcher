@@ -34,7 +34,6 @@ static int standin_pending;
 
 static void roster_created(int site, const unsigned int *regs) {
     int index = cod_index_of((const unsigned char *)(uintptr_t)regs[R_ESI]);
-    (void)site;
     if (index < 0) {
         return;
     }
@@ -43,6 +42,7 @@ static void roster_created(int site, const unsigned int *regs) {
     standin_pending = 0;
     if (!temporary[index]) {
         roster_arrived(index);
+        arrival_created(index, sites[site].va, regs);   /* how they came (cod_arrivals.inc) */
     }
 }
 

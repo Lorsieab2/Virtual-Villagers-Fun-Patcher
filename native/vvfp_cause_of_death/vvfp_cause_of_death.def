@@ -9,3 +9,6 @@ EXPORTS
     VvfpCauseArmSave=_VvfpCauseArmSave@4
     VvfpCauseScanGraves=_VvfpCauseScanGraves@8
     VvfpCauseRepairGraves=_VvfpCauseRepairGraves@12
+    VvfpCauseScanArrivals=_VvfpCauseScanArrivals@8
+    VvfpCauseRepairArrivals=_VvfpCauseRepairArrivals@12
+    VvfpCauseArrivedBy=_VvfpCauseArrivedBy@12

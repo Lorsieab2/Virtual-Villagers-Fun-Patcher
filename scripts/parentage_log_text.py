@@ -18,7 +18,10 @@ Each statement is checked against native/parentage_export/parentage_export.c:
     birth is appended to the file already holding records (select_log_file's
     for_birth);
   * the Birth fields: WriteParentageBirth prints the child's name, head, body,
-    likes, dislikes and skills, and each parent's name, head and body.
+    likes, dislikes and skills, and each parent's name, head and body;
+  * the Arrived records: KIND_ARRIVED, numbered by count_arrived_records and
+    filed like a Birth (native/shared/arrival_backfill.h has the format),
+    found by "VVFP Cause of Death.dll" (cod_arrivals.inc).
 """
 
 PLAYER_LOG_DESCRIPTION = (
@@ -34,4 +37,14 @@ PLAYER_LOG_DESCRIPTION = (
     "numbered file is started after every 256 Conception records; Birth "
     "records go into the file holding the latest conceptions and do not count "
     "toward that limit. "
+    "Each Arrived record, numbered on its own, gives a villager who joined the "
+    "village without being born into it -- a new village's founders, an "
+    "island event's newcomers, the Barrel of Babies, the Custom Island Event's "
+    "new villagers (never a birth): their name, age when they arrived, sex, "
+    "head, body, likes, dislikes and skills, and how they came (\"Founder\", the "
+    "event's title, \"Barrel of Babies\", \"Custom Island Event\", or "
+    "\"unknown\"); villagers who arrived before this record existed get one, "
+    "marked \"Recorded afterwards\", only once the player chooses Repair when "
+    "the village is loaded. **The Arrived records are found by the Cause of Death patch "
+    "(\"Log Every Death ...\"): with it off, none is written.** "
 )
