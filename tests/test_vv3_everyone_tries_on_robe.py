@@ -668,6 +668,12 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             if game["id"] != "vv3":
                 continue
             for row in game["safety_patches"]:
+                # The record guards' identical .shr header writes are shared
+                # with this patch by name (SHARED_SECTION_HEADERS); the
+                # renderer allows exactly those, so they are not a collision.
+                shared = patcher.SHARED_SECTION_HEADERS.get(("vv3", int(row["offset"], 0)))
+                if shared == (row["before"].upper(), row["after"].upper()):
+                    continue
                 add(row, "automatic:safety")
             for mode, variant in game["variants"].items():
                 for row in variant["patches"]:
