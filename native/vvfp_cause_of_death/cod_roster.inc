@@ -237,7 +237,7 @@ static void roster_log(const unsigned char *record, int live, int index, const c
    villager being reanimated (+0x1CE1) is still one of the tribe. */
 static int roster_member(const unsigned char *record) {
     int index = cod_index_of(record);
-    if (!rec_present(record) || index < 0 || temporary[index]) {
+    if (!rec_present(record) || index < 0 || cod_temporary(index, record)) {
         return 0;
     }
     return g_game == 5 || !rec_lookalike(record);

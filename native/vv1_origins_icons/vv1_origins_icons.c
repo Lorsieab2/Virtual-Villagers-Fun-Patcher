@@ -7,6 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -1772,6 +1773,11 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     if (!slot) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }
+    /* The first-load cross-check: once the village has been on screen a
+       moment, ONE Repair / Not now prompt for whatever its records disagree
+       with their sources of truth on (crosscheck_bridge.h).  No village frame
+       for a while (the menus, a load) is a new load to it. */
+    vvfp_crosscheck_bridge(1, 1);
     if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
         /* This slot's sidecar has not loaded: never read yet, or present but
            unopenable when last tried.  Retry here -- the load itself is a

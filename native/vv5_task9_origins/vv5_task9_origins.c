@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
@@ -769,6 +770,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
+    vvfp_crosscheck_bridge(5, 1);  /* the first-load cross-check: a head is being drawn */
     if (g_vv5_have_roster && (now - g_vv5_sync_tick) < VV5_SYNC_INTERVAL_MS) {
         return 1;                   /* checked a moment ago */
     }

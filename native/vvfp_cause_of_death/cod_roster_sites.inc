@@ -38,6 +38,7 @@ static void roster_created(int site, const unsigned int *regs) {
         return;
     }
     temporary[index] = (unsigned char)(standin_pending != 0);
+    temporary_name[index] = 0;    /* the stand-in is named after the init (0x420015) */
     standin_pending = 0;
     if (!temporary[index]) {
         roster_arrived(index);
@@ -50,7 +51,7 @@ static void vv2_stranger(int site, const unsigned int *regs) {
     int index = (int)regs[R_EAX];
     (void)site;
     if (index >= 0 && index < RECORDS_MAX) {
-        temporary[index] = 1;
+        temporary[index] = 1;         /* named: the creator hook cleared temporary_name, the tick takes it */
     }
 }
 

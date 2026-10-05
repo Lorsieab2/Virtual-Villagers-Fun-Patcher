@@ -975,6 +975,49 @@ class LostChildrenCauseOfDeath(unittest.TestCase):
             (w.record(5), "Investigated The Voices In The Brush and was never seen again"),
         ])
 
+    def test_a_load_over_the_strangers_record_brings_a_villager_of_the_tribe(self):
+        """The Strange Request's stranger is not the tribe's while he holds his
+        record.  The game's load refills every record in one call, with no
+        creator and no frame between, so a villager loaded into his record
+        was taken for him: her disappearance went unlogged."""
+        for same_slot in (True, False):
+            g, w = vv2()
+            g.slot = 1
+            w.villager(6, "Biggles", 600, 90)
+            g.run(0x44C84F, 0x44C856, esi=w.record(6))
+            g.run(0x41F963, 0x41F969, eax=6, esi=g.p.alloc(0x6000))
+            g.tick()                                   # the village, the stranger on screen
+            if not same_slot:
+                g.slot = 2
+            w.villager(6, "Mila", 500, 90)             # the load: someone of the tribe in his record
+            g.tick()
+            g.run(0x4208FF, 0x420904, ecx=6 * V2["stride"], edx=w.pool, ebx=0)
+            gone = g.of_kind(DISAPPEARED)
+            self.assertEqual([e["record"] for e in gone], [w.record(6)], same_slot)
+        # Another village whose villager in that record has his very name.
+        g, w = vv2()
+        g.slot = 1
+        w.villager(6, "Biggles", 600, 90)
+        g.run(0x44C84F, 0x44C856, esi=w.record(6))
+        g.run(0x41F963, 0x41F969, eax=6, esi=g.p.alloc(0x6000))
+        g.tick()
+        g.slot = 2
+        w.villager(6, "Biggles", 300, 90)
+        g.tick()
+        g.run(0x4208FF, 0x420904, ecx=6 * V2["stride"], edx=w.pool, ebx=0)
+        self.assertEqual([e["record"] for e in g.of_kind(DISAPPEARED)], [w.record(6)],
+                         "another slot's namesake is the tribe's")
+        # Untouched, the stranger himself is still nobody's, ticks or not.
+        g, w = vv2()
+        g.slot = 1
+        w.villager(6, "Biggles", 600, 90)
+        g.run(0x44C84F, 0x44C856, esi=w.record(6))
+        g.run(0x41F963, 0x41F969, eax=6, esi=g.p.alloc(0x6000))
+        g.tick()
+        g.tick()
+        g.run(0x4208FF, 0x420904, ecx=6 * V2["stride"], edx=w.pool, ebx=0)
+        self.assertEqual(g.of_kind(DISAPPEARED), [])
+
     def test_the_creators_report_arrivals_and_the_save_reconciles(self):
         g, w = vv2()
         w.villager(6, "Newborn", 0, 100)
@@ -1186,6 +1229,80 @@ class LaterGames(unittest.TestCase):
             self.assertEqual(g.stats()["arrived"], 0)
             w.bury(9)
             self.assertEqual(g.of_kind(DEATH), [], "the stand-in's burial is not a death")
+
+    def test_a_load_over_the_stand_ins_record_brings_a_villager_of_the_tribe(self):
+        """Reanimate's stand-in is not the tribe's while it holds its record.
+        New Believers ticks the companion at buildSavePath (the quit's save,
+        then the load) and its load (0x46FA20) resets and refills every
+        record in one call with no creator: a villager loaded into the
+        stand-in's record was taken for it, and her burial was no death."""
+        if "vv5" not in self.games():
+            return
+        for same_slot in (True, False):
+            g, w = later("vv5")
+            g.slot = 1
+            g.run(0x46FDE0, 0x46FDE5, ecx=0)
+            w.villager(9, "Standin", 900, 0)
+            g.run(0x468411, 0x46841A, esi=w.record(9))
+            g.p.write(w.record(9) + w.l["name"], b"Kito\0")   # 0x420015: the reanimated villager's name
+            g.tick()                                          # the quit's save
+            if not same_slot:
+                g.slot = 2
+            g.tick()                                          # the load's buildSavePath
+            w.villager(9, "Kaya", 700, 0)                     # 0x46FA20 refills the record
+            w.bury(9)
+            self.assertEqual([e["record"] for e in g.of_kind(DEATH)], [w.record(9)], same_slot)
+        # Her body left unburied to decay is a death too.
+        g, w = later("vv5")
+        g.slot = 1
+        g.run(0x46FDE0, 0x46FDE5, ecx=0)
+        w.villager(9, "Standin", 900, 0)
+        g.run(0x468411, 0x46841A, esi=w.record(9))
+        g.p.write(w.record(9) + w.l["name"], b"Kito\0")
+        g.tick()
+        w.villager(9, "Kaya", 700, 0)
+        w.decay(9)
+        self.assertEqual([e["record"] for e in g.of_kind(DEATH)], [w.record(9)], "decayed")
+        # A new stand-in in the same record before any tick is a stand-in
+        # still, though the last one's name is remembered.
+        g, w = later("vv5")
+        g.slot = 1
+        g.run(0x46FDE0, 0x46FDE5, ecx=0)
+        w.villager(9, "Standin", 900, 0)
+        g.run(0x468411, 0x46841A, esi=w.record(9))
+        g.p.write(w.record(9) + w.l["name"], b"Kito\0")
+        g.tick()
+        g.run(0x46FDE0, 0x46FDE5, ecx=0)
+        w.villager(9, "Standin", 900, 0)
+        g.run(0x468411, 0x46841A, esi=w.record(9))
+        g.p.write(w.record(9) + w.l["name"], b"Ama\0")
+        w.bury(9)
+        self.assertEqual(g.of_kind(DEATH), [], "the second stand-in's burial is not a death")
+        # The next save, before any tick, names her in the village's roster.
+        for name, member in (("Kaya", True), ("Kito", False)):
+            g, w = later("vv5")
+            g.slot = 1
+            g.run(0x46FDE0, 0x46FDE5, ecx=0)
+            w.villager(9, "Standin", 900, 0)
+            g.run(0x468411, 0x46841A, esi=w.record(9))
+            g.p.write(w.record(9) + w.l["name"], b"Kito\0")
+            g.tick()
+            g.tick()
+            if member:
+                w.villager(9, name, 700, 90)                  # the load
+            g.saved_epilogue(0x4245FF, 1, 1)
+            self.assertEqual(name.encode() in (g.roster(1) or b""), member, name)
+        # Untouched, the stand-in itself is still nobody's after ticks.
+        g, w = later("vv5")
+        g.slot = 1
+        g.run(0x46FDE0, 0x46FDE5, ecx=0)
+        w.villager(9, "Standin", 900, 0)
+        g.run(0x468411, 0x46841A, esi=w.record(9))
+        g.p.write(w.record(9) + w.l["name"], b"Kito\0")
+        g.tick()
+        g.tick()
+        w.bury(9)
+        self.assertEqual(g.of_kind(DEATH), [])
 
 
 _RENDERS_256: dict = {}

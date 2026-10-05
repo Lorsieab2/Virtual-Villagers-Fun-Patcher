@@ -35,7 +35,7 @@ static void cod_log_gone(const unsigned char *record, const char *what) {
 /* A villager of the tribe, alive, in its record. */
 static int cod_is_villager(const unsigned char *record) {
     int index = cod_index_of(record);
-    return index >= 0 && !temporary[index] && !rec_lookalike(record);
+    return index >= 0 && !cod_temporary(index, record) && !rec_lookalike(record);
 }
 
 /* ---- A New Home, The Lost Children: the stores ------------------------- */
