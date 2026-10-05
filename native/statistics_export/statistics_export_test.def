@@ -1,6 +1,7 @@
-LIBRARY "VVFP Statistics Export"
+LIBRARY "VVFP Statistics Export.test.dll"
 EXPORTS
     WriteVillageStatistics=_WriteVillageStatistics@12
     SaveVillageStatistics=_SaveVillageStatistics@24
     VvfpStatisticsScanReconcile=_VvfpStatisticsScanReconcile@16
     VvfpStatisticsRepairReconcile=_VvfpStatisticsRepairReconcile@12
+    VvfpStatisticsTestSave=_VvfpStatisticsTestSave@12

@@ -347,5 +347,103 @@ class ParsingFixtures(unittest.TestCase):
         self.assertEqual(rep.lines[0][1], "UNCHECKED")
 
 
+def vv3_save(people) -> bytes:
+    """A Secret City save: the packed villager table (see the test above), with each villager's
+    own parents (name +0x24 / +0x3D) and skills."""
+    data = bytearray(77608)
+    for i, (name, father, mother, head, body, masters) in enumerate(people):
+        e = 30832 + i * 0x11C
+        struct.pack_into("<I", data, e, 1)
+        n = e + 20
+        data[n:n + len(name)] = name.encode()
+        data[n + 0x24:n + 0x24 + len(father)] = father.encode()
+        data[n + 0x3D:n + 0x3D + len(mother)] = mother.encode()
+        struct.pack_into("<i", data, n - 16, 500)
+        struct.pack_into("<i", data, n + 28, head)
+        struct.pack_into("<i", data, n + 32, body)
+        for k in range(5):
+            struct.pack_into("<i", data, n + 0xD8 + 4 * k, 95 if k < masters else 10)
+    return bytes(data)
+
+
+class ReconcileFixtures(unittest.TestCase):
+    """What v1.35.58's extended first-load repair changes, predicted read-only."""
+
+    def folder(self) -> Path:
+        game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "Virtual Villagers - The Secret City - Modded"
+        (game / LOGS / "Births and Conceptions").mkdir(parents=True)
+        (game / LOGS / "Deaths").mkdir(parents=True)
+        (game / LOGS / "Tribe History").mkdir(parents=True)
+        (game / DATA / "Village Elders").mkdir(parents=True)
+        (game / DATA / "Village Statistics").mkdir(parents=True)
+        (game / "Virtual Villagers - The Secret City1.ldw").write_bytes(vv3_save([
+            ("Vinapu", "", "", 27, 27, 0), ("Kolea", "Vinapu", "Manaka", 4, 5, 0),
+            ("Twin", "Vinapu", "Manaka", 6, 6, 0), ("Twin", "Vinapu", "Manaka", 6, 6, 0),
+            ("Nishi", "Vinapu", "Manaka", 9, 3, 0),
+        ]))
+        (game / LOGS / "Births and Conceptions" / "Virtual Villagers 3 Births and Conceptions Log 1.txt").write_text(
+            "Village: Recon (Save 1)\nBirth\n  Child: Twin\n    Head: 6\n    Body: 6\n  Mother: Manaka\n    Head: 1\n"
+            "    Body: 1\n  Father: Vinapu\n    Head: 27\n    Body: 27\n\n"
+            "Birth\n  Child: Nishi\n    Head: 7\n    Body: 3\n  Mother: Manaka\n    Head: 1\n    Body: 1\n"
+            "  Father: Vinapu\n    Head: 27\n    Body: 27\n\n", encoding="latin-1")
+        (game / LOGS / "Deaths" / "Virtual Villagers 3 Deaths Log 1.txt").write_text(
+            "Village: Recon (Save 1)\nDeath 1\n  Name: Mia\n  Grave: Master Builder\n\n"
+            "Death 2\n  Name: Lua\n  Grave: no grave (never buried: the game removed the body)\n\n"
+            "Death 3\n  Name: Rex\n  Grave: Untrained\n\n", encoding="latin-1")
+        (game / LOGS / "Tribe History" / "Village History 1.txt").write_text(
+            "=== Virtual Villagers 3 -- 2026-09-01 10:00:00 ===\nVillage: Recon (Save 1)\n\n"
+            "Villager 1\n  Name: Ghost\n  Age: 900\n  Head: 1\n  Body: 1\n  Skills:\n"
+            "    Farming    88\n    Building   90\n    Healing    100\n    Science    3\n    Breeding   4\n\n"
+            "Villager 2\n  Name: Near\n  Age: 900\n  Head: 1\n  Body: 1\n  Skills:\n"
+            "    Farming    88\n    Building   87\n    Healing    100\n    Science    3\n    Breeding   4\n\n",
+            encoding="latin-1")
+        (game / DATA / "Village Elders" / "Village Elders - Save 1.dat").write_text(
+            "VVFP VILLAGE ELDERS v2 game=3\ngraves_seen=0\n", encoding="latin-1")
+        return game
+
+    def counters(self, game: Path, buried: int) -> None:
+        (game / DATA / "Village Statistics" / "Village Statistics - Save 1.dat").write_text(
+            f"VVFP VILLAGE STATISTICS v1 game=3\nmigrated.villagers_buried=0\nvillagers_buried={buried}\n",
+            encoding="latin-1")
+
+    def test_what_the_repair_would_change_is_listed_and_nothing_is_written(self):
+        game = self.folder()
+        self.counters(game, 1)
+        before = snapshot(game)
+        rep = checker.check(game, 1)
+        text = rep.render()
+        self.assertEqual(snapshot(game), before)
+        wrong = [t for _f, v, t in rep.lines if v == "WRONG"]
+        self.assertEqual(sum("Kolea: born here" in w for w in wrong), 1, text)
+        self.assertEqual(sum("Twin: born here" in w for w in wrong), 1, "two Twins, one Birth record: one is missing")
+        self.assertFalse(any("Nishi" in w for w in wrong), "the only Nishi, looks changed: her record is hers")
+        self.assertFalse(any("Vinapu: born here" in w for w in wrong), "no parents in the save: not born here")
+        self.assertTrue(any(w.startswith("Ghost is a Village Elder in the Village History log") for w in wrong), text)
+        self.assertFalse(any(w.startswith("Near ") for w in wrong), "two masteries is not an elder")
+        self.assertIn("Villagers Buried is 1, below the 2 Death records with a grave in the Deaths log (repairable: "
+                      "raised to 2)", text)
+        self.assertEqual(rep.wrong, 4)
+
+    def test_a_counter_above_its_bound_is_never_reported_and_the_backfill_marker_ends_it(self):
+        game = self.folder()
+        self.counters(game, 7)
+        (game / DATA / "Births").mkdir(parents=True)
+        (game / DATA / "Births" / "Virtual Villagers 3 Births Recorded - Save 1.dat").write_bytes(
+            struct.pack("<4I", 0x31424356, 1, 3, 1))
+        rep = checker.check(game, 1)
+        self.assertIn("Villagers Buried 7 >= the 2 Death records with a grave", rep.render())
+        self.assertFalse(any("born here" in t for _f, v, t in rep.lines if v == "WRONG"))
+        self.assertEqual(rep.wrong, 1)      # Ghost
+
+    def test_every_report_only_file_says_why(self):
+        game = self.folder()
+        self.counters(game, 2)
+        text = checker.check(game, 1).render()
+        for name, why in checker.REPORT_ONLY.items():
+            if name in ("stews", "masks", "titles"):
+                continue        # shown with their files, which this fixture has none of
+            self.assertIn(why, text, name)
+
+
 if __name__ == "__main__":
     unittest.main()

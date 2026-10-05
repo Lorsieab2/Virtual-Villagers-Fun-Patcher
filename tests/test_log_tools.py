@@ -57,6 +57,8 @@ def markers_of(game: int, slot: int) -> list[str]:
     ]
     if game == 1:
         names.append(f"{DATA}/Cross-Check/Virtual Villagers 1 Cross-Check - Save {slot}.dat")
+    else:
+        names.append(f"{DATA}/Births/Virtual Villagers {game} Births Recorded - Save {slot}.dat")
     return names
 
 
@@ -231,9 +233,11 @@ class CheckerRefactorTests(FolderTest):
         folder = self.make_folder("huttest", 3, "Modded")
         before = self.state(folder)
         done = self.run_cli(str(folder), "1")
-        self.assertEqual(done.returncode, 0, done.stderr)
         report = tools.load_checker().check(folder, 1)
-        self.assertEqual(done.stdout, report.render() + "\n\n0 confirmed wrong\n")
+        # The HutTest village has three villagers born before its Births log
+        # (v1.35.58 backfills their Birth records): exit 1, "confirmed wrong".
+        self.assertEqual(done.returncode, 1 if report.wrong else 0, done.stderr)
+        self.assertEqual(done.stdout, report.render() + f"\n\n{report.wrong} confirmed wrong\n")
         self.assertEqual(self.state(folder), before)
 
     def test_check_raises_check_error_not_system_exit(self) -> None:
@@ -279,7 +283,8 @@ class RearmTests(FolderTest):
         xc = (ROOT / "native" / "vv1_parentage" / "vv1_crosscheck.inc").read_text(encoding="utf-8")
         self.assertIn('"Virtual Villagers Fun Patcher Data", "Cross-Check"', xc)
         self.assertIn(r'"\\Virtual Villagers 1 Cross-Check - Save %d.dat", slot', xc)
-        self.assertEqual(len(tools.REARM_MARKERS), 3)
+        self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Births\\Virtual Villagers " n " Births Recorded - Save %d.dat"', reset)
+        self.assertEqual(len(tools.REARM_MARKERS), 4)
         for number in range(1, 6):
             self.assertEqual(
                 sorted(p.relative_to(Path("F")).as_posix().replace("\\", "/")

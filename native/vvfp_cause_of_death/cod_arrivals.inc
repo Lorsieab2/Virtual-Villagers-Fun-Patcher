@@ -75,6 +75,8 @@ static int faction_ready;
 
 /* The player's answer to the backfill, per slot, this session. */
 static signed char arrivals_repair[6];
+/* ...and to the Birth records' backfill (The Lost Children to New Believers). */
+static signed char births_repair[6];
 
 /* The Births and Conceptions log recorded a birth into `index`. */
 static void arrival_noted_birth(int index) {
@@ -245,6 +247,7 @@ static void arrival_reset(int slot) {
     memset(faction_seen, -1, sizeof faction_seen);
     if (slot >= 1 && slot <= 5) {
         arrivals_repair[slot] = 0;
+        births_repair[slot] = 0;
     }
 }
 
@@ -273,9 +276,13 @@ static int births_are_logged(void) {
     return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
 }
 
-/* The village's villagers who could have arrived: members, believers, and
-   (The Lost Children on) with no parents on their record. */
-static int arrival_gather(void) {
+/* The village's villagers, members and believers, every one of them: the
+   ones this backfill records -- `births` 0: with no parents on their record
+   (who could have arrived); 1: with parents there (The Lost Children on:
+   born in the village) -- and the others marked VV_ARRIVAL_CONTEXT, which
+   are only counted (a name they share decides nothing).  -1 when the
+   records are not there. */
+static int arrival_gather(int births) {
     static const unsigned int PARENTS[6][2] = {
         { 0, 0 }, { 0, 0 }, { 0x57Du, 0x596u }, { 0xDF8u, 0xE11u },
         { 0x1BC0u, 0x1BD9u }, { 0x1BC0u, 0x1BD9u },
@@ -292,13 +299,17 @@ static int arrival_gather(void) {
         if (!roster_member(record) || arrival_heathen(record)) {
             continue;
         }
-        if (PARENTS[g_game][0] != 0u
-            && (record[PARENTS[g_game][0]] != 0 || record[PARENTS[g_game][1]] != 0)) {
-            continue;                 /* born here: the record keeps their parents */
-        }
         f = &arrival_facts[n];
         memset(f, 0, sizeof *f);
         f->record = record;
+        {
+            /* Born here: the record keeps their parents (never in A New Home). */
+            int parented = PARENTS[g_game][0] != 0u
+                && (record[PARENTS[g_game][0]] != 0 || record[PARENTS[g_game][1]] != 0);
+            if (parented != births) {
+                f->outcome = VV_ARRIVAL_CONTEXT;
+            }
+        }
         wsprintfA(f->before, "  Age at arrival: (unknown)\n  Age when recorded: %d\n  Sex: %s\n",
                   rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
         arrival_fact_index[n] = (int)i;
@@ -321,7 +332,7 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
         || !arrival_backfill_ready() || vv_arrival_marker_present(g_game, slot)) {
         return;
     }
-    count = arrival_gather();
+    count = arrival_gather(0);
     if (count < 0) {
         return;
     }
@@ -330,6 +341,9 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
     }
     for (i = 0; i < count; ++i) {
         int outcome = arrival_facts[i].outcome;
+        if (outcome == VV_ARRIVAL_CONTEXT) {
+            continue;                 /* not this backfill's */
+        }
         if (outcome == VV_ARRIVAL_RECORDED || outcome == VV_ARRIVAL_QUEUED) {
             roster_arrived(arrival_fact_index[i]);   /* never Unaccounted now */
             COD_COUNT(arrivals_backfilled);
@@ -369,7 +383,7 @@ __declspec(dllexport) int __stdcall VvfpCauseScanArrivals(int game, int slot) {
     if (!births_are_logged() || vv_arrival_marker_present(game, slot)) {
         return 0;
     }
-    count = arrival_gather();
+    count = arrival_gather(0);
     if (count <= 0) {
         return count;
     }
@@ -391,4 +405,89 @@ __declspec(dllexport) void __stdcall VvfpCauseArrivedBy(int game, int index, con
         return;
     }
     lstrcpynA(arrivals[index].how, how, ARRIVAL_HOW);
+}
+
+/* ---- Birth records, backfilled (The Lost Children to New Believers) -------
+
+   native/shared/arrival_backfill.h.  The same shape as the Arrived records'
+   backfill above: the villagers whose record keeps parents -- born in the
+   village -- with no Birth or Arrived record in its Births and Conceptions
+   log get a Birth record from their own record, marked "Recorded afterwards
+   (born before this log existed)", at the next save after Repair; the slot's
+   marker ("...Data\Births\...") once every one is on disk.  A New Home keeps
+   no parents on the record: nothing to backfill there. */
+static int births_backfill_ready(void) {
+    return g_game >= 2 && cod_log_ready() && record_births != NULL;
+}
+
+static void births_backfill_at_save(int slot, const void *save_buffer) {
+    int count;
+    int i;
+    int done = 1;
+    if (install_state != 1 || save_buffer == NULL || slot < 1 || slot > 5 || !births_repair[slot]
+        || !births_backfill_ready() || vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot)) {
+        return;
+    }
+    count = arrival_gather(1);
+    if (count < 0) {
+        return;
+    }
+    if (count > 0 && record_births(g_game, save_buffer, slot, arrival_facts, count, VV_ARRIVAL_APPLY) < 0) {
+        return;
+    }
+    for (i = 0; i < count; ++i) {
+        int outcome = arrival_facts[i].outcome;
+        if (outcome == VV_ARRIVAL_CONTEXT) {
+            continue;
+        }
+        if (outcome == VV_ARRIVAL_RECORDED || outcome == VV_ARRIVAL_QUEUED) {
+            roster_arrived(arrival_fact_index[i]);   /* never Unaccounted now */
+            COD_COUNT(births_backfilled);
+        }
+        if (outcome != VV_ARRIVAL_IN_LOG && outcome != VV_ARRIVAL_RECORDED) {
+            done = 0;
+        }
+    }
+    if (done && vv_backfill_marker_write(VV_BACKFILL_BIRTHS, g_game, slot)) {
+        births_repair[slot] = 0;
+    }
+}
+
+/* VvfpCauseScanBirths(game, slot): how many of the village's villagers born
+   there (their record keeps parents) have neither a Birth nor an Arrived
+   record in its Births and Conceptions log, writing nothing -- 0 in A New
+   Home and once the slot's marker is there, -1 when that cannot be told now.
+   VvfpCauseRepairBirths(game, slot, repair): the player's answer, as for the
+   arrivals. */
+__declspec(dllexport) int __stdcall VvfpCauseScanBirths(int game, int slot) {
+    int count;
+    if (install_state == -1 || game < 1 || game > 5 || (g_game != 0 && game != g_game)
+        || slot < 1 || slot > 5) {
+        return -1;
+    }
+    if (game == 1) {
+        return 0;
+    }
+    if (install_state == 0) {
+        g_game = game;
+        cod_locate_table();
+    }
+    if (!cod_log_ready() || record_births == NULL) {
+        return -1;
+    }
+    if (vv_backfill_marker_present(VV_BACKFILL_BIRTHS, game, slot)) {
+        return 0;
+    }
+    count = arrival_gather(1);
+    if (count <= 0) {
+        return count;
+    }
+    return record_births(g_game, NULL, slot, arrival_facts, count, VV_ARRIVAL_COUNT);
+}
+
+__declspec(dllexport) void __stdcall VvfpCauseRepairBirths(int game, int slot, int repair) {
+    if (game < 2 || game > 5 || (g_game != 0 && game != g_game) || slot < 1 || slot > 5) {
+        return;
+    }
+    births_repair[slot] = (signed char)(repair != 0);
 }

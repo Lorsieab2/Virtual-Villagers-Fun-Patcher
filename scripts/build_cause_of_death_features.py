@@ -196,7 +196,13 @@ def logs_text(n: str, game: str) -> str:
         "Start Over deletes it. "
         + ("In A New Home a villager born here is told by their Birth record, which Show Parents in "
            "Details Screen writes: **without that patch no Arrived record is backfilled.** "
-           if game == "vv1" else "") +
+           if game == "vv1" else
+           "A villager the save says was born here (their record keeps their parents) who has no Birth "
+           "or Arrived record -- born before the log existed -- is found the same way, and only after "
+           "Repair gets a Birth record written from the save at the next save, with their parents as the "
+           "save keeps them, marked \"Recorded afterwards (born before this log existed)\" -- exactly "
+           f"once: 'Virtual Villagers Fun Patcher Data\\Births\\Virtual Villagers {n} Births Recorded - "
+           "Save <n>.dat' then says it is done; Start Over deletes it. ") +
         "At every save, the village is checked against the one saved before: a villager who left "
         "with no Death or Disappeared record, or arrived with no birth or known arrival, is written "
         f"with everything known about them to the Unaccounted Villagers log ('Virtual Villagers {n} "

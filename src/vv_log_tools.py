@@ -152,6 +152,12 @@ REARM_MARKERS: tuple[Marker, ...] = (
         DATA + r"\Arrivals\Virtual Villagers {game} Arrivals Recorded - Save {slot}.dat",
         "native/shared/arrival_backfill.h (vv_arrival_marker_present)",
     ),
+    Marker(
+        "villagers' Birth records already backfilled from the save",
+        (2, 3, 4, 5),
+        DATA + r"\Births\Virtual Villagers {game} Births Recorded - Save {slot}.dat",
+        "native/shared/arrival_backfill.h (vv_backfill_marker_present)",
+    ),
 )
 
 

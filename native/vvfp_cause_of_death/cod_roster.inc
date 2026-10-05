@@ -454,6 +454,9 @@ static void cod_save_done(int slot, const void *save_buffer) {
         /* ...and every villager who arrived before the Arrived record
            existed, after Repair (cod_arrivals.inc). */
         arrival_backfill_at_save(slot, save_buffer);
+        /* ...and every villager born there before the Births log existed
+           (The Lost Children on), after Repair (cod_arrivals.inc). */
+        births_backfill_at_save(slot, save_buffer);
         roster_reconcile(slot);
     }
 }

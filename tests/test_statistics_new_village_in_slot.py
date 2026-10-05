@@ -65,11 +65,14 @@ class NewVillageInSlotTests(unittest.TestCase):
         self.assertLess(decide, flush)
         self.assertLess(flush, write)
         self.assertLess(write, commit)
-        self.assertRegex(body, r"if \(changed == ROSTER_SAME\) \{\s*vvs_flush\(&g_store\);")
+        self.assertRegex(body, r"if \(changed == ROSTER_SAME\) \{\s*flushed = vvs_flush\(&g_store\);")
         self.assertRegex(body, r"if \(primary && \(result & 0xFF\) != 0 && changed != ROSTER_LOCKED\) \{")
         self.assertIn("int is_new = changed == ROSTER_NEW || changed == ROSTER_DAMAGED;", body)
         # Codex round 3: nothing is exported after a rollover that did not commit
-        self.assertRegex(body[commit:], r"if \(!is_new \|\| committed\) \{\s*WriteVillageStatistics\(")
+        # (the first-load reconcile's flag is set around it: only the same
+        # village's flushed save may raise a counter)
+        self.assertRegex(body[commit:], r"if \(!is_new \|\| committed\) \{\s*g_rc_save_ok = changed == ROSTER_SAME "
+                                        r"&& \(flushed & 1\) != 0;\s*WriteVillageStatistics\(")
         self.assertEqual(body.count("WriteVillageStatistics("), 1)
         check = EXPORTER[EXPORTER.index("static int village_changed("):]
         check = check[:check.index("\n}\n")]

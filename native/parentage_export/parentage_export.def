@@ -10,3 +10,4 @@ EXPORTS
     ReleaseHeldRecords=_ReleaseHeldRecords@4
     RecordGravesMissingFromLog=_RecordGravesMissingFromLog@24
     RecordArrivalsMissingFromLog=_RecordArrivalsMissingFromLog@24
+    RecordBirthsMissingFromLog=_RecordBirthsMissingFromLog@24

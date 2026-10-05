@@ -27,8 +27,12 @@ EXPORTER = ROOT / "native/parentage_export/parentage_export.c"
 
 def _birth_body() -> str:
     source = EXPORTER.read_text(encoding="utf-8")
-    at = source.index("__declspec(dllexport) int __stdcall WriteParentageBirth(")
-    return source[at : source.index("\n}", at)]
+    # The record is composed by compose_birth (v1.35.58: shared with the
+    # Birth backfill, arrival_backfill.inc); WriteParentageBirth composes it,
+    # tells Cause of Death and files it.
+    at = source.index("static int compose_birth(")
+    end = source.index("\n}", source.index("__declspec(dllexport) int __stdcall WriteParentageBirth("))
+    return source[at:end]
 
 
 def _without_comments(text: str) -> str:
