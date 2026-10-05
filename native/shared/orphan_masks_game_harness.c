@@ -464,7 +464,24 @@ int main(void) {
           (void *)g_backing, (void *)(g_backing + sizeof g_backing));
     if (failures) exit(1);
     village();
-    CHECK(file_path(g_path), "the mask file's path: %s", g_path);
+    /* The companion's own identities, for scripts/vvfp_consistency_check.py to be held to
+       (tests/test_orphan_mask_cleanup.py rebuilds each villager in a save and compares). */
+    {
+        static const char *const who[] = { "Ana", "Bo", "Cy", "Cy", "Fay" };
+        int i;
+        for (i = 0; i < (HAS_BODY ? 5 : 4); ++i) {
+#if WEAK
+            printf("IDENT %d %s %08X NAME %08X\n", i, who[i], identity(i), name_hash(i));
+#elif OM_GAME == 4
+            g_fp_version = 2u;
+            printf("IDENT %d %s %08X V2 %08X\n", i, who[i], identity(i), vv_identity(rec(i)));
+            g_fp_version = 3u;
+#else
+            printf("IDENT %d %s %08X\n", i, who[i], identity(i));
+#endif
+        }
+    }
+    CHECK(file_path(g_path),"the mask file's path: %s", g_path);
     CHECK(strstr(g_path, "\\Virtual Villagers Fun Patcher Data\\Village Masks\\") != NULL,
           "it is in the Village Masks folder (the #519 resolver)");
     {

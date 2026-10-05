@@ -24,7 +24,9 @@ WHAT IS THE SOURCE OF TRUTH, PER FILE (the full table is in docs/first-load-cros
   - The Births and Conceptions log is the truth for who was born to whom: it is written at
     the moment of each birth and never rewritten.  It is what A New Home's parentage table
     is rebuilt from.
-  - Nothing outside a mask file records a mask, so masks can only be checked for form.
+  - Nothing outside a mask file records a mask, but each entry stores the identity of the villager
+    it is for: an entry whose identity no villager in the save carries (a body awaiting burial
+    counts) and that shows on nobody is an orphan (v1.35.59), WRONG and repairable.
 
 The save layouts are the games' own (A New Home: +0x33C..+0x3D8 of each record from file
 +0x184, the layout scripts/... and the owner's repair tool use; The Secret City and The Tree
@@ -72,6 +74,9 @@ class Villager:
     scalar: int = 0            # VV1 family scalar (+0x36C)
     due: int = 0               # VV1 pregnancy field (+0x358)
     raw: bytes = b""           # VV1: the record window +0x33C..+0x3D8
+    ident: int = 0             # the Origins companion's mask identity (see mask_identity)
+    ident_v2: int = 0          # The Tree of Life's older one (gender and name)
+    name_hash: int = 0         # the name-only identity of the older mask files
 
 
 class CheckError(Exception):
@@ -140,11 +145,56 @@ def vv1_roster(data: bytes) -> list[Villager]:
         gender = f(0x350)
         if f(0x3D4) != 1 or not name or gender not in (1, 2):
             continue
+        raw = data[base:base + VV1_STRIDE]
+        # vv1_mask_identity (native/vv1_origins_icons): name (to 0x1C bytes), 0xFF, gender, the family scalar.
+        h = _fnv_text(FNV_BASIS, raw[0x370 - VV1_BASE:0x370 - VV1_BASE + 0x1C])
+        h = _fnv(h, b"\xff" + raw[0x350 - VV1_BASE:0x354 - VV1_BASE] + raw[0x36C - VV1_BASE:0x370 - VV1_BASE])
+        ident = h or 1
         out.append(Villager(rank=len(out), name=name, male=gender == 1, age=f(0x348), head=f(0x360),
                             body=f(0x364), skills=[f(0x3BC + 4 * k) for k in range(5)],
                             scalar=f(0x36C), due=f(0x358),
-                            raw=data[base:base + VV1_STRIDE]))
+                            raw=raw, ident=ident))
     return out
+
+
+# ---- the Origins companions' mask identities (FNV-1a, as each companion computes it) ----------
+
+FNV_BASIS, FNV_PRIME = 2166136261, 16777619
+
+
+def _fnv(h: int, data: bytes) -> int:
+    for b in data:
+        h = ((h ^ b) * FNV_PRIME) & 0xFFFFFFFF
+    return h
+
+
+def _fnv_text(h: int, field: bytes) -> int:
+    """The bytes of a name field up to its terminator."""
+    return _fnv(h, field.split(b"\0", 1)[0])
+
+
+def mask_identity(game: int, data: bytes, p: int, lay: SaveLayout) -> tuple[int, int, int]:
+    """(identity, The Tree of Life's version-2 identity, name hash) of the saved villager whose name is
+    at data[p]: the identity each game's Origins companion stores with a mask entry (the record
+    fields the save keeps; see the companions' vv2_roster_identities, vv3_mask_fingerprint,
+    vv_fingerprint and vv5_identity)."""
+    name = data[p:p + lay.name_cap]
+    sex = data[p + lay.gender:p + lay.gender + 4]
+    father = data[p + lay.father:p + lay.father + lay.parent_cap]
+    mother = data[p + lay.mother:p + lay.mother + lay.parent_cap]
+    names = (_fnv(_fnv_text(FNV_BASIS, name), b"\xff")) or 1
+    if game == 3:
+        h = _fnv(FNV_BASIS, sex[:1] + data[p + 0xF0:p + 0xFC] + data[p + 0xFC:p + 0x108])
+        return (_fnv(_fnv_text(h, name), b"\xff") or 1), 0, names
+    if game == 4:
+        v2 = _fnv(_fnv_text(_fnv(FNV_BASIS, sex), name), b"\xff")
+        h = _fnv(_fnv_text(v2, father), b"\xfe")
+        h = _fnv(_fnv_text(h, mother), b"\xfd")
+        return (h or 1), (v2 or 1), names
+    h = _fnv(_fnv(_fnv_text(FNV_BASIS, name), b"\xff"), sex)
+    h = _fnv(_fnv_text(h, father), b"\xfe")
+    h = _fnv(_fnv_text(h, mother), b"\xfd")
+    return (h or 1), 0, names
 
 
 # VV2-VV5: offsets relative to the villager's NAME inside its saved entry.
@@ -223,20 +273,22 @@ def vv25_roster(game: int, data: bytes, hint_names: list[str]) -> list[Villager]
                 starts.append(m.start())
                 break
     for p in starts:
-        out.extend(_entries(data, p, lay, len(out)))
+        out.extend(_entries(data, p, lay, len(out), game))
     return out
 
 
-def _entries(data: bytes, p: int, lay: SaveLayout, first: int) -> list[Villager]:
+def _entries(data: bytes, p: int, lay: SaveLayout, first: int, game: int = 0) -> list[Villager]:
     out = []
     while plausible(data, p, lay):
+        ident, ident_v2, name_hash = mask_identity(game, data, p, lay) if game else (0, 0, 0)
         skills = [(f32 if lay.skills_float else i32)(data, p + lay.skills + 4 * k) for k in range(lay.skill_count)]
         out.append(Villager(rank=first + len(out), name=cstr(data, p, lay.name_cap),
                             male=i32(data, p + lay.gender) == lay.male_value,
                             age=i32(data, p + lay.age), head=i32(data, p + lay.head), body=i32(data, p + lay.body),
                             skills=skills,
                             father=cstr(data, p + lay.father, lay.parent_cap) if lay.father is not None else "",
-                            mother=cstr(data, p + lay.mother, lay.parent_cap) if lay.mother is not None else ""))
+                            mother=cstr(data, p + lay.mother, lay.parent_cap) if lay.mother is not None else "",
+                            ident=ident, ident_v2=ident_v2, name_hash=name_hash))
         p += lay.stride
     return out
 
@@ -670,8 +722,9 @@ REPORT_ONLY = {
     "rosters": "not rebuilt: each is the record of the LAST SAVE that the next save compares with -- a mismatch is "
                "the evidence it uses (a different village in the slot; villagers who left unaccounted for), and "
                "rebuilding it from the loaded village would erase that evidence",
-    "masks": "not repaired: no save field or log records what a mask was; an entry whose villager is in no record "
-             "shows on nobody and is dropped by the game's own follow rule as soon as anyone takes that record",
+    "masks": "an entry whose stored identity no villager in the save carries, on a record nobody holds (The Secret "
+             "City: anywhere), shows on nobody and is repaired by the first-load check (after asking); an entry "
+             "some villager carries -- one, or several alike -- is never touched",
     "titles": "not repaired: a title of a dead villager is not an orphan, and graves keep no likes or dislikes, so "
               "no file can prove a title belongs to nobody; one shows only on the villager whose fingerprint it "
               "carries",
@@ -883,18 +936,180 @@ def check_counters(game_dir: Path, slot: int, game: int, births: list[LogRecord]
             rep.add(label, "OK", f"{row} {counters[k]} >= the {bound} {what}")
 
 
+VV_MASK_FILES = {1: "Virtual Villagers 1 Village Masks - Save {slot}.dat",
+                 2: "Virtual Villagers 2 Village Masks - Save {slot}.dat"}
+MASK_NAMES = ("(None)", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask", "Tribal Chief Mask")
+
+
+@dataclass
+class MaskFile:
+    values: list[int]                  # per entry (by record, The Secret City by entry)
+    stored: list[int]                  # the identity stored with each entry (0: none)
+    roster: list[int] | None           # who held each record when written (None: not kept)
+    weak: bool = False                 # name hashes ('VM04', 'VM05' / 'VM25')
+    v2: bool = False                   # The Tree of Life version 2 (gender and name)
+    legacy: bool = False               # 'VM01': record indexes and nothing else
+
+
+def _u32s(data: bytes, at: int, n: int) -> list[int]:
+    return list(struct.unpack_from(f"<{n}I", data, at))
+
+
+def _nibbles(data: bytes, at: int, n: int) -> list[int]:
+    return [(data[at + (i >> 1)] >> 4 if i & 1 else data[at + (i >> 1)]) & 0x0F for i in range(n)]
+
+
+def read_mask_file(game: int, data: bytes) -> MaskFile | None:
+    """Each companion's format (native/shared/mask_follow.h and the Origins companions); None when the
+    companion would not read it either."""
+    magic = data[:4]
+    if game == 1 and magic in (b"VM01", b"VM02") and len(data) >= 4 + 128:
+        values = _nibbles(data, 4, 256)
+        if magic == b"VM01":
+            return MaskFile(values, [0] * 256, None, legacy=True)
+        if len(data) >= 4 + 128 + 1024:
+            roster = _u32s(data, 132, 256)
+            return MaskFile(values, roster, roster)
+    if game == 2 and magic in (b"VM04", b"VM06") and len(data) >= 4 + 1024 + 256:
+        roster = _u32s(data, 4, 256)
+        return MaskFile(list(data[1028:1284]), roster, roster, weak=magic == b"VM04")
+    if game == 3 and magic == b"MSK4" and len(data) >= 4 + 256 + 1024:
+        return MaskFile(list(data[4:260]), _u32s(data, 260, 256), None)
+    if game == 4 and magic == b"VVMK" and len(data) >= 12:
+        version, count = struct.unpack_from("<II", data, 4)
+        if count in (150, 256) and version in (2, 3) and len(data) >= 12 + count * (9 if version == 3 else 5):
+            return MaskFile(list(data[12:12 + count]), _u32s(data, 12 + count, count),
+                            _u32s(data, 12 + count * 5, count) if version == 3 else None, v2=version == 2)
+    if game == 5 and magic in (b"VM05", b"VM25", b"VM06", b"VM26"):
+        count = 150 if magic in (b"VM05", b"VM06") else 256
+        if len(data) >= 4 + count * 4 + count // 2:
+            roster = _u32s(data, 4, count)
+            return MaskFile(_nibbles(data, 4 + count * 4, count), roster, roster, weak=magic in (b"VM05", b"VM25"))
+    return None
+
+
+def mask_follow(value: list[int], stored: list[int], roster: list[int] | None, live: list[int],
+                down_only: bool) -> tuple[list[int], list[int]]:
+    """native/shared/mask_follow.h's vv_mask_follow, line for line: what the next load does to the table."""
+    n = len(value)
+
+    def count(ids, only, x):
+        return sum(1 for i in range(n) if ids[i] == x and (only is None or only[i] != 0))
+
+    def moved_any() -> bool:
+        if roster is None:
+            return True
+        for i in range(n):
+            if roster[i] and live[i] and roster[i] != live[i]:
+                return True
+            if roster[i] and not live[i] and count(live, None, roster[i]) > 0:
+                return True
+        return False
+    repacked = moved_any()
+    target = [-1] * n
+    for i in range(n):
+        if not value[i] or not stored[i]:
+            continue
+        if (count(stored, value, stored[i]) == 1 and (roster is None or count(roster, None, stored[i]) <= 1)
+                and count(live, None, stored[i]) == 1):
+            where = live.index(stored[i])
+            if not (down_only and where > i):
+                target[i] = where
+                repacked = repacked or where != i
+    for i in range(n):
+        if value[i] and stored[i] and target[i] < 0 and not repacked and live[i] == stored[i]:
+            target[i] = i
+    new_value, new_stored = [0] * n, [0] * n
+    for i in range(n):
+        if value[i] and target[i] >= 0:
+            new_value[target[i]], new_stored[target[i]] = value[i], stored[i]
+    for i in range(n):
+        if value[i] and target[i] < 0 and not live[i]:
+            new_value[i], new_stored[i] = value[i], stored[i]
+    return new_value, new_stored
+
+
+def roster_same(a: list[int], b: list[int]) -> bool:
+    """The Lost Children's and New Believers' village match (a strict majority of the smaller roster,
+    at the same record or at its rank)."""
+    la, lb = sum(1 for x in a if x), sum(1 for x in b if x)
+    need = min(la, lb)
+    if need == 0:
+        return False
+    n = rank = 0
+    for i, x in enumerate(a):
+        if not x:
+            continue
+        if x == b[i] or (rank < len(b) and x == b[rank]):
+            n += 1
+        rank += 1
+    return n >= need // 2 + 1
+
+
 def check_masks(game_dir: Path, slot: int, game: int, roster: list[Villager], rep: Report) -> None:
-    names = {1: f"Virtual Villagers 1 Village Masks - Save {slot}.dat",
-             2: f"Virtual Villagers 2 Village Masks - Save {slot}.dat"}.get(game, f"Village Masks - Save {slot}.dat")
-    candidates = [game_dir / DATA / "Village Masks" / names, game_dir / DATA / names]
+    """Orphan entries (v1.35.59): emulates the companion's next load (the follow), then its scan
+    (native/shared/orphan_masks.h).  The loaded village is the save's: it loads packed, villager
+    after villager into records 0, 1, 2, ..."""
+    name = VV_MASK_FILES.get(game, "Village Masks - Save {slot}.dat").format(slot=slot)
+    candidates = [game_dir / DATA / "Village Masks" / name, game_dir / DATA / name]
     path = next((p for p in candidates if p.is_file()), None)
-    label = f"{DATA}\\{names}"
+    label = f"{DATA}\\Village Masks\\{name}"
     if path is None:
         rep.add(label, "NOTE", "no mask file")
         return
     data = path.read_bytes()
-    magic = data[:4]
-    rep.add(label, "UNCHECKED", f"{len(data)} bytes, magic {magic!r}: " + REPORT_ONLY["masks"])
+    masks = read_mask_file(game, data)
+    if masks is None:
+        rep.add(label, "UNCHECKED", f"{len(data)} bytes, magic {data[:4]!r}: not a mask file the game reads (the "
+                                    "companion sets it aside unread)")
+        return
+    n = len(masks.values)
+    live = [0] * n
+    live_v2 = [0] * n
+    names = [0] * n
+    for v in roster[:n]:
+        live[v.rank], live_v2[v.rank], names[v.rank] = v.ident, v.ident_v2, v.name_hash
+    values = [x if x < len(MASK_NAMES) else 0 for x in masks.values]
+    against = names if masks.weak else (live_v2 if masks.v2 else live)
+    if masks.legacy or game == 3:
+        after, ids = values, masks.stored
+    else:
+        if game in (2, 5) and not roster_same(masks.roster, against):
+            rep.add(label, "NOTE", "another village's mask file (its roster shares no majority with the save): the "
+                                   "game ignores it and the village's first mask replaces it")
+            return
+        after, ids = mask_follow(values, masks.stored, masks.roster, against, masks.weak)
+        if masks.weak:
+            # vv_om_from_names: a name hash becomes the identity of a villager with that name.
+            ids = [(live[i] if names[i] == x else next((live[j] for j in range(n) if names[j] == x), 0)) if x else 0
+                   for i, x in enumerate(ids)]
+        if masks.v2:
+            # The first follow rewrites version 2 as version 3: an entry with no villager to take an
+            # identity from is dropped.
+            after = [x if live[i] else 0 for i, x in enumerate(after)]
+            ids = [live[i] if x else 0 for i, x in enumerate(after)]
+    kept = orphans = 0
+    for i in range(n):
+        if values[i] and not after[i]:
+            orphans += 1
+            rep.add(label, "WRONG", f"entry {i + 1}: {MASK_NAMES[values[i]]} -- on a record someone else holds now, "
+                                    "for no villager the save holds (repairable: the next load drops it on its own)")
+    for i in range(n):
+        if not after[i]:
+            continue
+        held = game != 3 and live[i] != 0
+        if not held and (ids[i] == 0 or ids[i] not in live):
+            orphans += 1
+            what = (f"kept for a villager who is no longer in the village (identity {ids[i]:08X})" if ids[i]
+                    else "kept with no villager's identity")
+            rep.add(label, "WRONG", f"{'entry' if game == 3 else 'record'} {i + 1}: {MASK_NAMES[after[i]]} -- {what} "
+                                    "(repairable: the first-load check removes it, after asking)")
+        else:
+            kept += 1
+    if not orphans:
+        rep.add(label, "OK", f"{kept} mask entr{'y' if kept == 1 else 'ies'}, each for a villager the save holds")
+    else:
+        rep.add(label, "NOTE", f"{kept} other mask entr{'y' if kept == 1 else 'ies'} kept: " + REPORT_ONLY["masks"])
 
 
 def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], hist, rep: Report) -> None:
