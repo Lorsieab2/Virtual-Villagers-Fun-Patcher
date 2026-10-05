@@ -483,7 +483,7 @@ int main(int argc, char **argv) {
         clean();
         if (!alloc_game()) { printf("cannot place the tables\n"); return 2; }
         villager(0, "Huata", 1090, 8, 1, 0);
-        villager(1, "Nishi", 900, 7, 3, 1);
+        villager(1, "Nishi", 900, 9, 3, 1);       /* her Birth record says head 7: Change Appearance since */
         villager(2, "Silko", 663, 4, 14, 0);
         villager(3, "Thabo", 1003, 16, 12, 0);
         villager(4, "Dup", 500, 2, 2, 0);

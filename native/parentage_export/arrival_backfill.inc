@@ -456,6 +456,30 @@ __declspec(dllexport) int __stdcall RecordArrivalsMissingFromLog(
                 ++taken;
             }
         }
+        /* LOOKS CHANGE (Origins' Change Appearance), names rarely do: with
+           no record of the same three, the name alone settles it when
+           exactly one record and exactly one of these villagers carry it --
+           as for a founder in the first History snapshot.  A name repeated
+           on either side decides nothing. */
+        if (on_disk + held <= taken) {
+            int records_named = 0, villagers_named = 0;
+            const struct arrival_key *only = NULL;
+            for (j = 0; j < arrival_key_count; ++j) {
+                if (strcmp(arrival_keys[j].name, names[i]) == 0) {
+                    ++records_named;
+                    only = &arrival_keys[j];
+                }
+            }
+            for (j = 0; j < count; ++j) {
+                if (strcmp(names[j], names[i]) == 0) {
+                    ++villagers_named;
+                }
+            }
+            if (records_named == 1 && villagers_named == 1 && taken == 0) {
+                on_disk = !only->held;
+                held = only->held;
+            }
+        }
         if (on_disk > taken) {
             facts[i].outcome = VV_ARRIVAL_IN_LOG;
         } else if (on_disk + held > taken) {
