@@ -17,7 +17,6 @@ EXPORTS
     Vv1NumberKeysUpdate=_Vv1NumberKeysUpdate@4
     Vv1Born=_Vv1Born@8
     Vv1SortStep=_Vv1SortStep@8
-    Vv1MaskApplyDistribution=_Vv1MaskApplyDistribution@8
     ShowOriginsAppearanceForAll=_ShowOriginsAppearanceForAll@4
     Vv1DrawPortraitMask=_Vv1DrawPortraitMask@16
     Vv1GetMaskSprite=_Vv1GetMaskSprite@0

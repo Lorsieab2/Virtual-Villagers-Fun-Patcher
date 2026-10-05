@@ -166,7 +166,7 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
     def test_live_frame_tick_sweeps_and_persists_only_actual_clears(self) -> None:
         self.assertIn("Vv1MaskTick=_Vv1MaskTick@0", self.exports)
         start = self.source.index(
-            "__declspec(dllexport) void __stdcall Vv1MaskTick(void)"
+            "void __stdcall Vv1MaskTick(void)"
         )
         end = self.source.index("static HINSTANCE module_instance;", start)
         tick = self.source[start:end]
@@ -286,7 +286,7 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         follow = self.source.split("static int vv1_mask_follow_loaded(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("vv_mask_follow(VV_MASK_SLOTS, value, vv1_mask_file_roster, vv1_mask_file_roster, live, 0, moved, moved_id);",
                       follow)
-        tick = self.source.split("__declspec(dllexport) void __stdcall Vv1MaskTick(void) {", 1)[1].split("\n}", 1)[0]
+        tick = self.source.split("void __stdcall Vv1MaskTick(void) {", 1)[1].split("\n}", 1)[0]
         self.assertLess(tick.index("vv1_mask_follow_loaded();"), tick.index("swept = vv1_mask_sweep_dead();"))
         for raw in ("CreateFileA", "WriteFile(", "MoveFileExA", "DeleteFileA(path);"):
             self.assertNotIn(raw, write)
@@ -442,7 +442,7 @@ class Vv1MaskRosterCurrentTests(unittest.TestCase):
     def test_the_tick_keeps_the_file_roster_current(self) -> None:
         source = (Path(__file__).resolve().parents[1] / "native" / "vv1_origins_icons"
                   / "vv1_origins_icons.c").read_text(encoding="utf-8")
-        tick = source.split("__declspec(dllexport) void __stdcall Vv1MaskTick(void) {", 1)[1].split("\n}", 1)[0]
+        tick = source.split("void __stdcall Vv1MaskTick(void) {", 1)[1].split("\n}", 1)[0]
         self.assertTrue(tick.rstrip().endswith("vv1_mask_roster_current();"))
         current = source.split("static void vv1_mask_roster_current(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("memcmp(live, vv1_mask_written, sizeof(live)) == 0", current)

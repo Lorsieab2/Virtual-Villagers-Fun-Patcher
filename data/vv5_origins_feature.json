@@ -12,11 +12,6 @@
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
-      "source": "assets/origins/VVFP Origins Icons.dll",
-      "destination": "VVFP Origins Icons.dll",
-      "sha256": "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9"
-    },
-    {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
       "sha256": "89DF3142C3F65492A1951BB9D6FD12849680FC07F6EB02ED311DB27121467B91"

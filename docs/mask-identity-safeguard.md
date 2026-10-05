@@ -118,21 +118,17 @@ require new per-build evidence for a mother/father record reference.
 
 ### Fields deliberately not adopted
 
-VV4's companion carries `VV_AGE_OFFSET 0x348`, `VV_SKILL_*_OFFSET
+VV4's companion used to carry `VV_AGE_OFFSET 0x348`, `VV_SKILL_*_OFFSET
 0x3BC..0x3CC`, `VV_LIKES_OFFSET 0x398` and `VV_DISLIKES_OFFSET 0x3A8` --
-**VV1's values**, in a file that is a copy of the VV1 source with only some
-offsets corrected.
+**VV1's values**, left over from copying the VV1 source. Only
+`ShowOriginsUpgradeMenu` read them, against VV4's layout and comparing the
+skills against int `100` rather than float `100.0`. No shipped VV4 patch ever
+resolved that export: VV4 resolves `ShowOriginsUpgradeMenuState`, which takes
+the dialog state from its caller and reads no villager fields.
 
-These are **not** unused definitions. `ShowOriginsUpgradeMenu` in
-`native/vv4_origins_icons/vv4_origins_icons.c` (lines ~2143-2169) reads them
-against VV4's layout, and compares the skills against int `100` rather than
-float `100.0` besides. They are, however, **not reachable through the shipped
-VV4 patch**: it resolves `ShowOriginsUpgradeMenuState`, a different export that
-takes the dialog state from its caller and reads no villager fields.
-
-So this is a latent trap in that companion rather than a live player-facing
-fault -- but nothing here treats those values as proven, and they are recorded
-in the table's `rejected_fields` with that explanation.
+v1.35.58 removed that unreachable export and the macros with it. They stay in
+the table's `rejected_fields` only so they are never mistaken for proven VV4
+offsets.
 
 ### Floats
 

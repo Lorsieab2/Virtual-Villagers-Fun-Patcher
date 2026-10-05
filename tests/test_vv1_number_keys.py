@@ -170,7 +170,7 @@ class OriginsBridgeTest(unittest.TestCase):
         self.assertRegex(bridge, r"keys\s*==\s*NULL\s*\)\s*\{\s*vv1_numkeys_bridge_state\s*=\s*-1;", "missing file: remembered, fail open")
         bridge_tick = _function(text, "static void vv1_numkeys_bridge(")
         self.assertIn("vv1_numkeys_tick();", bridge_tick)
-        tick = _function(text, "__declspec(dllexport) void __stdcall Vv1MaskTick(")
+        tick = _function(text, "void __stdcall Vv1MaskTick(")
         self.assertLess(tick.index("vv1_numkeys_bridge();"), tick.index("vv1_mask_prepare_slot()"),
                         "the bridge runs before any early return of the mask tick")
         blob = ORIGINS_DLL.read_bytes()
