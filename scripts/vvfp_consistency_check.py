@@ -1105,7 +1105,7 @@ def check_approval(game_dir: Path, slot: int, game: int, rep: Report) -> None:
     path = game_dir / DATA / "Cross-Check" / f"Virtual Villagers {game} Repair Approved - Save {slot}.dat"
     if not path.is_file():
         return
-    label = f"{DATA}\Cross-Check"
+    label = f"{DATA}\\Cross-Check"
     if path.read_bytes() == struct.pack("<4I", 0x31415256, 1, game, slot):
         rep.add(label, "NOTE", "Repair Logs approved repairing this village: the game repairs it, without asking, "
                                "the next time it is played")

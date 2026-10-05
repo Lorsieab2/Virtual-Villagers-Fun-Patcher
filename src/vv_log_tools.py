@@ -195,14 +195,6 @@ def approval_bytes(game: int, slot: int) -> bytes:
     return struct.pack("<4I", APPROVAL_MAGIC, APPROVAL_VERSION, game, slot)
 
 
-def approval_pending(folder: Path, game: int, slot: int) -> bool:
-    """Whether Repair Logs approved this slot and the game has not used it yet."""
-    try:
-        return approval_path(folder, game, slot).read_bytes() == approval_bytes(game, slot)
-    except OSError:
-        return False
-
-
 def marker_paths(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]]:
     """Each marker of ``game`` for ``slot`` and where it would be (present or not)."""
     if game not in (1, 2, 3, 4, 5) or slot not in (1, 2, 3, 4, 5):

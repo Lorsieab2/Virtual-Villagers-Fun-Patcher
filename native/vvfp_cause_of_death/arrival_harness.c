@@ -579,6 +579,19 @@ static void quit_cases(void) {
     births_now(game, 1);
     read_into(path);
     CHECK(strcmp(first, text) == 0, "quit: ...and a second Repair writes nothing");
+    {
+        /* Repair Logs' approval for the slot (src/vv_log_tools.py) goes with
+           the village at Start Over. */
+        char approval[MAX_PATH];
+        _snprintf(approval, MAX_PATH,
+                  "%s\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save 1.dat",
+                  root, game);
+        write_text(approval, "VRA1");
+        CHECK(file_exists(approval), "quit: (an approval for the slot is there)");
+        reset(game, 1);
+        vv_reset_slot_state(game, 1, "Village: Arrival Tribe (Save 1)\n");
+        CHECK(!file_exists(approval), "quit: Start Over deletes the slot's Repair Logs approval");
+    }
     free(buffer);
 }
 

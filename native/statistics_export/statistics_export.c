@@ -933,7 +933,7 @@ static int rc_apply(int game, int slot, unsigned char *manager);
    VvfpStatisticsRepairReconcileNow completes a Repair answered right after
    it -- the quit save -- from exactly that state. */
 static struct {
-    int game, slot;
+    int slot;
     unsigned char *manager;
     int reconcile_ok;
 } g_last_save;
@@ -1572,7 +1572,6 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
         if (!is_new || committed) {
             g_rc_save_ok = changed == ROSTER_SAME && (flushed & 1) != 0;
             WriteVillageStatistics(game_id, manager_pointer, save_id);
-            g_last_save.game = game_id;
             g_last_save.slot = save_id;
             g_last_save.manager = manager;
             g_last_save.reconcile_ok = g_rc_save_ok;

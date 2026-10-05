@@ -247,15 +247,6 @@ static const unsigned int VVFP_XC_SLOT_FIELD[6] = { 0, 0xABE4u, 0x30378u, 0x12F2
 
 static int vvfp_xc_hook_state;          /* 0 = not tried, 1 = installed, -1 = refused */
 
-static int vvfp_xc_readable(const void *at, size_t size) {
-    MEMORY_BASIC_INFORMATION info;
-    if (at == NULL || VirtualQuery(at, &info, sizeof(info)) != sizeof(info) || info.State != MEM_COMMIT
-        || (info.Protect & (PAGE_NOACCESS | PAGE_GUARD)) != 0) {
-        return 0;
-    }
-    return (const unsigned char *)at + size <= (const unsigned char *)info.BaseAddress + info.RegionSize;
-}
-
 /* Hook the five bytes at `site` (which must hold `stock`): a stub that saves
    every register and the flags, calls handler(game, esi), restores them,
    runs the displaced instructions and jumps back.  The stub's page is never
@@ -327,12 +318,11 @@ static struct {
     int births;                   /* villagers born here with no Birth record, when > 0 */
     int stats;                    /* changes to the Elders and Statistics files, when > 0 */
     char stats_text[1536];        /* their lines, from the statistics companion */
-    /* What the quit owes the village loaded last: its game and slot, and
-       whether it is approved (Repair Logs) or found something (the setting). */
-    int quit_game, quit_slot;
+    /* What the quit owes the village loaded last: its slot, and whether it
+       is approved (Repair Logs) or found something (the setting). */
+    int quit_slot;
     int quit_approved;
     int quit_found;
-    int quit_done;                /* the quit check has run (once per process) */
     /* The prompt. */
     volatile LONG answer;         /* 0 until answered; IDYES or IDNO */
     UINT box_type;
@@ -617,11 +607,7 @@ static void vvfp_xc_compose(void) {
    written, and nothing is freed yet. */
 static void vvfp_crosscheck_quit(int game, int slot) {
     int found;
-    if (vvfp_xc.quit_done) {
-        return;
-    }
-    vvfp_xc.quit_done = 1;
-    if (slot < 1 || slot > 5 || game != vvfp_xc.quit_game || slot != vvfp_xc.quit_slot) {
+    if (slot < 1 || slot > 5 || slot != vvfp_xc.quit_slot) {
         return;                       /* not the village the load checked: nothing is owed */
     }
     if (vvfp_xc.quit_approved) {
@@ -638,8 +624,8 @@ static void vvfp_crosscheck_quit(int game, int slot) {
         }
         return;
     }
-    if (!vvfp_xc.quit_found || !VVFP_XC_AUTOMATIC()) {
-        return;
+    if (!vvfp_xc.quit_found) {
+        return;                       /* the load found nothing (or the setting is off: it never looked) */
     }
     (void)vvfp_xc_scan(game, slot);   /* again, from the state just saved */
     if (!vvfp_xc_any()) {
@@ -657,19 +643,14 @@ static void vvfp_crosscheck_quit(int game, int slot) {
     }
 }
 
-/* The quit hook's handler: the slot the shutdown just saved, from its save
-   manager.  Nothing that goes wrong here may stop the game closing. */
+/* The quit hook's handler (once: the game shuts down once): the slot the
+   shutdown just saved, read from its save manager the way the shutdown read
+   it.  Nothing that goes wrong here may stop the game closing: a fault is
+   caught and the game goes on closing. */
 static void __stdcall vvfp_xc_quit_hit(int game, const unsigned char *application) {
     __try {
-        const unsigned char *manager = NULL;
-        int slot = 0;
-        if (game >= 1 && game <= 5 && vvfp_xc_readable(application + 4, 4)) {
-            manager = *(const unsigned char *const *)(application + 4);
-        }
-        if (manager != NULL && vvfp_xc_readable(manager + VVFP_XC_SLOT_FIELD[game], 4)) {
-            slot = *(const int *)(manager + VVFP_XC_SLOT_FIELD[game]);
-        }
-        vvfp_crosscheck_quit(game, slot);
+        const unsigned char *manager = *(const unsigned char *const *)(application + 4);
+        vvfp_crosscheck_quit(game, *(const int *)(manager + VVFP_XC_SLOT_FIELD[game]));
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 }
@@ -682,9 +663,6 @@ static int vvfp_crosscheck_startup(int game) {
         return vvfp_xc_hook_state == 1;
     }
     vvfp_xc_hook_state = -1;
-    if (game < 1 || game > 5) {
-        return 0;
-    }
     if (vvfp_xc_hook((unsigned char *)(uintptr_t)VVFP_XC_QUIT[game].va, VVFP_XC_QUIT[game].stock, game,
                      vvfp_xc_quit_hit)) {
         vvfp_xc_hook_state = 1;
@@ -711,7 +689,6 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
         return;
     }
     vvfp_xc.examined = 1;
-    vvfp_xc.quit_game = game;
     vvfp_xc.quit_slot = slot;
     vvfp_xc.quit_approved = approved;
     /* Something found -- or a part that never could tell: the quit looks
@@ -744,7 +721,7 @@ static void vvfp_crosscheck_bridge(int game, int on_screen) {
         vvfp_xc.examined = 0;
         vvfp_xc.retries = 0;
         vvfp_xc.next_try = now;
-        vvfp_xc.quit_game = vvfp_xc.quit_slot = 0;
+        vvfp_xc.quit_slot = 0;
         vvfp_xc.quit_approved = vvfp_xc.quit_found = 0;
     }
     vvfp_xc.last = now;

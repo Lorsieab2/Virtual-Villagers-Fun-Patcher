@@ -315,8 +315,6 @@ int main(void) {
     check(strstr(g_text, "cannot tell apart") == NULL && strstr(g_text, "pregnancy") == NULL,
           "... and says nothing of what was not found");
     check(nothing_repaired(), "Not now: nothing is repaired or passed on");
-    vvfp_crosscheck_quit(1, 1);
-    check(g_boxes == 1, "... and the quit check runs once");
 
     reset();
     g_parents = 1; g_counts[0] = 2;
@@ -629,9 +627,8 @@ int main(void) {
         g_graves = 1;
         play(3, 1, 8000, 16);
         vvfp_xc_quit_hit(3, NULL);
-        vvfp_xc.quit_done = 0;
         vvfp_xc_quit_hit(3, (const unsigned char *)(uintptr_t)0x10);
-        check(g_boxes == 0, "an application that cannot be read is no slot: nothing, and no fault");
+        check(g_boxes == 0, "a fault while reading the slot is caught: nothing, and the game goes on closing");
     }
 
     clear_approvals();

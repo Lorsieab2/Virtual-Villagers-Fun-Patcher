@@ -259,13 +259,19 @@ def approval_of(number: int, slot: int) -> str:
     return f"{DATA}/Cross-Check/Virtual Villagers {number} Repair Approved - Save {slot}.dat"
 
 
+def approval_pending(folder: Path, number: int, slot: int) -> bool:
+    """Whether the slot's approval is there, exactly as the game reads it."""
+    path = folder / approval_of(number, slot)
+    return path.is_file() and path.read_bytes() == tools.approval_bytes(number, slot)
+
+
 class ApprovalTests(FolderTest):
     def test_exactly_the_slots_markers_are_cleared_and_its_approval_written_in_every_game(self) -> None:
         for tag, number, suffix in CASES:
             with self.subTest(game=number, variant=suffix):
                 folder = self.make_folder(tag, number, suffix)
                 before = self.state(folder)
-                self.assertFalse(tools.approval_pending(folder, number, 1))
+                self.assertFalse(approval_pending(folder, number, 1))
                 result = tools.approve_repair(folder, number, 1, FakeProcesses(), NOW)
                 expected = set(markers_of(number, 1))
                 self.assertEqual({p.relative_to(folder).as_posix() for p in result.cleared}, expected)
@@ -278,8 +284,8 @@ class ApprovalTests(FolderTest):
                     (folder / approval).read_bytes(),
                     b"VRA1" + (1).to_bytes(4, "little") + number.to_bytes(4, "little") + (1).to_bytes(4, "little"),
                 )
-                self.assertTrue(tools.approval_pending(folder, number, 1))
-                self.assertFalse(tools.approval_pending(folder, number, 2))
+                self.assertTrue(approval_pending(folder, number, 1))
+                self.assertFalse(approval_pending(folder, number, 2))
                 new_backup = result.backup.backup_folder.relative_to(folder).as_posix()
                 outside_new_backup = {
                     k: v for k, v in after.items()
@@ -326,7 +332,7 @@ class ApprovalTests(FolderTest):
             with self.assertRaises(tools.LogToolError):
                 tools.approve_repair(folder, 2, 1, FakeProcesses(), NOW)
         self.assertEqual(self.state(folder), before)
-        self.assertFalse(tools.approval_pending(folder, 2, 1))
+        self.assertFalse(approval_pending(folder, 2, 1))
 
     def test_an_approval_that_cannot_be_written_leaves_none_behind(self) -> None:
         folder = self.make_folder("huttest", 3, "Modded")
@@ -344,7 +350,7 @@ class ApprovalTests(FolderTest):
         self.assertIn("will not repair anything", str(caught.exception))
         self.assertFalse((folder / approval_of(3, 1)).exists())
         self.assertFalse((folder / (approval_of(3, 1) + ".tmp")).exists())
-        self.assertFalse(tools.approval_pending(folder, 3, 1))
+        self.assertFalse(approval_pending(folder, 3, 1))
 
     def test_check_logs_shows_an_approval_not_yet_used(self) -> None:
         folder = self.make_folder("huttest", 2, "Modded")
@@ -396,7 +402,7 @@ class ApprovalTests(FolderTest):
             tools.approve_repair(folder, 5, 1, FakeProcesses(pids=[7]), NOW)
         self.assertIn("never pauses or closes", str(caught.exception))
         self.assertEqual(self.state(folder), before)
-        self.assertFalse(tools.approval_pending(folder, 5, 1))
+        self.assertFalse(approval_pending(folder, 5, 1))
 
     def test_the_game_checked_is_the_one_that_saves_here(self) -> None:
         folder = self.make_folder("huttest", 3, "Modded 256")
@@ -423,7 +429,7 @@ class ApprovalTests(FolderTest):
             tools.approve_repair(folder, 2, 1, FakeProcesses(start_after=1), NOW)
         for name in markers_of(2, 1):
             self.assertTrue((folder / name).is_file(), name)
-        self.assertFalse(tools.approval_pending(folder, 2, 1))
+        self.assertFalse(approval_pending(folder, 2, 1))
 
     def test_no_markers_is_not_an_error(self) -> None:
         folder = self.make_folder("huttest", 3, "Modded")
@@ -431,7 +437,7 @@ class ApprovalTests(FolderTest):
             (folder / name).unlink()
         result = tools.approve_repair(folder, 3, 1, FakeProcesses(), NOW)
         self.assertEqual(result.cleared, [])
-        self.assertTrue(tools.approval_pending(folder, 3, 1))
+        self.assertTrue(approval_pending(folder, 3, 1))
 
     def test_the_module_never_pauses_closes_or_repairs(self) -> None:
         # It writes one file, the approval (through its own temporary file),

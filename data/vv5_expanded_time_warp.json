@@ -33,8 +33,8 @@
   "companion_contract": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "35C30085B0E88612EB17F5AE06CFF2C051CE00006A0F8D201344A82D20987451",
-    "size": 1794048
+    "sha256": "068C67F21EE1885CB677A057EA3FE7A741C9683DF27D1C974E6882FB2C040EBF",
+    "size": 1793536
   },
   "patch_mode_overrides": {
     "experimental_expanded_256": [
@@ -97,7 +97,7 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "CF2100D4724FACD1249411CCEBF6B78EA137F27B7AE78EFE92C62610AB5C9593"
+      "source_text_sha256": "BDDE5E462F78462FEB625CC0A1D61233A1BAA431DAD3E30F1353F29D0A7851AB"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",

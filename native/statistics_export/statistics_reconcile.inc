@@ -852,7 +852,7 @@ __declspec(dllexport) int __stdcall VvfpStatisticsRepairReconcileNow(int game, i
     unsigned char *manager = g_last_save.manager;
     int changed;
     if (game < GAME_VV1 || game > GAME_VV5 || slot < 1 || slot > 5 || g_last_save.slot != slot
-        || g_last_save.game != game || !g_last_save.reconcile_ok || manager == NULL) {
+        || !g_last_save.reconcile_ok) {
         return 0;
     }
     bind_store(game, manager, slot);
@@ -896,7 +896,6 @@ __declspec(dllexport) int __stdcall VvfpStatisticsTestSave(int game, int slot, v
     rc_apply(game, slot, m);
     /* ...and remembered as the session's last save, as SaveVillageStatistics
        remembers a real one (for VvfpStatisticsRepairReconcileNow). */
-    g_last_save.game = game;
     g_last_save.slot = slot;
     g_last_save.manager = m;
     g_last_save.reconcile_ok = 1;
