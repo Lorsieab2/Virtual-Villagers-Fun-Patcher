@@ -83,3 +83,81 @@ The detours use verified zero-filled executable padding inside the existing `.te
 | New Believers | 991,232 | `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` |
 
 Static verification proves exact build identity, guarded instruction edits, slot bounds, fixed/progression arithmetic, PE integrity, and output readback. It does not claim a played save has been grown to every new maximum.
+
+## Population notices and refusals follow the cap
+
+The owner, with A New Home at 254 of 256: "I got a notification about max
+population when I was at like 115 villagers." That was string 315,
+"Congratulations! Your village reached its maximum sustainable population!",
+queued by the world tick `0x42E900`. Its test at `0x42F1EE` was the stock
+`cmp eax, 0x5A` (90), and the population modes patched only the growth
+predicate `0x43A1A0`. The notice is one-shot: flag byte `+0x16C` lives in the
+saved village block. It is cleared when the notice fires and re-armed only when
+the 10-entry notice queue was full. So the notice fired at the first tick that
+counted 90 or more. A village that grew past 90 while the game was closed
+reaches that tick only after the load-time catch-up, at whatever population
+the catch-up left it. Here that was about 115.
+
+Every place the five stock executables compare a population against a limit
+was found two ways:
+
+- from the decompiled callers of each game's population counter: VV1
+  `0x41CF90`, VV2 `0x425860`, VV3 `0x45E8F0`, VV4 `0x467610` and VV5
+  `0x4713F0`;
+- from an instruction scan of every function that calls a counter, for the
+  stock base (0x59-0x5B), each game's stock final cap, and 150.
+
+The 10/15/25/50 tiers are housing gates. Every mode keeps them, so they are not
+caps.
+
+| Game | Site | What the player sees | Stock test | Before this change | Now |
+|---|---|---|---|---|---|
+| VV1 | `0x42F1EE` in `0x42E900` | "reached its maximum sustainable population!" (315) | `< 90` | stock 90 in every mode (the owner's report) | 256 in Collection Progression and Immediate Fixed |
+| VV1 | `0x43DE45` in `0x43DAD0` | a dragged pair's refusal reason: "There isn`t enough housing!" (28), "They're too hungry to think about this!" (22), "That didn`t go too well." (27) | `< 90` | silent from 90 to 255 | explained below 256 |
+| VV1 | `0x43E740`, `0x43EA50` | "Worried about housing" (577) | predicate | follows the cap | unchanged |
+| VV2 | `0x44FAF9` in `0x44F610` | the refusal reason (47, 52) | `< 90 && predicate` | silent from 90 up to the cap | explained whenever the predicate `0x44B310` allows growth (256 bound) |
+| VV2 | `0x43C13E` in `0x43B690` | maximum notice (454) | `< 90 \|\| predicate` | follows the cap | unchanged |
+| VV2 | `0x44FE82`, `0x4500A2` | "Worried about housing" (828) | `predicate \|\| >= 90` | follows the cap | unchanged |
+| VV3 | `0x428D0B` in `0x428C60` | maximum notice (697) | `< 90 \|\| predicate` | follows the cap, including 256 Villagers | unchanged |
+| VV3 | `0x445041`, `0x452D1D` | "Worried about housing" (1139) | `predicate \|\| >= 90` | follows the cap | unchanged |
+| VV4 | `0x42063C` in `0x420330` | maximum notice (745) | `>= 90 && !predicate` | follows the cap, including 256 Villagers | unchanged |
+| VV5 | `0x4261F5` in `0x425E30` | maximum notice (741) | `< 90 \|\| predicate` | follows the cap: the modes' predicate counts physical demand, so it also follows 256 Villagers | unchanged |
+
+In VV3-VV5 the dragged-pair refusal asks the predicate itself (VV3 `0x45A2C0`,
+VV4 `0x460C10`, VV5 its equivalent), so it already follows the cap. The Origins
+Barrel O' Babies gates read the installed mode's bytes, including those of 256
+Villagers:
+
+- VV1 `POPULATION_FINAL_TIER`;
+- VV2 `vv2_population_cap`;
+- VV3 `vv3_barrel_has_room_for_three`;
+- VV4 `0x468350`;
+- VV5 `barrel_room`.
+
+No site blocks growth at a stock number in an expanded mode. Every growth
+decision goes through the patched predicate.
+
+The rows use no new space:
+
+- VV1's notice test becomes `test ah, ah; jz`, meaning a population below 256.
+  The counter never reaches 65,536.
+- Each refusal test becomes `cmp byte [esp+0x19], 0; jne`, meaning a counted
+  population of 256 or more.
+- Stock mode keeps the stock bytes.
+
+`tests/test_population_notices_follow_caps.py` executes every notice, predicate
+and refusal in the rendered bytes. It covers:
+
+- each game and mode;
+- each build: bare, every public patch, and 256 Villagers alone and with every
+  public patch;
+- each collection and Magic state.
+
+It checks that a notice fires exactly at the cap the predicate enforces and
+never below it.
+
+Not changed, pending the owner's decision: in Immediate Fixed the collection
+completion popups still say the population maximum "is increased by 5" (VV2
+478-482, VV3 720-724, VV4 770-774, VV5 767-769). VV3's Faction of Magic text
+still says Level 3 raises it. That mode ignores both bonuses. The texts state no
+cap number, and VV4 and VV5 also override them from `Assets\sm.xml`.
