@@ -761,6 +761,21 @@ __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
     vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
 }
 
+/* GAME START.  "VVFP Startup.dll" calls this from the executable's call of
+   WinMain -- the game's own thread, outside the loader lock, before the
+   game has a window, a village or a save slot -- so the runtime companions
+   are loaded and their detours written before the title screen and the
+   slot menu, ahead of Vv5InstallCompanions (buildSavePath, at the load).
+   Only loads and installs: nothing here reads or writes the game's data or
+   calls a game routine.  Every bridge is install-once.  `game` is the
+   executable's own number (5). */
+void __stdcall VvfpStartup(int game) {
+    (void)game;
+    vvfp_fix_huts_bridge();          /* loads and installs Builders and Healers Work First too */
+    (void)vvfp_story_startup(5);
+    (void)vvfp_cause_install_once(5);
+}
+
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     unsigned int cur[VV5_RECORD_COUNT];
     unsigned int cur_stable[VV5_RECORD_COUNT];

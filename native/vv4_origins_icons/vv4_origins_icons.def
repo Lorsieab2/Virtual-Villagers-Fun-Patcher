@@ -13,3 +13,4 @@ EXPORTS
     Vv4MaskCacheSurface=_Vv4MaskCacheSurface@4 @110
     Vv4MaskGetForRecord=_Vv4MaskGetForRecord@4 @114
     ShowVv4TimeWarp=_ShowVv4TimeWarp@4 @115
+    VvfpStartup=_VvfpStartup@4

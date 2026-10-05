@@ -1109,6 +1109,21 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     return &host;
 }
 
+/* GAME START.  "VVFP Startup.dll" calls this from the executable's call of
+   WinMain -- the game's own thread, outside the loader lock, before the
+   game has a window, a village or a save slot -- so the runtime companions
+   are loaded and their detours written before the title screen, the slot
+   menu and the first load-time catch-up.  Only loads and installs: nothing
+   here reads or writes the game's data or calls a game routine.  The ticks
+   stay on Vv4MaskCacheSurface; every bridge is install-once.  `game` is the
+   executable's own number (4). */
+void __stdcall VvfpStartup(int game) {
+    (void)game;
+    vvfp_fix_huts_bridge();          /* loads and installs Builders and Healers Work First too */
+    (void)vvfp_story_startup(4);
+    (void)vvfp_cause_install_once(4);
+}
+
 void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */

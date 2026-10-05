@@ -1809,6 +1809,32 @@ void __stdcall Vv1MaskTick(void) {
     }
     vv1_mask_roster_current();
 }
+
+/* GAME START.  "VVFP Startup.dll" calls this from the executable's call of
+   WinMain -- the game's own thread, outside the loader lock, before the
+   game has a window, a village or a save slot -- so every runtime
+   companion is loaded and its detours written before the title screen, the
+   slot menu and the first load-time catch-up (births, deaths, burials and
+   arrivals that happened while the game was closed go through the same
+   live hooks as normal play).  Only loads and installs: nothing here reads
+   or writes the game's data or calls a game routine.  The per-frame things
+   stay on Vv1MaskTick (the number keys' event watch, the parentage and
+   cause-of-death ticks, the cross-check); each bridge below is install-once,
+   so the tick's later calls are no-ops for the installs.  `game` is the
+   executable's own number (1). */
+void __stdcall VvfpStartup(int game) {
+    (void)game;
+    (void)vv1_numkeys_resolve();     /* loaded; the event watch waits for the first frame */
+    vvfp_pathfinding_bridge(1);
+    vv1_watering_bridge();
+    vvfp_fix_huts_bridge(1);         /* loads and installs Builders and Healers Work First too */
+    vvfp_lesson_cap_bridge(1);
+    vvfp_healers_study_bridge(1);
+    (void)vvfp_story_startup(1);
+    (void)vvfp_cause_install_once(1);
+    (void)vv1_parentage_resolve();   /* loaded; its tick waits for the first frame */
+    (void)vv1_sort_resolve();
+}
 #endif
 
 static HINSTANCE module_instance;

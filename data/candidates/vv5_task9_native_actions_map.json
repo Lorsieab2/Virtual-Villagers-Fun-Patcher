@@ -22,11 +22,11 @@
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "522B4FD4A6E1B0A7B2B204378150A17764FB77A14E04762CA109055B2F39F1C7"
+      "source_text_sha256": "083E14E2146271D9DC6F693F9833B75FCA97DA58AA428909EBAF1FD94E4DC985"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "A31A16E975790593E2D793BE8A908B7AE76E096D045F6CC64BCA746C1D1E4BEA"
+      "source_text_sha256": "B3E9F7B375C9A4CF6AC7146A6A9B187EFA90DAC6D12BAFF9A4101DB6D362FE77"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -68,7 +68,7 @@
   },
   "companion": {
     "size": 1788416,
-    "sha256": "FDBA2AC25F1001309251C27E166620B7DF3D45BFDDD6930743869F181E2A1A5F"
+    "sha256": "A20FE944EADE6EBEE826F470C44E7DD3D6EFD80D4BDD1D78B57F1FF100EDA6B8"
   },
   "payload": {
     "sha256": "FC05283D127AC9FEF5B9AA02406D320A9EC484FD3CE119011C0129C1F6F9ED51",

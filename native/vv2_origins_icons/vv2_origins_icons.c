@@ -2231,6 +2231,25 @@ done:
     return legacy;
 }
 
+/* GAME START.  "VVFP Startup.dll" calls this from the executable's call of
+   WinMain -- the game's own thread, outside the loader lock, before the
+   game has a window, a village or a save slot -- so every runtime
+   companion is loaded and its detours written before the title screen, the
+   slot menu and the first load-time catch-up.  Only loads and installs:
+   nothing here reads or writes the game's data or calls a game routine.
+   The ticks stay on Vv2MaskSweep; every bridge is install-once, so the
+   later calls from Vv2ExtractAtlas and the sweep are no-ops for the
+   installs.  `game` is the executable's own number (2). */
+void __stdcall VvfpStartup(int game) {
+    (void)game;
+    vvfp_pathfinding_bridge(2);
+    vvfp_fix_huts_bridge(2);         /* loads and installs Builders and Healers Work First too */
+    vvfp_lesson_cap_bridge(2);
+    vvfp_healers_study_bridge(2);
+    (void)vvfp_story_startup(2);
+    (void)vvfp_cause_install_once(2);
+}
+
 /* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\
    heathen_masks.png if it is missing, or if the existing file is one of the
    exact obsolete 320x440 bundled atlases above.  Current/custom art is left

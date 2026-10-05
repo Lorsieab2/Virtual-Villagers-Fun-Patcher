@@ -374,7 +374,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # cross-check prompt (native/shared/crosscheck_bridge.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "0249F544D800EA918755FC43B8CA77CAC5C924DCB5852DCA0E98FC6732299D37",
+            "AF7F2D072900BBB68363EFAE0BBC9A0D5BF41672604D069FE32EB564AE383BCE",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

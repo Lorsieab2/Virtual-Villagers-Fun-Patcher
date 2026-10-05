@@ -27,40 +27,48 @@ typedef void (__stdcall *vvfp_cause_tick_fn)(int game);
 static int vvfp_cause_state;     /* 0 = not tried, 1 = installed, -1 = unavailable */
 static vvfp_cause_tick_fn vvfp_cause_tick;
 
-/* Load and install for `game`, once; then the tick, on every call.  Called
-   from every place the companion calls vvfp_story_bridge, so it is in place
-   before the first catch-up and runs on the per-frame path. */
-static void vvfp_cause_bridge(int game) {
+/* Load and install for `game`, once: no tick.  Returns whether it is
+   installed.  This is what the companion's VvfpStartup export runs at game
+   start (from "VVFP Startup.dll", at the executable's call of WinMain),
+   before any village exists: the install only verifies and writes the
+   detours, so every event of the first load-time catch-up already goes
+   through them.  Every later call is a no-op. */
+static int vvfp_cause_install_once(int game) {
     char path[MAX_PATH];
     char *slash;
     DWORD n;
     HMODULE module;
     vvfp_cause_install_fn install;
-    if (vvfp_cause_state == 1) {
-        vvfp_cause_tick(game);
-        return;
-    }
     if (vvfp_cause_state != 0) {
-        return;
+        return vvfp_cause_state == 1;
     }
     vvfp_cause_state = -1;
     n = GetModuleFileNameA(NULL, path, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) {
-        return;
+        return 0;
     }
     slash = strrchr(path, '\\');
     if (slash == NULL || (size_t)(slash + 1 - path) + sizeof(VVFP_CAUSE_DLL) > sizeof(path)) {
-        return;
+        return 0;
     }
     lstrcpyA(slash + 1, VVFP_CAUSE_DLL);
     module = LoadLibraryA(path);
     if (module == NULL) {
-        return;                       /* not shipped: the row is off */
+        return 0;                     /* not shipped: the row is off */
     }
     install = (vvfp_cause_install_fn)GetProcAddress(module, "VvfpCauseInstall");
     vvfp_cause_tick = (vvfp_cause_tick_fn)GetProcAddress(module, "VvfpCauseTick");
     if (install != NULL && vvfp_cause_tick != NULL && install(game, vvfp_story_host_table())) {
         vvfp_cause_state = 1;
+    }
+    return vvfp_cause_state == 1;
+}
+
+/* The install (if game start has not done it already), then the tick, on
+   every call.  Called from every place the companion calls
+   vvfp_story_bridge: the per-frame path. */
+static void vvfp_cause_bridge(int game) {
+    if (vvfp_cause_install_once(game)) {
         vvfp_cause_tick(game);
     }
 }

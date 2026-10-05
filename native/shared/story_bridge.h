@@ -45,6 +45,7 @@ typedef int (__stdcall *vvfp_story_attach_fn)(int game, const vvfp_story_host *h
 
 static int vvfp_story_state;     /* 0 = not tried, 1 = loaded, -1 = unavailable */
 static vvfp_story_install_fn vvfp_story_install;
+static vvfp_story_install_fn vvfp_story_arm;
 static vvfp_story_active_fn vvfp_story_active;
 static vvfp_story_pick_fn vvfp_story_pick;
 static vvfp_story_pick_fn vvfp_story_custom;
@@ -73,11 +74,12 @@ static int vvfp_story_load(void) {
         return 0;                     /* not shipped: the row is off */
     }
     vvfp_story_install = (vvfp_story_install_fn)GetProcAddress(module, "VvfpStoryInstall");
+    vvfp_story_arm = (vvfp_story_install_fn)GetProcAddress(module, "VvfpStoryArm");
     vvfp_story_active = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryActive");
     vvfp_story_pick = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryPickIslandEvent");
     vvfp_story_custom = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryCustomIslandEvent");
     vvfp_story_attach = (vvfp_story_attach_fn)GetProcAddress(module, "VvfpStoryAttachHost");
-    if (vvfp_story_install == NULL || vvfp_story_active == NULL || vvfp_story_pick == NULL
+    if (vvfp_story_install == NULL || vvfp_story_arm == NULL || vvfp_story_active == NULL || vvfp_story_pick == NULL
         || vvfp_story_custom == NULL || vvfp_story_attach == NULL) {
         return 0;
     }
@@ -85,10 +87,12 @@ static int vvfp_story_load(void) {
     return 1;
 }
 
-/* Load and install for `game`, once (handing it this companion's slot and
-   mask store); then whether the upgrades are free.  Called every frame from
-   the companion's per-frame path, which is also the story companion's tick. */
-static int vvfp_story_bridge(int game) {
+/* Load, hand it this companion's slot and mask store (once), and install
+   for `game` -- nothing else: no tick.  What the companion's VvfpStartup
+   export runs at game start (from "VVFP Startup.dll", at the executable's
+   call of WinMain), before any village exists, so the story detours are in
+   place for the first load-time catch-up.  Returns whether it is active. */
+static int vvfp_story_startup(int game) {
     static int attached;
     if (!vvfp_story_load()) {
         return 0;
@@ -96,6 +100,16 @@ static int vvfp_story_bridge(int game) {
     if (!attached) {
         attached = 1;
         vvfp_story_attach(game, vvfp_story_host_table());
+    }
+    return vvfp_story_arm(game) != 0;
+}
+
+/* The same (a no-op once game start has made it), then the story
+   companion's tick; whether the upgrades are free.  Called every frame from
+   the companion's per-frame path. */
+static int vvfp_story_bridge(int game) {
+    if (!vvfp_story_startup(game)) {
+        return 0;
     }
     return vvfp_story_install(game) != 0;
 }

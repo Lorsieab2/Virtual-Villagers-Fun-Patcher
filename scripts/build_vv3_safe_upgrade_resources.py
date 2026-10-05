@@ -65,7 +65,7 @@ FOUNDATION_OUTPUT = (
 # over an existing file; if it will not move, the loose file stays in use),
 # and then again when it reserved room for a set-aside name and kept a
 # loose file whose folder path would not fit.
-SOURCE_SHA256 = "48FE475A2147CA9A7DFEDFF6DCC6E0ACA98D175FB9BEA2FF6B07A1E6B628BF68"
+SOURCE_SHA256 = "E584C992062443E52FD2800DF9C959C9FF440430E2E90800EE4449E556E0CD63"
 SOURCE_SIZE = 1912832
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
