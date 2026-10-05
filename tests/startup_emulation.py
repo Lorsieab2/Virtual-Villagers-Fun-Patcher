@@ -227,7 +227,7 @@ class StartupMachine:
         cstr = lambda va: bytes(mu.mem_read(va, 520)).split(b"\0")[0].decode("latin-1")   # noqa: E731
 
         def wstr(va: int) -> str:
-            raw = bytes(mu.mem_read(va, 1040))
+            raw = bytes(mu.mem_read(va, 4096))
             end = next(i for i in range(0, len(raw), 2) if raw[i:i + 2] == b"\0\0")
             return raw[:end].decode("utf-16-le")
 
