@@ -21,7 +21,6 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 
 IMAGE_BASE = 0x400000
-COMPANION = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
 
 # These are the certified optional extension locations from the implementation
 # plan.  Cure is kept at the beginning of the reserve; the optional payload is

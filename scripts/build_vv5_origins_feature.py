@@ -13,7 +13,6 @@ OUT_DIR = ROOT / "research/vv5-origins"
 OUT_EXE = OUT_DIR / "Virtual Villagers - New Believers - Origins Research.exe"
 OUT_JSON = OUT_DIR / "vv5-origins-feature-patches.json"
 MANIFEST_JSON = ROOT / "data/vv5_origins_feature.json"
-COMPANION = ROOT / "assets/origins/VVFP Origins Icons.dll"
 VV5_PROVENANCE_DIR = ROOT / "assets/candidates/vv5_full_mastery/provenance"
 VV5_PROVENANCE = {
     "VV5Mockup.jpg": "4EF2DFC0DAE6C733C452CCB4BEA4023C0E2601EEF2396A1A38D75A4DCD57B00F",
@@ -133,8 +132,6 @@ def main() -> None:
     actual = hashlib.sha256(original).hexdigest().upper()
     if actual != expected:
         raise RuntimeError(f"stock SHA-256 mismatch: expected {expected}, got {actual}")
-    if not COMPANION.is_file():
-        raise RuntimeError(f"missing companion DLL: {COMPANION}")
     for name, expected_hash in VV5_PROVENANCE.items():
         provenance_path = VV5_PROVENANCE_DIR / name
         if not provenance_path.is_file():
@@ -575,11 +572,6 @@ def main() -> None:
         "description": "Base layer of the VV5 Origins upgrades: adds the Upgrades buttons to the Tech and Villager Details screens, the Barrel of Babies event selector, and the Tech and Food Point Doubler wrappers. The menus behind the buttons are supplied by the Task9 page (data/vv5_task9_native_actions.json), which is the record the patcher ships for this feature.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
-            {
-                "source": "assets/origins/VVFP Origins Icons.dll",
-                "destination": "VVFP Origins Icons.dll",
-                "sha256": hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
-            },
             {
                 # The tribe-delete stub resolves this by name at runtime.
                 "source": RESET_COMPANION_SOURCE,

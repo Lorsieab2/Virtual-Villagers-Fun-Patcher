@@ -1,23 +1,18 @@
-"""Keep VV4's wrong-layout menu function unreachable.
+"""Keep VV4's wrong-layout menu function gone.
 
-`native/vv4_origins_icons/vv4_origins_icons.c` is a copy of the VV1 companion
-source with only some offsets corrected.  One function was missed:
-`ShowOriginsUpgradeMenu` still reads villager fields at **VV1's** offsets --
-age `+0x348`, skills `+0x3BC..0x3CC`, likes `+0x398`, dislikes `+0x3A8` --
-against VV4's layout, where the verified fields live at `+0x1B8C`, `+0x1C5C`,
-`+0x1E60` and `+0x1E6C`.  It also compares the skills against int `100`, where
-VV4 stores Float32 and the companion's own `VV_MASTER_VALUE` is `0x42C80000`.
+`native/vv4_origins_icons/vv4_origins_icons.c` began as a copy of the VV1
+companion source with only some offsets corrected.  One function was missed:
+`ShowOriginsUpgradeMenu` read villager fields at **VV1's** offsets -- age
+`+0x348`, skills `+0x3BC..0x3CC`, likes `+0x398`, dislikes `+0x3A8` -- against
+VV4's layout, where the verified fields live at `+0x1B8C`, `+0x1C5C`, `+0x1E60`
+and `+0x1E6C`.
 
-No player can reach it.  The shipped VV4 patch resolves a *different* export,
+No player could reach it: the shipped VV4 patch resolves a *different* export,
 `ShowOriginsUpgradeMenuState`, which takes the dialog state from its caller and
-reads no villager fields at all.  The wrong-layout function is exported at
-ordinal 1 and nothing references it.
-
-So this is a latent trap, not a live fault, and the working VV4 companion is
-deliberately left alone rather than rebuilt to correct unreachable code.  These
-tests make sure it stays that way: the moment anything wires that export up, or
-lets those VV1-valued reads spread into a function VV4 actually calls, this
-fails and the offsets have to be fixed first.
+reads no villager fields.  v1.35.58 removed the unreachable export together
+with the VV1-valued macros only it used.  These tests keep it that way: the
+function and the macros must not come back, no VV4 generator may resolve that
+name, and the export VV4 does call must stay free of record reads.
 
 See docs/mask-identity-safeguard.md ("Fields deliberately not adopted").
 """
@@ -63,9 +58,10 @@ VV4_GENERATORS = (
 def _function_body(text: str, name: str) -> str:
     """Return the brace-matched body of `name`'s definition."""
     match = re.search(
-        r"__declspec\(dllexport\)\s+int\s+__stdcall\s+" + re.escape(name)
+        r"^int\s+__stdcall\s+" + re.escape(name)
         + r"\s*\([^)]*\)\s*\{",
         text,
+        re.M,
     )
     if match is None:
         raise AssertionError(f"{name} not found in the VV4 companion")
@@ -86,24 +82,17 @@ class VV4OriginsMenuOffsetTrapTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.source = COMPANION.read_text(encoding="utf-8", errors="replace")
 
-    def test_the_wrong_layout_reads_are_confined_to_the_unwired_export(self) -> None:
-        """Those VV1-valued reads may exist only where nothing calls them."""
-        quarantined = _function_body(self.source, QUARANTINED_EXPORT)
-
-        # Every read of the form `villager + <macro>` in the whole file.
-        pattern = re.compile(
-            r"\+\s*(" + "|".join(re.escape(m) for m in VV1_VALUED_MACROS) + r")\b"
-        )
-        all_reads = pattern.findall(self.source)
-        quarantined_reads = pattern.findall(quarantined)
-
-        self.assertTrue(all_reads, "the VV1-valued reads vanished; update this test")
-        self.assertEqual(
-            len(all_reads), len(quarantined_reads),
-            "VV1-valued offset reads escaped ShowOriginsUpgradeMenu into code VV4 "
-            "may actually call. Fix them to VV4's verified layout first: "
+    def test_the_wrong_layout_function_and_its_vv1_macros_are_gone(self) -> None:
+        """Nothing in VV4 called them, so they were removed; keep them out."""
+        self.assertIsNone(
+            re.search(r"__stdcall\s+" + re.escape(QUARANTINED_EXPORT) + r"\s*\(", self.source),
+            f"{QUARANTINED_EXPORT} is back in the VV4 companion; it read VV1 offsets. "
+            "Use VV4's verified layout: "
             + ", ".join(f"{k} +0x{v:X}" for k, v in VV4_VERIFIED.items()),
         )
+        for macro in VV1_VALUED_MACROS:
+            with self.subTest(macro=macro):
+                self.assertIsNone(re.search(r"\b" + macro + r"\b", self.source))
 
     def test_the_wrong_layout_export_is_never_wired(self) -> None:
         """VV4 must keep resolving the State export, which reads no records."""

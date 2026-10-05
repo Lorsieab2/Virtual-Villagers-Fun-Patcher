@@ -347,7 +347,7 @@
         "VV_DISLIKES_OFFSET_0x3A8": "VV1's dislikes offset. VV4's verified dislikes are at +0x1E6C."
       },
       "special_villagers": {},
-      "rejected_fields_note": "These are NOT unused leftovers: native/vv4_origins_icons/vv4_origins_icons.c reads them inside ShowOriginsUpgradeMenu (lines ~2143-2169), against VV4's layout, and additionally compares the skills as int 100 rather than float 100.0. They are not reachable through the shipped VV4 patch, which resolves ShowOriginsUpgradeMenuState -- a different export that takes the dialog state from its caller and reads no villager fields. Tracked as a latent trap in that companion, not as a source of proven offsets here."
+      "rejected_fields_note": "VV1's values, once carried by native/vv4_origins_icons/vv4_origins_icons.c for ShowOriginsUpgradeMenu, an export no shipped VV4 patch resolved (VV4 resolves ShowOriginsUpgradeMenuState, which takes the dialog state from its caller and reads no villager fields). That function and these macros were removed as unreachable in v1.35.58. They are recorded here only so they are never mistaken for proven VV4 offsets."
     },
     "vv5": {
       "title": "Virtual Villagers - New Believers",
