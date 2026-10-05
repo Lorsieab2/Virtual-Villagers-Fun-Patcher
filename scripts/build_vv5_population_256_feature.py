@@ -828,8 +828,8 @@ def build_safety_rows(vv5: dict) -> list[dict]:
     stock_rows = {r["offset"]: r for r in vv5["safety_patches"]}
     out = []
     edits = {
-        "0x94340": [("3D93000000", "3DFD000000")],
-        "0x94360": [("3D94000000", "3DFE000000")],
+        "0x94340": [("3D94000000", "3DFE000000")],
+        "0x94360": [("3D95000000", "3DFF000000")],
         "0x944C0": [("B9" + _hex32(STOCK_RECORDS), "B9" + _hex32(record_va(0))),
                     ("BA96000000", "BA" + _hex32(SLOTS))],
         "0x94560": [("3D96000000", "3D" + _hex32(SLOTS))],

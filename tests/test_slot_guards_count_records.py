@@ -441,5 +441,69 @@ class VV3OriginsBarrelRecordCheck(unittest.TestCase):
         self.assertIn("return demand + wanted <= (int)bound;", body)
 
 
+class VV4VV5LitterGuards(unittest.TestCase):
+    """The Tree of Life's and New Believers' twin and triplet guards ask the
+    demand counter (occupied records plus every pregnant mother's babies),
+    which already counts the conceiving mother's first baby: the conception
+    writes +0x1C4C and +0x1C50 = 1 before the guard.  Triplets therefore need
+    demand + 2 <= slots and twins demand + 1 <= slots; the guards had one more
+    to spare (> 0x93 / > 0x94), so the last record never took a second or
+    third baby.  Both table sizes."""
+
+    GAMES = {
+        "vv4": dict(exe="Virtual Villagers - The Tree of Life.exe", table={150: 0x50E5AC, 256: 0x800044},
+                    stride=0x2E3C, active=0x1CC4, triplets=0x489020, twins=0x489040,
+                    trip_kept=0x45E8CA, trip_refused=0x45E8D3, twin_kept=0x45E8DD, twin_refused=0x45E8E4),
+        "vv5": dict(exe="Virtual Villagers - New Believers.exe", table={150: 0x554190, 256: 0x800048},
+                    stride=0x2F44, active=0x1CD4, triplets=0x494340, twins=0x494360,
+                    trip_kept=0x465F1A, trip_refused=0x465F23, twin_kept=0x465F2D, twin_refused=0x465F34),
+    }
+
+    def render(self, game, extra):
+        build = next(b for b in vfp.load_builds() if b.id == game)
+        data, _ = vfp.render_patched_bytes(STOCK / self.GAMES[game]["exe"], build, "immediate_fixed", extra)
+        return pefile.PE(data=bytes(data))
+
+    def run_guard(self, pe, game, slots, demand, va, stops):
+        g = self.GAMES[game]
+        uc = Uc(UC_ARCH_X86, UC_MODE_32)
+        for section in pe.sections:
+            base = 0x400000 + section.VirtualAddress
+            size = (max(section.Misc_VirtualSize, section.SizeOfRawData) + 0xFFF) & ~0xFFF
+            uc.mem_map(base, size)
+            uc.mem_write(base, section.get_data()[:size])
+        uc.mem_map(STACK, 0x10000)
+        table = g["table"][slots]
+        for i in range(demand):          # each record occupied, none pregnant but the mother
+            uc.mem_write(table + i * g["stride"] + g["active"], b"\x01")
+        mother = table + (demand - 1) * g["stride"]     # her record counts 1, her baby 1 more
+        uc.mem_write(table + (demand - 2) * g["stride"] + g["active"], b"\x00")
+        uc.mem_write(mother + 0x1C4C, struct.pack("<I", 300))
+        uc.mem_write(mother + 0x1C50, struct.pack("<I", 1))
+        hit = []
+
+        def hook(u, address, size, user):
+            if address in stops:
+                hit.append(stops[address])
+                u.emu_stop()
+        uc.hook_add(UC_HOOK_CODE, hook)
+        uc.reg_write(UC_X86_REG_ESP, STACK_TOP)
+        uc.reg_write(UC_X86_REG_ESI, mother)
+        uc.emu_start(va, 0xFFFFFFFF, count=100000)
+        return hit[0]
+
+    def test_the_last_records_take_the_extra_babies(self):
+        for game, g in self.GAMES.items():
+            for slots, extra in ((150, []), (256, [f"{game}_population_256"])):
+                pe = self.render(game, extra)
+                with self.subTest(game=game, slots=slots):
+                    trip = {g["trip_kept"]: "kept", g["trip_refused"]: "refused"}
+                    twin = {g["twin_kept"]: "kept", g["twin_refused"]: "refused"}
+                    self.assertEqual(self.run_guard(pe, game, slots, slots - 2, g["triplets"], trip), "kept")
+                    self.assertEqual(self.run_guard(pe, game, slots, slots - 1, g["triplets"], trip), "refused")
+                    self.assertEqual(self.run_guard(pe, game, slots, slots - 1, g["twins"], twin), "kept")
+                    self.assertEqual(self.run_guard(pe, game, slots, slots, g["twins"], twin), "refused")
+
+
 if __name__ == "__main__":
     unittest.main()

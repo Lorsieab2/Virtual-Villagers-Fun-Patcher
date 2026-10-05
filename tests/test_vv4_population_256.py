@@ -886,8 +886,10 @@ class SlotSafetyTests(unittest.TestCase):
 
     def test_guards_compare_against_256(self):
         m = Machine(render("collection_progression", True))
-        self.assertEqual(m.read(0x489025, 5), bytes.fromhex("3DFD000000"))   # triplets: 3 free
-        self.assertEqual(m.read(0x489045, 5), bytes.fromhex("3DFE000000"))   # twins: 2 free
+        # The demand already counts the conceiving mother's first baby, so
+        # triplets need two more of 256 and twins one more.
+        self.assertEqual(m.read(0x489025, 5), bytes.fromhex("3DFE000000"))   # triplets: demand <= 254
+        self.assertEqual(m.read(0x489045, 5), bytes.fromhex("3DFF000000"))   # twins: demand <= 255
         self.assertEqual(m.read(0x489065, 5), bytes.fromhex("3D00010000"))   # event newcomer
         self.assertEqual(m.read(0x489085, 5), bytes.fromhex("3D00010000"))   # barrel child
 

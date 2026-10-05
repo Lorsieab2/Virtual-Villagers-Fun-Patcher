@@ -565,7 +565,7 @@
         {
           "offset": "0x89020",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8CB0000003D930000000F8FA358FDFFC786501C000003000000E98B58FDFF",
+          "after": "E8CB0000003D940000000F8FA358FDFFC786501C000003000000E98B58FDFF",
           "purpose": "keep triplets only when three villager slots remain"
         },
         {
@@ -577,7 +577,7 @@
         {
           "offset": "0x89040",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8AB0000003D940000000F8F9458FDFFC786501C000002000000E97E58FDFF",
+          "after": "E8AB0000003D950000000F8F9458FDFFC786501C000002000000E97E58FDFF",
           "purpose": "keep twins only when two villager slots remain"
         },
         {
@@ -701,7 +701,7 @@
         {
           "offset": "0x94340",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E87B0100003D930000000F8FD31BFDFFC786501C000003000000E9BB1BFDFF",
+          "after": "E87B0100003D940000000F8FD31BFDFFC786501C000003000000E9BB1BFDFF",
           "purpose": "keep triplets only when three physical villager slots remain after active Heathens, corpses, and nursing babies are counted"
         },
         {
@@ -713,7 +713,7 @@
         {
           "offset": "0x94360",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E85B0100003D940000000F8FC41BFDFFC786501C000002000000E9AE1BFDFF",
+          "after": "E85B0100003D950000000F8FC41BFDFFC786501C000002000000E9AE1BFDFF",
           "purpose": "keep twins only when two physical villager slots remain after active Heathens, corpses, and nursing babies are counted"
         },
         {

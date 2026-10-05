@@ -918,30 +918,34 @@ class SlotSafetyTests(unittest.TestCase):
 
     def test_guards_compare_against_256(self):
         m = Machine(render("collection_progression", True))
-        self.assertEqual(m.read(0x494345, 5), bytes.fromhex("3DFD000000"))   # triplets: 3 free
-        self.assertEqual(m.read(0x494365, 5), bytes.fromhex("3DFE000000"))   # twins: 2 free
+        # The demand already counts the conceiving mother's first baby.
+        self.assertEqual(m.read(0x494345, 5), bytes.fromhex("3DFE000000"))   # triplets: demand <= 254
+        self.assertEqual(m.read(0x494365, 5), bytes.fromhex("3DFF000000"))   # twins: demand <= 255
         for va in (0x494565, 0x494585, 0x4945A5):                           # the barrels and the chute
             self.assertEqual(m.read(va, 5), bytes.fromhex("3D00010000"))
 
     def test_twins_and_triplets_need_free_slots_of_256(self):
         """The birth guards keep triplets only with three of 256 slots free
-        and twins with two, else fall through to fewer."""
+        and twins with two, else fall through to fewer.  The mother is in the
+        table, pregnant with her first baby (the conception writes it before
+        the guard), so `others` villagers plus her record and her baby are
+        the demand."""
         image = render("collection_progression", True)
-        for demand, triplets, twins in ((0, True, True), (253, True, True), (254, False, True), (255, False, False)):
-            with self.subTest(demand=demand):
+        for others, triplets, twins in ((0, True, True), (252, True, True), (253, False, True), (254, False, False)):
+            with self.subTest(others=others):
                 m = Machine(image)
-                for i in range(demand):
+                for i in range(others):
                     m.villager(i)
-                mother = m.alloc(STRIDE)
+                mother = m.villager(others, nursing=300)
                 for guard, kept, litter, resume_kept, resume_refused in (
                     (0x494340, triplets, 3, 0x465F1A, 0x465F23),
                     (0x494360, twins, 2, 0x465F2D, 0x465F34),
                 ):
-                    m.put32(mother + BABIES, 0)
+                    m.put32(mother + BABIES, 1)
                     m.set_reg("esi", mother)
                     until = resume_kept if kept else resume_refused
                     m.run_until(guard, until, esp=STACK_TOP - 0x1000)
-                    self.assertEqual(m.u32(mother + BABIES), litter if kept else 0)
+                    self.assertEqual(m.u32(mother + BABIES), litter if kept else 1)
 
     def test_abandoned_infants_clamp(self):
         """Abandoned Infants asks for min(6, slots left of 256) babies from
