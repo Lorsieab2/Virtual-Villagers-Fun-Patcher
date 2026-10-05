@@ -102,6 +102,15 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "villagers with no Birth or Arrived record are asked about in all five games, and the answer is passed on",
             "an arrivals scan that cannot tell yet holds the prompt back, like the others",
             "parents, graves and arrivals together: one prompt, and Repair repairs all three",
+            "villagers born here with no Birth record are asked about (The Lost Children on), and the answer is passed on",
+            "a births scan that cannot tell yet holds the prompt back, like the others",
+            "the Statistics and Elders files: the prompt shows the companion's own lines",
+            "... Not now is passed on",
+            "... and so is Repair",
+            "a count with no lines to show is never asked about",
+            "a statistics scan that cannot tell yet holds the prompt back",
+            "without the statistics companion the rest is still asked",
+            "everything found together: one prompt, and Repair repairs every part",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

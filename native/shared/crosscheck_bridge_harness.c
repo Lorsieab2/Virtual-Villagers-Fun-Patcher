@@ -25,6 +25,9 @@ static int g_arrivals = 0, g_arrival_scans, g_arrival_calls, g_arrival_game, g_a
 static int g_parent_scans, g_grave_scans, g_applies, g_apply_result = 1;
 static int g_repair_calls, g_repair_game, g_repair_slot, g_repair_answer;
 static int g_have_parentage = 1, g_have_cause = 1;
+static int g_births = 0, g_birth_scans, g_birth_calls, g_birth_game, g_birth_answer;
+static int g_stats = 0, g_stats_scans, g_stats_calls, g_stats_game, g_stats_answer, g_have_stats = 1;
+static char g_stats_lines[512];
 
 static int WINAPI harness_msgbox(HWND owner, LPCSTR text, LPCSTR caption, UINT type) {
     (void)owner; (void)caption;
@@ -48,6 +51,18 @@ static int __stdcall fake_scan_arrivals(int game, int slot) { (void)game; (void)
 static void __stdcall fake_repair_arrivals(int game, int slot, int repair) {
     (void)slot; ++g_arrival_calls; g_arrival_game = game; g_arrival_answer = repair;
 }
+static int __stdcall fake_scan_births(int game, int slot) { (void)game; (void)slot; ++g_birth_scans; return g_births; }
+static void __stdcall fake_repair_births(int game, int slot, int repair) {
+    (void)slot; ++g_birth_calls; g_birth_game = game; g_birth_answer = repair;
+}
+static int __stdcall fake_scan_stats(int game, int slot, char *text, int cap) {
+    (void)game; (void)slot; ++g_stats_scans;
+    lstrcpynA(text, g_stats > 0 ? g_stats_lines : "", cap);
+    return g_stats;
+}
+static void __stdcall fake_repair_stats(int game, int slot, int repair) {
+    (void)slot; ++g_stats_calls; g_stats_game = game; g_stats_answer = repair;
+}
 static void __stdcall fake_repair_graves(int game, int slot, int repair) {
     ++g_repair_calls; g_repair_game = game; g_repair_slot = slot; g_repair_answer = repair;
 }
@@ -62,12 +77,19 @@ static FARPROC harness_proc(const char *module, const char *name) {
         if (lstrcmpA(name, "VvfpCauseRepairGraves") == 0) return (FARPROC)fake_repair_graves;
         if (lstrcmpA(name, "VvfpCauseScanArrivals") == 0) return (FARPROC)fake_scan_arrivals;
         if (lstrcmpA(name, "VvfpCauseRepairArrivals") == 0) return (FARPROC)fake_repair_arrivals;
+        if (lstrcmpA(name, "VvfpCauseScanBirths") == 0) return (FARPROC)fake_scan_births;
+        if (lstrcmpA(name, "VvfpCauseRepairBirths") == 0) return (FARPROC)fake_repair_births;
+    }
+    if (lstrcmpA(module, "VVFP Statistics Export.dll") == 0 && g_have_stats) {
+        if (lstrcmpA(name, "VvfpStatsScanReconcile") == 0) return (FARPROC)fake_scan_stats;
+        if (lstrcmpA(name, "VvfpStatsRepairReconcile") == 0) return (FARPROC)fake_repair_stats;
     }
     return NULL;
 }
 
 #define MessageBoxA harness_msgbox
 #define VVFP_XC_PROC(module, name) harness_proc(module, name)
+#define VVFP_XC_LOAD(module, name) harness_proc(module, name)
 #define VVFP_XC_NOW() g_now
 #include "story_bridge.h"
 static int __stdcall harness_slot(void) { return g_slot; }
@@ -101,6 +123,13 @@ static void reset(void) {
     g_repair_calls = g_repair_game = g_repair_slot = 0;
     g_repair_answer = -1;
     g_have_parentage = g_have_cause = 1;
+    g_births = g_birth_scans = g_birth_calls = g_birth_game = 0;
+    g_birth_answer = -1;
+    g_stats = g_stats_scans = g_stats_calls = g_stats_game = 0;
+    g_stats_answer = -1;
+    g_have_stats = 1;
+    lstrcpyA(g_stats_lines, "- Villagers Buried is 3, but the Deaths log and the graves show 5 burials. "
+                            "It will be raised to 5.\r\n");
 }
 
 /* Frames of play, `ms` apart, for `total` milliseconds; when a prompt is
@@ -298,6 +327,70 @@ int main(void) {
     play(1, 1, 8000, 16);
     check(g_boxes == 1 && g_applies == 1 && g_repair_calls == 1 && g_arrival_calls == 1 && g_arrival_answer == 1,
           "parents, graves and arrivals together: one prompt, and Repair repairs all three");
+
+    /* Births missing from the Births log (The Lost Children on): asked, and the answer passed on. */
+    {
+        int game;
+        for (game = 2; game <= 5; ++game) {
+            reset();
+            g_births = 3;
+            g_answer = game % 2 ? IDYES : IDNO;
+            play(game, 1, 8000, 16);
+            if (!(g_boxes == 1 && g_birth_calls == 1 && g_birth_game == game
+                  && g_birth_answer == (game % 2 ? 1 : 0)
+                  && strstr(g_text, "3 villagers were born in the village but no Birth record in the Births log") != NULL
+                  && strstr(g_text, "Their Birth records will be added from the save the next time you save and quit")
+                         != NULL)) {
+                break;
+            }
+        }
+        check(game == 6, "villagers born here with no Birth record are asked about (The Lost Children on), and the answer is passed on");
+    }
+    reset();
+    g_births = -1;
+    g_graves = 1;
+    play(2, 1, VVFP_XC_SETTLE_MS + 100, 16);
+    check(g_boxes == 0, "a births scan that cannot tell yet holds the prompt back, like the others");
+
+    /* The Village Elders and Statistics files: the companion's own lines, and the answer. */
+    reset();
+    g_stats = 1;
+    g_answer = IDNO;
+    play(4, 1, 8000, 16);
+    check(g_boxes == 1 && strstr(g_text, "Villagers Buried is 3, but the Deaths log and the graves show 5 burials") != NULL
+          && strstr(g_text, "backed up first and every change is listed in the Repairs log") != NULL,
+          "the Statistics and Elders files: the prompt shows the companion's own lines");
+    check(g_stats_calls == 1 && g_stats_answer == 0 && g_stats_game == 4, "... Not now is passed on");
+    reset();
+    g_stats = 2;
+    g_answer = IDYES;
+    play(1, 1, 8000, 16);
+    check(g_stats_calls == 1 && g_stats_answer == 1 && g_stats_game == 1, "... and so is Repair");
+    reset();
+    g_stats = 1;
+    g_stats_lines[0] = '\0';
+    play(3, 1, 8000, 16);
+    check(g_boxes == 0 && g_stats_calls == 0, "a count with no lines to show is never asked about");
+    reset();
+    g_stats = -1;
+    g_arrivals = 1;
+    play(3, 1, VVFP_XC_SETTLE_MS + 100, 16);
+    check(g_boxes == 0 && g_stats_scans == 1, "a statistics scan that cannot tell yet holds the prompt back");
+    reset();
+    g_have_stats = 0;
+    g_graves = 1;
+    play(3, 1, 8000, 16);
+    check(g_boxes == 1 && g_stats_scans == 0, "without the statistics companion the rest is still asked");
+    reset();
+    g_parents = 1; g_counts[0] = 1;
+    g_graves = 1;
+    g_arrivals = 1;
+    g_stats = 1;
+    g_answer = IDYES;
+    play(1, 1, 8000, 16);
+    check(g_boxes == 1 && g_applies == 1 && g_repair_calls == 1 && g_arrival_calls == 1 && g_stats_calls == 1
+          && g_stats_answer == 1 && g_birth_scans == 1 && g_birth_calls == 0,
+          "everything found together: one prompt, and Repair repairs every part");
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
