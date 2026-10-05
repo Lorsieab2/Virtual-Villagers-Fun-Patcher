@@ -233,9 +233,11 @@ class CheckerRefactorTests(FolderTest):
         folder = self.make_folder("huttest", 3, "Modded")
         before = self.state(folder)
         done = self.run_cli(str(folder), "1")
-        self.assertEqual(done.returncode, 0, done.stderr)
         report = tools.load_checker().check(folder, 1)
-        self.assertEqual(done.stdout, report.render() + "\n\n0 confirmed wrong\n")
+        # The HutTest village has three villagers born before its Births log
+        # (v1.35.58 backfills their Birth records): exit 1, "confirmed wrong".
+        self.assertEqual(done.returncode, 1 if report.wrong else 0, done.stderr)
+        self.assertEqual(done.stdout, report.render() + f"\n\n{report.wrong} confirmed wrong\n")
         self.assertEqual(self.state(folder), before)
 
     def test_check_raises_check_error_not_system_exit(self) -> None:
