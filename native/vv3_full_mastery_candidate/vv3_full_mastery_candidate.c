@@ -5,7 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
-#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 static HINSTANCE module_instance;
@@ -1643,6 +1643,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(3));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(3));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(3));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
@@ -1782,7 +1783,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
        Island Event delivered) without waiting for the Origins menu. */
     vvfp_story_bridge(3);
     vvfp_cause_bridge(3);  /* cause of death companion: once, fail-open */
-    vvfp_crosscheck_bridge(3, record != NULL);  /* the first-load cross-check: a villager is drawn */
+    vvfp_crosscheck_bridge(3, record != NULL);  /* the cross-check, silent while played: a villager is drawn */
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;

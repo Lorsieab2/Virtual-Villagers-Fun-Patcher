@@ -1793,8 +1793,9 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
     return 1;
 }
 
-/* THE FIRST-LOAD CROSS-CHECK (vv1_crosscheck.inc), for the one Repair / Not
-   now prompt the Origins companion shows (native/shared/crosscheck_bridge.h).
+/* THE CROSS-CHECK (vv1_crosscheck.inc), for the Origins companion's check
+   (native/shared/crosscheck_bridge.h): never asked during play -- applied on
+   Repair Logs' go-ahead, or on Repair at the quit.
 
    Scan: -1 cannot tell yet (ask again later); 0 nothing to repair; 1 found
    something, with counts[0..5] = corrected, set to unknown (no Birth record),

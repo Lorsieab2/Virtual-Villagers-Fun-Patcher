@@ -35,7 +35,7 @@ SHARED = ROOT / "native" / "shared"
 # one record), one more in A New Home (no Show Parents), two more in New
 # Believers (the Heathens); then the Birth records' backfill: 3 in A New Home
 # (nothing to ask about, nothing written), 16 in each later game.
-CHECKS = 33 * 5 + 1 + 2 + 3 + 16 * 4
+CHECKS = 33 * 5 + 1 + 2 + 3 + 16 * 4 + 9 * 5   # + 9 per game: the quit-time repairs and Start Over's approval
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

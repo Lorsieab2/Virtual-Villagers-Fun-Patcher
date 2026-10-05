@@ -370,76 +370,46 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         harmless would satisfy a count while leaving a path uncovered.
         """
         source = STATISTICS.read_text(encoding="utf-8")
-        opening = source.index(
-            "__declspec(dllexport) int __stdcall WriteVillageStatistics(")
-        brace = source.index(
-            "{", source.index(")", source.index("save_id", opening)))
 
-        depth, index = 0, brace
-        while index < len(source):
-            if source[index] == "{":
-                depth += 1
-            elif source[index] == "}":
-                depth -= 1
-                if depth == 0:
-                    break
-            index += 1
-        self.assertLess(index, len(source), "unterminated function body")
+        def function_body(head: str) -> str:
+            opening = source.index(head)
+            brace = source.index("{", source.index(")", opening))
+            depth, index = 0, brace
+            while index < len(source):
+                if source[index] == "{":
+                    depth += 1
+                elif source[index] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                index += 1
+            self.assertLess(index, len(source), "unterminated function body")
+            return re.sub(r"/\*.*?\*/", "", source[brace:index + 1], flags=re.DOTALL)
 
-        body = re.sub(
-            r"/\*.*?\*/", "", source[brace:index + 1], flags=re.DOTALL)
-
-        # Everything before the statistics file is opened is pure argument
-        # validation -- nothing has been written and no roster is owed.
+        # v1.35.58 moved the statistics file into write_statistics_file (the
+        # quit-time Repair writes it again).  It opens the file only after the
+        # paths are built, and -1 -- "no path, nothing opened" -- is returned
+        # from there alone; every other outcome returns 0 or 1 after the open.
+        writer = function_body("static int write_statistics_file(int game_id, unsigned char *manager, "
+                               "int save_id, const char *village) {")
         marker = '_wfopen(temporary, L"w")'
-        self.assertIn(marker, body, "cannot locate the statistics file open")
-        after = body[body.index(marker):]
+        self.assertIn(marker, writer, "cannot locate the statistics file open")
+        before, after = writer[:writer.index(marker)], writer[writer.index(marker):]
+        self.assertEqual(re.findall(r"return\s+[^;]+;", before), ["return -1;"])
+        returns = re.findall(r"return\s+[^;]+;", after)
+        self.assertGreaterEqual(len(returns), 4, "expected every statistics outcome to have its own return")
+        self.assertNotIn("return -1;", after, "past the open, every outcome must reach the roster")
 
-        # Each return is checked against the statements that IMMEDIATELY
-        # precede it, not against everything earlier in the function.
-        #
-        # The first version of this guard asked whether the call appeared
-        # anywhere before the return, which is a cumulative text search rather
-        # than a control-flow one: an earlier path's call satisfied a later
-        # return that had none, so restoring the original bug still passed.
-        # Walking back only to the start of the enclosing block is what makes
-        # the difference between "a call exists above" and "this path makes
-        # the call".
-        # Matched by NAME rather than by its exact argument text. This
-        # guard is about control flow -- whether each return path makes
-        # the call -- and pinning the arguments here would make it fail
-        # for an unrelated signature change while saying nothing about
-        # the paths. The argument list is pinned by the positional
-        # comparison in test_every_array_and_skill_offset_matches_the_
-        # statistics_row, which is where a wrong argument belongs.
-        call = "write_village_population("
-        returns = list(re.finditer(r"return\s+[^;]+;", after))
-        self.assertGreaterEqual(
-            len(returns), 4,
-            "expected every statistics outcome to have its own return")
-        for match in returns:
-            with self.subTest(at=match.start()):
-                # Back up to the brace that opens this return's own block.
-                depth, index = 0, match.start()
-                while index > 0:
-                    index -= 1
-                    if after[index] == "}":
-                        depth += 1
-                    elif after[index] == "{":
-                        if depth == 0:
-                            break
-                        depth -= 1
-                block = after[index:match.start()]
-                # A return at function scope walks back to the function's own
-                # brace and would see every earlier path's call, so for that
-                # case the search starts after the last closing brace instead
-                # -- the statements that actually run before this return.
-                if block.rstrip().endswith("}") or "}" in block:
-                    block = block[block.rindex("}") + 1:]
-                self.assertIn(
-                    call, block,
-                    "this return leaves the roster stale -- the statements "
-                    "before it never export it: %s" % match.group(0))
+        # ...and WriteVillageStatistics exports the roster after every outcome
+        # of the file except "nothing opened", with nothing in between.
+        body = function_body("__declspec(dllexport) int __stdcall WriteVillageStatistics(")
+        call = "written = write_statistics_file(game_id, manager, save_id, village);"
+        self.assertIn(call, body)
+        tail = re.sub(r"\s+", " ", body[body.index(call) + len(call):])
+        self.assertEqual(
+            tail.strip(),
+            "if (written < 0) { return 0; } write_village_population(game_id, village); return written; }",
+        )
 
     def test_every_game_declares_a_skill_table(self) -> None:
         """All five games, and the counts the owner gave.

@@ -44,6 +44,12 @@ static const char *const VVFP_STARTUP_COMPANIONS[] = {
 #define VVFP_STARTUP_COMPANION_COUNT \
     (sizeof VVFP_STARTUP_COMPANIONS / sizeof VVFP_STARTUP_COMPANIONS[0])
 
+/* Bit 31 of the same word is not a companion: it is the patcher's "Check
+   logs automatically" setting for this install (STARTUP_LOADER_CHECK_LOGS
+   in src/vv_fun_patcher.py), read by the cross-check (crosscheck_bridge.h).
+   The companion list therefore never grows past 30 entries (bits 1-30). */
+#define VVFP_STARTUP_CHECK_LOGS 0x80000000u
+
 static unsigned int vvfp_startup_shipped;
 static int vvfp_startup_known;
 

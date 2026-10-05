@@ -4,9 +4,11 @@ Check Logs runs scripts/vvfp_consistency_check.py in-process and must leave
 every file exactly as it found it (bytes, size and modification time), never
 open anything for writing, and never read the Backups folder.  Repair Logs must
 refuse while the game is running (never pausing it), back the folder up first,
-and clear exactly the cross-check's "already checked" markers for the chosen
-game and slot -- nothing else.  Every save folder is built here from the
-repository's own fixture saves; no file outside the repository is read.
+clear exactly the cross-check's "already checked" markers for the chosen game
+and slot, and write that slot's approval (the game then repairs the village
+the next time it is played, without asking) -- nothing else.  Every save
+folder is built here from the repository's own fixture saves; no file outside
+the repository is read.
 """
 from __future__ import annotations
 
@@ -253,22 +255,41 @@ class CheckerRefactorTests(FolderTest):
 # ---------------------------------------------------------------------------
 
 
-class RearmTests(FolderTest):
-    def test_exactly_the_slots_markers_are_cleared_in_every_game(self) -> None:
+def approval_of(number: int, slot: int) -> str:
+    return f"{DATA}/Cross-Check/Virtual Villagers {number} Repair Approved - Save {slot}.dat"
+
+
+def approval_pending(folder: Path, number: int, slot: int) -> bool:
+    """Whether the slot's approval is there, exactly as the game reads it."""
+    path = folder / approval_of(number, slot)
+    return path.is_file() and path.read_bytes() == tools.approval_bytes(number, slot)
+
+
+class ApprovalTests(FolderTest):
+    def test_exactly_the_slots_markers_are_cleared_and_its_approval_written_in_every_game(self) -> None:
         for tag, number, suffix in CASES:
             with self.subTest(game=number, variant=suffix):
                 folder = self.make_folder(tag, number, suffix)
                 before = self.state(folder)
-                result = tools.rearm(folder, number, 1, FakeProcesses(), NOW)
+                self.assertFalse(approval_pending(folder, number, 1))
+                result = tools.approve_repair(folder, number, 1, FakeProcesses(), NOW)
                 expected = set(markers_of(number, 1))
                 self.assertEqual({p.relative_to(folder).as_posix() for p in result.cleared}, expected)
                 after = self.state(folder)
                 for name in expected:
                     self.assertNotIn(name, after)
+                approval = approval_of(number, 1)
+                self.assertEqual(result.approval.relative_to(folder).as_posix(), approval)
+                self.assertEqual(
+                    (folder / approval).read_bytes(),
+                    b"VRA1" + (1).to_bytes(4, "little") + number.to_bytes(4, "little") + (1).to_bytes(4, "little"),
+                )
+                self.assertTrue(approval_pending(folder, number, 1))
+                self.assertFalse(approval_pending(folder, number, 2))
                 new_backup = result.backup.backup_folder.relative_to(folder).as_posix()
                 outside_new_backup = {
                     k: v for k, v in after.items()
-                    if v[2] != "dir" and not k.startswith(new_backup)
+                    if v[2] != "dir" and not k.startswith(new_backup) and k != approval
                 }
                 # Files only: clearing a marker updates its folder's own time.
                 self.assertEqual(
@@ -294,7 +315,7 @@ class RearmTests(FolderTest):
 
     def test_the_folder_is_backed_up_first_with_the_markers_in_it(self) -> None:
         folder = self.make_folder("huttest", 1, "Modded")
-        result = tools.rearm(folder, 1, 1, FakeProcesses(), NOW)
+        result = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
         copy = result.backup.backup_folder
         self.assertEqual(copy.name, "Backup 2026-10-04 15-30-00 (before repair re-arm)")
         for name in markers_of(1, 1):
@@ -309,8 +330,57 @@ class RearmTests(FolderTest):
         before = self.state(folder)
         with mock.patch.object(backup, "copy_save_folder", side_effect=backup.BackupError("disk full")):
             with self.assertRaises(tools.LogToolError):
-                tools.rearm(folder, 2, 1, FakeProcesses(), NOW)
+                tools.approve_repair(folder, 2, 1, FakeProcesses(), NOW)
         self.assertEqual(self.state(folder), before)
+        self.assertFalse(approval_pending(folder, 2, 1))
+
+    def test_an_approval_that_cannot_be_written_leaves_none_behind(self) -> None:
+        folder = self.make_folder("huttest", 3, "Modded")
+        real = Path.write_bytes
+
+        def failing(path, data):
+            if path.name.endswith(".tmp"):
+                real(path, data[:3])
+                raise OSError("disk full")
+            return real(path, data)
+
+        with mock.patch.object(Path, "write_bytes", failing):
+            with self.assertRaises(tools.LogToolError) as caught:
+                tools.approve_repair(folder, 3, 1, FakeProcesses(), NOW)
+        self.assertIn("will not repair anything", str(caught.exception))
+        self.assertFalse((folder / approval_of(3, 1)).exists())
+        self.assertFalse((folder / (approval_of(3, 1) + ".tmp")).exists())
+        self.assertFalse(approval_pending(folder, 3, 1))
+
+    def test_check_logs_shows_an_approval_not_yet_used(self) -> None:
+        folder = self.make_folder("huttest", 2, "Modded")
+        self.assertNotIn("Repair Logs approved", tools.check_logs(folder, 1, 2).text)
+        tools.approve_repair(folder, 2, 1, FakeProcesses(), NOW)
+        self.assertIn("NOTE", tools.check_logs(folder, 1, 2).text)
+        self.assertIn("Repair Logs approved repairing this village: the game repairs it, without asking",
+                      tools.check_logs(folder, 1, 2).text)
+
+    def test_approving_again_is_one_approval(self) -> None:
+        folder = self.make_folder("huttest", 4, "Modded")
+        tools.approve_repair(folder, 4, 2, FakeProcesses(), NOW)
+        tools.approve_repair(folder, 4, 2, FakeProcesses(), NOW)
+        cross = folder / DATA / "Cross-Check"
+        self.assertEqual(sorted(p.name for p in cross.iterdir() if "Approved" in p.name),
+                         ["Virtual Villagers 4 Repair Approved - Save 2.dat"])
+
+    def test_the_approval_is_the_games_own_format_and_start_over_deletes_it(self) -> None:
+        bridge = (ROOT / "native" / "shared" / "crosscheck_bridge.h").read_text(encoding="utf-8")
+        self.assertIn("#define VVFP_XC_APPROVAL_MAGIC   0x31415256u", bridge)
+        self.assertIn("#define VVFP_XC_APPROVAL_VERSION 1u", bridge)
+        self.assertEqual(tools.APPROVAL_MAGIC, 0x31415256)
+        self.assertIn(r'L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat"',
+                      bridge)
+        reset = (ROOT / "native" / "shared" / "save_reset.c").read_text(encoding="utf-8")
+        self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers " n " Repair Approved - Save %d.dat"',
+                      reset)
+        table = reset.split("static const char *const SIDECAR_FORMATS", 1)[1].split("};", 1)[0]
+        for number in range(1, 6):
+            self.assertIn(f'APPROVAL_FORMAT("{number}")', table)
 
     def test_the_backup_is_made_before_any_marker_is_cleared(self) -> None:
         folder = self.make_folder("huttest", 4, "Modded")
@@ -322,16 +392,17 @@ class RearmTests(FolderTest):
             return real(*args, **kwargs)
 
         with mock.patch.object(backup, "copy_save_folder", copying):
-            tools.rearm(folder, 4, 1, FakeProcesses(), NOW)
+            tools.approve_repair(folder, 4, 1, FakeProcesses(), NOW)
         self.assertEqual(seen, [True])
 
     def test_a_running_game_is_refused_and_nothing_changes(self) -> None:
         folder = self.make_folder("huttest", 5, "Modded")
         before = self.state(folder)
         with self.assertRaises(tools.GameRunning) as caught:
-            tools.rearm(folder, 5, 1, FakeProcesses(pids=[7]), NOW)
+            tools.approve_repair(folder, 5, 1, FakeProcesses(pids=[7]), NOW)
         self.assertIn("never pauses or closes", str(caught.exception))
         self.assertEqual(self.state(folder), before)
+        self.assertFalse(approval_pending(folder, 5, 1))
 
     def test_the_game_checked_is_the_one_that_saves_here(self) -> None:
         folder = self.make_folder("huttest", 3, "Modded 256")
@@ -342,36 +413,45 @@ class RearmTests(FolderTest):
                 asked.append(exe_name)
                 return []
 
-        tools.rearm(folder, 3, 1, Recording(), NOW)
+        tools.approve_repair(folder, 3, 1, Recording(), NOW)
         self.assertEqual(set(asked), {"Virtual Villagers - The Secret City - Modded 256.exe"})
 
     def test_when_the_process_list_fails_nothing_changes(self) -> None:
         folder = self.make_folder("huttest", 1, "Modded")
         before = self.state(folder)
         with self.assertRaises(tools.LogToolError):
-            tools.rearm(folder, 1, 1, FakeProcesses(error=OSError("denied")), NOW)
+            tools.approve_repair(folder, 1, 1, FakeProcesses(error=OSError("denied")), NOW)
         self.assertEqual(self.state(folder), before)
 
     def test_a_game_started_during_the_backup_stops_the_clearing(self) -> None:
         folder = self.make_folder("huttest", 2, "Modded")
         with self.assertRaises(tools.GameRunning):
-            tools.rearm(folder, 2, 1, FakeProcesses(start_after=1), NOW)
+            tools.approve_repair(folder, 2, 1, FakeProcesses(start_after=1), NOW)
         for name in markers_of(2, 1):
             self.assertTrue((folder / name).is_file(), name)
+        self.assertFalse(approval_pending(folder, 2, 1))
 
     def test_no_markers_is_not_an_error(self) -> None:
         folder = self.make_folder("huttest", 3, "Modded")
         for name in markers_of(3, 1):
             (folder / name).unlink()
-        result = tools.rearm(folder, 3, 1, FakeProcesses(), NOW)
+        result = tools.approve_repair(folder, 3, 1, FakeProcesses(), NOW)
         self.assertEqual(result.cleared, [])
+        self.assertTrue(approval_pending(folder, 3, 1))
 
     def test_the_module_never_pauses_closes_or_repairs(self) -> None:
+        # It writes one file, the approval (through its own temporary file),
+        # and removes only the markers (and that temporary file on a failure).
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
         for forbidden in ("paused_game", "back_up_save_folder", "suspend", "TerminateProcess",
-                          "write_bytes", "write_text", "rmtree", "rename(", "replace("):
+                          "write_text", "rmtree", "rename("):
             self.assertNotIn(forbidden, source)
-        self.assertEqual(source.count(".unlink("), 1)
+        self.assertEqual(source.count(".write_bytes("), 1)
+        self.assertIn("temporary.write_bytes(approval_bytes(game, slot))", source)
+        self.assertEqual(source.count("replace("), 1)
+        self.assertIn("os.replace(temporary, approval)", source)
+        self.assertEqual(source.count(".unlink("), 2)
+        self.assertIn("temporary.unlink()", source)
 
 
 # ---------------------------------------------------------------------------
@@ -419,19 +499,37 @@ class GuiTests(unittest.TestCase):
     def test_both_run_off_the_main_thread_through_the_module(self) -> None:
         self.assertIn("import vv_log_tools", self.SOURCE)
         self.assertIn("lambda: vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
-        self.assertIn("lambda: vv_log_tools.rearm(folder, number, info.slot)", self.SOURCE)
+        self.assertIn("lambda: vv_log_tools.approve_repair(folder, number, info.slot)", self.SOURCE)
         self.assertRegex(self.SOURCE, r'self\._run_with_wait\(\s*"Checking the logs')
 
     def test_repair_refuses_a_running_game_and_confirms_first(self) -> None:
         body = self.SOURCE[self.SOURCE.index("    def _repair_logs("):self.SOURCE.index("    def _close(")]
         refuse = body.index("vv_save_backup.running_game_count(folder)")
         ask = body.index("messagebox.askyesno(")
-        act = body.index("vv_log_tools.rearm(")
+        act = body.index("vv_log_tools.approve_repair(")
         self.assertLess(refuse, ask)
         self.assertLess(ask, act)
-        self.assertIn("Next time you load {info.name}, the patcher will check its", body)
+        self.assertIn("The next time you play {info.name}, the game will check", body)
+        self.assertIn("repair everything confirmed wrong WITHOUT asking", body)
         self.assertIn("finds nothing confirmed wrong", body)
         self.assertNotIn("paused_game", body)
+
+    def test_the_automatic_check_setting_is_off_by_default_remembered_and_built_in(self) -> None:
+        self.assertIn("self.check_logs_var = tk.BooleanVar(value=False)", self.SOURCE)
+        load = self.SOURCE[self.SOURCE.index("    def _load_settings("):self.SOURCE.index("    def _save_settings(")]
+        self.assertIn('saved_check_logs = data.get("check_logs_automatically", False)', load)
+        self.assertIn("self.check_logs_var.set(saved_check_logs is True)", load)
+        save = self.SOURCE[self.SOURCE.index("    def _save_settings("):self.SOURCE.index("    def _browse_exe(")]
+        self.assertIn('"check_logs_automatically": bool(self.check_logs_var.get()),', save)
+        # Beside Check Logs / Repair Logs on both tabs.
+        self.assertEqual(self.SOURCE.count("variable=self.check_logs_var,"), 2)
+        self.assertRegex(self.SOURCE, r'"Repair Logs\.\.\.", self\._repair_single_logs\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
+                                      r'ttk\.Checkbutton\(\s*box,\s*text=CHECK_LOGS_LABEL')
+        # Every game the window creates carries it.
+        for call in ("lambda: apply_patch(", "lambda: apply_all("):
+            at = self.SOURCE.index(call)
+            self.assertIn("check_logs_automatically=check_logs,", self.SOURCE[at:at + 400])
+        self.assertEqual(self.SOURCE.count("check_logs_automatically=check_logs,"), 6)
 
     def test_the_report_window_scrolls_and_is_read_only(self) -> None:
         body = self.SOURCE[self.SOURCE.index("    def _show_log_report("):self.SOURCE.index("    def _repair_logs(")]

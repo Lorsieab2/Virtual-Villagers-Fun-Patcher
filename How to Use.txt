@@ -208,9 +208,10 @@ game may be running.
    UNCHECKED (nothing to check it against, or it could not be read), and a
    summary line at the end. The Backups folder is never read.
 
-"Repair Logs..." does not change any log itself. It has the game check the
-village again the next time you load it, and ask "Repair" or "Not now"
-before it repairs anything.
+"Repair Logs..." does not change any log itself. It is your go-ahead for
+the game to repair the village: the next time you play it, the game repairs
+everything it finds confirmed wrong WITHOUT asking (every change is backed up
+first and listed in the Repairs log), and the go-ahead is then used up.
 
 1. Quit the game first (from its own menu). A game that is running is
    refused, never paused or closed.
@@ -222,10 +223,33 @@ before it repairs anything.
        (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before repair re-arm)
    which Restore Saves lists like any other backup. Then only the files that
    say "this village was already checked" are cleared for that save slot
-   (the Cross-Check marker in A New Home, and the Graves Logged and Arrivals
-   Recorded files in every game). No log, backup or other data is removed.
-5. Load the tribe. After a few seconds on screen the patcher checks its logs
-   and, if it finds something it can put right, asks before repairing.
+   (the Cross-Check marker in A New Home, the Graves Logged and Arrivals
+   Recorded files in every game, the Births Recorded file in The Lost
+   Children to New Believers), and the go-ahead is written ("Virtual
+   Villagers <N> Repair Approved - Save <slot>.dat" in the Cross-Check
+   folder; Check Logs shows it as a NOTE while it waits, and Start Over
+   deletes it). No log, backup or other data is removed.
+5. Play the tribe, then close the game normally from its own menu. Nothing is
+   asked: A New Home's parents are repaired as soon as the village has
+   settled, everything else at the game's save when you close it.
+
+CHECK LOGS AUTOMATICALLY
+
+The "Check logs automatically" box sits beside Check Logs / Repair Logs on
+both tabs. It is OFF by default and the patcher remembers it. It is written
+into every game you create from then on; a game you already created keeps its
+own setting until you create it again.
+
+- Off: the games never check or ask anything while you play. Use Check Logs
+  and Repair Logs.
+- On: a few seconds after a village loads the game checks it silently. If,
+  and only if, something is confirmed wrong, it asks "Repair" or "Not now"
+  when you CLOSE THE GAME -- after the game's own save, never while you play.
+  "Repair" repairs everything found there and then (backed up first, listed
+  in the Repairs log). "Not now" changes nothing; you are asked again the
+  next time you close the game after playing that village. The question is
+  about the village you played last. If nobody answers within five minutes,
+  the game simply closes, as with "Not now".
 
 OPTIONAL PATCH SELECTION
 
@@ -711,8 +735,9 @@ village without being born into it -- a new village's founders ("How:
 Founder"), an island event's newcomers (the event's name), the Barrel of
 Babies, the Custom Island Event's new villagers -- when the Cause of Death
 patch is on. Villagers already in a village who arrived before v1.35.58 are
-offered an Arrived record once, by the Repair / Not now question shown when
-the village is loaded; that it has been done is kept in
+given an Arrived record once, when you allow the repair (Repair Logs, or
+Repair when the game asks as it closes with "Check logs automatically" on);
+that it has been done is kept in
 "Virtual Villagers Fun Patcher Data\Arrivals\Virtual Villagers <N> Arrivals
 Recorded - Save <slot>.dat" (deleting it only means the question can come
 back; Start Over deletes it).

@@ -8,7 +8,8 @@ only opened for reading.  It prints one section per file with a verdict on each 
 
     OK          the file agrees with the save (and with the other files where they overlap)
     WRONG       confirmed wrong against a source of truth; "repairable" says whether the
-                game's first-load cross-check repairs it (after asking the player)
+                game's cross-check repairs it (only when the player says so: Repair Logs, or
+                Repair at the quit with "Check logs automatically" on)
     NOTE        a disagreement that is not proof of an error (a log is a lower bound, a log
                 written at a later save than the .ldw on disk, a value no source records)
     UNCHECKED   no source of truth exists for it, or the file could not be read
@@ -532,13 +533,13 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
             else:
                 wrong += 1
                 rep.add(label, "WRONG", f"{v.name}: recorded {now}; the Births log says father {want[4] or '(none)'}, "
-                                        f"mother {want[5] or '(none)'} (repairable: the first-load cross-check)")
+                                        f"mother {want[5] or '(none)'} (repairable: Repair Logs, or the quit check)")
         elif matches or not named:
             why = "the Birth records disagree" if matches else "no Birth record (a founder or a grown arrival)"
             if has:
                 wrong += 1
                 rep.add(label, "WRONG", f"{v.name}: recorded {now}, but {why}: set to unknown "
-                                        "(repairable: the first-load cross-check)")
+                                        "(repairable: Repair Logs, or the quit check)")
             else:
                 rep.add(label, "OK", f"{v.name}: no parents ({why})")
         else:
@@ -1080,7 +1081,8 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str
     if game != 1:
         return
     if not path.is_file():
-        rep.add(label, "NOTE", "the first-load cross-check has not run for this slot yet (it runs at the next load)")
+        rep.add(label, "NOTE", "the cross-check has not run for this slot yet (it runs when the village is next played "
+                               "with \"Check logs automatically\" on, or after Repair Logs)")
         return
     data = path.read_bytes()
     if len(data) != 48 or data[:4] != b"VXC1":
@@ -1092,10 +1094,23 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str
         rep.add(label, "UNCHECKED", "a marker for another game, slot or version (the game sets it aside and runs the check)")
         return
     if village is not None and words[11] != village_id(village):
-        rep.add(label, "NOTE", "the marker is another village's (an earlier village in this slot): the check runs at "
-                               "this village's next load")
+        rep.add(label, "NOTE", "the marker is another village's (an earlier village in this slot): the check runs "
+                               "again when this village is next checked")
         return
-    rep.add(label, "OK", f"the first-load cross-check ran for this village: {result}")
+    rep.add(label, "OK", f"the cross-check ran for this village: {result}")
+
+
+def check_approval(game_dir: Path, slot: int, game: int, rep: Report) -> None:
+    """Repair Logs' approval for the slot (src/vv_log_tools.py), not yet used by the game."""
+    path = game_dir / DATA / "Cross-Check" / f"Virtual Villagers {game} Repair Approved - Save {slot}.dat"
+    if not path.is_file():
+        return
+    label = f"{DATA}\\Cross-Check"
+    if path.read_bytes() == struct.pack("<4I", 0x31415256, 1, game, slot):
+        rep.add(label, "NOTE", "Repair Logs approved repairing this village: the game repairs it, without asking, "
+                               "the next time it is played")
+    else:
+        rep.add(label, "UNCHECKED", "a Repair Logs approval that is not this game's and slot's (the game ignores it)")
 
 
 def detect_game(game_dir: Path, slot: int) -> int:
@@ -1156,6 +1171,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     check_rosters(game_dir, slot, game, roster, rep)
     check_stews(game_dir, slot, game, rep)
     check_marker(game_dir, slot, game, rep, births.village)
+    check_approval(game_dir, slot, game, rep)
     return rep
 
 
