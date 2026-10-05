@@ -795,7 +795,7 @@
         "On by default. Games you create while it is ticked check each village's logs quietly while you play.",
         "Only if something is wrong, you are asked Repair or Not now when you close the game, never during play.",
         "Repair fixes it (backed up first); Not now changes nothing and asks again next time.",
-        "To turn it off, untick this box and create the game again; a game already made keeps its setting."
+        "To turn it off, untick this box and patch the game again; a game already made keeps its own setting."
       ]
     },
     "check_for_updates": {
