@@ -927,7 +927,7 @@ static void bind_store(int game_id, unsigned char *manager, int save_id) {
    raised to what the logs prove (a pending count not yet in the file would
    otherwise be added on top of a bound that already holds it). */
 static int g_rc_save_ok;
-static void rc_apply(int game, int slot, unsigned char *manager);
+static int rc_apply(int game, int slot, unsigned char *manager);
 /* The last primary save this session wrote and exported: its game, slot and
    manager, and whether the reconcile could have run at it (g_rc_save_ok).
    VvfpStatisticsRepairReconcileNow completes a Repair answered right after

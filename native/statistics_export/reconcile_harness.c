@@ -39,6 +39,14 @@
         nothing and makes no second backup.
      5. Never lowers: a counter above its bound is left alone.
      6. Another village's files (the roster shares nobody): nothing asked.
+     7. Repair answered right after the game's quit save (the cross-check's
+        quit prompt, native/shared/crosscheck_bridge.h), when no later save
+        will come: VvfpStatisticsRepairReconcileNow makes the same changes
+        there and then from that save's state (backups, Repairs log), has the
+        Village Statistics log written again so it shows them (the TEST build
+        counts that call: the log's writers call game routines no harness
+        maps), changes nothing a second time, and does nothing for a slot the
+        last save was not.
 
    Usage:  reconcile_harness.exe "<statistics test dll>" "<save reset dll>"
    Exit code 0 when every check passes. */
@@ -60,6 +68,7 @@ static int checks;
 typedef int (__stdcall *scan_t)(int, int, char *, int);
 typedef void (__stdcall *repair_t)(int, int, int);
 typedef int (__stdcall *save_t)(int, int, void *);
+typedef int (__stdcall *now_t)(int, int);
 
 struct layout {
     unsigned int rva;
@@ -383,6 +392,8 @@ int main(int argc, char **argv) {
     scan_t scan;
     repair_t repair;
     save_t save;
+    now_t now;
+    int *rewrites;
 
     setvbuf(stdout, NULL, _IONBF, 0);
     if (argc < 3) {
@@ -403,7 +414,12 @@ int main(int argc, char **argv) {
     scan = dll ? (scan_t)GetProcAddress(dll, "VvfpStatisticsScanReconcile") : NULL;
     repair = dll ? (repair_t)GetProcAddress(dll, "VvfpStatisticsRepairReconcile") : NULL;
     save = dll ? (save_t)GetProcAddress(dll, "VvfpStatisticsTestSave") : NULL;
-    if (scan == NULL || repair == NULL || save == NULL) { printf("missing exports\n"); return 2; }
+    now = dll ? (now_t)GetProcAddress(dll, "VvfpStatisticsRepairReconcileNow") : NULL;
+    rewrites = dll ? (int *)GetProcAddress(dll, "VvfpStatisticsTestLogRewrites") : NULL;
+    if (scan == NULL || repair == NULL || save == NULL || now == NULL || rewrites == NULL) {
+        printf("missing exports\n");
+        return 2;
+    }
 
     for (game = 1; game <= 5; ++game) {
         int elders_expected = game == 1 || game == 3 || game == 4;
@@ -541,6 +557,51 @@ int main(int argc, char **argv) {
         write_file(ROSTER, "VVFP VILLAGE ROSTER v1\r\n0\tXena\t-\r\n1\tYuri\t-\r\n2\tZack\t-\r\n");
         CHECK(scan(game, 1, prompt, (int)sizeof prompt) == 0,
               "another village's files (the roster shares nobody): nothing is asked");
+
+        /* 7. Repair answered right after the quit save. */
+        *rewrites = 0;
+        clean();
+        write_files(1, 0, 0);
+        repair(game, 1, 0);
+        save(game, 1, manager);                       /* the quit save: no answer yet */
+        snapshot();
+        CHECK(counter("villagers_buried") == 1 && !exists_rel(COUNTERS SUFFIX),
+              "the quit save, with no answer yet, changes nothing");
+        CHECK(now(game, 2) == 0 && unchanged(), "Repair at the quit does nothing for a slot the last save was not");
+        CHECK(now(game, 1) == 1, "Repair right after the quit save: done there and then");
+        CHECK(counter("villagers_buried") == 2 && (game != 2 || counter("twins_birthed") == 2)
+              && (game != 3 || counter("chiefs_robed") == 1),
+              "...the same changes a save after Repair makes");
+        read_rel(ELDERS);
+        if (elders_expected) {
+            CHECK(strstr(text, "\tGhost\t") != NULL && strstr(text, "E\t-1\tEdge\t\t\t0\t0\r\n") != NULL
+                  && exists_rel(ELDERS SUFFIX), "...the elders file gains Ghost and Edge, backed up first");
+        } else {
+            CHECK(!exists_rel(ELDERS SUFFIX), "...the elders file is not touched (nothing to add)");
+        }
+        {
+            char repairs[MAX_PATH];
+            int listed, backed;
+            _snprintf(repairs, MAX_PATH, REPAIRS_DIR "\\Virtual Villagers %d Repairs Log 1.txt", game);
+            read_rel(repairs);
+            listed = strstr(text, "  Villagers Buried raised: 1 -> 2 (the Deaths log and the graves)\r\n") != NULL;
+            read_rel(COUNTERS SUFFIX);
+            backed = strstr(text, "villagers_buried=1") != NULL;
+            CHECK(listed && backed, "...listed in the Repairs log, the counters file backed up first");
+        }
+        CHECK(*rewrites == 1, "...and the Village Statistics log is written again, to show them");
+        snapshot();
+        {
+            int again = now(game, 1), same;
+            read_rel(ELDERS);
+            same = strcmp(before_elders, text) == 0;
+            read_rel(COUNTERS);
+            same = same && strcmp(before_counters, text) == 0 && !exists_rel(COUNTERS SUFFIX "-2")
+                   && !exists_rel(ELDERS SUFFIX "-2");
+            CHECK(again == 1 && same && scan(game, 1, prompt, (int)sizeof prompt) == 0 && *rewrites == 1,
+                  "...a second Repair changes nothing (no file, no second backup, not the log), and the scan finds"
+                  " nothing left");
+        }
 
         unplace_game();
     }

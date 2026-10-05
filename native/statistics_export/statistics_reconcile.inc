@@ -699,7 +699,7 @@ static void rc_leaf(char *out, size_t n, const wchar_t *path) {
    elders update): make the plan again, back up, note, change.  The answer
    is kept until the changes are on disk, so a failure is retried by the
    next save. */
-static void rc_apply(int game, int slot, unsigned char *manager) {
+static int rc_apply(int game, int slot, unsigned char *manager) {
     static struct rc_plan plan;
     char name[VV_VILLAGE_NAME_MAX];
     char village[VV_VILLAGE_NAME_MAX + 32];
@@ -709,28 +709,28 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
     size_t cap, len = 0;
     int none, i, ok = 1;
     if (!g_rc_save_ok || slot < 1 || slot > 5 || !g_rc_repair[slot]) {
-        return;
+        return 0;
     }
     if (!vv_village_name(game, manager, name) || !vv_village_header(village, sizeof village, name, slot)) {
-        return;
+        return 0;
     }
     rc_trim(village);
     rc_make_plan(game, slot, village, g_store.counters_path, &g_store, &plan);
     if (plan.changes == 0) {
         g_rc_repair[slot] = 0;        /* nothing left to do */
-        return;
+        return 0;
     }
     elders_backup[0] = counters_backup[0] = L'\0';
     if (plan.elders_add > 0 && (!rc_elders_path(slot, elders)
                                 || !vv_repair_backup(elders, elders_backup, MAX_PATH, &none) || none)) {
-        return;
+        return 0;
     }
     if (plan.buried_was >= 0 || plan.twins_was >= 0 || plan.chiefs_was >= 0) {
         if (!vv_repair_backup(g_store.counters_path, counters_backup, MAX_PATH, &none) || none) {
             if (elders_backup[0]) {
                 DeleteFileW(elders_backup);
             }
-            return;
+            return 0;
         }
     }
     cap = (size_t)plan.elders_add * (RC_NAME * 3 + 96) + 2048;
@@ -787,7 +787,7 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
         if (counters_backup[0]) {
             DeleteFileW(counters_backup);
         }
-        return;
+        return 0;
     }
     {
         long long was;
@@ -817,7 +817,21 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
             g_rc_repair[slot] = 0;
         }
     }
+    return 1;
 }
+
+/* The log written again after a quit-time Repair.  The TEST build counts
+   the call instead: the log's writers call the game's own routines (real
+   hours played, the puzzle predicates), which a harness does not map --
+   the shipped build always writes it (write_statistics_file, the very
+   function every save uses). */
+#ifdef VVFP_TEST
+__declspec(dllexport) int VvfpStatisticsTestLogRewrites = 0;
+#define RC_REWRITE_LOG(game, manager, slot, village) \
+    ((void)(game), (void)(manager), (void)(slot), (void)(village), ++VvfpStatisticsTestLogRewrites)
+#else
+#define RC_REWRITE_LOG(game, manager, slot, village) write_statistics_file(game, manager, slot, village)
+#endif
 
 /* VvfpStatisticsRepairReconcileNow(game, slot): the player chose Repair
    right after the game's quit save (native/shared/crosscheck_bridge.h), when
@@ -833,6 +847,7 @@ __declspec(dllexport) int __stdcall VvfpStatisticsRepairReconcileNow(int game, i
     char name[VV_VILLAGE_NAME_MAX];
     char village[VV_VILLAGE_NAME_MAX + 32];
     unsigned char *manager = g_last_save.manager;
+    int changed;
     if (game < GAME_VV1 || game > GAME_VV5 || slot < 1 || slot > 5 || g_last_save.slot != slot
         || g_last_save.game != game || !g_last_save.reconcile_ok || manager == NULL) {
         return 0;
@@ -841,13 +856,13 @@ __declspec(dllexport) int __stdcall VvfpStatisticsRepairReconcileNow(int game, i
     g_save_id = slot;
     g_rc_repair[slot] = 1;
     g_rc_save_ok = 1;
-    rc_apply(game, slot, manager);
+    changed = rc_apply(game, slot, manager);
     g_rc_save_ok = 0;
     if (g_rc_repair[slot]) {
         return 0;                     /* not done: nothing more is written now */
     }
-    if (vv_village_name(game, manager, name) && vv_village_header(village, sizeof village, name, slot)) {
-        (void)write_statistics_file(game, manager, slot, village);
+    if (changed && vv_village_name(game, manager, name) && vv_village_header(village, sizeof village, name, slot)) {
+        (void)RC_REWRITE_LOG(game, manager, slot, village);
     }
     return 1;
 }

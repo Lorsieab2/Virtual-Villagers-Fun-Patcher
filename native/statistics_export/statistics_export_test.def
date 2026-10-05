@@ -6,3 +6,4 @@ EXPORTS
     VvfpStatisticsRepairReconcile=_VvfpStatisticsRepairReconcile@12
     VvfpStatisticsRepairReconcileNow=_VvfpStatisticsRepairReconcileNow@8
     VvfpStatisticsTestSave=_VvfpStatisticsTestSave@12
+    VvfpStatisticsTestLogRewrites DATA
