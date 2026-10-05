@@ -630,14 +630,18 @@ def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
     assert "g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak) || weak;" in load
     assert "weak = magic == VV2_MASK_SIDECAR_MAGIC;" in load
 
-    save = source[source.index("static void vv2_mask_sidecar_save("):]
+    save = source[source.index("static int vv2_mask_sidecar_save("):]
     save = save[:save.index(chr(10) + "}" + chr(10)) + 3]
     # Published atomically through native/shared/sidecar_io.h (see
     # tests/test_mask_sidecar_durability.py); the roster is still part two.
-    assert "parts[1] = g_vv2_roster;     sizes[1] = sizeof(g_vv2_roster);" in save, (
+    # The roster snapshot, plus, on an empty record, the identity of an
+    # ambiguous mask left on it (orphan_masks.h, vv_om_roster_to_write).
+    assert ("vv_om_roster_to_write(VV2_RECORD_COUNT, g_vv2_roster, VV2_MASK_TABLE, g_vv2_mask_id, written_roster);"
+            in save)
+    assert "parts[1] = written_roster;   sizes[1] = sizeof(written_roster);" in save, (
         "the sidecar is written without its roster snapshot, so it can never "
         "be matched against the village that wrote it")
-    assert "if (!g_vv2_have_roster) return;" in save, (
+    assert "if (!g_vv2_have_roster) return 0;" in save, (
         "an unidentified village must not write a file at all")
 
 

@@ -25,6 +25,7 @@ if ($LASTEXITCODE -ne 0) {
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vv3_full_mastery_candidate.c") `
+    (Join-Path $projectRoot "native\shared\save_folder.c") `
     (Join-Path $outputRoot "vv3_full_mastery_candidate.res") `
     /link `
     /Brepro `
@@ -51,6 +52,7 @@ if ($LASTEXITCODE -ne 0) {
 @(
     (Join-Path $outputRoot "vv3_full_mastery_candidate.res"),
     (Join-Path $projectRoot "vv3_full_mastery_candidate.obj"),
+    (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "vv3_full_mastery_candidate.exp"),
     (Join-Path $projectRoot "vv3_full_mastery_candidate.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {

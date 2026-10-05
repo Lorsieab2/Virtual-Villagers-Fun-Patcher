@@ -51,7 +51,7 @@ GAMES = {
     "VV2": (VV2, "vv2_mask_sidecar_save", "vv2_mask_sidecar_load"),
     "VV3": (VV3, "vv3_mask_write_sidecar_tables", "vv3_mask_read_sidecar"),
     "VV4": (VV4, "vv_write_mask_sidecar", "vv_read_mask_sidecar"),
-    "VV5": (VV5, "WriteMaskSidecar", "vv5_mask_sidecar_load"),
+    "VV5": (VV5, "vv5_write_mask_sidecar", "vv5_mask_sidecar_load"),
 }
 
 

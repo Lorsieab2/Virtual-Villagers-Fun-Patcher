@@ -279,7 +279,12 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         # nothing is written against the old record numbers, or without the
         # identities of the villagers on screen
         self.assertLess(write.index("if (vv1_mask_follow_pending) {"), write.index("vv_sidecar_publish("))
-        self.assertLess(write.index("if (vv1_mask_live_roster(roster) == 0) {"), write.index("vv_sidecar_publish("))
+        # the roster is who holds each record now (plus, on an empty record, the identity of an
+        # ambiguous mask left on it: orphan_masks.h, vv_om_roster_to_write)
+        self.assertLess(write.index("if (vv1_mask_roster_to_write(roster) == 0) {"), write.index("vv_sidecar_publish("))
+        roster = self.source.split("static int vv1_mask_roster_to_write(unsigned int *out) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("int i, n = vv1_mask_live_roster(live);", roster)
+        self.assertIn("vv_om_roster_to_write(VV_MASK_SLOTS, live, value, vv1_mask_id, out);", roster)
         load = self.source.split("static void vv1_mask_sidecar_load(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("vv1_mask_follow_pending = 1;", load)
         self.assertIn("vv1_mask_follow_loaded();", load)

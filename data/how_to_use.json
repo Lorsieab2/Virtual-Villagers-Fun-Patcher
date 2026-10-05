@@ -774,7 +774,8 @@
     "check_logs": {
       "title": "Check Logs",
       "guide": [
-        "Checks whether the patcher's logs for a village agree with its save.",
+        "Checks whether the patcher's logs and data files for a village agree with its save.",
+        "That includes masks still kept for villagers who are no longer in the village.",
         "Pick the game, save folder and tribe, then click Check.",
         "Each file is marked OK, WRONG, NOTE or UNCHECKED.",
         "It only reads, so the game may stay open."
@@ -786,7 +787,8 @@
         "Your go-ahead for the game to fix a village's logs.",
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked and the result shown.",
         "Confirm: the save folder is backed up first.",
-        "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking."
+        "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking.",
+        "Masks kept for villagers who are no longer in the village are removed too."
       ]
     },
     "check_logs_automatically": {

@@ -68,8 +68,12 @@ FOUNDATION_OUTPUT = (
 # Recertified when the Origins Barrel's free-record check learned to read the
 # active flag as the byte it is and to count the babies pregnant mothers still
 # owe (v1.35.58, the Golden Child audit).
-SOURCE_SHA256 = "09FFC4C3DA69829FE05F6CCB8ECF7528B7A268F441086F26E4381F1CED90AD17"
-SOURCE_SIZE = 1918464
+# Recertified when the cross-check learned the orphan mask entries
+# (native/shared/orphan_masks.h, v1.35.59): the companion's own scan and
+# repair, a writer that reports whether the table reached the disk, and
+# native/shared/save_folder.c linked for the Repairs log.
+SOURCE_SHA256 = "DFC3407374335D40FDE699B93B031F674FAFB5DD4EE518BDAA18F1D5EC7D9678"
+SOURCE_SIZE = 1960448
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

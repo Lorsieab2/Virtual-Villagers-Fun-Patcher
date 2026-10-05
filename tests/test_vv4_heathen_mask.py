@@ -150,7 +150,7 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("name[sizeof(\"Village Masks - Save \") - 1] = (char)('0' + slot);", self.c)
 
     def test_sidecar_write_is_transactional_with_exact_four_writes(self) -> None:
-        write = self.c.split("static void vv_write_mask_sidecar(void) {", 1)[1].split(
+        write = self.c.split("static int vv_write_mask_sidecar(void) {", 1)[1].split(
             "static int vv_read_mask_sidecar(void) {", 1
         )[0]
         # The temp-file / checked-write / flush / replace sequence now lives in
@@ -164,7 +164,7 @@ class DllStorageContractTests(unittest.TestCase):
             "header[1] = (unsigned int)vv_slots();",
             "parts[2] = g_mask_by_index;   sizes[2] = header[1];",
             "parts[3] = g_mask_fp;         sizes[3] = header[1] * (DWORD)sizeof(unsigned int);",
-            "vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);",
+            "return vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);",
             "parts[4] = g_mask_roster;     sizes[4] = header[1] * (DWORD)sizeof(unsigned int);",
         ):
             self.assertIn(expected, write)
@@ -235,7 +235,7 @@ class DllStorageContractTests(unittest.TestCase):
         cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
         self.assertIn("vv_prepare_mask_state();", cache)
         self.assertLess(cache.index("vv_prepare_mask_state();"), cache.index("vv_mask_sweep();"))
-        write = self.c.split("static void vv_write_mask_sidecar(void) {", 1)[1].split("\n}", 1)[0]
+        write = self.c.split("static int vv_write_mask_sidecar(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("vv_prepare_mask_state();", write)
         self.assertIn("vv_build_sidecar_path(path, g_current_slot)", write)
 
