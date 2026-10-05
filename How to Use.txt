@@ -236,20 +236,27 @@ first and listed in the Repairs log), and the go-ahead is then used up.
 CHECK LOGS AUTOMATICALLY
 
 The "Check logs automatically" box sits beside Check Logs / Repair Logs on
-both tabs. It is OFF by default and the patcher remembers it. It is written
-into every game you create from then on; a game you already created keeps its
-own setting until you create it again.
+both tabs. It is ON by default and the patcher remembers it (the patch
+selection buttons never change it). It is written into every game you create
+from then on; a game you already created keeps its own setting until you
+create it again.
 
 - Off: the games never check or ask anything while you play. Use Check Logs
   and Repair Logs.
-- On: a few seconds after a village loads the game checks it silently. If,
+- On (default): a few seconds after a village loads the game checks it silently. If,
   and only if, something is confirmed wrong, it asks "Repair" or "Not now"
   when you CLOSE THE GAME -- after the game's own save, never while you play.
   "Repair" repairs everything found there and then (backed up first, listed
   in the Repairs log). "Not now" changes nothing; you are asked again the
   next time you close the game after playing that village. The question is
   about the village you played last. If nobody answers within five minutes,
-  the game simply closes, as with "Not now".
+  the game simply closes, as with "Not now". The question ends by telling you
+  how to stop these checks: untick "Check logs automatically" in the patcher
+  and patch the game again.
+
+From the command line the setting is on by default; add
+--no-check-logs-automatically to dry-run, apply, dry-run-all or apply-all to
+turn it off.
 
 OPTIONAL PATCH SELECTION
 
