@@ -7,3 +7,5 @@ EXPORTS
     VvfpCauseNoteArrival=_VvfpCauseNoteArrival@8
     VvfpCauseNamesVillage=_VvfpCauseNamesVillage@0
     VvfpCauseArmSave=_VvfpCauseArmSave@4
+    VvfpCauseScanGraves=_VvfpCauseScanGraves@8
+    VvfpCauseRepairGraves=_VvfpCauseRepairGraves@12

@@ -83,3 +83,11 @@ __declspec(dllexport) int __stdcall VvfpCauseTestGrave(int slot, int *cause, int
     *epitaph = entry->custom ? 0x100 : entry->epitaph;
     return 1;
 }
+
+/* The Secret City's, The Tree of Life's and New Believers' Roster of the
+   Dead (and The Secret City's gravestones) at the harness's own addresses
+   (cod_backfill.inc). */
+__declspec(dllexport) void __stdcall VvfpCauseTestRoster(void *entries, void *gravestones) {
+    test_roster = (unsigned char *)entries;
+    test_gravestones = (unsigned char *)gravestones;
+}

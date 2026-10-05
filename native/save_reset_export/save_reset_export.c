@@ -341,6 +341,22 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     return vv_reset_slot_state(game, slot, header);
 }
 
+/* The header of the village the slot's own save holds -- the header its
+ * logs are headed with -- for "VVFP Parentage Export.dll"'s check of the
+ * graves against the Deaths log when a village is loaded
+ * (RecordGravesMissingFromLog), before the session's first save names the
+ * village.  The same reader as the reset's; the save is only read.  1 with
+ * `out` filled, 0 when the slot has no single readable save. */
+__declspec(dllexport) int __stdcall SavedVillageHeader(int game, int slot, char *out, int size) {
+    wchar_t folder[MAX_PATH];
+    if (out == NULL || size <= 0 || game < 1 || game > 5 || slot < 1 || slot > 5) {
+        return 0;
+    }
+    out[0] = '\0';
+    return vv_save_folder_w(folder, SAVE_FILTER_RESERVE)
+        && vv_saved_village_header(game, slot, folder, out, (size_t)size);
+}
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance; (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {

@@ -142,7 +142,11 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         roster = (CAUSE / "cod_roster.inc").read_text(encoding="utf-8")
         done = function(roster, "cod_save_done")
         self.assertIn("cod_publish_village(save_buffer, slot);", done)
-        self.assertIn("if (install_state == 1) {\n        roster_reconcile(slot);", done)
+        # Only once installed: the graves the Deaths log lacks (after the
+        # player's Repair; cod_backfill.inc), then the reconciliation.
+        installed = done[done.index("if (install_state == 1) {"):]
+        self.assertLess(installed.index("backfill_at_save(slot, save_buffer);"),
+                        installed.index("roster_reconcile(slot);"))
         for name in ("roster_saved", "vv1_written"):
             self.assertIn("cod_save_done(slot, ", function(roster, name))
         for definition in ("vvfp_cause_of_death.def", "vvfp_cause_of_death_test.def"):

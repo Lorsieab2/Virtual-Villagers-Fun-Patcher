@@ -49,7 +49,12 @@ int vv_reset_refused_paths = 0;
    at BOTH places, so neither copy can bring an erased village's state back. */
 #define DATA_FORMAT(sub, name) \
     "%s\\Virtual Villagers Fun Patcher Data\\" sub "\\" name " - Save %d.dat"
-#define SIDECAR_FORMAT_COUNT 13
+/* ...and which graves already have their Death record in the Deaths log
+   (native/vvfp_cause_of_death/cod_backfill.inc), deleted with that log.  It
+   was never written loose: it has always been in its own "Deaths" folder. */
+#define GRAVES_LOGGED_FORMAT(n) \
+    "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"
+#define SIDECAR_FORMAT_COUNT 14
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
@@ -60,28 +65,28 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 1 Graves"), CAUSE_OF_DEATH_FORMAT("1"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Village Roster"),
-               ROSTER_FORMAT("1") },
+               ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT("1") },
     /* VV2 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 2 Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
                "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 2 Graves"), CAUSE_OF_DEATH_FORMAT("2"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 2 Village Roster"),
-               ROSTER_FORMAT("2"), 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT("2"), 0, 0, 0, 0, 0 },
     /* VV3 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Village Roster"),
-               ROSTER_FORMAT("3"), 0, 0, 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("3"), GRAVES_LOGGED_FORMAT("3"), 0, 0, 0, 0, 0, 0, 0 },
     /* VV4 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Village Roster"),
-               ROSTER_FORMAT("4"), 0, 0, 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("4"), GRAVES_LOGGED_FORMAT("4"), 0, 0, 0, 0, 0, 0, 0 },
     /* VV5 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Village Roster"),
-               ROSTER_FORMAT("5"), 0, 0, 0, 0, 0, 0, 0 },
+               ROSTER_FORMAT("5"), GRAVES_LOGGED_FORMAT("5"), 0, 0, 0, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are
