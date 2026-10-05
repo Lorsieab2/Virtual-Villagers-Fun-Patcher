@@ -10034,10 +10034,8 @@ def dry_run(
         playtest_output_root=playtest_output_root,
     )
     fun_patches = _attach_automatic_companions(build.id, fun_patches)
-    _finalize_published_bytes(
-        patched, build, fun_patches, applied,
-        check_logs_automatically=check_logs_automatically,
-    )
+    _finalize_published_bytes(patched, build, fun_patches, applied,
+                              check_logs_automatically=check_logs_automatically)
     return _result(
         build,
         source,
@@ -10070,10 +10068,8 @@ def dry_run_all(
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
         fun_patches = _attach_automatic_companions(build.id, fun_patches)
-        _finalize_published_bytes(
-            patched, build, fun_patches, applied,
-            check_logs_automatically=check_logs_automatically,
-        )
+        _finalize_published_bytes(patched, build, fun_patches, applied,
+                                  check_logs_automatically=check_logs_automatically)
         results.append(
             _result(
                 build,
@@ -12326,10 +12322,8 @@ def apply_patch(
     # Then the game-start loader, for every build that ships a companion DLL
     # (see STARTUP_LOADER_DLL): every companion is loaded and armed at the
     # C runtime's call of WinMain, before any village loads.
-    _finalize_published_bytes(
-        patched, build, fun_patches, applied,
-        check_logs_automatically=check_logs_automatically,
-    )
+    _finalize_published_bytes(patched, build, fun_patches, applied,
+                              check_logs_automatically=check_logs_automatically)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
