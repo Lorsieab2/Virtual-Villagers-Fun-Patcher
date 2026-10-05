@@ -65,6 +65,7 @@
 #include "../shared/custom_titles.h"
 #include "../shared/sidecar_io.h"
 #include "../shared/save_folder.h"
+#include "../shared/patcher_files.h"
 #include "story_targets.h"
 #include "story_custom.h"
 

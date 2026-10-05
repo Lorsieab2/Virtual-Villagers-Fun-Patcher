@@ -1053,26 +1053,13 @@ static int vv_read_mask_sidecar(void) {
 static int vvfp_fix_huts_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
 
 static void vvfp_fix_huts_bridge(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     int (__stdcall *install)(int game_id);
     if (vvfp_fix_huts_state != 0) {
         return;
     }
     vvfp_fix_huts_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Fix Huts.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP Fix Huts.dll") ? vvfp_load_patcher_dll("VVFP Fix Huts.dll") : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1289,11 +1276,16 @@ static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int c
    across all 5 games): 240x65 = SIX 40x65 cells, cell index == mask value
    (0 = none/blank, 1..5 = Blue/Orange/Red/Purple/Chief), front frame, ~90% fill.
    scale-to-fit the control preserving aspect, centred; cell 0 draws "(none)". */
-#define VV_MASK_SHEET L"Images\\vvfp_mask_preview.png"
+/* Only this companion reads the sheet, so it ships in the patcher's folder
+   ("Virtual Villagers Fun Patcher Files\\Images\\vvfp_mask_preview.png") and
+   is opened by its full path from the executable's own path -- never from the
+   current directory, and with the wide API (native/shared/patcher_files.h). */
+#define VV_MASK_SHEET "Images\\vvfp_mask_preview.png"
 #define VV_MASK_CELL_W 40
 #define VV_MASK_CELL_H 65
 static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
     GpBitmap *bitmap = NULL;
+    wchar_t sheet[VVFP_PATCHER_FILES_PATH_CAP];
     int dstw = rc.right - rc.left;
     int dsth = rc.bottom - rc.top;
     FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
@@ -1310,7 +1302,8 @@ static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
         return;
     }
     vv4_ensure_gdiplus();
-    if (GdipCreateBitmapFromFile(VV_MASK_SHEET, &bitmap) == 0 && bitmap != NULL) {
+    if (vvfp_patcher_file_path_w(sheet, VVFP_PATCHER_FILES_PATH_CAP, VV_MASK_SHEET) != 0
+        && GdipCreateBitmapFromFile(sheet, &bitmap) == 0 && bitmap != NULL) {
         GpGraphics *graphics = NULL;
         if (GdipCreateFromHDC(hdc, &graphics) == 0 && graphics != NULL) {
             double scale_x = (double)dstw / VV_MASK_CELL_W;

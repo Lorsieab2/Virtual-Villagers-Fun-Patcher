@@ -77,6 +77,7 @@
 #include "village_identity.h"
 #include "village_rename.h"
 #include "save_folder.h"
+#include "patcher_files.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
@@ -2173,28 +2174,10 @@ static int publisher_state;         /* 0 unknown, 1 present, -1 absent */
 static int deaths_recorder_present(void);
 
 static int statistics_publisher_present(void) {
-    wchar_t path[MAX_PATH];
-    wchar_t *slash;
-    DWORD n;
-    static const wchar_t name[] = L"VVFP Statistics Export.dll";
-
     if (publisher_state != 0) {
         return publisher_state == 1;
     }
-    publisher_state = -1;
-    n = GetModuleFileNameW(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = wcsrchr(path, L'\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof(name) / sizeof(name[0]) > MAX_PATH) {
-        return 0;
-    }
-    wcscpy(slash + 1, name);
-    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
-        publisher_state = 1;
-    }
+    publisher_state = vvfp_patcher_file_exists("VVFP Statistics Export.dll") ? 1 : -1;
     return publisher_state == 1;
 }
 
@@ -2223,11 +2206,7 @@ static int cause_of_death_publishes(int game_id) {
     static cause_names_village_t names;
     static cause_arm_save_t arm_save;
     int state;
-    wchar_t path[MAX_PATH];
-    wchar_t *slash;
-    DWORD n;
     HMODULE module;
-    static const wchar_t file[] = L"VVFP Cause of Death.dll";
 
     if (cause_state != 0) {
         return 0;
@@ -2237,18 +2216,7 @@ static int cause_of_death_publishes(int game_id) {
         return 0;
     }
     if (names == NULL) {
-        module = GetModuleHandleW(file);
-        if (module == NULL) {
-            n = GetModuleFileNameW(NULL, path, MAX_PATH);
-            slash = n != 0 && n < MAX_PATH ? wcsrchr(path, L'\\') : NULL;
-            if (slash == NULL
-                || (size_t)(slash + 1 - path) + sizeof(file) / sizeof(file[0]) > MAX_PATH) {
-                cause_state = -1;
-                return 0;
-            }
-            wcscpy(slash + 1, file);
-            module = LoadLibraryW(path);
-        }
+        module = vvfp_patcher_dll("VVFP Cause of Death.dll");
         if (module == NULL
             || GetProcAddress(module, "VvfpCauseInstall") == NULL) {
             cause_state = -1;
@@ -2890,9 +2858,6 @@ static int vv1_parentage_state;   /* 0 = not tried, 1 = resolved, -1 = unavailab
 static vv1_parentage_conceived_t vv1_parentage_conceived;
 
 static void vv1_parentage_bridge(const void *records, const void *mother, const void *father) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     if (vv1_parentage_state == 1) {
         vv1_parentage_conceived(records, mother, father);
@@ -2902,17 +2867,7 @@ static void vv1_parentage_bridge(const void *records, const void *mother, const 
         return;
     }
     vv1_parentage_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
     if (companion == NULL) {
         return;
     }
@@ -3565,28 +3520,11 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
    the statistics publisher's is. Without it no Deaths log is created empty. */
 static int deaths_recorder_present(void) {
     static int state;                 /* 0 unknown, 1 present, -1 absent */
-    wchar_t path[MAX_PATH];
-    wchar_t *slash;
-    DWORD n;
-    static const wchar_t name[] = L"VVFP Cause of Death.dll";
 
     if (state != 0) {
         return state == 1;
     }
-    state = -1;
-    n = GetModuleFileNameW(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = wcsrchr(path, L'\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof(name) / sizeof(name[0]) > MAX_PATH) {
-        return 0;
-    }
-    wcscpy(slash + 1, name);
-    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
-        state = 1;
-    }
+    state = vvfp_patcher_file_exists("VVFP Cause of Death.dll") ? 1 : -1;
     return state == 1;
 }
 
@@ -3598,29 +3536,15 @@ static int deaths_recorder_present(void) {
    its export only notes the child's record.  Absent (its row off): nothing. */
 static void tell_cause_of_death_birth(int game_id, const void *child_record) {
     typedef void (__stdcall *note_fn)(int, const void *);
-    wchar_t path[MAX_PATH];
-    wchar_t *slash;
-    DWORD n;
     HMODULE module;
     note_fn note;
-    static const wchar_t name[] = L"VVFP Cause of Death.dll";
 
     if (child_record == NULL || !deaths_recorder_present()) {
         return;
     }
-    module = GetModuleHandleW(name);
+    module = vvfp_patcher_dll("VVFP Cause of Death.dll");
     if (module == NULL) {
-        n = GetModuleFileNameW(NULL, path, MAX_PATH);
-        slash = n != 0 && n < MAX_PATH ? wcsrchr(path, L'\\') : NULL;
-        if (slash == NULL
-            || (size_t)(slash + 1 - path) + sizeof(name) / sizeof(name[0]) > MAX_PATH) {
-            return;
-        }
-        wcscpy(slash + 1, name);
-        module = LoadLibraryW(path);
-        if (module == NULL) {
-            return;
-        }
+        return;
     }
     note = (note_fn)GetProcAddress(module, "VvfpCauseNoteArrival");
     if (note != NULL) {

@@ -17,8 +17,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+import patcher_files
 
-TRANSPARENCY_FILENAME = "VVFP Transparency Log.txt"
+TRANSPARENCY_FILENAME = patcher_files.TRANSPARENCY_FILENAME
+# Both reports are in the patcher's folder beside the executable.
+TRANSPARENCY_RELATIVE_PATH = patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix()
 PATCHER_VERSION = "v1.35.58"
 
 # The newest version already published as a GitHub release. PATCHER_VERSION
@@ -297,7 +300,10 @@ def build_transparency_data(
     root: Path,
 ) -> dict[str, Any]:
     fun_patches = list(fun_patches)
-    generated = {TRANSPARENCY_FILENAME, output.with_suffix(".patch-log.json").name}
+    generated = {
+        TRANSPARENCY_RELATIVE_PATH,
+        patcher_files.patch_log_relative_path(output.name).as_posix(),
+    }
     comparison = directory_comparison(
         source_folder, output_folder, generated_names=generated
     )
@@ -353,7 +359,7 @@ def build_transparency_data(
                 "runtime_player_confirmation": "pending; no game launch is performed by the patcher",
             },
             "transparency_log": {
-                "path": TRANSPARENCY_FILENAME,
+                "path": TRANSPARENCY_RELATIVE_PATH,
                 "sha256": None,
             },
         }
@@ -601,11 +607,13 @@ def write_transparency_artifacts(
         root=root,
     )
     text = render_transparency_text(data)
-    text_path = output.parent / TRANSPARENCY_FILENAME
+    text_path = output.parent / TRANSPARENCY_RELATIVE_PATH
+    text_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.parent.mkdir(parents=True, exist_ok=True)
     encoded = text.encode("utf-8")
     text_hash = hashlib.sha256(encoded).hexdigest().upper()
     data["transparency_log"]["sha256"] = text_hash
-    data["transparency_log_path"] = TRANSPARENCY_FILENAME
+    data["transparency_log_path"] = TRANSPARENCY_RELATIVE_PATH
     data["transparency_log_sha256"] = text_hash
     _atomic_write(text_path, encoded)
     try:

@@ -620,21 +620,12 @@ static vv1_set_parents_fn vv1_parents_export(void) {
     static int state;
     static vv1_set_parents_fn set_parents;
     if (state == 0) {
-        char path[MAX_PATH];
-        char *slash;
-        DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
-        HMODULE module;
+        HMODULE module = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
         state = -1;
-        slash = n > 0 && n < MAX_PATH ? strrchr(path, '\\') : NULL;
-        if (slash != NULL
-            && (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") <= sizeof path) {
-            lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
-            module = LoadLibraryA(path);
-            if (module != NULL) {
-                set_parents = (vv1_set_parents_fn)GetProcAddress(module, "Vv1ParentageSetParents");
-                if (set_parents != NULL) {
-                    state = 1;
-                }
+        if (module != NULL) {
+            set_parents = (vv1_set_parents_fn)GetProcAddress(module, "Vv1ParentageSetParents");
+            if (set_parents != NULL) {
+                state = 1;
             }
         }
     }

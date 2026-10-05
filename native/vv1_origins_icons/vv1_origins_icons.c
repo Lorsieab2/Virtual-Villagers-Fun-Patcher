@@ -1384,9 +1384,6 @@ static vv1_numkeys_tick_t vv1_numkeys_tick;
 static vv1_numkeys_update_t vv1_numkeys_update;
 
 static int vv1_numkeys_resolve(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE keys;
     if (vv1_numkeys_bridge_state == 1) {
         return 1;
@@ -1394,19 +1391,8 @@ static int vv1_numkeys_resolve(void) {
     if (vv1_numkeys_bridge_state != 0) {
         return 0;
     }
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        vv1_numkeys_bridge_state = -1;
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Number Keys.dll") > sizeof(path)) {
-        vv1_numkeys_bridge_state = -1;
-        return 0;
-    }
-    lstrcpyA(slash + 1, "VVFP VV1 Number Keys.dll");
-    keys = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    keys = vvfp_startup_ships("VVFP VV1 Number Keys.dll")
+        ? vvfp_load_patcher_dll("VVFP VV1 Number Keys.dll") : NULL;
     if (keys == NULL) {
         vv1_numkeys_bridge_state = -1;   /* not shipped: the row is off */
         return 0;
@@ -1461,25 +1447,12 @@ static vv1_sort_step_t vv1_sort_step;
 static vv1_sort_draw_t vv1_sort_draw;
 
 static int vv1_parentage_resolve(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     if (vv1_parentage_state != 0) {
         return vv1_parentage_state == 1;
     }
     vv1_parentage_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") > sizeof(path)) {
-        return 0;
-    }
-    lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP VV1 Parentage.dll") ? vvfp_load_patcher_dll("VVFP VV1 Parentage.dll") : NULL;
     if (companion == NULL) {
         return 0;                 /* not shipped: the row is off */
     }
@@ -1504,26 +1477,13 @@ static int vv1_parentage_resolve(void) {
 static int vvfp_pathfinding_state;  /* 0 = not tried, 1 = installed, -1 = unavailable */
 
 static void vvfp_pathfinding_bridge(int game_id) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     int (__stdcall *install)(int game_id);
     if (vvfp_pathfinding_state != 0) {
         return;
     }
     vvfp_pathfinding_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Improved Pathfinding.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP Improved Pathfinding.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP Improved Pathfinding.dll") ? vvfp_load_patcher_dll("VVFP Improved Pathfinding.dll") : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1541,26 +1501,13 @@ static void vvfp_pathfinding_bridge(int game_id) {
 static int vvfp_fix_huts_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
 
 static void vvfp_fix_huts_bridge(int game_id) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     int (__stdcall *install)(int game_id);
     if (vvfp_fix_huts_state != 0) {
         return;
     }
     vvfp_fix_huts_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Fix Huts.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP Fix Huts.dll") ? vvfp_load_patcher_dll("VVFP Fix Huts.dll") : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1579,26 +1526,13 @@ static void vvfp_fix_huts_bridge(int game_id) {
 static int vvfp_lesson_cap_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
 
 static void vvfp_lesson_cap_bridge(int game_id) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     int (__stdcall *install)(int game_id);
     if (vvfp_lesson_cap_state != 0) {
         return;
     }
     vvfp_lesson_cap_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Lesson Cap.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP Lesson Cap.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP Lesson Cap.dll") ? vvfp_load_patcher_dll("VVFP Lesson Cap.dll") : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1617,26 +1551,13 @@ static void vvfp_lesson_cap_bridge(int game_id) {
 static int vvfp_healers_study_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
 
 static void vvfp_healers_study_bridge(int game_id) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     int (__stdcall *install)(int game_id);
     if (vvfp_healers_study_state != 0) {
         return;
     }
     vvfp_healers_study_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Healers Study.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP Healers Study.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP Healers Study.dll") ? vvfp_load_patcher_dll("VVFP Healers Study.dll") : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1654,26 +1575,13 @@ static void vvfp_healers_study_bridge(int game_id) {
 static int vv1_watering_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
 
 static void vv1_watering_bridge(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     int (__stdcall *install)(void);
     if (vv1_watering_state != 0) {
         return;
     }
     vv1_watering_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Watering Builds.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP VV1 Watering Builds.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP VV1 Watering Builds.dll") ? vvfp_load_patcher_dll("VVFP VV1 Watering Builds.dll") : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1688,25 +1596,12 @@ static void vv1_watering_bridge(void) {
    select, and the Details portrait hook lets it draw its band.  Same
    loading rule as the other companions; fail-open. */
 static int vv1_sort_resolve(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     if (vv1_sort_state != 0) {
         return vv1_sort_state == 1;
     }
     vv1_sort_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Sort By.dll") > sizeof(path)) {
-        return 0;
-    }
-    lstrcpyA(slash + 1, "VVFP VV1 Sort By.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP VV1 Sort By.dll") ? vvfp_load_patcher_dll("VVFP VV1 Sort By.dll") : NULL;
     if (companion == NULL) {
         return 0;                 /* not shipped: the row is off */
     }

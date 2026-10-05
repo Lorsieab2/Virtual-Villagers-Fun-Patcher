@@ -145,22 +145,13 @@ static int story_log_conception(int game, const void *records, const void *mothe
         return 0;
     }
     if (state == 0) {
-        char path[MAX_PATH];
-        char *slash;
-        DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
-        HMODULE module;
+        HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
         state = -1;
-        slash = n > 0 && n < MAX_PATH ? strrchr(path, '\\') : NULL;
-        if (slash != NULL
-            && (size_t)(slash + 1 - path) + sizeof("VVFP Parentage Export.dll") <= sizeof path) {
-            lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
-            module = LoadLibraryA(path);
-            if (module != NULL) {
-                write_record = (write_parentage_fn)GetProcAddress(module,
-                                                                  "WriteParentageRecordWithFather");
-                if (write_record != NULL) {
-                    state = 1;
-                }
+        if (module != NULL) {
+            write_record = (write_parentage_fn)GetProcAddress(module,
+                                                              "WriteParentageRecordWithFather");
+            if (write_record != NULL) {
+                state = 1;
             }
         }
     }

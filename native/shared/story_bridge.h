@@ -16,6 +16,7 @@
 #include <windows.h>
 #include <string.h>
 #include "startup_companions.h" /* only the companions this build ships */
+#include "patcher_files.h"       /* the patcher's folder; full-path, wide loads */
 
 #define VVFP_STORY_DLL "VVFP Story Upgrades.dll"
 /* The Pick Island Event button the Tech menu gains while the row is active.
@@ -53,24 +54,12 @@ static vvfp_story_pick_fn vvfp_story_custom;
 static vvfp_story_attach_fn vvfp_story_attach;
 
 static int vvfp_story_load(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE module;
     if (vvfp_story_state != 0) {
         return vvfp_story_state == 1;
     }
     vvfp_story_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL || (size_t)(slash + 1 - path) + sizeof(VVFP_STORY_DLL) > sizeof(path)) {
-        return 0;
-    }
-    lstrcpyA(slash + 1, VVFP_STORY_DLL);
-    module = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    module = vvfp_startup_ships(VVFP_STORY_DLL) ? vvfp_load_patcher_dll(VVFP_STORY_DLL) : NULL;
     if (module == NULL) {
         return 0;                     /* not shipped: the row is off */
     }

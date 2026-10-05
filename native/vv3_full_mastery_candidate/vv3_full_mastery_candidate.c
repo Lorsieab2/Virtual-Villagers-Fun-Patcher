@@ -215,13 +215,13 @@ static void *g_mask_atlas;
 /* Compare an installed file with the exact embedded RCDATA.  A merely present PNG
    is not enough: the stock loader assumes the canonical 520x725 atlas and can
    dereference an incomplete/stale image while constructing its object. */
-static BOOL vv3_file_matches_blob(const char *path, const void *data, DWORD size) {
+static BOOL vv3_file_matches_blob(const wchar_t *path, const void *data, DWORD size) {
     HANDLE fh;
     LARGE_INTEGER length;
     unsigned char buffer[4096];
     DWORD offset = 0, want, got;
     BOOL same = TRUE;
-    fh = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+    fh = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                      FILE_ATTRIBUTE_NORMAL, NULL);
     if (fh == INVALID_HANDLE_VALUE) return FALSE;
     if (!GetFileSizeEx(fh, &length) || length.QuadPart != (LONGLONG)size) {
@@ -243,30 +243,32 @@ static BOOL vv3_file_matches_blob(const char *path, const void *data, DWORD size
 }
 
 /* Self-deploy the canonical embedded atlas (RCDATA 5000) into
-   <game>\Images\heathen_masks.png.  Existing non-canonical/stale art is replaced
-   through a sibling temp file and an atomic MoveFileExA publish.  The return value
+   <game>\Images\heathen_masks.png (the game's own sprite loader reads it there,
+   so it stays in place, not in the patcher's folder).  Existing
+   non-canonical/stale art is replaced through a sibling temp file and an atomic
+   MoveFileExW publish.  Wide paths from the executable's own path
+   (native/shared/patcher_files.h), so a game folder the ANSI code page cannot
+   spell still gets its atlas.  The return value
    is deliberately part of the loader gate: no valid canonical file means the
    unsafe game atlas constructor is never called. */
 static BOOL vv3_extract_mask_atlas(void) {
-    char exe[MAX_PATH], images[MAX_PATH], path[MAX_PATH], tmp[MAX_PATH];
-    char *base, *p;
+    wchar_t images[VVFP_PATCHER_FILES_PATH_CAP];
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    wchar_t tmp[VVFP_PATCHER_FILES_PATH_CAP];
     HRSRC res;
     HGLOBAL blob;
     const void *data;
     DWORD size, written;
     HANDLE fh;
     BOOL ok;
-    DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) return FALSE;
-    base = exe;
-    for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
-    *base = '\0';                                    /* game directory + trailing slash */
-    /* Budget both the final path and the ".tmp" staging name (longest suffix). */
-    if (lstrlenA(exe) + (int)sizeof("Images\\heathen_masks.png.tmp") >= (int)sizeof(path)) return FALSE;
-    wsprintfA(images, "%sImages", exe);
-    if (!CreateDirectoryA(images, NULL)
+    /* All three names, or nothing is written. */
+    if (vvfp_game_file_path_w(images, VVFP_PATCHER_FILES_PATH_CAP, "Images") == 0
+        || vvfp_game_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, "Images\\heathen_masks.png") == 0
+        || vvfp_game_file_path_w(tmp, VVFP_PATCHER_FILES_PATH_CAP, "Images\\heathen_masks.tmp") == 0) {
+        return FALSE;
+    }
+    if (!CreateDirectoryW(images, NULL)
         && GetLastError() != ERROR_ALREADY_EXISTS) return FALSE;
-    wsprintfA(path, "%sImages\\heathen_masks.png", exe);
     res = FindResourceA(module_instance, MAKEINTRESOURCEA(5000), RT_RCDATA);
     if (res == NULL) return FALSE;
     size = SizeofResource(module_instance, res);
@@ -278,19 +280,18 @@ static BOOL vv3_extract_mask_atlas(void) {
     /* Write to a sibling ".tmp" first, verify the FULL payload landed, then publish
        with MoveFileExA.  A short/interrupted write can never leave a truncated
        heathen_masks.png that the loader could consume. */
-    wsprintfA(tmp, "%sImages\\heathen_masks.tmp", exe);
-    fh = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+    fh = CreateFileW(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                      FILE_ATTRIBUTE_NORMAL, NULL);
     if (fh == INVALID_HANDLE_VALUE) return FALSE;
     written = 0;
     ok = WriteFile(fh, data, size, &written, NULL);
     CloseHandle(fh);
     if (!ok || written != size) {                    /* short write -> discard staging */
-        DeleteFileA(tmp);
+        DeleteFileW(tmp);
         return FALSE;
     }
-    if (!MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileA(tmp);
+    if (!MoveFileExW(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileW(tmp);
         return FALSE;
     }
     return vv3_file_matches_blob(path, data, size);

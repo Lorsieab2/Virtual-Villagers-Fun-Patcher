@@ -56,6 +56,7 @@
 
 #include <windows.h>
 #include "save_folder.h"
+#include "patcher_files.h"
 #include "custom_titles.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -705,25 +706,12 @@ static vv1_parents_query_t vv1_parents_query;
 static vv1_parents_names_t vv1_parents_names;
 
 static int vv1_parents_resolve(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     if (vv1_parents_state != 0) {
         return vv1_parents_state == 1;
     }
     vv1_parents_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") > sizeof(path)) {
-        return 0;
-    }
-    lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
     if (companion == NULL) {
         return 0;
     }
@@ -775,18 +763,7 @@ static void ensure_parentage_log_for_village(int game_id, const char *village,
     }
     if (parentage_log_state == 0) {
         parentage_log_state = -1;
-        n = GetModuleFileNameA(NULL, path, MAX_PATH);
-        if (n == 0 || n >= MAX_PATH) {
-            return;
-        }
-        slash = strrchr(path, '\\');
-        if (slash == NULL
-            || (size_t)(slash + 1 - path)
-               + sizeof("VVFP Parentage Export.dll") > sizeof(path)) {
-            return;
-        }
-        lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
-        companion = LoadLibraryA(path);
+        companion = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
         if (companion == NULL) {
             return;
         }

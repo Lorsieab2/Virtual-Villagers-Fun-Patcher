@@ -78,6 +78,7 @@
 
 #include <windows.h>
 #include <string.h>
+#include "patcher_files.h"
 
 #define VVFP_XC_PARENTAGE_DLL "VVFP VV1 Parentage.dll"
 #define VVFP_XC_CAUSE_DLL     "VVFP Cause of Death.dll"
@@ -106,26 +107,15 @@ static FARPROC vvfp_xc_proc(const char *module, const char *name) {
 #endif
 /* A companion that may not be loaded yet (the statistics companion, loaded
    by the executable at its first save): the one already loaded, else the
-   file of that name beside the executable, loaded by full path; NULL when
-   it is not there (its row is off). */
+   file of that name in the patcher's folder beside the executable, loaded
+   by full path (native/shared/patcher_files.h); NULL when it is not there
+   (its row is off). */
 #ifndef VVFP_XC_LOAD
 #define VVFP_XC_LOAD(module, name) vvfp_xc_load(module, name)
 static FARPROC vvfp_xc_load(const char *module, const char *name) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE m = GetModuleHandleA(module);
-    if (m == NULL) {
-        n = GetModuleFileNameA(NULL, path, MAX_PATH);
-        slash = n != 0 && n < MAX_PATH ? strrchr(path, '\\') : NULL;
-        if (slash == NULL || (size_t)(slash + 1 - path) + lstrlenA(module) + 1 > MAX_PATH) {
-            return NULL;
-        }
-        lstrcpyA(slash + 1, module);
-        if (GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES) {
-            return NULL;
-        }
-        m = vvfp_startup_ships(module) ? LoadLibraryA(path) : NULL;
+    if (m == NULL && vvfp_startup_ships(module) && vvfp_patcher_file_exists(module)) {
+        m = vvfp_load_patcher_dll(module);
     }
     return m != NULL ? GetProcAddress(m, name) : NULL;
 }

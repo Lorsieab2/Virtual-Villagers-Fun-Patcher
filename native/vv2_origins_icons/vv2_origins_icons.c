@@ -2173,7 +2173,7 @@ static DWORD vv2_be32(const BYTE *value) {
         | ((DWORD)value[2] << 8) | (DWORD)value[3];
 }
 
-static int vv2_legacy_atlas_identity(const char *filename) {
+static int vv2_legacy_atlas_identity(const wchar_t *filename) {
     static const BYTE png_signature[8] = {
         0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
     };
@@ -2189,7 +2189,7 @@ static int vv2_legacy_atlas_identity(const char *filename) {
     int known_size = 0;
     int legacy = 0;
 
-    file = CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+    file = CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                         FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) return 0;
     if (!GetFileSizeEx(file, &file_size) || file_size.HighPart != 0) goto done;
@@ -2270,13 +2270,12 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
    Each bridge installs once; the sweep keeps calling them, a no-op after
    this. */
 void __stdcall Vv2ExtractAtlas(void) {
-    char path[MAX_PATH];
-    char tmp[MAX_PATH];
-    int i, last = -1, dirlen;
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    wchar_t tmp[VVFP_PATCHER_FILES_PATH_CAP];
     HRSRC res;
     HGLOBAL h;
     void *p;
-    DWORD sz, w, n;
+    DWORD sz, w;
     HANDLE f;
     BOOL ok;
     BOOL replace_legacy = FALSE;
@@ -2286,20 +2285,19 @@ void __stdcall Vv2ExtractAtlas(void) {
     vvfp_healers_study_bridge(2);
     vvfp_story_bridge(2);
     vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
-    n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
-    for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
-    if (last < 0) return;
-    path[last] = 0;                               /* path = exe directory */
-    dirlen = lstrlenA(path);
-    /* Guard against MAX_PATH overflow: a short renamed exe near the path limit can
-       still fit GetModuleFileNameA yet overflow once we append the sub-path. Need
-       room for "\\Images\\heathen_masks.png" AND the ".tmp" staging suffix. */
-    if (dirlen + (int)sizeof("\\Images\\heathen_masks.png.tmp") >= MAX_PATH) return;
-    lstrcatA(path, "\\Images");
-    CreateDirectoryA(path, NULL);
-    lstrcatA(path, "\\heathen_masks.png");
-    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) {
+    /* The game's own Images folder beside the executable: the game's sprite
+       loader reads the atlas from there, so it stays in place (not in the
+       patcher's folder).  Wide paths, built from the executable's own path
+       (native/shared/patcher_files.h), so a game folder the ANSI code page
+       cannot spell still gets its atlas; the ".tmp" staging name is built the
+       same way, so if either does not fit nothing is written. */
+    if (vvfp_game_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, "Images") == 0) return;
+    CreateDirectoryW(path, NULL);
+    if (vvfp_game_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, "Images\\heathen_masks.png") == 0
+        || vvfp_game_file_path_w(tmp, VVFP_PATCHER_FILES_PATH_CAP, "Images\\heathen_masks.png.tmp") == 0) {
+        return;
+    }
+    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
         if (!vv2_legacy_atlas_identity(path)) return;  /* preserve current/custom art */
         replace_legacy = TRUE;
     }
@@ -2311,26 +2309,24 @@ void __stdcall Vv2ExtractAtlas(void) {
     sz = SizeofResource(module_instance, res);
     if (p == NULL || sz == 0) return;
     /* Write to a temp file, verify the FULL payload landed, then atomically publish
-       via MoveFileA. A disk-full / short WriteFile therefore never leaves a
+       via MoveFileExW. A disk-full / short WriteFile therefore never leaves a
        zero-length or truncated heathen_masks.png that the loader would choke on. */
-    lstrcpyA(tmp, path);
-    lstrcatA(tmp, ".tmp");
-    f = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    f = CreateFileW(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) return;         /* can't write -> skip */
     ok = WriteFile(f, p, sz, &w, NULL);
     CloseHandle(f);
-    if (!ok || w != sz) { DeleteFileA(tmp); return; }   /* incomplete write -> discard */
+    if (!ok || w != sz) { DeleteFileW(tmp); return; }   /* incomplete write -> discard */
     /* Re-check before replacing: if the old file was edited while the resource
        was being prepared, preserve the newly-customized art.  A new file that
        appears during this call is never overwritten because replacement is
        enabled only for the exact legacy identity seen above. */
     if (replace_legacy && !vv2_legacy_atlas_identity(path)) {
-        DeleteFileA(tmp);
+        DeleteFileW(tmp);
         return;
     }
-    if (!MoveFileExA(tmp, path,
+    if (!MoveFileExW(tmp, path,
             (replace_legacy ? MOVEFILE_REPLACE_EXISTING : 0) | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileA(tmp);        /* publish failed or lost a race -> clean up */
+        DeleteFileW(tmp);        /* publish failed or lost a race -> clean up */
     }
 }
 

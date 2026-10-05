@@ -13,14 +13,15 @@
    HOW.  The patcher appends one small section to every executable it ships
    with a companion DLL (src/vv_fun_patcher.py, _apply_startup_loader).  Its
    stub replaces the C runtime's `call WinMain`: it loads this DLL by its
-   full path in the executable's own folder, calls VvfpStartup(game), and
+   full path in the "Virtual Villagers Fun Patcher Files" folder beside the
+   executable (the wide API), calls VvfpStartup(game), and
    then enters WinMain exactly as before.  That is the first point that is
    both the game's own thread and outside the loader lock (DllMain is never
    used), and it precedes the window, the title screen, the slot menu and
    every load.
 
    WHAT.  VvfpStartup loads this game's companions by full path from the
-   same folder -- the Origins companion first, whose own VvfpStartup loads
+   same folder (native/shared/patcher_files.h) -- the Origins companion first, whose own VvfpStartup loads
    and installs the runtime companions with its host table (Cause of Death,
    Story / Cheat Upgrades, Builders Fix Huts When Idle and Work First, the
    lesson caps, Healers Study, Improved Pathfinding, Watering Builds), then
@@ -50,6 +51,7 @@
 #include <windows.h>
 #include <string.h>
 #include "../shared/startup_companions.h"
+#include "../shared/patcher_files.h"
 
 #define VVFP_STARTUP_GAMES 5
 
@@ -72,23 +74,11 @@ static const char GOLDEN_MUSHROOM[] = "VVFP Golden Mushroom.dll";
 typedef void (__stdcall *vvfp_startup_fn)(int game, unsigned int shipped);
 typedef int (__stdcall *vvfp_golden_install_fn)(void);
 
-/* Load `name` from the executable's own folder; NULL when it is not there
-   or does not load.  Never a bare name: the search order is never used. */
+/* Load `name` from the patcher's folder beside the executable, by its full
+   path (native/shared/patcher_files.h: the wide API, never the search
+   order); NULL when it is not there or does not load. */
 static HMODULE load_beside_executable(const char *name) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
-    size_t length = strlen(name);
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return NULL;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL || (size_t)(slash + 1 - path) + length + 1 > sizeof(path)) {
-        return NULL;
-    }
-    memcpy(slash + 1, name, length + 1);
-    return LoadLibraryA(path);        /* NULL when not shipped: that row is off */
+    return vvfp_load_patcher_dll(name);   /* NULL when not shipped: that row is off */
 }
 
 /* Load `name`; ask it to arm itself when it exports VvfpStartup (the Golden

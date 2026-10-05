@@ -75,6 +75,7 @@
 #include <stdint.h>
 #include "sidecar_io.h"
 #include "save_folder.h"
+#include "patcher_files.h"
 #include "grave_backfill.h"
 #include "arrival_backfill.h"
 #include "data_subfolder.h"   /* each kind of data file in its own folder */
@@ -355,33 +356,25 @@ static vv_record_arrivals_fn record_arrivals;
 /* RecordBirthsMissingFromLog (cod_arrivals.inc). */
 static vv_record_births_fn record_births;
 
-/* "VVFP Parentage Export.dll", loaded by full path from the executable's
-   folder the first time; absent (the Births and Conceptions row off), no
-   log is written. */
+/* "VVFP Parentage Export.dll", loaded by full path from the patcher's
+   folder beside the executable the first time (native/shared/
+   patcher_files.h); absent (the Births and Conceptions row off), no log is
+   written. */
 static int cod_log_ready(void) {
     if (log_state == 0) {
-        char path[MAX_PATH];
-        char *slash;
-        DWORD n;
         HMODULE module;
         log_state = -1;
-        n = GetModuleFileNameA(NULL, path, MAX_PATH);
-        slash = n != 0 && n < MAX_PATH ? strrchr(path, '\\') : NULL;
-        if (slash != NULL
-            && (size_t)(slash + 1 - path) + sizeof("VVFP Parentage Export.dll") <= sizeof(path)) {
-            lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
-            module = LoadLibraryA(path);
-            if (module != NULL) {
-                write_record = (write_record_fn)GetProcAddress(module, "WriteVillageRecord");
-                publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
-                release_held = (release_held_fn)GetProcAddress(module, "ReleaseHeldRecords");
-                record_graves = (vv_record_graves_fn)GetProcAddress(module, "RecordGravesMissingFromLog");
-                record_arrivals = (vv_record_arrivals_fn)GetProcAddress(module,
-                                                                        "RecordArrivalsMissingFromLog");
-                record_births = (vv_record_births_fn)GetProcAddress(module, "RecordBirthsMissingFromLog");
-                if (write_record != NULL) {
-                    log_state = 1;
-                }
+        module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        if (module != NULL) {
+            write_record = (write_record_fn)GetProcAddress(module, "WriteVillageRecord");
+            publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
+            release_held = (release_held_fn)GetProcAddress(module, "ReleaseHeldRecords");
+            record_graves = (vv_record_graves_fn)GetProcAddress(module, "RecordGravesMissingFromLog");
+            record_arrivals = (vv_record_arrivals_fn)GetProcAddress(module,
+                                                                    "RecordArrivalsMissingFromLog");
+            record_births = (vv_record_births_fn)GetProcAddress(module, "RecordBirthsMissingFromLog");
+            if (write_record != NULL) {
+                log_state = 1;
             }
         }
     }

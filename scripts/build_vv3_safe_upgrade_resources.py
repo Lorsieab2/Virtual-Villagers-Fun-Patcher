@@ -65,8 +65,13 @@ FOUNDATION_OUTPUT = (
 # over an existing file; if it will not move, the loose file stays in use),
 # and then again when it reserved room for a set-aside name and kept a
 # loose file whose folder path would not fit.
-SOURCE_SHA256 = "B1047327DB93B6155A15210C22F1E5DE188E8B07DE3BD04B868A0DBF92DD7ED0"
-SOURCE_SIZE = 1915392
+# Recertified when every companion moved into "Virtual Villagers Fun Patcher
+# Files" (native/shared/patcher_files.h): the story, Cause of Death and other
+# install bridges load their DLLs by full path from that folder with the wide
+# API, and the Heathen mask atlas is written to the game's Images folder by a
+# wide path, so a game folder the ANSI code page cannot spell still works.
+SOURCE_SHA256 = "C6AE2DBAA4AD11B2A744237B0DA69C565ECE19F10E141BAD7B832007C6AE0FF4"
+SOURCE_SIZE = 1914880
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
