@@ -1,0 +1,47 @@
+{
+  "id": "vv1_restore_missing_island_events",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Restore Missing Island Events",
+  "description": "A New Home has two island events whose story and effects are complete in the game but which the original game never picks: A Mighty Storm (a typhoon washes away all of the stored food) and The Furry Food (the stored food goes moldy: remove the moldy pieces and some villagers get stomach trouble, or throw out all the food). This adds both to the game's normal random island events, with the same chance as any other event, whenever the village has stored food to lose. Their text and effects are the game's own. **Needs no other patch.**",
+  "output_tag": "Missing Island Events",
+  "behavior_changes": [
+    "A Mighty Storm (island event 1) can be chosen by the game's own island-event roll when the village has stored food; it then runs exactly as the game wrote it (all stored food is lost).",
+    "The Furry Food (villager encounter 5) can be chosen by the game's own encounter roll when the village has stored food; both of its choices run exactly as the game wrote them.",
+    "Each is offered with the same first-roll chance as every other event whose condition holds (1 in 15 among the island events, 1 in 16 among the encounters); with no stored food the game rolls again, as it does for any event that cannot happen."
+  ],
+  "explicit_non_changes": [
+    "How often island events happen, the other events, their odds and conditions, and the events' own text and effects are unchanged.",
+    "No save data changes."
+  ],
+  "evidence_status": "static exact-build evidence, emulated choosers and handlers, and live in-game confirmation (both events, both Furry Food choices, with and without food)",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x2869C",
+      "before": "D6844200",
+      "after": "EF684500",
+      "purpose": "island condition-class table entry 5 (A Mighty Storm, case 1, its only user): the stock re-roll 0x4284D6 -> the stored-food test at 0x4568EF"
+    },
+    {
+      "offset": "0x189A0",
+      "before": "30894100",
+      "after": "70664500",
+      "purpose": "encounter condition-class table entry 4 (The Furry Food, variant 5, its only user): the stock re-roll 0x418930 -> the stored-food test at 0x456670"
+    },
+    {
+      "offset": "0x568E1",
+      "before": "000000000000000000000000000000000000000000000000000000000000",
+      "after": "8B0DDCAE480083B9ECA2000000C3E8EDFFFFFF0F8EDC1BFDFFE9721DFDFF",
+      "purpose": "shared test 0x4568E1 (stored food world+0xA2EC compared with 0) and A Mighty Storm's stub 0x4568EF: no food -> stock re-roll 0x4284D6, food -> stock case run 0x428671"
+    },
+    {
+      "offset": "0x56670",
+      "before": "00000000000000000000000000000000",
+      "after": "E86C0200000F8EB522FCFFE9DD22FCFF",
+      "purpose": "The Furry Food's stub 0x456670: no food -> stock re-roll 0x418930, food -> stock variant accept 0x41895D"
+    }
+  ]
+}

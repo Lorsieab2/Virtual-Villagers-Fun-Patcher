@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Show Parents in Details Screen",
-  "description": "Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads \"Son of <name>\" or \"Daughter of <name>\". The record is kept in 'Virtual Villagers 1 Parentage Records - Save <slot>.dat' in the 'Virtual Villagers Fun Patcher Data' folder beside the saves (Documents\\LDW\\<game executable name>\\), never inside a villager record or the save itself. Each villager's entry follows that villager when the game renumbers its villagers on a load, and is never erased by death, ageing or de-ageing; a new villager starts with none. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL. **Needs Write Births and Conceptions Log to Text File on for the father**, which its conception hook supplies: with that patch off only the mother is recorded.",
+  "description": "Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads \"Son of <name>\" or \"Daughter of <name>\". The record is kept in 'Virtual Villagers 1 Parentage Records - Save <slot>.dat' in the 'Virtual Villagers Fun Patcher Data\\Parentage Records' folder beside the saves (Documents\\LDW\\<game executable name>\\), never inside a villager record or the save itself. Each villager's entry follows that villager when the game renumbers its villagers on a load, and is never erased by death, ageing or de-ageing; a new villager starts with none. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL. **Needs Write Births and Conceptions Log to Text File on for the father**, which its conception hook supplies: with that patch off only the mother is recorded.",
   "output_tag": "Show Parents",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"
@@ -31,7 +31,7 @@
     {
       "source": "assets/parentage/VVFP VV1 Parentage.dll",
       "destination": "VVFP VV1 Parentage.dll",
-      "sha256": "796C7C7A9844CC4503DD426C63CA02C325A73497F9DD683E2E87599C50784DC0"
+      "sha256": "CA2FDA47F49A6E9B66E146AF308A2EE853D3C9B4CF80A408A3C78A3196E82BF6"
     }
   ],
   "patches": []

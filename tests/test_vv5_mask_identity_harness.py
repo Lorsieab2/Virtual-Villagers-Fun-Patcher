@@ -39,7 +39,8 @@ class Vv5MaskIdentityHarnessRunsTests(unittest.TestCase):
         for case in (
             # The sidecar is looked for where the companion writes it.
             "ok   chooser write created ",
-            "Virtual Villagers Fun Patcher Data\\Village Masks - Save 1.dat",
+            # ...in the masks' own folder (native/shared/data_subfolder.h).
+            "Virtual Villagers Fun Patcher Data\\Village Masks\\Village Masks - Save 1.dat",
             "ok   file is magic + 150 roster dwords + 75-byte table",
             "ok   file magic is 'VM06'",
             "ok   back to slot 1: A's masks reload from its file",

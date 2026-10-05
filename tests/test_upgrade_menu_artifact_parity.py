@@ -403,10 +403,14 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # and mask table from the image (256 Villagers (Experimental)).
         # Larger when its mask sidecar learned to follow each villager
         # through a reload (identity roster, native/shared/mask_follow.h).
-        self.assertEqual(vv5_companion["size"], 1786368)
+        # Larger again when the mask file moved into "Village Masks"
+        # (native/shared/data_subfolder.h).
+        # Larger again with the first-load cross-check prompt
+        # (native/shared/crosscheck_bridge.h).
+        self.assertEqual(vv5_companion["size"], 1788416)
         self.assertEqual(
             vv5_companion["sha256"],
-            "AE0861B82361D8BE3146324BDFBA124F7598C24B9929CCA55875002AA7DDFB71",
+            "FDBA2AC25F1001309251C27E166620B7DF3D45BFDDD6930743869F181E2A1A5F",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

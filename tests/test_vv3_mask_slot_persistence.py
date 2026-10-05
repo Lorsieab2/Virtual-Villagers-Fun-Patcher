@@ -102,8 +102,9 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn(b".vv3md", section_bytes)
 
     def test_slot_specific_path_and_fail_closed_slot_switch_are_source_guarded(self) -> None:
-        self.assertIn('Virtual Villagers Fun Patcher Data\\\\Village Masks - Save %d.dat',
-                      self.source)
+        # The file is in its own folder (native/shared/data_subfolder.h).
+        self.assertIn('wsprintfA(name, "Village Masks - Save %d.dat", slot);', self.source)
+        self.assertIn("vv_data_file_path(out, cap, VV_DATA_SUB_MASKS, name,", self.source)
         self.assertNotIn('vvfp_masks.dat', self.source)
         self.assertIn("return (slot >= 1 && slot <= 5) ? slot : 0;", self.source)
         self.assertIn("if (slot < 1 || slot > 5) return 0;", self.source)
