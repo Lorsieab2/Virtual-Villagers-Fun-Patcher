@@ -24,8 +24,9 @@ The owner's v1.35.58 live pass found two patcher bugs these cover:
 
 The emulation (scratch-built, below) executes the marker's call and every
 function on a direct-call path from it to the creator for real; every other
-call is skipped, popping what the callee's own `ret n` pops, so the frames
-on the path are exactly the game's.  Memory nobody set up reads as zero (the
+call into the game's own code is skipped, popping what the callee's own
+`ret n` pops, so the frames on the path are exactly the game's; the
+patcher's own code (a slot guard, a cave) always runs.  Memory nobody set up reads as zero (the
 stack as garbage), the game's rand cycles through every value, and the
 creator returns, by the stack pointer it was entered with, as soon as its
 hook has been reached.
@@ -77,6 +78,12 @@ CREATOR = {
 KIND = {"MARK_BIRTH": 1, "MARK_FOUNDER": 2, "MARK_EVENT": 3, "MARK_TEMPORARY": 4}
 STACK = 0x0F000000
 HEAP = 0x30000000
+# The Lost Children's slot guard (scripts/build_slot_guards.py), where a
+# marker's call goes to one, reads the village through the event object in
+# EBP before it lets the creation
+# through: an event object whose world (+0x50A4) has its villager array
+# (+0x305A4), all of it empty records.
+WORLD = {2: {"ebp": HEAP, "words": {HEAP + 0x50A4: HEAP + 0x200000, HEAP + 0x200000 + 0x305A4: HEAP + 0x400000}}}
 
 
 def have_stock() -> bool:
@@ -169,6 +176,8 @@ class Image:
         self.base = pe.OPTIONAL_HEADER.ImageBase
         self.size = (pe.OPTIONAL_HEADER.SizeOfImage + 0xFFF) & ~0xFFF
         self.img = bytes(pe.get_memory_mapped_image()[: self.size])
+        text = next(x for x in pe.sections if x.Name.rstrip(b"\0") == b".text")
+        self.text = (self.base + text.VirtualAddress, self.base + text.VirtualAddress + text.Misc_VirtualSize)
         self.md = Cs(CS_ARCH_X86, CS_MODE_32)
         self._pops: dict[int, int] = {}
         self._callees: dict[int, set] = {}
@@ -255,11 +264,22 @@ def run_to_hook(image: Image, game: int, start: int, creator: int, hook: int, *,
         return True
     uc.hook_add(UC_HOOK_MEM_UNMAPPED, unmapped)
     first = image.call_target(start)
+    guarded = first is not None and not (image.text[0] <= first < image.text[1])
+    world = WORLD.get(game, {}) if guarded else {}
+    for va, value in world.get("words", {}).items():
+        try:
+            uc.mem_map(va & ~0xFFF, 0x1000)
+        except Exception:  # noqa: BLE001 - already mapped
+            pass
+        uc.mem_write(va, struct.pack("<I", value))
+    if "ebp" in world:
+        uc.reg_write(UC_X86_REG_EBP, world["ebp"])
+    first = image.call_target(start)
     follow = image.chain(first, creator) | {first}
     pop_creator = image.callee_pop(creator)
     stacks: list[bytes] = []
     entries: list = []
-    counter = [turn]
+    counter = [turn * 37]   # another start reaches the other side of a rand(100) < 50
     error: list[str] = []
 
     def code(uc, address, size, user):
@@ -283,8 +303,8 @@ def run_to_hook(image: Image, game: int, start: int, creator: int, hook: int, *,
         b = image.code(address, 2)
         if b[:1] == b"\xE8":
             target = image.call_target(address)
-            if address == start or target in follow:
-                return
+            if address == start or target in follow or not (image.text[0] <= target < image.text[1]):
+                return       # on the path, or the patcher's own code (a guard): run for real
             esp = uc.reg_read(UC_X86_REG_ESP)
             if target == RAND[game]:
                 bound = struct.unpack("<I", uc.mem_read(esp, 4))[0] or 1
@@ -422,7 +442,7 @@ class AStoryScopeCallNamesTheGamesReturn(unittest.TestCase):
         scoped = {1: [0x41974F], 3: [0x415355, 0x415398, 0x4153DB, 0x414DB4, 0x417840]}
         for game, values in scoped.items():
             rows = {m["value"]: m for m in markers(game)}
-            for label, mode, ids in list(renders(game))[:2]:
+            for label, mode, ids in [r for r in renders(game) if f"vv{game}_story_cheat_upgrades" in r[2]]:
                 data = render(game, mode, ids)
                 for value in values:
                     m = rows[value]

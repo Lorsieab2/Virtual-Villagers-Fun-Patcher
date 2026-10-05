@@ -35,7 +35,11 @@ SHARED = ROOT / "native" / "shared"
 # one record), one more in A New Home (no Show Parents), two more in New
 # Believers (the Heathens); then the Birth records' backfill: 3 in A New Home
 # (nothing to ask about, nothing written), 16 in each later game.
-CHECKS = 33 * 5 + 1 + 2 + 3 + 16 * 4 + 9 * 5   # + 9 per game: the quit-time repairs and Start Over's approval
+# 34 in every game since the owner's v1.35.58 live pass (never a founder a
+# load put over the startup scan's seeding, nor one with parents), and two
+# more where a Story / Cheat Upgrades scope call holds an event's own call
+# (A New Home, The Secret City).
+CHECKS = 34 * 5 + 1 + 2 + 2 + 3 + 16 * 4 + 9 * 5   # + 9 per game: the quit-time repairs and Start Over's approval
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -95,8 +99,11 @@ class ArrivedRecordSource(unittest.TestCase):
             self.assertIn(f"{site}, ", sites)
         arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
         self.assertIn("m->kind == MARK_BIRTH || m->kind == MARK_TEMPORARY", arrivals)
-        # Read at fixed places, never searched for (stale locals).
-        self.assertIn("reg_stack(regs, m->offset) != m->value", arrivals)
+        # Read at fixed places, never searched for (stale locals) -- through
+        # the Story / Cheat Upgrades companion where its scope call holds the
+        # slot (tests/test_arrival_paths_emulated.py).
+        self.assertIn("arrival_slot(regs, m->offset, caller) != m->value", arrivals)
+        self.assertIn("caller(regs[R_ESP] + offset)", arrivals)
 
     def test_founders_only_at_a_first_save(self):
         arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
@@ -137,11 +144,11 @@ def marker_values(game: int) -> list[int]:
         values.append(int(row[2].rstrip("u"), 16))
         if row[4] != "0":
             values.append(int(row[4].rstrip("u"), 16))
-    seeds = re.findall(r"VV3_SEED\((0x[0-9A-F]+)u\)", table)
+    seeds = re.findall(rf"VV{game}_SEED\((0x[0-9A-F]+)u\)", table)
     if seeds:
-        block = source[source.index("#define VV3_SEED(l2)"):]
+        block = source[source.index(f"#define VV{game}_SEED(l2)"):]
         block = block[:block.index("static const")]
-        values += [int(v, 16) for v in re.findall(r"(0x[0-9A-F]+)u, 0x190u", block)]
+        values += [int(v, 16) for v in re.findall(r"(0x[0-9A-F]+)u, 0x[0-9A-F]+u, \(l2\)", block)]
         values += [int(v, 16) for v in seeds]
     return values
 

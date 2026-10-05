@@ -31,8 +31,11 @@
    age and looks), and its age then is the age at arrival.  The record is
    written at the next save of the slot it was made in, where the logs are
    named.  A founder is written only at a save with no village saved in the
-   slot before (the reconciliation's have_previous): the seeding also runs
-   ahead of loads that overwrite what it made.  A villager
+   slot before (the reconciliation's have_previous), and only from the
+   seeding's new-village callers: the startup scan's and the no-save-yet
+   seeding run ahead of a load that overwrites what they made, so theirs
+   are temporary (cod_arrival_sites.inc) -- an existing village saved for
+   the first time by this build has no Village Roster file either.  A villager
    who arrived and leaves (a burial, a disappearance) before that save gets
    the record at the departure, while the record still holds them.  Either
    way the arrival is reported to the reconciliation, so the Unaccounted
