@@ -71,7 +71,9 @@ quit save at the latest) exactly as an answered Repair always was, and anything 
 the quit save is completed there. Then the game deletes the approval: it is used once. A part that could
 not be done (a file locked) keeps the approval for the next time; a game that ends without its quit save
 (a crash) keeps it too. Start Over deletes it with the village (`native/shared/save_reset.c`). **Check
-Logs...** shows a pending approval as a NOTE.
+Logs...** shows a pending approval as a NOTE. The check lives in each game's Origins companion, so it runs in every game created with any
+of the patches that install it (Cause of Death, Show Parents, the Origins upgrades, ...); a game created
+without them has nothing in it to check or repair.
 
 ### Why at the quit, and why there
 

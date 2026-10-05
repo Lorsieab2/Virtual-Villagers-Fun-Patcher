@@ -474,7 +474,6 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairGravesNow(int game, int slot)
     }
     repair_chosen[slot] = 1;
     backfill_at_save(slot, NULL);
-    recorded_now_count = 0;           /* no reconciliation follows: nothing to account for */
     return VvfpCauseScanGraves(game, slot) == 0;
 }
 
