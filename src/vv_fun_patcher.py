@@ -1727,8 +1727,12 @@ def _rebalance_start_over_reset(
         # present means Origins is installed and owns the hook.
         reset_offsets = {int(patch["offset"], 0) for patch in patches}
         origins = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
+        # A header write the safety layer shares (SHARED_SECTION_HEADERS)
+        # is present without Origins, so it says nothing about Origins.
         return any(
             int(patch["offset"], 0) not in reset_offsets
+            and SHARED_SECTION_HEADERS.get((game_id, int(patch["offset"], 0)))
+            != (patch["before"].upper(), patch["after"].upper())
             and _patch_bytes(patch, "after") != _patch_bytes(patch, "before")
             and _patches_present(work, [patch])
             for patch in origins.raw.get("patches", [])
@@ -6206,6 +6210,12 @@ def _remove_feature_bytes(
             and offset == 0xDB766
             and actual == before
         ):
+            continue
+        if actual == after and SHARED_SECTION_HEADERS.get(
+            (feature.raw.get("game_id"), offset)
+        ) == (before.hex().upper(), after.hex().upper()):
+            # The safety layer makes this same header write and still needs
+            # it (its record guards live in that page): it stays.
             continue
         if actual != after:
             raise PatcherError(
