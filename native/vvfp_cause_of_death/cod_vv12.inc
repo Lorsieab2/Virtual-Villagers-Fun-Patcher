@@ -71,9 +71,27 @@ static unsigned int cod_grave_fingerprint(const unsigned char *grave) {
     return cod_fingerprint(grave, g->name_capacity, *(const int *)(grave + g->age));
 }
 
+/* A child's grave (the owner: "Children = less than 14 years old"): the age
+   at death the grave keeps is under 14 years, 280 age units -- the boundary
+   both games' own Villager Detail panel uses for "Apprentice" (VV1
+   0x41FC06, VV2 0x429C46: `cmp [villager+age], 0x118`), and the one The
+   Tree of Life's grave dialog uses (0x41BE43). */
+#define CHILD_AGE 280
+
+/* Does the grave's skill line name a job (a best skill of 20 or more, a job
+   the popup words), and is that grave a child's?  Then the line is
+   "Apprentice <job>", as The Tree of Life words a child's grave. */
+static int cod_grave_apprentice(const unsigned char *grave) {
+    const struct grave_geometry *g = &GRV[g_game];
+    int job = *(const int *)(grave + g->job);
+    return job >= 1 && job <= 5 && *(const int *)(grave + g->value) >= 20
+        && *(const int *)(grave + g->age) < CHILD_AGE;
+}
+
 /* The skill line the grave shows under "Job", as the popup builds it:
    "Untrained" below 20 (or with no job), otherwise the rank and the job --
-   "Trainee", "Adept", "Master" (VV1 from 90, VV2 from 88). */
+   "Apprentice" for a child (cod_grave_apprentice), else "Trainee", "Adept",
+   "Master" (VV1 from 90, VV2 from 88). */
 static void cod_grave_title(const unsigned char *grave, char *out) {
     const struct grave_geometry *g = &GRV[g_game];
     int value = *(const int *)(grave + g->value);
@@ -82,7 +100,9 @@ static void cod_grave_title(const unsigned char *grave, char *out) {
         lstrcpyA(out, "Untrained");
         return;
     }
-    wsprintfA(out, "%s %s", value < 50 ? "Trainee" : (unsigned int)value < g->master ? "Adept" : "Master",
+    wsprintfA(out, "%s %s",
+              cod_grave_apprentice(grave) ? "Apprentice"
+              : value < 50 ? "Trainee" : (unsigned int)value < g->master ? "Adept" : "Master",
               JOB_WORDS[g_game][job]);
 }
 
@@ -665,6 +685,48 @@ static void vv2_draw(int site, const unsigned int *regs) {
                     (void *)(uintptr_t)regs[R_ESI], (int)regs[R_EBX], 0x4096B0u, 0x499F18u);
 }
 
+/* ---- A child's skill line --------------------------------------------------
+
+   The popup builds the skill line by printing the rank's string (the game's
+   string table: VV1 "Trainee  " 0x57, "Adept " 0x58, "Master " 0x59; VV2
+   0x84-0x86) into its line buffer and then appending the job's word.  Right
+   after that print, the line buffer is still the print's first argument,
+   [esp]; for a child's grave the hook puts the game's own "Apprentice "
+   (VV1 0x56, VV2 0x83 -- the string its Villager Detail panel gives a
+   child, in the game's language) there instead, and the game appends the
+   job as before:
+
+     VV1 0x436565  after the print 0x436560; ebx = popup ([+0x60] slot,
+                   [+0x74] manager, [+0x7C] the string table, read by
+                   0x433970)
+     VV2 0x4445CB  after the print 0x4445C6; ebp = panel ([+0x60] slot,
+                   [+0x78] world, [+0x80] the string table, read by
+                   0x441680) */
+typedef const char *(__fastcall *string_fn)(void *table, int unused_edx, int id);
+
+static void cod_apprentice_line(const unsigned char *grave, const unsigned int *regs, void *table,
+                                unsigned int string_va, int id) {
+    if (cod_grave_apprentice(grave)) {
+        lstrcpyA((char *)(uintptr_t)reg_stack(regs, 0), ((string_fn)(uintptr_t)string_va)(table, 0, id));
+    }
+}
+
+static void vv1_rank(int site, const unsigned int *regs) {
+    const unsigned char *popup = (const unsigned char *)(uintptr_t)regs[R_EBX];
+    const unsigned char *manager = *(const unsigned char *const *)(popup + 0x74);
+    (void)site;
+    cod_apprentice_line(manager + GRV[1].graves + (size_t)*(const int *)(popup + 0x60) * GRV[1].stride,
+                        regs, *(void *const *)(popup + 0x7C), 0x433970u, 0x56);
+}
+
+static void vv2_rank(int site, const unsigned int *regs) {
+    const unsigned char *panel = (const unsigned char *)(uintptr_t)regs[R_EBP];
+    const unsigned char *world = *(const unsigned char *const *)(panel + 0x78);
+    (void)site;
+    cod_apprentice_line(world + GRV[2].graves + (size_t)*(const int *)(panel + 0x60) * GRV[2].stride,
+                        regs, *(void *const *)(panel + 0x80), 0x441680u, 0x83);
+}
+
 /* ---- The sites ------------------------------------------------------------ */
 
 static void vv12_sites(void) {
@@ -687,6 +749,7 @@ static void vv12_sites(void) {
         cod_add(0x449008u, "8B5C2410" "C7860CFDFFFF01000000", vv1_buried);
         cod_add(0x42E9C3u, "C644072800", vv1_decayed);
         cod_add(0x436700u, "5F5E5D5B81C4CC000000", vv1_draw);
+        cod_add(0x436565u, "8B4360" "8B4B74", vv1_rank);
     } else {
         add_death(0x43BDEEu, "C7832C050000" "00000000", CAUSE_OLD_AGE, K_STORE0, R_EBX, 0);
         add_death(0x43BAEBu, "8D84382C050000", CAUSE_STARVATION, K_DEC1, R_EAX, R_EDI);  /* food <= 150 */
@@ -708,6 +771,7 @@ static void vv12_sites(void) {
         cod_add(0x465334u, "C7475801000000", vv2_buried);
         cod_add(0x43B78Du, "C644383000", vv2_decayed);
         cod_add(0x444790u, "8B8D84000000", vv2_draw);
+        cod_add(0x4445CBu, "8B5560" "8B4578", vv2_rank);
     }
 }
 
