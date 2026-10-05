@@ -35,7 +35,7 @@
    event death.  It is kept per record, in the patcher's own file beside the
    saves, until the body is buried or removed:
 
-       <save folder>\Virtual Villagers Fun Patcher Data\
+       <save folder>\Virtual Villagers Fun Patcher Data\Graves\
            Virtual Villagers N Graves - Save S.dat
 
    WHEN A DEATH IS LOGGED.  A death is final, and its record written, when
@@ -74,6 +74,7 @@
 #include "sidecar_io.h"
 #include "save_folder.h"
 #include "grave_backfill.h"
+#include "data_subfolder.h"   /* each kind of data file in its own folder */
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"

@@ -64,7 +64,7 @@
    departure nor an arrival reported -- then one left and another arrived
    unseen.
 
-   KEPT.  <save folder>\Virtual Villagers Fun Patcher Data\
+   KEPT.  <save folder>\Virtual Villagers Fun Patcher Data\Unaccounted Villagers\
               Virtual Villagers N Village Roster - Save S.dat
    (format below), written atomically after each reconciliation; Start Over
    deletes it with the village, and the next save starts a new one. */
@@ -171,13 +171,20 @@ static int roster_validate(const unsigned char *data, DWORD length, void *contex
 }
 
 static int roster_build_path(int slot, char *out) {
-    char folder[MAX_PATH];
-    if (!vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Data",
-                           (int)sizeof("\\Virtual Villagers 1 Village Roster - Save 0.dat"))) {
+    char name[64];
+    /* "Virtual Villagers Fun Patcher Data\Unaccounted Villagers\" -- not
+       "Village Roster", which would be confused with Village Statistics' own
+       "Village Statistics\Village Roster - Save S.dat". A file an older
+       build left loose in the Data folder is moved in on the way, and if it
+       will not move the loose file is the one read and written
+       (native/shared/data_subfolder.h). */
+    if (!vv_save_subfolder(out, VV_DATA_FOLDER,
+                           (int)sizeof(
+                                       "\\Virtual Villagers 1 Village Roster - Save 0.dat"))) {
         return 0;
     }
-    wsprintfA(out, "%s\\Virtual Villagers %d Village Roster - Save %d.dat", folder, g_game, slot);
-    return 1;
+    wsprintfA(name, "Virtual Villagers %d Village Roster - Save %d.dat", g_game, slot);
+    return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_UNACCOUNTED, name, VV_DATA_RESERVE) != 0;
 }
 
 static void roster_when(char *out, const unsigned char *filetime) {
