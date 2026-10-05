@@ -169,6 +169,15 @@ def logs_text(n: str, game: str) -> str:
         "in the game's own units (20 per year, as the Village Population log prints Age), the cause, "
         f"the grave and the epitaph. A villager brought back to life gets no Death record. {gone_text[0].upper()}{gone_text[1:]}, "
         "and editing a grave's epitaph adds an \"Epitaph changed\" record with the old and new text. "
+        "A grave the Deaths log has no record for -- dug before the log was kept, or while the game "
+        "was catching up on time away -- is found when the village is loaded and listed for the player "
+        "to repair; only if they choose Repair is it given a Death record, at the next save, made from "
+        "the grave (name, age at death, skill line, epitaph, and the cause where the game or this "
+        "patch knows it) with the head, body, likes and dislikes of the villager's last Village "
+        "History snapshot (\"(unknown)\" when that does not settle who it was), and marked "
+        "\"Recorded from the grave\". Which graves have their record is kept in 'Virtual Villagers "
+        f"Fun Patcher Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat', so no grave is recorded twice; "
+        "Start Over deletes it. "
         "At every save, the village is checked against the one saved before: a villager who left "
         "with no Death or Disappeared record, or arrived with no birth or known arrival, is written "
         f"with everything known about them to the Unaccounted Villagers log ('Virtual Villagers {n} "
@@ -185,8 +194,9 @@ CAVEATS = (
     "**The first save after this patch is installed only starts the check: nothing is reported "
     "about anything that happened before it.** "
     "**The patch's DLL is loaded once a village is shown; anything that happens before that in a "
-    "session is not seen -- a villager who died or was buried then gets no Death record, and the "
-    "next save lists them in the Unaccounted Villagers log instead.** "
+    "session is not seen -- a villager buried then gets a Death record only from their grave, once "
+    "the player chooses Repair (until then the next save lists them in the Unaccounted Villagers "
+    "log), and a villager who died then has no cause unless the game itself keeps one.** "
     "**The logs are written by Write Births and Conceptions Log to Text File's DLL: with that "
     "patch off, none of them is written.**"
 )
@@ -252,6 +262,7 @@ def manifest(game: str, sha: str) -> dict:
         ]
     changes += [
         "The listed removals of a living villager write a Disappeared record before the game takes them; the Custom Island Event's \"Disappears\" is reported by the Story / Cheat Upgrades DLL.",
+        f"Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
         "The grave's Done writes an Epitaph changed record when the epitaph's text changed.",
         "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
         f"The roster is kept in 'Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual Villagers {n} Village Roster - Save <n>.dat' (written atomically; deleted by Start Over).",

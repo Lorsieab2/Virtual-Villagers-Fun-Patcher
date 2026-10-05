@@ -69,7 +69,9 @@ class RosterMatchHarnessTests(unittest.TestCase):
                      "a death at record 0 and a reload that moves everyone down is still the same village",
                      "a survivor found at her rank in the recorded roster is a shared villager",
                      "a new village sharing one founder's name at a recorded rank is still a new village",
-                     "a fingerprint match is found even when a same-name row could be taken first"):
+                     "a fingerprint match is found even when a same-name row could be taken first",
+                     "two villagers with nothing to fingerprint are not the same by fingerprint",
+                     "another village whose villager has nothing to fingerprint is still another village"):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
 

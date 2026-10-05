@@ -3474,6 +3474,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     return emit_record(game_id, kind, check ? records : NULL, text);
 }
 
+#include "grave_backfill.inc"
+
 /* Whether this install records deaths: "VVFP Cause of Death.dll" ships only
    with its row, so its presence beside the executable is the test, exactly as
    the statistics publisher's is. Without it no Deaths log is created empty. */

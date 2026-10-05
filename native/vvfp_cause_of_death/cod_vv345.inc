@@ -87,6 +87,18 @@ static void v345_title(const unsigned char *entry, char *out) {
     wsprintfA(out, "%s %s", rank, V345_JOBS[job]);
 }
 
+/* How much of an entry's name is the villager's: the villager's own name
+   field, which the writer copies, and never past the age at +0x1C. */
+static unsigned int v345_name_capacity(void) {
+    return REC[g_game].name_capacity < V345[g_game].e_age ? REC[g_game].name_capacity
+                                                          : V345[g_game].e_age;
+}
+
+/* An entry's name and age at death, as cod_backfill.inc keeps a grave. */
+static unsigned int v345_fingerprint(const unsigned char *entry) {
+    return cod_fingerprint(entry, v345_name_capacity(), *(const int *)(entry + V345[g_game].e_age));
+}
+
 /* What the writer's exit reported: the entry it wrote and for whom. */
 static const unsigned char *written_record;
 static int written_slot = -1;

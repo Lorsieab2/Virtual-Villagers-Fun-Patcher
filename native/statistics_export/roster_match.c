@@ -15,7 +15,10 @@
                                            majority of the smaller roster
                                            (survivors whose likes changed)
      - otherwise                        -> a different village
-   Each recorded row is matched at most once.
+   Each recorded row is matched at most once.  A row whose fingerprint is
+   "-" -- a villager with no likes, dislikes or parents, which is nothing to
+   fingerprint (statistics_export.c) -- matches by name only, whatever the
+   other row's fingerprint.
 
    "The same slot" means either of the two records a recorded villager can
    be in at the next save: the record it held when the roster was written,
@@ -43,6 +46,9 @@ int vv_roster_same_villager(const char *a, const char *b) {
     }
     fa = strchr(ta + 1, '\t');
     fb = strchr(tb + 1, '\t');
+    if (fa != NULL && fb != NULL && (strcmp(fa, "\t-") == 0 || strcmp(fb, "\t-") == 0)) {
+        return fa - ta == fb - tb && strncmp(ta, tb, (size_t)(fa - ta)) == 0;   /* name only */
+    }
     if (fa != NULL && fb != NULL && strcmp(fa, fb) == 0) {
         return 2;                                  /* same fingerprint */
     }
