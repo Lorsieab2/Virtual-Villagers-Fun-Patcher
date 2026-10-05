@@ -163,6 +163,9 @@ FILES = [
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
+    # The "Virtual Villagers Fun Patcher Files" folder; vv_fun_patcher imports
+    # it at the top, so the patcher cannot start without it.
+    "src/patcher_files.py",
     # Back Up Saves; the GUI imports it, so the patcher window cannot open
     # without it.
     "src/vv_save_backup.py",
