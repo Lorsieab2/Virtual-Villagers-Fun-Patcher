@@ -52,6 +52,8 @@ SAVE_STEMS = {
 DATA = "Virtual Villagers Fun Patcher Data"
 LOGS = "Virtual Villagers Fun Patcher Logs"
 
+VERDICTS = ("OK", "WRONG", "NOTE", "UNCHECKED")
+
 # Master status, per game (the statistics exporter's own thresholds).
 MASTER = {1: 90, 3: 88, 4: 88, 5: 88}
 
@@ -72,6 +74,11 @@ class Villager:
     raw: bytes = b""           # VV1: the record window +0x33C..+0x3D8
 
 
+class CheckError(Exception):
+    """The village cannot be checked at all (no save for the slot).  The CLI prints it and exits 1,
+    as it always has; the patcher window's Check Logs shows it (src/vv_log_tools.py)."""
+
+
 @dataclass
 class Report:
     lines: list[tuple[str, str, str]] = field(default_factory=list)   # (file, verdict, text)
@@ -82,6 +89,13 @@ class Report:
     @property
     def wrong(self) -> int:
         return sum(v == "WRONG" for _, v, _ in self.lines)
+
+    def counts(self) -> dict[str, int]:
+        """How many lines carry each verdict, every verdict listed (0 when none)."""
+        out = {verdict: 0 for verdict in VERDICTS}
+        for _, verdict, _ in self.lines:
+            out[verdict] = out.get(verdict, 0) + 1
+        return out
 
     def render(self) -> str:
         out, current = [], None
@@ -911,7 +925,7 @@ def detect_game(game_dir: Path, slot: int) -> int:
             return game
     if (game_dir / f"Virtual Villagers{slot}.ldw").is_file():
         return 1
-    raise SystemExit(f"no save for slot {slot} in {game_dir}")
+    raise CheckError(f"no save for slot {slot} in {game_dir}")
 
 
 def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
@@ -969,7 +983,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("slot", type=int, choices=range(1, 6))
     ap.add_argument("--game", type=int, choices=range(1, 6))
     args = ap.parse_args(argv)
-    rep = check(args.folder, args.slot, args.game)
+    try:
+        rep = check(args.folder, args.slot, args.game)
+    except CheckError as exc:
+        raise SystemExit(str(exc)) from None
     print(rep.render())
     print(f"\n{rep.wrong} confirmed wrong")
     return 1 if rep.wrong else 0
