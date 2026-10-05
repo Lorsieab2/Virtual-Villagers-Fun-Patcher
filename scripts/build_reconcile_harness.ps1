@@ -8,7 +8,8 @@ $ErrorActionPreference = "Stop"
 # the Village Elders and Village Statistics files
 # (native/statistics_export/reconcile_harness.c) against the TEST build of
 # "VVFP Statistics Export.dll" and the shipped "VVFP Save Reset.dll", which
-# the harness copies beside itself under their shipped names, in all five
+# the harness copies into "Virtual Villagers Fun Patcher Files" beside itself
+# (as in a patched game) under their shipped names, in all five
 # games' geometry, on real files under a throwaway save folder named after the
 # harness (harness_ldw_tree.h leaves Documents\LDW as it found it).  Linked at
 # a fixed base with free memory above it (0x30000000) so it can place each

@@ -75,7 +75,13 @@ def _dll():
 
 IMPORTS = 0x7C000000
 IMPORT_STUBS: dict[str, int] = {}
-STDCALL_BYTES = {"GetModuleFileNameA": 12, "LoadLibraryA": 4, "GetProcAddress": 8, "lstrcpyA": 8}
+STDCALL_BYTES = {"GetModuleFileNameA": 12, "GetModuleFileNameW": 12, "LoadLibraryA": 4, "LoadLibraryExW": 12,
+                 "GetProcAddress": 8, "lstrcpyA": 8}
+# The emulated executable, and the patcher's folder beside it where every
+# companion lives (native/shared/patcher_files.h): a companion is loaded only
+# by its full wide path there.
+GAME_EXE = "C:\\Games\\VV\\game.exe"
+WORK_FIRST_PATH = "C:\\Games\\VV\\Virtual Villagers Fun Patcher Files\\VVFP Work First.dll"
 
 
 def _new_emulator():
@@ -165,11 +171,27 @@ class StubRun:
             text = bytes(mu.mem_read(src, 260)).split(b"\0")[0] + b"\0"
             mu.mem_write(dst, text)
             mu.reg_write(UC_X86_REG_EAX, dst)
+        elif address == IMPORT_STUBS.get("GetModuleFileNameW"):
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            buf, = struct.unpack("<I", mu.mem_read(esp + 8, 4))
+            mu.mem_write(buf, GAME_EXE.encode("utf-16-le") + b"\0\0")
+            mu.reg_write(UC_X86_REG_EAX, len(GAME_EXE))
         elif address == IMPORT_STUBS.get("LoadLibraryA"):
+            # An ANSI load (bare name or exe-folder path) never finds a
+            # companion: they are only in the patcher's folder.
             esp = mu.reg_read(UC_X86_REG_ESP)
             name, = struct.unpack("<I", mu.mem_read(esp + 4, 4))
-            self.loaded.append(bytes(mu.mem_read(name, 64)).split(b"\0")[0].decode())
-            mu.reg_write(UC_X86_REG_EAX, 0x10000000 if self.work_first else 0)
+            self.loaded.append(bytes(mu.mem_read(name, 260)).split(b"\0")[0].decode("latin-1"))
+            mu.reg_write(UC_X86_REG_EAX, 0)
+        elif address == IMPORT_STUBS.get("LoadLibraryExW"):
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            name, = struct.unpack("<I", mu.mem_read(esp + 4, 4))
+            raw = bytes(mu.mem_read(name, 2048))
+            end = next(i for i in range(0, len(raw), 2) if raw[i:i + 2] == b"\0\0")
+            path = raw[:end].decode("utf-16-le")
+            self.loaded.append(path)
+            found = self.work_first and path.lower() == WORK_FIRST_PATH.lower()
+            mu.reg_write(UC_X86_REG_EAX, 0x10000000 if found else 0)
         elif address in self.predicates:
             esp = mu.reg_read(UC_X86_REG_ESP)
             arg, = struct.unpack("<I", mu.mem_read(esp + 4, 4))
@@ -357,7 +379,7 @@ class LowFoodPathTests(unittest.TestCase):
                 r = _run_later(game, pick=2, huts=(1, 0, 1, 1), work_first=True)
                 self.assertEqual(r.exit, g["dispatch"])
                 self.assertEqual(r.regs[UC_X86_REG_EDI], 2)
-                self.assertEqual(r.loaded, ["C:\\Games\\VV\\VVFP Work First.dll"], "loaded by full path")
+                self.assertEqual(r.loaded, [WORK_FIRST_PATH], "loaded by full path in the patcher's folder")
                 r = _run_later(game, pick=2, huts=(1, 0, 1, 1), work_first=False)
                 self.assertEqual(r.exit, g["resume"])
                 # "Healers should not be gated by huts at all."

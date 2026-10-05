@@ -297,9 +297,6 @@ static void arrival_reset(int slot) {
 /* Whether this install writes Birth records for every birth: in A New Home
    only with Show Parents in Details Screen ("VVFP VV1 Parentage.dll"). */
 static int births_are_logged(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     if (g_game != 1) {
         return 1;
     }
@@ -308,13 +305,7 @@ static int births_are_logged(void) {
         return test_vv1_births > 0;
     }
 #endif
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    slash = n != 0 && n < MAX_PATH ? strrchr(path, '\\') : NULL;
-    if (slash == NULL || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") > sizeof(path)) {
-        return 0;
-    }
-    lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
-    return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
+    return vvfp_patcher_file_exists("VVFP VV1 Parentage.dll");
 }
 
 /* The village's villagers, members and believers, every one of them: the

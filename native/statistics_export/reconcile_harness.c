@@ -2,8 +2,9 @@
    Village Statistics files (statistics_reconcile.inc).  32-bit only.
 
    Drives the TEST build of "VVFP Statistics Export.dll" and the shipped
-   "VVFP Save Reset.dll" (copied beside this executable under their shipped
-   names, as in a game), in all five games' geometry, against real files under
+   "VVFP Save Reset.dll" (copied into "Virtual Villagers Fun Patcher Files"
+   beside this executable under their shipped names, as in a game), in all
+   five games' geometry, against real files under
    Documents\LDW\<this exe's basename>\, which harness_ldw_tree.h leaves as it
    found it.  Linked at a fixed base (0x30000000) with the games' villager
    tables and memorials placed where the DLL reads them.
@@ -59,6 +60,7 @@
 
 #include "village_identity.h"
 #include "../shared/harness_ldw_tree.h"
+#include "patcher_files.h"
 
 static int failures;
 static int checks;
@@ -123,6 +125,9 @@ static void villager(int i, const char *name, int master_skills) {
 /* ---- paths and files ------------------------------------------------------- */
 
 static char root[MAX_PATH], exe_dir[MAX_PATH];
+/* "<exe_dir>\Virtual Villagers Fun Patcher Files": where the companions are,
+   as in a patched game (native/shared/patcher_files.h). */
+static char files_dir[MAX_PATH];
 
 static int locate(void) {
     char docs[MAX_PATH], exe[MAX_PATH], *base, *dot;
@@ -131,6 +136,8 @@ static int locate(void) {
     base = strrchr(exe, '\\');
     if (base == NULL) return 0;
     lstrcpynA(exe_dir, exe, (int)(base - exe) + 1);
+    _snprintf(files_dir, MAX_PATH, "%s\\" VVFP_PATCHER_FILES_FOLDER, exe_dir);
+    files_dir[MAX_PATH - 1] = 0;
     ++base;
     dot = strrchr(base, '.');
     if (dot) *dot = 0;
@@ -406,10 +413,12 @@ int main(int argc, char **argv) {
         printf("cannot place the tables\n");
         return 2;
     }
-    _snprintf(path, MAX_PATH, "%s\\VVFP Statistics Export.dll", exe_dir);
+    CreateDirectoryA(files_dir, NULL);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Statistics Export.dll", files_dir);
     if (!CopyFileA(argv[1], path, FALSE)) { printf("cannot copy %s\n", argv[1]); return 2; }
-    dll = LoadLibraryA(path);
-    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", exe_dir);
+    /* By full path in the patcher's folder, as the companions load each other. */
+    dll = vvfp_load_patcher_dll("VVFP Statistics Export.dll");
+    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", files_dir);
     if (!CopyFileA(argv[2], path, FALSE)) { printf("cannot copy %s\n", argv[2]); return 2; }
     scan = dll ? (scan_t)GetProcAddress(dll, "VvfpStatisticsScanReconcile") : NULL;
     repair = dll ? (repair_t)GetProcAddress(dll, "VvfpStatisticsRepairReconcile") : NULL;
@@ -607,11 +616,12 @@ int main(int argc, char **argv) {
     }
     clean();
     FreeLibrary(dll);
-    _snprintf(path, MAX_PATH, "%s\\VVFP Statistics Export.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Statistics Export.dll", files_dir);
     DeleteFileA(path);
     if (GetModuleHandleA("VVFP Save Reset.dll")) FreeLibrary(GetModuleHandleA("VVFP Save Reset.dll"));
-    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", files_dir);
     DeleteFileA(path);
+    RemoveDirectoryA(files_dir);   /* only when empty */
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
     return failures == 0 ? 0 : 1;
 }

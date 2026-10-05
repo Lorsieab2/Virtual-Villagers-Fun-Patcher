@@ -59,8 +59,8 @@ for _game, (_key, _path, _name, _base) in ORIGINS.items():
     harness.MODULE_FILE[_key] = _name
     harness.BASES[_key] = _base
 # kernel32 calls the Origins companions make on the way (stub `ret N`).
-harness.STDCALL_BYTES.update({"lstrlenA": 4, "lstrcatA": 8, "CreateDirectoryA": 8, "GetFileAttributesA": 4,
-                              "FindResourceA": 12})
+harness.STDCALL_BYTES.update({"lstrlenA": 4, "lstrcatA": 8, "CreateDirectoryA": 8, "CreateDirectoryW": 8,
+                              "GetFileAttributesA": 4, "FindResourceA": 12})
 ORIGINS_PRESENT = all(p.is_file() for _, p, _, _ in ORIGINS.values())
 
 # Where the companions write their detours (stock bytes before, E9 after).
@@ -89,7 +89,7 @@ class EarlyWorker(Worker):
         elif name == "lstrcatA":
             mu.mem_write(arg(0), cstr(arg(0)) + cstr(arg(1)) + b"\0")
             mu.reg_write(UC_X86_REG_EAX, arg(0))
-        elif name == "CreateDirectoryA":
+        elif name in ("CreateDirectoryA", "CreateDirectoryW"):
             mu.reg_write(UC_X86_REG_EAX, 1)
         elif name == "GetFileAttributesA":
             mu.reg_write(UC_X86_REG_EAX, 0xFFFFFFFF)      # no atlas yet
@@ -201,7 +201,7 @@ class CompanionsInstallBeforeCatchUp(unittest.TestCase):
         for game, mode in SETUPS:
             m = early_world(game, mode)
             HOOK[game](m)
-            loaded = [c[1] for c in m.calls if c[0] == "LoadLibraryA"]
+            loaded = [c[1] for c in m.calls if c[0] in ("LoadLibraryA", "LoadLibraryExW")]
             for va, what in DETOURS[game].items():
                 with self.subTest(game=game, mode=mode, site=what):
                     self.assertEqual(code(m, va), b"\xE9", f"{what} not installed; loaded {loaded}")

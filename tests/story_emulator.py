@@ -242,6 +242,26 @@ class Process:
         self.loaded.append(self.cstring(self.arg(0)))
         return 0, 4
 
+    # The companions find the patcher's files with the wide API, by full path
+    # in "Virtual Villagers Fun Patcher Files" beside the executable
+    # (native/shared/patcher_files.h); by default nothing is shipped there.
+    def _api_GetModuleFileNameW(self):
+        buffer, size = self.arg(1), self.arg(2)
+        path = self.exe_path.decode("latin-1")[: size - 1]
+        self.write(buffer, path.encode("utf-16-le") + b"\0\0")
+        return len(path), 12
+
+    def _api_LoadLibraryExW(self):
+        self.loaded.append(self.wstring(self.arg(0)))
+        return 0, 12
+
+    def _api_LoadLibraryW(self):
+        self.loaded.append(self.wstring(self.arg(0)))
+        return 0, 4
+
+    def _api_GetFileAttributesW(self):
+        return 0xFFFFFFFF, 4             # INVALID_FILE_ATTRIBUTES: not there
+
     def _api_GetLastError(self):
         return 2, 0                     # ERROR_FILE_NOT_FOUND
 
@@ -316,6 +336,15 @@ class Process:
         return 0, 4                     # no optional companion is loaded
 
     loaded: list = []
+
+    def wstring(self, va: int, limit: int = 2048) -> str:
+        out = bytearray()
+        while len(out) < 2 * limit and self.mapped(va + len(out), 2):
+            pair = self.read(va + len(out), 2)
+            if pair == b"\0\0":
+                break
+            out += pair
+        return out.decode("utf-16-le")
 
     def cstring(self, va: int, limit: int = 2048) -> str:
         out = bytearray()

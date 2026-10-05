@@ -258,6 +258,7 @@ def decide(m: Worker) -> Worker:
 
 def effects(m: Worker):
     return [c[:2] for c in m.calls if c[0] not in ("done", "GetModuleHandleA", "LoadLibraryA",
+                                                    "LoadLibraryExW", "GetFileAttributesW",
                                                     "GetProcAddress")]
 
 

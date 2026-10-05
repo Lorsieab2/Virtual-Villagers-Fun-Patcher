@@ -8,7 +8,8 @@ $ErrorActionPreference = "Stop"
 # grave in the Deaths log (native/vvfp_cause_of_death/grave_backfill_harness.c)
 # -- against the shipped "VVFP Parentage Export.dll" and "VVFP Save Reset.dll"
 # and the TEST build of "VVFP Cause of Death.dll", which the harness copies
-# beside itself under their shipped names, in all five games' geometry, on
+# into "Virtual Villagers Fun Patcher Files" beside itself (as in a patched
+# game) under their shipped names, in all five games' geometry, on
 # real files under a throwaway save folder named after the harness
 # (harness_ldw_tree.h leaves Documents\LDW as it found it). Like the Deaths log
 # harness it is linked at a fixed base with free memory above it (0x30000000)

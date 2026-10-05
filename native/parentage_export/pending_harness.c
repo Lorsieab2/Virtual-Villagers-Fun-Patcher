@@ -21,8 +21,9 @@
      4. A conception written once the village is known goes straight to the
         log, under the same single header.
 
-   The statistics companion is detected by its file beside the executable, so
-   the harness creates an empty stand-in there and removes it when done. Logs
+   The statistics companion is detected by its file in "Virtual Villagers Fun
+   Patcher Files" beside the executable, so the harness creates an empty
+   stand-in there and removes it (and the folder) when done. Logs
    go under Documents\LDW\<this exe's basename>\, which
    harness_ldw_tree_begin() guarantees did not exist before the run and which
    the harness removes afterwards.
@@ -106,6 +107,10 @@ static void conceive(int mother, int father) {
 
 static char folder[MAX_PATH];
 static char marker[MAX_PATH];
+/* "<this exe's folder>\Virtual Villagers Fun Patcher Files": where the
+   companions are looked for, as in a patched game
+   (native/shared/patcher_files.h). */
+static char files_dir[MAX_PATH];
 
 static int locate(void) {
     char docs[MAX_PATH], exe[MAX_PATH], *base, *dot;
@@ -113,7 +118,9 @@ static int locate(void) {
     if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) return 0;
     base = strrchr(exe, '\\');
     if (base == NULL) return 0;
-    _snprintf(marker, MAX_PATH, "%.*s\\VVFP Statistics Export.dll", (int)(base - exe), exe);
+    _snprintf(files_dir, MAX_PATH, "%.*s\\Virtual Villagers Fun Patcher Files", (int)(base - exe), exe);
+    files_dir[MAX_PATH - 1] = '\0';
+    _snprintf(marker, MAX_PATH, "%s\\VVFP Statistics Export.dll", files_dir);
     marker[MAX_PATH - 1] = '\0';
     ++base;
     dot = strrchr(base, '.');
@@ -237,9 +244,11 @@ int main(int argc, char **argv) {
         printf("could not locate Documents or this executable\n");
         return 2;
     }
+    CreateDirectoryA(files_dir, NULL);
     stand_in =CreateFileA(marker, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
     if (stand_in == INVALID_HANDLE_VALUE) {
-        printf("could not create the statistics stand-in beside the harness\n");
+        printf("could not create the statistics stand-in in the patcher's folder\n");
+        RemoveDirectoryA(files_dir);
         return 2;
     }
     CloseHandle(stand_in);
@@ -248,6 +257,7 @@ int main(int argc, char **argv) {
     if (dll == NULL) {
         printf("could not load %s\n", argv[1]);
         DeleteFileA(marker);
+        RemoveDirectoryA(files_dir);   /* only when empty */
         return 2;
     }
     write = (write_t)GetProcAddress(dll, "WriteParentageRecordWithFather");
@@ -258,6 +268,7 @@ int main(int argc, char **argv) {
     CHECK(write && birth && ensure, "the three exports resolve");
     if (!(write && birth && ensure)) {
         DeleteFileA(marker);
+        RemoveDirectoryA(files_dir);   /* only when empty */
         return 1;
     }
 
@@ -617,6 +628,7 @@ int main(int argc, char **argv) {
     free(records);
     remove_logs();
     DeleteFileA(marker);
+    RemoveDirectoryA(files_dir);   /* only when empty */
     printf("== %d failure(s) ==\n", failures);
     return failures == 0 ? 0 : 1;
 }

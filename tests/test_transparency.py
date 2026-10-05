@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from transparency import (  # noqa: E402
     TRANSPARENCY_FILENAME,
+    TRANSPARENCY_RELATIVE_PATH,
     directory_comparison,
     render_transparency_text,
 )
@@ -78,11 +79,11 @@ class TransparencyTests(unittest.TestCase):
             source = folder / build.input_name
             shutil.copy2(STOCK / build.input_name, source)
             output, log_path = apply_patch(source, "immediate_fixed")
-            text_path = output.parent / TRANSPARENCY_FILENAME
+            text_path = output.parent / TRANSPARENCY_RELATIVE_PATH
             self.assertTrue(text_path.is_file())
             log = json.loads(log_path.read_text(encoding="utf-8"))
-            self.assertEqual(log["transparency_log"]["path"], TRANSPARENCY_FILENAME)
-            self.assertEqual(log["transparency_log_path"], TRANSPARENCY_FILENAME)
+            self.assertEqual(log["transparency_log"]["path"], TRANSPARENCY_RELATIVE_PATH)
+            self.assertEqual(log["transparency_log_path"], TRANSPARENCY_RELATIVE_PATH)
             self.assertEqual(
                 log["transparency_log"]["sha256"],
                 hashlib.sha256(text_path.read_bytes()).hexdigest().upper(),
@@ -107,7 +108,7 @@ class TransparencyTests(unittest.TestCase):
             results = apply_all(sources, "immediate_fixed")
             self.assertEqual(len(results), 5)
             for output, log_path in results:
-                self.assertTrue((output.parent / TRANSPARENCY_FILENAME).is_file())
+                self.assertTrue((output.parent / TRANSPARENCY_RELATIVE_PATH).is_file())
                 self.assertEqual(json.loads(log_path.read_text())["game"], output.name.removesuffix(" - Modded.exe"))
 
 

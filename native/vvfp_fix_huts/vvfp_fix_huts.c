@@ -63,6 +63,7 @@
 #include <windows.h>
 #include <string.h>
 #include <intrin.h>
+#include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
 
 /* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
    tests/test_dlls/): the shipped DLL carries no counters and no probe. */
@@ -1384,24 +1385,11 @@ static int work_first_state;          /* 0 = not tried, 1 = loaded, -1 = absent 
 static int work_first_installed[6];
 
 static int work_first_present(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     if (work_first_state != 0) {
         return work_first_state == 1;
     }
     work_first_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return 0;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Work First.dll") > sizeof(path)) {
-        return 0;
-    }
-    lstrcpyA(slash + 1, "VVFP Work First.dll");
-    work_first_module = LoadLibraryA(path);
+    work_first_module = vvfp_load_patcher_dll("VVFP Work First.dll");
     if (work_first_module == NULL) {
         return 0;
     }

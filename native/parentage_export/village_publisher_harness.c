@@ -29,14 +29,17 @@
      6. Cause of Death loaded but refused (its hooks did not install): it
         will never name a village, so records are written at once,
         unlabelled -- held ones first, in order -- exactly as with neither
-        companion. Uses the TEST build of the companion, renamed beside the
-        harness, whose install is refused here because no game is mapped.
+        companion. Uses the TEST build of the companion, renamed in the
+        patcher's folder, whose install is refused here because no game is
+        mapped.
      6b. Cause of Death shipped but unable to load: the same, at once.
      7. Neither companion: records are written at once, unlabelled, as
         before.
 
-   The companions are detected by their files beside the executable, so the
-   harness creates stand-ins there and removes them when done.
+   The companions are detected by their files in "Virtual Villagers Fun
+   Patcher Files" beside the executable (the patcher's folder), so the
+   harness creates stand-ins there and removes them (and the folder) when
+   done.
 
    Usage:  village_publisher_harness.exe "<VVFP Parentage Export.dll>" "<VVFP Cause of Death.test.dll>"
    Exit code 0 when every check passes. */
@@ -49,6 +52,7 @@
 
 #include "village_identity.h"
 #include "../shared/harness_ldw_tree.h"
+#include "patcher_files.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -130,6 +134,9 @@ static void villager(int i, const char *name, int age, int head, int body) {
 
 static char logs[MAX_PATH];
 static char exe_dir[MAX_PATH];
+/* "<exe_dir>\Virtual Villagers Fun Patcher Files": where the companions are,
+   as in a patched game (native/shared/patcher_files.h). */
+static char files_dir[MAX_PATH];
 static HMODULE dll;
 static record_t write_record;
 static birth_t birth;
@@ -143,6 +150,8 @@ static int locate(void) {
     base = strrchr(exe, '\\');
     if (base == NULL) return 0;
     lstrcpynA(exe_dir, exe, (int)(base - exe) + 1);
+    _snprintf(files_dir, MAX_PATH, "%s\\" VVFP_PATCHER_FILES_FOLDER, exe_dir);
+    files_dir[MAX_PATH - 1] = 0;
     ++base;
     dot = strrchr(base, '.');
     if (dot) *dot = 0;
@@ -183,7 +192,7 @@ static void wipe(int remove_dirs) {
 
 static void stand_in(const char *name, int present) {
     char path[MAX_PATH];
-    _snprintf(path, MAX_PATH, "%s\\%s", exe_dir, name);
+    _snprintf(path, MAX_PATH, "%s\\%s", files_dir, name);
     path[MAX_PATH - 1] = 0;
     if (present) {
         HANDLE h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
@@ -208,12 +217,12 @@ static void drop_cause(void) {
     }
 }
 
-/* The companion beside the executable: its TEST build (which loads, and
+/* The companion in the patcher's folder: its TEST build (which loads, and
    reports it is not installed yet), or an empty file that cannot load. */
 static void cause_beside(const char *test_dll, int loadable) {
     char path[MAX_PATH];
     drop_cause();
-    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+    _snprintf(path, MAX_PATH, "%s\\VVFP Cause of Death.dll", files_dir);
     path[MAX_PATH - 1] = 0;
     if (loadable) {
         CopyFileA(test_dll, path, FALSE);
@@ -275,6 +284,7 @@ int main(int argc, char **argv) {
     }
     dll_path = argv[1];
     if (!locate()) return 2;
+    CreateDirectoryA(files_dir, NULL);
     stand_in("VVFP Statistics Export.dll", 0);
     cause_beside(argv[2], 1);
 
@@ -293,11 +303,9 @@ int main(int argc, char **argv) {
             /* The companion as the game has it once installed: its TEST
                build, pointed at this table (no game image is mapped here,
                so its own table addresses cannot be read). */
-            char cause[MAX_PATH];
             HMODULE companion;
             setup_t setup;
-            _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
-            companion = LoadLibraryA(cause);
+            companion = vvfp_load_patcher_dll("VVFP Cause of Death.dll");
             setup = companion != NULL ? (setup_t)GetProcAddress(companion, "VvfpCauseTestSetup") : NULL;
             CHECK(setup != NULL && setup(game, NULL, records) == 1, "Cause of Death is installed");
         }
@@ -383,13 +391,13 @@ int main(int argc, char **argv) {
         HMODULE companion;
         install_t install;
         const char *shipped = dll_path;
-        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", files_dir);
         drop_cause();
-        CHECK(CopyFileA(argv[2], cause, FALSE), "the companion's TEST build is beside the harness");
-        /* The companion loads the parentage DLL from the executable's folder,
+        CHECK(CopyFileA(argv[2], cause, FALSE), "the companion's TEST build is in the patcher's folder");
+        /* The companion loads the parentage DLL from the patcher's folder,
            so this phase uses that copy: one module, one queue. */
-        _snprintf(beside, MAX_PATH, "%s\\VVFP Parentage Export.dll", exe_dir);
-        CHECK(CopyFileA(shipped, beside, FALSE), "the parentage DLL is beside the harness");
+        _snprintf(beside, MAX_PATH, "%s\\VVFP Parentage Export.dll", files_dir);
+        CHECK(CopyFileA(shipped, beside, FALSE), "the parentage DLL is in the patcher's folder");
         dll_path = beside;
         g = &LAYOUTS[2];
         records = alloc_table(3);
@@ -397,7 +405,7 @@ int main(int argc, char **argv) {
         villager(1, "Bonedry", 1234, 7, 9);
         load();
         vv_village_publish("");
-        companion = LoadLibraryA(cause);
+        companion = vvfp_load_patcher_dll("VVFP Cause of Death.dll");
         if (companion != NULL) {
             arm_t arm = (arm_t)GetProcAddress(companion, "VvfpCauseTestArm");
             if (arm != NULL) arm(1);      /* its save hook arms, as in a game */
@@ -434,10 +442,10 @@ int main(int argc, char **argv) {
         save_done_t save_done = NULL;
         const char *shipped = dll_path;
         unsigned char *buffer = save_buffer(3, "Early Tribe");
-        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", files_dir);
         drop_cause();
         CopyFileA(argv[2], cause, FALSE);
-        _snprintf(beside, MAX_PATH, "%s\\VVFP Parentage Export.dll", exe_dir);
+        _snprintf(beside, MAX_PATH, "%s\\VVFP Parentage Export.dll", files_dir);
         CopyFileA(shipped, beside, FALSE);
         dll_path = beside;
         g = &LAYOUTS[2];
@@ -447,7 +455,7 @@ int main(int argc, char **argv) {
         villager(2, "Cala", 300, 1, 2);
         load();
         vv_village_publish("");
-        companion = LoadLibraryA(cause);
+        companion = vvfp_load_patcher_dll("VVFP Cause of Death.dll");
         if (companion != NULL) {
             arm_t arm = (arm_t)GetProcAddress(companion, "VvfpCauseTestArm");
             save_done = (save_done_t)GetProcAddress(companion, "VvfpCauseTestSaveDone");
@@ -483,7 +491,7 @@ int main(int argc, char **argv) {
     {
         char cause[MAX_PATH];
         HMODULE companion;
-        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", exe_dir);
+        _snprintf(cause, MAX_PATH, "%s\\VVFP Cause of Death.dll", files_dir);
         drop_cause();
         CopyFileA(argv[2], cause, FALSE);
         g = &LAYOUTS[2];
@@ -491,7 +499,7 @@ int main(int argc, char **argv) {
         villager(1, "Bonedry", 1234, 7, 9);
         load();
         vv_village_publish("");
-        companion = LoadLibraryA(cause);
+        companion = vvfp_load_patcher_dll("VVFP Cause of Death.dll");
         if (companion != NULL) {
             arm_t arm = (arm_t)GetProcAddress(companion, "VvfpCauseTestArm");
             if (arm != NULL) arm(-1);
@@ -540,6 +548,7 @@ int main(int argc, char **argv) {
     FreeLibrary(dll);
     free_table(3);
 
+    RemoveDirectoryA(files_dir);   /* only when empty */
     wipe(1);
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

@@ -43,9 +43,11 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # two data-folder harnesses (build_data_subfolder_harness.ps1,
         # build_data_writer_paths_harness.ps1),
         # build_grave_backfill_harness.ps1 (the Deaths log's grave backfill)
-        # build_arrival_harness.ps1 (the Arrived records) and
-        # build_reconcile_harness.ps1 (the Elders and Statistics reconcile).
-        self.assertEqual(len(SCRIPTS), 23, [path.name for path in SCRIPTS])
+        # build_arrival_harness.ps1 (the Arrived records),
+        # build_reconcile_harness.ps1 (the Elders and Statistics reconcile) and
+        # build_patcher_files_harness.ps1 (native/shared/patcher_files.h's
+        # path builder, for the "Virtual Villagers Fun Patcher Files" folder).
+        self.assertEqual(len(SCRIPTS), 24, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:

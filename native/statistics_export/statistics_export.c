@@ -5,6 +5,7 @@
 
 #include "village_identity.h"
 #include "save_folder.h"
+#include "patcher_files.h"
 #include "village_elders.h"
 #include "roster_match.h"
 #include "statistics_store.h"
@@ -884,14 +885,14 @@ static int write_vv5(
 static void write_village_population(int game_id, const char *village) {
     typedef int(__stdcall * population_function)(
         int, const void *, const char *);
-    HMODULE library = GetModuleHandleW(L"VVFP Population Export.dll");
+    /* Already loaded, or by its full path in the patcher's folder -- never
+       the bare name, which would search the system folders, the current
+       directory and PATH (native/shared/patcher_files.h). */
+    HMODULE library = vvfp_patcher_dll("VVFP Population Export.dll");
     population_function write;
 
     if (library == NULL) {
-        library = LoadLibraryW(L"VVFP Population Export.dll");
-        if (library == NULL) {
-            return;
-        }
+        return;
     }
     write = (population_function)GetProcAddress(
         library, "WriteVillagePopulation");

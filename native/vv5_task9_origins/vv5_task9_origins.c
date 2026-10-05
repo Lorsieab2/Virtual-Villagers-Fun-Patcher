@@ -747,26 +747,13 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
 static int vvfp_fix_huts_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
 
 static void vvfp_fix_huts_bridge(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
     HMODULE companion;
     int (__stdcall *install)(int game_id);
     if (vvfp_fix_huts_state != 0) {
         return;
     }
     vvfp_fix_huts_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Fix Huts.dll") > sizeof(path)) {
-        return;
-    }
-    lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
-    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
+    companion = vvfp_startup_ships("VVFP Fix Huts.dll") ? vvfp_load_patcher_dll("VVFP Fix Huts.dll") : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }

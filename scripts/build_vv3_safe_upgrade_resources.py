@@ -72,7 +72,12 @@ FOUNDATION_OUTPUT = (
 # (native/shared/orphan_masks.h, v1.35.59): the companion's own scan and
 # repair, a writer that reports whether the table reached the disk, and
 # native/shared/save_folder.c linked for the Repairs log.
-SOURCE_SHA256 = "DFC3407374335D40FDE699B93B031F674FAFB5DD4EE518BDAA18F1D5EC7D9678"
+# Recertified when every companion moved into "Virtual Villagers Fun Patcher
+# Files" (native/shared/patcher_files.h): the story, Cause of Death and other
+# install bridges load their DLLs by full path from that folder with the wide
+# API, and the Heathen mask atlas is written to the game's Images folder by a
+# wide path, so a game folder the ANSI code page cannot spell still works.
+SOURCE_SHA256 = "75494146EFED9A5B8114BE809EBEFAED3F3979AF4DB79A0EE5EEC95C53D94459"
 SOURCE_SIZE = 1960448
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
