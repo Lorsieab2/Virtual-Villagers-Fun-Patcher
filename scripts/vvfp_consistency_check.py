@@ -1080,7 +1080,8 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str
     if game != 1:
         return
     if not path.is_file():
-        rep.add(label, "NOTE", "the first-load cross-check has not run for this slot yet (it runs at the next load)")
+        rep.add(label, "NOTE", "the cross-check has not run for this slot yet (it runs when the village is next played "
+                               "with \"Check logs automatically\" on, or after Repair Logs)")
         return
     data = path.read_bytes()
     if len(data) != 48 or data[:4] != b"VXC1":
@@ -1092,10 +1093,23 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str
         rep.add(label, "UNCHECKED", "a marker for another game, slot or version (the game sets it aside and runs the check)")
         return
     if village is not None and words[11] != village_id(village):
-        rep.add(label, "NOTE", "the marker is another village's (an earlier village in this slot): the check runs at "
-                               "this village's next load")
+        rep.add(label, "NOTE", "the marker is another village's (an earlier village in this slot): the check runs "
+                               "again when this village is next checked")
         return
     rep.add(label, "OK", f"the first-load cross-check ran for this village: {result}")
+
+
+def check_approval(game_dir: Path, slot: int, game: int, rep: Report) -> None:
+    """Repair Logs' approval for the slot (src/vv_log_tools.py), not yet used by the game."""
+    path = game_dir / DATA / "Cross-Check" / f"Virtual Villagers {game} Repair Approved - Save {slot}.dat"
+    if not path.is_file():
+        return
+    label = f"{DATA}\Cross-Check"
+    if path.read_bytes() == struct.pack("<4I", 0x31415256, 1, game, slot):
+        rep.add(label, "NOTE", "Repair Logs approved repairing this village: the game repairs it, without asking, "
+                               "the next time it is played")
+    else:
+        rep.add(label, "UNCHECKED", "a Repair Logs approval that is not this game's and slot's (the game ignores it)")
 
 
 def detect_game(game_dir: Path, slot: int) -> int:
@@ -1156,6 +1170,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     check_rosters(game_dir, slot, game, roster, rep)
     check_stews(game_dir, slot, game, rep)
     check_marker(game_dir, slot, game, rep, births.village)
+    check_approval(game_dir, slot, game, rep)
     return rep
 
 

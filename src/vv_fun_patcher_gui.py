@@ -43,6 +43,14 @@ from vv_fun_patcher import (
 
 ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = ROOT / "patcher_local_settings.json"
+# The setting beside Check Logs / Repair Logs (STARTUP_LOADER_CHECK_LOGS in
+# vv_fun_patcher.py): off by default, remembered, written into every game the
+# window creates from then on.
+CHECK_LOGS_LABEL = (
+    "Check logs automatically (games created from now on check each village "
+    "silently and, only if something is wrong, ask Repair / Not now when you "
+    "close the game)"
+)
 
 # Patches the default selection leaves OFF.
 #
@@ -415,6 +423,9 @@ class App(tk.Tk):
             self.exe_var = tk.StringVar()
             self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
             self.output_root_var = tk.StringVar()
+            # "Check logs automatically": OFF by default (owner, 2026-10-05);
+            # a per-install choice, written into each game built from now on.
+            self.check_logs_var = tk.BooleanVar(value=False)
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -783,6 +794,12 @@ class App(tk.Tk):
         self._folder_link(
             links, "Repair Logs...", self._repair_single_logs
         ).pack(side="left", padx=(18, 0))
+        ttk.Checkbutton(
+            box,
+            text=CHECK_LOGS_LABEL,
+            variable=self.check_logs_var,
+            command=self._check_logs_changed,
+        ).grid(row=3, column=0, columnspan=2, sticky="w", pady=(6, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -888,9 +905,31 @@ class App(tk.Tk):
             text="Repair Logs...",
             command=lambda: self._log_tool(None, repair=True),
         ).pack(side="left", padx=(8, 0))
+        ttk.Checkbutton(
+            tab,
+            text=CHECK_LOGS_LABEL,
+            variable=self.check_logs_var,
+            command=self._check_logs_changed,
+        ).pack(anchor="w", pady=(8, 0))
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
+
+    def _check_logs_changed(self) -> None:
+        """The "Check logs automatically" box: remembered, and used for every
+        game created from now on (a game already created keeps its own)."""
+        if self.check_logs_var.get():
+            self.status_var.set(
+                "Check logs automatically: on. Games you create from now on check "
+                "each village's logs silently while it is played and, only if "
+                "something is wrong, ask Repair / Not now when you close the game."
+            )
+        else:
+            self.status_var.set(
+                "Check logs automatically: off. Games you create from now on never "
+                "check or ask during play; use Check Logs and Repair Logs."
+            )
+        self._save_settings()
 
     def _mode_changed(self, save: bool = True) -> None:
         try:
@@ -1041,6 +1080,8 @@ class App(tk.Tk):
         saved_output_root = data.get("output_root", "")
         if isinstance(saved_output_root, str):
             self.output_root_var.set(saved_output_root)
+        saved_check_logs = data.get("check_logs_automatically", False)
+        self.check_logs_var.set(saved_check_logs is True)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -1056,6 +1097,7 @@ class App(tk.Tk):
             "patch_mode": self._mode(),
             "original_exe": self.exe_var.get().strip(),
             "output_root": self.output_root_var.get().strip(),
+            "check_logs_automatically": bool(self.check_logs_var.get()),
             "fun_patches": self._selected_fun_patch_ids(),
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
@@ -1226,9 +1268,13 @@ class App(tk.Tk):
             mode = self._mode()
             fun_patch_ids = self._selected_fun_patch_ids(build.id)
             output_root = self._output_root()
+            check_logs = bool(self.check_logs_var.get())
             result = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
-                lambda: dry_run(source, mode, fun_patch_ids, output_root=output_root),
+                lambda: dry_run(
+                    source, mode, fun_patch_ids, output_root=output_root,
+                    check_logs_automatically=check_logs,
+                ),
             )
             self.status_var.set(
                 "Dry run passed. No files were written. Planned copied game folder:\n"
@@ -1252,9 +1298,13 @@ class App(tk.Tk):
             mode = self._mode()
             fun_patch_ids = self._selected_fun_patch_ids()
             output_root = self._output_root()
+            check_logs = bool(self.check_logs_var.get())
             results = self._run_with_wait(
                 "Please wait\u2026\n\nPreparing the patches for all five games.",
-                lambda: dry_run_all(sources, mode, fun_patch_ids, output_root=output_root),
+                lambda: dry_run_all(
+                    sources, mode, fun_patch_ids, output_root=output_root,
+                    check_logs_automatically=check_logs,
+                ),
             )
             self.status_var.set(
                 "All-five dry run passed. No files were written. "
@@ -1295,9 +1345,13 @@ class App(tk.Tk):
             if not self._confirm_unmet_needs_on(fun_patch_ids):
                 return
             output_root = self._output_root()
+            check_logs = bool(self.check_logs_var.get())
             preview = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
-                lambda: dry_run(source, mode, fun_patch_ids, output_root=output_root),
+                lambda: dry_run(
+                    source, mode, fun_patch_ids, output_root=output_root,
+                    check_logs_automatically=check_logs,
+                ),
             )
             output_folder = Path(preview["output_folder"])
             overwrite = False
@@ -1317,6 +1371,7 @@ class App(tk.Tk):
                     overwrite=overwrite,
                     fun_patch_ids=fun_patch_ids,
                     output_root=output_root,
+                    check_logs_automatically=check_logs,
                 ),
             )
             self.last_output_dir = output.parent
@@ -1344,13 +1399,17 @@ class App(tk.Tk):
             if not self._confirm_unmet_needs_on(fun_patch_ids):
                 return
             output_root = self._output_root()
+            check_logs = bool(self.check_logs_var.get())
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
             )
             previews = self._run_with_wait(
                 "Please wait\u2026\n\nPreparing the patches for all five games.",
-                lambda: dry_run_all(sources, mode, fun_patch_ids, output_root=output_root),
+                lambda: dry_run_all(
+                    sources, mode, fun_patch_ids, output_root=output_root,
+                    check_logs_automatically=check_logs,
+                ),
             )
             existing = []
             for (build, source), preview in zip(validated, previews, strict=True):
@@ -1376,6 +1435,7 @@ class App(tk.Tk):
                     overwrite=overwrite,
                     fun_patch_ids=fun_patch_ids,
                     output_root=output_root,
+                    check_logs_automatically=check_logs,
                 ),
             )
             self.last_output_dir = results[0][0].parent
@@ -2325,9 +2385,9 @@ class App(tk.Tk):
         Check Logs runs the read-only checker (vv_log_tools.check_logs) and
         shows its report; it writes nothing, so it may run with the game open.
         Repair Logs repairs nothing itself: with the game closed it backs the
-        folder up and clears the cross-check's markers
-        (vv_log_tools.rearm), so the game checks the village again at its next
-        load and asks before repairing.
+        folder up, clears the cross-check's markers and approves the repair
+        (vv_log_tools.approve_repair), so the next time the village is played
+        the game repairs it without asking.
         """
         title = "Repair Logs" if repair else "Check Logs"
         documents = vv_save_backup.documents_folder()
@@ -2346,11 +2406,11 @@ class App(tk.Tk):
         frame.pack(fill="both", expand=True)
         if repair:
             intro = (
-                "Has the game check this village's logs again the next time you "
-                "load it, and ask (Repair / Not now) before it repairs anything. "
-                "Nothing is repaired now. The game must be closed. The save folder "
-                "is backed up first, into <save folder>\\Backups\\Backup <date and "
-                "time> (before repair re-arm)."
+                "Has the game repair this village's logs the next time you play it, "
+                "without asking: everything confirmed wrong is put right, backed up "
+                "and listed in the Repairs log. Nothing is repaired now. The game "
+                "must be closed. The save folder is backed up first, into <save "
+                "folder>\\Backups\\Backup <date and time> (before repair re-arm)."
             )
         else:
             intro = (
@@ -2507,7 +2567,7 @@ class App(tk.Tk):
         ttk.Button(frame, text="Close", command=window.destroy).pack(anchor="e", pady=(8, 0))
 
     def _repair_logs(self, parent, folder: Path, number: int, info) -> None:
-        """Re-arm the first-load cross-check for one slot, with the game closed."""
+        """Approve the repair of one slot's village, with the game closed."""
         exe = vv_save_backup.game_exe_name(folder)
         if vv_save_backup.running_game_count(folder):
             messagebox.showerror(
@@ -2529,34 +2589,36 @@ class App(tk.Tk):
                 if checked.wrong
                 else "The read-only check finds nothing confirmed wrong in "
                 f"{info.name}'s logs. You can still have the game check them "
-                "again at the next load."
+                "again, and repair whatever it finds, the next time you play it."
             )
         except (vv_log_tools.LogToolError, OSError) as exc:
             found = f"The logs could not be checked here ({exc})."
         if not messagebox.askyesno(
             "Repair Logs",
-            f"{found}\n\nNext time you load {info.name}, the patcher will check its "
-            "logs and ask before repairing (Repair / Not now). Nothing is repaired "
+            f"{found}\n\nThe next time you play {info.name}, the game will check "
+            "its logs and repair everything confirmed wrong WITHOUT asking (every "
+            "change is backed up and listed in the Repairs log). Nothing is repaired "
             f"now.\n\nThe save folder {folder.name} is backed up first. Continue?",
             parent=parent,
         ):
             return
         try:
             result = self._run_with_wait(
-                "Preparing the check…\n\nThe save folder is backed up first.",
-                lambda: vv_log_tools.rearm(folder, number, info.slot),
+                "Preparing the repair…\n\nThe save folder is backed up first.",
+                lambda: vv_log_tools.approve_repair(folder, number, info.slot),
             )
         except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
             self.status_var.set("Repair Logs: nothing was changed.")
             messagebox.showerror("Repair Logs", str(exc), parent=parent)
             return
         self.status_var.set(
-            f"Repair Logs: {info.name} will be checked at its next load."
+            f"Repair Logs: {info.name} will be repaired the next time it is played."
         )
         messagebox.showinfo(
             "Repair Logs",
-            f"Next time you load {info.name} (Save {info.slot}), the patcher will "
-            "check its logs and ask before repairing.\n\n"
+            f"The next time you play {info.name} (Save {info.slot}), the game will "
+            "repair its logs without asking, then close normally from its own menu "
+            "so the repairs are saved.\n\n"
             f"{len(result.cleared)} \"already checked\" marker(s) cleared.\n\n"
             f"Backup: {result.backup.backup_folder}",
             parent=parent,
