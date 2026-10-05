@@ -103,6 +103,7 @@ class Game:
         self.logged: list[dict] = []
         self.slot = slot
         self.files: dict[str, bytearray] = {}
+        self.dirs: set[str] = set()
         self.handles: dict[int, list] = {}
         self.last_error = 0
         p.mu.mem_map(FAKE_PARENTAGE, 0x1000)
@@ -113,6 +114,7 @@ class Game:
         p.api_handlers["VirtualFree"] = lambda proc: (1, 12)
         for name in ("SHGetSpecialFolderPathA", "CreateDirectoryA", "CreateFileA", "ReadFile", "WriteFile",
                      "FlushFileBuffers", "CloseHandle", "MoveFileExA", "DeleteFileA", "GetLastError",
+                     "GetFileAttributesA",
                      "GetLocalTime", "SystemTimeToFileTime", "FileTimeToSystemTime"):
             p.api_handlers[name] = getattr(self, "_" + name)
         p.stub(WRITE_RECORD, self._write_record)
@@ -137,7 +139,19 @@ class Game:
         return 1, 16
 
     def _CreateDirectoryA(self, proc):
+        self.dirs.add(proc.cstring(proc.arg(0)).lower())
         return 1, 8
+
+    # native/shared/data_subfolder.h asks what is at a path before choosing
+    # between a file's folder and a loose copy an older build left.
+    def _GetFileAttributesA(self, proc):
+        path = proc.cstring(proc.arg(0))
+        if path in self.files:
+            return 0x80, 4                      # FILE_ATTRIBUTE_NORMAL
+        if path.lower() in self.dirs:
+            return 0x10, 4                      # FILE_ATTRIBUTE_DIRECTORY
+        self.last_error = 2                     # ERROR_FILE_NOT_FOUND
+        return 0xFFFFFFFF, 4
 
     def _CreateFileA(self, proc):
         path, disposition = proc.cstring(proc.arg(0)), proc.arg(4)
@@ -194,7 +208,7 @@ class Game:
         return 1, 8
 
     def roster(self, slot: int) -> bytes | None:
-        name = f"C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher Data\\Virtual Villagers {self.no} Village Roster - Save {slot}.dat"
+        name = f"C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual Villagers {self.no} Village Roster - Save {slot}.dat"
         data = self.files.get(name)
         return bytes(data) if data is not None else None
 

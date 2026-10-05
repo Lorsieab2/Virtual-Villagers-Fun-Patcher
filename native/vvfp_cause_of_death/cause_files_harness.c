@@ -2,9 +2,10 @@
 
    Drives the TEST build of "VVFP Cause of Death.dll" (its VvfpCauseTest*
    exports call the same routines the detours call) against real files under
-   Documents\LDW\<this exe's basename>\Virtual Villagers Fun Patcher Data\,
-   which harness_ldw_tree_begin() guarantees did not exist before the run
-   and which the harness removes afterwards.
+   Documents\LDW\<this exe's basename>\Virtual Villagers Fun Patcher Data\
+   Graves\ and ...\Unaccounted Villagers\, which harness_ldw_tree_begin()
+   guarantees did not exist before the run and which the harness removes
+   afterwards.
 
    THE GRAVES FILE (A New Home):
      1. A death and its burial, then the tick: the file for the slot exists
@@ -30,6 +31,14 @@
         departure and a reported arrival report nothing; an arrival nobody
         reported is one record; another village's roster is set aside
         without records; Start Over deletes the roster.
+
+   EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h):
+    10. A graves file and a roster an older build left loose in the Data
+        folder are moved into Graves\ and Unaccounted Villagers\ at the
+        first load, and read: the grave shows its cause, and the roster
+        still reconciles. Where both a folder copy and a loose one exist,
+        the folder's is read and the loose one is left byte-for-byte.
+        Start Over deletes the slot's file at both places.
      9. A record freed by a recorded departure (a burial, a body's removal)
         and filled again: a newcomer nobody reported is one record even with
         the same sex, or the same name and sex (the buried villager's own
@@ -184,14 +193,28 @@ static int locate(void) {
 }
 
 static void file_of(int slot, char *out) {
-    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers 1 Graves - Save %d.dat", data_dir, slot);
+    _snprintf(out, MAX_PATH, "%s\\Graves\\Virtual Villagers 1 Graves - Save %d.dat", data_dir, slot);
     out[MAX_PATH - 1] = 0;
 }
 
 static void roster_of(int slot, char *out) {
+    _snprintf(out, MAX_PATH, "%s\\Unaccounted Villagers\\Virtual Villagers 1 Village Roster - Save %d.dat",
+              data_dir, slot);
+    out[MAX_PATH - 1] = 0;
+}
+
+/* Where an older build wrote them: loose in the Data folder. */
+static void loose_file_of(int slot, char *out) {
+    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers 1 Graves - Save %d.dat", data_dir, slot);
+    out[MAX_PATH - 1] = 0;
+}
+
+static void loose_roster_of(int slot, char *out) {
     _snprintf(out, MAX_PATH, "%s\\Virtual Villagers 1 Village Roster - Save %d.dat", data_dir, slot);
     out[MAX_PATH - 1] = 0;
 }
+
+static const char *const KIND_FOLDERS[2] = { "Graves", "Unaccounted Villagers" };
 
 static long read_file(const char *path, unsigned char *buf, long cap) {
     FILE *f = fopen(path, "rb");
@@ -202,39 +225,66 @@ static long read_file(const char *path, unsigned char *buf, long cap) {
     return n;
 }
 
-static void wipe(void) {
-    char pattern[MAX_PATH], path[MAX_PATH], parent[MAX_PATH], *slash;
+static void wipe_files(const char *dir) {
+    char pattern[MAX_PATH], path[MAX_PATH];
     WIN32_FIND_DATAA f;
     HANDLE h;
-    _snprintf(pattern, MAX_PATH, "%s\\*", data_dir);
+    _snprintf(pattern, MAX_PATH, "%s\\*", dir);
+    pattern[MAX_PATH - 1] = 0;
     h = FindFirstFileA(pattern, &f);
     if (h != INVALID_HANDLE_VALUE) {
         do {
             if (!(f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                _snprintf(path, MAX_PATH, "%s\\%s", data_dir, f.cFileName);
+                _snprintf(path, MAX_PATH, "%s\\%s", dir, f.cFileName);
+                path[MAX_PATH - 1] = 0;
                 DeleteFileA(path);
             }
         } while (FindNextFileA(h, &f));
         FindClose(h);
     }
-    RemoveDirectoryA(data_dir);
+    RemoveDirectoryA(dir);
+}
+
+static void wipe(void) {
+    char parent[MAX_PATH], sub[MAX_PATH], *slash;
+    int k;
+    for (k = 0; k < 2; ++k) {
+        _snprintf(sub, MAX_PATH, "%s\\%s", data_dir, KIND_FOLDERS[k]);
+        sub[MAX_PATH - 1] = 0;
+        wipe_files(sub);
+    }
+    wipe_files(data_dir);
     lstrcpyA(parent, data_dir);
     slash = strrchr(parent, '\\');
     if (slash) { *slash = 0; RemoveDirectoryA(parent); }
 }
 
+/* Set-aside files, beside the file they were: in the kind's folder. */
 static int count_unreadable(void) {
     char pattern[MAX_PATH];
     WIN32_FIND_DATAA f;
     HANDLE h;
     int n = 0;
-    _snprintf(pattern, MAX_PATH, "%s\\*.unreadable-*", data_dir);
-    h = FindFirstFileA(pattern, &f);
-    if (h != INVALID_HANDLE_VALUE) {
-        do { ++n; } while (FindNextFileA(h, &f));
-        FindClose(h);
+    int k;
+    for (k = 0; k < 2; ++k) {
+        _snprintf(pattern, MAX_PATH, "%s\\%s\\*.unreadable-*", data_dir, KIND_FOLDERS[k]);
+        pattern[MAX_PATH - 1] = 0;
+        h = FindFirstFileA(pattern, &f);
+        if (h != INVALID_HANDLE_VALUE) {
+            do { ++n; } while (FindNextFileA(h, &f));
+            FindClose(h);
+        }
     }
     return n;
+}
+
+static int write_file(const char *path, const unsigned char *buf, long n) {
+    FILE *f = fopen(path, "wb");
+    long wrote;
+    if (f == NULL) return 0;
+    wrote = (long)fwrite(buf, 1, (size_t)n, f);
+    fclose(f);
+    return wrote == n;
 }
 
 static int unaccounted(void) { return stats[9]; }
@@ -545,6 +595,67 @@ int main(int argc, char **argv) {
     vv_reset_slot_state(1, 5, NULL);
     CHECK(GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES, "Start Over deletes the roster");
     unload();
+
+    printf("10. files an older build left loose in the Data folder\n");
+    {
+        char loose[MAX_PATH], moved[MAX_PATH], rloose[MAX_PATH], rmoved[MAX_PATH];
+        unsigned char graves[16 + 2 * ENTRY], roster[0x40000], other[16 + 2 * ENTRY];
+        long graves_n, roster_n, other_n;
+        /* A real graves file and a real roster, as this build writes them,
+           then put where an older build kept them. */
+        memset(manager + GRAVES, 0, 50 * GRAVE_STRIDE);
+        current_slot = 1;
+        load();
+        tick(1);
+        villager(20, "Oldfile", 1400, 30, 60);
+        died(20, 3);                        /* Work accident */
+        game_bury(20, 8);
+        buried(20, 8);
+        tick(1);
+        saved(1);
+        unload();
+        file_of(1, moved);
+        roster_of(1, rmoved);
+        loose_file_of(1, loose);
+        loose_roster_of(1, rloose);
+        graves_n = read_file(moved, graves, sizeof graves);
+        roster_n = read_file(rmoved, roster, sizeof roster);
+        CHECK(graves_n == 16 + ENTRY && roster_n > 32, "set up: a graves file and a roster (nonzero denominator)");
+        CHECK(MoveFileA(moved, loose) && MoveFileA(rmoved, rloose), "both moved back to the loose names");
+
+        load();
+        tick(1);
+        CHECK(GetFileAttributesA(loose) == INVALID_FILE_ATTRIBUTES && read_file(moved, buf, sizeof buf) == graves_n
+              && memcmp(buf, graves, (size_t)graves_n) == 0,
+              "the first load moved the graves file into Graves\\, byte for byte");
+        CHECK(grave_of(8, &cause, &epitaph) && cause == 3, "and the grave still shows its cause (Work accident)");
+        before = unaccounted();
+        saved(1);
+        CHECK(GetFileAttributesA(rloose) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) != INVALID_FILE_ATTRIBUTES,
+              "the save moved the roster into Unaccounted Villagers\\");
+        CHECK(unaccounted() == before, "and reconciled against it: nobody unaccounted");
+        unload();
+
+        /* Both: the folder's copy is read, the loose one never touched. */
+        memcpy(other, graves, sizeof other);
+        other_n = graves_n;
+        other[16 + 8] = 1;                  /* a different cause */
+        CHECK(write_file(loose, other, other_n), "set up: a stale loose copy beside the folder's file");
+        load();
+        tick(1);
+        CHECK(grave_of(8, &cause, &epitaph) && cause == 3, "the folder's file is read (its cause, not the loose copy's)");
+        CHECK(read_file(loose, buf, sizeof buf) == other_n && memcmp(buf, other, (size_t)other_n) == 0,
+              "the loose copy is left byte-for-byte");
+        unload();
+
+        /* Start Over: the slot's file at both places. */
+        CHECK(write_file(rloose, roster, roster_n), "set up: a loose roster beside the folder's");
+        vv_reset_slot_state(1, 1, NULL);
+        CHECK(GetFileAttributesA(moved) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(loose) == INVALID_FILE_ATTRIBUTES,
+              "Start Over deletes the graves file in Graves\\ and the loose one");
+        CHECK(GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rloose) == INVALID_FILE_ATTRIBUTES,
+              "Start Over deletes the roster in Unaccounted Villagers\\ and the loose one");
+    }
 
     wipe();
     printf("%s: %d failure(s)\n", failures ? "FAILED" : "PASSED", failures);

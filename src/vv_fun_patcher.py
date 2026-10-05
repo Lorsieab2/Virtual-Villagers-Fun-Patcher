@@ -125,6 +125,14 @@ NUMERIC_KEYS_FEATURE_PATHS = (
     ROOT / "data" / "vv1_number_keys_feature.json",
     ROOT / "data" / "vv2_numeric_keys_tip_feature.json",
 )
+# Restore Missing Island Events: A New Home's and The Lost Children's island
+# events the original game contains but never runs, put into the game's own
+# random roll, plus (The Lost Children) the lore pages whose text the game
+# ships without code.  Executable bytes only, each guarded in place.
+RESTORE_MISSING_ISLAND_EVENTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{game_number}_restore_missing_island_events_feature.json"
+    for game_number in (1, 2)
+)
 # Show Parents in Details Screen: A New Home's true-parentage companion, which
 # keeps every villager's parents in a sidecar and draws them in the portrait.
 SHOW_PARENTS_FEATURE_PATHS = (ROOT / "data" / "vv1_show_parents_feature.json",)
@@ -802,24 +810,24 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "BC0D9B94291C4989D2263759E1D628E93DC2DF395ABAB003D6D37E57FC12E161",
-    "map": "03B0D5AB531F1E3984B0941F1BC54041E18482E0DF4E27459ABFC82430EDA276",
+    "manifest": "27FB90786D65CCC13C53DAC41213CFFF0D0EA0E7FDD7596E302B8153FF7F6F48",
+    "map": "9AEBF464D49E1719917F5DD72867D0BCBB056AE00B15B170012743C3414086B4",
 }
-VV5_TASK9_DLL_SHA256 = "432C647DBD1B748DFF3D4FB6E6D1057ECA9C1205D8C1D156B5CA8B25DC64A689"
+VV5_TASK9_DLL_SHA256 = "3B5B04AE596ADFF28026DF737A8EB2DFAD41491F98F65B0B668E98C7294C7933"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "610BB3C41078ADE44A05548AEE51C574840D645A2374CBC9C629BE7550058FEC"
-VV5_TASK9_SAVE_RESET_SIZE = 137728
+VV5_TASK9_SAVE_RESET_SHA256 = "3419659AE6E1BF68E8A7FD8CD0DE7B35DFEFE79965F7956891A5623F8EFB1219"
+VV5_TASK9_SAVE_RESET_SIZE = 140288
 VV5_TASK9_PAGE_SHA256 = {
     "collection_progression": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
     "immediate_fixed": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
     "experimental_expanded_256": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
     "experimental_expanded_256_progression": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "3E81066926446D5567958A4BA74745C26BD1813527DD8723A86E590D15493E47"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "A9C12DF2AAE365EF964BBBB455531C9B16FC8061F6AF169D4B6D24D1F417B311"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -1828,8 +1836,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "5F902A79FCA07CEBE9B43CA921184242AABC7CDE8DACB6055FCE6FD3405B7F1E",
-    "task9_builder": "B3041E579C0860A0E83EEBC0392B90CAADBA9A6906FEC046AFBE0072E5730BCA",
+    "builder": "68E5B24D1A64E3B2D6F02297E002D8DB581C9DC08478328E57AD6D02F29676E5",
+    "task9_builder": "F065954010555FBEBFC2D31609BD7ADE42D77976D5CA2BB7F55328D6E8967693",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1841,8 +1849,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "3F7D098B94D83FB7D4095DC41C00078D8CA51CC342E7BC8B9C353DA1DBD9A792",
-        "map": "3BB14B6619814B020F556EFE63958C881A38AC8CF6CCDE06BD2188C376840FD1",
+        "manifest": "01336ACC687179522AC46AD287F6BA39DAE54C01400A7D689D9F0992F20D520D",
+        "map": "74BB242CE3CF6CE408C1812626E45843340C721EC730A106DA71F86C75F3D75F",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3264,7 +3272,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1782784,
+        "size": 1783808,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3622,7 +3630,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1782784,
+        "size": 1783808,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -3879,6 +3887,11 @@ def _load_fun_patch_records(
             if record.get("enabled", True):
                 items.append(record)
     for feature_path in NUMERIC_KEYS_FEATURE_PATHS:
+        if feature_path.is_file():
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
+    for feature_path in RESTORE_MISSING_ISLAND_EVENTS_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

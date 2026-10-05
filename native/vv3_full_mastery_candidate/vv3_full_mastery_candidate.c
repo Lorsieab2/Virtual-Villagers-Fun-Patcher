@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 static HINSTANCE module_instance;
 
@@ -1236,11 +1237,22 @@ static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
     dot = NULL;
     for (p = base; *p; ++p) if (*p == '.') dot = p;
     if (dot) *dot = '\0';                                  /* strip extension */
-    if (lstrlenA(docs) + lstrlenA(base) + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 00.dat") + 8 >= cap) return 0;
+    if (lstrlenA(docs) + lstrlenA(base) + (int)sizeof("\\" VV_DATA_FOLDER "\\Village Masks - Save 00.dat") + 8 >= cap) return 0;
     wsprintfA(dir, "%s\\LDW", docs);                       CreateDirectoryA(dir, NULL);
     wsprintfA(dir, "%s\\LDW\\%s", docs, base);             CreateDirectoryA(dir, NULL);
-    wsprintfA(dir, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base); CreateDirectoryA(dir, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat", docs, base, slot);
+    wsprintfA(dir, "%s\\LDW\\%s\\" VV_DATA_FOLDER, docs, base); CreateDirectoryA(dir, NULL);
+    /* The masks have a folder of their own inside it, "Village Masks". A
+       file an older build left loose in the Data folder is moved in on the
+       way (native/shared/data_subfolder.h); if it will not move, the loose
+       file is the one read and written, so nothing is shadowed. */
+    {
+        char name[64];
+        lstrcpyA(out, dir);
+        wsprintfA(name, "Village Masks - Save %d.dat", slot);
+        if (!vv_data_file_path(out, cap, VV_DATA_SUB_MASKS, name, VV_DATA_RESERVE)) {
+            return 0;
+        }
+    }
     /* A player upgrading from a build that wrote the loose name still
        has their masks under it; move them into place. */
     /* A legacy file that exists and will not move means the masks

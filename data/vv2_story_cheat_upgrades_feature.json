@@ -12,7 +12,7 @@
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 56 island events; events that can never run in this game are not offered.",
+    "Offers 59 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
     "Pick Island Event's settings: each offered event can carry its result, every amount it rolls, who a per-villager roll hits, which villager it is about and each baby's details (A New Home and The Lost Children: also its strength), each defaulting to Random (original game).  The companion points the event's own rand() calls at a stub that answers the chosen value only in that roll's phase (before the popup, the popup, or the event's apply), for the clicked choice, and -- in a routine other code shares -- only inside the event's own call to it; the outcome ends when the event's apply returns, on refusal and on lapse, so no chosen value reaches a natural event.",
@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "90D472DCB524EE324B0CBCF61171419C7890A1E9531A97CA7CC41B194439BD5C"
+      "sha256": "2872C84CD22F67BE54C6101A5E6C3350BB8A4DC03065C8F30CCF2419000B5C65"
     }
   ],
   "runtime_detours": [
@@ -903,6 +903,27 @@
       "requires": "nothing beyond an island event being possible"
     },
     {
+      "slot": 28,
+      "title": "The Tattered Diary",
+      "variant": "",
+      "description": "A villager finds a half-rotten diary whose last page tells of a scout sent to watch the newcomers for magic.",
+      "requires": "the Restore Missing Island Events patch, which adds this event"
+    },
+    {
+      "slot": 29,
+      "title": "The Doctrine of Magicians",
+      "variant": "",
+      "description": "A villager finds a page praising the magic of Isola and the Magicians' artifacts.",
+      "requires": "the Restore Missing Island Events patch, which adds this event"
+    },
+    {
+      "slot": 30,
+      "title": "The Doctrine of Naturalists",
+      "variant": "",
+      "description": "A villager finds a page telling how the Naturalists banished the Magicians.",
+      "requires": "the Restore Missing Island Events patch, which adds this event"
+    },
+    {
       "slot": 64,
       "title": "The Ancient Gold Coin",
       "variant": "",
@@ -1109,7 +1130,7 @@
   "excluded_island_events": [
     {
       "title": "(case 4 of 0x433600)",
-      "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry"
+      "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry (with Restore Missing Island Events it holds the three lore pages, offered as their own entries)"
     }
   ],
   "island_event_settings": {

@@ -108,12 +108,12 @@ always-false condition for that one pick. The rest stay excluded:
 | Game | Offered as never happening in the original game | Still excluded, and why |
 | --- | --- | --- |
 | A New Home | A Mighty Storm (island case 1), The Furry Food (encounter 5) | -- |
-| The Lost Children | The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day | case 4: no event body, title or text |
+| The Lost Children | The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day (with Restore Missing Island Events ticked these are ordinary events: that row puts them in the game's own roll) | case 4: no event body, title or text (Restore Missing Island Events gives it the three lore pages, offered as The Tattered Diary, The Doctrine of Magicians and The Doctrine of Naturalists only with that row) |
 | The Secret City | -- | The Swarm of Bees, The Drought: strings only, no event object (The Drought is also unfinished) |
 | The Tree of Life | The Canoe from the Other Side (needs room) | The Tsunami: half-finished (its text destroys structures, its apply never touches one and skips the drowning's death step); The Medical Emergency, The Return of Biggles: the condition never picks the villager, so no popup opens and the apply reads a null villager; The Salty Air: strings only |
 | New Believers | The Stinging Wasps, The Abandoned Infants (needs room) | The Return of Biggles and slots 48-54: no villager is ever picked, the apply reads a null villager; the strings-only group |
 
-Offered: A New Home 40, The Lost Children 56, The Secret City 57, The Tree of
+Offered: A New Home 40, The Lost Children 59 (56 without Restore Missing Island Events), The Secret City 57, The Tree of
 Life 45, New Believers 47 (the full lists, with descriptions, are in
 `scripts/story_island_events.py` and each row's `island_events`).
 

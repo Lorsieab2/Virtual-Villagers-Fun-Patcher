@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "90D472DCB524EE324B0CBCF61171419C7890A1E9531A97CA7CC41B194439BD5C"
+      "sha256": "2872C84CD22F67BE54C6101A5E6C3350BB8A4DC03065C8F30CCF2419000B5C65"
     }
   ],
   "runtime_detours": [
@@ -600,7 +600,7 @@
       "title": "A Mighty Storm",
       "variant": "",
       "description": "A typhoon strikes in the night and washes away all of the stored food.",
-      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
+      "requires": "stored food, with Restore Missing Island Events ticked (without it the original game never runs it; picking it makes it happen)"
     },
     {
       "slot": 2,
@@ -733,7 +733,7 @@
       "title": "The Furry Food",
       "variant": "",
       "description": "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.",
-      "requires": "nothing it can have: the original game never runs it (picking it makes it happen)"
+      "requires": "stored food, with Restore Missing Island Events ticked (without it the original game never runs it; picking it makes it happen)"
     },
     {
       "slot": 70,

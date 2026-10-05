@@ -23,6 +23,14 @@ from __future__ import annotations
 ALWAYS = "nothing beyond an island event being possible"
 # A developer-dead event proven to work: its own condition never holds.
 NEVER = "nothing it can have: the original game never runs it (picking it makes it happen)"
+# A New Home's two developer-dead events that Restore Missing Island Events
+# re-admits to the game's own roll when the village has stored food.
+VV1_RESTORED = ("stored food, with Restore Missing Island Events ticked (without it the original "
+                "game never runs it; picking it makes it happen)")
+
+# An event that exists only with The Lost Children's Restore Missing Island
+# Events row ticked.
+RESTORE = "the Restore Missing Island Events patch, which adds this event"
 
 # A New Home families (story_vv1.inc).
 VV1_ISLAND, VV1_ENCOUNTER, VV1_CRATE = 0, 1, 2
@@ -51,7 +59,7 @@ EVENTS: dict[str, list[dict]] = {
            "A monkey ransacks the research table: the tribe loses tech points."),
         _e(_slot(VV1_ISLAND, 1), "A Mighty Storm",
            "A typhoon strikes in the night and washes away all of the stored food.",
-           requires=NEVER),
+           requires=VV1_RESTORED),
         _e(_slot(VV1_ISLAND, 2), "The Plague of Parrots",
            "A flock of wild parrots eats many of the berries."),
         _e(_slot(VV1_ISLAND, 3), "A Plague of Locusts",
@@ -98,7 +106,7 @@ EVENTS: dict[str, list[dict]] = {
         _e(_slot(VV1_ENCOUNTER, 5), "The Furry Food",
            "The stored food goes moldy: remove the moldy pieces (some villagers get stomach "
            "trouble), or throw out all the food.",
-           requires=NEVER),
+           requires=VV1_RESTORED),
         _e(_slot(VV1_ENCOUNTER, 6), "A Mysterious Vial",
            "A villager finds a vial of oily red liquid: drink it (risky), or pour it out.",
            variant="red liquid"),
@@ -220,6 +228,19 @@ EVENTS: dict[str, list[dict]] = {
            "gain research skill.", requires=NEVER),
         _e(_slot(VV2_C, 27), "The Mother Parrot",
            "The children watch a mother parrot and learn about parenting."),
+        # The lore pages of Restore Missing Island Events (its own row): one
+        # body behind single-result case 4, rand(3) picks the page.  Their
+        # slots, 28-30, are past the case roll: Pick Island Event delivers
+        # one as case 4 and answers the page roll (story_vv2.inc).
+        _e(_slot(VV2_C, 28), "The Tattered Diary",
+           "A villager finds a half-rotten diary whose last page tells of a scout sent to watch "
+           "the newcomers for magic.", requires=RESTORE),
+        _e(_slot(VV2_C, 29), "The Doctrine of Magicians",
+           "A villager finds a page praising the magic of Isola and the Magicians' artifacts.",
+           requires=RESTORE),
+        _e(_slot(VV2_C, 30), "The Doctrine of Naturalists",
+           "A villager finds a page telling how the Naturalists banished the Magicians.",
+           requires=RESTORE),
         # Family A: the two-choice events of 0x41F570.
         _e(_slot(VV2_A, 0), "The Ancient Gold Coin",
            "A villager finds a gold coin: wear it as an ornament, or give it to the scientists.",
@@ -597,7 +618,9 @@ EXCLUDED: dict[str, list[dict]] = {
     "vv1": [],
     "vv2": [
         {"title": "(case 4 of 0x433600)",
-         "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry"},
+         "reason": "no event body: both tables point it at the shared epilogue / a never-valid entry "
+                   "(with Restore Missing Island Events it holds the three lore pages, offered as "
+                   "their own entries)"},
     ],
     "vv3": [
         {"title": "The Swarm of Bees",

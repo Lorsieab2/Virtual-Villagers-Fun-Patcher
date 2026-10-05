@@ -58,8 +58,15 @@ FOUNDATION_OUTPUT = (
 # (native/shared/cause_bridge.h): it loads "VVFP Cause of Death.dll" when
 # shipped, from the same places it loads the story companion.  Without the
 # row nothing changes.
-SOURCE_SHA256 = "16A3205F93C0CD3B5510F31C7AC320A768A5DE3E9920A501243F0C5D44477A55"
-SOURCE_SIZE = 1907712
+# Recertified when the mask file moved into its own folder
+# (native/shared/data_subfolder.h): "Village Masks - Save N.dat" is now read
+# and written in "Virtual Villagers Fun Patcher Data\Village Masks", and a
+# copy an older build left loose in the Data folder is moved there (never
+# over an existing file; if it will not move, the loose file stays in use),
+# and then again when it reserved room for a set-aside name and kept a
+# loose file whose folder path would not fit.
+SOURCE_SHA256 = "7E1D18C774237A161BC7C97D0282E699B9C81DD00BA2783955F30B4755C2A0EA"
+SOURCE_SIZE = 1908736
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

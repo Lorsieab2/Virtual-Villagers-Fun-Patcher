@@ -75,6 +75,7 @@
 #endif
 
 #include "village_identity.h"
+#include "village_rename.h"
 #include "save_folder.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -1401,12 +1402,12 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
         fclose(file);
         return 0;
     }
-    fclose(file);
 
     /* A record marker as the first line means the file has no header. */
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
         || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0) {
+        fclose(file);
         return 0;
     }
     /* Trim the line ending, which is CRLF on disk because the log is written
@@ -1416,9 +1417,34 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
         line[--length] = '\0';
     }
     if (length == 0) {
+        fclose(file);
         return 0;
     }
     _snprintf_s(out, size, _TRUNCATE, "%s", line);
+    /* A RENAMED TRIBE KEEPS ITS LOG. The patcher's Rename Tribe tool never
+       rewrites the header; it appends "Tribe renamed from <old> to <new> on
+       <date>", and the header this file stands for follows every such line
+       in order (see village_rename.h). Without this the first record after a
+       rename would start a new file under the new name.
+
+       Only lines that START at a line start are considered: a line longer
+       than the buffer arrives in pieces, and a piece is never a note. */
+    {
+        int at_line_start = 1;
+        while (fgets(line, (int)sizeof(line), file) != NULL) {
+            int starts = at_line_start;
+            length = strlen(line);
+            at_line_start = length > 0 && line[length - 1] == '\n';
+            if (!starts || !vv_rename_is_note(line)) {
+                continue;
+            }
+            while (length > 0 && (line[length - 1] == '\n' || line[length - 1] == '\r')) {
+                line[--length] = '\0';
+            }
+            (void)vv_rename_apply(out, size, line);
+        }
+    }
+    fclose(file);
     return 1;
 }
 

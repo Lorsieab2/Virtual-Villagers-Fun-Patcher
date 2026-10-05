@@ -1,6 +1,9 @@
 /* See save_reset.h. Deletes this patcher's state for one erased village. */
 #include "save_reset.h"
 #include "save_folder.h"
+#define VV_DATA_SUBFOLDER_NAMES_ONLY   /* the folder names; nothing is moved here */
+#include "data_subfolder.h"
+#include "village_rename.h"
 
 #include <windows.h>
 
@@ -46,26 +49,48 @@ int vv_reset_refused_paths = 0;
    started after the reset gets its own when its Births log is created. */
 #define ARRIVALS_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers " n " Arrivals Recorded - Save %d.dat"
-#define SIDECAR_FORMAT_COUNT 11
+/* EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h). The masks,
+   the graves, VV1's parentage records and the Unaccounted Villagers roster
+   used to be written loose in "Virtual Villagers Fun Patcher Data" and now
+   live in a folder each. A companion moves a loose file in when it first
+   reads it -- but a file it could not move, or one for a slot never loaded
+   since the upgrade, is still loose. Start Over removes the village's file
+   at BOTH places, so neither copy can bring an erased village's state back. */
+#define DATA_FORMAT(sub, name) \
+    "%s\\Virtual Villagers Fun Patcher Data\\" sub "\\" name " - Save %d.dat"
+#define SIDECAR_FORMAT_COUNT 15
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
-    /* VV1 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
+    /* VV1 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %d.dat",
+               DATA_FORMAT(VV_DATA_SUB_PARENTAGE, "Virtual Villagers 1 Parentage Records"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %d.dat",
                "%s\\vv1_masks_%d.dat", "%s\\vv1_doublers_%d.dat",
-               "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("1"),
+               "%s\\vv1_parents_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 1 Graves"), CAUSE_OF_DEATH_FORMAT("1"),
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Village Roster"),
                ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT("1"), ARRIVALS_FORMAT("1") },
-    /* VV2 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
-               "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT, CAUSE_OF_DEATH_FORMAT("2"),
-               ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT("2"), ARRIVALS_FORMAT("2"), 0, 0, 0, 0 },
-    /* VV3 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("3"),
-               GRAVES_LOGGED_FORMAT("3"), ARRIVALS_FORMAT("3"), 0, 0, 0, 0, 0 },
-    /* VV4 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("4"),
-               GRAVES_LOGGED_FORMAT("4"), ARRIVALS_FORMAT("4"), 0, 0, 0, 0, 0 },
-    /* VV5 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
-               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT, ROSTER_FORMAT("5"),
-               GRAVES_LOGGED_FORMAT("5"), ARRIVALS_FORMAT("5"), 0, 0, 0, 0, 0 },
+    /* VV2 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 2 Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
+               "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 2 Graves"), CAUSE_OF_DEATH_FORMAT("2"),
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 2 Village Roster"),
+               ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT("2"), ARRIVALS_FORMAT("2"), 0, 0, 0, 0, 0 },
+    /* VV3 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Village Roster"),
+               ROSTER_FORMAT("3"), GRAVES_LOGGED_FORMAT("3"), ARRIVALS_FORMAT("3"), 0, 0, 0, 0, 0, 0, 0 },
+    /* VV4 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Village Roster"),
+               ROSTER_FORMAT("4"), GRAVES_LOGGED_FORMAT("4"), ARRIVALS_FORMAT("4"), 0, 0, 0, 0, 0, 0, 0 },
+    /* VV5 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+               "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
+               DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Village Roster"),
+               ROSTER_FORMAT("5"), GRAVES_LOGGED_FORMAT("5"), ARRIVALS_FORMAT("5"), 0, 0, 0, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are
@@ -115,15 +140,34 @@ int vv_test_delete_if_present(const char *path);
 /* The same test against a later line: LINE_INDEX lines are skipped first.
    The Village Population roster opens with its title and puts the village
    header on its SECOND line, so it is matched with line_index 1. */
+/* A RENAMED TRIBE'S LOGS ARE STILL ITS OWN. The patcher's Rename Tribe tool
+   never rewrites a header; it appends "Tribe renamed from <old> to <new> on
+   <date>" to each of the village's logs, and the header a file stands for
+   follows every such line in order (village_rename.h). So the whole file is
+   read, line by line, and the recovered header has each note applied before
+   it is compared. Without this a Start Over of a renamed village would read
+   its NEW name from the save and leave every log it kept under the old one.
+
+   Lines are assembled from fixed reads; a line longer than the buffer is
+   skipped whole (it is a record line, never a header or a note), so nothing
+   past the buffer is ever written. */
+#define RESET_LINE_MAX 512
+
 static int log_line_matches(const wchar_t *path, const char *village,
                             int line_index) {
     HANDLE f;
-    char text[512];
-    char *line;
+    char chunk[4096];
+    char line[RESET_LINE_MAX];
+    char header[RESET_LINE_MAX];
     char want[256];
     DWORD got = 0;
     DWORD i;
     int n;
+    int used = 0;
+    int overlong = 0;
+    int line_number = 0;
+    int have_header = 0;
+    int at_end = 0;
 
     if (village == NULL || village[0] == '\0') {
         return 0;
@@ -133,27 +177,52 @@ static int log_line_matches(const wchar_t *path, const char *village,
     if (f == INVALID_HANDLE_VALUE) {
         return 0;
     }
-    if (!ReadFile(f, text, sizeof(text) - 1, &got, NULL)) {
-        CloseHandle(f);
-        return 0;
+    header[0] = '\0';
+    while (!at_end) {
+        if (!ReadFile(f, chunk, sizeof(chunk), &got, NULL)) {
+            CloseHandle(f);
+            return 0;
+        }
+        if (got == 0) {
+            at_end = 1;
+            chunk[0] = '\n';    /* end the last line as if it had a newline */
+            got = used > 0 || overlong ? 1 : 0;
+        }
+        for (i = 0; i < got; ++i) {
+            char c = chunk[i];
+            if (c != '\n') {
+                if (used < RESET_LINE_MAX - 1) {
+                    line[used++] = c;
+                } else {
+                    overlong = 1;
+                }
+                continue;
+            }
+            /* One whole line, without its line ending. */
+            while (used > 0 && line[used - 1] == '\r') {
+                --used;
+            }
+            line[used] = '\0';
+            if (line_number == line_index) {
+                if (!overlong) {
+                    lstrcpynA(header, line, (int)sizeof(header));
+                    have_header = header[0] != '\0';
+                }
+                if (!have_header) {
+                    CloseHandle(f);
+                    return 0;
+                }
+            } else if (line_number > line_index && have_header && !overlong) {
+                (void)vv_rename_apply(header, sizeof(header), line);
+            }
+            ++line_number;
+            used = 0;
+            overlong = 0;
+        }
     }
     CloseHandle(f);
-    text[got] = '\0';
-    line = text;
-    for (i = 0; i < got && line_index > 0; ++i) {
-        if (text[i] == '\n') {
-            line = text + i + 1;
-            --line_index;
-        }
-    }
-    if (line_index > 0) {
+    if (!have_header) {
         return 0;               /* the file ends before the header line */
-    }
-    for (i = (DWORD)(line - text); i < got; ++i) {
-        if (text[i] == '\r' || text[i] == '\n') {
-            text[i] = '\0';
-            break;
-        }
     }
     /* The published header carries its own trailing newline; compare first
        lines only. */
@@ -165,7 +234,7 @@ static int log_line_matches(const wchar_t *path, const char *village,
     if (want[0] == '\0') {
         return 0;
     }
-    return lstrcmpA(line, want) == 0;
+    return lstrcmpA(header, want) == 0;
 }
 
 static int log_header_matches(const wchar_t *path, const char *village) {
@@ -297,28 +366,43 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     if (game < 1 || game > 5 || slot < 1 || slot > 5) {
         return -1;
     }
-    /* Reserve the longest tail any name below appends.
+    /* Every name below is formatted onto the save folder with wsprintfA,
+       which takes no destination bound, so each one is bounded before it is
+       formatted -- a name that would not fit in MAX_PATH is skipped, never
+       overrun. Such a file cannot exist: the companion that writes it
+       refuses the same path.
 
-       This is NOT a round number. wsprintfA takes no destination bound, so a
-       reserve shorter than the longest suffix is a stack overrun rather than
-       a truncation -- and the data files' names grew when they moved into
-       their own folder. The longest is VV1's parentage sidecar:
+       The folder is resolved with the SHORTEST name's room, not the
+       longest's. On a long Documents path or exe name the longest (a nested
+       Unaccounted Villagers roster) may not fit while a shorter one -- a
+       loose mask file, which data_subfolder.h falls back to exactly then --
+       still does, and refusing the whole reset over the longest left that
+       file behind for the next village (Codex, #519).
 
-           "\\Virtual Villagers Fun Patcher Data"
-           "\\Virtual Villagers 1 Parentage Records - Save 0.dat"
-
-       sizeof includes the NUL, so this is the exact figure rather than a
-       guess at it, and it recomputes if either name is ever edited. */
-    if (!vv_save_folder(folder, (int)sizeof(
-            "\\Virtual Villagers Fun Patcher Data"
-            "\\Virtual Villagers 1 Parentage Records - Save 0.dat"))) {
-        return -1;              /* unresolved path is never a deletion target */
+       Each format is "%s" + tail + "%d" + ".dat"-ish, so it formats to the
+       folder plus (format length - 4) + one slot digit; with the NUL that is
+       format length - 2. Measured from the table, so it recomputes whenever
+       a name is edited or a row added. */
+    {
+        int reserve = 0;
+        for (i = 0; i < SIDECAR_FORMAT_COUNT; ++i) {
+            const char *fmt = SIDECAR_FORMATS[game - 1][i];
+            if (fmt != NULL && (reserve == 0 || lstrlenA(fmt) - 4 + 2 < reserve)) {
+                reserve = lstrlenA(fmt) - 4 + 2;
+            }
+        }
+        if (!vv_save_folder(folder, reserve)) {
+            return -1;          /* unresolved path is never a deletion target */
+        }
     }
 
     for (i = 0; i < SIDECAR_FORMAT_COUNT; ++i) {
         const char *fmt = SIDECAR_FORMATS[game - 1][i];
         if (fmt == NULL) {
             continue;   /* a hole, not the end: the rows are not packed */
+        }
+        if (lstrlenA(folder) + lstrlenA(fmt) - 4 + 2 > MAX_PATH) {
+            continue;   /* would not fit in path[]: no companion can have written it */
         }
         wsprintfA(path, fmt, folder, slot);
         removed += delete_if_present(path);

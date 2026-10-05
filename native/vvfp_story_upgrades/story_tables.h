@@ -34,7 +34,7 @@ typedef struct { int slot; unsigned short control_first; unsigned short control_
 #define VV5_COUNTDOWN 0x17D3Cu
 #define VV5_PURCHASE_FLAGS 0x51D388u
 
-#define STORY_MAX_EVENTS 57
+#define STORY_MAX_EVENTS 59
 
 static const unsigned char VV1_W0_E[44] = { 0x50, 0xC3, 0x00, 0x00, 0x30, 0x75, 0x00, 0x00, 0xF8, 0x24, 0x01, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x30, 0x75, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0xA0, 0x86, 0x01, 0x00, 0x40, 0x9C, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0x88, 0x13, 0x00, 0x00 };
 static const unsigned char VV1_W0_R[44] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -536,7 +536,7 @@ static const oc_control VV1_OC_CONTROLS[] = {
 };
 static const oc_event VV1_OC_EVENTS[] = {
     { 0, 0, 0, 1, 0, 0, NULL },
-    { 1, 0, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 1, 0, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works. With Restore Missing Island Events ticked it also happens on its own when the village has stored food." },
     { 2, 0, 0, 1, 0, 0, NULL },
     { 5, 0, 0, 1, 0, 0, NULL },
     { 6, 0, 1, 0, 0, 0, NULL },
@@ -551,7 +551,7 @@ static const oc_event VV1_OC_EVENTS[] = {
     { 66, 22, 1, 0, 0, 0, NULL },
     { 67, 23, 7, 0, 0, 0, NULL },
     { 68, 30, 2, 0, 0, 0, NULL },
-    { 69, 32, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works." },
+    { 69, 32, 0, 0, 1, 0, "Never happens in the original game (its condition always fails); its code and text are complete and it works. With Restore Missing Island Events ticked it also happens on its own when the village has stored food." },
     { 70, 32, 2, 0, 0, 0, NULL },
     { 71, 34, 1, 0, 0, 0, NULL },
     { 72, 35, 2, 0, 0, 0, NULL },
@@ -575,7 +575,7 @@ static const oc_event VV1_OC_EVENTS[] = {
 #define VV1_OC_EVENT_COUNT 36
 static const story_event VV1_EVENTS[] = {
     { 0, "The Bad Little Monkey", "", "A monkey ransacks the research table: the tribe loses tech points.", "nothing beyond an island event being possible" },
-    { 1, "A Mighty Storm", "", "A typhoon strikes in the night and washes away all of the stored food.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
+    { 1, "A Mighty Storm", "", "A typhoon strikes in the night and washes away all of the stored food.", "stored food, with Restore Missing Island Events ticked (without it the original game never runs it; picking it makes it happen)" },
     { 2, "The Plague of Parrots", "", "A flock of wild parrots eats many of the berries.", "nothing beyond an island event being possible" },
     { 3, "A Plague of Locusts", "", "Locusts devour the crops in the field.", "crops growing in the farm field" },
     { 4, "The Measles Epidemic", "", "Every child in the village falls ill with measles.", "at least one living child" },
@@ -594,7 +594,7 @@ static const story_event VV1_EVENTS[] = {
     { 66, "The Old Drum", "", "A villager finds a heavy old drum: cut it open, or keep it.", "nothing beyond an island event being possible" },
     { 67, "The Mysterious Face", "", "A villager sees a face in the trees: take a closer look (risky), or back away.", "nothing beyond an island event being possible" },
     { 68, "The Visitor", "", "A stranger in a boat asks for plants and seeds: help him, or refuse.", "the tribe's medicine below its highest level (the visitor raises it)" },
-    { 69, "The Furry Food", "", "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
+    { 69, "The Furry Food", "", "The stored food goes moldy: remove the moldy pieces (some villagers get stomach trouble), or throw out all the food.", "stored food, with Restore Missing Island Events ticked (without it the original game never runs it; picking it makes it happen)" },
     { 70, "A Mysterious Vial", "red liquid", "A villager finds a vial of oily red liquid: drink it (risky), or pour it out.", "nothing beyond an island event being possible" },
     { 71, "The Troubled Child", "", "An unusually bright child needs direction: farming, or research.", "at least one living child" },
     { 72, "A Mysterious Vial", "blue liquid", "A villager finds a vial of oily blue liquid: drink it, or pour it out.", "nothing beyond an island event being possible" },
@@ -645,6 +645,9 @@ static const unsigned char VV2_UNLOCK_A_BYTES[7] = { 0x83, 0xF8, 0x14, 0x89, 0x4
 static const unsigned char VV2_CUSTOM_CHOOSE_BYTES[5] = { 0xE8, 0xB9, 0xFB, 0xFF, 0xFF };
 static const unsigned char VV2_TITLE_SITE_BYTES[5] = { 0xE8, 0x28, 0x27, 0xFE, 0xFF };
 static const unsigned char VV2_CHOICE_SETUP_BYTES[5] = { 0xE8, 0x31, 0xD3, 0xFF, 0xFF };
+#define VV2_LORE_BODY_VA 0x42F032u
+#define VV2_LORE_PAGE_SITE 0x42F034u
+static const unsigned char VV2_LORE_BODY[48] = { 0x6A, 0x03, 0xE8, 0x67, 0x41, 0xFD, 0xFF, 0x83, 0xC4, 0x04, 0x05, 0xBA, 0x02, 0x00, 0x00, 0x8B, 0x8D, 0xAC, 0x50, 0x00, 0x00, 0x50, 0xE8, 0x33, 0x26, 0x01, 0x00, 0x50, 0x8D, 0x8D, 0x7F, 0x27, 0x00, 0x00, 0x51, 0xE8, 0x63, 0x92, 0x03, 0x00, 0x83, 0xC4, 0x08, 0xE9, 0x8B, 0x54, 0x00, 0x00 };
 #define VV2_PARENTAGE_SITE 0x44BAD8u
 static const unsigned char VV2_PARENTAGE_STOCK[5] = { 0x5E, 0x5F, 0xC2, 0x1C, 0x00 };
 static const unsigned char VV2_OCS_41F53D[5] = { 0xE8, 0x5E, 0x3C, 0xFE, 0xFF };
@@ -1398,6 +1401,9 @@ static const story_event VV2_EVENTS[] = {
     { 25, "Old Friends", "", "A couple from the south shore finds the village and joins it.", "room in the village for new villagers" },
     { 26, "Science Awareness Day", "", "The village celebrates its researchers with demonstrations and lectures; the children gain research skill.", "nothing it can have: the original game never runs it (picking it makes it happen)" },
     { 27, "The Mother Parrot", "", "The children watch a mother parrot and learn about parenting.", "nothing beyond an island event being possible" },
+    { 28, "The Tattered Diary", "", "A villager finds a half-rotten diary whose last page tells of a scout sent to watch the newcomers for magic.", "the Restore Missing Island Events patch, which adds this event" },
+    { 29, "The Doctrine of Magicians", "", "A villager finds a page praising the magic of Isola and the Magicians' artifacts.", "the Restore Missing Island Events patch, which adds this event" },
+    { 30, "The Doctrine of Naturalists", "", "A villager finds a page telling how the Naturalists banished the Magicians.", "the Restore Missing Island Events patch, which adds this event" },
     { 64, "The Ancient Gold Coin", "", "A villager finds a gold coin: wear it as an ornament, or give it to the scientists.", "the tribe's culture below the level the gold coin gives" },
     { 65, "The Cursed Idol", "", "A villager finds a cursed statuette: destroy it, or offer food to lift the curse.", "at least 250 food" },
     { 66, "The Prettiest Tribe Girl", "Female", "A young woman wants to be declared the prettiest in the tribe.", "at least one adult woman" },
@@ -1428,7 +1434,7 @@ static const story_event VV2_EVENTS[] = {
     { 134, "A Mysterious Vial", "orange", "A vial of orange liquid: drinking it raises one of the villager's skills.", "nothing beyond an island event being possible" },
     { 135, "A Mysterious Vial", "fragrant", "A vial of fragrant liquid: drinking it lowers all of the villager's skills.", "nothing beyond an island event being possible" },
 };
-#define VV2_EVENT_COUNT 56
+#define VV2_EVENT_COUNT 59
 
 static const unsigned char VV3_W0_E[44] = { 0x50, 0xC3, 0x00, 0x00, 0x30, 0x75, 0x00, 0x00, 0xF8, 0x24, 0x01, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x20, 0xA1, 0x07, 0x00, 0x30, 0x75, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0xA0, 0x86, 0x01, 0x00, 0x40, 0x9C, 0x00, 0x00, 0x50, 0xC3, 0x00, 0x00, 0x88, 0x13, 0x00, 0x00 };
 static const unsigned char VV3_W0_R[44] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };

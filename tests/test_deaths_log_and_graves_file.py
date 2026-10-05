@@ -72,11 +72,14 @@ class DeathsLogSource(unittest.TestCase):
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Deaths"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
         self.assertIn("for (pass = 0; pass < 6; ++pass) {", source)
-        self.assertRegex(source, r'CAUSE_OF_DEATH_FORMAT\("1"\),\s+ROSTER_FORMAT\("1"\), GRAVES_LOGGED_FORMAT\("1"\) \}')
-        self.assertRegex(
-            source, r'CAUSE_OF_DEATH_FORMAT\("2"\),\s+ROSTER_FORMAT\("2"\), GRAVES_LOGGED_FORMAT\("2"\), 0, 0, 0, 0 \}')
-        for n in (3, 4, 5):
-            self.assertRegex(source, rf'ROSTER_FORMAT\("{n}"\),\s+GRAVES_LOGGED_FORMAT\("{n}"\), 0, 0, 0, 0, 0 \}}')
+        # Each kind in its own folder (native/shared/data_subfolder.h), and
+        # the loose name an older build wrote: both are the village's.
+        for n in (1, 2):
+            self.assertRegex(source, r'DATA_FORMAT\(VV_DATA_SUB_GRAVES, "Virtual Villagers %d Graves"\), '
+                                     r'CAUSE_OF_DEATH_FORMAT\("%d"\)' % (n, n))
+        for n in range(1, 6):
+            self.assertRegex(source, r'DATA_FORMAT\(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers %d Village Roster"\),'
+                                     r'\s+ROSTER_FORMAT\("%d"\)' % (n, n))
         # The grave backfill's file (cod_backfill.inc) goes with the Deaths log.
         self.assertIn('"%s\\\\Virtual Villagers Fun Patcher Data\\\\Deaths\\\\Virtual Villagers " n " Graves Logged - Save %d.dat"', source)
         self.assertIn('" Graves - Save %d.dat"', source)
@@ -100,7 +103,7 @@ class Harnesses(unittest.TestCase):
         result = run("build_cause_files_harness.ps1")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASSED: 0 failure(s)", result.stdout)
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 46, result.stdout)
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 58, result.stdout)
 
 
 if __name__ == "__main__":
