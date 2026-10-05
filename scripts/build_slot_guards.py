@@ -31,6 +31,7 @@ emulates every guard.
 from __future__ import annotations
 
 import json
+import struct
 from pathlib import Path
 
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks
@@ -198,6 +199,7 @@ V2_EVENT = 0x473D00
 V2_DELIVERY = 0x473F20
 V2_COPY_GUARD = 0x473F44
 V2_MIRROR_ROOM = 0x473F64
+V2_STRANGER = 0x473F84
 
 VV2_CODE = {
     V2_COUNT: f"""
@@ -290,6 +292,13 @@ VV2_CODE = {
     done:
         ret
     """,
+    V2_STRANGER: f"""
+        mov ecx, dword ptr [esi + 0x50AC]
+        call {V2_COUNT:#x}
+        test ah, ah
+        sete bl
+        jmp 0x41F696
+    """,
 }
 
 VV2_CAVE_PURPOSE = {
@@ -303,7 +312,11 @@ VV2_CAVE_PURPOSE = {
     V2_DELIVERY: (36, "defer a delivery (the pregnancy is kept) while every record is occupied"),
     V2_COPY_GUARD: (32, "a delivery's twin or triplet copy only when a record is free (else the rest of the "
                         "litter is skipped, 0x43BF67), returning to the delivery's own next instruction"),
-    V2_MIRROR_ROOM: (32, "The Silver Mirror's copy: the game's room predicate, and a free record"),
+    V2_MIRROR_ROOM: (32, "the game's room predicate, and a free record (The Silver Mirror's copy, The "
+                         "Savage Child's newcomer)"),
+    V2_STRANGER: (24, "The Strange Request is offered only with a free record for its stranger (stock: "
+                      "always offered; with every record occupied the bounded scan handed it record 255, "
+                      "a villager, whom both answers then take away)"),
 }
 
 VV2_SITES = [
@@ -320,6 +333,11 @@ VV2_SITES = [
      "the delivery's triplet copy through the record guard"),
     (0x217DF, "E82C9B0200", f"call {V2_MIRROR_ROOM:#x}",
      "The Silver Mirror asks for a free record too before its copy (0x4217F9)"),
+    (0x1F604, "E807BD0200", f"call {V2_MIRROR_ROOM:#x}",
+     "The Savage Child (event 4) is offered only with room and a free record for its newcomer "
+     "(0x4209A4; its answer pays 500 food first)"),
+    (0x1F6D4, "94F64100", None,
+     "The Strange Request (event 3), always offered in the stock game, through the free-record check"),
 ]
 
 
@@ -351,7 +369,7 @@ def site_entries(game: str, sites) -> list[dict]:
         b = bytes.fromhex(before)
         if stock[offset:offset + len(b)] != b:
             raise SystemExit(f"{game} {offset:#x}: stock bytes differ")
-        code = asm(source, offset + BASE)
+        code = asm(source, offset + BASE) if source is not None else struct.pack("<I", V2_STRANGER)
         if len(code) != len(b):
             raise SystemExit(f"{game} {offset:#x}: {len(code)} bytes for {len(b)}")
         out.append({"offset": f"0x{offset:X}", "before": before, "after": code.hex().upper(),
@@ -364,7 +382,7 @@ OWNED = {
     "vv1": {0x2EF5F, 0x2EFD0, 0x3BC4E, 0x3BC8C, 0x56580, 0x565B0, 0x565E0, 0x56680, 0x56840,
             0x2427B, 0x2F020, 0x2F06C, 0x19700},
     "vv2": {0x3BE8E, 0x73F20, 0x4BA82, 0x73C40, 0x4BAB6, 0x73C70, 0x73D00, 0x3BEDE, 0x3BF2A, 0x217DF,
-            0x73F44, 0x73F64},
+            0x73F44, 0x73F64, 0x1F604, 0x1F6D4, 0x73F84},
 }
 
 

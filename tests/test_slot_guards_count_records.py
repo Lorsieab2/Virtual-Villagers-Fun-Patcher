@@ -321,6 +321,27 @@ class VV2Guards(unittest.TestCase):
                     else:
                         self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0)
 
+    def test_the_strange_request_and_the_savage_child_are_offered_only_with_a_free_record(self):
+        # The two-choice event chooser (0x41F570) runs the rolled event's
+        # condition through its jump table at 0x41F5B2 and keeps it when bl
+        # is set at 0x41F696.  Event 3, The Strange Request, was always
+        # offered and its stranger took record 255 from a villager when every
+        # record was occupied; event 4, The Savage Child, asked the room
+        # predicate only.
+        for mode in self.each_mode():
+            for event, occupied, room, expect in ((3, 255, 1, 1), (3, 256, 1, 0),
+                                                 (4, 255, 1, 1), (4, 256, 1, 0), (4, 10, 0, 0)):
+                m = Machine("vv2", mode, occupied, corpses=70)
+                m.uc.mem_write(self.ROOM, bytes([0xB0, room, 0xC3]))
+                m.uc.mem_write(OBJ + 0x50AC, struct.pack("<I", WORLD))
+                m.uc.mem_write(OBJ + 0x50B0, struct.pack("<I", ARRAY))
+                where = m.run(0x41F5B2, {0x41F696: "chosen"},
+                              {UC_X86_REG_EAX: event, UC_X86_REG_ESI: OBJ, UC_X86_REG_EBX: 0x5A5A5A00,
+                               UC_X86_REG_EBP: 2})
+                self.assertEqual(where, "chosen")
+                self.assertEqual(m.reg(UC_X86_REG_EBX) & 0xFF, expect, (event, occupied, room))
+                self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0)
+
     def test_the_silver_mirror_asks_for_a_free_record(self):
         for mode in self.each_mode():
             for occupied, room, expect in ((255, 1, 1), (256, 1, 0), (10, 0, 0)):

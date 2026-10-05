@@ -303,6 +303,18 @@
           "purpose": "The Silver Mirror asks for a free record too before its copy (0x4217F9)"
         },
         {
+          "offset": "0x1F604",
+          "before": "E807BD0200",
+          "after": "E85B490500",
+          "purpose": "The Savage Child (event 4) is offered only with room and a free record for its newcomer (0x4209A4; its answer pays 500 food first)"
+        },
+        {
+          "offset": "0x1F6D4",
+          "before": "94F64100",
+          "after": "843F4700",
+          "purpose": "The Strange Request (event 3), always offered in the stock game, through the free-record check"
+        },
+        {
           "offset": "0x73C40",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000",
           "after": "518B89A405030031C08D5130B900010000803A0074014081C28CE400004975F159C3",
@@ -336,7 +348,13 @@
           "offset": "0x73F64",
           "before": "000000000000000000000000000000000000000000000000000000000000",
           "after": "51E8A673FDFF5984C07412518B89D474E500E8C5FCFFFF5984E40F94C0C3",
-          "purpose": "The Silver Mirror's copy: the game's room predicate, and a free record"
+          "purpose": "the game's room predicate, and a free record (The Silver Mirror's copy, The Savage Child's newcomer)"
+        },
+        {
+          "offset": "0x73F84",
+          "before": "000000000000000000000000000000000000000000",
+          "after": "8B8EAC500000E8B1FCFFFF84E40F94C3E9FDB6FAFF",
+          "purpose": "The Strange Request is offered only with a free record for its stranger (stock: always offered; with every record occupied the bounded scan handed it record 255, a villager, whom both answers then take away)"
         },
         {
           "offset": "0x34102",
