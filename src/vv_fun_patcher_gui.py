@@ -13,6 +13,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
+import vv_log_tools
 import vv_save_backup
 import vv_tribe_rename
 
@@ -776,6 +777,12 @@ class App(tk.Tk):
         self._folder_link(
             links, "Rename Tribe...", self._rename_single_tribe
         ).pack(side="left", padx=(18, 0))
+        self._folder_link(
+            links, "Check Logs...", self._check_single_logs
+        ).pack(side="left", padx=(18, 0))
+        self._folder_link(
+            links, "Repair Logs...", self._repair_single_logs
+        ).pack(side="left", padx=(18, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -834,6 +841,16 @@ class App(tk.Tk):
                 "Rename tribe...",
                 lambda game=build: self._rename_tribe(game),
             ).grid(row=row, column=7, padx=(12, 0), pady=4)
+            self._folder_link(
+                grid,
+                "Check logs...",
+                lambda game=build: self._log_tool(game, repair=False),
+            ).grid(row=row, column=8, padx=(12, 0), pady=4)
+            self._folder_link(
+                grid,
+                "Repair logs...",
+                lambda game=build: self._log_tool(game, repair=True),
+            ).grid(row=row, column=9, padx=(12, 0), pady=4)
         grid.columnconfigure(1, weight=1)
         actions = ttk.Frame(tab)
         actions.pack(fill="x", pady=(10, 0))
@@ -860,6 +877,16 @@ class App(tk.Tk):
             actions,
             text="Rename Tribe...",
             command=lambda: self._rename_tribe(None),
+        ).pack(side="left", padx=(8, 0))
+        ttk.Button(
+            actions,
+            text="Check Logs...",
+            command=lambda: self._log_tool(None, repair=False),
+        ).pack(side="left", padx=(8, 0))
+        ttk.Button(
+            actions,
+            text="Repair Logs...",
+            command=lambda: self._log_tool(None, repair=True),
         ).pack(side="left", padx=(8, 0))
 
     def _mode(self) -> str:
@@ -2277,6 +2304,263 @@ class App(tk.Tk):
         dialog.update_idletasks()
         dialog.grab_set()
         name_entry.focus_set()
+
+    # -- Check Logs / Repair Logs -------------------------------------------
+
+    def _check_single_logs(self) -> None:
+        """Check Logs for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            self._log_tool(build, repair=False)
+
+    def _repair_single_logs(self) -> None:
+        """Repair Logs for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            self._log_tool(build, repair=True)
+
+    def _log_tool(self, build, repair: bool) -> None:
+        """Pick a game, its save folder and a slot, then Check or Repair its logs.
+
+        Check Logs runs the read-only checker (vv_log_tools.check_logs) and
+        shows its report; it writes nothing, so it may run with the game open.
+        Repair Logs repairs nothing itself: with the game closed it backs the
+        folder up and clears the cross-check's markers
+        (vv_log_tools.rearm), so the game checks the village again at its next
+        load and asks before repairing.
+        """
+        title = "Repair Logs" if repair else "Check Logs"
+        documents = vv_save_backup.documents_folder()
+        if documents is None:
+            messagebox.showerror(
+                title,
+                "Windows did not report where your Documents folder is, so the "
+                "save folders cannot be found.",
+            )
+            return
+        titles = [item.title for item in self.builds]
+        dialog = tk.Toplevel(self)
+        dialog.title(title)
+        dialog.transient(self)
+        frame = ttk.Frame(dialog, padding=16)
+        frame.pack(fill="both", expand=True)
+        if repair:
+            intro = (
+                "Has the game check this village's logs again the next time you "
+                "load it, and ask (Repair / Not now) before it repairs anything. "
+                "Nothing is repaired now. The game must be closed. The save folder "
+                "is backed up first, into <save folder>\\Backups\\Backup <date and "
+                "time> (before repair re-arm)."
+            )
+        else:
+            intro = (
+                "Checks every log and data file the patcher keeps for one village "
+                "against its save, and shows what agrees and what does not. It only "
+                "reads: nothing is changed, so the game may be running."
+            )
+        ttk.Label(frame, text=intro, wraplength=560, justify="left").grid(
+            row=0, column=0, columnspan=3, sticky="w", pady=(0, 10)
+        )
+        game_var = tk.StringVar(value=build.title if build is not None else titles[0])
+        folder_var = tk.StringVar()
+        problem_var = tk.StringVar()
+        state: dict = {"folders": [], "slots": []}
+
+        ttk.Label(frame, text="Game:").grid(row=1, column=0, sticky="w")
+        game_box = ttk.Combobox(
+            frame, textvariable=game_var, values=titles, state="readonly", width=48
+        )
+        game_box.grid(row=1, column=1, columnspan=2, sticky="we", pady=2)
+        ttk.Label(frame, text="Save folder:").grid(row=2, column=0, sticky="w")
+        folder_box = ttk.Combobox(frame, textvariable=folder_var, state="readonly", width=48)
+        folder_box.grid(row=2, column=1, columnspan=2, sticky="we", pady=2)
+        ttk.Label(frame, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
+        slot_list = tk.Listbox(frame, height=5, width=60, exportselection=False)
+        slot_list.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
+        ttk.Label(
+            frame, textvariable=problem_var, foreground="#a01010",
+            wraplength=560, justify="left",
+        ).grid(row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        buttons = ttk.Frame(frame)
+        buttons.grid(row=5, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        go_button = ttk.Button(buttons, text="Repair Logs" if repair else "Check")
+        go_button.pack(side="left")
+        ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
+
+        def game() -> vv_tribe_rename.GameSaves:
+            return vv_tribe_rename.game_for_title(game_var.get())
+
+        def chosen():
+            picked = slot_list.curselection()
+            if not picked or not state["folders"]:
+                return None
+            info = state["slots"][picked[0]]
+            return info if info.name is not None else None
+
+        def refresh(*_args) -> None:
+            problem = None
+            if not state["folders"]:
+                problem = "No save folder was found for this game."
+            elif chosen() is None:
+                problem = "Choose a tribe."
+            problem_var.set(problem or "")
+            go_button.configure(state="normal" if problem is None else "disabled")
+
+        def load_slots(*_args) -> None:
+            slot_list.delete(0, "end")
+            state["slots"] = []
+            index = folder_box.current()
+            if 0 <= index < len(state["folders"]):
+                state["slots"] = vv_tribe_rename.read_slots(game(), state["folders"][index])
+                for info in state["slots"]:
+                    slot_list.insert("end", info.label)
+                first = next(
+                    (n for n, info in enumerate(state["slots"]) if info.name is not None), None
+                )
+                if first is not None:
+                    slot_list.selection_set(first)
+            refresh()
+
+        def load_folders(*_args) -> None:
+            state["folders"] = vv_save_backup.find_save_folders(game_var.get(), documents)
+            folder_box.configure(values=[folder.name for folder in state["folders"]])
+            if state["folders"]:
+                folder_box.current(0)
+            else:
+                folder_var.set("")
+            load_slots()
+
+        def start() -> None:
+            info = chosen()
+            if info is None:
+                return
+            folder = state["folders"][folder_box.current()]
+            number = game().number
+            if repair:
+                self._repair_logs(dialog, folder, number, info)
+            else:
+                self._check_logs(dialog, folder, number, info)
+
+        go_button.configure(command=start)
+        game_box.bind("<<ComboboxSelected>>", load_folders)
+        folder_box.bind("<<ComboboxSelected>>", load_slots)
+        slot_list.bind("<<ListboxSelect>>", refresh)
+        frame.columnconfigure(1, weight=1)
+        load_folders()
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+        dialog.update_idletasks()
+        dialog.grab_set()
+
+    def _check_logs(self, parent, folder: Path, number: int, info) -> None:
+        """Run the read-only checker off the main thread and show its report."""
+        try:
+            result = self._run_with_wait(
+                "Checking the logs…\n\nNothing is changed.",
+                lambda: vv_log_tools.check_logs(folder, info.slot, number),
+            )
+        except (vv_log_tools.LogToolError, OSError) as exc:
+            self.status_var.set("Check Logs: the logs could not be checked.")
+            messagebox.showerror("Check Logs", str(exc), parent=parent)
+            return
+        self.status_var.set(f"Check Logs: {info.name}: {result.summary}")
+        self._show_log_report(parent, folder, info, result)
+
+    def _show_log_report(self, parent, folder: Path, info, result) -> None:
+        """The checker's report, in a scrollable read-only window."""
+        window = tk.Toplevel(parent)
+        window.title(f"Check Logs - {info.name} (Save {info.slot})")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(
+            frame,
+            text=f"{folder.name}\n{info.name}: {result.summary}",
+            font=("Segoe UI", 10, "bold"),
+            justify="left",
+        ).pack(anchor="w")
+        ttk.Label(
+            frame,
+            text=(
+                "OK: agrees with the save.  WRONG: confirmed wrong (\"repairable\" "
+                "says whether Repair Logs can have the game put it right).  NOTE: a "
+                "difference that is not proof of an error.  UNCHECKED: nothing to "
+                "check it against, or it could not be read."
+            ),
+            wraplength=760,
+            justify="left",
+        ).pack(anchor="w", pady=(4, 8))
+        body = ttk.Frame(frame)
+        body.pack(fill="both", expand=True)
+        text = tk.Text(body, wrap="word", width=110, height=30)
+        scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+        text.tag_configure("WRONG", foreground="#a01010")
+        text.tag_configure("file", font=("Segoe UI", 9, "bold"))
+        for line in result.text.splitlines():
+            verdict = line.split(None, 1)[0] if line.strip() else ""
+            tag = "file" if line.startswith("== ") else ("WRONG" if verdict == "WRONG" else ())
+            text.insert("end", line + "\n", tag)
+        text.insert("end", f"\n{result.summary}\n", "file")
+        text.configure(state="disabled")
+        ttk.Button(frame, text="Close", command=window.destroy).pack(anchor="e", pady=(8, 0))
+
+    def _repair_logs(self, parent, folder: Path, number: int, info) -> None:
+        """Re-arm the first-load cross-check for one slot, with the game closed."""
+        exe = vv_save_backup.game_exe_name(folder)
+        if vv_save_backup.running_game_count(folder):
+            messagebox.showerror(
+                "Repair Logs",
+                f"{exe} is running.\n\nQuit the game first (from its own menu), "
+                "then choose Repair Logs again. Repair Logs never pauses or closes "
+                "a game. Nothing was changed.",
+                parent=parent,
+            )
+            return
+        try:
+            checked = self._run_with_wait(
+                "Checking the logs…\n\nNothing is changed.",
+                lambda: vv_log_tools.check_logs(folder, info.slot, number),
+            )
+            found = (
+                f"The read-only check finds {checked.wrong} confirmed wrong "
+                f"({checked.summary})"
+                if checked.wrong
+                else "The read-only check finds nothing confirmed wrong in "
+                f"{info.name}'s logs. You can still have the game check them "
+                "again at the next load."
+            )
+        except (vv_log_tools.LogToolError, OSError) as exc:
+            found = f"The logs could not be checked here ({exc})."
+        if not messagebox.askyesno(
+            "Repair Logs",
+            f"{found}\n\nNext time you load {info.name}, the patcher will check its "
+            "logs and ask before repairing (Repair / Not now). Nothing is repaired "
+            f"now.\n\nThe save folder {folder.name} is backed up first. Continue?",
+            parent=parent,
+        ):
+            return
+        try:
+            result = self._run_with_wait(
+                "Preparing the check…\n\nThe save folder is backed up first.",
+                lambda: vv_log_tools.rearm(folder, number, info.slot),
+            )
+        except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
+            self.status_var.set("Repair Logs: nothing was changed.")
+            messagebox.showerror("Repair Logs", str(exc), parent=parent)
+            return
+        self.status_var.set(
+            f"Repair Logs: {info.name} will be checked at its next load."
+        )
+        messagebox.showinfo(
+            "Repair Logs",
+            f"Next time you load {info.name} (Save {info.slot}), the patcher will "
+            "check its logs and ask before repairing.\n\n"
+            f"{len(result.cleared)} \"already checked\" marker(s) cleared.\n\n"
+            f"Backup: {result.backup.backup_folder}",
+            parent=parent,
+        )
 
     def _close(self) -> None:
         self._save_settings()
