@@ -320,6 +320,18 @@ Repeated arrivals stop at the physical ceiling. VV4 and VV5 Abandoned
 Infants is reduced below six when fewer than six physical slots remain.
 Events that remove villagers are unchanged.
 
+NO VILLAGER WITHOUT A FREE RECORD
+
+Corpses, ghosts, Heathens and babies still owed all hold villager records.
+In every mode (No Population Increase included, and the 256 builds) each
+creation asks the records, and nothing is spent without one: a delivery
+waits with the pregnancy kept until its whole litter fits; the room check
+counts every occupied record and every baby owed; A New Home's Golden
+Child puzzle fires only with a free record (the original game hid the
+child past the end of the table); New Believers' Reanimate is refused
+instead of crashing; the island events that add a villager are offered only
+with room.
+
 Only the five exact researched stock builds are supported. Unknown, modified,
 corrupt, duplicate, or incorrectly assigned EXEs are refused.
 
