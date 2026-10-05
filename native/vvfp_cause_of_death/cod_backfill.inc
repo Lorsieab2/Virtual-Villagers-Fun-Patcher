@@ -411,16 +411,16 @@ static void backfill_at_save(int slot, const void *save_buffer) {
     logged_publish();
 }
 
-/* ---- For the first-load cross-check's popup --------------------------------
+/* ---- For the cross-check (native/shared/crosscheck_bridge.h) ---------------
 
    VvfpCauseScanGraves(game, slot): how many of the village's graves have no
    Death record in its Deaths log, writing nothing -- -1 when that cannot be
    told now (Cause of Death refused, the log's DLL absent, a file locked, the
    village unknown).  Call it once the village is loaded.
-   VvfpCauseRepairGraves(game, slot, repair): the player's answer.  1
-   (Repair): at the village's next save -- where its logs are named -- each
-   such grave gets its Death record; 0 (Not now): nothing this session, and
-   the scan finds them again at the next load. */
+   VvfpCauseRepairGraves(game, slot, repair): the player's go-ahead, given
+   before a save.  1 (Repair): at the village's next save -- where its logs
+   are named -- each such grave gets its Death record; 0: nothing this
+   session, and the scan finds them again next time. */
 __declspec(dllexport) int __stdcall VvfpCauseScanGraves(int game, int slot) {
     int count;
     if (install_state == -1 || game < 1 || game > 5 || (g_game != 0 && game != g_game)

@@ -410,10 +410,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Birth backfill and the Statistics and Elders reconcile. Larger again,
         # new digest, with VvfpStartup: the runtime companions installed at
         # game start by "VVFP Startup.dll".
-        self.assertEqual(vv5_companion["size"], 1790464)
+        self.assertEqual(vv5_companion["size"], 1794048)
         self.assertEqual(
             vv5_companion["sha256"],
-            "D17ABA6AD1F242CA6CAB0BF25CC2DBA0320F43B52859871E09389D3F6CF29229",
+            "35C30085B0E88612EB17F5AE06CFF2C051CE00006A0F8D201344A82D20987451",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

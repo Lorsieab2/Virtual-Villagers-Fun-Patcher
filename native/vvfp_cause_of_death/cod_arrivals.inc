@@ -38,8 +38,8 @@
    way the arrival is reported to the reconciliation, so the Unaccounted
    Villagers log never lists them.
 
-   THE BACKFILL.  VvfpCauseScanArrivals / VvfpCauseRepairArrivals, for the
-   first-load prompt, like the graves': the village's villagers (believers,
+   THE BACKFILL.  VvfpCauseScanArrivals / VvfpCauseRepairArrivals (and
+   ...Now), for the cross-check, like the graves': the village's villagers (believers,
    and in The Lost Children to New Believers only those with no parents on
    their record -- a villager with parents was born) are handed to
    RecordArrivalsMissingFromLog, which counts those with no Birth or Arrived
@@ -360,16 +360,16 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
     }
 }
 
-/* ---- For the first-load cross-check's popup --------------------------------
+/* ---- For the cross-check (native/shared/crosscheck_bridge.h) ---------------
 
    VvfpCauseScanArrivals(game, slot): how many of the village's villagers
    have neither a Birth nor an Arrived record in its Births and Conceptions
    log, writing nothing -- 0 once the slot's marker is there, -1 when that
    cannot be told now.  Call it once the village is loaded.
-   VvfpCauseRepairArrivals(game, slot, repair): the player's answer.  1
-   (Repair): at the village's next save each gets an Arrived record marked
-   "Recorded afterwards (arrived before this log existed)", how they came
-   unknown; 0 (Not now): nothing, and the next load asks again. */
+   VvfpCauseRepairArrivals(game, slot, repair): the player's go-ahead, given
+   before a save.  1 (Repair): at the village's next save each gets an
+   Arrived record marked "Recorded afterwards (arrived before this log
+   existed)", how they came unknown; 0: nothing. */
 __declspec(dllexport) int __stdcall VvfpCauseScanArrivals(int game, int slot) {
     int count;
     if (install_state == -1 || game < 1 || game > 5 || (g_game != 0 && game != g_game)
