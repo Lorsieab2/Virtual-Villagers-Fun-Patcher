@@ -40,6 +40,8 @@ static int g_later_graves, g_later_arrivals, g_later_births, g_later_stats, g_la
 static int g_now_graves, g_now_arrivals, g_now_births, g_now_stats, g_now_game, g_now_slot;
 static int g_now_result = 1;
 static int g_now_fixes = 1;             /* a ...Now that succeeds leaves nothing for the next scan */
+/* The companion's own orphan mask entries (orphan_masks.h). */
+static int g_masks = 0, g_mask_scans, g_mask_repairs, g_mask_game, g_mask_slot, g_mask_result = 1;
 
 static int WINAPI harness_msgbox(HWND owner, LPCSTR text, LPCSTR caption, UINT type) {
     (void)owner; (void)caption;
@@ -150,7 +152,16 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     return &host;
 }
 #include "crosscheck_bridge.h"
+#include "orphan_masks.h"
 #undef MessageBoxA
+
+/* The Origins companion's own pair, stood in for. */
+static int vvfp_xc_masks_scan(int game, int slot) { (void)game; (void)slot; ++g_mask_scans; return g_masks; }
+static int vvfp_xc_masks_repair(int game, int slot) {
+    ++g_mask_repairs; g_mask_game = game; g_mask_slot = slot;
+    if (g_mask_result && g_now_fixes) g_masks = 0;
+    return g_mask_result;
+}
 
 static int failures;
 static void check(int ok, const char *name) {
@@ -223,6 +234,8 @@ static void reset(void) {
     g_now_graves = g_now_arrivals = g_now_births = g_now_stats = g_now_game = g_now_slot = 0;
     g_now_result = 1;
     g_now_fixes = 1;
+    g_masks = g_mask_scans = g_mask_repairs = g_mask_game = g_mask_slot = 0;
+    g_mask_result = 1;
     lstrcpyA(g_stats_lines, "- Villagers Buried is 3, but the Deaths log and the graves show 5 burials. "
                             "It will be raised to 5.\r\n");
     clear_approvals();
@@ -243,7 +256,7 @@ static void play(int game, int on_screen, DWORD total, DWORD ms) {
 
 static int nothing_repaired(void) {
     return g_applies == 0 && g_later_graves + g_later_arrivals + g_later_births + g_later_stats == 0
-           && g_now_graves + g_now_arrivals + g_now_births + g_now_stats == 0;
+           && g_now_graves + g_now_arrivals + g_now_births + g_now_stats == 0 && g_mask_repairs == 0;
 }
 
 /* ---- The quit hook's stub, on a stand-in site --------------------------- */
@@ -656,6 +669,70 @@ int main(void) {
         vvfp_xc_quit_hit(3, (const unsigned char *)(uintptr_t)0x10);
         check(g_boxes == 0, "a fault while reading the slot is caught: nothing, and the game goes on closing");
     }
+
+    /* ---- Orphan mask entries (v1.35.59), every game: the companion's own pair. ---- */
+    for (game = 1; game <= 5; ++game) {
+        reset();
+        g_masks = 3;
+        g_slot = game;
+        play(game, 1, 20000, 16);
+        if (!(g_mask_scans == 1 && g_boxes == 0 && nothing_repaired())) break;
+        g_answer = game % 2 ? IDYES : IDNO;
+        vvfp_crosscheck_quit(game, game);
+        if (!(g_boxes == 1 && g_mask_scans == 2
+              && strstr(g_text, "- 3 mask entries for villagers who are no longer in the village. "
+                                "They will be removed.\r\n") != NULL
+              && strstr(g_text, "The Village Masks file is backed up first; every removal is listed in the "
+                                "Repairs log.") != NULL
+              && ends_with_how_to_stop()
+              && g_mask_repairs == (game % 2 ? 1 : 0) && (game % 2 == 0 || (g_mask_game == game && g_mask_slot == game)))) {
+            break;
+        }
+    }
+    check(game == 6, "orphan masks, every game: scanned silently at load, asked about at the quit, removed only on Repair");
+    reset();
+    g_masks = 1;
+    play(2, 1, 8000, 16);
+    vvfp_crosscheck_quit(2, 1);
+    check(g_boxes == 1 && strstr(g_text, "- 1 mask entry for a villager who is no longer in the village. "
+                                         "It will be removed.") != NULL, "... in the singular for one");
+    reset();
+    g_masks = 2;
+    play(4, 1, 8000, 16);
+    g_masks = 0;                    /* gone by the quit save (the villager's record taken) */
+    vvfp_crosscheck_quit(4, 1);
+    check(g_boxes == 0 && g_mask_repairs == 0, "masks no longer orphaned at the quit: nothing is asked");
+    reset();
+    g_masks = -1;
+    g_graves = 1;
+    play(5, 1, VVFP_XC_SETTLE_MS + 100, 16);
+    check(g_mask_scans == 1 && vvfp_xc.examined == 0, "a mask scan that cannot tell yet is retried, like the others");
+    reset();
+    g_masks = 2;
+    g_answer = IDYES;
+    g_mask_result = 0;
+    play(3, 1, 8000, 16);
+    vvfp_crosscheck_quit(3, 1);
+    check(g_mask_repairs == 1 && g_notices == 1, "a mask repair that could not be made: the player is told");
+    reset();
+    g_auto = 0;
+    g_masks = 2;
+    approve(1, 1);
+    play(1, 1, 8000, 16);
+    check(g_boxes == 0 && g_mask_repairs == 1 && g_mask_game == 1 && g_mask_slot == 1,
+          "Repair Logs approval: the masks are removed at load, without asking");
+    vvfp_crosscheck_quit(1, 1);
+    check(g_boxes == 0 && !approval_there(1, 1), "... and nothing is left at the quit: the approval is used up");
+    reset();
+    g_auto = 0;
+    g_masks = 2;
+    g_mask_result = 0;
+    approve(5, 1);
+    play(5, 1, 8000, 16);
+    g_mask_result = 1;
+    vvfp_crosscheck_quit(5, 1);
+    check(g_boxes == 0 && g_mask_repairs == 2 && !approval_there(5, 1),
+          "... one that failed at load is completed after the quit save, then the approval is used up");
 
     clear_approvals();
     {

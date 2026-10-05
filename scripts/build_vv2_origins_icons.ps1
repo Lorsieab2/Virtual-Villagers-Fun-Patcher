@@ -22,6 +22,7 @@ if ($LASTEXITCODE -ne 0) { throw "Resource compilation failed." }
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vv2_origins_icons.c") $resource `
+    (Join-Path $projectRoot "native\shared\save_folder.c") `
     /link /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vv2_origins_icons.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
@@ -34,6 +35,7 @@ if ($LASTEXITCODE -ne 0) { throw "Native DLL compilation failed." }
 @(
     $resource,
     (Join-Path $projectRoot "vv2_origins_icons.obj"),
+    (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "vv2_origins_icons.exp"),
     (Join-Path $projectRoot "vv2_origins_icons.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {

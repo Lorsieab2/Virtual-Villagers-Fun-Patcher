@@ -375,10 +375,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # when that prompt learned the Birth backfill and the Statistics and
         # Elders reconcile.  Re-pinned when rebuilt from the source merged
         # with v1.35.58's repair-at-quit and the shared A New Home Time Warp
-        # (a body is never aged).
+        # (a body is never aged), and again when the cross-check learned the
+        # orphan mask entries (native/shared/orphan_masks.h, v1.35.59).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "8D6BBB9D1B09682BE140DB7B99C2F44B85C5BAB37B7DE8722809F30131895965",
+            "506A5C3DF70C98E49C2A543E0B1FF7A9EB8EA1F52BCED0F120B91EE464A8F075",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

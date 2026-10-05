@@ -507,7 +507,7 @@
       "guide": [
         "Click a gravestone: it shows the cause of death under the age and an epitaph under the name.",
         "You can type your own epitaph in its box (up to 31 letters); Done keeps it.",
-        "A child under 14 is shown as \"Apprentice\" plus their job on the grave.",
+        "A villager who died before age 14 is shown as \"Apprentice\" plus their job (for example \"Apprentice Farmer\") instead of Trainee, Adept or Master, on the grave and in the Deaths log.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs.",
         "Old graves get an epitaph but no cause: how they died was never recorded.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
@@ -517,7 +517,7 @@
       "ids": ["vv2_cause_of_death"],
       "guide": [
         "Click a gravestone: it shows the cause of death under the age.",
-        "A child under 14 is shown as \"Apprentice\" plus their job on the grave.",
+        "A villager who died before age 14 is shown as \"Apprentice\" plus their job (for example \"Apprentice Farmer\") instead of Trainee, Adept or Master, on the grave and in the Deaths log.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs.",
         "Old graves show no cause: how they died was never recorded.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
@@ -774,7 +774,8 @@
     "check_logs": {
       "title": "Check Logs",
       "guide": [
-        "Checks whether the patcher's logs for a village agree with its save.",
+        "Checks whether the patcher's logs and data files for a village agree with its save.",
+        "That includes masks still kept for villagers who are no longer in the village.",
         "Pick the game, save folder and tribe, then click Check.",
         "Each file is marked OK, WRONG, NOTE or UNCHECKED.",
         "It only reads, so the game may stay open."
@@ -786,7 +787,8 @@
         "Your go-ahead for the game to fix a village's logs.",
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked and the result shown.",
         "Confirm: the save folder is backed up first.",
-        "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking."
+        "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking.",
+        "Masks kept for villagers who are no longer in the village are removed too."
       ]
     },
     "check_logs_automatically": {

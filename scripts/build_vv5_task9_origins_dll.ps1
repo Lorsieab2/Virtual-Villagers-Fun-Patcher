@@ -19,6 +19,7 @@ if ($LASTEXITCODE -ne 0) { throw "Resource compilation failed." }
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "$stem.c") `
+    (Join-Path $projectRoot "native\shared\save_folder.c") `
     (Join-Path $outputRoot "$stem.res") `
     /link /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "$stem.def")) `
@@ -32,6 +33,7 @@ if ($LASTEXITCODE -ne 0) { throw "Native DLL compilation failed." }
 @(
     (Join-Path $outputRoot "$stem.res"),
     (Join-Path $projectRoot "$stem.obj"),
+    (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "$stem.exp"),
     (Join-Path $projectRoot "$stem.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {

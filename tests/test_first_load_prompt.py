@@ -132,6 +132,14 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "the quit hook takes the slot from the save manager, where the shutdown read it",
             "a fault while reading the slot is caught: nothing, and the game goes on closing",
             "NO message box was ever shown while a village was being played",
+            "orphan masks, every game: scanned silently at load, asked about at the quit, removed only on Repair",
+            "... in the singular for one",
+            "masks no longer orphaned at the quit: nothing is asked",
+            "a mask scan that cannot tell yet is retried, like the others",
+            "a mask repair that could not be made: the player is told",
+            "Repair Logs approval: the masks are removed at load, without asking",
+            "... and nothing is left at the quit: the approval is used up",
+            "... one that failed at load is completed after the quit save, then the approval is used up",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

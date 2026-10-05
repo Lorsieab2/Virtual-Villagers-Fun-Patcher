@@ -68,13 +68,17 @@ FOUNDATION_OUTPUT = (
 # Recertified when the Origins Barrel's free-record check learned to read the
 # active flag as the byte it is and to count the babies pregnant mothers still
 # owe (v1.35.58, the Golden Child audit).
+# Recertified when the cross-check learned the orphan mask entries
+# (native/shared/orphan_masks.h, v1.35.59): the companion's own scan and
+# repair, a writer that reports whether the table reached the disk, and
+# native/shared/save_folder.c linked for the Repairs log.
 # Recertified when every companion moved into "Virtual Villagers Fun Patcher
 # Files" (native/shared/patcher_files.h): the story, Cause of Death and other
 # install bridges load their DLLs by full path from that folder with the wide
 # API, and the Heathen mask atlas is written to the game's Images folder by a
 # wide path, so a game folder the ANSI code page cannot spell still works.
-SOURCE_SHA256 = "222167A0233E0DF9953330C4F1BD378C7C03D714CBBC556E853E8BBDC2243B2C"
-SOURCE_SIZE = 1918464
+SOURCE_SHA256 = "75494146EFED9A5B8114BE809EBEFAED3F3979AF4DB79A0EE5EEC95C53D94459"
+SOURCE_SIZE = 1960448
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

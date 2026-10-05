@@ -292,6 +292,47 @@ def one_wrong_byte_checks(test: unittest.TestCase, game: str, world=None) -> Non
                 test.assertNotEqual(g.p.read(int(other["va"], 16), 1), b"\xE9", (d["va"], other["va"]))
 
 
+# ---- A child's grave: "Apprentice <job>" (A New Home, The Lost Children) ----
+# The grave's job values and the popup's words for them.
+V1_JOBS = {1: "Farmer", 2: "Parent", 3: "Scientist", 4: "Builder", 5: "Doctor"}
+V2_JOBS = {1: "Farmer", 2: "Parent", 3: "Doctor", 4: "Scientist", 5: "Builder"}
+# Ages at death in age units (20 a year): 2 years, 13y0, 13y19 (the last unit
+# before 14), exactly 14y0, 14y1, 65.  Under 280 is a child.
+APPRENTICE_AGES = (40, 260, 279, 280, 281, 1300)
+
+
+def apprentice_cases(master: int) -> list[tuple[int, int, int]]:
+    """(age, job, best value): every job at each rank's edges, a value under
+    20, and no job."""
+    values = (19, 20, 49, 50, master - 1, master)
+    return [(age, job, value) for age in APPRENTICE_AGES for job in range(0, 6) for value in values
+            if job or value == 50]
+
+
+def apprentice_rank(case: tuple[int, int, int], master: int) -> str | None:
+    age, job, value = case
+    if job == 0 or value < 20:
+        return None
+    if age < 280:
+        return "Apprentice"
+    return "Trainee" if value < 50 else "Adept" if value < master else "Master"
+
+
+def apprentice_screen(case, jobs: dict, master: int) -> str:
+    """The popup's line: the game's own rank strings ("Trainee  " keeps its
+    stock double space) and the job word."""
+    rank = apprentice_rank(case, master)
+    if rank is None:
+        return "Untrained"
+    return {"Apprentice": "Apprentice ", "Trainee": "Trainee  ", "Adept": "Adept ",
+            "Master": "Master "}[rank] + jobs[case[1]]
+
+
+def apprentice_log(case, jobs: dict, master: int) -> str:
+    rank = apprentice_rank(case, master)
+    return "Untrained" if rank is None else f"{rank} {jobs[case[1]]}"
+
+
 # ---- A New Home -------------------------------------------------------------
 V1 = dict(array_global=0x48B614, stride=0x3D8, present=0x28, selected=0x29, health=0x344, age=0x348,
           sex=0x350, name=0x370, skills=0x3BC, manager=0x3E010, graves=0xA31C, grave_stride=0x2C,
@@ -401,9 +442,10 @@ class NewHome:
         p = self.g.p
         draws: list[tuple[str, int, int]] = []
         top = 100
-        strings = {0x93: "Here Lies ", 0x94: "Job", 0x95: "Age", 0x54: "Untrained", 0x57: "Trainee  ",
-                   0x58: "Adept ", 0x59: "Master ", 0x5A: "Farmer", 0x5B: "Parent", 0x5C: "Scientist",
-                   0x5D: "Builder", 0x5E: "Doctor"}
+        # The game's own English strings (its table at 0x487208).
+        strings = {0x93: "Here Lies ", 0x94: "Job", 0x95: "Age", 0x54: "Untrained", 0x56: "Apprentice ", 0x57: "Trainee  ",
+                   0x58: "Adept ", 0x59: "Master ", 0x5A: "Farmer", 0x5B: "Parent", 0x5C: "Builder",
+                   0x5D: "Scientist", 0x5E: "Doctor"}
         pool = p.alloc(0x1000)
         where = {}
         for n, (key, text) in enumerate(strings.items()):
@@ -666,6 +708,50 @@ class NewHomeCauseOfDeath(unittest.TestCase):
             _, calls = w.open_popup(k)
             self.assertEqual(calls[6][2], [want], (age, job, value, roll))
 
+    def test_a_childs_grave_names_the_job_as_an_apprentice(self):
+        """The owner: "for vv1 graves: the job for children should say
+        'Apprentice _______' instead of trainee/adept/master etc";
+        "Children = less than 14 years old" -- under 280 age units at death,
+        the grave's own age."""
+        g, w = vv1(slot=2)
+        g.tick()
+        for n, case in enumerate(apprentice_cases(master=90)):
+            age, job, value = case
+            k = n % 50
+            g.p.write(w.grave(k), f"C{n}".encode() + b"\0")
+            g.p.put32(w.grave(k) + 0x1C, value)
+            g.p.put32(w.grave(k) + 0x20, job)
+            g.p.put32(w.grave(k) + V1["grave_age"], age)
+            texts = [t for t, _, _ in w.popup(k)]
+            screen = texts[texts.index("Job") + 1]
+            self.assertEqual(screen, apprentice_screen(case, V1_JOBS, 90), case)
+            # The log's Grave line names the same rank and job (the Epitaph
+            # changed record carries it).
+            popup, _ = w.open_popup(k)
+            w.done(popup, f"Changed {n}")
+            self.assertEqual(g.of_kind(EPITAPH)[-1]["Grave"], apprentice_log(case, V1_JOBS, 90), case)
+
+    def test_a_childs_burial_is_an_apprentice_in_every_mode(self):
+        for mode in MODES:
+            g, w = vv1(mode)
+            for i, age in ((3, 279), (4, 280), (5, 260)):
+                w.villager(i, f"Kid{i}", age, 40)
+                w.old_age(i)
+            w.villager(6, "Weak", 100, 40)
+            w.old_age(6)
+            graves = [w.bury(3, best_skill=70, job=4), w.bury(4, best_skill=70, job=4),
+                      w.bury(5, best_skill=20, job=1), w.bury(6, best_skill=19, job=1)]
+            deaths = g.of_kind(DEATH)
+            self.assertEqual([e["Grave"] for e in deaths],
+                             ["Apprentice Builder", "Adept Builder", "Apprentice Farmer", "Untrained"], mode)
+            # The children's epitaphs are still the children's (under 18 years).
+            self.assertTrue(all(e["Epitaph"] in ("Curious and Playful", "Loving and Special") for e in deaths), mode)
+            screens = []
+            for k in graves:
+                texts = [t for t, _, _ in w.popup(k)]
+                screens.append(texts[texts.index("Job") + 1])
+            self.assertEqual(screens, ["Apprentice Builder", "Adept Builder", "Apprentice Farmer", "Untrained"], mode)
+
     def test_the_mysterious_face_and_the_book_are_disappearances(self):
         g, w = vv1()
         w.villager(4, "Curious", 600, 80)
@@ -771,16 +857,22 @@ class LostChildren:
     def injury(self, i: int, damage: int) -> None:
         self.g.run(0x462AD9, 0x462AE1, edi=self.record(i) + V2["health"], eax=damage, esi=self.pool)
 
-    def bury(self, i: int) -> int:
+    def bury(self, i: int, best_skill: int = 30, job: int | None = None) -> int:
         """The burial's grave loop, 0x465042..0x46533B (the record already
         freed by 0x46503B, as the game does just before), and the hook
-        after it."""
+        after it.  The best-skill routine (0x44B4D0: index, &job) is
+        scripted: it returns `best_skill` and, given one, writes `job`."""
         p = self.g.p
         before = [p.u32(self.grave(k) + V2["grave_age"]) for k in range(50)]
         burier = p.alloc(0x100)
         p.put32(burier + 0x60, i)
         p.write(self.record(i) + V2["present"], b"\x00")
-        p.stub(0x44B4D0, lambda proc: (30, 8))
+
+        def best(proc):
+            if job is not None:
+                proc.put32(proc.arg(1), job)
+            return best_skill, 8
+        p.stub(0x44B4D0, best)
         p.stub(0x4031A0, lambda proc: (0, 0))
         strings = p.alloc(0x100)
         p.write(strings, b"Respected Citizen\0")
@@ -823,11 +915,18 @@ class LostChildren:
         p = self.g.p
         draws: list[tuple[str, int, int]] = []
         top = 100
-        pool = p.alloc(0x100)
-        p.write(pool, b"Age\0")
-        p.write(pool + 0x20, b"Here Lies \0")
+        # The panel's strings (English, from the game's own table): "Here
+        # Lies ", "Job", "Age", the ranks and the job words; any other "Age".
+        strings = {0xCF: "Here Lies ", 0xD0: "Job", 0xD1: "Age", 0x81: "Untrained", 0x83: "Apprentice ",
+                   0x84: "Trainee  ", 0x85: "Adept ", 0x86: "Master ", 0x88: "Farmer", 0x89: "Parent",
+                   0x8A: "Builder", 0x8B: "Scientist", 0x8C: "Doctor"}
+        pool = p.alloc(0x1000)
+        where = {}
+        for n, (key, text) in enumerate(strings.items()):
+            where[key] = pool + n * 32
+            p.write(pool + n * 32, text.encode() + b"\0")
         p.stub(0x408320, lambda proc: (0x0C300000, 0))
-        p.stub(0x441680, lambda proc: ((pool + 0x20 if proc.arg(0) == 0xCF else pool), 4))
+        p.stub(0x441680, lambda proc: (where.get(proc.arg(0), where[0xD1]), 4))
 
         def sprintf(proc):
             fmt = proc.cstring(proc.arg(1))
@@ -965,6 +1064,39 @@ class LostChildrenCauseOfDeath(unittest.TestCase):
         w.old_age(12)
         w.decay(12)
         self.assertEqual([(e["Cause of death"], e["Grave"]) for e in g.of_kind(DEATH)], [("Old age", NO_GRAVE)])
+
+    def test_a_childs_grave_names_the_job_as_an_apprentice(self):
+        """The owner: "and vv2 graves"; "Children = less than 14 years old"."""
+        g, w = vv2()
+        for n, case in enumerate(apprentice_cases(master=88)):
+            age, job, value = case
+            k = n % 50
+            g.p.write(w.grave(k), f"C{n}".encode() + b"\0")
+            g.p.write(w.grave(k) + 0x19, b"Respected Citizen\0")
+            g.p.put32(w.grave(k) + 0x6C, value)
+            g.p.put32(w.grave(k) + 0x70, job)
+            g.p.put32(w.grave(k) + V2["grave_age"], age)
+            texts = [t for t, _, _ in w.panel(k)]
+            screen = texts[texts.index("Job") + 1]
+            self.assertEqual(screen, apprentice_screen(case, V2_JOBS, 88), case)
+            w.done(k, f"Changed {n}")
+            self.assertEqual(g.of_kind(EPITAPH)[-1]["Grave"], apprentice_log(case, V2_JOBS, 88), case)
+
+    def test_a_childs_burial_is_an_apprentice_in_every_mode(self):
+        for mode in MODES:
+            g, w = vv2(mode)
+            for i, age in ((3, 279), (4, 280), (5, 260)):
+                w.villager(i, f"Kid{i}", age, 40)
+                w.old_age(i)
+            graves = [w.bury(3, best_skill=70, job=5), w.bury(4, best_skill=70, job=5),
+                      w.bury(5, best_skill=20, job=3)]
+            self.assertEqual([e["Grave"] for e in g.of_kind(DEATH)],
+                             ["Apprentice Builder", "Adept Builder", "Apprentice Doctor"], mode)
+            screens = []
+            for k in graves:
+                texts = [t for t, _, _ in w.panel(k)]
+                screens.append(texts[texts.index("Job") + 1])
+            self.assertEqual(screens, ["Apprentice Builder", "Adept Builder", "Apprentice Doctor"], mode)
 
     def test_the_mission_and_the_voices_are_disappearances_and_the_stranger_is_not(self):
         g, w = vv2()

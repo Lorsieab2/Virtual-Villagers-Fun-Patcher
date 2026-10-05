@@ -6,6 +6,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
+#include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 static HINSTANCE module_instance;
@@ -435,13 +436,20 @@ static void end_modal_over_game(HWND owner) {
    (health <= 0), so a village full of bodies reads as small while its slots
    are nearly all taken. The barrel then spawns fewer children than it charged
    for -- sometimes none. */
+/* Both immediates lie inside the executable's code.  A harness that runs
+   this source in a process of its own (native/shared/orphan_masks_game_harness.c)
+   has its own code there, so it names other addresses before the include. */
+#ifndef VV3_MANAGER_IMM_VA
 #define VV3_MANAGER_IMM_VA   0x4279B4
+#endif
 static UINT_PTR vv3_population_manager(void) {
     return (UINT_PTR)*(volatile unsigned int *)(UINT_PTR)VV3_MANAGER_IMM_VA;
 }
 #define VV3_RECORD_BASE      (vv3_population_manager() + 0x14u)
 #define VV3_RECORD_STRIDE    0x1F8C
+#ifndef VV3_SLOT_BOUND_PTR
 #define VV3_SLOT_BOUND_PTR   0x42883A
+#endif
 #define VV3_OFF_ACTIVE       0xF10
 #define VV3_BARREL_CHILDREN  3
 
@@ -931,7 +939,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
    purchase would change anything (so the payload can refund/skip on a no-op);
    the result reader formats the message from the stored counts. */
 #define VV3_REC_BASE   VV3_RECORD_BASE
-#define VV3_SLOTS_PTR  0x0042883Au
+#define VV3_SLOTS_PTR  VV3_SLOT_BOUND_PTR   /* 0x42883A: the save-state slot bound */
 #define VV3_STRIDE     0x1F8Cu
 #define VV3_ACTIVE     0xF10   /* byte: 0 = empty slot                */
 #define VV3_HEALTH     0xE78   /* int:  <= 0 = not a living villager  */
@@ -1387,6 +1395,75 @@ static int vv3_mask_prepare_slot(void) {
     }
     if (!g_vv3_mask_loaded) vv3_mask_read_sidecar(slot);
     return 1;
+}
+
+/* ---- The cross-check's orphan mask entries (orphan_masks.h) ---------------
+   The Secret City finds each mask by the fingerprint stored with it,
+   wherever its villager is (VV3_GetMaskForRecord), so the record an entry
+   sits at says nothing: an orphan is a mask whose fingerprint no villager
+   carries.  Every occupied record counts -- a body awaiting burial (health
+   0) as much as the living, since the save still holds it -- and one
+   fingerprint shared by several villagers (a collision group) is kept. */
+static vv_om_list g_vv3_om_asked;
+
+static void vv3_om_put(int index, unsigned char value, unsigned int id) {
+    g_vv3_mask[index] = value;
+    g_vv3_mask_fp[index] = id;
+}
+
+/* -1 until this slot's masks are loaded and its village is in the records. */
+static int vv3_om_scan(int slot, vv_om_list *out) {
+    static unsigned int ids[VV3_MASK_SLOTS];
+    const unsigned char *rec = (const unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int i, slots, anyone = 0;
+    out->count = 0;
+    if (slot < 1 || !vv3_mask_prepare_slot() || slot != g_vv3_mask_slot || !g_vv3_mask_loaded
+        || !vv_sidecar_gate_ready(&g_vv3_mask_gate, g_vv3_mask_slot)) {
+        return -1;
+    }
+    slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    if (slots < 0) slots = 0;
+    if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        ids[i] = 0;
+        if (i < slots && rec[(size_t)i * VV3_STRIDE + VV3_ACTIVE] != 0) {
+            ids[i] = vv3_mask_fingerprint(rec + (size_t)i * VV3_STRIDE);
+            anyone = 1;
+        }
+    }
+    if (!anyone) {
+        return -1;                    /* no village in the records yet */
+    }
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        if (vv_om_orphan(g_vv3_mask[i], 0, g_vv3_mask_fp[i], ids, VV3_MASK_SLOTS)) {
+            vv_om_add(out, i, g_vv3_mask[i], g_vv3_mask_fp[i]);
+        }
+    }
+    return out->count;
+}
+
+static int vvfp_xc_masks_scan(int game, int slot) {
+    return game == 3 ? vv3_om_scan(slot, &g_vv3_om_asked) : 0;
+}
+
+/* 1 when nothing the scan noted is left undone: removed, or no longer an
+   orphan; 0 when the masks cannot be told now or the change could not be
+   made (the next scan finds them again). */
+static int vvfp_xc_masks_repair(int game, int slot) {
+    static vv_om_list now, gone;
+    static const vv_om_table table = { vv3_om_put, vv3_mask_write_sidecar, 0 };
+    char path[MAX_PATH];
+    int done = 1;
+    if (game == 3 && g_vv3_om_asked.count > 0) {
+        done = 0;
+        if (vv3_om_scan(slot, &now) >= 0) {
+            vv_om_still(&g_vv3_om_asked, &now, &gone);
+            done = gone.count == 0
+                   || (vv3_mask_sidecar_path(path, sizeof(path), g_vv3_mask_slot) && vv_om_commit(3, slot, path, &gone, &table));
+        }
+    }
+    g_vv3_om_asked.count = 0;
+    return done;
 }
 
 /* Resolve a captured live preimage only when one record owned it at the exact

@@ -410,11 +410,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Birth backfill and the Statistics and Elders reconcile. Larger again,
         # new digest, with VvfpStartup: the runtime companions installed at
         # game start by "VVFP Startup.dll". New digest when its Time Warp
-        # stopped ageing the dead.
-        self.assertEqual(vv5_companion["size"], 1793536)
+        # stopped ageing the dead. Larger again with the orphan mask entries
+        # (native/shared/orphan_masks.h, save_folder.c linked).
+        self.assertEqual(vv5_companion["size"], 1836544)
         self.assertEqual(
             vv5_companion["sha256"],
-            "EF6FA28E966566FECD04B9F79469F9C171C611FC02F7380D6C96A06799D3B035",
+            "092D9A5E18F022D5A75554634E129EA4D0F1A3C433E564AFDBC0E6537BB9A6FA",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
