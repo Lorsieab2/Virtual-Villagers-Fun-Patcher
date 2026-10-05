@@ -39,6 +39,7 @@ SCRIPTS = (
     "build_vvfp_healers_study.ps1",
     "build_vvfp_lesson_cap.ps1",
     "build_vvfp_pathfinding.ps1",
+    "build_vvfp_startup.ps1",
     "build_vvfp_story_upgrades.ps1",
     "build_vvfp_work_first.ps1",
 )

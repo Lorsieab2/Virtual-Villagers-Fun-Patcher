@@ -6,7 +6,8 @@ Both used to ship a decorated "_Name@N" twin of every export, which came from
 __declspec(dllexport) on top of the .def and that nothing ever resolved.  They
 also exported functions that only the DLL itself calls, and VV4 exported four
 names that no stub ever asked for.  Each export table is pinned here to exactly
-what the executable's stubs ask for: names passed to GetProcAddress, plus, for
+what the executable's stubs ask for -- and VvfpStartup, which "VVFP
+Startup.dll" asks for at game start: names passed to GetProcAddress, plus, for
 VV4, the explicit ordinals its stubs pass (100-104, 110 and 114).  With the stock
 executable present, every public patch is rendered in every public mode, and
 each test checks that every by-name export is resolved and no removed name
@@ -77,6 +78,11 @@ CASES = {
 }
 
 
+# Resolved by "VVFP Startup.dll" at game start (native/vvfp_startup), not by
+# the executable, so it is in no render.
+BY_STARTUP_LOADER = {"VvfpStartup"}
+
+
 def _exports(path: Path) -> dict[str, int]:
     pe = pefile.PE(str(path), fast_load=True)
     pe.parse_data_directories(
@@ -91,7 +97,8 @@ class OriginsCompanionExportTests(unittest.TestCase):
             with self.subTest(game=game):
                 exports = _exports(case["dll"])
                 self.assertEqual(
-                    set(exports), case["by_name"] | set(case["by_ordinal"].values())
+                    set(exports),
+                    case["by_name"] | set(case["by_ordinal"].values()) | BY_STARTUP_LOADER,
                 )
                 for ordinal, name in case["by_ordinal"].items():
                     self.assertEqual(exports[name], ordinal, name)

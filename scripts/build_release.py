@@ -50,6 +50,8 @@ FILES = [
     # Cause of Death: one companion for all five games, loaded by each game's
     # Origins companion; no executable bytes.
     "assets/cause_of_death/VVFP Cause of Death.dll",
+    # Loads and arms every companion at game start (any build with a companion DLL).
+    "assets/startup/VVFP Startup.dll",
     "data/builds.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
