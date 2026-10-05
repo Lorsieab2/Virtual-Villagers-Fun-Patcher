@@ -139,7 +139,7 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "DBB89D761394B0DE7A4F0B9E71FC4A911A8D5BE6D96C6EB3BEAA9E98F65D7A3D"
+      "sha256": "CAE4A7154E23C7614B472043F85981F2F8C2832ABAD0A6C49E660C30942F5CC7"
     },
     {
       "source": "assets/vv4_masks/vvfp_mask_atlas.png",
@@ -159,7 +159,7 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "1D6B08A7A8DDDE556E52BC14CAFDA08727D57B39E2737BF1D881627D423D682B"
+      "sha256": "F9753F42EB91EF6CFFC1BE4AA250312556CDFFD9D65FBB7B40A194D4A97FFC44"
     }
   ],
   "doubler_evidence": {
@@ -390,19 +390,19 @@
     {
       "offset": "0xCCC00",
       "before": "0000000000000000000000000000000000000000000000000000000000000000",
-      "after": "56B968E55000E805EAD3FF83C0033D960000007E0431C05EC3B8010000005EC3",
+      "after": "56B968E55000E8E504D6FF83C0033D960000007E0431C05EC3B8010000005EC3",
       "purpose": "Barrel purchase gate: refuse (no charge) only when population (0x467610) + 3 would exceed the 150-slot record array"
     },
     {
       "offset": "0xCCB40",
       "before": "0000000000000000000000000000000000000000000000000000000000000000",
-      "after": "803D008B7200007412E8C2EAD3FF3D960000007D03B001C330C0C3E9F0F7D3FF",
+      "after": "803D008B7200007412E8A205D6FF3D960000007D03B001C330C0C3E9F0F7D3FF",
       "purpose": "purchased-barrel room-check 1 (before child 2): report room up to the record array when the purchase flag is set, else the stock tiered check"
     },
     {
       "offset": "0xCCB60",
       "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "803D008B7200007419C605008B720000E89BEAD3FF3D960000007D03B001C330C0C3E9C9F7D3FF",
+      "after": "803D008B7200007419C605008B720000E87B05D6FF3D960000007D03B001C330C0C3E9C9F7D3FF",
       "purpose": "purchased-barrel room-check 2 (before child 3): as check 1, and clears the purchase flag so it applies to exactly one barrel"
     },
     {

@@ -30,7 +30,7 @@ TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Statistics Export.test.dll"
 STATS = ROOT / "native" / "statistics_export"
 SHARED = ROOT / "native" / "shared"
 # 101 checks across the five games (19 to 22 each).
-CHECKS = 101
+CHECKS = 101 + 8 * 5   # 7: Repair right after the quit save, every game
 
 
 def body(source: str, head: str) -> str:
@@ -49,7 +49,7 @@ class ReconcileSource(unittest.TestCase):
 
     def test_nothing_changes_without_repair_and_only_on_the_same_villages_flushed_save(self):
         source = (STATS / "statistics_reconcile.inc").read_text(encoding="utf-8")
-        apply = body(source, "static void rc_apply(")
+        apply = body(source, "static int rc_apply(")
         self.assertIn("!g_rc_save_ok", apply)
         self.assertIn("!g_rc_repair[slot]", apply)
         export = (STATS / "statistics_export.c").read_text(encoding="utf-8")
@@ -58,7 +58,7 @@ class ReconcileSource(unittest.TestCase):
         write = body(export, "__declspec(dllexport) int __stdcall WriteVillageStatistics(")
         # After the living-elder update, before the log is written.
         self.assertLess(write.index("village_elders_for(game_id);"), write.index("rc_apply(game_id, save_id, manager);"))
-        self.assertLess(write.index("rc_apply(game_id, save_id, manager);"), write.index("build_output_paths("))
+        self.assertLess(write.index("rc_apply(game_id, save_id, manager);"), write.index("write_statistics_file("))
         scan = body(source, "VvfpStatisticsScanReconcile(int game, int slot, char *text, int cap)")
         self.assertIn("if (roster != ROSTER_SAME)", scan)
         for writer in ("rc_write_elders", "vvs_counter_raise", "vv_repairs_note", "vv_repair_backup"):
@@ -66,7 +66,7 @@ class ReconcileSource(unittest.TestCase):
 
     def test_the_note_comes_before_the_change_and_backups_never_replace(self):
         source = (STATS / "statistics_reconcile.inc").read_text(encoding="utf-8")
-        apply = body(source, "static void rc_apply(")
+        apply = body(source, "static int rc_apply(")
         self.assertLess(apply.index("vv_repair_backup(g_store.counters_path"), apply.index("vv_repairs_note("))
         self.assertLess(apply.index("vv_repairs_note("), apply.index("rc_write_elders(slot, &plan)"))
         self.assertLess(apply.index("vv_repairs_note("), apply.index("vvs_counter_raise("))

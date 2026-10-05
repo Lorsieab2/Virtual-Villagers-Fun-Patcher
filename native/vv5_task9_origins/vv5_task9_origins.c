@@ -5,7 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
-#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
@@ -776,6 +776,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(5));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(5));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(5));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
@@ -787,7 +788,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
-    vvfp_crosscheck_bridge(5, 1);  /* the first-load cross-check: a head is being drawn */
+    vvfp_crosscheck_bridge(5, 1);  /* the cross-check, silent while played: a head is being drawn */
     if (g_vv5_have_roster && (now - g_vv5_sync_tick) < VV5_SYNC_INTERVAL_MS) {
         return 1;                   /* checked a moment ago */
     }
@@ -1824,8 +1825,13 @@ static int vv5_time_warp_apply(int speed, int years) {
            putting this jump through the clamp -- skipping it would not hold
            the record's age, it would advance it by the clamped amount. */
         *(int *)(rec + VV5_TW_LAST_SEEN_OFFSET) += delta;
-        /* Only the faction the engine ages gets the credit (0x00470077). */
+        /* Only the faction the engine ages gets the credit (0x00470077),
+           and only the living (0x0046FF63): a body holds its record but no
+           longer ages -- credited, its age at death grew with every warp. */
         if (rec[VV5_TW_FACTION_OFFSET] != 0) {
+            continue;
+        }
+        if (*(const int *)(rec + 0x1C40) <= 0) {
             continue;
         }
         rate = vv5_aging_rate(rec);

@@ -59,8 +59,8 @@ WRITER_VA = 0x45E91C          # the stock `add [0x4d6de8], ecx`
 # compares the wrong number cannot pass.
 GUARD_EXPECTATIONS = {
     # va: (compared value, branch mnemonic, branch destination)
-    0x489020: (0x93, "jg", 0x45E8D3),    # triplets: needs 3 free
-    0x489040: (0x94, "jg", 0x45E8E4),    # twins: needs 2 free
+    0x489020: (0x94, "jg", 0x45E8D3),    # triplets: 2 more than the demand, which counts her first baby
+    0x489040: (0x95, "jg", 0x45E8E4),    # twins: 1 more than the demand
     0x489060: (0x96, "jge", 0x489077),   # event newcomer: needs 1 free
     0x489080: (0x96, "jge", 0x489096),   # first barrel child: needs 1 free
 }

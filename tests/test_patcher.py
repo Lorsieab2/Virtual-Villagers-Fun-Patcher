@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
+    SHARED_SECTION_HEADERS,
     DEFAULT_PATCH_MODE,
     PatcherError,
     apply_all,
@@ -1005,12 +1006,14 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(stock["patches"], [])
             # vv2 +6 for the unbounded slot-scan guards: each site costs a
             # trampoline plus a cave. See tests/test_slot_scan_saturation_guard.py.
+            # v1.35.58: every creation asks the records (scripts/
+            # build_slot_guards.py, scripts/build_record_guards_vv345.py).
             expected_safety_counts = {
-                "vv1": 22,
-                "vv2": 21,
-                "vv3": 9,
-                "vv4": 12,
-                "vv5": 13,
+                "vv1": 24,
+                "vv2": 26,
+                "vv3": 22,
+                "vv4": 18,
+                "vv5": 20,
             }
             self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])
             for mode in ALL_MODES:
@@ -1049,37 +1052,45 @@ class ManifestTests(unittest.TestCase):
                 self.assertIn("stock", preview["island_event_capacity"])
 
     def test_vv1_vv2_safety_caves_return_to_instruction_boundaries(self) -> None:
+        """The twins/triplets guards are CALLed from the roll in place of its
+        10-byte store: `push litter; call guard; jae <the roll's own refused
+        branch>; nop`, so the stock code resumes at the instruction after the
+        store, and a refusal re-enters the roll's own jge exactly where it
+        stood.  tests/test_slot_guards_count_records.py runs them."""
         builds = {build.id: build for build in load_builds()}
         expected = {
+            # site: (litter, guard, refused branch, continuation)
             "vv1": {
-                0x56580: 0x3BC58,
-                0x565B0: 0x3BC96,
+                0x3BC4E: (2, 0x565E0, 0x3BC4C, 0x3BC58),
+                0x3BC8C: (3, 0x565E0, 0x3BC8A, 0x3BC96),
             },
             "vv2": {
-                0x73C40: 0x4BA8C,
-                0x73C70: 0x4BAC0,
+                0x4BA82: (2, 0x73C70, 0x4BA80, 0x4BA8C),
+                0x4BAB6: (3, 0x73C70, 0x4BAB4, 0x4BAC0),
             },
         }
-        for game_id, caves in expected.items():
+        for game_id, sites in expected.items():
             patches = {
                 int(patch["offset"], 0): patch
                 for patch in builds[game_id].safety_patches
             }
-            for cave_offset, continuation_offset in caves.items():
-                with self.subTest(game_id=game_id, cave=hex(cave_offset)):
-                    after = bytes.fromhex(patches[cave_offset]["after"])
-                    if game_id == "vv2":
-                        branch_index = after.index(b"\x0f\x83")
-                        branch_relative = struct.unpack_from("<i", after, branch_index + 2)[0]
-                        branch_target = cave_offset + branch_index + 6 + branch_relative
-                        self.assertEqual(branch_target, 0x4BAD8)
-                    jump_index = after.rindex(b"\xE9")
-                    self.assertEqual(jump_index + 5, len(after))
-                    relative = struct.unpack_from("<i", after, jump_index + 1)[0]
-                    actual = cave_offset + jump_index + 5 + relative
-                    self.assertEqual(actual, continuation_offset)
+            for site, (litter, guard, refused, continuation) in sites.items():
+                with self.subTest(game_id=game_id, site=hex(site)):
+                    after = bytes.fromhex(patches[site]["after"])
+                    self.assertEqual(len(after), 10)
+                    self.assertEqual(site + len(after), continuation)
+                    self.assertEqual(after[:2], bytes([0x6A, litter]))
+                    self.assertEqual(after[2], 0xE8)
+                    self.assertEqual(site + 7 + struct.unpack_from("<i", after, 3)[0], guard)
+                    self.assertEqual(after[7], 0x73)          # jae rel8
+                    self.assertEqual(site + 9 + struct.unpack_from("<b", after, 8)[0], refused)
+                    self.assertEqual(after[9], 0x90)
 
     def test_vv2_pregnancy_delivery_guard_has_exact_hook_cave_and_abi(self) -> None:
+        """The delivery is diverted at its first creation into the record
+        guard, which lets it through only while the child and the litter's
+        extra babies fit in the occupied-record count, else defers it with the
+        pregnancy kept.  tests/test_slot_guards_count_records.py runs it."""
         vv2 = next(build for build in load_builds() if build.id == "vv2")
         safety = {
             int(patch["offset"], 0): patch for patch in vv2.safety_patches
@@ -1092,65 +1103,18 @@ class ManifestTests(unittest.TestCase):
         cave = safety[0x73F20]
         cave_before = bytes.fromhex(cave["before"])
         cave_after = bytes.fromhex(cave["after"])
-        self.assertEqual(len(cave_before), 34)
-        self.assertEqual(cave_before, bytes(34))
-        self.assertEqual(
-            cave_after,
-            bytes.fromhex(
-                "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF"
-                "83C42CE94A80FCFF"
-            ),
-        )
+        self.assertEqual(cave_before, bytes(len(cave_after)))
         self.assertEqual(0x400000 + int(cave["offset"], 0), 0x473F20)
-
-        # The population helper is called with the manager in ECX, and JA is
-        # deliberate: demand == 256 still replays the stock allocator while
-        # only demand > 256 takes the deferred-delivery path.
+        # the occupied-record count (0x473C40), never the population counter
         helper_call = 3
-        helper_target = (
-            0x73F20
-            + helper_call
-            + 5
-            + struct.unpack_from("<i", cave_after, helper_call + 1)[0]
-        )
-        self.assertEqual(helper_target, 0x25860)
-        self.assertEqual(cave_after[8:13], bytes.fromhex("3D00010000"))
-        self.assertEqual(cave_after[14], 0x77)  # JA, never JAE
-        branch_target = (
-            0x73F20
-            + 14
-            + 2
-            + struct.unpack_from("<b", cave_after, 15)[0]
-        )
-        self.assertEqual(branch_target, 0x73F3A)
-        self.assertEqual(cave_after[0x1A:0x1D], bytes.fromhex("83C42C"))
-
-        stock_call = 0x10
-        stock_target = (
-            0x73F20
-            + stock_call
-            + 5
-            + struct.unpack_from("<i", cave_after, stock_call + 1)[0]
-        )
+        helper_target = 0x73F20 + helper_call + 5 + struct.unpack_from("<i", cave_after, helper_call + 1)[0]
+        self.assertEqual(helper_target, 0x73C40)
+        self.assertIn(bytes.fromhex("8B943A44050000"), cave_after)   # the litter, +0x544
+        self.assertIn(bytes.fromhex("3DFF000000"), cave_after)
+        stock_call = cave_after.index(b"\xE8", 8)
+        stock_target = 0x73F20 + stock_call + 5 + struct.unpack_from("<i", cave_after, stock_call + 1)[0]
         self.assertEqual(stock_target, 0x4F5C0)
-        continuation_jump = 0x15
-        continuation = (
-            0x73F20
-            + continuation_jump
-            + 5
-            + struct.unpack_from("<i", cave_after, continuation_jump + 1)[0]
-        )
-        self.assertEqual(continuation, 0x3BE93)
-        deferred_jump = 0x1D
-        deferred_target = (
-            0x73F20
-            + deferred_jump
-            + 5
-            + struct.unpack_from("<i", cave_after, deferred_jump + 1)[0]
-        )
-        self.assertEqual(deferred_target, 0x3BF8C)
-        stock = STOCK / vv2.input_name
-        self.assertEqual(stock.read_bytes()[0x3BF8C:0x3BF91], bytes.fromhex("BB58000000"))
+        self.assertIn(bytes.fromhex("83C42C"), cave_after)
 
     def test_vv2_capacity_guard_composes_all_modes_and_selectable_patches(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv2")
@@ -1199,6 +1163,8 @@ class ManifestTests(unittest.TestCase):
             0x4BAB6,
             0x73C70,
             0x73D00,
+            # v1.35.58 record guards (scripts/build_slot_guards.py)
+            0x217DF, 0x1F604, 0x1F6D4, 0x73F64, 0x73F84,
             0x34102,
             0x341A2,
             0x341C3,
@@ -1300,12 +1266,10 @@ class ManifestTests(unittest.TestCase):
                         bytes(rendered[0x3BE8E:0x3BE93]),
                         bytes.fromhex("E98D800300"),
                     )
+                    delivery = next(p for p in build.safety_patches if p["offset"] == "0x73F20")
                     self.assertEqual(
-                        bytes(rendered[0x73F20:0x73F42]),
-                        bytes.fromhex(
-                            "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF"
-                            "83C42CE94A80FCFF"
-                        ),
+                        bytes(rendered[0x73F20:0x73F20 + len(delivery["after"]) // 2]),
+                        bytes.fromhex(delivery["after"]),
                     )
 
     def test_origins_dialog_supports_state_and_retains_stale_resource_stop(self) -> None:
@@ -1813,6 +1777,9 @@ class StockIntegrationTests(unittest.TestCase):
                                     start < prior_end and prior_start < end,
                                     f"{build.id} safety overlap at 0x{start:X}",
                                 )
+                        # The record guards' section-permission header writes
+                        # are shared, byte for byte, with the one feature that
+                        # makes the same write (SHARED_SECTION_HEADERS).
                         feature_ranges = [
                             (
                                 int(record["offset"], 0),
@@ -1821,6 +1788,8 @@ class StockIntegrationTests(unittest.TestCase):
                             )
                             for record in applied
                             if record["owner"] != "automatic:safety"
+                            and SHARED_SECTION_HEADERS.get((build.id, int(record["offset"], 0)))
+                            != (record["before"].upper(), record["after"].upper())
                         ]
                         for safety_start, safety_end in safety_ranges:
                             for feature_start, feature_end in feature_ranges:
@@ -1975,11 +1944,11 @@ class StockIntegrationTests(unittest.TestCase):
             self.assertEqual(bytes(rendered[0x94500:0x94506]), bytes.fromhex(base))
             self.assertEqual(
                 bytes(rendered[0x94340:0x9434A]),
-                bytes.fromhex("E87B0100003D93000000"),
+                bytes.fromhex("E87B0100003D94000000"),
             )
             self.assertEqual(
                 bytes(rendered[0x94360:0x9436A]),
-                bytes.fromhex("E85B0100003D94000000"),
+                bytes.fromhex("E85B0100003D95000000"),
             )
 
         active_records = 142
@@ -2009,8 +1978,8 @@ class StockIntegrationTests(unittest.TestCase):
                 0x15320: "E9DB5F0600",
                 # VV3 now counts live records too. It used to compare a
                 # statistic tally that only ever accumulates.
-                0x7B2E0: "E8330000003D96000000",
-                0x7B300: "E8130000003D96000000",
+                0x7B2E0: "E81BD024003D96000000",
+                0x7B300: "E8FBCF24003D96000000",
             },
             "vv4": {
                 0x148B0: "E9AB47070090",
@@ -2050,14 +2019,13 @@ class StockIntegrationTests(unittest.TestCase):
         checks = {
             "vv1": (
                 0x56680,
-                "81B9249E0000000100007D05E9BF5CFEFFB8FFFFFFFFC21400",
+                "E8DB01000084E47505E9C25CFEFF83C8FFC21400",
                 [0x28263, 0x282C6, 0x282E3, 0x2833C, 0x28359, 0x28376,
                  0x2C3EF, 0x2C410, 0x2C431, 0x2C4AF, 0x2C4D0, 0x2C54E],
             ),
             "vv2": (
                 0x73D00,
-                "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF"
-                "3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
+                "518B8DA450000085C9741883B9A405030000740FE827FFFFFF5984E47506E95DB8FDFF5983C8FFC21400",
                 [0x34102, 0x341A2, 0x341C3, 0x34262, 0x34283, 0x342A4,
                  0x34467, 0x344A3],
             ),
@@ -2084,22 +2052,26 @@ class StockIntegrationTests(unittest.TestCase):
                 self.assertEqual(destination, wrapper_offset)
 
     def test_vv2_saturation_cave_metadata_uses_authenticated_fdff_tails(self) -> None:
+        """The record count (0x473C40) and the litter guard (0x473C70) are
+        returning routines now; the litter guard is called from the twins and
+        triplets rolls and asks the record count."""
         vv2 = next(build for build in load_builds() if build.id == "vv2")
         safety = {
             int(patch["offset"], 0): patch for patch in vv2.safety_patches
         }
-        expected_tails = {
-            0x73C40: "E9277EFDFF",
-            0x73C70: "E92B7EFDFF",
-        }
-        for offset, expected_tail in expected_tails.items():
-            with self.subTest(offset=hex(offset)):
-                patch = safety[offset]
-                before = bytes.fromhex(patch["before"])
-                after = bytes.fromhex(patch["after"])
-                self.assertEqual(before, b"\0" * len(before))
-                self.assertEqual(len(after), len(before))
-                self.assertEqual(patch["after"][-10:], expected_tail)
+        count = bytes.fromhex(safety[0x73C40]["after"])
+        litter = bytes.fromhex(safety[0x73C70]["after"])
+        for patch in (safety[0x73C40], safety[0x73C70]):
+            before = bytes.fromhex(patch["before"])
+            self.assertEqual(before, b"\0" * len(before))
+            self.assertEqual(len(bytes.fromhex(patch["after"])), len(before))
+        self.assertEqual(count[-1:], b"\xC3")
+        self.assertEqual(litter[-3:], bytes.fromhex("C20400"))
+        call = litter.index(b"\xE8")
+        self.assertEqual(0x73C70 + call + 5 + struct.unpack_from("<i", litter, call + 1)[0], 0x73C40)
+        for site in (0x4BA82, 0x4BAB6):
+            row = bytes.fromhex(safety[site]["after"])
+            self.assertEqual(site + 2 + 5 + struct.unpack_from("<i", row, 3)[0], 0x73C70)
 
     def test_vv4_vv5_abandoned_infants_are_clamped_to_remaining_slots(self) -> None:
         checks = {

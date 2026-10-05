@@ -650,8 +650,8 @@ def build_safety_rows(img: Image) -> list[dict]:
     stock_rows = {r["offset"]: r for r in vv3["safety_patches"]}
     out = []
     edits = {
-        "0x7B260": [("3D93000000", "3DFD000000")],
-        "0x7B280": [("3D94000000", "3DFE000000")],
+        "0x7B260": [("3D94000000", "3DFE000000")],
+        "0x7B280": [("3D95000000", "3DFF000000")],
         "0x7B2E0": [("3D96000000", "3D00010000")],
         "0x7B300": [("3D96000000", "3D00010000")],
         "0x7B318": [("BA24E15900", "BA" + struct.pack("<I", record_va(0)).hex().upper()),
@@ -668,13 +668,23 @@ def build_safety_rows(img: Image) -> list[dict]:
         "0x7B300": "skip the first barrel child when all 256 slots are occupied while retaining the stock later-child cap checks",
         "0x7B318": "count occupied villager record slots (active byte) of the relocated 256-slot table",
     }
+    # The record guards (scripts/build_record_guards_vv345.py) carry their own
+    # 256-slot rescale.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "build_record_guards_vv345", ROOT / "scripts" / "build_record_guards_vv345.py")
+    guards = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(guards)
+    guard_rows = guards.rescale_256("vv3")
+    for offset, pairs in guard_rows.items():
+        edits[offset] = pairs
     for offset, src in stock_rows.items():
         after = src["after"]
         for old, new in edits.get(offset, []):
             assert after.count(old) == 1, (offset, old)
             after = after.replace(old, new)
         out.append({"offset": offset, "before": src["before"], "after": after,
-                    "purpose": purposes[offset]})
+                    "purpose": purposes.get(offset, src["purpose"])})
     assert set(edits) <= set(stock_rows)
     return out
 

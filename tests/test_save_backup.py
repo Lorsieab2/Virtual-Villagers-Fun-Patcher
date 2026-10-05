@@ -561,7 +561,7 @@ class GuiTests(unittest.TestCase):
         bulk = ast.get_source_segment(self.source, self.method("_build_all_tab"))
         self.assertIn('"Back up saves"', bulk)
         self.assertIn("self._back_up_saves([game])", bulk)
-        self.assertIn("for row, build in enumerate(self.builds)", bulk)
+        self.assertIn("for index, build in enumerate(self.builds)", bulk)
         self.assertIn('text="Back Up Saves (All 5)..."', bulk)
         self.assertIn("self._back_up_saves(list(self.builds))", bulk)
 

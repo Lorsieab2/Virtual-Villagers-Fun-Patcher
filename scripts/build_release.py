@@ -171,6 +171,10 @@ FILES = [
     # Check Logs and Repair Logs; the GUI imports it, and Check Logs runs
     # the read-only checker in the patcher's own process.
     "src/vv_log_tools.py",
+    # The "?" guides beside every feature; the GUI imports the module, and
+    # the module reads the data file.
+    "src/vv_how_to_use.py",
+    "data/how_to_use.json",
     "scripts/vvfp_consistency_check.py",
     # README links to it from the Check Logs / Repair Logs section.
     "docs/first-load-cross-check.md",

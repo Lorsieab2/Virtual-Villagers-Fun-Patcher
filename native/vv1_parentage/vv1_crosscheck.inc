@@ -41,14 +41,16 @@
    touched.
 
    THE PLAYER DECIDES FIRST (owner: "the player should be notified first
-   before any fix runs").  The scan (Vv1ParentageCrossCheckScan) only reads.
-   When it finds nothing to change it records that it ran, silently.  When it
-   finds something, the Origins companion says what, in its one Repair / Not
-   now prompt for everything the first load found (native/shared/
-   crosscheck_bridge.h), once the village has been on screen for a moment --
-   never during the load-time catch-up.  "Not now" changes nothing at all and
-   the question comes back the next time this village is loaded; "Repair"
-   (Vv1ParentageCrossCheckApply) first copies the parentage file to
+   before any fix runs"; 2026-10-05: never a question during gameplay).  The
+   scan (Vv1ParentageCrossCheckScan) only reads.  When it finds nothing to
+   change it records that it ran, silently.  When it finds something, nothing
+   happens until the player allows it (native/shared/crosscheck_bridge.h):
+   Repair Logs in the patcher window approves it beforehand, and it is then
+   applied once the village has settled; with "Check logs automatically" on,
+   the player is asked Repair / Not now when the game is closed, after its
+   quit save.  "Not now" changes nothing at all and the question comes back
+   the next time; "Repair" (Vv1ParentageCrossCheckApply) first copies the
+   parentage file to
    "<name>.before-v1.35.58-repair" beside itself, then writes the rebuilt
    table through the same atomic save every other change uses, lists every
    change in the Repairs log, and records that the check ran.

@@ -15,11 +15,12 @@
    RecordGravesMissingFromLog in parentage_export.c.
 
    The owner: "the player should be notified first before any fix runs."  So
-   the same call first only COUNTS (apply 0): the first-load cross-check asks
-   Cause of Death how many graves lack a record (VvfpCauseScanGraves) and lists
-   them in its one popup, and only when the player chooses Repair
-   (VvfpCauseRepairGraves) are the records written, at the village's next
-   save. */
+   the same call first only COUNTS (apply 0): the cross-check asks Cause of
+   Death how many graves lack a record (VvfpCauseScanGraves), and only when the
+   player allows the repair (native/shared/crosscheck_bridge.h: Repair Logs,
+   or Repair at the quit) are the records written -- at the village's next
+   save (VvfpCauseRepairGraves), or right after the quit save
+   (VvfpCauseRepairGravesNow, the header read back from the saved file). */
 #ifndef VV_GRAVE_BACKFILL_H
 #define VV_GRAVE_BACKFILL_H
 

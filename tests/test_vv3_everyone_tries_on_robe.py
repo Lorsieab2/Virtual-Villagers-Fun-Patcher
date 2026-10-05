@@ -36,17 +36,17 @@ ISOLATED_RESULTS = {
 # holds for BASE_RESULTS (the same modes with no optional patch).
 RENDERED_RESULTS = {
     "collection_progression": (
-        "3986D13125B13CFFA9A3A0AA687C0C733BAE93CEC4771C8C15A7DF2F78B6675A",
-        "A4310D00",
+        "67896E9AD5E40D18F7AE9D938F9A22ADBAD4FF3300E5498CB5B70345970C5930",
+        "AFAF0D00",
     ),
     "immediate_fixed": (
-        "3AC777FF4C6A6A5D83F58B6E22EA82F8B3AE3308F39E2060EF62E22D37B81A29",
-        "A2730D00",
+        "F72A66C7002B9DF3A730326A3DA003C37555E8E54A82A2D441EEA51D3464FBB9",
+        "AEF10C00",
     ),
 }
 BASE_RESULTS = {
-    "collection_progression": "9982E9769F34DCA8DBA381BF6B2ECF0501A8ADBDF31433A18D71F55D0A6544E5",
-    "immediate_fixed": "BF93C2739FB28B917316BB01B76BD885E884C63627B2418DDD5234A2484A7CE0",
+    "collection_progression": "0C171C35138A3044DD83DF2C847F19615A7D59F8B0AF4D201E9AAFD9633D0C91",
+    "immediate_fixed": "1CD9850EB4D8920E83A5369D768937439586D90A862D6F59FCB1038DEFF04AA4",
 }
 EXPANDED_COMPOSITION_RESULTS = {
     "experimental_expanded_256": (
@@ -205,16 +205,16 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # entry's invalid-command return 0x7B84E..0x7B861 and the Tech menu's
     # legacy tail 0xA3670..0xA367E -- each now a short jump over zeros.
     "stock": (
-        "644F587CAD20609D35C9B45FA7B57FD341C4AFFD249509E3F4B17EF437AB1CD7",
-        "17B70D00",
+        "48A55FFAB0E65F8B44A8E5F6C4982563FADA4AD16A169287B08D8542D4807B40",
+        "23350D00",
     ),
     "collection_progression": (
-        "9B8875553F65170D56309346958D633ADE7FA4897FF0648E137612FA3ACF7900",
-        "18D00C00",
+        "DA31427FAA391E4C4EFB1744A1F583C3DD90EFDC91601501D1DF44FCAB6C7F7F",
+        "234E0D00",
     ),
     "immediate_fixed": (
-        "286A8C836E1366BEF58D4EB3CD46AD37DE0CD3A95FF738CB64C002EAA5576993",
-        "16120D00",
+        "141C260136C11034A70FFBAAD71E35AC9E18F5C7A55A3E37E45E14C749A6B0F6",
+        "21900D00",
     ),
 }
 
@@ -585,7 +585,9 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 self.assertEqual(digest(baseline), BASE_RESULTS[mode])
                 removed = bytearray(rendered)
                 rows = patcher._remove_feature_bytes(removed, self.feature, mode)
-                self.assertEqual(len(rows), 4)
+                # Four rows, less the two .shr header writes the safety
+                # layer shares and keeps (SHARED_SECTION_HEADERS).
+                self.assertEqual(len(rows), 2)
                 self.assertEqual(removed, baseline)
 
     @unittest.skip("Expanded-256 modes were removed from the public patcher")
@@ -668,6 +670,12 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             if game["id"] != "vv3":
                 continue
             for row in game["safety_patches"]:
+                # The record guards' identical .shr header writes are shared
+                # with this patch by name (SHARED_SECTION_HEADERS); the
+                # renderer allows exactly those, so they are not a collision.
+                shared = patcher.SHARED_SECTION_HEADERS.get(("vv3", int(row["offset"], 0)))
+                if shared == (row["before"].upper(), row["after"].upper()):
+                    continue
                 add(row, "automatic:safety")
             for mode, variant in game["variants"].items():
                 for row in variant["patches"]:
