@@ -368,9 +368,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # "_Name@N" twins of its own exports, and Vv2MaskSyncVillage (called
         # only inside the DLL). Every name the executable resolves, and ordinal
         # 100, keep their ordinals.
+        # Re-pinned when the mask file moved into "Village Masks" with the
+        # loose copy moved in (native/shared/data_subfolder.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "8E7560D92ED49FD6B8D37733DF67934F53DB8A2BA5A4F19C730C789C89EE01B2",
+            "2D27AF1630592187C346672AE3B1966E8AC62F5396857D4CD018E32FA9599EC1",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
