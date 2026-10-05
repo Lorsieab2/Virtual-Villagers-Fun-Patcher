@@ -85,6 +85,7 @@
 #define VV1_XC_UNSET            (-2147483647 - 1)
 #define VV1_XC_BACKUP_SUFFIX    ".before-v1.35.58-repair"
 #define VV1_XC_REPAIRS_PER_FILE 256
+#define VV1_XC_REPAIRS_FILE_BYTES (4u * 1024u * 1024u)  /* a Repairs log this big is full: well under the read cap */
 #define VV1_XC_NOTE_PER_CHANGE  512           /* the two lines one change can add, with room to spare */
 #define VV1_XC_NOTE_TAIL        (MAX_PATH + 64)  /* the Backup line */
 #define VV1_XC_NOTE_FIXED       (VV1_XC_HEADER_CAPACITY + 512 + VV1_XC_NOTE_TAIL)
@@ -105,6 +106,7 @@ typedef struct {
     char name[VV1_NAME_CAPACITY];
     int head, body;               /* VV1_XC_UNSET when the log gave none */
     int present;
+    int seen;                     /* the record printed this person's line at all */
 } vv1_xc_person;
 
 typedef struct {
@@ -120,7 +122,7 @@ typedef struct {
     int header_count;
     int village_header;           /* the slot's latest header: the village the records are kept from */
     int overflow;                 /* more villages for this slot than the table holds: not read */
-    int damaged;                  /* a record of this village cut short (no name, head or body): not read */
+    unsigned long long damaged;   /* bit h: a record under header h was cut short (no name, head or body) */
 } vv1_xc_log;
 
 typedef struct {
@@ -346,7 +348,10 @@ static void vv1_xc_person_start(vv1_xc_person *p, const char *after_colon) {
     p->body = VV1_XC_UNSET;
     /* WriteParentageBirth prints a parent it never captured as "(unknown)"
        (and the logs print "(none)" for no name): no parent, never a name. */
-    p->present = lstrcmpA(p->name, "(unknown)") != 0 && lstrcmpA(p->name, "(none)") != 0;
+    p->seen = 1;
+    /* No villager's name begins with "(": the exporters' "(unknown)", "(none)"
+       and "(not captured for this birth)" all mean no parent. */
+    p->present = p->name[0] != '(';
     if (!p->present) {
         p->name[0] = '\0';
     }
@@ -396,11 +401,17 @@ static int vv1_xc_finish(vv1_xc_log *log, vv1_xc_record *rec, int in_slot, int h
         return 1;
     }
     key_person = rec->kind == 1 ? &rec->child : &rec->mother;
-    if (!key_person->present || key_person->name[0] == '\0'
+    /* WriteParentageBirth always prints the Mother and the Father sections --
+       "(unknown)" when it has none -- so a Birth without one was cut off
+       (Codex, #522). */
+    if ((rec->kind == 1 && (!rec->mother.seen || !rec->father.seen))
+        || !key_person->present || key_person->name[0] == '\0'
         || key_person->head == VV1_XC_UNSET || key_person->body == VV1_XC_UNSET
         || !vv1_xc_person_whole(&rec->mother) || !vv1_xc_person_whole(&rec->father)
         || !vv1_xc_person_whole(&rec->child)) {
-        log->damaged = 1;
+        if (header >= 0 && header < 64) {
+            log->damaged |= 1ull << header;   /* only this village's log is in doubt */
+        }
         return 1;
     }
     rec->header = header;
@@ -569,7 +580,8 @@ static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
             return -1;
         }
     }
-    if (log->overflow || log->damaged) {
+    if (log->overflow
+        || (log->village_header >= 0 && (log->damaged & (1ull << log->village_header)) != 0)) {
         vv1_xc_free(log);
         return -1;                        /* which village is the latest, or what a record says, cannot be told: change nothing */
     }
@@ -974,6 +986,16 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
         ++file_number;
     }
     wsprintfA(path, "%s\\Virtual Villagers 1 Repairs Log %d.txt", folder, file_number);
+    {
+        /* Full by size before its record count (an Expanded-256 note is
+           long): the next number, never a refusal (Codex, #522). */
+        WIN32_FILE_ATTRIBUTE_DATA info;
+        if (GetFileAttributesExA(path, GetFileExInfoStandard, &info)
+            && (info.nFileSizeHigh != 0 || info.nFileSizeLow >= VV1_XC_REPAIRS_FILE_BYTES)) {
+            ++file_number;
+            wsprintfA(path, "%s\\Virtual Villagers 1 Repairs Log %d.txt", folder, file_number);
+        }
+    }
     file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file != INVALID_HANDLE_VALUE) {
         size = GetFileSize(file, NULL);

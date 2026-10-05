@@ -295,7 +295,7 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[BirthsLog, list[Pa
     latest = None
     damaged_in: set[str] = set()
     for path in files:
-        text = path.read_text(encoding="latin-1").replace("\r\n", "\n")
+        text = read_log_text(path)
         header = None
         for block in re.split(r"\n\s*\n", text):
             lines = [l for l in block.split("\n") if l.strip()]
@@ -340,22 +340,37 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[BirthsLog, list[Pa
     return out, files
 
 
+class LogUnreadable(Exception):
+    pass
+
+
+def read_log_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="latin-1").replace("\r\n", "\n")
+    except OSError as exc:            # locked, denied: reported, never a crash (Codex, #522)
+        raise LogUnreadable(f"{path.name}: {exc.strerror or exc}") from exc
+
+
 def numbered_records(game_dir: Path, folder: str, stem: str, marker: str, slot: int) -> tuple[list[str], list[Path]]:
     """The blocks of a numbered log that begin with `marker` and belong to this slot."""
     files = numbered(game_dir / LOGS / folder, stem)
-    blocks = []
+    found: list[tuple[str, str]] = []
+    latest = None
     for path in files:
-        text = path.read_text(encoding="latin-1").replace("\r\n", "\n")
-        in_slot = False
+        text = read_log_text(path)
+        header = None
         for block in re.split(r"\n\s*\n", text):
             lines = [l for l in block.split("\n") if l.strip()]
             heads = [l for l in lines if l.startswith("Village:")]
             if heads:
-                in_slot = heads[-1].rstrip().endswith(f"(Save {slot})")
+                header = heads[-1].rstrip()
                 lines = [l for l in lines if not l.startswith("Village:")]
-            if in_slot and lines and lines[0].startswith(marker):
-                blocks.append("\n".join(lines))
-    return blocks, files
+                if header.endswith(f"(Save {slot})"):
+                    latest = header
+            if header and header.endswith(f"(Save {slot})") and lines and lines[0].startswith(marker):
+                found.append((header, "\n".join(lines)))
+    # Only the slot's latest village (Codex, #522): an earlier village in the same slot is not this one.
+    return [b for h, b in found if h == latest], files
 
 
 def snapshot_villagers(text: str) -> list[dict]:
@@ -761,10 +776,37 @@ def check_graves(game_dir: Path, slot: int, game: int, deaths: int, rep: Report)
         rep.add(label, "UNCHECKED", "not a VCD1 graves file")
         return
     count = struct.unpack_from("<I", data, 12)[0]
-    graves = sum(struct.unpack_from("<H", data, 16 + 44 * k)[0] == 0 for k in range(count) if 16 + 44 * (k + 1) <= len(data))
-    rep.add(label, "OK" if len(data) == 16 + 44 * count else "UNCHECKED",
+    if len(data) != 16 + 44 * count:          # checked before any entry is walked (Codex, #522)
+        rep.add(label, "UNCHECKED", f"{len(data)} bytes does not hold the {count} entries its header claims")
+        return
+    graves = sum(struct.unpack_from("<H", data, 16 + 44 * k)[0] == 0 for k in range(count))
+    rep.add(label, "OK",
             f"{count} entries, {graves} graves; each is used only while its name-and-age fingerprint matches the "
             f"game's own grave, so a drifted entry is ignored, never shown (Deaths log: {deaths} records)")
+
+
+def vcr1_problem(data: bytes, game: int) -> str | None:
+    """roster_validate (native/vvfp_cause_of_death/cod_roster.inc), minus the per-game snapshot
+    bounds, which this tool does not keep: None when the game would read the file."""
+    if len(data) < 32:
+        return "shorter than its header"
+    magic, version, g, count, lo, hi = struct.unpack_from("<4sIIIII", data, 0)
+    if magic != b"VCR1" or version != 1 or g != game:
+        return "not a version 1 roster of this game"
+    if hi <= lo or count > 256:
+        return "impossible snapshot bounds or count"
+    entry = 16 + hi - lo
+    if len(data) != 32 + count * entry:
+        return f"{len(data)} bytes does not hold {count} entries"
+    prev = prev_rank = None
+    for i in range(count):
+        e = 32 + i * entry
+        index, rank = struct.unpack_from("<HH", data, e)
+        if (index >= 256 or rank > index or any(data[e + 4:e + 8])
+                or (prev is not None and (index <= prev or rank <= prev_rank))):
+            return f"entry {i} is out of order or malformed"
+        prev, prev_rank = index, rank
+    return None
 
 
 def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], rep: Report) -> None:
@@ -774,18 +816,23 @@ def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], 
     label = f"{DATA}\\{name}"
     if path is not None:
         data = path.read_bytes()
-        if data[:4] == b"VCR1" and len(data) >= 32:
+        problem = vcr1_problem(data, game)
+        if problem is None:
             count = struct.unpack_from("<I", data, 12)[0]
             rep.add(label, "OK", f"{count} villagers recorded at the last save (rewritten at every save from the "
                                  "game's own records; read by rank or record, so compaction cannot mislead it)")
         else:
-            rep.add(label, "UNCHECKED", "not a VCR1 roster")
+            rep.add(label, "UNCHECKED", f"not a roster the game would read: {problem}")
     stats_roster = game_dir / DATA / "Village Statistics" / f"Village Roster - Save {slot}.dat"
     label = f"{DATA}\\Village Statistics\\Village Roster - Save {slot}.dat"
     if stats_roster.is_file():
         lines = stats_roster.read_text(encoding="latin-1").splitlines()
-        names = sorted(l.split("\t")[1] for l in lines[1:] if l.count("\t") >= 2)
-        if lines and lines[0] == "VVFP VILLAGE ROSTER v1":
+        rows = [l for l in lines[1:] if l]
+        names = sorted(l.split("\t")[1] for l in rows if l.count("\t") == 2)
+        if lines and lines[0] == "VVFP VILLAGE ROSTER v1" and any(l.count("\t") != 2 for l in rows):
+            # The game reads a row without exactly two tabs as a damaged roster (Codex, #522).
+            rep.add(label, "UNCHECKED", "a row without exactly two tabs: the game treats the roster as damaged")
+        elif lines and lines[0] == "VVFP VILLAGE ROSTER v1":
             same = names == sorted(v.name for v in roster)
             rep.add(label, "OK" if same else "NOTE",
                     f"{len(names)} villagers" + ("" if same else f" (the save has {len(roster)}; it is rewritten from "
@@ -879,7 +926,12 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
         rep.add(save.name, "UNCHECKED", f"the save could not be read: {exc}")
         return rep
     rep.add(save.name, "OK", f"{GAME_TITLES[game]}, Save {slot}: {len(roster)} living villagers read from the save")
-    births, files = births_log(game_dir, game, slot)
+    try:
+        births, files = births_log(game_dir, game, slot)
+    except LogUnreadable as exc:
+        rep.add(f"{LOGS}\\Births and Conceptions", "UNCHECKED", f"cannot be read ({exc}): nothing that depends "
+                                                                 "on it is checked, as in the game")
+        births, files = BirthsLog(), []
     if births.damaged:
         rep.add(f"{LOGS}\\Births and Conceptions", "UNCHECKED",
                 "a record of this village is cut short (no name, head or body): the game's check treats the log as "
@@ -892,7 +944,11 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
         vv1_parentage(game_dir, slot, roster, births, rep)
     else:
         vv25_parents_vs_births(roster, births, rep, game)
-    deaths = check_unaccounted(game_dir, slot, game, rep)
+    try:
+        deaths = check_unaccounted(game_dir, slot, game, rep)
+    except LogUnreadable as exc:
+        rep.add(f"{LOGS}\\Deaths and Unaccounted Villagers", "UNCHECKED", f"cannot be read ({exc})")
+        deaths = 0
     check_population(game_dir, slot, roster, rep)
     hist = history_last(game_dir, slot)
     check_history(game_dir, slot, roster, rep)

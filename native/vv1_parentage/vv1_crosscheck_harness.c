@@ -214,6 +214,7 @@ static void log_birth_of(const villager *child, const villager *mother, const vi
               "  Skills:\n    Breeding   0\n    Building   0\n", child->name, child->head, child->body);
     if (mother) log_person("Mother", mother);
     if (father) log_person("Father", father);
+    else lstrcatA(logtext, "  Father: (unknown)\n");   /* as WriteParentageBirth prints it */
     lstrcatA(logtext, "\n");
 }
 
@@ -1051,6 +1052,85 @@ static void stale_stash_cases(void) {
     check(g_plan.stale == 0, "without the load's list of expecting mothers, no stash is called stale");
     (void)asked;
 }
+/* ---- Codex on #522, fourth round ---------------------------------------- */
+
+static void round4_cases(void) {
+    static unsigned char before[16 + sizeof(g_roster) + sizeof(g_entries)];
+    static unsigned char after[sizeof(before)];
+    char p[MAX_PATH];
+    DWORD a = 0, b = 0;
+    int asked;
+
+    /* A Birth cut off before its Father section: WriteParentageBirth always
+       prints both parents ("(unknown)" when it has none), so this is damage. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    lstrcatA(logtext, "Birth\n  Child: Lisha\n    Head: 13\n    Body: 10\n  Mother: Onawa\n    Head: 16\n    Body: 2\n");
+    log_save(1);
+    write_drifted_owner_sidecar();
+    read_all(sidecar, before, sizeof(before), &a);
+    asked = load_and_check(after_load, IDYES);
+    read_all(sidecar, after, sizeof(after), &b);
+    check(asked == 0 && a == b && memcmp(before, after, a) == 0 && !exists(marker),
+          "a Birth missing its Father section is cut short: nothing asked, nothing changed");
+
+    /* ... while "(unknown)" (and any name in parentheses) is a parent the
+       exporter did not have, and the record is whole. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    lstrcatA(logtext, "Birth\n  Child: Silko\n    Head: 22\n    Body: 5\n  Mother: Onawa\n    Head: 16\n    Body: 2\n"
+                      "  Father: (not captured for this birth)\n\n");
+    log_save(1);
+    write_drifted_owner_sidecar();
+    asked = load_and_check(after_load, IDYES);
+    {
+        int silko_at = where(after_load, "Silko");
+        check(asked == 1 && g_applied == 1 && silko_at >= 0
+              && lstrcmpA(g_entries[silko_at].mother_name, "Onawa") == 0 && g_entries[silko_at].father_name[0] == '\0',
+              "a parent printed in parentheses is no parent, and the Birth still counts");
+    }
+
+    /* An older village in the same slot with a damaged record does not block
+       the village loaded now. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Old Tribe (Save 1)");
+    lstrcatA(logtext, "Birth\n  Child: Lisha\n");
+    lstrcatA(logtext, "\nVillage: Kalahuna Tribe 1 (Save 1)\n");
+    log_owner_births();
+    log_save(1);
+    write_drifted_owner_sidecar();
+    asked = load_and_check(after_load, IDYES);
+    check(asked == 1 && g_applied == 1 && all_true(after_load),
+          "a damaged record of an earlier village in the slot does not block this one's check");
+
+    /* A Repairs log that is full by size rolls to the next number. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births();
+    log_save(1);
+    write_drifted_owner_sidecar();
+    {
+        HANDLE h = CreateFileA(repairs, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        LARGE_INTEGER at;
+        at.QuadPart = VV1_XC_REPAIRS_FILE_BYTES;
+        SetFilePointerEx(h, at, NULL, FILE_BEGIN);
+        SetEndOfFile(h);
+        CloseHandle(h);
+    }
+    asked = load_and_check(after_load, IDYES);
+    lstrcpyA(p, repairs);
+    p[lstrlenA(p) - 5] = '2';                         /* "... Repairs Log 2.txt" */
+    check(asked == 1 && g_applied == 1 && file_size(repairs) == VV1_XC_REPAIRS_FILE_BYTES
+          && strstr(slurp(p), "Corrected: Lisha") != NULL && marker_result() == VV1_XC_RESULT_REPAIRED,
+          "a Repairs log full by size: the note goes to the next file, and the repair is made");
+    DeleteFileA(p);
+}
 
 int main(int argc, char **argv) {
     char game[MAX_PATH];
@@ -1077,6 +1157,7 @@ int main(int argc, char **argv) {
     damaged_log_cases();
     big_note_case();
     stale_stash_cases();
+    round4_cases();
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

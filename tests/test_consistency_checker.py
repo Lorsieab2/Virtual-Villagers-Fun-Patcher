@@ -180,6 +180,76 @@ class Vv1Fixture(unittest.TestCase):
         self.assertTrue(any(v == "WRONG" and t.startswith("Hawa is not expecting, but an expected father Ponui")
                             for _, v, t in rep.lines), rep.render())
 
+    # ---- Codex on #522, fourth round ------------------------------------------------------
+
+    def verdicts(self, game: Path, suffix: str):
+        return [(v, t) for f, v, t in checker.check(game, 1).lines if f.endswith(suffix)]
+
+    def test_a_graves_file_whose_count_lies_is_unchecked_without_walking_it(self):
+        game = self.build(drifted=False)
+        (game / DATA / "Graves").mkdir()
+        (game / DATA / "Graves" / "Virtual Villagers 1 Graves - Save 1.dat").write_bytes(
+            struct.pack("<4sIII", b"VCD1", 1, 1, 0xFFFFFFFF))
+        self.assertEqual(self.verdicts(game, "Graves - Save 1.dat")[0][0], "UNCHECKED")
+
+    def test_deaths_of_an_earlier_village_in_the_slot_are_not_this_ones(self):
+        game = self.build(drifted=False)
+        folder = game / LOGS / "Deaths"
+        folder.mkdir()
+        (folder / "Virtual Villagers 1 Deaths Log 1.txt").write_text(
+            "Village: Old Tribe (Save 1)\nDeath 1\n  Name: Ghali\n\nDeath 2\n  Name: Lisha\n\n"
+            "Village: Kalahuna Tribe 1 (Save 1)\nDeath 1\n  Name: Kito\n\n", encoding="latin-1")
+        blocks, _ = checker.numbered_records(game, "Deaths", "Virtual Villagers 1 Deaths Log", "Death ", 1)
+        self.assertEqual(len(blocks), 1)
+        self.assertIn("Kito", blocks[0])
+
+    def test_an_unreadable_births_log_is_unchecked_not_a_crash(self):
+        game = self.build(drifted=True)
+        original = checker.read_log_text
+
+        def denied(path):
+            if "Births and Conceptions" in path.name:
+                raise checker.LogUnreadable(f"{path.name}: Permission denied")
+            return original(path)
+        checker.read_log_text = denied
+        try:
+            rep = checker.check(game, 1)
+        finally:
+            checker.read_log_text = original
+        self.assertEqual(rep.wrong, 0, rep.render())
+        self.assertIn("cannot be read", rep.render())
+
+    def vcr1(self, game: Path, data: bytes) -> list:
+        folder = game / DATA / "Unaccounted Villagers"
+        folder.mkdir(exist_ok=True)
+        (folder / "Virtual Villagers 1 Village Roster - Save 1.dat").write_bytes(data)
+        return self.verdicts(game, "Village Roster - Save 1.dat")
+
+    def test_a_roster_the_game_would_reject_is_not_ok(self):
+        game = self.build(drifted=False)
+        lo, hi = 0x33C, 0x3D8
+        entry = lambda i, r: struct.pack("<HHIQ", i, r, 0, 0) + bytes(hi - lo)
+        good = struct.pack("<4sIIIIIII", b"VCR1", 1, 1, 2, lo, hi, 0, 0) + entry(0, 0) + entry(1, 1)
+        self.assertEqual(self.vcr1(game, good)[0][0], "OK")
+        bad_order = struct.pack("<4sIIIIIII", b"VCR1", 1, 1, 2, lo, hi, 0, 0) + entry(1, 1) + entry(0, 0)
+        self.assertEqual(self.vcr1(game, bad_order)[0][0], "UNCHECKED")
+        bad_version = struct.pack("<4sIIIIIII", b"VCR1", 2, 1, 2, lo, hi, 0, 0) + entry(0, 0) + entry(1, 1)
+        self.assertEqual(self.vcr1(game, bad_version)[0][0], "UNCHECKED")
+        short = good[:-1]
+        self.assertEqual(self.vcr1(game, short)[0][0], "UNCHECKED")
+
+    def test_a_statistics_roster_with_a_malformed_row_is_unchecked(self):
+        game = self.build(drifted=False)
+        after = [v for v in OWNER if v[0] not in ("Kito", "Chika")] + [SILKO]
+        folder = game / DATA / "Village Statistics"
+        folder.mkdir()
+        rows = [f"{i}\t{v[0]}\t00000000" for i, v in enumerate(after)]
+        path = folder / "Village Roster - Save 1.dat"
+        path.write_text("VVFP VILLAGE ROSTER v1\n" + "\n".join(rows) + "\n", encoding="latin-1")
+        self.assertEqual(self.verdicts(game, "Village Roster - Save 1.dat")[-1][0], "OK")
+        path.write_text("VVFP VILLAGE ROSTER v1\n" + "\n".join(rows) + "\n99\tTrunc\n", encoding="latin-1")
+        self.assertEqual(self.verdicts(game, "Village Roster - Save 1.dat")[-1][0], "UNCHECKED")
+
     def marker(self, game: Path, words) -> None:
         folder = game / DATA / "Cross-Check"
         folder.mkdir(parents=True, exist_ok=True)

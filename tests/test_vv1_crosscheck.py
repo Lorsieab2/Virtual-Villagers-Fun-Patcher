@@ -147,6 +147,11 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "... and the Repairs log says so",
             "a mother the catch-up delivered after the load keeps her stash: it is not stale",
             "without the load's list of expecting mothers, no stash is called stale",
+            # Codex on #522, fourth round
+            "a Birth missing its Father section is cut short: nothing asked, nothing changed",
+            "a parent printed in parentheses is no parent, and the Birth still counts",
+            "a damaged record of an earlier village in the slot does not block this one's check",
+            "a Repairs log full by size: the note goes to the next file, and the repair is made",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
