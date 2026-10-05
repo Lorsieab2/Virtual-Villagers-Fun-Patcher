@@ -3556,7 +3556,7 @@ class StockIntegrationTests(unittest.TestCase):
                             "VVFP Statistics Export.dll",
                         ],
                     )
-                    roster = output.parent / "VVFP Population Export.dll"
+                    roster = output.parent / "Virtual Villagers Fun Patcher Files" / "VVFP Population Export.dll"
                     self.assertTrue(
                         roster.is_file(),
                         "the roster companion must be installed beside "
