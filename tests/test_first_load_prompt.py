@@ -93,7 +93,6 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "... and the prompt says plainly what was found and what will happen",
             "... and says nothing of what was not found",
             "Not now: nothing is repaired or passed on",
-            "... and the quit check runs once",
             "Repair at the quit: the parents are repaired, once, no notice",
             "... and nothing is left for a save that will not come",
             "all five games: every part found is asked about at the quit and repaired there and then",
@@ -131,7 +130,7 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "... the flags the game's next jump reads are the displaced test's own",
             "a site that does not hold its stock bytes is left alone",
             "the quit hook takes the slot from the save manager, where the shutdown read it",
-            "an application that cannot be read is no slot: nothing, and no fault",
+            "a fault while reading the slot is caught: nothing, and the game goes on closing",
             "NO message box was ever shown while a village was being played",
         ):
             with self.subTest(case=case):

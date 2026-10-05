@@ -928,7 +928,7 @@ static void bind_store(int game_id, unsigned char *manager, int save_id) {
    otherwise be added on top of a bound that already holds it). */
 static int g_rc_save_ok;
 static int rc_apply(int game, int slot, unsigned char *manager);
-/* The last primary save this session wrote and exported: its game, slot and
+/* The last primary save this session wrote and exported: its slot and
    manager, and whether the reconcile could have run at it (g_rc_save_ok).
    VvfpStatisticsRepairReconcileNow completes a Repair answered right after
    it -- the quit save -- from exactly that state. */
