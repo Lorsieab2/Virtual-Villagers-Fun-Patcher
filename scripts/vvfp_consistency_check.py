@@ -252,7 +252,7 @@ class Person:
 
 @dataclass
 class LogRecord:
-    kind: str                  # "birth" | "conception"
+    kind: str                  # "birth" | "conception" | "arrived"
     village: str               # the full "Village: ..." line
     child: Person | None = None
     mother: Person | None = None
@@ -323,6 +323,20 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[BirthsLog, list[Pa
                 continue
             kind = lines[0].strip()
             rec = LogRecord(kind="", village=header)
+            if re.fullmatch(r"Arrived \d+", kind):
+                # An Arrived record: "  Name:", "  Head:", "  Body:" (two spaces in).
+                fields = {}
+                for line in lines[1:]:
+                    m = re.match(r"  (Name|Head|Body): (.*)$", line)
+                    if m and m.group(1) not in fields:
+                        fields[m.group(1)] = m.group(2).strip()
+                try:
+                    rec.child = Person(fields["Name"], int(fields["Head"]), int(fields["Body"]))
+                except (KeyError, ValueError):
+                    continue
+                rec.kind = "arrived"
+                records.append(rec)
+                continue
             for k, line in enumerate(lines):
                 if re.match(r"\s*Child:", line):
                     rec.child = parse_person(lines, k, "Child")
@@ -397,6 +411,8 @@ def snapshot_villagers(text: str) -> list[dict]:
         for key in ("Head", "Body", "Age"):
             m = re.search(r"\n  %s: (-?\d+)" % key, block)
             v[key.lower()] = int(m.group(1)) if m else None
+        pf = re.search(r"\n  Parents:\n(?:    Father: (.*)\n(?:      .*\n)*)?(?:    Mother: (.*)\n)?", block)
+        v["parents"] = (pf.group(1) or "", pf.group(2) or "") if pf else ("", "")
         m = re.search(r"\n  Custom title: (.*)", block)
         if m:
             v["title"] = m.group(1).strip()
@@ -552,8 +568,57 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
         rep.add(label, "OK", "every living villager's recorded parents agree with the Births log")
 
 
-def vv25_parents_vs_births(roster: list[Villager], births: list[LogRecord], rep: Report, game: int) -> None:
+def births_marker(game_dir: Path, game: int, slot: int) -> bool:
+    p = game_dir / DATA / "Births" / f"Virtual Villagers {game} Births Recorded - Save {slot}.dat"
+    if not p.is_file():
+        return False
+    data = p.read_bytes()
+    return len(data) == 16 and struct.unpack("<4I", data) == (0x31424356, 1, game, slot)
+
+
+def missing_births(roster: list[Villager], births: list[LogRecord]) -> list[Villager]:
+    """The in-game backfill's rule (native/parentage_export/arrival_backfill.inc): the villagers
+    whose save record keeps parents (born here) with neither a Birth nor an Arrived record of the
+    same name, head and body -- counted, so two alike need two -- or, failing that, a record of
+    their name that only they carry (looks changed since)."""
+    keys = [key(r.child.name, r.child.head, r.child.body) for r in births
+            if r.kind in ("birth", "arrived") and r.child and r.child.name]
+    taken: dict[tuple, int] = {}
+    out = []
+    for v in roster:
+        if not (v.father or v.mother):
+            continue
+        k = key(v.name, v.head, v.body)
+        have = keys.count(k)
+        if have > taken.get(k, 0):
+            taken[k] = taken.get(k, 0) + 1
+            continue
+        named = [x for x in keys if x[0] == v.name]
+        if len(named) == 1 and sum(w.name == v.name for w in roster) == 1 and not taken.get(k):
+            continue
+        out.append(v)
+    return out
+
+
+def vv25_parents_vs_births(roster: list[Villager], births: list[LogRecord], rep: Report, game: int,
+                           game_dir: Path | None = None, slot: int = 0) -> None:
     label = f"{LOGS}\\Births and Conceptions (against the save's own parent fields)"
+    if game_dir is not None and births.village is not None:
+        lacking = missing_births(roster, births)
+        done = births_marker(game_dir, game, slot)
+        for v in lacking:
+            heathen = " (New Believers: a Heathen is never recorded -- the save's faction byte is not read " \
+                      "here)" if game == 5 else ""
+            if done:
+                rep.add(label, "NOTE", f"{v.name}: parents in the save, no Birth record, but this slot's backfill "
+                                       f"has already run (born since, and not seen by the game's log){heathen}")
+            else:
+                rep.add(label, "WRONG", f"{v.name}: born here (the save names father {v.father or '(none)'}, mother "
+                                        f"{v.mother or '(none)'}) but no Birth or Arrived record in the Births log "
+                                        f"(repairable: a Birth record is written from the save, \"Recorded "
+                                        f"afterwards\"){heathen}")
+        if not lacking:
+            rep.add(label, "OK", "every living villager the save says was born here has a Birth or Arrived record")
     bs = [r for r in births if r.kind == "birth"]
     checked = 0
     for v in roster:
@@ -573,6 +638,7 @@ def vv25_parents_vs_births(roster: list[Villager], births: list[LogRecord], rep:
 
 def check_population(game_dir: Path, slot: int, roster: list[Villager], rep: Report) -> None:
     label = f"{LOGS}\\Tribe Population"
+    rep.add(label, "NOTE", REPORT_ONLY["population"])
     pop = population_for_slot(game_dir, slot)
     if pop is None:
         rep.add(label, "UNCHECKED", f"no Village Population log for Save {slot}")
@@ -595,8 +661,35 @@ def check_population(game_dir: Path, slot: int, roster: list[Villager], rep: Rep
                                  "the .ldw on disk, and comes out right at the next save)")
 
 
+REPORT_ONLY = {
+    "population": "not repaired at load: it is rewritten from the game at every save, from the same memory the save "
+                  "is written from; a copy written at load would record the load-time catch-up the save may never "
+                  "keep, and the writer also files the Births log's held records early",
+    "history": "never rewritten (owner rule); a snapshot is appended at every save, so the next save's snapshot is "
+               "the save's -- one appended at load would record unsaved state (see the Population log)",
+    "rosters": "not rebuilt: each is the record of the LAST SAVE that the next save compares with -- a mismatch is "
+               "the evidence it uses (a different village in the slot; villagers who left unaccounted for), and "
+               "rebuilding it from the loaded village would erase that evidence",
+    "masks": "not repaired: no save field or log records what a mask was; an entry whose villager is in no record "
+             "shows on nobody and is dropped by the game's own follow rule as soon as anyone takes that record",
+    "titles": "not repaired: a title of a dead villager is not an orphan, and graves keep no likes or dislikes, so "
+              "no file can prove a title belongs to nobody; one shows only on the villager whose fingerprint it "
+              "carries",
+    "stews": "not repaired: The Secret City and The Tree of Life keep no record of the stews made, and The Lost "
+             "Children's found-recipe flags name recipes, not the herb combinations this file counts",
+    "game_rows": "Highest Population, Oldest Villager, Babies Made, Triplets Birthed, Tech Points, People Cured, "
+                 "Mushrooms Found, Island Events Seen, Puzzles Solved (and Twins Birthed outside The Lost Children) "
+                 "are the GAME's own counters, kept in the save and printed as they are at every save: the log "
+                 "cannot disagree with the save, and the patcher never changes the game's own counters",
+    "unbounded": "Food Gathered (The Tree of Life, New Believers), Debris Cleared and Heathens Converted: no save field "
+                 "or log bounds them (the Arrived records' \"Converted from the Heathens\" also follow the Maker's "
+                 "conversions, which do not count)",
+}
+
+
 def check_history(game_dir: Path, slot: int, roster: list[Villager], rep: Report) -> None:
     label = f"{LOGS}\\Tribe History (checked only: never rewritten)"
+    rep.add(label, "NOTE", REPORT_ONLY["history"])
     last = history_last(game_dir, slot)
     if last is None:
         rep.add(label, "UNCHECKED", f"no Village History snapshot for Save {slot}")
@@ -649,9 +742,53 @@ def check_elders(game_dir: Path, slot: int, game: int, roster: list[Villager], r
                                        "was renamed, so it is reported, not removed)")
     if game == 5:
         rep.add(label, "NOTE", "New Believers: heathens are not elders, and the save's tribe byte is not read here, "
-                               "so a heathen elder would show above as 'no open line'")
+                               "so a heathen elder would show above as 'no open line'; its History log lists the "
+                               "Heathens too (the Heathen Chief has every skill at 100), so it cannot prove an elder: "
+                               "not repaired")
+    if game in (1, 3, 4):
+        for v in history_elders(game_dir, slot, game, roster, {r[2] for r in rows}):
+            rep.add(label, "WRONG", f"{v['name']} is a Village Elder in the Village History log (Master in 3 or more "
+                                    "skills), no longer alive, and on no line of the list (repairable: added as a "
+                                    "closed line)")
     rep.add(label, "OK", f"{len(rows)} lines, {len(open_lines)} open; {len(living_elders)} living elders in the save")
     return len(rows)
+
+
+def history_snapshots(game_dir: Path, header: str) -> list[list[dict]]:
+    """Every snapshot of the village whose "Village:" line is `header`, in every numbered file."""
+    out = []
+    for path in numbered(game_dir / LOGS / "Tribe History", "Village History"):
+        text = read_log_text(path)
+        for snap in re.split(r"\n(?==== )", "\n" + text):
+            m = re.search(r"^(Village: .*)$", snap, re.M)
+            if m and m.group(1).rstrip() == header:
+                out.append(snapshot_villagers(snap))
+    return out
+
+
+def history_elders(game_dir: Path, slot: int, game: int, roster: list[Villager], listed: set[str]) -> list[dict]:
+    """statistics_reconcile.inc's rule: a villager a snapshot of THIS village shows with Master (the game's
+    threshold) in 3+ skills, not alive now (the save adds the living), whose name is on no line."""
+    births, _ = births_log(game_dir, game, slot)
+    header = births.village
+    if header is None:
+        # No Births log: the slot's latest History header names the village.
+        for path in numbered(game_dir / LOGS / "Tribe History", "Village History"):
+            for m in re.finditer(r"^(Village: .*\(Save %d\))\s*$" % slot, read_log_text(path), re.M):
+                header = m.group(1)
+    if header is None:
+        return []
+    living = {v.name for v in roster}
+    found: list[dict] = []
+    for snap in history_snapshots(game_dir, header):
+        for v in snap:
+            if sum(s >= MASTER[game] for s in v["skills"]) < 3 or not v["name"]:
+                continue
+            if v["name"] in living or v["name"] in listed:
+                continue
+            if not any(f["name"] == v["name"] and f.get("parents") == v.get("parents") for f in found):
+                found.append(v)
+    return found
 
 
 def read_stats_text(game_dir: Path, slot: int) -> dict[str, str] | None:
@@ -700,15 +837,50 @@ def check_statistics(game_dir: Path, slot: int, game: int, roster: list[Villager
     if twins is not None:
         rep.add(label, "OK" if twins >= nt else "NOTE",
                 f"Twins Birthed {twins} {'>=' if twins >= nt else '<'} the {nt} twin conceptions in the log")
-    buried = num("Villagers Buried")
-    if buried is not None:
-        rep.add(label, "OK" if buried >= deaths else "NOTE",
-                f"Villagers Buried {buried} {'>=' if buried >= deaths else '<'} the {deaths} Death records in the log")
     ve = num("Village Elders")
     if ve is not None and elders is not None:
         rep.add(label, "OK" if ve == elders else "NOTE",
                 f"Village Elders {ve} {'=' if ve == elders else '!='} the {elders} lines of the elders file"
                 + ("" if ve == elders else " (the log is from another save than the file)"))
+
+
+def read_counters(game_dir: Path, slot: int, game: int) -> dict[str, int] | None:
+    p = game_dir / DATA / "Village Statistics" / f"Village Statistics - Save {slot}.dat"
+    if not p.is_file():
+        return None
+    lines = p.read_text(encoding="latin-1").replace("\r\n", "\n").split("\n")
+    if not lines or lines[0] != f"VVFP VILLAGE STATISTICS v1 game={game}":
+        return None
+    out = {}
+    for line in lines[1:]:
+        m = re.fullmatch(r"([a-z0-9_.]+)=(-?\d+)", line)
+        if m:
+            out[m.group(1)] = int(m.group(2))
+    return out
+
+
+def check_counters(game_dir: Path, slot: int, game: int, births: list[LogRecord], graves: int, rep: Report) -> None:
+    """statistics_reconcile.inc: Villagers Buried >= this village's Death records with a grave; The Lost
+    Children's Twins Birthed >= its twin conceptions.  Raised at the next save after Repair, never lowered.
+    (The memorial's graves and The Secret City's living chief are bounds too, read by the game only.)"""
+    label = f"{DATA}\\Village Statistics\\Village Statistics - Save {slot}.dat"
+    rep.add(label, "NOTE", "reported only: " + REPORT_ONLY["game_rows"])
+    rep.add(label, "NOTE", "reported only: " + REPORT_ONLY["unbounded"])
+    counters = read_counters(game_dir, slot, game)
+    if counters is None:
+        rep.add(label, "UNCHECKED", "no counters file this companion would read (it is made at the next save)")
+        return
+    checks = [("villagers_buried", "Villagers Buried", graves, "Death records with a grave in the Deaths log")]
+    if game == 2:
+        checks.append(("twins_birthed", "Twins Birthed", sum(r.kind == "conception" and r.babies == 2 for r in births),
+                       "twin conceptions in the Births log"))
+    for k, row, bound, what in checks:
+        if k not in counters:
+            rep.add(label, "NOTE", f"{row}: not in the file yet (started at the next save)")
+        elif counters[k] < bound:
+            rep.add(label, "WRONG", f"{row} is {counters[k]}, below the {bound} {what} (repairable: raised to {bound})")
+        else:
+            rep.add(label, "OK", f"{row} {counters[k]} >= the {bound} {what}")
 
 
 def check_masks(game_dir: Path, slot: int, game: int, roster: list[Villager], rep: Report) -> None:
@@ -722,9 +894,7 @@ def check_masks(game_dir: Path, slot: int, game: int, roster: list[Villager], re
         return
     data = path.read_bytes()
     magic = data[:4]
-    rep.add(label, "UNCHECKED", f"{len(data)} bytes, magic {magic!r}: no save field or log records a mask, so a mask "
-                                "can never be confirmed wrong; the game's load follows each mask to its villager "
-                                "by the identity stored with it")
+    rep.add(label, "UNCHECKED", f"{len(data)} bytes, magic {magic!r}: " + REPORT_ONLY["masks"])
 
 
 def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], hist, rep: Report) -> None:
@@ -769,6 +939,7 @@ def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], h
         else:
             rep.add(label, "UNCHECKED", f"\"{title}\" at record {index}: this game's likes and dislikes are not read "
                                         "from the save here, so the identity is not recomputed")
+    rep.add(label, "NOTE", REPORT_ONLY["titles"])
     if hist is not None:
         titled = [v for v in hist[1] if v.get("title")]
         rep.add(label, "OK", f"{count} titles in the file; the last History snapshot shows {len(titled)} "
@@ -837,6 +1008,7 @@ def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], 
                                  "game's own records; read by rank or record, so compaction cannot mislead it)")
         else:
             rep.add(label, "UNCHECKED", f"not a roster the game would read: {problem}")
+    rep.add(f"{DATA}\\Village Rosters", "NOTE", REPORT_ONLY["rosters"])
     stats_roster = game_dir / DATA / "Village Statistics" / f"Village Roster - Save {slot}.dat"
     label = f"{DATA}\\Village Statistics\\Village Roster - Save {slot}.dat"
     if stats_roster.is_file():
@@ -870,6 +1042,7 @@ def check_stews(game_dir: Path, slot: int, game: int, rep: Report) -> None:
         re.fullmatch(r"stew=\d+ herbs=[0-9A-F]{2},[0-9A-F]{2},[0-9A-F]{2}( water=(fresh|salt))?", l) for l in lines[1:] if l)
     rep.add(label, "OK" if ok else "UNCHECKED",
             f"{len(lines) - 1} discoveries, well formed" if ok else "not a well-formed v1 stew file")
+    rep.add(label, "NOTE", REPORT_ONLY["stews"])
 
 
 def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
@@ -878,6 +1051,9 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
                                     "Unaccounted ", slot)
     label = f"{LOGS}\\Deaths and Unaccounted Villagers"
     rep.add(label, "OK", f"{len(deaths)} Death records, {len(unacc)} Unaccounted records for Save {slot}")
+    global LAST_GRAVES
+    LAST_GRAVES = sum(1 for d in deaths if (m := re.search(r"^  Grave: (.*)$", d, re.M)) and m.group(1).strip()
+                      and not m.group(1).startswith("no grave"))
     dead = {re.search(r"Name: (.*)", d).group(1).strip() for d in deaths if re.search(r"Name: (.*)", d)}
     for u in unacc:
         m = re.search(r"Name: (.*)", u)
@@ -885,6 +1061,9 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
             rep.add(label, "NOTE", f"{m.group(1).strip()} is both unaccounted for and in the Deaths log "
                                    "(a grave recorded afterwards; the Unaccounted record stays: logs are never rewritten)")
     return len(deaths)
+
+
+LAST_GRAVES = 0
 
 
 def village_id(header: str) -> int:
@@ -957,7 +1136,9 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     if game == 1:
         vv1_parentage(game_dir, slot, roster, births, rep)
     else:
-        vv25_parents_vs_births(roster, births, rep, game)
+        vv25_parents_vs_births(roster, births, rep, game, game_dir, slot)
+    global LAST_GRAVES
+    LAST_GRAVES = 0
     try:
         deaths = check_unaccounted(game_dir, slot, game, rep)
     except LogUnreadable as exc:
@@ -968,6 +1149,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     check_history(game_dir, slot, roster, rep)
     elders = check_elders(game_dir, slot, game, roster, rep)
     check_statistics(game_dir, slot, game, roster, births, deaths, elders, rep)
+    check_counters(game_dir, slot, game, births, LAST_GRAVES, rep)
     check_masks(game_dir, slot, game, roster, rep)
     check_titles(game_dir, slot, game, roster, hist, rep)
     check_graves(game_dir, slot, game, deaths, rep)
