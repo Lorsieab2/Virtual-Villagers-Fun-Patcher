@@ -7,7 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
-#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -1778,10 +1778,11 @@ void __stdcall Vv1MaskTick(void) {
     if (!slot) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }
-    /* The first-load cross-check: once the village has been on screen a
-       moment, ONE Repair / Not now prompt for whatever its records disagree
-       with their sources of truth on (crosscheck_bridge.h).  No village frame
-       for a while (the menus, a load) is a new load to it. */
+    /* The cross-check: once the village has been on screen a moment, a
+       silent scan when the patcher's "Check logs automatically" is on, or
+       the repairs Repair Logs approved -- never a prompt while the village
+       is played; any question waits for the quit (crosscheck_bridge.h).  No
+       village frame for a while (the menus, a load) is a new load to it. */
     vvfp_crosscheck_bridge(1, 1);
     if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
         /* This slot's sidecar has not loaded: never read yet, or present but
@@ -1834,6 +1835,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_healers_study_bridge(1));
     VVFP_STARTUP_GUARDED(vvfp_story_startup(1));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(1));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(1));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
     VVFP_STARTUP_GUARDED(vv1_parentage_resolve());   /* loaded; its tick waits for the first frame */
     VVFP_STARTUP_GUARDED(vv1_sort_resolve());
 }

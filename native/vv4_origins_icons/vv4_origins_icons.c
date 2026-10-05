@@ -3,7 +3,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
-#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -751,7 +751,7 @@ static void vv_ensure_bighead_atlas(void) {
    the live stable identity, and return its mask (0 = none). */
 int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
-    /* The first-load cross-check, from the head-draw caves (world and
+    /* The cross-check (silent while played), from the head-draw caves (world and
        Details): only a village draws heads -- the present hook also runs at
        the menus -- and this is the export those caves call. */
     vvfp_crosscheck_bridge(4, villager != NULL);
@@ -1124,6 +1124,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(4));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(4));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(4));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
 void __stdcall Vv4MaskCacheSurface(void *surface) {

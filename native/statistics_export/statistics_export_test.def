@@ -4,4 +4,5 @@ EXPORTS
     SaveVillageStatistics=_SaveVillageStatistics@24
     VvfpStatisticsScanReconcile=_VvfpStatisticsScanReconcile@16
     VvfpStatisticsRepairReconcile=_VvfpStatisticsRepairReconcile@12
+    VvfpStatisticsRepairReconcileNow=_VvfpStatisticsRepairReconcileNow@8
     VvfpStatisticsTestSave=_VvfpStatisticsTestSave@12

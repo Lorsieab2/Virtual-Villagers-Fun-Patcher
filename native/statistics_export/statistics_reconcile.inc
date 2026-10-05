@@ -819,6 +819,39 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
     }
 }
 
+/* VvfpStatisticsRepairReconcileNow(game, slot): the player chose Repair
+   right after the game's quit save (native/shared/crosscheck_bridge.h), when
+   no later save will come.  What rc_apply would have done at the next save
+   is done now, from the save just written: the same manager (the game frees
+   nothing before this), the store bound as that save bound it, its counters
+   already flushed into the file (the reconcile only runs when that save's
+   were), and the roster that save read.  Then the Village Statistics log
+   is written again, so it shows the repaired counters.  Only straight after
+   a successful save of this slot this session, and only when the reconcile
+   could have run at it.  1 when nothing is left to repair. */
+__declspec(dllexport) int __stdcall VvfpStatisticsRepairReconcileNow(int game, int slot) {
+    char name[VV_VILLAGE_NAME_MAX];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    unsigned char *manager = g_last_save.manager;
+    if (game < GAME_VV1 || game > GAME_VV5 || slot < 1 || slot > 5 || g_last_save.slot != slot
+        || g_last_save.game != game || !g_last_save.reconcile_ok || manager == NULL) {
+        return 0;
+    }
+    bind_store(game, manager, slot);
+    g_save_id = slot;
+    g_rc_repair[slot] = 1;
+    g_rc_save_ok = 1;
+    rc_apply(game, slot, manager);
+    g_rc_save_ok = 0;
+    if (g_rc_repair[slot]) {
+        return 0;                     /* not done: nothing more is written now */
+    }
+    if (vv_village_name(game, manager, name) && vv_village_header(village, sizeof village, name, slot)) {
+        (void)write_statistics_file(game, manager, slot, village);
+    }
+    return 1;
+}
+
 #ifdef VVFP_TEST
 /* The TEST build only (statistics_export_test.def): the part of a save the
    reconcile rides on -- the roster check, the living-elder update and the
@@ -843,6 +876,12 @@ __declspec(dllexport) int __stdcall VvfpStatisticsTestSave(int game, int slot, v
     }
     g_rc_save_ok = 1;
     rc_apply(game, slot, m);
+    /* ...and remembered as the session's last save, as SaveVillageStatistics
+       remembers a real one (for VvfpStatisticsRepairReconcileNow). */
+    g_last_save.game = game;
+    g_last_save.slot = slot;
+    g_last_save.manager = m;
+    g_last_save.reconcile_ok = 1;
     g_rc_save_ok = 0;
     return g_rc_repair[slot] == 0;
 }
