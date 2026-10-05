@@ -872,7 +872,10 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
                    only when the tick sees the delivery, so a delivery the
                    catch-up made in an earlier session left it behind; the
                    owner's village had seven.  A next fatherless delivery
-                   would hand it on.  Cleared. */
+                   would hand it on.  Cleared.  (Since #530 the tick spends
+                   such a stash itself once the mother has been seen not
+                   expecting for a strike window; this still lists one the
+                   check meets first, so the player sees what changes.) */
                 vv1_xc_person none;
                 memset(&none, 0, sizeof(none));
                 vv1_xc_set(&after.stash_head, &after.stash_body, after.stash_name, &none);

@@ -21,3 +21,5 @@ EXPORTS
     Vv1ParentageProbeOverlap=_Vv1ParentageProbeOverlap@8
     Vv1ParentageProbeSync=_Vv1ParentageProbeSync@8
     Vv1ParentageProbeBind=_Vv1ParentageProbeBind@4
+    Vv1ParentageProbeDropBaseline=_Vv1ParentageProbeDropBaseline@0
+    Vv1ParentageProbeFollow=_Vv1ParentageProbeFollow@4
