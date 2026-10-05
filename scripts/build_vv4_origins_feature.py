@@ -184,6 +184,7 @@ VV4_VILLAGER_MANAGER_VA = 0x50E568
 BARREL_CAPACITY_FILE_OFFSET = 0xCCC00
 BARREL_CAPACITY_VA = 0x728C00
 BARREL_CHILDREN = 3                     # the barrel delivers 3 children
+DEMAND_COUNTER_VA = 0x4890F0               # the slot-safety layer's record-demand counter (data/builds.json)
 # Complete / Reset All Collections tech rows (9/10). The collectible + goal
 # work lives in the companion DLL (ApplyVV4CompleteCollections @101 /
 # ApplyVV4ResetCollections @102, which also show the OFFICIAL result box); this
@@ -1842,6 +1843,13 @@ def main() -> None:
         """,
         BARREL_ISLAND_REQUEUE_VA,
     )
+    # Both the gate and the two checks below count the records' DEMAND -- every
+    # occupied record (corpses and ghosts keep theirs) plus the babies each
+    # pregnant mother still owes a record -- with the slot-safety layer's own
+    # counter (data/builds.json, 0x4890F0), never the population counter
+    # 0x467610, which skips corpses and ghosts: with it a purchase could be
+    # charged and then deliver nothing, or its children take the records the
+    # pending babies need (their pregnancies then end with no child).
     # Mode-aware Barrel capacity gate, called from the purchase preflight. Returns
     # eax=1 when the village can accommodate 3 more, eax=0 otherwise. The cap and
     # population are both taken the way the native barrel gate (0x468350) does, so
@@ -1851,7 +1859,7 @@ def main() -> None:
         f"""
             push esi
             mov ecx, 0x50E568
-            call 0x467610
+            call {DEMAND_COUNTER_VA:#x}
             add eax, {BARREL_CHILDREN}
             cmp eax, {BARREL_RECORD_LIMIT}
             jle cap_ok
@@ -1874,7 +1882,7 @@ def main() -> None:
     # 150-slot record array, so it can never overflow. barrel_check2 (before child 3,
     # always reached) also clears the flag so it applies to exactly one barrel.
     _gated_check_body = f"""
-            call 0x467610
+            call {DEMAND_COUNTER_VA:#x}
             cmp eax, {BARREL_RECORD_LIMIT}
             jge chk_full
             mov al, 1

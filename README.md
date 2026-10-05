@@ -1134,6 +1134,32 @@ This lets reproduction fill the final slot without permitting the population to 
 
 All five games also contain Island Events that add villagers. The patcher guards every identified direct population-adding outcome: repeated allocations stop when the selected physical pool fills, and VV4/VV5 Abandoned Infants is reduced from six babies when fewer than six physical slots remain. VV3-VV5 use their verified 150-record boundary, or 256 in a build with 256 Villagers (Experimental). Events that remove villagers are unchanged. VV5 conversions and The Defector are unchanged because they reclassify existing records instead of allocating new ones.
 
+### No villager without a free record
+
+A corpse keeps its villager record until the game removes it, and so do The
+Tree of Life's ghosts and New Believers' Heathens, and every baby still owed
+needs one. So "the population is below the cap" never meant "a record is
+free". In every population mode, including No Population Increase, and at 256
+in the 256 Villagers builds, the safety layer makes every creation ask the
+records themselves, and nothing is spent when there is none:
+
+- A delivery waits, with the pregnancy kept, until its whole litter fits.
+  The original games cleared the pregnancy and lost the baby.
+- The room check behind conceptions, barrels and island events counts every
+  occupied record plus every baby still owed.
+- A New Home's Golden Child puzzle fires only with a free record. With none,
+  the original game made the Golden Child in a record past the end of the
+  table, where nobody could see him, and spent the mother's pregnancy.
+- A New Home's Mysterious Face, The Lost Children's Strange Request, Savage
+  Child and Silver Mirror, and The Secret City's Mysterious Vial and Crystal
+  of Reflections are offered only with room. The Crystal checks before it
+  changes anyone's likes.
+- New Believers' Reanimate is refused, with nothing spent, when no record is
+  free. The original game crashed.
+- Twins and triplets at conception follow the free records. Earlier patcher
+  builds read A New Home's lifetime Babies Made count here, so a village that
+  had made 256 babies never had twins again.
+
 ## Requirements
 
 The patcher runs from source through the bundled launcher. It needs nothing

@@ -277,12 +277,10 @@ class VV2BirthControlTests(unittest.TestCase):
                 self.assertEqual(
                     rendered[0x3BE8E:0x3BE93], bytes.fromhex("E98D800300")
                 )
+                # the delivery's record guard (scripts/build_slot_guards.py)
                 self.assertEqual(
-                    rendered[0x73F20:0x73F42],
-                    bytes.fromhex(
-                        "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF"
-                        "83C42CE94A80FCFF"
-                    ),
+                    rendered[0x73F20:0x73F20 + 51],
+                    bytes.fromhex("608B0EE818FDFFFF8B56048B943A4405000085D274014A01D03DFF00000061770AE87AB6FDFFE9487FFCFF83C42CE93980FCFF"),
                 )
 
     def test_composes_with_complete_vv2_catalog_in_every_mode_without_overlap(self) -> None:

@@ -814,10 +814,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "63925E811B4F03449C96471B3BCAC3C7A81B165344FF6A6B4FF781A736E2A653",
-    "map": "73137195D7DB32F5F67DFBB2FF7C513B97FD8B71D2799B4AF138EA6C23985E06",
+    "manifest": "408F3B23024F42D94BF9C6917108A0345E91A560D1DB1BC23F54D3C79FE1870C",
+    "map": "503AD03D968BA74A1D311C10220602DEC48C6864D602E9A131F08F4FF2FAB037",
 }
-VV5_TASK9_DLL_SHA256 = "068C67F21EE1885CB677A057EA3FE7A741C9683DF27D1C974E6882FB2C040EBF"
+VV5_TASK9_DLL_SHA256 = "27A31CC3D2093D38A0D0DACECBED6DB39A4B01E246C2B6BDBFA6FEE5CADB65BC"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -864,6 +864,23 @@ EXPANDED_TIME_WARP_PATHS = {
 # build without Origins is handed it by _attach_start_over_reset below, which
 # never does so when Origins is selected, so this exemption is not what keeps
 # the hook single; it stays as the narrow allowance it always was.
+# SECTION PERMISSION HEADERS THE SAFETY LAYER SHARES WITH ONE FEATURE.
+#
+# The record guards of The Secret City and The Tree of Life
+# (scripts/build_record_guards_vv345.py) live in a page the loader already
+# maps -- VV3's .shr page, VV4's .rdata tail -- because those games' .text
+# tails are full.  Making that page executable is the very header write a
+# feature already makes for its own code there (Everyone Tries On The Robe,
+# Origins and its candidates).  The safety layer applies first in every
+# build; the feature then finds its own bytes already written.  Allowed only
+# for these exact header fields, with identical bytes on both sides.
+SHARED_SECTION_HEADERS = {
+    ("vv3", 0x280): ("04000000", "00100000"),
+    ("vv3", 0x29C): ("400000D0", "600000F0"),
+    ("vv4", 0x244): ("40000040", "40000060"),
+}
+
+
 RESET_HOOK_OWNERS = {
     "vv1": frozenset({
         "feature:vv1_enable_origins_exclusive_features",
@@ -1710,8 +1727,12 @@ def _rebalance_start_over_reset(
         # present means Origins is installed and owns the hook.
         reset_offsets = {int(patch["offset"], 0) for patch in patches}
         origins = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
+        # A header write the safety layer shares (SHARED_SECTION_HEADERS)
+        # is present without Origins, so it says nothing about Origins.
         return any(
             int(patch["offset"], 0) not in reset_offsets
+            and SHARED_SECTION_HEADERS.get((game_id, int(patch["offset"], 0)))
+            != (patch["before"].upper(), patch["after"].upper())
             and _patch_bytes(patch, "after") != _patch_bytes(patch, "before")
             and _patches_present(work, [patch])
             for patch in origins.raw.get("patches", [])
@@ -1840,7 +1861,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "BDDE5E462F78462FEB625CC0A1D61233A1BAA431DAD3E30F1353F29D0A7851AB",
+    "builder": "28388FF3F7F4FEB0E51A43070F828B0EB2A6D6E4D4E8339BEAB23FE5A90CA629",
     "task9_builder": "815C8352580C83FB98B3F99A62BF9AFA892F7FA4FB49B9BD8FE3D659C56FAD5B",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -1853,8 +1874,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "CCE06197185840FB8B192577C22D9A759B1073C97B4E98BE6E4ACCCB2731D3E9",
-        "map": "BDE3F00EF1A533E23AFB79957002FC3D453C371F9199E01401A857B7CC9ECD42",
+        "manifest": "514FB77B1A0D007413D25B57CCD7A272D01E500412ECD3F9A8D81B4D1269B7BB",
+        "map": "25DB405D92334C78E9B6FFB1A10C48CD6CFEBF975CFF5BE347FC25D851211094",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -6190,6 +6211,12 @@ def _remove_feature_bytes(
             and actual == before
         ):
             continue
+        if actual == after and SHARED_SECTION_HEADERS.get(
+            (feature.raw.get("game_id"), offset)
+        ) == (before.hex().upper(), after.hex().upper()):
+            # The safety layer makes this same header write and still needs
+            # it (its record guards live in that page): it stays.
+            continue
         if actual != after:
             raise PatcherError(
                 f"Removal guard failed for {feature.id} at {patch['offset']}: "
@@ -9522,9 +9549,18 @@ def render_patched_bytes(
                         and prior_start == offset
                         and prior_end == end
                     )
+                    allowed_shared_section_header = (
+                        prior_owner == "automatic:safety"
+                        and prior_start == offset
+                        and prior_end == end
+                        and SHARED_SECTION_HEADERS.get((build.id, offset))
+                        == (before.hex().upper(), after.hex().upper())
+                        and after == data[offset:end]
+                    )
                     if (
                         allowed_vv5_individual_overlay
                         or allowed_vv5_running_overlay
+                        or allowed_shared_section_header
                         or allowed_vv3_individual_running_overlay
                         or allowed_vv3_individual_full_mastery_overlay
                         or allowed_vv3_full_heal_overlay
@@ -9547,9 +9583,10 @@ def render_patched_bytes(
                 # collision: it is allowed only when the bytes already present
                 # are EXACTLY what this patch would write, and only for the two
                 # features named for this game.
-                already_written = (
-                    actual == after
-                    and owner in RESET_HOOK_OWNERS.get(build.id, frozenset())
+                already_written = actual == after and (
+                    owner in RESET_HOOK_OWNERS.get(build.id, frozenset())
+                    or SHARED_SECTION_HEADERS.get((build.id, offset))
+                    == (before.hex().upper(), after.hex().upper())
                 )
                 if not already_written:
                     raise PatcherError(

@@ -313,6 +313,30 @@ class MigratedGamesTests(unittest.TestCase):
                 self.assertNotIn("golden", pre)
                 self.assertNotIn("health", pre.lower())
 
+    def test_a_body_is_never_aged(self) -> None:
+        """A corpse holds its record but the engine's own tick ages only the
+        living.  A Time Warp that credited every occupied record aged the
+        bodies too: their age at death grew with each warp, and Cause of Death,
+        which knows a body by its name and age, lost its cause -- the owner's
+        "not recorded" deaths after the Time Warps of 2026-10-05 (A New Home,
+        and New Believers likewise).  Each game's credit must skip a body."""
+        gates = {
+            "vv1": "VV1_TW_HEALTH_OFFSET) <= 0",
+            "vv2": "vv2_record_eligible(record)",
+            "vv3": "VV3_TW_HEALTH_OFFSET) <= 0",
+            "vv4": "vv_eligible(rec)",
+            "vv5": "(rec + 0x1C40) <= 0",
+        }
+        for gid in sorted(MIGRATED):
+            with self.subTest(game=gid):
+                dll = source(COMPANIONS[gid])
+                start = dll.index(f"static int {gid}_time_warp_apply(")
+                body = dll[start: dll.index("\n}\n", start)]
+                credit = body[body.index("_LAST_SEEN_OFFSET) += delta;"):]
+                self.assertIn(gates[gid], credit)
+                self.assertLess(credit.index(gates[gid]),
+                                max(credit.find("+= units"), credit.find("add_age(")))
+
     def test_the_confirmation_names_the_speed_and_the_years(self) -> None:
         for gid in sorted(MIGRATED):
             with self.subTest(game=gid):

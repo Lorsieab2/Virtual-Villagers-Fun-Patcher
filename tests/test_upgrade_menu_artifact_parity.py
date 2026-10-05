@@ -409,11 +409,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # (native/shared/crosscheck_bridge.h), and again when it learned the
         # Birth backfill and the Statistics and Elders reconcile. Larger again,
         # new digest, with VvfpStartup: the runtime companions installed at
-        # game start by "VVFP Startup.dll".
+        # game start by "VVFP Startup.dll". New digest when its Time Warp
+        # stopped ageing the dead.
         self.assertEqual(vv5_companion["size"], 1793536)
         self.assertEqual(
             vv5_companion["sha256"],
-            "068C67F21EE1885CB677A057EA3FE7A741C9683DF27D1C974E6882FB2C040EBF",
+            "27A31CC3D2093D38A0D0DACECBED6DB39A4B01E246C2B6BDBFA6FEE5CADB65BC",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
