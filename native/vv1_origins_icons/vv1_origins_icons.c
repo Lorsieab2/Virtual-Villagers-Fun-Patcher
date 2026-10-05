@@ -7,7 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
-#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
@@ -1825,17 +1825,24 @@ static int vvfp_xc_masks_scan(int game, int slot) {
     return game == 1 ? vv1_om_scan(slot, &g_vv1_om_asked) : 0;
 }
 
-static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+/* 1 when nothing the scan noted is left undone: removed, or no longer an
+   orphan; 0 when the masks cannot be told now or the change could not be
+   made (the next scan finds them again). */
+static int vvfp_xc_masks_repair(int game, int slot) {
     static vv_om_list now, gone;
     static const vv_om_table table = { vv1_om_put, vv1_mask_sidecar_save, 1 };
     char path[MAX_PATH];
-    if (game == 1 && repair && g_vv1_om_asked.count > 0 && vv1_om_scan(slot, &now) >= 0) {
-        vv_om_still(&g_vv1_om_asked, &now, &gone);
-        if (gone.count > 0 && vv1_mask_sidecar_path(path, sizeof(path), slot)) {
-            (void)vv_om_commit(1, slot, path, &gone, &table);
+    int done = 1;
+    if (game == 1 && g_vv1_om_asked.count > 0) {
+        done = 0;
+        if (vv1_om_scan(slot, &now) >= 0) {
+            vv_om_still(&g_vv1_om_asked, &now, &gone);
+            done = gone.count == 0
+                   || (vv1_mask_sidecar_path(path, sizeof(path), slot) && vv_om_commit(1, slot, path, &gone, &table));
         }
     }
     g_vv1_om_asked.count = 0;
+    return done;
 }
 
 void __stdcall Vv1MaskTick(void) {
@@ -1855,10 +1862,11 @@ void __stdcall Vv1MaskTick(void) {
     if (!slot) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }
-    /* The first-load cross-check: once the village has been on screen a
-       moment, ONE Repair / Not now prompt for whatever its records disagree
-       with their sources of truth on (crosscheck_bridge.h).  No village frame
-       for a while (the menus, a load) is a new load to it. */
+    /* The cross-check: once the village has been on screen a moment, a
+       silent scan when the patcher's "Check logs automatically" is on, or
+       the repairs Repair Logs approved -- never a prompt while the village
+       is played; any question waits for the quit (crosscheck_bridge.h).  No
+       village frame for a while (the menus, a load) is a new load to it. */
     vvfp_crosscheck_bridge(1, 1);
     if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
         /* This slot's sidecar has not loaded: never read yet, or present but
@@ -1911,6 +1919,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_healers_study_bridge(1));
     VVFP_STARTUP_GUARDED(vvfp_story_startup(1));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(1));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(1));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
     VVFP_STARTUP_GUARDED(vv1_parentage_resolve());   /* loaded; its tick waits for the first frame */
     VVFP_STARTUP_GUARDED(vv1_sort_resolve());
 }
@@ -3582,6 +3591,7 @@ enum {
    file with its own VV_AGE_OFFSET (0x530), which would silently retarget this
    VV1-only code. Every VV1 Time Warp constant is game-scoped for that reason. */
 #define VV1_TW_AGE_OFFSET        0x348
+#define VV1_TW_HEALTH_OFFSET     0x344    /* 0 or less: a body (0x42EF05)       */
 
 /* Speed codes are the engine's own divisors, written by the speed menu at
    0x004294C4 / 0x0042950A / 0x0042954D.  A year is 20 * 60 * code seconds:
@@ -3657,6 +3667,14 @@ static int vv1_time_warp_apply(int speed, int years) {
            Child's marker alone would not keep it a child, it would age it by
            the clamped 2.55 / 4.3 / 8.6 years instead of not at all. */
         *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) += delta;
+        /* A body holds its record but no longer ages: the engine's tick ages
+           only the living.  Credited, a corpse lying through a warp aged with
+           the village -- its age at death in the Deaths log grew, and Cause of
+           Death, which knows a body by its name and age, lost its cause ("not
+           recorded": the owner's Time Warps of 2026-10-05). */
+        if (*(int *)(rec + VV1_TW_HEALTH_OFFSET) <= 0) {
+            continue;
+        }
         if (VV_IS_GOLDEN_CHILD(rec)) {
             /* Hardcoded to remain a child, the same categorical exclusion
                Set Age to 18 already makes (VV1_ROWMSG_IS_GOLDEN_CHILD). */

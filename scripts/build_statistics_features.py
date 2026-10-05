@@ -1392,15 +1392,17 @@ def build_game(
         "statistics block even where no Statistics screen is reachable; omitted "
         "stock bookkeeping is restored by exact gameplay hooks. "
         + puzzle_clause
-        + "When a village is loaded, these files are checked against what the save and the patcher's "
+        + "These files are checked against what the save and the patcher's "
         "own logs prove -- "
         + ("Village Elders the Village History log shows with Master in three or more skills who are "
            "missing from the list, " if game_id in ("vv1", "vv3", "vv4") else "")
         + "Villagers Buried below the Deaths log's burials or the graves"
         + (", Twins Birthed below the Births log's twin pregnancies" if game_id == "vv2" else "")
         + (", Chiefs Robed at 0 while a robed Tribal Chief lives" if game_id == "vv3" else "")
-        + " -- and anything found is listed for the player; only if they choose Repair are the files "
-        "changed, at the next save: each is backed up first ('<file>.before-v1.35.58-repair'), every "
+        + " -- and are changed only when the player says so -- Repair Logs in the patcher window, or "
+        "Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if "
+        "something is wrong); nothing is ever asked while the village is played. Each file is backed "
+        "up first ('<file>.before-v1.35.58-repair'), every "
         "change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Repairs'), and a "
         "count is only ever raised and an elder never removed. "
         "The original save result is preserved, and text-export failure does not turn a "

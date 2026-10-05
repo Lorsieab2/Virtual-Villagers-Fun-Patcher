@@ -2047,7 +2047,7 @@ void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_story_bridge(2);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
     g_vv2_sweep_base = base;    /* the records the cross-check's mask scan reads */
-    vvfp_crosscheck_bridge(2, base != 0);  /* the first-load cross-check (A New Home's header, compiled in) */
+    vvfp_crosscheck_bridge(2, base != 0);  /* the cross-check, silent while played (A New Home's header, compiled in) */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }
@@ -2141,17 +2141,24 @@ static int vvfp_xc_masks_scan(int game, int slot) {
     return game == 2 ? vv2_om_scan(slot, &g_vv2_om_asked) : 0;
 }
 
-static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+/* 1 when nothing the scan noted is left undone: removed, or no longer an
+   orphan; 0 when the masks cannot be told now or the change could not be
+   made (the next scan finds them again). */
+static int vvfp_xc_masks_repair(int game, int slot) {
     static vv_om_list now, gone;
     static const vv_om_table table = { vv2_om_put, vv2_mask_sidecar_save, 1 };
     char path[MAX_PATH];
-    if (game == 2 && repair && g_vv2_om_asked.count > 0 && vv2_om_scan(slot, &now) >= 0) {
-        vv_om_still(&g_vv2_om_asked, &now, &gone);
-        if (gone.count > 0 && vv2_mask_sidecar_path(path)) {
-            (void)vv_om_commit(2, slot, path, &gone, &table);
+    int done = 1;
+    if (game == 2 && g_vv2_om_asked.count > 0) {
+        done = 0;
+        if (vv2_om_scan(slot, &now) >= 0) {
+            vv_om_still(&g_vv2_om_asked, &now, &gone);
+            done = gone.count == 0
+                   || (vv2_mask_sidecar_path(path) && vv_om_commit(2, slot, path, &gone, &table));
         }
     }
     g_vv2_om_asked.count = 0;
+    return done;
 }
 
 /* ---- Story / Cheat Upgrades host (Custom Island Event) -----------------
@@ -2320,6 +2327,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_healers_study_bridge(2));
     VVFP_STARTUP_GUARDED(vvfp_story_startup(2));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(2));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(2));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
 /* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\

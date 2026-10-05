@@ -313,17 +313,20 @@ class OrphanMaskWiringTests(unittest.TestCase):
                 self.assertIn('#include "../shared/orphan_masks.h"', included)
                 self.assertRegex(src, r"static int vvfp_xc_masks_scan\(int game, int slot\) \{\n"
                                       rf"    return game == {game} \?")
-                self.assertIn("static void vvfp_xc_masks_repair(int game, int slot, int repair) {", src)
-                self.assertIn(f"(void)vv_om_commit({game}, slot, path, &gone, &table);", src)
+                self.assertIn("static int vvfp_xc_masks_repair(int game, int slot) {", src)
+                self.assertIn(f"vv_om_commit({game}, slot, path, &gone, &table));", src)
                 # Only what the prompt listed AND is still an orphan at the answer is removed.
                 self.assertIn("vv_om_still(&", src)
 
     def test_the_prompt_asks_and_acts_on_the_answer(self):
         bridge = _source("native/shared/crosscheck_bridge.h")
         self.assertIn("masks = vvfp_xc_masks_scan(game, slot);", bridge)
-        self.assertIn("|| masks < 0;", bridge)
+        self.assertIn("|| stats < 0 || masks < 0) {", bridge)
+        self.assertIn("|| vvfp_xc.stats > 0 || vvfp_xc.masks > 0;", bridge)
         self.assertIn("vv_om_describe(vvfp_xc.masks, ", bridge)
-        self.assertIn("vvfp_xc_masks_repair(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);", bridge)
+        # Approved by Repair Logs: removed at load, without asking; at the quit after an answered Repair.
+        self.assertIn("(void)vvfp_xc_masks_repair(game, slot);", bridge)
+        self.assertIn("ok &= vvfp_xc_masks_repair(game, slot) != 0;", bridge)
         om = _source("native/shared/orphan_masks.h")
         self.assertIn('"- %d mask entries for villagers who are no longer in the village. "', om)
         self.assertIn('"- 1 mask entry for a villager who is no longer in the village. "', om)

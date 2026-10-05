@@ -358,12 +358,15 @@ static int backfill_survey(int slot) {
     return count;
 }
 
+/* At a save of `slot` after Repair -- or, `save_buffer` NULL, right after
+   the quit save (VvfpCauseRepairGravesNow): the village's header is then the
+   saved file's own (RecordGravesMissingFromLog reads it back). */
 static void backfill_at_save(int slot, const void *save_buffer) {
     int count;
     int i;
     int uncovered = 0;
     recorded_now_count = 0;
-    if (install_state != 1 || save_buffer == NULL || slot < 1 || slot > 5 || !repair_chosen[slot]
+    if (install_state != 1 || slot < 1 || slot > 5 || !repair_chosen[slot]
         || !cod_log_ready() || record_graves == NULL) {
         return;
     }
@@ -408,16 +411,16 @@ static void backfill_at_save(int slot, const void *save_buffer) {
     logged_publish();
 }
 
-/* ---- For the first-load cross-check's popup --------------------------------
+/* ---- For the cross-check (native/shared/crosscheck_bridge.h) ---------------
 
    VvfpCauseScanGraves(game, slot): how many of the village's graves have no
    Death record in its Deaths log, writing nothing -- -1 when that cannot be
    told now (Cause of Death refused, the log's DLL absent, a file locked, the
    village unknown).  Call it once the village is loaded.
-   VvfpCauseRepairGraves(game, slot, repair): the player's answer.  1
-   (Repair): at the village's next save -- where its logs are named -- each
-   such grave gets its Death record; 0 (Not now): nothing this session, and
-   the scan finds them again at the next load. */
+   VvfpCauseRepairGraves(game, slot, repair): the player's go-ahead, given
+   before a save.  1 (Repair): at the village's next save -- where its logs
+   are named -- each such grave gets its Death record; 0: nothing this
+   session, and the scan finds them again next time. */
 __declspec(dllexport) int __stdcall VvfpCauseScanGraves(int game, int slot) {
     int count;
     if (install_state == -1 || game < 1 || game > 5 || (g_game != 0 && game != g_game)
@@ -453,6 +456,25 @@ __declspec(dllexport) void __stdcall VvfpCauseRepairGraves(int game, int slot, i
         return;
     }
     repair_chosen[slot] = (signed char)(repair != 0);
+}
+
+/* VvfpCauseRepairGravesNow(game, slot): the player chose Repair after the
+   village's save -- at the quit, right after the game's own quit save, before
+   anything is freed (native/shared/crosscheck_bridge.h).  The Death records
+   are written now, exactly as the next save would write them: the graves
+   are the ones that save just wrote (the game is closing, nothing changes
+   them any more), the logs were named by it, and the header is read back
+   from the saved file.  The coverage file is brought up to date as at a
+   save.  The villagers that save already reconciled stay as it left them.
+   Returns 1 when every grave of the village now has its record on disk, 0
+   otherwise (found again, and asked about, next time). */
+__declspec(dllexport) int __stdcall VvfpCauseRepairGravesNow(int game, int slot) {
+    if (install_state != 1 || game != g_game || slot < 1 || slot > 5) {
+        return 0;
+    }
+    repair_chosen[slot] = 1;
+    backfill_at_save(slot, NULL);
+    return VvfpCauseScanGraves(game, slot) == 0;
 }
 
 /* Head and body on a villager record, every game (the parentage DLL's

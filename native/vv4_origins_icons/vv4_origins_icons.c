@@ -3,7 +3,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
-#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
+#include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
@@ -752,7 +752,7 @@ static void vv_ensure_bighead_atlas(void) {
    the live stable identity, and return its mask (0 = none). */
 int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
-    /* The first-load cross-check, from the head-draw caves (world and
+    /* The cross-check (silent while played), from the head-draw caves (world and
        Details): only a village draws heads -- the present hook also runs at
        the menus -- and this is the export those caves call. */
     vvfp_crosscheck_bridge(4, villager != NULL);
@@ -1087,17 +1087,24 @@ static int vvfp_xc_masks_scan(int game, int slot) {
     return game == 4 ? vv4_om_scan(slot, &g_om_asked) : 0;
 }
 
-static void vvfp_xc_masks_repair(int game, int slot, int repair) {
+/* 1 when nothing the scan noted is left undone: removed, or no longer an
+   orphan; 0 when the masks cannot be told now or the change could not be
+   made (the next scan finds them again). */
+static int vvfp_xc_masks_repair(int game, int slot) {
     static vv_om_list now, gone;
     static const vv_om_table table = { vv4_om_put, vv_write_mask_sidecar, 1 };
     char path[MAX_PATH];
-    if (game == 4 && repair && g_om_asked.count > 0 && vv4_om_scan(slot, &now) >= 0) {
-        vv_om_still(&g_om_asked, &now, &gone);
-        if (gone.count > 0 && vv_build_sidecar_path(path, g_current_slot)) {
-            (void)vv_om_commit(4, slot, path, &gone, &table);
+    int done = 1;
+    if (game == 4 && g_om_asked.count > 0) {
+        done = 0;
+        if (vv4_om_scan(slot, &now) >= 0) {
+            vv_om_still(&g_om_asked, &now, &gone);
+            done = gone.count == 0
+                   || (vv_build_sidecar_path(path, g_current_slot) && vv_om_commit(4, slot, path, &gone, &table));
         }
     }
     g_om_asked.count = 0;
+    return done;
 }
 
 /* Called from the present-path hook every frame with the live render-target
@@ -1180,6 +1187,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(4));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(4));
+    VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(4));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
 void __stdcall Vv4MaskCacheSurface(void *surface) {

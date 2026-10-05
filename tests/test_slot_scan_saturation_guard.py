@@ -19,9 +19,11 @@ that crashed first was not enough: a launch test then crashed at the sibling
 site 0x44CEE0 with the identical counter value of 257.
 
 The three VV2 loops are guarded. VV1's two are not: VV1 has no free cave
-space left in .text, and VV1 has never been observed crashing here. Those two
-sites are recorded in UNGUARDED_KNOWN below rather than left implicit; the
-fix for them is an appended PE section, not more borrowed cave space.
+space left in .text. Those two sites are recorded in UNGUARDED_KNOWN below
+rather than left implicit. Since v1.35.58 neither is reached with every
+record occupied: every caller of VV1's creators asks the record count first
+(scripts/build_slot_guards.py, tests/test_slot_guards_count_records.py) --
+the Golden Child puzzle did not, and its child went to the 257th record.
 
 The bound is 255, NOT 256, and that distinction is the whole point of this
 file. After the increment the counter holds the index just READ, so continuing

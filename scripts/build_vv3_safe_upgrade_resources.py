@@ -65,12 +65,11 @@ FOUNDATION_OUTPUT = (
 # over an existing file; if it will not move, the loose file stays in use),
 # and then again when it reserved room for a set-aside name and kept a
 # loose file whose folder path would not fit.
-# Recertified when the first-load cross-check learned the orphan mask entries
-# (native/shared/orphan_masks.h, v1.35.59): the companion's own scan and
-# repair, a writer that reports whether the table reached the disk, and
-# native/shared/save_folder.c linked for the Repairs log.
-SOURCE_SHA256 = "660ED26FFE4BFA52BA6BF10AEAB3065A3204792BCAE5B36E1561ADA30D705028"
-SOURCE_SIZE = 1957888
+# Recertified when the Origins Barrel's free-record check learned to read the
+# active flag as the byte it is and to count the babies pregnant mothers still
+# owe (v1.35.58, the Golden Child audit).
+SOURCE_SHA256 = "09FFC4C3DA69829FE05F6CCB8ECF7528B7A268F441086F26E4381F1CED90AD17"
+SOURCE_SIZE = 1918464
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

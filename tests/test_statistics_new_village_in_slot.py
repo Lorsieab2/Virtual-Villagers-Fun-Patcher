@@ -100,7 +100,8 @@ class NewVillageInSlotTests(unittest.TestCase):
         body = EXPORTER[EXPORTER.index("__declspec(dllexport) int __stdcall WriteVillageStatistics("):]
         body = body[:body.index("\n}\n")]
         update = body.index("g_elders_ready = 0;")
-        opened = body.index('file = _wfopen(temporary, L"w");')
+        # The log is opened by write_statistics_file, called after the update.
+        opened = body.index("write_statistics_file(game_id, manager, save_id, village)")
         self.assertLess(update, opened)
         self.assertIn("vv1_village_elders(manager);", body[update:opened])
         self.assertIn("village_elders_for(game_id);", body[update:opened])

@@ -5,7 +5,8 @@
    The owner (2026-10-04): grown villagers who join (island events, the Custom
    Island Event, the Barrel O' Babies, ...) get an "Arrived" record in the
    Births and Conceptions log; the ones already in a village get one
-   backfilled, but only after the first-load prompt's Repair.
+   backfilled, but only when the player allows the repair (native/shared/
+   crosscheck_bridge.h: Repair Logs, or Repair at the quit).
 
    "VVFP Cause of Death.dll" sees the arrivals (the game's own villager
    creators, cod_arrivals.inc) and the village's villagers; "VVFP Parentage
@@ -55,8 +56,9 @@
    BIRTH RECORDS, BACKFILLED (v1.35.58, The Lost Children to New Believers).
    Those four games keep each villager's own parents on the villager's record
    for life, so a living villager with parents there was born in the village;
-   one born before the Births log existed has no Birth record.  After the
-   first-load prompt's Repair, at the next save, each gets one written FROM
+   one born before the Births log existed has no Birth record.  When the
+   player allows the repair, at the next save (or right after the quit
+   save), each gets one written FROM
    THE SAVE'S RECORD -- the lines a Birth record prints (the child's name,
    head, body, likes, dislikes and skills; both parents' names, heads and
    bodies as the record keeps them), then

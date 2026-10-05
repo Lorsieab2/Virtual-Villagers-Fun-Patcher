@@ -1,113 +1,171 @@
-/* The Origins companions' side of the first-load cross-check (v1.35.58, all
-   five games): ONE Repair / Not now prompt for everything the patcher's
-   records disagree with their source of truth on, shown before anything is
-   changed (owner: "the player should be notified first before any fix
-   runs").
+/* The Origins companions' side of the cross-check (v1.35.58, all five
+   games): the patcher's records checked against their sources of truth, and
+   repaired only when the player has said so.
 
-   WHAT IT ASKS ABOUT.  Only what a source of truth confirms wrong AND the
-   patcher can put right (docs/first-load-cross-check.md has the full table
-   of every log and data file, and why the others are only reported by
+   The owner (2026-10-05): "For the 'repair' popups that appear during
+   gameplay, can you make them appear only if the player clicks the 'check
+   logs' and 'repair' button?  Or perhaps have a setting in the patcher that
+   toggles the automatic check during gameplay.  When it is toggled ON, it
+   brings up the repair prompt when the game is closed, not while it is
+   running, and only if there's a problem."  Both are built.  Later the
+   same day: "Can you make the check logs automatically default on? (With a
+   message in the prompt on how to turn the toggle off)" -- the setting is
+   ON by default and the quit-time box ends with how to turn it off.
+   NOTHING HERE EVER SHOWS ANYTHING WHILE A VILLAGE IS BEING PLAYED.
+
+   WHAT IS CHECKED AND REPAIRED.  Only what a source of truth confirms wrong
+   AND the patcher can put right (docs/first-load-cross-check.md has the full
+   table of every log and data file, and why the others are only reported by
    scripts/vvfp_consistency_check.py):
 
      - A New Home's recorded parents, rebuilt from the village's Births and
-       Conceptions log ("VVFP VV1 Parentage.dll": Vv1ParentageCrossCheckScan
+       Conceptions log, with its expected fathers left on villagers who are
+       not expecting ("VVFP VV1 Parentage.dll": Vv1ParentageCrossCheckScan
        and Vv1ParentageCrossCheckApply; vv1_crosscheck.inc has the rules);
      - graves with no Death record in the village's Deaths log, every game
-       ("VVFP Cause of Death.dll": VvfpCauseScanGraves and
-       VvfpCauseRepairGraves; the records are written at the village's next
-       save, where its header is certain);
+       ("VVFP Cause of Death.dll": VvfpCauseScanGraves, VvfpCauseRepairGraves
+       and VvfpCauseRepairGravesNow);
      - villagers with neither a Birth nor an Arrived record in the Births
-       log, every game ("VVFP Cause of Death.dll": VvfpCauseScanArrivals and
-       VvfpCauseRepairArrivals, the same contract as the graves pair);
+       log, every game (VvfpCauseScanArrivals, VvfpCauseRepairArrivals,
+       VvfpCauseRepairArrivalsNow);
      - villagers the save says were born in the village (The Lost Children
        to New Believers keep each villager's parents on the record) with no
-       Birth record: one is written from the save ("VVFP Cause of
-       Death.dll": VvfpCauseScanBirths and VvfpCauseRepairBirths, the same
-       contract);
+       Birth record (VvfpCauseScanBirths, VvfpCauseRepairBirths,
+       VvfpCauseRepairBirthsNow);
      - the Village Elders and Village Statistics files, where the save and
        the logs prove more than they hold ("VVFP Statistics Export.dll":
-       VvfpStatisticsScanReconcile, which also writes the prompt's lines, and
-       VvfpStatisticsRepairReconcile; statistics_reconcile.inc).  That companion
-       is loaded by the executable only at its first save, so it is loaded
-       here, by full path from the executable's folder, when it is there;
+       VvfpStatisticsScanReconcile, which also writes the prompt's lines,
+       VvfpStatisticsRepairReconcile and VvfpStatisticsRepairReconcileNow;
+       statistics_reconcile.inc).  That companion is loaded by the
+       executable only at its first save, so it is loaded here, by full path
+       from the executable's folder, when this build ships it;
      - orphan entries in the Village Masks file, every game (v1.35.59): an
        entry whose stored villager identity no villager in the village
-       carries.  The masks are this companion's own, so its own
-       vvfp_xc_masks_scan and vvfp_xc_masks_repair (orphan_masks.h has the
-       rule) are called -- every Origins companion defines the pair after
-       its mask code; nothing is looked up.  Unlike the others the repair
-       is made at once: the mask file is written whenever the table
-       changes, not at a save.
+       carries (orphan_masks.h has the rule).  The masks are this
+       companion's own, so its own vvfp_xc_masks_scan and
+       vvfp_xc_masks_repair are called -- every Origins companion defines
+       the pair after its mask code; nothing is looked up.  The repair is
+       made there and then, approved at load included: the mask file is the
+       companion's own, written whenever the table changes, not at a save.
 
-   What is not repaired -- the Village Population and History logs (written
-   from the game at every save), both Village Roster files (a mismatch IS
-   the evidence the next save uses), custom titles, stews and the
-   game's own statistics counters -- is reported by
-   scripts/vvfp_consistency_check.py with the reason
-   (docs/first-load-cross-check.md).
+   Each is found through its own companion's exports, by the module name it
+   was loaded under; a companion that is not loaded (its row is off) or that
+   does not export the call is simply not asked.  Every scan only reads,
+   except that A New Home's parentage scan records "checked, nothing to
+   change" in its own marker when it finds nothing (vv1_crosscheck.inc).
 
-   A New Home's expected fathers left on villagers who are not expecting are
-   part of the first item.  The later games keep the expected father in the
-   game's own record (the mother's, set and spent by the game), so the
-   patcher has no copy of it to go stale there.
+   TWO WAYS A REPAIR IS ALLOWED.
 
-   Each is found through its own companion's exports, by the module name
-   that companion was loaded under (GetModuleHandle: the folder it was
-   loaded from does not matter).  A companion that is not loaded -- its row
-   is off -- or that does not export the call is simply not asked.
+   1. "Check logs automatically" (the patcher's setting, ON by default; the
+      patcher writes it into the executable's startup loader as bit 31 of
+      the companion bits, VVFP_STARTUP_CHECK_LOGS).  When it is ON, each
+      load of a village is scanned silently once the village has been on
+      screen for VVFP_XC_SETTLE_MS (past the load-time catch-up), and
+      nothing else happens then.  When the player QUITS the game after
+      playing a village the scan found something in, the game's own quit
+      save runs first; then, right after it and before the game frees
+      anything, the village is scanned again (from the state the save just
+      wrote) and, only if something is still confirmed wrong, ONE message
+      box asks "Repair" or "Not now":
 
-   WHEN.  Called from the companion's village-only per-frame path (a head
-   draw, the village frame, the compositor with a village).  The village is
-   examined once per LOAD, when it has been on screen for VVFP_XC_SETTLE_MS
-   continuously: the load-time catch-up runs inside the first ticks, before
-   the village is drawn at all, so it is over by then.  A gap in the calls of
-   more than VVFP_XC_GAP_MS (the menus, a loading screen) or a different slot
-   is a new load and is examined again.  A scan that cannot tell yet (-1:
-   the table is not this village's yet, a log is locked) is retried every
-   VVFP_XC_RETRY_MS, VVFP_XC_RETRIES times, before the load is let go.
+        Repair:  every part found is repaired there and then, by the
+                 companion that owns it, from the state just saved (backed
+                 up first, written atomically, every change listed in the
+                 Repairs log, its marker written);
+        Not now: nothing is written; the question comes back the next time
+                 the player quits after playing that village.
 
-   THE PROMPT.  A message box whose two buttons read "Repair" and "Not now",
-   owned by the game's window and shown from a thread of its own: the game's
-   render path (where every one of these entries runs) is never blocked by a
-   modal loop -- the reentry the VV1 Origins companion's history warns
-   about -- and the answer is acted on HERE, on the game's own thread, at
-   the next call.  The SDL hint that keeps an exclusive-fullscreen game from
-   minimising when it loses focus is set first, as the Origins menus do.
+      The box always ends with how to stop these checks (VVFP_XC_HOW_TO_STOP):
+      the setting is written into the game when it is patched, so turning
+      it off means unticking the box and patching the game again.
 
-     Repair:  each part found is repaired by its own companion (backed up,
-              written atomically, listed in a log, marked done).
-     Not now: nothing is changed and nothing is recorded; the question comes
-              back the next time this village is loaded.
+      When it is OFF, nothing is scanned and nothing is asked, ever.
+
+   2. "Repair Logs..." in the patcher window (src/vv_log_tools.py): with the
+      game closed it backs the save folder up, clears the parts' "already
+      checked" markers (vv_log_tools.REARM_MARKERS) and writes the slot's
+      approval file
+
+          <save folder>\Virtual Villagers Fun Patcher Data\Cross-Check\
+              Virtual Villagers N Repair Approved - Save S.dat
+
+      (16 bytes: 'VRA1', version 1, game, slot).  The next time that
+      village is played, whatever the setting, it is repaired WITHOUT a
+      question: A New Home's parents as soon as the village has settled,
+      everything else at the village's next save -- the quit save at the
+      latest -- exactly as the companions always have; and at the quit,
+      after that save, anything still found is completed the same way as an
+      answered Repair.  Then the approval is used up (deleted).  A game that
+      ends without its quit save (a crash) keeps the approval for the next
+      time.  Start Over deletes it with the village (save_reset.c).
+
+   WHY AT THE QUIT, AND WHY THERE.  Every game saves a village only when it
+   is left (the save-slot screen's own save) and when the game quits: the
+   application's shutdown, vtable +0x14 of the application object, saves
+   the current slot and then the game's settings (slot 0), and only then
+   deletes its screens and the village (A New Home 0x41B230, The Lost
+   Children 0x423C30, The Secret City 0x427300, The Tree of Life 0x41E4C0,
+   New Believers 0x423970).  The quit hook is the instruction right after
+   those two saves (VVFP_XC_QUIT below): the save is on disk, every
+   companion's save-time work has run, and the village, its graves and the
+   save manager are all still exactly what was saved -- slot 0's save only
+   writes the settings block and runs no patcher hook (the companions'
+   save hooks take slots 1-5 only).  So every repair that the companions
+   otherwise make at "the next save" can be completed there, from the same
+   state, with the village's header read back from the saved file.  The
+   slot is the one the shutdown just saved, read from the save manager the
+   way the shutdown reads it ([application+4] + VVFP_XC_SLOT_FIELD).
+
+   THE QUIT PROMPT never hangs the exit.  It is a message box on a thread of
+   its own, owned by nothing; the game's window (this thread's own) is
+   minimised first so the box is not hidden behind a full-screen game.
+   While it is open the game's thread only takes messages SENT to it (so
+   nothing waiting on it deadlocks) and runs no game code.  If the box
+   cannot be shown, or is not answered within VVFP_XC_QUIT_WAIT_MS, nothing
+   is done -- as "Not now" -- and the game goes on closing.  A fault
+   anywhere in the quit check is caught, and the game goes on closing.
 
    Included once per companion, after cause_bridge.h; everything is
-   file-static. */
+   file-static.  The companion calls vvfp_crosscheck_startup(game) from its
+   VvfpStartup (and again, a no-op by then, from its per-frame path) to
+   install the quit hook, and vvfp_crosscheck_bridge(game, on_screen) from
+   its village-only per-frame path. */
 #ifndef VVFP_CROSSCHECK_BRIDGE_H
 #define VVFP_CROSSCHECK_BRIDGE_H
 
 #include <windows.h>
+#include <shlobj.h>
+#include <stdint.h>
 #include <string.h>
 
 #define VVFP_XC_PARENTAGE_DLL "VVFP VV1 Parentage.dll"
 #define VVFP_XC_CAUSE_DLL     "VVFP Cause of Death.dll"
+#define VVFP_XC_STATS_DLL     "VVFP Statistics Export.dll"
 #define VVFP_XC_SETTLE_MS     3000u
 #define VVFP_XC_GAP_MS        2000u
 #define VVFP_XC_RETRY_MS      2000u
 #define VVFP_XC_RETRIES       15
+#ifndef VVFP_XC_QUIT_WAIT_MS
+#define VVFP_XC_QUIT_WAIT_MS  (5u * 60u * 1000u)   /* how long the quit prompt waits for an answer */
+#endif
+
+#define VVFP_XC_APPROVAL_MAGIC   0x31415256u        /* 'V' 'R' 'A' '1' */
+#define VVFP_XC_APPROVAL_VERSION 1u
 
 typedef int (__stdcall *vvfp_xc_scan_parents_fn)(int *counts);
 typedef int (__stdcall *vvfp_xc_apply_parents_fn)(void);
 typedef int (__stdcall *vvfp_xc_scan_graves_fn)(int game, int slot);
 typedef void (__stdcall *vvfp_xc_repair_graves_fn)(int game, int slot, int repair);
+typedef int (__stdcall *vvfp_xc_now_fn)(int game, int slot);
 typedef int (__stdcall *vvfp_xc_scan_text_fn)(int game, int slot, char *text, int cap);
-#define VVFP_XC_STATS_DLL     "VVFP Statistics Export.dll"
 
 /* The companion's own orphan mask entries (orphan_masks.h), defined by every
    Origins companion after its mask code.  The scan: how many there are (it
    notes them for the repair), 0 none, -1 cannot tell yet (the masks or the
-   village are not loaded); reads only.  The repair: with `repair` 1, removes
-   the ones the scan noted that are still orphans; with 0, changes nothing. */
+   village are not loaded); reads only.  The repair: removes the ones the
+   scan noted that are still orphans; 1 when nothing is left undone. */
 static int vvfp_xc_masks_scan(int game, int slot);
-static void vvfp_xc_masks_repair(int game, int slot, int repair);
+static int vvfp_xc_masks_repair(int game, int slot);
 static void vv_om_describe(int count, char *text, size_t cap);
 
 /* The harness replaces these to stand in for the companions and the clock. */
@@ -147,19 +205,135 @@ static FARPROC vvfp_xc_load(const char *module, const char *name) {
     return m != NULL ? GetProcAddress(m, name) : NULL;
 }
 #endif
+/* "Check logs automatically": the patcher's setting, handed over with this
+   build's companion bits at game start.  Off when it was not (no loader). */
+#ifndef VVFP_XC_AUTOMATIC
+#define VVFP_XC_AUTOMATIC() (vvfp_startup_known && (vvfp_startup_shipped & VVFP_STARTUP_CHECK_LOGS) != 0u)
+#endif
+/* "<Documents>\LDW\<executable's name>": where the game saves (the same
+   rule as native/shared/save_folder.c, which this companion does not link;
+   nothing is created here -- the approval file is only read and deleted). */
+#ifndef VVFP_XC_SAVE_FOLDER
+#define VVFP_XC_SAVE_FOLDER(out) vvfp_xc_save_folder(out)
+static int vvfp_xc_save_folder(wchar_t *out) {
+    wchar_t docs[MAX_PATH];
+    wchar_t exe[MAX_PATH];
+    wchar_t *base;
+    wchar_t *dot;
+    DWORD n;
+    if (FAILED(SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, 0, docs))) {
+        return 0;
+    }
+    n = GetModuleFileNameW(NULL, exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    base = wcsrchr(exe, L'\\');
+    base = base != NULL ? base + 1 : exe;
+    dot = wcsrchr(base, L'.');
+    if (dot != NULL) {
+        *dot = L'\0';
+    }
+    if (base[0] == L'\0' || lstrlenW(docs) + 5 + lstrlenW(base) + 1 > MAX_PATH) {
+        return 0;
+    }
+    wsprintfW(out, L"%ls\\LDW\\%ls", docs, base);
+    return 1;
+}
+#endif
 
-#define VVFP_XC_ARMED   0
-#define VVFP_XC_ASKING  1
-#define VVFP_XC_DECIDED 2
+/* ---- The quit hook ------------------------------------------------------- */
+
+/* Each game's application shutdown, right after its quit save (see above):
+   the five bytes the hook displaces -- `mov ecx,[esi+0Ch]; test ecx,ecx`
+   (A New Home, The Lost Children) or `mov ecx,[esi+8]; cmp ecx,edi` (the
+   later three) -- all position-independent, and no branch lands inside
+   them.  The Secret City's `je` over its saves when no slot is current
+   lands on the first of them, which is the hook's own jump. */
+static const struct {
+    unsigned int va;
+    unsigned char stock[5];
+} VVFP_XC_QUIT[6] = {
+    { 0, { 0 } },
+    { 0x41B25Bu, { 0x8B, 0x4E, 0x0C, 0x85, 0xC9 } },
+    { 0x423C5Bu, { 0x8B, 0x4E, 0x0C, 0x85, 0xC9 } },
+    { 0x427331u, { 0x8B, 0x4E, 0x08, 0x3B, 0xCF } },
+    { 0x41E4F1u, { 0x8B, 0x4E, 0x08, 0x3B, 0xCF } },
+    { 0x4239A1u, { 0x8B, 0x4E, 0x08, 0x3B, 0xCF } },
+};
+/* The save manager's current-slot field ([application+4] + this): the slot
+   the shutdown just saved (docs/start-over-reset-hook.md has the same
+   fields as the village's current slot). */
+static const unsigned int VVFP_XC_SLOT_FIELD[6] = { 0, 0xABE4u, 0x30378u, 0x12F24u, 0x17114u, 0x17D80u };
+
+#define VVFP_XC_STUB_BYTES 32
+
+static int vvfp_xc_hook_state;          /* 0 = not tried, 1 = installed, -1 = refused */
+
+/* Hook the five bytes at `site` (which must hold `stock`): a stub that saves
+   every register and the flags, calls handler(game, esi), restores them,
+   runs the displaced instructions and jumps back.  The stub's page is never
+   writable and executable at once.  1 when written; 0 and nothing written
+   otherwise. */
+static int vvfp_xc_hook(unsigned char *site, const unsigned char *stock, int game,
+                        void (__stdcall *handler)(int, const unsigned char *)) {
+    MEMORY_BASIC_INFORMATION info;
+    unsigned char *page;
+    unsigned char *p;
+    unsigned char jump[5];
+    DWORD old;
+    int rel;
+    if (VirtualQuery(site, &info, sizeof(info)) != sizeof(info) || info.State != MEM_COMMIT
+        || !(info.Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY))
+        || memcmp(site, stock, 5) != 0) {
+        return 0;
+    }
+    page = (unsigned char *)VirtualAlloc(NULL, VVFP_XC_STUB_BYTES, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (page == NULL) {
+        return 0;
+    }
+    p = page;
+    *p++ = 0x60;                                      /* pushad */
+    *p++ = 0x9C;                                      /* pushfd */
+    *p++ = 0x56;                                      /* push esi (the application) */
+    *p++ = 0x6A; *p++ = (unsigned char)game;          /* push game */
+    *p++ = 0xE8;                                      /* call handler (stdcall: pops both) */
+    rel = (int)((uintptr_t)handler - ((uintptr_t)p + 4));
+    memcpy(p, &rel, 4); p += 4;
+    *p++ = 0x9D;                                      /* popfd */
+    *p++ = 0x61;                                      /* popad */
+    memcpy(p, stock, 5); p += 5;                      /* the displaced instructions */
+    *p++ = 0xE9;                                      /* jmp back */
+    rel = (int)((uintptr_t)(site + 5) - ((uintptr_t)p + 4));
+    memcpy(p, &rel, 4);
+    if (!VirtualProtect(page, VVFP_XC_STUB_BYTES, PAGE_EXECUTE_READ, &old)) {
+        VirtualFree(page, 0, MEM_RELEASE);
+        return 0;
+    }
+    FlushInstructionCache(GetCurrentProcess(), page, VVFP_XC_STUB_BYTES);
+    jump[0] = 0xE9;
+    rel = (int)((uintptr_t)page - ((uintptr_t)site + 5));
+    memcpy(jump + 1, &rel, 4);
+    if (!VirtualProtect(site, 5, PAGE_EXECUTE_READWRITE, &old)) {
+        VirtualFree(page, 0, MEM_RELEASE);
+        return 0;
+    }
+    memcpy(site, jump, 5);
+    VirtualProtect(site, 5, old, &old);
+    FlushInstructionCache(GetCurrentProcess(), site, 5);
+    return 1;
+}
+
+/* ---- What this load found, and what the quit owes ------------------------ */
 
 static struct {
-    int slot;                     /* the load being examined (0: none yet) */
+    int slot;                     /* the load being followed (0: none yet) */
     DWORD seen;                   /* when this load's village was first on screen */
     DWORD last;                   /* the last call */
     DWORD next_try;
-    int state;
+    int examined;                 /* this load has been examined (or let go) */
     int retries;
-    int asked_game, asked_slot;
+    /* What the last scan found. */
     int parents_found;            /* the parentage scan said 1 */
     int counts[6];
     int graves;                   /* graves missing from the Deaths log, when > 0 */
@@ -168,12 +342,174 @@ static struct {
     int stats;                    /* changes to the Elders and Statistics files, when > 0 */
     int masks;                    /* orphan mask entries, when > 0 */
     char stats_text[1536];        /* their lines, from the statistics companion */
-    volatile LONG answer;         /* 0 while the prompt is open; IDYES or IDNO */
-    HANDLE thread;
+    /* What the quit owes the village loaded last: its slot, and whether it
+       is approved (Repair Logs) or found something (the setting). */
+    int quit_slot;
+    int quit_approved;
+    int quit_found;
+    /* The prompt. */
+    volatile LONG answer;         /* 0 until answered; IDYES or IDNO */
+    UINT box_type;
     char text[4096];
 } vvfp_xc;
 
-static HHOOK vvfp_xc_hook;
+static HHOOK vvfp_xc_cbt_hook;
+
+/* The slot's approval file (Repair Logs), as a path; 0 when the save folder
+   cannot be told. */
+static int vvfp_xc_approval_path(int game, int slot, wchar_t *path) {
+    wchar_t folder[MAX_PATH];
+    if (!VVFP_XC_SAVE_FOLDER(folder)) {
+        return 0;
+    }
+    if (lstrlenW(folder) + 120 > MAX_PATH) {
+        return 0;
+    }
+    wsprintfW(path, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat",
+              folder, game, slot);
+    return 1;
+}
+
+/* Whether the player approved repairing this slot's village (Repair Logs):
+   the file is there and says exactly this game and slot. */
+static int vvfp_xc_approved(int game, int slot) {
+    wchar_t path[MAX_PATH];
+    unsigned int body[4];
+    DWORD got = 0;
+    HANDLE f;
+    int ok;
+    if (!vvfp_xc_approval_path(game, slot, path)) {
+        return 0;
+    }
+    f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ok = GetFileSize(f, NULL) == sizeof(body) && ReadFile(f, body, sizeof(body), &got, NULL) && got == sizeof(body)
+         && body[0] == VVFP_XC_APPROVAL_MAGIC && body[1] == VVFP_XC_APPROVAL_VERSION
+         && body[2] == (unsigned int)game && body[3] == (unsigned int)slot;
+    CloseHandle(f);
+    return ok;
+}
+
+/* The approval is used up. */
+static void vvfp_xc_consume_approval(int game, int slot) {
+    wchar_t path[MAX_PATH];
+    if (vvfp_xc_approval_path(game, slot, path)) {
+        DeleteFileW(path);
+    }
+}
+
+/* Whether the last scan found anything (in the parts that could tell). */
+static int vvfp_xc_any(void) {
+    return vvfp_xc.parents_found || vvfp_xc.graves > 0 || vvfp_xc.arrivals > 0 || vvfp_xc.births > 0
+           || vvfp_xc.stats > 0 || vvfp_xc.masks > 0;
+}
+
+/* Scan every part, reading only.  -1 when one of them cannot tell yet (the
+   others' findings are still in the fields), 0 nothing found, 1 something
+   found (the fields say what). */
+static int vvfp_xc_scan(int game, int slot) {
+    vvfp_xc_scan_parents_fn scan_parents;
+    vvfp_xc_scan_graves_fn scan_graves, scan_arrivals, scan_births;
+    vvfp_xc_scan_text_fn scan_stats;
+    int parents = 0, graves, arrivals, births, stats, masks;
+    memset(vvfp_xc.counts, 0, sizeof(vvfp_xc.counts));
+    if (game == 1) {
+        scan_parents = (vvfp_xc_scan_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckScan");
+        parents = scan_parents != NULL ? scan_parents(vvfp_xc.counts) : 0;
+    }
+    scan_graves = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanGraves");
+    graves = scan_graves != NULL ? scan_graves(game, slot) : 0;
+    scan_arrivals = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanArrivals");
+    arrivals = scan_arrivals != NULL ? scan_arrivals(game, slot) : 0;
+    scan_births = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanBirths");
+    births = scan_births != NULL ? scan_births(game, slot) : 0;
+    scan_stats = (vvfp_xc_scan_text_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsScanReconcile");
+    vvfp_xc.stats_text[0] = '\0';
+    stats = scan_stats != NULL ? scan_stats(game, slot, vvfp_xc.stats_text, (int)sizeof(vvfp_xc.stats_text)) : 0;
+    vvfp_xc.parents_found = parents == 1;
+    vvfp_xc.graves = graves > 0 ? graves : 0;
+    vvfp_xc.arrivals = arrivals > 0 ? arrivals : 0;
+    vvfp_xc.births = births > 0 ? births : 0;
+    vvfp_xc.stats = stats > 0 && vvfp_xc.stats_text[0] != '\0' ? stats : 0;
+    masks = vvfp_xc_masks_scan(game, slot);
+    vvfp_xc.masks = masks > 0 ? masks : 0;
+    if (parents < 0 || graves < 0 || arrivals < 0 || births < 0 || stats < 0 || masks < 0) {
+        return -1;
+    }
+    return vvfp_xc_any();
+}
+
+/* Approved at load: A New Home's parents now (nothing is shown; a failure
+   is retried at the quit), and every other part found at the village's
+   next save, by the companion that owns it -- as an answered Repair always
+   was.  Nothing found: nothing to pass on. */
+static void vvfp_xc_repair_at_save(int game, int slot) {
+    vvfp_xc_repair_graves_fn repair;
+    if (vvfp_xc.parents_found) {
+        vvfp_xc_apply_parents_fn apply =
+            (vvfp_xc_apply_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckApply");
+        if (apply != NULL) {
+            (void)apply();
+        }
+    }
+    if (vvfp_xc.graves > 0
+        && (repair = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairGraves")) != NULL) {
+        repair(game, slot, 1);
+    }
+    if (vvfp_xc.arrivals > 0
+        && (repair = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairArrivals")) != NULL) {
+        repair(game, slot, 1);
+    }
+    if (vvfp_xc.births > 0
+        && (repair = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairBirths")) != NULL) {
+        repair(game, slot, 1);
+    }
+    if (vvfp_xc.stats > 0
+        && (repair = (vvfp_xc_repair_graves_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsRepairReconcile")) != NULL) {
+        repair(game, slot, 1);
+    }
+    if (vvfp_xc.masks > 0) {
+        (void)vvfp_xc_masks_repair(game, slot);   /* the masks now; one left undone is found at the quit */
+    }
+}
+
+/* At the quit, after the quit save: every part the scan just found,
+   repaired now from the state that save wrote.  1 when every part says it
+   is done; 0 when one could not be (it is found again next time). */
+static int vvfp_xc_repair_now(int game, int slot) {
+    vvfp_xc_now_fn now;
+    int ok = 1;
+    if (vvfp_xc.parents_found) {
+        vvfp_xc_apply_parents_fn apply =
+            (vvfp_xc_apply_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckApply");
+        ok &= apply != NULL && apply() != 0;
+    }
+    if (vvfp_xc.graves > 0) {
+        now = (vvfp_xc_now_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairGravesNow");
+        ok &= now != NULL && now(game, slot) != 0;
+    }
+    if (vvfp_xc.arrivals > 0) {
+        now = (vvfp_xc_now_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairArrivalsNow");
+        ok &= now != NULL && now(game, slot) != 0;
+    }
+    if (vvfp_xc.births > 0) {
+        now = (vvfp_xc_now_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairBirthsNow");
+        ok &= now != NULL && now(game, slot) != 0;
+    }
+    if (vvfp_xc.stats > 0) {
+        now = (vvfp_xc_now_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsRepairReconcileNow");
+        ok &= now != NULL && now(game, slot) != 0;
+    }
+    if (vvfp_xc.masks > 0) {
+        ok &= vvfp_xc_masks_repair(game, slot) != 0;
+    }
+    return ok;
+}
+
+/* ---- The quit prompt ----------------------------------------------------- */
 
 /* Relabel the prompt's two buttons as it opens. */
 static LRESULT CALLBACK vvfp_xc_cbt(int code, WPARAM wparam, LPARAM lparam) {
@@ -181,7 +517,7 @@ static LRESULT CALLBACK vvfp_xc_cbt(int code, WPARAM wparam, LPARAM lparam) {
         SetDlgItemTextA((HWND)wparam, IDYES, "Repair");
         SetDlgItemTextA((HWND)wparam, IDNO, "Not now");
     }
-    return CallNextHookEx(vvfp_xc_hook, code, wparam, lparam);
+    return CallNextHookEx(vvfp_xc_cbt_hook, code, wparam, lparam);
 }
 
 /* The game's own window: a visible, unowned top-level window of this process. */
@@ -195,25 +531,55 @@ static BOOL CALLBACK vvfp_xc_find_window(HWND window, LPARAM out) {
     return TRUE;
 }
 
-static DWORD WINAPI vvfp_xc_prompt(LPVOID owner) {
+static DWORD WINAPI vvfp_xc_box(LPVOID unused) {
     int answer;
-    vvfp_xc_hook = SetWindowsHookExA(WH_CBT, vvfp_xc_cbt, NULL, GetCurrentThreadId());
-    answer = MessageBoxA((HWND)owner, vvfp_xc.text, "Virtual Villagers Fun Patcher",
-                         MB_YESNO | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND | MB_DEFBUTTON1);
-    if (vvfp_xc_hook != NULL) {
-        UnhookWindowsHookEx(vvfp_xc_hook);
-        vvfp_xc_hook = NULL;
+    (void)unused;
+    if ((vvfp_xc.box_type & 0xFu) == MB_YESNO) {
+        vvfp_xc_cbt_hook = SetWindowsHookExA(WH_CBT, vvfp_xc_cbt, NULL, GetCurrentThreadId());
+    }
+    answer = MessageBoxA(NULL, vvfp_xc.text, "Virtual Villagers Fun Patcher",
+                         vvfp_xc.box_type | MB_TOPMOST | MB_SETFOREGROUND);
+    if (vvfp_xc_cbt_hook != NULL) {
+        UnhookWindowsHookEx(vvfp_xc_cbt_hook);
+        vvfp_xc_cbt_hook = NULL;
     }
     InterlockedExchange(&vvfp_xc.answer, answer == IDYES ? IDYES : IDNO);
     return 0;
 }
 
-static DWORD WINAPI vvfp_xc_notice(LPVOID owner) {
-    MessageBoxA((HWND)owner,
-                "The parents could not be repaired: a file could not be read or written. Nothing was "
-                "changed, and you will be asked again the next time this village is loaded.",
-                "Virtual Villagers Fun Patcher", MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND);
-    return 0;
+/* Show vvfp_xc.text in a box of `type` and wait for the answer: IDYES or
+   IDNO, or 0 when it could not be shown or was not answered in time.  Only
+   messages SENT to this thread are taken while waiting. */
+static int vvfp_xc_ask(UINT type) {
+    HANDLE thread;
+    DWORD start = GetTickCount();
+    HWND game_window = NULL;
+    vvfp_xc.answer = 0;
+    vvfp_xc.box_type = type;
+    EnumWindows(vvfp_xc_find_window, (LPARAM)&game_window);
+    if (game_window != NULL && GetWindowThreadProcessId(game_window, NULL) == GetCurrentThreadId()) {
+        ShowWindow(game_window, SW_MINIMIZE);   /* out of full screen: the box is not hidden behind it */
+    }
+    thread = CreateThread(NULL, 0, vvfp_xc_box, NULL, 0, NULL);
+    if (thread == NULL) {
+        return 0;
+    }
+    for (;;) {
+        DWORD waited = GetTickCount() - start;
+        DWORD r;
+        MSG msg;
+        if (waited >= VVFP_XC_QUIT_WAIT_MS) {
+            break;
+        }
+        r = MsgWaitForMultipleObjects(1, &thread, FALSE, VVFP_XC_QUIT_WAIT_MS - waited, QS_SENDMESSAGE);
+        if (r == WAIT_OBJECT_0 + 1) {
+            PeekMessageA(&msg, NULL, 0, 0, PM_NOREMOVE | PM_QS_SENDMESSAGE);   /* delivers sent messages only */
+            continue;
+        }
+        break;
+    }
+    CloseHandle(thread);
+    return (int)vvfp_xc.answer;
 }
 
 static void vvfp_xc_add(const char *format, int count, const char *one, const char *many) {
@@ -223,10 +589,26 @@ static void vvfp_xc_add(const char *format, int count, const char *one, const ch
     }
 }
 
+/* How the player turns the checks off: the setting is written into the game
+   when it is patched (the owner, 2026-10-05: "With a message in the prompt
+   on how to turn the toggle off"). */
+#define VVFP_XC_HOW_TO_STOP \
+    "To stop these checks, untick 'Check logs automatically' in the Virtual Villagers Fun Patcher " \
+    "and patch the game again."
+#define VVFP_XC_STATS_NOTE \
+    "  (The Village Elders and Village Statistics files are backed up first; every change " \
+    "is listed in the Repairs log.)\r\n"
+#define VVFP_XC_MASKS_NOTE \
+    "  (The Village Masks file is backed up first; every removal is listed in the Repairs log.)\r\n"
+#define VVFP_XC_CLOSING \
+    "\r\nThe game has already been saved. Repair them now?\r\n\r\n\"Not now\" changes " \
+    "nothing; you will be asked again the next time you close the game after playing this " \
+    "village.\r\n\r\n" VVFP_XC_HOW_TO_STOP
+
 static void vvfp_xc_compose(void) {
     const int *c = vvfp_xc.counts;
-    lstrcpyA(vvfp_xc.text, "The Fun Patcher checked this village's records against its save and its logs, "
-                           "and found some it can put right:\r\n\r\n");
+    lstrcpyA(vvfp_xc.text, "Before the game closes: the Fun Patcher checked the records of the village you just "
+                           "played against its save and its logs, and found some it can put right:\r\n\r\n");
     if (vvfp_xc.parents_found) {
         vvfp_xc_add("- %d %s the wrong parents recorded. They will be corrected from the Births log.\r\n",
                     c[0], "villager has", "villagers have");
@@ -245,170 +627,140 @@ static void vvfp_xc_compose(void) {
     }
     if (vvfp_xc.graves > 0) {
         vvfp_xc_add("- %d %s no record in the Deaths log (buried before the log existed). Their Death records "
-                    "will be added the next time you save and quit the game.\r\n",
-                    vvfp_xc.graves, "grave has", "graves have");
+                    "will be added.\r\n", vvfp_xc.graves, "grave has", "graves have");
     }
     if (vvfp_xc.arrivals > 0) {
         vvfp_xc_add("- %d %s no Birth or Arrived record in the Births log (arrived before that record existed). "
-                    "Their Arrived records will be added the next time you save and quit the game.\r\n",
-                    vvfp_xc.arrivals, "villager has", "villagers have");
+                    "Their Arrived records will be added.\r\n", vvfp_xc.arrivals, "villager has", "villagers have");
     }
     if (vvfp_xc.births > 0) {
         vvfp_xc_add("- %d %s born in the village but no Birth record in the Births log (born before that record "
-                    "existed). Their Birth records will be added from the save the next time you save and quit "
-                    "the game.\r\n", vvfp_xc.births, "villager was", "villagers were");
+                    "existed). Their Birth records will be added from the save.\r\n",
+                    vvfp_xc.births, "villager was", "villagers were");
     }
-    if (vvfp_xc.stats > 0 && (size_t)lstrlenA(vvfp_xc.text) + (size_t)lstrlenA(vvfp_xc.stats_text) + 400
-                                 < sizeof(vvfp_xc.text)) {
+    /* sizeof counts each terminator: room for the stats lines, their note,
+       the closing text and one terminator, with a byte to spare. */
+    if (vvfp_xc.stats > 0 && (size_t)lstrlenA(vvfp_xc.text) + (size_t)lstrlenA(vvfp_xc.stats_text)
+                                 + sizeof(VVFP_XC_STATS_NOTE) + sizeof(VVFP_XC_CLOSING) < sizeof(vvfp_xc.text)) {
         lstrcatA(vvfp_xc.text, vvfp_xc.stats_text);
-        lstrcatA(vvfp_xc.text, "  (The Village Elders and Village Statistics files are changed the next time you save "
-                               "and quit the game; they are backed up first and every change is listed in the "
-                               "Repairs log.)\r\n");
+        lstrcatA(vvfp_xc.text, VVFP_XC_STATS_NOTE);
     }
     if (vvfp_xc.masks > 0) {
         size_t len = (size_t)lstrlenA(vvfp_xc.text);
-        if (len + 400 < sizeof(vvfp_xc.text)) {
+        if (len + 200 + sizeof(VVFP_XC_MASKS_NOTE) + sizeof(VVFP_XC_CLOSING) < sizeof(vvfp_xc.text)) {
             vv_om_describe(vvfp_xc.masks, vvfp_xc.text + len, sizeof(vvfp_xc.text) - len);
-            lstrcatA(vvfp_xc.text, "  (The Village Masks file is backed up first; every removal is listed in the "
-                                   "Repairs log.)\r\n");
+            lstrcatA(vvfp_xc.text, VVFP_XC_MASKS_NOTE);
         }
     }
-    lstrcatA(vvfp_xc.text, "\r\nRepair them now?\r\n\r\n\"Not now\" changes nothing; you will be asked again the "
-                           "next time this village is loaded.");
+    lstrcatA(vvfp_xc.text, VVFP_XC_CLOSING);
 }
 
-/* The player has answered (on the prompt's thread); act on it here. */
-static void vvfp_xc_answered(int game) {
-    int yes = vvfp_xc.answer == IDYES;
-    const vvfp_story_host *host = vvfp_story_host_table();
-    int slot_now = host != NULL && host->slot != NULL ? host->slot() : 0;
-    vvfp_xc_repair_graves_fn repair_graves;
-    if (vvfp_xc.thread != NULL) {
-        CloseHandle(vvfp_xc.thread);
-        vvfp_xc.thread = NULL;
+/* ---- At the quit --------------------------------------------------------- */
+
+/* The game is quitting: its quit save of `slot` (0: none) has just been
+   written, and nothing is freed yet. */
+static void vvfp_crosscheck_quit(int game, int slot) {
+    int found;
+    if (slot < 1 || slot > 5 || slot != vvfp_xc.quit_slot) {
+        return;                       /* not the village the load checked: nothing is owed */
     }
-    vvfp_xc.state = VVFP_XC_DECIDED;
-    if (game != vvfp_xc.asked_game || slot_now != vvfp_xc.asked_slot) {
-        yes = 0;                      /* another village by now: the answer was not about it */
-    }
-    if (yes && vvfp_xc.parents_found) {
-        vvfp_xc_apply_parents_fn apply =
-            (vvfp_xc_apply_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckApply");
-        if (apply == NULL || !apply()) {
-            HWND owner = NULL;
-            HANDLE t;
-            EnumWindows(vvfp_xc_find_window, (LPARAM)&owner);
-            t = CreateThread(NULL, 0, vvfp_xc_notice, owner, 0, NULL);
-            if (t != NULL) {
-                CloseHandle(t);
-            }
+    if (vvfp_xc.quit_approved) {
+        if (!vvfp_xc_approved(game, slot)) {
+            return;                   /* removed meanwhile (Start Over): nothing approved now */
         }
-    }
-    if (vvfp_xc.graves > 0) {
-        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairGraves");
-        if (repair_graves != NULL) {
-            repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
+        /* Whatever the village's saves have not already put right, now.  The
+           approval is used up once nothing is left undone: a part that
+           cannot tell, or a repair that failed, keeps it for the next time
+           this village is played. */
+        found = vvfp_xc_scan(game, slot);
+        if (vvfp_xc_any() ? vvfp_xc_repair_now(game, slot) && found >= 0 : found == 0) {
+            vvfp_xc_consume_approval(game, slot);
         }
+        return;
     }
-    if (vvfp_xc.arrivals > 0) {
-        /* The same contract as the graves pair (feat/arrived-records). */
-        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairArrivals");
-        if (repair_graves != NULL) {
-            repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
-        }
+    if (!vvfp_xc.quit_found) {
+        return;                       /* the load found nothing (or the setting is off: it never looked) */
     }
-    if (vvfp_xc.births > 0) {
-        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseRepairBirths");
-        if (repair_graves != NULL) {
-            repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
-        }
+    (void)vvfp_xc_scan(game, slot);   /* again, from the state just saved */
+    if (!vvfp_xc_any()) {
+        return;                       /* nothing confirmed wrong now: nothing is asked */
     }
-    if (vvfp_xc.stats > 0) {
-        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsRepairReconcile");
-        if (repair_graves != NULL) {
-            repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
-        }
+    vvfp_xc_compose();
+    if (vvfp_xc_ask(MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1) != IDYES) {
+        return;                       /* Not now, or no answer: nothing is written */
     }
-    if (vvfp_xc.masks > 0) {
-        vvfp_xc_masks_repair(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
+    if (!vvfp_xc_repair_now(game, slot)) {
+        lstrcpyA(vvfp_xc.text, "Some of the records could not be repaired: a file could not be read or written. "
+                               "What could not be repaired was left as it was, and you will be asked about it again "
+                               "the next time you close the game after playing this village.");
+        (void)vvfp_xc_ask(MB_OK | MB_ICONWARNING);
     }
 }
 
-/* Examine the village: scan every part; ask when anything was found. */
+/* The quit hook's handler (once: the game shuts down once): the slot the
+   shutdown just saved, read from its save manager the way the shutdown read
+   it.  Nothing that goes wrong here may stop the game closing: a fault is
+   caught and the game goes on closing. */
+static void __stdcall vvfp_xc_quit_hit(int game, const unsigned char *application) {
+    __try {
+        const unsigned char *manager = *(const unsigned char *const *)(application + 4);
+        vvfp_crosscheck_quit(game, *(const int *)(manager + VVFP_XC_SLOT_FIELD[game]));
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* Install the quit hook, once: from the companion's VvfpStartup (game
+   start), and as a no-op from its per-frame path.  Only this game's own
+   site, and only when it holds its stock bytes. */
+static int vvfp_crosscheck_startup(int game) {
+    if (vvfp_xc_hook_state != 0) {
+        return vvfp_xc_hook_state == 1;
+    }
+    vvfp_xc_hook_state = -1;
+    if (vvfp_xc_hook((unsigned char *)(uintptr_t)VVFP_XC_QUIT[game].va, VVFP_XC_QUIT[game].stock, game,
+                     vvfp_xc_quit_hit)) {
+        vvfp_xc_hook_state = 1;
+    }
+    return vvfp_xc_hook_state == 1;
+}
+
+/* ---- At each load -------------------------------------------------------- */
+
+/* The village has settled after a load: see what the quit will owe it.
+   Nothing is shown and nothing is changed here unless Repair Logs approved
+   this slot. */
 static void vvfp_xc_examine(int game, int slot, DWORD now) {
-    vvfp_xc_scan_parents_fn scan_parents = NULL;
-    vvfp_xc_scan_graves_fn scan_graves, scan_arrivals, scan_births;
-    vvfp_xc_scan_text_fn scan_stats;
-    int parents = 0, graves = 0, arrivals = 0, births = 0, stats = 0, masks, pending;
-    memset(vvfp_xc.counts, 0, sizeof(vvfp_xc.counts));
-    if (game == 1) {
-        scan_parents = (vvfp_xc_scan_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckScan");
-        parents = scan_parents != NULL ? scan_parents(vvfp_xc.counts) : 0;
+    int approved = vvfp_xc_approved(game, slot);
+    int found;
+    if (!approved && !VVFP_XC_AUTOMATIC()) {
+        vvfp_xc.examined = 1;         /* the setting is off: no scan, nothing owed */
+        return;
     }
-    scan_graves = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanGraves");
-    graves = scan_graves != NULL ? scan_graves(game, slot) : 0;
-    scan_arrivals = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanArrivals");
-    arrivals = scan_arrivals != NULL ? scan_arrivals(game, slot) : 0;
-    scan_births = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanBirths");
-    births = scan_births != NULL ? scan_births(game, slot) : 0;
-    scan_stats = (vvfp_xc_scan_text_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsScanReconcile");
-    vvfp_xc.stats_text[0] = '\0';
-    stats = scan_stats != NULL ? scan_stats(game, slot, vvfp_xc.stats_text, (int)sizeof(vvfp_xc.stats_text)) : 0;
-    masks = vvfp_xc_masks_scan(game, slot);
-    pending = parents < 0 || graves < 0 || arrivals < 0 || births < 0 || stats < 0 || masks < 0;
-    if (pending && vvfp_xc.retries < VVFP_XC_RETRIES) {
-        ++vvfp_xc.retries;            /* one of them cannot tell yet: ask once, for everything */
+    found = vvfp_xc_scan(game, slot);
+    if (found < 0 && vvfp_xc.retries < VVFP_XC_RETRIES) {
+        ++vvfp_xc.retries;            /* one of them cannot tell yet */
         vvfp_xc.next_try = now + VVFP_XC_RETRY_MS;
         return;
     }
-    vvfp_xc.parents_found = parents == 1;
-    vvfp_xc.graves = graves > 0 ? graves : 0;
-    vvfp_xc.arrivals = arrivals > 0 ? arrivals : 0;
-    vvfp_xc.births = births > 0 ? births : 0;
-    vvfp_xc.stats = stats > 0 && vvfp_xc.stats_text[0] != '\0' ? stats : 0;
-    vvfp_xc.masks = masks > 0 ? masks : 0;
-    if (!vvfp_xc.parents_found && vvfp_xc.graves == 0 && vvfp_xc.arrivals == 0 && vvfp_xc.births == 0
-        && vvfp_xc.stats == 0 && vvfp_xc.masks == 0) {
-        vvfp_xc.state = VVFP_XC_DECIDED;   /* nothing to ask about on this load */
-        return;
+    vvfp_xc.examined = 1;
+    vvfp_xc.quit_slot = slot;
+    vvfp_xc.quit_approved = approved;
+    /* Something found -- or a part that never could tell: the quit looks
+       again, and asks only if it then finds something. */
+    vvfp_xc.quit_found = found != 0;
+    if (approved && vvfp_xc_any()) {
+        vvfp_xc_repair_at_save(game, slot);
     }
-    vvfp_xc_compose();
-    vvfp_xc.asked_game = game;
-    vvfp_xc.asked_slot = slot;
-    vvfp_xc.answer = 0;
-    {
-        HWND owner = NULL;
-        HMODULE sdl = GetModuleHandleA("SDL2.dll");
-        if (sdl != NULL) {
-            typedef int(__cdecl * set_hint_t)(const char *, const char *);
-            set_hint_t set_hint = (set_hint_t)GetProcAddress(sdl, "SDL_SetHint");
-            if (set_hint != NULL) {
-                set_hint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
-            }
-        }
-        EnumWindows(vvfp_xc_find_window, (LPARAM)&owner);
-        vvfp_xc.thread = CreateThread(NULL, 0, vvfp_xc_prompt, owner, 0, NULL);
-    }
-    if (vvfp_xc.thread == NULL) {
-        vvfp_xc.state = VVFP_XC_DECIDED;   /* could not ask: change nothing; the next load asks */
-        return;
-    }
-    vvfp_xc.state = VVFP_XC_ASKING;
 }
 
 /* From the companion's village-only per-frame path.  `on_screen` is the
-   caller's own word that a village is being played right now. */
+   caller's own word that a village is being played right now.  It never
+   shows anything. */
 static void vvfp_crosscheck_bridge(int game, int on_screen) {
     DWORD now = VVFP_XC_NOW();
     const vvfp_story_host *host;
     int slot = 0;
-    if (vvfp_xc.state == VVFP_XC_ASKING) {
-        if (vvfp_xc.answer != 0) {
-            vvfp_xc_answered(game);
-            vvfp_xc.last = now;
-        }
-        return;                       /* nothing else happens while the player decides */
-    }
+    (void)vvfp_crosscheck_startup(game);   /* a no-op once game start has installed it */
     if (on_screen) {
         host = vvfp_story_host_table();
         slot = host != NULL && host->slot != NULL ? host->slot() : 0;
@@ -418,15 +770,16 @@ static void vvfp_crosscheck_bridge(int game, int on_screen) {
         return;
     }
     if (slot != vvfp_xc.slot || now - vvfp_xc.last > VVFP_XC_GAP_MS) {
-        vvfp_xc.slot = slot;          /* a new load */
+        vvfp_xc.slot = slot;          /* a new load: what the quit owes is this one's */
         vvfp_xc.seen = now;
-        vvfp_xc.state = VVFP_XC_ARMED;
+        vvfp_xc.examined = 0;
         vvfp_xc.retries = 0;
         vvfp_xc.next_try = now;
+        vvfp_xc.quit_slot = 0;
+        vvfp_xc.quit_approved = vvfp_xc.quit_found = 0;
     }
     vvfp_xc.last = now;
-    if (vvfp_xc.state != VVFP_XC_ARMED || now - vvfp_xc.seen < VVFP_XC_SETTLE_MS
-        || (LONG)(now - vvfp_xc.next_try) < 0) {
+    if (vvfp_xc.examined || now - vvfp_xc.seen < VVFP_XC_SETTLE_MS || (LONG)(now - vvfp_xc.next_try) < 0) {
         return;
     }
     vvfp_xc_examine(game, slot, now);

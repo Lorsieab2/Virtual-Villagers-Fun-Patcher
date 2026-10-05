@@ -11,7 +11,7 @@
    backing block covers them (checked at run time).  Stood in for at compile
    time: the village's header ("VVFP Save Reset.dll"), a failing disk
    (sidecar_io.h's writer) and the cross-check's clock (frozen, so no prompt
-   ever opens).  Everything is written under Documents\LDW\<this exe's
+   ever opens).  "Not now" is the repair never being called.  Everything is written under Documents\LDW\<this exe's
    name>, which harness_ldw_tree.h leaves as it found it.
 
    The village, in every game: records 0 Ana, 1 Bo, 2 and 3 two villagers
@@ -546,7 +546,7 @@ int main(void) {
     CHECK(vvfp_xc_masks_scan(game, SLOT + 1) == -1, "another slot cannot be told yet");
 
     printf("== Not now ==\n");
-    vvfp_xc_masks_repair(game, SLOT, 0);
+    /* "Not now": the repair is never called; the scan alone wrote nothing */
     CHECK(read_file(g_path, g_now, sizeof g_now) == g_file_n && memcmp(g_now, g_file, g_file_n) == 0,
           "the file is byte for byte as it was");
     CHECK(!exists(g_backup1), "no backup");
@@ -557,7 +557,7 @@ int main(void) {
     printf("== Repair, without the village's header ==\n");
     g_header_ok = 0;
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two");
-    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(vvfp_xc_masks_repair(game, SLOT) == 0, "no header: the repair says it is not done");
     CHECK(g_header_calls == 1, "the header was asked for");
     CHECK(read_file(g_path, g_now, sizeof g_now) == g_file_n && memcmp(g_now, g_file, g_file_n) == 0
           && !exists(g_backup1) && !exists(g_log), "nothing changed, no backup, no log");
@@ -567,7 +567,7 @@ int main(void) {
     printf("== Repair, the disk failing ==\n");
     g_fail_writes = 1;
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two");
-    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(vvfp_xc_masks_repair(game, SLOT) == 0, "a failing disk: the repair says it is not done");
     g_fail_writes = 0;
     CHECK(read_file(g_path, g_now, sizeof g_now) == g_file_n && memcmp(g_now, g_file, g_file_n) == 0,
           "the file is as it was");
@@ -578,14 +578,14 @@ int main(void) {
     printf("== Repair, the Repairs log failing ==\n");
     g_fail_note = 1;
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two");
-    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(vvfp_xc_masks_repair(game, SLOT) == 0, "a failing note: not done");
     CHECK(file_mask_is(5, 3) && file_mask_is(6, 4), "the file is written back with both entries");
     CHECK(!exists(g_backup1) && !exists(g_log), "no backup left, nothing listed");
     CHECK(table_is(HAS_BODY ? "1:1 5:3 6:4 7:2 8:5" : "1:1 5:3 6:4 7:2"), "the entries are back in the table");
     g_file_n = read_file(g_path, g_file, sizeof g_file);   /* as written back */
     g_fail_after_note = 1;
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two again");
-    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(vvfp_xc_masks_repair(game, SLOT) == 0, "a failing note and write-back: not done");
     g_fail_note = g_fail_after_note = g_fail_writes = 0;
     CHECK(exists(g_backup1), "when the file cannot be written back either, the backup is kept: it alone holds them");
     CHECK(read_file(g_backup1, g_now, sizeof g_now) == g_file_n && memcmp(g_now, g_file, g_file_n) == 0,
@@ -598,7 +598,7 @@ int main(void) {
 
     printf("== Repair ==\n");
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 2, "asked about two");
-    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(vvfp_xc_masks_repair(game, SLOT) == 1, "the repair says it is done");
     CHECK(table_is(HAS_BODY ? "1:1 7:2 8:5" : "1:1 7:2"), "exactly the two orphans are gone from the table");
     found = (int)read_file(g_path, g_now, sizeof g_now);
     CHECK(found > 0 && file_mask(g_now, 5) == 0 && file_mask(g_now, 6) == 0, "and from the file");
@@ -615,7 +615,7 @@ int main(void) {
 
     printf("== exactly once ==\n");
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 0, "the next scan finds nothing");
-    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(vvfp_xc_masks_repair(game, SLOT) == 1, "with nothing noted, a repair has nothing left to do");
     CHECK(!exists(g_backup2) && count_in(g_log, "Repair ") == 1, "a Repair then changes nothing more");
     load();
     CHECK(vvfp_xc_masks_scan(game, SLOT) == 0, "nor does the next load's");
@@ -632,7 +632,7 @@ int main(void) {
     } else {
         villager(9, "Dee", 0, 0);                 /* Dee is back in the records */
     }
-    vvfp_xc_masks_repair(game, SLOT, 1);
+    CHECK(vvfp_xc_masks_repair(game, SLOT) == 1, "the repair says it is done (the other is no longer an orphan)");
     _snprintf_s(after, sizeof after, _TRUNCATE, BY_RECORD ? (HAS_BODY ? "1:1 6:4 7:2 8:5" : "1:1 6:4 7:2")
                                                           : "1:1 5:3 7:2 8:5");
     CHECK(table_is(after), "only the entry that is still an orphan is removed");
@@ -662,7 +662,7 @@ int main(void) {
         put_file_and_load();
         CHECK(table_is("5:3 9:2"), "the load keeps both where they were");
         CHECK(vvfp_xc_masks_scan(game, SLOT) == 1, "one orphan: the name no villager has");
-        vvfp_xc_masks_repair(game, SLOT, 1);
+        CHECK(vvfp_xc_masks_repair(game, SLOT) == 1, "done");
         CHECK(table_is("9:2"), "the name both Cys carry is kept");
         load();
         CHECK(vvfp_xc_masks_scan(game, SLOT) == 0 && table_is("9:2"), "and still kept at the next load");

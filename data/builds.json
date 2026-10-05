@@ -35,6 +35,18 @@
               "before": "90909090909090909090",
               "after": "3D00010000EB84909090",
               "purpose": "compare population with 256, then return to original housing branch"
+            },
+            {
+              "offset": "0x2F1EE",
+              "before": "83F85A7C20",
+              "after": "84E4742190",
+              "purpose": "\"maximum sustainable population\" notice (string 315) in the world tick 0x42E900: compare the population with this mode's 256 cap instead of the stock 90 (test ah, ah; jz = population below 256), so the notice no longer fires at 90 while the village can still grow"
+            },
+            {
+              "offset": "0x3DE45",
+              "before": "837C24185A7D3C",
+              "after": "807C241900753C",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x43DAD0: explain the refusal (\"There isn't enough housing!\", \"They're too hungry...\", \"That didn't go too well.\") below this mode's 256 cap instead of only below the stock 90, so pairs between 90 and 255 are no longer refused in silence"
             }
           ]
         },
@@ -53,6 +65,18 @@
               "before": "90909090909090909090",
               "after": "3D00010000EB84909090",
               "purpose": "compare population with 256, then return to original housing branch"
+            },
+            {
+              "offset": "0x2F1EE",
+              "before": "83F85A7C20",
+              "after": "84E4742190",
+              "purpose": "\"maximum sustainable population\" notice (string 315) in the world tick 0x42E900: compare the population with this mode's 256 cap instead of the stock 90 (test ah, ah; jz = population below 256), so the notice no longer fires at 90 while the village can still grow"
+            },
+            {
+              "offset": "0x3DE45",
+              "before": "837C24185A7D3C",
+              "after": "807C241900753C",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x43DAD0: explain the refusal (\"There isn't enough housing!\", \"They're too hungry...\", \"That didn't go too well.\") below this mode's 256 cap instead of only below the stock 90, so pairs between 90 and 255 are no longer refused in silence"
             }
           ]
         }
@@ -61,62 +85,74 @@
         {
           "offset": "0x2EF5F",
           "before": "E8ECD30000",
-          "after": "E97C760200",
-          "purpose": "preflight the first creation in VV1's two-villager path so it cannot consume the last slot needed by the second creation"
-        },
-        {
-          "offset": "0x565E0",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E87B0200003DFF000000730AE85F5DFEFFE96E89FDFF83C414E99D89FDFF0000",
-          "purpose": "count occupied VV1 records and skip the first two-villager creation when fewer than two physical slots remain"
+          "after": "E830760200",
+          "purpose": "the golden-child mother's delivery: through the record guard, the creator returning here"
         },
         {
           "offset": "0x2EFD0",
           "before": "E87BD30000",
-          "after": "E96B780200",
-          "purpose": "preflight the second creation in VV1's two-villager path so a full 256-slot table cannot enter the unbounded stock scan"
+          "after": "E8DB750200",
+          "purpose": "a delivery's first child: through the record guard, the creator returning here"
+        },
+        {
+          "offset": "0x3BC4E",
+          "before": "C7865C03000002000000",
+          "after": "6A02E88BA9010073F590",
+          "purpose": "twins at conception only when the records fit them; otherwise back to the twins roll's own branch (0x43BC4C), whatever that branch is composed to"
+        },
+        {
+          "offset": "0x3BC8C",
+          "before": "C7865C03000003000000",
+          "after": "6A03E84DA9010073F590",
+          "purpose": "triplets at conception only when the records fit them; otherwise back to the triplets roll's own branch (0x43BC8A)"
+        },
+        {
+          "offset": "0x2427B",
+          "before": "C7843994030000C7000000",
+          "after": "E8C02503000F8526010000",
+          "purpose": "the Golden Child puzzle fires only when a record is free: otherwise the drop is answered as when the puzzle is not ready (0x4243AC), and nothing is spent -- the latch, the hour and the pregnancy are kept"
+        },
+        {
+          "offset": "0x19700",
+          "before": "E89B0A0200",
+          "after": "E8BFCE0300",
+          "purpose": "the Mysterious Face asks for a free record too before its newcomer (0x41974A, which the Story companion detours at run time, is left as it is)"
+        },
+        {
+          "offset": "0x56580",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8DB0200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
+          "purpose": "a delivery's record demand: the occupied records plus the extra babies of the mother's litter (+0x35C: 2 twins, 3 triplets); the golden-child mother's delivery only when her two children and the litter fit, else it waits with the pregnancy kept (the arguments dropped, the tick goes on at 0x42F0CE); the creator returns to 0x42EF64 as in the stock game"
+        },
+        {
+          "offset": "0x565B0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C0740AE88C02000084E40F94C0C3",
+          "purpose": "any other delivery only when its child and the litter fit, else it waits; the creator returns to 0x42EFD5 as in the stock game. Then the Mysterious Face's room question: the game's room predicate, and a free record"
+        },
+        {
+          "offset": "0x565E0",
+          "before": "0000000000000000000000000000000000000000000000000000000000",
+          "after": "89F9E8790200008B54240401D03D01010000730689965C030000C20400",
+          "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
+        },
+        {
+          "offset": "0x56680",
+          "before": "0000000000000000000000000000000000000000",
+          "after": "E8DB01000084E47505E9C25CFEFF83C8FFC21400",
+          "purpose": "an island event's child only when a record is free: the creator with the caller's own return address, else -1 (the callers ignore the index)"
         },
         {
           "offset": "0x56840",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E81B0000003D00010000730AE8FF5AFEFFE97F87FDFF83C414E94B88FDFF0000",
-          "purpose": "count occupied VV1 records and skip the second two-villager creation when all 256 physical slots are occupied"
+          "before": "000000000000000000000000000000000000000000",
+          "after": "E81B00000084E4750BC7843994030000C7000000C3",
+          "purpose": "the Golden Child puzzle's check: the record count, and the puzzle's first write (the mother's +0x394 = 0xC7) only when a record is free -- ZF tells the drop handler which"
         },
         {
           "offset": "0x56860",
           "before": "0000000000000000000000000000000000000000000000000000000000000000",
           "after": "5131C08D512831C9803A0074014081C2D80300004181F90001000072EB59C300",
           "purpose": "boundedly count occupied VV1 record flags from the manager argument across the 256-slot pool and preserve the caller register"
-        },
-        {
-          "offset": "0x3BC4E",
-          "before": "C7865C03000002000000",
-          "after": "E92DA901009090909090",
-          "purpose": "route twin selection through the 256-slot saturation guard"
-        },
-        {
-          "offset": "0x56580",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8710E0030081B8249E0000000100000F8D3057FEFFC7865C03000002000000E9B356FEFF",
-          "purpose": "allow a second baby only when another villager slot remains"
-        },
-        {
-          "offset": "0x3BC8C",
-          "before": "C7865C03000003000000",
-          "after": "E91FA901009090909090",
-          "purpose": "route triplet selection through the 256-slot saturation guard"
-        },
-        {
-          "offset": "0x565B0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8710E0030081B8249E0000000100000F8DF456FEFFC7865C03000003000000E9C156FEFF",
-          "purpose": "allow a third baby only when another villager slot remains"
-        },
-        {
-          "offset": "0x56680",
-          "before": "00000000000000000000000000000000000000000000000000",
-          "after": "81B9249E0000000100007D05E9BF5CFEFFB8FFFFFFFFC21400",
-          "purpose": "guard event-created villagers one allocation at a time against VV1's 256 physical slots"
         },
         {
           "offset": "0x28263",
@@ -225,6 +261,12 @@
               "before": "9090909090909090909090909090",
               "after": "81C7E70000003BEFEBB690909090",
               "purpose": "use base 231 plus the original maximum 25 collection bonus"
+            },
+            {
+              "offset": "0x4FAF9",
+              "before": "837C24185A7D38",
+              "after": "807C2419007538",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x44F610: explain the refusal (\"They're too hungry...\", \"That didn't go too well.\") below this mode's cap (the population predicate 0x44B310 decides, as the 256 bound is never lower than the cap) instead of only below the stock 90, so pairs at 90 or more are no longer refused in silence"
             }
           ]
         },
@@ -237,52 +279,88 @@
               "before": "83FF147505BF19000000",
               "after": "BFA60000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
+            },
+            {
+              "offset": "0x4FAF9",
+              "before": "837C24185A7D38",
+              "after": "807C2419007538",
+              "purpose": "dragged-pair refusal reason in the pairing handler 0x44F610: explain the refusal (\"They're too hungry...\", \"That didn't go too well.\") below this mode's cap (the population predicate 0x44B310 decides, as the 256 bound is never lower than the cap) instead of only below the stock 90, so pairs at 90 or more are no longer refused in silence"
             }
           ]
         }
       },
       "safety_patches": [
         {
-          "offset": "0x3BE8E",
-          "before": "E82D370100",
-          "after": "E98D800300",
-          "purpose": "guard singleton pregnancy delivery catch-up before the unbounded 256-slot allocator"
-        },
-        {
-          "offset": "0x73F20",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF83C42CE94A80FCFF",
-          "purpose": "defer singleton pregnancy delivery when all 256 physical villager slots are occupied while preserving the pregnancy marker"
-        },
-        {
           "offset": "0x4BA82",
           "before": "C7864405000002000000",
-          "after": "E9B98102009090909090",
-          "purpose": "route twin selection through the 256-slot saturation guard"
-        },
-        {
-          "offset": "0x73C40",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50091E8141CFBFF663D00010F83827EFDFFC7864405000002000000E9277EFDFF",
-          "purpose": "allow a second baby only when another villager slot remains"
+          "after": "6A02E8E781020073F590",
+          "purpose": "twins at conception only when the records fit them; otherwise back to the twins roll's own branch"
         },
         {
           "offset": "0x4BAB6",
           "before": "C7864405000003000000",
-          "after": "E9B58102009090909090",
-          "purpose": "route triplet selection through the 256-slot saturation guard"
+          "after": "6A03E8B381020073F590",
+          "purpose": "triplets at conception only when the records fit them; otherwise back to the triplets roll's own branch"
+        },
+        {
+          "offset": "0x3BE8E",
+          "before": "E82D370100",
+          "after": "E98D800300",
+          "purpose": "a delivery only when its whole litter fits in the records"
+        },
+        {
+          "offset": "0x217DF",
+          "before": "E82C9B0200",
+          "after": "E880270500",
+          "purpose": "The Silver Mirror asks for a free record too before its copy (0x4217F9)"
+        },
+        {
+          "offset": "0x1F604",
+          "before": "E807BD0200",
+          "after": "E85B490500",
+          "purpose": "The Savage Child (event 4) is offered only with room and a free record for its newcomer (0x4209A4; its answer pays 500 food first)"
+        },
+        {
+          "offset": "0x1F6D4",
+          "before": "94F64100",
+          "after": "843F4700",
+          "purpose": "The Strange Request (event 3), always offered in the stock game, through the free-record check"
+        },
+        {
+          "offset": "0x73C40",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "518B89A405030031C08D5130B900010000803A0074014081C28CE400004975F159C3",
+          "purpose": "boundedly count the occupied records (the +0x30 byte; corpses included) across the 256-record pool from the world argument, preserving ecx"
         },
         {
           "offset": "0x73C70",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50091E8E41BFBFF663D00010F83527EFDFFC7864405000003000000E92B7EFDFF",
-          "purpose": "allow a third baby only when another villager slot remains"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8FD474E500E8C5FFFFFF8B54240401D03D010100007306899644050000C20400",
+          "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x73D00",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
-          "purpose": "guard event-created villagers one allocation at a time against VV2's 256 physical slots"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "518B8DA450000085C9741883B9A405030000740FE827FFFFFF5984E47506E95DB8FDFF5983C8FFC21400",
+          "purpose": "an island event's villager only when a record is free: the event wrapper with the caller's own return address, else -1"
+        },
+        {
+          "offset": "0x73F20",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "608B0EE818FDFFFF8B56048B943A4405000085D274014A01D03DFF00000061770AE87AB6FDFFE9487FFCFF83C42CE93980FCFF",
+          "purpose": "a delivery only when its child and the litter's extra babies (+0x544) fit in the records, else it waits with the pregnancy kept (the twin and triplet copies then always find their record)"
+        },
+        {
+          "offset": "0x73F64",
+          "before": "000000000000000000000000000000000000000000000000000000000000",
+          "after": "51E8A673FDFF5984C07412518B89D474E500E8C5FCFFFF5984E40F94C0C3",
+          "purpose": "the game's room predicate, and a free record (The Silver Mirror's copy, The Savage Child's newcomer)"
+        },
+        {
+          "offset": "0x73F84",
+          "before": "000000000000000000000000000000000000000000",
+          "after": "8B8EAC500000E8B1FCFFFF84E40F94C3E9FDB6FAFF",
+          "purpose": "The Strange Request is offered only with a free record for its stranger (stock: always offered; with every record occupied the bounded scan handed it record 255, a villager, whom both answers then take away)"
         },
         {
           "offset": "0x34102",
@@ -423,7 +501,7 @@
         {
           "offset": "0x7B260",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8B30000003D930000000F8F6DA9FDFFC786900E000003000000E94AA9FDFF",
+          "after": "E89BD024003D940000000F8F6DA9FDFFC786900E000003000000E94AA9FDFF",
           "purpose": "keep triplets only when three villager slots remain"
         },
         {
@@ -435,7 +513,7 @@
         {
           "offset": "0x7B280",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8930000003D940000000F8F5DA9FDFFC786900E000002000000E948A9FDFF",
+          "after": "E87BD024003D950000000F8F5DA9FDFFC786900E000002000000E948A9FDFF",
           "purpose": "keep twins only when two villager slots remain"
         },
         {
@@ -447,7 +525,7 @@
         {
           "offset": "0x7B2E0",
           "before": "000000000000000000000000000000000000000000000000",
-          "after": "E8330000003D960000007D0B566858020000E99F9AF9FFC3",
+          "after": "E81BD024003D960000007D0B566858020000E99F9AF9FFC3",
           "purpose": "skip the event newcomer at physical capacity or resume the complete stock outcome below capacity"
         },
         {
@@ -459,7 +537,7 @@
         {
           "offset": "0x7B300",
           "before": "0000000000000000000000000000000000000000000000",
-          "after": "E8130000003D960000007D0A68C8000000E90FA0F9FFC3",
+          "after": "E8FBCF24003D960000007D0A68C8000000E90FA0F9FFC3",
           "purpose": "skip the first barrel child at physical capacity while retaining the stock later-child cap checks"
         },
         {
@@ -467,6 +545,84 @@
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "515231C0BA24E15900B99600000080BA100F00000074014081C28C1F00004975ED5A59C3",
           "purpose": "count occupied VV3 villager record slots for the 150-slot saturation guards: a record is occupied when its active-flag BYTE +0xF10 is set (the game's own free-slot test at 0x45F0C0), so the neighbouring flag bytes +0xF11..+0xF13 never make a free record count as occupied"
+        },
+        {
+          "offset": "0x280",
+          "before": "04000000",
+          "after": "00100000",
+          "purpose": "map the whole .shr page, where the record guards live (the same write Everyone Tries On The Robe makes)"
+        },
+        {
+          "offset": "0x29C",
+          "before": "400000D0",
+          "after": "600000F0",
+          "purpose": "mark the .shr page executable for the record guards (the same write Everyone Tries On The Robe makes)"
+        },
+        {
+          "offset": "0xB4300",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "515231C0BA24E15900B99600000080BA100F00000074104083BA8C0E00000074060382900E000081C28C1F00004975DE5A59C3",
+          "purpose": "count the records' demand: every occupied record (the active byte; corpses included) plus the babies each pregnant mother still owes"
+        },
+        {
+          "offset": "0xB4340",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "E8AB65D9FF50E8B5FFFFFF3D96000000587205B8FF7F0000C3",
+          "purpose": "the room predicate's count, or no room at any cap while the records' demand has no record left"
+        },
+        {
+          "offset": "0xB4360",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B86C000000085C0742250528B96C400000085D2750142E89C2FDBFF01D05A3D9700000058720339C0C385C0C3",
+          "purpose": "a delivery only when its whole litter fits in the free records, else it waits with the pregnancy kept"
+        },
+        {
+          "offset": "0xB4390",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "85C0740FE867FFFFFF3D950000000F92C0EB0231C05EC3",
+          "purpose": "The Mysterious Vial: offered only with room for two copies"
+        },
+        {
+          "offset": "0xB43B0",
+          "before": "00000000000000000000000000000000000000000000",
+          "after": "83F8027D0EE846FFFFFF3D960000000F92C0C331C0C3",
+          "purpose": "The Crystal of Reflections: offered only with room for its reflection"
+        },
+        {
+          "offset": "0xB43D0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E82BFFFFFF3D96000000720C58C7460C000000005EC2040058578B7E046A2BFFE0",
+          "purpose": "The Crystal of Reflections' keep: a record checked before the likes change"
+        },
+        {
+          "offset": "0x5FE37",
+          "before": "E8B4EAFFFF",
+          "after": "E804852600",
+          "purpose": "the room predicate 0x45FE30 answers no room while the records' demand (occupied records, corpses included, plus every baby still owed) has no record left"
+        },
+        {
+          "offset": "0x60341",
+          "before": "8B86C000000085C00F84C3010000",
+          "after": "E81A8026000F84C6010000909090",
+          "purpose": "a delivery waits, the pregnancy kept, until its whole litter fits in the free records (the stock code cleared the pregnancy when the creator found no record)"
+        },
+        {
+          "offset": "0x178DA",
+          "before": "89460485C00F95C05EC3",
+          "after": "894604E9AE0A2B009090",
+          "purpose": "The Mysterious Vial is offered only with room for its two copies"
+        },
+        {
+          "offset": "0x1580C",
+          "before": "33C983F8020F9CC18AC1C3",
+          "after": "E99F2B2B00909090909090",
+          "purpose": "The Crystal of Reflections is offered only with room for its reflection"
+        },
+        {
+          "offset": "0x191EF",
+          "before": "578B7E046A2B",
+          "after": "E8DCF12A0090",
+          "purpose": "The Crystal of Reflections' keep checks for a record before it changes the villager's likes"
         }
       ]
     },
@@ -523,7 +679,7 @@
         {
           "offset": "0x89020",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8CB0000003D930000000F8FA358FDFFC786501C000003000000E98B58FDFF",
+          "after": "E8CB0000003D940000000F8FA358FDFFC786501C000003000000E98B58FDFF",
           "purpose": "keep triplets only when three villager slots remain"
         },
         {
@@ -535,7 +691,7 @@
         {
           "offset": "0x89040",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8AB0000003D940000000F8F9458FDFFC786501C000002000000E97E58FDFF",
+          "after": "E8AB0000003D950000000F8F9458FDFFC786501C000002000000E97E58FDFF",
           "purpose": "keep twins only when two villager slots remain"
         },
         {
@@ -585,6 +741,42 @@
           "before": "8B7BF485FF744E8D53D8BE19000000E85CFCFFFF84C0744785FF7C438B0383F8FF7C3C83F8057D378B430C83F8FF7C2F83F8057D2A8B7C2410834424105C83C501B9170000008BF283C35C81FDF4010000F3A57CAB5F5E5DB0015B59C204005F5E5D32C05B59C20400CCCCCCCCCCCCCC",
           "after": "8B7BF485FF74598D53D8BE19000000E85CFCFFFF84C0744C85FF7C488B034083F80673408B430C807B0F017511C1E008C1F8088D480183F906732989430C4083F80673208B7C2410834424105C456A17598BF283C35C81FDF4010000F3A57CA0B001EB0232C05F5E5D5B59C20400CCCC",
           "purpose": "repair graves damaged by Village Statistics v1.35.40 and earlier before the memorial loader validates them: a grave whose stock dword +0x34 carries a patch-set 0x01 in its top byte over a valid -1..4 value is restored to that value, so the save loads; every stock-valid grave is left byte-identical and any other invalid grave is still rejected exactly as stock"
+        },
+        {
+          "offset": "0x244",
+          "before": "40000040",
+          "after": "40000060",
+          "purpose": "mark .rdata executable: the record guards live in its tail (the same write Origins makes)"
+        },
+        {
+          "offset": "0xB7500",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "515231C0BAACE55000B99600000080BAC41C00000074014081C23C2E00004975ED5A59C3",
+          "purpose": "count the occupied records (the active byte; corpses included)"
+        },
+        {
+          "offset": "0xB7530",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "E8DB00FBFF50E8B51BFDFF3D96000000587205B8FF7F0000C3",
+          "purpose": "the room predicate's count, or no room at any cap while the records' demand has no record left"
+        },
+        {
+          "offset": "0xB7550",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B461085C0741F50528B561485D2750142E89AFFFFFF01D05A3D9700000058720339C0C385C0C3",
+          "purpose": "a delivery only when its whole litter fits in the free records, else it waits with the pregnancy kept"
+        },
+        {
+          "offset": "0x68357",
+          "before": "E8B4F2FFFF",
+          "after": "E8D4F10400",
+          "purpose": "the room predicate 0x468350 answers no room while the records' demand (occupied records, corpses and ghosts included, plus every baby still owed) has no record left"
+        },
+        {
+          "offset": "0x687E4",
+          "before": "8B461085C00F842B020000",
+          "after": "E867ED04000F842B020000",
+          "purpose": "a delivery waits, the pregnancy kept, until its whole litter fits in the free records (the stock code cleared the pregnancy when the creator found no record)"
         }
       ]
     },
@@ -659,7 +851,7 @@
         {
           "offset": "0x94340",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E87B0100003D930000000F8FD31BFDFFC786501C000003000000E9BB1BFDFF",
+          "after": "E87B0100003D940000000F8FD31BFDFFC786501C000003000000E9BB1BFDFF",
           "purpose": "keep triplets only when three physical villager slots remain after active Heathens, corpses, and nursing babies are counted"
         },
         {
@@ -671,7 +863,7 @@
         {
           "offset": "0x94360",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "E85B0100003D940000000F8FC41BFDFFC786501C000002000000E9AE1BFDFF",
+          "after": "E85B0100003D950000000F8FC41BFDFFC786501C000002000000E9AE1BFDFF",
           "purpose": "keep twins only when two physical villager slots remain after active Heathens, corpses, and nursing babies are counted"
         },
         {
@@ -727,6 +919,48 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "E8DBFEFFFFF7D805960000007E1F83F8067E05B8060000006A006A006AFF6A01506AFFB948415500E843D4FDFFC3",
           "purpose": "reserve no more than the lesser of six abandoned infants or VV5's remaining occupied-or-reserved physical slots"
+        },
+        {
+          "offset": "0x94BE0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "515231C0BA90415500B99600000080BAD41C00000074014081C2442F00004975ED5A59C3",
+          "purpose": "count the occupied records (the active byte; corpses included)"
+        },
+        {
+          "offset": "0x94C10",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "E8DBC7FDFF50E8A5F8FFFF3D96000000587205B8FF7F0000C3",
+          "purpose": "the room predicate's count, or no room at any cap while the records' demand has no record left"
+        },
+        {
+          "offset": "0x94C30",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B461085C0741F50528B561485D2750142E89AFFFFFF01D05A3D9700000058720339C0C385C0C3",
+          "purpose": "a delivery only when its whole litter fits in the free records, else it waits with the pregnancy kept"
+        },
+        {
+          "offset": "0x94C60",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "E85BF8FFFF3D96000000720683C8FFC2040089D9E977BAF8FF",
+          "purpose": "Reanimate: refused while no record is free for its stand-in"
+        },
+        {
+          "offset": "0x72BD7",
+          "before": "E814E8FFFF",
+          "after": "E834200200",
+          "purpose": "the room predicate 0x472BD0 answers no room while the records' demand (every occupied record -- Heathens, corpses and stand-ins included -- plus every baby still owed) has no record left"
+        },
+        {
+          "offset": "0x730AF",
+          "before": "8B461085C00F8427020000",
+          "after": "E87C1B02000F8427020000",
+          "purpose": "a delivery waits, the pregnancy kept, until its whole litter fits in the free records (the stock code cleared the pregnancy when the creator found no record)"
+        },
+        {
+          "offset": "0x2341A",
+          "before": "8BCBE8CFD2FFFF",
+          "after": "E8411807009090",
+          "purpose": "Reanimate is refused, nothing spent, while no record is free for its stand-in (the stock spell wrote through a NULL record and crashed): answered as a cast with no free spell slot"
         }
       ]
     }
@@ -788,11 +1022,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x3D483", "before": "7E76", "after": "EB76", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x3D5E0", "before": "7E7C", "after": "EB7C", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x3D72A", "before": "7E19", "after": "EB19", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x3D7F8", "before": "0F8F2EFFFFFF", "after": "909090909090", "purpose": "remove the Healing failure branch and fall through to stock skill gain"},
-        {"offset": "0x3D8AC", "before": "7E77", "after": "EB77", "purpose": "make the Parenting success target unconditional"}
+        {
+          "offset": "0x3D483",
+          "before": "7E76",
+          "after": "EB76",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x3D5E0",
+          "before": "7E7C",
+          "after": "EB7C",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x3D72A",
+          "before": "7E19",
+          "after": "EB19",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x3D7F8",
+          "before": "0F8F2EFFFFFF",
+          "after": "909090909090",
+          "purpose": "remove the Healing failure branch and fall through to stock skill gain"
+        },
+        {
+          "offset": "0x3D8AC",
+          "before": "7E77",
+          "after": "EB77",
+          "purpose": "make the Parenting success target unconditional"
+        }
       ]
     },
     {
@@ -811,11 +1070,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x4E1E2", "before": "7E77", "after": "EB77", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x4E37B", "before": "0F8E8D000000", "after": "E98E00000090", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x4E4E2", "before": "7E2D", "after": "EB2D", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x4E5E5", "before": "7E2D", "after": "EB2D", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x4E6EA", "before": "0F8E8C000000", "after": "E98D00000090", "purpose": "make the Parenting success target unconditional"}
+        {
+          "offset": "0x4E1E2",
+          "before": "7E77",
+          "after": "EB77",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x4E37B",
+          "before": "0F8E8D000000",
+          "after": "E98E00000090",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x4E4E2",
+          "before": "7E2D",
+          "after": "EB2D",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x4E5E5",
+          "before": "7E2D",
+          "after": "EB2D",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x4E6EA",
+          "before": "0F8E8C000000",
+          "after": "E98D00000090",
+          "purpose": "make the Parenting success target unconditional"
+        }
       ]
     },
     {
@@ -834,11 +1118,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x5A34E", "before": "0F8EBE000000", "after": "E9BF00000090", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x5A4FD", "before": "0F8EB6000000", "after": "E9B700000090", "purpose": "make the Parenting success target unconditional"},
-        {"offset": "0x5A67F", "before": "7E53", "after": "EB53", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x5A799", "before": "7E42", "after": "EB42", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x5A8A3", "before": "0F8EAC000000", "after": "E9AD00000090", "purpose": "make the Researching success target unconditional"}
+        {
+          "offset": "0x5A34E",
+          "before": "0F8EBE000000",
+          "after": "E9BF00000090",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x5A4FD",
+          "before": "0F8EB6000000",
+          "after": "E9B700000090",
+          "purpose": "make the Parenting success target unconditional"
+        },
+        {
+          "offset": "0x5A67F",
+          "before": "7E53",
+          "after": "EB53",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x5A799",
+          "before": "7E42",
+          "after": "EB42",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x5A8A3",
+          "before": "0F8EAC000000",
+          "after": "E9AD00000090",
+          "purpose": "make the Researching success target unconditional"
+        }
       ]
     },
     {
@@ -857,11 +1166,36 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x62B21", "before": "0F8EEB000000", "after": "E9EC00000090", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x62D9F", "before": "0F8EED000000", "after": "E9EE00000090", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x62FAA", "before": "7E73", "after": "EB73", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x63136", "before": "7E5F", "after": "EB5F", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x632AF", "before": "0F8ED2000000", "after": "E9D300000090", "purpose": "make the Parenting success target unconditional"}
+        {
+          "offset": "0x62B21",
+          "before": "0F8EEB000000",
+          "after": "E9EC00000090",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x62D9F",
+          "before": "0F8EED000000",
+          "after": "E9EE00000090",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x62FAA",
+          "before": "7E73",
+          "after": "EB73",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x63136",
+          "before": "7E5F",
+          "after": "EB5F",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x632AF",
+          "before": "0F8ED2000000",
+          "after": "E9D300000090",
+          "purpose": "make the Parenting success target unconditional"
+        }
       ]
     },
     {
@@ -880,12 +1214,42 @@
       ],
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
-        {"offset": "0x6B311", "before": "0F8EAE000000", "after": "E9AF00000090", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x6B4DD", "before": "0F8E9D000000", "after": "E99E00000090", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x6B6C7", "before": "7E73", "after": "EB73", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x6B853", "before": "7E5F", "after": "EB5F", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x6B9CC", "before": "0F8E95000000", "after": "E99600000090", "purpose": "make the Parenting success target unconditional"},
-        {"offset": "0x6BB7F", "before": "7E5F", "after": "EB5F", "purpose": "make the Devotion success target unconditional"}
+        {
+          "offset": "0x6B311",
+          "before": "0F8EAE000000",
+          "after": "E9AF00000090",
+          "purpose": "make the Farming success target unconditional"
+        },
+        {
+          "offset": "0x6B4DD",
+          "before": "0F8E9D000000",
+          "after": "E99E00000090",
+          "purpose": "make the Building success target unconditional"
+        },
+        {
+          "offset": "0x6B6C7",
+          "before": "7E73",
+          "after": "EB73",
+          "purpose": "make the Researching success target unconditional"
+        },
+        {
+          "offset": "0x6B853",
+          "before": "7E5F",
+          "after": "EB5F",
+          "purpose": "make the Healing success target unconditional"
+        },
+        {
+          "offset": "0x6B9CC",
+          "before": "0F8E95000000",
+          "after": "E99600000090",
+          "purpose": "make the Parenting success target unconditional"
+        },
+        {
+          "offset": "0x6BB7F",
+          "before": "7E5F",
+          "after": "EB5F",
+          "purpose": "make the Devotion success target unconditional"
+        }
       ]
     },
     {
@@ -1652,15 +2016,19 @@
           "offset": "0x5EFC5",
           "before": "E8969BFCFF69DB1C0100005F5EC684186C780000005DB0015BC20400909090909090909090909090909090",
           "after": "81FB96000000730DE88E9BFCFFC684386C780000005F5E5DB0015BC2040090909090909090909090909090",
-          "purpose": "150 villagers, save: 0x45EF80 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x2AD -> 0x200)",
-          "yield_to": {"feature": "vv3_population_256"}
+          "purpose": "150 villagers, save: 0x45EF80 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x2AD -> 0x200)",
+          "yield_to": {
+            "feature": "vv3_population_256"
+          }
         },
         {
           "offset": "0x5C88D",
           "before": "743233F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C010000E8AAC2FCFF8A8C306C78000084C975D05F5EB0015BC2040090909090909090",
           "after": "743933F6E8CAC2FCFF8D84306C780000508BCFE88B9FFFFF81C78C1F000081C61C01000081FE68A60000730FE8A2C2FCFF80BC306C7800000075C95F5EB0015BC20400",
-          "purpose": "150 villagers, load: 0x45C860 stops after the 150th saved villager instead of reading past the table into the next block",
-          "yield_to": {"feature": "vv3_population_256"}
+          "purpose": "150 villagers, load: 0x45C860 stops after the 150th saved villager instead of reading past the table into the next block",
+          "yield_to": {
+            "feature": "vv3_population_256"
+          }
         },
         {
           "offset": "0x35710",
@@ -1688,25 +2056,29 @@
       ],
       "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded",
       "patches": [
-        {
-          "offset": "0x660F1",
-          "before": "E87A9DFBFF69DB040100005F5EC6841868C80000005DB0015BC20400CCCCCC",
-          "after": "81FB96000000730DE8729DFBFFC6843868C80000005F5E5DB0015BC20400CC",
-          "purpose": "Save: 0x4660A0 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x250 -> 0x200)",
-          "yield_to": {"feature": "vv4_population_256"}
-        },
-        {
-          "offset": "0x6613D",
-          "before": "743633F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF83C3018BF381C73C2E000069F604010000E8059DFBFF80BC3068C800000075CC5F5EB0015BC20400CCCCCC",
-          "after": "743933F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF81C60401000081FE58980000731581C73C2E0000E8029DFBFF80BC3068C800000075C95F5EB0015BC20400",
-          "purpose": "Load: 0x466110 stops after the 150th saved villager instead of reading past the table into the next block",
-          "yield_to": {"feature": "vv4_population_256"}
-        },
-        {
-          "offset": "0x387A0",
-          "before": "538B5C2408568B33578BF9E8C0FFFFFF3D001000007F4B8BCFE8B2FFFFFF3BF075408D7304B934000000F3A5BFD4000000BE888B4D008B0E33C085C9740F8B018B400C8D141F52FFD085C07C1583C60403F881FEF08B4D007CDC5F5EB0015BC204005F5E32C05BC20400CCCCCCCCCCCC",
-          "after": "538B5C2408568B335789CFE8C0FFFFFF3D001000007F4F39C6741189C130C939CE754380BBFCFEFFFF01753A8D73046A3459F3A5BFD4000000BE888B4D008B0E31C085C9740F8B018B400C8D141F52FFD085C07C1183C60401C781FEF08B4D007CDCB001EB0230C05F5E5BC20400CCCC",
-          "purpose": "Load: the progress block's size check 0x4387A0 also accepts a stored size that differs from the computed size only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game; the redundant second size computation is dropped to make room"
+        {
+          "offset": "0x660F1",
+          "before": "E87A9DFBFF69DB040100005F5EC6841868C80000005DB0015BC20400CCCCCC",
+          "after": "81FB96000000730DE8729DFBFFC6843868C80000005F5E5DB0015BC20400CC",
+          "purpose": "Save: 0x4660A0 writes the end-of-list zero only when fewer than 150 villagers were saved, so a full table no longer overwrites the low byte of the next block's size (0x250 -> 0x200)",
+          "yield_to": {
+            "feature": "vv4_population_256"
+          }
+        },
+        {
+          "offset": "0x6613D",
+          "before": "743633F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF83C3018BF381C73C2E000069F604010000E8059DFBFF80BC3068C800000075CC5F5EB0015BC20400CCCCCC",
+          "after": "743933F6E82A9DFBFF8D843068C80000508BCFE88B7AFFFF81C60401000081FE58980000731581C73C2E0000E8029DFBFF80BC3068C800000075C95F5EB0015BC20400",
+          "purpose": "Load: 0x466110 stops after the 150th saved villager instead of reading past the table into the next block",
+          "yield_to": {
+            "feature": "vv4_population_256"
+          }
+        },
+        {
+          "offset": "0x387A0",
+          "before": "538B5C2408568B33578BF9E8C0FFFFFF3D001000007F4B8BCFE8B2FFFFFF3BF075408D7304B934000000F3A5BFD4000000BE888B4D008B0E33C085C9740F8B018B400C8D141F52FFD085C07C1583C60403F881FEF08B4D007CDC5F5EB0015BC204005F5E32C05BC20400CCCCCCCCCCCC",
+          "after": "538B5C2408568B335789CFE8C0FFFFFF3D001000007F4F39C6741189C130C939CE754380BBFCFEFFFF01753A8D73046A3459F3A5BFD4000000BE888B4D008B0E31C085C9740F8B018B400C8D141F52FFD085C07C1183C60401C781FEF08B4D007CDCB001EB0230C05F5E5BC20400CCCC",
+          "purpose": "Load: the progress block's size check 0x4387A0 also accepts a stored size that differs from the computed size only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game; the redundant second size computation is dropped to make room"
         }
       ]
     },

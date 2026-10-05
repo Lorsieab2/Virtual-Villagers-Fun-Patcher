@@ -832,6 +832,7 @@ class GuiTests(unittest.TestCase):
         self.assertRegex(
             self.SOURCE,
             r'"Restore Saves\.\.\.", self\._restore_single_saves\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
+            r'self\._help_button\(links, "restore_saves"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
             r'self\._folder_link\(\s*links, "Rename Tribe\.\.\.", self\._rename_single_tribe',
         )
         self.assertIn('"Rename tribe...",\n                lambda game=build: self._rename_tribe(game)', self.SOURCE)

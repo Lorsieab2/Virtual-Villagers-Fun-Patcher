@@ -35,7 +35,12 @@ public patch with 256 Villagers (Experimental)):
   left out (the old late install points);
 * nothing of the game's own writable data is read or written and no game
   routine runs; every byte a companion writes was read (verified) first;
-* a missing companion never stops the others or the game.
+* a missing companion never stops the others or the game;
+* the Origins companion's quit hook (native/shared/crosscheck_bridge.h) is
+  in place too, in every build that ships it -- and nowhere else -- and its
+  stub, run inside the shipped DLL as the game's shutdown reaches it, hands
+  the game back every register, the stack and the flags its next jump
+  reads, having run the five instructions it displaced.
 """
 from __future__ import annotations
 
@@ -59,6 +64,19 @@ STOCK_DIR = ROOT / "research" / "stock-executables"
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
 MODES = ("stock", "collection_progression", "immediate_fixed")
 POPULATION_256 = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
+
+
+# The quit hook's site in each game's application shutdown, the bytes it
+# displaces, and the save manager's current-slot field (crosscheck_bridge.h
+# VVFP_XC_QUIT / VVFP_XC_SLOT_FIELD; tests/test_repair_at_quit.py proves them
+# from the stock executables).
+QUIT_SITES = {
+    "vv1": (0x41B25B, "8B4E0C85C9", 0xABE4),
+    "vv2": (0x423C5B, "8B4E0C85C9", 0x30378),
+    "vv3": (0x427331, "8B4E083BCF", 0x12F24),
+    "vv4": (0x41E4F1, "8B4E083BCF", 0x17114),
+    "vv5": (0x4239A1, "8B4E083BCF", 0x17D80),
+}
 
 
 @lru_cache(maxsize=None)
@@ -213,11 +231,66 @@ class StartupLoaderPlacement(unittest.TestCase):
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
                 self.assertEqual(bin(mask).count("1"), len(shipped) - 1)    # all but the loader
-                block = vfp._startup_loader_block(va, int(game[2]), mask, slots[b"GetModuleFileNameA"],
+                # Check logs automatically is on by default: bit 31 rides with the companion bits.
+                block = vfp._startup_loader_block(va, int(game[2]), mask | vfp.STARTUP_LOADER_CHECK_LOGS,
+                                                  slots[b"GetModuleFileNameA"],
                                                   slots[b"LoadLibraryA"], slots[b"GetProcAddress"], winmain)
                 self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
                 self.assertEqual(pe.get_data(call_va - 0x400000, 5),
                                  b"\xE8" + struct.pack("<i", va + vfp.STARTUP_LOADER_CODE_OFFSET - (call_va + 5)))
+
+    def test_the_check_logs_setting_is_bit_31_and_on_by_default(self):
+        self.assertEqual(vfp.STARTUP_LOADER_CHECK_LOGS, 0x80000000)
+        header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
+        self.assertIn("#define VVFP_STARTUP_CHECK_LOGS 0x80000000u", header)
+        selection = tuple(i for i in public_ids("vv2") if i not in POPULATION_256)
+        build = build_of("vv2")
+        features = vfp._attach_automatic_companions("vv2", vfp._selected_fun_patches(build, list(selection)))
+        mask = vfp._startup_loader_mask("vv2", features)
+        self.assertEqual(mask & vfp.STARTUP_LOADER_CHECK_LOGS, 0)
+        for setting in (False, True):
+            with self.subTest(check_logs=setting):
+                data, applied = vfp.render_patched_bytes(stock_path("vv2"), build, "collection_progression",
+                                                         list(selection))
+                vfp._finalize_published_bytes(data, build, features, applied, check_logs_automatically=setting)
+                pe = pefile.PE(data=bytes(data))
+                section = pe.sections[-1]
+                va = 0x400000 + section.VirtualAddress
+                slots = {i.name: i.address for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
+                block = vfp._startup_loader_block(
+                    va, 2, mask | (vfp.STARTUP_LOADER_CHECK_LOGS if setting else 0),
+                    slots[b"GetModuleFileNameA"], slots[b"LoadLibraryA"], slots[b"GetProcAddress"],
+                    vfp.STARTUP_LOADER_WINMAIN_CALL["vv2"][1])
+                self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
+                pushed = b"\x68" + struct.pack("<I", mask | (vfp.STARTUP_LOADER_CHECK_LOGS if setting else 0))
+                self.assertIn(pushed, block)
+                record = next(r for r in applied if r.get("owner") == "automatic:startup_loader" and r.get("virtual_address"))
+                self.assertTrue(record["purpose"].endswith(
+                    "; Check logs automatically: " + ("on" if setting else "off")))
+        # Not asked either way: a published build carries bit 31 (on by default).
+        data, applied = vfp.render_patched_bytes(stock_path("vv2"), build, "collection_progression",
+                                                 list(selection))
+        vfp._finalize_published_bytes(data, build, features, applied)
+        self.assertIn(b"\x68" + struct.pack("<I", mask | vfp.STARTUP_LOADER_CHECK_LOGS), bytes(data))
+        # The public entry points carry it, on unless turned off.
+        import inspect
+        for function in (vfp.dry_run, vfp.dry_run_all, vfp.apply_patch, vfp.apply_all,
+                         vfp._finalize_published_bytes, vfp._apply_startup_loader):
+            parameter = inspect.signature(function).parameters["check_logs_automatically"]
+            self.assertIs(parameter.default, True)
+        for function in (vfp.dry_run, vfp.dry_run_all, vfp.apply_patch, vfp.apply_all):
+            parameter = inspect.signature(function).parameters["check_logs_automatically"]
+            self.assertEqual(parameter.kind, inspect.Parameter.KEYWORD_ONLY)
+        parser = vfp._parser()
+        for command in ("dry-run", "apply", "dry-run-all", "apply-all"):
+            base = ([command, "x.exe"] if command in ("dry-run", "apply")
+                    else [command] + [arg for game in GAMES for arg in (f"--{game}", "x")])
+            args = parser.parse_args(base)
+            self.assertIs(args.check_logs_automatically, True)
+            args = parser.parse_args(base + ["--check-logs-automatically"])
+            self.assertIs(args.check_logs_automatically, True)
+            args = parser.parse_args(base + ["--no-check-logs-automatically"])
+            self.assertIs(args.check_logs_automatically, False)
 
     def test_every_companion_dll_is_one_the_loader_knows(self):
         source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
@@ -237,7 +310,7 @@ class StartupLoaderPlacement(unittest.TestCase):
         origins = source[source.index("ORIGINS[VVFP_STARTUP_GAMES + 1] = {"):]
         origins = re.findall(r'"([^"]+)"', origins[:origins.index("};")])
         self.assertEqual(origins, [vfp.STARTUP_LOADER_ORIGINS[g] for g in GAMES])
-        self.assertLess(len(vfp.STARTUP_LOADER_COMPANIONS), 31)
+        self.assertLess(len(vfp.STARTUP_LOADER_COMPANIONS), 31)   # bits 1-30; bit 31 is the setting
 
     def test_every_origins_companion_exports_vvfpstartup(self):
         for game in GAMES:
@@ -280,6 +353,20 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
         audit["game_code_run"] = [a for a in audit["game_code_run"] if a[1] != f"{call_va:#x}"]
         for key in ("game_data", "game_code_run", "unverified_writes", "writable_data"):
             self.assertEqual(audit[key], [], f"{key}: {audit[key][:5]}")
+        # The quit hook: in place with the Origins companion, never without.
+        site, stock, slot_field = QUIT_SITES[game]
+        if vfp.STARTUP_LOADER_ORIGINS[game] not in shipped:
+            self.assertEqual(machine.code(site, 5), bytes.fromhex(stock), "no Origins companion: no quit hook")
+            return
+        self.assertEqual(machine.code(site, 1), b"\xE9", "the quit hook is in place when WinMain is entered")
+        quit_run = machine.run_quit_hook(site, slot_field, 3)
+        self.assertEqual(quit_run["eip"], site + 5)
+        self.assertEqual(quit_run["esp_after"], quit_run["esp_before"])
+        expected = dict(quit_run["registers_before"])
+        from unicorn.x86_const import UC_X86_REG_ECX
+        expected[UC_X86_REG_ECX] = 0x0BAD000C if game in ("vv1", "vv2") else 0x0BAD0008
+        self.assertEqual(quit_run["registers_after"], expected)
+        self.assertEqual(quit_run["zf"], 0, "the flags are the displaced test's / compare's own")
 
     def test_every_build_and_selection(self):
         for game in GAMES:
@@ -379,7 +466,12 @@ class OnlyThisBuildsCompanions(unittest.TestCase):
                 stale = {n: s for n, s in STALE.items()}
                 machine, shipped = self.run_with_stale(game, selection, stale)
                 self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
-                self.assertNotIn("VirtualProtect", [c[0] for c in machine.calls])
+                # The only code written is the Origins companion's own quit
+                # hook: its five bytes (made writable, then restored) and its stub's page.
+                pages = [c[1] for c in machine.calls if c[0] == "VirtualAlloc"]
+                protected = [c[1] for c in machine.calls if c[0] == "VirtualProtect"]
+                self.assertEqual(len(pages), 1)
+                self.assertEqual(sorted(protected), sorted([QUIT_SITES[game][0], QUIT_SITES[game][0], 0x60000000]))
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
