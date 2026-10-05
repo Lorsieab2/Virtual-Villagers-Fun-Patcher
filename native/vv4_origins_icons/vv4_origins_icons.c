@@ -1072,7 +1072,7 @@ static void vvfp_fix_huts_bridge(void) {
         return;
     }
     lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1107,6 +1107,23 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
         sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL
     };
     return &host;
+}
+
+/* GAME START.  "VVFP Startup.dll" calls this from the executable's call of
+   WinMain -- the game's own thread, outside the loader lock, before the
+   game has a window, a village or a save slot -- so the runtime companions
+   are loaded and their detours written before the title screen, the slot
+   menu and the first load-time catch-up.  Only loads and installs: nothing
+   here reads or writes the game's data or calls a game routine.  The ticks
+   stay on Vv4MaskCacheSurface; every bridge is install-once.  `game` is the
+   executable's own number (4); `shipped` is
+   this build's companion bits (native/shared/startup_companions.h). */
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    (void)game;
+    vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
+    VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
+    VVFP_STARTUP_GUARDED(vvfp_story_startup(4));
+    VVFP_STARTUP_GUARDED(vvfp_cause_install_once(4));
 }
 
 void __stdcall Vv4MaskCacheSurface(void *surface) {

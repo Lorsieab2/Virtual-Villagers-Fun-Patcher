@@ -376,7 +376,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Elders reconcile.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "3FA6A0EBC83957116C83C5079C25473428CDC616DDFE5AE1DAEB4F45EA3FAFD0",
+            "3A94675966CB8649A3A98224DD342A8F06B4588F93A9442B00467A3734463BA7",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

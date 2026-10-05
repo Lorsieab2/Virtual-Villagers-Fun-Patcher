@@ -149,8 +149,9 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         # Warp's speed-aware prompt, paused refusal, charge and advance.
         # It is exported through the .def alias only -- adding
         # __declspec(dllexport) as well would publish the decorated
-        # _ShowVV3TimeWarp@4 beside it and make this 34.
-        self.assertEqual(len(exports), 33)
+        # _ShowVV3TimeWarp@4 beside it. 34 since VvfpStartup, which
+        # "VVFP Startup.dll" calls at game start (also through the .def).
+        self.assertEqual(len(exports), 34)
 
     def test_deployed_companion_carries_every_complete_result_message(self) -> None:
         """Every COMPLETE refusal message in the C source must be in the DLL.

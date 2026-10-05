@@ -741,10 +741,12 @@ static int install(int game) {
     return 1;
 }
 
-/* Called by the Origins companion of `game` (1-5) from its own per-frame or
-   menu path, outside DllMain.  Idempotent.  Returns whether the free prices
-   and the Pick Island Event detour are in place. */
-__declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
+/* The install alone, once: every site verified, then written; nothing
+   else.  Called at game start by the Origins companion's VvfpStartup (from
+   "VVFP Startup.dll", at the executable's call of WinMain), before any
+   village exists, so the detours are in place for the first load-time
+   catch-up.  Idempotent.  Returns whether they are in place. */
+__declspec(dllexport) int __stdcall VvfpStoryArm(int game) {
     if (game < 1 || game > 5) {
         return 0;
     }
@@ -755,18 +757,27 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
             vv2_install_page_roll();
         }
     }
-    if (install_state[game] == 1) {
-        /* The Origins companion calls this from its per-frame path: the
-           custom titles' tick (bind to the save slot, notice a Start Over,
-           forget the titles of villagers who are gone). */
-        static DWORD last_tick;
-        DWORD now = GetTickCount();
-        if (now - last_tick >= TICK_MS) {
-            last_tick = now;
-            titles_tick(game);
-        }
-    }
     return install_state[game] == 1;
+}
+
+/* Called by the Origins companion of `game` (1-5) from its own per-frame or
+   menu path, outside DllMain: the install (when game start has not made it)
+   and the custom titles' tick.  Returns whether the free prices and the
+   Pick Island Event detour are in place. */
+__declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
+    static DWORD last_tick;
+    DWORD now;
+    if (!VvfpStoryArm(game)) {
+        return 0;
+    }
+    /* The custom titles' tick: bind to the save slot, notice a Start Over,
+       forget the titles of villagers who are gone. */
+    now = GetTickCount();
+    if (now - last_tick >= TICK_MS) {
+        last_tick = now;
+        titles_tick(game);
+    }
+    return 1;
 }
 
 /* Whether this game's Origins upgrades are free right now: the Origins

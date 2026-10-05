@@ -125,7 +125,7 @@ static FARPROC vvfp_xc_load(const char *module, const char *name) {
         if (GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES) {
             return NULL;
         }
-        m = LoadLibraryA(path);
+        m = vvfp_startup_ships(module) ? LoadLibraryA(path) : NULL;
     }
     return m != NULL ? GetProcAddress(m, name) : NULL;
 }

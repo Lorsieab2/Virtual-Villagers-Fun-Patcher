@@ -814,10 +814,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "10094D499DFF4CF2EB626ED309D74B9BCBA2B181DF1BEC2865616CAE0DC9F3CC",
-    "map": "4B89690279F8B81E3CC2ED5B607CF4450994DC2813DD8B83E6AEEA56ACDB8BF3",
+    "manifest": "88423D30DAE5636E5DF9A637775254AA409AC45D521C52DA29FE42643694EB01",
+    "map": "B3FD1C53F82687984B4770112C7675D0B2639F77DE41E27E42219B50E55DA191",
 }
-VV5_TASK9_DLL_SHA256 = "299F698AC67CCAA3D6051FE6CF5C1468112B9B7955717FAD91BEC77D91CA7CE1"
+VV5_TASK9_DLL_SHA256 = "D17ABA6AD1F242CA6CAB0BF25CC2DBA0320F43B52859871E09389D3F6CF29229"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -1840,7 +1840,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "166C465ACE0BC0F6D5C0240C54B1D8AD4345B17B5399AFB4ABD961C2167BA352",
+    "builder": "A0F7C2E2B531CFF3E06C210CA82ECA76E25EBA480DA8D8BF4FAAF2C7677AE064",
     "task9_builder": "677F67840915CEA93BBEB33F18DD6623EE66B43E100FA6D3FFE89EBAA3D80544",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -1853,8 +1853,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "45D014D3C9849888B129BF1BAE27205978D1D2E05C8EDC90D2666F045E06A0CE",
-        "map": "1E9C8DCE4FD70963A511BC7021966CFADB5DA0B6D037F5B3354AC7A356E85CF9",
+        "manifest": "F39CB2E2AD937DB7CFA9F653F98AD9CDCFEE9624EB9F01A0A0E0761028A4B38A",
+        "map": "C193F6465BB4E92E62CD50166CA41255792F54C0FAF7766332FFE6447178C477",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3276,7 +3276,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1789440,
+        "size": 1790464,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3634,7 +3634,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1789440,
+        "size": 1790464,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -9113,7 +9113,7 @@ def render_patched_bytes(
         )
     # On the FINAL list, so a feature added above that writes the hook itself
     # is seen and the reset is never carried twice.
-    fun_patches = _attach_start_over_reset(build.id, fun_patches)
+    fun_patches = _attach_automatic_companions(build.id, fun_patches)
     selected_fun_ids = {patch.id for patch in fun_patches}
     for feature in fun_patches:
         if feature.id in EXPANDED_TIME_WARP_IDS.values():
@@ -10032,8 +10032,8 @@ def dry_run(
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         playtest_output_root=playtest_output_root,
     )
-    if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
-        _require_name_crash_immunity(patched, build.input_name, applied)
+    fun_patches = _attach_automatic_companions(build.id, fun_patches)
+    _finalize_published_bytes(patched, build, fun_patches, applied)
     return _result(
         build,
         source,
@@ -10063,8 +10063,8 @@ def dry_run_all(
         ]
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
-        if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
-            _require_name_crash_immunity(patched, build.input_name, applied)
+        fun_patches = _attach_automatic_companions(build.id, fun_patches)
+        _finalize_published_bytes(patched, build, fun_patches, applied)
         results.append(
             _result(
                 build,
@@ -10273,6 +10273,72 @@ def _copy_companion_files(
     return copied
 
 
+def _remove_unselected_companions(
+    staging_folder: Path, build: Build, fun_patches: list[FunPatch]
+) -> list[dict[str, str]]:
+    """Delete, from the staged copy of the game folder, every file the patcher
+    ships for THIS game that the selection does not ship.
+
+    The output starts as a copy of the chosen game folder, so a patcher
+    companion already in it (a folder that was patched before, or had a
+    Modded folder's files copied in) would otherwise stay -- and a companion
+    switches its feature on merely by being present: the Origins companion's
+    bridges load any Fix Huts, Story, Cause of Death, Pathfinding... DLL they
+    find beside the executable, which made an unticked patch keep running
+    (Codex, #537). This predates the startup loader; the loader's own
+    allowlist (STARTUP_LOADER_COMPANIONS) and the Origins bridges' check of it
+    stop the loading, and this removes the files.
+
+    Only the patcher's own files are touched, matched by the exact
+    destinations of this game's catalog records and the startup loader:
+    a companion DLL (every one is named "VVFP ...") by its name, and any other
+    file the patcher adds as a NEW file (no preimage: never a replacement of
+    a game file) only when it is byte for byte the file the patcher ships.
+    Nothing else in the folder changes. Returns what was removed, for the
+    patch log.
+    """
+    selected = {
+        _safe_companion_destination(item["destination"]).as_posix().casefold()
+        for feature in fun_patches
+        for item in feature.raw.get("companion_files", [])
+    }
+    candidates: dict[str, dict[str, Any]] = {}
+    for feature in _load_fun_patch_records():
+        if feature.raw.get("game_id") != build.id:
+            continue
+        for item in feature.raw.get("companion_files", []):
+            try:
+                destination = _safe_companion_destination(item.get("destination"))
+            except PatcherError:
+                continue
+            candidates.setdefault(destination.as_posix().casefold(), item)
+    candidates.setdefault(STARTUP_LOADER_DLL.casefold(), STARTUP_LOADER_COMPANION)
+    removed: list[dict[str, str]] = []
+    for key, item in sorted(candidates.items()):
+        if key in selected:
+            continue
+        destination = _safe_companion_destination(item["destination"])
+        path = staging_folder / destination
+        if not path.is_file():
+            continue
+        digest = sha256(path)
+        name = destination.name
+        is_companion_dll = name.casefold().endswith(".dll") and name.startswith("VVFP ")
+        is_own_new_file = (
+            not item.get("preimage_sha256")
+            and digest == str(item.get("sha256", "")).upper()
+        )
+        if not (is_companion_dll or is_own_new_file):
+            continue
+        path.unlink()
+        removed.append({
+            "path": destination.as_posix(),
+            "sha256": digest,
+            "reason": "a patcher file for a patch this build does not include",
+        })
+    return removed
+
+
 def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]:
     """Casefolded relative paths of every companion the patcher may install.
 
@@ -10287,7 +10353,8 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
     and the Expanded modes they belong to are no longer public. Anything such
     a build installed is still named in its own patch log.
     """
-    owned: set[str] = set()
+    # The game-start loader is added by the patcher itself, not by a record.
+    owned: set[str] = {STARTUP_LOADER_DLL.casefold()}
     for feature in _load_fun_patch_records():
         if feature.raw.get("game_id") != build.id:
             continue
@@ -11726,6 +11793,423 @@ def _require_name_crash_immunity(
     )
 
 
+
+# EVERY COMPANION STARTS WHEN THE GAME OPENS.
+#
+# The owner: "All patcher add-ons must start as soon as the game is opened,
+# as early as possible." The games catch up the time that passed while they
+# were closed when a village loads (and after a Time Warp): births, deaths,
+# burials, disappearances and island events happen in one batch before the
+# village is first drawn. A companion installed later than that -- The
+# Secret City installed Cause of Death and Story / Cheat Upgrades only when a
+# villager was first drawn -- never saw those events live.
+#
+# So every build that ships a companion DLL also ships "VVFP Startup.dll" and
+# gets one small appended section, ".vvfpst", whose stub replaces the C
+# runtime's own `call WinMain`: it builds the full path of VVFP Startup.dll in
+# the executable's own folder (GetModuleFileNameA, never the search order),
+# loads it, calls VvfpStartup(game), and enters WinMain with every register
+# and the stack as the C runtime left them. That is the game's own thread,
+# outside the loader lock (DllMain is never used), before the window, the
+# title screen, the slot menu and any load. VvfpStartup loads every shipped
+# companion by full path and arms it (native/vvfp_startup/vvfp_startup.c);
+# a missing or failing companion is skipped, and the game always starts.
+#
+# The section is added AFTER rendering, like the executable-name crash
+# guard, by reading the final image's own headers, so it composes with every
+# feature, population mode and appended page without claiming any cave, and
+# it never changes a certified render identity. The call site is checked to
+# be the stock `call WinMain` first.
+STARTUP_LOADER_DLL = "VVFP Startup.dll"
+STARTUP_LOADER_COMPANION = {
+    "source": "assets/startup/VVFP Startup.dll",
+    "destination": STARTUP_LOADER_DLL,
+    "sha256": "28EE6DF7D4BFCA1C5BF55DDE0025B3578CD37E6D1CA192F7589C1AD4A0FE1CB2",
+}
+STARTUP_LOADER_EXPORT = "VvfpStartup"
+# The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
+# game's Origins companion, then these in order (native/vvfp_startup/
+# vvfp_startup.c: COMPANIONS, then GOLDEN_MUSHROOM). The stub passes the
+# bits of the DLLs THIS build ships, so a patcher DLL left in the folder by
+# another build (or copied with the game folder) is never loaded.
+STARTUP_LOADER_ORIGINS = {
+    "vv1": "VVFP VV1 Origins Icons.dll",
+    "vv2": "VVFP VV2 Origins Icons.dll",
+    "vv3": "VVFP Origins Icons.dll",
+    "vv4": "VVFP VV4 Origins Icons.dll",
+    "vv5": "VVFP Origins Icons.dll",
+}
+# APPEND ONLY: the bit order is a contract with VVFP Startup.dll and the
+# Origins companions (native/shared/startup_companions.h); never reorder,
+# rename or remove an entry.
+STARTUP_LOADER_COMPANIONS = (
+    "VVFP Parentage Export.dll",
+    "VVFP Statistics Export.dll",
+    "VVFP Population Export.dll",
+    "VVFP Save Reset.dll",
+    "VVFP Fix Huts.dll",
+    "VVFP Work First.dll",
+    "VVFP Lesson Cap.dll",
+    "VVFP Healers Study.dll",
+    "VVFP Improved Pathfinding.dll",
+    "VVFP Story Upgrades.dll",
+    "VVFP Cause of Death.dll",
+    "VVFP VV1 Parentage.dll",
+    "VVFP VV1 Number Keys.dll",
+    "VVFP VV1 Sort By.dll",
+    "VVFP VV1 Watering Builds.dll",
+    "VVFP Golden Mushroom.dll",
+)
+
+
+def _startup_loader_mask(build_id: str, fun_patches: list[FunPatch]) -> int:
+    """The bits of the companion DLLs this selection ships (see above)."""
+    shipped = {
+        str(item.get("destination", "")).casefold()
+        for feature in fun_patches
+        for item in feature.raw.get("companion_files", [])
+    }
+    mask = 1 if STARTUP_LOADER_ORIGINS[build_id].casefold() in shipped else 0
+    for index, name in enumerate(STARTUP_LOADER_COMPANIONS):
+        if name.casefold() in shipped:
+            mask |= 1 << (index + 1)
+    return mask
+STARTUP_LOADER_SECTION = b".vvfpst"
+# The C runtime's `call WinMain` (VA) and WinMain itself, per game: the
+# WinMainCRTStartup of each executable, right after GetStartupInfoA and the
+# command-line scan (`push nShowCmd; push lpCmdLine; push 0; push hInstance;
+# call WinMain`).
+STARTUP_LOADER_WINMAIN_CALL = {
+    "vv1": (0x44C44B, 0x4127F0),
+    "vv2": (0x4694CB, 0x4131F0),
+    "vv3": (0x47079B, 0x4262F0),
+    "vv4": (0x474993, 0x4208D0),
+    "vv5": (0x47FA33, 0x426520),
+}
+STARTUP_LOADER_NAME_OFFSET = 0x00
+STARTUP_LOADER_EXPORT_OFFSET = 0x14
+STARTUP_LOADER_CODE_OFFSET = 0x20
+STARTUP_LOADER_PATH_BYTES = 0x104
+
+
+def _ships_companion_dll(fun_patches: list[FunPatch]) -> bool:
+    """Whether the selection ships any companion DLL other than the loader."""
+    return any(
+        str(item.get("destination", "")).lower().endswith(".dll")
+        and item.get("destination") != STARTUP_LOADER_DLL
+        for feature in fun_patches
+        for item in feature.raw.get("companion_files", [])
+    )
+
+
+def _attach_startup_loader(
+    build_id: str, fun_patches: list[FunPatch]
+) -> list[FunPatch]:
+    """Ship VVFP Startup.dll with the first feature that ships a companion DLL.
+
+    Nothing changes when no companion DLL is selected or when the loader is
+    already attached, so a second call is a no-op. The carrier is a copy
+    marked `_startup_loader_carrier`; no catalog record changes.
+    """
+    fun_patches = list(fun_patches)
+    if build_id not in STARTUP_LOADER_WINMAIN_CALL or not _ships_companion_dll(fun_patches):
+        return fun_patches
+    if any(
+        item.get("destination") == STARTUP_LOADER_DLL
+        for feature in fun_patches
+        for item in feature.raw.get("companion_files", [])
+    ):
+        return fun_patches
+    carrier = next(
+        feature
+        for feature in fun_patches
+        if any(
+            str(item.get("destination", "")).lower().endswith(".dll")
+            for item in feature.raw.get("companion_files", [])
+        )
+    )
+    raw = dict(carrier.raw)
+    raw["companion_files"] = [*raw.get("companion_files", []), dict(STARTUP_LOADER_COMPANION)]
+    raw["_startup_loader_carrier"] = True
+    return [Record(raw) if feature is carrier else feature for feature in fun_patches]
+
+
+def _attach_automatic_companions(
+    build_id: str, fun_patches: list[FunPatch]
+) -> list[FunPatch]:
+    """The companions the patcher adds on its own: the Start Over reset
+    (with its hooks) and the game-start loader."""
+    return _attach_startup_loader(
+        build_id, _attach_start_over_reset(build_id, fun_patches)
+    )
+
+
+def _startup_loader_block(
+    block_va: int,
+    game_number: int,
+    shipped_mask: int,
+    get_module_file_name_iat: int,
+    load_library_iat: int,
+    get_proc_address_iat: int,
+    winmain_va: int,
+) -> bytes:
+    """The .vvfpst payload: the two names, then the stub.
+
+    Entered by `call` in place of `call WinMain`:
+
+        pushad; sub esp, 0x104; mov esi, esp
+        GetModuleFileNameA(NULL, esi, 0x104); failed or truncated -> done
+        edi = the last backslash + 1 (none -> done)
+        the folder and the name do not fit in 0x104 bytes -> done
+        copy "VVFP Startup.dll\\0" there
+        LoadLibraryA(esi) -> GetProcAddress(., "VvfpStartup")
+          -> call (game, the bits of the companions this build ships)
+      done:
+        add esp, 0x104; popad; jmp WinMain
+
+    Every failure goes to `done`, so WinMain always runs, with the stack and
+    registers exactly as the C runtime's call left them.
+    """
+    def u32(value: int) -> bytes:
+        return struct.pack("<I", value & 0xFFFFFFFF)
+
+    name = STARTUP_LOADER_DLL.encode("ascii") + b"\0"
+    export = STARTUP_LOADER_EXPORT.encode("ascii") + b"\0"
+    code = bytearray()
+    fixups: list[tuple[int, str]] = []
+    labels: dict[str, int] = {}
+
+    def short(opcode: bytes, label: str) -> None:
+        code.extend(opcode)
+        fixups.append((len(code), label))
+        code.append(0)
+
+    code += b"\x60"                                   # pushad
+    code += b"\x81\xEC" + u32(STARTUP_LOADER_PATH_BYTES)   # sub esp, 0x104
+    code += b"\x8B\xF4"                               # mov esi, esp
+    code += b"\x68" + u32(STARTUP_LOADER_PATH_BYTES)  # push 0x104
+    code += b"\x56"                                   # push esi
+    code += b"\x6A\x00"                               # push 0 (this executable)
+    code += b"\xFF\x15" + u32(get_module_file_name_iat)
+    code += b"\x85\xC0"                               # test eax, eax
+    short(b"\x74", "done")
+    code += b"\x3D" + u32(STARTUP_LOADER_PATH_BYTES)   # cmp eax, 0x104
+    short(b"\x73", "done")                            # jae: truncated
+    code += b"\x8D\x3C\x06"                           # lea edi, [esi+eax]
+    labels["scan"] = len(code)
+    code += b"\x4F"                                   # dec edi
+    code += b"\x3B\xFE"                               # cmp edi, esi
+    short(b"\x72", "done")                            # jb: no backslash
+    code += b"\x80\x3F\x5C"                           # cmp byte [edi], '\\'
+    short(b"\x75", "scan")
+    code += b"\x47"                                   # inc edi
+    code += b"\x8D\x47" + bytes([len(name)])         # lea eax, [edi+len]
+    code += b"\x2B\xC6"                               # sub eax, esi
+    code += b"\x3D" + u32(STARTUP_LOADER_PATH_BYTES)   # cmp eax, 0x104
+    short(b"\x77", "done")                            # ja: the folder is too long
+    code += b"\x56"                                   # push esi
+    code += b"\xBE" + u32(block_va + STARTUP_LOADER_NAME_OFFSET)   # mov esi, name
+    code += b"\xB9" + u32(len(name))                  # mov ecx, len
+    code += b"\xF3\xA4"                               # rep movsb
+    code += b"\x5E"                                   # pop esi
+    code += b"\x56"                                   # push esi (the full path)
+    code += b"\xFF\x15" + u32(load_library_iat)
+    code += b"\x85\xC0"
+    short(b"\x74", "done")
+    code += b"\x68" + u32(block_va + STARTUP_LOADER_EXPORT_OFFSET)  # push "VvfpStartup"
+    code += b"\x50"                                   # push module
+    code += b"\xFF\x15" + u32(get_proc_address_iat)
+    code += b"\x85\xC0"
+    short(b"\x74", "done")
+    code += b"\x68" + u32(shipped_mask)              # push shipped
+    code += b"\x6A" + bytes([game_number])            # push game
+    code += b"\xFF\xD0"                               # call eax (stdcall)
+    labels["done"] = len(code)
+    code += b"\x81\xC4" + u32(STARTUP_LOADER_PATH_BYTES)   # add esp, 0x104
+    code += b"\x61"                                   # popad
+    code += b"\xE9"
+    jump_end = block_va + STARTUP_LOADER_CODE_OFFSET + len(code) + 4
+    code += u32(winmain_va - jump_end)
+    for at, label in fixups:
+        delta = labels[label] - (at + 1)
+        if not -128 <= delta <= 127:
+            raise PatcherError("Internal error: the startup loader's jump is out of range.")
+        code[at] = delta & 0xFF
+    head = bytearray(STARTUP_LOADER_CODE_OFFSET)
+    head[STARTUP_LOADER_NAME_OFFSET : STARTUP_LOADER_NAME_OFFSET + len(name)] = name
+    head[STARTUP_LOADER_EXPORT_OFFSET : STARTUP_LOADER_EXPORT_OFFSET + len(export)] = export
+    if len(name) > STARTUP_LOADER_EXPORT_OFFSET or STARTUP_LOADER_EXPORT_OFFSET + len(export) > STARTUP_LOADER_CODE_OFFSET:
+        raise PatcherError("Internal error: the startup loader's names do not fit.")
+    return bytes(head + code)
+
+
+def _import_slot(data: bytes, info: dict[str, Any], dll: bytes, function: bytes) -> int | None:
+    """The IAT slot VA of `dll`!`function` by name, from the image's own
+    import directory; None when it is not imported."""
+    base = info["image_base"]
+    rva = info["dirs"][1][0] if len(info["dirs"]) > 1 else 0
+    if not rva:
+        return None
+    at = _nci_rva_to_off(info, rva)
+    while at is not None and at + 20 <= len(data):
+        original, _, _, name_rva, first = struct.unpack_from("<IIIII", data, at)
+        if not name_rva and not first:
+            return None
+        name_at = _nci_rva_to_off(info, name_rva)
+        if name_at is not None and data[name_at : data.index(b"\0", name_at)].lower() == dll.lower():
+            lookup = _nci_rva_to_off(info, original or first)
+            index = 0
+            while lookup is not None:
+                thunk = struct.unpack_from("<I", data, lookup + 4 * index)[0]
+                if thunk == 0:
+                    break
+                if not thunk & 0x80000000:
+                    hint = _nci_rva_to_off(info, thunk)
+                    if hint is not None and data[hint + 2 : data.index(b"\0", hint + 2)] == function:
+                        return base + first + 4 * index
+                index += 1
+        at += 20
+    return None
+
+
+def _apply_startup_loader(
+    data: bytearray,
+    build_id: str,
+    fun_patches: list[FunPatch],
+    applied: list[dict[str, str]] | None = None,
+) -> dict[str, Any] | None:
+    """Append .vvfpst and route the C runtime's `call WinMain` through it.
+
+    Only when the selection ships a companion DLL (otherwise None and nothing
+    changes). In place; recomputes the PE checksum. Raises when the build
+    needs the loader and it cannot be added, so no build ships companions
+    that would start late.
+    """
+    if build_id not in STARTUP_LOADER_WINMAIN_CALL or not _ships_companion_dll(fun_patches):
+        return None
+    call_va, winmain_va = STARTUP_LOADER_WINMAIN_CALL[build_id]
+    try:
+        info = _nci_pe_info(bytes(data))
+    except ValueError as exc:
+        raise PatcherError(f"Startup loader: {exc}.") from exc
+    base = info["image_base"]
+    call_off = _nci_rva_to_off(info, call_va - base)
+    stock_call = b"\xE8" + struct.pack("<i", winmain_va - (call_va + 5))
+    if call_off is None or bytes(data[call_off : call_off + 5]) != stock_call:
+        raise PatcherError(
+            f"Startup loader: 0x{call_va:X} is not the stock call of WinMain in this "
+            f"{build_id.upper()} build."
+        )
+    slots = {
+        name: _import_slot(bytes(data), info, b"kernel32.dll", name)
+        for name in (b"GetModuleFileNameA", b"LoadLibraryA", b"GetProcAddress")
+    }
+    if any(slot is None for slot in slots.values()):
+        raise PatcherError("Startup loader: a kernel32 import it needs is missing.")
+    pe = struct.unpack_from("<I", data, 0x3C)[0]
+    count = struct.unpack_from("<H", data, pe + 6)[0]
+    optional = pe + 24
+    optional_size = struct.unpack_from("<H", data, pe + 20)[0]
+    section_alignment, file_alignment = struct.unpack_from("<II", data, optional + 32)
+    size_of_headers = struct.unpack_from("<I", data, optional + 60)[0]
+    table = optional + optional_size
+    entry = table + 40 * count
+    sections = info["sections"]
+    first_raw = min(s["raw"] for s in sections if s["rsize"])
+    if any(s["name"] == STARTUP_LOADER_SECTION for s in sections):
+        raise PatcherError("Startup loader: the build already has a .vvfpst section.")
+    if entry + 40 > min(size_of_headers, first_raw) or any(data[entry : entry + 40]):
+        raise PatcherError("Startup loader: no free section header slot.")
+    file_end = max(s["raw"] + s["rsize"] for s in sections)
+    if len(data) != file_end:
+        raise PatcherError("Startup loader: the image has data after its last section.")
+    align = lambda value, unit: (value + unit - 1) // unit * unit  # noqa: E731
+    section_rva = align(
+        max(s["vaddr"] + max(s["vsize"], 1) for s in sections), section_alignment
+    )
+    raw_pointer = align(len(data), file_alignment)
+    block = _startup_loader_block(
+        base + section_rva,
+        int(build_id.removeprefix("vv")),
+        _startup_loader_mask(build_id, fun_patches),
+        slots[b"GetModuleFileNameA"],
+        slots[b"LoadLibraryA"],
+        slots[b"GetProcAddress"],
+        winmain_va,
+    )
+    raw_size = align(len(block), file_alignment)
+    payload = bytes(raw_pointer - len(data)) + block + bytes(raw_size - len(block))
+    header = (
+        STARTUP_LOADER_SECTION.ljust(8, b"\0")
+        + struct.pack(
+            "<IIIIIIHHI",
+            len(block), section_rva, raw_size, raw_pointer, 0, 0, 0, 0,
+            0x60000020,                # code, execute, read: never writable
+        )
+    )
+    size_of_image = align(section_rva + len(block), section_alignment)
+    hook = b"\xE8" + struct.pack(
+        "<i", base + section_rva + STARTUP_LOADER_CODE_OFFSET - (call_va + 5)
+    )
+    writes = [
+        (pe + 6, struct.pack("<H", count + 1), "NumberOfSections: add .vvfpst"),
+        (optional + 56, struct.pack("<I", size_of_image), "SizeOfImage through .vvfpst"),
+        (entry, header, "the .vvfpst section header (R-X)"),
+        (call_off, hook, "route the C runtime's call of WinMain through the startup loader"),
+    ]
+    records: list[dict[str, str]] = []
+    for offset, after, purpose in writes:
+        before = bytes(data[offset : offset + len(after)])
+        data[offset : offset + len(after)] = after
+        records.append({
+            "offset": f"0x{offset:X}",
+            "before": before.hex().upper(),
+            "after": after.hex().upper(),
+            "purpose": purpose,
+            "owner": "automatic:startup_loader",
+        })
+    append_at = len(data)
+    data.extend(payload)
+    records.append({
+        "offset": f"0x{append_at:X}",
+        "before": "",
+        "after": payload.hex().upper(),
+        "purpose": (
+            "the startup loader: load VVFP Startup.dll by full path and call "
+            "VvfpStartup(game), then the game's own WinMain"
+        ),
+        "owner": "automatic:startup_loader",
+        "virtual_address": f"0x{base + section_rva:X}",
+    })
+    checksum_offset, _ = _pe_checksum_layout(data)
+    struct.pack_into("<I", data, checksum_offset, 0)
+    struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    if applied is not None:
+        applied.extend(records)
+    return {
+        "section_va": base + section_rva,
+        "stub_va": base + section_rva + STARTUP_LOADER_CODE_OFFSET,
+        "call_va": call_va,
+        "winmain_va": winmain_va,
+        "writes": records,
+    }
+
+
+def _finalize_published_bytes(
+    data: bytearray,
+    build: Build,
+    fun_patches: list[FunPatch],
+    applied: list[dict[str, str]],
+) -> None:
+    """What every published build gets after rendering: the executable-name
+    crash guard (VV1-VV3), then the game-start loader. The loader goes last,
+    so the guard never wraps its GetModuleFileNameA call (the loader needs
+    the real path) and finds its cave before the image grows."""
+    if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
+        _require_name_crash_immunity(data, build.input_name, applied)
+    _apply_startup_loader(data, build.id, fun_patches, applied)
+
+
 def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -11769,8 +12253,8 @@ def apply_patch(
             build, playtest_disabled_feature_ids, patch_mode
         )
     )
-    # The same carrier render_patched_bytes picks, so its companion ships.
-    fun_patches = _attach_start_over_reset(build.id, fun_patches)
+    # The same carriers render_patched_bytes picks, so their companions ship.
+    fun_patches = _attach_automatic_companions(build.id, fun_patches)
     if any(
         patch.id in EXPANDED_TIME_WARP_IDS.values()
         and patch.raw.get("playtest_only") is True
@@ -11806,8 +12290,11 @@ def apply_patch(
     # running -- see NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS. Exempting them also
     # restores base-game save-folder behaviour, because the games gate the
     # save folder on the same basename the wrapper rewrites.
-    if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
-        _require_name_crash_immunity(patched, build.input_name, applied)
+    #
+    # Then the game-start loader, for every build that ships a companion DLL
+    # (see STARTUP_LOADER_DLL): every companion is loaded and armed at the
+    # C runtime's call of WinMain, before any village loads.
+    _finalize_published_bytes(patched, build, fun_patches, applied)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
@@ -11824,6 +12311,9 @@ def apply_patch(
     recovery_dir: Path | None = None
     failed_publish: Path | None = None
     try:
+        removed_companions = _remove_unselected_companions(
+            staging_folder, build, fun_patches
+        )
         companions = _copy_companion_files(staging_folder, fun_patches)
         converted: list[dict[str, str]] = []
         for item in companions:
@@ -11844,6 +12334,7 @@ def apply_patch(
             build, source, staged_output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
+        log_data["removed_unselected_companions"] = removed_companions
         save_copy: dict[str, Any] | None = None
         if copy_saves:
             save_copy = copy_vanilla_saves(

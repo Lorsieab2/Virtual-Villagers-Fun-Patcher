@@ -60,6 +60,7 @@ REQUIRED_EXPORTS = {
     b"ShowVV5Task9Result",
     b"ShowVv5TimeWarp",
     b"Vv5InstallCompanions",
+    b"VvfpStartup",
 }
 
 DLL = "data/candidates/VVFP VV5 Task9 Origins Icons.dll"

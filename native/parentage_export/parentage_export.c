@@ -2199,9 +2199,12 @@ static int statistics_publisher_present(void) {
 }
 
 /* Whether "VVFP Cause of Death.dll" will name the village at each save (see
-   above). It says itself: 1 installed, 0 not installed yet (the Origins
-   companion installs it once a village is shown, after the load-time
-   catch-up, so records wait for it), -1 refused. A refusal is final.
+   above). It says itself: 1 installed, 0 not installed yet, -1 refused. A
+   refusal is final. "VVFP Startup.dll" installs it at game start, before
+   any village loads; 0 is seen only when that did not happen (the startup
+   loader's file is missing), and the Origins companion then installs it
+   once a village is shown, after the load-time catch-up, so records wait
+   for it.
 
    Asked before the companion has loaded it, this DLL loads it -- by full
    path from the executable's folder, as the companion does, never from
@@ -2263,8 +2266,9 @@ static int cause_of_death_publishes(int game_id) {
         cause_state = -1;
         return 0;
     }
-    /* Not installed yet: a save may come before the install (The Secret
-       City installs it only when a villager is first drawn), so its save
+    /* Not installed yet (no install at game start): a save may come before
+       the install (The Secret City's Origins companion installs it only
+       when a villager is first drawn), so its save
        hook is armed now, to name the village at that save (#512 review).
        A hook that cannot be armed can never name it: records go out now. */
     if (state == 0 && game_id >= GAME_VV1 && game_id <= GAME_VV5 && !arm_save(game_id)) {

@@ -1,6 +1,7 @@
 LIBRARY "VVFP Story Upgrades"
 EXPORTS
     VvfpStoryInstall=_VvfpStoryInstall@4
+    VvfpStoryArm=_VvfpStoryArm@4
     VvfpStoryActive=_VvfpStoryActive@4
     VvfpStoryPickIslandEvent=_VvfpStoryPickIslandEvent@8
     VvfpStoryPickPending=_VvfpStoryPickPending@4

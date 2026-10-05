@@ -220,10 +220,9 @@ def logs_text(n: str, game: str) -> str:
 CAVEATS = (
     "**The first save after this patch is installed only starts the check: nothing is reported "
     "about anything that happened before it.** "
-    "**The patch's DLL is loaded once a village is shown; anything that happens before that in a "
-    "session is not seen -- a villager buried then gets a Death record only from their grave, once "
-    "the player chooses Repair (until then the next save lists them in the Unaccounted Villagers "
-    "log), and a villager who died then has no cause unless the game itself keeps one.** "
+    "**The patch's DLL is loaded and its hooks installed as soon as the game is opened, before "
+    "any village is loaded, so the deaths, burials, disappearances and arrivals of the catch-up "
+    "on time away (and of a Time Warp) are recorded as they happen, like any others.** "
     "**The logs are written by Write Births and Conceptions Log to Text File's DLL: with that "
     "patch off, none of them is written.**"
 )

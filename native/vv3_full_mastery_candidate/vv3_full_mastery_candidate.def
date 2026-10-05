@@ -22,3 +22,4 @@ EXPORTS
     ; Pinned to ordinal 100 so the exe dispatch can resolve it BY ORDINAL
     ; (push 100) instead of the 24-byte name string, which overflowed the tiny
     ; .text string cave (VV2's ordinal-resolution tip).
+    VvfpStartup=_VvfpStartup@8
