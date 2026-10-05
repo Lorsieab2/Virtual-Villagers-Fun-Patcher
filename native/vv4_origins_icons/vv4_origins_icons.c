@@ -3,6 +3,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -780,6 +781,10 @@ static void vv_ensure_bighead_atlas(void) {
    the live stable identity, and return its mask (0 = none). */
 __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
+    /* The first-load cross-check, from the head-draw caves (world and
+       Details): only a village draws heads -- the present hook also runs at
+       the menus -- and this is the export those caves call. */
+    vvfp_crosscheck_bridge(4, villager != NULL);
     vv_prepare_mask_state();
     vv_ensure_mask_atlas();
     vv_ensure_bighead_atlas();

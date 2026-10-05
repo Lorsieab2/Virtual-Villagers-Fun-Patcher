@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/crosscheck_bridge.h" /* the first-load cross-check: one Repair / Not now prompt */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 static HINSTANCE module_instance;
@@ -1753,6 +1754,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
        Island Event delivered) without waiting for the Origins menu. */
     vvfp_story_bridge(3);
     vvfp_cause_bridge(3);  /* cause of death companion: once, fail-open */
+    vvfp_crosscheck_bridge(3, record != NULL);  /* the first-load cross-check: a villager is drawn */
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;

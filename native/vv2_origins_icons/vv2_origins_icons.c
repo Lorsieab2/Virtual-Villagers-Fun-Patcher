@@ -2026,6 +2026,7 @@ void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_healers_study_bridge(2); /* healers-study companion: once, fail-open */
     vvfp_story_bridge(2);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
+    vvfp_crosscheck_bridge(2, base != 0);  /* the first-load cross-check (A New Home's header, compiled in) */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }

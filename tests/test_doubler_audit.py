@@ -370,9 +370,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # 100, keep their ordinals.
         # Re-pinned when the mask file moved into "Village Masks" with the
         # loose copy moved in (native/shared/data_subfolder.h).
+        # Re-pinned when its village frame began driving the first-load
+        # cross-check prompt (native/shared/crosscheck_bridge.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "2D27AF1630592187C346672AE3B1966E8AC62F5396857D4CD018E32FA9599EC1",
+            "0249F544D800EA918755FC43B8CA77CAC5C924DCB5852DCA0E98FC6732299D37",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
