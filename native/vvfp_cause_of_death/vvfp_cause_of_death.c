@@ -716,9 +716,11 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
 
 /* Arm the save hook alone, before the install (Codex, #512 review).
 
-   The Origins companion installs this companion once a village is shown --
-   in The Secret City only when a villager is first drawn or the Origins
-   menu opens -- but records from the load-time catch-up are held for this
+   "VVFP Startup.dll" installs this companion at game start, before any
+   village loads.  Without that loader (its file missing), the Origins
+   companion installs it once a village is shown -- in The Secret City only
+   when a villager is first drawn or the Origins menu opens -- but records
+   from the load-time catch-up are held for this
    companion's save hook to name the village. A save made before the
    install would leave them held, and lost at exit. So the parentage DLL,
    the first time it holds a record for this companion, arms the save hook
