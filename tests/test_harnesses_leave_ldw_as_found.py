@@ -70,6 +70,7 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
                 "native/vvfp_cause_of_death/cause_files_harness.c",
                 "native/vvfp_cause_of_death/grave_backfill_harness.c",
                 "native/vvfp_cause_of_death/arrival_harness.c",
+                "native/statistics_export/reconcile_harness.c",
             },
         )
 

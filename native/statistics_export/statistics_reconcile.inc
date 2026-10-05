@@ -53,8 +53,8 @@
    (village_changed: ROSTER_SAME); a different village's files are set aside
    by the save, as always.
 
-   ASK FIRST.  VvfpStatsScanReconcile (scan: reads only) lists what it found
-   for the prompt; VvfpStatsRepairReconcile takes the answer.  After Repair,
+   ASK FIRST.  VvfpStatisticsScanReconcile (scan: reads only) lists what it found
+   for the prompt; VvfpStatisticsRepairReconcile takes the answer.  After Repair,
    at the next save -- after the flush and the living-elder update, before
    the log is written, so the log shows the result -- the plan is made again
    from the files as they are then, each file that changes is backed up
@@ -595,12 +595,12 @@ static void rc_describe(const struct rc_plan *p, char *text, int cap) {
 
 /* ---- the scan and the answer -------------------------------------------- */
 
-/* VvfpStatsScanReconcile(game, slot, text, cap): what the Village
+/* VvfpStatisticsScanReconcile(game, slot, text, cap): what the Village
    Statistics and Village Elders files of the slot's village are missing
    that the save and the logs prove -- the number of changes, with the
    prompt's lines in `text`; 0 nothing (or the files are not this
    village's); -1 cannot tell now.  Reads only. */
-__declspec(dllexport) int __stdcall VvfpStatsScanReconcile(int game, int slot, char *text, int cap) {
+__declspec(dllexport) int __stdcall VvfpStatisticsScanReconcile(int game, int slot, char *text, int cap) {
     static struct rc_plan plan;
     char village[VV_VILLAGE_NAME_MAX + 32];
     wchar_t counters[MAX_PATH], stews[MAX_PATH];
@@ -631,7 +631,7 @@ __declspec(dllexport) int __stdcall VvfpStatsScanReconcile(int game, int slot, c
     return plan.changes;
 }
 
-__declspec(dllexport) void __stdcall VvfpStatsRepairReconcile(int game, int slot, int repair) {
+__declspec(dllexport) void __stdcall VvfpStatisticsRepairReconcile(int game, int slot, int repair) {
     if (game < GAME_VV1 || game > GAME_VV5 || slot < 1 || slot > 5) {
         return;
     }
@@ -818,3 +818,32 @@ static void rc_apply(int game, int slot, unsigned char *manager) {
         }
     }
 }
+
+#ifdef VVFP_TEST
+/* The TEST build only (statistics_export_test.def): the part of a save the
+   reconcile rides on -- the roster check, the living-elder update and the
+   reconcile itself, as WriteVillageStatistics runs them after a successful
+   save of the same village -- without the game's writer, clock and puzzle
+   calls the harness has none of.  Returns 1 when no answer is left pending. */
+__declspec(dllexport) int __stdcall VvfpStatisticsTestSave(int game, int slot, void *manager) {
+    unsigned char *m = (unsigned char *)manager;
+    if (game < GAME_VV1 || game > GAME_VV5 || slot < 1 || slot > 5 || m == NULL) {
+        return 0;
+    }
+    g_save_id = slot;
+    bind_store(game, m, slot);
+    if (village_changed(game, slot) != ROSTER_SAME) {
+        return 0;
+    }
+    g_elders_ready = 0;
+    if (game == GAME_VV1) {
+        vv1_village_elders(m);
+    } else if (game != GAME_VV2) {
+        village_elders_for(game);
+    }
+    g_rc_save_ok = 1;
+    rc_apply(game, slot, m);
+    g_rc_save_ok = 0;
+    return g_rc_repair[slot] == 0;
+}
+#endif

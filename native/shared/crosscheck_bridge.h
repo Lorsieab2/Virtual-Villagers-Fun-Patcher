@@ -26,8 +26,8 @@
        contract);
      - the Village Elders and Village Statistics files, where the save and
        the logs prove more than they hold ("VVFP Statistics Export.dll":
-       VvfpStatsScanReconcile, which also writes the prompt's lines, and
-       VvfpStatsRepairReconcile; statistics_reconcile.inc).  That companion
+       VvfpStatisticsScanReconcile, which also writes the prompt's lines, and
+       VvfpStatisticsRepairReconcile; statistics_reconcile.inc).  That companion
        is loaded by the executable only at its first save, so it is loaded
        here, by full path from the executable's folder, when it is there.
 
@@ -298,7 +298,7 @@ static void vvfp_xc_answered(int game) {
         }
     }
     if (vvfp_xc.stats > 0) {
-        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatsRepairReconcile");
+        repair_graves = (vvfp_xc_repair_graves_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsRepairReconcile");
         if (repair_graves != NULL) {
             repair_graves(vvfp_xc.asked_game, vvfp_xc.asked_slot, yes);
         }
@@ -322,7 +322,7 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     arrivals = scan_arrivals != NULL ? scan_arrivals(game, slot) : 0;
     scan_births = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanBirths");
     births = scan_births != NULL ? scan_births(game, slot) : 0;
-    scan_stats = (vvfp_xc_scan_text_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatsScanReconcile");
+    scan_stats = (vvfp_xc_scan_text_fn)VVFP_XC_LOAD(VVFP_XC_STATS_DLL, "VvfpStatisticsScanReconcile");
     vvfp_xc.stats_text[0] = '\0';
     stats = scan_stats != NULL ? scan_stats(game, slot, vvfp_xc.stats_text, (int)sizeof(vvfp_xc.stats_text)) : 0;
     pending = parents < 0 || graves < 0 || arrivals < 0 || births < 0 || stats < 0;

@@ -81,8 +81,8 @@ static FARPROC harness_proc(const char *module, const char *name) {
         if (lstrcmpA(name, "VvfpCauseRepairBirths") == 0) return (FARPROC)fake_repair_births;
     }
     if (lstrcmpA(module, "VVFP Statistics Export.dll") == 0 && g_have_stats) {
-        if (lstrcmpA(name, "VvfpStatsScanReconcile") == 0) return (FARPROC)fake_scan_stats;
-        if (lstrcmpA(name, "VvfpStatsRepairReconcile") == 0) return (FARPROC)fake_repair_stats;
+        if (lstrcmpA(name, "VvfpStatisticsScanReconcile") == 0) return (FARPROC)fake_scan_stats;
+        if (lstrcmpA(name, "VvfpStatisticsRepairReconcile") == 0) return (FARPROC)fake_repair_stats;
     }
     return NULL;
 }
