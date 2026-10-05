@@ -411,5 +411,35 @@ class VV4OriginsBarrel(unittest.TestCase):
                     self.assertEqual(self.call(uc, va) & 0xFF, 1, f"{va:#x}")
 
 
+class VV3OriginsBarrelRecordCheck(unittest.TestCase):
+    """The Secret City's Origins Barrel row and purchase preflight
+    (native/vv3_full_mastery_candidate, vv3_has_free_villager_slots) ask
+    whether three villagers fit in the records.  The active flag is ONE byte
+    (the allocator 0x45F0C0 tests `byte [rec+0xF10]`); read as a dword it took
+    in +0xF11..+0xF13, which freed records keep, so free records counted as
+    taken.  And the babies pregnant mothers still owe (+0xE8C pregnant, +0xE90
+    the litter) hold records too: uncounted, the barrel could take them and
+    those pregnancies ended with no child at delivery."""
+
+    SOURCE = ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c"
+
+    def body(self):
+        text = self.SOURCE.read_text(encoding="utf-8")
+        head = "static int vv3_has_free_villager_slots(int wanted) {"
+        start = text.index(head)
+        return text[start:text.index("\n}\n", start)]
+
+    def test_the_active_flag_is_read_as_a_byte(self):
+        body = self.body()
+        self.assertIn("*(volatile unsigned char *)(record + VV3_OFF_ACTIVE)", body)
+        self.assertNotIn("*(volatile int *)(record + VV3_OFF_ACTIVE)", body)
+
+    def test_pending_babies_take_records(self):
+        body = self.body()
+        self.assertIn("VV3_OFF_PREGNANT", body)
+        self.assertIn("demand += *(volatile int *)(record + VV3_OFF_LITTER)", body)
+        self.assertIn("return demand + wanted <= (int)bound;", body)
+
+
 if __name__ == "__main__":
     unittest.main()
