@@ -9,9 +9,14 @@ WinMain is entered.
 
 Everything the startup loader does in between runs as machine code: the
 appended stub, "VVFP Startup.dll", and every companion it loads, each mapped
-from the very file the patcher ships when the stub or a companion calls
-LoadLibraryA on it.  kernel32 is answered by name (Imports below); anything
-else they call stops the run with an error.  Every read, write and executed
+from the very file the patcher ships when the stub or a companion loads it --
+and only when it is loaded by its full path in the patcher's folder,
+"<game folder>/Virtual Villagers Fun Patcher Files/".  kernel32 is
+answered by name (Imports below), including the functions the stub looks up
+in it with GetProcAddress; anything else they call stops the run with an
+error.  The game folder may hold any Unicode characters: the wide API sees
+them as they are, the ANSI API as the ANSI code page renders them ('?' for
+what it cannot spell), as on Windows.  Every read, write and executed
 instruction inside the executable image is recorded, so a test can require
 that the startup touched nothing of the game but the code bytes its detours
 verify and replace.
@@ -38,6 +43,9 @@ STACK_TOP = 0x0F000000
 HEAP = 0x60000000
 MODULE_BASE = 0x10000000
 GAME_DIR = "C:\\Games\\Virtual Villagers\\"
+PATCHER_FILES = "Virtual Villagers Fun Patcher Files\\"
+# The fake kernel32 module the stub finds with GetModuleHandleA.
+KERNEL32_BASE = 0x7B000000
 # The thread information block (fs) and the descriptor table that maps it.
 TEB = 0x7FFDE000
 GDT = 0x00030000
@@ -50,6 +58,7 @@ CRT_RETURN_SENTINEL = 0x0E000000
 # bytes each pops on return; None = cdecl.
 STDCALL = {
     "GetModuleFileNameA": 12, "GetModuleFileNameW": 12, "LoadLibraryA": 4, "LoadLibraryW": 4,
+    "LoadLibraryExW": 12, "LoadLibraryExA": 12,
     "GetModuleHandleA": 4, "GetModuleHandleW": 4, "GetProcAddress": 8, "VirtualProtect": 16,
     "VirtualQuery": 12, "VirtualAlloc": 16, "FlushInstructionCache": 12, "GetCurrentProcess": 0,
     "lstrcpyA": 8, "lstrlenA": 4, "lstrcmpiA": 8, "lstrcatA": 8, "lstrcpynA": 12, "GetTickCount": 0,
@@ -82,15 +91,18 @@ class StartupMachine:
 
     def __init__(self, exe: bytes, exe_name: str, shipped: dict[str, Path], game_dir: str = GAME_DIR):
         """exe: the published executable's bytes; shipped: the companion files
-        beside it (destination name -> source file); game_dir: the folder
-        GetModuleFileNameA reports, ending in a backslash."""
+        in the patcher's folder (destination name -> source file); game_dir:
+        the folder GetModuleFileNameW reports, ending in a backslash."""
         self.mu = mu = Uc(UC_ARCH_X86, UC_MODE_32)
         self.shipped = {name.lower(): path for name, path in shipped.items()}
         self.game_dir = game_dir
+        self.files_dir = game_dir + PATCHER_FILES
         self.exe_path = game_dir + exe_name
         self.stub_names: dict[int, str] = {}
         self._next_stub = STUBS
         mu.mem_map(STUBS, 0x10000)
+        mu.mem_map(KERNEL32_BASE, 0x1000)
+        self.kernel32_stubs: dict[str, int] = {}
         self.modules: dict[str, Module] = {}
         self._next_base = MODULE_BASE
         self._next_heap = HEAP
@@ -186,7 +198,7 @@ class StartupMachine:
                 if e.name:
                     exports[e.name.decode()] = base + e.address
                 ordinals[e.ordinal] = base + e.address
-        module = Module(name, base, size, exports, ordinals, self.game_dir + name)
+        module = Module(name, base, size, exports, ordinals, self.files_dir + name)
         self.modules[key] = module
         return module
 
@@ -225,28 +237,54 @@ class StartupMachine:
             path = module.path if module else self.exe_path
             wide = name.endswith("W")
             n = arg(2)
-            text = path.encode("utf-16-le" if wide else "latin-1")
+            # The ANSI API renders the path in the ANSI code page: a character
+            # it cannot spell comes back as '?', as on Windows.
+            text = path.encode("utf-16-le") if wide else path.encode("cp1252", errors="replace")
             unit = 2 if wide else 1
-            if len(path) + 1 > n:
+            length = len(text) // unit
+            if length + 1 > n:
                 mu.mem_write(arg(1), text[: (n - 1) * unit] + b"\0" * unit)
                 ret(n)
             else:
                 mu.mem_write(arg(1), text + b"\0" * unit)
-                ret(len(path))
+                ret(length)
             self.calls.append((name,))
-        elif name in ("LoadLibraryA", "LoadLibraryW", "GetModuleHandleA", "GetModuleHandleW"):
-            text = wstr(arg(0)) if name.endswith("W") else (cstr(arg(0)) if arg(0) else "")
+        elif name in ("LoadLibraryA", "LoadLibraryW", "LoadLibraryExA", "LoadLibraryExW",
+                      "GetModuleHandleA", "GetModuleHandleW"):
+            wide = name.endswith("W")
+            text = wstr(arg(0)) if wide else (cstr(arg(0)) if arg(0) else "")
             if name.startswith("GetModuleHandle") and not arg(0):
                 ret(EXE_BASE)
                 return
+            if name.startswith("GetModuleHandle") and text.lower() == "kernel32.dll":
+                self.calls.append((name, text, False))
+                ret(KERNEL32_BASE)
+                return
             base_name = text.replace("/", "\\").split("\\")[-1]
-            full = text.lower().startswith(self.game_dir.lower())
+            # A load counts only by its full path in the patcher's folder,
+            # exactly as Windows would find the file there (the ANSI API's
+            # '?' never matches a real folder name).
+            full = text.lower() == (self.files_dir + base_name).lower()
             if name.startswith("LoadLibrary"):
                 module = self._load(base_name) if full else None
             else:
-                module = self.modules.get(base_name.lower())
+                module = self.modules.get(base_name.lower()) if "\\" not in text else None
             self.calls.append((name, text, full))
             ret(module.base if module else 0)
+        elif name == "GetProcAddress" and arg(0) == KERNEL32_BASE:
+            proc = cstr(arg(1))
+            self.calls.append((name, "KERNEL32.dll", proc))
+            if proc not in STDCALL:
+                ret(0)
+                return
+            stub = self.kernel32_stubs.get(proc)
+            if stub is None:
+                stub = self._next_stub
+                self._next_stub += 16
+                self.stub_names[stub] = proc
+                self.mu.mem_write(stub, b"\xC2" + struct.pack("<H", STDCALL[proc]))
+                self.kernel32_stubs[proc] = stub
+            ret(stub)
         elif name == "GetProcAddress":
             module = self.module_at(arg(0))
             proc = arg(1)
@@ -305,7 +343,8 @@ class StartupMachine:
         elif name in ("GetFileAttributesA", "GetFileAttributesW"):
             text = wstr(arg(0)) if name.endswith("W") else cstr(arg(0))
             base_name = text.split("\\")[-1].lower()
-            ret(0x20 if base_name in self.shipped else 0xFFFFFFFF)
+            there = base_name in self.shipped and text.lower() == (self.files_dir + base_name).lower()
+            ret(0x20 if there else 0xFFFFFFFF)
         else:
             self.error = f"unexpected import {name}"
             mu.emu_stop()

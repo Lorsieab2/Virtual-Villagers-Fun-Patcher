@@ -213,8 +213,8 @@ class StartupLoaderPlacement(unittest.TestCase):
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
                 self.assertEqual(bin(mask).count("1"), len(shipped) - 1)    # all but the loader
-                block = vfp._startup_loader_block(va, int(game[2]), mask, slots[b"GetModuleFileNameA"],
-                                                  slots[b"LoadLibraryA"], slots[b"GetProcAddress"], winmain)
+                block = vfp._startup_loader_block(va, int(game[2]), mask, slots[b"GetModuleHandleA"],
+                                                  slots[b"GetProcAddress"], winmain)
                 self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
                 self.assertEqual(pe.get_data(call_va - 0x400000, 5),
                                  b"\xE8" + struct.pack("<i", va + vfp.STARTUP_LOADER_CODE_OFFSET - (call_va + 5)))
@@ -260,7 +260,12 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
         self.assertEqual(result["arguments"], result["expected_arguments"])
         self.assertEqual(result["registers_at_winmain"], result["registers_before"])
         loads = [c for c in machine.calls if c[0].startswith("LoadLibrary")]
-        self.assertTrue(all(full for _, _, full in loads), f"a load by bare name: {loads}")
+        self.assertTrue(all(full for _, _, full in loads), f"a load not by its full path: {loads}")
+        # Every load is wide, by its full path in the patcher's folder; the
+        # ANSI API (which turns characters outside the code page into '?')
+        # is never used to find a companion.
+        self.assertEqual([c for c in loads if c[0] != "LoadLibraryExW"], [])
+        self.assertNotIn("GetModuleFileNameA", [c[0] for c in machine.calls])
         self.assertEqual({m.name.lower() for m in machine.modules.values()},
                          {n.lower() for n in shipped})
         armed = 0
@@ -410,9 +415,10 @@ class PublicationRemovesUnselectedCompanions(unittest.TestCase):
                 finally:
                     if temp is not None:
                         temp.cleanup()
-        loader = folder / vfp.STARTUP_LOADER_DLL
+        loader = folder / vfp._safe_companion_destination(vfp.STARTUP_LOADER_DLL)
+        loader.parent.mkdir(parents=True, exist_ok=True)
         loader.write_bytes((ROOT / vfp.STARTUP_LOADER_COMPANION["source"]).read_bytes())
-        seeded[vfp.STARTUP_LOADER_DLL] = loader.read_bytes()
+        seeded[loader.relative_to(folder).as_posix()] = loader.read_bytes()
         (folder / "my notes.txt").write_text("the player's own file", encoding="utf-8")
         (folder / "Images").mkdir(exist_ok=True)
         (folder / "Images" / "my_art.png").write_bytes(b"the player's own art")
@@ -463,8 +469,9 @@ class PublicationRemovesUnselectedCompanions(unittest.TestCase):
         vfp._remove_unselected_companions = lambda *a, **k: []
         self.addCleanup(setattr, vfp, "_remove_unselected_companions", original)
         seeded, _, after, _, _ = self.publish("vv1", ["vv1_write_village_statistics"])
-        self.assertIn("VVFP Fix Huts.dll", seeded)
-        self.assertIn("VVFP Fix Huts.dll", after)
+        fix_huts = f"{FILES}/VVFP Fix Huts.dll"
+        self.assertIn(fix_huts, seeded)
+        self.assertIn(fix_huts, after)
 
 
 TOOLCHAIN = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231")
@@ -489,12 +496,12 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
 #include <windows.h>
 #pragma comment(linker, "/EXPORT:VvfpStartup=_VvfpStartup@8")
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    char path[MAX_PATH];
-    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    wchar_t path[1024];
+    DWORD n = GetModuleFileNameW(NULL, path, 1024);
     HANDLE f;
-    while (n > 0 && path[n - 1] != '\\') { --n; }
-    lstrcpyA(path + n, "started.txt");
-    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    while (n > 0 && path[n - 1] != L'\\') { --n; }
+    lstrcpyW(path + n, L"started.txt");
+    f = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
     if (f != INVALID_HANDLE_VALUE) {
         char text[32];
         DWORD w;
@@ -509,13 +516,13 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
 #include <stdio.h>
 typedef void (__stdcall *startup_fn)(int, unsigned int);
 int main(void) {
-    char path[MAX_PATH];
-    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    wchar_t path[1024];
+    DWORD n = GetModuleFileNameW(NULL, path, 1024);
     HMODULE m;
     startup_fn startup;
-    while (n > 0 && path[n - 1] != '\\') { --n; }
-    lstrcpyA(path + n, "VVFP Startup.dll");
-    m = LoadLibraryA(path);
+    while (n > 0 && path[n - 1] != L'\\') { --n; }
+    lstrcpyW(path + n, L"Virtual Villagers Fun Patcher Files\\VVFP Startup.dll");
+    m = LoadLibraryW(path);
     startup = m ? (startup_fn)GetProcAddress(m, "VvfpStartup") : NULL;
     if (!startup) { puts("no loader"); return 2; }
     startup(3, 0x1u | 0x10u);     /* the Origins companion and Save Reset (bit 4) */
@@ -530,12 +537,12 @@ int main(void) {
 #include <windows.h>
 typedef void (__stdcall *startup_fn)(int, unsigned int);
 int main(void) {
-    char path[MAX_PATH];
-    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    wchar_t path[1024];
+    DWORD n = GetModuleFileNameW(NULL, path, 1024);
     HMODULE m;
-    while (n > 0 && path[n - 1] != '\\') { --n; }
-    lstrcpyA(path + n, "VVFP Origins Icons.dll");
-    m = LoadLibraryA(path);
+    while (n > 0 && path[n - 1] != L'\\') { --n; }
+    lstrcpyW(path + n, L"Virtual Villagers Fun Patcher Files\\VVFP Origins Icons.dll");
+    m = LoadLibraryW(path);
     ((startup_fn)GetProcAddress(m, "VvfpStartup"))(3, 1);
     return 0;
 }
@@ -564,13 +571,15 @@ int main(void) {
         import tempfile
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp)
-            self.compile(folder, self.FAULTING, "VVFP Origins Icons.dll", True)
-            self.compile(folder, self.RECORDING, "VVFP Save Reset.dll", True)
+            files = folder / FILES
+            files.mkdir()
+            self.compile(files, self.FAULTING, "VVFP Origins Icons.dll", True)
+            self.compile(files, self.RECORDING, "VVFP Save Reset.dll", True)
             self.compile(folder, self.HOST, "host.exe", False)
             self.compile(folder, self.DIRECT, "direct.exe", False)
             control = subprocess.run([str(folder / "direct.exe")], capture_output=True, text=True, timeout=60)
             self.assertNotEqual(control.returncode, 0)
-            shutil.copy2(ROOT / vfp.STARTUP_LOADER_COMPANION["source"], folder / vfp.STARTUP_LOADER_DLL)
+            shutil.copy2(ROOT / vfp.STARTUP_LOADER_COMPANION["source"], files / vfp.STARTUP_LOADER_DLL)
             result = subprocess.run([str(folder / "host.exe")], capture_output=True, text=True, timeout=60)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("survived", result.stdout)
@@ -579,21 +588,23 @@ int main(void) {
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 class DeepInstallFolders(unittest.TestCase):
-    """Codex (#537): the stub checks the FOLDER plus the loader's name against
-    MAX_PATH, not the executable's whole path, so a deep folder whose
-    executable name alone would not fit still starts every companion."""
+    """Codex (#537): the stub checks the FOLDER plus what it appends, not the
+    executable's whole path.  It appends "Virtual Villagers Fun Patcher
+    Files\\VVFP Startup.dll" to the executable's folder in a buffer of
+    STARTUP_LOADER_PATH_WCHARS (twice MAX_PATH): a folder that leaves room for
+    it (with its NUL) starts every companion, one character more starts none
+    -- and in both cases the game itself starts, with WinMain entered exactly
+    as the C runtime called it."""
 
-    def test_a_deep_folder_still_starts_every_companion(self):
+    def test_the_deepest_folder_that_fits_and_one_past_it(self):
         game = "vv3"
         selection = tuple(i for i in public_ids(game) if i not in POPULATION_256)
         exe, shipped, _ = published(game, "collection_progression", selection)
         name = build_of(game).input_name
-        limit = vfp.STARTUP_LOADER_PATH_BYTES            # MAX_PATH, with the NUL
-        deepest = limit - 1 - len(name)                  # the executable's path is 259 characters
-        # The old check (the whole path against MAX_PATH less the loader's
-        # name) refused every path of 243 characters or more.
-        self.assertGreaterEqual(deepest + len(name), limit - len(vfp.STARTUP_LOADER_DLL) - 1)
-        for length, starts in ((deepest, True), (deepest + 1, False)):   # + 1: truncated
+        tail = len(vfp.STARTUP_LOADER_TAIL) // 2          # WCHARs, with the NUL
+        deepest = vfp.STARTUP_LOADER_PATH_WCHARS - tail
+        self.assertLess(deepest + len(name), vfp.STARTUP_LOADER_PATH_WCHARS)   # the exe's path fits
+        for length, starts in ((deepest, True), (deepest + 1, False)):
             folder = "C:\\" + "d" * (length - 4) + "\\"
             self.assertEqual(len(folder), length)
             with self.subTest(folder_length=length):
@@ -601,7 +612,123 @@ class DeepInstallFolders(unittest.TestCase):
                 call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
                 result = machine.run_to_winmain(call_va, winmain)
                 self.assertEqual(result["registers_at_winmain"], result["registers_before"])
+                self.assertEqual(result["esp_at_winmain"], result["esp_before_call"] - 4)
                 self.assertEqual({m.name for m in machine.modules.values()} == set(shipped), starts)
+                if not starts:
+                    self.assertEqual(machine.modules, {})
+
+    def test_an_executable_path_the_buffer_cannot_hold_starts_the_game(self):
+        game = "vv5"
+        selection = tuple(i for i in public_ids(game) if i not in POPULATION_256)
+        exe, shipped, _ = published(game, "collection_progression", selection)
+        name = build_of(game).input_name
+        folder = "C:\\" + "d" * (vfp.STARTUP_LOADER_PATH_WCHARS - len(name) - 4) + "\\"
+        self.assertEqual(len(folder + name), vfp.STARTUP_LOADER_PATH_WCHARS)   # cut short
+        machine = StartupMachine(exe, name, shipped, game_dir=folder)
+        call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
+        result = machine.run_to_winmain(call_va, winmain)
+        self.assertEqual(result["registers_at_winmain"], result["registers_before"])
+        self.assertEqual(machine.modules, {})
+
+
+# A game folder whose name the ANSI code page cannot spell: accented Latin
+# and Japanese, as an owner might install to.
+UNICODE_FOLDER = "C:\\Jeux vidéo\\村人たち\\Virtual Villagers\\"
+FILES = vfp.patcher_files.PATCHER_FILES_FOLDER
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class AUnicodeGameFolder(unittest.TestCase):
+    """Every add-on of every build starts in a game folder with characters
+    outside the ANSI code page: the stub and every companion find their
+    files with the wide API, by full path in the patcher's folder."""
+
+    def test_every_build_starts_every_companion(self):
+        for game in GAMES:
+            for name, selection in selections(game).items():
+                if not name.startswith("every"):
+                    continue
+                with self.subTest(game=game, selection=name):
+                    exe, shipped, features = published(game, "collection_progression", tuple(selection))
+                    machine = StartupMachine(exe, build_of(game).input_name, shipped,
+                                             game_dir=UNICODE_FOLDER)
+                    call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
+                    before = {va: machine.code(va, len(stock)) for va, stock, _ in declared_detours(features)}
+                    result = machine.run_to_winmain(call_va, winmain)
+                    self.assertEqual(result["registers_at_winmain"], result["registers_before"])
+                    self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
+                    for module in machine.modules.values():
+                        self.assertEqual(module.path, UNICODE_FOLDER + FILES + "\\" + module.name)
+                    for va, stock, what in declared_detours(features):
+                        if before[va] == stock:
+                            self.assertNotEqual(machine.code(va, len(stock)), stock, what)
+
+    def test_the_ansi_path_would_load_nothing_there(self):
+        """The control: the same folder as the ANSI API renders it ('?' for
+        what the code page cannot spell) is not the folder the files are in,
+        so a loader built on it would start nothing."""
+        self.assertIn("?", UNICODE_FOLDER.encode("cp1252", errors="replace").decode("cp1252"))
+        game = "vv1"
+        selection = tuple(i for i in public_ids(game) if i not in POPULATION_256)
+        exe, shipped, _ = published(game, "collection_progression", selection)
+        machine = StartupMachine(exe, build_of(game).input_name, shipped, game_dir=UNICODE_FOLDER)
+        ansi = UNICODE_FOLDER.encode("cp1252", errors="replace").decode("cp1252")
+        machine.files_dir = ansi + FILES + "\\"          # where an ANSI loader would look
+        machine.run_to_winmain(*vfp.STARTUP_LOADER_WINMAIN_CALL[game])
+        self.assertEqual(machine.modules, {})
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class TheExecutableNeverSearchesForACompanion(unittest.TestCase):
+    """Code the patcher writes into the executables names companions with
+    `push "VVFP ... .dll"; call [LoadLibraryA]` -- the DLL search order. Every
+    published build routes each of those calls to GetModuleHandleA, which
+    only finds a module VVFP Startup.dll already loaded from the patcher's
+    folder; and every companion such a call names is one the loader starts
+    in that build."""
+
+    def sites(self, exe: bytes, api: bytes) -> list[str]:
+        pe = pefile.PE(data=exe)
+        slot = next(i.address for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name == api)
+        call = b"\xFF\x15" + struct.pack("<I", slot)
+        names = []
+        for m in re.finditer(re.escape(call), exe):
+            at = m.start()
+            if exe[at - 5] != 0x68:
+                continue
+            va = struct.unpack_from("<I", exe, at - 4)[0]
+            try:
+                off = pe.get_offset_from_rva(va - 0x400000)
+            except Exception:
+                continue
+            text = exe[off:exe.find(b"\0", off)]
+            if text.startswith(b"VVFP "):
+                names.append(text.decode("ascii"))
+        return names
+
+    def test_every_build(self):
+        for game in GAMES:
+            for mode in MODES:
+                for name, selection in selections(game).items():
+                    with self.subTest(game=game, mode=mode, selection=name):
+                        exe, shipped, features = published(game, mode, tuple(selection))
+                        self.assertEqual(self.sites(exe, b"LoadLibraryA"), [])
+                        attached = vfp._attach_automatic_companions(
+                            game, vfp._selected_fun_patches(build_of(game), list(selection)))
+                        mask = vfp._startup_loader_mask(game, attached)
+                        started = {vfp.STARTUP_LOADER_ORIGINS[game]} if mask & 1 else set()
+                        started |= {n for i, n in enumerate(vfp.STARTUP_LOADER_COMPANIONS) if mask & (1 << (i + 1))}
+                        for named in self.sites(exe, b"GetModuleHandleA"):
+                            self.assertIn(named, started)
+                            self.assertIn(named, shipped)
+
+    def test_the_render_alone_still_searches(self):
+        """The control: before publication the stubs are LoadLibraryA calls,
+        so the check above would fail without the routing."""
+        game = "vv5"
+        selection = [i for i in public_ids(game) if i not in POPULATION_256]
+        data, _ = vfp.render_patched_bytes(stock_path(game), build_of(game), "collection_progression", selection)
+        self.assertTrue(self.sites(bytes(data), b"LoadLibraryA"))
 
 
 
@@ -626,14 +753,14 @@ int __stdcall VvfpFixHutsInstall(int game) {
 """
     RECORDER = r"""
 #include <windows.h>
-static void note(const char *what) {
-    char path[MAX_PATH];
-    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+static void note(const wchar_t *what) {
+    wchar_t path[1024];
+    DWORD n = GetModuleFileNameW(NULL, path, 1024);
     HANDLE f;
     DWORD w;
-    while (n > 0 && path[n - 1] != '\\') { --n; }
-    lstrcpyA(path + n, what);
-    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    while (n > 0 && path[n - 1] != L'\\') { --n; }
+    lstrcpyW(path + n, what);
+    f = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
     if (f != INVALID_HANDLE_VALUE) { WriteFile(f, "1", 1, &w, NULL); CloseHandle(f); }
 }
 """
@@ -645,7 +772,7 @@ static void note(const char *what) {
 #pragma comment(linker, "/EXPORT:VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8")
 #pragma comment(linker, "/EXPORT:VvfpStoryAttachHost=_VvfpStoryAttachHost@8")
 int __stdcall VvfpStoryInstall(int g) { (void)g; return 1; }
-int __stdcall VvfpStoryArm(int g) { (void)g; note("story armed.txt"); return 1; }
+int __stdcall VvfpStoryArm(int g) { (void)g; note(L"story armed.txt"); return 1; }
 int __stdcall VvfpStoryActive(int g) { (void)g; return 1; }
 int __stdcall VvfpStoryPickIslandEvent(int g, HWND w) { (void)g; (void)w; return 0; }
 int __stdcall VvfpStoryCustomIslandEvent(int g, HWND w) { (void)g; (void)w; return 0; }
@@ -654,7 +781,7 @@ int __stdcall VvfpStoryAttachHost(int g, const void *h) { (void)g; (void)h; retu
     CAUSE = RECORDER + r"""
 #pragma comment(linker, "/EXPORT:VvfpCauseInstall=_VvfpCauseInstall@8")
 #pragma comment(linker, "/EXPORT:VvfpCauseTick=_VvfpCauseTick@4")
-int __stdcall VvfpCauseInstall(int g, const void *h) { (void)g; (void)h; note("cause installed.txt"); return 1; }
+int __stdcall VvfpCauseInstall(int g, const void *h) { (void)g; (void)h; note(L"cause installed.txt"); return 1; }
 void __stdcall VvfpCauseTick(int g) { (void)g; }
 """
     HOST1 = r"""
@@ -662,15 +789,15 @@ void __stdcall VvfpCauseTick(int g) { (void)g; }
 #include <stdio.h>
 typedef void (__stdcall *startup_fn)(int, unsigned int);
 int main(int argc, char **argv) {
-    char path[MAX_PATH];
-    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    wchar_t path[1024];
+    DWORD n = GetModuleFileNameW(NULL, path, 1024);
     HMODULE m;
     startup_fn startup;
     unsigned int shipped = (unsigned int)strtoul(argv[1], NULL, 0);
     (void)argc;
-    while (n > 0 && path[n - 1] != '\\') { --n; }
-    lstrcpyA(path + n, "VVFP Startup.dll");
-    m = LoadLibraryA(path);
+    while (n > 0 && path[n - 1] != L'\\') { --n; }
+    lstrcpyW(path + n, L"Virtual Villagers Fun Patcher Files\\VVFP Startup.dll");
+    m = LoadLibraryW(path);
     startup = m ? (startup_fn)GetProcAddress(m, "VvfpStartup") : NULL;
     if (!startup) { puts("no loader"); return 2; }
     startup(1, shipped);
@@ -688,14 +815,24 @@ int main(int argc, char **argv) {
         bit = lambda name: 1 << (index[name] + 1)   # noqa: E731
         shipped = 1 | bit("VVFP Fix Huts.dll") | bit("VVFP Story Upgrades.dll") | bit("VVFP Cause of Death.dll")
         with tempfile.TemporaryDirectory() as temp:
-            folder = Path(temp)
-            self.compile(folder, self.FIX_HUTS, "VVFP Fix Huts.dll", True)
-            self.compile(folder, self.STORY, "VVFP Story Upgrades.dll", True)
-            self.compile(folder, self.CAUSE, "VVFP Cause of Death.dll", True)
-            self.compile(folder, self.HOST1, "host.exe", False)
-            shutil.copy2(ROOT / vfp.STARTUP_LOADER_COMPANION["source"], folder / vfp.STARTUP_LOADER_DLL)
+            build = Path(temp) / "build"
+            build.mkdir()
+            self.compile(build, self.FIX_HUTS, "VVFP Fix Huts.dll", True)
+            self.compile(build, self.STORY, "VVFP Story Upgrades.dll", True)
+            self.compile(build, self.CAUSE, "VVFP Cause of Death.dll", True)
+            self.compile(build, self.HOST1, "host.exe", False)
+            # The game folder's name is outside the ANSI code page: the
+            # shipped loader and the shipped Origins companion's bridges
+            # still find every companion (wide API, full path).
+            folder = Path(temp) / "Jeux vidéo 村人たち"
+            files = folder / FILES
+            files.mkdir(parents=True)
+            shutil.copy2(build / "host.exe", folder / "host.exe")
+            for name in ("VVFP Fix Huts.dll", "VVFP Story Upgrades.dll", "VVFP Cause of Death.dll"):
+                shutil.copy2(build / name, files / name)
+            shutil.copy2(ROOT / vfp.STARTUP_LOADER_COMPANION["source"], files / vfp.STARTUP_LOADER_DLL)
             shutil.copy2(ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll",
-                         folder / "VVFP VV1 Origins Icons.dll")
+                         files / "VVFP VV1 Origins Icons.dll")
             result = subprocess.run([str(folder / "host.exe"), hex(shipped)], capture_output=True,
                                     text=True, timeout=60)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

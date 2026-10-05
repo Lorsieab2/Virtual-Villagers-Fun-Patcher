@@ -13,6 +13,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
+import patcher_files
 import vv_log_tools
 import vv_save_backup
 import vv_tribe_rename
@@ -1478,11 +1479,14 @@ class App(tk.Tk):
             if build is not None:
                 output_name = get_patch_variant(build, self._mode())["output_name"]
                 output_exe = modded_folder / output_name
+                # Every file the patcher adds is in its own folder beside the
+                # executable (src/patcher_files.py), the two reports included.
                 artifact_lines = [
-                    f"Patch audit: {output_exe.with_suffix('.patch-log.json')} — exact build hash, selected patches, and applied edits."
+                    f"Patcher files: {modded_folder / patcher_files.PATCHER_FILES_FOLDER} — every add-on DLL and both reports.",
+                    f"Patch audit: {modded_folder / patcher_files.patch_log_relative_path(output_name)} — exact build hash, selected patches, and applied edits.",
                 ]
                 artifact_lines.append(
-                    f"Transparency Log: {modded_folder / 'VVFP Transparency Log.txt'}"
+                    f"Transparency Log: {modded_folder / patcher_files.TRANSPARENCY_RELATIVE_PATH}"
                 )
                 selected = set(self._selected_fun_patch_ids(build.id))
                 # THE LOGS GO WITH THE SAVE, NOT WITH THE INSTALL. The
