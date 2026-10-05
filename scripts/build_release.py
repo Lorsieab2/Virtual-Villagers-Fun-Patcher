@@ -166,6 +166,12 @@ FILES = [
     "src/vv_save_backup.py",
     # Rename Tribe; the GUI imports it too.
     "src/vv_tribe_rename.py",
+    # Check Logs and Repair Logs; the GUI imports it, and Check Logs runs
+    # the read-only checker in the patcher's own process.
+    "src/vv_log_tools.py",
+    "scripts/vvfp_consistency_check.py",
+    # README links to it from the Check Logs / Repair Logs section.
+    "docs/first-load-cross-check.md",
     "src/transparency.py",
     "src/expanded_atomic_writer.py",
     "src/vv5_full_heal.py",

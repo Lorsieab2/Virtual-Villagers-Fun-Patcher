@@ -193,6 +193,40 @@ The patcher can change a tribe's name inside its save, in all five games.
    is changed; each gets one line, "Tribe renamed from <old> to <new> on
    <date>", and new records keep going into the same logs under the new name.
 
+CHECK LOGS AND REPAIR LOGS
+
+"Check Logs..." shows whether every log and data file the patcher keeps for
+one village agrees with its save. It only reads: nothing is changed, so the
+game may be running.
+
+1. On the One Game tab, choose the game's EXE and click "Check Logs...".
+   On the All 5 Games tab, click "Check logs..." on a game's row, or
+   "Check Logs..." below them to pick any game.
+2. Pick the game, the save folder and the tribe, and click "Check".
+3. The report lists each file with OK (agrees with the save), WRONG
+   (confirmed wrong), NOTE (a difference that is not proof of an error) or
+   UNCHECKED (nothing to check it against, or it could not be read), and a
+   summary line at the end. The Backups folder is never read.
+
+"Repair Logs..." does not change any log itself. It has the game check the
+village again the next time you load it, and ask "Repair" or "Not now"
+before it repairs anything.
+
+1. Quit the game first (from its own menu). A game that is running is
+   refused, never paused or closed.
+2. Click "Repair Logs..." (One Game tab), "Repair logs..." on a game's row,
+   or "Repair Logs..." below them, and pick the game, save folder and tribe.
+3. The logs are checked first and the result shown. If nothing is found
+   wrong you are told so, and can still go ahead.
+4. Confirm. The save folder is backed up first, into
+       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before repair re-arm)
+   which Restore Saves lists like any other backup. Then only the files that
+   say "this village was already checked" are cleared for that save slot
+   (the Cross-Check marker in A New Home, and the Graves Logged and Arrivals
+   Recorded files in every game). No log, backup or other data is removed.
+5. Load the tribe. After a few seconds on screen the patcher checks its logs
+   and, if it finds something it can put right, asks before repairing.
+
 OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once except

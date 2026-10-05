@@ -649,8 +649,10 @@ BEFORE_RESTORE = "(before restore)"
 # Rename Tribe (src/vv_tribe_rename.py) backs the folder up first under this
 # label; such a backup is listed and restored like any other.
 BEFORE_RENAME = "(before rename)"
+# Repair Logs (src/vv_log_tools.py) backs the folder up first under this label.
+BEFORE_REARM = "(before repair re-arm)"
 INCOMPLETE = " INCOMPLETE"
-_BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before (?:restore|rename)\)))?$")
+_BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before (?:restore|rename|repair re-arm)\)))?$")
 _TEMP_GLOB = "*.vvfp-restore-*.tmp"
 
 # The game's save file: a small file header, then the save buffer (measured
@@ -704,6 +706,7 @@ class BackupInfo:
     size: int
     villages: dict[int, str]     # slot -> village name ("" when unreadable)
     before_rename: bool = False
+    before_rearm: bool = False
 
     @property
     def label(self) -> str:
@@ -712,6 +715,8 @@ class BackupInfo:
             text += " " + BEFORE_RESTORE
         if self.before_rename:
             text += " " + BEFORE_RENAME
+        if self.before_rearm:
+            text += " " + BEFORE_REARM
         return text
 
 
@@ -762,7 +767,7 @@ def read_village_name(game: int, path: Path) -> str | None:
 
 
 def _parse_backup_name(name: str) -> tuple[datetime, int, str] | None:
-    """(when, sequence, label) -- the label "", BEFORE_RESTORE or BEFORE_RENAME."""
+    """(when, sequence, label) -- the label "", BEFORE_RESTORE, BEFORE_RENAME or BEFORE_REARM."""
     match = _BACKUP_NAME.match(name)
     if not match:
         return None
@@ -816,6 +821,7 @@ def list_backups(save_folder: Path) -> list[BackupInfo]:
             BackupInfo(
                 entry, when, label == BEFORE_RESTORE, len(files), size, villages,
                 before_rename=label == BEFORE_RENAME,
+                before_rearm=label == BEFORE_REARM,
             ),
         ))
     found.sort(key=lambda item: (item[0], item[1]), reverse=True)

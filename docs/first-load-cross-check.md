@@ -54,6 +54,16 @@ that the parentage check ran for the slot (clean, repaired, or no Births log to 
 written last, so an interruption simply runs the check again; the rebuilt table then matches the log
 and nothing changes. The grave backfill keeps its own coverage file and finds nothing once done.
 
+## Asking again: Repair Logs
+
+The patcher window's **Repair Logs...** (src/vv_log_tools.py) re-arms the check for one slot with the
+game closed: after a "(before repair re-arm)" backup it clears exactly the markers in
+`vv_log_tools.REARM_MARKERS` -- the Cross-Check marker above (A New Home), and in every game
+`Deaths\Virtual Villagers N Graves Logged - Save S.dat` and
+`Arrivals\Virtual Villagers N Arrivals Recorded - Save S.dat` -- so the next load scans everything again
+and asks before repairing. A new once-per-village part of the check adds its marker to that one list.
+**Check Logs...** runs the read-only checker below in the patcher itself.
+
 ## The Repairs log
 
 `Virtual Villagers Fun Patcher Logs\Repairs\Virtual Villagers 1 Repairs Log <n>.txt`: the village's
