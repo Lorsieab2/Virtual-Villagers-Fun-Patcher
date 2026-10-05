@@ -2239,9 +2239,11 @@ done:
    nothing here reads or writes the game's data or calls a game routine.
    The ticks stay on Vv2MaskSweep; every bridge is install-once, so the
    later calls from Vv2ExtractAtlas and the sweep are no-ops for the
-   installs.  `game` is the executable's own number (2). */
-void __stdcall VvfpStartup(int game) {
+   installs.  `game` is the executable's own number (2); `shipped` is
+   this build's companion bits (native/shared/startup_companions.h). */
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
+    vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     vvfp_pathfinding_bridge(2);
     vvfp_fix_huts_bridge(2);         /* loads and installs Builders and Healers Work First too */
     vvfp_lesson_cap_bridge(2);

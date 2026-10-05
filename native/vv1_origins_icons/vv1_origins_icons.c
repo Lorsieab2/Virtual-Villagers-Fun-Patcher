@@ -1406,7 +1406,7 @@ static int vv1_numkeys_resolve(void) {
         return 0;
     }
     lstrcpyA(slash + 1, "VVFP VV1 Number Keys.dll");
-    keys = LoadLibraryA(path);
+    keys = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (keys == NULL) {
         vv1_numkeys_bridge_state = -1;   /* not shipped: the row is off */
         return 0;
@@ -1479,7 +1479,7 @@ static int vv1_parentage_resolve(void) {
         return 0;
     }
     lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return 0;                 /* not shipped: the row is off */
     }
@@ -1523,7 +1523,7 @@ static void vvfp_pathfinding_bridge(int game_id) {
         return;
     }
     lstrcpyA(slash + 1, "VVFP Improved Pathfinding.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1560,7 +1560,7 @@ static void vvfp_fix_huts_bridge(int game_id) {
         return;
     }
     lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1598,7 +1598,7 @@ static void vvfp_lesson_cap_bridge(int game_id) {
         return;
     }
     lstrcpyA(slash + 1, "VVFP Lesson Cap.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1636,7 +1636,7 @@ static void vvfp_healers_study_bridge(int game_id) {
         return;
     }
     lstrcpyA(slash + 1, "VVFP Healers Study.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1673,7 +1673,7 @@ static void vv1_watering_bridge(void) {
         return;
     }
     lstrcpyA(slash + 1, "VVFP VV1 Watering Builds.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1706,7 +1706,7 @@ static int vv1_sort_resolve(void) {
         return 0;
     }
     lstrcpyA(slash + 1, "VVFP VV1 Sort By.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return 0;                 /* not shipped: the row is off */
     }
@@ -1821,9 +1821,11 @@ void __stdcall Vv1MaskTick(void) {
    stay on Vv1MaskTick (the number keys' event watch, the parentage and
    cause-of-death ticks, the cross-check); each bridge below is install-once,
    so the tick's later calls are no-ops for the installs.  `game` is the
-   executable's own number (1). */
-void __stdcall VvfpStartup(int game) {
+   executable's own number (1); `shipped` is
+   this build's companion bits (native/shared/startup_companions.h). */
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
+    vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     (void)vv1_numkeys_resolve();     /* loaded; the event watch waits for the first frame */
     vvfp_pathfinding_bridge(1);
     vv1_watering_bridge();

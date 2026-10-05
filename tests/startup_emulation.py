@@ -28,7 +28,8 @@ from unicorn import (
 )
 from unicorn.x86_const import (
     UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EDX,
-    UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
+    UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP, UC_X86_REG_FS, UC_X86_REG_GDTR,
+    UC_X86_REG_SS, UC_X86_REG_DS, UC_X86_REG_ES,
 )
 
 EXE_BASE = 0x400000
@@ -37,6 +38,11 @@ STACK_TOP = 0x0F000000
 HEAP = 0x60000000
 MODULE_BASE = 0x10000000
 GAME_DIR = "C:\\Games\\Virtual Villagers\\"
+# The thread information block (fs) and the descriptor table that maps it.
+TEB = 0x7FFDE000
+GDT = 0x00030000
+FS_INDEX = 4
+DATA_INDEX = 2
 # A sentinel the C runtime's frame holds: WinMain's own return address.
 CRT_RETURN_SENTINEL = 0x0E000000
 
@@ -46,7 +52,7 @@ STDCALL = {
     "GetModuleFileNameA": 12, "GetModuleFileNameW": 12, "LoadLibraryA": 4, "LoadLibraryW": 4,
     "GetModuleHandleA": 4, "GetModuleHandleW": 4, "GetProcAddress": 8, "VirtualProtect": 16,
     "VirtualQuery": 12, "VirtualAlloc": 16, "FlushInstructionCache": 12, "GetCurrentProcess": 0,
-    "lstrcpyA": 8, "lstrlenA": 4, "lstrcatA": 8, "lstrcpynA": 12, "GetTickCount": 0,
+    "lstrcpyA": 8, "lstrlenA": 4, "lstrcmpiA": 8, "lstrcatA": 8, "lstrcpynA": 12, "GetTickCount": 0,
     "DisableThreadLibraryCalls": 4, "GetFileAttributesA": 4, "GetFileAttributesW": 4,
     "InitializeCriticalSection": 4, "EnterCriticalSection": 4, "LeaveCriticalSection": 4,
     "GetLastError": 0, "SetLastError": 4,
@@ -110,11 +116,35 @@ class StartupMachine:
             for imp in entry.imports:
                 self.iat.add(imp.address)
         mu.mem_map(STACK_TOP - 0x100000, 0x100000)
+        self._map_thread_block()
         mu.mem_map(CRT_RETURN_SENTINEL, 0x1000)
         mu.mem_write(CRT_RETURN_SENTINEL, b"\xF4")
         mu.hook_add(UC_HOOK_CODE, self._code)
         mu.hook_add(UC_HOOK_MEM_READ | UC_HOOK_MEM_WRITE, self._memory,
                     begin=EXE_BASE, end=self.exe_end - 1)
+
+    # -- the thread ---------------------------------------------------------
+    def _map_thread_block(self) -> None:
+        """A thread information block at fs:0, as Windows gives every thread:
+        an empty structured-exception chain (-1) and the stack bounds, so a
+        companion's __try/__except frames link and unlink as they do in the
+        game.  fs is loaded from a one-entry descriptor table."""
+        mu = self.mu
+        mu.mem_map(TEB, 0x1000)
+        mu.mem_write(TEB, struct.pack("<7I", 0xFFFFFFFF, STACK_TOP, STACK_TOP - 0x100000, 0, 0, 0, TEB))
+        mu.mem_map(GDT, 0x1000)
+        limit, access, flags = 0xFFF, 0x92, 0x4          # present, data, read/write; 32-bit
+        descriptor = ((limit & 0xFFFF) | ((TEB & 0xFFFFFF) << 16) | (access << 40)
+                      | (((limit >> 16) & 0xF) << 48) | (flags << 52) | (((TEB >> 24) & 0xFF) << 56))
+        mu.mem_write(GDT + 8 * FS_INDEX, struct.pack("<Q", descriptor))
+        flat = (0xFFFF | (0x92 << 40) | (0xF << 48) | (0xC << 52))   # base 0, 4 GiB, data
+        mu.mem_write(GDT + 8 * DATA_INDEX, struct.pack("<Q", flat))
+        mu.reg_write(UC_X86_REG_GDTR, (0, GDT, 0x100, 0))
+        # With a descriptor table in place every data segment is reloaded
+        # from it: ss, ds and es flat, fs the thread block.
+        for register in (UC_X86_REG_SS, UC_X86_REG_DS, UC_X86_REG_ES):
+            mu.reg_write(register, DATA_INDEX << 3)
+        mu.reg_write(UC_X86_REG_FS, FS_INDEX << 3)
 
     # -- the image --------------------------------------------------------------
     def section_of(self, va: int):
@@ -260,6 +290,9 @@ class StartupMachine:
             text = cstr(arg(1))[: max(arg(2) - 1, 0)]
             mu.mem_write(arg(0), text.encode("latin-1") + b"\0")
             ret(arg(0))
+        elif name == "lstrcmpiA":
+            first, second = cstr(arg(0)).lower(), cstr(arg(1)).lower()
+            ret((first > second) - (first < second))
         elif name == "lstrlenA":
             ret(len(cstr(arg(0))))
         elif name == "GetTickCount":

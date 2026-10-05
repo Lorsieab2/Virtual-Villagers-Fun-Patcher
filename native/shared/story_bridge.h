@@ -15,6 +15,7 @@
 
 #include <windows.h>
 #include <string.h>
+#include "startup_companions.h" /* only the companions this build ships */
 
 #define VVFP_STORY_DLL "VVFP Story Upgrades.dll"
 /* The Pick Island Event button the Tech menu gains while the row is active.
@@ -69,7 +70,7 @@ static int vvfp_story_load(void) {
         return 0;
     }
     lstrcpyA(slash + 1, VVFP_STORY_DLL);
-    module = LoadLibraryA(path);
+    module = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (module == NULL) {
         return 0;                     /* not shipped: the row is off */
     }

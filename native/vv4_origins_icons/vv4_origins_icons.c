@@ -1072,7 +1072,7 @@ static void vvfp_fix_huts_bridge(void) {
         return;
     }
     lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
-    companion = LoadLibraryA(path);
+    companion = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (companion == NULL) {
         return;                   /* not shipped: the row is off */
     }
@@ -1116,9 +1116,11 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
    menu and the first load-time catch-up.  Only loads and installs: nothing
    here reads or writes the game's data or calls a game routine.  The ticks
    stay on Vv4MaskCacheSurface; every bridge is install-once.  `game` is the
-   executable's own number (4). */
-void __stdcall VvfpStartup(int game) {
+   executable's own number (4); `shipped` is
+   this build's companion bits (native/shared/startup_companions.h). */
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
+    vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     vvfp_fix_huts_bridge();          /* loads and installs Builders and Healers Work First too */
     (void)vvfp_story_startup(4);
     (void)vvfp_cause_install_once(4);

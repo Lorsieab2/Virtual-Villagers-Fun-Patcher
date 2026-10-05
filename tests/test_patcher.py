@@ -3538,10 +3538,12 @@ class StockIntegrationTests(unittest.TestCase):
                         digest(companion),
                         feature.raw["companion_files"][0]["sha256"],
                     )
-                    # Three: the statistics exporter, the Village Population
-                    # roster it calls after a successful save, and -- with no
+                    # Four: the statistics exporter, the Village Population
+                    # roster it calls after a successful save, -- with no
                     # Origins in this build -- the Save Reset DLL the Start
-                    # Over hook the statistics feature carries resolves.
+                    # Over hook the statistics feature carries resolves, and
+                    # the game-start loader every build with a companion
+                    # DLL ships.
                     self.assertEqual(
                         sorted(
                             Path(item["path"]).name
@@ -3550,6 +3552,7 @@ class StockIntegrationTests(unittest.TestCase):
                         [
                             "VVFP Population Export.dll",
                             "VVFP Save Reset.dll",
+                            "VVFP Startup.dll",
                             "VVFP Statistics Export.dll",
                         ],
                     )

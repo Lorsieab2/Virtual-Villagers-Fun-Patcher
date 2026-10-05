@@ -18,4 +18,4 @@ EXPORTS
     Vv2MaskSaveSidecar=_Vv2MaskSaveSidecar@0
     Vv2ExtractAtlas=_Vv2ExtractAtlas@0
     ShowVV2TimeWarp=_ShowVV2TimeWarp@8
-    VvfpStartup=_VvfpStartup@4
+    VvfpStartup=_VvfpStartup@8

@@ -814,10 +814,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "38447658A526CBA1716BAF0AA6D2B963787C06DF66D431682E4DA7C70FF993F8",
-    "map": "9321CEF05D73DBD019C1464CD956DDC9B4058F57B90811CC8AE47F9F37BC6B83",
+    "manifest": "4BE5DEBE7EA7951C94FAE450C9215FD1F84AF8E4A4A6320FBD442752561C2B79",
+    "map": "0C2A7212346196865B0F0CC5C07DC5EF565D273D4F6DCEC9DE1B90B4D4E61CD2",
 }
-VV5_TASK9_DLL_SHA256 = "AC65835DE80C63B03C36ACD5AFDC2BED75890228DD4C12D1C4CC5F2D607D79BE"
+VV5_TASK9_DLL_SHA256 = "79BCEA29ED475F36B4A06E5512D989040A7E413C587CDA78A521EBC09DD34942"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -1840,7 +1840,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "3B1DFA652BA92C67F3D3CD31DE80298EC3805C4659F4BDA83E89700A81E3D9C4",
+    "builder": "FB344E865634412AFA265378DE17E8F8C93279D3089A30CE76BF94F80DD62097",
     "task9_builder": "677F67840915CEA93BBEB33F18DD6623EE66B43E100FA6D3FFE89EBAA3D80544",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -1853,8 +1853,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "564A926AA86EB95CE982118F8E539BE1C5309D221BE7E60F91B534E6872D9AB9",
-        "map": "550B683B6A87ECC491F84E115B105F0F35449D339AD4A9C8ECC0D1D03F170486",
+        "manifest": "F5C74508CA8EF41F53BAB6A35D9586CC58B231834CFF24D6BE230798826F13E7",
+        "map": "82D7ACF96E60DC3F369ECF4F1BE43A961B29C17A3375568B034E71C56F8EC4BE",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3276,7 +3276,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1789440,
+        "size": 1790464,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3634,7 +3634,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1789440,
+        "size": 1790464,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -10273,6 +10273,72 @@ def _copy_companion_files(
     return copied
 
 
+def _remove_unselected_companions(
+    staging_folder: Path, build: Build, fun_patches: list[FunPatch]
+) -> list[dict[str, str]]:
+    """Delete, from the staged copy of the game folder, every file the patcher
+    ships for THIS game that the selection does not ship.
+
+    The output starts as a copy of the chosen game folder, so a patcher
+    companion already in it (a folder that was patched before, or had a
+    Modded folder's files copied in) would otherwise stay -- and a companion
+    switches its feature on merely by being present: the Origins companion's
+    bridges load any Fix Huts, Story, Cause of Death, Pathfinding... DLL they
+    find beside the executable, which made an unticked patch keep running
+    (Codex, #537). This predates the startup loader; the loader's own
+    allowlist (STARTUP_LOADER_COMPANIONS) and the Origins bridges' check of it
+    stop the loading, and this removes the files.
+
+    Only the patcher's own files are touched, matched by the exact
+    destinations of this game's catalog records and the startup loader:
+    a companion DLL (every one is named "VVFP ...") by its name, and any other
+    file the patcher adds as a NEW file (no preimage: never a replacement of
+    a game file) only when it is byte for byte the file the patcher ships.
+    Nothing else in the folder changes. Returns what was removed, for the
+    patch log.
+    """
+    selected = {
+        _safe_companion_destination(item["destination"]).as_posix().casefold()
+        for feature in fun_patches
+        for item in feature.raw.get("companion_files", [])
+    }
+    candidates: dict[str, dict[str, Any]] = {}
+    for feature in _load_fun_patch_records():
+        if feature.raw.get("game_id") != build.id:
+            continue
+        for item in feature.raw.get("companion_files", []):
+            try:
+                destination = _safe_companion_destination(item.get("destination"))
+            except PatcherError:
+                continue
+            candidates.setdefault(destination.as_posix().casefold(), item)
+    candidates.setdefault(STARTUP_LOADER_DLL.casefold(), STARTUP_LOADER_COMPANION)
+    removed: list[dict[str, str]] = []
+    for key, item in sorted(candidates.items()):
+        if key in selected:
+            continue
+        destination = _safe_companion_destination(item["destination"])
+        path = staging_folder / destination
+        if not path.is_file():
+            continue
+        digest = sha256(path)
+        name = destination.name
+        is_companion_dll = name.casefold().endswith(".dll") and name.startswith("VVFP ")
+        is_own_new_file = (
+            not item.get("preimage_sha256")
+            and digest == str(item.get("sha256", "")).upper()
+        )
+        if not (is_companion_dll or is_own_new_file):
+            continue
+        path.unlink()
+        removed.append({
+            "path": destination.as_posix(),
+            "sha256": digest,
+            "reason": "a patcher file for a patch this build does not include",
+        })
+    return removed
+
+
 def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]:
     """Casefolded relative paths of every companion the patcher may install.
 
@@ -11758,7 +11824,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "657F92D3A3CE47C43760D34DCB51F97EEE02D0200B89947005C6A0AF9FA06D8A",
+    "sha256": "28EE6DF7D4BFCA1C5BF55DDE0025B3578CD37E6D1CA192F7589C1AD4A0FE1CB2",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -11773,6 +11839,9 @@ STARTUP_LOADER_ORIGINS = {
     "vv4": "VVFP VV4 Origins Icons.dll",
     "vv5": "VVFP Origins Icons.dll",
 }
+# APPEND ONLY: the bit order is a contract with VVFP Startup.dll and the
+# Origins companions (native/shared/startup_companions.h); never reorder,
+# rename or remove an entry.
 STARTUP_LOADER_COMPANIONS = (
     "VVFP Parentage Export.dll",
     "VVFP Statistics Export.dll",
@@ -12242,6 +12311,9 @@ def apply_patch(
     recovery_dir: Path | None = None
     failed_publish: Path | None = None
     try:
+        removed_companions = _remove_unselected_companions(
+            staging_folder, build, fun_patches
+        )
         companions = _copy_companion_files(staging_folder, fun_patches)
         converted: list[dict[str, str]] = []
         for item in companions:
@@ -12262,6 +12334,7 @@ def apply_patch(
             build, source, staged_output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
+        log_data["removed_unselected_companions"] = removed_companions
         save_copy: dict[str, Any] | None = None
         if copy_saves:
             save_copy = copy_vanilla_saves(

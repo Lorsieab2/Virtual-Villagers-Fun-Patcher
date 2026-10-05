@@ -52,7 +52,7 @@ static int vvfp_cause_install_once(int game) {
         return 0;
     }
     lstrcpyA(slash + 1, VVFP_CAUSE_DLL);
-    module = LoadLibraryA(path);
+    module = vvfp_startup_ships(slash + 1) ? LoadLibraryA(path) : NULL;
     if (module == NULL) {
         return 0;                     /* not shipped: the row is off */
     }

@@ -221,6 +221,7 @@ class StartupLoaderPlacement(unittest.TestCase):
 
     def test_every_companion_dll_is_one_the_loader_knows(self):
         source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
+        source += (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
         named = set(re.findall(r'"(VVFP [^"]+\.dll)"', source))
         shipped = {str(item["destination"]) for p in vfp.load_fun_patches()
                    for item in p.raw.get("companion_files", [])
@@ -228,11 +229,11 @@ class StartupLoaderPlacement(unittest.TestCase):
         self.assertEqual(shipped - named, set())
 
     def test_the_loader_and_the_patcher_number_the_companions_alike(self):
-        source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
-        body = source[source.index("COMPANIONS[] = {"):]
+        header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
+        body = header[header.index("VVFP_STARTUP_COMPANIONS[] = {"):]
         body = body[:body.index("};")]
-        golden = re.search(r'GOLDEN_MUSHROOM\[\] = "([^"]+)"', source).group(1)
-        self.assertEqual(tuple(re.findall(r'"([^"]+)"', body)) + (golden,), vfp.STARTUP_LOADER_COMPANIONS)
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', body)), vfp.STARTUP_LOADER_COMPANIONS)
+        source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
         origins = source[source.index("ORIGINS[VVFP_STARTUP_GAMES + 1] = {"):]
         origins = re.findall(r'"([^"]+)"', origins[:origins.index("};")])
         self.assertEqual(origins, [vfp.STARTUP_LOADER_ORIGINS[g] for g in GAMES])
@@ -326,28 +327,254 @@ class AMissingCompanionNeverStopsTheGame(unittest.TestCase):
                         self.assertEqual(loaded, set(present))
 
 
+STALE = {
+    "VVFP Fix Huts.dll": "assets/fix_huts/VVFP Fix Huts.dll",
+    "VVFP Work First.dll": "assets/work_first/VVFP Work First.dll",
+    "VVFP Cause of Death.dll": "assets/cause_of_death/VVFP Cause of Death.dll",
+    "VVFP Story Upgrades.dll": "assets/story_upgrades/VVFP Story Upgrades.dll",
+    "VVFP Improved Pathfinding.dll": "assets/pathfinding/VVFP Improved Pathfinding.dll",
+    "VVFP Lesson Cap.dll": "assets/lesson_cap/VVFP Lesson Cap.dll",
+    "VVFP Healers Study.dll": "assets/healers_study/VVFP Healers Study.dll",
+}
+ORIGINS_SOURCE = {
+    "vv1": "assets/origins/VVFP VV1 Origins Icons.dll",
+    "vv2": "assets/origins/VVFP VV2 Origins Icons.dll",
+    "vv3": "data/candidates/VVFP VV3 Safe Upgrades.dll",
+    "vv4": "assets/origins/VVFP VV4 Origins Icons.dll",
+    "vv5": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+}
+
+
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 class OnlyThisBuildsCompanions(unittest.TestCase):
     """Codex (#537): a patcher DLL in the folder that this build does not ship
     -- copied along with the game folder, or left by another build -- is
-    never loaded, so it can never install a patch nobody selected."""
+    never loaded: not by VVFP Startup.dll, and not by the Origins companion's
+    install bridges, which are handed the same bits.  So it can never install
+    a patch nobody selected."""
 
-    def test_unshipped_dlls_in_the_folder_are_never_loaded(self):
-        stale = {
-            "vv1": ("VVFP VV1 Origins Icons.dll", "assets/origins/VVFP VV1 Origins Icons.dll"),
-            "vv3": ("VVFP Origins Icons.dll", "data/candidates/VVFP VV3 Safe Upgrades.dll"),
-        }
-        extra_names = {"VVFP Fix Huts.dll": ROOT / "assets" / "fix_huts" / "VVFP Fix Huts.dll",
-                       "VVFP Cause of Death.dll": ROOT / "assets" / "cause_of_death" / "VVFP Cause of Death.dll"}
-        for game, (origins, source) in stale.items():
+    def run_with_stale(self, game, selection, stale):
+        exe, shipped, features = published(game, "collection_progression", tuple(selection))
+        folder = dict(shipped, **{name: ROOT / source for name, source in stale.items()})
+        machine = StartupMachine(exe, build_of(game).input_name, folder)
+        call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
+        machine.run_to_winmain(call_va, winmain)
+        return machine, shipped
+
+    def test_without_origins_no_stale_dll_is_loaded(self):
+        for game in ("vv1", "vv3"):
             with self.subTest(game=game):
-                selection = (f"{game}_write_village_statistics",)
-                exe, shipped, _ = published(game, "collection_progression", selection)
-                folder = dict(shipped, **extra_names, **{origins: ROOT / source})
-                machine = StartupMachine(exe, build_of(game).input_name, folder)
-                call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
-                machine.run_to_winmain(call_va, winmain)
+                stale = dict(STALE, **{vfp.STARTUP_LOADER_ORIGINS[game]: ORIGINS_SOURCE[game]})
+                machine, shipped = self.run_with_stale(game, (f"{game}_write_village_statistics",), stale)
                 self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
+                self.assertNotIn("VirtualProtect", [c[0] for c in machine.calls])
+
+    def test_with_origins_its_bridges_load_only_this_builds_companions(self):
+        # The reviewer's case: Origins shipped, Cause of Death, Story and the
+        # rest left in the folder by another build.  Before the bits reached
+        # the bridges, VV1 made 227 and VV4 171 VirtualProtect calls for them.
+        for game in GAMES:
+            with self.subTest(game=game):
+                selection = (f"{game}_enable_origins_exclusive_features", f"{game}_write_village_statistics")
+                stale = {n: s for n, s in STALE.items()}
+                machine, shipped = self.run_with_stale(game, selection, stale)
+                self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
+                self.assertNotIn("VirtualProtect", [c[0] for c in machine.calls])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class PublicationRemovesUnselectedCompanions(unittest.TestCase):
+    """Codex (#537): the output folder starts as a copy of the chosen game
+    folder, so a patcher companion already in it stayed in the build and
+    switched its patch on.  Publication now removes every file the patcher
+    ships for this game that the selection does not ship -- only those."""
+
+    def seed(self, folder: Path, game: str) -> dict[str, bytes]:
+        """Every companion file of the game's catalog, plus the loader, plus
+        files of the player's own."""
+        seeded = {}
+        for feature in vfp._load_fun_patch_records():
+            if feature.raw.get("game_id") != game:
+                continue
+            for item in feature.raw.get("companion_files", []):
+                source, temp = vfp._vv4_generated_companion_path(item)
+                try:
+                    if not source.is_file():
+                        continue
+                    target = folder / vfp._safe_companion_destination(item["destination"])
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    if item.get("preimage_sha256"):
+                        continue          # a replaced game file: leave the game's own
+                    target.write_bytes(source.read_bytes())
+                    seeded[target.relative_to(folder).as_posix()] = target.read_bytes()
+                finally:
+                    if temp is not None:
+                        temp.cleanup()
+        loader = folder / vfp.STARTUP_LOADER_DLL
+        loader.write_bytes((ROOT / vfp.STARTUP_LOADER_COMPANION["source"]).read_bytes())
+        seeded[vfp.STARTUP_LOADER_DLL] = loader.read_bytes()
+        (folder / "my notes.txt").write_text("the player's own file", encoding="utf-8")
+        (folder / "Images").mkdir(exist_ok=True)
+        (folder / "Images" / "my_art.png").write_bytes(b"the player's own art")
+        return seeded
+
+    def publish(self, game: str, selection: list[str]):
+        import shutil
+        import tempfile
+        import json
+        build = build_of(game)
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        folder = Path(temp.name) / build.title
+        folder.mkdir()
+        shutil.copy2(stock_path(game), folder / build.input_name)
+        seeded = self.seed(folder, game)
+        before = {p.relative_to(folder).as_posix(): p.read_bytes() for p in folder.rglob("*") if p.is_file()}
+        output, log_path = vfp.apply_patch(folder / build.input_name, "collection_progression",
+                                           fun_patch_ids=selection)
+        log = json.loads(log_path.read_text(encoding="utf-8"))
+        after = {p.relative_to(output.parent).as_posix(): p for p in output.parent.rglob("*") if p.is_file()}
+        return seeded, before, after, log, folder
+
+    def test_only_the_selected_companions_remain(self):
+        for game, selection in (("vv1", ["vv1_write_village_statistics"]),
+                                ("vv3", ["vv3_enable_origins_exclusive_features", "vv3_cause_of_death",
+                                         "vv3_write_parentage_log"])):
+            with self.subTest(game=game):
+                seeded, before, after, log, source_folder = self.publish(game, selection)
+                features = vfp._attach_automatic_companions(
+                    game, vfp._selected_fun_patches(build_of(game), selection))
+                shipped = {vfp._safe_companion_destination(i["destination"]).as_posix()
+                           for f in features for i in f.raw.get("companion_files", [])}
+                for relative in seeded:
+                    with self.subTest(file=relative):
+                        self.assertEqual(relative in after, relative in shipped)
+                removed = {r["path"] for r in log["removed_unselected_companions"]}
+                self.assertEqual(removed, {r for r in seeded if r not in shipped})
+                # Nothing else changed: the player's file, the art that is not
+                # the patcher's, and the source folder itself.
+                self.assertEqual(after["my notes.txt"].read_text(encoding="utf-8"), "the player's own file")
+                self.assertEqual(after["Images/my_art.png"].read_bytes(), b"the player's own art")
+                self.assertEqual({p.relative_to(source_folder).as_posix(): p.read_bytes()
+                                  for p in source_folder.rglob("*") if p.is_file()}, before)
+
+    def test_the_mutation_without_the_cleanup_keeps_the_stale_companions(self):
+        original = vfp._remove_unselected_companions
+        vfp._remove_unselected_companions = lambda *a, **k: []
+        self.addCleanup(setattr, vfp, "_remove_unselected_companions", original)
+        seeded, _, after, _, _ = self.publish("vv1", ["vv1_write_village_statistics"])
+        self.assertIn("VVFP Fix Huts.dll", seeded)
+        self.assertIn("VVFP Fix Huts.dll", after)
+
+
+TOOLCHAIN = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231")
+SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
+
+
+class AFaultingCompanionNeverStopsTheGame(unittest.TestCase):
+    """A companion whose VvfpStartup faults is abandoned and every other
+    companion still starts: run for real (32-bit, on this machine) with the
+    shipped VVFP Startup.dll, a companion that writes to address 0 and one
+    that records it was started."""
+
+    FAULTING = r'''
+#include <windows.h>
+#pragma comment(linker, "/EXPORT:VvfpStartup=_VvfpStartup@8")
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    (void)game; (void)shipped;
+    *(volatile int *)0 = 1;
+}
+'''
+    RECORDING = r'''
+#include <windows.h>
+#pragma comment(linker, "/EXPORT:VvfpStartup=_VvfpStartup@8")
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    char path[MAX_PATH];
+    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    HANDLE f;
+    while (n > 0 && path[n - 1] != '\\') { --n; }
+    lstrcpyA(path + n, "started.txt");
+    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    if (f != INVALID_HANDLE_VALUE) {
+        char text[32];
+        DWORD w;
+        wsprintfA(text, "%d %u", game, shipped);
+        WriteFile(f, text, lstrlenA(text), &w, NULL);
+        CloseHandle(f);
+    }
+}
+'''
+    HOST = r'''
+#include <windows.h>
+#include <stdio.h>
+typedef void (__stdcall *startup_fn)(int, unsigned int);
+int main(void) {
+    char path[MAX_PATH];
+    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    HMODULE m;
+    startup_fn startup;
+    while (n > 0 && path[n - 1] != '\\') { --n; }
+    lstrcpyA(path + n, "VVFP Startup.dll");
+    m = LoadLibraryA(path);
+    startup = m ? (startup_fn)GetProcAddress(m, "VvfpStartup") : NULL;
+    if (!startup) { puts("no loader"); return 2; }
+    startup(3, 0x1u | 0x10u);     /* the Origins companion and Save Reset (bit 4) */
+    puts("survived");
+    return 0;
+}
+'''
+
+    # The control: the same companion called directly, with no handler,
+    # takes the process down -- so the fault is real.
+    DIRECT = r'''
+#include <windows.h>
+typedef void (__stdcall *startup_fn)(int, unsigned int);
+int main(void) {
+    char path[MAX_PATH];
+    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    HMODULE m;
+    while (n > 0 && path[n - 1] != '\\') { --n; }
+    lstrcpyA(path + n, "VVFP Origins Icons.dll");
+    m = LoadLibraryA(path);
+    ((startup_fn)GetProcAddress(m, "VvfpStartup"))(3, 1);
+    return 0;
+}
+'''
+
+    def compile(self, folder: Path, source: str, out: str, dll: bool) -> None:
+        import subprocess
+        c = folder / (out + ".c")
+        c.write_text(source, encoding="utf-8")
+        version = "10.0.26100.0"
+        args = [str(TOOLCHAIN / "bin" / "Hostx64" / "x86" / "cl.exe"), "/nologo", "/O2", "/MT",
+                "/I", str(TOOLCHAIN / "include"), "/I", str(SDK / "Include" / version / "um"),
+                "/I", str(SDK / "Include" / version / "shared"), "/I", str(SDK / "Include" / version / "ucrt")]
+        if dll:
+            args.append("/LD")
+        args += [str(c), "/link", f"/OUT:{folder / out}",
+                 f"/LIBPATH:{TOOLCHAIN / 'lib' / 'x86'}", f"/LIBPATH:{SDK / 'Lib' / version / 'um' / 'x86'}",
+                 f"/LIBPATH:{SDK / 'Lib' / version / 'ucrt' / 'x86'}", "kernel32.lib", "user32.lib"]
+        result = subprocess.run(args, cwd=folder, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    @unittest.skipUnless((TOOLCHAIN / "bin" / "Hostx64" / "x86" / "cl.exe").exists(), "MSVC is not installed")
+    def test_a_fault_in_one_companion_skips_only_that_one(self):
+        import shutil
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            self.compile(folder, self.FAULTING, "VVFP Origins Icons.dll", True)
+            self.compile(folder, self.RECORDING, "VVFP Save Reset.dll", True)
+            self.compile(folder, self.HOST, "host.exe", False)
+            self.compile(folder, self.DIRECT, "direct.exe", False)
+            control = subprocess.run([str(folder / "direct.exe")], capture_output=True, text=True, timeout=60)
+            self.assertNotEqual(control.returncode, 0)
+            shutil.copy2(ROOT / vfp.STARTUP_LOADER_COMPANION["source"], folder / vfp.STARTUP_LOADER_DLL)
+            result = subprocess.run([str(folder / "host.exe")], capture_output=True, text=True, timeout=60)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("survived", result.stdout)
+            self.assertEqual((folder / "started.txt").read_text(encoding="ascii"), "3 17")
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

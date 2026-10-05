@@ -1626,9 +1626,11 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
    live hooks.  Now they are in place before the title screen.  Only loads
    and installs: nothing here reads or writes the game's data or calls a
    game routine.  The ticks stay on the world draw; both bridges are
-   install-once.  `game` is the executable's own number (3). */
-void __stdcall VvfpStartup(int game) {
+   install-once.  `game` is the executable's own number (3); `shipped` is
+   this build's companion bits (native/shared/startup_companions.h). */
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
+    vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     (void)vvfp_story_startup(3);
     (void)vvfp_cause_install_once(3);
 }
