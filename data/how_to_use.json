@@ -1,0 +1,809 @@
+{
+  "_comment": "The patcher window's \"?\" guides. One short, plain guide for every public patch (by patch id), every population mode (by mode id) and every button, tool and setting (by control key). Each guide is a list of short lines: what it does, how to use it, and what to watch out for. tests/test_how_to_use.py refuses a public patch, mode or control without one, and a guide that is too long or uses technical words. Write each from what the feature really does (its description in the patcher, README and How to Use.txt).",
+  "patches": [
+    {
+      "ids": ["vv1_learning_never_fails", "vv2_learning_never_fails", "vv3_learning_never_fails", "vv4_learning_never_fails"],
+      "guide": [
+        "Every time a villager practises Farming, Building, Research, Healing or Parenting at work, the skill check succeeds, so skills grow faster.",
+        "Nothing to click: tick it, patch, and play as usual.",
+        "How much a success adds, and everything else about the job, stays the game's own.",
+        "Off in Default Patches and Owner's Defaults: tick it yourself if you want it."
+      ]
+    },
+    {
+      "ids": ["vv5_learning_never_fails"],
+      "guide": [
+        "Every time a believer practises Farming, Building, Research, Healing, Parenting or Devotion at work, the skill check succeeds, so skills grow faster.",
+        "Nothing to click: tick it, patch, and play as usual.",
+        "Heathens are not affected, and everything else about the job stays the game's own.",
+        "Off in Default Patches and Owner's Defaults: tick it yourself if you want it."
+      ]
+    },
+    {
+      "ids": ["vv5_clickable_tips"],
+      "guide": [
+        "Click the curled vine just below the Puzzles button on the game screen.",
+        "A random game tip appears in the grey message bar, with a little chime.",
+        "The tip hides itself after a moment, like the game's own messages."
+      ]
+    },
+    {
+      "ids": ["vv1_visual_mods"],
+      "guide": [
+        "Makes the island prettier: flowers at the lagoon and the love hut, clothes at the extra hut near the farm, and colourful flowers in the restored garden.",
+        "Nothing to click: just look around the island.",
+        "Pictures only: gameplay and saves are not touched.",
+        "Untick it and patch again to get the original pictures back."
+      ]
+    },
+    {
+      "ids": ["vv2_easier_healing_mastery"],
+      "guide": [
+        "Healers, and villagers who like Healing, study plants whenever nobody is sick.",
+        "Nothing to click: they train Healing on their own, also while the game catches up on time away."
+      ]
+    },
+    {
+      "ids": ["vv2_teaching_children_grants_skill"],
+      "guide": [
+        "Each child who finishes a Teaching Children lesson gains 7 to 9 points in one random skill, like the Tribal Chief's lessons in The Secret City.",
+        "Nothing extra to click: run the lessons as you normally do.",
+        "Want lessons to stop at 50? Also tick Teaching Children Stops at 50."
+      ]
+    },
+    {
+      "ids": ["vv2_hospital_recovery_heals"],
+      "guide": [
+        "A villager who finishes Recovering at the hospital gains 1 health point (up to 100).",
+        "Nothing to click: it happens whenever a hospital recovery ends.",
+        "In the original game, recovering at the hospital does not change health at all."
+      ]
+    },
+    {
+      "ids": ["vv1_birth_control", "vv2_birth_control"],
+      "guide": [
+        "Lets you choose who has babies: villagers only pair up on their own when their Parenting preference is ticked.",
+        "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
+        "The game no longer picks a villager aged 50 or older as a partner.",
+        "Pregnancies that have already started are not affected."
+      ]
+    },
+    {
+      "ids": ["vv3_birth_control"],
+      "guide": [
+        "Lets you choose who has babies: a villager only starts pairing up on their own with some Parenting skill AND the Parenting preference ticked.",
+        "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
+        "Dropping villagers on each other, and pregnancies already started, are not affected."
+      ]
+    },
+    {
+      "ids": ["vv1_manual_drop_breeding_overrides_birth_control"],
+      "guide": [
+        "Drop an adult villager on an adult of the opposite sex: a woman aged 50 or older is no longer refused.",
+        "In A New Home this only matters with Birth Control also ticked, because only Birth Control refuses her.",
+        "A baby is still not guaranteed: the game's usual chances decide.",
+        "All other drop rules stay: both adults and well, she is not already expecting or nursing, and enough food and room.",
+        "Off by default; Owner's Defaults ticks it."
+      ]
+    },
+    {
+      "ids": ["vv2_manual_drop_breeding_overrides_birth_control", "vv3_manual_drop_breeding_overrides_birth_control", "vv4_manual_drop_breeding_overrides_birth_control", "vv5_manual_drop_breeding_overrides_birth_control"],
+      "guide": [
+        "Drop an adult villager on an adult of the opposite sex: a woman aged 50 or older is no longer refused.",
+        "A baby is still not guaranteed: the game's usual chances decide.",
+        "All other drop rules stay: both adults and well, she is not already expecting or nursing, and enough food and room.",
+        "Only your own drops change; villagers pairing up on their own are not affected.",
+        "Off by default; Owner's Defaults ticks it."
+      ]
+    },
+    {
+      "ids": ["vv1_school_lessons_grant_skill"],
+      "guide": [
+        "Each child who finishes Going to school gains 7 to 9 points in one random skill.",
+        "Going to school has to be unlocked in your village first, as in the original game.",
+        "Want lessons to stop at 50? Also tick School Lessons Stop at 50."
+      ]
+    },
+    {
+      "ids": ["vv1_continue_research_at_max_technologies"],
+      "guide": [
+        "Once all six technologies reach level 3, researchers keep researching and earning tech points.",
+        "Nothing to click: your researchers just carry on."
+      ]
+    },
+    {
+      "ids": ["vv1_f6_clothing_change_cheat"],
+      "guide": [
+        "Click a villager to select them, then press F6 to change them to the next outfit.",
+        "Each press costs 5,000 tech points; with less than that, F6 does nothing and costs nothing.",
+        "After the last outfit it starts again from the first."
+      ]
+    },
+    {
+      "ids": ["vv1_magic_fruit_alters_mortality"],
+      "guide": [
+        "After you complete the Magic Fruit of Life puzzle, every villager lives about seven years longer.",
+        "A villager who finishes eating the magic fruit is also cured and back to full health.",
+        "The fruit can be eaten again and again."
+      ]
+    },
+    {
+      "ids": ["vv1_builder_action_fixes"],
+      "guide": [
+        "Builders try to build more often when food is plentiful (400 or more), about three times in four.",
+        "New population huts: drop a villager on the second or third hut once, and builders will finish it whatever the population.",
+        "What gets built, and in what order, stays the game's own.",
+        "Works together with Builders Fix Huts When Idle if you tick both."
+      ]
+    },
+    {
+      "ids": ["vv3_nature_honey_refill"],
+      "guide": [
+        "Once Nature reaches level 1, fruit trees refill in 2 hours 15 minutes instead of 3 hours, and honey in 45 minutes instead of 1 hour.",
+        "Honey also gets the same extra amount that fruit trees get from Nature.",
+        "Nothing to click: research Nature as usual."
+      ]
+    },
+    {
+      "ids": ["vv3_nature_level_three_alters_mortality"],
+      "guide": [
+        "Once Nature reaches level 3, every villager lives about seven years longer.",
+        "It adds to the Medicine bonus; it does not replace it.",
+        "Nothing to click: research Nature as usual."
+      ]
+    },
+    {
+      "ids": ["vv3_rare_collectible_retry"],
+      "guide": [
+        "When the Tribal Chief finishes Pointing out a rare collectible, a collectible now almost always appears.",
+        "The game simply tries its own pick again, up to 20 times.",
+        "If every special collectible is already found, nothing appears, as in the original game."
+      ]
+    },
+    {
+      "ids": ["vv4_complete_scales_golden_fish"],
+      "guide": [
+        "Golden Fish can only turn up in the fishing nets after all 12 Fish Scales are collected.",
+        "Then the chance is the game's own 25%.",
+        "Watch out: a part-finished Fish Scales collection no longer gives Golden Fish."
+      ]
+    },
+    {
+      "ids": ["vv5_heathen_mommy_puzzle"],
+      "guide": [
+        "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",
+        "The Puzzles screen shows the hidden 17th puzzle picture (Heathen Parent) and its hover messages.",
+        "Start a new village to meet her; villages you already have do not get her.",
+        "She and her baby use two villager places."
+      ]
+    },
+    {
+      "ids": ["vv5_easier_devotee_training"],
+      "guide": [
+        "Villagers who already have some Devotion skill sometimes go Honoring on their own.",
+        "Beginners with no Devotion still learn by being dropped on a statue.",
+        "Only while you play; for time away, tick Builders and Healers Work First."
+      ]
+    },
+    {
+      "ids": ["vv5_statue_polishing_or_honoring"],
+      "guide": [
+        "Drop a villager on a finished statue: they either polish it or start Honoring, 50/50.",
+        "Their skills do not matter.",
+        "Unfinished statues work as before."
+      ]
+    },
+    {
+      "ids": ["vv5_vv4_nursery_divisor_parity"],
+      "guide": [
+        "Nursery school lessons share one lesson evenly over all six skills, as in The Tree of Life.",
+        "In the original New Believers each skill got a fifth, which adds up to more than a whole lesson.",
+        "Nothing to click."
+      ]
+    },
+    {
+      "ids": ["vv2_gong_of_wonder_coconuts_fix"],
+      "guide": [
+        "When the Gong of Wonder gives coconuts, 30 are added to the trees instead of the trees being set to 30.",
+        "Nothing to click: ring the gong as usual."
+      ]
+    },
+    {
+      "ids": ["vv2_firepit_dry_grass_above_wood"],
+      "guide": [
+        "When both the dry grass and the firewood are in the unlit fire pit, the grass now shows on top of the wood.",
+        "Only the picture changes; the fire pit puzzle works as before."
+      ]
+    },
+    {
+      "ids": ["vv1_fix_vanilla_bugs"],
+      "guide": [
+        "Fixes a bug in the original game: a pregnant villager who drinks the blue Mysterious Vial and turns back into a toddler no longer brings twins or triplets in her next pregnancy.",
+        "Nothing to click. On by default."
+      ]
+    },
+    {
+      "ids": ["vv2_fix_vanilla_bugs"],
+      "guide": [
+        "Fixes a bug in the original game: the Crystal Ball island event only comes when there is another living villager to swap places with.",
+        "If \"Keep it\" is chosen with nobody else alive, the game carries on instead of closing.",
+        "Nothing to click. On by default."
+      ]
+    },
+    {
+      "ids": ["vv3_fix_vanilla_bugs"],
+      "guide": [
+        "Fixes bugs in the original game: the Royal Jelly vials and the amber and quartz Mysterious Vials now do what their text says.",
+        "A village with exactly 150 villagers can be saved and loaded again; one already damaged that way is repaired when loaded.",
+        "Keep it on with 256 Villagers (Experimental). On by default."
+      ]
+    },
+    {
+      "ids": ["vv4_fix_vanilla_bugs"],
+      "guide": [
+        "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again.",
+        "A village already damaged by that bug is repaired when it is loaded.",
+        "Only matters with a bigger population mode or 256 Villagers. On by default."
+      ]
+    },
+    {
+      "ids": ["vv3_everyone_tries_on_robe"],
+      "guide": [
+        "Drop a villager on the robe: every other villager (except nursing mothers) goes to try it on too.",
+        "The game still decides who becomes Tribal Chief."
+      ]
+    },
+    {
+      "ids": ["vv5_guardians_of_isola_rewrite"],
+      "guide": [
+        "Replaces New Believers' story text and twelve story pictures (totems, idol, masks and the main menu) with the Guardians of Isola rewrite.",
+        "Words and pictures only: gameplay and saves are not touched.",
+        "Untick it and patch again to get the original story back."
+      ]
+    },
+    {
+      "ids": ["vv1_faster_village_scrolling", "vv2_faster_village_scrolling"],
+      "guide": [
+        "Scrolling when you select a villager or drag the screen is as fast as in the later games.",
+        "Nothing to click."
+      ]
+    },
+    {
+      "ids": ["vv2_everyone_collects_like_vv1", "vv3_everyone_collects_like_vv1", "vv4_everyone_collects_like_vv1", "vv5_everyone_collects_like_vv1"],
+      "guide": [
+        "A cheat from A New Home: drop several children on the same mushroom or collectible, and it is multiplied.",
+        "Off by default; Owner's Defaults ticks it."
+      ]
+    },
+    {
+      "ids": ["vv1_super_secret_golden_mushroom", "vv2_super_secret_golden_mushroom", "vv3_super_secret_golden_mushroom", "vv4_super_secret_golden_mushroom", "vv5_super_secret_golden_mushroom"],
+      "guide": [
+        "Adds a golden spotted mushroom to the island.",
+        "Pick it like any other mushroom to find out what it does. It's a secret!",
+        "Off by default; Owner's Defaults ticks it."
+      ]
+    },
+    {
+      "ids": ["vv1_origins_village_wide_upgrades", "vv2_origins_village_wide_upgrades", "vv3_origins_village_wide_upgrades", "vv4_origins_village_wide_upgrades"],
+      "guide": [
+        "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",
+        "Click it, choose an upgrade and confirm; it is paid for with tech points.",
+        "Includes village-wide Running, Full Mastery and Young Adults, and the Food and Tech Point Doublers.",
+        "If an upgrade would change nothing, no tech points are taken.",
+        "Story / Cheat Upgrades needs this patch."
+      ]
+    },
+    {
+      "ids": ["vv5_origins_village_wide_upgrades"],
+      "guide": [
+        "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",
+        "Click it, choose an upgrade and confirm; it is paid for with tech points.",
+        "Includes Time Warp, Island Event, Barrel of Babies, the Doublers, Full Heal and village-wide upgrades.",
+        "The village-wide Running, Full Mastery and Exactly 18 upgrades skip Heathens.",
+        "If an upgrade would change nothing, no tech points are taken.",
+        "Story / Cheat Upgrades needs this patch."
+      ]
+    },
+    {
+      "ids": ["vv4_optional_text_changes"],
+      "guide": [
+        "Changes some wording to match the other games, for example \"Scholar\" becomes \"Esteemed Elder\".",
+        "Untick it to keep the original text."
+      ]
+    },
+    {
+      "ids": ["vv1_number_keys"],
+      "guide": [
+        "Press a number key (1 to 9, on the top row or the keypad) to glide the view to a part of the island.",
+        "They are laid out like a keypad: 7 8 9 at the top, 4 5 6 in the middle, 1 2 3 at the bottom.",
+        "Press another number to change course.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv2_numeric_keys_tip_wording"],
+      "guide": [
+        "Changes one loading-screen tip to say \"numeric keys\" instead of \"keypad\".",
+        "The number keys themselves already work in The Lost Children."
+      ]
+    },
+    {
+      "ids": ["vv1_restore_missing_island_events"],
+      "guide": [
+        "Adds two island events that are in the game but never happened: A Mighty Storm and The Furry Food.",
+        "They come at random like any other event, but only when there is stored food to lose.",
+        "Watch out: both can cost you stored food."
+      ]
+    },
+    {
+      "ids": ["vv2_restore_missing_island_events"],
+      "guide": [
+        "Adds island events that are in the game but never happened: The Mosquito Swarm, The Dragonfly Migration and Science Awareness Day.",
+        "Three rarer lore events are added too: The Tattered Diary and two Doctrines, pages of Isola's story.",
+        "They come at random like any other event.",
+        "With Story / Cheat Upgrades you can also choose them in Pick Island Event."
+      ]
+    },
+    {
+      "ids": ["vv1_show_parents"],
+      "guide": [
+        "Villagers born from now on remember their mother and father.",
+        "On the Villager Details screen, a villager under 18 shows small faded figures of their parents in the top corners; hover one to read the name.",
+        "Founders and villagers born before you installed it have no parents recorded.",
+        "Tick Write Births and Conceptions Log to Text File too, or only the mother is recorded.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv1_sort_by"],
+      "guide": [
+        "Adds a Sort By band to the Villager Details screen, under Age and Gender: Age, Skill and Health.",
+        "Pick one, then use the left and right arrows to step through the villagers in that order.",
+        "Age is the default.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv1_improved_pathfinding", "vv2_improved_pathfinding"],
+      "guide": [
+        "Villagers walk around things in their way, like in the later games, instead of giving up on their task.",
+        "Nothing to click.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv1_watering_trains_building"],
+      "guide": [
+        "\"Watering the field\" now trains Building, but only while it moves the garden puzzle forward (after the lagoon puzzle).",
+        "Once the garden is restored, watering gives nothing extra.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv1_misc_text_fixes"],
+      "guide": [
+        "Fixes a few small text mistakes: the skill is called \"parenting\" instead of \"breeding\", and two full stops are fixed.",
+        "Nothing to click."
+      ]
+    },
+    {
+      "ids": ["vv1_builders_fix_huts", "vv2_builders_fix_huts"],
+      "guide": [
+        "Builders do building work first: when there is a hut or project to work on, they go to it (about three times in four).",
+        "With nothing to build, an idle builder examines and fixes a hut that stands, which trains Building.",
+        "New population huts: drop a villager on the second or third hut once, and builders will finish it whatever the population.",
+        "Food levels no longer stop builders from their hut work.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv3_builders_fix_huts", "vv4_builders_fix_huts", "vv5_builders_fix_huts"],
+      "guide": [
+        "Builders do building work first: when there is a hut or project to work on, they go to it (about three times in four).",
+        "With nothing to build, an idle builder examines and fixes a hut that stands, which trains Building.",
+        "Low food no longer sends builders off to farm or gather while there is hut work.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv1_builders_and_healers_work_first", "vv2_builders_and_healers_work_first", "vv3_builders_and_healers_work_first", "vv4_builders_and_healers_work_first"],
+      "guide": [
+        "Villagers whose job is Building or Healing do their own work first, about three times in four, whatever the food level.",
+        "It also works while the game catches up on time away (and in Time Warp), so they keep gaining skill.",
+        "When they have nothing of their own to do, they do what the game picks.",
+        "Needs Builders Fix Huts When Idle; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv5_builders_and_healers_work_first"],
+      "guide": [
+        "Villagers whose job is Building or Healing do their own work first, about three times in four, whatever the food level.",
+        "It also works while the game catches up on time away (and in Time Warp), so they keep gaining skill.",
+        "During that catch-up, devotees also go Honoring first.",
+        "When they have nothing of their own to do, they do what the game picks.",
+        "Needs Builders Fix Huts When Idle; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv1_school_lessons_cap_50"],
+      "guide": [
+        "School lessons only train skills that are under 50, and stop exactly at 50.",
+        "When every skill is at 50, a lesson gives nothing, like the later games' Nursery Schools.",
+        "Needs School Lessons Grant Skill; ticking this ticks it for you.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv2_teaching_children_cap_50"],
+      "guide": [
+        "Teaching Children lessons only train skills that are under 50, and stop exactly at 50.",
+        "When every skill is at 50, a lesson gives nothing, like the later games' Nursery Schools.",
+        "Needs Teaching Children Grants Skill; ticking this ticks it for you.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv3_chief_lessons_cap_50"],
+      "guide": [
+        "The Tribal Chief's lessons only train skills that are under 50, and stop exactly at 50.",
+        "When every skill is at 50, a lesson gives nothing, like the later games' Nursery Schools.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv1_healers_study_regardless_of_food"],
+      "guide": [
+        "Drop a villager on the medical cactus to start them studying.",
+        "They now keep studying even when the village has 400 food or more (about three times in four).",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv2_healers_study_regardless_of_food"],
+      "guide": [
+        "A villager studying a plant keeps studying even when the village has 300 food or more (about three times in four).",
+        "They also carry on studying while the game catches up on time away.",
+        "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv5_playing_in_the_dirt_spot"],
+      "guide": [
+        "Children who play in the dirt now play in the flower patch east of the dirt path, instead of wandering through the river.",
+        "Nothing to click."
+      ]
+    },
+    {
+      "ids": ["vv5_devoted_soul_epitaph"],
+      "guide": [
+        "When a Devotee is buried, the grave reads \"Respected Citizen\" or \"Devoted Soul\" (50/50), like the other jobs' two choices.",
+        "Click the gravestone to see it. You can still edit it."
+      ]
+    },
+    {
+      "ids": ["vv1_story_cheat_upgrades", "vv3_story_cheat_upgrades", "vv4_story_cheat_upgrades", "vv5_story_cheat_upgrades"],
+      "guide": [
+        "For stories and cheats: every Origins Upgrade costs 0 tech points.",
+        "Adds Pick Island Event: choose an island event from a list, and how it turns out if you like.",
+        "Adds Custom Island Event: write your own event with its title, text, food, tech points, new villagers and more.",
+        "Find both in the Origins Upgrades menus.",
+        "Watch out: it skips the game's normal progress. Off by default.",
+        "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv2_story_cheat_upgrades"],
+      "guide": [
+        "For stories and cheats: every Origins Upgrade costs 0 tech points.",
+        "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own).",
+        "Adds Pick Gong of Wonder Outcome: choose what the next ring of the Gong does.",
+        "Find them in the Origins Upgrades menus.",
+        "Watch out: it skips the game's normal progress. Off by default.",
+        "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv1_cause_of_death"],
+      "guide": [
+        "Click a gravestone: it shows the cause of death under the age and an epitaph under the name.",
+        "You can type your own epitaph in its box (up to 31 letters); Done keeps it.",
+        "A child under 14 is shown as \"Apprentice\" plus their job on the grave.",
+        "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs.",
+        "Old graves get an epitaph but no cause: how they died was never recorded.",
+        "Tick Write Births and Conceptions Log to Text File too, or no log is written."
+      ]
+    },
+    {
+      "ids": ["vv2_cause_of_death"],
+      "guide": [
+        "Click a gravestone: it shows the cause of death under the age.",
+        "A child under 14 is shown as \"Apprentice\" plus their job on the grave.",
+        "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs.",
+        "Old graves show no cause: how they died was never recorded.",
+        "Tick Write Births and Conceptions Log to Text File too, or no log is written."
+      ]
+    },
+    {
+      "ids": ["vv3_cause_of_death", "vv4_cause_of_death", "vv5_cause_of_death"],
+      "guide": [
+        "Every death, burial and disappearance is written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs.",
+        "A villager who leaves or appears with no record is written to the Unaccounted Villagers log.",
+        "Nothing to click in the game; open the log files to read them.",
+        "Graves from before the log are added only when you use Repair Logs.",
+        "Tick Write Births and Conceptions Log to Text File too, or no log is written."
+      ]
+    },
+    {
+      "ids": ["vv3_population_256", "vv4_population_256"],
+      "guide": [
+        "EXPERIMENTAL: gives the game 256 villager places instead of 150.",
+        "The game is made as \"<game> - Modded 256\" and keeps its saves in its own \"- Modded 256\" save folder.",
+        "To carry on an old village, copy its save files from the \"- Modded\" save folder into the \"- Modded 256\" one yourself.",
+        "Once saved there, that village opens only in a 256 game, so keep a backup (Back Up Saves).",
+        "Keep Fix Vanilla Bugs on to load a village the game's 150-villager save bug has damaged.",
+        "Off by default, and Select All does not tick it."
+      ]
+    },
+    {
+      "ids": ["vv5_population_256"],
+      "guide": [
+        "EXPERIMENTAL: gives the game 256 villager places instead of 150 (believers and Heathens share them).",
+        "The game is made as \"<game> - Modded 256\" and keeps its saves in its own \"- Modded 256\" save folder.",
+        "To carry on an old village, copy its save files from the \"- Modded\" save folder into the \"- Modded 256\" one yourself.",
+        "Once saved there, that village opens only in a 256 game, so keep a backup (Back Up Saves).",
+        "Off by default, and Select All does not tick it."
+      ]
+    },
+    {
+      "ids": ["vv1_write_village_statistics"],
+      "guide": [
+        "Each time the game saves your village (save slots 1 to 5), it writes \"Village Statistics v2 - Save N.txt\".",
+        "Find it in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs\\Village Statistics.",
+        "The game saves when you quit it from its own menu.",
+        "If a count is found wrong, it is fixed only when you say so (Repair Logs).",
+        "Tick Show Parents in Details Screen too, to see each villager's parents in the Village Population log."
+      ]
+    },
+    {
+      "ids": ["vv2_write_village_statistics", "vv3_write_village_statistics", "vv4_write_village_statistics", "vv5_write_village_statistics"],
+      "guide": [
+        "Each time the game saves your village (save slots 1 to 5), it writes \"Village Statistics v2 - Save N.txt\".",
+        "Find it in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs\\Village Statistics.",
+        "The game saves when you quit it from its own menu.",
+        "If a count is found wrong, it is fixed only when you say so (Repair Logs)."
+      ]
+    },
+    {
+      "ids": ["vv1_write_parentage_log"],
+      "guide": [
+        "Writes every conception and birth to a text log, with both parents, their looks and likes, and the babies.",
+        "Find it in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs\\Births and Conceptions.",
+        "Tick Show Parents in Details Screen too, or only conceptions are written.",
+        "The Cause of Death patch also needs this one to write its logs.",
+        "Tick Write Village Statistics to Text File (or the Cause of Death patch) too, so each log is headed with the village's name."
+      ]
+    },
+    {
+      "ids": ["vv2_write_parentage_log", "vv3_write_parentage_log", "vv4_write_parentage_log", "vv5_write_parentage_log"],
+      "guide": [
+        "Writes every conception and birth to a text log, with both parents, their looks and likes, and the babies.",
+        "Find it in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs\\Births and Conceptions.",
+        "Villagers who join without being born (founders, newcomers) get an Arrived record when the Cause of Death patch is ticked too.",
+        "The Cause of Death patch also needs this one to write its logs.",
+        "Tick Write Village Statistics to Text File (or the Cause of Death patch) too, so each log is headed with the village's name."
+      ]
+    }
+  ],
+  "modes": {
+    "stock": [
+      "Keeps each game's normal population limit: A New Home 90, The Lost Children 115, The Secret City 125, The Tree of Life 115, New Believers 105.",
+      "Pick this to play with the original game's limits.",
+      "Twins, triplets and island events still never overfill the villager places."
+    ],
+    "collection_progression": [
+      "Collections keep raising the population limit as you complete them.",
+      "A New Home and The Lost Children can reach 256; the other three reach 150 (256 with 256 Villagers).",
+      "Pick this if you like to earn a bigger village."
+    ],
+    "immediate_fixed": [
+      "The highest population limit is open straight away: 256 in A New Home and The Lost Children, 150 in the other three (256 with 256 Villagers).",
+      "Collections no longer change the limit.",
+      "Pick this for the biggest village from the start."
+    ]
+  },
+  "controls": {
+    "select_all": {
+      "title": "Select All Patches",
+      "guide": [
+        "Ticks every patch for every game.",
+        "Except 256 Villagers (Experimental), which you tick yourself.",
+        "It does not change the population mode."
+      ]
+    },
+    "default_patches": {
+      "title": "Default Patches",
+      "guide": [
+        "Ticks the recommended set: every patch except Learning Skills Never Fails, Manual Drop-Breeding, Story / Cheat Upgrades and 256 Villagers,",
+        "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom.",
+        "This is what a fresh install starts with.",
+        "It does not change the population mode."
+      ]
+    },
+    "owners_defaults": {
+      "title": "Owner's Defaults",
+      "guide": [
+        "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails.",
+        "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
+        "It does not change the population mode."
+      ]
+    },
+    "deselect_all": {
+      "title": "Deselect All Patches",
+      "guide": [
+        "Unticks every patch, so you can tick just the ones you want.",
+        "The population mode you chose still applies."
+      ]
+    },
+    "output_location": {
+      "title": "Modded output location",
+      "guide": [
+        "Click Choose Folder... to pick where the modded copies go.",
+        "Each game is made inside it as \"(Game name) - Modded\".",
+        "Leave it blank to put each copy beside its original game folder."
+      ]
+    },
+    "choose_exe": {
+      "title": "Original game executable",
+      "guide": [
+        "Click Browse... and choose the original game's .exe, as downloaded from Last Day of Work.",
+        "The blue line below says which game it found.",
+        "The original game is never changed."
+      ]
+    },
+    "validate": {
+      "title": "Validate",
+      "guide": [
+        "Checks that the chosen game is a supported original, and shows the population limit of the mode you picked.",
+        "Nothing is written."
+      ]
+    },
+    "dry_run": {
+      "title": "Dry Run",
+      "guide": [
+        "A practice run: checks the game and prepares every ticked patch, but writes no files.",
+        "Shows where the modded copy would be made."
+      ]
+    },
+    "create_modified_exe": {
+      "title": "Create Modified EXE",
+      "guide": [
+        "1. Pick a population mode and tick the patches you want.",
+        "2. Browse to the original game's .exe, then click Create Modified EXE.",
+        "A complete copy named \"(Game name) - Modded\" is made with the modded game in it; the original is never changed.",
+        "The patcher's own files go in a \"Virtual Villagers Fun Patcher Files\" folder inside the copy.",
+        "Play the .exe in the copy. Its saves go in their own \"- Modded\" folder in Documents\\LDW.",
+        "Patching again replaces the copy (it asks first); your saves are not touched."
+      ]
+    },
+    "game_folders": {
+      "title": "Game folders",
+      "guide": [
+        "Choose one folder per game, each holding that game's original .exe.",
+        "Use Choose Folder... on a row, or Find All 5 in Parent Folder... to fill them all.",
+        "The original folders are never changed."
+      ]
+    },
+    "find_all_5": {
+      "title": "Find All 5 in Parent Folder",
+      "guide": [
+        "Choose one folder that holds your five games.",
+        "The patcher finds each game's .exe in that folder or one folder below, and fills in the rows."
+      ]
+    },
+    "validate_all_5": {
+      "title": "Validate All 5",
+      "guide": [
+        "Checks that all five chosen games are supported originals.",
+        "Nothing is written."
+      ]
+    },
+    "dry_run_all_5": {
+      "title": "Dry Run All 5",
+      "guide": [
+        "A practice run for all five games: checks them and prepares every ticked patch, but writes no files."
+      ]
+    },
+    "patch_all_5": {
+      "title": "Patch All 5",
+      "guide": [
+        "1. Pick a population mode and tick the patches you want.",
+        "2. Fill in all five game folders, then click Patch All 5.",
+        "Each game gets a complete copy named \"(Game name) - Modded\"; the originals are never changed.",
+        "The patcher's own files go in a \"Virtual Villagers Fun Patcher Files\" folder inside each copy.",
+        "Copying five games can take several minutes."
+      ]
+    },
+    "open_vanilla_folder": {
+      "title": "Open Vanilla Folder",
+      "guide": [
+        "Opens the original game's folder in File Explorer."
+      ]
+    },
+    "open_modified_folder": {
+      "title": "Open Modified Folder",
+      "guide": [
+        "Opens the modded copy's folder in File Explorer, where the modded game's .exe is.",
+        "Patch the game first."
+      ]
+    },
+    "open_game_folder": {
+      "title": "Open Game Folder",
+      "guide": [
+        "After patching, opens the new modded folder in File Explorer."
+      ]
+    },
+    "back_up_saves": {
+      "title": "Back Up Saves",
+      "guide": [
+        "Copies a game's save folders (your saves and the patcher's logs) into a dated Backups folder inside each one.",
+        "Click Back Up Saves, tick the save folders you want, then Back Up Selected.",
+        "The game can stay open: it is paused for the copy, but the backup holds the village as of its last save.",
+        "Old backups are never replaced or deleted."
+      ]
+    },
+    "restore_saves": {
+      "title": "Restore Saves",
+      "guide": [
+        "Puts a backup back: the whole save folder, or one save slot.",
+        "Quit the game first, from its own menu.",
+        "Choose a backup, choose whole folder or one slot, then Restore...; you are shown what will change first.",
+        "Your saves as they are now are backed up first, so a restore can be undone.",
+        "Delete Backup... removes a backup you no longer want (it asks first)."
+      ]
+    },
+    "rename_tribe": {
+      "title": "Rename Tribe",
+      "guide": [
+        "Changes a tribe's name inside its save.",
+        "Quit the game first, from its own menu.",
+        "Pick the game, save folder and tribe, type the new name and click Rename.",
+        "The save folder is backed up first, so you can undo it with Restore Saves.",
+        "The patcher's logs carry on for the same village under the new name."
+      ]
+    },
+    "check_logs": {
+      "title": "Check Logs",
+      "guide": [
+        "Checks whether the patcher's logs for a village agree with its save.",
+        "Pick the game, save folder and tribe, then click Check.",
+        "Each file is marked OK, WRONG, NOTE or UNCHECKED.",
+        "It only reads, so the game may stay open."
+      ]
+    },
+    "repair_logs": {
+      "title": "Repair Logs",
+      "guide": [
+        "Your go-ahead for the game to fix a village's logs.",
+        "Quit the game first, then pick the game, save folder and tribe; the logs are checked and the result shown.",
+        "Confirm: the save folder is backed up first.",
+        "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking."
+      ]
+    },
+    "check_logs_automatically": {
+      "title": "Check logs automatically",
+      "guide": [
+        "On by default. Games you create while it is ticked check each village's logs quietly while you play.",
+        "Only if something is wrong, you are asked Repair or Not now when you close the game, never during play.",
+        "Repair fixes it (backed up first); Not now changes nothing and asks again next time.",
+        "To turn it off, untick this box and create the game again; a game already made keeps its setting."
+      ]
+    },
+    "check_for_updates": {
+      "title": "Check for updates",
+      "guide": [
+        "Opens the patcher's GitHub page, where the newest version is listed.",
+        "Your version is shown just above the link."
+      ]
+    }
+  }
+}

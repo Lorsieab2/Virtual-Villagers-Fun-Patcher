@@ -488,7 +488,9 @@ class GuiTests(unittest.TestCase):
         self.assertRegex(
             self.SOURCE,
             r'"Rename Tribe\.\.\.", self\._rename_single_tribe\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
+            r'self\._help_button\(links, "rename_tribe"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
             r'self\._folder_link\(\s*links, "Check Logs\.\.\.", self\._check_single_logs\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
+            r'self\._help_button\(links, "check_logs"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
             r'self\._folder_link\(\s*links, "Repair Logs\.\.\.", self\._repair_single_logs',
         )
         self.assertIn('"Check logs...",\n                lambda game=build: self._log_tool(game, repair=False)', self.SOURCE)
@@ -524,7 +526,10 @@ class GuiTests(unittest.TestCase):
         # Beside Check Logs / Repair Logs on both tabs.
         self.assertEqual(self.SOURCE.count("variable=self.check_logs_var,"), 2)
         self.assertRegex(self.SOURCE, r'"Repair Logs\.\.\.", self\._repair_single_logs\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
-                                      r'ttk\.Checkbutton\(\s*box,\s*text=CHECK_LOGS_LABEL')
+                                      r'self\._help_button\(links, "repair_logs"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
+                                      r'check_logs_row = ttk\.Frame\(box\)\s*'
+                                      r'check_logs_row\.grid\(.*\)\s*'
+                                      r'ttk\.Checkbutton\(\s*check_logs_row,\s*text=CHECK_LOGS_LABEL')
         # Every game the window creates carries it.
         for call in ("lambda: apply_patch(", "lambda: apply_all("):
             at = self.SOURCE.index(call)
