@@ -3540,7 +3540,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
    match: no line. */
 static int record_custom_title(int game_id, const struct game_layout *g,
                                const unsigned char *record, const unsigned char *records,
-                               char *out, size_t out_size) {
+                               int departed, char *out, size_t out_size) {
     static unsigned char data[VV_TITLES_FILE_MAX];
     static vv_custom_title titles[VV_TITLES_MAX];
     char village[VV_VILLAGE_NAME_MAX + 32];
@@ -3600,8 +3600,15 @@ static int record_custom_title(int game_id, const struct game_layout *g,
     if (found < 0) {
         return 0;
     }
+    /* A rebuilt copy of a departed villager (`departed`) is in no live
+       record, so ANY living carrier of its identity may be the title's
+       owner (Codex, #553); a live record is one carrier itself.  With no
+       readable live table a departed copy cannot be checked: no title. */
+    if (departed && records == NULL) {
+        return 0;
+    }
     if (records != NULL) {
-        int carriers = 0, index;
+        int carriers = departed ? 1 : 0, index;
         for (index = 0; index < g->slots; ++index) {
             const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
             if (*(const unsigned char *)(other + g->active) == 1
@@ -3730,7 +3737,11 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     special[0] = '\0';
     custom[0] = '\0';
     if (detail >= 1) {
-        (void)record_custom_title(game_id, g, record, check ? records : NULL, custom, sizeof custom);
+        const unsigned char *live = records != NULL
+                                        && (check || memory_is_readable(records, g->record_base
+                                                                        + (size_t)g->slots * g->stride))
+                                        ? records : NULL;
+        (void)record_custom_title(game_id, g, record, live, !check, custom, sizeof custom);
     }
     if (detail >= 1 && record_special_title(game_id, g, record) != NULL) {
         /* The villager's title (native/shared/special_title.h). */

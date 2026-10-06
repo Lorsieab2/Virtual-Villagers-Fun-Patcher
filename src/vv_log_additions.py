@@ -211,8 +211,9 @@ RENAMED = re.compile(r"^Tribe renamed from (.+) to (.+) on \d{4}-\d{2}-\d{2}")
 def current_villages(folder: Path, game: int, slot: int) -> set[str] | None:
     """Every "Village: <name> (Save n)" header the slot's current village has had: its name in
     the save, and each name a "Tribe renamed from <old> to <new>" note says it had before (Rename
-    Tribe, docs/rename-tribe.md).  None when the save cannot be read (then every header of the
-    slot is taken)."""
+    Tribe, docs/rename-tribe.md).  A note counts only under this game's and slot's village, under a
+    header of a name the chain already has (Codex, #553: another village's rename is not this
+    one's).  None when the save cannot be read (then every header of the slot is taken)."""
     import vv_tribe_rename
     checker = tools.load_checker()
     games = {g.number: g for g in vv_tribe_rename.GAMES}
@@ -227,14 +228,19 @@ def current_villages(folder: Path, game: int, slot: int) -> set[str] | None:
     notes = []
     for path in checker.log_files(Path(folder)):
         try:
-            notes += [m.groups() for m in map(RENAMED.match, read_lines(path)) if m]
+            found = blocks(path)
         except OSError:
             continue
+        for b in found:
+            if b.slot != slot or (b.game is not None and b.game != game):
+                continue
+            notes += [(*m.groups(), b.village) for m in map(RENAMED.match, b.lines) if m]
     grew = True
     while grew:
         grew = False
-        for old, new in notes:
-            if new in names and old not in names:
+        for old, new, under in notes:
+            known = {vv_tribe_rename.village_header(n, slot) for n in names | {old}}
+            if new in names and old not in names and under in known:
                 names.add(old)
                 grew = True
     return {vv_tribe_rename.village_header(n, slot) for n in names}
@@ -467,8 +473,13 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
     kind = Kind("born_as", "Twin / Triplet in older Birth records")
     words = {1: "Single birth", 2: "Twin", 3: "Triplet"}
     villages = current_villages(folder, game, slot)
-    for path in checker.numbered(folder / checker.LOGS / "Births and Conceptions",
-                                 f"Virtual Villagers {game} Births and Conceptions Log"):
+    # Every layout the Birth records have had (native/shared/save_reset.c): an upgrade keeps the
+    # older ones where they were until the game is next played (Codex, #553).
+    paths = [path for root in (checker.LOGS, "VVFP Logs")
+             for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
+                                ("Tribe Parental Records", "Parentage Log"))
+             for path in checker.numbered(folder / root / sub, f"Virtual Villagers {game} {words}")]
+    for path in paths:
         lines = read_lines(path)
         all_blocks = [b for b in blocks(path, lines) if b.of(slot, game, villages)]
         last_babies: dict[tuple, int] = {}

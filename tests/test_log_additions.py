@@ -144,6 +144,22 @@ class Planning(unittest.TestCase):
         self.assertIn("  Mother: Lone\r\n    Head: 7\r\n    Body: 7\r\n  Father: Pa\r\n    Head: 2\r\n"
                       "    Body: 2\r\n  Born as: Triplet\r\n", text)
 
+    def test_birth_records_in_a_retired_layout_are_found(self):
+        # Codex (#553): an upgrade leaves older Birth records where an earlier build wrote them.
+        for root, sub, words in (("VVFP Logs", "Births and Conceptions", "Births and Conceptions Log"),
+                                 (LOGS, "Tribe Parental Records", "Parentage Log"),
+                                 ("VVFP Logs", "Tribe Parental Records", "Parentage Log")):
+            with self.subTest(root=root, sub=sub):
+                folder = self.folder / root / sub
+                folder.mkdir(parents=True, exist_ok=True)
+                log = folder / f"Virtual Villagers 3 {words} 1.txt"
+                log.write_bytes(b"Village: Tribe (Save 1)\r\n"
+                                b"Birth\r\n  Child: C\r\n    Head: 3\r\n    Body: 3\r\n  Mother: Lone\r\n"
+                                b"    Head: 7\r\n    Body: 7\r\n  Father: Pa\r\n    Head: 2\r\n    Body: 2\r\n\r\n")
+                kind = self.kinds(3)["born_as"]
+                self.assertEqual(len(kind.questions), 1)
+                log.unlink()
+
     def test_dont_know_adds_nothing(self):
         write(self.folder, "Births and Conceptions/Virtual Villagers 3 Births and Conceptions Log 1.txt",
               "Village: Tribe (Save 1)\nBirth\n  Child: C\n    Head: 3\n    Body: 3\n  Mother: Lone\n"
@@ -186,9 +202,12 @@ class Planning(unittest.TestCase):
               "Village: Tribe (Save 1)\n" + villager(1, "Hoani", 11, 2, "  Custom title: Helpful Spirit\n"))
         write(self.folder, "Tribe History/Village History 1.txt",
               snapshot("2026-09-01 10:00", villager(1, "Hoani", 11, 2)).replace("Village: Tribe", "Village: Gone")
-              + "Tribe renamed from Old to Tribe on 2026-09-20\n\n"
               + snapshot("2026-09-21 10:00", villager(1, "Hoani", 11, 2)).replace("Village: Tribe", "Village: Old")
+              + "Tribe renamed from Old to Tribe on 2026-09-20\n\n"
               + snapshot("2026-10-01 10:00", villager(1, "Hoani", 11, 2)))
+        # Another slot's village renamed from Gone to Tribe is not this village's past (Codex, #553).
+        write(self.folder, "Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+              "Village: Gone (Save 2)\nTribe renamed from Gone to Tribe on 2026-09-22\n\n")
         import vv_tribe_rename
         from unittest import mock
         with mock.patch.object(vv_tribe_rename, "save_name", return_value="Tribe"):

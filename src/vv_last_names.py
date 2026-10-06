@@ -310,6 +310,22 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     path = save_path(folder, game, slot)
     original = path.read_bytes()
     after = bytearray(original)
+    # A parent reference written before that parent's change of looks is asked about with the
+    # logs' records (Codex, #553); a "yes" renames it in the save, the rosters and the logs.
+    references = []
+    if f.father is not None:
+        fh, fb, mh, mb, eh, eb = f.looks
+        for v in people:
+            for off, cap, head, body in ((f.father, f.parent_cap, fh, fb), (f.mother, f.parent_cap, mh, mb),
+                                         (f.expecting, 0x18, eh, eb)):
+                references.append((_cstr(original, v.at + off, cap), _i32(original, v.at + head),
+                                   _i32(original, v.at + body)))
+    result.questions = _look_alike_questions(folder, game, slot, people, renames, references)
+    asked = dict(renames)
+    for q in result.questions:
+        new = q.options.get((answers or {}).get(q.key, ""), "")
+        if new:
+            asked[q.who] = new
     title_map: dict[int, int] = {}
     mask_map: dict[int, int] = {}
     before_ids = {v.at: (_title_identity(original, v.at, f), _mask_identities(game, original, v.at)) for v in people}
@@ -325,8 +341,8 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
                                          (f.expecting, 0x18, eh, eb)):
                 parent = (_cstr(original, v.at + off, cap), _i32(original, v.at + head),
                           _i32(original, v.at + body))
-                if parent in renames:
-                    _put_name(after, v.at + off, cap, renames[parent])
+                if parent in asked:
+                    _put_name(after, v.at + off, cap, asked[parent])
     # A title or mask is kept by an identity two villagers may share (the same name and likes, or
     # name and parents).  Given different names, the game could no longer tell which of them a
     # title or mask was for: when such an identity is in use in a titles or mask file, that is
@@ -352,28 +368,23 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     data_dir = folder / tools.DATA
     _plan_masks(result, game, slot, data_dir, mask_map, conflicts)
     _plan_u32_file(result, data_dir / "Custom Titles" / f"Custom Titles - Save {slot}.dat",
-                   b"VCT1", 2, 16, 40, 4, title_map, "custom titles", conflicts)
+                   b"VCT1", 2, game, 16, 40, 4, title_map, "custom titles", conflicts)
     if game == 5:
         _plan_u32_file(result, data_dir / "Former Heathens" / f"Former Heathens - Save {slot}.dat",
-                       b"VFH1", 1, 16, 8, 0, title_map, "former Heathens", conflicts)
+                       b"VFH1", 1, game, 16, 8, 0, title_map, "former Heathens", conflicts)
     if game == 1:
-        _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, by_name)
-    _plan_unaccounted(result, game, slot, data_dir, renames, by_name)
-    _plan_statistics(result, slot, data_dir, renames, by_name)
-    log_renames = dict(renames)
-    result.questions = _look_alike_questions(folder, game, slot, people, renames)
-    for q in result.questions:
-        new = q.options.get((answers or {}).get(q.key, ""), "")
-        if new:
-            log_renames[q.who] = new
-    _plan_logs(result, folder, game, slot, log_renames, by_name)
+        _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
+    _plan_unaccounted(result, game, slot, data_dir, renames, asked)
+    _plan_statistics(result, game, slot, data_dir, by_name)
+    _plan_logs(result, folder, game, slot, asked, by_name)
     return result
 
 
 def _look_alike_questions(folder: Path, game: int, slot: int, people: list[Living],
-                          renames: dict[tuple, str]) -> list[Question]:
-    """One question per (name, head, body) the logs name that is a renamed villager's old name
-    but no living villager's looks, and no dead villager's record: is it them?"""
+                          renames: dict[tuple, str], references: list[tuple] = ()) -> list[Question]:
+    """One question per (name, head, body) the logs or the save's parent `references` name that
+    is a renamed villager's old name but no living villager's looks, and no dead villager's
+    record: is it them?"""
     import vv_log_additions as additions
     checker = tools.load_checker()
     living_ids = {v.identity for v in people}
@@ -383,6 +394,9 @@ def _look_alike_questions(folder: Path, game: int, slot: int, people: list[Livin
             renamed_by_name.setdefault(v.name, []).append((v, renames[v.identity]))
     dead: set[tuple] = set()
     seen: dict[tuple, int] = {}
+    for who in references:
+        if who[0] in renamed_by_name and who not in living_ids:
+            seen[who] = seen.get(who, 0) + 1
     villages = additions.current_villages(folder, game, slot)
     for path in checker.log_files(folder):
         lines = additions.read_lines(path)
@@ -465,14 +479,17 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
-def _plan_u32_file(result: Plan, path: Path, magic: bytes, version: int, header: int, entry: int,
-                   field_at: int, mapping: dict[int, int], what: str, conflicts: dict[int, str]) -> None:
+def _plan_u32_file(result: Plan, path: Path, magic: bytes, version: int, game: int, header: int,
+                   entry: int, field_at: int, mapping: dict[int, int], what: str,
+                   conflicts: dict[int, str]) -> None:
     """A file of `count` fixed entries whose u32 at `field_at` is an identity.  A file that is not
-    exactly its own format (magic, version, header + count * entry bytes) is left as it is."""
+    exactly its own format of this game (magic, version, the game at offset 8, header + count *
+    entry bytes) is left as it is: games sharing a folder share these files' names (Codex, #553)."""
     if not path.is_file():
         return
     original = path.read_bytes()
-    if len(original) < header or original[:4] != magic or struct.unpack_from("<I", original, 4)[0] != version:
+    if (len(original) < header or original[:4] != magic or struct.unpack_from("<I", original, 4)[0] != version
+            or struct.unpack_from("<I", original, 8)[0] != game):
         result.notes.append(f"{path.name} is not a {what} file this patcher writes; left as it is.")
         return
     count = struct.unpack_from("<I", original, 12)[0]
@@ -495,15 +512,16 @@ def _dead_names(folder: Path, game: int, slot: int) -> set[str]:
 
 
 def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, people: list[Living],
-                        renames: dict[tuple, str], by_name: dict[str, set]) -> None:
+                        renames: dict[tuple, str], asked: dict[tuple, str], by_name: dict[str, set]) -> None:
     """A New Home's Parentage Records: the roster is matched as the companion matches it -- by
-    gender, family and name (and looks, when the file recorded them); a father / mother /
-    expected-father name by its looks, or, in an entry written before looks were kept, by a name
-    only one renamed villager and no dead villager carries."""
+    name and looks when the file recorded them, else by gender, family and name when every living
+    holder of those takes one new name (Codex, #553); a father / mother / expected-father name by
+    its looks (`asked`: a "yes" to a look-alike question too), or, in an entry written before looks
+    were kept, by a name every living holder and no dead villager shares."""
     by_scalar: dict[tuple, set] = {}
     for v in people:
-        if v.identity in renames:
-            by_scalar.setdefault((v.name, 1 if v.sex == "Male" else 2, v.family), set()).add(renames[v.identity])
+        by_scalar.setdefault((v.name, 1 if v.sex == "Male" else 2, v.family), set()).add(
+            renames.get(v.identity, v.name))
     dead = _dead_names(folder, 1, slot)
     for path in (data_dir / "Parentage Records" / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat",
                  data_dir / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"):
@@ -522,9 +540,9 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
             new = None
             if buf[occ + 2] and buf[occ + 3]:
                 new = renames.get((name, buf[occ + 2] - 1, buf[occ + 3] - 1))
-            if new is None:
+            else:
                 news = by_scalar.get((name, buf[occ], _i32(buf, occ + 4)), set())
-                new = next(iter(news)) if len(news) == 1 else None
+                new = next(iter(news)) if len(news) == 1 and name not in news else None
             if new:
                 _put_name(buf, occ + 8, 28, new)
                 n += 1
@@ -535,7 +553,7 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
                 if not name:
                     continue
                 if buf[e + looks] and buf[e + looks + 1]:
-                    new = renames.get((name, buf[e + looks] - 1, buf[e + looks + 1] - 1))
+                    new = asked.get((name, buf[e + looks] - 1, buf[e + looks + 1] - 1))
                 else:
                     news = by_name.get(name, set())
                     new = next(iter(news)) if len(news) == 1 and name not in dead else None
@@ -547,7 +565,7 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
 
 
 def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, renames: dict[tuple, str],
-                      by_name: dict[str, set]) -> None:
+                      asked: dict[tuple, str]) -> None:
     name = f"Virtual Villagers {game} Village Roster - Save {slot}.dat"
     rec = RECORD[game]
     for path in (data_dir / "Unaccounted Villagers" / name, data_dir / name):
@@ -579,18 +597,32 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
                     width = 0x18 if key == "expecting" else FIELDS[game].parent_cap
                     parent = (_cstr(original, base + at, width), _i32(original, base + head),
                               _i32(original, base + body))
-                    if parent in renames:
-                        _put_name(buf, base + at, width, renames[parent])
+                    if parent in asked:
+                        _put_name(buf, base + at, width, asked[parent])
                         n += 1
         if n:
             result.changes.append(Change(path, original, bytes(buf), "the Unaccounted roster"))
 
 
-def _plan_statistics(result: Plan, slot: int, data_dir: Path, renames: dict[tuple, str],
-                     by_name: dict[str, set]) -> None:
+def _first_line(path: Path) -> str:
+    try:
+        return path.read_bytes().decode("latin-1").split("\n", 1)[0].rstrip("\r")
+    except OSError:
+        return ""
+
+
+def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name: dict[str, set]) -> None:
+    """The Village Statistics roster and Village Elders.  Games sharing a folder share these
+    files' names (Codex, #553): the Elders file names its game on its first line, and the roster
+    (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so."""
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
-    roster = data_dir / "Village Statistics" / f"Village Roster - Save {slot}.dat"
-    if roster.is_file():
+    folder = data_dir / "Village Statistics"
+    roster = folder / f"Village Roster - Save {slot}.dat"
+    statistics = _first_line(folder / f"Village Statistics - Save {slot}.dat")
+    if roster.is_file() and statistics != f"VVFP VILLAGE STATISTICS v1 game={game}":
+        result.notes.append(f"{roster.name} may be another game's (its Village Statistics file does not "
+                            "name this game); left as it is.")
+    elif roster.is_file():
         original = roster.read_bytes()
         lines = original.decode("latin-1").split("\n")
         changed = False
@@ -604,7 +636,9 @@ def _plan_statistics(result: Plan, slot: int, data_dir: Path, renames: dict[tupl
             result.changes.append(Change(roster, original, "\n".join(lines).encode("latin-1"),
                                         "the statistics roster"))
     elders = data_dir / "Village Elders" / f"Village Elders - Save {slot}.dat"
-    if elders.is_file():
+    if elders.is_file() and _first_line(elders) != f"VVFP VILLAGE ELDERS v2 game={game}":
+        result.notes.append(f"{elders.name} is not this game's version 2 Village Elders file; left as it is.")
+    elif elders.is_file():
         original = elders.read_bytes()
         lines = original.decode("latin-1").split("\n")
         changed = False

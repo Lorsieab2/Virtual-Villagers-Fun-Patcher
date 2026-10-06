@@ -232,6 +232,44 @@ class CodexReview(GiveLastNames):
         change = next(c for c in work.changes if c.path == bare)
         self.assertIn(b"  Name: Ago Akikai\r\n", change.updated)
 
+    def test_another_games_titles_and_elders_are_left_alone(self):
+        # Codex (#553): games sharing a folder share these files' names; each names its game.
+        data = bytearray(self.titles.read_bytes())
+        data[8] = 4
+        self.titles.write_bytes(bytes(data))
+        elders = self.folder / DATA / "Village Elders" / "Village Elders - Save 1.dat"
+        elders.parent.mkdir(parents=True)
+        line = b"E\t0\tAgo\t\t\t1\t0\r\n"
+        for game, changed in ((4, False), (3, True)):
+            with self.subTest(game=game):
+                elders.write_bytes(b"VVFP VILLAGE ELDERS v2 game=%d\r\n" % game + line)
+                work = ln.plan(self.folder, 3, 1, self.chosen())
+                self.assertFalse(any(c.path == self.titles for c in work.changes))
+                self.assertEqual(any(c.path == elders for c in work.changes), changed)
+        roster = self.folder / DATA / "Village Statistics" / "Village Roster - Save 1.dat"
+        roster.parent.mkdir(parents=True)
+        roster.write_bytes(b"VVFP VILLAGE ROSTER v1\r\n0\tAgo\t-\r\n")
+        work = ln.plan(self.folder, 3, 1, self.chosen())
+        self.assertFalse(any(c.path == roster for c in work.changes), "no Village Statistics file names game 3")
+        (roster.parent / "Village Statistics - Save 1.dat").write_bytes(b"VVFP VILLAGE STATISTICS v1 game=3\n")
+        work = ln.plan(self.folder, 3, 1, self.chosen())
+        self.assertTrue(any(c.path == roster for c in work.changes))
+
+    def test_a_parent_reference_from_before_a_change_of_looks_is_asked(self):
+        # Codex (#553): a child's father field keeps the looks he had when she was born.
+        child = entry("Tama", 1, 1, 4, 4, father=("Ago", 3, 3), mother=("Aipi", 7, 8))
+        data = self.save.read_bytes()[:TABLE + 4 * STRIDE] + child + bytes(64)
+        self.save.write_bytes(data)
+        work = ln.plan(self.folder, 3, 1, self.chosen())
+        [question] = [q for q in work.questions if q.who == ("Ago", 3, 3)]
+        yes = next(a for a in question.options if a.startswith("Yes"))
+        tama = TABLE + 4 * STRIDE + 0x14
+        save = next(c for c in work.changes if c.path == self.save)
+        self.assertEqual(save.updated[tama + 0x24:tama + 0x28], b"Ago\0", "not answered: left alone")
+        work = ln.plan(self.folder, 3, 1, self.chosen(), {question.key: yes})
+        save = next(c for c in work.changes if c.path == self.save)
+        self.assertEqual(save.updated[tama + 0x24:tama + 0x24 + 11], b"Ago Akikai\0")
+
     def test_a_damaged_titles_file_is_left_alone(self):
         self.titles.write_bytes(self.titles.read_bytes()[:30])      # count says 1, the entry is cut
         work = ln.plan(self.folder, 3, 1, self.chosen())
@@ -239,6 +277,39 @@ class CodexReview(GiveLastNames):
         self.assertTrue(any("damaged" in n for n in work.notes))
         ln.give_last_names(self.folder, 3, 1, self.chosen(), NoGame(), NOW)
         self.assertEqual(len(self.titles.read_bytes()), 30)
+
+
+class NewHomeParentage(unittest.TestCase):
+    """A New Home's Parentage Records roster (Codex, #553): an entry with recorded looks is matched
+    by them alone; gender, family and name decide only an entry without looks, and only when every
+    living holder of them takes one new name."""
+
+    def test_a_namesake_with_other_looks_keeps_his_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = Path(tmp)
+            people = [ln.Living(0, "Ago", "Male", 5, 6, 1, "Akikai"), ln.Living(0, "Ago", "Male", 1, 2, 1, "Akikai")]
+            renames = {("Ago", 5, 6): "Ago Akikai"}
+            buf = bytearray(b"VP02" + bytes(8 + 256 * 36 + 256 * 92))
+
+            def occupant(i, head, body):
+                occ = 12 + i * 36
+                buf[occ] = 1
+                buf[occ + 2], buf[occ + 3] = head + 1 if head is not None else 0, body + 1 if body is not None else 0
+                struct.pack_into("<i", buf, occ + 4, 1)
+                buf[occ + 8:occ + 11] = b"Ago"
+
+            occupant(0, 5, 6)
+            occupant(1, 1, 2)
+            occupant(2, None, None)
+            path = data_dir / "Parentage Records" / "Virtual Villagers 1 Parentage Records - Save 1.dat"
+            path.parent.mkdir()
+            path.write_bytes(bytes(buf))
+            result = ln.Plan(renames)
+            ln._plan_vv1_parentage(result, data_dir, data_dir, 1, people, renames, renames, {})
+            [change] = result.changes
+            names = [ln._cstr(change.updated, 12 + i * 36 + 8, 28) for i in range(3)]
+            self.assertEqual(names, ["Ago Akikai", "Ago", "Ago"],
+                             "his looks decide; a looks-less entry is ambiguous while the namesake keeps his name")
 
 
 class TheWindow(unittest.TestCase):
