@@ -577,7 +577,9 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
            for a Heathen the game itself made one of those. */
         int risky = t->status >= 5;
         int i;
-        for (i = 0; i < count && !risky && t->status >= 2; ++i) {
+        /* Any change but "Becomes a Heathen" (which a Heathen already is) to
+           one of the game's own purple, Chief or Mommy Heathens. */
+        for (i = 0; i < count && !risky && t->status != 1; ++i) {
             int position = ui_roster_position(targets[i]);
             int kind = position >= 0 ? ui.roster[position].kind : STORY_KIND_NONE;
             risky = kind == STORY_KIND_HEATHEN_PURPLE || kind == STORY_KIND_HEATHEN_CHIEF
@@ -776,6 +778,26 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
             int i;
             if (!ui_read_changes(window, &t, targets, count)) {
                 return TRUE;
+            }
+            {
+                int dead_chief = 0;
+                int live_chief = 0;
+                for (i = 0; i < ui.roster_count; ++i) {
+                    int chief = ui.roster[i].kind == STORY_KIND_TRIBAL_CHIEF;
+                    live_chief |= chief && !ui.roster[i].dead;
+                }
+                for (i = 0; i < count; ++i) {
+                    int position = ui_roster_position(targets[i]);
+                    dead_chief |= position >= 0 && ui.roster[position].dead
+                                  && ui.roster[position].kind == STORY_KIND_TRIBAL_CHIEF;
+                }
+                if (dead_chief && live_chief
+                    && MessageBoxA(window, "A dead Tribal Chief is chosen: they come back to life while another "
+                                   "chief lives, so the village would have two chiefs. Do this at your own risk.",
+                                   "Custom Island Event: do at your own risk",
+                                   MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+                    return TRUE;
+                }
             }
             for (i = 0; i < count; ++i) {
                 const unsigned char *record = ui.a->record(targets[i]);
@@ -1322,6 +1344,7 @@ static void ui_describe_change(const ce_change *c, char *out) {
     if (c->title_op == CE_TITLE_CLEAR) p += wsprintfA(p, " no title");
     if (c->mask != CE_KEEP) p += wsprintfA(p, " mask");
     if (c->status != CE_KEEP) p += wsprintfA(p, " %s", ui.a->statuses[c->status]);
+    if (c->faith != CE_KEEP) p += wsprintfA(p, " faith %d", c->faith);
     if (c->behaviour != CE_KEEP) p += wsprintfA(p, " %s", ui.a->behaviours[c->behaviour].label);
     if (c->parents_set) p += wsprintfA(p, " parents");
     if (c->unborn_set) p += wsprintfA(p, " baby's father");
@@ -1365,8 +1388,8 @@ static void ui_refresh_lists(HWND window) {
     SendDlgItemMessageA(window, IDC_CE_SPAWNS, LB_RESETCONTENT, 0, 0);
     for (i = 0; i < ui.draft.spawn_groups; ++i) {
         const ce_spawn *s = &ui.draft.spawns[i];
-        wsprintfA(text, "%d x %s, %s years%s%s", s->count,
-                  s->sex == STORY_SEX_MALE ? "male" : "female", ui_years(s->age, years),
+        wsprintfA(text, "%d x %s, %s years (%d units)%s%s", s->count,
+                  s->sex == STORY_SEX_MALE ? "male" : "female", ui_years(s->age, years), s->age,
                   s->name[0] ? ", " : "", s->name);
         SendDlgItemMessageA(window, IDC_CE_SPAWNS, LB_ADDSTRING, 0, (LPARAM)text);
     }
@@ -1429,12 +1452,16 @@ static int ui_read_main(HWND window) {
     e->tech_amount = ui_number(window, IDC_CE_TECH);
     if ((e->food_op == CE_AMOUNT_ADD || e->food_op == CE_AMOUNT_SUBTRACT)
         && (e->food_amount == CE_KEEP || e->food_amount < 1 || e->food_amount > CE_MAX_AMOUNT)) {
-        ui_message(window, "Type an amount of food from 1 to 1,000,000.");
+        char limit[96];
+        wsprintfA(limit, "Type an amount of food from 1 to %d.", CE_MAX_AMOUNT);
+        ui_message(window, limit);
         return 0;
     }
     if ((e->tech_op == CE_AMOUNT_ADD || e->tech_op == CE_AMOUNT_SUBTRACT)
         && (e->tech_amount == CE_KEEP || e->tech_amount < 1 || e->tech_amount > CE_MAX_AMOUNT)) {
-        ui_message(window, "Type an amount of tech points from 1 to 1,000,000.");
+        char limit[96];
+        wsprintfA(limit, "Type an amount of tech points from 1 to %d.", CE_MAX_AMOUNT);
+        ui_message(window, limit);
         return 0;
     }
     if (e->food_amount < 0) e->food_amount = 0;

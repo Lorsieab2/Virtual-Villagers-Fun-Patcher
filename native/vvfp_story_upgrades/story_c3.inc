@@ -653,8 +653,9 @@ static const ce_adapter C3_ADAPTER = {
     "traced to the end, so only the father's name and looks are offered.\r\n"
     "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
     "the chief's own powers, and lessons or games that stop other villagers.\r\n"
-    "- Revive: buried villagers (their record is gone), skeletons that have already "
-    "crumbled away, and a dead chief while another chief lives.\r\n"
+    "- Revive: buried villagers (their record is gone) and skeletons that have already "
+    "crumbled away. (A dead chief comes back a chief even while another lives: you "
+    "are asked to confirm, at your own risk.)\r\n"
     "- Golden Child, faction, totems: The Secret City has none.",
     48, 14, 30, 1,
     "Refills the fruit trees.",
