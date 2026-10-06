@@ -169,6 +169,11 @@ __declspec(dllexport) void __stdcall VvfpCauseTestArrivalTick(void) {
     arrival_tick();
 }
 
+/* Record `index`'s arrival state (ARRIVAL_*): 0 none. */
+__declspec(dllexport) int __stdcall VvfpCauseTestArrivalState(int index) {
+    return index >= 0 && index < RECORDS_MAX ? (int)arrivals[index].state : -1;
+}
+
 /* Whether A New Home's Birth records are written: 1 yes, -1 no, 0 look. */
 __declspec(dllexport) void __stdcall VvfpCauseTestVv1Births(int outcome) {
     test_vv1_births = outcome;
