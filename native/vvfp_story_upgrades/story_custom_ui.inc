@@ -650,6 +650,8 @@ static void ui_setup_changes(HWND window) {
     char text[256];
     char years[16];
     int i;
+    int widest = 0;
+    RECT extent;
     ui_load_roster();
     for (i = 0; i < ui.roster_count; ++i) {
         int row;
@@ -669,7 +671,18 @@ static void ui_setup_changes(HWND window) {
                   custom != NULL ? " - " : "", custom != NULL ? custom : "");
         row = (int)SendDlgItemMessageA(window, IDC_CH_LIST, LB_ADDSTRING, 0, (LPARAM)text);
         SendDlgItemMessageA(window, IDC_CH_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
+        if (lstrlenA(text) > widest) {
+            widest = lstrlenA(text);
+        }
     }
+    /* A long role label (VV2's "Esteemed Elder, totem: ...") is wider than
+       the list: it scrolls sideways to the end of the longest row.  Four
+       dialog units are the dialog font's average character, and Segoe UI
+       is narrower than average for the lower-case text the rows hold, so
+       a generous 5 per character reaches the end. */
+    SetRect(&extent, 0, 0, widest * 5 + 8, 0);
+    MapDialogRect(window, &extent);
+    SendDlgItemMessageA(window, IDC_CH_LIST, LB_SETHORIZONTALEXTENT, (WPARAM)extent.right, 0);
     /* The Heathen toggles: New Believers only, the one game with Heathens. */
     ShowWindow(GetDlgItem(window, UI_TOGGLE_IDS[UI_SKELETONS_TOGGLE]),
                (a->caps & CAP_REVIVE) ? SW_SHOW : SW_HIDE);

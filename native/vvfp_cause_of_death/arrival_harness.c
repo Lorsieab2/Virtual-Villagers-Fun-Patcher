@@ -463,7 +463,10 @@ static int has_backfill_record(int number, const char *name, int age, int head, 
 
 /* The Village History log as the population exporter writes it: Huata (and
    a dead founder, Kito) in this village's first snapshot; Silko only later;
-   another village's first snapshot has a Silko too. */
+   another village's first snapshot has a Silko too.  The village was renamed
+   after its first snapshot (the Rename Tribe tool appends a note and never
+   rewrites the old header), so that snapshot still says "Old Arrival Tribe":
+   it is still the founders' snapshot (Codex, #531). */
 static void write_history(void) {
     char path[MAX_PATH];
     static char h[4096];
@@ -471,9 +474,10 @@ static void write_history(void) {
     _snprintf(h, sizeof h,
         "=== Virtual Villagers -- 2026-09-01 10:00:00 ===\nVillage: Other Tribe (Save 2)\n\n"
         "Villager 1\n  Name: Silko\n  Age: 600\n  Head: 4\n  Body: 14\n\n\n"
-        "=== Virtual Villagers -- 2026-09-02 10:00:00 ===\nVillage: Arrival Tribe (Save 1)\n\n"
+        "=== Virtual Villagers -- 2026-09-02 10:00:00 ===\nVillage: Old Arrival Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Huata\n  Age: 400\n  Head: 8\n  Body: 1\n  Likes: ants\n\n"
         "Villager 2\n  Name: Kito\n  Age: 420\n  Head: 0\n  Body: 18\n\n\n"
+        "Tribe renamed from Old Arrival Tribe to Arrival Tribe on 2026-09-02 (Save 1)\n"
         "=== Virtual Villagers -- 2026-09-03 10:00:00 ===\nVillage: Arrival Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Huata\n  Age: 500\n  Head: 8\n  Body: 1\n\n"
         "Villager 2\n  Name: Silko\n  Age: 600\n  Head: 4\n  Body: 14\n\n\n");

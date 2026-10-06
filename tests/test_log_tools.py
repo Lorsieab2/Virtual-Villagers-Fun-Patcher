@@ -15,6 +15,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import io
+import struct
 import subprocess
 import sys
 import tempfile
@@ -64,6 +65,17 @@ def markers_of(game: int, slot: int) -> list[str]:
     return names
 
 
+def valid_marker(name: str, game: int, slot: int) -> bytes:
+    """The bytes the game itself writes at ``name`` (the native formats)."""
+    if "Cross-Check" in name:
+        return struct.pack("<12I", 0x31435856, 1, 1, slot, 1, 0, 0, 0, 0, 0, 0, 0)
+    if "Graves Logged" in name:
+        return struct.pack("<4I", 0x31474356, 1, game, 1) + struct.pack("<HHI", 3, 0, 7)
+    if "Arrivals Recorded" in name:
+        return struct.pack("<4I", 0x31414356, 1, game, slot)
+    return struct.pack("<4I", 0x31424356, 1, game, slot)
+
+
 class FakeProcesses:
     def __init__(self, pids=(), error=None, start_after=None):
         self.pids = list(pids)
@@ -106,7 +118,7 @@ class FolderTest(unittest.TestCase):
         for slot in (1, 2):
             for other in {number, 2 if number == 1 else 1}:
                 for name in markers_of(other, slot):
-                    self.write(folder, name, f"marker {other} {slot}".encode())
+                    self.write(folder, name, valid_marker(name, other, slot))
         self.write(folder, f"{DATA}/Cross-Check/Virtual Villagers 1 Cross-Check - Save 1.dat.unreadable-1", b"x")
         self.write(folder, f"{DATA}/Deaths/Virtual Villagers {number} Graves Logged - Save 1.dat.tmp", b"t")
         self.write(folder, f"{DATA}/Graves/Virtual Villagers {number} Graves - Save 1.dat", b"VCD1")
@@ -297,6 +309,36 @@ class ApprovalTests(FolderTest):
                     {k: v for k, v in before.items() if k not in expected and v[2] != "dir"},
                 )
 
+    def test_a_file_that_is_not_a_marker_is_kept(self) -> None:
+        # A truncated, corrupt or unrelated file at a marker's path does not
+        # stop the game's rescan, so Repair Logs has no reason to delete it.
+        for tag, number, suffix in CASES[:1] + [c for c in CASES if c[1] == 3][:1]:
+            with self.subTest(game=number):
+                folder = self.make_folder(tag, number, suffix)
+                names = markers_of(number, 1)
+                junk = folder / names[0]
+                junk.write_bytes(b"not a marker")
+                wrong_slot = folder / names[1]
+                wrong_slot.write_bytes(valid_marker(names[1], number, 2))
+                result = tools.approve_repair(folder, number, 1, FakeProcesses(), NOW)
+                self.assertEqual({p.relative_to(folder).as_posix() for p in result.cleared}, set(names[2:]))
+                self.assertEqual(junk.read_bytes(), b"not a marker")
+                self.assertTrue(wrong_slot.is_file())
+                self.assertTrue(approval_pending(folder, number, 1))
+
+    def test_check_logs_reports_the_coverage_files(self) -> None:
+        checker = tools.load_checker()
+        folder = self.make_folder("huttest", 3, "Modded")
+        text = checker.check(folder, 1).render()
+        self.assertIn("Graves Logged - Save 1.dat", text)
+        self.assertIn("1 grave(s) recorded as already confirmed", text)
+        self.assertIn("the villagers' Arrived records were backfilled for this slot", text)
+        (folder / markers_of(3, 1)[0]).write_bytes(b"VCG1 short")
+        (folder / markers_of(3, 1)[1]).unlink()
+        text = checker.check(folder, 1).render()
+        self.assertIn("the game does not use it and checks every grave again", text)
+        self.assertIn("have not been backfilled for this slot yet", text)
+
     def test_the_marker_list_is_the_native_codes_own(self) -> None:
         reset = (ROOT / "native" / "shared" / "save_reset.c").read_text(encoding="utf-8")
         self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"', reset)
@@ -319,7 +361,7 @@ class ApprovalTests(FolderTest):
         copy = result.backup.backup_folder
         self.assertEqual(copy.name, "Backup 2026-10-04 15-30-00 (before repair re-arm)")
         for name in markers_of(1, 1):
-            self.assertEqual((copy / name).read_bytes(), b"marker 1 1")
+            self.assertEqual((copy / name).read_bytes(), valid_marker(name, 1, 1))
         listed = backup.list_backups(folder)
         self.assertEqual(listed[0].path, copy)
         self.assertTrue(listed[0].before_rearm)
@@ -557,6 +599,30 @@ class GuiTests(unittest.TestCase):
             at = self.SOURCE.index(call)
             self.assertIn("check_logs_automatically=check_logs,", self.SOURCE[at:at + 400])
         self.assertEqual(self.SOURCE.count("check_logs_automatically=check_logs,"), 6)
+
+    def test_the_all_5_save_and_log_links_have_their_own_grid(self) -> None:
+        # Ten columns in one row were wider than the window, and the tab
+        # scrolls only vertically: Check/Repair logs were unreachable.
+        body = self.SOURCE[self.SOURCE.index("    def _build_all_tab("):]
+        body = body[:body.index("\n    def ")]
+        self.assertNotRegex(body, r"column=[5-9], padx=\(12, 0\), pady=4\)")
+        for name in ("Back up saves", "Restore saves...", "Rename tribe...",
+                     "Check logs...", "Repair logs..."):
+            at = body.index(f'"{name}",')
+            self.assertIn("tools,", body[at - 40:at])
+        self.assertIn("tools.pack(", body)
+
+    def test_the_modal_grab_comes_back_after_every_wait(self) -> None:
+        # WaitWindow releases its grab on closing and Tk does not restore the
+        # picker's: Check Logs hands it to the report (and back to the picker
+        # when the report closes), Repair Logs back to the picker.
+        check = self.SOURCE[self.SOURCE.index("    def _check_logs("):self.SOURCE.index("    def _show_log_report(")]
+        self.assertEqual(check.count("_regrab(parent)"), 2)
+        report = self.SOURCE[self.SOURCE.index("    def _show_log_report("):self.SOURCE.index("    def _repair_logs(")]
+        self.assertIn("window.grab_set()", report)
+        self.assertIn('window.protocol("WM_DELETE_WINDOW", close)', report)
+        self.assertIn("_regrab(parent)", report)
+        self.assertRegex(self.SOURCE, r"self\._repair_logs\(dialog, folder, number, info\)\n(\s*#.*\n)*\s*_regrab\(dialog\)")
 
     def test_the_report_window_scrolls_and_is_read_only(self) -> None:
         body = self.SOURCE[self.SOURCE.index("    def _show_log_report("):self.SOURCE.index("    def _repair_logs(")]

@@ -229,7 +229,11 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
    "  Head:", "  Body:") lists the same name, head and body -- or, when no one
    there has all three, the same name for exactly one villager of that
    snapshot and of the villagers being recorded (looks change with Origins'
-   Change Appearance; a name repeated on either side decides nothing). */
+   Change Appearance; a name repeated on either side decides nothing).
+   A renamed village's first snapshot still carries its old header (the
+   Rename Tribe tool appends a note, never rewrites one), so the snapshot
+   headers are matched through the rename chain (history_aliases,
+   grave_backfill.inc), as the graves backfill matches them. */
 
 #define FOUNDERS_MAX 256
 
@@ -244,6 +248,10 @@ static void read_first_snapshot(const char *village) {
     int ceiling;
     int number;
     int done = 0;
+    static char notes[HISTORY_NOTES][256];
+    static char aliases[HISTORY_ALIASES][256];
+    int note_count = 0;
+    int alias_count;
 
     founder_count = 0;
     if (founders == NULL) {
@@ -258,6 +266,26 @@ static void read_first_snapshot(const char *village) {
         return;
     }
     ceiling = highest_log_number(L"Village History", folder);
+    /* The rename notes first: every file, wherever the note was appended. */
+    for (number = 1; number <= ceiling; ++number) {
+        FILE *file;
+        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
+                         folder, number) < 0) {
+            return;
+        }
+        file = _wfopen(path, L"rb");
+        if (file == NULL) {
+            continue;
+        }
+        while (fgets(line, (int)sizeof line, file) != NULL) {
+            trim_line(line);
+            if (vv_rename_is_note(line) && note_count < HISTORY_NOTES) {
+                lstrcpynA(notes[note_count++], line, 256);
+            }
+        }
+        fclose(file);
+    }
+    alias_count = history_aliases(current, notes, note_count, aliases);
     for (number = 1; number <= ceiling && !done; ++number) {
         FILE *file;
         int ours = 0;
@@ -295,8 +323,12 @@ static void read_first_snapshot(const char *village) {
                 continue;
             }
             if (expect_village) {
+                int a;
                 expect_village = 0;
-                ours = current[0] != '\0' && strcmp(line, current) == 0;
+                ours = 0;
+                for (a = 0; a < alias_count; ++a) {
+                    ours |= aliases[a][0] != '\0' && strcmp(line, aliases[a]) == 0;
+                }
                 continue;
             }
             if (!open) {

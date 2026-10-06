@@ -143,6 +143,7 @@ class Marker:
     games: tuple[int, ...]      # the games that write it
     path: str                   # relative to the save folder; {game} and {slot}
     source: str                 # the native code that writes and reads it
+    kind: str                   # its format, for marker_is_valid
 
 
 # EVERY marker that stops a part of the cross-check from finding anything
@@ -154,24 +155,28 @@ REARM_MARKERS: tuple[Marker, ...] = (
         (1,),
         DATA + r"\Cross-Check\Virtual Villagers {game} Cross-Check - Save {slot}.dat",
         "native/vv1_parentage/vv1_crosscheck.inc (vv1_xc_marker_state)",
+        "vv1",
     ),
     Marker(
         "graves already confirmed in the Deaths log",
         (1, 2, 3, 4, 5),
         DATA + r"\Deaths\Virtual Villagers {game} Graves Logged - Save {slot}.dat",
         "native/vvfp_cause_of_death/cod_backfill.inc (logged_bind)",
+        "graves",
     ),
     Marker(
         "villagers' Arrived records already backfilled",
         (1, 2, 3, 4, 5),
         DATA + r"\Arrivals\Virtual Villagers {game} Arrivals Recorded - Save {slot}.dat",
         "native/shared/arrival_backfill.h (vv_arrival_marker_present)",
+        "arrivals",
     ),
     Marker(
         "villagers' Birth records already backfilled from the save",
         (2, 3, 4, 5),
         DATA + r"\Births\Virtual Villagers {game} Births Recorded - Save {slot}.dat",
         "native/shared/arrival_backfill.h (vv_backfill_marker_present)",
+        "births",
     ),
 )
 
@@ -204,6 +209,20 @@ def marker_paths(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]
         for marker in REARM_MARKERS
         if game in marker.games
     ]
+
+
+def marker_is_valid(marker: Marker, data: bytes, game: int, slot: int) -> bool:
+    """True when the game would read ``data`` as this slot's marker (the same
+    test as the native code named in ``marker.source``).  Anything else at a
+    marker's path does not stop a rescan, and is kept: Repair Logs removes
+    only real markers."""
+    checker = load_checker()
+    if marker.kind == "vv1":
+        return checker.vv1_marker_ok(data, slot)
+    if marker.kind == "graves":
+        return checker.graves_logged_problem(data, game) is None
+    magic = checker.ARRIVALS_MARKER_MAGIC if marker.kind == "arrivals" else checker.BIRTHS_MARKER_MAGIC
+    return checker.backfill_marker_ok(data, magic, game, slot)
 
 
 def present_markers(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]]:
@@ -262,10 +281,12 @@ def approve_repair(
     # The backup took a moment; the game may have been started meanwhile.
     _refuse_if_running(folder, controller)
     cleared: list[Path] = []
-    for _marker, path in targets:
+    for marker, path in targets:
         if not path.is_file():
             continue
         try:
+            if not marker_is_valid(marker, path.read_bytes(), game, slot):
+                continue
             path.unlink()
         except FileNotFoundError:
             continue
@@ -276,7 +297,7 @@ def approve_repair(
                 f"approved; the backup is in {backup.backup_folder}."
             ) from exc
         cleared.append(path)
-    left = [path for _marker, path in targets if path.exists()]
+    left = [path for path in cleared if path.exists()]
     if left:
         raise LogToolError(f"{left[0].name} is still there after clearing it. Nothing was approved.")
     temporary = approval.with_name(approval.name + ".tmp")

@@ -1315,6 +1315,73 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str
     rep.add(label, "OK", f"the cross-check ran for this village: {result}")
 
 
+GRAVES_LOGGED_MAGIC = 0x31474356           # 'VCG1' (cod_backfill.inc LOGGED_MAGIC)
+ARRIVALS_MARKER_MAGIC = 0x31414356         # 'VCA1' (arrival_backfill.h)
+BIRTHS_MARKER_MAGIC = 0x31424356           # 'VCB1'
+
+
+def graves_logged_path(game_dir: Path, game: int, slot: int) -> Path:
+    return game_dir / DATA / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat"
+
+
+def arrivals_marker_path(game_dir: Path, game: int, slot: int) -> Path:
+    return game_dir / DATA / "Arrivals" / f"Virtual Villagers {game} Arrivals Recorded - Save {slot}.dat"
+
+
+def graves_logged_problem(data: bytes, game: int) -> str | None:
+    """logged_validate (native/vvfp_cause_of_death/cod_backfill.inc): None when the game reads it."""
+    if len(data) < 16:
+        return "shorter than its header"
+    magic, version, g, count = struct.unpack_from("<4I", data, 0)
+    places = 50 if game <= 2 else 500
+    if magic != GRAVES_LOGGED_MAGIC or version != 1 or g != game:
+        return "not a version 1 graves-logged file of this game"
+    if count > places or len(data) != 16 + 8 * count:
+        return f"{len(data)} bytes does not hold the {count} entries its header claims"
+    previous = -1
+    for i in range(count):
+        place, pad, fingerprint = struct.unpack_from("<HHI", data, 16 + 8 * i)
+        if place <= previous or place >= places or pad or not fingerprint:
+            return f"entry {i} is out of order or malformed"
+        previous = place
+    return None
+
+
+def backfill_marker_ok(data: bytes, magic: int, game: int, slot: int) -> bool:
+    """vv_backfill_marker_present (native/shared/arrival_backfill.h): the first 16 bytes."""
+    return len(data) >= 16 and struct.unpack_from("<4I", data, 0) == (magic, 1, game, slot)
+
+
+def vv1_marker_ok(data: bytes, slot: int) -> bool:
+    """vv1_xc_marker_state's header test (native/vv1_parentage/vv1_crosscheck.inc)."""
+    return len(data) >= 48 and struct.unpack_from("<4I", data, 0) == (0x31435856, 1, 1, slot)
+
+
+def check_coverage_files(game_dir: Path, slot: int, game: int, rep: Report) -> None:
+    """The two files that stop the in-game backfills repeating (Repair Logs clears them)."""
+    path = graves_logged_path(game_dir, game, slot)
+    label = f"{DATA}\\Deaths\\{path.name}"
+    if not path.is_file():
+        rep.add(label, "NOTE", "no graves are recorded as already confirmed in the Deaths log yet (the game "
+                               "writes this file when it next saves the village)")
+    else:
+        problem = graves_logged_problem(path.read_bytes(), game)
+        if problem:
+            rep.add(label, "UNCHECKED", f"{problem}: the game does not use it and checks every grave again")
+        else:
+            count = struct.unpack_from("<I", path.read_bytes(), 12)[0]
+            rep.add(label, "OK", f"{count} grave(s) recorded as already confirmed in the Deaths log")
+    path = arrivals_marker_path(game_dir, game, slot)
+    label = f"{DATA}\\Arrivals\\{path.name}"
+    if not path.is_file():
+        rep.add(label, "NOTE", "the villagers' Arrived records have not been backfilled for this slot yet (the "
+                               "game does it when the village is next played)")
+    elif backfill_marker_ok(path.read_bytes(), ARRIVALS_MARKER_MAGIC, game, slot):
+        rep.add(label, "OK", "the villagers' Arrived records were backfilled for this slot")
+    else:
+        rep.add(label, "UNCHECKED", "not this game's and slot's marker: the game keeps it and backfills again")
+
+
 def check_approval(game_dir: Path, slot: int, game: int, rep: Report) -> None:
     """Repair Logs' approval for the slot (src/vv_log_tools.py), not yet used by the game."""
     path = game_dir / DATA / "Cross-Check" / f"Virtual Villagers {game} Repair Approved - Save {slot}.dat"
@@ -1497,6 +1564,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     check_stews(game_dir, slot, game, rep)
     check_words(game_dir, game, rep)
     check_marker(game_dir, slot, game, rep, births.village)
+    check_coverage_files(game_dir, slot, game, rep)
     check_approval(game_dir, slot, game, rep)
     return rep
 
