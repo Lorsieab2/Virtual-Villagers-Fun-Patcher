@@ -813,6 +813,18 @@ class SexLinesTests(FolderTest):
         self.assertIn("whose sex nothing records", text)
         self.assertEqual(self.state(folder), before)
 
+    def test_a_golden_childs_name_says_nothing_of_his_sex(self):
+        """A New Home names a new villager from either list, then makes the
+        Golden Child male with head 19 and body 19 (0x43C7AF): the owner's
+        Golden Children named Itchi, City and Kita are male.  The lists never
+        decide a record with those looks."""
+        checker = tools.load_checker()
+        golden = {"name": "Itchi", "head": 19, "body": 19}
+        self.assertEqual(checker.sex_for(1, golden, {}, {}), (None, ""))
+        self.assertEqual(checker.sex_for(1, dict(golden, head=12), {}, {})[0], "Female")
+        self.assertEqual(checker.sex_for(1, golden, {("Itchi", 19, 19): "Male"}, {})[0], "Male",
+                         "the save or another record of him still says")
+
     def test_the_name_lists_are_each_games_own(self):
         """Male then female, word for word the stock executable's."""
         import re

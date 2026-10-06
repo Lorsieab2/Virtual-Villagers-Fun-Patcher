@@ -1802,7 +1802,11 @@ def sex_for(game: int, person: dict, exact: dict, by_name: dict) -> tuple[str | 
     found = exact.get((person["name"], person["head"], person["body"]))
     if found:
         return found, "the save or the logs"
-    found = name_list_sex(game, person["name"])
+    # A New Home's Golden Child is named from either list and then made male, head 19, body 19
+    # (the creator, 0x43C7AF, for family 0xC7): his name says nothing of his sex, so a record
+    # with those looks never takes it from the lists.
+    golden_looks = game == 1 and person["head"] == 19 and person["body"] == 19
+    found = None if golden_looks else name_list_sex(game, person["name"])
     if found:
         return found, "the game's name lists"
     seen = by_name.get(person["name"], set())
