@@ -216,7 +216,6 @@ static const char *const CE_WHY_WORDS[CE_WHY_COUNT] = {
     "the villager was not expecting",
     "the game cures a Heathen at once",
     "a Tribal Chief already lives",
-    "only an adult becomes the Tribal Chief",
     "there was no room for another totem",
     "a puzzle could not be changed that way now",
     "an amount could not be set now",

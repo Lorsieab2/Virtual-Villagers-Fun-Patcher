@@ -303,9 +303,9 @@ static const char *const C3_STATUSES[] = {
    game keeps one chief (its robe lectures anyone dropped on it while a
    chief lives, 0x45FC00): so the living chief steps down first (his chief
    byte cleared; his robe stays, the game keeps no other body for him), or
-   the change is refused.  Adults only, as the robe's chooser picks: the
-   robe is an adult body (a child's picture is not one of those rows).  The
-   chief already is: nothing to change. */
+   the change is refused.  Any age: a child becomes the Tribal Chief in the
+   game itself, and every head and body serves children and adults alike
+   (the owner, 2026-10-06).  The chief already is: nothing to change. */
 static int c3_set_status(int index, int status) {
     unsigned char *r = c3_record(index);
     int i;
@@ -314,9 +314,6 @@ static int c3_set_status(int index, int status) {
     }
     if (r[0xE80] != 0) {
         return 1;
-    }
-    if (*(int *)(r + 0xDC4) < 0x118) {
-        return ce_because(CE_WHY_CHILD_CHIEF);
     }
     if (TC0(0x45FC00u, C3_VILLAGE) & 0xFF) {
         if (status == 0) {

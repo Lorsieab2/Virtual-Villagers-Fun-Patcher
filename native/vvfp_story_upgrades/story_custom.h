@@ -219,7 +219,6 @@ enum {
     CE_WHY_NOT_EXPECTING,      /* not expecting */
     CE_WHY_HEATHEN,            /* a Heathen is never sick and never conceives */
     CE_WHY_CHIEF,              /* a Tribal Chief already lives */
-    CE_WHY_CHILD_CHIEF,        /* only an adult becomes the Tribal Chief */
     CE_WHY_TOTEMS,             /* no totem or record left for another Esteemed Elder */
     CE_WHY_PUZZLE,             /* a puzzle could not be changed that way now */
     CE_WHY_AMOUNT,             /* a food source or store could not be set now */

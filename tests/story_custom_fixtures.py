@@ -361,7 +361,7 @@ class Choice:
 RESULT_FIELDS = ("changed", "skipped", "died", "vanished", "conceived", "no_room_babies", "born",
                  "no_room_spawns", "refused", "food_before", "food_after", "tech_before", "tech_after",
                  "revived", "no_room_revives")
-WHY_COUNT = 17                   # story_custom.h CE_WHY_COUNT: refusals by reason
+WHY_COUNT = 16                   # story_custom.h CE_WHY_COUNT: refusals by reason
 RESULT_SIZE = 4 * (len(RESULT_FIELDS) + WHY_COUNT)
 
 

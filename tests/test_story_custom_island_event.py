@@ -1275,6 +1275,21 @@ class StatusTests(unittest.TestCase):
         self.assertEqual(r["refused"], 1)
         self.assertEqual(p.u32(statue + 0x550) % 8, 6)
 
+    def test_the_secret_city_a_child_becomes_the_tribal_chief(self):
+        """The owner (2026-10-06): "children can literally be tribal chiefs
+        naturally in-game" -- any age, through the game's own robing."""
+        if not have_stock("vv3"):
+            self.skipTest("no stock executable")
+        story = Story("vv3")
+        v = story.village
+        v.put(1, sex="m", years=8, name="Kid")
+        story.record_call(0x45FC00, 0, value=0)       # no chief lives
+        story.record_call(0x45FBC0, 4)                # the robing
+        story.record_call(0x435990, 4)                # the chief puzzle's advance
+        ok, r, _ = story.apply(Event(changes=[story.change(1, status=1)]))
+        self.assertEqual(r["refused"], 0)
+        self.assertEqual(story.calls[0x45FBC0][0][1], v.record(1), "the child is robed")
+
     def test_new_believers_faith_is_written_as_it_is(self):
         """-100..100; the faction stays (the owner: "I could set a villager's
         faith to 0 or a heathen to 100 and they'd stay the same faction")."""
@@ -2279,7 +2294,10 @@ class DialogResourceTests(unittest.TestCase):
 
     def test_the_tech_menu_offers_custom_island_event(self):
         bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
-        self.assertIn('"Custom Island Event (0 tech points)..."', bridge)
+        # The label carries the price the Story DLL charges now (0, or 30,000
+        # with Story / Cheat Upgrades cost Tech Points).
+        self.assertIn('vvfp_story_label(game, "Custom Island Event"', bridge)
+        self.assertIn('"%s (%d,%03d tech points)..."', bridge)
         self.assertIn("#define VVFP_STORY_CUSTOM_ID 4091", bridge)
         for game, path in {
             "vv1": ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c",

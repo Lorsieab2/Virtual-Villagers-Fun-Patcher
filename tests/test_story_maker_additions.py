@@ -528,7 +528,8 @@ class StatusTests(unittest.TestCase):
         ok, r, _ = s.apply(Event(changes=[s.change(2, status=1)]))
         self.assertEqual((r["refused"], v.byte(1, 0xE80), v.byte(2, 0xE80)), (0, 0, 1), "the old chief steps down")
         ok, r, _ = s.apply(Event(changes=[s.change(3, status=1)]))
-        self.assertEqual(r["refused"], 1, "a child is never robed")
+        self.assertEqual((r["refused"], v.byte(2, 0xE80), v.byte(3, 0xE80)), (0, 0, 1),
+                         "a child is robed too (the owner: children are chiefs in the game itself)")
 
     def test_heathen_masks_for_anyone(self):
         """The owner (2026-10-06): a believer is made a Heathen first, and a
