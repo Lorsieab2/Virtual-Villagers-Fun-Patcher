@@ -799,11 +799,17 @@ static int oc_gong_resting(void) {
            >= (unsigned int)((clock_fn)(uintptr_t)VV2_CLOCK)(world, NULL);
 }
 
+static int story_pick_gong_outcome(int game, HWND owner);
+
 __declspec(dllexport) int __stdcall VvfpStoryPickGongOutcome(int game, HWND owner) {
+    return story_charged(game, owner, story_pick_gong_outcome);
+}
+
+static int story_pick_gong_outcome(int game, HWND owner) {
     const oc_settings *settings;
     char summary[1200];
     char message[1600];
-    if (game != 2 || !VvfpStoryActive(2)) {
+    if (game != 2 || !story_installed(2)) {
         return 0;
     }
     oc_gong_check();

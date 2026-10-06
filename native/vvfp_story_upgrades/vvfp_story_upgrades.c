@@ -678,6 +678,14 @@ static const story_game GAMES[6] = {
 
 /* ---- Installing ------------------------------------------------------------ */
 
+/* "Story / Cheat Upgrades cost Tech Points" (the owner, 2026-10-06): set by
+   the Origins companion from the patcher's startup flag before the install,
+   so the zero prices are never written -- the Origins menus show and charge
+   their own prices -- and Pick Island Event, Custom Island Event and Pick
+   Gong of Wonder Outcome each cost what the Island Event upgrade costs. */
+#define STORY_EVENT_PRICE 30000         /* the Island Event upgrade, all five games */
+static int charges[6];
+
 /* The detour `index` of this game: its pick sites, then the custom
    event's own. */
 static int game_detour_count(const story_game *g) {
@@ -721,7 +729,7 @@ static int install(int game) {
     if (!oc_verify(game)) {
         return 0;
     }
-    for (i = 0; i < g->write_count; ++i) {
+    for (i = 0; i < g->write_count && !charges[game]; ++i) {
         if (!mem_write(g->writes[i].va, g->writes[i].replace, g->writes[i].length)) {
             install_undo(g, i, 0);
             return 0;
@@ -731,15 +739,24 @@ static int install(int game) {
         const story_detour *d = game_detour(g, i);
         detour_bytes(d, bytes);
         if (!mem_write(d->va, bytes, d->length)) {
-            install_undo(g, g->write_count, i);
+            install_undo(g, charges[game] ? 0 : g->write_count, i);
             return 0;
         }
     }
     if (!oc_install(game)) {
-        install_undo(g, g->write_count, game_detour_count(g));
+        install_undo(g, charges[game] ? 0 : g->write_count, game_detour_count(g));
         return 0;
     }
     return 1;
+}
+
+/* "Story / Cheat Upgrades cost Tech Points" for `game`: called by the
+   Origins companion before the install when the patcher's startup flag says
+   so.  Ignored once the install has run (its prices are what they are). */
+__declspec(dllexport) void __stdcall VvfpStoryCharge(int game) {
+    if (game >= 1 && game <= 5 && install_state[game] == 0) {
+        charges[game] = 1;
+    }
 }
 
 /* The install alone, once: every site verified, then written; nothing
@@ -784,7 +801,50 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
 /* Whether this game's Origins upgrades are free right now: the Origins
    companion shows 0 and charges 0 in its own prompts only when this is 1. */
 __declspec(dllexport) int __stdcall VvfpStoryActive(int game) {
+    return game >= 1 && game <= 5 && install_state[game] == 1 && !charges[game];
+}
+
+/* Whether the Story / Cheat Upgrades are in place (free or charged): the
+   Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome
+   buttons are offered while this is 1. */
+static int story_installed(int game) {
     return game >= 1 && game <= 5 && install_state[game] == 1;
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryInstalled(int game) {
+    return story_installed(game);
+}
+
+/* What Pick Island Event, Custom Island Event and Pick Gong of Wonder
+   Outcome cost in `game` now: 0, or the Island Event upgrade's price. */
+__declspec(dllexport) int __stdcall VvfpStoryEventPrice(int game) {
+    return story_installed(game) && charges[game] ? STORY_EVENT_PRICE : 0;
+}
+
+typedef int (*story_command_fn)(int game, HWND owner);
+
+/* `command`, charged when the upgrades cost tech points: refused with a
+   message while the village has fewer, and the price taken only when the
+   command says an event (or outcome) is now on its way. */
+static int story_charged(int game, HWND owner, story_command_fn command) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int price = VvfpStoryEventPrice(game);
+    int done;
+    if (price == 0 || a == NULL) {
+        return command(game, owner);
+    }
+    if (a->tech() < price) {
+        char text[160];
+        wsprintfA(text, "This costs %d,%03d tech points, and your village has %d.",
+                  price / 1000, price % 1000, a->tech());
+        MessageBoxA(owner, text, "Not enough tech points", MB_OK | MB_ICONINFORMATION);
+        return 0;
+    }
+    done = command(game, owner);
+    if (done) {
+        a->change_tech(CE_AMOUNT_SUBTRACT, price);
+    }
+    return done;
 }
 
 /* ---- The chooser ----------------------------------------------------------- */
@@ -835,7 +895,13 @@ __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
    click while the Island Event row is locked).  Shows the chooser, confirms
    the 0-point purchase, and arms the pick.  Returns 1 when an event is on
    its way, 0 otherwise. */
+static int story_pick_island_event(int game, HWND owner);
+
 __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owner) {
+    return story_charged(game, owner, story_pick_island_event);
+}
+
+static int story_pick_island_event(int game, HWND owner) {
     const story_game *g;
     const story_event *event;
     const oc_settings *settings;
@@ -845,7 +911,7 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
     char message[1800];
     int chosen;
     int possible_now;
-    if (!VvfpStoryActive(game)) {
+    if (!story_installed(game)) {
         return 0;
     }
     g = &GAMES[game];

@@ -1899,9 +1899,15 @@ static int ce_arm_with(int game, const ce_event *e, const ce_choice *c) {
    Custom Island Event button is clicked (the companion has already refused
    a click while the Island Event row is locked).  Returns 1 when the event
    is on its way. */
+static int story_custom_island_event(int game, HWND owner);
+
 __declspec(dllexport) int __stdcall VvfpStoryCustomIslandEvent(int game, HWND owner) {
+    return story_charged(game, owner, story_custom_island_event);
+}
+
+static int story_custom_island_event(int game, HWND owner) {
     const char *refusal;
-    if (!VvfpStoryActive(game) || ce_adapter_for(game) == NULL) {
+    if (!story_installed(game) || ce_adapter_for(game) == NULL) {
         return 0;
     }
     drop_lapsed_pick();

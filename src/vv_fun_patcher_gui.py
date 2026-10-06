@@ -76,11 +76,22 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Story / Cheat Upgrades (all five games) is off by default;
     # Owner's Defaults ticks it (owner, 2026-10-03).
     + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
+    # ...and so is Story / Cheat Upgrades cost Tech Points, which is ticked
+    # with it (COTICKED_FUN_PATCH_IDS; owner, 2026-10-06).
+    + ["vv%d_story_cheat_upgrades_cost_tech_points" % game for game in range(1, 6)]
     # 256 Villagers (Experimental) is off by default: it moves the villager
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
 )
+
+# Ticking the key ticks the value too (the value can still be unticked on its
+# own).  The owner (2026-10-06): Story / Cheat Upgrades cost Tech Points
+# "should be checked on if Story/Cheat upgrades is also on by default".
+COTICKED_FUN_PATCH_IDS = {
+    "vv%d_story_cheat_upgrades" % game: "vv%d_story_cheat_upgrades_cost_tech_points" % game
+    for game in range(1, 6)
+}
 
 # Patches the Owner's Defaults button leaves OFF, by exact id.  Owner's
 # Defaults ticks every other default-off patch; the one exception the owner
@@ -1086,6 +1097,12 @@ class App(tk.Tk):
                 if dependency_id not in current:
                     current.add(dependency_id)
                     pending.append(dependency_id)
+
+        # A patch ticked just now ticks its companion row (COTICKED_FUN_PATCH_IDS).
+        for patch_id in sorted(current - previous):
+            partner = COTICKED_FUN_PATCH_IDS.get(patch_id)
+            if partner in by_id:
+                current.add(partner)
 
         # Unchecking a prerequisite clears every selected dependent below it.
         removed = previous - current

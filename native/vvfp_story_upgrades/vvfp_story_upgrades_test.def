@@ -3,6 +3,9 @@ EXPORTS
     VvfpStoryInstall=_VvfpStoryInstall@4
     VvfpStoryArm=_VvfpStoryArm@4
     VvfpStoryActive=_VvfpStoryActive@4
+    VvfpStoryCharge=_VvfpStoryCharge@4
+    VvfpStoryInstalled=_VvfpStoryInstalled@4
+    VvfpStoryEventPrice=_VvfpStoryEventPrice@4
     VvfpStoryPickIslandEvent=_VvfpStoryPickIslandEvent@8
     VvfpStoryPickPending=_VvfpStoryPickPending@4
     VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8

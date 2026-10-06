@@ -199,6 +199,12 @@ STORY_CHEAT_UPGRADES_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_story_cheat_upgrades_feature.json"
     for game_number in range(1, 6)
 )
+# "Story / Cheat Upgrades cost Tech Points" (all five games): no bytes of its
+# own -- bit 30 of the startup loader's word (STARTUP_LOADER_STORY_CHARGES).
+STORY_COSTS_TECH_POINTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{game_number}_story_cheat_upgrades_cost_tech_points_feature.json"
+    for game_number in range(1, 6)
+)
 # Cause of Death (all five games, default-on): each death's cause and age in
 # the Deaths log, and in A New Home and The Lost Children the cause (and, in
 # A New Home, an epitaph) on the grave popup.  Companion only ("VVFP Cause of
@@ -816,10 +822,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "A92C2C682D301C63017B00FB397454338F03178D578E199E017EEEEDAFC5DDDA",
-    "map": "4CADB6A8C47A76A8D7AD22725A11E23648960BCE6EEB2E21623734419F373732",
+    "manifest": "50CA76E93CF5EE018AD5B038D915886B0533C0E2BEBC683A3902089DF07E16CD",
+    "map": "F4989A797A639DD682794251E45FE0755CF86DC4AB6A76213EC08395573E37FD",
 }
-VV5_TASK9_DLL_SHA256 = "092D9A5E18F022D5A75554634E129EA4D0F1A3C433E564AFDBC0E6537BB9A6FA"
+VV5_TASK9_DLL_SHA256 = "B1253376BF3B1E9CBE6094346C16C8D439AF7F04144DD227EDC82FC138442947"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -1863,7 +1869,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "AF9A5BF0CEF01C160D06267698B534C395A917E20C927A8639F353C9FA0C8EDC",
+    "builder": "BAB32E6F0B121B73F850AAE7E3CD630456A069EFC4172AE27CFCBF71CB519771",
     "task9_builder": "815C8352580C83FB98B3F99A62BF9AFA892F7FA4FB49B9BD8FE3D659C56FAD5B",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -1876,8 +1882,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "42732E57DBA6DFAFC96B575B44384DCCB04BB65EEE8CF93A356D12E35DD58E8B",
-        "map": "C6B73228E5DD59BFED39C239CFE20A7209601ADB7B5CC85072BA781498DE42DE",
+        "manifest": "0B25CB4A72BD129A961D20A1DF5ED04FCC480DE51CA57997A55D120DB0F0D056",
+        "map": "D703BAA1180DFD201EB90AD3418F95AB30677A322B0C59570674F747CDD8A74E",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3941,6 +3947,7 @@ def _load_fun_patch_records(
                 items.append(record)
     for feature_path in (PLAYING_IN_THE_DIRT_FEATURE_PATHS + DEVOTED_SOUL_EPITAPH_FEATURE_PATHS
                          + STORY_CHEAT_UPGRADES_FEATURE_PATHS
+                         + STORY_COSTS_TECH_POINTS_FEATURE_PATHS
                          + CAUSE_OF_DEATH_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
@@ -11986,6 +11993,12 @@ STARTUP_LOADER_COMPANIONS = (
 # if something is confirmed wrong; when it is clear, nothing is checked or
 # asked during play.  So the companion list never grows past 30 entries.
 STARTUP_LOADER_CHECK_LOGS = 1 << 31
+# Bit 30: "Story / Cheat Upgrades cost Tech Points" is ticked
+# (native/shared/startup_companions.h VVFP_STARTUP_STORY_CHARGES): the Story
+# companion keeps the normal prices and charges for the story events.  So the
+# companion list stays within bits 1-29.
+STARTUP_LOADER_STORY_CHARGES = 1 << 30
+STORY_COSTS_TECH_POINTS_SUFFIX = "_story_cheat_upgrades_cost_tech_points"
 
 
 def _startup_loader_mask(build_id: str, fun_patches: list[FunPatch]) -> int:
@@ -11999,6 +12012,8 @@ def _startup_loader_mask(build_id: str, fun_patches: list[FunPatch]) -> int:
     for index, name in enumerate(STARTUP_LOADER_COMPANIONS):
         if name.casefold() in shipped:
             mask |= 1 << (index + 1)
+    if any(feature.id.endswith(STORY_COSTS_TECH_POINTS_SUFFIX) for feature in fun_patches):
+        mask |= STARTUP_LOADER_STORY_CHARGES
     return mask
 STARTUP_LOADER_SECTION = b".vvfpst"
 # The C runtime's `call WinMain` (VA) and WinMain itself, per game: the

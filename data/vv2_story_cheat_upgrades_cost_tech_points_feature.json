@@ -1,0 +1,22 @@
+{
+  "id": "vv2_story_cheat_upgrades_cost_tech_points",
+  "enabled": true,
+  "game_id": "vv2",
+  "name": "Story / Cheat Upgrades cost Tech Points",
+  "description": "**Requires Story / Cheat Upgrades.** With this ticked, the Origins upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued. With too few tech points you are told, and nothing is queued or spent. Untick it to keep every upgrade free. Ticking Story / Cheat Upgrades ticks this too.",
+  "output_tag": "Story Cheat Costs",
+  "dependencies": [
+    "vv2_story_cheat_upgrades"
+  ],
+  "behavior_changes": [
+    "The Story companion verifies its price sites as usual but does not write the zero prices, so the Origins upgrades show and charge their normal prices.",
+    "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome cost 30,000 tech points each, taken from the village's tech points when the event is queued; with fewer, a message says so and nothing is queued."
+  ],
+  "explicit_non_changes": [
+    "No byte of the executable is changed by this row: the patcher sets bit 30 of the startup loader's word (the companions' list stays within bits 1-29).",
+    "Without Story / Cheat Upgrades this row does nothing (it requires it)."
+  ],
+  "evidence_status": "emulated: the Story companion's install with the flag set writes no price; the story events' charge and refusal; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": []
+}
