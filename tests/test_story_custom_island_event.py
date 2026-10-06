@@ -434,6 +434,25 @@ class RoleTests(unittest.TestCase):
                 self.assertEqual(_targets(story, MALE_CHILDREN), [4, 6])
                 self.assertEqual(_targets(story, FEMALE_CHILDREN | MALE_CHILDREN, (1,)), [1, 4, 5, 6])
 
+    def test_all_nursing_and_all_skeletons(self):
+        """The owner (2026-10-06): "All Nursing" (carrying or nursing, either
+        sex) and "All Skeletons" (bodies awaiting burial, listed after the
+        living); every other toggle is for the living only."""
+        NURSING, SKELETONS, EVERYONE = 0x8000, 0x10000, 0x1000
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            _populate(story)                       # record 9 is a body awaiting burial
+            v = story.village
+            story.proc.put32(v.record(1) + v.L["pregnant"], 400)   # a man carrying
+            story.proc.put32(v.record(5) + v.L["pregnant"], 300)   # a girl carrying
+            with self.subTest(game=game):
+                self.assertEqual(_targets(story, NURSING), [1, 5])
+                self.assertEqual(_targets(story, SKELETONS), [9])
+                self.assertNotIn(9, _targets(story, EVERYONE))
+                self.assertEqual(_targets(story, SKELETONS | NURSING), [1, 5, 9])
+
 
 @emulated
 class RiskAllowedTests(unittest.TestCase):

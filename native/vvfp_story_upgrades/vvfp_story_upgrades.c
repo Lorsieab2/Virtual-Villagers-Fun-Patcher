@@ -821,6 +821,18 @@ __declspec(dllexport) int __stdcall VvfpStoryEventPrice(int game) {
     return story_installed(game) && charges[game] ? STORY_EVENT_PRICE : 0;
 }
 
+/* What a story purchase prompt names as its price ("0" or "30,000"). */
+static const char *story_price_text(int game) {
+    static char text[16];
+    int price = VvfpStoryEventPrice(game);
+    if (price >= 1000) {
+        wsprintfA(text, "%d,%03d", price / 1000, price % 1000);
+    } else {
+        wsprintfA(text, "%d", price);
+    }
+    return text;
+}
+
 typedef int (*story_command_fn)(int game, HWND owner);
 
 /* `command`, charged when the upgrades cost tech points: refused with a
@@ -956,8 +968,9 @@ static int story_pick_island_event(int game, HWND owner) {
     label_of(event, label, sizeof label);
     chooser_summary(chosen, summary, sizeof summary);
     wsprintfA(message,
-              "Do you want to buy Pick Island Event (%s) for 0 tech points?%s%s\r\n\r\n"
-              "Press OK to confirm, or Cancel.", label, summary[0] ? "\r\n" : "", summary);
+              "Do you want to buy Pick Island Event (%s) for %s tech points?%s%s\r\n\r\n"
+              "Press OK to confirm, or Cancel.", label, story_price_text(game),
+              summary[0] ? "\r\n" : "", summary);
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
@@ -1158,7 +1171,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeTargets(int game, const unsign
     if (a == NULL) {
         return -1;
     }
-    n = ce_roster(a, roster, UI_ROSTER_MAX);
+    n = ce_picker_roster(a, roster, UI_ROSTER_MAX);
     return story_resolve_targets(roster, n, picked, toggles, a->adult_age, out, cap);
 }
 

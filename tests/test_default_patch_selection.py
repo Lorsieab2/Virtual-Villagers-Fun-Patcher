@@ -106,6 +106,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_super_secret_golden_mushroom")
                   or p.endswith("_manual_drop_breeding_overrides_birth_control")
                   or p.endswith("_story_cheat_upgrades")
+                  # ...and its "cost Tech Points" row, ticked with it (owner, 2026-10-06).
+                  or p.endswith("_story_cheat_upgrades_cost_tech_points")
                   # 256 Villagers (Experimental): off by default -- it moves
                   # the villager table and changes the save format.
                   or p in ("vv3_population_256", "vv4_population_256", "vv5_population_256")})

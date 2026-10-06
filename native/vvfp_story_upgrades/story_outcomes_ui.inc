@@ -847,8 +847,8 @@ static int story_pick_gong_outcome(int game, HWND owner) {
     }
     chooser_summary(0, summary, sizeof summary);
     wsprintfA(message,
-              "Do you want to buy Pick Gong of Wonder Outcome for 0 tech points?\r\n%s\r\n\r\n"
-              "Press OK to confirm, or Cancel.", summary);
+              "Do you want to buy Pick Gong of Wonder Outcome for %s tech points?\r\n%s\r\n\r\n"
+              "Press OK to confirm, or Cancel.", story_price_text(game), summary);
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;

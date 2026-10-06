@@ -1075,8 +1075,12 @@ class App(tk.Tk):
             dependencies[patch.id] = tuple(raw or ())
         return dependencies
 
-    def _apply_gui_dependency_selection(self) -> None:
-        """Keep checkbox state closed over prerequisites and dependent removals."""
+    def _apply_gui_dependency_selection(self, cotick: bool = True) -> None:
+        """Keep checkbox state closed over prerequisites and dependent removals.
+
+        cotick: tick each newly ticked row's COTICKED_FUN_PATCH_IDS partner --
+        for the player's own ticks, never when saved settings are restored (a
+        partner the player unticked stays unticked across restarts)."""
         current = {
             patch.id
             for patch in self.fun_patches
@@ -1099,7 +1103,7 @@ class App(tk.Tk):
                     pending.append(dependency_id)
 
         # A patch ticked just now ticks its companion row (COTICKED_FUN_PATCH_IDS).
-        for patch_id in sorted(current - previous):
+        for patch_id in sorted(current - previous) if cotick else ():
             partner = COTICKED_FUN_PATCH_IDS.get(patch_id)
             if partner in by_id:
                 current.add(partner)
@@ -1187,7 +1191,7 @@ class App(tk.Tk):
             for patch in self.fun_patches:
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
             self._last_fun_selection = set()
-            self._apply_gui_dependency_selection()
+            self._apply_gui_dependency_selection(cotick=False)
         self.exe_var.set(data.get("original_exe", ""))
         saved_output_root = data.get("output_root", "")
         if isinstance(saved_output_root, str):

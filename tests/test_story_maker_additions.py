@@ -726,6 +726,24 @@ class ReviveTests(unittest.TestCase):
         s.proc.write(v.record(i) + off, b"\1")
         return (i, v.identity(i), 60, 1)
 
+    def test_a_skeleton_chosen_in_villager_changes_comes_back_then_changes(self):
+        """The owner (2026-10-06): "All Skeletons" -- a chosen skeleton is
+        revived first (health 100, cured), then gets its changes."""
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            s = story(game)
+            stub_clock(s)
+            record(s, *STOP[game])
+            v = s.village
+            i, ident, _, _ = self._skeleton(s, 4)
+            change = s.change(4, head=7)            # the identity the dialog takes from the body
+            ok, r, _ = s.apply(Event(revives=[(i, ident, 100, 1)], changes=[change]))
+            with self.subTest(game=game):
+                self.assertEqual((r["revived"], r["skipped"], r["changed"]), (1, 0, 1))
+                self.assertEqual(v.i32(4, REVIVE[game]["health"]), 100)
+                self.assertEqual(v.i32(4, base.LAYOUTS[game]["head"]), 7, "changed after the revive")
+
     def test_a_skeleton_comes_back_with_the_clock_and_the_games_own_routines(self):
         for game in GAMES:
             if not have_stock(game):

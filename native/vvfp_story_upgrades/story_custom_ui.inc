@@ -82,15 +82,17 @@ enum { UI_MODE_EVENT = 0, UI_MODE_OUTCOME = 1 };
 /* The group toggles (named in the dialog template): the eight of every game,
    then from UI_HEATHEN_TOGGLE on New Believers' Heathen toggles, shown only
    in a game whose villagers can be Heathens. */
-#define UI_TOGGLES 15
-#define UI_HEATHEN_TOGGLE 8
+#define UI_TOGGLES 17
+#define UI_HEATHEN_TOGGLE 10
+#define UI_SKELETONS_TOGGLE 9
 static const int UI_TOGGLE_IDS[UI_TOGGLES] = {
-    2002, 2003, 2004, 2005, 2006, 2107, 2108, 2109,
+    2002, 2003, 2004, 2005, 2006, 2107, 2108, 2109, 2110, 2111,
     2100, 2101, 2102, 2103, 2104, 2105, 2106
 };
 static const unsigned int UI_TOGGLE_BITS[UI_TOGGLES] = {
     STORY_T_ADULT_WOMEN, STORY_T_ADULT_MEN, STORY_T_FEMALES, STORY_T_MALES, STORY_T_CHILDREN,
-    STORY_T_EVERYONE, STORY_T_FEMALE_CHILDREN, STORY_T_MALE_CHILDREN,
+    STORY_T_EVERYONE, STORY_T_FEMALE_CHILDREN, STORY_T_MALE_CHILDREN, STORY_T_NURSING,
+    STORY_T_SKELETONS,
     STORY_T_HEATHENS, STORY_T_BLUE_HEATHENS, STORY_T_RED_HEATHENS, STORY_T_ORANGE_HEATHENS,
     STORY_T_PURPLE_HEATHENS, STORY_T_CHIEF_HEATHENS, STORY_T_HEATHEN_MOMMIES
 };
@@ -239,7 +241,7 @@ static const char *ui_years(int units, char *out) {
 
 static void ui_load_roster(void) {
     int i;
-    ui.roster_count = ce_roster(ui.a, ui.roster, UI_ROSTER_MAX);
+    ui.roster_count = ce_picker_roster(ui.a, ui.roster, UI_ROSTER_MAX);
     for (i = 0; i < ui.roster_count; ++i) {
         const unsigned char *record = ui.a->record(ui.roster[i].index);
         ce_copy_name(ui.names[i], CE_NAME_BYTES, record + ui.a->off_name, ui.a->name_bytes);
@@ -385,7 +387,18 @@ static void ui_show_count(HWND window) {
     int targets[UI_ROSTER_MAX];
     char text[96];
     int n = ui_targets(window, targets);
-    wsprintfA(text, n == 1 ? "1 villager chosen." : "%d villagers chosen.", n);
+    int dead = 0;
+    int i;
+    for (i = 0; i < n; ++i) {
+        int position = ui_roster_position(targets[i]);
+        dead += position >= 0 && ui.roster[position].dead;
+    }
+    if (dead > 0) {
+        wsprintfA(text, dead == 1 ? "%d chosen (1 skeleton will be revived first)."
+                                  : "%d chosen (%d skeletons will be revived first).", n, dead);
+    } else {
+        wsprintfA(text, n == 1 ? "1 villager chosen." : "%d villagers chosen.", n);
+    }
     SetDlgItemTextA(window, IDC_CH_COUNT, text);
 }
 
@@ -395,7 +408,7 @@ static int ui_change_is_empty(const ce_change *c) {
         || c->body != CE_KEEP || c->like_add >= 0 || c->like_remove >= 0
         || c->dislike_add >= 0 || c->dislike_remove >= 0 || c->title_op != CE_TITLE_KEEP
         || c->mask != CE_KEEP || c->status != CE_KEEP || c->behaviour != CE_KEEP
-        || c->parents_set) {
+        || c->faith != CE_KEEP || c->parents_set) {
         return 0;
     }
     for (i = 0; i < CE_SKILLS; ++i) {
@@ -634,6 +647,9 @@ static void ui_setup_changes(HWND window) {
         /* The label is read live, as the list opens: the game's own role
            (Golden Child, Esteemed Elder and totem, Tribal Chief, faction). */
         ce_role(a, record, &role);
+        if (ui.roster[i].dead) {
+            role = "skeleton";              /* revived first if chosen */
+        }
         wsprintfA(text, "%s (%s, %s)%s%s%s%s%s", ui.names[i],
                   ui.roster[i].sex == STORY_SEX_MALE ? "male" : "female",
                   ui_years(ui.roster[i].age, years),
@@ -643,6 +659,8 @@ static void ui_setup_changes(HWND window) {
         SendDlgItemMessageA(window, IDC_CH_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
     }
     /* The Heathen toggles: New Believers only, the one game with Heathens. */
+    ShowWindow(GetDlgItem(window, UI_TOGGLE_IDS[UI_SKELETONS_TOGGLE]),
+               (a->caps & CAP_REVIVE) ? SW_SHOW : SW_HIDE);
     for (i = UI_HEATHEN_TOGGLE; i < UI_TOGGLES; ++i) {
         ShowWindow(GetDlgItem(window, UI_TOGGLE_IDS[i]), ui.game == 5 ? SW_SHOW : SW_HIDE);
     }
@@ -662,7 +680,9 @@ static void ui_setup_changes(HWND window) {
     /* Any living villager may be named the father: the conception copies
        his name, looks and family, whatever his sex or age. */
     for (i = 0; i < ui.roster_count; ++i) {
-        ui_combo_add(window, IDC_CH_FATHER, ui.names[i], ui.roster[i].index);
+        if (!ui.roster[i].dead) {
+            ui_combo_add(window, IDC_CH_FATHER, ui.names[i], ui.roster[i].index);
+        }
     }
     SendDlgItemMessageA(window, IDC_CH_FATHER, CB_SETCURSEL, 0, 0);
     wsprintfA(text, "heads 0-%d, bodies 0-%d", a->head_count - 1, a->body_count - 1);
@@ -759,7 +779,28 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
             }
             for (i = 0; i < count; ++i) {
                 const unsigned char *record = ui.a->record(targets[i]);
-                if (record == NULL || !ce_merge(&ui.draft, &t, targets[i], ce_identity(ui.a, record))) {
+                int position = ui_roster_position(targets[i]);
+                ce_change mine = t;
+                if (record != NULL && position >= 0 && ui.roster[position].dead) {
+                    /* A skeleton: revived first (the owner, 2026-10-06), so a
+                       fate is not for it. */
+                    int k;
+                    for (k = 0; k < ui.draft.revive_count && ui.draft.revives[k].index != targets[i]; ++k) {
+                    }
+                    if (k == ui.draft.revive_count) {
+                        if (ui.draft.revive_count >= CE_MAX_REVIVES) {
+                            ui_message(window, "The event can bring back 256 skeletons at most.");
+                            break;
+                        }
+                        ui.draft.revives[k].index = targets[i];
+                        ui.draft.revives[k].identity = ce_identity(ui.a, record);
+                        ui.draft.revives[k].health = 100;
+                        ui.draft.revives[k].cure = 1;
+                        ++ui.draft.revive_count;
+                    }
+                    mine.fate = CE_FATE_NONE;
+                }
+                if (record == NULL || !ce_merge(&ui.draft, &mine, targets[i], ce_identity(ui.a, record))) {
                     ui_message(window, "The event can hold changes for 256 villagers at most.");
                     break;
                 }
@@ -780,13 +821,20 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
 
 /* ---- The new villagers dialog ------------------------------------------ */
 
-/* How many more new villagers (Heathens when heathen) this event can make:
-   the game's own room now (ce_room_left) less the ones already in the draft. */
+/* How many more new villagers (Heathens when `heathen`) this event can make:
+   the game's own room now (ce_room_left) less the ones already in the draft
+   that the same room counts.  In New Believers a Heathen takes a record but
+   not a place under the believers' cap, so drafted Heathens do not shrink
+   the believers' room (the delivery still asks the game for each one, and
+   the records' own limit holds there). */
 static int ui_spawn_room(int heathen) {
     int room = ce_room_left(ui.a, heathen);
     int i;
     for (i = 0; i < ui.draft.spawn_groups; ++i) {
-        room -= ui.draft.spawns[i].count;
+        int drafted_heathen = (ui.a->caps & CAP_SPAWN_FACTION) && ui.draft.spawns[i].faction == 1;
+        if (heathen || !drafted_heathen) {
+            room -= ui.draft.spawns[i].count;
+        }
     }
     return room > 0 ? room : 0;
 }
@@ -1170,8 +1218,8 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
                        ui.draft.revive_count == 0 || ui.draft.revives[0].cure ? BST_CHECKED : BST_UNCHECKED);
         SetDlgItemTextA(window, IDC_RV_NOTE,
                         "Only a villager who is still a skeleton can come back (a buried one is gone). "
-                        "Each comes back only while the village has room. Without the cure a sick or "
-                        "very old villager can die again within moments.");
+                        "No room is needed: a skeleton keeps their own place in the village. Without the "
+                        "cure a sick or very old villager can die again within moments.");
         return TRUE;
     }
     if (message == WM_COMMAND) {
@@ -1195,6 +1243,7 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
                    "with a message saying 'do this at your own risk'"). */
                 int dead_chief = 0;
                 int live_chief = 0;
+                ui_load_roster();          /* live now, whichever dialog came first */
                 for (i = 0; i < rows; ++i) {
                     const unsigned char *r = ui.a->record((int)SendDlgItemMessageA(window, IDC_RV_LIST,
                                                           LB_GETITEMDATA, (WPARAM)i, 0));
@@ -1204,7 +1253,7 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
                     }
                 }
                 for (i = 0; i < ui.roster_count; ++i) {
-                    live_chief |= ui.roster[i].kind == STORY_KIND_TRIBAL_CHIEF;
+                    live_chief |= !ui.roster[i].dead && ui.roster[i].kind == STORY_KIND_TRIBAL_CHIEF;
                 }
                 if (dead_chief && live_chief
                     && MessageBoxA(window, "A Tribal Chief is chosen to come back while another chief lives: "
@@ -1944,9 +1993,10 @@ static int story_custom_island_event(int game, HWND owner) {
                         UI_MODE_EVENT) != IDOK) {
         return 0;
     }
-    if (MessageBoxA(owner,
-                    "Do you want to buy Custom Island Event for 0 tech points?\r\n"
-                    "Press OK to confirm, or Cancel.",
+    char prompt[128];
+    wsprintfA(prompt, "Do you want to buy Custom Island Event for %s tech points?\r\n"
+                      "Press OK to confirm, or Cancel.", story_price_text(game));
+    if (MessageBoxA(owner, prompt,
                     "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;

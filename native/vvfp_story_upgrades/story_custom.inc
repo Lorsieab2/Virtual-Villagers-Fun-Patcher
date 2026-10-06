@@ -402,6 +402,35 @@ static int ce_roster(const ce_adapter *a, story_member *out, int cap) {
         out[n].sex = ce_sex(a, record);
         out[n].age = ce_age(a, record);
         out[n].kind = ce_role(a, record, NULL);
+        /* Carrying or nursing a baby: the game's own "expecting" field,
+           whoever the carrier is. */
+        out[n].nursing = *(const int *)(record + a->off_pregnant) != 0;
+        out[n].dead = 0;
+        ++n;
+    }
+    return n;
+}
+
+/* The villager picker's roster: the living (ce_roster), then every body
+   awaiting burial the game can bring back (CAP_REVIVE), marked dead -- a
+   chosen one is revived before its changes. */
+static int ce_picker_roster(const ce_adapter *a, story_member *out, int cap) {
+    int n = ce_roster(a, out, cap);
+    int i;
+    if (!(a->caps & CAP_REVIVE)) {
+        return n;
+    }
+    for (i = 0; i < a->record_count && n < cap; ++i) {
+        const unsigned char *record = a->record(i);
+        if (record == NULL || !a->skeleton(record)) {
+            continue;
+        }
+        out[n].index = i;
+        out[n].sex = ce_sex(a, record);
+        out[n].age = ce_age(a, record);
+        out[n].kind = ce_role(a, record, NULL);
+        out[n].nursing = 0;
+        out[n].dead = 1;
         ++n;
     }
     return n;
@@ -802,8 +831,25 @@ static int ce_char_count(const char *text) {
    leads the text), then (as every stock event does) three empty lines and
    the event's text, then the outcome lines.  Returns 0 when it does not fit
    the game's panel. */
+static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const char *title,
+                              const ce_event *e, const ce_result *r, char *out, int size);
+
+/* As ce_compose_in_once; when the refusals' reasons do not fit the panel,
+   again with the count alone, before a caller falls back to no outcome
+   lines at all. */
 static int ce_compose_in(const ce_adapter *a, const ce_layout *l, const char *title,
                          const ce_event *e, const ce_result *r, char *out, int size) {
+    int fits = ce_compose_in_once(a, l, title, e, r, out, size);
+    if (!fits && r != NULL && r->refused > 0 && ce_compose_reasons) {
+        ce_compose_reasons = 0;
+        fits = ce_compose_in_once(a, l, title, e, r, out, size);
+        ce_compose_reasons = 1;
+    }
+    return fits;
+}
+
+static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const char *title,
+                              const ce_event *e, const ce_result *r, char *out, int size) {
     ce_writer w;
     char line[160];
     memset(&w, 0, sizeof w);
@@ -1086,8 +1132,8 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         }
     }
 
-    /* Skeletons brought back, each only while the game says there is room
-       and the record still holds the same dead villager. */
+    /* Skeletons brought back, each while the record still holds the same
+       dead villager (no room is needed: the body keeps its own record). */
     if (a->caps & CAP_REVIVE) {
         for (i = 0; i < e->revive_count && i < CE_MAX_REVIVES; ++i) {
             const ce_revive *v = &e->revives[i];
@@ -1104,6 +1150,14 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             case 1: ++r->revived; break;
             case -1: ++r->no_room_revives; break;
             default: ce_refuse_as(r, CE_WHY_REVIVE); break;
+            }
+        }
+        /* A skeleton chosen in Villager changes is revived first (the owner,
+           2026-10-06): its changes were not "the same villager" before the
+           revive (a body is not a listed villager), so look again now. */
+        for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
+            if (!same[i]) {
+                same[i] = ce_same_villager(a, e->changes[i].index, e->changes[i].fingerprint) != NULL;
             }
         }
     }
