@@ -500,10 +500,12 @@ class ApprovalTests(FolderTest):
         self.assertIn("temporary.unlink()", approval)
         # The word repair: a backup opened "xb" (never replacing one), the
         # file through its temporary, the boundary and the Repairs log appended.
-        self.assertEqual(word_fix.count(".write_bytes("), 1)
+        # ...and the Sex lines older records lack (add_sex_lines), the same way.
+        self.assertEqual(word_fix.count(".write_bytes("), 2)
         self.assertIn("temporary.write_bytes(b\"\".join(out))", word_fix)
         self.assertIn('open(backup, "xb")', word_fix)
-        self.assertEqual(word_fix.count("os.replace("), 1)
+        self.assertEqual(word_fix.count("os.replace("), 2)
+        self.assertEqual(word_fix.count('open(backup, "xb")'), 2)
         self.assertEqual(word_fix.count('"ab"'), 2)
 
 
@@ -744,6 +746,92 @@ class LogWordsTests(FolderTest):
                          checker.VV1_GAME_WORDS)
 
 
+
+class SexLinesTests(FolderTest):
+    """Records written before v1.35.61 have no Sex line (the owner, 2026-10-06:
+    "each game stores a list of male and female names ... also scan the saves
+    and logs").  Repair Logs adds it from the save, another record of the same
+    villager, or the game's own name lists -- never a guess."""
+
+    HISTORY = (b"=== Virtual Villagers 1 -- 2026-10-01 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
+               b"Villager 1\r\n  Name: Hoani\r\n  Age: 400\r\n  Head: 3\r\n  Body: 4\r\n\r\n"
+               b"Villager 2\r\n  Name: Huata\r\n  Age: 500\r\n  Head: 5\r\n  Body: 6\r\n\r\n"
+               b"Villager 3\r\n  Name: Zork\r\n  Age: 500\r\n  Head: 7\r\n  Body: 8\r\n\r\n"
+               b"Villager 4\r\n  Name: Custom\r\n  Age: 300\r\n  Head: 9\r\n  Body: 9\r\n\r\n")
+    BIRTHS = (b"Village: Hut (Save 1)\r\n"
+              b"Conception 1\r\n  Mother: Chika\r\n    Age at conception: 400\r\n    Head: 1\r\n    Body: 2\r\n"
+              b"  Father: Kito\r\n    Age at conception: 500\r\n    Head: 3\r\n    Body: 4\r\n"
+              b"  Babies in pregnancy: 1\r\n\r\n"
+              b"Birth\r\n  Child: Zork\r\n    Head: 7\r\n    Body: 8\r\n  Mother: Chika\r\n    Head: 1\r\n"
+              b"    Body: 2\r\n  Father: Kito\r\n    Head: 3\r\n    Body: 4\r\n\r\n")
+    DEATHS = (b"Village: Hut (Save 1)\r\nDeath 1\r\n  Name: Custom\r\n  Age at death: 900\r\n"
+              b"  Cause of death: Old age\r\n  Grave: x\r\n  Epitaph: (none)\r\n  Head: 9\r\n  Body: 9\r\n\r\n"
+              b"Arrived 1\r\n  Name: Custom\r\n  Age at arrival: 10\r\n  Sex: Female\r\n  Head: 9\r\n"
+              b"  Body: 9\r\n  How: unknown\r\n\r\n")
+
+    def folder(self):
+        folder = self.make_folder("huttest", 1, "Modded")
+        self.write(folder, f"{LOGS}/Tribe History/Village History.txt", self.HISTORY)
+        self.write(folder, f"{LOGS}/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 1.txt",
+                   self.BIRTHS)
+        self.write(folder, f"{LOGS}/Deaths/Virtual Villagers 1 Deaths Log 1.txt", self.DEATHS)
+        return folder
+
+    def test_repair_logs_adds_sex_from_the_name_lists_and_other_records(self):
+        folder = self.folder()
+        result = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        history = (folder / f"{LOGS}/Tribe History/Village History.txt").read_bytes()
+        self.assertIn(b"  Name: Hoani\r\n  Age: 400\r\n  Sex: Male\r\n  Head: 3", history)
+        self.assertIn(b"  Name: Huata\r\n  Age: 500\r\n  Sex: Female\r\n", history)
+        # Zork is in no list and no save: his record keeps no Sex line
+        self.assertIn(b"  Name: Zork\r\n  Age: 500\r\n  Head: 7", history)
+        # Custom: another record of the same villager (his Arrived record) says Female
+        self.assertIn(b"  Name: Custom\r\n  Age: 300\r\n  Sex: Female\r\n", history)
+        births = (folder / f"{LOGS}/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 1.txt"
+                  ).read_bytes()
+        self.assertIn(b"  Mother: Chika\r\n    Age at conception: 400\r\n    Sex: Female\r\n", births)
+        self.assertIn(b"  Father: Kito\r\n    Age at conception: 500\r\n    Sex: Male\r\n", births)
+        self.assertIn(b"  Child: Zork\r\n    Head: 7", births, "unknown: left as it was")
+        deaths = (folder / f"{LOGS}/Deaths/Virtual Villagers 1 Deaths Log 1.txt").read_bytes()
+        self.assertIn(b"  Name: Custom\r\n  Age at death: 900\r\n  Sex: Female\r\n", deaths)
+        self.assertEqual(deaths.count(b"Sex: Female"), 2, "the Arrived record's own line is not doubled")
+        self.assertTrue(result.sexes)
+        repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        self.assertIn("Sex added: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", repairs)
+        # Once is enough: a second repair adds nothing.
+        before = self.state(folder / LOGS)
+        again = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual(again.sexes, [])
+        after = {k: v for k, v in self.state(folder / LOGS).items() if "Repairs" not in k}
+        self.assertEqual(after, {k: v for k, v in before.items() if "Repairs" not in k})
+
+    def test_check_logs_reports_them_and_writes_nothing(self):
+        folder = self.folder()
+        before = self.state(folder)
+        text = tools.check_logs(folder, 1, 1).text
+        self.assertIn("have no Sex line; repairable: Repair Logs adds it", text)
+        self.assertIn("whose sex nothing records", text)
+        self.assertEqual(self.state(folder), before)
+
+    def test_the_name_lists_are_each_games_own(self):
+        """Male then female, word for word the stock executable's."""
+        import re
+        stock = ROOT / "research" / "stock-executables"
+        exes = {1: "Virtual Villagers - A New Home.exe", 2: "Virtual Villagers - The Lost Children.exe",
+                3: "Virtual Villagers - The Secret City.exe", 4: "Virtual Villagers - The Tree of Life.exe",
+                5: "Virtual Villagers - New Believers.exe"}
+        if not stock.is_dir():
+            self.skipTest("stock executables not present")
+        checker = tools.load_checker()
+        for game, exe in exes.items():
+            data = (stock / exe).read_bytes()
+            lists = [m.group(0).decode() for m in re.finditer(rb"(?:[A-Z][a-z]+,){60,}[A-Z]?[a-z]*,?", data)]
+            male, female = ("".join(part) for part in checker.NAME_LISTS[game])
+            with self.subTest(game=game):
+                self.assertIn(male, lists)
+                self.assertIn(female, lists)
+                self.assertEqual(lists.index(female), lists.index(male) + 1, "male first, then female")
+
+
 if __name__ == "__main__":
     unittest.main()
-

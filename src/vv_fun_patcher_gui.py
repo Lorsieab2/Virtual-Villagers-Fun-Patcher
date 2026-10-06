@@ -2816,10 +2816,13 @@ class App(tk.Tk):
             "Parents; a game patched without one has nothing to repair. "
             + (
                 "Likes and dislikes an older patcher wrote with the wrong word list are "
-                "corrected now (each log is backed up beside itself); everything else is "
-                "repaired by the game."
+                "corrected now, and older records get the Sex line they lack (from the save, "
+                "the logs or the game's own name lists); each log is backed up beside itself. "
+                "Everything else is repaired by the game."
                 if number in (1, 3)
-                else "Nothing is repaired now."
+                else "Older records get the Sex line they lack now (from the save, the logs or the "
+                "game's own name lists; each log is backed up beside itself). Everything else is "
+                "repaired by the game."
             )
             + f"\n\nThe save folder {folder.name} is backed up first. Continue?",
             parent=parent,
@@ -2849,6 +2852,12 @@ class App(tk.Tk):
                 f"Like and dislike words corrected now: {sum(w.count for w in result.words)} "
                 f"in {len(result.words)} log file(s) (listed in the Repairs log).\n\n"
                 if result.words
+                else ""
+            )
+            + (
+                f"Sex lines added to older records now: {sum(w.count for w in result.sexes)} "
+                f"in {len(result.sexes)} log file(s) (listed in the Repairs log).\n\n"
+                if result.sexes
                 else ""
             )
             + f"Backup: {result.backup.backup_folder}",

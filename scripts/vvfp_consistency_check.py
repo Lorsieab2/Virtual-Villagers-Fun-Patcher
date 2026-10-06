@@ -222,9 +222,11 @@ class SaveLayout:
 
 LAYOUTS = {
     2: SaveLayout(0x2E0, 0x18, -0x2C, 1, -0x34, -0x1C, -0x18, 0x280, 5, False, 0x19, 0x32, 0x18),
-    3: SaveLayout(0x11C, 0x19, -0x0C, 1, -0x10, 0x1C, 0x20, 0xD8, 5, False, 0x24, 0x3D, 0x19),
-    4: SaveLayout(0x104, 0x19, -0x0C, 1, -0x10, 0x1C, 0x20, 0xC0, 5, True, 0x24, 0x3D, 0x19),
-    5: SaveLayout(0x118, 0x19, -0x0C, 1, -0x10, 0x1C, 0x20, 0xC0, 6, True, 0x24, 0x3D, 0x19),
+    # The Secret City to New Believers keep 0 for a male: their creators take the female name
+    # list when the field is 1 (0x45C6A1, 0x465DE3, 0x46F6C3).
+    3: SaveLayout(0x11C, 0x19, -0x0C, 0, -0x10, 0x1C, 0x20, 0xD8, 5, False, 0x24, 0x3D, 0x19),
+    4: SaveLayout(0x104, 0x19, -0x0C, 0, -0x10, 0x1C, 0x20, 0xC0, 5, True, 0x24, 0x3D, 0x19),
+    5: SaveLayout(0x118, 0x19, -0x0C, 0, -0x10, 0x1C, 0x20, 0xC0, 6, True, 0x24, 0x3D, 0x19),
 }
 NAME_RE = re.compile(rb"[A-Z][A-Za-z0-9' -]{1,23}\0")
 
@@ -1517,6 +1519,338 @@ def check_words(game_dir: Path, game: int, rep: Report) -> None:
                 "Repair Logs puts the game's own words in")
 
 
+# ---- the Sex line older records lack (v1.35.61) ---------------------------------------------
+
+# Each game's own lists of default names, male then female, as its villager creator picks from them
+# (A New Home 0x43B967 / The Lost Children 0x44B727: +0x350 / +0x538 == 2 takes the second list;
+# The Secret City 0x45C6A1, The Tree of Life 0x465DE3, New Believers 0x46F6C3: +4 == 1 takes it).
+# tests/test_log_tools.py compares them with the stock executables.
+NAME_LISTS = {
+    1: (
+        ("Achak,Ahi,Ahmik,Ahote,Aitu,Akan,Akil,Aneko,Anoki,Ariki,Azizi,Babu,Bem,Biko,Bobo,Bruk,Cheop,C"
+         "hiko,Ciuk,Dulu,Duto,Eko,Elaku,Elan,Elki,Etini,Ghali,Goro,Guapi,Hakan,Hiji,Hoani,Hokou,Hoto,H"
+         "owi,Idowu,Iniko,Iyasu,Gin,Jomo,Juro,Kaili,Kamau,Kato,Kauri,Kayak,Kenan,Keopi,Kin,Kito,Kobbi,"
+         "Koko,Konan,Kumi,Kupe,Kuruk,Kwaku,Kwame,Lanu,Liko,Malik,Manu,Masou,Maui,Mazi,Mikio,Moki,Naoko"
+         ",Nawat,Nitis,Nuru,Obi,Okwui,Olu,Paco,Papu,Pawin,Pili,Ponui,Rangi,Rongo,Rudo,Sef,Seven,Silko,"
+         "Sogan,Suzu,Tadao,Tanak,Tano,Tau,Thabo,Tofu,Tomi,Turi,Tutu,Uan,Usutu,Vanui,Wabu,Yahto,"),
+        ("Aba,Aika,Aisha,Aki,Akika,Alawa,Amaci,Amina,Aponi,Ashby,Atepa,Aziza,Baba,Banga,Chapa,Chepi,Ch"
+         "ika,City,Dada,Dofi,Ema,Etini,Fatai,Ginger,Gzifa,Hawa,Hika,Hokua,Huata,Imala,Iruwa,Isi,Itchi,"
+         "Jaha,Kai,Kaia,Kaimi,Kalea,Kali,Kasa,Kaula,Keiki,Kifa,Kiki,Kinga,Kiri,Kissa,Kita,Koka,Kukua,L"
+         "ala,Layla,Leia,Lisha,Lulu,Maiya,Mali,Mamba,Meka,Mika,Mina,Naki,Nasha,Nina,Nishi,Nunai,Nyota,"
+         "Okai,Onawa,Pakwa,Penyo,Poema,Pupa,Qwara,Raha,Rusha,Saka,Sanje,Sekai,Shada,Shuka,Sitsi,Soda,S"
+         "uki,Taipa,Taka,Tala,Teata,Tenai,Tiki,Tonga,Tuna,Ulu,Unagi,Vava,Waka,Yepa,Yoki,Zen,Zola,Zuna,"),
+    ),
+    2: (
+        ("Achak,Ahi,Ahote,Akiko,Akio,Alohi,Amago,Amiri,Azizi,Ayu,Babaco,Babu,Bali,Balun,Bass,Bobo,Buru"
+         ",Chip,Coen,Coho,Daku,Dodo,Ecco,Elaku,Fungo,Goby,Guapi,Hiji,Hokou,Hong,Hoto,Ipo,Gin,Jak,Joop,"
+         "Kaki,Kamin,Kanyu,Kato,Kayak,Kazuo,Kenji,Kei,Keli,Kenobi,Koi,Koko,Kokopu,Kon,Kumi,Kuruk,Laki,"
+         "Lapis,Leiko,Lelu,Lenok,Lock,Luc,Lupo,Mahalo,Mahoi,Mali,Malo,Maui,Mem,Masao,Mau,Miki,Miro,Mol"
+         "o,Momo,Nani,Nanu,Nofo,Nono,Nonolo,Noriko,Nuku,Obi,Okau,Olu,Ongo,Paco,Papago,Papu,Pepe,Piku,P"
+         "olo,Ponui,Popo,Popoki,Rangi,Rongo,Saku,Salak,Samar,Seven,Solo,Sulu,Tabu,Tafu,Tamil,Tappo,Tap"
+         "u,Tarik,Taro,Tatau,Tatoo,Tepoto,Tin,Tobi,Tocai,Toki,Tomil,Top,Torak,Tutuni,Uan,Uru,Wabu,Wan,"
+         "Weeko,Yap,Yori,Zuri,"),
+        ("Aba,Agate,Aida,Aika,Aisha,Aki,Akika,Alana,Amaci,Amina,Aponi,Atepa,Aziza,Baba,Banga,Bati,Bes,"
+         "Beta,Bibi,Bindi,Bixa,Boga,Bora,Caia,Cape,Chimba,Chirita,City,Coral,Dada,Ebi,Ema,Fatai,Fiji,G"
+         "inger,Hakea,Hawa,Hebe,Hika,Hoya,Huka,Hula,Huma,Ikai,Ima,Itchi,Jade,Jem,Kaana,Kai,Kaia,Kaila,"
+         "Kaki,Kalea,Kali,Kamea,Kappa,Kiki,Kinga,Kini,Kiri,Kissa,Kiti,Koa,Kora,Lakia,Lala,Latipa,Lelei"
+         ",Lulu,Luna,Lupa,Mali,Mamba,Mani,Moma,Mua,Mucha,Napuka,Nina,Nishi,Noa,Nunai,Okai,Onawa,Paima,"
+         "Pana,Papa,Papaya,Pinky,Pippa,Pita,Pupa,Puya,Rapa,Safari,Sake,Shuka,Soda,Suki,Sun,Sutai,Tapa,"
+         "Tapiwa,Tara,Tarita,Tatoa,Thema,Tipa,Tiki,Titta,Tonga,Topa,Topaz,Tuna,Ulla,Uma,Unagi,Vava,Wai"
+         "ata,Yucca,Zea,Zen,Zola,Zuna,"),
+    ),
+    3: (
+        ("Akivi,Aku,Akuaku,Ahi,Ali,Aroi,Atoi,Atoro,Bau,Bem,Bico,Buco,Budi,Bong,Cakau,Cook,Dado,Daku,Di"
+         "no,Dodi,Fatu,Gamay,Gavi,Gin,Hale,Hiapo,Holoku,Iapo,Jam,Jibo,Kayak,Kalau,Kao,Keiau,Kiamu,Kilu"
+         ",Ko,Kontiki,Koro,Kulo,Kutu,Lapo,Lolo,Luau,Lulli,Machu,Mahoi,Mahu,Maro,Maupiti,Molo,Mojo,Motu"
+         ",Naloto,Nasau,Nasinu,Natali,Natui,Nauru,Nobu,Noco,Nui,Obi,Ofu,Oro,Palau,Peep,Peku,Pichu,Pili"
+         "pili,Pinot,Pio,Piko,Pod,Poi,Poh,Poku,Ponui,Popi,Poro,Puani,Puhi,Pukui,Rano,Ranui,Raraku,Ratu"
+         ",Riki,Roko,Ruku,Sakou,Saeco,Sawau,Simbu,Spok,Tabu,Taku,Tapuari,Taro,Taupo,Tekoi,Tepeu,Tobi,T"
+         "okou,Tolu,Toto,Totolo,Truk,Tufo,Tui,Turuki,Umi,Uto,Udu,Vanau,Vinapu,Waipi,Wasabi,Watu,Watoto"
+         ",Yakani,Yanuca,Yap,Yaro,Yapili,"),
+        ("Aipi,Akua,Alapai,Alitipa,Aloha,Amaca,Ariki,Azizi,Bikini,Bora,Bua,Buca,Caia,Chuka,Cola,Coral,"
+         "Dama,Epeli,Fafai,Febi,Gala,Gata,Ginger,Hakuna,Hina,Hope,Hula,Hunga,Ika,Itchi,Java,Jomba,Kang"
+         "a,Kautawa,Kava,Kawena,Kei,Keiki,Kenya,Kipukai,Kitika,Kiwi,Kolea,Konichua,Kuka,Laka,Lalati,La"
+         "va,Lolla,Lomai,Lopa,Mai,Makawa,Manaka,Mama,Matate,Maya,Meza,Mikeka,Minga,Miti,Moala,Moka,Mor"
+         "ea,Mua,Naioti,Nana,Napa,Natawa,Orata,Omawa,Pai,Paka,Palanke,Pangai,Papaya,Papete,Parai,Pesa,"
+         "Pari,Pickle,Raiatea,Romi,Saka,Salote,Samoa,Sanda,Siki,Sirah,Soda,Swahili,Tagata,Takai,Tamata"
+         ",Tapa,Tara,Tarita,Taroa,Tasiri,Taunga,Tautai,Tawa,Tiare,Tikina,Tilli,Tita,Titaua,Toga,Tonga,"
+         "Tufi,Tuitui,Tupai,Unagi,Upawa,Vuaki,Vivi,Waikiki,Waipi,Waya,Wewe,Wiki,Yasa,Yasawa,Zania,Zucc"
+         "a,"),
+    ),
+    4: (
+        ("Ago,Aito,Akivi,Aku,Akuaku,Ahi,Ali,Amaro,Arai,Aroi,Ati,Atoi,Atollo,Atoro,Auti,Bau,Bem,Bico,Bu"
+         "co,Budi,Bong,Cakau,Cargo,Cook,Dado,Daku,Dodi,Eimeo,Fatu,Gamay,Gavi,Gin,Hale,Hiapo,Hio,Holoku"
+         ",Hopu,Iapo,Ino,Ivi,Jam,Jibo,Kahiu,Kayak,Kalau,Kao,Keiau,Kiamu,Kilu,Kin,Ko,Koatu,Kontiki,Koro"
+         ",Kutu,Lapo,Lolo,Lotto,Luau,Lulli,Machu,Mahi,Mahoi,Mahu,Maono,Maori,Mapui,Maro,Maru,Marotai,M"
+         "aupiti,Mino,Miro,Mirto,Mokio,Molo,Mojo,Momo,Moti,Motu,Naloto,Nasau,Nasinu,Natali,Nato,Natui,"
+         "Nauru,Nobu,Noco,Nono,Nui,Nuku,Oahu,Obi,Ofai,Ofu,Oito,Oro,Otuu,Palau,Parau,Peep,Pehe,Peku,Pic"
+         "hu,Pili,Pio,Piko,Pipiri,Piro,Pod,Poi,Poh,Poku,Ponui,Popi,Poporo,Poro,Puani,Puhi,Pukui,Rangi,"
+         "Rano,Ranui,Raraku,Ratu,Reefi,Reiono,Riki,Rimu,Rino,Roko,Romotu,Roo,Ruku,Sakou,Saeco,Simbu,Sp"
+         "ok,Tabu,Taio,Taipei,Taku,Tamanu,Tapuari,Taro,Taupo,Tatauro,Tekoi,Temeharo,Tepeu,Timo,Tobi,To"
+         "hunu,Tokou,Tolu,Toto,Totolo,Truk,Tufo,Tui,Tumu,Tunoo,Turei,Turuki,Umi,Uto,Udu,Upuro,Uru,Vado"
+         ",Vaihi,Vanau,Varo,Vinapu,Vivo,Waipi,Wasabi,Watu,Watoto,Yakani,Yanuca,Yap,Yaro,Yapili,"),
+        ("Aipi,Akua,Alapai,Alitipa,Aloha,Amaca,Amoa,Anua,Apatoa,Ariki,Arofa,Ati,Azizi,Bikini,Bimbi,Bor"
+         "a,Bua,Buca,Caia,Chuka,Cola,Coral,Dama,Epeli,Fafai,Fara,Febi,Fenua,Fetia,Gala,Gata,Ginger,Haa"
+         "piti,Hakuna,Hina,Himene,Hiva,Hokupa,Hope,Hula,Hunga,Ika,Iriatai,Itata,Itchi,Java,Jomba,Kanga"
+         ",Kautawa,Kava,Kawena,Kei,Keiki,Kenya,Keola,Kipukai,Kitika,Kiwi,Koala,Kolea,Konichua,Kuka,Lak"
+         "a,Lalati,Lava,Lolla,Lalla,Lilihia,Loa,Lomai,Lopa,Mai,Makatea,Makawa,Manaka,Manava,Mama,Maoa,"
+         "Marara,Mareva,Mata,Matai,Matate,Matavai,Maya,Meza,Mikeka,Minga,Miti,Moala,Moka,Moma,Morea,Mu"
+         "a,Naioti,Nana,Napa,Narai,Natawa,Noa,Orata,Omawa,Pai,Pahura,Paka,Paiva,Palanke,Pangai,Papara,"
+         "Papaya,Papete,Parai,Paroruma,Pau,Peapea,Penni,Pesa,Pari,Pereta,Pickle,Pipiri,Popore,Puka,Rai"
+         "atea,Rata,Rea,Reva,Rimaroa,Romi,Saka,Salote,Samoa,Sanda,Siki,Sirah,Soda,Swahili,Tagata,Tai,T"
+         "aia,Taipi,Takai,Tamata,Tapa,Tara,Tarita,Taroa,Tasiri,Taunga,Tautai,Tawa,Tehina,Tekura,Teri,T"
+         "etai,Tiare,Tiki,Tikina,Tilli,Tita,Titaua,Toga,Tonga,Tufi,Tuitui,Tupai,Umara,Unagi,Upaupa,Upa"
+         "wa,Urahia,Vahine,Vaihi,Varua,Vuaki,Vivi,Waikiki,Waipi,Waya,Wewe,Wiki,Yasa,Yasawa,Zania,Zucca"
+         ","),
+    ),
+    5: (
+        ("Ago,Aito,Akivi,Aku,Akuaku,Ahi,Ali,Amaro,Arai,Aroi,Ati,Atoi,Atollo,Atoro,Auti,Bau,Bem,Bico,Bu"
+         "co,Budi,Bong,Cakau,Cargo,Cook,Dado,Daku,Dodi,Eimeo,Fatu,Gamay,Gavi,Gin,Hale,Hiapo,Hio,Holoku"
+         ",Hopu,Iapo,Ino,Ivi,Jam,Jibo,Kahiu,Kayak,Kalau,Kao,Keiau,Kiamu,Kilu,Kin,Ko,Koatu,Kontiki,Koro"
+         ",Kutu,Lapo,Lolo,Lotto,Luau,Lulli,Machu,Mahi,Mahoi,Mahu,Maono,Maori,Mapui,Maro,Maru,Marotai,M"
+         "aupiti,Mino,Miro,Mirto,Mokio,Molo,Mojo,Momo,Moti,Motu,Naloto,Nasau,Nasinu,Natali,Nato,Natui,"
+         "Nauru,Nobu,Noco,Nono,Nui,Nuku,Oahu,Obi,Ofai,Ofu,Oito,Oro,Otuu,Palau,Parau,Peep,Pehe,Peku,Pic"
+         "hu,Pili,Pio,Piko,Pipiri,Piro,Pod,Poi,Poh,Poku,Ponui,Popi,Poporo,Poro,Puani,Puhi,Pukui,Rangi,"
+         "Rano,Ranui,Raraku,Ratu,Reefi,Reiono,Riki,Rimu,Rino,Roko,Romotu,Roo,Ruku,Sakou,Saeco,Simbu,Sp"
+         "ok,Tabu,Taio,Taipei,Taku,Tamanu,Tapuari,Taro,Taupo,Tatauro,Tekoi,Temeharo,Tepeu,Timo,Tobi,To"
+         "hunu,Tokou,Tolu,Toto,Totolo,Truk,Tufo,Tui,Tumu,Tunoo,Turei,Turuki,Umi,Uto,Udu,Upuro,Uru,Vado"
+         ",Vaihi,Vanau,Varo,Vinapu,Vivo,Waipi,Wasabi,Watu,Watoto,Yakani,Yanuca,Yap,Yaro,Yapili,"),
+        ("Aipi,Akua,Alapai,Alitipa,Aloha,Amaca,Amoa,Anua,Apatoa,Ariki,Arofa,Ati,Azizi,Bikini,Bimbi,Bor"
+         "a,Bua,Buca,Caia,Chuka,Cola,Coral,Dama,Epeli,Fafai,Fara,Febi,Fenua,Fetia,Gala,Gata,Ginger,Haa"
+         "piti,Hakuna,Hina,Himene,Hiva,Hokupa,Hope,Hula,Hunga,Ika,Iriatai,Itata,Itchi,Java,Jomba,Kanga"
+         ",Kautawa,Kava,Kawena,Kei,Keiki,Kenya,Keola,Kipukai,Kitika,Kiwi,Koala,Kolea,Konichua,Kuka,Lak"
+         "a,Lalati,Lava,Lolla,Lalla,Lilihia,Loa,Lomai,Lopa,Mai,Makatea,Makawa,Manaka,Manava,Mama,Maoa,"
+         "Marara,Mareva,Mata,Matai,Matate,Matavai,Maya,Meza,Mikeka,Minga,Miti,Moala,Moka,Moma,Morea,Mu"
+         "a,Naioti,Nana,Napa,Narai,Natawa,Noa,Orata,Omawa,Pai,Pahura,Paka,Paiva,Palanke,Pangai,Papara,"
+         "Papaya,Papete,Parai,Paroruma,Pau,Peapea,Penni,Pesa,Pari,Pereta,Pickle,Pipiri,Popore,Puka,Rai"
+         "atea,Rata,Rea,Reva,Rimaroa,Romi,Saka,Salote,Samoa,Sanda,Siki,Sirah,Soda,Swahili,Tagata,Tai,T"
+         "aia,Taipi,Takai,Tamata,Tapa,Tara,Tarita,Taroa,Tasiri,Taunga,Tautai,Tawa,Tehina,Tekura,Teri,T"
+         "etai,Tiare,Tiki,Tikina,Tilli,Tita,Titaua,Toga,Tonga,Tufi,Tuitui,Tupai,Umara,Unagi,Upaupa,Upa"
+         "wa,Urahia,Vahine,Vaihi,Varua,Vuaki,Vivi,Waikiki,Waipi,Waya,Wewe,Wiki,Yasa,Yasawa,Zania,Zucca"
+         ","),
+    ),
+}
+
+
+
+def name_list_sex(game: int, name: str) -> str | None:
+    """"Male" or "Female" when the name is a default name of only one sex in the game's own lists."""
+    male, female = (set(filter(None, "".join(part).split(","))) for part in NAME_LISTS[game])
+    if name in male and name not in female:
+        return "Male"
+    if name in female and name not in male:
+        return "Female"
+    return None
+
+
+# The blocks a Sex line belongs in, by their first line: (the line it follows, its indent).
+SEX_PERSON = re.compile(r"^(  Child|  Mother|  Father): (.*)$")
+
+
+def _block_people(lines: list[str]) -> list[dict]:
+    """As _block_people_after_heading, past a file's or a snapshot's heading lines ("=== ...",
+    "Village: ...") when they open the block."""
+    skip = 0
+    while skip < len(lines) and lines[skip].startswith(("===", "Village:")):
+        skip += 1
+    people = _block_people_after_heading(lines[skip:])
+    for person in people:
+        person["after"] += skip
+    return people
+
+
+def _block_people_after_heading(lines: list[str]) -> list[dict]:
+    """The villagers of one record block that should carry a Sex line: name, head, body, whether
+    one is there, and the index of the line it follows."""
+    people: list[dict] = []
+    if not lines:
+        return people
+    first = lines[0].strip()
+    if first.startswith(("Villager ", "Death ")) or first in ("Disappeared",):
+        p = {"name": None, "head": None, "body": None, "has": False, "after": None, "indent": "  "}
+        for k, line in enumerate(lines):
+            m = re.match(r"^  (Name|Head|Body|Sex|Age|Age at death|Custom title): ?(.*)$", line)
+            if not m:
+                continue
+            key, value = m.group(1), m.group(2).strip()
+            if key == "Name":
+                p["name"] = value
+                p["after"] = k if p["after"] is None else p["after"]
+            elif key in ("Age", "Age at death"):
+                p["after"] = k
+            elif key == "Custom title" and p["after"] is not None:
+                p["after"] = max(p["after"], k)
+            elif key == "Sex":
+                p["has"] = True
+            elif key in ("Head", "Body"):
+                try:
+                    p[key.lower()] = int(value)
+                except ValueError:
+                    pass
+        if p["name"] and p["head"] is not None:
+            people.append(p)
+        return people
+    if first == "Birth" or first.startswith("Conception"):
+        current = None
+        for k, line in enumerate(lines):
+            m = SEX_PERSON.match(line)
+            if m:
+                if first == "Birth" and m.group(1) != "  Child":
+                    current = None
+                    continue
+                current = {"name": m.group(2).strip(), "head": None, "body": None, "has": False,
+                           "after": k, "indent": "    "}
+                people.append(current)
+                continue
+            if current is None:
+                continue
+            m = re.match(r"^    (Head|Body|Sex|Age at conception): ?(.*)$", line)
+            if not m:
+                if not line.startswith("    "):
+                    current = None
+                continue
+            key, value = m.group(1), m.group(2).strip()
+            if key == "Sex":
+                current["has"] = True
+            elif key == "Age at conception":
+                current["after"] = k
+            else:
+                try:
+                    current[key.lower()] = int(value)
+                except ValueError:
+                    pass
+        return [p for p in people if p["name"] and p["name"] not in ("(unknown)", "(none)")]
+    return people
+
+
+def _blocks(text: str) -> list[tuple[int, int]]:
+    """(start, end) line spans of the blank-line separated blocks of `text`'s lines."""
+    lines = text.split("\n")
+    spans, start = [], None
+    for i, line in enumerate(lines + [""]):
+        if line.strip() and start is None:
+            start = i
+        if not line.strip() and start is not None:
+            spans.append((start, i))
+            start = None
+    return spans
+
+
+def log_files(game_dir: Path) -> list[Path]:
+    out = []
+    for top in LOG_FOLDERS:
+        root = game_dir / top
+        if root.is_dir():
+            out += [p for p in sorted(root.rglob("*.txt")) if p.parent.name != "Repairs"]
+    return out
+
+
+def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
+    """What the save and the logs say each villager is: by (name, head, body), and by name alone
+    (a set of the sexes seen)."""
+    exact: dict[tuple, str] = {}
+    by_name: dict[str, set] = {}
+    for slot in range(1, 6):
+        save = game_dir / f"{SAVE_STEMS[game]}{slot}.ldw"
+        if not save.is_file():
+            continue
+        try:
+            data = save.read_bytes()
+            pop = population_for_slot(game_dir, slot)
+            roster = vv1_roster(data) if game == 1 else vv25_roster(game, data, [v["name"] for v in pop or []])
+        except (OSError, ValueError):
+            continue
+        for v in roster:
+            sex = "Male" if v.male else "Female"
+            exact.setdefault((v.name, v.head, v.body), sex)
+            by_name.setdefault(v.name, set()).add(sex)
+    for path in log_files(game_dir):
+        try:
+            lines = path.read_bytes().decode("latin-1").replace("\r\n", "\n").split("\n")
+        except OSError:
+            continue
+        for s, e in _blocks("\n".join(lines)):
+            block = lines[s:e]
+            sex_lines = [l for l in block if re.match(r"^\s+Sex: (Male|Female)\s*$", l)]
+            if not sex_lines:
+                continue
+            for p in _block_people(block):
+                if not p["has"]:
+                    continue
+                # the Sex line right after this person's own line
+                for l in block[p["after"] + 1: p["after"] + 3]:
+                    m = re.match(r"^\s+Sex: (Male|Female)\s*$", l)
+                    if m:
+                        exact.setdefault((p["name"], p["head"], p["body"]), m.group(1))
+                        by_name.setdefault(p["name"], set()).add(m.group(1))
+                        break
+            m = re.search(r"^  Name: (.*)$", "\n".join(block), re.M)
+            if m and len(sex_lines) == 1:
+                name = m.group(1).strip()
+                head = re.search(r"^  Head: (-?\d+)", "\n".join(block), re.M)
+                body = re.search(r"^  Body: (-?\d+)", "\n".join(block), re.M)
+                sex = sex_lines[0].split(":")[1].strip()
+                if head and body:
+                    exact.setdefault((name, int(head.group(1)), int(body.group(1))), sex)
+                by_name.setdefault(name, set()).add(sex)
+    return exact, by_name
+
+
+def sex_for(game: int, person: dict, exact: dict, by_name: dict) -> tuple[str | None, str]:
+    """The villager's sex and where it came from: the save or the logs (the same name, head and
+    body), the game's name lists, or every record of the name agreeing."""
+    found = exact.get((person["name"], person["head"], person["body"]))
+    if found:
+        return found, "the save or the logs"
+    found = name_list_sex(game, person["name"])
+    if found:
+        return found, "the game's name lists"
+    seen = by_name.get(person["name"], set())
+    if len(seen) == 1:
+        return next(iter(seen)), "every record of the name"
+    return None, ""
+
+
+def missing_sex(game_dir: Path, game: int) -> list[tuple[Path, list[tuple[int, str, str]]]]:
+    """Every log file's villagers with no Sex line: (line index the line follows, the line, source)."""
+    exact, by_name = known_sexes(game_dir, game)
+    out = []
+    for path in log_files(game_dir):
+        lines = path.read_bytes().decode("latin-1").replace("\r\n", "\n").split("\n")
+        adds = []
+        for s, e in _blocks("\n".join(lines)):
+            for p in _block_people(lines[s:e]):
+                if p["has"]:
+                    continue
+                sex, source = sex_for(game, p, exact, by_name)
+                adds.append((s + p["after"], f"{p['indent']}Sex: {sex}" if sex else "", source))
+        if adds:
+            out.append((path, adds))
+    return out
+
+
+def check_sex(game_dir: Path, game: int, rep: Report) -> None:
+    label = f"{LOGS} (Sex)"
+    try:
+        files = missing_sex(game_dir, game)
+    except OSError as exc:
+        rep.add(label, "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
+        return
+    if not files:
+        rep.add(label, "OK", "every villager in the logs shows its sex")
+        return
+    for path, adds in files:
+        known = sum(1 for _, line, _ in adds if line)
+        name = str(path.relative_to(game_dir))
+        if known:
+            rep.add(label, "NOTE", f"{name}: {known} villager(s) in records written before v1.35.61 have no Sex "
+                                   "line; repairable: Repair Logs adds it from the save, the logs or the game's "
+                                   "name lists")
+        if known < len(adds):
+            rep.add(label, "UNCHECKED", f"{name}: {len(adds) - known} villager(s) whose sex nothing records "
+                                        "(a custom name, in no save or other record)")
+
+
 def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     game = game or detect_game(game_dir, slot)
     rep = Report()
@@ -1566,6 +1900,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     check_rosters(game_dir, slot, game, roster, rep)
     check_stews(game_dir, slot, game, rep)
     check_words(game_dir, game, rep)
+    check_sex(game_dir, game, rep)
     check_marker(game_dir, slot, game, rep, births.village)
     check_coverage_files(game_dir, slot, game, rep)
     check_approval(game_dir, slot, game, rep)

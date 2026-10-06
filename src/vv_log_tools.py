@@ -238,6 +238,7 @@ class ApprovalResult:
     approval: Path
     backup: vv_save_backup.BackupResult
     words: list = field(default_factory=list)   # WordFix: old like / dislike words put right now
+    sexes: list = field(default_factory=list)   # WordFix: Sex lines added to older records now
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -322,7 +323,16 @@ def approve_repair(
             village = None
         words = fix_log_words(folder, game)
         note_word_repair(folder, game, village, words, now)
-    return ApprovalResult(folder, slot, game, cleared, approval, backup, words)
+    try:
+        village = load_checker().births_log(folder, game, slot)[0].village
+    except Exception:                           # the header is only the Repairs log's label
+        village = None
+    sexes = add_sex_lines(folder, game)
+    note_word_repair(folder, game, village, sexes, now,
+                     checked="the villagers in older records with no Sex line, against the save, the logs "
+                             "and the game's own name lists",
+                     corrected="Sex added")
+    return ApprovalResult(folder, slot, game, cleared, approval, backup, words, sexes)
 
 
 # ---------------------------------------------------------------------------
@@ -390,7 +400,9 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
 
 
 def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[WordFix],
-                     now: datetime | None = None) -> None:
+                     now: datetime | None = None,
+                     checked: str = "the like and dislike words in the logs, against the game's own list",
+                     corrected: str = "Corrected") -> None:
     """One "Repair <n>" record in the Repairs log (native/shared/repairs_log.h's shape)."""
     if not fixes:
         return
@@ -410,9 +422,49 @@ def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[W
     when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
     text = "" if last and last[-1].rstrip() == header else header + "\r\n"
     text += f"Repair {repairs + 1}\r\n  Date: {when}\r\n"
-    text += "  Checked: the like and dislike words in the logs, against the game's own list\r\n"
+    text += f"  Checked: {checked}\r\n"
     for fix in fixes:
-        text += f"  Corrected: {fix.name} -- {fix.count} word(s)\r\n"
+        text += f"  {corrected}: {fix.name} -- {fix.count} " + ("word(s)" if corrected == "Corrected" else "villager(s)") + "\r\n"
     text += "  Backup: " + ", ".join(fix.backup for fix in fixes) + "\r\n\r\n"
     with open(path, "ab") as log:
         log.write(text.encode("latin-1", "replace"))
+
+
+def add_sex_lines(folder: Path, game: int) -> list[WordFix]:
+    """Put a Sex line into every older record that lacks one, when the save, another record of the
+    same villager, or the game's own name lists say it (scripts/vvfp_consistency_check.py
+    missing_sex); a villager nothing records is left as it is.  Each file is copied beside itself
+    first (never replacing a copy) and rewritten through a temporary file."""
+    checker = load_checker()
+    folder = Path(folder)
+    done: list[WordFix] = []
+    for path, adds in checker.missing_sex(folder, game):
+        adds = [(after, line) for after, line, _ in adds if line]
+        if not adds:
+            continue
+        raw = path.read_bytes()
+        crlf = b"\r\n" in raw
+        lines = raw.decode("latin-1").replace("\r\n", "\n").split("\n")
+        for after, line in sorted(adds, reverse=True):
+            lines.insert(after + 1, line)
+        text = "\n".join(lines)
+        if crlf:
+            text = text.replace("\n", "\r\n")
+        backup = _word_backup(path)
+        temporary = path.with_name(path.name + ".tmp")
+        try:
+            with open(path, "rb") as source, open(backup, "xb") as copy:
+                copy.write(source.read())
+            temporary.write_bytes(text.encode("latin-1"))
+            os.replace(temporary, path)
+        except OSError as exc:
+            try:
+                temporary.unlink()
+            except OSError:
+                pass
+            raise LogToolError(
+                f"{path.name} could not be given its Sex lines ({exc}). "
+                f"{len(done)} log file(s) were given them before it."
+            ) from exc
+        done.append(WordFix(str(path.relative_to(folder)), len(adds), backup.name))
+    return done
