@@ -79,6 +79,7 @@
 #include "save_folder.h"
 #include "log_words.h"
 #include "special_title.h"
+#include "custom_titles.h"
 #include "patcher_files.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -3443,6 +3444,98 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     return emit_record(game_id, KIND_BIRTH, NULL, text);
 }
 
+/* The villager's custom title (Story / Cheat Upgrades' Custom Island Event),
+   for the "  Custom title:" line the Village Population and History pages
+   print under the name.  The owner (2026-10-06): custom titles belong in the
+   villager logs too.
+
+   The titles are kept per save slot (native/shared/custom_titles.h); the
+   slot is the one the village header names ("... (Save <n>)", its LAST such
+   marker, as every reader takes it).  A title belongs to the villager whose
+   name, likes and dislikes hash to its identity: the one entry with this
+   record's identity is used -- by identity alone, since a departed
+   villager's record is a rebuilt copy with no index -- and none when two
+   entries, or two living villagers, carry that identity (the villager panel
+   shows it on neither).  No file, an unreadable file, no header or no
+   match: no line. */
+static int record_custom_title(int game_id, const struct game_layout *g,
+                               const unsigned char *record, const unsigned char *records,
+                               char *out, size_t out_size) {
+    static unsigned char data[VV_TITLES_FILE_MAX];
+    static vv_custom_title titles[VV_TITLES_MAX];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    char folder[MAX_PATH];
+    char path[MAX_PATH];
+    const char *at = NULL;
+    const char *scan;
+    vv_titles_check check;
+    unsigned int identity;
+    HANDLE h;
+    DWORD got = 0;
+    int count, i, found = -1, slot;
+    out[0] = '\0';
+    if (g->likes == 0u || g->dislikes == 0u || g->preference_slots == 0u
+        || !vv_village_recall(village, sizeof village)) {
+        return 0;
+    }
+    for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
+        at = scan;
+    }
+    if (at == NULL || at[7] < '1' || at[7] > '5' || at[8] != ')') {
+        return 0;
+    }
+    slot = at[7] - '0';
+    if (!vv_save_folder(folder, (int)sizeof("\\" VV_TITLES_SUBFOLDER "\\Custom Titles - Save 0.dat"))) {
+        return 0;
+    }
+    lstrcatA(folder, "\\" VV_TITLES_SUBFOLDER);
+    if (!vv_titles_file_name(path, MAX_PATH, folder, slot)) {
+        return 0;
+    }
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(h, data, sizeof data, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(h);
+    check.game = game_id;
+    check.slots = (unsigned int)g->slots;
+    if (got == 0 || !vv_titles_validate(data, got, &check)) {
+        return 0;
+    }
+    count = vv_titles_parse(data, titles);
+    identity = vv_title_identity(record, g->name, g->name_capacity, g->likes, g->dislikes,
+                                 g->preference_slots);
+    for (i = 0; i < count; ++i) {
+        if (titles[i].fingerprint == identity) {
+            if (found >= 0) {
+                return 0;
+            }
+            found = i;
+        }
+    }
+    if (found < 0) {
+        return 0;
+    }
+    if (records != NULL) {
+        int carriers = 0, index;
+        for (index = 0; index < g->slots; ++index) {
+            const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
+            if (*(const unsigned char *)(other + g->active) == 1
+                && vv_title_identity(other, g->name, g->name_capacity, g->likes, g->dislikes,
+                                     g->preference_slots) == identity
+                && ++carriers > 1) {
+                return 0;
+            }
+        }
+    }
+    _snprintf_s(out, out_size, _TRUNCATE, "  Custom title: %s\n", titles[found].title);
+    return 1;
+}
+
 /* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
    Death.dll", which sees the deaths, burials, removals and arrivals and
    decides what each record says.  One format in all five games:
@@ -3487,6 +3580,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     char skills[512];
     char parents[256];
     char special[64];
+    char custom[64];
     char text[RECORD_TEXT_MAX];
     int written;
 
@@ -3519,6 +3613,10 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     skills[0] = '\0';
     parents[0] = '\0';
     special[0] = '\0';
+    custom[0] = '\0';
+    if (detail >= 1) {
+        (void)record_custom_title(game_id, g, record, check ? records : NULL, custom, sizeof custom);
+    }
     if (detail >= 1 && vv_special_title(game_id, record) != NULL) {
         /* The title its Details panel shows (native/shared/special_title.h). */
         _snprintf_s(special, sizeof special, _TRUNCATE, "  Special villager: %s\n",
@@ -3554,13 +3652,14 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
             "  Name: %s\n"
             "%s"
             "%s"
+            "%s"
             "  Head: %d\n"
             "  Body: %d\n"
             "  Likes: %s\n"
             "  Dislikes: %s\n"
             "%s%s%s"
             "\n",
-            heading, name, special, before != NULL ? before : "",
+            heading, name, custom, special, before != NULL ? before : "",
             *(const int *)(record + g->head),
             *(const int *)(record + g->body),
             likes, dislikes, skills, parents, after != NULL ? after : "");

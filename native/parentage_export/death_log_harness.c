@@ -46,6 +46,14 @@
 #include "village_identity.h"
 #include "save_reset.h"
 #include "../shared/harness_ldw_tree.h"
+#include "../shared/custom_titles.h"
+
+/* Each game's likes, dislikes and preference slot count, as the export DLL's
+   layout table has them: a custom title's identity hashes them. */
+static const struct { unsigned int likes, dislikes, slots; } PREFS[5] = {
+    { 0x398, 0x3A8, 4 }, { 0x5F0, 0x6E8, 62 }, { 0xFB4, 0xFC0, 3 }, { 0x1E60, 0x1E6C, 3 },
+    { 0x1F5C, 0x1F68, 3 },
+};
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -338,6 +346,58 @@ int main(int argc, char **argv) {
                               "  Head: 0\r\n") != NULL
               && strstr(text, "  Skills:\r\n") != NULL && strstr(text, "  Record: 4\r\n\r\n") != NULL,
               "Unaccounted 1 in its own log, with the skills block and the caller's lines");
+
+        /* 3b: a custom title (Custom Titles - Save 1.dat, the village's slot)
+           is printed under the name, for the one villager it belongs to. */
+        {
+            char titles_dir[MAX_PATH], titles_path[MAX_PATH], data_dir[MAX_PATH], *cut;
+            static unsigned char blob[VV_TITLES_FILE_MAX];
+            vv_custom_title entry;
+            DWORD size, put = 0;
+            HANDLE h;
+            int game_index = game - 1;
+            villager(3, "Hoani", 900, 5, 6);
+            *(int *)(rec(3) + PREFS[game_index].likes) = 2;
+            *(int *)(rec(3) + PREFS[game_index].dislikes) = 1;
+            entry.index = 3;
+            entry.fingerprint = vv_title_identity(rec(3), g->name, g->name_cap, PREFS[game_index].likes,
+                                                  PREFS[game_index].dislikes, PREFS[game_index].slots);
+            lstrcpynA(entry.title, "Helpful Spirit", VV_TITLE_BYTES);
+            size = vv_titles_serialise(game, &entry, 1, blob);
+            lstrcpyA(data_dir, logs);
+            cut = strrchr(data_dir, '\\');
+            if (cut) *cut = 0;
+            lstrcatA(data_dir, "\\Virtual Villagers Fun Patcher Data");
+            CreateDirectoryA(data_dir, NULL);
+            _snprintf(titles_dir, MAX_PATH, "%s\\Custom Titles", data_dir);
+            CreateDirectoryA(titles_dir, NULL);
+            vv_titles_file_name(titles_path, MAX_PATH, titles_dir, 1);
+            h = CreateFileA(titles_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+            if (h != INVALID_HANDLE_VALUE) { WriteFile(h, blob, size, &put, NULL); CloseHandle(h); }
+            CHECK(put == size, "the titles file is written");
+            CHECK(write_record(game, DISAPPEARED, rec(3), 1, "  Age: 900\n  What happened: Test\n", NULL, 1) == 1,
+                  "a titled villager's Disappeared record is written");
+            read_deaths(game, 1);
+            CHECK(strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Custom title: Helpful Spirit\r\n  Age: 900\r\n")
+                  != NULL, "the custom title follows the name");
+            villager(4, "Hoani", 100, 1, 1);           /* the same name, likes and dislikes: two carriers */
+            *(int *)(rec(4) + PREFS[game_index].likes) = 2;
+            *(int *)(rec(4) + PREFS[game_index].dislikes) = 1;
+            CHECK(write_record(game, DISAPPEARED, rec(3), 1, "  Age: 901\n", NULL, 1) == 1,
+                  "the record is written while two villagers share the identity");
+            read_deaths(game, 1);
+            CHECK(strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 901\r\n") != NULL,
+                  "...without a title neither villager can be told to have");
+            rec(4)[g->active] = 0;
+            DeleteFileA(titles_path);
+            RemoveDirectoryA(titles_dir);
+            RemoveDirectoryA(data_dir);
+            CHECK(write_record(game, DISAPPEARED, rec(3), 1, "  Age: 902\n", NULL, 1) == 1
+                  && read_deaths(game, 1)
+                  && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 902\r\n") != NULL,
+                  "no titles file: no line");
+            rec(3)[g->active] = 0;
+        }
 
         /* 4: not a villager record; not a kind. */
         {
