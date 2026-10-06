@@ -219,6 +219,7 @@
       "ids": ["vv1_fix_vanilla_bugs"],
       "guide": [
         "Fixes a bug in the original game: a pregnant villager who drinks the blue Mysterious Vial and turns back into a toddler no longer brings twins or triplets in her next pregnancy.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Nothing to click. On by default."
       ]
     },
@@ -227,6 +228,7 @@
       "guide": [
         "Fixes a bug in the original game: the Crystal Ball island event only comes when there is another living villager to swap places with.",
         "If \"Keep it\" is chosen with nobody else alive, the game carries on instead of closing.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Nothing to click. On by default."
       ]
     },
@@ -235,6 +237,7 @@
       "guide": [
         "Fixes bugs in the original game: the Royal Jelly vials and the amber and quartz Mysterious Vials now do what their text says.",
         "A village with exactly 150 villagers can be saved and loaded again; one already damaged that way is repaired when loaded.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -243,6 +246,7 @@
       "guide": [
         "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again.",
         "A village already damaged by that bug is repaired when it is loaded.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
@@ -548,6 +552,14 @@
         "Once saved there, that village opens only in a 256 game, so keep a backup (Back Up Saves).",
         "Keep Fix Vanilla Bugs on to load a village the game's 150-villager save bug has damaged.",
         "Off by default, and Select All does not tick it."
+      ]
+    },
+    {
+      "ids": ["vv5_fix_vanilla_bugs"],
+      "guide": [
+        "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
+        "Villagers already named keep their names.",
+        "Nothing to click. On by default."
       ]
     },
     {
