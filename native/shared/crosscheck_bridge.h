@@ -760,13 +760,23 @@ static void vvfp_crosscheck_bridge(int game, int on_screen) {
         return;
     }
     if (slot != vvfp_xc.slot || now - vvfp_xc.last > VVFP_XC_GAP_MS) {
-        vvfp_xc.slot = slot;          /* a new load: what the quit owes is this one's */
+        /* A new load -- or, in the same slot, a while with no villager drawn
+           (in The Secret City to New Believers only a drawn villager calls
+           this, so the view scrolled away from every villager is one too):
+           look again once it settles.  Another slot owes nothing of the last
+           one's.  The same slot holds the same village (Start Over clears
+           it), so what the quit owes stays until the next look replaces it:
+           a quit before that look still asks what the last one found (the
+           quit scans again from the state just saved). */
+        if (slot != vvfp_xc.slot) {
+            vvfp_xc.quit_slot = 0;
+            vvfp_xc.quit_approved = vvfp_xc.quit_found = 0;
+        }
+        vvfp_xc.slot = slot;
         vvfp_xc.seen = now;
         vvfp_xc.examined = 0;
         vvfp_xc.retries = 0;
         vvfp_xc.next_try = now;
-        vvfp_xc.quit_slot = 0;
-        vvfp_xc.quit_approved = vvfp_xc.quit_found = 0;
     }
     vvfp_xc.last = now;
     if (vvfp_xc.examined || now - vvfp_xc.seen < VVFP_XC_SETTLE_MS || (LONG)(now - vvfp_xc.next_try) < 0) {

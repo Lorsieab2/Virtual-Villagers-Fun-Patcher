@@ -337,6 +337,18 @@ int main(void) {
     check(ends_with_how_to_stop(), "... and it ends by saying how to turn the checks off");
     check(strstr(g_text, "cannot tell apart") == NULL && strstr(g_text, "pregnancy") == NULL,
           "... and says nothing of what was not found");
+
+    /* ---- The same village, a while with no villager drawn (The Secret City
+       to New Believers call this only while a villager is drawn: the view
+       scrolled away from all of them), then a quit before the next look. ---- */
+    reset();
+    g_parents = 1; g_counts[0] = 2;
+    play(1, 1, 10000, 16);           /* (the gap rule is every game's; the parents part is A New Home's) */
+    g_now += VVFP_XC_GAP_MS + 3000;  /* no villager drawn */
+    play(1, 1, 500, 16);             /* back, quit before the village settles again */
+    g_answer = IDNO;
+    vvfp_crosscheck_quit(1, 1);
+    check(g_boxes == 1, "a pause with no villager drawn keeps what the quit owes: the quit still asks");
     check(nothing_repaired(), "Not now: nothing is repaired or passed on");
 
     /* ---- The fullest box: every finding, huge counts, the longest stats text. ---- */
