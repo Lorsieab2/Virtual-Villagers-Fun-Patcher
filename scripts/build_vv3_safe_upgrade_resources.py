@@ -77,7 +77,9 @@ FOUNDATION_OUTPUT = (
 # install bridges load their DLLs by full path from that folder with the wide
 # API, and the Heathen mask atlas is written to the game's Images folder by a
 # wide path, so a game folder the ANSI code page cannot spell still works.
-SOURCE_SHA256 = "75494146EFED9A5B8114BE809EBEFAED3F3979AF4DB79A0EE5EEC95C53D94459"
+# Recertified when a pause with no villager drawn kept what the quit owes
+# (native/shared/crosscheck_bridge.h, v1.35.61).
+SOURCE_SHA256 = "822A857717FF104D6CED6AFF375BEE7089581A2B4CC3452D73356FE0516884C6"
 SOURCE_SIZE = 1960448
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
