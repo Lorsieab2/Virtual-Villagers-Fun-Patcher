@@ -500,13 +500,21 @@ class ApprovalTests(FolderTest):
         self.assertIn("temporary.unlink()", approval)
         # The word repair: a backup opened "xb" (never replacing one), the
         # file through its temporary, the boundary and the Repairs log appended.
-        # ...and the Sex lines older records lack (add_sex_lines), the same way.
-        self.assertEqual(word_fix.count(".write_bytes("), 2)
+        self.assertEqual(word_fix.count(".write_bytes("), 1)
         self.assertIn("temporary.write_bytes(b\"\".join(out))", word_fix)
         self.assertIn('open(backup, "xb")', word_fix)
-        self.assertEqual(word_fix.count("os.replace("), 2)
-        self.assertEqual(word_fix.count('open(backup, "xb")'), 2)
+        self.assertEqual(word_fix.count("os.replace("), 1)
+        self.assertEqual(word_fix.count('open(backup, "xb")'), 1)
         self.assertEqual(word_fix.count('"ab"'), 2)
+        # ...and every line added to older records (src/vv_log_additions.py: the
+        # Sex, Special villager, Custom title, Mask and Born as lines), the same way.
+        added = (ROOT / "src" / "vv_log_additions.py").read_text(encoding="utf-8")
+        for forbidden in ("paused_game", "back_up_save_folder", "suspend", "TerminateProcess",
+                          "write_text", "rmtree", "rename(", ".unlink(missing", '"wb"', '"ab"'):
+            self.assertNotIn(forbidden, added)
+        self.assertEqual(added.count(".write_bytes("), 1)
+        self.assertEqual(added.count("os.replace("), 1)
+        self.assertEqual(added.count('open(backup, "xb")'), 1)
 
 
 # ---------------------------------------------------------------------------
@@ -556,19 +564,27 @@ class GuiTests(unittest.TestCase):
     def test_both_run_off_the_main_thread_through_the_module(self) -> None:
         self.assertIn("import vv_log_tools", self.SOURCE)
         self.assertIn("lambda: vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
-        self.assertIn("lambda: vv_log_tools.approve_repair(folder, number, info.slot)", self.SOURCE)
+        # Repair Logs surveys (the check, the old words, the additions' plan) and repairs
+        # through the module, both off the main thread.
+        self.assertIn("checked = vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
+        self.assertIn("vv_log_additions.plan(folder, number, info.slot)", self.SOURCE)
+        self.assertIn("lambda: vv_log_tools.approve_repair(folder, number, info.slot, chosen=chosen,", self.SOURCE)
         self.assertRegex(self.SOURCE, r'self\._run_with_wait\(\s*"Checking the logs')
 
-    def test_repair_refuses_a_running_game_and_confirms_first(self) -> None:
+    def test_repair_refuses_a_running_game_and_asks_first(self) -> None:
+        """The owner (2026-10-06): a checklist of what to repair and add, and the questions the
+        save and the files cannot answer, before anything is done."""
         body = self.SOURCE[self.SOURCE.index("    def _repair_logs("):self.SOURCE.index("    def _close(")]
         refuse = body.index("vv_save_backup.running_game_count(folder)")
-        ask = body.index("messagebox.askyesno(")
+        ask = body.index("picked = self._repair_checklist(")
         act = body.index("vv_log_tools.approve_repair(")
         self.assertLess(refuse, ask)
         self.assertLess(ask, act)
-        self.assertIn("The next time you play {info.name}, the game will check", body)
-        self.assertIn("repair everything confirmed wrong WITHOUT asking", body)
+        self.assertIn("if picked is None:\n            return", body)
+        self.assertIn("what is confirmed wrong without asking", body)
         self.assertIn("finds nothing confirmed wrong", body)
+        self.assertIn("rearm_var = tk.BooleanVar(value=True)", body)
+        self.assertIn("Answer the {len(questions)} question(s)", body)
         self.assertNotIn("paused_game", body)
 
     def test_the_automatic_check_setting_is_on_by_default_remembered_and_built_in(self) -> None:

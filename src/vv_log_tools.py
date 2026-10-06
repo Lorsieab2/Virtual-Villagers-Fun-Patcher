@@ -51,6 +51,7 @@ from pathlib import Path
 import vv_save_backup
 
 DATA = "Virtual Villagers Fun Patcher Data"
+LOGS = "Virtual Villagers Fun Patcher Logs"
 BACKUP_LABEL = vv_save_backup.BEFORE_REARM
 CHECKER = Path(__file__).resolve().parents[1] / "scripts" / "vvfp_consistency_check.py"
 
@@ -127,6 +128,21 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
             f"A file could not be read ({exc}). If the game is saving right now, "
             "try again in a moment. Nothing was changed."
         ) from exc
+    # What older records lack that Repair Logs can add (src/vv_log_additions.py; the checker
+    # itself reports the Sex lines).
+    import vv_log_additions as additions
+    try:
+        kinds = additions.plan(Path(folder), game, slot)
+    except OSError as exc:
+        kinds = []
+        report.add(f"{LOGS} (older records)", "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
+    for kind in kinds:
+        if kind.id == "sex" or not (kind.decided or kind.asked):
+            continue
+        asked = f", and {kind.asked} question(s) it asks you" if kind.asked else ""
+        report.add(f"{LOGS} ({kind.label})", "NOTE",
+                   f"{kind.decided} line(s) the save, the patcher's files or the logs settle{asked}; "
+                   "Repair Logs can add them")
     return CheckResult(Path(folder), slot, game, report.render(), report.counts())
 
 
@@ -235,10 +251,11 @@ class ApprovalResult:
     slot: int
     game: int
     cleared: list[Path]
-    approval: Path
+    approval: Path | None
     backup: vv_save_backup.BackupResult
     words: list = field(default_factory=list)   # WordFix: old like / dislike words put right now
     sexes: list = field(default_factory=list)   # WordFix: Sex lines added to older records now
+    added: dict = field(default_factory=dict)   # kind id -> WordFix: every line added to older records now
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -262,15 +279,28 @@ def approve_repair(
     slot: int,
     processes: vv_save_backup.ProcessController | None = None,
     now: datetime | None = None,
+    *,
+    chosen: set[str] | None = None,
+    answers: dict[str, str] | None = None,
+    kinds: list | None = None,
+    rearm: bool = True,
 ) -> ApprovalResult:
-    """Approve the game repairing the slot's village the next time it is played.
+    """Repair Logs with the game closed: what the player ticked.
 
     Refused (nothing changed) while the game is running.  The save folder is
-    backed up first; then only the markers in REARM_MARKERS are removed, and
-    the approval file is written (atomically: a temporary file moved into
-    place).
+    backed up first.  With `rearm` (the checklist's "the game repairs what is
+    confirmed wrong"), only the markers in REARM_MARKERS are removed and the
+    approval file is written (atomically: a temporary file moved into place).
+    `chosen` names what is added to older records now (src/vv_log_additions.py
+    kinds, and "words": the like / dislike words an older patcher wrote with
+    the wrong list), with the player's `answers` to its questions; `kinds` is
+    the plan the player saw (planned again when not given).  By default: the
+    words and the Sex lines the save, the logs or the name lists decide.
     """
+    import vv_log_additions as additions
+
     folder = Path(folder)
+    chosen = {"words", "sex"} if chosen is None else set(chosen)
     targets = marker_paths(folder, game, slot)
     approval = approval_path(folder, game, slot)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
@@ -282,7 +312,7 @@ def approve_repair(
     # The backup took a moment; the game may have been started meanwhile.
     _refuse_if_running(folder, controller)
     cleared: list[Path] = []
-    for marker, path in targets:
+    for marker, path in targets if rearm else ():
         if not path.is_file():
             continue
         try:
@@ -301,38 +331,38 @@ def approve_repair(
     left = [path for path in cleared if path.exists()]
     if left:
         raise LogToolError(f"{left[0].name} is still there after clearing it. Nothing was approved.")
-    temporary = approval.with_name(approval.name + ".tmp")
-    try:
-        approval.parent.mkdir(parents=True, exist_ok=True)
-        temporary.write_bytes(approval_bytes(game, slot))
-        os.replace(temporary, approval)
-    except OSError as exc:
+    if rearm:
+        temporary = approval.with_name(approval.name + ".tmp")
         try:
-            temporary.unlink()
-        except OSError:
-            pass
-        raise LogToolError(
-            f"The approval could not be written ({exc}). The game will not repair "
-            f"anything; the backup is in {backup.backup_folder}."
-        ) from exc
-    words: list[WordFix] = []
-    if game in load_checker().WORD_FIXES:
-        try:
-            village = load_checker().births_log(folder, game, slot)[0].village
-        except Exception:                       # the header is only the Repairs log's label
-            village = None
-        words = fix_log_words(folder, game)
-        note_word_repair(folder, game, village, words, now)
+            approval.parent.mkdir(parents=True, exist_ok=True)
+            temporary.write_bytes(approval_bytes(game, slot))
+            os.replace(temporary, approval)
+        except OSError as exc:
+            try:
+                temporary.unlink()
+            except OSError:
+                pass
+            raise LogToolError(
+                f"The approval could not be written ({exc}). The game will not repair "
+                f"anything; the backup is in {backup.backup_folder}."
+            ) from exc
     try:
         village = load_checker().births_log(folder, game, slot)[0].village
     except Exception:                           # the header is only the Repairs log's label
         village = None
-    sexes = add_sex_lines(folder, game)
-    note_word_repair(folder, game, village, sexes, now,
-                     checked="the villagers in older records with no Sex line, against the save, the logs "
-                             "and the game's own name lists",
-                     corrected="Sex added")
-    return ApprovalResult(folder, slot, game, cleared, approval, backup, words, sexes)
+    words: list[WordFix] = []
+    if "words" in chosen and game in load_checker().WORD_FIXES:
+        words = fix_log_words(folder, game)
+        note_word_repair(folder, game, village, words, now)
+    if kinds is None:
+        kinds = additions.plan(folder, game, slot)
+    added = additions.apply(folder, kinds, chosen, answers or {})
+    for kind in kinds:
+        if added.get(kind.id):
+            note_word_repair(folder, game, village, added[kind.id], now,
+                             checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id])
+    return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, backup, words,
+                          added.get("sex", []), added)
 
 
 # ---------------------------------------------------------------------------
@@ -428,43 +458,3 @@ def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[W
     text += "  Backup: " + ", ".join(fix.backup for fix in fixes) + "\r\n\r\n"
     with open(path, "ab") as log:
         log.write(text.encode("latin-1", "replace"))
-
-
-def add_sex_lines(folder: Path, game: int) -> list[WordFix]:
-    """Put a Sex line into every older record that lacks one, when the save, another record of the
-    same villager, or the game's own name lists say it (scripts/vvfp_consistency_check.py
-    missing_sex); a villager nothing records is left as it is.  Each file is copied beside itself
-    first (never replacing a copy) and rewritten through a temporary file."""
-    checker = load_checker()
-    folder = Path(folder)
-    done: list[WordFix] = []
-    for path, adds in checker.missing_sex(folder, game):
-        adds = [(after, line) for after, line, _ in adds if line]
-        if not adds:
-            continue
-        raw = path.read_bytes()
-        crlf = b"\r\n" in raw
-        lines = raw.decode("latin-1").replace("\r\n", "\n").split("\n")
-        for after, line in sorted(adds, reverse=True):
-            lines.insert(after + 1, line)
-        text = "\n".join(lines)
-        if crlf:
-            text = text.replace("\n", "\r\n")
-        backup = _word_backup(path)
-        temporary = path.with_name(path.name + ".tmp")
-        try:
-            with open(path, "rb") as source, open(backup, "xb") as copy:
-                copy.write(source.read())
-            temporary.write_bytes(text.encode("latin-1"))
-            os.replace(temporary, path)
-        except OSError as exc:
-            try:
-                temporary.unlink()
-            except OSError:
-                pass
-            raise LogToolError(
-                f"{path.name} could not be given its Sex lines ({exc}). "
-                f"{len(done)} log file(s) were given them before it."
-            ) from exc
-        done.append(WordFix(str(path.relative_to(folder)), len(adds), backup.name))
-    return done
