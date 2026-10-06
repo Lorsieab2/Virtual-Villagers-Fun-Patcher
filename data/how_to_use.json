@@ -792,7 +792,7 @@
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked and the result shown.",
         "Confirm: the save folder is backed up first.",
         "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking.",
-        "Masks kept for villagers who are no longer in the village are removed too."
+        "Masks kept for villagers who are no longer in the village are removed too.", "It works only in a game patched with a patch that keeps logs, such as Cause of Death or Show Parents."
       ]
     },
     "check_logs_automatically": {

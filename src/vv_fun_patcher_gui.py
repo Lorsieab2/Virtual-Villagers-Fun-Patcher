@@ -2756,7 +2756,9 @@ class App(tk.Tk):
             "Repair Logs",
             f"{found}\n\nThe next time you play {info.name}, the game will check "
             "its logs and repair everything confirmed wrong WITHOUT asking (every "
-            "change is backed up and listed in the Repairs log). Nothing is repaired "
+            "change is backed up and listed in the Repairs log). This needs a game "
+            "patched with a patch that keeps logs, such as Cause of Death or Show "
+            "Parents; a game patched without one has nothing to repair. Nothing is repaired "
             f"now.\n\nThe save folder {folder.name} is backed up first. Continue?",
             parent=parent,
         ):
