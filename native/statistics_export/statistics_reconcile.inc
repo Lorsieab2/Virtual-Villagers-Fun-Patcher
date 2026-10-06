@@ -603,6 +603,32 @@ static void rc_describe(const struct rc_plan *p, char *text, int cap) {
 
 /* ---- the scan and the answer -------------------------------------------- */
 
+#ifdef VVFP_TEST
+/* The harness's stand-in for the game's world object. */
+__declspec(dllexport) unsigned char *VvfpStatisticsTestWorld;
+#endif
+
+/* A New Home's and The Lost Children's memorial is in the game's world
+   object (statistics_store.c: memorial_in_manager), which a scan at the load
+   has no save to be handed: it is read from the game's own global, as the
+   Story / Cheat Upgrades companion reads it (story_vv1.inc VV1_WORLD_GLOBAL
+   0x48AEDC, story_vv2.inc VV2_WORLD_GLOBAL 0x4997BC).  NULL elsewhere, or
+   while the global cannot be read (Codex, #536: without it the memorial was
+   never counted at the load). */
+static unsigned char *rc_scan_world(int game) {
+#ifdef VVFP_TEST
+    return game == GAME_VV1 || game == GAME_VV2 ? VvfpStatisticsTestWorld : NULL;
+#else
+    MEMORY_BASIC_INFORMATION info;
+    uintptr_t global = game == GAME_VV1 ? 0x48AEDCu : game == GAME_VV2 ? 0x4997BCu : 0u;
+    if (global == 0u || VirtualQuery((const void *)global, &info, sizeof info) != sizeof info
+        || info.State != MEM_COMMIT || (info.Protect & (PAGE_GUARD | PAGE_NOACCESS)) != 0) {
+        return NULL;
+    }
+    return *(unsigned char **)global;
+#endif
+}
+
 /* VvfpStatisticsScanReconcile(game, slot, text, cap): what the Village
    Statistics and Village Elders files of the slot's village are missing
    that the save and the logs prove -- the number of changes, with the
@@ -632,6 +658,7 @@ __declspec(dllexport) int __stdcall VvfpStatisticsScanReconcile(int game, int sl
     memset(&context, 0, sizeof context);
     context.game_id = game;
     context.module = (unsigned char *)GetModuleHandleW(NULL);
+    context.manager = rc_scan_world(game);
     rc_make_plan(game, slot, village, counters, &context, &plan);
     if (plan.blocked) {
         return -1;                    /* a log or file is locked: the bridge asks again */

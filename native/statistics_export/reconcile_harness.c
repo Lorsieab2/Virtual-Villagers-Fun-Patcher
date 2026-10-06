@@ -401,6 +401,7 @@ int main(int argc, char **argv) {
     save_t save;
     now_t now;
     int *rewrites;
+    unsigned char **world;
 
     setvbuf(stdout, NULL, _IONBF, 0);
     if (argc < 3) {
@@ -425,7 +426,8 @@ int main(int argc, char **argv) {
     save = dll ? (save_t)GetProcAddress(dll, "VvfpStatisticsTestSave") : NULL;
     now = dll ? (now_t)GetProcAddress(dll, "VvfpStatisticsRepairReconcileNow") : NULL;
     rewrites = dll ? (int *)GetProcAddress(dll, "VvfpStatisticsTestLogRewrites") : NULL;
-    if (scan == NULL || repair == NULL || save == NULL || now == NULL || rewrites == NULL) {
+    world = dll ? (unsigned char **)GetProcAddress(dll, "VvfpStatisticsTestWorld") : NULL;
+    if (scan == NULL || repair == NULL || save == NULL || now == NULL || rewrites == NULL || world == NULL) {
         printf("missing exports\n");
         return 2;
     }
@@ -448,6 +450,22 @@ int main(int argc, char **argv) {
         }
         write_files(1, 0, 0);
         snapshot();
+        /* The world object the load-time scan reads A New Home's and The Lost
+           Children's memorial from (the game's own global, in the game). */
+        *world = manager;
+
+        if (g->memorial_in_manager) {
+            /* 0. A memorial with more graves than the Deaths log shows: the
+               scan at the load counts it (Codex, #536). */
+            unsigned char *memorial = manager + g->memorial;
+            *(int *)(memorial + g->memorial_stride + g->memorial_occupied) = 1;
+            *(int *)(memorial + 2u * g->memorial_stride + g->memorial_occupied) = 1;
+            found = scan(game, 1, prompt, (int)sizeof prompt);
+            CHECK(strstr(prompt, "the Deaths log and the graves show 3 burials") != NULL,
+                  "the load-time scan counts the memorial's 3 graves (the world object, read at the load)");
+            *(int *)(memorial + g->memorial_stride + g->memorial_occupied) = 0;
+            *(int *)(memorial + 2u * g->memorial_stride + g->memorial_occupied) = 0;
+        }
 
         /* 1. The scan. */
         found = scan(game, 1, prompt, (int)sizeof prompt);
