@@ -463,7 +463,7 @@
       "offset": "0xCCD90",
       "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "803D6C8D720000753E5368189E4800FF15E0A1480085C0742DA3608D72006A6E50FF15DCA14800A3648D72006A72FF35608D7200FF15DCA14800A3688D7200C6056C8D7200015BC3",
-      "purpose": "Heathen mask: resolve cave -- LoadLibraryA the companion DLL and GetProcAddress Vv4MaskCacheSurface(@110)/Vv4MaskDrawRecord(@112) by ordinal, once (guarded)"
+      "purpose": "Heathen mask: resolve cave -- LoadLibraryA the companion DLL and GetProcAddress Vv4MaskCacheSurface(@110)/Vv4MaskGetForRecord(@114) by ordinal, once (guarded)"
     },
     {
       "offset": "0xCCDE0",

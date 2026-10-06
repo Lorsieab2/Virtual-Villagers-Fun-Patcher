@@ -2767,7 +2767,9 @@ class App(tk.Tk):
                 lambda: vv_log_tools.approve_repair(folder, number, info.slot),
             )
         except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
-            self.status_var.set("Repair Logs: nothing was changed.")
+            # Markers may already be cleared when a later step fails; the
+            # error says which, so the status line does not claim none were.
+            self.status_var.set("Repair Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Logs", str(exc), parent=parent)
             return
         self.status_var.set(
