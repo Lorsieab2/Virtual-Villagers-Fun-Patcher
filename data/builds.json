@@ -121,38 +121,38 @@
         {
           "offset": "0x56580",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8CA0200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
+          "after": "E8C60200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
           "purpose": "a delivery's record demand: the occupied records plus the extra babies of the mother's litter (+0x35C: 2 twins, 3 triplets); the golden-child mother's delivery only when her two children and the litter fit, else it waits with the pregnancy kept (the arguments dropped, the tick goes on at 0x42F0CE); the creator returns to 0x42EF64 as in the stock game"
         },
         {
           "offset": "0x565B0",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C0740CE87B02000001D084E40F94C0C3",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C07408E8BE0000000F94C0C3",
           "purpose": "any other delivery only when its child and the litter fit, else it waits; the creator returns to 0x42EFD5 as in the stock game. Then the Mysterious Face's room question: the game's room predicate, and a free record"
         },
         {
           "offset": "0x565E0",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "89F9E86802000001D08B54240401D03D02010000730689965C030000C20400",
+          "after": "89F9E86402000001D08B54240401D03D02010000730689965C030000C20400",
           "purpose": "twins or triplets at conception only when the occupied records and the babies still owed (her own one baby already counted) plus the rest of the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x56680",
-          "before": "00000000000000000000000000000000000000000000",
-          "after": "E8CA01000001D084E47505E9C05CFEFF83C8FFC21400",
-          "purpose": "an island event's child only when a record is free after the babies still owed: the creator with the caller's own return address, else -1 (the callers ignore the index)"
+          "before": "00000000000000000000000000000000000000000000000000000000",
+          "after": "E80D0000007505E9C45CFEFF83C8FFC21400E8B401000001D084E4C3",
+          "purpose": "an island event's child only when a record is free after the babies still owed: the creator with the caller's own return address, else -1 (the callers ignore the index); then the records taken or owed, with ZF clear when none is free (the event's, the Mysterious Face's and the puzzle's own question)"
         },
         {
           "offset": "0x56838",
-          "before": "0000000000000000000000000000000000000000000000",
-          "after": "E81200000001D084E4750BC7843994030000C7000000C3",
+          "before": "00000000000000000000000000000000000000",
+          "after": "E855FEFFFF750BC7843994030000C7000000C3",
           "purpose": "the Golden Child puzzle's check: a record free after the babies still owed, and the puzzle's first write (the mother's +0x394 = 0xC7) only then -- ZF tells the drop handler which"
         },
         {
-          "offset": "0x5684F",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "51568DB15803000031C031D231C9FEC580BED0FCFFFF00740D40833E007407837E040113560481C6D8030000E2E25E59C3",
-          "purpose": "the record count: the occupied records (the +0x28 byte; corpses included) in eax and the babies still owed in edx -- every occupied record carrying (+0x358) her litter (+0x35C, one baby at least) -- across the 256 records, ecx preserved (Codex, #543)"
+          "offset": "0x5684B",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "51568DB15803000031C9F7E1FEC580BED0FCFFFF00741340837EEC007E0C833E007407837E040113560481C6D8030000E2DC5E59C3",
+          "purpose": "the record count: the occupied records (the +0x28 byte; corpses included) in eax and the babies still owed in edx -- every living occupied record carrying (+0x358) her litter (+0x35C, one baby at least) -- across the 256 records, ecx preserved (Codex, #543)"
         },
         {
           "offset": "0x28263",

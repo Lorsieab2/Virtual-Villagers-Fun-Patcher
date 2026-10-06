@@ -61,14 +61,16 @@ def asm(source: str, va: int) -> bytes:
 # The record count, a bounded sweep: ecx = the villager array, preserved;
 # eax = how many of the 256 records are occupied (corpses included); edx = the
 # babies still owed (Codex, #543; the owner: "pending babies count toward
-# population"): every occupied record carrying (+0x358) is owed her litter
-# (+0x35C: 0 one baby, 2 twins, 3 triplets).  A delivery adds only its own
-# mother's extra babies to eax; a newcomer, a litter or the puzzle adds edx.
-# It replaces the occupied-only sweep that was at 0x456860: A New Home's
-# .text has no other unclaimed cave (every render's claimed ranges were
-# measured), so the Golden Child puzzle's check moves into the 8 free bytes
-# before it and the sweep follows it.
-V1_COUNT = 0x45684F
+# population"): every living (+0x344 above 0) occupied record carrying
+# (+0x358) is owed her litter (+0x35C: 0 one baby, 2 twins, 3 triplets) -- a
+# dead mother's babies are never born: the tick skips her (0x42EC86).  A
+# delivery adds only its own mother's extra babies to eax; a newcomer, a
+# litter or the puzzle adds edx (V1_OWED_FULL).  It replaces the
+# occupied-only sweep that was at 0x456860: A New Home's .text has no other
+# unclaimed cave (every render's claimed ranges were measured), so the Golden
+# Child puzzle's check moves into the 8 free bytes before it and the sweep
+# follows it.
+V1_COUNT = 0x45684B
 V1_CREATE = 0x43C350          # fresh creator: thiscall (array), 5 args, ret 0x14
 V1_ROOM = 0x43A1A0            # the game's room predicate: thiscall (array), al
 
@@ -80,20 +82,22 @@ V1_FACE_ROOM = 0x4565C4       # the Mysterious Face's room question
 V1_LITTER = 0x4565E0          # twins/triplets at conception
 V1_EVENT = 0x456680           # island events' children (Barrel, crate)
 V1_GOLDEN_PUZZLE = 0x456838   # the Golden Child puzzle
+V1_OWED_FULL = 0x456692       # every record taken or owed: ZF clear when none is free
 
 VV1_CODE = {
     V1_COUNT: """
         push ecx
         push esi
         lea esi, [ecx + 0x358]
-        xor eax, eax
-        xor edx, edx
         xor ecx, ecx
+        mul ecx
         inc ch
     top:
         cmp byte ptr [esi - 0x330], 0
         je next
         inc eax
+        cmp dword ptr [esi - 0x14], 0
+        jle next
         cmp dword ptr [esi], 0
         je next
         cmp dword ptr [esi + 4], 1
@@ -138,9 +142,7 @@ VV1_CODE = {
         pop ecx
         test al, al
         jz done
-        call {V1_COUNT:#x}
-        add eax, edx
-        test ah, ah
+        call {V1_OWED_FULL:#x}
         sete al
     done:
         ret
@@ -158,19 +160,21 @@ VV1_CODE = {
         ret 4
     """,
     V1_EVENT: f"""
-        call {V1_COUNT:#x}
-        add eax, edx
-        test ah, ah
+        call {V1_OWED_FULL:#x}
         jnz full
         jmp {V1_CREATE:#x}
     full:
         or eax, -1
         ret 0x14
     """,
-    V1_GOLDEN_PUZZLE: f"""
+    V1_OWED_FULL: f"""
         call {V1_COUNT:#x}
         add eax, edx
         test ah, ah
+        ret
+    """,
+    V1_GOLDEN_PUZZLE: f"""
+        call {V1_OWED_FULL:#x}
         jnz done
         mov dword ptr [ecx + edi + 0x394], 0xC7
     done:
@@ -193,14 +197,17 @@ VV1_CAVE_PURPOSE = {
                    "owed (her own one baby already counted) plus the rest of the litter fit in 256 (the "
                    "litter is the call's argument); otherwise CF clear and the conception's own branch is "
                    "taken"),
-    0x456680: (22, "an island event's child only when a record is free after the babies still owed: the "
-                   "creator with the caller's own return address, else -1 (the callers ignore the index)"),
-    0x456838: (23, "the Golden Child puzzle's check: a record free after the babies still owed, and the "
+    0x456680: (28, "an island event's child only when a record is free after the babies still owed: the "
+                   "creator with the caller's own return address, else -1 (the callers ignore the index); "
+                   "then the records taken or owed, with ZF clear when none is free (the event's, the "
+                   "Mysterious Face's and the puzzle's own question)"),
+    0x456838: (19, "the Golden Child puzzle's check: a record free after the babies still owed, and the "
                    "puzzle's first write (the mother's +0x394 = 0xC7) only then -- ZF tells the drop handler "
                    "which"),
-    0x45684F: (49, "the record count: the occupied records (the +0x28 byte; corpses included) in eax and "
-                   "the babies still owed in edx -- every occupied record carrying (+0x358) her litter "
-                   "(+0x35C, one baby at least) -- across the 256 records, ecx preserved (Codex, #543)"),
+    0x45684B: (53, "the record count: the occupied records (the +0x28 byte; corpses included) in eax and "
+                   "the babies still owed in edx -- every living occupied record carrying (+0x358) her "
+                   "litter (+0x35C, one baby at least) -- across the 256 records, ecx preserved "
+                   "(Codex, #543)"),
 }
 
 VV1_SITES = [
@@ -440,7 +447,7 @@ def site_entries(game: str, sites, table=None) -> list[dict]:
 # offset that is no longer generated is removed).
 OWNED = {
     "vv1": {0x2EF5F, 0x2EFD0, 0x3BC4E, 0x3BC8C, 0x56580, 0x565B0, 0x565E0, 0x56680, 0x56840,
-            0x2427B, 0x2F020, 0x2F06C, 0x19700, 0x56838, 0x5684F, 0x56860},
+            0x2427B, 0x2F020, 0x2F06C, 0x19700, 0x56838, 0x5684B, 0x5684F, 0x56860},
     "vv2": {0x3BE8E, 0x73F20, 0x4BA82, 0x73C40, 0x4BAB6, 0x73C70, 0x73D00, 0x3BEDE, 0x3BF2A, 0x217DF,
             0x73F44, 0x73F64, 0x1F604, 0x1F6D4, 0x73F84, 0x73F9C},
 }

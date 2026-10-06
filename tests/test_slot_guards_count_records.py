@@ -406,6 +406,17 @@ class BabiesStillOwedTakeRecords(unittest.TestCase):
             m.run(0x419700, {0x419705: "back"}, {UC_X86_REG_ECX: ARRAY})
             self.assertEqual(m.reg(UC_X86_REG_EAX) & 0xFF, 0, "the Mysterious Face: no record left")
 
+    def test_a_new_home_owes_a_dead_mother_nothing(self):
+        """The tick skips a villager with no health (0x42EC86): a dead
+        mother's babies are never born, so they take no record (Codex, #553)."""
+        for mode in MODES:
+            m = Machine("vv1", mode, 255, corpses=10)
+            carry(m, 0, litter=3)
+            m.uc.mem_write(ARRAY + 0x344, struct.pack("<i", 0))
+            where = m.run(0x456680, {VV1Guards.CREATE: "created"}, {UC_X86_REG_ECX: ARRAY},
+                          stack=(SENTINEL, 1, 2, 3, 4, 5))
+            self.assertEqual(where, "created", mode)
+
     def test_the_lost_children_owes_a_dead_mother_nothing(self):
         for mode in MODES:
             m = Machine("vv2", mode, 255, corpses=12)

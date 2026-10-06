@@ -636,6 +636,23 @@ static int vv1_roster_in_step(const vv1_occupant *now) {
     return 1;
 }
 
+/* The looks the roster records follow the villagers on screen (Codex,
+   #553): a change of head or body (the Custom Island Event's, say) while
+   nothing else moved is written at once, so a later repack still tells two
+   villagers of one identity apart.  1 when any changed. */
+static int vv1_roster_take_looks(const vv1_occupant *now) {
+    int j, changed = 0;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (now[j].gender && vv1_same_occupant(&g_roster[j], &now[j])
+            && (g_roster[j].head != now[j].head || g_roster[j].body != now[j].body)) {
+            g_roster[j].head = now[j].head;
+            g_roster[j].body = now[j].body;
+            changed = 1;
+        }
+    }
+    return changed;
+}
+
 /* A RENAME (Codex, #516): the one record whose occupant changed since the
    roster was bound, when nothing else did, and the villager there has the
    gender and family scalar of the one the roster names -- only the name
@@ -1193,6 +1210,8 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             if (vv1_follow_roster(now)) {
                 g_have_prev = 0;
             }
+            vv1_parents_save(slot, records);
+        } else if (vv1_roster_take_looks(now)) {
             vv1_parents_save(slot, records);
         }
         break;

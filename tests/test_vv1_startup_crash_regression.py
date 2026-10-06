@@ -25,7 +25,7 @@ class VV1StartupCrashRegressionTests(unittest.TestCase):
         # its own guard (so the creator still sees the delivery's own return
         # address, which Cause of Death's birth markers read); both guards
         # first ask the record demand at 0x456580, which calls the bounded
-        # count 0x45684F (it moved from 0x456860 when it learnt to return the
+        # count 0x45684B (it moved from 0x456860 when it learnt to return the
         # babies still owed too; Codex, #543).
         # tests/test_slot_guards_count_records.py runs them in an emulator;
         # this pins their shape.
@@ -50,16 +50,16 @@ class VV1StartupCrashRegressionTests(unittest.TestCase):
                 self.assertEqual(call[0], 0xE8)
                 self.assertEqual(guard + 5 + struct.unpack("<i", call[1:])[0], 0x456580)
         demand = at(0x456580, 5)
-        self.assertEqual(0x456580 + 5 + struct.unpack("<i", demand[1:])[0], 0x45684F)
+        self.assertEqual(0x456580 + 5 + struct.unpack("<i", demand[1:])[0], 0x45684B)
 
         # The bounded count: 256 records, never more (ecx = 0x100, `loop`),
         # the occupied ones in eax and the babies still owed in edx.
         self.assertNotIn(0x56860, patches, "the old sweep's place is the count's own now")
-        self.assertEqual(bytes.fromhex(patches[0x5684F]["before"]), bytes(49))
+        self.assertEqual(bytes.fromhex(patches[0x5684B]["before"]), bytes(53))
         self.assertEqual(
-            bytes.fromhex(patches[0x5684F]["after"]),
-            bytes.fromhex("51568DB15803000031C031D231C9FEC580BED0FCFFFF00740D40833E007407837E040113560481C6"
-                          "D8030000E2E25E59C3"),
+            bytes.fromhex(patches[0x5684B]["after"]),
+            bytes.fromhex("51568DB15803000031C9F7E1FEC580BED0FCFFFF00741340837EEC007E0C833E007407837E0401"
+                          "13560481C6D8030000E2DC5E59C3"),
         )
 
     def test_obsolete_backedge_detour_is_absent_from_the_manifest(self) -> None:

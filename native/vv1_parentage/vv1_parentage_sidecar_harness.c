@@ -172,6 +172,14 @@ static int play(const unsigned char *records, int frames) {
     return known;
 }
 
+/* Frames of play between the game's saves: the per-frame sync only. */
+static void tick(const unsigned char *records, int frames) {
+    int f;
+    for (f = 0; f < frames; ++f) {
+        (void)vv1_parents_sync_core(SLOT, records);
+    }
+}
+
 static int aside_exists(DWORD ticks, int n) {
     char p[MAX_PATH];
     wsprintfA(p, "%s.unreadable-%lu-%d", path, (unsigned long)ticks, n);
@@ -519,6 +527,24 @@ static void follow_cases(void) {
     check(read_all(path, file_now, sizeof(file_now), &size)
           && file_now[12 + 0 * sizeof(vv1_occupant) + 2] == 2 && file_now[12 + 0 * sizeof(vv1_occupant) + 3] == 4,
           "... and the roster on disk records each villager's looks (head + 1, body + 1)");
+
+    /* 18c. Codex (#553): a Suki's looks change while nothing else moves (the
+           Custom Island Event), then the array repacks: the roster on disk
+           took her new looks at once, so each Suki still keeps her own. */
+    play(after_load, 2);
+    *(int *)(after_load + 0 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 5;
+    tick(after_load, 2);                  /* no game save in between */
+    check(read_all(path, file_now, sizeof(file_now), &size)
+          && file_now[12 + 0 * sizeof(vv1_occupant) + 2] == 6,
+          "a looks change while nothing else moved reaches the roster on disk at once");
+    memmove(after_load, after_load + VV1_RECORD_STRIDE, sizeof(after_load) - VV1_RECORD_STRIDE);
+    memset(after_load + sizeof(after_load) - VV1_RECORD_STRIDE, 0, VV1_RECORD_STRIDE);
+    put(after_load, 5, "Suki", 0, 50);    /* the changed Suki, now after the others */
+    *(int *)(after_load + 5 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 5;
+    *(int *)(after_load + 5 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+    tick(after_load, 2);
+    check(g_loaded_slot == SLOT && has_parents(5, 1) && has_parents(0, 2),
+          "... and after a repack each Suki still keeps her own parents");
 
     /* 19. Codex (#516): another village in the slot that shares ONE identity
            with the old roster, at another record, is not the old village. */

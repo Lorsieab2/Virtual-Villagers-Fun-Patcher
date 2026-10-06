@@ -694,8 +694,9 @@ class LogWordsTests(FolderTest):
         self.assertEqual([(w.name, w.count) for w in result.words],
                          [("Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", 2)])
         text = path.read_bytes()
+        # ...and the older snapshot gets the Sex line its newer one shows (Repair Logs adds it too)
         self.assertEqual(text, self.OLD.replace(b"heights", b"rough wood").replace(b"jokes", b"sleeping")
-                         + self.NEW)
+                         .replace(b"  Name: Ana\r\n", b"  Name: Ana\r\n  Sex: Female\r\n") + self.NEW)
         backup_copy = path.with_name(path.name + ".before-v1.35.61-repair")
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
         repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
@@ -822,8 +823,25 @@ class SexLinesTests(FolderTest):
         golden = {"name": "Itchi", "head": 19, "body": 19}
         self.assertEqual(checker.sex_for(1, golden, {}, {}), (None, ""))
         self.assertEqual(checker.sex_for(1, dict(golden, head=12), {}, {})[0], "Female")
-        self.assertEqual(checker.sex_for(1, golden, {("Itchi", 19, 19): "Male"}, {})[0], "Male",
+        self.assertEqual(checker.sex_for(1, golden, {("Itchi", 19, 19): {"Male"}}, {})[0], "Male",
                          "the save or another record of him still says")
+
+    def test_sources_that_disagree_decide_nothing(self):
+        """Codex (#553): one name and looks recorded both ways -- two slots, a
+        rename -- is not settled by whichever came first."""
+        checker = tools.load_checker()
+        zork = {"name": "Zork", "head": 7, "body": 8}
+        self.assertEqual(checker.sex_for(1, zork, {("Zork", 7, 8): {"Male", "Female"}},
+                                         {"Zork": {"Male", "Female"}}), (None, ""))
+        self.assertEqual(checker.sex_for(1, zork, {("Zork", 7, 8): {"Male"}}, {})[0], "Male")
+
+    def test_an_older_record_with_no_head_line_still_gets_its_sex(self):
+        """Codex (#553): a Death record written before its Head line existed."""
+        checker = tools.load_checker()
+        people = checker._block_people(["Death 1", "  Name: Hoani", "  Age at death: 900",
+                                        "  Cause of death: Old age"])
+        self.assertEqual([(p["name"], p["head"], p["after"]) for p in people], [("Hoani", None, 2)])
+        self.assertEqual(checker.sex_for(1, people[0], {}, {})[0], "Male")
 
     def test_the_name_lists_are_each_games_own(self):
         """Male then female, word for word the stock executable's."""

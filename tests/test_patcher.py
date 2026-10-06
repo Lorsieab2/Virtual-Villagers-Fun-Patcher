@@ -2031,7 +2031,7 @@ class StockIntegrationTests(unittest.TestCase):
         checks = {
             "vv1": (
                 0x56680,
-                "E8CA01000001D084E47505E9C05CFEFF83C8FFC21400",   # the count + the babies owed
+                "E80D0000007505E9C45CFEFF83C8FFC21400",   # records taken or owed, then the creator
                 [0x28263, 0x282C6, 0x282E3, 0x2833C, 0x28359, 0x28376,
                  0x2C3EF, 0x2C410, 0x2C431, 0x2C4AF, 0x2C4D0, 0x2C54E],
             ),

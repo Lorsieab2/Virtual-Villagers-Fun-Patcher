@@ -1687,8 +1687,8 @@ def _block_people_after_heading(lines: list[str]) -> list[dict]:
                     p[key.lower()] = int(value)
                 except ValueError:
                     pass
-        if p["name"] and p["head"] is not None:
-            people.append(p)
+        if p["name"]:
+            people.append(p)              # no Head line (an older record): the lists may still tell
         return people
     if first == "Birth" or first.startswith("Conception"):
         current = None
@@ -1746,9 +1746,9 @@ def log_files(game_dir: Path) -> list[Path]:
 
 
 def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
-    """What the save and the logs say each villager is: by (name, head, body), and by name alone
-    (a set of the sexes seen)."""
-    exact: dict[tuple, str] = {}
+    """What the save and the logs say each villager is: by (name, head, body), and by name alone --
+    each a set of the sexes seen, so two sources that disagree decide nothing (Codex, #553)."""
+    exact: dict[tuple, set] = {}
     by_name: dict[str, set] = {}
     for slot in range(1, 6):
         save = game_dir / f"{SAVE_STEMS[game]}{slot}.ldw"
@@ -1762,7 +1762,7 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
             continue
         for v in roster:
             sex = "Male" if v.male else "Female"
-            exact.setdefault((v.name, v.head, v.body), sex)
+            exact.setdefault((v.name, v.head, v.body), set()).add(sex)
             by_name.setdefault(v.name, set()).add(sex)
     for path in log_files(game_dir):
         try:
@@ -1781,7 +1781,7 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
                 for l in block[p["after"] + 1: p["after"] + 3]:
                     m = re.match(r"^\s+Sex: (Male|Female)\s*$", l)
                     if m:
-                        exact.setdefault((p["name"], p["head"], p["body"]), m.group(1))
+                        exact.setdefault((p["name"], p["head"], p["body"]), set()).add(m.group(1))
                         by_name.setdefault(p["name"], set()).add(m.group(1))
                         break
             m = re.search(r"^  Name: (.*)$", "\n".join(block), re.M)
@@ -1791,7 +1791,7 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
                 body = re.search(r"^  Body: (-?\d+)", "\n".join(block), re.M)
                 sex = sex_lines[0].split(":")[1].strip()
                 if head and body:
-                    exact.setdefault((name, int(head.group(1)), int(body.group(1))), sex)
+                    exact.setdefault((name, int(head.group(1)), int(body.group(1))), set()).add(sex)
                 by_name.setdefault(name, set()).add(sex)
     return exact, by_name
 
@@ -1799,9 +1799,9 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
 def sex_for(game: int, person: dict, exact: dict, by_name: dict) -> tuple[str | None, str]:
     """The villager's sex and where it came from: the save or the logs (the same name, head and
     body), the game's name lists, or every record of the name agreeing."""
-    found = exact.get((person["name"], person["head"], person["body"]))
-    if found:
-        return found, "the save or the logs"
+    seen = exact.get((person["name"], person["head"], person["body"]), set())
+    if person["head"] is not None and len(seen) == 1:
+        return next(iter(seen)), "the save or the logs"
     # A New Home's Golden Child is named from either list and then made male, head 19, body 19
     # (the creator, 0x43C7AF, for family 0xC7): his name says nothing of his sex, so a record
     # with those looks never takes it from the lists.
