@@ -231,6 +231,18 @@ class LayoutTests(unittest.TestCase):
         sizes = struct.unpack("<7i", proc.read(SCRATCH, 28))
         self.assertEqual(sizes, (Event.SIZE, 136, Change.SIZE, RESULT_SIZE, 680, 1768, 1772))
 
+    def test_the_villager_list_scrolls_sideways_to_its_widest_row(self):
+        # A long role label (VV2's "Esteemed Elder, totem: ...") is wider
+        # than the 190-unit list: it must be reachable (Codex, #550).
+        rc = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.rc").read_text(encoding="utf-8")
+        line = next(l for l in rc.splitlines() if l.strip().startswith("LISTBOX     2001,"))
+        self.assertIn("WS_HSCROLL", line)
+        ui = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom_ui.inc").read_text(encoding="utf-8")
+        body = ui[ui.index("static void ui_setup_changes("):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn("MapDialogRect(window, &extent)", body)
+        self.assertIn("LB_SETHORIZONTALEXTENT", body)
+
 
 # ---------------------------------------------------------------------------
 # The target list: group toggles, the list's selection, de-duplication
