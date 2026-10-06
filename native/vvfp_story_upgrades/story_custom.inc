@@ -149,6 +149,10 @@ typedef struct {
                                       companion's own generator) */
     int (*featurable)(const unsigned char *record);   /* a listed villager the question's
                                       picture may show (NULL = any) */
+    /* What the game itself makes of a listed villager, read live: returns
+       its STORY_KIND_* and sets *words to the list's label for it (NULL =
+       none).  NULL = the game keeps no such role. */
+    int (*role)(const unsigned char *record, const char **words);
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
@@ -272,6 +276,17 @@ static unsigned char *ce_same_villager(const ce_adapter *a, int index, unsigned 
     return record;
 }
 
+/* What the game itself makes of `record` (STORY_KIND_*), and the list's
+   label for it in *words when `words` is not NULL (NULL: none). */
+static int ce_role(const ce_adapter *a, const unsigned char *record, const char **words) {
+    const char *said = NULL;
+    int kind = a->role != NULL ? a->role(record, &said) : STORY_KIND_NONE;
+    if (words != NULL) {
+        *words = said;
+    }
+    return kind;
+}
+
 /* The roster the target list shows: every listed villager, in record order. */
 static int ce_roster(const ce_adapter *a, story_member *out, int cap) {
     int i;
@@ -284,6 +299,7 @@ static int ce_roster(const ce_adapter *a, story_member *out, int cap) {
         out[n].index = i;
         out[n].sex = ce_sex(a, record);
         out[n].age = ce_age(a, record);
+        out[n].kind = ce_role(a, record, NULL);
         ++n;
     }
     return n;

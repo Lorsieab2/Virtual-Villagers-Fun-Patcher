@@ -714,6 +714,24 @@ static void c2_apply_spawn_fields(unsigned char *r, const ce_spawn *s) {
     ce_apply_spawn_record(&C2_ADAPTER, r, s);
 }
 
+/* What the game makes of a villager: an Esteemed Elder (+0x7FC, set by the
+   elder-and-totem routine 0x44D190), with the totem the game draws for them
+   (their statue's +0x550 modulo 8, as c2_set_status reads it). */
+static int c2_role(const unsigned char *r, const char **words) {
+    static const char *const ELDER[] = {
+        "Esteemed Elder, totem: brown face, blue mouth", "Esteemed Elder, totem: green figure",
+        "Esteemed Elder, totem: teal, red crest", "Esteemed Elder, totem: yellow and purple",
+        "Esteemed Elder, totem: red headdress", "Esteemed Elder, totem: dark navy face",
+        "Esteemed Elder, totem: tall carved wood", "Esteemed Elder, totem: green grinning face",
+    };
+    const unsigned char *totem;
+    if (r[0x7FC] == 0) {
+        return STORY_KIND_NONE;
+    }
+    totem = c2_totem_of(r);
+    *words = totem != NULL ? ELDER[(*(const int *)(totem + 0x550) % 8 + 8) % 8] : "Esteemed Elder";
+    return STORY_KIND_ESTEEMED_ELDER;
+}
 static const ce_adapter C2_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
@@ -771,7 +789,7 @@ static const ce_adapter C2_ADAPTER = {
        (the tallest stock family A text) less the two the villager's
        picture adds under the title; the result replaces the whole
        text, title included; labels of 30 characters (the longest stock). */
-    46, 16, 46, 16, 1, 30, c2_rand_below, NULL
+    46, 16, 46, 16, 1, 30, c2_rand_below, NULL, c2_role
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

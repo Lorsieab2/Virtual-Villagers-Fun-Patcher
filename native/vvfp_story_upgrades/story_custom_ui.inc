@@ -78,11 +78,18 @@ static struct {
 /* The main dialog's two uses, its DialogBoxParam argument. */
 enum { UI_MODE_EVENT = 0, UI_MODE_OUTCOME = 1 };
 
-static const char *const UI_TOGGLE_NAMES[5] = {
-    "All Adult Women", "All Adult Men", "All Females", "All Males", "All Children"
+/* The group toggles (named in the dialog template): the five of every game,
+   then from UI_HEATHEN_TOGGLE on New Believers' Heathen toggles, shown only
+   in a game whose villagers can be Heathens. */
+#define UI_TOGGLES 12
+#define UI_HEATHEN_TOGGLE 5
+static const int UI_TOGGLE_IDS[UI_TOGGLES] = {
+    2002, 2003, 2004, 2005, 2006, 2100, 2101, 2102, 2103, 2104, 2105, 2106
 };
-static const unsigned int UI_TOGGLE_BITS[5] = {
-    STORY_T_ADULT_WOMEN, STORY_T_ADULT_MEN, STORY_T_FEMALES, STORY_T_MALES, STORY_T_CHILDREN
+static const unsigned int UI_TOGGLE_BITS[UI_TOGGLES] = {
+    STORY_T_ADULT_WOMEN, STORY_T_ADULT_MEN, STORY_T_FEMALES, STORY_T_MALES, STORY_T_CHILDREN,
+    STORY_T_HEATHENS, STORY_T_BLUE_HEATHENS, STORY_T_RED_HEATHENS, STORY_T_ORANGE_HEATHENS,
+    STORY_T_PURPLE_HEATHENS, STORY_T_CHIEF_HEATHENS, STORY_T_HEATHEN_MOMMIES
 };
 
 static void ui_message(HWND owner, const char *text) {
@@ -304,8 +311,8 @@ static INT_PTR CALLBACK ui_unborn_dialog(HWND window, UINT message, WPARAM wpara
 static unsigned int ui_toggles(HWND window) {
     unsigned int toggles = 0;
     int i;
-    for (i = 0; i < 5; ++i) {
-        if (IsDlgButtonChecked(window, IDC_CH_TOGGLE_FIRST + i) == BST_CHECKED) {
+    for (i = 0; i < UI_TOGGLES; ++i) {
+        if (IsDlgButtonChecked(window, UI_TOGGLE_IDS[i]) == BST_CHECKED) {
             toggles |= UI_TOGGLE_BITS[i];
         }
     }
@@ -538,22 +545,29 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
 
 static void ui_setup_changes(HWND window) {
     const ce_adapter *a = ui.a;
-    char text[128];
+    char text[256];
     char years[16];
     int i;
     ui_load_roster();
     for (i = 0; i < ui.roster_count; ++i) {
         int row;
-        const char *custom = titles_lookup(ui.game, a->record(ui.roster[i].index));
-        wsprintfA(text, "%s (%s, %s)%s%s", ui.names[i],
+        const unsigned char *record = a->record(ui.roster[i].index);
+        const char *custom = titles_lookup(ui.game, record);
+        const char *role = NULL;
+        /* The label is read live, as the list opens: the game's own role
+           (Golden Child, Esteemed Elder and totem, Tribal Chief, faction). */
+        ce_role(a, record, &role);
+        wsprintfA(text, "%s (%s, %s)%s%s%s%s%s", ui.names[i],
                   ui.roster[i].sex == STORY_SEX_MALE ? "male" : "female",
                   ui_years(ui.roster[i].age, years),
+                  role != NULL ? " [" : "", role != NULL ? role : "", role != NULL ? "]" : "",
                   custom != NULL ? " - " : "", custom != NULL ? custom : "");
         row = (int)SendDlgItemMessageA(window, IDC_CH_LIST, LB_ADDSTRING, 0, (LPARAM)text);
         SendDlgItemMessageA(window, IDC_CH_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
     }
-    for (i = 0; i < 5; ++i) {
-        SetDlgItemTextA(window, IDC_CH_TOGGLE_FIRST + i, UI_TOGGLE_NAMES[i]);
+    /* The Heathen toggles: New Believers only, the one game with Heathens. */
+    for (i = UI_HEATHEN_TOGGLE; i < UI_TOGGLES; ++i) {
+        ShowWindow(GetDlgItem(window, UI_TOGGLE_IDS[i]), ui.game == 5 ? SW_SHOW : SW_HIDE);
     }
     ui_combo_add(window, IDC_CH_FATE, "No change", CE_FATE_NONE);
     if (a->caps & CAP_KILL) ui_combo_add(window, IDC_CH_FATE, "Dies (leaves a skeleton)", CE_FATE_KILL);
@@ -631,7 +645,8 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
     if (message == WM_COMMAND) {
         int id = LOWORD(wparam);
         if ((id == IDC_CH_LIST && HIWORD(wparam) == LBN_SELCHANGE)
-            || (id >= IDC_CH_TOGGLE_FIRST && id < IDC_CH_TOGGLE_FIRST + 5)) {
+            || (id >= IDC_CH_TOGGLE_FIRST && id < IDC_CH_TOGGLE_FIRST + UI_HEATHEN_TOGGLE)
+            || (id >= UI_TOGGLE_IDS[UI_HEATHEN_TOGGLE] && id <= UI_TOGGLE_IDS[UI_TOGGLES - 1])) {
             ui_show_count(window);
             return TRUE;
         }
