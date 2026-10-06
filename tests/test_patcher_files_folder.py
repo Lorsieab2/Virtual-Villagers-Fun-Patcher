@@ -394,6 +394,73 @@ class ATooDeepOutputFolder(unittest.TestCase):
         self.assertIn("too long", str(raised.exception))
         self.assertFalse(deep.exists())
 
+    def test_windows_utf16_units_are_counted(self):
+        """An emoji is two WCHARs to Windows; a path Python measures as 259
+        characters is then 260 units and must be refused."""
+        base = Path(os.path.abspath(tempfile.gettempdir()))
+        staging_extra = len(".staging-") + 32 + 1   # ".<name>.staging-<32>" vs "<name>"
+        log = str(Path(*patcher_files.TRANSPARENCY_RELATIVE_PATH.parts))
+        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - staging_extra - 1 - len(log)
+        fits = base / ("o" * room)
+        vfp._require_patcher_files_path_fits(fits, [], "")
+        emoji = base / ("o" * (room - 1) + "\U0001F600")   # same len(), one more unit
+        self.assertEqual(len(str(emoji)), len(str(fits)))
+        with self.assertRaises(vfp.PatcherError):
+            vfp._require_patcher_files_path_fits(emoji, [], "")
+
+    def test_reports_from_an_earlier_build_in_the_source_are_dropped(self):
+        """A source folder an older patcher produced carries that build's loose
+        reports (and a patch log under another executable name); the staged
+        copy drops the signed ones and keeps a player's look-alike."""
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(holder.cleanup)
+        staging = Path(holder.name)
+        signed = json.dumps({"patcher": "Virtual Villagers Fun Patcher"})
+        inner = staging / patcher_files.PATCHER_FILES_FOLDER
+        inner.mkdir()
+        (staging / patcher_files.TRANSPARENCY_FILENAME).write_text("old", encoding="utf-8")
+        (staging / ("Old - Modded" + patcher_files.PATCH_LOG_SUFFIX)).write_text(signed, encoding="utf-8")
+        (inner / ("Other" + patcher_files.PATCH_LOG_SUFFIX)).write_text(signed, encoding="utf-8")
+        mine = staging / ("Mine" + patcher_files.PATCH_LOG_SUFFIX)
+        mine.write_text('{"patcher": "someone else"}', encoding="utf-8")
+        removed = vfp._remove_unselected_companions(staging, build_of("vv1"), [])
+        self.assertEqual(
+            sorted(item["path"] for item in removed),
+            sorted([
+                patcher_files.TRANSPARENCY_FILENAME,
+                "Old - Modded" + patcher_files.PATCH_LOG_SUFFIX,
+                f"{patcher_files.PATCHER_FILES_FOLDER}/Other{patcher_files.PATCH_LOG_SUFFIX}",
+            ]),
+        )
+        self.assertTrue(mine.is_file())
+
+    @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+    def test_apply_all_checks_every_game_before_publishing_any(self):
+        """A later game too long for MAX_PATH must stop the bulk build before
+        the first game is published, not after."""
+        from unittest import mock
+
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(holder.cleanup)
+        sources = {}
+        for game in GAMES:
+            folder = Path(holder.name) / game
+            folder.mkdir()
+            shutil.copy2(stock_path(game), folder / build_of(game).input_name)
+            sources[game] = folder
+        calls = []
+
+        def refuse_the_last(*args, **kwargs):
+            calls.append(args)
+            if len(calls) == len(GAMES):
+                raise vfp.PatcherError("too long")
+
+        with mock.patch.object(vfp, "_require_patcher_files_path_fits", refuse_the_last), \
+                mock.patch.object(vfp, "apply_patch") as publish:
+            with self.assertRaises(vfp.PatcherError):
+                vfp.apply_all(sources, output_root=Path(holder.name) / "out")
+        publish.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -10398,6 +10398,31 @@ def _remove_unselected_companions(
                 "an older patcher's loose copy: the patcher's files are now in "
                 f"'{patcher_files.PATCHER_FILES_FOLDER}'",
             )
+    # The reports of the build the source folder came from (a folder an
+    # earlier patcher produced): they describe that build, not this one, which
+    # writes its own. The same files _patcher_owned_companion_keys owns on
+    # overwrite: the transparency log by name, a patch log only when the
+    # patcher signed it, so a player's file of a similar name is kept.
+    reports = [Path(patcher_files.TRANSPARENCY_FILENAME)]
+    for folder in (Path(), Path(patcher_files.PATCHER_FILES_FOLDER)):
+        for log_path in sorted((staging_folder / folder).glob("*" + patcher_files.PATCH_LOG_SUFFIX)):
+            try:
+                log = json.loads(log_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(log, dict) and log.get("patcher") == "Virtual Villagers Fun Patcher":
+                reports.append(folder / log_path.name)
+    for relative in reports:
+        path = staging_folder / relative
+        if not path.is_file():
+            continue
+        digest = sha256(path)
+        path.unlink()
+        removed.append({
+            "path": relative.as_posix(),
+            "sha256": digest,
+            "reason": "a report of the earlier build the source folder came from",
+        })
     return removed
 
 
@@ -12503,14 +12528,19 @@ def _require_patcher_files_path_fits(
                 relatives.append(str(path.relative_to(source_folder)))
     output = Path(os.path.abspath(output_folder))
     staging = output.parent / f".{output.name}.staging-{'0' * 32}"
+    # Windows counts UTF-16 units: a character outside the BMP (an emoji)
+    # takes two, where Python's len() counts one.
+    def wchars(path: str) -> int:
+        return len(path.encode("utf-16-le", "surrogatepass")) // 2
+
     worst = max(
         (str(folder / relative) for folder in (output, staging) for relative in relatives),
-        key=len,
+        key=wchars,
     )
-    if len(worst) >= patcher_files.MAX_PATH:
+    if wchars(worst) >= patcher_files.MAX_PATH:
         raise PatcherError(
             "The output folder's path is too long: the patched game would need a path "
-            f"of {len(worst)} characters ({worst}), and Windows allows "
+            f"of {wchars(worst)} characters ({worst}), and Windows allows "
             f"{patcher_files.MAX_PATH - 1}. Nothing was written. Choose an output "
             "folder with a shorter path."
         )
@@ -12858,6 +12888,17 @@ def apply_all(
         raise PatcherError(
             "Bulk modified game folder already exists; no files were written:\n"
             + "\n".join(str(path) for path in existing)
+        )
+    # The path-length limit differs per game (folder and executable names
+    # differ), so check every planned output before publishing any: a later
+    # game failing it must not leave an earlier one already written.
+    for build, source, _patched, _applied, _output_folder, _output in plans:
+        checked = _attach_automatic_companions(build.id, selected_by_game.get(build.id, []))
+        _require_patcher_files_path_fits(
+            output_folder_for(source, build, patch_mode, checked, output_root),
+            checked,
+            _output_name(build, patch_mode, checked),
+            source.parent,
         )
     # All paths are preflighted above before any write.  Delegate each actual
     # publication to the same destination-local atomic transaction used by a
