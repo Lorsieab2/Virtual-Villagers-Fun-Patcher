@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 24426,
-    "file_sha256": "CA52D6F51DAE887AA3DA642856F3188050CDD3809864E66433092352E58A32F9",
-    "source_text_sha256": "CA52D6F51DAE887AA3DA642856F3188050CDD3809864E66433092352E58A32F9"
+    "file_sha256": "D7E3D42207B00381915A935DEA30BD14560A42CC23C95A09A34F1E7F2D03B772",
+    "source_text_sha256": "D7E3D42207B00381915A935DEA30BD14560A42CC23C95A09A34F1E7F2D03B772"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "560DCB4DCDFB1084347823C1896E8DE695D9F6DC67BF890B6ECF9CF9BBE573E2"
+      "source_text_sha256": "F6E1DF2175F339F0E462891057C9EA176C6AAEA3D84BC3A46DBA89CF0D009D53"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -26,7 +26,7 @@
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "9274681E9DCB41A71ED32707BB11E7108ADA448646FFBC1CC3FE1141E8C0A5A0"
+      "source_text_sha256": "DE3EAC6170884D4995B8E2230AF85C4B041EBFFD5684E07D25CCF2005BEED1DE"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "CA52D6F51DAE887AA3DA642856F3188050CDD3809864E66433092352E58A32F9"
+      "source_text_sha256": "D7E3D42207B00381915A935DEA30BD14560A42CC23C95A09A34F1E7F2D03B772"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -68,7 +68,7 @@
   },
   "companion": {
     "size": 1836544,
-    "sha256": "CDCB0022C3374A518EEEFF8BE680A992EFB67E1653344753DC5A169B68A71B65"
+    "sha256": "09A8D946A044C9001C187648D27E0409EA359020E0690F4EEE812D4A1EF3CD03"
   },
   "payload": {
     "sha256": "FC05283D127AC9FEF5B9AA02406D320A9EC484FD3CE119011C0129C1F6F9ED51",

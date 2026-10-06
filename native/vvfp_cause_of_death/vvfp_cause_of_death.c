@@ -74,6 +74,9 @@
 #include <string.h>
 #include <stdint.h>
 #include "sidecar_io.h"
+#include "custom_titles.h"     /* vv_title_identity: who a former Heathen is */
+#include "former_heathens.h"
+#include "mask_line.h"         /* the mask a roster snapshot keeps */
 #include "save_folder.h"
 #include "patcher_files.h"
 #include "grave_backfill.h"
@@ -671,6 +674,7 @@ static void births_backfill_at_save(int slot, const void *save_buffer);
 #include "cod_vv345.inc"
 #include "cod_epitaph_edit.inc"
 #include "cod_backfill.inc"
+#include "cod_former.inc"
 #include "cod_arrivals.inc"
 
 /* ---- Exports --------------------------------------------------------------- */

@@ -80,8 +80,8 @@ def have_stock(game: str) -> bool:
 
 
 @functools.lru_cache(maxsize=None)
-def render(game: str, mode: str) -> bytes:
-    ids = [f"{game}_origins_village_wide_upgrades", f"{game}_story_cheat_upgrades"]
+def render(game: str, mode: str, extra: tuple[str, ...] = ()) -> bytes:
+    ids = [f"{game}_origins_village_wide_upgrades", f"{game}_story_cheat_upgrades", *extra]
     data, _ = patcher.render_patched_bytes(stock_path(game), _builds()[game], mode, ids)
     return bytes(data)
 
@@ -118,10 +118,10 @@ def control_sites(c: dict) -> list[int]:
 class Game:
     """One game's process: the companion installed, the rand stubbed, a village."""
 
-    def __init__(self, game: str, mode: str = "collection_progression"):
+    def __init__(self, game: str, mode: str = "collection_progression", extra: tuple[str, ...] = ()):
         self.game = game
         self.n = int(game[2:])
-        self.proc = Process(render(game, mode), TEST_DLL)
+        self.proc = Process(render(game, mode, extra), TEST_DLL)
         assert self.proc.export("VvfpStoryInstall", self.n) == 1
         self.rand_calls = []
 
@@ -287,6 +287,35 @@ class TableTests(unittest.TestCase):
 def _bound_for(c: dict, value: int) -> int:
     b = c.get("bound")
     return b if isinstance(b, int) and b > value else value + 1
+
+
+@emulated
+class NameSettingTests(unittest.TestCase):
+    """The Secret City's name settings (the Mysterious Vial's copy, the barrel's babies) name a
+    list entry.  The stock game reaches it as roll + 1 (0x45C683 inc eax); Fix Vanilla Bugs makes
+    that inc a nop so every default name can be chosen, and the answer then carries the + 1."""
+
+    def test_the_chosen_entry_with_and_without_fix_vanilla_bugs(self):
+        if not have_stock("vv3"):
+            self.skipTest("stock executables not present")
+        named = [(slot, ci, c) for slot in events_of("vv3") for ci, c in enumerate(controls_of("vv3", slot))
+                 if c["kind"] == "amount" and c["site"] == 0x45C67B]
+        self.assertEqual(len(named), 4)
+        for extra, bound, offset in (((), 123, 0), (("vv3_fix_vanilla_bugs",), 125, 1)):
+            g = Game("vv3", extra=extra)
+            self.assertEqual(g.proc.read(0x45C683, 1), b"\x90" if extra else b"\x40")
+            for slot, ci, c in named:
+                for value in (0, 61, 122):
+                    with self.subTest(fix=bool(extra), control=c["id"], value=value):
+                        g.arm(slot, {ci: value})
+                        _ready(g, c)
+                        for _ in range(c.get("occurrence", 1) - 1):
+                            g.roll(0x45C67B, bound)
+                        got, forced = g.forced_roll(0x45C67B, bound)
+                        self.assertTrue(forced)
+                        # the entry the game names: the roll, plus the game's own + 1 when it has one
+                        self.assertEqual(got + (1 - offset), value + 1)
+                        g.force(IDLE)
 
 
 @emulated

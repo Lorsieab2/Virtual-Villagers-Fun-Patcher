@@ -809,7 +809,7 @@ class NewHomeCauseOfDeath(unittest.TestCase):
             g.p.set_reg("ebx", written)
             g.p.run(0x40322A, 0x0D000000)
             self.assertEqual(g.roster(slot) is not None, expected, (size, slot, written))
-        self.assertEqual(struct.unpack_from("<4I", g.roster(2)), (0x31524356, 1, 1, 2))
+        self.assertEqual(struct.unpack_from("<4I", g.roster(2)), (0x31524356, 2, 1, 2))
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_custom_island_events_disappears_and_a_noted_birth_reach_the_companion(self):

@@ -156,13 +156,15 @@ class ReleasesLinkTests(unittest.TestCase):
         # promise below; patcher_files (where the patcher's own files go)
         # imports only the standard library.
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
-               "vv_how_to_use", "patcher_files"}
+               "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         for module, may_import in (
             ("vv_save_backup", set()),
             ("vv_tribe_rename", {"vv_save_backup"}),
-            ("vv_log_tools", {"vv_save_backup"}),
+            ("vv_log_tools", {"vv_save_backup", "vv_log_additions"}),
+            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename"}),
+            ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions"}),
             ("patcher_files", set()),
             ("vv_how_to_use", set()),
         ):

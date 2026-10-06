@@ -438,6 +438,7 @@ STALE = {
     "VVFP Improved Pathfinding.dll": "assets/pathfinding/VVFP Improved Pathfinding.dll",
     "VVFP Lesson Cap.dll": "assets/lesson_cap/VVFP Lesson Cap.dll",
     "VVFP Healers Study.dll": "assets/healers_study/VVFP Healers Study.dll",
+    "VVFP Last Names.dll": "assets/last_names/VVFP Last Names.dll",
 }
 ORIGINS_SOURCE = {
     "vv1": "assets/origins/VVFP VV1 Origins Icons.dll",

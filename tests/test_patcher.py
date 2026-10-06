@@ -1010,7 +1010,7 @@ class ManifestTests(unittest.TestCase):
             # build_slot_guards.py, scripts/build_record_guards_vv345.py).
             expected_safety_counts = {
                 "vv1": 24,
-                "vv2": 26,
+                "vv2": 27,   # + the babies still owed (Codex, #543)
                 "vv3": 22,
                 "vv4": 18,
                 "vv5": 21,
@@ -1151,8 +1151,10 @@ class ManifestTests(unittest.TestCase):
         # (vv2_restore_missing_island_events), five jump-table entries and the
         # case-4 body over the trigger's dead positive-kind branch; 26 with Story /
         # Cheat Upgrades cost Tech Points (vv2_story_cheat_upgrades_cost_tech_points),
-        # no executable byte -- bit 30 of the startup loader's word.
-        self.assertEqual(len(feature_ids), 26)
+        # no executable byte -- bit 30 of the startup loader's word; 27 with
+        # Villagers Have Last Names (vv2_last_names), no executable byte -- its
+        # companion detours the naming routine at run time.
+        self.assertEqual(len(feature_ids), 27)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -1167,6 +1169,7 @@ class ManifestTests(unittest.TestCase):
             0x73D00,
             # v1.35.58 record guards (scripts/build_slot_guards.py)
             0x217DF, 0x1F604, 0x1F6D4, 0x73F64, 0x73F84,
+            0x73F9C,   # the babies still owed (Codex, #543)
             0x34102,
             0x341A2,
             0x341C3,
@@ -2030,13 +2033,13 @@ class StockIntegrationTests(unittest.TestCase):
         checks = {
             "vv1": (
                 0x56680,
-                "E8DB01000084E47505E9C25CFEFF83C8FFC21400",
+                "E80D0000007505E9C45CFEFF83C8FFC21400",   # records taken or owed, then the creator
                 [0x28263, 0x282C6, 0x282E3, 0x2833C, 0x28359, 0x28376,
                  0x2C3EF, 0x2C410, 0x2C431, 0x2C4AF, 0x2C4D0, 0x2C54E],
             ),
             "vv2": (
                 0x73D00,
-                "518B8DA450000085C9741883B9A405030000740FE827FFFFFF5984E47506E95DB8FDFF5983C8FFC21400",
+                "518B8DA450000085C9741883B9A405030000740FE8830200005984E47506E95DB8FDFF5983C8FFC21400",
                 [0x34102, 0x341A2, 0x341C3, 0x34262, 0x34283, 0x342A4,
                  0x34467, 0x344A3],
             ),
@@ -2065,7 +2068,8 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv2_saturation_cave_metadata_uses_authenticated_fdff_tails(self) -> None:
         """The record count (0x473C40) and the litter guard (0x473C70) are
         returning routines now; the litter guard is called from the twins and
-        triplets rolls and asks the record count."""
+        triplets rolls and asks the records taken or owed (0x473F9C), which
+        asks the record count (Codex, #543)."""
         vv2 = next(build for build in load_builds() if build.id == "vv2")
         safety = {
             int(patch["offset"], 0): patch for patch in vv2.safety_patches
@@ -2079,7 +2083,10 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(count[-1:], b"\xC3")
         self.assertEqual(litter[-3:], bytes.fromhex("C20400"))
         call = litter.index(b"\xE8")
-        self.assertEqual(0x73C70 + call + 5 + struct.unpack_from("<i", litter, call + 1)[0], 0x73C40)
+        self.assertEqual(0x73C70 + call + 5 + struct.unpack_from("<i", litter, call + 1)[0], 0x73F9C)
+        owed = bytes.fromhex(safety[0x73F9C]["after"])
+        call = owed.index(b"\xE8")
+        self.assertEqual(0x73F9C + call + 5 + struct.unpack_from("<i", owed, call + 1)[0], 0x73C40)
         for site in (0x4BA82, 0x4BAB6):
             row = bytes.fromhex(safety[site]["after"])
             self.assertEqual(site + 2 + 5 + struct.unpack_from("<i", row, 3)[0], 0x73C70)
@@ -4020,6 +4027,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_fix_vanilla_bugs",
                 "vv2_cause_of_death",
                 "vv2_restore_missing_island_events",
+                "vv2_last_names",
             },
         )
         for mode in ALL_MODES:

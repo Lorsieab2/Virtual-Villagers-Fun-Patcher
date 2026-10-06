@@ -44,6 +44,9 @@ FILES = [
     "assets/work_first/VVFP Work First.dll",
     "assets/golden_mushroom/VVFP Golden Mushroom.dll",
     "assets/golden_mushroom/golden_mushroom.png",
+    # Villagers Have Last Names: one companion for all five games, started by
+    # VVFP Startup.dll; no executable bytes.
+    "assets/last_names/VVFP Last Names.dll",
     # Story / Cheat Upgrades: one companion for all five games, loaded by each
     # game's Origins companion; no executable bytes.
     "assets/story_upgrades/VVFP Story Upgrades.dll",
@@ -116,6 +119,11 @@ FILES = [
     "data/vv3_cause_of_death_feature.json",
     "data/vv4_cause_of_death_feature.json",
     "data/vv5_cause_of_death_feature.json",
+    "data/vv1_last_names_feature.json",
+    "data/vv2_last_names_feature.json",
+    "data/vv3_last_names_feature.json",
+    "data/vv4_last_names_feature.json",
+    "data/vv5_last_names_feature.json",
     # 256 Villagers (Experimental): The Secret City, The Tree of Life and
     # New Believers.
     "data/vv3_population_256_feature.json",
@@ -179,6 +187,8 @@ FILES = [
     # Check Logs and Repair Logs; the GUI imports it, and Check Logs runs
     # the read-only checker in the patcher's own process.
     "src/vv_log_tools.py",
+    "src/vv_log_additions.py",
+    "src/vv_last_names.py",
     # The "?" guides beside every feature; the GUI imports the module, and
     # the module reads the data file.
     "src/vv_how_to_use.py",

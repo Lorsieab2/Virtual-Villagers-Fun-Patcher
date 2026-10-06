@@ -48,6 +48,8 @@ CHECKS += 2 * 4
 # + 2 per game: the marker names its village, and does not count for another village copied into
 # the slot (Codex, #531)
 CHECKS += 2 * 5
+# New Believers' converted Heathen Master: the Former Heathens file and the Arrived record's title.
+CHECKS += 2
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

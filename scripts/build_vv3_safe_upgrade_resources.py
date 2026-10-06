@@ -80,8 +80,11 @@ FOUNDATION_OUTPUT = (
 # Recertified for the cross-check pause fix and Story / Cheat Upgrades cost
 # Tech Points (native/shared/crosscheck_bridge.h, story_bridge.h; v1.35.61), and
 # for the quit rescanning every village the setting examined (Codex, #542).
-SOURCE_SHA256 = "B820FB56FB1B42853958484491A7EE5B21C3DB3D72BE6B3863B6BE7BBBEF73D9"
-SOURCE_SIZE = 1960448
+# Recertified when every Origins companion gained VvfpMaskOf (native/shared/
+# story_bridge.h): the log exporters' "Mask:" line asks the companion for the
+# mask it keeps on a villager.  One new export, nothing else in the build.
+SOURCE_SHA256 = "EBF7497A835E7574B547204A38B03ACFBD0B6F4026C0ACEF0D61741C30E20DE5"
+SOURCE_SIZE = 1960960
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

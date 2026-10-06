@@ -74,7 +74,7 @@ class BothRecordKindsTests(unittest.TestCase):
             self.source,
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
         birth = function(
-            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
+            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirthLitter(")
         # The "Birth" block itself is rendered by compose_birth (shared with
         # the v1.35.58 Birth backfill), which WriteParentageBirth calls.
         self.assertIn("compose_birth(", birth)
@@ -132,7 +132,7 @@ class BothRecordKindsTests(unittest.TestCase):
         which numbered log is current.
         """
         birth = function(
-            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
+            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirthLitter(")
         conception = function(
             self.source,
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
@@ -183,7 +183,7 @@ class BothRecordKindsTests(unittest.TestCase):
             self.source,
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
         birth = function(
-            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
+            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirthLitter(")
         append = function(self.source, "static int append_record(")
         # The kind travels -- 0 from the conception export, KIND_BIRTH from
         # the birth export -- into the walk's for_birth.

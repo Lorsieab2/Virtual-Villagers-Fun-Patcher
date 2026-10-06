@@ -77,6 +77,9 @@ FIXES = (
     (WRITER_OFFSET, WRITER_STOCK, WRITER_PATCHED),
     (LOADER_OFFSET, LOADER_STOCK, LOADER_PATCHED),
     (CHECK_OFFSET, CHECK_STOCK, CHECK_PATCHED),
+    # Every default name can be chosen (tests/test_every_default_name_can_be_chosen.py).
+    (0x65DB5, bytes.fromhex("68B7000000"), bytes.fromhex("68B9000000")),
+    (0x65DC1, bytes.fromhex("83C001"), bytes.fromhex("83C000")),
 )
 
 

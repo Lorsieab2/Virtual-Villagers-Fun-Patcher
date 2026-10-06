@@ -246,7 +246,10 @@ typedef struct {
     unsigned char departed;                   /* 1: the record was EMPTY then, and this is the
                                                  villager who had held it (vv1_follow_roster);
                                                  0 in every file an earlier build wrote */
-    unsigned char spare[2];
+    unsigned char head;                       /* head + 1, body + 1 (0: not recorded -- every */
+    unsigned char body;                       /* file an earlier build wrote): the looks that tell
+                                                 apart two villagers who share gender, family
+                                                 scalar and name (vv1_follow_roster) */
     int scalar;                               /* +0x36C, set once at creation */
     char name[VV1_NAME_CAPACITY];
 } vv1_occupant;                               /* 36 bytes */
@@ -374,6 +377,12 @@ static void vv1_take_roster(const unsigned char *records, vv1_occupant *out) {
         }
         out[i].gender = (*(const int *)(rec + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) ? 1 : 2;
         out[i].scalar = *(const int *)(rec + VV1_VARIANT_OFFSET);
+        {
+            int head = *(const int *)(rec + VV1_HEAD_OFFSET);
+            int body = *(const int *)(rec + VV1_BODY_OFFSET);
+            out[i].head = (unsigned char)(head >= 0 && head <= 253 ? head + 1 : 0);
+            out[i].body = (unsigned char)(body >= 0 && body <= 253 ? body + 1 : 0);
+        }
         vv1_copy_name(rec, out[i].name);
     }
 }
@@ -383,6 +392,27 @@ static void vv1_take_roster(const unsigned char *records, vv1_occupant *out) {
 static int vv1_same_occupant(const vv1_occupant *a, const vv1_occupant *b) {
     return a->gender != 0 && a->gender == b->gender && a->scalar == b->scalar
         && strncmp(a->name, b->name, VV1_NAME_CAPACITY) == 0;
+}
+
+/* The same villager, and the same looks recorded on both sides. */
+static int vv1_same_looks(const vv1_occupant *a, const vv1_occupant *b) {
+    return vv1_same_occupant(a, b) && a->head != 0 && a->body != 0
+        && a->head == b->head && a->body == b->body;
+}
+
+/* How many entries of `roster` are this villager with these looks; *where
+   gets the last. */
+static int vv1_count_looks(const vv1_occupant *roster, const vv1_occupant *who, int *where) {
+    int i, n = 0;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        if (vv1_same_looks(&roster[i], who)) {
+            ++n;
+            if (where != NULL) {
+                *where = i;
+            }
+        }
+    }
+    return n;
 }
 
 /* How many entries of `roster` are this villager; *where gets the last. */
@@ -537,6 +567,23 @@ static int vv1_follow_roster(const vv1_occupant *now) {
             }
         }
     }
+    /* Two villagers who share gender, family scalar and name -- the owner's
+       two Sukis, whose parents a repack dropped -- are told apart by their
+       looks, when the roster recorded them: the one villager on screen with
+       that identity and those looks takes the one entry recorded with them.
+       A roster from an earlier build recorded no looks, and a villager whose
+       looks match nobody (or more than one) stays unknown, as before. */
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        int at = -1;
+        if (now[j].gender && from[j] < 0 && vv1_count_occupant(now, &now[j], NULL) > 1
+            && vv1_count_looks(now, &now[j], NULL) == 1
+            && vv1_count_looks(g_roster, &now[j], &at) == 1) {
+            from[j] = at;
+            if (at != j) {
+                repacked = 1;
+            }
+        }
+    }
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         if (now[j].gender && from[j] < 0 && !repacked && vv1_same_occupant(&g_roster[j], &now[j])) {
             from[j] = j;          /* an ambiguous identity, where nothing moved: its own index */
@@ -587,6 +634,23 @@ static int vv1_roster_in_step(const vv1_occupant *now) {
         }
     }
     return 1;
+}
+
+/* The looks the roster records follow the villagers on screen (Codex,
+   #553): a change of head or body (the Custom Island Event's, say) while
+   nothing else moved is written at once, so a later repack still tells two
+   villagers of one identity apart.  1 when any changed. */
+static int vv1_roster_take_looks(const vv1_occupant *now) {
+    int j, changed = 0;
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (now[j].gender && vv1_same_occupant(&g_roster[j], &now[j])
+            && (g_roster[j].head != now[j].head || g_roster[j].body != now[j].body)) {
+            g_roster[j].head = now[j].head;
+            g_roster[j].body = now[j].body;
+            changed = 1;
+        }
+    }
+    return changed;
 }
 
 /* A RENAME (Codex, #516): the one record whose occupant changed since the
@@ -1147,6 +1211,8 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
                 g_have_prev = 0;
             }
             vv1_parents_save(slot, records);
+        } else if (vv1_roster_take_looks(now)) {
+            vv1_parents_save(slot, records);
         }
         break;
     default:
@@ -1170,14 +1236,15 @@ static int vv1_parents_sync(void) {
 
 /* ---- the parentage log ------------------------------------------------ */
 
-/* WriteParentageBirth lives in the parentage companion, which owns the log:
-   its file numbering, village header and roll-over.  Resolved once, from the
-   executable's own directory, outside DllMain. */
+/* WriteParentageBirthLitter lives in the parentage companion, which owns the
+   log: its file numbering, village header and roll-over.  Resolved once,
+   from the executable's own directory, outside DllMain.  The litter is the
+   delivery's babies (1-3) for the Birth record's "Born as" line, or -1. */
 typedef int (__stdcall *vv1_write_birth_t)(int game_id,
                                             const char *child_name, int child_head, int child_body,
                                             const char *mother_name, int mother_head, int mother_body,
                                             const char *father_name, int father_head, int father_body,
-                                            const void *child_record);
+                                            const void *child_record, int litter);
 static int g_log_state;           /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static vv1_write_birth_t g_write_birth;
 
@@ -1194,7 +1261,7 @@ static vv1_write_birth_t vv1_log_writer(void) {
     if (companion == NULL) {
         return NULL;              /* the log row is off: births are kept, not logged */
     }
-    g_write_birth = (vv1_write_birth_t)GetProcAddress(companion, "WriteParentageBirth");
+    g_write_birth = (vv1_write_birth_t)GetProcAddress(companion, "WriteParentageBirthLitter");
     if (g_write_birth == NULL) {
         return NULL;
     }
@@ -1207,8 +1274,9 @@ static int vv1_decode(unsigned char encoded) {
 }
 
 /* One birth, straight to the log, from the live records and the entry just
-   filled in.  Nothing here can fail the caller. */
-static void vv1_log_birth(const unsigned char *records, const vv1_birth *birth) {
+   filled in, with the delivery's babies (1-3, or -1 when not known).
+   Nothing here can fail the caller. */
+static void vv1_log_birth(const unsigned char *records, const vv1_birth *birth, int litter) {
     vv1_write_birth_t write = vv1_log_writer();
     const unsigned char *child;
     const vv1_parent_entry *e;
@@ -1226,7 +1294,7 @@ static void vv1_log_birth(const unsigned char *records, const vv1_birth *birth) 
           *(const int *)(child + VV1_HEAD_OFFSET), *(const int *)(child + VV1_BODY_OFFSET),
           e->mother_name, vv1_decode(e->mother_head), vv1_decode(e->mother_body),
           e->father_name, vv1_decode(e->father_head), vv1_decode(e->father_body),
-          child);
+          child, litter);
 }
 
 /* ---- the logic, over any records array (no file I/O) ------------------ */
@@ -1474,7 +1542,14 @@ static int vv1_frame(const unsigned char *records, int log) {
     if (log) {
         for (b = 0; b < g_birth_count; ++b) {
             if (g_births[b].mother >= 0) {   /* an arrival is not a birth: nothing to log */
-                vv1_log_birth(records, &g_births[b]);
+                /* The delivery routine (0x42EF5F..0x42F06D) creates all of a
+                   mother's babies in one call, so they are this frame's
+                   births of the same mother. */
+                int k, litter = 0;
+                for (k = 0; k < g_birth_count; ++k) {
+                    litter += g_births[k].mother == g_births[b].mother;
+                }
+                vv1_log_birth(records, &g_births[b], litter >= 1 && litter <= 3 ? litter : -1);
             }
         }
     }
@@ -1752,7 +1827,13 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
     }
     birth.child = c;
     birth.mother = (int)(((const unsigned char *)mother_pointer - records) / VV1_RECORD_STRIDE);
-    vv1_log_birth(records, &birth);   /* the log first, before anything is flushed */
+    {
+        /* At the creation the mother's litter field is this delivery's: 2 or
+           3 (0x43BC4E / 0x43BC8C), 0 for a single baby; the delivery clears
+           it only after its last child (0x42F0C7). */
+        int litter = *(const int *)((const unsigned char *)mother_pointer + VV1_LITTER_OFFSET);
+        vv1_log_birth(records, &birth, litter == 0 ? 1 : litter == 2 || litter == 3 ? litter : -1);
+    }   /* the log first, before anything is flushed */
     vv1_parents_save(slot, records);
     return 1;
 }

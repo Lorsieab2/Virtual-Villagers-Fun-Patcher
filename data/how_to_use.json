@@ -219,6 +219,7 @@
       "ids": ["vv1_fix_vanilla_bugs"],
       "guide": [
         "Fixes a bug in the original game: a pregnant villager who drinks the blue Mysterious Vial and turns back into a toddler no longer brings twins or triplets in her next pregnancy.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Nothing to click. On by default."
       ]
     },
@@ -227,6 +228,7 @@
       "guide": [
         "Fixes a bug in the original game: the Crystal Ball island event only comes when there is another living villager to swap places with.",
         "If \"Keep it\" is chosen with nobody else alive, the game carries on instead of closing.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Nothing to click. On by default."
       ]
     },
@@ -235,6 +237,7 @@
       "guide": [
         "Fixes bugs in the original game: the Royal Jelly vials and the amber and quartz Mysterious Vials now do what their text says.",
         "A village with exactly 150 villagers can be saved and loaded again; one already damaged that way is repaired when loaded.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -243,6 +246,7 @@
       "guide": [
         "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again.",
         "A village already damaged by that bug is repaired when it is loaded.",
+        "Every name in the game's own male and female lists can now be given to a new villager.",
         "Only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
@@ -281,6 +285,14 @@
         "Adds a golden spotted mushroom to the island.",
         "Pick it like any other mushroom to find out what it does. It's a secret!",
         "Off by default; Owner's Defaults ticks it."
+      ]
+    },
+    {
+      "ids": ["vv1_last_names", "vv2_last_names", "vv3_last_names", "vv4_last_names", "vv5_last_names"],
+      "guide": [
+        "New villagers get a last name after their first name, from a list of 50 the game has always had but never used.",
+        "The last name comes from the villager's family, so children share their mother's last name.",
+        "Villagers who already have names keep them. Nothing to click: tick it, patch, and play."
       ]
     },
     {
@@ -551,6 +563,14 @@
       ]
     },
     {
+      "ids": ["vv5_fix_vanilla_bugs"],
+      "guide": [
+        "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
+        "Villagers already named keep their names.",
+        "Nothing to click. On by default."
+      ]
+    },
+    {
       "ids": ["vv5_population_256"],
       "guide": [
         "EXPERIMENTAL: gives the game 256 villager places instead of 150 (believers and Heathens share them).",
@@ -784,17 +804,20 @@
         "That includes masks still kept for villagers who are no longer in the village.",
         "Pick the game, save folder and tribe, then click Check.",
         "Each file is marked OK, WRONG, NOTE or UNCHECKED.",
+        "It also says what older records lack (Sex, titles, masks, Twin / Triplet) that Repair Logs can add.",
         "It only reads, so the game may stay open."
       ]
     },
     "repair_logs": {
       "title": "Repair Logs",
       "guide": [
-        "Your go-ahead for the game to fix a village's logs.",
-        "Quit the game first, then pick the game, save folder and tribe; the logs are checked and the result shown.",
-        "Confirm: the save folder is backed up first.",
-        "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking.",
-        "Masks kept for villagers who are no longer in the village are removed too.", "It works only in a game patched with a patch that keeps logs, such as Cause of Death or Show Parents."
+        "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
+        "A checklist shows what can be done: tick or untick each line, then click Repair. The save folder is backed up first.",
+        "Older records can get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack.",
+        "Where the save and the files cannot tell, you are asked: Answer the questions. Don't know adds nothing.",
+        "Give villagers last names (Choose...): each living villager gets the last name you pick, in the game and every log.",
+        "Let the game repair: play that tribe and quit from its menu; whatever is found wrong is fixed without asking.",
+        "That part works only in a game patched with a patch that keeps logs, such as Cause of Death or Show Parents."
       ]
     },
     "check_logs_automatically": {

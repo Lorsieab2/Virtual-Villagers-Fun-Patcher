@@ -79,6 +79,9 @@
 #include "save_folder.h"
 #include "log_words.h"
 #include "special_title.h"
+#include "custom_titles.h"
+#include "former_heathens_read.h"
+#include "mask_line.h"
 #include "patcher_files.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -3259,9 +3262,61 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
    that cannot supply one still logs a complete birth. */
 static void tell_cause_of_death_birth(int game_id, const void *child_record);
 
+/* How many babies the delivery that is creating this child holds, read from
+   the mother's own litter field (VV2-VV5: the exe's birth splice calls
+   WriteParentageBirth at the creation, between the litter compares that
+   guard the twin and triplet creations, so the field is this delivery's).
+   The mother is the one living female villager with this name, head and
+   body; none, or two, and the count is not known (-1).  The games write
+   nothing for a single birth in VV1/VV2 (0 = one baby). */
+static int delivery_litter(int game_id, const struct game_layout *g, const char *mother_name,
+                           int mother_head, int mother_body) {
+    const unsigned char *records = villager_table(game_id);
+    int index, found = -1;
+    char name[MAX_NAME_BYTES], want[MAX_NAME_BYTES];
+    if (records == NULL || g->litter == 0u || mother_name == NULL || mother_name[0] == '\0'
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return -1;
+    }
+    copy_name_field((const unsigned char *)mother_name, want, sizeof want, g->name_capacity);
+    for (index = 0; index < g->slots; ++index) {
+        const unsigned char *r = records + g->record_base + (size_t)index * g->stride;
+        if (*(const unsigned char *)(r + g->active) != 1 || *(const int *)(r + g->sex) != g->sex_female
+            || (mother_head >= 0 && *(const int *)(r + g->head) != mother_head)
+            || (mother_body >= 0 && *(const int *)(r + g->body) != mother_body)) {
+            continue;
+        }
+        copy_name_field(r + g->name, name, sizeof name, g->name_capacity);
+        if (strcmp(name, want) != 0) {
+            continue;
+        }
+        if (found >= 0) {
+            return -1;
+        }
+        found = index;
+    }
+    if (found < 0) {
+        return -1;
+    }
+    index = *(const int *)(records + g->record_base + (size_t)found * g->stride + g->litter);
+    return index < 1 ? 1 : index > 3 ? -1 : index;
+}
+
+/* The Birth record's "  Born as:" line for a delivery of `litter` babies
+   (the owner, 2026-10-06: twins and triplets in the logs); empty when not
+   known. */
+static const char *born_as_line(int litter) {
+    return litter == 1 ? "  Born as: Single birth\n"
+         : litter == 2 ? "  Born as: Twin\n"
+         : litter == 3 ? "  Born as: Triplet\n" : "";
+}
+
 /* The Birth record's text (WriteParentageBirth's arguments), with `note`
    -- a whole "  Note: ...\n" line, or NULL -- after the parents: the
-   backfill's "Recorded afterwards" (arrival_backfill.inc).  1 when composed. */
+   backfill's "Recorded afterwards" (arrival_backfill.inc).  `litter` is the
+   delivery's babies (1-3), 0 to read them from the mother now (a birth
+   written at its creation), or -1 when not known (a backfilled birth).
+   1 when composed. */
 static int compose_birth(
     int game_id,
     const char *child_name, int child_head, int child_body,
@@ -3269,6 +3324,7 @@ static int compose_birth(
     const char *father_name, int father_head, int father_body,
     const void *child_record,
     const char *note,
+    int litter,
     char *text,
     size_t text_size
 ) {
@@ -3393,6 +3449,9 @@ static int compose_birth(
     preference_text(g, rec, g->likes, child_likes, sizeof child_likes);
     preference_text(g, rec, g->dislikes, child_dislikes, sizeof child_dislikes);
     skill_text(g, rec, skills, sizeof skills);
+    if (litter == 0) {
+        litter = delivery_litter(game_id, g, mother_name, mother_head, mother_body);
+    }
 
     written = _snprintf(
         text, text_size,
@@ -3411,16 +3470,41 @@ static int compose_birth(
         "    Head: %s\n"
         "    Body: %s\n"
         "%s"
+        "%s"
         "\n",
         child, sex_text(g, rec), child_head, child_body, child_likes, child_dislikes, skills,
         mother, mh, mb,
         father, fh, fb,
+        born_as_line(litter),
         note != NULL ? note : ""
     );
     if (written < 0 || (size_t)written >= text_size) {
         return 0;
     }
     return 1;
+}
+
+/* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
+   known (no "Born as" line). */
+__declspec(dllexport) int __stdcall WriteParentageBirthLitter(
+    int game_id,
+    const char *child_name, int child_head, int child_body,
+    const char *mother_name, int mother_head, int mother_body,
+    const char *father_name, int father_head, int father_body,
+    const void *child_record,
+    int litter
+) {
+    char text[RECORD_TEXT_MAX];
+    if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
+                       mother_body, father_name, father_head, father_body, child_record, NULL,
+                       litter, text, sizeof text)) {
+        return 0;
+    }
+    /* The Unaccounted Villagers reconciliation counts this child as a known
+       arrival, whether or not the record could be filed now. */
+    tell_cause_of_death_birth(game_id, child_record);
+    /* The child is the villager a held birth is re-checked against. */
+    return emit_record(game_id, KIND_BIRTH, NULL, text);
 }
 
 __declspec(dllexport) int __stdcall WriteParentageBirth(
@@ -3430,17 +3514,148 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     const char *father_name, int father_head, int father_body,
     const void *child_record
 ) {
-    char text[RECORD_TEXT_MAX];
-    if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
-                       mother_body, father_name, father_head, father_body, child_record, NULL,
-                       text, sizeof text)) {
+    /* The Lost Children to New Believers call this from the executable's
+       birth splice, at the child's creation: the mother's litter field is
+       this delivery's (0 = read it).  A New Home's companion writes a frame
+       later, after the delivery cleared it (0x42F0C7), and passes the count
+       it saw through WriteParentageBirthLitter instead. */
+    return WriteParentageBirthLitter(game_id, child_name, child_head, child_body, mother_name,
+                                     mother_head, mother_body, father_name, father_head,
+                                     father_body, child_record, game_id == 1 ? -1 : 0);
+}
+
+/* The villager's custom title (Story / Cheat Upgrades' Custom Island Event),
+   for the "  Custom title:" line the Village Population and History pages
+   print under the name.  The owner (2026-10-06): custom titles belong in the
+   villager logs too.
+
+   The titles are kept per save slot (native/shared/custom_titles.h); the
+   slot is the one the village header names ("... (Save <n>)", its LAST such
+   marker, as every reader takes it).  A title belongs to the villager whose
+   name, likes and dislikes hash to its identity: the one entry with this
+   record's identity is used -- by identity alone, since a departed
+   villager's record is a rebuilt copy with no index -- and none when two
+   entries, or two living villagers, carry that identity (the villager panel
+   shows it on neither).  No file, an unreadable file, no header or no
+   match: no line. */
+static int record_custom_title(int game_id, const struct game_layout *g,
+                               const unsigned char *record, const unsigned char *records,
+                               int departed, char *out, size_t out_size) {
+    static unsigned char data[VV_TITLES_FILE_MAX];
+    static vv_custom_title titles[VV_TITLES_MAX];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    char folder[MAX_PATH];
+    char path[MAX_PATH];
+    const char *at = NULL;
+    const char *scan;
+    vv_titles_check check;
+    unsigned int identity;
+    HANDLE h;
+    DWORD got = 0;
+    int count, i, found = -1, slot;
+    out[0] = '\0';
+    if (g->likes == 0u || g->dislikes == 0u || g->preference_slots == 0u
+        || !vv_village_recall(village, sizeof village)) {
         return 0;
     }
-    /* The Unaccounted Villagers reconciliation counts this child as a known
-       arrival, whether or not the record could be filed now. */
-    tell_cause_of_death_birth(game_id, child_record);
-    /* The child is the villager a held birth is re-checked against. */
-    return emit_record(game_id, KIND_BIRTH, NULL, text);
+    for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
+        at = scan;
+    }
+    if (at == NULL || at[7] < '1' || at[7] > '5' || at[8] != ')') {
+        return 0;
+    }
+    slot = at[7] - '0';
+    if (!vv_save_folder(folder, (int)sizeof("\\" VV_TITLES_SUBFOLDER "\\Custom Titles - Save 0.dat"))) {
+        return 0;
+    }
+    lstrcatA(folder, "\\" VV_TITLES_SUBFOLDER);
+    if (!vv_titles_file_name(path, MAX_PATH, folder, slot)) {
+        return 0;
+    }
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(h, data, sizeof data, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(h);
+    check.game = game_id;
+    check.slots = (unsigned int)g->slots;
+    if (got == 0 || !vv_titles_validate(data, got, &check)) {
+        return 0;
+    }
+    count = vv_titles_parse(data, titles);
+    identity = vv_title_identity(record, g->name, g->name_capacity, g->likes, g->dislikes,
+                                 g->preference_slots);
+    for (i = 0; i < count; ++i) {
+        if (titles[i].fingerprint == identity) {
+            if (found >= 0) {
+                return 0;
+            }
+            found = i;
+        }
+    }
+    if (found < 0) {
+        return 0;
+    }
+    /* A rebuilt copy of a departed villager (`departed`) is in no live
+       record, so ANY living carrier of its identity may be the title's
+       owner (Codex, #553); a live record is one carrier itself.  With no
+       readable live table a departed copy cannot be checked: no title. */
+    if (departed && records == NULL) {
+        return 0;
+    }
+    if (records != NULL) {
+        int carriers = departed ? 1 : 0, index;
+        for (index = 0; index < g->slots; ++index) {
+            const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
+            if (*(const unsigned char *)(other + g->active) == 1
+                && vv_title_identity(other, g->name, g->name_capacity, g->likes, g->dislikes,
+                                     g->preference_slots) == identity
+                && ++carriers > 1) {
+                return 0;
+            }
+        }
+    }
+    _snprintf_s(out, out_size, _TRUNCATE, "  Custom title: %s\n", titles[found].title);
+    return 1;
+}
+
+/* The villager's Special villager title (native/shared/special_title.h),
+   with New Believers' Former Heathens file for the village's slot: who was
+   converted from the Heathens and which mask they wore. */
+static const char *record_special_title(int game_id, const struct game_layout *g,
+                                        const unsigned char *record) {
+    static unsigned char former[VV_FORMER_FILE_MAX];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    int kind = -1;
+    if (game_id == GAME_VV5 && g->likes != 0u && vv_village_recall(village, sizeof village)
+        && vv_former_load(vv_former_header_slot(village), former)) {
+        unsigned int identity = vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                                  g->dislikes, g->preference_slots);
+        const unsigned char *records = villager_table(game_id);
+        kind = vv_former_lookup(former, identity);
+        /* An identity another living villager carries too is nobody's (Codex, #553): the
+           title is shown on neither, as a custom title is not. */
+        if (kind >= 0 && records != NULL
+            && memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+            int index, carriers = 0;
+            for (index = 0; index < g->slots; ++index) {
+                const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
+                if (other != record && *(const unsigned char *)(other + g->active) == 1
+                    && vv_title_identity(other, g->name, g->name_capacity, g->likes, g->dislikes,
+                                         g->preference_slots) == identity) {
+                    ++carriers;
+                }
+            }
+            if (carriers > 0) {
+                kind = -1;
+            }
+        }
+    }
+    return vv_special_title_former(game_id, record, kind);
 }
 
 /* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
@@ -3486,7 +3701,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     char likes[64], dislikes[64];
     char skills[512];
     char parents[256];
-    char special[64];
+    char special[128];
+    char custom[64];
     char text[RECORD_TEXT_MAX];
     int written;
 
@@ -3519,10 +3735,29 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     skills[0] = '\0';
     parents[0] = '\0';
     special[0] = '\0';
-    if (detail >= 1 && vv_special_title(game_id, record) != NULL) {
-        /* The title its Details panel shows (native/shared/special_title.h). */
+    custom[0] = '\0';
+    if (detail >= 1) {
+        const unsigned char *live = records != NULL
+                                        && (check || memory_is_readable(records, g->record_base
+                                                                        + (size_t)g->slots * g->stride))
+                                        ? records : NULL;
+        (void)record_custom_title(game_id, g, record, live, !check, custom, sizeof custom);
+    }
+    if (detail >= 1 && record_special_title(game_id, g, record) != NULL) {
+        /* The villager's title (native/shared/special_title.h). */
         _snprintf_s(special, sizeof special, _TRUNCATE, "  Special villager: %s\n",
-                    vv_special_title(game_id, record));
+                    record_special_title(game_id, g, record));
+    }
+    if (detail >= 1) {
+        /* The mask (native/shared/mask_line.h): a cosmetic one is known only
+           for a live record (the Origins companion keys it by the record's
+           place); a rebuilt copy keeps New Believers' own Heathen mask. */
+        const char *mask = check || (game_id == GAME_VV5 && record[VV5_FACTION] != 0)
+                               ? vv_mask_name(game_id, record) : NULL;
+        if (mask != NULL) {
+            size_t used = strlen(special);
+            _snprintf_s(special + used, sizeof special - used, _TRUNCATE, "  Mask: %s\n", mask);
+        }
     }
     if (detail >= 2) {
         skill_text(g, record, skills, sizeof skills);
@@ -3554,13 +3789,14 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
             "  Name: %s\n"
             "%s"
             "%s"
+            "%s"
             "  Head: %d\n"
             "  Body: %d\n"
             "  Likes: %s\n"
             "  Dislikes: %s\n"
             "%s%s%s"
             "\n",
-            heading, name, special, before != NULL ? before : "",
+            heading, name, custom, special, before != NULL ? before : "",
             *(const int *)(record + g->head),
             *(const int *)(record + g->body),
             likes, dislikes, skills, parents, after != NULL ? after : "");

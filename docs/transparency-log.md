@@ -199,15 +199,15 @@ Updates the slow scrolling when selecting villagers and dragging the screen to V
 
 #### Fix Vanilla Bugs (`vv1_fix_vanilla_bugs`)
 
-Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. **Needs no other patch.**
+Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: A Mysterious Vial (blue liquid), "Drink the liquid", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.
+- Behavior changes: A Mysterious Vial (blue liquid), "Drink the liquid", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby. A villager's default first name is picked from the whole of the game's male or female list (101 names each): name numbers 0 to 100 instead of 1 to the base game's limit.
 - Explicit non-changes/exclusions: The result text, the drinker's new age (80) and every other vial result are the base game's own. Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected. No save data, villager record layout or art is changed.
 - Dependencies: none
-- Evidence status: static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Evidence status: static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk)
+- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Healers Study Plants Regardless of Food (`vv1_healers_study_regardless_of_food`)
 
@@ -413,6 +413,18 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Villagers Have Last Names (`vv1_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. The Golden Child, whose family is not one of the 50, gets no last name. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X481BA0), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 27 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Visual Mods (`vv1_visual_mods`)
 
 Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
@@ -466,7 +478,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 ### Automatic population and safety changes
 
-Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 26 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 27 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
 
@@ -573,15 +585,15 @@ When both the dry grass and the firewood have been put in the unlit fire pit, th
 
 #### Fix Vanilla Bugs (`vv2_fix_vanilla_bugs`)
 
-Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if "Keep it" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. **Needs no other patch.**
+Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if "Keep it" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with. If "Keep it" is resolved while no other villager is living, the swap is skipped: nothing about any villager changes and the game does not read an unset list entry. With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game.
+- Behavior changes: The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with. If "Keep it" is resolved while no other villager is living, the swap is skipped: nothing about any villager changes and the game does not read an unset list entry. With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game. A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.
 - Explicit non-changes/exclusions: The result text, the "give it to the children" choice, every other island event and the event's chance of being chosen are the base game's own. No save data, villager record layout or art is changed.
 - Dependencies: none
-- Evidence status: static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Evidence status: static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running; the default names: static exact-build evidence (the naming routine's roll and comma walk)
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 
@@ -751,6 +763,18 @@ Rewords the loading-screen tip "You can zip around the island with your keypad."
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Villagers Have Last Names (`vv2_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X48FB98), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv2_everyone_collects_like_vv1`)
 
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
@@ -894,15 +918,15 @@ Dropping an active, living, non-nursing villager on the robe interrupts every ot
 
 #### Fix Vanilla Bugs (`vv3_fix_vanilla_bugs`)
 
-Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the "flash of scientific insight" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. **Needs no other patch.**
+Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the "flash of scientific insight" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**
 
 **Requires no other patch to be ticked. Needed by 256 Villagers (Experimental) for loading a village that the base game's exactly-150-villager save bug has already damaged (without it such a village does not load).**
 
-- Behavior changes: The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing. The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager. The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens. Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150.
+- Behavior changes: The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing. The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager. The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens. Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150. A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.
 - Explicit non-changes/exclusions: Every result text, every other vial result and every other island event are the base game's own. The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change. No villager record layout or art is changed; saves with 0 to 149 villagers are written and read exactly as before, and the save file's size and format are unchanged.
 - Dependencies: none
-- Evidence status: static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded
-- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Evidence status: static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk)
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Learning Skills Never Fails (`vv3_learning_never_fails`)
 
@@ -1025,6 +1049,18 @@ The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still ga
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv3lc` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
+
+#### Villagers Have Last Names (`vv3_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X49DFF8), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv3_everyone_collects_like_vv1`)
 
@@ -1156,15 +1192,15 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 
 #### Fix Vanilla Bugs (`vv4_fix_vanilla_bugs`)
 
-Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. **Needs no other patch.**
+Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**
 
 **Requires no other patch to be ticked. Needed by 256 Villagers (Experimental) for loading a village that the base game's exactly-150-villager save bug has already damaged (without it such a village does not load).**
 
-- Behavior changes: Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again. Loading reads at most the 150 saved villagers, never anything after the list. A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly.
+- Behavior changes: Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again. Loading reads at most the 150 saved villagers, never anything after the list. A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly. A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.
 - Explicit non-changes/exclusions: The population cap, births, events and every population mode are unchanged; no villager is removed or added. Saves with 0 to 149 villagers are written and read exactly as before, byte for byte; the save file's size and format are unchanged. A save whose size check fails for any other reason is still refused, as in the base game.
 - Dependencies: none
-- Evidence status: static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded
-- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+- Evidence status: static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk)
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Learning Skills Never Fails (`vv4_learning_never_fails`)
 
@@ -1249,6 +1285,18 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Villagers Have Last Names (`vv4_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4AA930), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv4_everyone_collects_like_vv1`)
 
@@ -1402,6 +1450,18 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Appends 32768 bytes as 1 new PE section -- `.vv5t9` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - Mode-specific guarded edits: experimental_expanded_256=6, experimental_expanded_256_progression=6, collection_progression=8, immediate_fixed=8, stock=8; these rows are selected only for the named population mode.
 
+#### Fix Vanilla Bugs (`vv5_fix_vanilla_bugs`)
+
+Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.
+- Explicit non-changes/exclusions: The name lists themselves, a villager's sex, looks and family, and any name the player gives are the base game's own. Villagers already named keep their names. No save data, villager record layout or art is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Guardians of Isola Rewrite (`vv5_guardians_of_isola_rewrite`)
 
 Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
@@ -1521,6 +1581,18 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Villagers Have Last Names (`vv5_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4B8450), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv5_everyone_collects_like_vv1`)
 

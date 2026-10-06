@@ -109,7 +109,7 @@
         {
           "offset": "0x2427B",
           "before": "C7843994030000C7000000",
-          "after": "E8C02503000F8526010000",
+          "after": "E8B82503000F8526010000",
           "purpose": "the Golden Child puzzle fires only when a record is free: otherwise the drop is answered as when the puzzle is not ready (0x4243AC), and nothing is spent -- the latch, the hour and the pregnancy are kept"
         },
         {
@@ -121,38 +121,38 @@
         {
           "offset": "0x56580",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8DB0200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
+          "after": "E8C60200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
           "purpose": "a delivery's record demand: the occupied records plus the extra babies of the mother's litter (+0x35C: 2 twins, 3 triplets); the golden-child mother's delivery only when her two children and the litter fit, else it waits with the pregnancy kept (the arguments dropped, the tick goes on at 0x42F0CE); the creator returns to 0x42EF64 as in the stock game"
         },
         {
           "offset": "0x565B0",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C0740AE88C02000084E40F94C0C3",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C07408E8BE0000000F94C0C3",
           "purpose": "any other delivery only when its child and the litter fit, else it waits; the creator returns to 0x42EFD5 as in the stock game. Then the Mysterious Face's room question: the game's room predicate, and a free record"
         },
         {
           "offset": "0x565E0",
-          "before": "0000000000000000000000000000000000000000000000000000000000",
-          "after": "89F9E8790200008B54240401D03D01010000730689965C030000C20400",
-          "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "89F9E86402000001D08B54240401D03D02010000730689965C030000C20400",
+          "purpose": "twins or triplets at conception only when the occupied records and the babies still owed (her own one baby already counted) plus the rest of the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x56680",
-          "before": "0000000000000000000000000000000000000000",
-          "after": "E8DB01000084E47505E9C25CFEFF83C8FFC21400",
-          "purpose": "an island event's child only when a record is free: the creator with the caller's own return address, else -1 (the callers ignore the index)"
+          "before": "00000000000000000000000000000000000000000000000000000000",
+          "after": "E80D0000007505E9C45CFEFF83C8FFC21400E8B401000001D084E4C3",
+          "purpose": "an island event's child only when a record is free after the babies still owed: the creator with the caller's own return address, else -1 (the callers ignore the index); then the records taken or owed, with ZF clear when none is free (the event's, the Mysterious Face's and the puzzle's own question)"
         },
         {
-          "offset": "0x56840",
-          "before": "000000000000000000000000000000000000000000",
-          "after": "E81B00000084E4750BC7843994030000C7000000C3",
-          "purpose": "the Golden Child puzzle's check: the record count, and the puzzle's first write (the mother's +0x394 = 0xC7) only when a record is free -- ZF tells the drop handler which"
+          "offset": "0x56838",
+          "before": "00000000000000000000000000000000000000",
+          "after": "E855FEFFFF750BC7843994030000C7000000C3",
+          "purpose": "the Golden Child puzzle's check: a record free after the babies still owed, and the puzzle's first write (the mother's +0x394 = 0xC7) only then -- ZF tells the drop handler which"
         },
         {
-          "offset": "0x56860",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5131C08D512831C9803A0074014081C2D80300004181F90001000072EB59C300",
-          "purpose": "boundedly count occupied VV1 record flags from the manager argument across the 256-slot pool and preserve the caller register"
+          "offset": "0x5684B",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "51568DB15803000031C9F7E1FEC580BED0FCFFFF00741340837EEC007E0C833E007407837E040113560481C6D8030000E2DC5E59C3",
+          "purpose": "the record count: the occupied records (the +0x28 byte; corpses included) in eax and the babies still owed in edx -- every living occupied record carrying (+0x358) her litter (+0x35C, one baby at least) -- across the 256 records, ecx preserved (Codex, #543)"
         },
         {
           "offset": "0x28263",
@@ -334,15 +334,15 @@
         },
         {
           "offset": "0x73C70",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8FD474E500E8C5FFFFFF8B54240401D03D010100007306899644050000C20400",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8FD474E500E8210300008B5424048D4410FF3D010100007306899644050000C20400",
           "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x73D00",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "518B8DA450000085C9741883B9A405030000740FE827FFFFFF5984E47506E95DB8FDFF5983C8FFC21400",
-          "purpose": "an island event's villager only when a record is free: the event wrapper with the caller's own return address, else -1"
+          "after": "518B8DA450000085C9741883B9A405030000740FE8830200005984E47506E95DB8FDFF5983C8FFC21400",
+          "purpose": "an island event's villager only when a record is free after the babies still owed: the event wrapper with the caller's own return address, else -1"
         },
         {
           "offset": "0x73F20",
@@ -353,14 +353,20 @@
         {
           "offset": "0x73F64",
           "before": "000000000000000000000000000000000000000000000000000000000000",
-          "after": "51E8A673FDFF5984C07412518B89D474E500E8C5FCFFFF5984E40F94C0C3",
+          "after": "51E8A673FDFF5984C07412518B89D474E500E8210000005984E40F94C0C3",
           "purpose": "the game's room predicate, and a free record (The Silver Mirror's copy, The Savage Child's newcomer)"
         },
         {
           "offset": "0x73F84",
           "before": "000000000000000000000000000000000000000000",
-          "after": "8B8EAC500000E8B1FCFFFF84E40F94C3E9FDB6FAFF",
+          "after": "8B8EAC500000E80D00000084E40F94C3E9FDB6FAFF",
           "purpose": "The Strange Request is offered only with a free record for its stranger (stock: always offered; with every record occupied the bounded scan handed it record 255, a villager, whom both answers then take away)"
+        },
+        {
+          "offset": "0x73F9C",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5657E89DFCFFFF8BB1A4050300BF00010000807E3000741F83BE2C050000007E1683BE4005000000740D8B964405000085D275014201D081C68CE400004F75D25F5EC3",
+          "purpose": "the records taken or owed: the occupied records (corpses included) plus, for every living villager carrying, her litter (one baby at least) -- the newcomers' and the litters' own check (Codex, #543)"
         },
         {
           "offset": "0x34102",
@@ -1930,23 +1936,60 @@
       "id": "vv1_fix_vanilla_bugs",
       "game_id": "vv1",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
-        "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby."
+        "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.",
+        "A villager's default first name is picked from the whole of the game's male or female list (101 names each): name numbers 0 to 100 instead of 1 to the base game's limit."
       ],
       "explicit_non_changes": [
         "The result text, the drinker's new age (80) and every other vial result are the base game's own.",
         "Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected.",
         "No save data, villager record layout or art is changed."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
       "patches": [
         {
           "offset": "0x19CC1",
           "before": "899C02580300008B8E985000008B96A850000069C9D80300005F8D04118B88480300005D5E89884C030000",
           "after": "8D040289985803000089985C0300008B96A85000008B88480300005F5D5E89884C0300000F1F8000000000",
           "purpose": "A Mysterious Vial (blue liquid), toddler result: the record tail of resolve 0x419380 (0x419CC1..0x419CEB) re-encoded with the drinker's record computed once; it clears the litter +0x35C as well as the pregnancy +0x358, and leaves the same registers and fields as the base game"
+        },
+        {
+          "offset": "0x3C645",
+          "before": "6A64",
+          "after": "6A65",
+          "purpose": "Default names (0x43C645): a new villager's name: rand(101) instead of rand(100)"
+        },
+        {
+          "offset": "0x3C657",
+          "before": "40",
+          "after": "90",
+          "purpose": "Default names (0x43C657): ...the name number is the roll itself (a villager with no family given)"
+        },
+        {
+          "offset": "0x3C674",
+          "before": "40",
+          "after": "90",
+          "purpose": "Default names (0x43C674): ...the name number is the roll itself (a villager of a given family)"
+        },
+        {
+          "offset": "0x3C9FB",
+          "before": "83F862",
+          "after": "83F864",
+          "purpose": "Default names (0x43C9FB): a twin's name: the sibling's next name is kept up to the last one (100), not 98"
+        },
+        {
+          "offset": "0x3CA06",
+          "before": "6A64",
+          "after": "6A65",
+          "purpose": "Default names (0x43CA06): ...past the end, rand(101) instead of rand(100)"
+        },
+        {
+          "offset": "0x3CA10",
+          "before": "40",
+          "after": "90",
+          "purpose": "Default names (0x43CA10): ...and the name number is the roll itself"
         }
       ]
     },
@@ -1954,18 +1997,19 @@
       "id": "vv2_fix_vanilla_bugs",
       "game_id": "vv2",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with.",
         "If \"Keep it\" is resolved while no other villager is living, the swap is skipped: nothing about any villager changes and the game does not read an unset list entry.",
-        "With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game."
+        "With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game.",
+        "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit."
       ],
       "explicit_non_changes": [
         "The result text, the \"give it to the children\" choice, every other island event and the event's chance of being chosen are the base game's own.",
         "No save data, villager record layout or art is changed."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running",
+      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
       "patches": [
         {
           "offset": "0x1F636",
@@ -1978,6 +2022,42 @@
           "before": "8BBC84402800008B86B050000069FF8CE400008B8C38F00700008B9438EC0700008B9C38E40700008BAC38E807000003C7894C24288B88F40700008954241C8B90F0050000894C242C8B88F4050000895424248B90E8060000894C24148B88EC060000056405000089542418508D94244427000052894C2428E8BF6D04008B8EA05000008B86B050000069C98CE400008B9401E4070000899438E40700008B8EA05000008B86B050000069C98CE400008B9401E8070000899438E80700008B8EA05000008B86B050000069C98CE400008B9401F0070000899438F00700008B8EA05000008B86B050000069C98CE400008B9401EC070000899438EC0700008B8EA05000008B86B050000069C98CE400008B9401F4070000899438F40700008B8EA05000008B86B050000069C98CE400008B9401F0050000899438F00500008B8EA05000008B86B050000069C98CE400008B9401F4050000899438F40500008B8EA05000008B86B050000069C98CE400008B9401E8060000899438E80600008B8EA05000008B86B050000069C98CE400008B9401EC060000899438EC0600008B8EA05000008B86B050000069C98CE400008D940164050000528D84386405000050E8786C04008B8EA05000008B96B050000069C98CE40000899C11E40700008B86A05000008B8EB050000069C08CE4000089AC08E80700008B96A05000008B86B050000069D28CE400008B4C2438898C02F00700008B96A05000008B86B050000069D28CE400008B4C242C898C02EC0700008B96A05000008B86B050000069D28CE400008B4C243C898C02F40700008B96A05000008B86B050000069D28CE400008B4C2434898C02F00500008B96A05000008B86B050000069D28CE400008B4C2424898C02F40500008B96A05000008B86B050000069D28CE400008B4C2428898C02E80600008B96A05000008B86B050000069D28CE400008B4C2430898C02EC0600008B86A05000008B8EB050000069C08CE400008D942450270000528D94086405000052E8546B040083C41C",
           "after": "85FF0F843F0100008BBC84402800008B86B050000069FF8CE4000001C78BAEA050000069ED8CE4000001C58D8764050000508D84244427000050E8FE6D040083C4088B87E40700008B8DE4070000898FE40700008985E40700008B87E80700008B8DE8070000898FE80700008985E80700008B87EC0700008B8DEC070000898FEC0700008985EC0700008B87F00700008B8DF0070000898FF00700008985F00700008B87F40700008B8DF4070000898FF40700008985F40700008B87F00500008B8DF0050000898FF00500008985F00500008B87F40500008B8DF4050000898FF40500008985F40500008B87E80600008B8DE8060000898FE80600008985E80600008B87EC0600008B8DEC060000898FEC0600008985EC0600008D8564050000508D876405000050E8106D040083C4088D842440270000508D856405000050E8F96C040083C40883C404E99D010000CC0F95C37505E9BCE0FFFF8B8EB050000031C031D283C130803900740A83B9FC040000007E014081C18CE400004281FA000100007CE283F8020F9DC3E986E0FFFFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
           "purpose": "Crystal Ball: the Keep-it swap (0x421480..0x42176B) re-encoded compactly with the same field and text swap; it is skipped when the list of other living villagers is empty, and the freed bytes hold the case-13 living-villager count (0x4215D0) and int3 padding"
+        },
+        {
+          "offset": "0x4CCF1",
+          "before": "6A7B",
+          "after": "6A7D",
+          "purpose": "Default names (0x44CCF1): a new villager's name: rand(125) instead of rand(123)"
+        },
+        {
+          "offset": "0x4CCFD",
+          "before": "40",
+          "after": "90",
+          "purpose": "Default names (0x44CCFD): ...the name number is the roll itself (a villager with no family given)"
+        },
+        {
+          "offset": "0x4CD1A",
+          "before": "40",
+          "after": "90",
+          "purpose": "Default names (0x44CD1A): ...the name number is the roll itself (a villager of a given family)"
+        },
+        {
+          "offset": "0x4D034",
+          "before": "83F87B",
+          "after": "83F87C",
+          "purpose": "Default names (0x44D034): a twin's name: the sibling's next name is kept up to the last one (124), not 123"
+        },
+        {
+          "offset": "0x4D03F",
+          "before": "6A7B",
+          "after": "6A7D",
+          "purpose": "Default names (0x44D03F): ...past the end, rand(125) instead of rand(123)"
+        },
+        {
+          "offset": "0x4D049",
+          "before": "40",
+          "after": "90",
+          "purpose": "Default names (0x44D049): ...and the name number is the roll itself"
         }
       ]
     },
@@ -1985,20 +2065,21 @@
       "id": "vv3_fix_vanilla_bugs",
       "game_id": "vv3",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
         "The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager.",
         "The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens.",
-        "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150."
+        "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150.",
+        "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit."
       ],
       "explicit_non_changes": [
         "Every result text, every other vial result and every other island event are the base game's own.",
         "The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change.",
         "No villager record layout or art is changed; saves with 0 to 149 villagers are written and read exactly as before, and the save file's size and format are unchanged."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
       "patches": [
         {
           "offset": "0x180FB",
@@ -2041,6 +2122,18 @@
           "before": "8B5424045355568B32578BD9E8DFFFFFFF3D001000007F543BF075508B83380100008D7204B9340000008BFB33ED85C0F3A5BED40000007E2A8DBBD0000000EB048B5424148B0F8B0103D652FF500C85C07C1903F08B83380100004583C7043BE87CDE5F5E5DB0015BC204005F5E5D32C05BC204009090909090909090909090",
           "after": "8B5424045355568B325789CBE8DFFFFFFF3D001000007F5E39C6741189C130C939CE755280BAE4FEFFFF0175498B83380100008D72046A345989DF31ED85C0F3A5BED40000007E2A8DBBD0000000EB048B5424148B0F8B0101F252FF500C85C07C1401C68B83380100004583C70439C57CDEB001EB0230C05F5E5D5BC2040090",
           "purpose": "150 villagers, load: the progress block's size check 0x435710 also accepts a stored size that differs from 0x2AD only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game"
+        },
+        {
+          "offset": "0x5C677",
+          "before": "6A7B",
+          "after": "6A7D",
+          "purpose": "Default names (0x45C677): a villager's name (0x45C670): rand(125) instead of rand(123)"
+        },
+        {
+          "offset": "0x5C683",
+          "before": "40",
+          "after": "90",
+          "purpose": "Default names (0x45C683): ...and the name number is the roll itself (0-124), not the roll + 1"
         }
       ]
     },
@@ -2048,19 +2141,20 @@
       "id": "vv4_fix_vanilla_bugs",
       "game_id": "vv4",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again.",
         "Loading reads at most the 150 saved villagers, never anything after the list.",
-        "A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly."
+        "A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly.",
+        "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit."
       ],
       "explicit_non_changes": [
         "The population cap, births, events and every population mode are unchanged; no villager is removed or added.",
         "Saves with 0 to 149 villagers are written and read exactly as before, byte for byte; the save file's size and format are unchanged.",
         "A save whose size check fails for any other reason is still refused, as in the base game."
       ],
-      "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded",
+      "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
       "patches": [
         {
           "offset": "0x660F1",
@@ -2085,6 +2179,18 @@
           "before": "538B5C2408568B33578BF9E8C0FFFFFF3D001000007F4B8BCFE8B2FFFFFF3BF075408D7304B934000000F3A5BFD4000000BE888B4D008B0E33C085C9740F8B018B400C8D141F52FFD085C07C1583C60403F881FEF08B4D007CDC5F5EB0015BC204005F5E32C05BC20400CCCCCCCCCCCC",
           "after": "538B5C2408568B335789CFE8C0FFFFFF3D001000007F4F39C6741189C130C939CE754380BBFCFEFFFF01753A8D73046A3459F3A5BFD4000000BE888B4D008B0E31C085C9740F8B018B400C8D141F52FFD085C07C1183C60401C781FEF08B4D007CDCB001EB0230C05F5E5BC20400CCCC",
           "purpose": "Load: the progress block's size check 0x4387A0 also accepts a stored size that differs from the computed size only by a zeroed low byte, but only when the saved villager table's last entry (#150, just before the block) is in use, i.e. a village saved with 150 villagers by the unfixed game; the redundant second size computation is dropped to make room"
+        },
+        {
+          "offset": "0x65DB5",
+          "before": "68B7000000",
+          "after": "68B9000000",
+          "purpose": "Default names (0x465DB5): a villager's name (0x465DA0): rand(185) instead of rand(183)"
+        },
+        {
+          "offset": "0x65DC1",
+          "before": "83C001",
+          "after": "83C000",
+          "purpose": "Default names (0x465DC1): ...and the name number is the roll itself (0-184), not the roll + 1"
         }
       ]
     },
@@ -3257,6 +3363,36 @@
           "before": "000000000000000000000000000000000000000000000000",
           "after": "817C244C2D4044000F841D40FDFFB8E8030000E9F13FFDFF",
           "purpose": "drop test in unused .text padding: when the player's drop called it (return address 0x44402D at [esp+0x4C]) continue at the stock pregnancy-writer call 0x468BEB; otherwise replay the displaced mov eax,0x3E8 and return to the stock check at 0x468BC9, unchanged"
+        }
+      ]
+    },
+    {
+      "id": "vv5_fix_vanilla_bugs",
+      "game_id": "vv5",
+      "name": "Fix Vanilla Bugs",
+      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
+      "output_tag": "Fix Vanilla Bugs",
+      "behavior_changes": [
+        "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit."
+      ],
+      "explicit_non_changes": [
+        "The name lists themselves, a villager's sex, looks and family, and any name the player gives are the base game's own.",
+        "Villagers already named keep their names.",
+        "No save data, villager record layout or art is changed."
+      ],
+      "evidence_status": "static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma",
+      "patches": [
+        {
+          "offset": "0x6F695",
+          "before": "68B7000000",
+          "after": "68B9000000",
+          "purpose": "Default names (0x46F695): a villager's name (0x46F680): rand(185) instead of rand(183)"
+        },
+        {
+          "offset": "0x6F6A1",
+          "before": "83C001",
+          "after": "83C000",
+          "purpose": "Default names (0x46F6A1): ...and the name number is the roll itself (0-184), not the roll + 1"
         }
       ]
     }

@@ -69,6 +69,10 @@ int vv_reset_refused_paths = 0;
    being erased, never for the one started after the reset. */
 #define APPROVAL_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers " n " Repair Approved - Save %d.dat"
+/* ...and New Believers' former Heathens and the masks they wore
+   (native/shared/former_heathens.h), which the game does not keep. */
+#define FORMER_HEATHENS_FORMAT \
+    "%s\\Virtual Villagers Fun Patcher Data\\Former Heathens\\Former Heathens - Save %d.dat"
 #define SIDECAR_FORMAT_COUNT 16
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
@@ -105,7 +109,7 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Village Roster"),
                ROSTER_FORMAT("5"), GRAVES_LOGGED_FORMAT("5"), ARRIVALS_FORMAT("5"), BIRTHS_FORMAT("5"),
-               APPROVAL_FORMAT("5"), 0, 0, 0, 0, 0, 0 },
+               APPROVAL_FORMAT("5"), FORMER_HEATHENS_FORMAT, 0, 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are

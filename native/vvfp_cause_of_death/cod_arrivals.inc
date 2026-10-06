@@ -231,9 +231,11 @@ static void arrival_tick(void) {
         int heathen;
         if (!roster_member(record)) {
             faction_seen[i] = -1;
+            former_forget(i);
             continue;
         }
         heathen = arrival_heathen(record);
+        former_tick(i, record, heathen, faction_seen[i]);
         if (faction_seen[i] == 1 && !heathen && arrivals[i].state == ARRIVAL_NONE) {
             arrivals[i].tag = report_tag();
             arrivals[i].state = ARRIVAL_PENDING;
@@ -289,6 +291,7 @@ static void arrival_reset(int slot) {
         }
     }
     memset(faction_seen, -1, sizeof faction_seen);
+    former_reset(slot);
     if (slot >= 1 && slot <= 5) {
         arrivals_repair[slot] = 0;
         births_repair[slot] = 0;

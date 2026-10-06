@@ -16,6 +16,8 @@ from transparency import PATCHER_VERSION
 import patcher_files
 import vv_how_to_use
 import vv_log_tools
+import vv_log_additions
+import vv_last_names
 import vv_save_backup
 import vv_tribe_rename
 
@@ -268,6 +270,21 @@ def _documents_folder() -> Path:
     except (OSError, AttributeError, ImportError):
         pass
     return Path.home() / "Documents"
+
+
+class _LastNamesKind:
+    """The questions window's label for the last names' questions."""
+    label = "Last names"
+
+
+class _AskedQuestion:
+    """A vv_last_names.Question as the questions window shows it (its answers' words)."""
+
+    def __init__(self, question, answers: dict):
+        self.key = question.key
+        self.text = question.text
+        self.options = list(question.options)
+        self.default = answers.get(question.key, question.default)
 
 
 def _regrab(window) -> None:
@@ -2781,7 +2798,8 @@ class App(tk.Tk):
         window.grab_set()
 
     def _repair_logs(self, parent, folder: Path, number: int, info) -> None:
-        """Approve the repair of one slot's village, with the game closed."""
+        """Repair one slot's village's logs, with the game closed: the checklist the
+        player ticks, and their answers to what the save and the files cannot decide."""
         exe = vv_save_backup.game_exe_name(folder)
         if vv_save_backup.running_game_count(folder):
             messagebox.showerror(
@@ -2792,43 +2810,34 @@ class App(tk.Tk):
                 parent=parent,
             )
             return
+
+        def survey():
+            checked = vv_log_tools.check_logs(folder, info.slot, number)
+            checker = vv_log_tools.load_checker()
+            old = checker.old_words(folder, number) if number in checker.WORD_FIXES else []
+            return checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot)
+
         try:
-            checked = self._run_with_wait(
-                "Checking the logs…\n\nNothing is changed.",
-                lambda: vv_log_tools.check_logs(folder, info.slot, number),
+            checked, old_words, kinds = self._run_with_wait(
+                "Checking the logs…\n\nNothing is changed.", survey
             )
             found = (
-                f"The read-only check finds {checked.wrong} confirmed wrong "
-                f"({checked.summary})"
+                f"The read-only check finds {checked.wrong} confirmed wrong ({checked.summary})"
                 if checked.wrong
-                else "The read-only check finds nothing confirmed wrong in "
-                f"{info.name}'s logs. You can still have the game check them "
-                "again, and repair whatever it finds, the next time you play it."
+                else f"The read-only check finds nothing confirmed wrong in {info.name}'s logs."
             )
         except (vv_log_tools.LogToolError, OSError) as exc:
-            found = f"The logs could not be checked here ({exc})."
-        if not messagebox.askyesno(
-            "Repair Logs",
-            f"{found}\n\nThe next time you play {info.name}, the game will check "
-            "its logs and repair everything confirmed wrong WITHOUT asking (every "
-            "change is backed up and listed in the Repairs log). This needs a game "
-            "patched with a patch that keeps logs, such as Cause of Death or Show "
-            "Parents; a game patched without one has nothing to repair. "
-            + (
-                "Likes and dislikes an older patcher wrote with the wrong word list are "
-                "corrected now (each log is backed up beside itself); everything else is "
-                "repaired by the game."
-                if number in (1, 3)
-                else "Nothing is repaired now."
-            )
-            + f"\n\nThe save folder {folder.name} is backed up first. Continue?",
-            parent=parent,
-        ):
+            messagebox.showerror("Repair Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
+        picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds)
+        if picked is None:
+            return
+        rearm, chosen, answers, names = picked
         try:
             result = self._run_with_wait(
-                "Preparing the repair…\n\nThe save folder is backed up first.",
-                lambda: vv_log_tools.approve_repair(folder, number, info.slot),
+                "Repairing the logs…\n\nThe save folder is backed up first.",
+                lambda: vv_log_tools.approve_repair(folder, number, info.slot, chosen=chosen,
+                                                    answers=answers, kinds=kinds, rearm=rearm),
             )
         except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
             # Markers may already be cleared when a later step fails; the
@@ -2836,24 +2845,231 @@ class App(tk.Tk):
             self.status_var.set("Repair Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Logs", str(exc), parent=parent)
             return
-        self.status_var.set(
-            f"Repair Logs: {info.name} will be repaired the next time it is played."
-        )
+        renamed = None
+        if names is not None:
+            try:
+                renamed = self._run_with_wait(
+                    "Giving the last names…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_last_names(folder, number, info.slot, names["chosen"],
+                                                          answers=names["answers"]),
+                )
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Repair Logs", f"The last names were not given. {exc}", parent=parent)
+        lines = []
+        if renamed is not None:
+            lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
+                         f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+        if rearm:
+            lines.append(
+                f"The next time you play {info.name} (Save {info.slot}), the game will repair "
+                "what is confirmed wrong without asking; close it normally from its own menu "
+                f"so the repairs are saved. {len(result.cleared)} \"already checked\" marker(s) cleared."
+            )
+        if result.words:
+            lines.append(f"Like and dislike words corrected: {sum(w.count for w in result.words)} "
+                         f"in {len(result.words)} log file(s).")
+        for kind in kinds:
+            fixes = result.added.get(kind.id)
+            if fixes:
+                lines.append(f"{kind.label}: {sum(f.count for f in fixes)} line(s) added "
+                             f"in {len(fixes)} log file(s).")
+        if len(lines) > (1 if rearm else 0):
+            lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
+        self.status_var.set(f"Repair Logs: {info.name} done.")
         messagebox.showinfo(
             "Repair Logs",
-            f"The next time you play {info.name} (Save {info.slot}), the game will "
-            "repair its logs without asking, then close normally from its own menu "
-            "so the repairs are saved.\n\n"
-            f"{len(result.cleared)} \"already checked\" marker(s) cleared.\n\n"
-            + (
-                f"Like and dislike words corrected now: {sum(w.count for w in result.words)} "
-                f"in {len(result.words)} log file(s) (listed in the Repairs log).\n\n"
-                if result.words
-                else ""
-            )
-            + f"Backup: {result.backup.backup_folder}",
+            "\n\n".join(lines + [f"Backup: {result.backup.backup_folder}"]),
             parent=parent,
         )
+
+    def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
+                          kinds: list):
+        """The Repair Logs checklist (the owner, 2026-10-06): what to repair and add, each
+        ticked or not, and the questions the save and the files cannot answer.  Returns
+        (rearm, chosen kinds, answers), or None when the player cancels."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Logs")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=16)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text=f"{found}\n\nChoose what to do for {info.name}. The game must stay "
+                              "closed; the save folder is backed up first.",
+                  wraplength=600, justify="left").pack(anchor="w", pady=(0, 10))
+        rearm_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(
+            frame, variable=rearm_var,
+            text="The game checks the logs the next time you play this village, and repairs "
+                 "what is confirmed wrong without asking (needs a game patched with a log patch)",
+        ).pack(anchor="w")
+        ticks: dict[str, tk.BooleanVar] = {}
+        if old_words:
+            ticks["words"] = tk.BooleanVar(value=True)
+            ttk.Checkbutton(frame, variable=ticks["words"],
+                            text=f"Correct {old_words} like / dislike word(s) an older patcher wrote "
+                                 "with the wrong list").pack(anchor="w")
+        answers: dict[str, str] = {}
+        for kind in kinds:
+            for key, question in kind.questions.items():
+                answers[key] = question.default
+            if not kind.inserts:
+                for note in kind.notes:
+                    ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
+                              justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
+                continue
+            ticks[kind.id] = tk.BooleanVar(value=True)
+            text = f"Add {kind.label.lower()}: {kind.decided} decided"
+            if kind.asked:
+                text += f", {kind.asked} question(s) for you"
+            ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
+        names_var = tk.BooleanVar(value=False)
+        names: dict = {"chosen": {}, "answers": {}}
+        names_row = ttk.Frame(frame)
+        names_row.pack(anchor="w", pady=(4, 0))
+        ttk.Checkbutton(names_row, variable=names_var,
+                        text="Give villagers last names, in the game and the logs").pack(side="left")
+        ttk.Button(names_row, text="Choose…",
+                   command=lambda: self._last_names_dialog(window, folder, number, info, names, names_var)
+                   ).pack(side="left", padx=(8, 0))
+        questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
+        if questions:
+            ttk.Button(frame, text=f"Answer the {len(questions)} question(s)…",
+                       command=lambda: self._repair_questions(window, questions, answers)
+                       ).pack(anchor="w", pady=(8, 0))
+            ttk.Label(frame, text="A question you leave at \"Don't know\" or \"Only from now on\" adds nothing.",
+                      foreground="#555555").pack(anchor="w")
+        outcome: dict = {}
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(12, 0))
+
+        def go() -> None:
+            outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
+                                 names if names_var.get() and names["chosen"] else None)
+            window.destroy()
+
+        ttk.Button(buttons, text="Repair", command=go).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        return outcome.get("picked")
+
+    def _last_names_dialog(self, parent, folder: Path, number: int, info, names: dict,
+                           names_var) -> None:
+        """Each living villager's last name: the family's (the game's own list) by default, another
+        from the list, one the player types, or none.  Then the questions the logs raise."""
+        try:
+            people = vv_last_names.living(folder, number, info.slot)
+        except (vv_last_names.LastNamesError, OSError, ValueError) as exc:
+            messagebox.showerror("Last names", f"The save could not be read ({exc}).", parent=parent)
+            return
+        checker = vv_log_tools.load_checker()
+        none = "(no last name)"
+        window = tk.Toplevel(parent)
+        window.title("Repair Logs: last names")
+        window.transient(parent)
+        ttk.Label(window, padding=(12, 12, 12, 0), wraplength=640, justify="left",
+                  text="Each living villager gets the last name you choose after their name, in the save "
+                       "and in every log. The family's last name is chosen for you (a baby has its "
+                       "mother's family); pick another from the list, type your own, or choose none. "
+                       "The game must stay closed.").pack(anchor="w")
+        canvas = tk.Canvas(window, width=660, height=420, highlightthickness=0)
+        bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas, padding=12)
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=bar.set)
+        rows: list[tuple] = []
+        for row, v in enumerate(people):
+            already = vv_last_names.has_last_name(number, v.name)
+            # A name with a space already has a last name -- the game's, or one typed here
+            # before (Codex, #553): nothing is chosen for it; the player may still add one.
+            spaced = " " in v.name
+            ttk.Label(inner, text=f"{v.name} ({v.sex}, family {v.family})").grid(row=row, column=0, sticky="w")
+            value = tk.StringVar(value=names["chosen"].get(v.identity) or (none if spaced else v.default or none))
+            box = ttk.Combobox(inner, textvariable=value, values=[none] + list(checker.LAST_NAMES[number]),
+                               width=24)
+            box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+            if already:
+                box.configure(state="disabled")
+            rows.append((v, value))
+        canvas.pack(side="left", fill="both", expand=True)
+        bar.pack(side="right", fill="y")
+        buttons = ttk.Frame(window, padding=12)
+        buttons.pack(side="bottom", anchor="w")
+
+        def every(choice) -> None:
+            for v, value in rows:
+                if " " not in v.name:
+                    value.set(choice(v))
+
+        def ok() -> None:
+            chosen = {}
+            for v, value in rows:
+                last = value.get().strip()
+                if last and last != none and not vv_last_names.has_last_name(number, v.name):
+                    problem = vv_last_names.name_problem(number, v.name, last)
+                    if problem:
+                        messagebox.showerror("Last names", f"{v.name}: {problem}", parent=window)
+                        return
+                    chosen[v.identity] = last
+            try:
+                work = vv_last_names.plan(folder, number, info.slot, chosen)
+            except (vv_last_names.LastNamesError, OSError, ValueError) as exc:
+                messagebox.showerror("Last names", str(exc), parent=window)
+                return
+            answers = dict(names["answers"])
+            if work.questions:
+                asked = [(_LastNamesKind, _AskedQuestion(q, answers)) for q in work.questions]
+                self._repair_questions(window, asked, answers)
+            names["chosen"] = chosen
+            names["answers"] = answers
+            names_var.set(bool(chosen))
+            window.destroy()
+
+        ttk.Button(buttons, text="Family names for all", command=lambda: every(lambda v: v.default or none)
+                   ).pack(side="left")
+        ttk.Button(buttons, text="None for all", command=lambda: every(lambda v: none)).pack(side="left", padx=8)
+        ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
+    def _repair_questions(self, parent, questions: list, answers: dict) -> None:
+        """One answer per question, from its own options; kept in `answers`."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Logs: your answers")
+        window.transient(parent)
+        canvas = tk.Canvas(window, width=680, height=480, highlightthickness=0)
+        bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas, padding=12)
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=bar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        bar.pack(side="right", fill="y")
+        chosen: dict[str, tk.StringVar] = {}
+        for row, (kind, question) in enumerate(questions):
+            ttk.Label(inner, text=f"{kind.label}: {question.text}", wraplength=640,
+                      justify="left").grid(row=2 * row, column=0, sticky="w", pady=(8, 0))
+            chosen[question.key] = tk.StringVar(value=answers.get(question.key, question.default))
+            ttk.Combobox(inner, textvariable=chosen[question.key], values=question.options,
+                         state="readonly", width=60).grid(row=2 * row + 1, column=0, sticky="w")
+
+        def keep() -> None:
+            for key, var in chosen.items():
+                answers[key] = var.get()
+            window.destroy()
+
+        ttk.Button(inner, text="Keep these answers", command=keep).grid(
+            row=2 * len(questions), column=0, sticky="w", pady=(12, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
 
     def _close(self) -> None:
         self._save_settings()

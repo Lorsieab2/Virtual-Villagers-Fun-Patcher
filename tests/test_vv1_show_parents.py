@@ -94,13 +94,13 @@ class ManifestAndDllTests(unittest.TestCase):
         # the birth record the companion writes lives in the log's owner
         self.assertIn("__stdcall WriteParentageBirth(", export)
         parentage = PARENTAGE_C.read_text(encoding="utf-8")
-        self.assertIn('GetProcAddress(companion, "WriteParentageBirth")', parentage)
+        self.assertIn('GetProcAddress(companion, "WriteParentageBirthLitter")', parentage)
         # the roster block
         self.assertIn("write_vv1_own_parents(file, index)", population)
         # ...and it must be exported under the name the companion asks for
         export_dll = pefile.PE(str(ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"))
         exported = {e.name.decode() for e in export_dll.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
-        self.assertIn("WriteParentageBirth", exported)
+        self.assertIn("WriteParentageBirthLitter", exported)
 
 
 class OffsetAgreementTests(unittest.TestCase):

@@ -59,7 +59,17 @@ VIAL_STOCK = bytes.fromhex(
 VIAL_PATCHED = bytes.fromhex(
     "8D040289985803000089985C0300008B96A85000008B88480300005F5D5E89884C0300000F1F8000000000"
 )
-FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),)
+# Every default name can be chosen (tests/test_every_default_name_can_be_chosen.py):
+# the creator's and the twin's name rolls cover the whole list.
+NAME_FIXES = (
+    (0x3C645, bytes.fromhex("6A64"), bytes.fromhex("6A65")),
+    (0x3C657, bytes.fromhex("40"), bytes.fromhex("90")),
+    (0x3C674, bytes.fromhex("40"), bytes.fromhex("90")),
+    (0x3C9FB, bytes.fromhex("83F862"), bytes.fromhex("83F864")),
+    (0x3CA06, bytes.fromhex("6A64"), bytes.fromhex("6A65")),
+    (0x3CA10, bytes.fromhex("40"), bytes.fromhex("90")),
+)
+FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES
 
 # Game addresses and fields.
 BLUE_VIAL = 0x419C3F           # resolve 0x419380's case for the blue vial

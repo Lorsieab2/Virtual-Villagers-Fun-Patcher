@@ -172,6 +172,14 @@ static int play(const unsigned char *records, int frames) {
     return known;
 }
 
+/* Frames of play between the game's saves: the per-frame sync only. */
+static void tick(const unsigned char *records, int frames) {
+    int f;
+    for (f = 0; f < frames; ++f) {
+        (void)vv1_parents_sync_core(SLOT, records);
+    }
+}
+
 static int aside_exists(DWORD ticks, int n) {
     char p[MAX_PATH];
     wsprintfA(p, "%s.unreadable-%lu-%d", path, (unsigned long)ticks, n);
@@ -475,6 +483,68 @@ static void follow_cases(void) {
     play(after_load, 2);
     check(g_loaded_slot == SLOT && has_parents(0, 0) && has_parents(1, 0),
           "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)");
+
+    /* 18b. The owner's two Sukis (2026-10-06): one name, gender and family
+           scalar, different looks.  Three villagers before them died and
+           the array was repacked; the follow dropped both Sukis' parents.
+           Their looks, recorded in the roster, tell them apart: each keeps
+           her own parents.  Identical looks are still never guessed at. */
+    DeleteFileA(path);
+    fresh();
+    memset(before_load, 0, sizeof(before_load));
+    put(before_load, 0, "Gone", 1, 7);
+    put(before_load, 1, "Gone2", 0, 8);
+    put(before_load, 2, "Suki", 0, 50);
+    put(before_load, 3, "Suki", 0, 50);
+    put(before_load, 4, "Keep", 1, 9);
+    put(before_load, 5, "Stay", 0, 11);
+    put(before_load, 6, "Ann", 0, 12);
+    put(before_load, 7, "Bo", 1, 13);
+    *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 1;
+    *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+    *(int *)(before_load + 3 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 14;
+    *(int *)(before_load + 3 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 17;
+    vv1_take_roster(before_load, g_roster);
+    set_parents(2, 1);
+    set_parents(3, 2);
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Suki", 0, 50);
+    put(after_load, 1, "Suki", 0, 50);
+    put(after_load, 2, "Keep", 1, 9);
+    put(after_load, 3, "Stay", 0, 11);
+    put(after_load, 4, "Ann", 0, 12);
+    put(after_load, 5, "Bo", 1, 13);
+    *(int *)(after_load + 0 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 1;
+    *(int *)(after_load + 0 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+    *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 14;
+    *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 17;
+    play(after_load, 2);
+    check(g_loaded_slot == SLOT && has_parents(0, 1) && has_parents(1, 2),
+          "two villagers who share name, gender and scalar but not their looks each keep their own parents after a repack");
+    check(read_all(path, file_now, sizeof(file_now), &size)
+          && file_now[12 + 0 * sizeof(vv1_occupant) + 2] == 2 && file_now[12 + 0 * sizeof(vv1_occupant) + 3] == 4,
+          "... and the roster on disk records each villager's looks (head + 1, body + 1)");
+
+    /* 18c. Codex (#553): a Suki's looks change while nothing else moves (the
+           Custom Island Event), then the array repacks: the roster on disk
+           took her new looks at once, so each Suki still keeps her own. */
+    play(after_load, 2);
+    *(int *)(after_load + 0 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 5;
+    tick(after_load, 2);                  /* no game save in between */
+    check(read_all(path, file_now, sizeof(file_now), &size)
+          && file_now[12 + 0 * sizeof(vv1_occupant) + 2] == 6,
+          "a looks change while nothing else moved reaches the roster on disk at once");
+    memmove(after_load, after_load + VV1_RECORD_STRIDE, sizeof(after_load) - VV1_RECORD_STRIDE);
+    memset(after_load + sizeof(after_load) - VV1_RECORD_STRIDE, 0, VV1_RECORD_STRIDE);
+    put(after_load, 5, "Suki", 0, 50);    /* the changed Suki, now after the others */
+    *(int *)(after_load + 5 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 5;
+    *(int *)(after_load + 5 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+    tick(after_load, 2);
+    check(g_loaded_slot == SLOT && has_parents(5, 1) && has_parents(0, 2),
+          "... and after a repack each Suki still keeps her own parents");
 
     /* 19. Codex (#516): another village in the slot that shares ONE identity
            with the old roster, at another record, is not the old village. */

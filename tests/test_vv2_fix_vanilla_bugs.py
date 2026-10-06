@@ -110,8 +110,23 @@ def _patched_region() -> bytes:
     return bytes.fromhex(next(p for p in feature.raw["patches"] if int(p["offset"], 16) == SWAP_OFFSET)["after"])
 
 
+# Every default name can be chosen (tests/test_every_default_name_can_be_chosen.py):
+# the name rolls cover the whole list.
+NAME_FIXES = (
+    (0x4CCF1, bytes.fromhex("6A7B"), bytes.fromhex("6A7D")),
+    (0x4CCFD, bytes.fromhex("40"), bytes.fromhex("90")),
+    (0x4CD1A, bytes.fromhex("40"), bytes.fromhex("90")),
+    (0x4D034, bytes.fromhex("83F87B"), bytes.fromhex("83F87C")),
+    (0x4D03F, bytes.fromhex("6A7B"), bytes.fromhex("6A7D")),
+    (0x4D049, bytes.fromhex("40"), bytes.fromhex("90")),
+)
+
+
 def _allowed() -> set[int]:
-    return set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
+    allowed = set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
+    for offset, before, _ in NAME_FIXES:
+        allowed.update(range(offset, offset + len(before)))
+    return allowed
 
 
 class _Village:
@@ -252,7 +267,10 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("dependencies", raw)
         self.assertIn("**Needs no other patch.**", raw["description"])
         offsets = [(int(p["offset"], 16), len(bytes.fromhex(p["before"]))) for p in raw["patches"]]
-        self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)])
+        self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)]
+                         + [(offset, len(before)) for offset, before, _ in NAME_FIXES])
+        self.assertEqual([(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
+                          for p in raw["patches"][2:]], list(NAME_FIXES))
         self.assertEqual(bytes.fromhex(raw["patches"][0]["before"]), HOOK_STOCK)
         self.assertEqual(bytes.fromhex(raw["patches"][0]["after"]), HOOK_PATCHED)
         self.assertEqual(bytes.fromhex(raw["patches"][1]["before"]), self.stock[SWAP_OFFSET:SWAP_OFFSET + SWAP_LENGTH])

@@ -60,6 +60,8 @@
 #include "special_title.h"
 #include "patcher_files.h"
 #include "custom_titles.h"
+#include "former_heathens_read.h"
+#include "mask_line.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
@@ -872,6 +874,21 @@ static int village_save_slot(const char *village) {
     return at[7] - '0';
 }
 
+/* New Believers' Former Heathens file for the village's slot
+   (native/shared/former_heathens.h), read with the titles: who was converted
+   from the Heathens and which mask they wore, for the Special villager line. */
+static unsigned char g_former[VV_FORMER_FILE_MAX];
+static int g_former_loaded;
+
+static const char *special_title_of(int game_id, const struct game_layout *g, const unsigned char *record) {
+    int kind = -1;
+    if (g_former_loaded && g->likes != 0u) {
+        kind = vv_former_lookup(g_former, vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                                            g->dislikes, g->preference_slots));
+    }
+    return vv_special_title_former(game_id, record, kind);
+}
+
 static void load_custom_titles(int game_id, const struct game_layout *g, const char *village) {
     static unsigned char data[VV_TITLES_FILE_MAX];
     char folder[MAX_PATH];
@@ -881,6 +898,7 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
     DWORD got = 0;
     int slot = village_save_slot(village);
     g_custom_title_count = 0;
+    g_former_loaded = game_id == GAME_VV5 && vv_former_load(slot, g_former);
     if (slot == 0 || !vv_save_folder(folder, (int)sizeof("\\" VV_TITLES_SUBFOLDER "\\Custom Titles - Save 0.dat"))) {
         return;
     }
@@ -906,6 +924,33 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
 /* A title whose identity two living villagers carry cannot be placed on
    either after a reload renumbered them (the Story companion shows it on
    neither): leave it out of this export. */
+/* The same for New Believers' Former Heathens (Codex, #553): an identity two living villagers
+   carry is nobody's, so neither is given the title.  Its entry's identity is cleared (an
+   identity is never 0), so the lookup finds nothing. */
+static void drop_ambiguous_former(const struct game_layout *g, const unsigned char *villagers) {
+    unsigned int count, i, index;
+    if (!g_former_loaded) {
+        return;
+    }
+    count = vv_former_u32(g_former + 12);
+    for (i = 0; i < count; ++i) {
+        unsigned char *e = g_former + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
+        unsigned int identity = vv_former_u32(e);
+        int carriers = 0;
+        for (index = 0; index < g->slots; ++index) {
+            const unsigned char *record = villagers + g->record_base + index * g->stride;
+            if (*(const unsigned char *)(record + g->active) == 1
+                && vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                     g->dislikes, g->preference_slots) == identity) {
+                ++carriers;
+            }
+        }
+        if (carriers > 1) {
+            memset(e, 0, 4);
+        }
+    }
+}
+
 static void drop_ambiguous_titles(const struct game_layout *g, const unsigned char *villagers) {
     int i, kept = 0;
     unsigned int index;
@@ -974,8 +1019,12 @@ static int write_villager(
         if (custom != NULL && fprintf(file, "  Custom title: %s\n", custom) < 0) return 0;
     }
     {
-        const char *special = vv_special_title(game_id, record);
+        const char *special = special_title_of(game_id, g, record);
         if (special != NULL && fprintf(file, "  Special villager: %s\n", special) < 0) return 0;
+    }
+    {
+        const char *mask = vv_mask_name(game_id, record);
+        if (mask != NULL && fprintf(file, "  Mask: %s\n", mask) < 0) return 0;
     }
     if (fprintf(file, "  Age: %d\n", *(const int *)(record + g->age)) < 0) {
         return 0;
@@ -1397,6 +1446,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         }
     }
     drop_ambiguous_titles(g, villagers);
+    drop_ambiguous_former(g, villagers);
 
     /* The first file is opened unconditionally, not lazily on the first live
        villager.

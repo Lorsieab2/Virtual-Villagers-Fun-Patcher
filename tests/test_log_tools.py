@@ -504,7 +504,17 @@ class ApprovalTests(FolderTest):
         self.assertIn("temporary.write_bytes(b\"\".join(out))", word_fix)
         self.assertIn('open(backup, "xb")', word_fix)
         self.assertEqual(word_fix.count("os.replace("), 1)
+        self.assertEqual(word_fix.count('open(backup, "xb")'), 1)
         self.assertEqual(word_fix.count('"ab"'), 2)
+        # ...and every line added to older records (src/vv_log_additions.py: the
+        # Sex, Special villager, Custom title, Mask and Born as lines), the same way.
+        added = (ROOT / "src" / "vv_log_additions.py").read_text(encoding="utf-8")
+        for forbidden in ("paused_game", "back_up_save_folder", "suspend", "TerminateProcess",
+                          "write_text", "rmtree", "rename(", ".unlink(missing", '"wb"', '"ab"'):
+            self.assertNotIn(forbidden, added)
+        self.assertEqual(added.count(".write_bytes("), 1)
+        self.assertEqual(added.count("os.replace("), 1)
+        self.assertEqual(added.count('open(backup, "xb")'), 1)
 
 
 # ---------------------------------------------------------------------------
@@ -554,19 +564,27 @@ class GuiTests(unittest.TestCase):
     def test_both_run_off_the_main_thread_through_the_module(self) -> None:
         self.assertIn("import vv_log_tools", self.SOURCE)
         self.assertIn("lambda: vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
-        self.assertIn("lambda: vv_log_tools.approve_repair(folder, number, info.slot)", self.SOURCE)
+        # Repair Logs surveys (the check, the old words, the additions' plan) and repairs
+        # through the module, both off the main thread.
+        self.assertIn("checked = vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
+        self.assertIn("vv_log_additions.plan(folder, number, info.slot)", self.SOURCE)
+        self.assertIn("lambda: vv_log_tools.approve_repair(folder, number, info.slot, chosen=chosen,", self.SOURCE)
         self.assertRegex(self.SOURCE, r'self\._run_with_wait\(\s*"Checking the logs')
 
-    def test_repair_refuses_a_running_game_and_confirms_first(self) -> None:
+    def test_repair_refuses_a_running_game_and_asks_first(self) -> None:
+        """The owner (2026-10-06): a checklist of what to repair and add, and the questions the
+        save and the files cannot answer, before anything is done."""
         body = self.SOURCE[self.SOURCE.index("    def _repair_logs("):self.SOURCE.index("    def _close(")]
         refuse = body.index("vv_save_backup.running_game_count(folder)")
-        ask = body.index("messagebox.askyesno(")
+        ask = body.index("picked = self._repair_checklist(")
         act = body.index("vv_log_tools.approve_repair(")
         self.assertLess(refuse, ask)
         self.assertLess(ask, act)
-        self.assertIn("The next time you play {info.name}, the game will check", body)
-        self.assertIn("repair everything confirmed wrong WITHOUT asking", body)
+        self.assertIn("if picked is None:\n            return", body)
+        self.assertIn("what is confirmed wrong without asking", body)
         self.assertIn("finds nothing confirmed wrong", body)
+        self.assertIn("rearm_var = tk.BooleanVar(value=True)", body)
+        self.assertIn("Answer the {len(questions)} question(s)", body)
         self.assertNotIn("paused_game", body)
 
     def test_the_automatic_check_setting_is_on_by_default_remembered_and_built_in(self) -> None:
@@ -692,8 +710,9 @@ class LogWordsTests(FolderTest):
         self.assertEqual([(w.name, w.count) for w in result.words],
                          [("Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", 2)])
         text = path.read_bytes()
+        # ...and the older snapshot gets the Sex line its newer one shows (Repair Logs adds it too)
         self.assertEqual(text, self.OLD.replace(b"heights", b"rough wood").replace(b"jokes", b"sleeping")
-                         + self.NEW)
+                         .replace(b"  Name: Ana\r\n", b"  Name: Ana\r\n  Sex: Female\r\n") + self.NEW)
         backup_copy = path.with_name(path.name + ".before-v1.35.61-repair")
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
         repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
@@ -744,6 +763,142 @@ class LogWordsTests(FolderTest):
                          checker.VV1_GAME_WORDS)
 
 
+
+class SexLinesTests(FolderTest):
+    """Records written before v1.35.61 have no Sex line (the owner, 2026-10-06:
+    "each game stores a list of male and female names ... also scan the saves
+    and logs").  Repair Logs adds it from the save, another record of the same
+    villager, or the game's own name lists -- never a guess."""
+
+    HISTORY = (b"=== Virtual Villagers 1 -- 2026-10-01 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
+               b"Villager 1\r\n  Name: Hoani\r\n  Age: 400\r\n  Head: 3\r\n  Body: 4\r\n\r\n"
+               b"Villager 2\r\n  Name: Huata\r\n  Age: 500\r\n  Head: 5\r\n  Body: 6\r\n\r\n"
+               b"Villager 3\r\n  Name: Zork\r\n  Age: 500\r\n  Head: 7\r\n  Body: 8\r\n\r\n"
+               b"Villager 4\r\n  Name: Custom\r\n  Age: 300\r\n  Head: 9\r\n  Body: 9\r\n\r\n")
+    BIRTHS = (b"Village: Hut (Save 1)\r\n"
+              b"Conception 1\r\n  Mother: Chika\r\n    Age at conception: 400\r\n    Head: 1\r\n    Body: 2\r\n"
+              b"  Father: Kito\r\n    Age at conception: 500\r\n    Head: 3\r\n    Body: 4\r\n"
+              b"  Babies in pregnancy: 1\r\n\r\n"
+              b"Birth\r\n  Child: Zork\r\n    Head: 7\r\n    Body: 8\r\n  Mother: Chika\r\n    Head: 1\r\n"
+              b"    Body: 2\r\n  Father: Kito\r\n    Head: 3\r\n    Body: 4\r\n\r\n")
+    DEATHS = (b"Village: Hut (Save 1)\r\nDeath 1\r\n  Name: Custom\r\n  Age at death: 900\r\n"
+              b"  Cause of death: Old age\r\n  Grave: x\r\n  Epitaph: (none)\r\n  Head: 9\r\n  Body: 9\r\n\r\n"
+              b"Arrived 1\r\n  Name: Custom\r\n  Age at arrival: 10\r\n  Sex: Female\r\n  Head: 9\r\n"
+              b"  Body: 9\r\n  How: unknown\r\n\r\n")
+
+    def folder(self):
+        folder = self.make_folder("huttest", 1, "Modded")
+        self.write(folder, f"{LOGS}/Tribe History/Village History.txt", self.HISTORY)
+        self.write(folder, f"{LOGS}/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 1.txt",
+                   self.BIRTHS)
+        self.write(folder, f"{LOGS}/Deaths/Virtual Villagers 1 Deaths Log 1.txt", self.DEATHS)
+        return folder
+
+    def test_repair_logs_adds_sex_from_the_name_lists_and_other_records(self):
+        folder = self.folder()
+        result = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        history = (folder / f"{LOGS}/Tribe History/Village History.txt").read_bytes()
+        self.assertIn(b"  Name: Hoani\r\n  Age: 400\r\n  Sex: Male\r\n  Head: 3", history)
+        self.assertIn(b"  Name: Huata\r\n  Age: 500\r\n  Sex: Female\r\n", history)
+        # Zork is in no list and no save: his record keeps no Sex line
+        self.assertIn(b"  Name: Zork\r\n  Age: 500\r\n  Head: 7", history)
+        # Custom: another record of the same villager (his Arrived record) says Female
+        self.assertIn(b"  Name: Custom\r\n  Age: 300\r\n  Sex: Female\r\n", history)
+        births = (folder / f"{LOGS}/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 1.txt"
+                  ).read_bytes()
+        self.assertIn(b"  Mother: Chika\r\n    Age at conception: 400\r\n    Sex: Female\r\n", births)
+        self.assertIn(b"  Father: Kito\r\n    Age at conception: 500\r\n    Sex: Male\r\n", births)
+        self.assertIn(b"  Child: Zork\r\n    Head: 7", births, "unknown: left as it was")
+        deaths = (folder / f"{LOGS}/Deaths/Virtual Villagers 1 Deaths Log 1.txt").read_bytes()
+        self.assertIn(b"  Name: Custom\r\n  Age at death: 900\r\n  Sex: Female\r\n", deaths)
+        self.assertEqual(deaths.count(b"Sex: Female"), 2, "the Arrived record's own line is not doubled")
+        self.assertTrue(result.sexes)
+        repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        self.assertIn("Sex added: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", repairs)
+        # Once is enough: a second repair adds nothing.
+        before = self.state(folder / LOGS)
+        again = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual(again.sexes, [])
+        after = {k: v for k, v in self.state(folder / LOGS).items() if "Repairs" not in k}
+        self.assertEqual(after, {k: v for k, v in before.items() if "Repairs" not in k})
+
+    def test_check_logs_reports_them_and_writes_nothing(self):
+        folder = self.folder()
+        before = self.state(folder)
+        text = tools.check_logs(folder, 1, 1).text
+        self.assertIn("have no Sex line; repairable: Repair Logs adds it", text)
+        self.assertIn("whose sex nothing records", text)
+        self.assertEqual(self.state(folder), before)
+
+    def test_a_golden_childs_name_says_nothing_of_his_sex(self):
+        """A New Home names a new villager from either list, then makes the
+        Golden Child male with head 19 and body 19 (0x43C7AF): the owner's
+        Golden Children named Itchi, City and Kita are male.  The lists never
+        decide a record with those looks."""
+        checker = tools.load_checker()
+        golden = {"name": "Itchi", "head": 19, "body": 19}
+        self.assertEqual(checker.sex_for(1, golden, {}, {}), (None, ""))
+        self.assertEqual(checker.sex_for(1, dict(golden, head=12), {}, {})[0], "Female")
+        self.assertEqual(checker.sex_for(1, golden, {("Itchi", 19, 19): {"Male"}}, {})[0], "Male",
+                         "the save or another record of him still says")
+
+    def test_sources_that_disagree_decide_nothing(self):
+        """Codex (#553): one name and looks recorded both ways -- two slots, a
+        rename -- is not settled by whichever came first."""
+        checker = tools.load_checker()
+        zork = {"name": "Zork", "head": 7, "body": 8}
+        self.assertEqual(checker.sex_for(1, zork, {("Zork", 7, 8): {"Male", "Female"}},
+                                         {"Zork": {"Male", "Female"}}), (None, ""))
+        self.assertEqual(checker.sex_for(1, zork, {("Zork", 7, 8): {"Male"}}, {})[0], "Male")
+
+    def test_an_older_record_with_no_head_line_still_gets_its_sex(self):
+        """Codex (#553): a Death record written before its Head line existed."""
+        checker = tools.load_checker()
+        people = checker._block_people(["Death 1", "  Name: Hoani", "  Age at death: 900",
+                                        "  Cause of death: Old age"])
+        self.assertEqual([(p["name"], p["head"], p["after"]) for p in people], [("Hoani", None, 2)])
+        self.assertEqual(checker.sex_for(1, people[0], {}, {})[0], "Male")
+
+    def test_the_name_lists_are_each_games_own(self):
+        """Male then female, word for word the stock executable's."""
+        import re
+        stock = ROOT / "research" / "stock-executables"
+        exes = {1: "Virtual Villagers - A New Home.exe", 2: "Virtual Villagers - The Lost Children.exe",
+                3: "Virtual Villagers - The Secret City.exe", 4: "Virtual Villagers - The Tree of Life.exe",
+                5: "Virtual Villagers - New Believers.exe"}
+        if not stock.is_dir():
+            self.skipTest("stock executables not present")
+        checker = tools.load_checker()
+        for game, exe in exes.items():
+            data = (stock / exe).read_bytes()
+            lists = [m.group(0).decode() for m in re.finditer(rb"(?:[A-Z][a-z]+,){60,}[A-Z]?[a-z]*,?", data)]
+            male, female = ("".join(part) for part in checker.NAME_LISTS[game])
+            with self.subTest(game=game):
+                self.assertIn(male, lists)
+                self.assertIn(female, lists)
+                self.assertEqual(lists.index(female), lists.index(male) + 1, "male first, then female")
+
+    def test_the_last_names_are_each_games_own_and_a_last_name_keeps_the_sex(self):
+        """Villagers Have Last Names: "Ago Akikai" is sexed by "Ago"; a name whose last word is
+        not one of the game's last names is looked up whole, as before."""
+        stock = ROOT / "research" / "stock-executables"
+        exes = {1: "Virtual Villagers - A New Home.exe", 2: "Virtual Villagers - The Lost Children.exe",
+                3: "Virtual Villagers - The Secret City.exe", 4: "Virtual Villagers - The Tree of Life.exe",
+                5: "Virtual Villagers - New Believers.exe"}
+        checker = tools.load_checker()
+        if stock.is_dir():
+            for game, exe in exes.items():
+                with self.subTest(game=game, source="exe"):
+                    self.assertIn((",".join(checker.LAST_NAMES[game]) + ",").encode(), (stock / exe).read_bytes())
+        for game in exes:
+            male, female = (list(filter(None, "".join(part).split(","))) for part in checker.NAME_LISTS[game])
+            last = checker.LAST_NAMES[game]
+            with self.subTest(game=game):
+                self.assertEqual(len(last), 50)
+                self.assertEqual(checker.name_list_sex(game, f"{male[3]} {last[0]}"), "Male")
+                self.assertEqual(checker.name_list_sex(game, f"{female[3]} {last[49]}"), "Female")
+                self.assertIsNone(checker.name_list_sex(game, f"{male[3]} Smith"))
+
+
 if __name__ == "__main__":
     unittest.main()
-
