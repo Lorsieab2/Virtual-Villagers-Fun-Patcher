@@ -31,6 +31,7 @@ EXPORTS
     VvfpCauseTestCreated=_VvfpCauseTestCreated@8
     VvfpCauseTestCreatedScoped=_VvfpCauseTestCreatedScoped@12
     VvfpCauseTestArrivalTick=_VvfpCauseTestArrivalTick@0
+    VvfpCauseTestArrivalState=_VvfpCauseTestArrivalState@4
     VvfpCauseTestVv1Births=_VvfpCauseTestVv1Births@4
     VvfpCauseTestDeparted=_VvfpCauseTestDeparted@4
     VvfpCauseStats DATA

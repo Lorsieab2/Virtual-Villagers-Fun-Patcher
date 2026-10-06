@@ -319,7 +319,8 @@ static int_t departed;
 static note_t note_birth;
 static arrived_by_t arrived_by;
 
-static int __stdcall host_slot(void) { return 1; }
+static int host_slot_value = 1;
+static int __stdcall host_slot(void) { return host_slot_value; }
 static struct { int size; int (__stdcall *slot)(void); } host = { 8, host_slot };
 
 static void load(void) {
@@ -1031,6 +1032,30 @@ int main(int argc, char **argv) {
 
         births_cases();
         quit_cases();
+        if (game == 5) {
+            /* Another village loaded (another slot): a Heathen in this
+               village's record and a believer in the same record of the
+               next is no conversion -- the factions seen were the last
+               village's (VvfpCauseTick, the game's per-frame path). */
+            int_t tick = (int_t)GetProcAddress(cause, "VvfpCauseTick");
+            typedef int (__stdcall *state_t)(int);
+            state_t state = (state_t)GetProcAddress(cause, "VvfpCauseTestArrivalState");
+            villager(20, "Heath", 300, 4, 4, 0);
+            rec(20)[VV5_FACTION] = 1;
+            created(20, 0);
+            tick(game);
+            host_slot_value = 2;
+            villager(20, "Belie", 300, 4, 5, 0);
+            tick(game);
+            CHECK(state(20) == 0, "another village's believer in a record a Heathen held is no conversion");
+            rec(20)[VV5_FACTION] = 1;
+            tick(game);
+            rec(20)[VV5_FACTION] = 0;
+            tick(game);
+            CHECK(state(20) != 0, "...while a Heathen converted in the village played is one");
+            host_slot_value = 1;
+            rec(20)[g->active] = 0;
+        }
         unload();
         free(buffer);
         free_game();

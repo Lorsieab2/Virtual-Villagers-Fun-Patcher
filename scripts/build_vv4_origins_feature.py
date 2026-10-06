@@ -2324,7 +2324,7 @@ def main() -> None:
     # mask side-table, the clear-on-death sweep, and the SDL blit.
     mask_resolve = mask_resolve_cave(s["icons_dll"])
     patch(MASK_RESOLVE_FILE_OFFSET, b"\0" * len(mask_resolve), mask_resolve,
-          "Heathen mask: resolve cave -- LoadLibraryA the companion DLL and GetProcAddress Vv4MaskCacheSurface(@110)/Vv4MaskDrawRecord(@112) by ordinal, once (guarded)")
+          "Heathen mask: resolve cave -- LoadLibraryA the companion DLL and GetProcAddress Vv4MaskCacheSurface(@110)/Vv4MaskGetForRecord(@114) by ordinal, once (guarded)")
     mask_present = mask_present_cave()
     patch(MASK_PRESENT_FILE_OFFSET, b"\0" * len(mask_present), mask_present,
           "Heathen mask: present cave -- cache the live render-target surface [screen_obj+0x30] into the DLL (also runs the clear-on-death sweep), then tail-call the real present")

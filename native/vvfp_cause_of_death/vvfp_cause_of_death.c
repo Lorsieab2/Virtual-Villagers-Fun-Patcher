@@ -689,6 +689,10 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
         if (temporary_slot >= 0) {
             memset(temporary, 0, sizeof temporary);
             memset(temporary_name, 0, sizeof temporary_name);
+            /* New Believers: the factions seen were the last village's.  A
+               Heathen's record there and a believer's here is no conversion:
+               the tick learns this village's factions afresh. */
+            faction_ready = 0;
         }
         temporary_slot = cod_slot();
     }
