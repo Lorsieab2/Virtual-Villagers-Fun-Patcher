@@ -65,6 +65,7 @@
 #include "save_reset.h"
 #include "../shared/harness_ldw_tree.h"
 #include "patcher_files.h"
+#include "arrival_backfill.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -410,7 +411,13 @@ static void write_old_logs(void) {
 
 /* The slot's own save, as the game writes it: the scan at load names the
    village from it (through "VVFP Save Reset.dll", SavedVillageHeader). */
+static void write_save_named(const char *village);
+
 static void write_save_file(void) {
+    write_save_named("Arrival Tribe");
+}
+
+static void write_save_named(const char *village) {
     static const DWORD HEADER[5] = { 12u, 12u, 12u, 24u, 24u };
     static const DWORD LENGTH_AT[5] = { 8u, 8u, 8u, 16u, 16u };
     static const DWORD BUFFER[5] = { 0x0ABDCu, 0x30370u, 0x12F1Cu, 0x1710Cu, 0x17D78u };
@@ -421,7 +428,7 @@ static void write_save_file(void) {
     if (data == NULL) return;
     memcpy(data, "ldwg", 4);
     memcpy(data + LENGTH_AT[game - 1], &BUFFER[game - 1], 4);
-    strcpy((char *)data + HEADER[game - 1] + vv_village_name_offset(game), "Arrival Tribe");
+    strcpy((char *)data + HEADER[game - 1] + vv_village_name_offset(game), village);
     data[HEADER[game - 1] + vv_village_name_offset(game) + 40] = 0x7F;
     _snprintf(path, MAX_PATH, "%s\\Virtual Villagers1.ldw", root);
     make_dirs(root);
@@ -914,6 +921,23 @@ int main(int argc, char **argv) {
         repair_arrivals(game, 1, 1);
         villager(8, "Late", 700, 5, 6, 0);   /* unseen, after the backfill: not the backfill's */
         CHECK(scan_arrivals(game, 1) == 0, "a new session's scan says 0 (the marker): exactly once");
+        /* The marker names its village: another village in the slot -- a
+           save copied in -- is not the one it was written for (Codex, #531),
+           and is scanned again. */
+        {
+            typedef int (__stdcall *header_t)(int, int, char *, int);
+            HMODULE reset = GetModuleHandleA("VVFP Save Reset.dll");
+            header_t header = reset != NULL ? (header_t)GetProcAddress(reset, "SavedVillageHeader") : NULL;
+            char line[256];
+            CHECK(header != NULL && header(game, 1, line, (int)sizeof line)
+                  && vv_backfill_marker_present(VV_BACKFILL_ARRIVALS, game, 1, vv_backfill_village_id(line)),
+                  "the marker is written for this village (its save's \"Village:\" line)");
+            write_save_named("Copied Tribe");
+            CHECK(header != NULL && header(game, 1, line, (int)sizeof line)
+                  && !vv_backfill_marker_present(VV_BACKFILL_ARRIVALS, game, 1, vv_backfill_village_id(line)),
+                  "...and does not count for another village copied into the slot");
+            write_save_file();
+        }
         save_done(1, buffer);
         read_into(path);
         CHECK(strstr(text, "  Name: Late\r\n") == NULL, "...and its save writes no backfill");

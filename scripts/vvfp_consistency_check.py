@@ -626,7 +626,7 @@ def births_marker(game_dir: Path, game: int, slot: int) -> bool:
     if not p.is_file():
         return False
     data = p.read_bytes()
-    return len(data) == 16 and struct.unpack("<4I", data) == (0x31424356, 1, game, slot)
+    return backfill_marker_ok(data, 0x31424356, game, slot)
 
 
 def missing_births(roster: list[Villager], births: list[LogRecord]) -> list[Villager]:
@@ -1348,8 +1348,11 @@ def graves_logged_problem(data: bytes, game: int) -> str | None:
 
 
 def backfill_marker_ok(data: bytes, magic: int, game: int, slot: int) -> bool:
-    """vv_backfill_marker_present (native/shared/arrival_backfill.h): the first 16 bytes."""
-    return len(data) >= 16 and struct.unpack_from("<4I", data, 0) == (magic, 1, game, slot)
+    """vv_backfill_marker_state (native/shared/arrival_backfill.h): version 1 (16 bytes) or
+    version 2 (20 bytes, the village it is for last)."""
+    if len(data) not in (16, 20):
+        return False
+    return struct.unpack_from("<4I", data, 0) == (magic, 1 if len(data) == 16 else 2, game, slot)
 
 
 def vv1_marker_ok(data: bytes, slot: int) -> bool:

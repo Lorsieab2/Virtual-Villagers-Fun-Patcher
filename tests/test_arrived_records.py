@@ -45,6 +45,9 @@ CHECKS += 2
 # + 2 per game with Birth records (The Lost Children on): a born villager's record is never his
 # arrived look-alike's (Codex, #536)
 CHECKS += 2 * 4
+# + 2 per game: the marker names its village, and does not count for another village copied into
+# the slot (Codex, #531)
+CHECKS += 2 * 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -78,7 +81,7 @@ class ArrivedRecordSource(unittest.TestCase):
         source = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
         save = body(source, "static void arrival_backfill_at_save(")
         self.assertIn("!arrivals_repair[slot]", save)
-        self.assertIn("vv_arrival_marker_present(g_game, slot)", save)
+        self.assertIn("vv_arrival_marker_present(g_game, slot, cod_marker_village(slot))", save)
         scan = body(source, "VvfpCauseScanArrivals(int game, int slot)")
         self.assertIn("record_arrivals(g_game, NULL, slot, arrival_facts, count, VV_ARRIVAL_COUNT)", scan)
         self.assertNotIn("marker_write", scan)
@@ -131,9 +134,10 @@ class ArrivedRecordSource(unittest.TestCase):
 
     def test_the_marker_is_never_written_over_a_file_it_did_not_write(self):
         source = (SHARED / "arrival_backfill.h").read_text(encoding="utf-8")
-        write = body(source, "static int vv_backfill_marker_write(int which, int game, int slot)")
+        write = body(source, "static int vv_backfill_marker_write(int which, int game, int slot, unsigned int village)")
         self.assertIn("GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES", write)
-        self.assertNotIn("MOVEFILE_REPLACE_EXISTING", write)
+        # Only a marker of ours, for another village, is ever replaced (Codex, #531).
+        self.assertIn("if (state == 1) {\n        move |= MOVEFILE_REPLACE_EXISTING;", write.replace("\r\n", "\n"))
 
 
 def marker_values(game: int) -> list[int]:
@@ -175,7 +179,7 @@ class BirthRecordBackfillSource(unittest.TestCase):
         source = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
         save = body(source, "static void births_backfill_at_save(")
         self.assertIn("!births_repair[slot]", save)
-        self.assertIn("vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot)", save)
+        self.assertIn("vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot, cod_marker_village(slot))", save)
         scan = body(source, "VvfpCauseScanBirths(int game, int slot)")
         self.assertIn("record_births(g_game, NULL, slot, arrival_facts, count, VV_ARRIVAL_COUNT)", scan)
         self.assertNotIn("marker_write", scan)
