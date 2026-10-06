@@ -411,11 +411,15 @@ static void cod_printable(char *out, int size, const char *text, int capacity) {
 }
 
 /* The lines a Death record carries before the villager's identity. */
+static const char *roster_sex(int value);
+
 static int cod_log_death(const unsigned char *record, int cause, const char *grave,
                          const char *epitaph) {
     char before[512];
-    wsprintfA(before, "  Age at death: %d\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n",
-              rec_age(record), cod_cause_words(cause), grave,
+    wsprintfA(before,
+              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n",
+              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
+              cod_cause_words(cause), grave,
               epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)");
     return cod_write(LOG_DEATH, record, 1, before, NULL, 1);
 }

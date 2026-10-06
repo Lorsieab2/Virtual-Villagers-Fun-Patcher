@@ -544,6 +544,7 @@ static int titles_rebind(int game, int index, unsigned int before);
 #include "story_c3.inc"
 #include "story_c4.inc"
 #include "story_c5.inc"
+#include "story_fast_delivery.inc"
 
 static const ce_adapter *ce_adapter_for(int game) {
     switch (game) {
@@ -635,29 +636,34 @@ static story_detour vv1_custom_detours[] = {
     { 0x428777u, 5, VV1_CUSTOM_CHOOSE_BYTES, 1, (void *)c1_choose },
     { 0x41FD75u, 5, VV1_TITLE_SITE_BYTES, 0, (void *)c1_title_stub },
     { 0x41A51Fu, 5, VV1_CHOICE_SETUP_BYTES, 1, (void *)c1_choice_setup },
+    { 0x4237DDu, 5, VV1_EVENT_PICK_BYTES, 1, (void *)c1_event_pick },
 };
 static story_detour vv2_custom_detours[] = {
     { 0x4349B2u, 5, VV2_CUSTOM_CHOOSE_BYTES, 1, (void *)c2_choose },
     { 0x429DE3u, 5, VV2_TITLE_SITE_BYTES, 1, (void *)c2_title },
     { 0x42244Au, 5, VV2_CHOICE_SETUP_BYTES, 1, (void *)c2_choice_setup },
+    { 0x42EEEDu, 5, VV2_EVENT_PICK_BYTES, 1, (void *)c2_event_pick },
 };
 static story_detour vv3_detours[] = {
     { VV3_PICK_SITE, 7, VV3_PICK_SITE_BYTES, 0, (void *)vv3_stub },
     { 0x468FC8u, 6, VV3_TITLE_SITE_BYTES, 0, (void *)c3_title_stub },
     { 0x419A29u, 12, VV3_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv3_choice_stub },
     { 0x419A41u, 5, VV3_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv3_simple_stub },
+    { 0x468757u, 5, VV3_EVENT_PICK_BYTES, 1, (void *)c3_event_pick },
 };
 static story_detour vv4_detours[] = {
     { VV4_PICK_SITE, 7, VV4_PICK_SITE_BYTES, 0, (void *)vv4_stub },
     { 0x4404D9u, 5, VV4_TITLE_SITE_BYTES, 0, (void *)c4_title_stub },
     { 0x417EC9u, 16, VV4_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv4_choice_stub },
     { 0x417EE5u, 9, VV4_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv4_simple_stub },
+    { 0x43FA70u, 5, VV4_EVENT_PICK_BYTES, 1, (void *)c4_event_pick },
 };
 static story_detour vv5_detours[] = {
     { VV5_PICK_SITE, 7, VV5_PICK_SITE_BYTES, 0, (void *)vv5_stub },
     { 0x44319Eu, 6, VV5_TITLE_SITE_BYTES, 0, (void *)c5_title_stub },
     { 0x418749u, 16, VV5_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv5_choice_stub },
     { 0x418765u, 9, VV5_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv5_simple_stub },
+    { 0x44272Fu, 5, VV5_EVENT_PICK_BYTES, 1, (void *)c5_event_pick },
 };
 
 static const story_game GAMES[6] = {
@@ -668,11 +674,11 @@ static const story_game GAMES[6] = {
     { VV2_WRITES, VV2_WRITE_COUNT, vv2_detours, sizeof vv2_detours / sizeof vv2_detours[0],
       vv2_custom_detours, sizeof vv2_custom_detours / sizeof vv2_custom_detours[0],
       VV2_EVENTS, VV2_EVENT_COUNT, vv2_possible, vv2_island_pending, vv2_arm },
-    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, 4, NULL, 0,
+    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, sizeof vv3_detours / sizeof vv3_detours[0], NULL, 0,
       VV3_EVENTS, VV3_EVENT_COUNT, vv3_possible, vv3_island_pending, vv3_arm },
-    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, 4, NULL, 0,
+    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, sizeof vv4_detours / sizeof vv4_detours[0], NULL, 0,
       VV4_EVENTS, VV4_EVENT_COUNT, vv4_possible, vv4_island_pending, vv4_arm },
-    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, 4, NULL, 0,
+    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, sizeof vv5_detours / sizeof vv5_detours[0], NULL, 0,
       VV5_EVENTS, VV5_EVENT_COUNT, vv5_possible, vv5_island_pending, vv5_arm },
 };
 
@@ -1094,6 +1100,31 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeInstallPageRoll(void) {
 /* Make the n-th memory write of the next install fail (-1 = none). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeFailWrite(int n) {
     test_fail_write = n;
+}
+
+/* The Custom Island Event's quicker delivery (story_fast_delivery.inc),
+   driven by a scripted picker: `draws` are the picker's answers in turn,
+   `fits[i]` whether draw i passes the trigger's age check.  Returns the
+   villager handed back; *calls the times the picker was asked. */
+typedef struct { const int *draws; const int *fits; int count; int at; } probe_pick;
+static int probe_draw(void *ctx) {
+    probe_pick *p = (probe_pick *)ctx;
+    int i = p->at < p->count ? p->at : p->count - 1;
+    ++p->at;
+    return p->draws[i];
+}
+static int probe_fits(void *ctx, int drawn) {
+    probe_pick *p = (probe_pick *)ctx;
+    int i = p->at - 1 < p->count ? p->at - 1 : p->count - 1;
+    (void)drawn;
+    return p->fits[i];
+}
+__declspec(dllexport) int __stdcall VvfpStoryProbeFastPick(const int *draws, const int *fits,
+                                                           int count, int none, int *calls) {
+    probe_pick p = { draws, fits, count, 0 };
+    int drawn = ce_fast_pick(probe_draw, probe_fits, none, &p);
+    *calls = p.at;
+    return drawn;
 }
 
 __declspec(dllexport) void __stdcall VvfpStoryProbeSetTick(DWORD tick) {

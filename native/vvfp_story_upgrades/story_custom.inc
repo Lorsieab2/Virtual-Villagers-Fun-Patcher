@@ -172,6 +172,7 @@ typedef struct {
     int probe_count;
     void (*set_faith)(int index, int faith);   /* CAP_FAITH */
     const char *status_note;       /* a warning beside the status choices, or NULL */
+    int status_risky_from;         /* the first status the note is asked for (0 = every one) */
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);

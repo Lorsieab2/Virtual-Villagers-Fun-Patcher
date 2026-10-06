@@ -510,14 +510,23 @@ static void parented(int i, const char *name, int head, int body) {
 }
 
 static int has_birth_backfill(const char *child, int head, int body) {
-    char want[256];
+    char want[256], looks[128];
     const char *at, *end;
-    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Head: %d\r\n    Body: %d\r\n", child, head, body);
+    /* The child's sex (the owner: every villager in the logs shows it), then
+       the looks. */
+    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Sex: ", child);
+    _snprintf(looks, sizeof looks, "    Head: %d\r\n    Body: %d\r\n", head, body);
     /* Any record of the child that is the backfill's (a hand-written one
        of the same child may come first). */
     for (at = strstr(text, want); at != NULL; at = strstr(at + 1, want)) {
         static const char note[] = "\r\n  Note: Recorded afterwards (born before this log existed)";
         size_t n = sizeof note - 1;
+        const char *sex = at + strlen(want);
+        const char *after = strstr(sex, "\r\n");
+        if (after == NULL || (strncmp(sex, "Male\r\n", 6) != 0 && strncmp(sex, "Female\r\n", 8) != 0)
+            || strncmp(after + 2, looks, strlen(looks)) != 0) {
+            continue;
+        }
         end = strstr(at, "\r\n\r\n");
         if (end != NULL && (size_t)(end - at) > n
             && strstr(at, "  Mother: Chika\r\n") != NULL && strstr(at, "  Mother: Chika\r\n") < end

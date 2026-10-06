@@ -440,18 +440,29 @@ class ApprovalTests(FolderTest):
         self.assertTrue(approval_pending(folder, 3, 1))
 
     def test_the_module_never_pauses_closes_or_repairs(self) -> None:
-        # It writes one file, the approval (through its own temporary file),
-        # and removes only the markers (and that temporary file on a failure).
+        # It writes the approval (through its own temporary file) and removes
+        # only the markers (and that temporary file on a failure).  The one
+        # repair made in Python is the old like / dislike words (the owner,
+        # 2026-10-06), all of it inside fix_log_words and note_word_repair.
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
+        words = source.index("def fix_log_words(")
+        approval, word_fix = source[:words], source[words:]
         for forbidden in ("paused_game", "back_up_save_folder", "suspend", "TerminateProcess",
                           "write_text", "rmtree", "rename("):
             self.assertNotIn(forbidden, source)
-        self.assertEqual(source.count(".write_bytes("), 1)
-        self.assertIn("temporary.write_bytes(approval_bytes(game, slot))", source)
-        self.assertEqual(source.count("replace("), 1)
-        self.assertIn("os.replace(temporary, approval)", source)
-        self.assertEqual(source.count(".unlink("), 2)
-        self.assertIn("temporary.unlink()", source)
+        self.assertEqual(approval.count(".write_bytes("), 1)
+        self.assertIn("temporary.write_bytes(approval_bytes(game, slot))", approval)
+        self.assertEqual(approval.count("replace("), 1)
+        self.assertIn("os.replace(temporary, approval)", approval)
+        self.assertEqual(approval.count(".unlink("), 2)
+        self.assertIn("temporary.unlink()", approval)
+        # The word repair: a backup opened "xb" (never replacing one), the
+        # file through its temporary, the boundary and the Repairs log appended.
+        self.assertEqual(word_fix.count(".write_bytes("), 1)
+        self.assertIn("temporary.write_bytes(b\"\".join(out))", word_fix)
+        self.assertIn('open(backup, "xb")', word_fix)
+        self.assertEqual(word_fix.count("os.replace("), 1)
+        self.assertEqual(word_fix.count('"ab"'), 2)
 
 
 # ---------------------------------------------------------------------------
@@ -571,5 +582,102 @@ class GuiTests(unittest.TestCase):
         self.assertIn('"scripts/vvfp_consistency_check.py"', build)
 
 
+
+# ---------------------------------------------------------------------------
+# The old like / dislike words (v1.35.61)
+# ---------------------------------------------------------------------------
+
+HISTORY = f"{LOGS}/Tribe History/Village History.txt"
+WORDS_DAT = f"{DATA}/Log Words/Virtual Villagers {{game}} Log Words.dat"
+
+
+class LogWordsTests(FolderTest):
+    """A New Home's and The Secret City's likes and dislikes were printed from
+    the wrong list until v1.35.61 (the owner, 2026-10-06: the logs must say
+    what the game's exe says; Check Logs and Repair Logs must fix them)."""
+
+    OLD = (b"=== Virtual Villagers 1 -- 2026-10-01 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
+           b"Villager 1\r\n  Name: Ana\r\n  Likes: heights\r\n  Dislikes: jokes\r\n\r\n")
+    NEW = (b"=== Virtual Villagers 1 -- 2026-10-07 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
+           b"Villager 1\r\n  Name: Ana\r\n  Sex: Female\r\n  Likes: rough wood\r\n  Dislikes: jokes\r\n\r\n")
+
+    def history(self, folder: Path, boundary: int | None) -> Path:
+        self.write(folder, HISTORY, self.OLD + self.NEW)
+        if boundary is not None:
+            self.write(folder, WORDS_DAT.format(game=1),
+                       f"{boundary}\tVirtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt\r\n"
+                       .encode())
+        return folder / HISTORY
+
+    def test_check_logs_finds_only_the_words_before_the_boundary(self) -> None:
+        folder = self.make_folder("huttest", 1, "Modded")
+        self.history(folder, len(self.OLD))
+        before = self.state(folder)
+        result = tools.check_logs(folder, 1, 1)
+        self.assertIn("heights -> rough wood", result.text)
+        self.assertIn("jokes -> sleeping", result.text)
+        self.assertIn("2 like/dislike word(s)", result.text, "the new snapshot's words are its own")
+        self.assertEqual(self.state(folder), before, "Check Logs writes nothing")
+
+    def test_repair_logs_puts_the_games_words_in_once(self) -> None:
+        folder = self.make_folder("huttest", 1, "Modded")
+        path = self.history(folder, len(self.OLD))
+        result = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual([(w.name, w.count) for w in result.words],
+                         [("Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", 2)])
+        text = path.read_bytes()
+        self.assertEqual(text, self.OLD.replace(b"heights", b"rough wood").replace(b"jokes", b"sleeping")
+                         + self.NEW)
+        backup_copy = path.with_name(path.name + ".before-v1.35.61-repair")
+        self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
+        repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        self.assertIn("Corrected: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt -- 2 word(s)",
+                      repairs)
+        # A second repair finds nothing: the boundary is now 0.
+        again = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual(again.words, [])
+        self.assertEqual(path.read_bytes(), text)
+        self.assertIn("every like and dislike is a word from the game's own list",
+                      tools.check_logs(folder, 1, 1).text)
+
+    def test_a_file_with_no_boundary_was_written_wholly_by_an_older_patcher(self) -> None:
+        folder = self.make_folder("huttest", 1, "Modded")
+        self.history(folder, None)
+        result = tools.check_logs(folder, 1, 1)
+        self.assertIn("4 like/dislike word(s)", result.text)
+
+    def test_the_secret_city_frogs_and_soap(self) -> None:
+        folder = self.make_folder("huttest", 3, "Modded")
+        self.write(folder, HISTORY, b"Villager 1\r\n  Likes: frogs\r\n  Dislikes: soap\r\n\r\n")
+        tools.approve_repair(folder, 3, 1, FakeProcesses(), NOW)
+        self.assertEqual((folder / HISTORY).read_bytes(),
+                         b"Villager 1\r\n  Likes: alchemy\r\n  Dislikes: potions\r\n\r\n")
+
+    def test_the_other_games_lists_were_always_their_own(self) -> None:
+        for number in (2, 4, 5):
+            with self.subTest(game=number):
+                folder = self.make_folder("huttest", number, "Modded")
+                self.write(folder, HISTORY, b"Villager 1\r\n  Likes: frogs\r\n  Dislikes: heights\r\n\r\n")
+                before = (folder / HISTORY).read_bytes()
+                self.assertEqual(tools.approve_repair(folder, number, 1, FakeProcesses(), NOW).words, [])
+                self.assertEqual((folder / HISTORY).read_bytes(), before)
+                self.assertNotIn("like/dislike", tools.check_logs(folder, 1, number).text)
+
+    def test_the_translation_is_the_exporters_own(self) -> None:
+        """The checker's two lists are the header's (native/shared/log_words.h)."""
+        import re
+        checker = tools.load_checker()
+        header = (ROOT / "native/shared/log_words.h").read_text(encoding="utf-8")
+        for name, words in (("VV_LOG_WORDS_VV1_OLD", checker.VV1_OLD_WORDS),
+                            ("VV_LOG_WORDS_VV1_NEW", checker.VV1_GAME_WORDS)):
+            body = re.search(name + r"\[47\] = \{(.*?)\};", header, re.S).group(1)
+            self.assertEqual(tuple(re.findall(r'"([^"]*)"', body)), words)
+        exporter = (ROOT / "native/parentage_export/parentage_export.c").read_text(encoding="utf-8")
+        body = re.search(r"PREFERENCES_47\[\] =\n((?:\s*\"[^\"]*\"\n?)+);", exporter).group(1)
+        self.assertEqual(tuple("".join(re.findall(r'"([^"]*)"', body)).split(",")),
+                         checker.VV1_GAME_WORDS)
+
+
 if __name__ == "__main__":
     unittest.main()
+

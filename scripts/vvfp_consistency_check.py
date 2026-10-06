@@ -1337,6 +1337,116 @@ def detect_game(game_dir: Path, slot: int) -> int:
     raise CheckError(f"no save for slot {slot} in {game_dir}")
 
 
+# ---- like and dislike words (v1.35.61) ---------------------------------------------------------
+
+# Until v1.35.61 A New Home's likes and dislikes were printed from The Lost Children's list cut to
+# 47 words, and The Secret City's with frogs and soap where its exe says alchemy and potions (the
+# owner, 2026-10-06: "Always use the in-game actual exe data").  Each word is a villager's number
+# into its game's list, so an old word stands for the word at the same place in the game's own
+# list.  Seven A New Home words ("rough wood", "work", "jokes" ...) are in both lists at different
+# places, so the words alone cannot tell old text from new: native/shared/log_words.h records, per
+# log file, the byte offset before which its text was written with the old list (LOG_WORDS).
+VV1_OLD_WORDS = (
+    "ants", "crowds", "resting", "laundry", "medicine", "turnips", "butterflies", "flowers",
+    "bees", "the dark", "caves", "herbs", "berries", "snakes", "wind", "rocks", "heights",
+    "the ocean", "playing", "exploring", "blue", "green", "red", "yellow", "drums", "bushes",
+    "bananas", "coconuts", "sand", "sunlight", "rough wood", "crab meat", "whale meat", "fish",
+    "fruit", "papaya", "flies", "swimming", "running", "learning", "dancing", "monkeys",
+    "parrots", "work", "lifting", "surprises", "jokes",
+)
+VV1_GAME_WORDS = (
+    "ants", "crowds", "resting", "laundry", "medicine", "turnips", "butterflies", "flowers",
+    "bees", "the dark", "caves", "herbs", "berries", "snakes", "wind", "rocks", "rough wood",
+    "the ocean", "playing", "exploring", "blue", "green", "red", "yellow", "drums", "bushes",
+    "bananas", "coconuts", "sand", "sunlight", "drift wood", "crab meat", "whale meat", "fish",
+    "fruit", "papaya", "flies", "swimming", "running", "dancing", "monkeys", "birds", "work",
+    "lifting", "surprises", "jokes", "sleeping",
+)
+WORD_FIXES = {
+    1: dict(zip(VV1_OLD_WORDS, VV1_GAME_WORDS)),
+    3: {"frogs": "alchemy", "soap": "potions"},
+}
+LOG_WORDS = DATA + r"\Log Words\Virtual Villagers {game} Log Words.dat"
+LOG_FOLDERS = (LOGS, "VVFP Logs")
+WORD_LINE = re.compile(rb"^([ \t]*(?:Likes|Dislikes): )([^\r\n]*)", re.M)
+
+
+def word_boundaries(game_dir: Path, game: int) -> dict[str, int]:
+    """Each log file's recorded boundary (its path inside the save folder, lower case): the LAST
+    line naming it counts."""
+    path = game_dir / LOG_WORDS.format(game=game)
+    out: dict[str, int] = {}
+    try:
+        text = path.read_bytes().decode("utf-8", "replace")
+    except FileNotFoundError:
+        return out
+    for line in text.splitlines():
+        offset, tab, name = line.partition("\t")
+        if tab and name:
+            try:
+                out[name.lower()] = int(offset)
+            except ValueError:
+                continue
+    return out
+
+
+@dataclass
+class OldWords:
+    path: Path
+    name: str                                   # inside the save folder, as the boundary file says
+    boundary: int
+    fixes: list[tuple[int, int, str, str]]      # (start, end, old word, game's word)
+
+
+def old_words(game_dir: Path, game: int) -> list[OldWords]:
+    """Every log file holding words written with the old list, and each such word.  Only A New
+    Home and The Secret City ever had one; the Repairs log and backups are never read."""
+    fixes = WORD_FIXES.get(game)
+    if not fixes:
+        return []
+    bounds = word_boundaries(game_dir, game)
+    found = []
+    for top in LOG_FOLDERS:
+        root = game_dir / top
+        if not root.is_dir():
+            continue
+        for path in sorted(root.rglob("*.txt")):
+            if path.parent.name == "Repairs":
+                continue
+            name = str(path.relative_to(game_dir))
+            data = path.read_bytes()
+            boundary = min(bounds.get(name.lower(), len(data)), len(data))
+            changes = []
+            for m in WORD_LINE.finditer(data, 0, boundary):
+                word = m.group(2).decode("latin-1").strip()
+                new = fixes.get(word, word)
+                if new != word:
+                    changes.append((m.start(2), m.end(2), word, new))
+            if changes:
+                found.append(OldWords(path, name, boundary, changes))
+    return found
+
+
+def check_words(game_dir: Path, game: int, rep: Report) -> None:
+    if game not in WORD_FIXES:
+        return
+    label = f"{LOGS} (likes and dislikes)"
+    try:
+        files = old_words(game_dir, game)
+    except OSError as exc:
+        rep.add(label, "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
+        return
+    if not files:
+        rep.add(label, "OK", "every like and dislike is a word from the game's own list")
+        return
+    for f in files:
+        sample = sorted({f"{old} -> {new}" for _, _, old, new in f.fixes})
+        rep.add(label, "WRONG",
+                f"{f.name}: {len(f.fixes)} like/dislike word(s) written with the wrong list by an older "
+                f"patcher ({', '.join(sample[:6])}{', ...' if len(sample) > 6 else ''}); repairable: "
+                "Repair Logs puts the game's own words in")
+
+
 def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     game = game or detect_game(game_dir, slot)
     rep = Report()
@@ -1385,6 +1495,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     check_graves(game_dir, slot, game, deaths, rep)
     check_rosters(game_dir, slot, game, roster, rep)
     check_stews(game_dir, slot, game, rep)
+    check_words(game_dir, game, rep)
     check_marker(game_dir, slot, game, rep, births.village)
     check_approval(game_dir, slot, game, rep)
     return rep

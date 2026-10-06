@@ -836,7 +836,8 @@ static const ce_adapter C5_ADAPTER = {
     c5_set_faith,
     "Do at your own risk: purple, Chief and Heathen Mommy are the roles the game's "
     "puzzles use; giving them to anyone, or changing a puzzle's own Heathen, can change "
-    "or break those puzzles."
+    "or break those puzzles.",
+    5                                 /* the note is for purple, the Chief and the Mommy */
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

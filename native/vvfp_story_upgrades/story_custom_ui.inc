@@ -108,6 +108,19 @@ static int ui_is_toggle(int id) {
     return 0;
 }
 
+/* A "do this at your own risk" question: `text`, then the owner's own words
+   (2026-10-06), OK / Cancel with Cancel the default.  1 when the player
+   chose OK. */
+#define UI_RISK_ADVICE \
+    "Recommended to make a backup of the save. May cause issues with gameplay. " \
+    "Continue at your own risk!"
+static int ui_risk(HWND owner, const char *text) {
+    static char message[1024];
+    wsprintfA(message, "%s\r\n\r\n" UI_RISK_ADVICE, text);
+    return MessageBoxA(owner, message, "Custom Island Event: do at your own risk",
+                       MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) == IDOK;
+}
+
 static void ui_message(HWND owner, const char *text) {
     MessageBoxA(owner, text, "Custom Island Event",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -562,11 +575,9 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
             int position = ui_roster_position(targets[i]);
             golden = position >= 0 && ui.roster[position].kind == STORY_KIND_GOLDEN_CHILD;
         }
-        if (golden && MessageBoxA(window, "The Golden Child never carries or fathers a baby in the game. "
+        if (golden && !ui_risk(window, "The Golden Child never carries or fathers a baby in the game. "
                                   "A baby with the Golden Child as a parent is born as another Golden "
-                                  "Child, which can confuse the Golden Child's puzzle. "
-                                  "Do this at your own risk.", "Custom Island Event: do at your own risk",
-                                  MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+                                  "Child, which can confuse the Golden Child's puzzle.")) {
             return 0;
         }
     }
@@ -575,7 +586,7 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
            Mommy for anyone, a puzzle's own Heathen included, "with a 'do at
            your own risk' message": the statuses past the masks, or any type
            for a Heathen the game itself made one of those. */
-        int risky = t->status >= 5;
+        int risky = t->status >= ui.a->status_risky_from;
         int i;
         /* Any change but "Becomes a Heathen" (which a Heathen already is) to
            one of the game's own purple, Chief or Mommy Heathens. */
@@ -585,8 +596,7 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
             risky = kind == STORY_KIND_HEATHEN_PURPLE || kind == STORY_KIND_HEATHEN_CHIEF
                     || kind == STORY_KIND_HEATHEN_MOMMY;
         }
-        if (risky && MessageBoxA(window, ui.a->status_note, "Custom Island Event: do at your own risk",
-                                 MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+        if (risky && !ui_risk(window, ui.a->status_note)) {
             return 0;
         }
     }
@@ -792,10 +802,8 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
                                   && ui.roster[position].kind == STORY_KIND_TRIBAL_CHIEF;
                 }
                 if (dead_chief && live_chief
-                    && MessageBoxA(window, "A dead Tribal Chief is chosen: they come back to life while another "
-                                   "chief lives, so the village would have two chiefs. Do this at your own risk.",
-                                   "Custom Island Event: do at your own risk",
-                                   MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+                    && !ui_risk(window, "A dead Tribal Chief is chosen: they come back to life while another "
+                                   "chief lives, so the village would have two chiefs.")) {
                     return TRUE;
                 }
             }
@@ -1278,10 +1286,8 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
                     live_chief |= !ui.roster[i].dead && ui.roster[i].kind == STORY_KIND_TRIBAL_CHIEF;
                 }
                 if (dead_chief && live_chief
-                    && MessageBoxA(window, "A Tribal Chief is chosen to come back while another chief lives: "
-                                   "the village would have two chiefs. Do this at your own risk.",
-                                   "Custom Island Event: do at your own risk",
-                                   MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+                    && !ui_risk(window, "A Tribal Chief is chosen to come back while another chief lives: "
+                                   "the village would have two chiefs.")) {
                     return TRUE;
                 }
             }

@@ -50,7 +50,7 @@ def _lists(source: str) -> dict[str, str]:
     """PREFERENCES_47/62/79 as the joined string literal each declares."""
     found = {}
     for match in re.finditer(
-        r"static const char (PREFERENCES_\d+)\[\] =\s*((?:\"[^\"]*\"\s*)+);", source
+        r"static const char (PREFERENCES_\d+(?:_VV3)?)\[\] =\s*((?:\"[^\"]*\"\s*)+);", source
     ):
         found[match.group(1)] = "".join(re.findall(r'"([^"]*)"', match.group(2)))
     return found
@@ -67,7 +67,7 @@ def _parentage_rows() -> dict[int, tuple[int, int, int, str]]:
     table = _strip_comments(EXPORTER.read_text(encoding="utf-8"))
     table = table[table.index("GAME_LAYOUTS[6] = {") :]
     rows = re.findall(
-        r"(0x[0-9A-Fa-f]+|\d+),\s*(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*(PREFERENCES_\d+),\s*"
+        r"(0x[0-9A-Fa-f]+|\d+),\s*(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*(PREFERENCES_\d+(?:_VV3)?),\s*"
         r"(?:0x[0-9A-Fa-f]+|\d+),\s*\d+,\s*[01],\s*SKILL_NAMES_VV\d,\s*"
         r'L"Virtual Villagers (\d) Births and Conceptions Log"',
         table,
@@ -81,7 +81,7 @@ def _population_rows() -> dict[int, tuple[int, int, int, str]]:
     table = _strip_comments(POPULATION.read_text(encoding="utf-8"))
     table = table[table.index("GAME_LAYOUTS[6] = {") :]
     rows = re.findall(
-        r"(0x[0-9A-Fa-f]+)u,\s*(0x[0-9A-Fa-f]+)u,\s*(\d+)u,\s*(PREFERENCES_\d+),\s*"
+        r"(0x[0-9A-Fa-f]+)u,\s*(0x[0-9A-Fa-f]+)u,\s*(\d+)u,\s*(PREFERENCES_\d+(?:_VV3)?),\s*"
         r'"Virtual Villagers (\d)"',
         table,
     )
@@ -112,13 +112,13 @@ class ConceptionRecordPrintsLikesAndDislikesTests(unittest.TestCase):
     def test_both_parents_get_likes_and_dislikes_between_body_and_the_next_block(self):
         self.assertRegex(
             self.source,
-            r'"  Mother: %s\\n"\s*"    Age at conception: %d\\n"\s*"    Head: %d\\n"\s*'
+            r'"  Mother: %s\\n"\s*"    Age at conception: %d\\n"\s*"    Sex: %s\\n"\s*"    Head: %d\\n"\s*'
             r'"    Body: %d\\n"\s*"    Likes: %s\\n"\s*"    Dislikes: %s\\n"\s*"  Father: %s\\n"',
             "the mother's likes and dislikes must follow her body, before the Father block",
         )
         self.assertRegex(
             self.source,
-            r'"  Father: %s\\n"\s*"    Age at conception: %s\\n"\s*"    Head: %s\\n"\s*'
+            r'"  Father: %s\\n"\s*"    Age at conception: %s\\n"\s*"    Sex: %s\\n"\s*"    Head: %s\\n"\s*'
             r'"    Body: %s\\n"\s*"    Likes: %s\\n"\s*"    Dislikes: %s\\n"\s*'
             r'"  Babies in pregnancy: %d\\n"',
             "the father's likes and dislikes must follow his body, before the baby count",
@@ -181,10 +181,11 @@ class OffsetsAgreeWithThePopulationExporterTests(unittest.TestCase):
         the parentage log."""
         parentage = _lists(EXPORTER.read_text(encoding="utf-8"))
         population = _lists(POPULATION.read_text(encoding="utf-8"))
-        self.assertEqual(sorted(parentage), ["PREFERENCES_47", "PREFERENCES_62", "PREFERENCES_79"])
+        self.assertEqual(sorted(parentage),
+                         ["PREFERENCES_47", "PREFERENCES_62", "PREFERENCES_79", "PREFERENCES_79_VV3"])
         self.assertEqual(parentage, population)
         for name, words in parentage.items():
-            self.assertEqual(len(words.split(",")), int(name.rsplit("_", 1)[1]), name)
+            self.assertEqual(len(words.split(",")), int(name.split("_")[1]), name)
         self.assertEqual(parentage["PREFERENCES_47"].split(",")[0], "ants", "zero-based: index 0 is ants")
 
     def test_the_harness_feeds_the_dll_the_same_geometry(self):
@@ -223,9 +224,13 @@ class TheShippedDllAndManifestsCarryItTests(unittest.TestCase):
         )
         for head in (b"ants,crowds,resting,laundry,medicine,turnips,",):
             self.assertIn(head, blob, "the preference lists must be in the shipped DLL")
-        self.assertEqual(blob.count(b"stars,mango,nature"), 1, "the 79-entry list")
+        # Each game's own list (tests/test_preference_lists_match_the_exes.py):
+        # The Tree of Life's and New Believers', The Secret City's, The Lost
+        # Children's, and A New Home's, which ends at "sleeping".
+        self.assertEqual(blob.count(b"stars,mango,nature"), 2, "the two 79-entry lists")
+        self.assertEqual(blob.count(b"dirt,alchemy,potions,"), 1, "The Secret City's own")
         self.assertEqual(blob.count(b"clouds,dirt\x00"), 1, "the 62-entry list ends at dirt")
-        self.assertEqual(blob.count(b"surprises,jokes\x00"), 1, "the 47-entry list ends at jokes")
+        self.assertEqual(blob.count(b"surprises,jokes,sleeping\x00"), 1, "the 47-entry list ends at sleeping")
         self.assertIn(b"(none)", blob)
 
     def test_every_games_description_promises_likes_and_dislikes(self):

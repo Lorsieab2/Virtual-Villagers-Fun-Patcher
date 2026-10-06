@@ -2779,8 +2779,15 @@ class App(tk.Tk):
             "its logs and repair everything confirmed wrong WITHOUT asking (every "
             "change is backed up and listed in the Repairs log). This needs a game "
             "patched with a patch that keeps logs, such as Cause of Death or Show "
-            "Parents; a game patched without one has nothing to repair. Nothing is repaired "
-            f"now.\n\nThe save folder {folder.name} is backed up first. Continue?",
+            "Parents; a game patched without one has nothing to repair. "
+            + (
+                "Likes and dislikes an older patcher wrote with the wrong word list are "
+                "corrected now (each log is backed up beside itself); everything else is "
+                "repaired by the game."
+                if number in (1, 3)
+                else "Nothing is repaired now."
+            )
+            + f"\n\nThe save folder {folder.name} is backed up first. Continue?",
             parent=parent,
         ):
             return
@@ -2804,7 +2811,13 @@ class App(tk.Tk):
             "repair its logs without asking, then close normally from its own menu "
             "so the repairs are saved.\n\n"
             f"{len(result.cleared)} \"already checked\" marker(s) cleared.\n\n"
-            f"Backup: {result.backup.backup_folder}",
+            + (
+                f"Like and dislike words corrected now: {sum(w.count for w in result.words)} "
+                f"in {len(result.words)} log file(s) (listed in the Repairs log).\n\n"
+                if result.words
+                else ""
+            )
+            + f"Backup: {result.backup.backup_folder}",
             parent=parent,
         )
 

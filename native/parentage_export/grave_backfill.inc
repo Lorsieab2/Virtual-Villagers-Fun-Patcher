@@ -262,6 +262,7 @@ struct identity {
     int last_age;          /* the age at its latest snapshot within the grave's age */
     int outlived;          /* listed older than the grave's age */
     int alive;             /* in the village now */
+    char sex[16];          /* "Male" / "Female", or empty from a log that has no Sex line */
     char likes[64];
     char dislikes[64];
     char when[32];
@@ -282,6 +283,7 @@ struct history_villager {
     char name[BACKFILL_NAME];
     int age, head, body;
     int have_age, have_head, have_body;
+    char sex[16];
     char likes[64];
     char dislikes[64];
 };
@@ -330,6 +332,7 @@ static void history_villager_done(struct history_villager *v, struct backfill_ta
         } else {
             /* Snapshots are read oldest first: the latest one wins. */
             id->last_age = v->age;
+            lstrcpynA(id->sex, v->sex, (int)sizeof id->sex);
             lstrcpynA(id->likes, v->likes[0] ? v->likes : "(none)", (int)sizeof id->likes);
             lstrcpynA(id->dislikes, v->dislikes[0] ? v->dislikes : "(none)", (int)sizeof id->dislikes);
             lstrcpynA(id->when, when, (int)sizeof id->when);
@@ -473,19 +476,22 @@ static int read_history(int game_id, const char *village, struct backfill_target
         FILE *file;
         int ours = 0;
         int expect_village = 0;
+        LONGLONG old_words;                   /* likes before this offset: the old list's */
+        LONGLONG at = 0;
         if (!history_path(folder, number, path)) {
             return 0;
         }
         if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
             continue;                         /* a number never written */
         }
+        old_words = vv_log_words_boundary(game_id, path);
         file = _wfopen(path, L"rb");
         if (file == NULL) {
             return 0;
         }
         memset(&v, 0, sizeof v);
         when[0] = '\0';
-        while (fgets(line, (int)sizeof line, file) != NULL) {
+        while ((at = _ftelli64(file)) >= 0 && fgets(line, (int)sizeof line, file) != NULL) {
             const char *value;
             trim_line(line);
             if (pass == 0) {
@@ -544,10 +550,14 @@ static int read_history(int game_id, const char *village, struct backfill_target
             } else if ((value = line_value(line, "Body")) != NULL) {
                 v.body = atoi(value);
                 v.have_body = 1;
+            } else if ((value = line_value(line, "Sex")) != NULL) {
+                lstrcpynA(v.sex, value, (int)sizeof v.sex);
             } else if ((value = line_value(line, "Likes")) != NULL) {
-                lstrcpynA(v.likes, value, (int)sizeof v.likes);
+                lstrcpynA(v.likes, at < old_words ? vv_log_words_fix(game_id, value) : value,
+                          (int)sizeof v.likes);
             } else if ((value = line_value(line, "Dislikes")) != NULL) {
-                lstrcpynA(v.dislikes, value, (int)sizeof v.dislikes);
+                lstrcpynA(v.dislikes, at < old_words ? vv_log_words_fix(game_id, value) : value,
+                          (int)sizeof v.dislikes);
             }
         }
         if (ferror(file)) {
@@ -668,19 +678,21 @@ static int write_backfill(int game_id, const struct backfill_target *target) {
     if (target->chosen >= 0) {
         const struct identity *id = &target->identity[target->chosen];
         _snprintf_s(looks, sizeof looks, _TRUNCATE,
-                    "  Head: %d\n  Body: %d\n  Likes: %s\n  Dislikes: %s\n",
-                    id->head, id->body, id->likes, id->dislikes);
+                    "  Sex: %s\n  Head: %d\n  Body: %d\n  Likes: %s\n  Dislikes: %s\n",
+                    id->sex[0] ? id->sex : "(unknown)", id->head, id->body, id->likes,
+                    id->dislikes);
         _snprintf_s(source, sizeof source, _TRUNCATE,
-                    "  Head, body, likes and dislikes: from the Village History snapshot of %s"
+                    "  Sex, head, body, likes and dislikes: from the Village History snapshot of %s"
                     " (age %d then)\n", id->when, id->last_age);
     } else {
         _snprintf_s(looks, sizeof looks, _TRUNCATE, "%s",
-                    "  Head: (unknown)\n  Body: (unknown)\n  Likes: (unknown)\n  Dislikes: (unknown)\n");
+                    "  Sex: (unknown)\n  Head: (unknown)\n  Body: (unknown)\n  Likes: (unknown)\n"
+                    "  Dislikes: (unknown)\n");
         _snprintf_s(source, sizeof source, _TRUNCATE, "%s",
                     target->ambiguous
-                        ? "  Head, body, likes and dislikes: unknown -- the grave does not keep them, and"
+                        ? "  Sex, head, body, likes and dislikes: unknown -- the grave does not keep them, and"
                           " more than one villager in the Village History log could be this one\n"
-                        : "  Head, body, likes and dislikes: unknown -- the grave does not keep them, and"
+                        : "  Sex, head, body, likes and dislikes: unknown -- the grave does not keep them, and"
                           " the Village History log does not list this villager\n");
     }
     written = _snprintf(text, sizeof text,

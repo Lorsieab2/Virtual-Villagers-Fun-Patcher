@@ -1718,6 +1718,57 @@ def _set_custom(story, event: Event, tick=0):
     story.proc.export("VvfpStoryProbeSetTick", tick)
 
 
+# The event trigger's villager draw, per game: (call site, stock picker).
+EVENT_PICK = {"vv1": (0x4237DD, 0x43BCD0), "vv2": (0x42EEED, 0x44BAE0),
+              "vv3": (0x468757, 0x45C9D0), "vv4": (0x43FA70, 0x4679B0),
+              "vv5": (0x44272F, 0x471870)}
+
+
+@emulated
+class FastDeliveryTests(unittest.TestCase):
+    """A Custom Island Event arrives within seconds (the owner, 2026-10-06):
+    while one is armed, the trigger's one random villager draw is asked
+    again until it draws a villager the trigger accepts -- custom events
+    only, all five games (native/vvfp_story_upgrades/story_fast_delivery.inc)."""
+
+    def _pick(self, story, draws, fits, none=-1):
+        buf = story.proc.alloc(8 * len(draws) + 4)
+        story.proc.write(buf, struct.pack(f"<{len(draws)}i", *draws))
+        story.proc.write(buf + 4 * len(draws), struct.pack(f"<{len(fits)}i", *fits))
+        calls = buf + 8 * len(draws)
+        drawn = story.proc.export("VvfpStoryProbeFastPick", buf, buf + 4 * len(draws),
+                                  len(draws), none & 0xFFFFFFFF, calls)
+        drawn = struct.unpack("<i", struct.pack("<I", drawn & 0xFFFFFFFF))[0]
+        return drawn, struct.unpack("<i", story.proc.read(calls, 4))[0]
+
+    def test_every_game_retargets_its_draw(self):
+        for game, (site, stock) in EVENT_PICK.items():
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            code = story.proc.read(site, 5)
+            with self.subTest(game=game):
+                self.assertEqual(code[0], 0xE8)
+                target = (site + 5 + struct.unpack("<i", code[1:])[0]) & 0xFFFFFFFF
+                self.assertNotEqual(target, stock, "the draw now goes through the wrapper")
+
+    def test_it_draws_until_a_villager_fits(self):
+        story = Story(next(g for g in GAMES if have_stock(g)))
+        self.assertEqual(self._pick(story, [5, 6, 7, 8], [0, 0, 1, 0]), (7, 3))
+        self.assertEqual(self._pick(story, [9], [1]), (9, 1), "a first fit is kept")
+
+    def test_nobody_eligible_is_answered_at_once(self):
+        story = Story(next(g for g in GAMES if have_stock(g)))
+        self.assertEqual(self._pick(story, [-1, 3], [0, 1]), (-1, 1))
+        self.assertEqual(self._pick(story, [0, 3], [0, 1], none=0), (0, 1))
+
+    def test_a_village_where_nobody_fits_still_waits(self):
+        """After 64 draws the last one goes back and the stock check fails,
+        exactly as the game itself would."""
+        story = Story(next(g for g in GAMES if have_stock(g)))
+        self.assertEqual(self._pick(story, [4], [0]), (4, 64))
+
+
 CHOOSER = {
     # game: (call site, resume, the game's chooser, text buffer size)
     "vv1": (0x428777, 0x42877C, 0x428470),

@@ -218,6 +218,7 @@ class ApprovalResult:
     cleared: list[Path]
     approval: Path
     backup: vv_save_backup.BackupResult
+    words: list = field(default_factory=list)   # WordFix: old like / dislike words put right now
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -292,4 +293,105 @@ def approve_repair(
             f"The approval could not be written ({exc}). The game will not repair "
             f"anything; the backup is in {backup.backup_folder}."
         ) from exc
-    return ApprovalResult(folder, slot, game, cleared, approval, backup)
+    words: list[WordFix] = []
+    if game in load_checker().WORD_FIXES:
+        try:
+            village = load_checker().births_log(folder, game, slot)[0].village
+        except Exception:                       # the header is only the Repairs log's label
+            village = None
+        words = fix_log_words(folder, game)
+        note_word_repair(folder, game, village, words, now)
+    return ApprovalResult(folder, slot, game, cleared, approval, backup, words)
+
+
+# ---------------------------------------------------------------------------
+# Repair Logs: the old like / dislike words (v1.35.61)
+# ---------------------------------------------------------------------------
+
+WORD_BACKUP_SUFFIX = ".before-v1.35.61-repair"
+
+
+@dataclass
+class WordFix:
+    name: str            # the log file, inside the save folder
+    count: int           # words put right
+    backup: str          # the backup's file name
+
+
+def _word_backup(path: Path) -> Path:
+    for k in range(1, 1000):
+        candidate = path.with_name(path.name + WORD_BACKUP_SUFFIX + ("" if k == 1 else f"-{k}"))
+        if not candidate.exists():
+            return candidate
+    raise LogToolError(f"{path.name} has too many backups already; nothing was changed in it.")
+
+
+def fix_log_words(folder: Path, game: int) -> list[WordFix]:
+    """Put the game's own like and dislike words into every log an older patcher wrote with the
+    wrong list (scripts/vvfp_consistency_check.py old_words), with the game closed.
+
+    Each file is copied beside itself first (".before-v1.35.61-repair", never replacing one),
+    rewritten through a temporary file, and its boundary recorded as 0 in the game's Log Words
+    file, so the same words are never translated twice."""
+    checker = load_checker()
+    folder = Path(folder)
+    done: list[WordFix] = []
+    dat = folder / checker.LOG_WORDS.format(game=game)
+    for f in checker.old_words(folder, game):
+        data = f.path.read_bytes()
+        out, at = [], 0
+        for start, end, _old, new in f.fixes:
+            out.append(data[at:start])
+            out.append(new.encode("latin-1"))
+            at = end
+        out.append(data[at:])
+        backup = _word_backup(f.path)
+        temporary = f.path.with_name(f.path.name + ".tmp")
+        try:
+            with open(f.path, "rb") as source, open(backup, "xb") as copy:
+                copy.write(source.read())
+            temporary.write_bytes(b"".join(out))
+            os.replace(temporary, f.path)
+            dat.parent.mkdir(parents=True, exist_ok=True)
+            with open(dat, "ab") as boundaries:
+                boundaries.write(f"0\t{f.name}\r\n".encode("utf-8"))
+        except OSError as exc:
+            try:
+                temporary.unlink()
+            except OSError:
+                pass
+            raise LogToolError(
+                f"{f.path.name} could not be corrected ({exc}). "
+                f"{len(done)} log file(s) were corrected before it."
+            ) from exc
+        done.append(WordFix(f.name, len(f.fixes), backup.name))
+    return done
+
+
+def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[WordFix],
+                     now: datetime | None = None) -> None:
+    """One "Repair <n>" record in the Repairs log (native/shared/repairs_log.h's shape)."""
+    if not fixes:
+        return
+    logs = Path(folder) / "Virtual Villagers Fun Patcher Logs" / "Repairs"
+    logs.mkdir(parents=True, exist_ok=True)
+    number = 1
+    while (logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt").exists():
+        number += 1
+    path = logs / f"Virtual Villagers {game} Repairs Log {number}.txt"
+    existing = path.read_bytes().decode("latin-1") if path.exists() else ""
+    repairs = sum(line.startswith("Repair ") for line in existing.splitlines())
+    if repairs >= 256 or len(existing) >= 4 * 1024 * 1024:
+        path = logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt"
+        existing, repairs = "", 0
+    header = village or "Village: (all villages in this save folder)"
+    last = [line for line in existing.splitlines() if line.startswith("Village:")]
+    when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
+    text = "" if last and last[-1].rstrip() == header else header + "\r\n"
+    text += f"Repair {repairs + 1}\r\n  Date: {when}\r\n"
+    text += "  Checked: the like and dislike words in the logs, against the game's own list\r\n"
+    for fix in fixes:
+        text += f"  Corrected: {fix.name} -- {fix.count} word(s)\r\n"
+    text += "  Backup: " + ", ".join(fix.backup for fix in fixes) + "\r\n\r\n"
+    with open(path, "ab") as log:
+        log.write(text.encode("latin-1", "replace"))

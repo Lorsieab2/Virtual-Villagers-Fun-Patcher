@@ -474,6 +474,28 @@ class StatusTests(unittest.TestCase):
                 ok, r, _ = s.apply(Event(village=0b1000))
                 self.assertEqual((r["refused"], len(s.calls[0x43C350])), (1, 2), "no room, no child")
 
+    def test_anyone_can_be_made_the_golden_child(self):
+        """The owner (2026-10-06): "set everyone to be Golden Child in VV1
+        (with 'at own risk' warning)".  The family the game knows him by
+        (+0x36C 0xC7) and, the first time, the puzzle's latch and hour."""
+        if not have_stock("vv1"):
+            self.skipTest("no stock executable")
+        s = story("vv1")
+        w = s.village.world
+        p = s.proc
+        p.put32(w + 0x9E1C, 0)
+        p.stub(0x402F70, lambda q: (5 * 3600, 0))
+        v = s.village
+        v.put(2, sex="f", years=30, name="Ana")
+        v.put(3, sex="m", years=4, name="Kito")
+        ok, r, _ = s.apply(Event(changes=[s.change(2, status=0), s.change(3, status=0)]))
+        self.assertEqual(r["refused"], 0)
+        self.assertEqual((v.i32(2, 0x36C), v.i32(3, 0x36C)), (0xC7, 0xC7))
+        self.assertEqual((p.read(w + 0xA008, 1), p.u32(w + 0x9E80)), (b"\1", 5))
+        source = (ROOT / "native/vvfp_story_upgrades/story_c1.inc").read_text(encoding="utf-8")
+        self.assertIn('"Becomes the Golden Child"', source)
+        self.assertIn('"Do this at your own risk: the game never makes anyone else the Golden Child.', source)
+
     def test_a_golden_child_from_the_event_is_a_custom_island_event_arrival(self):
         """The owner's v1.35.58 preview: Okwui, the Golden Child this event made,
         was logged "How: unknown" -- the event never told Cause of Death, which

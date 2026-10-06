@@ -34,6 +34,7 @@ EXPORTS
     VvfpStoryProbeSetPick=_VvfpStoryProbeSetPick@12
     VvfpStoryProbeInstallPageRoll=_VvfpStoryProbeInstallPageRoll@0
     VvfpStoryProbeSetTick=_VvfpStoryProbeSetTick@4
+    VvfpStoryProbeFastPick=_VvfpStoryProbeFastPick@20
     VvfpStoryProbeFailWrite=_VvfpStoryProbeFailWrite@4
     VvfpStoryProbePending=_VvfpStoryProbePending@4
     VvfpStoryProbePossible=_VvfpStoryProbePossible@8
