@@ -640,7 +640,9 @@ def build() -> None:
                 "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an "
                 "event (title, description, village changes, new villagers, per-villager changes "
                 "for a list with extended selection and the group toggles All Adult Women, All "
-                "Adult Men, All Females, All Males and All Children).  It is queued exactly as the "
+                "Adult Men, All Females, All Males and All Children, plus in New Believers All Heathens "
+                "and one toggle for each Heathen type; each villager's row names the role the game "
+                "keeps for them, such as the Golden Child or the Tribal Chief).  It is queued exactly as the "
                 "Island Event upgrade queues one (the same lock), and when the game's own scheduler "
                 "fires it, the game's own island-event popup shows the custom title and description "
                 "and the changes are made through the game's own routines.",

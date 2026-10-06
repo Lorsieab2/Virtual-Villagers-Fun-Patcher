@@ -10,6 +10,12 @@
    with each other and with individual picks, and a villager matched more than
    once counts once."
 
+   Added (owner, 2026-10-05): in New Believers "All Heathens" and one toggle
+   for each Heathen type the game draws: blue, red, orange, purple, the
+   Heathen Chief and the Heathen Mommy.  The game's mask draw (0x4728C6)
+   picks the type: role +0x1CFC 12 and 14-16 purple, 13 the Chief, otherwise
+   orange +0x1CED, red +0x1CEE or blue; role 17 is the Heathen Mommy.
+
    The list's own extended selection (LBS_EXTENDEDSEL) gives Ctrl and Shift
    their standard meaning; this file only combines that selection with the
    toggles.  Each villager of the roster is visited once, so a villager that
@@ -17,24 +23,54 @@
 #ifndef VVFP_STORY_TARGETS_H
 #define VVFP_STORY_TARGETS_H
 
-#define STORY_T_ADULT_WOMEN 0x01u
-#define STORY_T_ADULT_MEN 0x02u
-#define STORY_T_FEMALES 0x04u
-#define STORY_T_MALES 0x08u
-#define STORY_T_CHILDREN 0x10u
-#define STORY_T_ALL (STORY_T_ADULT_WOMEN | STORY_T_ADULT_MEN | STORY_T_FEMALES \
-                     | STORY_T_MALES | STORY_T_CHILDREN)
+#define STORY_T_ADULT_WOMEN 0x0001u
+#define STORY_T_ADULT_MEN 0x0002u
+#define STORY_T_FEMALES 0x0004u
+#define STORY_T_MALES 0x0008u
+#define STORY_T_CHILDREN 0x0010u
+#define STORY_T_HEATHENS 0x0020u
+#define STORY_T_BLUE_HEATHENS 0x0040u
+#define STORY_T_RED_HEATHENS 0x0080u
+#define STORY_T_ORANGE_HEATHENS 0x0100u
+#define STORY_T_PURPLE_HEATHENS 0x0200u
+#define STORY_T_CHIEF_HEATHENS 0x0400u
+#define STORY_T_HEATHEN_MOMMIES 0x0800u
+#define STORY_T_ALL 0x0FFFu
 
 #define STORY_SEX_MALE 1
 #define STORY_SEX_FEMALE 2
 
+/* What the game itself makes of a villager (ce_adapter.role): the list's
+   label and the Heathen toggles.  STORY_KIND_NONE: nothing special. */
+enum {
+    STORY_KIND_NONE = 0,
+    STORY_KIND_BELIEVER,          /* New Believers */
+    STORY_KIND_RETIRED_CHIEF,     /* New Believers: a believer, role 13 */
+    STORY_KIND_HEATHEN_BLUE,
+    STORY_KIND_HEATHEN_RED,
+    STORY_KIND_HEATHEN_ORANGE,
+    STORY_KIND_HEATHEN_PURPLE,
+    STORY_KIND_HEATHEN_CHIEF,
+    STORY_KIND_HEATHEN_MOMMY,
+    STORY_KIND_GOLDEN_CHILD,      /* A New Home */
+    STORY_KIND_ESTEEMED_ELDER,    /* The Lost Children */
+    STORY_KIND_TRIBAL_CHIEF,      /* The Secret City */
+    STORY_KIND_COUNT
+};
+
 /* One living villager as the target list shows it: the game's record index,
-   its sex normalised to STORY_SEX_*, and its age in the game's own units. */
+   its sex normalised to STORY_SEX_*, its age in the game's own units and its
+   STORY_KIND_*. */
 typedef struct {
     int index;
     int sex;
     int age;
+    int kind;
 } story_member;
+
+static int story_is_heathen(int kind) {
+    return kind >= STORY_KIND_HEATHEN_BLUE && kind <= STORY_KIND_HEATHEN_MOMMY;
+}
 
 /* Whether `m` is matched by any of the `toggles`.  `adult_age` is the game's
    own adult boundary (an age at or above it is an adult). */
@@ -53,6 +89,17 @@ static int story_toggle_matches(const story_member *m, unsigned int toggles, int
         return 1;
     }
     if ((toggles & STORY_T_CHILDREN) && !adult) {
+        return 1;
+    }
+    if ((toggles & STORY_T_HEATHENS) && story_is_heathen(m->kind)) {
+        return 1;
+    }
+    if (((toggles & STORY_T_BLUE_HEATHENS) && m->kind == STORY_KIND_HEATHEN_BLUE)
+        || ((toggles & STORY_T_RED_HEATHENS) && m->kind == STORY_KIND_HEATHEN_RED)
+        || ((toggles & STORY_T_ORANGE_HEATHENS) && m->kind == STORY_KIND_HEATHEN_ORANGE)
+        || ((toggles & STORY_T_PURPLE_HEATHENS) && m->kind == STORY_KIND_HEATHEN_PURPLE)
+        || ((toggles & STORY_T_CHIEF_HEATHENS) && m->kind == STORY_KIND_HEATHEN_CHIEF)
+        || ((toggles & STORY_T_HEATHEN_MOMMIES) && m->kind == STORY_KIND_HEATHEN_MOMMY)) {
         return 1;
     }
     return 0;

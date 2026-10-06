@@ -658,6 +658,15 @@ static int c1_rand_below(int n) {
     return VV1_RAND(n);
 }
 
+/* What the game makes of a villager: the Golden Child is family 0xC7
+   (0x43C350 makes him with it; the delivery 0x42EF39 tests it). */
+static int c1_role(const unsigned char *r, const char **words) {
+    if (*(const int *)(r + 0x36C) == VV1_GOLDEN_FAMILY) {
+        *words = "Golden Child";
+        return STORY_KIND_GOLDEN_CHILD;
+    }
+    return STORY_KIND_NONE;
+}
 static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
@@ -712,7 +721,7 @@ static const ce_adapter C1_ADAPTER = {
        pixels) less the two the villager's picture adds under the title
        (story_c1.inc, "Two choices"); the result replaces the whole text,
        title included; labels of 34 characters (the longest stock label). */
-    49, 13, 49, 13, 1, 34, c1_rand_below, NULL
+    49, 13, 49, 13, 1, 34, c1_rand_below, NULL, c1_role
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
