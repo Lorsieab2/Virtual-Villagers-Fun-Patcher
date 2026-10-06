@@ -376,10 +376,10 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Elders reconcile.  Re-pinned when rebuilt from the source merged
         # with v1.35.58's repair-at-quit and the shared A New Home Time Warp
         # (a body is never aged), and again when the cross-check learned the
-        # orphan mask entries (native/shared/orphan_masks.h, v1.35.59).
+        # orphan mask entries (native/shared/orphan_masks.h, v1.35.59), and again
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "506A5C3DF70C98E49C2A543E0B1FF7A9EB8EA1F52BCED0F120B91EE464A8F075",
+            "88E4180778C97F0A310B15F147CC6701704C055600F5D4BAEA0AD7E34A8CEBB1",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
