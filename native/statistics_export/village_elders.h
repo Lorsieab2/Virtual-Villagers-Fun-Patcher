@@ -1,6 +1,10 @@
 #ifndef VVFP_VILLAGE_ELDERS_H
 #define VVFP_VILLAGE_ELDERS_H
 
+/* The most lines the elders file may hold: a longer file is not read
+   (village_elders.c load), so the reconcile refuses it too. */
+#define VV_ELDERS_FILE_MAX 4096
+
 /* Where a game keeps what Village Elders reads. Offsets are into the
    villager record (from the record base) and into a memorial record. A zero
    pointer or offset means "this game has none". */

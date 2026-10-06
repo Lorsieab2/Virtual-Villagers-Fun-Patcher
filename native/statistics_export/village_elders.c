@@ -69,7 +69,7 @@
 #include "save_folder.h"
 #include "village_elders.h"
 
-#define ELDERS_MAX 4096
+#define ELDERS_MAX VV_ELDERS_FILE_MAX
 #define NAME_MAX_CHARS 40
 
 struct elder {
