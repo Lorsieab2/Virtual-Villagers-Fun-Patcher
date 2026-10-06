@@ -17,6 +17,7 @@ EXPORTS
     VvfpStoryProbeApply=_VvfpStoryProbeApply@20
     VvfpStoryProbeRefusal=_VvfpStoryProbeRefusal@8
     VvfpStoryProbeTargets=_VvfpStoryProbeTargets@20
+    VvfpStoryProbeRole=_VvfpStoryProbeRole@16
     VvfpStoryProbeMerge=_VvfpStoryProbeMerge@16
     VvfpStoryProbeInitChange=_VvfpStoryProbeInitChange@4
     VvfpStoryProbeTitlesLoaded=_VvfpStoryProbeTitlesLoaded@12

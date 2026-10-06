@@ -25,7 +25,7 @@
     "Kept per save slot in 'Virtual Villagers Fun Patcher Data\\Graves\\Virtual Villagers 2 Graves - Save <n>.dat' (written atomically; an unreadable file is set aside, never overwritten; deleted by Start Over).",
     "The listed removals of a living villager write a Disappeared record before the game takes them; the Custom Island Event's \"Disappears\" is reported by the Story / Cheat Upgrades DLL.",
     "Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers 2 Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
-    "The grave's Done writes an Epitaph changed record when the epitaph's text changed.",
+    "The grave's Done writes an Epitaph changed record when the epitaph's text changed; spaces typed before or after the same words are not a change.",
     "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
     "The roster is kept in 'Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual Villagers 2 Village Roster - Save <n>.dat' (written atomically; deleted by Start Over).",
     "Arrivals: a villager a creator made that is neither a birth (the path's own return addresses, read at fixed places on the stack, or the Births and Conceptions log's note) nor a record the game takes away again is decided at the next tick, named by its path (Founder, the island event, Barrel of Babies), and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy). A founder is written only at a save with no village saved in the slot before.",
@@ -41,7 +41,7 @@
     {
       "source": "assets/cause_of_death/VVFP Cause of Death.dll",
       "destination": "VVFP Cause of Death.dll",
-      "sha256": "8189FA8C5C7A4C25FF081DB7710ECE5E6ECEC7DE5F72BEEEB9AC1CF4C05E9A94"
+      "sha256": "9C6DE3B43B6B2DFBB834C6C493D19F54F5266D1BC1BC20DE2BB8F5DCACE7BFFE"
     }
   ],
   "patches": [],

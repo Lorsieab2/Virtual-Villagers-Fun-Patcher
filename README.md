@@ -719,9 +719,9 @@ Moves where children go to play in the dirt. In the stock game the spot is a str
 
 - Patch ID: `vv5_playing_in_the_dirt_spot`
 
-**Devoted Soul Epitaph**
+**Charitable Soul Epitaph**
 
-When a Devotee dies and is buried, the epitaph New Believers writes on the grave is chosen at random between "Respected Citizen" and "Devoted Soul", with equal chances. In the stock game every other job already gets one of two epitaphs on a coin flip (a Farmer is "Child of the Earth" or "Nature's Friend", and so on), but a Devotee was always "Respected Citizen", the game's default, which an adult with no skill at all also gets. A villager's job here is the one the grave names: their highest skill. Only Devotees change: the unskilled adult keeps "Respected Citizen", children and villagers with three or more master skills keep their own epitaphs, and every other job keeps its pair. The epitaph is stored in the grave like any other, so it is saved with the village, the player can still edit it, and the Deaths log records it.
+When a Devotee dies and is buried, the epitaph New Believers writes on the grave is chosen at random, with equal chances, between the game's usual epitaph ("Respected Citizen", or "Respected Devotee" with Guardians of Isola Rewrite) and "Charitable Soul". In the stock game every other job already gets one of two epitaphs on a coin flip (a Farmer is "Child of the Earth" or "Nature's Friend", and so on), but a Devotee always got the usual epitaph, which an adult with no skill at all also gets. A villager's job here is the one the grave names: their highest skill. Only Devotees change: the unskilled adult keeps the usual epitaph, children and villagers with three or more master skills keep their own epitaphs, and every other job keeps its pair. The epitaph is stored in the grave like any other, so it is saved with the village, the player can still edit it, and the Deaths log records it. Graves that earlier versions of this patch wrote as "Devoted Soul" keep that epitaph.
 
 - Patch ID: `vv5_devoted_soul_epitaph`
 
@@ -1158,7 +1158,8 @@ records themselves, and nothing is spent when there is none:
   of Reflections are offered only with room. The Crystal checks before it
   changes anyone's likes.
 - New Believers' Reanimate is refused, with nothing spent, when no record is
-  free. The original game crashed.
+  free, and the gray message bar says "There's no room in your village to
+  revive this person." The original game crashed.
 - Twins and triplets at conception follow the free records. Earlier patcher
   builds read A New Home's lifetime Babies Made count here, so a village that
   had made 256 babies never had twins again.

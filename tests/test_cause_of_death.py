@@ -642,6 +642,28 @@ class NewHomeCauseOfDeath(unittest.TestCase):
         popup, calls = w.open_popup(k)
         self.assertEqual(calls[6][2], ["Our Wise \xc9lder"], "the box opens with the kept text")
 
+    def test_spaces_typed_around_an_unchanged_epitaph_are_not_a_change(self):
+        """Live, v1.35.59: three stray Space presses in the open epitaph box
+        made an "Epitaph changed" record whose old and new epitaph read the
+        same.  Spaces before or after the same text change nothing: no
+        record, and the grave keeps its own epitaph."""
+        g, w = vv1(slot=2)
+        g.tick()
+        g.force_roll(0)
+        w.villager(3, "Olda", 1500, 40, skills=(0, 0, 0, 0, 60))
+        w.old_age(3)
+        k = w.bury(3, best_skill=60, job=3)
+        for typed in ("Dedicated Student   ", "  Dedicated Student", " Dedicated Student "):
+            popup, _ = w.open_popup(k)
+            w.done(popup, typed)
+            self.assertEqual(g.of_kind(EPITAPH), [], repr(typed))
+            popup, calls = w.open_popup(k)
+            self.assertEqual(calls[6][2], ["Dedicated Student"], repr(typed))
+        popup, _ = w.open_popup(k)
+        w.done(popup, "Dedicated  Student")           # a space inside is a real edit
+        self.assertEqual([(e["Old epitaph"], e["New epitaph"]) for e in g.of_kind(EPITAPH)],
+                         [("Dedicated Student", "Dedicated  Student")])
+
     def test_graves_from_before_get_an_epitaph_and_no_cause(self):
         g, w = vv1(slot=2)
         g.tick()
@@ -1042,6 +1064,18 @@ class LostChildrenCauseOfDeath(unittest.TestCase):
         self.assertEqual([(e["Old epitaph"], e["New epitaph"], e["Age at death"]) for e in change],
                          [("Respected Citizen", "Mother of Many", "1500")])
 
+    def test_spaces_typed_around_an_unchanged_epitaph_are_not_a_change(self):
+        g, w = vv2()
+        w.villager(3, "Olda", 1500, 40)
+        w.old_age(3)
+        k = w.bury(3)
+        for typed in ("Respected Citizen   ", "  Respected Citizen", " Respected Citizen ", "Respected Citizen"):
+            w.done(k, typed)
+            self.assertEqual(g.of_kind(EPITAPH), [], repr(typed))
+        w.done(k, "Respected  Citizen")             # a space inside is a real edit
+        self.assertEqual([(e["Old epitaph"], e["New epitaph"]) for e in g.of_kind(EPITAPH)],
+                         [("Respected Citizen", "Respected  Citizen")])
+
     def test_a_name_that_fills_the_record_field_still_matches_its_grave(self):
         """The record's name field is 0x18 bytes and the burial copies it
         with sprintf to its terminator: a 24-letter name carries the bytes
@@ -1327,6 +1361,24 @@ class LaterGames(unittest.TestCase):
             change = g.of_kind(EPITAPH)
             self.assertEqual([(e["Old epitaph"], e["New epitaph"], e["Age at death"]) for e in change],
                              [(old, "Always Remembered", "1500")], game)
+
+    def test_spaces_typed_around_an_unchanged_epitaph_are_not_a_change(self):
+        """Live, New Believers v1.35.59: Pili's grave got an "Epitaph changed"
+        record reading "Respected Devotee" to "Respected Devotee   " -- three
+        stray Space presses in the open box.  The game's Done copies the box
+        back as it always does; the record is written only for a real edit."""
+        for game in self.games():
+            for mode in MODES:
+                g, w = later(game, mode)
+                w.villager(0, "Pili", 1188, 0, 2)
+                w.bury(0)
+                old = g.of_kind(DEATH)[0]["Epitaph"]
+                for typed in (old + "   ", "  " + old, " " + old + " ", old):
+                    w.done(0, typed)
+                    self.assertEqual(g.of_kind(EPITAPH), [], (game, mode, typed))
+                w.done(0, "Respected Devotee")
+                self.assertEqual([(e["Old epitaph"], e["New epitaph"]) for e in g.of_kind(EPITAPH)],
+                                 [(old, "Respected Devotee")], (game, mode))
 
     def test_the_tsunami_and_the_sealed_box_are_disappearances(self):
         if "vv3" in self.games():

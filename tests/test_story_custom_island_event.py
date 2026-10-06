@@ -318,6 +318,108 @@ class TargetTests(unittest.TestCase):
                 self.assertNotIn(10, everyone)         # statue / ghost / spirit
 
 
+# New Believers' Heathen toggles (story_targets.h).
+T_HEATHENS, T_BLUE, T_RED, T_ORANGE, T_PURPLE, T_CHIEF, T_MOMMIES = (
+    0x20, 0x40, 0x80, 0x100, 0x200, 0x400, 0x800)
+
+
+def _role(story, i):
+    kind = story.proc.export("VvfpStoryProbeRole", story.n, i, SCRATCH, 96)
+    return kind, story.proc.cstring(SCRATCH)
+
+
+@emulated
+class RoleTests(unittest.TestCase):
+    """The list shows what the game itself makes of each villager, and New
+    Believers' Heathen toggles pick each Heathen type the mask draw
+    0x4728C6 shows."""
+
+    def _story(self, game):
+        if not have_stock(game):
+            self.skipTest("no stock executable")
+        story = Story(game)
+        _populate(story)
+        return story
+
+    def _vv5(self):
+        story = self._story("vv5")
+        v, p = story.village, story.proc
+        # (index, role +0x1CFC, orange +0x1CED, red +0x1CEE): the believers
+        # are 0, 1, 3 and 4 (4 the Retired Chief); the rest are Heathens.
+        heathens = [(5, 0, 0, 0), (6, 0, 0, 1), (7, 0, 1, 0), (8, 12, 0, 0),
+                    (11, 14, 0, 0), (12, 13, 0, 0), (13, 17, 0, 1)]
+        for i, role, orange, red in heathens:
+            if i > 10:
+                v.put(i, sex="f", years=30, name=f"V{i}")
+            p.write(v.record(i) + 0x1CEC, bytes([1, orange, red]))
+            p.put32(v.record(i) + 0x1CFC, role)
+        p.put32(v.record(4) + 0x1CFC, 13)
+        return story
+
+    def test_new_believers_heathen_toggles(self):
+        story = self._vv5()
+        expected = {
+            T_HEATHENS: [5, 6, 7, 8, 11, 12, 13],
+            T_BLUE: [5],
+            T_RED: [6],
+            T_ORANGE: [7],
+            T_PURPLE: [8, 11],            # role 12 and 14-16 draw purple
+            T_CHIEF: [12],
+            T_MOMMIES: [13],              # role 17, whatever its colour byte
+        }
+        for toggle, want in expected.items():
+            with self.subTest(toggle=toggle):
+                self.assertEqual(_targets(story, toggle), want)
+        self.assertEqual(_targets(story, T_BLUE | T_CHIEF, (0,)), [0, 5, 12])
+
+    def test_new_believers_labels(self):
+        story = self._vv5()
+        want = {0: "Believer", 4: "Believer, Retired Chief", 5: "Heathen, blue",
+                6: "Heathen, red", 7: "Heathen, orange", 8: "Heathen, purple",
+                11: "Heathen, purple", 12: "Heathen Chief", 13: "Heathen Mommy"}
+        for i, words in want.items():
+            with self.subTest(index=i):
+                self.assertEqual(_role(story, i)[1], words)
+
+    def test_heathen_toggles_pick_nobody_in_the_other_games(self):
+        for game in ("vv1", "vv2", "vv3", "vv4"):
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            _populate(story)
+            with self.subTest(game=game):
+                self.assertEqual(_targets(story, 0xFE0), [])
+
+    def test_a_new_home_golden_child(self):
+        story = self._story("vv1")
+        story.proc.put32(story.village.record(5) + 0x36C, 0xC7)
+        self.assertEqual(_role(story, 5)[1], "Golden Child")
+        self.assertEqual(_role(story, 0), (0, ""))
+
+    def test_the_secret_city_tribal_chief(self):
+        story = self._story("vv3")
+        story.proc.write(story.village.record(1) + 0xE80, b"\1")
+        self.assertEqual(_role(story, 1)[1], "Tribal Chief")
+        self.assertEqual(_role(story, 0), (0, ""))
+
+    def test_the_lost_children_esteemed_elder_and_totem(self):
+        story = self._story("vv2")
+        v, p = story.village, story.proc
+        p.write(v.record(7) + 0x7FC, b"\1")
+        self.assertEqual(_role(story, 7)[1], "Esteemed Elder")   # no statue found
+        # The statue 0x44D190 makes: the elder's record copied, +0x558 set,
+        # the art frame its +0x550 modulo 8 (9: frame 1).
+        p.write(v.record(20), p.read(v.record(7), v.L["stride"]))
+        p.put32(v.record(20) + 0x558, 1)
+        p.put32(v.record(20) + 0x550, 9)
+        self.assertEqual(_role(story, 7)[1], "Esteemed Elder, totem: green figure")
+        self.assertEqual(_role(story, 0), (0, ""))
+
+    def test_the_tree_of_life_has_no_role(self):
+        story = self._story("vv4")
+        self.assertEqual(_role(story, 0), (0, ""))
+
+
 @emulated
 class MergeTests(unittest.TestCase):
     """The changes dialog adds one entry per villager and merges later
@@ -2070,6 +2172,9 @@ class DialogResourceTests(unittest.TestCase):
         self.assertTrue(controls[2001][2] & LBS_EXTENDEDSEL, "Ctrl+click / Shift+click selection")
         self.assertEqual([controls[2002 + k][1] for k in range(5)],
                          ["All Adult Women", "All Adult Men", "All Females", "All Males", "All Children"])
+        self.assertEqual([controls[2100 + k][1] for k in range(7)],
+                         ["All Heathens", "All Blue Heathens", "All Red Heathens", "All Orange Heathens",
+                          "All Purple Heathens", "All Chief Heathens", "All Heathen Mommies"])
         self.assertEqual(_dialogs(self.DLL)[302][0], "Custom Island Event")
 
     def test_the_tech_menu_offers_custom_island_event(self):
