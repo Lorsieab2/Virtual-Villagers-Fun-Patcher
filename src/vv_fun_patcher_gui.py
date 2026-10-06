@@ -259,6 +259,13 @@ def _documents_folder() -> Path:
     return Path.home() / "Documents"
 
 
+def _regrab(window) -> None:
+    """Take a modal grab back after a WaitWindow released it: Tk does not
+    restore the previous grab by itself."""
+    if window.winfo_exists():
+        window.grab_set()
+
+
 class WaitWindow:
     """A small "Please wait..." window shown over blocking work.
 
@@ -886,14 +893,23 @@ class App(tk.Tk):
             (2, "game_folders"),
             (3, "open_vanilla_folder"),
             (4, "open_modified_folder"),
-            (5, "back_up_saves"),
-            (6, "restore_saves"),
-            (7, "rename_tribe"),
-            (8, "check_logs"),
-            (9, "repair_logs"),
         ):
             self._help_button(grid, key).grid(
                 row=0, column=column, padx=(12, 0) if column > 2 else 0, pady=(0, 2)
+            )
+        # The save and log links get a grid of their own below: in one row
+        # with the folder fields, ten columns are wider than the window, and
+        # the tab scrolls only vertically, so the last links were unreachable.
+        tools = ttk.Frame(tab)
+        for column, key in (
+            (1, "back_up_saves"),
+            (2, "restore_saves"),
+            (3, "rename_tribe"),
+            (4, "check_logs"),
+            (5, "repair_logs"),
+        ):
+            self._help_button(tools, key).grid(
+                row=0, column=column, padx=(12, 0), pady=(0, 2)
             )
         for index, build in enumerate(self.builds):
             row = index + 1
@@ -920,32 +936,36 @@ class App(tk.Tk):
                 "Modified folder",
                 lambda game_id=build.id: self._open_bulk_folder(game_id, True),
             ).grid(row=row, column=4, padx=(12, 0), pady=4)
+            ttk.Label(tools, text=f"{index + 1}. {short}").grid(
+                row=row, column=0, sticky="w", padx=(0, 8), pady=2
+            )
             self._folder_link(
-                grid,
+                tools,
                 "Back up saves",
                 lambda game=build: self._back_up_saves([game]),
-            ).grid(row=row, column=5, padx=(12, 0), pady=4)
+            ).grid(row=row, column=1, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Restore saves...",
                 lambda game=build: self._restore_saves(game),
-            ).grid(row=row, column=6, padx=(12, 0), pady=4)
+            ).grid(row=row, column=2, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Rename tribe...",
                 lambda game=build: self._rename_tribe(game),
-            ).grid(row=row, column=7, padx=(12, 0), pady=4)
+            ).grid(row=row, column=3, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Check logs...",
                 lambda game=build: self._log_tool(game, repair=False),
-            ).grid(row=row, column=8, padx=(12, 0), pady=4)
+            ).grid(row=row, column=4, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Repair logs...",
                 lambda game=build: self._log_tool(game, repair=True),
-            ).grid(row=row, column=9, padx=(12, 0), pady=4)
+            ).grid(row=row, column=5, padx=(12, 0), pady=2)
         grid.columnconfigure(1, weight=1)
+        tools.pack(anchor="w", pady=(8, 0))
         actions = ttk.Frame(tab)
         actions.pack(fill="x", pady=(10, 0))
         ttk.Button(
@@ -2657,6 +2677,9 @@ class App(tk.Tk):
             number = game().number
             if repair:
                 self._repair_logs(dialog, folder, number, info)
+                # The "Please wait" window took the grab and released it on
+                # closing; take it back so the main window stays inert.
+                _regrab(dialog)
             else:
                 self._check_logs(dialog, folder, number, info)
 
@@ -2678,9 +2701,11 @@ class App(tk.Tk):
                 lambda: vv_log_tools.check_logs(folder, info.slot, number),
             )
         except (vv_log_tools.LogToolError, OSError) as exc:
+            _regrab(parent)
             self.status_var.set("Check Logs: the logs could not be checked.")
             messagebox.showerror("Check Logs", str(exc), parent=parent)
             return
+        _regrab(parent)
         self.status_var.set(f"Check Logs: {info.name}: {result.summary}")
         self._show_log_report(parent, folder, info, result)
 
@@ -2723,7 +2748,16 @@ class App(tk.Tk):
             text.insert("end", line + "\n", tag)
         text.insert("end", f"\n{result.summary}\n", "file")
         text.configure(state="disabled")
-        ttk.Button(frame, text="Close", command=window.destroy).pack(anchor="e", pady=(8, 0))
+
+        def close() -> None:
+            # Hand the grab back to the picker, which was modal before.
+            window.destroy()
+            _regrab(parent)
+
+        ttk.Button(frame, text="Close", command=close).pack(anchor="e", pady=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", close)
+        window.update_idletasks()
+        window.grab_set()
 
     def _repair_logs(self, parent, folder: Path, number: int, info) -> None:
         """Approve the repair of one slot's village, with the game closed."""
