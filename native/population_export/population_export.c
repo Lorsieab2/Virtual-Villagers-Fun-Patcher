@@ -62,6 +62,7 @@
 #include "custom_titles.h"
 #include "former_heathens_read.h"
 #include "mask_line.h"
+#include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
@@ -83,10 +84,10 @@ enum {
        rather than overrunning the buffer. */
     MAX_NAME_BYTES = 64,
 
-    /* The owner asked for "text files hold 256 villagers each". Every
-       supported game's array is 150 slots, so in practice one file holds a
-       whole village -- but the roll is implemented rather than assumed, so a
-       game with a larger array does not silently truncate. */
+    /* The owner asked for "text files hold 256 villagers each". No game's
+       array is larger (A New Home and The Lost Children 256, the later games
+       150, or 256 with 256 Villagers), so one file holds a whole village --
+       but the roll is implemented rather than assumed. */
     VILLAGERS_PER_FILE = 256,
 
     /* No game has more skills than this. Checked per game below. */
@@ -939,7 +940,7 @@ static void drop_ambiguous_former(const struct game_layout *g, const unsigned ch
         int carriers = 0;
         for (index = 0; index < g->slots; ++index) {
             const unsigned char *record = villagers + g->record_base + index * g->stride;
-            if (*(const unsigned char *)(record + g->active) == 1
+            if (*(const unsigned char *)(record + g->active) == 1 && !vv_lookalike(g->stride, record)
                 && vv_title_identity(record, g->name, g->name_capacity, g->likes,
                                      g->dislikes, g->preference_slots) == identity) {
                 ++carriers;
@@ -958,7 +959,7 @@ static void drop_ambiguous_titles(const struct game_layout *g, const unsigned ch
         int carriers = 0;
         for (index = 0; index < g->slots; ++index) {
             const unsigned char *record = villagers + g->record_base + index * g->stride;
-            if (*(const unsigned char *)(record + g->active) == 1
+            if (*(const unsigned char *)(record + g->active) == 1 && !vv_lookalike(g->stride, record)
                 && vv_title_identity(record, g->name, g->name_capacity, g->likes,
                                      g->dislikes, g->preference_slots)
                    == g_custom_titles[i].fingerprint) {
@@ -1367,7 +1368,7 @@ static int append_history(
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *record =
             villagers + g->record_base + index * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1) {
+        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
             continue;
         }
         /* 0: no pregnancy lines in the history -- parents only. */
@@ -1472,7 +1473,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *record =
             villagers + g->record_base + index * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1) {
+        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
             continue;
         }
         if (file == NULL) {

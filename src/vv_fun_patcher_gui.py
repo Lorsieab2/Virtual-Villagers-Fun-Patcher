@@ -41,6 +41,7 @@ from vv_fun_patcher import (
     load_builds,
     load_public_fun_patches,
     load_patch_modes,
+    population_figures,
     resolve_fun_patch_ids,
     validate_all_sources,
 )
@@ -1382,8 +1383,9 @@ class App(tk.Tk):
     def _validate(self, show_popup: bool = True) -> None:
         try:
             build = identify(self._source())
-            variant = get_patch_variant(build, self._mode())
-            maximum = variant.get("absolute_maximum", build.absolute_maximum)
+            _slots, maximum = population_figures(
+                build, self._mode(), self._selected_fun_patch_ids(build.id)
+            )
             self.game_var.set(
                 f"Supported build: {build.title} - selected mode maximum {maximum}"
             )

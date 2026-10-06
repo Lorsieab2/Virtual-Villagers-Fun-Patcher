@@ -45,7 +45,8 @@ def _fnv(h: int, data: bytes) -> int:
 
 
 def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3), dislikes=(4, 5, 6),
-          father: tuple = ("", 0, 0), mother: tuple = ("", 0, 0), expecting: tuple = ("", 0, 0)) -> bytes:
+          father: tuple = ("", 0, 0), mother: tuple = ("", 0, 0), expecting: tuple = ("", 0, 0),
+          health: int = 90) -> bytes:
     """One saved villager of The Secret City (name at entry +0x14)."""
     e = bytearray(STRIDE)
     struct.pack_into("<I", e, 0, 1)
@@ -63,6 +64,7 @@ def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3
     struct.pack_into("<ii", e, n + 0x90, expecting[2], expecting[1])
     struct.pack_into("<3i", e, n + 0xF0, *likes)
     struct.pack_into("<3i", e, n + 0xFC, *dislikes)
+    struct.pack_into("<i", e, n + 0xA4, health)          # record +0xE78; 0 or less is a body
     return bytes(e)
 
 
@@ -186,6 +188,14 @@ class GiveLastNames(unittest.TestCase):
 
 class CodexReview(GiveLastNames):
     """PR #553's review of the last names."""
+
+    def test_a_body_is_never_offered_a_last_name(self):
+        # An audit, 2026-10-06: A New Home already skipped bodies (a body keeps the name it died
+        # with); the later games offered them.
+        body = entry("Kaimi", 1, 2, 4, 4, health=0)
+        data = self.save.read_bytes()[:TABLE + 4 * STRIDE] + body + bytes(64)
+        self.save.write_bytes(data)
+        self.assertNotIn("Kaimi", [v.name for v in ln.living(self.folder, 3, 1)])
 
     def test_stale_records_after_the_end_of_list_flag_are_nobody(self):
         # Live, 2026-10-06: a save keeps stale copies after the villagers; the game stops at the

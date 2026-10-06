@@ -76,6 +76,7 @@
 
 #include "village_identity.h"
 #include "village_rename.h"
+#include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "save_folder.h"
 #include "log_words.h"
 #include "special_title.h"
@@ -991,7 +992,7 @@ static const unsigned char *find_record_by_id(
     for (slot = 0; slot < g->slots; ++slot) {
         const unsigned char *record =
             records + g->record_base + (size_t)slot * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1) {
+        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
             continue;
         }
         if (*(const int *)(record + g->id) == id) {
@@ -2053,7 +2054,7 @@ static const unsigned char *find_record_by_name(
             records + g->record_base + (size_t)slot * g->stride;
         char candidate[MAX_NAME_BYTES];
 
-        if (*(const unsigned char *)(record + g->active) != 1) {
+        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
             continue;
         }
         /* The candidate is read at the KEY's width, not its own, because that
@@ -2419,7 +2420,7 @@ static int take_tribe(int game_id, const unsigned char *records, struct tribe *o
     for (slot = 0; slot < g->slots && slot < TRIBE_SLOTS; ++slot) {
         const unsigned char *record = records + g->record_base + slot * g->stride;
         struct tribe_member *m;
-        if (*(const unsigned char *)(record + g->active) != 1) {
+        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
             continue;
         }
         m = &out->member[out->count++];
@@ -3281,7 +3282,8 @@ static int delivery_litter(int game_id, const struct game_layout *g, const char 
     copy_name_field((const unsigned char *)mother_name, want, sizeof want, g->name_capacity);
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *r = records + g->record_base + (size_t)index * g->stride;
-        if (*(const unsigned char *)(r + g->active) != 1 || *(const int *)(r + g->sex) != g->sex_female
+        if (*(const unsigned char *)(r + g->active) != 1 || vv_lookalike(g->stride, r)
+            || *(const int *)(r + g->sex) != g->sex_female
             || (mother_head >= 0 && *(const int *)(r + g->head) != mother_head)
             || (mother_body >= 0 && *(const int *)(r + g->body) != mother_body)) {
             continue;
@@ -3611,7 +3613,7 @@ static int record_custom_title(int game_id, const struct game_layout *g,
         int carriers = departed ? 1 : 0, index;
         for (index = 0; index < g->slots; ++index) {
             const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
-            if (*(const unsigned char *)(other + g->active) == 1
+            if (*(const unsigned char *)(other + g->active) == 1 && !vv_lookalike(g->stride, other)
                 && vv_title_identity(other, g->name, g->name_capacity, g->likes, g->dislikes,
                                      g->preference_slots) == identity
                 && ++carriers > 1) {
@@ -3645,6 +3647,7 @@ static const char *record_special_title(int game_id, const struct game_layout *g
             for (index = 0; index < g->slots; ++index) {
                 const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
                 if (other != record && *(const unsigned char *)(other + g->active) == 1
+                    && !vv_lookalike(g->stride, other)
                     && vv_title_identity(other, g->name, g->name_capacity, g->likes, g->dislikes,
                                          g->preference_slots) == identity) {
                     ++carriers;

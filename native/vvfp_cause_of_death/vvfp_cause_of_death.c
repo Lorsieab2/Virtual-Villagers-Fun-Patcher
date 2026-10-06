@@ -85,6 +85,7 @@
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
+#include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 
 /* ---- Counters the tests read (TEST build only) ---------------------------- */
 #ifdef VVFP_TEST
@@ -302,18 +303,9 @@ static int rec_age(const unsigned char *record) {
     return *(const int *)(record + REC[g_game].age);
 }
 
-/* Records that look like villagers and are not: The Lost Children's Esteemed
-   Elder statue (+0x558), The Secret City's +0xE94 records, The Tree of
-   Life's ghosts (+0x1CC7), and New Believers' Reanimate in progress (+0x1CE1
-   on the villager; its stand-in corpse is made in the first free record). */
+/* Records that look like villagers and are not (native/shared/villager_lookalike.h). */
 static int rec_lookalike(const unsigned char *record) {
-    switch (g_game) {
-    case 2: return record[0x558] != 0;
-    case 3: return record[0xE94] != 0;
-    case 4: return record[0x1CC7] != 0;
-    case 5: return record[0x1CE1] != 0;
-    default: return 0;
-    }
+    return vv_lookalike(REC[g_game].stride, record);
 }
 
 /* FNV-1a over a name (to its terminator, at most `capacity` bytes) and an

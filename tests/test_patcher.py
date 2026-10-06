@@ -968,6 +968,19 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
 
+    def test_a_256_build_reports_256_slots_and_maximum(self) -> None:
+        # An audit, 2026-10-06: the patch log and the window said 150 for a 256 build.
+        from vv_fun_patcher import population_figures
+        builds = {build.id: build for build in load_builds()}
+        stock_caps = {"vv3": 125, "vv4": 115, "vv5": 105}
+        for game_id, cap in stock_caps.items():
+            with self.subTest(game=game_id):
+                big = [f"{game_id}_population_256"]
+                self.assertEqual(population_figures(builds[game_id], "immediate_fixed", big), (256, 256))
+                self.assertEqual(population_figures(builds[game_id], "collection_progression", big), (256, 256))
+                self.assertEqual(population_figures(builds[game_id], "stock", big), (256, cap))
+                self.assertEqual(population_figures(builds[game_id], "immediate_fixed", []), (150, 150))
+
     def test_gui_descriptions_retain_specific_gameplay_effects(self) -> None:
         rows = [*load_patch_modes(), *load_fun_patches()]
         descriptions = {row.id: row.description for row in rows}

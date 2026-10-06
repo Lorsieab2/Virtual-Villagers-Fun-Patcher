@@ -9865,6 +9865,20 @@ def remove_vv5_individual_running_parent(
     return removed
 
 
+def population_figures(build: Build, patch_mode: str, fun_patch_ids) -> tuple[int, int]:
+    """(villager slots, absolute maximum) of a build.  256 Villagers (Experimental) gives 256
+    slots, and Collection Progression and Immediate Fixed then reach 256; No Population Increase
+    keeps the stock cap (the feature's own description)."""
+    variant = get_patch_variant(build, patch_mode)
+    slots = variant.get("villager_slots", build.villager_slots)
+    maximum = variant.get("absolute_maximum", build.absolute_maximum)
+    if POPULATION_256_FEATURE_IDS & set(fun_patch_ids):
+        slots = 256
+        if patch_mode != "stock":
+            maximum = 256
+    return slots, maximum
+
+
 def _result(
     build: Build,
     source: Path,
@@ -9876,8 +9890,9 @@ def _result(
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
-    villager_slots = variant.get("villager_slots", build.villager_slots)
-    absolute_maximum = variant.get("absolute_maximum", build.absolute_maximum)
+    villager_slots, absolute_maximum = population_figures(
+        build, patch_mode, [patch.id for patch in fun_patches]
+    )
     output_name = _output_name(build, patch_mode, fun_patches)
     output_folder = output_folder_for(
         source, build, patch_mode, fun_patches, output_root
@@ -10149,8 +10164,9 @@ def _log_data(
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
-    villager_slots = variant.get("villager_slots", build.villager_slots)
-    absolute_maximum = variant.get("absolute_maximum", build.absolute_maximum)
+    villager_slots, absolute_maximum = population_figures(
+        build, patch_mode, [patch.id for patch in fun_patches]
+    )
     if patch_mode == "stock":
         multiple_birth_saturation = (
             "stock multiple-birth behavior and progression are preserved; automatic physical-capacity safety reduces multiples only when required to fit the remaining villager slots"

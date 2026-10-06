@@ -170,9 +170,12 @@ def _entries(game: int, data: bytes) -> list[int]:
                 out.append(rel(0x370))
         return out
     try:
-        return checker.villager_offsets(game, data, [])
+        offsets = checker.villager_offsets(game, data, [])
     except ValueError:
         raise LastNamesError("The save's villager table was not found.") from None
+    # Living villagers only: not a statue, not a body (its name is the one it died with).
+    return [p for p in offsets if not checker.lookalike(data, p, game)
+            and _i32(data, p + checker.HEALTH[game]) > 0]
 
 
 def living(folder: Path, game: int, slot: int) -> list[Living]:
