@@ -407,17 +407,15 @@ class ChoiceArmingTests(unittest.TestCase):
                                      1 if change == "none" else 0)
                     self.assertEqual(_begin(story)[0], 1 if change == "none" else 0)
 
-    def test_a_question_not_asked_in_ten_minutes_lapses(self):
+    def test_a_question_waits_however_long_it_takes(self):
+        """A two-choice Custom Island Event never lapses with time (the
+        owner, 2026-10-06)."""
         for game, story in _stories():
             _set(story, _question(), _choice(story), tick=1000)
-            story.proc.export("VvfpStoryProbeSetTick", 1000 + TEN_MINUTES)
+            story.proc.export("VvfpStoryProbeSetTick", 1000 + TEN_MINUTES + 1)
             with self.subTest(game=game):
                 self.assertEqual(_state(story)["pending"], 1)
-            story.proc.export("VvfpStoryProbeSetTick", 1000 + TEN_MINUTES + 1)
-            with self.subTest(game=game, case="lapsed"):
-                self.assertEqual(_state(story)["pending"], 0)
-                self.assertEqual(_stats(story)["lapsed"], 1)
-                self.assertEqual(_begin(story)[0], 0)
+                self.assertEqual(_stats(story)["lapsed"], 0)
 
     def test_the_plain_delivery_never_takes_a_question(self):
         for game, story in _stories():

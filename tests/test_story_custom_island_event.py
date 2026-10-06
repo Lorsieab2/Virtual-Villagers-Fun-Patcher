@@ -1996,20 +1996,20 @@ class CustomLockTests(unittest.TestCase):
                     with self.subTest(game=game, kind=kind, change=change):
                         self.assertEqual(p.export("VvfpStoryPickPending", n), 1 if change == "none" else 0)
 
-    def test_a_custom_event_not_delivered_in_ten_minutes_lapses(self):
+    def test_a_custom_event_waits_however_long_it_takes(self):
+        """The owner (2026-10-06): a Custom Island Event no longer lapses
+        after ten minutes; it waits until the game runs an island event."""
         for game in GAMES:
             if not have_stock(game):
                 continue
             story = Story(game)
             _set_custom(story, Event(), tick=1000)
-            story.proc.export("VvfpStoryProbeSetTick", 1000 + TEN_MINUTES)
-            with self.subTest(game=game):
-                self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 1)
-            story.proc.export("VvfpStoryProbeSetTick", 1000 + TEN_MINUTES + 1)
-            with self.subTest(game=game, case="lapsed"):
-                self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 0)
-                stats = struct.unpack("<3i", story.proc.read(story.proc.exports["VvfpStoryStats"], 12))
-                self.assertEqual(stats[2], 1)
+            for later in (TEN_MINUTES + 1, 24 * 60 * 60 * 1000):
+                story.proc.export("VvfpStoryProbeSetTick", 1000 + later)
+                with self.subTest(game=game, later=later):
+                    self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 1)
+            stats = struct.unpack("<3i", story.proc.read(story.proc.exports["VvfpStoryStats"], 12))
+            self.assertEqual(stats[2], 0, "nothing lapsed")
 
 
 # ---------------------------------------------------------------------------

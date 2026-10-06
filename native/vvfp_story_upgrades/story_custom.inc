@@ -180,7 +180,6 @@ static const ce_adapter *ce_adapter_for(int game);
 
 static ce_event ce_armed_event;
 static int ce_armed;               /* 1 while an event is queued and not yet delivered */
-static DWORD ce_armed_tick;
 static story_village ce_armed_village;   /* the village it was queued in */
 static ce_result ce_last_result;
 
@@ -266,7 +265,6 @@ static int ce_why_line(const ce_result *r, char *out) {
     }
     return 1;
 }
-static int ce_last_lapsed;         /* the last queued event lapsed before it could happen */
 /* Two-choice events.  Two stores, so a question the game is showing (asked,
    waiting for a click) is never overwritten by the next event armed: the
    armed choice is ce_choice_store[ce_armed_store] when ce_armed_is_choice,
@@ -282,19 +280,15 @@ static char ce_asked_title[CE_TITLE_BYTES];
 static int ce_last_button = -1;     /* the last resolved button and its rolled outcome */
 static int ce_last_outcome = -1;
 
-/* An armed event the game has not run within PICK_TIMEOUT_MS is dropped,
-   exactly like a pick.  Returns 1 when one was dropped. */
+/* An armed event for a village the player has left is dropped.  It never
+   lapses with time (the owner, 2026-10-06): it waits until the game runs
+   an island event, however long that takes.  Returns 1 when one was
+   dropped. */
 static int ce_drop_lapsed(void) {
     if (ce_armed && !story_village_is(ce_armed_event.game, &ce_armed_village)) {
         /* Another village: the event was for the one the player left. */
         ce_armed = 0;
         STORY_COUNT(discarded);
-        return 1;
-    }
-    if (ce_armed && STORY_TICK() - ce_armed_tick > PICK_TIMEOUT_MS) {
-        ce_armed = 0;
-        ce_last_lapsed = 1;
-        STORY_COUNT(lapsed);
         return 1;
     }
     return 0;
@@ -1385,8 +1379,8 @@ static const char *ce_refusal(int game, const ce_event *e) {
 /* ---- Two-choice events ------------------------------------------------------
 
    ARMING.  A two-choice event is armed exactly as a plain one (ce_arm_with
-   in story_custom_ui.inc): the same lock, the same 10-minute lapse, bound
-   to the same save slot and reset generation.  ce_deliver leaves it alone.
+   in story_custom_ui.inc): the same lock, no lapse with time, bound to the
+   same save slot and reset generation.  ce_deliver leaves it alone.
 
    ASKING.  The game's delivery hook calls ce_choice_begin where it would
    call ce_deliver: the event is taken (so the lock is released as for a

@@ -1965,9 +1965,7 @@ static int ce_arm_with(int game, const ce_event *e, const ce_choice *c) {
     ce_armed_event.game = game;
     ce_store_choice(game, c);
     ce_armed = 1;
-    ce_armed_tick = STORY_TICK();
     ce_armed_village = story_village_now(game);
-    ce_last_lapsed = 0;
     return 1;
 }
 
@@ -1998,11 +1996,6 @@ static int story_custom_island_event(int game, HWND owner) {
                           "It arrives shortly. Close this screen and wait for it to arrive.",
                     "Not right now", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
-    }
-    if (ce_last_lapsed) {
-        ce_last_lapsed = 0;
-        ui_message(owner, "The last custom island event you queued did not happen within ten "
-                          "minutes, so it was cancelled.");
     }
     ui.game = game;
     ui.a = ce_adapter_for(game);
