@@ -14,3 +14,4 @@ EXPORTS
     Vv4MaskGetForRecord=_Vv4MaskGetForRecord@4 @114
     ShowVv4TimeWarp=_ShowVv4TimeWarp@4 @115
     VvfpStartup=_VvfpStartup@8
+    VvfpMaskOf=_VvfpMaskOf@4

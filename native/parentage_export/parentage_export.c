@@ -81,6 +81,7 @@
 #include "special_title.h"
 #include "custom_titles.h"
 #include "former_heathens_read.h"
+#include "mask_line.h"
 #include "patcher_files.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -3674,7 +3675,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     char likes[64], dislikes[64];
     char skills[512];
     char parents[256];
-    char special[64];
+    char special[128];
     char custom[64];
     char text[RECORD_TEXT_MAX];
     int written;
@@ -3716,6 +3717,17 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         /* The villager's title (native/shared/special_title.h). */
         _snprintf_s(special, sizeof special, _TRUNCATE, "  Special villager: %s\n",
                     record_special_title(game_id, g, record));
+    }
+    if (detail >= 1) {
+        /* The mask (native/shared/mask_line.h): a cosmetic one is known only
+           for a live record (the Origins companion keys it by the record's
+           place); a rebuilt copy keeps New Believers' own Heathen mask. */
+        const char *mask = check || (game_id == GAME_VV5 && record[VV5_FACTION] != 0)
+                               ? vv_mask_name(game_id, record) : NULL;
+        if (mask != NULL) {
+            size_t used = strlen(special);
+            _snprintf_s(special + used, sizeof special - used, _TRUNCATE, "  Mask: %s\n", mask);
+        }
     }
     if (detail >= 2) {
         skill_text(g, record, skills, sizeof skills);

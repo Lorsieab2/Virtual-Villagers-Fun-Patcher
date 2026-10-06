@@ -40,6 +40,15 @@ typedef struct {
 } vvfp_story_host;
 static const vvfp_story_host *vvfp_story_host_table(void);
 
+/* For the log exporters' "Mask:" line (the owner, 2026-10-06: a villager's
+   mask in every villager record and snapshot): the mask this companion keeps
+   on `record` -- 0 none, 1 Blue, 2 Orange, 3 Red, 4 Purple, 5 the Tribal
+   Chief's -- through the same store the Story companion is given. */
+__declspec(dllexport) int __stdcall VvfpMaskOf(void *record) {
+    const vvfp_story_host *host = vvfp_story_host_table();
+    return record != NULL && host->mask_get != NULL ? host->mask_get(record) : 0;
+}
+
 typedef int (__stdcall *vvfp_story_install_fn)(int game);
 typedef int (__stdcall *vvfp_story_active_fn)(int game);
 typedef int (__stdcall *vvfp_story_pick_fn)(int game, HWND owner);

@@ -19,3 +19,4 @@ EXPORTS
     Vv2ExtractAtlas=_Vv2ExtractAtlas@0
     ShowVV2TimeWarp=_ShowVV2TimeWarp@8
     VvfpStartup=_VvfpStartup@8
+    VvfpMaskOf=_VvfpMaskOf@4

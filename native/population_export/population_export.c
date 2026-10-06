@@ -61,6 +61,7 @@
 #include "patcher_files.h"
 #include "custom_titles.h"
 #include "former_heathens_read.h"
+#include "mask_line.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
@@ -993,6 +994,10 @@ static int write_villager(
     {
         const char *special = special_title_of(game_id, g, record);
         if (special != NULL && fprintf(file, "  Special villager: %s\n", special) < 0) return 0;
+    }
+    {
+        const char *mask = vv_mask_name(game_id, record);
+        if (mask != NULL && fprintf(file, "  Mask: %s\n", mask) < 0) return 0;
     }
     if (fprintf(file, "  Age: %d\n", *(const int *)(record + g->age)) < 0) {
         return 0;
