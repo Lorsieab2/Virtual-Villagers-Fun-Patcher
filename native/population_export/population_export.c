@@ -924,6 +924,33 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
 /* A title whose identity two living villagers carry cannot be placed on
    either after a reload renumbered them (the Story companion shows it on
    neither): leave it out of this export. */
+/* The same for New Believers' Former Heathens (Codex, #553): an identity two living villagers
+   carry is nobody's, so neither is given the title.  Its entry's identity is cleared (an
+   identity is never 0), so the lookup finds nothing. */
+static void drop_ambiguous_former(const struct game_layout *g, const unsigned char *villagers) {
+    unsigned int count, i, index;
+    if (!g_former_loaded) {
+        return;
+    }
+    count = vv_former_u32(g_former + 12);
+    for (i = 0; i < count; ++i) {
+        unsigned char *e = g_former + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
+        unsigned int identity = vv_former_u32(e);
+        int carriers = 0;
+        for (index = 0; index < g->slots; ++index) {
+            const unsigned char *record = villagers + g->record_base + index * g->stride;
+            if (*(const unsigned char *)(record + g->active) == 1
+                && vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                     g->dislikes, g->preference_slots) == identity) {
+                ++carriers;
+            }
+        }
+        if (carriers > 1) {
+            memset(e, 0, 4);
+        }
+    }
+}
+
 static void drop_ambiguous_titles(const struct game_layout *g, const unsigned char *villagers) {
     int i, kept = 0;
     unsigned int index;
@@ -1419,6 +1446,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         }
     }
     drop_ambiguous_titles(g, villagers);
+    drop_ambiguous_former(g, villagers);
 
     /* The first file is opened unconditionally, not lazily on the first live
        villager.

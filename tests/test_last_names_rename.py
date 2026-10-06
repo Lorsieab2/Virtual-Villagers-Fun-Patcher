@@ -215,6 +215,23 @@ class CodexReview(GiveLastNames):
         work = ln.plan(self.folder, 3, 1, {people[0].identity: "Akikai", people[1].identity: "Alosaka"})
         self.assertEqual(sorted(work.renames.values()), ["Ago Akikai", "Ago Alosaka"])
 
+    def test_a_name_alone_is_renamed_only_when_every_namesake_is(self):
+        # Codex (#553): a record with only a name (no looks) follows a rename only when every
+        # living villager of that name takes the same new name.
+        namesake = entry("Ago", 0, 2, 1, 2, likes=(7, 8, 9), dislikes=(10, 11, 12))
+        data = self.save.read_bytes()[:TABLE + 4 * STRIDE] + namesake + bytes(64)
+        self.save.write_bytes(data)
+        bare = self._log("Tribe History/Village History 3.txt",
+                         "=== Virtual Villagers 3 -- 2026-10-02 ===\nVillage: Tribe (Save 1)\n"
+                         "Villager 1\n  Name: Ago\n\n")
+        ago = next(v for v in ln.living(self.folder, 3, 1) if v.name == "Ago" and v.identity[1] == 5)
+        work = ln.plan(self.folder, 3, 1, {ago.identity: "Akikai"})
+        self.assertFalse(any(c.path == bare for c in work.changes), "the other Ago keeps his name")
+        others = [v for v in ln.living(self.folder, 3, 1) if v.name == "Ago"]
+        work = ln.plan(self.folder, 3, 1, {v.identity: "Akikai" for v in others})
+        change = next(c for c in work.changes if c.path == bare)
+        self.assertIn(b"  Name: Ago Akikai\r\n", change.updated)
+
     def test_a_damaged_titles_file_is_left_alone(self):
         self.titles.write_bytes(self.titles.read_bytes()[:30])      # count says 1, the entry is cut
         work = ln.plan(self.folder, 3, 1, self.chosen())

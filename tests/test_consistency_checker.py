@@ -233,8 +233,15 @@ class Vv1Fixture(unittest.TestCase):
         self.assertEqual(self.vcr1(game, good)[0][0], "OK")
         bad_order = struct.pack("<4sIIIIIII", b"VCR1", 1, 1, 2, lo, hi, 0, 0) + entry(1, 1) + entry(0, 0)
         self.assertEqual(self.vcr1(game, bad_order)[0][0], "UNCHECKED")
-        bad_version = struct.pack("<4sIIIIIII", b"VCR1", 2, 1, 2, lo, hi, 0, 0) + entry(0, 0) + entry(1, 1)
+        bad_version = struct.pack("<4sIIIIIII", b"VCR1", 3, 1, 2, lo, hi, 0, 0) + entry(0, 0) + entry(1, 1)
         self.assertEqual(self.vcr1(game, bad_version)[0][0], "UNCHECKED")
+        # Version 2 keeps each villager's mask (0..5) in the entry's byte 4 (Codex, #553).
+        masked = lambda i, r, m: struct.pack("<HHBBHQ", i, r, m, 0, 0, 0) + bytes(hi - lo)
+        v2 = struct.pack("<4sIIIIIII", b"VCR1", 2, 1, 2, lo, hi, 0, 0)
+        self.assertEqual(self.vcr1(game, v2 + masked(0, 0, 4) + masked(1, 1, 0))[0][0], "OK")
+        self.assertEqual(self.vcr1(game, v2 + masked(0, 0, 6) + masked(1, 1, 0))[0][0], "UNCHECKED")
+        v1_masked = struct.pack("<4sIIIIIII", b"VCR1", 1, 1, 2, lo, hi, 0, 0) + masked(0, 0, 4) + masked(1, 1, 0)
+        self.assertEqual(self.vcr1(game, v1_masked)[0][0], "UNCHECKED", "version 1 has no mask byte")
         short = good[:-1]
         self.assertEqual(self.vcr1(game, short)[0][0], "UNCHECKED")
 

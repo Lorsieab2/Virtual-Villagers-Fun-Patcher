@@ -70,7 +70,10 @@
    deletes it with the village, and the next save starts a new one. */
 
 #define ROSTER_MAGIC 0x31524356u          /* 'VCR1' */
-#define ROSTER_VERSION 1u
+/* Version 2 keeps each villager's mask (0 none, 1..5 native/shared/mask_line.h) in the
+   entry's first spare byte, so an Unaccounted record written from the snapshot names it
+   (Codex, #553); a version 1 file (those bytes 0) is still read. */
+#define ROSTER_VERSION 2u
 #define ROSTER_HEADER 32u
 #define ROSTER_ENTRY_HEAD 16u
 
@@ -121,11 +124,12 @@ static unsigned char *roster_buffer;          /* the file: header + entries */
 static unsigned char *roster_scratch;         /* one record, rebuilt for the log */
 
 /* FORMAT (little-endian), exactly 32 + count * (16 + (hi - lo)) bytes:
-       u32 magic 'VCR1', u32 version 1, u32 game, u32 count,
+       u32 magic 'VCR1', u32 version 2 (1 read too), u32 game, u32 count,
        u32 lo, u32 hi (the record bytes kept, [lo, hi)), u32 0, u32 0,
        count x { u16 record index, u16 rank (the record's place among all
                  the occupied records the save packs, look-alikes and
-                 temporary records included), u32 0, u64 when saved
+                 temporary records included), u8 mask (version 2; 0 in
+                 version 1), u8 0, u16 0, u64 when saved
                  (FILETIME, local time), (hi - lo) bytes of the record at
                  lo }
    Entries are in record order, one per occupied record that is a villager
@@ -143,13 +147,15 @@ static int roster_validate(const unsigned char *data, DWORD length, void *contex
     unsigned int i;
     unsigned int previous = 0;
     unsigned int previous_rank = 0;
+    unsigned int version;
     (void)context;
     if (length < ROSTER_HEADER) {
         return 0;
     }
     count = *(const unsigned int *)(data + 12);
+    version = *(const unsigned int *)(data + 4);
     if (*(const unsigned int *)data != ROSTER_MAGIC
-        || *(const unsigned int *)(data + 4) != ROSTER_VERSION
+        || (version != 1u && version != ROSTER_VERSION)
         || *(const unsigned int *)(data + 8) != (unsigned int)g_game
         || *(const unsigned int *)(data + 16) != REC[g_game].snapshot_lo
         || *(const unsigned int *)(data + 20) != REC[g_game].snapshot_hi
@@ -162,7 +168,8 @@ static int roster_validate(const unsigned char *data, DWORD length, void *contex
         unsigned int index = (unsigned int)(e[0] | e[1] << 8);
         unsigned int rank = (unsigned int)(e[2] | e[3] << 8);
         if (index >= REC[g_game].slots || rank > index || (i > 0 && index <= previous)
-            || (i > 0 && rank <= previous_rank) || e[4] || e[5] || e[6] || e[7]) {
+            || (i > 0 && rank <= previous_rank) || e[4] > (version == 1u ? 0 : 5) || e[5] || e[6]
+            || e[7]) {
             return 0;
         }
         previous = index;
@@ -210,8 +217,9 @@ static const char *roster_sex(int value) {
 /* "Unaccounted <n>" for a villager last seen in a save (`kept`, rebuilt into
    a scratch record) or found now (`live`). */
 static void roster_log(const unsigned char *record, int live, int index, const char *kind,
-                       const char *last_seen, const char *now) {
+                       const char *last_seen, const char *now, int mask) {
     char before[512];
+    char masked[48];
     char after[160];
     char extra[96];
     int pregnant = REC[g_game].pregnant != 0u && *(const int *)(record + REC[g_game].pregnant) != 0;
@@ -224,8 +232,16 @@ static void roster_log(const unsigned char *record, int live, int index, const c
     if (REC[g_game].heathen != 0u) {
         lstrcatA(extra, record[REC[g_game].heathen] ? "  Faction: Heathen\n" : "  Faction: Believer\n");
     }
-    wsprintfA(before, "  What: %s\n  Age: %d\n  Sex: %s\n  Health: %d\n%s",
-              kind, rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
+    /* A live record's mask the exporter asks for itself; a departed villager's is the one
+       the snapshot kept (New Believers' own Heathen mask is read from the copy by the
+       exporter). */
+    masked[0] = '\0';
+    if (!live && mask >= 1 && mask <= 5
+        && !(REC[g_game].heathen != 0u && record[REC[g_game].heathen] != 0)) {
+        wsprintfA(masked, "  Mask: %s\n", VV_MASK_NAMES[mask]);
+    }
+    wsprintfA(before, "%s  What: %s\n  Age: %d\n  Sex: %s\n  Health: %d\n%s",
+              masked, kind, rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
               rec_health(record), extra);
     wsprintfA(after, "  Record: %d\n  Last seen: %s\n  Found: %s\n", index, last_seen, now);
     COD_COUNT(unaccounted);
@@ -363,12 +379,13 @@ static void roster_reconcile(int slot) {
                 if ((!present || !same) && !report_counts(departed[i], slot)
                     && !backfill_accounts_for(roster_scratch)) {
                     roster_log(roster_scratch, 0, (int)i,
-                               "Left the village with no Death or Disappeared record", last_seen, now);
+                               "Left the village with no Death or Disappeared record", last_seen, now,
+                               kept[i][4]);
                 }
             }
             if (present && (kept[i] == NULL || !same) && !report_counts(arrived[i], slot)) {
                 roster_log(now_record, 1, (int)i,
-                           "Arrived with no Birth record or known arrival", "(never before)", now);
+                           "Arrived with no Birth record or known arrival", "(never before)", now, 0);
             }
         }
     }
@@ -391,6 +408,7 @@ static void roster_reconcile(int slot) {
         e[1] = (unsigned char)(i >> 8);
         e[2] = (unsigned char)((rank - 1) & 0xFF);
         e[3] = (unsigned char)((rank - 1) >> 8);
+        e[4] = (unsigned char)vv_mask_value(g_game, record);
         memcpy(e + 8, stamp, sizeof stamp);
         memcpy(e + ROSTER_ENTRY_HEAD, record + r->snapshot_lo, span);
         ++count;

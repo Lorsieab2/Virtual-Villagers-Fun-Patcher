@@ -159,6 +159,44 @@ class Planning(unittest.TestCase):
               + villager(1, "Sage", 1, 1, skills=(90, 90, 90, 90, 90)))
         self.assertEqual(self.kinds(4)["special"].decided, 0)
 
+    def test_a_snapshot_from_before_a_change_of_looks_is_found(self):
+        # Codex (#553): a Change Appearance alters Head and Body; name, likes and
+        # dislikes still find the villager's older snapshots.
+        write(self.folder, "Tribe Population/Village Population 1.txt",
+              "Village: Tribe (Save 1)\n" + villager(1, "Hoani", 11, 2, "  Custom title: Helpful Spirit\n"))
+        write(self.folder, "Tribe History/Village History 1.txt",
+              snapshot("2026-10-01 10:00", villager(1, "Hoani", 4, 7)))
+        [question] = self.kinds()["custom"].questions.values()
+        self.assertEqual(question.options, ["From 2026-10-01 10:00", additions.FROM_NOW])
+
+    def test_two_current_villagers_alike_leave_old_looks_unmatched(self):
+        write(self.folder, "Tribe Population/Village Population 1.txt",
+              "Village: Tribe (Save 1)\n" + villager(1, "Hoani", 11, 2, "  Custom title: Helpful Spirit\n")
+              + villager(2, "Hoani", 12, 3))
+        write(self.folder, "Tribe History/Village History 1.txt",
+              snapshot("2026-10-01 10:00", villager(1, "Hoani", 4, 7)))
+        self.assertEqual(self.kinds()["custom"].questions, {})
+
+    def test_an_erased_village_in_the_same_slot_is_left_alone(self):
+        # Codex (#553): after Start Over the slot's new village is another tribe; the
+        # old one's snapshots keep their own "Village:" header and are not touched.
+        save = self.folder / "Virtual Villagers - The Secret City1.ldw"
+        save.write_bytes(b"ldwg" + bytes(12))
+        write(self.folder, "Tribe Population/Village Population 1.txt",
+              "Village: Tribe (Save 1)\n" + villager(1, "Hoani", 11, 2, "  Custom title: Helpful Spirit\n"))
+        write(self.folder, "Tribe History/Village History 1.txt",
+              snapshot("2026-09-01 10:00", villager(1, "Hoani", 11, 2)).replace("Village: Tribe", "Village: Gone")
+              + "Tribe renamed from Old to Tribe on 2026-09-20\n\n"
+              + snapshot("2026-09-21 10:00", villager(1, "Hoani", 11, 2)).replace("Village: Tribe", "Village: Old")
+              + snapshot("2026-10-01 10:00", villager(1, "Hoani", 11, 2)))
+        import vv_tribe_rename
+        from unittest import mock
+        with mock.patch.object(vv_tribe_rename, "save_name", return_value="Tribe"):
+            self.assertEqual(additions.current_villages(self.folder, 3, 1),
+                             {"Village: Tribe (Save 1)", "Village: Old (Save 1)"})
+            [question] = self.kinds()["custom"].questions.values()
+        self.assertEqual(question.options, ["From 2026-09-21 10:00", "From 2026-10-01 10:00", additions.FROM_NOW])
+
     def test_repair_logs_applies_what_was_ticked_and_answered(self):
         game_folder = self.folder
         (game_folder / "Virtual Villagers - The Secret City1.ldw").write_bytes(b"ldwg" + bytes(12))

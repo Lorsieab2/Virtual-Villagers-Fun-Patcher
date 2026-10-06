@@ -32,27 +32,32 @@ static const char *const VV_MASK_ORIGINS[6] = {
 
 typedef int (__stdcall *vv_mask_of_fn)(void *record);
 
-static const char *vv_mask_name(int game, const unsigned char *record) {
+/* The mask as a number, 0 none, 1..5 as VV_MASK_NAMES. */
+static int vv_mask_value(int game, const unsigned char *record) {
     static const int FROM_KIND[5] = { 1, 2, 3, 4, 5 };   /* blue, orange, red, purple, chief */
     HMODULE origins;
     vv_mask_of_fn mask_of;
     int mask;
     if (record == NULL || game < 1 || game > 5) {
-        return NULL;
+        return 0;
     }
     if (game == 5 && record[VV5_FACTION] != 0) {
-        return VV_MASK_NAMES[FROM_KIND[vv_former_kind_of(record)]];
+        return FROM_KIND[vv_former_kind_of(record)];
     }
     origins = GetModuleHandleA(VV_MASK_ORIGINS[game]);
     if (origins == NULL) {
-        return NULL;
+        return 0;
     }
     mask_of = (vv_mask_of_fn)GetProcAddress(origins, "VvfpMaskOf");
     if (mask_of == NULL) {
-        return NULL;
+        return 0;
     }
     mask = mask_of((void *)record);
-    return mask >= 1 && mask <= 5 ? VV_MASK_NAMES[mask] : NULL;
+    return mask >= 1 && mask <= 5 ? mask : 0;
+}
+
+static const char *vv_mask_name(int game, const unsigned char *record) {
+    return VV_MASK_NAMES[vv_mask_value(game, record)];
 }
 
 #endif /* VV_MASK_LINE_H */

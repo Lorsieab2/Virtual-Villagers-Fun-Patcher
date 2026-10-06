@@ -107,10 +107,14 @@ class Block:
     slot: int | None                        # the "Village: ... (Save n)" it is under
     date: str | None                        # a History snapshot's date
     game: int | None = None                 # the game the file or its snapshot names
+    village: str | None = None              # the whole "Village: <name> (Save n)" it is under
 
-    def of(self, slot: int, game: int) -> bool:
-        """Under this slot's village of this game (Codex, #553: two games may share a folder)."""
-        return self.slot == slot and (self.game is None or self.game == game)
+    def of(self, slot: int, game: int, villages: set[str] | None = None) -> bool:
+        """Under this slot's village of this game (Codex, #553: two games may share a folder, and
+        a slot reused after Start Over keeps the erased village's History snapshots): `villages`
+        are the headers the slot's current village has had (current_villages)."""
+        return (self.slot == slot and (self.game is None or self.game == game)
+                and (villages is None or self.village in villages))
 
     @property
     def heading(self) -> str:
@@ -140,6 +144,13 @@ class Block:
         return (self.value("Name"), self.int_value("Head"), self.int_value("Body"))
 
     @property
+    def person(self) -> tuple | None:
+        """Name, Likes and Dislikes: what a Change Appearance leaves alone, so a snapshot written
+        before the villager's head or body changed still finds them (Codex, #553)."""
+        key = (self.value("Name"), self.value("Likes"), self.value("Dislikes"))
+        return key if None not in key else None
+
+    @property
     def skills(self) -> list[int]:
         out = []
         inside = False
@@ -163,7 +174,7 @@ def blocks(path: Path, lines: list[str] | None = None) -> list[Block]:
     """Every blank-line separated block, with the village slot and snapshot date above it."""
     lines = read_lines(path) if lines is None else lines
     out: list[Block] = []
-    slot = date = None
+    slot = date = village = None
     named = GAME_IN_NAME.search(path.name)
     game = int(named.group(1)) if named else None
     start = None
@@ -186,11 +197,47 @@ def blocks(path: Path, lines: list[str] | None = None) -> list[Block]:
                 m = VILLAGE.match(chunk[offset])
                 if m:
                     slot = int(m.group(1))
+                    village = chunk[offset].rstrip()
                 offset += 1
             if offset < len(chunk):
-                out.append(Block(path, start + offset, chunk[offset:], slot, date, game))
+                out.append(Block(path, start + offset, chunk[offset:], slot, date, game, village))
             start = None
     return out
+
+
+RENAMED = re.compile(r"^Tribe renamed from (.+) to (.+) on \d{4}-\d{2}-\d{2}")
+
+
+def current_villages(folder: Path, game: int, slot: int) -> set[str] | None:
+    """Every "Village: <name> (Save n)" header the slot's current village has had: its name in
+    the save, and each name a "Tribe renamed from <old> to <new>" note says it had before (Rename
+    Tribe, docs/rename-tribe.md).  None when the save cannot be read (then every header of the
+    slot is taken)."""
+    import vv_tribe_rename
+    checker = tools.load_checker()
+    games = {g.number: g for g in vv_tribe_rename.GAMES}
+    try:
+        data = (Path(folder) / f"{checker.SAVE_STEMS[game]}{slot}.ldw").read_bytes()
+        name = vv_tribe_rename.save_name(games[game], data)
+    except (OSError, KeyError, ValueError):
+        return None
+    if not name:
+        return None
+    names = {name}
+    notes = []
+    for path in checker.log_files(Path(folder)):
+        try:
+            notes += [m.groups() for m in map(RENAMED.match, read_lines(path)) if m]
+        except OSError:
+            continue
+    grew = True
+    while grew:
+        grew = False
+        for old, new in notes:
+            if new in names and old not in names:
+                names.add(old)
+                grew = True
+    return {vv_tribe_rename.village_header(n, slot) for n in names}
 
 
 def person_blocks(folder: Path, slot: int, game: int) -> list[Block]:
@@ -198,9 +245,10 @@ def person_blocks(folder: Path, slot: int, game: int) -> list[Block]:
     Arrived, Unaccounted) under this slot's village, in every log."""
     checker = tools.load_checker()
     out = []
+    villages = current_villages(folder, game, slot)
     for path in checker.log_files(folder):
         for b in blocks(path):
-            if b.of(slot, game) and PERSON_HEAD.match(b.heading):
+            if b.of(slot, game, villages) and PERSON_HEAD.match(b.heading):
                 out.append(b)
     return out
 
@@ -209,7 +257,8 @@ def population_page(folder: Path, slot: int, game: int) -> tuple[Path | None, di
     """The slot's latest Village Population page: each living villager by (name, head, body)."""
     checker = tools.load_checker()
     for path in checker.numbered(folder / checker.LOGS / "Tribe Population", "Village Population"):
-        found = [b for b in blocks(path) if b.of(slot, game) and b.heading.startswith("Villager ")]
+        villages = current_villages(folder, game, slot)
+        found = [b for b in blocks(path) if b.of(slot, game, villages) and b.heading.startswith("Villager ")]
         if found:
             return path, {b.identity: b for b in found}
     return None, {}
@@ -259,14 +308,37 @@ def _dated_inserts(kind: Kind, rank_name: str, label: str, value: str, key: str,
                                    question=key, by_answer=answers))
 
 
+AMBIGUOUS = object()
+
+
+def _persons(current: dict) -> dict:
+    """Each current villager by name, likes and dislikes; AMBIGUOUS when two share them."""
+    out: dict = {}
+    for identity, now in current.items():
+        key = now.person
+        if key is not None:
+            out[key] = AMBIGUOUS if key in out else identity
+    return out
+
+
+def _now_of(b: Block, current: dict, persons: dict) -> tuple | None:
+    """The current villager (an identity of `current`) a record is of: by identity, else by
+    name, likes and dislikes when exactly one current villager has them."""
+    if b.identity in current:
+        return b.identity
+    found = persons.get(b.person) if b.person is not None else None
+    return found if found is not None and found is not AMBIGUOUS else None
+
+
 def plan_custom_titles(folder: Path, slot: int, people: list[Block], current: dict) -> Kind:
     kind = Kind("custom", "Custom titles in older History snapshots")
+    persons = _persons(current)
     for identity, now in current.items():
         title = now.value("Custom title")
         if not title:
             continue
-        older = [b for b in people if b.identity == identity and b.date and not is_population(b.path)
-                 and b.value("Custom title") is None]
+        older = [b for b in people if _now_of(b, current, persons) == identity and b.date
+                 and not is_population(b.path) and b.value("Custom title") is None]
         _dated_inserts(kind, "custom", "Custom title", title, f"custom|{identity}", older)
     return kind
 
@@ -277,12 +349,13 @@ def plan_masks(folder: Path, slot: int, people: list[Block], current: dict, page
         kind.notes.append("No villager wears a mask on the latest Village Population page. If some do, "
                           "play the village once with this patcher and save, then Repair Logs can add them.")
         return kind
+    persons = _persons(current)
     for identity, now in current.items():
         mask = now.value("Mask")
         if not mask:
             continue
-        older = [b for b in people if b.identity == identity and b.date and not is_population(b.path)
-                 and b.value("Mask") is None]
+        older = [b for b in people if _now_of(b, current, persons) == identity and b.date
+                 and not is_population(b.path) and b.value("Mask") is None]
         _dated_inserts(kind, "mask", "Mask", mask, f"mask|{identity}", older)
     return kind
 
@@ -303,10 +376,12 @@ def plan_special(folder: Path, game: int, slot: int, people: list[Block], curren
     Elder, New Believers' Heathen roles and former Heathens)."""
     kind = Kind("special", "Special villager titles in older records")
     asked: dict[tuple, list[Block]] = {}
+    persons = _persons(current)
     for b in people:
         if is_population(b.path) or b.value("Special villager") is not None or b.value("Name") is None:
             continue
-        now = current.get(b.identity)
+        mine = _now_of(b, current, persons)
+        now = current.get(mine) if mine is not None else None
         now_title = now.value("Special villager") if now is not None else None
         title = None
         if b.heading.startswith(("Death", "Disappeared")):
@@ -316,11 +391,11 @@ def plan_special(folder: Path, game: int, slot: int, people: list[Block], curren
             title = "Golden Child"
         elif now_title is not None and now_title != "Esteemed Elder" and game in (2, 3, 5):
             if b.date:
-                asked.setdefault(b.identity, []).append(b)
+                asked.setdefault(mine, []).append(b)
             continue
         elif game == 2 and now_title == "Esteemed Elder":
             if b.date:
-                asked.setdefault(b.identity, []).append(b)
+                asked.setdefault(mine, []).append(b)
             continue
         else:
             title = _skill_title(game, b.skills)
@@ -391,10 +466,11 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
     checker = tools.load_checker()
     kind = Kind("born_as", "Twin / Triplet in older Birth records")
     words = {1: "Single birth", 2: "Twin", 3: "Triplet"}
+    villages = current_villages(folder, game, slot)
     for path in checker.numbered(folder / checker.LOGS / "Births and Conceptions",
                                  f"Virtual Villagers {game} Births and Conceptions Log"):
         lines = read_lines(path)
-        all_blocks = [b for b in blocks(path, lines) if b.of(slot, game)]
+        all_blocks = [b for b in blocks(path, lines) if b.of(slot, game, villages)]
         last_babies: dict[tuple, int] = {}
         k = 0
         while k < len(all_blocks):

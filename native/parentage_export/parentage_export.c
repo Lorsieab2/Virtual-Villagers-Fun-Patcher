@@ -3626,8 +3626,27 @@ static const char *record_special_title(int game_id, const struct game_layout *g
     int kind = -1;
     if (game_id == GAME_VV5 && g->likes != 0u && vv_village_recall(village, sizeof village)
         && vv_former_load(vv_former_header_slot(village), former)) {
-        kind = vv_former_lookup(former, vv_title_identity(record, g->name, g->name_capacity, g->likes,
-                                                          g->dislikes, g->preference_slots));
+        unsigned int identity = vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                                  g->dislikes, g->preference_slots);
+        const unsigned char *records = villager_table(game_id);
+        kind = vv_former_lookup(former, identity);
+        /* An identity another living villager carries too is nobody's (Codex, #553): the
+           title is shown on neither, as a custom title is not. */
+        if (kind >= 0 && records != NULL
+            && memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+            int index, carriers = 0;
+            for (index = 0; index < g->slots; ++index) {
+                const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
+                if (other != record && *(const unsigned char *)(other + g->active) == 1
+                    && vv_title_identity(other, g->name, g->name_capacity, g->likes, g->dislikes,
+                                         g->preference_slots) == identity) {
+                    ++carriers;
+                }
+            }
+            if (carriers > 0) {
+                kind = -1;
+            }
+        }
     }
     return vv_special_title_former(game_id, record, kind);
 }

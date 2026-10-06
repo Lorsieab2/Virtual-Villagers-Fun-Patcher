@@ -150,6 +150,15 @@ class TheLogsPrintIt(unittest.TestCase):
         self.assertIn("vv_former_load(slot, g_former)", population)
         self.assertIn("vv_former_load(vv_former_header_slot(village), former)", parentage)
 
+    def test_a_former_heathen_identity_two_villagers_share_is_nobodys(self):
+        # Codex (#553): the Former Heathens file keys a villager by name, likes and
+        # dislikes; when two living villagers carry one key, neither is named a
+        # Former Heathen.
+        population = (ROOT / "native/population_export/population_export.c").read_text(encoding="utf-8")
+        self.assertIn("drop_ambiguous_former(g, villagers);", population)
+        parentage = (ROOT / "native/parentage_export/parentage_export.c").read_text(encoding="utf-8")
+        self.assertIn("if (carriers > 0) {", parentage)
+
     def test_the_shipped_dlls_carry_it(self):
         for dll in ("assets/population/VVFP Population Export.dll",
                     "assets/parentage/VVFP Parentage Export.dll"):

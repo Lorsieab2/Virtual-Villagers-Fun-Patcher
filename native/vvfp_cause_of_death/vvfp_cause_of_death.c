@@ -76,6 +76,7 @@
 #include "sidecar_io.h"
 #include "custom_titles.h"     /* vv_title_identity: who a former Heathen is */
 #include "former_heathens.h"
+#include "mask_line.h"         /* the mask a roster snapshot keeps */
 #include "save_folder.h"
 #include "patcher_files.h"
 #include "grave_backfill.h"

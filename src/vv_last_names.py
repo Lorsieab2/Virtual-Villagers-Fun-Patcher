@@ -298,9 +298,13 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     result = Plan(renames)
     if not renames:
         return result
+    # What a name with no looks beside it becomes: every living holder of the name, each as it
+    # will be called (one not renamed keeps the name).  A name-only rewrite happens only when
+    # that is one new name (Codex, #553): an unrenamed namesake makes the name ambiguous.
     by_name: dict[str, set] = {}
-    for old, new in renames.items():
-        by_name.setdefault(old[0], set()).add(new)
+    for v in people:
+        by_name.setdefault(v.name, set()).add(renames.get(v.identity, v.name))
+    by_name = {old: news for old, news in by_name.items() if len(news) == 1 and old not in news}
 
     # The save.
     path = save_path(folder, game, slot)
@@ -379,10 +383,11 @@ def _look_alike_questions(folder: Path, game: int, slot: int, people: list[Livin
             renamed_by_name.setdefault(v.name, []).append((v, renames[v.identity]))
     dead: set[tuple] = set()
     seen: dict[tuple, int] = {}
+    villages = additions.current_villages(folder, game, slot)
     for path in checker.log_files(folder):
         lines = additions.read_lines(path)
         for b in additions.blocks(path, lines):
-            if not b.of(slot, game):
+            if not b.of(slot, game, villages):
                 continue
             if b.heading.startswith(("Death", "Disappeared", "Epitaph")):
                 dead.add(b.identity)
@@ -630,13 +635,14 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
     are alive).  A line without looks is renamed when the name alone is unique among those renamed."""
     import vv_log_additions as additions
     checker = tools.load_checker()
+    villages = additions.current_villages(folder, game, slot)
     for path in checker.log_files(folder):
         original = path.read_bytes()
         crlf = b"\r\n" in original
         lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
         n = 0
         for b in additions.blocks(path, lines):
-            if not b.of(slot, game) or b.heading.startswith(("Death", "Disappeared", "Epitaph")):
+            if not b.of(slot, game, villages) or b.heading.startswith(("Death", "Disappeared", "Epitaph")):
                 continue
             for k, line in enumerate(b.lines):
                 m = PERSON_LINE.match(line)

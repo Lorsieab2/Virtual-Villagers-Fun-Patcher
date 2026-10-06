@@ -1194,8 +1194,8 @@ def vcr1_problem(data: bytes, game: int) -> str | None:
     if len(data) < 32:
         return "shorter than its header"
     magic, version, g, count, lo, hi = struct.unpack_from("<4sIIIII", data, 0)
-    if magic != b"VCR1" or version != 1 or g != game:
-        return "not a version 1 roster of this game"
+    if magic != b"VCR1" or version not in (1, 2) or g != game:
+        return "not a version 1 or 2 roster of this game"
     if hi <= lo or count > 256:
         return "impossible snapshot bounds or count"
     entry = 16 + hi - lo
@@ -1205,7 +1205,8 @@ def vcr1_problem(data: bytes, game: int) -> str | None:
     for i in range(count):
         e = 32 + i * entry
         index, rank = struct.unpack_from("<HH", data, e)
-        if (index >= 256 or rank > index or any(data[e + 4:e + 8])
+        # version 2 keeps the villager's mask (0..5) in byte 4; the rest are 0
+        if (index >= 256 or rank > index or data[e + 4] > (0 if version == 1 else 5) or any(data[e + 5:e + 8])
                 or (prev is not None and (index <= prev or rank <= prev_rank))):
             return f"entry {i} is out of order or malformed"
         prev, prev_rank = index, rank
