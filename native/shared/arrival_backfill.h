@@ -124,7 +124,8 @@ typedef int (__stdcall *vv_record_arrivals_fn)(int game, const void *save_buffer
    A New Home always 0).  Every living villager of the village is handed
    over; the ones NOT to be recorded by this call come with `outcome`
    VV_ARRIVAL_CONTEXT and are only counted: a name they share decides
-   nothing, and a record that matches them is theirs first.
+   nothing, and a record of their own kind that matches them (Arrived for
+   one with no parents, Birth for one with them) is theirs first.
    RecordArrivalsMissingFromLog honours the same mark. */
 typedef int (__stdcall *vv_record_births_fn)(int game, const void *save_buffer, int slot,
                                              vv_arrival_fact *facts, int count, int apply);

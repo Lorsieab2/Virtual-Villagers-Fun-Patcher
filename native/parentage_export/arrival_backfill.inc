@@ -19,10 +19,17 @@
 
 #define ARRIVAL_KEY_NAME 64
 
+/* Which kind of record a key is. */
+#define ARRIVAL_READ_NONE 0
+#define ARRIVAL_READ_BIRTH 1
+#define ARRIVAL_READ_ARRIVED 2
+
 struct arrival_key {
     char name[ARRIVAL_KEY_NAME];
     int head, body;
     int held;
+    int kind;                         /* ARRIVAL_READ_BIRTH or ARRIVAL_READ_ARRIVED */
+    int reserved;                     /* taken by a context villager (record_missing_core) */
 };
 
 static struct arrival_key *arrival_keys;
@@ -46,9 +53,6 @@ static int keep_arrival_key(const struct arrival_key *key) {
 }
 
 /* One Birth or Arrived record being read, a line at a time. */
-#define ARRIVAL_READ_NONE 0
-#define ARRIVAL_READ_BIRTH 1
-#define ARRIVAL_READ_ARRIVED 2
 
 struct arrival_reader {
     int open;
@@ -61,6 +65,8 @@ static int arrival_reader_close(struct arrival_reader *r) {
     int ok = 1;
     if (r->open != ARRIVAL_READ_NONE && r->have_name && r->have_head && r->have_body) {
         r->key.held = r->held;
+        r->key.kind = r->open;
+        r->key.reserved = 0;
         ok = keep_arrival_key(&r->key);
     }
     {
@@ -507,6 +513,32 @@ static int record_missing_core(
             bodies[i] = *(const int *)(record + g->body);
         }
     }
+    /* A record that matches a context villager is theirs first (Codex,
+       #536) -- but only a record of their own kind: a context villager of
+       the Births call has no parents (an Arrived record is theirs), one of
+       the Arrivals call has them (a Birth record).  So a look-alike never
+       takes the record of a villager this call records.  One record each,
+       on disk before held. */
+    {
+        int context_kind = births ? ARRIVAL_READ_ARRIVED : ARRIVAL_READ_BIRTH;
+        int pass;
+        for (i = 0; i < count; ++i) {
+            int found = 0;
+            if (names[i][0] == '\0' || !context[i]) {
+                continue;
+            }
+            for (pass = 0; pass < 2 && !found; ++pass) {
+                for (j = 0; j < arrival_key_count && !found; ++j) {
+                    struct arrival_key *k = &arrival_keys[j];
+                    if (!k->reserved && k->kind == context_kind && k->held == pass
+                        && k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
+                        k->reserved = 1;
+                        found = 1;
+                    }
+                }
+            }
+        }
+    }
     for (i = 0; i < count; ++i) {
         int on_disk = 0;
         int held = 0;
@@ -516,7 +548,8 @@ static int record_missing_core(
         }
         for (j = 0; j < arrival_key_count; ++j) {
             const struct arrival_key *k = &arrival_keys[j];
-            if (k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
+            if (!k->reserved
+                && k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
                 if (k->held) {
                     ++held;
                 } else {

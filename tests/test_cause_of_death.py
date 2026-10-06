@@ -1182,6 +1182,18 @@ class LostChildrenCauseOfDeath(unittest.TestCase):
         g.run(0x4208FF, 0x420904, ecx=6 * V2["stride"], edx=w.pool, ebx=0)
         self.assertEqual([e["record"] for e in g.of_kind(DISAPPEARED)], [w.record(6)],
                          "another slot's namesake is the tribe's")
+        # Renamed by the player, the stranger is still the stranger: names are
+        # player-editable, so a rename alone never makes him the tribe's (Codex, #532).
+        g, w = vv2()
+        g.slot = 1
+        w.villager(6, "Biggles", 600, 90)
+        g.run(0x44C84F, 0x44C856, esi=w.record(6))
+        g.run(0x41F963, 0x41F969, eax=6, esi=g.p.alloc(0x6000))
+        g.tick()
+        g.p.write(w.record(6) + V2["name"], b"Bigs\0")
+        g.tick()
+        g.run(0x4208FF, 0x420904, ecx=6 * V2["stride"], edx=w.pool, ebx=0)
+        self.assertEqual(g.of_kind(DISAPPEARED), [], "a renamed stranger is still nobody's")
         # Untouched, the stranger himself is still nobody's, ticks or not.
         g, w = vv2()
         g.slot = 1

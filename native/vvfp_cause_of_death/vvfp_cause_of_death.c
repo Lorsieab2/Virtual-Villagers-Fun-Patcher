@@ -195,6 +195,8 @@ struct game_records {
     unsigned int heathen;        /* u8, New Believers' faction; 0 = none */
     unsigned int snapshot_lo;    /* the bytes kept of a villager for the roster */
     unsigned int snapshot_hi;
+    unsigned int head;           /* i32 */
+    unsigned int body;           /* i32 */
 };
 
 #define RECORDS_MAX 256
@@ -207,19 +209,19 @@ static struct game_records REC[6] = {
     { 0 },
     /* A New Home: array [0x48B614] */
     { 0x48B614u, 1, 0u, 0x3D8u, 256u, 0x28u, 0x344u, 0x348u, 0x370u, 0x1Cu, 0x350u,
-      0x358u, 0x35Cu, 0u, 0x000u, 0x3D8u },
+      0x358u, 0x35Cu, 0u, 0x000u, 0x3D8u, 0x360u, 0x364u },
     /* The Lost Children: pool [0x499F24] */
     { 0x499F24u, 1, 0u, 0xE48Cu, 256u, 0x30u, 0x52Cu, 0x530u, 0x564u, 0x18u, 0x538u,
-      0x540u, 0x544u, 0u, 0x500u, 0x800u },
+      0x540u, 0x544u, 0u, 0x500u, 0x800u, 0x548u, 0x54Cu },
     /* The Secret City: village 0x59E110, records from +0x14 */
     { 0x59E110u, 0, 0x14u, 0x1F8Cu, 150u, 0xF10u, 0xE78u, 0xDC4u, 0xDD4u, 0x19u, 0xDC8u,
-      0xE8Cu, 0xE90u, 0u, 0xDC0u, 0xFD0u },
+      0xE8Cu, 0xE90u, 0u, 0xDC0u, 0xFD0u, 0xDF0u, 0xDF4u },
     /* The Tree of Life: manager 0x50E568, records from +0x44 */
     { 0x50E568u, 0, 0x44u, 0x2E3Cu, 150u, 0x1CC4u, 0x1C40u, 0x1B8Cu, 0x1B9Cu, 0x19u, 0x1B90u,
-      0x1C4Cu, 0x1C50u, 0u, 0x1B80u, 0x1E80u },
+      0x1C4Cu, 0x1C50u, 0u, 0x1B80u, 0x1E80u, 0x1BB8u, 0x1BBCu },
     /* New Believers: manager 0x554148, records from +0x48 */
     { 0x554148u, 0, 0x48u, 0x2F44u, 150u, 0x1CD4u, 0x1C40u, 0x1B8Cu, 0x1B9Cu, 0x19u, 0x1B90u,
-      0x1C4Cu, 0x1C50u, 0x1CECu, 0x1B80u, 0x1F80u },
+      0x1C4Cu, 0x1C50u, 0x1CECu, 0x1B80u, 0x1F80u, 0x1BB8u, 0x1BBCu },
 };
 
 #ifdef VVFP_TEST
@@ -591,18 +593,55 @@ static unsigned int seen_alive[RECORDS_MAX];   /* name hash, 0 = not seen alive 
    one of the tribe, her death or disappearance never logged. */
 static unsigned char temporary[RECORDS_MAX];
 static unsigned int temporary_name[RECORDS_MAX];
+/* ...and the holder's sex, head and body (cod_looks_hash) and age when last
+   seen.  Names are the player's to edit: a rename alone keeps the mark
+   (Codex, #532). */
+static unsigned int temporary_looks[RECORDS_MAX];
+static int temporary_age[RECORDS_MAX];
+
+static unsigned int cod_looks_hash(const unsigned char *record) {
+    const struct game_records *r = &REC[g_game];
+    unsigned int h = 2166136261u;
+    unsigned int at[3];
+    unsigned int k, i;
+    at[0] = r->sex;
+    at[1] = r->head;
+    at[2] = r->body;
+    for (k = 0; k < 3; ++k) {
+        unsigned int v = *(const unsigned int *)(record + at[k]);
+        for (i = 0; i < 4; ++i) {
+            h = (h ^ (v >> (8 * i) & 0xFFu)) * 16777619u;
+        }
+    }
+    return h != 0 ? h : 1u;
+}
+
+/* Take the holder now in `record` as the one the mark is for. */
+static void cod_temporary_learn(int index, const unsigned char *record) {
+    temporary_name[index] = cod_name_hash(record);
+    temporary_looks[index] = cod_looks_hash(record);
+    temporary_age[index] = rec_age(record);
+}
 
 /* Is `record` (index `index`) still the temporary record it was marked as?
-   A record that now holds someone else is the tribe's: the mark goes. */
+   A record that now holds someone else is the tribe's: the mark goes.  The
+   holder is still there with the same name, or -- renamed -- with the same
+   sex, head and body and an age that has not gone back (ages only grow); a
+   load that refills the record with another villager changes both. */
 static int cod_temporary(int index, const unsigned char *record) {
     if (!temporary[index]) {
         return 0;
     }
-    if (temporary_name[index] != 0 && temporary_name[index] != cod_name_hash(record)) {
+    if (temporary_name[index] == 0) {
+        return 1;                     /* not named yet: the tick learns the holder */
+    }
+    if (temporary_name[index] != cod_name_hash(record)
+        && (temporary_looks[index] != cod_looks_hash(record) || rec_age(record) < temporary_age[index])) {
         temporary[index] = 0;
         temporary_name[index] = 0;
         return 0;
     }
+    cod_temporary_learn(index, record);
     return 1;
 }
 static int install_state;   /* 0 = not tried, 1 = installed, -1 = refused */
@@ -710,7 +749,7 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
             temporary[i] = 0;
             temporary_name[i] = 0;
         } else if (temporary_name[i] == 0) {
-            temporary_name[i] = cod_name_hash(record);   /* named by now (New Believers' 0x420015) */
+            cod_temporary_learn(i, record);   /* named by now (New Believers' 0x420015) */
         }
     }
     if (g_game <= 2) {
