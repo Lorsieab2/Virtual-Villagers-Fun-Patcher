@@ -209,6 +209,11 @@ class CodexReview(GiveLastNames):
         self.assertIn("same last name", str(raised.exception))
         work = ln.plan(self.folder, 3, 1, {people[0].identity: "Akikai", people[1].identity: "Akikai"})
         self.assertEqual(len(work.renames), 2)
+        # An identity no titles or mask file holds decides nothing: two villagers of one name in
+        # different families take their own families' last names (the self-review, #553).
+        self.titles.unlink()
+        work = ln.plan(self.folder, 3, 1, {people[0].identity: "Akikai", people[1].identity: "Alosaka"})
+        self.assertEqual(sorted(work.renames.values()), ["Ago Akikai", "Ago Alosaka"])
 
     def test_a_damaged_titles_file_is_left_alone(self):
         self.titles.write_bytes(self.titles.read_bytes()[:30])      # count says 1, the entry is cut

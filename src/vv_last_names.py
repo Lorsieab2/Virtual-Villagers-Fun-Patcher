@@ -325,8 +325,10 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
                     _put_name(after, v.at + off, cap, renames[parent])
     # A title or mask is kept by an identity two villagers may share (the same name and likes, or
     # name and parents).  Given different names, the game could no longer tell which of them a
-    # title or mask was for, so that is refused rather than guessed (Codex, #553).
+    # title or mask was for: when such an identity is in use in a titles or mask file, that is
+    # refused rather than guessed (Codex, #553).  An identity no file holds decides nothing.
     owner: dict[int, tuple[int, str]] = {}
+    conflicts: dict[int, str] = {}
     for v in people:
         old_title, old_masks = before_ids[v.at]
         new_title, new_masks = _title_identity(after, v.at, f), _mask_identities(game, after, v.at)
@@ -335,9 +337,7 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
                 continue
             seen = owner.setdefault(old_id, (new_id, v.name))
             if seen[0] != new_id:
-                raise LastNamesError(
-                    f"{seen[1]} and {v.name} look the same to the game's custom titles and masks; "
-                    "give them the same last name (or none to both).")
+                conflicts[old_id] = f"{seen[1]} and {v.name}"
         if new_title != old_title:
             title_map[old_title] = new_title
         for old_id, new_id in zip(old_masks, new_masks):
@@ -346,12 +346,12 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     result.changes.append(Change(path, original, bytes(after), "the save"))
 
     data_dir = folder / tools.DATA
-    _plan_masks(result, game, slot, data_dir, mask_map)
+    _plan_masks(result, game, slot, data_dir, mask_map, conflicts)
     _plan_u32_file(result, data_dir / "Custom Titles" / f"Custom Titles - Save {slot}.dat",
-                   b"VCT1", 2, 16, 40, 4, title_map, "custom titles")
+                   b"VCT1", 2, 16, 40, 4, title_map, "custom titles", conflicts)
     if game == 5:
         _plan_u32_file(result, data_dir / "Former Heathens" / f"Former Heathens - Save {slot}.dat",
-                       b"VFH1", 1, 16, 8, 0, title_map, "former Heathens")
+                       b"VFH1", 1, 16, 8, 0, title_map, "former Heathens", conflicts)
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, by_name)
@@ -409,18 +409,24 @@ def _look_alike_questions(folder: Path, game: int, slot: int, people: list[Livin
     return out
 
 
-def _replace_u32s(buf: bytearray, at: int, count: int, step: int, mapping: dict[int, int]) -> int:
+def _replace_u32s(buf: bytearray, at: int, count: int, step: int, mapping: dict[int, int],
+                  conflicts: dict[int, str] | None = None) -> int:
     n = 0
     for i in range(count):
         p = at + i * step
         value = struct.unpack_from("<I", buf, p)[0]
+        if conflicts and value in conflicts:
+            raise LastNamesError(
+                f"{conflicts[value]} look the same to the game's custom titles and masks; "
+                "give them the same last name (or none to both).")
         if value in mapping:
             struct.pack_into("<I", buf, p, mapping[value])
             n += 1
     return n
 
 
-def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: dict[int, int]) -> None:
+def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: dict[int, int],
+                conflicts: dict[int, str]) -> None:
     checker = tools.load_checker()
     name = checker.VV_MASK_FILES.get(game, "Village Masks - Save {slot}.dat").format(slot=slot)
     for path in (data_dir / "Village Masks" / name, data_dir / name):
@@ -433,29 +439,29 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
         # Each format as its companion reads it (scripts/vvfp_consistency_check.py read_mask_file);
         # a file too short for its own format is left as it is (Codex, #553).
         if game == 1 and magic == b"VM02" and len(buf) >= 132 + 1024:
-            n = _replace_u32s(buf, 132, 256, 4, mask_map)
+            n = _replace_u32s(buf, 132, 256, 4, mask_map, conflicts)
         elif game == 2 and magic in (b"VM04", b"VM06") and len(buf) >= 4 + 1024 + 256:
-            n = _replace_u32s(buf, 4, 256, 4, mask_map)
+            n = _replace_u32s(buf, 4, 256, 4, mask_map, conflicts)
         elif game == 3 and magic == b"MSK4" and len(buf) >= 260 + 1024:
-            n = _replace_u32s(buf, 260, 256, 4, mask_map)
+            n = _replace_u32s(buf, 260, 256, 4, mask_map, conflicts)
         elif game == 4 and magic == b"VVMK" and len(buf) >= 12:
             version, count = struct.unpack_from("<II", buf, 4)
             if version in (2, 3) and count in (150, 256) and len(buf) >= 12 + count * (9 if version == 3 else 5):
-                n = _replace_u32s(buf, 12 + count, count, 4, mask_map)
+                n = _replace_u32s(buf, 12 + count, count, 4, mask_map, conflicts)
                 if version == 3:
-                    n += _replace_u32s(buf, 12 + count * 5, count, 4, mask_map)
+                    n += _replace_u32s(buf, 12 + count * 5, count, 4, mask_map, conflicts)
             else:
                 result.notes.append(f"{path.name} is not a mask file this game reads; left as it is.")
         elif game == 5 and magic in (b"VM05", b"VM06", b"VM25", b"VM26"):
             count = 150 if magic in (b"VM05", b"VM06") else 256
             if len(buf) >= 4 + count * 4 + count // 2:
-                n = _replace_u32s(buf, 4, count, 4, mask_map)
+                n = _replace_u32s(buf, 4, count, 4, mask_map, conflicts)
         if n:
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
 def _plan_u32_file(result: Plan, path: Path, magic: bytes, version: int, header: int, entry: int,
-                   field_at: int, mapping: dict[int, int], what: str) -> None:
+                   field_at: int, mapping: dict[int, int], what: str, conflicts: dict[int, str]) -> None:
     """A file of `count` fixed entries whose u32 at `field_at` is an identity.  A file that is not
     exactly its own format (magic, version, header + count * entry bytes) is left as it is."""
     if not path.is_file():
@@ -469,7 +475,7 @@ def _plan_u32_file(result: Plan, path: Path, magic: bytes, version: int, header:
         result.notes.append(f"{path.name} is damaged (its length does not match its count); left as it is.")
         return
     buf = bytearray(original)
-    if _replace_u32s(buf, header + field_at, count, entry, mapping):
+    if _replace_u32s(buf, header + field_at, count, entry, mapping, conflicts):
         result.changes.append(Change(path, original, bytes(buf), what))
 
 
