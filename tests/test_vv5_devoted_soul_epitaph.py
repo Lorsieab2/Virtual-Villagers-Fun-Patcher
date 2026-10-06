@@ -1,4 +1,4 @@
-"""Devoted Soul Epitaph (New Believers).
+"""Charitable Soul Epitaph (New Believers; patch id vv5_devoted_soul_epitaph).
 
 The stock picker and the change are described in
 scripts/build_vv5_devoted_soul_epitaph_feature.py.  These tests check the
@@ -6,8 +6,11 @@ manifest against the generator and the stock bytes, decode the recoded block,
 and run both the stock and the patched block in an emulator for every grave
 job (-1..5) and every value the game's rand(100) can return, so each job's
 epitaph distribution is measured rather than read off a description: a
-Devotee gets "Respected Citizen" for exactly 50 of the 100 values and
-"Devoted Soul" for the other 50, and no other job's result changes.
+Devotee gets the game's usual epitaph (string 0x305: "Respected Citizen",
+or "Respected Devotee" with Guardians of Isola Rewrite) for exactly 50 of
+the 100 values and "Charitable Soul" for the other 50, and no other job's
+result changes.  The coin itself is checked too: rand(100) is the C
+runtime's clock-seeded rand() % 100.
 
 Tests that need the stock executable or unicorn skip when they are absent
 (GitHub CI has no stock executables).
@@ -55,7 +58,8 @@ STOCK = ROOT / "research" / "stock-executables" / BUILD.input_name
 MODES = ("stock", "collection_progression", "immediate_fixed")
 START, END, COPY, RAND = gen.START, gen.END, gen.COPY, gen.RAND
 BASE = gen.IMAGE_BASE
-DEVOTED = "Devoted Soul"
+CHARITABLE = "Charitable Soul"
+FORMER = "Devoted Soul"           # v1.35.58-59; graves written with it stay as they are
 RESPECTED = 0x305
 # The stock pairs (first id: rand < 50, second: rand >= 50), by grave job.
 STOCK_PAIRS = {0: 0x306, 1: 0x30A, 2: 0x30C, 3: 0x308, 4: 0x30E}
@@ -73,7 +77,7 @@ class ManifestTests(unittest.TestCase):
 
     def test_one_same_length_edit_over_the_dispatch(self):
         m = self.manifest()
-        self.assertEqual((m["id"], m["game_id"], m["name"]), (PATCH_ID, "vv5", "Devoted Soul Epitaph"))
+        self.assertEqual((m["id"], m["game_id"], m["name"]), (PATCH_ID, "vv5", "Charitable Soul Epitaph"))
         self.assertTrue(m["enabled"] and m["catalog_enabled"] and not m["catalog_hidden"])
         self.assertEqual(m["companion_files"], [])
         self.assertNotIn("dependencies", m)
@@ -90,8 +94,11 @@ class ManifestTests(unittest.TestCase):
 
     def test_the_text_fits_the_grave_epitaph(self):
         block = gen.build_block()
-        self.assertIn(DEVOTED.encode() + b"\0", block)
-        self.assertLess(len(DEVOTED), 0x20)          # char[0x20] at entry +0x38, strncpy limit 0x20
+        self.assertIn(CHARITABLE.encode() + b"\0", block)
+        self.assertNotIn(FORMER.encode(), block)
+        self.assertLess(len(CHARITABLE), 0x20)       # char[0x20] at entry +0x38, strncpy limit 0x20
+        # No longer than the stock epitaphs the grave dialog already shows in the same place.
+        self.assertLessEqual(len(CHARITABLE), len("Parent, Teacher, Friend"))
 
     def test_the_recoded_block_decodes_to_the_intended_instructions(self):
         if not HAVE_EMULATOR:
@@ -103,7 +110,7 @@ class ManifestTests(unittest.TestCase):
             got.append(f"{ins.mnemonic} {ins.op_str}".strip())
             if len(got) == 18:
                 break
-        table = START + block.index(gen.FIRST_IDS + gen.DEVOTED_SOUL)
+        table = START + block.index(gen.FIRST_IDS + gen.CHARITABLE_SOUL)
         string = table + 6
         self.assertEqual(got, [
             "mov eax, dword ptr [esi + 0x28]", "cmp eax, 5", "ja 0x464e19",
@@ -113,8 +120,40 @@ class ManifestTests(unittest.TestCase):
             "lea ecx, [ecx + ebx + 0x300]", "jmp 0x464e19",
         ])
         self.assertEqual(block[table - START: table - START + 6], bytes([6, 0x0A, 0x0C, 8, 0x0E, 5]))
-        self.assertEqual(block[string - START: string - START + 13], b"Devoted Soul\0")
-        self.assertEqual(set(block[string - START + 13:]), {0xCC})
+        self.assertEqual(block[string - START: string - START + 16], b"Charitable Soul\0")
+        self.assertEqual(set(block[string - START + 16:]), {0xCC})
+
+
+    def test_the_usual_epitaph_is_the_games_string_so_guardians_of_isola_shows_its_own(self):
+        """The under-50 half is string 0x305 fetched as stock, never a text the
+        patch carries: the stock Assets/sm.xml says "Respected Citizen" there and
+        Guardians of Isola Rewrite's says "Respected Devotee"."""
+        import re
+        texts = {}
+        for side in ("base", "new"):
+            xml = (ROOT / "data" / "guardians_of_isola" / side / "Assets" / "sm.xml").read_bytes().decode("latin-1")
+            texts[side] = re.search(r'<Text id="eEulogyDefault">\s*(.*?)\s*</Text>', xml, re.S).group(1)
+        self.assertEqual(texts, {"base": "Respected Citizen", "new": "Respected Devotee"})
+        block = gen.build_block()
+        for usual in texts.values():
+            self.assertNotIn(usual.encode(), block)
+        self.assertIn("the game's usual epitaph (\"Respected Citizen\", or \"Respected Devotee\" with Guardians of "
+                      "Isola Rewrite) and \"Charitable Soul\"", self.manifest()["description"])
+
+    def test_graves_written_as_devoted_soul_stay_and_nothing_checks_an_epitaph(self):
+        """v1.35.58-59 graves keep "Devoted Soul": no code in the patcher, its
+        companions or its checker carries either text to hold a grave to (only
+        the generator, which puts "Charitable Soul" into the block), so nothing
+        can flag or rewrite one."""
+        self.assertIn("keep that epitaph", self.manifest()["description"])
+        roots = [ROOT / "src", ROOT / "native", ROOT / "scripts"]
+        for root in roots:
+            for path in root.rglob("*"):
+                if path.suffix not in (".py", ".c", ".h", ".inc") or path.name == "build_vv5_devoted_soul_epitaph_feature.py":
+                    continue
+                text = path.read_text(encoding="utf-8", errors="replace")
+                for epitaph in (FORMER, CHARITABLE):        # as a string literal, in either language
+                    self.assertFalse(f'"{epitaph}' in text or f"'{epitaph}" in text, (path, epitaph))
 
 
 class StockEvidenceTests(unittest.TestCase):
@@ -166,6 +205,39 @@ class StockEvidenceTests(unittest.TestCase):
             self.assertEqual(stock[off: off + 2], bytes.fromhex("6A64"))
             self.assertEqual(stock[off + 18: off + 20], bytes.fromhex("81C1"))
             self.assertEqual(struct.unpack_from("<I", stock, off + 20)[0], STOCK_PAIRS[job])
+
+    def test_the_coin_is_the_runtimes_clock_seeded_rand(self):
+        """rand(100) at 0x403660 is rand() % 100 for any limit up to 0x7FFF;
+        rand (0x47CFD8) is the C runtime's LCG on the thread's seed; the only
+        srand call (0x402F97) seeds it with time(NULL) at start-up.  So each
+        burial draws the next value of the one clock-seeded stream, and over
+        the generator's 32768 outputs 0..49 and 50..99 split 16400 / 16368."""
+        if not HAVE_EMULATOR:
+            self.skipTest("capstone not installed")
+        stock = stock_bytes()
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+
+        def listing(va: int, n: int) -> list:
+            return [f"{i.mnemonic} {i.op_str}".strip() for i in md.disasm(stock[va - BASE: va - BASE + n], va)]
+
+        self.assertEqual(listing(RAND, 0x21), [
+            "sub esp, 8", "push esi", "mov esi, dword ptr [esp + 0x10]", "lea eax, [esi - 1]", "cmp eax, 0x7ffe",
+            "ja 0x403681", "call 0x47cfd8", "cdq", "idiv esi", "pop esi", "mov eax, edx", "add esp, 8", "ret"])
+        self.assertEqual(listing(0x47CFD8, 0x22)[1:], [
+            "mov ecx, dword ptr [eax + 0x14]", "imul ecx, ecx, 0x343fd", "add ecx, 0x269ec3",
+            "mov dword ptr [eax + 0x14], ecx", "mov eax, ecx", "shr eax, 0x10", "and eax, 0x7fff", "ret"])
+        self.assertEqual(listing(0x47CFCB, 0xD)[1:], ["mov ecx, dword ptr [esp + 4]", "mov dword ptr [eax + 0x14], ecx", "ret"])
+        srand_calls = [o for o in range(len(stock) - 5) if stock[o] == 0xE8
+                       and BASE + o + 5 + struct.unpack_from("<i", stock, o + 1)[0] == 0x47CFCB]
+        self.assertEqual([BASE + o for o in srand_calls], [0x402F97])
+        self.assertEqual(listing(0x402F8F, 0xD), ["push 0", "call 0x47c96a", "push eax", "call 0x47cfcb"])
+        pe = pefile.PE(data=stock, fast_load=True)
+        pe.parse_data_directories()
+        imports = {i.address: i.name for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports}
+        call = next(md.disasm(stock[0x7C973: 0x7C979], 0x47C973))      # time(): the clock
+        self.assertEqual(imports[int(call.op_str.split("[")[1].rstrip("]"), 16)], b"GetSystemTimeAsFileTime")
+        under = sum(1 for v in range(0x8000) if v % 100 < 50)
+        self.assertEqual((under, 0x8000 - under), (16400, 16368))
 
     def test_nothing_else_enters_the_recoded_bytes(self):
         """No branch, call or address operand anywhere in .text, and no aligned
@@ -273,17 +345,17 @@ class EmulationTests(unittest.TestCase):
         self.assertEqual(stock, [("id", RESPECTED)] * 100)          # stock: always Respected Citizen
         patched = self.outcomes(self.patched_image, 5)
         self.assertEqual(patched[:50], [("id", RESPECTED)] * 50)
-        self.assertEqual(patched[50:], [("text", DEVOTED)] * 50)
+        self.assertEqual(patched[50:], [("text", CHARITABLE)] * 50)
         _, calls = run_block(self.patched_image, 5, 0)
         self.assertEqual(calls, [100])                               # one rand(100), the game's own
 
-    def test_every_other_job_is_unchanged_and_never_devoted_soul(self):
+    def test_every_other_job_is_unchanged_and_never_charitable_soul(self):
         for job in (-1, 0, 1, 2, 3, 4):
             with self.subTest(job=job):
                 stock = self.outcomes(self.stock_image, job)
                 patched = self.outcomes(self.patched_image, job)
                 self.assertEqual(patched, stock)
-                self.assertNotIn(("text", DEVOTED), patched)
+                self.assertNotIn(("text", CHARITABLE), patched)
                 if job == -1:
                     self.assertEqual(patched, [("id", RESPECTED)] * 100)
                     self.assertEqual(run_block(self.patched_image, job, 0)[1], [])   # no rand call, as stock
@@ -294,17 +366,17 @@ class EmulationTests(unittest.TestCase):
     def test_a_sampled_village_sees_both_epitaphs_about_equally(self):
         import random
         rng = random.Random(1234)
-        counts = {"Respected Citizen": 0, DEVOTED: 0}
+        counts = {"usual": 0, CHARITABLE: 0}
         for _ in range(2000):
             (kind, value), _ = run_block(self.patched_image, 5, rng.randrange(0x8000))
             if kind == "text":
-                self.assertEqual(value, DEVOTED)
-                counts[DEVOTED] += 1
+                self.assertEqual(value, CHARITABLE)
+                counts[CHARITABLE] += 1
             else:
                 self.assertEqual(value, RESPECTED)
-                counts["Respected Citizen"] += 1
+                counts["usual"] += 1
         self.assertEqual(sum(counts.values()), 2000)
-        self.assertLess(abs(counts[DEVOTED] - 1000), 100, counts)
+        self.assertLess(abs(counts[CHARITABLE] - 1000), 100, counts)
 
 
 class RenderTests(unittest.TestCase):
@@ -338,7 +410,7 @@ class RenderTests(unittest.TestCase):
                     if HAVE_EMULATOR:   # and it runs there: the full build's own rand and fetch
                         image = pefile.PE(data=rendered, fast_load=True).get_memory_mapped_image()
                         self.assertEqual(run_block(image, 5, 10)[0], ("id", RESPECTED))
-                        self.assertEqual(run_block(image, 5, 90)[0], ("text", DEVOTED))
+                        self.assertEqual(run_block(image, 5, 90)[0], ("text", CHARITABLE))
                         self.assertEqual(run_block(image, 0, 90)[0], ("id", 0x307))
                         self.assertEqual(run_block(image, -1, 90)[0], ("id", RESPECTED))
 
@@ -371,7 +443,7 @@ class RegistrationTests(unittest.TestCase):
     def test_registered_on_by_default_bundled_and_documented(self):
         public = patcher.load_public_fun_patches()
         row = next(p for p in public if p.id == PATCH_ID)
-        self.assertEqual(row.name, "Devoted Soul Epitaph")
+        self.assertEqual(row.name, "Charitable Soul Epitaph")
         self.assertTrue(default_fun_patch_selection(PATCH_ID))
         self.assertTrue(owners_default_fun_patch_selection(PATCH_ID))
         self.assertTrue(select_all_fun_patch_selection(PATCH_ID))
@@ -383,9 +455,9 @@ class RegistrationTests(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("- Patch ID: `vv5_devoted_soul_epitaph`", readme)
         howto = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
-        self.assertIn("DEVOTED SOUL EPITAPH (NEW BELIEVERS)", howto)
+        self.assertIn("CHARITABLE SOUL EPITAPH (NEW BELIEVERS)", howto)
         doc = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
-        self.assertIn("#### Devoted Soul Epitaph (`vv5_devoted_soul_epitaph`)", doc)
+        self.assertIn("#### Charitable Soul Epitaph (`vv5_devoted_soul_epitaph`)", doc)
 
 
 if __name__ == "__main__":

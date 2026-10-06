@@ -476,7 +476,8 @@
     {
       "ids": ["vv5_devoted_soul_epitaph"],
       "guide": [
-        "When a Devotee is buried, the grave reads \"Respected Citizen\" or \"Devoted Soul\" (50/50), like the other jobs' two choices.",
+        "When a Devotee is buried, the grave reads the game's usual epitaph (\"Respected Citizen\", or \"Respected Devotee\" with Guardians of Isola Rewrite) or \"Charitable Soul\", 50/50, like the other jobs' two choices.",
+        "Graves made earlier as \"Devoted Soul\" keep that epitaph.",
         "Click the gravestone to see it. You can still edit it."
       ]
     },
