@@ -61,7 +61,21 @@ STACK_TOP = STACK + 0x10000 - 0x100
 SENTINEL = 0x0BADF00D         # a fake caller's return address, mapped so a ret can land on it
 
 VV1 = dict(stride=0x3D8, flag=0x28, health=0x344, world_of_array=0x3E010)
-VV2 = dict(stride=0xE48C, flag=0x30, health=0x4FC, world_of_array=0xE574D4, array_of_world=0x305A4)
+VV2 = dict(stride=0xE48C, flag=0x30, health=0x52C, world_of_array=0xE574D4, array_of_world=0x305A4)
+# A villager carrying: (pregnant field, litter field), and A New Home's Golden Child family.
+CARRYING = {"vv1": (0x358, 0x35C), "vv2": (0x540, 0x544)}
+
+
+def carry(m, index: int, litter: int = 0, golden: bool = False) -> None:
+    """Make living record `index` carry: her litter (0 one baby, 2 twins, 3 triplets)."""
+    pregnant, field = CARRYING[m.game]
+    rec = ARRAY + index * m.layout["stride"]
+    m.uc.mem_write(rec + m.layout["flag"], b"\x01")
+    m.uc.mem_write(rec + m.layout["health"], struct.pack("<i", 90))
+    m.uc.mem_write(rec + pregnant, struct.pack("<I", 1))
+    m.uc.mem_write(rec + field, struct.pack("<I", litter))
+    if golden:
+        m.uc.mem_write(rec + 0x394, struct.pack("<I", 0xC7))
 
 _IMAGES: dict[tuple[str, str], tuple[bytes, int]] = {}
 
@@ -172,6 +186,8 @@ class VV1Guards(unittest.TestCase):
     def litter(self, mode, site, litter, occupied, babies_made=0):
         m = Machine("vv1", mode, occupied, corpses=7, babies_made=babies_made)
         rec = mother("vv1")
+        # the conception marks her carrying before the roll (0x43BBFA): her baby is owed
+        m.uc.mem_write(rec + 0x358, struct.pack("<I", 1))
         cont = {0x43BC4E: 0x43BC58, 0x43BC8C: 0x43BC96}[site]
         back = {0x43BC4E: 0x43BC4C, 0x43BC8C: 0x43BC8A}[site]
         where = m.run(site, {cont: "kept", back: "refused"}, {UC_X86_REG_EDI: ARRAY, UC_X86_REG_ESI: rec})
@@ -268,6 +284,8 @@ class VV2Guards(unittest.TestCase):
     def litter(self, mode, site, litter, occupied, corpses):
         m = Machine("vv2", mode, occupied, corpses=corpses)
         rec = mother("vv2")
+        # the conception marks her carrying before the roll (0x44BA06): her baby is owed
+        m.uc.mem_write(rec + 0x540, struct.pack("<I", 1))
         cont = {0x44BA82: 0x44BA8C, 0x44BAB6: 0x44BAC0}[site]
         back = {0x44BA82: 0x44BA80, 0x44BAB6: 0x44BAB4}[site]
         where = m.run(site, {cont: "kept", back: "refused"}, {UC_X86_REG_EDI: ARRAY, UC_X86_REG_ESI: rec})
@@ -347,6 +365,81 @@ class VV2Guards(unittest.TestCase):
                 self.assertEqual(where, "back")
                 self.assertEqual(m.reg(UC_X86_REG_EAX) & 0xFF, expect, (occupied, room))
                 self.assertEqual(m.reg(UC_X86_REG_ECX), ARRAY)
+
+
+@needs_stock
+class BabiesStillOwedTakeRecords(unittest.TestCase):
+    """The owner: a pregnant or nursing villager's babies count toward the
+    population; Codex (#543): A New Home's and The Lost Children's guards
+    counted only the occupied records, so a newcomer or another litter could
+    take a record already owed to a baby."""
+
+    def test_a_new_home_island_event_leaves_room_for_the_babies(self):
+        for mode in MODES:
+            # 250 occupied, among them one mother of triplets and one of a single baby
+            # who is the Golden Child's mother: 3 + 1 + 1 owed.  250 + 5 = 255: one free.
+            m = Machine("vv1", mode, 250, corpses=10)
+            carry(m, 0, litter=3)
+            carry(m, 2, litter=0, golden=True)
+            where = m.run(0x456680, {VV1Guards.CREATE: "created"}, {UC_X86_REG_ECX: ARRAY},
+                          stack=(SENTINEL, 1, 2, 3, 4, 5))
+            self.assertEqual(where, "created", mode)
+            carry(m, 4, litter=0)            # one more baby owed: 256, none free
+            where = m.run(0x456680, {VV1Guards.CREATE: "created"}, {UC_X86_REG_ECX: ARRAY},
+                          stack=(SENTINEL, 1, 2, 3, 4, 5))
+            self.assertEqual(where, "returned", mode)
+
+    def test_a_dead_mother_is_owed_nothing(self):
+        for mode in MODES:
+            m = Machine("vv1", mode, 255, corpses=10)
+            carry(m, 0, litter=3)
+            m.uc.mem_write(ARRAY + 0x344, struct.pack("<i", 0))
+            where = m.run(0x456680, {VV1Guards.CREATE: "created"}, {UC_X86_REG_ECX: ARRAY},
+                          stack=(SENTINEL, 1, 2, 3, 4, 5))
+            self.assertEqual(where, "created", mode)
+
+    def test_a_new_home_litter_counts_the_other_mothers(self):
+        for mode in MODES:
+            # her own baby is counted once; another mother's twins are owed too
+            m = Machine("vv1", mode, 250, corpses=5)
+            carry(m, 0, litter=2)            # 2 owed
+            rec = mother("vv1")
+            carry(m, 3)                      # the mother conceiving: her one baby
+            where = m.run(0x43BC4E, {0x43BC58: "kept", 0x43BC4C: "refused"},
+                          {UC_X86_REG_EDI: ARRAY, UC_X86_REG_ESI: rec})
+            self.assertEqual(where, "kept", mode)        # 250 + 2 + 1 + 1 = 254
+            m = Machine("vv1", mode, 252, corpses=5)
+            carry(m, 0, litter=3)
+            carry(m, 3)
+            where = m.run(0x43BC4E, {0x43BC58: "kept", 0x43BC4C: "refused"},
+                          {UC_X86_REG_EDI: ARRAY, UC_X86_REG_ESI: mother("vv1")})
+            self.assertEqual(where, "refused", mode)     # 252 + 3 + 1 + 1 = 257
+
+    def test_the_lost_children_event_leaves_room_for_the_babies(self):
+        for mode in MODES:
+            m = Machine("vv2", mode, 252, corpses=12)
+            m.uc.mem_write(OBJ + 0x50A4, struct.pack("<I", WORLD))
+            carry(m, 0, litter=3)            # 252 + 3 = 255: one free
+            where = m.run(0x473D00, {VV2Guards.EVENT: "created"}, {UC_X86_REG_EBP: OBJ, UC_X86_REG_ECX: ARRAY},
+                          stack=(SENTINEL, 1, 2, 3, 4, 5))
+            self.assertEqual(where, "created", mode)
+            carry(m, 2)                      # one more: none free
+            where = m.run(0x473D00, {VV2Guards.EVENT: "created"}, {UC_X86_REG_EBP: OBJ, UC_X86_REG_ECX: ARRAY},
+                          stack=(SENTINEL, 1, 2, 3, 4, 5))
+            self.assertEqual(where, "returned", mode)
+
+    def test_the_lost_children_litter_counts_the_other_mothers(self):
+        for mode in MODES:
+            m = Machine("vv2", mode, 251, corpses=20)
+            carry(m, 0, litter=3)
+            carry(m, 3)
+            where = m.run(0x44BA82, {0x44BA8C: "kept", 0x44BA80: "refused"},
+                          {UC_X86_REG_EDI: ARRAY, UC_X86_REG_ESI: mother("vv2")})
+            self.assertEqual(where, "kept", mode)        # 251 + 3 + 1 + 1 = 256
+            carry(m, 4)
+            where = m.run(0x44BA82, {0x44BA8C: "kept", 0x44BA80: "refused"},
+                          {UC_X86_REG_EDI: ARRAY, UC_X86_REG_ESI: mother("vv2")})
+            self.assertEqual(where, "refused", mode)
 
 
 @needs_stock
