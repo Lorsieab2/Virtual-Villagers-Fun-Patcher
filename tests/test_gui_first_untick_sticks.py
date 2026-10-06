@@ -81,7 +81,14 @@ class FirstUntickTests(unittest.TestCase):
         self.assertEqual(self.start["selected"], self.start["defaults"])
 
     def test_the_first_untick_of_each_prerequisite_sticks(self):
+        exercised = 0
         for prerequisite in sorted(self.start["dependents"]):
+            if prerequisite not in self.start["defaults"]:
+                # Off by default (Story / Cheat Upgrades, the prerequisite of
+                # its tech-point row): there is no first untick to make.
+                self.assertNotIn(prerequisite, self.start["selected"])
+                continue
+            exercised += 1
             with self.subTest(prerequisite=prerequisite):
                 self.assertIn(prerequisite, self.start["selected"], "ticked by default")
                 after = _fresh_start(prerequisite)["after"]
@@ -89,6 +96,7 @@ class FirstUntickTests(unittest.TestCase):
                     after, {k: False for k in after},
                     "the prerequisite and every dependent it ticked must end unticked",
                 )
+        self.assertTrue(exercised, "no default-on prerequisite was exercised")
 
 
 if __name__ == "__main__":

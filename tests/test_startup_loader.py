@@ -157,10 +157,18 @@ def published(game: str, mode: str, selection: tuple[str, ...], loader: bool = T
 
 def declared_detours(feature_ids) -> list[tuple[int, bytes, str]]:
     out = []
+    features = set(feature_ids)
     for feature_id in feature_ids:
+        # Story / Cheat Upgrades cost Tech Points keeps every Origins price:
+        # with it the companion checks its price sites but writes none.
+        charged = f"{feature_id}_cost_tech_points" in features
         for detour in catalog()[feature_id].raw.get("runtime_detours", []) or []:
+            routine = detour.get("routine", "")
+            if charged and routine.startswith(("the Origins price table", "an Origins charge",
+                                                 "an Origins prompt that shows the price")):
+                continue
             out.append((int(str(detour["va"]), 0), bytes.fromhex(detour["stock_bytes"]),
-                        f"{feature_id} {detour.get('routine', '')[:60]}"))
+                        f"{feature_id} {routine[:60]}"))
     return out
 
 
@@ -230,7 +238,8 @@ class StartupLoaderPlacement(unittest.TestCase):
                 features = vfp._attach_automatic_companions(game, vfp._selected_fun_patches(
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
-                self.assertEqual(bin(mask).count("1"), len(shipped) - 1)    # all but the loader
+                # all but the loader; bit 30 is the tech-point setting, not a companion
+                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1"), len(shipped) - 1)
                 # Check logs automatically is on by default: bit 31 rides with the companion bits.
                 block = vfp._startup_loader_block(va, int(game[2]), mask | vfp.STARTUP_LOADER_CHECK_LOGS,
                                                   slots[b"GetModuleHandleA"], slots[b"GetProcAddress"],
