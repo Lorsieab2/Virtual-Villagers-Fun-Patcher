@@ -27,9 +27,13 @@
         nothing to ask about.
      1. After Repair, the save writes exactly Huata, Silko, the second Dup and
         Ponui (who arrived unseen since the last save), numbered on from the
-        game's Arrived records, in the frozen format, "How: unknown" and the
-        "Recorded afterwards" note; Thabo is not recorded again; Ponui is NOT
-        an Unaccounted record; the marker is written.
+        village's own Arrived records, in the frozen format, "How: unknown"
+        and the "Recorded afterwards" note -- Huata too, though the village's
+        first History snapshot lists him (a snapshot never proves a founder);
+        Thabo is not recorded again; Ponui is NOT an Unaccounted record; the
+        marker is written.  A New Home: Keiki, whose parents Show Parents in
+        Details Screen's Parentage Records keep, was born there and is
+        neither counted nor recorded.
      2. A second save and a new session write nothing; the scan says 0.
      3. Seen live: a newcomer from an island event ("How: unknown", the age
         when it arrived), the Custom Island Event's new villager ("How:
@@ -39,9 +43,16 @@
         Heathen made by the creator is not; a Heathen converted to a believer
         is ("Converted from the Heathens").  None of them is Unaccounted.
      4. Start Over deletes the marker; the new village's founders, made by the
-        seeding, get "How: Founder" at its first save (and the seeding's
+        seeding, get "How: Founder" at its first save, numbered from
+        "Arrived 1" whatever another village's log holds (and the seeding's
         records in a village saved before -- a load overwrites them -- never
         do); one not seen made is offered by the backfill.
+     6. Change Player > NEW PLAYER (the owner's v1.35.59 live pass): the game
+        seeds the new tribe while its slot still names the village left
+        behind, and sets the new slot after.  Its founders get "How: Founder"
+        records, from "Arrived 1", in the NEW village's log at its first save
+        -- after a tick, or at a save before any tick -- and none in the old
+        village's; none is Unaccounted at the next save.
    And each game's markers (cod_arrival_sites.inc): a birth path is never an
    arrival, a stock event's newcomer is named by the event.
      5. Repair answered right after the game's quit save (the cross-check's
@@ -82,6 +93,8 @@ typedef void (__stdcall *void_t)(void);
 typedef void (__stdcall *int_t)(int);
 typedef void (__stdcall *note_t)(int, const void *);
 typedef void (__stdcall *arrived_by_t)(int, int, const char *);
+typedef int (__stdcall *vv1_names_t)(int, char *, char *, int);
+typedef void (__stdcall *vv1_parents_t)(vv1_names_t);
 
 /* Each game's villager record, as both DLLs' tables have it. */
 struct layout {
@@ -319,7 +332,18 @@ static int_t departed;
 static note_t note_birth;
 static arrived_by_t arrived_by;
 
-static int __stdcall host_slot(void) { return 1; }
+/* The game's current slot, as the host reads it (A New Home +0xABE4 ...). */
+static int current_slot = 1;
+static int __stdcall host_slot(void) { return current_slot; }
+
+/* Show Parents in Details Screen's Parentage Records (A New Home), stood in
+   for: Keiki, in record 21, has a father there. */
+#define KEIKI 21
+static int __stdcall vv1_names(int index, char *father, char *mother, int capacity) {
+    father[0] = mother[0] = 0;
+    if (index == KEIKI) lstrcpynA(father, "Kito", capacity);
+    return 1;
+}
 static struct { int size; int (__stdcall *slot)(void); } host = { 8, host_slot };
 
 static void load(void) {
@@ -348,6 +372,11 @@ static void load(void) {
     }
     setup(game, &host, table);
     vv1_births(1);
+    {
+        vv1_parents_t parents = (vv1_parents_t)GetProcAddress(cause, "VvfpCauseTestVv1Parents");
+        if (parents == NULL) { printf("missing exports\n"); exit(2); }
+        parents(vv1_names);
+    }
 }
 
 static void unload(void) {
@@ -568,7 +597,7 @@ static void quit_cases(void) {
           "quit: the quit save, with no answer yet, records nothing");
     done = arrivals_now(game, 1);
     read_into(path);
-    CHECK(done == 1 && has_backfill_record(4, "Huata", 1090, 8, 1, "Founder")
+    CHECK(done == 1 && has_backfill_record(4, "Huata", 1090, 8, 1, "unknown")
           && has_backfill_record(5, "Silko", 663, 4, 14, "unknown")
           && has_backfill_record(6, "Dup", 500, 2, 2, "unknown")
           && has_backfill_record(7, "Thabo", 1003, 15, 12, "unknown")
@@ -737,6 +766,75 @@ static void births_cases(void) {
     free(buffer);
 }
 
+/* The Births and Conceptions file headed with `header`, read into `text`;
+   0 when there is none. */
+static int read_village_births(const char *header) {
+    char path[MAX_PATH];
+    int number;
+    for (number = 1; number <= 16; ++number) {
+        births_path(number, path);
+        if (read_into(path) > 0 && strncmp(text, header, strlen(header)) == 0) {
+            return number;
+        }
+    }
+    text[0] = 0;
+    return 0;
+}
+
+/* 6: Change Player > NEW PLAYER, as A New Home's slot menu runs it
+   (0x41401B, then the new slot at 0x414033 ...; the other games' alike):
+   the seeding, with the slot still the village left behind; then the slot. */
+static void new_player_cases(void) {
+    unsigned char *tribe2 = save_buffer("Newtribe");
+    unsigned char *tribe3 = save_buffer("Third");
+    unsigned char *tribe1 = save_buffer("Arrival Tribe");
+    char unacc[MAX_PATH];
+    int i;
+    current_slot = 1;
+    save_done(1, tribe1);                 /* Change Player saves the village left behind */
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    villager(0, "Newa", 400, 1, 4, 0);
+    created(0, MARK[game - 1].founder);   /* the seeding: the slot is still 1 */
+    villager(1, "Newb", 410, 2, 4, 0);
+    created(1, MARK[game - 1].founder);
+    current_slot = 2;                     /* ...then the game sets the new slot */
+    arrival_tick();
+    save_done(2, tribe2);                 /* the new tribe's first save (the quit) */
+    CHECK(read_village_births("Village: Newtribe (Save 2)") > 0
+          && arrived(1, "Newa") != NULL && arrived(2, "Newb") != NULL
+          && record_has("Newa", "  Age at arrival: 400\r\n") && record_has("Newa", "  How: Founder\r\n\r\n")
+          && record_has("Newb", "  How: Founder\r\n\r\n") && strstr(text, "Note:") == NULL,
+          "NEW PLAYER: the new tribe's founders, seeded before the game set its slot, get \"How: Founder\""
+          " as Arrived 1 and 2 in ITS log at its first save");
+    read_village_births("Village: Arrival Tribe (Save 1)");
+    CHECK(strstr(text, "  Name: Newa\r\n") == NULL && strstr(text, "  Name: Newb\r\n") == NULL,
+          "NEW PLAYER: ...and none in the log of the village left behind");
+    save_done(2, tribe2);                 /* the next session's save */
+    read_village_births("Village: Newtribe (Save 2)");
+    CHECK(count_of(text, "  Name: Newa\r\n") == 1 && count_of(text, "  Name: Newb\r\n") == 1,
+          "NEW PLAYER: the next save writes them again never");
+    unaccounted_path(unacc);
+    read_into(unacc);
+    CHECK(strstr(text, "Newa") == NULL && strstr(text, "Newb") == NULL,
+          "NEW PLAYER: neither is an Unaccounted record");
+    /* Another NEW PLAYER, saved before any tick (bound at the save). */
+    current_slot = 2;
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    villager(0, "Thira", 420, 3, 4, 0);
+    created(0, MARK[game - 1].founder);
+    current_slot = 3;
+    save_done(3, tribe3);
+    CHECK(read_village_births("Village: Third (Save 3)") > 0 && arrived(1, "Thira") != NULL
+          && record_has("Thira", "  How: Founder\r\n\r\n"),
+          "NEW PLAYER: a founder saved before any tick is still the new tribe's (Arrived 1)");
+    read_village_births("Village: Newtribe (Save 2)");
+    CHECK(strstr(text, "  Name: Thira\r\n") == NULL, "NEW PLAYER: ...never the tribe left behind's");
+    current_slot = 1;
+    free(tribe1);
+    free(tribe2);
+    free(tribe3);
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH];
@@ -782,6 +880,8 @@ int main(int argc, char **argv) {
         }
         if (game != 1) {
             villager(19, "Kid", 300, 4, 4, 1);
+        } else {
+            villager(KEIKI, "Keiki", 180, 6, 2, 0);   /* her parents: the Parentage Records */
         }
         *(int *)(rec(0) + g->likes) = 0;          /* "ants": never part of the key */
         write_old_logs();
@@ -835,14 +935,18 @@ int main(int argc, char **argv) {
         arrival_tick();
         save_done(1, buffer);
         read_into(path);
-        CHECK(has_backfill_record(4, "Huata", 1090, 8, 1, "Founder")
+        CHECK(has_backfill_record(4, "Huata", 1090, 8, 1, "unknown")
               && has_backfill_record(5, "Silko", 663, 4, 14, "unknown")
               && has_backfill_record(6, "Dup", 500, 2, 2, "unknown")
               && has_backfill_record(7, "Ponui", 663, 9, 15, "unknown")
               && has_backfill_record(8, "Thabo", 1003, 15, 12, "unknown")
-              && strstr(text, "Arrived 10") == NULL,
-              "Huata, Silko, the second Dup, Ponui and the other Thabo get Arrived 4-8, in the frozen format;"
-              " Huata, in the village's first History snapshot, is a Founder, Silko (later) is not");
+              && strstr(text, "Arrived 10") == NULL && strstr(text, "How: Founder") == NULL,
+              "Huata, Silko, the second Dup, Ponui and the other Thabo get Arrived 4-8, in the frozen format,"
+              " all \"How: unknown\": Huata, in the village's first History snapshot, is no proven founder");
+        if (game == 1) {
+            CHECK(strstr(text, "  Name: Keiki\r\n") == NULL,
+                  "A New Home: Keiki, whose parents the Parentage Records keep, was born here: no Arrived record");
+        }
         {
             const char *okwui = arrived(9, "Okwui");
             CHECK(count_of(text, "  Name: Okwui\r\n") == 1 && okwui != NULL
@@ -859,7 +963,7 @@ int main(int argc, char **argv) {
                 printf("%.*s\n", (int)(end - h), h);
             }
         }
-        if (!has_backfill_record(4, "Huata", 1090, 8, 1, "Founder")) {
+        if (!has_backfill_record(4, "Huata", 1090, 8, 1, "unknown")) {
             const char *h = strstr(text, "  Name: Huata");
             printf("--- got:\n%.900s\n", h != NULL ? h - 12 : text);
         }
@@ -1010,8 +1114,9 @@ int main(int argc, char **argv) {
         CHECK(read_into(path) > 0 && strncmp(text, "Village: Arrival Tribe (Save 1)", 31) == 0
               && record_has("Founda", "  Age at arrival: 400\r\n") && record_has("Founda", "  How: Founder\r\n\r\n")
               && record_has("Foundb", "  How: Founder\r\n\r\n") && strstr(text, "Note:") == NULL
-              && strstr(text, "Arrived 1\r\n") == NULL,
-              "the new village's founders get \"How: Founder\" at its first save, numbered on");
+              && arrived(1, "Founda") != NULL && arrived(2, "Foundb") != NULL,
+              "the new village's founders get \"How: Founder\" at its first save, numbered from Arrived 1"
+              " (never on from the other village's Arrived 2)");
         CHECK(strstr(text, "  Name: Loaded\r\n") == NULL && strstr(text, "  Name: Parented\r\n") == NULL,
               "...but never a villager a load put over the startup scan's seeding, nor one with parents");
         rec(4)[g->active] = 0;
@@ -1029,6 +1134,7 @@ int main(int argc, char **argv) {
         read_into(path);
         CHECK(strcmp(first, text) == 0, "...and the next save writes nothing more");
 
+        new_player_cases();
         births_cases();
         quit_cases();
         unload();

@@ -16,8 +16,9 @@ conceptions against a synthetic VV5 record array:
 
 That harness cannot run from this suite -- the companion is 32-bit and the
 interpreter here is 64-bit -- so this asserts the property on the source
-instead: the count handed back is the running total over every log file, not
-the count of one.
+instead: the number handed back is the village's running number over every
+one of ITS log files, not the count of one -- and never another village's
+(the owner's v1.35.59 live pass: each village numbers its own from 1).
 """
 
 from __future__ import annotations
@@ -72,13 +73,13 @@ class ParentageNumberingIsCumulativeTests(unittest.TestCase):
         # The walk serves both log families; select_log_file is its births form.
         body = _function("select_family_log_file")
 
-        # A running total that survives the loop, rather than the per-file
-        # count being handed straight back.
+        # The village's last number, kept across the walk, rather than the
+        # per-file count being handed straight back.
         self.assertRegex(
             body,
-            r"\btotal\s*\+=\s*records\b",
-            "select_log_file must accumulate each file's records; without it "
-            "the number restarts at 1 in every new log",
+            r"if \(last_here > village_last\) \{\s*village_last = last_here;",
+            "select_log_file must carry the village's last number over its files; "
+            "without it the number restarts at 1 in every new log",
         )
         self.assertNotRegex(
             body,
@@ -86,36 +87,46 @@ class ParentageNumberingIsCumulativeTests(unittest.TestCase):
             "handing back the chosen file's own count restarts the numbering "
             "at each rollover",
         )
-        # Both exits must report the total: the one that finds a file with room
-        # and the one that finds no file at all.
+        # Both exits must report it: the one that finds a file with room and
+        # the one that finds no file at all.
         self.assertEqual(
-            len(re.findall(r"\*existing_records\s*=\s*total\s*;", body)),
+            len(re.findall(r"\*existing_records\s*=\s*village_last\s*;", body)),
             2,
-            "both returns must report the running total -- the gap exit as "
-            "well as the not-full exit",
+            "both returns must report the village's running number -- the gap "
+            "exit as well as the not-full exit",
         )
 
-    def test_the_total_includes_the_file_being_appended_to(self):
-        """`total += records` must precede the not-full return.
+    def test_each_village_numbers_its_own_records(self):
+        """The owner's v1.35.59 live pass: a new village's records were
+        numbered on from another village's ("Arrived 42-46" for Start Over's
+        five founders).  Another village's file is skipped before its
+        numbers are read, and the Arrived count reads only the village's
+        own files."""
+        body = _function("select_family_log_file")
+        skip = body.index("if (!log_belongs_to_village(destination, village)) {")
+        self.assertLess(skip, body.index("count_family_records(destination, family, &last_here)"))
+        arrived = _function("count_arrived_records")
+        self.assertIn("!log_belongs_to_village(path, village)", arrived)
+        self.assertNotIn("++total", arrived, "the highest number, not a count across villages")
 
-        Adding it afterwards would number the first record of each file one too
-        low, which is the same defect one step smaller and would still look
-        plausible in a log.
+    def test_the_total_includes_the_file_being_appended_to(self):
+        """The file's own numbers must be read before the not-full return.
+
+        Reading them afterwards would number the first record of each file one
+        too low, which is the same defect one step smaller and would still
+        look plausible in a log.
         """
         # The walk serves both log families; select_log_file is its births form.
         body = _function("select_family_log_file")
-        accumulate = body.index("total += records")
+        accumulate = body.index("village_last = last_here;")
         # Matched on the condition's opening rather than the whole
-        # expression: a birth now also takes this branch when the file is
-        # full of conceptions, so the condition reads
-        # `records < RECORDS_PER_FILE || (for_birth && records > 0)`.
-        # The ordering this test pins is unaffected.
+        # expression.
         not_full = body.index("if (records < RECORDS_PER_FILE")
         self.assertLess(
             accumulate,
             not_full,
-            "the running total must include this file's own records before "
-            "the not-full return uses it",
+            "the village's last number must include this file's own records "
+            "before the not-full return uses it",
         )
 
     def test_the_rollover_threshold_is_still_what_the_docs_promise(self):

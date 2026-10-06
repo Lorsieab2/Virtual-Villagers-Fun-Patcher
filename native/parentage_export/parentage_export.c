@@ -1353,23 +1353,30 @@ static int roll_back_append(const wchar_t *path, LONGLONG size) {
     return restored;
 }
 /* Count the records already in a file, so a roll happens at the right point
-   and a restarted game continues the current file rather than overwriting it.
+   and a restarted game continues the current file rather than overwriting it;
+   and the highest number one of them prints (*last), which the village's
+   next record continues from.
 
    Counts the row marker rather than newlines, because a record spans several
    lines and a partially written trailing row must not inflate the count. */
-static int count_family_records(const wchar_t *path, int family) {
+static int count_family_records(const wchar_t *path, int family, int *last) {
     FILE *file = _wfopen(path, L"rb");
     int count = 0;
     char line[512];
     const char *marker = family_marker(family);
     size_t marker_length = strlen(marker);
 
+    *last = 0;
     if (file == NULL) {
         return 0;
     }
     while (fgets(line, (int)sizeof(line), file) != NULL) {
         if (strncmp(line, marker, marker_length) == 0) {
+            int number = atoi(line + marker_length);
             ++count;
+            if (number > *last) {
+                *last = number;
+            }
         }
     }
     fclose(file);
@@ -1573,13 +1580,21 @@ static int highest_log_number(const wchar_t *stem,
    cosmetic problem; a record attributed to the wrong village is a wrong record,
    and parentage cannot be recovered afterwards to correct it.
 
-   `existing_records` is the count across EVERY log file, not just the one
-   chosen, because it becomes the record's printed number. Counting only the
-   chosen file restarted numbering at 1 in each new file, so a village past 256
-   births had two records called "Conception 1", two called "Conception 2", and
-   nothing to order them by -- which is the one thing a numbered record exists
-   to provide. The earlier files are already visited by this loop to find the
-   first one that is not full, so accumulating the total costs no extra work.
+   `existing_records` is the highest number THIS VILLAGE's records print,
+   across every one of its log files, not just the one chosen, because the
+   next record prints one more. Counting only the chosen file restarted
+   numbering at 1 in each new file, so a village past 256 births had two
+   records called "Conception 1", two called "Conception 2", and nothing to
+   order them by -- which is the one thing a numbered record exists to
+   provide. The earlier files are already visited by this loop to find the
+   first one that is not full, so reading their numbers costs no extra work.
+
+   EACH VILLAGE NUMBERS ITS OWN. Another village's files are never counted:
+   a new village's first Conception, Death and Unaccounted record is 1 (the
+   owner's v1.35.59 live pass: Start Over's founders were numbered on from
+   the village in slot 1). The highest number printed, not a count, so a
+   village whose files an older build numbered on from another village's
+   keeps counting up from its own last record.
 
    Bounded so a corrupt or unwritable directory cannot spin forever; 4096 files
    is far beyond any real playthrough.
@@ -1606,9 +1621,10 @@ static int select_family_log_file(
     int for_birth
 ) {
     int number;
-    int total = 0;
+    /* The highest number this village's records print, so far in the walk. */
+    int village_last = 0;
     /* For a birth: the newest of this village's files seen so far, and the
-       running total at that point. Zero until one is found. */
+       village's last number at that point. Zero until one is found. */
     int last_match = 0;
     int last_total = 0;
     /* The highest number that exists. A new file goes after it, so the
@@ -1680,14 +1696,18 @@ static int select_family_log_file(
             continue;
         }
         highest = number;       /* the newest file that exists, for the tail */
-        records = count_family_records(destination, family);
-        total += records;
         if (!log_belongs_to_village(destination, village)) {
             /* Another village's log. Keep walking so this one is never
-               appended to, and so `total` still counts it -- the record
-               number is a running total across the whole game's logs, and
-               skipping these would restart numbering partway through. */
+               appended to; its records are that village's, never counted
+               in this one's numbers. */
             continue;
+        }
+        {
+            int last_here;
+            records = count_family_records(destination, family, &last_here);
+            if (last_here > village_last) {
+                village_last = last_here;
+            }
         }
         if (for_birth) {
             /* A birth NEVER rolls over and never stops early. It belongs in
@@ -1700,7 +1720,7 @@ static int select_family_log_file(
                growing that file without bound. Found in review, after an
                earlier attempt at this very fix introduced it. */
             last_match = number;
-            last_total = total;
+            last_total = village_last;
             continue;
         }
         if (records < RECORDS_PER_FILE) {
@@ -1709,10 +1729,9 @@ static int select_family_log_file(
                the whole log on every single birth, and would do it through a
                second handle on a file this call already holds open.
 
-               `total` already includes this file's own records, so it is the
-               number of conceptions logged so far and the next one is
-               total + 1. */
-            *existing_records = total;
+               `village_last` already includes this file's own records, so
+               the next one is village_last + 1. */
+            *existing_records = village_last;
             return 1;
         }
     }
@@ -1731,17 +1750,17 @@ static int select_family_log_file(
     /* Otherwise a new file goes AFTER everything that exists, never into a
        hole an earlier reset left.
 
-       The printed conception number is `existing_records + 1`, a running
-       total across every file in order, so dropping a new file into a hole
-       below a file that already holds later records would number records out
-       of order. Numbering past the highest existing file keeps the sequence
+       The printed conception number is `existing_records + 1`, the
+       village's own running number across its files in order, so dropping
+       a new file into a hole below a file that already holds later records
+       would put records out of order. Numbering past the highest existing file keeps the sequence
        monotonic; the cost is that a reset's holes are not reused, which is
        only a gap in file NAMES and costs nothing. */
     if (highest != 0 && highest < 4096) {
         if (!build_family_log_path(g, family, highest + 1, destination)) {
             return 0;
         }
-        *existing_records = total;
+        *existing_records = village_last;
         return 1;
     }
     /* NOTHING EXISTS AT ALL: a fresh installation, or the folder after
@@ -2553,11 +2572,12 @@ static int saved_tribe_still_loaded(int game_id) {
     return same_tribe(saved_tribe, scratch_tribe, TRIBE_STRICT);
 }
 
-/* The Arrived records already in the game's Births and Conceptions files --
-   every file, every village, as a Conception's number counts them -- so the
-   next one's "Arrived <n>" continues the running count.  -1 when a file
-   cannot be read. */
-static int count_arrived_records(const struct game_layout *g) {
+/* The highest "Arrived <n>" in this village's Births and Conceptions files --
+   never another village's (each village numbers its own, as a Conception's
+   number does: select_family_log_file) -- so the next one's number continues
+   the village's own count, and a new village's first is "Arrived 1".  -1
+   when a file cannot be read. */
+static int count_arrived_records(const struct game_layout *g, const char *village) {
     wchar_t folder[MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
     char line[512];
@@ -2573,7 +2593,8 @@ static int count_arrived_records(const struct game_layout *g) {
         if (!build_family_log_path(g, LOG_BIRTHS, number, path)) {
             return -1;
         }
-        if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+        if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES
+            || !log_belongs_to_village(path, village)) {
             continue;
         }
         file = _wfopen(path, L"rb");
@@ -2581,8 +2602,9 @@ static int count_arrived_records(const struct game_layout *g) {
             return -1;
         }
         while (fgets(line, (int)sizeof line, file) != NULL) {
-            if (strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
-                ++total;
+            if (strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9'
+                && atoi(line + 8) > total) {
+                total = atoi(line + 8);
             }
         }
         if (ferror(file)) {
@@ -2623,10 +2645,10 @@ static int append_record(
         return 0;
     }
     if (kind == KIND_ARRIVED) {
-        /* Its number: the Arrived records already written, in every file.
+        /* Its number: one more than the village's last Arrived record.
            A file that cannot be read leaves the record held for a retry --
            numbered wrong would be worse than numbered later. */
-        arrived_before = count_arrived_records(g);
+        arrived_before = count_arrived_records(g, village);
         if (arrived_before < 0) {
             return APPEND_RETRY;
         }

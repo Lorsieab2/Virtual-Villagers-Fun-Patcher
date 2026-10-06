@@ -34,10 +34,12 @@
          Note: Recorded afterwards (arrived before this log existed)   (backfill only)
        <blank line>
 
-   <n> is a running count of Arrived records across the game's Births and
-   Conceptions files.  Arrived records do not count toward a file's roll (only
-   Conception records do) and go into the village's newest file, as Birth
-   records do.
+   <n> is the village's own running count: one more than the highest Arrived
+   number in that village's Births and Conceptions files, so a new village's
+   first is "Arrived 1" (the owner's v1.35.59 live pass: Start Over's founders
+   were "Arrived 42-46", on from another village).  Arrived records do not
+   count toward a file's roll (only Conception records do) and go into the
+   village's newest file, as Birth records do.
 
    WHICH VILLAGERS THE LOG ALREADY HAS.  A villager is in the log when one of
    the village's Birth records ("  Child:" with its "    Head:" and
@@ -97,9 +99,9 @@ enum {
 /* RecordArrivalsMissingFromLog's `apply`. */
 enum {
     VV_ARRIVAL_COUNT = 0,       /* count the villagers with no record; write nothing */
-    VV_ARRIVAL_APPLY = 1        /* the backfill: "How: Founder" for a villager in the
-                                   village's first Village History snapshot, else
-                                   "How: unknown", and the "Recorded afterwards" note */
+    VV_ARRIVAL_APPLY = 1        /* the backfill: "How: unknown" (a founder is told only
+                                   live, by the seeding) and the "Recorded afterwards"
+                                   note */
 };
 
 typedef struct {

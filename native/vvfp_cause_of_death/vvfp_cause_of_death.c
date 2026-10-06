@@ -618,6 +618,7 @@ static void arrival_tick(void);
 static void arrival_departed(int index);
 static void arrival_save(int slot, int same_village);
 static void arrival_reset(int slot);
+static void arrival_bind(int slot);
 static void arrival_noted_birth(int index);
 static void arrival_backfill_at_save(int slot, const void *save_buffer);
 static void births_backfill_at_save(int slot, const void *save_buffer);

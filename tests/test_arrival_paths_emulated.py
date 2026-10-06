@@ -481,5 +481,163 @@ class AStoryScopeCallNamesTheGamesReturn(unittest.TestCase):
                         self.assertEqual(proc.u32(slot), held, "asking changes nothing")
 
 
+# ---- Change Player > NEW PLAYER --------------------------------------------------
+
+# Each game's slot menu NEW PLAYER branch: where it starts (the load of the
+# village state into ECX), the seeding call, the join every slot case reaches
+# afterwards, the village state's current-slot field, and the creator's hook
+# with the founder marker's place there (VVn_RESET).
+NEW_PLAYER = {
+    1: dict(start=0x414016, seed_call=0x41401B, join=0x41418A, slot=0xABE4,
+            hook=0x43C39B, marker=0x414020, offset=0x90),
+    2: dict(start=0x4150A6, seed_call=0x4150AB, join=0x41521C, slot=0x30378,
+            hook=0x44C84F, marker=0x4150B0, offset=0x1D0),
+    3: dict(start=0x41B7DC, seed_call=0x41B7DF, join=0x41B95A, slot=0x12F24,
+            hook=0x456326, marker=0x41B7E4, offset=0x1D8),
+}
+# The Tree of Life and New Believers: the branch resets the village state
+# (0x41F1E0 / 0x4246A0) and stores the new slot (0x418EF5 / 0x419615); the
+# founders are made later, by the founders scene, once the slot is set.
+NEW_PLAYER_RESET = {4: (0x418ED8, 0x41F1E0, 0x418EF5, 0x17114), 5: (0x4195F8, 0x4246A0, 0x419615, 0x17D80)}
+UI = 0x50000000
+STATE = 0x60000000
+
+
+def all_mode_renders(game: int):
+    """Owner's Defaults in all three modes (256 Villagers ticked where it is),
+    and without 256 Villagers in Immediate Fixed."""
+    full = owners_defaults(game)
+    for mode in ("immediate_fixed", "collection_progression", "stock"):
+        yield f"Owner's Defaults, {mode}", mode, full
+    if game >= 3:
+        big = f"vv{game}_population_256"
+        yield "Owner's Defaults without 256, immediate_fixed", "immediate_fixed", tuple(
+            patcher.resolve_fun_patch_ids([i for i in full if i != big], game_id=f"vv{game}"))
+
+
+def run_new_player(image: Image, game: int, new_slot: int, old_slot: int, limit: int = 4_000_000):
+    """Run the NEW PLAYER branch for the slot index `new_slot - 1` while the
+    village state's slot field holds `old_slot`.  Returns, for each arrival at
+    the creator's hook, (the slot field, the founder marker's slot), and the
+    slot field at the join."""
+    p = NEW_PLAYER[game]
+    creator = CREATOR[p["hook"]]
+    saved_regs = (UC_X86_REG_EBX, UC_X86_REG_ESI, UC_X86_REG_EDI, UC_X86_REG_EBP)
+    uc = Uc(UC_ARCH_X86, UC_MODE_32)
+    uc.mem_map(image.base, image.size, UC_PROT_ALL)
+    uc.mem_write(image.base, image.img)
+    uc.mem_map(STACK, 0x100000)
+    uc.mem_write(STACK, b"\x5A" * 0x100000)
+
+    def unmapped(uc, access, address, size, value, user):
+        uc.mem_map(address & ~0xFFF, 0x1000)
+        return True
+    uc.hook_add(UC_HOOK_MEM_UNMAPPED, unmapped)
+    uc.mem_map(UI, 0x1000)
+    uc.mem_write(UI + 0x4C, struct.pack("<I", STATE))
+    uc.mem_map(STATE + (p["slot"] & ~0xFFF), 0x1000)
+    uc.mem_write(STATE + p["slot"], struct.pack("<I", old_slot))
+    seeder = image.call_target(p["seed_call"])
+    follow = image.chain(seeder, creator) | {seeder}
+    pop_creator = image.callee_pop(creator)
+    seen: list = []
+    entries: list = []
+    counter = [0]
+    error: list[str] = []
+
+    def slot_now():
+        return struct.unpack("<I", uc.mem_read(STATE + p["slot"], 4))[0]
+
+    def code(uc, address, size, user):
+        if not image.inside(address):
+            error.append(f"left the image at {address:#x}")
+            uc.emu_stop()
+            return
+        if address == creator:
+            entries.append((uc.reg_read(UC_X86_REG_ESP), [uc.reg_read(r) for r in saved_regs]))
+        if address == p["hook"]:
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            seen.append((slot_now(), struct.unpack("<I", uc.mem_read(esp + p["offset"], 4))[0]))
+            entry, regs = entries.pop()
+            for r, v in zip(saved_regs, regs):
+                uc.reg_write(r, v)
+            back = struct.unpack("<I", uc.mem_read(entry, 4))[0]
+            uc.reg_write(UC_X86_REG_ESP, entry + 4 + pop_creator)
+            uc.reg_write(UC_X86_REG_EAX, 0)
+            uc.reg_write(UC_X86_REG_EIP, back)
+            return
+        b = image.code(address, 2)
+        if b[:1] == b"\xE8":
+            target = image.call_target(address)
+            if address == p["seed_call"] or target in follow or not (image.text[0] <= target < image.text[1]):
+                return       # the seeding's path, or the patcher's own code: run for real
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            if target == RAND[game]:
+                bound = struct.unpack("<I", uc.mem_read(esp, 4))[0] or 1
+                counter[0] += 1
+                result = counter[0] % bound if bound < 0x10000 else counter[0]
+            else:
+                result = HEAP + 0x100000
+            uc.reg_write(UC_X86_REG_ESP, esp + image.callee_pop(target))
+            uc.reg_write(UC_X86_REG_EAX, result)
+            uc.reg_write(UC_X86_REG_EIP, address + 5)
+        elif b[:1] == b"\xFF" and (b[1] >> 3) & 7 == 2:
+            error.append(f"an indirect call at {address:#x}")
+            uc.emu_stop()
+    uc.hook_add(UC_HOOK_CODE, code)
+    uc.reg_write(UC_X86_REG_ESP, STACK + 0x80000)
+    uc.reg_write(UC_X86_REG_ESI, UI)
+    uc.reg_write(UC_X86_REG_EDI, UI + 0x800)
+    uc.reg_write(UC_X86_REG_EBP, new_slot - 1)
+    uc.emu_start(p["start"], p["join"], count=limit)
+    if error:
+        raise AssertionError(f"VV{game}: {error[0]} ({len(seen)} hook arrivals)")
+    if uc.reg_read(UC_X86_REG_EIP) != p["join"]:
+        raise AssertionError(f"VV{game}: stopped at {uc.reg_read(UC_X86_REG_EIP):#x}")
+    return seen, slot_now()
+
+
+@needs_tools
+@needs_stock
+class NewPlayerSeedsBeforeItSetsTheSlot(unittest.TestCase):
+    """The owner's v1.35.59 live pass: a tribe made with Change Player > NEW
+    PLAYER got no Founder records (A New Home, "newtribe" and "third").
+
+    Run in every build the patcher publishes: the slot menu's NEW PLAYER
+    branch seeds the new tribe -- every founder on the founder marker's path
+    -- while the game's current slot still names the village left behind,
+    and stores the new slot only afterwards.  So the founders' slot is the
+    one the game has set by the next tick or save, never the one of the
+    moment (cod_arrivals.inc, WHOSE FOUNDERS: REPORT_UNBOUND, arrival_bind).
+    The Tree of Life and New Believers: the branch's reset makes no villager,
+    so their founders (the founders scene) come after the slot is set."""
+
+    def test_the_founders_are_made_before_the_new_slot_is_stored(self):
+        for game in NEW_PLAYER:
+            for label, mode, ids in all_mode_renders(game):
+                image = Image(render(game, mode, ids))
+                for new_slot, old_slot in ((2, 1), (3, 2), (5, 1)):
+                    with self.subTest(game=game, build=label, new=new_slot, old=old_slot):
+                        seen, after = run_new_player(image, game, new_slot, old_slot)
+                        self.assertGreaterEqual(len(seen), 5, f"VV{game}: the seeding made {len(seen)}")
+                        self.assertEqual({m for _, m in seen}, {NEW_PLAYER[game]["marker"]},
+                                         "every founder is on the founder marker's path")
+                        self.assertEqual({s for s, _ in seen}, {old_slot},
+                                         "while the seeding runs the slot is still the old village's")
+                        self.assertEqual(after, new_slot, "the branch stores the new slot afterwards")
+
+    def test_the_later_games_reset_makes_no_villager(self):
+        for game, (call, reset, store, field) in NEW_PLAYER_RESET.items():
+            for label, mode, ids in all_mode_renders(game):
+                image = Image(render(game, mode, ids))
+                with self.subTest(game=game, build=label):
+                    self.assertEqual(image.call_target(call), reset)
+                    ins = next(image.md.disasm(image.code(store, 8), store))
+                    self.assertEqual((ins.mnemonic, f"{field:#x}" in ins.op_str), ("mov", True))
+                    for creator in {c for h, c in CREATOR.items() if h in {m["site"] for m in markers(game)}}:
+                        self.assertEqual(image.chain(reset, creator, depth=6), set(),
+                                         f"VV{game}: the NEW PLAYER reset reaches the creator {creator:#x}")
+
+
 if __name__ == "__main__":
     unittest.main()

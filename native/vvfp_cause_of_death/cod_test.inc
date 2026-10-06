@@ -178,3 +178,9 @@ __declspec(dllexport) void __stdcall VvfpCauseTestVv1Births(int outcome) {
 __declspec(dllexport) void __stdcall VvfpCauseTestDeparted(int index) {
     roster_departed(index, cod_record(index));
 }
+
+/* A New Home's Parentage Records (Show Parents in Details Screen's
+   Vv1ParentageQueryNames), stood in for: NULL asks the real companion. */
+__declspec(dllexport) void __stdcall VvfpCauseTestVv1Parents(void *names) {
+    test_vv1_parent_names = (vv1_parent_names_fn)names;
+}

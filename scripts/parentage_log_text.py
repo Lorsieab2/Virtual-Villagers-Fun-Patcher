@@ -19,6 +19,8 @@ Each statement is checked against native/parentage_export/parentage_export.c:
     for_birth);
   * the Birth fields: WriteParentageBirth prints the child's name, head, body,
     likes, dislikes and skills, and each parent's name, head and body;
+  * the numbers: select_family_log_file and count_arrived_records count only
+    the village's own files, so each village numbers its records from 1;
   * the Arrived records: KIND_ARRIVED, numbered by count_arrived_records and
     filed like a Birth (native/shared/arrival_backfill.h has the format),
     found by "VVFP Cause of Death.dll" (cod_arrivals.inc).
@@ -36,7 +38,7 @@ PLAYER_LOG_DESCRIPTION = (
     "skills, and its mother's and father's names, heads and bodies. A new "
     "numbered file is started after every 256 Conception records; Birth "
     "records go into the file holding the latest conceptions and do not count "
-    "toward that limit. "
+    "toward that limit. Each village numbers its own records, from 1. "
     "Each Arrived record, numbered on its own, gives a villager who joined the "
     "village without being born into it -- a new village's founders, an "
     "island event's newcomers, the Barrel of Babies, the Custom Island Event's "

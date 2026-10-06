@@ -39,7 +39,10 @@ SHARED = ROOT / "native" / "shared"
 # load put over the startup scan's seeding, nor one with parents), and two
 # more where a Story / Cheat Upgrades scope call holds an event's own call
 # (A New Home, The Secret City).
-CHECKS = 34 * 5 + 1 + 2 + 2 + 3 + 16 * 4 + 9 * 5   # + 9 per game: the quit-time repairs and Start Over's approval
+# + 6 per game since the owner's v1.35.59 live pass: Change Player > NEW
+# PLAYER's founders (seeded before the game sets the new slot), and one in
+# A New Home: a villager its Parentage Records say was born there.
+CHECKS = 34 * 5 + 1 + 2 + 2 + 3 + 16 * 4 + 9 * 5 + 6 * 5 + 1   # + 9 per game: the quit-time repairs and Start Over's approval
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -109,11 +112,51 @@ class ArrivedRecordSource(unittest.TestCase):
         arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
         self.assertIn("(!arrivals[i].founder || !same_village)", body(arrivals, "static void arrival_save("))
 
+    def test_founders_count_for_the_village_the_seeding_is_for(self):
+        """The owner's v1.35.59 live pass: Change Player > NEW PLAYER's
+        founders had no records.  The slot menu seeds the new tribe while the
+        game's slot still names the village left behind, and sets the new
+        slot after (tests/test_arrival_paths_emulated.py runs it), so a
+        founder is bound to its slot at the next tick or save."""
+        arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
+        created = body(arrivals, "static void arrival_created(")
+        self.assertIn("if (m != NULL && m->kind == MARK_FOUNDER) {", created)
+        self.assertIn("arrivals[index].tag = REPORT_UNBOUND;", created)
+        self.assertIn("arrived[index] = REPORT_UNBOUND;", created)
+        self.assertIn("arrival_bind(cod_slot());", body(arrivals, "static void arrival_tick("))
+        roster = (COD / "cod_roster.inc").read_text(encoding="utf-8")
+        done = body(roster, "static void cod_save_done(")
+        self.assertLess(done.index("arrival_bind(slot);"), done.index("roster_reconcile(slot);"))
+        self.assertIn("#define REPORT_UNBOUND (-2)", roster)
+
+    def test_the_backfill_never_says_founder(self):
+        """The owner (v1.35.59): "Founder" only for a village's real founders;
+        "How: unknown" when the patcher cannot tell.  A Village History
+        snapshot never proves a founder."""
+        source = (PARENTAGE / "arrival_backfill.inc").read_text(encoding="utf-8")
+        self.assertNotIn("How: Founder\\n", source)
+        self.assertNotIn("read_first_snapshot", source)
+        self.assertIn("ARRIVAL_BACKFILL_AFTER, 2)", source)
+
+    def test_a_new_home_villager_born_here_is_never_backfilled_as_an_arrival(self):
+        arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
+        self.assertIn('GetProcAddress(companion, "Vv1ParentageQueryNames")', arrivals)
+        self.assertIn("return g_game == 1 ? vv1_recorded_parents(index) : arrival_parented(record);", arrivals)
+        self.assertIn("if (arrival_born_here((int)i, record) != births) {", body(arrivals, "static int arrival_gather("))
+
     def test_the_custom_island_event_names_its_villagers(self):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
         self.assertIn('arrived(game, index, "Custom Island Event");', source)
         spawn = source[source.index("int index = a->spawn(s);"):]
         self.assertLess(spawn.index("ce_tell_arrival(e->game, index);"), spawn.index("titles_set"))
+
+    def test_start_over_deletes_the_statistics_roster(self):
+        """The owner's v1.35.59 live pass: 'Village Statistics\\Village Roster
+        - Save 2.dat' stayed after Start Over, and the next village's first
+        save was checked against the erased village's villagers."""
+        source = (SHARED / "save_reset.c").read_text(encoding="utf-8")
+        self.assertIn('L"%ls\\\\Village Roster - Save %d.dat", sub_w, slot', source)
+        self.assertIn('L"%ls\\\\Village Roster - Save %d.tmp", sub_w, slot', source)
 
     def test_start_over_deletes_the_marker(self):
         source = (SHARED / "save_reset.c").read_text(encoding="utf-8")

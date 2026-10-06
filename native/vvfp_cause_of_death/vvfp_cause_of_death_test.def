@@ -33,5 +33,6 @@ EXPORTS
     VvfpCauseTestArrivalTick=_VvfpCauseTestArrivalTick@0
     VvfpCauseTestVv1Births=_VvfpCauseTestVv1Births@4
     VvfpCauseTestDeparted=_VvfpCauseTestDeparted@4
+    VvfpCauseTestVv1Parents=_VvfpCauseTestVv1Parents@4
     VvfpCauseStats DATA
     VvfpCauseRollTest DATA

@@ -76,9 +76,12 @@
 
 /* What the hooks reported since the last save, by record: the save slot
    the report was made in (REPORT_NONE: nothing; REPORT_EARLY: made before
-   this companion was installed, when no slot is known). */
+   this companion was installed, when no slot is known; REPORT_UNBOUND: a
+   new village's founder, whose slot the game has not set yet -- bound at
+   the next tick or save, cod_arrivals.inc). */
 #define REPORT_NONE 0
 #define REPORT_EARLY (-1)
+#define REPORT_UNBOUND (-2)
 static signed char departed[RECORDS_MAX];
 static signed char arrived[RECORDS_MAX];
 
@@ -448,6 +451,9 @@ static void roster_reset(int slot) {
 static void cod_save_done(int slot, const void *save_buffer) {
     cod_publish_village(save_buffer, slot);
     if (install_state == 1) {
+        /* A new village's founders made since the last tick are this
+           village's (cod_arrivals.inc). */
+        arrival_bind(slot);
         /* Every grave in the Deaths log first, so the reconciliation knows
            the villagers whose graves were recorded from now. */
         backfill_at_save(slot, save_buffer);

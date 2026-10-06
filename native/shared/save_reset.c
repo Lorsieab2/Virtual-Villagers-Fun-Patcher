@@ -487,6 +487,17 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             wsprintfW(path_w, L"%ls\\%ls %d.dat.tmp", sub_w, DATA_STEMS[data], slot);
             removed += delete_if_present_w(path_w);
         }
+        /* ...and the living roster those files were kept for ("Village
+           Roster - Save N.dat", its replacement written as ".tmp"): left
+           behind, the next village's first save in the slot was checked
+           against the erased village's villagers (the owner's v1.35.59 live
+           pass: it stayed after Start Over). */
+        if (legacy_subfolder_w(sub_w, DATA_FOLDERS[0])) {
+            wsprintfW(path_w, L"%ls\\Village Roster - Save %d.dat", sub_w, slot);
+            removed += delete_if_present_w(path_w);
+            wsprintfW(path_w, L"%ls\\Village Roster - Save %d.tmp", sub_w, slot);
+            removed += delete_if_present_w(path_w);
+        }
     }
     /* The folder name before it was spelled out, probed but never
        recreated: a player who upgrades keeps whatever the previous build

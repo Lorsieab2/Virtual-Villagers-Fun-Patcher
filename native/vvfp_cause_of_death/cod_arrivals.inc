@@ -41,18 +41,34 @@
    way the arrival is reported to the reconciliation, so the Unaccounted
    Villagers log never lists them.
 
+   WHOSE FOUNDERS.  A founder counts for the village the seeding is made
+   for, and the slot menu's NEW PLAYER (Change Player, or the first tribe)
+   sets that village's slot only AFTER the seeding returns: A New Home seeds
+   at 0x41401B and stores the new slot at 0x414033 ... 0x414147, The Lost
+   Children 0x4150AB then 0x4150C3 ..., The Secret City 0x41B7DF then
+   0x41B7F7 ... (tests/test_arrival_paths_emulated.py runs it).  Tagged with
+   the slot of that moment, a NEW PLAYER's founders counted for the village
+   left behind, and the new village's first save wrote none of them (the
+   owner's v1.35.59 live pass: "newtribe" and "third", Births logs with only
+   the header).  So a founder is made REPORT_UNBOUND, and bound to the slot
+   at the next tick -- or at the next save, should that come first -- by
+   which time the game has set it (arrival_bind).
+
    THE BACKFILL.  VvfpCauseScanArrivals / VvfpCauseRepairArrivals (and
-   ...Now), for the cross-check, like the graves': the village's villagers (believers,
-   and in The Lost Children to New Believers only those with no parents on
-   their record -- a villager with parents was born) are handed to
+   ...Now), for the cross-check, like the graves': the village's villagers
+   (believers, and only those with no parents: a villager with parents was
+   born in the village and is never an arrival -- The Lost Children on keep
+   them on the record, A New Home in Show Parents in Details Screen's
+   Parentage Records, never in the save) are handed to
    RecordArrivalsMissingFromLog, which counts those with no Birth or Arrived
    record; after Repair, at the next save, each gets an Arrived record marked
-   "Recorded afterwards" -- "How: Founder" when the village's first Village
-   History snapshot lists them, else "unknown" -- and once all are on disk the
+   "Recorded afterwards", "How: unknown" -- nothing the patcher keeps says how
+   a villager it never saw arrive came (the owner, v1.35.59: "Founder" is
+   only for a village's real founders) -- and once all are on disk the
    slot's marker says it is done, for good.  A new village's founders this
    companion did not see made (made before this record existed, or by a
-   build that installed it only once a village was shown) are found the same
-   way. */
+   build that installed it only once a village was shown) are found the
+   same way. */
 
 #define ARRIVAL_NONE 0
 #define ARRIVAL_MADE 1          /* made by a creator, not yet decided */
@@ -150,6 +166,11 @@ static void arrival_created(int index, unsigned int site_va, const unsigned int 
     }
     m = arrival_marker_of(site_va, regs);
     arrivals[index].tag = report_tag();
+    if (m != NULL && m->kind == MARK_FOUNDER) {
+        /* Its village's slot is set after the seeding (WHOSE FOUNDERS). */
+        arrivals[index].tag = REPORT_UNBOUND;
+        arrived[index] = REPORT_UNBOUND;
+    }
     arrivals[index].state = ARRIVAL_MADE;
     arrivals[index].born = (unsigned char)(m != NULL && (m->kind == MARK_BIRTH || m->kind == MARK_TEMPORARY));
     arrivals[index].founder = (unsigned char)(m != NULL && m->kind == MARK_FOUNDER);
@@ -166,7 +187,7 @@ static int arrival_heathen(const unsigned char *record) {
 }
 
 /* Born in the village: the record keeps their parents' names (The Lost
-   Children on; A New Home keeps none). */
+   Children on; A New Home keeps none -- arrival_born_here). */
 static int arrival_parented(const unsigned char *record) {
     static const unsigned int PARENTS[6][2] = {
         { 0, 0 }, { 0, 0 }, { 0x57Du, 0x596u }, { 0xDF8u, 0xE11u },
@@ -174,6 +195,46 @@ static int arrival_parented(const unsigned char *record) {
     };
     return PARENTS[g_game][0] != 0u
         && (record[PARENTS[g_game][0]] != 0 || record[PARENTS[g_game][1]] != 0);
+}
+
+/* A New Home keeps no parents in the save: Show Parents in Details Screen
+   keeps each villager's in its Parentage Records ("VVFP VV1 Parentage.dll",
+   Vv1ParentageQueryNames, by record index), so a villager with a parent
+   there was born in the village.  Resolved once, like the parentage
+   exporter's (native/population_export: vv1_parents_resolve). */
+typedef int (__stdcall *vv1_parent_names_fn)(int index, char *father, char *mother, int capacity);
+static int vv1_parents_state;     /* 0 not tried, 1 resolved, -1 unavailable */
+static vv1_parent_names_fn vv1_parent_names;
+#ifdef VVFP_TEST
+static vv1_parent_names_fn test_vv1_parent_names;
+#endif
+
+static int vv1_recorded_parents(int index) {
+    char father[32];
+    char mother[32];
+    vv1_parent_names_fn names = NULL;
+#ifdef VVFP_TEST
+    names = test_vv1_parent_names;
+#endif
+    if (names == NULL) {
+        if (vv1_parents_state == 0) {
+            HMODULE companion = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
+            vv1_parent_names = companion != NULL
+                ? (vv1_parent_names_fn)GetProcAddress(companion, "Vv1ParentageQueryNames") : NULL;
+            vv1_parents_state = vv1_parent_names != NULL ? 1 : -1;
+        }
+        names = vv1_parent_names;
+    }
+    if (names == NULL || !names(index, father, mother, (int)sizeof father)) {
+        return 0;
+    }
+    return father[0] != '\0' || mother[0] != '\0';
+}
+
+/* Born in the village, by what the patcher keeps: the parents on the record
+   (The Lost Children on), or in A New Home's Parentage Records. */
+static int arrival_born_here(int index, const unsigned char *record) {
+    return g_game == 1 ? vv1_recorded_parents(index) : arrival_parented(record);
 }
 
 /* Decide a made record: a birth, a Heathen or gone -> nothing; otherwise an
@@ -212,10 +273,29 @@ static void arrival_write(int index) {
     cod_write(LOG_ARRIVED, record, 1, before, after, 2);
 }
 
+/* A new village's founders, made before the game set its slot (WHOSE
+   FOUNDERS), are the village in `slot`'s now: for their Arrived records and
+   for the reconciliation alike.  No slot yet (0): nothing is bound. */
+static void arrival_bind(int slot) {
+    int i;
+    if (slot < 1 || slot > 5) {
+        return;
+    }
+    for (i = 0; i < RECORDS_MAX; ++i) {
+        if (arrivals[i].tag == REPORT_UNBOUND) {
+            arrivals[i].tag = (signed char)slot;
+        }
+        if (arrived[i] == REPORT_UNBOUND) {
+            arrived[i] = (signed char)slot;
+        }
+    }
+}
+
 /* Every frame: decide what was made, and see New Believers' conversions. */
 static void arrival_tick(void) {
     unsigned char *records = cod_records();
     int i;
+    arrival_bind(cod_slot());
     for (i = 0; i < RECORDS_MAX && (unsigned int)i < REC[g_game].slots; ++i) {
         arrival_decide(i);
     }
@@ -333,8 +413,9 @@ static int arrival_gather(int births) {
         f = &arrival_facts[n];
         memset(f, 0, sizeof *f);
         f->record = record;
-        /* Born here: the record keeps their parents (never in A New Home). */
-        if (arrival_parented(record) != births) {
+        /* Born here: their parents are kept (on the record, or in A New
+           Home's Parentage Records). */
+        if (arrival_born_here((int)i, record) != births) {
             f->outcome = VV_ARRIVAL_CONTEXT;
         }
         /* Made by a creator this session, its own record not written yet:

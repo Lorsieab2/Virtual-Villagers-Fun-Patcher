@@ -218,141 +218,21 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
     return 1;
 }
 
-/* ---- Founders: the first Village History snapshot -------------------------
+/* ---- How they came: unknown --------------------------------------------------
 
-   The owner: a village's founders -- its starting villagers -- are "Founder",
-   never an unknown arrival, and a founder is one "present at village creation
-   / in the first History snapshot, with no Birth record".  So a villager the
-   backfill records is a founder when this village's FIRST snapshot in the
-   Village History log (native/population_export: "=== <game> -- <date> ===",
-   "Village: <name> (Save <n>)", then "Villager <k>" with "  Name:",
-   "  Head:", "  Body:") lists the same name, head and body -- or, when no one
-   there has all three, the same name for exactly one villager of that
-   snapshot and of the villagers being recorded (looks change with Origins'
-   Change Appearance; a name repeated on either side decides nothing). */
-
-#define FOUNDERS_MAX 256
-
-static struct arrival_key *founders;
-static int founder_count;
-
-static void read_first_snapshot(const char *village) {
-    wchar_t folder[MAX_LOG_PATH];
-    wchar_t path[MAX_LOG_PATH];
-    char line[512];
-    char current[256];
-    int ceiling;
-    int number;
-    int done = 0;
-
-    founder_count = 0;
-    if (founders == NULL) {
-        founders = (struct arrival_key *)calloc(FOUNDERS_MAX, sizeof(*founders));
-        if (founders == NULL) {
-            return;
-        }
-    }
-    _snprintf_s(current, sizeof current, _TRUNCATE, "%s", village);
-    trim_line(current);
-    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
-        return;
-    }
-    ceiling = highest_log_number(L"Village History", folder);
-    for (number = 1; number <= ceiling && !done; ++number) {
-        FILE *file;
-        int ours = 0;
-        int expect_village = 0;
-        int open = 0;
-        struct arrival_key v;
-        int have_head = 0, have_body = 0, have_name = 0;
-        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
-                         folder, number) < 0) {
-            return;
-        }
-        file = _wfopen(path, L"rb");
-        if (file == NULL) {
-            continue;
-        }
-        memset(&v, 0, sizeof v);
-        while (fgets(line, (int)sizeof line, file) != NULL) {
-            const char *value;
-            trim_line(line);
-            if (strncmp(line, "=== ", 4) == 0 || strncmp(line, "Villager ", 9) == 0 || line[0] == '\0') {
-                if (open && have_name && have_head && have_body && founder_count < FOUNDERS_MAX) {
-                    founders[founder_count++] = v;
-                }
-                open = have_name = have_head = have_body = 0;
-                memset(&v, 0, sizeof v);
-                if (strncmp(line, "=== ", 4) == 0) {
-                    if (ours) {
-                        done = 1;             /* the first snapshot is complete */
-                        break;
-                    }
-                    expect_village = 1;
-                } else if (ours && line[0] == 'V') {
-                    open = 1;
-                }
-                continue;
-            }
-            if (expect_village) {
-                expect_village = 0;
-                ours = current[0] != '\0' && strcmp(line, current) == 0;
-                continue;
-            }
-            if (!open) {
-                continue;
-            }
-            if ((value = line_value(line, "Name")) != NULL) {
-                lstrcpynA(v.name, value, (int)sizeof v.name);
-                have_name = 1;
-            } else if ((value = line_value(line, "Head")) != NULL) {
-                v.head = atoi(value);
-                have_head = 1;
-            } else if ((value = line_value(line, "Body")) != NULL) {
-                v.body = atoi(value);
-                have_body = 1;
-            }
-        }
-        if (!done && open && have_name && have_head && have_body && founder_count < FOUNDERS_MAX) {
-            founders[founder_count++] = v;
-        }
-        if (ours) {
-            done = 1;                         /* the snapshot ended with the file */
-        }
-        fclose(file);
-    }
-}
-
-/* Whether villager `i` of the ones being recorded is a founder. */
-static int is_founder(int i, char (*names)[ARRIVAL_KEY_NAME], const int *heads, const int *bodies,
-                      int count) {
-    int k, j;
-    int same_name = 0;
-    for (k = 0; k < founder_count; ++k) {
-        if (strcmp(founders[k].name, names[i]) != 0) {
-            continue;
-        }
-        if (founders[k].head == heads[i] && founders[k].body == bodies[i]) {
-            return 1;
-        }
-        ++same_name;
-    }
-    if (same_name != 1) {
-        return 0;
-    }
-    for (j = 0; j < count; ++j) {
-        if (j != i && strcmp(names[j], names[i]) == 0) {
-            return 0;
-        }
-    }
-    return 1;
-}
+   The owner (v1.35.59): "Founder" is only for a village's real founders, and
+   when the patcher cannot tell how a villager joined the record says "How:
+   unknown".  Nothing the backfill can read tells: the games save only when
+   the player quits, so even a village's own first Village History snapshot
+   is taken after its first session's births and arrivals, and an older
+   village's first snapshot is simply its first save under the patch (the
+   owner's v1.35.59 live pass: all 40 villagers of an A New Home village,
+   children born there included, were written "How: Founder").  A village's
+   real founders get their record live, from the seeding that made them
+   (native/vvfp_cause_of_death/cod_arrivals.inc). */
 
 static const char ARRIVAL_BACKFILL_AFTER[] =
     "  How: unknown\n"
-    "  Note: Recorded afterwards (arrived before this log existed)\n";
-static const char ARRIVAL_BACKFILL_FOUNDER[] =
-    "  How: Founder\n"
     "  Note: Recorded afterwards (arrived before this log existed)\n";
 
 /* The Birth record a backfill writes for a villager the save says was born
@@ -446,9 +326,6 @@ static int record_missing_core(
     if (count == 0 || files == 0) {
         return 0;                     /* the log has not started: nothing predates it */
     }
-    if (apply == VV_ARRIVAL_APPLY && !births) {
-        read_first_snapshot(village);
-    }
     names = (char (*)[ARRIVAL_KEY_NAME])calloc((size_t)count, ARRIVAL_KEY_NAME);
     heads = (int *)calloc((size_t)count, sizeof(int));
     bodies = (int *)calloc((size_t)count, sizeof(int));
@@ -500,9 +377,8 @@ static int record_missing_core(
         }
         /* LOOKS CHANGE (Origins' Change Appearance), names rarely do: with
            no record of the same three, the name alone settles it when
-           exactly one record and exactly one of these villagers carry it --
-           as for a founder in the first History snapshot.  A name repeated
-           on either side decides nothing. */
+           exactly one record and exactly one of these villagers carry it.
+           A name repeated on either side decides nothing. */
         if (on_disk + held <= taken) {
             int records_named = 0, villagers_named = 0;
             const struct arrival_key *only = NULL;
@@ -540,10 +416,8 @@ static int record_missing_core(
             }
         } else {
             int held_before = pending_count;
-            const char *after = is_founder(i, names, heads, bodies, count)
-                ? ARRIVAL_BACKFILL_FOUNDER : ARRIVAL_BACKFILL_AFTER;
             if (WriteVillageRecord(game_id, KIND_ARRIVED, facts[i].record, 1, facts[i].before,
-                                   after, 2)) {
+                                   ARRIVAL_BACKFILL_AFTER, 2)) {
                 /* On disk, or held for the save: only a record on disk is
                    durable. */
                 facts[i].outcome = pending_count > held_before ? VV_ARRIVAL_QUEUED : VV_ARRIVAL_RECORDED;
