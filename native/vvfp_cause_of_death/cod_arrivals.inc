@@ -444,7 +444,11 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairArrivalsNow(int game, int slo
     }
     arrivals_repair[slot] = 1;
     arrival_backfill_at_save(slot, NULL);
-    return VvfpCauseScanArrivals(game, slot) == 0;
+    /* Done only when every record is on disk: the marker is written only
+       then.  The scan would also count a record merely held in the
+       parentage DLL's queue for a save that never comes -- the game is
+       closing -- as there (Codex, #542). */
+    return vv_arrival_marker_present(g_game, slot);
 }
 
 /* The Story / Cheat Upgrades companion: its Custom Island Event made the
@@ -551,5 +555,7 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairBirthsNow(int game, int slot)
     }
     births_repair[slot] = 1;
     births_backfill_at_save(slot, NULL);
-    return VvfpCauseScanBirths(game, slot) == 0;
+    /* As for the arrivals: the marker, written only once every record is on
+       disk, never a record merely held for a save that never comes. */
+    return vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot);
 }

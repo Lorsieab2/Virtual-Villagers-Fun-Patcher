@@ -474,7 +474,23 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairGravesNow(int game, int slot)
     }
     repair_chosen[slot] = 1;
     backfill_at_save(slot, NULL);
-    return VvfpCauseScanGraves(game, slot) == 0;
+    /* Every grave covered: a grave is covered only when its record is on
+       disk (backfill_at_save).  The scan would also count a record merely
+       held in the parentage DLL's queue for a save that never comes -- the
+       game is closing -- as there (Codex, #542). */
+    {
+        int count = backfill_survey(slot);
+        int i;
+        if (count < 0) {
+            return 0;
+        }
+        for (i = 0; i < count; ++i) {
+            if (!facts[i].covered) {
+                return 0;
+            }
+        }
+        return 1;
+    }
 }
 
 /* Head and body on a villager record, every game (the parentage DLL's
