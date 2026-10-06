@@ -81,6 +81,8 @@ struct rc_elder {
 
 struct rc_plan {
     int elders_ok;                 /* the elders file was read (or is not there yet) */
+    int blocked;                   /* a log or the counters file could not be read now (a lock):
+                                      the scan cannot tell yet */
     int elders_add;
     struct rc_elder elders[RC_ELDERS_MAX];
     int counters_ok;               /* the counters file was read */
@@ -92,6 +94,9 @@ struct rc_plan {
 
 /* The player's answer, per slot, this session. */
 static signed char g_rc_repair[6];
+/* A quit-time repair changed the files, but the Village Statistics log has
+   not been written again since: the next ...ReconcileNow writes it. */
+static signed char g_rc_log_pending[6];
 
 /* ---- reading the logs ---------------------------------------------------- */
 
@@ -399,7 +404,7 @@ static int rc_elder_names(int game, int slot, char (*taken)[RC_NAME], int *count
     wchar_t path[MAX_PATH];
     char header[64];
     char *text, *cursor, *line;
-    int missing;
+    int missing, graves_seen, rows = 0;
     if (!rc_elders_path(slot, path)) {
         return 0;
     }
@@ -409,32 +414,38 @@ static int rc_elder_names(int game, int slot, char (*taken)[RC_NAME], int *count
     }
     cursor = text;
     _snprintf_s(header, sizeof header, _TRUNCATE, "VVFP VILLAGE ELDERS v2 game=%d", game);
+    /* The same tests as the file's own loader (village_elders.c load), so a
+       file it would not read is never repaired here as if it were usable:
+       the header, a graves_seen of 0 or more, and every line a one-letter
+       E or G followed by six tab-separated fields, at most
+       VV_ELDERS_FILE_MAX lines. */
     line = rc_line(&cursor);
     if (line == NULL || strcmp(line, header) != 0 || (line = rc_line(&cursor)) == NULL
-        || strncmp(line, "graves_seen=", 12) != 0) {
+        || sscanf_s(line, "graves_seen=%d", &graves_seen) != 1 || graves_seen < 0) {
         free(text);
         return 0;
     }
     while ((line = rc_line(&cursor)) != NULL) {
-        char *a, *b;
+        char *fields[7];
+        char *p = line;
+        int n = 0;
         if (line[0] == '\0') {
             continue;
         }
-        a = strchr(line, '\t');
-        b = a != NULL ? strchr(a + 1, '\t') : NULL;
-        if ((line[0] != 'E' && line[0] != 'G') || b == NULL) {
+        fields[n++] = p;
+        for (; *p != '\0' && n < 7; ++p) {
+            if (*p == '\t') {
+                *p = '\0';
+                fields[n++] = p + 1;
+            }
+        }
+        if (n != 7 || (fields[0][0] != 'E' && fields[0][0] != 'G') || fields[0][1] != '\0'
+            || ++rows > VV_ELDERS_FILE_MAX) {
             free(text);
             return 0;
         }
-        a = b + 1;
-        b = strchr(a, '\t');
-        if (b == NULL) {
-            free(text);
-            return 0;
-        }
-        *b = '\0';
         if (*count < capacity) {
-            rc_copy(taken[(*count)++], a);
+            rc_copy(taken[(*count)++], fields[2]);
         }
     }
     free(text);
@@ -476,6 +487,7 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
             h.plan = plan;
             if (!rc_each_log(L"Virtual Villagers Fun Patcher Logs\\Tribe History", L"Village History",
                              rc_visit_history, &h)) {
+                plan->blocked = 1;
                 plan->elders_ok = 0;
                 plan->elders_add = 0;
             }
@@ -499,6 +511,9 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
             plan->counters_ok = rc_each_log(L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", stem,
                                             rc_visit_births, &c);
         }
+        if (!plan->counters_ok) {
+            plan->blocked = 1;
+        }
         if (plan->counters_ok) {
             int graves = vvs_memorial_graves(context);
             if ((long long)graves > c.graves) {
@@ -507,6 +522,9 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
             key = vvs_counter_key(game, VVS_BURIED);
             state = vvs_counter_peek(counters, game, key, &value);
             plan->counters_ok = state == VVS_FILE_OK;
+            if (state == VVS_FILE_UNREADABLE) {
+                plan->blocked = 1;
+            }
             if (state == VVS_FILE_OK && value >= 0 && value < c.graves) {
                 plan->buried_was = value;
                 plan->buried_to = c.graves;
@@ -585,6 +603,32 @@ static void rc_describe(const struct rc_plan *p, char *text, int cap) {
 
 /* ---- the scan and the answer -------------------------------------------- */
 
+#ifdef VVFP_TEST
+/* The harness's stand-in for the game's world object. */
+__declspec(dllexport) unsigned char *VvfpStatisticsTestWorld;
+#endif
+
+/* A New Home's and The Lost Children's memorial is in the game's world
+   object (statistics_store.c: memorial_in_manager), which a scan at the load
+   has no save to be handed: it is read from the game's own global, as the
+   Story / Cheat Upgrades companion reads it (story_vv1.inc VV1_WORLD_GLOBAL
+   0x48AEDC, story_vv2.inc VV2_WORLD_GLOBAL 0x4997BC).  NULL elsewhere, or
+   while the global cannot be read (Codex, #536: without it the memorial was
+   never counted at the load). */
+static unsigned char *rc_scan_world(int game) {
+#ifdef VVFP_TEST
+    return game == GAME_VV1 || game == GAME_VV2 ? VvfpStatisticsTestWorld : NULL;
+#else
+    MEMORY_BASIC_INFORMATION info;
+    uintptr_t global = game == GAME_VV1 ? 0x48AEDCu : game == GAME_VV2 ? 0x4997BCu : 0u;
+    if (global == 0u || VirtualQuery((const void *)global, &info, sizeof info) != sizeof info
+        || info.State != MEM_COMMIT || (info.Protect & (PAGE_GUARD | PAGE_NOACCESS)) != 0) {
+        return NULL;
+    }
+    return *(unsigned char **)global;
+#endif
+}
+
 /* VvfpStatisticsScanReconcile(game, slot, text, cap): what the Village
    Statistics and Village Elders files of the slot's village are missing
    that the save and the logs prove -- the number of changes, with the
@@ -614,7 +658,11 @@ __declspec(dllexport) int __stdcall VvfpStatisticsScanReconcile(int game, int sl
     memset(&context, 0, sizeof context);
     context.game_id = game;
     context.module = (unsigned char *)GetModuleHandleW(NULL);
+    context.manager = rc_scan_world(game);
     rc_make_plan(game, slot, village, counters, &context, &plan);
+    if (plan.blocked) {
+        return -1;                    /* a log or file is locked: the bridge asks again */
+    }
     if (plan.changes > 0) {
         rc_describe(&plan, text, cap);
     }
@@ -818,7 +866,7 @@ static int rc_apply(int game, int slot, unsigned char *manager) {
 #ifdef VVFP_TEST
 __declspec(dllexport) int VvfpStatisticsTestLogRewrites = 0;
 #define RC_REWRITE_LOG(game, manager, slot, village) \
-    ((void)(game), (void)(manager), (void)(slot), (void)(village), ++VvfpStatisticsTestLogRewrites)
+    ((void)(game), (void)(manager), (void)(slot), (void)(village), ++VvfpStatisticsTestLogRewrites, 1)
 #else
 #define RC_REWRITE_LOG(game, manager, slot, village) write_statistics_file(game, manager, slot, village)
 #endif
@@ -851,8 +899,15 @@ __declspec(dllexport) int __stdcall VvfpStatisticsRepairReconcileNow(int game, i
     if (g_rc_repair[slot]) {
         return 0;                     /* not done: nothing more is written now */
     }
-    if (changed && vv_village_name(game, manager, name) && vv_village_header(village, sizeof village, name, slot)) {
-        (void)RC_REWRITE_LOG(game, manager, slot, village);
+    if (changed) {
+        g_rc_log_pending[slot] = 1;
+    }
+    if (g_rc_log_pending[slot]) {
+        if (!vv_village_name(game, manager, name) || !vv_village_header(village, sizeof village, name, slot)
+            || RC_REWRITE_LOG(game, manager, slot, village) != 1) {
+            return 0;                 /* the log still shows the old values: not done */
+        }
+        g_rc_log_pending[slot] = 0;
     }
     return 1;
 }

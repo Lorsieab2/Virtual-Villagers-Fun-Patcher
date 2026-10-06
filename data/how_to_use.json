@@ -506,6 +506,8 @@
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
+    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv3_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
     {
       "ids": ["vv1_cause_of_death"],
       "guide": [
@@ -627,7 +629,7 @@
     "default_patches": {
       "title": "Default Patches",
       "guide": [
-        "Ticks the recommended set: every patch except Learning Skills Never Fails, Manual Drop-Breeding, Story / Cheat Upgrades and 256 Villagers,",
+        "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points,",
         "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom.",
         "This is what a fresh install starts with.",
         "It does not change the population mode."
@@ -792,7 +794,7 @@
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked and the result shown.",
         "Confirm: the save folder is backed up first.",
         "Then play that tribe and quit the game from its menu: everything found wrong is repaired, without asking.",
-        "Masks kept for villagers who are no longer in the village are removed too."
+        "Masks kept for villagers who are no longer in the village are removed too.", "It works only in a game patched with a patch that keeps logs, such as Cause of Death or Show Parents."
       ]
     },
     "check_logs_automatically": {

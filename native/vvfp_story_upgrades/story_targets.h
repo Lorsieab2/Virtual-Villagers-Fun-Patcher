@@ -16,6 +16,14 @@
    picks the type: role +0x1CFC 12 and 14-16 purple, 13 the Chief, otherwise
    orange +0x1CED, red +0x1CEE or blue; role 17 is the Heathen Mommy.
 
+   Added (owner, 2026-10-05): "Everyone", "All Female Children" and "All
+   Male Children" in all five games ("child" is below the game's own adult
+   boundary, as for "All Children").  And (2026-10-06) "All Nursing" (every
+   villager carrying or nursing a baby, of either sex) and "All Skeletons"
+   (every body awaiting burial; the list shows them too, and a chosen
+   skeleton is revived before its changes).  Every other toggle -- Everyone
+   included -- is for the living only.
+
    The list's own extended selection (LBS_EXTENDEDSEL) gives Ctrl and Shift
    their standard meaning; this file only combines that selection with the
    toggles.  Each villager of the roster is visited once, so a villager that
@@ -35,7 +43,12 @@
 #define STORY_T_PURPLE_HEATHENS 0x0200u
 #define STORY_T_CHIEF_HEATHENS 0x0400u
 #define STORY_T_HEATHEN_MOMMIES 0x0800u
-#define STORY_T_ALL 0x0FFFu
+#define STORY_T_EVERYONE 0x1000u
+#define STORY_T_FEMALE_CHILDREN 0x2000u
+#define STORY_T_MALE_CHILDREN 0x4000u
+#define STORY_T_NURSING 0x8000u
+#define STORY_T_SKELETONS 0x10000u
+#define STORY_T_ALL 0x1FFFFu
 
 #define STORY_SEX_MALE 1
 #define STORY_SEX_FEMALE 2
@@ -58,14 +71,17 @@ enum {
     STORY_KIND_COUNT
 };
 
-/* One living villager as the target list shows it: the game's record index,
-   its sex normalised to STORY_SEX_*, its age in the game's own units and its
-   STORY_KIND_*. */
+/* One villager as the target list shows it: the game's record index, its
+   sex normalised to STORY_SEX_*, its age in the game's own units, its
+   STORY_KIND_*, whether it carries or nurses a baby, and whether it is a
+   body awaiting burial (dead). */
 typedef struct {
     int index;
     int sex;
     int age;
     int kind;
+    int nursing;
+    int dead;
 } story_member;
 
 static int story_is_heathen(int kind) {
@@ -76,6 +92,12 @@ static int story_is_heathen(int kind) {
    own adult boundary (an age at or above it is an adult). */
 static int story_toggle_matches(const story_member *m, unsigned int toggles, int adult_age) {
     int adult = m->age >= adult_age;
+    if (m->dead) {
+        return (toggles & STORY_T_SKELETONS) != 0;
+    }
+    if ((toggles & STORY_T_NURSING) && m->nursing) {
+        return 1;
+    }
     if ((toggles & STORY_T_ADULT_WOMEN) && adult && m->sex == STORY_SEX_FEMALE) {
         return 1;
     }
@@ -89,6 +111,15 @@ static int story_toggle_matches(const story_member *m, unsigned int toggles, int
         return 1;
     }
     if ((toggles & STORY_T_CHILDREN) && !adult) {
+        return 1;
+    }
+    if (toggles & STORY_T_EVERYONE) {
+        return 1;
+    }
+    if ((toggles & STORY_T_FEMALE_CHILDREN) && !adult && m->sex == STORY_SEX_FEMALE) {
+        return 1;
+    }
+    if ((toggles & STORY_T_MALE_CHILDREN) && !adult && m->sex == STORY_SEX_MALE) {
         return 1;
     }
     if ((toggles & STORY_T_HEATHENS) && story_is_heathen(m->kind)) {

@@ -19,10 +19,17 @@
 
 #define ARRIVAL_KEY_NAME 64
 
+/* Which kind of record a key is. */
+#define ARRIVAL_READ_NONE 0
+#define ARRIVAL_READ_BIRTH 1
+#define ARRIVAL_READ_ARRIVED 2
+
 struct arrival_key {
     char name[ARRIVAL_KEY_NAME];
     int head, body;
     int held;
+    int kind;                         /* ARRIVAL_READ_BIRTH or ARRIVAL_READ_ARRIVED */
+    int reserved;                     /* taken by a context villager (record_missing_core) */
 };
 
 static struct arrival_key *arrival_keys;
@@ -46,9 +53,6 @@ static int keep_arrival_key(const struct arrival_key *key) {
 }
 
 /* One Birth or Arrived record being read, a line at a time. */
-#define ARRIVAL_READ_NONE 0
-#define ARRIVAL_READ_BIRTH 1
-#define ARRIVAL_READ_ARRIVED 2
 
 struct arrival_reader {
     int open;
@@ -61,6 +65,8 @@ static int arrival_reader_close(struct arrival_reader *r) {
     int ok = 1;
     if (r->open != ARRIVAL_READ_NONE && r->have_name && r->have_head && r->have_body) {
         r->key.held = r->held;
+        r->key.kind = r->open;
+        r->key.reserved = 0;
         ok = keep_arrival_key(&r->key);
     }
     {
@@ -229,7 +235,11 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
    "  Head:", "  Body:") lists the same name, head and body -- or, when no one
    there has all three, the same name for exactly one villager of that
    snapshot and of the villagers being recorded (looks change with Origins'
-   Change Appearance; a name repeated on either side decides nothing). */
+   Change Appearance; a name repeated on either side decides nothing).
+   A renamed village's first snapshot still carries its old header (the
+   Rename Tribe tool appends a note, never rewrites one), so the snapshot
+   headers are matched through the rename chain (history_aliases,
+   grave_backfill.inc), as the graves backfill matches them. */
 
 #define FOUNDERS_MAX 256
 
@@ -244,6 +254,10 @@ static void read_first_snapshot(const char *village) {
     int ceiling;
     int number;
     int done = 0;
+    static char notes[HISTORY_NOTES][256];
+    static char aliases[HISTORY_ALIASES][256];
+    int note_count = 0;
+    int alias_count;
 
     founder_count = 0;
     if (founders == NULL) {
@@ -258,6 +272,26 @@ static void read_first_snapshot(const char *village) {
         return;
     }
     ceiling = highest_log_number(L"Village History", folder);
+    /* The rename notes first: every file, wherever the note was appended. */
+    for (number = 1; number <= ceiling; ++number) {
+        FILE *file;
+        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
+                         folder, number) < 0) {
+            return;
+        }
+        file = _wfopen(path, L"rb");
+        if (file == NULL) {
+            continue;
+        }
+        while (fgets(line, (int)sizeof line, file) != NULL) {
+            trim_line(line);
+            if (vv_rename_is_note(line) && note_count < HISTORY_NOTES) {
+                lstrcpynA(notes[note_count++], line, 256);
+            }
+        }
+        fclose(file);
+    }
+    alias_count = history_aliases(current, notes, note_count, aliases);
     for (number = 1; number <= ceiling && !done; ++number) {
         FILE *file;
         int ours = 0;
@@ -295,8 +329,12 @@ static void read_first_snapshot(const char *village) {
                 continue;
             }
             if (expect_village) {
+                int a;
                 expect_village = 0;
-                ours = current[0] != '\0' && strcmp(line, current) == 0;
+                ours = 0;
+                for (a = 0; a < alias_count; ++a) {
+                    ours |= aliases[a][0] != '\0' && strcmp(line, aliases[a]) == 0;
+                }
                 continue;
             }
             if (!open) {
@@ -475,6 +513,32 @@ static int record_missing_core(
             bodies[i] = *(const int *)(record + g->body);
         }
     }
+    /* A record that matches a context villager is theirs first (Codex,
+       #536) -- but only a record of their own kind: a context villager of
+       the Births call has no parents (an Arrived record is theirs), one of
+       the Arrivals call has them (a Birth record).  So a look-alike never
+       takes the record of a villager this call records.  One record each,
+       on disk before held. */
+    {
+        int context_kind = births ? ARRIVAL_READ_ARRIVED : ARRIVAL_READ_BIRTH;
+        int pass;
+        for (i = 0; i < count; ++i) {
+            int found = 0;
+            if (names[i][0] == '\0' || !context[i]) {
+                continue;
+            }
+            for (pass = 0; pass < 2 && !found; ++pass) {
+                for (j = 0; j < arrival_key_count && !found; ++j) {
+                    struct arrival_key *k = &arrival_keys[j];
+                    if (!k->reserved && k->kind == context_kind && k->held == pass
+                        && k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
+                        k->reserved = 1;
+                        found = 1;
+                    }
+                }
+            }
+        }
+    }
     for (i = 0; i < count; ++i) {
         int on_disk = 0;
         int held = 0;
@@ -484,7 +548,8 @@ static int record_missing_core(
         }
         for (j = 0; j < arrival_key_count; ++j) {
             const struct arrival_key *k = &arrival_keys[j];
-            if (k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
+            if (!k->reserved
+                && k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
                 if (k->held) {
                     ++held;
                 } else {

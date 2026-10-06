@@ -799,11 +799,17 @@ static int oc_gong_resting(void) {
            >= (unsigned int)((clock_fn)(uintptr_t)VV2_CLOCK)(world, NULL);
 }
 
+static int story_pick_gong_outcome(int game, HWND owner);
+
 __declspec(dllexport) int __stdcall VvfpStoryPickGongOutcome(int game, HWND owner) {
+    return story_charged(game, owner, story_pick_gong_outcome);
+}
+
+static int story_pick_gong_outcome(int game, HWND owner) {
     const oc_settings *settings;
     char summary[1200];
     char message[1600];
-    if (game != 2 || !VvfpStoryActive(2)) {
+    if (game != 2 || !story_installed(2)) {
         return 0;
     }
     oc_gong_check();
@@ -841,8 +847,8 @@ __declspec(dllexport) int __stdcall VvfpStoryPickGongOutcome(int game, HWND owne
     }
     chooser_summary(0, summary, sizeof summary);
     wsprintfA(message,
-              "Do you want to buy Pick Gong of Wonder Outcome for 0 tech points?\r\n%s\r\n\r\n"
-              "Press OK to confirm, or Cancel.", summary);
+              "Do you want to buy Pick Gong of Wonder Outcome for %s tech points?\r\n%s\r\n\r\n"
+              "Press OK to confirm, or Cancel.", story_price_text(game), summary);
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;

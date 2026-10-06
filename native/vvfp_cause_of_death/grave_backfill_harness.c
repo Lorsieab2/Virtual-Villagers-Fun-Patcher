@@ -442,7 +442,7 @@ static void write_history(void) {
         "Villager 4\n  Name: Lonely\n  Age: 500\n  Head: 9\n  Body: 9\n\n"
         "Villager 5\n  Name: Youth\n  Age: 900\n  Head: 7\n  Body: 7\n  Likes: rain\n\n\n"
         "=== %s -- 2026-10-01 16:21:22 ===\nVillage: Backfill Tribe (Save 1)\n\n"
-        "Villager 1\n  Name: Kito\n  Age: 1276\n  Head: 0\n  Body: 18\n  Likes: exploring\n  Dislikes: resting\n"
+        "Villager 1\n  Name: Kito\n  Age: 1276\n  Sex: Male\n  Head: 0\n  Body: 18\n  Likes: exploring\n  Dislikes: resting\n"
         "  Parents:\n    Father: Ghali\n      Head: 77\n      Body: 77\n  Skills:\n    Research   100\n\n"
         "Villager 2\n  Name: Chika\n  Age: 1294\n  Head: 19\n  Body: 17\n  Likes: playing\n  Skills:\n    Healing    100\n\n"
         "Villager 3\n  Name: Dup\n  Age: 850\n  Head: 4\n  Body: 4\n\n"
@@ -712,10 +712,10 @@ int main(int argc, char **argv) {
             char want[1024];
             _snprintf(want, sizeof want,
                 "Death 6\r\n  Name: Kito\r\n  Age at death: 1410\r\n  Cause of death: Old age\r\n"
-                "  Grave: %s\r\n  Epitaph: %s\r\n  Head: 0\r\n  Body: 18\r\n  Likes: exploring\r\n"
+                "  Grave: %s\r\n  Epitaph: %s\r\n  Sex: Male\r\n  Head: 0\r\n  Body: 18\r\n  Likes: exploring\r\n"
                 "  Dislikes: resting\r\n  Recorded from the grave: this death was not seen when it happened"
                 " (it came before\r\n    this log was kept, or while the game was catching up on time away)\r\n"
-                "  Head, body, likes and dislikes: from the Village History snapshot of 2026-10-01 16:21:22"
+                "  Sex, head, body, likes and dislikes: from the Village History snapshot of 2026-10-01 16:21:22"
                 " (age 1276 then)\r\n\r\n",
                 MASTER[game][3], "Inspired Inventor");
             CHECK(k != NULL && strncmp(k, want, strlen(want)) == 0,

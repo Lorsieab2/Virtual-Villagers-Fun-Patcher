@@ -76,11 +76,22 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Story / Cheat Upgrades (all five games) is off by default;
     # Owner's Defaults ticks it (owner, 2026-10-03).
     + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
+    # ...and so is Story / Cheat Upgrades cost Tech Points, which is ticked
+    # with it (COTICKED_FUN_PATCH_IDS; owner, 2026-10-06).
+    + ["vv%d_story_cheat_upgrades_cost_tech_points" % game for game in range(1, 6)]
     # 256 Villagers (Experimental) is off by default: it moves the villager
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
 )
+
+# Ticking the key ticks the value too (the value can still be unticked on its
+# own).  The owner (2026-10-06): Story / Cheat Upgrades cost Tech Points
+# "should be checked on if Story/Cheat upgrades is also on by default".
+COTICKED_FUN_PATCH_IDS = {
+    "vv%d_story_cheat_upgrades" % game: "vv%d_story_cheat_upgrades_cost_tech_points" % game
+    for game in range(1, 6)
+}
 
 # Patches the Owner's Defaults button leaves OFF, by exact id.  Owner's
 # Defaults ticks every other default-off patch; the one exception the owner
@@ -257,6 +268,13 @@ def _documents_folder() -> Path:
     except (OSError, AttributeError, ImportError):
         pass
     return Path.home() / "Documents"
+
+
+def _regrab(window) -> None:
+    """Take a modal grab back after a WaitWindow released it: Tk does not
+    restore the previous grab by itself."""
+    if window.winfo_exists():
+        window.grab_set()
 
 
 class WaitWindow:
@@ -886,14 +904,23 @@ class App(tk.Tk):
             (2, "game_folders"),
             (3, "open_vanilla_folder"),
             (4, "open_modified_folder"),
-            (5, "back_up_saves"),
-            (6, "restore_saves"),
-            (7, "rename_tribe"),
-            (8, "check_logs"),
-            (9, "repair_logs"),
         ):
             self._help_button(grid, key).grid(
                 row=0, column=column, padx=(12, 0) if column > 2 else 0, pady=(0, 2)
+            )
+        # The save and log links get a grid of their own below: in one row
+        # with the folder fields, ten columns are wider than the window, and
+        # the tab scrolls only vertically, so the last links were unreachable.
+        tools = ttk.Frame(tab)
+        for column, key in (
+            (1, "back_up_saves"),
+            (2, "restore_saves"),
+            (3, "rename_tribe"),
+            (4, "check_logs"),
+            (5, "repair_logs"),
+        ):
+            self._help_button(tools, key).grid(
+                row=0, column=column, padx=(12, 0), pady=(0, 2)
             )
         for index, build in enumerate(self.builds):
             row = index + 1
@@ -920,32 +947,36 @@ class App(tk.Tk):
                 "Modified folder",
                 lambda game_id=build.id: self._open_bulk_folder(game_id, True),
             ).grid(row=row, column=4, padx=(12, 0), pady=4)
+            ttk.Label(tools, text=f"{index + 1}. {short}").grid(
+                row=row, column=0, sticky="w", padx=(0, 8), pady=2
+            )
             self._folder_link(
-                grid,
+                tools,
                 "Back up saves",
                 lambda game=build: self._back_up_saves([game]),
-            ).grid(row=row, column=5, padx=(12, 0), pady=4)
+            ).grid(row=row, column=1, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Restore saves...",
                 lambda game=build: self._restore_saves(game),
-            ).grid(row=row, column=6, padx=(12, 0), pady=4)
+            ).grid(row=row, column=2, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Rename tribe...",
                 lambda game=build: self._rename_tribe(game),
-            ).grid(row=row, column=7, padx=(12, 0), pady=4)
+            ).grid(row=row, column=3, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Check logs...",
                 lambda game=build: self._log_tool(game, repair=False),
-            ).grid(row=row, column=8, padx=(12, 0), pady=4)
+            ).grid(row=row, column=4, padx=(12, 0), pady=2)
             self._folder_link(
-                grid,
+                tools,
                 "Repair logs...",
                 lambda game=build: self._log_tool(game, repair=True),
-            ).grid(row=row, column=9, padx=(12, 0), pady=4)
+            ).grid(row=row, column=5, padx=(12, 0), pady=2)
         grid.columnconfigure(1, weight=1)
+        tools.pack(anchor="w", pady=(8, 0))
         actions = ttk.Frame(tab)
         actions.pack(fill="x", pady=(10, 0))
         ttk.Button(
@@ -1064,8 +1095,12 @@ class App(tk.Tk):
             dependencies[patch.id] = tuple(raw or ())
         return dependencies
 
-    def _apply_gui_dependency_selection(self) -> None:
-        """Keep checkbox state closed over prerequisites and dependent removals."""
+    def _apply_gui_dependency_selection(self, cotick: bool = True) -> None:
+        """Keep checkbox state closed over prerequisites and dependent removals.
+
+        cotick: tick each newly ticked row's COTICKED_FUN_PATCH_IDS partner --
+        for the player's own ticks, never when saved settings are restored (a
+        partner the player unticked stays unticked across restarts)."""
         current = {
             patch.id
             for patch in self.fun_patches
@@ -1086,6 +1121,12 @@ class App(tk.Tk):
                 if dependency_id not in current:
                     current.add(dependency_id)
                     pending.append(dependency_id)
+
+        # A patch ticked just now ticks its companion row (COTICKED_FUN_PATCH_IDS).
+        for patch_id in sorted(current - previous) if cotick else ():
+            partner = COTICKED_FUN_PATCH_IDS.get(patch_id)
+            if partner in by_id:
+                current.add(partner)
 
         # Unchecking a prerequisite clears every selected dependent below it.
         removed = previous - current
@@ -1170,7 +1211,7 @@ class App(tk.Tk):
             for patch in self.fun_patches:
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
             self._last_fun_selection = set()
-            self._apply_gui_dependency_selection()
+            self._apply_gui_dependency_selection(cotick=False)
         self.exe_var.set(data.get("original_exe", ""))
         saved_output_root = data.get("output_root", "")
         if isinstance(saved_output_root, str):
@@ -2657,6 +2698,9 @@ class App(tk.Tk):
             number = game().number
             if repair:
                 self._repair_logs(dialog, folder, number, info)
+                # The "Please wait" window took the grab and released it on
+                # closing; take it back so the main window stays inert.
+                _regrab(dialog)
             else:
                 self._check_logs(dialog, folder, number, info)
 
@@ -2678,9 +2722,11 @@ class App(tk.Tk):
                 lambda: vv_log_tools.check_logs(folder, info.slot, number),
             )
         except (vv_log_tools.LogToolError, OSError) as exc:
+            _regrab(parent)
             self.status_var.set("Check Logs: the logs could not be checked.")
             messagebox.showerror("Check Logs", str(exc), parent=parent)
             return
+        _regrab(parent)
         self.status_var.set(f"Check Logs: {info.name}: {result.summary}")
         self._show_log_report(parent, folder, info, result)
 
@@ -2723,7 +2769,16 @@ class App(tk.Tk):
             text.insert("end", line + "\n", tag)
         text.insert("end", f"\n{result.summary}\n", "file")
         text.configure(state="disabled")
-        ttk.Button(frame, text="Close", command=window.destroy).pack(anchor="e", pady=(8, 0))
+
+        def close() -> None:
+            # Hand the grab back to the picker, which was modal before.
+            window.destroy()
+            _regrab(parent)
+
+        ttk.Button(frame, text="Close", command=close).pack(anchor="e", pady=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", close)
+        window.update_idletasks()
+        window.grab_set()
 
     def _repair_logs(self, parent, folder: Path, number: int, info) -> None:
         """Approve the repair of one slot's village, with the game closed."""
@@ -2756,8 +2811,17 @@ class App(tk.Tk):
             "Repair Logs",
             f"{found}\n\nThe next time you play {info.name}, the game will check "
             "its logs and repair everything confirmed wrong WITHOUT asking (every "
-            "change is backed up and listed in the Repairs log). Nothing is repaired "
-            f"now.\n\nThe save folder {folder.name} is backed up first. Continue?",
+            "change is backed up and listed in the Repairs log). This needs a game "
+            "patched with a patch that keeps logs, such as Cause of Death or Show "
+            "Parents; a game patched without one has nothing to repair. "
+            + (
+                "Likes and dislikes an older patcher wrote with the wrong word list are "
+                "corrected now (each log is backed up beside itself); everything else is "
+                "repaired by the game."
+                if number in (1, 3)
+                else "Nothing is repaired now."
+            )
+            + f"\n\nThe save folder {folder.name} is backed up first. Continue?",
             parent=parent,
         ):
             return
@@ -2781,7 +2845,13 @@ class App(tk.Tk):
             "repair its logs without asking, then close normally from its own menu "
             "so the repairs are saved.\n\n"
             f"{len(result.cleared)} \"already checked\" marker(s) cleared.\n\n"
-            f"Backup: {result.backup.backup_folder}",
+            + (
+                f"Like and dislike words corrected now: {sum(w.count for w in result.words)} "
+                f"in {len(result.words)} log file(s) (listed in the Repairs log).\n\n"
+                if result.words
+                else ""
+            )
+            + f"Backup: {result.backup.backup_folder}",
             parent=parent,
         )
 

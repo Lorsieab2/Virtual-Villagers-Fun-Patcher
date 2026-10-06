@@ -280,17 +280,24 @@ CUSTOM_SITES = {
         "VV1_CUSTOM_CHOOSE_BYTES": (0x428777, 5),
         "VV1_TITLE_SITE_BYTES": (0x41FD75, 5),
         "VV1_CHOICE_SETUP_BYTES": (0x41A51F, 5),
+        "VV1_EVENT_PICK_BYTES": (0x4237DD, 5),
     },
     "vv2": {
         "VV2_CUSTOM_CHOOSE_BYTES": (0x4349B2, 5),
         "VV2_TITLE_SITE_BYTES": (0x429DE3, 5),
         "VV2_CHOICE_SETUP_BYTES": (0x42244A, 5),
+        "VV2_EVENT_PICK_BYTES": (0x42EEED, 5),
     },
-    "vv3": {"VV3_TITLE_SITE_BYTES": (0x468FC8, 6)},
-    "vv4": {"VV4_TITLE_SITE_BYTES": (0x4404D9, 5)},
-    "vv5": {"VV5_TITLE_SITE_BYTES": (0x44319E, 6)},
+    "vv3": {"VV3_TITLE_SITE_BYTES": (0x468FC8, 6), "VV3_EVENT_PICK_BYTES": (0x468757, 5)},
+    "vv4": {"VV4_TITLE_SITE_BYTES": (0x4404D9, 5), "VV4_EVENT_PICK_BYTES": (0x43FA70, 5)},
+    "vv5": {"VV5_TITLE_SITE_BYTES": (0x44319E, 6), "VV5_EVENT_PICK_BYTES": (0x44272F, 5)},
 }
 CUSTOM_SITE_ROUTINES = {
+    "VV1_EVENT_PICK_BYTES": "the event trigger's villager draw 0x43BCD0 (a Custom Island Event arrives within seconds)",
+    "VV2_EVENT_PICK_BYTES": "the event trigger's villager draw 0x44BAE0 (a Custom Island Event arrives within seconds)",
+    "VV3_EVENT_PICK_BYTES": "the event trigger's villager draw 0x45C9D0 (a Custom Island Event arrives within seconds)",
+    "VV4_EVENT_PICK_BYTES": "the event trigger's villager draw 0x4679B0 (a Custom Island Event arrives within seconds)",
+    "VV5_EVENT_PICK_BYTES": "the event trigger's villager draw 0x471870 (a Custom Island Event arrives within seconds)",
     "VV1_CUSTOM_CHOOSE_BYTES": "the island event's chooser call 0x428470 (Custom Island Event delivery)",
     "VV1_TITLE_SITE_BYTES": "the villager panel's title, before its label is set (custom titles)",
     "VV2_CUSTOM_CHOOSE_BYTES": "the island event's chooser call 0x434570 (Custom Island Event delivery)",
@@ -473,7 +480,8 @@ def _price_sites(patcher, game: str, image: Image, ids: list[str], writes: list[
 def _feature_ids(patcher, game: str) -> tuple[list[str], list[str]]:
     public = patcher.load_public_fun_patches()
     minimal = [f"{game}_origins_village_wide_upgrades"]
-    full = [p.id for p in public if p.game_id == game and p.id != f"{game}_story_cheat_upgrades"]
+    # Every other row (this one, and its "cost Tech Points" row that needs it, left out).
+    full = [p.id for p in public if p.game_id == game and not p.id.startswith(f"{game}_story_cheat_upgrades")]
     return minimal, full
 
 
@@ -700,6 +708,59 @@ def build() -> None:
         path = ROOT / "data" / f"vv{number}_story_cheat_upgrades_feature.json"
         path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
         print(f"{game}: {len(writes)} price sites, {len(sites)} pick sites, {len(events)} events -> {path.name}")
+        costs = cost_record(game)
+        cost_path = ROOT / "data" / f"vv{number}_story_cheat_upgrades_cost_tech_points_feature.json"
+        cost_path.write_text(json.dumps(costs, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+
+# "Story / Cheat Upgrades cost Tech Points" (the owner, 2026-10-06): "basically
+# nullifies the 'everything costs 0 points' when Story/Cheats patch is checked.
+# Custom Island Events/Custom Gong of Wonder/Pick Island Event will cost the
+# normal 'Island Event' upgrade cost."  Ticked together with Story / Cheat
+# Upgrades by default.  No bytes of its own: the patcher sets bit 30 of the
+# startup loader's word (STARTUP_LOADER_STORY_CHARGES), and the Story
+# companion then leaves every Origins price as it is and charges the Island
+# Event upgrade's 30,000 for the story events.
+COST_NAME = "Story / Cheat Upgrades cost Tech Points"
+ISLAND_EVENT_PRICE = 30000           # the Origins Island Event upgrade, all five games
+
+
+def cost_record(game: str) -> dict:
+    gong = (" and Pick Gong of Wonder Outcome" if game == "vv2" else "")
+    return {
+        "id": f"{game}_story_cheat_upgrades_cost_tech_points",
+        "enabled": True,
+        "game_id": game,
+        "name": COST_NAME,
+        "description": (
+            "**Requires Story / Cheat Upgrades.** With this ticked, the Origins upgrades keep their "
+            "normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island "
+            "Event" + gong + " each cost what the Island Event upgrade costs: "
+            f"{ISLAND_EVENT_PRICE:,} tech points, paid when the event is queued. With too few tech "
+            "points you are told, and nothing is queued or spent. Untick it to keep every upgrade "
+            "free. Ticking Story / Cheat Upgrades ticks this too."
+        ),
+        "output_tag": "Story Cheat Costs",
+        "dependencies": [f"{game}_story_cheat_upgrades"],
+        "behavior_changes": [
+            "The Story companion verifies its price sites as usual but does not write the zero "
+            "prices, so the Origins upgrades show and charge their normal prices.",
+            "Pick Island Event, Custom Island Event" + gong + " cost "
+            f"{ISLAND_EVENT_PRICE:,} tech points each, taken from the village's tech points when "
+            "the event is queued; with fewer, a message says so and nothing is queued.",
+        ],
+        "explicit_non_changes": [
+            "No byte of the executable is changed by this row: the patcher sets bit 30 of the "
+            "startup loader's word (the companions' list stays within bits 1-29).",
+            "Without Story / Cheat Upgrades this row does nothing (it requires it).",
+        ],
+        "evidence_status": (
+            "emulated: the Story companion's install with the flag set writes no price; the "
+            "story events' charge and refusal; runtime/player confirmation pending"
+        ),
+        "companion_files": [],
+        "patches": [],
+    }
 
 
 if __name__ == "__main__":

@@ -113,7 +113,7 @@ class BothParentsAgesAreRecordedTests(unittest.TestCase):
             self.skipTest("the parentage companion DLL is not present")
         blob = COMPANION.read_bytes()
         self.assertIn(
-            b"  Father: %s\n    Age at conception: %s\n    Head: %s\n",
+            b"  Father: %s\n    Age at conception: %s\n    Sex: %s\n    Head: %s\n",
             blob,
             "the shipped DLL must print the father's age between him and his head",
         )

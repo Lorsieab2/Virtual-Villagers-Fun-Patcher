@@ -352,6 +352,25 @@ static int arrival_gather(int births) {
     return n;
 }
 
+/* The village in `slot` for its backfill markers: its "Village: <name>
+   (Save S)" line read from its save file by "VVFP Save Reset.dll"
+   (SavedVillageHeader, as the Deaths log's grave backfill reads it); 0 when
+   that cannot be told. */
+static unsigned int cod_marker_village(int slot) {
+    typedef int (__stdcall *saved_header_fn)(int, int, char *, int);
+    char header[256];
+    saved_header_fn get;
+    HMODULE module = GetModuleHandleA("VVFP Save Reset.dll");
+    if (module == NULL) {
+        module = vvfp_patcher_dll("VVFP Save Reset.dll");
+    }
+    get = module != NULL ? (saved_header_fn)GetProcAddress(module, "SavedVillageHeader") : NULL;
+    if (get == NULL || !get(g_game, slot, header, (int)sizeof header)) {
+        return 0u;
+    }
+    return vv_backfill_village_id(header);
+}
+
 static int arrival_backfill_ready(void) {
     return cod_log_ready() && record_arrivals != NULL && births_are_logged();
 }
@@ -365,7 +384,7 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
     int i;
     int done = 1;
     if (install_state != 1 || slot < 1 || slot > 5 || !arrivals_repair[slot]
-        || !arrival_backfill_ready() || vv_arrival_marker_present(g_game, slot)) {
+        || !arrival_backfill_ready() || vv_arrival_marker_present(g_game, slot, cod_marker_village(slot))) {
         return;
     }
     count = arrival_gather(0);
@@ -388,7 +407,7 @@ static void arrival_backfill_at_save(int slot, const void *save_buffer) {
             done = 0;                 /* held, or undecided: the next save looks again */
         }
     }
-    if (done && vv_arrival_marker_write(g_game, slot)) {
+    if (done && vv_arrival_marker_write(g_game, slot, cod_marker_village(slot))) {
         arrivals_repair[slot] = 0;
     }
 }
@@ -416,7 +435,7 @@ __declspec(dllexport) int __stdcall VvfpCauseScanArrivals(int game, int slot) {
     if (!cod_log_ready() || record_arrivals == NULL) {
         return -1;
     }
-    if (!births_are_logged() || vv_arrival_marker_present(game, slot)) {
+    if (!births_are_logged() || vv_arrival_marker_present(game, slot, cod_marker_village(slot))) {
         return 0;
     }
     count = arrival_gather(0);
@@ -444,7 +463,11 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairArrivalsNow(int game, int slo
     }
     arrivals_repair[slot] = 1;
     arrival_backfill_at_save(slot, NULL);
-    return VvfpCauseScanArrivals(game, slot) == 0;
+    /* Done only when every record is on disk: the marker is written only
+       then.  The scan would also count a record merely held in the
+       parentage DLL's queue for a save that never comes -- the game is
+       closing -- as there (Codex, #542). */
+    return vv_arrival_marker_present(g_game, slot, cod_marker_village(slot));
 }
 
 /* The Story / Cheat Upgrades companion: its Custom Island Event made the
@@ -475,7 +498,7 @@ static void births_backfill_at_save(int slot, const void *save_buffer) {
     int i;
     int done = 1;
     if (install_state != 1 || slot < 1 || slot > 5 || !births_repair[slot]
-        || !births_backfill_ready() || vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot)) {
+        || !births_backfill_ready() || vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot, cod_marker_village(slot))) {
         return;
     }
     count = arrival_gather(1);
@@ -498,7 +521,7 @@ static void births_backfill_at_save(int slot, const void *save_buffer) {
             done = 0;
         }
     }
-    if (done && vv_backfill_marker_write(VV_BACKFILL_BIRTHS, g_game, slot)) {
+    if (done && vv_backfill_marker_write(VV_BACKFILL_BIRTHS, g_game, slot, cod_marker_village(slot))) {
         births_repair[slot] = 0;
     }
 }
@@ -525,7 +548,7 @@ __declspec(dllexport) int __stdcall VvfpCauseScanBirths(int game, int slot) {
     if (!cod_log_ready() || record_births == NULL) {
         return -1;
     }
-    if (vv_backfill_marker_present(VV_BACKFILL_BIRTHS, game, slot)) {
+    if (vv_backfill_marker_present(VV_BACKFILL_BIRTHS, game, slot, cod_marker_village(slot))) {
         return 0;
     }
     count = arrival_gather(1);
@@ -551,5 +574,7 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairBirthsNow(int game, int slot)
     }
     births_repair[slot] = 1;
     births_backfill_at_save(slot, NULL);
-    return VvfpCauseScanBirths(game, slot) == 0;
+    /* As for the arrivals: the marker, written only once every record is on
+       disk, never a record merely held for a save that never comes. */
+    return vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot, cod_marker_village(slot));
 }

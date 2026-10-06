@@ -161,8 +161,20 @@ static int story_log_conception(int game, const void *records, const void *mothe
     return write_record(game, records, mother, father);
 }
 
-/* The preference list of The Secret City, The Tree of Life and New
-   Believers (79 words; native/population_export/population_export.c). */
+/* The Secret City's own list: "alchemy" and "potions" at 62 and 63. */
+#define STORY_PREFERENCES_79_VV3 \
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees," \
+    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean," \
+    "playing,exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts," \
+    "sand,sunlight,wood,crab meat,whale meat,fish,fruit,papaya,flies," \
+    "swimming,running,learning,dancing,monkeys,parrots,work,lifting," \
+    "surprises,jokes,sleeping,jumping,cooking,fire,eating,dragonflies,owls," \
+    "dreaming,children,talking,holidays,vegetables,quiet,clouds,dirt," \
+    "alchemy,potions,magic,plants,rain,fog,sitting,sharks,honey,stories," \
+    "coral,thunder,lightning,pearls,stars,mango,nature"
+
+/* The preference list of The Tree of Life and New Believers (79 words,
+   each exe's own; tests/test_preference_lists_match_the_exes.py). */
 #define STORY_PREFERENCES_79 \
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees," \
     "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing," \

@@ -24,6 +24,7 @@
 #define WS_CAPTION 0x00C00000L
 #define WS_SYSMENU 0x00080000L
 #define WS_VSCROLL 0x00200000L
+#define WS_HSCROLL 0x00100000L
 #define WS_TABSTOP 0x00010000L
 #define WS_BORDER 0x00800000L
 #define WS_GROUP 0x00020000L
@@ -109,26 +110,31 @@ BEGIN
     PUSHBUTTON  "Cancel", 2, 348, 412, 64, 15
 END
 
-303 DIALOGEX 0, 0, 460, 346
+303 DIALOGEX 0, 0, 460, 362
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager changes"
 FONT 9, "Segoe UI"
 BEGIN
     LTEXT       "Villagers (Ctrl+click to add or remove one, Shift+click for a range):", -1, 8, 6, 190, 18
-    LISTBOX     2001, 8, 26, 190, 140, LBS_NOTIFY | LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
-    AUTOCHECKBOX "All Adult Women", 2002, 8, 170, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Adult Men", 2003, 104, 170, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Females", 2004, 8, 182, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Males", 2005, 104, 182, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Children", 2006, 8, 194, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Heathens", 2100, 8, 206, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Blue Heathens", 2101, 104, 206, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Red Heathens", 2102, 8, 218, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Orange Heathens", 2103, 104, 218, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Purple Heathens", 2104, 8, 230, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Chief Heathens", 2105, 104, 230, 95, 10, WS_TABSTOP
-    AUTOCHECKBOX "All Heathen Mommies", 2106, 8, 242, 95, 10, WS_TABSTOP
-    LTEXT       "", 2007, 8, 256, 190, 20
+    LISTBOX     2001, 8, 26, 190, 140, LBS_NOTIFY | LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_TABSTOP
+    AUTOCHECKBOX "Everyone", 2107, 8, 170, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Children", 2006, 104, 170, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Adult Women", 2002, 8, 182, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Adult Men", 2003, 104, 182, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Females", 2004, 8, 194, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Males", 2005, 104, 194, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Female Children", 2108, 8, 206, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Male Children", 2109, 104, 206, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Nursing", 2110, 8, 218, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Skeletons", 2111, 104, 218, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Heathens", 2100, 8, 230, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Blue Heathens", 2101, 104, 230, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Red Heathens", 2102, 8, 242, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Orange Heathens", 2103, 104, 242, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Purple Heathens", 2104, 8, 254, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Chief Heathens", 2105, 104, 254, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Heathen Mommies", 2106, 8, 266, 95, 10, WS_TABSTOP
+    LTEXT       "", 2007, 8, 280, 190, 20
 
     LTEXT       "Fate:", -1, 206, 8, 70, 10
     COMBOBOX    2010, 280, 6, 172, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
@@ -176,9 +182,12 @@ BEGIN
     PUSHBUTTON  "Baby's father...", 2082, 280, 290, 80, 14, WS_TABSTOP
     LTEXT       "", 2083, 364, 292, 88, 12
 
-    LTEXT       "", 2090, 8, 306, 444, 20
-    DEFPUSHBUTTON "Add to event", 1, 316, 326, 64, 15
-    PUSHBUTTON  "Cancel", 2, 388, 326, 64, 15
+    LTEXT       "Faith (-100 to 100):", 2076, 206, 308, 72, 10
+    EDITTEXT    2075, 280, 306, 40, 13, WS_TABSTOP
+    LTEXT       "blank = no change; the faction stays", 2077, 324, 308, 128, 10
+    LTEXT       "", 2090, 8, 322, 444, 20
+    DEFPUSHBUTTON "Add to event", 1, 316, 342, 64, 15
+    PUSHBUTTON  "Cancel", 2, 388, 342, 64, 15
 END
 
 304 DIALOGEX 0, 0, 300, 250
@@ -188,11 +197,14 @@ FONT 9, "Segoe UI"
 BEGIN
     LTEXT       "How many:", -1, 8, 8, 80, 10
     EDITTEXT    3101, 92, 6, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3162, 136, 8, 156, 10
     LTEXT       "Sex:", -1, 8, 24, 80, 10
     COMBOBOX    3102, 92, 22, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP
-    LTEXT       "Age in years:", -1, 8, 40, 80, 10
+    LTEXT       "Age:", -1, 8, 40, 80, 10
     EDITTEXT    3103, 92, 38, 40, 13, ES_NUMBER | WS_TABSTOP
-    LTEXT       "", 3104, 136, 40, 156, 10
+    AUTORADIOBUTTON "Game units", 3160, 136, 39, 52, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Years", 3161, 190, 39, 34, 10
+    LTEXT       "", 3104, 226, 40, 70, 10
     LTEXT       "Name (blank = the game's choice):", -1, 8, 56, 120, 10
     EDITTEXT    3105, 132, 54, 160, 13, ES_AUTOHSCROLL | WS_TABSTOP
     LTEXT       "Head / body (blank = random):", -1, 8, 72, 120, 10

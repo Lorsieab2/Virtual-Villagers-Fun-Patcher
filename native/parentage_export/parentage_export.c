@@ -77,6 +77,8 @@
 #include "village_identity.h"
 #include "village_rename.h"
 #include "save_folder.h"
+#include "log_words.h"
+#include "special_title.h"
 #include "patcher_files.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -174,11 +176,11 @@ enum {
    read through VV1's 47 entries would silently print the wrong word. */
 static const char PREFERENCES_47[] =
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
-    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing,"
-    "exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,sand,"
-    "sunlight,rough wood,crab meat,whale meat,fish,fruit,papaya,flies,"
-    "swimming,running,learning,dancing,monkeys,parrots,work,lifting,surprises,"
-    "jokes";
+    "the dark,caves,herbs,berries,snakes,wind,rocks,rough wood,the ocean,"
+    "playing,exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,"
+    "sand,sunlight,drift wood,crab meat,whale meat,fish,fruit,papaya,flies,"
+    "swimming,running,dancing,monkeys,birds,work,lifting,surprises,jokes,"
+    "sleeping";
 
 static const char PREFERENCES_62[] =
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,"
@@ -189,6 +191,19 @@ static const char PREFERENCES_62[] =
     "monkeys,parrots,work,lifting,surprises,jokes,sleeping,jumping,"
     "cooking,fire,eating,dragonflies,owls,dreaming,children,talking,"
     "holidays,vegetables,quiet,clouds,dirt";
+
+/* The Secret City's own: The Tree of Life's and New Believers' list but
+   "alchemy" and "potions" at 62 and 63 (its exe's list). */
+static const char PREFERENCES_79_VV3[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
+    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,"
+    "playing,exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,"
+    "sand,sunlight,wood,crab meat,whale meat,fish,fruit,papaya,flies,"
+    "swimming,running,learning,dancing,monkeys,parrots,work,lifting,"
+    "surprises,jokes,sleeping,jumping,cooking,fire,eating,dragonflies,owls,"
+    "dreaming,children,talking,holidays,vegetables,quiet,clouds,dirt,"
+    "alchemy,potions,magic,plants,rain,fog,sitting,sharks,honey,stories,"
+    "coral,thunder,lightning,pearls,stars,mango,nature";
 
 static const char PREFERENCES_79[] =
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
@@ -447,6 +462,15 @@ struct game_layout {
     unsigned int parent_father_body;
     unsigned int parent_mother_head;
     unsigned int parent_mother_body;
+    /* A villager's sex, for the logs' "Sex:" lines (the owner, 2026-10-06:
+       "add the sex to all villagers in the logs").  Appended for the same
+       reason as the parents above.  The value the game stores for a male and
+       for a female: A New Home and The Lost Children 1 / 2, the later games
+       0 / 1 -- the population exporter's and the Custom Island Event's
+       measured tables. */
+    unsigned int sex;
+    int sex_male;
+    int sex_female;
 };
 
 /* MAX_SKILLS and the five skill tables, restated from the population
@@ -456,6 +480,16 @@ struct game_layout {
    was established the hard way.  A cross-table test fails if these ever
    disagree with the population exporter's. */
 enum { MAX_SKILLS = 8 };
+
+/* "Male", "Female", or "(unknown)" for a value the game never stores. */
+static const char *sex_text(const struct game_layout *g, const unsigned char *record) {
+    int value;
+    if (record == NULL || g == NULL) {
+        return "(unknown)";
+    }
+    value = *(const int *)(record + g->sex);
+    return value == g->sex_male ? "Male" : value == g->sex_female ? "Female" : "(unknown)";
+}
 
 /* VV1 -- A New Home.  Storage order, measured:
      Yepa, a child with one non-zero skill, holds it at index 4 and her
@@ -595,6 +629,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         L"Virtual Villagers 1 Births and Conceptions Log",
         /* the child's own parents -- VV1 stores no parents on the record; the caller supplies them */
         0, 0, 0, 0, 0, 0, 0,
+        /* sex: its field, the male and female values */
+        0x350, 1, 2,
     },
 
     /* VV2 -- The Lost Children. Conception is sub_44B980; the mother arrives as
@@ -648,6 +684,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         L"Virtual Villagers 2 Births and Conceptions Log",
         /* the child's own parents, live-verified */
         0x57D, 0x596, 0x18, 0x5B0, 0x5B4, 0x5B8, 0x5BC,
+        /* sex: its field, the male and female values */
+        0x538, 1, 2,
     },
 
     /* VV3 -- The Secret City. Conception is sub_455AB0, and unlike VV1 and VV2
@@ -712,11 +750,13 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         FATHER_BY_NAME, 0xE48, 0x18, 0xE90,
         0xE68, 0xE64,
         0,
-        0xFB4, 0xFC0, 3, PREFERENCES_79,
+        0xFB4, 0xFC0, 3, PREFERENCES_79_VV3,
         0xEAC, 5, 0, SKILL_NAMES_VV3,
         L"Virtual Villagers 3 Births and Conceptions Log",
         /* the child's own parents, live-verified */
         0xDF8, 0xE11, 0x19, 0xE2C, 0xE30, 0xE34, 0xE38,
+        /* sex: its field, the male and female values */
+        0xDC8, 0, 1,
     },
 
     /* VV4 -- The Tree of Life. Verified against the stock binary:
@@ -780,6 +820,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         L"Virtual Villagers 4 Births and Conceptions Log",
         /* the child's own parents, live-verified */
         0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
+        /* sex: its field, the male and female values */
+        0x1B90, 0, 1,
     },
 
     /* VV5 -- New Believers. Structurally identical to VV4 at every offset used
@@ -822,6 +864,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         L"Virtual Villagers 5 Births and Conceptions Log",
         /* the child's own parents, live-verified */
         0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
+        /* sex: its field, the male and female values */
+        0x1B90, 0, 1,
     }
 };
 
@@ -2636,6 +2680,7 @@ static int append_record(
        would create the file -- see log_file_has_content. */
     had_content = log_file_has_content(path);
     original_size = log_file_size(path);
+    vv_log_words_appending((int)(g - GAME_LAYOUTS), path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
@@ -3160,12 +3205,14 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         text, sizeof(text),
         "  Mother: %s\n"
         "    Age at conception: %d\n"
+        "    Sex: %s\n"
         "    Head: %d\n"
         "    Body: %d\n"
         "    Likes: %s\n"
         "    Dislikes: %s\n"
         "  Father: %s\n"
         "    Age at conception: %s\n"
+        "    Sex: %s\n"
         "    Head: %s\n"
         "    Body: %s\n"
         "    Likes: %s\n"
@@ -3174,12 +3221,15 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "\n",
         mother_name,
         *(const int *)(mother + g->age),
+        sex_text(g, mother),
         *(const int *)(mother + g->head),
         *(const int *)(mother + g->body),
         mother_likes,
         mother_dislikes,
         father_name,
         father_age,
+        /* His sex, like his age, from the captured record only. */
+        father_from_caller != NULL ? sex_text(g, father_from_caller) : father_age,
         father_head,
         father_body,
         father_likes,
@@ -3348,6 +3398,7 @@ static int compose_birth(
         text, text_size,
         "Birth\n"
         "  Child: %s\n"
+        "    Sex: %s\n"
         "    Head: %d\n"
         "    Body: %d\n"
         "    Likes: %s\n"
@@ -3361,7 +3412,7 @@ static int compose_birth(
         "    Body: %s\n"
         "%s"
         "\n",
-        child, child_head, child_body, child_likes, child_dislikes, skills,
+        child, sex_text(g, rec), child_head, child_body, child_likes, child_dislikes, skills,
         mother, mh, mb,
         father, fh, fb,
         note != NULL ? note : ""
@@ -3435,6 +3486,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     char likes[64], dislikes[64];
     char skills[512];
     char parents[256];
+    char special[64];
     char text[RECORD_TEXT_MAX];
     int written;
 
@@ -3466,6 +3518,12 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     preference_text(g, record, g->dislikes, dislikes, sizeof dislikes);
     skills[0] = '\0';
     parents[0] = '\0';
+    special[0] = '\0';
+    if (detail >= 1 && vv_special_title(game_id, record) != NULL) {
+        /* The title its Details panel shows (native/shared/special_title.h). */
+        _snprintf_s(special, sizeof special, _TRUNCATE, "  Special villager: %s\n",
+                    vv_special_title(game_id, record));
+    }
     if (detail >= 2) {
         skill_text(g, record, skills, sizeof skills);
         if (g->parent_father_name != 0u
@@ -3495,13 +3553,14 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
             "%s"
             "  Name: %s\n"
             "%s"
+            "%s"
             "  Head: %d\n"
             "  Body: %d\n"
             "  Likes: %s\n"
             "  Dislikes: %s\n"
             "%s%s%s"
             "\n",
-            heading, name, before != NULL ? before : "",
+            heading, name, special, before != NULL ? before : "",
             *(const int *)(record + g->head),
             *(const int *)(record + g->body),
             likes, dislikes, skills, parents, after != NULL ? after : "");
@@ -3734,6 +3793,7 @@ static int ensure_parentage_log(
     }
     /* Measured BEFORE the open, which would create the file. */
     had_content = log_file_has_content(path);
+    vv_log_words_appending((int)(g - GAME_LAYOUTS), path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
@@ -3765,6 +3825,7 @@ static int create_extra_log(const struct game_layout *g, int family, const char 
     }
     /* Measured BEFORE the open, which would create the file. */
     had_content = log_file_has_content(path);
+    vv_log_words_appending((int)(g - GAME_LAYOUTS), path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;

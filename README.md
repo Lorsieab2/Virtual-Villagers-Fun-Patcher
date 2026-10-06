@@ -308,6 +308,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 
 - Patch ID: `vv1_story_cheat_upgrades`
 
+**Story / Cheat Upgrades cost Tech Points**
+
+**Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
+
+- Patch ID: `vv1_story_cheat_upgrades_cost_tech_points`
+
 ### Virtual Villagers - The Lost Children
 
 **Birth Control**
@@ -455,6 +461,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 
 - Patch ID: `vv2_story_cheat_upgrades`
 
+**Story / Cheat Upgrades cost Tech Points**
+
+**Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
+
+- Patch ID: `vv2_story_cheat_upgrades_cost_tech_points`
+
 ### Virtual Villagers - The Secret City
 
 **Birth Control**
@@ -580,6 +592,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 
 - Patch ID: `vv3_story_cheat_upgrades`
 
+**Story / Cheat Upgrades cost Tech Points**
+
+**Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
+
+- Patch ID: `vv3_story_cheat_upgrades_cost_tech_points`
+
 ### Virtual Villagers - The Tree of Life
 
 **Complete Fish Scales = Golden Fish in Nets**
@@ -679,6 +697,12 @@ Believers succeed every work-task skill roll for Farming, Building, Researching,
 Optional tools for custom stories, experiments, sandbox play and cheats, which deliberately bypass normal game progression and random island events. Every Origins Upgrade costs 0 Tech Points, and the Origins menus gain **Pick Island Event** (choose which of the game's own island events happens next, and its outcome) and **Custom Island Event** (write your own event, including two-choice events whose buttons have outcomes and chances you set). Off by default.
 
 - Patch ID: `vv4_story_cheat_upgrades`
+
+**Story / Cheat Upgrades cost Tech Points**
+
+**Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
+
+- Patch ID: `vv4_story_cheat_upgrades_cost_tech_points`
 
 ### Virtual Villagers - New Believers
 
@@ -790,6 +814,12 @@ Believers succeed every work-task skill roll for Farming, Building, Researching,
 Optional tools for custom stories, experiments, sandbox play and cheats, which deliberately bypass normal game progression and random island events. Every Origins Upgrade costs 0 Tech Points, and the Origins menus gain **Pick Island Event** (choose which of the game's own island events happens next, and its outcome) and **Custom Island Event** (write your own event, including two-choice events whose buttons have outcomes and chances you set). Off by default.
 
 - Patch ID: `vv5_story_cheat_upgrades`
+
+**Story / Cheat Upgrades cost Tech Points**
+
+**Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
+
+- Patch ID: `vv5_story_cheat_upgrades_cost_tech_points`
 
 
 That is 103 optional patches across the five games.

@@ -141,13 +141,14 @@ static int c5_spawn(const ce_spawn *s) {
 }
 
 /* The game's own death: the activity stops (0x473440), then SetHealth
-   0x4758B0 (thiscall on the health block +0x1C34: 0, cause; ret 8) as old
-   age calls it (0x47304A), with its cause 2 -- the cause the death
-   statistic's hook needs to count the death exactly once. */
+   0x4758B0 (thiscall on the health block +0x1C34: 0, cause; ret 8), which
+   writes health 0 and the cause.  The cause is -1, "Unknown causes", what the
+   other games' stock island-event deaths record -- not 2, Old age (the
+   owner saw a ten-year-old "die of old age" from an event's Dies). */
 static int c5_kill(int index) {
     unsigned char *r = c5_record(index);
     TC0(0x473440u, r);
-    TC2(0x4758B0u, r + 0x1C34, 0, 2);
+    TC2(0x4758B0u, r + 0x1C34, 0, -1);
     return 1;
 }
 
@@ -172,7 +173,7 @@ static int c5_vanish(int index) {
 static int c5_sicken(int index) {
     unsigned char *r = c5_record(index);
     if (c5_heathen(r)) {
-        return 0;
+        return ce_because(CE_WHY_HEATHEN);
     }
     r[0x1C48] = 1;
     return 1;
@@ -185,16 +186,22 @@ static int c5_sicken(int index) {
    chosen one: the litter set (each baby only while there is room), Babies
    Made [0x51D360] += babies as force = 0 adds it, and the parentage log as
    the routine's own trampoline writes it.  An unknown father is "Unknown"
-   with the carrier's own head and body.  Heathens never deliver (0x472CB7),
-   so only believers carry; there is no sex check in the conception or the
-   delivery (0x4730AF), which is how the Heathen Mommy's male mother works. */
+   with the carrier's own head and body.  There is no sex, age or faith
+   check in the conception or the delivery (0x4730AF): a man carries as the
+   Heathen Mommy's male mother does, and a Heathen carries as the Heathen
+   Mommy does -- the life tick skips every Heathen (0x472CB7), so the birth
+   waits until they are a believer again, then comes as usual.  A Heathen
+   carrier is not one of the village's statistics (the owner: Heathens never
+   count), so their babies are not counted as made. */
 static int c5_conceive(int index, int litter, int father, ce_result *result) {
     unsigned char *r = c5_record(index);
     unsigned char *f = father >= 0 ? c5_record(father) : NULL;
     const unsigned char *source = f != NULL ? f : r;
+    int twins = *(volatile int *)(uintptr_t)0x51D380u;
+    int triplets = *(volatile int *)(uintptr_t)0x51D384u;
     int babies;
-    if (*(int *)(r + 0x1C4C) != 0 || *(int *)(r + 0x1B8C) < 0x118 || c5_heathen(r)) {
-        ++result->refused;
+    if (*(int *)(r + 0x1C4C) != 0) {
+        ce_refuse(result, CE_WHY_EXPECTING);
         return 0;
     }
     if (!c5_room()) {
@@ -204,20 +211,19 @@ static int c5_conceive(int index, int litter, int father, ce_result *result) {
     TC7(0x465E00u, r, *(int *)(source + 0x1B98), 0, 0,
         (int)(uintptr_t)(f != NULL ? (const char *)(f + 0x1B9C) : "Unknown"),
         *(int *)(source + 0x1BB8), *(int *)(source + 0x1BBC), 1);
+    /* The routine marks the pregnancy with the carrier's processed age
+       (+0x1C3C); a newborn carrier's is 0, which reads as "not expecting",
+       so 1 then, as A New Home's conception does for its own. */
     if (*(int *)(r + 0x1C4C) == 0) {
-        ++result->refused;
-        return 0;
+        *(int *)(r + 0x1C4C) = 1;
     }
     /* The routine rolls twins and triplets whatever `force` says and counts
        them as it rolls them (Twins Birthed [0x51D380] at 0x465F2D, Triplets
-       Birthed [0x51D384] at 0x465F1A, a believer carrier counted by the
-       statistics row's Heathen guard too): the rolled litter's count is
-       taken back and the chosen litter counted once, as a natural one is. */
-    if (*(int *)(r + 0x1C50) == 2) {
-        --*(int *)(uintptr_t)0x51D380u;
-    } else if (*(int *)(r + 0x1C50) == 3) {
-        --*(int *)(uintptr_t)0x51D384u;
-    }
+       Birthed [0x51D384] at 0x465F1A, the statistics row's Heathen guard
+       deciding for a Heathen carrier): what it counted is taken back and the
+       chosen litter counted once, as a natural one is -- for a believer. */
+    *(volatile int *)(uintptr_t)0x51D380u = twins;
+    *(volatile int *)(uintptr_t)0x51D384u = triplets;
     *(int *)(r + 0x1C50) = 1;
     babies = 1;
     while (babies < litter && c5_room()) {
@@ -225,20 +231,24 @@ static int c5_conceive(int index, int litter, int father, ce_result *result) {
         *(int *)(r + 0x1C50) = babies;
     }
     result->no_room_babies += litter - babies;
-    if (babies == 2) {
-        ++*(int *)(uintptr_t)0x51D380u;
-    } else if (babies == 3) {
-        ++*(int *)(uintptr_t)0x51D384u;
+    if (!c5_heathen(r)) {
+        if (babies == 2) {
+            ++*(int *)(uintptr_t)0x51D380u;
+        } else if (babies == 3) {
+            ++*(int *)(uintptr_t)0x51D384u;
+        }
+        *(int *)(uintptr_t)0x51D360u += babies;
     }
-    *(int *)(uintptr_t)0x51D360u += babies;
     story_log_conception(5, (const void *)(uintptr_t)C5_MANAGER, r, f);
     return babies;
 }
 
 static const char *const C5_STATUSES[] = {
     "Becomes a believer", "Becomes a Heathen",
-    "Heathen's mask: blue", "Heathen's mask: orange (aggressive)", "Heathen's mask: red (scary)",
+    "Heathen: blue", "Heathen: orange (aggressive)", "Heathen: red (scary)",
+    "Heathen: purple", "Heathen: Chief", "Heathen: the Heathen Mommy",
 };
+#define C5_STATUS_COUNT ((int)(sizeof C5_STATUSES / sizeof C5_STATUSES[0]))
 
 /* What a conversion to a believer counts (owner, 2026-10-02: the Maker's
    faction changes are not the player's conversions and must not count).
@@ -272,42 +282,56 @@ static void c5_convert_uncounted(unsigned char *r) {
    0x467F90 calls when faith rises above 0; The Defector) and 0x4669E0 to a
    Heathen (when it falls to 0 or below; The Mask) -- with the faith they
    leave (+0x1CF0: 55, the floor SetFaith gives a convert; -10, The Mask's).
-   The puzzles' own Heathens are refused. */
+   Neither touches a pregnancy (+0x1C4C, the litter, the father): a carrier
+   keeps the baby as a Heathen and gives birth once a believer again (the
+   owner: "They would not lose their babies or any status, they would just
+   never give birth until converted").
+
+   2..7 are the Heathen types the game draws (the mask's art, 0x4728C6, and
+   its jump table 0x472B60): the role +0x1CFC 0xC purple, 0xD the Chief, 0x11
+   the Heathen Mommy; any other role by the kind bytes the Heathen AI reads,
+   +0x1CED orange ("an aggressive heathen"), +0x1CEE red ("a scary
+   heathen"), neither blue.  A believer becomes a Heathen first (as
+   "Becomes a Heathen").  The puzzles' roles are offered too -- the owner,
+   for the Chief, the purple Heathens and the Heathen Mommy: "Yes, this
+   involves a risk but I don't care. if people want to do it let them." */
 static int c5_set_status(int index, int status) {
+    static const struct {
+        int role;
+        unsigned char orange;
+        unsigned char red;
+    } TYPES[6] = {
+        { 0, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }, { 0xC, 0, 0 }, { 0xD, 0, 0 }, { 0x11, 0, 0 },
+    };
     unsigned char *r = c5_record(index);
-    if (c5_puzzle_heathen(r)) {
-        return 0;
-    }
-    if (status >= 2 && status <= 4) {
-        /* An ordinary Heathen's kind, the two bytes the Heathen AI and the
-           mask's art read (0x4728C6): orange +0x1CED "an aggressive
-           heathen", red +0x1CEE "a scary heathen", neither the plain blue
-           mask.  The puzzles' Heathens (roles 0xC-0x11) are refused above. */
-        if (!c5_heathen(r)) {
-            return 0;
-        }
-        r[0x1CED] = (unsigned char)(status == 3);
-        r[0x1CEE] = (unsigned char)(status == 4);
-        return 1;
-    }
     if (status == 0) {
         if (c5_heathen(r)) {
             c5_convert_uncounted(r);
+            *(int *)(r + 0x1CF0) = 55;
         }
-        *(int *)(r + 0x1CF0) = 55;
         return !c5_heathen(r);
     }
-    if (status == 1) {
-        if (*(int *)(r + 0x1C4C) != 0) {
-            return 0;               /* a Heathen never delivers: keep her baby */
-        }
-        if (!c5_heathen(r)) {
-            TC0(0x4669E0u, r);
-        }
-        *(int *)(r + 0x1CF0) = -10;
-        return c5_heathen(r);
+    if (status < 1 || status >= C5_STATUS_COUNT) {
+        return 0;
     }
-    return 0;
+    if (!c5_heathen(r)) {
+        TC0(0x4669E0u, r);
+        *(int *)(r + 0x1CF0) = -10;
+    }
+    if (status >= 2) {
+        *(int *)(r + 0x1CFC) = TYPES[status - 2].role;
+        r[0x1CED] = TYPES[status - 2].orange;
+        r[0x1CEE] = TYPES[status - 2].red;
+    }
+    return c5_heathen(r);
+}
+
+/* Faith, written as it is (-100..100, the range SetFaith keeps): the owner,
+   "I could set a villager's faith to 0 or a heathen to 100 and they'd stay
+   the same faction".  The game's own SetFaith converts only when faith
+   moves later in play. */
+static void c5_set_faith(int index, int faith) {
+    *(int *)(c5_record(index) + 0x1CF0) = faith;
 }
 
 /* Every action is started by the game's DoBehaviour 0x465580 (thiscall on
@@ -461,26 +485,22 @@ static int c5_reanimating(void) {
     return 0;
 }
 
-/* A skeleton: present, health 0 or less, a believer whose role is not one
-   of the puzzles' (no Heathen grave is ever made).  (While a Reanimate
-   runs, its stand-in corpse passes this too; the revive refuses then.) */
+/* A body awaiting burial: present, health 0 or less, believer or Heathen.
+   (While a Reanimate runs, its stand-in corpse passes this too; the revive
+   refuses then.) */
 static int c5_skeleton(const unsigned char *r) {
-    return r[0x1CD4] != 0 && r[0x1CE1] == 0 && *(const int *)(r + 0x1C40) <= 0
-        && !c5_heathen(r) && !c5_puzzle_heathen(r);
+    return r[0x1CD4] != 0 && r[0x1CE1] == 0 && *(const int *)(r + 0x1C40) <= 0;
 }
 
-/* SetHealth 0x4758B0 (cause back to -1), the last-update time +0x1C38 to
-   the game clock 0x4036E0 (on 0x425950()), then the stop -- what the
-   game's own Reanimate does, with the clock too (without it the villager
-   ages by the time spent dead).  Only while the room predicate 0x472BD0
-   says there is room. */
+/* Health again: SetHealth 0x4758B0 (cause back to -1), the last-update time
+   +0x1C38 to the game clock 0x4036E0 (on 0x425950(); without it the villager
+   ages by the time spent dead), then the stop.  The body keeps its own
+   record, so no room is needed.  Not while the game's own Reanimate is
+   under way: its stand-in corpse is a second body of the same villager. */
 static int c5_revive(int index, int health, int cure) {
     unsigned char *r = c5_record(index);
     if (c5_reanimating()) {
-        return 0;
-    }
-    if (!(TC0(0x472BD0u, C5_MANAGER) & 0xFF)) {
-        return -1;
+        return ce_because(CE_WHY_REVIVE);
     }
     TC2(0x4758B0u, r + 0x1C34, health, -1);
     *(int *)(r + 0x1C38) = TC0(0x4036E0u, ((getter_fn)(uintptr_t)0x425950u)());
@@ -750,13 +770,23 @@ static int c5_role(const unsigned char *r, const char **words) {
     }
     return kind;
 }
+
+/* A new villager to the room predicate and the record count (ce_room_left):
+   present, alive, not a Reanimate spirit, not expecting; a believer, or a
+   Heathen (the believer-only count 0x4713F0 skips one, the record count
+   does not). */
+static const ce_probe_field C5_PROBE[] = {
+    { 0x1CD4, 1, 1, 1 }, { 0x1C40, 4, 90, 90 }, { 0x1CE1, 1, 0, 0 }, { 0x1C4C, 4, 0, 0 },
+    { 0x1CEC, 1, 0, 1 },
+};
+
 static const ce_adapter C5_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT | CAP_PREFS
         | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
         | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_SPAWN_FACTION | CAP_VALUES
-        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE | CAP_FAITH,
     "New Believers",
-    0x118, 40, 1100,
+    0x118, 1600,
     C5_STOCK_COUNT, 0x19,
     0x1B9C, 0x1B90, 0x1B8C, 0x1BB8, 0x1BBC, 0x1F5C, 0x1F68, 0x1C5C,
     0, 1,
@@ -765,17 +795,15 @@ static const ce_adapter C5_ADAPTER = {
     30, 30,
     6, 1, C5_SKILLS,
     0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
-    C5_STATUSES, 5,
+    C5_STATUSES, C5_STATUS_COUNT,
     C5_BEHAVIOURS, (int)(sizeof C5_BEHAVIOURS / sizeof C5_BEHAVIOURS[0]),
     NULL, 0,
     "Not in New Believers:\r\n\r\n"
-    "- The puzzles' own Heathens (the Heathen Mommy and the others) keep their faction, "
-    "their role and their mask, and their puzzles are not offered: marked alone, the "
-    "Heathen at the heart of each would stay a Heathen. The Hydroponic Farm and The Last "
-    "Heathen likewise.\r\n"
+    "- The puzzles' own Heathens' puzzles are not offered: marked alone, the Heathen at "
+    "the heart of each would stay a Heathen. The Hydroponic Farm and The Last Heathen "
+    "likewise. (The Heathens themselves can be given any type, at your own risk.)\r\n"
     "- The Buried Mausoleum and The Lake as unsolved (see each one's note).\r\n"
-    "- Heathens can not be made sick (the game cures them every moment) or pregnant "
-    "(Heathens never give birth), and are never revived (no Heathen grave is ever made).\r\n"
+    "- Heathens can not be made sick (the game cures them every moment).\r\n"
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
     "- Actions that solve or advance a puzzle, conversions, the Heathens' own camp life, "
@@ -787,7 +815,7 @@ static const ce_adapter C5_ADAPTER = {
     "are not your conversions, so they never count toward the game's trophies (A "
     "Heathen's Prerogative, If You Can't Beat 'Em...) or the Heathens Converted "
     "statistic. Heathens you convert in play count as always.",
-    48, 14, 30, 1, 0x118,
+    48, 14, 30, 1,
     "Refills the noni bushes and, once the farm is built, the crops.",
     "Your village gains %d food.", "Your village has lost %d food.",
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
@@ -803,7 +831,13 @@ static const ce_adapter C5_ADAPTER = {
        question and 17 for a result (the tallest stock question and result:
        Innovation in Farming's), the title above the result, labels of 38
        characters (the longest stock). */
-    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer, c5_role
+    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer, c5_role,
+    C5_PROBE, (int)(sizeof C5_PROBE / sizeof C5_PROBE[0]),
+    c5_set_faith,
+    "Do at your own risk: purple, Chief and Heathen Mommy are the roles the game's "
+    "puzzles use; giving them to anyone, or changing a puzzle's own Heathen, can change "
+    "or break those puzzles.",
+    5                                 /* the note is for purple, the Chief and the Mommy */
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

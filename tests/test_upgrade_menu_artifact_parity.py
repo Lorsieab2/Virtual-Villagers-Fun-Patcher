@@ -411,11 +411,11 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # new digest, with VvfpStartup: the runtime companions installed at
         # game start by "VVFP Startup.dll". New digest when its Time Warp
         # stopped ageing the dead. Larger again with the orphan mask entries
-        # (native/shared/orphan_masks.h, save_folder.c linked).
+        # (native/shared/orphan_masks.h, save_folder.c linked). New digest for
         self.assertEqual(vv5_companion["size"], 1836544)
         self.assertEqual(
             vv5_companion["sha256"],
-            "092D9A5E18F022D5A75554634E129EA4D0F1A3C433E564AFDBC0E6537BB9A6FA",
+            "CDCB0022C3374A518EEEFF8BE680A992EFB67E1653344753DC5A169B68A71B65",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

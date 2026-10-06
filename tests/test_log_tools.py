@@ -15,6 +15,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import io
+import struct
 import subprocess
 import sys
 import tempfile
@@ -64,6 +65,17 @@ def markers_of(game: int, slot: int) -> list[str]:
     return names
 
 
+def valid_marker(name: str, game: int, slot: int) -> bytes:
+    """The bytes the game itself writes at ``name`` (the native formats)."""
+    if "Cross-Check" in name:
+        return struct.pack("<12I", 0x31435856, 1, 1, slot, 1, 0, 0, 0, 0, 0, 0, 0)
+    if "Graves Logged" in name:
+        return struct.pack("<4I", 0x31474356, 1, game, 1) + struct.pack("<HHI", 3, 0, 7)
+    if "Arrivals Recorded" in name:
+        return struct.pack("<4I", 0x31414356, 1, game, slot)
+    return struct.pack("<4I", 0x31424356, 1, game, slot)
+
+
 class FakeProcesses:
     def __init__(self, pids=(), error=None, start_after=None):
         self.pids = list(pids)
@@ -106,7 +118,7 @@ class FolderTest(unittest.TestCase):
         for slot in (1, 2):
             for other in {number, 2 if number == 1 else 1}:
                 for name in markers_of(other, slot):
-                    self.write(folder, name, f"marker {other} {slot}".encode())
+                    self.write(folder, name, valid_marker(name, other, slot))
         self.write(folder, f"{DATA}/Cross-Check/Virtual Villagers 1 Cross-Check - Save 1.dat.unreadable-1", b"x")
         self.write(folder, f"{DATA}/Deaths/Virtual Villagers {number} Graves Logged - Save 1.dat.tmp", b"t")
         self.write(folder, f"{DATA}/Graves/Virtual Villagers {number} Graves - Save 1.dat", b"VCD1")
@@ -297,6 +309,36 @@ class ApprovalTests(FolderTest):
                     {k: v for k, v in before.items() if k not in expected and v[2] != "dir"},
                 )
 
+    def test_a_file_that_is_not_a_marker_is_kept(self) -> None:
+        # A truncated, corrupt or unrelated file at a marker's path does not
+        # stop the game's rescan, so Repair Logs has no reason to delete it.
+        for tag, number, suffix in CASES[:1] + [c for c in CASES if c[1] == 3][:1]:
+            with self.subTest(game=number):
+                folder = self.make_folder(tag, number, suffix)
+                names = markers_of(number, 1)
+                junk = folder / names[0]
+                junk.write_bytes(b"not a marker")
+                wrong_slot = folder / names[1]
+                wrong_slot.write_bytes(valid_marker(names[1], number, 2))
+                result = tools.approve_repair(folder, number, 1, FakeProcesses(), NOW)
+                self.assertEqual({p.relative_to(folder).as_posix() for p in result.cleared}, set(names[2:]))
+                self.assertEqual(junk.read_bytes(), b"not a marker")
+                self.assertTrue(wrong_slot.is_file())
+                self.assertTrue(approval_pending(folder, number, 1))
+
+    def test_check_logs_reports_the_coverage_files(self) -> None:
+        checker = tools.load_checker()
+        folder = self.make_folder("huttest", 3, "Modded")
+        text = checker.check(folder, 1).render()
+        self.assertIn("Graves Logged - Save 1.dat", text)
+        self.assertIn("1 grave(s) recorded as already confirmed", text)
+        self.assertIn("the villagers' Arrived records were backfilled for this slot", text)
+        (folder / markers_of(3, 1)[0]).write_bytes(b"VCG1 short")
+        (folder / markers_of(3, 1)[1]).unlink()
+        text = checker.check(folder, 1).render()
+        self.assertIn("the game does not use it and checks every grave again", text)
+        self.assertIn("have not been backfilled for this slot yet", text)
+
     def test_the_marker_list_is_the_native_codes_own(self) -> None:
         reset = (ROOT / "native" / "shared" / "save_reset.c").read_text(encoding="utf-8")
         self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"', reset)
@@ -319,7 +361,7 @@ class ApprovalTests(FolderTest):
         copy = result.backup.backup_folder
         self.assertEqual(copy.name, "Backup 2026-10-04 15-30-00 (before repair re-arm)")
         for name in markers_of(1, 1):
-            self.assertEqual((copy / name).read_bytes(), b"marker 1 1")
+            self.assertEqual((copy / name).read_bytes(), valid_marker(name, 1, 1))
         listed = backup.list_backups(folder)
         self.assertEqual(listed[0].path, copy)
         self.assertTrue(listed[0].before_rearm)
@@ -440,18 +482,29 @@ class ApprovalTests(FolderTest):
         self.assertTrue(approval_pending(folder, 3, 1))
 
     def test_the_module_never_pauses_closes_or_repairs(self) -> None:
-        # It writes one file, the approval (through its own temporary file),
-        # and removes only the markers (and that temporary file on a failure).
+        # It writes the approval (through its own temporary file) and removes
+        # only the markers (and that temporary file on a failure).  The one
+        # repair made in Python is the old like / dislike words (the owner,
+        # 2026-10-06), all of it inside fix_log_words and note_word_repair.
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
+        words = source.index("def fix_log_words(")
+        approval, word_fix = source[:words], source[words:]
         for forbidden in ("paused_game", "back_up_save_folder", "suspend", "TerminateProcess",
                           "write_text", "rmtree", "rename("):
             self.assertNotIn(forbidden, source)
-        self.assertEqual(source.count(".write_bytes("), 1)
-        self.assertIn("temporary.write_bytes(approval_bytes(game, slot))", source)
-        self.assertEqual(source.count("replace("), 1)
-        self.assertIn("os.replace(temporary, approval)", source)
-        self.assertEqual(source.count(".unlink("), 2)
-        self.assertIn("temporary.unlink()", source)
+        self.assertEqual(approval.count(".write_bytes("), 1)
+        self.assertIn("temporary.write_bytes(approval_bytes(game, slot))", approval)
+        self.assertEqual(approval.count("replace("), 1)
+        self.assertIn("os.replace(temporary, approval)", approval)
+        self.assertEqual(approval.count(".unlink("), 2)
+        self.assertIn("temporary.unlink()", approval)
+        # The word repair: a backup opened "xb" (never replacing one), the
+        # file through its temporary, the boundary and the Repairs log appended.
+        self.assertEqual(word_fix.count(".write_bytes("), 1)
+        self.assertIn("temporary.write_bytes(b\"\".join(out))", word_fix)
+        self.assertIn('open(backup, "xb")', word_fix)
+        self.assertEqual(word_fix.count("os.replace("), 1)
+        self.assertEqual(word_fix.count('"ab"'), 2)
 
 
 # ---------------------------------------------------------------------------
@@ -547,6 +600,30 @@ class GuiTests(unittest.TestCase):
             self.assertIn("check_logs_automatically=check_logs,", self.SOURCE[at:at + 400])
         self.assertEqual(self.SOURCE.count("check_logs_automatically=check_logs,"), 6)
 
+    def test_the_all_5_save_and_log_links_have_their_own_grid(self) -> None:
+        # Ten columns in one row were wider than the window, and the tab
+        # scrolls only vertically: Check/Repair logs were unreachable.
+        body = self.SOURCE[self.SOURCE.index("    def _build_all_tab("):]
+        body = body[:body.index("\n    def ")]
+        self.assertNotRegex(body, r"column=[5-9], padx=\(12, 0\), pady=4\)")
+        for name in ("Back up saves", "Restore saves...", "Rename tribe...",
+                     "Check logs...", "Repair logs..."):
+            at = body.index(f'"{name}",')
+            self.assertIn("tools,", body[at - 40:at])
+        self.assertIn("tools.pack(", body)
+
+    def test_the_modal_grab_comes_back_after_every_wait(self) -> None:
+        # WaitWindow releases its grab on closing and Tk does not restore the
+        # picker's: Check Logs hands it to the report (and back to the picker
+        # when the report closes), Repair Logs back to the picker.
+        check = self.SOURCE[self.SOURCE.index("    def _check_logs("):self.SOURCE.index("    def _show_log_report(")]
+        self.assertEqual(check.count("_regrab(parent)"), 2)
+        report = self.SOURCE[self.SOURCE.index("    def _show_log_report("):self.SOURCE.index("    def _repair_logs(")]
+        self.assertIn("window.grab_set()", report)
+        self.assertIn('window.protocol("WM_DELETE_WINDOW", close)', report)
+        self.assertIn("_regrab(parent)", report)
+        self.assertRegex(self.SOURCE, r"self\._repair_logs\(dialog, folder, number, info\)\n(\s*#.*\n)*\s*_regrab\(dialog\)")
+
     def test_the_report_window_scrolls_and_is_read_only(self) -> None:
         body = self.SOURCE[self.SOURCE.index("    def _show_log_report("):self.SOURCE.index("    def _repair_logs(")]
         self.assertIn("ttk.Scrollbar(body", body)
@@ -571,5 +648,102 @@ class GuiTests(unittest.TestCase):
         self.assertIn('"scripts/vvfp_consistency_check.py"', build)
 
 
+
+# ---------------------------------------------------------------------------
+# The old like / dislike words (v1.35.61)
+# ---------------------------------------------------------------------------
+
+HISTORY = f"{LOGS}/Tribe History/Village History.txt"
+WORDS_DAT = f"{DATA}/Log Words/Virtual Villagers {{game}} Log Words.dat"
+
+
+class LogWordsTests(FolderTest):
+    """A New Home's and The Secret City's likes and dislikes were printed from
+    the wrong list until v1.35.61 (the owner, 2026-10-06: the logs must say
+    what the game's exe says; Check Logs and Repair Logs must fix them)."""
+
+    OLD = (b"=== Virtual Villagers 1 -- 2026-10-01 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
+           b"Villager 1\r\n  Name: Ana\r\n  Likes: heights\r\n  Dislikes: jokes\r\n\r\n")
+    NEW = (b"=== Virtual Villagers 1 -- 2026-10-07 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
+           b"Villager 1\r\n  Name: Ana\r\n  Sex: Female\r\n  Likes: rough wood\r\n  Dislikes: jokes\r\n\r\n")
+
+    def history(self, folder: Path, boundary: int | None) -> Path:
+        self.write(folder, HISTORY, self.OLD + self.NEW)
+        if boundary is not None:
+            self.write(folder, WORDS_DAT.format(game=1),
+                       f"{boundary}\tVirtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt\r\n"
+                       .encode())
+        return folder / HISTORY
+
+    def test_check_logs_finds_only_the_words_before_the_boundary(self) -> None:
+        folder = self.make_folder("huttest", 1, "Modded")
+        self.history(folder, len(self.OLD))
+        before = self.state(folder)
+        result = tools.check_logs(folder, 1, 1)
+        self.assertIn("heights -> rough wood", result.text)
+        self.assertIn("jokes -> sleeping", result.text)
+        self.assertIn("2 like/dislike word(s)", result.text, "the new snapshot's words are its own")
+        self.assertEqual(self.state(folder), before, "Check Logs writes nothing")
+
+    def test_repair_logs_puts_the_games_words_in_once(self) -> None:
+        folder = self.make_folder("huttest", 1, "Modded")
+        path = self.history(folder, len(self.OLD))
+        result = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual([(w.name, w.count) for w in result.words],
+                         [("Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", 2)])
+        text = path.read_bytes()
+        self.assertEqual(text, self.OLD.replace(b"heights", b"rough wood").replace(b"jokes", b"sleeping")
+                         + self.NEW)
+        backup_copy = path.with_name(path.name + ".before-v1.35.61-repair")
+        self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
+        repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        self.assertIn("Corrected: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt -- 2 word(s)",
+                      repairs)
+        # A second repair finds nothing: the boundary is now 0.
+        again = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual(again.words, [])
+        self.assertEqual(path.read_bytes(), text)
+        self.assertIn("every like and dislike is a word from the game's own list",
+                      tools.check_logs(folder, 1, 1).text)
+
+    def test_a_file_with_no_boundary_was_written_wholly_by_an_older_patcher(self) -> None:
+        folder = self.make_folder("huttest", 1, "Modded")
+        self.history(folder, None)
+        result = tools.check_logs(folder, 1, 1)
+        self.assertIn("4 like/dislike word(s)", result.text)
+
+    def test_the_secret_city_frogs_and_soap(self) -> None:
+        folder = self.make_folder("huttest", 3, "Modded")
+        self.write(folder, HISTORY, b"Villager 1\r\n  Likes: frogs\r\n  Dislikes: soap\r\n\r\n")
+        tools.approve_repair(folder, 3, 1, FakeProcesses(), NOW)
+        self.assertEqual((folder / HISTORY).read_bytes(),
+                         b"Villager 1\r\n  Likes: alchemy\r\n  Dislikes: potions\r\n\r\n")
+
+    def test_the_other_games_lists_were_always_their_own(self) -> None:
+        for number in (2, 4, 5):
+            with self.subTest(game=number):
+                folder = self.make_folder("huttest", number, "Modded")
+                self.write(folder, HISTORY, b"Villager 1\r\n  Likes: frogs\r\n  Dislikes: heights\r\n\r\n")
+                before = (folder / HISTORY).read_bytes()
+                self.assertEqual(tools.approve_repair(folder, number, 1, FakeProcesses(), NOW).words, [])
+                self.assertEqual((folder / HISTORY).read_bytes(), before)
+                self.assertNotIn("like/dislike", tools.check_logs(folder, 1, number).text)
+
+    def test_the_translation_is_the_exporters_own(self) -> None:
+        """The checker's two lists are the header's (native/shared/log_words.h)."""
+        import re
+        checker = tools.load_checker()
+        header = (ROOT / "native/shared/log_words.h").read_text(encoding="utf-8")
+        for name, words in (("VV_LOG_WORDS_VV1_OLD", checker.VV1_OLD_WORDS),
+                            ("VV_LOG_WORDS_VV1_NEW", checker.VV1_GAME_WORDS)):
+            body = re.search(name + r"\[47\] = \{(.*?)\};", header, re.S).group(1)
+            self.assertEqual(tuple(re.findall(r'"([^"]*)"', body)), words)
+        exporter = (ROOT / "native/parentage_export/parentage_export.c").read_text(encoding="utf-8")
+        body = re.search(r"PREFERENCES_47\[\] =\n((?:\s*\"[^\"]*\"\n?)+);", exporter).group(1)
+        self.assertEqual(tuple("".join(re.findall(r'"([^"]*)"', body)).split(",")),
+                         checker.VV1_GAME_WORDS)
+
+
 if __name__ == "__main__":
     unittest.main()
+

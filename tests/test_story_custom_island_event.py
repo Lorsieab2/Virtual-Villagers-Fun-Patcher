@@ -229,7 +229,19 @@ class LayoutTests(unittest.TestCase):
         proc = Process(render("vv3", "stock"), TEST_DLL)
         proc.export("VvfpStoryProbeSizes", SCRATCH)
         sizes = struct.unpack("<7i", proc.read(SCRATCH, 28))
-        self.assertEqual(sizes, (Event.SIZE, 136, Change.SIZE, RESULT_SIZE, 680, 1768, 1772))
+        self.assertEqual(sizes, (Event.SIZE, Event.SPAWN_SIZE, Change.SIZE, RESULT_SIZE, 680, 1800, 1804))
+
+    def test_the_villager_list_scrolls_sideways_to_its_widest_row(self):
+        # A long role label (VV2's "Esteemed Elder, totem: ...") is wider
+        # than the 190-unit list: it must be reachable (Codex, #550).
+        rc = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.rc").read_text(encoding="utf-8")
+        line = next(l for l in rc.splitlines() if l.strip().startswith("LISTBOX     2001,"))
+        self.assertIn("WS_HSCROLL", line)
+        ui = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom_ui.inc").read_text(encoding="utf-8")
+        body = ui[ui.index("static void ui_setup_changes("):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn("MapDialogRect(window, &extent)", body)
+        self.assertIn("LB_SETHORIZONTALEXTENT", body)
 
 
 # ---------------------------------------------------------------------------
@@ -419,6 +431,56 @@ class RoleTests(unittest.TestCase):
         story = self._story("vv4")
         self.assertEqual(_role(story, 0), (0, ""))
 
+    def test_everyone_and_the_children_by_sex(self):
+        """The owner (2026-10-05): "Everyone", "All Female Children", "All Male
+        Children" in all five games."""
+        EVERYONE, FEMALE_CHILDREN, MALE_CHILDREN = 0x1000, 0x2000, 0x4000
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            _populate(story)
+            with self.subTest(game=game):
+                self.assertEqual(_targets(story, EVERYONE), [0, 1, 3, 4, 5, 6, 7, 8])
+                self.assertEqual(_targets(story, FEMALE_CHILDREN), [5])   # 14 years is adult
+                self.assertEqual(_targets(story, MALE_CHILDREN), [4, 6])
+                self.assertEqual(_targets(story, FEMALE_CHILDREN | MALE_CHILDREN, (1,)), [1, 4, 5, 6])
+
+    def test_all_nursing_and_all_skeletons(self):
+        """The owner (2026-10-06): "All Nursing" (carrying or nursing, either
+        sex) and "All Skeletons" (bodies awaiting burial, listed after the
+        living); every other toggle is for the living only."""
+        NURSING, SKELETONS, EVERYONE = 0x8000, 0x10000, 0x1000
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            _populate(story)                       # record 9 is a body awaiting burial
+            v = story.village
+            story.proc.put32(v.record(1) + v.L["pregnant"], 400)   # a man carrying
+            story.proc.put32(v.record(5) + v.L["pregnant"], 300)   # a girl carrying
+            with self.subTest(game=game):
+                self.assertEqual(_targets(story, NURSING), [1, 5])
+                self.assertEqual(_targets(story, SKELETONS), [9])
+                self.assertNotIn(9, _targets(story, EVERYONE))
+                self.assertEqual(_targets(story, SKELETONS | NURSING), [1, 5, 9])
+
+
+@emulated
+class RiskAllowedTests(unittest.TestCase):
+    """The owner (2026-10-06): risky changes the game survives are allowed,
+    the dialog warning "Do this at your own risk"."""
+
+    def test_a_new_home_golden_child_may_carry(self):
+        if not have_stock("vv1"):
+            self.skipTest("no stock executable")
+        story = Story("vv1")
+        v = story.village
+        v.put(2, sex="f", years=20, name="Golden")
+        story.proc.put32(v.record(2) + 0x36C, 0xC7)
+        ok, r, _ = story.apply(Event(changes=[story.change(2, litter=1)]))
+        self.assertEqual((r["conceived"], r["refused"]), (1, 0))
+
 
 @emulated
 class MergeTests(unittest.TestCase):
@@ -437,9 +499,10 @@ class MergeTests(unittest.TestCase):
         for change, index in ((first, 0), (second, 0), (third, 3)):
             p.write(SCRATCH, change.pack())
             self.assertEqual(p.export("VvfpStoryProbeMerge", EVENT_BUF, SCRATCH, index, 0x1234), 1)
-        count = struct.unpack("<i", p.read(EVENT_BUF + 1768, 4))[0]
+        changes_at = 4 + 48 + 600 + 4 * 7 + 8 * Event.SPAWN_SIZE   # change_count, then the changes
+        count = struct.unpack("<i", p.read(EVENT_BUF + changes_at, 4))[0]
         self.assertEqual(count, 2)
-        entry = p.read(EVENT_BUF + 1772, 192)
+        entry = p.read(EVENT_BUF + changes_at + 4, 192)
         index, fp, fate, sick, litter, father, father_fp = struct.unpack("<iIiiiiI", entry[:28])
         head, body = struct.unpack("<2i", entry[28:36])
         skills = struct.unpack("<6i", entry[52:76])
@@ -633,7 +696,9 @@ class VillagerOptionTests(unittest.TestCase):
                 self.assertEqual(v.i32(3, L["health"]), 90)
                 if game in ("vv3", "vv4", "vv5"):
                     cause = {"vv3": 0xE7C, "vv4": 0x1C44, "vv5": 0x1C44}[game]
-                    self.assertEqual(v.i32(2, cause), {"vv3": -1, "vv4": -1, "vv5": 2}[game])
+                    # "Unknown causes" in every game (the owner saw a ten-year-old
+                    # "die of old age" from a New Believers event's Dies).
+                    self.assertEqual(v.i32(2, cause), -1)
                 if game in ("vv4", "vv5"):
                     stop = 0x468C60 if game == "vv4" else 0x473440
                     self.assertEqual(story.calls[stop], [[v.record(2)]])
@@ -1053,7 +1118,9 @@ class PregnancyTests(unittest.TestCase):
                     self.assertEqual(story.proc.cstring(call[4]), "Unknown")
                     self.assertEqual(call[5:7], [1, 2])
 
-    def test_any_adult_of_either_sex_and_never_a_child(self):
+    def test_any_villager_of_either_sex_and_any_age(self):
+        """The owner (2026-10-05): "remove sex restrictions on 'make pregnant'",
+        and any age (a full villager of age 0 included)."""
         for game in GAMES:
             if not have_stock(game):
                 continue
@@ -1061,23 +1128,25 @@ class PregnancyTests(unittest.TestCase):
             v = story.village
             ok, r, _ = story.apply(Event(changes=[story.change(3, litter=1), story.change(4, litter=1)]))
             with self.subTest(game=game):
-                self.assertEqual(r["conceived"], 1, "the man carries, the child does not")
+                self.assertEqual(r["conceived"], 2, "the man and the child both carry")
                 self.assertNotEqual(v.i32(3, v.L["pregnant"]), 0)
-                self.assertEqual(v.i32(4, v.L["pregnant"]), 0)
-                self.assertEqual(r["refused"], 1)
+                self.assertNotEqual(v.i32(4, v.L["pregnant"]), 0)
+                self.assertEqual(r["refused"], 0)
             ok, r, _ = story.apply(Event(changes=[story.change(3, litter=2)]))
             with self.subTest(game=game, case="already pregnant: the litter changes"):
                 self.assertEqual((r["conceived"], r["refused"]), (1, 0))
                 self.assertEqual(v.i32(3, v.L["litter"]), 2)
 
-    def test_a_heathen_never_carries_in_new_believers(self):
+    def test_a_heathen_carries_in_new_believers(self):
+        """As the Heathen Mommy does: the life tick skips a Heathen, so the
+        birth waits until they are a believer again (the owner)."""
         if not have_stock("vv5"):
             self.skipTest("no stock executable")
         story = self._story("vv5")
         story.village.put(5, sex="f", years=30, name="Heathen", faction=1)
         ok, r, _ = story.apply(Event(changes=[story.change(5, litter=1)]))
-        self.assertEqual((r["conceived"], r["refused"]), (0, 1))
-        self.assertNotIn(0x465E00, story.calls)
+        self.assertEqual((r["conceived"], r["refused"]), (1, 0))
+        self.assertNotEqual(story.village.i32(5, 0x1C4C), 0)
 
     def test_each_baby_only_while_the_village_has_room(self):
         for game in GAMES:
@@ -1159,6 +1228,29 @@ class SpawnTests(unittest.TestCase):
                     self.assertEqual(v.skill(i, 0), 55)
                 self.assertIn("no room for 1 of the new villagers", text.replace("\n", " "))
 
+    def test_many_new_villagers_at_age_0_in_one_event(self):
+        """The owner (2026-10-05): "Spawn tons of villagers at once" up to the
+        village's limits, "of any age (0-whatever)" -- age 0 a full villager
+        from the game's own creator, not a carried baby."""
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            v = story.village
+            L = v.L
+            v.put(0, sex="m", years=30, name="Founder")
+            _room_until(story, 100)
+            ok, r, _ = story.apply(Event(spawns=[Spawn(count=120, sex=2, age=0)]))
+            creator = {"vv1": 0x43C350, "vv2": 0x44F580, "vv3": 0x45FF50, "vv4": 0x467D10,
+                       "vv5": 0x471E20}[game]
+            with self.subTest(game=game):
+                self.assertEqual((r["born"], r["no_room_spawns"]), (100, 20), "the village's limit holds")
+                self.assertEqual({c[-1] for c in story.calls[creator]}, {0}, "made at age 0")
+                for i, _, _ in story.creations:
+                    self.assertEqual(v.byte(i, L["active"]), 1)
+                    self.assertGreater(v.i32(i, L["health"]), 0)
+                    self.assertEqual(v.i32(i, L["pregnant"]), 0)
+
     def test_the_games_own_choices_are_kept_when_none_are_given(self):
         for game in GAMES:
             if not have_stock(game):
@@ -1194,7 +1286,8 @@ class StatusTests(unittest.TestCase):
         # The game's routine sets +0x7FC; it is an elder now and is not made one twice.
         p.put32(v.record(1) + 0x7FC, 1)
         ok, r, _ = story.apply(Event(changes=[story.change(1, status=0)]))
-        self.assertEqual((len(story.calls[0x44D190]), r["refused"]), (1, 1))
+        # Already an elder: nothing to change, nothing refused.
+        self.assertEqual((len(story.calls[0x44D190]), r["refused"]), (1, 0))
         # The statue: what 0x44D190 copies (name, sex, lineage, parents), +0x558 set.
         statue = v.put(6, sex="m", years=60, name="Elder")
         p.put32(statue + 0x558, 1)
@@ -1213,6 +1306,53 @@ class StatusTests(unittest.TestCase):
         self.assertEqual(r["refused"], 1)
         self.assertEqual(p.u32(statue + 0x550) % 8, 6)
 
+    def test_the_secret_city_a_child_becomes_the_tribal_chief(self):
+        """The owner (2026-10-06): "children can literally be tribal chiefs
+        naturally in-game" -- any age, through the game's own robing."""
+        if not have_stock("vv3"):
+            self.skipTest("no stock executable")
+        story = Story("vv3")
+        v = story.village
+        v.put(1, sex="m", years=8, name="Kid")
+        story.record_call(0x45FC00, 0, value=0)       # no chief lives
+        story.record_call(0x45FBC0, 4)                # the robing
+        story.record_call(0x435990, 4)                # the chief puzzle's advance
+        ok, r, _ = story.apply(Event(changes=[story.change(1, status=1)]))
+        self.assertEqual(r["refused"], 0)
+        self.assertEqual(story.calls[0x45FBC0][0][1], v.record(1), "the child is robed")
+
+    def test_new_believers_faith_is_written_as_it_is(self):
+        """-100..100; the faction stays (the owner: "I could set a villager's
+        faith to 0 or a heathen to 100 and they'd stay the same faction")."""
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        story = Story("vv5")
+        v = story.village
+        v.put(1, sex="m", years=30, name="Believer")
+        v.put(2, sex="f", years=30, name="Heathen", faction=1)
+        ok, r, _ = story.apply(Event(changes=[story.change(1, faith=-73), story.change(2, faith=100)]))
+        self.assertEqual((v.i32(1, 0x1CF0), v.byte(1, 0x1CEC)), (-73, 0))
+        self.assertEqual((v.i32(2, 0x1CF0), v.byte(2, 0x1CEC)), (100, 1))
+        self.assertEqual(r["refused"], 0)
+
+    def test_new_believers_purple_chief_and_mommy_for_anyone(self):
+        """The owner: "Set heathens to be purple masks / Chief Masks / Heathen
+        Mommies", a believer made a Heathen first; the dialog warns."""
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        story = Story("vv5")
+        v = story.village
+        p = story.proc
+        p.stub(0x4669E0, lambda q: (q.write(q.reg("ecx") + 0x1CEC, b"\1"), 0)[1:] and (0, 0))
+        for i, status, role in ((1, 5, 0xC), (2, 6, 0xD), (3, 7, 0x11)):
+            v.put(i, sex="m", years=30, name=f"B{i}")
+            p.write(v.record(i) + 0x1CED, b"\1\1")        # coloured before
+            ok, r, _ = story.apply(Event(changes=[story.change(i, status=status)]))
+            with self.subTest(status=status):
+                self.assertEqual((v.byte(i, 0x1CEC), v.i32(i, 0x1CFC)), (1, role))
+                self.assertEqual((v.byte(i, 0x1CED), v.byte(i, 0x1CEE)), (0, 0))
+                self.assertEqual(r["refused"], 0)
+
     def test_new_believers_faction_through_the_games_conversions(self):
         if not have_stock("vv5"):
             self.skipTest("no stock executable")
@@ -1229,11 +1369,12 @@ class StatusTests(unittest.TestCase):
                                               story.change(3, status=0)]))
         self.assertEqual((v.byte(1, 0x1CEC), v.i32(1, 0x1CF0)), (1, -10))
         self.assertEqual((v.byte(2, 0x1CEC), v.i32(2, 0x1CF0)), (0, 55))
-        self.assertEqual(v.byte(3, 0x1CEC), 1, "a puzzle's own Heathen keeps her faction")
-        self.assertEqual(r["refused"], 1)
+        self.assertEqual(v.byte(3, 0x1CEC), 0, "a puzzle's own Heathen too (the owner: at their own risk)")
+        self.assertEqual(r["refused"], 0)
         p.put32(v.record(2) + 0x1C4C, 300)          # pregnant
         ok, r, _ = story.apply(Event(changes=[story.change(2, status=1)]))
-        self.assertEqual((v.byte(2, 0x1CEC), r["refused"]), (0, 1), "a Heathen never gives birth")
+        self.assertEqual((v.byte(2, 0x1CEC), r["refused"]), (1, 0), "a carrier becomes a Heathen too")
+        self.assertEqual(v.i32(2, 0x1C4C), 300, "...and keeps the baby (born once a believer again)")
 
 
 # Each game's stop routine and how it is called: (va, bytes popped, this).
@@ -1589,6 +1730,63 @@ def _set_custom(story, event: Event, tick=0):
     story.proc.export("VvfpStoryProbeSetTick", tick)
 
 
+# The event trigger's villager draw, per game: (call site, stock picker).
+EVENT_PICK = {"vv1": (0x4237DD, 0x43BCD0), "vv2": (0x42EEED, 0x44BAE0),
+              "vv3": (0x468757, 0x45C9D0), "vv4": (0x43FA70, 0x4679B0),
+              "vv5": (0x44272F, 0x471870)}
+
+
+@emulated
+class FastDeliveryTests(unittest.TestCase):
+    """A Custom Island Event arrives within seconds (the owner, 2026-10-06):
+    while one is armed, the trigger's one random villager draw is asked
+    again until it draws a villager the trigger accepts -- custom events
+    only, all five games (native/vvfp_story_upgrades/story_fast_delivery.inc)."""
+
+    def _story(self):
+        game = next((g for g in GAMES if have_stock(g)), None)
+        if game is None:
+            self.skipTest("no stock executable")
+        return Story(game)
+
+    def _pick(self, story, draws, fits, none=-1):
+        buf = story.proc.alloc(8 * len(draws) + 4)
+        story.proc.write(buf, struct.pack(f"<{len(draws)}i", *draws))
+        story.proc.write(buf + 4 * len(draws), struct.pack(f"<{len(fits)}i", *fits))
+        calls = buf + 8 * len(draws)
+        drawn = story.proc.export("VvfpStoryProbeFastPick", buf, buf + 4 * len(draws),
+                                  len(draws), none & 0xFFFFFFFF, calls)
+        drawn = struct.unpack("<i", struct.pack("<I", drawn & 0xFFFFFFFF))[0]
+        return drawn, struct.unpack("<i", story.proc.read(calls, 4))[0]
+
+    def test_every_game_retargets_its_draw(self):
+        for game, (site, stock) in EVENT_PICK.items():
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            code = story.proc.read(site, 5)
+            with self.subTest(game=game):
+                self.assertEqual(code[0], 0xE8)
+                target = (site + 5 + struct.unpack("<i", code[1:])[0]) & 0xFFFFFFFF
+                self.assertNotEqual(target, stock, "the draw now goes through the wrapper")
+
+    def test_it_draws_until_a_villager_fits(self):
+        story = self._story()
+        self.assertEqual(self._pick(story, [5, 6, 7, 8], [0, 0, 1, 0]), (7, 3))
+        self.assertEqual(self._pick(story, [9], [1]), (9, 1), "a first fit is kept")
+
+    def test_nobody_eligible_is_answered_at_once(self):
+        story = self._story()
+        self.assertEqual(self._pick(story, [-1, 3], [0, 1]), (-1, 1))
+        self.assertEqual(self._pick(story, [0, 3], [0, 1], none=0), (0, 1))
+
+    def test_a_village_where_nobody_fits_still_waits(self):
+        """After 64 draws the last one goes back and the stock check fails,
+        exactly as the game itself would."""
+        story = self._story()
+        self.assertEqual(self._pick(story, [4], [0]), (4, 64))
+
+
 CHOOSER = {
     # game: (call site, resume, the game's chooser, text buffer size)
     "vv1": (0x428777, 0x42877C, 0x428470),
@@ -1867,20 +2065,20 @@ class CustomLockTests(unittest.TestCase):
                     with self.subTest(game=game, kind=kind, change=change):
                         self.assertEqual(p.export("VvfpStoryPickPending", n), 1 if change == "none" else 0)
 
-    def test_a_custom_event_not_delivered_in_ten_minutes_lapses(self):
+    def test_a_custom_event_waits_however_long_it_takes(self):
+        """The owner (2026-10-06): a Custom Island Event no longer lapses
+        after ten minutes; it waits until the game runs an island event."""
         for game in GAMES:
             if not have_stock(game):
                 continue
             story = Story(game)
             _set_custom(story, Event(), tick=1000)
-            story.proc.export("VvfpStoryProbeSetTick", 1000 + TEN_MINUTES)
-            with self.subTest(game=game):
-                self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 1)
-            story.proc.export("VvfpStoryProbeSetTick", 1000 + TEN_MINUTES + 1)
-            with self.subTest(game=game, case="lapsed"):
-                self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 0)
-                stats = struct.unpack("<3i", story.proc.read(story.proc.exports["VvfpStoryStats"], 12))
-                self.assertEqual(stats[2], 1)
+            for later in (TEN_MINUTES + 1, 24 * 60 * 60 * 1000):
+                story.proc.export("VvfpStoryProbeSetTick", 1000 + later)
+                with self.subTest(game=game, later=later):
+                    self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 1)
+            stats = struct.unpack("<3i", story.proc.read(story.proc.exports["VvfpStoryStats"], 12))
+            self.assertEqual(stats[2], 0, "nothing lapsed")
 
 
 # ---------------------------------------------------------------------------
@@ -2084,11 +2282,16 @@ class RefusedChangeTextTests(unittest.TestCase):
             if not have_stock(game):
                 continue
             story = Story(game)
-            story.village.put(4, sex="f", years=8, name="Child")
-            ok, r, text = story.apply(Event(changes=[story.change(4, litter=1)]))
+            v = story.village
+            v.put(4, sex="f", years=30, name="Full")
+            for k in range(v.L["slots"]):            # every likes slot taken
+                story.proc.put32(v.record(4) + v.L["likes"] + 4 * k, k + 1)
+            ok, r, text = story.apply(Event(changes=[story.change(4, like_add=0)]))
             with self.subTest(game=game):
                 self.assertEqual(r["refused"], 1)
-                self.assertIn("1 change could not be made.", text)
+                flat = " ".join(text.split())
+                self.assertIn("1 change could not be made", flat)
+                self.assertIn("a likes or dislikes list was full", flat)
 
 
 # ---------------------------------------------------------------------------
@@ -2179,7 +2382,10 @@ class DialogResourceTests(unittest.TestCase):
 
     def test_the_tech_menu_offers_custom_island_event(self):
         bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
-        self.assertIn('"Custom Island Event (0 tech points)..."', bridge)
+        # The label carries the price the Story DLL charges now (0, or 30,000
+        # with Story / Cheat Upgrades cost Tech Points).
+        self.assertIn('vvfp_story_label(game, "Custom Island Event"', bridge)
+        self.assertIn('"%s (%d,%03d tech points)..."', bridge)
         self.assertIn("#define VVFP_STORY_CUSTOM_ID 4091", bridge)
         for game, path in {
             "vv1": ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c",

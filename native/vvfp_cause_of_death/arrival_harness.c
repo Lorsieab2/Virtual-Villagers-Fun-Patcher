@@ -65,6 +65,7 @@
 #include "save_reset.h"
 #include "../shared/harness_ldw_tree.h"
 #include "patcher_files.h"
+#include "arrival_backfill.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -410,7 +411,13 @@ static void write_old_logs(void) {
 
 /* The slot's own save, as the game writes it: the scan at load names the
    village from it (through "VVFP Save Reset.dll", SavedVillageHeader). */
+static void write_save_named(const char *village);
+
 static void write_save_file(void) {
+    write_save_named("Arrival Tribe");
+}
+
+static void write_save_named(const char *village) {
     static const DWORD HEADER[5] = { 12u, 12u, 12u, 24u, 24u };
     static const DWORD LENGTH_AT[5] = { 8u, 8u, 8u, 16u, 16u };
     static const DWORD BUFFER[5] = { 0x0ABDCu, 0x30370u, 0x12F1Cu, 0x1710Cu, 0x17D78u };
@@ -421,7 +428,7 @@ static void write_save_file(void) {
     if (data == NULL) return;
     memcpy(data, "ldwg", 4);
     memcpy(data + LENGTH_AT[game - 1], &BUFFER[game - 1], 4);
-    strcpy((char *)data + HEADER[game - 1] + vv_village_name_offset(game), "Arrival Tribe");
+    strcpy((char *)data + HEADER[game - 1] + vv_village_name_offset(game), village);
     data[HEADER[game - 1] + vv_village_name_offset(game) + 40] = 0x7F;
     _snprintf(path, MAX_PATH, "%s\\Virtual Villagers1.ldw", root);
     make_dirs(root);
@@ -463,7 +470,10 @@ static int has_backfill_record(int number, const char *name, int age, int head, 
 
 /* The Village History log as the population exporter writes it: Huata (and
    a dead founder, Kito) in this village's first snapshot; Silko only later;
-   another village's first snapshot has a Silko too. */
+   another village's first snapshot has a Silko too.  The village was renamed
+   after its first snapshot (the Rename Tribe tool appends a note and never
+   rewrites the old header), so that snapshot still says "Old Arrival Tribe":
+   it is still the founders' snapshot (Codex, #531). */
 static void write_history(void) {
     char path[MAX_PATH];
     static char h[4096];
@@ -471,9 +481,10 @@ static void write_history(void) {
     _snprintf(h, sizeof h,
         "=== Virtual Villagers -- 2026-09-01 10:00:00 ===\nVillage: Other Tribe (Save 2)\n\n"
         "Villager 1\n  Name: Silko\n  Age: 600\n  Head: 4\n  Body: 14\n\n\n"
-        "=== Virtual Villagers -- 2026-09-02 10:00:00 ===\nVillage: Arrival Tribe (Save 1)\n\n"
+        "=== Virtual Villagers -- 2026-09-02 10:00:00 ===\nVillage: Old Arrival Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Huata\n  Age: 400\n  Head: 8\n  Body: 1\n  Likes: ants\n\n"
         "Villager 2\n  Name: Kito\n  Age: 420\n  Head: 0\n  Body: 18\n\n\n"
+        "Tribe renamed from Old Arrival Tribe to Arrival Tribe on 2026-09-02 (Save 1)\n"
         "=== Virtual Villagers -- 2026-09-03 10:00:00 ===\nVillage: Arrival Tribe (Save 1)\n\n"
         "Villager 1\n  Name: Huata\n  Age: 500\n  Head: 8\n  Body: 1\n\n"
         "Villager 2\n  Name: Silko\n  Age: 600\n  Head: 4\n  Body: 14\n\n\n");
@@ -510,14 +521,23 @@ static void parented(int i, const char *name, int head, int body) {
 }
 
 static int has_birth_backfill(const char *child, int head, int body) {
-    char want[256];
+    char want[256], looks[128];
     const char *at, *end;
-    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Head: %d\r\n    Body: %d\r\n", child, head, body);
+    /* The child's sex (the owner: every villager in the logs shows it), then
+       the looks. */
+    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Sex: ", child);
+    _snprintf(looks, sizeof looks, "    Head: %d\r\n    Body: %d\r\n", head, body);
     /* Any record of the child that is the backfill's (a hand-written one
        of the same child may come first). */
     for (at = strstr(text, want); at != NULL; at = strstr(at + 1, want)) {
         static const char note[] = "\r\n  Note: Recorded afterwards (born before this log existed)";
         size_t n = sizeof note - 1;
+        const char *sex = at + strlen(want);
+        const char *after = strstr(sex, "\r\n");
+        if (after == NULL || (strncmp(sex, "Male\r\n", 6) != 0 && strncmp(sex, "Female\r\n", 8) != 0)
+            || strncmp(after + 2, looks, strlen(looks)) != 0) {
+            continue;
+        }
         end = strstr(at, "\r\n\r\n");
         if (end != NULL && (size_t)(end - at) > n
             && strstr(at, "  Mother: Chika\r\n") != NULL && strstr(at, "  Mother: Chika\r\n") < end
@@ -632,6 +652,8 @@ static void births_cases(void) {
     parented(5, "Arr", 5, 5);
     parented(6, "Sam", 2, 9);
     villager(7, "Sam", 700, 3, 9, 0);
+    parented(10, "Look", 3, 3);           /* born, with his Birth record */
+    villager(11, "Look", 700, 3, 3, 0);   /* an arrived look-alike, no record (Codex, #536) */
     if (game == 5) {
         parented(8, "Pagan", 7, 7);
         rec(8)[VV5_FACTION] = 1;
@@ -644,6 +666,8 @@ static void births_cases(void) {
         "Birth\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth\n  Child: Sam\n    Head: 1\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        "Birth\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Arrived 1\n  Name: Arr\n  Age at arrival: 300\n  Sex: Male\n  Head: 5\n  Body: 5\n"
         "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n");
@@ -722,6 +746,15 @@ static void births_cases(void) {
     save_done(1, buffer);
     read_into(path);
     CHECK(strcmp(before_log, text) == 0, "births: a second save writes nothing");
+    CHECK(count_of(text, "  Child: Look\r\n") == 1, "births: the born Look's Birth record is his: none written");
+    /* The Arrived records' backfill of the same village: the born Look (a
+       context villager there) takes his Birth record first, so his arrived
+       look-alike is not taken for in the log (Codex, #536). */
+    repair_arrivals(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strstr(text, "  Name: Look\r\n") != NULL,
+          "births: the arrived Look gets his own Arrived record; the born Look's Birth record is not his");
     unload();
     load();                               /* a new session: the DLLs may load elsewhere */
     scan_births = (scan_t)GetProcAddress(cause, "VvfpCauseScanBirths");
@@ -888,6 +921,23 @@ int main(int argc, char **argv) {
         repair_arrivals(game, 1, 1);
         villager(8, "Late", 700, 5, 6, 0);   /* unseen, after the backfill: not the backfill's */
         CHECK(scan_arrivals(game, 1) == 0, "a new session's scan says 0 (the marker): exactly once");
+        /* The marker names its village: another village in the slot -- a
+           save copied in -- is not the one it was written for (Codex, #531),
+           and is scanned again. */
+        {
+            typedef int (__stdcall *header_t)(int, int, char *, int);
+            HMODULE reset = GetModuleHandleA("VVFP Save Reset.dll");
+            header_t header = reset != NULL ? (header_t)GetProcAddress(reset, "SavedVillageHeader") : NULL;
+            char line[256];
+            CHECK(header != NULL && header(game, 1, line, (int)sizeof line)
+                  && vv_backfill_marker_present(VV_BACKFILL_ARRIVALS, game, 1, vv_backfill_village_id(line)),
+                  "the marker is written for this village (its save's \"Village:\" line)");
+            write_save_named("Copied Tribe");
+            CHECK(header != NULL && header(game, 1, line, (int)sizeof line)
+                  && !vv_backfill_marker_present(VV_BACKFILL_ARRIVALS, game, 1, vv_backfill_village_id(line)),
+                  "...and does not count for another village copied into the slot");
+            write_save_file();
+        }
         save_done(1, buffer);
         read_into(path);
         CHECK(strstr(text, "  Name: Late\r\n") == NULL, "...and its save writes no backfill");

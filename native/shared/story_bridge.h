@@ -44,6 +44,7 @@ typedef int (__stdcall *vvfp_story_install_fn)(int game);
 typedef int (__stdcall *vvfp_story_active_fn)(int game);
 typedef int (__stdcall *vvfp_story_pick_fn)(int game, HWND owner);
 typedef int (__stdcall *vvfp_story_attach_fn)(int game, const vvfp_story_host *host);
+typedef void (__stdcall *vvfp_story_charge_fn)(int game);
 
 static int vvfp_story_state;     /* 0 = not tried, 1 = loaded, -1 = unavailable */
 static vvfp_story_install_fn vvfp_story_install;
@@ -52,6 +53,11 @@ static vvfp_story_active_fn vvfp_story_active;
 static vvfp_story_pick_fn vvfp_story_pick;
 static vvfp_story_pick_fn vvfp_story_custom;
 static vvfp_story_attach_fn vvfp_story_attach;
+/* "Story / Cheat Upgrades cost Tech Points": NULL in a Story DLL older
+   than that row (it then never charges). */
+static vvfp_story_charge_fn vvfp_story_charge;
+static vvfp_story_active_fn vvfp_story_installed;
+static vvfp_story_active_fn vvfp_story_event_price;
 
 static int vvfp_story_load(void) {
     HMODULE module;
@@ -69,6 +75,9 @@ static int vvfp_story_load(void) {
     vvfp_story_pick = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryPickIslandEvent");
     vvfp_story_custom = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryCustomIslandEvent");
     vvfp_story_attach = (vvfp_story_attach_fn)GetProcAddress(module, "VvfpStoryAttachHost");
+    vvfp_story_charge = (vvfp_story_charge_fn)GetProcAddress(module, "VvfpStoryCharge");
+    vvfp_story_installed = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryInstalled");
+    vvfp_story_event_price = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryEventPrice");
     if (vvfp_story_install == NULL || vvfp_story_arm == NULL || vvfp_story_active == NULL || vvfp_story_pick == NULL
         || vvfp_story_custom == NULL || vvfp_story_attach == NULL) {
         return 0;
@@ -90,6 +99,12 @@ static int vvfp_story_startup(int game) {
     if (!attached) {
         attached = 1;
         vvfp_story_attach(game, vvfp_story_host_table());
+        /* The patcher's "cost Tech Points" row: before the install, so the
+           zero prices are never written. */
+        if (vvfp_story_charge != NULL && vvfp_startup_known
+            && (vvfp_startup_shipped & VVFP_STARTUP_STORY_CHARGES) != 0u) {
+            vvfp_story_charge(game);
+        }
     }
     return vvfp_story_arm(game) != 0;
 }
@@ -107,6 +122,28 @@ static int vvfp_story_bridge(int game) {
 /* Whether this game's Origins upgrades cost 0 right now. */
 static int vvfp_story_free(int game) {
     return vvfp_story_load() && vvfp_story_active(game) != 0;
+}
+
+/* Whether the story buttons are offered: the row is in place, free or
+   charged ("cost Tech Points"). */
+static int vvfp_story_offered(int game) {
+    if (!vvfp_story_load()) {
+        return 0;
+    }
+    return vvfp_story_installed != NULL ? vvfp_story_installed(game) != 0 : vvfp_story_active(game) != 0;
+}
+
+/* A story button's label: "<what> (<price> tech points)...", the price
+   what the Story DLL charges for it now (0, or the Island Event's). */
+static const char *vvfp_story_label(int game, const char *what, char *out, int size) {
+    int price = vvfp_story_event_price != NULL ? vvfp_story_event_price(game) : 0;
+    if (price >= 1000) {
+        wsprintfA(out, "%s (%d,%03d tech points)...", what, price / 1000, price % 1000);
+    } else {
+        wsprintfA(out, "%s (%d tech points)...", what, price);
+    }
+    (void)size;
+    return out;
 }
 
 /* A price as this companion shows and charges it: 0 while the row is active. */
@@ -204,9 +241,13 @@ static void vvfp_story_add_pick_button(int game, HWND dialog) {
     int gap;
     int x;
     int height;
-    if (!vvfp_story_free(game) || cancel == NULL || GetDlgItem(dialog, VVFP_STORY_PICK_ID) != NULL) {
+    char custom_label[96];
+    char pick_label[96];
+    if (!vvfp_story_offered(game) || cancel == NULL || GetDlgItem(dialog, VVFP_STORY_PICK_ID) != NULL) {
         return;
     }
+    vvfp_story_label(game, "Custom Island Event", custom_label, sizeof custom_label);
+    vvfp_story_label(game, "Pick Island Event", pick_label, sizeof pick_label);
     GetWindowRect(cancel, &rc);
     MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
     MapDialogRect(dialog, &unit);
@@ -218,10 +259,8 @@ static void vvfp_story_add_pick_button(int game, HWND dialog) {
        stacked above Cancel's row on the right, as wide as the dialog allows. */
     x = rc.left - 2 * (width + gap);
     if (x >= unit.bottom) {
-        vvfp_story_button(dialog, "Custom Island Event (0 tech points)...", VVFP_STORY_CUSTOM_ID,
-                          x, rc.top, width, height);
-        vvfp_story_button(dialog, "Pick Island Event (0 tech points)...", VVFP_STORY_PICK_ID,
-                          x + width + gap, rc.top, width, height);
+        vvfp_story_button(dialog, custom_label, VVFP_STORY_CUSTOM_ID, x, rc.top, width, height);
+        vvfp_story_button(dialog, pick_label, VVFP_STORY_PICK_ID, x + width + gap, rc.top, width, height);
         return;
     }
     x = rc.left - width - gap;
@@ -231,9 +270,8 @@ static void vvfp_story_add_pick_button(int game, HWND dialog) {
             width = client.right - unit.bottom - x;
         }
     }
-    vvfp_story_button(dialog, "Pick Island Event (0 tech points)...", VVFP_STORY_PICK_ID,
-                      x, rc.top, width, height);
-    vvfp_story_button(dialog, "Custom Island Event (0 tech points)...", VVFP_STORY_CUSTOM_ID,
+    vvfp_story_button(dialog, pick_label, VVFP_STORY_PICK_ID, x, rc.top, width, height);
+    vvfp_story_button(dialog, custom_label, VVFP_STORY_CUSTOM_ID,
                       x, rc.top - height - unit.bottom, width, height);
 }
 
@@ -242,7 +280,7 @@ static void vvfp_story_add_pick_button(int game, HWND dialog) {
    its own lock, or NULL when it is not locked: both share that lock.
    Returns 1 when an event is now on its way (the caller closes the menu). */
 static int vvfp_story_pick_clicked(int game, HWND dialog, int command, const char *blocked_reason) {
-    if (!vvfp_story_free(game)) {
+    if (!vvfp_story_offered(game)) {
         return 0;
     }
     if (blocked_reason != NULL) {

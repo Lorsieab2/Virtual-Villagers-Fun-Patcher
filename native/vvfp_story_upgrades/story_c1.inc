@@ -54,28 +54,36 @@ static const char *c1_arm_refusal(void) {
     return NULL;
 }
 
-/* A record the creator can use: it takes the first record whose occupied
-   byte is 0 (0x43C374) and has no bound of its own, and a corpse keeps its
-   record, so the population count alone can not say a record is free.
-   (0x43A200 is NOT that search: it returns the first corpse.) */
-static int c1_free_record(void) {
+/* The records a new villager may take: the creator takes the first record
+   whose occupied byte is 0 (0x43C374) and has no bound of its own, and a
+   corpse keeps its record, so the population count alone can not say a
+   record is free.  (0x43A200 is NOT that search: it returns the first
+   corpse.)  Each baby a living carrier expects takes a record at its birth
+   too (0x42EF39, 0x42EFD0: a second for any litter value, a third for 3),
+   so those are kept for them. */
+static int c1_spare_records(void) {
+    int spare = 0;
     int i;
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-        if (c1_record(i)[0x28] == 0) {
-            return i;
+        const unsigned char *r = c1_record(i);
+        if (r[0x28] == 0) {
+            ++spare;
+        } else if (*(const int *)(r + 0x344) > 0 && *(const int *)(r + 0x358) != 0) {
+            int litter = *(const int *)(r + 0x35C);
+            spare -= litter == 3 ? 3 : litter != 0 ? 2 : 1;
         }
     }
-    return -1;
+    return spare;
 }
 
 /* The game's own room predicate 0x43A1A0 (population below the mode's cap
-   and the housing gates) and a free record. */
+   and the housing gates) and a record to spare. */
 static int c1_room(void) {
     unsigned char *array = VV1_ARRAY();
     if (array == NULL) {
         return 0;
     }
-    return (TC0(0x43A1A0u, array) & 0xFF) != 0 && c1_free_record() >= 0;
+    return (TC0(0x43A1A0u, array) & 0xFF) != 0 && c1_spare_records() > 0;
 }
 
 static const ce_adapter C1_ADAPTER;
@@ -135,10 +143,12 @@ static int c1_sicken(int index) {
    Each baby only while the game's room predicate says there is room; there
    is no sex check in A New Home's delivery (0x42E900).
 
-   The Golden Child's family 0xC7 is never part of a pregnancy: the delivery
-   (0x42EF39) makes an extra Golden Child when +0x394 is 0xC7, and the baby
-   takes the carrier's own family.  So a Golden Child neither carries nor
-   fathers (stock: 0x42E5A4, the breeding predicate, refuses them). */
+   The Golden Child's family 0xC7 in a pregnancy: the delivery (0x42EF39)
+   makes an extra Golden Child when +0x394 is 0xC7, and the baby takes the
+   carrier's own family (0xC7 for a Golden Child carrier: another Golden
+   Child).  Stock never does it (0x42E5A4, the breeding predicate, refuses
+   them); the owner allows it at the player's own risk (the dialog warns),
+   and the delivery's record guard holds the extra record (v1.35.58). */
 #define VV1_GOLDEN_FAMILY 0xC7
 
 static int c1_conceive(int index, int litter, int father, ce_result *result) {
@@ -147,10 +157,8 @@ static int c1_conceive(int index, int litter, int father, ce_result *result) {
     unsigned char *r = c1_record(index);
     int babies = 0;
     int age;
-    if (*(int *)(r + 0x358) != 0 || *(int *)(r + 0x348) < 360
-        || *(int *)(r + 0x36C) == VV1_GOLDEN_FAMILY
-        || (father >= 0 && *(int *)(c1_record(father) + 0x36C) == VV1_GOLDEN_FAMILY)) {
-        ++result->refused;
+    if (*(int *)(r + 0x358) != 0) {
+        ce_refuse(result, CE_WHY_EXPECTING);
         return 0;
     }
     if (!(TC0(0x43A1A0u, array) & 0xFF)) {
@@ -306,14 +314,10 @@ static int c1_skeleton(const unsigned char *r) {
 /* Death is health 0 alone (0x42EF05), so life is health again -- after the
    last-update time +0x340 is set to the game clock 0x402F70 (live: without
    it the first living tick ages the villager by the time spent dead) --
-   then the AI reset.  Only while the game's own room predicate says the
-   village has room. */
+   then the AI reset.  The body keeps its own record: no room is needed. */
 static int c1_revive(int index, int health, int cure) {
     unsigned char *array = VV1_ARRAY();
     unsigned char *r = c1_record(index);
-    if (!(TC0(0x43A1A0u, array) & 0xFF)) {
-        return -1;
-    }
     *(int *)(r + 0x340) = TC0(0x402F70u, VV1_WORLD());
     *(int *)(r + 0x344) = health;
     if (cure) {
@@ -347,6 +351,27 @@ static int c1_hours(void) {
    and the hour he came [world+0x9E80] (the Cave's clock, 0x447A14: left 0,
    the Cave would open at once).  Only while the game's own room predicate
    says there is room. */
+/* Any villager made the Golden Child (the owner, 2026-10-06: "set everyone
+   to be Golden Child in VV1, with 'at own risk' warning"): the family the
+   game knows him by, 0xC7 (+0x36C), and -- the first time a Golden Child
+   comes -- the puzzle's latch and hour, exactly as c1_golden_child.  The
+   game then treats each as the Golden Child: his age is set to the Golden
+   Child's own at the next update, and his looks, sex and skills stay. */
+static int c1_set_status(int index, int status) {
+    unsigned char *world = VV1_WORLD();
+    if (status != 0) {
+        return 0;
+    }
+    *(int *)(c1_record(index) + 0x36C) = VV1_GOLDEN_FAMILY;
+    if (world[0xA008] == 0) {
+        world[0xA008] = 1;
+        *(int *)(world + 0x9E80) = c1_hours();
+    }
+    return 1;
+}
+
+static const char *const C1_STATUSES[] = { "Becomes the Golden Child" };
+
 static int c1_golden_child(void) {
     unsigned char *array = VV1_ARRAY();
     unsigned char *world = VV1_WORLD();
@@ -582,7 +607,7 @@ static void c1_change_food(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(world + 0xA2EC) = after;
     if (after > before) {
-        *(int *)(world + 0x9E28) += after - before;
+        ce_count_gain((int *)(world + 0x9E28), after - before);
     }
 }
 
@@ -593,7 +618,7 @@ static void c1_change_tech(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(world + 0xA2FC) = after;
     if (after > before) {
-        *(int *)(world + 0x9E20) += after - before;
+        ce_count_gain((int *)(world + 0x9E20), after - before);
     }
 }
 
@@ -667,49 +692,52 @@ static int c1_role(const unsigned char *r, const char **words) {
     }
     return STORY_KIND_NONE;
 }
+
+/* A new villager to the room predicate's count 0x41CF90 (occupied, health
+   above 0, its expected babies) and the record search (ce_room_left). */
+static const ce_probe_field C1_PROBE[] = {
+    { 0x28, 1, 1, 1 }, { 0x344, 4, 90, 90 }, { 0x358, 4, 0, 0 },
+};
+
 static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
         | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
-        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_REVIVE | CAP_CHOICE,
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_REVIVE | CAP_CHOICE | CAP_STATUS,
     "A New Home",
-    280, 40, 1100,
+    280, 1600,
     VV1_RECORD_COUNT, 0x1C,
     0x370, 0x350, 0x348, 0x360, 0x364, 0x398, 0x3A8, 0x3BC,
     1, 2,
-    4, 46,
+    4, 47,
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
-    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing,"
-    "exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,sand,"
-    "sunlight,rough wood,crab meat,whale meat,fish,fruit,papaya,flies,"
-    "swimming,running,learning,dancing,monkeys,parrots,work,lifting,surprises",
+    "the dark,caves,herbs,berries,snakes,wind,rocks,rough wood,the ocean,"
+    "playing,exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,"
+    "sand,sunlight,drift wood,crab meat,whale meat,fish,fruit,papaya,flies,"
+    "swimming,running,dancing,monkeys,birds,work,lifting,surprises,jokes,"
+    "sleeping",
     20, 20,
     5, 0, C1_SKILLS,
     0, 0, 28, 0, 0, 0, 0,
-    NULL, 0,
+    C1_STATUSES, 1,
     C1_BEHAVIOURS, (int)(sizeof C1_BEHAVIOURS / sizeof C1_BEHAVIOURS[0]),
     C1_VILLAGE, 4,
     "Not in A New Home:\r\n\r\n"
-    "- Turning a villager into the Golden Child: the game snaps their age to 5 years at "
-    "the next moment and keeps their old looks, sex and skills. A new Golden Child can "
-    "appear instead (village changes).\r\n"
     "- The Golden Child puzzle: marked alone it leaves no Golden Child, so the Cave and "
     "The Butterflies could never be solved; a new Golden Child solves it.\r\n"
     "- Faction, Tribal Chief, Esteemed Elder, totems: A New Home has none.\r\n"
     "- The unborn baby's father: A New Home keeps no father on a pregnancy (only his "
     "family number, which is never shown).\r\n"
     "- Actions that solve or advance a puzzle, burying, picking things up and embracing.\r\n"
-    "- Likes and dislikes: the last word of the game's list (sleeping) is not offered "
-    "(the game itself never uses it and its list reader can overrun on it).\r\n"
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away.\r\n"
     "- The grave screen keeps the job a villager had when buried.",
-    51, 14, 51, 0, 360,
+    51, 14, 51, 0,
     "Refills the berry bushes and, once the farm is producing, the crops.",
     "Your tribe gains %d food.", "Your tribe loses %d food.",
     "Your tribe gains %d tech points.", "Your tribe loses %d tech points.",
     c1_record, c1_listed, c1_arm_refusal, c1_room, c1_spawn, c1_kill, c1_vanish, c1_sicken,
-    c1_conceive, NULL, c1_behave, c1_village, c1_food, c1_tech, c1_change_food, c1_change_tech,
+    c1_conceive, c1_set_status, c1_behave, c1_village, c1_food, c1_tech, c1_change_food, c1_change_tech,
     c1_refill, vv1_parents_supported, vv1_set_parents,
     C1_VALUES, 2, c1_value_get, c1_value_set,
     C1_PUZZLE_DEFS, C1_PUZZLE_COUNT, c1_puzzle_solved, c1_puzzle_set,
@@ -721,7 +749,14 @@ static const ce_adapter C1_ADAPTER = {
        pixels) less the two the villager's picture adds under the title
        (story_c1.inc, "Two choices"); the result replaces the whole text,
        title included; labels of 34 characters (the longest stock label). */
-    49, 13, 49, 13, 1, 34, c1_rand_below, NULL, c1_role
+    49, 13, 49, 13, 1, 34, c1_rand_below, NULL, c1_role,
+    C1_PROBE, (int)(sizeof C1_PROBE / sizeof C1_PROBE[0]),
+    NULL,
+    "Do this at your own risk: the game never makes anyone else the Golden Child. Each "
+    "villager made one is given the Golden Child's age at the game's next update and keeps "
+    "their own looks, sex and skills; with more than one, the Golden Child's puzzles and "
+    "powers may pick any of them.",
+    0
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

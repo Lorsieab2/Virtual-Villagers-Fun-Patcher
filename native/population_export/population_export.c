@@ -56,6 +56,8 @@
 
 #include <windows.h>
 #include "save_folder.h"
+#include "log_words.h"
+#include "special_title.h"
 #include "patcher_files.h"
 #include "custom_titles.h"
 #include "vv3_villager_table.h"
@@ -102,11 +104,11 @@ enum {
    from the image would add a second thing to keep in step for no benefit. */
 static const char PREFERENCES_47[] =
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
-    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing,"
-    "exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,sand,"
-    "sunlight,rough wood,crab meat,whale meat,fish,fruit,papaya,flies,"
-    "swimming,running,learning,dancing,monkeys,parrots,work,lifting,surprises,"
-    "jokes";
+    "the dark,caves,herbs,berries,snakes,wind,rocks,rough wood,the ocean,"
+    "playing,exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,"
+    "sand,sunlight,drift wood,crab meat,whale meat,fish,fruit,papaya,flies,"
+    "swimming,running,dancing,monkeys,birds,work,lifting,surprises,jokes,"
+    "sleeping";
 
 static const char PREFERENCES_62[] =
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,"
@@ -117,6 +119,19 @@ static const char PREFERENCES_62[] =
     "monkeys,parrots,work,lifting,surprises,jokes,sleeping,jumping,"
     "cooking,fire,eating,dragonflies,owls,dreaming,children,talking,"
     "holidays,vegetables,quiet,clouds,dirt";
+
+/* The Secret City's own: The Tree of Life's and New Believers' list but
+   "alchemy" and "potions" at 62 and 63 (its exe's list). */
+static const char PREFERENCES_79_VV3[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
+    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,"
+    "playing,exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,"
+    "sand,sunlight,wood,crab meat,whale meat,fish,fruit,papaya,flies,"
+    "swimming,running,learning,dancing,monkeys,parrots,work,lifting,"
+    "surprises,jokes,sleeping,jumping,cooking,fire,eating,dragonflies,owls,"
+    "dreaming,children,talking,holidays,vegetables,quiet,clouds,dirt,"
+    "alchemy,potions,magic,plants,rain,fog,sitting,sharks,honey,stories,"
+    "coral,thunder,lightning,pearls,stars,mango,nature";
 
 static const char PREFERENCES_79[] =
     "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
@@ -318,6 +333,13 @@ struct game_layout {
        silently produce the wrong word rather than fail. */
     const char *preference_list;
     const char *title;
+    /* The villager's sex (the owner, 2026-10-06: "add the sex to all
+       villagers in the logs"): its i32 field and the values the game stores
+       for a male and a female -- 1 / 2 in A New Home and The Lost Children,
+       0 / 1 in the later games, as the Cause of Death companion's table. */
+    unsigned int sex;
+    int sex_male;
+    int sex_female;
 };
 
 static const struct game_layout GAME_LAYOUTS[6] = {
@@ -354,7 +376,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x358u, 0x35Cu,
         0x398u, 0x3A8u, 4u,
         PREFERENCES_47,
-        "Virtual Villagers 1"
+        "Virtual Villagers 1",
+        0x350u, 1, 2
     },
     /* VV2 -- The Lost Children. The same singleton shape as VV1: the global
        at 0x499F24 (RVA 0x99F24), allocation 0xE57500, and the manager field
@@ -414,7 +437,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x540u, 0x544u,
         0x5F0u, 0x6E8u, 62u,
         PREFERENCES_62,
-        "Virtual Villagers 2"
+        "Virtual Villagers 2",
+        0x538u, 1, 2
     },
     /* VV3 -- The Secret City. Skills are INT32 here and the game's own
        predicate compares against 0x58, so the float path must not be used. */
@@ -428,8 +452,9 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xEACu, 5u, 0,
         0xE8Cu, 0xE90u,
         0xFB4u, 0xFC0u, 3u,
-        PREFERENCES_79,
-        "Virtual Villagers 3"
+        PREFERENCES_79_VV3,
+        "Virtual Villagers 3",
+        0xDC8u, 0, 1
     },
     /* VV4 -- The Tree of Life. */
     {
@@ -443,7 +468,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1C4Cu, 0x1C50u,
         0x1E60u, 0x1E6Cu, 3u,
         PREFERENCES_79,
-        "Virtual Villagers 4"
+        "Virtual Villagers 4",
+        0x1B90u, 0, 1
     },
     /* VV5 -- New Believers. Six skills, one more than VV3 and VV4. */
     {
@@ -457,7 +483,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1C4Cu, 0x1C50u,
         0x1F5Cu, 0x1F68u, 3u,
         PREFERENCES_79,
-        "Virtual Villagers 5"
+        "Virtual Villagers 5",
+        0x1B90u, 0, 1
     }
 };
 
@@ -946,8 +973,19 @@ static int write_villager(
         const char *custom = custom_title_of(g, record, index);
         if (custom != NULL && fprintf(file, "  Custom title: %s\n", custom) < 0) return 0;
     }
+    {
+        const char *special = vv_special_title(game_id, record);
+        if (special != NULL && fprintf(file, "  Special villager: %s\n", special) < 0) return 0;
+    }
     if (fprintf(file, "  Age: %d\n", *(const int *)(record + g->age)) < 0) {
         return 0;
+    }
+    {
+        int sex = *(const int *)(record + g->sex);
+        if (fprintf(file, "  Sex: %s\n", sex == g->sex_male ? "Male"
+                                         : sex == g->sex_female ? "Female" : "(unknown)") < 0) {
+            return 0;
+        }
     }
     if (fprintf(file, "  Head: %d\n", *(const int *)(record + g->head)) < 0) {
         return 0;
@@ -1262,6 +1300,7 @@ static int append_history(
     if (!build_history_path(path)) {
         return 0;
     }
+    vv_log_words_appending(game_id, path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
@@ -1411,14 +1450,18 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
             if (!publish_file(file, temporary, destination)) {
                 return 0;
             }
+            vv_log_words_rewritten(game_id, destination);
             file = NULL;
             in_file = 0;
             ++file_index;
         }
     }
 
-    if (file != NULL && !publish_file(file, temporary, destination)) {
-        return 0;
+    if (file != NULL) {
+        if (!publish_file(file, temporary, destination)) {
+            return 0;
+        }
+        vv_log_words_rewritten(game_id, destination);
     }
 
     /* The permanent history, appended AFTER the roster is safely

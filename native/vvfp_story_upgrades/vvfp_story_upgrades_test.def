@@ -3,6 +3,9 @@ EXPORTS
     VvfpStoryInstall=_VvfpStoryInstall@4
     VvfpStoryArm=_VvfpStoryArm@4
     VvfpStoryActive=_VvfpStoryActive@4
+    VvfpStoryCharge=_VvfpStoryCharge@4
+    VvfpStoryInstalled=_VvfpStoryInstalled@4
+    VvfpStoryEventPrice=_VvfpStoryEventPrice@4
     VvfpStoryPickIslandEvent=_VvfpStoryPickIslandEvent@8
     VvfpStoryPickPending=_VvfpStoryPickPending@4
     VvfpStoryCustomIslandEvent=_VvfpStoryCustomIslandEvent@8
@@ -31,6 +34,7 @@ EXPORTS
     VvfpStoryProbeSetPick=_VvfpStoryProbeSetPick@12
     VvfpStoryProbeInstallPageRoll=_VvfpStoryProbeInstallPageRoll@0
     VvfpStoryProbeSetTick=_VvfpStoryProbeSetTick@4
+    VvfpStoryProbeFastPick=_VvfpStoryProbeFastPick@20
     VvfpStoryProbeFailWrite=_VvfpStoryProbeFailWrite@4
     VvfpStoryProbePending=_VvfpStoryProbePending@4
     VvfpStoryProbePossible=_VvfpStoryProbePossible@8

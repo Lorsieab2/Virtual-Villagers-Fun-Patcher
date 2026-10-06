@@ -117,7 +117,7 @@ typedef int (__stdcall *vv2_story_gong_fn)(int game, HWND owner);
 
 static vv2_story_gong_fn vv2_story_gong(void) {
     HMODULE module;
-    if (!vvfp_story_free(2)) {
+    if (!vvfp_story_offered(2)) {
         return NULL;
     }
     module = GetModuleHandleA(VVFP_STORY_DLL);
@@ -129,9 +129,11 @@ static void vv2_story_add_gong_button(HWND dialog) {
     RECT rc;
     RECT unit = { 0, 0, 4, 4 };
     int height;
+    char label[96];
     if (pick == NULL || vv2_story_gong() == NULL || GetDlgItem(dialog, VV2_STORY_GONG_ID) != NULL) {
         return;
     }
+    vvfp_story_label(2, "Pick Gong of Wonder Outcome", label, sizeof label);
     GetWindowRect(pick, &rc);
     MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
     MapDialogRect(dialog, &unit);
@@ -148,7 +150,7 @@ static void vv2_story_add_gong_button(HWND dialog) {
             }
         }
     }
-    vvfp_story_button(dialog, "Pick Gong of Wonder Outcome (0 tech points)...", VV2_STORY_GONG_ID,
+    vvfp_story_button(dialog, label, VV2_STORY_GONG_ID,
                       rc.left, rc.top - height - unit.bottom, rc.right - rc.left, height);
 }
 

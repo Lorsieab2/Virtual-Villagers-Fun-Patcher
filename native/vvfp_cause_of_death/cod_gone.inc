@@ -24,7 +24,8 @@
 static void cod_log_gone(const unsigned char *record, const char *what) {
     char before[256];
     int index = cod_index_of(record);
-    wsprintfA(before, "  Age: %d\n  What happened: %s\n", rec_age(record), what);
+    wsprintfA(before, "  Age: %d\n  Sex: %s\n  What happened: %s\n", rec_age(record),
+              roster_sex(*(const int *)(record + REC[g_game].sex)), what);
     if (index >= 0) {
         seen_alive[index] = 0;
         roster_departed(index, record);

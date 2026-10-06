@@ -333,7 +333,11 @@ static struct {
     int masks;                    /* orphan mask entries, when > 0 */
     char stats_text[1536];        /* their lines, from the statistics companion */
     /* What the quit owes the village loaded last: its slot, and whether it
-       is approved (Repair Logs) or found something (the setting). */
+       is approved (Repair Logs) or was examined with the setting on, so the
+       quit looks again from the state just saved (Codex, #542: something
+       that goes wrong later in the session -- a record write that failed on
+       a locked log -- must still be asked about, though the load found
+       nothing). */
     int quit_slot;
     int quit_approved;
     int quit_found;
@@ -669,7 +673,7 @@ static void vvfp_crosscheck_quit(int game, int slot) {
         return;
     }
     if (!vvfp_xc.quit_found) {
-        return;                       /* the load found nothing (or the setting is off: it never looked) */
+        return;                       /* the setting is off: the load never looked, nothing is owed */
     }
     (void)vvfp_xc_scan(game, slot);   /* again, from the state just saved */
     if (!vvfp_xc_any()) {
@@ -735,9 +739,10 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     vvfp_xc.examined = 1;
     vvfp_xc.quit_slot = slot;
     vvfp_xc.quit_approved = approved;
-    /* Something found -- or a part that never could tell: the quit looks
-       again, and asks only if it then finds something. */
-    vvfp_xc.quit_found = found != 0;
+    /* The quit looks again, whatever this scan found, and asks only if it
+       then finds something. */
+    (void)found;
+    vvfp_xc.quit_found = 1;
     if (approved && vvfp_xc_any()) {
         vvfp_xc_repair_at_save(game, slot);
     }
@@ -760,13 +765,23 @@ static void vvfp_crosscheck_bridge(int game, int on_screen) {
         return;
     }
     if (slot != vvfp_xc.slot || now - vvfp_xc.last > VVFP_XC_GAP_MS) {
-        vvfp_xc.slot = slot;          /* a new load: what the quit owes is this one's */
+        /* A new load -- or, in the same slot, a while with no villager drawn
+           (in The Secret City to New Believers only a drawn villager calls
+           this, so the view scrolled away from every villager is one too):
+           look again once it settles.  Another slot owes nothing of the last
+           one's.  The same slot holds the same village (Start Over clears
+           it), so what the quit owes stays until the next look replaces it:
+           a quit before that look still asks what the last one found (the
+           quit scans again from the state just saved). */
+        if (slot != vvfp_xc.slot) {
+            vvfp_xc.quit_slot = 0;
+            vvfp_xc.quit_approved = vvfp_xc.quit_found = 0;
+        }
+        vvfp_xc.slot = slot;
         vvfp_xc.seen = now;
         vvfp_xc.examined = 0;
         vvfp_xc.retries = 0;
         vvfp_xc.next_try = now;
-        vvfp_xc.quit_slot = 0;
-        vvfp_xc.quit_approved = vvfp_xc.quit_found = 0;
     }
     vvfp_xc.last = now;
     if (vvfp_xc.examined || now - vvfp_xc.seen < VVFP_XC_SETTLE_MS || (LONG)(now - vvfp_xc.next_try) < 0) {

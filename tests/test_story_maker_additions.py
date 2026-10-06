@@ -474,6 +474,28 @@ class StatusTests(unittest.TestCase):
                 ok, r, _ = s.apply(Event(village=0b1000))
                 self.assertEqual((r["refused"], len(s.calls[0x43C350])), (1, 2), "no room, no child")
 
+    def test_anyone_can_be_made_the_golden_child(self):
+        """The owner (2026-10-06): "set everyone to be Golden Child in VV1
+        (with 'at own risk' warning)".  The family the game knows him by
+        (+0x36C 0xC7) and, the first time, the puzzle's latch and hour."""
+        if not have_stock("vv1"):
+            self.skipTest("no stock executable")
+        s = story("vv1")
+        w = s.village.world
+        p = s.proc
+        p.put32(w + 0x9E1C, 0)
+        p.stub(0x402F70, lambda q: (5 * 3600, 0))
+        v = s.village
+        v.put(2, sex="f", years=30, name="Ana")
+        v.put(3, sex="m", years=4, name="Kito")
+        ok, r, _ = s.apply(Event(changes=[s.change(2, status=0), s.change(3, status=0)]))
+        self.assertEqual(r["refused"], 0)
+        self.assertEqual((v.i32(2, 0x36C), v.i32(3, 0x36C)), (0xC7, 0xC7))
+        self.assertEqual((p.read(w + 0xA008, 1), p.u32(w + 0x9E80)), (b"\1", 5))
+        source = (ROOT / "native/vvfp_story_upgrades/story_c1.inc").read_text(encoding="utf-8")
+        self.assertIn('"Becomes the Golden Child"', source)
+        self.assertIn('"Do this at your own risk: the game never makes anyone else the Golden Child.', source)
+
     def test_a_golden_child_from_the_event_is_a_custom_island_event_arrival(self):
         """The owner's v1.35.58 preview: Okwui, the Golden Child this event made,
         was logged "How: unknown" -- the event never told Cause of Death, which
@@ -528,9 +550,12 @@ class StatusTests(unittest.TestCase):
         ok, r, _ = s.apply(Event(changes=[s.change(2, status=1)]))
         self.assertEqual((r["refused"], v.byte(1, 0xE80), v.byte(2, 0xE80)), (0, 0, 1), "the old chief steps down")
         ok, r, _ = s.apply(Event(changes=[s.change(3, status=1)]))
-        self.assertEqual(r["refused"], 1, "a child is never robed")
+        self.assertEqual((r["refused"], v.byte(2, 0xE80), v.byte(3, 0xE80)), (0, 0, 1),
+                         "a child is robed too (the owner: children are chiefs in the game itself)")
 
-    def test_heathen_masks_only_on_ordinary_heathens(self):
+    def test_heathen_masks_for_anyone(self):
+        """The owner (2026-10-06): a believer is made a Heathen first, and a
+        puzzle's own Heathen takes a mask too, at the player's own risk."""
         if not have_stock("vv5"):
             self.skipTest("no stock executable")
         s = story("vv5")
@@ -542,9 +567,11 @@ class StatusTests(unittest.TestCase):
         for status, bytes_ in ((3, (1, 0)), (4, (0, 1)), (2, (0, 0))):
             ok, r, _ = s.apply(Event(changes=[s.change(1, status=status)]))
             self.assertEqual((v.byte(1, 0x1CED), v.byte(1, 0x1CEE), r["refused"]), bytes_ + (0,))
+        s.proc.stub(0x4669E0, lambda q: (q.write(q.reg("ecx") + 0x1CEC, b"\1"), 0)[1:] and (0, 0))
         ok, r, _ = s.apply(Event(changes=[s.change(2, status=3), s.change(3, status=4)]))
-        self.assertEqual(r["refused"], 2)
-        self.assertEqual((v.byte(2, 0x1CED), v.byte(3, 0x1CEE)), (0, 0))
+        self.assertEqual(r["refused"], 0)
+        self.assertEqual((v.byte(2, 0x1CEC), v.byte(2, 0x1CED)), (1, 1), "the believer: an orange Heathen")
+        self.assertEqual((v.byte(3, 0x1CEE), v.i32(3, 0x1CFC)), (1, 0), "the Mommy: a red Heathen now")
 
     def test_new_heathens_come_from_the_games_heathen_creator(self):
         if not have_stock("vv5"):
@@ -655,7 +682,9 @@ class PregnancyAdditionTests(unittest.TestCase):
                 ok, r, _ = s.apply(Event(changes=[s.change(2, unborn_set=1, unborn_head=30)]))
                 self.assertEqual((r["refused"], s.village.i32(2, head)), (1, 7), "head out of range")
 
-    def test_a_golden_child_never_carries_or_fathers(self):
+    def test_a_golden_child_carries_and_fathers_at_the_players_own_risk(self):
+        """Stock never does it; the owner allows it (the dialog warns), the
+        delivery making another Golden Child (0x42EF39)."""
         if not have_stock("vv1"):
             self.skipTest("no stock executable")
         s = story("vv1")
@@ -666,13 +695,13 @@ class PregnancyAdditionTests(unittest.TestCase):
         s.proc.put32(v.record(3) + 0x36C, 0xC7)
         ok, r, _ = s.apply(Event(changes=[s.change(2, litter=1, father=3,
                                                    father_fingerprint=v.identity(3))]))
-        self.assertEqual((r["conceived"], r["refused"], v.i32(2, 0x358)), (0, 1, 0))
-        s.proc.put32(v.record(2) + 0x36C, 0xC7)
-        ok, r, _ = s.apply(Event(changes=[s.change(2, litter=1)]))
-        self.assertEqual((r["conceived"], r["refused"]), (0, 1))
-        s.proc.put32(v.record(2) + 0x36C, 4)
-        ok, r, _ = s.apply(Event(changes=[s.change(2, litter=1)]))
-        self.assertEqual((r["conceived"], v.i32(2, 0x394)), (1, 0))
+        self.assertEqual((r["conceived"], r["refused"]), (1, 0))
+        self.assertNotEqual(v.i32(2, 0x358), 0)
+        self.assertEqual(v.i32(2, 0x394), 0xC7, "the father's family: the delivery makes a Golden Child")
+        v.put(4, sex="f", years=30, name="GoldenToo")
+        s.proc.put32(v.record(4) + 0x36C, 0xC7)
+        ok, r, _ = s.apply(Event(changes=[s.change(4, litter=1)]))
+        self.assertEqual((r["conceived"], r["refused"]), (1, 0))
 
 
 # ---------------------------------------------------------------------------
@@ -719,6 +748,24 @@ class ReviveTests(unittest.TestCase):
         s.proc.write(v.record(i) + off, b"\1")
         return (i, v.identity(i), 60, 1)
 
+    def test_a_skeleton_chosen_in_villager_changes_comes_back_then_changes(self):
+        """The owner (2026-10-06): "All Skeletons" -- a chosen skeleton is
+        revived first (health 100, cured), then gets its changes."""
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            s = story(game)
+            stub_clock(s)
+            record(s, *STOP[game])
+            v = s.village
+            i, ident, _, _ = self._skeleton(s, 4)
+            change = s.change(4, head=7)            # the identity the dialog takes from the body
+            ok, r, _ = s.apply(Event(revives=[(i, ident, 100, 1)], changes=[change]))
+            with self.subTest(game=game):
+                self.assertEqual((r["revived"], r["skipped"], r["changed"]), (1, 0, 1))
+                self.assertEqual(v.i32(4, REVIVE[game]["health"]), 100)
+                self.assertEqual(v.i32(4, base.LAYOUTS[game]["head"]), 7, "changed after the revive")
+
     def test_a_skeleton_comes_back_with_the_clock_and_the_games_own_routines(self):
         for game in GAMES:
             if not have_stock(game):
@@ -746,12 +793,12 @@ class ReviveTests(unittest.TestCase):
                     v.put(5, sex="m", years=50, name="Other", health=0)
                     ok, r, _ = s.apply(Event(revives=[rev2]))
                     self.assertEqual((r["revived"], r["skipped"]), (0, 1))
-                    # no room: the game's own predicate
+                    # a full village: the body keeps its own record, so the
+                    # revive needs no room (the owner, 2026-10-06)
                     rev3 = self._skeleton(s, 6)
                     s.room[0] = False
                     ok, r, text = s.apply(Event(revives=[rev3]))
-                    self.assertEqual((r["revived"], r["no_room_revives"], v.i32(6, f["health"])), (0, 1, 0))
-                    self.assertIn("no room", text)
+                    self.assertEqual((r["revived"], r["no_room_revives"], v.i32(6, f["health"])), (1, 0, 60))
 
     def test_without_the_cure_the_sickness_stays_and_alive_or_gone_is_never_revived(self):
         for game in GAMES:
@@ -777,7 +824,9 @@ class ReviveTests(unittest.TestCase):
                 self.assertEqual(r["revived"], 0)
 
     def test_look_alike_dead_records_are_never_revived(self):
-        cases = {"vv2": (0x558, 1), "vv4": (0x1CC7, 1), "vv5": (0x1CEC, 1)}
+        # (New Believers: a Heathen body is a body -- the Custom Island Event
+        # can kill a Heathen -- so it is no look-alike.)
+        cases = {"vv2": (0x558, 1), "vv4": (0x1CC7, 1)}
         for game, (off, value) in cases.items():
             if not have_stock(game):
                 continue
@@ -802,7 +851,9 @@ class ReviveTests(unittest.TestCase):
         ok, r, _ = s.apply(Event(revives=[rev]))
         self.assertEqual((r["revived"], r["refused"]), (0, 1))
 
-    def test_the_secret_city_never_makes_a_second_chief(self):
+    def test_the_secret_city_brings_a_dead_chief_back_even_with_a_living_one(self):
+        """The owner (2026-10-06): allowed, the revive dialog warning "Do this at
+        your own risk"."""
         if not have_stock("vv3"):
             self.skipTest("no stock executable")
         s = story("vv3")
@@ -813,10 +864,8 @@ class ReviveTests(unittest.TestCase):
         s.village.put(5, sex="m", years=40, name="NewChief")
         s.proc.write(s.village.record(5) + 0xE80, b"\1")
         ok, r, _ = s.apply(Event(revives=[rev]))
-        self.assertEqual((r["revived"], r["refused"]), (0, 1))
-        s.proc.write(s.village.record(5) + 0xE80, b"\0")
-        ok, r, _ = s.apply(Event(revives=[rev]))
-        self.assertEqual(r["revived"], 1)
+        self.assertEqual((r["revived"], r["refused"]), (1, 0))
+        self.assertEqual(s.village.byte(4, 0xE80), 1, "a chief again")
 
 
 @emulated

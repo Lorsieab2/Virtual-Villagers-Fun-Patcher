@@ -310,6 +310,17 @@ int main(void) {
     vvfp_crosscheck_quit(1, 1);
     check(g_boxes == 0 && nothing_repaired(), "... and nothing is asked at the quit");
 
+    /* ---- Clean at the load, wrong by the quit (Codex, #542): a record
+       write that failed later in the session is still asked about. ---- */
+    reset();
+    play(2, 1, 10000, 16);
+    check(g_scans == 1 && g_boxes == 0, "clean at the load: scanned once, silently");
+    g_graves = 1;                       /* a Death record that could not be written meanwhile */
+    g_answer = IDYES;
+    vvfp_crosscheck_quit(2, 1);
+    check(g_scans == 2 && g_boxes == 1 && g_now_graves == 1,
+          "... the quit looks again from the state just saved, asks, and repairs");
+
     /* ---- Not in the first seconds of a load. ---- */
     reset();
     g_parents = 1; g_counts[0] = 2;
@@ -337,6 +348,18 @@ int main(void) {
     check(ends_with_how_to_stop(), "... and it ends by saying how to turn the checks off");
     check(strstr(g_text, "cannot tell apart") == NULL && strstr(g_text, "pregnancy") == NULL,
           "... and says nothing of what was not found");
+
+    /* ---- The same village, a while with no villager drawn (The Secret City
+       to New Believers call this only while a villager is drawn: the view
+       scrolled away from all of them), then a quit before the next look. ---- */
+    reset();
+    g_parents = 1; g_counts[0] = 2;
+    play(1, 1, 10000, 16);           /* (the gap rule is every game's; the parents part is A New Home's) */
+    g_now += VVFP_XC_GAP_MS + 3000;  /* no villager drawn */
+    play(1, 1, 500, 16);             /* back, quit before the village settles again */
+    g_answer = IDNO;
+    vvfp_crosscheck_quit(1, 1);
+    check(g_boxes == 1, "a pause with no villager drawn keeps what the quit owes: the quit still asks");
     check(nothing_repaired(), "Not now: nothing is repaired or passed on");
 
     /* ---- The fullest box: every finding, huge counts, the longest stats text. ---- */
@@ -431,8 +454,8 @@ int main(void) {
     g_slot = 2;
     g_graves = 0;
     play(2, 1, 8000, 16);              /* village 2: nothing */
-    g_graves = 1;
-    vvfp_crosscheck_quit(2, 2);
+    g_graves = 1;                      /* still wrong in village 1 */
+    vvfp_crosscheck_quit(2, 1);        /* a quit save of village 1's slot is not the load just checked */
     check(g_boxes == 0, "what the quit owes is the last village played's (another load replaces it)");
     reset();
     g_graves = 1;

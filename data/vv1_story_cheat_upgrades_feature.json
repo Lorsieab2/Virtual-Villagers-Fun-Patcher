@@ -30,7 +30,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "35FC4E5967406A62F2188D5A94ED389FF850E876E325CAF351DA698BB4264113"
+      "sha256": "594D05C66A2B1CE5CA791724C07CFB089B46AFB0C97BDFE8DCE8DE5C7E5C37D6"
     }
   ],
   "runtime_detours": [
@@ -176,6 +176,12 @@
       "va": "0x41A51F",
       "stock_bytes": "E8BCE4FFFF",
       "routine": "the villager encounter's setup call 0x4189E0 (a Custom Island Event question)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x4237DD",
+      "stock_bytes": "E8EE840100",
+      "routine": "the event trigger's villager draw 0x43BCD0 (a Custom Island Event arrives within seconds)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {

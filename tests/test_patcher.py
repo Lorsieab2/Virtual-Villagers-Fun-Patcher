@@ -1149,8 +1149,10 @@ class ManifestTests(unittest.TestCase):
         # (vv2_cause_of_death), which patches no executable byte -- its
         # companion writes at run time; 25 with Restore Missing Island Events
         # (vv2_restore_missing_island_events), five jump-table entries and the
-        # case-4 body over the trigger's dead positive-kind branch.
-        self.assertEqual(len(feature_ids), 25)
+        # case-4 body over the trigger's dead positive-kind branch; 26 with Story /
+        # Cheat Upgrades cost Tech Points (vv2_story_cheat_upgrades_cost_tech_points),
+        # no executable byte -- bit 30 of the startup loader's word.
+        self.assertEqual(len(feature_ids), 26)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -1195,14 +1197,18 @@ class ManifestTests(unittest.TestCase):
                     # As the GUI selects it: a row's public prerequisites come
                     # with it (Teaching Children Stops at 50 brings in the
                     # lesson row it caps); the Origins base resolves itself.
-                    prerequisites = [
-                        dependency
-                        for dependency in catalog[feature_id].raw.get("dependencies") or ()
-                        if dependency in feature_ids
-                        and not dependency.endswith("_enable_origins_exclusive_features")
-                    ]
+                    # The whole chain (Story / Cheat Upgrades cost Tech Points needs
+                    # Story / Cheat Upgrades, which needs the Origins row).
+                    prerequisites: list[str] = []
+                    pending = [feature_id]
+                    while pending:
+                        for dependency in catalog[pending.pop()].raw.get("dependencies") or ():
+                            if (dependency in feature_ids and dependency not in prerequisites
+                                    and not dependency.endswith("_enable_origins_exclusive_features")):
+                                prerequisites.append(dependency)
+                                pending.append(dependency)
                     rendered, applied = render_patched_bytes(
-                        source, build, mode, prerequisites + [feature_id]
+                        source, build, mode, prerequisites[::-1] + [feature_id]
                     )
                     records = [
                         (
@@ -1724,12 +1730,17 @@ class StockIntegrationTests(unittest.TestCase):
             # lesson row it caps); the Origins base is resolved internally.
             public_set = set(public_ids)
             for feature_id in public_ids:
-                prerequisites = [
-                    dependency
-                    for dependency in feature_catalog[feature_id].raw.get("dependencies") or ()
-                    if dependency in public_set
-                ]
-                scenarios.append((feature_id, prerequisites + [feature_id]))
+                # The whole chain, as the GUI ticks it (Story / Cheat Upgrades
+                # cost Tech Points needs Story / Cheat Upgrades, which needs the
+                # Origins village-wide row).
+                prerequisites: list[str] = []
+                pending = [feature_id]
+                while pending:
+                    for dependency in feature_catalog[pending.pop()].raw.get("dependencies") or ():
+                        if dependency in public_set and dependency not in prerequisites:
+                            prerequisites.append(dependency)
+                            pending.append(dependency)
+                scenarios.append((feature_id, prerequisites[::-1] + [feature_id]))
             scenarios.append(("all", public_ids))
             expected_safety = {
                 int(patch["offset"], 0) for patch in build.safety_patches
@@ -2547,6 +2558,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv1_origins_village_wide_upgrades",
                 # Requires the Origins upgrades row excluded above.
                 "vv1_story_cheat_upgrades",
+                "vv1_story_cheat_upgrades_cost_tech_points",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -4003,6 +4015,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_manual_drop_breeding_overrides_birth_control",
                 "vv2_numeric_keys_tip_wording",
                 "vv2_story_cheat_upgrades",
+                "vv2_story_cheat_upgrades_cost_tech_points",
                 "vv2_firepit_dry_grass_above_wood",
                 "vv2_fix_vanilla_bugs",
                 "vv2_cause_of_death",

@@ -137,7 +137,7 @@ class PublishLeavesRoomForCrashImmunityTests(unittest.TestCase):
                     for feature_id in self._selectable(game_id)
                     if "origins" not in feature_id
                     # Story / Cheat Upgrades requires the Origins upgrades row.
-                    and not feature_id.endswith("_story_cheat_upgrades")
+                    and "_story_cheat_upgrades" not in feature_id
                 ]
                 self.assertTrue(
                     selected, f"{game_id} has no non-Origins features to compose"

@@ -124,7 +124,8 @@ typedef int (__stdcall *vv_record_arrivals_fn)(int game, const void *save_buffer
    A New Home always 0).  Every living villager of the village is handed
    over; the ones NOT to be recorded by this call come with `outcome`
    VV_ARRIVAL_CONTEXT and are only counted: a name they share decides
-   nothing, and a record that matches them is theirs first.
+   nothing, and a record of their own kind that matches them (Arrived for
+   one with no parents, Birth for one with them) is theirs first.
    RecordArrivalsMissingFromLog honours the same mark. */
 typedef int (__stdcall *vv_record_births_fn)(int game, const void *save_buffer, int slot,
                                              vv_arrival_fact *facts, int count, int apply);
@@ -154,13 +155,32 @@ static unsigned int vv_backfill_marker_magic(int which) {
     return which == VV_BACKFILL_BIRTHS ? VV_BIRTH_MARKER_MAGIC : VV_ARRIVAL_MARKER_MAGIC;
 }
 
-/* 1 when the slot's marker is there and is this game's and slot's. */
-static int vv_backfill_marker_present(int which, int game, int slot) {
+/* The village a marker is for (Codex, #531): FNV-1a of the slot's
+   "Village: <name> (Save S)" line, as A New Home's cross-check marker keeps
+   it (vv1_xc_village_id); 0 when the caller cannot tell.  A marker of
+   version 2 names it, so a slot that now holds another village -- a save
+   copied in, one restored from a backup -- is backfilled again; a version 1
+   marker (older builds) names none and counts only while the village
+   cannot be told. */
+static unsigned int vv_backfill_village_id(const char *header) {
+    unsigned int h = 2166136261u;
+    if (header == NULL || header[0] == '\0') {
+        return 0u;
+    }
+    while (*header) {
+        h = (h ^ (unsigned char)*header++) * 16777619u;
+    }
+    return h ? h : 1u;
+}
+
+/* What the slot's marker file is: 0 none (or not ours: another file is
+   never claimed), 1 ours for another village, 2 ours for `village`. */
+static int vv_backfill_marker_state(int which, int game, int slot, unsigned int village) {
     char path[MAX_PATH];
     HANDLE f;
-    unsigned int data[4];
+    unsigned int data[5];
     DWORD got = 0;
-    int ok;
+    int ours;
     if (!vv_backfill_marker_path(path, which, game, slot)) {
         return 0;
     }
@@ -169,11 +189,24 @@ static int vv_backfill_marker_present(int which, int game, int slot) {
     if (f == INVALID_HANDLE_VALUE) {
         return 0;
     }
-    ok = ReadFile(f, data, sizeof data, &got, NULL) && got == sizeof data
-        && data[0] == vv_backfill_marker_magic(which) && data[1] == 1u
+    ours = ReadFile(f, data, sizeof data, &got, NULL)
+        && (got == 16u || got == 20u)
+        && data[0] == vv_backfill_marker_magic(which) && data[1] == (got == 16u ? 1u : 2u)
         && data[2] == (unsigned int)game && data[3] == (unsigned int)slot;
     CloseHandle(f);
-    return ok;
+    if (!ours) {
+        return 0;
+    }
+    if (village == 0u) {
+        return 2;                     /* the village cannot be told: any of ours counts */
+    }
+    return got == 20u && data[4] == village ? 2 : 1;
+}
+
+/* 1 when the slot's marker is there and is this game's, slot's and
+   village's. */
+static int vv_backfill_marker_present(int which, int game, int slot, unsigned int village) {
+    return vv_backfill_marker_state(which, game, slot, village) == 2;
 }
 
 /* Write the marker (to a temporary name, then moved into place, so a
@@ -181,46 +214,52 @@ static int vv_backfill_marker_present(int which, int game, int slot) {
    file of that name that is not this marker is preserved, never replaced
    (the owner's rule for every patcher .dat): GetFileAttributesA refuses it,
    and the move is made without MOVEFILE_REPLACE_EXISTING. */
-static int vv_backfill_marker_write(int which, int game, int slot) {
+static int vv_backfill_marker_write(int which, int game, int slot, unsigned int village) {
     char path[MAX_PATH];
     char temp[MAX_PATH + 8];
     HANDLE f;
-    unsigned int data[4];
+    unsigned int data[5];
+    DWORD size = village != 0u ? 20u : 16u;
     DWORD put = 0;
+    DWORD move = MOVEFILE_WRITE_THROUGH;
+    int state = vv_backfill_marker_state(which, game, slot, village);
     int ok;
-    if (vv_backfill_marker_present(which, game, slot)) {
+    if (state == 2) {
         return 1;
     }
     if (!vv_backfill_marker_path(path, which, game, slot)) {
         return 0;
     }
-    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) {
+    if (state == 1) {
+        move |= MOVEFILE_REPLACE_EXISTING;   /* ours, for another village: replaced */
+    } else if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) {
         return 0;
     }
     _snprintf_s(temp, sizeof temp, _TRUNCATE, "%s.tmp", path);
     data[0] = vv_backfill_marker_magic(which);
-    data[1] = 1u;
+    data[1] = village != 0u ? 2u : 1u;
     data[2] = (unsigned int)game;
     data[3] = (unsigned int)slot;
+    data[4] = village;
     f = CreateFileA(temp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
         return 0;
     }
-    ok = WriteFile(f, data, sizeof data, &put, NULL) && put == sizeof data && FlushFileBuffers(f);
+    ok = WriteFile(f, data, size, &put, NULL) && put == size && FlushFileBuffers(f);
     CloseHandle(f);
-    if (!ok || !MoveFileExA(temp, path, MOVEFILE_WRITE_THROUGH)) {
+    if (!ok || !MoveFileExA(temp, path, move)) {
         DeleteFileA(temp);
         return 0;
     }
     return 1;
 }
 
-static int vv_arrival_marker_present(int game, int slot) {
-    return vv_backfill_marker_present(VV_BACKFILL_ARRIVALS, game, slot);
+static int vv_arrival_marker_present(int game, int slot, unsigned int village) {
+    return vv_backfill_marker_present(VV_BACKFILL_ARRIVALS, game, slot, village);
 }
 
-static int vv_arrival_marker_write(int game, int slot) {
-    return vv_backfill_marker_write(VV_BACKFILL_ARRIVALS, game, slot);
+static int vv_arrival_marker_write(int game, int slot, unsigned int village) {
+    return vv_backfill_marker_write(VV_BACKFILL_ARRIVALS, game, slot, village);
 }
 
 #endif /* VV_ARRIVAL_BACKFILL_H */

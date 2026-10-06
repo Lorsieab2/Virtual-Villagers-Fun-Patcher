@@ -50,6 +50,11 @@ static const char *const VVFP_STARTUP_COMPANIONS[] = {
    The companion list therefore never grows past 30 entries (bits 1-30). */
 #define VVFP_STARTUP_CHECK_LOGS 0x80000000u
 
+/* Bit 30: the patcher's "Story / Cheat Upgrades cost Tech Points" row
+   (STARTUP_LOADER_STORY_CHARGES in src/vv_fun_patcher.py), read by
+   story_bridge.h.  So the companion list stays within bits 1-29. */
+#define VVFP_STARTUP_STORY_CHARGES 0x40000000u
+
 static unsigned int vvfp_startup_shipped;
 static int vvfp_startup_known;
 

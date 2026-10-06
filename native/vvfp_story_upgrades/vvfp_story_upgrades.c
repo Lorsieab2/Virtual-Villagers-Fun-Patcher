@@ -544,6 +544,7 @@ static int titles_rebind(int game, int index, unsigned int before);
 #include "story_c3.inc"
 #include "story_c4.inc"
 #include "story_c5.inc"
+#include "story_fast_delivery.inc"
 
 static const ce_adapter *ce_adapter_for(int game) {
     switch (game) {
@@ -635,27 +636,32 @@ static story_detour vv1_custom_detours[] = {
     { 0x428777u, 5, VV1_CUSTOM_CHOOSE_BYTES, 1, (void *)c1_choose },
     { 0x41FD75u, 5, VV1_TITLE_SITE_BYTES, 0, (void *)c1_title_stub },
     { 0x41A51Fu, 5, VV1_CHOICE_SETUP_BYTES, 1, (void *)c1_choice_setup },
+    { 0x4237DDu, 5, VV1_EVENT_PICK_BYTES, 1, (void *)c1_event_pick },
 };
 static story_detour vv2_custom_detours[] = {
     { 0x4349B2u, 5, VV2_CUSTOM_CHOOSE_BYTES, 1, (void *)c2_choose },
     { 0x429DE3u, 5, VV2_TITLE_SITE_BYTES, 1, (void *)c2_title },
     { 0x42244Au, 5, VV2_CHOICE_SETUP_BYTES, 1, (void *)c2_choice_setup },
+    { 0x42EEEDu, 5, VV2_EVENT_PICK_BYTES, 1, (void *)c2_event_pick },
 };
 static story_detour vv3_detours[] = {
     { VV3_PICK_SITE, 7, VV3_PICK_SITE_BYTES, 0, (void *)vv3_stub },
     { 0x468FC8u, 6, VV3_TITLE_SITE_BYTES, 0, (void *)c3_title_stub },
+    { 0x468757u, 5, VV3_EVENT_PICK_BYTES, 1, (void *)c3_event_pick },
     { 0x419A29u, 12, VV3_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv3_choice_stub },
     { 0x419A41u, 5, VV3_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv3_simple_stub },
 };
 static story_detour vv4_detours[] = {
     { VV4_PICK_SITE, 7, VV4_PICK_SITE_BYTES, 0, (void *)vv4_stub },
     { 0x4404D9u, 5, VV4_TITLE_SITE_BYTES, 0, (void *)c4_title_stub },
+    { 0x43FA70u, 5, VV4_EVENT_PICK_BYTES, 1, (void *)c4_event_pick },
     { 0x417EC9u, 16, VV4_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv4_choice_stub },
     { 0x417EE5u, 9, VV4_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv4_simple_stub },
 };
 static story_detour vv5_detours[] = {
     { VV5_PICK_SITE, 7, VV5_PICK_SITE_BYTES, 0, (void *)vv5_stub },
     { 0x44319Eu, 6, VV5_TITLE_SITE_BYTES, 0, (void *)c5_title_stub },
+    { 0x44272Fu, 5, VV5_EVENT_PICK_BYTES, 1, (void *)c5_event_pick },
     { 0x418749u, 16, VV5_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv5_choice_stub },
     { 0x418765u, 9, VV5_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv5_simple_stub },
 };
@@ -668,15 +674,23 @@ static const story_game GAMES[6] = {
     { VV2_WRITES, VV2_WRITE_COUNT, vv2_detours, sizeof vv2_detours / sizeof vv2_detours[0],
       vv2_custom_detours, sizeof vv2_custom_detours / sizeof vv2_custom_detours[0],
       VV2_EVENTS, VV2_EVENT_COUNT, vv2_possible, vv2_island_pending, vv2_arm },
-    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, 4, NULL, 0,
+    { VV3_WRITES, VV3_WRITE_COUNT, vv3_detours, sizeof vv3_detours / sizeof vv3_detours[0], NULL, 0,
       VV3_EVENTS, VV3_EVENT_COUNT, vv3_possible, vv3_island_pending, vv3_arm },
-    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, 4, NULL, 0,
+    { VV4_WRITES, VV4_WRITE_COUNT, vv4_detours, sizeof vv4_detours / sizeof vv4_detours[0], NULL, 0,
       VV4_EVENTS, VV4_EVENT_COUNT, vv4_possible, vv4_island_pending, vv4_arm },
-    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, 4, NULL, 0,
+    { VV5_WRITES, VV5_WRITE_COUNT, vv5_detours, sizeof vv5_detours / sizeof vv5_detours[0], NULL, 0,
       VV5_EVENTS, VV5_EVENT_COUNT, vv5_possible, vv5_island_pending, vv5_arm },
 };
 
 /* ---- Installing ------------------------------------------------------------ */
+
+/* "Story / Cheat Upgrades cost Tech Points" (the owner, 2026-10-06): set by
+   the Origins companion from the patcher's startup flag before the install,
+   so the zero prices are never written -- the Origins menus show and charge
+   their own prices -- and Pick Island Event, Custom Island Event and Pick
+   Gong of Wonder Outcome each cost what the Island Event upgrade costs. */
+#define STORY_EVENT_PRICE 30000         /* the Island Event upgrade, all five games */
+static int charges[6];
 
 /* The detour `index` of this game: its pick sites, then the custom
    event's own. */
@@ -721,7 +735,7 @@ static int install(int game) {
     if (!oc_verify(game)) {
         return 0;
     }
-    for (i = 0; i < g->write_count; ++i) {
+    for (i = 0; i < g->write_count && !charges[game]; ++i) {
         if (!mem_write(g->writes[i].va, g->writes[i].replace, g->writes[i].length)) {
             install_undo(g, i, 0);
             return 0;
@@ -731,15 +745,24 @@ static int install(int game) {
         const story_detour *d = game_detour(g, i);
         detour_bytes(d, bytes);
         if (!mem_write(d->va, bytes, d->length)) {
-            install_undo(g, g->write_count, i);
+            install_undo(g, charges[game] ? 0 : g->write_count, i);
             return 0;
         }
     }
     if (!oc_install(game)) {
-        install_undo(g, g->write_count, game_detour_count(g));
+        install_undo(g, charges[game] ? 0 : g->write_count, game_detour_count(g));
         return 0;
     }
     return 1;
+}
+
+/* "Story / Cheat Upgrades cost Tech Points" for `game`: called by the
+   Origins companion before the install when the patcher's startup flag says
+   so.  Ignored once the install has run (its prices are what they are). */
+__declspec(dllexport) void __stdcall VvfpStoryCharge(int game) {
+    if (game >= 1 && game <= 5 && install_state[game] == 0) {
+        charges[game] = 1;
+    }
 }
 
 /* The install alone, once: every site verified, then written; nothing
@@ -784,7 +807,62 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
 /* Whether this game's Origins upgrades are free right now: the Origins
    companion shows 0 and charges 0 in its own prompts only when this is 1. */
 __declspec(dllexport) int __stdcall VvfpStoryActive(int game) {
+    return game >= 1 && game <= 5 && install_state[game] == 1 && !charges[game];
+}
+
+/* Whether the Story / Cheat Upgrades are in place (free or charged): the
+   Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome
+   buttons are offered while this is 1. */
+static int story_installed(int game) {
     return game >= 1 && game <= 5 && install_state[game] == 1;
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryInstalled(int game) {
+    return story_installed(game);
+}
+
+/* What Pick Island Event, Custom Island Event and Pick Gong of Wonder
+   Outcome cost in `game` now: 0, or the Island Event upgrade's price. */
+__declspec(dllexport) int __stdcall VvfpStoryEventPrice(int game) {
+    return story_installed(game) && charges[game] ? STORY_EVENT_PRICE : 0;
+}
+
+/* What a story purchase prompt names as its price ("0" or "30,000"). */
+static const char *story_price_text(int game) {
+    static char text[16];
+    int price = VvfpStoryEventPrice(game);
+    if (price >= 1000) {
+        wsprintfA(text, "%d,%03d", price / 1000, price % 1000);
+    } else {
+        wsprintfA(text, "%d", price);
+    }
+    return text;
+}
+
+typedef int (*story_command_fn)(int game, HWND owner);
+
+/* `command`, charged when the upgrades cost tech points: refused with a
+   message while the village has fewer, and the price taken only when the
+   command says an event (or outcome) is now on its way. */
+static int story_charged(int game, HWND owner, story_command_fn command) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int price = VvfpStoryEventPrice(game);
+    int done;
+    if (price == 0 || a == NULL) {
+        return command(game, owner);
+    }
+    if (a->tech() < price) {
+        char text[160];
+        wsprintfA(text, "This costs %d,%03d tech points, and your village has %d.",
+                  price / 1000, price % 1000, a->tech());
+        MessageBoxA(owner, text, "Not enough tech points", MB_OK | MB_ICONINFORMATION);
+        return 0;
+    }
+    done = command(game, owner);
+    if (done) {
+        a->change_tech(CE_AMOUNT_SUBTRACT, price);
+    }
+    return done;
 }
 
 /* ---- The chooser ----------------------------------------------------------- */
@@ -835,7 +913,13 @@ __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
    click while the Island Event row is locked).  Shows the chooser, confirms
    the 0-point purchase, and arms the pick.  Returns 1 when an event is on
    its way, 0 otherwise. */
+static int story_pick_island_event(int game, HWND owner);
+
 __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owner) {
+    return story_charged(game, owner, story_pick_island_event);
+}
+
+static int story_pick_island_event(int game, HWND owner) {
     const story_game *g;
     const story_event *event;
     const oc_settings *settings;
@@ -845,7 +929,7 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
     char message[1800];
     int chosen;
     int possible_now;
-    if (!VvfpStoryActive(game)) {
+    if (!story_installed(game)) {
         return 0;
     }
     g = &GAMES[game];
@@ -890,8 +974,9 @@ __declspec(dllexport) int __stdcall VvfpStoryPickIslandEvent(int game, HWND owne
     label_of(event, label, sizeof label);
     chooser_summary(chosen, summary, sizeof summary);
     wsprintfA(message,
-              "Do you want to buy Pick Island Event (%s) for 0 tech points?%s%s\r\n\r\n"
-              "Press OK to confirm, or Cancel.", label, summary[0] ? "\r\n" : "", summary);
+              "Do you want to buy Pick Island Event (%s) for %s tech points?%s%s\r\n\r\n"
+              "Press OK to confirm, or Cancel.", label, story_price_text(game),
+              summary[0] ? "\r\n" : "", summary);
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
@@ -1017,6 +1102,31 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeFailWrite(int n) {
     test_fail_write = n;
 }
 
+/* The Custom Island Event's quicker delivery (story_fast_delivery.inc),
+   driven by a scripted picker: `draws` are the picker's answers in turn,
+   `fits[i]` whether draw i passes the trigger's age check.  Returns the
+   villager handed back; *calls the times the picker was asked. */
+typedef struct { const int *draws; const int *fits; int count; int at; } probe_pick;
+static int probe_draw(void *ctx) {
+    probe_pick *p = (probe_pick *)ctx;
+    int i = p->at < p->count ? p->at : p->count - 1;
+    ++p->at;
+    return p->draws[i];
+}
+static int probe_fits(void *ctx, int drawn) {
+    probe_pick *p = (probe_pick *)ctx;
+    int i = p->at - 1 < p->count ? p->at - 1 : p->count - 1;
+    (void)drawn;
+    return p->fits[i];
+}
+__declspec(dllexport) int __stdcall VvfpStoryProbeFastPick(const int *draws, const int *fits,
+                                                           int count, int none, int *calls) {
+    probe_pick p = { draws, fits, count, 0 };
+    int drawn = ce_fast_pick(probe_draw, probe_fits, none, &p);
+    *calls = p.at;
+    return drawn;
+}
+
 __declspec(dllexport) void __stdcall VvfpStoryProbeSetTick(DWORD tick) {
     test_tick = tick;
 }
@@ -1053,7 +1163,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_e
     ce_armed_event.game = game;
     ce_armed_is_choice = 0;
     ce_armed = 1;
-    ce_armed_tick = tick;
+    (void)tick;                       /* a custom event never lapses with time */
     ce_armed_village = story_village_now(game);
     return 1;
 }
@@ -1092,7 +1202,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeTargets(int game, const unsign
     if (a == NULL) {
         return -1;
     }
-    n = ce_roster(a, roster, UI_ROSTER_MAX);
+    n = ce_picker_roster(a, roster, UI_ROSTER_MAX);
     return story_resolve_targets(roster, n, picked, toggles, a->adult_age, out, cap);
 }
 
@@ -1262,7 +1372,6 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetChoice(int game, const ce_e
     ce_armed_event.game = game;
     ce_store_choice(game, choice);
     ce_armed = 1;
-    ce_armed_tick = tick;
     test_tick = tick;
     ce_armed_village = story_village_now(game);
     return 1;

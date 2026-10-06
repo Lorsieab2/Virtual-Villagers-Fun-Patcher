@@ -199,6 +199,12 @@ STORY_CHEAT_UPGRADES_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_story_cheat_upgrades_feature.json"
     for game_number in range(1, 6)
 )
+# "Story / Cheat Upgrades cost Tech Points" (all five games): no bytes of its
+# own -- bit 30 of the startup loader's word (STARTUP_LOADER_STORY_CHARGES).
+STORY_COSTS_TECH_POINTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{game_number}_story_cheat_upgrades_cost_tech_points_feature.json"
+    for game_number in range(1, 6)
+)
 # Cause of Death (all five games, default-on): each death's cause and age in
 # the Deaths log, and in A New Home and The Lost Children the cause (and, in
 # A New Home, an epitaph) on the grave popup.  Companion only ("VVFP Cause of
@@ -816,16 +822,16 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "A92C2C682D301C63017B00FB397454338F03178D578E199E017EEEEDAFC5DDDA",
-    "map": "4CADB6A8C47A76A8D7AD22725A11E23648960BCE6EEB2E21623734419F373732",
+    "manifest": "45901168AF82B6CEBBF672783F52CE469E892BC2076D1E111E1A76C48AB47E53",
+    "map": "90FD4E7590C9A039D098935CF077E85D64C78DE4FE353A399652E911418971A9",
 }
-VV5_TASK9_DLL_SHA256 = "092D9A5E18F022D5A75554634E129EA4D0F1A3C433E564AFDBC0E6537BB9A6FA"
+VV5_TASK9_DLL_SHA256 = "CDCB0022C3374A518EEEFF8BE680A992EFB67E1653344753DC5A169B68A71B65"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "F9753F42EB91EF6CFFC1BE4AA250312556CDFFD9D65FBB7B40A194D4A97FFC44"
+VV5_TASK9_SAVE_RESET_SHA256 = "94C6D01647D2716913773E37BCA89A881272AB80E6AAD8F0991BDD4EB8FA6465"
 VV5_TASK9_SAVE_RESET_SIZE = 141312
 VV5_TASK9_PAGE_SHA256 = {
     "collection_progression": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
@@ -833,7 +839,7 @@ VV5_TASK9_PAGE_SHA256 = {
     "experimental_expanded_256": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
     "experimental_expanded_256_progression": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "BDEE5D23234FF4F0DAF5121B557EF479373E435FBCCC49DEB519CA0378110362"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "CA52D6F51DAE887AA3DA642856F3188050CDD3809864E66433092352E58A32F9"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -1863,8 +1869,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "AF9A5BF0CEF01C160D06267698B534C395A917E20C927A8639F353C9FA0C8EDC",
-    "task9_builder": "815C8352580C83FB98B3F99A62BF9AFA892F7FA4FB49B9BD8FE3D659C56FAD5B",
+    "builder": "0A96DBFE68CEC62DF8BF58E6147BAA109288A193AA30E3728489D6242CD1E54F",
+    "task9_builder": "560DCB4DCDFB1084347823C1896E8DE695D9F6DC67BF890B6ECF9CF9BBE573E2",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1876,8 +1882,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "42732E57DBA6DFAFC96B575B44384DCCB04BB65EEE8CF93A356D12E35DD58E8B",
-        "map": "C6B73228E5DD59BFED39C239CFE20A7209601ADB7B5CC85072BA781498DE42DE",
+        "manifest": "64AD2740243F05661CC9AFB9E1B0DE06CA1A36AB8F4448D689CCDB01A70BE0B8",
+        "map": "19CE27D904E3DC9199EA145CB9020F6CE4C986020552E3DF1D3357D95C6220F3",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3941,6 +3947,7 @@ def _load_fun_patch_records(
                 items.append(record)
     for feature_path in (PLAYING_IN_THE_DIRT_FEATURE_PATHS + DEVOTED_SOUL_EPITAPH_FEATURE_PATHS
                          + STORY_CHEAT_UPGRADES_FEATURE_PATHS
+                         + STORY_COSTS_TECH_POINTS_FEATURE_PATHS
                          + CAUSE_OF_DEATH_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
@@ -10398,6 +10405,31 @@ def _remove_unselected_companions(
                 "an older patcher's loose copy: the patcher's files are now in "
                 f"'{patcher_files.PATCHER_FILES_FOLDER}'",
             )
+    # The reports of the build the source folder came from (a folder an
+    # earlier patcher produced): they describe that build, not this one, which
+    # writes its own. The same files _patcher_owned_companion_keys owns on
+    # overwrite: the transparency log by name, a patch log only when the
+    # patcher signed it, so a player's file of a similar name is kept.
+    reports = [Path(patcher_files.TRANSPARENCY_FILENAME)]
+    for folder in (Path(), Path(patcher_files.PATCHER_FILES_FOLDER)):
+        for log_path in sorted((staging_folder / folder).glob("*" + patcher_files.PATCH_LOG_SUFFIX)):
+            try:
+                log = json.loads(log_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(log, dict) and log.get("patcher") == "Virtual Villagers Fun Patcher":
+                reports.append(folder / log_path.name)
+    for relative in reports:
+        path = staging_folder / relative
+        if not path.is_file():
+            continue
+        digest = sha256(path)
+        path.unlink()
+        removed.append({
+            "path": relative.as_posix(),
+            "sha256": digest,
+            "reason": "a report of the earlier build the source folder came from",
+        })
     return removed
 
 
@@ -11986,6 +12018,12 @@ STARTUP_LOADER_COMPANIONS = (
 # if something is confirmed wrong; when it is clear, nothing is checked or
 # asked during play.  So the companion list never grows past 30 entries.
 STARTUP_LOADER_CHECK_LOGS = 1 << 31
+# Bit 30: "Story / Cheat Upgrades cost Tech Points" is ticked
+# (native/shared/startup_companions.h VVFP_STARTUP_STORY_CHARGES): the Story
+# companion keeps the normal prices and charges for the story events.  So the
+# companion list stays within bits 1-29.
+STARTUP_LOADER_STORY_CHARGES = 1 << 30
+STORY_COSTS_TECH_POINTS_SUFFIX = "_story_cheat_upgrades_cost_tech_points"
 
 
 def _startup_loader_mask(build_id: str, fun_patches: list[FunPatch]) -> int:
@@ -11999,6 +12037,8 @@ def _startup_loader_mask(build_id: str, fun_patches: list[FunPatch]) -> int:
     for index, name in enumerate(STARTUP_LOADER_COMPANIONS):
         if name.casefold() in shipped:
             mask |= 1 << (index + 1)
+    if any(feature.id.endswith(STORY_COSTS_TECH_POINTS_SUFFIX) for feature in fun_patches):
+        mask |= STARTUP_LOADER_STORY_CHARGES
     return mask
 STARTUP_LOADER_SECTION = b".vvfpst"
 # The C runtime's `call WinMain` (VA) and WinMain itself, per game: the
@@ -12503,14 +12543,19 @@ def _require_patcher_files_path_fits(
                 relatives.append(str(path.relative_to(source_folder)))
     output = Path(os.path.abspath(output_folder))
     staging = output.parent / f".{output.name}.staging-{'0' * 32}"
+    # Windows counts UTF-16 units: a character outside the BMP (an emoji)
+    # takes two, where Python's len() counts one.
+    def wchars(path: str) -> int:
+        return len(path.encode("utf-16-le", "surrogatepass")) // 2
+
     worst = max(
         (str(folder / relative) for folder in (output, staging) for relative in relatives),
-        key=len,
+        key=wchars,
     )
-    if len(worst) >= patcher_files.MAX_PATH:
+    if wchars(worst) >= patcher_files.MAX_PATH:
         raise PatcherError(
             "The output folder's path is too long: the patched game would need a path "
-            f"of {len(worst)} characters ({worst}), and Windows allows "
+            f"of {wchars(worst)} characters ({worst}), and Windows allows "
             f"{patcher_files.MAX_PATH - 1}. Nothing was written. Choose an output "
             "folder with a shorter path."
         )
@@ -12858,6 +12903,17 @@ def apply_all(
         raise PatcherError(
             "Bulk modified game folder already exists; no files were written:\n"
             + "\n".join(str(path) for path in existing)
+        )
+    # The path-length limit differs per game (folder and executable names
+    # differ), so check every planned output before publishing any: a later
+    # game failing it must not leave an earlier one already written.
+    for build, source, _patched, _applied, _output_folder, _output in plans:
+        checked = _attach_automatic_companions(build.id, selected_by_game.get(build.id, []))
+        _require_patcher_files_path_fits(
+            output_folder_for(source, build, patch_mode, checked, output_root),
+            checked,
+            _output_name(build, patch_mode, checked),
+            source.parent,
         )
     # All paths are preflighted above before any write.  Delegate each actual
     # publication to the same destination-local atomic transaction used by a
