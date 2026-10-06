@@ -376,11 +376,11 @@ class BabiesStillOwedTakeRecords(unittest.TestCase):
 
     def test_a_new_home_island_event_leaves_room_for_the_babies(self):
         for mode in MODES:
-            # 250 occupied, among them one mother of triplets and one of a single baby
-            # who is the Golden Child's mother: 3 + 1 + 1 owed.  250 + 5 = 255: one free.
-            m = Machine("vv1", mode, 250, corpses=10)
+            # 251 occupied, among them a mother of triplets and one of a single baby:
+            # 3 + 1 owed.  251 + 4 = 255: one free.
+            m = Machine("vv1", mode, 251, corpses=10)
             carry(m, 0, litter=3)
-            carry(m, 2, litter=0, golden=True)
+            carry(m, 2, litter=0)
             where = m.run(0x456680, {VV1Guards.CREATE: "created"}, {UC_X86_REG_ECX: ARRAY},
                           stack=(SENTINEL, 1, 2, 3, 4, 5))
             self.assertEqual(where, "created", mode)
@@ -389,12 +389,30 @@ class BabiesStillOwedTakeRecords(unittest.TestCase):
                           stack=(SENTINEL, 1, 2, 3, 4, 5))
             self.assertEqual(where, "returned", mode)
 
-    def test_a_dead_mother_is_owed_nothing(self):
+    def test_a_new_home_puzzle_and_face_count_the_babies_too(self):
         for mode in MODES:
-            m = Machine("vv1", mode, 255, corpses=10)
+            m = Machine("vv1", mode, 253, corpses=3)
+            carry(m, 0, litter=2)            # 253 + 2 = 255: the puzzle fires
+            mom = 3 * 0x3D8
+            where = m.run(0x42427B, {0x424286: "puzzle", 0x4243AC: "not ready"},
+                          {UC_X86_REG_ECX: ARRAY, UC_X86_REG_EDI: mom, UC_X86_REG_EBP: 3})
+            self.assertEqual(where, "puzzle", mode)
+            m = Machine("vv1", mode, 253, corpses=3)
+            carry(m, 0, litter=3)            # 253 + 3 = 256: not ready, nothing spent
+            where = m.run(0x42427B, {0x424286: "puzzle", 0x4243AC: "not ready"},
+                          {UC_X86_REG_ECX: ARRAY, UC_X86_REG_EDI: mom, UC_X86_REG_EBP: 3})
+            self.assertEqual(where, "not ready", mode)
+            m.uc.mem_write(VV1Guards.ROOM, bytes([0xB0, 1, 0xC3]))
+            m.run(0x419700, {0x419705: "back"}, {UC_X86_REG_ECX: ARRAY})
+            self.assertEqual(m.reg(UC_X86_REG_EAX) & 0xFF, 0, "the Mysterious Face: no record left")
+
+    def test_the_lost_children_owes_a_dead_mother_nothing(self):
+        for mode in MODES:
+            m = Machine("vv2", mode, 255, corpses=12)
+            m.uc.mem_write(OBJ + 0x50A4, struct.pack("<I", WORLD))
             carry(m, 0, litter=3)
-            m.uc.mem_write(ARRAY + 0x344, struct.pack("<i", 0))
-            where = m.run(0x456680, {VV1Guards.CREATE: "created"}, {UC_X86_REG_ECX: ARRAY},
+            m.uc.mem_write(ARRAY + 0x52C, struct.pack("<i", 0))
+            where = m.run(0x473D00, {VV2Guards.EVENT: "created"}, {UC_X86_REG_EBP: OBJ, UC_X86_REG_ECX: ARRAY},
                           stack=(SENTINEL, 1, 2, 3, 4, 5))
             self.assertEqual(where, "created", mode)
 

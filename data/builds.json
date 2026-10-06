@@ -109,7 +109,7 @@
         {
           "offset": "0x2427B",
           "before": "C7843994030000C7000000",
-          "after": "E8C02503000F8526010000",
+          "after": "E8B82503000F8526010000",
           "purpose": "the Golden Child puzzle fires only when a record is free: otherwise the drop is answered as when the puzzle is not ready (0x4243AC), and nothing is spent -- the latch, the hour and the pregnancy are kept"
         },
         {
@@ -121,44 +121,38 @@
         {
           "offset": "0x56580",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8DB0200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
+          "after": "E8CA0200008B94395C03000085D274014A01D0C3E8E7FFFFFF3DFE0000007706E9AB5DFEFF005883C414E91F8BFDFF",
           "purpose": "a delivery's record demand: the occupied records plus the extra babies of the mother's litter (+0x35C: 2 twins, 3 triplets); the golden-child mother's delivery only when her two children and the litter fit, else it waits with the pregnancy kept (the arguments dropped, the tick goes on at 0x42F0CE); the creator returns to 0x42EF64 as in the stock game"
         },
         {
           "offset": "0x565B0",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C0740AE82C01000084E40F94C0C3",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8CBFFFFFF3DFF00000077EAE98F5DFEFF00000051E8D63BFEFF5984C0740CE87B02000001D084E40F94C0C3",
           "purpose": "any other delivery only when its child and the litter fit, else it waits; the creator returns to 0x42EFD5 as in the stock game. Then the Mysterious Face's room question: the game's room predicate, and a free record"
         },
         {
           "offset": "0x565E0",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "89F9E8190100008B5424048D4410FF3D01010000730689965C030000C20400",
-          "purpose": "twins or triplets at conception only when the records taken or owed (her own one baby already counted) plus the rest of the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
+          "after": "89F9E86802000001D08B54240401D03D02010000730689965C030000C20400",
+          "purpose": "twins or triplets at conception only when the occupied records and the babies still owed (her own one baby already counted) plus the rest of the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x56680",
-          "before": "0000000000000000000000000000000000000000",
-          "after": "E87B00000084E47505E9C25CFEFF83C8FFC21400",
+          "before": "00000000000000000000000000000000000000000000",
+          "after": "E8CA01000001D084E47505E9C05CFEFF83C8FFC21400",
           "purpose": "an island event's child only when a record is free after the babies still owed: the creator with the caller's own return address, else -1 (the callers ignore the index)"
         },
         {
-          "offset": "0x56700",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5657E85901000089CEBF00010000807E2800742C83BE44030000007E2383BE5803000000741A8B965C03000085D275014201D081BE94030000C700000075014081C6D80300004F75C55F5EC3",
-          "purpose": "the records taken or owed: the occupied records (corpses included) plus, for every living villager carrying, her litter (one baby at least) and a Golden Child mother's extra record -- the newcomers', the litters' and the puzzle's own check (Codex, #543)"
+          "offset": "0x56838",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "E81200000001D084E4750BC7843994030000C7000000C3",
+          "purpose": "the Golden Child puzzle's check: a record free after the babies still owed, and the puzzle's first write (the mother's +0x394 = 0xC7) only then -- ZF tells the drop handler which"
         },
         {
-          "offset": "0x56840",
-          "before": "000000000000000000000000000000000000000000",
-          "after": "E8BBFEFFFF84E4750BC7843994030000C7000000C3",
-          "purpose": "the Golden Child puzzle's check: the record count, and the puzzle's first write (the mother's +0x394 = 0xC7) only when a record is free -- ZF tells the drop handler which"
-        },
-        {
-          "offset": "0x56860",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5131C08D512831C9803A0074014081C2D80300004181F90001000072EB59C300",
-          "purpose": "boundedly count occupied VV1 record flags from the manager argument across the 256-slot pool and preserve the caller register"
+          "offset": "0x5684F",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "51568DB15803000031C031D231C9FEC580BED0FCFFFF00740D40833E007407837E040113560481C6D8030000E2E25E59C3",
+          "purpose": "the record count: the occupied records (the +0x28 byte; corpses included) in eax and the babies still owed in edx -- every occupied record carrying (+0x358) her litter (+0x35C, one baby at least) -- across the 256 records, ecx preserved (Codex, #543)"
         },
         {
           "offset": "0x28263",
@@ -341,20 +335,14 @@
         {
           "offset": "0x73C70",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8FD474E500E8050100008B5424048D4410FF3D010100007306899644050000C20400",
+          "after": "8B8FD474E500E8210300008B5424048D4410FF3D010100007306899644050000C20400",
           "purpose": "twins or triplets at conception only when the occupied records plus the litter fit in 256 (the litter is the call's argument); otherwise CF clear and the conception's own branch is taken"
         },
         {
           "offset": "0x73D00",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "518B8DA450000085C9741883B9A405030000740FE8670000005984E47506E95DB8FDFF5983C8FFC21400",
+          "after": "518B8DA450000085C9741883B9A405030000740FE8830200005984E47506E95DB8FDFF5983C8FFC21400",
           "purpose": "an island event's villager only when a record is free after the babies still owed: the event wrapper with the caller's own return address, else -1"
-        },
-        {
-          "offset": "0x73D80",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5657E8B9FEFFFF8BB1A4050300BF00010000807E3000741F83BE2C050000007E1683BE4005000000740D8B964405000085D275014201D081C68CE400004F75D25F5EC3",
-          "purpose": "the records taken or owed: the occupied records (corpses included) plus, for every living villager carrying, her litter (one baby at least) -- the newcomers' and the litters' own check (Codex, #543)"
         },
         {
           "offset": "0x73F20",
@@ -365,14 +353,20 @@
         {
           "offset": "0x73F64",
           "before": "000000000000000000000000000000000000000000000000000000000000",
-          "after": "51E8A673FDFF5984C07412518B89D474E500E805FEFFFF5984E40F94C0C3",
+          "after": "51E8A673FDFF5984C07412518B89D474E500E8210000005984E40F94C0C3",
           "purpose": "the game's room predicate, and a free record (The Silver Mirror's copy, The Savage Child's newcomer)"
         },
         {
           "offset": "0x73F84",
           "before": "000000000000000000000000000000000000000000",
-          "after": "8B8EAC500000E8F1FDFFFF84E40F94C3E9FDB6FAFF",
+          "after": "8B8EAC500000E80D00000084E40F94C3E9FDB6FAFF",
           "purpose": "The Strange Request is offered only with a free record for its stranger (stock: always offered; with every record occupied the bounded scan handed it record 255, a villager, whom both answers then take away)"
+        },
+        {
+          "offset": "0x73F9C",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5657E89DFCFFFF8BB1A4050300BF00010000807E3000741F83BE2C050000007E1683BE4005000000740D8B964405000085D275014201D081C68CE400004F75D25F5EC3",
+          "purpose": "the records taken or owed: the occupied records (corpses included) plus, for every living villager carrying, her litter (one baby at least) -- the newcomers' and the litters' own check (Codex, #543)"
         },
         {
           "offset": "0x34102",

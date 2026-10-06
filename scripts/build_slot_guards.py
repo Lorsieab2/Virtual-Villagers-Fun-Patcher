@@ -58,10 +58,17 @@ def asm(source: str, va: int) -> bytes:
 
 
 # ---- A New Home -------------------------------------------------------------
-# The record count: the existing bounded sweep at 0x456860 (unchanged): ecx =
-# the villager array, preserved; eax = how many of the 256 records are
-# occupied (corpses included); edx clobbered.
-V1_COUNT = 0x456860
+# The record count, a bounded sweep: ecx = the villager array, preserved;
+# eax = how many of the 256 records are occupied (corpses included); edx = the
+# babies still owed (Codex, #543; the owner: "pending babies count toward
+# population"): every occupied record carrying (+0x358) is owed her litter
+# (+0x35C: 0 one baby, 2 twins, 3 triplets).  A delivery adds only its own
+# mother's extra babies to eax; a newcomer, a litter or the puzzle adds edx.
+# It replaces the occupied-only sweep that was at 0x456860: A New Home's
+# .text has no other unclaimed cave (every render's claimed ranges were
+# measured), so the Golden Child puzzle's check moves into the 8 free bytes
+# before it and the sweep follows it.
+V1_COUNT = 0x45684F
 V1_CREATE = 0x43C350          # fresh creator: thiscall (array), 5 args, ret 0x14
 V1_ROOM = 0x43A1A0            # the game's room predicate: thiscall (array), al
 
@@ -72,43 +79,30 @@ V1_SINGLE = 0x4565B0          # any other delivery (one record and the litter)
 V1_FACE_ROOM = 0x4565C4       # the Mysterious Face's room question
 V1_LITTER = 0x4565E0          # twins/triplets at conception
 V1_EVENT = 0x456680           # island events' children (Barrel, crate)
-V1_GOLDEN_PUZZLE = 0x456840   # the Golden Child puzzle
-V1_OWED = 0x456700            # the occupied records plus every baby still owed (new)
+V1_GOLDEN_PUZZLE = 0x456838   # the Golden Child puzzle
 
 VV1_CODE = {
-    # The babies still owed take records too (the owner: "pending babies count
-    # toward population"; Codex, #543): every living villager who is carrying
-    # (+0x358) is owed her litter (+0x35C: 0 one baby, 2 twins, 3 triplets),
-    # and a Golden Child mother (+0x394 0xC7) one record more.  ecx = the
-    # array, preserved; eax = the records taken or owed; edx clobbered.
-    V1_OWED: f"""
+    V1_COUNT: """
+        push ecx
         push esi
-        push edi
-        call {V1_COUNT:#x}
-        mov esi, ecx
-        mov edi, 0x100
+        lea esi, [ecx + 0x358]
+        xor eax, eax
+        xor edx, edx
+        xor ecx, ecx
+        inc ch
     top:
-        cmp byte ptr [esi + 0x28], 0
+        cmp byte ptr [esi - 0x330], 0
         je next
-        cmp dword ptr [esi + 0x344], 0
-        jle next
-        cmp dword ptr [esi + 0x358], 0
-        je next
-        mov edx, dword ptr [esi + 0x35C]
-        test edx, edx
-        jnz litter
-        inc edx
-    litter:
-        add eax, edx
-        cmp dword ptr [esi + 0x394], 0xC7
-        jne next
         inc eax
+        cmp dword ptr [esi], 0
+        je next
+        cmp dword ptr [esi + 4], 1
+        adc edx, dword ptr [esi + 4]
     next:
         add esi, 0x3D8
-        dec edi
-        jnz top
-        pop edi
+        loop top
         pop esi
+        pop ecx
         ret
     """,
     V1_DEMAND: f"""
@@ -144,7 +138,8 @@ VV1_CODE = {
         pop ecx
         test al, al
         jz done
-        call {V1_OWED:#x}
+        call {V1_COUNT:#x}
+        add eax, edx
         test ah, ah
         sete al
     done:
@@ -152,17 +147,19 @@ VV1_CODE = {
     """,
     V1_LITTER: f"""
         mov ecx, edi
-        call {V1_OWED:#x}
+        call {V1_COUNT:#x}
+        add eax, edx
         mov edx, dword ptr [esp + 4]
-        lea eax, [eax + edx - 1]
-        cmp eax, 0x101
+        add eax, edx
+        cmp eax, 0x102
         jae done
         mov dword ptr [esi + 0x35C], edx
     done:
         ret 4
     """,
     V1_EVENT: f"""
-        call {V1_OWED:#x}
+        call {V1_COUNT:#x}
+        add eax, edx
         test ah, ah
         jnz full
         jmp {V1_CREATE:#x}
@@ -171,7 +168,8 @@ VV1_CODE = {
         ret 0x14
     """,
     V1_GOLDEN_PUZZLE: f"""
-        call {V1_OWED:#x}
+        call {V1_COUNT:#x}
+        add eax, edx
         test ah, ah
         jnz done
         mov dword ptr [ecx + edi + 0x394], 0xC7
@@ -191,16 +189,18 @@ VV1_CAVE_PURPOSE = {
     0x4565B0: (48, "any other delivery only when its child and the litter fit, else it waits; the creator "
                    "returns to 0x42EFD5 as in the stock game. Then the Mysterious Face's room question: "
                    "the game's room predicate, and a free record"),
-    0x4565E0: (32, "twins or triplets at conception only when the records taken or owed (her own one baby "
-                   "already counted) plus the rest of the litter fit in 256 (the litter is the call's "
-                   "argument); otherwise CF clear and the conception's own branch is taken"),
-    0x456680: (20, "an island event's child only when a record is free after the babies still owed: the "
+    0x4565E0: (32, "twins or triplets at conception only when the occupied records and the babies still "
+                   "owed (her own one baby already counted) plus the rest of the litter fit in 256 (the "
+                   "litter is the call's argument); otherwise CF clear and the conception's own branch is "
+                   "taken"),
+    0x456680: (22, "an island event's child only when a record is free after the babies still owed: the "
                    "creator with the caller's own return address, else -1 (the callers ignore the index)"),
-    0x456700: (96, "the records taken or owed: the occupied records (corpses included) plus, for every "
-                   "living villager carrying, her litter (one baby at least) and a Golden Child mother's "
-                   "extra record -- the newcomers', the litters' and the puzzle's own check (Codex, #543)"),
-    0x456840: (21, "the Golden Child puzzle's check: the record count, and the puzzle's first write (the "
-                   "mother's +0x394 = 0xC7) only when a record is free -- ZF tells the drop handler which"),
+    0x456838: (23, "the Golden Child puzzle's check: a record free after the babies still owed, and the "
+                   "puzzle's first write (the mother's +0x394 = 0xC7) only then -- ZF tells the drop handler "
+                   "which"),
+    0x45684F: (49, "the record count: the occupied records (the +0x28 byte; corpses included) in eax and "
+                   "the babies still owed in edx -- every occupied record carrying (+0x358) her litter "
+                   "(+0x35C, one baby at least) -- across the 256 records, ecx preserved (Codex, #543)"),
 }
 
 VV1_SITES = [
@@ -236,7 +236,7 @@ V2_EVENT = 0x473D00
 V2_DELIVERY = 0x473F20
 V2_ROOM_AND_RECORD = 0x473F64
 V2_STRANGER = 0x473F84
-V2_OWED = 0x473D80            # the occupied records plus every baby still owed (new)
+V2_OWED = 0x473F9C            # the occupied records plus every baby still owed (new; a free run every render leaves, 0x473F99-0x473FED)
 
 VV2_CODE = {
     V2_COUNT: f"""
@@ -367,7 +367,7 @@ VV2_CAVE_PURPOSE = {
                     "branch is taken"),
     V2_EVENT: (48, "an island event's villager only when a record is free after the babies still owed: "
                    "the event wrapper with the caller's own return address, else -1"),
-    V2_OWED: (96, "the records taken or owed: the occupied records (corpses included) plus, for every "
+    V2_OWED: (68, "the records taken or owed: the occupied records (corpses included) plus, for every "
                   "living villager carrying, her litter (one baby at least) -- the newcomers' and the "
                   "litters' own check (Codex, #543)"),
     V2_DELIVERY: (68, "a delivery only when its child and the litter's extra babies (+0x544) fit in the "
@@ -440,9 +440,9 @@ def site_entries(game: str, sites, table=None) -> list[dict]:
 # offset that is no longer generated is removed).
 OWNED = {
     "vv1": {0x2EF5F, 0x2EFD0, 0x3BC4E, 0x3BC8C, 0x56580, 0x565B0, 0x565E0, 0x56680, 0x56840,
-            0x2427B, 0x2F020, 0x2F06C, 0x19700, 0x56700},
+            0x2427B, 0x2F020, 0x2F06C, 0x19700, 0x56838, 0x5684F, 0x56860},
     "vv2": {0x3BE8E, 0x73F20, 0x4BA82, 0x73C40, 0x4BAB6, 0x73C70, 0x73D00, 0x3BEDE, 0x3BF2A, 0x217DF,
-            0x73F44, 0x73F64, 0x1F604, 0x1F6D4, 0x73F84, 0x73D80},
+            0x73F44, 0x73F64, 0x1F604, 0x1F6D4, 0x73F84, 0x73F9C},
 }
 
 
