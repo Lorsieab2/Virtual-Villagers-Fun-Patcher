@@ -1743,6 +1743,12 @@ class FastDeliveryTests(unittest.TestCase):
     again until it draws a villager the trigger accepts -- custom events
     only, all five games (native/vvfp_story_upgrades/story_fast_delivery.inc)."""
 
+    def _story(self):
+        game = next((g for g in GAMES if have_stock(g)), None)
+        if game is None:
+            self.skipTest("no stock executable")
+        return Story(game)
+
     def _pick(self, story, draws, fits, none=-1):
         buf = story.proc.alloc(8 * len(draws) + 4)
         story.proc.write(buf, struct.pack(f"<{len(draws)}i", *draws))
@@ -1765,19 +1771,19 @@ class FastDeliveryTests(unittest.TestCase):
                 self.assertNotEqual(target, stock, "the draw now goes through the wrapper")
 
     def test_it_draws_until_a_villager_fits(self):
-        story = Story(next(g for g in GAMES if have_stock(g)))
+        story = self._story()
         self.assertEqual(self._pick(story, [5, 6, 7, 8], [0, 0, 1, 0]), (7, 3))
         self.assertEqual(self._pick(story, [9], [1]), (9, 1), "a first fit is kept")
 
     def test_nobody_eligible_is_answered_at_once(self):
-        story = Story(next(g for g in GAMES if have_stock(g)))
+        story = self._story()
         self.assertEqual(self._pick(story, [-1, 3], [0, 1]), (-1, 1))
         self.assertEqual(self._pick(story, [0, 3], [0, 1], none=0), (0, 1))
 
     def test_a_village_where_nobody_fits_still_waits(self):
         """After 64 draws the last one goes back and the stock check fails,
         exactly as the game itself would."""
-        story = Story(next(g for g in GAMES if have_stock(g)))
+        story = self._story()
         self.assertEqual(self._pick(story, [4], [0]), (4, 64))
 
 
