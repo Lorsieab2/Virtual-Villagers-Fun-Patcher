@@ -361,10 +361,24 @@ Every value is checked when a dialog closes and a value the game does not
 accept is refused with its valid range. Buying the event (0 tech points)
 makes the island event due **exactly as the Island Event purchase does** -- the
 same lock as Pick Island Event: one island event, pick or custom event at a
-time, refused while one is queued. An undelivered event lapses after ten
-minutes.
+time, refused while one is queued. An undelivered Custom Island Event never
+lapses with time (the owner, 2026-10-06); it is dropped only when the village
+changes.
 
 ### Delivery
+
+**Within seconds.** Once the countdown is due, every game's event trigger runs
+every 2 seconds and draws one random villager, firing only when that villager's
+age equals its processed age; a miss just waits for the next draw, so in a
+village with many rejuvenated villagers an event could wait minutes. The drawn
+villager is never used afterwards. While a Custom Island Event is armed, the
+trigger's draw (VV1 0x4237DD, VV2 0x42EEED, VV3 0x468757, VV4 0x43FA70, VV5
+0x44272F) goes through a wrapper that asks the game's own picker again, with
+the same arguments, up to 64 times until it draws a villager the trigger
+accepts (native/vvfp_story_upgrades/story_fast_delivery.inc). With nothing
+armed it is the stock call; a village where nobody matches waits exactly as the
+stock game does. Natural island events, Pick Island Event and Pick Gong of
+Wonder Outcome are unchanged.
 
 When the game's own scheduler fires the island event (it has already
 rescheduled the next one, played its sound and counted it), the changes are
@@ -466,7 +480,7 @@ click rolls one of that button's outcomes (weighted by the chances, through the
 game's own random routine where the hook names it), makes exactly that
 outcome's changes as a plain custom event makes its own, and shows its result
 text with the usual food / tech and "no room" lines. Nothing changes before the
-click. Queueing is the plain event's: the same lock, the same ten-minute lapse,
+click. Queueing is the plain event's: the same lock, no lapse with time,
 bound to the save slot and the Start Over / delete generation; an answer in a
 village other than the one the question was asked in changes nothing.
 
@@ -516,7 +530,7 @@ print); The Secret City, The Tree of Life and New Believers size it from the
 question and both buttons' tallest results. In A New Home and The Lost
 Children the result repeats the title (the result replaces the whole text);
 in the other three the title stays above it. Their two-choice popup is never
-shown without a villager, so a question waits (and lapses) while nobody living
+shown without a villager, so a question waits while nobody living
 can be shown (A New Home and The Lost Children then show it without a
 picture). A New Home's and The Lost Children's first island event is always their
 two-choice family, so a question may be that event (a plain one may not).
