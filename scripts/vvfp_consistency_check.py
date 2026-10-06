@@ -1632,10 +1632,66 @@ NAME_LISTS = {
 }
 
 
+# Each game's third list: 50 last names, the family's (name number family - 1), which the game
+# itself never reads; Villagers Have Last Names (native/vvfp_last_names) appends one to a new
+# villager's first name.  tests/test_log_tools.py compares them with the stock executables.
+LAST_NAMES = {
+    1: (
+        "Akikai", "Alosaka", "Awanata", "Bahati", "Bandele", "Chinaka", "Chuchip", "Guedado",
+        "Halima", "Helaku", "Jafari", "Jumapili", "Kaikala", "Kawanga", "Kalama", "Kenobi",
+        "Kantigi", "Kekipi", "Kereteki", "Kimomi", "Kotori", "Mahuru", "Makawee", "Mashudu",
+        "Matareka", "Murago", "Okelani", "Pamuya", "Pauwau", "Peponi", "Powaka", "Runako",
+        "Sakura", "Salongo", "Shartati", "Shukura", "Sirikit", "Siutiti", "Tamikai", "Tangaroa",
+        "Taranga", "Tasunke", "Tawonga", "Temitope", "Tokidoki", "Uzumati", "Wakanda", "Wambui",
+        "Wanjiko", "Wikimak",
+    ),
+    2: (
+        "Akikai", "Alosaka", "Awanata", "Bahati", "Bandele", "Chinaka", "Chuchip", "Guedado",
+        "Halima", "Helaku", "Jafari", "Jumapili", "Kaikala", "Kawanga", "Kalama", "Kenobi",
+        "Kantigi", "Kekipi", "Kereteki", "Kimomi", "Kotori", "Mahuru", "Makawee", "Mashudu",
+        "Matareka", "Murago", "Okelani", "Pamuya", "Pauwau", "Peponi", "Powaka", "Runako",
+        "Sakura", "Salongo", "Shartati", "Shukura", "Sirikit", "Siutiti", "Tamikai", "Tangaroa",
+        "Taranga", "Tasunke", "Tawonga", "Temitope", "Tokidoki", "Uzumati", "Wakanda", "Wambui",
+        "Wanjiko", "Wikimak",
+    ),
+    3: (
+        "Akikai", "Alosaka", "Awanata", "Bahati", "Bandele", "Chinaka", "Chuchip", "Guedado",
+        "Halima", "Helaku", "Jafari", "Jumapili", "Kaikala", "Kawanga", "Kalama", "Kenobi",
+        "Kantigi", "Kekipi", "Kereteki", "Kimomi", "Kotori", "Mahuru", "Makawee", "Mashudu",
+        "Matareka", "Murago", "Okelani", "Pamuya", "Pauwau", "Peponi", "Powaka", "Runako",
+        "Sakura", "Salongo", "Shartati", "Shukura", "Sirikit", "Siutiti", "Tamikai", "Tangaroa",
+        "Taranga", "Tasunke", "Tawonga", "Temitope", "Tokidoki", "Uzumati", "Wakanda", "Wambui",
+        "Wanjiko", "Wikimak",
+    ),
+    4: (
+        "Akikai", "Alosaka", "Awanata", "Bahati", "Bandele", "Chinaka", "Chuchip", "Guedado",
+        "Halima", "Helaku", "Jafari", "Jumapili", "Kaikala", "Kawanga", "Kalama", "Kenobi",
+        "Kantigi", "Kekipi", "Kereteki", "Kimomi", "Kotori", "Mahuru", "Makawee", "Mashudu",
+        "Matareka", "Murago", "Okelani", "Pamuya", "Pauwau", "Peponi", "Powaka", "Runako",
+        "Sakura", "Salongo", "Shartati", "Shukura", "Sirikit", "Siutiti", "Tamikai", "Tangaroa",
+        "Taranga", "Tasunke", "Tawonga", "Temitope", "Tokidoki", "Uzumati", "Wakanda", "Wambui",
+        "Wanjiko", "Wikimak",
+    ),
+    5: (
+        "Akikai", "Alosaka", "Awanata", "Bahati", "Bandele", "Chinaka", "Chuchip", "Guedado",
+        "Halima", "Helaku", "Jafari", "Jumapili", "Kaikala", "Kawanga", "Kalama", "Kenobi",
+        "Kantigi", "Kekipi", "Kereteki", "Kimomi", "Kotori", "Mahuru", "Makawee", "Mashudu",
+        "Matareka", "Murago", "Okelani", "Pamuya", "Pauwau", "Peponi", "Powaka", "Runako",
+        "Sakura", "Salongo", "Shartati", "Shukura", "Sirikit", "Siutiti", "Tamikai", "Tangaroa",
+        "Taranga", "Tasunke", "Tawonga", "Temitope", "Tokidoki", "Uzumati", "Wakanda", "Wambui",
+        "Wanjiko", "Wikimak",
+    ),
+}
+
+
 
 def name_list_sex(game: int, name: str) -> str | None:
-    """"Male" or "Female" when the name is a default name of only one sex in the game's own lists."""
+    """"Male" or "Female" when the name is a default name of only one sex in the game's own lists.
+    A name the game gave with its family's last name ("Ago Akikai") is looked up by its first name."""
     male, female = (set(filter(None, "".join(part).split(","))) for part in NAME_LISTS[game])
+    first, _, last = name.partition(" ")
+    if last in LAST_NAMES[game]:
+        name = first
     if name in male and name not in female:
         return "Male"
     if name in female and name not in male:

@@ -413,6 +413,18 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Villagers Have Last Names (`vv1_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. The Golden Child, whose family is not one of the 50, gets no last name. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X481BA0), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 27 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Visual Mods (`vv1_visual_mods`)
 
 Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
@@ -751,6 +763,18 @@ Rewords the loading-screen tip "You can zip around the island with your keypad."
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Villagers Have Last Names (`vv2_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X48FB98), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv2_everyone_collects_like_vv1`)
 
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
@@ -1026,6 +1050,18 @@ The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still ga
 - Appends 4096 bytes as 1 new PE section -- `.vv3lc` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
+#### Villagers Have Last Names (`vv3_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X49DFF8), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv3_everyone_collects_like_vv1`)
 
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
@@ -1249,6 +1285,18 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Villagers Have Last Names (`vv4_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4AA930), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv4_everyone_collects_like_vv1`)
 
@@ -1533,6 +1581,18 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Villagers Have Last Names (`vv5_last_names`)
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A villager named by the game from now on is called "<first name> <last name>": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4B8450), read from the running executable. A villager whose family is outside 1-50 gets no last name. The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs. Villagers who already have names keep them; nothing is renamed when a village is loaded. The first names, sexes, looks and families are the game's own; the save format is unchanged.
+- Dependencies: none
+- Evidence status: static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv5_everyone_collects_like_vv1`)
 

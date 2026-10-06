@@ -44,6 +44,9 @@ FILES = [
     "assets/work_first/VVFP Work First.dll",
     "assets/golden_mushroom/VVFP Golden Mushroom.dll",
     "assets/golden_mushroom/golden_mushroom.png",
+    # Villagers Have Last Names: one companion for all five games, started by
+    # VVFP Startup.dll; no executable bytes.
+    "assets/last_names/VVFP Last Names.dll",
     # Story / Cheat Upgrades: one companion for all five games, loaded by each
     # game's Origins companion; no executable bytes.
     "assets/story_upgrades/VVFP Story Upgrades.dll",

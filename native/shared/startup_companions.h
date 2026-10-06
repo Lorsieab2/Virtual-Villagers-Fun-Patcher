@@ -39,6 +39,7 @@ static const char *const VVFP_STARTUP_COMPANIONS[] = {
     "VVFP VV1 Sort By.dll",
     "VVFP VV1 Watering Builds.dll",
     "VVFP Golden Mushroom.dll",
+    "VVFP Last Names.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT \

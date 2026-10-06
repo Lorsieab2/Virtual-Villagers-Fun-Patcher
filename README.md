@@ -272,6 +272,12 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 
 - Patch ID: `vv1_super_secret_golden_mushroom`
 
+**Villagers Have Last Names**
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. The Golden Child, whose family is not one of the 50, gets no last name. **Needs no other patch.**
+
+- Patch ID: `vv1_last_names`
+
 **Faster Village-Scrolling**
 
 Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
@@ -419,6 +425,12 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 
 - Patch ID: `vv2_super_secret_golden_mushroom`
 
+**Villagers Have Last Names**
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+- Patch ID: `vv2_last_names`
+
 **Faster Village-Scrolling**
 
 Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
@@ -555,6 +567,12 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 
 - Patch ID: `vv3_super_secret_golden_mushroom`
 
+**Villagers Have Last Names**
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+- Patch ID: `vv3_last_names`
+
 **Fix Vanilla Bugs**
 
 Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the "flash of scientific insight" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**
@@ -654,6 +672,12 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
 
 - Patch ID: `vv4_super_secret_golden_mushroom`
+
+**Villagers Have Last Names**
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+- Patch ID: `vv4_last_names`
 
 **Manual Drop-Breeding overrides Birth Control**
 
@@ -796,6 +820,12 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
 
 - Patch ID: `vv5_super_secret_golden_mushroom`
+
+**Villagers Have Last Names**
+
+Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**
+
+- Patch ID: `vv5_last_names`
 
 **Manual Drop-Breeding overrides Birth Control**
 

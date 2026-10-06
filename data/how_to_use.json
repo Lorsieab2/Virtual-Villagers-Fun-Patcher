@@ -288,6 +288,14 @@
       ]
     },
     {
+      "ids": ["vv1_last_names", "vv2_last_names", "vv3_last_names", "vv4_last_names", "vv5_last_names"],
+      "guide": [
+        "New villagers get a last name after their first name, from a list of 50 the game has always had but never used.",
+        "The last name comes from the villager's family, so children share their mother's last name.",
+        "Villagers who already have names keep them. Nothing to click: tick it, patch, and play."
+      ]
+    },
+    {
       "ids": ["vv1_origins_village_wide_upgrades", "vv2_origins_village_wide_upgrades", "vv3_origins_village_wide_upgrades", "vv4_origins_village_wide_upgrades"],
       "guide": [
         "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",

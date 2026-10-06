@@ -862,6 +862,27 @@ class SexLinesTests(FolderTest):
                 self.assertIn(female, lists)
                 self.assertEqual(lists.index(female), lists.index(male) + 1, "male first, then female")
 
+    def test_the_last_names_are_each_games_own_and_a_last_name_keeps_the_sex(self):
+        """Villagers Have Last Names: "Ago Akikai" is sexed by "Ago"; a name whose last word is
+        not one of the game's last names is looked up whole, as before."""
+        stock = ROOT / "research" / "stock-executables"
+        exes = {1: "Virtual Villagers - A New Home.exe", 2: "Virtual Villagers - The Lost Children.exe",
+                3: "Virtual Villagers - The Secret City.exe", 4: "Virtual Villagers - The Tree of Life.exe",
+                5: "Virtual Villagers - New Believers.exe"}
+        checker = tools.load_checker()
+        if stock.is_dir():
+            for game, exe in exes.items():
+                with self.subTest(game=game, source="exe"):
+                    self.assertIn((",".join(checker.LAST_NAMES[game]) + ",").encode(), (stock / exe).read_bytes())
+        for game in exes:
+            male, female = (list(filter(None, "".join(part).split(","))) for part in checker.NAME_LISTS[game])
+            last = checker.LAST_NAMES[game]
+            with self.subTest(game=game):
+                self.assertEqual(len(last), 50)
+                self.assertEqual(checker.name_list_sex(game, f"{male[3]} {last[0]}"), "Male")
+                self.assertEqual(checker.name_list_sex(game, f"{female[3]} {last[49]}"), "Female")
+                self.assertIsNone(checker.name_list_sex(game, f"{male[3]} Smith"))
+
 
 if __name__ == "__main__":
     unittest.main()

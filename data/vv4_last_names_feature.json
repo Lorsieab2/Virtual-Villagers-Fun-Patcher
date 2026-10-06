@@ -1,0 +1,37 @@
+{
+  "id": "vv4_last_names",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Villagers Have Last Names",
+  "description": "Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**",
+  "output_tag": "Last Names",
+  "behavior_changes": [
+    "A villager named by the game from now on is called \"<first name> <last name>\": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4AA930), read from the running executable.",
+    "A villager whose family is outside 1-50 gets no last name.",
+    "The whole name always fits the game's own name field: the longest pairing is far below its 23 characters."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs.",
+    "Villagers who already have names keep them; nothing is renamed when a village is loaded.",
+    "The first names, sexes, looks and families are the game's own; the save format is unchanged."
+  ],
+  "evidence_status": "static exact-build verification of the naming routines, their callers and the unused list in each executable; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/last_names/VVFP Last Names.dll",
+      "destination": "VVFP Last Names.dll",
+      "sha256": "472C4F805047452DE3EF9A137DFD62FA90FC142F0A3859AC9B0265098DFF8C30"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x465DA0",
+      "stock_bytes": "81EC9C090000",
+      "routine": "the villager naming routine (thiscall villager, family)",
+      "installed_by": "VVFP Last Names.dll, VvfpStartup"
+    }
+  ],
+  "patches": []
+}
