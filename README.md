@@ -1158,7 +1158,8 @@ records themselves, and nothing is spent when there is none:
   of Reflections are offered only with room. The Crystal checks before it
   changes anyone's likes.
 - New Believers' Reanimate is refused, with nothing spent, when no record is
-  free. The original game crashed.
+  free, and the gray message bar says "There's no room in your village to
+  revive this person." The original game crashed.
 - Twins and triplets at conception follow the free records. Earlier patcher
   builds read A New Home's lifetime Babies Made count here, so a village that
   had made 256 babies never had twins again.

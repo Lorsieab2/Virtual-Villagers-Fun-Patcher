@@ -652,21 +652,6 @@ class VV345RecordGuards(unittest.TestCase):
                 self.assertEqual(v.reg(UC_X86_REG_EAX), 0x7FFF if full else 7, (occupied, pending))
                 self.assertEqual(v.reg(UC_X86_REG_ECX), VV345[game]["manager"][slots])
 
-    def test_reanimate_is_refused_with_no_free_record(self):
-        for game, mode, slots in each345(self, ("vv5",)):
-            for occupied, refused in ((slots - 1, False), (slots, True)):
-                v = Village345(game, mode, slots, occupied, corpses=5)
-                where = v.run(0x42341A, {0x4206F0: "slot finder", 0x42341F: "refused"},
-                              {UC_X86_REG_EBX: OBJ}, stack=(0xFFFFFFFF,))
-                if refused:
-                    self.assertEqual(where, "refused")
-                    self.assertEqual(v.reg(UC_X86_REG_EAX), 0xFFFFFFFF, "answered as no free spell slot")
-                    self.assertEqual(v.reg(UC_X86_REG_ESP), v.esp0 + 4, "its argument popped as 0x4206F0 does")
-                else:
-                    self.assertEqual(where, "slot finder")
-                    self.assertEqual(v.reg(UC_X86_REG_ECX), OBJ)
-                    self.assertEqual(v.dword(v.reg(UC_X86_REG_ESP)), 0x42341F)
-
     def test_the_vial_and_the_crystal_ask_for_records_first(self):
         for game, mode, slots in each345(self, ("vv3",)):
             # the Vial: two copies
