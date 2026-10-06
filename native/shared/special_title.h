@@ -48,10 +48,20 @@ static int vv_title_count_at_least(const unsigned char *r, unsigned int at, int 
 
 /* New Believers' puzzle progress 0x10 (0x43AE80), read only when both words
    are readable; 0 otherwise (no Retired Chief claimed). */
+static int vv_title_readable(const void *at) {
+    MEMORY_BASIC_INFORMATION info;
+    if (VirtualQuery(at, &info, sizeof info) != sizeof info || info.State != MEM_COMMIT
+        || (info.Protect & (PAGE_GUARD | PAGE_NOACCESS)) != 0) {
+        return 0;
+    }
+    return (const unsigned char *)at + sizeof(int)
+           <= (const unsigned char *)info.BaseAddress + info.RegionSize;
+}
+
 static int vv_title_vv5_retired_gate(void) {
     const int *done = (const int *)(uintptr_t)(0x51E008u + 0x10u * 8u);
     const int *need = (const int *)(uintptr_t)(0x51DF30u + 0x10u * 4u);
-    if (IsBadReadPtr(done, sizeof *done) || IsBadReadPtr(need, sizeof *need)) {
+    if (!vv_title_readable(done) || !vv_title_readable(need)) {
         return 0;
     }
     return *done >= *need;

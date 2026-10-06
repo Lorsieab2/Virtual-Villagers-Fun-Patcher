@@ -21,7 +21,7 @@ KEEP = -1000000
 LAYOUTS = {
     "vv1": dict(n=1, stride=0x3D8, count=256, active=0x28, health=0x344, age=0x348, processed=0x34C,
                 sex=(0x350, 1, 2), name=0x370, name_cap=0x1C, head=0x360, body=0x364, likes=0x398,
-                dislikes=0x3A8, slots=4, prefs=46, skills=0x3BC, skill_count=5, floats=False,
+                dislikes=0x3A8, slots=4, prefs=47, skills=0x3BC, skill_count=5, floats=False,
                 pregnant=0x358, litter=0x35C, sick=(0x354, 4), heads=20, bodies=20, adult=280,
                 carrier=360),
     "vv2": dict(n=2, stride=0xE48C, count=256, active=0x30, health=0x52C, age=0x530, processed=0x534,

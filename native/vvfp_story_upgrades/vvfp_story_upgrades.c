@@ -647,23 +647,23 @@ static story_detour vv2_custom_detours[] = {
 static story_detour vv3_detours[] = {
     { VV3_PICK_SITE, 7, VV3_PICK_SITE_BYTES, 0, (void *)vv3_stub },
     { 0x468FC8u, 6, VV3_TITLE_SITE_BYTES, 0, (void *)c3_title_stub },
+    { 0x468757u, 5, VV3_EVENT_PICK_BYTES, 1, (void *)c3_event_pick },
     { 0x419A29u, 12, VV3_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv3_choice_stub },
     { 0x419A41u, 5, VV3_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv3_simple_stub },
-    { 0x468757u, 5, VV3_EVENT_PICK_BYTES, 1, (void *)c3_event_pick },
 };
 static story_detour vv4_detours[] = {
     { VV4_PICK_SITE, 7, VV4_PICK_SITE_BYTES, 0, (void *)vv4_stub },
     { 0x4404D9u, 5, VV4_TITLE_SITE_BYTES, 0, (void *)c4_title_stub },
+    { 0x43FA70u, 5, VV4_EVENT_PICK_BYTES, 1, (void *)c4_event_pick },
     { 0x417EC9u, 16, VV4_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv4_choice_stub },
     { 0x417EE5u, 9, VV4_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv4_simple_stub },
-    { 0x43FA70u, 5, VV4_EVENT_PICK_BYTES, 1, (void *)c4_event_pick },
 };
 static story_detour vv5_detours[] = {
     { VV5_PICK_SITE, 7, VV5_PICK_SITE_BYTES, 0, (void *)vv5_stub },
     { 0x44319Eu, 6, VV5_TITLE_SITE_BYTES, 0, (void *)c5_title_stub },
+    { 0x44272Fu, 5, VV5_EVENT_PICK_BYTES, 1, (void *)c5_event_pick },
     { 0x418749u, 16, VV5_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv5_choice_stub },
     { 0x418765u, 9, VV5_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv5_simple_stub },
-    { 0x44272Fu, 5, VV5_EVENT_PICK_BYTES, 1, (void *)c5_event_pick },
 };
 
 static const story_game GAMES[6] = {
