@@ -345,7 +345,14 @@ Event on the Origins Tech menu. Its plain Windows dialogs:
   Females**, **All Males**, **All Children** ("adult" is each game's own
   boundary, 14 years). Toggles and picks combine; a villager matched more than
   once counts once; changes added for a villager twice are merged (the later
-  value wins), so changes can be set per villager.
+  value wins), so changes can be set per villager. New Believers adds seven
+  more toggles: **All Heathens**, **All Blue Heathens**, **All Red Heathens**,
+  **All Orange Heathens**, **All Purple Heathens**, **All Chief Heathens** and
+  **All Heathen Mommies** (the type the game's mask draw 0x4728C6 shows).
+  Each villager's row names the role the game keeps for them, read live as the
+  list opens: Golden Child (A New Home), Esteemed Elder and their totem (The
+  Lost Children), Tribal Chief (The Secret City), Believer, Retired Chief or
+  Heathen type (New Believers). The Tree of Life keeps no such role.
 * **New villagers**: how many, sex, age, name, head and body, likes and
   dislikes, skills, custom title, mask.
 * **Parents**: the parentage data of the chosen villagers.

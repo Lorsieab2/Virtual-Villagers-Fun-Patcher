@@ -606,6 +606,15 @@ static int c3_rand_below(int n) {
     return ((c3_rand_fn)(uintptr_t)0x4032D0u)(n);
 }
 
+/* What the game makes of a villager: the Tribal Chief (+0xE80, set by the
+   robing 0x45FBC0; the chief search 0x45EF30 tests it). */
+static int c3_role(const unsigned char *r, const char **words) {
+    if (r[0xE80] != 0) {
+        *words = "Tribal Chief";
+        return STORY_KIND_TRIBAL_CHIEF;
+    }
+    return STORY_KIND_NONE;
+}
 static const ce_adapter C3_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
@@ -655,7 +664,7 @@ static const ce_adapter C3_ADAPTER = {
        one, 11 lines for the tallest of the question and the results (the
        tallest stock two-choice text; the popup also shows the villager);
        the title stays above the result; labels of 32 characters. */
-    48, 11, 48, 11, 0, 32, c3_rand_below, NULL
+    48, 11, 48, 11, 0, 32, c3_rand_below, NULL, c3_role
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

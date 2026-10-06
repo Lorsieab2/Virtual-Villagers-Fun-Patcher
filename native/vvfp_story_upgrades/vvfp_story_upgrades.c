@@ -1096,6 +1096,25 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeTargets(int game, const unsign
     return story_resolve_targets(roster, n, picked, toggles, a->adult_age, out, cap);
 }
 
+/* The list's role for record `index`: its STORY_KIND_*, the label copied to
+   `words` ("" for none). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeRole(int game, int index, char *words, int size) {
+    const ce_adapter *a = ce_adapter_for(game);
+    const unsigned char *record;
+    const char *said = NULL;
+    int kind;
+    int i = 0;
+    if (a == NULL || size < 1 || (record = a->record(index)) == NULL) {
+        return -1;
+    }
+    kind = ce_role(a, record, &said);
+    for (; said != NULL && said[i] != '\0' && i < size - 1; ++i) {
+        words[i] = said[i];
+    }
+    words[i] = '\0';
+    return kind;
+}
+
 /* The dialog's merge of one villager's changes into an event. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeMerge(ce_event *event, const ce_change *change,
                                                         int index, unsigned int fingerprint) {

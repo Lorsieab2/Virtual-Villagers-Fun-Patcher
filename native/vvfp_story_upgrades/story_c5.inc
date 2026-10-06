@@ -719,6 +719,37 @@ static int c5_believer(const unsigned char *r) {
     return !c5_heathen(r);
 }
 
+/* What the game makes of a villager: a believer (role +0x1CFC 13: the
+   Retired Chief) or a Heathen (+0x1CEC) of the type the game's mask draw
+   0x4728C6 shows: role 12 and 14-16 purple, 13 the Heathen Chief, otherwise
+   orange +0x1CED, red +0x1CEE or blue; role 17 is the Heathen Mommy. */
+static int c5_role(const unsigned char *r, const char **words) {
+    int role = *(const int *)(r + 0x1CFC);
+    int kind;
+    if (!c5_heathen(r)) {
+        kind = role == 0xD ? STORY_KIND_RETIRED_CHIEF : STORY_KIND_BELIEVER;
+    } else if (role == 0xD) {
+        kind = STORY_KIND_HEATHEN_CHIEF;
+    } else if (role >= 0xC && role <= 0x10) {
+        kind = STORY_KIND_HEATHEN_PURPLE;
+    } else if (role == 0x11) {
+        kind = STORY_KIND_HEATHEN_MOMMY;
+    } else {
+        kind = r[0x1CED] != 0 ? STORY_KIND_HEATHEN_ORANGE
+             : r[0x1CEE] != 0 ? STORY_KIND_HEATHEN_RED : STORY_KIND_HEATHEN_BLUE;
+    }
+    switch (kind) {
+    case STORY_KIND_BELIEVER: *words = "Believer"; break;
+    case STORY_KIND_RETIRED_CHIEF: *words = "Believer, Retired Chief"; break;
+    case STORY_KIND_HEATHEN_CHIEF: *words = "Heathen Chief"; break;
+    case STORY_KIND_HEATHEN_PURPLE: *words = "Heathen, purple"; break;
+    case STORY_KIND_HEATHEN_MOMMY: *words = "Heathen Mommy"; break;
+    case STORY_KIND_HEATHEN_ORANGE: *words = "Heathen, orange"; break;
+    case STORY_KIND_HEATHEN_RED: *words = "Heathen, red"; break;
+    default: *words = "Heathen, blue"; break;
+    }
+    return kind;
+}
 static const ce_adapter C5_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT | CAP_PREFS
         | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
@@ -772,7 +803,7 @@ static const ce_adapter C5_ADAPTER = {
        question and 17 for a result (the tallest stock question and result:
        Innovation in Farming's), the title above the result, labels of 38
        characters (the longest stock). */
-    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer
+    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer, c5_role
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

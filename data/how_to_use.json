@@ -486,6 +486,8 @@
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
         "Adds Pick Island Event: choose an island event from a list, and how it turns out if you like.",
         "Adds Custom Island Event: write your own event with its title, text, food, tech points, new villagers and more.",
+        "Its villager list shows each villager's special role: the Golden Child, the Tribal Chief, or Believer and Heathen type.",
+        "In New Believers it also has All Heathens and one button for each Heathen type: blue, red, orange, purple, Chief and Heathen Mommy.",
         "Find both in the Origins Upgrades menus.",
         "Watch out: it skips the game's normal progress. Off by default.",
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
@@ -496,6 +498,7 @@
       "guide": [
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
         "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own).",
+        "Its villager list shows each Esteemed Elder and the totem they have.",
         "Adds Pick Gong of Wonder Outcome: choose what the next ring of the Gong does.",
         "Find them in the Origins Upgrades menus.",
         "Watch out: it skips the game's normal progress. Off by default.",
