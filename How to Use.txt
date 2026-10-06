@@ -658,17 +658,19 @@ recoded in its own bytes (no space is added);
 the action, its text, its sound and its length are as before. Nothing is
 saved: it is purely where the child walks.
 
-DEVOTED SOUL EPITAPH (NEW BELIEVERS)
+CHARITABLE SOUL EPITAPH (NEW BELIEVERS)
 
 When a villager is buried, New Believers writes an epitaph on the grave
 from their job (the grave's job is their highest skill). Every job already
-gets one of two epitaphs on a coin flip, except the Devotee, who was always
-"Respected Citizen". With this patch a buried Devotee gets "Respected
-Citizen" or "Devoted Soul" with equal chances. Nobody else changes: an adult
-with no skill keeps "Respected Citizen", and children, villagers with three
-or more master skills and every other job keep their own epitaphs. The
-epitaph is kept in the grave like any other, so it is saved, you can still
-edit it, and the Deaths log records it.
+gets one of two epitaphs on a coin flip, except the Devotee, who always got
+the game's usual epitaph: "Respected Citizen", or "Respected Devotee" with
+Guardians of Isola Rewrite. With this patch a buried Devotee gets the usual
+epitaph or "Charitable Soul" with equal chances. Nobody else changes: an
+adult with no skill keeps the usual epitaph, and children, villagers with
+three or more master skills and every other job keep their own epitaphs.
+The epitaph is kept in the grave like any other, so it is saved, you can
+still edit it, and the Deaths log records it. Graves that earlier versions
+of this patch wrote as "Devoted Soul" keep that epitaph.
 
 SORT BY AGE/SKILL/HEALTH IN DETAILS SCREEN (A NEW HOME)
 
