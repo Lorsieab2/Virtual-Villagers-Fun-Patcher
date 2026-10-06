@@ -476,6 +476,50 @@ static void follow_cases(void) {
     check(g_loaded_slot == SLOT && has_parents(0, 0) && has_parents(1, 0),
           "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)");
 
+    /* 18b. The owner's two Sukis (2026-10-06): one name, gender and family
+           scalar, different looks.  Three villagers before them died and
+           the array was repacked; the follow dropped both Sukis' parents.
+           Their looks, recorded in the roster, tell them apart: each keeps
+           her own parents.  Identical looks are still never guessed at. */
+    DeleteFileA(path);
+    fresh();
+    memset(before_load, 0, sizeof(before_load));
+    put(before_load, 0, "Gone", 1, 7);
+    put(before_load, 1, "Gone2", 0, 8);
+    put(before_load, 2, "Suki", 0, 50);
+    put(before_load, 3, "Suki", 0, 50);
+    put(before_load, 4, "Keep", 1, 9);
+    put(before_load, 5, "Stay", 0, 11);
+    put(before_load, 6, "Ann", 0, 12);
+    put(before_load, 7, "Bo", 1, 13);
+    *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 1;
+    *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+    *(int *)(before_load + 3 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 14;
+    *(int *)(before_load + 3 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 17;
+    vv1_take_roster(before_load, g_roster);
+    set_parents(2, 1);
+    set_parents(3, 2);
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, before_load);
+    fresh();
+    memset(after_load, 0, sizeof(after_load));
+    put(after_load, 0, "Suki", 0, 50);
+    put(after_load, 1, "Suki", 0, 50);
+    put(after_load, 2, "Keep", 1, 9);
+    put(after_load, 3, "Stay", 0, 11);
+    put(after_load, 4, "Ann", 0, 12);
+    put(after_load, 5, "Bo", 1, 13);
+    *(int *)(after_load + 0 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 1;
+    *(int *)(after_load + 0 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+    *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 14;
+    *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 17;
+    play(after_load, 2);
+    check(g_loaded_slot == SLOT && has_parents(0, 1) && has_parents(1, 2),
+          "two villagers who share name, gender and scalar but not their looks each keep their own parents after a repack");
+    check(read_all(path, file_now, sizeof(file_now), &size)
+          && file_now[12 + 0 * sizeof(vv1_occupant) + 2] == 2 && file_now[12 + 0 * sizeof(vv1_occupant) + 3] == 4,
+          "... and the roster on disk records each villager's looks (head + 1, body + 1)");
+
     /* 19. Codex (#516): another village in the slot that shares ONE identity
            with the old roster, at another record, is not the old village. */
     write_owner_sidecar();

@@ -1127,10 +1127,15 @@ static int vv1_xc_scan(int slot, const unsigned char *records, vv1_xc_plan *plan
         return -1;                          /* the log is there and unreadable: later */
     }
     village = read == 1 ? vv1_xc_village_id(log.headers[log.village_header]) : 0u;
+    /* Every load checks again, whatever the marker says (the owner's two
+       Sukis, 2026-10-06: the check had found the village clean once, the
+       table later lost their parents in a repack, and the marker kept it
+       from ever looking again).  The marker is the last result's record; one
+       that cannot be read still means "later". */
     state = vv1_xc_marker_state(slot, village);
-    if (state != 0) {
+    if (state < 0) {
         vv1_xc_free(&log);
-        return state > 0 ? 0 : -1;          /* this village ran before, or the marker cannot be read */
+        return -1;                          /* the marker cannot be read */
     }
     if (read == 1) {
         /* A log that holds this village's conceptions but not one Birth

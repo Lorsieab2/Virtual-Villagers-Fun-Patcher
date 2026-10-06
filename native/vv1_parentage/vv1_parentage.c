@@ -246,7 +246,10 @@ typedef struct {
     unsigned char departed;                   /* 1: the record was EMPTY then, and this is the
                                                  villager who had held it (vv1_follow_roster);
                                                  0 in every file an earlier build wrote */
-    unsigned char spare[2];
+    unsigned char head;                       /* head + 1, body + 1 (0: not recorded -- every */
+    unsigned char body;                       /* file an earlier build wrote): the looks that tell
+                                                 apart two villagers who share gender, family
+                                                 scalar and name (vv1_follow_roster) */
     int scalar;                               /* +0x36C, set once at creation */
     char name[VV1_NAME_CAPACITY];
 } vv1_occupant;                               /* 36 bytes */
@@ -374,6 +377,12 @@ static void vv1_take_roster(const unsigned char *records, vv1_occupant *out) {
         }
         out[i].gender = (*(const int *)(rec + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) ? 1 : 2;
         out[i].scalar = *(const int *)(rec + VV1_VARIANT_OFFSET);
+        {
+            int head = *(const int *)(rec + VV1_HEAD_OFFSET);
+            int body = *(const int *)(rec + VV1_BODY_OFFSET);
+            out[i].head = (unsigned char)(head >= 0 && head <= 253 ? head + 1 : 0);
+            out[i].body = (unsigned char)(body >= 0 && body <= 253 ? body + 1 : 0);
+        }
         vv1_copy_name(rec, out[i].name);
     }
 }
@@ -383,6 +392,27 @@ static void vv1_take_roster(const unsigned char *records, vv1_occupant *out) {
 static int vv1_same_occupant(const vv1_occupant *a, const vv1_occupant *b) {
     return a->gender != 0 && a->gender == b->gender && a->scalar == b->scalar
         && strncmp(a->name, b->name, VV1_NAME_CAPACITY) == 0;
+}
+
+/* The same villager, and the same looks recorded on both sides. */
+static int vv1_same_looks(const vv1_occupant *a, const vv1_occupant *b) {
+    return vv1_same_occupant(a, b) && a->head != 0 && a->body != 0
+        && a->head == b->head && a->body == b->body;
+}
+
+/* How many entries of `roster` are this villager with these looks; *where
+   gets the last. */
+static int vv1_count_looks(const vv1_occupant *roster, const vv1_occupant *who, int *where) {
+    int i, n = 0;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        if (vv1_same_looks(&roster[i], who)) {
+            ++n;
+            if (where != NULL) {
+                *where = i;
+            }
+        }
+    }
+    return n;
 }
 
 /* How many entries of `roster` are this villager; *where gets the last. */
@@ -531,6 +561,23 @@ static int vv1_follow_roster(const vv1_occupant *now) {
         }
         if (vv1_count_occupant(now, &now[j], NULL) == 1
             && vv1_count_occupant(g_roster, &now[j], &at) == 1) {
+            from[j] = at;
+            if (at != j) {
+                repacked = 1;
+            }
+        }
+    }
+    /* Two villagers who share gender, family scalar and name -- the owner's
+       two Sukis, whose parents a repack dropped -- are told apart by their
+       looks, when the roster recorded them: the one villager on screen with
+       that identity and those looks takes the one entry recorded with them.
+       A roster from an earlier build recorded no looks, and a villager whose
+       looks match nobody (or more than one) stays unknown, as before. */
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        int at = -1;
+        if (now[j].gender && from[j] < 0 && vv1_count_occupant(now, &now[j], NULL) > 1
+            && vv1_count_looks(now, &now[j], NULL) == 1
+            && vv1_count_looks(g_roster, &now[j], &at) == 1) {
             from[j] = at;
             if (at != j) {
                 repacked = 1;
