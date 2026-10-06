@@ -60,6 +60,7 @@
 #include "special_title.h"
 #include "patcher_files.h"
 #include "custom_titles.h"
+#include "former_heathens_read.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
@@ -872,6 +873,21 @@ static int village_save_slot(const char *village) {
     return at[7] - '0';
 }
 
+/* New Believers' Former Heathens file for the village's slot
+   (native/shared/former_heathens.h), read with the titles: who was converted
+   from the Heathens and which mask they wore, for the Special villager line. */
+static unsigned char g_former[VV_FORMER_FILE_MAX];
+static int g_former_loaded;
+
+static const char *special_title_of(int game_id, const struct game_layout *g, const unsigned char *record) {
+    int kind = -1;
+    if (g_former_loaded && g->likes != 0u) {
+        kind = vv_former_lookup(g_former, vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                                            g->dislikes, g->preference_slots));
+    }
+    return vv_special_title_former(game_id, record, kind);
+}
+
 static void load_custom_titles(int game_id, const struct game_layout *g, const char *village) {
     static unsigned char data[VV_TITLES_FILE_MAX];
     char folder[MAX_PATH];
@@ -881,6 +897,7 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
     DWORD got = 0;
     int slot = village_save_slot(village);
     g_custom_title_count = 0;
+    g_former_loaded = game_id == GAME_VV5 && vv_former_load(slot, g_former);
     if (slot == 0 || !vv_save_folder(folder, (int)sizeof("\\" VV_TITLES_SUBFOLDER "\\Custom Titles - Save 0.dat"))) {
         return;
     }
@@ -974,7 +991,7 @@ static int write_villager(
         if (custom != NULL && fprintf(file, "  Custom title: %s\n", custom) < 0) return 0;
     }
     {
-        const char *special = vv_special_title(game_id, record);
+        const char *special = special_title_of(game_id, g, record);
         if (special != NULL && fprintf(file, "  Special villager: %s\n", special) < 0) return 0;
     }
     if (fprintf(file, "  Age: %d\n", *(const int *)(record + g->age)) < 0) {

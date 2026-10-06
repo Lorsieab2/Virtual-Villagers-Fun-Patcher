@@ -27,6 +27,9 @@ SOURCE = r'''
 __declspec(dllexport) const char *Title(int game, const unsigned char *record) {
     return vv_special_title(game, record);
 }
+__declspec(dllexport) const char *TitleFormer(int game, const unsigned char *record, int former) {
+    return vv_special_title_former(game, record, former);
+}
 '''
 
 
@@ -58,6 +61,8 @@ class SpecialTitleRules(unittest.TestCase):
         cls.dll = ctypes.CDLL(str(dll))
         cls.dll.Title.restype = ctypes.c_char_p
         cls.dll.Title.argtypes = [ctypes.c_int, ctypes.c_char_p]
+        cls.dll.TitleFormer.restype = ctypes.c_char_p
+        cls.dll.TitleFormer.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -95,15 +100,34 @@ class SpecialTitleRules(unittest.TestCase):
         struct.pack_into("<5f", r, 0x1C5C, 88, 88, 88, 88, 88)
         self.assertEqual(self.title(4, r), "Scholar")
 
+    def former(self, game: int, record: bytearray, kind: int):
+        value = self.dll.TitleFormer(game, bytes(record), kind)
+        return value.decode() if value else None
+
     def test_new_believers(self):
         r = bytearray(0x2000)
         self.assertIsNone(self.title(5, r))
         struct.pack_into("<6f", r, 0x1C5C, 88, 88, 88, 0, 0, 0)
         self.assertEqual(self.title(5, r), "Esteemed Elder")
+        # A believer still of role 13: the conversion keeps 13 only for the
+        # Heathen Chief (0x466966).
         struct.pack_into("<i", r, 0x1CFC, 13)
-        # The Retired Chief's puzzle progress is not readable outside the game:
-        # never claimed then.
-        self.assertEqual(self.title(5, r), "Esteemed Elder")
+        self.assertEqual(self.title(5, r), "Retired Heathen Chief")
+        struct.pack_into("<i", r, 0x1CFC, 0)
+        # Converted Heathens: the Former Heathens file's mask, else the mask
+        # bytes the conversion leaves.
+        for kind, words in ((0, "Former Heathen (blue mask)"), (1, "Former Heathen (orange mask)"),
+                            (2, "Former Heathen (red mask)"), (3, "Former Heathen Master (purple mask)"),
+                            (4, "Retired Heathen Chief")):
+            with self.subTest(kind=kind):
+                self.assertEqual(self.former(5, r, kind), words)
+        self.assertEqual(self.former(5, r, -1), "Esteemed Elder", "no entry: the skill title")
+        r[0x1CEE] = 1
+        self.assertEqual(self.title(5, r), "Former Heathen (red mask)")
+        r[0x1CED] = 1
+        self.assertEqual(self.title(5, r), "Former Heathen (orange mask)")
+        r[0x1CED] = r[0x1CEE] = 0
+        self.assertEqual(self.former(1, bytearray(0x3D8), 2), None, "only New Believers has Heathens")
         r[0x1CEC] = 1
         for role, words in ((12, "Heathen Doctor"), (13, "Heathen Chief"),
                             (14, "Heathen Master Scientist"), (15, "Heathen Master Builder"),
@@ -120,8 +144,11 @@ class TheLogsPrintIt(unittest.TestCase):
         population = (ROOT / "native/population_export/population_export.c").read_text(encoding="utf-8")
         self.assertIn('"  Special villager: %s\\n", special', population)
         parentage = (ROOT / "native/parentage_export/parentage_export.c").read_text(encoding="utf-8")
-        self.assertIn('"  Special villager: %s\\n",\n                    vv_special_title(game_id, record)',
+        self.assertIn('"  Special villager: %s\\n",\n                    record_special_title(game_id, g, record)',
                       parentage.replace("\r\n", "\n"))
+        # Both read New Believers' Former Heathens file for the slot.
+        self.assertIn("vv_former_load(slot, g_former)", population)
+        self.assertIn("vv_former_load(vv_former_header_slot(village), former)", parentage)
 
     def test_the_shipped_dlls_carry_it(self):
         for dll in ("assets/population/VVFP Population Export.dll",

@@ -80,6 +80,7 @@
 #include "log_words.h"
 #include "special_title.h"
 #include "custom_titles.h"
+#include "former_heathens_read.h"
 #include "patcher_files.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -3614,6 +3615,22 @@ static int record_custom_title(int game_id, const struct game_layout *g,
     return 1;
 }
 
+/* The villager's Special villager title (native/shared/special_title.h),
+   with New Believers' Former Heathens file for the village's slot: who was
+   converted from the Heathens and which mask they wore. */
+static const char *record_special_title(int game_id, const struct game_layout *g,
+                                        const unsigned char *record) {
+    static unsigned char former[VV_FORMER_FILE_MAX];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    int kind = -1;
+    if (game_id == GAME_VV5 && g->likes != 0u && vv_village_recall(village, sizeof village)
+        && vv_former_load(vv_former_header_slot(village), former)) {
+        kind = vv_former_lookup(former, vv_title_identity(record, g->name, g->name_capacity, g->likes,
+                                                          g->dislikes, g->preference_slots));
+    }
+    return vv_special_title_former(game_id, record, kind);
+}
+
 /* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
    Death.dll", which sees the deaths, burials, removals and arrivals and
    decides what each record says.  One format in all five games:
@@ -3695,10 +3712,10 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     if (detail >= 1) {
         (void)record_custom_title(game_id, g, record, check ? records : NULL, custom, sizeof custom);
     }
-    if (detail >= 1 && vv_special_title(game_id, record) != NULL) {
-        /* The title its Details panel shows (native/shared/special_title.h). */
+    if (detail >= 1 && record_special_title(game_id, g, record) != NULL) {
+        /* The villager's title (native/shared/special_title.h). */
         _snprintf_s(special, sizeof special, _TRUNCATE, "  Special villager: %s\n",
-                    vv_special_title(game_id, record));
+                    record_special_title(game_id, g, record));
     }
     if (detail >= 2) {
         skill_text(g, record, skills, sizeof skills);

@@ -806,6 +806,7 @@ int main(int argc, char **argv) {
         villager(6, "Hea", 400, 9, 9, game != 5);
         if (game == 5) {
             rec(6)[VV5_FACTION] = 1;
+            *(int *)(rec(6) + 0x1CFC) = 14;   /* a Heathen Master Scientist: the purple mask */
         }
         /* Kept out of the backfill: a Heathen (never a villager), and a
            villager whose record keeps parents (born here, before the log). */
@@ -978,7 +979,8 @@ int main(int argc, char **argv) {
         villager(13, "Reborn", 0, 1, 1, 1);  /* the record reused before the save */
         if (game == 5) {
             arrival_tick();
-            rec(6)[VV5_FACTION] = 0;         /* Hea is converted */
+            rec(6)[VV5_FACTION] = 0;         /* Hea is converted: */
+            *(int *)(rec(6) + 0x1CFC) = 0;   /* the conversion clears a Master's type (0x46696F) */
             arrival_tick();
         }
         save_done(1, buffer);
@@ -1017,6 +1019,22 @@ int main(int argc, char **argv) {
                 CHECK(strstr(text, "  Name: Pagan\r\n") == NULL, "a Heathen the creator makes is not an arrival");
                 CHECK(record_has("Hea", "  How: Converted from the Heathens\r\n"),
                       "a Heathen converted to a believer is: Converted from the Heathens");
+                CHECK(record_has("Hea", "  Special villager: Former Heathen Master (purple mask)\r\n"),
+                      "...a Former Heathen Master: the mask the tick saw, kept in the Former Heathens file");
+                {
+                    char former_path[MAX_PATH];
+                    unsigned char blob[64];
+                    DWORD got = 0;
+                    HANDLE h;
+                    _snprintf(former_path, MAX_PATH,
+                              "%s\\Virtual Villagers Fun Patcher Data\\Former Heathens\\Former Heathens - Save 1.dat",
+                              root);
+                    h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                    if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }
+                    CHECK(got == 24 && memcmp(blob, "VFH1", 4) == 0 && *(unsigned int *)(blob + 12) == 1
+                          && *(unsigned int *)(blob + 20) == 3,
+                          "the Former Heathens file holds one entry, the purple mask (a Master)");
+                }
             }
         }
         read_into(unacc);
