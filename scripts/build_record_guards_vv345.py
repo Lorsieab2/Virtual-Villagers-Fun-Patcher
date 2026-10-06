@@ -89,7 +89,7 @@ GAMES = {
 # 0x4036E0) + 5: the bar's five-second display.  sm.xml has no string for
 # Reanimate's refusal and the patcher never changes the game's assets, so the
 # guard runs that same tail with its own text.
-VV5_BAR, VV5_BAR_UNTIL = 0x520F68, 0x520F68 + 0x100
+VV5_BAR = 0x520F68
 VV5_STRNCPY, VV5_CLOCK, VV5_SECONDS = 0x47D7C0, 0x425950, 0x4036E0
 REANIMATE_NO_ROOM = "There's no room in your village to revive this person."
 
@@ -314,7 +314,8 @@ def layout(game: str):
             mov ecx, eax
             call {VV5_SECONDS:#x}
             add eax, 5
-            mov dword ptr [{VV5_BAR_UNTIL:#x}], eax
+            mov ecx, {VV5_BAR:#x}
+            mov dword ptr [ecx + 0x100], eax
             or eax, -1
             ret 4
         ok:
