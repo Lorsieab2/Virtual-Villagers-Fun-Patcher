@@ -119,6 +119,11 @@ FILES = [
     "data/vv3_cause_of_death_feature.json",
     "data/vv4_cause_of_death_feature.json",
     "data/vv5_cause_of_death_feature.json",
+    "data/vv1_last_names_feature.json",
+    "data/vv2_last_names_feature.json",
+    "data/vv3_last_names_feature.json",
+    "data/vv4_last_names_feature.json",
+    "data/vv5_last_names_feature.json",
     # 256 Villagers (Experimental): The Secret City, The Tree of Life and
     # New Believers.
     "data/vv3_population_256_feature.json",

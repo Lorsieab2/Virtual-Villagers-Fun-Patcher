@@ -399,6 +399,57 @@ int main(int argc, char **argv) {
             rec(3)[g->active] = 0;
         }
 
+        /* 3c: a Birth record says how many babies the delivery held: The Lost
+           Children to New Believers read the mother's litter field at the
+           creation; A New Home's companion passes it. */
+        {
+            typedef int (__stdcall *birth_t)(int, const char *, int, int, const char *, int, int,
+                                             const char *, int, int, const void *);
+            typedef int (__stdcall *birth_litter_t)(int, const char *, int, int, const char *, int, int,
+                                                    const char *, int, int, const void *, int);
+            static const struct { unsigned int sex; int female; unsigned int litter; } MOM[5] = {
+                { 0x350, 2, 0x35C }, { 0x538, 2, 0x544 }, { 0xDC8, 1, 0xE90 }, { 0x1B90, 1, 0x1C50 },
+                { 0x1B90, 1, 0x1C50 },
+            };
+            birth_t birth = (birth_t)GetProcAddress(dll, "WriteParentageBirth");
+            birth_litter_t birth_litter = (birth_litter_t)GetProcAddress(dll, "WriteParentageBirthLitter");
+            int game_index = game - 1;
+            CHECK(birth != NULL && birth_litter != NULL, "both birth exports are there");
+            villager(5, "Mama", 900, 8, 8);
+            *(int *)(rec(5) + MOM[game_index].sex) = MOM[game_index].female;
+            *(int *)(rec(5) + MOM[game_index].litter) = 2;
+            villager(6, "Babe", 0, 2, 2);
+            if (birth != NULL && birth_litter != NULL) {
+                birth(game, "Babe", 2, 2, "Mama", 8, 8, "Papa", 1, 1, rec(6));
+                read_log("Births and Conceptions", "Births and Conceptions Log", game, 1);
+                if (game == 1) {
+                    CHECK(strstr(text, "Born as") == NULL,
+                          "A New Home through WriteParentageBirth: no line (its companion passes the count)");
+                } else {
+                    CHECK(strstr(text, "    Body: 1\r\n  Born as: Twin\r\n") != NULL,
+                          "the mother's litter of 2: Born as: Twin");
+                }
+                birth_litter(game, "Babe", 2, 2, "Mama", 8, 8, "Papa", 1, 1, rec(6), 3);
+                read_log("Births and Conceptions", "Births and Conceptions Log", game, 1);
+                CHECK(strstr(text, "  Born as: Triplet\r\n") != NULL, "a count of 3 given: Born as: Triplet");
+                if (game != 1) {
+                    villager(7, "Mama", 100, 8, 8);           /* a second mother who looks the same */
+                    *(int *)(rec(7) + MOM[game_index].sex) = MOM[game_index].female;
+                    *(int *)(rec(7) + MOM[game_index].litter) = 3;
+                    birth(game, "Babe2", 2, 2, "Mama", 8, 8, "Papa", 1, 1, rec(6));
+                    read_log("Births and Conceptions", "Births and Conceptions Log", game, 1);
+                    {
+                        const char *at = strstr(text, "  Child: Babe2\r\n");
+                        CHECK(at != NULL && strstr(at, "Born as") == NULL,
+                              "two mothers it could be: no line");
+                    }
+                    rec(7)[g->active] = 0;
+                }
+            }
+            rec(5)[g->active] = 0;
+            rec(6)[g->active] = 0;
+        }
+
         /* 4: not a villager record; not a kind. */
         {
             unsigned char stray[0x4000];

@@ -131,6 +131,9 @@ FIXES = (
     (SAVE_WRITER_OFFSET, SAVE_WRITER_STOCK, SAVE_WRITER_PATCHED),
     (SAVE_LOADER_OFFSET, SAVE_LOADER_STOCK, SAVE_LOADER_PATCHED),
     (SAVE_CHECK_OFFSET, SAVE_CHECK_STOCK, SAVE_CHECK_PATCHED),
+    # Every default name can be chosen (tests/test_every_default_name_can_be_chosen.py).
+    (0x5C677, bytes.fromhex("6A7B"), bytes.fromhex("6A7D")),
+    (0x5C683, bytes.fromhex("40"), bytes.fromhex("90")),
 )
 TECH_REWARD = 100
 
@@ -288,7 +291,7 @@ class ManifestTests(unittest.TestCase):
 
     def test_stock_bytes_and_offsets(self) -> None:
         pe = pefile.PE(str(STOCK), fast_load=True)
-        vas = (0x4180FB, 0x417797, 0x4173E0, 0x45EFC5, 0x45C88D, 0x435710)
+        vas = (0x4180FB, 0x417797, 0x4173E0, 0x45EFC5, 0x45C88D, 0x435710, 0x45C677, 0x45C683)
         self.assertEqual(len(vas), len(FIXES))
         for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)

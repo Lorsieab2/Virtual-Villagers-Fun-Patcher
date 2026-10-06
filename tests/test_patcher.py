@@ -1151,8 +1151,10 @@ class ManifestTests(unittest.TestCase):
         # (vv2_restore_missing_island_events), five jump-table entries and the
         # case-4 body over the trigger's dead positive-kind branch; 26 with Story /
         # Cheat Upgrades cost Tech Points (vv2_story_cheat_upgrades_cost_tech_points),
-        # no executable byte -- bit 30 of the startup loader's word.
-        self.assertEqual(len(feature_ids), 26)
+        # no executable byte -- bit 30 of the startup loader's word; 27 with
+        # Villagers Have Last Names (vv2_last_names), no executable byte -- its
+        # companion detours the naming routine at run time.
+        self.assertEqual(len(feature_ids), 27)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4025,6 +4027,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_fix_vanilla_bugs",
                 "vv2_cause_of_death",
                 "vv2_restore_missing_island_events",
+                "vv2_last_names",
             },
         )
         for mode in ALL_MODES:

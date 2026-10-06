@@ -598,7 +598,7 @@ static int record_missing_core(
             int held_before = pending_count;
             char text[RECORD_TEXT_MAX];
             if (compose_birth(game_id, NULL, -1, -1, NULL, -1, -1, NULL, -1, -1, facts[i].record,
-                              BIRTH_BACKFILL_NOTE, text, sizeof text)
+                              BIRTH_BACKFILL_NOTE, -1, text, sizeof text)
                 && emit_record(game_id, KIND_BIRTH, NULL, text)) {
                 facts[i].outcome = pending_count > held_before ? VV_ARRIVAL_QUEUED : VV_ARRIVAL_RECORDED;
                 ++result;

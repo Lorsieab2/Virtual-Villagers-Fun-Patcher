@@ -3260,9 +3260,61 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
    that cannot supply one still logs a complete birth. */
 static void tell_cause_of_death_birth(int game_id, const void *child_record);
 
+/* How many babies the delivery that is creating this child holds, read from
+   the mother's own litter field (VV2-VV5: the exe's birth splice calls
+   WriteParentageBirth at the creation, between the litter compares that
+   guard the twin and triplet creations, so the field is this delivery's).
+   The mother is the one living female villager with this name, head and
+   body; none, or two, and the count is not known (-1).  The games write
+   nothing for a single birth in VV1/VV2 (0 = one baby). */
+static int delivery_litter(int game_id, const struct game_layout *g, const char *mother_name,
+                           int mother_head, int mother_body) {
+    const unsigned char *records = villager_table(game_id);
+    int index, found = -1;
+    char name[MAX_NAME_BYTES], want[MAX_NAME_BYTES];
+    if (records == NULL || g->litter == 0u || mother_name == NULL || mother_name[0] == '\0'
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return -1;
+    }
+    copy_name_field((const unsigned char *)mother_name, want, sizeof want, g->name_capacity);
+    for (index = 0; index < g->slots; ++index) {
+        const unsigned char *r = records + g->record_base + (size_t)index * g->stride;
+        if (*(const unsigned char *)(r + g->active) != 1 || *(const int *)(r + g->sex) != g->sex_female
+            || (mother_head >= 0 && *(const int *)(r + g->head) != mother_head)
+            || (mother_body >= 0 && *(const int *)(r + g->body) != mother_body)) {
+            continue;
+        }
+        copy_name_field(r + g->name, name, sizeof name, g->name_capacity);
+        if (strcmp(name, want) != 0) {
+            continue;
+        }
+        if (found >= 0) {
+            return -1;
+        }
+        found = index;
+    }
+    if (found < 0) {
+        return -1;
+    }
+    index = *(const int *)(records + g->record_base + (size_t)found * g->stride + g->litter);
+    return index < 1 ? 1 : index > 3 ? -1 : index;
+}
+
+/* The Birth record's "  Born as:" line for a delivery of `litter` babies
+   (the owner, 2026-10-06: twins and triplets in the logs); empty when not
+   known. */
+static const char *born_as_line(int litter) {
+    return litter == 1 ? "  Born as: Single birth\n"
+         : litter == 2 ? "  Born as: Twin\n"
+         : litter == 3 ? "  Born as: Triplet\n" : "";
+}
+
 /* The Birth record's text (WriteParentageBirth's arguments), with `note`
    -- a whole "  Note: ...\n" line, or NULL -- after the parents: the
-   backfill's "Recorded afterwards" (arrival_backfill.inc).  1 when composed. */
+   backfill's "Recorded afterwards" (arrival_backfill.inc).  `litter` is the
+   delivery's babies (1-3), 0 to read them from the mother now (a birth
+   written at its creation), or -1 when not known (a backfilled birth).
+   1 when composed. */
 static int compose_birth(
     int game_id,
     const char *child_name, int child_head, int child_body,
@@ -3270,6 +3322,7 @@ static int compose_birth(
     const char *father_name, int father_head, int father_body,
     const void *child_record,
     const char *note,
+    int litter,
     char *text,
     size_t text_size
 ) {
@@ -3394,6 +3447,9 @@ static int compose_birth(
     preference_text(g, rec, g->likes, child_likes, sizeof child_likes);
     preference_text(g, rec, g->dislikes, child_dislikes, sizeof child_dislikes);
     skill_text(g, rec, skills, sizeof skills);
+    if (litter == 0) {
+        litter = delivery_litter(game_id, g, mother_name, mother_head, mother_body);
+    }
 
     written = _snprintf(
         text, text_size,
@@ -3412,16 +3468,41 @@ static int compose_birth(
         "    Head: %s\n"
         "    Body: %s\n"
         "%s"
+        "%s"
         "\n",
         child, sex_text(g, rec), child_head, child_body, child_likes, child_dislikes, skills,
         mother, mh, mb,
         father, fh, fb,
+        born_as_line(litter),
         note != NULL ? note : ""
     );
     if (written < 0 || (size_t)written >= text_size) {
         return 0;
     }
     return 1;
+}
+
+/* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
+   known (no "Born as" line). */
+__declspec(dllexport) int __stdcall WriteParentageBirthLitter(
+    int game_id,
+    const char *child_name, int child_head, int child_body,
+    const char *mother_name, int mother_head, int mother_body,
+    const char *father_name, int father_head, int father_body,
+    const void *child_record,
+    int litter
+) {
+    char text[RECORD_TEXT_MAX];
+    if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
+                       mother_body, father_name, father_head, father_body, child_record, NULL,
+                       litter, text, sizeof text)) {
+        return 0;
+    }
+    /* The Unaccounted Villagers reconciliation counts this child as a known
+       arrival, whether or not the record could be filed now. */
+    tell_cause_of_death_birth(game_id, child_record);
+    /* The child is the villager a held birth is re-checked against. */
+    return emit_record(game_id, KIND_BIRTH, NULL, text);
 }
 
 __declspec(dllexport) int __stdcall WriteParentageBirth(
@@ -3431,17 +3512,14 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     const char *father_name, int father_head, int father_body,
     const void *child_record
 ) {
-    char text[RECORD_TEXT_MAX];
-    if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
-                       mother_body, father_name, father_head, father_body, child_record, NULL,
-                       text, sizeof text)) {
-        return 0;
-    }
-    /* The Unaccounted Villagers reconciliation counts this child as a known
-       arrival, whether or not the record could be filed now. */
-    tell_cause_of_death_birth(game_id, child_record);
-    /* The child is the villager a held birth is re-checked against. */
-    return emit_record(game_id, KIND_BIRTH, NULL, text);
+    /* The Lost Children to New Believers call this from the executable's
+       birth splice, at the child's creation: the mother's litter field is
+       this delivery's (0 = read it).  A New Home's companion writes a frame
+       later, after the delivery cleared it (0x42F0C7), and passes the count
+       it saw through WriteParentageBirthLitter instead. */
+    return WriteParentageBirthLitter(game_id, child_name, child_head, child_body, mother_name,
+                                     mother_head, mother_body, father_name, father_head,
+                                     father_body, child_record, game_id == 1 ? -1 : 0);
 }
 
 /* The villager's custom title (Story / Cheat Upgrades' Custom Island Event),

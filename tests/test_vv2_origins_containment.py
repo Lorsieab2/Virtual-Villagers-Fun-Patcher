@@ -29,6 +29,7 @@ PUBLIC = {
     "vv2_origins_village_wide_upgrades",
 }
 REMAINING = {
+    "vv2_last_names",
     "vv2_birth_control",
     "vv2_easier_healing_mastery",
     "vv2_teaching_children_grants_skill",

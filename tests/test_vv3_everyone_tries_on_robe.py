@@ -204,17 +204,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the Cure helper's below-row-5 arm 0x7B669..0x7B676, the village-wide
     # entry's invalid-command return 0x7B84E..0x7B861 and the Tech menu's
     # legacy tail 0xA3670..0xA367E -- each now a short jump over zeros.
+    # Re-pinned for Fix Vanilla Bugs' every-default-name fix: putting its two
+    # sites (0x5C677 push 0x7B, 0x5C683 inc eax) back to stock and recomputing
+    # the CheckSum gives the previous digest in all three modes.
     "stock": (
-        "48A55FFAB0E65F8B44A8E5F6C4982563FADA4AD16A169287B08D8542D4807B40",
-        "23350D00",
+        "C5C8E32C04B015F1F6161FFE5D0996A8992D2A664F3D08FC5834F4D7D118C61A",
+        "25850D00",
     ),
     "collection_progression": (
-        "DA31427FAA391E4C4EFB1744A1F583C3DD90EFDC91601501D1DF44FCAB6C7F7F",
-        "234E0D00",
+        "3FE40D6720729D611344043AD59E48A4F875DD490F07E8CC9A9A6E1447D8C9C3",
+        "259E0D00",
     ),
     "immediate_fixed": (
-        "141C260136C11034A70FFBAAD71E35AC9E18F5C7A55A3E37E45E14C749A6B0F6",
-        "21900D00",
+        "31358B312E64FF7281F565C0D89F65CFB336E2D878F2FC664828343B838E8C26",
+        "24E00C00",
     ),
 }
 
