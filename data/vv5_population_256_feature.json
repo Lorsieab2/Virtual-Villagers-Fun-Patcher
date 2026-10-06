@@ -4174,9 +4174,15 @@
    },
    {
     "offset": "0x94C60",
-    "before": "00000000000000000000000000000000000000000000000000",
-    "after": "E85BF8FFFF3D00010000720683C8FFC2040089D9E977BAF8FF",
-    "purpose": "Reanimate: refused while no record is free for its stand-in"
+    "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "54686572652773206E6F20726F6F6D20696E20796F75722076696C6C61676520746F20726576697665207468697320706572736F6E2E00",
+    "purpose": "Reanimate's refusal text for the gray message bar"
+   },
+   {
+    "offset": "0x94CA0",
+    "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "after": "E81BF8FFFF3D00010000723768FF00000068604C490068680F5200E8008BFEFF83C40CE8880CF9FF89C1E811EAF6FF83C005B9680F520089810001000083C8FFC2040089D9E906BAF8FF",
+    "purpose": "Reanimate: refused while no record is free for its stand-in, saying \"There's no room in your village to revive this person.\" in the gray message bar (the bar's own strncpy and five-second clock, as Bar::SetText 0x44EF60 shows the game's refusals)"
    },
    {
     "offset": "0x72BD7",
@@ -4193,8 +4199,8 @@
    {
     "offset": "0x2341A",
     "before": "8BCBE8CFD2FFFF",
-    "after": "E8411807009090",
-    "purpose": "Reanimate is refused, nothing spent, while no record is free for its stand-in (the stock spell wrote through a NULL record and crashed): answered as a cast with no free spell slot"
+    "after": "E8811807009090",
+    "purpose": "Reanimate is refused, nothing spent, while no record is free for its stand-in (the stock spell wrote through a NULL record and crashed): answered as a cast with no free spell slot, the gray message bar saying why"
    }
   ],
   "code_pages": {
