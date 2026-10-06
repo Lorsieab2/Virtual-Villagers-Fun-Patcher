@@ -188,6 +188,7 @@ FILES = [
     # the read-only checker in the patcher's own process.
     "src/vv_log_tools.py",
     "src/vv_log_additions.py",
+    "src/vv_last_names.py",
     # The "?" guides beside every feature; the GUI imports the module, and
     # the module reads the data file.
     "src/vv_how_to_use.py",

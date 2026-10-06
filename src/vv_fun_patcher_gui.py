@@ -17,6 +17,7 @@ import patcher_files
 import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
+import vv_last_names
 import vv_save_backup
 import vv_tribe_rename
 
@@ -269,6 +270,21 @@ def _documents_folder() -> Path:
     except (OSError, AttributeError, ImportError):
         pass
     return Path.home() / "Documents"
+
+
+class _LastNamesKind:
+    """The questions window's label for the last names' questions."""
+    label = "Last names"
+
+
+class _AskedQuestion:
+    """A vv_last_names.Question as the questions window shows it (its answers' words)."""
+
+    def __init__(self, question, answers: dict):
+        self.key = question.key
+        self.text = question.text
+        self.options = list(question.options)
+        self.default = answers.get(question.key, question.default)
 
 
 def _regrab(window) -> None:
@@ -2813,10 +2829,10 @@ class App(tk.Tk):
         except (vv_log_tools.LogToolError, OSError) as exc:
             messagebox.showerror("Repair Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
-        picked = self._repair_checklist(parent, info, found, old_words, kinds)
+        picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds)
         if picked is None:
             return
-        rearm, chosen, answers = picked
+        rearm, chosen, answers, names = picked
         try:
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
@@ -2829,7 +2845,21 @@ class App(tk.Tk):
             self.status_var.set("Repair Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Logs", str(exc), parent=parent)
             return
+        renamed = None
+        if names is not None:
+            try:
+                renamed = self._run_with_wait(
+                    "Giving the last names…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_last_names(folder, number, info.slot, names["chosen"],
+                                                          answers=names["answers"]),
+                )
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Repair Logs", f"The last names were not given. {exc}", parent=parent)
         lines = []
+        if renamed is not None:
+            lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
+                         f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
         if rearm:
             lines.append(
                 f"The next time you play {info.name} (Save {info.slot}), the game will repair "
@@ -2853,7 +2883,8 @@ class App(tk.Tk):
             parent=parent,
         )
 
-    def _repair_checklist(self, parent, info, found: str, old_words: int, kinds: list):
+    def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
+                          kinds: list):
         """The Repair Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  Returns
         (rearm, chosen kinds, answers), or None when the player cancels."""
@@ -2891,6 +2922,15 @@ class App(tk.Tk):
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
+        names_var = tk.BooleanVar(value=False)
+        names: dict = {"chosen": {}, "answers": {}}
+        names_row = ttk.Frame(frame)
+        names_row.pack(anchor="w", pady=(4, 0))
+        ttk.Checkbutton(names_row, variable=names_var,
+                        text="Give villagers last names, in the game and the logs").pack(side="left")
+        ttk.Button(names_row, text="Choose…",
+                   command=lambda: self._last_names_dialog(window, folder, number, info, names, names_var)
+                   ).pack(side="left", padx=(8, 0))
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
         if questions:
             ttk.Button(frame, text=f"Answer the {len(questions)} question(s)…",
@@ -2903,7 +2943,8 @@ class App(tk.Tk):
         buttons.pack(anchor="w", pady=(12, 0))
 
         def go() -> None:
-            outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers))
+            outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
+                                 names if names_var.get() and names["chosen"] else None)
             window.destroy()
 
         ttk.Button(buttons, text="Repair", command=go).pack(side="left")
@@ -2913,6 +2954,86 @@ class App(tk.Tk):
         parent.wait_window(window)
         _regrab(parent)
         return outcome.get("picked")
+
+    def _last_names_dialog(self, parent, folder: Path, number: int, info, names: dict,
+                           names_var) -> None:
+        """Each living villager's last name: the family's (the game's own list) by default, another
+        from the list, one the player types, or none.  Then the questions the logs raise."""
+        try:
+            people = vv_last_names.living(folder, number, info.slot)
+        except (vv_last_names.LastNamesError, OSError, ValueError) as exc:
+            messagebox.showerror("Last names", f"The save could not be read ({exc}).", parent=parent)
+            return
+        checker = vv_log_tools.load_checker()
+        none = "(no last name)"
+        window = tk.Toplevel(parent)
+        window.title("Repair Logs: last names")
+        window.transient(parent)
+        ttk.Label(window, padding=(12, 12, 12, 0), wraplength=640, justify="left",
+                  text="Each living villager gets the last name you choose after their name, in the save "
+                       "and in every log. The family's last name is chosen for you (a baby has its "
+                       "mother's family); pick another from the list, type your own, or choose none. "
+                       "The game must stay closed.").pack(anchor="w")
+        canvas = tk.Canvas(window, width=660, height=420, highlightthickness=0)
+        bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas, padding=12)
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=bar.set)
+        rows: list[tuple] = []
+        for row, v in enumerate(people):
+            already = vv_last_names.has_last_name(number, v.name)
+            ttk.Label(inner, text=f"{v.name} ({v.sex}, family {v.family})").grid(row=row, column=0, sticky="w")
+            value = tk.StringVar(value=names["chosen"].get(v.identity) or (none if already else v.default or none))
+            box = ttk.Combobox(inner, textvariable=value, values=[none] + list(checker.LAST_NAMES[number]),
+                               width=24)
+            box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+            if already:
+                box.configure(state="disabled")
+            rows.append((v, value))
+        canvas.pack(side="left", fill="both", expand=True)
+        bar.pack(side="right", fill="y")
+        buttons = ttk.Frame(window, padding=12)
+        buttons.pack(side="bottom", anchor="w")
+
+        def every(choice) -> None:
+            for v, value in rows:
+                if not vv_last_names.has_last_name(number, v.name):
+                    value.set(choice(v))
+
+        def ok() -> None:
+            chosen = {}
+            for v, value in rows:
+                last = value.get().strip()
+                if last and last != none and not vv_last_names.has_last_name(number, v.name):
+                    problem = vv_last_names.name_problem(number, v.name, last)
+                    if problem:
+                        messagebox.showerror("Last names", f"{v.name}: {problem}", parent=window)
+                        return
+                    chosen[v.identity] = last
+            try:
+                work = vv_last_names.plan(folder, number, info.slot, chosen)
+            except (vv_last_names.LastNamesError, OSError, ValueError) as exc:
+                messagebox.showerror("Last names", str(exc), parent=window)
+                return
+            answers = dict(names["answers"])
+            if work.questions:
+                asked = [(_LastNamesKind, _AskedQuestion(q, answers)) for q in work.questions]
+                self._repair_questions(window, asked, answers)
+            names["chosen"] = chosen
+            names["answers"] = answers
+            names_var.set(bool(chosen))
+            window.destroy()
+
+        ttk.Button(buttons, text="Family names for all", command=lambda: every(lambda v: v.default or none)
+                   ).pack(side="left")
+        ttk.Button(buttons, text="None for all", command=lambda: every(lambda v: none)).pack(side="left", padx=8)
+        ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
 
     def _repair_questions(self, parent, questions: list, answers: dict) -> None:
         """One answer per question, from its own options; kept in `answers`."""

@@ -162,7 +162,10 @@ def blocks(path: Path, lines: list[str] | None = None) -> list[Block]:
         if not line.strip() and start is not None:
             chunk = lines[start:i]
             offset = 0
-            while offset < len(chunk) and (SNAPSHOT.match(chunk[offset]) or VILLAGE.match(chunk[offset])):
+            # Headings: a History snapshot's "=== ... ===", a "Village: ... (Save n)", and a
+            # file's own title line (the Village Population page's "Virtual Villagers N ...").
+            while offset < len(chunk) and (SNAPSHOT.match(chunk[offset]) or VILLAGE.match(chunk[offset])
+                                           or chunk[offset].startswith("Virtual Villagers ")):
                 m = SNAPSHOT.match(chunk[offset])
                 if m:
                     date = m.group(1).strip()
@@ -343,12 +346,16 @@ def _who_at(lines: list[str], at: int) -> tuple:
     """(name, head, body) of the villager whose lines `at` is among."""
     name = head = body = None
     start = at
+    label = "Name"
     for k in range(at, max(-1, at - 12), -1):
-        m = re.match(r"^\s*(?:Name|Child|Mother|Father): (.*)$", lines[k])
+        m = re.match(r"^\s*(Name|Child|Mother|Father): (.*)$", lines[k])
         if m:
-            name, start = m.group(1).strip(), k
+            label, name, start = m.group(1), m.group(2).strip(), k
             break
-    indent = "    " if re.match(r"^  (Child|Mother|Father):", lines[start]) else "  "
+    # A record's own "Name:" has its Head and Body beside it; a Child / Mother / Father
+    # (and a snapshot's "Parents:" Father / Mother) has them two spaces further in.
+    own = re.match(r"^(\s*)", lines[start]).group(1)
+    indent = own if label == "Name" else own + "  "
     for line in lines[start + 1:start + 14]:
         if not line.startswith(indent):
             break
