@@ -323,9 +323,21 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
                           _i32(original, v.at + body))
                 if parent in renames:
                     _put_name(after, v.at + off, cap, renames[parent])
+    # A title or mask is kept by an identity two villagers may share (the same name and likes, or
+    # name and parents).  Given different names, the game could no longer tell which of them a
+    # title or mask was for, so that is refused rather than guessed (Codex, #553).
+    owner: dict[int, tuple[int, str]] = {}
     for v in people:
         old_title, old_masks = before_ids[v.at]
         new_title, new_masks = _title_identity(after, v.at, f), _mask_identities(game, after, v.at)
+        for old_id, new_id in ((old_title, new_title), *zip(old_masks, new_masks)):
+            if not old_id or not new_id:
+                continue
+            seen = owner.setdefault(old_id, (new_id, v.name))
+            if seen[0] != new_id:
+                raise LastNamesError(
+                    f"{seen[1]} and {v.name} look the same to the game's custom titles and masks; "
+                    "give them the same last name (or none to both).")
         if new_title != old_title:
             title_map[old_title] = new_title
         for old_id, new_id in zip(old_masks, new_masks):
@@ -336,16 +348,16 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     data_dir = folder / tools.DATA
     _plan_masks(result, game, slot, data_dir, mask_map)
     _plan_u32_file(result, data_dir / "Custom Titles" / f"Custom Titles - Save {slot}.dat",
-                   b"VCT1", 16, 40, 4, title_map, "custom titles")
+                   b"VCT1", 2, 16, 40, 4, title_map, "custom titles")
     if game == 5:
         _plan_u32_file(result, data_dir / "Former Heathens" / f"Former Heathens - Save {slot}.dat",
-                       b"VFH1", 16, 8, 0, title_map, "former Heathens")
+                       b"VFH1", 1, 16, 8, 0, title_map, "former Heathens")
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, by_name)
     _plan_statistics(result, slot, data_dir, renames, by_name)
     log_renames = dict(renames)
-    result.questions = _look_alike_questions(folder, slot, people, renames)
+    result.questions = _look_alike_questions(folder, game, slot, people, renames)
     for q in result.questions:
         new = q.options.get((answers or {}).get(q.key, ""), "")
         if new:
@@ -354,7 +366,7 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     return result
 
 
-def _look_alike_questions(folder: Path, slot: int, people: list[Living],
+def _look_alike_questions(folder: Path, game: int, slot: int, people: list[Living],
                           renames: dict[tuple, str]) -> list[Question]:
     """One question per (name, head, body) the logs name that is a renamed villager's old name
     but no living villager's looks, and no dead villager's record: is it them?"""
@@ -370,7 +382,7 @@ def _look_alike_questions(folder: Path, slot: int, people: list[Living],
     for path in checker.log_files(folder):
         lines = additions.read_lines(path)
         for b in additions.blocks(path, lines):
-            if b.slot != slot:
+            if not b.of(slot, game):
                 continue
             if b.heading.startswith(("Death", "Disappeared", "Epitaph")):
                 dead.add(b.identity)
@@ -418,42 +430,54 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
         buf = bytearray(original)
         magic = bytes(buf[:4])
         n = 0
-        if game == 1 and magic == b"VM02":
+        # Each format as its companion reads it (scripts/vvfp_consistency_check.py read_mask_file);
+        # a file too short for its own format is left as it is (Codex, #553).
+        if game == 1 and magic == b"VM02" and len(buf) >= 132 + 1024:
             n = _replace_u32s(buf, 132, 256, 4, mask_map)
-        elif game == 2 and magic in (b"VM04", b"VM06"):
+        elif game == 2 and magic in (b"VM04", b"VM06") and len(buf) >= 4 + 1024 + 256:
             n = _replace_u32s(buf, 4, 256, 4, mask_map)
-        elif game == 3 and magic == b"MSK4":
+        elif game == 3 and magic == b"MSK4" and len(buf) >= 260 + 1024:
             n = _replace_u32s(buf, 260, 256, 4, mask_map)
-        elif game == 4 and magic == b"VVMK":
+        elif game == 4 and magic == b"VVMK" and len(buf) >= 12:
             version, count = struct.unpack_from("<II", buf, 4)
-            n = _replace_u32s(buf, 12 + count, count, 4, mask_map)
-            if version == 3:
-                n += _replace_u32s(buf, 12 + count * 5, count, 4, mask_map)
+            if version in (2, 3) and count in (150, 256) and len(buf) >= 12 + count * (9 if version == 3 else 5):
+                n = _replace_u32s(buf, 12 + count, count, 4, mask_map)
+                if version == 3:
+                    n += _replace_u32s(buf, 12 + count * 5, count, 4, mask_map)
+            else:
+                result.notes.append(f"{path.name} is not a mask file this game reads; left as it is.")
         elif game == 5 and magic in (b"VM05", b"VM06", b"VM25", b"VM26"):
             count = 150 if magic in (b"VM05", b"VM06") else 256
-            n = _replace_u32s(buf, 4, count, 4, mask_map)
+            if len(buf) >= 4 + count * 4 + count // 2:
+                n = _replace_u32s(buf, 4, count, 4, mask_map)
         if n:
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
-def _plan_u32_file(result: Plan, path: Path, magic: bytes, header: int, entry: int, field_at: int,
-                   mapping: dict[int, int], what: str) -> None:
+def _plan_u32_file(result: Plan, path: Path, magic: bytes, version: int, header: int, entry: int,
+                   field_at: int, mapping: dict[int, int], what: str) -> None:
+    """A file of `count` fixed entries whose u32 at `field_at` is an identity.  A file that is not
+    exactly its own format (magic, version, header + count * entry bytes) is left as it is."""
     if not path.is_file():
         return
     original = path.read_bytes()
-    if original[:4] != magic or len(original) < header:
+    if len(original) < header or original[:4] != magic or struct.unpack_from("<I", original, 4)[0] != version:
+        result.notes.append(f"{path.name} is not a {what} file this patcher writes; left as it is.")
         return
     count = struct.unpack_from("<I", original, 12)[0]
+    if len(original) != header + count * entry:
+        result.notes.append(f"{path.name} is damaged (its length does not match its count); left as it is.")
+        return
     buf = bytearray(original)
     if _replace_u32s(buf, header + field_at, count, entry, mapping):
         result.changes.append(Change(path, original, bytes(buf), what))
 
 
-def _dead_names(folder: Path, slot: int) -> set[str]:
+def _dead_names(folder: Path, game: int, slot: int) -> set[str]:
     """Every name a Death or Disappeared record of this slot's village carries."""
     import vv_log_additions as additions
     out = set()
-    for b in additions.person_blocks(folder, slot):
+    for b in additions.person_blocks(folder, slot, game):
         if b.heading.startswith(("Death", "Disappeared")) and b.value("Name"):
             out.add(b.value("Name"))
     return out
@@ -469,7 +493,7 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
     for v in people:
         if v.identity in renames:
             by_scalar.setdefault((v.name, 1 if v.sex == "Male" else 2, v.family), set()).add(renames[v.identity])
-    dead = _dead_names(folder, slot)
+    dead = _dead_names(folder, 1, slot)
     for path in (data_dir / "Parentage Records" / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat",
                  data_dir / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"):
         if not path.is_file():
@@ -522,6 +546,10 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
         if original[:4] != b"VCR1" or len(original) < 32:
             continue
         count, lo, hi = struct.unpack_from("<III", original, 12)
+        rec_name = RECORD[game]["name"]
+        if not lo <= rec_name < hi or len(original) != 32 + count * (16 + hi - lo):
+            result.notes.append(f"{path.name} is damaged or another build's; left as it is.")
+            continue
         size = 16 + (hi - lo)
         buf = bytearray(original)
         n = 0
@@ -602,7 +630,7 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
         lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
         n = 0
         for b in additions.blocks(path, lines):
-            if b.slot != slot or b.heading.startswith(("Death", "Disappeared", "Epitaph")):
+            if not b.of(slot, game) or b.heading.startswith(("Death", "Disappeared", "Epitaph")):
                 continue
             for k, line in enumerate(b.lines):
                 m = PERSON_LINE.match(line)
@@ -660,7 +688,10 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
     folder = Path(folder)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     tools._refuse_if_running(folder, controller)
-    work = plan(folder, game, slot, chosen, answers)
+    try:
+        work = plan(folder, game, slot, chosen, answers)
+    except (struct.error, ValueError, OSError) as exc:
+        raise LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.renames:
         raise LastNamesError("No villager was given a last name.")
     try:

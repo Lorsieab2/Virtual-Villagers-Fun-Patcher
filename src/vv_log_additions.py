@@ -92,6 +92,10 @@ class Kind:
 PERSON_HEAD = re.compile(r"^(Villager \d+|Death \d+|Disappeared|Arrived \d+|Unaccounted \d+)\s*$")
 SNAPSHOT = re.compile(r"^=== .* -- (.*) ===\s*$")
 VILLAGE = re.compile(r"^Village: .*\(Save (\d)\)\s*$")
+# The game a file's name ("Virtual Villagers 3 Deaths Log 1.txt"), a History snapshot
+# ("=== Virtual Villagers 3 -- ...") or a Population page's title names.
+GAME_IN_NAME = re.compile(r"^Virtual Villagers (\d) ")
+GAME_IN_HEADING = re.compile(r"^(?:=== )?Virtual Villagers (\d)\b")
 SPECIAL_TITLES = ("Tribal Chief", "Retired Heathen Chief", "Golden Child", "Esteemed Elder", "Scholar")
 
 
@@ -102,6 +106,11 @@ class Block:
     lines: list[str]
     slot: int | None                        # the "Village: ... (Save n)" it is under
     date: str | None                        # a History snapshot's date
+    game: int | None = None                 # the game the file or its snapshot names
+
+    def of(self, slot: int, game: int) -> bool:
+        """Under this slot's village of this game (Codex, #553: two games may share a folder)."""
+        return self.slot == slot and (self.game is None or self.game == game)
 
     @property
     def heading(self) -> str:
@@ -155,6 +164,8 @@ def blocks(path: Path, lines: list[str] | None = None) -> list[Block]:
     lines = read_lines(path) if lines is None else lines
     out: list[Block] = []
     slot = date = None
+    named = GAME_IN_NAME.search(path.name)
+    game = int(named.group(1)) if named else None
     start = None
     for i, line in enumerate(lines + [""]):
         if line.strip() and start is None:
@@ -169,33 +180,36 @@ def blocks(path: Path, lines: list[str] | None = None) -> list[Block]:
                 m = SNAPSHOT.match(chunk[offset])
                 if m:
                     date = m.group(1).strip()
+                m = GAME_IN_HEADING.match(chunk[offset])
+                if m:
+                    game = int(m.group(1))
                 m = VILLAGE.match(chunk[offset])
                 if m:
                     slot = int(m.group(1))
                 offset += 1
             if offset < len(chunk):
-                out.append(Block(path, start + offset, chunk[offset:], slot, date))
+                out.append(Block(path, start + offset, chunk[offset:], slot, date, game))
             start = None
     return out
 
 
-def person_blocks(folder: Path, slot: int) -> list[Block]:
+def person_blocks(folder: Path, slot: int, game: int) -> list[Block]:
     """Every one-villager record (History / Population snapshot entries, Deaths, Disappeared,
     Arrived, Unaccounted) under this slot's village, in every log."""
     checker = tools.load_checker()
     out = []
     for path in checker.log_files(folder):
         for b in blocks(path):
-            if b.slot == slot and PERSON_HEAD.match(b.heading):
+            if b.of(slot, game) and PERSON_HEAD.match(b.heading):
                 out.append(b)
     return out
 
 
-def population_page(folder: Path, slot: int) -> tuple[Path | None, dict[tuple, Block]]:
+def population_page(folder: Path, slot: int, game: int) -> tuple[Path | None, dict[tuple, Block]]:
     """The slot's latest Village Population page: each living villager by (name, head, body)."""
     checker = tools.load_checker()
     for path in checker.numbered(folder / checker.LOGS / "Tribe Population", "Village Population"):
-        found = [b for b in blocks(path) if b.slot == slot and b.heading.startswith("Villager ")]
+        found = [b for b in blocks(path) if b.of(slot, game) and b.heading.startswith("Villager ")]
         if found:
             return path, {b.identity: b for b in found}
     return None, {}
@@ -325,6 +339,9 @@ def plan_sex(folder: Path, game: int) -> Kind:
     checker = tools.load_checker()
     kind = Kind("sex", "Sex in older records")
     for path, adds in checker.missing_sex(folder, game):
+        named = GAME_IN_NAME.search(path.name)
+        if named and int(named.group(1)) != game:
+            continue
         lines = read_lines(path)
         for after, line, _source in adds:
             if line:
@@ -377,7 +394,7 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
     for path in checker.numbered(folder / checker.LOGS / "Births and Conceptions",
                                  f"Virtual Villagers {game} Births and Conceptions Log"):
         lines = read_lines(path)
-        all_blocks = [b for b in blocks(path, lines) if b.slot == slot]
+        all_blocks = [b for b in blocks(path, lines) if b.of(slot, game)]
         last_babies: dict[tuple, int] = {}
         k = 0
         while k < len(all_blocks):
@@ -459,8 +476,8 @@ def _birth_anchor(b: Block) -> int:
 def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only."""
     folder = Path(folder)
-    people = person_blocks(folder, slot)
-    page, current = population_page(folder, slot)
+    people = person_blocks(folder, slot, game)
+    page, current = population_page(folder, slot, game)
     kinds = [
         plan_sex(folder, game),
         plan_special(folder, game, slot, people, current),

@@ -184,6 +184,41 @@ class GiveLastNames(unittest.TestCase):
         self.assertIn(b"Ago\0", (backup / self.save.name).read_bytes())
 
 
+class CodexReview(GiveLastNames):
+    """PR #553's review of the last names."""
+
+    def test_another_games_logs_in_the_same_folder_are_left_alone(self):
+        other = self._log("Deaths/Virtual Villagers 4 Deaths Log 1.txt",
+                          "Village: Tribe (Save 1)\nArrived 1\n  Name: Ago\n  Head: 5\n  Body: 6\n\n")
+        shared = self._log("Tribe History/Village History 2.txt",
+                           "=== Virtual Villagers 4 -- 2026-10-01 ===\nVillage: Tribe (Save 1)\n"
+                           "Villager 1\n  Name: Ago\n  Head: 5\n  Body: 6\n\n")
+        ln.give_last_names(self.folder, 3, 1, self.chosen(), NoGame(), NOW)
+        self.assertIn("  Name: Ago\r\n", other.read_bytes().decode(), "The Tree of Life's own log")
+        self.assertIn("  Name: Ago\r\n", shared.read_bytes().decode(), "The Tree of Life's History snapshot")
+        self.assertIn("  Name: Ago Akikai\r\n", self.history.read_bytes().decode())
+
+    def test_two_villagers_one_title_identity_must_share_the_last_name(self):
+        twin = entry("Ago", 0, 2, 1, 2)                     # Ago's name and likes, other looks
+        data = self.save.read_bytes()[:TABLE + 4 * STRIDE] + twin + bytes(64)
+        self.save.write_bytes(data)
+        people = [v for v in ln.living(self.folder, 3, 1) if v.name == "Ago"]
+        self.assertEqual(len(people), 2)
+        with self.assertRaises(ln.LastNamesError) as raised:
+            ln.plan(self.folder, 3, 1, {people[0].identity: "Akikai", people[1].identity: "Alosaka"})
+        self.assertIn("same last name", str(raised.exception))
+        work = ln.plan(self.folder, 3, 1, {people[0].identity: "Akikai", people[1].identity: "Akikai"})
+        self.assertEqual(len(work.renames), 2)
+
+    def test_a_damaged_titles_file_is_left_alone(self):
+        self.titles.write_bytes(self.titles.read_bytes()[:30])      # count says 1, the entry is cut
+        work = ln.plan(self.folder, 3, 1, self.chosen())
+        self.assertFalse(any(c.path == self.titles for c in work.changes))
+        self.assertTrue(any("damaged" in n for n in work.notes))
+        ln.give_last_names(self.folder, 3, 1, self.chosen(), NoGame(), NOW)
+        self.assertEqual(len(self.titles.read_bytes()), 30)
+
+
 class TheWindow(unittest.TestCase):
     SOURCE = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
 
@@ -200,6 +235,9 @@ class TheWindow(unittest.TestCase):
         self.assertIn("values=[none] + list(checker.LAST_NAMES[number])", body)
         self.assertNotIn('state="readonly"', body, "the player may type a last name")
         self.assertIn("vv_last_names.name_problem(number, v.name, last)", body)
+        # A name with a space already has a last name: nothing is chosen for it (Codex, #553).
+        self.assertIn('value=names["chosen"].get(v.identity) or (none if spaced else v.default or none)', body)
+        self.assertIn('if " " not in v.name:\n                    value.set(choice(v))', body)
 
 
 if __name__ == "__main__":

@@ -2983,8 +2983,11 @@ class App(tk.Tk):
         rows: list[tuple] = []
         for row, v in enumerate(people):
             already = vv_last_names.has_last_name(number, v.name)
+            # A name with a space already has a last name -- the game's, or one typed here
+            # before (Codex, #553): nothing is chosen for it; the player may still add one.
+            spaced = " " in v.name
             ttk.Label(inner, text=f"{v.name} ({v.sex}, family {v.family})").grid(row=row, column=0, sticky="w")
-            value = tk.StringVar(value=names["chosen"].get(v.identity) or (none if already else v.default or none))
+            value = tk.StringVar(value=names["chosen"].get(v.identity) or (none if spaced else v.default or none))
             box = ttk.Combobox(inner, textvariable=value, values=[none] + list(checker.LAST_NAMES[number]),
                                width=24)
             box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
@@ -2998,7 +3001,7 @@ class App(tk.Tk):
 
         def every(choice) -> None:
             for v, value in rows:
-                if not vv_last_names.has_last_name(number, v.name):
+                if " " not in v.name:
                     value.set(choice(v))
 
         def ok() -> None:
