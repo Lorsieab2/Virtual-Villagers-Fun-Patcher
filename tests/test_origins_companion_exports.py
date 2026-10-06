@@ -81,6 +81,8 @@ CASES = {
 # Resolved by "VVFP Startup.dll" at game start (native/vvfp_startup), not by
 # the executable, so it is in no render.
 BY_STARTUP_LOADER = {"VvfpStartup"}
+# Resolved by the log exporters (native/shared/mask_line.h), for the "Mask:" line.
+BY_LOG_EXPORTERS = {"VvfpMaskOf"}
 
 
 def _exports(path: Path) -> dict[str, int]:
@@ -98,7 +100,7 @@ class OriginsCompanionExportTests(unittest.TestCase):
                 exports = _exports(case["dll"])
                 self.assertEqual(
                     set(exports),
-                    case["by_name"] | set(case["by_ordinal"].values()) | BY_STARTUP_LOADER,
+                    case["by_name"] | set(case["by_ordinal"].values()) | BY_STARTUP_LOADER | BY_LOG_EXPORTERS,
                 )
                 for ordinal, name in case["by_ordinal"].items():
                     self.assertEqual(exports[name], ordinal, name)

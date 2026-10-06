@@ -38,6 +38,8 @@ BY_NAME = {
 BY_ORDINAL = {100: "ShowVV2AppearanceForAll"}
 # Resolved by "VVFP Startup.dll" at game start, not by the executable.
 BY_STARTUP_LOADER = {"VvfpStartup"}
+# Resolved by the log exporters (native/shared/mask_line.h), for the "Mask:" line.
+BY_LOG_EXPORTERS = {"VvfpMaskOf"}
 # Names the companion no longer exports; the executable must not ask for them.
 REMOVED = {
     "ShowOriginsAgeResult", "ShowOriginsAppearanceForAll",
@@ -63,7 +65,7 @@ def _exports() -> dict[str, int]:
 class Vv2CompanionExportTests(unittest.TestCase):
     def test_export_table_is_exactly_what_the_executable_resolves(self) -> None:
         exports = _exports()
-        self.assertEqual(set(exports), BY_NAME | set(BY_ORDINAL.values()) | BY_STARTUP_LOADER)
+        self.assertEqual(set(exports), BY_NAME | set(BY_ORDINAL.values()) | BY_STARTUP_LOADER | BY_LOG_EXPORTERS)
         for ordinal, name in BY_ORDINAL.items():
             self.assertEqual(exports[name], ordinal)
         self.assertFalse(

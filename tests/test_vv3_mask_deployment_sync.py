@@ -150,8 +150,10 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         # It is exported through the .def alias only -- adding
         # __declspec(dllexport) as well would publish the decorated
         # _ShowVV3TimeWarp@4 beside it. 34 since VvfpStartup, which
-        # "VVFP Startup.dll" calls at game start (also through the .def).
-        self.assertEqual(len(exports), 34)
+        # "VVFP Startup.dll" calls at game start (also through the .def). 35
+        # since VvfpMaskOf, which the log exporters ask for the "Mask:" line
+        # (also through the .def).
+        self.assertEqual(len(exports), 35)
 
     def test_deployed_companion_carries_every_complete_result_message(self) -> None:
         """Every COMPLETE refusal message in the C source must be in the DLL.

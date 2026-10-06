@@ -44,7 +44,7 @@ static const vvfp_story_host *vvfp_story_host_table(void);
    mask in every villager record and snapshot): the mask this companion keeps
    on `record` -- 0 none, 1 Blue, 2 Orange, 3 Red, 4 Purple, 5 the Tribal
    Chief's -- through the same store the Story companion is given. */
-__declspec(dllexport) int __stdcall VvfpMaskOf(void *record) {
+int __stdcall VvfpMaskOf(void *record) {
     const vvfp_story_host *host = vvfp_story_host_table();
     return record != NULL && host->mask_get != NULL ? host->mask_get(record) : 0;
 }

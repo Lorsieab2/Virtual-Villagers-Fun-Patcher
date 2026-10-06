@@ -83,7 +83,7 @@ FOUNDATION_OUTPUT = (
 # Recertified when every Origins companion gained VvfpMaskOf (native/shared/
 # story_bridge.h): the log exporters' "Mask:" line asks the companion for the
 # mask it keeps on a villager.  One new export, nothing else in the build.
-SOURCE_SHA256 = "E38C4F9C5E0C0311AC228EF89AB3A246F3D8A1016627CC5B053C299B999DC73C"
+SOURCE_SHA256 = "EBF7497A835E7574B547204A38B03ACFBD0B6F4026C0ACEF0D61741C30E20DE5"
 SOURCE_SIZE = 1960960
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
