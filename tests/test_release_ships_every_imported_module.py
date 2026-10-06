@@ -11,7 +11,6 @@ fails if any module they reach is not packaged.
 from __future__ import annotations
 
 import ast
-import re
 import unittest
 from pathlib import Path
 
@@ -21,8 +20,25 @@ ENTRY_POINTS = ("vv_fun_patcher", "vv_fun_patcher_gui")
 
 
 def packaged() -> set[str]:
-    text = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
-    return set(re.findall(r'"(src/[^"]+\.py)"', text))
+    """The entries of the real FILES list, parsed from the AST.
+
+    A whole-file search would also accept a path left in a comment (such as a
+    commented-out entry), so only active list elements count. `utf-8-sig`
+    because build_release.py carries a BOM, which ast.parse rejects.
+    """
+    tree = ast.parse((ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8-sig"))
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == "FILES" for t in node.targets)
+            and isinstance(node.value, (ast.List, ast.Tuple, ast.Set))
+        ):
+            return {
+                e.value
+                for e in node.value.elts
+                if isinstance(e, ast.Constant) and isinstance(e.value, str)
+            }
+    raise AssertionError("no FILES list literal found in scripts/build_release.py")
 
 
 def local_imports(module: str) -> set[str]:
