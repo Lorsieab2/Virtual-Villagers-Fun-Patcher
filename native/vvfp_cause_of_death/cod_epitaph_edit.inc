@@ -10,8 +10,10 @@
    "Here Lies" (The Lost Children's panel the same), filled from the grave
    when it opens; Done -- and only Done -- copies the box back over the
    grave's epitaph, unconditionally.  So the old text is read just before
-   the copy and the new one just after, and a record is written when they
-   differ:
+   the copy and the new one just after, and a record is written when their
+   text differs (epitaph_same: spaces before or after the same words are
+   not an edit -- live, v1.35.59, stray Space presses in the box gave a
+   record whose two epitaphs read the same):
                  before the copy          after it        the epitaph
        VV2       0x444433 (esi = panel)   0x44445C        grave + 0x19, char[0x41]
        VV3       0x41E6A3 (esi = dialog)  0x41E6BB        gravestone + 8, char[0x20]
@@ -63,6 +65,32 @@ static void epitaph_log(const unsigned char *name, unsigned int name_capacity, i
     cod_write(LOG_EPITAPH, edit_scratch, 0, before, NULL, 0);
 }
 
+/* Whether two epitaphs (each at most `capacity` bytes, NUL-terminated
+   within it or not) hold the same text: the same bytes once spaces before
+   and after are set aside, since those show as nothing on the grave. */
+static int epitaph_same(const char *a, const char *b, int capacity) {
+    int a0 = 0, b0 = 0, a1 = 0, b1 = 0;
+    while (a1 < capacity && a[a1] != 0) {
+        ++a1;
+    }
+    while (b1 < capacity && b[b1] != 0) {
+        ++b1;
+    }
+    while (a0 < a1 && a[a0] == ' ') {
+        ++a0;
+    }
+    while (b0 < b1 && b[b0] == ' ') {
+        ++b0;
+    }
+    while (a1 > a0 && a[a1 - 1] == ' ') {
+        --a1;
+    }
+    while (b1 > b0 && b[b1 - 1] == ' ') {
+        --b1;
+    }
+    return a1 - a0 == b1 - b0 && memcmp(a + a0, b + b0, (size_t)(a1 - a0)) == 0;
+}
+
 /* ---- The later games and The Lost Children --------------------------------- */
 
 static const unsigned char *edit_epitaph_of(const unsigned int *regs) {
@@ -102,7 +130,7 @@ static void edit_after(int site, const unsigned int *regs) {
     (void)site;
     edit_target = NULL;
     if (epitaph == NULL || epitaph != edit_epitaph_of(regs)
-        || strncmp(edit_old, (const char *)epitaph, g_game == 2 ? 0x41 : EPITAPH_TEXT) == 0) {
+        || epitaph_same(edit_old, (const char *)epitaph, g_game == 2 ? 0x41 : EPITAPH_TEXT)) {
         return;
     }
     if (g_game == 2) {
@@ -186,8 +214,8 @@ static void vv1_popup_made(int site, const unsigned int *regs) {
 
 /* 0x436407, onEvent past its code-8 test: ecx = the popup, [esp+8] = the
    control's id; Done is [popup+0x64]. */
-/* Keep `text` (what the box holds now) as grave `slot`'s epitaph when it
-   differs from the one it had, and log the change. */
+/* Keep `text` (what the box holds now) as grave `slot`'s epitaph when its
+   text differs from the one it had (epitaph_same), and log the change. */
 static void vv1_commit_epitaph(int slot, const unsigned char *grave, char *text) {
     const struct cod_entry *entry = cod_grave_entry(slot, grave);
     const char *old_text;
@@ -207,7 +235,7 @@ static void vv1_commit_epitaph(int slot, const unsigned char *grave, char *text)
     if (old_text == NULL) {
         old_text = "";
     }
-    if (strcmp(old_text, text) == 0) {
+    if (epitaph_same(old_text, text, EPITAPH_TEXT)) {
         return;
     }
     e.type = EVENT_GRAVE;

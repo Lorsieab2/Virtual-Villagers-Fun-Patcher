@@ -30,13 +30,27 @@ string-table entry, chosen by id:
 THE CHANGE.  The dispatch and its five cases (0x464D86..0x464E19, 147 bytes)
 are recoded in place as one shared case driven by a six-byte table of each
 job's first string id (low byte; the second is the next id), so the Devotee
-gets a pair like every other job: the first under 50 stays "Respected
-Citizen" (0x305), the second, at 50 or over, is "Devoted Soul" -- a string
-the patch keeps in the same bytes, copied by the writer's own strncpy at
+gets a pair like every other job: the first under 50 stays the game's
+usual epitaph, string 0x305 ("Respected Citizen"; "Respected Devotee" when
+Guardians of Isola Rewrite has replaced Assets/sm.xml), the second, at 50 or
+over, is "Charitable Soul" -- a string the patch keeps in the same bytes, copied by the writer's own strncpy at
 0x464E28 exactly as a table string is.  The unskilled adult still takes the
 `ja` to 0x464E19 with 0x305, as stock.  Jobs 0..4 get the same id for the
 same rand value as stock.  No code is added outside the routine and no
 executable space is claimed; the rest of the 147 bytes is int3 filler.
+
+THE COIN.  rand(100) (0x403660) is the C runtime's rand() % 100 (0x47CFD8,
+the LCG seed * 0x343FD + 0x269EC3, bits 16..30), seeded once at start-up by
+srand(time(NULL)) (0x402F97, the executable's only srand call).  Every
+random draw in the game advances the same stream, so each burial takes the
+next value of a clock-seeded sequence: 16400 of the 32768 rand() values give
+0..49 and 16368 give 50..99.
+
+THE NAME.  v1.35.58 and v1.35.59 wrote "Devoted Soul"; the owner renamed it
+"Charitable Soul" (v1.35.60).  The patch id stays vv5_devoted_soul_epitaph
+so existing selections and Owner's Defaults keep it ticked.  A grave written
+as "Devoted Soul" is history: nothing rewrites it, and no check reads a
+grave's epitaph against what the picker would give.
 """
 from __future__ import annotations
 
@@ -53,7 +67,7 @@ END = 0x464E19                 # push 0x20: the shared string fetch
 COPY = 0x464E28                # push eax: the writer's strncpy(entry+0x38, text, 0x20)
 RAND = 0x403660
 DEVOTEE = 5
-DEVOTED_SOUL = b"Devoted Soul\x00"
+CHARITABLE_SOUL = b"Charitable Soul\x00"
 # Each job's first string id, low byte (0x300 + this); the second is +1.
 FIRST_IDS = bytes([0x06, 0x0A, 0x0C, 0x08, 0x0E, 0x05])
 
@@ -90,7 +104,7 @@ def build_block() -> bytes:
     code += bytes.fromhex("E300")                    # jecxz pick               under 50: 0x305
     code += bytes.fromhex("6A20")                    # push 0x20                the strncpy limit
     string_fix = len(code) + 1
-    code += b"\xB8\0\0\0\0"                          # mov eax, "Devoted Soul"
+    code += b"\xB8\0\0\0\0"                          # mov eax, "Charitable Soul"
     code += b"\xE9" + rel32(COPY, 5)                 # jmp 0x464E28             strncpy(entry+0x38, eax, 0x20)
     pick = len(code)
     code += bytes.fromhex("8D8C1900030000")          # lea ecx, [ecx+ebx+0x300] the id
@@ -100,7 +114,7 @@ def build_block() -> bytes:
     table = START + len(code)
     code += FIRST_IDS
     string = START + len(code)
-    code += DEVOTED_SOUL
+    code += CHARITABLE_SOUL
     struct.pack_into("<I", code, table_fix, table)
     struct.pack_into("<I", code, string_fix, string)
     size = END - START
@@ -111,17 +125,18 @@ def build_block() -> bytes:
 
 
 DESCRIPTION = (
-    "When a Devotee dies and is buried, the epitaph New Believers writes on the grave is chosen at random between "
-    "\"Respected Citizen\" and \"Devoted Soul\", with equal chances. In the stock game every other job already gets one of "
-    "two epitaphs on a coin flip (a Farmer is \"Child of the Earth\" or \"Nature's Friend\", and so on), but a Devotee was "
-    "always \"Respected Citizen\", the game's default, which an adult with no skill at all also gets. A villager's job here "
-    "is the one the grave names: their highest skill. Only Devotees change: the unskilled adult keeps \"Respected "
-    "Citizen\", children and villagers with three or more master skills keep their own epitaphs, and every other job "
-    "keeps its pair. The epitaph is stored in the grave like any other, so it is saved with the village, the player can "
-    "still edit it, and the Deaths log records it."
+    "When a Devotee dies and is buried, the epitaph New Believers writes on the grave is chosen at random, with equal "
+    "chances, between the game's usual epitaph (\"Respected Citizen\", or \"Respected Devotee\" with Guardians of Isola "
+    "Rewrite) and \"Charitable Soul\". In the stock game every other job already gets one of two epitaphs on a coin flip "
+    "(a Farmer is \"Child of the Earth\" or \"Nature's Friend\", and so on), but a Devotee always got the usual epitaph, "
+    "which an adult with no skill at all also gets. A villager's job here is the one the grave names: their highest "
+    "skill. Only Devotees change: the unskilled adult keeps the usual epitaph, children and villagers with three or more "
+    "master skills keep their own epitaphs, and every other job keeps its pair. The epitaph is stored in the grave like "
+    "any other, so it is saved with the village, the player can still edit it, and the Deaths log records it. Graves "
+    "that earlier versions of this patch wrote as \"Devoted Soul\" keep that epitaph."
 )
 
-STOCK_TEXT = "always \"Respected Citizen\""
+STOCK_TEXT = "always the usual epitaph, string 0x305"
 
 
 def feature(block: bytes, before: bytes) -> dict:
@@ -131,30 +146,36 @@ def feature(block: bytes, before: bytes) -> dict:
         "catalog_enabled": True,
         "catalog_hidden": False,
         "game_id": "vv5",
-        "name": "Devoted Soul Epitaph",
+        "name": "Charitable Soul Epitaph",
         "description": DESCRIPTION,
-        "output_tag": "Devoted Soul Epitaph",
+        "output_tag": "Charitable Soul Epitaph",
         "behavior_changes": [
             "The Roster of the Dead writer (0x464C70) picks a buried Devotee's epitaph (grave job 5, Devotion the highest "
             "skill; an adult not taking the child or Esteemed Elder branch) as rand(100) through the game's own rand "
-            "(0x403660): under 50 the stock \"Respected Citizen\" (string 0x305, eEulogyDefault), 50 or over \"Devoted "
-            "Soul\" -- the same coin flip, on the same rand, that already gives every other job one of its two epitaphs. "
-            "Was " + STOCK_TEXT + ".",
-            "\"Devoted Soul\" (12 characters) is copied into the grave entry's epitaph, char[0x20] at entry +0x38, by the "
+            "(0x403660): under 50 the usual epitaph (string 0x305, eEulogyDefault: \"Respected Citizen\" in the stock "
+            "Assets/sm.xml, \"Respected Devotee\" in Guardians of Isola Rewrite's), 50 or over \"Charitable Soul\" -- the "
+            "same coin flip, on the same rand, that already gives every other job one of its two epitaphs. rand(100) is the "
+            "C runtime's rand() % 100, seeded once at start-up from the clock (srand(time(NULL)) at 0x402F97), so each "
+            "burial takes the next value of the game's one random stream. Was " + STOCK_TEXT + ".",
+            "\"Charitable Soul\" (15 characters) is copied into the grave entry's epitaph, char[0x20] at entry +0x38, by the "
             "writer's own strncpy at 0x464E28, exactly as a string-table epitaph is; the entry is saved, shown and "
             "editable like any other.",
         ],
         "explicit_non_changes": [
             "The writer's job dispatch and its five cases (0x464D86..0x464E19, 147 bytes) are recoded in place as one "
-            "case driven by a table of each job's first string id; the table and the \"Devoted Soul\" text live in the "
+            "case driven by a table of each job's first string id; the table and the \"Charitable Soul\" text live in the "
             "same bytes and the rest is int3 filler. No code is added outside the routine and no executable space is "
             "claimed; the five-entry jump table at 0x464E5C is left as it was, no longer used.",
             "Farmer, Parent, Doctor, Scientist and Builder get the same string id for the same rand value as stock; an "
-            "adult with no skill (job -1) still gets \"Respected Citizen\" without a rand call, as stock; children "
+            "adult with no skill (job -1) still gets the usual epitaph without a rand call, as stock; children "
             "(\"Curious and Playful\" / \"Loving and Special\"), three-or-more-master villagers (\"Esteemed Elder\", "
             "\"Retired Chief\") and every other field of the entry are unchanged.",
             "The grave dialog's epitaph editing is unchanged: a typed epitaph replaces the pick as in the stock game. The "
-            "game's string table (Assets/sm.xml) is not changed.",
+            "game's string table (Assets/sm.xml) is not changed, so the usual epitaph is whatever string 0x305 says in the "
+            "installed text, as in the stock game.",
+            "Graves that v1.35.58 and v1.35.59 wrote as \"Devoted Soul\" are never rewritten, and the Deaths log records "
+            "already written keep them; the patch id is unchanged (vv5_devoted_soul_epitaph), so selections and Owner's "
+            "Defaults made before the rename still tick it.",
         ],
         "companion_files": [],
         "patches": [
@@ -166,9 +187,9 @@ def feature(block: bytes, before: bytes) -> dict:
                     "the Roster of the Dead writer's epitaph pick by job (0x464D86..0x464E19): mov eax,[esi+0x28] / "
                     "cmp eax,5 / ja 0x464E19 (job -1 keeps 0x305) / movzx ebx, byte [eax+table] / push 0x64 / call rand "
                     "/ pop ecx / xor ecx,ecx / cmp eax,0x32 / setge cl / cmp ebx,5 / jne pick / jecxz pick / push 0x20 / "
-                    "mov eax,\"Devoted Soul\" / jmp 0x464E28 (the writer's strncpy) / pick: lea ecx,[ecx+ebx+0x300] / "
+                    "mov eax,\"Charitable Soul\" / jmp 0x464E28 (the writer's strncpy) / pick: lea ecx,[ecx+ebx+0x300] / "
                     "jmp 0x464E19; then the table 06 0A 0C 08 0E 05 (Farmer, Parent, Doctor, Scientist, Builder, "
-                    "Devotee) and \"Devoted Soul\\0\"; int3 filler"
+                    "Devotee) and \"Charitable Soul\\0\"; int3 filler"
                 ),
             }
         ],
