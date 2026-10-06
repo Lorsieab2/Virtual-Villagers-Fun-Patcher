@@ -42,6 +42,9 @@ SHARED = ROOT / "native" / "shared"
 CHECKS = 34 * 5 + 1 + 2 + 2 + 3 + 16 * 4 + 9 * 5   # + 9 per game: the quit-time repairs and Start Over's approval
 # + 2 in New Believers: another village's believer in a record a Heathen held is no conversion
 CHECKS += 2
+# + 2 per game with Birth records (The Lost Children on): a born villager's record is never his
+# arrived look-alike's (Codex, #536)
+CHECKS += 2 * 4
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

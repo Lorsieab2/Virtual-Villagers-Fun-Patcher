@@ -645,6 +645,8 @@ static void births_cases(void) {
     parented(5, "Arr", 5, 5);
     parented(6, "Sam", 2, 9);
     villager(7, "Sam", 700, 3, 9, 0);
+    parented(10, "Look", 3, 3);           /* born, with his Birth record */
+    villager(11, "Look", 700, 3, 3, 0);   /* an arrived look-alike, no record (Codex, #536) */
     if (game == 5) {
         parented(8, "Pagan", 7, 7);
         rec(8)[VV5_FACTION] = 1;
@@ -657,6 +659,8 @@ static void births_cases(void) {
         "Birth\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth\n  Child: Sam\n    Head: 1\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        "Birth\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Arrived 1\n  Name: Arr\n  Age at arrival: 300\n  Sex: Male\n  Head: 5\n  Body: 5\n"
         "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n");
@@ -735,6 +739,15 @@ static void births_cases(void) {
     save_done(1, buffer);
     read_into(path);
     CHECK(strcmp(before_log, text) == 0, "births: a second save writes nothing");
+    CHECK(count_of(text, "  Child: Look\r\n") == 1, "births: the born Look's Birth record is his: none written");
+    /* The Arrived records' backfill of the same village: the born Look (a
+       context villager there) takes his Birth record first, so his arrived
+       look-alike is not taken for in the log (Codex, #536). */
+    repair_arrivals(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strstr(text, "  Name: Look\r\n") != NULL,
+          "births: the arrived Look gets his own Arrived record; the born Look's Birth record is not his");
     unload();
     load();                               /* a new session: the DLLs may load elsewhere */
     scan_births = (scan_t)GetProcAddress(cause, "VvfpCauseScanBirths");
