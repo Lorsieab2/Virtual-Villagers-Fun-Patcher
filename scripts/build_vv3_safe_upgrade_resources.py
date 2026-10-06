@@ -78,8 +78,9 @@ FOUNDATION_OUTPUT = (
 # API, and the Heathen mask atlas is written to the game's Images folder by a
 # wide path, so a game folder the ANSI code page cannot spell still works.
 # Recertified for the cross-check pause fix and Story / Cheat Upgrades cost
-# Tech Points (native/shared/crosscheck_bridge.h, story_bridge.h; v1.35.61).
-SOURCE_SHA256 = "A88C748DED9EF9413A3132CE56527D32B40F6CCACCE1AEBE2041FD1E815AC165"
+# Tech Points (native/shared/crosscheck_bridge.h, story_bridge.h; v1.35.61), and
+# for the quit rescanning every village the setting examined (Codex, #542).
+SOURCE_SHA256 = "B820FB56FB1B42853958484491A7EE5B21C3DB3D72BE6B3863B6BE7BBBEF73D9"
 SOURCE_SIZE = 1960448
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

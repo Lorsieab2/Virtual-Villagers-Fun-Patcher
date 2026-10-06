@@ -333,7 +333,11 @@ static struct {
     int masks;                    /* orphan mask entries, when > 0 */
     char stats_text[1536];        /* their lines, from the statistics companion */
     /* What the quit owes the village loaded last: its slot, and whether it
-       is approved (Repair Logs) or found something (the setting). */
+       is approved (Repair Logs) or was examined with the setting on, so the
+       quit looks again from the state just saved (Codex, #542: something
+       that goes wrong later in the session -- a record write that failed on
+       a locked log -- must still be asked about, though the load found
+       nothing). */
     int quit_slot;
     int quit_approved;
     int quit_found;
@@ -669,7 +673,7 @@ static void vvfp_crosscheck_quit(int game, int slot) {
         return;
     }
     if (!vvfp_xc.quit_found) {
-        return;                       /* the load found nothing (or the setting is off: it never looked) */
+        return;                       /* the setting is off: the load never looked, nothing is owed */
     }
     (void)vvfp_xc_scan(game, slot);   /* again, from the state just saved */
     if (!vvfp_xc_any()) {
@@ -735,9 +739,10 @@ static void vvfp_xc_examine(int game, int slot, DWORD now) {
     vvfp_xc.examined = 1;
     vvfp_xc.quit_slot = slot;
     vvfp_xc.quit_approved = approved;
-    /* Something found -- or a part that never could tell: the quit looks
-       again, and asks only if it then finds something. */
-    vvfp_xc.quit_found = found != 0;
+    /* The quit looks again, whatever this scan found, and asks only if it
+       then finds something. */
+    (void)found;
+    vvfp_xc.quit_found = 1;
     if (approved && vvfp_xc_any()) {
         vvfp_xc_repair_at_save(game, slot);
     }

@@ -310,6 +310,17 @@ int main(void) {
     vvfp_crosscheck_quit(1, 1);
     check(g_boxes == 0 && nothing_repaired(), "... and nothing is asked at the quit");
 
+    /* ---- Clean at the load, wrong by the quit (Codex, #542): a record
+       write that failed later in the session is still asked about. ---- */
+    reset();
+    play(2, 1, 10000, 16);
+    check(g_scans == 1 && g_boxes == 0, "clean at the load: scanned once, silently");
+    g_graves = 1;                       /* a Death record that could not be written meanwhile */
+    g_answer = IDYES;
+    vvfp_crosscheck_quit(2, 1);
+    check(g_scans == 2 && g_boxes == 1 && g_now_graves == 1,
+          "... the quit looks again from the state just saved, asks, and repairs");
+
     /* ---- Not in the first seconds of a load. ---- */
     reset();
     g_parents = 1; g_counts[0] = 2;
@@ -443,8 +454,8 @@ int main(void) {
     g_slot = 2;
     g_graves = 0;
     play(2, 1, 8000, 16);              /* village 2: nothing */
-    g_graves = 1;
-    vvfp_crosscheck_quit(2, 2);
+    g_graves = 1;                      /* still wrong in village 1 */
+    vvfp_crosscheck_quit(2, 1);        /* a quit save of village 1's slot is not the load just checked */
     check(g_boxes == 0, "what the quit owes is the last village played's (another load replaces it)");
     reset();
     g_graves = 1;
