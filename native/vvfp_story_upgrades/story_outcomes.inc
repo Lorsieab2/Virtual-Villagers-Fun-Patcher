@@ -549,6 +549,13 @@ static int oc_answer(const unsigned int *regs) {
         }
         if (value >= 0) {
             OC_COUNT(forced);
+            /* The Secret City's name roll (0x45C67B): a setting names the list
+               entry, which the stock game reaches as roll + 1 (0x45C683 inc
+               eax).  Fix Vanilla Bugs makes that inc a nop (every default name
+               can be chosen), so the answer carries the + 1 itself. */
+            if (game == 3 && ret - 5u == 0x45C67Bu && *(const unsigned char *)(uintptr_t)0x45C683u == 0x90) {
+                ++value;
+            }
             if (bound <= 1) {
                 return 0;
             }
