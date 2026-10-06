@@ -103,6 +103,13 @@ static int c4_room(void) {
 static const ce_adapter C4_ADAPTER;
 static const ce_adapter *c4_adapter(void);
 
+/* A new villager to the population count 0x467610 (active +0x1CC4, not a
+   corpse +0x1CC7, health above 0, its expected babies +0x1C4C / +0x1C50),
+   the record count c4_demand and the record search (ce_room_left). */
+static const ce_probe_field C4_PROBE[] = {
+    { 0x1CC4, 1, 1, 1 }, { 0x1C40, 4, 90, 90 }, { 0x1CC7, 1, 0, 0 }, { 0x1C4C, 4, 0, 0 },
+};
+
 /* 0x467D10 (thiscall on the manager: attribute, skill, value, sex, age; ret
    0x14) -- the creator the Daredevil Barrel uses.  Attribute -1 is the
    game's own random; sex 0 male, 1 female. */
@@ -158,15 +165,16 @@ static int c4_sicken(int index) {
      triplets" achievement (0x412F90, ids 0x14-0x16) as forced = 0 gives it,
      and the parentage log as the routine's own trampoline writes it.
    An unknown father is "Unknown" with the carrier's own head and body.
-   There is no sex check in the conception or the delivery (0x4687E4). */
+   There is no sex or age check in the conception or the delivery (0x4687E4)
+   (the owner: any villager may be made pregnant). */
 static int c4_conceive(int index, int litter, int father, ce_result *result) {
     unsigned char *r = c4_record(index);
     unsigned char *f = father >= 0 ? c4_record(father) : NULL;
     const unsigned char *source = f != NULL ? f : r;
     int rolled;
     int babies;
-    if (*(int *)(r + 0x1C4C) != 0 || *(int *)(r + 0x1B8C) < 360) {
-        ++result->refused;
+    if (*(int *)(r + 0x1C4C) != 0) {
+        ce_refuse(result, CE_WHY_EXPECTING);
         return 0;
     }
     if (!c4_room()) {
@@ -176,9 +184,11 @@ static int c4_conceive(int index, int litter, int father, ce_result *result) {
     TC7(0x45E7B0u, r, *(int *)(source + 0x1B98), 0, 0,
         (int)(uintptr_t)(f != NULL ? (const char *)(f + 0x1B9C) : "Unknown"),
         *(int *)(source + 0x1BB8), *(int *)(source + 0x1BBC), 1);
+    /* The routine marks the pregnancy with the carrier's processed age
+       (+0x1C3C, copied at 0x45E830); a newborn carrier's is 0, which reads as
+       "not expecting", so 1 then, as New Believers' does. */
     if (*(int *)(r + 0x1C4C) == 0) {
-        ++result->refused;
-        return 0;
+        *(int *)(r + 0x1C4C) = 1;
     }
     rolled = *(int *)(r + 0x1C50);
     if (rolled == 2) {
@@ -354,13 +364,11 @@ static int c4_skeleton(const unsigned char *r) {
 
 /* Health through the game's own arbiter 0x46AF00 (cause back to -1), the
    last-update time +0x1C38 to the game clock 0x403750 (on 0x41FE70()),
-   then the stop.  Only while the room predicate 0x468350 says there is
-   room. */
+   then the stop.  The body keeps its own record, so no room is needed
+   (the owner, 2026-10-06: a revive "should just set skeletons' health ...
+   bypassing that problem" -- a full village of records included). */
 static int c4_revive(int index, int health, int cure) {
     unsigned char *r = c4_record(index);
-    if (!(TC0(0x468350u, C4_MANAGER) & 0xFF)) {
-        return -1;
-    }
     TC2(0x46AF00u, r + 0x1C34, health, -1);
     *(int *)(r + 0x1C38) = TC0(0x403750u, ((getter_fn)(uintptr_t)0x41FE70u)());
     if (cure) {
@@ -598,7 +606,7 @@ static const ce_adapter C4_ADAPTER = {
         | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Tree of Life",
-    0x118, 40, 1100,
+    0x118, 1600,
     C4_STOCK_COUNT, 0x19,
     0x1B9C, 0x1B90, 0x1B8C, 0x1BB8, 0x1BBC, 0x1E60, 0x1E6C, 0x1C5C,
     0, 1,
@@ -625,7 +633,7 @@ static const ce_adapter C4_ADAPTER = {
     "skeletons that have already crumbled away.\r\n"
     "- Weather other than rain and clear: the other types are not identified.\r\n"
     "- Golden Child, faction, totems: The Tree of Life has none.",
-    48, 14, 30, 1, 360,
+    48, 14, 30, 1,
     "Refills the berry bushes.",
     "Your village gains %d food.", "Your village has lost %d food.",
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
@@ -640,7 +648,9 @@ static const ce_adapter C4_ADAPTER = {
     /* The two-choice popup (0x417790): as The Secret City's -- 48 characters,
        11 lines (the tallest stock two-choice text), the title above the
        result, labels of 34 characters (the longest stock). */
-    48, 11, 48, 11, 0, 34, c4_rand_below, NULL
+    48, 11, 48, 11, 0, 34, c4_rand_below, NULL, NULL,
+    C4_PROBE, (int)(sizeof C4_PROBE / sizeof C4_PROBE[0]),
+    NULL, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

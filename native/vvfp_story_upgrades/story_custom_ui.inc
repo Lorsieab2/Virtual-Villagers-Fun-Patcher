@@ -36,12 +36,13 @@ enum {
     IDC_CH_LIKE_ADD = 2030, IDC_CH_LIKE_REMOVE = 2031, IDC_CH_DISLIKE_ADD = 2032,
     IDC_CH_DISLIKE_REMOVE = 2033, IDC_CH_SKILL_FIRST = 2040, IDC_CH_SKILL_LABEL_FIRST = 2050,
     IDC_CH_TITLE = 2060, IDC_CH_TITLE_CLEAR = 2061, IDC_CH_MASK = 2070, IDC_CH_STATUS = 2071,
-    IDC_CH_BEHAVIOUR = 2074, IDC_CH_PARENTS = 2080, IDC_CH_PARENTS_NOTE = 2081, IDC_CH_NOTE = 2090,
+    IDC_CH_BEHAVIOUR = 2074, IDC_CH_FAITH = 2075, IDC_CH_FAITH_LABEL = 2076, IDC_CH_FAITH_NOTE = 2077, IDC_CH_PARENTS = 2080, IDC_CH_PARENTS_NOTE = 2081, IDC_CH_NOTE = 2090,
     IDC_SP_COUNT = 3101, IDC_SP_SEX = 3102, IDC_SP_AGE = 3103, IDC_SP_AGE_RANGE = 3104,
     IDC_SP_NAME = 3105, IDC_SP_HEAD = 3106, IDC_SP_BODY = 3107, IDC_SP_LOOK_RANGE = 3108,
     IDC_SP_LIKE_FIRST = 3110, IDC_SP_DISLIKE_FIRST = 3113, IDC_SP_SKILL_FIRST = 3120,
     IDC_SP_SKILL_LABEL_FIRST = 3130, IDC_SP_TITLE = 3140, IDC_SP_MASK = 3141,
     IDC_SP_FACTION = 3142, IDC_SP_NOTE = 3150,
+    IDC_SP_UNITS = 3160, IDC_SP_YEARS = 3161, IDC_SP_COUNT_RANGE = 3162,
     IDC_PA_FATHER = 3201, IDC_PA_FATHER_HEAD = 3202, IDC_PA_FATHER_BODY = 3203,
     IDC_PA_MOTHER = 3204, IDC_PA_MOTHER_HEAD = 3205, IDC_PA_MOTHER_BODY = 3206,
     IDC_PA_RANGE = 3207
@@ -78,19 +79,32 @@ static struct {
 /* The main dialog's two uses, its DialogBoxParam argument. */
 enum { UI_MODE_EVENT = 0, UI_MODE_OUTCOME = 1 };
 
-/* The group toggles (named in the dialog template): the five of every game,
+/* The group toggles (named in the dialog template): the eight of every game,
    then from UI_HEATHEN_TOGGLE on New Believers' Heathen toggles, shown only
    in a game whose villagers can be Heathens. */
-#define UI_TOGGLES 12
-#define UI_HEATHEN_TOGGLE 5
+#define UI_TOGGLES 15
+#define UI_HEATHEN_TOGGLE 8
 static const int UI_TOGGLE_IDS[UI_TOGGLES] = {
-    2002, 2003, 2004, 2005, 2006, 2100, 2101, 2102, 2103, 2104, 2105, 2106
+    2002, 2003, 2004, 2005, 2006, 2107, 2108, 2109,
+    2100, 2101, 2102, 2103, 2104, 2105, 2106
 };
 static const unsigned int UI_TOGGLE_BITS[UI_TOGGLES] = {
     STORY_T_ADULT_WOMEN, STORY_T_ADULT_MEN, STORY_T_FEMALES, STORY_T_MALES, STORY_T_CHILDREN,
+    STORY_T_EVERYONE, STORY_T_FEMALE_CHILDREN, STORY_T_MALE_CHILDREN,
     STORY_T_HEATHENS, STORY_T_BLUE_HEATHENS, STORY_T_RED_HEATHENS, STORY_T_ORANGE_HEATHENS,
     STORY_T_PURPLE_HEATHENS, STORY_T_CHIEF_HEATHENS, STORY_T_HEATHEN_MOMMIES
 };
+
+/* Whether control id is one of the group toggles. */
+static int ui_is_toggle(int id) {
+    int i;
+    for (i = 0; i < UI_TOGGLES; ++i) {
+        if (UI_TOGGLE_IDS[i] == id) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 static void ui_message(HWND owner, const char *text) {
     MessageBoxA(owner, text, "Custom Island Event",
@@ -100,19 +114,49 @@ static void ui_message(HWND owner, const char *text) {
 /* A number typed in an edit box: CE_KEEP when blank, -1 when not a number. */
 static int ui_number(HWND window, int id) {
     char text[32];
-    int value = 0;
+    long long value = 0;
     int i;
     GetDlgItemTextA(window, id, text, sizeof text);
     if (text[0] == '\0') {
         return CE_KEEP;
     }
     for (i = 0; text[i] != '\0'; ++i) {
-        if (text[i] < '0' || text[i] > '9' || value > 100000000) {
+        if (text[i] < '0' || text[i] > '9') {
             return -1;
         }
         value = value * 10 + (text[i] - '0');
+        if (value > 0x7FFFFFFF) {
+            return -1;
+        }
     }
-    return value;
+    return (int)value;
+}
+
+/* A number that may start with '-': CE_KEEP when blank; anything that is
+   not a number of at most six digits as CE_FAITH_MAX + 1 (out of range). */
+static int ui_signed_number(HWND window, int id) {
+    char text[32];
+    int value = 0;
+    int i = 0;
+    int negative = 0;
+    GetDlgItemTextA(window, id, text, sizeof text);
+    if (text[0] == '\0') {
+        return CE_KEEP;
+    }
+    if (text[0] == '-') {
+        negative = 1;
+        i = 1;
+    }
+    if (text[i] == '\0') {
+        return CE_FAITH_MAX + 1;
+    }
+    for (; text[i] != '\0'; ++i) {
+        if (text[i] < '0' || text[i] > '9' || value > 99999) {
+            return CE_FAITH_MAX + 1;
+        }
+        value = value * 10 + (text[i] - '0');
+    }
+    return negative ? -value : value;
 }
 
 static void ui_enable(HWND window, int id, int enable) {
@@ -376,6 +420,7 @@ static void ce_change_init(ce_change *c) {
     c->father_head = c->father_body = c->mother_head = c->mother_body = CE_KEEP;
     c->unborn_head = c->unborn_body = CE_KEEP;
     c->unborn_skill = c->unborn_skill_value = CE_KEEP;
+    c->faith = CE_KEEP;
 }
 
 /* Merge `t` (the dialog's changes) into the draft's entry for villager
@@ -426,6 +471,7 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
     }
     if (t->mask != CE_KEEP) c->mask = t->mask;
     if (t->status != CE_KEEP) c->status = t->status;
+    if (t->faith != CE_KEEP) c->faith = t->faith;
     if (t->behaviour != CE_KEEP) c->behaviour = t->behaviour;
     if (t->parents_set) {
         c->parents_set = 1;
@@ -493,6 +539,49 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
     if (!(ui.a->caps & CAP_MASK)) t->mask = CE_KEEP;
     t->status = ui_combo_data(window, IDC_CH_STATUS);
     if (!(ui.a->caps & CAP_STATUS)) t->status = CE_KEEP;
+    if (t->litter > 0) {
+        /* A New Home's Golden Child in a pregnancy (the owner: risky actions
+           allowed, "Do this at your own risk"). */
+        int golden = t->father >= 0 && ui_roster_position(t->father) >= 0
+                     && ui.roster[ui_roster_position(t->father)].kind == STORY_KIND_GOLDEN_CHILD;
+        int i;
+        for (i = 0; i < count && !golden; ++i) {
+            int position = ui_roster_position(targets[i]);
+            golden = position >= 0 && ui.roster[position].kind == STORY_KIND_GOLDEN_CHILD;
+        }
+        if (golden && MessageBoxA(window, "The Golden Child never carries or fathers a baby in the game. "
+                                  "A baby with the Golden Child as a parent is born as another Golden "
+                                  "Child, which can confuse the Golden Child's puzzle. "
+                                  "Do this at your own risk.", "Custom Island Event: do at your own risk",
+                                  MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+            return 0;
+        }
+    }
+    if (t->status != CE_KEEP && ui.a->status_note != NULL) {
+        /* The owner (2026-10-06): purple, the Heathen Chief and the Heathen
+           Mommy for anyone, a puzzle's own Heathen included, "with a 'do at
+           your own risk' message": the statuses past the masks, or any type
+           for a Heathen the game itself made one of those. */
+        int risky = t->status >= 5;
+        int i;
+        for (i = 0; i < count && !risky && t->status >= 2; ++i) {
+            int position = ui_roster_position(targets[i]);
+            int kind = position >= 0 ? ui.roster[position].kind : STORY_KIND_NONE;
+            risky = kind == STORY_KIND_HEATHEN_PURPLE || kind == STORY_KIND_HEATHEN_CHIEF
+                    || kind == STORY_KIND_HEATHEN_MOMMY;
+        }
+        if (risky && MessageBoxA(window, ui.a->status_note, "Custom Island Event: do at your own risk",
+                                 MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+            return 0;
+        }
+    }
+    if (ui.a->caps & CAP_FAITH) {
+        t->faith = ui_signed_number(window, IDC_CH_FAITH);
+        if (t->faith != CE_KEEP && (t->faith < CE_FAITH_MIN || t->faith > CE_FAITH_MAX)) {
+            ui_message(window, "Faith is -100 to 100.");
+            return 0;
+        }
+    }
     t->behaviour = ui_combo_data(window, IDC_CH_BEHAVIOUR);
     if (!(ui.a->caps & CAP_BEHAVIOUR)) t->behaviour = CE_KEEP;
     if (ui.unborn_chosen && ui.unborn.unborn_set && (ui.a->caps & CAP_UNBORN)) {
@@ -518,23 +607,11 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         ui_message(window, "Choose at least one change.");
         return 0;
     }
-    if (t->litter > 0 || t->unborn_set) {
+    if (t->litter > 0) {
         for (i = 0; i < count; ++i) {
-            int position = ui_roster_position(targets[i]);
-            const story_member *m = &ui.roster[position];
-            if (m->age < ui.a->min_carrier_age) {
-                wsprintfA(text, "%s is too young: in this game a pregnancy needs an age of %d years or more.",
-                          ui.names[position], ui.a->min_carrier_age / 20);
-                ui_message(window, text);
-                return 0;
-            }
-            if (m->sex == STORY_SEX_MALE && !(ui.a->caps & CAP_MALE_PREGNANCY)) {
-                wsprintfA(text, "%s is male; in this game only females can be pregnant.",
-                          ui.names[position]);
-                ui_message(window, text);
-                return 0;
-            }
             if (t->father == targets[i]) {
+                /* The logs' family trees would hold a villager as their own
+                   parent. */
                 ui_message(window, "A villager can not be the father of their own baby.");
                 return 0;
             }
@@ -582,10 +659,10 @@ static void ui_setup_changes(HWND window) {
     ui_combo_add(window, IDC_CH_PREGNANCY, "Pregnant with triplets", 3);
     SendDlgItemMessageA(window, IDC_CH_PREGNANCY, CB_SETCURSEL, 0, 0);
     ui_combo_add(window, IDC_CH_FATHER, "Unknown", -1);
+    /* Any living villager may be named the father: the conception copies
+       his name, looks and family, whatever his sex or age. */
     for (i = 0; i < ui.roster_count; ++i) {
-        if (ui.roster[i].sex == STORY_SEX_MALE && ui.roster[i].age >= a->adult_age) {
-            ui_combo_add(window, IDC_CH_FATHER, ui.names[i], ui.roster[i].index);
-        }
+        ui_combo_add(window, IDC_CH_FATHER, ui.names[i], ui.roster[i].index);
     }
     SendDlgItemMessageA(window, IDC_CH_FATHER, CB_SETCURSEL, 0, 0);
     wsprintfA(text, "heads 0-%d, bodies 0-%d", a->head_count - 1, a->body_count - 1);
@@ -624,6 +701,9 @@ static void ui_setup_changes(HWND window) {
     ui_enable(window, IDC_CH_TITLE_CLEAR, (a->caps & CAP_TITLE) != 0);
     ui_enable(window, IDC_CH_MASK, (a->caps & CAP_MASK) != 0);
     ui_enable(window, IDC_CH_STATUS, (a->caps & CAP_STATUS) != 0);
+    ShowWindow(GetDlgItem(window, IDC_CH_FAITH), (a->caps & CAP_FAITH) ? SW_SHOW : SW_HIDE);
+    ShowWindow(GetDlgItem(window, IDC_CH_FAITH_LABEL), (a->caps & CAP_FAITH) ? SW_SHOW : SW_HIDE);
+    ShowWindow(GetDlgItem(window, IDC_CH_FAITH_NOTE), (a->caps & CAP_FAITH) ? SW_SHOW : SW_HIDE);
     ui_enable(window, IDC_CH_BEHAVIOUR, (a->caps & CAP_BEHAVIOUR) != 0);
     ui_enable(window, IDC_CH_PARENTS, (a->caps & CAP_PARENTS) != 0 && a->parents_supported());
     ui_enable(window, IDC_CH_UNBORN, (a->caps & CAP_UNBORN) != 0);
@@ -645,8 +725,7 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
     if (message == WM_COMMAND) {
         int id = LOWORD(wparam);
         if ((id == IDC_CH_LIST && HIWORD(wparam) == LBN_SELCHANGE)
-            || (id >= IDC_CH_TOGGLE_FIRST && id < IDC_CH_TOGGLE_FIRST + UI_HEATHEN_TOGGLE)
-            || (id >= UI_TOGGLE_IDS[UI_HEATHEN_TOGGLE] && id <= UI_TOGGLE_IDS[UI_TOGGLES - 1])) {
+            || ui_is_toggle(id)) {
             ui_show_count(window);
             return TRUE;
         }
@@ -701,6 +780,17 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
 
 /* ---- The new villagers dialog ------------------------------------------ */
 
+/* How many more new villagers (Heathens when heathen) this event can make:
+   the game's own room now (ce_room_left) less the ones already in the draft. */
+static int ui_spawn_room(int heathen) {
+    int room = ce_room_left(ui.a, heathen);
+    int i;
+    for (i = 0; i < ui.draft.spawn_groups; ++i) {
+        room -= ui.draft.spawns[i].count;
+    }
+    return room > 0 ? room : 0;
+}
+
 static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
     const ce_adapter *a = ui.a;
     char text[128];
@@ -708,12 +798,15 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
     (void)lparam;
     if (message == WM_INITDIALOG) {
         SetDlgItemTextA(window, IDC_SP_COUNT, "1");
+        wsprintfA(text, "1-%d (the room the village has now)", ui_spawn_room(0));
+        SetDlgItemTextA(window, IDC_SP_COUNT_RANGE, text);
+        CheckRadioButton(window, IDC_SP_UNITS, IDC_SP_YEARS, IDC_SP_UNITS);
         ui_combo_add(window, IDC_SP_SEX, "Male", STORY_SEX_MALE);
         ui_combo_add(window, IDC_SP_SEX, "Female", STORY_SEX_FEMALE);
         SendDlgItemMessageA(window, IDC_SP_SEX, CB_SETCURSEL, 0, 0);
-        wsprintfA(text, "%d-%d years", (a->min_spawn_age + 19) / 20, a->max_spawn_age / 20);
+        wsprintfA(text, "0-%d units / 0-%d years", ce_oldest_age(a), ce_oldest_age(a) / 20);
         SetDlgItemTextA(window, IDC_SP_AGE_RANGE, text);
-        SetDlgItemInt(window, IDC_SP_AGE, (UINT)((a->adult_age + 19) / 20 + 4), FALSE);
+        SetDlgItemInt(window, IDC_SP_AGE, (UINT)(a->adult_age + 80), FALSE);
         SendDlgItemMessageA(window, IDC_SP_NAME, EM_LIMITTEXT,
                             (WPARAM)((a->name_bytes < CE_NAME_BYTES ? a->name_bytes : CE_NAME_BYTES) - 1), 0);
         wsprintfA(text, "0-%d / 0-%d", a->head_count - 1, a->body_count - 1);
@@ -755,21 +848,42 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
         ce_spawn *s = &ui.spawn;
         int years;
         memset(s, 0, sizeof *s);
+        s->faction = (a->caps & CAP_SPAWN_FACTION) ? ui_combo_data(window, IDC_SP_FACTION) : CE_KEEP;
         s->count = ui_number(window, IDC_SP_COUNT);
-        if (s->count < 1 || s->count > CE_MAX_SPAWN_COUNT) {
-            wsprintfA(text, "Make 1-%d villagers of one kind at a time.", CE_MAX_SPAWN_COUNT);
-            ui_message(window, text);
-            return TRUE;
+        {
+            /* The village's room now (the game's own room predicate and its
+               records), less the new villagers this event already makes; the
+               delivery asks the game again for each one. */
+            int room = ui_spawn_room(s->faction == 1);
+            if (s->count < 1 || s->count > room) {
+                if (room < 1) {
+                    ui_message(window, "The village has no room for more villagers now (counting the ones this event already makes).");
+                } else {
+                    wsprintfA(text, "The village has room for 1-%d more villagers now (counting the ones this event already makes).", room);
+                    ui_message(window, text);
+                }
+                return TRUE;
+            }
         }
         s->sex = ui_combo_data(window, IDC_SP_SEX);
+        /* Game units (20 a year) unless Years is chosen; 0 is a full
+           villager made by the game's own creator, not a carried baby. */
         years = ui_number(window, IDC_SP_AGE);
-        if (years == CE_KEEP || years < 0 || years * 20 < a->min_spawn_age || years * 20 > a->max_spawn_age) {
-            wsprintfA(text, "The age must be %d-%d years.", (a->min_spawn_age + 19) / 20,
-                      a->max_spawn_age / 20);
-            ui_message(window, text);
-            return TRUE;
+        if (IsDlgButtonChecked(window, IDC_SP_YEARS) == BST_CHECKED) {
+            if (years == CE_KEEP || years < 0 || years > ce_oldest_age(a) / 20) {
+                wsprintfA(text, "The age must be 0-%d years.", ce_oldest_age(a) / 20);
+                ui_message(window, text);
+                return TRUE;
+            }
+            s->age = years * 20;
+        } else {
+            if (years == CE_KEEP || years < 0 || years > ce_oldest_age(a)) {
+                wsprintfA(text, "The age must be 0-%d game units (20 a year).", ce_oldest_age(a));
+                ui_message(window, text);
+                return TRUE;
+            }
+            s->age = years;
         }
-        s->age = years * 20;
         GetDlgItemTextA(window, IDC_SP_NAME, s->name, CE_NAME_BYTES);
         if (!ce_text_ok(s->name, 0) || lstrlenA(s->name) >= a->name_bytes) {
             ui_message(window, "A name may use letters, numbers, spaces and . , ! ? : - ' only.");
@@ -806,7 +920,6 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
             return TRUE;
         }
         s->mask = (a->caps & CAP_MASK) ? ui_combo_data(window, IDC_SP_MASK) : CE_KEEP;
-        s->faction = (a->caps & CAP_SPAWN_FACTION) ? ui_combo_data(window, IDC_SP_FACTION) : CE_KEEP;
         EndDialog(window, IDOK);
         return TRUE;
     }
@@ -1075,6 +1188,31 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
             if (health == CE_KEEP || health < 1 || health > 100) {
                 ui_message(window, "Health is 1-100.");
                 return TRUE;
+            }
+            {
+                /* The Secret City keeps one chief: a dead Tribal Chief brought
+                   back while another lives makes two (the owner: allowed,
+                   "with a message saying 'do this at your own risk'"). */
+                int dead_chief = 0;
+                int live_chief = 0;
+                for (i = 0; i < rows; ++i) {
+                    const unsigned char *r = ui.a->record((int)SendDlgItemMessageA(window, IDC_RV_LIST,
+                                                          LB_GETITEMDATA, (WPARAM)i, 0));
+                    if (r != NULL && SendDlgItemMessageA(window, IDC_RV_LIST, LB_GETSEL, (WPARAM)i, 0) > 0
+                        && ce_role(ui.a, r, NULL) == STORY_KIND_TRIBAL_CHIEF) {
+                        dead_chief = 1;
+                    }
+                }
+                for (i = 0; i < ui.roster_count; ++i) {
+                    live_chief |= ui.roster[i].kind == STORY_KIND_TRIBAL_CHIEF;
+                }
+                if (dead_chief && live_chief
+                    && MessageBoxA(window, "A Tribal Chief is chosen to come back while another chief lives: "
+                                   "the village would have two chiefs. Do this at your own risk.",
+                                   "Custom Island Event: do at your own risk",
+                                   MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2 | MB_TOPMOST) != IDOK) {
+                    return TRUE;
+                }
             }
             ui.draft.revive_count = 0;
             for (i = 0; i < rows && ui.draft.revive_count < CE_MAX_REVIVES; ++i) {

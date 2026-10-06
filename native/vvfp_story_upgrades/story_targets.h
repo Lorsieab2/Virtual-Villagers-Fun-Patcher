@@ -16,6 +16,10 @@
    picks the type: role +0x1CFC 12 and 14-16 purple, 13 the Chief, otherwise
    orange +0x1CED, red +0x1CEE or blue; role 17 is the Heathen Mommy.
 
+   Added (owner, 2026-10-05): "Everyone", "All Female Children" and "All
+   Male Children" in all five games ("child" is below the game's own adult
+   boundary, as for "All Children").
+
    The list's own extended selection (LBS_EXTENDEDSEL) gives Ctrl and Shift
    their standard meaning; this file only combines that selection with the
    toggles.  Each villager of the roster is visited once, so a villager that
@@ -35,7 +39,10 @@
 #define STORY_T_PURPLE_HEATHENS 0x0200u
 #define STORY_T_CHIEF_HEATHENS 0x0400u
 #define STORY_T_HEATHEN_MOMMIES 0x0800u
-#define STORY_T_ALL 0x0FFFu
+#define STORY_T_EVERYONE 0x1000u
+#define STORY_T_FEMALE_CHILDREN 0x2000u
+#define STORY_T_MALE_CHILDREN 0x4000u
+#define STORY_T_ALL 0x7FFFu
 
 #define STORY_SEX_MALE 1
 #define STORY_SEX_FEMALE 2
@@ -89,6 +96,15 @@ static int story_toggle_matches(const story_member *m, unsigned int toggles, int
         return 1;
     }
     if ((toggles & STORY_T_CHILDREN) && !adult) {
+        return 1;
+    }
+    if (toggles & STORY_T_EVERYONE) {
+        return 1;
+    }
+    if ((toggles & STORY_T_FEMALE_CHILDREN) && !adult && m->sex == STORY_SEX_FEMALE) {
+        return 1;
+    }
+    if ((toggles & STORY_T_MALE_CHILDREN) && !adult && m->sex == STORY_SEX_MALE) {
         return 1;
     }
     if ((toggles & STORY_T_HEATHENS) && story_is_heathen(m->kind)) {

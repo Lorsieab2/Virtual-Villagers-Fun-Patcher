@@ -161,8 +161,8 @@ static int c3_conceive(int index, int litter, int father, ce_result *result) {
     unsigned char *f = father >= 0 ? c3_record(father) : NULL;
     int babies;
     int age;
-    if (*(int *)(r + 0xE8C) != 0 || *(int *)(r + 0xDC4) < 360) {
-        ++result->refused;
+    if (*(int *)(r + 0xE8C) != 0) {
+        ce_refuse(result, CE_WHY_EXPECTING);
         return 0;
     }
     if (!c3_room()) {
@@ -303,16 +303,24 @@ static const char *const C3_STATUSES[] = {
    game keeps one chief (its robe lectures anyone dropped on it while a
    chief lives, 0x45FC00): so the living chief steps down first (his chief
    byte cleared; his robe stays, the game keeps no other body for him), or
-   the change is refused.  Adults only, as the robe's chooser picks. */
+   the change is refused.  Adults only, as the robe's chooser picks: the
+   robe is an adult body (a child's picture is not one of those rows).  The
+   chief already is: nothing to change. */
 static int c3_set_status(int index, int status) {
     unsigned char *r = c3_record(index);
     int i;
-    if ((status != 0 && status != 1) || r[0xE80] != 0 || *(int *)(r + 0xDC4) < 0x118) {
+    if (status != 0 && status != 1) {
         return 0;
+    }
+    if (r[0xE80] != 0) {
+        return 1;
+    }
+    if (*(int *)(r + 0xDC4) < 0x118) {
+        return ce_because(CE_WHY_CHILD_CHIEF);
     }
     if (TC0(0x45FC00u, C3_VILLAGE) & 0xFF) {
         if (status == 0) {
-            return 0;
+            return ce_because(CE_WHY_CHIEF);
         }
         for (i = 0; i < C3_COUNT; ++i) {
             unsigned char *other = c3_record(i);
@@ -388,17 +396,12 @@ static int c3_skeleton(const unsigned char *r) {
 
 /* Health through the game's own arbiter 0x462670 (the cause back to -1, the
    living value), the last-update time +0xE70 to the game clock 0x403330
-   (on 0x428B60()), then the stop.  Refused for a dead chief while another
-   chief lives (two chiefs); only while the room predicate 0x45FE30 says
-   there is room. */
+   (on 0x428B60()), then the stop.  The body keeps its own record: no room
+   is needed.  A dead chief comes back a chief even while another lives (the
+   owner, 2026-10-06: allowed, with a "do this at your own risk" message,
+   which the revive dialog shows). */
 static int c3_revive(int index, int health, int cure) {
     unsigned char *r = c3_record(index);
-    if (r[0xE80] != 0 && (TC0(0x45FC00u, C3_VILLAGE) & 0xFF)) {
-        return 0;
-    }
-    if (!(TC0(0x45FE30u, C3_VILLAGE) & 0xFF)) {
-        return -1;
-    }
     TC2(0x462670u, r + 0xE6C, health, -1);
     *(int *)(r + 0xE70) = TC0(0x403330u, ((getter_fn)(uintptr_t)0x428B60u)());
     if (cure) {
@@ -420,7 +423,7 @@ static void c3_change_food(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(uintptr_t)C3_FOOD = after;
     if (after > before) {
-        *(int *)(uintptr_t)0x5824ACu += after - before;
+        ce_count_gain((int *)(uintptr_t)0x5824ACu, after - before);
     }
 }
 
@@ -430,7 +433,7 @@ static void c3_change_tech(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(uintptr_t)C3_TECH = after;
     if (after > before) {
-        *(int *)(uintptr_t)0x5824A4u += after - before;
+        ce_count_gain((int *)(uintptr_t)0x5824A4u, after - before);
     }
 }
 
@@ -615,13 +618,21 @@ static int c3_role(const unsigned char *r, const char **words) {
     }
     return STORY_KIND_NONE;
 }
+
+/* A new villager to the population count 0x45E8F0 (present, health above
+   0, its expected babies), the record count c3_demand and the record
+   search. */
+static const ce_probe_field C3_PROBE[] = {
+    { 0xF10, 1, 1, 1 }, { 0xE78, 4, 90, 90 }, { 0xE94, 1, 0, 0 }, { 0xE8C, 4, 0, 0 },
+};
+
 static const ce_adapter C3_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
         | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_STATUS | CAP_VALUES
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Secret City",
-    0x118, 40, 1100,
+    0x118, 1600,
     C3_STOCK_COUNT, 0x19,
     0xDD4, 0xDC8, 0xDC4, 0xDF0, 0xDF4, 0xFB4, 0xFC0, 0xEAC,
     0, 1,
@@ -648,7 +659,7 @@ static const ce_adapter C3_ADAPTER = {
     "- Revive: buried villagers (their record is gone), skeletons that have already "
     "crumbled away, and a dead chief while another chief lives.\r\n"
     "- Golden Child, faction, totems: The Secret City has none.",
-    48, 14, 30, 1, 360,
+    48, 14, 30, 1,
     "Refills the fruit trees.",
     "Your village gains %d food.", "Your village has lost %d food.",
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
@@ -664,7 +675,9 @@ static const ce_adapter C3_ADAPTER = {
        one, 11 lines for the tallest of the question and the results (the
        tallest stock two-choice text; the popup also shows the villager);
        the title stays above the result; labels of 32 characters. */
-    48, 11, 48, 11, 0, 32, c3_rand_below, NULL, c3_role
+    48, 11, 48, 11, 0, 32, c3_rand_below, NULL, c3_role,
+    C3_PROBE, (int)(sizeof C3_PROBE / sizeof C3_PROBE[0]),
+    NULL, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
