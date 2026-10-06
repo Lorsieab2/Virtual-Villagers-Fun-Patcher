@@ -187,6 +187,20 @@ class GiveLastNames(unittest.TestCase):
 class CodexReview(GiveLastNames):
     """PR #553's review of the last names."""
 
+    def test_stale_records_after_the_end_of_list_flag_are_nobody(self):
+        # Live, 2026-10-06: a save keeps stale copies after the villagers; the game stops at the
+        # first entry whose flag is 0 and never loads them, so they are never offered or renamed.
+        ended = bytearray(entry("Gone", 0, 3, 1, 1))
+        ended[0:4] = bytes(4)                                   # the writer's end-of-list flag
+        ghost = entry("Ago", 0, 1, 5, 6)                        # a stale copy, still flagged 1
+        data = self.save.read_bytes()[:TABLE + 4 * STRIDE] + bytes(ended) + ghost + bytes(64)
+        self.save.write_bytes(data)
+        self.assertEqual([v.name for v in ln.living(self.folder, 3, 1)], ["Ago", "Aipi", "Kid", "Orphan"])
+        work = ln.plan(self.folder, 3, 1, self.chosen())
+        save = next(c for c in work.changes if c.path == self.save)
+        at = TABLE + 5 * STRIDE + 0x14
+        self.assertEqual(save.updated[at:at + 4], b"Ago\0", "the stale copy is left as it is")
+
     def test_another_games_logs_in_the_same_folder_are_left_alone(self):
         other = self._log("Deaths/Virtual Villagers 4 Deaths Log 1.txt",
                           "Village: Tribe (Save 1)\nArrived 1\n  Name: Ago\n  Head: 5\n  Body: 6\n\n")

@@ -153,37 +153,26 @@ def save_path(folder: Path, game: int, slot: int) -> Path:
 
 
 def _entries(game: int, data: bytes) -> list[int]:
-    """The name offset of every villager the save holds (the checker's own reading)."""
+    """The name offset of every villager the game loads from the save (the checker's own reading:
+    the records up to the first one not flagged present; the stale copies after it are never
+    loaded, scripts/vvfp_consistency_check.py PRESENT)."""
     checker = tools.load_checker()
     if game == 1:
         out = []
         for i in range(256):
             base = checker.VV1_BLOCK0 + i * checker.VV1_STRIDE
             rel = lambda off: base + off - checker.VV1_BASE  # noqa: E731
+            if _i32(data, rel(0x3D4)) != 1:
+                break
             name = _cstr(data, rel(0x370), 0x1B)
-            if _i32(data, rel(0x3D4)) == 1 and name and _i32(data, rel(0x350)) in (1, 2) \
+            if name and _i32(data, rel(0x350)) in (1, 2) \
                     and _i32(data, rel(0x344)) > 0:          # living: a body keeps the name it died with
                 out.append(rel(0x370))
         return out
-    lay = checker.LAYOUTS[game]
-    start = checker.table_start(data, lay, [])
-    if start is None:
-        raise LastNamesError("The save's villager table was not found.")
-    starts = [start]
-    end = start
-    while checker.plausible(data, end, lay):
-        end += lay.stride
-    if game != 2:
-        for m in checker.NAME_RE.finditer(data, max(end, start + 150 * lay.stride)):
-            if checker.plausible(data, m.start(), lay):
-                starts.append(m.start())
-                break
-    out = []
-    for p in starts:
-        while checker.plausible(data, p, lay):
-            out.append(p)
-            p += lay.stride
-    return out
+    try:
+        return checker.villager_offsets(game, data, [])
+    except ValueError:
+        raise LastNamesError("The save's villager table was not found.") from None
 
 
 def living(folder: Path, game: int, slot: int) -> list[Living]:

@@ -334,6 +334,69 @@ class Vv3Fixture(unittest.TestCase):
         self.assertEqual([v.name for v in checker.vv25_roster(3, bytes(data), [])], ["Vinapu", "Fill150"])
 
 
+class StaleRecords(unittest.TestCase):
+    """A save keeps stale villager records after the living ones; the game loads the records in
+    order and stops at the first not flagged present (live, 2026-10-06, all five games: the
+    owner's saves read as 39 / 104 / 124 / 100 / 115 / 106 villagers where the game loaded
+    37 / 90 / 123 / 86 / 5 / 90).  Nothing after that record is a villager."""
+
+    def vv1(self, flags):
+        data = bytearray(0x184 + 256 * 0x9C)
+        for i, flag in enumerate(flags):
+            base = 0x184 + i * 0x9C - 0x33C
+            struct.pack_into("<i", data, base + 0x350, 1)
+            struct.pack_into("<i", data, base + 0x344, 90)
+            struct.pack_into("<i", data, base + 0x3D4, flag)
+            name = f"Vil{i}".encode()
+            data[base + 0x370:base + 0x370 + len(name)] = name
+        return bytes(data)
+
+    def vv25(self, game, flags, extension=()):
+        lay = checker.LAYOUTS[game]
+        first = 0x400
+        data = bytearray(first + 150 * lay.stride + 0x40 + (len(extension) + 1) * lay.stride)
+        spots = [(first + i * lay.stride, flag, f"Vil{i}") for i, flag in enumerate(flags)]
+        ext = first + 150 * lay.stride + 0x40
+        spots += [(ext + i * lay.stride, flag, f"Ext{i}") for i, flag in enumerate(extension)]
+        for p, flag, name in spots:
+            data[p:p + len(name)] = name.encode()
+            struct.pack_into("<i", data, p + lay.age, 300)
+            struct.pack_into("<i", data, p + lay.head, 3)
+            struct.pack_into("<i", data, p + lay.body, 4)
+            if game in checker.PRESENT:
+                off, width = checker.PRESENT[game]
+                data[p + off:p + off + width] = flag.to_bytes(width, "little")
+                if game == 5:
+                    data[p + off + 1] = 1           # the entry header's next byte (the faction)
+        return bytes(data)
+
+    def test_a_new_home_stops_at_the_first_record_not_present(self):
+        self.assertEqual([v.name for v in checker.vv1_roster(self.vv1([1, 1, 0, 1, 1]))], ["Vil0", "Vil1"])
+
+    def test_the_later_games_stop_at_the_end_of_list_flag(self):
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                roster = checker.vv25_roster(game, self.vv25(game, [1, 1, 1, 0, 1, 1]), [])
+                self.assertEqual([v.name for v in roster], ["Vil0", "Vil1", "Vil2"])
+
+    def test_nothing_after_the_flag_is_read_from_the_256_extension_either(self):
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                ended = checker.vv25_roster(game, self.vv25(game, [1, 0, 1], extension=[1]), [])
+                self.assertEqual([v.name for v in ended], ["Vil0"])
+                full = checker.vv25_roster(game, self.vv25(game, [1] * 150, extension=[1, 0, 1]), [])
+                self.assertEqual([v.name for v in full][-2:], ["Vil149", "Ext0"])
+
+    def test_the_lost_children_has_no_flag_and_ends_at_its_zeroed_tail(self):
+        lay = checker.LAYOUTS[2]
+        data = bytearray(0x400 + 4 * lay.stride)
+        for i in range(2):
+            p = 0x400 + i * lay.stride
+            data[p:p + 4] = f"Vil{i}".encode()
+            struct.pack_into("<i", data, p + lay.age, 300)
+        self.assertEqual([v.name for v in checker.vv25_roster(2, bytes(data), [])], ["Vil0", "Vil1"])
+
+
 class ParsingFixtures(unittest.TestCase):
     def test_unknown_parents_are_no_parents_and_disagreement_is_any_field(self):
         game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "g"

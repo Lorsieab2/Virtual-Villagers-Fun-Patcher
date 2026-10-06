@@ -133,7 +133,10 @@ VV1_BLOCK0, VV1_STRIDE, VV1_BASE = 0x184, 0x9C, 0x33C
 
 def vv1_roster(data: bytes) -> list[Villager]:
     """A New Home: the save keeps record bytes +0x33C..+0x3D8 of all 256 records, packed, from
-    file +0x184; +0x3D4 is 1 for every villager the save holds (the repair tool's rule)."""
+    file +0x184; +0x3D4 is 1 for every villager the save holds.  The game loads the records in
+    order and stops at the first whose +0x3D4 is not 1: the records after it are stale copies
+    the game never loads, even those still flagged 1 (live, 2026-10-06: the owner's saves held
+    39 and 104 such records where the game loaded 37 and 90)."""
     if len(data) < VV1_BLOCK0 + 256 * VV1_STRIDE:
         raise ValueError(f"{len(data)} bytes is not an A New Home save")
     out = []
@@ -144,7 +147,9 @@ def vv1_roster(data: bytes) -> list[Villager]:
             return i32(data, base + off - VV1_BASE)
         name = cstr(data, base + 0x370 - VV1_BASE, 0x1B)
         gender = f(0x350)
-        if f(0x3D4) != 1 or not name or gender not in (1, 2):
+        if f(0x3D4) != 1:
+            break
+        if not name or gender not in (1, 2):
             continue
         raw = data[base:base + VV1_STRIDE]
         # vv1_mask_identity (native/vv1_origins_icons): name (to 0x1C bytes), 0xFF, gender, the family scalar.
@@ -256,44 +261,69 @@ def table_start(data: bytes, lay: SaveLayout, hint_names: list[str]) -> int | No
     return best
 
 
-def vv25_roster(game: int, data: bytes, hint_names: list[str]) -> list[Villager]:
-    # VV2 keeps all 256 slots in one table; VV3-VV5 keep 150 there and the rest in the extension.
+# Each saved entry's own flag (offset from the name, width).  The writer stores 1 for every
+# villager it packs and a 0 "end of list" flag after the last; the loader unpacks entries until
+# it meets a 0 flag (tests/save_table_emulator.py runs the real VV3 / VV4 code).  The entries
+# after that flag are stale -- left by deaths, departures, or a village restarted in the slot
+# -- and the game never loads them, even those still flagged 1 (live, 2026-10-06: the owner's
+# saves held 100 / 115 / 106 entries where The Secret City, The Tree of Life and New Believers
+# loaded 86 / 5 / 90).  The Lost Children has no flag: its writer zeroes every entry after the
+# last villager, so the plausible run ends there (live: 126 read, 126 loaded).
+PRESENT = {3: (-0x14, 4), 4: (-0x14, 4), 5: (-0x20, 1)}
+
+
+def present(data: bytes, p: int, game: int) -> bool:
+    """Whether the saved entry whose name is at `p` is flagged as a villager the game loads."""
+    if game not in PRESENT:
+        return True
+    off, width = PRESENT[game]
+    return p + off >= 0 and int.from_bytes(data[p + off:p + off + width], "little") != 0
+
+
+def villager_offsets(game: int, data: bytes, hint_names: list[str]) -> list[int]:
+    """The name offset of every villager the game loads from this save, in order."""
     lay = LAYOUTS[game]
     start = table_start(data, lay, hint_names)
     if start is None:
         raise ValueError("no villager table found")
     out = []
-    starts = [start]
+    p = start
+    while plausible(data, p, lay):
+        if not present(data, p, game):
+            return out                  # the end-of-list flag: nothing after it is loaded
+        out.append(p)
+        p += lay.stride
     # 256 Villagers (Experimental): villagers 151-256 are kept in an extension the patched game
     # appends to the save, as a second run of the same entries further on.
-    end = start
-    while plausible(data, end, lay):
-        end += lay.stride
     if game != 2:
         # Past the whole 150-entry table, never inside it; one villager is enough (151 living).
-        for m in NAME_RE.finditer(data, max(end, start + 150 * lay.stride)):
+        for m in NAME_RE.finditer(data, max(p, start + 150 * lay.stride)):
             if plausible(data, m.start(), lay):
-                starts.append(m.start())
+                q = m.start()
+                while plausible(data, q, lay) and present(data, q, game):
+                    out.append(q)
+                    q += lay.stride
                 break
-    for p in starts:
-        out.extend(_entries(data, p, lay, len(out), game))
     return out
 
 
-def _entries(data: bytes, p: int, lay: SaveLayout, first: int, game: int = 0) -> list[Villager]:
-    out = []
-    while plausible(data, p, lay):
-        ident, ident_v2, name_hash = mask_identity(game, data, p, lay) if game else (0, 0, 0)
-        skills = [(f32 if lay.skills_float else i32)(data, p + lay.skills + 4 * k) for k in range(lay.skill_count)]
-        out.append(Villager(rank=first + len(out), name=cstr(data, p, lay.name_cap),
-                            male=i32(data, p + lay.gender) == lay.male_value,
-                            age=i32(data, p + lay.age), head=i32(data, p + lay.head), body=i32(data, p + lay.body),
-                            skills=skills,
-                            father=cstr(data, p + lay.father, lay.parent_cap) if lay.father is not None else "",
-                            mother=cstr(data, p + lay.mother, lay.parent_cap) if lay.mother is not None else "",
-                            ident=ident, ident_v2=ident_v2, name_hash=name_hash))
-        p += lay.stride
-    return out
+def vv25_roster(game: int, data: bytes, hint_names: list[str]) -> list[Villager]:
+    # VV2 keeps all 256 slots in one table; VV3-VV5 keep 150 there and the rest in the extension.
+    lay = LAYOUTS[game]
+    return [_villager(data, p, lay, rank, game)
+            for rank, p in enumerate(villager_offsets(game, data, hint_names))]
+
+
+def _villager(data: bytes, p: int, lay: SaveLayout, rank: int, game: int) -> Villager:
+    ident, ident_v2, name_hash = mask_identity(game, data, p, lay)
+    skills = [(f32 if lay.skills_float else i32)(data, p + lay.skills + 4 * k) for k in range(lay.skill_count)]
+    return Villager(rank=rank, name=cstr(data, p, lay.name_cap),
+                    male=i32(data, p + lay.gender) == lay.male_value,
+                    age=i32(data, p + lay.age), head=i32(data, p + lay.head), body=i32(data, p + lay.body),
+                    skills=skills,
+                    father=cstr(data, p + lay.father, lay.parent_cap) if lay.father is not None else "",
+                    mother=cstr(data, p + lay.mother, lay.parent_cap) if lay.mother is not None else "",
+                    ident=ident, ident_v2=ident_v2, name_hash=name_hash)
 
 
 # ---- the logs -------------------------------------------------------------------------------
