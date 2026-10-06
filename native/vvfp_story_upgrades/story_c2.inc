@@ -62,13 +62,32 @@ static const char *c2_arm_refusal(void) {
     return NULL;
 }
 
+/* The records a new villager may take: the free ones less one for each
+   baby a living carrier expects (each takes a record at its birth; litter
+   +0x544 as the population count 0x425860 reads it: a second baby for 2, a
+   third for 3). */
+static int c2_spare_records(void) {
+    int spare = 0;
+    int i;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        const unsigned char *r = c2_record(i);
+        if (r[0x30] == 0) {
+            ++spare;
+        } else if (*(const int *)(r + 0x52C) > 0 && *(const int *)(r + 0x540) != 0) {
+            int litter = *(const int *)(r + 0x544);
+            spare -= litter == 3 ? 3 : litter == 2 ? 2 : 1;
+        }
+    }
+    return spare;
+}
+
 /* The game's own room predicate 0x44B310 (population below the mode's cap
-   and the housing gates) and a record the creator can use: in the
-   population modes with a 256 cap the renders' clamped slot scan would
-   otherwise reuse record 255 when every record is taken. */
+   and the housing gates) and a record to spare: in the population modes
+   with a 256 cap the renders' clamped slot scan would otherwise reuse
+   record 255 when every record is taken. */
 static int c2_room(void) {
     unsigned char *pool = VV2_POOL();
-    return pool != NULL && (TC0(0x44B310u, pool) & 0xFF) != 0 && c2_free_record() >= 0;
+    return pool != NULL && (TC0(0x44B310u, pool) & 0xFF) != 0 && c2_spare_records() > 0;
 }
 
 static void c2_apply_spawn_fields(unsigned char *r, const ce_spawn *s);
@@ -155,8 +174,8 @@ static int c2_conceive(int index, int litter, int father, ce_result *result) {
     unsigned char *f = father >= 0 ? c2_record(father) : NULL;
     int babies;
     int age;
-    if (*(int *)(r + 0x540) != 0 || *(int *)(r + 0x530) < 360) {
-        ++result->refused;
+    if (*(int *)(r + 0x540) != 0) {
+        ce_refuse(result, CE_WHY_EXPECTING);
         return 0;
     }
     if (!(TC0(0x44B310u, pool) & 0xFF)) {
@@ -237,16 +256,18 @@ static unsigned char *c2_totem_of(const unsigned char *r) {
    map 0x4478E0, and by nothing else for a statue. */
 static int c2_set_status(int index, int status) {
     unsigned char *r = c2_record(index);
-    if (status == 0) {
-        if (r[0x7FC] != 0 || c2_totems() >= 50 || c2_free_record() < 0) {
-            return 0;
+    if (status < 0 || status > 8) {
+        return 0;
+    }
+    if (r[0x7FC] == 0) {
+        if (c2_totems() >= 50 || c2_free_record() < 0) {
+            return ce_because(CE_WHY_TOTEMS);
         }
         TC1(0x44D190u, VV2_POOL(), index);
         ++*(int *)(VV2_WORLD() + 0x2E514);
-        return 1;
     }
-    if (status >= 1 && status <= 8) {
-        unsigned char *totem = r[0x7FC] != 0 ? c2_totem_of(r) : NULL;
+    if (status >= 1) {
+        unsigned char *totem = c2_totem_of(r);
         int value;
         if (totem == NULL) {
             return 0;
@@ -260,9 +281,8 @@ static int c2_set_status(int index, int status) {
             value -= 8;
         }
         *(int *)(totem + 0x550) = value;
-        return 1;
     }
-    return 0;
+    return 1;
 }
 
 /* What stock code does to one villager (thiscall on the pool, the index):
@@ -418,13 +438,10 @@ static int c2_skeleton(const unsigned char *r) {
 
 /* Health again, after the last-update time +0x528 is set to the game clock
    0x403200 (else the villager ages by the time spent dead), then the stop
-   0x4492A0.  Only while the room predicate 0x44B310 says there is room. */
+   0x4492A0.  The body keeps its own record: no room is needed. */
 static int c2_revive(int index, int health, int cure) {
     unsigned char *pool = VV2_POOL();
     unsigned char *r = c2_record(index);
-    if (!(TC0(0x44B310u, pool) & 0xFF)) {
-        return -1;
-    }
     *(int *)(r + 0x528) = TC0(0x403200u, VV2_WORLD());
     *(int *)(r + 0x52C) = health;
     if (cure) {
@@ -448,7 +465,7 @@ static void c2_change_food(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(world + 0x2EAA4) = after;
     if (after > before) {
-        *(int *)(world + 0x2E504) += after - before;
+        ce_count_gain((int *)(world + 0x2E504), after - before);
     }
 }
 
@@ -459,7 +476,7 @@ static void c2_change_tech(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(world + 0x2EADC) = after;
     if (after > before) {
-        *(int *)(world + 0x2E4FC) += after - before;
+        ce_count_gain((int *)(world + 0x2E4FC), after - before);
     }
 }
 
@@ -714,13 +731,25 @@ static void c2_apply_spawn_fields(unsigned char *r, const ce_spawn *s) {
     ce_apply_spawn_record(&C2_ADAPTER, r, s);
 }
 
+/* What the game makes of a villager: an Esteemed Elder (+0x7FC, set by the
+   elder-and-totem routine 0x44D190 with the totem it makes). */
+static int c2_kind(const unsigned char *r) {
+    return r[0x7FC] != 0 ? STORY_KIND_ESTEEMED_ELDER : STORY_KIND_NONE;
+}
+
+/* A new villager to the population count 0x425860 (active, health above 0,
+   not a totem, its expected babies) and the record search. */
+static const ce_probe_field C2_PROBE[] = {
+    { 0x30, 1, 1, 1 }, { 0x52C, 4, 90, 90 }, { 0x558, 1, 0, 0 }, { 0x540, 4, 0, 0 },
+};
+
 static const ce_adapter C2_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
         | CAP_BEHAVIOUR | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES | CAP_PUZZLES
         | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Lost Children",
-    0x118, 40, 1100,
+    0x118, 1600,
     VV2_RECORD_COUNT, 0x18,
     0x564, 0x538, 0x530, 0x548, 0x54C, 0x5F0, 0x6E8, 0x7E4,
     1, 2,
@@ -747,13 +776,11 @@ static const ce_adapter C2_ADAPTER = {
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
     "- Golden Child, chief, faction: The Lost Children has none.\r\n"
-    "- An Esteemed Elder's totem type can only be changed once the villager is an "
-    "Esteemed Elder (the game makes the totem then).\r\n"
     "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
     "embracing, and lessons or games that stop other villagers.\r\n"
     "- Revive: totems, buried villagers (their record is gone) and skeletons that have "
     "already crumbled away.",
-    46, 20, 46, 0, 360,
+    46, 20, 46, 0,
     "Refills the coconut trees, the fish (to the village's starting stock), the field's "
     "protection from birds and, while the farm is planted, the crops.",
     "Your villagers gain %d food.", "Your villagers lose %d food.",
@@ -771,7 +798,10 @@ static const ce_adapter C2_ADAPTER = {
        (the tallest stock family A text) less the two the villager's
        picture adds under the title; the result replaces the whole
        text, title included; labels of 30 characters (the longest stock). */
-    46, 16, 46, 16, 1, 30, c2_rand_below, NULL
+    46, 16, 46, 16, 1, 30, c2_rand_below, NULL,
+    C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
+    0, NULL, 0,
+    NULL, c2_kind, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

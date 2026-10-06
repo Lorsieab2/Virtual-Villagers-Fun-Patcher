@@ -54,28 +54,36 @@ static const char *c1_arm_refusal(void) {
     return NULL;
 }
 
-/* A record the creator can use: it takes the first record whose occupied
-   byte is 0 (0x43C374) and has no bound of its own, and a corpse keeps its
-   record, so the population count alone can not say a record is free.
-   (0x43A200 is NOT that search: it returns the first corpse.) */
-static int c1_free_record(void) {
+/* The records a new villager may take: the creator takes the first record
+   whose occupied byte is 0 (0x43C374) and has no bound of its own, and a
+   corpse keeps its record, so the population count alone can not say a
+   record is free.  (0x43A200 is NOT that search: it returns the first
+   corpse.)  Each baby a living carrier expects takes a record at its birth
+   too (0x42EF39, 0x42EFD0: a second for any litter value, a third for 3),
+   so those are kept for them. */
+static int c1_spare_records(void) {
+    int spare = 0;
     int i;
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-        if (c1_record(i)[0x28] == 0) {
-            return i;
+        const unsigned char *r = c1_record(i);
+        if (r[0x28] == 0) {
+            ++spare;
+        } else if (*(const int *)(r + 0x344) > 0 && *(const int *)(r + 0x358) != 0) {
+            int litter = *(const int *)(r + 0x35C);
+            spare -= litter == 3 ? 3 : litter != 0 ? 2 : 1;
         }
     }
-    return -1;
+    return spare;
 }
 
 /* The game's own room predicate 0x43A1A0 (population below the mode's cap
-   and the housing gates) and a free record. */
+   and the housing gates) and a record to spare. */
 static int c1_room(void) {
     unsigned char *array = VV1_ARRAY();
     if (array == NULL) {
         return 0;
     }
-    return (TC0(0x43A1A0u, array) & 0xFF) != 0 && c1_free_record() >= 0;
+    return (TC0(0x43A1A0u, array) & 0xFF) != 0 && c1_spare_records() > 0;
 }
 
 static const ce_adapter C1_ADAPTER;
@@ -147,10 +155,13 @@ static int c1_conceive(int index, int litter, int father, ce_result *result) {
     unsigned char *r = c1_record(index);
     int babies = 0;
     int age;
-    if (*(int *)(r + 0x358) != 0 || *(int *)(r + 0x348) < 360
-        || *(int *)(r + 0x36C) == VV1_GOLDEN_FAMILY
+    if (*(int *)(r + 0x358) != 0) {
+        ce_refuse(result, CE_WHY_EXPECTING);
+        return 0;
+    }
+    if (*(int *)(r + 0x36C) == VV1_GOLDEN_FAMILY
         || (father >= 0 && *(int *)(c1_record(father) + 0x36C) == VV1_GOLDEN_FAMILY)) {
-        ++result->refused;
+        ce_refuse(result, CE_WHY_GOLDEN_CHILD);
         return 0;
     }
     if (!(TC0(0x43A1A0u, array) & 0xFF)) {
@@ -306,14 +317,10 @@ static int c1_skeleton(const unsigned char *r) {
 /* Death is health 0 alone (0x42EF05), so life is health again -- after the
    last-update time +0x340 is set to the game clock 0x402F70 (live: without
    it the first living tick ages the villager by the time spent dead) --
-   then the AI reset.  Only while the game's own room predicate says the
-   village has room. */
+   then the AI reset.  The body keeps its own record: no room is needed. */
 static int c1_revive(int index, int health, int cure) {
     unsigned char *array = VV1_ARRAY();
     unsigned char *r = c1_record(index);
-    if (!(TC0(0x43A1A0u, array) & 0xFF)) {
-        return -1;
-    }
     *(int *)(r + 0x340) = TC0(0x402F70u, VV1_WORLD());
     *(int *)(r + 0x344) = health;
     if (cure) {
@@ -582,7 +589,7 @@ static void c1_change_food(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(world + 0xA2EC) = after;
     if (after > before) {
-        *(int *)(world + 0x9E28) += after - before;
+        ce_count_gain((int *)(world + 0x9E28), after - before);
     }
 }
 
@@ -593,7 +600,7 @@ static void c1_change_tech(int op, int amount) {
     ce_amount(op, amount, before, &after);
     *(int *)(world + 0xA2FC) = after;
     if (after > before) {
-        *(int *)(world + 0x9E20) += after - before;
+        ce_count_gain((int *)(world + 0x9E20), after - before);
     }
 }
 
@@ -658,13 +665,25 @@ static int c1_rand_below(int n) {
     return VV1_RAND(n);
 }
 
+/* What the game makes of a villager: the Golden Child is family 0xC7
+   (0x43C7AF forces his looks, age and skills by it). */
+static int c1_kind(const unsigned char *r) {
+    return *(const int *)(r + 0x36C) == VV1_GOLDEN_FAMILY ? STORY_KIND_GOLDEN_CHILD : STORY_KIND_NONE;
+}
+
+/* A new villager to the room predicate's count 0x41CF90 (occupied, health
+   above 0, its expected babies) and the record search (ce_room_left). */
+static const ce_probe_field C1_PROBE[] = {
+    { 0x28, 1, 1, 1 }, { 0x344, 4, 90, 90 }, { 0x358, 4, 0, 0 },
+};
+
 static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
         | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_REVIVE | CAP_CHOICE,
     "A New Home",
-    280, 40, 1100,
+    280, 1600,
     VV1_RECORD_COUNT, 0x1C,
     0x370, 0x350, 0x348, 0x360, 0x364, 0x398, 0x3A8, 0x3BC,
     1, 2,
@@ -695,7 +714,7 @@ static const ce_adapter C1_ADAPTER = {
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away.\r\n"
     "- The grave screen keeps the job a villager had when buried.",
-    51, 14, 51, 0, 360,
+    51, 14, 51, 0,
     "Refills the berry bushes and, once the farm is producing, the crops.",
     "Your tribe gains %d food.", "Your tribe loses %d food.",
     "Your tribe gains %d tech points.", "Your tribe loses %d tech points.",
@@ -712,7 +731,10 @@ static const ce_adapter C1_ADAPTER = {
        pixels) less the two the villager's picture adds under the title
        (story_c1.inc, "Two choices"); the result replaces the whole text,
        title included; labels of 34 characters (the longest stock label). */
-    49, 13, 49, 13, 1, 34, c1_rand_below, NULL
+    49, 13, 49, 13, 1, 34, c1_rand_below, NULL,
+    C1_PROBE, (int)(sizeof C1_PROBE / sizeof C1_PROBE[0]),
+    VV1_LONGEVITY_SITE, VV1_LONGEVITY_BYTES, (int)sizeof VV1_LONGEVITY_BYTES,
+    NULL, c1_kind, NULL
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

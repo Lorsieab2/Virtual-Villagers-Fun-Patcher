@@ -41,11 +41,24 @@ typedef struct {
     const char *note;
 } ce_puzzle_def;
 
+/* One field of a record as a new villager has it (ce_room_left): `size`
+   1 or 4 bytes, `value` for a villager, `heathen_value` for a New Believers
+   Heathen. */
+typedef struct {
+    unsigned int offset;
+    int size;
+    int value;
+    int heathen_value;
+} ce_probe_field;
+#define CE_PROBE_FIELDS 6
+
 typedef struct {
     unsigned int caps;
     const char *game_name;
     int adult_age;                 /* the game's own adult boundary, age units */
-    int min_spawn_age;             /* age units */
+    /* The oldest a villager lives, age units: the old-age death 160 x
+       Medicine + 940 units with Medicine at its ceiling 3 is certain 10 years
+       past it (1620), so 80 years.  A new villager is 0 up to this. */
     int max_spawn_age;
     int record_count;
     int name_bytes;                /* the record's name field, NUL included */
@@ -87,7 +100,6 @@ typedef struct {
     int text_lines;                /* lines, title included */
     int title_width;               /* the title's characters (one line) */
     int title_separate;            /* 1 = the title is its own string (VV3-VV5) */
-    int min_carrier_age;           /* the youngest a pregnancy may be given, age units */
     const char *refill_note;       /* what "Refill the food sources" refills here */
     /* The game's own wording of a food / tech outcome line (%d = amount). */
     const char *food_gain;
@@ -149,6 +161,23 @@ typedef struct {
                                       companion's own generator) */
     int (*featurable)(const unsigned char *record);   /* a listed villager the question's
                                       picture may show (NULL = any) */
+    /* ce_room_left: the fields that make a free record one more living
+       villager (new, not expecting) to the game's own room predicate and
+       record count; probe[0] is the byte that marks a record taken. */
+    const ce_probe_field *probe;
+    int probe_count;
+    /* A row that moves the old-age death 140 units (7 years) later -- A New
+       Home's Magic Fruit of Life Alters Mortality, The Secret City's Nature
+       Level 3 Actually Alters Mortality: its detour's bytes at the threshold
+       (story_tables.h); 0 / NULL = this game has none. */
+    unsigned int longevity_site;
+    const unsigned char *longevity_bytes;
+    int longevity_length;
+    void (*set_faith)(int index, int faith);   /* CAP_FAITH */
+    /* What the game itself makes of a listed villager (STORY_KIND_*): the
+       list's label and the Heathen toggles.  NULL = nothing special. */
+    int (*kind)(const unsigned char *record);
+    const char *status_note;       /* a warning beside the status choices, or NULL */
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
@@ -160,6 +189,93 @@ static int ce_armed;               /* 1 while an event is queued and not yet del
 static DWORD ce_armed_tick;
 static story_village ce_armed_village;   /* the village it was queued in */
 static ce_result ce_last_result;
+
+/* ---- Why a change was refused ---------------------------------------------- */
+
+/* The reason the last adapter call that refused gave (ce_because), or -1
+   when it gave none: ce_refuse_as then counts the caller's own. */
+static int ce_why_given = -1;
+
+/* For an adapter: refuse (returns 0) because of `why`. */
+static int ce_because(int why) {
+    ce_why_given = why;
+    return 0;
+}
+
+/* Count one refused change, under `why`. */
+static void ce_refuse(ce_result *r, int why) {
+    ++r->refused;
+    ++r->why[why >= 0 && why < CE_WHY_COUNT ? why : CE_WHY_OTHER];
+}
+
+/* Count one refused change under the reason the adapter gave, else `why`. */
+static void ce_refuse_as(ce_result *r, int why) {
+    ce_refuse(r, ce_why_given >= 0 ? ce_why_given : why);
+    ce_why_given = -1;
+}
+
+/* Each reason as the popup words it, after "because". */
+static const char *const CE_WHY_WORDS[CE_WHY_COUNT] = {
+    "the game's own rules did not allow it",
+    "a likes or dislikes list was full",
+    "the villager was too young",
+    "the villager was already expecting",
+    "the villager was not expecting",
+    "the Golden Child never carries or fathers a baby",
+    "the game cures a Heathen at once",
+    "a puzzle's own Heathen keeps their faction",
+    "a Tribal Chief already lives",
+    "only an adult becomes the Tribal Chief",
+    "there was no room for another totem",
+    "a puzzle could not be changed that way now",
+    "an amount could not be set now",
+    "a village change was not possible now",
+    "a skeleton could not be brought back",
+    "a custom title could not be saved",
+    "the parents could not be changed",
+    "parents need Show Parents in Details Screen",
+    "a mask could not be set",
+    "the villager could not do that now",
+};
+
+/* 1 while ce_compose_in words each refusal's reason (the popup has room),
+   0 for the count alone. */
+static int ce_compose_reasons = 1;
+
+/* The refusals with their reasons, into `out` (CE_WHY_COUNT * 72 + 48
+   bytes: every reason at its longest): "58 changes could not be made: 52
+   because ..., 6 because ...", or "... because ..." for one reason.  0 when
+   no reason was counted. */
+static int ce_why_line(const ce_result *r, char *out) {
+    char part[96];
+    int kinds = 0;
+    int shown = 0;
+    int k;
+    for (k = 0; k < CE_WHY_COUNT; ++k) {
+        kinds += r->why[k] > 0;
+    }
+    if (kinds == 0) {
+        return 0;
+    }
+    if (kinds == 1) {
+        for (k = 0; r->why[k] == 0; ++k) {
+        }
+        if (r->refused == 1) {
+            wsprintfA(out, "1 change could not be made because %s.", CE_WHY_WORDS[k]);
+        } else {
+            wsprintfA(out, "%d changes could not be made because %s.", r->refused, CE_WHY_WORDS[k]);
+        }
+        return 1;
+    }
+    wsprintfA(out, "%d changes could not be made: ", r->refused);
+    for (k = 0; k < CE_WHY_COUNT; ++k) {
+        if (r->why[k] > 0) {
+            wsprintfA(part, "%d because %s%s", r->why[k], CE_WHY_WORDS[k], ++shown == kinds ? "." : ", ");
+            lstrcatA(out, part);
+        }
+    }
+    return 1;
+}
 static int ce_last_lapsed;         /* the last queued event lapsed before it could happen */
 /* Two-choice events.  Two stores, so a question the game is showing (asked,
    waiting for a click) is never overwritten by the next event armed: the
@@ -272,7 +388,8 @@ static unsigned char *ce_same_villager(const ce_adapter *a, int index, unsigned 
     return record;
 }
 
-/* The roster the target list shows: every listed villager, in record order. */
+/* The roster the target list shows: every listed villager, in record order,
+   read live. */
 static int ce_roster(const ce_adapter *a, story_member *out, int cap) {
     int i;
     int n = 0;
@@ -284,7 +401,121 @@ static int ce_roster(const ce_adapter *a, story_member *out, int cap) {
         out[n].index = i;
         out[n].sex = ce_sex(a, record);
         out[n].age = ce_age(a, record);
+        /* Carrying or nursing a baby: the game's own "expecting" field,
+           whoever the carrier is. */
+        out[n].nursing = *(const int *)(record + a->off_pregnant) != 0;
+        out[n].kind = a->kind != NULL ? a->kind(record) : STORY_KIND_NONE;
+        out[n].dead = 0;
         ++n;
+    }
+    return n;
+}
+
+/* The villager picker's roster: the living (ce_roster), then every body
+   awaiting burial the game can bring back (CAP_REVIVE), marked dead. */
+static int ce_picker_roster(const ce_adapter *a, story_member *out, int cap) {
+    int n = ce_roster(a, out, cap);
+    int i;
+    if (!(a->caps & CAP_REVIVE)) {
+        return n;
+    }
+    for (i = 0; i < a->record_count && n < cap; ++i) {
+        const unsigned char *record = a->record(i);
+        if (record == NULL || !a->skeleton(record)) {
+            continue;
+        }
+        out[n].index = i;
+        out[n].sex = ce_sex(a, record);
+        out[n].age = ce_age(a, record);
+        out[n].nursing = 0;
+        out[n].kind = a->kind != NULL ? a->kind(record) : STORY_KIND_NONE;
+        out[n].dead = 1;
+        ++n;
+    }
+    return n;
+}
+
+/* The picker's words for a villager's STORY_KIND_* (NULL: none). */
+static const char *ce_kind_words(int kind) {
+    static const char *const WORDS[STORY_KIND_COUNT] = {
+        NULL, "Believer", "Heathen, blue", "Heathen, orange", "Heathen, red", "Heathen, purple",
+        "Heathen Chief", "Heathen Mommy", "Believer, Retired Chief", "Golden Child",
+        "Esteemed Elder", "Tribal Chief",
+    };
+    return kind > 0 && kind < STORY_KIND_COUNT ? WORDS[kind] : NULL;
+}
+
+/* ---- How old, how many ------------------------------------------------------ */
+
+/* The oldest age a new villager may have, age units: the game's own
+   oldest living age (max_spawn_age), 140 units (7 years) later when this
+   executable holds the row that moves the old-age death that much later. */
+static int ce_oldest_age(const ce_adapter *a) {
+    if (a->longevity_bytes != NULL && mem_readable(a->longevity_site, a->longevity_length)
+        && memcmp((const void *)(uintptr_t)a->longevity_site, a->longevity_bytes,
+                  (size_t)a->longevity_length) == 0) {
+        return a->max_spawn_age + 140;
+    }
+    return a->max_spawn_age;
+}
+
+/* The first record with nothing in it (its taken byte 0). */
+static unsigned char *ce_free_record(const ce_adapter *a) {
+    int i;
+    for (i = 0; i < a->record_count; ++i) {
+        unsigned char *record = a->record(i);
+        if (record[a->probe[0].offset] == 0) {
+            return record;
+        }
+    }
+    return NULL;
+}
+
+/* How many new villagers (Heathens when `heathen`) the village has room for
+   now: the number the delivery would make, one after another, before the
+   game's own room predicate -- the installed mode's cap, the housing gates,
+   the population with every expecting carrier's babies -- or the records
+   (the living, the bodies awaiting burial and, The Lost Children and A New
+   Home included, the babies those carriers will need) say no.  Asked of the
+   game itself: each free record in turn is made to look like a new villager
+   (a.probe) and the adapter's room() asked again; every byte is put back
+   before this returns, on the game's own thread, so nothing else ever sees
+   them. */
+static int ce_room_left(const ce_adapter *a, int heathen) {
+    static struct {
+        unsigned char *record;
+        unsigned char kept[CE_PROBE_FIELDS][4];
+    } taken[CE_MAX_RECORDS];
+    int n = 0;
+    int k;
+    for (;;) {
+        unsigned char *record;
+        if (n >= a->record_count || !a->room()) {
+            break;
+        }
+        /* Never NULL while room() says yes: every adapter's room() wants a
+           free record of its own (a record nobody takes, A New Home and The
+           Lost Children; the records less every taken one and expected baby,
+           the later games). */
+        record = ce_free_record(a);
+        taken[n].record = record;
+        for (k = 0; k < a->probe_count && k < CE_PROBE_FIELDS; ++k) {
+            const ce_probe_field *f = &a->probe[k];
+            int value = heathen ? f->heathen_value : f->value;
+            memcpy(taken[n].kept[k], record + f->offset, (size_t)f->size);
+            if (f->size == 1) {
+                record[f->offset] = (unsigned char)value;
+            } else {
+                *(int *)(record + f->offset) = value;
+            }
+        }
+        ++n;
+    }
+    for (k = n - 1; k >= 0; --k) {
+        int f;
+        for (f = 0; f < a->probe_count && f < CE_PROBE_FIELDS; ++f) {
+            memcpy(taken[k].record + a->probe[f].offset, taken[k].kept[f], (size_t)a->probe[f].size);
+        }
     }
     return n;
 }
@@ -359,10 +590,9 @@ static void ce_set_skill(const ce_adapter *a, unsigned char *record, int skill, 
 
 /* Every per-villager change that is a plain record write, as the Origins
    upgrades of the same game already write it (Change Appearance: head and
-   body; Grant Running: likes; Full Mastery: skills).  Returns the number of
-   changes refused (a full preference array). */
-static int ce_apply_fields(const ce_adapter *a, unsigned char *record, const ce_change *c) {
-    int refused = 0;
+   body; Grant Running: likes; Full Mastery: skills).  A like or dislike a
+   full list has no room for is a refused change. */
+static void ce_apply_fields(const ce_adapter *a, unsigned char *record, const ce_change *c, ce_result *r) {
     int i;
     if ((a->caps & CAP_APPEARANCE) && c->head != CE_KEEP && c->head >= 0 && c->head < a->head_count) {
         *(int *)(record + a->off_head) = c->head;
@@ -380,10 +610,10 @@ static int ce_apply_fields(const ce_adapter *a, unsigned char *record, const ce_
             ce_pref_remove(dislikes, a->pref_slots, c->dislike_remove);
         }
         if (ce_valid_pref(a, c->like_add) && !ce_pref_add(likes, a->pref_slots, c->like_add)) {
-            ++refused;
+            ce_refuse(r, CE_WHY_PREFS_FULL);
         }
         if (ce_valid_pref(a, c->dislike_add) && !ce_pref_add(dislikes, a->pref_slots, c->dislike_add)) {
-            ++refused;
+            ce_refuse(r, CE_WHY_PREFS_FULL);
         }
     }
     if (a->caps & CAP_SKILLS) {
@@ -393,7 +623,6 @@ static int ce_apply_fields(const ce_adapter *a, unsigned char *record, const ce_
             }
         }
     }
-    return refused;
 }
 
 /* ---- Text ------------------------------------------------------------------ */
@@ -676,12 +905,14 @@ static int ce_compose_in(const ce_adapter *a, const ce_layout *l, const char *ti
             ce_line(&w, line);
         }
         if (r->refused > 0) {
-            /* What the game's own rules did not allow: a full likes list, a
-               villager too young or already expecting, an Esteemed Elder
-               who has no totem, ... */
-            wsprintfA(line, r->refused == 1 ? "1 change could not be made."
-                                            : "%d changes could not be made.", r->refused);
-            ce_line(&w, line);
+            /* What the game's own rules did not allow -- and, while the popup
+               has room, why (ce_why_line). */
+            char reasons[CE_WHY_COUNT * 72 + 48];
+            if (!ce_compose_reasons || !ce_why_line(r, reasons)) {
+                wsprintfA(reasons, r->refused == 1 ? "1 change could not be made."
+                                                   : "%d changes could not be made.", r->refused);
+            }
+            ce_line(&w, reasons);
         }
     }
     return !w.overflow;
@@ -784,10 +1015,20 @@ static void ce_amount(int op, int amount, int current, int *out) {
     if (value < 0) {
         value = 0;
     }
-    if (value > 0x7FFFFFFF - CE_MAX_AMOUNT) {
-        value = 0x7FFFFFFF - CE_MAX_AMOUNT;
+    if (value > CE_MAX_AMOUNT) {
+        value = CE_MAX_AMOUNT;
     }
     *out = (int)value;
+}
+
+/* A lifetime total (food or tech gathered) the stock adders count a gain
+   into: the gain added, the total held at CE_MAX_AMOUNT so it never wraps. */
+static void ce_count_gain(int *total, int gain) {
+    long long value = (long long)*total + gain;
+    if (value > CE_MAX_AMOUNT) {
+        value = *total > CE_MAX_AMOUNT ? *total : CE_MAX_AMOUNT;
+    }
+    *total = (int)value;
 }
 
 /* Apply `e` to the village.  Runs on the game's own thread, inside the
@@ -852,7 +1093,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     if (a->caps & CAP_VILLAGE) {
         for (i = 0; i < a->village_count && i < 32; ++i) {
             if ((e->village & (1u << i)) && !a->village(i)) {
-                ++r->refused;
+                ce_refuse_as(r, CE_WHY_VILLAGE);
             }
         }
     }
@@ -862,7 +1103,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             const ce_value *v = &e->values[i];
             if (v->which < 0 || v->which >= a->value_count || v->amount < a->values[v->which].min
                 || v->amount > a->values[v->which].max || !a->value_set(v->which, v->amount)) {
-                ++r->refused;
+                ce_refuse_as(r, CE_WHY_AMOUNT);
             }
         }
     }
@@ -872,7 +1113,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             const ce_puzzle_def *d = p->which >= 0 && p->which < a->puzzle_count
                 ? &a->puzzles[p->which] : NULL;
             if (d == NULL || (p->solved ? !d->can_solve : !d->can_unsolve)) {
-                ++r->refused;
+                ce_refuse(r, CE_WHY_PUZZLE);
                 continue;
             }
             /* Already so: nothing to write (a second completion would stamp
@@ -881,7 +1122,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                 continue;
             }
             if (!a->puzzle_set(p->which, p->solved ? 1 : 0)) {
-                ++r->refused;
+                ce_refuse_as(r, CE_WHY_PUZZLE);
             }
         }
     }
@@ -897,13 +1138,13 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                 continue;
             }
             if (v->health < 1 || v->health > 100) {
-                ++r->refused;
+                ce_refuse(r, CE_WHY_REVIVE);
                 continue;
             }
             switch (a->revive(v->index, v->health, v->cure)) {
             case 1: ++r->revived; break;
             case -1: ++r->no_room_revives; break;
-            default: ++r->refused; break;
+            default: ce_refuse_as(r, CE_WHY_REVIVE); break;
             }
         }
     }
@@ -934,35 +1175,43 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         if (c->like_add >= 0 || c->like_remove >= 0 || c->dislike_add >= 0 || c->dislike_remove >= 0) {
             unsigned int titled_as = story_title_identity(e->game, record);
             story_preferences_changing(e->game, 0);
-            r->refused += ce_apply_fields(a, record, c);
+            ce_apply_fields(a, record, c, r);
             story_preferences_changing(e->game, 1);
             /* A custom title is bound to the likes and dislikes too: it
                follows its villager through this change. */
             if ((a->caps & CAP_TITLE) && !titles_rebind(e->game, c->index, titled_as)) {
-                ++r->refused;
+                ce_refuse(r, CE_WHY_TITLE);
             }
         } else {
-            r->refused += ce_apply_fields(a, record, c);
+            ce_apply_fields(a, record, c, r);
         }
-        if ((a->caps & CAP_PARENTS) && c->parents_set
-            && (!a->parents_supported() || !a->set_parents(c->index, c))) {
-            ++r->refused;
+        if ((a->caps & CAP_PARENTS) && c->parents_set) {
+            if (!a->parents_supported()) {
+                ce_refuse(r, CE_WHY_SHOW_PARENTS);
+            } else if (!a->set_parents(c->index, c)) {
+                ce_refuse_as(r, CE_WHY_PARENTS);
+            }
         }
         if ((a->caps & CAP_SICK) && c->sick && !a->sicken(c->index)) {
-            ++r->refused;
+            ce_refuse_as(r, CE_WHY_OTHER);
         }
+        /* The faction or Heathen type first, then the faith: the faith the
+           player chose wins over the one a conversion leaves. */
         if ((a->caps & CAP_STATUS) && c->status != CE_KEEP && !a->set_status(c->index, c->status)) {
-            ++r->refused;
+            ce_refuse_as(r, CE_WHY_OTHER);
+        }
+        if ((a->caps & CAP_FAITH) && c->faith != CE_KEEP) {
+            a->set_faith(c->index, c->faith);
         }
         if ((a->caps & CAP_MASK) && c->mask != CE_KEEP && !story_set_mask(e->game, record, c->mask)) {
-            ++r->refused;
+            ce_refuse(r, CE_WHY_MASK);
         }
         if ((a->caps & CAP_TITLE) && c->title_op != CE_TITLE_KEEP
             && !titles_set(e->game, c->index, c->title_op == CE_TITLE_SET ? c->title : NULL)) {
-            ++r->refused;
+            ce_refuse(r, CE_WHY_TITLE);
         }
         if ((a->caps & CAP_BEHAVIOUR) && c->behaviour != CE_KEEP && !a->behave(c->index, c->behaviour)) {
-            ++r->refused;
+            ce_refuse_as(r, CE_WHY_BEHAVIOUR);
         }
     }
 
@@ -981,18 +1230,18 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                 /* "0 babies": no pregnancy (a pregnancy always delivers one
                    baby in every game, so this is the only way to 0). */
                 if (!(a->caps & CAP_CANCEL) || !a->cancel(c->index)) {
-                    ++r->refused;
+                    ce_refuse_as(r, CE_WHY_NOT_EXPECTING);
                 }
                 continue;
             }
             if (c->litter < 1) {
-                ++r->refused;
+                ce_refuse(r, CE_WHY_OTHER);
                 continue;
             }
             if (*(const int *)(mother + a->off_pregnant) != 0) {
                 /* Already expecting: the number of babies changes. */
                 if (!(a->caps & CAP_RELITTER)) {
-                    ++r->refused;
+                    ce_refuse(r, CE_WHY_EXPECTING);
                 } else {
                     r->conceived += a->relitter(c->index, c->litter > 3 ? 3 : c->litter, r);
                 }
@@ -1012,16 +1261,17 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             if (!c->unborn_set || c->fate != CE_FATE_NONE) {
                 continue;
             }
-            if (mother == NULL || !a->listed(mother)
-                || *(const int *)(mother + a->off_pregnant) == 0 || !a->unborn(c->index, c)) {
-                ++r->refused;
+            if (mother == NULL || !a->listed(mother) || *(const int *)(mother + a->off_pregnant) == 0) {
+                ce_refuse(r, CE_WHY_NOT_EXPECTING);
+            } else if (!a->unborn(c->index, c)) {
+                ce_refuse_as(r, CE_WHY_OTHER);
             }
         }
     }
     if (a->caps & CAP_SPAWN) {
         for (i = 0; i < e->spawn_groups && i < CE_MAX_SPAWN_GROUPS; ++i) {
             const ce_spawn *s = &e->spawns[i];
-            for (j = 0; j < s->count && j < CE_MAX_SPAWN_COUNT; ++j) {
+            for (j = 0; j < s->count; ++j) {
                 /* Each game's spawn asks the game's own room predicate (and
                    for a free record) first and makes nobody without room. */
                 int index = a->spawn(s);
@@ -1033,12 +1283,12 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                 ce_tell_arrival(e->game, index);
                 if ((a->caps & CAP_TITLE) && s->title[0] != '\0'
                     && !titles_set(e->game, index, s->title)) {
-                    ++r->refused;
+                    ce_refuse(r, CE_WHY_TITLE);
                 }
                 if ((a->caps & CAP_MASK) && s->mask != CE_KEEP) {
                     unsigned char *record = a->record(index);
                     if (record == NULL || !story_set_mask(e->game, record, s->mask)) {
-                        ++r->refused;
+                        ce_refuse(r, CE_WHY_MASK);
                     }
                 }
             }

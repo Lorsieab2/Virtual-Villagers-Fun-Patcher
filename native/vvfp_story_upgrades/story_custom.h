@@ -20,12 +20,13 @@
 
 #define CE_TITLE_BYTES 48           /* the event's own title */
 #define CE_TEXT_BYTES 600           /* the event's description */
-#define CE_NAME_BYTES 24            /* a villager name (the shortest game field holds 23) */
+#define CE_NAME_BYTES 28            /* a villager name: the longest game field (A New Home's
+                                       0x1C, NUL included); each game takes its own */
 #define CE_SKILLS 6
 #define CE_SPAWN_PREFS 3
 #define CE_MAX_SPAWN_GROUPS 8
-#define CE_MAX_SPAWN_COUNT 20       /* new villagers of one kind */
 #define CE_MAX_CHANGES 256
+#define CE_MAX_RECORDS 256          /* the most villager records any build has */
 
 /* Capabilities. */
 #define CAP_FOOD        0x00000001u
@@ -56,6 +57,9 @@
 #define CAP_REVIVE      0x02000000u   /* skeletons revived */
 #define CAP_CHOICE      0x04000000u   /* a question with two choices (the game's own
                                          two-button popup is hooked) */
+#define CAP_FAITH       0x08000000u   /* a villager's faith set (New Believers) */
+#define CE_FAITH_MIN (-100)           /* the range the game's own SetFaith keeps */
+#define CE_FAITH_MAX 100
 
 enum { CE_FATE_NONE = 0, CE_FATE_KILL = 1, CE_FATE_VANISH = 2 };
 /* ce_change.litter: 0 no change, 1..3 babies, CE_LITTER_CANCEL not pregnant. */
@@ -65,13 +69,20 @@ enum { CE_FATE_NONE = 0, CE_FATE_KILL = 1, CE_FATE_VANISH = 2 };
 #define CE_MAX_REVIVES 256
 enum { CE_AMOUNT_NONE = 0, CE_AMOUNT_ADD = 1, CE_AMOUNT_SUBTRACT = 2, CE_AMOUNT_ZERO = 3 };
 enum { CE_TITLE_KEEP = 0, CE_TITLE_SET = 1, CE_TITLE_CLEAR = 2 };
-#define CE_MAX_AMOUNT 1000000
+/* Food and tech points are the game's own 32-bit stores.  An amount, and
+   every store or lifetime total the event writes, stays CE_AMOUNT_HEADROOM
+   below the 32-bit ceiling, so the game's own gains after the event can
+   never wrap it. */
+#define CE_AMOUNT_HEADROOM 1000000
+#define CE_MAX_AMOUNT (0x7FFFFFFF - CE_AMOUNT_HEADROOM)
 
-/* One kind of new villager.  `count` of them are made. */
+/* One kind of new villager.  `count` of them are made (0 up to the room the
+   village has: ce_room_left; the delivery still stops at the game's own room
+   predicate). */
 typedef struct {
     int count;
     int sex;                         /* STORY_SEX_MALE / STORY_SEX_FEMALE */
-    int age;                         /* game age units */
+    int age;                         /* game age units, 0 .. ce_oldest_age */
     char name[CE_NAME_BYTES];        /* "" = the game's own choice */
     int head;                        /* CE_KEEP = the game's own choice */
     int body;
@@ -120,6 +131,8 @@ typedef struct {
     int unborn_body;
     int unborn_skill;                /* CE_KEEP, 0 = none, else the game's skill i + 1 */
     int unborn_skill_value;
+    int faith;                       /* CAP_FAITH: CE_KEEP, else CE_FAITH_MIN..CE_FAITH_MAX,
+                                        written as it is (the faction stays) */
 } ce_change;
 
 /* A food source or store set to an amount: the adapter's values[which]. */
@@ -197,6 +210,32 @@ typedef struct {
     unsigned int featured_identity;
 } ce_choice;
 
+/* Why a change could not be made, for the popup's closing lines: every
+   refusal is counted under one of these (ce_refuse), worded by ce_why_words. */
+enum {
+    CE_WHY_OTHER = 0,          /* the game's own rules did not allow it */
+    CE_WHY_PREFS_FULL,         /* a likes or dislikes list was full */
+    CE_WHY_TOO_YOUNG,          /* too young to carry a baby */
+    CE_WHY_EXPECTING,          /* already expecting */
+    CE_WHY_NOT_EXPECTING,      /* not expecting */
+    CE_WHY_GOLDEN_CHILD,       /* the Golden Child never carries or fathers */
+    CE_WHY_HEATHEN,            /* a Heathen is never sick and never conceives */
+    CE_WHY_PUZZLE_HEATHEN,     /* a puzzle's own Heathen keeps their faction */
+    CE_WHY_CHIEF,              /* a Tribal Chief already lives */
+    CE_WHY_CHILD_CHIEF,        /* only an adult becomes the Tribal Chief */
+    CE_WHY_TOTEMS,             /* no totem or record left for another Esteemed Elder */
+    CE_WHY_PUZZLE,             /* a puzzle could not be changed that way now */
+    CE_WHY_AMOUNT,             /* a food source or store could not be set now */
+    CE_WHY_VILLAGE,            /* a village change was not possible now */
+    CE_WHY_REVIVE,             /* a skeleton could not be brought back */
+    CE_WHY_TITLE,              /* a custom title could not be saved */
+    CE_WHY_PARENTS,            /* parents could not be changed */
+    CE_WHY_SHOW_PARENTS,       /* A New Home: parents need Show Parents in Details Screen */
+    CE_WHY_MASK,               /* a mask could not be set */
+    CE_WHY_BEHAVIOUR,          /* the villager could not do that now */
+    CE_WHY_COUNT
+};
+
 /* What the delivery did, for the popup's closing lines and the tests. */
 typedef struct {
     int changed;          /* villagers changed */
@@ -214,6 +253,7 @@ typedef struct {
     int tech_after;
     int revived;          /* skeletons brought back */
     int no_room_revives;  /* revivals refused: the village is full */
+    int why[CE_WHY_COUNT]; /* `refused`, by reason (CE_WHY_*) */
 } ce_result;
 
 #endif

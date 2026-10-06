@@ -93,19 +93,49 @@ static void ui_message(HWND owner, const char *text) {
 /* A number typed in an edit box: CE_KEEP when blank, -1 when not a number. */
 static int ui_number(HWND window, int id) {
     char text[32];
-    int value = 0;
+    long long value = 0;
     int i;
     GetDlgItemTextA(window, id, text, sizeof text);
     if (text[0] == '\0') {
         return CE_KEEP;
     }
     for (i = 0; text[i] != '\0'; ++i) {
-        if (text[i] < '0' || text[i] > '9' || value > 100000000) {
+        if (text[i] < '0' || text[i] > '9') {
             return -1;
         }
         value = value * 10 + (text[i] - '0');
+        if (value > 0x7FFFFFFF) {
+            return -1;
+        }
     }
-    return value;
+    return (int)value;
+}
+
+/* A number that may start with '-': CE_KEEP when blank; anything that is
+   not a number of at most six digits as CE_FAITH_MAX + 1 (out of range). */
+static int ui_signed_number(HWND window, int id) {
+    char text[32];
+    int value = 0;
+    int i = 0;
+    int negative = 0;
+    GetDlgItemTextA(window, id, text, sizeof text);
+    if (text[0] == '\0') {
+        return CE_KEEP;
+    }
+    if (text[0] == '-') {
+        negative = 1;
+        i = 1;
+    }
+    if (text[i] == '\0') {
+        return CE_FAITH_MAX + 1;
+    }
+    for (; text[i] != '\0'; ++i) {
+        if (text[i] < '0' || text[i] > '9' || value > 99999) {
+            return CE_FAITH_MAX + 1;
+        }
+        value = value * 10 + (text[i] - '0');
+    }
+    return negative ? -value : value;
 }
 
 static void ui_enable(HWND window, int id, int enable) {
@@ -369,6 +399,7 @@ static void ce_change_init(ce_change *c) {
     c->father_head = c->father_body = c->mother_head = c->mother_body = CE_KEEP;
     c->unborn_head = c->unborn_body = CE_KEEP;
     c->unborn_skill = c->unborn_skill_value = CE_KEEP;
+    c->faith = CE_KEEP;
 }
 
 /* Merge `t` (the dialog's changes) into the draft's entry for villager
@@ -419,6 +450,7 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
     }
     if (t->mask != CE_KEEP) c->mask = t->mask;
     if (t->status != CE_KEEP) c->status = t->status;
+    if (t->faith != CE_KEEP) c->faith = t->faith;
     if (t->behaviour != CE_KEEP) c->behaviour = t->behaviour;
     if (t->parents_set) {
         c->parents_set = 1;
@@ -486,6 +518,13 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
     if (!(ui.a->caps & CAP_MASK)) t->mask = CE_KEEP;
     t->status = ui_combo_data(window, IDC_CH_STATUS);
     if (!(ui.a->caps & CAP_STATUS)) t->status = CE_KEEP;
+    if (ui.a->caps & CAP_FAITH) {
+        t->faith = ui_signed_number(window, IDC_CH_FAITH);
+        if (t->faith != CE_KEEP && (t->faith < CE_FAITH_MIN || t->faith > CE_FAITH_MAX)) {
+            ui_message(window, "Faith is -100 to 100.");
+            return 0;
+        }
+    }
     t->behaviour = ui_combo_data(window, IDC_CH_BEHAVIOUR);
     if (!(ui.a->caps & CAP_BEHAVIOUR)) t->behaviour = CE_KEEP;
     if (ui.unborn_chosen && ui.unborn.unborn_set && (ui.a->caps & CAP_UNBORN)) {
@@ -511,23 +550,11 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         ui_message(window, "Choose at least one change.");
         return 0;
     }
-    if (t->litter > 0 || t->unborn_set) {
+    if (t->litter > 0) {
         for (i = 0; i < count; ++i) {
-            int position = ui_roster_position(targets[i]);
-            const story_member *m = &ui.roster[position];
-            if (m->age < ui.a->min_carrier_age) {
-                wsprintfA(text, "%s is too young: in this game a pregnancy needs an age of %d years or more.",
-                          ui.names[position], ui.a->min_carrier_age / 20);
-                ui_message(window, text);
-                return 0;
-            }
-            if (m->sex == STORY_SEX_MALE && !(ui.a->caps & CAP_MALE_PREGNANCY)) {
-                wsprintfA(text, "%s is male; in this game only females can be pregnant.",
-                          ui.names[position]);
-                ui_message(window, text);
-                return 0;
-            }
             if (t->father == targets[i]) {
+                /* The logs' family trees would hold a villager as their own
+                   parent. */
                 ui_message(window, "A villager can not be the father of their own baby.");
                 return 0;
             }
@@ -568,10 +595,10 @@ static void ui_setup_changes(HWND window) {
     ui_combo_add(window, IDC_CH_PREGNANCY, "Pregnant with triplets", 3);
     SendDlgItemMessageA(window, IDC_CH_PREGNANCY, CB_SETCURSEL, 0, 0);
     ui_combo_add(window, IDC_CH_FATHER, "Unknown", -1);
+    /* Any living villager may be named the father: the conception copies
+       his name, looks and family, whatever his sex or age. */
     for (i = 0; i < ui.roster_count; ++i) {
-        if (ui.roster[i].sex == STORY_SEX_MALE && ui.roster[i].age >= a->adult_age) {
-            ui_combo_add(window, IDC_CH_FATHER, ui.names[i], ui.roster[i].index);
-        }
+        ui_combo_add(window, IDC_CH_FATHER, ui.names[i], ui.roster[i].index);
     }
     SendDlgItemMessageA(window, IDC_CH_FATHER, CB_SETCURSEL, 0, 0);
     wsprintfA(text, "heads 0-%d, bodies 0-%d", a->head_count - 1, a->body_count - 1);
