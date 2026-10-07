@@ -209,6 +209,7 @@ class Edits:
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
+    number_names: bool = False          # villagers who share a name numbered: "Soda I", "Soda II"...
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers
@@ -294,6 +295,7 @@ class Edits:
         out.diagonal_lines = data.get("diagonal_lines") is True
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
+        out.number_names = data.get("number_names") is True
         if data.get("sort") in gen.SORTS:
             out.sort = data["sort"]
         if data.get("positioning") in POSITIONING:
@@ -421,7 +423,8 @@ class Edits:
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.centre_heads, "diagonal_lines": self.diagonal_lines,
-                "show_units": self.show_units, "show_years": self.show_years, "sort": self.sort, "positioning": self.positioning,
+                "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
+                "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
                 "background": self.background, "background2": self.background2, "rainbow": self.rainbow,
                 "background_image": self.background_image, "background_fit": self.background_fit,
@@ -640,6 +643,7 @@ class Layout:
     birth_colour: dict[int, str] = field(default_factory=dict)
     edits: Edits = field(default_factory=Edits)
     page: int = 0                       # which page of the tree this is (page_spans)
+    names: dict[int, str] = field(default_factory=dict)          # Number Duplicate Names: id -> "Soda II"
     pages: int = 1
     _spans: list = field(default_factory=list, repr=False)
 
@@ -857,7 +861,8 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,
-                 edits=edits, page=page, pages=len(spans))
+                 edits=edits, page=page, pages=len(spans),
+                 names=gen.duplicate_names(village) if edits.number_names else {})
     # One colour each: every villager with no recorded parents, every pairing, every set of full
     # brothers and sisters -- oldest first, so the most distinct go to the founders.
     e = out.edits
@@ -1610,7 +1615,7 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    return [f"{p.number}. {p.name}"] + ages + ([extra] if extra else [])
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + ([extra] if extra else [])
 
 
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:

@@ -207,6 +207,7 @@ FILES = [
     "src/vv_genealogy_window.py",
     "src/vv_tree_editor_tools.py",
     "src/vv_last_names.py",
+    "src/vv_number_names.py",
     # The "?" guides beside every feature; the GUI imports the module, and
     # the module reads the data file.
     "src/vv_how_to_use.py",

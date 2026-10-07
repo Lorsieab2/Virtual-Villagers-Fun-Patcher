@@ -369,11 +369,8 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     Records whose name a renamed villager has but whose looks are no living villager's -- the
     same villager before Change Appearance, or another of the same name -- are asked about
     (Plan.questions); `answers` renames those the player says are them."""
-    folder = Path(folder)
-    f = FIELDS[game]
-    people = living(folder, game, slot)
     renames: dict[tuple, str] = {}
-    for v in people:
+    for v in living(folder, game, slot):
         last = chosen.get(v.identity)
         if not last:
             continue
@@ -381,15 +378,30 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
         if problem:
             raise LastNamesError(problem)
         renames[v.identity] = f"{v.name} {last}"
+    return plan_renames(folder, game, slot, renames, answers)
+
+
+def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
+                 answers: dict[str, str] | None = None, dead: bool = False) -> Plan:
+    """What renaming each (name, head, body) to its new whole name changes, file by file.  Reads only.
+
+    With `dead` (Number Duplicate Names), villagers no longer living are renamed too -- in their
+    records and as the parents the save and the logs name -- and nobody is asked about look-alikes:
+    each numbered villager is one name, head and body."""
+    folder = Path(folder)
+    f = FIELDS[game]
+    people = living(folder, game, slot)
     result = Plan(renames)
     if not renames:
         return result
-    # What a name with no looks beside it becomes: every living holder of the name, each as it
-    # will be called (one not renamed keeps the name).  A name-only rewrite happens only when
-    # that is one new name (Codex, #553): an unrenamed namesake makes the name ambiguous.
+    # What a name with no looks beside it becomes: every holder of the name, each as it will be
+    # called (one not renamed keeps the name).  A name-only rewrite happens only when that is one
+    # new name (Codex, #553): an unrenamed namesake makes the name ambiguous.
     by_name: dict[str, set] = {}
     for v in people:
         by_name.setdefault(v.name, set()).add(renames.get(v.identity, v.name))
+    for (name, _head, _body), new in renames.items():
+        by_name.setdefault(name, set()).add(new)
     by_name = {old: news for old, news in by_name.items() if len(news) == 1 and old not in news}
 
     # The save.
@@ -406,7 +418,8 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
                                          (f.expecting, 0x18, eh, eb)):
                 references.append((_cstr(original, v.at + off, cap), _i32(original, v.at + head),
                                    _i32(original, v.at + body)))
-    result.questions = _look_alike_questions(folder, game, slot, people, renames, references)
+    if not dead:
+        result.questions = _look_alike_questions(folder, game, slot, people, renames, references)
     asked = dict(renames)
     for q in result.questions:
         new = q.options.get((answers or {}).get(q.key, ""), "")
@@ -462,7 +475,7 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked)
     _plan_statistics(result, game, slot, data_dir, by_name)
-    _plan_logs(result, folder, game, slot, asked, by_name)
+    _plan_logs(result, folder, game, slot, asked, by_name, dead)
     _plan_family_trees(result, folder, game, slot, asked)
     return result
 
@@ -775,10 +788,11 @@ PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father): (.*)$")
 
 
 def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
-               by_name: dict[str, set]) -> None:
+               by_name: dict[str, set], dead: bool = False) -> None:
     """Every record of a renamed villager: a "Name:" / "Child:" / "Mother:" / "Father:" line whose
-    name, head and body are theirs.  A Death, Disappeared or Epitaph record is never theirs (they
-    are alive).  A line without looks is renamed when the name alone is unique among those renamed."""
+    name, head and body are theirs.  A Death, Disappeared or Epitaph record is never theirs when
+    only the living are renamed.  A line without looks is renamed when the name alone is unique
+    among those renamed."""
     import vv_log_additions as additions
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
@@ -788,7 +802,8 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
         lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
         n = 0
         for b in additions.blocks(path, lines):
-            if not b.of(slot, game, villages) or b.heading.startswith(("Death", "Disappeared", "Epitaph")):
+            if not b.of(slot, game, villages) or not dead and b.heading.startswith(
+                    ("Death", "Disappeared", "Epitaph")):
                 continue
             for k, line in enumerate(b.lines):
                 m = PERSON_LINE.match(line)
@@ -852,8 +867,15 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
         raise LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.renames:
         raise LastNamesError("No villager was given a last name.")
+    return apply(folder, work, controller, now, BACKUP_LABEL, "giving the last names")
+
+
+def apply(folder: Path, work: Plan, controller: vv_save_backup.ProcessController, now: datetime | None,
+          label: str, doing: str) -> Result:
+    """Write a plan's changes: the save folder backed up first (`label` names the backup), refused
+    while the game runs, every file swapped in and read back, every one put back on a failure."""
     try:
-        backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_LABEL)
+        backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=label)
     except vv_save_backup.BackupError as exc:
         raise LastNamesError(f"The backup failed, so nothing was changed. {exc}") from exc
     tools._refuse_if_running(folder, controller)
@@ -861,7 +883,7 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
     try:
         for change in work.changes:
             if change.path.read_bytes() != change.original:
-                raise LastNamesError(f"{change.path.name} changed while the last names were being given.")
+                raise LastNamesError(f"{change.path.name} changed while {doing}.")
             done.append(change)
             _write(change.path, change.updated)
     except (OSError, LastNamesError) as exc:
@@ -873,8 +895,8 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
             except (OSError, LastNamesError) as undo:
                 problems.append(f"{change.path.name}: {undo}")
         if problems:
-            raise LastNamesError(f"Giving the last names failed ({exc}) and these files could not be put "
+            raise LastNamesError(f"{doing.capitalize()} failed ({exc}) and these files could not be put "
                                  f"back: {'; '.join(problems)}. Your backup is in {backup.backup_folder}.") from exc
-        raise LastNamesError(f"Giving the last names failed ({exc}); every file was put back as it was. "
+        raise LastNamesError(f"{doing.capitalize()} failed ({exc}); every file was put back as it was. "
                              f"A backup is in {backup.backup_folder}.") from exc
     return Result(work.renames, [c.path for c in work.changes], backup)

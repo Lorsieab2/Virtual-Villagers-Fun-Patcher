@@ -32,6 +32,8 @@ from tkinter import colorchooser, filedialog, font as tkfont, messagebox, simple
 import vv_family_tree as ft
 import vv_gdiplus
 import vv_genealogy as gen
+import vv_last_names
+import vv_number_names
 import vv_save_backup
 import vv_tribe_rename
 from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_scene, panel_colour
@@ -139,6 +141,8 @@ PAGES (Layout tab)
 NUMBERS
   Layout tab                      Roman numerals or numbers for the generations; Renumber
                                   villagers whose text I edited
+  Number duplicate names          namesakes numbered, oldest first (Soda I, Soda II...); it offers
+  (Layout tab, Tools menu)        to number them in the game's save and logs too
 
 PICTURES AND TEXT BOXES (Pictures & Text tab)
   Drag its middle                 move it                 Arrow keys      nudge it (Shift: by 10)
@@ -757,6 +761,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                                                                             if v == self.sort_var.get())))
         ttk.Button(tab, text="Renumber villagers whose text I edited", command=self._renumber).pack(anchor="w",
                                                                                                  pady=(4, 0))
+        ttk.Button(tab, text="Number duplicate names", command=self._number_names).pack(anchor="w", pady=(4, 0))
+        self.number_names_var = tk.BooleanVar(value=e.number_names)
+        ttk.Checkbutton(tab, text="Show duplicate names numbered (Soda I, Soda II...)", variable=self.number_names_var,
+                        command=lambda: self._change(number_names=bool(self.number_names_var.get()))).pack(anchor="w")
         ttk.Label(tab, text="Arrangement:").pack(anchor="w", pady=(10, 1))
         self.position_var = tk.StringVar(value=ft.POSITIONING[e.positioning])
         positions = ttk.Combobox(tab, textvariable=self.position_var, values=list(ft.POSITIONING.values()),
@@ -1404,7 +1412,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             "View": [("Zoom In", "+", lambda: self._zoom_step(1)), ("Zoom Out", "-", lambda: self._zoom_step(-1)),
                      ("Fit", "", self._zoom_fit), ("100%", "Ctrl+0", lambda: self._zoom_to(1.0)), None,
                      ("Hide or Show the Panel", "F4", self._toggle_panel), ("Full Screen", "F11", self._toggle_full)],
-            "Tools": [("Village Matchmaker...", "", self._matchmaker)],
+            "Tools": [("Village Matchmaker...", "", self._matchmaker),
+                      ("Number Duplicate Names...", "", self._number_names)],
             "Help": [("Controls", "F1", self._help)],
         }
         for name, entries in items.items():
@@ -2216,6 +2225,44 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.status.set(f"{changed} villager(s) renumbered." if changed else
                         "Every number in your own text already matches the tree.")
 
+    def _number_names(self) -> None:
+        """Number Duplicate Names (the owner: "If there are duplicate "Soda"s, name the first one "Soda I",
+        and the second one "Soda II" etc.  Also offer to edit the save files"): numbered on the tree,
+        then, if the player says so, in the game's save and logs too."""
+        if not gen.duplicate_names(self.village):
+            self.status.set("No two villagers share a name.")
+            return
+        if not self.edits.number_names:
+            self._change(number_names=True)
+        if not messagebox.askyesno(
+                "Number Duplicate Names",
+                "Duplicate names are numbered on the tree, oldest first.\n\nAlso number them in the game's "
+                "save and logs?  The game must be closed; the tree is saved and the save folder is backed "
+                "up first.", parent=self):
+            return
+        if self.dirty and not self._save_tree():
+            return
+        try:
+            result, wanted = self.app._run_with_wait(
+                "Numbering the names...\n\nThe save folder is backed up first.",
+                lambda: vv_number_names.number_names(self.folder, self.game, self.slot))
+        except (vv_last_names.LastNamesError, OSError) as exc:
+            messagebox.showerror("Number Duplicate Names", f"The names were not numbered. {exc}", parent=self)
+            return
+        try:                                    # the tree's edits follow the new names (re-keyed on disk)
+            self.edits = ft.Edits.load(ft.Edits.path(self.folder, self.game, self.slot))
+        except ValueError:
+            pass
+        self.history.clear()                    # earlier steps name the villagers as they were
+        self.future.clear()
+        self.last_state = self._state()
+        self._refresh_panels()
+        self._update_from_game()
+        self.dirty = False
+        messagebox.showinfo("Number Duplicate Names", "\n\n".join(
+            [f"{len(result.renamed)} villager(s) numbered in the save and {len(result.files) - 1} other "
+             f"file(s).", *wanted.notes, f"Backup: {result.backup.backup_folder}"]), parent=self)
+
     def _reset_frames(self) -> None:
         """The selected villagers' portraits back to their shape's own size, not turned."""
         if not self.selected:
@@ -2283,6 +2330,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.centre_var.set(e.centre_heads)
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
+        self.number_names_var.set(e.number_names)
         self.diagonal_var.set(e.diagonal_lines)
         self.ink_field.set_quietly(e.ink)
         self.fill_field.set_quietly(e.portrait_fill)

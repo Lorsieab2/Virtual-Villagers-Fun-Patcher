@@ -759,12 +759,27 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
 # The report
 # ---------------------------------------------------------------------------
 
-ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV",
-         "XV", "XVI", "XVII", "XVIII", "XIX", "XX"]
+ROMAN = ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+         (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"))
 
 
 def roman(n: int) -> str:
-    return ROMAN[n] if n < len(ROMAN) else str(n)
+    out = ""
+    for value, letters in ROMAN:
+        count, n = divmod(n, value)
+        out += letters * count
+    return out
+
+
+def duplicate_names(village: Village) -> dict[int, str]:
+    """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
+    duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."): oldest
+    first, the dead too.  A baby on the way has no name yet."""
+    holders: dict[str, list[Person]] = {}
+    for p in sorted(village.known(), key=Person.order_key):
+        holders.setdefault(p.name, []).append(p)
+    return {p.id: f"{name} {roman(n)}" for name, ps in holders.items() if len(ps) > 1
+            for n, p in enumerate(ps, 1)}
 
 
 def numbered(p: Person) -> str:

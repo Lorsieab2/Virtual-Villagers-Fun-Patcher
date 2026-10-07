@@ -816,6 +816,7 @@
         "Older records can get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack.",
         "Where the save and the files cannot tell, you are asked: Answer the questions. Don't know adds nothing.",
         "Give villagers last names (Choose...): from the family, the father, the mother or either at random, or pick or type each one; in the game and every log.",
+        "Number duplicate names: namesakes numbered oldest first (Soda I, Soda II...), in the game and every log.",
         "Let the game repair: play that tribe and quit from its menu; whatever is found wrong is fixed without asking.",
         "That part works only in a game patched with a patch that keeps logs, such as Cause of Death or Show Parents."
       ]
