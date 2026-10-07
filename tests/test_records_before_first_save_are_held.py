@@ -97,7 +97,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         source = SOURCE.read_text(encoding="utf-8")
         ensure = source[source.index("static int ensure_parentage_log(\n    int game_id,"):]
         ensure = ensure[:ensure.index("\n}")]
-        self.assertIn("flush_pending(game_id, village);", ensure)
+        self.assertIn("flush_pending(game_id, village, 1);", ensure)
 
     def test_no_held_record_is_ever_dropped(self) -> None:
         """The owner: "no one should be dropped. nothing should be dropped."

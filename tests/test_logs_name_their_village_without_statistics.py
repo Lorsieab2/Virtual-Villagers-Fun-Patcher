@@ -73,7 +73,7 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
     def test_with_no_publisher_held_records_go_first(self) -> None:
         emit = function(PARENTAGE.read_text(encoding="utf-8"), "emit_record")
         branch = emit[emit.index("!village_publisher_present(game_id)"):]
-        self.assertLess(branch.index("flush_pending(game_id, village);"),
+        self.assertLess(branch.index("flush_pending(game_id, village, 1);"),
                         branch.index("return append_record(g, village, kind, text) == APPEND_WRITTEN;"))
 
     def test_the_save_publishes_exactly_what_statistics_would(self) -> None:
@@ -126,7 +126,7 @@ class LogsNameTheirVillageWithoutStatistics(unittest.TestCase):
         parentage = PARENTAGE.read_text(encoding="utf-8")
         release = function(parentage, "ReleaseHeldRecords")
         self.assertIn("if (village_publisher_present(game_id)) {\n        return 0;", release)
-        self.assertIn('flush_pending(game_id, "");', release)
+        self.assertIn('flush_pending(game_id, "", 1);', release)
         self.assertIn(
             "ReleaseHeldRecords=_ReleaseHeldRecords@4",
             (ROOT / "native/parentage_export/parentage_export.def").read_text(encoding="utf-8"),
