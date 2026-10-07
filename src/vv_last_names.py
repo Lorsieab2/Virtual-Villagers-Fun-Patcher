@@ -474,8 +474,9 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked)
-    _plan_statistics(result, game, slot, data_dir, by_name)
-    _plan_logs(result, folder, game, slot, asked, by_name, dead)
+    renamed = {name for name, _head, _body in renames}
+    _plan_statistics(result, game, slot, data_dir, by_name, renamed)
+    _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
     _plan_family_trees(result, folder, game, slot, asked)
     return result
 
@@ -736,10 +737,19 @@ def _first_line(path: Path) -> str:
         return ""
 
 
-def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name: dict[str, set]) -> None:
+def _left(result: Plan, path: Path, names: set[str]) -> None:
+    """A note: lines of `path` naming a renamed villager without saying which one keep the name."""
+    if names:
+        result.notes.append(f"{path.name} names {', '.join(sorted(names))} without saying which villager, so "
+                            "those lines keep the name.")
+
+
+def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name: dict[str, set],
+                     renamed: set[str] = frozenset()) -> None:
     """The Village Statistics roster and Village Elders.  Games sharing a folder share these
     files' names (Codex, #553): the Elders file names its game on its first line, and the roster
-    (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so."""
+    (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so.
+    A name these files hold for more than one new name stays, and is reported (Codex, #557)."""
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
     folder = data_dir / "Village Statistics"
     roster = folder / f"Village Roster - Save {slot}.dat"
@@ -751,12 +761,16 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         original = roster.read_bytes()
         lines = original.decode("latin-1").split("\n")
         changed = False
+        left = set()
         for k, line in enumerate(lines):
             parts = line.split("\t")
             if len(parts) == 3 and parts[1] in unique:
                 parts[1] = unique[parts[1]][:31]
                 lines[k] = "\t".join(parts)
                 changed = True
+            elif len(parts) == 3 and parts[1] in renamed:
+                left.add(parts[1])
+        _left(result, roster, left)
         if changed:
             result.changes.append(Change(roster, original, "\n".join(lines).encode("latin-1"),
                                         "the statistics roster"))
@@ -767,6 +781,7 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         original = elders.read_bytes()
         lines = original.decode("latin-1").split("\n")
         changed = False
+        left = set()
         for k, line in enumerate(lines):
             parts = line.split("\t")
             if parts and parts[0] == "E" and len(parts) >= 5:
@@ -775,7 +790,10 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
                         tail = "\r" if parts[col].endswith("\r") else ""
                         parts[col] = unique[parts[col].rstrip("\r")][:39] + tail
                         changed = True
+                    elif parts[col].rstrip("\r") in renamed:
+                        left.add(parts[col].rstrip("\r"))
                 lines[k] = "\t".join(parts)
+        _left(result, elders, left)
         if changed:
             result.changes.append(Change(elders, original, "\n".join(lines).encode("latin-1"), "the Village Elders"))
 
@@ -788,11 +806,11 @@ PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father): (.*)$")
 
 
 def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
-               by_name: dict[str, set], dead: bool = False) -> None:
+               by_name: dict[str, set], dead: bool = False, renamed: set[str] = frozenset()) -> None:
     """Every record of a renamed villager: a "Name:" / "Child:" / "Mother:" / "Father:" line whose
     name, head and body are theirs.  A Death, Disappeared or Epitaph record is never theirs when
     only the living are renamed.  A line without looks is renamed when the name alone is unique
-    among those renamed."""
+    among those renamed; one naming a renamed villager without saying which stays, and is reported."""
     import vv_log_additions as additions
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
@@ -801,6 +819,7 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
         crlf = b"\r\n" in original
         lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
         n = 0
+        left = set()
         for b in additions.blocks(path, lines):
             if not b.of(slot, game, villages) or not dead and b.heading.startswith(
                     ("Death", "Disappeared", "Epitaph")):
@@ -817,6 +836,9 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
                 if new:
                     lines[b.start + k] = f"{m.group(1)}{m.group(2)}: {new}"
                     n += 1
+                elif who[1] is None and name in renamed:
+                    left.add(name)
+        _left(result, path, left)
         if n:
             text = "\n".join(lines)
             if crlf:

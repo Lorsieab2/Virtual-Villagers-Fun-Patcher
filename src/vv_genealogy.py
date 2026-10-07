@@ -774,12 +774,24 @@ def roman(n: int) -> str:
 def duplicate_names(village: Village) -> dict[int, str]:
     """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
     duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."): oldest
-    first, the dead too.  A baby on the way has no name yet."""
+    first, the dead too.  A baby on the way has no name yet.  A number that would give a name already
+    in use is passed over (Codex, #557): a village with a "Soda I" numbers its two Sodas II and III."""
     holders: dict[str, list[Person]] = {}
     for p in sorted(village.known(), key=Person.order_key):
         holders.setdefault(p.name, []).append(p)
-    return {p.id: f"{name} {roman(n)}" for name, ps in holders.items() if len(ps) > 1
-            for n, p in enumerate(ps, 1)}
+    taken = set(holders)
+    out = {}
+    for name, ps in holders.items():
+        if len(ps) < 2:
+            continue
+        n = 0
+        for p in ps:
+            n += 1
+            while f"{name} {roman(n)}" in taken:
+                n += 1
+            out[p.id] = f"{name} {roman(n)}"
+            taken.add(out[p.id])
+    return out
 
 
 def numbered(p: Person) -> str:

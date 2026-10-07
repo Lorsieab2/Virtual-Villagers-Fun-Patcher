@@ -178,7 +178,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names",
                                      "vv_number_names"}),
             # Number Duplicate Names renames through Last Names.
-            ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup"}),
+            ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions"}),
             ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus"}),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))

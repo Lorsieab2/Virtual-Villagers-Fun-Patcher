@@ -42,12 +42,23 @@ class TheNumbers(unittest.TestCase):
 
     def test_namesakes_who_look_the_same_or_have_no_looks_or_no_room_keep_their_names(self):
         long = "Abcdefghijklmnopqrstu"                        # 21 letters: + " II" is 24, past 23
-        v = village(gen.Person(1, "Twin", 5, 5, alive=True), gen.Person(2, "Twin", 5, 5, alive=True),
+        # The family tree sees the save's two same-looking Twins as one; the save's count tells.
+        v = village(gen.Person(1, "Twin", 5, 5, alive=True), gen.Person(2, "Twin", 9, 9, alive=True),
                     gen.Person(3, "Ghost", None, None), gen.Person(4, "Ghost", 6, 6, alive=True),
-                    gen.Person(5, long, 7, 7, alive=True), gen.Person(6, long, 8, 8, alive=True))
-        out = nn.numbering(v)
-        self.assertEqual(out.renames, {("Ghost", 6, 6): "Ghost II", (long, 7, 7): f"{long} I"})
-        self.assertEqual(len(out.notes), 3)
+                    gen.Person(5, long, 7, 7, alive=True), gen.Person(6, long, 8, 8, alive=True),
+                    gen.Person(7, "Soda", 1, 1, alive=True))
+        out = nn.numbering(v, alike={("Twin", 5, 5): 2}, nameless={"Soda", "Nobody"})
+        self.assertEqual(out.renames, {("Twin", 9, 9): "Twin II", ("Ghost", 6, 6): "Ghost II",
+                                       (long, 7, 7): f"{long} I"})
+        self.assertEqual(len(out.notes), 4)
+        self.assertTrue(any("2 living villagers are called Twin" in n for n in out.notes))
+        self.assertTrue(any("Older records name a Soda without saying how they look" in n for n in out.notes))
+
+    def test_a_number_already_in_use_is_passed_over(self):
+        v = village(gen.Person(1, "Soda", 1, 1, alive=True, birth_record=1),
+                    gen.Person(2, "Soda", 2, 2, alive=True, birth_record=2),
+                    gen.Person(3, "Soda I", 3, 3, alive=True, birth_record=3))
+        self.assertEqual(gen.duplicate_names(v), {1: "Soda II", 2: "Soda III"})
 
 
 class TheTree(unittest.TestCase):
@@ -94,6 +105,17 @@ class InTheSaveAndTheLogs(unittest.TestCase):
         self.assertIn(f"  Father: {living}\r\n", self.births.read_bytes().decode())
         self.assertIn(f"  Name: {dead}\r\n", self.deaths.read_bytes().decode(), "the dead's own records too")
         self.assertFalse(gen.duplicate_names(gen.load_village(self.folder, 3, 1)))
+
+    def test_look_alikes_in_the_save_and_name_only_lines_are_left_and_reported(self):
+        people = [entry("Soda", 0, 1, 5, 6), entry("Soda", 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8),
+                  entry("Aipi", 1, 50, 2, 2)]
+        self.save.write_bytes(b"ldwg" + bytes(TABLE - 4) + b"".join(people) + bytes(64))
+        self._log("Births and Conceptions/Virtual Villagers 3 Births and Conceptions Log 2.txt",
+                  "Village: Tribe (Save 1)\nBirth\n  Child: Lani\n    Head: 4\n    Body: 4\n  Mother: Aipi\n\n")
+        result, wanted = nn.number_names(self.folder, 3, 1, NoGame(), NOW)
+        self.assertEqual(sorted(v.name for v in ln.living(self.folder, 3, 1)), ["Aipi I", "Aipi II", "Soda", "Soda"])
+        self.assertTrue(any("2 living villagers are called Soda" in n for n in wanted.notes))
+        self.assertTrue(any("Log 2.txt names Aipi without saying which villager" in n for n in wanted.notes))
 
     def test_it_is_refused_while_the_game_runs_or_when_no_name_is_shared(self):
         before = self.save.read_bytes()
