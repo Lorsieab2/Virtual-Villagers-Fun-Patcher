@@ -356,7 +356,7 @@ class TheWindow(unittest.TestCase):
         self.assertIn("vv_last_names.name_problem(number, v.name, last)", body)
         # A name with a space already has a last name: nothing is chosen for it (Codex, #553).
         self.assertIn('value=names["chosen"].get(v.identity) or (none if spaced else v.default or none)', body)
-        self.assertIn('if " " not in v.name:\n                    value.set(choice(v))', body)
+        self.assertIn('if " " not in v.name:\n                        value.set(choice(v))', body)
 
 
 if __name__ == "__main__":

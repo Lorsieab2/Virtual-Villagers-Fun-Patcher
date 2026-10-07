@@ -10,7 +10,7 @@ import tkinter as tk
 import tkinter.font as tkfont
 import webbrowser
 from pathlib import Path
-from tkinter import filedialog, messagebox, simpledialog, ttk
+from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
 import patcher_files
@@ -3102,8 +3102,9 @@ class App(tk.Tk):
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=640, justify="left",
                   text="Each living villager gets the last name you choose after their name, in the save "
                        "and in every log. Choose where last names come from, then change any one: pick "
-                       "from its list (the father's and the mother's come first), type your own, or "
-                       "choose none. The game must stay closed.").pack(anchor="w")
+                       "from its list (the father's and the mother's come first), type your own in its "
+                       "box, or choose none. A villager's descendants inherit the name you give them by "
+                       "the rule above. The game must stay closed.").pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
@@ -3122,6 +3123,10 @@ class App(tk.Tk):
         canvas.create_window((0, 0), window=inner, anchor="nw")
         canvas.configure(yscrollcommand=bar.set)
         rows: list[tuple] = []
+        # The villagers whose last name the player set (typed or picked): theirs, and their
+        # descendants inherit it by the rule (the owner, 2026-10-07).
+        mine: set = set(names.get("mine", ()))
+        filling = [False]                       # the window itself is filling the rows in
         for row, v in enumerate(people):
             already = vv_last_names.has_last_name(number, v.name)
             # A name with a space already has a last name -- the game's, or one typed here
@@ -3139,6 +3144,8 @@ class App(tk.Tk):
             box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
             if already:
                 box.configure(state="disabled")
+            else:                               # typed, pasted or picked: the player's
+                value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))
             rows.append((v, value))
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
@@ -3146,25 +3153,40 @@ class App(tk.Tk):
         buttons.pack(side="bottom", anchor="w")
 
         def every(choice) -> None:
-            for v, value in rows:
-                if " " not in v.name:
-                    value.set(choice(v))
+            filling[0] = True
+            try:
+                for v, value in rows:
+                    if " " not in v.name:
+                        value.set(choice(v))
+            finally:
+                filling[0] = False
 
         def rule_key() -> str:
             return next(k for k, words in vv_last_names.INHERIT.items() if words == rule_var.get())
 
         def by_rule(*_args) -> None:
-            if rule_key() == "typed":           # one name the player types, for every villager
-                typed = simpledialog.askstring("Last names", "The last name to give every villager (you "
-                                               "can still change any one):", parent=window)
-                if typed and typed.strip():
-                    every(lambda v: typed.strip())
-                return
-            given = vv_last_names.inherited(people, parents, rule_key(), pool)
-            every(lambda v: given.get(v.identity) or none)
+            """Every row the player has not set, from the rule and the names the player has."""
+            values = {v.identity: value.get().strip() for v, value in rows}
+            fixed = {key: ("" if values[key] == none else values[key]) for key in mine if key in values}
+            given = vv_last_names.inherited(people, parents, rule_key(), pool, fixed)
+            filling[0] = True
+            try:
+                for v, value in rows:
+                    if " " not in v.name and v.identity not in mine:
+                        value.set(given.get(v.identity) or none)
+            finally:
+                filling[0] = False
+
+        def set_by_player(v) -> None:
+            mine.add(v.identity)
+            by_rule()
+
+        def none_for_all() -> None:
+            every(lambda v: none)
+            mine.update(v.identity for v, _value in rows)
 
         rule_var.trace_add("write", by_rule)
-        if not names["chosen"] and rule_key() != "typed":
+        if not names["chosen"]:
             by_rule()
 
         def ok() -> None:
@@ -3189,10 +3211,11 @@ class App(tk.Tk):
             names["chosen"] = chosen
             names["answers"] = answers
             names["rule"] = rule_key()
+            names["mine"] = set(mine)
             names_var.set(bool(chosen))
             window.destroy()
 
-        ttk.Button(buttons, text="None for all", command=lambda: every(lambda v: none)).pack(side="left")
+        ttk.Button(buttons, text="None for all", command=none_for_all).pack(side="left")
         ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
         ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
         window.protocol("WM_DELETE_WINDOW", window.destroy)

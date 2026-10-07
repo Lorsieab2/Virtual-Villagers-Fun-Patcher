@@ -43,6 +43,21 @@ class InheritanceTests(unittest.TestCase):
         self.assertEqual(given[CHIKA.identity], "Moa")          # a dead father's own
         self.assertEqual(given[HUATA.identity], "Ruku")         # no parents: the family's
 
+    def test_a_name_the_player_gives_is_inherited_by_the_rule(self) -> None:
+        # The owner, 2026-10-07: type "Chapstick" in a villager's own box, and with "From the
+        # mother" her descendants inherit it; a name set further down is kept.
+        given = ln.inherited(PEOPLE, PARENTS, "mother", fixed={HUATA.identity: "Chapstick"})
+        self.assertEqual(given[HUATA.identity], "Chapstick")
+        self.assertEqual(given[GORO.identity], "Chapstick")      # her son
+        self.assertEqual(given[SEKAI.identity], "Moa")           # Goro's daughter: her mother Chika's
+        father_rule = ln.inherited(PEOPLE, PARENTS, "father", fixed={GORO.identity: "Chapstick"})
+        self.assertEqual(father_rule[SEKAI.identity], "Chapstick")   # her father Goro's
+        kept = ln.inherited(PEOPLE, PARENTS, "father", fixed={GORO.identity: "Chapstick",
+                                                               SEKAI.identity: ""})
+        self.assertEqual(kept[SEKAI.identity], "", "a villager set to no last name keeps none")
+        self.assertEqual(ln.inherited(PEOPLE, PARENTS, "each", fixed={GORO.identity: "Chapstick"}),
+                         {HUATA.identity: "", GORO.identity: "Chapstick", CHIKA.identity: "", SEKAI.identity: ""})
+
     def test_mothers_names_and_the_fallback_to_the_father(self) -> None:
         given = ln.inherited(PEOPLE, PARENTS, "mother")
         self.assertEqual(given[GORO.identity], "Ruku")          # Huata's, given her now
@@ -92,9 +107,13 @@ class InheritanceTests(unittest.TestCase):
         self.assertEqual(set(ln.inherited(people, parents, "each", pool).values()), {""})
 
     def test_every_rule_is_offered(self) -> None:
-        self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "each", "typed"])
+        # A typed name goes in the villager's own box (the owner, 2026-10-07), not a rule.
+        self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "each"])
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
-        self.assertIn("vv_last_names.inherited(people, parents, rule_key(), pool)", gui)
+        self.assertIn("vv_last_names.inherited(people, parents, rule_key(), pool, fixed)", gui)
+        # Any change to a villager's box -- typed, pasted or picked -- is the player's; the
+        # window's own filling in is not.
+        self.assertIn('value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))', gui)
         # The box takes typed names: it is never read-only.
         start = gui.index("box = ttk.Combobox(inner, textvariable=value, width=24,")
         self.assertNotIn("readonly", gui[start:gui.index("\n", start + 200)])
