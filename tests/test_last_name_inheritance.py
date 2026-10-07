@@ -36,11 +36,6 @@ PARENTS = {
 
 
 class InheritanceTests(unittest.TestCase):
-    def test_the_family_rule_is_the_games_own(self) -> None:
-        given = ln.inherited(PEOPLE, PARENTS, "family")
-        self.assertEqual(given[GORO.identity], "Tano")
-        self.assertEqual(given[SEKAI.identity], "Mele")
-
     def test_fathers_names_flow_down_the_generations(self) -> None:
         given = ln.inherited(PEOPLE, PARENTS, "father")
         self.assertEqual(given[GORO.identity], "Lasso")         # his father's own
@@ -74,10 +69,32 @@ class InheritanceTests(unittest.TestCase):
         given = ln.inherited([a, b], looped, "father")
         self.assertEqual(set(given.values()) <= {"Ruku", "Tano"}, True)
 
+    def test_villagers_without_parents_get_last_names_of_their_own(self) -> None:
+        # The owner: "unrelated and single individuals have no family yet and should get separate
+        # last names"; a couple's children take the father's.
+        pool = ["Ruku", "Tano", "Mele", "Pao"]
+        dad = living("Ari", 1, "Ruku", 1)
+        mum = living("Bea", 1, "Ruku", 2)            # the same family number, by chance
+        lone = living("Cal", 2, "Tano", 3)
+        named = living("Dee Moa", 1, "Ruku", 4)       # already carries one
+        kid = living("Eve", 1, "Ruku", 5)
+        people = [dad, mum, lone, named, kid]
+        parents = {kid.identity: (dad.identity, mum.identity)}
+        given = ln.inherited(people, parents, "father", pool)
+        self.assertEqual(given[dad.identity], "Ruku")
+        self.assertEqual(given[mum.identity], "Mele")        # Ruku is Ari's; Tano is Cal's: the next free
+        self.assertEqual(given[lone.identity], "Tano")
+        self.assertEqual(given[kid.identity], "Ruku")        # the father's
+        self.assertEqual(len({given[v.identity] for v in (dad, mum, lone)}), 3)
+        listed = ln.inherited(people, parents, "list", pool)
+        self.assertTrue(set(listed.values()) <= set(pool))
+        self.assertEqual(listed, ln.inherited(people, parents, "list", pool))      # the same each time
+        self.assertEqual(set(ln.inherited(people, parents, "each", pool).values()), {""})
+
     def test_every_rule_is_offered(self) -> None:
-        self.assertEqual(list(ln.INHERIT), ["family", "father", "mother", "random", "each"])
+        self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "each", "typed"])
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
-        self.assertIn("vv_last_names.inherited(people, parents, rule_key())", gui)
+        self.assertIn("vv_last_names.inherited(people, parents, rule_key(), pool)", gui)
         # The box takes typed names: it is never read-only.
         start = gui.index("box = ttk.Combobox(inner, textvariable=value, width=24,")
         self.assertNotIn("readonly", gui[start:gui.index("\n", start + 200)])

@@ -10,7 +10,7 @@ import tkinter as tk
 import tkinter.font as tkfont
 import webbrowser
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk
 
 from transparency import PATCHER_VERSION
 import patcher_files
@@ -3065,8 +3065,9 @@ class App(tk.Tk):
                 if p.alive:
                     parents[p.key] = tuple(village.people[q].key if q is not None else None
                                            for q in (p.father, p.mother))
-        by_father = vv_last_names.inherited(people, parents, "father")
-        by_mother = vv_last_names.inherited(people, parents, "mother")
+        pool = list(checker.LAST_NAMES[number])
+        by_father = vv_last_names.inherited(people, parents, "father", pool)
+        by_mother = vv_last_names.inherited(people, parents, "mother", pool)
         window = tk.Toplevel(parent)
         window.title("Repair Logs: last names")
         window.transient(parent)
@@ -3078,8 +3079,8 @@ class App(tk.Tk):
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
-        saved_rule = names.get("rule", "family")
-        rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["family"]))
+        saved_rule = names.get("rule", "father")      # the owner's: children take the father's name
+        rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
         ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
                      state="readonly", width=34).pack(side="left", padx=(6, 0))
         if village is None:
@@ -3125,11 +3126,17 @@ class App(tk.Tk):
             return next(k for k, words in vv_last_names.INHERIT.items() if words == rule_var.get())
 
         def by_rule(*_args) -> None:
-            given = vv_last_names.inherited(people, parents, rule_key())
+            if rule_key() == "typed":           # one name the player types, for every villager
+                typed = simpledialog.askstring("Last names", "The last name to give every villager (you "
+                                               "can still change any one):", parent=window)
+                if typed and typed.strip():
+                    every(lambda v: typed.strip())
+                return
+            given = vv_last_names.inherited(people, parents, rule_key(), pool)
             every(lambda v: given.get(v.identity) or none)
 
         rule_var.trace_add("write", by_rule)
-        if not names["chosen"] and saved_rule != "family":
+        if not names["chosen"] and rule_key() != "typed":
             by_rule()
 
         def ok() -> None:
