@@ -676,7 +676,10 @@ def _blocked(rules: Rules, man: Person, woman: Person, relation: str, related: F
             return "shared ancestor"
     if rules.max_relatedness and float(related) * 100 > rules.max_relatedness_percent + 1e-9:
         return "too closely related"
-    if rules.different_last_name and man.family is not None and man.family == woman.family:
+    # A founder, a newcomer or an arrival is an unrelated individual for all intents and purposes (the
+    # owner): a family number they share with someone by chance is not a family.
+    if rules.different_last_name and man.family is not None and man.family == woman.family \
+            and not any(p.father is None and p.mother is None for p in (man, woman)):
         return "same last name"
     return None
 

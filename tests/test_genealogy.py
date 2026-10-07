@@ -145,6 +145,13 @@ class RuleTests(unittest.TestCase):
         self.assertNotIn(("G", "X"), self.pairs(close_in_age=True, max_age_gap_years=10))
         self.assertIn(("G", "H"), self.pairs(block_full_siblings=False))
         self.assertNotIn(("G", "H"), self.pairs(block_full_siblings=False, different_last_name=True))
+        # The owner: "NEWCOMERS/ARRIVALS/FOUNDERS ARE SEPARATE UNRELATED INDIVIDUALS. for all intents and
+        # purposes!" -- a family number an arrival shares by chance does not block her.
+        v = village()
+        v.people[12].family = 2
+        _pairs, per_woman, _least = gen.suggest(v, gen.Rules(different_last_name=True))
+        every = {(p.man.name, p.woman.name) for ps in per_woman.values() for p in ps}
+        self.assertIn(("G", "X"), every)
 
     def test_an_expecting_mother_is_left_out_unless_the_player_says(self) -> None:
         v = village()
