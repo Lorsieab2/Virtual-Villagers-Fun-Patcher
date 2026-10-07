@@ -334,7 +334,6 @@ def load_village(folder: Path, game: int, slot: int) -> Village:
     _upcoming(reg)
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
     _generations(village, reg.snapshots)
-    village.base_generation = {pid: p.generation for pid, p in village.people.items()}
     number_people(village)
     if additions.current_villages(folder, game, slot) is None:
         notes.append("The save's tribe name could not be read, so records of every village this "
@@ -472,6 +471,7 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
         gens = compute()
     for pid, value in gens.items():
         people[pid].generation = value
+    village.base_generation = dict(gens)
 
 
 # ---------------------------------------------------------------------------

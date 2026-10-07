@@ -153,6 +153,53 @@ class RuleTests(unittest.TestCase):
         every = {(p.man.name, p.woman.name) for ps in per_woman.values() for p in ps}
         self.assertIn(("G", "X"), every)
 
+    @staticmethod
+    def small(*rows) -> gen.Village:
+        """A village from (pid, name, sex, years, father, mother) rows."""
+        people = {pid: gen.Person(pid, name, pid, pid, sex=sex, age=years * Y, alive=True, father=father,
+                                  mother=mother, first_seen=FIRST)
+                  for pid, name, sex, years, father, mother in rows}
+        v = gen.Village(1, 1, "Test Tribe", people)
+        gen._generations(v, {FIRST: set(people)})
+        gen.number_people(v)
+        return v
+
+    def test_relatedness_ignores_the_trees_display_generations(self) -> None:
+        # Codex, #555: "Move to generation" only moves where a villager is drawn.
+        v = village()
+        kin = gen.Kinship(v)
+        before = kin.relatedness(9, 5)                  # child and father
+        v.people[9].generation = 1                      # drawn among the founders
+        self.assertEqual(gen.Kinship(v).relatedness(9, 5), before)
+        self.assertEqual(before, Fraction(1, 2))
+
+    def test_the_nearest_common_ancestor_is_the_nearest_all_told(self) -> None:
+        # Codex, #555: two up and two down (first cousins) is nearer than one up and three down.
+        v = self.small((1, "G", "Male", 80, None, None), (2, "P", "Male", 60, 1, None),
+                       (3, "Q", "Male", 58, 1, None), (4, "A", "Male", 30, 2, None),
+                       (5, "N", "Female", 45, 2, None), (6, "M", "Female", 28, None, 5),
+                       (7, "B", "Female", 20, 3, 6))
+        self.assertEqual(gen.relationship(v, 4, 7), "first cousins")
+
+    def test_one_partner_each_for_as_many_as_the_rules_allow(self) -> None:
+        # Codex, #555: the best pair first (W2 with M1) would leave W1 alone; W2 with M2 pairs both.
+        v = self.small((1, "M1", "Male", 30, None, None), (2, "M2", "Male", 45, None, None),
+                       (3, "W1", "Female", 20, None, None), (4, "W2", "Female", 30, None, None))
+        pairs, _per, _least = gen.suggest(v, gen.Rules(close_in_age=True, max_age_gap_years=15))
+        self.assertEqual({(p.man.name, p.woman.name) for p in pairs}, {("M1", "W1"), ("M2", "W2")})
+
+    def test_last_names_carried_are_compared_and_no_number_is_none(self) -> None:
+        v = self.small((1, "Bob Lee", "Male", 30, None, None), (2, "Ann Lee", "Female", 28, None, None),
+                       (3, "Cy Kay", "Male", 31, None, None))
+        for p in v.people.values():
+            p.family = 7                                # one family number, by chance
+        allowed = {(p.man.name, p.woman.name) for ps in gen.suggest(v, gen.Rules(different_last_name=True))[1].values()
+                   for p in ps}
+        self.assertEqual(allowed, {("Cy Kay", "Ann Lee")})
+        v.people[1].number = None                       # taken off the tree
+        self.assertEqual(gen.numbered(v.people[1]), "Bob Lee")
+        self.assertNotIn("#None", gen.pair_report(v, gen.Rules(), "A New Home"))
+
     def test_an_expecting_mother_is_left_out_unless_the_player_says(self) -> None:
         v = village()
         v.people[8].expecting = True
