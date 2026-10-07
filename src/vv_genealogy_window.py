@@ -100,10 +100,39 @@ LINING THINGS UP (the toolbar)
                                   middles, bottoms), centre them on the tree, or space them evenly
 
 LINES
-  Drag a piece of a line          move it any way (the pointer shows four arrows); the pieces
-                                  joined to it follow, turning diagonal if they must, and it stays
-                                  on the portraits it touches
-  Right-click it                  Reset this line
+  Drag a piece of a line          move it (the pieces joined to it follow and it stays on the
+                                  portraits it touches); across itself only, unless Allow diagonal
+                                  lines is ticked
+  Right-click it                  Reset this line, or Delete this line
+  Layout tab, Family lines        every line's weight and type (solid, dotted, dashed)
+  Villagers tab                   the selected villagers' family's lines: weight and type
+
+PORTRAITS
+  Click one villager              circles round the portrait: drag a corner to resize it (Shift:
+                                  stretch freely), a side to stretch it, the curved arrow on top to
+                                  turn it (Shift: steps of 15 degrees)
+  Villagers tab, Portrait         shape, border, and the size of every selected villager (width or
+                                  height alone keeps the other); Reset size and turn
+  Layout tab                      each group's shape, border and default size; the inside colour;
+                                  opacity of words, boxes, portraits and lines; ages in units / years
+  Special Marks tab               every mark as a border or a glow, its size and opacity
+  The size and weight boxes       change the tree as you type or click the arrows
+
+ADDING AND DELETING
+  Right-click empty space         Add here: a text box, a picture, a rectangle, an oval, a logo
+  Right-click anything            Delete it: a villager, a line, the title, a generation label or
+                                  one line of it (the number, the name, the totals...) here or from
+                                  every generation
+  Layout tab, Deleted items       Restore what was deleted
+
+PAGES (Layout tab)
+  A new page starts at generation split a long family onto pages; each page is its own tree,
+                                  not joined to the one before.  Pick the page on the toolbar.
+                                  Saving a picture saves every page.
+
+NUMBERS
+  Layout tab                      Roman numerals or numbers for the generations; Renumber
+                                  villagers whose text I edited
 
 PICTURES AND TEXT BOXES (Pictures & Text tab)
   Drag its middle                 move it                 Arrow keys      nudge it (Shift: by 10)
@@ -121,10 +150,13 @@ PICTURES AND TEXT BOXES (Pictures & Text tab)
 EVERYWHERE
   Ctrl+C / Ctrl+X / Ctrl+V        copy, cut, paste (a picture or file copied anywhere, or words,
                                   which become a text box)
-  Ctrl+D                          duplicate        Ctrl+Z / Ctrl+Y      undo / redo
+  Ctrl+D                          duplicate        Ctrl+Z / Ctrl+Y      undo / redo (and the buttons)
+  Reset buttons (under every tab) Reset Portrait Shapes, Portrait Places, Lines, Everything --
+                                  each asks first
   Ctrl+S                          save the tree as a picture in the save folder's
                                   Virtual Villagers Fun Patcher Family Trees folder
   Ctrl+Shift+S                    save it anywhere, as a PNG or JPG
+  F5                              Update Family Tree from Logs/Saves (every edit kept)
   F1                              these controls   F4  hide or show the panel   F11  full screen
 """
 # How far the tree can be zoomed, and for each how the canvas scales a head (tkinter scales a
@@ -494,6 +526,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         undo.pack(side="bottom", fill="x", pady=(8, 0))
         ttk.Button(undo, text="Undo (Ctrl+Z)", command=self._undo).pack(side="left")
         ttk.Button(undo, text="Redo (Ctrl+Y)", command=self._redo).pack(side="left", padx=(6, 0))
+        ttk.Button(undo, text="Update Family Tree from Logs/Saves (F5)", command=self._update_from_game).pack(
+            side="left", padx=(6, 0))
         self.notebook = ttk.Notebook(right)
         self.notebook.pack(fill="both", expand=True)
         self._selected_tab()
@@ -522,6 +556,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.bind("<F4>", lambda _e: self._toggle_panel())
         self.bind("<F11>", lambda _e: self._toggle_full())
         self.bind("<F1>", lambda _e: self._help())
+        self.bind("<F5>", self._update_from_game)
+        self._menus()
         c.bind("<Button-3>", self._context)
         c.bind("<Motion>", self._hover)
         if self.window.get("sash"):
@@ -1259,6 +1295,103 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _unmove_line(self, piece: str) -> None:
         self.edits.line_moves.pop(piece, None)
         self._saved()
+
+    def _menus(self) -> None:
+        """The menu bar (the owner: "a file > save, delete tree, export as... header")."""
+        bar = tk.Menu(self, tearoff=0)
+        items = {
+            "File": [("Save to Save Folder", "Ctrl+S", self._save_to_save_folder),
+                     ("Save Picture As...", "Ctrl+Shift+S", self._save_picture),
+                     ("Export As...", "", self._export),
+                     ("Open in Browser", "", self._open_page), None,
+                     ("Update Family Tree from Logs/Saves", "F5", self._update_from_game), None,
+                     ("Delete Tree...", "", self._delete_tree), None,
+                     ("Close", "", self._close)],
+            "Edit": [("Undo", "Ctrl+Z", self._undo), ("Redo", "Ctrl+Y", self._redo), None,
+                     ("Reset Portrait Shapes...", "", self._reset_shapes),
+                     ("Reset Portrait Places...", "", self._reset_portraits),
+                     ("Reset Lines...", "", self._reset_lines),
+                     ("Reset Everything...", "", self._reset_everything)],
+            "View": [("Zoom In", "+", lambda: self._zoom_step(1)), ("Zoom Out", "-", lambda: self._zoom_step(-1)),
+                     ("Fit", "", self._zoom_fit), ("100%", "Ctrl+0", lambda: self._zoom_to(1.0)), None,
+                     ("Hide or Show the Panel", "F4", self._toggle_panel), ("Full Screen", "F11", self._toggle_full)],
+            "Help": [("Controls", "F1", self._help)],
+        }
+        for name, entries in items.items():
+            menu = tk.Menu(bar, tearoff=0)
+            for entry in entries:
+                if entry is None:
+                    menu.add_separator()
+                else:
+                    label, keys, command = entry
+                    menu.add_command(label=label, accelerator=keys, command=command)
+            bar.add_cascade(label=name, menu=menu)
+        self.configure(menu=bar)
+
+    def _export(self) -> None:
+        """The tree as a picture (PNG or JPG), a drawing (SVG: one file a page) or a web page (every
+        page in one)."""
+        folder = self._trees_folder()
+        path = filedialog.asksaveasfilename(
+            parent=self, title="Export the family tree", initialdir=str(folder) if folder else None,
+            initialfile=f"{self._tree_name()}.png", defaultextension=".png",
+            filetypes=[("PNG picture", "*.png"), ("JPG picture", "*.jpg *.jpeg"), ("SVG drawing", "*.svg"),
+                       ("Web page", "*.html")])
+        if not path:
+            return
+        path = Path(path)
+        if path.suffix.lower() in (".png", ".jpg", ".jpeg"):
+            if not vv_gdiplus.available():
+                messagebox.showerror("Export", "Pictures are saved with Windows' own graphics; this computer "
+                                               "does not have them.", parent=self)
+                return
+            self._save_as(path, 1.0)
+            return
+        count = len(ft.page_spans(self.edits, self.village))
+        drawings = [ft.to_svg(self._page_scene(k)[1], self.present) for k in range(count)]
+        try:
+            if path.suffix.lower() == ".svg":
+                for k, svg in enumerate(drawings):
+                    target = path if k == 0 else path.with_name(f"{path.stem} - Page {k + 1}{path.suffix}")
+                    target.write_bytes(svg.encode("utf-8"))
+            else:
+                title = ft.title_lines(self.lay, self.game_title)[0]
+                path.write_bytes(ft.html_page("\n".join(drawings), title, "", self.lay.background).encode("utf-8"))
+        except OSError as exc:
+            messagebox.showerror("Export", f"The tree could not be exported: {exc}", parent=self)
+            return
+        self.status.set(f"Exported {path}")
+
+    def _delete_tree(self) -> None:
+        """This tree's edits deleted: the tree as the patcher first draws it (the pictures already
+        saved stay; Ctrl+Z brings the edits back while the editor is open)."""
+        if not self._sure("Delete this family tree -- every mark, colour, move, picture, text box and page -- and "
+                          "start again from the save and the logs?  (Pictures you saved are kept.)"):
+            return
+        self.edits = ft.Edits()
+        self.obj = None
+        self.selected = []
+        self.page = 0
+        self._saved()
+        self._refresh_panels()
+        self.status.set("The tree is deleted and drawn fresh from the save and the logs.  Ctrl+Z brings it back.")
+
+    def _update_from_game(self, _event=None) -> None:
+        """The save and the patcher's logs read again (the game played on since the tree opened);
+        every edit is kept, and a villager's edits follow them."""
+        try:
+            village = gen.load_village(self.folder, self.game, self.slot)
+        except gen.GenealogyError as exc:
+            messagebox.showerror("Family Tree Maker", str(exc), parent=self)
+            return
+        before = len(self.village.known())
+        self.village = village
+        self.selected = []
+        self.redraw()
+        self._refresh_selected()
+        self._refresh_hidden()
+        self.status.set(f"Updated from the save and the logs: {len(village.known())} villagers known "
+                        f"({len(village.known()) - before:+d}).")
 
     def _sure(self, question: str) -> bool:
         return messagebox.askyesno("Family Tree Maker", question + "  (Undo brings it back.)", parent=self)
