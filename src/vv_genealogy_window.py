@@ -33,7 +33,7 @@ import vv_gdiplus
 import vv_genealogy as gen
 import vv_save_backup
 import vv_tribe_rename
-from vv_tree_editor_tools import CanvasTools, ScrollingTab, picture_scene, panel_colour
+from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_scene, panel_colour
 
 SELECT = "#1f6fd1"
 OUTSIDE = "#9a9a9a"                     # the canvas around the page
@@ -145,10 +145,12 @@ PICTURES AND TEXT BOXES (Pictures & Text tab)
   Drag a side circle              stretch one side
   Drag the curved arrow           rotate it (Shift: in steps of 15 degrees)
   Double-click a text box, or F2  type in it
-  Double-click any words          retype them where they are: the title, subtitle, a portrait, a
+  Click (or double-click) words   retype them where they are: the title, subtitle, a portrait, a
                                   generation label, "Unrelated Individuals", the footer, a mark in
                                   the Key (Enter keeps them; Ctrl+Enter for several lines; Esc)
   Ctrl+B / Ctrl+I / Ctrl+U        bold / italic / underline the selected text box
+  Right-click any words           bold, italic, underline, strikethrough, superscript, subscript
+                                  (every word of that kind: every name, every label...)
   Right-click it                  cut, copy, duplicate, delete, bring forward / to the front, send
                                   backward / to the back, rotate 90, reset proportions, reset to
                                   default
@@ -434,6 +436,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.library = game_libraries(app)
         self.selected: list[int] = []
         self.dirty = False                      # changes not saved yet (the owner's Yes / No / Cancel on closing)
+        self.press_words: int | None = None     # words pressed on: retyped if the press is a click
         self.page = 0                           # the page of the tree shown (ft.page_spans)
         self.anchor: int | None = None
         self.band = None
@@ -1242,6 +1245,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 menu.add_command(label=f"Delete {words_}", command=lambda n=name: self._hide(f"label:{g}:{n}"))
                 menu.add_command(label=f"Delete {words_} from every generation",
                                  command=lambda n=name: self._hide(f"label:*:{n}"))
+        if target is not None and target[0] == "role":      # any words: their style
+            self._style_menu(menu, target[1])
         if moved or people:
             menu.add_separator()
             menu.add_command(label="Reset position",
@@ -1312,6 +1317,38 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             chosen.pop(key, None)
         self._refresh_marks()
         self._saved()
+
+    def _style_menu(self, menu: tk.Menu, role: str) -> None:
+        """Bold, italic, underline, strikethrough, superscript and subscript for these words (every
+        word of their kind -- every name, every label...), ticked as they are now."""
+        style = self.edits.styles.get(role, {})
+        menu.add_separator()
+        self.style_vars = []                    # kept while the menu is open
+        for flag, label in (("bold", "Bold"), ("italic", "Italic"), ("underline", "Underline"),
+                            ("strike", "Strikethrough")):
+            var = tk.BooleanVar(value=style.get(flag, flag == "bold" and role in BOLD_ROLES))
+            self.style_vars.append(var)
+            menu.add_checkbutton(label=label, variable=var,
+                                 command=lambda f=flag, v=var: self._word_style(role, f, bool(v.get())))
+        for script, label in (("super", "Superscript"), ("sub", "Subscript")):
+            var = tk.BooleanVar(value=style.get("script") == script)
+            self.style_vars.append(var)
+            menu.add_checkbutton(label=label, variable=var,
+                                 command=lambda s=script, v=var: self._word_style(role, "script", s if v.get() else None))
+
+    def _word_style(self, role: str, flag: str, value) -> None:
+        style = dict(self.edits.styles.get(role, {}))
+        if value is None:
+            style.pop(flag, None)
+        else:
+            style[flag] = value
+        style = ft.clean_style(style)
+        if style:
+            self.edits.styles[role] = style
+        else:
+            self.edits.styles.pop(role, None)
+        self._saved()
+        self._show_role()
 
     def _set_role_colour(self, role: str, colour: str) -> None:
         style = dict(self.edits.styles.get(role, {}))
@@ -1612,6 +1649,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if not m["started"]:
             if "pids" in m and m.get("only") is not None:
                 self._select([m["only"]])           # a plain click on one of several selected
+            words, self.press_words = self.press_words, None
+            if words is not None and words in self.editable:
+                self._edit_in_place(words, self.editable[words])
             return
         if "piece" in m:
             old = self.edits.line_moves.get(m["piece"], [0.0, 0.0])
@@ -1830,6 +1870,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         self.move = None
         iid = self._grab(event)
+        # Words clicked (not dragged) are retyped where they are, once the press is let go.
+        plain = not event.state & 0x5
+        self.press_words = iid if plain and iid in self.editable and self.canvas.type(iid) == "text" else None
         if iid in self.pieces:
             x, y = self._where(event)
             self.move = {"piece": self.pieces[iid], "iid": iid, "x": x, "y": y, "dx": 0.0, "dy": 0.0,

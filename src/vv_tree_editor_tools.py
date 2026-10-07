@@ -243,7 +243,10 @@ def picture_scene(path: Path, width: int, height: int, background: str) -> ft.Sc
 
 
 def panel_colour(widget) -> str:
-    return ttk.Style(widget).lookup("TFrame", "background") or "SystemButtonFace"
+    """The panel's colour as "#rrggbb" (Windows names it "SystemButtonFace", which a picture cannot
+    be drawn on: the logos' thumbnails came out blank)."""
+    r, g, b = widget.winfo_rgb(ttk.Style(widget).lookup("TFrame", "background") or "SystemButtonFace")
+    return f"#{r >> 8:02x}{g >> 8:02x}{b >> 8:02x}"
 
 
 class CanvasTools:

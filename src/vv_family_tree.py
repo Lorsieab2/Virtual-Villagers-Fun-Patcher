@@ -493,6 +493,10 @@ SHAPES = {"rect": "Rectangle", "ellipse": "Oval"}           # a text box's own s
 VALIGNS = {"top": "Top", "middle": "Middle", "bottom": "Bottom"}
 
 
+# Superscript and subscript: the words this much smaller, raised or lowered by this much of their size.
+SCRIPTS = {"super": (0.65, -0.35), "sub": (0.65, 0.2)}
+
+
 def clean_style(raw: dict) -> dict:
     """A role's style, every value in range: only what the player set."""
     out: dict = {}
@@ -503,6 +507,8 @@ def clean_style(raw: dict) -> dict:
     for flag in ("bold", "italic", "underline", "strike"):
         if isinstance(raw.get(flag), bool):
             out[flag] = raw[flag]
+    if raw.get("script") in SCRIPTS:
+        out["script"] = raw["script"]
     if is_colour(raw.get("colour")):
         out["colour"] = raw["colour"]
     return out
@@ -2042,6 +2048,10 @@ def _apply_styles(items: list, edits: Edits) -> None:
         item.underline = style.get("underline", False)
         item.strike = style.get("strike", False)
         item.colour = style.get("colour", item.colour)
+        if style.get("script") in SCRIPTS:      # smaller, raised or lowered: drawn so everywhere
+            shrink, shift = SCRIPTS[style["script"]]
+            item.y += item.size * shift
+            item.size *= shrink
 
 
 def sticker_item(index: int, raw: dict, images: Path | None, library: dict | None = None) -> Sticker | None:
