@@ -105,6 +105,131 @@ FIELDS = {
               (0x58, 0x5C, 0x60, 0x64, 0x94, 0x90)),
 }
 
+# Each game's graves in the save file (the owner, 2026-10-07: renames "should be retroactive too! (in
+# logs, saves, graves, etc)"): (file offset, slots, stride, name field bytes, age-at-death offset,
+# (head, body) offsets or None).  The game copies a villager's name there at burial; The Secret City,
+# The Tree of Life and New Believers refuse a whole save whose grave name has no NUL in its first
+# 0x19 bytes, so a new name is always written NUL-terminated and zero-filled within its field.
+GRAVES = {
+    1: (0xA320, 50, 0x2C, 0x1C, 0x24, None),        # manager +0xA31C (cod_vv12.inc)
+    2: (0x2EB10, 50, 0x7C, 0x19, 0x74, None),       # world +0x2EB0C; the epitaph follows the name
+    3: (0xF0C, 500, 0x30, 0x19, 0x1C, None),        # the Roster of the Dead (writer 0x454FF0)
+    4: (0x908, 500, 0x5C, 0x19, 0x1C, (0x20, 0x24)),  # writer 0x45D470
+    5: (0x86C, 500, 0x5C, 0x19, 0x1C, (0x20, 0x24)),  # writer 0x464C70
+}
+# The bytes of the name the cause-of-death fingerprint reads (cod_fingerprint, its `cap`).
+GRAVE_PRINT_CAP = {1: 0x1C, 2: 0x18, 3: 0x19, 4: 0x19, 5: 0x19}
+
+
+def grave_fingerprint(name: bytes, cap: int, age: int) -> int:
+    """cod_fingerprint (native/vvfp_cause_of_death/vvfp_cause_of_death.c): the name to its NUL or
+    `cap` bytes, 0xFF, then the age at death's four bytes."""
+    h = _fnv(FNV_BASIS, name.split(b"\0", 1)[0][:cap])
+    h = _fnv(h, b"\xff")
+    h = _fnv(h, struct.pack("<i", age))
+    return h or 1
+
+
+def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: dict[tuple, int],
+                   result) -> list[tuple[int, bytes, bytes, int]]:
+    """Each renamed dead villager's grave, matched by name and age at death (and looks, where the game
+    keeps them on the grave): renamed in `buf`.  An unclear match is left alone and reported.  Returns
+    (place, old name, new name, age) for each grave renamed."""
+    base, slots, stride, cap, age_at, looks = GRAVES[game]
+    if len(buf) < base + slots * stride:
+        return []
+    graves = []
+    for i in range(slots):
+        at = base + i * stride
+        name = _cstr(buf, at, cap)
+        if not name:                            # an empty place (a baby may die at age 0)
+            continue
+        graves.append((i, at, name, _i32(buf, at + age_at),
+                       (_i32(buf, at + looks[0]), _i32(buf, at + looks[1])) if looks else None))
+    done = []
+    for (name, head, body), new in renames.items():
+        age = ages.get((name, head, body))
+        if age is None:
+            continue
+        # A grave dug before the logs were renamed (last names given by an earlier build) still carries
+        # the game's own first name.
+        on_grave = name
+        found = [g for g in graves if g[2] == name and g[3] == age and (g[4] is None or g[4] == (head, body))]
+        if not found:
+            on_grave = split_name(game, name)[0]
+            found = [g for g in graves if g[2] == on_grave != name and g[3] == age
+                     and (g[4] is None or g[4] == (head, body))]
+        rivals = [key for key in ages if key != (name, head, body) and ages[key] == age
+                  and on_grave in (key[0], split_name(game, key[0])[0])]
+        if len(found) != 1 or (looks is None and rivals):
+            if found:
+                result.notes.append(f"The grave of {name} (age {age}) could be more than one villager's, so it "
+                                    "keeps its name.")
+            continue
+        encoded = new.encode("latin-1", "replace")
+        if len(encoded) > cap - 1:
+            result.notes.append(f"{new} is too long for {name}'s grave, which keeps its name.")
+            continue
+        place, at, _old, _age, _looks = found[0]
+        old = bytes(buf[at:at + cap])
+        buf[at:at + cap] = encoded + bytes(cap - len(encoded))
+        done.append((place, old, encoded, age))
+    return done
+
+
+def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list) -> None:
+    """The cause-of-death files that know a grave by its name-and-age fingerprint: the Graves file
+    (A New Home, The Lost Children: cause and epitaph) and Graves Logged (every game: which graves
+    have their Death record), so nothing drifts or is filed twice."""
+    if not renamed:
+        return
+    cap = GRAVE_PRINT_CAP[game]
+    moved = {(place, grave_fingerprint(old, cap, age)): grave_fingerprint(new, cap, age)
+             for place, old, new, age in renamed}
+    data_dir = Path(folder) / tools.DATA
+    graves_name = f"Virtual Villagers {game} Graves - Save {slot}.dat"
+    for path, magic, header, size, place_kind in (
+            (data_dir / "Graves" / graves_name, b"VCD1", 16, 44, True),
+            (data_dir / graves_name, b"VCD1", 16, 44, True),
+            (data_dir / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat", b"VCG1", 16, 8, False)):
+        if not path.is_file() or (magic == b"VCD1" and game > 2):
+            continue
+        original = path.read_bytes()
+        if len(original) < header or original[:4] != magic or _i32(original, 8) != game:
+            continue
+        count = struct.unpack_from("<I", original, 12)[0]
+        if len(original) != header + size * count:
+            continue
+        data = bytearray(original)
+        for k in range(count):
+            e = header + size * k
+            if place_kind:                      # VCD1: u16 kind (0 grave), u16 index, u32 fingerprint
+                kind, place, fp = struct.unpack_from("<HHI", data, e)
+                if kind != 0:
+                    continue
+            else:                               # VCG1: u16 place, u16 0, u32 fingerprint
+                place, _pad, fp = struct.unpack_from("<HHI", data, e)
+            new = moved.get((place, fp))
+            if new is not None:
+                struct.pack_into("<I", data, e + 4, new)
+        if bytes(data) != original:
+            result.changes.append(Change(path, original, bytes(data), "the graves' cause-of-death files"))
+
+
+def _death_ages(folder: Path, game: int, slot: int) -> dict[tuple, int]:
+    """Each dead villager's age at death, by (name, head, body), from the Deaths log."""
+    import vv_log_additions as additions
+    out = {}
+    for b in additions.person_blocks(folder, slot, game):
+        if not b.heading.startswith("Death"):
+            continue
+        age = b.value("Age at death")
+        name, head, body = b.identity
+        if name and head is not None and body is not None and age and age.lstrip("-").isdigit():
+            out[(name, head, body)] = int(age)
+    return out
+
+
 # The villager record's own offsets (for the Unaccounted roster's snapshots).
 RECORD = {
     1: {"name": 0x370, "head": 0x360, "body": 0x364},
@@ -571,7 +696,10 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         for old_id, new_id in zip(old_masks, new_masks):
             if old_id and new_id and old_id != new_id:
                 mask_map[old_id] = new_id
+    # The graves of the dead renamed (Number Duplicate Names, last names for the gone).
+    graves = _rename_graves(after, game, renames, _death_ages(folder, game, slot), result) if dead else []
     result.changes.append(Change(path, original, bytes(after), "the save"))
+    _plan_grave_files(result, folder, game, slot, graves)
 
     data_dir = folder / tools.DATA
     _plan_masks(result, game, slot, data_dir, mask_map, conflicts)
