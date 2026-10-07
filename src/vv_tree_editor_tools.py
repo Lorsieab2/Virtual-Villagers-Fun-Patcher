@@ -248,7 +248,7 @@ def panel_colour(widget) -> str:
 
 class CanvasTools:
     """Mixed into TreeEditor, which provides canvas, edits, sc, images, library, folder, game,
-    slot, notebook, status, selected, redraw(), _select(), _save_picture(), _write_edits()."""
+    slot, notebook, status, selected, dirty, redraw(), _select(), _export(), _save_tree()."""
 
     # ---- setting up -----------------------------------------------------------
     def _tools_setup(self) -> None:
@@ -354,7 +354,7 @@ class CanvasTools:
         self.edits = ft.Edits.from_data(json.loads(state))
         if self.obj is not None and self.obj >= len(self.edits.stickers):
             self.obj = None
-        self._write_edits()
+        self.dirty = True
         self.redraw()
         self._refresh_panels()
 
@@ -1056,11 +1056,11 @@ class CanvasTools:
         self.canvas.bind("<Double-Button-1>", self._double_click)
 
     def _save_key(self, _event=None):
-        """Ctrl+S: into the save folder's Family Trees folder; Ctrl+Shift+S: anywhere."""
+        """Ctrl+S: Save to Save Folder (the editable tree file); Ctrl+Shift+S: Export as Picture."""
         if _event is not None and _event.state & 0x1:
-            self._save_picture()
+            self._export()
         else:
-            self._save_to_save_folder()
+            self._save_tree()
         return "break"
 
 

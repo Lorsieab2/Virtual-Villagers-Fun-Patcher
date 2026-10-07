@@ -243,6 +243,8 @@ class Edits:
     mark_style: str = "border"          # MARK_STYLES
     mark_glow: float = 14.0             # how far a glow reaches
     mark_opacity: int = 100             # percent
+    label_line_width: float = 2.0       # the line beside each generation's label
+    label_line_reach: float = 0.0       # how far past the generation's portraits it reaches, each end
     # What the player deleted from the tree (the owner: "omit anything I like"): "word:<MOVABLE
     # name>" and "line:<family key>|<piece>".  A villager deleted is "hidden" in their entry.
     pages: list[int] = field(default_factory=list)                     # the generations that start a new page
@@ -367,6 +369,8 @@ class Edits:
             out.mark_style = data["mark_style"]
         out.mark_glow = _number(data.get("mark_glow"), 2.0, 60.0, 14.0)
         out.mark_opacity = int(_number(data.get("mark_opacity"), 0, 100, 100))
+        out.label_line_width = _number(data.get("label_line_width"), *LINE_WIDTHS, 2.0)
+        out.label_line_reach = _number(data.get("label_line_reach"), 0.0, 1000.0, 0.0)
         for part, value in dict(data.get("opacity", {})).items():
             if part in OPACITY:
                 out.opacity[part] = int(_number(value, 0, 100, OPACITY[part][1]))
@@ -421,7 +425,8 @@ class Edits:
                 "shapes": self.shapes, "borders": self.borders, "opacity": self.opacity,
                 "sizes": self.sizes, "line_width": self.line_width, "line_dash": self.line_dash,
                 "family_lines": self.family_lines, "mark_style": self.mark_style, "mark_glow": self.mark_glow,
-                "mark_opacity": self.mark_opacity,
+                "mark_opacity": self.mark_opacity, "label_line_width": self.label_line_width,
+                "label_line_reach": self.label_line_reach,
                 "line_moves": self.line_moves,
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers}
@@ -1890,13 +1895,18 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         kx += 50 + 8 * len(label)
     for g in sorted({v.people[q].generation for q in lay.x}):
         y0 = lay.tops[g]
+        # The generation's height as drawn: its rows, and any portrait made taller than them.
+        ys = [py for q in lay.x if v.people[q].generation == g for _px, py in lay.frame_points(q)]
+        top, bottom = min([y0] + ys), max([y0 + lay.bands.get(g, NODE_H)] + ys)
+        reach = lay.edits.label_line_reach
         if plate:
-            add(Shape("rect", 12, y0 + 6, 228, lay.bands.get(g, NODE_H) - 12, plate_colour, width=0,
+            add(Shape("rect", 12, top + 6, 228, bottom - top - 12, plate_colour, width=0,
                       fill=plate_colour, move=f"label{g}", radius=12, target=("plate",)))
         for k, (part, text) in enumerate(label_lines(lay, g)):
             add(Text(24, y0 + 40 + k * 22, text, 18 if k == 0 else 14, ink, bold=k == 0, role="labels",
                      move=f"label{g}", part=f"{g}|{part}", edit=f"label:{g}"))
-        add(Line([(250, y0), (250, y0 + lay.bands.get(g, NODE_H))], ink, 2, target=("ink",), move=f"label{g}"))
+        add(Line([(250, top - reach), (250, bottom + reach)], ink, lay.edits.label_line_width, target=("ink",),
+                 move=f"label{g}"))
     if lay.others:
         # Off to the right, level with the tree's heading (the owner).
         add(Text(lay.others_left, 48, words(lay, "others"), 24, ink, bold=True, role="others", move="others",

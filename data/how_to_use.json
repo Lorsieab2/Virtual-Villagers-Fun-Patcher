@@ -829,7 +829,7 @@
         "Drag anything to move it; smart guides, snap to grid and Align line things up. Drag empty space to move around; the mouse wheel or + and - zoom.",
         "Right-click anything to change its colour. Retype any portrait, give special villagers a marked border, choose fonts and backgrounds.",
         "Add pictures, the games' logos and text boxes; drag, resize, turn and flip them. Ctrl+C, Ctrl+V, Ctrl+Z and the other Windows shortcuts work.",
-        "Help (F1) lists every control. Save Picture As... saves a PNG or JPG wherever you like. Nothing in the save or the logs is ever changed."
+        "Help (F1) lists every control. Ctrl+S saves an editable tree; Export as Picture saves a PNG or JPG. Nothing in the save or the logs is ever changed."
       ]
     },
     "village_matchmaker": {

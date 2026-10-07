@@ -11,8 +11,9 @@ tree.  there should be a separate button for pairing suggestions".
   clicked, Ctrl+A selects everyone, dragging over empty space selects everyone in the box, Esc
   clears.  The panel beside it edits the selection (its lines, its mark, its family's colour) and
   the whole tree (marks, title, generation labels, sort, colours, background).  Every change is
-  saved at once to the village's edits file and drawn again.
-* Save Picture As... writes a PNG or JPG anywhere the player chooses (src/vv_gdiplus.py).
+  drawn again and saved with Save to Save Folder (Ctrl+S): the editable tree file and the village's
+  edits file; closing asks "Save changes to the tree before exiting?".
+* Export as Picture... writes a PNG or JPG anywhere the player chooses (src/vv_gdiplus.py).
 * The Village Matchmaker asks for the rules (every one a toggle) and shows the suggested pairs.
 """
 from __future__ import annotations
@@ -57,6 +58,9 @@ SNAP_REACH = 7                          # screen pixels: how near a guide pulls
 ALT = 0x20000                           # Alt held: place freely
 # Ready-made special marks (the owner asked for marks "eg Tribal Chief"); any other can be typed.
 CUSTOM_MARK = "Custom (type here...)"
+# The editable tree file Save to Save Folder writes (the owner: "an editable file to be worked on later").
+TREE_SUFFIX = ".vvtree"
+TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 PRESET_MARKS = {"Tribal Chief": "#d4a017", "Esteemed Elder": "#7b68ee", "Scholar": "#1e90ff",
                 "Golden Child": "#ffb000", "Favourite": "#ff1493", "Heathen": "#8b0000", "Founder": "#2e8b57"}
 CONTROLS = """\
@@ -156,9 +160,10 @@ EVERYWHERE
   Ctrl+D                          duplicate        Ctrl+Z / Ctrl+Y      undo / redo (and the buttons)
   Reset buttons (under every tab) Reset Portrait Shapes, Portrait Places, Lines, Everything --
                                   each asks first
-  Ctrl+S                          save the tree as a picture in the save folder's
-                                  Virtual Villagers Fun Patcher Family Trees folder
-  Ctrl+Shift+S                    save it anywhere, as a PNG or JPG
+  Ctrl+S                          Save to Save Folder: the editable tree file, in the save folder's
+                                  Virtual Villagers Fun Patcher Family Trees folder (File, Open Tree
+                                  File... opens one); closing asks whether to save changes
+  Ctrl+Shift+S                    Export as Picture: a PNG or JPG anywhere (every page)
   F5                              Update Family Tree from Logs/Saves (every edit kept)
   F1                              these controls   F4  hide or show the panel   F11  full screen
 """
@@ -427,6 +432,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.present = ft.sheets_present(game, images)
         self.library = game_libraries(app)
         self.selected: list[int] = []
+        self.dirty = False                      # changes not saved yet (the owner's Yes / No / Cancel on closing)
         self.page = 0                           # the page of the tree shown (ft.page_spans)
         self.anchor: int | None = None
         self.band = None
@@ -515,8 +521,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # Under every tab, always in view (packed first, at the bottom).
         bottom = ttk.Frame(right)
         bottom.pack(side="bottom", fill="x", pady=(6, 0))
-        ttk.Button(bottom, text="Save to Save Folder", command=self._save_to_save_folder).pack(side="left")
-        ttk.Button(bottom, text="Save Picture As...", command=self._save_picture).pack(side="left", padx=(6, 0))
+        ttk.Button(bottom, text="Save to Save Folder", command=self._save_tree).pack(side="left")
+        ttk.Button(bottom, text="Export as Picture...", command=self._export).pack(side="left", padx=(6, 0))
         ttk.Button(bottom, text="Open in Browser", command=self._open_page).pack(side="left", padx=(6, 0))
         ttk.Button(bottom, text="Close", command=self._close).pack(side="right")
         resets = ttk.Frame(right)
@@ -615,7 +621,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             combo.grid(row=row_no, column=1, sticky="w", padx=(6, 0), pady=1)
             combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, c=choices, v=var: self._own_style(
                 a, next(k for k, n in c.items() if n == v.get())))
-            ttk.Button(box, text="Like the others", command=lambda a=attr: self._own_style(a, "")).grid(
+            ttk.Button(box, text="Reset to default", command=lambda a=attr: self._own_style(a, "")).grid(
                 row=row_no, column=2, sticky="w", padx=(6, 0), pady=1)
         ttk.Label(box, text="Click one villager, then drag the circles round their portrait to resize it or the "
                             "arrow above it to turn it.", wraplength=300, justify="left").grid(
@@ -642,7 +648,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                             state="readonly", width=16)
         kind.pack(side="left", padx=(4, 0))
         kind.bind("<<ComboboxSelected>>", lambda _e: self._own_lines(part="dash"))
-        ttk.Button(row, text="Like the others", command=lambda: self._own_lines(reset=True)).pack(side="left",
+        ttk.Button(row, text="Reset to default", command=lambda: self._own_lines(reset=True)).pack(side="left",
                                                                                                padx=(4, 0))
 
         # The owner: "allow customizability/reordering of villagers within generations.  Perhaps I
@@ -802,6 +808,19 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.group_sizes[group] = pair
         ttk.Label(box, text="width and height").grid(row=3, column=1, columnspan=2, sticky="w")
         self._show_group_sizes()
+        box = ttk.LabelFrame(tab, text="The line beside each generation's label", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        ttk.Label(box, text="Weight:").pack(side="left")
+        self.label_w_var = tk.StringVar(value=f"{e.label_line_width:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.label_w_var, values=ft.LINE_STEPS, width=5),
+                   lambda: self._label_line("label_line_width", self.label_w_var, *ft.LINE_WIDTHS)).pack(
+            side="left", padx=(2, 0))
+        ttk.Label(box, text="  Longer by:").pack(side="left")
+        self.label_reach_var = tk.StringVar(value=f"{e.label_line_reach:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.label_reach_var, values=(0,) + ft.SIZE_STEPS, width=5),
+                   lambda: self._label_line("label_line_reach", self.label_reach_var, 0.0, 1000.0)).pack(
+            side="left", padx=(2, 0))
+        ttk.Label(box, text="at each end").pack(side="left", padx=(2, 0))
         box = ttk.LabelFrame(tab, text="Family lines (every one)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         ttk.Label(box, text="Weight:").pack(side="left")
@@ -1306,9 +1325,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """The menu bar (the owner: "a file > save, delete tree, export as... header")."""
         bar = tk.Menu(self, tearoff=0)
         items = {
-            "File": [("Save to Save Folder", "Ctrl+S", self._save_to_save_folder),
-                     ("Save Picture As...", "Ctrl+Shift+S", self._save_picture),
-                     ("Export As...", "", self._export),
+            "File": [("Save to Save Folder", "Ctrl+S", self._save_tree),
+                     ("Open Tree File...", "", self._open_tree),
+                     ("Export as Picture...", "Ctrl+Shift+S", self._export),
                      ("Open in Browser", "", self._open_page), None,
                      ("Update Family Tree from Logs/Saves", "F5", self._update_from_game), None,
                      ("Delete Tree...", "", self._delete_tree), None,
@@ -1335,45 +1354,36 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.configure(menu=bar)
 
     def _export(self) -> None:
-        """The tree as a picture (PNG or JPG), a drawing (SVG: one file a page) or a web page (every
-        page in one)."""
+        """The tree as a picture, PNG or JPG, anywhere (every page of it)."""
+        if not vv_gdiplus.available():
+            messagebox.showerror("Export as Picture", "Pictures are saved with Windows' own graphics; this "
+                                                      "computer does not have them.", parent=self)
+            return
         folder = self._trees_folder()
         path = filedialog.asksaveasfilename(
-            parent=self, title="Export the family tree", initialdir=str(folder) if folder else None,
+            parent=self, title="Export the family tree as a picture", initialdir=str(folder) if folder else None,
             initialfile=f"{self._tree_name()}.png", defaultextension=".png",
-            filetypes=[("PNG picture", "*.png"), ("JPG picture", "*.jpg *.jpeg"), ("SVG drawing", "*.svg"),
-                       ("Web page", "*.html")])
+            filetypes=[("PNG picture", "*.png"), ("JPG picture", "*.jpg *.jpeg")])
         if not path:
             return
-        path = Path(path)
-        if path.suffix.lower() in (".png", ".jpg", ".jpeg"):
-            if not vv_gdiplus.available():
-                messagebox.showerror("Export", "Pictures are saved with Windows' own graphics; this computer "
-                                               "does not have them.", parent=self)
-                return
-            self._save_as(path, 1.0)
-            return
-        count = len(ft.page_spans(self.edits, self.village))
-        drawings = [ft.to_svg(self._page_scene(k)[1], self.present) for k in range(count)]
-        try:
-            if path.suffix.lower() == ".svg":
-                for k, svg in enumerate(drawings):
-                    target = path if k == 0 else path.with_name(f"{path.stem} - Page {k + 1}{path.suffix}")
-                    target.write_bytes(svg.encode("utf-8"))
-            else:
-                title = ft.title_lines(self.lay, self.game_title)[0]
-                path.write_bytes(ft.html_page("\n".join(drawings), title, "", self.lay.background).encode("utf-8"))
-        except OSError as exc:
-            messagebox.showerror("Export", f"The tree could not be exported: {exc}", parent=self)
-            return
-        self.status.set(f"Exported {path}")
+        big = messagebox.askyesno("Export as Picture", "Save it at double size (sharper when you zoom in)?",
+                                  parent=self)
+        self._save_as(Path(path), 2.0 if big else 1.0)
 
     def _delete_tree(self) -> None:
-        """This tree's edits deleted: the tree as the patcher first draws it (the pictures already
-        saved stay; Ctrl+Z brings the edits back while the editor is open)."""
-        if not self._sure("Delete this family tree -- every mark, colour, move, picture, text box and page -- and "
-                          "start again from the save and the logs?  (Pictures you saved are kept.)"):
+        """This tree deleted -- its tree file and its edits -- and drawn as the patcher first draws it
+        (the pictures already exported stay; Ctrl+Z brings the edits back while the editor is open, and
+        Ctrl+S saves them again)."""
+        if not self._sure("Delete this family tree -- its tree file, and every mark, colour, move, picture, text box "
+                          "and page -- and start again from the save and the logs?  (Exported pictures are kept.)"):
             return
+        for path in (self._tree_file(), ft.Edits.path(self.folder, self.game, self.slot)):
+            try:
+                if path is not None:
+                    path.unlink(missing_ok=True)
+            except OSError as exc:
+                messagebox.showerror("Family Tree Maker", f"{path.name} could not be deleted: {exc}", parent=self)
+                return
         self.edits = ft.Edits()
         self.obj = None
         self.selected = []
@@ -2000,6 +2010,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if changed:
             self._saved()
 
+    def _label_line(self, attr: str, var: tk.StringVar, low: float, high: float) -> None:
+        value = self._number(var.get(), low, high)
+        if value is not None and value != getattr(self.edits, attr):
+            self._change(**{attr: value})
+
     def _line_weight(self) -> None:
         width = self._number(self.line_w_var.get(), *ft.LINE_WIDTHS)
         if width is not None and width != self.edits.line_width:
@@ -2093,18 +2108,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.edits.entries.pop(key, None)
 
     def _saved(self) -> None:
-        """Every change: a step to undo, the edits file, and the tree drawn again."""
+        """Every change: a step to undo, the tree drawn again, and a change to save."""
         self._record()
-        self._write_edits()
+        self.dirty = True
         self.redraw()
         self._refresh_selected()
         self._refresh_obj_panel()
-
-    def _write_edits(self) -> None:
-        try:
-            self.edits.save(ft.Edits.path(self.folder, self.game, self.slot))
-        except OSError as exc:
-            messagebox.showerror("Family Tree Maker", f"Your edits could not be saved: {exc}", parent=self)
 
     def _refresh_panels(self) -> None:
         """Every control showing the edits as they now are (after undo or redo)."""
@@ -2119,6 +2128,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._show_group_sizes()
         self.line_w_var.set(f"{e.line_width:g}")
         self.line_dash_var.set(ft.LINE_TYPES[e.line_dash])
+        self.label_w_var.set(f"{e.label_line_width:g}")
+        self.label_reach_var.set(f"{e.label_line_reach:g}")
         self.mark_style_var.set(ft.MARK_STYLES[e.mark_style])
         self.glow_var.set(f"{e.mark_glow:g}")
         self.mark_opacity_scale.set(e.mark_opacity)
@@ -2519,21 +2530,6 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.written = None
             self.status.set(f"The tree's page could not be written: {exc}")
 
-    def _save_picture(self) -> None:
-        if not vv_gdiplus.available():
-            messagebox.showerror("Save Picture", "Pictures are saved with Windows' own graphics; this "
-                                                 "computer does not have them.", parent=self)
-            return
-        folder = self._trees_folder()
-        path = filedialog.asksaveasfilename(parent=self, title="Save the family tree as a picture",
-                                            initialdir=str(folder) if folder else None,
-                                            initialfile=f"{self._tree_name()}.png", defaultextension=".png",
-                                            filetypes=[("PNG picture", "*.png"), ("JPG picture", "*.jpg *.jpeg")])
-        if not path:
-            return
-        big = messagebox.askyesno("Save Picture", "Save it at double size (sharper when you zoom in)?", parent=self)
-        self._save_as(Path(path), 2.0 if big else 1.0)
-
     def _trees_folder(self) -> Path | None:
         """The save folder's own folder for family tree pictures (made when first needed)."""
         folder = self.folder / TREES
@@ -2547,17 +2543,60 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         tribe = "".join(ch for ch in (self.village.tribe or "Village") if ch not in '\\/:*?"<>|')
         return f"{tribe} (Save {self.slot}) family tree {datetime.now():%Y-%m-%d %H-%M-%S}"
 
-    def _save_to_save_folder(self) -> None:
-        """The tree as a PNG in the save folder's Family Trees folder, at once."""
-        if not vv_gdiplus.available():
-            messagebox.showerror("Save Picture", "Pictures are saved with Windows' own graphics; this "
-                                                 "computer does not have them.", parent=self)
-            return
+    def _tree_file(self) -> Path | None:
+        """The editable tree file: in the save folder's Family Trees folder, named after the tribe and slot."""
         folder = self._trees_folder()
-        if folder is None:
-            messagebox.showerror("Save Picture", f"The folder {self.folder / TREES} could not be made.", parent=self)
+        tribe = "".join(ch for ch in (self.village.tribe or "Village") if ch not in '\\/:*?"<>|')
+        return folder / f"{tribe} (Save {self.slot}) Family Tree{TREE_SUFFIX}" if folder else None
+
+    def _save_tree(self) -> bool:
+        """The tree saved to be worked on later (the owner: "Save to Save Folder - should save the
+        family tree as an editable file"): its tree file, and the edits file the tool opens it from."""
+        path = self._tree_file()
+        if path is None:
+            messagebox.showerror("Family Tree Maker", f"The folder {self.folder / TREES} could not be made.",
+                                 parent=self)
+            return False
+        data = {"format": TREE_FORMAT, "game": self.game, "slot": self.slot, "tribe": self.village.tribe,
+                "edits": self.edits.to_data()}
+        temp = path.with_name(path.name + ".tmp")
+        try:
+            temp.write_text(json.dumps(data, indent=1), encoding="utf-8")
+            os.replace(temp, path)
+            self.edits.save(ft.Edits.path(self.folder, self.game, self.slot))
+        except OSError as exc:
+            messagebox.showerror("Family Tree Maker", f"The tree could not be saved: {exc}", parent=self)
+            return False
+        self.dirty = False
+        self.status.set(f"Saved the tree to {path}")
+        return True
+
+    def _open_tree(self) -> None:
+        """A saved tree file opened into the editor (its marks, colours, moves, pictures and pages)."""
+        folder = self._trees_folder()
+        path = filedialog.askopenfilename(parent=self, title="Open a saved family tree",
+                                          initialdir=str(folder) if folder else None,
+                                          filetypes=[("Family tree", f"*{TREE_SUFFIX}")])
+        if not path:
             return
-        self._save_as(folder / f"{self._tree_name()}.png", 1.0)
+        try:
+            data = json.loads(Path(path).read_text(encoding="utf-8"))
+            if not isinstance(data, dict) or data.get("format") != TREE_FORMAT:
+                raise ValueError("it is not a Family Tree Maker tree file")
+            edits = ft.Edits.from_data(data.get("edits", {}))
+        except (OSError, ValueError) as exc:
+            messagebox.showerror("Family Tree Maker", f"{Path(path).name} could not be opened: {exc}", parent=self)
+            return
+        if (data.get("game"), data.get("slot")) != (self.game, self.slot) and not self._sure(
+                f"{Path(path).name} was made for another game or save.  Use its look on this tree?"):
+            return
+        self.edits = edits
+        self.obj = None
+        self.selected = []
+        self.page = 0
+        self._saved()
+        self._refresh_panels()
+        self.status.set(f"Opened {Path(path).name}.  Ctrl+S saves it as this tree.")
 
     def _save_as(self, path: Path, scale: float) -> None:
         """The tree as a picture: every page of it, "<name> - Page 2" and so on beside the first."""
@@ -2684,6 +2723,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(window, text="Close", command=window.destroy).pack(pady=(0, 8))
 
     def _close(self) -> None:
+        """Closing: "Save changes to the tree before exiting?" when there are any (the owner)."""
+        if self.dirty:
+            answer = messagebox.askyesnocancel("Family Tree Maker", "Save changes to the tree before exiting?",
+                                               parent=self)
+            if answer is None or answer and not self._save_tree():
+                return
+            if not answer:                      # the tree as last saved
+                try:
+                    self.edits = ft.Edits.load(ft.Edits.path(self.folder, self.game, self.slot))
+                except ValueError:
+                    self.edits = ft.Edits()
         self._remember_window()
         self._write_outputs()
         self._tools_close()
