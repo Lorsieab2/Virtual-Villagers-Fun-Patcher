@@ -270,7 +270,7 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     # Every name the village has had (Codex, #555: the records before a Rename Tribe).
     records, _files = checker.births_log(folder, game, slot, villages if villages is not None else "every")
     litter_no = 0
-    last: tuple | None = None           # (mother key, litter number, babies so far)
+    last: tuple | None = None           # (mother key, litter number, babies so far, how many it holds)
     for index, rec in enumerate(records):
         if rec.kind == "conception" and rec.mother is not None and rec.mother.name:
             mother = (rec.mother.name, rec.mother.head, rec.mother.body)
@@ -291,13 +291,16 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                     setattr(child, attr, parent.id)
         mother = rec.mother and (rec.mother.name, rec.mother.head, rec.mother.body)
         # A delivery's Birth records are written one after another, its Conception before them;
-        # three babies at most.
-        if last is not None and mother is not None and last[0] == mother and last[2] < 3:
+        # three babies at most.  A "Born as:" line, where Repair Logs wrote one, says how many came
+        # together (Codex, #555): a single birth joins no other.
+        size = rec.born_as or 3
+        if last is not None and mother is not None and last[0] == mother and last[2] < last[3] \
+                and rec.born_as in (0, last[3]) and size > 1:
             litter_no, count = last[1], last[2] + 1
         else:
             litter_no, count = litter_no + 1, 1
         child.litter = litter_no
-        last = (mother, litter_no, count) if mother is not None else None
+        last = (mother, litter_no, count, size) if mother is not None else None
     # One baby alone is no litter.
     sizes: dict[int, int] = {}
     for p in reg.people.values():

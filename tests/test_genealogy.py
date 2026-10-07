@@ -164,6 +164,29 @@ class RuleTests(unittest.TestCase):
         gen.number_people(v)
         return v
 
+    def test_born_as_lines_decide_which_births_came_together(self) -> None:
+        # Codex, #555: Repair Logs' "Born as:" answer is believed over the records' order.
+        def birth(child: str, head: int, born_as: str = "") -> str:
+            return (f"Birth\n  Child: {child}\n    Head: {head}\n    Body: {head}\n"
+                    f"  Mother: Ann\n    Head: 1\n    Body: 1\n  Father: Bob\n    Head: 2\n    Body: 2\n"
+                    + (f"  Born as: {born_as}\n" if born_as else ""))
+        records = [birth("Cy", 3, "Single birth"), birth("Di", 4, "Single birth"),     # two singles in a row
+                   birth("Ed", 5, "Twin"), birth("Fa", 6, "Twin"), birth("Gu", 7, "Twin"),
+                   birth("Ha", 8, "Twin")]                                        # two pairs of twins
+        with tempfile.TemporaryDirectory() as tmp:
+            logs = Path(tmp) / "Virtual Villagers Fun Patcher Logs" / "Births and Conceptions"
+            logs.mkdir(parents=True)
+            (logs / "Virtual Villagers 1 Births and Conceptions Log 1.txt").write_text(
+                "Village: Test Tribe (Save 1)\n\n" + "\n".join(records), encoding="utf-8")
+            reg = gen._Registry()
+            gen._births(reg, Path(tmp), 1, 1)
+        litter = {p.name: p.litter for p in reg.people.values() if p.name not in ("Ann", "Bob")}
+        self.assertIsNone(litter["Cy"])
+        self.assertIsNone(litter["Di"])
+        self.assertEqual(litter["Ed"], litter["Fa"])
+        self.assertEqual(litter["Gu"], litter["Ha"])
+        self.assertNotEqual(litter["Fa"], litter["Gu"])
+
     def test_relatedness_ignores_the_trees_display_generations(self) -> None:
         # Codex, #555: "Move to generation" only moves where a villager is drawn.
         v = village()

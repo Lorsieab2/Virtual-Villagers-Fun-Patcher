@@ -386,6 +386,7 @@ class LogRecord:
     mother: Person | None = None
     father: Person | None = None
     babies: int = 0
+    born_as: int = 0           # a Birth's "Born as:" line: 1 single, 2 twin, 3 triplet (0: none)
 
 
 def numbered(folder: Path, stem: str) -> list[Path]:
@@ -479,6 +480,9 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 m = re.match(r"\s*Babies in pregnancy:\s*(\d+)", line)
                 if m:
                     rec.babies = int(m.group(1))
+                m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet)\s*$", line)
+                if m:
+                    rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3}[m.group(1)]
             if kind == "Birth" or kind.startswith("Conception"):
                 main = rec.child if kind == "Birth" else rec.mother
                 if (main is None or not main.name or main.head is None or main.body is None
