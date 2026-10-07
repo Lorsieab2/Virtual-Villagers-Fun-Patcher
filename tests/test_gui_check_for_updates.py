@@ -157,7 +157,8 @@ class ReleasesLinkTests(unittest.TestCase):
         # imports only the standard library.
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
-               "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_genealogy_window", "vv_tree_editor_tools"}
+               "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_genealogy_window", "vv_tree_editor_tools",
+               "vv_number_names"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         for module, may_import in (
@@ -166,7 +167,8 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions"}),
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename"}),
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
-            ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree"}),
+            ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
+                               "vv_tribe_rename"}),
             ("patcher_files", set()),
             ("vv_how_to_use", set()),
             # The Family Tree Maker and the Village Matchmaker.
@@ -174,7 +176,10 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_genealogy", "vv_save_backup",
-                                     "vv_tribe_rename", "vv_tree_editor_tools"}),
+                                     "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
+                                     "vv_number_names"}),
+            # Number Duplicate Names renames through Last Names.
+            ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions"}),
             ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus"}),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))

@@ -18,6 +18,7 @@ import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
 import vv_last_names
+import vv_number_names
 import vv_save_backup
 import vv_tribe_rename
 import vv_genealogy
@@ -2919,7 +2920,7 @@ class App(tk.Tk):
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds)
         if picked is None:
             return
-        rearm, chosen, answers, names = picked
+        rearm, chosen, answers, names, numbering = picked
         try:
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
@@ -2943,10 +2944,25 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Logs", f"The last names were not given. {exc}", parent=parent)
+        numbered = None
+        if numbering:
+            try:
+                numbered = self._run_with_wait(
+                    "Numbering the duplicate names…\n\nThe save folder is backed up first.",
+                    lambda: vv_number_names.number_names(folder, number, info.slot, numbering),
+                )
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Repair Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
         lines = []
         if renamed is not None:
             lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                          f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+        if numbered is not None:
+            done, wanted = numbered
+            lines.append(" ".join([f"Duplicate names numbered: {len(done.renamed)} villager(s), in the save and "
+                                   f"{len(done.files) - 1} other file(s)."] + wanted.notes
+                                  + [f"Backup: {done.backup.backup_folder}"]))
         if rearm:
             lines.append(
                 f"The next time you play {info.name} (Save {info.slot}), the game will repair "
@@ -2974,7 +2990,8 @@ class App(tk.Tk):
                           kinds: list):
         """The Repair Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  Returns
-        (rearm, chosen kinds, answers), or None when the player cancels."""
+        (rearm, chosen kinds, answers, last names, number duplicate names), or None when the player
+        cancels."""
         window = tk.Toplevel(parent)
         window.title("Repair Logs")
         window.transient(parent)
@@ -3018,6 +3035,15 @@ class App(tk.Tk):
         ttk.Button(names_row, text="Choose…",
                    command=lambda: self._last_names_dialog(window, folder, number, info, names, names_var)
                    ).pack(side="left", padx=(8, 0))
+        number_var = tk.BooleanVar(value=False)
+        number_row = ttk.Frame(frame)
+        number_row.pack(anchor="w", pady=(4, 0))
+        ttk.Checkbutton(number_row, variable=number_var,
+                        text="Number duplicate names (Soda I, Soda II...), in the game and the logs:"
+                        ).pack(side="left")
+        number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["oldest"])
+        ttk.Combobox(number_row, textvariable=number_order_var, values=list(vv_genealogy.NUMBER_ORDERS.values()),
+                     state="readonly", width=22).pack(side="left", padx=(8, 0))
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
         if questions:
             ttk.Button(frame, text=f"Answer the {len(questions)} question(s)…",
@@ -3031,7 +3057,9 @@ class App(tk.Tk):
 
         def go() -> None:
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
-                                 names if names_var.get() and names["chosen"] else None)
+                                 names if names_var.get() and names["chosen"] else None,
+                                 next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
+                                 if number_var.get() else None)
             window.destroy()
 
         ttk.Button(buttons, text="Repair", command=go).pack(side="left")

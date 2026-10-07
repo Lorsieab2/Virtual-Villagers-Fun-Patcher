@@ -801,12 +801,61 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
 # The report
 # ---------------------------------------------------------------------------
 
-ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV",
-         "XV", "XVI", "XVII", "XVIII", "XIX", "XX"]
+ROMAN = ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+         (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"))
 
 
 def roman(n: int) -> str:
-    return ROMAN[n] if n < len(ROMAN) else str(n)
+    out = ""
+    for value, letters in ROMAN:
+        count, n = divmod(n, value)
+        out += letters * count
+    return out
+
+
+# Number Duplicate Names' orders: who is "I" (the owner: "the oldest person with a duplicate name should
+# be named "I" unless the player says otherwise").
+NUMBER_ORDERS = {
+    "oldest": "Oldest first",
+    "youngest": "Youngest first",
+    "appearance": "In order of appearance",
+}
+
+
+def duplicate_names(village: Village, order: str = "oldest", reserved: set[str] = frozenset(),
+                    leave: set[int] = frozenset(), weight: dict[int, int] | None = None) -> dict[int, str]:
+    """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
+    duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."), the dead
+    too, in the NUMBER_ORDERS order: by age (the age now, or at death; an unknown age last), or as
+    they appeared in the records.  A baby on the way has no name yet.  A number that would give a
+    name already in use is passed over (Codex, #557): a village with a "Soda I" numbers its two
+    Sodas II and III.  `reserved`: names in use the village does not hold (records with no looks);
+    `leave`: villagers neither numbered nor counted; `weight`: how many villagers one Person stands
+    for (namesakes who look alike, which the records cannot tell apart), so the next one is numbered
+    after all of them (Codex, #557)."""
+    keys = {
+        "oldest": lambda p: (p.age is None, -(p.age or 0), p.order_key()),
+        "youngest": lambda p: (p.age is None, p.age or 0, p.order_key()),
+        "appearance": Person.order_key,
+    }
+    holders: dict[str, list[Person]] = {}
+    for p in sorted(village.known(), key=keys[order]):
+        if p.id not in leave:
+            holders.setdefault(p.name, []).append(p)
+    taken = set(holders) | set(reserved)
+    out = {}
+    for name, ps in holders.items():
+        if len(ps) < 2:
+            continue
+        n = 0
+        for p in ps:
+            n += 1
+            while f"{name} {roman(n)}" in taken:
+                n += 1
+            out[p.id] = f"{name} {roman(n)}"
+            taken.add(out[p.id])
+            n += (weight or {}).get(p.id, 1) - 1
+    return out
 
 
 def numbered(p: Person) -> str:
