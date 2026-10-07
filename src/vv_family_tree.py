@@ -1154,7 +1154,7 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
             first = key(members[0])
             if len(members) == 1:
                 c = members[0]
-                legs = _route(lay, apex, lane, lay.y[c], jogs, back=True)
+                legs = _route(lay, apex, lane, _arrive_y(lay, c, apex), jogs, back=True)
                 names = [f"to {first} {k}" for k in range(len(legs))]
                 for k, leg in enumerate(legs):
                     add(leg, names[k], {1: ("top", c)} if k == len(legs) - 1 else None,
@@ -1168,7 +1168,8 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
             for k, leg in enumerate(legs):
                 add(leg, names[k], up={0: names[k - 1] if k else "lane"})
             for c in members:
-                add([(apex, tip), (cx(c), base), (cx(c), lay.y[c])], f"leg {key(c)}", up={0: names[-1]})
+                add([(apex, tip), (cx(c), base), (cx(c), _arrive_y(lay, c, cx(c)))], f"leg {key(c)}",
+                    {2: ("top", c)}, {0: names[-1]})
             add([(min(cx(c) for c in members), base), (max(cx(c) for c in members), base)], f"bar {first}")
     families = {f.id: family_key(lay.village, f) for f in lay.families}
     for s in list(drawn):

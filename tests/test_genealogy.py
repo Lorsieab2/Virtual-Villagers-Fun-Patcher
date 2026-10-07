@@ -632,6 +632,24 @@ class StickerTests(unittest.TestCase):
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
 
+    def test_lines_stay_on_portraits_resized_in_batch(self) -> None:
+        # The owner: "when I batch change the portrait sizes, the lines should stay connected to them".
+        v = village()
+        for size in ([72.0, 72.0], [220.0, 220.0], [90.0, 40.0]):
+            for kind in ("circle", "rect", "heart"):
+                e = ft.Edits(sizes={g: size for g in ft.GROUPS}, shapes={g: kind for g in ft.GROUPS})
+                lay = ft.layout(v, e)
+                drawn = ft.lines(lay)
+                assert_connected(self, lay, drawn)
+                ends = [pt for _c, pts, _fid, _piece in drawn for pt in (pts[0], pts[-1])]
+                for q in lay.x:                 # a line ending at a portrait (not at another piece) ends on its edge
+                    xs, ys = zip(*lay.frame_points(q))
+                    for _c, pts, _fid, _piece in drawn:
+                        for x, y in (pt for pt in (pts[0], pts[-1]) if ends.count(pt) == 1):
+                            if min(xs) + 1 < x < max(xs) - 1 and lay.y[q] - 5 <= y <= lay.y[q] + ft.NODE_H + 5:
+                                self.assertTrue(any(abs(y - ft._edge_y(lay, q, x, b)) < 0.5 for b in (True, False)),
+                                                (size, kind, q, (x, y)))
+
     def test_the_trees_own_words_can_be_retyped(self) -> None:
         # The owner: "I wanna rename "unrelated individuals" to something else".
         v = village()
