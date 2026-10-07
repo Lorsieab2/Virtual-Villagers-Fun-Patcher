@@ -1586,14 +1586,30 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _reorganize_lines(self) -> None:
         """Every line drawn afresh as a family tree has them (the owner: "they should reorganize all
-        lines regardless"): every line's own move undone, and every portrait back at its row's
-        height -- where it is along the row is kept -- so each gap has room for its lines."""
+        lines regardless"), moving portraits only where it must ("preferably not change portrait
+        placement unless necessary"): a generation dragged so near the one above that its lines have
+        no room goes down, with every generation below it, by just what the lines need."""
+        lay, people = self.lay, self.village.people
+        rows: dict[int, list[int]] = {}
+        for q in lay.x:
+            if q not in lay.others:
+                rows.setdefault(people[q].generation, []).append(q)
+        gens = sorted(rows)
+        top = {q: lay.frame(q)[1] for q in lay.x}                # each frame's top, as it will be
+        moved = 0
+        for above, g in zip(gens, gens[1:]):
+            room = lay.tops[g] - (lay.tops[above] + lay.bands.get(above, ft.NODE_H))   # what its lines take
+            needed = max(top[q] + lay.frame(q)[3] for q in rows[above]) + room
+            for q in rows[g]:                   # only those too near the row above, just far enough
+                if top[q] < needed:
+                    entry = self._entry(people[q])
+                    self._set_entry(people[q], dy=entry.get("dy", 0.0) + needed - top[q])
+                    top[q] = needed
+                    moved += 1
         self.edits.line_moves.clear()
-        for q in self.lay.x:
-            self._set_entry(self.village.people[q], dy=None)
         self._saved()
-        self.status.set("Every line is drawn afresh, with room between the rows (each portrait kept where it is "
-                        "along its row).  Ctrl+Z undoes it.")
+        self.status.set("Every line is drawn afresh" + (f"; {moved} portrait(s) moved down to make room for them"
+                                                       if moved else ", with no portrait moved") + ".  Ctrl+Z undoes it.")
 
     def _reorganize_labels(self) -> None:
         """Each generation's label back beside its generation's portraits."""
