@@ -62,6 +62,7 @@ typedef struct {
     int max_spawn_age;
     int record_count;
     int name_bytes;                /* the record's name field, NUL included */
+    int name_room;                 /* the longest name the game holds, characters (VV1 27, VV2-VV5 23) */
     unsigned int off_name;
     unsigned int off_sex;
     unsigned int off_age;
@@ -83,7 +84,6 @@ typedef struct {
     /* This villager's own parents (VV2-VV5), 0 = not on the record. */
     unsigned int off_father_name;
     unsigned int off_mother_name;
-    int parent_name_bytes;
     unsigned int off_father_head;
     unsigned int off_father_body;
     unsigned int off_mother_head;
@@ -511,14 +511,32 @@ static void ce_copy_name(char *out, int size, const unsigned char *field, int ca
     out[i] = '\0';
 }
 
-static void ce_write_name(unsigned char *field, int capacity, const char *name) {
+/* `name` into a `capacity`-byte field (NUL included), the rest zeroed.  A
+   name that does not fit is refused (0) and nothing is written -- never
+   cut short. */
+static int ce_write_name(unsigned char *field, int capacity, const char *name) {
     int i;
-    for (i = 0; i < capacity - 1 && name[i] != '\0'; ++i) {
+    if (capacity < 1 || lstrlenA(name) > capacity - 1) {
+        return 0;
+    }
+    for (i = 0; name[i] != '\0'; ++i) {
         field[i] = (unsigned char)name[i];
     }
     for (; i < capacity; ++i) {
         field[i] = 0;
     }
+    return 1;
+}
+
+/* A villager's own name field (`source_bytes`) copied to a pregnancy's
+   father-name field of `capacity` bytes: read no further than the source
+   field and kept to the destination's bound, so the copy always fits and is
+   never refused part-way through a conception. */
+static void ce_copy_record_name(unsigned char *field, int capacity, const unsigned char *source,
+                                int source_bytes) {
+    char name[CE_NAME_BYTES];
+    ce_copy_name(name, capacity < CE_NAME_BYTES ? capacity : CE_NAME_BYTES, source, source_bytes);
+    (void)ce_write_name(field, capacity, name);
 }
 
 /* ---- Preferences, appearance, skills ------------------------------------- */
@@ -930,25 +948,29 @@ static int ce_compose(const ce_adapter *a, const ce_event *e, const ce_result *r
 /* This villager's own parents, on the record (VV2-VV5): the names (blank =
    no change) and heads / bodies (CE_KEEP = no change, else within the
    game's own ranges) the game itself writes once at birth and only the
-   Details portrait and the patcher's logs read. */
+   Details portrait and the patcher's logs read.  A name longer than the
+   game's `room` refuses the whole change before anything is written. */
 static int ce_set_record_parents(unsigned char *r, unsigned int father_name, unsigned int mother_name,
-                                 int name_bytes, unsigned int father_head, unsigned int father_body,
-                                 unsigned int mother_head, unsigned int mother_body, int heads,
-                                 int bodies, const ce_change *c) {
+                                 int name_bytes, int room, unsigned int father_head,
+                                 unsigned int father_body, unsigned int mother_head,
+                                 unsigned int mother_body, int heads, int bodies, const ce_change *c) {
     if (r == NULL) {
         return 0;
     }
     if ((c->father_head != CE_KEEP && (c->father_head < 0 || c->father_head >= heads))
         || (c->mother_head != CE_KEEP && (c->mother_head < 0 || c->mother_head >= heads))
         || (c->father_body != CE_KEEP && (c->father_body < 0 || c->father_body >= bodies))
-        || (c->mother_body != CE_KEEP && (c->mother_body < 0 || c->mother_body >= bodies))) {
+        || (c->mother_body != CE_KEEP && (c->mother_body < 0 || c->mother_body >= bodies))
+        || lstrlenA(c->father_name) > room || lstrlenA(c->mother_name) > room) {
         return 0;
     }
+    /* Both names were measured against the room above, so neither write is
+       refused part-way through the change. */
     if (c->father_name[0] != '\0') {
-        ce_write_name(r + father_name, name_bytes, c->father_name);
+        (void)ce_write_name(r + father_name, name_bytes, c->father_name);
     }
     if (c->mother_name[0] != '\0') {
-        ce_write_name(r + mother_name, name_bytes, c->mother_name);
+        (void)ce_write_name(r + mother_name, name_bytes, c->mother_name);
     }
     if (c->father_head != CE_KEEP) *(int *)(r + father_head) = c->father_head;
     if (c->father_body != CE_KEEP) *(int *)(r + father_body) = c->father_body;
@@ -967,7 +989,9 @@ static void ce_apply_spawn_record(const ce_adapter *a, unsigned char *r, const c
         return;
     }
     if ((a->caps & CAP_SPAWN_NAME) && s->name[0] != '\0') {
-        ce_write_name(r + a->off_name, a->name_bytes, s->name);
+        /* The delivery refused any name longer than name_room before the
+           game made this villager, so this write is never refused. */
+        (void)ce_write_name(r + a->off_name, a->name_room + 1, s->name);
     }
     if ((a->caps & CAP_APPEARANCE) && s->head != CE_KEEP && s->head >= 0 && s->head < a->head_count) {
         *(int *)(r + a->off_head) = s->head;
@@ -1279,6 +1303,12 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     if (a->caps & CAP_SPAWN) {
         for (i = 0; i < e->spawn_groups && i < CE_MAX_SPAWN_GROUPS; ++i) {
             const ce_spawn *s = &e->spawns[i];
+            /* A name longer than the game holds makes nobody (never a
+               villager under a name cut short). */
+            if ((a->caps & CAP_SPAWN_NAME) && lstrlenA(s->name) > a->name_room) {
+                ce_refuse(r, CE_WHY_OTHER);
+                continue;
+            }
             for (j = 0; j < s->count; ++j) {
                 /* Each game's spawn asks the game's own room predicate (and
                    for a free record) first and makes nobody without room. */

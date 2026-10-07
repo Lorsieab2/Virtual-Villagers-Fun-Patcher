@@ -173,7 +173,11 @@ static int c3_conceive(int index, int litter, int father, ce_result *result) {
     *(int *)(r + 0xE44) = *(int *)((f != NULL ? f : r) + 0xDD0);
     *(int *)(r + 0xE3C) = 0;
     *(int *)(r + 0xE40) = 0;
-    ce_write_name(r + 0xE48, 0x18, f != NULL ? (const char *)(f + 0xDD4) : "Unknown");
+    if (f != NULL) {
+        ce_copy_record_name(r + 0xE48, 0x18, f + 0xDD4, 0x19);
+    } else {
+        (void)ce_write_name(r + 0xE48, 0x18, "Unknown");
+    }
     *(int *)(r + 0xE68) = *(int *)((f != NULL ? f : r) + 0xDF0);
     *(int *)(r + 0xE64) = *(int *)((f != NULL ? f : r) + 0xDF4);
     *(int *)(r + 0xE90) = 1;
@@ -375,8 +379,8 @@ static int c3_unborn(int index, const ce_change *c) {
         || (c->unborn_body != CE_KEEP && (c->unborn_body < 0 || c->unborn_body >= 30))) {
         return 0;
     }
-    if (c->unborn_name[0] != '\0') {
-        ce_write_name(r + 0xE48, 0x18, c->unborn_name);
+    if (c->unborn_name[0] != '\0' && !ce_write_name(r + 0xE48, 0x18, c->unborn_name)) {
+        return 0;
     }
     if (c->unborn_head != CE_KEEP) *(int *)(r + 0xE68) = c->unborn_head;
     if (c->unborn_body != CE_KEEP) *(int *)(r + 0xE64) = c->unborn_body;
@@ -593,7 +597,7 @@ static int c3_parents_supported(void) {
 }
 
 static int c3_set_parents(int index, const ce_change *c) {
-    return ce_set_record_parents(c3_record(index), 0xDF8, 0xE11, 0x19, 0xE2C, 0xE30, 0xE34, 0xE38,
+    return ce_set_record_parents(c3_record(index), 0xDF8, 0xE11, 0x19, 23, 0xE2C, 0xE30, 0xE34, 0xE38,
                                  30, 30, c);
 }
 
@@ -630,14 +634,14 @@ static const ce_adapter C3_ADAPTER = {
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Secret City",
     0x118, 1600,
-    C3_STOCK_COUNT, 0x19,
+    C3_STOCK_COUNT, 0x19, 23,
     0xDD4, 0xDC8, 0xDC4, 0xDF0, 0xDF4, 0xFB4, 0xFC0, 0xEAC,
     0, 1,
     3, 79,
     STORY_PREFERENCES_79_VV3,
     30, 30,
     5, 0, C3_SKILLS,
-    0xDF8, 0xE11, 0x19, 0xE2C, 0xE30, 0xE34, 0xE38,
+    0xDF8, 0xE11, 0xE2C, 0xE30, 0xE34, 0xE38,
     C3_STATUSES, 2,
     C3_BEHAVIOURS, (int)(sizeof C3_BEHAVIOURS / sizeof C3_BEHAVIOURS[0]),
     NULL, 0,

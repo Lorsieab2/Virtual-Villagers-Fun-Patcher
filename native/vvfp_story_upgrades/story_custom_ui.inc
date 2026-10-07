@@ -282,8 +282,8 @@ static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wpar
     char text[96];
     (void)lparam;
     if (message == WM_INITDIALOG) {
-        SendDlgItemMessageA(window, IDC_PA_FATHER, EM_LIMITTEXT, (WPARAM)(ui.a->parent_name_bytes - 1), 0);
-        SendDlgItemMessageA(window, IDC_PA_MOTHER, EM_LIMITTEXT, (WPARAM)(ui.a->parent_name_bytes - 1), 0);
+        SendDlgItemMessageA(window, IDC_PA_FATHER, EM_LIMITTEXT, (WPARAM)ui.a->name_room, 0);
+        SendDlgItemMessageA(window, IDC_PA_MOTHER, EM_LIMITTEXT, (WPARAM)ui.a->name_room, 0);
         wsprintfA(text, "Heads 0-%d, bodies 0-%d.", ui.a->head_count - 1, ui.a->body_count - 1);
         SetDlgItemTextA(window, IDC_PA_RANGE, text);
         return TRUE;
@@ -300,6 +300,11 @@ static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wpar
         GetDlgItemTextA(window, IDC_PA_MOTHER, p->mother_name, CE_NAME_BYTES);
         if (!ce_text_ok(p->father_name, 0) || !ce_text_ok(p->mother_name, 0)) {
             ui_message(window, "A name may use letters, numbers, spaces and . , ! ? : - ' only.");
+            return TRUE;
+        }
+        if (lstrlenA(p->father_name) > ui.a->name_room || lstrlenA(p->mother_name) > ui.a->name_room) {
+            wsprintfA(text, "A name may be at most %d characters in this game.", ui.a->name_room);
+            ui_message(window, text);
             return TRUE;
         }
         for (i = 0; i < 4; ++i) {
@@ -333,7 +338,7 @@ static INT_PTR CALLBACK ui_unborn_dialog(HWND window, UINT message, WPARAM wpara
     char text[96];
     (void)lparam;
     if (message == WM_INITDIALOG) {
-        SendDlgItemMessageA(window, IDC_UB_NAME, EM_LIMITTEXT, (WPARAM)(ui.a->parent_name_bytes - 2), 0);
+        SendDlgItemMessageA(window, IDC_UB_NAME, EM_LIMITTEXT, (WPARAM)ui.a->name_room, 0);
         wsprintfA(text, "Heads 0-%d, bodies 0-%d.", ui.a->head_count - 1, ui.a->body_count - 1);
         SetDlgItemTextA(window, IDC_UB_RANGE, text);
         return TRUE;
@@ -345,6 +350,11 @@ static INT_PTR CALLBACK ui_unborn_dialog(HWND window, UINT message, WPARAM wpara
         GetDlgItemTextA(window, IDC_UB_NAME, u->unborn_name, CE_NAME_BYTES);
         if (!ce_text_ok(u->unborn_name, 0)) {
             ui_message(window, "A name may use letters, numbers, spaces and . , ! ? : - ' only.");
+            return TRUE;
+        }
+        if (lstrlenA(u->unborn_name) > ui.a->name_room) {
+            wsprintfA(text, "A name may be at most %d characters in this game.", ui.a->name_room);
+            ui_message(window, text);
             return TRUE;
         }
         if ((head != CE_KEEP && (head < 0 || head >= ui.a->head_count))
@@ -898,8 +908,7 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
         wsprintfA(text, "0-%d units / 0-%d years", ce_oldest_age(a), ce_oldest_age(a) / 20);
         SetDlgItemTextA(window, IDC_SP_AGE_RANGE, text);
         SetDlgItemInt(window, IDC_SP_AGE, (UINT)(a->adult_age + 80), FALSE);
-        SendDlgItemMessageA(window, IDC_SP_NAME, EM_LIMITTEXT,
-                            (WPARAM)((a->name_bytes < CE_NAME_BYTES ? a->name_bytes : CE_NAME_BYTES) - 1), 0);
+        SendDlgItemMessageA(window, IDC_SP_NAME, EM_LIMITTEXT, (WPARAM)a->name_room, 0);
         wsprintfA(text, "0-%d / 0-%d", a->head_count - 1, a->body_count - 1);
         SetDlgItemTextA(window, IDC_SP_LOOK_RANGE, text);
         for (i = 0; i < CE_SPAWN_PREFS; ++i) {
@@ -976,8 +985,13 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
             s->age = years;
         }
         GetDlgItemTextA(window, IDC_SP_NAME, s->name, CE_NAME_BYTES);
-        if (!ce_text_ok(s->name, 0) || lstrlenA(s->name) >= a->name_bytes) {
+        if (!ce_text_ok(s->name, 0)) {
             ui_message(window, "A name may use letters, numbers, spaces and . , ! ? : - ' only.");
+            return TRUE;
+        }
+        if (lstrlenA(s->name) > a->name_room) {
+            wsprintfA(text, "A name may be at most %d characters in this game.", a->name_room);
+            ui_message(window, text);
             return TRUE;
         }
         s->head = ui_number(window, IDC_SP_HEAD);
