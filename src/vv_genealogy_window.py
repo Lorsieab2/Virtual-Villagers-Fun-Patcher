@@ -2984,12 +2984,16 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
 
 
 # In the Matchmaker's report: "#12 Name", a name before its age, and every age.
-MATCHMAKER_BOLD = re.compile(
-    r"(#\d+ [^,\n]+)"                                                     # a number and name
-    r"|^ {2,4}([^\s#\d][^,\n]*?)(?=, (?:died at )?(?:\d+ game units|age unknown))"   # a name, then its age
-    r"|((?:died at )?\d+ game units \(\d+ years old\)|age unknown)"       # an age
-    r"|^    ([^,\n:]+?) and ([^,\n:]+?):",                                # the least related pairs
-    re.M)
+MAN_BLUE, WOMAN_PINK = "#1f5fbf", "#d0237f"
+# Each pattern, and the style of each of its groups: a man's name blue, a woman's pink, an age bold.
+_AGE = r"(?:died at )?(?:\d+ game units|age unknown)"
+MATCHMAKER_STYLE = [
+    (re.compile(r"^  \d+\. (#\d+ [^,\n]+), .*?, and (#\d+ [^,\n]+),", re.M), ("man", "woman")),   # a pair
+    (re.compile(rf"^  ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("woman",)),          # each woman ...
+    (re.compile(rf"^    ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("man",)),          # ... and her partners
+    (re.compile(r"^    ([^,\n:]+?) and ([^,\n:]+?):", re.M), ("man", "woman")),     # the least related pairs
+    (re.compile(r"((?:died at )?\d+ game units \(\d+ years old\)|age unknown)"), ("age",)),
+]
 
 
 def _show_text(parent, title: str, text: str, path: Path) -> None:
@@ -3005,13 +3009,15 @@ def _show_text(parent, title: str, text: str, path: Path) -> None:
     scroll.pack(side="right", fill="y")
     box.pack(fill="both", expand=True)
     box.insert("1.0", text)
-    # Every villager's number, name and age in bold (the owner).
+    # Every villager's number, name and age in bold, men blue and women pink (the owner).
     bold = tkfont.nametofont(box.cget("font")).copy()
     bold.configure(weight="bold")
     window.bold_font = bold                 # kept while the window is open
-    box.tag_configure("villager", font=bold)
-    for match in MATCHMAKER_BOLD.finditer(text):
-        for group in range(1, (match.lastindex or 0) + 1):
-            if match.group(group):
-                box.tag_add("villager", f"1.0 + {match.start(group)} chars", f"1.0 + {match.end(group)} chars")
+    box.tag_configure("man", font=bold, foreground=MAN_BLUE)
+    box.tag_configure("woman", font=bold, foreground=WOMAN_PINK)
+    box.tag_configure("age", font=bold)
+    for pattern, styles in MATCHMAKER_STYLE:
+        for match in pattern.finditer(text):
+            for group, style in enumerate(styles, 1):
+                box.tag_add(style, f"1.0 + {match.start(group)} chars", f"1.0 + {match.end(group)} chars")
     box.configure(state="disabled")
