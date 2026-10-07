@@ -2983,6 +2983,15 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
     ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left", padx=(8, 0))
 
 
+# In the Matchmaker's report: "#12 Name", a name before its age, and every age.
+MATCHMAKER_BOLD = re.compile(
+    r"(#\d+ [^,\n]+)"                                                     # a number and name
+    r"|^ {2,4}([^\s#\d][^,\n]*?)(?=, (?:died at )?(?:\d+ game units|age unknown))"   # a name, then its age
+    r"|((?:died at )?\d+ game units \(\d+ years old\)|age unknown)"       # an age
+    r"|^    ([^,\n:]+?) and ([^,\n:]+?):",                                # the least related pairs
+    re.M)
+
+
 def _show_text(parent, title: str, text: str, path: Path) -> None:
     window = tk.Toplevel(parent)
     window.title(title)
@@ -2996,4 +3005,13 @@ def _show_text(parent, title: str, text: str, path: Path) -> None:
     scroll.pack(side="right", fill="y")
     box.pack(fill="both", expand=True)
     box.insert("1.0", text)
+    # Every villager's number, name and age in bold (the owner).
+    bold = tkfont.nametofont(box.cget("font")).copy()
+    bold.configure(weight="bold")
+    window.bold_font = bold                 # kept while the window is open
+    box.tag_configure("villager", font=bold)
+    for match in MATCHMAKER_BOLD.finditer(text):
+        for group in range(1, (match.lastindex or 0) + 1):
+            if match.group(group):
+                box.tag_add("villager", f"1.0 + {match.start(group)} chars", f"1.0 + {match.end(group)} chars")
     box.configure(state="disabled")
