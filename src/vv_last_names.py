@@ -154,10 +154,11 @@ def save_path(folder: Path, game: int, slot: int) -> Path:
     return Path(folder) / f"{checker.SAVE_STEMS[game]}{slot}.ldw"
 
 
-def _entries(game: int, data: bytes) -> list[int]:
+def _entries(game: int, data: bytes, bodies: bool = False) -> list[int]:
     """The name offset of every villager the game loads from the save (the checker's own reading:
     the records up to the first one not flagged present; the stale copies after it are never
-    loaded, scripts/vvfp_consistency_check.py PRESENT)."""
+    loaded, scripts/vvfp_consistency_check.py PRESENT).  With `bodies`, the unburied dead too
+    (Number Duplicate Names renames a dead namesake's body, Codex #557)."""
     checker = tools.load_checker()
     if game == 1:
         out = []
@@ -168,26 +169,27 @@ def _entries(game: int, data: bytes) -> list[int]:
                 break
             name = _cstr(data, rel(0x370), 0x1B)
             if name and _i32(data, rel(0x350)) in (1, 2) \
-                    and _i32(data, rel(0x344)) > 0:          # living: a body keeps the name it died with
+                    and (bodies or _i32(data, rel(0x344)) > 0):   # a body keeps the name it died with
                 out.append(rel(0x370))
         return out
     try:
         offsets = checker.villager_offsets(game, data, [])
     except ValueError:
         raise LastNamesError("The save's villager table was not found.") from None
-    # Living villagers only: not a statue, not a body (its name is the one it died with).
+    # Living villagers only, unless `bodies`: never a statue; a body's name is the one it died with.
     return [p for p in offsets if not checker.lookalike(data, p, game)
-            and _i32(data, p + checker.HEALTH[game]) > 0]
+            and (bodies or _i32(data, p + checker.HEALTH[game]) > 0)]
 
 
-def living(folder: Path, game: int, slot: int) -> list[Living]:
-    """The save's living villagers, with each one's family last name."""
+def living(folder: Path, game: int, slot: int, bodies: bool = False) -> list[Living]:
+    """The save's living villagers (and, with `bodies`, its unburied dead), with each one's family
+    last name."""
     checker = tools.load_checker()
     data = save_path(folder, game, slot).read_bytes()
     f = FIELDS[game]
     names = checker.LAST_NAMES[game]
     out = []
-    for at in _entries(game, data):
+    for at in _entries(game, data, bodies):
         family = _i32(data, at + f.family)
         out.append(Living(at, _cstr(data, at, f.name_cap), "Male" if _i32(data, at + f.sex) == f.male else "Female",
                           _i32(data, at + f.head), _i32(data, at + f.body), family,
@@ -369,11 +371,8 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     Records whose name a renamed villager has but whose looks are no living villager's -- the
     same villager before Change Appearance, or another of the same name -- are asked about
     (Plan.questions); `answers` renames those the player says are them."""
-    folder = Path(folder)
-    f = FIELDS[game]
-    people = living(folder, game, slot)
     renames: dict[tuple, str] = {}
-    for v in people:
+    for v in living(folder, game, slot):
         last = chosen.get(v.identity)
         if not last:
             continue
@@ -381,15 +380,30 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
         if problem:
             raise LastNamesError(problem)
         renames[v.identity] = f"{v.name} {last}"
+    return plan_renames(folder, game, slot, renames, answers)
+
+
+def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
+                 answers: dict[str, str] | None = None, dead: bool = False) -> Plan:
+    """What renaming each (name, head, body) to its new whole name changes, file by file.  Reads only.
+
+    With `dead` (Number Duplicate Names), villagers no longer living are renamed too -- in their
+    records and as the parents the save and the logs name -- and nobody is asked about look-alikes:
+    each numbered villager is one name, head and body."""
+    folder = Path(folder)
+    f = FIELDS[game]
+    people = living(folder, game, slot, bodies=dead)
     result = Plan(renames)
     if not renames:
         return result
-    # What a name with no looks beside it becomes: every living holder of the name, each as it
-    # will be called (one not renamed keeps the name).  A name-only rewrite happens only when
-    # that is one new name (Codex, #553): an unrenamed namesake makes the name ambiguous.
+    # What a name with no looks beside it becomes: every holder of the name, each as it will be
+    # called (one not renamed keeps the name).  A name-only rewrite happens only when that is one
+    # new name (Codex, #553): an unrenamed namesake makes the name ambiguous.
     by_name: dict[str, set] = {}
     for v in people:
         by_name.setdefault(v.name, set()).add(renames.get(v.identity, v.name))
+    for (name, _head, _body), new in renames.items():
+        by_name.setdefault(name, set()).add(new)
     by_name = {old: news for old, news in by_name.items() if len(news) == 1 and old not in news}
 
     # The save.
@@ -406,7 +420,8 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
                                          (f.expecting, 0x18, eh, eb)):
                 references.append((_cstr(original, v.at + off, cap), _i32(original, v.at + head),
                                    _i32(original, v.at + body)))
-    result.questions = _look_alike_questions(folder, game, slot, people, renames, references)
+    if not dead:
+        result.questions = _look_alike_questions(folder, game, slot, people, renames, references)
     asked = dict(renames)
     for q in result.questions:
         new = q.options.get((answers or {}).get(q.key, ""), "")
@@ -461,8 +476,9 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked)
-    _plan_statistics(result, game, slot, data_dir, by_name)
-    _plan_logs(result, folder, game, slot, asked, by_name)
+    renamed = {name for name, _head, _body in renames}
+    _plan_statistics(result, game, slot, data_dir, by_name, renamed)
+    _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
     _plan_family_trees(result, folder, game, slot, asked)
     return result
 
@@ -697,7 +713,13 @@ def _plan_family_trees(result: Plan, folder: Path, game: int, slot: int, renames
     (Codex, #555)."""
     import json
     import vv_family_tree as ft
+    import vv_tribe_rename
     paths = [ft.Edits.path(folder, game, slot)]
+    try:                                        # a reused slot's old tribe keeps its own tree (Codex, #557)
+        tribe = vv_tribe_rename.save_name({g.number: g for g in vv_tribe_rename.GAMES}[game],
+                                          save_path(folder, game, slot).read_bytes())
+    except (OSError, KeyError, ValueError):
+        tribe = None
     trees = Path(folder) / ft.TREES
     if trees.is_dir():
         for path in sorted(trees.glob(f"*{ft.TREE_SUFFIX}")):
@@ -705,7 +727,8 @@ def _plan_family_trees(result: Plan, folder: Path, game: int, slot: int, renames
                 data = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 continue
-            if isinstance(data, dict) and (data.get("game"), data.get("slot")) == (game, slot):
+            if isinstance(data, dict) and (data.get("game"), data.get("slot")) == (game, slot) \
+                    and tribe and data.get("tribe") == tribe:
                 paths.append(path)
     for path in paths:
         if not path.is_file():
@@ -723,10 +746,19 @@ def _first_line(path: Path) -> str:
         return ""
 
 
-def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name: dict[str, set]) -> None:
+def _left(result: Plan, path: Path, names: set[str]) -> None:
+    """A note: lines of `path` naming a renamed villager without saying which one keep the name."""
+    if names:
+        result.notes.append(f"{path.name} names {', '.join(sorted(names))} without saying which villager, so "
+                            "those lines keep the name.")
+
+
+def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name: dict[str, set],
+                     renamed: set[str] = frozenset()) -> None:
     """The Village Statistics roster and Village Elders.  Games sharing a folder share these
     files' names (Codex, #553): the Elders file names its game on its first line, and the roster
-    (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so."""
+    (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so.
+    A name these files hold for more than one new name stays, and is reported (Codex, #557)."""
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
     folder = data_dir / "Village Statistics"
     roster = folder / f"Village Roster - Save {slot}.dat"
@@ -738,12 +770,16 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         original = roster.read_bytes()
         lines = original.decode("latin-1").split("\n")
         changed = False
+        left = set()
         for k, line in enumerate(lines):
             parts = line.split("\t")
             if len(parts) == 3 and parts[1] in unique:
                 parts[1] = unique[parts[1]][:31]
                 lines[k] = "\t".join(parts)
                 changed = True
+            elif len(parts) == 3 and parts[1] in renamed:
+                left.add(parts[1])
+        _left(result, roster, left)
         if changed:
             result.changes.append(Change(roster, original, "\n".join(lines).encode("latin-1"),
                                         "the statistics roster"))
@@ -754,6 +790,7 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         original = elders.read_bytes()
         lines = original.decode("latin-1").split("\n")
         changed = False
+        left = set()
         for k, line in enumerate(lines):
             parts = line.split("\t")
             if parts and parts[0] == "E" and len(parts) >= 5:
@@ -762,7 +799,10 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
                         tail = "\r" if parts[col].endswith("\r") else ""
                         parts[col] = unique[parts[col].rstrip("\r")][:39] + tail
                         changed = True
+                    elif parts[col].rstrip("\r") in renamed:
+                        left.add(parts[col].rstrip("\r"))
                 lines[k] = "\t".join(parts)
+        _left(result, elders, left)
         if changed:
             result.changes.append(Change(elders, original, "\n".join(lines).encode("latin-1"), "the Village Elders"))
 
@@ -775,10 +815,11 @@ PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father): (.*)$")
 
 
 def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
-               by_name: dict[str, set]) -> None:
+               by_name: dict[str, set], dead: bool = False, renamed: set[str] = frozenset()) -> None:
     """Every record of a renamed villager: a "Name:" / "Child:" / "Mother:" / "Father:" line whose
-    name, head and body are theirs.  A Death, Disappeared or Epitaph record is never theirs (they
-    are alive).  A line without looks is renamed when the name alone is unique among those renamed."""
+    name, head and body are theirs.  A Death, Disappeared or Epitaph record is never theirs when
+    only the living are renamed.  A line without looks is renamed when the name alone is unique
+    among those renamed; one naming a renamed villager without saying which stays, and is reported."""
     import vv_log_additions as additions
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
@@ -787,8 +828,10 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
         crlf = b"\r\n" in original
         lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
         n = 0
+        left = set()
         for b in additions.blocks(path, lines):
-            if not b.of(slot, game, villages) or b.heading.startswith(("Death", "Disappeared", "Epitaph")):
+            if not b.of(slot, game, villages) or not dead and b.heading.startswith(
+                    ("Death", "Disappeared", "Epitaph")):
                 continue
             for k, line in enumerate(b.lines):
                 m = PERSON_LINE.match(line)
@@ -802,6 +845,9 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
                 if new:
                     lines[b.start + k] = f"{m.group(1)}{m.group(2)}: {new}"
                     n += 1
+                elif who[1] is None and name in renamed:
+                    left.add(name)
+        _left(result, path, left)
         if n:
             text = "\n".join(lines)
             if crlf:
@@ -852,8 +898,15 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
         raise LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.renames:
         raise LastNamesError("No villager was given a last name.")
+    return apply(folder, work, controller, now, BACKUP_LABEL, "giving the last names")
+
+
+def apply(folder: Path, work: Plan, controller: vv_save_backup.ProcessController, now: datetime | None,
+          label: str, doing: str) -> Result:
+    """Write a plan's changes: the save folder backed up first (`label` names the backup), refused
+    while the game runs, every file swapped in and read back, every one put back on a failure."""
     try:
-        backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_LABEL)
+        backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=label)
     except vv_save_backup.BackupError as exc:
         raise LastNamesError(f"The backup failed, so nothing was changed. {exc}") from exc
     tools._refuse_if_running(folder, controller)
@@ -861,7 +914,7 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
     try:
         for change in work.changes:
             if change.path.read_bytes() != change.original:
-                raise LastNamesError(f"{change.path.name} changed while the last names were being given.")
+                raise LastNamesError(f"{change.path.name} changed while {doing}.")
             done.append(change)
             _write(change.path, change.updated)
     except (OSError, LastNamesError) as exc:
@@ -873,8 +926,8 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
             except (OSError, LastNamesError) as undo:
                 problems.append(f"{change.path.name}: {undo}")
         if problems:
-            raise LastNamesError(f"Giving the last names failed ({exc}) and these files could not be put "
+            raise LastNamesError(f"{doing.capitalize()} failed ({exc}) and these files could not be put "
                                  f"back: {'; '.join(problems)}. Your backup is in {backup.backup_folder}.") from exc
-        raise LastNamesError(f"Giving the last names failed ({exc}); every file was put back as it was. "
+        raise LastNamesError(f"{doing.capitalize()} failed ({exc}); every file was put back as it was. "
                              f"A backup is in {backup.backup_folder}.") from exc
     return Result(work.renames, [c.path for c in work.changes], backup)

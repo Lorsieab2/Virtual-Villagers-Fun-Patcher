@@ -16,7 +16,7 @@ diamond portrait that says Upcoming child".
 * Each family -- a mother and father and their children -- has a colour of its own: the lines from
   the parents to the children, and the children's frames.  Founders' frames are grey.
 * Children born together hang from one point of their family's line, which opens into a triangle.
-* Villagers with no recorded parent or child sit apart, under "Unrelated Individuals", level with their
+* Villagers with no recorded parent or child sit apart, under "Other Members", level with their
   generation.
 * The player's marks and edits (the owner: "mark special villagers with a border (any color) with a
   matching key", "make all the fields editable in case there are errors or the player wants to
@@ -51,7 +51,7 @@ LINE_WIDTH = 2.2                        # a family line's weight unless the play
 GAP_X = 22
 LEFT = 300                      # the generation labels' column
 TOP = 150
-OTHER_GAP = 110                 # between the tree and the "Unrelated Individuals" column
+OTHER_GAP = 110                 # between the tree and the "Other Members" column
 
 # The head is the one the Origins Change Appearance menus show: the whole 40x65 cell of column 5
 # (HEAD_FRAME in scripts/build_vv1_appearance_bitmaps.py, build_vv2_appearance_sheets.py and
@@ -209,6 +209,8 @@ class Edits:
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
+    number_names: bool = False          # villagers who share a name numbered: "Soda I", "Soda II"...
+    number_order: str = "oldest"        # vv_genealogy.NUMBER_ORDERS: who is "I"
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers
@@ -294,6 +296,9 @@ class Edits:
         out.diagonal_lines = data.get("diagonal_lines") is True
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
+        out.number_names = data.get("number_names") is True
+        if data.get("number_order") in gen.NUMBER_ORDERS:
+            out.number_order = data["number_order"]
         if data.get("sort") in gen.SORTS:
             out.sort = data["sort"]
         if data.get("positioning") in POSITIONING:
@@ -421,7 +426,9 @@ class Edits:
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.centre_heads, "diagonal_lines": self.diagonal_lines,
-                "show_units": self.show_units, "show_years": self.show_years, "sort": self.sort, "positioning": self.positioning,
+                "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
+                "number_order": self.number_order,
+                "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
                 "background": self.background, "background2": self.background2, "rainbow": self.rainbow,
                 "background_image": self.background_image, "background_fit": self.background_fit,
@@ -469,7 +476,7 @@ ROLES = {
     "labels": "Generation labels",
     "names": "Names in the portraits",
     "portraits": "Other words in the portraits",
-    "others": "Unrelated Individuals heading",
+    "others": "Other Members heading",
     "footer": "Footer",
 }
 ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
@@ -640,6 +647,7 @@ class Layout:
     birth_colour: dict[int, str] = field(default_factory=dict)
     edits: Edits = field(default_factory=Edits)
     page: int = 0                       # which page of the tree this is (page_spans)
+    names: dict[int, str] = field(default_factory=dict)          # Number Duplicate Names: id -> "Soda II"
     pages: int = 1
     _spans: list = field(default_factory=list, repr=False)
 
@@ -746,10 +754,13 @@ def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = Tr
 
 
 def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
-    """Each page's first and last generation (the generations as arrange gives them)."""
+    """Each page's first and last generation (the generations as arrange gives them).  A page ends
+    with the generation the next one starts at, and that page shows it again as its founders (the
+    owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
+    generation on the second page being treated as "founders" on the second page")."""
     gens = sorted({p.generation for p in village.people.values()}) or [1]
-    starts = [gens[0]] + [g for g in edits.pages if gens[0] < g <= gens[-1]]
-    return [(lo, starts[k + 1] - 1 if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
+    starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
+    return [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
 
 
 def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:
@@ -857,12 +868,13 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,
-                 edits=edits, page=page, pages=len(spans))
+                 edits=edits, page=page, pages=len(spans),
+                 names=gen.duplicate_names(village, edits.number_order) if edits.number_names else {})
     # One colour each: every villager with no recorded parents, every pairing, every set of full
     # brothers and sisters -- oldest first, so the most distinct go to the founders.
     e = out.edits
-    alone = sorted((q for q in x if people[q].father is None and people[q].mother is None),
-                   key=lambda q: (people[q].generation, _place(people[q])))
+    alone = sorted((q for q in x if all(r is None or r in off for r in (people[q].father, people[q].mother))),
+                   key=lambda q: (people[q].generation, _place(people[q])))   # a later page's founders too
     pool = iter(distinct_colours(len(alone) + len(families), out.background))
     for q in alone:
         out.birth_colour[q] = e.person_colours.get(entry_key(village, people[q]), next(pool))
@@ -1545,7 +1557,9 @@ def default_label_parts(lay: Layout, g: int) -> dict[str, str]:
     women = sum(p.sex == "Female" for p in people)
     men = sum(p.sex == "Male" for p in people)
     alive = sum(p.alive for p in people)
-    out = {"number": f"{generation_number(lay, g)}.", "name": "Founders" if g == 1 else f"Generation {g}",
+    # Every row is "Generation <n>", the first too (the owner: "Just use Generation 1.  Players can type
+    # FOUNDERS if they want to").
+    out = {"number": f"{generation_number(lay, g)}.", "name": f"Generation {g}",
            "total": f"{len(people)} total: {women} females, {men} males", "living": f"{alive} living"}
     if upcoming:
         out["upcoming"] = f"{upcoming} upcoming"
@@ -1568,7 +1582,8 @@ def default_title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
 
 # Words the tree writes that the player may retype (the owner: "I wanna rename "unrelated
 # individuals" to something else").  The footer's own words are footer(lay).
-WORDS = {"others": "Unrelated Individuals", "others_note": "no recorded parent or child", "footer": ""}
+# The owner: "And default: "Other Members"" (the heading over the villagers with no recorded family).
+WORDS = {"others": "Other Members", "others_note": "no recorded parent or child", "footer": ""}
 
 
 def words(lay: Layout, key: str) -> str:
@@ -1610,7 +1625,7 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    return [f"{p.number}. {p.name}"] + ages + ([extra] if extra else [])
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + ([extra] if extra else [])
 
 
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:
@@ -2040,8 +2055,8 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     return out
 
 
-MOVABLE = {"title": "the title", "subtitle": "the subtitle", "key": "the Key", "others": "the Unrelated "
-           "Individuals heading", "others_note": "the line under the Unrelated Individuals heading",
+MOVABLE = {"title": "the title", "subtitle": "the subtitle", "key": "the Key", "others": "the Other "
+           "Members heading", "others_note": "the line under the Other Members heading",
            "footer": "the footer"}   # and "label<generation>": that generation's label
 
 
