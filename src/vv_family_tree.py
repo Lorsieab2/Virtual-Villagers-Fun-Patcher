@@ -47,6 +47,7 @@ import vv_genealogy as gen
 NODE_W = 106
 NODE_H = 156
 TRANSPARENT = "transparent"             # a colour that shows nothing (the owner asked for it)
+LINE_WIDTH = 2.2                        # a family line's weight unless the player says
 GAP_X = 22
 LEFT = 300                      # the generation labels' column
 TOP = 150
@@ -235,6 +236,13 @@ class Edits:
     borders: dict[str, str] = field(default_factory=lambda: dict(DEFAULT_BORDERS))   # GROUPS -> border
     plate_colour: str = ""              # the boxes behind words on a picture ("" the background's colour)
     opacity: dict[str, int] = field(default_factory=dict)              # OPACITY -> percent (unset: its default)
+    sizes: dict[str, list] = field(default_factory=dict)               # GROUPS -> [width, height] of the frame
+    line_width: float = LINE_WIDTH      # every family line's weight
+    line_dash: str = ""                 # LINE_TYPES: every family line's type
+    family_lines: dict[str, dict] = field(default_factory=dict)        # family key -> {"width", "dash"}
+    mark_style: str = "border"          # MARK_STYLES
+    mark_glow: float = 14.0             # how far a glow reaches
+    mark_opacity: int = 100             # percent
     # What the player deleted from the tree (the owner: "omit anything I like"): "word:<MOVABLE
     # name>" and "line:<family key>|<piece>".  A villager deleted is "hidden" in their entry.
     hidden: list[str] = field(default_factory=list)
@@ -336,6 +344,24 @@ class Edits:
                 shift = _number(shift, -STICKER_MAX, STICKER_MAX, 0.0)
             if shift:
                 out.line_moves[str(piece)] = shift
+        for group, size in dict(data.get("sizes", {})).items():
+            if group in GROUPS and isinstance(size, list) and len(size) == 2:
+                out.sizes[group] = [_number(v, FRAME_MIN, FRAME_MAX, NODE_H) for v in size]
+        out.line_width = _number(data.get("line_width"), *LINE_WIDTHS, LINE_WIDTH)
+        if data.get("line_dash") in LINE_TYPES:
+            out.line_dash = data["line_dash"]
+        for key, style in dict(data.get("family_lines", {})).items():
+            item = {}
+            if isinstance(style, dict) and "width" in style:
+                item["width"] = _number(style["width"], *LINE_WIDTHS, LINE_WIDTH)
+            if isinstance(style, dict) and style.get("dash") in LINE_TYPES:
+                item["dash"] = style["dash"]
+            if item:
+                out.family_lines[str(key)] = item
+        if data.get("mark_style") in MARK_STYLES:
+            out.mark_style = data["mark_style"]
+        out.mark_glow = _number(data.get("mark_glow"), 2.0, 60.0, 14.0)
+        out.mark_opacity = int(_number(data.get("mark_opacity"), 0, 100, 100))
         for part, value in dict(data.get("opacity", {})).items():
             if part in OPACITY:
                 out.opacity[part] = int(_number(value, 0, 100, OPACITY[part][1]))
@@ -385,6 +411,9 @@ class Edits:
                 "person_colours": self.person_colours, "moved": self.moved, "orders": self.orders,
                 "portrait_fill": self.portrait_fill, "plate_colour": self.plate_colour, "hidden": self.hidden,
                 "shapes": self.shapes, "borders": self.borders, "opacity": self.opacity,
+                "sizes": self.sizes, "line_width": self.line_width, "line_dash": self.line_dash,
+                "family_lines": self.family_lines, "mark_style": self.mark_style, "mark_glow": self.mark_glow,
+                "mark_opacity": self.mark_opacity,
                 "line_moves": self.line_moves,
                 "generations": self.generations, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers}
@@ -424,8 +453,9 @@ ROLES = {
 }
 ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
 # A portrait's shape and border (the owner's lists).
-PORTRAIT_SHAPES = {"rect": "Square", "rounded": "Rounded square", "circle": "Circle", "ellipse": "Oval",
-                   "heart": "Heart", "triangle": "Triangle", "diamond": "Diamond", "cross": "Cross",
+PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle", "rect": "Square",
+                   "rounded": "Rounded square", "circle": "Circle", "ellipse": "Oval",
+                   "heart": "Heart", "triangle": "Triangle", "diamond": "Diamond", "cross": "Cross", "x": "X",
                    "plus": "Plus", "star": "Star", "hexagon": "Hexagon", "octagon": "Octagon"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
@@ -435,10 +465,17 @@ BORDER_WIDTHS = {"thin": 1.5, "thick": 3.0, "extra": 6.0, "dotted": 2.5, "dashed
 # boxes have their own).
 OPACITY = {"words": ("Words", 100), "plates": ("Boxes behind words", 80), "portraits": ("Portraits", 100),
            "lines": ("Family lines", 100)}
+# The family lines' look (the owner: "I want to change line weights, types, absolutely everything in
+# batch!"): every line's, or one family's.
+LINE_TYPES = {"": "Solid", "dotted": "Dotted", "dashed": "Dashed", "dashdot": "Dotted and dashed"}
+LINE_WIDTHS = (0.5, 20.0)
+# How a special mark is drawn (the owner: "can marks be a "glow" around the portrait instead?").
+MARK_STYLES = {"border": "A border round the portrait", "glow": "A glow round the portrait"}
+GLOW_RINGS = 16
 # Who gets which until the player says (males, females, babies on the way).
 GROUPS = {"Male": "Males", "Female": "Females", "Upcoming": "Babies on the way"}
-DEFAULT_SHAPES = {"Male": "rect", "Female": "ellipse", "Upcoming": "diamond"}
-DEFAULT_BORDERS = {"Male": "thick", "Female": "thick", "Upcoming": "dashed"}
+DEFAULT_SHAPES = {"Male": "rect", "Female": "circle", "Upcoming": "diamond"}       # the owner's
+DEFAULT_BORDERS = {"Male": "thick", "Female": "thick", "Upcoming": "thick"}     # the owner's: all alike
 SHAPES = {"rect": "Rectangle", "ellipse": "Oval"}           # a text box's own shape
 VALIGNS = {"top": "Top", "middle": "Middle", "bottom": "Bottom"}
 
@@ -589,9 +626,8 @@ class Layout:
         proportions, as tall as a portrait, unless the player resized it; centred on the portrait;
         turned `angle` degrees about its middle."""
         p = self.village.people[q]
-        entry = self.entry(p)
-        w, h = entry.get("w", natural_width(self.shape(p))), entry.get("h", NODE_H)
-        return self.x[q] + NODE_W / 2 - w / 2, self.y[q] + NODE_H / 2 - h / 2, w, h, entry.get("angle", 0.0)
+        w, h = frame_size(self.edits, self.village, p)
+        return self.x[q] + NODE_W / 2 - w / 2, self.y[q] + NODE_H / 2 - h / 2, w, h, self.entry(p).get("angle", 0.0)
 
     def frame_points(self, q: int) -> list[tuple[float, float]]:
         kind = self.shape(self.village.people[q])
@@ -646,6 +682,14 @@ def shape_of(edits: Edits, village: gen.Village, p: gen.Person) -> str:
     return edits.entries.get(entry_key(village, p), {}).get("shape") or edits.shapes[group_of(p)]
 
 
+def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True) -> tuple[float, float]:
+    """A portrait frame's width and height: the villager's own (`own`), else their group's default
+    size, else their shape's own proportions, a portrait tall."""
+    gw, gh = edits.sizes.get(group_of(p)) or (natural_width(shape_of(edits, village, p)), NODE_H)
+    entry = edits.entries.get(entry_key(village, p), {}) if own else {}
+    return entry.get("w", gw), entry.get("h", gh)
+
+
 def layout(village: gen.Village, edits: Edits | None = None) -> Layout:
     people = village.people
     gone = {pid for pid, p in people.items()
@@ -672,7 +716,7 @@ def layout(village: gen.Village, edits: Edits | None = None) -> Layout:
     for pid in sorted(in_tree, key=lambda q: (people[q].generation, _place(people[q]))):
         rows.setdefault(people[pid].generation, []).append(pid)
     edits = edits or Edits()
-    step = max([NODE_W] + [natural_width(shape_of(edits, village, people[q])) for q in in_tree | set(others)]) + GAP_X
+    step = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in in_tree | set(others)]) + GAP_X
     x: dict[int, float] = {}
     sub: dict[int, int] = {q: 0 for q in in_tree}
     if edits.positioning == "dynamic" and rows:
@@ -1515,7 +1559,9 @@ def _unit_outlines() -> dict[str, list[tuple[float, float]]]:
         "diamond": [(0.5, 0), (1, 0.5), (0.5, 1), (0, 0.5)],
         "triangle": [(0.5, 0), (1, 1), (0, 1)],
         "plus": plus,
-        "cross": fit(turned),
+        "cross": [(0.35, 0), (0.65, 0), (0.65, 0.25), (1, 0.25), (1, 0.5), (0.65, 0.5), (0.65, 1), (0.35, 1),
+                  (0.35, 0.5), (0, 0.5), (0, 0.25), (0.35, 0.25)],
+        "x": fit(turned),
         "star": fit(star),
         "hexagon": [(0.5, 0), (1, 0.25), (1, 0.75), (0.5, 1), (0, 0.75), (0, 0.25)],
         "octagon": [(0.3, 0), (0.7, 0), (1, 0.3), (1, 0.7), (0.7, 1), (0.3, 1), (0, 0.7), (0, 0.3)],
@@ -1534,8 +1580,8 @@ GDI_DASHES = {"dotted": 2, "dashed": 1, "dashdot": 3}       # GDI+'s dash styles
 # Each shape's own width for its height (the owner: "I want the shapes to not look so squashed
 # horizontally. or vertically, by default"): a portrait's frame is drawn this wide for a portrait's
 # height until the player resizes it.  The heart's and the star's are their outlines' own; a
-# diamond is a playing card's.  A square, a rounded square and an oval fill the portrait.
-ASPECTS = {"circle": 1.0, "heart": 1.107, "star": 1.051, "triangle": 1.155, "diamond": 0.7, "cross": 1.0,
+# diamond is a playing card's.  A rectangle, a rounded rectangle and an oval fill the portrait.
+ASPECTS = {"rect": 1.0, "rounded": 1.0, "circle": 1.0, "heart": 1.107, "star": 1.051, "triangle": 1.155, "diamond": 0.7, "cross": 0.75, "x": 1.0,
            "plus": 1.0, "hexagon": 0.866, "octagon": 1.0}
 FRAME_MIN, FRAME_MAX = 24.0, 1200.0     # a resized frame's sides
 
@@ -1589,7 +1635,7 @@ def oval_box(kind: str, x: float, y: float, w: float, h: float) -> tuple[float, 
 
 
 def corner_radius(kind: str) -> float:
-    return 24.0 if kind == "rounded" else 4.0
+    return 24.0 if kind in ("rounded", "rounded_rect") else 0.0
 
 
 def _edge_y(lay: "Layout", q: int, at: float, bottom: bool) -> float:
@@ -1643,11 +1689,12 @@ class Shape:
 class Line:
     points: list
     colour: str
-    width: float = 2.2
+    width: float = LINE_WIDTH
     target: tuple | None = None
     move: str = ""
     piece: str = ""                     # a family line's piece: "<family key>|<piece>", draggable
     opacity: float = 1.0
+    dash: str = ""                      # LINE_TYPES
 
 
 @dataclass
@@ -1815,7 +1862,9 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     for colour, points, fid, piece in lines(lay):
         key = family_key(v, fams[fid])
         if f"line:{key}|{piece}" not in lay.edits.hidden:
-            add(Line(points, colour, target=("family", key), piece=f"{key}|{piece}"))
+            style = lay.edits.family_lines.get(key, {})
+            add(Line(points, colour, style.get("width", lay.edits.line_width), target=("family", key),
+                     piece=f"{key}|{piece}", dash=style.get("dash", lay.edits.line_dash)))
     for pid in lay.x:
         _node(lay, v.people[pid], present, add)
         xs, ys = zip(*lay.frame_points(pid))
@@ -1903,13 +1952,13 @@ def _apply_opacity(items: list, edits: Edits) -> None:
     frames, heads and words), the family lines and every other word."""
     for item in items:
         if isinstance(item, Shape) and item.target == ("plate",):
-            item.opacity = see_through(edits, "plates")
+            item.opacity *= see_through(edits, "plates")
         elif isinstance(item, (Shape, Head)) and item.pid is not None or isinstance(item, Text) and item.pid is not None:
-            item.opacity = see_through(edits, "portraits")
+            item.opacity *= see_through(edits, "portraits")
         elif isinstance(item, Line) and item.piece:
-            item.opacity = see_through(edits, "lines")
+            item.opacity *= see_through(edits, "lines")
         elif isinstance(item, (Text, Line)):
-            item.opacity = see_through(edits, "words")
+            item.opacity *= see_through(edits, "words")
 
 
 def _apply_styles(items: list, edits: Edits) -> None:
@@ -1973,10 +2022,19 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     border = lay.border(p)
     mark = lay.mark(p)
     fx, fy, fw, fh, angle = lay.frame(p.id)
-    if mark:
+    see = lay.edits.mark_opacity / 100
+    target = ("mark", lay.entry(p).get("mark"))
+    if mark and lay.edits.mark_style == "glow":
+        reach = lay.edits.mark_glow
+        for k in range(GLOW_RINGS, 0, -1):     # outermost (faintest) first
+            m = reach * (k - 0.5) / GLOW_RINGS
+            add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=2 * reach / GLOW_RINGS + 0.6, fill=None,
+                      radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle,
+                      opacity=see * (1 - (k - 1) / GLOW_RINGS) * 0.45))
+    elif mark:
         m = MARK_GAP
         add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=4, fill=None,
-                  radius=corner_radius(kind) + m, pid=p.id, target=("mark", lay.entry(p).get("mark")), angle=angle))
+                  radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle, opacity=see))
     add(Shape(kind, fx, fy, fw, fh, colour, width=BORDER_WIDTHS[border], radius=corner_radius(kind),
               dash=border if border in ("dotted", "dashed", "dashdot") else "", pid=p.id,
               target=("person", p.id), fill=lay.edits.portrait_fill, angle=angle))
@@ -2115,7 +2173,8 @@ def to_svg(sc: Scene, present: dict, describe=None) -> str:
         elif isinstance(item, Line):
             pts = " ".join(f"{px:.1f},{py:.1f}" for px, py in item.points)
             out.append(f'<polyline points="{pts}" fill="none" stroke="{item.colour}" stroke-width="{item.width}"'
-                       f' stroke-linejoin="round"{_svg_opacity(item)}/>')
+                       f' stroke-linejoin="round"{_svg_opacity(item)}'
+                       + (f' stroke-dasharray="{SVG_DASHES[item.dash]}"' if item.dash else "") + "/>")
         elif isinstance(item, Shape):
             fill = item.fill or "none"
             dash = f' stroke-dasharray="{SVG_DASHES[item.dash]}"' if item.dash else ""

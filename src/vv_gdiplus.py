@@ -276,6 +276,8 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
         pen = ctypes.c_void_p()
         g.GdipCreatePen1(_argb(item.colour, _alpha(item)), f(item.width), 0, ctypes.byref(pen))
         g.GdipSetPenLineJoin(pen, 2)                        # round
+        if item.dash:
+            g.GdipSetPenDashStyle(pen, ft.GDI_DASHES[item.dash])
         arr, n = _points(item.points)
         g.GdipDrawLines(graphics, pen, arr, n)
         g.GdipDeletePen(pen)

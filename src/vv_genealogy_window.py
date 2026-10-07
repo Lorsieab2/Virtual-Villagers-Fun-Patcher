@@ -575,6 +575,28 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             row=2, column=0, columnspan=3, sticky="w", pady=(4, 2))
         ttk.Button(box, text="Reset size and turn", command=self._reset_frames).grid(row=3, column=0, columnspan=3,
                                                                                     sticky="w")
+        row = ttk.Frame(box)
+        row.grid(row=4, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Size of every selected:  width").pack(side="left")
+        self.own_w, self.own_h = tk.StringVar(), tk.StringVar()
+        for var, label in ((self.own_w, None), (self.own_h, "height")):
+            if label:
+                ttk.Label(row, text=label).pack(side="left", padx=(4, 0))
+            ttk.Spinbox(row, textvariable=var, from_=ft.FRAME_MIN, to=ft.FRAME_MAX, increment=2, width=6).pack(
+                side="left", padx=(2, 0))
+        ttk.Button(row, text="Apply", command=self._own_size).pack(side="left", padx=(6, 0))
+        row = ttk.Frame(box)
+        row.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Their family's lines:  weight").pack(side="left")
+        self.own_line_w = tk.StringVar()
+        ttk.Spinbox(row, textvariable=self.own_line_w, from_=ft.LINE_WIDTHS[0], to=ft.LINE_WIDTHS[1], increment=0.5,
+                    width=5).pack(side="left", padx=(2, 0))
+        self.own_line_dash = tk.StringVar()
+        ttk.Combobox(row, textvariable=self.own_line_dash, values=list(ft.LINE_TYPES.values()), state="readonly",
+                     width=16).pack(side="left", padx=(4, 0))
+        ttk.Button(row, text="Apply", command=self._own_lines).pack(side="left", padx=(6, 0))
+        ttk.Button(row, text="Like the others", command=lambda: self._own_lines(reset=True)).pack(side="left",
+                                                                                               padx=(4, 0))
 
         # The owner: "allow customizability/reordering of villagers within generations.  Perhaps I
         # would like to put Huata in the 4th generation".
@@ -600,8 +622,35 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _marks_tab(self) -> None:
         tab = ttk.Frame(self.notebook, padding=8)
         self.notebook.add(tab, text="Special Marks")
-        ttk.Label(tab, text="A special mark is a coloured border around a villager, named in the Key under the "
-                            "title.", wraplength=320, justify="left").pack(anchor="w")
+        ttk.Label(tab, text="A special mark is a coloured border or glow around a villager, named in the Key "
+                            "under the title.", wraplength=320, justify="left").pack(anchor="w")
+        box = ttk.LabelFrame(tab, text="How every mark looks", padding=6)
+        box.pack(fill="x", pady=(6, 0))
+        self.mark_style_var = tk.StringVar(value=ft.MARK_STYLES[self.edits.mark_style])
+        style = ttk.Combobox(box, textvariable=self.mark_style_var, values=list(ft.MARK_STYLES.values()),
+                             state="readonly", width=28)
+        style.grid(row=0, column=0, columnspan=3, sticky="w")
+        style.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            mark_style=next(k for k, v in ft.MARK_STYLES.items() if v == self.mark_style_var.get())))
+        ttk.Label(box, text="Glow size:").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.glow_var = tk.StringVar(value=f"{self.edits.mark_glow:g}")
+        spin = ttk.Spinbox(box, textvariable=self.glow_var, from_=2, to=60, increment=2, width=5,
+                           command=self._glow_size)
+        spin.grid(row=1, column=1, sticky="w", padx=(4, 0), pady=(4, 0))
+        spin.bind("<Return>", lambda _e: self._glow_size())
+        spin.bind("<FocusOut>", lambda _e: self._glow_size())
+        shown = tk.StringVar(value=f"Opacity: {self.edits.mark_opacity}%")
+        ttk.Label(box, textvariable=shown, width=14).grid(row=2, column=0, sticky="w", pady=(4, 0))
+        scale = self.mark_opacity_scale = ttk.Scale(
+            box, from_=0, to=100, orient="horizontal", command=lambda v: shown.set(f"Opacity: {int(float(v))}%"))
+        scale.set(self.edits.mark_opacity)
+        scale.grid(row=2, column=1, columnspan=2, sticky="ew", padx=(4, 0), pady=(4, 0))
+        for event in ("<ButtonRelease-1>", "<KeyRelease>"):
+            scale.bind(event, lambda _e: self.edits.mark_opacity != int(scale.get())
+                       and self._change(mark_opacity=int(scale.get())))
+        box.columnconfigure(2, weight=1)
+        ttk.Label(box, text="Each mark's colour: Change colour... below.", wraplength=300).grid(
+            row=3, column=0, columnspan=3, sticky="w", pady=(4, 0))
         ttk.Label(tab, text="1. Pick or type a mark.\n2. Select villagers on the tree.\n3. Click Add.",
                   justify="left").pack(anchor="w", pady=(6, 0))
         row = ttk.Frame(tab)
@@ -695,6 +744,38 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 combo.grid(row=row_no, column=col, sticky="w", padx=(6, 0), pady=1)
                 combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, g=group, c=choices, v=var: self._group_style(
                     a, g, next(k for k, n in c.items() if n == v.get())))
+        box = ttk.LabelFrame(tab, text="Portrait sizes (each group's default)", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        self.group_sizes: dict[str, tuple[tk.StringVar, tk.StringVar]] = {}
+        for row_no, (group, label) in enumerate(ft.GROUPS.items()):
+            ttk.Label(box, text=label + ":").grid(row=row_no, column=0, sticky="w", pady=1)
+            pair = (tk.StringVar(), tk.StringVar())
+            for col, var in enumerate(pair, 1):
+                spin = ttk.Spinbox(box, textvariable=var, from_=ft.FRAME_MIN, to=ft.FRAME_MAX, increment=2, width=6,
+                                   command=lambda g=group: self._group_size(g))
+                spin.grid(row=row_no, column=col, sticky="w", padx=(4, 0))
+                spin.bind("<Return>", lambda _e, g=group: self._group_size(g))
+                spin.bind("<FocusOut>", lambda _e, g=group: self._group_size(g))
+            ttk.Button(box, text="Shape's own", command=lambda g=group: self._group_size(g, reset=True)).grid(
+                row=row_no, column=3, sticky="w", padx=(6, 0))
+            self.group_sizes[group] = pair
+        ttk.Label(box, text="width and height").grid(row=3, column=1, columnspan=2, sticky="w")
+        self._show_group_sizes()
+        box = ttk.LabelFrame(tab, text="Family lines (every one)", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        ttk.Label(box, text="Weight:").pack(side="left")
+        self.line_w_var = tk.StringVar(value=f"{e.line_width:g}")
+        spin = ttk.Spinbox(box, textvariable=self.line_w_var, from_=ft.LINE_WIDTHS[0], to=ft.LINE_WIDTHS[1],
+                           increment=0.5, width=5, command=self._line_weight)
+        spin.pack(side="left", padx=(2, 0))
+        spin.bind("<Return>", lambda _e: self._line_weight())
+        spin.bind("<FocusOut>", lambda _e: self._line_weight())
+        self.line_dash_var = tk.StringVar(value=ft.LINE_TYPES[e.line_dash])
+        kind = ttk.Combobox(box, textvariable=self.line_dash_var, values=list(ft.LINE_TYPES.values()),
+                            state="readonly", width=16)
+        kind.pack(side="left", padx=(6, 0))
+        kind.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            line_dash=next(k for k, v in ft.LINE_TYPES.items() if v == self.line_dash_var.get())))
         box = ttk.LabelFrame(tab, text="Deleted items", padding=6)
         box.pack(fill="x", pady=(12, 0))
         ttk.Label(box, text="Right-click anything on the tree to delete it.  Restore it here:",
@@ -794,7 +875,42 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.lay = ft.layout(self.village, self.edits)
         return ft.scene(self.lay, self.game_title, self.present, self.images, self.library)
 
+    def _view_anchor(self) -> tuple | None:
+        """What the view is on before the tree is drawn again: the first selected villager (or else
+        the point in the middle of the view), and where on the window it is."""
+        if not hasattr(self, "sc"):
+            return None
+        c = self.canvas
+        q = next((q for q in self.selected if q in self.lay.x), None)
+        if q is not None:
+            sx = (self.lay.x[q] + ft.NODE_W / 2) * self.z - c.canvasx(0)
+            sy = (self.lay.y[q] + ft.NODE_H / 2) * self.z - c.canvasy(0)
+            return q, sx, sy
+        sx, sy = c.winfo_width() / 2, c.winfo_height() / 2
+        return None, c.canvasx(sx) / self.z, c.canvasy(sy) / self.z, sx, sy
+
+    def _keep_view(self, anchor: tuple | None) -> None:
+        """The view back on what it was on (the owner: "whenever I change the portrait shape the view
+        shouldn't shift somewhere else"): the tree may have grown or moved round it."""
+        if anchor is None:
+            return
+        if anchor[0] is not None:
+            q, sx, sy = anchor
+            if q not in self.lay.x:
+                return
+            px, py = self.lay.x[q] + ft.NODE_W / 2, self.lay.y[q] + ft.NODE_H / 2
+        else:
+            _none, px, py, sx, sy = anchor
+        width, height = self.sc.width * self.z, self.sc.height * self.z
+        self.canvas.xview_moveto(max(0.0, (px * self.z - sx) / width))
+        self.canvas.yview_moveto(max(0.0, (py * self.z - sy) / height))
+
     def redraw(self) -> None:
+        anchor = self._view_anchor()
+        self._draw_tree()
+        self._keep_view(anchor)
+
+    def _draw_tree(self) -> None:
         sc = self._scene()
         self.sc = sc
         c = self.canvas
@@ -813,7 +929,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             elif isinstance(item, ft.Line):
                 flat = [v for point in item.points for v in point]
                 iid = c.create_line(*flat, fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
-                                    width=item.width * z, joinstyle="round")
+                                    width=item.width * z, joinstyle="round", dash=ft.TK_DASHES.get(item.dash))
             elif isinstance(item, ft.Shape):
                 fill = tk_colour(item.fill or "")
                 dash = ft.TK_DASHES.get(item.dash)
@@ -834,6 +950,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                                         stipple=stipple)
                 elif corners is not None:
                     pts = [v for point in corners for v in point]
+                    iid = c.create_polygon(*pts, fill=fill, outline=outline, width=width, dash=dash, stipple=stipple)
+                elif item.radius > 0:           # rounded corners: the canvas has no rounded rectangle
+                    pts = [v for point in item.points() for v in point]
                     iid = c.create_polygon(*pts, fill=fill, outline=outline, width=width, dash=dash, stipple=stipple)
                 else:
                     iid = c.create_rectangle(item.x, item.y, item.x + item.w, item.y + item.h, fill=fill,
@@ -1503,6 +1622,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if hasattr(self, "lay"):
                 now = {getattr(self.lay, attr)(p) for p in people}
                 self.own_vars[attr].set(choices[now.pop()] if len(now) == 1 else "")
+        sizes = {ft.frame_size(self.edits, self.village, p) for p in people}
+        w, h = sizes.pop() if len(sizes) == 1 else ("", "")
+        self.own_w.set(f"{w:g}" if w != "" else "")
+        self.own_h.set(f"{h:g}" if h != "" else "")
+        styles = {(s.get("width", self.edits.line_width), s.get("dash", self.edits.line_dash))
+                  for s in (self.edits.family_lines.get(self._family(p) or "", {}) for p in people)}
+        width, dash = styles.pop() if len(styles) == 1 else ("", None)
+        self.own_line_w.set(f"{width:g}" if width != "" else "")
+        self.own_line_dash.set(ft.LINE_TYPES[dash] if dash is not None else "")
 
     # ---- changing -----------------------------------------------------------
     def _group_style(self, attr: str, group: str, value: str) -> None:
@@ -1510,10 +1638,85 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         getattr(self.edits, attr)[group] = value
         self._saved()
 
+    @staticmethod
+    def _number(text: str, low: float, high: float) -> float | None:
+        try:
+            value = float(text)
+        except ValueError:
+            return None
+        return max(low, min(high, value))
+
+    def _show_group_sizes(self) -> None:
+        for group, (w_var, h_var) in self.group_sizes.items():
+            w, h = self.edits.sizes.get(group) or ("", "")
+            w_var.set(f"{w:g}" if w != "" else "")
+            h_var.set(f"{h:g}" if h != "" else "")
+
+    def _group_size(self, group: str, reset: bool = False) -> None:
+        """Every male's, female's or upcoming baby's frame this size (not one resized on their own)."""
+        if reset:
+            if self.edits.sizes.pop(group, None) is not None:
+                self._saved()
+            self._show_group_sizes()
+            return
+        w_var, h_var = self.group_sizes[group]
+        natural = None
+        if not w_var.get().strip() or not h_var.get().strip():      # one typed: the other as the shape has it
+            p = next((p for p in self.village.people.values() if ft.group_of(p) == group), None)
+            natural = ft.frame_size(self.edits, self.village, p, own=False) if p is not None else (ft.NODE_W, ft.NODE_H)
+        w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
+        h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
+        if w is None or h is None or self.edits.sizes.get(group) == [w, h]:
+            return
+        self.edits.sizes[group] = [w, h]
+        self._saved()
+        self._show_group_sizes()
+
+    def _own_size(self) -> None:
+        """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes")."""
+        w = self._number(self.own_w.get(), ft.FRAME_MIN, ft.FRAME_MAX)
+        h = self._number(self.own_h.get(), ft.FRAME_MIN, ft.FRAME_MAX)
+        if not self.selected or w is None or h is None:
+            self.status.set("Select villagers and type a width and a height.")
+            return
+        for q in self.selected:
+            self._set_entry(self.village.people[q], w=w, h=h)
+        self._saved()
+
+    def _line_weight(self) -> None:
+        width = self._number(self.line_w_var.get(), *ft.LINE_WIDTHS)
+        if width is not None and width != self.edits.line_width:
+            self._change(line_width=width)
+
+    def _own_lines(self, reset: bool = False) -> None:
+        """The selected villagers' families' lines this weight and type (or like every other line)."""
+        keys = {self._family(self.village.people[q]) for q in self.selected} - {None}
+        if not keys:
+            self.status.set("Select villagers with parents: their family's lines change.")
+            return
+        width = self._number(self.own_line_w.get(), *ft.LINE_WIDTHS)
+        dash = next((k for k, v in ft.LINE_TYPES.items() if v == self.own_line_dash.get()), None)
+        for key in keys:
+            style = {} if reset else dict(self.edits.family_lines.get(key, {}))
+            if not reset and width is not None:
+                style["width"] = width
+            if not reset and dash is not None:
+                style["dash"] = dash
+            if style:
+                self.edits.family_lines[key] = style
+            else:
+                self.edits.family_lines.pop(key, None)
+        self._saved()
+
     def _set_opacity(self, part: str, percent: int) -> None:
         if self.edits.opacity.get(part, ft.OPACITY[part][1]) != percent:
             self.edits.opacity[part] = percent
             self._saved()
+
+    def _glow_size(self) -> None:
+        reach = self._number(self.glow_var.get(), 2.0, 60.0)
+        if reach is not None and reach != self.edits.mark_glow:
+            self._change(mark_glow=reach)
 
     def _renumber(self) -> None:
         """The number starting each villager's own text made their number on the tree now (the
@@ -1595,6 +1798,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
+        self._show_group_sizes()
+        self.line_w_var.set(f"{e.line_width:g}")
+        self.line_dash_var.set(ft.LINE_TYPES[e.line_dash])
+        self.mark_style_var.set(ft.MARK_STYLES[e.mark_style])
+        self.glow_var.set(f"{e.mark_glow:g}")
+        self.mark_opacity_scale.set(e.mark_opacity)
         self.centre_var.set(e.centre_heads)
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)

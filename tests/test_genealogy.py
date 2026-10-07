@@ -588,7 +588,7 @@ class StickerTests(unittest.TestCase):
 
     def test_the_key_names_the_portrait_shapes_in_use(self) -> None:
         self.assertTrue(ft.footer(ft.layout(village(), ft.Edits())).startswith(
-            "Males: squares; Females: ovals; Babies on the way: diamonds."))
+            "Males: squares; Females: circles; Babies on the way: diamonds."))
         e = ft.Edits()
         e.shapes["Female"], e.shapes["Male"] = "heart", "cross"
         self.assertIn("Males: crosses; Females: hearts;", ft.footer(ft.layout(village(), e)))
@@ -624,6 +624,38 @@ class StickerTests(unittest.TestCase):
         assert_connected(self, lay, ft.lines(lay))
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
+
+    def test_batch_sizes_line_styles_and_glowing_marks(self) -> None:
+        # The owner: "batch-changing portrait shape sizes ... line weights, types, absolutely
+        # everything in batch!", "can marks be a "glow" around the portrait instead?", and the
+        # defaults: males square, females circle, babies on the way a diamond with the same line.
+        v = village()
+        lay = ft.layout(v)
+        man = next(q for q in lay.x if v.people[q].sex == "Male" and not v.people[q].upcoming)
+        self.assertEqual(lay.frame(man)[2:4], (ft.NODE_H, ft.NODE_H))                 # a real square
+        self.assertEqual(ft.DEFAULT_SHAPES, {"Male": "rect", "Female": "circle", "Upcoming": "diamond"})
+        self.assertEqual(set(ft.DEFAULT_BORDERS.values()), {"thick"})
+        e = ft.Edits(sizes={"Male": [120.0, 130.0]}, line_width=5.0, line_dash="dashed",
+                     marks={"Chief": "#ff0000"}, mark_style="glow", mark_glow=20.0, mark_opacity=50)
+        child = next(p for p in v.people.values() if p.father is not None and not p.upcoming)
+        key = ft.family_key(v, ft.Family(0, child.father, child.mother, []))
+        e.family_lines[key] = {"width": 9.0, "dash": "dotted"}
+        e.entries[ft.entry_key(v, v.people[man])] = {"mark": "Chief"}
+        back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
+        self.assertEqual(back.to_data(), e.to_data())
+        lay = ft.layout(v, back)
+        self.assertEqual(lay.frame(man)[2:4], (120.0, 130.0))
+        sc = ft.scene(lay, "A New Home", {})
+        for line in (i for i in sc.items if isinstance(i, ft.Line) and i.piece):
+            mine = line.piece.startswith(key + "|")
+            self.assertEqual((line.width, line.dash), (9.0, "dotted") if mine else (5.0, "dashed"))
+        rings = [i for i in sc.items if isinstance(i, ft.Shape) and i.pid == man and i.target == ("mark", "Chief")]
+        self.assertEqual(len(rings), ft.GLOW_RINGS)
+        self.assertTrue(all(r.opacity <= 0.5 for r in rings))
+        self.assertIn('stroke-dasharray="1.5 4"', ft.to_svg(sc, {}))
+        self.assertEqual(ft.PORTRAIT_SHAPES["cross"], "Cross")
+        self.assertIn((0.35, 1), ft.OUTLINES["cross"])        # upright, like a plus with a longer foot
+        self.assertEqual(ft.PORTRAIT_SHAPES["x"], "X")
 
     def test_every_part_of_the_tree_has_its_own_opacity(self) -> None:
         # The owner: "there should be opacity settings for everything".
