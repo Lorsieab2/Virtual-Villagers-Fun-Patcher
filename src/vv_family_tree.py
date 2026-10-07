@@ -468,7 +468,7 @@ OPACITY = {"words": ("Words", 100), "plates": ("Boxes behind words", 80), "portr
 # The family lines' look (the owner: "I want to change line weights, types, absolutely everything in
 # batch!"): every line's, or one family's.
 LINE_TYPES = {"": "Solid", "dotted": "Dotted", "dashed": "Dashed", "dashdot": "Dotted and dashed"}
-LINE_WIDTHS = (0.5, 20.0)
+LINE_WIDTHS = (0.25, 20.0)
 # How a special mark is drawn (the owner: "can marks be a "glow" around the portrait instead?").
 MARK_STYLES = {"border": "A border round the portrait", "glow": "A glow round the portrait"}
 GLOW_RINGS = 16
@@ -1583,7 +1583,12 @@ GDI_DASHES = {"dotted": 2, "dashed": 1, "dashdot": 3}       # GDI+'s dash styles
 # diamond is a playing card's.  A rectangle, a rounded rectangle and an oval fill the portrait.
 ASPECTS = {"rect": 1.0, "rounded": 1.0, "circle": 1.0, "heart": 1.107, "star": 1.051, "triangle": 1.155, "diamond": 0.7, "cross": 0.75, "x": 1.0,
            "plus": 1.0, "hexagon": 0.866, "octagon": 1.0}
-FRAME_MIN, FRAME_MAX = 24.0, 1200.0     # a resized frame's sides
+FRAME_MIN, FRAME_MAX = 8.0, 1200.0      # a resized frame's sides
+# What the size boxes step through (the owner: "values correspond to typical font sizes"): a word
+# processor's font sizes, on up to a whole portrait and beyond; line weights as a word processor's.
+SIZE_STEPS = (8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 96, 106, 120, 144, 156, 180, 200,
+              240, 300, 400, 500, 600, 800, 1000, 1200)
+LINE_STEPS = (0.25, 0.5, 0.75, 1, 1.5, 2.2, 2.25, 3, 4.5, 6, 8, 10, 12, 16, 20)
 
 
 def natural_width(kind: str) -> float:

@@ -17,6 +17,7 @@ tree.  there should be a separate button for pairing suggestions".
 """
 from __future__ import annotations
 
+import json
 import os
 import re
 from datetime import datetime
@@ -582,19 +583,19 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for var, label in ((self.own_w, None), (self.own_h, "height")):
             if label:
                 ttk.Label(row, text=label).pack(side="left", padx=(4, 0))
-            ttk.Spinbox(row, textvariable=var, from_=ft.FRAME_MIN, to=ft.FRAME_MAX, increment=2, width=6).pack(
+            self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6), self._own_size).pack(
                 side="left", padx=(2, 0))
-        ttk.Button(row, text="Apply", command=self._own_size).pack(side="left", padx=(6, 0))
         row = ttk.Frame(box)
         row.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Their family's lines:  weight").pack(side="left")
         self.own_line_w = tk.StringVar()
-        ttk.Spinbox(row, textvariable=self.own_line_w, from_=ft.LINE_WIDTHS[0], to=ft.LINE_WIDTHS[1], increment=0.5,
-                    width=5).pack(side="left", padx=(2, 0))
+        self._live(ttk.Spinbox(row, textvariable=self.own_line_w, values=ft.LINE_STEPS, width=5),
+                   lambda: self._own_lines(part="width")).pack(side="left", padx=(2, 0))
         self.own_line_dash = tk.StringVar()
-        ttk.Combobox(row, textvariable=self.own_line_dash, values=list(ft.LINE_TYPES.values()), state="readonly",
-                     width=16).pack(side="left", padx=(4, 0))
-        ttk.Button(row, text="Apply", command=self._own_lines).pack(side="left", padx=(6, 0))
+        kind = ttk.Combobox(row, textvariable=self.own_line_dash, values=list(ft.LINE_TYPES.values()),
+                            state="readonly", width=16)
+        kind.pack(side="left", padx=(4, 0))
+        kind.bind("<<ComboboxSelected>>", lambda _e: self._own_lines(part="dash"))
         ttk.Button(row, text="Like the others", command=lambda: self._own_lines(reset=True)).pack(side="left",
                                                                                                padx=(4, 0))
 
@@ -634,11 +635,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             mark_style=next(k for k, v in ft.MARK_STYLES.items() if v == self.mark_style_var.get())))
         ttk.Label(box, text="Glow size:").grid(row=1, column=0, sticky="w", pady=(4, 0))
         self.glow_var = tk.StringVar(value=f"{self.edits.mark_glow:g}")
-        spin = ttk.Spinbox(box, textvariable=self.glow_var, from_=2, to=60, increment=2, width=5,
-                           command=self._glow_size)
-        spin.grid(row=1, column=1, sticky="w", padx=(4, 0), pady=(4, 0))
-        spin.bind("<Return>", lambda _e: self._glow_size())
-        spin.bind("<FocusOut>", lambda _e: self._glow_size())
+        self._live(ttk.Spinbox(box, textvariable=self.glow_var, values=ft.SIZE_STEPS[:ft.SIZE_STEPS.index(72)],
+                               width=5), self._glow_size).grid(row=1, column=1, sticky="w", padx=(4, 0), pady=(4, 0))
         shown = tk.StringVar(value=f"Opacity: {self.edits.mark_opacity}%")
         ttk.Label(box, textvariable=shown, width=14).grid(row=2, column=0, sticky="w", pady=(4, 0))
         scale = self.mark_opacity_scale = ttk.Scale(
@@ -751,11 +749,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             ttk.Label(box, text=label + ":").grid(row=row_no, column=0, sticky="w", pady=1)
             pair = (tk.StringVar(), tk.StringVar())
             for col, var in enumerate(pair, 1):
-                spin = ttk.Spinbox(box, textvariable=var, from_=ft.FRAME_MIN, to=ft.FRAME_MAX, increment=2, width=6,
-                                   command=lambda g=group: self._group_size(g))
-                spin.grid(row=row_no, column=col, sticky="w", padx=(4, 0))
-                spin.bind("<Return>", lambda _e, g=group: self._group_size(g))
-                spin.bind("<FocusOut>", lambda _e, g=group: self._group_size(g))
+                self._live(ttk.Spinbox(box, textvariable=var, values=ft.SIZE_STEPS, width=6),
+                           lambda g=group: self._group_size(g)).grid(row=row_no, column=col, sticky="w", padx=(4, 0))
             ttk.Button(box, text="Shape's own", command=lambda g=group: self._group_size(g, reset=True)).grid(
                 row=row_no, column=3, sticky="w", padx=(6, 0))
             self.group_sizes[group] = pair
@@ -765,11 +760,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box.pack(fill="x", pady=(12, 0))
         ttk.Label(box, text="Weight:").pack(side="left")
         self.line_w_var = tk.StringVar(value=f"{e.line_width:g}")
-        spin = ttk.Spinbox(box, textvariable=self.line_w_var, from_=ft.LINE_WIDTHS[0], to=ft.LINE_WIDTHS[1],
-                           increment=0.5, width=5, command=self._line_weight)
-        spin.pack(side="left", padx=(2, 0))
-        spin.bind("<Return>", lambda _e: self._line_weight())
-        spin.bind("<FocusOut>", lambda _e: self._line_weight())
+        self._live(ttk.Spinbox(box, textvariable=self.line_w_var, values=ft.LINE_STEPS, width=5),
+                   self._line_weight).pack(side="left", padx=(2, 0))
         self.line_dash_var = tk.StringVar(value=ft.LINE_TYPES[e.line_dash])
         kind = ttk.Combobox(box, textvariable=self.line_dash_var, values=list(ft.LINE_TYPES.values()),
                             state="readonly", width=16)
@@ -1622,21 +1614,41 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if hasattr(self, "lay"):
                 now = {getattr(self.lay, attr)(p) for p in people}
                 self.own_vars[attr].set(choices[now.pop()] if len(now) == 1 else "")
-        sizes = {ft.frame_size(self.edits, self.village, p) for p in people}
-        w, h = sizes.pop() if len(sizes) == 1 else ("", "")
-        self.own_w.set(f"{w:g}" if w != "" else "")
-        self.own_h.set(f"{h:g}" if h != "" else "")
-        styles = {(s.get("width", self.edits.line_width), s.get("dash", self.edits.line_dash))
-                  for s in (self.edits.family_lines.get(self._family(p) or "", {}) for p in people)}
-        width, dash = styles.pop() if len(styles) == 1 else ("", None)
-        self.own_line_w.set(f"{width:g}" if width != "" else "")
-        self.own_line_dash.set(ft.LINE_TYPES[dash] if dash is not None else "")
+        sizes = [ft.frame_size(self.edits, self.village, p) for p in people]
+        styles = [self.edits.family_lines.get(self._family(p) or "", {}) for p in people]
+        for var, values in ((self.own_w, {w for w, _h in sizes}), (self.own_h, {h for _w, h in sizes}),
+                            (self.own_line_w, {s.get("width", self.edits.line_width) for s in styles})):
+            var.set(f"{values.pop():g}" if len(values) == 1 else "")      # blank where they differ
+        dashes = {s.get("dash", self.edits.line_dash) for s in styles}
+        self.own_line_dash.set(ft.LINE_TYPES[dashes.pop()] if len(dashes) == 1 else "")
 
     # ---- changing -----------------------------------------------------------
     def _group_style(self, attr: str, group: str, value: str) -> None:
         """Every male's, female's or upcoming baby's portrait shape or border."""
         getattr(self.edits, attr)[group] = value
         self._saved()
+
+    def _live(self, spin: ttk.Spinbox, apply) -> ttk.Spinbox:
+        """A size box that changes the tree as it is used (the owner: "should have a live preview"):
+        at once for the arrows, Enter and leaving it; a moment after typing stops."""
+        pending = {}
+
+        def soon(_event=None) -> None:
+            if pending.get("job"):
+                self.after_cancel(pending["job"])
+            pending["job"] = self.after(400, now)
+
+        def now(_event=None) -> None:
+            if pending.get("job"):
+                self.after_cancel(pending["job"])
+            pending["job"] = None
+            apply()
+
+        spin.configure(command=now)
+        spin.bind("<KeyRelease>", lambda e: None if e.keysym in ("Return", "Tab") else soon())
+        spin.bind("<Return>", now)
+        spin.bind("<FocusOut>", now)
+        return spin
 
     @staticmethod
     def _number(text: str, low: float, high: float) -> float | None:
@@ -1676,37 +1688,44 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes")."""
         w = self._number(self.own_w.get(), ft.FRAME_MIN, ft.FRAME_MAX)
         h = self._number(self.own_h.get(), ft.FRAME_MIN, ft.FRAME_MAX)
-        if not self.selected or w is None or h is None:
-            self.status.set("Select villagers and type a width and a height.")
+        if not self.selected or w is None and h is None:
             return
-        for q in self.selected:
-            self._set_entry(self.village.people[q], w=w, h=h)
-        self._saved()
+        changed = False
+        for q in self.selected:                 # a width alone leaves each one's height as it is
+            p = self.village.people[q]
+            now = ft.frame_size(self.edits, self.village, p)
+            size = (w if w is not None else now[0], h if h is not None else now[1])
+            if size != now:
+                self._set_entry(p, w=size[0], h=size[1])
+                changed = True
+        if changed:
+            self._saved()
 
     def _line_weight(self) -> None:
         width = self._number(self.line_w_var.get(), *ft.LINE_WIDTHS)
         if width is not None and width != self.edits.line_width:
             self._change(line_width=width)
 
-    def _own_lines(self, reset: bool = False) -> None:
-        """The selected villagers' families' lines this weight and type (or like every other line)."""
+    def _own_lines(self, reset: bool = False, part: str = "") -> None:
+        """The selected villagers' families' lines this weight ("width") or type ("dash") -- or like
+        every other line (`reset`)."""
         keys = {self._family(self.village.people[q]) for q in self.selected} - {None}
         if not keys:
             self.status.set("Select villagers with parents: their family's lines change.")
             return
-        width = self._number(self.own_line_w.get(), *ft.LINE_WIDTHS)
-        dash = next((k for k, v in ft.LINE_TYPES.items() if v == self.own_line_dash.get()), None)
+        value = (self._number(self.own_line_w.get(), *ft.LINE_WIDTHS) if part == "width" else
+                 next((k for k, v in ft.LINE_TYPES.items() if v == self.own_line_dash.get()), None))
+        if not reset and value is None:
+            return
+        before = json.dumps(self.edits.family_lines, sort_keys=True)
         for key in keys:
-            style = {} if reset else dict(self.edits.family_lines.get(key, {}))
-            if not reset and width is not None:
-                style["width"] = width
-            if not reset and dash is not None:
-                style["dash"] = dash
+            style = {} if reset else {**self.edits.family_lines.get(key, {}), part: value}
             if style:
                 self.edits.family_lines[key] = style
             else:
                 self.edits.family_lines.pop(key, None)
-        self._saved()
+        if json.dumps(self.edits.family_lines, sort_keys=True) != before:
+            self._saved()
 
     def _set_opacity(self, part: str, percent: int) -> None:
         if self.edits.opacity.get(part, ft.OPACITY[part][1]) != percent:
