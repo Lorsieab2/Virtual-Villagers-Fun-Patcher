@@ -382,6 +382,21 @@ class TreeTests(unittest.TestCase):
         svg = ft.to_svg(sc, {})
         xml.dom.minidom.parseString(svg)
 
+    def test_every_age_shows_the_young_head_in_every_game(self) -> None:
+        young = {1: "male_heads.png", 2: "male_heads.png", 3: "male_heads.png", 4: "male_heads00.png",
+                 5: "male_heads00.png"}
+        for game, sheet in young.items():
+            for age in (0, 1099, 1100, 5000):
+                with self.subTest(game=game, age=age):
+                    man = gen.Person(1, "Ann", 3, 4, sex="Male", age=age, alive=True)
+                    woman = gen.Person(2, "Bea", 3, 4, sex="Female", age=age, alive=True)
+                    self.assertEqual(ft.sheet_name(game, man), sheet)
+                    self.assertEqual(ft.sheet_name(game, woman), sheet.replace("male", "female"))
+        with tempfile.TemporaryDirectory() as tmp:
+            for name in ("male_heads.png", "female_heads.png", "male_heads_old.png", "female_heads_old.png"):
+                (Path(tmp) / name).write_bytes(b"")
+            self.assertEqual(set(ft.sheets_present(3, Path(tmp))), {"male_heads.png", "female_heads.png"})
+
     def test_head_boxes_read_the_visible_pixels(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "heads.png"

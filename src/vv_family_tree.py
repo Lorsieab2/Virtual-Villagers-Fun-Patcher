@@ -10,7 +10,7 @@ diamond portrait that says Upcoming child".
 
 * Each villager is a frame -- square for a male, round for a female (the owner's example) -- with
   the head Change Appearance shows: the whole 40x65 cell of column 5 of the game's own head sheet
-  in the game folder's Images, the row the head value, the older-looking sheet from 1100 units.
+  in the game folder's Images, the row the head value, the young sheet at every age.
   Without the game folder the frame shows the initial instead.
 * A baby on the way is a diamond, "Upcoming child", under its mother and the expected father.
 * Each family -- a mother and father and their children -- has a colour of its own: the lines from
@@ -55,26 +55,25 @@ OTHER_GAP = 110                 # between the tree and the "Unrelated Individual
 
 # The head is the one the Origins Change Appearance menus show: the whole 40x65 cell of column 5
 # (HEAD_FRAME in scripts/build_vv1_appearance_bitmaps.py, build_vv2_appearance_sheets.py and
-# build_vv3_appearance_bmps.py; VV_HEAD_FRAME_COL in native/vv4_origins_icons), from the
-# older-looking sheet once the villager is 1100 units old (vv2_appearance_old, vv3_appearance_old,
-# VV_OLD_AGE_THRESHOLD, New Believers' appearance_old: age >= 1100).
+# build_vv3_appearance_bmps.py; VV_HEAD_FRAME_COL in native/vv4_origins_icons), always from the
+# young sheet, never the older-looking one.
 HEAD_W, HEAD_H = 40, 65
 HEAD_FRAME = 5
 HEAD_SCALE = 4 / 3                # tkinter scales by whole ratios: zoom 4, subsample 3
-OLD_HEAD_UNITS = 1100
 LINE_H = 13
 # The face fills the top 46 rows of a head cell (the hair reaches at most 43 rows down in every
 # game's column 5, A New Home's long hair apart): centring is by the face, the cell drawn whole.
 FACE_H = 46
 MARK_GAP = 6                    # the player's mark: a second border this far outside the frame
 
-# Each game's head sheets: (male, female) and, where the game has them, the older-looking ones.
+# Each game's head sheets: (male, female).  Only the young ones, at every age (the owner: "I don't
+# want any 'Old' villager heads to be on the tree. For any game").
 SHEETS = {
-    1: (("male_heads.png", "female_heads.png"), None),
-    2: (("male_heads.png", "female_heads.png"), ("male_heads_old.png", "female_heads_old.png")),
-    3: (("male_heads.png", "female_heads.png"), ("male_heads_old.png", "female_heads_old.png")),
-    4: (("male_heads00.png", "female_heads00.png"), ("male_heads10.png", "female_heads10.png")),
-    5: (("male_heads00.png", "female_heads00.png"), ("male_heads10.png", "female_heads10.png")),
+    1: ("male_heads.png", "female_heads.png"),
+    2: ("male_heads.png", "female_heads.png"),
+    3: ("male_heads.png", "female_heads.png"),
+    4: ("male_heads00.png", "female_heads00.png"),
+    5: ("male_heads00.png", "female_heads00.png"),
 }
 
 BACKGROUND = "#e8f0e0"
@@ -1410,19 +1409,16 @@ def _separate(drawn: list, lay: Layout | None = None) -> None:
 # ---------------------------------------------------------------------------
 
 def sheet_name(game: int, p: gen.Person) -> str | None:
-    young, old = SHEETS[game]
     if p.upcoming or p.sex not in ("Male", "Female"):
         return None
-    pick = old if old is not None and p.age is not None and p.age >= OLD_HEAD_UNITS else young
-    return pick[0] if p.sex == "Male" else pick[1]
+    return SHEETS[game][0] if p.sex == "Male" else SHEETS[game][1]
 
 
 def sheets_present(game: int, images: Path | None) -> dict[str, Path]:
     if images is None:
         return {}
-    young, old = SHEETS[game]
     out = {}
-    for name in young + (old or ()):
+    for name in SHEETS[game]:
         path = Path(images) / name
         if path.is_file():
             out[name] = path
