@@ -92,6 +92,8 @@ LINING THINGS UP (the toolbar)
   Smart guides                    while dragging, snap to other villagers' and pictures' edges and
                                   middles, and the middle of the tree (a pink line shows it)
   Snap to grid                    while dragging, snap to the grid (10, 20, 40 or 80); Show grid
+  Allow diagonal lines            a dragged line may move any way (off: only across itself, so
+                                  every line stays square)
   Alt while dragging              no snapping
   Align                           line up the selected villagers (lefts, centres, rights, tops,
                                   middles, bottoms), centre them on the tree, or space them evenly
@@ -429,6 +431,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         size.bind("<<ComboboxSelected>>", lambda _e: self._draw_grid())
         ttk.Checkbutton(bar, text="Show grid", variable=self.show_grid, command=self._draw_grid
                         ).pack(side="left", padx=(6, 0))
+        self.diagonal_var = tk.BooleanVar(value=self.edits.diagonal_lines)
+        ttk.Checkbutton(bar, text="Allow diagonal lines", variable=self.diagonal_var,
+                        command=lambda: self._change(diagonal_lines=bool(self.diagonal_var.get()))
+                        ).pack(side="left", padx=(6, 0))
         align = ttk.Menubutton(bar, text="Align")
         menu = tk.Menu(align, tearoff=0)
         for words, how in (("Lefts", "left"), ("Centres", "centre"), ("Rights", "right"), (None, None),
@@ -651,6 +657,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.centre_var = tk.BooleanVar(value=e.centre_heads)
         ttk.Checkbutton(tab, text="Centre faces and text in portraits", variable=self.centre_var,
                         command=lambda: self._change(centre_heads=bool(self.centre_var.get()))).pack(anchor="w", pady=(10, 0))
+        self.units_var = tk.BooleanVar(value=e.show_units)
+        ttk.Checkbutton(tab, text="Game age in units", variable=self.units_var,
+                        command=lambda: self._change(show_units=bool(self.units_var.get()))).pack(anchor="w")
+        self.years_var = tk.BooleanVar(value=e.show_years)
+        ttk.Checkbutton(tab, text="Game age in years", variable=self.years_var,
+                        command=lambda: self._change(show_years=bool(self.years_var.get()))).pack(anchor="w")
         ttk.Label(tab, text="Text colour:").pack(anchor="w", pady=(10, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
         self.ink_field.pack(anchor="w")
@@ -1130,7 +1142,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if not m["started"] and abs(dx) * self.z < 4 and abs(dy) * self.z < 4:
             return
         m["started"] = True
-        if "piece" in m:                        # a line piece: any way (the joined ones follow on release)
+        if "piece" in m:                        # a line piece (the joined ones follow on release)
+            if not self.edits.diagonal_lines:   # only across itself
+                x0, y0, x1, y1 = self.canvas.coords(m["iid"])[:4]
+                dx, dy = (dx, 0.0) if x0 == x1 and y0 != y1 else (0.0, dy)
             self.canvas.move(m["iid"], (dx - m["dx"]) * self.z, (dy - m["dy"]) * self.z)
             m["dx"], m["dy"] = dx, dy
             return
@@ -1157,6 +1172,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         if "piece" in m:
             old = self.edits.line_moves.get(m["piece"], [0.0, 0.0])
+            if not isinstance(old, list):       # saved before lines moved both ways: across itself
+                x0, y0, x1, y1 = self.canvas.coords(m["iid"])[:4]
+                old = [old, 0.0] if x0 == x1 and y0 != y1 else [0.0, old]
             shift = [old[0] + m["dx"], old[1] + m["dy"]]
             if any(shift):
                 self.edits.line_moves[m["piece"]] = shift
@@ -1578,6 +1596,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
         self.centre_var.set(e.centre_heads)
+        self.units_var.set(e.show_units)
+        self.years_var.set(e.show_years)
+        self.diagonal_var.set(e.diagonal_lines)
         self.ink_field.set_quietly(e.ink)
         self.fill_field.set_quietly(e.portrait_fill)
         for (attr, group), var in self.group_vars.items():

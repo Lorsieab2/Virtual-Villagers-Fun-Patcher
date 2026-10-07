@@ -206,6 +206,9 @@ class Edits:
     title: str = ""
     subtitle: str = ""
     centre_heads: bool = True           # the head and its lines in the middle of the frame
+    diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
+    show_units: bool = True             # "<age> game units" in the portraits
+    show_years: bool = True             # "<years> years old" in the portraits
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers
@@ -270,6 +273,9 @@ class Edits:
         """The edits from their saved form (every value checked)."""
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
+        out.diagonal_lines = data.get("diagonal_lines") is True
+        out.show_units = data.get("show_units", True) is not False
+        out.show_years = data.get("show_years", True) is not False
         if data.get("sort") in gen.SORTS:
             out.sort = data["sort"]
         if data.get("positioning") in POSITIONING:
@@ -369,7 +375,8 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.centre_heads, "sort": self.sort, "positioning": self.positioning,
+                "centre_heads": self.centre_heads, "diagonal_lines": self.diagonal_lines,
+                "show_units": self.show_units, "show_years": self.show_years, "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
                 "background": self.background, "background2": self.background2, "rainbow": self.rainbow,
                 "background_image": self.background_image, "background_fit": self.background_fit,
@@ -1097,9 +1104,12 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
     for s in list(drawn):
         shift = lay.edits.line_moves.get(f"{families[s[2]]}|{s[3]}")
         if shift and len(s[1]) == 2 and not s[3].startswith("bar "):
+            (x0, y0), (x1, y1) = s[1]
+            upright = x0 == x1 and y0 != y1
             if not isinstance(shift, list):     # across itself: an upright piece sideways, else up or down
-                (x0, y0), (x1, y1) = s[1]
-                shift = [shift, 0.0] if x0 == x1 and y0 != y1 else [0.0, shift]
+                shift = [shift, 0.0] if upright else [0.0, shift]
+            elif not lay.edits.diagonal_lines:  # only across itself, so every line stays square
+                shift = [shift[0], 0.0] if upright else [0.0, shift[1]]
             _move_piece(drawn, s, *shift, lay=lay)
     _separate(drawn, lay)
     _fit(drawn)
@@ -1423,7 +1433,10 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
     if p.upcoming:
         size = sum(1 for q in lay.village.people.values() if p.litter is not None and q.litter == p.litter)
         return ["Upcoming child"] + ([{2: "(twins)", 3: "(triplets)"}[size]] if size in (2, 3) else [])
-    ages = ["age unknown"] if p.age is None else [f"{p.age} game units", f"{p.years} years old"]
+    e = lay.edits
+    ages = (["age unknown"] if p.age is None and (e.show_units or e.show_years) else
+            [] if p.age is None else
+            ([f"{p.age} game units"] if e.show_units else []) + ([f"{p.years} years old"] if e.show_years else []))
     if p.alive:
         extra = "Heathen" if p.heathen else ""
     else:

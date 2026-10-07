@@ -419,9 +419,10 @@ class LineTests(unittest.TestCase):
         self.assertEqual(max(stem[0][1], stem[1][1]), y)                # the line from the parents too
 
     def test_a_line_moved_sideways_takes_its_hanging_lines_diagonally(self) -> None:
-        # The owner: "move lines left/right and have them auto-adjust", "diagonal is ok".
+        # The owner: "move lines left/right and have them auto-adjust", "diagonal is ok" -- with
+        # "Allow diagonal lines" ticked (it is off unless the player ticks it).
         v = village()
-        lay = ft.layout(v)
+        lay = ft.layout(v, ft.Edits(diagonal_lines=True))
         fam = next(f for f in lay.families if 11 in f.children)
         key = ft.family_key(v, fam)
         before = {piece: pts for _c, pts, fid, piece in ft.lines(lay) if fid == fam.id}
@@ -432,6 +433,21 @@ class LineTests(unittest.TestCase):
         self.assertEqual(after[hang][0][0], before[hang][0][0] + 30)        # its top went with the line
         self.assertEqual(after[hang][-1], before[hang][-1])                 # its foot stayed on the child
         self.assertTrue(on_line(after["stem"][-1], *after["lane"]))           # the line down still meets it
+
+    def test_without_diagonals_a_dragged_line_moves_only_across_itself(self) -> None:
+        v = village()
+        lay = ft.layout(v)
+        self.assertFalse(lay.edits.diagonal_lines)
+        fam = next(f for f in lay.families if 11 in f.children)
+        key = ft.family_key(v, fam)
+        lay.edits.line_moves[f"{key}|lane"] = [30.0, 25.0]
+        lay.edits.line_moves[f"{key}|stem"] = [15.0, 40.0]
+        for _c, pts, _fid, piece in ft.lines(lay):
+            for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+                if piece.startswith(("leg ", "bar ")):
+                    continue                    # a triplet's legs fan out by design
+                self.assertTrue(x0 == x1 or y0 == y1, (piece, pts))
+        assert_connected(self, lay, ft.lines(lay))
 
     def test_a_line_dragged_onto_another_is_not_carried_off_by_it(self) -> None:
         # The owner's pink line: the couple's line dragged down onto the children's line, then the
