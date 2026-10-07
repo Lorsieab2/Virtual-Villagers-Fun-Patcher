@@ -9,6 +9,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -52,12 +53,27 @@ class TheNumbers(unittest.TestCase):
                     gen.Person(3, "Ghost", None, None), gen.Person(4, "Ghost", 6, 6, alive=True),
                     gen.Person(5, long, 7, 7, alive=True), gen.Person(6, long, 8, 8, alive=True),
                     gen.Person(7, "Soda", 1, 1, alive=True))
-        out = nn.numbering(v, alike={("Twin", 5, 5): 2}, nameless={"Soda", "Nobody"})
-        self.assertEqual(out.renames, {("Twin", 9, 9): "Twin II", ("Ghost", 6, 6): "Ghost II",
+        out = nn.numbering(v, alike={("Twin", 5, 5): 2}, nameless={"Soda", "Nobody", "Twin I"})
+        # "Twin I" is a name-only record's: never given again (Codex, #557).
+        self.assertEqual(out.renames, {("Twin", 9, 9): "Twin III", ("Ghost", 6, 6): "Ghost II",
                                        (long, 7, 7): f"{long} I"})
         self.assertEqual(len(out.notes), 4)
         self.assertTrue(any("2 living villagers are called Twin" in n for n in out.notes))
         self.assertTrue(any("Older records name a Soda without saying how they look" in n for n in out.notes))
+
+    def test_a_record_with_other_looks_may_be_an_earlier_look(self):
+        # Codex, #557: a namesake known only from records, neither alive nor dead, may be a living
+        # one before Change Appearance -- that record keeps its name and is not counted.
+        v = village(gen.Person(1, "Soda", 1, 1, alive=True, birth_record=1),
+                    gen.Person(2, "Soda", 2, 2, alive=True, birth_record=2),
+                    gen.Person(3, "Soda", 3, 3, birth_record=0))
+        out = nn.numbering(v, order="appearance")
+        self.assertEqual(out.renames, {("Soda", 1, 1): "Soda I", ("Soda", 2, 2): "Soda II"})
+        self.assertTrue(any("Soda (head 3, body 3)" in n and "before Change Appearance" in n for n in out.notes))
+        dead = village(gen.Person(1, "Soda", 1, 1, alive=True, birth_record=1),
+                       gen.Person(3, "Soda", 3, 3, gone="died", birth_record=0))
+        # A dead namesake is a separate villager: both are numbered (no age known: as they appeared).
+        self.assertEqual(nn.numbering(dead).renames, {("Soda", 3, 3): "Soda I", ("Soda", 1, 1): "Soda II"})
 
     def test_a_number_already_in_use_is_passed_over(self):
         v = village(gen.Person(1, "Soda", 1, 1, alive=True, birth_record=1),
@@ -92,6 +108,10 @@ class InTheSaveAndTheLogs(unittest.TestCase):
 
     def setUp(self):
         fixture.GiveLastNames.setUp(self)
+        # The made-up save holds no tribe name: say which village is this one.
+        named = mock.patch("vv_log_additions.current_villages", return_value={"Village: Tribe (Save 1)"})
+        named.start()
+        self.addCleanup(named.stop)
         people = [entry("Soda", 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8),
                   entry("Kid", 0, 50, 9, 9, father=("Soda", 5, 6), mother=("Aipi", 7, 8)),
                   entry("Orphan", 1, 2, 3, 3, father=("Soda", 1, 1))]
@@ -126,6 +146,34 @@ class InTheSaveAndTheLogs(unittest.TestCase):
         self.assertTrue(any("2 living villagers are called Soda" in n for n in wanted.notes))
         self.assertTrue(any("Log 2.txt names Aipi without saying which villager" in n for n in wanted.notes))
 
+    def test_it_is_refused_when_the_village_cannot_be_told_apart(self):
+        # Codex, #557: with the tribe name unread, an erased village's records would be counted.
+        before = self.save.read_bytes()
+        with mock.patch("vv_log_additions.current_villages", return_value=None):
+            with self.assertRaises(ln.LastNamesError):
+                nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
+        self.assertEqual(self.save.read_bytes(), before)
+
+    def test_an_unburied_body_is_renamed_with_its_records(self):
+        # Codex, #557: a namesake lying dead in the save is renamed there too, not only in the logs.
+        people = [entry("Soda", 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8),
+                  entry("Kid", 0, 50, 9, 9, father=("Soda", 5, 6), mother=("Aipi", 7, 8)),
+                  entry("Soda", 0, 2, 4, 4, health=0)]
+        self.save.write_bytes(b"ldwg" + bytes(TABLE - 4) + b"".join(people) + bytes(64))
+        self.history.write_bytes(self.history.read_bytes()      # an earlier snapshot of the one now dead
+                                 + b"Villager 3\r\n  Name: Soda\r\n  Head: 4\r\n  Body: 4\r\n\r\n")
+        want = nn.numbering(gen.load_village(self.folder, 3, 1), *nn.evidence(self.folder, 3, 1))
+        nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
+        body = TABLE + 3 * STRIDE + 0x14
+        new = want.renames[("Soda", 4, 4)]
+        self.assertEqual(self.save.read_bytes()[body:body + len(new) + 1], new.encode() + b"\0")
+
+    def test_a_dead_namesake_who_looks_the_same_is_left_and_reported(self):
+        # Codex, #557: the family tree folds a Death record with a living villager's looks into them.
+        self.deaths.write_bytes(self.deaths.read_bytes().replace(b"Head: 1\r\n  Body: 1", b"Head: 5\r\n  Body: 6"))
+        alike, _nameless, _bodies = nn.evidence(self.folder, 3, 1)
+        self.assertEqual(alike, {("Soda", 5, 6): 2})
+
     def test_it_is_refused_while_the_game_runs_or_when_no_name_is_shared(self):
         before = self.save.read_bytes()
         with self.assertRaises(Exception):
@@ -137,6 +185,26 @@ class InTheSaveAndTheLogs(unittest.TestCase):
 
 
 class TheWindows(unittest.TestCase):
+    def test_a_page_starts_only_at_a_generation_the_tree_has(self):
+        # Codex, #557: with generations 1 and 3 and nobody in 2, a break at 2 is no page.
+        v = village(gen.Person(1, "Ann", 1, 1, alive=True, generation=1),
+                    gen.Person(2, "Bob", 2, 2, alive=True, generation=3))
+        self.assertEqual(ft.page_spans(ft.Edits(pages=[2]), v), [(1, 3)])
+        self.assertEqual(ft.page_spans(ft.Edits(pages=[3]), v), [(1, 3), (3, 3)])
+
+    def test_the_tree_maker_reports_a_running_game(self):
+        tree = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
+        offer = tree[tree.index("    def _number_names(self)"):tree.index("    def _reset_frames(self)")]
+        self.assertIn("except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,",
+                      offer)
+        self.assertIn("vv_number_names.evidence(self.folder, self.game, self.slot)", offer,
+                      "the save's look-alikes count before \"No two villagers share a name\"")
+
+    def test_only_the_current_villages_tree_files_are_rekeyed(self):
+        source = (ROOT / "src" / "vv_last_names.py").read_text(encoding="utf-8")
+        plan = source[source.index("def _plan_family_trees("):source.index("def _first_line(")]
+        self.assertIn('and tribe and data.get("tribe") == tribe:', plan)
+
     def test_the_tree_maker_and_repair_logs_offer_it(self):
         tree = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
         self.assertIn('ttk.Button(tab, text="Number duplicate names", command=self._number_names)', tree)

@@ -780,13 +780,15 @@ NUMBER_ORDERS = {
 }
 
 
-def duplicate_names(village: Village, order: str = "oldest") -> dict[int, str]:
+def duplicate_names(village: Village, order: str = "oldest", reserved: set[str] = frozenset(),
+                    leave: set[int] = frozenset()) -> dict[int, str]:
     """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
     duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."), the dead
     too, in the NUMBER_ORDERS order: by age (the age now, or at death; an unknown age last), or as
     they appeared in the records.  A baby on the way has no name yet.  A number that would give a
     name already in use is passed over (Codex, #557): a village with a "Soda I" numbers its two
-    Sodas II and III."""
+    Sodas II and III.  `reserved`: names in use the village does not hold (records with no looks);
+    `leave`: villagers neither numbered nor counted."""
     keys = {
         "oldest": lambda p: (p.age is None, -(p.age or 0), p.order_key()),
         "youngest": lambda p: (p.age is None, p.age or 0, p.order_key()),
@@ -794,8 +796,9 @@ def duplicate_names(village: Village, order: str = "oldest") -> dict[int, str]:
     }
     holders: dict[str, list[Person]] = {}
     for p in sorted(village.known(), key=keys[order]):
-        holders.setdefault(p.name, []).append(p)
-    taken = set(holders)
+        if p.id not in leave:
+            holders.setdefault(p.name, []).append(p)
+    taken = set(holders) | set(reserved)
     out = {}
     for name, ps in holders.items():
         if len(ps) < 2:

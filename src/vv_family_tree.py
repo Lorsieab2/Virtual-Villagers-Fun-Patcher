@@ -759,7 +759,7 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
     generation on the second page being treated as "founders" on the second page")."""
     gens = sorted({p.generation for p in village.people.values()}) or [1]
-    starts = [gens[0]] + sorted({g for g in edits.pages if gens[0] < g <= gens[-1]})
+    starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
     return [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
 
 

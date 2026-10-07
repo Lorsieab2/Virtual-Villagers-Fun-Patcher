@@ -40,19 +40,32 @@ class Numbering:
 
 
 def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
-              nameless: set[str] = frozenset(), order: str = "oldest") -> Numbering:
+              nameless: set[str] = frozenset(), bodies: set[tuple] = frozenset(),
+              order: str = "oldest") -> Numbering:
     """The numbered name of each villager the save and the logs can tell apart.  `alike`: each
     (name, head, body) the save holds more than once, and how many times; `nameless`: the names of
-    records that do not say how their villager looks."""
+    records that do not say how their villager looks; `bodies`: the (name, head, body) of the dead
+    lying in the save."""
     out = Numbering()
     alike = alike or {}
     for (name, _head, _body), count in sorted(alike.items()):
         out.notes.append(f"{count} living villagers are called {name} and look the same, so the records cannot "
                          "tell them apart: they keep their name.")
-    numbered = gen.duplicate_names(village, order)
+    # A namesake known only from records -- neither in the save nor recorded as dead or gone -- may be
+    # a living namesake before Change Appearance (Codex, #557): that record keeps its name and is not
+    # counted, so the villagers the save holds are numbered among themselves.
+    living_names = {p.name for p in village.known() if p.alive}
+    unsure = {p.id for p in village.known() if p.name in living_names and not p.alive and not p.gone
+              and p.head is not None and p.body is not None and p.key not in bodies}
+    numbered = gen.duplicate_names(village, order, reserved=nameless, leave=unsure)
     for name in sorted(nameless & {p.name for p in village.known()}):
         out.notes.append(f"Older records name a {name} without saying how they look, so those records keep "
                          f"the name {name}.")
+    for pid in sorted(unsure, key=lambda q: village.people[q].key):
+        name, head, body = village.people[pid].key
+        if name in {village.people[q].name for q in numbered}:
+            out.notes.append(f"An older record of {name} (head {head}, body {body}) has looks no living {name} has; "
+                             f"it may be one of them before Change Appearance, so it keeps the name {name}.")
     for pid, new in sorted(numbered.items(), key=lambda item: item[1]):
         name, head, body = village.people[pid].key
         if (name, head, body) in alike:
@@ -67,14 +80,21 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
     return out
 
 
-def _evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[str]]:
-    """What the family tree's reading merges or drops: the living records the save holds more than
-    once (by name, head and body), and the names of log records without looks."""
+def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[str], set[tuple]]:
+    """What the family tree's reading merges or drops: each name, head and body more than one
+    villager has -- in the save, living or a body, and in the Death and Disappeared records -- the
+    names of log records without looks, and the dead lying in the save."""
     import vv_log_additions as additions
-    counts = Counter(v.identity for v in ln.living(folder, game, slot))
-    nameless = {b.identity[0] for b in additions.person_blocks(folder, slot, game)
+    everyone = ln.living(folder, game, slot, bodies=True)
+    alive = {v.at for v in ln.living(folder, game, slot)}
+    counts = Counter(v.identity for v in everyone)
+    blocks = additions.person_blocks(folder, slot, game)
+    counts.update(b.identity for b in blocks if b.heading.startswith(("Death", "Disappeared"))
+                  and b.identity[1] is not None and b.identity[2] is not None)
+    nameless = {b.identity[0] for b in blocks
                 if b.identity[0] and (b.identity[1] is None or b.identity[2] is None)}
-    return {key: n for key, n in counts.items() if n > 1}, nameless
+    return ({key: n for key, n in counts.items() if n > 1}, nameless,
+            {v.identity for v in everyone if v.at not in alive})
 
 
 def number_names(folder: Path, game: int, slot: int, order: str = "oldest",
@@ -85,8 +105,12 @@ def number_names(folder: Path, game: int, slot: int, order: str = "oldest",
     folder = Path(folder)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     ln.tools._refuse_if_running(folder, controller)
+    import vv_log_additions as additions
+    if additions.current_villages(folder, game, slot) is None:   # records of an erased village (Codex, #557)
+        raise ln.LastNamesError("The save's tribe name could not be read, so this village's records cannot be "
+                                "told from an earlier village's; nothing was changed.")
     try:
-        wanted = numbering(gen.load_village(folder, game, slot), *_evidence(folder, game, slot), order)
+        wanted = numbering(gen.load_village(folder, game, slot), *evidence(folder, game, slot), order=order)
         work = ln.plan_renames(folder, game, slot, wanted.renames, dead=True)
         wanted.notes += work.notes
     except (gen.GenealogyError, struct.error, ValueError, OSError) as exc:

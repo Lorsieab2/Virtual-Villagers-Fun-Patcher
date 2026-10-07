@@ -33,6 +33,7 @@ import vv_family_tree as ft
 import vv_gdiplus
 import vv_genealogy as gen
 import vv_last_names
+import vv_log_tools
 import vv_number_names
 import vv_save_backup
 import vv_tribe_rename
@@ -2239,7 +2240,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """Number Duplicate Names (the owner: "If there are duplicate "Soda"s, name the first one "Soda I",
         and the second one "Soda II" etc.  Also offer to edit the save files"): numbered on the tree,
         then, if the player says so, in the game's save and logs too."""
-        if not gen.duplicate_names(self.village, self.edits.number_order):
+        try:                                    # the save's own look-alikes too (Codex, #557)
+            alike = vv_number_names.evidence(self.folder, self.game, self.slot)[0]
+        except (vv_last_names.LastNamesError, OSError, ValueError):
+            alike = {}
+        if not gen.duplicate_names(self.village, self.edits.number_order) and not alike:
             self.status.set("No two villagers share a name.")
             return
         if not self.edits.number_names:
@@ -2257,7 +2262,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             result, wanted = self.app._run_with_wait(
                 "Numbering the names...\n\nThe save folder is backed up first.",
                 lambda: vv_number_names.number_names(self.folder, self.game, self.slot, self.edits.number_order))
-        except (vv_last_names.LastNamesError, OSError) as exc:
+        except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:                # the game running, or its check failing (Codex, #557)
             messagebox.showerror("Number Duplicate Names", f"The names were not numbered. {exc}", parent=self)
             return
         try:                                    # the tree's edits follow the new names (re-keyed on disk)

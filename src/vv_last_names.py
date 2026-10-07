@@ -154,10 +154,11 @@ def save_path(folder: Path, game: int, slot: int) -> Path:
     return Path(folder) / f"{checker.SAVE_STEMS[game]}{slot}.ldw"
 
 
-def _entries(game: int, data: bytes) -> list[int]:
+def _entries(game: int, data: bytes, bodies: bool = False) -> list[int]:
     """The name offset of every villager the game loads from the save (the checker's own reading:
     the records up to the first one not flagged present; the stale copies after it are never
-    loaded, scripts/vvfp_consistency_check.py PRESENT)."""
+    loaded, scripts/vvfp_consistency_check.py PRESENT).  With `bodies`, the unburied dead too
+    (Number Duplicate Names renames a dead namesake's body, Codex #557)."""
     checker = tools.load_checker()
     if game == 1:
         out = []
@@ -168,26 +169,27 @@ def _entries(game: int, data: bytes) -> list[int]:
                 break
             name = _cstr(data, rel(0x370), 0x1B)
             if name and _i32(data, rel(0x350)) in (1, 2) \
-                    and _i32(data, rel(0x344)) > 0:          # living: a body keeps the name it died with
+                    and (bodies or _i32(data, rel(0x344)) > 0):   # a body keeps the name it died with
                 out.append(rel(0x370))
         return out
     try:
         offsets = checker.villager_offsets(game, data, [])
     except ValueError:
         raise LastNamesError("The save's villager table was not found.") from None
-    # Living villagers only: not a statue, not a body (its name is the one it died with).
+    # Living villagers only, unless `bodies`: never a statue; a body's name is the one it died with.
     return [p for p in offsets if not checker.lookalike(data, p, game)
-            and _i32(data, p + checker.HEALTH[game]) > 0]
+            and (bodies or _i32(data, p + checker.HEALTH[game]) > 0)]
 
 
-def living(folder: Path, game: int, slot: int) -> list[Living]:
-    """The save's living villagers, with each one's family last name."""
+def living(folder: Path, game: int, slot: int, bodies: bool = False) -> list[Living]:
+    """The save's living villagers (and, with `bodies`, its unburied dead), with each one's family
+    last name."""
     checker = tools.load_checker()
     data = save_path(folder, game, slot).read_bytes()
     f = FIELDS[game]
     names = checker.LAST_NAMES[game]
     out = []
-    for at in _entries(game, data):
+    for at in _entries(game, data, bodies):
         family = _i32(data, at + f.family)
         out.append(Living(at, _cstr(data, at, f.name_cap), "Male" if _i32(data, at + f.sex) == f.male else "Female",
                           _i32(data, at + f.head), _i32(data, at + f.body), family,
@@ -390,7 +392,7 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     each numbered villager is one name, head and body."""
     folder = Path(folder)
     f = FIELDS[game]
-    people = living(folder, game, slot)
+    people = living(folder, game, slot, bodies=dead)
     result = Plan(renames)
     if not renames:
         return result
@@ -711,7 +713,13 @@ def _plan_family_trees(result: Plan, folder: Path, game: int, slot: int, renames
     (Codex, #555)."""
     import json
     import vv_family_tree as ft
+    import vv_tribe_rename
     paths = [ft.Edits.path(folder, game, slot)]
+    try:                                        # a reused slot's old tribe keeps its own tree (Codex, #557)
+        tribe = vv_tribe_rename.save_name({g.number: g for g in vv_tribe_rename.GAMES}[game],
+                                          save_path(folder, game, slot).read_bytes())
+    except (OSError, KeyError, ValueError):
+        tribe = None
     trees = Path(folder) / ft.TREES
     if trees.is_dir():
         for path in sorted(trees.glob(f"*{ft.TREE_SUFFIX}")):
@@ -719,7 +727,8 @@ def _plan_family_trees(result: Plan, folder: Path, game: int, slot: int, renames
                 data = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 continue
-            if isinstance(data, dict) and (data.get("game"), data.get("slot")) == (game, slot):
+            if isinstance(data, dict) and (data.get("game"), data.get("slot")) == (game, slot) \
+                    and tribe and data.get("tribe") == tribe:
                 paths.append(path)
     for path in paths:
         if not path.is_file():
