@@ -405,5 +405,199 @@ class TheWindow(unittest.TestCase):
         self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=by_rule)', body)
 
 
+def grave_buffer(game: int, graves: dict[int, tuple]) -> bytearray:
+    """A save holding only `game`'s grave table: place -> (name, age, head, body).  Every byte of a
+    used place outside its name, age (and looks) is 0xAA, so what a rename leaves alone shows."""
+    base, slots, stride, cap, age_at, looks = ln.GRAVES[game]
+    buf = bytearray(base + slots * stride)
+    for place, (name, age, head, body) in graves.items():
+        at = base + place * stride
+        buf[at:at + stride] = b"\xaa" * stride
+        buf[at:at + cap] = name.encode() + bytes(cap - len(name))
+        struct.pack_into("<i", buf, at + age_at, age)
+        if looks:
+            struct.pack_into("<ii", buf, at + looks[0], head, body)
+    return buf
+
+
+class RenameGraves(unittest.TestCase):
+    """The graves of renamed dead villagers (Number Duplicate Names, last names for the gone)."""
+
+    def test_each_game_renames_the_grave_matched_by_name_and_age(self):
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                base, _slots, stride, cap, _age_at, looks = ln.GRAVES[game]
+                # The Tree of Life and New Believers keep looks on the grave: a namesake of the same
+                # age with other looks is someone else.
+                buf = grave_buffer(game, {3: ("Bob", 300, 7, 8), 5: ("Bob", 300, 1, 1) if looks else ("Al", 9, 0, 0)})
+                before = bytes(buf)
+                result = ln.Plan({})
+                done = ln._rename_graves(buf, game, {("Bob", 7, 8): "Bob Stone"}, {("Bob", 7, 8): 300}, result)
+                at = base + 3 * stride
+                self.assertEqual(done, [(3, before[at:at + cap], b"Bob Stone", 300)])
+                # NUL-terminated and zero-filled within the field; the bytes past it are untouched.
+                self.assertEqual(bytes(buf[at:at + cap]), b"Bob Stone" + bytes(cap - 9))
+                self.assertEqual(bytes(buf[at + cap:at + stride]), before[at + cap:at + stride])
+                other = base + 5 * stride
+                self.assertEqual(bytes(buf[other:other + stride]), before[other:other + stride])
+                self.assertEqual(result.notes, [])
+
+    def test_vv4_and_vv5_skip_a_grave_whose_looks_differ(self):
+        for game in (4, 5):
+            with self.subTest(game=game):
+                buf = grave_buffer(game, {0: ("Bob", 300, 1, 1)})
+                before = bytes(buf)
+                done = ln._rename_graves(buf, game, {("Bob", 7, 8): "Bob Stone"}, {("Bob", 7, 8): 300}, ln.Plan({}))
+                self.assertEqual(done, [])
+                self.assertEqual(bytes(buf), before)
+
+    def test_a_grave_that_could_be_two_villagers_keeps_its_name(self):
+        # The Secret City keeps no looks on a grave: two dead Anns of age 400 cannot be told apart.
+        buf = grave_buffer(3, {2: ("Ann", 400, 0, 0)})
+        before = bytes(buf)
+        result = ln.Plan({})
+        ages = {("Ann", 1, 2): 400, ("Ann", 3, 4): 400}
+        self.assertEqual(ln._rename_graves(buf, 3, {("Ann", 1, 2): "Ann 1"}, ages, result), [])
+        self.assertEqual(bytes(buf), before)
+        self.assertEqual(result.notes,
+                         ["The grave of Ann (age 400) could be more than one villager's, so it keeps its name."])
+        # Two graves of the same name and age are just as unclear.
+        buf = grave_buffer(1, {0: ("Ann", 400, 0, 0), 1: ("Ann", 400, 0, 0)})
+        before = bytes(buf)
+        result = ln.Plan({})
+        self.assertEqual(ln._rename_graves(buf, 1, {("Ann", 1, 2): "Ann 1"}, {("Ann", 1, 2): 400}, result), [])
+        self.assertEqual(bytes(buf), before)
+        self.assertEqual(len(result.notes), 1)
+
+    def test_a_grave_dug_before_last_names_is_found_by_the_first_name(self):
+        # An earlier build gave the logs a last name the grave never got: the grave still says "Soda".
+        self.assertIn("Akikai", tools.load_checker().LAST_NAMES[1])
+        base, _slots, stride, cap, _age_at, _looks = ln.GRAVES[1]
+        buf = grave_buffer(1, {4: ("Soda", 30, 0, 0)})
+        before = bytes(buf)
+        result = ln.Plan({})
+        key = ("Soda Akikai", 1, 2)
+        done = ln._rename_graves(buf, 1, {key: "Soda Akikai II"}, {key: 30}, result)
+        at = base + 4 * stride
+        self.assertEqual(done, [(4, before[at:at + cap], b"Soda Akikai II", 30)])
+        self.assertEqual(bytes(buf[at:at + cap]), b"Soda Akikai II" + bytes(cap - 14))
+        self.assertEqual(result.notes, [])
+        # Two dead whose first names are both Poro, of the same age: the grave "Poro" is either.
+        buf = grave_buffer(1, {4: ("Poro", 41, 0, 0)})
+        before = bytes(buf)
+        result = ln.Plan({})
+        ages = {("Poro Akikai", 1, 2): 41, ("Poro Wikimak", 3, 4): 41}
+        self.assertEqual(ln._rename_graves(buf, 1, {("Poro Akikai", 1, 2): "Poro Akikai II"}, ages, result), [])
+        self.assertEqual(bytes(buf), before)
+        self.assertEqual(result.notes,
+                         ["The grave of Poro Akikai (age 41) could be more than one villager's, so it keeps its name."])
+
+    def test_a_baby_who_died_at_age_0_has_a_grave_too(self):
+        buf = grave_buffer(3, {2: ("Baby", 0, 0, 0)})
+        done = ln._rename_graves(buf, 3, {("Baby", 1, 2): "Baby II"}, {("Baby", 1, 2): 0}, ln.Plan({}))
+        self.assertEqual([(place, new) for place, _old, new, _age in done], [(2, b"Baby II")])
+
+    def test_a_name_too_long_for_the_grave_keeps_the_old_one(self):
+        buf = grave_buffer(3, {0: ("Ann", 400, 0, 0)})
+        before = bytes(buf)
+        result = ln.Plan({})
+        long_name = "Ann " + "x" * 21                     # 25 bytes: no room for the NUL in 0x19
+        self.assertEqual(ln._rename_graves(buf, 3, {("Ann", 1, 2): long_name}, {("Ann", 1, 2): 400}, result), [])
+        self.assertEqual(bytes(buf), before)
+        self.assertEqual(result.notes, [f"{long_name} is too long for Ann's grave, which keeps its name."])
+
+    def test_grave_fingerprint_is_cod_fingerprint(self):
+        # FNV-1a, worked by hand: "Bob", 0xFF, then 300 as four little-endian bytes.
+        self.assertEqual(ln.grave_fingerprint(b"Bob\0junk", 0x1C, 300), 0x024ABD82)
+        # The name stops at `cap` when it has no NUL sooner (The Lost Children's 0x18), and a negative
+        # age is its two's-complement bytes.
+        self.assertEqual(ln.grave_fingerprint(b"Abcdefghijklmnopqrstuvwxyz", 0x18, -5), 0xF980257E)
+        from unittest import mock
+        with mock.patch.object(ln, "_fnv", return_value=0):
+            self.assertEqual(ln.grave_fingerprint(b"Bob", 0x1C, 300), 1, "a fingerprint is never 0")
+
+
+class GraveFiles(unittest.TestCase):
+    """The cause-of-death files that know a grave by its fingerprint follow the new name."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.data = Path(self.tmp.name) / tools.DATA
+        (self.data / "Graves").mkdir(parents=True)
+        (self.data / "Deaths").mkdir()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    @staticmethod
+    def vcd1(game: int, entries) -> bytes:
+        out = struct.pack("<4sIII", b"VCD1", 1, game, len(entries))
+        for kind, index, fp in entries:
+            out += struct.pack("<HHIbBBB", kind, index, fp, 2, 5, 1, 0) + b"Rest in peace".ljust(32, b"\0")
+        return out
+
+    @staticmethod
+    def vcg1(game: int, entries) -> bytes:
+        out = struct.pack("<4sIII", b"VCG1", 1, game, len(entries))
+        for place, fp in entries:
+            out += struct.pack("<HHI", place, 0, fp)
+        return out
+
+    def test_the_graves_file_and_graves_logged_move_to_the_new_fingerprint(self):
+        game, slot, cap = 1, 2, ln.GRAVE_PRINT_CAP[1]
+        old, new = ln.grave_fingerprint(b"Bob", cap, 300), ln.grave_fingerprint(b"Bob Stone", cap, 300)
+        other = ln.grave_fingerprint(b"Al", cap, 9)
+        graves = self.data / "Graves" / f"Virtual Villagers {game} Graves - Save {slot}.dat"
+        logged = self.data / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat"
+        # The grave at place 3; a lying body (kind 1) with the same index and print, the same print at
+        # another place, and another print at place 3 are all someone else.
+        graves.write_bytes(self.vcd1(game, [(0, 3, old), (1, 3, old), (0, 4, old), (0, 3, other)]))
+        logged.write_bytes(self.vcg1(game, [(1, old), (3, old), (4, other)]))
+        before = {graves: graves.read_bytes(), logged: logged.read_bytes()}
+        result = ln.Plan({})
+        ln._plan_grave_files(result, Path(self.tmp.name), game, slot, [(3, b"Bob\0\0", b"Bob Stone", 300)])
+        changes = {c.path: c for c in result.changes}
+        self.assertEqual(set(changes), {graves, logged})
+        self.assertEqual(changes[graves].updated,
+                         self.vcd1(game, [(0, 3, new), (1, 3, old), (0, 4, old), (0, 3, other)]))
+        self.assertEqual(changes[logged].updated, self.vcg1(game, [(1, old), (3, new), (4, other)]))
+        for path, original in before.items():
+            self.assertEqual(changes[path].original, original)
+            self.assertEqual(path.read_bytes(), original, "planning writes nothing")
+
+    def test_the_loose_graves_file_of_the_lost_children_is_found_too(self):
+        game, slot, cap = 2, 1, ln.GRAVE_PRINT_CAP[2]
+        old, new = ln.grave_fingerprint(b"Bob", cap, 300), ln.grave_fingerprint(b"Bob Stone", cap, 300)
+        loose = self.data / f"Virtual Villagers {game} Graves - Save {slot}.dat"
+        loose.write_bytes(self.vcd1(game, [(0, 7, old)]))
+        result = ln.Plan({})
+        ln._plan_grave_files(result, Path(self.tmp.name), game, slot, [(7, b"Bob", b"Bob Stone", 300)])
+        self.assertEqual([(c.path, c.updated) for c in result.changes], [(loose, self.vcd1(game, [(0, 7, new)]))])
+
+    def test_the_later_games_have_only_graves_logged(self):
+        game, slot, cap = 3, 1, ln.GRAVE_PRINT_CAP[3]
+        old, new = ln.grave_fingerprint(b"Bob", cap, 300), ln.grave_fingerprint(b"Bob Stone", cap, 300)
+        # A VCD1 file is A New Home's and The Lost Children's only; one here is left alone.
+        stray = self.data / "Graves" / f"Virtual Villagers {game} Graves - Save {slot}.dat"
+        stray.write_bytes(self.vcd1(game, [(0, 7, old)]))
+        logged = self.data / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat"
+        logged.write_bytes(self.vcg1(game, [(7, old), (8, old)]))
+        result = ln.Plan({})
+        ln._plan_grave_files(result, Path(self.tmp.name), game, slot, [(7, b"Bob", b"Bob Stone", 300)])
+        self.assertEqual([(c.path, c.updated) for c in result.changes],
+                         [(logged, self.vcg1(game, [(7, new), (8, old)]))])
+
+    def test_a_file_of_another_game_or_the_wrong_size_is_left_alone(self):
+        game, slot, cap = 1, 1, ln.GRAVE_PRINT_CAP[1]
+        old = ln.grave_fingerprint(b"Bob", cap, 300)
+        logged = self.data / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat"
+        graves = self.data / "Graves" / f"Virtual Villagers {game} Graves - Save {slot}.dat"
+        logged.write_bytes(self.vcg1(2, [(3, old)]))                   # says it is The Lost Children's
+        graves.write_bytes(self.vcd1(game, [(0, 3, old)]) + b"\0")     # one byte too long
+        result = ln.Plan({})
+        ln._plan_grave_files(result, Path(self.tmp.name), game, slot, [(3, b"Bob", b"Bob Stone", 300)])
+        self.assertEqual(result.changes, [])
+
+
 if __name__ == "__main__":
     unittest.main()
