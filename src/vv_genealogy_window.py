@@ -1134,6 +1134,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if target is not None:
             self.targets[iid] = target
 
+    def _grab(self, event) -> int | None:
+        """What a press picks up: the topmost item exactly under the pointer (a line within a few
+        pixels, so it can be caught), never the box behind words or the page itself (the owner: "i
+        can literally drag headers when i'm not even clicking on their text")."""
+        c = self.canvas
+        x, y = c.canvasx(event.x), c.canvasy(event.y)
+        exact = set(c.find_overlapping(x, y, x, y))
+        for iid in reversed(c.find_overlapping(x - 3, y - 3, x + 3, y + 3)):
+            if iid not in exact and c.type(iid) != "line":
+                continue
+            if self.targets.get(iid) == ("plate",) or "backdrop" in c.gettags(iid):
+                continue
+            if iid in self.targets or any(tag.startswith(("p", "m_")) for tag in c.gettags(iid)):
+                return iid
+        return None
+
     def _under(self, event) -> int | None:
         """The topmost tree item under the pointer."""
         c = self.canvas
@@ -1789,10 +1805,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     # ---- selecting ----------------------------------------------------------
     def _at(self, event) -> int | None:
+        """The villager clicked: inside their portrait's shape, or on their head or words -- never the
+        empty corners round them (the owner: "make the click area for things limited to the object
+        themselves")."""
         x, y = self._where(event)
-        for pid, (bx, by, bw, bh) in self.sc.boxes.items():
-            if bx <= x <= bx + bw and by <= y <= by + bh:
+        for pid in reversed(list(self.lay.x)):
+            if ft.inside(self.lay.frame_points(pid), x, y):
                 return pid
+        c = self.canvas
+        cx, cy = c.canvasx(event.x), c.canvasy(event.y)
+        for iid in reversed(c.find_overlapping(cx, cy, cx, cy)):
+            if c.type(iid) in ("text", "image"):
+                tag = next((t for t in c.gettags(iid) if t[:1] == "p" and t[1:].isdigit()), None)
+                if tag is not None:
+                    return int(tag[1:])
         return None
 
     def _order(self) -> list[int]:
@@ -1803,7 +1829,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if self._tools_press(event):
             return
         self.move = None
-        iid = self._under(event)
+        iid = self._grab(event)
         if iid in self.pieces:
             x, y = self._where(event)
             self.move = {"piece": self.pieces[iid], "iid": iid, "x": x, "y": y, "dx": 0.0, "dy": 0.0,

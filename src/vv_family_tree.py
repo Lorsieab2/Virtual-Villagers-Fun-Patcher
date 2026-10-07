@@ -1660,6 +1660,15 @@ def shape_points(kind: str, x: float, y: float, w: float, h: float, radius: floa
     return [(mx + dx, my + dy) for dx, dy in (turn(px - mx, py - my, angle) for px, py in corners)]
 
 
+def inside(corners: list[tuple[float, float]], x: float, y: float) -> bool:
+    """Whether (x, y) is inside the shape these corners outline."""
+    hit = False
+    for (ax, ay), (bx, by) in zip(corners, corners[1:] + corners[:1]):
+        if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
+            hit = not hit
+    return hit
+
+
 def box_corners(cx: float, cy: float, w: float, h: float, angle: float) -> list[tuple[float, float]]:
     """A box's top left, top right, bottom right and bottom left, turned about its middle."""
     out = []

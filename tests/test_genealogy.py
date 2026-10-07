@@ -632,6 +632,18 @@ class StickerTests(unittest.TestCase):
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
 
+    def test_a_click_counts_only_inside_the_shape(self) -> None:
+        # The owner: "make the click area for things limited to the object themselves".
+        circle = ft.shape_points("circle", 0, 0, 100, 100)
+        self.assertTrue(ft.inside(circle, 50, 50))
+        self.assertFalse(ft.inside(circle, 4, 4))                      # the empty corner
+        heart = ft.shape_points("heart", 0, 0, 110, 100)
+        self.assertFalse(ft.inside(heart, 55, 3))                      # the dip between the lobes
+        self.assertTrue(ft.inside(heart, 55, 50))
+        turned = ft.shape_points("rect", 0, 0, 100, 20, angle=90)
+        self.assertTrue(ft.inside(turned, 50, 90))
+        self.assertFalse(ft.inside(turned, 95, 10))
+
     def test_lines_stay_on_portraits_resized_in_batch(self) -> None:
         # The owner: "when I batch change the portrait sizes, the lines should stay connected to them".
         v = village()
