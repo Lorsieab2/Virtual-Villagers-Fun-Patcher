@@ -632,6 +632,31 @@ class StickerTests(unittest.TestCase):
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
 
+    def test_a_square_portrait_has_its_frame_in_the_picture(self) -> None:
+        # A square's corners have no rounding: GDI+ drew nothing for arcs of no size.
+        if not vv_gdiplus.available():
+            self.skipTest("Windows only")
+        sc = ft.Scene(60, 60, "#ffffff", [ft.Backdrop("#ffffff"),
+                                          ft.Shape("rect", 10, 10, 40, 40, "#000000", width=4, radius=0)])
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "square.png"
+            self.assertTrue(vv_gdiplus.save_scene(sc, {}, out))
+            self.assertEqual(png_alpha_at(out, 10, 30), 255)
+
+    def test_a_childs_lines_follow_them_when_dragged_down(self) -> None:
+        # The owner: lines "neat and not overlapping when moved to a new position".
+        v = village()
+        lay = ft.layout(v)
+        fam = next(f for f in lay.families if len(f.children) == 1)
+        child = fam.children[0]
+        before = fam.lane_y
+        e = ft.Edits()
+        e.entries[ft.entry_key(v, v.people[child])] = {"dy": 200.0}
+        lay = ft.layout(v, e)
+        fam = next(f for f in lay.families if f.children == [child])
+        self.assertEqual(fam.lane_y, before + 200)
+        assert_connected(self, lay, ft.lines(lay))
+
     def test_a_click_counts_only_inside_the_shape(self) -> None:
         # The owner: "make the click area for things limited to the object themselves".
         circle = ft.shape_points("circle", 0, 0, 100, 100)

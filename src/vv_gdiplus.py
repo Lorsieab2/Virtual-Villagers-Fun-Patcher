@@ -195,6 +195,9 @@ def _rounded(g, x: float, y: float, w: float, h: float, r: float) -> ctypes.c_vo
     g.GdipCreatePath(0, ctypes.byref(path))
     d = min(2 * r, w, h)
     f = ctypes.c_float
+    if d <= 0:                          # square corners: GDI+ draws nothing for an arc of no size
+        g.GdipAddPathRectangle(path, f(x), f(y), f(w), f(h))
+        return path
     g.GdipAddPathArc(path, f(x), f(y), f(d), f(d), f(180), f(90))
     g.GdipAddPathArc(path, f(x + w - d), f(y), f(d), f(d), f(270), f(90))
     g.GdipAddPathArc(path, f(x + w - d), f(y + h - d), f(d), f(d), f(0), f(90))

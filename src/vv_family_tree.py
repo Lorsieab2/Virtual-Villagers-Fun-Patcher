@@ -808,8 +808,17 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
         if fam.id in lanes.couple_index:
             fam.couple_y = (tops[g] - LANE_BOTTOM - kids_band - BAND_GAP
                             - (lanes.couple_count[g] - lanes.couple_index[fam.id]) * LANE + LANE / 2)
-    y = {pid: max(MARGIN, tops[people[pid].generation] + sub.get(pid, 0) * (NODE_H + SUBGAP)
-                  + shifts[pid].get("dy", 0.0)) for pid in x}
+    row_y = {pid: tops[people[pid].generation] + sub.get(pid, 0) * (NODE_H + SUBGAP) for pid in x}
+    y = {pid: max(MARGIN, row_y[pid] + shifts[pid].get("dy", 0.0)) for pid in x}
+    # A family's lines go with its children when they are dragged up or down (the owner: "so they're
+    # neat and not overlapping when moved to a new position").
+    for fam in families:
+        kids = [c for c in fam.children if c in y]
+        if kids and fam.lane_y:
+            shift = min(y[c] for c in kids) - min(row_y[c] for c in kids)
+            fam.lane_y += shift
+            if fam.couple_y:
+                fam.couple_y += shift
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,
@@ -1911,10 +1920,12 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         add(Text(kx + 34, 107, label, 14, ink, role="key", move="key", edit=f"mark:{label}"))
         kx += 50 + 8 * len(label)
     for g in sorted({v.people[q].generation for q in lay.x}):
-        y0 = lay.tops[g]
-        # The generation's height as drawn: its rows, and any portrait made taller than them.
-        ys = [py for q in lay.x if v.people[q].generation == g for _px, py in lay.frame_points(q)]
-        top, bottom = min([y0] + ys), max([y0 + lay.bands.get(g, NODE_H)] + ys)
+        # Beside the generation's portraits as drawn, wherever they are (the owner: "so they're
+        # actually accurate"); its rows' place when it has none drawn.
+        ys = [py for q in lay.x if v.people[q].generation == g and q not in lay.others
+              for _px, py in lay.frame_points(q)]
+        top, bottom = (min(ys), max(ys)) if ys else (lay.tops[g], lay.tops[g] + lay.bands.get(g, NODE_H))
+        y0 = top
         reach = lay.edits.label_line_reach
         if plate:
             add(Shape("rect", 12, top + 6, 228, bottom - top - 12, plate_colour, width=0,

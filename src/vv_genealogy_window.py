@@ -535,6 +535,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(resets, text="Reset Portrait Places", command=self._reset_portraits).pack(side="left", padx=(6, 0))
         ttk.Button(resets, text="Reset Lines", command=self._reset_lines).pack(side="left", padx=(6, 0))
         ttk.Button(resets, text="Reset Everything", command=self._reset_everything).pack(side="left", padx=(6, 0))
+        tidy = ttk.Frame(right)
+        tidy.pack(side="bottom", fill="x", pady=(6, 0))
+        ttk.Button(tidy, text="Reorganize Portraits", command=self._reorganize_portraits).pack(side="left")
+        ttk.Button(tidy, text="Reorganize Lines", command=self._reorganize_lines).pack(side="left", padx=(6, 0))
+        ttk.Button(tidy, text="Reorganize Generation Labels", command=self._reorganize_labels).pack(
+            side="left", padx=(6, 0))
         undo = ttk.Frame(right)
         undo.pack(side="bottom", fill="x", pady=(8, 0))
         ttk.Button(undo, text="Undo (Ctrl+Z)", command=self._undo).pack(side="left")
@@ -1387,6 +1393,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                      ("Delete Tree...", "", self._delete_tree), None,
                      ("Close", "", self._close)],
             "Edit": [("Undo", "Ctrl+Z", self._undo), ("Redo", "Ctrl+Y", self._redo), None,
+                     ("Reorganize Portraits", "", self._reorganize_portraits),
+                     ("Reorganize Lines", "", self._reorganize_lines),
+                     ("Reorganize Generation Labels", "", self._reorganize_labels), None,
                      ("Reset Portrait Shapes...", "", self._reset_shapes),
                      ("Reset Portrait Places...", "", self._reset_portraits),
                      ("Reset Lines...", "", self._reset_lines),
@@ -1550,6 +1559,43 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box.focus_set()
         self.status.set("Type the new words, then Enter" + (" (Ctrl+Enter: there may be several lines)" if many else "")
                         + " -- or Esc to leave them.")
+
+    def _reorganize_portraits(self) -> None:
+        """Every portrait dragged out of place put back neatly into the rows: each in the generation
+        whose row it was left nearest, in the order, left to right, it was left in; and every line
+        drawn afresh (Ctrl+Z puts them back as they were)."""
+        lay, v = self.lay, self.village
+        rows: dict[int, list[int]] = {}
+        for q in lay.x:
+            if q in lay.others:
+                self._set_entry(v.people[q], dx=None, dy=None)
+                continue
+            middle = lay.y[q] + ft.NODE_H / 2
+            g = min(lay.tops, key=lambda g: abs(lay.tops[g] + lay.bands.get(g, ft.NODE_H) / 2 - middle))
+            rows.setdefault(g, []).append(q)
+        for g, qs in rows.items():
+            for q in qs:
+                p = v.people[q]
+                self._set_entry(p, dx=None, dy=None,
+                                generation=None if g == v.base_generation.get(q, p.generation) else g)
+            self.edits.orders[str(g)] = [ft.entry_key(v, v.people[q]) for q in sorted(qs, key=lambda q: lay.x[q])]
+        self.edits.line_moves.clear()
+        self._saved()
+        self.status.set("Every portrait is back in a neat row, in the order and generation you left it.  "
+                        "Ctrl+Z undoes it.")
+
+    def _reorganize_lines(self) -> None:
+        """Every line drawn afresh where the portraits now are: neat, none overlapping."""
+        self.edits.line_moves.clear()
+        self._saved()
+        self.status.set("Every line is drawn afresh where the portraits are.  Ctrl+Z undoes it.")
+
+    def _reorganize_labels(self) -> None:
+        """Each generation's label back beside its generation's portraits."""
+        for name in [n for n in self.edits.moved if n.startswith("label")]:
+            del self.edits.moved[name]
+        self._saved()
+        self.status.set("Each generation's label is beside its portraits.  Ctrl+Z undoes it.")
 
     def _sure(self, question: str) -> bool:
         return messagebox.askyesno("Family Tree Maker", question + "  (Undo brings it back.)", parent=self)
