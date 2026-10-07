@@ -188,6 +188,9 @@ def save_for(game: int, people) -> bytes:
     for i, (name, male, family) in enumerate(people):
         p = FIRST + i * STRIDE[game] + 0x40
         data[p:p + len(name)] = name.encode()
+        if game in checker.PRESENT:                     # the writer's flag on every villager it packs
+            off, width = checker.PRESENT[game]
+            data[p + off:p + off + width] = (1).to_bytes(width, "little")
         struct.pack_into("<i", data, p + lay.age, 500)
         struct.pack_into("<i", data, p + lay.head, 3)
         struct.pack_into("<i", data, p + lay.body, 4)

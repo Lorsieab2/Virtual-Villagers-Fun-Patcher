@@ -133,7 +133,10 @@ VV1_BLOCK0, VV1_STRIDE, VV1_BASE = 0x184, 0x9C, 0x33C
 
 def vv1_roster(data: bytes) -> list[Villager]:
     """A New Home: the save keeps record bytes +0x33C..+0x3D8 of all 256 records, packed, from
-    file +0x184; +0x3D4 is 1 for every villager the save holds (the repair tool's rule)."""
+    file +0x184; +0x3D4 is 1 for every villager the save holds.  The game loads the records in
+    order and stops at the first whose +0x3D4 is not 1: the records after it are stale copies
+    the game never loads, even those still flagged 1 (live, 2026-10-06: the owner's saves held
+    39 and 104 such records where the game loaded 37 and 90)."""
     if len(data) < VV1_BLOCK0 + 256 * VV1_STRIDE:
         raise ValueError(f"{len(data)} bytes is not an A New Home save")
     out = []
@@ -144,7 +147,9 @@ def vv1_roster(data: bytes) -> list[Villager]:
             return i32(data, base + off - VV1_BASE)
         name = cstr(data, base + 0x370 - VV1_BASE, 0x1B)
         gender = f(0x350)
-        if f(0x3D4) != 1 or not name or gender not in (1, 2):
+        if f(0x3D4) != 1:
+            break
+        if not name or gender not in (1, 2):
             continue
         raw = data[base:base + VV1_STRIDE]
         # vv1_mask_identity (native/vv1_origins_icons): name (to 0x1C bytes), 0xFF, gender, the family scalar.
@@ -228,13 +233,19 @@ LAYOUTS = {
     4: SaveLayout(0x104, 0x19, -0x0C, 0, -0x10, 0x1C, 0x20, 0xC0, 5, True, 0x24, 0x3D, 0x19),
     5: SaveLayout(0x118, 0x19, -0x0C, 0, -0x10, 0x1C, 0x20, 0xC0, 6, True, 0x24, 0x3D, 0x19),
 }
+# The names the game itself gives: what finds the table (table_start) and the extension.
 NAME_RE = re.compile(rb"[A-Z][A-Za-z0-9' -]{1,23}\0")
+# Any name a villager may have once the table is found: any printable characters, one at least
+# (Give villagers last names takes any printable last name, the Custom Island Event . , ! ? : - ',
+# Cheat Engine anything).  The game itself reads whatever is there.
+ANY_NAME_RE = re.compile(rb"[\x21-\x7E\xA0-\xFF][\x20-\x7E\xA0-\xFF]{0,23}\0")
 
 
-def plausible(data: bytes, p: int, lay: SaveLayout) -> bool:
+def plausible(data: bytes, p: int, lay: SaveLayout, names: re.Pattern = NAME_RE) -> bool:
     if p + lay.stride > len(data) or p + min(lay.age, lay.gender, lay.head) < 0:
         return False
-    if not NAME_RE.match(data, p):
+    m = names.match(data, p)
+    if not m or m.end() - p > lay.name_cap:
         return False
     head, body = i32(data, p + lay.head), i32(data, p + lay.body)
     return 0 <= head < 64 and 0 <= body < 64 and 0 <= i32(data, p + lay.age) < 200000
@@ -256,44 +267,106 @@ def table_start(data: bytes, lay: SaveLayout, hint_names: list[str]) -> int | No
     return best
 
 
+# Each saved entry's own flag (offset from the name, width).  The writer stores 1 for every
+# villager it packs and a 0 "end of list" flag after the last; the loader unpacks entries until
+# it meets a 0 flag (tests/save_table_emulator.py runs the real VV3 / VV4 code).  The entries
+# after that flag are stale -- left by deaths, departures, or a village restarted in the slot
+# -- and the game never loads them, even those still flagged 1 (live, 2026-10-06: the owner's
+# saves held 100 / 115 / 106 entries where The Secret City, The Tree of Life and New Believers
+# loaded 86 / 5 / 90).  The Lost Children has no flag: its writer zeroes every entry after the
+# last villager, so the plausible run ends there (live: 126 read, 126 loaded).
+PRESENT = {3: (-0x14, 4), 4: (-0x14, 4), 5: (-0x20, 1)}
+
+# The stock save's length (header included) of each game that can have 256 Villagers
+# (Experimental): such a build writes the stock bytes unchanged and then villagers 150..255
+# (src/vv_tribe_rename.py GAMES), so nothing before this length is the extension.  The Tree of
+# Life's older releases wrote a 12-byte header, current ones 24.
+STOCK_SAVE = {3: 77608, 4: 94488, 5: 97680}
+
+# Records the game keeps in its villager table that are not villagers (offset from the name in
+# the saved entry): The Lost Children's Esteemed Elder statues (record +0x558; live, 2026-10-06:
+# the owner's slot 23 held 126 records, 11 of them statues, and the game showed Population 115).
+# The Tree of Life's ghosts are never saved; New Believers' Reanimate stand-in is a body.
+LOOKALIKE = {2: -0x0C}
+
+# Each villager's health (offset from the name in the saved entry; record +0x52C / +0xE78 /
+# +0x1C40): 0 or less is a body.
+HEALTH = {2: -0x38, 3: 0xA4, 4: 0xA4, 5: 0xA4}
+
+
+def present(data: bytes, p: int, game: int) -> bool:
+    """Whether the saved entry whose name is at `p` is flagged as a villager the game loads."""
+    if game not in PRESENT:
+        return True
+    off, width = PRESENT[game]
+    return p + off >= 0 and int.from_bytes(data[p + off:p + off + width], "little") != 0
+
+
+def villager_offsets(game: int, data: bytes, hint_names: list[str]) -> list[int]:
+    """The name offset of every record the game loads from this save, in order (its record
+    number): statues and bodies included, see lookalike() and HEALTH."""
+    lay = LAYOUTS[game]
+    found = table_start(data, lay, hint_names)
+    if found is None:
+        raise ValueError("no villager table found")
+
+    def villager(q: int) -> bool:
+        return plausible(data, q, lay, ANY_NAME_RE) and present(data, q, game)
+
+    # The table is found by the game's own names; a villager before it with a name of the
+    # player's (an audit, 2026-10-06: "Kaya St.Clair" third made the first two vanish)
+    # is still the table's.
+    start = found
+    while start - lay.stride >= 0 and villager(start - lay.stride):
+        start -= lay.stride
+    out = []
+    p = start
+    while len(out) < (256 if game == 2 else 150) and villager(p):
+        out.append(p)                   # up to the end-of-list flag: nothing after it is loaded
+        p += lay.stride
+    # 256 Villagers (Experimental): villagers 151-256 are kept in an extension the patched game
+    # appends to the stock save, as a second run of the same entries.  The game reads it only
+    # after all 150 (its end-of-list flag is otherwise in the first 150), and only a save longer
+    # than the stock one has it.
+    if game != 2 and len(out) == 150 and len(data) > STOCK_SAVE[game]:
+        first = max(p, STOCK_SAVE[game])
+        for m in NAME_RE.finditer(data, first):
+            if villager(m.start()):
+                q = m.start()
+                while q - lay.stride >= first and villager(q - lay.stride):
+                    q -= lay.stride
+                while len(out) < 256 and villager(q):
+                    out.append(q)
+                    q += lay.stride
+                break
+    return out
+
+
+def lookalike(data: bytes, p: int, game: int) -> bool:
+    """Whether the saved record whose name is at `p` is one the game does not count as a
+    villager (LOOKALIKE)."""
+    return game in LOOKALIKE and data[p + LOOKALIKE[game]] != 0
+
+
 def vv25_roster(game: int, data: bytes, hint_names: list[str]) -> list[Villager]:
     # VV2 keeps all 256 slots in one table; VV3-VV5 keep 150 there and the rest in the extension.
+    # A statue keeps its record number (rank) but is no villager.
     lay = LAYOUTS[game]
-    start = table_start(data, lay, hint_names)
-    if start is None:
-        raise ValueError("no villager table found")
-    out = []
-    starts = [start]
-    # 256 Villagers (Experimental): villagers 151-256 are kept in an extension the patched game
-    # appends to the save, as a second run of the same entries further on.
-    end = start
-    while plausible(data, end, lay):
-        end += lay.stride
-    if game != 2:
-        # Past the whole 150-entry table, never inside it; one villager is enough (151 living).
-        for m in NAME_RE.finditer(data, max(end, start + 150 * lay.stride)):
-            if plausible(data, m.start(), lay):
-                starts.append(m.start())
-                break
-    for p in starts:
-        out.extend(_entries(data, p, lay, len(out), game))
-    return out
+    return [_villager(data, p, lay, rank, game)
+            for rank, p in enumerate(villager_offsets(game, data, hint_names))
+            if not lookalike(data, p, game)]
 
 
-def _entries(data: bytes, p: int, lay: SaveLayout, first: int, game: int = 0) -> list[Villager]:
-    out = []
-    while plausible(data, p, lay):
-        ident, ident_v2, name_hash = mask_identity(game, data, p, lay) if game else (0, 0, 0)
-        skills = [(f32 if lay.skills_float else i32)(data, p + lay.skills + 4 * k) for k in range(lay.skill_count)]
-        out.append(Villager(rank=first + len(out), name=cstr(data, p, lay.name_cap),
-                            male=i32(data, p + lay.gender) == lay.male_value,
-                            age=i32(data, p + lay.age), head=i32(data, p + lay.head), body=i32(data, p + lay.body),
-                            skills=skills,
-                            father=cstr(data, p + lay.father, lay.parent_cap) if lay.father is not None else "",
-                            mother=cstr(data, p + lay.mother, lay.parent_cap) if lay.mother is not None else "",
-                            ident=ident, ident_v2=ident_v2, name_hash=name_hash))
-        p += lay.stride
-    return out
+def _villager(data: bytes, p: int, lay: SaveLayout, rank: int, game: int) -> Villager:
+    ident, ident_v2, name_hash = mask_identity(game, data, p, lay)
+    skills = [(f32 if lay.skills_float else i32)(data, p + lay.skills + 4 * k) for k in range(lay.skill_count)]
+    return Villager(rank=rank, name=cstr(data, p, lay.name_cap),
+                    male=i32(data, p + lay.gender) == lay.male_value,
+                    age=i32(data, p + lay.age), head=i32(data, p + lay.head), body=i32(data, p + lay.body),
+                    skills=skills,
+                    father=cstr(data, p + lay.father, lay.parent_cap) if lay.father is not None else "",
+                    mother=cstr(data, p + lay.mother, lay.parent_cap) if lay.mother is not None else "",
+                    ident=ident, ident_v2=ident_v2, name_hash=name_hash)
 
 
 # ---- the logs -------------------------------------------------------------------------------

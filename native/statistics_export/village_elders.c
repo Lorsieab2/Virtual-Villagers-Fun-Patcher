@@ -68,6 +68,7 @@
 
 #include "save_folder.h"
 #include "village_elders.h"
+#include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 
 #define ELDERS_MAX VV_ELDERS_FILE_MAX
 #define NAME_MAX_CHARS 40
@@ -333,7 +334,8 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
                 char father[NAME_MAX_CHARS];
                 char mother[NAME_MAX_CHARS];
                 struct elder *line = NULL;
-                if (record[l->active] != 1 || mastered_skills(record, l) < 3 || slot_claimed((int)slot)) {
+                if (record[l->active] != 1 || vv_lookalike(l->stride, record)
+                    || mastered_skills(record, l) < 3 || slot_claimed((int)slot)) {
                     continue;
                 }
                 /* Only the player's own villagers: New Believers keeps its

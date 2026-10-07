@@ -312,26 +312,121 @@ class Vv3Fixture(unittest.TestCase):
         self.assertTrue(checker.is_elder(3, roster[0]) and not checker.is_elder(3, roster[1]))
         self.assertEqual(rep.wrong, 0)
 
-    def test_the_256_villager_extension_is_read_after_the_150(self):
-        data = bytearray(77608 + 20 + 2 * 0x11C)
-        for k, (base, names) in enumerate(((30832, ("Vinapu", "Manaka")), (77608, ("Fill150", "Fill151")))):
+    @staticmethod
+    def full_150_and(extension):
+        # The game reads the extension only after all 150 (its end-of-list flag is otherwise in
+        # the first 150); the extension follows the stock 77608-byte save.
+        data = bytearray(77608 + 20 + (len(extension) + 1) * 0x11C)
+        main = [f"Vil{i}" for i in range(150)]
+        for base, names in ((30832, main), (77608, extension)):
             for i, name in enumerate(names):
                 e = base + i * 0x11C
                 struct.pack_into("<I", data, e, 1)
                 data[e + 20:e + 20 + len(name)] = name.encode()
                 struct.pack_into("<i", data, e + 20 + 28, 3)
-        roster = checker.vv25_roster(3, bytes(data), [])
-        self.assertEqual([(v.rank, v.name) for v in roster],
-                         [(0, "Vinapu"), (1, "Manaka"), (2, "Fill150"), (3, "Fill151")])
+        return bytes(data)
 
+    def test_the_256_villager_extension_is_read_after_the_150(self):
+        roster = checker.vv25_roster(3, self.full_150_and(("Fill150", "Fill151")), [])
+        self.assertEqual([(v.rank, v.name) for v in roster][-3:],
+                         [(149, "Vil149"), (150, "Fill150"), (151, "Fill151")])
 
     def test_a_single_villager_in_the_256_extension_is_read(self):
-        data = bytearray(77608 + 20 + 0x11C)
-        for base, name in ((30832, "Vinapu"), (77608, "Fill150")):
-            struct.pack_into("<I", data, base, 1)
-            data[base + 20:base + 20 + len(name)] = name.encode()
-            struct.pack_into("<i", data, base + 20 + 28, 3)
-        self.assertEqual([v.name for v in checker.vv25_roster(3, bytes(data), [])], ["Vinapu", "Fill150"])
+        roster = checker.vv25_roster(3, self.full_150_and(("Fill150",)), [])
+        self.assertEqual((len(roster), roster[-1].name), (151, "Fill150"))
+
+
+class StaleRecords(unittest.TestCase):
+    """A save keeps stale villager records after the living ones; the game loads the records in
+    order and stops at the first not flagged present (live, 2026-10-06, all five games: the
+    owner's saves read as 39 / 104 / 124 / 100 / 115 / 106 villagers where the game loaded
+    37 / 90 / 123 / 86 / 5 / 90).  Nothing after that record is a villager."""
+
+    def vv1(self, flags):
+        data = bytearray(0x184 + 256 * 0x9C)
+        for i, flag in enumerate(flags):
+            base = 0x184 + i * 0x9C - 0x33C
+            struct.pack_into("<i", data, base + 0x350, 1)
+            struct.pack_into("<i", data, base + 0x344, 90)
+            struct.pack_into("<i", data, base + 0x3D4, flag)
+            name = f"Vil{i}".encode()
+            data[base + 0x370:base + 0x370 + len(name)] = name
+        return bytes(data)
+
+    def vv25(self, game, flags, extension=()):
+        lay = checker.LAYOUTS[game]
+        first = 0x400
+        # A 256 build's extension follows the stock save (checker.STOCK_SAVE).
+        ext = max(first + 150 * lay.stride, checker.STOCK_SAVE.get(game, 0)) + 0x40
+        data = bytearray(ext + (len(extension) + 1) * lay.stride)
+        spots = [(first + i * lay.stride, flag, f"Vil{i}") for i, flag in enumerate(flags)]
+        spots += [(ext + i * lay.stride, flag, f"Ext{i}") for i, flag in enumerate(extension)]
+        for p, flag, name in spots:
+            data[p:p + len(name)] = name.encode()
+            struct.pack_into("<i", data, p + lay.age, 300)
+            struct.pack_into("<i", data, p + lay.head, 3)
+            struct.pack_into("<i", data, p + lay.body, 4)
+            if game in checker.PRESENT:
+                off, width = checker.PRESENT[game]
+                data[p + off:p + off + width] = flag.to_bytes(width, "little")
+                if game == 5:
+                    data[p + off + 1] = 1           # the entry header's next byte (the faction)
+        return bytes(data)
+
+    def test_a_new_home_stops_at_the_first_record_not_present(self):
+        self.assertEqual([v.name for v in checker.vv1_roster(self.vv1([1, 1, 0, 1, 1]))], ["Vil0", "Vil1"])
+
+    def test_the_later_games_stop_at_the_end_of_list_flag(self):
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                roster = checker.vv25_roster(game, self.vv25(game, [1, 1, 1, 0, 1, 1]), [])
+                self.assertEqual([v.name for v in roster], ["Vil0", "Vil1", "Vil2"])
+
+    def test_nothing_after_the_flag_is_read_from_the_256_extension_either(self):
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                ended = checker.vv25_roster(game, self.vv25(game, [1, 0, 1], extension=[1]), [])
+                self.assertEqual([v.name for v in ended], ["Vil0"])
+                full = checker.vv25_roster(game, self.vv25(game, [1] * 150, extension=[1, 0, 1]), [])
+                self.assertEqual([v.name for v in full][-2:], ["Vil149", "Ext0"])
+
+    def test_any_name_a_player_gives_is_read(self):
+        # An audit, 2026-10-06: the table was found by the game's own names, so a villager named
+        # "Kaya St.Clair" (Give villagers last names takes any printable last name) or one letter
+        # cut the villagers before it off.
+        lay = checker.LAYOUTS[3]
+        for names in (["Alpha", "Bravo", "Kaya St.Clair", "Delta", "Echo"], ["X", "Bravo", "Charlie"],
+                      ["Alpha", "\xc9lan", "Charlie"]):
+            with self.subTest(names=names):
+                data = bytearray(self.vv25(3, [1] * len(names) + [0, 1]))
+                for i, name in enumerate(names):
+                    p = 0x400 + i * lay.stride
+                    data[p:p + 24] = bytes(24)
+                    data[p:p + len(name)] = name.encode("latin-1")
+                self.assertEqual([v.name for v in checker.vv25_roster(3, bytes(data), [])], names)
+
+    def test_the_lost_childrens_elder_statues_are_no_villagers(self):
+        # Live, 2026-10-06: the owner's slot 23 held 126 records, 11 of them Esteemed Elder
+        # statues (record +0x558), and the game showed Population 115.  A statue keeps its record
+        # number.
+        lay = checker.LAYOUTS[2]
+        data = bytearray(0x400 + 4 * lay.stride)
+        for i, name in enumerate(("Vil0", "Statue", "Vil2")):
+            p = 0x400 + i * lay.stride
+            data[p:p + len(name)] = name.encode()
+            struct.pack_into("<i", data, p + lay.age, 300)
+            data[p - 0x0C] = 1 if name == "Statue" else 0
+        roster = checker.vv25_roster(2, bytes(data), [])
+        self.assertEqual([(v.rank, v.name) for v in roster], [(0, "Vil0"), (2, "Vil2")])
+
+    def test_the_lost_children_has_no_flag_and_ends_at_its_zeroed_tail(self):
+        lay = checker.LAYOUTS[2]
+        data = bytearray(0x400 + 4 * lay.stride)
+        for i in range(2):
+            p = 0x400 + i * lay.stride
+            data[p:p + 4] = f"Vil{i}".encode()
+            struct.pack_into("<i", data, p + lay.age, 300)
+        self.assertEqual([v.name for v in checker.vv25_roster(2, bytes(data), [])], ["Vil0", "Vil1"])
 
 
 class ParsingFixtures(unittest.TestCase):

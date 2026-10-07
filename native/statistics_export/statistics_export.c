@@ -12,6 +12,7 @@
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
+#include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 
 enum {
     GAME_VV1 = 1,
@@ -1314,7 +1315,7 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
         const unsigned char *record = villagers + r->record_base + slot * r->stride;
         char name[ROSTER_NAME];
         unsigned int i;
-        if (record[r->active] != 1) {
+        if (record[r->active] != 1 || vv_lookalike(r->stride, record)) {
             continue;
         }
         for (i = 0; i < r->name_capacity && i < ROSTER_NAME - 1 && record[r->name + i] != 0; ++i) {
