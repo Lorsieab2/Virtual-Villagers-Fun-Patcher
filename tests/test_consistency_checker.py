@@ -376,6 +376,15 @@ class StaleRecords(unittest.TestCase):
     def test_a_new_home_stops_at_the_first_record_not_present(self):
         self.assertEqual([v.name for v in checker.vv1_roster(self.vv1([1, 1, 0, 1, 1]))], ["Vil0", "Vil1"])
 
+    def test_a_new_home_reads_the_flag_as_a_byte(self):
+        # Live, 2026-10-07: a living villager's +0x3D4 dword held 0x011C0001 (population 6); the
+        # game's flag is its low byte.  The save reader and Last Names read it the same way.
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_last_names as ln
+        data = self.vv1([1, 0x011C0001, 1, 0])
+        self.assertEqual([v.name for v in checker.vv1_roster(data)], ["Vil0", "Vil1", "Vil2"])
+        self.assertEqual(len(ln._entries(1, data)), 3)
+
     def test_the_later_games_stop_at_the_end_of_list_flag(self):
         for game in (3, 4, 5):
             with self.subTest(game=game):

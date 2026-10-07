@@ -2491,6 +2491,7 @@ int __stdcall ShowVV2AppearanceChooser(
     *(int *)(record + VV2_BODY_OFFSET) = vv2_appearance_body;
     if (vv2_mask_table_ok()) VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
     vv2_mask_sidecar_save();   /* persist the mask table right after committing */
+    vv_log_appearance(2, record, h, b, vv2_appearance_head, vv2_appearance_body);
     return 1;
 }
 
@@ -2814,7 +2815,7 @@ static int vv2_caf_record_needs_change(const unsigned char *rec, int index,
 static int vv2_apply_caf(unsigned char *base) {
     int idx[VV2_RECORD_COUNT];       /* active record indices */
     int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
-    int n = 0, affected = 0, mask_ok, mask_requested, i;
+    int n = 0, affected = 0, mask_ok, mask_requested, i, old_head, old_body;
     unsigned char *rec = base;
     if (base == 0) {
         return 0;
@@ -2836,10 +2837,15 @@ static int vv2_apply_caf(unsigned char *base) {
     for (i = 0; i < n; ++i) {
         rec = base + idx[i] * VV2_RECORD_STRIDE;
         if (!vv2_caf_record_needs_change(rec, idx[i], sexof[i], mask_ok)) continue;
+        old_head = *(int *)(rec + VV2_HEAD_OFFSET);
+        old_body = *(int *)(rec + VV2_BODY_OFFSET);
         if (caf_plan_head[idx[i]] >= 0)
             *(int *)(rec + VV2_HEAD_OFFSET) = caf_plan_head[idx[i]];
         if (caf_plan_body[idx[i]] >= 0)
             *(int *)(rec + VV2_BODY_OFFSET) = caf_plan_body[idx[i]];
+        /* Change Appearance for All is logged too (Codex, #558). */
+        vv_log_appearance(2, rec, old_head, old_body, *(int *)(rec + VV2_HEAD_OFFSET),
+                          *(int *)(rec + VV2_BODY_OFFSET));
         if (mask_ok && caf_plan_mask[idx[i]] >= 0)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_plan_mask[idx[i]];
     }

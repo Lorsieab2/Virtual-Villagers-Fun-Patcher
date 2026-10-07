@@ -6,6 +6,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
+#include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -2267,8 +2268,12 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         unsigned char *r = (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
         int h = plan_head[i];
         int b = plan_body[i];
+        int old_head = *(int *)(r + VV3_HEAD_OFF);
+        int old_body = *(int *)(r + VV3_BODY_OFF);
         if (h >= 0 && *(int *)(r + VV3_HEAD_OFF) != h) *(int *)(r + VV3_HEAD_OFF) = h;
         if (b >= 0 && *(int *)(r + VV3_BODY_OFF) != b) *(int *)(r + VV3_BODY_OFF) = b;
+        /* Change Appearance for All is logged too (Codex, #558). */
+        vv_log_appearance(3, r, old_head, old_body, *(int *)(r + VV3_HEAD_OFF), *(int *)(r + VV3_BODY_OFF));
     }
     /* Publish the already-proven, already-persisted scratch table as one
        in-memory commit.  Individual setters are intentionally not used here. */
@@ -3211,6 +3216,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     if (body) {
         *body = vv3_appearance_body;
     }
+    /* The exe writes the new look into the record and charges for it as this returns 1. */
+    vv_log_appearance(3, record, orig_head, orig_body, vv3_appearance_head, vv3_appearance_body);
     return 1;
 }
 

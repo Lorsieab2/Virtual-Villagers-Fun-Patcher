@@ -1234,10 +1234,14 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2 };
      UNACCOUNTED  unaccounted family, numbered "Unaccounted <n>"
      ARRIVED      births family, "Arrived <n>" (its own running count), never
                   rolls -- a villager who joined without being born here
-                  (native/shared/arrival_backfill.h) */
+                  (native/shared/arrival_backfill.h)
+     APPEARANCE   births family, "Appearance changed", never rolls -- a
+                  villager's head and body changed through Origins' Change
+                  Appearance (native/shared/appearance_log.h), so the Family
+                  Tree Maker knows the old and the new look are one villager */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
-    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6
+    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7
 };
 
 #define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Deaths"
@@ -1455,7 +1459,8 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     /* A record marker as the first line means the file has no header. */
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
-        || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0) {
+        || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
+        || strncmp(line, "Appearance changed", 18) == 0) {
         fclose(file);
         return 0;
     }
@@ -2768,7 +2773,11 @@ static char *label_record(const char *text) {
    had been written, so a transient failure at the first save lost the records
    for good. The one exception is a write whose partial output could not be
    rolled back: retrying it could only duplicate what may already be on disk. */
-static void flush_pending(int game_id, const char *village) {
+/* `at_save`: the village has just been saved (or nothing will ever name it). Before that, an
+   "Appearance changed" record stays held, and everything behind it with it, in order: the game
+   writes the new look into the save only at the save, so a crash before it must not leave the log
+   saying the villager changed (Codex, #558). */
+static void flush_pending(int game_id, const char *village, int at_save) {
     const struct game_layout *g = layout_of(game_id);
     int i;
     int kept = 0;
@@ -2778,6 +2787,9 @@ static void flush_pending(int game_id, const char *village) {
     for (i = 0; i < pending_count; ++i) {
         struct pending_record *entry = &pending[i];
         int release = 0;
+        if (entry->game_id == game_id && !at_save && entry->kind == KIND_APPEARANCE) {
+            stopped = 1;
+        }
         if (entry->game_id == game_id && !stopped) {
             const char *text = entry->text;
             char *labelled = NULL;
@@ -2857,8 +2869,11 @@ static int emit_record(
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
+    if (kind == KIND_APPEARANCE && village_publisher_present(game_id)) {
+        return hold_record(game_id, kind, records, text);   /* written at the next save */
+    }
     if (village[0] != '\0' && saved_tribe_still_loaded(game_id)) {
-        flush_pending(game_id, village);
+        flush_pending(game_id, village, 0);
         /* Written now only when nothing is still waiting and the write works.
            Otherwise it queues BEHIND what is waiting, so a failed write can
            neither lose it nor let it overtake an earlier record. */
@@ -2878,7 +2893,7 @@ static int emit_record(
            Death shipped, then found unable to hook the save -- go first,
            in order, unlabelled like this one: nothing will name them now. */
         if (pending_count > 0) {
-            flush_pending(game_id, village);
+            flush_pending(game_id, village, 1);
             if (pending_count > 0) {
                 return hold_record(game_id, kind, records, text);
             }
@@ -3710,7 +3725,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_ARRIVED) {
+        || kind < KIND_DEATH || kind > KIND_APPEARANCE) {
         return 0;
     }
     g = layout_of(game_id);
@@ -3731,6 +3746,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         heading = "Disappeared\n";
     } else if (kind == KIND_EPITAPH) {
         heading = "Epitaph changed\n";
+    } else if (kind == KIND_APPEARANCE) {
+        heading = "Appearance changed\n";
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);
@@ -3951,7 +3968,7 @@ __declspec(dllexport) int __stdcall ReleaseHeldRecords(int game_id) {
     if (village_publisher_present(game_id)) {
         return 0;
     }
-    flush_pending(game_id, "");
+    flush_pending(game_id, "", 1);
     for (i = 0; i < pending_count; ++i) {
         if (pending[i].game_id == game_id) {
             return 0;
@@ -4001,7 +4018,7 @@ static int ensure_parentage_log(
     if (records != NULL) {
         remember_saved_tribe(game_id, (const unsigned char *)records);
     }
-    flush_pending(game_id, village);
+    flush_pending(game_id, village, 1);
     /* ASK FOR THE FILE A BIRTH WOULD USE, NOT THE ONE A CONCEPTION WOULD.
 
        for_birth = 1 returns the village's NEWEST EXISTING file; for_birth = 0

@@ -19,7 +19,8 @@
         it is checked only for being readable); "Unaccounted <n>" goes to
         its own log, numbered, with the skills block.
      4. A record outside the game's villager table, or a kind out of range,
-        is refused.
+        is refused; an "Appearance changed" record goes to the Births and
+        Conceptions log, unnumbered.
      5. A record before the village is known (no save yet) is held, then
         written under the village's header at the save.
      6. 256 Death records per file (Disappeared records not counted): the
@@ -456,9 +457,24 @@ int main(int argc, char **argv) {
             memset(stray, 0, sizeof stray);
             CHECK(write_record(game, DEATH, stray + 0x10, 1, BURIED, NULL, 1) == 0, "a record outside the table is refused");
             CHECK(write_record(game, DEATH, rec(1) + 4, 1, BURIED, NULL, 1) == 0, "a pointer inside a record is refused");
-            CHECK(write_record(game, 7, rec(1), 1, BURIED, NULL, 1) == 0
+            CHECK(write_record(game, 8, rec(1), 1, BURIED, NULL, 1) == 0
                   && write_record(game, 1, rec(1), 1, BURIED, NULL, 1) == 0, "a kind out of range is refused");
         }
+        /* "Appearance changed" (kind 7): the Births and Conceptions log, unnumbered, the name and the
+           old and the new look only (native/shared/appearance_log.h) -- held until the next save even
+           in a known village, and a later record does not release it (Codex, #558: the game saves
+           the new look only then). */
+        CHECK(write_record(game, 7, rec(1), 1, "  Old head: 3\n  Old body: 4\n  New head: 7\n  New body: 8\n",
+                           NULL, 0) == 1, "an Appearance changed record is accepted");
+        CHECK(write_record(game, DEATH, rec(2), 1, BURIED, NULL, 1) == 1, "...and a death after it");
+        CHECK(!read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+              || strstr(text, "\r\nAppearance changed\r\n") == NULL,
+              "Appearance changed: held, not on disk before the save, though a record came after it");
+        CHECK(ensure_village(game, VILLAGE, records) == 1, "...the save");
+        CHECK(read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+              && strstr(text, "\r\nAppearance changed\r\n  Name: ") != NULL
+              && strstr(text, "  Old head: 3\r\n  Old body: 4\r\n  New head: 7\r\n  New body: 8\r\n\r\n") != NULL,
+              "Appearance changed: in the Births and Conceptions log at the save, unnumbered, both looks");
 
         /* 6: the roll (VV1 only; the code is shared). */
         if (game == 1) {

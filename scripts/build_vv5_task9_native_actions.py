@@ -421,6 +421,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("bb_charge_unknown", b"The final tech-point balance did not match the exact 75,000-point deduction. The charge outcome is unknown; no barrel was queued.\0"),
         ("bb_queue_unknown", b"The 75,000-point deduction was verified, but the barrel could not be queued.\0"),
         ("install_export", b"Vv5InstallCompanions\0"),
+        ("logappearance_export", b"LogVV5AppearanceChange\0"),
     )
     if page_va == 0x7C9000:
         values = values + time_warp_values
@@ -2695,7 +2696,9 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     the stock head/body sprites with arrows and, on OK (return 1), reports the
     chosen indices back through the pointers -- it never touches the record. On
     OK this router re-checks eligibility and funds, writes the chosen indices
-    into record+0x1BB8/+0x1BBC, and charges exactly 5,000 once. If the chosen
+    into record+0x1BB8/+0x1BBC, hands the old and new look to the DLL's
+    LogVV5AppearanceChange (the Births and Conceptions log), and charges
+    exactly 5,000 once. If the chosen
     head differs from the original, it first shows the companion DLL's
     ShowVV5Task9GeneticsWarning (OK/Cancel); Cancel backs out with no write and
     no charge. Cancel changes nothing silently; an OK with an unchanged
@@ -2808,6 +2811,18 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         push 0x{MASK_TABLE:X}
         call eax
     ws_skip:
+        push 0x{s['logappearance_export']:X}
+        push ebx
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz log_skip
+        push dword ptr [ebp-0x20]
+        push dword ptr [ebp-0x1C]
+        push dword ptr [ebp-0x30]
+        push dword ptr [ebp-0x2C]
+        push dword ptr [ebp-0x18]
+        call eax
+    log_skip:
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x28], eax
         push -5000

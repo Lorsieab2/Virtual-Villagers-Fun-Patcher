@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -495,11 +496,13 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
             and instructions[index].op_str == "eax, eax"
         )
         self.assertEqual(instructions[result_index + 1].mnemonic, "jne")
+        # The staged head/body stores go through the out-pointers; MSVC picks
+        # the registers for both the pointers and the values.
         write_addresses = {
             instruction.address
             for instruction in instructions[result_index + 1 :]
             if instruction.mnemonic == "mov"
-            and instruction.op_str in ("dword ptr [edi], eax", "dword ptr [esi], eax")
+            and re.fullmatch(r"dword ptr \[e(?:[abcd]x|si|di|bp)\], e(?:[abcd]x|si|di|bp)", instruction.op_str)
         }
         self.assertTrue(write_addresses)
         self.assertLessEqual(skip_target, min(write_addresses))
