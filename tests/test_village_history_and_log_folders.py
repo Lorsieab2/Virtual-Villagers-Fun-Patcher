@@ -120,8 +120,10 @@ class HistoryTests(unittest.TestCase):
 
     def test_only_living_villagers_are_written_per_snapshot(self):
         """Each snapshot is who is alive AT THAT SAVE. Dead villagers are
-        preserved by earlier snapshots, not by reading dead slots."""
-        self.assertIn("if (*(const unsigned char *)(record + g->active) != 1) {",
+        preserved by earlier snapshots, not by reading dead slots.  Records the game
+        keeps that are no villagers (statues, ghosts, stand-ins) are not written either
+        (native/shared/villager_lookalike.h)."""
+        self.assertIn("if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {",
                       self.history)
 
     def test_every_failure_path_closes_the_file(self):
