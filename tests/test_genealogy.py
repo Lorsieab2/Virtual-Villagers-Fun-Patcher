@@ -641,6 +641,9 @@ class StickerTests(unittest.TestCase):
                 lay = ft.layout(v, e)
                 drawn = ft.lines(lay)
                 assert_connected(self, lay, drawn)
+                # The owner: "I said no bumps!" -- nothing in the way, so no line steps aside.
+                self.assertFalse([piece for _c, _p, _f, piece in drawn
+                                  if piece.startswith("to ") and not piece.endswith(" 0")], (size, kind))
                 ends = [pt for _c, pts, _fid, _piece in drawn for pt in (pts[0], pts[-1])]
                 for q in lay.x:                 # a line ending at a portrait (not at another piece) ends on its edge
                     xs, ys = zip(*lay.frame_points(q))

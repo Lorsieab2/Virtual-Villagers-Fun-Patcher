@@ -25,6 +25,7 @@ from datetime import datetime
 import tempfile
 import tkinter as tk
 from pathlib import Path
+from types import SimpleNamespace
 from tkinter import colorchooser, filedialog, font as tkfont, messagebox, simpledialog, ttk
 
 import vv_family_tree as ft
@@ -1340,6 +1341,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             "View": [("Zoom In", "+", lambda: self._zoom_step(1)), ("Zoom Out", "-", lambda: self._zoom_step(-1)),
                      ("Fit", "", self._zoom_fit), ("100%", "Ctrl+0", lambda: self._zoom_to(1.0)), None,
                      ("Hide or Show the Panel", "F4", self._toggle_panel), ("Full Screen", "F11", self._toggle_full)],
+            "Tools": [("Village Matchmaker...", "", self._matchmaker)],
             "Help": [("Controls", "F1", self._help)],
         }
         for name, entries in items.items():
@@ -1352,6 +1354,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                     menu.add_command(label=label, accelerator=keys, command=command)
             bar.add_cascade(label=name, menu=menu)
         self.configure(menu=bar)
+
+    def _matchmaker(self) -> None:
+        """The Village Matchmaker for this save (as its button on the patcher's tabs opens it)."""
+        _pair_rules(self.app, self, self.folder, self.game, SimpleNamespace(name=self.village.tribe or "Village",
+                                                                            slot=self.slot), self.game_title)
 
     def _export(self) -> None:
         """The tree as a picture, PNG or JPG, anywhere (every page of it)."""

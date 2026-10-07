@@ -1159,7 +1159,9 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
             first = key(members[0])
             if len(members) == 1:
                 c = members[0]
-                legs = _route(lay, apex, lane, _arrive_y(lay, c, apex), jogs, back=True)
+                legs = _route(lay, apex, lane, lay.y[c], jogs, back=True)
+                (ex, _ey) = legs[-1][-1]            # the last stretch ends on the frame as drawn
+                legs[-1][-1] = (ex, _arrive_y(lay, c, ex))
                 names = [f"to {first} {k}" for k in range(len(legs))]
                 for k, leg in enumerate(legs):
                     add(leg, names[k], {1: ("top", c)} if k == len(legs) - 1 else None,
