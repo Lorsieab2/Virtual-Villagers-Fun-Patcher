@@ -625,6 +625,30 @@ class StickerTests(unittest.TestCase):
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
 
+    def test_a_long_family_on_several_unjoined_pages(self) -> None:
+        # The owner: "MULTIPLE PAGES of the family tree ... the new pages are not connected to
+        # previous pages".
+        v = village()
+        e = ft.Edits()
+        ft.arrange(v, e)
+        whole = ft.layout(v, e)
+        gens = sorted({v.people[q].generation for q in whole.x})
+        self.assertGreater(len(gens), 1)
+        e.pages = [gens[1]]
+        ft.arrange(v, e)
+        first, second = ft.layout(v, e, 0), ft.layout(v, e, 1)
+        self.assertEqual((first.pages, second.page), (2, 1))
+        self.assertEqual(set(first.x) | set(second.x), set(whole.x))
+        self.assertFalse(set(first.x) & set(second.x))
+        self.assertEqual(set(first.others) | set(second.others), set(whole.others))
+        for lay in (first, second):
+            for fam in lay.families:
+                self.assertTrue(all(c in lay.x for c in fam.children))
+                self.assertTrue(any(q in lay.x for q in (fam.father, fam.mother) if q is not None))
+            assert_connected(self, lay, ft.lines(lay))
+        self.assertTrue(ft.title_lines(second, "A New Home")[0].endswith("Page 2 of 2"))
+        self.assertEqual(ft.Edits.from_data({"pages": [3, 3, 1, "x", 7]}).pages, [3, 7])
+
     def test_batch_sizes_line_styles_and_glowing_marks(self) -> None:
         # The owner: "batch-changing portrait shape sizes ... line weights, types, absolutely
         # everything in batch!", "can marks be a "glow" around the portrait instead?", and the

@@ -245,6 +245,7 @@ class Edits:
     mark_opacity: int = 100             # percent
     # What the player deleted from the tree (the owner: "omit anything I like"): "word:<MOVABLE
     # name>" and "line:<family key>|<piece>".  A villager deleted is "hidden" in their entry.
+    pages: list[int] = field(default_factory=list)                     # the generations that start a new page
     hidden: list[str] = field(default_factory=list)
     # Pieces of line the player dragged (the owner: "move individual lines and still keep the
     # connections to portraits"): "<family key>|<piece>" -> how far it was dragged.
@@ -372,6 +373,8 @@ class Edits:
             for group, value in dict(data.get(attr, {})).items():
                 if group in GROUPS and value in choices:
                     getattr(out, attr)[group] = value
+        if isinstance(data.get("pages"), list):
+            out.pages = sorted({int(g) for g in data["pages"] if isinstance(g, int) and 2 <= g <= 99})
         if isinstance(data.get("hidden"), list):
             out.hidden = [str(h) for h in data["hidden"]]
         for g, keys in dict(data.get("orders", {})).items():
@@ -410,6 +413,7 @@ class Edits:
                 "ink": self.ink, "family_colours": self.family_colours,
                 "person_colours": self.person_colours, "moved": self.moved, "orders": self.orders,
                 "portrait_fill": self.portrait_fill, "plate_colour": self.plate_colour, "hidden": self.hidden,
+                "pages": self.pages,
                 "shapes": self.shapes, "borders": self.borders, "opacity": self.opacity,
                 "sizes": self.sizes, "line_width": self.line_width, "line_dash": self.line_dash,
                 "family_lines": self.family_lines, "mark_style": self.mark_style, "mark_glow": self.mark_glow,
@@ -596,6 +600,8 @@ class Layout:
     bands: dict[int, float] = field(default_factory=dict)        # generation -> its rows' height
     birth_colour: dict[int, str] = field(default_factory=dict)
     edits: Edits = field(default_factory=Edits)
+    page: int = 0                       # which page of the tree this is (page_spans)
+    pages: int = 1
 
     @property
     def background(self) -> str:
@@ -690,10 +696,21 @@ def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = Tr
     return entry.get("w", gw), entry.get("h", gh)
 
 
-def layout(village: gen.Village, edits: Edits | None = None) -> Layout:
+def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
+    """Each page's first and last generation (the generations as arrange gives them)."""
+    gens = sorted({p.generation for p in village.people.values()}) or [1]
+    starts = [gens[0]] + [g for g in edits.pages if gens[0] < g <= gens[-1]]
+    return [(lo, starts[k + 1] - 1 if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
+
+
+def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:
     people = village.people
     gone = {pid for pid, p in people.items()
             if (edits or Edits()).entries.get(entry_key(village, p), {}).get("hidden")}
+    spans = page_spans(edits or Edits(), village)
+    page = max(0, min(page, len(spans) - 1))
+    first, last = spans[page]
+    off = {pid for pid, p in people.items() if not first <= p.generation <= last}     # on another page
     fam_of: dict[tuple, Family] = {}
     for p in sorted(people.values(), key=lambda q: (q.generation, q.upcoming, -(q.age or 0), q.id)):
         if p.father is None and p.mother is None or p.id in gone:
@@ -708,8 +725,13 @@ def layout(village: gen.Village, edits: Edits | None = None) -> Layout:
         in_tree.update(fam.children)
         in_tree.update(q for q in (fam.father, fam.mother) if q is not None)
     in_tree -= gone
-    others = sorted((pid for pid in people if pid not in in_tree and pid not in gone),
+    others = sorted((pid for pid in people if pid not in in_tree and pid not in gone and pid not in off),
                     key=lambda q: (people[q].generation, _place(people[q])))
+    if off:                             # one page of a longer tree: its own generations, not joined to others
+        in_tree -= off
+        for fam in families:
+            fam.children = [c for c in fam.children if c not in off]
+        families = [f for f in families if f.children and any(q in in_tree for q in (f.father, f.mother))]
     # Each row in age order, oldest on the left (the owner: "oldest on the left, youngest on the
     # right"), numbered so (vv_genealogy.number_people).
     rows: dict[int, list[int]] = {}
@@ -776,7 +798,7 @@ def layout(village: gen.Village, edits: Edits | None = None) -> Layout:
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,
-                 edits=edits)
+                 edits=edits, page=page, pages=len(spans))
     # One colour each: every villager with no recorded parents, every pairing, every set of full
     # brothers and sisters -- oldest first, so the most distinct go to the founders.
     e = out.edits
@@ -1439,7 +1461,8 @@ def default_label_parts(lay: Layout, g: int) -> dict[str, str]:
 
 def title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
     first, second = default_title_lines(lay, game_title)
-    return (lay.edits.title or first, lay.edits.subtitle or second)
+    page = f" -- Page {lay.page + 1} of {lay.pages}" if lay.pages > 1 else ""
+    return (lay.edits.title or first) + page, lay.edits.subtitle or second
 
 
 def default_title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
@@ -2267,8 +2290,9 @@ def write(folder: Path, game: int, slot: int, images: Path | None, game_title: s
     folder = Path(folder)
     village, edits, lay = build(folder, game, slot, edits)
     present = sheets_present(game, images)
-    sc = scene(lay, game_title, present, images, library)          # the tree as the player arranged it
-    title = title_lines(lay, game_title)[0]
+    pages = [scene(layout(village, edits, k), game_title, present, images, library)     # as the player arranged it
+             for k in range(lay.pages)]
+    title = title_lines(replace(lay, pages=1), game_title)[0]
     arrange(village, Edits(sort=edits.sort))         # the report: the records' generations
     text = gen.report(village, game_title)
     out = Path(out) if out is not None else folder / tools.LOGS / "Genealogy"
@@ -2277,10 +2301,12 @@ def write(folder: Path, game: int, slot: int, images: Path | None, game_title: s
     report_path = out / f"{stem}.txt"
     report_path.write_bytes(text.replace("\n", "\r\n").encode("utf-8"))
     page_path = out / f"{stem}.html"
-    page_path.write_bytes(html_page(to_svg(sc, present), title, text,
+    page_path.write_bytes(html_page("\n".join(to_svg(sc, present) for sc in pages), title, text,
                                     lay.background).encode("utf-8"))
     picture = out / f"{stem}.png"
-    made = vv_gdiplus.save_scene(sc, present, picture)
+    made = vv_gdiplus.save_scene(pages[0], present, picture)
+    for k, sc in enumerate(pages[1:], 2):        # the later pages beside the first
+        vv_gdiplus.save_scene(sc, present, out / f"{stem} - Page {k}.png")
     return Written(report_path, page_path, picture if made else None)
 
 

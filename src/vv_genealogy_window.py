@@ -392,6 +392,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.present = ft.sheets_present(game, images)
         self.library = game_libraries(app)
         self.selected: list[int] = []
+        self.page = 0                           # the page of the tree shown (ft.page_spans)
         self.anchor: int | None = None
         self.band = None
         self.pan: tuple | None = None
@@ -432,6 +433,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         size.bind("<<ComboboxSelected>>", lambda _e: self._draw_grid())
         ttk.Checkbutton(bar, text="Show grid", variable=self.show_grid, command=self._draw_grid
                         ).pack(side="left", padx=(6, 0))
+        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Label(bar, text="Page:").pack(side="left")
+        self.page_var = tk.StringVar()
+        self.page_box = ttk.Combobox(bar, textvariable=self.page_var, state="readonly", width=22)
+        self.page_box.pack(side="left", padx=(2, 0))
+        self.page_box.bind("<<ComboboxSelected>>", lambda _e: self._show_page(self.page_box.current()))
         self.diagonal_var = tk.BooleanVar(value=self.edits.diagonal_lines)
         ttk.Checkbutton(bar, text="Allow diagonal lines", variable=self.diagonal_var,
                         command=lambda: self._change(diagonal_lines=bool(self.diagonal_var.get()))
@@ -780,6 +787,21 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Restore all", command=lambda: self._restore_hidden(every=True)).pack(side="left", padx=(6, 0))
         self.hidden_keys: list[str] = []
         self.after_idle(self._refresh_hidden)
+        box = ttk.LabelFrame(tab, text="Pages (for a very large or long family)", padding=6)
+        box.pack(fill="x", pady=(10, 0))
+        self.pages_label = tk.StringVar()
+        ttk.Label(box, textvariable=self.pages_label, wraplength=320, justify="left").pack(anchor="w")
+        row = ttk.Frame(box)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="A new page starts at generation").pack(side="left")
+        self.break_var = tk.StringVar()
+        ttk.Spinbox(row, textvariable=self.break_var, from_=2, to=99, width=4).pack(side="left", padx=(4, 0))
+        ttk.Button(row, text="Add page", command=self._add_page_break).pack(side="left", padx=(6, 0))
+        ttk.Button(box, text="Join this page onto the one before", command=self._remove_page_break).pack(
+            anchor="w", pady=(4, 0))
+        ttk.Label(box, text="Each page is its own tree; a child whose parents are on an earlier page starts its "
+                            "page.  Saving a picture saves every page.", wraplength=320, justify="left").pack(
+            anchor="w", pady=(4, 0))
         ttk.Label(tab, text="Generation numbers:").pack(anchor="w", pady=(10, 1))
         self.numbering_var = tk.StringVar(value=ft.NUMBERINGS[e.numbering])
         numbering = ttk.Combobox(tab, textvariable=self.numbering_var, values=list(ft.NUMBERINGS.values()),
@@ -863,9 +885,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     # ---- drawing ------------------------------------------------------------
     def _scene(self) -> ft.Scene:
+        self.lay, sc = self._page_scene(self.page)
+        self.page = self.lay.page
+        return sc
+
+    def _page_scene(self, page: int) -> tuple[ft.Layout, ft.Scene]:
+        """One page of the tree, as drawn and saved."""
         ft.arrange(self.village, self.edits)
-        self.lay = ft.layout(self.village, self.edits)
-        return ft.scene(self.lay, self.game_title, self.present, self.images, self.library)
+        lay = ft.layout(self.village, self.edits, page)
+        return lay, ft.scene(lay, self.game_title, self.present, self.images, self.library)
 
     def _view_anchor(self) -> tuple | None:
         """What the view is on before the tree is drawn again: the first selected villager (or else
@@ -901,6 +929,56 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         anchor = self._view_anchor()
         self._draw_tree()
         self._keep_view(anchor)
+        self._refresh_pages()
+
+    def _refresh_pages(self) -> None:
+        """The page list on the toolbar and the Layout tab."""
+        spans = ft.page_spans(self.edits, self.village)
+        names = [f"{k + 1} of {len(spans)}: generation {gen.roman(lo)}" + (f" to {gen.roman(hi)}" if hi != lo else "")
+                 for k, (lo, hi) in enumerate(spans)]
+        self.page_box.configure(values=names)
+        self.page_var.set(names[self.page])
+        if hasattr(self, "pages_label"):
+            self.pages_label.set("Pages: " + ";  ".join(names))
+
+    def _show_page(self, page: int) -> None:
+        if page == self.page or page < 0:
+            return
+        self.page = page
+        self.selected = []
+        self.obj = None
+        self._draw_tree()
+        self._refresh_pages()
+        self._refresh_selected()
+        self.canvas.xview_moveto(0)
+        self.canvas.yview_moveto(0)
+
+    def _add_page_break(self) -> None:
+        """A new page from the generation typed (the owner: "MULTIPLE PAGES of the family tree")."""
+        try:
+            g = int(self.break_var.get())
+        except ValueError:
+            g = 0
+        gens = sorted({p.generation for p in self.village.people.values()})
+        if not gens or not gens[0] < g <= gens[-1]:
+            self.status.set(f"A new page can start at generation {gens[0] + 1} to {gens[-1]}." if len(gens) > 1
+                            else "This tree has one generation: it fits one page.")
+            return
+        if g in self.edits.pages:
+            return
+        self.edits.pages = sorted(self.edits.pages + [g])
+        self._saved()
+        self.status.set(f"Generation {gen.roman(g)} now starts a new page.  Pick the page on the toolbar.")
+
+    def _remove_page_break(self) -> None:
+        """This page joined back onto the one before it."""
+        first = ft.page_spans(self.edits, self.village)[self.page][0]
+        if self.page == 0 or first not in self.edits.pages:
+            self.status.set("Show the page to join onto the one before it (not the first page).")
+            return
+        self.edits.pages = [g for g in self.edits.pages if g != first]
+        self.page -= 1
+        self._saved()
 
     def _draw_tree(self) -> None:
         sc = self._scene()
@@ -2259,12 +2337,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._save_as(folder / f"{self._tree_name()}.png", 1.0)
 
     def _save_as(self, path: Path, scale: float) -> None:
+        """The tree as a picture: every page of it, "<name> - Page 2" and so on beside the first."""
+        count = len(ft.page_spans(self.edits, self.village))
         try:
-            vv_gdiplus.save_scene(self._scene(), self.present, path, scale=scale)
+            for k in range(count):
+                target = path if k == 0 else path.with_name(f"{path.stem} - Page {k + 1}{path.suffix}")
+                vv_gdiplus.save_scene(self._page_scene(k)[1], self.present, target, scale=scale)
         except (OSError, ValueError) as exc:
             messagebox.showerror("Save Picture", f"The picture could not be saved: {exc}", parent=self)
             return
-        self.status.set(f"Saved {path}")
+        self.status.set(f"Saved {path}" + (f" and {count - 1} more page(s) beside it" if count > 1 else ""))
         if messagebox.askyesno("Save Picture", f"Saved {path}.\n\nOpen the folder?", parent=self):
             os.startfile(str(path.parent))  # noqa: S606 - Windows only, the player's own folder
 
