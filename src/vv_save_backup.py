@@ -649,7 +649,7 @@ BEFORE_RESTORE = "(before restore)"
 # Rename Tribe (src/vv_tribe_rename.py) backs the folder up first under this
 # label; such a backup is listed and restored like any other.
 BEFORE_RENAME = "(before rename)"
-# Repair Logs (src/vv_log_tools.py) backs the folder up first under this label.
+# Repair Saves & Logs (src/vv_log_tools.py) backs the folder up first under this label.
 BEFORE_REARM = "(before repair re-arm)"
 INCOMPLETE = " INCOMPLETE"
 _BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before (?:restore|rename|repair re-arm)\)))?$")

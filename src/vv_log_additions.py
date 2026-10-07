@@ -1,13 +1,13 @@
-"""Repair Logs: what older log records lack, and adding it (all five games).
+"""Repair Saves & Logs: what older log records lack, and adding it (all five games).
 
-The owner (2026-10-06): Check Logs and Repair Logs ask the player whether to
+The owner (2026-10-06): Check Saves & Logs and Repair Saves & Logs ask the player whether to
 add, retroactively, what records written by an older patcher lack -- the Sex
 line, the Special villager title, the Custom title, the Mask, Twin / Triplet
 -- and "CHECK ALL SAVES, DAT FILES AND EXES. IF EVER UNSURE, ASK THE PLAYER".
 
 So every kind is planned from what the save, the patcher's own files and the
 logs themselves settle, and whatever they cannot settle becomes a Question the
-player answers in the Repair Logs window; an unanswered question ("Don't
+player answers in the Repair Saves & Logs window; an unanswered question ("Don't
 know") adds nothing.  Planning only reads.  Applying backs every log up
 beside itself first (never replacing a backup), rewrites it through a
 temporary file and lists what it added in the Repairs log.
@@ -353,7 +353,7 @@ def plan_masks(folder: Path, slot: int, people: list[Block], current: dict, page
     kind = Kind("mask", "Masks in older History snapshots")
     if not any(b.value("Mask") for b in current.values()):
         kind.notes.append("No villager wears a mask on the latest Village Population page. If some do, "
-                          "play the village once with this patcher and save, then Repair Logs can add them.")
+                          "play the village once with this patcher and save, then Repair Saves & Logs can add them.")
         return kind
     persons = _persons(current)
     for identity, now in current.items():

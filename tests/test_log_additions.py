@@ -1,6 +1,6 @@
-"""Repair Logs: adding what older records lack (src/vv_log_additions.py).
+"""Repair Saves & Logs: adding what older records lack (src/vv_log_additions.py).
 
-The owner (2026-10-06): Check Logs and Repair Logs offer to add, retroactively,
+The owner (2026-10-06): Check Saves & Logs and Repair Saves & Logs offer to add, retroactively,
 the Sex line, the Special villager title, the Custom title, the Mask and Twin /
 Triplet to records an older patcher wrote -- from the save, the patcher's files
 and the logs, and "IF EVER UNSURE, ASK THE PLAYER".  These tests build small

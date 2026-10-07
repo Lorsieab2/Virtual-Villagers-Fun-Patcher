@@ -1,4 +1,4 @@
-"""Repair Logs' last names: where each villager's comes from.
+"""Repair Saves & Logs' last names: where each villager's comes from.
 
 The owner (2026-10-07): "an option to choose whether people inherit the Father or Mother's last
 name, or random 50:50 or player choice for each villager", "I also want the player to be able to
@@ -110,13 +110,49 @@ class InheritanceTests(unittest.TestCase):
         # A typed name goes in the villager's own box (the owner, 2026-10-07), not a rule.
         self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "each"])
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
-        self.assertIn("vv_last_names.inherited(people, parents, rule_key(), pool, fixed)", gui)
+        self.assertIn("vv_last_names.with_siblings(fixed(), parents), carried)", gui)
+        set_by = gui[gui.index("        def set_by_player(v) -> None:"):]
+        self.assertIn("mine.add(v.identity)\n            by_rule()", set_by[:120], "the family follows at once")
         # Any change to a villager's box -- typed, pasted or picked -- is the player's; the
         # window's own filling in is not.
         self.assertIn('value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))', gui)
         # The box takes typed names: it is never read-only.
-        start = gui.index("box = ttk.Combobox(inner, textvariable=value, width=24,")
+        start = gui.index("box = ttk.Combobox(inner, textvariable=value, width=20,")
         self.assertNotIn("readonly", gui[start:gui.index("\n", start + 200)])
+
+    def test_brothers_and_sisters_follow_a_name_the_player_gives(self) -> None:
+        # The owner: "if one villager's last name is filled, the other members of their family
+        # should probably auto-adjust": Goro's sister takes his typed name, and her daughter follows.
+        sister = living("Mai", 2, "Tano", 8)
+        niece = living("Lani", 2, "Tano", 9)
+        people = PEOPLE + [sister, niece]
+        parents = dict(PARENTS)
+        parents[sister.identity] = PARENTS[GORO.identity]
+        parents[niece.identity] = (("Pod", 1, 1), sister.identity)
+        given = ln.inherited(people, parents, "mother", fixed=ln.with_siblings({GORO.identity: "Chapstick"}, parents))
+        self.assertEqual(given[sister.identity], "Chapstick")
+        self.assertEqual(given[niece.identity], "Chapstick")
+        self.assertEqual(ln.with_siblings({GORO.identity: "A", sister.identity: "B"}, parents)[sister.identity], "B",
+                         "a sibling the player set keeps theirs")
+
+    def test_a_name_splits_into_first_last_and_numeral(self) -> None:
+        # Every last name may be changed, a numeral (Number Duplicate Names) kept after it.
+        self.assertEqual(ln.split_name(3, "Soda Akikai II"), ("Soda", "Akikai", "II"))
+        self.assertEqual(ln.split_name(3, "Soda II"), ("Soda", "", "II"))
+        self.assertEqual(ln.split_name(3, "Chapa Chapstick", {"Chapstick"}), ("Chapa", "Chapstick", ""))
+        self.assertEqual(ln.split_name(3, "Akikai"), ("Akikai", "", ""), "a first word is never a last name")
+        self.assertEqual(ln.with_last(3, "Soda Akikai II", "Wikimak"), "Soda Wikimak II")
+        self.assertEqual(ln.with_last(3, "Soda Akikai II", ""), "Soda II")
+        self.assertEqual(ln.with_last(3, "Soda II", "Akikai"), "Soda Akikai II")
+
+    def test_a_change_of_rule_re_derives_the_family(self) -> None:
+        # Goro already carries "Lasso"; under "From the mother" he is Huata's son: Ruku.
+        goro = living("Goro Lasso", 2, "Tano", 5)
+        people = [HUATA, goro]
+        parents = {goro.identity: (KITO, HUATA.identity)}
+        carried = lambda name: ln.split_name(3, name, {"Lasso", "Ruku"})[1]  # noqa: E731
+        self.assertEqual(ln.inherited(people, parents, "mother", carried=carried)[goro.identity], "Ruku")
+        self.assertEqual(ln.inherited(people, parents, "father", carried=carried)[goro.identity], "Lasso")
 
 
 if __name__ == "__main__":

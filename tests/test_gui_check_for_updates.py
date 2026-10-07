@@ -164,7 +164,7 @@ class ReleasesLinkTests(unittest.TestCase):
         for module, may_import in (
             ("vv_save_backup", set()),
             ("vv_tribe_rename", {"vv_save_backup"}),
-            ("vv_log_tools", {"vv_save_backup", "vv_log_additions"}),
+            ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy"}),
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename"}),
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",

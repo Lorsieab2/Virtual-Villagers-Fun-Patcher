@@ -51,7 +51,7 @@ from vv_fun_patcher import (
 
 ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = ROOT / "patcher_local_settings.json"
-# The setting beside Check Logs / Repair Logs (STARTUP_LOADER_CHECK_LOGS in
+# The setting beside Check Saves & Logs / Repair Saves & Logs (STARTUP_LOADER_CHECK_LOGS in
 # vv_fun_patcher.py): on by default, remembered, written into every game the
 # window creates from then on.
 CHECK_LOGS_LABEL = (
@@ -997,11 +997,11 @@ class App(tk.Tk):
         ).pack(side="left", padx=(18, 0))
         self._help_button(links, "rename_tribe").pack(side="left", padx=(3, 0))
         self._folder_link(
-            links, "Check Logs...", self._check_single_logs
+            links, "Check Saves & Logs...", self._check_single_logs
         ).pack(side="left", padx=(18, 0))
         self._help_button(links, "check_logs").pack(side="left", padx=(3, 0))
         self._folder_link(
-            links, "Repair Logs...", self._repair_single_logs
+            links, "Repair Saves & Logs...", self._repair_single_logs
         ).pack(side="left", padx=(18, 0))
         self._help_button(links, "repair_logs").pack(side="left", padx=(3, 0))
         genealogy = ttk.Frame(box)
@@ -1097,13 +1097,13 @@ class App(tk.Tk):
         self._help_button(save_tools, "rename_tribe").pack(side="left", padx=(2, 0))
         ttk.Button(
             save_tools,
-            text="Check Logs...",
+            text="Check Saves & Logs...",
             command=lambda: self._log_tool(None, repair=False),
         ).pack(side="left", padx=(8, 0))
         self._help_button(save_tools, "check_logs").pack(side="left", padx=(2, 0))
         ttk.Button(
             save_tools,
-            text="Repair Logs...",
+            text="Repair Saves & Logs...",
             command=lambda: self._log_tool(None, repair=True),
         ).pack(side="left", padx=(8, 0))
         self._help_button(save_tools, "repair_logs").pack(side="left", padx=(2, 0))
@@ -1137,7 +1137,7 @@ class App(tk.Tk):
         else:
             self.status_var.set(
                 "Check logs automatically: off. Games you create from now on never "
-                "check or ask during play; use Check Logs and Repair Logs."
+                "check or ask during play; use Check Saves & Logs and Repair Saves & Logs."
             )
         self._save_settings()
 
@@ -2670,16 +2670,16 @@ class App(tk.Tk):
         if build is not None:
             vv_genealogy_window.open_pair_suggestions(self, build)
 
-    # -- Check Logs / Repair Logs -------------------------------------------
+    # -- Check Saves & Logs / Repair Saves & Logs -------------------------------------------
 
     def _check_single_logs(self) -> None:
-        """Check Logs for the game chosen on the One Game tab."""
+        """Check Saves & Logs for the game chosen on the One Game tab."""
         build = self._single_build()
         if build is not None:
             self._log_tool(build, repair=False)
 
     def _repair_single_logs(self) -> None:
-        """Repair Logs for the game chosen on the One Game tab."""
+        """Repair Saves & Logs for the game chosen on the One Game tab."""
         build = self._single_build()
         if build is not None:
             self._log_tool(build, repair=True)
@@ -2687,14 +2687,14 @@ class App(tk.Tk):
     def _log_tool(self, build, repair: bool) -> None:
         """Pick a game, its save folder and a slot, then Check or Repair its logs.
 
-        Check Logs runs the read-only checker (vv_log_tools.check_logs) and
+        Check Saves & Logs runs the read-only checker (vv_log_tools.check_logs) and
         shows its report; it writes nothing, so it may run with the game open.
-        Repair Logs repairs nothing itself: with the game closed it backs the
+        Repair Saves & Logs repairs nothing itself: with the game closed it backs the
         folder up, clears the cross-check's markers and approves the repair
         (vv_log_tools.approve_repair), so the next time the village is played
         the game repairs it without asking.
         """
-        title = "Repair Logs" if repair else "Check Logs"
+        title = "Repair Saves & Logs" if repair else "Check Saves & Logs"
         documents = vv_save_backup.documents_folder()
         if documents is None:
             messagebox.showerror(
@@ -2748,7 +2748,7 @@ class App(tk.Tk):
         ).grid(row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
         buttons = ttk.Frame(frame)
         buttons.grid(row=5, column=0, columnspan=3, sticky="w", pady=(12, 0))
-        go_button = ttk.Button(buttons, text="Repair Logs" if repair else "Check")
+        go_button = ttk.Button(buttons, text="Repair Saves & Logs" if repair else "Check")
         go_button.pack(side="left")
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
 
@@ -2828,17 +2828,17 @@ class App(tk.Tk):
             )
         except (vv_log_tools.LogToolError, OSError) as exc:
             _regrab(parent)
-            self.status_var.set("Check Logs: the logs could not be checked.")
-            messagebox.showerror("Check Logs", str(exc), parent=parent)
+            self.status_var.set("Check Saves & Logs: the logs could not be checked.")
+            messagebox.showerror("Check Saves & Logs", str(exc), parent=parent)
             return
         _regrab(parent)
-        self.status_var.set(f"Check Logs: {info.name}: {result.summary}")
+        self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary}")
         self._show_log_report(parent, folder, info, result)
 
     def _show_log_report(self, parent, folder: Path, info, result) -> None:
         """The checker's report, in a scrollable read-only window."""
         window = tk.Toplevel(parent)
-        window.title(f"Check Logs - {info.name} (Save {info.slot})")
+        window.title(f"Check Saves & Logs - {info.name} (Save {info.slot})")
         window.transient(parent)
         frame = ttk.Frame(window, padding=12)
         frame.pack(fill="both", expand=True)
@@ -2852,7 +2852,7 @@ class App(tk.Tk):
             frame,
             text=(
                 "OK: agrees with the save.  WRONG: confirmed wrong (\"repairable\" "
-                "says whether Repair Logs can have the game put it right).  NOTE: a "
+                "says whether Repair Saves & Logs can have the game put it right).  NOTE: a "
                 "difference that is not proof of an error.  UNCHECKED: nothing to "
                 "check it against, or it could not be read."
             ),
@@ -2891,9 +2891,9 @@ class App(tk.Tk):
         exe = vv_save_backup.game_exe_name(folder)
         if vv_save_backup.running_game_count(folder):
             messagebox.showerror(
-                "Repair Logs",
+                "Repair Saves & Logs",
                 f"{exe} is running.\n\nQuit the game first (from its own menu), "
-                "then choose Repair Logs again. Repair Logs never pauses or closes "
+                "then choose Repair Saves & Logs again. Repair Saves & Logs never pauses or closes "
                 "a game. Nothing was changed.",
                 parent=parent,
             )
@@ -2915,7 +2915,7 @@ class App(tk.Tk):
                 else f"The read-only check finds nothing confirmed wrong in {info.name}'s logs."
             )
         except (vv_log_tools.LogToolError, OSError) as exc:
-            messagebox.showerror("Repair Logs", f"The logs could not be checked ({exc}).", parent=parent)
+            messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds)
         if picked is None:
@@ -2930,8 +2930,8 @@ class App(tk.Tk):
         except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
             # Markers may already be cleared when a later step fails; the
             # error says which, so the status line does not claim none were.
-            self.status_var.set("Repair Logs did not finish. See the message for what changed.")
-            messagebox.showerror("Repair Logs", str(exc), parent=parent)
+            self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
+            messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
         renamed = None
         if names is not None:
@@ -2939,11 +2939,12 @@ class App(tk.Tk):
                 renamed = self._run_with_wait(
                     "Giving the last names…\n\nThe save folder is backed up first.",
                     lambda: vv_last_names.give_last_names(folder, number, info.slot, names["chosen"],
-                                                          answers=names["answers"]),
+                                                          answers=names["answers"], rule=names.get("rule"),
+                                                          mine=names.get("mine_names")),
                 )
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
-                messagebox.showerror("Repair Logs", f"The last names were not given. {exc}", parent=parent)
+                messagebox.showerror("Repair Saves & Logs", f"The last names were not given. {exc}", parent=parent)
         numbered = None
         if numbering:
             try:
@@ -2953,7 +2954,7 @@ class App(tk.Tk):
                 )
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
-                messagebox.showerror("Repair Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
+                messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
         lines = []
         if renamed is not None:
             lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
@@ -2979,21 +2980,21 @@ class App(tk.Tk):
                              f"in {len(fixes)} log file(s).")
         if len(lines) > (1 if rearm else 0):
             lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
-        self.status_var.set(f"Repair Logs: {info.name} done.")
+        self.status_var.set(f"Repair Saves & Logs: {info.name} done.")
         messagebox.showinfo(
-            "Repair Logs",
+            "Repair Saves & Logs",
             "\n\n".join(lines + [f"Backup: {result.backup.backup_folder}"]),
             parent=parent,
         )
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list):
-        """The Repair Logs checklist (the owner, 2026-10-06): what to repair and add, each
+        """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  Returns
         (rearm, chosen kinds, answers, last names, number duplicate names), or None when the player
         cancels."""
         window = tk.Toplevel(parent)
-        window.title("Repair Logs")
+        window.title("Repair Saves & Logs")
         window.transient(parent)
         frame = ttk.Frame(window, padding=16)
         frame.pack(fill="both", expand=True)
@@ -3072,136 +3073,154 @@ class App(tk.Tk):
 
     def _last_names_dialog(self, parent, folder: Path, number: int, info, names: dict,
                            names_var) -> None:
-        """Each living villager's last name: the family's (the game's own list) by default, another
-        from the list, one the player types, or none.  Then the questions the logs raise."""
+        """Every villager's last name -- the living (in the save and every log) and the dead and
+        gone (in the logs; the owner: "retroactively give last names to people no longer in the
+        village") -- by a rule, typed in a villager's own box, or none; any last name may be
+        changed, and the ones the rule does not give are marked (the owner: a check for "Wrong last
+        names").  Then the questions the logs raise."""
         try:
-            people = vv_last_names.living(folder, number, info.slot)
-        except (vv_last_names.LastNamesError, OSError, ValueError) as exc:
-            messagebox.showerror("Last names", f"The save could not be read ({exc}).", parent=parent)
+            people, parents = vv_last_names.everyone(folder, number, info.slot)
+        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
+            messagebox.showerror("Last names", f"The save or the logs could not be read ({exc}).", parent=parent)
             return
         checker = vv_log_tools.load_checker()
         none = "(no last name)"
-        # Each villager's parents, as the Family Tree Maker reads them, for the father's and the
-        # mother's last names.
-        try:
-            village = vv_genealogy.load_village(folder, number, info.slot)
-        except (vv_genealogy.GenealogyError, OSError, ValueError):
-            village = None
-        parents: dict[tuple, tuple] = {}
-        if village is not None:
-            for p in village.people.values():
-                if p.alive:
-                    parents[p.key] = tuple(village.people[q].key if q is not None else None
-                                           for q in (p.father, p.mother))
+        recorded_rule, recorded = vv_last_names.read_record(folder, number, info.slot)
+        known = set(recorded.values())
+
+        def split(name: str) -> tuple:
+            return vv_last_names.split_name(number, name, known)
+
+        def carried(name: str) -> str:
+            return split(name)[1]
+        now = {v.identity: carried(v.name) for v in people}
         pool = list(checker.LAST_NAMES[number])
-        by_father = vv_last_names.inherited(people, parents, "father", pool)
-        by_mother = vv_last_names.inherited(people, parents, "mother", pool)
+        by_father = vv_last_names.inherited(people, parents, "father", pool, carried=carried)
+        by_mother = vv_last_names.inherited(people, parents, "mother", pool, carried=carried)
         window = tk.Toplevel(parent)
-        window.title("Repair Logs: last names")
+        window.title("Repair Saves & Logs: last names")
         window.transient(parent)
-        ttk.Label(window, padding=(12, 12, 12, 0), wraplength=640, justify="left",
-                  text="Each living villager gets the last name you choose after their name, in the save "
-                       "and in every log. Choose where last names come from, then change any one: pick "
-                       "from its list (the father's and the mother's come first), type your own in its "
-                       "box, or choose none. A villager's descendants inherit the name you give them by "
-                       "the rule above. The game must stay closed.").pack(anchor="w")
+        ttk.Label(window, padding=(12, 12, 12, 0), wraplength=700, justify="left",
+                  text="Every villager gets the last name you choose: the living in the save and every log, "
+                       "the dead and gone in every log. Choose where last names come from, then change any "
+                       "one: pick from its list (the father's and the mother's come first), type your own in "
+                       "its box, or choose none. A villager's descendants inherit the name you give them by "
+                       "the rule above. A last name the rule does not give is marked; Fix wrong last names "
+                       "puts them right. The game must stay closed.").pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
-        saved_rule = names.get("rule", "father")      # the owner's: children take the father's name
+        saved_rule = names.get("rule") or recorded_rule or "father"   # the owner's: the father's name
         rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
         ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
                      state="readonly", width=34).pack(side="left", padx=(6, 0))
-        if village is None:
-            ttk.Label(window, padding=(12, 2, 12, 0), wraplength=640, justify="left",
-                      text="The parents could not be read from the save and the logs, so the father's "
-                           "and the mother's give the family's.").pack(anchor="w")
-        canvas = tk.Canvas(window, width=660, height=420, highlightthickness=0)
+        wrong_var = tk.StringVar()
+        ttk.Label(window, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33").pack(anchor="w")
+        canvas = tk.Canvas(window, width=720, height=420, highlightthickness=0)
         bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
         inner = ttk.Frame(canvas, padding=12)
         inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=inner, anchor="nw")
         canvas.configure(yscrollcommand=bar.set)
         rows: list[tuple] = []
-        # The villagers whose last name the player set (typed or picked): theirs, and their
-        # descendants inherit it by the rule (the owner, 2026-10-07).
+        # The villagers whose last name the player set (typed or picked, here or recorded before):
+        # theirs, and their descendants inherit it by the rule.
         mine: set = set(names.get("mine", ()))
+        mine |= {v.identity for v in people if (split(v.name)[0], v.head, v.body) in recorded}
         filling = [False]                       # the window itself is filling the rows in
         for row, v in enumerate(people):
-            already = vv_last_names.has_last_name(number, v.name)
-            # A name with a space already has a last name -- the game's, or one typed here
-            # before (Codex, #553): nothing is chosen for it; the player may still add one.
-            spaced = " " in v.name
             father, mother = parents.get(v.identity, (None, None))
-            who = f"{v.name} ({v.sex}, family {v.family})"
+            who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
             if father or mother:
                 who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
             ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
-            value = tk.StringVar(value=names["chosen"].get(v.identity) or (none if spaced else v.default or none))
+            start_value = names["chosen"].get(v.identity, now[v.identity])
+            value = tk.StringVar(value=start_value or none)
             first = list(dict.fromkeys(n for n in (by_father.get(v.identity), by_mother.get(v.identity)) if n))
-            box = ttk.Combobox(inner, textvariable=value, width=24,
-                               values=[none] + first + [n for n in checker.LAST_NAMES[number] if n not in first])
+            box = ttk.Combobox(inner, textvariable=value, width=20,
+                               values=[none] + first + [n for n in pool if n not in first])
             box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
-            if already:
-                box.configure(state="disabled")
-            else:                               # typed, pasted or picked: the player's
-                value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))
-            rows.append((v, value))
+            mark = tk.StringVar()
+            ttk.Label(inner, textvariable=mark, foreground="#a33").grid(row=row, column=2, sticky="w", padx=(8, 0))
+            value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))
+            rows.append((v, value, mark))
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")
 
-        def every(choice) -> None:
-            filling[0] = True
-            try:
-                for v, value in rows:
-                    if " " not in v.name:
-                        value.set(choice(v))
-            finally:
-                filling[0] = False
-
         def rule_key() -> str:
             return next(k for k, words in vv_last_names.INHERIT.items() if words == rule_var.get())
 
-        def by_rule(*_args) -> None:
-            """Every row the player has not set, from the rule and the names the player has."""
-            values = {v.identity: value.get().strip() for v, value in rows}
-            fixed = {key: ("" if values[key] == none else values[key]) for key in mine if key in values}
-            given = vv_last_names.inherited(people, parents, rule_key(), pool, fixed)
+        def fixed() -> dict:
+            values = {v.identity: value.get().strip() for v, value, _m in rows}
+            return {key: ("" if values[key] == none else values[key]) for key in mine if key in values}
+
+        def given() -> dict:
+            # The rest of a family follows the name the player gives one of them: their brothers
+            # and sisters, and their descendants by the rule.
+            return vv_last_names.inherited(people, parents, rule_key(), pool,
+                                           vv_last_names.with_siblings(fixed(), parents), carried)
+
+        def marks() -> None:
+            """A last name the rule does not give -- in the box now -- is marked."""
+            should = given()
+            wrong = 0
+            for v, value, mark in rows:
+                have = value.get().strip()
+                have = "" if have == none else have
+                right = should.get(v.identity, "")
+                bad = v.identity not in mine and have != right and rule_key() not in ("each", "list")
+                mark.set(f"the rule gives {right or 'none'}" if bad else "")
+                wrong += bad
+            wrong_var.set(f"{wrong} last name(s) are not what the rule gives." if wrong else "")
+
+        def fill(choice) -> None:
             filling[0] = True
             try:
-                for v, value in rows:
-                    if " " not in v.name and v.identity not in mine:
-                        value.set(given.get(v.identity) or none)
+                for v, value, _m in rows:
+                    if v.identity not in mine:
+                        value.set(choice(v) or none)
             finally:
                 filling[0] = False
+            marks()
+
+        def by_rule(*_args) -> None:
+            """Every row the player has not set, from the rule and the names the player has."""
+            should = given()
+            fill(lambda v: should.get(v.identity, ""))
 
         def set_by_player(v) -> None:
             mine.add(v.identity)
             by_rule()
 
         def none_for_all() -> None:
-            every(lambda v: none)
-            mine.update(v.identity for v, _value in rows)
+            mine.clear()
+            fill(lambda v: "")
+            mine.update(v.identity for v, _value, _m in rows)
 
         rule_var.trace_add("write", by_rule)
-        if not names["chosen"]:
+        if not names["chosen"] and not any(now.values()):
             by_rule()
+        else:
+            marks()
 
         def ok() -> None:
             chosen = {}
-            for v, value in rows:
+            for v, value, _m in rows:
                 last = value.get().strip()
-                if last and last != none and not vv_last_names.has_last_name(number, v.name):
-                    problem = vv_last_names.name_problem(number, v.name, last)
+                last = "" if last == none else last
+                if last == now[v.identity]:
+                    continue
+                if last:
+                    problem = vv_last_names.name_problem(number, "", last)
                     if problem:
                         messagebox.showerror("Last names", f"{v.name}: {problem}", parent=window)
                         return
-                    chosen[v.identity] = last
+                chosen[v.identity] = last
             try:
                 work = vv_last_names.plan(folder, number, info.slot, chosen)
-            except (vv_last_names.LastNamesError, OSError, ValueError) as exc:
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
                 messagebox.showerror("Last names", str(exc), parent=window)
                 return
             answers = dict(names["answers"])
@@ -3212,10 +3231,12 @@ class App(tk.Tk):
             names["answers"] = answers
             names["rule"] = rule_key()
             names["mine"] = set(mine)
+            names["mine_names"] = {key: last for key, last in fixed().items()}
             names_var.set(bool(chosen))
             window.destroy()
 
-        ttk.Button(buttons, text="None for all", command=none_for_all).pack(side="left")
+        ttk.Button(buttons, text="Fix wrong last names", command=by_rule).pack(side="left")
+        ttk.Button(buttons, text="None for all", command=none_for_all).pack(side="left", padx=(8, 0))
         ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
         ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
         window.protocol("WM_DELETE_WINDOW", window.destroy)
@@ -3226,7 +3247,7 @@ class App(tk.Tk):
     def _repair_questions(self, parent, questions: list, answers: dict) -> None:
         """One answer per question, from its own options; kept in `answers`."""
         window = tk.Toplevel(parent)
-        window.title("Repair Logs: your answers")
+        window.title("Repair Saves & Logs: your answers")
         window.transient(parent)
         canvas = tk.Canvas(window, width=680, height=480, highlightthickness=0)
         bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)

@@ -547,7 +547,7 @@
         "Every death, burial and disappearance is written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs.",
         "A villager who leaves or appears with no record is written to the Unaccounted Villagers log.",
         "Nothing to click in the game; open the log files to read them.",
-        "Graves from before the log are added only when you use Repair Logs.",
+        "Graves from before the log are added only when you use Repair Saves & Logs.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
       ]
     },
@@ -586,7 +586,7 @@
         "Each time the game saves your village (save slots 1 to 5), it writes \"Village Statistics v2 - Save N.txt\".",
         "Find it in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs\\Village Statistics.",
         "The game saves when you quit it from its own menu.",
-        "If a count is found wrong, it is fixed only when you say so (Repair Logs).",
+        "If a count is found wrong, it is fixed only when you say so (Repair Saves & Logs).",
         "Tick Show Parents in Details Screen too, to see each villager's parents in the Village Population log."
       ]
     },
@@ -596,7 +596,7 @@
         "Each time the game saves your village (save slots 1 to 5), it writes \"Village Statistics v2 - Save N.txt\".",
         "Find it in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher Logs\\Village Statistics.",
         "The game saves when you quit it from its own menu.",
-        "If a count is found wrong, it is fixed only when you say so (Repair Logs)."
+        "If a count is found wrong, it is fixed only when you say so (Repair Saves & Logs)."
       ]
     },
     {
@@ -798,18 +798,18 @@
       ]
     },
     "check_logs": {
-      "title": "Check Logs",
+      "title": "Check Saves & Logs",
       "guide": [
         "Checks whether the patcher's logs and data files for a village agree with its save.",
         "That includes masks still kept for villagers who are no longer in the village.",
         "Pick the game, save folder and tribe, then click Check.",
         "Each file is marked OK, WRONG, NOTE or UNCHECKED.",
-        "It also says what older records lack (Sex, titles, masks, Twin / Triplet) that Repair Logs can add.",
+        "It also says what older records lack (Sex, titles, masks, Twin / Triplet) that Repair Saves & Logs can add.",
         "It only reads, so the game may stay open."
       ]
     },
     "repair_logs": {
-      "title": "Repair Logs",
+      "title": "Repair Saves & Logs",
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
         "A checklist shows what can be done: tick or untick each line, then click Repair. The save folder is backed up first.",

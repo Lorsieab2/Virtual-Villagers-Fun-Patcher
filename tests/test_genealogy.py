@@ -165,7 +165,7 @@ class RuleTests(unittest.TestCase):
         return v
 
     def test_born_as_lines_decide_which_births_came_together(self) -> None:
-        # Codex, #555: Repair Logs' "Born as:" answer is believed over the records' order.
+        # Codex, #555: Repair Saves & Logs' "Born as:" answer is believed over the records' order.
         def birth(child: str, head: int, born_as: str = "") -> str:
             return (f"Birth\n  Child: {child}\n    Head: {head}\n    Body: {head}\n"
                     f"  Mother: Ann\n    Head: 1\n    Body: 1\n  Father: Bob\n    Head: 2\n    Body: 2\n"
@@ -803,7 +803,7 @@ class StickerTests(unittest.TestCase):
                                                 (size, kind, q, (x, y)))
 
     def test_a_villager_given_a_last_name_keeps_their_tree_edits(self) -> None:
-        # Codex, #555: Repair Logs' last names re-key the Family Tree Maker's edits.
+        # Codex, #555: Repair Saves & Logs' last names re-key the Family Tree Maker's edits.
         e = ft.Edits()
         e.entries["Ann|3|4"] = {"mark": "Chief"}
         e.entries["Joann|3|4"] = {"mark": "x"}

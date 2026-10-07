@@ -305,7 +305,7 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                     setattr(child, attr, parent.id)
         mother = rec.mother and (rec.mother.name, rec.mother.head, rec.mother.body)
         # A delivery's Birth records are written one after another, its Conception before them;
-        # three babies at most.  A "Born as:" line, where Repair Logs wrote one, says how many came
+        # three babies at most.  A "Born as:" line, where Repair Saves & Logs wrote one, says how many came
         # together (Codex, #555): a single birth joins no other.
         size = rec.born_as or 3
         if last is not None and mother is not None and last[0] == mother and last[2] < last[3] \
@@ -703,7 +703,7 @@ def candidates(village: Village, rules: Rules) -> tuple[list[Person], list[Perso
 
 
 def _same_last_name(man: Person, woman: Person) -> bool:
-    """Whether the two share a last name: the last names they carry when both have one (Repair Logs
+    """Whether the two share a last name: the last names they carry when both have one (Repair Saves & Logs
     gives them, from the game's list, a parent's or the player's own), else the game's family
     number -- which a founder, a newcomer or an arrival, unrelated for all intents and purposes (the
     owner), only shares with someone by chance."""
