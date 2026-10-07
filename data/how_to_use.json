@@ -815,9 +815,31 @@
         "A checklist shows what can be done: tick or untick each line, then click Repair. The save folder is backed up first.",
         "Older records can get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack.",
         "Where the save and the files cannot tell, you are asked: Answer the questions. Don't know adds nothing.",
-        "Give villagers last names (Choose...): each living villager gets the last name you pick, in the game and every log.",
+        "Give villagers last names (Choose...): from the family, the father, the mother or either at random, or pick or type each one; in the game and every log.",
         "Let the game repair: play that tribe and quit from its menu; whatever is found wrong is fixed without asking.",
         "That part works only in a game patched with a patch that keeps logs, such as Cause of Death or Show Parents."
+      ]
+    },
+    "family_tree_maker": {
+      "title": "Family Tree Maker",
+      "guide": [
+        "Draws a village's family tree from its save and the patcher's logs: who descends from whom, and each villager's generation.",
+        "Pick the game, save folder and tribe. Give the game's folder too, so each villager shows their own head.",
+        "Click a villager to select them; Ctrl+click adds one, Shift+click a run, Ctrl+A everyone, Shift+drag a box.",
+        "Drag anything to move it; smart guides, snap to grid and Align line things up. Drag empty space to move around; the mouse wheel or + and - zoom.",
+        "Right-click anything to change its colour. Retype any portrait, give special villagers a marked border, choose fonts and backgrounds.",
+        "Add pictures, the games' logos and text boxes; drag, resize, turn and flip them. Ctrl+C, Ctrl+V, Ctrl+Z and the other Windows shortcuts work.",
+        "Help (F1) lists every control. Ctrl+S saves an editable tree; Export as Picture saves a PNG or JPG. Nothing in the save or the logs is ever changed."
+      ]
+    },
+    "village_matchmaker": {
+      "title": "Village Matchmaker",
+      "guide": [
+        "Suggests which villagers to pair, by rules you choose. Every rule is a tick box you can switch on or off.",
+        "Rules include no shared ancestors, how closely related a pair may be, each kind of close family, closeness in age and different last names.",
+        "Ages are 18 to 49 unless you tick Allow 50 and older, or Plan ahead to include everyone.",
+        "It suggests only: nothing in the game is changed. The suggestions are also saved beside the tribe's logs.",
+        "Your ticks are remembered for next time."
       ]
     },
     "check_logs_automatically": {

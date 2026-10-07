@@ -349,8 +349,10 @@ class TheWindow(unittest.TestCase):
     def test_the_family_name_is_chosen_for_you_and_any_can_be_typed(self):
         body = self.SOURCE[self.SOURCE.index("    def _last_names_dialog("):self.SOURCE.index("    def _repair_questions(")]
         self.assertIn("v.default or none", body)
-        self.assertIn("values=[none] + list(checker.LAST_NAMES[number])", body)
-        self.assertNotIn('state="readonly"', body, "the player may type a last name")
+        # Every one of the game's names is offered, the father's and the mother's first.
+        self.assertIn("values=[none] + first + [n for n in checker.LAST_NAMES[number] if n not in first]", body)
+        box = body[body.index("box = ttk.Combobox(inner,"):body.index("box.grid(")]
+        self.assertNotIn('state="readonly"', box, "the player may type a last name")
         self.assertIn("vv_last_names.name_problem(number, v.name, last)", body)
         # A name with a space already has a last name: nothing is chosen for it (Codex, #553).
         self.assertIn('value=names["chosen"].get(v.identity) or (none if spaced else v.default or none)', body)

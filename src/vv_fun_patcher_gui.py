@@ -10,7 +10,7 @@ import tkinter as tk
 import tkinter.font as tkfont
 import webbrowser
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk
 
 from transparency import PATCHER_VERSION
 import patcher_files
@@ -20,6 +20,8 @@ import vv_log_additions
 import vv_last_names
 import vv_save_backup
 import vv_tribe_rename
+import vv_genealogy
+import vv_genealogy_window
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -465,6 +467,8 @@ class App(tk.Tk):
             # "Can you make the check logs automatically default on?"); a
             # per-install choice, written into each game built from now on.
             self.check_logs_var = tk.BooleanVar(value=True)
+            self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
+            self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -624,7 +628,15 @@ class App(tk.Tk):
             foreground="#8a4b08",
         ).pack(anchor="w", pady=(0, 10))
 
-        mode_box = ttk.LabelFrame(outer, text="Population mode", padding=10)
+        sections = ttk.Notebook(outer)
+        sections.pack(fill="both", expand=True)
+        patches_tab = ttk.Frame(sections, padding=(0, 10, 0, 0))
+        tools_tab = ttk.Frame(sections, padding=14)
+        sections.add(patches_tab, text="Patches")
+        sections.add(tools_tab, text="Tools")
+        self._build_tools_tab(tools_tab)
+
+        mode_box = ttk.LabelFrame(patches_tab, text="Population mode", padding=10)
         mode_box.pack(fill="x", pady=(0, 10))
         for row, mode in enumerate(self.patch_modes):
             mode_choice = ttk.Frame(mode_box)
@@ -755,7 +767,7 @@ class App(tk.Tk):
                 row += 1
         mode_box.columnconfigure(1, weight=1)
 
-        output_box = ttk.LabelFrame(outer, text="Modded output location", padding=10)
+        output_box = ttk.LabelFrame(patches_tab, text="Modded output location", padding=10)
         output_box.pack(fill="x", pady=(0, 10))
         ttk.Entry(output_box, textvariable=self.output_root_var).grid(
             row=0, column=0, sticky="ew", padx=(0, 8)
@@ -777,7 +789,7 @@ class App(tk.Tk):
         ).grid(row=1, column=0, columnspan=3, sticky="w", pady=(7, 0))
         output_box.columnconfigure(0, weight=1)
 
-        notebook = ttk.Notebook(outer)
+        notebook = ttk.Notebook(patches_tab)
         notebook.pack(fill="both", expand=True)
         single_tab = ttk.Frame(notebook, padding=14)
         all_tab = ttk.Frame(notebook, padding=14)
@@ -859,28 +871,6 @@ class App(tk.Tk):
             folders, "Open Modified EXE Folder", self._open_single_modified_folder
         ).pack(side="left", padx=(18, 0))
         self._help_button(folders, "open_modified_folder").pack(side="left", padx=(3, 0))
-        links = ttk.Frame(box)
-        links.grid(row=3, column=0, columnspan=3, sticky="w", pady=(6, 0))
-        self._folder_link(
-            links, "Back Up Saves", self._back_up_single_saves
-        ).pack(side="left")
-        self._help_button(links, "back_up_saves").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Restore Saves...", self._restore_single_saves
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "restore_saves").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Rename Tribe...", self._rename_single_tribe
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "rename_tribe").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Check Logs...", self._check_single_logs
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "check_logs").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Repair Logs...", self._repair_single_logs
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "repair_logs").pack(side="left", padx=(3, 0))
         check_logs_row = ttk.Frame(box)
         check_logs_row.grid(row=4, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Checkbutton(
@@ -926,20 +916,6 @@ class App(tk.Tk):
             self._help_button(grid, key).grid(
                 row=0, column=column, padx=(12, 0) if column > 2 else 0, pady=(0, 2)
             )
-        # The save and log links get a grid of their own below: in one row
-        # with the folder fields, ten columns are wider than the window, and
-        # the tab scrolls only vertically, so the last links were unreachable.
-        tools = ttk.Frame(tab)
-        for column, key in (
-            (1, "back_up_saves"),
-            (2, "restore_saves"),
-            (3, "rename_tribe"),
-            (4, "check_logs"),
-            (5, "repair_logs"),
-        ):
-            self._help_button(tools, key).grid(
-                row=0, column=column, padx=(12, 0), pady=(0, 2)
-            )
         for index, build in enumerate(self.builds):
             row = index + 1
             short = build.title.removeprefix("Virtual Villagers - ")
@@ -965,9 +941,106 @@ class App(tk.Tk):
                 "Modified folder",
                 lambda game_id=build.id: self._open_bulk_folder(game_id, True),
             ).grid(row=row, column=4, padx=(12, 0), pady=4)
-            ttk.Label(tools, text=f"{index + 1}. {short}").grid(
-                row=row, column=0, sticky="w", padx=(0, 8), pady=2
+        grid.columnconfigure(1, weight=1)
+        actions = ttk.Frame(tab)
+        actions.pack(fill="x", pady=(10, 0))
+        ttk.Button(
+            actions,
+            text="Find All 5 in Parent Folder...",
+            command=self._find_all,
+        ).pack(side="left")
+        self._help_button(actions, "find_all_5").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            actions, text="Validate All 5", command=self._validate_all
+        ).pack(side="left", padx=(16, 0))
+        self._help_button(actions, "validate_all_5").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            actions, text="Dry Run All 5", command=self._dry_run_all
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "dry_run_all_5").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            actions, text="Patch All 5", command=self._apply_all
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "patch_all_5").pack(side="left", padx=(2, 0))
+        check_logs_row = ttk.Frame(tab)
+        check_logs_row.pack(anchor="w", pady=(8, 0))
+        ttk.Checkbutton(
+            check_logs_row,
+            text=CHECK_LOGS_LABEL,
+            variable=self.check_logs_var,
+            command=self._check_logs_changed,
+            style="Wrapped.TCheckbutton",
+        ).pack(side="left")
+        self._help_button(check_logs_row, "check_logs_automatically").pack(
+            side="left", anchor="n", padx=(4, 0)
+        )
+
+    def _build_tools_tab(self, tab: ttk.Frame) -> None:
+        """Everything that is not a patch (the owner: "a tab for Patches and a tab for Tools"): the
+        save, log and family tools, for the game on the One Game tab and for each of the five."""
+        box = ttk.LabelFrame(tab, text="The game chosen on the One Game tab", padding=10)
+        box.pack(fill="x")
+        ttk.Label(box, textvariable=self.game_var, foreground="#245a9a").grid(row=0, column=0, sticky="w")
+        links = ttk.Frame(box)
+        links.grid(row=1, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self._folder_link(
+            links, "Back Up Saves", self._back_up_single_saves
+        ).pack(side="left")
+        self._help_button(links, "back_up_saves").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Restore Saves...", self._restore_single_saves
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "restore_saves").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Rename Tribe...", self._rename_single_tribe
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "rename_tribe").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Check Logs...", self._check_single_logs
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "check_logs").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Repair Logs...", self._repair_single_logs
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "repair_logs").pack(side="left", padx=(3, 0))
+        genealogy = ttk.Frame(box)
+        genealogy.grid(row=2, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self._folder_link(
+            genealogy, "Family Tree Maker...", self._family_tree_single
+        ).pack(side="left")
+        self._help_button(genealogy, "family_tree_maker").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            genealogy, "Village Matchmaker...", self._matchmaker_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(genealogy, "village_matchmaker").pack(side="left", padx=(3, 0))
+        box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
+        box.pack(fill="x", pady=(10, 0))
+        # The save and log links get a grid of their own below: in one row
+        # with the folder fields, ten columns are wider than the window, and
+        # the tab scrolls only vertically, so the last links were unreachable.
+        tools = ttk.Frame(box)
+        # The family tools in a grid of their own: eight columns were wider than the window at its
+        # narrowest, and it scrolls only up and down (Codex, #555).
+        family = ttk.Frame(box)
+        for grid_, column, key in (
+            (tools, 1, "back_up_saves"),
+            (tools, 2, "restore_saves"),
+            (tools, 3, "rename_tribe"),
+            (tools, 4, "check_logs"),
+            (tools, 5, "repair_logs"),
+            (family, 1, "family_tree_maker"),
+            (family, 2, "village_matchmaker"),
+        ):
+            self._help_button(grid_, key).grid(
+                row=0, column=column, padx=(12, 0), pady=(0, 2)
             )
+        for index, build in enumerate(self.builds):
+            row = index + 1
+            short = build.title.removeprefix("Virtual Villagers - ")
+            for grid_ in (tools, family):
+                ttk.Label(grid_, text=f"{index + 1}. {short}").grid(
+                    row=row, column=0, sticky="w", padx=(0, 8), pady=2
+                )
             self._folder_link(
                 tools,
                 "Back up saves",
@@ -993,31 +1066,21 @@ class App(tk.Tk):
                 "Repair logs...",
                 lambda game=build: self._log_tool(game, repair=True),
             ).grid(row=row, column=5, padx=(12, 0), pady=2)
-        grid.columnconfigure(1, weight=1)
-        tools.pack(anchor="w", pady=(8, 0))
-        actions = ttk.Frame(tab)
-        actions.pack(fill="x", pady=(10, 0))
-        ttk.Button(
-            actions,
-            text="Find All 5 in Parent Folder...",
-            command=self._find_all,
-        ).pack(side="left")
-        self._help_button(actions, "find_all_5").pack(side="left", padx=(2, 0))
-        ttk.Button(
-            actions, text="Validate All 5", command=self._validate_all
-        ).pack(side="left", padx=(16, 0))
-        self._help_button(actions, "validate_all_5").pack(side="left", padx=(2, 0))
-        ttk.Button(
-            actions, text="Dry Run All 5", command=self._dry_run_all
-        ).pack(side="left", padx=(8, 0))
-        self._help_button(actions, "dry_run_all_5").pack(side="left", padx=(2, 0))
-        ttk.Button(
-            actions, text="Patch All 5", command=self._apply_all
-        ).pack(side="left", padx=(8, 0))
-        self._help_button(actions, "patch_all_5").pack(side="left", padx=(2, 0))
+            self._folder_link(
+                family,
+                "Family tree maker...",
+                lambda game=build: vv_genealogy_window.open_family_tree(self, game),
+            ).grid(row=row, column=1, padx=(12, 0), pady=2)
+            self._folder_link(
+                family,
+                "Village matchmaker...",
+                lambda game=build: vv_genealogy_window.open_pair_suggestions(self, game),
+            ).grid(row=row, column=2, padx=(12, 0), pady=2)
+        tools.pack(anchor="w")
+        family.pack(anchor="w", pady=(8, 0))
         # The save and log tools get a row of their own: with a "?" beside
         # every button, one row is wider than the window.
-        save_tools = ttk.Frame(tab)
+        save_tools = ttk.Frame(box)
         save_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(
             save_tools,
@@ -1043,18 +1106,20 @@ class App(tk.Tk):
             command=lambda: self._log_tool(None, repair=True),
         ).pack(side="left", padx=(8, 0))
         self._help_button(save_tools, "repair_logs").pack(side="left", padx=(2, 0))
-        check_logs_row = ttk.Frame(tab)
-        check_logs_row.pack(anchor="w", pady=(8, 0))
-        ttk.Checkbutton(
-            check_logs_row,
-            text=CHECK_LOGS_LABEL,
-            variable=self.check_logs_var,
-            command=self._check_logs_changed,
-            style="Wrapped.TCheckbutton",
+        genealogy_tools = ttk.Frame(box)
+        genealogy_tools.pack(fill="x", pady=(8, 0))
+        ttk.Button(
+            genealogy_tools,
+            text="Family Tree Maker...",
+            command=lambda: vv_genealogy_window.open_family_tree(self, None),
         ).pack(side="left")
-        self._help_button(check_logs_row, "check_logs_automatically").pack(
-            side="left", anchor="n", padx=(4, 0)
-        )
+        self._help_button(genealogy_tools, "family_tree_maker").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            genealogy_tools,
+            text="Village Matchmaker...",
+            command=lambda: vv_genealogy_window.open_pair_suggestions(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(genealogy_tools, "village_matchmaker").pack(side="left", padx=(2, 0))
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -1237,6 +1302,10 @@ class App(tk.Tk):
         # Only a saved False turns it off. A missing key -- a fresh install
         # (no settings file) or a settings file from v1.35.57 or earlier,
         # which never had this key -- keeps the ON default.
+        saved_rules = data.get("pair_rules", {})
+        self.pair_rules = saved_rules if isinstance(saved_rules, dict) else {}
+        saved_window = data.get("tree_window", {})
+        self.tree_window = saved_window if isinstance(saved_window, dict) else {}
         saved_check_logs = data.get("check_logs_automatically", True)
         self.check_logs_var.set(saved_check_logs is not False)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -1256,6 +1325,8 @@ class App(tk.Tk):
             "output_root": self.output_root_var.get().strip(),
             "check_logs_automatically": bool(self.check_logs_var.get()),
             "fun_patches": self._selected_fun_patch_ids(),
+            "pair_rules": self.pair_rules,
+            "tree_window": self.tree_window,
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
                 for build in self.builds
@@ -2584,6 +2655,20 @@ class App(tk.Tk):
         dialog.grab_set()
         name_entry.focus_set()
 
+    # -- Family Tree Maker / Village Matchmaker (src/vv_genealogy_window.py) --
+
+    def _family_tree_single(self) -> None:
+        """Family Tree Maker for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            vv_genealogy_window.open_family_tree(self, build)
+
+    def _matchmaker_single(self) -> None:
+        """Village Matchmaker for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            vv_genealogy_window.open_pair_suggestions(self, build)
+
     # -- Check Logs / Repair Logs -------------------------------------------
 
     def _check_single_logs(self) -> None:
@@ -2968,14 +3053,40 @@ class App(tk.Tk):
             return
         checker = vv_log_tools.load_checker()
         none = "(no last name)"
+        # Each villager's parents, as the Family Tree Maker reads them, for the father's and the
+        # mother's last names.
+        try:
+            village = vv_genealogy.load_village(folder, number, info.slot)
+        except (vv_genealogy.GenealogyError, OSError, ValueError):
+            village = None
+        parents: dict[tuple, tuple] = {}
+        if village is not None:
+            for p in village.people.values():
+                if p.alive:
+                    parents[p.key] = tuple(village.people[q].key if q is not None else None
+                                           for q in (p.father, p.mother))
+        pool = list(checker.LAST_NAMES[number])
+        by_father = vv_last_names.inherited(people, parents, "father", pool)
+        by_mother = vv_last_names.inherited(people, parents, "mother", pool)
         window = tk.Toplevel(parent)
         window.title("Repair Logs: last names")
         window.transient(parent)
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=640, justify="left",
                   text="Each living villager gets the last name you choose after their name, in the save "
-                       "and in every log. The family's last name is chosen for you (a baby has its "
-                       "mother's family); pick another from the list, type your own, or choose none. "
-                       "The game must stay closed.").pack(anchor="w")
+                       "and in every log. Choose where last names come from, then change any one: pick "
+                       "from its list (the father's and the mother's come first), type your own, or "
+                       "choose none. The game must stay closed.").pack(anchor="w")
+        rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
+        rule_row.pack(anchor="w")
+        ttk.Label(rule_row, text="Last names come from:").pack(side="left")
+        saved_rule = names.get("rule", "father")      # the owner's: children take the father's name
+        rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
+        ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
+                     state="readonly", width=34).pack(side="left", padx=(6, 0))
+        if village is None:
+            ttk.Label(window, padding=(12, 2, 12, 0), wraplength=640, justify="left",
+                      text="The parents could not be read from the save and the logs, so the father's "
+                           "and the mother's give the family's.").pack(anchor="w")
         canvas = tk.Canvas(window, width=660, height=420, highlightthickness=0)
         bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
         inner = ttk.Frame(canvas, padding=12)
@@ -2988,10 +3099,15 @@ class App(tk.Tk):
             # A name with a space already has a last name -- the game's, or one typed here
             # before (Codex, #553): nothing is chosen for it; the player may still add one.
             spaced = " " in v.name
-            ttk.Label(inner, text=f"{v.name} ({v.sex}, family {v.family})").grid(row=row, column=0, sticky="w")
+            father, mother = parents.get(v.identity, (None, None))
+            who = f"{v.name} ({v.sex}, family {v.family})"
+            if father or mother:
+                who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
+            ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
             value = tk.StringVar(value=names["chosen"].get(v.identity) or (none if spaced else v.default or none))
-            box = ttk.Combobox(inner, textvariable=value, values=[none] + list(checker.LAST_NAMES[number]),
-                               width=24)
+            first = list(dict.fromkeys(n for n in (by_father.get(v.identity), by_mother.get(v.identity)) if n))
+            box = ttk.Combobox(inner, textvariable=value, width=24,
+                               values=[none] + first + [n for n in checker.LAST_NAMES[number] if n not in first])
             box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
             if already:
                 box.configure(state="disabled")
@@ -3005,6 +3121,23 @@ class App(tk.Tk):
             for v, value in rows:
                 if " " not in v.name:
                     value.set(choice(v))
+
+        def rule_key() -> str:
+            return next(k for k, words in vv_last_names.INHERIT.items() if words == rule_var.get())
+
+        def by_rule(*_args) -> None:
+            if rule_key() == "typed":           # one name the player types, for every villager
+                typed = simpledialog.askstring("Last names", "The last name to give every villager (you "
+                                               "can still change any one):", parent=window)
+                if typed and typed.strip():
+                    every(lambda v: typed.strip())
+                return
+            given = vv_last_names.inherited(people, parents, rule_key(), pool)
+            every(lambda v: given.get(v.identity) or none)
+
+        rule_var.trace_add("write", by_rule)
+        if not names["chosen"] and rule_key() != "typed":
+            by_rule()
 
         def ok() -> None:
             chosen = {}
@@ -3027,12 +3160,11 @@ class App(tk.Tk):
                 self._repair_questions(window, asked, answers)
             names["chosen"] = chosen
             names["answers"] = answers
+            names["rule"] = rule_key()
             names_var.set(bool(chosen))
             window.destroy()
 
-        ttk.Button(buttons, text="Family names for all", command=lambda: every(lambda v: v.default or none)
-                   ).pack(side="left")
-        ttk.Button(buttons, text="None for all", command=lambda: every(lambda v: none)).pack(side="left", padx=8)
+        ttk.Button(buttons, text="None for all", command=lambda: every(lambda v: none)).pack(side="left")
         ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
         ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
         window.protocol("WM_DELETE_WINDOW", window.destroy)
