@@ -1,0 +1,659 @@
+"""The Family Tree Maker and the Village Matchmaker: the family read into generations, how two villagers are related, the
+pairing rules, and the family tree (its layout, edits, backgrounds and pictures).
+
+The owner (2026-10): "THE GENEALOGY HELPER: A log that tells you exactly who's descended from
+whom, what generation they're in.  Helps you pair up villagers according to the rules the player
+sets and generates a family tree for the current save file!"
+
+The village here is built by hand, so every relation is known:
+
+    founders  A (m) x B (f)        C (m) x D (f)
+    gen II    E (m), F (f)         G (m), H (f)
+    gen III   I (m), J (f): twins of E x H       K (m): G x F
+              -> I and K are double first cousins (each of K's parents is a sibling of one of I's)
+    X (f): arrived when generation II was the newest in the village; X is in generation II.
+"""
+from __future__ import annotations
+
+import json
+import math
+import struct
+import sys
+import tempfile
+import unittest
+import xml.dom.minidom
+import zlib
+from fractions import Fraction
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+import vv_family_tree as ft  # noqa: E402
+import vv_gdiplus  # noqa: E402
+import vv_genealogy as gen  # noqa: E402
+import vv_genealogy_window as gw  # noqa: E402
+import vv_tree_editor_tools as tools  # noqa: E402
+
+Y = gen.UNITS_PER_YEAR
+FIRST = "2026-01-01 10:00:00"
+LATER = "2026-03-01 10:00:00"
+
+
+def village() -> gen.Village:
+    people: dict[int, gen.Person] = {}
+
+    def add(pid, name, sex, years, father=None, mother=None, **extra):
+        people[pid] = gen.Person(pid, name, pid, pid, sex=sex, age=years * Y, alive=True, father=father,
+                                 mother=mother, first_seen=FIRST, **extra)
+
+    add(1, "A", "Male", 70, arrived=True, how="Founder")
+    add(2, "B", "Female", 69, arrived=True, how="Founder")
+    add(3, "C", "Male", 68, arrived=True, how="Founder")
+    add(4, "D", "Female", 67, arrived=True, how="Founder")
+    add(5, "E", "Male", 45, 1, 2, family=1)
+    add(6, "F", "Female", 44, 1, 2, family=1)
+    add(7, "G", "Male", 43, 3, 4, family=2)
+    add(8, "H", "Female", 42, 3, 4, family=2)
+    add(9, "I", "Male", 20, 5, 8, litter=1, birth_record=0)
+    add(10, "J", "Female", 20, 5, 8, litter=1, birth_record=1)
+    add(11, "K", "Male", 19, 7, 6, birth_record=2)
+    add(12, "X", "Female", 30, arrived=True, how="Custom Island Event")
+    people[12].first_seen = LATER
+    v = gen.Village(1, 1, "Test Tribe", people)
+    snapshots = {FIRST: set(range(1, 12)), LATER: set(range(1, 13))}
+    gen._generations(v, snapshots)
+    gen.number_people(v)
+    return v
+
+
+class GenerationTests(unittest.TestCase):
+    def test_founders_children_and_grandchildren(self) -> None:
+        v = village()
+        self.assertEqual([v.people[q].generation for q in (1, 2, 3, 4)], [1, 1, 1, 1])
+        self.assertEqual([v.people[q].generation for q in (5, 6, 7, 8)], [2, 2, 2, 2])
+        self.assertEqual([v.people[q].generation for q in (9, 10, 11)], [3, 3, 3])
+
+    def test_an_arrival_joins_the_newest_generation_present_not_the_founders(self) -> None:
+        # The owner: "do not put arrivals in the same generation with the founders.  put them in
+        # the same generation as when they appear first in the logs."
+        self.assertEqual(village().people[12].generation, 3)
+
+    def test_numbers_never_restart_and_go_generation_by_generation(self) -> None:
+        v = village()
+        numbers = sorted((p.number, p.generation) for p in v.known())
+        self.assertEqual([n for n, _g in numbers], list(range(1, 13)))
+        self.assertEqual([g for _n, g in numbers], sorted(g for _n, g in numbers))
+
+    def test_every_sort_numbers_everyone_once(self) -> None:
+        v = village()
+        for sort in gen.SORTS:
+            gen.number_people(v, sort)
+            self.assertEqual(sorted(p.number for p in v.known()), list(range(1, 13)), sort)
+        gen.number_people(v, "age")
+        self.assertLess(v.people[1].number, v.people[4].number)     # 70 before 67 years old
+
+
+class KinshipTests(unittest.TestCase):
+    def test_relationships(self) -> None:
+        v = village()
+        cases = {
+            (5, 6): "full siblings",
+            (9, 10): "twins",
+            (1, 9): "grandparent and grandchild",
+            (1, 5): "parent and child",
+            (6, 9): "aunt or uncle and niece or nephew",
+            (9, 11): "double first cousins",
+            (5, 8): "no recorded common ancestor",
+        }
+        for (a, b), words in cases.items():
+            self.assertEqual(gen.relationship(v, a, b), words, (a, b))
+
+    def test_relatedness(self) -> None:
+        kin = gen.Kinship(village())
+        self.assertEqual(kin.relatedness(5, 6), Fraction(1, 2))
+        self.assertEqual(kin.relatedness(9, 11), Fraction(1, 4))       # double first cousins
+        self.assertEqual(kin.relatedness(5, 8), 0)
+
+
+class RuleTests(unittest.TestCase):
+    def pairs(self, **rules) -> set[tuple[str, str]]:
+        one, per_woman, _fallback = gen.suggest(village(), gen.Rules(**rules))
+        return {(p.man.name, p.woman.name) for pairs in per_woman.values() for p in pairs}
+
+    def test_the_age_window_and_its_toggles(self) -> None:
+        self.assertNotIn(("A", "B"), self.pairs())                       # 50 and older: off
+        self.assertIn(("A", "B"), self.pairs(allow_50_plus=True))
+        self.assertIn(("A", "B"), self.pairs(plan_ahead=True))
+
+    def test_close_family_is_a_toggle_too(self) -> None:
+        # The owner: "allow rules for close family. It's a small island ... All these should be
+        # optional toggles."
+        self.assertNotIn(("E", "F"), self.pairs())
+        self.assertIn(("E", "F"), self.pairs(block_full_siblings=False))
+        self.assertIn(("K", "J"), self.pairs())
+        self.assertNotIn(("K", "J"), self.pairs(block_first_cousins=True))
+
+    def test_shared_ancestors_and_relatedness_limits(self) -> None:
+        self.assertNotIn(("K", "J"), self.pairs(no_shared_ancestors=True))
+        self.assertIn(("E", "H"), self.pairs(no_shared_ancestors=True))
+        self.assertNotIn(("K", "J"), self.pairs(max_relatedness=True, max_relatedness_percent=12.5))
+        self.assertIn(("K", "J"), self.pairs(max_relatedness=True, max_relatedness_percent=25))
+
+    def test_closeness_in_age_and_last_names(self) -> None:
+        self.assertIn(("G", "X"), self.pairs())
+        self.assertNotIn(("G", "X"), self.pairs(close_in_age=True, max_age_gap_years=10))
+        self.assertIn(("G", "H"), self.pairs(block_full_siblings=False))
+        self.assertNotIn(("G", "H"), self.pairs(block_full_siblings=False, different_last_name=True))
+
+    def test_an_expecting_mother_is_left_out_unless_the_player_says(self) -> None:
+        v = village()
+        v.people[8].expecting = True
+        names = {w.name for w in gen.candidates(v, gen.Rules())[1]}
+        self.assertNotIn("H", names)
+        self.assertIn("H", {w.name for w in gen.candidates(v, gen.Rules(not_expecting=False))[1]})
+
+    def test_the_window_offers_every_rule(self) -> None:
+        self.assertEqual({name for name, _w, _k in gw.RULE_FIELDS}, set(gen.Rules.__dataclass_fields__))
+        rules = gw.rules_from({"close_in_age": True, "max_age_gap_years": "7", "max_relatedness_percent": "x"})
+        self.assertTrue(rules.close_in_age)
+        self.assertEqual(rules.max_age_gap_years, 7)
+        self.assertEqual(rules.max_relatedness_percent, gen.Rules().max_relatedness_percent)
+
+
+def png(path: Path, width: int, height: int, alpha) -> None:
+    """An 8-bit RGBA PNG whose pixel (x, y) has alpha(x, y)."""
+    rows = b"".join(b"\0" + b"".join(bytes((0, 0, 0, alpha(x, y))) for x in range(width)) for y in range(height))
+
+    def chunk(kind: bytes, body: bytes) -> bytes:
+        return struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body))
+
+    path.write_bytes(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0))
+                     + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b""))
+
+
+def png_alpha_at(path: Path, x: int, y: int) -> int:
+    """The alpha of pixel (x, y) in an 8-bit RGBA PNG (as GDI+ saves one), its rows unfiltered."""
+    data = path.read_bytes()
+    at, idat, width = 8, b"", 0
+    while at < len(data):
+        size, kind = struct.unpack(">I4s", data[at:at + 8])
+        body = data[at + 8:at + 8 + size]
+        if kind == b"IHDR":
+            width, _h, depth, colour = struct.unpack(">IIBB", body[:10])
+            assert (depth, colour) == (8, 6)
+        elif kind == b"IDAT":
+            idat += body
+        at += 12 + size
+    raw, stride, prev = zlib.decompress(idat), width * 4, bytes(width * 4)
+    for r in range(y + 1):
+        kind, line = raw[r * (stride + 1)], bytearray(raw[r * (stride + 1) + 1:(r + 1) * (stride + 1)])
+        for i in range(stride):
+            a, b, c = (line[i - 4] if i >= 4 else 0), prev[i], (prev[i - 4] if i >= 4 else 0)
+            if kind == 1:
+                line[i] = (line[i] + a) & 255
+            elif kind == 2:
+                line[i] = (line[i] + b) & 255
+            elif kind == 3:
+                line[i] = (line[i] + (a + b) // 2) & 255
+            elif kind == 4:
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                line[i] = (line[i] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
+        prev = bytes(line)
+    return prev[x * 4 + 3]
+
+
+class TreeTests(unittest.TestCase):
+    def test_colours_typed_as_hex_or_red_green_blue(self) -> None:
+        for text in ("#D4A017", "d4a017", "212, 160, 23", "rgb(212,160,23)"):
+            self.assertEqual(ft.parse_colour(text), "#d4a017", text)
+        for text in ("", "#12345", "300,0,0", "orange-ish"):
+            self.assertIsNone(ft.parse_colour(text), text)
+
+    def test_typed_text_wraps_instead_of_being_cut(self) -> None:
+        self.assertEqual(ft._wrap("Typed by the player, who types a lot"),
+                         ["Typed by the", "player, who types", "a lot"])
+        self.assertEqual(ft._wrap("x" * 20), ["x" * 17, "xxx"])
+        self.assertTrue(all(len(line) <= ft.WRAP for line in ft._wrap("a " * 40)))
+
+    def test_edits_round_trip_and_a_bad_file_is_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "edits.json"
+            edits = ft.Edits(title="Ours", marks={"Tribal Chief": "#d4a017"}, background_opacity=35,
+                             entries={"I|9|9": {"mark": "Tribal Chief", "lines": ["One", "Two"]}})
+            edits.save(path)
+            back = ft.Edits.load(path)
+            self.assertEqual((back.title, back.marks, back.entries, back.background_opacity),
+                             (edits.title, edits.marks, edits.entries, 35))
+            data = json.loads(path.read_text(encoding="utf-8"))
+            data["background_opacity"] = 400
+            path.write_text(json.dumps(data), encoding="utf-8")
+            self.assertEqual(ft.Edits.load(path).background_opacity, 100)
+            path.write_text("{not json", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                ft.Edits.load(path)
+
+    def test_the_games_pictures_are_found_in_each_games_folder(self) -> None:
+        # The games' logos come from each game's own folder.
+        with tempfile.TemporaryDirectory() as tmp:
+            vv1, vv4 = Path(tmp) / "vv1", Path(tmp) / "vv4"
+            vv1.mkdir()
+            vv4.mkdir()
+            (vv1 / "logo1.png").write_bytes(b"x")
+            (vv4 / "logo1.png").write_bytes(b"x")
+            library = {1: vv1, 4: vv4}
+            self.assertEqual(ft.picture_path("game:logo1.png", vv1), vv1 / "logo1.png")
+            self.assertEqual(ft.picture_path("vv4:logo1.png", vv1, library), vv4 / "logo1.png")
+            self.assertIsNone(ft.picture_path("vv5:logo1.png", vv1, library))
+
+    def test_the_owners_backgrounds_ship_with_the_patcher(self) -> None:
+        # The owner: "I want these and only these backgrounds as defaults: along with your plain
+        # gradient ones" -- ten pictures of their own, then the starry night ("add this for a background
+        # too!"), always offered, every one a PNG.
+        pictures = [p[3] for p in ft.PRESETS if p[3]]
+        self.assertEqual(len(pictures), 11)
+        self.assertEqual(set(ft.PRESET_FITS) - set(pictures), set())
+        self.assertTrue(set(ft.PRESET_FITS.values()) <= set(ft.FITS))
+        self.assertTrue(all(p.startswith("asset:") for p in pictures))
+        for ref in pictures:
+            path = ft.picture_path(ref, None)
+            self.assertIsNotNone(path, ref)
+            self.assertEqual(path.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertEqual(ft.presets_available(None, {}), ft.PRESETS)
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        for ref in pictures:
+            self.assertIn(f'"assets/genealogy/backgrounds/{ref[6:]}"', release)
+
+    def test_presets_are_named_once_and_name_real_colours(self) -> None:
+        names = [p[0] for p in ft.PRESETS]
+        self.assertEqual(len(names), len(set(names)))
+        for _name, colour, colour2, _picture in ft.PRESETS:
+            self.assertTrue(ft.is_colour(colour))
+            self.assertTrue(colour2 == "" or colour2 in ft.RAINBOWS or ft.is_colour(colour2))
+
+    def test_words_on_a_dark_background_turn_light(self) -> None:
+        lay = ft.layout(village(), ft.Edits(background="#16302f"))
+        self.assertEqual(lay.ink, ft.LIGHT_INK)
+        self.assertEqual(lay.portrait_ink, ft.INK)                      # the portraits are white
+        self.assertEqual(ft.layout(village(), ft.Edits()).ink, ft.INK)
+
+    def test_the_scene_draws_everyone_twins_by_a_triangle_and_parses_as_svg(self) -> None:
+        v = village()
+        v.people[8].expecting = True
+        v.people[13] = gen.Person(13, "Upcoming child", -1, -1, upcoming=True, mother=8, father=5, generation=3)
+        lay = ft.layout(v, ft.Edits(marks={"Tribal Chief": "#d4a017"},
+                                    entries={ft.entry_key(v, v.people[1]): {"mark": "Tribal Chief"}}))
+        sc = ft.scene(lay, "Virtual Villagers - A New Home", {})
+        self.assertEqual(set(sc.boxes), set(v.people))
+        self.assertTrue(any(isinstance(i, ft.Shape) and i.kind == "diamond" for i in sc.items))
+        self.assertTrue(any(isinstance(i, ft.Shape) and i.stroke == "#d4a017" and i.pid == 1 for i in sc.items))
+        texts = [i.text for i in sc.items if isinstance(i, ft.Text)]
+        self.assertIn("Tribal Chief", texts)
+        self.assertIn("1400 game units", texts)
+        self.assertIn("70 years old", texts)
+        # The twins hang from one point that opens into a triangle: two legs from one apex, each
+        # down to a twin, and a bar between the legs.
+        connectors = ft.lines(lay)
+        twins = {lay.x[q] + ft.NODE_W / 2 for q in (9, 10)}
+        legs = [pts for _c, pts, _f, _p in connectors if len(pts) == 3 and pts[1][0] in twins]
+        self.assertEqual(len(legs), 2)
+        self.assertEqual(legs[0][0], legs[1][0])
+        base = legs[0][1][1]
+        bars = [pts for _c, pts, _f, _p in connectors if pts[0] == (min(twins), base) and pts[-1] == (max(twins), base)]
+        self.assertEqual(len(bars), 1)
+        svg = ft.to_svg(sc, {})
+        xml.dom.minidom.parseString(svg)
+
+    def test_head_boxes_read_the_visible_pixels(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "heads.png"
+            x0 = ft.HEAD_FRAME * ft.HEAD_W
+            png(path, x0 + ft.HEAD_W, ft.HEAD_H * 2,
+                lambda x, y: 255 if x0 + 10 <= x < x0 + 30 and ft.HEAD_H + 5 <= y < ft.HEAD_H + 25 else 0)
+            boxes = ft.head_boxes(path)
+            self.assertEqual(boxes.get(1), (10, 5, 30, 25))
+            self.assertNotIn(0, boxes)
+
+    @unittest.skipUnless(vv_gdiplus.available(), "Windows' own graphics")
+    def test_the_picture_saves_as_png_and_jpg(self) -> None:
+        sc = ft.scene(ft.layout(village(), ft.Edits(background2="#7fa86f")), "Virtual Villagers - A New Home", {})
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, magic in (("tree.png", b"\x89PNG"), ("tree.jpg", b"\xff\xd8")):
+                path = Path(tmp) / name
+                self.assertTrue(vv_gdiplus.save_scene(sc, {}, path))
+                self.assertEqual(path.read_bytes()[:len(magic)], magic)
+
+
+class ColourTests(unittest.TestCase):
+    """The owner: "distinct colors for every single individual unrelated person, siblings that
+    share both parents to have the same color.  Each pairing has a single-color connector.  Each
+    set of full siblings has a single-color connector that's different from their parents"."""
+
+    def test_unrelated_people_full_siblings_and_pairings_each_have_their_own(self) -> None:
+        lay = ft.layout(village())
+        frame = lay.birth_colour
+        founders = [frame[q] for q in (1, 2, 3, 4)]
+        self.assertEqual(len(set(founders)), 4)
+        self.assertEqual(frame[5], frame[6])                    # E and F: full siblings
+        self.assertEqual(frame[9], frame[10])                   # the twins
+        self.assertNotEqual(frame[9], frame[11])                # cousins
+        used = founders + [frame[12]]
+        for fam in lay.families:
+            used.append(fam.colour)
+            self.assertNotIn(fam.colour, {frame[fam.father], frame[fam.mother]})
+        self.assertEqual(len(used), len(set(used)))
+        # A pairing's whole connector -- the parents' line, the line down, the children's line --
+        # is its one colour (the owner: "those should be the same color").
+        for colour, _pts, fid, _piece in ft.lines(lay):
+            self.assertEqual(colour, next(f.colour for f in lay.families if f.id == fid))
+
+    def test_the_colours_are_far_apart_and_off_the_background(self) -> None:
+        colours = ft.distinct_colours(40)
+        self.assertEqual(len(set(colours)), 40)
+        background = ft._lab(ft.BACKGROUND)
+        labs = [ft._lab(c) for c in colours]
+        self.assertGreater(min(math.dist(a, background) for a in labs), 20)
+        self.assertGreater(min(math.dist(a, b) for i, a in enumerate(labs) for b in labs[i + 1:]), 15)
+        self.assertNotIn("#000000", ft.distinct_colours(10, "#101010"))
+
+    def test_the_players_colours_win(self) -> None:
+        v = village()
+        fam = next(f for f in ft.layout(v).families if f.father == 1)
+        e = ft.Edits(person_colours={ft.entry_key(v, v.people[1]): "#123456"},
+                     family_colours={ft.family_key(v, fam): "#abcdef"})
+        lay = ft.layout(v, e)
+        self.assertEqual(lay.birth_colour[1], "#123456")
+        self.assertEqual(lay.birth_colour[5], "#abcdef")
+
+
+class LineTests(unittest.TestCase):
+    def test_no_line_runs_through_a_portrait(self) -> None:
+        # S's parents are a generation apart: the older one's line goes round the frames between.
+        v = village()
+        v.people[14] = gen.Person(14, "S", 14, 14, sex="Female", age=300, alive=True, father=11, mother=6,
+                                  first_seen=LATER)
+        gen._generations(v, {FIRST: set(range(1, 12)), LATER: set(range(1, 13)) | {14}})
+        gen.number_people(v)
+        lay = ft.layout(v)
+        frames = {q: (lay.x[q], lay.y[q], lay.x[q] + ft.NODE_W, lay.y[q] + ft.NODE_H) for q in lay.x}
+        for _colour, pts, _fid, _piece in ft.lines(lay):
+            for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+                if x0 != x1:
+                    continue
+                for q, (fx0, fy0, fx1, fy1) in frames.items():
+                    through = fx0 < x0 < fx1 and max(min(y0, y1), fy0 + 1) < min(max(y0, y1), fy1 - 1)
+                    self.assertFalse(through, f"a line runs through {v.people[q].name}")
+
+    def test_each_family_leaves_a_parent_at_its_own_point(self) -> None:
+        lay = ft.layout(village())
+        for q in lay.x:
+            points = [f.drops[q] for f in lay.families if q in f.drops]
+            self.assertEqual(len(points), len(set(points)))
+
+    def test_no_two_families_lines_lie_on_each_other(self) -> None:
+        # The owner: lines "can be as close as possible but not overlapping".
+        for positioning in ft.POSITIONING:
+            lay = ft.layout(village(), ft.Edits(positioning=positioning))
+            assert_apart(self, ft.lines(lay))
+
+    def test_a_moved_line_carries_the_lines_hanging_from_it(self) -> None:
+        # The owner: "the vertical lines should move down/up if the horizontal line above them is
+        # moved up/down".
+        v = village()
+        lay = ft.layout(v)
+        fam = next(f for f in lay.families if 9 in f.children)          # the twins and their line
+        key = ft.family_key(v, fam)
+        lay.edits.line_moves[f"{key}|lane"] = [0.0, 9.0]
+        drawn = [d for d in ft.lines(lay) if d[2] == fam.id]
+        lane = next(pts for _c, pts, _f, piece in drawn if piece == "lane")
+        y = lane[0][1]
+        self.assertEqual(y, fam.lane_y + 9.0)
+        lo, hi = sorted((lane[0][0], lane[1][0]))
+        hanging = [pts for _c, pts, _f, piece in drawn if piece.startswith("to ") and pts[0][1] in (y, fam.lane_y)]
+        self.assertTrue(hanging)
+        for pts in hanging:
+            self.assertEqual(pts[0][1], y)                              # each starts on the moved line
+            self.assertTrue(lo <= pts[0][0] <= hi)
+        stem = next(pts for _c, pts, _f, piece in drawn if piece == "stem")
+        self.assertEqual(max(stem[0][1], stem[1][1]), y)                # the line from the parents too
+
+    def test_a_line_moved_sideways_takes_its_hanging_lines_diagonally(self) -> None:
+        # The owner: "move lines left/right and have them auto-adjust", "diagonal is ok".
+        v = village()
+        lay = ft.layout(v)
+        fam = next(f for f in lay.families if 11 in f.children)
+        key = ft.family_key(v, fam)
+        before = {piece: pts for _c, pts, fid, piece in ft.lines(lay) if fid == fam.id}
+        lay.edits.line_moves[f"{key}|lane"] = [30.0, 0.0]
+        after = {piece: pts for _c, pts, fid, piece in ft.lines(lay) if fid == fam.id}
+        self.assertEqual(after["lane"][0][0], before["lane"][0][0] + 30)
+        hang = next(p for p in after if p.startswith("to "))
+        self.assertEqual(after[hang][0][0], before[hang][0][0] + 30)        # its top went with the line
+        self.assertEqual(after[hang][-1], before[hang][-1])                 # its foot stayed on the child
+        self.assertTrue(on_line(after["stem"][-1], *after["lane"]))           # the line down still meets it
+
+    def test_a_line_dragged_onto_another_is_not_carried_off_by_it(self) -> None:
+        # The owner's pink line: the couple's line dragged down onto the children's line, then the
+        # children's line dragged up -- the couple's line stays level and the line down joins them.
+        v = village()
+        lay = ft.layout(v)
+        fam = next(f for f in lay.families if 9 in f.children)
+        key = ft.family_key(v, fam)
+        gap = fam.lane_y - fam.couple_y
+        lay.edits.line_moves = {f"{key}|couple": [0.0, gap], f"{key}|lane": [0.0, -20.0]}
+        mine = {piece: pts for _c, pts, fid, piece in ft.lines(lay) if fid == fam.id}
+        couple, stem, lane = mine["couple"], mine["stem"], mine["lane"]
+        self.assertEqual(couple[0][1], couple[1][1])                    # still level
+        self.assertEqual(couple[0][1], fam.couple_y + gap)
+        self.assertTrue(on_line(stem[0], *couple))                       # the line down starts on it
+        self.assertTrue(on_line(stem[1], *lane))                         # and ends on the children's line
+        self.assertEqual(lane[0][1], fam.lane_y - 20.0)
+
+    def test_every_line_stays_connected_however_its_pieces_are_dragged(self) -> None:
+        # The owner: "Please. Keep. The. Lines. Connected. No. matter. How. they. are. moved."
+        import random
+        pick = random.Random(7)
+        for positioning in ft.POSITIONING:
+            v = village()
+            lay = ft.layout(v, ft.Edits(positioning=positioning))
+            keys = {f.id: ft.family_key(v, f) for f in lay.families}
+            pieces = [f"{keys[fid]}|{piece}" for _c, pts, fid, piece in ft.lines(lay) if len(pts) == 2]
+            for _trial in range(25):
+                lay.edits.line_moves = {piece: [pick.uniform(-80, 80), pick.uniform(-80, 80)]
+                                        for piece in pick.sample(pieces, min(len(pieces), 6))}
+                assert_connected(self, lay, ft.lines(lay))
+
+    def test_a_line_moved_off_another_stays_whole(self) -> None:
+        # [colour, points, family, piece, portrait ends, {end: the piece it is attached to}]
+        drawn = [["#111111", [(10.0, 0.0), (10.0, 100.0)], 1, "a", {}, {}],
+                 ["#222222", [(0.0, 50.0), (10.0, 50.0)], 2, "b", {}, {1: "c"}],
+                 ["#222222", [(10.0, 50.0), (10.0, 150.0)], 2, "c", {}, {0: "b", 1: "d"}],
+                 ["#222222", [(10.0, 150.0), (40.0, 150.0)], 2, "d", {}, {0: "c"}]]
+        ft._separate(drawn)
+        assert_apart(self, drawn)
+        moved = drawn[2][1]
+        self.assertNotEqual(moved[0][0], 10.0)
+        self.assertEqual(drawn[1][1][1], moved[0])          # the level run before it follows
+        self.assertEqual(drawn[3][1][0], moved[1])          # and the one after
+
+
+def on_line(pt: tuple, a: tuple, b: tuple) -> bool:
+    """Whether pt lies on the straight piece from a to b (within half a pixel)."""
+    (px, py), (ax, ay), (bx, by) = pt, a, b
+    if not (min(ax, bx) - 0.5 <= px <= max(ax, bx) + 0.5 and min(ay, by) - 0.5 <= py <= max(ay, by) + 0.5):
+        return False
+    length = ((bx - ax) ** 2 + (by - ay) ** 2) ** 0.5
+    return length < 1e-9 or abs((bx - ax) * (py - ay) - (by - ay) * (px - ax)) / length < 0.5
+
+
+def assert_connected(test: unittest.TestCase, lay, drawn: list) -> None:
+    """Every end of every piece of a family's line lies on another piece of that line or on a
+    portrait (the owner: "Keep. The. Lines. Connected.")."""
+    frames = [(min(xs) - 1, min(ys) - 1, max(xs) + 1, max(ys) + 1) for xs, ys in (zip(*lay.frame_points(q)) for q in lay.x)]
+    for colour, pts, fid, piece in drawn:
+        mine = [o for o in drawn if o[2] == fid and o[1] is not pts]
+        for pt in (pts[0], pts[-1]):
+            joined = any(pt in o[1] or any(on_line(pt, a, b) for a, b in zip(o[1], o[1][1:])) for o in mine)
+            framed = any(x0 <= pt[0] <= x1 and y0 <= pt[1] <= y1 for x0, y0, x1, y1 in frames)
+            test.assertTrue(joined or framed, f"{piece} of family {fid} has a loose end at {pt}")
+
+
+def assert_apart(test: unittest.TestCase, drawn: list) -> None:
+    """No straight run of one family's line lies along another family's."""
+    runs = [(s[2], s[1]) for s in drawn if len(s[1]) == 2]
+    for i, (fa, a) in enumerate(runs):
+        for fb, b in runs[:i]:
+            if fa == fb:
+                continue
+            for axis in (0, 1):
+                if a[0][axis] == a[1][axis] and b[0][axis] == b[1][axis] and abs(a[0][axis] - b[0][axis]) < 1:
+                    lo = max(min(a[0][1 - axis], a[1][1 - axis]), min(b[0][1 - axis], b[1][1 - axis]))
+                    hi = min(max(a[0][1 - axis], a[1][1 - axis]), max(b[0][1 - axis], b[1][1 - axis]))
+                    test.assertLessEqual(hi - lo, 1, f"families {fa} and {fb} overlap: {a} {b}")
+
+
+class StickerTests(unittest.TestCase):
+    def test_a_sticker_is_kept_in_range(self) -> None:
+        raw = ft.clean_sticker({"picture": "x.png", "cx": 1, "cy": 2, "w": -5, "h": 1e9, "angle": 725,
+                                "opacity": 300, "flip_h": "yes"})
+        self.assertEqual((raw["w"], raw["h"], raw["angle"], raw["opacity"], raw["flip_h"]),
+                         (ft.STICKER_MIN, ft.STICKER_MAX, 5.0, 100.0, False))
+        self.assertIsNone(ft.clean_sticker({"kind": "picture"}))
+        box = ft.clean_sticker({"kind": "text", "text": "Hi", "align": "sideways", "colour": "red"})
+        self.assertEqual((box["align"], box["colour"]), ("centre", ft.INK))
+
+    def test_corners_keep_the_shape_and_edges_stretch(self) -> None:
+        raw = ft.clean_sticker({"picture": "x.png", "cx": 100, "cy": 100, "w": 200, "h": 100})
+        bigger = tools.resized(raw, "se", 300, 160)
+        self.assertAlmostEqual(bigger["w"] / bigger["h"], 2.0)
+        self.assertAlmostEqual(bigger["cx"] - bigger["w"] / 2, 0.0)            # the top left stays
+        self.assertAlmostEqual(bigger["cy"] - bigger["h"] / 2, 50.0)
+        free = tools.resized(raw, "se", 300, 160, free=True)
+        self.assertEqual((round(free["w"]), round(free["h"])), (300, 110))
+        wide = tools.resized(raw, "e", 260, 999)
+        self.assertEqual((round(wide["w"]), round(wide["h"]), round(wide["cx"])), (260, 100, 130))
+        turned = dict(raw, angle=90.0)
+        self.assertAlmostEqual(tools.resized(turned, "e", 100, 260)["w"], 260.0)   # its right edge is at the bottom
+
+    def test_a_turned_sticker_is_hit_inside_its_turned_box(self) -> None:
+        st = ft.Sticker(0, None, 100, 100, 200, 20, angle=90)
+        self.assertTrue(st.contains(100, 180))
+        self.assertFalse(st.contains(180, 100))
+
+    def test_a_copied_picture_becomes_a_png(self) -> None:
+        header = struct.pack("<IiiHHIIiiII", 40, 2, 2, 1, 24, 0, 0, 0, 0, 0, 0)
+        rows = b"".join(bytes((0, 0, 255) * 2) + b"\0\0" for _ in range(2))
+        self.assertEqual(tools.png_from_dib(header + rows)[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertIsNone(tools.png_from_dib(b"short"))
+
+    def test_stickers_and_text_boxes_draw_on_the_page(self) -> None:
+        v = village()
+        with tempfile.TemporaryDirectory() as tmp:
+            picture = Path(tmp) / "star.png"
+            png(picture, 4, 4, lambda x, y: 255)
+            e = ft.Edits(stickers=[ft.new_sticker(str(picture), picture, 200, 200),
+                                   ft.new_text_box(400, 100, "Kalahuna <family> & friends", "Georgia")])
+            sc = ft.scene(ft.layout(v, e), "Virtual Villagers - A New Home", {})
+            self.assertEqual(len(sc.stickers), 2)
+            svg = ft.to_svg(sc, {})
+            xml.dom.minidom.parseString(svg)
+            self.assertIn("Kalahuna &lt;family&gt; &amp; friends", svg)
+            if vv_gdiplus.available():
+                self.assertTrue(vv_gdiplus.save_scene(sc, {}, Path(tmp) / "tree.png"))
+                self.assertIsNotNone(vv_gdiplus.render_sticker(sc.stickers[1], Path(tmp) / "box.png", 2.0))
+
+    def test_edits_keep_stickers_fonts_and_colours(self) -> None:
+        e = ft.Edits(font="Georgia", styles={"title": {"font": "Papyrus", "scale": 130}},
+                     stickers=[ft.new_text_box(1, 2, "x")], person_colours={"A|1|1": "#123456"})
+        back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
+        self.assertEqual((back.font, back.styles, back.stickers, back.person_colours),
+                         (e.font, e.styles, e.stickers, e.person_colours))
+
+    def test_the_key_names_the_portrait_shapes_in_use(self) -> None:
+        self.assertTrue(ft.footer(ft.layout(village(), ft.Edits())).startswith(
+            "Males: squares; Females: ovals; Babies on the way: diamonds."))
+        e = ft.Edits()
+        e.shapes["Female"], e.shapes["Male"] = "heart", "cross"
+        self.assertIn("Males: crosses; Females: hearts;", ft.footer(ft.layout(village(), e)))
+
+    def test_shapes_keep_their_own_proportions_and_can_be_resized_and_turned(self) -> None:
+        # The owner: "i want the shapes to not look so squashed"; "drag their corners to resize
+        # them and rotate them with a little rotator thing at the top".
+        v = village()
+        for kind in ft.PORTRAIT_SHAPES:
+            e = ft.Edits()
+            e.shapes = {g: kind for g in ft.GROUPS}
+            lay = ft.layout(v, e)
+            boxes = []
+            for q in lay.x:
+                x, y, w, h, angle = lay.frame(q)
+                self.assertEqual((w, h, angle), (ft.natural_width(kind), ft.NODE_H, 0.0))
+                xs, ys = zip(*lay.frame_points(q))
+                boxes.append((min(xs), min(ys), max(xs), max(ys)))
+            for i, a in enumerate(boxes):           # spaced so no two frames overlap
+                for b in boxes[i + 1:]:
+                    self.assertTrue(a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1], kind)
+            assert_connected(self, lay, ft.lines(lay))
+        box = (100.0, 100.0, 50.0, 80.0, 0.0)
+        self.assertEqual(tools.frame_dragged(box, "size", "se", 150, 180, False, False)[2:4], (100.0, 160.0))
+        self.assertEqual(tools.frame_dragged(box, "size", "e", 150, 999, False, False)[2:4], (100.0, 80.0))
+        self.assertEqual(tools.frame_dragged(box, "turn", "rotate", 140, 101, True, False)[4], 90)
+        e = ft.Edits()
+        p = next(iter(v.people.values()))
+        e.entries[ft.entry_key(v, p)] = {"w": 5000, "h": 3, "angle": 450}
+        back = ft.Edits.from_data(json.loads(json.dumps(e.to_data()))).entries[ft.entry_key(v, p)]
+        self.assertEqual(back, {"w": ft.FRAME_MAX, "h": ft.FRAME_MIN})          # 450 is clamped to 360: none
+        lay = ft.layout(v, ft.Edits(entries={ft.entry_key(v, p): {"w": 300.0, "angle": 30.0}}))
+        assert_connected(self, lay, ft.lines(lay))
+        sc = ft.scene(lay, "A New Home", {})
+        self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
+
+    def test_generation_label_lines_delete_one_by_one_and_number_either_way(self) -> None:
+        v = village()
+        e = ft.Edits()
+        lay = ft.layout(v, e)
+        full = ft.generation_label(lay, 1)
+        self.assertTrue(full[0].startswith("I. Founders"))
+        e.hidden = ["label:1:number", "label:*:living"]
+        lay = ft.layout(v, e)
+        self.assertEqual(ft.generation_label(lay, 1), ["Founders"] + [t for t in full[1:] if "living" not in t])
+        self.assertFalse(any("living" in t for g in lay.tops for t in ft.generation_label(lay, g)))
+        self.assertEqual(ft.default_generation_label(lay, 1), ft.generation_label(lay, 1))
+        e.numbering = "numbers"
+        lay = ft.layout(v, e)
+        self.assertTrue(ft.generation_label(lay, 2)[0].startswith("2. Generation 2"))
+        back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
+        self.assertEqual((back.numbering, back.hidden), ("numbers", e.hidden))
+        parts = [i.part for i in ft.scene(lay, "A New Home", {}).items if isinstance(i, ft.Text) and i.part]
+        self.assertIn("1|first", parts)
+        self.assertNotIn("1|living", parts)
+
+    def test_picture_opacity_works_on_a_transparent_colour(self) -> None:
+        # The owner: "picture opacity no longer works if the background color is transparent".
+        pic = ft.picture_path("asset:mountains-and-sea.png", None)
+        for fit in ("stretch", "tile"):
+            sc = ft.Scene(40, 30, ft.TRANSPARENT, [ft.Backdrop(ft.TRANSPARENT, "", pic, fit, 71)])
+            self.assertIn('opacity="0.29"', ft.to_svg(sc, {}))
+            if vv_gdiplus.available():
+                with tempfile.TemporaryDirectory() as tmp:
+                    out = Path(tmp) / "faded.png"
+                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, out))
+                    self.assertTrue(60 <= png_alpha_at(out, 20, 15) <= 90)
+
+    def test_the_rainbow_backgrounds_run_across_and_down(self) -> None:
+        for key, end in (("rainbow-across", 'x2="1" y2="0"'), ("rainbow-down", 'x2="0" y2="1"')):
+            sc = ft.Scene(70, 40, "#ffffff", [ft.Backdrop("#ffffff", key)])
+            svg = ft.to_svg(sc, {})
+            self.assertIn(end, svg)
+            self.assertEqual(svg.count("<stop "), len(ft.RAINBOW))
+            if vv_gdiplus.available():
+                with tempfile.TemporaryDirectory() as tmp:
+                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, Path(tmp) / "rainbow.png"))
+        back = ft.Edits.from_data(json.loads(json.dumps(ft.Edits(rainbow="rainbow-down").to_data())))
+        self.assertEqual(back.rainbow, "rainbow-down")
+        self.assertEqual(ft.Edits.from_data({"rainbow": "plaid"}).rainbow, "")
+
+
+if __name__ == "__main__":
+    unittest.main()

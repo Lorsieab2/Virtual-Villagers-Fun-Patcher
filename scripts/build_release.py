@@ -19,6 +19,17 @@ FILES = [
     "How to Use.txt",
     "Launch Virtual Villagers Fun Patcher.bat",
     "assets/Island.png",
+    "assets/genealogy/backgrounds/sunset-over-the-sea.png",
+    "assets/genealogy/backgrounds/palms-at-sunset.png",
+    "assets/genealogy/backgrounds/island-in-the-sea.png",
+    "assets/genealogy/backgrounds/city-in-the-mist.png",
+    "assets/genealogy/backgrounds/blue-island.png",
+    "assets/genealogy/backgrounds/mountains-and-sea.png",
+    "assets/genealogy/backgrounds/tree-on-the-rocks.png",
+    "assets/genealogy/backgrounds/parchment-in-bamboo.png",
+    "assets/genealogy/backgrounds/mausoleum.png",
+    "assets/genealogy/backgrounds/green-tree.png",
+    "assets/genealogy/backgrounds/starry-night.png",
     "assets/origins/VVFP VV1 Origins Icons.dll",
     "assets/origins/VVFP VV2 Origins Icons.dll",
     "assets/origins/VVFP VV4 Origins Icons.dll",
@@ -188,6 +199,13 @@ FILES = [
     # the read-only checker in the patcher's own process.
     "src/vv_log_tools.py",
     "src/vv_log_additions.py",
+    # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
+    # imports the rest (vv_tree_editor_tools is the editor's canvas tools).
+    "src/vv_genealogy.py",
+    "src/vv_family_tree.py",
+    "src/vv_gdiplus.py",
+    "src/vv_genealogy_window.py",
+    "src/vv_tree_editor_tools.py",
     "src/vv_last_names.py",
     # The "?" guides beside every feature; the GUI imports the module, and
     # the module reads the data file.

@@ -20,6 +20,8 @@ import vv_log_additions
 import vv_last_names
 import vv_save_backup
 import vv_tribe_rename
+import vv_genealogy
+import vv_genealogy_window
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -465,6 +467,8 @@ class App(tk.Tk):
             # "Can you make the check logs automatically default on?"); a
             # per-install choice, written into each game built from now on.
             self.check_logs_var = tk.BooleanVar(value=True)
+            self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
+            self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -893,6 +897,16 @@ class App(tk.Tk):
         self._help_button(check_logs_row, "check_logs_automatically").pack(
             side="left", anchor="n", padx=(4, 0)
         )
+        genealogy = ttk.Frame(box)
+        genealogy.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self._folder_link(
+            genealogy, "Family Tree Maker...", self._family_tree_single
+        ).pack(side="left")
+        self._help_button(genealogy, "family_tree_maker").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            genealogy, "Village Matchmaker...", self._matchmaker_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(genealogy, "village_matchmaker").pack(side="left", padx=(3, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -936,6 +950,8 @@ class App(tk.Tk):
             (3, "rename_tribe"),
             (4, "check_logs"),
             (5, "repair_logs"),
+            (6, "family_tree_maker"),
+            (7, "village_matchmaker"),
         ):
             self._help_button(tools, key).grid(
                 row=0, column=column, padx=(12, 0), pady=(0, 2)
@@ -993,6 +1009,16 @@ class App(tk.Tk):
                 "Repair logs...",
                 lambda game=build: self._log_tool(game, repair=True),
             ).grid(row=row, column=5, padx=(12, 0), pady=2)
+            self._folder_link(
+                tools,
+                "Family tree maker...",
+                lambda game=build: vv_genealogy_window.open_family_tree(self, game),
+            ).grid(row=row, column=6, padx=(12, 0), pady=2)
+            self._folder_link(
+                tools,
+                "Village matchmaker...",
+                lambda game=build: vv_genealogy_window.open_pair_suggestions(self, game),
+            ).grid(row=row, column=7, padx=(12, 0), pady=2)
         grid.columnconfigure(1, weight=1)
         tools.pack(anchor="w", pady=(8, 0))
         actions = ttk.Frame(tab)
@@ -1043,6 +1069,20 @@ class App(tk.Tk):
             command=lambda: self._log_tool(None, repair=True),
         ).pack(side="left", padx=(8, 0))
         self._help_button(save_tools, "repair_logs").pack(side="left", padx=(2, 0))
+        genealogy_tools = ttk.Frame(tab)
+        genealogy_tools.pack(fill="x", pady=(8, 0))
+        ttk.Button(
+            genealogy_tools,
+            text="Family Tree Maker...",
+            command=lambda: vv_genealogy_window.open_family_tree(self, None),
+        ).pack(side="left")
+        self._help_button(genealogy_tools, "family_tree_maker").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            genealogy_tools,
+            text="Village Matchmaker...",
+            command=lambda: vv_genealogy_window.open_pair_suggestions(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(genealogy_tools, "village_matchmaker").pack(side="left", padx=(2, 0))
         check_logs_row = ttk.Frame(tab)
         check_logs_row.pack(anchor="w", pady=(8, 0))
         ttk.Checkbutton(
@@ -1237,6 +1277,10 @@ class App(tk.Tk):
         # Only a saved False turns it off. A missing key -- a fresh install
         # (no settings file) or a settings file from v1.35.57 or earlier,
         # which never had this key -- keeps the ON default.
+        saved_rules = data.get("pair_rules", {})
+        self.pair_rules = saved_rules if isinstance(saved_rules, dict) else {}
+        saved_window = data.get("tree_window", {})
+        self.tree_window = saved_window if isinstance(saved_window, dict) else {}
         saved_check_logs = data.get("check_logs_automatically", True)
         self.check_logs_var.set(saved_check_logs is not False)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -1256,6 +1300,8 @@ class App(tk.Tk):
             "output_root": self.output_root_var.get().strip(),
             "check_logs_automatically": bool(self.check_logs_var.get()),
             "fun_patches": self._selected_fun_patch_ids(),
+            "pair_rules": self.pair_rules,
+            "tree_window": self.tree_window,
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
                 for build in self.builds
@@ -2584,6 +2630,20 @@ class App(tk.Tk):
         dialog.grab_set()
         name_entry.focus_set()
 
+    # -- Family Tree Maker / Village Matchmaker (src/vv_genealogy_window.py) --
+
+    def _family_tree_single(self) -> None:
+        """Family Tree Maker for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            vv_genealogy_window.open_family_tree(self, build)
+
+    def _matchmaker_single(self) -> None:
+        """Village Matchmaker for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            vv_genealogy_window.open_pair_suggestions(self, build)
+
     # -- Check Logs / Repair Logs -------------------------------------------
 
     def _check_single_logs(self) -> None:
@@ -2968,14 +3028,39 @@ class App(tk.Tk):
             return
         checker = vv_log_tools.load_checker()
         none = "(no last name)"
+        # Each villager's parents, as the Family Tree Maker reads them, for the father's and the
+        # mother's last names.
+        try:
+            village = vv_genealogy.load_village(folder, number, info.slot)
+        except (vv_genealogy.GenealogyError, OSError, ValueError):
+            village = None
+        parents: dict[tuple, tuple] = {}
+        if village is not None:
+            for p in village.people.values():
+                if p.alive:
+                    parents[p.key] = tuple(village.people[q].key if q is not None else None
+                                           for q in (p.father, p.mother))
+        by_father = vv_last_names.inherited(people, parents, "father")
+        by_mother = vv_last_names.inherited(people, parents, "mother")
         window = tk.Toplevel(parent)
         window.title("Repair Logs: last names")
         window.transient(parent)
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=640, justify="left",
                   text="Each living villager gets the last name you choose after their name, in the save "
-                       "and in every log. The family's last name is chosen for you (a baby has its "
-                       "mother's family); pick another from the list, type your own, or choose none. "
-                       "The game must stay closed.").pack(anchor="w")
+                       "and in every log. Choose where last names come from, then change any one: pick "
+                       "from its list (the father's and the mother's come first), type your own, or "
+                       "choose none. The game must stay closed.").pack(anchor="w")
+        rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
+        rule_row.pack(anchor="w")
+        ttk.Label(rule_row, text="Last names come from:").pack(side="left")
+        saved_rule = names.get("rule", "family")
+        rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["family"]))
+        ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
+                     state="readonly", width=34).pack(side="left", padx=(6, 0))
+        if village is None:
+            ttk.Label(window, padding=(12, 2, 12, 0), wraplength=640, justify="left",
+                      text="The parents could not be read from the save and the logs, so the father's "
+                           "and the mother's give the family's.").pack(anchor="w")
         canvas = tk.Canvas(window, width=660, height=420, highlightthickness=0)
         bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
         inner = ttk.Frame(canvas, padding=12)
@@ -2988,10 +3073,15 @@ class App(tk.Tk):
             # A name with a space already has a last name -- the game's, or one typed here
             # before (Codex, #553): nothing is chosen for it; the player may still add one.
             spaced = " " in v.name
-            ttk.Label(inner, text=f"{v.name} ({v.sex}, family {v.family})").grid(row=row, column=0, sticky="w")
+            father, mother = parents.get(v.identity, (None, None))
+            who = f"{v.name} ({v.sex}, family {v.family})"
+            if father or mother:
+                who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
+            ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
             value = tk.StringVar(value=names["chosen"].get(v.identity) or (none if spaced else v.default or none))
-            box = ttk.Combobox(inner, textvariable=value, values=[none] + list(checker.LAST_NAMES[number]),
-                               width=24)
+            first = list(dict.fromkeys(n for n in (by_father.get(v.identity), by_mother.get(v.identity)) if n))
+            box = ttk.Combobox(inner, textvariable=value, width=24,
+                               values=[none] + first + [n for n in checker.LAST_NAMES[number] if n not in first])
             box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
             if already:
                 box.configure(state="disabled")
@@ -3005,6 +3095,17 @@ class App(tk.Tk):
             for v, value in rows:
                 if " " not in v.name:
                     value.set(choice(v))
+
+        def rule_key() -> str:
+            return next(k for k, words in vv_last_names.INHERIT.items() if words == rule_var.get())
+
+        def by_rule(*_args) -> None:
+            given = vv_last_names.inherited(people, parents, rule_key())
+            every(lambda v: given.get(v.identity) or none)
+
+        rule_var.trace_add("write", by_rule)
+        if not names["chosen"] and saved_rule != "family":
+            by_rule()
 
         def ok() -> None:
             chosen = {}
@@ -3027,12 +3128,11 @@ class App(tk.Tk):
                 self._repair_questions(window, asked, answers)
             names["chosen"] = chosen
             names["answers"] = answers
+            names["rule"] = rule_key()
             names_var.set(bool(chosen))
             window.destroy()
 
-        ttk.Button(buttons, text="Family names for all", command=lambda: every(lambda v: v.default or none)
-                   ).pack(side="left")
-        ttk.Button(buttons, text="None for all", command=lambda: every(lambda v: none)).pack(side="left", padx=8)
+        ttk.Button(buttons, text="None for all", command=lambda: every(lambda v: none)).pack(side="left")
         ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
         ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
         window.protocol("WM_DELETE_WINDOW", window.destroy)

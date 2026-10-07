@@ -41,8 +41,10 @@ file, swapped in and read back; any failure puts every changed file back.
 from __future__ import annotations
 
 import os
+import random
 import re
 import struct
+import zlib
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -190,6 +192,70 @@ def living(folder: Path, game: int, slot: int) -> list[Living]:
         out.append(Living(at, _cstr(data, at, f.name_cap), "Male" if _i32(data, at + f.sex) == f.male else "Female",
                           _i32(data, at + f.head), _i32(data, at + f.body), family,
                           names[family - 1] if 1 <= family <= 50 else ""))
+    return out
+
+
+# Where a villager's last name comes from (the owner, 2026-10-07: "an option to choose whether
+# people inherit the Father or Mother's last name, or random 50:50 or player choice for each
+# villager").
+INHERIT = {
+    "family": "The family (the game's own)",
+    "father": "The father",
+    "mother": "The mother",
+    "random": "Either parent at random (50:50)",
+    "each": "I'll choose for each villager",
+}
+
+
+def own_last_name(name: str) -> str:
+    """The last name a villager's name already carries (after its last space), or ""."""
+    return name.rpartition(" ")[2] if " " in name else ""
+
+
+def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str) -> dict[tuple, str]:
+    """Each living villager's last name by `rule` ("" for none): the family's, the father's, the
+    mother's, or either parent's at random -- a parent's being the one their name carries, else
+    (a living parent being given one now) the one this rule gives them, parents before children.
+    Without the parent the rule names, the other parent's; without either, the family's.  The
+    random pick is the same each time for the same villager.  "each" leaves every one to the
+    player (none chosen).  `parents` maps a villager (name, head, body) to (father, mother)."""
+    if rule == "each":
+        return {v.identity: "" for v in people}
+    living_by = {v.identity: v for v in people}
+    out: dict[tuple, str] = {}
+
+    def last_of(key, seen: frozenset) -> str:
+        if key is None:
+            return ""
+        own = own_last_name(key[0])
+        if own or key not in living_by:
+            return own
+        return give(living_by[key], seen)
+
+    def give(v: Living, seen: frozenset = frozenset()) -> str:
+        if v.identity in out:
+            return out[v.identity]
+        if v.identity in seen:                  # a loop in the records: the family's
+            return v.default
+        if rule == "family":
+            result = v.default
+        else:
+            father, mother = parents.get(v.identity, (None, None))
+            seen = seen | {v.identity}
+            dad, mum = last_of(father, seen), last_of(mother, seen)
+            if rule == "father":
+                result = dad or mum
+            elif rule == "mother":
+                result = mum or dad
+            else:
+                pick = random.Random(zlib.crc32(repr(v.identity).encode("utf-8")))
+                result = pick.choice([dad, mum]) if dad and mum else (dad or mum)
+            result = result or v.default
+        out[v.identity] = result
+        return result
+
+    for v in people:
+        give(v)
     return out
 
 
