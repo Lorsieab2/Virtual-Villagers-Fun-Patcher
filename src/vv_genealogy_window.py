@@ -449,6 +449,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.window = dict(getattr(app, "tree_window", {}) or {})
         self.geometry(self.window.get("geometry", "1400x860"))
         self._build()
+        self._follow_looks()
         self.redraw()
         self._write_outputs()
         self.protocol("WM_DELETE_WINDOW", self._close)
@@ -1462,6 +1463,55 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_panels()
         self.status.set("The tree is deleted and drawn fresh from the save and the logs.  Ctrl+Z brings it back.")
 
+    def _follow_looks(self) -> None:
+        """After Change Appearance (the owner: "ask the player if they wish to update the villager's
+        appearance in the family tree or not"): the villager's edits, saved under their old look,
+        follow them to the new one, and each changed villager not yet decided is asked about."""
+        if self.village.relooked:
+            for name, head, body in self.village.relooked:   # changed again since the player chose
+                self.edits.entries.get(f"{name}|{head}|{body}", {}).pop("look", None)
+            text = json.dumps(self.edits.to_data())
+            moved = ft.relooked_keys(text, self.village.relooked)
+            if moved != text:
+                self.edits = ft.Edits.from_data(json.loads(moved))
+                self.dirty = True
+        changed = [p for p in self.village.known() if p.old_looks and "look" not in self._entry(p)]
+        if changed:
+            self.after_idle(lambda: self._ask_looks(changed))
+
+    def _ask_looks(self, changed: list) -> None:
+        """Each villager whose look Change Appearance changed: show the new look on the tree, or keep
+        the old one.  The answer is kept with the tree, so it is asked once."""
+        window = tk.Toplevel(self)
+        window.title("Appearance changed")
+        window.transient(self)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text="These villagers' looks were changed with Change Appearance.  Update their "
+                              "portraits on the tree to the new look?", wraplength=460).pack(anchor="w", pady=(0, 8))
+        choices = {}
+        for p in changed:
+            old = p.old_looks[-1]
+            var = tk.StringVar(value="new")
+            choices[p.id] = (var, old)
+            row = ttk.Frame(frame)
+            row.pack(anchor="w", pady=2)
+            ttk.Label(row, text=gen.numbered(p), width=24).pack(side="left")
+            ttk.Radiobutton(row, text=f"New look (head {p.head})", value="new", variable=var).pack(side="left")
+            ttk.Radiobutton(row, text=f"Old look (head {old[0]})", value="old", variable=var).pack(side="left",
+                                                                                                  padx=(8, 0))
+
+        def done() -> None:
+            for pid, (var, old) in choices.items():
+                p = self.village.people[pid]
+                self._set_entry(p, look=list(old) if var.get() == "old" else [p.head, p.body])
+            window.destroy()
+            self._saved()
+
+        ttk.Button(frame, text="OK", command=done).pack(anchor="e", pady=(10, 0))
+        window.protocol("WM_DELETE_WINDOW", done)
+        window.grab_set()
+
     def _update_from_game(self, _event=None) -> None:
         """The save and the patcher's logs read again (the game played on since the tree opened);
         every edit is kept, and a villager's edits follow them."""
@@ -1473,6 +1523,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         before = len(self.village.known())
         self.village = village
         self.selected = []
+        self._follow_looks()
         self.redraw()
         self._refresh_selected()
         self._refresh_hidden()
@@ -2741,6 +2792,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.obj = None
         self.selected = []
         self.page = 0
+        self._follow_looks()
         self._saved()
         self._refresh_panels()
         self.status.set(f"Opened {Path(path).name}.  Ctrl+S saves it as this tree.")

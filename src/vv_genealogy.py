@@ -76,6 +76,7 @@ class Person:
     birth_record: int | None = None     # its Birth record's place in the Births log (birth order)
     generation: int = 1
     number: int | None = None           # its place in the whole tree, oldest first (number_people)
+    old_looks: list[tuple[int, int]] = field(default_factory=list)   # (head, body) before Change Appearance
 
     @property
     def key(self) -> Key:
@@ -107,6 +108,7 @@ class Village:
     notes: list[str] = field(default_factory=list)
     snapshot_dates: list[str] = field(default_factory=list)     # the History snapshots read
     base_generation: dict[int, int] = field(default_factory=dict)   # each one's, as the records say
+    relooked: dict[Key, Key] = field(default_factory=dict)     # an old look's key -> the villager's key now
 
     def living(self) -> list[Person]:
         return [p for p in self.people.values() if p.alive]
@@ -139,9 +141,18 @@ class _Registry:
         self.expected: dict[int, Key] = {}             # mother -> the expected father (the save's)
         self.due: dict[int, int] = {}                  # mother -> babies she carries (the save's)
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
+        self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
+
+    def current(self, key: Key) -> Key:
+        """The look a villager has now, following their Change Appearance records."""
+        seen = set()
+        while key in self.relooked and key not in seen:
+            seen.add(key)
+            key = self.relooked[key]
+        return key
 
     def get(self, name: str, head: int | None, body: int | None) -> Person:
-        key = (name, head, body)
+        key = self.current((name, head, body))
         if key not in self.by_key:
             pid = len(self.people) + 1
             self.people[pid] = Person(pid, name, head, body)
@@ -318,6 +329,7 @@ def load_village(folder: Path, game: int, slot: int) -> Village:
     folder = Path(folder)
     reg = _Registry()
     notes: list[str] = []
+    _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
     _log_people(reg, folder, game, slot)
@@ -336,12 +348,39 @@ def load_village(folder: Path, game: int, slot: int) -> Village:
         pass
     _upcoming(reg)
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
+    village.relooked = {old: reg.current(old) for old in reg.relooked if reg.current(old) != old}
+    for old, now in village.relooked.items():
+        if now in reg.by_key:
+            reg.people[reg.by_key[now]].old_looks.append((old[1], old[2]))
     _generations(village, reg.snapshots)
     number_people(village)
     if additions.current_villages(folder, game, slot) is None:
         notes.append("The save's tribe name could not be read, so records of every village this "
                      "slot has held were read.")
     return village
+
+
+def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> None:
+    """Change Appearance's "Appearance changed" records (the Births and Conceptions log): a record
+    naming the villager with an old look is the same villager as the one with the new look (the
+    owner: "regarding appearance changes, sure. Log those.").  In log order, so a later change wins;
+    a change back makes the old look the villager's own again."""
+    import vv_log_additions as additions
+    checker = tools.load_checker()
+    villages = additions.current_villages(folder, game, slot)
+    births = [path for path in checker.log_files(folder) if "Births and Conceptions" in path.name]
+    for path in sorted(births, key=lambda q: [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", q.name)]):
+        for b in additions.blocks(path):
+            if b.heading != "Appearance changed" or not b.of(slot, game, villages):
+                continue
+            values = [b.value(label) for label in ("Old head", "Old body", "New head", "New body")]
+            name = b.value("Name")
+            if not name or not all(v and v.lstrip("-").isdigit() for v in values):
+                continue
+            old_head, old_body, new_head, new_body = (int(v) for v in values)
+            old, new = (name, old_head, old_body), (name, new_head, new_body)
+            reg.relooked.pop(new, None)
+            reg.relooked[old] = new
 
 
 def _upcoming(reg: _Registry) -> None:

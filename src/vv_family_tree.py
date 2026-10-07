@@ -350,6 +350,9 @@ class Edits:
             angle = _number(entry.get("angle"), 0.0, 360.0, 0.0) % 360
             if angle:
                 item["angle"] = angle
+            look = entry.get("look")
+            if isinstance(look, list) and len(look) == 2 and all(isinstance(v, int) for v in look):
+                item["look"] = look             # the look the player chose to show
             if item:
                 out.entries[str(key)] = item
         for piece, shift in dict(data.get("line_moves", {})).items():
@@ -614,6 +617,22 @@ def renamed_keys(text: str, renames: dict[tuple, str]) -> str:
         text = re.sub(rf'(?<=["|: ]){re.escape(json.dumps(name)[1:-1])}\|{head}\|{body}(?=["| ])',
                       lambda _found, key=key: key, text)
     return text
+
+
+def relooked_keys(text: str, relooked: dict[tuple, tuple]) -> str:
+    """Saved edits (as text) with each key of a villager's old look -- before Change Appearance --
+    moved to the look they have now, so their edits follow them (as renamed_keys for a new name)."""
+    for (name, head, body), (_name, new_head, new_body) in relooked.items():
+        old = re.escape(json.dumps(name)[1:-1]) + rf"\|{head}\|{body}"
+        new = json.dumps(name)[1:-1] + f"|{new_head}|{new_body}"
+        text = re.sub(rf'(?<=["|: ]){old}(?=["| ])', lambda _found, new=new: new, text)
+    return text
+
+
+def look_of(edits: "Edits", village: gen.Village, p: gen.Person) -> tuple:
+    """The (head, body) the tree shows: the one the player chose after Change Appearance, else now."""
+    look = edits.entries.get(entry_key(village, p), {}).get("look")
+    return tuple(look) if look else (p.head, p.body)
 
 
 def entry_key(village: gen.Village, p: gen.Person) -> str:
@@ -2219,10 +2238,11 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
                      edit=f"person:{p.id}"))
         return
     sheet = sheet_name(lay.village.game, p)
-    box = face_box(present, sheet, p.head)
+    head = look_of(lay.edits, lay.village, p)[0]
+    box = face_box(present, sheet, head)
     head_left, head_top, text_top, lines = placement(lay, p, box)
-    if sheet in present and p.head is not None and p.head >= 0:
-        put(Head(x + head_left, y + head_top, sheet, p.head, pid=p.id))
+    if sheet in present and head is not None and head >= 0:
+        put(Head(x + head_left, y + head_top, sheet, head, pid=p.id))
     else:
         mid = y + head_top + FACE_H * HEAD_SCALE / 2
         put(Shape("ellipse", x + NODE_W / 2 - 26, mid - 26, 52, 52, colour, width=1, fill=colour, pid=p.id,
