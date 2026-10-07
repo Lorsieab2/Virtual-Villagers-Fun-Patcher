@@ -54,8 +54,9 @@ class TheNumbers(unittest.TestCase):
                     gen.Person(5, long, 7, 7, alive=True), gen.Person(6, long, 8, 8, alive=True),
                     gen.Person(7, "Soda", 1, 1, alive=True))
         out = nn.numbering(v, alike={("Twin", 5, 5): 2}, nameless={"Soda", "Nobody", "Twin I"})
-        # "Twin I" is a name-only record's: never given again (Codex, #557).
-        self.assertEqual(out.renames, {("Twin", 9, 9): "Twin III", ("Ghost", 6, 6): "Ghost II",
+        # "Twin I" is a name-only record's: never given again, and the two Twins who look alike count as
+        # two, II and III (Codex, #557).
+        self.assertEqual(out.renames, {("Twin", 9, 9): "Twin IV", ("Ghost", 6, 6): "Ghost II",
                                        (long, 7, 7): f"{long} I"})
         self.assertEqual(len(out.notes), 4)
         self.assertTrue(any("2 living villagers are called Twin" in n for n in out.notes))
@@ -74,6 +75,15 @@ class TheNumbers(unittest.TestCase):
                        gen.Person(3, "Soda", 3, 3, gone="died", birth_record=0))
         # A dead namesake is a separate villager: both are numbered (no age known: as they appeared).
         self.assertEqual(nn.numbering(dead).renames, {("Soda", 3, 3): "Soda I", ("Soda", 1, 1): "Soda II"})
+
+    def test_look_alikes_count_and_names_in_the_patchers_files_are_taken(self):
+        # Codex, #557 round 3: a look-alike pair is two villagers, so the next Soda is III; and a
+        # "Soda IV" only the Village Elders names is never given again.
+        v = village(gen.Person(1, "Soda", 1, 1, alive=True, birth_record=1),
+                    gen.Person(2, "Soda", 2, 2, alive=True, birth_record=2),
+                    gen.Person(3, "Soda", 3, 3, alive=True, birth_record=3))
+        out = nn.numbering(v, alike={("Soda", 1, 1): 2}, taken={"Soda IV"}, order="appearance")
+        self.assertEqual(out.renames, {("Soda", 2, 2): "Soda III", ("Soda", 3, 3): "Soda V"})
 
     def test_a_number_already_in_use_is_passed_over(self):
         v = village(gen.Person(1, "Soda", 1, 1, alive=True, birth_record=1),
@@ -171,7 +181,7 @@ class InTheSaveAndTheLogs(unittest.TestCase):
     def test_a_dead_namesake_who_looks_the_same_is_left_and_reported(self):
         # Codex, #557: the family tree folds a Death record with a living villager's looks into them.
         self.deaths.write_bytes(self.deaths.read_bytes().replace(b"Head: 1\r\n  Body: 1", b"Head: 5\r\n  Body: 6"))
-        alike, _nameless, _bodies = nn.evidence(self.folder, 3, 1)
+        alike, _nameless, _bodies, _taken = nn.evidence(self.folder, 3, 1)
         self.assertEqual(alike, {("Soda", 5, 6): 2})
 
     def test_it_is_refused_while_the_game_runs_or_when_no_name_is_shared(self):

@@ -41,11 +41,11 @@ class Numbering:
 
 def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
               nameless: set[str] = frozenset(), bodies: set[tuple] = frozenset(),
-              order: str = "oldest") -> Numbering:
+              taken: set[str] = frozenset(), order: str = "oldest") -> Numbering:
     """The numbered name of each villager the save and the logs can tell apart.  `alike`: each
     (name, head, body) the save holds more than once, and how many times; `nameless`: the names of
     records that do not say how their villager looks; `bodies`: the (name, head, body) of the dead
-    lying in the save."""
+    lying in the save; `taken`: names the patcher's own files hold (never given again)."""
     out = Numbering()
     alike = alike or {}
     for (name, _head, _body), count in sorted(alike.items()):
@@ -57,7 +57,9 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
     living_names = {p.name for p in village.known() if p.alive}
     unsure = {p.id for p in village.known() if p.name in living_names and not p.alive and not p.gone
               and p.head is not None and p.body is not None and p.key not in bodies}
-    numbered = gen.duplicate_names(village, order, reserved=nameless, leave=unsure)
+    weight = {p.id: alike[p.key] for p in village.known() if p.key in alike}
+    numbered = gen.duplicate_names(village, order, reserved=set(nameless) | set(taken), leave=unsure,
+                                   weight=weight)
     for name in sorted(nameless & {p.name for p in village.known()}):
         out.notes.append(f"Older records name a {name} without saying how they look, so those records keep "
                          f"the name {name}.")
@@ -80,10 +82,11 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
     return out
 
 
-def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[str], set[tuple]]:
+def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[str], set[tuple], set[str]]:
     """What the family tree's reading merges or drops: each name, head and body more than one
     villager has -- in the save, living or a body, and in the Death and Disappeared records -- the
-    names of log records without looks, and the dead lying in the save."""
+    names of log records without looks, the dead lying in the save, and the names in the patcher's
+    statistics roster and Village Elders, which this renames too (Codex, #557)."""
     import vv_log_additions as additions
     everyone = ln.living(folder, game, slot, bodies=True)
     alive = {v.at for v in ln.living(folder, game, slot)}
@@ -93,8 +96,21 @@ def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[
                   and b.identity[1] is not None and b.identity[2] is not None)
     nameless = {b.identity[0] for b in blocks
                 if b.identity[0] and (b.identity[1] is None or b.identity[2] is None)}
+    taken = set()
+    data_dir = Path(folder) / ln.tools.DATA
+    for path, columns in ((data_dir / "Village Statistics" / f"Village Roster - Save {slot}.dat", (1,)),
+                          (data_dir / "Village Elders" / f"Village Elders - Save {slot}.dat", (2, 3, 4))):
+        try:
+            lines = path.read_bytes().decode("latin-1").split("\n")
+        except OSError:
+            continue
+        for line in lines:
+            parts = line.rstrip("\r").split("\t")
+            if path.name.startswith("Village Elders") and parts[0] != "E":
+                continue
+            taken.update(parts[c] for c in columns if c < len(parts) and parts[c])
     return ({key: n for key, n in counts.items() if n > 1}, nameless,
-            {v.identity for v in everyone if v.at not in alive})
+            {v.identity for v in everyone if v.at not in alive}, taken)
 
 
 def number_names(folder: Path, game: int, slot: int, order: str = "oldest",
