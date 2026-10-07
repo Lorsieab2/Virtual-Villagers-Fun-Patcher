@@ -3103,8 +3103,9 @@ class App(tk.Tk):
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=700, justify="left",
                   text="Every villager gets the last name you choose: the living in the save and every log, "
                        "the dead and gone in every log. Choose where last names come from, then change any "
-                       "one: pick from its list (the father's and the mother's come first), type your own in "
-                       "its box, or choose none. A villager's descendants inherit the name you give them by "
+                       "one: pick from its list (the father's and the mother's come first), pick (custom last "
+                       "name - type here...) and type your own, or choose none. A name longer than the game "
+                       "allows is marked and cannot be given. A villager's descendants inherit the name you give them by "
                        "the rule above. A last name the rule does not give is marked; Fix wrong last names "
                        "puts them right. The game must stay closed.").pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
@@ -3123,6 +3124,8 @@ class App(tk.Tk):
         canvas.create_window((0, 0), window=inner, anchor="nw")
         canvas.configure(yscrollcommand=bar.set)
         rows: list[tuple] = []
+        custom = vv_last_names.CUSTOM
+        room = vv_last_names.ROOM[number]
         # The villagers whose last name the player set (typed or picked, here or recorded before):
         # theirs, and their descendants inherit it by the rule.
         mine: set = set(names.get("mine", ()))
@@ -3137,9 +3140,10 @@ class App(tk.Tk):
             start_value = names["chosen"].get(v.identity, now[v.identity])
             value = tk.StringVar(value=start_value or none)
             first = list(dict.fromkeys(n for n in (by_father.get(v.identity), by_mother.get(v.identity)) if n))
-            box = ttk.Combobox(inner, textvariable=value, width=20,
-                               values=[none] + first + [n for n in pool if n not in first])
+            box = ttk.Combobox(inner, textvariable=value, width=30,
+                               values=[none, custom] + first + [n for n in pool if n not in first])
             box.grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+            box.bind("<<ComboboxSelected>>", lambda _e, box=box, value=value: type_here(box, value))
             mark = tk.StringVar()
             ttk.Label(inner, textvariable=mark, foreground="#a33").grid(row=row, column=2, sticky="w", padx=(8, 0))
             value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))
@@ -3149,12 +3153,27 @@ class App(tk.Tk):
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")
 
+        def type_here(box, value) -> None:
+            """(custom last name - type here...): an empty box, ready for the player's own."""
+            if value.get() == custom:
+                value.set("")
+                box.focus_set()
+                box.icursor(0)
+
+        def last_in(value) -> str:
+            have = value.get().strip()
+            return "" if have in (none, custom) else have
+
+        def too_long(v, last: str) -> bool:
+            """The whole new name -- own name, last name, any numeral -- past the game's room."""
+            return bool(last) and len(vv_last_names.with_last(number, v.name, last, known)) > room
+
         def rule_key() -> str:
             return next(k for k, words in vv_last_names.INHERIT.items() if words == rule_var.get())
 
         def fixed() -> dict:
-            values = {v.identity: value.get().strip() for v, value, _m in rows}
-            return {key: ("" if values[key] == none else values[key]) for key in mine if key in values}
+            values = {v.identity: last_in(value) for v, value, _m in rows}
+            return {key: values[key] for key in mine if key in values}
 
         def given() -> dict:
             # The rest of a family follows the name the player gives one of them: their brothers
@@ -3167,11 +3186,13 @@ class App(tk.Tk):
             should = given()
             wrong = 0
             for v, value, mark in rows:
-                have = value.get().strip()
-                have = "" if have == none else have
+                have = last_in(value)
                 right = should.get(v.identity, "")
-                bad = v.identity not in mine and have != right and rule_key() not in ("each", "list")
-                mark.set(f"the rule gives {right or 'none'}" if bad else "")
+                bad = v.identity not in mine and have != right and rule_key() not in ("list", *vv_last_names.PLAYER_RULES)
+                if too_long(v, have):
+                    mark.set(f"too long: {room} characters at most")
+                else:
+                    mark.set(f"the rule gives {right or 'none'}" if bad else "")
                 wrong += bad
             wrong_var.set(f"{wrong} last name(s) are not what the rule gives." if wrong else "")
 
@@ -3193,6 +3214,7 @@ class App(tk.Tk):
         def set_by_player(v) -> None:
             mine.add(v.identity)
             by_rule()
+            marks()
 
         def none_for_all() -> None:
             mine.clear()
@@ -3208,12 +3230,14 @@ class App(tk.Tk):
         def ok() -> None:
             chosen = {}
             for v, value, _m in rows:
-                last = value.get().strip()
-                last = "" if last == none else last
+                last = last_in(value)
                 if last == now[v.identity]:
                     continue
                 if last:
-                    problem = vv_last_names.name_problem(number, "", last)
+                    problem = vv_last_names.name_problem(number, split(v.name)[0], last)
+                    if not problem and too_long(v, last):
+                        problem = (f"{vv_last_names.with_last(number, v.name, last, known)} is longer than "
+                                   f"the game's {room} characters.")
                     if problem:
                         messagebox.showerror("Last names", f"{v.name}: {problem}", parent=window)
                         return

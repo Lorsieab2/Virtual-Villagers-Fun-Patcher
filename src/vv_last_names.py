@@ -333,6 +333,12 @@ INHERIT = {
     "list": "Random from list",
     "each": "Choose from list",
 }
+# The rules where the player gives each villager's last name: a villager keeps the one they carry
+# until the player changes it, so choosing the rule never wipes a name.
+PLAYER_RULES = ("each",)
+# The entry in each villager's own list for typing a last name of the player's own (the owner,
+# 2026-10-07: "IN THE LIST THERE SHOULD BE A (CUSTOM LAST NAME - TYPE HERE...) ENTRY").
+CUSTOM = "(custom last name - type here...)"
 
 
 def own_last_name(name: str) -> str:
@@ -446,8 +452,7 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     their name carries, else (a living parent being given one now) the one this rule gives them,
     parents before children.  Without the parent the rule names, the other parent's; without
     either, their own (separate) or the family's.  The
-    random pick is the same each time for the same villager.  "each" leaves every one to the
-    player (none chosen).  `parents` maps a villager (name, head, body) to (father, mother).  With
+    random pick is the same each time for the same villager.  "each" leaves every one to the player: a villager keeps the last name they carry until the player gives another.  `parents` maps a villager (name, head, body) to (father, mother).  With
     the game's list of last names (`pool`), a villager with no recorded parent has one of their own
     (separate).  `fixed`: the last names the player gave villagers themselves ("" none) -- theirs,
     and their descendants inherit them by the rule (the owner, 2026-10-07: name Chapa "Chapa
@@ -455,8 +460,8 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     last name a name already has: a villager listed here with a recorded parent takes the rule's
     name, not the one carried (a change of rule re-derives the family); one without keeps theirs."""
     fixed = fixed or {}
-    if rule == "each":
-        return {v.identity: fixed.get(v.identity, "") for v in people}
+    if rule in PLAYER_RULES:
+        return {v.identity: fixed[v.identity] if v.identity in fixed else carried(v.name) for v in people}
     if rule == "list":
         return {v.identity: fixed[v.identity] if v.identity in fixed
                 else random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool
@@ -1182,7 +1187,7 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
     for v in people:
         now = carried(v.name)
         should = given.get(v.identity, "")
-        if v.identity in mine or now == should or (rule is None and not now) or rule in ("each", "list"):
+        if v.identity in mine or now == should or (rule is None and not now) or rule in ("list", *PLAYER_RULES):
             continue
         out.append((v, now, should))
     return rule or "mother", out

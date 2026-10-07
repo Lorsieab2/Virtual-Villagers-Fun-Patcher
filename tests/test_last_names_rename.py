@@ -397,10 +397,10 @@ class TheWindow(unittest.TestCase):
         self.assertIn("people, parents = vv_last_names.everyone(folder, number, info.slot)", body)
         self.assertIn("start_value = names[\"chosen\"].get(v.identity, now[v.identity])", body)
         # Every one of the game's names is offered, the father's and the mother's first.
-        self.assertIn("values=[none] + first + [n for n in pool if n not in first]", body)
+        self.assertIn("values=[none, custom] + first + [n for n in pool if n not in first]", body)
         box = body[body.index("box = ttk.Combobox(inner,"):body.index("box.grid(")]
         self.assertNotIn('state="readonly"', box, "the player may type a last name")
-        self.assertIn('vv_last_names.name_problem(number, "", last)', body)
+        self.assertIn("vv_last_names.name_problem(number, split(v.name)[0], last)", body)
         # The wrong ones are marked and can be put right.
         self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=by_rule)', body)
 
