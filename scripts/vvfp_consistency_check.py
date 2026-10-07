@@ -136,7 +136,9 @@ def vv1_roster(data: bytes) -> list[Villager]:
     file +0x184; +0x3D4 is 1 for every villager the save holds.  The game loads the records in
     order and stops at the first whose +0x3D4 is not 1: the records after it are stale copies
     the game never loads, even those still flagged 1 (live, 2026-10-06: the owner's saves held
-    39 and 104 such records where the game loaded 37 and 90)."""
+    39 and 104 such records where the game loaded 37 and 90).  The flag is the BYTE at +0x3D4: a
+    living villager's dword there can be 0x011C0001 (live, 2026-10-07: a population of 6 whose
+    fourth record held it), and the byte rule loads the same 37 and 90."""
     if len(data) < VV1_BLOCK0 + 256 * VV1_STRIDE:
         raise ValueError(f"{len(data)} bytes is not an A New Home save")
     out = []
@@ -147,7 +149,7 @@ def vv1_roster(data: bytes) -> list[Villager]:
             return i32(data, base + off - VV1_BASE)
         name = cstr(data, base + 0x370 - VV1_BASE, 0x1B)
         gender = f(0x350)
-        if f(0x3D4) != 1:
+        if data[base + 0x3D4 - VV1_BASE] != 1:
             break
         if not name or gender not in (1, 2):
             continue

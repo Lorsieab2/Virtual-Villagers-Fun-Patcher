@@ -165,7 +165,7 @@ def _entries(game: int, data: bytes, bodies: bool = False) -> list[int]:
         for i in range(256):
             base = checker.VV1_BLOCK0 + i * checker.VV1_STRIDE
             rel = lambda off: base + off - checker.VV1_BASE  # noqa: E731
-            if _i32(data, rel(0x3D4)) != 1:
+            if data[rel(0x3D4)] != 1:                 # the byte: its dword can be 0x011C0001
                 break
             name = _cstr(data, rel(0x370), 0x1B)
             if name and _i32(data, rel(0x350)) in (1, 2) \
