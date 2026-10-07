@@ -8,7 +8,7 @@ only opened for reading.  It prints one section per file with a verdict on each 
 
     OK          the file agrees with the save (and with the other files where they overlap)
     WRONG       confirmed wrong against a source of truth; "repairable" says whether the
-                game's cross-check repairs it (only when the player says so: Repair Logs, or
+                game's cross-check repairs it (only when the player says so: Repair Saves & Logs, or
                 Repair at the quit with "Check logs automatically" on)
     NOTE        a disagreement that is not proof of an error (a log is a lower bound, a log
                 written at a later save than the .ldw on disk, a value no source records)
@@ -82,7 +82,7 @@ class Villager:
 
 class CheckError(Exception):
     """The village cannot be checked at all (no save for the slot).  The CLI prints it and exits 1,
-    as it always has; the patcher window's Check Logs shows it (src/vv_log_tools.py)."""
+    as it always has; the patcher window's Check Saves & Logs shows it (src/vv_log_tools.py)."""
 
 
 @dataclass
@@ -669,13 +669,13 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
             else:
                 wrong += 1
                 rep.add(label, "WRONG", f"{v.name}: recorded {now}; the Births log says father {want[4] or '(none)'}, "
-                                        f"mother {want[5] or '(none)'} (repairable: Repair Logs, or the quit check)")
+                                        f"mother {want[5] or '(none)'} (repairable: Repair Saves & Logs, or the quit check)")
         elif matches or not named:
             why = "the Birth records disagree" if matches else "no Birth record (a founder or a grown arrival)"
             if has:
                 wrong += 1
                 rep.add(label, "WRONG", f"{v.name}: recorded {now}, but {why}: set to unknown "
-                                        "(repairable: Repair Logs, or the quit check)")
+                                        "(repairable: Repair Saves & Logs, or the quit check)")
             else:
                 rep.add(label, "OK", f"{v.name}: no parents ({why})")
         else:
@@ -1382,7 +1382,7 @@ def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str
         return
     if not path.is_file():
         rep.add(label, "NOTE", "the cross-check has not run for this slot yet (it runs when the village is next played "
-                               "with \"Check logs automatically\" on, or after Repair Logs)")
+                               "with \"Check logs automatically\" on, or after Repair Saves & Logs)")
         return
     data = path.read_bytes()
     if len(data) != 48 or data[:4] != b"VXC1":
@@ -1446,7 +1446,7 @@ def vv1_marker_ok(data: bytes, slot: int) -> bool:
 
 
 def check_coverage_files(game_dir: Path, slot: int, game: int, rep: Report) -> None:
-    """The two files that stop the in-game backfills repeating (Repair Logs clears them)."""
+    """The two files that stop the in-game backfills repeating (Repair Saves & Logs clears them)."""
     path = graves_logged_path(game_dir, game, slot)
     label = f"{DATA}\\Deaths\\{path.name}"
     if not path.is_file():
@@ -1471,16 +1471,16 @@ def check_coverage_files(game_dir: Path, slot: int, game: int, rep: Report) -> N
 
 
 def check_approval(game_dir: Path, slot: int, game: int, rep: Report) -> None:
-    """Repair Logs' approval for the slot (src/vv_log_tools.py), not yet used by the game."""
+    """Repair Saves & Logs' approval for the slot (src/vv_log_tools.py), not yet used by the game."""
     path = game_dir / DATA / "Cross-Check" / f"Virtual Villagers {game} Repair Approved - Save {slot}.dat"
     if not path.is_file():
         return
     label = f"{DATA}\\Cross-Check"
     if path.read_bytes() == struct.pack("<4I", 0x31415256, 1, game, slot):
-        rep.add(label, "NOTE", "Repair Logs approved repairing this village: the game repairs it, without asking, "
+        rep.add(label, "NOTE", "Repair Saves & Logs approved repairing this village: the game repairs it, without asking, "
                                "the next time it is played")
     else:
-        rep.add(label, "UNCHECKED", "a Repair Logs approval that is not this game's and slot's (the game ignores it)")
+        rep.add(label, "UNCHECKED", "a Repair Saves & Logs approval that is not this game's and slot's (the game ignores it)")
 
 
 def detect_game(game_dir: Path, slot: int) -> int:
@@ -1599,7 +1599,7 @@ def check_words(game_dir: Path, game: int, rep: Report) -> None:
         rep.add(label, "WRONG",
                 f"{f.name}: {len(f.fixes)} like/dislike word(s) written with the wrong list by an older "
                 f"patcher ({', '.join(sample[:6])}{', ...' if len(sample) > 6 else ''}); repairable: "
-                "Repair Logs puts the game's own words in")
+                "Repair Saves & Logs puts the game's own words in")
 
 
 # ---- the Sex line older records lack (v1.35.61) ---------------------------------------------
@@ -1987,7 +1987,7 @@ def check_sex(game_dir: Path, game: int, rep: Report) -> None:
         name = str(path.relative_to(game_dir))
         if known:
             rep.add(label, "NOTE", f"{name}: {known} villager(s) in records written before v1.35.61 have no Sex "
-                                   "line; repairable: Repair Logs adds it from the save, the logs or the game's "
+                                   "line; repairable: Repair Saves & Logs adds it from the save, the logs or the game's "
                                    "name lists")
         if known < len(adds):
             rep.add(label, "UNCHECKED", f"{name}: {len(adds) - known} villager(s) whose sex nothing records "
