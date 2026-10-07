@@ -352,14 +352,21 @@ NUMERAL = re.compile(r"^[IVXLCDM]+$")
 def split_name(game: int, name: str, known: set[str] | frozenset = frozenset()) -> tuple[str, str, str]:
     """(first, last, suffix): a name's own part, its last name -- one of the game's list, or one the
     player gave (`known`, the village's record) -- and what follows it (Number Duplicate Names'
-    numeral: "Soda Akikai II").  A first word is never a last name."""
+    numeral: "Soda Akikai II").  A first word is never a last name.  The game's own names are one
+    word, so any later word that is not a numeral is a last name too -- one typed in v1.35.62, before
+    the village kept a record ("Chapa Chapstick"), is never given a second last name."""
     words = name.split(" ")
     names = set(tools.load_checker().LAST_NAMES[game]) | set(known)
     for k in range(len(words) - 1, 0, -1):
         if words[k] in names:
             return " ".join(words[:k]), words[k], " ".join(words[k + 1:])
-    if len(words) > 1 and NUMERAL.match(words[-1]):
-        return " ".join(words[:-1]), "", words[-1]
+    k = len(words) - 1
+    while k > 0 and NUMERAL.match(words[k]):
+        k -= 1
+    if k > 0:
+        return " ".join(words[:k]), words[k], " ".join(words[k + 1:])
+    if len(words) > 1:
+        return words[0], "", " ".join(words[1:])
     return name, "", ""
 
 

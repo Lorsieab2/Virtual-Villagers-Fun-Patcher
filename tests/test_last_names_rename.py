@@ -38,6 +38,26 @@ class Running:
         return [1]
 
 
+class NamesTypedBeforeTheRecord(unittest.TestCase):
+    """A last name typed in v1.35.62, before the village kept a record, is still a last name: it is
+    replaced, never given a second one (regression audit, 2026-10-07)."""
+
+    def test_any_later_word_is_a_last_name(self):
+        self.assertEqual(ln.split_name(1, "Chapa Chapstick"), ("Chapa", "Chapstick", ""))
+        self.assertEqual(ln.split_name(3, "Chapa Chapstick II"), ("Chapa", "Chapstick", "II"))
+        self.assertEqual(ln.with_last(1, "Chapa Chapstick", "Akikai"), "Chapa Akikai")
+        self.assertEqual(ln.with_last(1, "Chapa Chapstick II", ""), "Chapa II")
+        self.assertEqual(ln.split_name(1, "Soda II"), ("Soda", "", "II"))
+        self.assertEqual(ln.split_name(1, "Soda"), ("Soda", "", ""))
+
+    def test_the_matchmaker_reads_last_names_the_same_way(self):
+        import vv_genealogy as gen
+        self.assertEqual(gen._last_name("Soda Akikai II"), "Akikai")
+        self.assertEqual(gen._last_name("Soda II"), "")
+        self.assertEqual(gen._last_name("Mia Akikai"), "Akikai")
+        self.assertEqual(gen._last_name("Mia"), "")
+
+
 class EveryRenameIsHeldToTheGamesRoom(unittest.TestCase):
     """The owner: a character limit "IN EVERY SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN
     HAPPEN" -- plan_renames refuses, before reading anything, a name the game cannot hold."""
