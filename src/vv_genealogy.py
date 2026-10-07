@@ -851,8 +851,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     lines.append("== Suggested pairs (each villager once, least related first) ==")
     if one_to_one:
         for n, pair in enumerate(one_to_one, 1):
-            lines.append(f"  {n}. {numbered(pair.man)} ({pair.man.age_text()}) and "
-                         f"{numbered(pair.woman)} ({pair.woman.age_text()}): {pair.relation}, "
+            lines.append(f"  {n}. {numbered(pair.man)}, {pair.man.age_text()}, and "
+                         f"{numbered(pair.woman)}, {pair.woman.age_text()}: {pair.relation}, "
                          f"related {pair.percent:g}%")
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
@@ -861,8 +861,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")
     for wid, pairs in per_woman.items():
-        lines.append(f"  {people[wid].name} ({people[wid].age_text()}):")
+        lines.append(f"  {people[wid].name}, {people[wid].age_text()}:")
         for pair in pairs:
-            lines.append(f"    {pair.man.name} ({pair.man.age_text()}): {pair.relation}, related {pair.percent:g}%")
+            lines.append(f"    {pair.man.name}, {pair.man.age_text()}: {pair.relation}, related {pair.percent:g}%")
     lines.append("")
     return "\n".join(lines)
