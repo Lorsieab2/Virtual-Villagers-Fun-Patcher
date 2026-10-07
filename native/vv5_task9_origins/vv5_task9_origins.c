@@ -1578,12 +1578,16 @@ static void caf_shuffle(int *a, int n) {
 static int caf_apply(void) {
     int active[VV5_REC_COUNT];
     int sex_of[VV5_REC_COUNT];
+    int old_head[VV5_REC_COUNT];
+    int old_body[VV5_REC_COUNT];
     int na = 0, i, touched = 0, slots = vv5_slots();
     for (i = 0; i < slots; ++i) {
         unsigned char *r = caf_rec(i);
         if (r[VV5_OFF_ACTIVE] == 0) continue;
         active[na] = i;
         sex_of[na] = (*(int *)(r + VV5_OFF_SEX)) ? 1 : 0;
+        old_head[na] = *(int *)(r + VV5_OFF_HEAD);
+        old_body[na] = *(int *)(r + VV5_OFF_BODY);
         ++na;
     }
     if (na == 0) return 0;
@@ -1609,6 +1613,10 @@ static int caf_apply(void) {
             if (caf_body[sex_of[i]] >= 0)
                 touched += caf_set_field(active[i], VV5_OFF_BODY, caf_body[sex_of[i]]);
     }
+    /* Change Appearance for All is logged too (Codex, #558). */
+    for (i = 0; i < na; ++i)
+        vv_log_appearance(5, caf_rec(active[i]), old_head[i], old_body[i],
+                          *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD), *(int *)(caf_rec(active[i]) + VV5_OFF_BODY));
     /* Masks */
     if (caf_single_mask >= 0) {                       /* village-wide single colour */
         for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], caf_single_mask);

@@ -2223,6 +2223,9 @@ static int vv4_apply_for_all(void) {
             *(int *)(rec + VV_HEAD_OFFSET) = plan_head[i];
         if (body_selected[i] && plan_body[i] != current_body[i])
             *(int *)(rec + VV_CLOTHING_OFFSET) = plan_body[i];
+        /* Change Appearance for All is logged too (Codex, #558). */
+        vv_log_appearance(4, rec, current_head[i], current_body[i], *(int *)(rec + VV_HEAD_OFFSET),
+                          *(int *)(rec + VV_CLOTHING_OFFSET));
         if (mask_selected[i] && vv4_mask_plan_changes(
                 plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i])) {
             vv_set_mask(rec, plan_mask[i]);

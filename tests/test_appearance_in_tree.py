@@ -68,6 +68,24 @@ class ChangedLooks(unittest.TestCase):
         v = gen.load_village(self.folder, 3, 1)
         self.assertEqual(v.relooked, {("Ago", 3, 4): ("Ago", 7, 8)})
 
+    def test_a_villager_first_met_with_an_old_look_has_the_new_one(self):
+        # Codex, #558: a Birth record with the old look met first, a later record with the new.
+        self.births(self.changed((3, 4), (7, 8), name="Old")
+                    + "Birth\n  Child: Kid2\n    Head: 1\n    Body: 1\n  Mother: Aipi\n    Head: 2\n    Body: 2\n"
+                      "  Father: Old\n    Head: 3\n    Body: 4\n\n")
+        v = gen.load_village(self.folder, 3, 1)
+        old = [p for p in v.known() if p.name == "Old"]
+        self.assertEqual([(p.head, p.body) for p in old], [(7, 8)])
+
+    def test_a_conception_follows_the_mothers_change_of_looks(self):
+        # Codex, #558: her Conception record names her old look; the save her new one.
+        self.births("Conception 1\n  Mother: Aipi\n    Head: 1\n    Body: 1\n  Father: Ago\n    Head: 7\n"
+                    "    Body: 8\n  Babies in pregnancy: 2\n\n" + self.changed((1, 1), (2, 2), name="Aipi"))
+        reg = gen._Registry()
+        gen._appearance_changes(reg, self.folder, 3, 1)
+        gen._births(reg, self.folder, 3, 1)
+        self.assertEqual(reg.conceptions.get(("Aipi", 2, 2)), (("Ago", 7, 8), 2))
+
     def test_edits_follow_the_villager_and_the_chosen_look_is_drawn(self):
         self.births(self.changed((3, 4), (7, 8)))
         v = gen.load_village(self.folder, 3, 1)
@@ -91,6 +109,9 @@ class TheEditorAsks(unittest.TestCase):
         self.assertIn('if p.old_looks and "look" not in self._entry(p)', follow, "asked only until answered")
         self.assertLess(follow.index('.pop("look", None)'), follow.index("ft.relooked_keys("),
                         "a newer change asks again")
+        self.assertIn("self.history.clear()", follow, "no undo step brings the old keys back (Codex, #558)")
+        ask = self.SOURCE[self.SOURCE.index("    def _ask_looks("):self.SOURCE.index("    def _update_from_game(")]
+        self.assertIn('bar = ttk.Scrollbar(box, orient="vertical", command=canvas.yview)', ask, "a whole village scrolls")
         for caller in ("        self._build()\n        self._follow_looks()",
                        "        self.selected = []\n        self._follow_looks()\n        self.redraw()",
                        "        self.page = 0\n        self._follow_looks()"):

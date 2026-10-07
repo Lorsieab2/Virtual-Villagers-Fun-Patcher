@@ -155,7 +155,7 @@ class _Registry:
         key = self.current((name, head, body))
         if key not in self.by_key:
             pid = len(self.people) + 1
-            self.people[pid] = Person(pid, name, head, body)
+            self.people[pid] = Person(pid, *key)    # the look they have now (Codex, #558)
             self.by_key[key] = pid
         return self.people[self.by_key[key]]
 
@@ -284,13 +284,16 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     last: tuple | None = None           # (mother key, litter number, babies so far, how many it holds)
     for index, rec in enumerate(records):
         if rec.kind == "conception" and rec.mother is not None and rec.mother.name:
-            mother = (rec.mother.name, rec.mother.head, rec.mother.body)
-            father = rec.father and (rec.father.name, rec.father.head, rec.father.body)
+            # Under the looks the parents have now, so a mother's Change Appearance since
+            # conception does not lose the father or the litter (Codex, #558).
+            mother = reg.current((rec.mother.name, rec.mother.head, rec.mother.body))
+            father = rec.father and reg.current((rec.father.name, rec.father.head, rec.father.body))
             reg.conceptions[mother] = (father if father and father[0] else None, rec.babies or 1)
         if rec.kind != "birth" or rec.child is None or not rec.child.name:
             last = None
             continue
-        reg.conceptions.pop((rec.mother.name, rec.mother.head, rec.mother.body) if rec.mother else None, None)
+        reg.conceptions.pop(reg.current((rec.mother.name, rec.mother.head, rec.mother.body)) if rec.mother else None,
+                            None)
         child = reg.get(rec.child.name, rec.child.head, rec.child.body)
         if child.birth_record is None:
             child.birth_record = index

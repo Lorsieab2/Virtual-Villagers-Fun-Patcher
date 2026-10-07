@@ -379,7 +379,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # orphan mask entries (native/shared/orphan_masks.h, v1.35.59), and again
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "96FBF8F482F314873757851B96C2163CA47326B7D63CC3A3366881876A7939DD",
+            "B159BAFD47FC6AAD3E705575950D173776294629371F2306C19694D3914DE497",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

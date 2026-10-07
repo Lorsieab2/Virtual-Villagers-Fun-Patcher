@@ -32,7 +32,24 @@ class AppearanceChangeLogTests(unittest.TestCase):
                 # A New Home's own picker there is left out (VV_STORY_GAME == 1 only).
                 self.assertTrue('#include "../shared/appearance_log.h"' in text
                                 or '#include "../vv1_origins_icons/vv1_origins_icons.c"' in text)
-                self.assertEqual(text.count(f"vv_log_appearance({game}, "), 1)
+                # Change Appearance and Change Appearance for All (Codex, #558).
+                self.assertEqual(text.count(f"vv_log_appearance({game}, "), 2)
+
+    def test_change_appearance_for_all_logs_each_villager_after_writing_them(self) -> None:
+        # Codex, #558: the whole-village changes link each old look too.
+        cases = {
+            1: ("static int forall_apply(void)", "*(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;"),
+            2: ("static int vv2_apply_caf(", "*(int *)(rec + VV2_BODY_OFFSET) = caf_plan_body[idx[i]];"),
+            3: ("static int vv3_apply_for_all", "*(int *)(r + VV3_BODY_OFF) = b;"),
+            4: ("*(int *)(rec + VV_HEAD_OFFSET) = plan_head[i];", "*(int *)(rec + VV_CLOTHING_OFFSET) = plan_body[i];"),
+            5: ("static int caf_apply(void)", "touched += caf_set_field(active[i], VV5_OFF_BODY, caf_body[sex_of[i]]);"),
+        }
+        for game, (start, last_write) in cases.items():
+            with self.subTest(game=game):
+                text = COMPANIONS[game].read_text(encoding="utf-8")
+                begin = text.index(start)
+                write = text.index(last_write, begin)
+                self.assertLess(write, text.index(f"vv_log_appearance({game}, ", begin))
 
     def test_the_log_skips_an_unchanged_look_and_never_writes_the_villager(self) -> None:
         text = (NATIVE / "shared" / "appearance_log.h").read_text(encoding="utf-8")

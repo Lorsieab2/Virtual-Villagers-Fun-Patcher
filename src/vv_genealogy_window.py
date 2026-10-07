@@ -1475,6 +1475,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if moved != text:
                 self.edits = ft.Edits.from_data(json.loads(moved))
                 self.dirty = True
+                # The old keys are gone: an undo step from before would bring them back (Codex, #558).
+                self.history.clear()
+                self.future.clear()
+                self.last_state = self._state()
         changed = [p for p in self.village.known() if p.old_looks and "look" not in self._entry(p)]
         if changed:
             self.after_idle(lambda: self._ask_looks(changed))
@@ -1489,12 +1493,25 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         frame.pack(fill="both", expand=True)
         ttk.Label(frame, text="These villagers' looks were changed with Change Appearance.  Update their "
                               "portraits on the tree to the new look?", wraplength=460).pack(anchor="w", pady=(0, 8))
+        # A whole village at once scrolls (Codex, #558).
+        box = ttk.Frame(frame)
+        box.pack(fill="both", expand=True)
+        canvas = tk.Canvas(box, highlightthickness=0, borderwidth=0, height=min(420, 34 * len(changed)), width=520)
+        bar = ttk.Scrollbar(box, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=bar.set)
+        bar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+        rows = ttk.Frame(canvas)
+        canvas.create_window(0, 0, window=rows, anchor="nw")
+        rows.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        both = ttk.Frame(frame)
+        both.pack(anchor="w", pady=(6, 0))
         choices = {}
         for p in changed:
             old = p.old_looks[-1]
             var = tk.StringVar(value="new")
             choices[p.id] = (var, old)
-            row = ttk.Frame(frame)
+            row = ttk.Frame(rows)
             row.pack(anchor="w", pady=2)
             ttk.Label(row, text=gen.numbered(p), width=24).pack(side="left")
             ttk.Radiobutton(row, text=f"New look (head {p.head})", value="new", variable=var).pack(side="left")
@@ -1508,6 +1525,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             window.destroy()
             self._saved()
 
+        for label, value in (("All new looks", "new"), ("All old looks", "old")):
+            ttk.Button(both, text=label, command=lambda value=value: [var.set(value) for var, _old in choices.values()]
+                       ).pack(side="left", padx=(0, 8))
         ttk.Button(frame, text="OK", command=done).pack(anchor="e", pady=(10, 0))
         window.protocol("WM_DELETE_WINDOW", done)
         window.grab_set()

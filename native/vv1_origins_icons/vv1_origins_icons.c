@@ -2675,11 +2675,13 @@ static int forall_apply(void) {
     forall_state.rng ^= GetTickCount() * 2654435761u;
     for (i = 0; i < VV_MASK_SLOTS; i++) {
         unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
-        int male, hcount, bcount;
+        int male, hcount, bcount, old_head, old_body;
         if (rec[VV_OCCUPIED_OFFSET] != 1) {
             continue;
         }
         occ++;
+        old_head = *(int *)(rec + VV_HEAD_OFFSET);
+        old_body = *(int *)(rec + VV_CLOTHING_OFFSET);
         male = (*(int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE);
         hcount = male ? VV_HEAD_COUNT_M : VV_HEAD_COUNT_F;
         bcount = male ? VV_BODY_COUNT_M : VV_BODY_COUNT_F;
@@ -2718,6 +2720,9 @@ static int forall_apply(void) {
                 *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;
             }
         }
+        /* Change Appearance for All is logged too (Codex, #558). */
+        vv_log_appearance(1, rec, old_head, old_body, *(int *)(rec + VV_HEAD_OFFSET),
+                          *(int *)(rec + VV_CLOTHING_OFFSET));
         /* MASK: per-sex only when there is no whole-village mask override */
         if (mo == 0) {
             int m = male ? forall_state.male_mask : forall_state.female_mask;
