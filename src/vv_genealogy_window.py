@@ -37,6 +37,16 @@ OUTSIDE = "#9a9a9a"                     # the canvas around the page
 TREES = "Virtual Villagers Fun Patcher Family Trees"     # the folder in the save folder pictures go to
 
 
+def faded(colour: str, opacity: float, under: str) -> str:
+    """A colour as it looks `opacity` opaque over `under` (the canvas cannot blend: the saved
+    picture is truly see-through)."""
+    if opacity >= 1 or not ft.is_colour(colour) or colour == ft.TRANSPARENT:
+        return colour
+    under = under if ft.is_colour(under) and under != ft.TRANSPARENT else "#ffffff"
+    mix = [round(int(colour[i:i + 2], 16) * opacity + int(under[i:i + 2], 16) * (1 - opacity)) for i in (1, 3, 5)]
+    return "#" + "".join(f"{v:02x}" for v in mix)
+
+
 def tk_colour(colour: str, otherwise: str = "") -> str:
     """A colour for tkinter, which knows no "transparent": nothing drawn (or `otherwise`)."""
     return otherwise if colour == ft.TRANSPARENT else colour
@@ -647,6 +657,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Label(tab, text="Inside the portraits:").pack(anchor="w", pady=(10, 1))
         self.fill_field = ColourField(tab, e.portrait_fill, lambda c: self._change(portrait_fill=c or "#ffffff"))
         self.fill_field.pack(anchor="w")
+        box = ttk.LabelFrame(tab, text="Opacity (pictures and text boxes: Pictures & Text tab)", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        self.opacity_vars: dict[str, ttk.Scale] = {}
+        for row_no, (part, (label, default)) in enumerate(ft.OPACITY.items()):
+            shown = tk.StringVar(value=f"{label}: {e.opacity.get(part, default)}%")
+            ttk.Label(box, textvariable=shown, width=26).grid(row=row_no, column=0, sticky="w")
+            scale = ttk.Scale(box, from_=0, to=100, orient="horizontal",
+                              command=lambda value, s=shown, n=label: s.set(f"{n}: {int(float(value))}%"))
+            scale.set(e.opacity.get(part, default))
+            scale.grid(row=row_no, column=1, sticky="ew", padx=(6, 0))
+            scale.bind("<ButtonRelease-1>", lambda _e, part=part, s=scale: self._set_opacity(part, int(s.get())))
+            scale.bind("<KeyRelease>", lambda _e, part=part, s=scale: self._set_opacity(part, int(s.get())))
+            self.opacity_vars[part] = scale
+        box.columnconfigure(1, weight=1)
         box = ttk.LabelFrame(tab, text="Portrait shapes and borders", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_vars: dict[tuple[str, str], tk.StringVar] = {}
@@ -776,7 +800,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 iid = self._draw_backdrop(item, sc)
             elif isinstance(item, ft.Line):
                 flat = [v for point in item.points for v in point]
-                iid = c.create_line(*flat, fill=tk_colour(item.colour), width=item.width * z, joinstyle="round")
+                iid = c.create_line(*flat, fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
+                                    width=item.width * z, joinstyle="round")
             elif isinstance(item, ft.Shape):
                 fill = tk_colour(item.fill or "")
                 dash = ft.TK_DASHES.get(item.dash)
@@ -785,6 +810,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 # The canvas cannot blend: a see-through fill is drawn as a fine dot pattern.
                 see = item.opacity
                 stipple = "" if see >= 1 else ("gray75" if see >= 0.7 else "gray50" if see >= 0.4 else "gray25")
+                if see < 1:                     # the border fades with it
+                    outline = tk_colour(faded(item.stroke, see, sc.background)) if width else ""
                 corners = ft.outline(item.kind, item.x, item.y, item.w, item.h)
                 if item.angle:                  # the canvas cannot turn a shape: its corners, turned
                     pts = [v for point in item.points() for v in point]
@@ -807,7 +834,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 style = ["bold" if item.bold else "normal"] + (["italic"] if item.italic else []) \
                     + (["underline"] if item.underline else []) + (["overstrike"] if item.strike else [])
                 font = (item.font or vv_gdiplus.FONT, -max(1, int(round(item.size * z))), *style)
-                iid = c.create_text(item.x, item.y + item.size * 0.24, text=item.text, fill=tk_colour(item.colour),
+                iid = c.create_text(item.x, item.y + item.size * 0.24, text=item.text,
+                                    fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
                                     font=font, anchor="s" if item.centre else "sw")
             if iid is not None:
                 self._tag(iid, item)
@@ -1464,6 +1492,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         getattr(self.edits, attr)[group] = value
         self._saved()
 
+    def _set_opacity(self, part: str, percent: int) -> None:
+        if self.edits.opacity.get(part, ft.OPACITY[part][1]) != percent:
+            self.edits.opacity[part] = percent
+            self._saved()
+
     def _renumber(self) -> None:
         """The number starting each villager's own text made their number on the tree now (the
         patcher's own text is numbered as the tree changes)."""
@@ -1542,6 +1575,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.sort_var.set(gen.SORTS[e.sort])
         self.position_var.set(ft.POSITIONING[e.positioning])
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
+        for part, scale in self.opacity_vars.items():
+            scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
         self.centre_var.set(e.centre_heads)
         self.ink_field.set_quietly(e.ink)
         self.fill_field.set_quietly(e.portrait_fill)

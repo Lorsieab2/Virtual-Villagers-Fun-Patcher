@@ -609,6 +609,27 @@ class StickerTests(unittest.TestCase):
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
 
+    def test_every_part_of_the_tree_has_its_own_opacity(self) -> None:
+        # The owner: "there should be opacity settings for everything".
+        e = ft.Edits(background_image="asset:green-tree.png", opacity={"words": 40, "portraits": 50, "lines": 30})
+        sc = ft.scene(ft.layout(village(), e), "A New Home", {})
+        seen = {}
+        for i in sc.items:
+            if isinstance(i, ft.Line) and i.piece:
+                seen.setdefault("lines", set()).add(i.opacity)
+            elif isinstance(i, ft.Shape) and i.target == ("plate",):
+                seen.setdefault("plates", set()).add(i.opacity)
+            elif getattr(i, "pid", None) is not None:
+                seen.setdefault("portraits", set()).add(i.opacity)
+            elif isinstance(i, ft.Text):
+                seen.setdefault("words", set()).add(i.opacity)
+        self.assertEqual(seen, {"lines": {0.3}, "plates": {0.8}, "portraits": {0.5}, "words": {0.4}})
+        svg = ft.to_svg(sc, {})
+        self.assertIn('opacity="0.3"', svg)
+        self.assertIn('opacity="0.4"', svg)
+        back = ft.Edits.from_data({"opacity": {"words": 500, "nonsense": 3}})
+        self.assertEqual(back.opacity, {"words": 100})
+
     def test_generation_label_lines_delete_one_by_one_and_number_either_way(self) -> None:
         v = village()
         e = ft.Edits()
