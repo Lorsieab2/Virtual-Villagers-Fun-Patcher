@@ -98,7 +98,7 @@ class Harnesses(unittest.TestCase):
         result = run("build_death_log_harness.ps1")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("== 0 failure(s) ==", result.stdout)
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 187, result.stdout)
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 197, result.stdout)
 
     @unittest.skipUnless(TEST_DLL.is_file(), "test builds are not in the release source archive (tests/test_dlls)")
     def test_the_graves_file_harness_passes_against_the_test_build(self):
