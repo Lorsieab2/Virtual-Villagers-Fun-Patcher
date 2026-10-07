@@ -617,6 +617,12 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     each numbered villager is one name, head and body.  `ask` (default: not `dead`) asks about
     records with a renamed name but other looks; Last Names renames the dead and still asks."""
     folder = Path(folder)
+    # Every rename is held here too, whoever asks for it (the owner: a character limit "IN EVERY
+    # SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN HAPPEN"): the game's room, printable text only.
+    for new in renames.values():
+        if not new or len(new) > ROOM[game] or any(not (0x20 <= ord(ch) < 0x7F) for ch in new):
+            raise LastNamesError(f"{new!r} cannot be a name: the game takes 1 to {ROOM[game]} printable "
+                                 "characters.")
     f = FIELDS[game]
     people = living(folder, game, slot, bodies=dead)
     result = Plan(renames)

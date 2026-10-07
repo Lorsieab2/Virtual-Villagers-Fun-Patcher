@@ -38,6 +38,18 @@ class Running:
         return [1]
 
 
+class EveryRenameIsHeldToTheGamesRoom(unittest.TestCase):
+    """The owner: a character limit "IN EVERY SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN
+    HAPPEN" -- plan_renames refuses, before reading anything, a name the game cannot hold."""
+
+    def test_too_long_empty_or_unprintable_names_are_refused(self):
+        for game in range(1, 6):
+            for bad in ("x" * (ln.ROOM[game] + 1), "", "Soda\x01", "Soda\x7f"):
+                with self.subTest(game=game, bad=bad):
+                    with self.assertRaises(ln.LastNamesError):
+                        ln.plan_renames(Path("no such folder"), game, 1, {("Soda", 1, 1): bad})
+
+
 def _fnv(h: int, data: bytes) -> int:
     for b in data:
         h = ((h ^ b) * FNV_PRIME) & 0xFFFFFFFF
