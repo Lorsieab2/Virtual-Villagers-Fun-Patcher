@@ -1913,7 +1913,7 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         # Off to the right, level with the tree's heading (the owner).
         add(Text(lay.others_left, 48, words(lay, "others"), 24, ink, bold=True, role="others", move="others",
                  edit="word:others"))
-        add(Text(lay.others_left, 72, words(lay, "others_note"), 13, ink, role="others", move="others",
+        add(Text(lay.others_left, 72, words(lay, "others_note"), 13, ink, role="others", move="others_note",
                  edit="word:others_note"))
     fams = {f.id: f for f in lay.families}
     for colour, points, fid, piece in lines(lay):
@@ -1948,7 +1948,8 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
 
 
 MOVABLE = {"title": "the title", "subtitle": "the subtitle", "key": "the Key", "others": "the Unrelated "
-           "Individuals heading", "footer": "the footer"}   # and "label<generation>": that generation's label
+           "Individuals heading", "others_note": "the line under the Unrelated Individuals heading",
+           "footer": "the footer"}   # and "label<generation>": that generation's label
 
 
 MARGIN = 10                             # nothing dragged goes nearer the page's edge than this

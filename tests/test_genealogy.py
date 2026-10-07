@@ -666,6 +666,12 @@ class StickerTests(unittest.TestCase):
         back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
         self.assertEqual(back.words, e.words)
         self.assertEqual(ft.Edits.from_data({"words": {"others": 3, "nonsense": "x"}}).words, {})
+        # The owner: "I want headers to be separate from subheaders so I can delete "no recorded parent
+        # or child"" -- the heading stays.
+        e.hidden = ["word:others_note"]
+        kept = {i.edit for i in ft.scene(ft.layout(v, e), "A New Home", {}).items if isinstance(i, ft.Text)}
+        self.assertIn("word:others", kept)
+        self.assertNotIn("word:others_note", kept)
 
     def test_a_long_family_on_several_unjoined_pages(self) -> None:
         # The owner: "MULTIPLE PAGES of the family tree ... the new pages are not connected to
