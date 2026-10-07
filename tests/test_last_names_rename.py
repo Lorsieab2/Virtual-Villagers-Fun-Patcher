@@ -1,4 +1,4 @@
-"""Repair Logs' "Give villagers last names": the save, the patcher's files and the logs together
+"""Repair Saves & Logs' "Give villagers last names": the save, the patcher's files and the logs together
 (src/vv_last_names.py).
 
 The owner (2026-10-06): with the game closed, existing villagers get the last name the player
@@ -336,6 +336,51 @@ class NewHomeParentage(unittest.TestCase):
                              "his looks decide; a looks-less entry is ambiguous while the namesake keeps his name")
 
 
+class EveryoneAndWrongNames(unittest.TestCase):
+    """The owner, 2026-10-07: a check for "Wrong last names", last names that can be changed
+    (another rule or custom names), and last names for the villagers no longer in the village."""
+    _log = GiveLastNames._log
+    tearDown = GiveLastNames.tearDown
+
+    def setUp(self):
+        GiveLastNames.setUp(self)
+        from unittest import mock
+        named = mock.patch("vv_log_additions.current_villages", return_value={"Village: Tribe (Save 1)"})
+        named.start()
+        self.addCleanup(named.stop)
+
+    def ids(self):
+        people, _parents = ln.everyone(self.folder, 3, 1)
+        return {(v.name, v.alive): v.identity for v in people}
+
+    def test_the_gone_get_last_names_in_the_logs(self):
+        ids = self.ids()
+        self.assertIn(("Ago", False), ids, "the dead Ago of the Deaths log is listed")
+        ln.give_last_names(self.folder, 3, 1, {ids[("Ago", False)]: "Moa"}, NoGame(), NOW)
+        self.assertIn("  Name: Ago Moa\r\n", self.deaths.read_bytes().decode())
+        self.assertEqual([v.name for v in ln.living(self.folder, 3, 1)][0], "Ago", "the living Ago is not him")
+
+    def test_a_last_name_can_be_changed_and_the_rule_is_kept(self):
+        ids = self.ids()
+        ln.give_last_names(self.folder, 3, 1, {ids[("Ago", True)]: "Akikai"}, NoGame(), NOW, rule="father")
+        ids = self.ids()
+        ln.give_last_names(self.folder, 3, 1, {ids[("Ago Akikai", True)]: "Chapstick"}, NoGame(), NOW,
+                           rule="father", mine={ids[("Ago Akikai", True)]: "Chapstick"})
+        self.assertEqual([v.name for v in ln.living(self.folder, 3, 1)][0], "Ago Chapstick")
+        rule, fixed = ln.read_record(self.folder, 3, 1)
+        self.assertEqual((rule, fixed), ("father", {("Ago", 5, 6): "Chapstick"}))
+
+    def test_wrong_last_names_are_found(self):
+        ids = self.ids()
+        # Kid's father is Ago: with "From the father", Kid Wikimak is wrong once Ago is a Chapstick.
+        ln.give_last_names(self.folder, 3, 1, {ids[("Ago", True)]: "Chapstick", ids[("Kid", True)]: "Wikimak"},
+                           NoGame(), NOW, rule="father", mine={ids[("Ago", True)]: "Chapstick"})
+        rule, wrong = ln.wrong_last_names(self.folder, 3, 1)
+        self.assertEqual(rule, "father")
+        self.assertEqual([(v.name, now, should) for v, now, should in wrong if v.name.startswith("Kid")],
+                         [("Kid Wikimak", "Wikimak", "Chapstick")])
+
+
 class TheWindow(unittest.TestCase):
     SOURCE = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
 
@@ -348,15 +393,16 @@ class TheWindow(unittest.TestCase):
 
     def test_the_family_name_is_chosen_for_you_and_any_can_be_typed(self):
         body = self.SOURCE[self.SOURCE.index("    def _last_names_dialog("):self.SOURCE.index("    def _repair_questions(")]
-        self.assertIn("v.default or none", body)
+        # Everyone -- the living and the gone -- with the last name they have now in the box.
+        self.assertIn("people, parents = vv_last_names.everyone(folder, number, info.slot)", body)
+        self.assertIn("start_value = names[\"chosen\"].get(v.identity, now[v.identity])", body)
         # Every one of the game's names is offered, the father's and the mother's first.
-        self.assertIn("values=[none] + first + [n for n in checker.LAST_NAMES[number] if n not in first]", body)
+        self.assertIn("values=[none] + first + [n for n in pool if n not in first]", body)
         box = body[body.index("box = ttk.Combobox(inner,"):body.index("box.grid(")]
         self.assertNotIn('state="readonly"', box, "the player may type a last name")
-        self.assertIn("vv_last_names.name_problem(number, v.name, last)", body)
-        # A name with a space already has a last name: nothing is chosen for it (Codex, #553).
-        self.assertIn('value=names["chosen"].get(v.identity) or (none if spaced else v.default or none)', body)
-        self.assertIn('if " " not in v.name:\n                        value.set(choice(v))', body)
+        self.assertIn('vv_last_names.name_problem(number, "", last)', body)
+        # The wrong ones are marked and can be put right.
+        self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=by_rule)', body)
 
 
 if __name__ == "__main__":

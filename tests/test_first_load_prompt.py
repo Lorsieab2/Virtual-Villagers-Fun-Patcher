@@ -4,7 +4,7 @@ v1.35.58 cross-checks a village's records against their sources of truth.
 The owner (2026-10-05) wants no repair prompt during gameplay: the game asks
 only when the player CLOSES it, after its own quit save, only when the
 patcher's "Check logs automatically" setting is on (on by default), and
-only when something is confirmed wrong; "Repair Logs..." in the patcher
+only when something is confirmed wrong; "Repair Saves & Logs..." in the patcher
 window instead approves the repair beforehand, and the game then repairs
 without asking.  native/shared/crosscheck_bridge_harness.c runs the real
 header with the companions, the slot, the clock, the setting and the save
@@ -137,7 +137,7 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "masks no longer orphaned at the quit: nothing is asked",
             "a mask scan that cannot tell yet is retried, like the others",
             "a mask repair that could not be made: the player is told",
-            "Repair Logs approval: the masks are removed at load, without asking",
+            "Repair Saves & Logs approval: the masks are removed at load, without asking",
             "... and nothing is left at the quit: the approval is used up",
             "... one that failed at load is completed after the quit save, then the approval is used up",
         ):

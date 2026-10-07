@@ -1,10 +1,10 @@
-"""Check Logs and Repair Logs: the patcher window's two log tools (all five games).
+"""Check Saves & Logs and Repair Saves & Logs: the patcher window's two log tools (all five games).
 
 The owner (2026-10-04): beside Back Up / Restore Saves and Rename Tribe, a
-"Check Logs..." that shows, for one village, whether every log and data file
-the patcher keeps agrees with its save, and a "Repair Logs..." that has the
+"Check Saves & Logs..." that shows, for one village, whether every log and data file
+the patcher keeps agrees with its save, and a "Repair Saves & Logs..." that has the
 game itself repair them.  The owner (2026-10-05): no repair prompt during
-gameplay -- "Repair Logs" is the player's own go-ahead, and the game repairs
+gameplay -- "Repair Saves & Logs" is the player's own go-ahead, and the game repairs
 without asking.
 
 CHECK LOGS is the read-only checker scripts/vvfp_consistency_check.py, run
@@ -16,7 +16,7 @@ writes, moves or creates anything.  The Backups folder is never read.
 REPAIR LOGS does not repair anything in Python.  The repairs belong to the
 game's own cross-check (native/shared/crosscheck_bridge.h,
 docs/first-load-cross-check.md), which never shows anything while a village
-is being played.  Repair Logs is the player's approval, given beforehand with
+is being played.  Repair Saves & Logs is the player's approval, given beforehand with
 the game closed (it is never paused or closed for this):
 
   1. the save folder is backed up with Back Up Saves' own copier, labelled
@@ -65,7 +65,7 @@ class GameRunning(LogToolError):
 
 
 # ---------------------------------------------------------------------------
-# Check Logs
+# Check Saves & Logs
 # ---------------------------------------------------------------------------
 
 
@@ -128,7 +128,7 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
             f"A file could not be read ({exc}). If the game is saving right now, "
             "try again in a moment. Nothing was changed."
         ) from exc
-    # What older records lack that Repair Logs can add (src/vv_log_additions.py; the checker
+    # What older records lack that Repair Saves & Logs can add (src/vv_log_additions.py; the checker
     # itself reports the Sex lines).
     import vv_log_additions as additions
     try:
@@ -136,18 +136,32 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
     except OSError as exc:
         kinds = []
         report.add(f"{LOGS} (older records)", "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
+    # Wrong last names (the owner, 2026-10-07): the ones the village's rule does not give.
+    import vv_genealogy
+    import vv_last_names
+    try:
+        rule, wrong = vv_last_names.wrong_last_names(Path(folder), game, slot)
+    except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
+        report.add(f"{LOGS} (last names)", "UNCHECKED", f"could not be read ({exc})")
+    else:
+        if wrong:
+            names = ", ".join(f"{v.name} (should be {should or 'none'})" for v, _now, should in wrong[:12])
+            more = f" and {len(wrong) - 12} more" if len(wrong) > 12 else ""
+            report.add(f"{LOGS} (last names)", "NOTE",
+                       f"{len(wrong)} last name(s) are not what \"{vv_last_names.INHERIT[rule]}\" gives: "
+                       f"{names}{more}. Repair Saves & Logs, Give villagers last names, puts them right.")
     for kind in kinds:
         if kind.id == "sex" or not (kind.decided or kind.asked):
             continue
         asked = f", and {kind.asked} question(s) it asks you" if kind.asked else ""
         report.add(f"{LOGS} ({kind.label})", "NOTE",
                    f"{kind.decided} line(s) the save, the patcher's files or the logs settle{asked}; "
-                   "Repair Logs can add them")
+                   "Repair Saves & Logs can add them")
     return CheckResult(Path(folder), slot, game, report.render(), report.counts())
 
 
 # ---------------------------------------------------------------------------
-# Repair Logs: approve the repair, and re-arm the check
+# Repair Saves & Logs: approve the repair, and re-arm the check
 # ---------------------------------------------------------------------------
 
 
@@ -163,7 +177,7 @@ class Marker:
 
 
 # EVERY marker that stops a part of the cross-check from finding anything
-# again.  Repair Logs clears these and nothing else; a new once-per-village
+# again.  Repair Saves & Logs clears these and nothing else; a new once-per-village
 # part of the check adds its marker here.
 REARM_MARKERS: tuple[Marker, ...] = (
     Marker(
@@ -230,7 +244,7 @@ def marker_paths(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]
 def marker_is_valid(marker: Marker, data: bytes, game: int, slot: int) -> bool:
     """True when the game would read ``data`` as this slot's marker (the same
     test as the native code named in ``marker.source``).  Anything else at a
-    marker's path does not stop a rescan, and is kept: Repair Logs removes
+    marker's path does not stop a rescan, and is kept: Repair Saves & Logs removes
     only real markers."""
     checker = load_checker()
     if marker.kind == "vv1":
@@ -269,7 +283,7 @@ def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController
     if running:
         raise GameRunning(
             f"{exe} is running. Close the game first (quit it normally from its "
-            "menu); Repair Logs never pauses or closes a game. Nothing was changed."
+            "menu); Repair Saves & Logs never pauses or closes a game. Nothing was changed."
         )
 
 
@@ -285,7 +299,7 @@ def approve_repair(
     kinds: list | None = None,
     rearm: bool = True,
 ) -> ApprovalResult:
-    """Repair Logs with the game closed: what the player ticked.
+    """Repair Saves & Logs with the game closed: what the player ticked.
 
     Refused (nothing changed) while the game is running.  The save folder is
     backed up first.  With `rearm` (the checklist's "the game repairs what is
@@ -366,7 +380,7 @@ def approve_repair(
 
 
 # ---------------------------------------------------------------------------
-# Repair Logs: the old like / dislike words (v1.35.61)
+# Repair Saves & Logs: the old like / dislike words (v1.35.61)
 # ---------------------------------------------------------------------------
 
 WORD_BACKUP_SUFFIX = ".before-v1.35.61-repair"

@@ -327,7 +327,7 @@ class OrphanMaskWiringTests(unittest.TestCase):
         self.assertIn("|| stats < 0 || masks < 0) {", bridge)
         self.assertIn("|| vvfp_xc.stats > 0 || vvfp_xc.masks > 0;", bridge)
         self.assertIn("vv_om_describe(vvfp_xc.masks, ", bridge)
-        # Approved by Repair Logs: removed at load, without asking; at the quit after an answered Repair.
+        # Approved by Repair Saves & Logs: removed at load, without asking; at the quit after an answered Repair.
         self.assertIn("(void)vvfp_xc_masks_repair(game, slot);", bridge)
         self.assertIn("ok &= vvfp_xc_masks_repair(game, slot) != 0;", bridge)
         om = _source("native/shared/orphan_masks.h")
@@ -341,7 +341,7 @@ class OrphanMaskWiringTests(unittest.TestCase):
                 self.assertIn('(Join-Path $projectRoot "native\\shared\\save_folder.c")', _source(rel))
 
     def test_no_marker_is_needed(self):
-        # A repaired village's scan finds nothing, so nothing is added to the Repair Logs re-arm list.
+        # A repaired village's scan finds nothing, so nothing is added to the Repair Saves & Logs re-arm list.
         tools = _source("src/vv_log_tools.py")
         block = tools.split("REARM_MARKERS: tuple", 1)[1].split("\n)\n", 1)[0]
         self.assertIn("Graves Logged", block)

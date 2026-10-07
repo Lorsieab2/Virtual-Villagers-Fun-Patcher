@@ -23,7 +23,7 @@ how to turn it off. Nothing is ever shown while a village is being played
 
 ### "Check logs automatically" (the patcher setting)
 
-A tick box beside **Check Logs...** / **Repair Logs...** on both tabs of the patcher window, remembered
+A tick box beside **Check Saves & Logs...** / **Repair Saves & Logs...** on both tabs of the patcher window, remembered
 like the other settings (`patcher_local_settings.json`). It is a **per-install** choice, made when a game
 is created: the patcher writes it into that game's executable as bit 31 of the word the startup loader
 hands every companion at game start (`STARTUP_LOADER_CHECK_LOGS` in `src/vv_fun_patcher.py`,
@@ -36,8 +36,8 @@ leave this box as it is. On the command line it is on by default for `dry-run`, 
 and `apply-all`; `--no-check-logs-automatically` turns it off (`--check-logs-automatically` is still
 accepted).
 
-* **Off**: nothing is scanned and nothing is asked, ever. Use **Check Logs...** and
-  **Repair Logs...**.
+* **Off**: nothing is scanned and nothing is asked, ever. Use **Check Saves & Logs...** and
+  **Repair Saves & Logs...**.
 * **On** (default): once a village has been on screen for a few seconds after it loads (never during the
   load-time catch-up), each game's Origins companion scans it silently, reading only. Nothing is shown.
   When the player **closes the game** after playing a village the scan found something in, the game's
@@ -69,9 +69,9 @@ accepted).
   The question is about the village played last: playing another village afterwards in the same session
   replaces it, and the earlier village is asked about the next time it is the one played before closing.
 
-### Repair Logs (the player's go-ahead, given beforehand)
+### Repair Saves & Logs (the player's go-ahead, given beforehand)
 
-**Repair Logs...** in the patcher window (`src/vv_log_tools.py`, `approve_repair`), with the game
+**Repair Saves & Logs...** in the patcher window (`src/vv_log_tools.py`, `approve_repair`), with the game
 closed, backs the save folder up (`Backup <date> (before repair re-arm)`), clears the slot's "already
 checked" markers (below) and writes the slot's approval:
 
@@ -158,7 +158,7 @@ prints why with each such file.
 | Village Statistics log: the game's own rows | all | the save | -- | reported only: Highest Population, Oldest Villager, Babies Made, Triplets, Tech Points, People Cured, Mushrooms Found, Island Events Seen, Puzzles Solved (and Twins outside VV2) are the GAME's counters, kept in the save and printed at every save, so the log cannot disagree with the save, and the patcher never changes the game's own counters |
 | Village Population log | all | the save | lists other villagers than the save | reported only: it is rewritten from the game at every save; a copy written at load would record the load-time catch-up the save may never keep, and its writer also files the Births log's held records early |
 | Village History log | all | the save | -- | **never rewritten** (owner rule); a snapshot is appended at every save, so the next save's is the save's; one appended at load would record unsaved state |
-| Village Masks .dat (v1.35.59) | all | the villagers the save holds (each entry stores the identity of the villager it is for: each Origins companion's own hash of the name and the fields a life never changes -- A New Home name, gender and family scalar; The Secret City gender, Likes, Dislikes and name; the others name, gender and parents' names) | an **orphan**: an entry whose stored identity no villager carries -- living, or (The Secret City to New Believers) a body awaiting burial, which the save still holds -- on a record nobody holds (The Secret City finds masks by identity, so any entry). An entry with no identity on such a record is one too: a roster-keyed file stores none for a record nobody held, and the follow never puts such an entry on anyone. An identity some villager carries -- one, or several alike -- is never touched ("ambiguous: keep"); an older name-only file ('VM04', 'VM05' / 'VM25') is matched by name | **Yes** (scanned silently at load; the quit prompt says "N mask entries for villagers who are no longer in the village"; `native/shared/orphan_masks.h`, each Origins companion's `vvfp_xc_masks_scan` / `vvfp_xc_masks_repair`). Removed after the quit save when the player answers Repair, and -- with a Repair Logs approval -- as soon as the village has settled after loading (the mask file is the companion's own, written whenever the table changes, not at a save; one that could not be removed then is completed after the quit save). Only the entries the last scan found that are still orphans when they are removed; the file is backed up as `<file>.before-v1.35.59-repair`, each removal listed in the Repairs log (`Mask removed: <mask>, record <n> -- ...`). No village header (from the save, through `VVFP Save Reset.dll`), a failed write or a failed note changes nothing. So that an ambiguous entry stays one, A New Home, The Lost Children and New Believers write its identity on its empty record in the file's roster |
+| Village Masks .dat (v1.35.59) | all | the villagers the save holds (each entry stores the identity of the villager it is for: each Origins companion's own hash of the name and the fields a life never changes -- A New Home name, gender and family scalar; The Secret City gender, Likes, Dislikes and name; the others name, gender and parents' names) | an **orphan**: an entry whose stored identity no villager carries -- living, or (The Secret City to New Believers) a body awaiting burial, which the save still holds -- on a record nobody holds (The Secret City finds masks by identity, so any entry). An entry with no identity on such a record is one too: a roster-keyed file stores none for a record nobody held, and the follow never puts such an entry on anyone. An identity some villager carries -- one, or several alike -- is never touched ("ambiguous: keep"); an older name-only file ('VM04', 'VM05' / 'VM25') is matched by name | **Yes** (scanned silently at load; the quit prompt says "N mask entries for villagers who are no longer in the village"; `native/shared/orphan_masks.h`, each Origins companion's `vvfp_xc_masks_scan` / `vvfp_xc_masks_repair`). Removed after the quit save when the player answers Repair, and -- with a Repair Saves & Logs approval -- as soon as the village has settled after loading (the mask file is the companion's own, written whenever the table changes, not at a save; one that could not be removed then is completed after the quit save). Only the entries the last scan found that are still orphans when they are removed; the file is backed up as `<file>.before-v1.35.59-repair`, each removal listed in the Repairs log (`Mask removed: <mask>, record <n> -- ...`). No village header (from the save, through `VVFP Save Reset.dll`), a failed write or a failed note changes nothing. So that an ambiguous entry stays one, A New Home, The Lost Children and New Believers write its identity on its empty record in the file's roster |
 | Custom Titles .dat | all | the save's name, likes and dislikes (the title's fingerprint) | -- | reported only: a dead villager's title is not an orphan, and graves keep no likes or dislikes, so no file can prove a title belongs to nobody |
 | Graves .dat | VV1, VV2 | the game's own graves | -- | self-validating: an entry is used only while its name-and-age fingerprint matches |
 | Village Roster .dat (Cause of Death; Statistics) | all | the last save | -- | not rebuilt: each is the record of the LAST SAVE the next save compares with; a mismatch is the evidence it uses (another village in the slot; villagers who left unaccounted for) |
@@ -178,18 +178,18 @@ and nothing changes. The grave backfill keeps its own coverage file and finds no
 Arrived and Birth backfills keep `Arrivals\Virtual Villagers N Arrivals Recorded - Save S.dat` and
 `Births\Virtual Villagers N Births Recorded - Save S.dat` (VV2-VV5). The Elders and Statistics part
 needs no marker: once repaired its scan finds nothing; nor do the orphan mask entries (v1.35.59): once
-removed there is nothing left to find, so nothing is added to Repair Logs' list or to Start Over's.
+removed there is nothing left to find, so nothing is added to Repair Saves & Logs' list or to Start Over's.
 
 ## The "already checked" markers
 
-**Repair Logs...** clears exactly the markers in `vv_log_tools.REARM_MARKERS` for the chosen slot,
+**Repair Saves & Logs...** clears exactly the markers in `vv_log_tools.REARM_MARKERS` for the chosen slot,
 before writing its approval -- the Cross-Check marker above (A New Home), in every game
 `Deaths\Virtual Villagers N Graves Logged - Save S.dat` and
 `Arrivals\Virtual Villagers N Arrivals Recorded - Save S.dat`, and in The Lost Children to New Believers
 `Births\Virtual Villagers N Births Recorded - Save S.dat` -- so the approved check looks at everything
 again. A new once-per-village part of the check adds its marker to that one list. Clearing a marker never
 loses data and never writes anything twice: each part counts what the logs already hold before it
-writes. **Check Logs...** runs the read-only checker below in the patcher itself.
+writes. **Check Saves & Logs...** runs the read-only checker below in the patcher itself.
 
 ## The Repairs log
 

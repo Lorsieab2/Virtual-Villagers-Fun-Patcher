@@ -1,8 +1,8 @@
-"""Check Logs and Repair Logs (src/vv_log_tools.py and the patcher window).
+"""Check Saves & Logs and Repair Saves & Logs (src/vv_log_tools.py and the patcher window).
 
-Check Logs runs scripts/vvfp_consistency_check.py in-process and must leave
+Check Saves & Logs runs scripts/vvfp_consistency_check.py in-process and must leave
 every file exactly as it found it (bytes, size and modification time), never
-open anything for writing, and never read the Backups folder.  Repair Logs must
+open anything for writing, and never read the Backups folder.  Repair Saves & Logs must
 refuse while the game is running (never pausing it), back the folder up first,
 clear exactly the cross-check's "already checked" markers for the chosen game
 and slot, and write that slot's approval (the game then repairs the village
@@ -92,10 +92,10 @@ class FakeProcesses:
         return list(self.pids)
 
     def suspend(self, pid, exe_name):  # pragma: no cover - never used
-        raise AssertionError("Repair Logs must never pause a game")
+        raise AssertionError("Repair Saves & Logs must never pause a game")
 
     def resume(self, handle):  # pragma: no cover - never used
-        raise AssertionError("Repair Logs must never pause a game")
+        raise AssertionError("Repair Saves & Logs must never pause a game")
 
 
 class FolderTest(unittest.TestCase):
@@ -151,7 +151,7 @@ class FolderTest(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Check Logs
+# Check Saves & Logs
 # ---------------------------------------------------------------------------
 
 
@@ -222,7 +222,7 @@ class CheckLogsTests(FolderTest):
         self.assertIn("Nothing was changed", str(caught.exception))
 
     def test_checking_works_while_the_game_runs(self) -> None:
-        # Check Logs never asks whether the game is running: it only reads.
+        # Check Saves & Logs never asks whether the game is running: it only reads.
         folder = self.make_folder("huttest", 1, "Modded")
         with mock.patch.object(backup, "WindowsProcesses", side_effect=AssertionError("asked")):
             tools.check_logs(folder, 1, 1)
@@ -263,7 +263,7 @@ class CheckerRefactorTests(FolderTest):
 
 
 # ---------------------------------------------------------------------------
-# Repair Logs
+# Repair Saves & Logs
 # ---------------------------------------------------------------------------
 
 
@@ -311,7 +311,7 @@ class ApprovalTests(FolderTest):
 
     def test_a_file_that_is_not_a_marker_is_kept(self) -> None:
         # A truncated, corrupt or unrelated file at a marker's path does not
-        # stop the game's rescan, so Repair Logs has no reason to delete it.
+        # stop the game's rescan, so Repair Saves & Logs has no reason to delete it.
         for tag, number, suffix in CASES[:1] + [c for c in CASES if c[1] == 3][:1]:
             with self.subTest(game=number):
                 folder = self.make_folder(tag, number, suffix)
@@ -396,10 +396,10 @@ class ApprovalTests(FolderTest):
 
     def test_check_logs_shows_an_approval_not_yet_used(self) -> None:
         folder = self.make_folder("huttest", 2, "Modded")
-        self.assertNotIn("Repair Logs approved", tools.check_logs(folder, 1, 2).text)
+        self.assertNotIn("Repair Saves & Logs approved", tools.check_logs(folder, 1, 2).text)
         tools.approve_repair(folder, 2, 1, FakeProcesses(), NOW)
         self.assertIn("NOTE", tools.check_logs(folder, 1, 2).text)
-        self.assertIn("Repair Logs approved repairing this village: the game repairs it, without asking",
+        self.assertIn("Repair Saves & Logs approved repairing this village: the game repairs it, without asking",
                       tools.check_logs(folder, 1, 2).text)
 
     def test_approving_again_is_one_approval(self) -> None:
@@ -552,19 +552,19 @@ class GuiTests(unittest.TestCase):
             self.SOURCE,
             r'"Rename Tribe\.\.\.", self\._rename_single_tribe\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
             r'self\._help_button\(links, "rename_tribe"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
-            r'self\._folder_link\(\s*links, "Check Logs\.\.\.", self\._check_single_logs\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
+            r'self\._folder_link\(\s*links, "Check Saves & Logs\.\.\.", self\._check_single_logs\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
             r'self\._help_button\(links, "check_logs"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
-            r'self\._folder_link\(\s*links, "Repair Logs\.\.\.", self\._repair_single_logs',
+            r'self\._folder_link\(\s*links, "Repair Saves & Logs\.\.\.", self\._repair_single_logs',
         )
         self.assertIn('"Check logs...",\n                lambda game=build: self._log_tool(game, repair=False)', self.SOURCE)
         self.assertIn('"Repair logs...",\n                lambda game=build: self._log_tool(game, repair=True)', self.SOURCE)
-        self.assertIn('text="Check Logs...",\n            command=lambda: self._log_tool(None, repair=False)', self.SOURCE)
-        self.assertIn('text="Repair Logs...",\n            command=lambda: self._log_tool(None, repair=True)', self.SOURCE)
+        self.assertIn('text="Check Saves & Logs...",\n            command=lambda: self._log_tool(None, repair=False)', self.SOURCE)
+        self.assertIn('text="Repair Saves & Logs...",\n            command=lambda: self._log_tool(None, repair=True)', self.SOURCE)
 
     def test_both_run_off_the_main_thread_through_the_module(self) -> None:
         self.assertIn("import vv_log_tools", self.SOURCE)
         self.assertIn("lambda: vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
-        # Repair Logs surveys (the check, the old words, the additions' plan) and repairs
+        # Repair Saves & Logs surveys (the check, the old words, the additions' plan) and repairs
         # through the module, both off the main thread.
         self.assertIn("checked = vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
         self.assertIn("vv_log_additions.plan(folder, number, info.slot)", self.SOURCE)
@@ -631,8 +631,8 @@ class GuiTests(unittest.TestCase):
 
     def test_the_modal_grab_comes_back_after_every_wait(self) -> None:
         # WaitWindow releases its grab on closing and Tk does not restore the
-        # picker's: Check Logs hands it to the report (and back to the picker
-        # when the report closes), Repair Logs back to the picker.
+        # picker's: Check Saves & Logs hands it to the report (and back to the picker
+        # when the report closes), Repair Saves & Logs back to the picker.
         check = self.SOURCE[self.SOURCE.index("    def _check_logs("):self.SOURCE.index("    def _show_log_report(")]
         self.assertEqual(check.count("_regrab(parent)"), 2)
         report = self.SOURCE[self.SOURCE.index("    def _show_log_report("):self.SOURCE.index("    def _repair_logs(")]
@@ -677,7 +677,7 @@ WORDS_DAT = f"{DATA}/Log Words/Virtual Villagers {{game}} Log Words.dat"
 class LogWordsTests(FolderTest):
     """A New Home's and The Secret City's likes and dislikes were printed from
     the wrong list until v1.35.61 (the owner, 2026-10-06: the logs must say
-    what the game's exe says; Check Logs and Repair Logs must fix them)."""
+    what the game's exe says; Check Saves & Logs and Repair Saves & Logs must fix them)."""
 
     OLD = (b"=== Virtual Villagers 1 -- 2026-10-01 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
            b"Villager 1\r\n  Name: Ana\r\n  Likes: heights\r\n  Dislikes: jokes\r\n\r\n")
@@ -700,7 +700,7 @@ class LogWordsTests(FolderTest):
         self.assertIn("heights -> rough wood", result.text)
         self.assertIn("jokes -> sleeping", result.text)
         self.assertIn("2 like/dislike word(s)", result.text, "the new snapshot's words are its own")
-        self.assertEqual(self.state(folder), before, "Check Logs writes nothing")
+        self.assertEqual(self.state(folder), before, "Check Saves & Logs writes nothing")
 
     def test_repair_logs_puts_the_games_words_in_once(self) -> None:
         folder = self.make_folder("huttest", 1, "Modded")
@@ -709,7 +709,7 @@ class LogWordsTests(FolderTest):
         self.assertEqual([(w.name, w.count) for w in result.words],
                          [("Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", 2)])
         text = path.read_bytes()
-        # ...and the older snapshot gets the Sex line its newer one shows (Repair Logs adds it too)
+        # ...and the older snapshot gets the Sex line its newer one shows (Repair Saves & Logs adds it too)
         self.assertEqual(text, self.OLD.replace(b"heights", b"rough wood").replace(b"jokes", b"sleeping")
                          .replace(b"  Name: Ana\r\n", b"  Name: Ana\r\n  Sex: Female\r\n") + self.NEW)
         backup_copy = path.with_name(path.name + ".before-v1.35.61-repair")
@@ -766,7 +766,7 @@ class LogWordsTests(FolderTest):
 class SexLinesTests(FolderTest):
     """Records written before v1.35.61 have no Sex line (the owner, 2026-10-06:
     "each game stores a list of male and female names ... also scan the saves
-    and logs").  Repair Logs adds it from the save, another record of the same
+    and logs").  Repair Saves & Logs adds it from the save, another record of the same
     villager, or the game's own name lists -- never a guess."""
 
     HISTORY = (b"=== Virtual Villagers 1 -- 2026-10-01 10:00:00 ===\r\nVillage: Hut (Save 1)\r\n"
@@ -825,7 +825,7 @@ class SexLinesTests(FolderTest):
         folder = self.folder()
         before = self.state(folder)
         text = tools.check_logs(folder, 1, 1).text
-        self.assertIn("have no Sex line; repairable: Repair Logs adds it", text)
+        self.assertIn("have no Sex line; repairable: Repair Saves & Logs adds it", text)
         self.assertIn("whose sex nothing records", text)
         self.assertEqual(self.state(folder), before)
 

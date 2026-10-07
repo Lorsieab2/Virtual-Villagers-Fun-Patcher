@@ -12035,7 +12035,7 @@ STARTUP_LOADER_COMPANIONS = (
     "VVFP Last Names.dll",
 )
 # Bit 31 of the same word is not a companion: the "Check logs automatically"
-# setting (the patcher window, beside Check Logs / Repair Logs; ON by
+# setting (the patcher window, beside Check Saves & Logs / Repair Saves & Logs; ON by
 # default), a per-install choice made when the build is created.  The Origins
 # companions read it (native/shared/crosscheck_bridge.h): when it is set, each
 # village the player plays is checked silently at load, and the player is
