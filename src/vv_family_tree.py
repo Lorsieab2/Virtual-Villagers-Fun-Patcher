@@ -16,7 +16,7 @@ diamond portrait that says Upcoming child".
 * Each family -- a mother and father and their children -- has a colour of its own: the lines from
   the parents to the children, and the children's frames.  Founders' frames are grey.
 * Children born together hang from one point of their family's line, which opens into a triangle.
-* Villagers with no recorded parent or child sit apart, under "Unrelated Individuals", level with their
+* Villagers with no recorded parent or child sit apart, under "Other Members", level with their
   generation.
 * The player's marks and edits (the owner: "mark special villagers with a border (any color) with a
   matching key", "make all the fields editable in case there are errors or the player wants to
@@ -51,7 +51,7 @@ LINE_WIDTH = 2.2                        # a family line's weight unless the play
 GAP_X = 22
 LEFT = 300                      # the generation labels' column
 TOP = 150
-OTHER_GAP = 110                 # between the tree and the "Unrelated Individuals" column
+OTHER_GAP = 110                 # between the tree and the "Other Members" column
 
 # The head is the one the Origins Change Appearance menus show: the whole 40x65 cell of column 5
 # (HEAD_FRAME in scripts/build_vv1_appearance_bitmaps.py, build_vv2_appearance_sheets.py and
@@ -476,7 +476,7 @@ ROLES = {
     "labels": "Generation labels",
     "names": "Names in the portraits",
     "portraits": "Other words in the portraits",
-    "others": "Unrelated Individuals heading",
+    "others": "Other Members heading",
     "footer": "Footer",
 }
 ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
@@ -1582,7 +1582,8 @@ def default_title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
 
 # Words the tree writes that the player may retype (the owner: "I wanna rename "unrelated
 # individuals" to something else").  The footer's own words are footer(lay).
-WORDS = {"others": "Unrelated Individuals", "others_note": "no recorded parent or child", "footer": ""}
+# The owner: "And default: "Other Members"" (the heading over the villagers with no recorded family).
+WORDS = {"others": "Other Members", "others_note": "no recorded parent or child", "footer": ""}
 
 
 def words(lay: Layout, key: str) -> str:
@@ -2054,8 +2055,8 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     return out
 
 
-MOVABLE = {"title": "the title", "subtitle": "the subtitle", "key": "the Key", "others": "the Unrelated "
-           "Individuals heading", "others_note": "the line under the Unrelated Individuals heading",
+MOVABLE = {"title": "the title", "subtitle": "the subtitle", "key": "the Key", "others": "the Other "
+           "Members heading", "others_note": "the line under the Other Members heading",
            "footer": "the footer"}   # and "label<generation>": that generation's label
 
 

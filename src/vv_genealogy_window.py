@@ -79,7 +79,7 @@ SELECTING
 MOVING AND ZOOMING
   Drag anything                   move it: villagers (every selected one together; their lines
                                   follow), the title, subtitle, Key, generation labels, the
-                                  Unrelated Individuals heading, the footer, pictures, text boxes
+                                  Other Members heading, the footer, pictures, text boxes
   Drag empty space                move around the tree (or drag with the middle button)
   Mouse wheel, or + and -         zoom in and out (Ctrl+0: 100%)
   Shift+wheel / Alt+wheel         scroll sideways / up and down
@@ -153,7 +153,7 @@ PICTURES AND TEXT BOXES (Pictures & Text tab)
   Drag the curved arrow           rotate it (Shift: in steps of 15 degrees)
   Double-click a text box, or F2  type in it
   Click (or double-click) words   retype them where they are: the title, subtitle, a portrait, a
-                                  generation label, "Unrelated Individuals", the footer, a mark in
+                                  generation label, "Other Members", the footer, a mark in
                                   the Key (Enter keeps them; Ctrl+Enter for several lines; Esc)
   Ctrl+B / Ctrl+I / Ctrl+U        bold / italic / underline the selected text box
   Right-click any words           bold, italic, underline, strikethrough, superscript, subscript

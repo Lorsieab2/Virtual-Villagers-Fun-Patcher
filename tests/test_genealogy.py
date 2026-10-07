@@ -830,6 +830,8 @@ class StickerTests(unittest.TestCase):
         back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
         self.assertEqual(back.words, e.words)
         self.assertEqual(ft.Edits.from_data({"words": {"others": 3, "nonsense": "x"}}).words, {})
+        # The owner: "And default: "Other Members"".
+        self.assertEqual(ft.words(ft.layout(v, ft.Edits()), "others"), "Other Members")
         # The owner: "I want headers to be separate from subheaders so I can delete "no recorded parent
         # or child"" -- the heading stays.
         e.hidden = ["word:others_note"]
