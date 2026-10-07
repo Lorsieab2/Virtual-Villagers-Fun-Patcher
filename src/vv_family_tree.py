@@ -251,6 +251,7 @@ class Edits:
     # connections to portraits"): "<family key>|<piece>" -> how far it was dragged.
     line_moves: dict[str, list | float] = field(default_factory=dict)   # piece -> [right, down]
     generations: dict[str, list[str]] = field(default_factory=dict)   # "2" -> the label's lines
+    words: dict[str, str] = field(default_factory=dict)                # WORDS -> the player's own words
     marks: dict[str, str] = field(default_factory=dict)               # label -> "#rrggbb", in order
     entries: dict[str, dict] = field(default_factory=dict)            # entry key -> {"lines", "mark"}
     # Stickers (the owner: "any image file on the computer where people can drag and place them
@@ -309,6 +310,9 @@ class Edits:
                 out.person_colours[str(key)] = colour
         for key, lines in dict(data.get("generations", {})).items():
             out.generations[str(key)] = [str(line) for line in lines]
+        for key, text in dict(data.get("words", {})).items():
+            if key in WORDS and isinstance(text, str):
+                out.words[key] = text
         for label, colour in dict(data.get("marks", {})).items():
             if is_colour(colour):
                 out.marks[str(label)] = str(colour)
@@ -419,7 +423,7 @@ class Edits:
                 "family_lines": self.family_lines, "mark_style": self.mark_style, "mark_glow": self.mark_glow,
                 "mark_opacity": self.mark_opacity,
                 "line_moves": self.line_moves,
-                "generations": self.generations, "marks": self.marks, "entries": self.entries,
+                "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers}
 
 
@@ -1473,6 +1477,15 @@ def default_title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
             f"{datetime.now():%Y-%m-%d %H:%M}")
 
 
+# Words the tree writes that the player may retype (the owner: "I wanna rename "unrelated
+# individuals" to something else").  The footer's own words are footer(lay).
+WORDS = {"others": "Unrelated Individuals", "others_note": "no recorded parent or child", "footer": ""}
+
+
+def words(lay: Layout, key: str) -> str:
+    return lay.edits.words.get(key) or (footer(lay) if key == "footer" else WORDS[key])
+
+
 FOOTER = ("Each unrelated villager has a colour of their own and full brothers and sisters share one; each "
           "pairing has its own connector; a triangle joins twins and triplets.  Generation I is the founders; a "
           "villager who arrived later is in the generation they first appear in.  Made by the Virtual Villagers "
@@ -1743,6 +1756,7 @@ class Text:
     target: tuple | None = None
     move: str = ""
     part: str = ""                      # a generation label's line: "<generation>|<label_lines part>"
+    edit: str = ""                      # what retyping it changes (the editor's _edit_in_place)
     opacity: float = 1.0
 
 
@@ -1865,13 +1879,13 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         span = max(len(t1) * 17, len(t2) * 8) + 60
         add(Shape("rect", head - span / 2, 14, span, 104, plate_colour, width=0, fill=plate_colour, move="title",
                   radius=14, target=("plate",)))
-    add(Text(head, 48, t1, 30, ink, bold=True, centre=True, role="title", move="title"))
-    add(Text(head, 78, t2, 15, ink, centre=True, role="subtitle", move="subtitle"))
+    add(Text(head, 48, t1, 30, ink, bold=True, centre=True, role="title", move="title", edit="title"))
+    add(Text(head, 78, t2, 15, ink, centre=True, role="subtitle", move="subtitle", edit="subtitle"))
     keys = key_marks(lay)
     kx = head - sum(50 + 8 * len(label) for label, _c in keys) / 2
     for label, colour in keys:
         add(Shape("rect", kx, 94, 26, 16, colour, width=4, radius=4, target=("mark", label), move="key"))
-        add(Text(kx + 34, 107, label, 14, ink, role="key", move="key"))
+        add(Text(kx + 34, 107, label, 14, ink, role="key", move="key", edit=f"mark:{label}"))
         kx += 50 + 8 * len(label)
     for g in sorted({v.people[q].generation for q in lay.x}):
         y0 = lay.tops[g]
@@ -1880,12 +1894,14 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
                       fill=plate_colour, move=f"label{g}", radius=12, target=("plate",)))
         for k, (part, text) in enumerate(label_lines(lay, g)):
             add(Text(24, y0 + 40 + k * 22, text, 18 if k == 0 else 14, ink, bold=k == 0, role="labels",
-                     move=f"label{g}", part=f"{g}|{part}"))
+                     move=f"label{g}", part=f"{g}|{part}", edit=f"label:{g}"))
         add(Line([(250, y0), (250, y0 + lay.bands.get(g, NODE_H))], ink, 2, target=("ink",), move=f"label{g}"))
     if lay.others:
         # Off to the right, level with the tree's heading (the owner).
-        add(Text(lay.others_left, 48, "Unrelated Individuals", 24, ink, bold=True, role="others", move="others"))
-        add(Text(lay.others_left, 72, "no recorded parent or child", 13, ink, role="others", move="others"))
+        add(Text(lay.others_left, 48, words(lay, "others"), 24, ink, bold=True, role="others", move="others",
+                 edit="word:others"))
+        add(Text(lay.others_left, 72, words(lay, "others_note"), 13, ink, role="others", move="others",
+                 edit="word:others_note"))
     fams = {f.id: f for f in lay.families}
     for colour, points, fid, piece in lines(lay):
         key = family_key(v, fams[fid])
@@ -1899,11 +1915,12 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         x0, y0 = min(min(xs), lay.x[pid]), min(min(ys), lay.y[pid])
         x1, y1 = max(max(xs), lay.x[pid] + NODE_W), max(max(ys), lay.y[pid] + NODE_H)
         out.boxes[pid] = (x0, y0, x1 - x0, y1 - y0)
-    key_text = footer(lay)
+    key_text = words(lay, "footer")
     if plate:
         add(Shape("rect", middle - len(key_text) * 3.4, lay.height - 110, len(key_text) * 6.8, 30, plate_colour,
                   move="footer", width=0, fill=plate_colour, radius=10, target=("plate",)))
-    add(Text(middle, lay.height - 90, key_text, 13, ink, centre=True, role="footer", move="footer"))
+    add(Text(middle, lay.height - 90, key_text, 13, ink, centre=True, role="footer", move="footer",
+             edit="word:footer"))
     out.items[:] = [i for i in out.items if f"word:{getattr(i, 'move', '')}" not in lay.edits.hidden]
     _apply_styles(out.items, lay.edits)
     _apply_opacity(out.items, lay.edits)
@@ -2069,7 +2086,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     if p.upcoming:
         for k, text in enumerate(node_text(lay, p)):
             add(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, 12 if k == 0 else 11, ink,
-                     bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits"))
+                     bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
+                     edit=f"person:{p.id}"))
         return
     sheet = sheet_name(lay.village.game, p)
     box = face_box(present, sheet, p.head)
@@ -2083,7 +2101,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         add(Text(x + NODE_W / 2, mid + 10, p.name[:1], 28, "#ffffff", bold=True, centre=True, pid=p.id))
     for k, (text, bold) in enumerate(lines):
         add(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, 11.5 if bold else 10, ink,
-                 bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits"))
+                 bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits", edit=f"person:{p.id}"))
 
 
 def _svg_opacity(item) -> str:

@@ -632,6 +632,20 @@ class StickerTests(unittest.TestCase):
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
 
+    def test_the_trees_own_words_can_be_retyped(self) -> None:
+        # The owner: "I wanna rename "unrelated individuals" to something else".
+        v = village()
+        e = ft.Edits(words={"others": "Outsiders", "footer": "Our family"})
+        lay = ft.layout(v, e)
+        texts = {i.edit: i.text for i in ft.scene(lay, "A New Home", {}).items if isinstance(i, ft.Text) and i.edit}
+        self.assertEqual(texts.get("word:others"), "Outsiders")
+        self.assertEqual(texts["word:footer"], "Our family")
+        self.assertIn("title", texts)
+        self.assertTrue(any(k.startswith("person:") for k in texts) and any(k.startswith("label:") for k in texts))
+        back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
+        self.assertEqual(back.words, e.words)
+        self.assertEqual(ft.Edits.from_data({"words": {"others": 3, "nonsense": "x"}}).words, {})
+
     def test_a_long_family_on_several_unjoined_pages(self) -> None:
         # The owner: "MULTIPLE PAGES of the family tree ... the new pages are not connected to
         # previous pages".

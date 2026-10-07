@@ -24,7 +24,7 @@ from datetime import datetime
 import tempfile
 import tkinter as tk
 from pathlib import Path
-from tkinter import colorchooser, filedialog, messagebox, simpledialog, ttk
+from tkinter import colorchooser, filedialog, font as tkfont, messagebox, simpledialog, ttk
 
 import vv_family_tree as ft
 import vv_gdiplus
@@ -140,6 +140,9 @@ PICTURES AND TEXT BOXES (Pictures & Text tab)
   Drag a side circle              stretch one side
   Drag the curved arrow           rotate it (Shift: in steps of 15 degrees)
   Double-click a text box, or F2  type in it
+  Double-click any words          retype them where they are: the title, subtitle, a portrait, a
+                                  generation label, "Unrelated Individuals", the footer, a mark in
+                                  the Key (Enter keeps them; Ctrl+Enter for several lines; Esc)
   Ctrl+B / Ctrl+I / Ctrl+U        bold / italic / underline the selected text box
   Right-click it                  cut, copy, duplicate, delete, bring forward / to the front, send
                                   backward / to the back, rotate 90, reset proportions, reset to
@@ -1023,6 +1026,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         z = self.z
         c.delete("all")
         self.targets: dict[int, tuple] = {}
+        self.editable: dict[int, str] = {}                  # canvas item -> what retyping it changes
         self.pieces: dict[int, str] = {}                    # canvas item -> its line piece, draggable
         c.configure(scrollregion=(0, 0, sc.width * z, sc.height * z), background=OUTSIDE)
         # The page itself, in its colour (the space around it is grey, as around a slide).
@@ -1098,6 +1102,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         piece = getattr(item, "piece", "")
         if piece and len(item.points) == 2 and item.points[0] != item.points[1]:
             self.pieces[iid] = piece
+        if getattr(item, "edit", ""):
+            self.editable[iid] = item.edit
         target = getattr(item, "target", None)
         if target is None and isinstance(item, ft.Text) and item.role:
             target = ("role", item.role)
@@ -1392,6 +1398,88 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_hidden()
         self.status.set(f"Updated from the save and the logs: {len(village.known())} villagers known "
                         f"({len(village.known()) - before:+d}).")
+
+    def _words_of(self, what: str) -> tuple[str, str, object]:
+        """(the words as they are now, as the tree writes them, a function taking the new words) for
+        anything the tree writes that the player may retype."""
+        kind, _, name = what.partition(":")
+        lay, e = self.lay, self.edits
+        if kind in ("title", "subtitle"):
+            k = 0 if kind == "title" else 1
+            own = ft.default_title_lines(lay, self.game_title)[k]
+            return getattr(e, kind) or own, own, lambda new: self._change(**{kind: "" if new == own else new})
+        if kind == "word":
+            own = ft.footer(lay) if name == "footer" else ft.WORDS[name]
+
+            def set_words(new: str) -> None:
+                if new and new != own:
+                    e.words[name] = new
+                else:
+                    e.words.pop(name, None)
+                self._saved()
+            return ft.words(lay, name), own, set_words
+        if kind == "mark":
+            return name, name, lambda new: self._rename_mark(name, new)
+        if kind == "label":
+            g = int(name)
+            own = "\n".join(ft.default_generation_label(lay, g))
+
+            def set_label(new: str) -> None:
+                if new == own:
+                    e.generations.pop(str(g), None)
+                else:
+                    e.generations[str(g)] = new.split("\n")
+                self._saved()
+                self._show_generation()
+            return "\n".join(ft.generation_label(lay, g)), own, set_label
+        p = self.village.people[int(name)]
+        own = "\n".join(ft.default_text(lay, p))
+
+        def set_person(new: str) -> None:
+            self._set_entry(p, lines=None if new == own else new.split("\n"))
+            self._saved()
+        return "\n".join(ft.node_text(lay, p)), own, set_person
+
+    def _edit_in_place(self, iid: int, what: str) -> None:
+        """A box over the words, to retype them where they are (the owner: "DIRECTLY EDIT THE TEXT OF
+        EVERYTHING BY CLICKING ON THEM AND RETYPING AS IF THEY WERE TEXT BOXES").  Enter (Ctrl+Enter
+        for words of several lines) or clicking away keeps it; Esc leaves it as it was."""
+        self.canvas.delete("editing")
+        now, _own, commit = self._words_of(what)
+        many = what.startswith(("label:", "person:"))
+        font = tkfont.Font(font=self.canvas.itemcget(iid, "font"))
+        if what.startswith("person:"):
+            x, y, w, h, _a = self.lay.frame(int(what.partition(":")[2]))
+            x0, y0 = x * self.z, (y + h / 3) * self.z
+        else:
+            x0, y0, _x1, _y1 = self.canvas.bbox(iid)
+        lines = now.split("\n")
+        box = tk.Text(self.canvas, font=font, width=max(12, max(len(line) for line in lines) + 2),
+                      height=len(lines) + (1 if many else 0), wrap="none", undo=True, relief="solid", borderwidth=1)
+        box.insert("1.0", now)
+        box.tag_add("sel", "1.0", "end-1c")
+        self.canvas.create_window(x0, y0, anchor="nw", window=box, tags="editing")
+        done = {"yet": False}
+
+        def finish(keep: bool) -> str:
+            if done["yet"]:
+                return "break"
+            done["yet"] = True
+            new = box.get("1.0", "end-1c").strip("\n")
+            self.canvas.delete("editing")
+            box.destroy()
+            if keep and new.strip() and new != now:
+                commit(new)
+            return "break"
+
+        box.bind("<Escape>", lambda _e: finish(False))
+        box.bind("<FocusOut>", lambda _e: finish(True))
+        box.bind("<Control-Return>", lambda _e: finish(True))
+        if not many:
+            box.bind("<Return>", lambda _e: finish(True))
+        box.focus_set()
+        self.status.set("Type the new words, then Enter" + (" (Ctrl+Enter: there may be several lines)" if many else "")
+                        + " -- or Esc to leave them.")
 
     def _sure(self, question: str) -> bool:
         return messagebox.askyesno("Family Tree Maker", question + "  (Undo brings it back.)", parent=self)
@@ -2333,12 +2421,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_marks()
         self._saved()
 
-    def _rename_mark(self) -> None:
-        old = self._mark_at()
+    def _rename_mark(self, old: str | None = None, new: str | None = None) -> None:
+        """A mark renamed: the one picked in the list (asked for), or `old` to `new` (retyped in the Key)."""
+        old = old or self._mark_at()
         if old is None:
             return
-        new = simpledialog.askstring("Rename mark", "The mark's new name:", initialvalue=old, parent=self)
-        if not new or not new.strip() or new.strip() == old:
+        if new is None:
+            new = simpledialog.askstring("Rename mark", "The mark's new name:", initialvalue=old, parent=self)
+        if not new or not new.strip() or new.strip() == old or new.strip() in self.edits.marks:
             return
         new = new.strip()
         self.edits.marks = {(new if k == old else k): v for k, v in self.edits.marks.items()}

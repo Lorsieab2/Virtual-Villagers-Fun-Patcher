@@ -546,6 +546,14 @@ class CanvasTools:
         if st is not None and st.picture is None:
             self._select_obj(st.index)
             self._edit_text()
+            return
+        if st is None:                          # any words the tree writes: retyped where they are
+            c = self.canvas
+            x, y = c.canvasx(event.x), c.canvasy(event.y)
+            iid = next((i for i in reversed(c.find_overlapping(x - 4, y - 4, x + 4, y + 4)) if i in self.editable),
+                       None)
+            if iid is not None:
+                self._edit_in_place(iid, self.editable[iid])
 
     # ---- selecting ----------------------------------------------------------------
     def _select_obj(self, index: int | None) -> None:
