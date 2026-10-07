@@ -41,8 +41,10 @@ file, swapped in and read back; any failure puts every changed file back.
 from __future__ import annotations
 
 import os
+import random
 import re
 import struct
+import zlib
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -190,6 +192,98 @@ def living(folder: Path, game: int, slot: int) -> list[Living]:
         out.append(Living(at, _cstr(data, at, f.name_cap), "Male" if _i32(data, at + f.sex) == f.male else "Female",
                           _i32(data, at + f.head), _i32(data, at + f.body), family,
                           names[family - 1] if 1 <= family <= 50 else ""))
+    return out
+
+
+# Where a villager's last name comes from (the owner, 2026-10-07: "an option to choose whether
+# people inherit the Father or Mother's last name, or random 50:50 or player choice for each
+# villager").
+INHERIT = {
+    "mother": "From the mother",
+    "father": "From the father",
+    "random": "Equal mother/father (50:50)",
+    "list": "Random from list",
+    "each": "Choose from list",
+    "typed": "Type custom name...",
+}
+
+
+def own_last_name(name: str) -> str:
+    """The last name a villager's name already carries (after its last space), or ""."""
+    return name.rpartition(" ")[2] if " " in name else ""
+
+
+def separate(people: list[Living], parents: dict[tuple, tuple], pool: list[str]) -> dict[tuple, str]:
+    """A last name of their own for each living villager with no recorded parent (the owner:
+    "unrelated and single individuals have no family yet and should get separate last names"):
+    their family's from the game's list `pool` when no other such villager has it, else the next
+    one in the list nobody has (the list's names are reused only when every one is taken).  One
+    whose name already carries a last name keeps it."""
+    alone = [v for v in people if parents.get(v.identity, (None, None)) == (None, None)
+             and not own_last_name(v.name)]
+    taken = {own_last_name(v.name) for v in people} - {""}
+    out: dict[tuple, str] = {}
+    for v in alone:                         # each their own family's first ...
+        if v.default and v.default not in taken:
+            out[v.identity] = v.default
+            taken.add(v.default)
+    for v in alone:                         # ... then one nobody has, for those whose was taken
+        if v.identity not in out:
+            name = next((n for n in pool if n not in taken), v.default)
+            out[v.identity] = name
+            taken.add(name)
+    return out
+
+
+def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
+              pool: list[str] | None = None) -> dict[tuple, str]:
+    """Each living villager's last name by `rule` ("" for none): the father's, the mother's,
+    either parent's at random, or one at random from the game's list -- a parent's being the one
+    their name carries, else (a living parent being given one now) the one this rule gives them,
+    parents before children.  Without the parent the rule names, the other parent's; without
+    either, their own (separate) or the family's.  The
+    random pick is the same each time for the same villager.  "each" leaves every one to the
+    player (none chosen; "typed" too: the window asks for the name).  `parents` maps a villager
+    (name, head, body) to (father, mother).  With the game's list of last names (`pool`), a villager
+    with no recorded parent has one of their own (separate)."""
+    if rule in ("each", "typed"):
+        return {v.identity: "" for v in people}
+    if rule == "list":
+        return {v.identity: random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool)
+                for v in people} if pool else {v.identity: v.default for v in people}
+    living_by = {v.identity: v for v in people}
+    own = separate(people, parents, pool) if pool else {}
+    out: dict[tuple, str] = {}
+
+    def last_of(key, seen: frozenset) -> str:
+        if key is None:
+            return ""
+        carried = own_last_name(key[0])
+        if carried or key not in living_by:
+            return carried
+        return give(living_by[key], seen)
+
+    def give(v: Living, seen: frozenset = frozenset()) -> str:
+        if v.identity in out:
+            return out[v.identity]
+        if v.identity in seen:                  # a loop in the records: their own
+            return own.get(v.identity) or v.default
+        father, mother = parents.get(v.identity, (None, None))
+        seen = seen | {v.identity}
+        dad, mum = last_of(father, seen), last_of(mother, seen)
+        if rule == "father":
+            result = dad or mum
+        elif rule == "mother":
+            result = mum or dad
+        else:                                   # "random": 50:50 for each child (the owner)
+            pick = random.Random(zlib.crc32(repr(v.identity).encode("utf-8")))
+            result = pick.choice([dad, mum]) if dad and mum else (dad or mum)
+        result = result or own.get(v.identity) or v.default
+        out[v.identity] = result
+        return result
+
+    for v in people:
+        give(v)
     return out
 
 
@@ -369,6 +463,7 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     _plan_unaccounted(result, game, slot, data_dir, renames, asked)
     _plan_statistics(result, game, slot, data_dir, by_name)
     _plan_logs(result, folder, game, slot, asked, by_name)
+    _plan_family_trees(result, folder, game, slot, asked)
     return result
 
 
@@ -594,6 +689,31 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
                         n += 1
         if n:
             result.changes.append(Change(path, original, bytes(buf), "the Unaccounted roster"))
+
+
+def _plan_family_trees(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str]) -> None:
+    """The Family Tree Maker's edits for this save -- its edits file and the save's .vvtree files --
+    keyed by each villager's name, re-keyed so the marks, text, sizes and places follow them
+    (Codex, #555)."""
+    import json
+    import vv_family_tree as ft
+    paths = [ft.Edits.path(folder, game, slot)]
+    trees = Path(folder) / ft.TREES
+    if trees.is_dir():
+        for path in sorted(trees.glob(f"*{ft.TREE_SUFFIX}")):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(data, dict) and (data.get("game"), data.get("slot")) == (game, slot):
+                paths.append(path)
+    for path in paths:
+        if not path.is_file():
+            continue
+        original = path.read_bytes()
+        updated = ft.renamed_keys(original.decode("utf-8"), renames).encode("utf-8")
+        if updated != original:
+            result.changes.append(Change(path, original, updated, "the family tree's edits"))
 
 
 def _first_line(path: Path) -> str:

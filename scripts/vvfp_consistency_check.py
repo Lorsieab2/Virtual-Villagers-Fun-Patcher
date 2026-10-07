@@ -386,6 +386,7 @@ class LogRecord:
     mother: Person | None = None
     father: Person | None = None
     babies: int = 0
+    born_as: int = 0           # a Birth's "Born as:" line: 1 single, 2 twin, 3 triplet (0: none)
 
 
 def numbered(folder: Path, stem: str) -> list[Path]:
@@ -427,11 +428,13 @@ def whole(p: Person | None) -> bool:
     return p is None or not p.name or (p.head is not None and p.body is not None)
 
 
-def births_log(game_dir: Path, game: int, slot: int) -> tuple[BirthsLog, list[Path]]:
+def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[BirthsLog, list[Path]]:
     """This slot's Birth and Conception records, in log order, from every numbered file (the
     same reading the in-game cross-check and the owner's repair tool do).  The village is the
     slot's LATEST header, whether or not a record follows it yet (Codex, #522: a new village
-    whose header is all its file holds so far is not the previous village)."""
+    whose header is all its file holds so far is not the previous village).  `headers`, when
+    given, keeps the records under any of those headers instead -- "every" for all of the slot's
+    (the Family Tree Maker: a renamed village's records before its rename, Codex, #555)."""
     files = numbered(game_dir / LOGS / "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log")
     records: list[LogRecord] = []
     latest = None
@@ -477,6 +480,9 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[BirthsLog, list[Pa
                 m = re.match(r"\s*Babies in pregnancy:\s*(\d+)", line)
                 if m:
                     rec.babies = int(m.group(1))
+                m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet)\s*$", line)
+                if m:
+                    rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3}[m.group(1)]
             if kind == "Birth" or kind.startswith("Conception"):
                 main = rec.child if kind == "Birth" else rec.mother
                 if (main is None or not main.name or main.head is None or main.body is None
@@ -490,7 +496,8 @@ def births_log(game_dir: Path, game: int, slot: int) -> tuple[BirthsLog, list[Pa
             else:
                 continue
             records.append(rec)
-    out = BirthsLog(r for r in records if r.village == latest)
+    out = BirthsLog(r for r in records if (r.village == latest if headers is None else
+                                           headers == "every" or r.village in headers))
     out.village = latest
     out.damaged = latest in damaged_in
     return out, files
