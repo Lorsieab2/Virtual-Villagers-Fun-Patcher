@@ -7,13 +7,13 @@ game itself repair them.  The owner (2026-10-05): no repair prompt during
 gameplay -- "Repair Saves & Logs" is the player's own go-ahead, and the game repairs
 without asking.
 
-CHECK LOGS is the read-only checker scripts/vvfp_consistency_check.py, run
+CHECK SAVES & LOGS is the read-only checker scripts/vvfp_consistency_check.py, run
 in-process: the same function the command line runs, so the window shows
 whatever the checker reports (no list of files is kept here).  It only opens
 files for reading, so it may run while the game is running, and it never
 writes, moves or creates anything.  The Backups folder is never read.
 
-REPAIR LOGS does not repair anything in Python.  The repairs belong to the
+REPAIR SAVES & LOGS does not repair anything in Python.  The repairs belong to the
 game's own cross-check (native/shared/crosscheck_bridge.h,
 docs/first-load-cross-check.md), which never shows anything while a village
 is being played.  Repair Saves & Logs is the player's approval, given beforehand with

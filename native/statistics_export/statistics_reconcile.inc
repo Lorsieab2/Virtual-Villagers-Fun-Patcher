@@ -56,7 +56,7 @@
    ASK FIRST.  VvfpStatisticsScanReconcile (scan: reads only) lists what it found
    for the cross-check (native/shared/crosscheck_bridge.h), which never asks
    while a village is played; VvfpStatisticsRepairReconcile takes the player's
-   go-ahead given before a save (Repair Logs), VvfpStatisticsRepairReconcileNow
+   go-ahead given before a save (Repair Saves & Logs), VvfpStatisticsRepairReconcileNow
    a Repair answered right after the quit save.  After Repair,
    at the next save -- after the flush and the living-elder update, before
    the log is written, so the log shows the result -- the plan is made again

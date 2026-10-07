@@ -1059,12 +1059,12 @@ class App(tk.Tk):
             ).grid(row=row, column=3, padx=(12, 0), pady=2)
             self._folder_link(
                 tools,
-                "Check logs...",
+                "Check saves & logs...",
                 lambda game=build: self._log_tool(game, repair=False),
             ).grid(row=row, column=4, padx=(12, 0), pady=2)
             self._folder_link(
                 tools,
-                "Repair logs...",
+                "Repair saves & logs...",
                 lambda game=build: self._log_tool(game, repair=True),
             ).grid(row=row, column=5, padx=(12, 0), pady=2)
             self._folder_link(

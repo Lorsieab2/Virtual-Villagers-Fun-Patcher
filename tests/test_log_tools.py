@@ -556,8 +556,8 @@ class GuiTests(unittest.TestCase):
             r'self\._help_button\(links, "check_logs"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
             r'self\._folder_link\(\s*links, "Repair Saves & Logs\.\.\.", self\._repair_single_logs',
         )
-        self.assertIn('"Check logs...",\n                lambda game=build: self._log_tool(game, repair=False)', self.SOURCE)
-        self.assertIn('"Repair logs...",\n                lambda game=build: self._log_tool(game, repair=True)', self.SOURCE)
+        self.assertIn('"Check saves & logs...",\n                lambda game=build: self._log_tool(game, repair=False)', self.SOURCE)
+        self.assertIn('"Repair saves & logs...",\n                lambda game=build: self._log_tool(game, repair=True)', self.SOURCE)
         self.assertIn('text="Check Saves & Logs...",\n            command=lambda: self._log_tool(None, repair=False)', self.SOURCE)
         self.assertIn('text="Repair Saves & Logs...",\n            command=lambda: self._log_tool(None, repair=True)', self.SOURCE)
 
@@ -624,7 +624,7 @@ class GuiTests(unittest.TestCase):
         body = body[:body.index("\n    def ")]
         self.assertNotRegex(body, r"column=[5-9], padx=\(12, 0\), pady=4\)")
         for name in ("Back up saves", "Restore saves...", "Rename tribe...",
-                     "Check logs...", "Repair logs..."):
+                     "Check saves & logs...", "Repair saves & logs..."):
             at = body.index(f'"{name}",')
             self.assertIn("tools,", body[at - 40:at])
         self.assertIn("tools.pack(", body)

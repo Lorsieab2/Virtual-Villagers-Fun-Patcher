@@ -4,7 +4,7 @@
    The Lost Children's list cut to 47 words, and The Secret City's from The
    Tree of Life's (frogs and soap where its exe says alchemy and potions).
    The owner (2026-10-06): the logs must say what the game's exe says, and
-   Check Logs / Repair Logs must put the old words right
+   Check Saves & Logs / Repair Saves & Logs must put the old words right
    (src/vv_log_tools.py).
 
    The words alone cannot say which list wrote them -- "rough wood", "work",
@@ -25,7 +25,7 @@
        this build creates gets 0.
      - A file rewritten whole (the Village Population roster) is all correct:
        vv_log_words_rewritten records 0.
-     - Repair Logs translates the text before the boundary and records 0.
+     - Repair Saves & Logs translates the text before the boundary and records 0.
 
    A file with no line at all is entirely old.  The other three games' lists
    were always their own: nothing is recorded for them.

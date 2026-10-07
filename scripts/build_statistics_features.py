@@ -1399,7 +1399,7 @@ def build_game(
         + "Villagers Buried below the Deaths log's burials or the graves"
         + (", Twins Birthed below the Births log's twin pregnancies" if game_id == "vv2" else "")
         + (", Chiefs Robed at 0 while a robed Tribal Chief lives" if game_id == "vv3" else "")
-        + " -- and are changed only when the player says so -- Repair Logs in the patcher window, or "
+        + " -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or "
         "Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if "
         "something is wrong); nothing is ever asked while the village is played. Each file is backed "
         "up first ('<file>.before-v1.35.58-repair'), every "

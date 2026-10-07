@@ -17,7 +17,7 @@ THE "?" BUTTONS
 
 Every feature in the patcher window has a small "?" button beside it: every
 patch, every population mode, every button and link (Back Up Saves, Restore
-Saves, Rename Tribe, Check Logs, Repair Logs, the folder links, Validate, Dry
+Saves, Rename Tribe, Check Saves & Logs, Repair Saves & Logs, the folder links, Validate, Dry
 Run, Create Modified EXE, Patch All 5 ...) and every setting (Check logs
 automatically). Click it for a short, plain guide: what it does, how to use it
 in the game, and anything to watch out for. On the All 5 Games tab, the "?"
@@ -203,30 +203,30 @@ The patcher can change a tribe's name inside its save, in all five games.
    is changed; each gets one line, "Tribe renamed from <old> to <new> on
    <date>", and new records keep going into the same logs under the new name.
 
-CHECK LOGS AND REPAIR LOGS
+CHECK SAVES & LOGS AND REPAIR SAVES & LOGS
 
-"Check Logs..." shows whether every log and data file the patcher keeps for
+"Check Saves & Logs..." shows whether every log and data file the patcher keeps for
 one village agrees with its save. It only reads: nothing is changed, so the
 game may be running.
 
-1. On the One Game tab, choose the game's EXE and click "Check Logs...".
-   On the All 5 Games tab, click "Check logs..." on a game's row, or
-   "Check Logs..." below them to pick any game.
+1. On the One Game tab, choose the game's EXE and click "Check Saves & Logs...".
+   On the All 5 Games tab, click "Check saves & logs..." on a game's row, or
+   "Check Saves & Logs..." below them to pick any game.
 2. Pick the game, the save folder and the tribe, and click "Check".
 3. The report lists each file with OK (agrees with the save), WRONG
    (confirmed wrong), NOTE (a difference that is not proof of an error) or
    UNCHECKED (nothing to check it against, or it could not be read), and a
    summary line at the end. The Backups folder is never read.
 
-"Repair Logs..." does not change any log itself. It is your go-ahead for
+"Repair Saves & Logs..." does not change any log itself. It is your go-ahead for
 the game to repair the village: the next time you play it, the game repairs
 everything it finds confirmed wrong WITHOUT asking (every change is backed up
 first and listed in the Repairs log), and the go-ahead is then used up.
 
 1. Quit the game first (from its own menu). A game that is running is
    refused, never paused or closed.
-2. Click "Repair Logs..." (One Game tab), "Repair logs..." on a game's row,
-   or "Repair Logs..." below them, and pick the game, save folder and tribe.
+2. Click "Repair Saves & Logs..." (One Game tab), "Repair saves & logs..." on a game's row,
+   or "Repair Saves & Logs..." below them, and pick the game, save folder and tribe.
 3. The logs are checked first and the result shown. If nothing is found
    wrong you are told so, and can still go ahead.
 4. Confirm. The save folder is backed up first, into
@@ -237,22 +237,22 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    Recorded files in every game, the Births Recorded file in The Lost
    Children to New Believers), and the go-ahead is written ("Virtual
    Villagers <N> Repair Approved - Save <slot>.dat" in the Cross-Check
-   folder; Check Logs shows it as a NOTE while it waits, and Start Over
+   folder; Check Saves & Logs shows it as a NOTE while it waits, and Start Over
    deletes it). No log, backup or other data is removed.
 5. Play the tribe, then close the game normally from its own menu. Nothing is
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
-CHECK LOGS AUTOMATICALLY
+CHECK SAVES & LOGS AUTOMATICALLY
 
-The "Check logs automatically" box sits beside Check Logs / Repair Logs on
+The "Check logs automatically" box sits beside Check Saves & Logs / Repair Saves & Logs on
 both tabs. It is ON by default and the patcher remembers it (the patch
 selection buttons never change it). It is written into every game you create
 from then on; a game you already created keeps its own setting until you
 create it again.
 
-- Off: the games never check or ask anything while you play. Use Check Logs
-  and Repair Logs.
+- Off: the games never check or ask anything while you play. Use Check Saves & Logs
+  and Repair Saves & Logs.
 - On (default): a few seconds after a village loads the game checks it silently. If,
   and only if, something is confirmed wrong, it asks "Repair" or "Not now"
   when you CLOSE THE GAME -- after the game's own save, never while you play.
@@ -779,7 +779,7 @@ village without being born into it -- a new village's founders ("How:
 Founder"), an island event's newcomers (the event's name), the Barrel of
 Babies, the Custom Island Event's new villagers -- when the Cause of Death
 patch is on. Villagers already in a village who arrived before v1.35.58 are
-given an Arrived record once, when you allow the repair (Repair Logs, or
+given an Arrived record once, when you allow the repair (Repair Saves & Logs, or
 Repair when the game asks as it closes with "Check logs automatically" on);
 that it has been done is kept in
 "Virtual Villagers Fun Patcher Data\Arrivals\Virtual Villagers <N> Arrivals

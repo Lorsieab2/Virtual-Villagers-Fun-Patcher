@@ -6,7 +6,7 @@
    Island Event, the Barrel O' Babies, ...) get an "Arrived" record in the
    Births and Conceptions log; the ones already in a village get one
    backfilled, but only when the player allows the repair (native/shared/
-   crosscheck_bridge.h: Repair Logs, or Repair at the quit).
+   crosscheck_bridge.h: Repair Saves & Logs, or Repair at the quit).
 
    "VVFP Cause of Death.dll" sees the arrivals (the game's own villager
    creators, cod_arrivals.inc) and the village's villagers; "VVFP Parentage

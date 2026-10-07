@@ -5,7 +5,7 @@
    stood in for; the quit prompt is a real thread whose MessageBoxA answers
    what the case says the player clicked (or does not answer at all).
    Everything else -- when a load is examined, what the quit owes, the one
-   prompt at the quit and only there, acting on the answer, the Repair Logs
+   prompt at the quit and only there, acting on the answer, the Repair Saves & Logs
    approval and its use, the quit hook's stub -- is the header's own code.
 
    Built and run by tests/test_first_load_prompt.py. */
@@ -174,7 +174,7 @@ static void approval_path(int game, int slot, wchar_t *out) {
               g_folder, game, slot);
 }
 
-/* What Repair Logs writes (src/vv_log_tools.py). */
+/* What Repair Saves & Logs writes (src/vv_log_tools.py). */
 static void approve(int game, int slot) {
     wchar_t path[MAX_PATH];
     unsigned int body[4];
@@ -529,7 +529,7 @@ int main(void) {
     play(1, 1, 10000, 16);
     check(g_parent_scans == 0, "no village on screen (or no slot): nothing is scanned");
 
-    /* ---- Repair Logs: approved, repaired without a question. ---- */
+    /* ---- Repair Saves & Logs: approved, repaired without a question. ---- */
     reset();
     g_auto = 0;                         /* whatever the setting */
     approve(1, 1);
@@ -743,7 +743,7 @@ int main(void) {
     approve(1, 1);
     play(1, 1, 8000, 16);
     check(g_boxes == 0 && g_mask_repairs == 1 && g_mask_game == 1 && g_mask_slot == 1,
-          "Repair Logs approval: the masks are removed at load, without asking");
+          "Repair Saves & Logs approval: the masks are removed at load, without asking");
     vvfp_crosscheck_quit(1, 1);
     check(g_boxes == 0 && !approval_there(1, 1), "... and nothing is left at the quit: the approval is used up");
     reset();

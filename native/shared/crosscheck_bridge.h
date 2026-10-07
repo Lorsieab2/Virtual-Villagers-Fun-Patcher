@@ -81,7 +81,7 @@
 
       When it is OFF, nothing is scanned and nothing is asked, ever.
 
-   2. "Repair Logs..." in the patcher window (src/vv_log_tools.py): with the
+   2. "Repair Saves & Logs..." in the patcher window (src/vv_log_tools.py): with the
       game closed it backs the save folder up, clears the parts' "already
       checked" markers (vv_log_tools.REARM_MARKERS) and writes the slot's
       approval file
@@ -333,7 +333,7 @@ static struct {
     int masks;                    /* orphan mask entries, when > 0 */
     char stats_text[1536];        /* their lines, from the statistics companion */
     /* What the quit owes the village loaded last: its slot, and whether it
-       is approved (Repair Logs) or was examined with the setting on, so the
+       is approved (Repair Saves & Logs) or was examined with the setting on, so the
        quit looks again from the state just saved (Codex, #542: something
        that goes wrong later in the session -- a record write that failed on
        a locked log -- must still be asked about, though the load found
@@ -349,7 +349,7 @@ static struct {
 
 static HHOOK vvfp_xc_cbt_hook;
 
-/* The slot's approval file (Repair Logs), as a path; 0 when the save folder
+/* The slot's approval file (Repair Saves & Logs), as a path; 0 when the save folder
    cannot be told. */
 static int vvfp_xc_approval_path(int game, int slot, wchar_t *path) {
     wchar_t folder[MAX_PATH];
@@ -364,7 +364,7 @@ static int vvfp_xc_approval_path(int game, int slot, wchar_t *path) {
     return 1;
 }
 
-/* Whether the player approved repairing this slot's village (Repair Logs):
+/* Whether the player approved repairing this slot's village (Repair Saves & Logs):
    the file is there and says exactly this game and slot. */
 static int vvfp_xc_approved(int game, int slot) {
     wchar_t path[MAX_PATH];
@@ -721,7 +721,7 @@ static int vvfp_crosscheck_startup(int game) {
 /* ---- At each load -------------------------------------------------------- */
 
 /* The village has settled after a load: see what the quit will owe it.
-   Nothing is shown and nothing is changed here unless Repair Logs approved
+   Nothing is shown and nothing is changed here unless Repair Saves & Logs approved
    this slot. */
 static void vvfp_xc_examine(int game, int slot, DWORD now) {
     int approved = vvfp_xc_approved(game, slot);

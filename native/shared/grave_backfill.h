@@ -17,7 +17,7 @@
    The owner: "the player should be notified first before any fix runs."  So
    the same call first only COUNTS (apply 0): the cross-check asks Cause of
    Death how many graves lack a record (VvfpCauseScanGraves), and only when the
-   player allows the repair (native/shared/crosscheck_bridge.h: Repair Logs,
+   player allows the repair (native/shared/crosscheck_bridge.h: Repair Saves & Logs,
    or Repair at the quit) are the records written -- at the village's next
    save (VvfpCauseRepairGraves), or right after the quit save
    (VvfpCauseRepairGravesNow, the header read back from the saved file). */
