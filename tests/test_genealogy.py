@@ -636,8 +636,8 @@ class StickerTests(unittest.TestCase):
         # A square's corners have no rounding: GDI+ drew nothing for arcs of no size.
         if not vv_gdiplus.available():
             self.skipTest("Windows only")
-        sc = ft.Scene(60, 60, "#ffffff", [ft.Backdrop("#ffffff"),
-                                          ft.Shape("rect", 10, 10, 40, 40, "#000000", width=4, radius=0)])
+        sc = ft.Scene(60, 60, ft.TRANSPARENT, [ft.Backdrop(ft.TRANSPARENT),
+                                               ft.Shape("rect", 10, 10, 40, 40, "#000000", width=4, fill=None, radius=0)])
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "square.png"
             self.assertTrue(vv_gdiplus.save_scene(sc, {}, out))
