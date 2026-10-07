@@ -86,6 +86,32 @@ class ChangedLooks(unittest.TestCase):
         gen._births(reg, self.folder, 3, 1)
         self.assertEqual(reg.conceptions.get(("Aipi", 2, 2)), (("Ago", 7, 8), 2))
 
+    def test_a_new_name_keeps_the_villagers_old_looks_linked(self):
+        # Self-review, #558: Last Names and Number Duplicate Names rename a villager's earlier looks
+        # and the "Appearance changed" record too, or the old look would be someone else after.
+        import vv_last_names as ln
+        from test_last_names_rename import NOW, NoGame
+        self.births(self.changed((3, 4), (7, 8)))
+        # Another Ago, living, so the name alone no longer says who a record is.
+        people = [entry("Ago", 0, 1, 7, 8), entry("Aipi", 1, 50, 2, 2),
+                  entry("Kid", 0, 50, 9, 9, father=("Ago", 3, 4), mother=("Aipi", 2, 2)),
+                  entry("Ago", 0, 2, 1, 1)]
+        (self.folder / "Virtual Villagers - The Secret City1.ldw").write_bytes(
+            b"ldwg" + bytes(TABLE - 4) + b"".join(people) + bytes(64))
+        deaths = self.folder / LOGS / "Deaths" / "Virtual Villagers 3 Deaths Log 1.txt"
+        deaths.parent.mkdir(parents=True, exist_ok=True)
+        deaths.write_bytes(b"Village: Tribe (Save 1)\r\nDeath 1\r\n  Name: Ago\r\n  Head: 1\r\n  Body: 1\r\n\r\n")
+        work = ln.plan_renames(self.folder, 3, 1, {("Ago", 7, 8): "Ago Akikai"})
+        ln.apply(self.folder, work, NoGame(), NOW, "(test)", "renaming")
+        log = (self.folder / LOGS / BIRTHS).read_bytes().decode()
+        self.assertIn("Appearance changed\r\n  Name: Ago Akikai\r\n  Old head: 3", log)
+        v = gen.load_village(self.folder, 3, 1)
+        ago = [p for p in v.known() if p.name == "Ago Akikai"]
+        self.assertEqual([(p.head, p.body, p.old_looks) for p in ago], [(7, 8, [(3, 4)])])
+        self.assertIn("  Name: Ago\r\n  Head: 1", deaths.read_bytes().decode(), "the other Ago keeps his name")
+        kid = next(p for p in v.known() if p.name == "Kid")
+        self.assertEqual(kid.father, ago[0].id, "the father the save keeps with his old look is renamed too")
+
     def test_edits_follow_the_villager_and_the_chosen_look_is_drawn(self):
         self.births(self.changed((3, 4), (7, 8)))
         v = gen.load_village(self.folder, 3, 1)

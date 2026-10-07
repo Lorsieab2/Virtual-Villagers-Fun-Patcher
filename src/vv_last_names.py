@@ -396,6 +396,17 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     result = Plan(renames)
     if not renames:
         return result
+    # A renamed villager's earlier looks -- before Change Appearance, linked by the "Appearance
+    # changed" records -- are the same villager: their records and the parent names saved with them
+    # follow, so the link still holds under the new name (self-review, #558).
+    import vv_genealogy as gen
+    looks = gen._Registry()
+    gen._appearance_changes(looks, folder, game, slot)
+    renames = dict(renames)
+    for old in looks.relooked:
+        now = looks.current(old)
+        if now in renames and old not in renames:
+            renames[old] = renames[now]
     # What a name with no looks beside it becomes: every holder of the name, each as it will be
     # called (one not renamed keeps the name).  A name-only rewrite happens only when that is one
     # new name (Codex, #553): an unrenamed namesake makes the name ambiguous.
@@ -839,6 +850,10 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
                     continue
                 name = m.group(3).strip()
                 who = additions._who_at(lines, b.start + k)
+                if b.heading == "Appearance changed":   # the villager by the look they changed from
+                    head, body = b.value("Old head"), b.value("Old body")
+                    if head and body and head.lstrip("-").isdigit() and body.lstrip("-").isdigit():
+                        who = (name, int(head), int(body))
                 new = renames.get((name, who[1], who[2]))
                 if new is None and who[1] is None and len(by_name.get(name, set())) == 1:
                     new = next(iter(by_name[name]))
