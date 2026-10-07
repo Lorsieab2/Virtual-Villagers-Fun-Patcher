@@ -754,10 +754,13 @@ def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = Tr
 
 
 def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
-    """Each page's first and last generation (the generations as arrange gives them)."""
+    """Each page's first and last generation (the generations as arrange gives them).  A page ends
+    with the generation the next one starts at, and that page shows it again as its founders (the
+    owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
+    generation on the second page being treated as "founders" on the second page")."""
     gens = sorted({p.generation for p in village.people.values()}) or [1]
-    starts = [gens[0]] + [g for g in edits.pages if gens[0] < g <= gens[-1]]
-    return [(lo, starts[k + 1] - 1 if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
+    starts = [gens[0]] + sorted({g for g in edits.pages if gens[0] < g <= gens[-1]})
+    return [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
 
 
 def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:
@@ -870,8 +873,8 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     # One colour each: every villager with no recorded parents, every pairing, every set of full
     # brothers and sisters -- oldest first, so the most distinct go to the founders.
     e = out.edits
-    alone = sorted((q for q in x if people[q].father is None and people[q].mother is None),
-                   key=lambda q: (people[q].generation, _place(people[q])))
+    alone = sorted((q for q in x if all(r is None or r in off for r in (people[q].father, people[q].mother))),
+                   key=lambda q: (people[q].generation, _place(people[q])))   # a later page's founders too
     pool = iter(distinct_colours(len(alone) + len(families), out.background))
     for q in alone:
         out.birth_colour[q] = e.person_colours.get(entry_key(village, people[q]), next(pool))
@@ -1554,7 +1557,9 @@ def default_label_parts(lay: Layout, g: int) -> dict[str, str]:
     women = sum(p.sex == "Female" for p in people)
     men = sum(p.sex == "Male" for p in people)
     alive = sum(p.alive for p in people)
-    out = {"number": f"{generation_number(lay, g)}.", "name": "Founders" if g == 1 else f"Generation {g}",
+    # Every row is "Generation <n>", the first too (the owner: "Just use Generation 1.  Players can type
+    # FOUNDERS if they want to").
+    out = {"number": f"{generation_number(lay, g)}.", "name": f"Generation {g}",
            "total": f"{len(people)} total: {women} females, {men} males", "living": f"{alive} living"}
     if upcoming:
         out["upcoming"] = f"{upcoming} upcoming"

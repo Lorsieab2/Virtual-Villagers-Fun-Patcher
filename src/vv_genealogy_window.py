@@ -134,8 +134,10 @@ ADDING AND DELETING
   Layout tab, Deleted items       Restore what was deleted
 
 PAGES (Layout tab)
-  A new page starts at generation split a long family onto pages; each page is its own tree,
-                                  not joined to the one before.  Pick the page on the toolbar.
+  A new page starts at generation split a long family onto pages; a page ends with the generation
+                                  the next one starts at, which that page shows again at its top, as
+                                  its first villagers (no lines up to their parents).  Pick the page
+                                  on the toolbar.
                                   Saving a picture saves every page.
 
 NUMBERS

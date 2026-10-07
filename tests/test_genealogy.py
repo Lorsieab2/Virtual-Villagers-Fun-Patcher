@@ -851,7 +851,16 @@ class StickerTests(unittest.TestCase):
         first, second = ft.layout(v, e, 0), ft.layout(v, e, 1)
         self.assertEqual((first.pages, second.page), (2, 1))
         self.assertEqual(set(first.x) | set(second.x), set(whole.x))
-        self.assertFalse(set(first.x) & set(second.x))
+        # The owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with
+        # the 6th generation on the second page being treated as "founders"": the generation the
+        # second page starts at is on both, at the top of the second with no line up to a parent.
+        shared = {q for q in whole.x if v.people[q].generation == gens[1]}
+        self.assertEqual(set(first.x) & set(second.x), shared)
+        self.assertEqual(ft.page_spans(e, v)[:2], [(gens[0], gens[1]), (gens[1], ft.page_spans(e, v)[1][1])])
+        self.assertEqual(min(second.rows), gens[1])
+        self.assertFalse(any(c in shared for fam in second.families for c in fam.children))
+        self.assertTrue(all(q in second.birth_colour for q in shared), "coloured as founders")
+        self.assertEqual(ft.generation_label(second, gens[1])[0], f"{gen.roman(gens[1])}. Generation {gens[1]}")
         self.assertEqual(set(first.others) | set(second.others), set(whole.others))
         for lay in (first, second):
             for fam in lay.families:
@@ -919,10 +928,10 @@ class StickerTests(unittest.TestCase):
         e = ft.Edits()
         lay = ft.layout(v, e)
         full = ft.generation_label(lay, 1)
-        self.assertTrue(full[0].startswith("I. Founders"))
+        self.assertTrue(full[0].startswith("I. Generation 1"))
         e.hidden = ["label:1:number", "label:*:living"]
         lay = ft.layout(v, e)
-        self.assertEqual(ft.generation_label(lay, 1), ["Founders"] + [t for t in full[1:] if "living" not in t])
+        self.assertEqual(ft.generation_label(lay, 1), ["Generation 1"] + [t for t in full[1:] if "living" not in t])
         self.assertFalse(any("living" in t for g in lay.tops for t in ft.generation_label(lay, g)))
         self.assertEqual(ft.default_generation_label(lay, 1), ft.generation_label(lay, 1))
         e.numbering = "numbers"
