@@ -641,8 +641,8 @@ class StickerTests(unittest.TestCase):
         self.assertFalse(ft.inside(heart, 55, 3))                      # the dip between the lobes
         self.assertTrue(ft.inside(heart, 55, 50))
         turned = ft.shape_points("rect", 0, 0, 100, 20, angle=90)
-        self.assertTrue(ft.inside(turned, 50, 90))
-        self.assertFalse(ft.inside(turned, 95, 10))
+        self.assertTrue(ft.inside(turned, 50, 50))                     # turned upright about its middle
+        self.assertFalse(ft.inside(turned, 90, 10))                    # where its end was before turning
 
     def test_lines_stay_on_portraits_resized_in_batch(self) -> None:
         # The owner: "when I batch change the portrait sizes, the lines should stay connected to them".
