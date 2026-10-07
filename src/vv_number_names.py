@@ -4,8 +4,9 @@ The owner (2026-10-07): "How about a "Number duplicate names" button in the fami
 logs?  If there are duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc.
 Also offer to edit the save files."
 
-Everyone the save and the logs know is numbered, the dead too, oldest first (vv_genealogy's
-duplicate_names, as the Family Tree Maker shows them): the living are renamed in the save, and every
+Everyone the save and the logs know is numbered, the dead too, oldest first unless the player
+picks another order (vv_genealogy's duplicate_names and NUMBER_ORDERS, as the Family Tree Maker
+shows them): the living are renamed in the save, and every
 record naming any of them -- their own and as a parent -- in the logs and the patcher's own files,
 through Last Names' renaming (vv_last_names.plan_renames), with its safety: the game must be closed,
 the save folder is backed up first ("(before numbering names)"), every file is swapped in and read
@@ -39,7 +40,7 @@ class Numbering:
 
 
 def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
-              nameless: set[str] = frozenset()) -> Numbering:
+              nameless: set[str] = frozenset(), order: str = "oldest") -> Numbering:
     """The numbered name of each villager the save and the logs can tell apart.  `alike`: each
     (name, head, body) the save holds more than once, and how many times; `nameless`: the names of
     records that do not say how their villager looks."""
@@ -48,7 +49,7 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
     for (name, _head, _body), count in sorted(alike.items()):
         out.notes.append(f"{count} living villagers are called {name} and look the same, so the records cannot "
                          "tell them apart: they keep their name.")
-    numbered = gen.duplicate_names(village)
+    numbered = gen.duplicate_names(village, order)
     for name in sorted(nameless & {p.name for p in village.known()}):
         out.notes.append(f"Older records name a {name} without saying how they look, so those records keep "
                          f"the name {name}.")
@@ -76,7 +77,7 @@ def _evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set
     return {key: n for key, n in counts.items() if n > 1}, nameless
 
 
-def number_names(folder: Path, game: int, slot: int,
+def number_names(folder: Path, game: int, slot: int, order: str = "oldest",
                  processes: vv_save_backup.ProcessController | None = None,
                  now: datetime | None = None) -> tuple[ln.Result, Numbering]:
     """Number every duplicate name in the save, the logs and the patcher's files.  Refused (nothing
@@ -85,7 +86,7 @@ def number_names(folder: Path, game: int, slot: int,
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     ln.tools._refuse_if_running(folder, controller)
     try:
-        wanted = numbering(gen.load_village(folder, game, slot), *_evidence(folder, game, slot))
+        wanted = numbering(gen.load_village(folder, game, slot), *_evidence(folder, game, slot), order)
         work = ln.plan_renames(folder, game, slot, wanted.renames, dead=True)
         wanted.notes += work.notes
     except (gen.GenealogyError, struct.error, ValueError, OSError) as exc:

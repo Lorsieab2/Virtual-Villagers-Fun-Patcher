@@ -766,6 +766,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.number_names_var = tk.BooleanVar(value=e.number_names)
         ttk.Checkbutton(tab, text="Show duplicate names numbered (Soda I, Soda II...)", variable=self.number_names_var,
                         command=lambda: self._change(number_names=bool(self.number_names_var.get()))).pack(anchor="w")
+        ttk.Label(tab, text="Who is \"I\":").pack(anchor="w", pady=(2, 1))
+        self.number_order_var = tk.StringVar(value=gen.NUMBER_ORDERS[e.number_order])
+        orders = ttk.Combobox(tab, textvariable=self.number_order_var, values=list(gen.NUMBER_ORDERS.values()),
+                              state="readonly")
+        orders.pack(fill="x")
+        orders.bind("<<ComboboxSelected>>", lambda _e: self._change(number_order=next(
+            k for k, v in gen.NUMBER_ORDERS.items() if v == self.number_order_var.get())))
         ttk.Label(tab, text="Arrangement:").pack(anchor="w", pady=(10, 1))
         self.position_var = tk.StringVar(value=ft.POSITIONING[e.positioning])
         positions = ttk.Combobox(tab, textvariable=self.position_var, values=list(ft.POSITIONING.values()),
@@ -2230,14 +2237,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """Number Duplicate Names (the owner: "If there are duplicate "Soda"s, name the first one "Soda I",
         and the second one "Soda II" etc.  Also offer to edit the save files"): numbered on the tree,
         then, if the player says so, in the game's save and logs too."""
-        if not gen.duplicate_names(self.village):
+        if not gen.duplicate_names(self.village, self.edits.number_order):
             self.status.set("No two villagers share a name.")
             return
         if not self.edits.number_names:
             self._change(number_names=True)
         if not messagebox.askyesno(
                 "Number Duplicate Names",
-                "Duplicate names are numbered on the tree, oldest first.\n\nAlso number them in the game's "
+                f"Duplicate names are numbered on the tree, {gen.NUMBER_ORDERS[self.edits.number_order].lower()} "
+                "(change it under Who is \"I\" on the Layout tab).\n\nAlso number them in the game's "
                 "save and logs?  The game must be closed; the tree is saved and the save folder is backed "
                 "up first.", parent=self):
             return
@@ -2246,7 +2254,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         try:
             result, wanted = self.app._run_with_wait(
                 "Numbering the names...\n\nThe save folder is backed up first.",
-                lambda: vv_number_names.number_names(self.folder, self.game, self.slot))
+                lambda: vv_number_names.number_names(self.folder, self.game, self.slot, self.edits.number_order))
         except (vv_last_names.LastNamesError, OSError) as exc:
             messagebox.showerror("Number Duplicate Names", f"The names were not numbered. {exc}", parent=self)
             return
@@ -2332,6 +2340,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
         self.number_names_var.set(e.number_names)
+        self.number_order_var.set(gen.NUMBER_ORDERS[e.number_order])
         self.diagonal_var.set(e.diagonal_lines)
         self.ink_field.set_quietly(e.ink)
         self.fill_field.set_quietly(e.portrait_fill)

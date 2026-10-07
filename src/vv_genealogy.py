@@ -771,13 +771,29 @@ def roman(n: int) -> str:
     return out
 
 
-def duplicate_names(village: Village) -> dict[int, str]:
+# Number Duplicate Names' orders: who is "I" (the owner: "the oldest person with a duplicate name should
+# be named "I" unless the player says otherwise").
+NUMBER_ORDERS = {
+    "oldest": "Oldest first",
+    "youngest": "Youngest first",
+    "appearance": "In order of appearance",
+}
+
+
+def duplicate_names(village: Village, order: str = "oldest") -> dict[int, str]:
     """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
-    duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."): oldest
-    first, the dead too.  A baby on the way has no name yet.  A number that would give a name already
-    in use is passed over (Codex, #557): a village with a "Soda I" numbers its two Sodas II and III."""
+    duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."), the dead
+    too, in the NUMBER_ORDERS order: by age (the age now, or at death; an unknown age last), or as
+    they appeared in the records.  A baby on the way has no name yet.  A number that would give a
+    name already in use is passed over (Codex, #557): a village with a "Soda I" numbers its two
+    Sodas II and III."""
+    keys = {
+        "oldest": lambda p: (p.age is None, -(p.age or 0), p.order_key()),
+        "youngest": lambda p: (p.age is None, p.age or 0, p.order_key()),
+        "appearance": Person.order_key,
+    }
     holders: dict[str, list[Person]] = {}
-    for p in sorted(village.known(), key=Person.order_key):
+    for p in sorted(village.known(), key=keys[order]):
         holders.setdefault(p.name, []).append(p)
     taken = set(holders)
     out = {}

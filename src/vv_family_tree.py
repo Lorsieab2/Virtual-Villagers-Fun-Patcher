@@ -210,6 +210,7 @@ class Edits:
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
     number_names: bool = False          # villagers who share a name numbered: "Soda I", "Soda II"...
+    number_order: str = "oldest"        # vv_genealogy.NUMBER_ORDERS: who is "I"
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers
@@ -296,6 +297,8 @@ class Edits:
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
         out.number_names = data.get("number_names") is True
+        if data.get("number_order") in gen.NUMBER_ORDERS:
+            out.number_order = data["number_order"]
         if data.get("sort") in gen.SORTS:
             out.sort = data["sort"]
         if data.get("positioning") in POSITIONING:
@@ -424,6 +427,7 @@ class Edits:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.centre_heads, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
+                "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
                 "background": self.background, "background2": self.background2, "rainbow": self.rainbow,
@@ -862,7 +866,7 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,
                  edits=edits, page=page, pages=len(spans),
-                 names=gen.duplicate_names(village) if edits.number_names else {})
+                 names=gen.duplicate_names(village, edits.number_order) if edits.number_names else {})
     # One colour each: every villager with no recorded parents, every pairing, every set of full
     # brothers and sisters -- oldest first, so the most distinct go to the founders.
     e = out.edits
