@@ -206,7 +206,6 @@ INHERIT = {
     "random": "Equal mother/father (50:50)",
     "list": "Random from list",
     "each": "Choose from list",
-    "typed": "Type custom name...",
 }
 
 
@@ -238,21 +237,25 @@ def separate(people: list[Living], parents: dict[tuple, tuple], pool: list[str])
 
 
 def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
-              pool: list[str] | None = None) -> dict[tuple, str]:
+              pool: list[str] | None = None, fixed: dict[tuple, str] | None = None) -> dict[tuple, str]:
     """Each living villager's last name by `rule` ("" for none): the father's, the mother's,
     either parent's at random, or one at random from the game's list -- a parent's being the one
     their name carries, else (a living parent being given one now) the one this rule gives them,
     parents before children.  Without the parent the rule names, the other parent's; without
     either, their own (separate) or the family's.  The
     random pick is the same each time for the same villager.  "each" leaves every one to the
-    player (none chosen; "typed" too: the window asks for the name).  `parents` maps a villager
-    (name, head, body) to (father, mother).  With the game's list of last names (`pool`), a villager
-    with no recorded parent has one of their own (separate)."""
-    if rule in ("each", "typed"):
-        return {v.identity: "" for v in people}
+    player (none chosen).  `parents` maps a villager (name, head, body) to (father, mother).  With
+    the game's list of last names (`pool`), a villager with no recorded parent has one of their own
+    (separate).  `fixed`: the last names the player gave villagers themselves ("" none) -- theirs,
+    and their descendants inherit them by the rule (the owner, 2026-10-07: name Chapa "Chapa
+    Chapstick", and with "From the mother" her descendants are Chapsticks)."""
+    fixed = fixed or {}
+    if rule == "each":
+        return {v.identity: fixed.get(v.identity, "") for v in people}
     if rule == "list":
-        return {v.identity: random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool)
-                for v in people} if pool else {v.identity: v.default for v in people}
+        return {v.identity: fixed[v.identity] if v.identity in fixed
+                else random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool
+                else v.default for v in people}
     living_by = {v.identity: v for v in people}
     own = separate(people, parents, pool) if pool else {}
     out: dict[tuple, str] = {}
@@ -267,6 +270,9 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
 
     def give(v: Living, seen: frozenset = frozenset()) -> str:
         if v.identity in out:
+            return out[v.identity]
+        if v.identity in fixed:                 # the player's own choice
+            out[v.identity] = fixed[v.identity]
             return out[v.identity]
         if v.identity in seen:                  # a loop in the records: their own
             return own.get(v.identity) or v.default
