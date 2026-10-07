@@ -628,7 +628,15 @@ class App(tk.Tk):
             foreground="#8a4b08",
         ).pack(anchor="w", pady=(0, 10))
 
-        mode_box = ttk.LabelFrame(outer, text="Population mode", padding=10)
+        sections = ttk.Notebook(outer)
+        sections.pack(fill="both", expand=True)
+        patches_tab = ttk.Frame(sections, padding=(0, 10, 0, 0))
+        tools_tab = ttk.Frame(sections, padding=14)
+        sections.add(patches_tab, text="Patches")
+        sections.add(tools_tab, text="Tools")
+        self._build_tools_tab(tools_tab)
+
+        mode_box = ttk.LabelFrame(patches_tab, text="Population mode", padding=10)
         mode_box.pack(fill="x", pady=(0, 10))
         for row, mode in enumerate(self.patch_modes):
             mode_choice = ttk.Frame(mode_box)
@@ -759,7 +767,7 @@ class App(tk.Tk):
                 row += 1
         mode_box.columnconfigure(1, weight=1)
 
-        output_box = ttk.LabelFrame(outer, text="Modded output location", padding=10)
+        output_box = ttk.LabelFrame(patches_tab, text="Modded output location", padding=10)
         output_box.pack(fill="x", pady=(0, 10))
         ttk.Entry(output_box, textvariable=self.output_root_var).grid(
             row=0, column=0, sticky="ew", padx=(0, 8)
@@ -781,7 +789,7 @@ class App(tk.Tk):
         ).grid(row=1, column=0, columnspan=3, sticky="w", pady=(7, 0))
         output_box.columnconfigure(0, weight=1)
 
-        notebook = ttk.Notebook(outer)
+        notebook = ttk.Notebook(patches_tab)
         notebook.pack(fill="both", expand=True)
         single_tab = ttk.Frame(notebook, padding=14)
         all_tab = ttk.Frame(notebook, padding=14)
@@ -863,28 +871,6 @@ class App(tk.Tk):
             folders, "Open Modified EXE Folder", self._open_single_modified_folder
         ).pack(side="left", padx=(18, 0))
         self._help_button(folders, "open_modified_folder").pack(side="left", padx=(3, 0))
-        links = ttk.Frame(box)
-        links.grid(row=3, column=0, columnspan=3, sticky="w", pady=(6, 0))
-        self._folder_link(
-            links, "Back Up Saves", self._back_up_single_saves
-        ).pack(side="left")
-        self._help_button(links, "back_up_saves").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Restore Saves...", self._restore_single_saves
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "restore_saves").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Rename Tribe...", self._rename_single_tribe
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "rename_tribe").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Check Logs...", self._check_single_logs
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "check_logs").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            links, "Repair Logs...", self._repair_single_logs
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(links, "repair_logs").pack(side="left", padx=(3, 0))
         check_logs_row = ttk.Frame(box)
         check_logs_row.grid(row=4, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Checkbutton(
@@ -897,16 +883,6 @@ class App(tk.Tk):
         self._help_button(check_logs_row, "check_logs_automatically").pack(
             side="left", anchor="n", padx=(4, 0)
         )
-        genealogy = ttk.Frame(box)
-        genealogy.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
-        self._folder_link(
-            genealogy, "Family Tree Maker...", self._family_tree_single
-        ).pack(side="left")
-        self._help_button(genealogy, "family_tree_maker").pack(side="left", padx=(3, 0))
-        self._folder_link(
-            genealogy, "Village Matchmaker...", self._matchmaker_single
-        ).pack(side="left", padx=(18, 0))
-        self._help_button(genealogy, "village_matchmaker").pack(side="left", padx=(3, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
@@ -940,22 +916,6 @@ class App(tk.Tk):
             self._help_button(grid, key).grid(
                 row=0, column=column, padx=(12, 0) if column > 2 else 0, pady=(0, 2)
             )
-        # The save and log links get a grid of their own below: in one row
-        # with the folder fields, ten columns are wider than the window, and
-        # the tab scrolls only vertically, so the last links were unreachable.
-        tools = ttk.Frame(tab)
-        for column, key in (
-            (1, "back_up_saves"),
-            (2, "restore_saves"),
-            (3, "rename_tribe"),
-            (4, "check_logs"),
-            (5, "repair_logs"),
-            (6, "family_tree_maker"),
-            (7, "village_matchmaker"),
-        ):
-            self._help_button(tools, key).grid(
-                row=0, column=column, padx=(12, 0), pady=(0, 2)
-            )
         for index, build in enumerate(self.builds):
             row = index + 1
             short = build.title.removeprefix("Virtual Villagers - ")
@@ -981,6 +941,99 @@ class App(tk.Tk):
                 "Modified folder",
                 lambda game_id=build.id: self._open_bulk_folder(game_id, True),
             ).grid(row=row, column=4, padx=(12, 0), pady=4)
+        grid.columnconfigure(1, weight=1)
+        actions = ttk.Frame(tab)
+        actions.pack(fill="x", pady=(10, 0))
+        ttk.Button(
+            actions,
+            text="Find All 5 in Parent Folder...",
+            command=self._find_all,
+        ).pack(side="left")
+        self._help_button(actions, "find_all_5").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            actions, text="Validate All 5", command=self._validate_all
+        ).pack(side="left", padx=(16, 0))
+        self._help_button(actions, "validate_all_5").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            actions, text="Dry Run All 5", command=self._dry_run_all
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "dry_run_all_5").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            actions, text="Patch All 5", command=self._apply_all
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(actions, "patch_all_5").pack(side="left", padx=(2, 0))
+        check_logs_row = ttk.Frame(tab)
+        check_logs_row.pack(anchor="w", pady=(8, 0))
+        ttk.Checkbutton(
+            check_logs_row,
+            text=CHECK_LOGS_LABEL,
+            variable=self.check_logs_var,
+            command=self._check_logs_changed,
+            style="Wrapped.TCheckbutton",
+        ).pack(side="left")
+        self._help_button(check_logs_row, "check_logs_automatically").pack(
+            side="left", anchor="n", padx=(4, 0)
+        )
+
+    def _build_tools_tab(self, tab: ttk.Frame) -> None:
+        """Everything that is not a patch (the owner: "a tab for Patches and a tab for Tools"): the
+        save, log and family tools, for the game on the One Game tab and for each of the five."""
+        box = ttk.LabelFrame(tab, text="The game chosen on the One Game tab", padding=10)
+        box.pack(fill="x")
+        ttk.Label(box, textvariable=self.game_var, foreground="#245a9a").grid(row=0, column=0, sticky="w")
+        links = ttk.Frame(box)
+        links.grid(row=1, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self._folder_link(
+            links, "Back Up Saves", self._back_up_single_saves
+        ).pack(side="left")
+        self._help_button(links, "back_up_saves").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Restore Saves...", self._restore_single_saves
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "restore_saves").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Rename Tribe...", self._rename_single_tribe
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "rename_tribe").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Check Logs...", self._check_single_logs
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "check_logs").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            links, "Repair Logs...", self._repair_single_logs
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(links, "repair_logs").pack(side="left", padx=(3, 0))
+        genealogy = ttk.Frame(box)
+        genealogy.grid(row=2, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self._folder_link(
+            genealogy, "Family Tree Maker...", self._family_tree_single
+        ).pack(side="left")
+        self._help_button(genealogy, "family_tree_maker").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            genealogy, "Village Matchmaker...", self._matchmaker_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(genealogy, "village_matchmaker").pack(side="left", padx=(3, 0))
+        box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
+        box.pack(fill="x", pady=(10, 0))
+        # The save and log links get a grid of their own below: in one row
+        # with the folder fields, ten columns are wider than the window, and
+        # the tab scrolls only vertically, so the last links were unreachable.
+        tools = ttk.Frame(box)
+        for column, key in (
+            (1, "back_up_saves"),
+            (2, "restore_saves"),
+            (3, "rename_tribe"),
+            (4, "check_logs"),
+            (5, "repair_logs"),
+            (6, "family_tree_maker"),
+            (7, "village_matchmaker"),
+        ):
+            self._help_button(tools, key).grid(
+                row=0, column=column, padx=(12, 0), pady=(0, 2)
+            )
+        for index, build in enumerate(self.builds):
+            row = index + 1
+            short = build.title.removeprefix("Virtual Villagers - ")
             ttk.Label(tools, text=f"{index + 1}. {short}").grid(
                 row=row, column=0, sticky="w", padx=(0, 8), pady=2
             )
@@ -1019,31 +1072,10 @@ class App(tk.Tk):
                 "Village matchmaker...",
                 lambda game=build: vv_genealogy_window.open_pair_suggestions(self, game),
             ).grid(row=row, column=7, padx=(12, 0), pady=2)
-        grid.columnconfigure(1, weight=1)
-        tools.pack(anchor="w", pady=(8, 0))
-        actions = ttk.Frame(tab)
-        actions.pack(fill="x", pady=(10, 0))
-        ttk.Button(
-            actions,
-            text="Find All 5 in Parent Folder...",
-            command=self._find_all,
-        ).pack(side="left")
-        self._help_button(actions, "find_all_5").pack(side="left", padx=(2, 0))
-        ttk.Button(
-            actions, text="Validate All 5", command=self._validate_all
-        ).pack(side="left", padx=(16, 0))
-        self._help_button(actions, "validate_all_5").pack(side="left", padx=(2, 0))
-        ttk.Button(
-            actions, text="Dry Run All 5", command=self._dry_run_all
-        ).pack(side="left", padx=(8, 0))
-        self._help_button(actions, "dry_run_all_5").pack(side="left", padx=(2, 0))
-        ttk.Button(
-            actions, text="Patch All 5", command=self._apply_all
-        ).pack(side="left", padx=(8, 0))
-        self._help_button(actions, "patch_all_5").pack(side="left", padx=(2, 0))
+        tools.pack(anchor="w")
         # The save and log tools get a row of their own: with a "?" beside
         # every button, one row is wider than the window.
-        save_tools = ttk.Frame(tab)
+        save_tools = ttk.Frame(box)
         save_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(
             save_tools,
@@ -1069,7 +1101,7 @@ class App(tk.Tk):
             command=lambda: self._log_tool(None, repair=True),
         ).pack(side="left", padx=(8, 0))
         self._help_button(save_tools, "repair_logs").pack(side="left", padx=(2, 0))
-        genealogy_tools = ttk.Frame(tab)
+        genealogy_tools = ttk.Frame(box)
         genealogy_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(
             genealogy_tools,
@@ -1083,18 +1115,6 @@ class App(tk.Tk):
             command=lambda: vv_genealogy_window.open_pair_suggestions(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "village_matchmaker").pack(side="left", padx=(2, 0))
-        check_logs_row = ttk.Frame(tab)
-        check_logs_row.pack(anchor="w", pady=(8, 0))
-        ttk.Checkbutton(
-            check_logs_row,
-            text=CHECK_LOGS_LABEL,
-            variable=self.check_logs_var,
-            command=self._check_logs_changed,
-            style="Wrapped.TCheckbutton",
-        ).pack(side="left")
-        self._help_button(check_logs_row, "check_logs_automatically").pack(
-            side="left", anchor="n", padx=(4, 0)
-        )
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()

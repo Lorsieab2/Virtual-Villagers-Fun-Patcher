@@ -605,13 +605,12 @@ class GuiTests(unittest.TestCase):
         self.assertEqual(self.SOURCE.count("self.check_logs_var.set("), 1)
         save = self.SOURCE[self.SOURCE.index("    def _save_settings("):self.SOURCE.index("    def _browse_exe(")]
         self.assertIn('"check_logs_automatically": bool(self.check_logs_var.get()),', save)
-        # Beside Check Logs / Repair Logs on both tabs.
+        # It changes the games the patcher creates, so it sits with the patches, on both game tabs.
         self.assertEqual(self.SOURCE.count("variable=self.check_logs_var,"), 2)
-        self.assertRegex(self.SOURCE, r'"Repair Logs\.\.\.", self\._repair_single_logs\s*\)\.pack\(side="left", padx=\(18, 0\)\)\s*'
-                                      r'self\._help_button\(links, "repair_logs"\)\.pack\(side="left", padx=\(3, 0\)\)\s*'
-                                      r'check_logs_row = ttk\.Frame\(box\)\s*'
-                                      r'check_logs_row\.grid\(.*\)\s*'
-                                      r'ttk\.Checkbutton\(\s*check_logs_row,\s*text=CHECK_LOGS_LABEL')
+        for tab in ("_build_single_tab", "_build_all_tab"):
+            body = self.SOURCE[self.SOURCE.index(f"    def {tab}("):]
+            body = body[:body.index("\n    def ")]
+            self.assertRegex(body, r'ttk\.Checkbutton\(\s*check_logs_row,\s*text=CHECK_LOGS_LABEL', tab)
         # Every game the window creates carries it.
         for call in ("lambda: apply_patch(", "lambda: apply_all("):
             at = self.SOURCE.index(call)
@@ -621,7 +620,7 @@ class GuiTests(unittest.TestCase):
     def test_the_all_5_save_and_log_links_have_their_own_grid(self) -> None:
         # Ten columns in one row were wider than the window, and the tab
         # scrolls only vertically: Check/Repair logs were unreachable.
-        body = self.SOURCE[self.SOURCE.index("    def _build_all_tab("):]
+        body = self.SOURCE[self.SOURCE.index("    def _build_tools_tab("):]
         body = body[:body.index("\n    def ")]
         self.assertNotRegex(body, r"column=[5-9], padx=\(12, 0\), pady=4\)")
         for name in ("Back up saves", "Restore saves...", "Rename tribe...",

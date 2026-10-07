@@ -552,13 +552,20 @@ class GuiTests(unittest.TestCase):
             if isinstance(node, ast.FunctionDef) and node.name == name
         )
 
-    def test_one_game_tab_has_the_link_beside_the_folder_links(self) -> None:
+    def test_the_tools_tab_has_the_link_for_the_one_game(self) -> None:
+        # The owner: "a tab for Patches and a tab for Tools.  all the non-patch stuff should be moved
+        # under Tools."
         single = ast.get_source_segment(self.source, self.method("_build_single_tab"))
         self.assertIn('"Open Modified EXE Folder"', single)
-        self.assertIn('links, "Back Up Saves", self._back_up_single_saves', single)
+        self.assertNotIn("_back_up_single_saves", single)
+        tools = ast.get_source_segment(self.source, self.method("_build_tools_tab"))
+        self.assertIn('links, "Back Up Saves", self._back_up_single_saves', tools)
+        self.assertIn('sections.add(tools_tab, text="Tools")', self.source)
+        self.assertIn('sections.add(patches_tab, text="Patches")', self.source)
 
     def test_every_all_five_row_has_the_link_and_there_is_an_all_five_button(self) -> None:
-        bulk = ast.get_source_segment(self.source, self.method("_build_all_tab"))
+        self.assertNotIn("_back_up_saves", ast.get_source_segment(self.source, self.method("_build_all_tab")))
+        bulk = ast.get_source_segment(self.source, self.method("_build_tools_tab"))
         self.assertIn('"Back up saves"', bulk)
         self.assertIn("self._back_up_saves([game])", bulk)
         self.assertIn("for index, build in enumerate(self.builds)", bulk)
@@ -1152,10 +1159,10 @@ class RestoreGuiTests(unittest.TestCase):
     setUpClass = classmethod(GuiTests.setUpClass.__func__)
     method = GuiTests.method
 
-    def test_restore_sits_beside_back_up_on_both_tabs(self) -> None:
-        single = ast.get_source_segment(self.source, self.method("_build_single_tab"))
+    def test_restore_sits_beside_back_up_for_the_one_game_and_the_five(self) -> None:
+        single = ast.get_source_segment(self.source, self.method("_build_tools_tab"))
         self.assertIn('links, "Restore Saves...", self._restore_single_saves', single)
-        bulk = ast.get_source_segment(self.source, self.method("_build_all_tab"))
+        bulk = single
         self.assertIn('"Restore saves..."', bulk)
         self.assertIn("self._restore_saves(game)", bulk)
 
