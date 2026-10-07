@@ -815,10 +815,11 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     for fam in families:
         kids = [c for c in fam.children if c in y]
         if kids and fam.lane_y:
-            shift = min(y[c] for c in kids) - min(row_y[c] for c in kids)
-            fam.lane_y += shift
-            if fam.couple_y:
-                fam.couple_y += shift
+            fam.lane_y += min(y[c] for c in kids) - min(row_y[c] for c in kids)
+            parents = [q for q in (fam.father, fam.mother) if q in y]
+            if fam.couple_y and parents:        # just under the parents, above the children's line
+                lift = max(y[q] - row_y[q] for q in parents)
+                fam.couple_y = min(fam.couple_y + lift, fam.lane_y - LANE)
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,

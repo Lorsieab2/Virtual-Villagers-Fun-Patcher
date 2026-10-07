@@ -656,6 +656,18 @@ class StickerTests(unittest.TestCase):
         fam = next(f for f in lay.families if f.children == [child])
         self.assertEqual(fam.lane_y, before + 200)
         assert_connected(self, lay, ft.lines(lay))
+        # Rows dragged by different amounts (with room left): a couple's line stays under the parents, above the
+        # children's line -- never running along the parents' own row.
+        e = ft.Edits()
+        for p in v.people.values():
+            if p.generation == 2:
+                e.entries[ft.entry_key(v, p)] = {"dy": 40.0}
+        lay = ft.layout(v, e)
+        for fam in lay.families:
+            parents = [q for q in (fam.father, fam.mother) if q in lay.x]
+            if fam.couple_y and parents:
+                self.assertGreater(fam.couple_y, max(lay.y[q] for q in parents) + ft.NODE_H - 1)
+                self.assertLess(fam.couple_y, fam.lane_y)
 
     def test_a_click_counts_only_inside_the_shape(self) -> None:
         # The owner: "make the click area for things limited to the object themselves".

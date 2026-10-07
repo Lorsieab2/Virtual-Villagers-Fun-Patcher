@@ -1585,10 +1585,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                         "Ctrl+Z undoes it.")
 
     def _reorganize_lines(self) -> None:
-        """Every line drawn afresh where the portraits now are: neat, none overlapping."""
+        """Every line drawn afresh as a family tree has them (the owner: "they should reorganize all
+        lines regardless"): every line's own move undone, and every portrait back at its row's
+        height -- where it is along the row is kept -- so each gap has room for its lines."""
         self.edits.line_moves.clear()
+        for q in self.lay.x:
+            self._set_entry(self.village.people[q], dy=None)
         self._saved()
-        self.status.set("Every line is drawn afresh where the portraits are.  Ctrl+Z undoes it.")
+        self.status.set("Every line is drawn afresh, with room between the rows (each portrait kept where it is "
+                        "along its row).  Ctrl+Z undoes it.")
 
     def _reorganize_labels(self) -> None:
         """Each generation's label back beside its generation's portraits."""
