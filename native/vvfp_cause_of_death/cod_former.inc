@@ -10,7 +10,7 @@
    other path through the faction setter 0x466880 -- files that mask for
    the villager's identity in the slot's Former Heathens file.  A Heathen the
    tick never saw as one (converted before this build ran) is not filed:
-   Repair Logs asks the player about those. */
+   Repair Saves & Logs asks the player about those. */
 
 static signed char former_kind_seen[RECORDS_MAX];   /* -1: not seen as a Heathen */
 static int former_ready;

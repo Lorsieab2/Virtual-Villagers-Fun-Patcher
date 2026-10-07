@@ -45,7 +45,7 @@
    scan (Vv1ParentageCrossCheckScan) only reads.  When it finds nothing to
    change it records that it ran, silently.  When it finds something, nothing
    happens until the player allows it (native/shared/crosscheck_bridge.h):
-   Repair Logs in the patcher window approves it beforehand, and it is then
+   Repair Saves & Logs in the patcher window approves it beforehand, and it is then
    applied once the village has settled; with "Check logs automatically" on,
    the player is asked Repair / Not now when the game is closed, after its
    quit save.  "Not now" changes nothing at all and the question comes back

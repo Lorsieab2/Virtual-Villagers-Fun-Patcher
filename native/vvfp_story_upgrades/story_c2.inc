@@ -188,7 +188,11 @@ static int c2_conceive(int index, int litter, int father, ce_result *result) {
     *(int *)(r + 0x5E4) = 0;
     *(int *)(r + 0x5E8) = 0;
     *(int *)(r + 0x5EC) = f != NULL ? *(int *)(f + 0x554) : *(int *)(r + 0x554);
-    ce_write_name(r + 0x5C0, 0x1C, f != NULL ? (const char *)(f + 0x564) : "Unknown");
+    if (f != NULL) {
+        ce_copy_record_name(r + 0x5C0, 0x18, f + 0x564, 0x18);
+    } else {
+        (void)ce_write_name(r + 0x5C0, 0x18, "Unknown");
+    }
     *(int *)(r + 0x5E0) = *(int *)((f != NULL ? f : r) + 0x548);
     *(int *)(r + 0x5DC) = *(int *)((f != NULL ? f : r) + 0x54C);
     *(int *)(r + 0x44) = 0x1A;
@@ -411,17 +415,17 @@ static int c2_relitter(int index, int litter, ce_result *result) {
 }
 
 /* The father the baby is born to (0x43BE5A passes them to the creator
-   0x44F5C0): his name +0x5C0 (0x1C bytes), head +0x5E0 and body +0x5DC --
-   the child records them as its father and its head is drawn from both
-   parents' heads. */
+   0x44F5C0): his name +0x5C0 (0x18 bytes, the game's own bound), head
+   +0x5E0 and body +0x5DC -- the child records them as its father and its
+   head is drawn from both parents' heads. */
 static int c2_unborn(int index, const ce_change *c) {
     unsigned char *r = c2_record(index);
     if ((c->unborn_head != CE_KEEP && (c->unborn_head < 0 || c->unborn_head >= 30))
         || (c->unborn_body != CE_KEEP && (c->unborn_body < 0 || c->unborn_body >= 30))) {
         return 0;
     }
-    if (c->unborn_name[0] != '\0') {
-        ce_write_name(r + 0x5C0, 0x1C, c->unborn_name);
+    if (c->unborn_name[0] != '\0' && !ce_write_name(r + 0x5C0, 0x18, c->unborn_name)) {
+        return 0;
     }
     if (c->unborn_head != CE_KEEP) *(int *)(r + 0x5E0) = c->unborn_head;
     if (c->unborn_body != CE_KEEP) *(int *)(r + 0x5DC) = c->unborn_body;
@@ -714,7 +718,7 @@ static int c2_parents_supported(void) {
 }
 
 static int c2_set_parents(int index, const ce_change *c) {
-    return ce_set_record_parents(c2_record(index), 0x57D, 0x596, 0x19, 0x5B0, 0x5B4, 0x5B8, 0x5BC,
+    return ce_set_record_parents(c2_record(index), 0x57D, 0x596, 0x19, 23, 0x5B0, 0x5B4, 0x5B8, 0x5BC,
                                  30, 30, c);
 }
 
@@ -763,7 +767,7 @@ static const ce_adapter C2_ADAPTER = {
         | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Lost Children",
     0x118, 1600,
-    VV2_RECORD_COUNT, 0x18,
+    VV2_RECORD_COUNT, 0x18, 23,
     0x564, 0x538, 0x530, 0x548, 0x54C, 0x5F0, 0x6E8, 0x7E4,
     1, 2,
     62, 62,
@@ -777,7 +781,7 @@ static const ce_adapter C2_ADAPTER = {
     "holidays,vegetables,quiet,clouds,dirt",
     30, 30,
     5, 0, C2_SKILLS,
-    0x57D, 0x596, 0x19, 0x5B0, 0x5B4, 0x5B8, 0x5BC,
+    0x57D, 0x596, 0x5B0, 0x5B4, 0x5B8, 0x5BC,
     C2_STATUSES, 9,
     C2_BEHAVIOURS, (int)(sizeof C2_BEHAVIOURS / sizeof C2_BEHAVIOURS[0]),
     NULL, 0,

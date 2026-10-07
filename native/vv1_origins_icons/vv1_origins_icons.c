@@ -1760,7 +1760,7 @@ void __stdcall Vv1MaskTick(void) {
     }
     /* The cross-check: once the village has been on screen a moment, a
        silent scan when the patcher's "Check logs automatically" is on, or
-       the repairs Repair Logs approved -- never a prompt while the village
+       the repairs Repair Saves & Logs approved -- never a prompt while the village
        is played; any question waits for the quit (crosscheck_bridge.h).  No
        village frame for a while (the menus, a load) is a new load to it. */
     vvfp_crosscheck_bridge(1, 1);

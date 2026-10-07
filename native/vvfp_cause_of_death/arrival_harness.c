@@ -616,7 +616,7 @@ static void quit_cases(void) {
     read_into(path);
     CHECK(strcmp(first, text) == 0, "quit: ...and a second Repair writes nothing");
     {
-        /* Repair Logs' approval for the slot (src/vv_log_tools.py) goes with
+        /* Repair Saves & Logs' approval for the slot (src/vv_log_tools.py) goes with
            the village at Start Over. */
         char approval[MAX_PATH];
         _snprintf(approval, MAX_PATH,
@@ -626,7 +626,7 @@ static void quit_cases(void) {
         CHECK(file_exists(approval), "quit: (an approval for the slot is there)");
         reset(game, 1);
         vv_reset_slot_state(game, 1, "Village: Arrival Tribe (Save 1)\n");
-        CHECK(!file_exists(approval), "quit: Start Over deletes the slot's Repair Logs approval");
+        CHECK(!file_exists(approval), "quit: Start Over deletes the slot's Repair Saves & Logs approval");
     }
     free(buffer);
 }

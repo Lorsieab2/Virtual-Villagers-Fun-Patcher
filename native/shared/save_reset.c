@@ -64,7 +64,7 @@ int vv_reset_refused_paths = 0;
 #define GRAVES_LOGGED_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"
 /* ...and the player's approval to repair the slot's village without asking
-   (Repair Logs in the patcher window, src/vv_log_tools.py; used up by the
+   (Repair Saves & Logs in the patcher window, src/vv_log_tools.py; used up by the
    game, native/shared/crosscheck_bridge.h): it was given for the village
    being erased, never for the one started after the reset. */
 #define APPROVAL_FORMAT(n) \

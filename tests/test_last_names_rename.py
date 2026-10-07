@@ -38,6 +38,18 @@ class Running:
         return [1]
 
 
+class EveryRenameIsHeldToTheGamesRoom(unittest.TestCase):
+    """The owner: a character limit "IN EVERY SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN
+    HAPPEN" -- plan_renames refuses, before reading anything, a name the game cannot hold."""
+
+    def test_too_long_empty_or_unprintable_names_are_refused(self):
+        for game in range(1, 6):
+            for bad in ("x" * (ln.ROOM[game] + 1), "", "Soda\x01", "Soda\x7f"):
+                with self.subTest(game=game, bad=bad):
+                    with self.assertRaises(ln.LastNamesError):
+                        ln.plan_renames(Path("no such folder"), game, 1, {("Soda", 1, 1): bad})
+
+
 def _fnv(h: int, data: bytes) -> int:
     for b in data:
         h = ((h ^ b) * FNV_PRIME) & 0xFFFFFFFF
@@ -397,10 +409,10 @@ class TheWindow(unittest.TestCase):
         self.assertIn("people, parents = vv_last_names.everyone(folder, number, info.slot)", body)
         self.assertIn("start_value = names[\"chosen\"].get(v.identity, now[v.identity])", body)
         # Every one of the game's names is offered, the father's and the mother's first.
-        self.assertIn("values=[none] + first + [n for n in pool if n not in first]", body)
+        self.assertIn("values=[none, custom] + first + [n for n in pool if n not in first]", body)
         box = body[body.index("box = ttk.Combobox(inner,"):body.index("box.grid(")]
         self.assertNotIn('state="readonly"', box, "the player may type a last name")
-        self.assertIn('vv_last_names.name_problem(number, "", last)', body)
+        self.assertIn("vv_last_names.name_problem(number, split(v.name)[0], last)", body)
         # The wrong ones are marked and can be put right.
         self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=by_rule)', body)
 

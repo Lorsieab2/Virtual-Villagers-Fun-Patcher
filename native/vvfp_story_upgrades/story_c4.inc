@@ -346,8 +346,8 @@ static int c4_unborn(int index, const ce_change *c) {
         || (c->unborn_body != CE_KEEP && (c->unborn_body < 0 || c->unborn_body >= 30))) {
         return 0;
     }
-    if (c->unborn_name[0] != '\0') {
-        ce_write_name(r + 0x1C10, 0x18, c->unborn_name);
+    if (c->unborn_name[0] != '\0' && !ce_write_name(r + 0x1C10, 0x18, c->unborn_name)) {
+        return 0;
     }
     if (c->unborn_head != CE_KEEP) *(int *)(r + 0x1C30) = c->unborn_head;
     if (c->unborn_body != CE_KEEP) *(int *)(r + 0x1C2C) = c->unborn_body;
@@ -587,7 +587,7 @@ static int c4_parents_supported(void) {
 }
 
 static int c4_set_parents(int index, const ce_change *c) {
-    return ce_set_record_parents(c4_record(index), 0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC,
+    return ce_set_record_parents(c4_record(index), 0x1BC0, 0x1BD9, 0x19, 23, 0x1BF4, 0x1BF8, 0x1BFC,
                                  0x1C00, 30, 30, c);
 }
 
@@ -607,14 +607,14 @@ static const ce_adapter C4_ADAPTER = {
         | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE,
     "The Tree of Life",
     0x118, 1600,
-    C4_STOCK_COUNT, 0x19,
+    C4_STOCK_COUNT, 0x19, 23,
     0x1B9C, 0x1B90, 0x1B8C, 0x1BB8, 0x1BBC, 0x1E60, 0x1E6C, 0x1C5C,
     0, 1,
     3, 79,
     STORY_PREFERENCES_79,
     30, 30,
     5, 1, C4_SKILLS,
-    0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
+    0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
     NULL, 0,
     C4_BEHAVIOURS, (int)(sizeof C4_BEHAVIOURS / sizeof C4_BEHAVIOURS[0]),
     C4_VILLAGE, 2,

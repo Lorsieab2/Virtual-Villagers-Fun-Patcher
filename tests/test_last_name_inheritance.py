@@ -76,7 +76,14 @@ class InheritanceTests(unittest.TestCase):
         self.assertEqual(picks, {"Lasso", "Ruku"})
 
     def test_each_villager_left_to_the_player(self) -> None:
-        self.assertEqual(set(ln.inherited(PEOPLE, PARENTS, "each").values()), {""})
+        # Choose from list and Type custom name: every villager keeps the last name they carry
+        # until the player gives another -- choosing the rule never wipes a name.
+        for rule in ln.PLAYER_RULES:
+            with self.subTest(rule=rule):
+                self.assertEqual(set(ln.inherited(PEOPLE, PARENTS, rule).values()), {""})
+                named = living("Dee Moa", 1, "Ruku", 4)
+                self.assertEqual(ln.inherited([named, HUATA], {}, rule, fixed={HUATA.identity: "Chapstick"}),
+                                 {named.identity: "Moa", HUATA.identity: "Chapstick"})
 
     def test_a_loop_in_the_records_ends_at_the_family(self) -> None:
         a, b = living("Ana", 1, "Ruku", 1), living("Bo", 2, "Tano", 2)
@@ -104,20 +111,27 @@ class InheritanceTests(unittest.TestCase):
         listed = ln.inherited(people, parents, "list", pool)
         self.assertTrue(set(listed.values()) <= set(pool))
         self.assertEqual(listed, ln.inherited(people, parents, "list", pool))      # the same each time
-        self.assertEqual(set(ln.inherited(people, parents, "each", pool).values()), {""})
+        self.assertEqual(set(ln.inherited(people, parents, "each", pool).values()), {"", "Moa"})
 
     def test_every_rule_is_offered(self) -> None:
-        # A typed name goes in the villager's own box (the owner, 2026-10-07), not a rule.
+        # A typed name goes in the villager's own box, whose list offers "(custom last name - type
+        # here...)" (the owner, 2026-10-07); it is not a rule.
         self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "each"])
+        self.assertEqual(ln.CUSTOM, "(custom last name - type here...)")
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("vv_last_names.with_siblings(fixed(), parents), carried)", gui)
+        self.assertIn("values=[none, custom] + first", gui)
+        self.assertIn('if value.get() == custom:\n                value.set("")', gui)
+        # The whole new name is held to the game's room, and a box past it is marked.
+        self.assertIn("len(vv_last_names.with_last(number, v.name, last, known)) > room", gui)
+        self.assertIn('mark.set(f"too long: {room} characters at most")', gui)
         set_by = gui[gui.index("        def set_by_player(v) -> None:"):]
         self.assertIn("mine.add(v.identity)\n            by_rule()", set_by[:120], "the family follows at once")
         # Any change to a villager's box -- typed, pasted or picked -- is the player's; the
         # window's own filling in is not.
         self.assertIn('value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))', gui)
         # The box takes typed names: it is never read-only.
-        start = gui.index("box = ttk.Combobox(inner, textvariable=value, width=20,")
+        start = gui.index("box = ttk.Combobox(inner, textvariable=value, width=30,")
         self.assertNotIn("readonly", gui[start:gui.index("\n", start + 200)])
 
     def test_brothers_and_sisters_follow_a_name_the_player_gives(self) -> None:
