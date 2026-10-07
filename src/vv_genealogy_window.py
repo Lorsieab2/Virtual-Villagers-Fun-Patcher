@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+from fractions import Fraction
 import re
 from datetime import datetime
 import tempfile
@@ -1097,7 +1098,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                     iid = c.create_rectangle(item.x, item.y, item.x + item.w, item.y + item.h, fill=fill,
                                              outline=outline, width=width, dash=dash, stipple=stipple)
             elif isinstance(item, ft.Head):
-                image = self._head(item.sheet, item.row)
+                image = self._head(item.sheet, item.row, item.scale)
                 if image is not None:
                     iid = c.create_image(item.x, item.y, image=image, anchor="nw")
             elif isinstance(item, ft.Text):
@@ -1862,13 +1863,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self._set_entry(p, dx=entry.get("dx", 0.0) + mx, dy=entry.get("dy", 0.0) + my)
         self._saved()
 
-    def _head(self, sheet: str, row: int):
-        key = (sheet, row, self.z)
+    def _head(self, sheet: str, row: int, scale: float = 1.0):
+        """A head at the zoom, `scale` times its size (a resized portrait's); the canvas can only
+        scale a picture by whole ratios, so the nearest small one."""
+        key = (sheet, row, self.z, scale)
         if key not in self.photos:
             source = self.photos.get(sheet)
             if source is None:
                 source = self.photos[sheet] = tk.PhotoImage(master=self, file=str(self.present[sheet]))
-            up, down = ZOOMS[self.z]
+            ratio = (Fraction(*ZOOMS[self.z]) * Fraction(scale).limit_denominator(8)).limit_denominator(8)
+            up, down = ratio.numerator, ratio.denominator
             cell = tk.PhotoImage(master=self)
             x0, y0 = ft.HEAD_FRAME * ft.HEAD_W, row * ft.HEAD_H
             cell.tk.call(cell, "copy", source, "-from", x0, y0, x0 + ft.HEAD_W, y0 + ft.HEAD_H, "-zoom", up)

@@ -702,6 +702,21 @@ class StickerTests(unittest.TestCase):
         sc = ft.scene(lay, "A New Home", {})
         self.assertIn("rotate(30 ", ft.to_svg(sc, {}))
 
+    def test_a_resized_portraits_face_and_words_go_with_it_upright(self) -> None:
+        # The owner, on Codex's #555 note: "shrink/grow with the frame, stay upright".
+        v = village()
+        p = v.people[9]
+        e = ft.Edits()
+        plain = [i for i in ft.scene(ft.layout(v, e), "A New Home", {}).items
+                 if isinstance(i, ft.Text) and i.pid == 9]
+        w0, h0 = ft.frame_size(e, v, p, own=False)
+        e.entries[ft.entry_key(v, p)] = {"w": w0 / 2, "h": h0 / 2, "angle": 40.0}
+        half = [i for i in ft.scene(ft.layout(v, e), "A New Home", {}).items if isinstance(i, ft.Text) and i.pid == 9]
+        self.assertEqual([round(i.size * 2, 3) for i in half], [round(i.size, 3) for i in plain])
+        lay = ft.layout(v, e)
+        x, y, w, h, _a = lay.frame(9)
+        self.assertTrue(all(x <= i.x <= x + w and y <= i.y <= y + h for i in half))     # inside the frame
+
     def test_a_square_portrait_has_its_frame_in_the_picture(self) -> None:
         # A square's corners have no rounding: GDI+ drew nothing for arcs of no size.
         if not vv_gdiplus.available():

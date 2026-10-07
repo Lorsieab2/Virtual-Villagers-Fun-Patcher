@@ -1870,6 +1870,7 @@ class Head:
     row: int
     pid: int | None = None
     opacity: float = 1.0
+    scale: float = 1.0                  # of a resized portrait (HEAD_SCALE times this)
 
 
 @dataclass
@@ -2197,9 +2198,27 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     add(Shape(kind, fx, fy, fw, fh, colour, width=BORDER_WIDTHS[border], radius=corner_radius(kind),
               dash=border if border in ("dotted", "dashed", "dashdot") else "", pid=p.id,
               target=("person", p.id), fill=lay.edits.portrait_fill, angle=angle))
+    # The face and words grow or shrink with a frame the player resized, about its middle, and
+    # never turn (the owner: "shrink/grow with the frame, stay upright").
+    w0, h0 = frame_size(lay.edits, lay.village, p, own=False)
+    scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (fw, fh) != (w0, h0) else 1.0
+    middle = (x + NODE_W / 2, y + NODE_H / 2)
+
+    def put(item) -> None:
+        if scale != 1.0:
+            item.x = middle[0] + (item.x - middle[0]) * scale
+            item.y = middle[1] + (item.y - middle[1]) * scale
+            if isinstance(item, Head):
+                item.scale = scale
+            elif isinstance(item, Text):
+                item.size *= scale
+            else:
+                item.w, item.h = item.w * scale, item.h * scale
+        add(item)
+
     if p.upcoming:
         for k, text in enumerate(node_text(lay, p)):
-            add(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, 12 if k == 0 else 11, ink,
+            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, 12 if k == 0 else 11, ink,
                      bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
                      edit=f"person:{p.id}"))
         return
@@ -2207,14 +2226,14 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     box = face_box(present, sheet, p.head)
     head_left, head_top, text_top, lines = placement(lay, p, box)
     if sheet in present and p.head is not None and p.head >= 0:
-        add(Head(x + head_left, y + head_top, sheet, p.head, pid=p.id))
+        put(Head(x + head_left, y + head_top, sheet, p.head, pid=p.id))
     else:
         mid = y + head_top + FACE_H * HEAD_SCALE / 2
-        add(Shape("ellipse", x + NODE_W / 2 - 26, mid - 26, 52, 52, colour, width=1, fill=colour, pid=p.id,
+        put(Shape("ellipse", x + NODE_W / 2 - 26, mid - 26, 52, 52, colour, width=1, fill=colour, pid=p.id,
                   target=("person", p.id)))
-        add(Text(x + NODE_W / 2, mid + 10, p.name[:1], 28, "#ffffff", bold=True, centre=True, pid=p.id))
+        put(Text(x + NODE_W / 2, mid + 10, p.name[:1], 28, "#ffffff", bold=True, centre=True, pid=p.id))
     for k, (text, bold) in enumerate(lines):
-        add(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, 11.5 if bold else 10, ink,
+        put(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, 11.5 if bold else 10, ink,
                  bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits", edit=f"person:{p.id}"))
 
 
@@ -2354,7 +2373,8 @@ def to_svg(sc: Scene, present: dict, describe=None) -> str:
                 out.append(f'<rect x="{item.x:.1f}" y="{item.y:.1f}" width="{item.w:.1f}" height="{item.h:.1f}" '
                            f'rx="{item.radius}" {common}/>')
         elif isinstance(item, Head):
-            out.append(f'<svg x="{item.x:.1f}" y="{item.y:.1f}" width="{hw:.1f}" height="{hh:.1f}" '
+            out.append(f'<svg x="{item.x:.1f}" y="{item.y:.1f}" width="{hw * item.scale:.1f}" '
+                       f'height="{hh * item.scale:.1f}" '
                        f'viewBox="{HEAD_FRAME * HEAD_W} {item.row * HEAD_H} {HEAD_W} {HEAD_H}" '
                        f'style="image-rendering:pixelated"{_svg_opacity(item)}><use href="#{ids[item.sheet]}"/></svg>')
         elif isinstance(item, Sticker):

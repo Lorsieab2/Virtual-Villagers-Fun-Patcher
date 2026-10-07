@@ -329,7 +329,7 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
     elif isinstance(item, ft.Head):
         image = images.get(item.sheet)
         if image is not None:
-            w, h = ft.HEAD_W * ft.HEAD_SCALE, ft.HEAD_H * ft.HEAD_SCALE
+            w, h = ft.HEAD_W * ft.HEAD_SCALE * item.scale, ft.HEAD_H * ft.HEAD_SCALE * item.scale
             attributes = _faded(gdi, item.opacity)
             g.GdipDrawImageRectRect(graphics, image, f(item.x), f(item.y), f(w), f(h),
                                     f(ft.HEAD_FRAME * ft.HEAD_W), f(item.row * ft.HEAD_H), f(ft.HEAD_W),
