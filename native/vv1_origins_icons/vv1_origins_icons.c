@@ -9,6 +9,7 @@
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
+#include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -2597,6 +2598,10 @@ int __stdcall ShowOriginsAppearancePicker(
         appearance_dialog,
         (LPARAM)(UINT_PTR)villager
     );
+    if (result == 1) {                  /* changed and kept: the exe charges for it next */
+        vv_log_appearance(1, villager, appearance_state.original_head, appearance_state.original_body,
+                          *(int *)(villager + VV_HEAD_OFFSET), *(int *)(villager + VV_CLOTHING_OFFSET));
+    }
     return result;
 }
 

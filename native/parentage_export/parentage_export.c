@@ -1234,10 +1234,14 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2 };
      UNACCOUNTED  unaccounted family, numbered "Unaccounted <n>"
      ARRIVED      births family, "Arrived <n>" (its own running count), never
                   rolls -- a villager who joined without being born here
-                  (native/shared/arrival_backfill.h) */
+                  (native/shared/arrival_backfill.h)
+     APPEARANCE   births family, "Appearance changed", never rolls -- a
+                  villager's head and body changed through Origins' Change
+                  Appearance (native/shared/appearance_log.h), so the Family
+                  Tree Maker knows the old and the new look are one villager */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
-    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6
+    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7
 };
 
 #define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Deaths"
@@ -1455,7 +1459,8 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     /* A record marker as the first line means the file has no header. */
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
-        || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0) {
+        || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
+        || strncmp(line, "Appearance changed", 18) == 0) {
         fclose(file);
         return 0;
     }
@@ -3710,7 +3715,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_ARRIVED) {
+        || kind < KIND_DEATH || kind > KIND_APPEARANCE) {
         return 0;
     }
     g = layout_of(game_id);
@@ -3731,6 +3736,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         heading = "Disappeared\n";
     } else if (kind == KIND_EPITAPH) {
         heading = "Epitaph changed\n";
+    } else if (kind == KIND_APPEARANCE) {
+        heading = "Appearance changed\n";
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);

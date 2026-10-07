@@ -18,15 +18,15 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "F6E1DF2175F339F0E462891057C9EA176C6AAEA3D84BC3A46DBA89CF0D009D53"
+      "source_text_sha256": "CD368270436C966133A9BD41315DD513D0C97048AA9249D161CC0117A5951830"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "C213592E37CA9031A5BC878B3D869A9C363567565F2E409B3D226B4293880466"
+      "source_text_sha256": "618758008F4A4D004A859289961DC3F47AB280844579255CB25073BF3DD435FE"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "DE3EAC6170884D4995B8E2230AF85C4B041EBFFD5684E07D25CCF2005BEED1DE"
+      "source_text_sha256": "D68615A0ADA7DFFF652CE1F31694BD4C9E957B722AD1B48EE12DEFFE17C4D326"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1836544,
-    "sha256": "09A8D946A044C9001C187648D27E0409EA359020E0690F4EEE812D4A1EF3CD03"
+    "size": 1837568,
+    "sha256": "D770F2FB4515BAD30D3C74D16E241CF916BE3F635449D14E22A46259E2DD9251"
   },
   "payload": {
     "sha256": "FC05283D127AC9FEF5B9AA02406D320A9EC484FD3CE119011C0129C1F6F9ED51",
@@ -103,7 +103,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
+      "page_sha256": "450F687E60F0CAD7AAD058C319505957FD2A9B743A2DC906E683197972EAED32",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -125,7 +125,7 @@
         "time_warp": "538784558C43CFE76CBFFF1D042B056AE9F1C923FC1DEBAD51FBBA41BFA78FF2",
         "island": "FDB3BFC5063992982F78D54227DB9D633E800FF5444D7ABE8746D4DDF7951192",
         "barrel": "52C22A069C8EA98E2FC514EF12631BA962A8CACDF1CD859E3017A2D9BCA19B51",
-        "appearance": "F37427A5B97424713638454C634D80AD6079D62CE2D35F6ACDA59B0B8B90A5D7",
+        "appearance": "8AE08D01752BB18AF470805BED27E633628B8BBB5FE6BAB7843A0DA63449840E",
         "appearance_all": "50F7F8A40919E5C88D1A9BEC243D762F5FB6377C24C0BA7A3D69BC8B3F9B81C7",
         "complete_collections": "C984E3C966240CFEC89E6B5ED94FF7D1CAD32842BF318BBE350704C55169A5C5",
         "reset_collections": "CAD4AA08CEBED6A2A2634B3043BBB33557DC8C51F2BADE3267328511DF04D205",
@@ -167,7 +167,7 @@
         "time_warp": 581,
         "island": 435,
         "barrel": 562,
-        "appearance": 470,
+        "appearance": 507,
         "appearance_all": 116,
         "complete_collections": 457,
         "reset_collections": 423,
@@ -239,13 +239,14 @@
         "bb_success": "0x7D09A5",
         "bb_charge_unknown": "0x7D09C1",
         "bb_queue_unknown": "0x7D0A43",
-        "install_export": "0x7D0A90"
+        "install_export": "0x7D0A90",
+        "logappearance_export": "0x7D0AA5"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "10E7149B9A1497438556D124F99D54E406F5C839432B4EFDD80036E3356B6577",
+      "page_sha256": "450F687E60F0CAD7AAD058C319505957FD2A9B743A2DC906E683197972EAED32",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -267,7 +268,7 @@
         "time_warp": "538784558C43CFE76CBFFF1D042B056AE9F1C923FC1DEBAD51FBBA41BFA78FF2",
         "island": "FDB3BFC5063992982F78D54227DB9D633E800FF5444D7ABE8746D4DDF7951192",
         "barrel": "52C22A069C8EA98E2FC514EF12631BA962A8CACDF1CD859E3017A2D9BCA19B51",
-        "appearance": "F37427A5B97424713638454C634D80AD6079D62CE2D35F6ACDA59B0B8B90A5D7",
+        "appearance": "8AE08D01752BB18AF470805BED27E633628B8BBB5FE6BAB7843A0DA63449840E",
         "appearance_all": "50F7F8A40919E5C88D1A9BEC243D762F5FB6377C24C0BA7A3D69BC8B3F9B81C7",
         "complete_collections": "C984E3C966240CFEC89E6B5ED94FF7D1CAD32842BF318BBE350704C55169A5C5",
         "reset_collections": "CAD4AA08CEBED6A2A2634B3043BBB33557DC8C51F2BADE3267328511DF04D205",
@@ -309,7 +310,7 @@
         "time_warp": 581,
         "island": 435,
         "barrel": 562,
-        "appearance": 470,
+        "appearance": 507,
         "appearance_all": 116,
         "complete_collections": 457,
         "reset_collections": 423,
@@ -381,7 +382,8 @@
         "bb_success": "0x7D09A5",
         "bb_charge_unknown": "0x7D09C1",
         "bb_queue_unknown": "0x7D0A43",
-        "install_export": "0x7D0A90"
+        "install_export": "0x7D0A90",
+        "logappearance_export": "0x7D0AA5"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"

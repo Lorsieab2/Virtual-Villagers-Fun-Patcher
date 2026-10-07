@@ -5,6 +5,7 @@
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
+#include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -2427,6 +2428,7 @@ int __stdcall ShowOriginsAppearancePicker(
     int villager_ptr
 ) {
     unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)villager_ptr;
+    int result;
     if (villager == NULL) {
         return 0;
     }
@@ -2443,13 +2445,18 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_state.sex = *(int *)(villager + VV_SEX_OFFSET);
     appearance_state.is_old =
         *(int *)(villager + VV_DISPLAY_AGE_OFFSET) >= VV_OLD_AGE_THRESHOLD;
-    return (int)DialogBoxParamA(
+    result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE),
         GetForegroundWindow(),
         appearance_dialog,
         (LPARAM)(UINT_PTR)villager
     );
+    if (result == 1) {                  /* changed and kept: the exe charges for it next */
+        vv_log_appearance(4, villager, appearance_state.original_head, appearance_state.original_body,
+                          *(int *)(villager + VV_HEAD_OFFSET), *(int *)(villager + VV_CLOTHING_OFFSET));
+    }
+    return result;
 }
 
 /* Simple status popup for the payload's upgrade menus ("Purchased.",

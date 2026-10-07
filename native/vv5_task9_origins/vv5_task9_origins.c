@@ -10,6 +10,7 @@
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
+#include "../shared/appearance_log.h" /* "Appearance changed" in the Births and Conceptions log */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
@@ -1387,6 +1388,18 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
         return 1;
     }
     return 0;
+}
+
+/* The chooser never sees the record, so the exe's router calls this once it has written the new
+   look into it (scripts/build_vv5_task9_native_actions.py, build_appearance). */
+__declspec(dllexport) void __stdcall LogVV5AppearanceChange(
+    const void *record,
+    int old_head,
+    int old_body,
+    int new_head,
+    int new_body
+) {
+    vv_log_appearance(5, record, old_head, old_body, new_head, new_body);
 }
 
 __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table);

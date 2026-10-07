@@ -6,6 +6,7 @@
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
+#include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
@@ -3211,6 +3212,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     if (body) {
         *body = vv3_appearance_body;
     }
+    /* The exe writes the new look into the record and charges for it as this returns 1. */
+    vv_log_appearance(3, record, orig_head, orig_body, vv3_appearance_head, vv3_appearance_body);
     return 1;
 }
 

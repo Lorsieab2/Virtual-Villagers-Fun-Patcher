@@ -2491,6 +2491,7 @@ int __stdcall ShowVV2AppearanceChooser(
     *(int *)(record + VV2_BODY_OFFSET) = vv2_appearance_body;
     if (vv2_mask_table_ok()) VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
     vv2_mask_sidecar_save();   /* persist the mask table right after committing */
+    vv_log_appearance(2, record, h, b, vv2_appearance_head, vv2_appearance_body);
     return 1;
 }
 
