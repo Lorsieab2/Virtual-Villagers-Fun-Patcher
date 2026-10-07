@@ -234,10 +234,10 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         sex = b.value("Sex")
         if sex in ("Male", "Female") and p.sex is None:
             p.sex = sex
-        if b.heading.startswith("Death"):
+        if b.heading.startswith("Death") and not p.alive:     # reanimated (New Believers): alive again
             p.gone = "died"
             age = b.value("Age at death")
-            if age and age.lstrip("-").isdigit() and not p.alive:
+            if age and age.lstrip("-").isdigit():
                 p.age = int(age)
         elif b.heading.startswith("Disappeared") and not p.alive:
             p.gone = p.gone or "disappeared"
@@ -267,12 +267,11 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     import vv_log_additions as additions
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
-    records, _files = checker.births_log(folder, game, slot)
+    # Every name the village has had (Codex, #555: the records before a Rename Tribe).
+    records, _files = checker.births_log(folder, game, slot, villages if villages is not None else "every")
     litter_no = 0
     last: tuple | None = None           # (mother key, litter number, babies so far)
     for index, rec in enumerate(records):
-        if villages is not None and rec.village not in villages:
-            continue
         if rec.kind == "conception" and rec.mother is not None and rec.mother.name:
             mother = (rec.mother.name, rec.mother.head, rec.mother.body)
             father = rec.father and (rec.father.name, rec.father.head, rec.father.body)
@@ -486,10 +485,13 @@ class Kinship:
 
     def __init__(self, village: Village) -> None:
         self.people = village.people
+        # The records' generations: the family tree's "Move to generation" only changes where a
+        # villager is drawn, never who descends from whom (Codex, #555).
+        self.generation = village.base_generation
         self.memo: dict[tuple[int, int], Fraction] = {}
 
     def _order(self, pid: int) -> tuple:
-        return (self.people[pid].generation, pid)
+        return (self.generation.get(pid, self.people[pid].generation), pid)
 
     def phi(self, a: int, b: int) -> Fraction:
         if a == b:
@@ -550,7 +552,9 @@ def relationship(village: Village, a: int, b: int) -> str:
     common = set(up_a) & set(up_b)
     if not common:
         return "no recorded common ancestor"
-    da, db = min((up_a[c], up_b[c]) for c in common)
+    # The nearest: fewest generations between them all told (Codex, #555: two up and two down,
+    # first cousins, is nearer than one up and three down).
+    da, db = min(((up_a[c], up_b[c]) for c in common), key=lambda d: (d[0] + d[1], max(d), d))
     near, far = sorted((da, db))
     if near == 1:
         return f"{'great-' * (far - 2)}aunt or uncle and niece or nephew"
@@ -653,6 +657,18 @@ def candidates(village: Village, rules: Rules) -> tuple[list[Person], list[Perso
     return men, women
 
 
+def _same_last_name(man: Person, woman: Person) -> bool:
+    """Whether the two share a last name: the last names they carry when both have one (Repair Logs
+    gives them, from the game's list, a parent's or the player's own), else the game's family
+    number -- which a founder, a newcomer or an arrival, unrelated for all intents and purposes (the
+    owner), only shares with someone by chance."""
+    names = [p.name.split()[-1] for p in (man, woman) if len(p.name.split()) > 1]
+    if len(names) == 2:
+        return names[0].casefold() == names[1].casefold()
+    return (man.family is not None and man.family == woman.family
+            and not any(p.father is None and p.mother is None for p in (man, woman)))
+
+
 def _blocked(rules: Rules, man: Person, woman: Person, relation: str, related: Fraction,
              shared: dict) -> str | None:
     if rules.close_in_age and man.age is not None and woman.age is not None \
@@ -678,8 +694,7 @@ def _blocked(rules: Rules, man: Person, woman: Person, relation: str, related: F
         return "too closely related"
     # A founder, a newcomer or an arrival is an unrelated individual for all intents and purposes (the
     # owner): a family number they share with someone by chance is not a family.
-    if rules.different_last_name and man.family is not None and man.family == woman.family \
-            and not any(p.father is None and p.mother is None for p in (man, woman)):
+    if rules.different_last_name and _same_last_name(man, woman):
         return "same last name"
     return None
 
@@ -715,12 +730,24 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     per_woman: dict[int, list[Pair]] = {}
     for pair in allowed:
         per_woman.setdefault(pair.woman.id, []).append(pair)
-    taken: set[int] = set()
-    one_to_one = []
-    for pair in allowed:
-        if pair.man.id not in taken and pair.woman.id not in taken:
-            one_to_one.append(pair)
-            taken |= {pair.man.id, pair.woman.id}
+    # One partner each for as many as the rules allow (Codex, #555: taking the best pair first can
+    # leave a woman unpaired whom another choice would have paired): each woman, best placed first,
+    # takes her best free man, or one whose partner can move to another of hers.
+    partner: dict[int, Pair] = {}           # man -> his pair
+
+    def place(woman: int, seen: set) -> bool:
+        for pair in per_woman.get(woman, []):
+            if pair.man.id in seen:
+                continue
+            seen.add(pair.man.id)
+            if pair.man.id not in partner or place(partner[pair.man.id].woman.id, seen):
+                partner[pair.man.id] = pair
+                return True
+        return False
+
+    for woman in sorted(per_woman, key=lambda w: rank(per_woman[w][0])):
+        place(woman, set())
+    one_to_one = sorted(partner.values(), key=rank)
     fallback = [] if allowed else sorted(every, key=rank)[:10]
     return one_to_one, per_woman, fallback
 
@@ -737,7 +764,14 @@ def roman(n: int) -> str:
     return ROMAN[n] if n < len(ROMAN) else str(n)
 
 
+def numbered(p: Person) -> str:
+    """"#12 Name", or the name alone for one with no number on the tree (taken off it)."""
+    return f"#{p.number} {p.name}" if p.number is not None else p.name
+
+
 def describe_person(village: Village, p: Person) -> str:
+    if p.upcoming:
+        return f"{p.name} (on the way)"
     bits = [p.name, p.sex or "sex unknown", p.age_text()]
     if not p.alive:
         bits.append({"died": "dead", "disappeared": "disappeared"}.get(p.gone, "no longer in the village"))
@@ -767,8 +801,10 @@ def report(village: Village, game_title: str) -> str:
     lines.append("== Generations ==")
     for g in sorted(by_gen):
         group = sorted(by_gen[g], key=lambda q: (-(q.age or 0), q.name))
-        alive = sum(p.alive for p in group)
-        lines.append(f"Generation {roman(g)}: {len(group)} villagers ({alive} living)")
+        born = [p for p in group if not p.upcoming]
+        coming = len(group) - len(born)
+        lines.append(f"Generation {roman(g)}: {len(born)} villagers ({sum(p.alive for p in born)} living)"
+                     + (f", {coming} on the way" if coming else ""))
         for p in group:
             parents = [people[q].name for q in (p.father, p.mother) if q is not None]
             lines.append(f"  {describe_person(village, p)}"
@@ -788,7 +824,8 @@ def report(village: Village, game_title: str) -> str:
         else:
             how = "founder"
         seen = f", first seen {p.first_seen}" if p.first_seen else ""
-        lines.append(f"  {p.number}. {describe_person(village, p)} -- generation {roman(p.generation)}, "
+        lines.append(f"  {p.number if p.number is not None else '-'}. {describe_person(village, p)} -- "
+                     f"generation {roman(p.generation)}, "
                      f"{how}{seen}")
     lines.append("")
     return "\n".join(lines)
@@ -811,8 +848,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     lines.append("== Suggested pairs (each villager once, least related first) ==")
     if one_to_one:
         for n, pair in enumerate(one_to_one, 1):
-            lines.append(f"  {n}. #{pair.man.number} {pair.man.name} ({pair.man.age_text()}) and "
-                         f"#{pair.woman.number} {pair.woman.name} ({pair.woman.age_text()}): {pair.relation}, "
+            lines.append(f"  {n}. {numbered(pair.man)} ({pair.man.age_text()}) and "
+                         f"{numbered(pair.woman)} ({pair.woman.age_text()}): {pair.relation}, "
                          f"related {pair.percent:g}%")
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")

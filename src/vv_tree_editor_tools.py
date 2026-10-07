@@ -137,9 +137,21 @@ class ScrollingTab(ttk.Frame):
         window = canvas.create_window(0, 0, window=self, anchor="nw")
         self.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.bind("<Configure>", lambda e: canvas.itemconfigure(window, width=e.width))
-        canvas.bind("<Enter>", lambda _e: canvas.bind_all(
-            "<MouseWheel>", lambda e: canvas.yview_scroll(-1 * (e.delta // 120), "units")))
-        canvas.bind("<Leave>", lambda _e: canvas.unbind_all("<MouseWheel>"))
+        # The wheel scrolls this page while the pointer is over it; leaving gives back whatever the
+        # wheel did before (the patcher's window scrolls with it -- Codex, #555).
+        before: dict[str, str] = {}
+
+        def enter(_event) -> None:
+            before["wheel"] = canvas.bind_all("<MouseWheel>")
+            canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(-1 * (e.delta // 120), "units"))
+
+        def leave(_event) -> None:
+            canvas.unbind_all("<MouseWheel>")
+            if before.get("wheel"):
+                canvas.tk.call("bind", "all", "<MouseWheel>", before["wheel"])
+
+        canvas.bind("<Enter>", enter)
+        canvas.bind("<Leave>", leave)
 
 
 def _font_shown(name: str) -> str:

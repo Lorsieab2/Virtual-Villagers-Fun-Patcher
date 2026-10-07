@@ -282,7 +282,14 @@ class Edits:
 
     @classmethod
     def from_data(cls, data: dict) -> "Edits":
-        """The edits from their saved form (every value checked)."""
+        """The edits from their saved form (every value checked); ValueError when the form is damaged."""
+        try:
+            return cls._from_data(data)
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise ValueError(f"the saved edits are damaged ({exc})") from exc
+
+    @classmethod
+    def _from_data(cls, data: dict) -> "Edits":
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.diagonal_lines = data.get("diagonal_lines") is True
@@ -319,6 +326,8 @@ class Edits:
             if is_colour(colour):
                 out.marks[str(label)] = str(colour)
         for key, entry in dict(data.get("entries", {})).items():
+            if not isinstance(entry, dict):     # damaged: that villager's edits are passed over
+                continue
             item = {}
             if isinstance(entry.get("lines"), list):
                 item["lines"] = [str(line) for line in entry["lines"]]
@@ -2360,9 +2369,11 @@ def html_page(svg_text: str, title: str, report_text: str, background: str = BAC
             "<button onclick=\"zoom(0.8)\">Zoom out</button><button onclick=\"zoom(0)\">Fit</button></div>"
             f"<div id=\"wrap\">{svg_text}</div>"
             f"<h2 style=\"margin:12px\">The Genealogy report</h2><pre>{e(report_text)}</pre>"
-            "<script>var s=document.querySelector('#wrap svg'),w=+s.getAttribute('width'),f=1;"
+            "<script>var p=[].slice.call(document.querySelectorAll('#wrap svg')),f=1,"
+            "w=Math.max.apply(null,p.map(function(s){return +s.getAttribute('width')}));"
             "function zoom(k){f=k?f*k:Math.min(1,(innerWidth-20)/w);"
-            "s.style.width=(w*f)+'px';s.style.height='auto'}zoom(0)</script>"
+            "p.forEach(function(s){s.style.width=(+s.getAttribute('width')*f)+'px';s.style.height='auto'})}"
+            "zoom(0)</script>"
             "</body></html>\n")
 
 
@@ -2414,6 +2425,10 @@ def write(folder: Path, game: int, slot: int, images: Path | None, game_title: s
     made = vv_gdiplus.save_scene(pages[0], present, picture)
     for k, sc in enumerate(pages[1:], 2):        # the later pages beside the first
         vv_gdiplus.save_scene(sc, present, out / f"{stem} - Page {k}.png")
+    for old in out.glob(f"{stem} - Page *.png"):  # pages an earlier, longer tree had
+        number = old.stem.rpartition(" ")[2]
+        if number.isdigit() and int(number) > len(pages):
+            old.unlink(missing_ok=True)
     return Written(report_path, page_path, picture if made else None)
 
 

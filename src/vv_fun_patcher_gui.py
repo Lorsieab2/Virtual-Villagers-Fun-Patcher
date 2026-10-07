@@ -1019,24 +1019,28 @@ class App(tk.Tk):
         # with the folder fields, ten columns are wider than the window, and
         # the tab scrolls only vertically, so the last links were unreachable.
         tools = ttk.Frame(box)
-        for column, key in (
-            (1, "back_up_saves"),
-            (2, "restore_saves"),
-            (3, "rename_tribe"),
-            (4, "check_logs"),
-            (5, "repair_logs"),
-            (6, "family_tree_maker"),
-            (7, "village_matchmaker"),
+        # The family tools in a grid of their own: eight columns were wider than the window at its
+        # narrowest, and it scrolls only up and down (Codex, #555).
+        family = ttk.Frame(box)
+        for grid_, column, key in (
+            (tools, 1, "back_up_saves"),
+            (tools, 2, "restore_saves"),
+            (tools, 3, "rename_tribe"),
+            (tools, 4, "check_logs"),
+            (tools, 5, "repair_logs"),
+            (family, 1, "family_tree_maker"),
+            (family, 2, "village_matchmaker"),
         ):
-            self._help_button(tools, key).grid(
+            self._help_button(grid_, key).grid(
                 row=0, column=column, padx=(12, 0), pady=(0, 2)
             )
         for index, build in enumerate(self.builds):
             row = index + 1
             short = build.title.removeprefix("Virtual Villagers - ")
-            ttk.Label(tools, text=f"{index + 1}. {short}").grid(
-                row=row, column=0, sticky="w", padx=(0, 8), pady=2
-            )
+            for grid_ in (tools, family):
+                ttk.Label(grid_, text=f"{index + 1}. {short}").grid(
+                    row=row, column=0, sticky="w", padx=(0, 8), pady=2
+                )
             self._folder_link(
                 tools,
                 "Back up saves",
@@ -1063,16 +1067,17 @@ class App(tk.Tk):
                 lambda game=build: self._log_tool(game, repair=True),
             ).grid(row=row, column=5, padx=(12, 0), pady=2)
             self._folder_link(
-                tools,
+                family,
                 "Family tree maker...",
                 lambda game=build: vv_genealogy_window.open_family_tree(self, game),
-            ).grid(row=row, column=6, padx=(12, 0), pady=2)
+            ).grid(row=row, column=1, padx=(12, 0), pady=2)
             self._folder_link(
-                tools,
+                family,
                 "Village matchmaker...",
                 lambda game=build: vv_genealogy_window.open_pair_suggestions(self, game),
-            ).grid(row=row, column=7, padx=(12, 0), pady=2)
+            ).grid(row=row, column=2, padx=(12, 0), pady=2)
         tools.pack(anchor="w")
+        family.pack(anchor="w", pady=(8, 0))
         # The save and log tools get a row of their own: with a "?" beside
         # every button, one row is wider than the window.
         save_tools = ttk.Frame(box)
