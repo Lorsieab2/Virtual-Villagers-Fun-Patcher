@@ -435,6 +435,7 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
     _plan_unaccounted(result, game, slot, data_dir, renames, asked)
     _plan_statistics(result, game, slot, data_dir, by_name)
     _plan_logs(result, folder, game, slot, asked, by_name)
+    _plan_family_trees(result, folder, game, slot, asked)
     return result
 
 
@@ -660,6 +661,31 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
                         n += 1
         if n:
             result.changes.append(Change(path, original, bytes(buf), "the Unaccounted roster"))
+
+
+def _plan_family_trees(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str]) -> None:
+    """The Family Tree Maker's edits for this save -- its edits file and the save's .vvtree files --
+    keyed by each villager's name, re-keyed so the marks, text, sizes and places follow them
+    (Codex, #555)."""
+    import json
+    import vv_family_tree as ft
+    paths = [ft.Edits.path(folder, game, slot)]
+    trees = Path(folder) / ft.TREES
+    if trees.is_dir():
+        for path in sorted(trees.glob(f"*{ft.TREE_SUFFIX}")):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(data, dict) and (data.get("game"), data.get("slot")) == (game, slot):
+                paths.append(path)
+    for path in paths:
+        if not path.is_file():
+            continue
+        original = path.read_bytes()
+        updated = ft.renamed_keys(original.decode("utf-8"), renames).encode("utf-8")
+        if updated != original:
+            result.changes.append(Change(path, original, updated, "the family tree's edits"))
 
 
 def _first_line(path: Path) -> str:

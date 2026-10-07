@@ -601,6 +601,22 @@ def family_key(village: gen.Village, fam: "Family") -> str:
     return f"{one(fam.father)}||{one(fam.mother)}"
 
 
+# Where Save to Save Folder keeps the editable tree files, in the save folder.
+TREES = "Virtual Villagers Fun Patcher Family Trees"
+TREE_SUFFIX = ".vvtree"
+TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
+
+
+def renamed_keys(text: str, renames: dict[tuple, str]) -> str:
+    """Saved edits (an edits file or a .vvtree, as text) with each renamed villager's key --
+    "<name>|<head>|<body>", in an entry, a family, an order, a line piece -- under their new name."""
+    for (name, head, body), new in renames.items():
+        key = json.dumps(new)[1:-1] + f"|{head}|{body}"
+        text = re.sub(rf'(?<=["|: ]){re.escape(json.dumps(name)[1:-1])}\|{head}\|{body}(?=["| ])',
+                      lambda _found, key=key: key, text)
+    return text
+
+
 def entry_key(village: gen.Village, p: gen.Person) -> str:
     """Who an edit is for: the villager's name, head and body; a baby on the way by its mother."""
     if p.upcoming:

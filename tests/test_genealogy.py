@@ -772,6 +772,21 @@ class StickerTests(unittest.TestCase):
                                 self.assertTrue(any(abs(y - ft._edge_y(lay, q, x, b)) < 0.5 for b in (True, False)),
                                                 (size, kind, q, (x, y)))
 
+    def test_a_villager_given_a_last_name_keeps_their_tree_edits(self) -> None:
+        # Codex, #555: Repair Logs' last names re-key the Family Tree Maker's edits.
+        e = ft.Edits()
+        e.entries["Ann|3|4"] = {"mark": "Chief"}
+        e.entries["Joann|3|4"] = {"mark": "x"}
+        e.entries["Ann|3|45"] = {"mark": "y"}
+        e.family_colours["Bob|1|2||Ann|3|4"] = "#ff0000"
+        e.line_moves["Bob|1|2||Ann|3|4|to Ann|3|4 0"] = [1.0, 2.0]
+        e.hidden.append("line:Bob|1|2||Ann|3|4|lane")
+        back = ft.Edits.from_data(json.loads(ft.renamed_keys(json.dumps(e.to_data()), {("Ann", 3, 4): "Ann Lee"})))
+        self.assertEqual(sorted(back.entries), ["Ann Lee|3|4", "Ann|3|45", "Joann|3|4"])
+        self.assertEqual(list(back.family_colours), ["Bob|1|2||Ann Lee|3|4"])
+        self.assertEqual(list(back.line_moves), ["Bob|1|2||Ann Lee|3|4|to Ann Lee|3|4 0"])
+        self.assertEqual(back.hidden, ["line:Bob|1|2||Ann Lee|3|4|lane"])
+
     def test_the_trees_own_words_can_be_retyped(self) -> None:
         # The owner: "I wanna rename "unrelated individuals" to something else".
         v = village()

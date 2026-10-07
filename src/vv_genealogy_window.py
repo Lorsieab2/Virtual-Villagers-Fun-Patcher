@@ -37,7 +37,7 @@ from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_
 
 SELECT = "#1f6fd1"
 OUTSIDE = "#9a9a9a"                     # the canvas around the page
-TREES = "Virtual Villagers Fun Patcher Family Trees"     # the folder in the save folder pictures go to
+TREES = ft.TREES                        # the folder in the save folder the tree files go to
 
 
 def faded(colour: str, opacity: float, under: str) -> str:
@@ -60,8 +60,8 @@ ALT = 0x20000                           # Alt held: place freely
 # Ready-made special marks (the owner asked for marks "eg Tribal Chief"); any other can be typed.
 CUSTOM_MARK = "Custom (type here...)"
 # The editable tree file Save to Save Folder writes (the owner: "an editable file to be worked on later").
-TREE_SUFFIX = ".vvtree"
-TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
+TREE_SUFFIX = ft.TREE_SUFFIX
+TREE_FORMAT = ft.TREE_FORMAT
 PRESET_MARKS = {"Tribal Chief": "#d4a017", "Esteemed Elder": "#7b68ee", "Scholar": "#1e90ff",
                 "Golden Child": "#ffb000", "Favourite": "#ff1493", "Heathen": "#8b0000", "Founder": "#2e8b57"}
 CONTROLS = """\
