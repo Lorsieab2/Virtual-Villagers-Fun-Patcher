@@ -617,6 +617,7 @@ class Layout:
     edits: Edits = field(default_factory=Edits)
     page: int = 0                       # which page of the tree this is (page_spans)
     pages: int = 1
+    _spans: list = field(default_factory=list, repr=False)
 
     @property
     def background(self) -> str:
@@ -649,6 +650,15 @@ class Layout:
         p = self.village.people[q]
         w, h = frame_size(self.edits, self.village, p)
         return self.x[q] + NODE_W / 2 - w / 2, self.y[q] + NODE_H / 2 - h / 2, w, h, self.entry(p).get("angle", 0.0)
+
+    def spans(self) -> list[tuple[float, float, float]]:
+        """Every portrait's frame across (left, right) and its top: what a line keeps clear of
+        (worked out once: every route asks)."""
+        if not self._spans:
+            for q in self.x:
+                xs = [px for px, _py in self.frame_points(q)]
+                self._spans.append((min(xs), max(xs), self.y[q]))
+        return self._spans
 
     def frame_points(self, q: int) -> list[tuple[float, float]]:
         kind = self.shape(self.village.people[q])
@@ -1078,10 +1088,7 @@ def _route(lay: "Layout", at: float, y0: float, y1: float, jogs: dict, back: boo
     nearest gap between its frames and carries on down; a line that must end at a frame (`back`)
     steps back just above y1.  Each step in a gap has a height of its own.  `start` is where the
     drawn line begins when that is above y0 (the curve of a circle's frame)."""
-    frames = []
-    for q in lay.x:
-        xs = [px for px, _py in lay.frame_points(q)]
-        frames.append((min(xs), max(xs), lay.y[q]))
+    frames = lay.spans()
     legs: list[list] = []
     x, y, low = at, (start if start is not None else y0), y0
     for _step in range(40):
@@ -1139,14 +1146,51 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
         groups: dict[object, list[int]] = {}
         for c in kids:
             groups.setdefault(people[c].litter or ("one", c), []).append(c)
-        hang = [sum(cx(c) for c in members) / len(members) for members in groups.values()]
+        def clearest_down(c: int, at: float, lane: float) -> float:
+            """Where along child c's portrait their line from the children's line comes down with the
+            fewest steps aside: `at` (their middle) when its way is clear."""
+            xs = [px for px, _py in lay.frame_points(c)]
+            low, high = min(xs) + 12, max(xs) - 12
+
+            def steps(x: float) -> int:
+                return len(_route(lay, x, lane, lay.y[c], dict(jogs), back=True))
+            best, fewest = at, steps(at)
+            for k in range(1, int((high - low) / 4) + 1):
+                if fewest == 1:
+                    break
+                for x in (at + 4 * k, at - 4 * k):
+                    if low <= x <= high and steps(x) < fewest:
+                        best, fewest = x, steps(x)
+            return best
+
+        hang = [sum(cx(c) for c in members) / len(members) if len(members) > 1
+                else clearest_down(members[0], cx(members[0]), fam.lane_y) for members in groups.values()]
         target = "couple" if len(parents) == 2 else "lane"
+
+        def clearest(q: int, at: float, end: float) -> float:
+            """Where along q's portrait the line to `end` leaves with the fewest steps aside (the
+            owner: "minimize line bumps"): `at` when its way is clear, else the nearest clearer place."""
+            xs = [px for px, _py in lay.frame_points(q)]
+            low, high = min(xs) + 12, max(xs) - 12
+
+            def steps(x: float) -> int:
+                if lay.y[q] > end:
+                    return len(_route(lay, x, end, _arrive_y(lay, q, x), dict(jogs), back=True))
+                return len(_route(lay, x, lay.y[q] + NODE_H, end, dict(jogs), start=_leave_y(lay, q, x)))
+            best, fewest = at, steps(at)
+            for k in range(1, int((high - low) / 4) + 1):
+                if fewest == 1:
+                    break
+                for x in (at + 4 * k, at - 4 * k):
+                    if low <= x <= high and steps(x) < fewest:
+                        best, fewest = x, steps(x)
+            return best
 
         def leave(q: int, end: float) -> float:
             """The parent's line to `end` (the couple's line, or for a lone parent the children's);
             where it arrives.  A parent below it (put in a later generation by the player) leaves
             from the top of their frame and goes up."""
-            at = fam.drops[q]
+            at = clearest(q, fam.drops[q], end)
             if lay.y[q] > end:
                 legs = _route(lay, at, end, _arrive_y(lay, q, at), jogs, back=True)
                 names = [f"from {key(q)} {k}" for k in range(len(legs))]
