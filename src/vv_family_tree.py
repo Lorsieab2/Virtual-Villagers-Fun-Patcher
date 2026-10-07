@@ -2470,14 +2470,14 @@ def write(folder: Path, game: int, slot: int, images: Path | None, game_title: s
 
 def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title: str,
                 out: Path | None = None) -> tuple[Path, str]:
-    """The pairing suggestions report, numbered as the family tree is (the tree's sort), beside the
-    tree in Virtual Villagers Fun Patcher Logs\\Genealogy (or `out`).  Nothing else is written."""
-    import vv_log_tools as tools
+    """The pairing suggestions report, numbered as the family tree is (the tree's sort), in the save
+    folder's own Family Trees folder beside the tree files (the owner) -- or `out`.  Nothing else is
+    written."""
     folder = Path(folder)
     village = gen.load_village(folder, game, slot)
     arrange(village, Edits.load(Edits.path(folder, game, slot)))
     text = gen.pair_report(village, rules, game_title)
-    out = Path(out) if out is not None else folder / tools.LOGS / "Genealogy"
+    out = Path(out) if out is not None else folder / TREES
     out.mkdir(parents=True, exist_ok=True)
     path = out / f"Virtual Villagers {game} Village Matchmaker - Save {slot}.txt"
     path.write_bytes(text.replace("\n", "\r\n").encode("utf-8"))
