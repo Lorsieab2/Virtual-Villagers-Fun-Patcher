@@ -702,12 +702,23 @@ def candidates(village: Village, rules: Rules) -> tuple[list[Person], list[Perso
     return men, women
 
 
+def _last_name(name: str) -> str:
+    """The last name a name carries: its last word that is not Number Duplicate Names' numeral, and
+    never the first word (the game's own names are one word) -- "Soda Akikai II" is an Akikai, and
+    "Soda II" has none."""
+    words = name.split()
+    while len(words) > 1 and re.fullmatch(r"[IVXLCDM]+", words[-1]):
+        words.pop()
+    return words[-1] if len(words) > 1 else ""
+
+
 def _same_last_name(man: Person, woman: Person) -> bool:
     """Whether the two share a last name: the last names they carry when both have one (Repair Saves & Logs
     gives them, from the game's list, a parent's or the player's own), else the game's family
     number -- which a founder, a newcomer or an arrival, unrelated for all intents and purposes (the
     owner), only shares with someone by chance."""
-    names = [p.name.split()[-1] for p in (man, woman) if len(p.name.split()) > 1]
+    names = [_last_name(p.name) for p in (man, woman)]
+    names = [n for n in names if n]
     if len(names) == 2:
         return names[0].casefold() == names[1].casefold()
     return (man.family is not None and man.family == woman.family
