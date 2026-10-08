@@ -482,9 +482,9 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 m = re.match(r"\s*Babies in pregnancy:\s*(\d+)", line)
                 if m:
                     rec.babies = int(m.group(1))
-                m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet)\s*$", line)
+                m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet|Golden Child)\s*$", line)
                 if m:
-                    rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3}[m.group(1)]
+                    rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3, "Golden Child": 1}[m.group(1)]
             if kind == "Birth" or kind.startswith("Conception"):
                 main = rec.child if kind == "Birth" else rec.mother
                 if (main is None or not main.name or main.head is None or main.body is None

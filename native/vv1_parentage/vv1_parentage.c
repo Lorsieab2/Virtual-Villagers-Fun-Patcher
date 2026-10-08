@@ -1806,6 +1806,35 @@ __declspec(dllexport) int __stdcall Vv1ParentageConceived(const void *records_po
     return vv1_parents_save(slot, records);
 }
 
+#define VV1_GOLDEN_FAMILY 0xC7    /* +0x36C of the Golden Child (the puzzle's 0x4242F3 push) */
+#define VV1_BORN_GOLDEN   4       /* WriteParentageBirthLitter: "Born as: Golden Child" */
+
+typedef int (__stdcall *vv1_give_last_name_t)(char *name, unsigned int room, int family);
+
+/* The Golden Child is named with family 199, which has no last name; it
+   takes the one its mother's children take: her +0x390 (what sub_43C350
+   gives a first child), else her own family.  Only when Villagers Have Last
+   Names is installed (its DLL answers), and only a one-word name. */
+static void vv1_golden_last_name(unsigned char *child, const unsigned char *mother) {
+    static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
+    static vv1_give_last_name_t give;
+    char *name = (char *)(child + VV1_NAME_OFFSET);
+    int family;
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
+        give = dll ? (vv1_give_last_name_t)GetProcAddress(dll, "VvfpGiveLastName") : NULL;
+        state = give ? 1 : -1;
+    }
+    if (state != 1 || memchr(name, '\0', VV1_NAME_CAPACITY) == NULL || strchr(name, ' ') != NULL) {
+        return;
+    }
+    family = *(const int *)(mother + VV1_LEGACY_OFFSET);
+    if (family < 1 || family > 50) {
+        family = *(const int *)(mother + VV1_VARIANT_OFFSET);
+    }
+    give(name, VV1_NAME_CAPACITY, family);
+}
+
 /* From the executable's birth hook, through the Origins companion's Vv1Born:
    the child (named) and the mother.  Records the parents, writes the birth
    to the parentage log at once, then persists.  Returns 1 when recorded. */
@@ -1827,6 +1856,16 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
     }
     birth.child = c;
     birth.mother = (int)(((const unsigned char *)mother_pointer - records) / VV1_RECORD_STRIDE);
+    if (*(const int *)((const unsigned char *)child_pointer + VV1_VARIANT_OFFSET) == VV1_GOLDEN_FAMILY) {
+        /* The Golden Child (the puzzle's, 0x4242F8, or a golden-child
+           mother's extra child): a birth, logged as one (the owner,
+           2026-10-08: "THE GOLDEN CHILD SHOULD BE LISTED AS A BIRTH WITH
+           THEIR PARENTS"), with the last name the mother's children take. */
+        vv1_golden_last_name((unsigned char *)child_pointer, (const unsigned char *)mother_pointer);
+        vv1_log_birth(records, &birth, VV1_BORN_GOLDEN);
+        vv1_parents_save(slot, records);
+        return 1;
+    }
     {
         /* At the creation the mother's litter field is this delivery's: 2 or
            3 (0x43BC4E / 0x43BC8C), 0 for a single baby; the delivery clears

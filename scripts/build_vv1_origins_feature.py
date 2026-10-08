@@ -808,6 +808,21 @@ PARENTAGE_BORN_SITES = (
     (0x42F072, bytes.fromhex("8B0E8B6E048BD8"), "after call sub_43C840 at 0x42F06D (the triplet): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax"),
 )
 PARENTAGE_BORN_SITE_STUB_VAS = tuple(mask_code_va(off) for off in PARENTAGE_BORN_SITE_STUB_FILE_OFFSETS)
+# THE GOLDEN CHILD'S BIRTH.  The Golden Child puzzle (the drop handler) makes
+# the Golden Child itself, outside the pregnancy tick: `mov ecx,[esi+0x20] /
+# push 0x28,0,0,0,0xC7 / call sub_43C350` at 0x4242F8, then stamps it and ends
+# the mother's pregnancy (+0x358/+0x35C cleared at 0x42431C/0x424326).  EDI is
+# the mother's byte offset there too and [ESI+0x20] the record array, so the
+# shared body serves it with ESI moved by 0x1C for the call ([ESI+4] is then
+# the array).  Spliced over the five bytes after the call, `mov ecx,[esi+0x10]
+# / mov ebp,eax`, resumed at 0x424302.  The owner, 2026-10-08: "THE GOLDEN
+# CHILD SHOULD BE LISTED AS A BIRTH WITH THEIR PARENTS LISTED".  Its stub sits
+# in the .vv1mc tail between the save-slot capture (ends 0x890) and the
+# Vv1MaskTick name (0x8F0), which no manifest uses.
+GOLDEN_BORN_SPLICE_VA = 0x4242FD
+GOLDEN_BORN_DISPLACED = bytes.fromhex("8B4E108BE8")
+GOLDEN_BORN_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x8C0   # .vv1mc, 0x20 reserved (ends 0x8E0 < 0x8F0)
+GOLDEN_BORN_STUB_VA = mask_code_va(GOLDEN_BORN_STUB_FILE_OFFSET)
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
 # VV1's Details portrait mask registration is the live head Y minus the
 # scale-aware cell lift, plus this fixed nudge.  Screen Y grows downward, so a
@@ -3296,6 +3311,29 @@ def main() -> None:
             rel32_jump(_site_va, _stub_va) + b"\x90\x90",
             f"splice the pregnancy tick sub_42E900 {_what} (seven bytes, reached only with the child just created: EAX = its index, ESI = the village object, EDI = the mother's byte offset) through the exact birth hook, so every child -- live, load-time catch-up or Time Warp, single or twin -- is handed to Vv1Born with its mother",
         )
+    # The Golden Child's birth -- see the GOLDEN_BORN_* constants.
+    golden_code = (
+        bytes.fromhex("56")                                   # push esi
+        + bytes.fromhex("8D761C")                             # lea esi, [esi+0x1C]: [esi+4] is the array
+        + rel32_call(GOLDEN_BORN_STUB_VA + 4, PARENTAGE_BORN_STUB_VA)
+        + bytes.fromhex("5E")                                 # pop esi
+        + GOLDEN_BORN_DISPLACED
+        + rel32_jump(GOLDEN_BORN_STUB_VA + 15, GOLDEN_BORN_SPLICE_VA + len(GOLDEN_BORN_DISPLACED))
+    )
+    if len(golden_code) > 0x20:
+        raise RuntimeError(f"VV1 Golden Child birth stub is {len(golden_code):#x} bytes, more than 0x20")
+    patch(
+        GOLDEN_BORN_STUB_FILE_OFFSET,
+        b"\0" * len(golden_code),
+        golden_code,
+        "the Golden Child's birth: hand the puzzle's new Golden Child (EAX = its index) and its mother (EDI = her byte offset into [ESI+0x20], the record array) to the shared body of the exact birth hook with ESI moved by 0x1C, so its [ESI+4] is the array; then replay mov ecx,[esi+0x10] / mov ebp,eax and resume at 0x424302",
+    )
+    patch(
+        GOLDEN_BORN_SPLICE_VA - 0x400000,
+        GOLDEN_BORN_DISPLACED,
+        rel32_jump(GOLDEN_BORN_SPLICE_VA, GOLDEN_BORN_STUB_VA),
+        "splice the Golden Child puzzle right after its call sub_43C350 at 0x4242F8 (five bytes: mov ecx,[esi+0x10] / mov ebp,eax) through the Golden Child's birth stub, so the Golden Child is logged as a Birth with its parents (Show Parents in Details Screen)",
+    )
     # The Details-arrow sort hook -- see the SORT_STEP_* constants.
     patch(
         SORT_STEP_NAME_FILE_OFFSET,

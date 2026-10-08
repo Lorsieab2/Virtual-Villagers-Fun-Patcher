@@ -256,6 +256,10 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                 p.age = int(age)
         elif b.heading.startswith("Disappeared") and not p.alive:
             p.gone = p.gone or "disappeared"
+        elif b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child":
+            # A New Home's Golden Child is born to a mother (its puzzle spends her pregnancy), never an
+            # arrival (the owner, 2026-10-08); an older patcher backfilled an Arrived record for it.
+            pass
         elif b.heading.startswith("Arrived"):
             p.arrived = True
             p.how = b.value("How") or p.how

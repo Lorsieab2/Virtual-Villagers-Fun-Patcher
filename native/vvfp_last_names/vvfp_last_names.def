@@ -1,3 +1,4 @@
 LIBRARY "VVFP Last Names"
 EXPORTS
     VvfpStartup=_VvfpStartup@8
+    VvfpGiveLastName=_VvfpGiveLastName@12
