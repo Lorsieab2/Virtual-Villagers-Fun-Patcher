@@ -139,6 +139,41 @@ class BackupTests(unittest.TestCase):
         self.assertEqual(backup.save_speed(4, stray.read_bytes())[1], 1009)
         self.assertEqual(list(Path(self.tmp.name).rglob("*.vvfp-pause-tmp")), [])
 
+    def test_a_restore_restores_paused_and_a_failed_one_puts_back_every_byte(self) -> None:
+        from unittest import mock
+
+        class NoGames:
+            def find(self, exe_name):
+                return []
+
+        game = 1
+        folder = self.folder(game)
+        base = TITLES[game][1]
+        made = backup.copy_save_folder(folder, datetime(2026, 10, 8, 12, 0, 0))
+        # Played on since: both slots changed and unpaused.
+        (folder / f"{base}1.ldw").write_bytes(save_bytes(game, 3)[:-1] + b"\x01")
+        (folder / f"{base}2.ldw").write_bytes(save_bytes(game, 10)[:-1] + b"\x02")
+        now = {p.name: p.read_bytes() for p in folder.iterdir() if p.is_file()}
+
+        real_place = backup._place
+        calls = []
+
+        def failing(source, target):
+            calls.append(target)
+            if len(calls) == 2:
+                raise OSError("disk full")
+            return real_place(source, target)
+
+        with mock.patch.object(backup, "_place", side_effect=failing):
+            with self.assertRaises(backup.BackupError) as caught:
+                backup.restore_backup(folder, made.backup_folder, None, NoGames(), datetime(2026, 10, 8, 13, 0, 0))
+        self.assertIn("Every file was put back as it was", str(caught.exception))
+        for name, data in now.items():
+            self.assertEqual((folder / name).read_bytes(), data, name)       # exactly as before, unpaused
+
+        backup.restore_backup(folder, made.backup_folder, None, NoGames(), datetime(2026, 10, 8, 14, 0, 0))
+        self.assertEqual(backup.save_speed(game, (folder / f"{base}1.ldw").read_bytes())[1], 1005)
+
     def test_a_save_whose_game_is_running_is_left_alone(self) -> None:
         folder = self.folder(1)
         live = folder / "Virtual Villagers1.ldw"

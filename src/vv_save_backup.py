@@ -256,6 +256,7 @@ class BackupResult:
     paused: int = 0          # how many game processes were paused for the copy
     resume_problems: list[str] = field(default_factory=list)
     paused_slots: list[str] = field(default_factory=list)   # slot saves whose copy was set to Paused
+    paused_from: dict[Path, int] = field(default_factory=dict)   # ... and the speed each one had
 
     @property
     def file_count(self) -> int:
@@ -409,9 +410,11 @@ def copy_save_folder(
         game = game_number(save_folder)
         if game is not None:
             for copied in result.files:
-                if pause_save_copy(game, staging / copied.relative, copied.relative):
+                speed = pause_save_copy(game, staging / copied.relative, copied.relative)
+                if speed is not None:
                     copied.size, copied.sha256 = _hash_file(staging / copied.relative)
                     result.paused_slots.append(copied.relative.name)
+                    result.paused_from[copied.relative] = speed
         result.backup_folder = _finish_backup(staging, when, suffix)
     except (OSError, BackupError) as exc:
         where = _set_aside(staging, INCOMPLETE)
@@ -827,28 +830,46 @@ def is_slot_save(relative: Path) -> bool:
     return relative.parent == Path() and number is not None and 1 <= number <= 5
 
 
-def pause_save_file(game: int, path: Path) -> bool:
-    """Set one save file to Paused, through a temporary file and a read-back.  False when it was
-    already paused or is not a save this can read (then it is left exactly as it was)."""
-    data = path.read_bytes()
-    paused = pause_save_bytes(game, data)
-    if paused is None:
-        return False
+def _write_save(path: Path, data: bytes) -> None:
+    """Swap ``data`` in through a temporary file, then read it back."""
     temporary = path.with_name(path.name + ".vvfp-pause-tmp")
     try:
-        temporary.write_bytes(paused)
+        temporary.write_bytes(data)
         os.replace(temporary, path)
     finally:
         if temporary.exists():
             temporary.unlink()
-    if path.read_bytes() != paused:
-        raise BackupError(f"{path.name} could not be set to Paused (it does not read back).")
-    return True
+    if path.read_bytes() != data:
+        raise BackupError(f"{path.name} does not read back as written.")
 
 
-def pause_save_copy(game: int, path: Path, relative: Path) -> bool:
-    """A backup's copy of a slot save, set to Paused."""
-    return is_slot_save(relative) and pause_save_file(game, path)
+def pause_save_file(game: int, path: Path) -> int | None:
+    """Set one save file to Paused, through a temporary file and a read-back.  Returns the speed
+    it had, or None when it was already paused or is not a save this can read (then it is left
+    exactly as it was)."""
+    data = path.read_bytes()
+    paused = pause_save_bytes(game, data)
+    if paused is None:
+        return None
+    _write_save(path, paused)
+    return save_speed(game, data)[1]
+
+
+def set_save_speed(game: int, path: Path, speed: int) -> None:
+    """Put a save's speed back to ``speed`` (Restore's roll-back, which places files from a
+    backup whose saves were set to Paused, so a failed restore leaves every save exactly as it
+    was)."""
+    data = path.read_bytes()
+    found = save_speed(game, data)
+    if found is None:
+        raise BackupError(f"{path.name} is not a save whose speed can be put back.")
+    offset = found[0]
+    _write_save(path, data[:offset] + speed.to_bytes(4, "little") + data[offset + 4:])
+
+
+def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
+    """A backup's copy of a slot save, set to Paused: the speed it had, or None."""
+    return pause_save_file(game, path) if is_slot_save(relative) else None
 
 
 def unpaused_backup_saves(save_folder: Path) -> list[Path]:
@@ -906,7 +927,7 @@ def pause_saves(paths: list[Path], processes: ProcessController | None = None) -
             outcome.skipped.append((path, f"{game_exe_name(live_folder)} is running"))
             continue
         try:
-            if pause_save_file(game, path):
+            if pause_save_file(game, path) is not None:
                 outcome.paused.append(path)
             else:
                 outcome.already.append(path)
@@ -1233,6 +1254,9 @@ def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path])
         try:
             if original is not None and original.is_file():
                 _place(original, target)
+                # The before-restore backup's saves are Paused; the save goes back as it was.
+                if relative in before.paused_from:
+                    set_save_speed(game_number(save_folder), target, before.paused_from[relative])
             elif target.exists():
                 target.unlink()
         except (OSError, BackupError):
