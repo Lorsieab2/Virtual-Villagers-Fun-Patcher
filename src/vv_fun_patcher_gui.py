@@ -3043,7 +3043,7 @@ class App(tk.Tk):
         ttk.Checkbutton(number_row, variable=number_var,
                         text="Number duplicate names (Soda I, Soda II...), in the game and the logs:"
                         ).pack(side="left")
-        number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["oldest"])
+        number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])   # the owner's default
         ttk.Combobox(number_row, textvariable=number_order_var, values=list(vv_genealogy.NUMBER_ORDERS.values()),
                      state="readonly", width=22).pack(side="left", padx=(8, 0))
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
@@ -3266,7 +3266,8 @@ class App(tk.Tk):
                         return
                 chosen[v.identity] = last
             try:
-                work = vv_last_names.plan(folder, number, info.slot, chosen)
+                whole = {n[len(vv_last_names.WHOLE):] for n in known if n.startswith(vv_last_names.WHOLE)}
+                work = vv_last_names.plan(folder, number, info.slot, chosen, whole=whole)
             except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
                 messagebox.showerror("Last names", str(exc), parent=window)
                 return
@@ -3277,7 +3278,7 @@ class App(tk.Tk):
             names["chosen"] = chosen
             names["answers"] = answers
             names["rule"] = rule_key()
-            names["whole"] = {n[len(vv_last_names.WHOLE):] for n in known if n.startswith(vv_last_names.WHOLE)}
+            names["whole"] = whole
             names["mine"] = set(mine)
             names["mine_names"] = {key: last for key, last in fixed().items()}
             names_var.set(bool(chosen))

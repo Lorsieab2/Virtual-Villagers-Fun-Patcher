@@ -32,9 +32,10 @@ class TheNumbers(unittest.TestCase):
         self.assertEqual([gen.roman(n) for n in (1, 2, 4, 9, 14, 20, 21, 40, 99)],
                          ["I", "II", "IV", "IX", "XIV", "XX", "XXI", "XL", "XCIX"])
 
-    def test_the_oldest_namesake_is_the_first_unless_the_player_says_otherwise(self):
-        # The owner: "the oldest person with a duplicate name should be named "I" unless the player
-        # says otherwise".  The dead count, by their age at death; an unknown age comes last.
+    def test_the_first_to_appear_is_the_first_unless_the_player_says_otherwise(self):
+        # The owner, 2026-10-07: "make "in order of appearance" default" (in the logs, so the dead
+        # and missing are numbered too).  Oldest first counts the dead by their age at death; an
+        # unknown age comes last.
         v = village(gen.Person(1, "Soda", 1, 1, sex="Male", age=300, alive=True, birth_record=1),
                     gen.Person(2, "Soda", 2, 2, sex="Male", age=900, gone="died", birth_record=3),
                     gen.Person(3, "Soda", 3, 3, sex="Female", age=500, alive=True, birth_record=2),
@@ -42,7 +43,8 @@ class TheNumbers(unittest.TestCase):
                     gen.Person(4, "Mai", 4, 4, sex="Female", age=500, alive=True),
                     gen.Person(5, "Upcoming child", -1, -1, upcoming=True),
                     gen.Person(6, "Upcoming child", -1, -1, upcoming=True))
-        self.assertEqual(gen.duplicate_names(v), {2: "Soda I", 3: "Soda II", 1: "Soda III", 7: "Soda IV"})
+        self.assertEqual(gen.duplicate_names(v), {7: "Soda I", 1: "Soda II", 3: "Soda III", 2: "Soda IV"})
+        self.assertEqual(gen.duplicate_names(v, "oldest"), {2: "Soda I", 3: "Soda II", 1: "Soda III", 7: "Soda IV"})
         self.assertEqual(gen.duplicate_names(v, "youngest"), {1: "Soda I", 3: "Soda II", 2: "Soda III", 7: "Soda IV"})
         self.assertEqual(gen.duplicate_names(v, "appearance"), {7: "Soda I", 1: "Soda II", 3: "Soda III", 2: "Soda IV"})
 
@@ -108,7 +110,7 @@ class TheTree(unittest.TestCase):
         youngest = ft.Edits(number_names=True, number_order="youngest")
         self.assertEqual(ft.default_text(ft.layout(v, youngest), v.people[2])[0], "2. Soda I")
         self.assertEqual(ft.Edits.from_data(youngest.to_data()).number_order, "youngest")
-        self.assertEqual(ft.Edits.from_data({"number_order": "nonsense"}).number_order, "oldest")
+        self.assertEqual(ft.Edits.from_data({"number_order": "nonsense"}).number_order, "appearance")
 
 
 class InTheSaveAndTheLogs(unittest.TestCase):
@@ -227,7 +229,7 @@ class TheWindows(unittest.TestCase):
         self.assertIn("number_var = tk.BooleanVar(value=False)", checklist, "never ticked for the player")
         repair = gui[gui.index("    def _repair_logs("):gui.index("    def _repair_checklist(")]
         self.assertIn("lambda: vv_number_names.number_names(folder, number, info.slot, numbering)", repair)
-        self.assertIn('number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["oldest"])', checklist)
+        self.assertIn('number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])', checklist)
         self.assertIn("self.edits.number_order))", offer)
         self.assertLess(repair.index("vv_last_names.give_last_names("), repair.index("vv_number_names.number_names("),
                         "numbered after any last names are given")

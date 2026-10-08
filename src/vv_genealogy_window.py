@@ -144,7 +144,7 @@ PAGES (Layout tab)
 NUMBERS
   Layout tab                      Roman numerals or numbers for the generations; Renumber
                                   villagers whose text I edited
-  Number duplicate names          namesakes numbered, oldest first (Soda I, Soda II...); it offers
+  Number duplicate names          namesakes numbered, in order of appearance (Soda I, Soda II...); it offers
   (Layout tab, Tools menu)        to number them in the game's save and logs too
 
 PICTURES AND TEXT BOXES (Pictures & Text tab)

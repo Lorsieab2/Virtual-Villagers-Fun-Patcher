@@ -210,7 +210,7 @@ class Edits:
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
     number_names: bool = False          # villagers who share a name numbered: "Soda I", "Soda II"...
-    number_order: str = "oldest"        # vv_genealogy.NUMBER_ORDERS: who is "I"
+    number_order: str = "appearance"    # vv_genealogy.NUMBER_ORDERS: who is "I" (the owner's default)
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers

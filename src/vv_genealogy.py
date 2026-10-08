@@ -833,7 +833,7 @@ NUMBER_ORDERS = {
 }
 
 
-def duplicate_names(village: Village, order: str = "oldest", reserved: set[str] = frozenset(),
+def duplicate_names(village: Village, order: str = "appearance", reserved: set[str] = frozenset(),
                     leave: set[int] = frozenset(), weight: dict[int, int] | None = None) -> dict[int, str]:
     """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
     duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."), the dead
