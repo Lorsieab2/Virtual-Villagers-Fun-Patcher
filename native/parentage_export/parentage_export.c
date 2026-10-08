@@ -3325,7 +3325,8 @@ static int delivery_litter(int game_id, const struct game_layout *g, const char 
 static const char *born_as_line(int litter) {
     return litter == 1 ? "  Born as: Single birth\n"
          : litter == 2 ? "  Born as: Twin\n"
-         : litter == 3 ? "  Born as: Triplet\n" : "";
+         : litter == 3 ? "  Born as: Triplet\n"
+         : litter == 4 ? "  Born as: Golden Child\n" : "";     /* A New Home's puzzle (vv1_parentage) */
 }
 
 /* The Birth record's text (WriteParentageBirth's arguments), with `note`

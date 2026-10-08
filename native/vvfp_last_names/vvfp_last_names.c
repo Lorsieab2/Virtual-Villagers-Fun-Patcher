@@ -230,6 +230,23 @@ static void give_last_name(char *name, unsigned int room, int family) {
     memcpy(name + have + 1, g_last[family - 1], add + 1);
 }
 
+/* A New Home's Golden Child is made by its puzzle with family 199, so the
+   naming above gives it no last name -- but it is a birth: the owner,
+   2026-10-08, "the Golden Child is an exception ... They should take the
+   mother or father's last name".  The parentage companion, which knows the
+   mother at that birth (the exe's Golden Child splice), asks here for the
+   family her children take; nothing is given when the companion is not
+   installed (the patch is off) or the family is outside 1-50. */
+__declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int room, int family) {
+    size_t before;
+    if (install_state != 1 || name == NULL || family < 1 || family > FAMILIES) {
+        return 0;
+    }
+    before = strlen(name);
+    give_last_name(name, room, family);
+    return strlen(name) != before;
+}
+
 static int one_of(unsigned int value, const unsigned int *values) {
     int i;
     for (i = 0; i < SLOT_VALUES && values[i] != 0; ++i) {
