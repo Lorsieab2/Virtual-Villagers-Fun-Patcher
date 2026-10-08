@@ -1166,8 +1166,10 @@ class ManifestTests(unittest.TestCase):
         # Cheat Upgrades cost Tech Points (vv2_story_cheat_upgrades_cost_tech_points),
         # no executable byte -- bit 30 of the startup loader's word; 27 with
         # Villagers Have Last Names (vv2_last_names), no executable byte -- its
-        # companion detours the naming routine at run time.
-        self.assertEqual(len(feature_ids), 27)
+        # companion detours the naming routine at run time; 28 with Full Names on
+        # the Details Screen (vv2_details_full_names), the name box's limit,
+        # width string and three copy-back lengths, in place.
+        self.assertEqual(len(feature_ids), 28)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4041,6 +4043,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_cause_of_death",
                 "vv2_restore_missing_island_events",
                 "vv2_last_names",
+                "vv2_details_full_names",
             },
         )
         for mode in ALL_MODES:

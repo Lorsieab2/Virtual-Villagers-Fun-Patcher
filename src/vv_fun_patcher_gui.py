@@ -441,19 +441,27 @@ def _window_buttons(event) -> None:
             if wanted != style:
                 user32.SetWindowLongW(hwnd, -16, wanted)
                 user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020)
-            if getattr(window, "_vvfp_disabled", None) is not None:
+            owner = getattr(window, "_vvfp_owner", None)
+            if getattr(window, "_vvfp_disabled", None) is not None and owner is not None and owner.winfo_exists():
                 # Tk drops a window's Windows owner when its transient is cleared: a holding dialog
-                # gets its owner back (_owned_by).
-                _owned_by(window, window.master.winfo_toplevel())
+                # gets its owner back, so it stays above the window it holds (Codex, #566).
+                _owned_by(window, owner)
         except (tk.TclError, OSError, AttributeError):
             pass                                # a window without its buttons is still a window
     # Tk ignores Minimize on a window kept above another (transient), so to Tk the patcher's windows
     # are ordinary ones; _hold makes a dialog's window its owner's in Windows' own terms, which keeps
     # it above that window (review, 2026-10-07).
     try:
-        if window.transient():
+        master = window.transient()
+        if master:
+            window._vvfp_owner = window.nametowidget(str(master)).winfo_toplevel()
             window.wm_transient("")
-    except tk.TclError:
+            window.update_idletasks()           # Tk rebuilds the frame now, not after the owner is set
+            if getattr(window, "_vvfp_disabled", None) is not None:
+                _owned_by(window, window._vvfp_owner)
+            else:
+                _follow_owner(window, window._vvfp_owner)
+    except (tk.TclError, KeyError, OSError, AttributeError):
         pass
     # Tk may rebuild the frame once more as the window settles (its icon, its transient owner), so
     # the buttons are put back then too.
@@ -476,6 +484,41 @@ def _app_windows(widget) -> list:
             out.append(w)
         todo.extend(w.winfo_children())
     return out
+
+
+def _follow_owner(window, owner) -> None:
+    """A window kept above another but not holding it (How to Use) hides when that window is minimized
+    and comes back with it (Codex, #566) -- without being owned in Windows' terms, which would take
+    its own Minimize away (the owner, 2026-10-07: Minimize on every window)."""
+    def hidden(event) -> None:
+        if event.widget is not owner:
+            return
+        try:
+            if owner.state() == "iconic" and window.winfo_exists() and window.state() == "normal":
+                window.withdraw()
+                window._vvfp_followed = True
+        except tk.TclError:
+            pass
+
+    def shown(event) -> None:
+        if event.widget is not owner:
+            return
+        try:
+            if getattr(window, "_vvfp_followed", False) and window.winfo_exists():
+                window._vvfp_followed = False
+                window.deiconify()
+        except tk.TclError:
+            pass
+
+    bound = [(owner, "<Unmap>", owner.bind("<Unmap>", hidden, add="+")),
+             (owner, "<Map>", owner.bind("<Map>", shown, add="+"))]
+
+    def gone(event) -> None:
+        if event.widget is window:
+            for widget, sequence, funcid in bound:
+                _unbind_one(widget, sequence, funcid)
+
+    window.bind("<Destroy>", gone, add="+")
 
 
 def _owned_by(top, owner) -> None:
@@ -520,6 +563,8 @@ def _hold(self) -> None:
             pass
     top._vvfp_disabled = disabled
     top._vvfp_bindings = []
+    if getattr(top, "_vvfp_owner", None) is None:
+        top._vvfp_owner = owner                 # _window_buttons keeps it owned as it settles
     try:
         _owned_by(top, owner)
     except (OSError, AttributeError, tk.TclError):
@@ -1031,6 +1076,31 @@ class App(tk.Tk):
         self.content_canvas.itemconfigure(self.content_window, width=event.width)
 
     def _scroll_content(self, event: tk.Event) -> str | None:
+        """The wheel scrolls only the window under the pointer -- the topmost there -- never one
+        underneath it (the owner, 2026-10-07): over a dialog, that dialog's own scrolling list; over
+        the main window, its page, unless a dialog is holding it."""
+        try:
+            under = self.winfo_containing(event.x_root, event.y_root)
+        except (tk.TclError, KeyError):
+            under = None
+        if under is None:
+            return "break"
+        top = under.winfo_toplevel()
+        if top is not self:
+            widget = under
+            while widget is not None and widget is not top:
+                if isinstance(widget, (tk.Listbox, tk.Text, ttk.Treeview)):
+                    return "break"              # scrolls itself (its own class binding)
+                if isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
+                    widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
+                    return "break"
+                widget = widget.master
+            return "break"
+        try:
+            if self.wm_attributes("-disabled"):
+                return "break"                  # a dialog holds the main window
+        except tk.TclError:
+            pass
         bounds = self.content_canvas.bbox("all")
         if not bounds or bounds[3] <= self.content_canvas.winfo_height():
             return None
@@ -2270,7 +2340,8 @@ class App(tk.Tk):
         )
         dialog.bind(
             "<MouseWheel>",
-            lambda event: canvas.yview_scroll(-1 if event.delta > 0 else 1, "units"),
+            # "break": the window's own scroll only, never the patcher's page as well
+            lambda event: (canvas.yview_scroll(-1 if event.delta > 0 else 1, "units"), "break")[1],
         )
         return dialog, frame
 

@@ -88,7 +88,22 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
     people = ln.living(folder, game, slot)
     blocks = additions.person_blocks(folder, slot, game)
     living_names = {v.name for v in people}
-    gone = {b.identity for b in blocks if b.heading.startswith(GONE_HEADINGS)}
+    # Gone: a Death / Disappeared / Left / Unaccounted record -- unless a living snapshot lists them at
+    # or past their age at death, so they were brought back (New Believers' Reanimate, a Custom Island
+    # Event's revived skeleton; Codex, #566).
+    died_at: dict[tuple, int] = {}
+    gone = set()
+    for b in blocks:
+        if b.heading.startswith(GONE_HEADINGS):
+            gone.add(b.identity)
+            age = b.int_value("Age at death")
+            if age is not None:
+                died_at[b.identity] = max(died_at.get(b.identity, age), age)
+    for b in blocks:
+        if b.identity in died_at and not b.heading.startswith(GONE_HEADINGS):
+            age = b.int_value("Age")
+            if age is not None and age >= died_at[b.identity]:
+                gone.discard(b.identity)
     sexes: dict[tuple, set[str]] = {}
     for b in blocks:
         sex = b.value("Sex")
@@ -102,13 +117,14 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
     notes: list[str] = []
     for v in people:
         # Only what the screen does to a name: the cut keeps `room` characters, or a few fewer when
-        # the letters are wide (measured live: 9 'M's in A New Home, 15 in the others), and the full
-        # name was longer than the box -- so a name the player shortened on purpose ("Chapa
-        # Wanjiko" -> "Chapa") is never "restored" (review, 2026-10-07).
+        # the letters are wide (measured live: 9 'M's in A New Home, 15 in the others) -- so a name
+        # the player shortened on purpose ("Chapa Wanjiko" -> "Chapa") is never "restored" (review,
+        # 2026-10-07) -- and the full name is longer than what was kept (a wide name cut to 15 may
+        # have been 16; Codex, #566).
         if not v.name or not room - WIDE_SLACK[game] <= len(v.name) <= room:
             continue
         found = sorted({name for name, head, body in logged
-                        if (head, body) == (v.head, v.body) and len(name) > room and name.startswith(v.name)
+                        if (head, body) == (v.head, v.body) and len(name) > len(v.name) and name.startswith(v.name)
                         and len(name) <= fits and all(0x20 <= ord(ch) < 0x7F for ch in name)
                         and (name, head, body) not in gone and name not in living_names
                         and sexes.get((name, head, body), {v.sex}) == {v.sex}

@@ -130,6 +130,25 @@ class CutNames(unittest.TestCase):
                  "Village: Tribe (Save 1)\n" + person(1, "Chapa Wanjiko Kaul", 5, 6))
         self.assertEqual(self.found(), ({}, []))
 
+    def test_a_wide_name_cut_short_of_the_limit_is_restored(self):
+        # Codex, #566: wide letters leave 15 of an 18 limit, and the full name may be only 16.
+        wide, wide_full = "MMMMM MMMMM MMMM", "MMMMM MMMMM MMMMM"
+        self.write_save(entry(wide[:15], 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8))
+        self.log("Tribe Population/Village Population 1.txt",
+                 "Village: Tribe (Save 1)\n" + person(1, wide_full[:16], 5, 6))
+        found, _notes = self.found()
+        self.assertEqual(found, {wide[:15]: wide_full[:16]})
+
+    def test_a_villager_brought_back_after_death_is_still_them(self):
+        # Codex, #566: a Death record, then a living snapshot at or past that age (New Believers'
+        # Reanimate, a Custom Island Event's revived skeleton) -- alive again.
+        self.log("Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+                 f"Village: Tribe (Save 1)\nDeath 1\n  Name: {FULL}\n  Age at death: 380\n  Head: 5\n  Body: 6\n\n")
+        self.assertEqual(self.found(), ({CUT: FULL}, []))       # snapshots list them at age 400
+        # Never seen alive after that age: gone.
+        self.history.write_bytes(self.history.read_bytes().replace(b"Age: 400", b"Age: 300"))
+        self.assertEqual(self.found(), ({}, []))
+
     def test_a_name_longer_than_the_screen_keeps_was_never_cut(self):
         self.write_save(entry(FULL[:19], 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8))
         self.assertEqual(self.found(), ({}, []))

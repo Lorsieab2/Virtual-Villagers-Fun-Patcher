@@ -55,6 +55,9 @@ REMAINING = {
     # five jump-table entries and the case-4 body over the island-event
     # trigger's dead positive-kind branch; owns no Origins bytes
     "vv2_restore_missing_island_events",
+    # the Details name box's limit, width string and copy-back lengths, in place;
+    # owns no Origins bytes
+    "vv2_details_full_names",
 }
 
 
