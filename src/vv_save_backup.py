@@ -899,10 +899,11 @@ _SPEED_VALUES = {"slow": 10, "normal": 6, "fast": 3}
 
 
 def speed_words(value: int) -> str:
-    """A save's speed as the player knows it: "Normal", or "Paused (Normal)"."""
-    base = value - _PAUSED if value >= _PAUSED else value
-    words = {v: SPEED_CHOICES[k] for k, v in _SPEED_VALUES.items()}.get(base, str(base))
-    return f"Paused ({words})" if value >= _PAUSED else words
+    """A save's speed as the player knows it: "Normal", or just "Paused" (the owner, 2026-10-08:
+    the speed under a pause is not shown, to avoid confusion)."""
+    if value >= _PAUSED:
+        return SPEED_CHOICES["paused"]
+    return {v: SPEED_CHOICES[k] for k, v in _SPEED_VALUES.items()}.get(value, str(value))
 
 
 def set_speed_choice(game: int, path: Path, choice: str) -> tuple[int, int] | None:

@@ -104,7 +104,7 @@ class SpeedChoiceTests(unittest.TestCase):
 
     def test_the_words(self) -> None:
         self.assertEqual([backup.speed_words(v) for v in (3, 6, 10, 1005, 1002)],
-                         ["Fast", "Normal", "Slow", "Paused (Normal)", "Paused (Fast)"])
+                         ["Fast", "Normal", "Slow", "Paused", "Paused"])
 
 
 class BackupTests(unittest.TestCase):
