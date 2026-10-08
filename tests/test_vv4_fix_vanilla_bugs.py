@@ -81,6 +81,11 @@ FIXES = (
     (0x65DB5, bytes.fromhex("68B7000000"), bytes.fromhex("68B9000000")),
     (0x65DC1, bytes.fromhex("83C001"), bytes.fromhex("83C000")),
 )
+PERCENT_FIXES = (  # '%' in a name never a format; text boxes refuse it (#566)
+    (0x000402B9, bytes.fromhex("8D8E9C1B0000518D54242C52E81114030083C408"), bytes.fromhex("8D8E9C1B000051B872A84800EBE2909090909090")),
+    (0x0000D813, bytes.fromhex("8B71308814308B5130C644020100"), bytes.fromhex("83FA2574108B71306689143089F2")),
+)
+FIXES = FIXES + PERCENT_FIXES
 
 
 def _vv4():

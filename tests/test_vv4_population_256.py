@@ -415,6 +415,8 @@ FIX_WRITER, FIX_READER, FIX_CHECK = 0x660F1, 0x6613D, 0x387A0
 # Fix Vanilla Bugs' every-default-name rows (the naming routine's roll), which
 # the 256 build leaves to the row as it is.
 FIX_NAMES = {0x65DB5, 0x65DC1}
+# ... and its '%' rows (#566), in both builds.
+FIX_PERCENT = {0xD813, 0x402B9}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 
@@ -449,10 +451,10 @@ class FixVanillaBugsTests(unittest.TestCase):
             with self.subTest(mode=mode):
                 _, applied = _render_ids(mode, ["vv4_population_256", FIX])
                 fix_rows = {int(a["offset"], 0) for a in applied if a.get("owner") == f"feature:{FIX}"}
-                self.assertEqual(fix_rows, {FIX_CHECK} | FIX_NAMES)
+                self.assertEqual(fix_rows, {FIX_CHECK} | FIX_NAMES | FIX_PERCENT)
                 _, applied = _render_ids(mode, [FIX])
                 fix_rows = {int(a["offset"], 0) for a in applied if a.get("owner") == f"feature:{FIX}"}
-                self.assertEqual(fix_rows, {FIX_WRITER, FIX_READER, FIX_CHECK} | FIX_NAMES)
+                self.assertEqual(fix_rows, {FIX_WRITER, FIX_READER, FIX_CHECK} | FIX_NAMES | FIX_PERCENT)
 
     def test_a_save_the_unfixed_game_damaged_loads_with_all_150(self):
         damaged, saver = _save(render("collection_progression", False), list(range(150)))

@@ -69,7 +69,16 @@ NAME_FIXES = (
     (0x3CA06, bytes.fromhex("6A64"), bytes.fromhex("6A65")),
     (0x3CA10, bytes.fromhex("40"), bytes.fromhex("90")),
 )
-FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES
+PERCENT_FIXES = (  # '%' in a name never a format; text boxes refuse it (#566)
+    (0x4A66A, bytes.fromhex("E8CE0B0000"), bytes.fromhex("E8114D0000")),
+    (0x18760, bytes.fromhex("E8D82A0300"), bytes.fromhex("E81B6C0300")),
+    (0x1FAA1, bytes.fromhex("E897B70200"), bytes.fromhex("E8DAF80200")),
+    (0x27892, bytes.fromhex("E8A6390200"), bytes.fromhex("E8E97A0200")),
+    (0x2A952, bytes.fromhex("E8E6080200"), bytes.fromhex("E8294A0200")),
+    (0x48FF1, bytes.fromhex("E847220000"), bytes.fromhex("E88A630000")),
+    (0x0BEB7, bytes.fromhex("83FA1F7E0881FAFF0000007E1784DB740A"), bytes.fromhex("83FA25744B8D72E081FEDF000000761490")),
+)
+FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES + PERCENT_FIXES
 
 # Game addresses and fields.
 BLUE_VIAL = 0x419C3F           # resolve 0x419380's case for the blue vial
