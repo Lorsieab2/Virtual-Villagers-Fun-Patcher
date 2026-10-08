@@ -77,6 +77,36 @@ class SpeedTests(unittest.TestCase):
             self.assertIsNone(backup.pause_save_bytes(other, good))                          # another game's
 
 
+class SpeedChoiceTests(unittest.TestCase):
+    """Repair Saves & Logs' Game speed (the owner, 2026-10-08: "Paused, slow, normal, fast")."""
+
+    def test_every_choice_from_every_speed_changes_only_the_speed(self) -> None:
+        expected = {"slow": lambda v: 10, "normal": lambda v: 6, "fast": lambda v: 3,
+                    "paused": lambda v: v if v >= 999 else v + 999}
+        with tempfile.TemporaryDirectory() as tmp:
+            for game in TITLES:
+                for start in (3, 6, 10, 1002, 1005, 1009):
+                    for choice, want in expected.items():
+                        path = Path(tmp) / f"g{game}_{start}_{choice}.ldw"
+                        before = save_bytes(game, start)
+                        path.write_bytes(before)
+                        result = backup.set_speed_choice(game, path, choice)
+                        after = path.read_bytes()
+                        self.assertEqual(backup.save_speed(game, after)[1], want(start), (game, start, choice))
+                        self.assertEqual(result, None if want(start) == start else (start, want(start)))
+                        at = backup.save_speed(game, before)[0]
+                        self.assertEqual(after[:at] + after[at + 4:], before[:at] + before[at + 4:])
+            junk = Path(tmp) / "junk.ldw"
+            junk.write_bytes(b"not a save")
+            with self.assertRaises(backup.BackupError):
+                backup.set_speed_choice(1, junk, "normal")
+            self.assertEqual(junk.read_bytes(), b"not a save")
+
+    def test_the_words(self) -> None:
+        self.assertEqual([backup.speed_words(v) for v in (3, 6, 10, 1005, 1002)],
+                         ["Fast", "Normal", "Slow", "Paused (Normal)", "Paused (Fast)"])
+
+
 class BackupTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()

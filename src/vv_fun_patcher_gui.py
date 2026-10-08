@@ -3185,11 +3185,15 @@ class App(tk.Tk):
                 unpaused = vv_save_backup.unpaused_backup_saves(folder)
             except OSError:
                 unpaused = []
+            try:                                # the save's game speed now (Repair can change it)
+                speed = vv_save_backup.save_speed(number, vv_last_names.save_path(folder, number, info.slot).read_bytes())
+            except OSError:
+                speed = None
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
-                    cuts, unpaused)
+                    cuts, unpaused, speed)
 
         try:
-            checked, old_words, kinds, (cuts, cut_notes), unpaused = self._run_with_wait(
+            checked, old_words, kinds, (cuts, cut_notes), unpaused, speed = self._run_with_wait(
                 "Checking the logs…\n\nNothing is changed.", survey
             )
             found = (
@@ -3201,10 +3205,10 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused)
+                                        unpaused, speed)
         if picked is None:
             return
-        rearm, chosen, answers, names, numbering, restore_cuts, to_pause = picked
+        rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice = picked
         try:
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
@@ -3276,6 +3280,16 @@ class App(tk.Tk):
             lines.append(" ".join([f"Duplicate names numbered: {len(done.renamed)} villager(s), in the save and "
                                    f"{len(done.files) - 1} other file(s)."] + wanted.notes
                                   + [f"Backup: {done.backup.backup_folder}"]))
+        # Last, after every repair that rewrites the save: its game speed.
+        if speed_choice:
+            try:
+                changed = self._run_with_wait("Setting the game speed…", lambda: vv_save_backup.set_speed_choice(
+                    number, vv_last_names.save_path(folder, number, info.slot), speed_choice))
+                lines.append(f"Game speed in the save: {vv_save_backup.speed_words(changed[1])} (was "
+                             f"{vv_save_backup.speed_words(changed[0])})." if changed else
+                             f"Game speed in the save: already {vv_save_backup.SPEED_CHOICES[speed_choice]}.")
+            except (vv_save_backup.BackupError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The game speed was not changed. {exc}", parent=parent)
         if rearm:
             lines.append(
                 f"The next time you play {info.name} (Save {info.slot}), the game will repair "
@@ -3300,7 +3314,8 @@ class App(tk.Tk):
         )
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
-                          kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = ()):
+                          kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
+                          speed: tuple | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3413,6 +3428,18 @@ class App(tk.Tk):
 
         ttk.Button(pick_row, text="Choose saves…", command=pick_saves).pack(side="left")
         pick_label.pack(side="left", padx=(8, 0))
+        # The save's game speed (the owner, 2026-10-08: "Paused, slow, normal, fast").
+        keep = (f"Keep as it is (now {vv_save_backup.speed_words(speed[1])})" if speed is not None
+                else "Keep as it is")
+        speed_row = ttk.Frame(frame)
+        speed_row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(speed_row, text="Game speed in the save:").pack(side="left")
+        speed_var = tk.StringVar(value=keep)
+        speed_box = ttk.Combobox(speed_row, textvariable=speed_var, state="readonly", width=26,
+                                 values=[keep] + list(vv_save_backup.SPEED_CHOICES.values()))
+        speed_box.pack(side="left", padx=(8, 0))
+        if speed is None:
+            speed_box.state(["disabled"])
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
         if questions:
             ttk.Button(frame, text=f"Answer the {len(questions)} question(s)…",
@@ -3431,7 +3458,8 @@ class App(tk.Tk):
                                  next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
                                  if number_var.get() and not restore else None,
                                  restore,
-                                 (list(unpaused) if pause_backups_var.get() else []) + list(picked_saves))
+                                 (list(unpaused) if pause_backups_var.get() else []) + list(picked_saves),
+                                 next((k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get()), None))
             window.destroy()
 
         ttk.Button(buttons, text="Repair", command=go).pack(side="left")
