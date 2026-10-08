@@ -598,8 +598,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.bind("<Escape>", self._escape)
 
     def _selected_tab(self) -> None:
-        tab = ttk.Frame(self.notebook, padding=8)
-        self.notebook.add(tab, text="Villagers")
+        # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
+        # scroll bar for the side panel options! it's cut off!"), like the other tabs.
+        tab = ScrollingTab(self.notebook, "Villagers")
         self.sel_label = tk.StringVar()
         ttk.Label(tab, textvariable=self.sel_label, wraplength=320, justify="left").pack(anchor="w")
 
@@ -693,8 +694,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_selected()
 
     def _marks_tab(self) -> None:
-        tab = ttk.Frame(self.notebook, padding=8)
-        self.notebook.add(tab, text="Special Marks")
+        # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
+        # scroll bar for the side panel options! it's cut off!"), like the other tabs.
+        tab = ScrollingTab(self.notebook, "Special Marks")
         ttk.Label(tab, text="A special mark is a coloured border or glow around a villager, named in the Key "
                             "under the title.", wraplength=320, justify="left").pack(anchor="w")
         box = ttk.LabelFrame(tab, text="How every mark looks", padding=6)
@@ -746,8 +748,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_marks()
 
     def _tree_tab(self) -> None:
-        tab = ttk.Frame(self.notebook, padding=8)
-        self.notebook.add(tab, text="Layout")
+        # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
+        # scroll bar for the side panel options! it's cut off!"), like the other tabs.
+        tab = ScrollingTab(self.notebook, "Layout")
         e = self.edits
         self.title_var = tk.StringVar(value=e.title)
         self.subtitle_var = tk.StringVar(value=e.subtitle)
