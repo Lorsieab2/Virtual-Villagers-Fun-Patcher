@@ -2940,7 +2940,8 @@ class App(tk.Tk):
                     "Giving the last names…\n\nThe save folder is backed up first.",
                     lambda: vv_last_names.give_last_names(folder, number, info.slot, names["chosen"],
                                                           answers=names["answers"], rule=names.get("rule"),
-                                                          mine=names.get("mine_names")),
+                                                          mine=names.get("mine_names"),
+                                                          whole=names.get("whole")),
                 )
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
@@ -3086,7 +3087,9 @@ class App(tk.Tk):
         checker = vv_log_tools.load_checker()
         none = "(no last name)"
         recorded_rule, recorded = vv_last_names.read_record(folder, number, info.slot)
-        known = set(recorded.values())
+        # The record's last names, and the names the player says are one first name -- changed by
+        # the tick boxes below (the owner, 2026-10-07: "Ask per villager").
+        known = vv_last_names.known_names(folder, number, info.slot, names.get("whole"))
 
         def split(name: str) -> tuple:
             return vv_last_names.split_name(number, name, known)
@@ -3148,10 +3151,30 @@ class App(tk.Tk):
             ttk.Label(inner, textvariable=mark, foreground="#a33").grid(row=row, column=2, sticky="w", padx=(8, 0))
             value.trace_add("write", lambda *_a, v=v: None if filling[0] else set_by_player(v))
             rows.append((v, value, mark))
+            # A second word that is no known last name ("Chapa Chapstick" typed in v1.35.62, "Big
+            # Bob" set with Cheat Engine): the player says whether it is one.
+            guessed = vv_last_names.guessed_last_name(number, v.name, known)
+            if guessed:
+                plain = {n for n in known if not n.startswith(vv_last_names.WHOLE)}
+                own, _last, _suffix = vv_last_names.split_name(number, v.name, plain)
+                is_last = tk.BooleanVar(value=vv_last_names.WHOLE + f"{own} {guessed}" not in known)
+                ttk.Checkbutton(inner, text=f"'{guessed}' is a last name", variable=is_last,
+                                command=lambda v=v, base=f"{own} {guessed}", var=is_last: one_name(v, base, var)
+                                ).grid(row=row, column=3, sticky="w", padx=(8, 0))
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")
+
+        def one_name(v, base: str, var) -> None:
+            """Ticked: the second word is a last name; unticked: the words are one first name."""
+            key = vv_last_names.WHOLE + base
+            if var.get():
+                known.discard(key)
+            else:
+                known.add(key)
+            now[v.identity] = carried(v.name)
+            by_rule()
 
         def type_here(box, value) -> None:
             """(custom last name - type here...): an empty box, ready for the player's own."""
@@ -3254,6 +3277,7 @@ class App(tk.Tk):
             names["chosen"] = chosen
             names["answers"] = answers
             names["rule"] = rule_key()
+            names["whole"] = {n[len(vv_last_names.WHOLE):] for n in known if n.startswith(vv_last_names.WHOLE)}
             names["mine"] = set(mine)
             names["mine_names"] = {key: last for key, last in fixed().items()}
             names_var.set(bool(chosen))

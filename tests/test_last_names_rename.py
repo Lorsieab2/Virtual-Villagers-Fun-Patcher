@@ -58,6 +58,31 @@ class NamesTypedBeforeTheRecord(unittest.TestCase):
         self.assertEqual(gen._last_name("Mia"), "")
 
 
+class TwoWordNamesAreAsked(unittest.TestCase):
+    """The owner, 2026-10-07, on a two-word name whose second word is no known last name: "Ask per
+    villager" -- ticked (a last name) by default, unticked keeps the words as one first name."""
+
+    def test_the_player_says_which_names_are_one_first_name(self):
+        self.assertEqual(ln.guessed_last_name(1, "Big Bob"), "Bob")
+        self.assertEqual(ln.guessed_last_name(1, "Soda Akikai II"), "", "one of the game's own: nothing to ask")
+        self.assertEqual(ln.guessed_last_name(1, "Chapa Chapstick", {"Chapstick"}), "", "on record: nothing to ask")
+        whole = {ln.WHOLE + "Big Bob"}
+        self.assertEqual(ln.split_name(1, "Big Bob II", whole), ("Big Bob", "", "II"))
+        self.assertEqual(ln.with_last(1, "Big Bob", "Akikai", whole), "Big Bob Akikai")
+        self.assertEqual(ln.with_last(1, "Big Bob", "Akikai"), "Big Akikai")
+        self.assertEqual(ln.guessed_last_name(1, "Big Bob", whole), "Bob", "still asked, answered unticked")
+
+    def test_the_answer_is_kept_with_the_village(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ln.write_record(Path(tmp), 1, 2, "father", {("Chapa", 1, 1): "Chapstick"}, {"Big Bob"})
+            self.assertEqual(ln.read_record(Path(tmp), 1, 2), ("father", {("Chapa", 1, 1): "Chapstick"}))
+            self.assertEqual(ln.read_whole(Path(tmp), 1, 2), {"Big Bob"})
+            self.assertEqual(ln.known_names(Path(tmp), 1, 2), {"Chapstick", ln.WHOLE + "Big Bob"})
+            # A later write without the answers keeps them.
+            ln.write_record(Path(tmp), 1, 2, "mother", {})
+            self.assertEqual(ln.read_whole(Path(tmp), 1, 2), {"Big Bob"})
+
+
 class EveryRenameIsHeldToTheGamesRoom(unittest.TestCase):
     """The owner: a character limit "IN EVERY SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN
     HAPPEN" -- plan_renames refuses, before reading anything, a name the game cannot hold."""
