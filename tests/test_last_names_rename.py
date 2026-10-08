@@ -119,6 +119,27 @@ class TheRepairsLogFollowsARename(unittest.TestCase):
             self.assertIn("Pregnancy: Chapa Wanjiko -- father Ago", after)
             self.assertEqual(log.read_bytes().decode("latin-1"), text, "planning writes nothing")
 
+    def test_a_namesake_the_logs_know_keeps_every_line(self):
+        # Codex, #566: a living Ago renamed while a buried Ago keeps the name -- "Ago" is not one
+        # villager's alone, so no name-only line changes.
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            log = folder / LOGS / "Repairs" / "Virtual Villagers 1 Repairs Log 1.txt"
+            log.parent.mkdir(parents=True)
+            log.write_bytes(b"Village: Tribe (Save 1)\r\nPregnancy: Ago -- father Tomi (was unknown)\r\n")
+            deaths = folder / LOGS / "Deaths" / "Virtual Villagers 1 Deaths Log 1.txt"
+            deaths.parent.mkdir(parents=True)
+            deaths.write_bytes(b"Village: Tribe (Save 1)\r\nDeath 1\r\n  Name: Ago\r\n  Head: 9\r\n  Body: 9\r\n\r\n")
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Ago": {"Ago Akikai"}}, None,
+                                  renames={("Ago", 1, 1): "Ago Akikai"})
+            self.assertEqual(result.changes, [])
+            # The buried Ago renamed too (Number Duplicate Names numbers the dead): every Ago is renamed.
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Ago": {"Ago Akikai"}}, None,
+                                  renames={("Ago", 1, 1): "Ago Akikai", ("Ago", 9, 9): "Ago Akikai"})
+            self.assertEqual(len(result.changes), 1)
+
 
 class EveryRenameIsHeldToTheGamesRoom(unittest.TestCase):
     """The owner: a character limit "IN EVERY SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN

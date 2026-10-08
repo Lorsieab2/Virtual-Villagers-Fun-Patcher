@@ -93,17 +93,26 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
     # Event's revived skeleton; Codex, #566).
     died_at: dict[tuple, int] = {}
     gone = set()
+    oldest_alive: dict[tuple, int] = {}      # the oldest age a living snapshot lists each identity at
     for b in blocks:
-        if b.heading.startswith(GONE_HEADINGS):
+        if _is_gone(b):
             gone.add(b.identity)
             age = b.int_value("Age at death")
             if age is not None:
                 died_at[b.identity] = max(died_at.get(b.identity, age), age)
-    for b in blocks:
-        if b.identity in died_at and not b.heading.startswith(GONE_HEADINGS):
+        elif not b.heading.startswith(GONE_HEADINGS):
             age = b.int_value("Age")
-            if age is not None and age >= died_at[b.identity]:
-                gone.discard(b.identity)
+            if age is not None:
+                oldest_alive[b.identity] = max(oldest_alive.get(b.identity, age), age)
+
+    def still_gone(full: tuple, cut: tuple) -> bool:
+        """Gone, unless a living snapshot -- under the full name, or the cut one it was logged by
+        after the cut (Codex, #566) -- lists them at or past their age at death."""
+        if full not in gone:
+            return False
+        if full not in died_at:
+            return True
+        return max(oldest_alive.get(full, -1), oldest_alive.get(cut, -1)) < died_at[full]
     sexes: dict[tuple, set[str]] = {}
     for b in blocks:
         sex = b.value("Sex")
@@ -126,7 +135,7 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
         found = sorted({name for name, head, body in logged
                         if (head, body) == (v.head, v.body) and len(name) > len(v.name) and name.startswith(v.name)
                         and len(name) <= fits and all(0x20 <= ord(ch) < 0x7F for ch in name)
-                        and (name, head, body) not in gone and name not in living_names
+                        and not still_gone((name, head, body), v.identity) and name not in living_names
                         and sexes.get((name, head, body), {v.sex}) == {v.sex}
                         and _likes_agree(blocks, v.identity, (name, head, body))})
         if not found:
@@ -143,6 +152,17 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
             continue
         cuts.append(Cut(v, found[0]))
     return cuts, notes
+
+
+def _is_gone(b) -> bool:
+    """A record that says the villager left the village.  An Unaccounted record is one only in its
+    "Left the village ..." form: the same heading also names a living newcomer who "Arrived with no
+    Birth record or known arrival" (Codex, #566)."""
+    if not b.heading.startswith(GONE_HEADINGS):
+        return False
+    if b.heading.startswith("Unaccounted"):
+        return (b.value("What") or "").startswith("Left")
+    return True
 
 
 def _likes_agree(blocks, cut: tuple, full: tuple) -> bool:
@@ -162,11 +182,16 @@ def plan(folder: Path, game: int, slot: int) -> ln.Plan:
     """What restoring the full names changes, file by file: the save, and every record carrying a cut
     name (the living only; nobody is asked about look-alikes -- each cut name is one name, head and
     body).  Reads only."""
+    import vv_log_additions as additions
     cuts, notes = find_cut(folder, game, slot)
     renames: dict[tuple, str] = {}
     for cut in cuts:
         renames.update(cut.renames)
-    work = ln.plan_renames(folder, game, slot, renames, dead=False, ask=False)
+    # A villager brought back after dying with the cut name has a Death record under it too: those
+    # records are theirs, so they are renamed as well (Codex, #566).  Only records of the exact cut
+    # name, head and body being restored -- one living villager's -- are touched.
+    died_cut = any(_is_gone(b) and b.identity in renames for b in additions.person_blocks(Path(folder), slot, game))
+    work = ln.plan_renames(folder, game, slot, renames, dead=died_cut, ask=False)
     work.notes[:0] = notes
     return work
 

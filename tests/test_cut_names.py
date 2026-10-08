@@ -149,6 +149,36 @@ class CutNames(unittest.TestCase):
         self.history.write_bytes(self.history.read_bytes().replace(b"Age: 400", b"Age: 300"))
         self.assertEqual(self.found(), ({}, []))
 
+    def test_brought_back_shows_under_the_cut_name_too(self):
+        # Codex, #566: last logged in full at 300, died at 380, brought back -- the later snapshots
+        # (age 400) carry the cut name.
+        self.history.write_bytes(self.history.read_bytes().replace(
+            f"  Name: {FULL}\r\n  Age: 400".encode(), f"  Name: {FULL}\r\n  Age: 300".encode()))
+        self.log("Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+                 f"Village: Tribe (Save 1)\nDeath 1\n  Name: {FULL}\n  Age at death: 380\n  Head: 5\n  Body: 6\n\n")
+        self.assertEqual(self.found(), ({CUT: FULL}, []))
+
+    def test_an_unaccounted_newcomer_is_not_gone(self):
+        # Codex, #566: the same heading names a living newcomer; only "Left the village ..." is gone.
+        self.log("Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+                 f"Village: Tribe (Save 1)\nUnaccounted 1\n  Name: {FULL}\n"
+                 "  What: Arrived with no Birth record or known arrival\n  Head: 5\n  Body: 6\n\n")
+        self.assertEqual(self.found(), ({CUT: FULL}, []))
+        self.log("Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+                 f"Village: Tribe (Save 1)\nUnaccounted 1\n  Name: {FULL}\n"
+                 "  What: Left the village with no Death or Disappeared record\n  Head: 5\n  Body: 6\n\n")
+        self.assertEqual(self.found(), ({}, []))
+
+    def test_a_death_record_under_the_cut_name_is_restored_for_one_brought_back(self):
+        # Codex, #566: cut, died, brought back -- the Death record carries the cut name and is theirs.
+        deaths = self.log("Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+                          f"Village: Tribe (Save 1)\nDeath 1\n  Name: {CUT}\n  Age at death: 390\n  Head: 5\n"
+                          "  Body: 6\n\n")
+        work = cn.plan(self.folder, 3, 1)
+        changed = {c.path: c.updated for c in work.changes}
+        self.assertIn(deaths, changed)
+        self.assertIn(f"  Name: {FULL}\r\n".encode(), changed[deaths])
+
     def test_a_name_longer_than_the_screen_keeps_was_never_cut(self):
         self.write_save(entry(FULL[:19], 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8))
         self.assertEqual(self.found(), ({}, []))

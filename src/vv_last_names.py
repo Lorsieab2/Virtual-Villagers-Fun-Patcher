@@ -1174,11 +1174,11 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
             if crlf:
                 text = text.replace("\n", "\r\n")
             result.changes.append(Change(path, original, text.encode("latin-1"), "the logs"))
-    _plan_repairs_logs(result, folder, game, slot, by_name, villages)
+    _plan_repairs_logs(result, folder, game, slot, by_name, villages, renames)
 
 
 def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name: dict[str, set],
-                       villages) -> None:
+                       villages, renames: dict[tuple, str] | None = None) -> None:
     """The Repairs log (which the checker's log list leaves out) names villagers in its own words --
     "Pregnancy: Chapa Wanjiko -- father Usutu Bahati" -- with no looks, so a name there is renamed
     only when it is one villager's alone (`by_name`), as a whole name: "Kaula Bahati" never touches
@@ -1186,6 +1186,16 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
     import vv_log_additions as additions
     checker = tools.load_checker()
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1 and old.strip()}
+    if renames is not None and unique:
+        # Unique among every villager the logs know, not just the living: a buried namesake who keeps
+        # their name keeps every line too (Codex, #566).
+        logged: dict[str, set] = {}
+        for b in additions.person_blocks(Path(folder), slot, game):
+            name, head, body = b.identity
+            if name in unique and head is not None and body is not None:
+                logged.setdefault(name, set()).add((name, head, body))
+        renamed = set(renames)
+        unique = {old: new for old, new in unique.items() if logged.get(old, set()) <= renamed}
     if not unique:
         return
     # A whole name only: after the start of the line or a space, and followed by what ends a name in
