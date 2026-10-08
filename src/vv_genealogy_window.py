@@ -836,6 +836,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         wrap_spin.bind("<MouseWheel>", lambda e: (self.wrap_var.set(str(max(ft.WRAP_MIN, min(
             ft.WRAP_MAX, self.edits.text_wrap + (1 if e.delta > 0 else -1))))), self._text_wrap(), "break")[-1])
         wrap_spin.pack(side="left", padx=(6, 0))
+        # The owner, 2026-10-08: the spacing between portraits batch-editable, and portraits and their
+        # words shrinking by themselves to fit many to a page.
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Gap between portraits (pixels):").pack(side="left")
+        self.gap_var = tk.StringVar(value=f"{e.portrait_gap:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.gap_var, from_=ft.GAP_MIN, to=ft.GAP_MAX, increment=2, width=5),
+                   self._portrait_gap).pack(side="left", padx=(6, 0))
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Shrink portraits to fit a page width of (pixels, 0 = off):").pack(side="left")
+        self.fit_var = tk.StringVar(value=str(e.fit_width))
+        self._live(ttk.Spinbox(row, textvariable=self.fit_var, from_=0, to=ft.FIT_MAX, increment=200, width=7),
+                   self._fit_width).pack(side="left", padx=(6, 0))
         self.units_var = tk.BooleanVar(value=e.show_units)
         ttk.Checkbutton(tab, text="Game age in units", variable=self.units_var,
                         command=lambda: self._change(show_units=bool(self.units_var.get()))).pack(anchor="w")
@@ -2273,7 +2287,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if hasattr(self, "lay"):
                 now = {getattr(self.lay, attr)(p) for p in people}
                 self.own_vars[attr].set(choices[now.pop()] if len(now) == 1 else "")
-        sizes = [ft.frame_size(self.edits, self.village, p) for p in people]
+        sizes = [ft.frame_size(self.edits, self.village, p, unscaled=True) for p in people]
         styles = [self.edits.family_lines.get(self._family(p) or "", {}) for p in people]
         for var, values in ((self.own_w, {w for w, _h in sizes}), (self.own_h, {h for _w, h in sizes}),
                             (self.own_line_w, {s.get("width", self.edits.line_width) for s in styles})):
@@ -2295,6 +2309,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         if n != self.edits.text_wrap:
             self._change(text_wrap=n)
+
+    def _portrait_gap(self) -> None:
+        """The pixels between two portraits side by side, for every portrait."""
+        gap = self._number(self.gap_var.get(), ft.GAP_MIN, ft.GAP_MAX)
+        if gap is not None and gap != self.edits.portrait_gap:
+            self._change(portrait_gap=gap)
+
+    def _fit_width(self) -> None:
+        """Portraits (faces and words too) shrink alike so the widest row fits this page width; 0 is off."""
+        try:
+            width = int(float(self.fit_var.get()))
+        except ValueError:
+            return
+        width = 0 if width <= 0 else max(ft.FIT_MIN, min(ft.FIT_MAX, width))
+        if width != self.edits.fit_width:
+            self._change(fit_width=width)
 
     def _group_all(self, group: str) -> None:
         """The group's shape and border on every one of its portraits: those given their own one by
@@ -2359,7 +2389,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         natural = None
         if not w_var.get().strip() or not h_var.get().strip():      # one typed: the other as the shape has it
             p = next((p for p in self.village.people.values() if ft.group_of(p) == group), None)
-            natural = ft.frame_size(self.edits, self.village, p, own=False) if p is not None else (ft.NODE_W, ft.NODE_H)
+            natural = ft.frame_size(self.edits, self.village, p, own=False, unscaled=True) if p is not None else (ft.NODE_W, ft.NODE_H)
         w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
         h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
         if w is None or h is None or self.edits.sizes.get(group) == [w, h]:
@@ -2377,7 +2407,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         changed = False
         for q in self.selected:                 # a width alone leaves each one's height as it is
             p = self.village.people[q]
-            now = ft.frame_size(self.edits, self.village, p)
+            now = ft.frame_size(self.edits, self.village, p, unscaled=True)
             size = (w if w is not None else now[0], h if h is not None else now[1])
             if size != now:
                 self._set_entry(p, w=size[0], h=size[1])
@@ -2564,6 +2594,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_opacity_scale.set(e.mark_opacity)
         self.centre_var.set(e.centre_heads)
         self.wrap_var.set(str(e.text_wrap))
+        self.gap_var.set(f"{e.portrait_gap:g}")
+        self.fit_var.set(str(e.fit_width))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
         self.number_names_var.set(e.number_names)

@@ -50,6 +50,9 @@ NODE_H = 156
 TRANSPARENT = "transparent"             # a colour that shows nothing (the owner asked for it)
 LINE_WIDTH = 2.2                        # a family line's weight unless the player says
 GAP_X = 22
+GAP_MIN, GAP_MAX = 0.0, 400.0           # the player's gap between portraits
+FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
+SHRINK_MIN = 0.2                        # never smaller than a fifth
 LEFT = 300                      # the generation labels' column
 TOP = 150
 OTHER_GAP = 110                 # between the tree and the "Other Members" column
@@ -208,6 +211,9 @@ class Edits:
     subtitle: str = ""
     centre_heads: bool = True           # the head and its lines in the middle of the frame
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
+    portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
+    fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
+    _shrink: float = field(default=1.0, init=False, repr=False, compare=False)   # layout's, never saved
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
@@ -298,6 +304,9 @@ class Edits:
                   data.get("centre_heads", True) is not False)
         out.diagonal_lines = data.get("diagonal_lines") is True
         out.text_wrap = int(_number(data.get("text_wrap"), WRAP_MIN, WRAP_MAX, WRAP))
+        out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
+        fit = data.get("fit_width")
+        out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
         out.number_names = data.get("number_names") is True
@@ -435,7 +444,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "fit_width": self.fit_width, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -893,12 +902,15 @@ def shape_of(edits: Edits, village: gen.Village, p: gen.Person) -> str:
     return edits.entries.get(entry_key(village, p), {}).get("shape") or edits.shapes[group_of(p)]
 
 
-def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True) -> tuple[float, float]:
+def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True,
+               unscaled: bool = False) -> tuple[float, float]:
     """A portrait frame's width and height: the villager's own (`own`), else their group's default
-    size, else their shape's own proportions, a portrait tall."""
+    size, else their shape's own proportions, a portrait tall -- shrunk to fit the page when the
+    player asked (Edits.fit_width; `unscaled`: the sizes as the player set them)."""
     gw, gh = edits.sizes.get(group_of(p)) or (natural_width(shape_of(edits, village, p)), NODE_H)
     entry = edits.entries.get(entry_key(village, p), {}) if own else {}
-    return entry.get("w", gw), entry.get("h", gh)
+    s = 1.0 if unscaled else edits._shrink
+    return entry.get("w", gw) * s, entry.get("h", gh) * s
 
 
 def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
@@ -912,6 +924,25 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
 
 
 def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:
+    """The page laid out.  With Shrink to fit (Edits.fit_width), the portraits shrink until the whole
+    page -- the generation labels, the widest row and the Other Members -- fits that width, or until
+    they are as small as they go (SHRINK_MIN)."""
+    lay = _layout(village, edits, page)
+    e = lay.edits
+    if not e.fit_width:
+        return lay
+    for _ in range(8):
+        if lay.width <= e.fit_width * 1.005 or e._shrink <= SHRINK_MIN:
+            break
+        # What does not shrink (the labels' column and the margins) is left as it is.
+        fixed = LEFT + 60
+        wanted = e._shrink * max(0.05, (e.fit_width - fixed) / max(1.0, lay.width - fixed))
+        lay = _layout(village, edits, page, max(SHRINK_MIN, min(1.0, wanted)))
+    return lay
+
+
+def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
+            shrink: float | None = None) -> Layout:
     people = village.people
     gone = {pid for pid, p in people.items()
             if (edits or Edits()).entries.get(entry_key(village, p), {}).get("hidden")}
@@ -946,7 +977,20 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     for pid in sorted(in_tree, key=lambda q: (people[q].generation, _place(people[q]))):
         rows.setdefault(people[pid].generation, []).append(pid)
     edits = edits or Edits()
-    step = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in in_tree | set(others)]) + GAP_X
+    # Every portrait shrunk alike, faces and words with them, so the widest row fits the page width
+    # the player chose (the owner, 2026-10-08: "auto resizing of portraits and text to accommodate
+    # lots of portraits per page"); the gap between two portraits is the player's.
+    edits._shrink = 1.0
+    shown = in_tree | set(others)
+    widest_frame = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in shown])
+    gap = edits.portrait_gap
+    widest_row_n = max([len(r) for r in rows.values()] + [1])
+    if shrink is not None:
+        edits._shrink = shrink
+    elif edits.fit_width and LEFT + widest_row_n * (widest_frame + gap) > edits.fit_width:
+        room = (edits.fit_width - LEFT) / widest_row_n - gap
+        edits._shrink = max(SHRINK_MIN, min(1.0, room / widest_frame))
+    step = widest_frame * edits._shrink + gap
     x: dict[int, float] = {}
     sub: dict[int, int] = {q: 0 for q in in_tree}
     if edits.positioning == "dynamic" and rows:
@@ -960,7 +1004,7 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
             indent = (widest_row - len(row)) * step / 2
             for i, pid in enumerate(row):
                 x[pid] = LEFT + indent + i * step
-        tree_right = LEFT + widest_row * step - GAP_X
+        tree_right = LEFT + widest_row * step - gap
     others_left = tree_right + OTHER_GAP
     per_row: dict[int, int] = {}
     for pid in others:
@@ -2696,7 +2740,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
               target=("person", p.id), fill=lay.edits.portrait_fill, angle=angle))
     # The face and words grow or shrink with a frame the player resized, about its middle, and
     # never turn (the owner: "shrink/grow with the frame, stay upright").
-    w0, h0 = frame_size(lay.edits, lay.village, p, own=False)
+    w0, h0 = frame_size(lay.edits, lay.village, p, own=False, unscaled=True)
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (fw, fh) != (w0, h0) else 1.0
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 

@@ -87,6 +87,52 @@ class JoiningTests(unittest.TestCase):
             self.assertEqual([t for t, _b, _r in ft.placement(lay, p)[3]], expected, n)
 
 
+class SpacingAndFitTests(unittest.TestCase):
+    """The owner, 2026-10-08: "allow auto resizing of portraits and text to accommodate lots of portraits
+    per page" and "batch-editing of spacing between two portraits in pixels"."""
+
+    def lay(self, **values):
+        v = village()
+        e = ft.Edits(**values)
+        ft.arrange(v, e)
+        return v, ft.layout(v, e)
+
+    def test_the_defaults_lay_out_as_before(self) -> None:
+        v, lay = self.lay()
+        self.assertEqual(lay.edits._shrink, 1.0)
+        row = sorted(lay.x[q] for q in lay.rows[min(lay.rows)])
+        frame = max(ft.frame_size(lay.edits, v, q, own=False)[0] for q in v.people.values() if q.id in lay.x)
+        self.assertAlmostEqual(row[1] - row[0], max(ft.NODE_W, frame) + ft.GAP_X)
+
+    def test_the_gap_between_portraits_is_the_players(self) -> None:
+        for gap in (4.0, 60.0):
+            v, lay = self.lay(portrait_gap=gap)
+            row = sorted(lay.x[q] for q in lay.rows[min(lay.rows)])
+            frame = max(ft.frame_size(lay.edits, v, q, own=False)[0] for q in v.people.values() if q.id in lay.x)
+            self.assertAlmostEqual(row[1] - row[0], max(ft.NODE_W, frame) + gap)
+        self.assertEqual(ft.Edits.from_data(ft.Edits(portrait_gap=60.0).to_data()).portrait_gap, 60.0)
+
+    def test_shrink_to_fit_shrinks_frames_faces_and_words_alike(self) -> None:
+        v, full = self.lay()
+        _v, fitted = self.lay(fit_width=420)
+        s = fitted.edits._shrink
+        self.assertLess(s, 1.0)
+        p = next(q for q in v.known() if not q.upcoming)
+        self.assertAlmostEqual(fitted.frame(p.id)[2], full.frame(p.id)[2] * s, places=6)
+        sizes = {}
+        for name, lay in (("full", full), ("fitted", fitted)):
+            sc = ft.scene(lay, "A New Home", {})
+            sizes[name] = max(i.size for i in sc.items if isinstance(i, ft.Text) and i.pid == p.id)
+        self.assertAlmostEqual(sizes["fitted"], sizes["full"] * max(0.2, s), places=6)
+        back = ft.Edits.from_data(ft.Edits(fit_width=420).to_data())
+        self.assertEqual((back.fit_width, back._shrink), (420, 1.0))     # the shrink itself is never saved
+        self.assertEqual(ft.Edits.from_data({"fit_width": 0}).fit_width, 0)
+
+    def test_a_resize_by_hand_is_kept_before_the_shrink(self) -> None:
+        source = (ROOT / "src" / "vv_tree_editor_tools.py").read_text(encoding="utf-8")
+        self.assertIn("self._set_entry(p, w=round(w / s, 1), h=round(h / s, 1))", source)
+
+
 class ApplyToEveryOneTests(unittest.TestCase):
     def test_the_button_clears_each_villagers_own_shape_and_border_in_that_group_only(self) -> None:
         source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
