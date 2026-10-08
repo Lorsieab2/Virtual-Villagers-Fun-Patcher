@@ -636,6 +636,18 @@ def relooked_keys(text: str, relooked: dict[tuple, tuple]) -> str:
     return text
 
 
+def full_name_edits(edits: "Edits", village: gen.Village) -> "Edits":
+    """The edits with each villager's key under a name the Villager Details screen cut moved to the
+    full name the tree shows them by (vv_cut_names; the owner: "Family trees will use the full names
+    from the logs"), so marks made while the tree showed the cut name follow them.  The same edits
+    when nothing moves."""
+    if not village.full_names:
+        return edits
+    text = json.dumps(edits.to_data())
+    moved = renamed_keys(text, village.full_names)
+    return edits if moved == text else Edits.from_data(json.loads(moved))
+
+
 def look_of(edits: "Edits", village: gen.Village, p: gen.Person) -> tuple:
     """The (head, body) the tree shows: the one the player chose after Change Appearance, else now."""
     look = edits.entries.get(entry_key(village, p), {}).get("look")
@@ -2461,6 +2473,7 @@ def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tup
     village = gen.load_village(folder, game, slot)
     if edits is None:
         edits = Edits.load(Edits.path(folder, game, slot))
+    edits = full_name_edits(edits, village)
     arrange(village, edits)
     return village, edits, layout(village, edits)
 
@@ -2506,7 +2519,7 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     written."""
     folder = Path(folder)
     village = gen.load_village(folder, game, slot)
-    arrange(village, Edits.load(Edits.path(folder, game, slot)))
+    arrange(village, full_name_edits(Edits.load(Edits.path(folder, game, slot)), village))
     text = gen.pair_report(village, rules, game_title)
     out = Path(out) if out is not None else folder / TREES
     out.mkdir(parents=True, exist_ok=True)

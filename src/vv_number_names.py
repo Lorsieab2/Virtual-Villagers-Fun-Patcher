@@ -126,7 +126,7 @@ def number_names(folder: Path, game: int, slot: int, order: str = "appearance",
         raise ln.LastNamesError("The save's tribe name could not be read, so this village's records cannot be "
                                 "told from an earlier village's; nothing was changed.")
     try:
-        wanted = numbering(gen.load_village(folder, game, slot), *evidence(folder, game, slot), order=order)
+        wanted = numbering(gen.load_village(folder, game, slot, full_names=False), *evidence(folder, game, slot), order=order)
         work = ln.plan_renames(folder, game, slot, wanted.renames, dead=True)
         wanted.notes += work.notes
     except (gen.GenealogyError, struct.error, ValueError, OSError) as exc:

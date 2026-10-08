@@ -109,6 +109,7 @@ class Village:
     snapshot_dates: list[str] = field(default_factory=list)     # the History snapshots read
     base_generation: dict[int, int] = field(default_factory=dict)   # each one's, as the records say
     relooked: dict[Key, Key] = field(default_factory=dict)     # an old look's key -> the villager's key now
+    full_names: dict[Key, str] = field(default_factory=dict)  # a cut name's key -> the full name shown
 
     def living(self) -> list[Person]:
         return [p for p in self.people.values() if p.alive]
@@ -142,13 +143,16 @@ class _Registry:
         self.due: dict[int, int] = {}                  # mother -> babies she carries (the save's)
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
+        self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
 
     def current(self, key: Key) -> Key:
-        """The look a villager has now, following their Change Appearance records."""
+        """The look a villager has now, following their Change Appearance records, under the full name
+        the logs keep when the Villager Details screen cut the one in the save (vv_cut_names)."""
         seen = set()
+        key = self.full.get(key, key)
         while key in self.relooked and key not in seen:
             seen.add(key)
-            key = self.relooked[key]
+            key = self.full.get(self.relooked[key], self.relooked[key])
         return key
 
     def get(self, name: str, head: int | None, body: int | None) -> Person:
@@ -325,13 +329,31 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             p.litter = None
 
 
-def load_village(folder: Path, game: int, slot: int) -> Village:
-    """The slot's village, its living villagers and every relative the save and logs know."""
+def load_village(folder: Path, game: int, slot: int, full_names: bool = True) -> Village:
+    """The slot's village, its living villagers and every relative the save and logs know.
+
+    With `full_names` (the Family Tree Maker and the Village Matchmaker), a living villager whose name
+    the Villager Details screen cut is the same villager as the logs' record of their full name, and
+    is shown by it (the owner, 2026-10-07: "Family trees will use the full names from the logs, then
+    the save data").  Without (Last Names, Number Duplicate Names: they rename the save and the logs,
+    so they work from the names as written), everyone keeps the name the records carry."""
     import vv_log_additions as additions
     import vv_tribe_rename
     folder = Path(folder)
     reg = _Registry()
     notes: list[str] = []
+    if full_names:
+        # Before anything is read, so the save's record, its parent fields and every log line naming
+        # the cut name with the villager's looks all land on the one person under the full name.
+        import vv_cut_names
+        import vv_last_names as ln
+        try:
+            cuts, _undecided = vv_cut_names.find_cut(folder, game, slot)
+        except (ln.LastNamesError, OSError, ValueError):
+            cuts = []                           # the tree is still drawn, from the names as written
+        for cut in cuts:
+            v = cut.villager
+            reg.full[v.identity] = (cut.full, v.head, v.body)
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
@@ -352,6 +374,7 @@ def load_village(folder: Path, game: int, slot: int) -> Village:
     _upcoming(reg)
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
     village.relooked = {old: reg.current(old) for old in reg.relooked if reg.current(old) != old}
+    village.full_names = {cut: full[0] for cut, full in reg.full.items()}
     for old, now in village.relooked.items():
         if now in reg.by_key:
             reg.people[reg.by_key[now]].old_looks.append((old[1], old[2]))

@@ -56,6 +56,114 @@ RECORD = {"vv1": (0x3D8, 0x350, 0x36C, 0x368), "vv2": (0xE48C, 0x538, 0x554, 0x5
 FEMALE = {"vv1": 2, "vv2": 2, "vv3": 1, "vv4": 1, "vv5": 1}
 ROOM = {"vv1": 0x1C, "vv2": 0x18, "vv3": 0x18, "vv4": 0x18, "vv5": 0x18}
 
+# The owner (2026-10-07): "All newly-spawned villagers from events will
+# default to no last name (because otherwise everyone will have the wrong
+# last name)".  A mother's delivery and a new village's founders are named
+# with a last name; nothing else.  A path is (the naming routine's return
+# address, {offset from the routine's entry esp: (a caller's return address,
+# the function that call calls)}) -- the stack each creator's call leaves
+# (native/vvfp_last_names, WHICH NAMING GETS A LAST NAME;
+# native/vvfp_cause_of_death/cod_arrival_sites.inc).
+BIRTHS = {
+    "vv1": {
+        "golden-child mother's extra child": (0x43C692, {0x4C: (0x42EF64, 0x43C350)}),
+        "first child": (0x43C692, {0x4C: (0x42EFD5, 0x43C350)}),
+        "the Golden Child": (0x43C692, {0x4C: (0x4242FD, 0x43C350)}),
+        "twin": (0x43CA28, {0x3C: (0x42F026, 0x43C840)}),
+        "triplet": (0x43CA28, {0x3C: (0x42F072, 0x43C840)}),
+    },
+    "vv2": {
+        "first child": (0x44CD3B, {0x188: (0x44F602, 0x44C600)}),
+        "twin": (0x44D0BA, {0x3C: (0x43BEE4, 0x44CEC0)}),
+        "triplet": (0x44D0BA, {0x3C: (0x43BF30, 0x44CEC0)}),
+    },
+    "vv3": {
+        "first child": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x45FFD2, 0x45F0B0)}),
+        "twin or triplet": (0x4567D9, {0x18: (0x45F2AB, 0x4566E0)}),
+    },
+    "vv4": {
+        "first child": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x467D92, 0x466270)}),
+        "twin (the copy's first naming call)": (0x45DAA6, {0x14: (0x466361, 0x45D9B0),
+                                                           0x20: (0x4688F3, 0x466310)}),
+        "triplet (the copy's second naming call)": (0x45DAE4, {0x14: (0x466361, 0x45D9B0),
+                                                               0x20: (0x468996, 0x466310)}),
+    },
+    "vv5": {
+        "first child": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0), 0x1A4: (0x471EA2, 0x46FAD0)}),
+        "twin or triplet": (0x4688F9, {0x18: (0x46FDCE, 0x4687F0)}),
+        "twin or triplet (second call)": (0x468937, {0x18: (0x46FDCE, 0x4687F0)}),
+    },
+}
+FOUNDERS = {
+    "vv1": {
+        "a new tribe, first seeding call": (0x43C692, {0x4C: (0x41C50E, 0x43C350), 0x98: (0x414020, 0x41C000)}),
+        "the first tribe's naming, last seeding call": (0x43C692, {0x4C: (0x41C648, 0x43C350),
+                                                                   0x98: (0x415491, 0x41C000)}),
+        "Start Over": (0x43C692, {0x4C: (0x41C5B6, 0x43C350), 0x98: (0x41C7E5, 0x41C000)}),
+    },
+    "vv2": {
+        "a new tribe": (0x44CD3B, {0x188: (0x4252F7, 0x44C600), 0x1D8: (0x4150B0, 0x424C80)}),
+        "the first tribe's naming": (0x44CD3B, {0x188: (0x42545D, 0x44C600), 0x1D8: (0x41AC11, 0x424C80)}),
+        "Start Over": (0x44CD3B, {0x188: (0x425413, 0x44C600), 0x1D8: (0x425605, 0x424C80)}),
+    },
+    "vv3": {
+        "a new tribe": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x428134, 0x45F0B0),
+                                   0x1E0: (0x41B7E4, 0x427F70)}),
+        "the first tribe's naming": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x4282E6, 0x45F0B0),
+                                                0x1E0: (0x41BA0F, 0x427F70)}),
+        "Start Over": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x428215, 0x45F0B0),
+                                  0x1E0: (0x4283F2, 0x427F70)}),
+    },
+    "vv4": {
+        "the adoption scene's founders": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x43B929, 0x466270)}),
+        "the founders' balancing": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x420268, 0x466270)}),
+    },
+    "vv5": {
+        "the choose-your-founders screen": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0), 0x1A4: (0x43E317, 0x46FAD0)}),
+        "the seeding's balancing": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0), 0x1A4: (0x425D48, 0x46FAD0)}),
+    },
+}
+NO_LAST_NAME = {
+    "vv1": {
+        "Barrel of Babies": (0x43C692, {0x4C: (0x428268, 0x43C350)}),
+        "A Mysterious Crate": (0x43C692, {0x4C: (0x42C3F4, 0x43C350)}),
+        "The Mysterious Face": (0x43C692, {0x4C: (0x41974F, 0x43C350)}),
+        "the startup scan's seeding (a load overwrites it)": (0x43C692, {0x4C: (0x41C50E, 0x43C350),
+                                                                         0x98: (0x41D26D, 0x41C000)}),
+        "a delivery's return in the twin path's slot": (0x43C692, {0x3C: (0x42F026, 0x43C840)}),
+    },
+    "vv2": {
+        "the event wrapper (Barrel of Babies, Old Friends, ...)": (0x44CD3B, {0x188: (0x44F5B0, 0x44C600)}),
+        "the startup scan's seeding": (0x44CD3B, {0x188: (0x4252F7, 0x44C600), 0x1D8: (0x42641D, 0x424C80)}),
+        "The Silver Mirror": (0x44D0BA, {0x3C: (0x4217FE, 0x44CEC0)}),
+    },
+    "vv3": {
+        "the canoe and the barrels": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x45FF80, 0x45F0B0)}),
+        "the startup scan's seeding": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x428134, 0x45F0B0),
+                                                  0x1E0: (0x4285EA, 0x427F70)}),
+        "The Crystal of Reflections": (0x4567D9, {0x18: (0x45F3A8, 0x4566E0)}),
+    },
+    "vv4": {
+        "the canoe and the barrels": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x467D40, 0x466270)}),
+        "a ghost": (0x45F338, {0x15C: (0x4663E5, 0x45EF10)}),
+    },
+    "vv5": {
+        "Barrel O' Babies and the other events": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0),
+                                                             0x1A4: (0x471E50, 0x46FAD0)}),
+        "a Heathen": (0x46863D, {0x15C: (0x46FC28, 0x4681F0)}),
+        "Reanimate's stand-in": (0x46863D, {0x15C: (0x46FE5C, 0x4681F0)}),
+    },
+}
+
+
+def stack(path: tuple[int, dict[int, tuple[int, int]]]) -> tuple[int, dict[int, int]]:
+    back, slots = path
+    return back, {offset: value for offset, (value, _) in slots.items()}
+
+
+def a_birth(game: str) -> tuple[int, dict[int, int]]:
+    return stack(BIRTHS[game]["first child"])
+
 STUBS = 0x7E000000        # the harness's Windows functions
 HEAP = 0x7D000000         # VirtualAlloc
 DATA = 0x60000000         # villagers and buffers
@@ -153,17 +261,26 @@ class Game:
             else:
                 raise AssertionError(f"VvfpStartup called {name!r}")
 
-    def call(self, va: int, args: list[int], ecx: int = 0, callee_pops: int | None = None) -> dict:
+    def call(self, va: int, args: list[int], ecx: int = 0, callee_pops: int | None = None,
+             frame: tuple[int, dict[int, int]] | None = None) -> dict:
+        """frame: (return address, {offset from the entry esp: value}) -- the
+        callers' return addresses as a creator's call would leave them."""
         mu = self.mu
         esp = STACK - 0x1000
-        mu.mem_write(esp, struct.pack(f"<{1 + len(args)}I", RETURN, *args))
+        back = RETURN
+        mu.mem_write(esp, b"\0" * 0x400)
+        if frame is not None:
+            back, slots = frame
+            for offset, value in slots.items():
+                mu.mem_write(esp + offset, struct.pack("<I", value))
+        mu.mem_write(esp, struct.pack(f"<{1 + len(args)}I", back, *args))
         mu.reg_write(UC_X86_REG_ESP, esp)
         mu.reg_write(UC_X86_REG_ECX, ecx)
         kept = {UC_X86_REG_EBX: 0x11111111, UC_X86_REG_ESI: 0x22222222,
                 UC_X86_REG_EDI: 0x33333333, UC_X86_REG_EBP: 0x44444444}
         for reg, value in kept.items():
             mu.reg_write(reg, value)
-        mu.emu_start(va, RETURN, count=2_000_000)
+        mu.emu_start(va, back, count=2_000_000)
         pops = 4 * len(args) if callee_pops is None else callee_pops
         return {"esp_ok": mu.reg_read(UC_X86_REG_ESP) == esp + 4 + pops,
                 "kept": all(mu.reg_read(reg) == value for reg, value in kept.items())}
@@ -171,8 +288,11 @@ class Game:
     def startup(self) -> None:
         self.call(self.exports["VvfpStartup"], [GAME_NO[self.game], 0])
 
-    def name(self, sex_female: bool, family: int, first_roll: int, family_roll: int | None = None) -> tuple[str, dict]:
-        """The game's own routine names a new villager; returns the name."""
+    def name(self, sex_female: bool, family: int, first_roll: int, family_roll: int | None = None,
+             frame: tuple[int, dict[int, int]] | None = None) -> tuple[str, dict]:
+        """The game's own routine names a new villager; returns the name.
+        frame: the stack a creator's call leaves (BIRTHS, FOUNDERS, NO_LAST_NAME); none
+        is a call from nowhere the game makes one."""
         routine = SITES[self.game][0]
         sex = FEMALE[self.game] if sex_female else (1 if self.game in ("vv1", "vv2") else 0)
         self.bounds.clear()
@@ -185,14 +305,14 @@ class Game:
             self.mu.mem_write(record + number_at, struct.pack("<i", first_roll + 1))
             out = DATA + 0x300000
             self.mu.mem_write(out, b"\xEE" * 28)
-            state = self.call(routine, [index, out], ecx=DATA)
+            state = self.call(routine, [index, out], ecx=DATA, frame=frame)
             text = bytes(self.mu.mem_read(out, 28))
         else:
             villager = DATA + 0x1000
             self.mu.mem_write(villager, b"\0" * 0x40)
             self.mu.mem_write(villager + 4, struct.pack("<i", sex))
             self.rolls = [first_roll] + ([family_roll] if family == -1 else [])
-            state = self.call(routine, [family & 0xFFFFFFFF], ecx=villager)
+            state = self.call(routine, [family & 0xFFFFFFFF], ecx=villager, frame=frame)
             text = bytes(self.mu.mem_read(villager + 0x10, ROOM[self.game]))
         return text[:text.index(b"\0")].decode("ascii"), state
 
@@ -221,7 +341,8 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
             for family in range(1, 51):
                 with self.subTest(game=game, family=family):
                     female_villager = family % 2 == 0
-                    name, state = g.name(sex_female=female_villager, family=family, first_roll=family)
+                    name, state = g.name(sex_female=female_villager, family=family, first_roll=family,
+                                         frame=a_birth(game))
                     first = (female if female_villager else male)[family + 1]
                     self.assertEqual(name, f"{first} {last[family - 1]}")
                     self.assertTrue(state["esp_ok"], "the routine's own ret is kept")
@@ -233,7 +354,7 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
                 last, male, _ = self.lists(game)
                 g = Game(game)
                 g.startup()
-                name, _ = g.name(sex_female=False, family=-1, first_roll=0, family_roll=41)
+                name, _ = g.name(sex_female=False, family=-1, first_roll=0, family_roll=41, frame=a_birth(game))
                 self.assertEqual(g.bounds[-1], 50)
                 self.assertEqual(name, f"{male[1]} {last[41]}")    # family = roll + 1 = 42
 
@@ -244,9 +365,54 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
                 last, male, _ = self.lists(game)
                 g = Game(game)
                 g.startup()
-                name, state = g.name(sex_female=False, family=family, first_roll=2)
+                name, state = g.name(sex_female=False, family=family, first_roll=2, frame=a_birth(game))
                 self.assertEqual(name, male[3])
                 self.assertTrue(state["esp_ok"] and state["kept"])
+
+    def test_every_birth_and_founder_path_gives_the_last_name(self):
+        for game in EXE:
+            last, male, _ = self.lists(game)
+            g = Game(game)
+            g.startup()
+            for what, path in [*BIRTHS[game].items(), *FOUNDERS[game].items()]:
+                with self.subTest(game=game, named=what):
+                    name, state = g.name(sex_female=False, family=9, first_roll=3, frame=stack(path))
+                    self.assertEqual(name, f"{male[4]} {last[8]}")
+                    self.assertTrue(state["esp_ok"] and state["kept"])
+
+    def test_a_villager_an_event_brings_gets_no_last_name(self):
+        # The owner (2026-10-07): "All newly-spawned villagers from events
+        # will default to no last name (because otherwise everyone will have
+        # the wrong last name)" -- events, and the records the game makes and
+        # takes away again.
+        for game in EXE:
+            last, male, _ = self.lists(game)
+            g = Game(game)
+            g.startup()
+            for what, path in [*NO_LAST_NAME[game].items(), ("a call from nowhere", None)]:
+                with self.subTest(game=game, creation=what):
+                    frame = stack(path) if path is not None else None
+                    name, state = g.name(sex_female=False, family=9, first_roll=3, frame=frame)
+                    self.assertEqual(name, male[4])
+                    self.assertTrue(state["esp_ok"] and state["kept"])
+
+    def test_each_path_is_the_stock_games_own_calls(self):
+        # Every `from` follows the creator's call to the naming routine, and
+        # every caller's return address follows a call to the function named.
+        for game in EXE:
+            image = pefile.PE(str(STOCK / EXE[game])).get_memory_mapped_image()
+
+            def target(back: int) -> int | None:
+                at = back - 5 - 0x400000
+                if image[at] != 0xE8:
+                    return None
+                return (back + struct.unpack_from("<i", image, at + 1)[0]) & 0xFFFFFFFF
+
+            for what, (back, slots) in [*BIRTHS[game].items(), *FOUNDERS[game].items(), *NO_LAST_NAME[game].items()]:
+                with self.subTest(game=game, path=what):
+                    self.assertEqual(target(back), SITES[game][0])
+                    for value, callee in slots.values():
+                        self.assertEqual(target(value), callee, hex(value))
 
     def test_every_pairing_fits_the_games_name_field(self):
         for game in EXE:
@@ -274,11 +440,14 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
     def test_a_different_build_is_left_alone(self):
         for game in EXE:
             routine, _, last_list, *_ = SITES[game]
-            for what in ("prologue", "list"):
+            for what in ("prologue", "list", "a creator's call"):
                 with self.subTest(game=game, changed=what):
                     image = bytearray(pefile.PE(str(STOCK / EXE[game])).get_memory_mapped_image())
                     if what == "prologue":
                         image[routine - 0x400000 + 2] ^= 0x10
+                    elif what == "a creator's call":
+                        back = list(BIRTHS[game].values())[-1][0]
+                        image[back - 4 - 0x400000] ^= 0x01     # the call now lands elsewhere
                     else:
                         at = last_list - 0x400000
                         image[image.index(b",", at)] = ord(";")   # 49 names

@@ -5,15 +5,16 @@
   "catalog_hidden": false,
   "game_id": "vv4",
   "name": "Villagers Have Last Names",
-  "description": "Every new villager gets a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**",
+  "description": "Babies born in the village and the village's founders get a last name after their first name, from the game's own list of 50 last names (Akikai, Alosaka, Awanata ... Wikimak) -- a list the game has always carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the family's: the game already gives every villager a family number from 1 to 50, and a baby takes its mother's, so children share their mother's last name. Villagers who arrive through an island event get no last name, because theirs would not be their family's. Only villagers named from now on get one: villagers who already have names keep them. The last name is part of the name the game stores, so it shows wherever the name does and stays in the save even if this patch is later removed. **Needs no other patch.**",
   "output_tag": "Last Names",
   "behavior_changes": [
-    "A villager named by the game from now on is called \"<first name> <last name>\": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4AA930), read from the running executable.",
+    "A baby born in the village from now on (a mother's delivery: the first child, a twin or a triplet) and a new village's founders are called \"<first name> <last name>\": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4AA930), read from the running executable.",
+    "A villager the game creates any other way -- brought by an island event, a cheat or the Origins page -- keeps the game's own first name only: the companion tells a birth or a founder by the callers' return addresses on the stack, at fixed places.",
     "A villager whose family is outside 1-50 gets no last name.",
     "The whole name always fits the game's own name field: the longest pairing is far below its 23 characters."
   ],
   "explicit_non_changes": [
-    "No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it and the routine's push of the list, and changes nothing if either differs.",
+    "No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it, the routine's push of the list and the creators' calls to it, and changes nothing if any differs.",
     "Villagers who already have names keep them; nothing is renamed when a village is loaded.",
     "The first names, sexes, looks and families are the game's own; the save format is unchanged."
   ],
@@ -22,7 +23,7 @@
     {
       "source": "assets/last_names/VVFP Last Names.dll",
       "destination": "VVFP Last Names.dll",
-      "sha256": "472C4F805047452DE3EF9A137DFD62FA90FC142F0A3859AC9B0265098DFF8C30"
+      "sha256": "FD0D918FE8DE55137CEA83EB3848854173F5BBFF96BB10958A8AB70B1A7A49BF"
     }
   ],
   "runtime_detours": [

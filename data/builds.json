@@ -1936,11 +1936,12 @@
       "id": "vv1_fix_vanilla_bugs",
       "game_id": "vv1",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.",
-        "A villager's default first name is picked from the whole of the game's male or female list (101 names each): name numbers 0 to 100 instead of 1 to the base game's limit."
+        "A villager's default first name is picked from the whole of the game's male or female list (101 names each): name numbers 0 to 100 instead of 1 to the base game's limit.",
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
       ],
       "explicit_non_changes": [
         "The result text, the drinker's new age (80) and every other vial result are the base game's own.",
@@ -1990,6 +1991,99 @@
           "before": "40",
           "after": "90",
           "purpose": "Default names (0x43CA10): ...and the name number is the roll itself"
+        },
+        {
+          "offset": "0x4A66A",
+          "before": "E8CE0B0000",
+          "after": "E8114D0000",
+          "purpose": "Villager Detail refresh: sprintf(buf, name) -> strcpy(buf, name). Same cdecl (dst, src), caller-cleaned stack unchanged; return value unused."
+        },
+        {
+          "offset": "0x18760",
+          "before": "E8D82A0300",
+          "after": "E81B6C0300",
+          "purpose": "Name used as sprintf format -> strcpy. Same cdecl (dst, src), caller-cleaned stack unchanged; return value unused."
+        },
+        {
+          "offset": "0x1FAA1",
+          "before": "E897B70200",
+          "after": "E8DAF80200",
+          "purpose": "Name used as sprintf format -> strcpy. Same cdecl (dst, src), caller-cleaned stack unchanged; return value unused."
+        },
+        {
+          "offset": "0x27892",
+          "before": "E8A6390200",
+          "after": "E8E97A0200",
+          "purpose": "Message token expander (0x427690) name substitution: sprintf format -> strcpy. Same cdecl (dst, src), caller-cleaned stack unchanged; return value unused."
+        },
+        {
+          "offset": "0x2A952",
+          "before": "E8E6080200",
+          "after": "E8294A0200",
+          "purpose": "Name used as sprintf format -> strcpy. Same cdecl (dst, src), caller-cleaned stack unchanged; return value unused."
+        },
+        {
+          "offset": "0x48FF1",
+          "before": "E847220000",
+          "after": "E88A630000",
+          "purpose": "Name copied into a 0x2C-stride table: sprintf format -> strcpy. Same cdecl (dst, src), caller-cleaned stack unchanged; return value unused."
+        },
+        {
+          "offset": "0x0BEB7",
+          "before": "83FA1F7E0881FAFF0000007E1784DB740A",
+          "after": "83FA25744B8D72E081FEDF000000761490",
+          "purpose": "Shared text-entry typing handler: refuse '%' (0x25) in every edit box; the 0x20..0xFF accept range is kept (as one unsigned compare)."
+        }
+      ]
+    },
+    {
+      "id": "vv1_details_full_names",
+      "game_id": "vv1",
+      "name": "Full Names on the Details Screen",
+      "description": "The Villager Details screen keeps a villager's whole name. In the base game its name box holds only 10 characters (fewer for wide letters) and, when the screen closes, writes what it holds back to the villager, so a longer name -- a last name, a numbered namesake -- was cut short for good. Now the box holds the 27 characters the game's name field has room for, is wide enough to show them, and copies the whole name back; typing a new name there allows 27 characters too. **Needs no other patch.**",
+      "output_tag": "Full Names",
+      "behavior_changes": [
+        "Villager Detail name box: setEditable max characters 10 -> 27 (heap buffer becomes 28 bytes).",
+        "Villager Detail Done: getText copy length into villager+0x370 0x0B -> 0x1C (the full name field, NUL forced at +0x38B).",
+        "Villager Detail Next: getText copy length into villager+0x370 0x0B -> 0x1C (the full name field, NUL forced at +0x38B).",
+        "Villager Detail Prev: getText copy length into villager+0x370 0x0B -> 0x1C (the full name field, NUL forced at +0x38B).",
+        "Villager Detail name box: size the box from the 53-char .rdata string at 0x4592A4 instead of 'wwwwwwwww' (0x482238), so the draw-time pixel cut (0x40C150) never trims a 27-char name."
+      ],
+      "explicit_non_changes": [
+        "The villager's name field is the base game's own 28-byte field; nothing is written past it, and the save's layout is unchanged.",
+        "Names that already fitted are shown and kept exactly as before; no other screen changes."
+      ],
+      "evidence_status": "static exact-build evidence (every byte checked against the stock executable, every buffer the name passes through measured); live tests: see the PR",
+      "patches": [
+        {
+          "offset": "0x49FC4",
+          "before": "6A0A",
+          "after": "6A1B",
+          "purpose": "Villager Detail name box: setEditable max characters 10 -> 27 (heap buffer becomes 28 bytes)."
+        },
+        {
+          "offset": "0x4A745",
+          "before": "6A0B",
+          "after": "6A1C",
+          "purpose": "Villager Detail Done: getText copy length into villager+0x370 0x0B -> 0x1C (the full name field, NUL forced at +0x38B)."
+        },
+        {
+          "offset": "0x4A7A1",
+          "before": "6A0B",
+          "after": "6A1C",
+          "purpose": "Villager Detail Next: getText copy length into villager+0x370 0x0B -> 0x1C (the full name field, NUL forced at +0x38B)."
+        },
+        {
+          "offset": "0x4A850",
+          "before": "6A0B",
+          "after": "6A1C",
+          "purpose": "Villager Detail Prev: getText copy length into villager+0x370 0x0B -> 0x1C (the full name field, NUL forced at +0x38B)."
+        },
+        {
+          "offset": "0x49F62",
+          "before": "6838224800",
+          "after": "68A4924500",
+          "purpose": "Villager Detail name box: size the box from the 53-char .rdata string at 0x4592A4 instead of 'wwwwwwwww' (0x482238), so the draw-time pixel cut (0x40C150) never trims a 27-char name."
         }
       ]
     },
@@ -1997,13 +2091,14 @@
       "id": "vv2_fix_vanilla_bugs",
       "game_id": "vv2",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with.",
         "If \"Keep it\" is resolved while no other villager is living, the swap is skipped: nothing about any villager changes and the game does not read an unset list entry.",
         "With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game.",
-        "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit."
+        "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.",
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
       ],
       "explicit_non_changes": [
         "The result text, the \"give it to the children\" choice, every other island event and the event's chance of being chosen are the base game's own.",
@@ -2020,8 +2115,8 @@
         {
           "offset": "0x21480",
           "before": "8BBC84402800008B86B050000069FF8CE400008B8C38F00700008B9438EC0700008B9C38E40700008BAC38E807000003C7894C24288B88F40700008954241C8B90F0050000894C242C8B88F4050000895424248B90E8060000894C24148B88EC060000056405000089542418508D94244427000052894C2428E8BF6D04008B8EA05000008B86B050000069C98CE400008B9401E4070000899438E40700008B8EA05000008B86B050000069C98CE400008B9401E8070000899438E80700008B8EA05000008B86B050000069C98CE400008B9401F0070000899438F00700008B8EA05000008B86B050000069C98CE400008B9401EC070000899438EC0700008B8EA05000008B86B050000069C98CE400008B9401F4070000899438F40700008B8EA05000008B86B050000069C98CE400008B9401F0050000899438F00500008B8EA05000008B86B050000069C98CE400008B9401F4050000899438F40500008B8EA05000008B86B050000069C98CE400008B9401E8060000899438E80600008B8EA05000008B86B050000069C98CE400008B9401EC060000899438EC0600008B8EA05000008B86B050000069C98CE400008D940164050000528D84386405000050E8786C04008B8EA05000008B96B050000069C98CE40000899C11E40700008B86A05000008B8EB050000069C08CE4000089AC08E80700008B96A05000008B86B050000069D28CE400008B4C2438898C02F00700008B96A05000008B86B050000069D28CE400008B4C242C898C02EC0700008B96A05000008B86B050000069D28CE400008B4C243C898C02F40700008B96A05000008B86B050000069D28CE400008B4C2434898C02F00500008B96A05000008B86B050000069D28CE400008B4C2424898C02F40500008B96A05000008B86B050000069D28CE400008B4C2428898C02E80600008B96A05000008B86B050000069D28CE400008B4C2430898C02EC0600008B86A05000008B8EB050000069C08CE400008D942450270000528D94086405000052E8546B040083C41C",
-          "after": "85FF0F843F0100008BBC84402800008B86B050000069FF8CE4000001C78BAEA050000069ED8CE4000001C58D8764050000508D84244427000050E8FE6D040083C4088B87E40700008B8DE4070000898FE40700008985E40700008B87E80700008B8DE8070000898FE80700008985E80700008B87EC0700008B8DEC070000898FEC0700008985EC0700008B87F00700008B8DF0070000898FF00700008985F00700008B87F40700008B8DF4070000898FF40700008985F40700008B87F00500008B8DF0050000898FF00500008985F00500008B87F40500008B8DF4050000898FF40500008985F40500008B87E80600008B8DE8060000898FE80600008985E80600008B87EC0600008B8DEC060000898FEC0600008985EC0600008D8564050000508D876405000050E8106D040083C4088D842440270000508D856405000050E8F96C040083C40883C404E99D010000CC0F95C37505E9BCE0FFFF8B8EB050000031C031D283C130803900740A83B9FC040000007E014081C18CE400004281FA000100007CE283F8020F9DC3E986E0FFFFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-          "purpose": "Crystal Ball: the Keep-it swap (0x421480..0x42176B) re-encoded compactly with the same field and text swap; it is skipped when the list of other living villagers is empty, and the freed bytes hold the case-13 living-villager count (0x4215D0) and int3 padding"
+          "after": "85FF0F843F0100008BBC84402800008B86B050000069FF8CE4000001C78BAEA050000069ED8CE4000001C58D8764050000508D84244427000050E841AF040083C4088B87E40700008B8DE4070000898FE40700008985E40700008B87E80700008B8DE8070000898FE80700008985E80700008B87EC0700008B8DEC070000898FEC0700008985EC0700008B87F00700008B8DF0070000898FF00700008985F00700008B87F40700008B8DF4070000898FF40700008985F40700008B87F00500008B8DF0050000898FF00500008985F00500008B87F40500008B8DF4050000898FF40500008985F40500008B87E80600008B8DE8060000898FE80600008985E80600008B87EC0600008B8DEC060000898FEC0600008985EC0600008D8564050000508D876405000050E853AE040083C4088D842440270000508D856405000050E83CAE040083C40883C404E99D010000CC0F95C37505E9BCE0FFFF8B8EB050000031C031D283C130803900740A83B9FC040000007E014081C18CE400004281FA000100007CE283F8020F9DC3E986E0FFFFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "purpose": "Crystal Ball: the Keep-it swap (0x421480..0x42176B) re-encoded compactly with the same field and text swap; it is skipped when the list of other living villagers is empty, and the freed bytes hold the case-13 living-villager count (0x4215D0) and int3 padding; its three name copies (the name, the other villager's, the kept one) use strcpy, so a '%' in a name is plain text"
         },
         {
           "offset": "0x4CCF1",
@@ -2058,6 +2153,129 @@
           "before": "40",
           "after": "90",
           "purpose": "Default names (0x44D049): ...and the name number is the roll itself"
+        },
+        {
+          "offset": "0x0001F3B0",
+          "before": "E8088F0400",
+          "after": "E84BD00400",
+          "purpose": "sprintf(dst, villager name +0x564) used the villager name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x00021826",
+          "before": "E8926A0400",
+          "after": "E8D5AB0400",
+          "purpose": "sprintf(dst, villager name +0x564) used the villager name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x00029AA3",
+          "before": "E815E80300",
+          "after": "E858290400",
+          "purpose": "sprintf(dst, villager name +0x564) used the villager name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x00037422",
+          "before": "E8960E0300",
+          "after": "E8D94F0300",
+          "purpose": "sprintf(dst, villager name +0x564) used the villager name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0004480D",
+          "before": "E8AB3A0200",
+          "after": "E8EE7B0200",
+          "purpose": "sprintf(dst, grave epitaph world+0x2EB25) used the grave epitaph as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0004D05E",
+          "before": "E85AB20100",
+          "after": "E89DF30100",
+          "purpose": "sprintf(dst, father name +0x57D) used the father name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0004D089",
+          "before": "E82FB20100",
+          "after": "E872F30100",
+          "purpose": "sprintf(dst, mother name +0x596) used the mother name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0004D397",
+          "before": "E821AF0100",
+          "after": "E864F00100",
+          "purpose": "sprintf(dst, father name +0x57D) used the father name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0004D3C2",
+          "before": "E8F6AE0100",
+          "after": "E839F00100",
+          "purpose": "sprintf(dst, mother name +0x596) used the mother name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0004D3EF",
+          "before": "E8C9AE0100",
+          "after": "E80CF00100",
+          "purpose": "sprintf(dst, villager name +0x564) used the villager name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x000650BA",
+          "before": "E8FE310000",
+          "after": "E841730000",
+          "purpose": "sprintf(dst, villager name +0x564) used the villager name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x0046C400 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0000C8BB",
+          "before": "8B71308814308B5130C644020100",
+          "after": "83FA2574278B71306689143089F2",
+          "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        }
+      ]
+    },
+    {
+      "id": "vv2_details_full_names",
+      "game_id": "vv2",
+      "name": "Full Names on the Details Screen",
+      "description": "The Villager Details screen keeps a villager's whole name. In the base game its name box holds only 18 characters (fewer for wide letters) and, when the screen closes, writes what it holds back to the villager, so a longer name -- a last name, a numbered namesake -- was cut short for good. Now the box holds the 23 characters the game's name field has room for, is wide enough to show them, and copies the whole name back; typing a new name there allows 23 characters too. **Needs no other patch.**",
+      "output_tag": "Full Names",
+      "behavior_changes": [
+        "Villager Detail name box: SetEditable max characters 18 -> 23",
+        "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x00476C10 so the box is wide enough that the draw routine never NUL-truncates a 23-character name",
+        "Villager Detail OK: GetText(&rec+0x564, 0x13 -> 0x18) keeps 23 characters + NUL",
+        "Villager Detail next villager: GetText(&rec+0x564, 0x13 -> 0x18) keeps 23 characters + NUL",
+        "Villager Detail previous villager: GetText(&rec+0x564, 0x13 -> 0x18) keeps 23 characters + NUL"
+      ],
+      "explicit_non_changes": [
+        "The villager's name field is the base game's own 24-byte field; nothing is written past it, and the save's layout is unchanged.",
+        "Names that already fitted are shown and kept exactly as before; no other screen changes."
+      ],
+      "evidence_status": "static exact-build evidence (every byte checked against the stock executable, every buffer the name passes through measured); live tests: see the PR",
+      "patches": [
+        {
+          "offset": "0x00066FEE",
+          "before": "6A12",
+          "after": "6A17",
+          "purpose": "Villager Detail name box: SetEditable max characters 18 -> 23"
+        },
+        {
+          "offset": "0x00066F8C",
+          "before": "6860044900",
+          "after": "68106C4700",
+          "purpose": "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x00476C10 so the box is wide enough that the draw routine never NUL-truncates a 23-character name"
+        },
+        {
+          "offset": "0x00067764",
+          "before": "6A13",
+          "after": "6A18",
+          "purpose": "Villager Detail OK: GetText(&rec+0x564, 0x13 -> 0x18) keeps 23 characters + NUL"
+        },
+        {
+          "offset": "0x000677F5",
+          "before": "6A13",
+          "after": "6A18",
+          "purpose": "Villager Detail next villager: GetText(&rec+0x564, 0x13 -> 0x18) keeps 23 characters + NUL"
+        },
+        {
+          "offset": "0x000678C3",
+          "before": "6A13",
+          "after": "6A18",
+          "purpose": "Villager Detail previous villager: GetText(&rec+0x564, 0x13 -> 0x18) keeps 23 characters + NUL"
         }
       ]
     },
@@ -2065,14 +2283,15 @@
       "id": "vv3_fix_vanilla_bugs",
       "game_id": "vv3",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
         "The Mysterious Vial (amber), scientific insight: the tribe gains 100 tech points through the game's own tech adder, in addition to the stock 15-44 Research for the villager.",
         "The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens.",
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150.",
-        "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit."
+        "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.",
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
       ],
       "explicit_non_changes": [
         "Every result text, every other vial result and every other island event are the base game's own.",
@@ -2134,6 +2353,62 @@
           "before": "40",
           "after": "90",
           "purpose": "Default names (0x45C683): ...and the name number is the roll itself (0-124), not the roll + 1"
+        },
+        {
+          "offset": "0x00068D47",
+          "before": "E881620000",
+          "after": "E864A70000",
+          "purpose": "sprintf(dst, villager name +0xDD4) used the villager name as the format string ('%' can crash); retarget to the static cdecl strcpy 0x004734B0 (same 2 args, caller cleans, return value unused)"
+        },
+        {
+          "offset": "0x0000D54B",
+          "before": "8B71308814308B5130C644020100",
+          "after": "83FA2574278B71306689143089F2",
+          "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        }
+      ]
+    },
+    {
+      "id": "vv3_details_full_names",
+      "game_id": "vv3",
+      "name": "Full Names on the Details Screen",
+      "description": "The Villager Details screen keeps a villager's whole name. In the base game its name box holds only 18 characters (fewer for wide letters) and, when the screen closes, writes what it holds back to the villager, so a longer name -- a last name, a numbered namesake -- was cut short for good. Now the box holds the 23 characters the game's name field has room for, is wide enough to show them, and copies the whole name back; typing a new name there allows 23 characters too. **Needs no other patch.**",
+      "output_tag": "Full Names",
+      "behavior_changes": [
+        "Villager Detail name box: SetEditable max characters 18 -> 23",
+        "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x0049E90C so the box is wide enough that the draw routine never NUL-truncates a 23-character name",
+        "Villager Detail next/previous villager: GetText(rec+0xDD4, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved",
+        "Villager Detail OK: GetText(rec+0xDD4, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved"
+      ],
+      "explicit_non_changes": [
+        "The villager's name field is the base game's own 24-byte field; nothing is written past it, and the save's layout is unchanged.",
+        "Names that already fitted are shown and kept exactly as before; no other screen changes."
+      ],
+      "evidence_status": "static exact-build evidence (every byte checked against the stock executable, every buffer the name passes through measured); live tests: see the PR",
+      "patches": [
+        {
+          "offset": "0x0006D495",
+          "before": "6A12",
+          "after": "6A17",
+          "purpose": "Villager Detail name box: SetEditable max characters 18 -> 23"
+        },
+        {
+          "offset": "0x0006D44A",
+          "before": "68FCEA4900",
+          "after": "680CE94900",
+          "purpose": "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x0049E90C so the box is wide enough that the draw routine never NUL-truncates a 23-character name"
+        },
+        {
+          "offset": "0x0006E49D",
+          "before": "6A138D54240C528BF8E835EDF9FF6A188D44240C5081C7D40D000057E8C212000083C40C",
+          "after": "6A188D90D40D00005289C7E833EDF9FFEB12909090909090909090909090909090909090",
+          "purpose": "Villager Detail next/previous villager: GetText(rec+0xDD4, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved"
+        },
+        {
+          "offset": "0x0006E572",
+          "before": "6A138D4C240C518B8E080300008BF8E85AECF9FF6A188D54240C5281C7D40D000057E8E711000083C40C",
+          "after": "6A188D90D40D0000528B8E0803000089C7E858ECF9FFEB12909090909090909090909090909090909090",
+          "purpose": "Villager Detail OK: GetText(rec+0xDD4, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved"
         }
       ]
     },
@@ -2141,13 +2416,14 @@
       "id": "vv4_fix_vanilla_bugs",
       "game_id": "vv4",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again.",
         "Loading reads at most the 150 saved villagers, never anything after the list.",
         "A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly.",
-        "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit."
+        "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
       ],
       "explicit_non_changes": [
         "The population cap, births, events and every population mode are unchanged; no villager is removed or added.",
@@ -2191,6 +2467,76 @@
           "before": "83C001",
           "after": "83C000",
           "purpose": "Default names (0x465DC1): ...and the name number is the roll itself (0-184), not the roll + 1"
+        },
+        {
+          "offset": "0x000402B9",
+          "before": "8D8E9C1B0000518D54242C52E81114030083C408",
+          "after": "8D8E9C1B000051B872A84800EBE2909090909090",
+          "purpose": "sprintf(buf, name) used the villager name as the format string; reuse the sibling branch sprintf(buf, fmt, name) with fmt = existing \"%s\" at 0x0048A872"
+        },
+        {
+          "offset": "0x0000D813",
+          "before": "8B71308814308B5130C644020100",
+          "after": "83FA2574108B71306689143089F2",
+          "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        }
+      ]
+    },
+    {
+      "id": "vv4_details_full_names",
+      "game_id": "vv4",
+      "name": "Full Names on the Details Screen",
+      "description": "The Villager Details screen keeps a villager's whole name. In the base game its name box holds only 18 characters (fewer for wide letters) and, when the screen closes, writes what it holds back to the villager, so a longer name -- a last name, a numbered namesake -- was cut short for good. Now the box holds the 23 characters the game's name field has room for, is wide enough to show them, and copies the whole name back; typing a new name there allows 23 characters too. **Needs no other patch.**",
+      "output_tag": "Full Names",
+      "behavior_changes": [
+        "Villager Detail name box: SetEditable max characters 18 -> 23",
+        "five-villager naming screen name box: SetEditable max characters 18 -> 23",
+        "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x0048EDD0 so the box is wide enough that the draw routine never NUL-truncates a 23-character name",
+        "Villager Detail next/previous villager: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved",
+        "Villager Detail OK: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved",
+        "five-villager naming screen: GetText(rec+0x1B9C, 0x18) straight into the record instead of the 20-byte stack local + setter strncpy(+0x10, 0x18)"
+      ],
+      "explicit_non_changes": [
+        "The villager's name field is the base game's own 24-byte field; nothing is written past it, and the save's layout is unchanged.",
+        "Names that already fitted are shown and kept exactly as before; no other screen changes."
+      ],
+      "evidence_status": "static exact-build evidence (every byte checked against the stock executable, every buffer the name passes through measured); live tests: see the PR",
+      "patches": [
+        {
+          "offset": "0x00047474",
+          "before": "6A12",
+          "after": "6A17",
+          "purpose": "Villager Detail name box: SetEditable max characters 18 -> 23"
+        },
+        {
+          "offset": "0x0003B251",
+          "before": "6A12",
+          "after": "6A17",
+          "purpose": "five-villager naming screen name box: SetEditable max characters 18 -> 23"
+        },
+        {
+          "offset": "0x00047429",
+          "before": "6824EB4800",
+          "after": "68D0ED4800",
+          "purpose": "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x0048EDD0 so the box is wide enough that the draw routine never NUL-truncates a 23-character name"
+        },
+        {
+          "offset": "0x00048577",
+          "before": "6A138D54240C528BF8E89B4EFCFF6A188D44240C5081C79C1B000057E8489F020083C40C",
+          "after": "6A188D909C1B00005289C7E8994EFCFFEB12909090909090909090909090909090909090",
+          "purpose": "Villager Detail next/previous villager: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved"
+        },
+        {
+          "offset": "0x00048658",
+          "before": "6A138D4C240C518B8EA40000008BF8E8B44DFCFF6A188D54240C5281C79C1B000057E8619E020083C40C",
+          "after": "6A188D909C1B0000528B8EA400000089C7E8B24DFCFFEB12909090909090909090909090909090909090",
+          "purpose": "Villager Detail OK: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved"
+        },
+        {
+          "offset": "0x0003BC96",
+          "before": "6A138D4C2410518B4E54E87B17FDFF8D54240C528D8D8C1B0000E80B99FDFF",
+          "after": "6A188D8D9C1B0000518B4E54E87917FDFFEB0C909090909090909090909090",
+          "purpose": "five-villager naming screen: GetText(rec+0x1B9C, 0x18) straight into the record instead of the 20-byte stack local + setter strncpy(+0x10, 0x18)"
         }
       ]
     },
@@ -3370,10 +3716,11 @@
       "id": "vv5_fix_vanilla_bugs",
       "game_id": "vv5",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
-        "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit."
+        "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
       ],
       "explicit_non_changes": [
         "The name lists themselves, a villager's sex, looks and family, and any name the player gives are the base game's own.",
@@ -3393,6 +3740,76 @@
           "before": "83C001",
           "after": "83C000",
           "purpose": "Default names (0x46F6A1): ...and the name number is the roll itself (0-184), not the roll + 1"
+        },
+        {
+          "offset": "0x00042E59",
+          "before": "8D969C1B0000528D44242850E8DC91030083C408",
+          "after": "8D969C1B000052B88A584900EBE2909090909090",
+          "purpose": "sprintf(buf, name) used the villager name as the format string; reuse the sibling branch sprintf(buf, fmt, name) with fmt = existing \"%s\" at 0x0049588A"
+        },
+        {
+          "offset": "0x0000DD03",
+          "before": "8B71308814308B5130C644020100",
+          "after": "83FA2574108B71306689143089F2",
+          "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        }
+      ]
+    },
+    {
+      "id": "vv5_details_full_names",
+      "game_id": "vv5",
+      "name": "Full Names on the Details Screen",
+      "description": "The Villager Details screen keeps a villager's whole name. In the base game its name box holds only 18 characters (fewer for wide letters) and, when the screen closes, writes what it holds back to the villager, so a longer name -- a last name, a numbered namesake -- was cut short for good. Now the box holds the 23 characters the game's name field has room for, is wide enough to show them, and copies the whole name back; typing a new name there allows 23 characters too. **Needs no other patch.**",
+      "output_tag": "Full Names",
+      "behavior_changes": [
+        "Villager Detail name box: SetEditable max characters 18 -> 23",
+        "five-villager naming screen name box: SetEditable max characters 18 -> 23",
+        "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x0049A374 so the box is wide enough that the draw routine never NUL-truncates a 23-character name",
+        "Villager Detail next/previous villager: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved",
+        "Villager Detail OK: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved",
+        "five-villager naming screen: GetText(rec+0x1B9C, 0x18) straight into the record instead of the 20-byte stack local + setter strncpy(+0x10, 0x18)"
+      ],
+      "explicit_non_changes": [
+        "The villager's name field is the base game's own 24-byte field; nothing is written past it, and the save's layout is unchanged.",
+        "Names that already fitted are shown and kept exactly as before; no other screen changes."
+      ],
+      "evidence_status": "static exact-build evidence (every byte checked against the stock executable, every buffer the name passes through measured); live tests: see the PR",
+      "patches": [
+        {
+          "offset": "0x0004A7F2",
+          "before": "6A12",
+          "after": "6A17",
+          "purpose": "Villager Detail name box: SetEditable max characters 18 -> 23"
+        },
+        {
+          "offset": "0x0003DBC0",
+          "before": "6A12",
+          "after": "6A17",
+          "purpose": "five-villager naming screen name box: SetEditable max characters 18 -> 23"
+        },
+        {
+          "offset": "0x0004A7A7",
+          "before": "6860A04900",
+          "after": "6874A34900",
+          "purpose": "Villager Detail name box initial text: 15 'w' -> existing 26 'W' string at 0x0049A374 so the box is wide enough that the draw routine never NUL-truncates a 23-character name"
+        },
+        {
+          "offset": "0x0004BB87",
+          "before": "6A138D54240C528BF8E87B1DFCFF6A188D44240C5081C79C1B000057E8181C030083C40C",
+          "after": "6A188D909C1B00005289C7E8791DFCFFEB12909090909090909090909090909090909090",
+          "purpose": "Villager Detail next/previous villager: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved"
+        },
+        {
+          "offset": "0x0004BC68",
+          "before": "6A138D4C240C518B8EA80000008BF8E8941CFCFF6A188D54240C5281C79C1B000057E8311B030083C40C",
+          "after": "6A188D909C1B0000528B8EA800000089C7E8921CFCFFEB12909090909090909090909090909090909090",
+          "purpose": "Villager Detail OK: GetText(rec+0x1B9C, 0x18) straight into the record instead of via the 20-byte stack local + strncpy(0x18); keeps 23 characters + NUL, no stack buffer involved"
+        },
+        {
+          "offset": "0x0003E696",
+          "before": "6A138D4C2410518B4E58E86BF2FCFF8D54240C528D8D8C1B0000E8FB73FDFF",
+          "after": "6A188D8D9C1B0000518B4E58E869F2FCFFEB0C909090909090909090909090",
+          "purpose": "five-villager naming screen: GetText(rec+0x1B9C, 0x18) straight into the record instead of the 20-byte stack local + setter strncpy(+0x10, 0x18)"
         }
       ]
     }

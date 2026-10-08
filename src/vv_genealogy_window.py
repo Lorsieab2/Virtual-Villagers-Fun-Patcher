@@ -1499,6 +1499,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self.history.clear()
                 self.future.clear()
                 self.last_state = self._state()
+        # A villager the tree showed by a name the Villager Details screen cut is shown by the full
+        # name the logs keep (vv_cut_names): their edits follow them, as for a change of looks.
+        moved = ft.full_name_edits(self.edits, self.village)
+        if moved is not self.edits:
+            self.edits = moved
+            self.dirty = True
+            self.history.clear()
+            self.future.clear()
+            self.last_state = self._state()
         changed = [p for p in self.village.known() if p.old_looks and "look" not in self._entry(p)]
         if changed:
             self.after_idle(lambda: self._ask_looks(changed))

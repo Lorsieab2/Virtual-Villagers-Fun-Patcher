@@ -269,6 +269,7 @@ class Living:
     family: int
     default: str                    # the family's last name, or "" outside 1..50
     alive: bool = True              # False: dead, disappeared or gone, known from the logs only (at -1)
+    arrived: bool = False           # came through an event, not a founder (everyone(): ARRIVALS)
 
     @property
     def identity(self) -> tuple:
@@ -458,15 +459,30 @@ def everyone(folder: Path, game: int, slot: int) -> tuple[list[Living], dict[tup
     no longer in the village but still recorded in the logs" -- and each one's (father, mother)."""
     import vv_genealogy as gen
     people = living(folder, game, slot)
-    village = gen.load_village(folder, game, slot)
+    village = gen.load_village(folder, game, slot, full_names=False)   # the names as the records carry them
+    first = min(gen.snapshot_dates(village), default=None)
+    arrivals = {p.key for p in village.known() if gen.is_arrival(p, first)}
+    for v in people:
+        v.arrived = v.identity in arrivals
     have = {v.identity for v in people}
     for p in sorted(village.known(), key=lambda q: q.order_key()):
         if p.key not in have and not p.alive and p.head is not None and p.body is not None:
-            people.append(Living(-1, p.name, p.sex or "", p.head, p.body, 0, "", alive=False))
+            people.append(Living(-1, p.name, p.sex or "", p.head, p.body, 0, "", alive=False,
+                                 arrived=p.key in arrivals))
             have.add(p.key)
     parents = {p.key: tuple(village.people[q].key if q is not None else None for q in (p.father, p.mother))
                for p in village.known()}
     return people, parents
+
+
+# ARRIVALS.  The owner, 2026-10-07: "All newly-spawned villagers from events will default to no
+# last name (because otherwise everyone will have the wrong last name)".  A villager the logs say
+# arrived -- an Arrived record whose "How:" is not "Founder" (an island event's newcomer, the
+# Barrel O' Babies, a Custom Island Event's villager, a converted Heathen), or, with no "How:", one
+# first seen after the village's first History snapshot (vv_genealogy.is_arrival) -- has no last
+# name by default: no family name of their own, under any rule.  The founders, the village's first
+# villagers, keep one of their own (separate).  The player can still pick or type one, and an
+# arrival whose name already carries a last name keeps it.
 
 
 def separate(people: list[Living], parents: dict[tuple, tuple], pool: list[str],
@@ -475,9 +491,9 @@ def separate(people: list[Living], parents: dict[tuple, tuple], pool: list[str],
     "unrelated and single individuals have no family yet and should get separate last names"):
     their family's from the game's list `pool` when no other such villager has it, else the next
     one in the list nobody has (the list's names are reused only when every one is taken).  One
-    whose name already carries a last name keeps it."""
+    whose name already carries a last name keeps it.  An arrival gets none (ARRIVALS)."""
     alone = [v for v in people if parents.get(v.identity, (None, None)) == (None, None)
-             and not carried(v.name)]
+             and not carried(v.name) and not v.arrived]
     taken = {carried(v.name) for v in people} - {""}
     out: dict[tuple, str] = {}
     for v in alone:                         # each their own family's first ...
@@ -499,7 +515,7 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     either parent's at random, or one at random from the game's list -- a parent's being the one
     their name carries, else (a living parent being given one now) the one this rule gives them,
     parents before children.  Without the parent the rule names, the other parent's; without
-    either, their own (separate) or the family's.  The
+    either, their own (separate) or the family's -- or, for an arrival, none (ARRIVALS).  The
     random pick is the same each time for the same villager.  "each" leaves every one to the player: a villager keeps the last name they carry until the player gives another.  `parents` maps a villager (name, head, body) to (father, mother).  With
     the game's list of last names (`pool`), a villager with no recorded parent has one of their own
     (separate).  `fixed`: the last names the player gave villagers themselves ("" none) -- theirs,
@@ -512,6 +528,7 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
         return {v.identity: fixed[v.identity] if v.identity in fixed else carried(v.name) for v in people}
     if rule == "list":
         return {v.identity: fixed[v.identity] if v.identity in fixed
+                else carried(v.name) if v.arrived                   # ARRIVALS: none by default
                 else random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool
                 else v.default for v in people}
     living_by = {v.identity: v for v in people}
@@ -537,6 +554,9 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
         if father is None and mother is None and carried(v.name):   # no parent: the name they have
             out[v.identity] = carried(v.name)
             return out[v.identity]
+        if father is None and mother is None and v.arrived:         # ARRIVALS: none by default
+            out[v.identity] = ""
+            return ""
         seen = seen | {v.identity}
         dad, mum = last_of(father, seen), last_of(mother, seen)
         if rule == "father":
@@ -1151,6 +1171,47 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
             if crlf:
                 text = text.replace("\n", "\r\n")
             result.changes.append(Change(path, original, text.encode("latin-1"), "the logs"))
+    _plan_repairs_logs(result, folder, game, slot, by_name, villages)
+
+
+def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name: dict[str, set],
+                       villages) -> None:
+    """The Repairs log (which the checker's log list leaves out) names villagers in its own words --
+    "Pregnancy: Chapa Wanjiko -- father Usutu Bahati" -- with no looks, so a name there is renamed
+    only when it is one villager's alone (`by_name`), as a whole name: "Kaula Bahati" never touches
+    "Kaula Bahati I" (the owner: renames are retroactive in every log, and the logs match the save)."""
+    import vv_log_additions as additions
+    checker = tools.load_checker()
+    unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
+    if not unique:
+        return
+    pattern = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(n) for n in sorted(unique, key=len, reverse=True))
+                         + r")(?![A-Za-z0-9]|\s[IVXLCDM]+(?![A-Za-z0-9]))")
+    for top in checker.LOG_FOLDERS:
+        root = Path(folder) / top
+        if not root.is_dir():
+            continue
+        for path in sorted(root.rglob("*.txt")):
+            if path.parent.name != "Repairs":
+                continue
+            original = path.read_bytes()
+            crlf = b"\r\n" in original
+            lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
+            n = 0
+            for b in additions.blocks(path, lines):
+                if not b.of(slot, game, villages):
+                    continue
+                for k in range(len(b.lines)):
+                    line = lines[b.start + k]
+                    new_line, count = pattern.subn(lambda m: unique[m.group(1)], line)
+                    if count:
+                        lines[b.start + k] = new_line
+                        n += count
+            if n:
+                text = "\n".join(lines)
+                if crlf:
+                    text = text.replace("\n", "\r\n")
+                result.changes.append(Change(path, original, text.encode("latin-1"), "the Repairs log"))
 
 
 # ---------------------------------------------------------------------------
@@ -1206,6 +1267,51 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
             fixed[(split_name(game, name, known)[0], head, body)] = last
         write_record(folder, game, slot, rule, fixed, whole)
     return result
+
+
+def unrelated_namesakes(people: list[Living], parents: dict[tuple, tuple],
+                        lasts: dict[tuple, str]) -> dict[tuple, tuple[str, list[str]]]:
+    """Villagers who share a last name with a family they are not related to (the owner, 2026-10-07:
+    "an alert ... if a villager who isn't related is sharing a last name with someone" -- Thabo
+    Bahati, a new arrival, beside the established Bahati family).  Blood relatives share an
+    ancestor (a villager is their own); `lasts` is each villager's last name now ("" none).  For each
+    last name held by more than one unrelated group, every villager outside its largest group is
+    returned with (the last name, the names of the largest group's first few)."""
+    def ancestors(key) -> set:
+        seen: set = set()
+        todo = [key]
+        while todo:
+            k = todo.pop()
+            if k is None or k in seen:
+                continue
+            seen.add(k)
+            todo.extend(parents.get(k, (None, None)))
+        return seen
+
+    names = {v.identity: v.name for v in people}
+    by_last: dict[str, list[tuple]] = {}
+    for v in people:
+        if lasts.get(v.identity):
+            by_last.setdefault(lasts[v.identity], []).append(v.identity)
+    out: dict[tuple, tuple[str, list[str]]] = {}
+    for last, keys in by_last.items():
+        groups: list[tuple[set, list]] = []         # (the group's ancestors, its villagers)
+        for key in keys:
+            mine = ancestors(key)
+            members = [key]
+            for g in [g for g in groups if g[0] & mine]:
+                groups.remove(g)
+                mine |= g[0]
+                members += g[1]
+            groups.append((mine, members))
+        if len(groups) < 2:
+            continue
+        groups.sort(key=lambda g: -len(g[1]))
+        main = [names[k] for k in groups[0][1]][:4]
+        for _ancestors, members in groups[1:]:
+            for key in members:
+                out[key] = (last, main)
+    return out
 
 
 def with_siblings(fixed: dict[tuple, str], parents: dict[tuple, tuple]) -> dict[tuple, str]:

@@ -207,17 +207,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Fix Vanilla Bugs' every-default-name fix: putting its two
     # sites (0x5C677 push 0x7B, 0x5C683 inc eax) back to stock and recomputing
     # the CheckSum gives the previous digest in all three modes.
+    # Re-pinned for Full Names on the Details Screen and Fix Vanilla Bugs' '%' fixes: putting their
+    # six sites back to stock and recomputing the CheckSum gives the previous digest in all three
+    # modes.
     "stock": (
-        "C5C8E32C04B015F1F6161FFE5D0996A8992D2A664F3D08FC5834F4D7D118C61A",
-        "25850D00",
+        "700AF51AC171AC5086C358C7523867135CA80AEDA1B4AA3A6F91EF9186E6E26F",
+        "1A9F0D00",
     ),
     "collection_progression": (
-        "3FE40D6720729D611344043AD59E48A4F875DD490F07E8CC9A9A6E1447D8C9C3",
-        "259E0D00",
+        "8FD96766F8FDA7E660F23A8960FBE8E94051672CA27640C58BB2B28042DE911C",
+        "1AB80D00",
     ),
     "immediate_fixed": (
-        "31358B312E64FF7281F565C0D89F65CFB336E2D878F2FC664828343B838E8C26",
-        "24E00C00",
+        "1B132D9E29383E2A0B4601FC3518A994E47C38328A067AE8D8AA33D9A758710C",
+        "19FA0C00",
     ),
 }
 

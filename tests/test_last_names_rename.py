@@ -83,6 +83,36 @@ class TwoWordNamesAreAsked(unittest.TestCase):
             self.assertEqual(ln.read_whole(Path(tmp), 1, 2), {"Big Bob"})
 
 
+class TheRepairsLogFollowsARename(unittest.TestCase):
+    """The Repairs log (left out of the checker's log list) names villagers in its own words; a rename
+    reaches it where the name is one villager's alone, as a whole name (2026-10-07: "(no last name)
+    should completely remove the last name")."""
+
+    def test_unique_whole_names_are_renamed_and_nothing_else(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            log = folder / LOGS / "Repairs" / "Virtual Villagers 1 Repairs Log 1.txt"
+            log.parent.mkdir(parents=True)
+            text = ("Village: Kalahuna Tribe 1 (Save 1)\r\n"
+                    "Pregnancy: Chapa Wanjiko -- father Usutu Bahati (was unknown)\r\n"
+                    "Pregnancy: Iruwa Bahati I -- father Silko Akikai (was unknown)\r\n"
+                    "Also: Chapa Wanjikoa and Kaula Bahati II\r\n\r\n"
+                    "Village: Other Tribe (Save 2)\r\n"
+                    "Pregnancy: Chapa Wanjiko -- father Ago (was unknown)\r\n")
+            log.write_bytes(text.encode("latin-1"))
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Chapa Wanjiko": {"Chapa"}, "Iruwa Bahati I": {"Iruwa I"},
+                                                         "Kaula Bahati": {"Kaula"}}, None)
+            self.assertEqual(len(result.changes), 1)
+            after = result.changes[0].updated.decode("latin-1")
+            self.assertIn("Pregnancy: Chapa -- father Usutu Bahati (was unknown)\r\n", after)
+            self.assertIn("Pregnancy: Iruwa I -- father Silko Akikai", after)
+            # Not a whole name (Chapa Wanjikoa), a numbered namesake (Kaula Bahati II), another slot.
+            self.assertIn("Also: Chapa Wanjikoa and Kaula Bahati II\r\n", after)
+            self.assertIn("Pregnancy: Chapa Wanjiko -- father Ago", after)
+            self.assertEqual(log.read_bytes().decode("latin-1"), text, "planning writes nothing")
+
+
 class EveryRenameIsHeldToTheGamesRoom(unittest.TestCase):
     """The owner: a character limit "IN EVERY SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN
     HAPPEN" -- plan_renames refuses, before reading anything, a name the game cannot hold."""
