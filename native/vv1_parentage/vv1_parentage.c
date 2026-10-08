@@ -1808,6 +1808,10 @@ __declspec(dllexport) int __stdcall Vv1ParentageConceived(const void *records_po
 
 #define VV1_GOLDEN_FAMILY 0xC7    /* +0x36C of the Golden Child (the puzzle's 0x4242F3 push) */
 #define VV1_BORN_GOLDEN   4       /* WriteParentageBirthLitter: "Born as: Golden Child" */
+#define VV1_GOLDEN_AGE    100     /* the Golden Child is 5 years old (100 units) from birth, for life */
+#define VV1_GOLDEN_WAIT_FRAMES 600   /* at most this many frames for the game to finish making it */
+static int g_golden_child = -1;  /* the Golden Child whose Birth record is still to be written, -1 none */
+static int g_golden_frames;
 
 typedef int (__stdcall *vv1_give_last_name_t)(char *name, unsigned int room, int family);
 
@@ -1862,7 +1866,12 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
            2026-10-08: "THE GOLDEN CHILD SHOULD BE LISTED AS A BIRTH WITH
            THEIR PARENTS"), with the last name the mother's children take. */
         vv1_golden_last_name((unsigned char *)child_pointer, (const unsigned char *)mother_pointer);
-        vv1_log_birth(records, &birth, VV1_BORN_GOLDEN);
+        /* Its Birth record is written from the tick once the game has made
+           it the Golden Child -- 5 years old (100 units) for life, its skills
+           and likes set -- not from the bare record the puzzle just created
+           (the owner: parents, age, skills, likes and dislikes). */
+        g_golden_child = c;
+        g_golden_frames = 0;
         vv1_parents_save(slot, records);
         return 1;
     }
@@ -1886,6 +1895,19 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
     }
     if (g_save_owed != slot) {
         g_save_owed = 0;          /* another village's table: nothing of this one is owed */
+    }
+    if (g_golden_child >= 0) {
+        const unsigned char *gc = vv1_records() + (unsigned int)g_golden_child * VV1_RECORD_STRIDE;
+        if (!gc[VV1_OCCUPIED_OFFSET] || *(const int *)(gc + VV1_VARIANT_OFFSET) != VV1_GOLDEN_FAMILY) {
+            g_golden_child = -1;  /* no longer the Golden Child's record: nothing true to write */
+        } else if (*(const int *)(gc + VV1_AGE_OFFSET) == VV1_GOLDEN_AGE
+                   || ++g_golden_frames >= VV1_GOLDEN_WAIT_FRAMES) {
+            vv1_birth birth;
+            birth.child = g_golden_child;
+            birth.mother = -1;
+            vv1_log_birth(vv1_records(), &birth, VV1_BORN_GOLDEN);
+            g_golden_child = -1;
+        }
     }
     if (vv1_frame(vv1_records(), 1)) {
         /* A change made here -- a stash spent by the sweep above all -- is

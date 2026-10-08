@@ -3326,7 +3326,8 @@ static const char *born_as_line(int litter) {
     return litter == 1 ? "  Born as: Single birth\n"
          : litter == 2 ? "  Born as: Twin\n"
          : litter == 3 ? "  Born as: Triplet\n"
-         : litter == 4 ? "  Born as: Golden Child\n" : "";     /* A New Home's puzzle (vv1_parentage) */
+         : litter == 4 ? "  Born as: Golden Child\n  Age at birth: 100 (5 years old)\n"
+         : "";     /* 4: A New Home's Golden Child (vv1_parentage), born at and kept at exactly 5 years (the owner, 2026-10-08; the owner's log: Lulu, 100) */
 }
 
 /* The Birth record's text (WriteParentageBirth's arguments), with `note`

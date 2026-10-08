@@ -725,6 +725,11 @@ def candidates(village: Village, rules: Rules) -> tuple[list[Person], list[Perso
     for p in sorted(village.living(), key=lambda q: -(q.age or 0)):
         if p.heathen or p.sex not in ("Male", "Female") or not _age_ok(p, rules):
             continue
+        # A New Home's Golden Child (family 199) is 5 years old for life and never breeds: the game's
+        # breeding check (0x42E5A4) refuses it (the owner: "GOLDEN CHILD IS A SPECIAL EXCEPTION TO
+        # EVERYTHING").
+        if village.game == 1 and p.family == 199:
+            continue
         if p.sex == "Female" and rules.not_expecting and p.expecting:
             continue
         (men if p.sex == "Male" else women).append(p)
