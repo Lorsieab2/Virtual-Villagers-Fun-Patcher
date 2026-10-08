@@ -247,7 +247,8 @@ class RuleTests(unittest.TestCase):
         self.assertIn(("Uan Wanjiko I", "Suki Wanjiko II"), allowed())
         self.assertIn(("Hoani Chuchip", "Suki Wanjiko II"), allowed())
         self.assertNotIn(("Hoani Chuchip", "Suki Wanjiko II"), allowed(one_family_per_partner=True))
-        self.assertNotIn(("Hoani Chuchip", "Meka Wanjiko"), allowed(one_family_per_partner=True))
+        # ... but the same partner again is always fine (the owner: "stop him only from moving on to a second person from the same family").
+        self.assertIn(("Hoani Chuchip", "Meka Wanjiko"), allowed(one_family_per_partner=True))
         self.assertIn(("Hoani Chuchip", "Kaula Akikai II"), allowed(one_family_per_partner=True))
         self.assertTrue(gen.Rules().one_family_per_partner)        # on by default
 
