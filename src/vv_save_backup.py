@@ -906,10 +906,20 @@ def speed_words(value: int) -> str:
     return {v: SPEED_CHOICES[k] for k, v in _SPEED_VALUES.items()}.get(value, str(value))
 
 
-def set_speed_choice(game: int, path: Path, choice: str) -> tuple[int, int] | None:
+def set_speed_choice(game: int, path: Path, choice: str,
+                     processes: ProcessController | None = None) -> tuple[int, int] | None:
     """Set one save to Paused, Slow, Normal or Fast, the way the game writes them; the speed it keeps
     under Paused is the one it had.  Returns (old value, new value), or None when it already is so.
-    A file that is not a save of this game is refused and left exactly as it is."""
+    A file that is not a save of this game, or whose game is running or cannot be checked (Codex,
+    #576), is refused and left exactly as it is."""
+    exe = game_exe_name(path.parent)
+    try:
+        controller = processes if processes is not None else WindowsProcesses()
+        running = bool(controller.find(exe))
+    except Exception as exc:  # noqa: BLE001 -- any failure to look is a refusal
+        raise BackupError(f"Could not check whether {exe} is running ({exc}); the save was left as it is.")
+    if running:
+        raise BackupError(f"{exe} is running; quit it from its own menu first. The save was left as it is.")
     data = path.read_bytes()
     found = save_speed(game, data)
     if found is None:
