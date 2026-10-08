@@ -54,6 +54,7 @@ GAP_MIN, GAP_MAX = 0.0, 400.0           # the player's gap between portraits
 FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
 SHRINK_MIN = 0.2                        # never smaller than a fifth
 PAGE_GENS, PAGE_GENS_MIN, PAGE_GENS_MAX = 6, 2, 10   # generations on one page: the owner's default and limit
+TEXT_SCALE_MIN, TEXT_SCALE_MAX = 25.0, 400.0          # one villager's text size, in percent
 LEFT = 300                      # the generation labels' column
 TOP = 150
 OTHER_GAP = 110                 # between the tree and the "Other Members" column
@@ -215,7 +216,6 @@ class Edits:
     portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
     page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
-    _shrink: float = field(default=1.0, init=False, repr=False, compare=False)   # layout's, never saved
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
@@ -374,6 +374,9 @@ class Edits:
             angle = _number(entry.get("angle"), 0.0, 360.0, 0.0) % 360
             if angle:
                 item["angle"] = angle
+            text_scale = _number(entry.get("text_scale"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
+            if text_scale != 100.0:
+                item["text_scale"] = text_scale     # this villager's words, apart from the frame (the owner)
             look = entry.get("look")
             if isinstance(look, list) and len(look) == 2 and all(isinstance(v, int) for v in look):
                 item["look"] = look             # the look the player chose to show
@@ -809,6 +812,7 @@ class Layout:
     page: int = 0                       # which page of the tree this is (page_spans)
     names: dict[int, str] = field(default_factory=dict)          # Number Duplicate Names: id -> "Soda II"
     pages: int = 1
+    shrink: float = 1.0                 # this page's Shrink to fit (each page its own; Codex, #575)
     _spans: list = field(default_factory=list, repr=False)
 
     @property
@@ -840,7 +844,7 @@ class Layout:
         proportions, as tall as a portrait, unless the player resized it; centred on the portrait;
         turned `angle` degrees about its middle."""
         p = self.village.people[q]
-        w, h = frame_size(self.edits, self.village, p)
+        w, h = frame_size(self.edits, self.village, p, shrink=self.shrink)
         return self.x[q] + NODE_W / 2 - w / 2, self.y[q] + NODE_H / 2 - h / 2, w, h, self.entry(p).get("angle", 0.0)
 
     def spans(self) -> list[tuple[float, float, float]]:
@@ -906,13 +910,13 @@ def shape_of(edits: Edits, village: gen.Village, p: gen.Person) -> str:
 
 
 def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True,
-               unscaled: bool = False) -> tuple[float, float]:
+               unscaled: bool = False, shrink: float = 1.0) -> tuple[float, float]:
     """A portrait frame's width and height: the villager's own (`own`), else their group's default
     size, else their shape's own proportions, a portrait tall -- shrunk to fit the page when the
     player asked (Edits.fit_width; `unscaled`: the sizes as the player set them)."""
     gw, gh = edits.sizes.get(group_of(p)) or (natural_width(shape_of(edits, village, p)), NODE_H)
     entry = edits.entries.get(entry_key(village, p), {}) if own else {}
-    s = 1.0 if unscaled else edits._shrink
+    s = 1.0 if unscaled else shrink
     return entry.get("w", gw) * s, entry.get("h", gh) * s
 
 
@@ -946,11 +950,11 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     if not e.fit_width:
         return lay
     for _ in range(8):
-        if lay.width <= e.fit_width * 1.005 or e._shrink <= SHRINK_MIN:
+        if lay.width <= e.fit_width * 1.005 or lay.shrink <= SHRINK_MIN:
             break
         # What does not shrink (the labels' column and the margins) is left as it is.
         fixed = LEFT + 60
-        wanted = e._shrink * max(0.05, (e.fit_width - fixed) / max(1.0, lay.width - fixed))
+        wanted = lay.shrink * max(0.05, (e.fit_width - fixed) / max(1.0, lay.width - fixed))
         lay = _layout(village, edits, page, max(SHRINK_MIN, min(1.0, wanted)))
     return lay
 
@@ -994,22 +998,24 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     # Every portrait shrunk alike, faces and words with them, so the widest row fits the page width
     # the player chose (the owner, 2026-10-08: "auto resizing of portraits and text to accommodate
     # lots of portraits per page"); the gap between two portraits is the player's.
-    edits._shrink = 1.0
+    shrink_now = 1.0
     shown = in_tree | set(others)
     widest_frame = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in shown])
     gap = edits.portrait_gap
     widest_row_n = max([len(r) for r in rows.values()] + [1])
     if shrink is not None:
-        edits._shrink = shrink
+        shrink_now = shrink
     elif edits.fit_width and LEFT + widest_row_n * (widest_frame + gap) > edits.fit_width:
         room = (edits.fit_width - LEFT) / widest_row_n - gap
-        edits._shrink = max(SHRINK_MIN, min(1.0, room / widest_frame))
-    step = widest_frame * edits._shrink + gap
+        shrink_now = max(SHRINK_MIN, min(1.0, room / widest_frame))
+    step = widest_frame * shrink_now + gap
     x: dict[int, float] = {}
     sub: dict[int, int] = {q: 0 for q in in_tree}
     if edits.positioning == "dynamic" and rows:
         x, sub = _dynamic(people, rows, families, step)
-        tree_right = max(x.values()) + NODE_W
+        # The right edge of the widest frame, not of a standard portrait: a wide shape (a butterfly) or
+        # a big frame must not reach into the Other Members column.
+        tree_right = max(x.values()) + NODE_W / 2 + max(NODE_W, step - gap) / 2
     else:
         # Every row centred under the widest (the owner: "center everything ... both
         # horizontally and vertically").
@@ -1073,7 +1079,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
                 fam.couple_y = min(fam.couple_y + lift, fam.lane_y - LANE)
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
-    out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,
+    out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands, shrink=shrink_now,
                  edits=edits, page=page, pages=len(spans),
                  names=gen.duplicate_names(village, edits.number_order) if edits.number_names else {})
     # One colour each: every villager with no recorded parents, every pairing, every set of full
@@ -1138,7 +1144,9 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
             if wanted is None:                  # nobody to stand near: the end of the first row
                 ends = [hi for row in taken[:1] for _lo, hi in row]
                 wanted = max(ends, default=0.0) + span / 2
-            ideal = wanted - (span - GAP_X) / 2
+            # The children's middle under their parents' whatever the gap and shrink (Codex, #575): at
+            # the default spacing (step = NODE_W + GAP_X) this is the old wanted - (span - GAP_X) / 2.
+            ideal = wanted - NODE_W / 2 - (span - step) / 2
             best = None
             for k in range(min(len(taken) + 1, MAX_SUBROWS)):
                 left = nearest(taken[k], ideal, span) if k < len(taken) else ideal
@@ -2564,11 +2572,17 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         x1, y1 = max(max(xs), lay.x[pid] + NODE_W), max(max(ys), lay.y[pid] + NODE_H)
         out.boxes[pid] = (x0, y0, x1 - x0, y1 - y0)
     key_text = words(lay, "footer")
+    # With Shrink to fit, the footer goes onto as many lines as keep it inside that width, rather than
+    # widening the page again (Codex, #575); otherwise it is the one line it always was.
+    footer_lines = (_wrap(key_text, max(20, int((lay.edits.fit_width - 80) / 6.8)))
+                    if lay.edits.fit_width and len(key_text) * 6.8 > lay.edits.fit_width - 80 else [key_text])
+    longest = max(len(line) for line in footer_lines)
     if plate:
-        add(Shape("rect", middle - len(key_text) * 3.4, lay.height - 110, len(key_text) * 6.8, 30, plate_colour,
-                  move="footer", width=0, fill=plate_colour, radius=10, target=("plate",)))
-    add(Text(middle, lay.height - 90, key_text, 13, ink, centre=True, role="footer", move="footer",
-             edit="word:footer"))
+        add(Shape("rect", middle - longest * 3.4, lay.height - 110, longest * 6.8, 30 + 18 * (len(footer_lines) - 1),
+                  plate_colour, move="footer", width=0, fill=plate_colour, radius=10, target=("plate",)))
+    for k, line in enumerate(footer_lines):
+        add(Text(middle, lay.height - 90 + 18 * k, line, 13, ink, centre=True, role="footer", move="footer",
+                 edit="word:footer"))
     out.items[:] = [i for i in out.items if f"word:{getattr(i, 'move', '')}" not in lay.edits.hidden]
     _apply_styles(out.items, lay.edits)
     _apply_opacity(out.items, lay.edits)
@@ -2771,8 +2785,9 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         add(item)
 
     if p.upcoming:
+        own = lay.entry(p).get("text_scale", 100) / 100
         for k, text in enumerate(node_text(lay, p)):
-            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, 12 if k == 0 else 11, ink,
+            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, (12 if k == 0 else 11) * own, ink,
                      bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
                      edit=f"person:{p.id}"))
         return
@@ -2787,10 +2802,37 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         put(Shape("ellipse", x + NODE_W / 2 - 26, mid - 26, 52, 52, colour, width=1, fill=colour, pid=p.id,
                   target=("person", p.id)))
         put(Text(x + NODE_W / 2, mid + 10, p.name[:1], 28, "#ffffff", bold=True, centre=True, pid=p.id))
+    # Every line inside its shape (Codex, #575; the owner, 2026-10-08: "text should fit within the shape as
+    # much as possible"): each line is measured against the shape's own width where it is drawn -- a
+    # circle or a heart is narrower towards its edges -- and this portrait's words made only as much
+    # smaller as the tightest line needs.  Then the player's own text size for this villager.
+    points = lay.frame_points(p.id)
+    fit = 1.0
+    for k, (text, bold, _r) in enumerate(lines):
+        if not text:
+            continue
+        size = (11.5 if bold else 10) * scale
+        baseline = middle[1] + (y + text_top + k * LINE_H - middle[1]) * scale
+        # The narrowest the shape is across the whole line, from the tops of its letters to below them.
+        chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
+        room = max(chord, fw * 0.5) - 8
+        needed = len(text) * size * (0.58 if bold else 0.55)
+        if room > 0 and needed > room:
+            fit = min(fit, room / needed)
+    own = lay.entry(p).get("text_scale", 100) / 100
     for k, (text, bold, runs) in enumerate(lines):
-        put(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, 11.5 if bold else 10, ink,
+        put(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, (11.5 if bold else 10) * fit * own, ink,
                  bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits", edit=f"person:{p.id}",
                  runs=runs))
+
+
+def _chord(points: list[tuple[float, float]], y: float) -> float:
+    """How wide the shape these corners outline is at height `y` (0 above or below it)."""
+    xs = []
+    for (ax, ay), (bx, by) in zip(points, points[1:] + points[:1]):
+        if (ay > y) != (by > y):
+            xs.append(ax + (y - ay) * (bx - ax) / (by - ay))
+    return max(xs) - min(xs) if len(xs) >= 2 else 0.0
 
 
 def _svg_opacity(item) -> str:

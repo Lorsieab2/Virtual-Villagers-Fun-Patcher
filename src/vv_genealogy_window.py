@@ -687,6 +687,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 ttk.Label(row, text=label).pack(side="left", padx=(4, 0))
             self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6), self._own_size).pack(
                 side="left", padx=(2, 0))
+        # The words' own size, apart from the frame (the owner, 2026-10-08: "Should be able to resize text
+        # independently of the portrait shape it's in too"); 100% is the size that fits the shape.
+        ttk.Label(row, text="text %").pack(side="left", padx=(8, 0))
+        self.own_text = tk.StringVar()
+        self._live(ttk.Spinbox(row, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
+                               increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
         row = ttk.Frame(box)
         row.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Their family's lines:  weight").pack(side="left")
@@ -853,8 +859,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         row = ttk.Frame(tab)
         row.pack(anchor="w", pady=(4, 0))
         ttk.Label(row, text="Shrink portraits to fit a page width of (pixels, 0 = off):").pack(side="left")
-        self.fit_var = tk.StringVar(value=str(e.fit_width))
-        self._live(ttk.Spinbox(row, textvariable=self.fit_var, from_=0, to=ft.FIT_MAX, increment=200, width=7),
+        self.portrait_fit_var = tk.StringVar(value=str(e.fit_width))      # not fit_var: the background picture's (Codex, #575)
+        self._live(ttk.Spinbox(row, textvariable=self.portrait_fit_var, from_=0, to=ft.FIT_MAX, increment=200, width=7),
                    self._fit_width).pack(side="left", padx=(6, 0))
         self.units_var = tk.BooleanVar(value=e.show_units)
         ttk.Checkbutton(tab, text="Game age in units", variable=self.units_var,
@@ -2300,6 +2306,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             var.set(f"{values.pop():g}" if len(values) == 1 else "")      # blank where they differ
         dashes = {s.get("dash", self.edits.line_dash) for s in styles}
         self.own_line_dash.set(ft.LINE_TYPES[dashes.pop()] if len(dashes) == 1 else "")
+        texts = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) for p in people}
+        self.own_text.set(f"{texts.pop():g}" if len(texts) == 1 else "")
 
     # ---- changing -----------------------------------------------------------
     def _group_style(self, attr: str, group: str, value: str) -> None:
@@ -2333,7 +2341,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _fit_width(self) -> None:
         """Portraits (faces and words too) shrink alike so the widest row fits this page width; 0 is off."""
         try:
-            width = int(float(self.fit_var.get()))
+            width = int(float(self.portrait_fit_var.get()))
         except ValueError:
             return
         width = 0 if width <= 0 else max(ft.FIT_MIN, min(ft.FIT_MAX, width))
@@ -2411,6 +2419,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.edits.sizes[group] = [w, h]
         self._saved()
         self._show_group_sizes()
+
+    def _own_text_size(self) -> None:
+        """Every selected villager's words this size, in percent, whatever their frame's size."""
+        percent = self._number(self.own_text.get(), ft.TEXT_SCALE_MIN, ft.TEXT_SCALE_MAX)
+        if not self.selected or percent is None:
+            return
+        changed = False
+        for q in self.selected:
+            p = self.village.people[q]
+            if self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) != percent:
+                self._set_entry(p, text_scale=percent if percent != 100.0 else None)
+                changed = True
+        if changed:
+            self._saved()
 
     def _own_size(self) -> None:
         """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes")."""
@@ -2609,7 +2631,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.centre_var.set(e.centre_heads)
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")
-        self.fit_var.set(str(e.fit_width))
+        self.portrait_fit_var.set(str(e.fit_width))
         self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)

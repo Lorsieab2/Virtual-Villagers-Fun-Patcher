@@ -540,7 +540,7 @@ class CanvasTools:
                 _cx, _cy, w, h, angle = d["now"]
                 p = self.village.people[d["pid"]]
                 if d["mode"] == "size":
-                    s = self.edits._shrink or 1.0         # the size before Shrink to fit (it is applied on top)
+                    s = self.lay.shrink or 1.0            # the size before Shrink to fit (it is applied on top)
                     self._set_entry(p, w=round(w / s, 1), h=round(h / s, 1))
                 else:
                     self._set_entry(p, angle=round(angle, 1) % 360)

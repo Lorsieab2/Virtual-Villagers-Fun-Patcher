@@ -2,6 +2,7 @@
 every one" for a group's shape and border."""
 from __future__ import annotations
 
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -99,7 +100,7 @@ class SpacingAndFitTests(unittest.TestCase):
 
     def test_the_defaults_lay_out_as_before(self) -> None:
         v, lay = self.lay()
-        self.assertEqual(lay.edits._shrink, 1.0)
+        self.assertEqual(lay.shrink, 1.0)
         row = sorted(lay.x[q] for q in lay.rows[min(lay.rows)])
         frame = max(ft.frame_size(lay.edits, v, q, own=False)[0] for q in v.people.values() if q.id in lay.x)
         self.assertAlmostEqual(row[1] - row[0], max(ft.NODE_W, frame) + ft.GAP_X)
@@ -115,7 +116,7 @@ class SpacingAndFitTests(unittest.TestCase):
     def test_shrink_to_fit_shrinks_frames_faces_and_words_alike(self) -> None:
         v, full = self.lay()
         _v, fitted = self.lay(fit_width=420)
-        s = fitted.edits._shrink
+        s = fitted.shrink
         self.assertLess(s, 1.0)
         p = next(q for q in v.known() if not q.upcoming)
         self.assertAlmostEqual(fitted.frame(p.id)[2], full.frame(p.id)[2] * s, places=6)
@@ -125,12 +126,79 @@ class SpacingAndFitTests(unittest.TestCase):
             sizes[name] = max(i.size for i in sc.items if isinstance(i, ft.Text) and i.pid == p.id)
         self.assertAlmostEqual(sizes["fitted"], sizes["full"] * max(0.2, s), places=6)
         back = ft.Edits.from_data(ft.Edits(fit_width=420).to_data())
-        self.assertEqual((back.fit_width, back._shrink), (420, 1.0))     # the shrink itself is never saved
+        self.assertEqual(back.fit_width, 420)
+        self.assertNotIn("shrink", json.dumps(back.to_data()))           # the shrink itself is never saved
         self.assertEqual(ft.Edits.from_data({"fit_width": 0}).fit_width, 0)
 
     def test_a_resize_by_hand_is_kept_before_the_shrink(self) -> None:
         source = (ROOT / "src" / "vv_tree_editor_tools.py").read_text(encoding="utf-8")
         self.assertIn("self._set_entry(p, w=round(w / s, 1), h=round(h / s, 1))", source)
+        self.assertIn("s = self.lay.shrink or 1.0", source)
+
+
+class ReviewFixTests(unittest.TestCase):
+    """Codex's review of #575 and the owner, 2026-10-08: "text should fit within the shape as much as
+    possible" and "resize text independently of the portrait shape"."""
+
+    def test_no_two_controls_share_a_variable(self) -> None:
+        import re
+        source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
+        names = re.findall(r"self\.(\w+) = tk\.(?:String|Int|Boolean|Double)Var\(", source)
+        self.assertEqual(sorted({n for n in names if names.count(n) > 1}), [])
+        self.assertIn("self.portrait_fit_var", source)
+
+    def test_each_page_keeps_its_own_shrink_and_the_edits_hold_none(self) -> None:
+        v = village()
+        e = ft.Edits(fit_width=420)
+        ft.arrange(v, e)
+        lay = ft.layout(v, e)
+        self.assertLess(lay.shrink, 1.0)
+        self.assertFalse(hasattr(e, "_shrink"))
+        full = ft.layout(v, ft.Edits())
+        self.assertEqual(full.shrink, 1.0)
+        self.assertLess(lay.frame(next(iter(lay.x)))[2], full.frame(next(iter(lay.x)))[2])
+
+    def test_the_footer_wraps_inside_a_fitted_page(self) -> None:
+        v = village()
+        e = ft.Edits(fit_width=900)
+        ft.arrange(v, e)
+        sc = ft.scene(ft.layout(v, e), "A New Home", {})
+        footer = [i for i in sc.items if isinstance(i, ft.Text) and i.role == "footer"]
+        self.assertGreater(len(footer), 1)
+        self.assertTrue(all(len(t.text) * 6.8 <= 900 for t in footer))
+
+    def test_children_stay_under_their_parents_whatever_the_gap(self) -> None:
+        for gap in (4.0, 22.0, 400.0):
+            v = village()
+            e = ft.Edits(portrait_gap=gap, positioning="dynamic")
+            ft.arrange(v, e)
+            lay = ft.layout(v, e)
+            fam = next(f for f in lay.families if len(f.children) == 2)
+            parents = [lay.x[q] for q in (fam.father, fam.mother)]
+            kids = [lay.x[q] for q in fam.children]
+            self.assertAlmostEqual(sum(kids) / 2, sum(parents) / 2, delta=1.0, msg=gap)
+
+    def test_words_fit_the_shape_and_have_a_size_of_their_own(self) -> None:
+        v = village()
+        p = next(q for q in v.known() if not q.upcoming)
+        long_line = "A very long title line typed by the player herself"
+        for shape in ("circle", "heart", "rect"):
+            e = ft.Edits(text_wrap=60, shapes={g: shape for g in ft.GROUPS})
+            e.entries[ft.entry_key(v, p)] = {"lines": ["1. Someone", long_line]}
+            ft.arrange(v, e)
+            lay = ft.layout(v, e)
+            sc = ft.scene(lay, "A New Home", {})
+            texts = [i for i in sc.items if isinstance(i, ft.Text) and i.pid == p.id and i.text == long_line]
+            self.assertEqual(len(texts), 1, shape)
+            t = texts[0]
+            room = ft._chord(lay.frame_points(p.id), t.y - t.size * 0.35)
+            self.assertLessEqual(len(t.text) * t.size * 0.55, max(room, lay.frame(p.id)[2] * 0.5) - 8 + 1e-6, shape)
+        e.entries[ft.entry_key(v, p)]["text_scale"] = 150.0
+        back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
+        self.assertEqual(back.entries[ft.entry_key(v, p)]["text_scale"], 150.0)
+        sc_big = ft.scene(ft.layout(v, back), "A New Home", {})
+        big = next(i for i in sc_big.items if isinstance(i, ft.Text) and i.pid == p.id and i.text == long_line)
+        self.assertAlmostEqual(big.size, t.size * 1.5, places=6)
 
 
 class GenerationsPerPageTests(unittest.TestCase):
