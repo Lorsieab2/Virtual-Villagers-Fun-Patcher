@@ -155,7 +155,7 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
     import vv_cut_names
     try:
         cuts, cut_notes = vv_cut_names.find_cut(Path(folder), game, slot)
-    except (vv_last_names.LastNamesError, OSError, ValueError) as exc:
+    except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError, struct.error) as exc:
         report.add(f"{LOGS} (cut names)", "UNCHECKED", f"could not be read ({exc})")
     else:
         if cuts:

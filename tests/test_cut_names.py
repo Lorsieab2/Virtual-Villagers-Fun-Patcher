@@ -117,6 +117,19 @@ class CutNames(unittest.TestCase):
         self.assertEqual(len(notes), 1)
         self.assertIn(f"could be {FULL} or {CUT}oa", notes[0])
 
+    def test_a_name_the_player_shortened_on_purpose_is_never_restored(self):
+        # Review, 2026-10-07: "Chapa Wanjiko" renamed "Chapa" in the game -- far shorter than the box
+        # keeps, and the full name fits the box, so the screen never cut it.
+        self.write_save(entry("Chapa", 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8))
+        self.log("Tribe Population/Village Population 1.txt",
+                 "Village: Tribe (Save 1)\n" + person(1, "Chapa Wanjiko", 5, 6))
+        self.assertEqual(self.found(), ({}, []))
+        # A save name the box's length but a full name that would have fitted is not a cut either.
+        self.write_save(entry("Chapa Wanjiko Kaul", 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8))
+        self.log("Tribe Population/Village Population 1.txt",
+                 "Village: Tribe (Save 1)\n" + person(1, "Chapa Wanjiko Kaul", 5, 6))
+        self.assertEqual(self.found(), ({}, []))
+
     def test_a_name_longer_than_the_screen_keeps_was_never_cut(self):
         self.write_save(entry(FULL[:19], 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8))
         self.assertEqual(self.found(), ({}, []))

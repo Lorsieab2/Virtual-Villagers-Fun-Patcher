@@ -96,19 +96,23 @@ class TheRepairsLogFollowsARename(unittest.TestCase):
             text = ("Village: Kalahuna Tribe 1 (Save 1)\r\n"
                     "Pregnancy: Chapa Wanjiko -- father Usutu Bahati (was unknown)\r\n"
                     "Pregnancy: Iruwa Bahati I -- father Silko Akikai (was unknown)\r\n"
-                    "Also: Chapa Wanjikoa and Kaula Bahati II\r\n\r\n"
+                    "Also: Chapa Wanjikoa and Kaula Bahati II\r\n"
+                    "Set to unknown: Kaula Bahati -- (was father Iruwa Bahati I, mother Chapa Wanjiko)\r\n\r\n"
                     "Village: Other Tribe (Save 2)\r\n"
                     "Pregnancy: Chapa Wanjiko -- father Ago (was unknown)\r\n")
             log.write_bytes(text.encode("latin-1"))
             result = ln.Plan({})
             ln._plan_repairs_logs(result, folder, 1, 1, {"Chapa Wanjiko": {"Chapa"}, "Iruwa Bahati I": {"Iruwa I"},
-                                                         "Kaula Bahati": {"Kaula"}}, None)
+                                                         "Kaula": {"Kaula Wanjiko"}, "": {"Wanjiko"}}, None)
             self.assertEqual(len(result.changes), 1)
             after = result.changes[0].updated.decode("latin-1")
             self.assertIn("Pregnancy: Chapa -- father Usutu Bahati (was unknown)\r\n", after)
             self.assertIn("Pregnancy: Iruwa I -- father Silko Akikai", after)
-            # Not a whole name (Chapa Wanjikoa), a numbered namesake (Kaula Bahati II), another slot.
+            # Not a whole name (Chapa Wanjikoa), a numbered namesake (Kaula Bahati II), another slot;
+            # renaming "Kaula" never touches "Kaula Bahati", and an empty name renames nothing.
             self.assertIn("Also: Chapa Wanjikoa and Kaula Bahati II\r\n", after)
+            self.assertIn("Set to unknown: Kaula Bahati -- (was father Iruwa I, mother Chapa)\r\n", after)
+            self.assertNotIn("Wanjiko Bahati", after)
             self.assertIn("Pregnancy: Chapa Wanjiko -- father Ago", after)
             self.assertEqual(log.read_bytes().decode("latin-1"), text, "planning writes nothing")
 

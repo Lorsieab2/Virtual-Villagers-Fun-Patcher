@@ -645,7 +645,23 @@ def full_name_edits(edits: "Edits", village: gen.Village) -> "Edits":
         return edits
     text = json.dumps(edits.to_data())
     moved = renamed_keys(text, village.full_names)
-    return edits if moved == text else Edits.from_data(json.loads(moved))
+    # Edits kept under both the cut key and the full one become one villager's: merged, never one
+    # dropped for the other (review, 2026-10-07).
+    return edits if moved == text else Edits.from_data(json.loads(moved, object_pairs_hook=_merge_pairs))
+
+
+def _merge_pairs(pairs: list) -> dict:
+    """A JSON object whose key repeats after re-keying: dictionaries merged (the first one's values
+    kept where both have one), lists joined without repeats, any other value the first one's."""
+    out: dict = {}
+    for key, value in pairs:
+        if key not in out:
+            out[key] = value
+        elif isinstance(out[key], dict) and isinstance(value, dict):
+            out[key] = {**value, **out[key]}
+        elif isinstance(out[key], list) and isinstance(value, list):
+            out[key] = out[key] + [v for v in value if v not in out[key]]
+    return out
 
 
 def look_of(edits: "Edits", village: gen.Village, p: gen.Person) -> tuple:

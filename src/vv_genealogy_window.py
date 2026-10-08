@@ -2336,6 +2336,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 "save and logs?  The game must be closed; the tree is saved and the save folder is backed "
                 "up first.", parent=self):
             return
+        if self.village.full_names:
+            # The save still holds names the Villager Details screen cut; numbering them would number
+            # the cut names (review, 2026-10-07).  Repair Saves & Logs restores them first.
+            messagebox.showinfo(
+                "Number Duplicate Names",
+                f"{len(self.village.full_names)} name(s) in the save were cut short by the game's Villager "
+                "Details screen. Restore them first with Repair Saves & Logs, then number "
+                "the names in the game. They stay numbered on the tree.", parent=self)
+            return
         if self.dirty and not self._save_tree():
             return
         try:

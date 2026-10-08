@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import struct
 import subprocess
 import sys
 import threading
@@ -442,6 +443,14 @@ def _window_buttons(event) -> None:
                 user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020)
         except (tk.TclError, OSError, AttributeError):
             pass                                # a window without its buttons is still a window
+    # Tk ignores Minimize on a window kept above another (transient), so the patcher's windows are
+    # ordinary ones: Windows minimizes and restores them itself, each with its own taskbar button
+    # (review, 2026-10-07).  _keep_dialog_on_top keeps a dialog that holds the patcher above it.
+    try:
+        if window.transient():
+            window.wm_transient("")
+    except tk.TclError:
+        pass
     # Tk may rebuild the frame once more as the window settles (its icon, its transient owner), so
     # the buttons are put back then too.
     window.after_idle(add)
@@ -449,10 +458,98 @@ def _window_buttons(event) -> None:
     window.after(600, add)
 
 
+def _keep_dialog_on_top(event) -> None:
+    """A window clicked while a dialog holds the patcher (grab_set) brings that dialog back on top, so
+    it never hides behind the window it holds."""
+    try:
+        clicked = event.widget.winfo_toplevel()
+        held = clicked.grab_current()
+        if held is not None and held.winfo_toplevel() is not clicked and held.winfo_toplevel().state() == "normal":
+            held.winfo_toplevel().lift()
+    except (tk.TclError, AttributeError, KeyError):
+        pass
+
+
+_TK_GRAB_SET, _TK_GRAB_RELEASE = tk.Misc.grab_set, tk.Misc.grab_release
+
+
+def _hold(self) -> None:
+    """grab_set for a dialog the way Windows holds a window: its owner is disabled (the patcher
+    ignores clicks, as with Tk's grab) rather than Tk-grabbed -- Tk refuses to minimize any window
+    while a grab is in effect, and the owner (the patcher, 2026-10-07) wants Minimize on every
+    window.  Each owner counts the dialogs holding it and is enabled again when the last one goes."""
+    top = self.winfo_toplevel()
+    owner = top.master.winfo_toplevel() if top.master is not None else None
+    if owner is None or owner is top:
+        return _TK_GRAB_SET(self)
+    if getattr(top, "_vvfp_holds", None) is owner:
+        return None
+    top._vvfp_holds = owner
+    owner._vvfp_held = getattr(owner, "_vvfp_held", 0) + 1
+    owner.wm_attributes("-disabled", True)
+    top.bind("<Destroy>", lambda e: _let_go(top) if e.widget is top else None, add="+")
+    _minimize_together(top, owner)
+    top.focus_set()
+    return None
+
+
+def _let_go(top) -> None:
+    owner = getattr(top, "_vvfp_holds", None)
+    if owner is None:
+        return
+    top._vvfp_holds = None
+    try:
+        owner._vvfp_held = max(0, getattr(owner, "_vvfp_held", 1) - 1)
+        if not owner._vvfp_held:
+            owner.wm_attributes("-disabled", False)
+            owner.lift()
+    except tk.TclError:
+        pass
+
+
+def _release(self) -> None:
+    top = self.winfo_toplevel()
+    if getattr(top, "_vvfp_holds", None) is not None:
+        _let_go(top)
+    else:
+        _TK_GRAB_RELEASE(self)
+
+
+def _minimize_together(top, owner) -> None:
+    """A held dialog minimized minimizes its owner (so no disabled window is left on screen), and the
+    owner restored brings the dialog back."""
+    def unmapped(event) -> None:
+        if event.widget is not top:
+            return
+        try:
+            if top.state() == "iconic" and owner.state() != "iconic":
+                owner.iconify()
+        except tk.TclError:
+            pass
+
+    def mapped(event) -> None:
+        if event.widget is not owner:
+            return
+        try:
+            if getattr(top, "_vvfp_holds", None) is owner and top.winfo_exists() and top.state() == "iconic":
+                top.deiconify()
+                top.lift()
+        except tk.TclError:
+            pass
+
+    top.bind("<Unmap>", unmapped, add="+")
+    owner.bind("<Map>", mapped, add="+")
+
+
 class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.bind_class("Toplevel", "<Map>", _window_buttons, add="+")
+        if sys.platform == "win32":             # dialogs hold the patcher the Windows way (_hold)
+            tk.Misc.grab_set, tk.Misc.grab_release = _hold, _release
+        for tag in ("Tk", "Toplevel"):
+            self.bind_class(tag, "<Button>", _keep_dialog_on_top, add="+")
+            self.bind_class(tag, "<FocusIn>", _keep_dialog_on_top, add="+")
         self.title("Virtual Villagers Fun Patcher")
         self.geometry("940x760")
         self.minsize(820, 520)
@@ -2943,8 +3040,11 @@ class App(tk.Tk):
             # read is left to Check Saves & Logs to report.
             try:
                 cuts = vv_cut_names.find_cut(folder, number, info.slot)
-            except (vv_last_names.LastNamesError, ValueError):
-                cuts = ([], [])
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
+                    struct.error) as exc:
+                # A file locked by another program never stops the repair (review, 2026-10-07).
+                cuts = ([], [f"Names cut short by the Villager Details screen were not checked: a file "
+                             f"could not be read ({exc})."])
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
                     cuts)
 
@@ -3322,8 +3422,9 @@ class App(tk.Tk):
             wrong = 0
             # Unrelated villagers sharing a last name (the owner: Thabo Bahati, a new arrival, beside
             # the established Bahati family) -- as the boxes stand now.
-            shared = vv_last_names.unrelated_namesakes(people, parents,
-                                                       {v.identity: last_in(value) for v, value, _m in rows})
+            # Not under "Random from list": its picks share names by chance, by design (review, 2026-10-07).
+            shared = {} if rule_key() == "list" else vv_last_names.unrelated_namesakes(
+                people, parents, {v.identity: last_in(value) for v, value, _m in rows})
             for v, value, mark in rows:
                 have = last_in(value)
                 right = should.get(v.identity, "")

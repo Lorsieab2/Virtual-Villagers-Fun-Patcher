@@ -460,8 +460,12 @@ def everyone(folder: Path, game: int, slot: int) -> tuple[list[Living], dict[tup
     import vv_genealogy as gen
     people = living(folder, game, slot)
     village = gen.load_village(folder, game, slot, full_names=False)   # the names as the records carry them
-    first = min(gen.snapshot_dates(village), default=None)
-    arrivals = {p.key for p in village.known() if gen.is_arrival(p, first)}
+    # Only what the logs say: an Arrived record whose "How:" is not "Founder".  A parentless villager
+    # merely first seen later (an A New Home baby from before the parentage records) is not taken
+    # for an arrival (review, 2026-10-07).
+    arrivals = {p.key for p in village.known()
+                if p.father is None and p.mother is None and not p.upcoming
+                and p.arrived and p.how and p.how != "Founder"}
     for v in people:
         v.arrived = v.identity in arrivals
     have = {v.identity for v in people}
@@ -478,8 +482,7 @@ def everyone(folder: Path, game: int, slot: int) -> tuple[list[Living], dict[tup
 # ARRIVALS.  The owner, 2026-10-07: "All newly-spawned villagers from events will default to no
 # last name (because otherwise everyone will have the wrong last name)".  A villager the logs say
 # arrived -- an Arrived record whose "How:" is not "Founder" (an island event's newcomer, the
-# Barrel O' Babies, a Custom Island Event's villager, a converted Heathen), or, with no "How:", one
-# first seen after the village's first History snapshot (vv_genealogy.is_arrival) -- has no last
+# Barrel O' Babies, a Custom Island Event's villager, a converted Heathen) -- has no last
 # name by default: no family name of their own, under any rule.  The founders, the village's first
 # villagers, keep one of their own (separate).  The player can still pick or type one, and an
 # arrival whose name already carries a last name keeps it.
@@ -1182,11 +1185,14 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
     "Kaula Bahati I" (the owner: renames are retroactive in every log, and the logs match the save)."""
     import vv_log_additions as additions
     checker = tools.load_checker()
-    unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
+    unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1 and old.strip()}
     if not unique:
         return
-    pattern = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(n) for n in sorted(unique, key=len, reverse=True))
-                         + r")(?![A-Za-z0-9]|\s[IVXLCDM]+(?![A-Za-z0-9]))")
+    # A whole name only: after the start of the line or a space, and followed by what ends a name in
+    # the log's sentences (" --", " (", ",", ")", ";" or the end of the line) -- so renaming "Kaula"
+    # never touches "Kaula Bahati" (review, 2026-10-07).
+    pattern = re.compile(r"(?:^|(?<=[\s:]))(" + "|".join(re.escape(n) for n in sorted(unique, key=len, reverse=True))
+                         + r")(?=\s--|\s\(|[,);]|\s*$)")
     for top in checker.LOG_FOLDERS:
         root = Path(folder) / top
         if not root.is_dir():
@@ -1273,42 +1279,36 @@ def unrelated_namesakes(people: list[Living], parents: dict[tuple, tuple],
                         lasts: dict[tuple, str]) -> dict[tuple, tuple[str, list[str]]]:
     """Villagers who share a last name with a family they are not related to (the owner, 2026-10-07:
     "an alert ... if a villager who isn't related is sharing a last name with someone" -- Thabo
-    Bahati, a new arrival, beside the established Bahati family).  Blood relatives share an
-    ancestor (a villager is their own); `lasts` is each villager's last name now ("" none).  For each
-    last name held by more than one unrelated group, every villager outside its largest group is
-    returned with (the last name, the names of the largest group's first few)."""
-    def ancestors(key) -> set:
-        seen: set = set()
-        todo = [key]
-        while todo:
-            k = todo.pop()
-            if k is None or k in seen:
-                continue
-            seen.add(k)
-            todo.extend(parents.get(k, (None, None)))
-        return seen
+    Bahati, a new arrival, beside the established Bahati family).  Related means one family tree:
+    joined by any parent and child the records know, so in-laws with a child together count as
+    family (review, 2026-10-07); `lasts` is each villager's last name now ("" none).  For each last
+    name held by more than one unrelated group, every villager outside its largest group is returned
+    with (the last name, the names of the largest group's first few)."""
+    root: dict = {}
 
+    def find(k):
+        root.setdefault(k, k)
+        while root[k] != k:
+            root[k] = root[root[k]]
+            k = root[k]
+        return k
+
+    for child, pair in parents.items():
+        for parent in pair:
+            if parent is not None:
+                root[find(parent)] = find(child)
     names = {v.identity: v.name for v in people}
-    by_last: dict[str, list[tuple]] = {}
+    groups: dict[tuple, dict] = {}                  # last name -> family root -> villagers
     for v in people:
         if lasts.get(v.identity):
-            by_last.setdefault(lasts[v.identity], []).append(v.identity)
+            groups.setdefault(lasts[v.identity], {}).setdefault(find(v.identity), []).append(v.identity)
     out: dict[tuple, tuple[str, list[str]]] = {}
-    for last, keys in by_last.items():
-        groups: list[tuple[set, list]] = []         # (the group's ancestors, its villagers)
-        for key in keys:
-            mine = ancestors(key)
-            members = [key]
-            for g in [g for g in groups if g[0] & mine]:
-                groups.remove(g)
-                mine |= g[0]
-                members += g[1]
-            groups.append((mine, members))
-        if len(groups) < 2:
+    for last, families in groups.items():
+        if len(families) < 2:
             continue
-        groups.sort(key=lambda g: -len(g[1]))
-        main = [names[k] for k in groups[0][1]][:4]
-        for _ancestors, members in groups[1:]:
+        ranked = sorted(families.values(), key=lambda members: -len(members))
+        main = [names[k] for k in ranked[0]][:4]
+        for members in ranked[1:]:
             for key in members:
                 out[key] = (last, main)
     return out

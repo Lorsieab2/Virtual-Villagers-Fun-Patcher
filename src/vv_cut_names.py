@@ -47,6 +47,8 @@ BACKUP_LABEL = "(before restoring cut names)"
 # How many characters each game's Villager Details screen keeps of a name when it closes (measured
 # live 2026-10-07); a very wide name keeps fewer.
 DETAILS_ROOM = {1: 10, 2: 18, 3: 18, 4: 18, 5: 18}
+# How much shorter wide letters leave a cut name (measured live: 9 'M's in A New Home, 15 in the others).
+WIDE_SLACK = {1: 1, 2: 3, 3: 3, 4: 3, 5: 3}
 
 # The records that say a villager is no longer in the village.
 GONE_HEADINGS = ("Death", "Disappeared", "Left", "Unaccounted")
@@ -99,10 +101,14 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
     cuts: list[Cut] = []
     notes: list[str] = []
     for v in people:
-        if not v.name or len(v.name) > room:
+        # Only what the screen does to a name: the cut keeps `room` characters, or a few fewer when
+        # the letters are wide (measured live: 9 'M's in A New Home, 15 in the others), and the full
+        # name was longer than the box -- so a name the player shortened on purpose ("Chapa
+        # Wanjiko" -> "Chapa") is never "restored" (review, 2026-10-07).
+        if not v.name or not room - WIDE_SLACK[game] <= len(v.name) <= room:
             continue
         found = sorted({name for name, head, body in logged
-                        if (head, body) == (v.head, v.body) and len(name) > len(v.name) and name.startswith(v.name)
+                        if (head, body) == (v.head, v.body) and len(name) > room and name.startswith(v.name)
                         and len(name) <= fits and all(0x20 <= ord(ch) < 0x7F for ch in name)
                         and (name, head, body) not in gone and name not in living_names
                         and sexes.get((name, head, body), {v.sex}) == {v.sex}

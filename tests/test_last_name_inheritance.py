@@ -51,6 +51,9 @@ class UnrelatedNamesakeTests(unittest.TestCase):
         self.assertEqual(set(out), {thabo.identity})
         self.assertEqual(out[thabo.identity][0], "Bahati")
         self.assertEqual(set(out[thabo.identity][1]), {"Usutu", "Cheop", "Ahi"})
+        # In-laws with a child together are one family: Chapa Wanjiko, given Bahati, is not flagged.
+        lasts[mum.identity] = "Bahati"
+        self.assertEqual(set(ln.unrelated_namesakes(people, parents, lasts)), {thabo.identity})
         # Related through a shared ancestor (cousins) is not unrelated; no last name is never flagged.
         cousin = living("Moa", 1, "", 5)
         parents[cousin.identity] = (None, mum.identity)
@@ -61,7 +64,7 @@ class UnrelatedNamesakeTests(unittest.TestCase):
     def test_the_window_shows_the_alert(self) -> None:
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         body = gui[gui.index("    def _last_names_dialog("):gui.index("    def _repair_questions(")]
-        self.assertIn("vv_last_names.unrelated_namesakes(people, parents,", body)
+        self.assertIn('shared = {} if rule_key() == "list" else vv_last_names.unrelated_namesakes(', body)
         self.assertIn("share a last name with a family they are not related", body)
         self.assertIn('mark.set(f"not related to the other {shared[v.identity][0]}s")', body)
 
@@ -191,7 +194,10 @@ class InheritanceTests(unittest.TestCase):
                 mock.patch.object(gen, "load_village", return_value=village):
             found, _parents = ln.everyone(Path("."), 1, 1)
         arrived = {v.name: v.arrived for v in found}
-        self.assertEqual(arrived, {"Ari": False, "Cal": True, "Bea": False, "Ono": True, "Eve": False,
+        # Only an Arrived record that says how (not "Founder") makes an arrival: Ono, merely first seen
+        # later with no record (an A New Home baby from before the parentage records), is not one
+        # (review, 2026-10-07).
+        self.assertEqual(arrived, {"Ari": False, "Cal": True, "Bea": False, "Ono": False, "Eve": False,
                                    "Tui": True})
 
     def test_every_rule_is_offered(self) -> None:
