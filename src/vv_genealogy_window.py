@@ -159,6 +159,10 @@ PICTURES AND TEXT BOXES (Pictures & Text tab)
   Ctrl+B / Ctrl+I / Ctrl+U        bold / italic / underline the selected text box
   Right-click any words           bold, italic, underline, strikethrough, superscript, subscript
                                   (every word of that kind: every name, every label...)
+  Villagers tab, Portrait text    select some words (a line, a word, part of a word), then the
+                                  B I U S x² x₂ Colour buttons, a right click on them, or Ctrl+B /
+                                  Ctrl+I / Ctrl+U format just those words (Plain takes it off);
+                                  Save text puts them on the tree, Reset text the patcher's own
   Right-click it                  cut, copy, duplicate, delete, bring forward / to the front, send
                                   backward / to the back, rotate 90, reset proportions, reset to
                                   default
@@ -183,6 +187,15 @@ EVERYWHERE
 # 4/3 of its size, so each zoom's head scale is 4/3 of it.
 ZOOMS = {0.25: (1, 3), 0.5: (2, 3), 0.75: (1, 1), 1.0: (4, 3), 1.25: (5, 3), 1.5: (2, 1), 2.0: (8, 3),
          3.0: (4, 1), 4.0: (16, 3)}
+# The Portrait text box's formatting (what, its button, the button's font): the selected words only.
+TEXT_FORMATS = (("bold", "B", ("Segoe UI", 9, "bold")), ("italic", "I", ("Segoe UI", 9, "italic")),
+                ("underline", "U", ("Segoe UI", 9, "underline")), ("strike", "S", ("Segoe UI", 9, "overstrike")),
+                ("super", "x²", ("Segoe UI", 9)), ("sub", "x₂", ("Segoe UI", 9)),
+                ("colour", "Colour", ("Segoe UI", 9)), ("plain", "Plain", ("Segoe UI", 9)))
+FORMAT_NAMES = {"bold": "Bold", "italic": "Italic", "underline": "Underline", "strike": "Strikethrough",
+                "super": "Superscript", "sub": "Subscript", "colour": "Colour...", "plain": "Remove formatting"}
+FX = "fx:"                              # a Portrait text tag holding one setting: "fx:bold:1", "fx:colour:#..."
+LOOK = "look:"                          # a Portrait text tag drawing the words as their settings say
 
 
 # ---------------------------------------------------------------------------
@@ -606,8 +619,24 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
         box = ttk.LabelFrame(tab, text="Portrait text", padding=6)
         box.pack(fill="x", pady=(8, 0))
+        # Select words, then format them (the owner: "please allow text formatting in the family tree
+        # portrait text section"): these buttons, the right-click menu or Ctrl+B / Ctrl+I / Ctrl+U.
+        tools = ttk.Frame(box)
+        tools.pack(fill="x", pady=(0, 4))
+        self.format_buttons = {}
+        for what, label, look in TEXT_FORMATS:
+            button = tk.Button(tools, text=label, font=look, width=3 if len(label) < 3 else 0, padx=4,
+                               relief="groove", takefocus=False, command=lambda w=what: self._format_text(w))
+            button.pack(side="left", padx=(0, 2))
+            self.format_buttons[what] = button
         self.lines_text = tk.Text(box, height=5, width=34, undo=True)
         self.lines_text.pack(fill="x")
+        self.lines_text.bind("<Button-3>", self._format_menu)
+        self.lines_text.bind("<Control-b>", lambda _e: self._format_text("bold"))
+        self.lines_text.bind("<Control-i>", lambda _e: self._format_text("italic"))
+        self.lines_text.bind("<Control-u>", lambda _e: self._format_text("underline"))
+        self.lines_text.bind("<Key>", self._type_formatted)
+        self.lines_text.bind("<KeyRelease>", lambda _e: self._show_looks())
         row = ttk.Frame(box)
         row.pack(fill="x", pady=(4, 0))
         ttk.Button(row, text="Save text", command=self._apply_text).pack(side="left")
@@ -1124,6 +1153,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 image = self._head(item.sheet, item.row, item.scale)
                 if image is not None:
                     iid = c.create_image(item.x, item.y, image=image, anchor="nw")
+            elif isinstance(item, ft.Text) and item.runs:
+                for run in self._draw_runs(item, sc.background):
+                    self._tag(run, item)
             elif isinstance(item, ft.Text):
                 style = ["bold" if item.bold else "normal"] + (["italic"] if item.italic else []) \
                     + (["underline"] if item.underline else []) + (["overstrike"] if item.strike else [])
@@ -1139,6 +1171,33 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._draw_selection()
         if hasattr(self, "preset_labels"):
             self._show_background()
+
+    def _draw_runs(self, item: ft.Text, background: str) -> list[int]:
+        """A portrait's formatted words: each run in its own font (ft.run_look), measured, the whole
+        line centred where the Text says and each run drawn after the one before it (a superscript
+        or subscript smaller, raised or lowered)."""
+        c, z = self.canvas, self.z
+        pieces = []
+        for text, style in item.runs:
+            look = ft.run_look(item, style)
+            font = (item.font or vv_gdiplus.FONT, -max(1, int(round(look["size"] * z))),
+                    "bold" if look["bold"] else "normal", *(["italic"] if look["italic"] else []),
+                    *(["underline"] if look["underline"] else []), *(["overstrike"] if look["strike"] else []))
+            pieces.append((text, look, font, self._measure(font, text) / z))
+        x = item.x - sum(p[3] for p in pieces) / 2 if item.centre else item.x
+        out = []
+        for text, look, font, width in pieces:
+            out.append(c.create_text(x, item.y + look["dy"] + look["size"] * 0.24, text=text, font=font,
+                                     fill=tk_colour(faded(look["colour"], item.opacity, background)), anchor="sw"))
+            x += width
+        return out
+
+    def _measure(self, font: tuple, text: str) -> int:
+        """How wide `text` is in `font`, in screen pixels (its Font kept for the next time)."""
+        fonts = self.__dict__.setdefault("measure_fonts", {})
+        if font not in fonts:
+            fonts[font] = tkfont.Font(self, font=font)
+        return fonts[font].measure(text)
 
     def _tag(self, iid: int, item) -> None:
         """What a canvas item is (for a right click) and what dragging it moves."""
@@ -1619,7 +1678,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         own = "\n".join(ft.default_text(lay, p))
 
         def set_person(new: str) -> None:
-            self._set_entry(p, lines=None if new == own else new.split("\n"))
+            # The words' formatting kept where the retyping kept them (ft.carry_styles).
+            runs = ft.carry_styles(ft.node_text(lay, p), ft.node_runs(lay, p), new.split("\n"))
+            self._set_entry(p, lines=None if new == own and runs is None else new.split("\n"), runs=runs)
             self._saved()
         return "\n".join(ft.node_text(lay, p)), own, set_person
 
@@ -2157,7 +2218,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.lines_text.configure(state="normal")
         self.lines_text.delete("1.0", "end")
         if len(people) == 1 and hasattr(self, "lay"):
-            self.lines_text.insert("1.0", "\n".join(ft.node_text(self.lay, people[0])))
+            self._box_load(ft.node_text(self.lay, people[0]), ft.node_runs(self.lay, people[0]))
         else:
             self.lines_text.configure(state="disabled")
         marks = ["(none)"] + list(self.edits.marks)
@@ -2312,7 +2373,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 continue
             first = f"{p.number}. {lines[0][match.end():]}"
             if first != lines[0]:
-                self._set_entry(p, lines=[first] + lines[1:])
+                runs = ft.carry_styles(lines, ft.node_runs(self.lay, p), [first] + lines[1:])
+                self._set_entry(p, lines=[first] + lines[1:], runs=runs)
                 changed += 1
         if changed:
             self._saved()
@@ -2468,15 +2530,167 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if len(self.selected) != 1:
             return
         p = self.village.people[self.selected[0]]
-        lines = [line.rstrip() for line in self.lines_text.get("1.0", "end").rstrip("\n").split("\n")]
+        lines, runs = self._box_text()
         default = ft.default_text(self.lay, p)
-        self._set_entry(p, lines=None if lines == default else lines)
+        # Formatted words are the player's own even when they are the patcher's (they are kept).
+        self._set_entry(p, lines=None if lines == default and runs is None else lines, runs=runs)
         self._saved()
 
     def _restore_text(self) -> None:
         for q in self.selected:
-            self._set_entry(self.village.people[q], lines=None)
+            self._set_entry(self.village.people[q], lines=None, runs=None)
         self._saved()
+
+    # ---- the Portrait text box's formatting ---------------------------------
+    def _box_styles(self) -> list[tuple[str, dict]]:
+        """Every letter in the Portrait text box with its own style (its fx: tags)."""
+        box = self.lines_text
+        text = box.get("1.0", "end-1c")
+        out = []
+        for k, ch in enumerate(text):
+            style: dict = {}
+            for tag in box.tag_names(f"1.0+{k}c"):
+                if tag.startswith(FX):
+                    name, _, value = tag[len(FX):].partition(":")
+                    style[name] = value == "1" if name in ft.RUN_FLAGS else value
+            out.append((ch, ft.clean_run_style(style)))
+        return out
+
+    def _box_text(self) -> tuple[list[str], list | None]:
+        """The box's lines (each without the spaces at its end, as ever) and their runs in the edits
+        file's form (None when nothing is formatted)."""
+        letters = self._box_styles()
+        while letters and letters[-1][0] == "\n":
+            letters.pop()
+        lines: list[list] = [[]]
+        for ch, style in letters:
+            if ch == "\n":
+                lines.append([])
+            else:
+                lines[-1].append((ch, style))
+        for line in lines:
+            while line and line[-1][0].isspace():
+                line.pop()
+        runs = [ft.merge_runs(line) for line in lines]
+        texts = ["".join(ch for ch, _s in line) for line in lines]
+        return texts, ft.runs_data(ft.clean_runs(ft.runs_data(runs), texts))
+
+    def _box_load(self, lines: list[str], runs) -> None:
+        """The box showing these lines, formatted as `runs` (node_runs) say."""
+        box = self.lines_text
+        box.delete("1.0", "end")
+        for k, line in enumerate(lines):
+            if k:
+                box.insert("end", "\n")
+            for text, style in (runs[k] if runs else [(line, {})]):
+                box.insert("end", text, self._fx_tags(style))
+        self._show_looks()
+        box.edit_reset()
+
+    @staticmethod
+    def _fx_tags(style: dict) -> tuple:
+        return tuple(f"{FX}{name}:{int(value) if isinstance(value, bool) else value}" for name, value in style.items())
+
+    def _show_looks(self) -> None:
+        """The box's words drawn as they will look on the tree: each letter's own style over its
+        line's (the first line is the name's).  A Text's tags cannot mix fonts, so each look that
+        is wanted is a tag of its own."""
+        box = self.lines_text
+        for tag in box.tag_names():
+            if tag.startswith(LOOK):
+                box.tag_remove(tag, "1.0", "end")
+        family = box.tk.call("font", "actual", box.cget("font"), "-family")
+        size = int(box.tk.call("font", "actual", box.cget("font"), "-size")) or 10     # below 0: pixels
+        line, start, last = 0, 0, None
+        letters = self._box_styles() + [("\n", {})]
+        for k, (ch, style) in enumerate(letters):
+            look = None if ch == "\n" else ft.run_effect(style, ft.line_base(self.edits, line == 0))
+            key = None if look is None else tuple(sorted(look.items()))
+            if key != last:
+                if last is not None:
+                    box.tag_add(self._look_tag(dict(last), family, size), f"1.0+{start}c", f"1.0+{k}c")
+                start, last = k, key
+            if ch == "\n":
+                line += 1
+
+    def _look_tag(self, look: dict, family: str, size: int) -> str:
+        name = LOOK + "|".join(f"{k}={v}" for k, v in sorted(look.items()))
+        small = look["script"] in ft.SCRIPTS
+        font = (family, round(size * 0.7) if small else size, "bold" if look["bold"] else "normal",
+                *(["italic"] if look["italic"] else []), *(["underline"] if look["underline"] else []),
+                *(["overstrike"] if look["strike"] else []))
+        self.lines_text.tag_configure(name, font=font, foreground=look["colour"] or "",
+                                      offset={"super": round(abs(size) * 0.35), "sub": -round(abs(size) * 0.25)}.get(
+                                          look["script"], 0))
+        return name
+
+    def _format_text(self, what: str) -> str:
+        """The selected words in the Portrait text box formatted (the owner: "select words, then
+        format"); Save text puts them on the tree."""
+        box = self.lines_text
+        if str(box.cget("state")) == "disabled":
+            self.status.set("Click one villager to format their portrait's words.")
+            return "break"
+        try:
+            first, last = box.index("sel.first"), box.index("sel.last")
+        except tk.TclError:
+            self.status.set("Select some words in the Portrait text box first, then format them.")
+            return "break"
+        colour = ""
+        if what == "colour":
+            chosen = ask_colour(self, "The colour of the selected words")
+            if chosen is None:
+                return "break"
+            colour = chosen
+        start = len(box.get("1.0", first))
+        end = start + len(box.get(first, last))
+        letters = self._box_styles()
+        picked = [k for k in range(start, end) if letters[k][0] != "\n"]
+        if not picked:
+            return "break"
+        line_of = [0]
+        for ch, _s in letters:
+            line_of.append(line_of[-1] + (ch == "\n"))
+        bases = [ft.line_base(self.edits, line_of[k] == 0) for k in picked]
+        new = ft.format_styles([letters[k][1] for k in picked], bases, what, colour)
+        box.edit_separator()
+        for k, style in zip(picked, new):
+            at, after = f"1.0+{k}c", f"1.0+{k + 1}c"
+            for tag in box.tag_names(at):
+                if tag.startswith(FX):
+                    box.tag_remove(tag, at, after)
+            for tag in self._fx_tags(style):
+                box.tag_add(tag, at, after)
+        self._show_looks()
+        box.tag_add("sel", first, last)
+        self.status.set(f"{FORMAT_NAMES[what].rstrip('.')}: done.  Save text puts it on the tree.")
+        return "break"
+
+    def _format_menu(self, event) -> str:
+        """A right click on the Portrait text box: format the selected words."""
+        menu = tk.Menu(self, tearoff=False)
+        for what, _label, _look in TEXT_FORMATS:
+            if what == "plain":
+                menu.add_separator()
+            menu.add_command(label=FORMAT_NAMES[what], command=lambda w=what: self._format_text(w))
+        menu.tk_popup(event.x_root, event.y_root)
+        return "break"
+
+    def _type_formatted(self, event) -> str | None:
+        """A letter typed into the box takes the look of the one before it (as in a word processor:
+        typing on after bold words is bold)."""
+        box = self.lines_text
+        if len(event.char) != 1 or not event.char.isprintable() or event.state & 0x4 or event.state & ALT:
+            return None
+        if box.tag_ranges("sel"):
+            box.delete("sel.first", "sel.last")
+        before = box.index("insert -1c") if box.compare("insert", ">", "1.0") and \
+            box.get("insert -1c") != "\n" else None
+        tags = tuple(t for t in box.tag_names(before) if t.startswith(FX)) if before else ()
+        box.insert("insert", event.char, tags)
+        box.see("insert")
+        self._show_looks()
+        return "break"
 
     def _apply_mark(self, clear: bool = False) -> None:
         label = "" if clear or self.mark_var.get() in ("", "(none)") else self.mark_var.get()

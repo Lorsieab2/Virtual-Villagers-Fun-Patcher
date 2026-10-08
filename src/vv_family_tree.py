@@ -256,7 +256,8 @@ class Edits:
     generations: dict[str, list[str]] = field(default_factory=dict)   # "2" -> the label's lines
     words: dict[str, str] = field(default_factory=dict)                # WORDS -> the player's own words
     marks: dict[str, str] = field(default_factory=dict)               # label -> "#rrggbb", in order
-    entries: dict[str, dict] = field(default_factory=dict)            # entry key -> {"lines", "mark"}
+    # entry key -> {"lines", "runs" (those lines formatted word by word: clean_runs), "mark", ...}
+    entries: dict[str, dict] = field(default_factory=dict)
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
     stickers: list[dict] = field(default_factory=list)
@@ -335,6 +336,9 @@ class Edits:
             item = {}
             if isinstance(entry.get("lines"), list):
                 item["lines"] = [str(line) for line in entry["lines"]]
+                runs = runs_data(clean_runs(entry.get("runs"), item["lines"]))
+                if runs:
+                    item["runs"] = runs
             if entry.get("mark"):
                 item["mark"] = str(entry["mark"])
             if entry.get("hidden") is True:
@@ -530,6 +534,97 @@ def clean_style(raw: dict) -> dict:
     if is_colour(raw.get("colour")):
         out["colour"] = raw["colour"]
     return out
+
+
+# A portrait's own text formatted word by word (the owner: "please allow text formatting in the family
+# tree portrait text section" -- select words, then format them): each of the entry's lines is kept as
+# runs, [text, style], the style any of RUN_STYLE's keys.  A run's style beats its role's (the names'
+# and the other portrait words'); what it leaves out is the role's.  "normal" script undoes a role's
+# superscript or subscript for that run.
+RUN_FLAGS = ("bold", "italic", "underline", "strike")
+RUN_SCRIPTS = ("super", "sub", "normal")
+
+
+def clean_run_style(raw) -> dict:
+    """A run's style, every value in range: only what the player set."""
+    if not isinstance(raw, dict):
+        return {}
+    out = {flag: raw[flag] for flag in RUN_FLAGS if isinstance(raw.get(flag), bool)}
+    if raw.get("script") in RUN_SCRIPTS:
+        out["script"] = raw["script"]
+    if is_colour(raw.get("colour")) and raw["colour"] != TRANSPARENT:
+        out["colour"] = raw["colour"].lower()
+    return out
+
+
+def merge_runs(runs) -> list[tuple[str, dict]]:
+    """One line's runs with the empty ones dropped and neighbours of one style joined."""
+    out: list[tuple[str, dict]] = []
+    for text, style in runs:
+        if not text:
+            continue
+        if out and out[-1][1] == style:
+            out[-1] = (out[-1][0] + text, style)
+        else:
+            out.append((text, dict(style)))
+    return out
+
+
+def clean_runs(raw, lines: list[str]) -> list[list[tuple[str, dict]]] | None:
+    """The saved runs of an entry's lines, checked: one list of [text, style] per line, their words
+    exactly the line's.  None when there are none, none of them is formatted, or they do not match
+    the lines (an older patcher retyped the lines and kept the runs: the words win, unformatted)."""
+    if not isinstance(raw, list) or len(raw) != len(lines):
+        return None
+    out = []
+    for line, runs in zip(lines, raw):
+        if not isinstance(runs, list):
+            return None
+        pairs = []
+        for run in runs:
+            if not (isinstance(run, (list, tuple)) and len(run) == 2 and isinstance(run[0], str)):
+                return None
+            pairs.append((run[0], clean_run_style(run[1])))
+        if "".join(text for text, _s in pairs) != line:
+            return None
+        out.append(merge_runs(pairs))
+    return out if any(style for runs in out for _t, style in runs) else None
+
+
+def runs_data(runs: list[list[tuple[str, dict]]] | None) -> list | None:
+    """The runs as the edits file keeps them (lists, for JSON)."""
+    return None if not runs else [[[text, dict(style)] for text, style in line] for line in runs]
+
+
+def carry_styles(old_lines: list[str], old_runs, new_lines: list[str]) -> list | None:
+    """The formatting of `old_lines` carried onto their retyped words (clicking the words on the
+    tree and retyping them, or renumbering): every character the retyping kept keeps its style, and
+    a typed one takes the style of the one before it.  The runs in their saved form, or None."""
+    import difflib
+    if not old_runs:
+        return None
+    old_text = "\n".join(old_lines)
+    # The old characters' styles in order, a newline between lines unstyled.
+    styles: list[dict] = []
+    for k, line in enumerate(old_runs):
+        if k:
+            styles.append({})
+        styles.extend(style for text, style in line for _ch in text)
+    new_text = "\n".join(new_lines)
+    new_styles: list[dict] = [{}] * len(new_text)
+    matcher = difflib.SequenceMatcher(None, old_text, new_text, autojunk=False)
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == "equal":
+            new_styles[j1:j2] = styles[i1:i2]
+        else:
+            before = new_styles[j1 - 1] if j1 > 0 and new_text[j1 - 1] != "\n" else (
+                styles[i1] if i1 < len(styles) else {})
+            new_styles[j1:j2] = [before] * (j2 - j1)
+    out, at = [], 0
+    for line in new_lines:
+        out.append(merge_runs((ch, new_styles[at + k]) for k, ch in enumerate(line)))
+        at += len(line) + 1
+    return runs_data(out) if any(style for line in out for _t, style in line) else None
 
 
 def clean_sticker(raw) -> dict | None:
@@ -1718,15 +1813,148 @@ def _wrap(text: str, n: int = WRAP) -> list[str]:
     return out
 
 
-def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool]]:
-    """The portrait's lines as drawn, each with whether it is bold (the first line, the name):
-    every line wrapped to fit across, and as many as fit below the head -- the last of them ending
-    in ... when some did not."""
-    out = [(piece, k == 0) for k, text in enumerate(node_text(lay, p)) for piece in _wrap(text)]
+def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
+    """The entry's lines formatted word by word (clean_runs), or None when they are plain."""
+    entry = lay.entry(p)
+    lines = entry.get("lines")
+    return clean_runs(entry.get("runs"), lines) if lines else None
+
+
+BOLD_WIDTH = 1.1                        # how much wider a bold letter is, near enough
+
+
+def run_width(style: dict, base: dict) -> float:
+    """How wide a letter of a run is against one of its line's own look (`base`: the role's bold
+    and script): a bolder letter wider, a superscript or subscript one narrower."""
+    def width(bold: bool, script: str) -> float:
+        return (BOLD_WIDTH if bold else 1.0) * (SCRIPTS[script][0] if script in SCRIPTS else 1.0)
+    bold = style.get("bold", base.get("bold", False))
+    script = style.get("script", base.get("script", ""))
+    return width(bold, script) / width(base.get("bold", False), base.get("script", ""))
+
+
+def _wrap_cells(cells: list[tuple[str, float, dict]], n: float = WRAP) -> list[list[tuple[str, float, dict]]]:
+    """_wrap for formatted words: each letter (letter, width, style) as wide as its font makes it,
+    a plain letter 1 -- so plain words wrap exactly as _wrap wraps them."""
+    def wide(cs) -> float:
+        return sum(c[1] for c in cs)
+    words: list[tuple[tuple | None, list]] = [(None, [])]       # (the space before it, its letters)
+    for cell in cells:
+        if cell[0] == " ":
+            words.append((cell, []))
+        else:
+            words[-1][1].append(cell)
+    out: list[list] = []
+    line: list = []
+    for space, word in words:
+        while wide(word) > n + 1e-9:
+            if line:
+                out.append(line)
+                line = []
+            k, used = 0, 0.0
+            while k < len(word) and (k == 0 or used + word[k][1] <= n + 1e-9):
+                used += word[k][1]
+                k += 1
+            out.append(word[:k])
+            word = word[k:]
+        if not line:
+            line = word
+        elif wide(line) + space[1] + wide(word) <= n + 1e-9:
+            line = line + [space] + word
+        else:
+            out.append(line)
+            line = word
+    out.append(line)
+    return out
+
+
+def _cells_runs(cells: list) -> list[tuple[str, dict]]:
+    return merge_runs((c[0], c[2]) for c in cells)
+
+
+def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, list | None]]:
+    """The portrait's lines as drawn, each with whether it is bold (the first line, the name) and
+    its runs when the player formatted it (else None): every line wrapped to fit across, and as many
+    as fit below the head -- the last of them ending in ... when some did not.  Formatted words wrap
+    by how wide their fonts make them (run_width), so they never run past the portrait."""
+    runs = node_runs(lay, p)
+    if runs is None:
+        out = [(piece, k == 0, None) for k, text in enumerate(node_text(lay, p)) for piece in _wrap(text)]
+        room = max(1, room)
+        if len(out) > room:
+            last, bold, _r = out[room - 1]
+            out = out[:room - 1] + [(last[:WRAP - 1] + "…", bold, None)]
+        return out
+    pieces: list[tuple[list, bool]] = []
+    for k, line in enumerate(runs):
+        base = line_base(lay.edits, k == 0)
+        cells = [(ch, run_width(style, base), style) for text, style in line for ch in text]
+        pieces.extend((cells_line, k == 0) for cells_line in _wrap_cells(cells))
     room = max(1, room)
-    if len(out) > room:
-        last, bold = out[room - 1]
-        out = out[:room - 1] + [(last[:WRAP - 1] + "…", bold)]
+    if len(pieces) > room:
+        last, bold = pieces[room - 1]
+        kept, used = [], 0.0
+        for cell in last:
+            if used + cell[1] > WRAP - 1 + 1e-9:
+                break
+            kept.append(cell)
+            used += cell[1]
+        pieces = pieces[:room - 1] + [(kept + [("…", 1.0, kept[-1][2] if kept else {})], bold)]
+    out = []
+    for cells, bold in pieces:
+        line_runs = _cells_runs(cells)
+        text = "".join(t for t, _s in line_runs)
+        out.append((text, bold, line_runs if any(s for _t, s in line_runs) else None))
+    return out
+
+
+def line_base(edits: "Edits", name: bool) -> dict:
+    """A portrait line's own look before its runs': its role's bold, italic, underline, strike and
+    script (the name's line -- the first -- bold unless the player said otherwise)."""
+    style = edits.styles.get("names" if name else "portraits", {})
+    return {"bold": style.get("bold", name), "italic": style.get("italic", False),
+            "underline": style.get("underline", False), "strike": style.get("strike", False),
+            "script": style.get("script", "")}
+
+
+def run_effect(style: dict, base: dict) -> dict:
+    """How a run looks (its own style over its line's: line_base): every flag, its script ("" none)
+    and its own colour ("" its role's)."""
+    out = {flag: style.get(flag, base[flag]) for flag in RUN_FLAGS}
+    script = style.get("script", base["script"])
+    out["script"] = "" if script == "normal" else script
+    out["colour"] = style.get("colour", "")
+    return out
+
+
+def format_styles(styles: list[dict], bases: list[dict], what: str, colour: str = "") -> list[dict]:
+    """The selected letters' styles (each with its line's line_base) after a format button: a flag
+    or superscript / subscript turned on for all of them unless all of them have it already (then
+    off), as a word processor does; "colour" (`colour`, or "" back to the role's), "plain" every
+    setting off.  A letter keeps only what differs from its line's own look."""
+    if what == "plain":
+        return [{} for _s in styles]
+    if what == "colour":
+        return [{**{k: v for k, v in s.items() if k != "colour"}, **({"colour": colour} if colour else {})}
+                for s in styles]
+    looks = [run_effect(s, b) for s, b in zip(styles, bases)]
+    out = []
+    if what in RUN_FLAGS:
+        target = not all(look[what] for look in looks)
+        for s, b in zip(styles, bases):
+            new = {k: v for k, v in s.items() if k != what}
+            if target != b[what]:
+                new[what] = target
+            out.append(new)
+    elif what in SCRIPTS:
+        target = what if not all(look["script"] == what for look in looks) else ""
+        for s, b in zip(styles, bases):
+            new = {k: v for k, v in s.items() if k != "script"}
+            if target != b["script"]:
+                new["script"] = target or "normal"
+            out.append(new)
+    else:
+        raise ValueError(f"no such format: {what}")
     return out
 
 
@@ -1920,6 +2148,10 @@ class Text:
     part: str = ""                      # a generation label's line: "<generation>|<label_lines part>"
     edit: str = ""                      # what retyping it changes (the editor's _edit_in_place)
     opacity: float = 1.0
+    # The words formatted word by word (a portrait's own text: node_runs): (text, style) pieces drawn
+    # one after another as run_look says; None when every word has the item's own look.
+    runs: list | None = None
+    script: str = ""                    # the role's superscript or subscript, for runs (run_look)
 
 
 @dataclass
@@ -2190,10 +2422,23 @@ def _apply_styles(items: list, edits: Edits) -> None:
         item.underline = style.get("underline", False)
         item.strike = style.get("strike", False)
         item.colour = style.get("colour", item.colour)
-        if style.get("script") in SCRIPTS:      # smaller, raised or lowered: drawn so everywhere
+        if style.get("script") in SCRIPTS and item.runs:      # each run raised or lowered on its own
+            item.script = style["script"]
+        elif style.get("script") in SCRIPTS:    # smaller, raised or lowered: drawn so everywhere
             shrink, shift = SCRIPTS[style["script"]]
             item.y += item.size * shift
             item.size *= shrink
+
+
+def run_look(item: "Text", style: dict) -> dict:
+    """How one run of a formatted Text is drawn: its own style over the item's (its role's) look --
+    bold, italic, underline, strike, colour -- and its size and how far its baseline is moved
+    (superscript and subscript as SCRIPTS draws a role's)."""
+    script = style.get("script", item.script)
+    shrink, shift = SCRIPTS.get(script, (1.0, 0.0))
+    return {"bold": style.get("bold", item.bold), "italic": style.get("italic", item.italic),
+            "underline": style.get("underline", item.underline), "strike": style.get("strike", item.strike),
+            "colour": style.get("colour", item.colour), "size": item.size * shrink, "dy": item.size * shift}
 
 
 def sticker_item(index: int, raw: dict, images: Path | None, library: dict | None = None) -> Sticker | None:
@@ -2293,9 +2538,10 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         put(Shape("ellipse", x + NODE_W / 2 - 26, mid - 26, 52, 52, colour, width=1, fill=colour, pid=p.id,
                   target=("person", p.id)))
         put(Text(x + NODE_W / 2, mid + 10, p.name[:1], 28, "#ffffff", bold=True, centre=True, pid=p.id))
-    for k, (text, bold) in enumerate(lines):
+    for k, (text, bold, runs) in enumerate(lines):
         put(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, 11.5 if bold else 10, ink,
-                 bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits", edit=f"person:{p.id}"))
+                 bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits", edit=f"person:{p.id}",
+                 runs=runs))
 
 
 def _svg_opacity(item) -> str:
@@ -2393,6 +2639,23 @@ def _picture_size(path: Path) -> tuple[int, int]:
     return 800, 600
 
 
+def _svg_runs(item: Text) -> str:
+    """A formatted Text's runs as tspans, one after another: each its own weight, style, lines,
+    colour and size, a superscript or subscript raised or lowered (dy) and the next put back."""
+    out, at = [], 0.0
+    for text, style in item.runs:
+        look = run_look(item, style)
+        decor = " ".join(d for d, on in (("underline", look["underline"]), ("line-through", look["strike"])) if on)
+        attrs = (f' font-weight="{"bold" if look["bold"] else "normal"}"'
+                 f' font-style="{"italic" if look["italic"] else "normal"}"'
+                 f' text-decoration="{decor or "none"}" fill="{look["colour"]}" font-size="{look["size"]:g}"')
+        if look["dy"] != at:
+            attrs += f' dy="{look["dy"] - at:g}"'
+            at = look["dy"]
+        out.append(f"<tspan{attrs}>{html.escape(text)}</tspan>")
+    return "".join(out)
+
+
 def to_svg(sc: Scene, present: dict, describe=None) -> str:
     """The scene as SVG, the head sheets embedded once each."""
     e = html.escape
@@ -2447,8 +2710,10 @@ def to_svg(sc: Scene, present: dict, describe=None) -> str:
             weight += f' text-decoration="{lines}"' if lines else ""
             weight += f' font-family="{e(item.font)}, Segoe UI, Arial, sans-serif"' if item.font else ""
             anchor = ' text-anchor="middle"' if item.centre else ""
+            words = _svg_runs(item) if item.runs else e(item.text)
+            keep = ' xml:space="preserve"' if item.runs else ""     # the spaces between runs
             out.append(f'<text x="{item.x:.1f}" y="{item.y:.1f}" font-size="{item.size}"{weight}{anchor} '
-                       f'fill="{item.colour}"{_svg_opacity(item)}>{e(item.text)}</text>')
+                       f'fill="{item.colour}"{_svg_opacity(item)}{keep}>{words}</text>')
     out.append("</svg>")
     return "\n".join(out)
 
