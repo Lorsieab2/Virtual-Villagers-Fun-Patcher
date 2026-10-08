@@ -3281,6 +3281,17 @@ class App(tk.Tk):
                                    f"{len(done.files) - 1} other file(s)."] + wanted.notes
                                   + [f"Backup: {done.backup.backup_folder}"]))
         # Last, after every repair that rewrites the save: its game speed.
+        # Unpausing a closed game's save is allowed, but the game will then catch up the real time
+        # since the save was made (the owner, 2026-10-08: "that's intentional"): say so first.
+        if (speed_choice and speed_choice != "paused" and speed is not None
+                and speed[1] >= vv_save_backup._PAUSED and not messagebox.askyesno(
+                    "Repair Saves & Logs",
+                    f"The save is Paused. Set to {vv_save_backup.SPEED_CHOICES[speed_choice]}, the next time "
+                    f"you play {info.name} (Save {info.slot}) the game will catch up all the time since "
+                    "the save was made, as when you quit without pausing. Villagers may age, have babies "
+                    "or die in that time.\n\nChange the game speed?", parent=parent)):
+            lines.append("Game speed in the save: left as it is (Paused).")
+            speed_choice = None
         if speed_choice:
             try:
                 changed = self._run_with_wait("Setting the game speed…", lambda: vv_save_backup.set_speed_choice(
