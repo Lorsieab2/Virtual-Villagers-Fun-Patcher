@@ -3038,6 +3038,11 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     folder = Path(folder)
     village = gen.load_village(folder, game, slot)
     arrange(village, full_name_edits(Edits.load(Edits.path(folder, game, slot)), village))
+    # Names as Number Duplicate Names gives them (the owner, 2026-10-08: a Roman number only for the
+    # same first and last name -- "Hawa Awanata should not be called I or II unless there's literally
+    # a second Hawa Awanata"), here before Repair Saves & Logs puts them in the save.
+    for pid, name in gen.duplicate_names(village).items():
+        village.people[pid].name = name
     text = gen.pair_report(village, rules, game_title)
     out = Path(out) if out is not None else folder / TREES
     out.mkdir(parents=True, exist_ok=True)
