@@ -53,6 +53,7 @@ GAP_X = 22
 GAP_MIN, GAP_MAX = 0.0, 400.0           # the player's gap between portraits
 FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
 SHRINK_MIN = 0.2                        # never smaller than a fifth
+PAGE_GENS, PAGE_GENS_MIN, PAGE_GENS_MAX = 6, 2, 10   # generations on one page: the owner's default and limit
 LEFT = 300                      # the generation labels' column
 TOP = 150
 OTHER_GAP = 110                 # between the tree and the "Other Members" column
@@ -213,6 +214,7 @@ class Edits:
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
     portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
+    page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
     _shrink: float = field(default=1.0, init=False, repr=False, compare=False)   # layout's, never saved
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
@@ -305,6 +307,7 @@ class Edits:
         out.diagonal_lines = data.get("diagonal_lines") is True
         out.text_wrap = int(_number(data.get("text_wrap"), WRAP_MIN, WRAP_MAX, WRAP))
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
+        out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
         fit = data.get("fit_width")
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
         out.show_units = data.get("show_units", True) is not False
@@ -444,7 +447,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "fit_width": self.fit_width, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -920,7 +923,18 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     generation on the second page being treated as "founders" on the second page")."""
     gens = sorted({p.generation for p in village.people.values()}) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
-    return [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
+    spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
+    # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
+    # say, 10 at most, so every page stays legible): a longer span goes on over the next pages, each
+    # starting with the generation the one before ends with.
+    most = edits.page_generations
+    out = []
+    for lo, hi in spans:
+        while hi - lo + 1 > most:
+            out.append((lo, lo + most - 1))
+            lo += most - 1
+        out.append((lo, hi))
+    return out
 
 
 def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:

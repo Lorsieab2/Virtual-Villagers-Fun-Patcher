@@ -846,6 +846,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                    self._portrait_gap).pack(side="left", padx=(6, 0))
         row = ttk.Frame(tab)
         row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text=f"Most generations on one page ({ft.PAGE_GENS_MIN}-{ft.PAGE_GENS_MAX}):").pack(side="left")
+        self.page_gens_var = tk.StringVar(value=str(e.page_generations))
+        self._live(ttk.Spinbox(row, textvariable=self.page_gens_var, from_=ft.PAGE_GENS_MIN, to=ft.PAGE_GENS_MAX,
+                               width=4), self._page_generations).pack(side="left", padx=(6, 0))
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
         ttk.Label(row, text="Shrink portraits to fit a page width of (pixels, 0 = off):").pack(side="left")
         self.fit_var = tk.StringVar(value=str(e.fit_width))
         self._live(ttk.Spinbox(row, textvariable=self.fit_var, from_=0, to=ft.FIT_MAX, increment=200, width=7),
@@ -2316,6 +2322,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if gap is not None and gap != self.edits.portrait_gap:
             self._change(portrait_gap=gap)
 
+    def _page_generations(self) -> None:
+        """The most generations on one page; a longer tree goes on over more pages (the owner: 6, up to 10)."""
+        n = self._number(self.page_gens_var.get(), ft.PAGE_GENS_MIN, ft.PAGE_GENS_MAX)
+        if n is not None and int(n) != self.edits.page_generations:
+            self.page = 0
+            self._change(page_generations=int(n))
+            self._refresh_pages()
+
     def _fit_width(self) -> None:
         """Portraits (faces and words too) shrink alike so the widest row fits this page width; 0 is off."""
         try:
@@ -2596,6 +2610,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")
         self.fit_var.set(str(e.fit_width))
+        self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
         self.number_names_var.set(e.number_names)

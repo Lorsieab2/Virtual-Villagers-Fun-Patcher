@@ -133,6 +133,32 @@ class SpacingAndFitTests(unittest.TestCase):
         self.assertIn("self._set_entry(p, w=round(w / s, 1), h=round(h / s, 1))", source)
 
 
+class GenerationsPerPageTests(unittest.TestCase):
+    """The owner, 2026-10-08: "a maximum of... 10 generations on one family tree page, if they're still
+    legible" and "Default max should be 6 though"."""
+
+    def spans(self, generations: int, **values):
+        import types
+        people = {g: types.SimpleNamespace(generation=g) for g in range(1, generations + 1)}
+        return ft.page_spans(ft.Edits(**values), types.SimpleNamespace(people=people))
+
+    def test_six_until_the_player_says_and_each_page_starts_with_the_last_ones_generation(self) -> None:
+        self.assertEqual(ft.Edits().page_generations, 6)
+        self.assertEqual(self.spans(5), [(1, 5)])
+        self.assertEqual(self.spans(6), [(1, 6)])
+        self.assertEqual(self.spans(14), [(1, 6), (6, 11), (11, 14)])
+        self.assertEqual(self.spans(14, page_generations=10), [(1, 10), (10, 14)])
+        for lo, hi in self.spans(40):
+            self.assertLessEqual(hi - lo + 1, 6)
+
+    def test_the_players_own_breaks_still_count_and_the_setting_is_kept_within_2_to_10(self) -> None:
+        self.assertEqual(self.spans(14, pages=[4]), [(1, 4), (4, 9), (9, 14)])
+        self.assertEqual(ft.Edits.from_data({"page_generations": 40}).page_generations, 10)
+        self.assertEqual(ft.Edits.from_data({"page_generations": 1}).page_generations, 2)
+        self.assertEqual(ft.Edits.from_data({}).page_generations, 6)
+        self.assertEqual(ft.Edits.from_data(ft.Edits(page_generations=8).to_data()).page_generations, 8)
+
+
 class ApplyToEveryOneTests(unittest.TestCase):
     def test_the_button_clears_each_villagers_own_shape_and_border_in_that_group_only(self) -> None:
         source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
