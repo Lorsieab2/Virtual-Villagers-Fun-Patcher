@@ -907,17 +907,33 @@ def duplicate_names(village: Village, order: str = "appearance", reserved: set[s
         "youngest": lambda p: (p.age is None, p.age or 0, p.order_key()),
         "appearance": Person.order_key,
     }
+    # Namesakes are told by the WHOLE name, first and last, a number they already carry set aside (the
+    # owner, 2026-10-08: "roman numerals should be given for people who have both the same first and
+    # last name (Suki Wikimak I, Suki Wikimak II)"): two Sukis numbered before they had last names,
+    # "Suki Alosaka I" and "Suki Wanjiko II", are no namesakes now and lose their numbers.
     holders: dict[str, list[Person]] = {}
     for p in sorted(village.known(), key=keys[order]):
         if p.id not in leave:
-            holders.setdefault(p.name, []).append(p)
-    taken = set(holders) | set(reserved)
+            holders.setdefault(unnumbered(p.name), []).append(p)
+    taken = set(reserved)
     out = {}
     for name, ps in holders.items():
-        if len(ps) < 2:
+        if sum((weight or {}).get(p.id, 1) for p in ps) < 2:
+            p = ps[0]
+            if p.name != name and name not in taken:
+                out[p.id] = name                # no namesake now: the old number goes
             continue
+        # A number one of them already carries, alone among them, stays theirs (Codex, #557: a village
+        # with a "Soda I" numbers its two other Sodas II and III); the rest are numbered around them.
+        counts: dict[str, int] = {}
+        for p in ps:
+            counts[p.name] = counts.get(p.name, 0) + 1
+        kept = {p.id for p in ps if p.name != name and counts[p.name] == 1}
+        taken |= {village.people[q].name for q in kept}
         n = 0
         for p in ps:
+            if p.id in kept:
+                continue
             n += 1
             while f"{name} {roman(n)}" in taken:
                 n += 1
@@ -925,6 +941,15 @@ def duplicate_names(village: Village, order: str = "appearance", reserved: set[s
             taken.add(out[p.id])
             n += (weight or {}).get(p.id, 1) - 1
     return out
+
+
+def unnumbered(name: str) -> str:
+    """A name without the Roman number Number Duplicate Names gave it ("Suki Wanjiko II" -> "Suki
+    Wanjiko"); a one-word name is never cut to nothing."""
+    words = name.split(" ")
+    if len(words) > 1 and re.fullmatch(r"[IVXLCDM]+", words[-1]):
+        return " ".join(words[:-1])
+    return name
 
 
 def numbered(p: Person) -> str:

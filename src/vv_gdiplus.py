@@ -147,8 +147,10 @@ def save_scene(sc, present: dict, path: Path, scale: float = 1.0, quality: int =
         g.GdipSetPixelOffsetMode(graphics, 4)               # half
         g.GdipScaleWorldTransform(graphics, ctypes.c_float(scale), ctypes.c_float(scale), 0)
         clear = 0 if transparent else _argb(sc.background)
-        if clear == 0 and path.suffix.lower() in (".jpg", ".jpeg"):
-            clear = 0xFFFFFFFF                          # a JPG holds no transparency: white
+        if clear == 0 and not transparent:
+            # A "transparent" background is white, as the Family Tree Maker shows it (the owner,
+            # 2026-10-08): a see-through PNG looked dark in a picture viewer, and a JPG holds none.
+            clear = 0xFFFFFFFF
         g.GdipGraphicsClear(graphics, clear)
         typographic = ctypes.c_void_p()
         g.GdipStringFormatGetGenericTypographic(ctypes.byref(typographic))

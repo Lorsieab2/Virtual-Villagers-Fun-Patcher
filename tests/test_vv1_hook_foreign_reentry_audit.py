@@ -263,6 +263,19 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2EFD5"): "67A3AD3ED05408CFDCBDA165CEF3DF992B6C62A0D7D5D73F9406DA3185570C9B",
     ("vv1_enable_origins_exclusive_features", "0x2F026"): "F2DAE9358426F1D329653825A141D51B609A6FC76A6F04875E273560EA9C4CBE",
     ("vv1_enable_origins_exclusive_features", "0x2F072"): "2767D7F92192568D6825281062EE726534EE9B4756E6C189156D0A2FFCF3670A",
+    # The Golden Child's birth (2026-10-08): the puzzle's five bytes after its
+    # own call sub_43C350 at 0x4242F8 (`mov ecx,[esi+0x10] / mov ebp,eax` at
+    # 0x4242FD), one predecessor (the call's return), resume at splice + 5
+    # (0x424302), so no REVIEWED entry is needed.  The stub is `push esi /
+    # lea esi,[esi+0x1C] / call body / pop esi`, the five displaced bytes and
+    # `jmp 0x424302`: the shared birth body above reads [frame ESI + 4], which
+    # with ESI moved by 0x1C is the puzzle's record array [ESI+0x20], frame EAX
+    # (the new Golden Child's index) and frame EDI (the mother's byte offset,
+    # live through the call as in the stock code that clears her +0x358 at
+    # 0x42431C).  The body's pushad/popad keeps every register, `pop esi`
+    # restores the puzzle's own ESI before the replayed `mov ecx,[esi+0x10]`,
+    # and ESP is back at its entry value at the jmp.
+    ("vv1_enable_origins_exclusive_features", "0x242FD"): "ADB7D5657B708F39E3A3774F4E44921EDFA7BE3DF26669D012022FFF8B2E0B16",
     # The Details-arrow sort hook (Sort by Age/Skill/Health in Details Screen):
     # the right arrow's `mov [eax+0xAD34], edi` at 0x44A7FF and the left
     # arrow's `mov [ecx+0xAD34], edi` at 0x44A8B4, six bytes each, one

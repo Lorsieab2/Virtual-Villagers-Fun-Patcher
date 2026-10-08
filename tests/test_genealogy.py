@@ -928,6 +928,13 @@ class StickerTests(unittest.TestCase):
         rings = [i for i in sc.items if isinstance(i, ft.Shape) and i.pid == man and i.target == ("mark", "Chief")]
         self.assertEqual(len(rings), ft.GLOW_RINGS)
         self.assertTrue(all(r.opacity <= 0.5 for r in rings))
+        # The owner, 2026-10-08: "if I set the glow to be red, I'm expecting a vibrant red halo" -- the
+        # chosen colour itself, at the mark's full opacity against the portrait, fading outward.
+        self.assertTrue(all(r.stroke == "#ff0000" for r in rings))
+        nearest = min(rings, key=lambda r: r.w)
+        self.assertAlmostEqual(nearest.opacity, 0.5)
+        self.assertEqual([r.opacity for r in sorted(rings, key=lambda r: r.w)],
+                         sorted((r.opacity for r in rings), reverse=True))
         self.assertIn('stroke-dasharray="1.5 4"', ft.to_svg(sc, {}))
         self.assertEqual(ft.PORTRAIT_SHAPES["cross"], "Cross")
         self.assertIn((0.35, 1), ft.OUTLINES["cross"])        # upright, like a plus with a longer foot
@@ -982,9 +989,16 @@ class StickerTests(unittest.TestCase):
             self.assertIn('opacity="0.29"', ft.to_svg(sc, {}))
             if vv_gdiplus.available():
                 with tempfile.TemporaryDirectory() as tmp:
+                    # Drawn see-through only when asked (a sticker's own picture)...
                     out = Path(tmp) / "faded.png"
-                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, out))
+                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, out, transparent=True))
                     self.assertTrue(60 <= png_alpha_at(out, 20, 15) <= 90)
+                    # ...while an exported tree is never see-through: a transparent background is
+                    # white there, as the Family Tree Maker shows it (the owner, 2026-10-08: the
+                    # see-through export looked dark in Photos), and the faded picture fades into it.
+                    exported = Path(tmp) / "exported.png"
+                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, exported))
+                    self.assertEqual(png_alpha_at(exported, 20, 15), 255)
 
     def test_the_rainbow_backgrounds_run_across_and_down(self) -> None:
         for key, end in (("rainbow-across", 'x2="1" y2="0"'), ("rainbow-down", 'x2="0" y2="1"')):

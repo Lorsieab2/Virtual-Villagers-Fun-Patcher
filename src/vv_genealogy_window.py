@@ -687,6 +687,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 ttk.Label(row, text=label).pack(side="left", padx=(4, 0))
             self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6), self._own_size).pack(
                 side="left", padx=(2, 0))
+        # The words' own size, apart from the frame (the owner, 2026-10-08: "Should be able to resize text
+        # independently of the portrait shape it's in too"); 100% is the size that fits the shape.
+        ttk.Label(row, text="text %").pack(side="left", padx=(8, 0))
+        self.own_text = tk.StringVar()
+        self._live(ttk.Spinbox(row, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
+                               increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
         row = ttk.Frame(box)
         row.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Their family's lines:  weight").pack(side="left")
@@ -752,6 +758,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box.columnconfigure(2, weight=1)
         ttk.Label(box, text="Each mark's colour: Change colour... below.", wraplength=300).grid(
             row=3, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        # The owner, 2026-10-08: "please allow me to delete the key for marks" (right-click it >
+        # Delete does the same; Deleted items on the Layout tab brings it back).
+        self.key_var = tk.BooleanVar(value="word:key" not in self.edits.hidden)
+        ttk.Checkbutton(box, text="Show the Key (each mark's name and colour, under the title)",
+                        variable=self.key_var, command=self._show_key).grid(
+            row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
         ttk.Label(tab, text="1. Pick or type a mark.\n2. Select villagers on the tree.\n3. Click Add.",
                   justify="left").pack(anchor="w", pady=(6, 0))
         row = ttk.Frame(tab)
@@ -819,6 +831,37 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.centre_var = tk.BooleanVar(value=e.centre_heads)
         ttk.Checkbutton(tab, text="Centre faces and text in portraits", variable=self.centre_var,
                         command=lambda: self._change(centre_heads=bool(self.centre_var.get()))).pack(anchor="w", pady=(10, 0))
+        # The owner, 2026-10-08: the words in a portrait spread wider, adjustable.
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Characters across a portrait:").pack(side="left")
+        self.wrap_var = tk.StringVar(value=str(e.text_wrap))
+        wrap_spin = self._live(ttk.Spinbox(row, textvariable=self.wrap_var, from_=ft.WRAP_MIN, to=ft.WRAP_MAX,
+                                           width=4), self._text_wrap)
+        wrap_spin.bind("<KeyRelease>", lambda _e: self._text_wrap())      # in real time, as typed (the owner)
+        wrap_spin.bind("<MouseWheel>", lambda e: (self.wrap_var.set(str(max(ft.WRAP_MIN, min(
+            ft.WRAP_MAX, self.edits.text_wrap + (1 if e.delta > 0 else -1))))), self._text_wrap(), "break")[-1])
+        wrap_spin.pack(side="left", padx=(6, 0))
+        # The owner, 2026-10-08: the spacing between portraits batch-editable, and portraits and their
+        # words shrinking by themselves to fit many to a page.
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Gap between portraits (pixels):").pack(side="left")
+        self.gap_var = tk.StringVar(value=f"{e.portrait_gap:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.gap_var, from_=ft.GAP_MIN, to=ft.GAP_MAX, increment=2, width=5),
+                   self._portrait_gap).pack(side="left", padx=(6, 0))
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text=f"Most generations on one page ({ft.PAGE_GENS_MIN}-{ft.PAGE_GENS_MAX}):").pack(side="left")
+        self.page_gens_var = tk.StringVar(value=str(e.page_generations))
+        self._live(ttk.Spinbox(row, textvariable=self.page_gens_var, from_=ft.PAGE_GENS_MIN, to=ft.PAGE_GENS_MAX,
+                               width=4), self._page_generations).pack(side="left", padx=(6, 0))
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Shrink portraits to fit a page width of (pixels, 0 = off):").pack(side="left")
+        self.portrait_fit_var = tk.StringVar(value=str(e.fit_width))      # not fit_var: the background picture's (Codex, #575)
+        self._live(ttk.Spinbox(row, textvariable=self.portrait_fit_var, from_=0, to=ft.FIT_MAX, increment=200, width=7),
+                   self._fit_width).pack(side="left", padx=(6, 0))
         self.units_var = tk.BooleanVar(value=e.show_units)
         ttk.Checkbutton(tab, text="Game age in units", variable=self.units_var,
                         command=lambda: self._change(show_units=bool(self.units_var.get()))).pack(anchor="w")
@@ -857,6 +900,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 combo.grid(row=row_no, column=col, sticky="w", padx=(6, 0), pady=1)
                 combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, g=group, c=choices, v=var: self._group_style(
                     a, g, next(k for k, n in c.items() if n == v.get())))
+            # The owner, 2026-10-08: change ALL male, female or unborn portraits at once -- the ones
+            # given their own shape or border one by one too.
+            ttk.Button(box, text="Apply to every one", command=lambda g=group: self._group_all(g)).grid(
+                row=row_no, column=3, sticky="w", padx=(6, 0), pady=1)
         box = ttk.LabelFrame(tab, text="Portrait sizes (each group's default)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_sizes: dict[str, tuple[tk.StringVar, tk.StringVar]] = {}
@@ -1130,8 +1177,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 # The canvas cannot blend: a see-through fill is drawn as a fine dot pattern.
                 see = item.opacity
                 stipple = "" if see >= 1 else ("gray75" if see >= 0.7 else "gray50" if see >= 0.4 else "gray25")
-                if see < 1:                     # the border fades with it
-                    outline = tk_colour(faded(item.stroke, see, sc.background)) if width else ""
+                if see < 1:                     # the border fades with it, into what is really under it:
+                    # the background picture's own colour there, not a plain white (the owner,
+                    # 2026-10-08: a mark is the colour chosen, never washed out to white)
+                    under = self._colour_under(item.x + item.w / 2, item.y, sc)
+                    outline = tk_colour(faded(item.stroke, see, under)) if width else ""
                 corners = ft.outline(item.kind, item.x, item.y, item.w, item.h)
                 if item.angle:                  # the canvas cannot turn a shape: its corners, turned
                     pts = [v for point in item.points() for v in point]
@@ -2045,6 +2095,21 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.photos[key] = small
         return self.photos[key]
 
+    def _colour_under(self, x: float, y: float, sc: ft.Scene) -> str:
+        """The colour the page shows at (x, y) of the tree: the drawn background picture or
+        gradient there, else the background colour."""
+        photo = self.photos.get("backdrop")
+        if photo is not None:
+            try:
+                px = min(max(0, int(x * self.z)), photo.width() - 1)
+                py = min(max(0, int(y * self.z)), photo.height() - 1)
+                pixel = photo.get(px, py)
+                r, g, b = (int(v) for v in (pixel.split() if isinstance(pixel, str) else pixel)[:3])
+                return f"#{r:02x}{g:02x}{b:02x}"
+            except (tk.TclError, TypeError, ValueError):
+                pass
+        return sc.background
+
     def _draw_backdrop(self, item: ft.Backdrop, sc: ft.Scene) -> int | None:
         """The background as GDI+ draws it into the picture, shown as an image (its canvas item)."""
         key = (item.colour, item.colour2, str(item.picture), item.fit, item.soften, int(sc.width), int(sc.height),
@@ -2234,19 +2299,70 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if hasattr(self, "lay"):
                 now = {getattr(self.lay, attr)(p) for p in people}
                 self.own_vars[attr].set(choices[now.pop()] if len(now) == 1 else "")
-        sizes = [ft.frame_size(self.edits, self.village, p) for p in people]
+        sizes = [ft.frame_size(self.edits, self.village, p, unscaled=True) for p in people]
         styles = [self.edits.family_lines.get(self._family(p) or "", {}) for p in people]
         for var, values in ((self.own_w, {w for w, _h in sizes}), (self.own_h, {h for _w, h in sizes}),
                             (self.own_line_w, {s.get("width", self.edits.line_width) for s in styles})):
             var.set(f"{values.pop():g}" if len(values) == 1 else "")      # blank where they differ
         dashes = {s.get("dash", self.edits.line_dash) for s in styles}
         self.own_line_dash.set(ft.LINE_TYPES[dashes.pop()] if len(dashes) == 1 else "")
+        texts = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) for p in people}
+        self.own_text.set(f"{texts.pop():g}" if len(texts) == 1 else "")
 
     # ---- changing -----------------------------------------------------------
     def _group_style(self, attr: str, group: str, value: str) -> None:
         """Every male's, female's or upcoming baby's portrait shape or border."""
         getattr(self.edits, attr)[group] = value
         self._saved()
+
+    def _text_wrap(self) -> None:
+        """How many characters fit across a portrait before a line wraps."""
+        try:
+            n = max(ft.WRAP_MIN, min(ft.WRAP_MAX, int(float(self.wrap_var.get()))))
+        except ValueError:
+            return
+        if n != self.edits.text_wrap:
+            self._change(text_wrap=n)
+
+    def _portrait_gap(self) -> None:
+        """The pixels between two portraits side by side, for every portrait."""
+        gap = self._number(self.gap_var.get(), ft.GAP_MIN, ft.GAP_MAX)
+        if gap is not None and gap != self.edits.portrait_gap:
+            self._change(portrait_gap=gap)
+
+    def _page_generations(self) -> None:
+        """The most generations on one page; a longer tree goes on over more pages (the owner: 6, up to 10)."""
+        n = self._number(self.page_gens_var.get(), ft.PAGE_GENS_MIN, ft.PAGE_GENS_MAX)
+        if n is not None and int(n) != self.edits.page_generations:
+            self.page = 0
+            self._change(page_generations=int(n))
+            self._refresh_pages()
+
+    def _fit_width(self) -> None:
+        """Portraits (faces and words too) shrink alike so the widest row fits this page width; 0 is off."""
+        try:
+            width = int(float(self.portrait_fit_var.get()))
+        except ValueError:
+            return
+        width = 0 if width <= 0 else max(ft.FIT_MIN, min(ft.FIT_MAX, width))
+        if width != self.edits.fit_width:
+            self._change(fit_width=width)
+
+    def _group_all(self, group: str) -> None:
+        """The group's shape and border on every one of its portraits: those given their own one by
+        one go back to the group's (undo puts them back)."""
+        changed = 0
+        for p in self.village.people.values():
+            if ft.group_of(p) != group:
+                continue
+            entry = self.edits.entries.get(ft.entry_key(self.village, p), {})
+            if "shape" in entry or "border" in entry:
+                self._set_entry(p, shape="", border="")     # a copy: the undo steps keep the old one
+                changed += 1
+        if changed:
+            self._saved()
+        self.status.set(f"{ft.GROUPS[group]}: every portrait is now {ft.PORTRAIT_SHAPES[self.edits.shapes[group]]}, "
+                            f"{ft.BORDERS[self.edits.borders[group]].lower()} ({changed} had their own).")
 
     def _live(self, spin: ttk.Spinbox, apply) -> ttk.Spinbox:
         """A size box that changes the tree as it is used (the owner: "should have a live preview"):
@@ -2295,7 +2411,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         natural = None
         if not w_var.get().strip() or not h_var.get().strip():      # one typed: the other as the shape has it
             p = next((p for p in self.village.people.values() if ft.group_of(p) == group), None)
-            natural = ft.frame_size(self.edits, self.village, p, own=False) if p is not None else (ft.NODE_W, ft.NODE_H)
+            natural = ft.frame_size(self.edits, self.village, p, own=False, unscaled=True) if p is not None else (ft.NODE_W, ft.NODE_H)
         w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
         h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
         if w is None or h is None or self.edits.sizes.get(group) == [w, h]:
@@ -2303,6 +2419,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.edits.sizes[group] = [w, h]
         self._saved()
         self._show_group_sizes()
+
+    def _own_text_size(self) -> None:
+        """Every selected villager's words this size, in percent, whatever their frame's size."""
+        percent = self._number(self.own_text.get(), ft.TEXT_SCALE_MIN, ft.TEXT_SCALE_MAX)
+        if not self.selected or percent is None:
+            return
+        changed = False
+        for q in self.selected:
+            p = self.village.people[q]
+            if self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) != percent:
+                self._set_entry(p, text_scale=percent if percent != 100.0 else None)
+                changed = True
+        if changed:
+            self._saved()
 
     def _own_size(self) -> None:
         """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes")."""
@@ -2313,7 +2443,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         changed = False
         for q in self.selected:                 # a width alone leaves each one's height as it is
             p = self.village.people[q]
-            now = ft.frame_size(self.edits, self.village, p)
+            now = ft.frame_size(self.edits, self.village, p, unscaled=True)
             size = (w if w is not None else now[0], h if h is not None else now[1])
             if size != now:
                 self._set_entry(p, w=size[0], h=size[1])
@@ -2499,6 +2629,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.glow_var.set(f"{e.mark_glow:g}")
         self.mark_opacity_scale.set(e.mark_opacity)
         self.centre_var.set(e.centre_heads)
+        self.wrap_var.set(str(e.text_wrap))
+        self.gap_var.set(f"{e.portrait_gap:g}")
+        self.portrait_fit_var.set(str(e.fit_width))
+        self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
         self.number_names_var.set(e.number_names)
@@ -2777,6 +2911,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if path is not None:
                 self._place_new(ft.new_sticker(what, path, x, y))
 
+    def _show_key(self) -> None:
+        """The marks' Key shown or deleted (a new list: the undo steps keep the old one)."""
+        hidden = [h for h in self.edits.hidden if h != "word:key"]
+        if not self.key_var.get():
+            hidden.append("word:key")
+        self._change(hidden=hidden)
+        self._refresh_hidden()
+
     def _hide(self, what: str) -> None:
         """A line piece or words deleted from the tree (brought back from the Layout tab)."""
         if what not in self.edits.hidden:
@@ -2845,6 +2987,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 "bar": f"The bar between {parents}'s twins or triplets"}.get(kind, f"A line of {parents}'s family")
 
     def _refresh_hidden(self) -> None:
+        if hasattr(self, "key_var"):            # the Key's tick box follows a right-click Delete and undo
+            self.key_var.set("word:key" not in self.edits.hidden)
         if not hasattr(self, "hidden_list"):
             return
         self.hidden_list.delete(0, "end")
@@ -3129,8 +3273,54 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             messagebox.showerror("Save Picture", f"The picture could not be saved: {exc}", parent=self)
             return
         self.status.set(f"Saved {path}" + (f" and {count - 1} more page(s) beside it" if count > 1 else ""))
-        if messagebox.askyesno("Save Picture", f"Saved {path}.\n\nOpen the folder?", parent=self):
-            os.startfile(str(path.parent))  # noqa: S606 - Windows only, the player's own folder
+        self._preview_picture(path)
+
+    def _preview_picture(self, path: Path) -> None:
+        """The picture just saved, shown as it is (the owner, 2026-10-08: "there should be a fucking image
+        preview built in"): drawn by the same graphics as the file, fitted to the screen, over a
+        checkerboard so anything see-through in the file shows as see-through, never as the window's
+        white."""
+        sc = self._page_scene(0)[1]
+        fit = min(1.0, (self.winfo_screenwidth() - 120) / max(1.0, sc.width),
+                  (self.winfo_screenheight() - 220) / max(1.0, sc.height))
+        temp = Path(tempfile.gettempdir()) / f"vvfp-tree-preview-{os.getpid()}.png"
+        try:
+            # A PNG keeps what is see-through; a JPG has none, so it is shown on its own colour.
+            ok = vv_gdiplus.save_scene(sc, self.present, temp, scale=fit)
+            photo = tk.PhotoImage(master=self, file=str(temp)) if ok else None
+        except (OSError, tk.TclError):
+            photo = None
+        finally:
+            try:
+                temp.unlink()
+            except OSError:
+                pass
+        window = tk.Toplevel(self)
+        window.title(f"Preview - {path.name}")
+        frame = ttk.Frame(window, padding=8)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text=f"Saved {path}.  This is the picture as saved"
+                  + (" (the first page)" if len(ft.page_spans(self.edits, self.village)) > 1 else "")
+                  + ".  A checkerboard shows through anything see-through.", wraplength=900).pack(anchor="w")
+        if photo is not None:
+            w, h = photo.width(), photo.height()
+            canvas = tk.Canvas(frame, width=w, height=h, highlightthickness=0)
+            canvas.pack(pady=(6, 6))
+            for y in range(0, h, 16):
+                for x in range(0, w, 16):
+                    canvas.create_rectangle(x, y, x + 16, y + 16, width=0,
+                                            fill="#cccccc" if (x // 16 + y // 16) % 2 else "#ffffff")
+            canvas.create_image(0, 0, image=photo, anchor="nw")
+            canvas.image = photo                # kept while the window is open
+        else:
+            ttk.Label(frame, text="(The preview could not be drawn; the picture itself was saved.)").pack(pady=6)
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="e")
+        ttk.Button(buttons, text="Open the folder",
+                   command=lambda: os.startfile(str(path.parent))).pack(side="left")  # noqa: S606
+        ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left", padx=(6, 0))
+        window.transient(self)
+        window.focus_set()
 
     def _open_page(self) -> None:
         self._write_outputs()

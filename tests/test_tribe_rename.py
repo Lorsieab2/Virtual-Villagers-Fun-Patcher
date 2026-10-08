@@ -514,7 +514,10 @@ class SafetyTests(SaveFolderTest):
             for path in result.backup.backup_folder.rglob("*")
             if path.is_file()
         }
-        self.assertEqual(copied, before, "the backup holds every file as it was before the rename")
+        # ... with its slot saves' game speed set to Paused (the owner, 2026-10-08), and nothing else.
+        expected = {name: (backup.pause_save_bytes(game.number, data) or data)
+                    if backup.is_slot_save(Path(name)) else data for name, data in before.items()}
+        self.assertEqual(copied, expected, "the backup holds every file as it was before the rename")
 
     def test_the_before_rename_backup_is_offered_by_restore_saves(self) -> None:
         game, folder = self.make_folder("huttest", 5, "Modded")
@@ -526,7 +529,8 @@ class SafetyTests(SaveFolderTest):
         self.assertFalse(listed[0].before_restore)
         self.assertEqual(listed[0].label, "2026-10-04 15:30:00 (before rename)")
         self.assertEqual(listed[0].villages, {1: "Kalahuna Tribe 5"})
-        self.assertEqual((result.backup.backup_folder / game.save_path(folder, 1).name).read_bytes(), original)
+        self.assertEqual((result.backup.backup_folder / game.save_path(folder, 1).name).read_bytes(),
+                         backup.pause_save_bytes(game.number, original) or original)
 
     def test_a_failed_backup_changes_nothing(self) -> None:
         game, folder = self.make_folder("huttest", 1, "Modded")
@@ -548,6 +552,8 @@ class SafetyTests(SaveFolderTest):
 
         with mock.patch.object(rename.os, "replace", side_effect=spy):
             rename.rename_tribe(game, folder, 1, "New Name", FakeProcesses(), NOW)
+        # The backup's own Paused copies (vv_save_backup.pause_save_file) are not the rename's.
+        replaced = [(s, d) for s, d in replaced if not s.endswith(".vvfp-pause-tmp")]
         names = {destination for _source, destination in replaced}
         self.assertEqual(
             names,

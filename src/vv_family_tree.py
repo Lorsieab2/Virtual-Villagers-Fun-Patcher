@@ -34,6 +34,7 @@ from __future__ import annotations
 import base64
 import html
 import json
+import functools
 import math
 import re
 import struct
@@ -49,6 +50,11 @@ NODE_H = 156
 TRANSPARENT = "transparent"             # a colour that shows nothing (the owner asked for it)
 LINE_WIDTH = 2.2                        # a family line's weight unless the player says
 GAP_X = 22
+GAP_MIN, GAP_MAX = 0.0, 400.0           # the player's gap between portraits
+FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
+SHRINK_MIN = 0.2                        # never smaller than a fifth
+PAGE_GENS, PAGE_GENS_MIN, PAGE_GENS_MAX = 6, 2, 10   # generations on one page: the owner's default and limit
+TEXT_SCALE_MIN, TEXT_SCALE_MAX = 25.0, 400.0          # one villager's text size, in percent
 LEFT = 300                      # the generation labels' column
 TOP = 150
 OTHER_GAP = 110                 # between the tree and the "Other Members" column
@@ -206,6 +212,10 @@ class Edits:
     title: str = ""
     subtitle: str = ""
     centre_heads: bool = True           # the head and its lines in the middle of the frame
+    text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
+    portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
+    fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
+    page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
@@ -214,12 +224,12 @@ class Edits:
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers
-    background: str = TRANSPARENT       # "#rrggbb" or TRANSPARENT (the owner's default); blank the patcher's own
+    background: str = "#ffffff"         # "#rrggbb" or TRANSPARENT; white until the player says (the owner, 2026-10-08: "to prevent stupid mistakes"); blank the patcher's own
     background2: str = ""               # a gradient's lower colour ("" none)
     rainbow: str = ""                   # a RAINBOWS key instead of that gradient ("" none)
     background_image: str = ""          # a picture file, or "game:<name>" in the game's Images
     background_fit: str = "stretch"     # FITS (the owner's default: "stretch to the page")
-    background_opacity: int = 60        # 0-100: how strongly the picture shows over the colour
+    background_opacity: int = 100       # 0-100: how strongly the picture shows over the colour (the owner, 2026-10-08: not see-through unless asked)
     ink: str = ""                       # the text's colour
     font: str = ""                      # the font for every word on the tree ("" the patcher's own)
     styles: dict[str, dict] = field(default_factory=dict)             # ROLES key -> its own style
@@ -295,6 +305,11 @@ class Edits:
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.diagonal_lines = data.get("diagonal_lines") is True
+        out.text_wrap = int(_number(data.get("text_wrap"), WRAP_MIN, WRAP_MAX, WRAP))
+        out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
+        out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
+        fit = data.get("fit_width")
+        out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
         out.number_names = data.get("number_names") is True
@@ -359,6 +374,9 @@ class Edits:
             angle = _number(entry.get("angle"), 0.0, 360.0, 0.0) % 360
             if angle:
                 item["angle"] = angle
+            text_scale = _number(entry.get("text_scale"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
+            if text_scale != 100.0:
+                item["text_scale"] = text_scale     # this villager's words, apart from the frame (the owner)
             look = entry.get("look")
             if isinstance(look, list) and len(look) == 2 and all(isinstance(v, int) for v in look):
                 item["look"] = look             # the look the player chose to show
@@ -432,7 +450,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.centre_heads, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -491,7 +509,8 @@ ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
 PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle", "rect": "Square",
                    "rounded": "Rounded square", "circle": "Circle", "ellipse": "Oval",
                    "heart": "Heart", "triangle": "Triangle", "diamond": "Diamond", "cross": "Cross", "x": "X",
-                   "plus": "Plus", "star": "Star", "hexagon": "Hexagon", "octagon": "Octagon"}
+                   "plus": "Plus", "star": "Star", "hexagon": "Hexagon", "octagon": "Octagon",
+                   "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
            "dashdot": "Dotted and dashed"}
@@ -793,6 +812,7 @@ class Layout:
     page: int = 0                       # which page of the tree this is (page_spans)
     names: dict[int, str] = field(default_factory=dict)          # Number Duplicate Names: id -> "Soda II"
     pages: int = 1
+    shrink: float = 1.0                 # this page's Shrink to fit (each page its own; Codex, #575)
     _spans: list = field(default_factory=list, repr=False)
 
     @property
@@ -824,7 +844,7 @@ class Layout:
         proportions, as tall as a portrait, unless the player resized it; centred on the portrait;
         turned `angle` degrees about its middle."""
         p = self.village.people[q]
-        w, h = frame_size(self.edits, self.village, p)
+        w, h = frame_size(self.edits, self.village, p, shrink=self.shrink)
         return self.x[q] + NODE_W / 2 - w / 2, self.y[q] + NODE_H / 2 - h / 2, w, h, self.entry(p).get("angle", 0.0)
 
     def spans(self) -> list[tuple[float, float, float]]:
@@ -889,12 +909,15 @@ def shape_of(edits: Edits, village: gen.Village, p: gen.Person) -> str:
     return edits.entries.get(entry_key(village, p), {}).get("shape") or edits.shapes[group_of(p)]
 
 
-def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True) -> tuple[float, float]:
+def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True,
+               unscaled: bool = False, shrink: float = 1.0) -> tuple[float, float]:
     """A portrait frame's width and height: the villager's own (`own`), else their group's default
-    size, else their shape's own proportions, a portrait tall."""
+    size, else their shape's own proportions, a portrait tall -- shrunk to fit the page when the
+    player asked (Edits.fit_width; `unscaled`: the sizes as the player set them)."""
     gw, gh = edits.sizes.get(group_of(p)) or (natural_width(shape_of(edits, village, p)), NODE_H)
     entry = edits.entries.get(entry_key(village, p), {}) if own else {}
-    return entry.get("w", gw), entry.get("h", gh)
+    s = 1.0 if unscaled else shrink
+    return entry.get("w", gw) * s, entry.get("h", gh) * s
 
 
 def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
@@ -904,10 +927,40 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     generation on the second page being treated as "founders" on the second page")."""
     gens = sorted({p.generation for p in village.people.values()}) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
-    return [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
+    spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
+    # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
+    # say, 10 at most, so every page stays legible): a longer span goes on over the next pages, each
+    # starting with the generation the one before ends with.
+    most = edits.page_generations
+    out = []
+    for lo, hi in spans:
+        while hi - lo + 1 > most:
+            out.append((lo, lo + most - 1))
+            lo += most - 1
+        out.append((lo, hi))
+    return out
 
 
 def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:
+    """The page laid out.  With Shrink to fit (Edits.fit_width), the portraits shrink until the whole
+    page -- the generation labels, the widest row and the Other Members -- fits that width, or until
+    they are as small as they go (SHRINK_MIN)."""
+    lay = _layout(village, edits, page)
+    e = lay.edits
+    if not e.fit_width:
+        return lay
+    for _ in range(8):
+        if lay.width <= e.fit_width * 1.005 or lay.shrink <= SHRINK_MIN:
+            break
+        # What does not shrink (the labels' column and the margins) is left as it is.
+        fixed = LEFT + 60
+        wanted = lay.shrink * max(0.05, (e.fit_width - fixed) / max(1.0, lay.width - fixed))
+        lay = _layout(village, edits, page, max(SHRINK_MIN, min(1.0, wanted)))
+    return lay
+
+
+def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
+            shrink: float | None = None) -> Layout:
     people = village.people
     gone = {pid for pid, p in people.items()
             if (edits or Edits()).entries.get(entry_key(village, p), {}).get("hidden")}
@@ -942,12 +995,27 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     for pid in sorted(in_tree, key=lambda q: (people[q].generation, _place(people[q]))):
         rows.setdefault(people[pid].generation, []).append(pid)
     edits = edits or Edits()
-    step = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in in_tree | set(others)]) + GAP_X
+    # Every portrait shrunk alike, faces and words with them, so the widest row fits the page width
+    # the player chose (the owner, 2026-10-08: "auto resizing of portraits and text to accommodate
+    # lots of portraits per page"); the gap between two portraits is the player's.
+    shrink_now = 1.0
+    shown = in_tree | set(others)
+    widest_frame = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in shown])
+    gap = edits.portrait_gap
+    widest_row_n = max([len(r) for r in rows.values()] + [1])
+    if shrink is not None:
+        shrink_now = shrink
+    elif edits.fit_width and LEFT + widest_row_n * (widest_frame + gap) > edits.fit_width:
+        room = (edits.fit_width - LEFT) / widest_row_n - gap
+        shrink_now = max(SHRINK_MIN, min(1.0, room / widest_frame))
+    step = widest_frame * shrink_now + gap
     x: dict[int, float] = {}
     sub: dict[int, int] = {q: 0 for q in in_tree}
     if edits.positioning == "dynamic" and rows:
         x, sub = _dynamic(people, rows, families, step)
-        tree_right = max(x.values()) + NODE_W
+        # The right edge of the widest frame, not of a standard portrait: a wide shape (a butterfly) or
+        # a big frame must not reach into the Other Members column.
+        tree_right = max(x.values()) + NODE_W / 2 + max(NODE_W, step - gap) / 2
     else:
         # Every row centred under the widest (the owner: "center everything ... both
         # horizontally and vertically").
@@ -956,7 +1024,7 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
             indent = (widest_row - len(row)) * step / 2
             for i, pid in enumerate(row):
                 x[pid] = LEFT + indent + i * step
-        tree_right = LEFT + widest_row * step - GAP_X
+        tree_right = LEFT + widest_row * step - gap
     others_left = tree_right + OTHER_GAP
     per_row: dict[int, int] = {}
     for pid in others:
@@ -1011,7 +1079,7 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
                 fam.couple_y = min(fam.couple_y + lift, fam.lane_y - LANE)
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
-    out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands,
+    out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands, shrink=shrink_now,
                  edits=edits, page=page, pages=len(spans),
                  names=gen.duplicate_names(village, edits.number_order) if edits.number_names else {})
     # One colour each: every villager with no recorded parents, every pairing, every set of full
@@ -1076,7 +1144,9 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
             if wanted is None:                  # nobody to stand near: the end of the first row
                 ends = [hi for row in taken[:1] for _lo, hi in row]
                 wanted = max(ends, default=0.0) + span / 2
-            ideal = wanted - (span - GAP_X) / 2
+            # The children's middle under their parents' whatever the gap and shrink (Codex, #575): at
+            # the default spacing (step = NODE_W + GAP_X) this is the old wanted - (span - GAP_X) / 2.
+            ideal = wanted - NODE_W / 2 - (span - step) / 2
             best = None
             for k in range(min(len(taken) + 1, MAX_SUBROWS)):
                 left = nearest(taken[k], ideal, span) if k < len(taken) else ideal
@@ -1787,7 +1857,8 @@ def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, flo
     return left, face_top - y0 * HEAD_SCALE, face_top + face + 8 + LINE_H - 3, lines
 
 
-WRAP = 17                               # characters across a portrait
+WRAP = 17                               # characters across a portrait, until the player says
+WRAP_MIN, WRAP_MAX = 8, 60
 
 
 def _wrap(text: str, n: int = WRAP) -> list[str]:
@@ -1868,6 +1939,48 @@ def _wrap_cells(cells: list[tuple[str, float, dict]], n: float = WRAP) -> list[l
     return out
 
 
+def _joined(lines: list[str], n: int) -> list[str]:
+    """The patcher's own lines under the name, put side by side while they fit in `n` characters
+    (the owner, 2026-10-08: "1379 game units, 68 years old"): the ages with a comma, a note in
+    brackets after a space."""
+    out: list[str] = []
+    for line in lines:
+        if out and line and out[-1]:
+            joint = _joint(out[-1], line)
+            if len(out[-1]) + len(joint) + len(line) <= n:
+                out[-1] += joint + line
+                continue
+        out.append(line)
+    return out
+
+
+def _joint(before: str, after: str) -> str:
+    """What goes between two lines put side by side: a space beside a bracketed note -- "(deceased)
+    Founder" -- else a comma -- "1379 game units, 68 years old"."""
+    return " " if after.startswith("(") or before.endswith(")") else ", "
+
+
+def _joined_runs(lines: list, n: int, edits: "Edits") -> list:
+    """_joined for formatted lines: each keeps its own words' formatting; they are measured as
+    wide as their fonts make them (run_width)."""
+    base = line_base(edits, False)
+
+    def wide(line) -> float:
+        return sum(run_width(style, base) * len(text) for text, style in line)
+
+    def plain(line) -> str:
+        return "".join(text for text, _style in line)
+    out: list = []
+    for line in lines:
+        if out and plain(line) and plain(out[-1]):
+            joint = _joint(plain(out[-1]), plain(line))
+            if wide(out[-1]) + len(joint) + wide(line) <= n + 1e-9:
+                out[-1] = list(out[-1]) + [(joint, {})] + list(line)
+                continue
+        out.append(list(line))
+    return out
+
+
 def _cells_runs(cells: list) -> list[tuple[str, dict]]:
     return merge_runs((c[0], c[2]) for c in cells)
 
@@ -1877,25 +1990,31 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
     its runs when the player formatted it (else None): every line wrapped to fit across, and as many
     as fit below the head -- the last of them ending in ... when some did not.  Formatted words wrap
     by how wide their fonts make them (run_width), so they never run past the portrait."""
+    n = lay.edits.text_wrap
     runs = node_runs(lay, p)
     if runs is None:
-        out = [(piece, k == 0, None) for k, text in enumerate(node_text(lay, p)) for piece in _wrap(text)]
+        lines = node_text(lay, p)
+        if n > WRAP:                    # widened: side by side while they fit (the owner's picture); at the
+            lines = lines[:1] + _joined(lines[1:], n)       # default every line stays as typed (Codex, #575)
+        out = [(piece, k == 0, None) for k, text in enumerate(lines) for piece in _wrap(text, n)]
         room = max(1, room)
         if len(out) > room:
             last, bold, _r = out[room - 1]
-            out = out[:room - 1] + [(last[:WRAP - 1] + "…", bold, None)]
+            out = out[:room - 1] + [(last[:n - 1] + "…", bold, None)]
         return out
     pieces: list[tuple[list, bool]] = []
+    if n > WRAP:
+        runs = runs[:1] + _joined_runs(runs[1:], n, lay.edits)
     for k, line in enumerate(runs):
         base = line_base(lay.edits, k == 0)
         cells = [(ch, run_width(style, base), style) for text, style in line for ch in text]
-        pieces.extend((cells_line, k == 0) for cells_line in _wrap_cells(cells))
+        pieces.extend((cells_line, k == 0) for cells_line in _wrap_cells(cells, n))
     room = max(1, room)
     if len(pieces) > room:
         last, bold = pieces[room - 1]
         kept, used = [], 0.0
         for cell in last:
-            if used + cell[1] > WRAP - 1 + 1e-9:
+            if used + cell[1] > n - 1 + 1e-9:
                 break
             kept.append(cell)
             used += cell[1]
@@ -1986,7 +2105,139 @@ def _unit_outlines() -> dict[str, list[tuple[float, float]]]:
     }
 
 
-OUTLINES = _unit_outlines()
+def _traced(inside_at, centre: tuple[float, float], rays: int = 240) -> list[tuple[float, float]]:
+    """The edge of a shape given as a test of whether a point is in it: along each ray from
+    `centre`, the farthest point inside it (so parts that do not touch the centre, a butterfly's
+    wings, are traced too)."""
+    out = []
+    for k in range(rays):
+        t = 2 * math.pi * k / rays
+        dx, dy = math.cos(t), math.sin(t)
+        far = 0.0
+        for step in range(1, 700):
+            r = step * 0.003
+            if inside_at(centre[0] + r * dx, centre[1] + r * dy):
+                far = r
+        out.append((centre[0] + far * dx, centre[1] + far * dy))
+    return out
+
+
+@functools.lru_cache(maxsize=1)
+def _drawn_outlines() -> dict[str, list[tuple[float, float]]]:
+    """The owner's shapes of 2026-10-08 -- a flower, a butterfly, a leaf and the playing-card suits'
+    clover and spade -- traced from simple parts (circles, ellipses, a heart, a stem), y downward."""
+    def disc(cx, cy, r):
+        return lambda x, y: (x - cx) ** 2 + (y - cy) ** 2 <= r * r
+
+    def oval(cx, cy, rx, ry, turn_deg=0.0):
+        c, s = math.cos(math.radians(turn_deg)), math.sin(math.radians(turn_deg))
+        return lambda x, y: (((x - cx) * c + (y - cy) * s) / rx) ** 2 + ((-(x - cx) * s + (y - cy) * c) / ry) ** 2 <= 1
+
+    def stem(top, bottom, half_top, half_bottom, cx=0.0):
+        def at(x, y):
+            if not top <= y <= bottom:
+                return False
+            half = half_top + (half_bottom - half_top) * (y - top) / (bottom - top)
+            return abs(x - cx) <= half
+        return at
+
+    def union(*parts):
+        return lambda x, y: any(part(x, y) for part in parts)
+
+    # A six-petalled flower, the owner's picture: six long oval petals from the middle, one
+    # straight up and one straight down.
+    petals = [oval(0.25 * math.cos(math.radians(-90 + 60 * k)), 0.25 * math.sin(math.radians(-90 + 60 * k)),
+                   0.25, 0.165, -90 + 60 * k) for k in range(6)]
+    flower = union(disc(0, 0, 0.2), *petals)
+    # A butterfly, kept simple (the owner): two round upper wings and two smaller lower ones,
+    # meeting in the middle.
+    butterfly = union(oval(-0.36, -0.18, 0.4, 0.32, -20), oval(0.36, -0.18, 0.4, 0.32, 20),
+                      oval(-0.26, 0.28, 0.28, 0.24, 25), oval(0.26, 0.28, 0.28, 0.24, -25),
+                      oval(0, 0.02, 0.2, 0.36))
+    # The club (clover) of a deck of cards: three round leaves round a wide middle and a short
+    # stem, with room inside for the face and the words (the owner).
+    clover = union(disc(0, -0.3, 0.34), disc(-0.36, 0.14, 0.34), disc(0.36, 0.14, 0.34), disc(0, 0.05, 0.32),
+                   stem(0.3, 0.68, 0.06, 0.2))
+    # The spade: an upside-down heart and a flared stem.
+    heart = [(16 * math.sin(t) ** 3, (13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t)
+                                          - math.cos(4 * t))) for t in (k * 2 * math.pi / 120 for k in range(120))]
+    spade_heart = [(px / 28, py / 28 - 0.12) for px, py in heart]      # a wide body: room inside
+    def in_heart(x, y):                 # inside() is defined further down the module
+        hit = False
+        for (ax, ay), (bx, by) in zip(spade_heart, spade_heart[1:] + spade_heart[:1]):
+            if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
+                hit = not hit
+        return hit
+    spade = union(in_heart, disc(0, 0.2, 0.24), stem(0.3, 0.66, 0.06, 0.2))   # the cleft filled, so the stem joins a whole body
+    # A leaf, the owner's picture: a broad blade pointing up to the right, fullest towards its
+    # base at the lower left, both ends pointed -- and a stalk from the base "so it's clear".
+    leaf_c, leaf_s = math.cos(math.radians(-40)), math.sin(math.radians(-40))
+
+    def along(x, y):                    # (towards the tip, across)
+        return x * leaf_c + y * leaf_s, -x * leaf_s + y * leaf_c
+
+    def blade(x, y):
+        u, v = along(x, y)
+        s = u / 0.62
+        return abs(s) <= 1 and abs(v) <= 0.36 * (1 - s * s) ** 0.75 * (1 - 0.22 * s)
+
+    def stalk(x, y):
+        u, v = along(x, y)
+        return -0.86 <= u <= -0.5 and abs(v) <= 0.028
+    leaf = union(blade, stalk)
+    return {"flower": _traced(flower, (0, 0)), "butterfly": _traced(butterfly, (0, 0)),
+            "clover": _traced(clover, (0, 0)), "spade": _traced(spade, (0, 0.05)),
+            "leaf": _traced(leaf, (0, 0))}
+
+
+def _raw_aspect(kind: str) -> float:
+    xs, ys = zip(*_drawn_outlines()[kind])
+    return (max(xs) - min(xs)) / (max(ys) - min(ys))
+
+
+DRAWN_SHAPES = ("flower", "butterfly", "clover", "spade", "leaf")
+# Their widths for their heights as traced (_raw_aspect), fixed so nothing is traced at start-up.
+FLOWER_ASPECT, BUTTERFLY_ASPECT, CLOVER_ASPECT, SPADE_ASPECT, LEAF_ASPECT = 0.897, 1.447, 1.06, 0.822, 1.171
+
+
+class _Outlines(dict):
+    """The unit outlines; the traced ones (DRAWN_SHAPES) are worked out the first time one is
+    asked for, not as the patcher starts (Codex, #575: tracing takes a noticeable moment)."""
+    def __missing__(self, kind: str):
+        if kind not in DRAWN_SHAPES:
+            raise KeyError(kind)
+        # Traced once, ahead of time, into data/tree_shapes.json (scripts/build_tree_shapes.py): tracing
+        # here froze the window for seconds the first time a new shape was picked (Codex, #575).
+        try:
+            stored = json.loads(TREE_SHAPES_FILE.read_text(encoding="utf-8"))
+            for name in DRAWN_SHAPES:
+                self[name] = [(float(x), float(y)) for x, y in stored[name]]
+        except (OSError, ValueError, KeyError, TypeError):
+            for name, points in traced_unit_outlines().items():   # the file is missing: trace them
+                self[name] = points
+        return self[kind]
+
+    def get(self, kind, default=None):
+        try:
+            return self[kind]
+        except KeyError:
+            return default
+
+
+def traced_unit_outlines() -> dict[str, list[tuple[float, float]]]:
+    """DRAWN_SHAPES traced and fitted to a 1 x 1 box (what data/tree_shapes.json holds)."""
+    out = {}
+    for name, points in _drawn_outlines().items():
+        xs, ys = zip(*points)
+        out[name] = [((px - min(xs)) / (max(xs) - min(xs)), (py - min(ys)) / (max(ys) - min(ys)))
+                     for px, py in points]
+    return out
+
+
+TREE_SHAPES_FILE = Path(__file__).resolve().parents[1] / "data" / "tree_shapes.json"
+
+
+OUTLINES = _Outlines(_unit_outlines())
 
 
 SVG_DASHES = {"dotted": "1.5 4", "dashed": "8 5", "dashdot": "8 4 1.5 4"}
@@ -2000,6 +2251,9 @@ GDI_DASHES = {"dotted": 2, "dashed": 1, "dashdot": 3}       # GDI+'s dash styles
 # diamond is a playing card's.  A rectangle, a rounded rectangle and an oval fill the portrait.
 ASPECTS = {"rect": 1.0, "rounded": 1.0, "circle": 1.0, "heart": 1.107, "star": 1.051, "triangle": 1.155, "diamond": 0.7, "cross": 0.75, "x": 1.0,
            "plus": 1.0, "hexagon": 0.866, "octagon": 1.0}
+# The owner's shapes of 2026-10-08 take their own drawn proportions.
+ASPECTS.update({"flower": FLOWER_ASPECT, "butterfly": BUTTERFLY_ASPECT, "clover": CLOVER_ASPECT, "spade": SPADE_ASPECT,
+                "leaf": LEAF_ASPECT})      # _raw_aspect's, fixed (tests/test_tree_new_shapes.py checks them)
 FRAME_MIN, FRAME_MAX = 8.0, 1200.0      # a resized frame's sides
 # What the size boxes step through (the owner: "values correspond to typical font sizes"): a word
 # processor's font sizes, on up to a whole portrait and beyond; line weights as a word processor's.
@@ -2318,11 +2572,17 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         x1, y1 = max(max(xs), lay.x[pid] + NODE_W), max(max(ys), lay.y[pid] + NODE_H)
         out.boxes[pid] = (x0, y0, x1 - x0, y1 - y0)
     key_text = words(lay, "footer")
+    # With Shrink to fit, the footer goes onto as many lines as keep it inside that width, rather than
+    # widening the page again (Codex, #575); otherwise it is the one line it always was.
+    footer_lines = (_wrap(key_text, max(20, int((lay.edits.fit_width - 80) / 6.8)))
+                    if lay.edits.fit_width and len(key_text) * 6.8 > lay.edits.fit_width - 80 else [key_text])
+    longest = max(len(line) for line in footer_lines)
     if plate:
-        add(Shape("rect", middle - len(key_text) * 3.4, lay.height - 110, len(key_text) * 6.8, 30, plate_colour,
-                  move="footer", width=0, fill=plate_colour, radius=10, target=("plate",)))
-    add(Text(middle, lay.height - 90, key_text, 13, ink, centre=True, role="footer", move="footer",
-             edit="word:footer"))
+        add(Shape("rect", middle - longest * 3.4, lay.height - 110, longest * 6.8, 30 + 18 * (len(footer_lines) - 1),
+                  plate_colour, move="footer", width=0, fill=plate_colour, radius=10, target=("plate",)))
+    for k, line in enumerate(footer_lines):
+        add(Text(middle, lay.height - 90 + 18 * k, line, 13, ink, centre=True, role="footer", move="footer",
+                 edit="word:footer"))
     out.items[:] = [i for i in out.items if f"word:{getattr(i, 'move', '')}" not in lay.edits.hidden]
     _apply_styles(out.items, lay.edits)
     _apply_opacity(out.items, lay.edits)
@@ -2495,7 +2755,10 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             m = reach * (k - 0.5) / GLOW_RINGS
             add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=2 * reach / GLOW_RINGS + 0.6, fill=None,
                       radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle,
-                      opacity=see * (1 - (k - 1) / GLOW_RINGS) * 0.45))
+                      # The player's colour at full strength against the portrait, fading out to
+                      # nothing: "a vibrant red halo of light radiating out from the portrait"
+                      # (the owner, 2026-10-08; it was capped at 45%, so red came out pale pink).
+                      opacity=see * (1 - (k - 1) / GLOW_RINGS)))
     elif mark:
         m = MARK_GAP
         add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=4, fill=None,
@@ -2505,7 +2768,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
               target=("person", p.id), fill=lay.edits.portrait_fill, angle=angle))
     # The face and words grow or shrink with a frame the player resized, about its middle, and
     # never turn (the owner: "shrink/grow with the frame, stay upright").
-    w0, h0 = frame_size(lay.edits, lay.village, p, own=False)
+    w0, h0 = frame_size(lay.edits, lay.village, p, own=False, unscaled=True)
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (fw, fh) != (w0, h0) else 1.0
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 
@@ -2522,8 +2785,9 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         add(item)
 
     if p.upcoming:
+        own = lay.entry(p).get("text_scale", 100) / 100
         for k, text in enumerate(node_text(lay, p)):
-            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, 12 if k == 0 else 11, ink,
+            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, (12 if k == 0 else 11) * own, ink,
                      bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
                      edit=f"person:{p.id}"))
         return
@@ -2538,10 +2802,37 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         put(Shape("ellipse", x + NODE_W / 2 - 26, mid - 26, 52, 52, colour, width=1, fill=colour, pid=p.id,
                   target=("person", p.id)))
         put(Text(x + NODE_W / 2, mid + 10, p.name[:1], 28, "#ffffff", bold=True, centre=True, pid=p.id))
+    # Every line inside its shape (Codex, #575; the owner, 2026-10-08: "text should fit within the shape as
+    # much as possible"): each line is measured against the shape's own width where it is drawn -- a
+    # circle or a heart is narrower towards its edges -- and this portrait's words made only as much
+    # smaller as the tightest line needs.  Then the player's own text size for this villager.
+    points = lay.frame_points(p.id)
+    fit = 1.0
+    for k, (text, bold, _r) in enumerate(lines):
+        if not text:
+            continue
+        size = (11.5 if bold else 10) * scale
+        baseline = middle[1] + (y + text_top + k * LINE_H - middle[1]) * scale
+        # The narrowest the shape is across the whole line, from the tops of its letters to below them.
+        chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
+        room = max(chord, fw * 0.5) - 8
+        needed = len(text) * size * (0.58 if bold else 0.55)
+        if room > 0 and needed > room:
+            fit = min(fit, room / needed)
+    own = lay.entry(p).get("text_scale", 100) / 100
     for k, (text, bold, runs) in enumerate(lines):
-        put(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, 11.5 if bold else 10, ink,
+        put(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, (11.5 if bold else 10) * fit * own, ink,
                  bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits", edit=f"person:{p.id}",
                  runs=runs))
+
+
+def _chord(points: list[tuple[float, float]], y: float) -> float:
+    """How wide the shape these corners outline is at height `y` (0 above or below it)."""
+    xs = []
+    for (ax, ay), (bx, by) in zip(points, points[1:] + points[:1]):
+        if (ay > y) != (by > y):
+            xs.append(ax + (y - ay) * (bx - ax) / (by - ay))
+    return max(xs) - min(xs) if len(xs) >= 2 else 0.0
 
 
 def _svg_opacity(item) -> str:
@@ -2802,7 +3093,14 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     written."""
     folder = Path(folder)
     village = gen.load_village(folder, game, slot)
-    arrange(village, full_name_edits(Edits.load(Edits.path(folder, game, slot)), village))
+    edits = full_name_edits(Edits.load(Edits.path(folder, game, slot)), village)
+    arrange(village, edits)
+    # Names as Number Duplicate Names gives them (the owner, 2026-10-08: a Roman number only for the
+    # same first and last name -- "Hawa Awanata should not be called I or II unless there's literally
+    # a second Hawa Awanata"), here before Repair Saves & Logs puts them in the save; in the order the
+    # tree numbers them, so the report and the tree agree.
+    for pid, name in gen.duplicate_names(village, edits.number_order).items():
+        village.people[pid].name = name
     text = gen.pair_report(village, rules, game_title)
     out = Path(out) if out is not None else folder / TREES
     out.mkdir(parents=True, exist_ok=True)

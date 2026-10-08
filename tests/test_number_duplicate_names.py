@@ -48,6 +48,31 @@ class TheNumbers(unittest.TestCase):
         self.assertEqual(gen.duplicate_names(v, "youngest"), {1: "Soda I", 3: "Soda II", 2: "Soda III", 7: "Soda IV"})
         self.assertEqual(gen.duplicate_names(v, "appearance"), {7: "Soda I", 1: "Soda II", 3: "Soda III", 2: "Soda IV"})
 
+    def test_namesakes_are_the_same_first_and_last_name_and_old_numbers_go(self):
+        # The owner, 2026-10-08: "roman numerals should be given for people who have both the same first
+        # and last name (Suki Wikimak I, Suki Wikimak II)"; "hawa bahati and hawa awanata are different
+        # people ... Hawa awanata should not be called I or II unless there's literally a second hawa
+        # awanata"; and with first names only, "Suki I and Suki II".
+        v = village(gen.Person(1, "Suki Alosaka I", 1, 1, alive=True, birth_record=0),
+                    gen.Person(2, "Suki Wanjiko II", 2, 2, alive=True, birth_record=1),
+                    gen.Person(3, "Hawa Bahati I", 3, 3, alive=True, birth_record=2),
+                    gen.Person(4, "Hawa Awanata II", 4, 4, alive=True, birth_record=3),
+                    gen.Person(5, "Kaula Akikai", 5, 5, alive=True, birth_record=4),
+                    gen.Person(6, "Kaula Akikai", 6, 6, alive=True, birth_record=5),
+                    gen.Person(7, "Meka", 7, 7, alive=True, birth_record=6),
+                    gen.Person(8, "Meka", 8, 8, alive=True, birth_record=7),
+                    gen.Person(9, "Tomi Akikai II", 9, 9, alive=True, birth_record=8),
+                    gen.Person(10, "Tomi Akikai", 10, 10, alive=True, birth_record=9))
+        self.assertEqual(gen.duplicate_names(v), {
+            1: "Suki Alosaka", 2: "Suki Wanjiko",               # no second Suki Alosaka or Suki Wanjiko
+            3: "Hawa Bahati", 4: "Hawa Awanata",
+            5: "Kaula Akikai I", 6: "Kaula Akikai II",          # the same first and last name
+            7: "Meka I", 8: "Meka II",                           # first names only
+            10: "Tomi Akikai I"})                                # Tomi Akikai II keeps his number
+        self.assertEqual(gen.unnumbered("Soda II"), "Soda")
+        self.assertEqual(gen.unnumbered("Ivi"), "Ivi")
+        self.assertEqual(gen.unnumbered("Suki Wanjiko"), "Suki Wanjiko")
+
     def test_namesakes_who_look_the_same_or_have_no_looks_or_no_room_keep_their_names(self):
         long = "Abcdefghijklmnopqrstu"                        # 21 letters: + " II" is 24, past 23
         # The family tree sees the save's two same-looking Twins as one; the save's count tells.

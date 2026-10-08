@@ -255,6 +255,8 @@ class BackupResult:
     files: list[CopiedFile] = field(default_factory=list)
     paused: int = 0          # how many game processes were paused for the copy
     resume_problems: list[str] = field(default_factory=list)
+    paused_slots: list[str] = field(default_factory=list)   # slot saves whose copy was set to Paused
+    paused_from: dict[Path, int] = field(default_factory=dict)   # ... and the speed each one had
 
     @property
     def file_count(self) -> int:
@@ -405,6 +407,14 @@ def copy_save_folder(
             copied = _copy_one(save_folder / relative, staging / relative)
             copied.relative = relative
             result.files.append(copied)
+        game = game_number(save_folder)
+        if game is not None:
+            for copied in result.files:
+                speed = pause_save_copy(game, staging / copied.relative, copied.relative)
+                if speed is not None:
+                    copied.size, copied.sha256 = _hash_file(staging / copied.relative)
+                    result.paused_slots.append(copied.relative.name)
+                    result.paused_from[copied.relative] = speed
         result.backup_folder = _finish_backup(staging, when, suffix)
     except (OSError, BackupError) as exc:
         where = _set_aside(staging, INCOMPLETE)
@@ -766,6 +776,198 @@ def read_village_name(game: int, path: Path) -> str | None:
     return name.decode("ascii")
 
 
+# GAME SPEED.  Every game keeps its speed in the save buffer, as a dword the game
+# reads as 3 (fast), 6 (normal) or 10 (slow), with 999 ADDED while paused (1002,
+# 1005, 1009): the in-memory field (A New Home state +0xA318, The Lost Children
+# +0x2EB08, The Secret City +0x12F20, The Tree of Life +0x17110, New Believers
+# +0x17D7C; docs/hidden-gates-all-five-games.md) less 8 in the buffer.  Read on
+# every one of the owner's saves of all five games (315 files, read-only):
+# every one held one of those six values there.  The 256 Villagers builds keep
+# the stock bytes first, so the field is at the same place.  A paused village
+# does not age or catch up while the game is closed, so a backup is set to
+# Paused: restoring an old backup must never fast-forward the village through
+# the real time since it was saved (the owner, 2026-10-08).
+_SPEED_IN_BUFFER = {1: 0xA310, 2: 0x2EB00, 3: 0x12F18, 4: 0x17108, 5: 0x17D74}
+_SPEEDS = (3, 6, 10)
+_PAUSED = 999
+# (header, where its length field is) each game's saves have had: older Tree of
+# Life saves have the 12-byte header (src/vv_tribe_rename.py).
+_SAVE_LAYOUTS = {1: ((12, 8),), 2: ((12, 8),), 3: ((12, 8),), 4: ((24, 16), (12, 8)), 5: ((24, 16),)}
+
+
+def save_speed(game: int, data: bytes) -> tuple[int, int] | None:
+    """(file offset of the speed, its value) in a slot save, or None when the file is not one
+    of this game's saves or the value there is not a speed the game writes."""
+    if data[:4] != b"ldwg":
+        return None
+    for header, length_at in _SAVE_LAYOUTS[game]:
+        if len(data) < header:
+            continue
+        length = int.from_bytes(data[length_at:length_at + 4], "little")
+        if length in _SAVE_BUFFERS[game] and len(data) == header + length:
+            offset = header + _SPEED_IN_BUFFER[game]
+            value = int.from_bytes(data[offset:offset + 4], "little")
+            if value in _SPEEDS or value - _PAUSED in _SPEEDS:
+                return offset, value
+            return None
+    return None
+
+
+def pause_save_bytes(game: int, data: bytes) -> bytes | None:
+    """The save with its speed set to Paused (the speed it had, plus 999, as the game does), or
+    None when it is already paused or not a save this can read.  Nothing else changes."""
+    found = save_speed(game, data)
+    if found is None or found[1] >= _PAUSED:
+        return None
+    offset, value = found
+    return data[:offset] + (value + _PAUSED).to_bytes(4, "little") + data[offset + 4:]
+
+
+def is_slot_save(relative: Path) -> bool:
+    """A slot's own save, "<base><1-5>.ldw", at the top of the save folder (the game's older
+    generations "<base>2<n>.ldw" / "<base>4<n>.ldw" and the slot list "<base>0.ldw" are not)."""
+    number = _save_number(relative.name)
+    return relative.parent == Path() and number is not None and 1 <= number <= 5
+
+
+def _swap_in(path: Path, data: bytes) -> None:
+    """``data`` swapped in through a temporary file of its own: a new, unique name created
+    exclusively, so nothing already beside the save is ever written over or moved (Codex, #575)."""
+    temporary = path.with_name(f"{path.name}.{uuid.uuid4().hex}.vvfp-pause-tmp")
+    try:
+        with temporary.open("xb") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+
+
+def _write_save(path: Path, data: bytes, original: bytes) -> None:
+    """Swap ``data`` in and read it back.  If it does not read back as written, the original is
+    put back the same way before the error is raised (Codex, #575): a save is never left changed
+    and reported unchanged."""
+    _swap_in(path, data)
+    try:
+        ok = path.read_bytes() == data
+    except OSError:
+        ok = False
+    if ok:
+        return
+    try:
+        _swap_in(path, original)
+        back = path.read_bytes() == original
+    except OSError:
+        back = False
+    if not back:
+        raise BackupError(f"{path.name} did not read back as written, and could not be put back as it "
+                          "was: restore it from a backup.")
+    raise BackupError(f"{path.name} did not read back as written; it was put back as it was.")
+
+
+def pause_save_file(game: int, path: Path) -> int | None:
+    """Set one save file to Paused, through a temporary file and a read-back.  Returns the speed
+    it had, or None when it was already paused or is not a save this can read (then it is left
+    exactly as it was)."""
+    data = path.read_bytes()
+    paused = pause_save_bytes(game, data)
+    if paused is None:
+        return None
+    _write_save(path, paused, data)
+    return save_speed(game, data)[1]
+
+
+def set_save_speed(game: int, path: Path, speed: int) -> None:
+    """Put a save's speed back to ``speed`` (Restore's roll-back, which places files from a
+    backup whose saves were set to Paused, so a failed restore leaves every save exactly as it
+    was)."""
+    data = path.read_bytes()
+    found = save_speed(game, data)
+    if found is None:
+        raise BackupError(f"{path.name} is not a save whose speed can be put back.")
+    offset = found[0]
+    _write_save(path, data[:offset] + speed.to_bytes(4, "little") + data[offset + 4:], data)
+
+
+def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
+    """A backup's copy of a slot save, set to Paused: the speed it had, or None."""
+    return pause_save_file(game, path) if is_slot_save(relative) else None
+
+
+def unpaused_backup_saves(save_folder: Path) -> list[Path]:
+    """Every slot save in the folder's finished backups whose game speed is not Paused (backups
+    made before v1.35.63-v6, and copies the player made of a backup)."""
+    game = game_number(save_folder)
+    found: list[Path] = []
+    if game is None:
+        return found
+    for info in list_backups(save_folder):
+        for path in sorted(info.path.glob("*.ldw")):
+            if not is_slot_save(Path(path.name)):
+                continue
+            try:
+                speed = save_speed(game, path.read_bytes())
+            except OSError:
+                continue
+            if speed is not None and speed[1] < _PAUSED:
+                found.append(path)
+    return found
+
+
+def save_game(path: Path) -> int | None:
+    """Which game a save file the player picked belongs to: the one game whose layout and speed
+    it fits, or None."""
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    games = [game for game in _SAVE_LAYOUTS if save_speed(game, data) is not None]
+    return games[0] if len(games) == 1 else None
+
+
+@dataclass
+class PauseOutcome:
+    paused: list[Path] = field(default_factory=list)
+    already: list[Path] = field(default_factory=list)
+    skipped: list[tuple[Path, str]] = field(default_factory=list)
+
+
+def pause_saves(paths: list[Path], processes: ProcessController | None = None) -> PauseOutcome:
+    """Set each save to Paused game speed (Repair Saves & Logs; the owner, 2026-10-08: "retroactively
+    pause backed-up saves or any saves the player clicks on").  Only the speed changes, to what the
+    game itself writes when the player pauses and quits.  A file that is not a save of one of the
+    five games, or whose game is running (it would write over the save when it quits), is left
+    exactly as it is and listed."""
+    outcome = PauseOutcome()
+    for path in paths:
+        game = save_game(path)
+        if game is None:
+            outcome.skipped.append((path, "not a Virtual Villagers save this can read"))
+            continue
+        live_folder = path.parent if path.parent.parent.name != BACKUPS_FOLDER else path.parent.parent.parent
+        # Not knowing is not "closed" (Codex, #575): if the running programs cannot be listed, the
+        # save is left alone, as when its game is running.
+        try:
+            controller = processes if processes is not None else WindowsProcesses()
+            running = bool(controller.find(game_exe_name(live_folder)))
+        except Exception as exc:  # noqa: BLE001 -- any failure to look is a refusal
+            outcome.skipped.append((path, f"could not check whether {game_exe_name(live_folder)} is running ({exc})"))
+            continue
+        if running:
+            outcome.skipped.append((path, f"{game_exe_name(live_folder)} is running"))
+            continue
+        try:
+            if pause_save_file(game, path) is not None:
+                outcome.paused.append(path)
+            else:
+                outcome.already.append(path)
+        except (OSError, BackupError) as exc:
+            outcome.skipped.append((path, str(exc)))
+    return outcome
+
+
 def _parse_backup_name(name: str) -> tuple[datetime, int, str] | None:
     """(when, sequence, label) -- the label "", BEFORE_RESTORE, BEFORE_RENAME or BEFORE_REARM."""
     match = _BACKUP_NAME.match(name)
@@ -1084,6 +1286,9 @@ def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path])
         try:
             if original is not None and original.is_file():
                 _place(original, target)
+                # The before-restore backup's saves are Paused; the save goes back as it was.
+                if relative in before.paused_from:
+                    set_save_speed(game_number(save_folder), target, before.paused_from[relative])
             elif target.exists():
                 target.unlink()
         except (OSError, BackupError):

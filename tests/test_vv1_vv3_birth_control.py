@@ -88,10 +88,15 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # 0x85F70..0x85FBD (zeroed, so the price table at 0x85FC0 stays put) and
     # the Cure helper's below-row-5 arm 0x8B539..0x8B549. The length is
     # unchanged.
+    # Re-pinned for the Golden Child's birth (2026-10-08). Justified BEFORE
+    # re-pinning: rendering with f4cb4c97 and with the branch, the only
+    # differing bytes are the PE CheckSum (0x150..0x151), the puzzle splice
+    # 0x242FD..0x24301 and its stub at .vv1mc 0x8E8C0..0x8E8D3. The length is
+    # unchanged.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "07F31731E8B316AEC78151FF55F4282D6DEE704526763FD164AFFCDFA56EC26C",
-        "collection_progression": "3E845B8DF4B1DB8B02C3AE4387629CDFC1D69AB28244A02A2A2BDD73D9E43F26",
-        "immediate_fixed": "3E845B8DF4B1DB8B02C3AE4387629CDFC1D69AB28244A02A2A2BDD73D9E43F26",
+        "stock": "CCE0A814AB23E6702D2152D3101B4B66625CD1F4F9D58BF2FAC7223822332E5A",
+        "collection_progression": "EF202F935F3A6F108F0DCCDCAF639D7DBC716689E16E060951497E2CC063793B",
+        "immediate_fixed": "EF202F935F3A6F108F0DCCDCAF639D7DBC716689E16E060951497E2CC063793B",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
