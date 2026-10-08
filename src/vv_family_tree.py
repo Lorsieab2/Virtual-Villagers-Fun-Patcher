@@ -210,7 +210,7 @@ class Edits:
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
     number_names: bool = False          # villagers who share a name numbered: "Soda I", "Soda II"...
-    number_order: str = "oldest"        # vv_genealogy.NUMBER_ORDERS: who is "I"
+    number_order: str = "appearance"    # vv_genealogy.NUMBER_ORDERS: who is "I" (the owner's default)
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers
@@ -634,6 +634,36 @@ def relooked_keys(text: str, relooked: dict[tuple, tuple]) -> str:
         new = json.dumps(name)[1:-1] + f"|{new_head}|{new_body}"
         text = re.sub(rf'(?<=["|: ]){old}(?=["| ])', lambda _found, new=new: new, text)
     return text
+
+
+def full_name_edits(edits: "Edits", village: gen.Village) -> "Edits":
+    """The edits with each villager's key under a name the Villager Details screen cut moved to the
+    full name the tree shows them by (vv_cut_names; the owner: "Family trees will use the full names
+    from the logs"), so marks made while the tree showed the cut name follow them.  The same edits
+    when nothing moves."""
+    if not village.full_names:
+        return edits
+    text = json.dumps(edits.to_data())
+    moved = renamed_keys(text, village.full_names)
+    # Edits kept under both the cut key and the full one become one villager's: merged, never one
+    # dropped for the other (review, 2026-10-07).
+    return edits if moved == text else Edits.from_data(json.loads(moved, object_pairs_hook=_merge_pairs))
+
+
+def _merge_pairs(pairs: list) -> dict:
+    """A JSON object whose key repeats after re-keying: dictionaries merged (the first one's values
+    kept where both have one), lists of names joined without repeats, any other value -- a [dx, dy]
+    move among them -- the first one's (review, 2026-10-07)."""
+    out: dict = {}
+    for key, value in pairs:
+        if key not in out:
+            out[key] = value
+        elif isinstance(out[key], dict) and isinstance(value, dict):
+            out[key] = {**value, **out[key]}
+        elif (isinstance(out[key], list) and isinstance(value, list)
+              and all(isinstance(v, str) for v in out[key] + value)):
+            out[key] = out[key] + [v for v in value if v not in out[key]]
+    return out
 
 
 def look_of(edits: "Edits", village: gen.Village, p: gen.Person) -> tuple:
@@ -2461,6 +2491,7 @@ def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tup
     village = gen.load_village(folder, game, slot)
     if edits is None:
         edits = Edits.load(Edits.path(folder, game, slot))
+    edits = full_name_edits(edits, village)
     arrange(village, edits)
     return village, edits, layout(village, edits)
 
@@ -2506,7 +2537,7 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     written."""
     folder = Path(folder)
     village = gen.load_village(folder, game, slot)
-    arrange(village, Edits.load(Edits.path(folder, game, slot)))
+    arrange(village, full_name_edits(Edits.load(Edits.path(folder, game, slot)), village))
     text = gen.pair_report(village, rules, game_title)
     out = Path(out) if out is not None else folder / TREES
     out.mkdir(parents=True, exist_ok=True)

@@ -150,6 +150,21 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
             report.add(f"{LOGS} (last names)", "NOTE",
                        f"{len(wrong)} last name(s) are not what \"{vv_last_names.INHERIT[rule]}\" gives: "
                        f"{names}{more}. Repair Saves & Logs, Give villagers last names, puts them right.")
+    # Names the game's Villager Details screen cut short (the owner, 2026-10-07: "Full names will be
+    # in the logs"): the full name the logs keep, src/vv_cut_names.py.
+    import vv_cut_names
+    try:
+        cuts, cut_notes = vv_cut_names.find_cut(Path(folder), game, slot)
+    except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError, struct.error) as exc:
+        report.add(f"{LOGS} (cut names)", "UNCHECKED", f"could not be read ({exc})")
+    else:
+        if cuts:
+            report.add(f"{LOGS} (cut names)", "NOTE",
+                       f"{len(cuts)} name(s) the game's Villager Details screen cut short: "
+                       f"{vv_cut_names.describe(cuts, '{cut} ({full})')}; "
+                       "Repair Saves & Logs restores them.")
+        for note in cut_notes:
+            report.add(f"{LOGS} (cut names)", "NOTE", note)
     for kind in kinds:
         if kind.id == "sex" or not (kind.decided or kind.asked):
             continue

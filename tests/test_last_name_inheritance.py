@@ -35,6 +35,55 @@ PARENTS = {
 }
 
 
+class UnrelatedNamesakeTests(unittest.TestCase):
+    """The owner, 2026-10-07: an alert when "a villager who isn't related is sharing a last name with
+    someone" -- Thabo Bahati, a new arrival, beside the established Bahati family."""
+
+    def test_an_unrelated_namesake_is_flagged_and_relatives_are_not(self) -> None:
+        dad, mum = living("Usutu", 1, "", 1), living("Chapa", 2, "", 2)
+        kid, grandkid = living("Cheop", 1, "", 3), living("Ahi", 1, "", 4)
+        thabo = living("Thabo", 9, "", 9)
+        people = [dad, mum, kid, grandkid, thabo]
+        parents = {kid.identity: (dad.identity, mum.identity), grandkid.identity: (kid.identity, None)}
+        lasts = {dad.identity: "Bahati", mum.identity: "Wanjiko", kid.identity: "Bahati",
+                 grandkid.identity: "Bahati", thabo.identity: "Bahati"}
+        out = ln.unrelated_namesakes(people, parents, lasts)
+        self.assertEqual(set(out), {thabo.identity})
+        self.assertEqual(out[thabo.identity][0], "Bahati")
+        self.assertEqual(set(out[thabo.identity][1]), {"Usutu", "Cheop", "Ahi"})
+        # In-laws with a child together are one family: Chapa Wanjiko, given Bahati, is not flagged.
+        lasts[mum.identity] = "Bahati"
+        self.assertEqual(set(ln.unrelated_namesakes(people, parents, lasts)), {thabo.identity})
+        # Related through a shared ancestor (cousins) is not unrelated; no last name is never flagged.
+        cousin = living("Moa", 1, "", 5)
+        parents[cousin.identity] = (None, mum.identity)
+        lasts[cousin.identity] = "Bahati"
+        lasts[thabo.identity] = ""
+        self.assertEqual(ln.unrelated_namesakes(people + [cousin], parents, lasts), {})
+
+    def test_the_window_shows_the_alert(self) -> None:
+        gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        body = gui[gui.index("    def _last_names_dialog("):gui.index("    def _repair_questions(")]
+        self.assertIn('shared = {} if rule_key() == "list" else vv_last_names.unrelated_namesakes(', body)
+        self.assertIn("share a last name with a family they are not related", body)
+        self.assertIn('mark.set(f"not related to the other {shared[v.identity][0]}s")', body)
+
+
+class EventCopies(unittest.TestCase):
+    def test_an_event_copy_with_parents_on_record_gets_no_last_name(self) -> None:
+        # Codex, #566: The Secret City's Crystal of Reflections copies the original's parents; its
+        # Arrived record says how it came, so it is an arrival: none by default, under every rule.
+        copy = ln.Living(0, "Kito", "Male", 9, 9, 1, "Ruku", arrived=True)
+        people = [HUATA, GORO, copy]
+        parents = dict(PARENTS)
+        parents[copy.identity] = (KITO, HUATA.identity)
+        for rule in ("father", "mother", "random"):
+            with self.subTest(rule=rule):
+                self.assertEqual(ln.inherited(people, parents, rule)[copy.identity], "")
+        # Unless the player gives one.
+        self.assertEqual(ln.inherited(people, parents, "father", fixed={copy.identity: "Pao"})[copy.identity], "Pao")
+
+
 class InheritanceTests(unittest.TestCase):
     def test_fathers_names_flow_down_the_generations(self) -> None:
         given = ln.inherited(PEOPLE, PARENTS, "father")
@@ -112,6 +161,59 @@ class InheritanceTests(unittest.TestCase):
         self.assertTrue(set(listed.values()) <= set(pool))
         self.assertEqual(listed, ln.inherited(people, parents, "list", pool))      # the same each time
         self.assertEqual(set(ln.inherited(people, parents, "each", pool).values()), {"", "Moa"})
+
+    def test_arrivals_have_no_last_name_by_default(self) -> None:
+        # The owner, 2026-10-07: "All newly-spawned villagers from events will default to no last
+        # name (because otherwise everyone will have the wrong last name)".  A founder keeps one of
+        # their own; the player can still give an arrival one.
+        pool = ["Ruku", "Tano", "Mele", "Pao"]
+        founder = living("Ari", 1, "Ruku", 1)
+        newcomer = ln.Living(0, "Cal", "Male", 3, 3, 2, "Tano", arrived=True)
+        named = ln.Living(0, "Dee Moa", "Female", 4, 4, 1, "Ruku", arrived=True)   # already carries one
+        wife = living("Bea", 3, "Mele", 2)
+        kid = living("Eve", 1, "Ruku", 5)
+        people = [founder, newcomer, named, wife, kid]
+        parents = {kid.identity: (newcomer.identity, wife.identity)}
+        for rule in ("father", "mother", "random"):
+            with self.subTest(rule=rule):
+                given = ln.inherited(people, parents, rule, pool)
+                self.assertEqual(given[founder.identity], "Ruku")
+                self.assertEqual(given[newcomer.identity], "", "no family name of their own")
+                self.assertEqual(given[named.identity], "Moa")
+                self.assertEqual(given[kid.identity], "Mele", "the arrival's child: the other parent's")
+        self.assertNotIn(newcomer.identity, ln.separate(people, parents, pool))
+        self.assertEqual(ln.separate(people, parents, pool)[wife.identity], "Mele")
+        self.assertEqual(ln.inherited(people, parents, "list", pool)[newcomer.identity], "")
+        self.assertEqual(ln.inherited(people, parents, "list", pool)[named.identity], "Moa")
+        mine = ln.inherited(people, parents, "father", pool, fixed={newcomer.identity: "Pao"})
+        self.assertEqual((mine[newcomer.identity], mine[kid.identity]), ("Pao", "Pao"))
+
+    def test_everyone_tells_arrivals_from_founders_by_the_logs(self) -> None:
+        import vv_genealogy as gen
+        from unittest import mock
+        first = "2026-09-01 10:00"
+        people = {
+            1: gen.Person(1, "Ari", 1, 1, "Male", alive=True, arrived=True, how="Founder", first_seen=first),
+            2: gen.Person(2, "Cal", 3, 3, "Male", alive=True, arrived=True, how="Barrel of Babies",
+                          first_seen="2026-09-05 10:00"),
+            3: gen.Person(3, "Bea", 2, 2, "Female", alive=True, first_seen=first),          # in the first snapshot
+            4: gen.Person(4, "Ono", 6, 6, "Male", alive=True, first_seen="2026-09-07 10:00"),   # later, no record
+            5: gen.Person(5, "Eve", 5, 5, "Female", alive=True, father=2, mother=3,
+                          first_seen="2026-09-08 10:00"),                                  # born
+            6: gen.Person(6, "Tui", 7, 7, "Female", gone="died", arrived=True, how="unknown",
+                          first_seen="2026-09-06 10:00"),                                  # dead arrival
+        }
+        village = gen.Village(1, 1, "Tribe", people, snapshot_dates=[first, "2026-09-08 10:00"])
+        save = [ln.Living(0, p.name, p.sex, p.head, p.body, 1, "Ruku") for p in people.values() if p.alive]
+        with mock.patch.object(ln, "living", return_value=save), \
+                mock.patch.object(gen, "load_village", return_value=village):
+            found, _parents = ln.everyone(Path("."), 1, 1)
+        arrived = {v.name: v.arrived for v in found}
+        # Only an Arrived record that says how (not "Founder") makes an arrival: Ono, merely first seen
+        # later with no record (an A New Home baby from before the parentage records), is not one
+        # (review, 2026-10-07).
+        self.assertEqual(arrived, {"Ari": False, "Cal": True, "Bea": False, "Ono": False, "Eve": False,
+                                   "Tui": True})
 
     def test_every_rule_is_offered(self) -> None:
         # A typed name goes in the villager's own box, whose list offers "(custom last name - type

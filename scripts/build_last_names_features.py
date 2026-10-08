@@ -5,7 +5,11 @@ and female first names -- the list Virtual Villagers 6 and 7 later used for
 villagers' last names -- which each game's naming routine copies and never
 reads.  The owner: new villagers get their family's last name (the family
 number 1-50 the game keeps on every villager, inherited from the mother);
-villagers who already have names keep them.
+villagers who already have names keep them.  And (2026-10-07): "All
+newly-spawned villagers from events will default to no last name (because
+otherwise everyone will have the wrong last name)" -- the companion names
+only a delivery's children and a new village's founders (see the source for
+how it tells).
 
 Companion only ("VVFP Last Names.dll", native/vvfp_last_names): "VVFP
 Startup.dll" loads it as the game opens and its VvfpStartup detours the
@@ -57,12 +61,13 @@ def row(game: str, sha: str) -> dict:
     assert stock[:2] == b"\x81\xEC", (game, stock.hex())
     examples = ", ".join(last[:3])
     description = (
-        "Every new villager gets a last name after their first name, from the game's own list of 50 "
-        f"last names ({examples} ... {last[-1]}) -- a list the game has always carried but never used, and "
-        "the one Virtual Villagers 6 and 7 later used for villagers' last names. The last name is the "
-        "family's: the game already gives every villager a family number from 1 to 50, and a baby takes "
-        "its mother's, so children share their mother's last name. Only villagers named from now on get "
-        "one: villagers who already have names keep them. The last "
+        "Babies born in the village and the village's founders get a last name after their first name, from "
+        f"the game's own list of 50 last names ({examples} ... {last[-1]}) -- a list the game has always "
+        "carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. "
+        "The last name is the family's: the game already gives every villager a family number from 1 to 50, "
+        "and a baby takes its mother's, so children share their mother's last name. Villagers who arrive "
+        "through an island event get no last name, because theirs would not be their family's. Only "
+        "villagers named from now on get one: villagers who already have names keep them. The last "
         "name is part of the name the game stores, so it shows wherever the name does and stays in the save "
         "even if this patch is later removed."
         + (" The Golden Child, whose family is not one of the 50, gets no last name." if game == "vv1" else "")
@@ -78,17 +83,21 @@ def row(game: str, sha: str) -> dict:
         "description": description,
         "output_tag": "Last Names",
         "behavior_changes": [
-            "A villager named by the game from now on is called \"<first name> <last name>\": the first name is "
+            "A baby born in the village from now on (a mother's delivery: the first child, a twin or a "
+            "triplet) and a new village's founders are called \"<first name> <last name>\": the first name is "
             "the game's own pick, and the last name is name number <family - 1> of the game's unused third "
             f"list ({last_list:#X}), read from the running executable.",
+            "A villager the game creates any other way -- brought by an island event, a cheat or the Origins "
+            "page -- keeps the game's own first name only: the companion tells a birth or a founder by the "
+            "callers' return addresses on the stack, at fixed places.",
             "A villager whose family is outside 1-50 gets no last name.",
             f"The whole name always fits the game's own name field: the longest pairing is far below its {ROOM[game]} "
             "characters.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion detours the naming routine's first instruction at "
-            "run time, after verifying it and the routine's push of the list, and changes nothing if either "
-            "differs.",
+            "run time, after verifying it, the routine's push of the list and the creators' calls to it, and "
+            "changes nothing if any differs.",
             "Villagers who already have names keep them; nothing is renamed when a village is loaded.",
             "The first names, sexes, looks and families are the game's own; the save format is unchanged.",
         ],

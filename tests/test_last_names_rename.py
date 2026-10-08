@@ -83,6 +83,72 @@ class TwoWordNamesAreAsked(unittest.TestCase):
             self.assertEqual(ln.read_whole(Path(tmp), 1, 2), {"Big Bob"})
 
 
+class TheRepairsLogFollowsARename(unittest.TestCase):
+    """The Repairs log (left out of the checker's log list) names villagers in its own words; a rename
+    reaches it where the name is one villager's alone, as a whole name (2026-10-07: "(no last name)
+    should completely remove the last name")."""
+
+    def test_unique_whole_names_are_renamed_and_nothing_else(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            log = folder / LOGS / "Repairs" / "Virtual Villagers 1 Repairs Log 1.txt"
+            log.parent.mkdir(parents=True)
+            text = ("Village: Kalahuna Tribe 1 (Save 1)\r\n"
+                    "Pregnancy: Chapa Wanjiko -- father Usutu Bahati (was unknown)\r\n"
+                    "Pregnancy: Iruwa Bahati I -- father Silko Akikai (was unknown)\r\n"
+                    "Also: Chapa Wanjikoa and Kaula Bahati II\r\n"
+                    "Set to unknown: Kaula Bahati -- (was father Iruwa Bahati I, mother Chapa Wanjiko)\r\n"
+                    # native/vv1_parentage/vv1_crosscheck.inc's own sentence
+                    "Pregnancy over: Chapa Wanjiko -- expected father Iruwa Bahati I cleared (not expecting)\r\n\r\n"
+                    "Village: Other Tribe (Save 2)\r\n"
+                    "Pregnancy: Chapa Wanjiko -- father Ago (was unknown)\r\n")
+            log.write_bytes(text.encode("latin-1"))
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Chapa Wanjiko": {"Chapa"}, "Iruwa Bahati I": {"Iruwa I"},
+                                                         "Kaula": {"Kaula Wanjiko"}, "": {"Wanjiko"}}, None)
+            self.assertEqual(len(result.changes), 1)
+            after = result.changes[0].updated.decode("latin-1")
+            self.assertIn("Pregnancy: Chapa -- father Usutu Bahati (was unknown)\r\n", after)
+            self.assertIn("Pregnancy: Iruwa I -- father Silko Akikai", after)
+            # Not a whole name (Chapa Wanjikoa), a numbered namesake (Kaula Bahati II), another slot;
+            # renaming "Kaula" never touches "Kaula Bahati", and an empty name renames nothing.
+            self.assertIn("Also: Chapa Wanjikoa and Kaula Bahati II\r\n", after)
+            self.assertIn("Set to unknown: Kaula Bahati -- (was father Iruwa I, mother Chapa)\r\n", after)
+            self.assertNotIn("Wanjiko Bahati", after)
+            self.assertIn("Pregnancy over: Chapa -- expected father Iruwa I cleared (not expecting)", after)
+            self.assertIn("Pregnancy: Chapa Wanjiko -- father Ago", after)
+            self.assertEqual(log.read_bytes().decode("latin-1"), text, "planning writes nothing")
+
+    def test_a_namesake_the_logs_know_keeps_every_line(self):
+        # Codex, #566: a living Ago renamed while a buried Ago keeps the name -- "Ago" is not one
+        # villager's alone, so no name-only line changes.
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            log = folder / LOGS / "Repairs" / "Virtual Villagers 1 Repairs Log 1.txt"
+            log.parent.mkdir(parents=True)
+            log.write_bytes(b"Village: Tribe (Save 1)\r\nPregnancy: Ago -- father Tomi (was unknown)\r\n")
+            deaths = folder / LOGS / "Deaths" / "Virtual Villagers 1 Deaths Log 1.txt"
+            deaths.parent.mkdir(parents=True)
+            deaths.write_bytes(b"Village: Tribe (Save 1)\r\nDeath 1\r\n  Name: Ago\r\n  Head: 9\r\n  Body: 9\r\n\r\n")
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Ago": {"Ago Akikai"}}, None,
+                                  renames={("Ago", 1, 1): "Ago Akikai"})
+            self.assertEqual(result.changes, [])
+            # A gone Ago whose older record has no looks may be a namesake: not unique either (Codex, #566).
+            older = folder / LOGS / "Deaths" / "Virtual Villagers 1 Deaths Log 2.txt"
+            older.write_bytes(b"Village: Tribe (Save 1)\r\nDeath 1\r\n  Name: Tomi\r\n\r\n")
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Tomi": {"Tomi Akikai"}}, None,
+                                  renames={("Tomi", 1, 1): "Tomi Akikai"})
+            self.assertEqual(result.changes, [])
+            older.unlink()
+            # The buried Ago renamed too (Number Duplicate Names numbers the dead): every Ago is renamed.
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Ago": {"Ago Akikai"}}, None,
+                                  renames={("Ago", 1, 1): "Ago Akikai", ("Ago", 9, 9): "Ago Akikai"})
+            self.assertEqual(len(result.changes), 1)
+
+
 class EveryRenameIsHeldToTheGamesRoom(unittest.TestCase):
     """The owner: a character limit "IN EVERY SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN
     HAPPEN" -- plan_renames refuses, before reading anything, a name the game cannot hold."""
@@ -108,7 +174,7 @@ def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3
     e = bytearray(STRIDE)
     struct.pack_into("<I", e, 0, 1)
     n = 0x14
-    e[n:n + len(name)] = name.encode()
+    e[n:n + len(name)] = name.encode("latin-1")           # as the games keep names
     struct.pack_into("<i", e, n - 4, family)
     struct.pack_into("<i", e, n - 0x0C, sex)
     struct.pack_into("<i", e, n - 0x10, 600)              # age

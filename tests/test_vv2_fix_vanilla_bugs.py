@@ -68,6 +68,7 @@ CHOOSER = 0x41F570
 CHOOSER_DONE = 0x41F696
 RAND = 0x4031A0
 SPRINTF = 0x4682BD
+STRCPY = 0x46C400       # the swap's name copies since #566
 LOOP_START = 0x421443          # Keep it: the other-villager list is built from here
 EPILOGUE = 0x42176C
 STRIDE = 0xE48C
@@ -121,10 +122,25 @@ NAME_FIXES = (
     (0x4D049, bytes.fromhex("40"), bytes.fromhex("90")),
 )
 
+PERCENT_FIXES = (  # '%' in a name never a format; text boxes refuse it (#566)
+    (0x0001F3B0, bytes.fromhex("E8088F0400"), bytes.fromhex("E84BD00400")),
+    (0x00021826, bytes.fromhex("E8926A0400"), bytes.fromhex("E8D5AB0400")),
+    (0x00029AA3, bytes.fromhex("E815E80300"), bytes.fromhex("E858290400")),
+    (0x00037422, bytes.fromhex("E8960E0300"), bytes.fromhex("E8D94F0300")),
+    (0x0004480D, bytes.fromhex("E8AB3A0200"), bytes.fromhex("E8EE7B0200")),
+    (0x0004D05E, bytes.fromhex("E85AB20100"), bytes.fromhex("E89DF30100")),
+    (0x0004D089, bytes.fromhex("E82FB20100"), bytes.fromhex("E872F30100")),
+    (0x0004D397, bytes.fromhex("E821AF0100"), bytes.fromhex("E864F00100")),
+    (0x0004D3C2, bytes.fromhex("E8F6AE0100"), bytes.fromhex("E839F00100")),
+    (0x0004D3EF, bytes.fromhex("E8C9AE0100"), bytes.fromhex("E80CF00100")),
+    (0x000650BA, bytes.fromhex("E8FE310000"), bytes.fromhex("E841730000")),
+    (0x0000C8BB, bytes.fromhex("8B71308814308B5130C644020100"), bytes.fromhex("83FA2574278B71306689143089F2")),
+)
+
 
 def _allowed() -> set[int]:
     allowed = set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
-    for offset, before, _ in NAME_FIXES:
+    for offset, before, _ in NAME_FIXES + PERCENT_FIXES:
         allowed.update(range(offset, offset + len(before)))
     return allowed
 
@@ -177,7 +193,7 @@ class _Village:
             esp = mu.reg_read(UC_X86_REG_ESP)
             self.rand_bounds.append(struct.unpack("<i", mu.mem_read(esp + 4, 4))[0])
             self._return(self.rolls.pop(0) if self.rolls else 0, 0)
-        elif address == SPRINTF:
+        elif address in (SPRINTF, STRCPY):
             esp = mu.reg_read(UC_X86_REG_ESP)
             dst, src = struct.unpack("<II", mu.mem_read(esp + 4, 8))
             raw = bytes(mu.mem_read(src, 0x100))
@@ -268,9 +284,9 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("**Needs no other patch.**", raw["description"])
         offsets = [(int(p["offset"], 16), len(bytes.fromhex(p["before"]))) for p in raw["patches"]]
         self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)]
-                         + [(offset, len(before)) for offset, before, _ in NAME_FIXES])
+                         + [(offset, len(before)) for offset, before, _ in NAME_FIXES + PERCENT_FIXES])
         self.assertEqual([(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
-                          for p in raw["patches"][2:]], list(NAME_FIXES))
+                          for p in raw["patches"][2:]], list(NAME_FIXES + PERCENT_FIXES))
         self.assertEqual(bytes.fromhex(raw["patches"][0]["before"]), HOOK_STOCK)
         self.assertEqual(bytes.fromhex(raw["patches"][0]["after"]), HOOK_PATCHED)
         self.assertEqual(bytes.fromhex(raw["patches"][1]["before"]), self.stock[SWAP_OFFSET:SWAP_OFFSET + SWAP_LENGTH])
@@ -327,7 +343,7 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual([(i.address, i.mnemonic, i.op_str) for i in keep[-2:]],
                          [(0x4215C7, "add", "esp, 4"), (0x4215CA, "jmp", hex(EPILOGUE))])
         calls = [i.op_str for i in keep if i.mnemonic == "call"]
-        self.assertEqual(calls, [hex(SPRINTF)] * 3)
+        self.assertEqual(calls, [hex(STRCPY)] * 3)
         end = 0x4215CF
         self.assertEqual(region[end - 0x421480:COUNT_VA - 0x421480], b"\xCC")
         count = list(md.disasm(region[COUNT_VA - 0x421480:], COUNT_VA))

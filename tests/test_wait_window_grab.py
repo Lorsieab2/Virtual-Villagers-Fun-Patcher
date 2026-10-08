@@ -121,9 +121,12 @@ class TestGrabIsActuallyHeld(unittest.TestCase):
             root.update()
             wait = gui.WaitWindow(root, "Please wait", "Please wait…")
             try:
-                self.assertEqual(
-                    str(root.grab_current()),
-                    str(wait._window),
+                # Held either by Tk's grab, or -- once the patcher window has made dialogs hold their
+                # owner the Windows way (gui._hold, so Minimize works on every window) -- by the
+                # window underneath being disabled.  Either way its controls are not live.
+                held_natively = bool(root.wm_attributes("-disabled")) if sys.platform == "win32" else False
+                self.assertTrue(
+                    str(root.grab_current()) == str(wait._window) or held_natively,
                     "the wait window is drawn but the controls underneath are live",
                 )
             finally:

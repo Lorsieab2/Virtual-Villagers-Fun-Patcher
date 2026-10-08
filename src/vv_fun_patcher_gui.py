@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import struct
 import subprocess
 import sys
 import threading
@@ -18,6 +19,7 @@ import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
 import vv_last_names
+import vv_cut_names
 import vv_number_names
 import vv_save_backup
 import vv_tribe_rename
@@ -414,9 +416,242 @@ class WaitWindow:
             pass
 
 
+def _window_buttons(event) -> None:
+    """Every window the patcher opens gets Minimize and Maximize (the owner, 2026-10-07: "a
+    (maximize and minimize button) for all windows the patcher creates").  Windows draws a window
+    kept above its parent (transient) without them, so they are put back on its frame."""
+    window = event.widget
+    if not isinstance(window, tk.Toplevel) or sys.platform != "win32" or getattr(window, "_vvfp_buttons", False):
+        return
+    window._vvfp_buttons = True                 # once per window: changing the frame maps it again
+
+    def add() -> None:
+        try:
+            if window.overrideredirect():
+                return
+            import ctypes
+            user32 = ctypes.windll.user32
+            # The window's own frame (GA_ROOT) -- not GetParent, which for a window kept above
+            # another is that other window.
+            hwnd = user32.GetAncestor(window.winfo_id(), 2)
+            if not hwnd:
+                return
+            style = user32.GetWindowLongW(hwnd, -16)                  # GWL_STYLE
+            wanted = style | 0x00020000 | 0x00010000                  # WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+            if wanted != style:
+                user32.SetWindowLongW(hwnd, -16, wanted)
+                user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020)
+            owner = getattr(window, "_vvfp_owner", None)
+            if getattr(window, "_vvfp_disabled", None) is not None and owner is not None and owner.winfo_exists():
+                # Tk drops a window's Windows owner when its transient is cleared: a holding dialog
+                # gets its owner back, so it stays above the window it holds (Codex, #566).
+                _owned_by(window, owner)
+        except (tk.TclError, OSError, AttributeError):
+            pass                                # a window without its buttons is still a window
+    # Tk ignores Minimize on a window kept above another (transient), so to Tk the patcher's windows
+    # are ordinary ones; _hold makes a dialog's window its owner's in Windows' own terms, which keeps
+    # it above that window (review, 2026-10-07).
+    try:
+        master = window.transient()
+        if master:
+            window._vvfp_owner = window.nametowidget(str(master)).winfo_toplevel()
+            window.wm_transient("")
+            window.update_idletasks()           # Tk rebuilds the frame now, not after the owner is set
+            if getattr(window, "_vvfp_disabled", None) is not None:
+                _owned_by(window, window._vvfp_owner)
+            else:
+                _follow_owner(window, window._vvfp_owner)
+    except (tk.TclError, KeyError, OSError, AttributeError):
+        pass
+    # Tk may rebuild the frame once more as the window settles (its icon, its transient owner), so
+    # the buttons are put back then too.
+    window.after_idle(add)
+    window.after(150, add)
+    window.after(600, add)
+
+
+_TK_GRAB_SET, _TK_GRAB_RELEASE = tk.Misc.grab_set, tk.Misc.grab_release
+
+
+def _app_windows(widget) -> list:
+    """The patcher's own windows: the main one and every Toplevel under it."""
+    root = widget._root()
+    out = [root]
+    todo = list(root.winfo_children())
+    while todo:
+        w = todo.pop()
+        if isinstance(w, tk.Toplevel):
+            out.append(w)
+        todo.extend(w.winfo_children())
+    return out
+
+
+def _follow_owner(window, owner) -> None:
+    """A window kept above another but not holding it (How to Use) hides when that window is minimized
+    and comes back with it (Codex, #566) -- without being owned in Windows' terms, which would take
+    its own Minimize away (the owner, 2026-10-07: Minimize on every window)."""
+    def hidden(event) -> None:
+        if event.widget is not owner:
+            return
+        try:
+            if owner.state() == "iconic" and window.winfo_exists() and window.state() == "normal":
+                window.withdraw()
+                window._vvfp_followed = True
+        except tk.TclError:
+            pass
+
+    def shown(event) -> None:
+        if event.widget is not owner:
+            return
+        try:
+            if getattr(window, "_vvfp_followed", False) and window.winfo_exists():
+                window._vvfp_followed = False
+                window.deiconify()
+        except tk.TclError:
+            pass
+
+    bound = [(owner, "<Unmap>", owner.bind("<Unmap>", hidden, add="+")),
+             (owner, "<Map>", owner.bind("<Map>", shown, add="+"))]
+
+    def gone(event) -> None:
+        if event.widget is window:
+            for widget, sequence, funcid in bound:
+                _unbind_one(widget, sequence, funcid)
+
+    window.bind("<Destroy>", gone, add="+")
+
+
+def _owned_by(top, owner) -> None:
+    """Make `owner` the dialog's owner in Windows' own terms: Windows then keeps the dialog above it
+    (the patcher's taskbar button or Alt-Tab never bring the held window over it) and hides and
+    shows it with its owner -- while Tk, which ignores Minimize on its transients, still lets it
+    minimize."""
+    import ctypes
+    user32 = ctypes.windll.user32
+    user32.SetWindowLongPtrW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+    user32.SetWindowLongPtrW.restype = ctypes.c_void_p
+    top.update_idletasks()
+    hwnd = user32.GetAncestor(top.winfo_id(), 2)
+    owner_hwnd = user32.GetAncestor(owner.winfo_id(), 2)
+    if hwnd and owner_hwnd:
+        user32.SetWindowLongPtrW(hwnd, -8, owner_hwnd)              # GWLP_HWNDPARENT: the owner
+
+
+def _hold(self) -> None:
+    """grab_set for a dialog the way Windows holds windows (the owner, 2026-10-07, wants Minimize on
+    every window, and Tk refuses to minimize anything while a Tk grab is in effect): every other
+    window of the patcher is disabled, as Tk's grab blocked them all -- the main window, an open
+    family tree, the dialog that started the work under a "Please wait" -- each counting the dialogs
+    holding it and enabled again when the last one goes (review, 2026-10-07)."""
+    top = self.winfo_toplevel()
+    if top is top._root() or top.master is None:
+        return _TK_GRAB_SET(self)
+    if getattr(top, "_vvfp_disabled", None) is not None:
+        return None                             # already holding (a _regrab)
+    owner = top.master.winfo_toplevel()
+    disabled = []
+    for w in _app_windows(top):
+        if w is top:
+            continue
+        try:
+            if not w.winfo_exists():
+                continue
+            w._vvfp_held = getattr(w, "_vvfp_held", 0) + 1
+            w.wm_attributes("-disabled", True)
+            disabled.append(w)
+        except tk.TclError:
+            pass
+    top._vvfp_disabled = disabled
+    top._vvfp_bindings = []
+    if getattr(top, "_vvfp_owner", None) is None:
+        top._vvfp_owner = owner                 # _window_buttons keeps it owned as it settles
+    try:
+        _owned_by(top, owner)
+    except (OSError, AttributeError, tk.TclError):
+        pass
+    top._vvfp_bindings.append((top, "<Destroy>", top.bind(
+        "<Destroy>", lambda e: _let_go(top) if e.widget is top else None, add="+")))
+    _minimize_together(top, owner)
+    return None                                 # focus is left as it is, as Tk's grab left it
+
+
+def _unbind_one(widget, sequence: str, funcid: str) -> None:
+    """Remove one binding: `unbind(sequence, funcid)` removes them all on older Pythons."""
+    try:
+        script = widget.tk.call("bind", widget._w, sequence)
+        kept = "\n".join(line for line in str(script).split("\n") if funcid not in line)
+        widget.tk.call("bind", widget._w, sequence, kept)
+        widget.deletecommand(funcid)
+    except tk.TclError:
+        pass
+
+
+def _let_go(top) -> None:
+    disabled = getattr(top, "_vvfp_disabled", None)
+    if disabled is None:
+        return
+    top._vvfp_disabled = None
+    for widget, sequence, funcid in getattr(top, "_vvfp_bindings", []):
+        if widget is not top:                   # the dialog's own go with it
+            _unbind_one(widget, sequence, funcid)
+    top._vvfp_bindings = []
+    for w in disabled:
+        try:
+            w._vvfp_held = max(0, getattr(w, "_vvfp_held", 1) - 1)
+            if not w._vvfp_held and w.winfo_exists():
+                w.wm_attributes("-disabled", False)
+        except tk.TclError:
+            pass
+    try:
+        owner = top.master.winfo_toplevel()
+        if owner.winfo_exists():
+            if owner.state() == "iconic":
+                owner.deiconify()
+            owner.lift()
+    except tk.TclError:
+        pass
+
+
+def _release(self) -> None:
+    top = self.winfo_toplevel()
+    if getattr(top, "_vvfp_disabled", None) is not None:
+        _let_go(top)
+    else:
+        _TK_GRAB_RELEASE(self)
+
+
+def _minimize_together(top, owner) -> None:
+    """A held dialog minimized minimizes its owner (so no disabled window is left on screen), and the
+    owner restored brings the dialog back."""
+    def unmapped(event) -> None:
+        if event.widget is not top:
+            return
+        try:
+            if top.state() == "iconic" and owner.state() != "iconic":
+                owner.iconify()
+        except tk.TclError:
+            pass
+
+    def mapped(event) -> None:
+        if event.widget is not owner:
+            return
+        try:
+            if getattr(top, "_vvfp_disabled", None) is not None and top.winfo_exists() and top.state() == "iconic":
+                top.deiconify()
+                top.lift()
+        except tk.TclError:
+            pass
+
+    top._vvfp_bindings.append((top, "<Unmap>", top.bind("<Unmap>", unmapped, add="+")))
+    top._vvfp_bindings.append((owner, "<Map>", owner.bind("<Map>", mapped, add="+")))
+
+
 class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
+        self.bind_class("Toplevel", "<Map>", _window_buttons, add="+")
+        if sys.platform == "win32":             # dialogs hold the patcher the Windows way (_hold)
+            tk.Misc.grab_set, tk.Misc.grab_release = _hold, _release
         self.title("Virtual Villagers Fun Patcher")
         self.geometry("940x760")
         self.minsize(820, 520)
@@ -841,6 +1076,31 @@ class App(tk.Tk):
         self.content_canvas.itemconfigure(self.content_window, width=event.width)
 
     def _scroll_content(self, event: tk.Event) -> str | None:
+        """The wheel scrolls only the window under the pointer -- the topmost there -- never one
+        underneath it (the owner, 2026-10-07): over a dialog, that dialog's own scrolling list; over
+        the main window, its page, unless a dialog is holding it."""
+        try:
+            under = self.winfo_containing(event.x_root, event.y_root)
+        except (tk.TclError, KeyError):
+            under = None
+        if under is None:
+            return "break"
+        top = under.winfo_toplevel()
+        if top is not self:
+            widget = under
+            while widget is not None and widget is not top:
+                if isinstance(widget, (tk.Listbox, tk.Text, ttk.Treeview)):
+                    return "break"              # scrolls itself (its own class binding)
+                if isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
+                    widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
+                    return "break"
+                widget = widget.master
+            return "break"
+        try:
+            if self.wm_attributes("-disabled"):
+                return "break"                  # a dialog holds the main window
+        except tk.TclError:
+            pass
         bounds = self.content_canvas.bbox("all")
         if not bounds or bounds[3] <= self.content_canvas.winfo_height():
             return None
@@ -2080,7 +2340,8 @@ class App(tk.Tk):
         )
         dialog.bind(
             "<MouseWheel>",
-            lambda event: canvas.yview_scroll(-1 if event.delta > 0 else 1, "units"),
+            # "break": the window's own scroll only, never the patcher's page as well
+            lambda event: (canvas.yview_scroll(-1 if event.delta > 0 else 1, "units"), "break")[1],
         )
         return dialog, frame
 
@@ -2903,10 +3164,20 @@ class App(tk.Tk):
             checked = vv_log_tools.check_logs(folder, info.slot, number)
             checker = vv_log_tools.load_checker()
             old = checker.old_words(folder, number) if number in checker.WORD_FIXES else []
-            return checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot)
+            # Names the Villager Details screen cut short (src/vv_cut_names.py); one that cannot be
+            # read is left to Check Saves & Logs to report.
+            try:
+                cuts = vv_cut_names.find_cut(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
+                    struct.error) as exc:
+                # A file locked by another program never stops the repair (review, 2026-10-07).
+                cuts = ([], [f"Names cut short by the Villager Details screen were not checked: a file "
+                             f"could not be read ({exc})."])
+            return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
+                    cuts)
 
         try:
-            checked, old_words, kinds = self._run_with_wait(
+            checked, old_words, kinds, (cuts, cut_notes) = self._run_with_wait(
                 "Checking the logs…\n\nNothing is changed.", survey
             )
             found = (
@@ -2917,10 +3188,10 @@ class App(tk.Tk):
         except (vv_log_tools.LogToolError, OSError) as exc:
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
-        picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds)
+        picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes)
         if picked is None:
             return
-        rearm, chosen, answers, names, numbering = picked
+        rearm, chosen, answers, names, numbering, restore_cuts = picked
         try:
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
@@ -2933,6 +3204,20 @@ class App(tk.Tk):
             self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
+        # The cut names first of the renames, so last names and numbering never work from a cut name
+        # (the checklist leaves those off while the cut names are restored).  After the lines above
+        # are added: a renamed line changes no line count, and the like / dislike words are put right
+        # against the logs as they were written.
+        restored = None
+        if restore_cuts:
+            try:
+                restored = self._run_with_wait(
+                    "Restoring the names the Villager Details screen cut short…\n\nThe save folder is backed up first.",
+                    lambda: vv_cut_names.restore(folder, number, info.slot),
+                )
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The cut names were not restored. {exc}", parent=parent)
         renamed = None
         if names is not None:
             try:
@@ -2957,6 +3242,11 @@ class App(tk.Tk):
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
         lines = []
+        if restored is not None:
+            lines.append(f"Names the Villager Details screen cut short restored: {len(restored.renamed)} villager(s) "
+                         f"({', '.join(f'{old} -> {new}' for (old, _h, _b), new in restored.renamed.items())}), "
+                         f"in the save and {len(restored.files) - 1} other file(s). "
+                         f"Backup: {restored.backup.backup_folder}")
         if renamed is not None:
             lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                          f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
@@ -2989,11 +3279,14 @@ class App(tk.Tk):
         )
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
-                          kinds: list):
+                          kinds: list, cuts: list = (), cut_notes: list = ()):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
-        ticked or not, and the questions the save and the files cannot answer.  Returns
-        (rearm, chosen kinds, answers, last names, number duplicate names), or None when the player
-        cancels."""
+        ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
+        the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
+        default (the owner, 2026-10-07: "the repair logs thing should repair cut-off names"), and
+        while it is, last names and numbering wait for the next run.  Returns (rearm, chosen kinds,
+        answers, last names, number duplicate names, restore the cut names), or None when the
+        player cancels."""
         window = tk.Toplevel(parent)
         window.title("Repair Saves & Logs")
         window.transient(parent)
@@ -3028,24 +3321,54 @@ class App(tk.Tk):
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
+        # Names the Villager Details screen cut short: restored first, ticked by default.
+        cuts_var = tk.BooleanVar(value=bool(cuts))
+        if cuts:
+            ttk.Checkbutton(frame, variable=cuts_var,
+                            text=f"Restore {len(cuts)} name(s) the Villager Details screen cut short "
+                                 f"({vv_cut_names.describe(cuts)})").pack(anchor="w", pady=(4, 0))
+        for note in cut_notes:
+            ttk.Label(frame, text=f"Cut names: {note}", wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", pady=(2, 0))
         names_var = tk.BooleanVar(value=False)
         names: dict = {"chosen": {}, "answers": {}}
         names_row = ttk.Frame(frame)
         names_row.pack(anchor="w", pady=(4, 0))
-        ttk.Checkbutton(names_row, variable=names_var,
-                        text="Give villagers last names, in the game and the logs").pack(side="left")
-        ttk.Button(names_row, text="Choose…",
-                   command=lambda: self._last_names_dialog(window, folder, number, info, names, names_var)
-                   ).pack(side="left", padx=(8, 0))
+        names_tick = ttk.Checkbutton(names_row, variable=names_var,
+                                     text="Give villagers last names, in the game and the logs")
+        names_tick.pack(side="left")
+        names_choose = ttk.Button(names_row, text="Choose…",
+                                  command=lambda: self._last_names_dialog(window, folder, number, info, names,
+                                                                          names_var))
+        names_choose.pack(side="left", padx=(8, 0))
         number_var = tk.BooleanVar(value=False)
         number_row = ttk.Frame(frame)
         number_row.pack(anchor="w", pady=(4, 0))
-        ttk.Checkbutton(number_row, variable=number_var,
-                        text="Number duplicate names (Soda I, Soda II...), in the game and the logs:"
-                        ).pack(side="left")
-        number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["oldest"])
-        ttk.Combobox(number_row, textvariable=number_order_var, values=list(vv_genealogy.NUMBER_ORDERS.values()),
-                     state="readonly", width=22).pack(side="left", padx=(8, 0))
+        number_tick = ttk.Checkbutton(number_row, variable=number_var,
+                                      text="Number duplicate names (Soda I, Soda II...), in the game and the logs:")
+        number_tick.pack(side="left")
+        number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])   # the owner's default
+        number_order = ttk.Combobox(number_row, textvariable=number_order_var,
+                                    values=list(vv_genealogy.NUMBER_ORDERS.values()), state="readonly", width=22)
+        number_order.pack(side="left", padx=(8, 0))
+        # While cut names are to be restored, last names and numbering would work from the cut names:
+        # they wait for the next Repair Saves & Logs, after the full names are back.
+        wait_note = ttk.Label(frame, foreground="#555555",
+                              text="Last names and numbering: after the cut names are restored: Repair, then "
+                                   "open Repair Saves & Logs again.")
+
+        def cut_first(*_args) -> None:
+            waiting = bool(cuts) and cuts_var.get()
+            for widget in (names_tick, names_choose, number_tick):
+                widget.state(["disabled"] if waiting else ["!disabled"])
+            number_order.state(["disabled"] if waiting else ["!disabled", "readonly"])
+            if waiting:
+                wait_note.pack(anchor="w", after=number_row)
+            else:
+                wait_note.pack_forget()
+
+        cuts_var.trace_add("write", cut_first)
+        cut_first()
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
         if questions:
             ttk.Button(frame, text=f"Answer the {len(questions)} question(s)…",
@@ -3058,10 +3381,12 @@ class App(tk.Tk):
         buttons.pack(anchor="w", pady=(12, 0))
 
         def go() -> None:
+            restore = bool(cuts) and cuts_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
-                                 names if names_var.get() and names["chosen"] else None,
+                                 names if names_var.get() and names["chosen"] and not restore else None,
                                  next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
-                                 if number_var.get() else None)
+                                 if number_var.get() and not restore else None,
+                                 restore)
             window.destroy()
 
         ttk.Button(buttons, text="Repair", command=go).pack(side="left")
@@ -3109,7 +3434,8 @@ class App(tk.Tk):
                        "one: pick from its list (the father's and the mother's come first), pick (custom last "
                        "name - type here...) and type your own, or choose none. A name longer than the game "
                        "allows is marked and cannot be given. A villager's descendants inherit the name you give them by "
-                       "the rule above. A last name the rule does not give is marked; Fix wrong last names "
+                       "the rule above. A villager who arrived through an event has no last name unless you give "
+                       "one. A last name the rule does not give is marked; Fix wrong last names "
                        "puts them right. The game must stay closed.").pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
@@ -3119,7 +3445,8 @@ class App(tk.Tk):
         ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
                      state="readonly", width=34).pack(side="left", padx=(6, 0))
         wrong_var = tk.StringVar()
-        ttk.Label(window, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33").pack(anchor="w")
+        ttk.Label(window, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33", wraplength=700,
+                  justify="left").pack(anchor="w")
         canvas = tk.Canvas(window, width=720, height=420, highlightthickness=0)
         bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
         inner = ttk.Frame(canvas, padding=12)
@@ -3139,6 +3466,11 @@ class App(tk.Tk):
             who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
             if father or mother:
                 who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
+            if v.arrived:
+                # The owner, 2026-10-07: "All newly-spawned villagers from events will default to
+                # no last name" -- (no last name) unless the player picks or types one; an event's
+                # copy of a villager (parents on record) too.
+                who += " -- arrived"
             ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
             start_value = names["chosen"].get(v.identity, now[v.identity])
             value = tk.StringVar(value=start_value or none)
@@ -3165,6 +3497,15 @@ class App(tk.Tk):
         bar.pack(side="right", fill="y")
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")
+
+        def fit_width() -> None:
+            """The list as wide as its widest row (the owner's screenshot: marks cut off at the right),
+            within the screen."""
+            try:
+                inner.update_idletasks()
+                canvas.configure(width=min(inner.winfo_reqwidth(), window.winfo_screenwidth() - 80))
+            except tk.TclError:
+                pass
 
         def one_name(v, base: str, var) -> None:
             """Ticked: the second word is a last name; unticked: the words are one first name."""
@@ -3208,16 +3549,34 @@ class App(tk.Tk):
             """A last name the rule does not give -- in the box now -- is marked."""
             should = given()
             wrong = 0
+            # Unrelated villagers sharing a last name (the owner: Thabo Bahati, a new arrival, beside
+            # the established Bahati family) -- as the boxes stand now.
+            # Not under "Random from list": its picks share names by chance, by design (review, 2026-10-07).
+            shared = {} if rule_key() == "list" else vv_last_names.unrelated_namesakes(
+                people, parents, {v.identity: last_in(value) for v, value, _m in rows})
             for v, value, mark in rows:
                 have = last_in(value)
                 right = should.get(v.identity, "")
                 bad = v.identity not in mine and have != right and rule_key() not in ("list", *vv_last_names.PLAYER_RULES)
                 if too_long(v, have):
                     mark.set(f"too long: {room} characters at most")
+                elif bad:
+                    mark.set(f"the rule gives {right or 'none'}")
+                elif v.identity in shared:
+                    mark.set(f"not related to the other {shared[v.identity][0]}s")
                 else:
-                    mark.set(f"the rule gives {right or 'none'}" if bad else "")
+                    mark.set("")
                 wrong += bad
-            wrong_var.set(f"{wrong} last name(s) are not what the rule gives." if wrong else "")
+            alerts = [f"{wrong} last name(s) are not what the rule gives."] if wrong else []
+            if shared:
+                firsts = [f"{name} ({last}: the family of {', '.join(family[:3])}"
+                          f"{'...' if len(family) > 3 else ''})"
+                          for name, (last, family) in sorted((v.name, shared[v.identity]) for v in people
+                                                             if v.identity in shared)][:4]
+                alerts.append(f"{len(shared)} villager(s) share a last name with a family they are not related "
+                              f"to: {'; '.join(firsts)}{' and more' if len(shared) > 4 else ''}.")
+            wrong_var.set("\n".join(alerts))
+            window.after_idle(fit_width)        # as wide as the longest mark, so nothing is cut off
 
         def fill(choice) -> None:
             filling[0] = True
@@ -3266,7 +3625,8 @@ class App(tk.Tk):
                         return
                 chosen[v.identity] = last
             try:
-                work = vv_last_names.plan(folder, number, info.slot, chosen)
+                whole = {n[len(vv_last_names.WHOLE):] for n in known if n.startswith(vv_last_names.WHOLE)}
+                work = vv_last_names.plan(folder, number, info.slot, chosen, whole=whole)
             except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
                 messagebox.showerror("Last names", str(exc), parent=window)
                 return
@@ -3277,7 +3637,7 @@ class App(tk.Tk):
             names["chosen"] = chosen
             names["answers"] = answers
             names["rule"] = rule_key()
-            names["whole"] = {n[len(vv_last_names.WHOLE):] for n in known if n.startswith(vv_last_names.WHOLE)}
+            names["whole"] = whole
             names["mine"] = set(mine)
             names["mine_names"] = {key: last for key, last in fixed().items()}
             names_var.set(bool(chosen))

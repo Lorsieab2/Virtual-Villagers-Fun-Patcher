@@ -4,7 +4,7 @@ The owner (2026-10-07): "How about a "Number duplicate names" button in the fami
 logs?  If there are duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc.
 Also offer to edit the save files."
 
-Everyone the save and the logs know is numbered, the dead too, oldest first unless the player
+Everyone the save and the logs know is numbered, the dead too, in order of appearance unless the player
 picks another order (vv_genealogy's duplicate_names and NUMBER_ORDERS, as the Family Tree Maker
 shows them): the living are renamed in the save, and every
 record naming any of them -- their own and as a parent -- in the logs and the patcher's own files,
@@ -41,7 +41,7 @@ class Numbering:
 
 def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
               nameless: set[str] = frozenset(), bodies: set[tuple] = frozenset(),
-              taken: set[str] = frozenset(), order: str = "oldest") -> Numbering:
+              taken: set[str] = frozenset(), order: str = "appearance") -> Numbering:
     """The numbered name of each villager the save and the logs can tell apart.  `alike`: each
     (name, head, body) the save holds more than once, and how many times; `nameless`: the names of
     records that do not say how their villager looks; `bodies`: the (name, head, body) of the dead
@@ -113,7 +113,7 @@ def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[
             {v.identity for v in everyone if v.at not in alive}, taken)
 
 
-def number_names(folder: Path, game: int, slot: int, order: str = "oldest",
+def number_names(folder: Path, game: int, slot: int, order: str = "appearance",
                  processes: vv_save_backup.ProcessController | None = None,
                  now: datetime | None = None) -> tuple[ln.Result, Numbering]:
     """Number every duplicate name in the save, the logs and the patcher's files.  Refused (nothing
@@ -126,7 +126,7 @@ def number_names(folder: Path, game: int, slot: int, order: str = "oldest",
         raise ln.LastNamesError("The save's tribe name could not be read, so this village's records cannot be "
                                 "told from an earlier village's; nothing was changed.")
     try:
-        wanted = numbering(gen.load_village(folder, game, slot), *evidence(folder, game, slot), order=order)
+        wanted = numbering(gen.load_village(folder, game, slot, full_names=False), *evidence(folder, game, slot), order=order)
         work = ln.plan_renames(folder, game, slot, wanted.renames, dead=True)
         wanted.notes += work.notes
     except (gen.GenealogyError, struct.error, ValueError, OSError) as exc:

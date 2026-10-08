@@ -144,7 +144,7 @@ PAGES (Layout tab)
 NUMBERS
   Layout tab                      Roman numerals or numbers for the generations; Renumber
                                   villagers whose text I edited
-  Number duplicate names          namesakes numbered, oldest first (Soda I, Soda II...); it offers
+  Number duplicate names          namesakes numbered, in order of appearance (Soda I, Soda II...); it offers
   (Layout tab, Tools menu)        to number them in the game's save and logs too
 
 PICTURES AND TEXT BOXES (Pictures & Text tab)
@@ -1499,6 +1499,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self.history.clear()
                 self.future.clear()
                 self.last_state = self._state()
+        # A villager the tree showed by a name the Villager Details screen cut is shown by the full
+        # name the logs keep (vv_cut_names): their edits follow them, as for a change of looks.
+        moved = ft.full_name_edits(self.edits, self.village)
+        if moved is not self.edits:
+            self.edits = moved
+            self.dirty = True
+            self.history.clear()
+            self.future.clear()
+            self.last_state = self._state()
         changed = [p for p in self.village.known() if p.old_looks and "look" not in self._entry(p)]
         if changed:
             self.after_idle(lambda: self._ask_looks(changed))
@@ -2326,6 +2335,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 "(change it under Who is \"I\" on the Layout tab).\n\nAlso number them in the game's "
                 "save and logs?  The game must be closed; the tree is saved and the save folder is backed "
                 "up first.", parent=self):
+            return
+        if self.village.full_names:
+            # The save still holds names the Villager Details screen cut; numbering them would number
+            # the cut names (review, 2026-10-07).  Repair Saves & Logs restores them first.
+            messagebox.showinfo(
+                "Number Duplicate Names",
+                f"{len(self.village.full_names)} name(s) in the save were cut short by the game's Villager "
+                "Details screen. Restore them first with Repair Saves & Logs, then number "
+                "the names in the game. They stay numbered on the tree.", parent=self)
             return
         if self.dirty and not self._save_tree():
             return

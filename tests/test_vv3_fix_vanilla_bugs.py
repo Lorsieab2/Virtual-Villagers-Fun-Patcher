@@ -135,6 +135,11 @@ FIXES = (
     (0x5C677, bytes.fromhex("6A7B"), bytes.fromhex("6A7D")),
     (0x5C683, bytes.fromhex("40"), bytes.fromhex("90")),
 )
+PERCENT_FIXES = (  # '%' in a name never a format; text boxes refuse it (#566)
+    (0x00068D47, bytes.fromhex("E881620000"), bytes.fromhex("E864A70000")),
+    (0x0000D54B, bytes.fromhex("8B71308814308B5130C644020100"), bytes.fromhex("83FA2574278B71306689143089F2")),
+)
+FIXES = FIXES + PERCENT_FIXES
 TECH_REWARD = 100
 
 # Game addresses.
@@ -291,7 +296,8 @@ class ManifestTests(unittest.TestCase):
 
     def test_stock_bytes_and_offsets(self) -> None:
         pe = pefile.PE(str(STOCK), fast_load=True)
-        vas = (0x4180FB, 0x417797, 0x4173E0, 0x45EFC5, 0x45C88D, 0x435710, 0x45C677, 0x45C683)
+        vas = (0x4180FB, 0x417797, 0x4173E0, 0x45EFC5, 0x45C88D, 0x435710, 0x45C677, 0x45C683,
+               0x468D47, 0x40D54B)                      # the '%' fixes (#566)
         self.assertEqual(len(vas), len(FIXES))
         for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)
