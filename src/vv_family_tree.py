@@ -652,14 +652,16 @@ def full_name_edits(edits: "Edits", village: gen.Village) -> "Edits":
 
 def _merge_pairs(pairs: list) -> dict:
     """A JSON object whose key repeats after re-keying: dictionaries merged (the first one's values
-    kept where both have one), lists joined without repeats, any other value the first one's."""
+    kept where both have one), lists of names joined without repeats, any other value -- a [dx, dy]
+    move among them -- the first one's (review, 2026-10-07)."""
     out: dict = {}
     for key, value in pairs:
         if key not in out:
             out[key] = value
         elif isinstance(out[key], dict) and isinstance(value, dict):
             out[key] = {**value, **out[key]}
-        elif isinstance(out[key], list) and isinstance(value, list):
+        elif (isinstance(out[key], list) and isinstance(value, list)
+              and all(isinstance(v, str) for v in out[key] + value)):
             out[key] = out[key] + [v for v in value if v not in out[key]]
     return out
 

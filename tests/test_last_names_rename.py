@@ -97,7 +97,9 @@ class TheRepairsLogFollowsARename(unittest.TestCase):
                     "Pregnancy: Chapa Wanjiko -- father Usutu Bahati (was unknown)\r\n"
                     "Pregnancy: Iruwa Bahati I -- father Silko Akikai (was unknown)\r\n"
                     "Also: Chapa Wanjikoa and Kaula Bahati II\r\n"
-                    "Set to unknown: Kaula Bahati -- (was father Iruwa Bahati I, mother Chapa Wanjiko)\r\n\r\n"
+                    "Set to unknown: Kaula Bahati -- (was father Iruwa Bahati I, mother Chapa Wanjiko)\r\n"
+                    # native/vv1_parentage/vv1_crosscheck.inc's own sentence
+                    "Pregnancy over: Chapa Wanjiko -- expected father Iruwa Bahati I cleared (not expecting)\r\n\r\n"
                     "Village: Other Tribe (Save 2)\r\n"
                     "Pregnancy: Chapa Wanjiko -- father Ago (was unknown)\r\n")
             log.write_bytes(text.encode("latin-1"))
@@ -113,6 +115,7 @@ class TheRepairsLogFollowsARename(unittest.TestCase):
             self.assertIn("Also: Chapa Wanjikoa and Kaula Bahati II\r\n", after)
             self.assertIn("Set to unknown: Kaula Bahati -- (was father Iruwa I, mother Chapa)\r\n", after)
             self.assertNotIn("Wanjiko Bahati", after)
+            self.assertIn("Pregnancy over: Chapa -- expected father Iruwa I cleared (not expecting)", after)
             self.assertIn("Pregnancy: Chapa Wanjiko -- father Ago", after)
             self.assertEqual(log.read_bytes().decode("latin-1"), text, "planning writes nothing")
 

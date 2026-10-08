@@ -219,6 +219,19 @@ class CutNames(unittest.TestCase):
         self.assertIs(ft.full_name_edits(edits, plain), edits)
 
 
+class MergedTreeEdits(unittest.TestCase):
+    def test_a_repeated_key_merges_without_breaking_moves(self):
+        # Review, 2026-10-07: two [dx, dy] moves must not join into a three-number list.
+        import json
+        import vv_family_tree as ft
+        text = '{"moved": {"A|1|1": [5, 6], "A|1|1": [7, 8]}, "lines": {"k": ["a"], "k": ["b", "a"]}, ' \
+               '"entries": {"A|1|1": {"colour": "red"}, "A|1|1": {"colour": "blue", "bold": true}}}'
+        merged = json.loads(text, object_pairs_hook=ft._merge_pairs)
+        self.assertEqual(merged["moved"]["A|1|1"], [5, 6])
+        self.assertEqual(merged["lines"]["k"], ["a", "b"])
+        self.assertEqual(merged["entries"]["A|1|1"], {"colour": "red", "bold": True})
+
+
 class RepairWiring(unittest.TestCase):
     """Repair Saves & Logs: restoring the cut names is ticked by default, runs before the last names and
     the numbering, and holds them off while it is ticked."""

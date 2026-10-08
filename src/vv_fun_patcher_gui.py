@@ -441,11 +441,15 @@ def _window_buttons(event) -> None:
             if wanted != style:
                 user32.SetWindowLongW(hwnd, -16, wanted)
                 user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020)
+            if getattr(window, "_vvfp_disabled", None) is not None:
+                # Tk drops a window's Windows owner when its transient is cleared: a holding dialog
+                # gets its owner back (_owned_by).
+                _owned_by(window, window.master.winfo_toplevel())
         except (tk.TclError, OSError, AttributeError):
             pass                                # a window without its buttons is still a window
-    # Tk ignores Minimize on a window kept above another (transient), so the patcher's windows are
-    # ordinary ones: Windows minimizes and restores them itself, each with its own taskbar button
-    # (review, 2026-10-07).  _keep_dialog_on_top keeps a dialog that holds the patcher above it.
+    # Tk ignores Minimize on a window kept above another (transient), so to Tk the patcher's windows
+    # are ordinary ones; _hold makes a dialog's window its owner's in Windows' own terms, which keeps
+    # it above that window (review, 2026-10-07).
     try:
         if window.transient():
             window.wm_transient("")
@@ -458,50 +462,106 @@ def _window_buttons(event) -> None:
     window.after(600, add)
 
 
-def _keep_dialog_on_top(event) -> None:
-    """A window clicked while a dialog holds the patcher (grab_set) brings that dialog back on top, so
-    it never hides behind the window it holds."""
-    try:
-        clicked = event.widget.winfo_toplevel()
-        held = clicked.grab_current()
-        if held is not None and held.winfo_toplevel() is not clicked and held.winfo_toplevel().state() == "normal":
-            held.winfo_toplevel().lift()
-    except (tk.TclError, AttributeError, KeyError):
-        pass
-
-
 _TK_GRAB_SET, _TK_GRAB_RELEASE = tk.Misc.grab_set, tk.Misc.grab_release
 
 
+def _app_windows(widget) -> list:
+    """The patcher's own windows: the main one and every Toplevel under it."""
+    root = widget._root()
+    out = [root]
+    todo = list(root.winfo_children())
+    while todo:
+        w = todo.pop()
+        if isinstance(w, tk.Toplevel):
+            out.append(w)
+        todo.extend(w.winfo_children())
+    return out
+
+
+def _owned_by(top, owner) -> None:
+    """Make `owner` the dialog's owner in Windows' own terms: Windows then keeps the dialog above it
+    (the patcher's taskbar button or Alt-Tab never bring the held window over it) and hides and
+    shows it with its owner -- while Tk, which ignores Minimize on its transients, still lets it
+    minimize."""
+    import ctypes
+    user32 = ctypes.windll.user32
+    user32.SetWindowLongPtrW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+    user32.SetWindowLongPtrW.restype = ctypes.c_void_p
+    top.update_idletasks()
+    hwnd = user32.GetAncestor(top.winfo_id(), 2)
+    owner_hwnd = user32.GetAncestor(owner.winfo_id(), 2)
+    if hwnd and owner_hwnd:
+        user32.SetWindowLongPtrW(hwnd, -8, owner_hwnd)              # GWLP_HWNDPARENT: the owner
+
+
 def _hold(self) -> None:
-    """grab_set for a dialog the way Windows holds a window: its owner is disabled (the patcher
-    ignores clicks, as with Tk's grab) rather than Tk-grabbed -- Tk refuses to minimize any window
-    while a grab is in effect, and the owner (the patcher, 2026-10-07) wants Minimize on every
-    window.  Each owner counts the dialogs holding it and is enabled again when the last one goes."""
+    """grab_set for a dialog the way Windows holds windows (the owner, 2026-10-07, wants Minimize on
+    every window, and Tk refuses to minimize anything while a Tk grab is in effect): every other
+    window of the patcher is disabled, as Tk's grab blocked them all -- the main window, an open
+    family tree, the dialog that started the work under a "Please wait" -- each counting the dialogs
+    holding it and enabled again when the last one goes (review, 2026-10-07)."""
     top = self.winfo_toplevel()
-    owner = top.master.winfo_toplevel() if top.master is not None else None
-    if owner is None or owner is top:
+    if top is top._root() or top.master is None:
         return _TK_GRAB_SET(self)
-    if getattr(top, "_vvfp_holds", None) is owner:
-        return None
-    top._vvfp_holds = owner
-    owner._vvfp_held = getattr(owner, "_vvfp_held", 0) + 1
-    owner.wm_attributes("-disabled", True)
-    top.bind("<Destroy>", lambda e: _let_go(top) if e.widget is top else None, add="+")
+    if getattr(top, "_vvfp_disabled", None) is not None:
+        return None                             # already holding (a _regrab)
+    owner = top.master.winfo_toplevel()
+    disabled = []
+    for w in _app_windows(top):
+        if w is top:
+            continue
+        try:
+            if not w.winfo_exists():
+                continue
+            w._vvfp_held = getattr(w, "_vvfp_held", 0) + 1
+            w.wm_attributes("-disabled", True)
+            disabled.append(w)
+        except tk.TclError:
+            pass
+    top._vvfp_disabled = disabled
+    top._vvfp_bindings = []
+    try:
+        _owned_by(top, owner)
+    except (OSError, AttributeError, tk.TclError):
+        pass
+    top._vvfp_bindings.append((top, "<Destroy>", top.bind(
+        "<Destroy>", lambda e: _let_go(top) if e.widget is top else None, add="+")))
     _minimize_together(top, owner)
-    top.focus_set()
-    return None
+    return None                                 # focus is left as it is, as Tk's grab left it
+
+
+def _unbind_one(widget, sequence: str, funcid: str) -> None:
+    """Remove one binding: `unbind(sequence, funcid)` removes them all on older Pythons."""
+    try:
+        script = widget.tk.call("bind", widget._w, sequence)
+        kept = "\n".join(line for line in str(script).split("\n") if funcid not in line)
+        widget.tk.call("bind", widget._w, sequence, kept)
+        widget.deletecommand(funcid)
+    except tk.TclError:
+        pass
 
 
 def _let_go(top) -> None:
-    owner = getattr(top, "_vvfp_holds", None)
-    if owner is None:
+    disabled = getattr(top, "_vvfp_disabled", None)
+    if disabled is None:
         return
-    top._vvfp_holds = None
+    top._vvfp_disabled = None
+    for widget, sequence, funcid in getattr(top, "_vvfp_bindings", []):
+        if widget is not top:                   # the dialog's own go with it
+            _unbind_one(widget, sequence, funcid)
+    top._vvfp_bindings = []
+    for w in disabled:
+        try:
+            w._vvfp_held = max(0, getattr(w, "_vvfp_held", 1) - 1)
+            if not w._vvfp_held and w.winfo_exists():
+                w.wm_attributes("-disabled", False)
+        except tk.TclError:
+            pass
     try:
-        owner._vvfp_held = max(0, getattr(owner, "_vvfp_held", 1) - 1)
-        if not owner._vvfp_held:
-            owner.wm_attributes("-disabled", False)
+        owner = top.master.winfo_toplevel()
+        if owner.winfo_exists():
+            if owner.state() == "iconic":
+                owner.deiconify()
             owner.lift()
     except tk.TclError:
         pass
@@ -509,7 +569,7 @@ def _let_go(top) -> None:
 
 def _release(self) -> None:
     top = self.winfo_toplevel()
-    if getattr(top, "_vvfp_holds", None) is not None:
+    if getattr(top, "_vvfp_disabled", None) is not None:
         _let_go(top)
     else:
         _TK_GRAB_RELEASE(self)
@@ -531,14 +591,14 @@ def _minimize_together(top, owner) -> None:
         if event.widget is not owner:
             return
         try:
-            if getattr(top, "_vvfp_holds", None) is owner and top.winfo_exists() and top.state() == "iconic":
+            if getattr(top, "_vvfp_disabled", None) is not None and top.winfo_exists() and top.state() == "iconic":
                 top.deiconify()
                 top.lift()
         except tk.TclError:
             pass
 
-    top.bind("<Unmap>", unmapped, add="+")
-    owner.bind("<Map>", mapped, add="+")
+    top._vvfp_bindings.append((top, "<Unmap>", top.bind("<Unmap>", unmapped, add="+")))
+    top._vvfp_bindings.append((owner, "<Map>", owner.bind("<Map>", mapped, add="+")))
 
 
 class App(tk.Tk):
@@ -547,9 +607,6 @@ class App(tk.Tk):
         self.bind_class("Toplevel", "<Map>", _window_buttons, add="+")
         if sys.platform == "win32":             # dialogs hold the patcher the Windows way (_hold)
             tk.Misc.grab_set, tk.Misc.grab_release = _hold, _release
-        for tag in ("Tk", "Toplevel"):
-            self.bind_class(tag, "<Button>", _keep_dialog_on_top, add="+")
-            self.bind_class(tag, "<FocusIn>", _keep_dialog_on_top, add="+")
         self.title("Virtual Villagers Fun Patcher")
         self.geometry("940x760")
         self.minsize(820, 520)

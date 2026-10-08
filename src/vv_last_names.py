@@ -1189,10 +1189,11 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
     if not unique:
         return
     # A whole name only: after the start of the line or a space, and followed by what ends a name in
-    # the log's sentences (" --", " (", ",", ")", ";" or the end of the line) -- so renaming "Kaula"
+    # the log's sentences (" --", " (", ",", ")", ";", A New Home's "... expected father <name> cleared"
+    # or the end of the line) -- so renaming "Kaula"
     # never touches "Kaula Bahati" (review, 2026-10-07).
     pattern = re.compile(r"(?:^|(?<=[\s:]))(" + "|".join(re.escape(n) for n in sorted(unique, key=len, reverse=True))
-                         + r")(?=\s--|\s\(|[,);]|\s*$)")
+                         + r")(?=\s--|\s\(|[,);]|\scleared\b|\s*$)")
     for top in checker.LOG_FOLDERS:
         root = Path(folder) / top
         if not root.is_dir():
