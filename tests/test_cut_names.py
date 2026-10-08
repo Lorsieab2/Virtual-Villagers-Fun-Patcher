@@ -179,6 +179,16 @@ class CutNames(unittest.TestCase):
         self.assertIn(deaths, changed)
         self.assertIn(f"  Name: {FULL}\r\n".encode(), changed[deaths])
 
+    def test_an_accented_name_is_restored(self):
+        # Codex, #566: the games' text box takes Latin-1 letters.
+        # A game-named villager first, as the game's own name list puts there (the table is found by them).
+        self.write_save(entry("Aipi", 1, 50, 7, 8), entry("Kid", 0, 50, 9, 9), entry("Élodie Guedado Aki", 0, 1, 5, 6))
+        path = self.log("Tribe Population/Village Population 1.txt", "")
+        # The games write their logs in Latin-1, as the patcher reads them.
+        path.write_bytes(("Village: Tribe (Save 1)\n" + person(1, "Élodie Guedado Akikai", 5, 6))
+                         .replace("\n", "\r\n").encode("latin-1"))
+        self.assertEqual(self.found()[0], {"Élodie Guedado Aki": "Élodie Guedado Akikai"})
+
     def test_a_name_longer_than_the_screen_keeps_was_never_cut(self):
         self.write_save(entry(FULL[:19], 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8))
         self.assertEqual(self.found(), ({}, []))

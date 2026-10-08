@@ -3466,9 +3466,10 @@ class App(tk.Tk):
             who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
             if father or mother:
                 who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
-            elif v.arrived:
+            if v.arrived:
                 # The owner, 2026-10-07: "All newly-spawned villagers from events will default to
-                # no last name" -- (no last name) unless the player picks or types one.
+                # no last name" -- (no last name) unless the player picks or types one; an event's
+                # copy of a villager (parents on record) too.
                 who += " -- arrived"
             ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
             start_value = names["chosen"].get(v.identity, now[v.identity])

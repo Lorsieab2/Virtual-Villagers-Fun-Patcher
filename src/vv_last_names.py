@@ -348,6 +348,13 @@ def own_last_name(name: str) -> str:
 
 
 NUMERAL = re.compile(r"^[IVXLCDM]+$")
+
+
+def storable(name: str) -> bool:
+    """A name the games keep and show safely: printable ASCII or a Latin-1 letter or sign the game's
+    own text box accepts (Élodie; Codex, #566) -- never a control byte, and never '%', which an
+    unpatched game reads as a formatting instruction (Fix Vanilla Bugs)."""
+    return all((0x20 <= ord(ch) < 0x7F or 0xA0 <= ord(ch) <= 0xFF) and ch != "%" for ch in name)
 # In a `known` set: a name (without its numeral) whose words are all one first name -- the owner,
 # 2026-10-07, for a two-word name whose second word is no known last name: "Ask per villager".
 WHOLE = "\0whole\t"
@@ -463,9 +470,10 @@ def everyone(folder: Path, game: int, slot: int) -> tuple[list[Living], dict[tup
     # Only what the logs say: an Arrived record whose "How:" is not "Founder".  A parentless villager
     # merely first seen later (an A New Home baby from before the parentage records) is not taken
     # for an arrival (review, 2026-10-07).
+    # An event's villager with parents on its record (The Secret City's Crystal of Reflections copies
+    # the original's parents) is an arrival too: a birth never has an Arrived record (Codex, #566).
     arrivals = {p.key for p in village.known()
-                if p.father is None and p.mother is None and not p.upcoming
-                and p.arrived and p.how and p.how != "Founder"}
+                if not p.upcoming and p.arrived and p.how and p.how != "Founder"}
     for v in people:
         v.arrived = v.identity in arrivals
     have = {v.identity for v in people}
@@ -557,9 +565,9 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
         if father is None and mother is None and carried(v.name):   # no parent: the name they have
             out[v.identity] = carried(v.name)
             return out[v.identity]
-        if father is None and mother is None and v.arrived:         # ARRIVALS: none by default
-            out[v.identity] = ""
-            return ""
+        if v.arrived:                           # ARRIVALS: none by default, parents on record or not
+            out[v.identity] = carried(v.name)
+            return out[v.identity]
         seen = seen | {v.identity}
         dad, mum = last_of(father, seen), last_of(mother, seen)
         if rule == "father":
@@ -691,7 +699,7 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     # Every rename is held here too, whoever asks for it (the owner: a character limit "IN EVERY
     # SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN HAPPEN"): the game's room, printable text only.
     for new in renames.values():
-        if not new or len(new) > ROOM[game] or any(not (0x20 <= ord(ch) < 0x7F) for ch in new):
+        if not new or len(new) > ROOM[game] or not storable(new):
             raise LastNamesError(f"{new!r} cannot be a name: the game takes 1 to {ROOM[game]} printable "
                                  "characters.")
     f = FIELDS[game]
@@ -1190,12 +1198,20 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
         # Unique among every villager the logs know, not just the living: a buried namesake who keeps
         # their name keeps every line too (Codex, #566).
         logged: dict[str, set] = {}
+        lookless: set[str] = set()
         for b in additions.person_blocks(Path(folder), slot, game):
             name, head, body = b.identity
-            if name in unique and head is not None and body is not None:
+            if name not in unique:
+                continue
+            if head is not None and body is not None:
                 logged.setdefault(name, set()).add((name, head, body))
+            elif b.heading.startswith(("Death", "Disappeared", "Left", "Unaccounted")):
+                # A gone villager's older record without looks may be a namesake's: not unique
+                # (Codex, #566).
+                lookless.add(name)
         renamed = set(renames)
-        unique = {old: new for old, new in unique.items() if logged.get(old, set()) <= renamed}
+        unique = {old: new for old, new in unique.items()
+                  if old not in lookless and logged.get(old, set()) <= renamed}
     if not unique:
         return
     # A whole name only: after the start of the line or a space, and followed by what ends a name in

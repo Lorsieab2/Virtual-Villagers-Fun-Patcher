@@ -134,7 +134,7 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
             continue
         found = sorted({name for name, head, body in logged
                         if (head, body) == (v.head, v.body) and len(name) > len(v.name) and name.startswith(v.name)
-                        and len(name) <= fits and all(0x20 <= ord(ch) < 0x7F for ch in name)
+                        and len(name) <= fits and ln.storable(name)
                         and not still_gone((name, head, body), v.identity) and name not in living_names
                         and sexes.get((name, head, body), {v.sex}) == {v.sex}
                         and _likes_agree(blocks, v.identity, (name, head, body))})

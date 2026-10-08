@@ -134,6 +134,14 @@ class TheRepairsLogFollowsARename(unittest.TestCase):
             ln._plan_repairs_logs(result, folder, 1, 1, {"Ago": {"Ago Akikai"}}, None,
                                   renames={("Ago", 1, 1): "Ago Akikai"})
             self.assertEqual(result.changes, [])
+            # A gone Ago whose older record has no looks may be a namesake: not unique either (Codex, #566).
+            older = folder / LOGS / "Deaths" / "Virtual Villagers 1 Deaths Log 2.txt"
+            older.write_bytes(b"Village: Tribe (Save 1)\r\nDeath 1\r\n  Name: Tomi\r\n\r\n")
+            result = ln.Plan({})
+            ln._plan_repairs_logs(result, folder, 1, 1, {"Tomi": {"Tomi Akikai"}}, None,
+                                  renames={("Tomi", 1, 1): "Tomi Akikai"})
+            self.assertEqual(result.changes, [])
+            older.unlink()
             # The buried Ago renamed too (Number Duplicate Names numbers the dead): every Ago is renamed.
             result = ln.Plan({})
             ln._plan_repairs_logs(result, folder, 1, 1, {"Ago": {"Ago Akikai"}}, None,
@@ -166,7 +174,7 @@ def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3
     e = bytearray(STRIDE)
     struct.pack_into("<I", e, 0, 1)
     n = 0x14
-    e[n:n + len(name)] = name.encode()
+    e[n:n + len(name)] = name.encode("latin-1")           # as the games keep names
     struct.pack_into("<i", e, n - 4, family)
     struct.pack_into("<i", e, n - 0x0C, sex)
     struct.pack_into("<i", e, n - 0x10, 600)              # age

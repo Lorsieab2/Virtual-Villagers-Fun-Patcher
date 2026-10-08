@@ -69,6 +69,21 @@ class UnrelatedNamesakeTests(unittest.TestCase):
         self.assertIn('mark.set(f"not related to the other {shared[v.identity][0]}s")', body)
 
 
+class EventCopies(unittest.TestCase):
+    def test_an_event_copy_with_parents_on_record_gets_no_last_name(self) -> None:
+        # Codex, #566: The Secret City's Crystal of Reflections copies the original's parents; its
+        # Arrived record says how it came, so it is an arrival: none by default, under every rule.
+        copy = ln.Living(0, "Kito", "Male", 9, 9, 1, "Ruku", arrived=True)
+        people = [HUATA, GORO, copy]
+        parents = dict(PARENTS)
+        parents[copy.identity] = (KITO, HUATA.identity)
+        for rule in ("father", "mother", "random"):
+            with self.subTest(rule=rule):
+                self.assertEqual(ln.inherited(people, parents, rule)[copy.identity], "")
+        # Unless the player gives one.
+        self.assertEqual(ln.inherited(people, parents, "father", fixed={copy.identity: "Pao"})[copy.identity], "Pao")
+
+
 class InheritanceTests(unittest.TestCase):
     def test_fathers_names_flow_down_the_generations(self) -> None:
         given = ln.inherited(PEOPLE, PARENTS, "father")
