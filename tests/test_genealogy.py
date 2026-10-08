@@ -928,6 +928,13 @@ class StickerTests(unittest.TestCase):
         rings = [i for i in sc.items if isinstance(i, ft.Shape) and i.pid == man and i.target == ("mark", "Chief")]
         self.assertEqual(len(rings), ft.GLOW_RINGS)
         self.assertTrue(all(r.opacity <= 0.5 for r in rings))
+        # The owner, 2026-10-08: "if I set the glow to be red, I'm expecting a vibrant red halo" -- the
+        # chosen colour itself, at the mark's full opacity against the portrait, fading outward.
+        self.assertTrue(all(r.stroke == "#ff0000" for r in rings))
+        nearest = min(rings, key=lambda r: r.w)
+        self.assertAlmostEqual(nearest.opacity, 0.5)
+        self.assertEqual([r.opacity for r in sorted(rings, key=lambda r: r.w)],
+                         sorted((r.opacity for r in rings), reverse=True))
         self.assertIn('stroke-dasharray="1.5 4"', ft.to_svg(sc, {}))
         self.assertEqual(ft.PORTRAIT_SHAPES["cross"], "Cross")
         self.assertIn((0.35, 1), ft.OUTLINES["cross"])        # upright, like a plus with a longer foot

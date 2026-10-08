@@ -1130,8 +1130,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 # The canvas cannot blend: a see-through fill is drawn as a fine dot pattern.
                 see = item.opacity
                 stipple = "" if see >= 1 else ("gray75" if see >= 0.7 else "gray50" if see >= 0.4 else "gray25")
-                if see < 1:                     # the border fades with it
-                    outline = tk_colour(faded(item.stroke, see, sc.background)) if width else ""
+                if see < 1:                     # the border fades with it, into what is really under it:
+                    # the background picture's own colour there, not a plain white (the owner,
+                    # 2026-10-08: a mark is the colour chosen, never washed out to white)
+                    under = self._under(item.x + item.w / 2, item.y, sc)
+                    outline = tk_colour(faded(item.stroke, see, under)) if width else ""
                 corners = ft.outline(item.kind, item.x, item.y, item.w, item.h)
                 if item.angle:                  # the canvas cannot turn a shape: its corners, turned
                     pts = [v for point in item.points() for v in point]
@@ -2044,6 +2047,21 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             small.tk.call(small, "copy", cell, "-subsample", down)
             self.photos[key] = small
         return self.photos[key]
+
+    def _under(self, x: float, y: float, sc: ft.Scene) -> str:
+        """The colour the page shows at (x, y) of the tree: the drawn background picture or
+        gradient there, else the background colour."""
+        photo = self.photos.get("backdrop")
+        if photo is not None:
+            try:
+                px = min(max(0, int(x * self.z)), photo.width() - 1)
+                py = min(max(0, int(y * self.z)), photo.height() - 1)
+                pixel = photo.get(px, py)
+                r, g, b = (int(v) for v in (pixel.split() if isinstance(pixel, str) else pixel)[:3])
+                return f"#{r:02x}{g:02x}{b:02x}"
+            except (tk.TclError, TypeError, ValueError):
+                pass
+        return sc.background
 
     def _draw_backdrop(self, item: ft.Backdrop, sc: ft.Scene) -> int | None:
         """The background as GDI+ draws it into the picture, shown as an image (its canvas item)."""

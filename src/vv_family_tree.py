@@ -2495,7 +2495,10 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             m = reach * (k - 0.5) / GLOW_RINGS
             add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=2 * reach / GLOW_RINGS + 0.6, fill=None,
                       radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle,
-                      opacity=see * (1 - (k - 1) / GLOW_RINGS) * 0.45))
+                      # The player's colour at full strength against the portrait, fading out to
+                      # nothing: "a vibrant red halo of light radiating out from the portrait"
+                      # (the owner, 2026-10-08; it was capped at 45%, so red came out pale pink).
+                      opacity=see * (1 - (k - 1) / GLOW_RINGS)))
     elif mark:
         m = MARK_GAP
         add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=4, fill=None,
