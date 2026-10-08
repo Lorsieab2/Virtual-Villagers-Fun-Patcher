@@ -338,6 +338,8 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
                 g.GdipDisposeImageAttributes(attributes)
     elif isinstance(item, ft.Sticker):
         _sticker(gdi, graphics, images, item)
+    elif isinstance(item, ft.Text) and item.runs:
+        _draw_runs(gdi, graphics, fmt, item, ft)
     elif isinstance(item, ft.Text):
         font, ascent = gdi.font(item.size, item.bold, item.font, item.italic, item.underline, item.strike)
         brush = ctypes.c_void_p()
@@ -351,6 +353,44 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
             rect = RectF(item.x, top, 20000, item.size * 2)
         g.GdipDrawString(graphics, ctypes.c_wchar_p(item.text), -1, font, ctypes.byref(rect), fmt, brush)
         g.GdipDeleteBrush(brush)
+
+
+MEASURE_TRAILING_SPACES = 0x800
+
+
+def _draw_runs(gdi: _Gdi, graphics, fmt, item, ft) -> None:
+    """A formatted Text (a portrait's own words, formatted word by word): each run measured in its
+    own font, the whole line centred (or started) where the Text says, and each run drawn after the
+    one before it -- a superscript or subscript smaller, raised or lowered (ft.run_look)."""
+    g = gdi.g
+    own = ctypes.c_void_p()                     # the spaces at a run's ends measured too
+    gdi._check(g.GdipCloneStringFormat(fmt, ctypes.byref(own)), "measure words")
+    try:
+        flags = ctypes.c_int()
+        g.GdipGetStringFormatFlags(own, ctypes.byref(flags))
+        g.GdipSetStringFormatFlags(own, flags.value | MEASURE_TRAILING_SPACES)
+        g.GdipSetStringFormatAlign(own, 0)
+        pieces = []
+        for text, style in item.runs:
+            look = ft.run_look(item, style)
+            font, ascent = gdi.font(look["size"], look["bold"], item.font, look["italic"], look["underline"],
+                                    look["strike"])
+            box = RectF()
+            g.GdipMeasureString(graphics, ctypes.c_wchar_p(text), -1, font,
+                                ctypes.byref(RectF(0, 0, 20000, look["size"] * 2)), own, ctypes.byref(box),
+                                None, None)
+            pieces.append((text, look, font, ascent, box.Width))
+        x = item.x - sum(p[4] for p in pieces) / 2 if item.centre else item.x
+        for text, look, font, ascent, width in pieces:
+            brush = ctypes.c_void_p()
+            g.GdipCreateSolidFill(_argb(look["colour"], _alpha(item)), ctypes.byref(brush))
+            top = item.y + look["dy"] - look["size"] * ascent
+            g.GdipDrawString(graphics, ctypes.c_wchar_p(text), -1, font,
+                             ctypes.byref(RectF(x, top, 20000, look["size"] * 2)), own, brush)
+            g.GdipDeleteBrush(brush)
+            x += width
+    finally:
+        g.GdipDeleteStringFormat(own)
 
 
 class ColorMatrix(ctypes.Structure):
