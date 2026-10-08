@@ -3352,7 +3352,14 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
             return
         _show_text(window, f"Village Matchmaker - {info.name} (Save {info.slot})", text, path)
 
+    def reset() -> None:
+        defaults = gen.Rules()
+        for name, _words, kind in RULE_FIELDS:
+            value = getattr(defaults, name)
+            variables[name].set(value if kind == "bool" else (f"{value:g}" if isinstance(value, float) else str(value)))
+
     ttk.Button(buttons, text="Suggest", command=suggest).pack(side="left")
+    ttk.Button(buttons, text="Reset to Defaults", command=reset).pack(side="left", padx=(8, 0))
     ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left", padx=(8, 0))
 
 
