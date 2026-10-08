@@ -34,6 +34,7 @@ from __future__ import annotations
 import base64
 import html
 import json
+import functools
 import math
 import re
 import struct
@@ -491,7 +492,8 @@ ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
 PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle", "rect": "Square",
                    "rounded": "Rounded square", "circle": "Circle", "ellipse": "Oval",
                    "heart": "Heart", "triangle": "Triangle", "diamond": "Diamond", "cross": "Cross", "x": "X",
-                   "plus": "Plus", "star": "Star", "hexagon": "Hexagon", "octagon": "Octagon"}
+                   "plus": "Plus", "star": "Star", "hexagon": "Hexagon", "octagon": "Octagon",
+                   "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
            "dashdot": "Dotted and dashed"}
@@ -1983,7 +1985,98 @@ def _unit_outlines() -> dict[str, list[tuple[float, float]]]:
         "hexagon": [(0.5, 0), (1, 0.25), (1, 0.75), (0.5, 1), (0, 0.75), (0, 0.25)],
         "octagon": [(0.3, 0), (0.7, 0), (1, 0.3), (1, 0.7), (0.7, 1), (0.3, 1), (0, 0.7), (0, 0.3)],
         "heart": fit(heart),
+        **{kind: fit(points) for kind, points in _drawn_outlines().items()},
     }
+
+
+def _traced(inside_at, centre: tuple[float, float], rays: int = 240) -> list[tuple[float, float]]:
+    """The edge of a shape given as a test of whether a point is in it: along each ray from
+    `centre`, the farthest point inside it (so parts that do not touch the centre, a butterfly's
+    wings, are traced too)."""
+    out = []
+    for k in range(rays):
+        t = 2 * math.pi * k / rays
+        dx, dy = math.cos(t), math.sin(t)
+        far = 0.0
+        for step in range(1, 700):
+            r = step * 0.003
+            if inside_at(centre[0] + r * dx, centre[1] + r * dy):
+                far = r
+        out.append((centre[0] + far * dx, centre[1] + far * dy))
+    return out
+
+
+@functools.lru_cache(maxsize=1)
+def _drawn_outlines() -> dict[str, list[tuple[float, float]]]:
+    """The owner's shapes of 2026-10-08 -- a flower, a butterfly, a leaf and the playing-card suits'
+    clover and spade -- traced from simple parts (circles, ellipses, a heart, a stem), y downward."""
+    def disc(cx, cy, r):
+        return lambda x, y: (x - cx) ** 2 + (y - cy) ** 2 <= r * r
+
+    def oval(cx, cy, rx, ry, turn_deg=0.0):
+        c, s = math.cos(math.radians(turn_deg)), math.sin(math.radians(turn_deg))
+        return lambda x, y: (((x - cx) * c + (y - cy) * s) / rx) ** 2 + ((-(x - cx) * s + (y - cy) * c) / ry) ** 2 <= 1
+
+    def stem(top, bottom, half_top, half_bottom, cx=0.0):
+        def at(x, y):
+            if not top <= y <= bottom:
+                return False
+            half = half_top + (half_bottom - half_top) * (y - top) / (bottom - top)
+            return abs(x - cx) <= half
+        return at
+
+    def union(*parts):
+        return lambda x, y: any(part(x, y) for part in parts)
+
+    # A six-petalled flower, the owner's picture: six long oval petals from the middle, one
+    # straight up and one straight down.
+    petals = [oval(0.25 * math.cos(math.radians(-90 + 60 * k)), 0.25 * math.sin(math.radians(-90 + 60 * k)),
+                   0.25, 0.165, -90 + 60 * k) for k in range(6)]
+    flower = union(disc(0, 0, 0.2), *petals)
+    # A butterfly, kept simple (the owner): two round upper wings and two smaller lower ones,
+    # meeting in the middle.
+    butterfly = union(oval(-0.36, -0.18, 0.4, 0.32, -20), oval(0.36, -0.18, 0.4, 0.32, 20),
+                      oval(-0.26, 0.28, 0.28, 0.24, 25), oval(0.26, 0.28, 0.28, 0.24, -25),
+                      oval(0, 0.02, 0.2, 0.36))
+    # The club (clover) of a deck of cards: three round leaves round a wide middle and a short
+    # stem, with room inside for the face and the words (the owner).
+    clover = union(disc(0, -0.3, 0.34), disc(-0.36, 0.14, 0.34), disc(0.36, 0.14, 0.34), disc(0, 0.05, 0.32),
+                   stem(0.3, 0.68, 0.06, 0.2))
+    # The spade: an upside-down heart and a flared stem.
+    heart = [(16 * math.sin(t) ** 3, (13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t)
+                                          - math.cos(4 * t))) for t in (k * 2 * math.pi / 120 for k in range(120))]
+    spade_heart = [(px / 28, py / 28 - 0.12) for px, py in heart]      # a wide body: room inside
+    def in_heart(x, y):                 # inside() is defined further down the module
+        hit = False
+        for (ax, ay), (bx, by) in zip(spade_heart, spade_heart[1:] + spade_heart[:1]):
+            if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
+                hit = not hit
+        return hit
+    spade = union(in_heart, disc(0, 0.2, 0.24), stem(0.3, 0.66, 0.06, 0.2))   # the cleft filled, so the stem joins a whole body
+    # A leaf, the owner's picture: a broad blade pointing up to the right, fullest towards its
+    # base at the lower left, both ends pointed -- and a stalk from the base "so it's clear".
+    leaf_c, leaf_s = math.cos(math.radians(-40)), math.sin(math.radians(-40))
+
+    def along(x, y):                    # (towards the tip, across)
+        return x * leaf_c + y * leaf_s, -x * leaf_s + y * leaf_c
+
+    def blade(x, y):
+        u, v = along(x, y)
+        s = u / 0.62
+        return abs(s) <= 1 and abs(v) <= 0.36 * (1 - s * s) ** 0.75 * (1 - 0.22 * s)
+
+    def stalk(x, y):
+        u, v = along(x, y)
+        return -0.86 <= u <= -0.5 and abs(v) <= 0.028
+    leaf = union(blade, stalk)
+    return {"flower": _traced(flower, (0, 0)), "butterfly": _traced(butterfly, (0, 0)),
+            "clover": _traced(clover, (0, 0)), "spade": _traced(spade, (0, 0.05)),
+            "leaf": _traced(leaf, (0, 0))}
+
+
+def _raw_aspect(kind: str) -> float:
+    xs, ys = zip(*_drawn_outlines()[kind])
+    return (max(xs) - min(xs)) / (max(ys) - min(ys))
 
 
 OUTLINES = _unit_outlines()
@@ -2000,6 +2093,8 @@ GDI_DASHES = {"dotted": 2, "dashed": 1, "dashdot": 3}       # GDI+'s dash styles
 # diamond is a playing card's.  A rectangle, a rounded rectangle and an oval fill the portrait.
 ASPECTS = {"rect": 1.0, "rounded": 1.0, "circle": 1.0, "heart": 1.107, "star": 1.051, "triangle": 1.155, "diamond": 0.7, "cross": 0.75, "x": 1.0,
            "plus": 1.0, "hexagon": 0.866, "octagon": 1.0}
+# The owner's shapes of 2026-10-08 take their own drawn proportions.
+ASPECTS.update({kind: round(_raw_aspect(kind), 3) for kind in ("flower", "butterfly", "clover", "spade", "leaf")})
 FRAME_MIN, FRAME_MAX = 8.0, 1200.0      # a resized frame's sides
 # What the size boxes step through (the owner: "values correspond to typical font sizes"): a word
 # processor's font sizes, on up to a whole portrait and beyond; line weights as a word processor's.

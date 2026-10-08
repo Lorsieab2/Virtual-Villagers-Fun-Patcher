@@ -857,6 +857,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 combo.grid(row=row_no, column=col, sticky="w", padx=(6, 0), pady=1)
                 combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, g=group, c=choices, v=var: self._group_style(
                     a, g, next(k for k, n in c.items() if n == v.get())))
+            # The owner, 2026-10-08: change ALL male, female or unborn portraits at once -- the ones
+            # given their own shape or border one by one too.
+            ttk.Button(box, text="Apply to every one", command=lambda g=group: self._group_all(g)).grid(
+                row=row_no, column=3, sticky="w", padx=(6, 0), pady=1)
         box = ttk.LabelFrame(tab, text="Portrait sizes (each group's default)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_sizes: dict[str, tuple[tk.StringVar, tk.StringVar]] = {}
@@ -2265,6 +2269,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """Every male's, female's or upcoming baby's portrait shape or border."""
         getattr(self.edits, attr)[group] = value
         self._saved()
+
+    def _group_all(self, group: str) -> None:
+        """The group's shape and border on every one of its portraits: those given their own one by
+        one go back to the group's (undo puts them back)."""
+        changed = 0
+        for p in self.village.people.values():
+            if ft.group_of(p) != group:
+                continue
+            entry = self.edits.entries.get(ft.entry_key(self.village, p), {})
+            if "shape" in entry or "border" in entry:
+                self._set_entry(p, shape="", border="")     # a copy: the undo steps keep the old one
+                changed += 1
+        if changed:
+            self._saved()
+        self.status.set(f"{ft.GROUPS[group]}: every portrait is now {ft.PORTRAIT_SHAPES[self.edits.shapes[group]]}, "
+                            f"{ft.BORDERS[self.edits.borders[group]].lower()} ({changed} had their own).")
 
     def _live(self, spin: ttk.Spinbox, apply) -> ttk.Spinbox:
         """A size box that changes the tree as it is used (the owner: "should have a live preview"):
