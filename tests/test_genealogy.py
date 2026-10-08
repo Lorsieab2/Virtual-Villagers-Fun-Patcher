@@ -989,9 +989,16 @@ class StickerTests(unittest.TestCase):
             self.assertIn('opacity="0.29"', ft.to_svg(sc, {}))
             if vv_gdiplus.available():
                 with tempfile.TemporaryDirectory() as tmp:
+                    # Drawn see-through only when asked (a sticker's own picture)...
                     out = Path(tmp) / "faded.png"
-                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, out))
+                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, out, transparent=True))
                     self.assertTrue(60 <= png_alpha_at(out, 20, 15) <= 90)
+                    # ...while an exported tree is never see-through: a transparent background is
+                    # white there, as the Family Tree Maker shows it (the owner, 2026-10-08: the
+                    # see-through export looked dark in Photos), and the faded picture fades into it.
+                    exported = Path(tmp) / "exported.png"
+                    self.assertTrue(vv_gdiplus.save_scene(sc, {}, exported))
+                    self.assertEqual(png_alpha_at(exported, 20, 15), 255)
 
     def test_the_rainbow_backgrounds_run_across_and_down(self) -> None:
         for key, end in (("rainbow-across", 'x2="1" y2="0"'), ("rainbow-down", 'x2="0" y2="1"')):
