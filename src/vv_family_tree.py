@@ -207,6 +207,7 @@ class Edits:
     title: str = ""
     subtitle: str = ""
     centre_heads: bool = True           # the head and its lines in the middle of the frame
+    text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
@@ -296,6 +297,7 @@ class Edits:
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.diagonal_lines = data.get("diagonal_lines") is True
+        out.text_wrap = int(_number(data.get("text_wrap"), WRAP_MIN, WRAP_MAX, WRAP))
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
         out.number_names = data.get("number_names") is True
@@ -433,7 +435,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.centre_heads, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -1789,7 +1791,8 @@ def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, flo
     return left, face_top - y0 * HEAD_SCALE, face_top + face + 8 + LINE_H - 3, lines
 
 
-WRAP = 17                               # characters across a portrait
+WRAP = 17                               # characters across a portrait, until the player says
+WRAP_MIN, WRAP_MAX = 8, 60
 
 
 def _wrap(text: str, n: int = WRAP) -> list[str]:
@@ -1870,6 +1873,21 @@ def _wrap_cells(cells: list[tuple[str, float, dict]], n: float = WRAP) -> list[l
     return out
 
 
+def _joined(lines: list[str], n: int) -> list[str]:
+    """The patcher's own lines under the name, put side by side while they fit in `n` characters
+    (the owner, 2026-10-08: "1379 game units, 68 years old"): the ages with a comma, a note in
+    brackets after a space."""
+    out: list[str] = []
+    for line in lines:
+        if out:
+            joint = " " if line.startswith("(") else ", "
+            if len(out[-1]) + len(joint) + len(line) <= n:
+                out[-1] += joint + line
+                continue
+        out.append(line)
+    return out
+
+
 def _cells_runs(cells: list) -> list[tuple[str, dict]]:
     return merge_runs((c[0], c[2]) for c in cells)
 
@@ -1879,25 +1897,29 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
     its runs when the player formatted it (else None): every line wrapped to fit across, and as many
     as fit below the head -- the last of them ending in ... when some did not.  Formatted words wrap
     by how wide their fonts make them (run_width), so they never run past the portrait."""
+    n = lay.edits.text_wrap
     runs = node_runs(lay, p)
     if runs is None:
-        out = [(piece, k == 0, None) for k, text in enumerate(node_text(lay, p)) for piece in _wrap(text)]
+        lines = node_text(lay, p)
+        if not lay.entry(p).get("lines"):
+            lines = lines[:1] + _joined(lines[1:], n)       # the patcher's own lines: side by side when they fit
+        out = [(piece, k == 0, None) for k, text in enumerate(lines) for piece in _wrap(text, n)]
         room = max(1, room)
         if len(out) > room:
             last, bold, _r = out[room - 1]
-            out = out[:room - 1] + [(last[:WRAP - 1] + "…", bold, None)]
+            out = out[:room - 1] + [(last[:n - 1] + "…", bold, None)]
         return out
     pieces: list[tuple[list, bool]] = []
     for k, line in enumerate(runs):
         base = line_base(lay.edits, k == 0)
         cells = [(ch, run_width(style, base), style) for text, style in line for ch in text]
-        pieces.extend((cells_line, k == 0) for cells_line in _wrap_cells(cells))
+        pieces.extend((cells_line, k == 0) for cells_line in _wrap_cells(cells, n))
     room = max(1, room)
     if len(pieces) > room:
         last, bold = pieces[room - 1]
         kept, used = [], 0.0
         for cell in last:
-            if used + cell[1] > WRAP - 1 + 1e-9:
+            if used + cell[1] > n - 1 + 1e-9:
                 break
             kept.append(cell)
             used += cell[1]

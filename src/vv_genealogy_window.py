@@ -819,6 +819,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.centre_var = tk.BooleanVar(value=e.centre_heads)
         ttk.Checkbutton(tab, text="Centre faces and text in portraits", variable=self.centre_var,
                         command=lambda: self._change(centre_heads=bool(self.centre_var.get()))).pack(anchor="w", pady=(10, 0))
+        # The owner, 2026-10-08: the words in a portrait spread wider, adjustable.
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Characters across a portrait:").pack(side="left")
+        self.wrap_var = tk.StringVar(value=str(e.text_wrap))
+        self._live(ttk.Spinbox(row, textvariable=self.wrap_var, from_=ft.WRAP_MIN, to=ft.WRAP_MAX, width=4),
+                   self._text_wrap).pack(side="left", padx=(6, 0))
         self.units_var = tk.BooleanVar(value=e.show_units)
         ttk.Checkbutton(tab, text="Game age in units", variable=self.units_var,
                         command=lambda: self._change(show_units=bool(self.units_var.get()))).pack(anchor="w")
@@ -2270,6 +2277,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         getattr(self.edits, attr)[group] = value
         self._saved()
 
+    def _text_wrap(self) -> None:
+        """How many characters fit across a portrait before a line wraps."""
+        try:
+            n = max(ft.WRAP_MIN, min(ft.WRAP_MAX, int(float(self.wrap_var.get()))))
+        except ValueError:
+            return
+        if n != self.edits.text_wrap:
+            self._change(text_wrap=n)
+
     def _group_all(self, group: str) -> None:
         """The group's shape and border on every one of its portraits: those given their own one by
         one go back to the group's (undo puts them back)."""
@@ -2537,6 +2553,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.glow_var.set(f"{e.mark_glow:g}")
         self.mark_opacity_scale.set(e.mark_opacity)
         self.centre_var.set(e.centre_heads)
+        self.wrap_var.set(str(e.text_wrap))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
         self.number_names_var.set(e.number_names)
