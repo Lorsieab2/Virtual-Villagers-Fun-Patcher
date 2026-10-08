@@ -752,6 +752,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box.columnconfigure(2, weight=1)
         ttk.Label(box, text="Each mark's colour: Change colour... below.", wraplength=300).grid(
             row=3, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        # The owner, 2026-10-08: "please allow me to delete the key for marks" (right-click it >
+        # Delete does the same; Deleted items on the Layout tab brings it back).
+        self.key_var = tk.BooleanVar(value="word:key" not in self.edits.hidden)
+        ttk.Checkbutton(box, text="Show the Key (each mark's name and colour, under the title)",
+                        variable=self.key_var, command=self._show_key).grid(
+            row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
         ttk.Label(tab, text="1. Pick or type a mark.\n2. Select villagers on the tree.\n3. Click Add.",
                   justify="left").pack(anchor="w", pady=(6, 0))
         row = ttk.Frame(tab)
@@ -824,8 +830,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         row.pack(anchor="w", pady=(4, 0))
         ttk.Label(row, text="Characters across a portrait:").pack(side="left")
         self.wrap_var = tk.StringVar(value=str(e.text_wrap))
-        self._live(ttk.Spinbox(row, textvariable=self.wrap_var, from_=ft.WRAP_MIN, to=ft.WRAP_MAX, width=4),
-                   self._text_wrap).pack(side="left", padx=(6, 0))
+        wrap_spin = self._live(ttk.Spinbox(row, textvariable=self.wrap_var, from_=ft.WRAP_MIN, to=ft.WRAP_MAX,
+                                           width=4), self._text_wrap)
+        wrap_spin.bind("<KeyRelease>", lambda _e: self._text_wrap())      # in real time, as typed (the owner)
+        wrap_spin.bind("<MouseWheel>", lambda e: (self.wrap_var.set(str(max(ft.WRAP_MIN, min(
+            ft.WRAP_MAX, self.edits.text_wrap + (1 if e.delta > 0 else -1))))), self._text_wrap(), "break")[-1])
+        wrap_spin.pack(side="left", padx=(6, 0))
         self.units_var = tk.BooleanVar(value=e.show_units)
         ttk.Checkbutton(tab, text="Game age in units", variable=self.units_var,
                         command=lambda: self._change(show_units=bool(self.units_var.get()))).pack(anchor="w")
@@ -1144,7 +1154,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 if see < 1:                     # the border fades with it, into what is really under it:
                     # the background picture's own colour there, not a plain white (the owner,
                     # 2026-10-08: a mark is the colour chosen, never washed out to white)
-                    under = self._under(item.x + item.w / 2, item.y, sc)
+                    under = self._colour_under(item.x + item.w / 2, item.y, sc)
                     outline = tk_colour(faded(item.stroke, see, under)) if width else ""
                 corners = ft.outline(item.kind, item.x, item.y, item.w, item.h)
                 if item.angle:                  # the canvas cannot turn a shape: its corners, turned
@@ -2059,7 +2069,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.photos[key] = small
         return self.photos[key]
 
-    def _under(self, x: float, y: float, sc: ft.Scene) -> str:
+    def _colour_under(self, x: float, y: float, sc: ft.Scene) -> str:
         """The colour the page shows at (x, y) of the tree: the drawn background picture or
         gradient there, else the background colour."""
         photo = self.photos.get("backdrop")
@@ -2832,6 +2842,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if path is not None:
                 self._place_new(ft.new_sticker(what, path, x, y))
 
+    def _show_key(self) -> None:
+        """The marks' Key shown or deleted (a new list: the undo steps keep the old one)."""
+        hidden = [h for h in self.edits.hidden if h != "word:key"]
+        if not self.key_var.get():
+            hidden.append("word:key")
+        self._change(hidden=hidden)
+        self._refresh_hidden()
+
     def _hide(self, what: str) -> None:
         """A line piece or words deleted from the tree (brought back from the Layout tab)."""
         if what not in self.edits.hidden:
@@ -2900,6 +2918,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 "bar": f"The bar between {parents}'s twins or triplets"}.get(kind, f"A line of {parents}'s family")
 
     def _refresh_hidden(self) -> None:
+        if hasattr(self, "key_var"):            # the Key's tick box follows a right-click Delete and undo
+            self.key_var.set("word:key" not in self.edits.hidden)
         if not hasattr(self, "hidden_list"):
             return
         self.hidden_list.delete(0, "end")

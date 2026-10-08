@@ -1879,12 +1879,39 @@ def _joined(lines: list[str], n: int) -> list[str]:
     brackets after a space."""
     out: list[str] = []
     for line in lines:
-        if out:
-            joint = " " if line.startswith("(") else ", "
+        if out and line and out[-1]:
+            joint = _joint(out[-1], line)
             if len(out[-1]) + len(joint) + len(line) <= n:
                 out[-1] += joint + line
                 continue
         out.append(line)
+    return out
+
+
+def _joint(before: str, after: str) -> str:
+    """What goes between two lines put side by side: a space beside a bracketed note -- "(deceased)
+    Founder" -- else a comma -- "1379 game units, 68 years old"."""
+    return " " if after.startswith("(") or before.endswith(")") else ", "
+
+
+def _joined_runs(lines: list, n: int, edits: "Edits") -> list:
+    """_joined for formatted lines: each keeps its own words' formatting; they are measured as
+    wide as their fonts make them (run_width)."""
+    base = line_base(edits, False)
+
+    def wide(line) -> float:
+        return sum(run_width(style, base) * len(text) for text, style in line)
+
+    def plain(line) -> str:
+        return "".join(text for text, _style in line)
+    out: list = []
+    for line in lines:
+        if out and plain(line) and plain(out[-1]):
+            joint = _joint(plain(out[-1]), plain(line))
+            if wide(out[-1]) + len(joint) + wide(line) <= n + 1e-9:
+                out[-1] = list(out[-1]) + [(joint, {})] + list(line)
+                continue
+        out.append(list(line))
     return out
 
 
@@ -1901,8 +1928,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
     runs = node_runs(lay, p)
     if runs is None:
         lines = node_text(lay, p)
-        if not lay.entry(p).get("lines"):
-            lines = lines[:1] + _joined(lines[1:], n)       # the patcher's own lines: side by side when they fit
+        lines = lines[:1] + _joined(lines[1:], n)           # side by side while they fit (the owner's picture)
         out = [(piece, k == 0, None) for k, text in enumerate(lines) for piece in _wrap(text, n)]
         room = max(1, room)
         if len(out) > room:
@@ -1910,6 +1936,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
             out = out[:room - 1] + [(last[:n - 1] + "…", bold, None)]
         return out
     pieces: list[tuple[list, bool]] = []
+    runs = runs[:1] + _joined_runs(runs[1:], n, lay.edits)
     for k, line in enumerate(runs):
         base = line_base(lay.edits, k == 0)
         cells = [(ch, run_width(style, base), style) for text, style in line for ch in text]
