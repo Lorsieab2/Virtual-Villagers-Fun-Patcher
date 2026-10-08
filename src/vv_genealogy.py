@@ -647,11 +647,11 @@ class Rules:
     """Every rule is the player's toggle.  The defaults are only where the window starts."""
     plan_ahead: bool = False            # any age (children included), to plan ahead
     allow_50_plus: bool = False         # the 18-49 window, and 50 and older too
-    close_in_age: bool = False
+    close_in_age: bool = True
     max_age_gap_years: int = 10
-    no_shared_ancestors: bool = False
+    no_shared_ancestors: bool = True
     shared_ancestor_generations: int = 0    # 0: since the tribe began; else within the last N
-    max_relatedness: bool = False
+    max_relatedness: bool = True
     max_relatedness_percent: float = 3.125  # second cousins
     block_parent_child: bool = True
     block_full_siblings: bool = True
@@ -660,8 +660,8 @@ class Rules:
     block_aunt_uncle: bool = False
     block_first_cousins: bool = False
     not_expecting: bool = True
-    different_last_name: bool = False
-    prefer_fresh_blood: bool = False
+    different_last_name: bool = True
+    prefer_fresh_blood: bool = True
 
     def describe(self) -> list[str]:
         out = []
