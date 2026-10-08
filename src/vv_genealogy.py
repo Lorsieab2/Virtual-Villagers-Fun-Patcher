@@ -661,6 +661,7 @@ class Rules:
     block_first_cousins: bool = False
     not_expecting: bool = True
     different_last_name: bool = True
+    one_family_per_partner: bool = True   # no partner from a family they already have a child with
     prefer_fresh_blood: bool = True
 
     def describe(self) -> list[str]:
@@ -685,6 +686,7 @@ class Rules:
                             (self.block_first_cousins, "No first cousins"),
                             (self.not_expecting, "Not already expecting"),
                             (self.different_last_name, "Different last names (family)"),
+                            (self.one_family_per_partner, "One Family Per Partner"),
                             (self.prefer_fresh_blood, "Fresh blood first")):
             if flag:
                 out.append(words)
@@ -749,7 +751,7 @@ def _same_last_name(man: Person, woman: Person) -> bool:
 
 
 def _blocked(rules: Rules, man: Person, woman: Person, relation: str, related: Fraction,
-             shared: dict) -> str | None:
+             shared: dict, partners: dict[int, set[str]] | None = None) -> str | None:
     if rules.close_in_age and man.age is not None and woman.age is not None \
             and abs(man.age - woman.age) > rules.max_age_gap_years * UNITS_PER_YEAR:
         return "too far apart in age"
@@ -775,7 +777,27 @@ def _blocked(rules: Rules, man: Person, woman: Person, relation: str, related: F
     # owner): a family number they share with someone by chance is not a family.
     if rules.different_last_name and _same_last_name(man, woman):
         return "same last name"
+    # A family is a family whatever its numbers (the owner): a villager who already has a child with a
+    # Wanjiko is not offered a Wanjiko II.
+    if rules.one_family_per_partner and partners is not None and (
+            _last_name(woman.name).casefold() in partners.get(man.id, ())
+            or _last_name(man.name).casefold() in partners.get(woman.id, ())):
+        return "already has a child with that family"
     return None
+
+
+def _partner_families(village: Village) -> dict[int, set[str]]:
+    """Each parent -> the last names (numbers dropped) of everyone they have a child, born or on the
+    way, with."""
+    out: dict[int, set[str]] = {}
+    for child in village.people.values():
+        if child.father is None or child.mother is None:
+            continue
+        for one, other in ((child.father, child.mother), (child.mother, child.father)):
+            name = _last_name(village.people[other].name).casefold()
+            if name:
+                out.setdefault(one, set()).add(name)
+    return out
 
 
 def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[Pair]], list[Pair]]:
@@ -787,6 +809,7 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     allowed: list[Pair] = []
     every: list[Pair] = []
     up = {p.id: ancestors(village, p.id) for p in men + women}
+    partners = _partner_families(village)
     for w in women:
         for m in men:
             related = kin.relatedness(m.id, w.id)
@@ -794,7 +817,7 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
             common = {c: (up[m.id][c], up[w.id][c]) for c in set(up[m.id]) & set(up[w.id])}
             pair = Pair(m, w, related, relation, len(common))
             every.append(pair)
-            if _blocked(rules, m, w, relation, related, common) is None:
+            if _blocked(rules, m, w, relation, related, common, partners) is None:
                 allowed.append(pair)
 
     def fresh(p: Person) -> int:

@@ -37,6 +37,15 @@ import vv_tree_editor_tools as tools  # noqa: E402
 
 Y = gen.UNITS_PER_YEAR
 FIRST = "2026-01-01 10:00:00"
+# The rule tests start from these, the Matchmaker's first defaults, and switch on what they test.
+BASE = dict(close_in_age=False, no_shared_ancestors=False, max_relatedness=False, different_last_name=False,
+            prefer_fresh_blood=False, one_family_per_partner=False)
+
+
+def R(**rules) -> gen.Rules:
+    return gen.Rules(**{**BASE, **rules})
+
+
 LATER = "2026-03-01 10:00:00"
 
 
@@ -118,7 +127,7 @@ class KinshipTests(unittest.TestCase):
 
 class RuleTests(unittest.TestCase):
     def pairs(self, **rules) -> set[tuple[str, str]]:
-        one, per_woman, _fallback = gen.suggest(village(), gen.Rules(**rules))
+        one, per_woman, _fallback = gen.suggest(village(), R(**rules))
         return {(p.man.name, p.woman.name) for pairs in per_woman.values() for p in pairs}
 
     def test_the_age_window_and_its_toggles(self) -> None:
@@ -149,7 +158,7 @@ class RuleTests(unittest.TestCase):
         # purposes!" -- a family number an arrival shares by chance does not block her.
         v = village()
         v.people[12].family = 2
-        _pairs, per_woman, _least = gen.suggest(v, gen.Rules(different_last_name=True))
+        _pairs, per_woman, _least = gen.suggest(v, R(different_last_name=True))
         every = {(p.man.name, p.woman.name) for ps in per_woman.values() for p in ps}
         self.assertIn(("G", "X"), every)
 
@@ -208,7 +217,7 @@ class RuleTests(unittest.TestCase):
         # Codex, #555: the best pair first (W2 with M1) would leave W1 alone; W2 with M2 pairs both.
         v = self.small((1, "M1", "Male", 30, None, None), (2, "M2", "Male", 45, None, None),
                        (3, "W1", "Female", 20, None, None), (4, "W2", "Female", 30, None, None))
-        pairs, _per, _least = gen.suggest(v, gen.Rules(close_in_age=True, max_age_gap_years=15))
+        pairs, _per, _least = gen.suggest(v, R(close_in_age=True, max_age_gap_years=15))
         self.assertEqual({(p.man.name, p.woman.name) for p in pairs}, {("M1", "W1"), ("M2", "W2")})
 
     def test_last_names_carried_are_compared_and_no_number_is_none(self) -> None:
@@ -216,26 +225,45 @@ class RuleTests(unittest.TestCase):
                        (3, "Cy Kay", "Male", 31, None, None))
         for p in v.people.values():
             p.family = 7                                # one family number, by chance
-        allowed = {(p.man.name, p.woman.name) for ps in gen.suggest(v, gen.Rules(different_last_name=True))[1].values()
+        allowed = {(p.man.name, p.woman.name) for ps in gen.suggest(v, R(different_last_name=True))[1].values()
                    for p in ps}
         self.assertEqual(allowed, {("Cy Kay", "Ann Lee")})
         v.people[1].number = None                       # taken off the tree
         self.assertEqual(gen.numbered(v.people[1]), "Bob Lee")
-        self.assertNotIn("#None", gen.pair_report(v, gen.Rules(), "A New Home"))
+        self.assertNotIn("#None", gen.pair_report(v, R(), "A New Home"))
+
+    def test_numbers_never_make_a_new_family_and_one_family_per_partner(self) -> None:
+        # The owner: "Roman Numerals after last names ARE NOT a different last name (Wanjiko is the same
+        # as Wanjiko II)" -- "Hoani has already fathered a child with a Wanjiko but now he's suggested
+        # for a Wanjiko II".
+        v = self.small((1, "Hoani Chuchip", "Male", 31, None, None), (2, "Meka Wanjiko", "Female", 36, None, None),
+                       (3, "Suki Wanjiko II", "Female", 32, None, None), (4, "Kaula Akikai II", "Female", 32, None, None),
+                       (5, "Uan Wanjiko I", "Male", 33, None, None), (6, "Tia Chuchip", "Female", 1, 1, 2))
+
+        def allowed(**rules):
+            return {(p.man.name, p.woman.name) for ps in gen.suggest(v, R(**rules))[1].values() for p in ps}
+
+        self.assertNotIn(("Uan Wanjiko I", "Suki Wanjiko II"), allowed(different_last_name=True))
+        self.assertIn(("Uan Wanjiko I", "Suki Wanjiko II"), allowed())
+        self.assertIn(("Hoani Chuchip", "Suki Wanjiko II"), allowed())
+        self.assertNotIn(("Hoani Chuchip", "Suki Wanjiko II"), allowed(one_family_per_partner=True))
+        self.assertNotIn(("Hoani Chuchip", "Meka Wanjiko"), allowed(one_family_per_partner=True))
+        self.assertIn(("Hoani Chuchip", "Kaula Akikai II"), allowed(one_family_per_partner=True))
+        self.assertTrue(gen.Rules().one_family_per_partner)        # on by default
 
     def test_an_expecting_mother_is_left_out_unless_the_player_says(self) -> None:
         v = village()
         v.people[8].expecting = True
-        names = {w.name for w in gen.candidates(v, gen.Rules())[1]}
+        names = {w.name for w in gen.candidates(v, R())[1]}
         self.assertNotIn("H", names)
-        self.assertIn("H", {w.name for w in gen.candidates(v, gen.Rules(not_expecting=False))[1]})
+        self.assertIn("H", {w.name for w in gen.candidates(v, R(not_expecting=False))[1]})
 
     def test_the_window_offers_every_rule(self) -> None:
         self.assertEqual({name for name, _w, _k in gw.RULE_FIELDS}, set(gen.Rules.__dataclass_fields__))
         rules = gw.rules_from({"close_in_age": True, "max_age_gap_years": "7", "max_relatedness_percent": "x"})
         self.assertTrue(rules.close_in_age)
         self.assertEqual(rules.max_age_gap_years, 7)
-        self.assertEqual(rules.max_relatedness_percent, gen.Rules().max_relatedness_percent)
+        self.assertEqual(rules.max_relatedness_percent, R().max_relatedness_percent)
 
 
 def png(path: Path, width: int, height: int, alpha) -> None:

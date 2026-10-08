@@ -3281,7 +3281,8 @@ RULE_FIELDS = [
     ("block_aunt_uncle", "No aunt or uncle and niece or nephew", "bool"),
     ("block_first_cousins", "No first cousins", "bool"),
     ("not_expecting", "Not already expecting", "bool"),
-    ("different_last_name", "Different last names (different families)", "bool"),
+    ("different_last_name", "Different last names (numbers ignored: Wanjiko II is a Wanjiko)", "bool"),
+    ("one_family_per_partner", "One Family Per Partner (no Wanjiko II for someone who has a child with a Wanjiko)", "bool"),
     ("prefer_fresh_blood", "Fresh blood first (villagers with no recorded parents)", "bool"),
 ]
 
