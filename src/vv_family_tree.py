@@ -2140,10 +2140,15 @@ class _Outlines(dict):
     def __missing__(self, kind: str):
         if kind not in DRAWN_SHAPES:
             raise KeyError(kind)
-        for name, points in _drawn_outlines().items():
-            xs, ys = zip(*points)
-            self[name] = [((px - min(xs)) / (max(xs) - min(xs)), (py - min(ys)) / (max(ys) - min(ys)))
-                          for px, py in points]
+        # Traced once, ahead of time, into data/tree_shapes.json (scripts/build_tree_shapes.py): tracing
+        # here froze the window for seconds the first time a new shape was picked (Codex, #575).
+        try:
+            stored = json.loads(TREE_SHAPES_FILE.read_text(encoding="utf-8"))
+            for name in DRAWN_SHAPES:
+                self[name] = [(float(x), float(y)) for x, y in stored[name]]
+        except (OSError, ValueError, KeyError, TypeError):
+            for name, points in traced_unit_outlines().items():   # the file is missing: trace them
+                self[name] = points
         return self[kind]
 
     def get(self, kind, default=None):
@@ -2151,6 +2156,19 @@ class _Outlines(dict):
             return self[kind]
         except KeyError:
             return default
+
+
+def traced_unit_outlines() -> dict[str, list[tuple[float, float]]]:
+    """DRAWN_SHAPES traced and fitted to a 1 x 1 box (what data/tree_shapes.json holds)."""
+    out = {}
+    for name, points in _drawn_outlines().items():
+        xs, ys = zip(*points)
+        out[name] = [((px - min(xs)) / (max(xs) - min(xs)), (py - min(ys)) / (max(ys) - min(ys)))
+                     for px, py in points]
+    return out
+
+
+TREE_SHAPES_FILE = Path(__file__).resolve().parents[1] / "data" / "tree_shapes.json"
 
 
 OUTLINES = _Outlines(_unit_outlines())

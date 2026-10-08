@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import hashlib
 import json
@@ -83,6 +83,8 @@ FILES = [
     "data/vv4_origins_village_wide_upgrades.json",
     "data/vv5_origins_village_wide_upgrades.json",
     "data/statistics_features.json",
+    # The Family Tree Maker's traced portrait shapes (scripts/build_tree_shapes.py).
+    "data/tree_shapes.json",
     "data/vv1_parentage_feature.json",
     "data/vv2_parentage_feature.json",
     "data/vv3_parentage_feature.json",

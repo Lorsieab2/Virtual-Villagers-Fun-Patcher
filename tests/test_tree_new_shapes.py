@@ -37,6 +37,20 @@ class NewShapeTests(unittest.TestCase):
         took, traced = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True).stdout.split()
         self.assertEqual(traced, "False")                       # traced only when first drawn (Codex, #575)
 
+    def test_the_stored_shapes_are_the_traced_ones_and_load_at_once(self) -> None:
+        import json
+        import time
+        stored = json.loads(ft.TREE_SHAPES_FILE.read_text(encoding="utf-8"))
+        for kind, points in ft.traced_unit_outlines().items():
+            self.assertEqual(len(stored[kind]), len(points), kind)
+            for (sx, sy), (x, y) in zip(stored[kind], points):
+                self.assertAlmostEqual(sx, x, places=4)
+                self.assertAlmostEqual(sy, y, places=4)
+        fresh = ft._Outlines(ft._unit_outlines())
+        started = time.perf_counter()
+        fresh["flower"]
+        self.assertLess(time.perf_counter() - started, 0.5)     # read, not traced (Codex, #575)
+
     def test_the_flower_has_six_petals_one_straight_up(self) -> None:
         points = ft.outline("flower", -1, -1, 2, 2)
         top = min(points, key=lambda p: p[1])
