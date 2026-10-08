@@ -28,6 +28,15 @@ class NewShapeTests(unittest.TestCase):
             # Its middle is inside it, so a click on the portrait finds it.
             self.assertTrue(ft.inside(ft.outline(kind, 0, 0, 100, 100), 50, 52), kind)
 
+    def test_the_fixed_proportions_are_the_traced_ones_and_nothing_is_traced_at_start_up(self) -> None:
+        for kind in NEW:
+            self.assertEqual(ft.ASPECTS[kind], round(ft._raw_aspect(kind), 3), kind)
+        import subprocess
+        code = ("import sys, time; sys.path.insert(0, r'%s'); t = time.perf_counter(); import vv_family_tree as ft; "
+                "print(time.perf_counter() - t, 'flower' in dict.keys(ft.OUTLINES))" % (ROOT / "src"))
+        took, traced = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True).stdout.split()
+        self.assertEqual(traced, "False")                       # traced only when first drawn (Codex, #575)
+
     def test_the_flower_has_six_petals_one_straight_up(self) -> None:
         points = ft.outline("flower", -1, -1, 2, 2)
         top = min(points, key=lambda p: p[1])
@@ -49,6 +58,19 @@ class NewShapeTests(unittest.TestCase):
             self.assertEqual(ft.Edits.from_data(data).shapes["Male"], kind)    # kept in the tree file
             sc = ft.scene(ft.layout(village(), e), "A New Home", {})
             self.assertIn("<polygon", ft.to_svg(sc, {}))
+
+
+class JoiningTests(unittest.TestCase):
+    def test_lines_join_only_once_the_width_is_widened(self) -> None:
+        v = village()
+        p = next(q for q in v.known() if not q.upcoming)
+        typed = ["1. Someone", "Leader", "Doctor"]
+        for n, expected in ((17, ["1. Someone", "Leader", "Doctor"]), (30, ["1. Someone", "Leader, Doctor"])):
+            e = ft.Edits(text_wrap=n)
+            e.entries[ft.entry_key(v, p)] = {"lines": typed}
+            ft.arrange(v, e)
+            lay = ft.layout(v, e)
+            self.assertEqual([t for t, _b, _r in ft.placement(lay, p)[3]], expected, n)
 
 
 class ApplyToEveryOneTests(unittest.TestCase):

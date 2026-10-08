@@ -3204,8 +3204,54 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             messagebox.showerror("Save Picture", f"The picture could not be saved: {exc}", parent=self)
             return
         self.status.set(f"Saved {path}" + (f" and {count - 1} more page(s) beside it" if count > 1 else ""))
-        if messagebox.askyesno("Save Picture", f"Saved {path}.\n\nOpen the folder?", parent=self):
-            os.startfile(str(path.parent))  # noqa: S606 - Windows only, the player's own folder
+        self._preview_picture(path)
+
+    def _preview_picture(self, path: Path) -> None:
+        """The picture just saved, shown as it is (the owner, 2026-10-08: "there should be a fucking image
+        preview built in"): drawn by the same graphics as the file, fitted to the screen, over a
+        checkerboard so anything see-through in the file shows as see-through, never as the window's
+        white."""
+        sc = self._page_scene(0)[1]
+        fit = min(1.0, (self.winfo_screenwidth() - 120) / max(1.0, sc.width),
+                  (self.winfo_screenheight() - 220) / max(1.0, sc.height))
+        temp = Path(tempfile.gettempdir()) / f"vvfp-tree-preview-{os.getpid()}.png"
+        try:
+            # A PNG keeps what is see-through; a JPG has none, so it is shown on its own colour.
+            ok = vv_gdiplus.save_scene(sc, self.present, temp, scale=fit)
+            photo = tk.PhotoImage(master=self, file=str(temp)) if ok else None
+        except (OSError, tk.TclError):
+            photo = None
+        finally:
+            try:
+                temp.unlink()
+            except OSError:
+                pass
+        window = tk.Toplevel(self)
+        window.title(f"Preview - {path.name}")
+        frame = ttk.Frame(window, padding=8)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text=f"Saved {path}.  This is the picture as saved"
+                  + (" (the first page)" if len(ft.page_spans(self.edits, self.village)) > 1 else "")
+                  + ".  A checkerboard shows through anything see-through.", wraplength=900).pack(anchor="w")
+        if photo is not None:
+            w, h = photo.width(), photo.height()
+            canvas = tk.Canvas(frame, width=w, height=h, highlightthickness=0)
+            canvas.pack(pady=(6, 6))
+            for y in range(0, h, 16):
+                for x in range(0, w, 16):
+                    canvas.create_rectangle(x, y, x + 16, y + 16, width=0,
+                                            fill="#cccccc" if (x // 16 + y // 16) % 2 else "#ffffff")
+            canvas.create_image(0, 0, image=photo, anchor="nw")
+            canvas.image = photo                # kept while the window is open
+        else:
+            ttk.Label(frame, text="(The preview could not be drawn; the picture itself was saved.)").pack(pady=6)
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="e")
+        ttk.Button(buttons, text="Open the folder",
+                   command=lambda: os.startfile(str(path.parent))).pack(side="left")  # noqa: S606
+        ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left", padx=(6, 0))
+        window.transient(self)
+        window.focus_set()
 
     def _open_page(self) -> None:
         self._write_outputs()

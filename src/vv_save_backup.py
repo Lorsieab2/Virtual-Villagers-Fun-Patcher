@@ -830,17 +830,41 @@ def is_slot_save(relative: Path) -> bool:
     return relative.parent == Path() and number is not None and 1 <= number <= 5
 
 
-def _write_save(path: Path, data: bytes) -> None:
-    """Swap ``data`` in through a temporary file, then read it back."""
-    temporary = path.with_name(path.name + ".vvfp-pause-tmp")
+def _swap_in(path: Path, data: bytes) -> None:
+    """``data`` swapped in through a temporary file of its own: a new, unique name created
+    exclusively, so nothing already beside the save is ever written over or moved (Codex, #575)."""
+    temporary = path.with_name(f"{path.name}.{uuid.uuid4().hex}.vvfp-pause-tmp")
     try:
-        temporary.write_bytes(data)
+        with temporary.open("xb") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
         os.replace(temporary, path)
     finally:
         if temporary.exists():
             temporary.unlink()
-    if path.read_bytes() != data:
-        raise BackupError(f"{path.name} does not read back as written.")
+
+
+def _write_save(path: Path, data: bytes, original: bytes) -> None:
+    """Swap ``data`` in and read it back.  If it does not read back as written, the original is
+    put back the same way before the error is raised (Codex, #575): a save is never left changed
+    and reported unchanged."""
+    _swap_in(path, data)
+    try:
+        ok = path.read_bytes() == data
+    except OSError:
+        ok = False
+    if ok:
+        return
+    try:
+        _swap_in(path, original)
+        back = path.read_bytes() == original
+    except OSError:
+        back = False
+    if not back:
+        raise BackupError(f"{path.name} did not read back as written, and could not be put back as it "
+                          "was: restore it from a backup.")
+    raise BackupError(f"{path.name} did not read back as written; it was put back as it was.")
 
 
 def pause_save_file(game: int, path: Path) -> int | None:
@@ -851,7 +875,7 @@ def pause_save_file(game: int, path: Path) -> int | None:
     paused = pause_save_bytes(game, data)
     if paused is None:
         return None
-    _write_save(path, paused)
+    _write_save(path, paused, data)
     return save_speed(game, data)[1]
 
 
@@ -864,7 +888,7 @@ def set_save_speed(game: int, path: Path, speed: int) -> None:
     if found is None:
         raise BackupError(f"{path.name} is not a save whose speed can be put back.")
     offset = found[0]
-    _write_save(path, data[:offset] + speed.to_bytes(4, "little") + data[offset + 4:])
+    _write_save(path, data[:offset] + speed.to_bytes(4, "little") + data[offset + 4:], data)
 
 
 def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
@@ -923,7 +947,15 @@ def pause_saves(paths: list[Path], processes: ProcessController | None = None) -
             outcome.skipped.append((path, "not a Virtual Villagers save this can read"))
             continue
         live_folder = path.parent if path.parent.parent.name != BACKUPS_FOLDER else path.parent.parent.parent
-        if running_game_count(live_folder, processes):
+        # Not knowing is not "closed" (Codex, #575): if the running programs cannot be listed, the
+        # save is left alone, as when its game is running.
+        try:
+            controller = processes if processes is not None else WindowsProcesses()
+            running = bool(controller.find(game_exe_name(live_folder)))
+        except Exception as exc:  # noqa: BLE001 -- any failure to look is a refusal
+            outcome.skipped.append((path, f"could not check whether {game_exe_name(live_folder)} is running ({exc})"))
+            continue
+        if running:
             outcome.skipped.append((path, f"{game_exe_name(live_folder)} is running"))
             continue
         try:

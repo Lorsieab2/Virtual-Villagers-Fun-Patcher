@@ -216,12 +216,12 @@ class Edits:
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
     numbering: str = "roman"            # NUMBERINGS: the generations' numbers
-    background: str = TRANSPARENT       # "#rrggbb" or TRANSPARENT (the owner's default); blank the patcher's own
+    background: str = "#ffffff"         # "#rrggbb" or TRANSPARENT; white until the player says (the owner, 2026-10-08: "to prevent stupid mistakes"); blank the patcher's own
     background2: str = ""               # a gradient's lower colour ("" none)
     rainbow: str = ""                   # a RAINBOWS key instead of that gradient ("" none)
     background_image: str = ""          # a picture file, or "game:<name>" in the game's Images
     background_fit: str = "stretch"     # FITS (the owner's default: "stretch to the page")
-    background_opacity: int = 60        # 0-100: how strongly the picture shows over the colour
+    background_opacity: int = 100       # 0-100: how strongly the picture shows over the colour (the owner, 2026-10-08: not see-through unless asked)
     ink: str = ""                       # the text's colour
     font: str = ""                      # the font for every word on the tree ("" the patcher's own)
     styles: dict[str, dict] = field(default_factory=dict)             # ROLES key -> its own style
@@ -1928,7 +1928,8 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
     runs = node_runs(lay, p)
     if runs is None:
         lines = node_text(lay, p)
-        lines = lines[:1] + _joined(lines[1:], n)           # side by side while they fit (the owner's picture)
+        if n > WRAP:                    # widened: side by side while they fit (the owner's picture); at the
+            lines = lines[:1] + _joined(lines[1:], n)       # default every line stays as typed (Codex, #575)
         out = [(piece, k == 0, None) for k, text in enumerate(lines) for piece in _wrap(text, n)]
         room = max(1, room)
         if len(out) > room:
@@ -1936,7 +1937,8 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
             out = out[:room - 1] + [(last[:n - 1] + "…", bold, None)]
         return out
     pieces: list[tuple[list, bool]] = []
-    runs = runs[:1] + _joined_runs(runs[1:], n, lay.edits)
+    if n > WRAP:
+        runs = runs[:1] + _joined_runs(runs[1:], n, lay.edits)
     for k, line in enumerate(runs):
         base = line_base(lay.edits, k == 0)
         cells = [(ch, run_width(style, base), style) for text, style in line for ch in text]
@@ -2034,7 +2036,6 @@ def _unit_outlines() -> dict[str, list[tuple[float, float]]]:
         "hexagon": [(0.5, 0), (1, 0.25), (1, 0.75), (0.5, 1), (0, 0.75), (0, 0.25)],
         "octagon": [(0.3, 0), (0.7, 0), (1, 0.3), (1, 0.7), (0.7, 1), (0.3, 1), (0, 0.7), (0, 0.3)],
         "heart": fit(heart),
-        **{kind: fit(points) for kind, points in _drawn_outlines().items()},
     }
 
 
@@ -2128,7 +2129,31 @@ def _raw_aspect(kind: str) -> float:
     return (max(xs) - min(xs)) / (max(ys) - min(ys))
 
 
-OUTLINES = _unit_outlines()
+DRAWN_SHAPES = ("flower", "butterfly", "clover", "spade", "leaf")
+# Their widths for their heights as traced (_raw_aspect), fixed so nothing is traced at start-up.
+FLOWER_ASPECT, BUTTERFLY_ASPECT, CLOVER_ASPECT, SPADE_ASPECT, LEAF_ASPECT = 0.897, 1.447, 1.06, 0.822, 1.171
+
+
+class _Outlines(dict):
+    """The unit outlines; the traced ones (DRAWN_SHAPES) are worked out the first time one is
+    asked for, not as the patcher starts (Codex, #575: tracing takes a noticeable moment)."""
+    def __missing__(self, kind: str):
+        if kind not in DRAWN_SHAPES:
+            raise KeyError(kind)
+        for name, points in _drawn_outlines().items():
+            xs, ys = zip(*points)
+            self[name] = [((px - min(xs)) / (max(xs) - min(xs)), (py - min(ys)) / (max(ys) - min(ys)))
+                          for px, py in points]
+        return self[kind]
+
+    def get(self, kind, default=None):
+        try:
+            return self[kind]
+        except KeyError:
+            return default
+
+
+OUTLINES = _Outlines(_unit_outlines())
 
 
 SVG_DASHES = {"dotted": "1.5 4", "dashed": "8 5", "dashdot": "8 4 1.5 4"}
@@ -2143,7 +2168,8 @@ GDI_DASHES = {"dotted": 2, "dashed": 1, "dashdot": 3}       # GDI+'s dash styles
 ASPECTS = {"rect": 1.0, "rounded": 1.0, "circle": 1.0, "heart": 1.107, "star": 1.051, "triangle": 1.155, "diamond": 0.7, "cross": 0.75, "x": 1.0,
            "plus": 1.0, "hexagon": 0.866, "octagon": 1.0}
 # The owner's shapes of 2026-10-08 take their own drawn proportions.
-ASPECTS.update({kind: round(_raw_aspect(kind), 3) for kind in ("flower", "butterfly", "clover", "spade", "leaf")})
+ASPECTS.update({"flower": FLOWER_ASPECT, "butterfly": BUTTERFLY_ASPECT, "clover": CLOVER_ASPECT, "spade": SPADE_ASPECT,
+                "leaf": LEAF_ASPECT})      # _raw_aspect's, fixed (tests/test_tree_new_shapes.py checks them)
 FRAME_MIN, FRAME_MAX = 8.0, 1200.0      # a resized frame's sides
 # What the size boxes step through (the owner: "values correspond to typical font sizes"): a word
 # processor's font sizes, on up to a whole portrait and beyond; line weights as a word processor's.

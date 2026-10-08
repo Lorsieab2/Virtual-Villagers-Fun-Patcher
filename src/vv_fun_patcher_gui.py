@@ -3180,11 +3180,16 @@ class App(tk.Tk):
                 # A file locked by another program never stops the repair (review, 2026-10-07).
                 cuts = ([], [f"Names cut short by the Villager Details screen were not checked: a file "
                              f"could not be read ({exc})."])
+            # Backed-up saves not yet Paused, found here off the window's thread (Codex, #575).
+            try:
+                unpaused = vv_save_backup.unpaused_backup_saves(folder)
+            except OSError:
+                unpaused = []
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
-                    cuts)
+                    cuts, unpaused)
 
         try:
-            checked, old_words, kinds, (cuts, cut_notes) = self._run_with_wait(
+            checked, old_words, kinds, (cuts, cut_notes), unpaused = self._run_with_wait(
                 "Checking the logs…\n\nNothing is changed.", survey
             )
             found = (
@@ -3195,7 +3200,8 @@ class App(tk.Tk):
         except (vv_log_tools.LogToolError, OSError) as exc:
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
-        picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes)
+        picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
+                                        unpaused)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause = picked
@@ -3294,7 +3300,7 @@ class App(tk.Tk):
         )
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
-                          kinds: list, cuts: list = (), cut_notes: list = ()):
+                          kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = ()):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3386,10 +3392,6 @@ class App(tk.Tk):
         cut_first()
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
-        try:
-            unpaused = vv_save_backup.unpaused_backup_saves(folder)
-        except OSError:
-            unpaused = []
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))
         if unpaused:
             ttk.Checkbutton(frame, variable=pause_backups_var,
