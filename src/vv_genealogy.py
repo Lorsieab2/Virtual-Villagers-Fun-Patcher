@@ -760,7 +760,7 @@ def _same_last_name(man: Person, woman: Person) -> bool:
 
 
 def _blocked(rules: Rules, man: Person, woman: Person, relation: str, related: Fraction,
-             shared: dict, partners: dict[int, set[str]] | None = None) -> str | None:
+             shared: dict, partners: dict[int, set[tuple[str, int]]] | None = None) -> str | None:
     if rules.close_in_age and man.age is not None and woman.age is not None \
             and abs(man.age - woman.age) > rules.max_age_gap_years * UNITS_PER_YEAR:
         return "too far apart in age"
@@ -787,25 +787,28 @@ def _blocked(rules: Rules, man: Person, woman: Person, relation: str, related: F
     if rules.different_last_name and _same_last_name(man, woman):
         return "same last name"
     # A family is a family whatever its numbers (the owner): a villager who already has a child with a
-    # Wanjiko is not offered a Wanjiko II.
+    # Wanjiko is not offered a Wanjiko II -- but the same partner again always is (the owner, 2026-10-08:
+    # "stop him only from moving on to a second person from the same family").
     if rules.one_family_per_partner and partners is not None and (
-            _last_name(woman.name).casefold() in partners.get(man.id, ())
-            or _last_name(man.name).casefold() in partners.get(woman.id, ())):
-        return "already has a child with that family"
+            any(family == _last_name(woman.name).casefold() and other != woman.id
+                for family, other in partners.get(man.id, ()))
+            or any(family == _last_name(man.name).casefold() and other != man.id
+                   for family, other in partners.get(woman.id, ()))):
+        return "already has a child with another of that family"
     return None
 
 
-def _partner_families(village: Village) -> dict[int, set[str]]:
-    """Each parent -> the last names (numbers dropped) of everyone they have a child, born or on the
+def _partner_families(village: Village) -> dict[int, set[tuple[str, int]]]:
+    """Each parent -> (last name, numbers dropped; who) of everyone they have a child, born or on the
     way, with."""
-    out: dict[int, set[str]] = {}
+    out: dict[int, set[tuple[str, int]]] = {}
     for child in village.people.values():
         if child.father is None or child.mother is None:
             continue
         for one, other in ((child.father, child.mother), (child.mother, child.father)):
             name = _last_name(village.people[other].name).casefold()
             if name:
-                out.setdefault(one, set()).add(name)
+                out.setdefault(one, set()).add((name, other))
     return out
 
 
