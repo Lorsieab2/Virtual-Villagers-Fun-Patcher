@@ -41,9 +41,10 @@ CHECKED = {
               "player chose",
     "mask": "the older Village History snapshots of villagers who wear a mask, from the date the player chose",
     "born_as": "the older Birth records, against the mother's Conception record and the player's answers",
+    "golden": "the Golden Child's Arrived records, against the pregnancies with no Birth and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
-         "mask": "Mask added", "born_as": "Born as added"}
+         "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added"}
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -523,6 +524,78 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
     return kind
 
 
+def plan_golden(folder: Path, game: int, slot: int) -> Kind:
+    """A New Home's Golden Child as a Birth.  The puzzle makes the Golden Child from a pregnant
+    mother and ends her pregnancy, so it is a birth (the owner, 2026-10-08: "THE GOLDEN CHILD
+    SHOULD BE LISTED AS A BIRTH WITH THEIR PARENTS LISTED" -- parents, age, skills, likes and
+    dislikes).  An older patcher wrote it as an Arrived record with no parents.  The pregnancy
+    it ended is a Conception with no Birth after it; the player picks which (the logs alone
+    cannot tell), and a Birth record is added after the Arrived one, which is kept."""
+    kind = Kind("golden", "The Golden Child as a Birth, with its parents")
+    if game != 1:
+        return kind
+    checker = tools.load_checker()
+    villages = current_villages(folder, game, slot)
+    paths = [path for root in (checker.LOGS, "VVFP Logs")
+             for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
+                                ("Tribe Parental Records", "Parentage Log"))
+             for path in checker.numbered(folder / root / sub, f"Virtual Villagers {game} {words}")]
+    every: list[Block] = []
+    for path in paths:
+        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+    born = {b.value("Child", "  ") for b in every if b.heading == "Birth"}
+    for k, b in enumerate(every):
+        if not (b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"):
+            continue
+        name = b.value("Name")
+        if not name or name in born:
+            continue
+        # The pregnancies with no Birth after them, before this record, most recent first.
+        open_: list[tuple[tuple, tuple]] = []
+        for c in every[:k]:
+            if c.heading.startswith("Conception"):
+                mother, father = _sub_identity(c, "Mother"), _sub_identity(c, "Father")
+                if mother and father:
+                    open_ = [o for o in open_ if o[0] != mother] + [(mother, father)]
+            elif c.heading == "Birth":
+                mother = _sub_identity(c, "Mother")
+                open_ = [o for o in open_ if o[0] != mother]
+        if not open_:
+            kind.notes.append(f"{name}, the Golden Child: no pregnancy in the logs could be theirs; nothing added.")
+            continue
+        choices = {f"{m[0]} and {f[0]}": (m, f) for m, f in reversed(open_)}
+        key = f"golden|{b.path.name}|{b.start}"
+        kind.questions[key] = Question(
+            key, f"{name} is the Golden Child: whose pregnancy did the puzzle end? (mother and father)",
+            list(choices) + [DONT_KNOW], DONT_KNOW)
+        kind.inserts.append(Insert(b.path, b.start + len(b.lines) - 1, 9, question=key, by_answer={
+            words: _golden_birth(b, m, f) for words, (m, f) in choices.items()}))
+    return kind
+
+
+def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> str:
+    """A Birth record, as the exporter writes one, for the Golden Child's Arrived record."""
+    lines = ["", "Birth", f"  Child: {arrived.value('Name')}"]
+    for label in ("Sex", "Head", "Body", "Likes", "Dislikes"):
+        if arrived.value(label) is not None:
+            lines.append(f"    {label}: {arrived.value(label)}")
+    inside = False
+    for line in arrived.lines:
+        if line.startswith("  Skills:"):
+            inside = True
+            lines.append(line)
+            continue
+        if inside:
+            if not line.startswith("    "):
+                break
+            lines.append(line)
+    for label, (name, head, body) in (("Mother", mother), ("Father", father)):
+        lines += [f"  {label}: {name}", f"    Head: {head}", f"    Body: {body}"]
+    lines += ["  Born as: Golden Child", "  Age at birth: 100 (5 years old)",
+              "  Note: Recorded afterwards (the Golden Child's parents, from the pregnancy the player chose)"]
+    return "\n".join(lines)
+
+
 def _sub_identity(b: Block, label: str) -> tuple | None:
     """(name, head, body) of a Birth / Conception record's Mother or Father section."""
     at = None
@@ -571,6 +644,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_custom_titles(folder, slot, people, current),
         plan_masks(folder, slot, people, current, page),
         plan_born_as(folder, game, slot),
+        plan_golden(folder, game, slot),
     ]
     return kinds
 
