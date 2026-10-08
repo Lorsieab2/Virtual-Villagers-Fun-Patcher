@@ -319,6 +319,18 @@
       "purpose": "splice the pregnancy tick sub_42E900 after call sub_43C840 at 0x42F06D (the triplet): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax (seven bytes, reached only with the child just created: EAX = its index, ESI = the village object, EDI = the mother's byte offset) through the exact birth hook, so every child -- live, load-time catch-up or Time Warp, single or twin -- is handed to Vv1Born with its mother"
     },
     {
+      "offset": "0x8E8C0",
+      "before": "0000000000000000000000000000000000000000",
+      "after": "568D761CE877FBFFFF5E8B4E108BE8E92E3AF9FF",
+      "purpose": "the Golden Child's birth: hand the puzzle's new Golden Child (EAX = its index) and its mother (EDI = her byte offset into [ESI+0x20], the record array) to the shared body of the exact birth hook with ESI moved by 0x1C, so its [ESI+4] is the array; then replay mov ecx,[esi+0x10] / mov ebp,eax and resume at 0x424302"
+    },
+    {
+      "offset": "0x242FD",
+      "before": "8B4E108BE8",
+      "after": "E9BEC50600",
+      "purpose": "splice the Golden Child puzzle right after its call sub_43C350 at 0x4242F8 (five bytes: mov ecx,[esi+0x10] / mov ebp,eax) through the Golden Child's birth stub, so the Golden Child is logged as a Birth with its parents (Show Parents in Details Screen)"
+    },
+    {
       "offset": "0x8E560",
       "before": "000000000000000000000000",
       "after": "567631536F72745374657000",
