@@ -347,6 +347,18 @@ def own_last_name(name: str) -> str:
 
 
 NUMERAL = re.compile(r"^[IVXLCDM]+$")
+# In a `known` set: a name (without its numeral) whose words are all one first name -- the owner,
+# 2026-10-07, for a two-word name whose second word is no known last name: "Ask per villager".
+WHOLE = "\0whole\t"
+
+
+def guessed_last_name(game: int, name: str, known: set[str] | frozenset = frozenset()) -> str:
+    """The last name `name` is only taken to carry because its second word is no first name -- not
+    one of the game's list or the village's record ("Chapa Chapstick" typed in v1.35.62, or "Big
+    Bob" set with Cheat Engine): the player is asked.  "" when there is nothing to ask."""
+    plain = {n for n in known if not n.startswith(WHOLE)}
+    last = split_name(game, name, plain)[1]
+    return "" if not last or last in plain or last in tools.load_checker().LAST_NAMES[game] else last
 
 
 def split_name(game: int, name: str, known: set[str] | frozenset = frozenset()) -> tuple[str, str, str]:
@@ -356,6 +368,12 @@ def split_name(game: int, name: str, known: set[str] | frozenset = frozenset()) 
     word, so any later word that is not a numeral is a last name too -- one typed in v1.35.62, before
     the village kept a record ("Chapa Chapstick"), is never given a second last name."""
     words = name.split(" ")
+    k = len(words) - 1
+    while k > 0 and NUMERAL.match(words[k]):
+        k -= 1
+    base = " ".join(words[:k + 1])
+    if WHOLE + base in known:                   # the player: these words are one first name
+        return base, "", " ".join(words[k + 1:])
     names = set(tools.load_checker().LAST_NAMES[game]) | set(known)
     for k in range(len(words) - 1, 0, -1):
         if words[k] in names:
@@ -403,11 +421,34 @@ def read_record(folder: Path, game: int, slot: int) -> tuple[str | None, dict[tu
     return rule, fixed
 
 
-def write_record(folder: Path, game: int, slot: int, rule: str, fixed: dict[tuple, str]) -> None:
+def read_whole(folder: Path, game: int, slot: int) -> set[str]:
+    """The names the player said are one first name, not a first and a last ("whole" lines; a
+    reader that does not know them skips them)."""
+    try:
+        lines = record_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return set()
+    if not lines or lines[0] != RECORD_HEADER.format(game=game):
+        return set()
+    return {parts[1] for parts in (line.split("\t") for line in lines[1:]) if parts[0] == "whole" and len(parts) == 2}
+
+
+def known_names(folder: Path, game: int, slot: int, whole: set[str] | None = None) -> set[str]:
+    """What split_name needs to read this village's names: the last names the player gave, and the
+    names that are one first name (`whole`, else the record's)."""
+    fixed = read_record(folder, game, slot)[1]
+    whole = read_whole(folder, game, slot) if whole is None else whole
+    return set(fixed.values()) | {WHOLE + name for name in whole}
+
+
+def write_record(folder: Path, game: int, slot: int, rule: str, fixed: dict[tuple, str],
+                 whole: set[str] | None = None) -> None:
+    whole = read_whole(folder, game, slot) if whole is None else whole
     path = record_path(folder, game, slot)
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [RECORD_HEADER.format(game=game), f"rule\t{rule}"]
     lines += [f"set\t{first}\t{head}\t{body}\t{last}" for (first, head, body), last in sorted(fixed.items())]
+    lines += [f"whole\t{name}" for name in sorted(whole)]
     _write(path, ("\n".join(lines) + "\n").encode("utf-8"))
 
 
@@ -590,14 +631,14 @@ def _mask_identities(game: int, data, at: int) -> tuple[int, int, int]:
 
 
 def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
-         answers: dict[str, str] | None = None) -> Plan:
+         answers: dict[str, str] | None = None, whole: set[str] | None = None) -> Plan:
     """What giving `chosen` ((name, head, body) -> last name) changes, file by file.  Reads only.
 
     Records whose name a renamed villager has but whose looks are no living villager's -- the
     same villager before Change Appearance, or another of the same name -- are asked about
     (Plan.questions); `answers` renames those the player says are them."""
     renames: dict[tuple, str] = {}
-    known = set(read_record(folder, game, slot)[1].values())
+    known = known_names(folder, game, slot, whole)
     people, _parents = everyone(folder, game, slot)
     for v in people:
         if v.identity not in chosen:
@@ -1144,14 +1185,15 @@ def _write(path: Path, data: bytes) -> None:
 def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
                     processes: vv_save_backup.ProcessController | None = None,
                     now: datetime | None = None, answers: dict[str, str] | None = None,
-                    rule: str | None = None, mine: dict[tuple, str] | None = None) -> Result:
+                    rule: str | None = None, mine: dict[tuple, str] | None = None,
+                    whole: set[str] | None = None) -> Result:
     """Rename the chosen living villagers everywhere.  Refused (nothing changed) while the game
     runs; the save folder is backed up first; any failure puts every changed file back."""
     folder = Path(folder)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     tools._refuse_if_running(folder, controller)
     try:
-        work = plan(folder, game, slot, chosen, answers)
+        work = plan(folder, game, slot, chosen, answers, whole)
     except (struct.error, ValueError, OSError) as exc:
         raise LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.renames:
@@ -1159,10 +1201,10 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
     result = apply(folder, work, controller, now, BACKUP_LABEL, "giving the last names")
     if rule:                                    # what "right" is, for Check Saves & Logs' wrong last names
         _old_rule, fixed = read_record(folder, game, slot)
-        known = set(fixed.values()) | {last for last in (mine or {}).values() if last}
+        known = known_names(folder, game, slot, whole) | {last for last in (mine or {}).values() if last}
         for (name, head, body), last in (mine or {}).items():
             fixed[(split_name(game, name, known)[0], head, body)] = last
-        write_record(folder, game, slot, rule, fixed)
+        write_record(folder, game, slot, rule, fixed, whole)
     return result
 
 
@@ -1189,7 +1231,7 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
     Names patch gives babies their mother's); without a record only names that carry a last name
     are checked.  A name the player gave is always right."""
     rule, fixed = read_record(folder, game, slot)
-    known = set(fixed.values())
+    known = known_names(folder, game, slot)
     people, parents = everyone(folder, game, slot)
     mine = {v.identity: fixed[key] for v in people
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
