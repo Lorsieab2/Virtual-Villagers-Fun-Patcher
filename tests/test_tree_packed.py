@@ -104,7 +104,11 @@ class PackedFamiliesTests(unittest.TestCase):
             lay = self.lay(packing=packing)
             for a, b in ((1, 2), (3, 8), (4, 13), (11, 16), (5, 14)):
                 self.assertEqual(lay.y[a], lay.y[b], (packing, a, b))
-                self.assertAlmostEqual(abs(lay.x[a] - lay.x[b]), step_of(lay), delta=0.5, msg=(packing, a, b))
+                if packing < 100:
+                    self.assertAlmostEqual(abs(lay.x[a] - lay.x[b]), step_of(lay), delta=0.5, msg=(packing, a, b))
+                else:                   # touching: no further apart than a step, never overlapping
+                    self.assertLessEqual(abs(lay.x[a] - lay.x[b]), step_of(lay) + 0.5, (a, b))
+                    self.assertFalse(ft.frames_overlap(lay, a, b), (a, b))
             v = village()               # two couples whose four parents are all in the tree
             lay = ft.layout(v, ft.Edits(positioning="packed_families", packing=packing))
             for a, b in ((5, 8), (7, 6)):
@@ -161,6 +165,101 @@ class PackedFamiliesTests(unittest.TestCase):
         for packing in (0, 60):
             sc = ft.scene(self.lay(packing=packing), GAME, {})
             self.assertFalse([i for i in sc.items if isinstance(i, ft.Text) and i.role == "labels"])
+
+
+def same_shape(packing: int, positioning: str, shape: str = "rect") -> ft.Edits:
+    """Every portrait one shape and one size, so neighbours' frames can meet exactly."""
+    return ft.Edits(positioning=positioning, packing=packing, shapes={g: shape for g in ft.GROUPS},
+                    sizes={g: [120.0, float(ft.NODE_H)] for g in ft.GROUPS})
+
+
+def row_gaps(lay) -> list[float]:
+    """The room between each two frames standing side by side in a row (outline to outline)."""
+    out = []
+    by_row = {}
+    for q in lay.x:
+        if q not in lay.others:
+            by_row.setdefault(round(lay.y[q]), []).append(q)
+    for row in by_row.values():
+        row.sort(key=lambda q: lay.x[q])
+        for a, b in zip(row, row[1:]):
+            ra = max(px for px, _py in lay.frame_points(a))
+            lb = min(px for px, _py in lay.frame_points(b))
+            if lb - ra < 60:            # neighbours, not two families far apart
+                out.append(lb - ra)
+    return out
+
+
+class TouchingTests(unittest.TestCase):
+    """The owner, 2026-10-09: "how about putting portraits literally touching each other (maximum
+    packing)", and "packing like this" -- each row nestled in the dips of the one above."""
+
+    def test_at_100_neighbours_touch_and_never_overlap(self):
+        for positioning in ("packed_families", "packed_generations"):
+            lay = ft.layout(big_village(), same_shape(100, positioning))
+            gaps = row_gaps(lay)
+            self.assertTrue(gaps, positioning)
+            self.assertTrue(all(-0.5 <= g <= 1.0 for g in gaps), (positioning, gaps))
+            for p in lay.x:
+                for q in lay.x:
+                    if p < q:
+                        self.assertFalse(ft.frames_overlap(lay, p, q), (positioning, p, q))
+
+    def test_at_95_a_sliver_is_left(self):
+        for positioning in ("packed_families", "packed_generations"):
+            lay = ft.layout(big_village(), same_shape(95, positioning))
+            gaps = row_gaps(lay)
+            self.assertTrue(gaps)
+            self.assertTrue(all(0.5 < g < lay.edits.portrait_gap for g in gaps), (positioning, gaps))
+            self.assertFalse(ft.lines_behind(lay), "lines still go round below 98")
+
+    def test_no_frames_overlap_at_any_packing_or_shape(self):
+        for shape in ("circle", "rect", "diamond", "heart"):
+            for packing in (0, 60, 80, 95, 100):
+                for positioning in ("packed_families", "packed_generations"):
+                    e = ft.Edits(positioning=positioning, packing=packing, shapes={g: shape for g in ft.GROUPS})
+                    lay = ft.layout(big_village(), e)
+                    for p in lay.x:
+                        for q in lay.x:
+                            if p < q:
+                                self.assertFalse(ft.frames_overlap(lay, p, q), (shape, packing, positioning, p, q))
+
+    def arrange(self, shape: str, rows: list, tight: float = 1.0, offset: float | None = None):
+        w, h = 120.0, float(ft.NODE_H)
+        outline = lambda _m: ft._profile(shape, w, h, 0.0)     # noqa: E731
+        return ft._arrange(rows, step=w, offset=w / 2 if offset is None else offset, rowh=h + ft.SUBGAP,
+                           tight=tight, outline=outline, align="arranged")
+
+    def test_round_frames_nest_closer_than_the_grid(self):
+        rows = [[1, 2, 3], [4, 5]]      # the second row sits in the dips of the first
+        circles = self.arrange("circle", rows)
+        squares = self.arrange("rect", rows)
+        self.assertLess(circles[4][1], ft.NODE_H - 10, "round frames nestle into the dips")
+        self.assertGreaterEqual(squares[4][1], ft.NODE_H - 1, "square frames cannot")
+        self.assertEqual(self.arrange("circle", rows, tight=0.0)[4][1], ft.NODE_H + ft.SUBGAP, "a plain grid at 0")
+
+    def test_rows_are_set_along_when_that_takes_less_room(self):
+        # Diamonds stacked brick-wise take half the height: each second row half a portrait along.
+        rows = [[1, 2], [3, 4], [5, 6]]
+        laid = self.arrange("diamond", rows)
+        self.assertAlmostEqual(laid[3][0] - laid[1][0], 60.0, delta=0.5)
+        self.assertAlmostEqual(laid[5][0], laid[1][0], delta=0.5)
+        self.assertLess(laid[3][1], ft.NODE_H * 0.6)
+        # Rectangles gain nothing from it: straight under each other.
+        boxes = self.arrange("rect", rows)
+        self.assertAlmostEqual(boxes[3][0], boxes[1][0], delta=0.5)
+
+    def test_lines_go_behind_and_stay_joined_at_100(self):
+        for positioning in ("packed_families", "packed_generations"):
+            lay = ft.layout(big_village(), ft.Edits(positioning=positioning, packing=100))
+            self.assertTrue(ft.lines_behind(lay))
+            drawn = ft.lines(lay)
+            assert_connected(self, lay, drawn)
+            items = ft.scene(lay, GAME, {}).items
+            last_line = max(k for k, i in enumerate(items) if isinstance(i, ft.Line) and i.piece)
+            first_portrait = min(k for k, i in enumerate(items) if isinstance(i, ft.Shape) and i.target
+                                 and i.target[0] == "person")
+            self.assertLess(last_line, first_portrait, "every family line is drawn before (under) the portraits")
 
 
 class PackedGenerationsTests(unittest.TestCase):

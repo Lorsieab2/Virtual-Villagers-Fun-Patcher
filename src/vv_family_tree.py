@@ -1349,7 +1349,10 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     shrink_now = 1.0
     shown = in_tree | set(others)
     widest_frame = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in shown])
-    gap = edits.portrait_gap
+    # The Packed layouts close the player's gaps as the packing nears 100 (squeeze): touching there.
+    tight = squeeze(edits)
+    gap = edits.portrait_gap * (1 - tight)
+    subgap = SUBGAP * (1 - tight)
     widest_row_n = max([len(r) for r in rows.values()] + [1])
     if shrink is not None:
         shrink_now = shrink
@@ -1357,11 +1360,24 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         room = (edits.fit_width - LEFT) / widest_row_n - gap
         shrink_now = max(SHRINK_MIN, min(1.0, room / widest_frame))
     step = widest_frame * shrink_now + gap
+
+    def outline(q: int) -> tuple:
+        """q's frame's outline, column by column (_profile), as drawn."""
+        p = people[q]
+        entry = edits.entries.get(entry_key(village, p), {})
+        kind = flipped_kind(shape_of(edits, village, p), entry.get("flip_h", False), entry.get("flip_v", False))
+        w, h = frame_size(edits, village, p, shrink=shrink_now)
+        return _profile(kind, w, h, entry.get("angle", 0.0))
+
+    # The Packed layouts' family blocks: short rows, plain or each second row set along into the dips
+    # of the one above, whichever takes less room; rows as close as the frames' outlines let them.
+    block_shape = functools.partial(_arrange, step=step, offset=brick(edits) * step / 2, rowh=NODE_H + subgap,
+                                    tight=tight, outline=outline, align=edits.row_align, gap=gap)
     x: dict[int, float] = {}
     sub: dict[int, int] = {q: 0 for q in in_tree}
     cl = None
     if edits.positioning == "packed_families" and rows:
-        cl = _clusters(people, in_tree, families, step, gap, edits)
+        cl = _clusters(people, in_tree, families, step, gap, edits, block_shape)
         x = dict(cl.x)
         tree_right = max(x.values()) + NODE_W / 2 + max(NODE_W, step - gap) / 2
     elif edits.positioning in ("dynamic", "packed_generations") and rows:
@@ -1369,10 +1385,21 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             # Edits.packing: how many in a family's row, how wide a band may grow before its families
             # step down into its further rows (none at 0; a 16:9 page at 100) and how soon they step down.
             packing = edits.packing / 100
-            page = math.sqrt(len(in_tree) * step * (NODE_H + SUBGAP) * 1.6 * 16 / 9)
+            page = math.sqrt(len(in_tree) * step * (NODE_H + subgap) * 1.6 * 16 / 9)
             cap = page * (1 + 2 * (1 - packing)) if packing else math.inf
-            x, sub = _dynamic(people, rows, families, step,
-                              blocks=(packed_limit(edits), edits.row_align, gap, cap, SUB_COST * (1 - 0.75 * packing)))
+            best = None
+            # The family row width (within what the packing allows) that makes the smallest tree near a
+            # pleasing page shape -- unless the player set their own.
+            for limit in _limits(edits):
+                tx, tsub = _dynamic(people, rows, families, step,
+                                    blocks=(limit, edits.row_align, gap, cap, SUB_COST * (1 - 0.75 * packing),
+                                            CORRIDOR * (1 - tight), block_shape))
+                width = max(tx.values()) - min(tx.values()) + step
+                height = sum((max((tsub[q] for q in row), default=0) + 1) * (NODE_H + subgap) for row in rows.values())
+                score = _page_score(width, height + len(rows) * (NODE_H / 2) * (1 - tight))
+                if best is None or score < best[0]:
+                    best = (score, tx, tsub)
+            _score, x, sub = best
         else:
             x, sub = _dynamic(people, rows, families, step)
         # The right edge of the widest frame, not of a standard portrait: a wide shape (a butterfly) or
@@ -1452,6 +1479,22 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     grid_gap = gap                      # between two rows of an Other Members grid
     bands = {g: NODE_H + max((sub[q] for q in x if q in sub and people[q].generation == g), default=0)
              * (NODE_H + SUBGAP) for g in gens}
+    # Packed generations: each band's rows as close under each other as the packing and the frames'
+    # outlines let them (Packed families works its rows out block by block, in _clusters).
+    sub_top: dict[int, list[float]] = {}
+    if edits.positioning == "packed_generations" and (tight or brick(edits)):
+        for g in gens:
+            members = [q for q in in_tree if people[q].generation == g]
+            deep = max((sub.get(q, 0) for q in members), default=0)
+            tops_g = [0.0]
+            for k in range(1, deep + 1):
+                above = [(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k - 1]
+                here = [(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k]
+                need = _pitch(above, here)
+                rowh = NODE_H + subgap
+                tops_g.append(tops_g[-1] + (need if need >= rowh else rowh - tight * (rowh - need)))
+            sub_top[g] = tops_g
+            bands[g] = tops_g[-1] + NODE_H
     if columns > 1:                     # a generation's band is as tall as its Other Members' grid
         for g, n in grid_rows.items():
             bands[g] = max(bands[g], n * NODE_H + (n - 1) * grid_gap)
@@ -1484,11 +1527,15 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             if k:
                 couples = lanes.couple_count.get(g, 0)
                 # The room under the row above is the player's (Edits.row_gap: "vertical portrait clustering").
-                top += (bands[gens[k - 1]] + edits.row_gap + couples * LANE + (BAND_GAP if couples else 0)
-                        + max(1, lanes.count.get(g, 0)) * LANE + LANE_BOTTOM)
+                # (Packed generations closes it as the packing nears 100: the lines go behind there.)
+                top += bands[gens[k - 1]] + (1 - tight) * (
+                    edits.row_gap + couples * LANE + (BAND_GAP if couples else 0)
+                    + max(1, lanes.count.get(g, 0)) * LANE + LANE_BOTTOM)
             tops[g] = top
         gap_tops = tops
-        row_y = {pid: tops[people[pid].generation] + sub.get(pid, 0) * (NODE_H + SUBGAP) for pid in in_tree}
+        row_y = {pid: tops[people[pid].generation] + (sub_top[people[pid].generation][sub.get(pid, 0)]
+                                                      if sub_top else sub.get(pid, 0) * (NODE_H + SUBGAP))
+                 for pid in in_tree}
     for q in others:
         row_y[q] = others_top.get(people[q].generation, tops[people[q].generation]) + grid_row[q] * (NODE_H + grid_gap)
         if columns > 1:
@@ -1498,10 +1545,11 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         if g is None:
             continue
         kids_band = lanes.count[g] * LANE
-        fam.lane_y = gap_tops[g] - LANE_BOTTOM - (lanes.count[g] - lanes.index[fam.id]) * LANE + LANE / 2
+        k = 1 - tight                       # the lanes close up with the room for them (Packed layouts)
+        fam.lane_y = gap_tops[g] - k * (LANE_BOTTOM + (lanes.count[g] - lanes.index[fam.id]) * LANE - LANE / 2)
         if fam.id in lanes.couple_index:
-            fam.couple_y = (gap_tops[g] - LANE_BOTTOM - kids_band - BAND_GAP
-                            - (lanes.couple_count[g] - lanes.couple_index[fam.id]) * LANE + LANE / 2)
+            fam.couple_y = gap_tops[g] - k * (LANE_BOTTOM + kids_band + BAND_GAP
+                                              + (lanes.couple_count[g] - lanes.couple_index[fam.id]) * LANE - LANE / 2)
             if cl is not None and fam.id in cl.couple_y:    # Packed families: just under the parents
                 fam.couple_y = cl.couple_y[fam.id]
     y = {pid: max(MARGIN, row_y[pid] + shifts[pid].get("dy", 0.0)) for pid in x}
@@ -1678,8 +1726,12 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
                 atoms = group[2] if len(group) > 2 else _litters(people, kids)
                 shape = [[q for atom in row for q in atom] for row in _block_rows(atoms, blocks[0])]
             across = max(len(r) for r in shape)
-            pad = max(0.0, CORRIDOR - blocks[2]) if blocks is not None else 0.0
+            pad = max(0.0, blocks[5] - blocks[2]) if blocks is not None else 0.0
             span = across * step
+            if blocks is not None:      # plain rows or each second row set along, whichever is smaller
+                arranged = blocks[6]([list(r) for r in shape])
+                low_x = min(v[0] for v in arranged.values())
+                span = max(v[0] for v in arranged.values()) - low_x + step
             if wanted is None:                  # nobody to stand near: the end of the first row
                 ends = [hi for row in taken[:1] for _lo, hi in row]
                 wanted = max(ends, default=0.0) + span / 2
@@ -1709,10 +1761,15 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
             while len(taken) < k + deep:
                 taken.append([])
             for r, line in enumerate(shape):
-                indent = _row_indent(len(line), across, step, blocks[1]) if blocks is not None else 0.0
-                taken[k + r].append((left + indent, left + indent + len(line) * step + pad))
+                if blocks is not None:
+                    xs = [arranged[q][0] - low_x for q in line]
+                    taken[k + r].append((left + min(xs), left + max(xs) + step + pad))
+                    for q, rx in zip(line, xs):
+                        x[q], sub[q] = left + rx, k + r
+                    continue
+                taken[k + r].append((left, left + len(line) * step + pad))
                 for i, q in enumerate(line):
-                    x[q], sub[q] = left + indent + i * step, k + r
+                    x[q], sub[q] = left + i * step, k + r
 
         waiting = []
         for group in sorted((gr for gr in groups if gr[0] is not None), key=lambda gr: gr[0]):
@@ -1728,6 +1785,167 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
             put(group)
     shift = LEFT - min(x.values())
     return {q: v + shift for q, v in x.items()}, sub
+
+
+PACKED = ("packed_families", "packed_generations")
+BEHIND = 98                     # from this packing on, lines go behind the portraits, straight
+
+
+def squeeze(edits: Edits) -> float:
+    """How far the Packed layouts close the gaps (0 none, 1 touching): nothing up to packing 60, then
+    smoothly to portraits touching at 100 (the owner: "portraits literally touching each other"), so 90
+    to 99 still leave a sliver.  The player's own portrait gap and row gap give way by as much."""
+    return 0.0 if edits.positioning not in PACKED else min(1.0, max(0.0, (edits.packing - 60) / 40))
+
+
+def brick(edits: Edits) -> float:
+    """How far each second row of a family is set along (0 none, 1 half a portrait: the owner's "more
+    compact packing" of sand grains, each row in the dips of the one above), growing with the packing."""
+    return 0.0 if edits.positioning not in PACKED else edits.packing / 100
+
+
+def lines_behind(lay: "Layout") -> bool:
+    """Packed tightest, there is no room to go round portraits: the lines go straight, behind them."""
+    return lay.edits.positioning in PACKED and lay.edits.packing >= BEHIND
+
+
+_PROFILES: dict = {}
+
+
+def _profile(kind: str, w: float, h: float, angle: float) -> tuple[int, list, list]:
+    """A frame's outline, column by column across it: (half its width in whole columns, each column's top,
+    each column's bottom), centred on 0 across and with a portrait's top at 0 down."""
+    key = (kind, round(w, 1), round(h, 1), round(angle, 1))
+    if key not in _PROFILES:
+        pts = shape_points(kind, -w / 2, (NODE_H - h) / 2, w, h, corner_radius(kind), angle)
+        xs = [p[0] for p in pts]
+        half = int(math.ceil(max(-min(xs), max(xs)))) + 1
+        tops, bottoms = [math.inf] * (2 * half + 1), [-math.inf] * (2 * half + 1)
+        edges = list(zip(pts, pts[1:] + pts[:1]))
+        for (x0, y0), (x1, y1) in edges:
+            lo, hi = (x0, x1) if x0 < x1 else (x1, x0)
+            for c in range(int(math.floor(lo)), int(math.ceil(hi)) + 1):
+                for cx in (c - 0.5, c, c + 0.5):            # the column's edges and middle
+                    if lo <= cx <= hi:
+                        y = y0 if x1 == x0 else y0 + (y1 - y0) * (cx - x0) / (x1 - x0)
+                        k = c + half
+                        if 0 <= k < len(tops):
+                            tops[k] = min(tops[k], y)
+                            bottoms[k] = max(bottoms[k], y)
+        _PROFILES[key] = (half, tops, bottoms)
+    return _PROFILES[key]
+
+
+def frames_overlap(lay: "Layout", a: int, b: int, tolerance: float = 0.5) -> bool:
+    """Whether portraits a's and b's frames, as drawn, overlap by more than `tolerance` (touching is not
+    overlapping): column by column through their outlines (_profile)."""
+    def placed(q):
+        x, top, w, h, angle = lay.frame(q)
+        half, tops, bottoms = _profile(lay.shape(lay.village.people[q]), w, h, angle)
+        return x + w / 2, top - (NODE_H - h) / 2, half, tops, bottoms
+    ax, ay, ah, atops, abottoms = placed(a)
+    bx, by, bh, btops, bbottoms = placed(b)
+    if abs(ax - bx) >= ah + bh:
+        return False
+
+    def inner(tops: list) -> tuple[int, int]:      # (frames side by side may share their edge column)
+        filled = [k for k, t in enumerate(tops) if t < math.inf]
+        return (filled[0], filled[-1]) if filled else (0, -1)
+    a0, a1 = inner(atops)
+    b0, b1 = inner(btops)
+    for i in range(a0 + 1, a1):
+        j = int(round(ax + i - ah - bx)) + bh
+        if b0 < j < b1:
+            lo = max(ay + atops[i], by + btops[j])
+            hi = min(ay + abottoms[i], by + bbottoms[j])
+            if hi - lo > tolerance and abs(ax + i - ah - (bx + j - bh)) < 0.5:
+                return True
+    return False
+
+
+def _pitch(upper: list, lower: list) -> float:
+    """How far below a row of frames the next row's portraits must stand so no two frames overlap
+    (they may touch): `upper` and `lower` are (middle across, profile) each.  A frame nestles as far up
+    into the dips of the row above as its own outline lets it."""
+    need = -math.inf
+    for ux, (uh, utop, ubottom) in upper:
+        for lx, (lh, ltop, _lbottom) in lower:
+            if abs(ux - lx) >= uh + lh:
+                continue
+            for c in range(max(-uh, int(lx - ux) - lh), min(uh, int(lx - ux) + lh) + 1):
+                k = int(round(c + ux - lx)) + lh
+                if 0 <= k < len(ltop) and ubottom[c + uh] > -math.inf and ltop[k] < math.inf:
+                    need = max(need, ubottom[c + uh] - ltop[k])
+    return need + 1.0 if need > -math.inf else 0.0       # (a pixel more: the outline between columns)
+
+
+def _limits(edits: Edits) -> list[int]:
+    """The family row widths worth trying for the whole tree (the owner: "think optimization of space"):
+    the player's own when they set one; else the packing's, and one either side of it."""
+    limit = packed_limit(edits)
+    if edits.row_limit or not limit:
+        return [limit]
+    return sorted({max(2, limit - 1), limit, min(8, limit + 1)})
+
+
+def _page_score(width: float, height: float) -> float:
+    """Smaller is better: a tree's area, made worse the further its shape is from a page between 4:3
+    and 16:9."""
+    shape = width / max(1.0, height)
+    off = 0.0 if 4 / 3 <= shape <= 16 / 9 else abs(math.log(shape / (4 / 3 if shape < 4 / 3 else 16 / 9)))
+    return width * height * (1 + 2 * off)
+
+
+def _reach(profile: tuple) -> tuple[float, float]:
+    """How far a frame's outline reaches left and right of its middle."""
+    half, tops, _bottoms = profile
+    filled = [k for k, t in enumerate(tops) if t < math.inf]
+    return (half - filled[0], filled[-1] - half) if filled else (0.0, 0.0)
+
+
+def _arrange(rows: list[list[int]], step: float, offset: float, rowh: float, tight: float, outline,
+             align: str, gap: float = 0.0) -> dict[int, tuple[float, float, float, float]]:
+    """A family block's portraits, each (across, down, reach left, reach right) from its first row's
+    middle and top: its short rows either straight under each other or each second row set along by
+    `offset` into the dips of the one above (the owner's sand grains: "packing like this"), whichever
+    takes the smaller area.  Side by side, portraits a step apart, closing up as `tight` grows until their
+    real outlines touch; each row as close under the one above as `tight` lets it, never so close that two
+    frames' real outlines overlap (they may touch)."""
+    best = None
+    reach = {m: _reach(outline(m)) for row in rows for m in row}
+
+    def spaced(row: list[int]) -> list[float]:
+        xs = [0.0]
+        for a, b in zip(row, row[1:]):
+            snug = reach[a][1] + reach[b][0] + gap
+            xs.append(xs[-1] + (step if snug >= step else step - tight * (step - snug)))
+        return xs
+
+    widths = [spaced(row)[-1] for row in rows]
+    widest = max(widths)
+    for shift in ((0.0, offset) if offset and len(rows) > 1 else (0.0,)):
+        pos: dict[int, tuple[float, float, float, float]] = {}
+        y = 0.0
+        above = None
+        for k, row in enumerate(rows):
+            spare = widest - widths[k]
+            left = (0.0 if align == "left" else spare if align == "right" else spare / 2) - widest / 2
+            left += shift if k % 2 else 0.0
+            here = [(m, left + dx) for m, dx in zip(row, spaced(row))]
+            if above is not None:
+                need = _pitch([(cx, outline(m)) for m, cx in above], [(cx, outline(m)) for m, cx in here])
+                y += need if need >= rowh else rowh - tight * (rowh - need)
+            for m, cx in here:
+                pos[m] = (cx, y, *reach[m])
+            above = here
+        first = [pos[m][0] for m in rows[0]]
+        middle = (min(first) + max(first)) / 2
+        pos = {m: (cx - middle, cy, lo, hi) for m, (cx, cy, lo, hi) in pos.items()}
+        span = max(v[0] + v[3] for v in pos.values()) - min(v[0] - v[2] for v in pos.values())
+        area = span * (y + NODE_H)
+        if best is None or area < best[0] - 1e-6:
+            best = (area, pos)
+    return best[1]
 
 
 def packed_limit(edits: Edits) -> int:
@@ -1753,7 +1971,7 @@ class _Clusters:
 
 
 def _clusters(people: dict, placed: set, families: list[Family], step: float, gap: float,
-              edits: Edits) -> _Clusters:
+              edits: Edits, block_shape=None) -> _Clusters:
     """Packed families (the owner's hand-made VV5 tree, 2026-10-09).
 
     A unit is a villager with the partners beside them, in one row: partners stand side by side, the
@@ -1768,6 +1986,9 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
     stand with a partner elsewhere, and the parent who stands apart from the unit the children hang
     under, are joined by lines that go round (Family.away, Family.far)."""
     cell = step - gap                   # a portrait's room across
+    give = 1 - squeeze(edits)           # the room between things, closing up as the packing nears 100
+    subgap, clear_px = SUBGAP * give, CLEAR * give
+    behind = edits.packing >= BEHIND    # no ways round portraits kept: the lines go behind them
     fams = [f for f in families if any(c in placed for c in f.children)]
     parent_fam: dict[int, Family] = {}
     for f in fams:
@@ -1870,8 +2091,8 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
     for u, fs in hosted.items():
         if fs:
             couples_here = sum(1 for f in fs if len(local[f.id]) == 2)
-            room[u] = (edits.row_gap + couples_here * LANE + (BAND_GAP if couples_here else 0)
-                       + len(fs) * LANE + LANE_BOTTOM)
+            room[u] = give * (edits.row_gap + couples_here * LANE + (BAND_GAP if couples_here else 0)
+                              + len(fs) * LANE + LANE_BOTTOM)
 
     # Outlines: boxes (top, bottom, left, right, whose).  Brothers and sisters keep the player's gap;
     # anything else keeps room for a line to pass.
@@ -1879,7 +2100,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
     # Edits.row_limit), how far sideways a row may go to fill a gap (none at 0: a tidy tree), and the
     # room kept between two families' clusters.
     packing = edits.packing / 100
-    corridor = max(gap, CORRIDOR * (2 - packing))
+    corridor = max(gap, CORRIDOR * (2 - packing) * give)
     reach = 4 * step * packing
 
     def apart(a: tuple, b: tuple) -> float:
@@ -1897,10 +2118,10 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
         return need
 
     def hits(placed_boxes: list, new: list) -> bool:
-        """Whether `new` would touch what is placed, keeping a row's gap (SUBGAP) above each new box for
+        """Whether `new` would touch what is placed, keeping a row's gap (SUBGAP, squeezed) above each new box for
         the lines that come down to it."""
         for b in new:
-            top = b[0] - SUBGAP
+            top = b[0] - subgap
             for a in placed_boxes:
                 if a[0] < b[1] and top < a[1]:
                     sep = apart(a, b)
@@ -2023,7 +2244,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
             elif edits.row_align == "right":
                 part = moved(part, first[1] - hi)
             if above is not None:
-                part = moved(part, *nestle(placed_boxes, part, above + NODE_H + SUBGAP))
+                part = moved(part, *nestle(placed_boxes, part, above + NODE_H + subgap))
             placed_boxes += part[2]
             parts.append(part)
             above = min(b[0] for b in part[2])
@@ -2034,20 +2255,20 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
         touching anything placed, as near under the first row as it can, never further sideways than
         `reach`.  A tidy tree (packing 0) puts it under everything, straight down."""
         if not reach:
-            return 0.0, max([base] + [b[1] + SUBGAP for b in placed_boxes])
-        for y in sorted({base} | {b[1] + SUBGAP for b in placed_boxes if b[1] + SUBGAP > base}):
+            return 0.0, max([base] + [b[1] + subgap for b in placed_boxes])
+        for y in sorted({base} | {b[1] + subgap for b in placed_boxes if b[1] + subgap > base}):
             new = [(b[0] + y, b[1] + y, b[2], b[3], b[4]) for b in part[2]]
             shifts = {0.0}
             for a in placed_boxes:
                 for b in new:
-                    if a[0] < b[1] and b[0] - SUBGAP < a[1]:
+                    if a[0] < b[1] and b[0] - subgap < a[1]:
                         sep = apart(a, b)
                         shifts.add(a[3] + sep - b[2])
                         shifts.add(a[2] - sep - b[3])
             for dx in sorted((s for s in shifts if abs(s) <= reach), key=abs):
                 if not hits(placed_boxes, [(b[0], b[1], b[2] + dx, b[3] + dx, b[4]) for b in new]):
                     return dx, y
-        return 0.0, max([base] + [b[1] + SUBGAP for b in placed_boxes])
+        return 0.0, max([base] + [b[1] + subgap for b in placed_boxes])
 
     roots = sorted((u for u in units if u not in home), key=lambda u: min(order(m) for m in units[u]))
 
@@ -2059,7 +2280,9 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
         at different heights and the page fills densely.  The room a family's lines take, between the
         parents and the block, is kept clear of every portrait.  Each portrait's x and y, and the top of
         each family's first row."""
-        rowh = NODE_H + SUBGAP
+        rowh = NODE_H + subgap
+        couples.clear()
+        ways.clear()
         down = 6 * (1 - packing) + packing           # a row lower costs this many places sideways, n rows n * n times
         pos: dict[int, float] = {}
         ys: dict[int, float] = {}
@@ -2082,24 +2305,24 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
 
         def free(new: list, lines: tuple) -> bool:
             for b in new:
-                top = b[0] - SUBGAP
+                top = b[0] - subgap
                 for a in portraits:
                     if a[0] < b[1] and top < a[1]:
                         sep = apart(a, b)
                         if a[2] - sep < b[3] and b[2] < a[3] + sep:
                             return False
                 for a in room_kept:
-                    if a[0] < b[1] and b[0] < a[1] and a[2] - CLEAR < b[3] and b[2] < a[3] + CLEAR:
+                    if a[0] < b[1] and b[0] < a[1] and a[2] - clear_px < b[3] and b[2] < a[3] + clear_px:
                         return False
             for a in portraits:
-                if a[0] < lines[1] and lines[0] < a[1] and a[2] - CLEAR < lines[3] and lines[2] < a[3] + CLEAR:
+                if a[0] < lines[1] and lines[0] < a[1] and a[2] - clear_px < lines[3] and lines[2] < a[3] + clear_px:
                     return False
             return True
 
         def clear(x0: float, x1: float, y0: float, y1: float) -> bool:
             """No portrait in the way of a line from (x0, y0) to (x1, y1), level or upright."""
             lo_x, hi_x, lo_y, hi_y = min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1)
-            return not any(a[2] - CLEAR < hi_x and lo_x < a[3] + CLEAR and a[0] - CLEAR < hi_y and lo_y < a[1] + CLEAR
+            return not any(a[2] - clear_px < hi_x and lo_x < a[3] + clear_px and a[0] - clear_px < hi_y and lo_y < a[1] + clear_px
                            for a in portraits)
 
         def elbow(stem: float, start: float, end: float, lo: float, hi: float) -> list | None:
@@ -2108,7 +2331,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
             the rows, across, and down; or, when no one level will do, down, across to a gap, down that gap,
             across and down.  Its points; None when none is clear."""
             to = min(max(stem, lo), hi)
-            levels = sorted({start, end} | {v for a in portraits for v in (a[0] - CLEAR - 4, a[1] + CLEAR + 4)
+            levels = sorted({start, end} | {v for a in portraits for v in (a[0] - clear_px - 4, a[1] + clear_px + 4)
                                             if start < v < end})
             highs = []                      # the levels the line can reach straight down from the parents
             for h in levels:
@@ -2124,7 +2347,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                 if h in lows and clear(stem, to, h, h):
                     return [(stem, start), (stem, h), (to, h), (to, end)]
             gaps = sorted({v for a in portraits if a[1] > start and a[0] < end
-                           for v in (a[2] - CLEAR - 4, a[3] + CLEAR + 4)},
+                           for v in (a[2] - clear_px - 4, a[3] + clear_px + 4)},
                           key=lambda v: abs(v - stem) + abs(v - to))[:10]
             best = None
             for h1 in highs[-4:]:
@@ -2149,7 +2372,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
             pairs_v = sum(1 for f in hosted[v] if len(local[f.id]) == 2)
             xs = [pos[m] for m in units[v]]
             below = ys[units[v][0]] + NODE_H
-            room_kept.append((below, below + edits.row_gap + pairs_v * LANE + LANE,
+            room_kept.append((below, below + give * (edits.row_gap + pairs_v * LANE + LANE),
                               min(xs) - cell / 2, max(xs) + cell / 2))
 
         for u in roots:
@@ -2161,12 +2384,12 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
             # The couples' lines just under the parents, each its own level, and their room kept.
             pairs = [f for f in hosted[u] if len(local[f.id]) == 2]
             for k, f in enumerate(pairs):
-                couples[f.id] = bottom + edits.row_gap + k * LANE + LANE / 2
+                couples[f.id] = bottom + give * (edits.row_gap + k * LANE + LANE / 2)
             if pairs:
                 xs = [pos[m] for m in units[u]]
-                room_kept.append((bottom, bottom + edits.row_gap + len(pairs) * LANE,
+                room_kept.append((bottom, bottom + give * (edits.row_gap + len(pairs) * LANE),
                                   min(xs) - cell / 2, max(xs) + cell / 2))
-            band = LANE_BOTTOM + len(hosted[u]) * LANE + BAND_GAP     # the children's lines over a block
+            band = give * (LANE_BOTTOM + len(hosted[u]) * LANE + BAND_GAP)    # the children's lines over a block
             for f in hosted[u]:
                 stem = sum(pos[q] for q in local[f.id]) / max(1, len(local[f.id]))
                 top0 = bottom + room[u]
@@ -2195,23 +2418,22 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                         rows[-1] += branches
                     else:
                         rows.append(branches)
-                rel: dict[int, tuple[float, float]] = {}
+                # The block's short rows, plain or brick-wise, as close as the frames allow (_arrange).
+                lines_of = [[m for atom in row for v in atom for m in units[v]] for row in rows]
+                rel = block_shape(lines_of)
                 shape: list = []
-                first = None
-                for r, row in enumerate(rows):
-                    members = [m for atom in row for v in atom for m in units[v]]
-                    width = (len(members) - 1) * step
-                    left = -width / 2
-                    if first is not None and edits.row_align in ("left", "right"):
-                        left = first[0] if edits.row_align == "left" else first[1] - width
-                    first = first or (left, left + width)
-                    for i, m in enumerate(members):
-                        rel[m] = (left + i * step, r * rowh)
-                    shape.append((r * rowh, r * rowh + NODE_H, left - cell / 2, left + width + cell / 2, ("kin", f.id)))
-                hangs = [dx for dx, _dy in rel.values()]
+                for line in lines_of:
+                    # Each row a portrait's room across at each end, closing in to as far as its frames'
+                    # outlines reach as the packing nears 100.
+                    top = rel[line[0]][1]
+                    shape.append((top, top + NODE_H,
+                                  min(rel[m][0] - cell / 2 + (1 - give) * (cell / 2 - rel[m][2]) for m in line),
+                                  max(rel[m][0] + cell / 2 - (1 - give) * (cell / 2 - rel[m][3]) for m in line),
+                                  ("kin", f.id)))
+                hangs = [v[0] for v in rel.values()]
                 shape_lo, shape_hi = min(b[2] for b in shape), max(b[3] for b in shape)
                 best = None
-                levels = sorted({top0} | {a[1] + SUBGAP for a in portraits if a[1] + SUBGAP > top0})
+                levels = sorted({top0} | {a[1] + subgap for a in portraits if a[1] + subgap > top0})
                 for y in levels:
                     lower = ((y - top0) / rowh) ** 2 * down
                     if best is not None and lower >= best[0]:
@@ -2220,15 +2442,15 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                     shifts = {0.0, low - stem - shape_lo, high - stem - shape_hi}
                     for a in portraits:
                         for b in new:
-                            if a[0] < b[1] and b[0] - SUBGAP < a[1]:
+                            if a[0] < b[1] and b[0] - subgap < a[1]:
                                 sep = apart(a, b)
                                 shifts.add(a[3] + sep - b[2])
                                 shifts.add(a[2] - sep - b[3])
                     for a in room_kept:
                         for b in new:
                             if a[0] < b[1] and b[0] < a[1]:
-                                shifts.add(a[3] + CLEAR - b[2])
-                                shifts.add(a[2] - CLEAR - b[3])
+                                shifts.add(a[3] + clear_px - b[2])
+                                shifts.add(a[2] - clear_px - b[3])
                     wide = shape_hi - shape_lo <= high - low
                     for dx in sorted(shifts, key=abs):
                         cost = lower + abs(dx) / step
@@ -2239,12 +2461,13 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                         lo_h, hi_h = min(stem + dx + h for h in hangs), max(stem + dx + h for h in hangs)
                         lines = (max(bottom, y - band), y, lo_h - cell / 2, hi_h + cell / 2)
                         if free([(b[0], b[1], b[2] + dx, b[3] + dx, b[4]) for b in new], lines):
-                            way = elbow(stem, bottom + edits.row_gap + len(pairs) * LANE + 2, lines[0], lo_h, hi_h)
+                            way = [] if behind else elbow(stem, bottom + give * (edits.row_gap + len(pairs) * LANE) + 2,
+                                                          lines[0], lo_h, hi_h)
                             if way is not None:
                                 best = (cost, dx, y, lines, way)
                                 break
                 if best is None:            # nowhere free: under everything, straight down
-                    y = max(a[1] for a in portraits) + SUBGAP + room[u]
+                    y = max(a[1] for a in portraits) + subgap + room[u]
                     best = (0.0, 0.0, y, (y - band, y, min([stem] + [stem + h for h in hangs]) - cell / 2,
                                           max([stem] + [stem + h for h in hangs]) + cell / 2), [])
                 _cost, dx, y, lines, way = best
@@ -2252,7 +2475,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                 if way:
                     ways[f.id] = way
                 gaps[("family", f.id)] = y
-                for m, (mx, my) in rel.items():
+                for m, (mx, my, _lo, _hi) in rel.items():
                     pos[m], ys[m] = stem + dx + mx, y + my
                 portraits.extend((b[0] + y, b[1] + y, b[2] + stem + dx, b[3] + stem + dx, b[4]) for b in shape)
                 room_kept.append(lines)
@@ -2274,7 +2497,21 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
             for f in fs:
                 lane_key[f.id] = ("unit", u)
     else:
-        pos, ys, gaps = packed(packed_limit(edits))
+        # The family row width (within what the packing allows) that makes the smallest tree near a
+        # pleasing page shape (the owner: "think optimization of space"), unless the player set their own.
+        best = None
+        for limit in _limits(edits):
+            trial = packed(limit)
+            width = max(trial[0].values()) - min(trial[0].values()) + step
+            height = max(trial[1].values()) + NODE_H
+            score = _page_score(width, height)
+            if best is None or score < best[0]:
+                best = (score, trial, dict(couples), dict(ways))
+        _score, (pos, ys, gaps), kept_couples, kept_ways = best
+        couples.clear()
+        couples.update(kept_couples)
+        ways.clear()
+        ways.update(kept_ways)
         for u, fs in hosted.items():
             for f in fs:
                 lane_key[f.id] = ("family", f.id)
@@ -2484,7 +2721,10 @@ def _route(lay: "Layout", at: float, y0: float, y1: float, jogs: dict, back: boo
     in the way; at each row of frames in the way, it steps sideways just above that row into the
     nearest gap between its frames and carries on down; a line that must end at a frame (`back`)
     steps back just above y1.  Each step in a gap has a height of its own.  `start` is where the
-    drawn line begins when that is above y0 (the curve of a circle's frame)."""
+    drawn line begins when that is above y0 (the curve of a circle's frame).  Packed tightest
+    (lines_behind), straight: it passes behind the portraits."""
+    if lines_behind(lay):
+        return [[(at, start if start is not None else y0), (at, y1)]]
     frames = lay.spans()
     legs: list[list] = []
     x, y, low = at, (start if start is not None else y0), y0
@@ -2525,6 +2765,8 @@ def _go_round(lay: "Layout", rects: list, pt: tuple, q: int | None, lane: float,
     drawn across `span`) that crosses no portrait: straight up or down from the portrait to a clear level,
     along it, and up or down again to the children's line, which reaches out to meet it.  The points from
     the portrait (`from_portrait`) or from the children's line; None when no such way is clear."""
+    if lines_behind(lay):                   # packed tightest: no going round, the line goes behind
+        return None
     px, py = pt
     obst = [r for r in rects if not (r[0] <= px <= r[1] and r[2] <= py <= r[3])]     # q's own frame
     # From a portrait's bottom edge, or a couple's line (no portrait), down; from a top edge, up.
