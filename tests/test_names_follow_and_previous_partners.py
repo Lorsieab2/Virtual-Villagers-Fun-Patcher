@@ -136,6 +136,21 @@ class PreviousPartnersTests(unittest.TestCase):
         self.assertIn("Hoani Chuchip, 30 years old", off)
         self.assertNotIn("units", " ".join(gen.Rules(show_age_units=False).describe()))
 
+    def test_the_report_says_who_has_had_a_child_together(self) -> None:
+        """The owner, 2026-10-09: "for the Matchmaker, can you mention if the two villagers have previously
+        had a child?"."""
+        report = gen.pair_report(self.village(), gen.Rules(), "A New Home")
+        couple = next(line for line in report.splitlines() if "Hoani Chuchip" in line and "Kaula Akikai" in line)
+        self.assertIn("have had a child together before", couple)
+        stranger = next(line for line in report.splitlines() if line.strip().startswith("Tomi Wanjiko"))
+        self.assertNotIn("together", stranger)
+        v = self.village()
+        v.people[5] = person(5, "Lulu Chuchip II", "Female", 0, father=1, mother=2)
+        v.people[6] = person(6, "", "Female", 0, father=1, mother=2)
+        v.people[6].upcoming = True
+        pair = next(p for p in gen.suggest(v, gen.Rules())[0] if p.man.id == 1)
+        self.assertEqual(pair.together, "have had 2 children together before, and a baby on the way together")
+
     def test_off_the_closer_age_wins(self) -> None:
         pairs, _per_woman, _fallback = gen.suggest(self.village(), gen.Rules(prefer_previous_partners=False))
         self.assertEqual([(p.man.name, p.woman.name) for p in pairs], [("Tomi Wanjiko", "Kaula Akikai")])

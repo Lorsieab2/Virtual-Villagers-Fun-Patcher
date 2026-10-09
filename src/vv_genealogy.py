@@ -756,6 +756,21 @@ class Pair:
     related: Fraction
     relation: str
     shared: int                          # recorded ancestors they share
+    born: int = 0                        # children they have had together (the dead too)
+    expected: int = 0                    # babies on the way between them
+
+    @property
+    def together(self) -> str:
+        """Whether the two have had a child together before (the owner, 2026-10-09: "for the Matchmaker,
+        can you mention if the two villagers have previously had a child?"), as the report says it."""
+        parts = []
+        if self.born:
+            parts.append("have had a child together before" if self.born == 1
+                         else f"have had {self.born} children together before")
+        if self.expected:
+            parts.append("a baby on the way together" if self.expected == 1
+                         else f"{self.expected} babies on the way together")
+        return ", and ".join(parts)
 
     @property
     def percent(self) -> float:
@@ -874,12 +889,18 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     every: list[Pair] = []
     up = {p.id: ancestors(village, p.id) for p in men + women}
     partners = _partner_families(village)
+    born: dict[tuple, int] = {}
+    expected: dict[tuple, int] = {}
+    for c in village.people.values():
+        if c.father is not None and c.mother is not None:
+            tally = expected if c.upcoming else born
+            tally[(c.father, c.mother)] = tally.get((c.father, c.mother), 0) + 1
     for w in women:
         for m in men:
             related = kin.relatedness(m.id, w.id)
             relation = relationship(village, m.id, w.id)
             common = {c: (up[m.id][c], up[w.id][c]) for c in set(up[m.id]) & set(up[w.id])}
-            pair = Pair(m, w, related, relation, len(common))
+            pair = Pair(m, w, related, relation, len(common), born.get((m.id, w.id), 0), expected.get((m.id, w.id), 0))
             every.append(pair)
             if _blocked(rules, m, w, relation, related, common, partners) is None:
                 allowed.append(pair)
@@ -1102,16 +1123,18 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
         for n, pair in enumerate(one_to_one, 1):
             lines.append(f"  {n}. {numbered(pair.man)}, {age(pair.man)}, and "
                          f"{numbered(pair.woman)}, {age(pair.woman)}: {pair.relation}, "
-                         f"related {pair.percent:g}%")
+                         f"related {pair.percent:g}%" + (f"; {pair.together}" if pair.together else ""))
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
         for pair in fallback:
-            lines.append(f"    {pair.man.name} and {pair.woman.name}: {pair.relation}, related {pair.percent:g}%")
+            lines.append(f"    {pair.man.name} and {pair.woman.name}: {pair.relation}, related {pair.percent:g}%"
+                         + (f"; {pair.together}" if pair.together else ""))
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")
     for wid, pairs in per_woman.items():
         lines.append(f"  {people[wid].name}, {age(people[wid])}:")
         for pair in pairs:
-            lines.append(f"    {pair.man.name}, {age(pair.man)}: {pair.relation}, related {pair.percent:g}%")
+            lines.append(f"    {pair.man.name}, {age(pair.man)}: {pair.relation}, related {pair.percent:g}%"
+                         + (f"; {pair.together}" if pair.together else ""))
     lines.append("")
     return "\n".join(lines)
