@@ -2202,7 +2202,6 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         whose row it was left nearest, in the order, left to right, it was left in; and every line
         drawn afresh (Ctrl+Z puts them back as they were)."""
         lay, v = self.lay, self.village
-        rows: dict[int, list[int]] = {}
         if self.edits.positioning == "packed_families":
             # No generation rows to put them back into: every portrait goes back under its parents, in
             # its own generation and order.
@@ -2212,19 +2211,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self._saved()
             self.status.set("Every portrait is back in its family's cluster.  Ctrl+Z undoes it.")
             return
+        # Row by row of each generation, left to right in each (ft.tidy_rows): a wrapped generation's rows
+        # are not interleaved (self-review, #578).
+        gen_of, orders = ft.tidy_rows(lay)
         for q in lay.x:
             if q in lay.others:
                 self._set_entry(v.people[q], dx=None, dy=None)
                 continue
-            middle = lay.y[q] + ft.NODE_H / 2
-            g = min(lay.tops, key=lambda g: abs(lay.tops[g] + lay.bands.get(g, ft.NODE_H) / 2 - middle))
-            rows.setdefault(g, []).append(q)
-        for g, qs in rows.items():
-            for q in qs:
-                p = v.people[q]
-                self._set_entry(p, dx=None, dy=None,
-                                generation=None if g == v.base_generation.get(q, p.generation) else g)
-            self.edits.orders[str(g)] = [ft.entry_key(v, v.people[q]) for q in sorted(qs, key=lambda q: lay.x[q])]
+            g, p = gen_of[q], v.people[q]
+            self._set_entry(p, dx=None, dy=None, generation=None if g == v.base_generation.get(q, p.generation) else g)
+        self.edits.orders.update(orders)
         self.edits.line_moves.clear()
         self._saved()
         self.status.set("Every portrait is back in a neat row, in the order and generation you left it.  "

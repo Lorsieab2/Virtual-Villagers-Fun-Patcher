@@ -1198,6 +1198,7 @@ class Layout:
     shrink: float = 1.0                 # this page's Shrink to fit (each page its own; Codex, #575)
     label_left: float = 0.0             # how far right the generation labels sit (the Other Members on the left)
     row_keys: dict = field(default_factory=dict)    # portrait -> its row, where a row is not its generation's
+    subs: dict = field(default_factory=dict)        # portrait -> which of its generation's rows it was laid in
     _spans: list = field(default_factory=list, repr=False)
 
     @property
@@ -1281,6 +1282,37 @@ class Layout:
 # ---------------------------------------------------------------------------
 # Layout
 # ---------------------------------------------------------------------------
+
+def tidy_rows(lay: "Layout") -> tuple[dict[int, int], dict[str, list[str]]]:
+    """For Reorganize portraits: the generation whose band each portrait was left nearest, and each such
+    generation's order -- row by row of the generation (a wrapped generation's rows, a band's staggered
+    rows), left to right in each -- so a tree nobody dragged is put back exactly as it was.  A dragged
+    portrait counts in the row it was left nearest."""
+    v = lay.village
+    gen_of: dict[int, int] = {}
+    for q in lay.x:
+        if q not in lay.others:
+            # The band it stands in, else the nearest band's edge (a wrapped band is tall: its middle
+            # may be further from its own first row than the band above is).
+            middle = lay.y[q] + NODE_H / 2
+            gen_of[q] = min(lay.tops, key=lambda g: (max(0.0, lay.tops[g] - middle,
+                                                         middle - lay.tops[g] - lay.bands.get(g, NODE_H)), g))
+    moved = {q for q in gen_of if lay.entry(v.people[q]).get("dx") or lay.entry(v.people[q]).get("dy")}
+    orders: dict[str, list[str]] = {}
+    for g in sorted(set(gen_of.values())):
+        qs = [q for q in gen_of if gen_of[q] == g]
+        row_y: dict[int, float] = {}            # each row's height, from those left where they were laid
+        for q in qs:
+            if q not in moved and v.people[q].generation == g:
+                row_y.setdefault(lay.subs.get(q, 0), lay.y[q])
+
+        def row(q: int) -> int:
+            if q not in moved and v.people[q].generation == g:
+                return lay.subs.get(q, 0)
+            return min(row_y, key=lambda k: (abs(row_y[k] - lay.y[q]), k)) if row_y else 0
+        orders[str(g)] = [entry_key(v, v.people[q]) for q in sorted(qs, key=lambda q: (row(q), lay.x[q]))]
+    return gen_of, orders
+
 
 def arrange(village: gen.Village, edits: Edits) -> None:
     """Each villager's generation and number as the tree shows them: the records' generation
@@ -1500,7 +1532,8 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         tree_right = LEFT + widest_row * step - gap
     if edits.row_limit and rows and edits.positioning in ("dynamic", "rows"):
         # (The two Packed layouts wrap each family on its own, inside its cluster.)
-        x, sub = _wrap_rows(people, rows, x, sub, edits.row_limit, edits.keep_families, step)
+        x, sub = _wrap_rows(people, rows, x, sub, edits.row_limit, edits.keep_families, step,
+                            keep_fitting=edits.positioning == "dynamic")
         tree_right = max(x.values()) + NODE_W / 2 + max(NODE_W, step - gap) / 2
     if edits.row_align != "arranged" and rows and cl is None:
         # (Packed families have no rows across the tree: there each family's rows are lined up
@@ -1658,6 +1691,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     height = max([height] + [y[q] + NODE_H + 190 for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands, shrink=shrink_now,
                  edits=edits, page=page, pages=len(spans), label_left=label_left, row_keys=row_keys,
+                 subs={q: sub.get(q, 0) for q in in_tree},
                  names=gen.duplicate_names(village, edits.number_order) if edits.number_names else {})
     # One colour each: every villager with no recorded parents, every pairing, every set of full
     # brothers and sisters -- oldest first, so the most distinct go to the founders.
@@ -1675,14 +1709,19 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
 
 
 def _wrap_rows(people: dict, rows: dict[int, list[int]], x: dict[int, float], sub: dict[int, int], limit: int,
-               keep_families: bool, step: float) -> tuple[dict[int, float], dict[int, int]]:
+               keep_families: bool, step: float, keep_fitting: bool = False) -> tuple[dict[int, float], dict[int, int]]:
     """Every generation at most `limit` portraits side by side (Edits.row_limit), the rest in further rows
     under it, as they stood left to right; with keep_families, a row ends between two families -- brothers
     and sisters with the same recorded parents -- unless one family alone is longer than a row.  Each row
-    is centred on the widest a row can be."""
+    is centred on the widest row actually made (never on a band `limit` portraits wide: a limit far over
+    any generation would push the tree off to the right).  With keep_fitting (Families under their
+    parents), a generation no longer than the limit keeps the place its families were given."""
     x, sub = dict(x), dict(sub)
     left = min(x.values())
-    for row in rows.values():
+    made: dict[int, list[list[int]]] = {}
+    for g, row in rows.items():
+        if keep_fitting and len(row) <= limit:
+            continue
         order = sorted(row, key=lambda q: (sub.get(q, 0), x[q]))
         groups: list[list[int]] = []
         for q in order:
@@ -1700,8 +1739,11 @@ def _wrap_rows(people: dict, rows: dict[int, list[int]], x: dict[int, float], su
                 if lines[-1] and len(lines[-1]) + len(piece) > limit:
                     lines.append([])
                 lines[-1] += piece
+        made[g] = lines
+    widest = min(limit, max((len(line) for lines in made.values() for line in lines), default=0))
+    for lines in made.values():
         for k, line in enumerate(lines):
-            indent = (limit - len(line)) * step / 2
+            indent = (widest - len(line)) * step / 2
             for i, q in enumerate(line):
                 x[q], sub[q] = left + indent + i * step, k
     return x, sub
@@ -2081,7 +2123,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
     cell = step - gap                   # a portrait's room across
     give = 1 - squeeze(edits)           # the room between things, closing up as the packing nears 100
     subgap, clear_px = SUBGAP * give, CLEAR * give
-    behind = edits.packing >= BEHIND    # no ways round portraits kept: the lines go behind them
+    straight = behind(edits)            # lines behind the portraits (Edits.lines_behind): no ways kept round them
     fams = [f for f in families if any(c in placed for c in f.children)]
     parent_fam: dict[int, Family] = {}
     for f in fams:
@@ -2554,7 +2596,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                         lo_h, hi_h = min(stem + dx + h for h in hangs), max(stem + dx + h for h in hangs)
                         lines = (max(bottom, y - band), y, lo_h - cell / 2, hi_h + cell / 2)
                         if free([(b[0], b[1], b[2] + dx, b[3] + dx, b[4]) for b in new], lines):
-                            way = [] if behind else elbow(stem, bottom + give * (edits.row_gap + len(pairs) * LANE) + 2,
+                            way = [] if straight else elbow(stem, bottom + give * (edits.row_gap + len(pairs) * LANE) + 2,
                                                           lines[0], lo_h, hi_h)
                             if way is not None:
                                 best = (cost, dx, y, lines, way)

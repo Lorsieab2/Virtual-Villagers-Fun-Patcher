@@ -325,6 +325,61 @@ class LinesBehindTests(unittest.TestCase):
             self.assertIn(text, source)
 
 
+class ReviewFixTests(unittest.TestCase):
+    """Self-review of #578."""
+
+    def test_a_large_row_limit_does_not_push_the_tree_right(self):
+        for positioning in ("dynamic", "rows"):
+            free = ft.layout(big_village(), ft.Edits(positioning=positioning))
+            big = ft.layout(big_village(), ft.Edits(positioning=positioning, row_limit=99))
+            self.assertAlmostEqual(min(big.x.values()), min(free.x.values()), delta=1, msg=positioning)
+            self.assertLessEqual(big.width, free.width + 1, positioning)
+
+    def test_families_under_their_parents_keep_their_place_where_a_generation_fits(self):
+        v = big_village()
+        free = ft.layout(v, ft.Edits(positioning="dynamic"))
+        self.assertEqual(ft.layout(big_village(), ft.Edits(positioning="dynamic", row_limit=99)).x, free.x)
+        # Limit 4: only the generations longer than 4 are wrapped; the founders (2) keep their place.
+        lay = ft.layout(big_village(), ft.Edits(positioning="dynamic", row_limit=4))
+        for q in (1, 2):
+            self.assertEqual(lay.x[q], free.x[q])
+        rows = {}
+        for q in lay.x:
+            if q not in lay.others:
+                rows.setdefault((v.people[q].generation, round(lay.y[q])), []).append(q)
+        self.assertTrue(all(len(r) <= 4 for r in rows.values()))
+
+    def test_reorganizing_an_undragged_tree_moves_nobody(self):
+        # (Not Families under their parents: it places partners from outside the tree in the order they
+        # are numbered, so any new order can swap two of them -- as it always has.)
+        cases = [dict(positioning="rows", row_limit=2), dict(positioning="rows"), dict(positioning="packed_generations"),
+                 dict(positioning="packed_generations", row_limit=2), dict(positioning="packed_generations", packing=100)]
+        for case in cases:
+            v = big_village()
+            e = ft.Edits(**case)
+            before = ft.layout(v, e)
+            gen_of, orders = ft.tidy_rows(before)
+            self.assertTrue(all(gen_of[q] == v.people[q].generation for q in gen_of), case)
+            e.orders.update(orders)
+            ft.arrange(v, e)
+            after = ft.layout(v, e)
+            moved = [q for q in before.x if (round(before.x[q], 3), round(before.y[q], 3))
+                     != (round(after.x[q], 3), round(after.y[q], 3))]
+            self.assertEqual(moved, [], case)
+
+    def test_the_toggle_governs_whether_ways_are_kept_round_portraits(self):
+        # Unticked at 98 or more: ways round the portraits are kept (and the lines take them); ticked
+        # below 98: none are kept, the lines go straight behind.
+        off = ft.layout(big_village(), ft.Edits(positioning="packed_families", packing=99, lines_behind=False))
+        on = ft.layout(big_village(), ft.Edits(positioning="packed_families", packing=60, lines_behind=True))
+        self.assertTrue(any(f.way for f in off.families))
+        self.assertFalse(any(f.way for f in on.families))
+        unset = ft.layout(big_village(), ft.Edits(positioning="packed_families", packing=99))
+        self.assertFalse(any(f.way for f in unset.families), "until set, packed 98 or more: behind")
+        for lay in (off, on):
+            assert_connected(self, lay, ft.lines(lay))
+
+
 class PackedGenerationsTests(unittest.TestCase):
     def test_each_label_stands_beside_its_own_band(self):
         v = big_village()
