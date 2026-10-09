@@ -286,6 +286,19 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
         arr, n = _points(item.points)
         g.GdipDrawLines(graphics, pen, arr, n)
         g.GdipDeletePen(pen)
+    elif isinstance(item, ft.Poly):
+        arr, n = _points(item.points)
+        if item.fill:
+            brush = ctypes.c_void_p()
+            g.GdipCreateSolidFill(_argb(item.fill, _alpha(item)), ctypes.byref(brush))
+            g.GdipFillPolygon(graphics, brush, arr, n, 0)          # alternate: a ring stays a ring
+            g.GdipDeleteBrush(brush)
+        if item.width > 0 and item.stroke:
+            pen = ctypes.c_void_p()
+            g.GdipCreatePen1(_argb(item.stroke, _alpha(item)), f(item.width), 0, ctypes.byref(pen))
+            g.GdipSetPenLineJoin(pen, 2)
+            g.GdipDrawPolygon(graphics, pen, arr, n)
+            g.GdipDeletePen(pen)
     elif isinstance(item, ft.Shape):
         pen, brush = ctypes.c_void_p(), ctypes.c_void_p()
         alpha = int(255 * max(0.0, min(1.0, item.opacity))) << 24

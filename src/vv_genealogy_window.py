@@ -975,6 +975,35 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._live(ttk.Spinbox(box, textvariable=self.detail_width_var, values=ft.LINE_STEPS, width=5),
                    lambda: self._detail_number("detail_width", self.detail_width_var, *ft.LINE_WIDTHS)).grid(
             row=3, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        # The owner, 2026-10-09: the special borders' colours -- natural, rainbow flowers, picked for each
+        # part, or 2-7 colours by turns or as a gradient.
+        box = ttk.LabelFrame(tab, text="Special border colours (rope and vines)", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        self.special_mode_var = tk.StringVar(value=ft.SPECIAL_COLOUR_MODES[e.special_mode])
+        mode = ttk.Combobox(box, textvariable=self.special_mode_var, values=list(ft.SPECIAL_COLOUR_MODES.values()),
+                            state="readonly", width=20)
+        mode.grid(row=0, column=0, columnspan=4, sticky="w")
+        mode.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            special_mode=next(k for k, v in ft.SPECIAL_COLOUR_MODES.items() if v == self.special_mode_var.get())))
+        ttk.Label(box, text="Pick colours:").grid(row=1, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        self.special_pick_fields = {}
+        for k, (part, words) in enumerate(ft.SPECIAL_PARTS.items()):
+            ttk.Label(box, text=words).grid(row=2 + k // 2, column=(k % 2) * 2, sticky="w")
+            fieldw = ColourField(box, e.special_pick.get(part, ft.NATURAL[part]),
+                                 lambda c, part=part: self._special_pick(part, c), allow_default=False)
+            fieldw.grid(row=2 + k // 2, column=(k % 2) * 2 + 1, sticky="w", padx=(4, 8))
+            self.special_pick_fields[part] = fieldw
+        row = ttk.Frame(box)
+        row.grid(row=4, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Alternating or gradient: how many colours (2-7)").pack(side="left")
+        self.special_count_var = tk.StringVar(value=str(e.special_count))
+        self._live(ttk.Spinbox(row, textvariable=self.special_count_var, from_=2, to=7, width=3),
+                   self._special_count).pack(side="left", padx=(4, 0))
+        self.special_palette_fields = []
+        for k in range(7):
+            fieldw = ColourField(box, e.special_palette[k], lambda c, k=k: self._special_palette(k, c), allow_default=False)
+            fieldw.grid(row=5 + k // 2, column=(k % 2) * 2, columnspan=2, sticky="w", pady=1)
+            self.special_palette_fields.append(fieldw)
         box = ttk.LabelFrame(tab, text="Portrait sizes (each group's default)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_sizes: dict[str, tuple[tk.StringVar, tk.StringVar]] = {}
@@ -1243,6 +1272,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 flat = [v for point in item.points for v in point]
                 iid = c.create_line(*flat, fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
                                     width=item.width * z, joinstyle="round", dash=ft.TK_DASHES.get(item.dash))
+            elif isinstance(item, ft.Poly):
+                flat = [v for point in item.points for v in point]
+                iid = c.create_polygon(*flat, fill=tk_colour(faded(item.fill, item.opacity, sc.background)) if item.fill else "",
+                                       outline=tk_colour(item.stroke) if item.width else "", width=item.width * z,
+                                       joinstyle="round")
             elif isinstance(item, ft.Shape):
                 fill = tk_colour(item.fill or "")
                 dash = ft.TK_DASHES.get(item.dash)
@@ -2418,6 +2452,21 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if value is not None and value != getattr(self.edits, attr):
             self._change(**{attr: value})
 
+    def _special_pick(self, part: str, colour: str) -> None:
+        if colour:
+            self._change(special_pick={**self.edits.special_pick, part: colour})
+
+    def _special_palette(self, k: int, colour: str) -> None:
+        if colour:
+            palette = list(self.edits.special_palette)
+            palette[k] = colour
+            self._change(special_palette=palette)
+
+    def _special_count(self) -> None:
+        n = self._number(self.special_count_var.get(), 2, 7)
+        if n is not None and int(n) != self.edits.special_count:
+            self._change(special_count=int(n))
+
     def _valign(self, valign: str) -> None:
         """The face and words at the top, middle or bottom of every portrait (Centre faces, before)."""
         self._change(text_valign=valign, centre_heads=valign == "middle")
@@ -2748,6 +2797,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
         self.inside_var.set(e.text_inside)
         self.room_var.set(ft.TEXT_ROOMS[e.text_room])
+        self.special_mode_var.set(ft.SPECIAL_COLOUR_MODES[e.special_mode])
+        for part, fieldw in self.special_pick_fields.items():
+            fieldw.set_quietly(e.special_pick.get(part, ft.NATURAL[part]))
+        for k, fieldw in enumerate(self.special_palette_fields):
+            fieldw.set_quietly(e.special_palette[k])
+        self.special_count_var.set(str(e.special_count))
         self.detail_var.set(e.detail_lines)
         self.detail_field.set_quietly(e.detail_colour)
         self.detail_opacity_var.set(f"{e.detail_opacity:g}")

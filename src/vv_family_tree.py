@@ -52,6 +52,39 @@ LINE_WIDTH = 2.2                        # a family line's weight unless the play
 GAP_X = 22
 GAP_MIN, GAP_MAX = 0.0, 400.0           # the player's gap between portraits
 TEXT_ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
+# The special borders' colours: natural (rope-coloured rope, green vines and leaves, red hibiscus), the
+# flowers in a rainbow round the border, the player's own colour for each part, or the player's 2-7
+# colours by turns or blending round the border -- always shaded and outlined from each colour.
+SPECIAL_COLOUR_MODES = {"natural": "Natural", "rainbow": "Rainbow flowers", "pick": "Pick colours",
+                        "alternate": "Alternating colours", "gradient": "Gradient"}
+SPECIAL_PARTS = {"rope": "Rope", "vine": "Vine", "leaf": "Leaves", "flower": "Flowers"}
+NATURAL = {"rope": "#c9a06a", "vine": "#5b8a35", "leaf": "#6aa83e", "flower": "#e8335a"}
+RAINBOW = ("#e53935", "#fb8c00", "#fdd835", "#43a047", "#1e88e5", "#3949ab", "#8e24aa", "#ec407a")
+STAMEN = "#f2c230"
+
+
+def _colour_ok(value) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None
+
+
+def _mix(a: str, b: str, f: float) -> str:
+    """`a` f of the way to `b`."""
+    ca = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+    cb = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#%02x%02x%02x" % tuple(round(x + (y - x) * f) for x, y in zip(ca, cb))
+
+
+def _shade(colour: str, f: float) -> str:
+    """Darker (f < 1, towards black) or lighter (f > 1, towards white)."""
+    return _mix(colour, "#000000", 1 - f) if f <= 1 else _mix(colour, "#ffffff", f - 1)
+
+
+def _blend_round(colours: list, t: float) -> str:
+    """The colour `t` (0-1) of the way round a closed border blending through `colours` and back."""
+    n = len(colours)
+    x = (t % 1.0) * n
+    i = int(x)
+    return _mix(colours[i % n], colours[(i + 1) % n], x - i)
 TEXT_ROOMS = {"auto": "Automatic", "shape": "Follow the shape", "rect": "Rectangle", "oval": "Oval"}
 TEXT_VALIGNS = {"top": "Top", "middle": "Middle", "bottom": "Bottom"}
 ROW_GAP_MIN, ROW_GAP_MAX = 0.0, 400.0   # the player's room under each generation's row (Edits.row_gap)
@@ -225,6 +258,13 @@ class Edits:
     # Where a portrait's words are fitted (the owner, 2026-10-09: "for the more abstract shapes, the
     # auto-generated text boxes should just be a rectangle/oval ... Should be player-selected"): TEXT_ROOMS.
     text_room: str = "auto"
+    # The special borders' colours (the owner, 2026-10-09): SPECIAL_COLOUR_MODES; the colours picked for
+    # each part ("rope", "vine", "leaf", "flower"); the 7 colours of a palette, of which the first
+    # special_count (2-7) are used, by turns or as a gradient.
+    special_mode: str = "natural"
+    special_pick: dict = field(default_factory=dict)
+    special_palette: list = field(default_factory=lambda: list(RAINBOW[:7]))
+    special_count: int = 3
     # The light lines inside a shape (details(): a scallop's ribs, a snail's whorls, a star's points),
     # the owner, 2026-10-09: "with the ability to edit the detailing's color, opacity, line weight".
     detail_lines: bool = True
@@ -330,6 +370,15 @@ class Edits:
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.text_inside = data.get("text_inside") is True
+        mode = data.get("special_mode")
+        out.special_mode = mode if mode in SPECIAL_COLOUR_MODES else "natural"
+        pick = data.get("special_pick")
+        out.special_pick = {k: v for k, v in pick.items() if k in SPECIAL_PARTS and _colour_ok(v)} \
+            if isinstance(pick, dict) else {}
+        palette = data.get("special_palette")
+        if isinstance(palette, list) and len(palette) == 7 and all(_colour_ok(c) for c in palette):
+            out.special_palette = list(palette)
+        out.special_count = int(_number(data.get("special_count"), 2, 7, 3))
         room = data.get("text_room")
         out.text_room = room if room in TEXT_ROOMS else "auto"
         out.detail_lines = data.get("detail_lines", True) is not False
@@ -491,7 +540,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "text_room": self.text_room, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -793,7 +842,8 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # reopen (portrait shape/any other changes)").  Never a village's own things: its title, moved
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
-    "centre_heads", "text_align", "text_inside", "text_room", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "centre_heads", "text_align", "text_inside", "text_room", "special_mode", "special_pick", "special_palette",
+    "special_count", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -3179,6 +3229,17 @@ class Line:
 
 
 @dataclass
+class Poly:
+    """A filled outline of any corners -- a special border's rope, vine, leaves and flowers (the owner,
+    2026-10-09: "I want the vines to be vines, not just lines"); no `stroke` / `width`: fill only."""
+    points: list
+    fill: str | None
+    stroke: str = ""
+    width: float = 0.0
+    opacity: float = 1.0
+
+
+@dataclass
 class Text:
     x: float
     y: float                            # the baseline
@@ -3406,6 +3467,9 @@ def _extent(item) -> tuple[float, float, float, float] | None:
     if isinstance(item, Line):
         xs, ys = zip(*item.points)
         return min(xs), min(ys), max(xs), max(ys)
+    if isinstance(item, Poly):
+        xs, ys = zip(*item.points)
+        return min(xs), min(ys), max(xs), max(ys)
     if isinstance(item, Shape):
         xs, ys = zip(*item.points())
         return min(xs), min(ys), max(xs), max(ys)
@@ -3559,79 +3623,149 @@ def _resample(points: list[tuple[float, float]], step: float) -> list[tuple[floa
     return out
 
 
-def _rope(points: list[tuple[float, float]], thick: float) -> list[list[tuple[float, float]]]:
-    """A braided rope along a closed outline: its two edges and a slanted twist every `thick`."""
-    walk = _resample(points, thick / 3)
-    if not walk:
-        return []
-    r = thick / 2
-    inner = [(x - nx * r, y - ny * r) for x, y, nx, ny in walk]
-    outer = [(x + nx * r, y + ny * r) for x, y, nx, ny in walk]
-    lines = [inner + inner[:1], outer + outer[:1]]
-    for k in range(0, len(walk) - 3, 3):          # a strand crossing from the inner edge to the outer
-        x0, y0, nx0, ny0 = walk[k]
-        x1, y1, nx1, ny1 = walk[k + 3]
-        mx, my = (x0 + x1) / 2, (y0 + y1) / 2
-        lines.append([(x0 - nx0 * r, y0 - ny0 * r), (mx + (nx0 + nx1) * r * 0.1, my + (ny0 + ny1) * r * 0.1),
-                      (x1 + nx1 * r, y1 + ny1 * r)])
-    return lines
+def _hull(points: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    pts = sorted(set(points))
+    if len(pts) < 3:
+        return pts
+    def cross(o, a, b):
+        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+    lower, upper = [], []
+    for q in pts:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], q) <= 0:
+            lower.pop()
+        lower.append(q)
+    for q in reversed(pts):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], q) <= 0:
+            upper.pop()
+        upper.append(q)
+    return lower[:-1] + upper[:-1]
 
 
-def _vine(points: list[tuple[float, float]], size: float, leaves: bool, flowers: bool) -> list:
-    """A vine along a closed outline, waving gently outward from it, with small leaves (each with its
-    midrib) and/or small hibiscus flowers along it, all on the outside so they keep out of the portrait
-    (the owner, 2026-10-09); `size` is a leaf's length."""
-    walk = _resample(points, size / 8)
+def _to_edge(hull: list[tuple[float, float]], x: float, y: float) -> float:
+    """How far (x, y) is from the hull's edge."""
+    best = float("inf")
+    for (ax, ay), (bx, by) in zip(hull, hull[1:] + hull[:1]):
+        ex, ey = bx - ax, by - ay
+        f = max(0.0, min(1.0, ((x - ax) * ex + (y - ay) * ey) / ((ex * ex + ey * ey) or 1)))
+        best = min(best, math.hypot(x - ax - ex * f, y - ay - ey * f))
+    return best
+
+
+def _band(path: list[tuple[float, float]], normals: list, half: float, colours: list) -> list:
+    """A band `half` wide either side of a closed path, in one filled piece per stretch (each its own
+    colour), with its two darker edges."""
+    n = len(path)
+    out = []
+    left = [(x + nx * half, y + ny * half) for (x, y), (nx, ny) in zip(path, normals)]
+    right = [(x - nx * half, y - ny * half) for (x, y), (nx, ny) in zip(path, normals)]
+    for k in range(n):
+        j = (k + 1) % n
+        out.append(Poly([left[k], left[j], right[j], right[k]], colours[k], colours[k], 0.6))   # no gaps between
+    edge = _shade(colours[0], 0.55)
+    out.append(Line(left + left[:1], edge, 1.1))
+    out.append(Line(right + right[:1], edge, 1.1))
+    return out
+
+
+def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "Edits | None" = None) -> list:
+    """A special border round a portrait framed (x, y, w, h, angle), along its own outline whatever the
+    shape (the owner, 2026-10-09): the braided rope, or a vine -- a real stem -- with leaves, hibiscus
+    or both, filled, shaded and outlined in its colours (Edits.special_*), the leaves and flowers small,
+    on the outside and never in a notch.  Items to draw (Poly and Line), already turned."""
+    e = edits or Edits()
+    x0, y0, w, h, angle = frame
+    outline_points = shape_points(kind, x0, y0, w, h, radius, angle)
+    mode, pick = e.special_mode, e.special_pick
+    palette = list(e.special_palette[:e.special_count])
+
+    def colour_of(part: str, t: float, j: int) -> str:
+        if mode == "pick":
+            return pick.get(part, NATURAL[part])
+        decorated = part == "flower" or (part == "leaf" and border == "vine_leaves") or part == "rope"
+        if mode == "rainbow" and decorated:
+            return _blend_round(list(RAINBOW), t)
+        if mode == "alternate" and decorated:
+            return palette[j % len(palette)]
+        if mode == "gradient" and decorated:
+            return _blend_round(palette, t)
+        return NATURAL[part]
+
+    if border == "rope":
+        thick = max(5.0, 0.07 * min(w, h))
+        walk = _resample(outline_points, thick / 3)
+        if not walk:
+            return []
+        path = [(x, y) for x, y, _nx, _ny in walk]
+        normals = [(nx, ny) for _x, _y, nx, ny in walk]
+        n = len(walk)
+        twists = max(1, n // 3)
+        colours = [colour_of("rope", (k // 3) / twists, k // 3) for k in range(n)]
+        items = _band(path, normals, thick / 2, colours)
+        r = thick / 2
+        for k in range(0, n - 3, 3):                 # a strand crossing from the inner edge to the outer
+            x0_, y0_, nx0, ny0 = walk[k]
+            x1_, y1_, nx1, ny1 = walk[k + 3]
+            mx, my = (x0_ + x1_) / 2, (y0_ + y1_) / 2
+            items.append(Line([(x0_ - nx0 * r, y0_ - ny0 * r), (mx + (nx0 + nx1) * r * 0.1, my + (ny0 + ny1) * r * 0.1),
+                               (x1_ + nx1 * r, y1_ + ny1 * r)], _shade(colours[k], 0.6), 1.0))
+        return items
+
+    size = max(6.0, 0.1 * min(w, h))                 # a leaf's length: small, outside the portrait
+    walk = _resample(outline_points, size / 8)
     if not walk:
         return []
     n = len(walk)
     wave = size * 0.12
-    vine = [(x + nx * wave * (1 + math.sin(2 * math.pi * k / 16)) / 2, y + ny * wave * (1 + math.sin(2 * math.pi * k / 16)) / 2)
+    path = [(x + nx * wave * (1 + math.sin(2 * math.pi * k / 16)) / 2, y + ny * wave * (1 + math.sin(2 * math.pi * k / 16)) / 2)
             for k, (x, y, nx, ny) in enumerate(walk)]
-    out = [vine + vine[:1]]
-    pattern = (["leaf", "leaf", "flower"] if leaves and flowers else ["leaf"] if leaves else ["flower"])
+    normals = [(nx, ny) for _x, _y, nx, ny in walk]
+    stem = colour_of("vine", 0.0, 0)
+    items = _band(path, normals, max(0.9, size * 0.07), [stem] * n)
+    hull = _hull(outline_points)
+    leaves, flowers = border in ("vine_leaves", "vine_both"), border in ("vine_flowers", "vine_both")
+    pattern = ["leaf", "leaf", "flower"] if leaves and flowers else ["leaf"] if leaves else ["flower"]
     spacing = 8 if pattern == ["leaf"] else 10
     count = max(3, n // spacing)
     for j in range(count):
         k = int(j * n / count)
-        x, y = vine[k]
-        _x, _y, nx, ny = walk[k]
-        tx, ty = -ny, nx                                       # along the outline
+        x, y = path[k]
+        nx, ny = normals[k]
+        if _to_edge(hull, walk[k][0], walk[k][1]) > size * 0.35:
+            continue                                  # in a notch: the vine alone there (the owner)
+        tx, ty = -ny, nx
         what = pattern[j % len(pattern)]
+        tpos = j / count
         if what == "leaf":
-            lean = 0.6 if j % 2 == 0 else -0.6                 # outward, leaning one way then the other
+            lean = 0.6 if j % 2 == 0 else -0.6        # outward, leaning one way then the other
             dx, dy = nx * 0.8 + tx * lean, ny * 0.8 + ty * lean
             m = math.hypot(dx, dy)
-            if m == 0:                                     # two corners in one place: no direction here
+            if m == 0:
                 continue
             dx, dy = dx / m, dy / m
             px, py = -dy, dx
-            edge = [(x + dx * size * u + px * size * 0.32 * math.sin(math.pi * u) * s,
-                     y + dy * size * u + py * size * 0.32 * math.sin(math.pi * u) * s)
-                    for s in (1, -1) for u in ((k2 / 10) if s == 1 else (1 - k2 / 10) for k2 in range(11))]
-            out.append(edge)
-            out.append([(x, y), (x + dx * size * 0.9, y + dy * size * 0.9)])
+            base = colour_of("leaf", tpos, j)
+            def half(side):
+                return [(x + dx * size * u + px * size * 0.32 * math.sin(math.pi * u) * side,
+                         y + dy * size * u + py * size * 0.32 * math.sin(math.pi * u) * side) for u in (k2 / 10 for k2 in range(11))]
+            a, b = half(1), half(-1)
+            items.append(Poly(a + b[::-1][1:-1], base))                         # the leaf
+            items.append(Poly(b + [(x + dx * size, y + dy * size)], _shade(base, 0.8)))   # its shaded half
+            items.append(Poly(a + b[::-1][1:-1], None, _shade(base, 0.5), 0.9))  # its outline
+            items.append(Line([(x, y), (x + dx * size * 0.9, y + dy * size * 0.9)], _shade(base, 0.5), 0.7))
         else:
             r = size * 0.55
-            x, y = x + nx * r * 0.95, y + ny * r * 0.95       # just outside the vine
-            petals = [(x + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.cos(a),
-                       y + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.sin(a))
-                      for a in (2 * math.pi * k2 / 60 for k2 in range(61))]
-            out.append(petals)
-            out.append(_ring(x, y, r * 0.16, r * 0.16, 12))
-    return out
-
-
-def special_border(border: str, kind: str, frame: tuple, radius: float) -> list:
-    """A special border round a portrait framed (x, y, w, h, angle), along its own outline whatever the
-    shape: the braided rope, or a vine with leaves, hibiscus or both (the owner, 2026-10-09) -- lines
-    drawn like the border, already turned."""
-    x0, y0, w, h, angle = frame
-    outline_points = shape_points(kind, x0, y0, w, h, radius, angle)
-    if border == "rope":
-        return _rope(outline_points, max(5.0, 0.07 * min(w, h)))
-    size = max(6.0, 0.1 * min(w, h))         # small, outside the portrait
-    return _vine(outline_points, size, border in ("vine_leaves", "vine_both"), border in ("vine_flowers", "vine_both"))
+            cx, cy = x + nx * r * 0.95, y + ny * r * 0.95                         # just outside the vine
+            base = colour_of("flower", tpos, j)
+            petals = [(cx + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.cos(a),
+                       cy + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.sin(a))
+                      for a in (2 * math.pi * k2 / 60 for k2 in range(60))]
+            items.append(Poly(petals, base, _shade(base, 0.55), 0.9))
+            items.append(Poly(_ring(cx, cy, r * 0.42, r * 0.42, 20)[:-1], _shade(base, 0.85)))  # the throat, shaded
+            items.append(Poly(_ring(cx, cy, r * 0.2, r * 0.2, 14)[:-1], _shade(base, 0.45)))    # the deep centre
+            sx, sy = cx + r * 0.3, cy - r * 0.3
+            items.append(Line([(cx, cy), (sx, sy)], STAMEN, 0.9))                               # the stamen
+            items.append(Poly(_ring(sx, sy, r * 0.09, r * 0.09, 10)[:-1], STAMEN))
+    return items
 
 
 def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
@@ -3669,9 +3803,9 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if angle:
             pts = [(mx + dx, my + dy) for dx, dy in (turn(px - mx, py - my, angle) for px, py in pts)]
         return pts
-    if border in SPECIAL_BORDERS:               # the braided rope or a vine, round any shape
-        for line in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind)):
-            add(Line(line, colour, 1.8))
+    if border in SPECIAL_BORDERS:               # the braided rope or a vine, round any shape, in its own colours
+        for item in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e):
+            add(item)
     for line in decor(kind):                    # drawn like the border (a leaf, a stamen)
         add(Line(placed(line), colour, max(1.0, BORDER_WIDTHS[border] * 0.8)))
     if e.detail_lines and e.detail_opacity > 0:   # light, under the face and the words
@@ -3916,6 +4050,11 @@ def to_svg(sc: Scene, present: dict, describe=None) -> str:
             out.append(f'<polyline points="{pts}" fill="none" stroke="{item.colour}" stroke-width="{item.width}"'
                        f' stroke-linejoin="round"{_svg_opacity(item)}'
                        + (f' stroke-dasharray="{SVG_DASHES[item.dash]}"' if item.dash else "") + "/>")
+        elif isinstance(item, Poly):
+            pts = " ".join(f"{px:.1f},{py:.1f}" for px, py in item.points)
+            stroke = f'stroke="{item.stroke}" stroke-width="{item.width}"' if item.width else 'stroke="none"'
+            out.append(f'<polygon points="{pts}" fill="{item.fill or "none"}" fill-rule="evenodd" {stroke}'
+                       f' stroke-linejoin="round"{_svg_opacity(item)}/>')
         elif isinstance(item, Shape):
             fill = item.fill or "none"
             dash = f' stroke-dasharray="{SVG_DASHES[item.dash]}"' if item.dash else ""

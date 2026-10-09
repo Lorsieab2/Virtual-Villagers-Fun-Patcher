@@ -128,6 +128,35 @@ class SpecialBorderAndTextRoomTests(unittest.TestCase):
         self.assertEqual(ft.Edits._from_data(ft.Edits(text_room="oval").to_data()).text_room, "oval")
         self.assertEqual(ft.Edits._from_data({"text_room": "nonsense"}).text_room, "auto")
 
+class SpecialBorderColourTests(unittest.TestCase):
+    def test_the_colour_settings_are_saved_and_read_back(self):
+        e = ft.Edits()
+        e.special_mode, e.special_count = "gradient", 5
+        e.special_pick = {"rope": "#123456", "flower": "#abcdef"}
+        back = ft.Edits._from_data(e.to_data())
+        self.assertEqual((back.special_mode, back.special_count, back.special_pick), ("gradient", 5, e.special_pick))
+        self.assertEqual(ft.Edits._from_data({"special_mode": "nope", "special_count": 40}).special_mode, "natural")
+        self.assertEqual(ft.Edits._from_data({"special_count": 40}).special_count, 7)
+
+    def test_natural_colours_and_the_modes_colour_the_parts(self):
+        def fills(border, mode):
+            e = ft.Edits()
+            e.special_mode = mode
+            items = ft.special_border(border, "circle", (0, 0, 200, 200, 0.0), 0.0, e)
+            return {i.fill for i in items if isinstance(i, ft.Poly) and i.fill}
+        self.assertIn(ft.NATURAL["rope"], fills("rope", "natural"))
+        self.assertIn(ft.NATURAL["flower"], fills("vine_flowers", "natural"))
+        self.assertGreater(len(fills("vine_flowers", "rainbow")), 6)          # a rainbow of flowers
+
+    def test_every_export_draws_a_special_border(self):
+        import types
+        sys.path.insert(0, str(Path(__file__).resolve().parents[0]))
+        from test_genealogy import village
+        e = ft.Edits(borders={g: "vine_both" for g in ft.GROUPS})
+        sc = ft.scene(ft.layout(village(), e), "A New Home", {})
+        self.assertTrue(any(isinstance(i, ft.Poly) for i in sc.items))
+        self.assertIn('fill-rule="evenodd"', ft.to_svg(sc, {}))
+
 
 if __name__ == "__main__":
     unittest.main()
