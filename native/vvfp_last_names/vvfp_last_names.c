@@ -131,7 +131,9 @@
    `from` call (E8 to the routine) are verified first and the list must hold
    exactly 50 names; otherwise nothing is installed and the game names
    villagers as it always has.  Repeated calls do nothing more. */
+#define _CRT_SECURE_NO_WARNINGS
 #include <windows.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -245,6 +247,204 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
     before = strlen(name);
     give_last_name(name, room, family);
     return strlen(name) != before;
+}
+
+/* THE PLAYER'S RULE AT A BIRTH (the owner, 2026-10-08: babies born after
+   "From the father" was chosen were named Tamikai and Wikimak -- their
+   mothers' family numbers' names -- not their fathers' last names: "fix
+   it").  Repair Saves & Logs keeps the village's rule in
+   <save folder>\Virtual Villagers Fun Patcher Data\Last Names\
+   Virtual Villagers <game> Last Names - Save <slot>.dat (src/vv_last_names.py
+   write_record): a "VVFP LAST NAMES v1 game=<game>" line, then "rule\t<rule>"
+   and "whole\t<name>" lines among others.  With "father", "mother" or
+   "random" the child takes that parent's last name as the name carries it --
+   its last word after the first, a trailing Roman numeral passed over, none
+   for a one-word name or one the player said is a single first name -- the
+   other parent's when that one has none, and keeps the family's (above) when
+   neither has one; exactly as inherited() in src/vv_last_names.py gives it.
+   Without the file, or with "list" or "each", nothing changes. */
+#define RULE_FILE_MAX 65536
+static char g_rule_file[RULE_FILE_MAX + 1];
+
+static int is_numeral(const char *word, size_t n) {
+    size_t i;
+    if (n == 0) {
+        return 0;
+    }
+    for (i = 0; i < n; ++i) {
+        if (word[i] == '\0' || strchr("IVXLCDM", word[i]) == NULL) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* The rule ("father", "mother", "random"; "" for anything else) and the file,
+   kept in g_rule_file for the "whole" lines.  0 when there is no rule to use. */
+static int read_rule(int slot, char *rule, size_t rule_size) {
+    char docs[MAX_PATH], exe[MAX_PATH], path[MAX_PATH * 2];
+    char header[48];
+    char *base, *dot, *line;
+    HANDLE h;
+    DWORD got = 0;
+    rule[0] = '\0';
+    if (slot < 1 || slot > 9 || g_game < 1) {
+        return 0;
+    }
+    {
+        typedef BOOL (WINAPI *folder_t)(HWND, LPSTR, int, BOOL);
+        HMODULE shell = LoadLibraryA("shell32.dll");
+        folder_t get = shell ? (folder_t)GetProcAddress(shell, "SHGetSpecialFolderPathA") : NULL;
+        if (get == NULL || !get(NULL, docs, 0x0005 /* CSIDL_PERSONAL */, FALSE)) {
+            return 0;
+        }
+    }
+    if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
+        return 0;
+    }
+    exe[MAX_PATH - 1] = '\0';
+    base = strrchr(exe, '\\');
+    base = base ? base + 1 : exe;
+    dot = strrchr(base, '.');
+    if (dot != NULL) {
+        *dot = '\0';
+    }
+    if (_snprintf(path, sizeof path, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Last Names\\"
+                  "Virtual Villagers %d Last Names - Save %d.dat", docs, base, g_game, slot) <= 0) {
+        return 0;
+    }
+    path[sizeof path - 1] = '\0';
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(h, g_rule_file, RULE_FILE_MAX, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(h);
+    g_rule_file[got] = '\0';
+    _snprintf(header, sizeof header, "VVFP LAST NAMES v1 game=%d", g_game);
+    header[sizeof header - 1] = '\0';
+    if (strncmp(g_rule_file, header, strlen(header)) != 0
+        || (g_rule_file[strlen(header)] != '\n' && g_rule_file[strlen(header)] != '\r')) {
+        return 0;
+    }
+    for (line = g_rule_file; line != NULL; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        if (strncmp(line, "rule\t", 5) == 0) {
+            const char *v = line + 5;
+            size_t n = strcspn(v, "\r\n");
+            if ((n == 6 && strncmp(v, "father", 6) == 0) || (n == 6 && strncmp(v, "mother", 6) == 0)
+                || (n == 6 && strncmp(v, "random", 6) == 0)) {
+                if (n + 1 > rule_size) {
+                    return 0;
+                }
+                memcpy(rule, v, n);
+                rule[n] = '\0';
+            }
+        }
+    }
+    return rule[0] != '\0';
+}
+
+/* Whether the record file says `base` (n bytes) is one first name. */
+static int is_whole(const char *base, size_t n) {
+    const char *line;
+    for (line = g_rule_file; line != NULL; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        if (strncmp(line, "whole\t", 6) == 0 && strcspn(line + 6, "\r\n") == n
+            && strncmp(line + 6, base, n) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The last name `name` carries (split_name's own fallback): its last word that
+   is not a numeral, never its first; "" for none.  `out` holds LONGEST_LAST. */
+static void carried_last(const char *name, char *out) {
+    char words[8][LONGEST_LAST + 1];
+    int count = 0, k;
+    const char *p = name;
+    size_t base_len;
+    out[0] = '\0';
+    if (name == NULL) {
+        return;
+    }
+    while (*p != '\0' && count < 8) {
+        size_t n = strcspn(p, " ");
+        if (n == 0 || n > LONGEST_LAST) {
+            return;                         /* two spaces, or a word no name has */
+        }
+        memcpy(words[count], p, n);
+        words[count][n] = '\0';
+        ++count;
+        p += n;
+        if (*p == ' ') {
+            ++p;
+        }
+    }
+    if (*p != '\0') {
+        return;
+    }
+    k = count - 1;
+    while (k > 0 && is_numeral(words[k], strlen(words[k]))) {
+        --k;
+    }
+    if (k < 1) {
+        return;
+    }
+    base_len = 0;
+    {
+        int i;
+        for (i = 0; i <= k; ++i) {
+            base_len += strlen(words[i]) + (i ? 1 : 0);
+        }
+    }
+    if (is_whole(name, base_len)) {
+        return;
+    }
+    memcpy(out, words[k], strlen(words[k]) + 1);
+}
+
+/* From the parentage companions at a birth, before its Birth record is
+   written: the child's name (its first name, and the family's last name this
+   DLL gave it) made its first name and the last name the player's rule gives
+   (above).  `father` / `mother`: the parents' names as the game holds them
+   (NULL or "" unknown).  Returns 1 when the name changed. */
+__declspec(dllexport) int __stdcall VvfpRuleLastName(char *name, unsigned int room, const char *father,
+                                                     const char *mother, int slot) {
+    char rule[8], dad[LONGEST_LAST + 1], mum[LONGEST_LAST + 1], first[LONGEST_LAST + 1];
+    const char *last;
+    size_t n;
+    if (install_state != 1 || name == NULL || room < 2 || memchr(name, '\0', room) == NULL
+        || !read_rule(slot, rule, sizeof rule)) {
+        return 0;
+    }
+    n = strcspn(name, " ");
+    if (n == 0 || n > LONGEST_LAST) {
+        return 0;
+    }
+    memcpy(first, name, n);
+    first[n] = '\0';
+    carried_last(father, dad);
+    carried_last(mother, mum);
+    if (rule[0] == 'f') {
+        last = dad[0] ? dad : mum;
+    } else if (rule[0] == 'm') {
+        last = mum[0] ? mum : dad;
+    } else {                                /* "random": 50:50 for each child (the owner) */
+        last = dad[0] && mum[0] ? ((GetTickCount() ^ (DWORD)(uintptr_t)name) & 1 ? dad : mum)
+                                : (dad[0] ? dad : mum);
+    }
+    if (last[0] == '\0' || n + 1 + strlen(last) + 1 > room) {
+        return 0;                           /* none to give, or too long: the family's stays */
+    }
+    if (strncmp(name + n, " ", 1) == 0 && strcmp(name + n + 1, last) == 0) {
+        return 0;                           /* already so */
+    }
+    name[n] = ' ';
+    memcpy(name + n + 1, last, strlen(last) + 1);
+    return 1;
 }
 
 static int one_of(unsigned int value, const unsigned int *values) {

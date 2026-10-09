@@ -3503,6 +3503,47 @@ static int compose_birth(
     return 1;
 }
 
+typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father,
+                                           const char *mother, int slot);
+
+/* The Lost Children to New Believers, at the child's creation: its name made
+   its first name and the last name the player's rule gives (Repair Saves &
+   Logs' "Last names come from"; VVFP Last Names' VvfpRuleLastName), from the
+   parents the game keeps on its record -- before the Birth record or anything
+   else names it (the owner, 2026-10-08: babies named for their mother's
+   family number, not by the rule -- "fix it").  A New Home's companion does
+   the same at its own birth hook, with the parents it recorded. */
+static void rule_last_name(int game_id, unsigned char *rec) {
+    static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
+    static rule_last_name_t rule;
+    const struct game_layout *g;
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    char father[MAX_NAME_BYTES], mother[MAX_NAME_BYTES];
+    const char *at = NULL, *scan;
+    if (game_id < GAME_VV2 || game_id > GAME_VV5 || rec == NULL) {
+        return;
+    }
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
+        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        state = rule ? 1 : -1;
+    }
+    g = layout_of(game_id);
+    if (state != 1 || !layout_is_usable(g) || g->parent_father_name == 0u
+        || !vv_village_recall(village, sizeof village)) {
+        return;
+    }
+    for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
+        at = scan;
+    }
+    if (at == NULL || at[7] < '1' || at[7] > '9' || at[8] != ')') {
+        return;
+    }
+    copy_name_field(rec + g->parent_father_name, father, sizeof father, g->name_capacity);
+    copy_name_field(rec + g->parent_mother_name, mother, sizeof mother, g->name_capacity);
+    rule((char *)(rec + g->name), g->name_capacity, father, mother, at[7] - '0');
+}
+
 /* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
    known (no "Born as" line). */
 __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
@@ -3514,6 +3555,9 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
     int litter
 ) {
     char text[RECORD_TEXT_MAX];
+    if (child_name == NULL || child_name[0] == '\0') {   /* the record is the name: the exe's splices */
+        rule_last_name(game_id, (unsigned char *)child_record);
+    }
     if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
                        mother_body, father_name, father_head, father_body, child_record, NULL,
                        litter, text, sizeof text)) {
