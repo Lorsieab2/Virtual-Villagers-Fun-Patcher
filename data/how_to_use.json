@@ -302,9 +302,19 @@
     {
       "ids": ["vv1_last_names", "vv2_last_names", "vv3_last_names", "vv4_last_names", "vv5_last_names"],
       "guide": [
-        "New villagers get a last name after their first name, from a list of 50 the game has always had but never used.",
-        "The last name comes from the villager's family, so children share their mother's last name.",
+        "New villagers get a last name after their first name.",
+        "A baby takes its father's or mother's last name, by the rule you chose in Repair Saves & Logs (Last names come from).",
+        "Without a rule, its family's name, from a list of 50 the game has always had but never used.",
         "Villagers who already have names keep them. Nothing to click: tick it, patch, and play."
+      ]
+    },
+    {
+      "ids": ["vv1_island_events", "vv2_island_events", "vv3_island_events", "vv4_island_events", "vv5_island_events"],
+      "guide": [
+        "Every change an island event makes to a villager goes in the Island Events log, with the event's title and the answer you picked.",
+        "Each change reads old -> new: health, age, sickness, looks, likes, skills and more. Villagers an event brings or takes away are recorded too.",
+        "A new head or body also goes in the Births and Conceptions log, so the Family Tree Maker follows the villager.",
+        "Needs Write Births and Conceptions Log to Text File. Nothing to click: tick it, patch, and play."
       ]
     },
     {

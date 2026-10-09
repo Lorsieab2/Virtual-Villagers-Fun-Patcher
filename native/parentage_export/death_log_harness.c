@@ -457,7 +457,7 @@ int main(int argc, char **argv) {
             memset(stray, 0, sizeof stray);
             CHECK(write_record(game, DEATH, stray + 0x10, 1, BURIED, NULL, 1) == 0, "a record outside the table is refused");
             CHECK(write_record(game, DEATH, rec(1) + 4, 1, BURIED, NULL, 1) == 0, "a pointer inside a record is refused");
-            CHECK(write_record(game, 8, rec(1), 1, BURIED, NULL, 1) == 0
+            CHECK(write_record(game, 9, rec(1), 1, BURIED, NULL, 1) == 0
                   && write_record(game, 1, rec(1), 1, BURIED, NULL, 1) == 0, "a kind out of range is refused");
         }
         /* "Appearance changed" (kind 7): the Births and Conceptions log, unnumbered, the name and the

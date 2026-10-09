@@ -166,7 +166,7 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_tribe_rename", {"vv_save_backup"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names"}),
-            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename"}),
+            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy"}),
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
                                "vv_tribe_rename", "vv_genealogy"}),

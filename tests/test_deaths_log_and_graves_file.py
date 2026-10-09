@@ -63,7 +63,8 @@ class DeathsLogSource(unittest.TestCase):
         for n in range(1, 6):
             self.assertIn(f'L"Virtual Villagers {n} Deaths Log"', source)
         self.assertIn('return family == LOG_DEATHS ? "Death "', source)
-        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";', source)
+        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted "', source)
+        self.assertIn(': family == LOG_EVENTS ? "Island event " : "Conception ";', source)
         self.assertIn('#define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
         self.assertIn("return emit_record(game_id, kind, check ? records : NULL, text);", source)
 
@@ -71,7 +72,8 @@ class DeathsLogSource(unittest.TestCase):
         source = RESET.read_text(encoding="utf-8")
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Deaths"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
-        self.assertIn("for (pass = 0; pass < 6; ++pass) {", source)
+        self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Island Events"', source)
+        self.assertIn("for (pass = 0; pass < 7; ++pass) {", source)
         # Each kind in its own folder (native/shared/data_subfolder.h), and
         # the loose name an older build wrote: both are the village's.
         for n in (1, 2):
