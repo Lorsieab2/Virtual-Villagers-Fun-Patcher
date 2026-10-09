@@ -901,13 +901,16 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
         SetDlgItemTextA(window, IDC_SP_COUNT, "1");
         wsprintfA(text, "1-%d (the room the village has now)", ui_spawn_room(0));
         SetDlgItemTextA(window, IDC_SP_COUNT_RANGE, text);
-        CheckRadioButton(window, IDC_SP_UNITS, IDC_SP_YEARS, IDC_SP_UNITS);
+        /* Years by default (the owner, v1.35.64); Game units is the other choice. */
+        CheckRadioButton(window, IDC_SP_UNITS, IDC_SP_YEARS, IDC_SP_YEARS);
         ui_combo_add(window, IDC_SP_SEX, "Male", STORY_SEX_MALE);
         ui_combo_add(window, IDC_SP_SEX, "Female", STORY_SEX_FEMALE);
         SendDlgItemMessageA(window, IDC_SP_SEX, CB_SETCURSEL, 0, 0);
-        wsprintfA(text, "0-%d units / 0-%d years", ce_oldest_age(a), ce_oldest_age(a) / 20);
+        wsprintfA(text, "0-%d years / 0-%d units", ce_oldest_age(a) / 20, ce_oldest_age(a));
         SetDlgItemTextA(window, IDC_SP_AGE_RANGE, text);
-        SetDlgItemInt(window, IDC_SP_AGE, (UINT)(a->adult_age + 80), FALSE);
+        /* The default age in years, as the default choice is (an adult, four
+           years past the game's adult age). */
+        SetDlgItemInt(window, IDC_SP_AGE, (UINT)((a->adult_age + 80) / 20), FALSE);
         SendDlgItemMessageA(window, IDC_SP_NAME, EM_LIMITTEXT, (WPARAM)a->name_room, 0);
         wsprintfA(text, "0-%d / 0-%d", a->head_count - 1, a->body_count - 1);
         SetDlgItemTextA(window, IDC_SP_LOOK_RANGE, text);
@@ -966,7 +969,7 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
             }
         }
         s->sex = ui_combo_data(window, IDC_SP_SEX);
-        /* Game units (20 a year) unless Years is chosen; 0 is a full
+        /* Years (the default) or Game units (20 a year); 0 is a full
            villager made by the game's own creator, not a carried baby. */
         years = ui_number(window, IDC_SP_AGE);
         if (IsDlgButtonChecked(window, IDC_SP_YEARS) == BST_CHECKED) {
