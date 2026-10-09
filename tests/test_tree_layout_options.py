@@ -34,7 +34,7 @@ class SettingsTests(unittest.TestCase):
 class ShapeTests(unittest.TestCase):
     NEW = ("trapezoid", "pentagon", "star4", "plump_star", "star6", "slim_star6", "arrow_h", "arrow_v", "arch",
            "scallop", "snail", "leafy_oval", "hibiscus", "sand_dollar", "turtle_v", "turtle_h", "mermaid_tail",
-           "fish_right", "fish_left", "wave_circle", "conch", "starfish", "ship_wheel", "coconut", "bananas")
+           "fish_right", "fish_left", "wave_circle", "conch", "starfish", "ship_wheel", "coconut", "open_coconut", "bananas")
 
     def test_the_owners_pictures_have_their_detail_lines(self):
         for kind in ("scallop", "snail", "sand_dollar", "turtle_v", "mermaid_tail", "fish_left", "conch",

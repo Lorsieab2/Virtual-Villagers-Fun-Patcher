@@ -552,7 +552,7 @@ PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle"
                    "turtle_h": "Turtle shell (on its side)", "mermaid_tail": "Mermaid tail",
                    "fish_right": "Fish (facing right)", "fish_left": "Fish (facing left)",
                    "wave_circle": "Ocean wave in a circle", "conch": "Conch shell", "starfish": "Starfish",
-                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "bananas": "Bunch of bananas",
+                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "open_coconut": "Open coconut", "bananas": "Bunch of bananas",
                    "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
@@ -2418,12 +2418,14 @@ def _shells() -> dict[str, tuple[list, list]]:
         part = (lobes * t) % 1.0 if k < 140 else 0.0
         r = 0.88 + 0.12 * math.sqrt(math.sin(math.pi * part))
         rim.append((r * math.cos(phi), -r * math.sin(phi)))
-    scallop = rim + [(0.42, -0.15), (0.42, 0.03), (-0.42, 0.03), (-0.42, -0.15)]
+    scallop = rim + [(0.34, -0.1), (0.34, 0.02), (-0.34, 0.02), (-0.34, -0.1)]
     for k in range(1, lobes):
         phi = math.radians(165 - 150 * k / lobes)
         ribs.append([(0.0, -0.02), (0.86 * math.cos(phi), -0.86 * math.sin(phi))])
-    ribs += [[(0.0, -0.02), (0.42, -0.15)], [(0.0, -0.02), (-0.42, -0.15)]]
-    out["scallop"] = (scallop, ribs)
+    ribs += [[(0.0, -0.02), (0.34, -0.1)], [(0.0, -0.02), (-0.34, -0.1)]]
+    # Taller than the fan's own circle (the owner, 2026-10-09: the first was "too squashed").
+    tall = lambda pt: (pt[0], pt[1] * 1.35)
+    out["scallop"] = ([tall(pt) for pt in scallop], [[tall(pt) for pt in rib] for rib in ribs])
     # The snail's shell: a spiral growing 1.8 times a turn; its last whorl is the outline, closed by
     # the opening's lip, and the turns inside it the detail line.  Turned so the opening is at the
     # lower right, as in the owner's picture.
@@ -2666,21 +2668,42 @@ def _more_shapes() -> dict:
             hub.append([(0.19 * ca - side * sa, 0.19 * sa + side * ca), (0.74 * ca - side * sa, 0.74 * sa + side * ca)])
     out["ship_wheel"] = (wheel, hub)
 
-    # A coconut (the owner, 2026-10-09: "a coconut with 3 holes"): an egg, a little pointed at the top,
-    # its three eyes in a triangle near the top drawn like the border; a few light fibre lines.
-    nut = [(0.88 * math.cos(a), math.sin(a) * (1.08 if math.sin(a) < 0 else 1.0))
-           for a in (2 * math.pi * k / 120 for k in range(120))]
-    eyes = [_ring(x, y, 0.07, 0.09, 20) for x, y in ((-0.13, -0.66), (0.13, -0.66), (0.0, -0.46))]
-    fibres = [_smooth([(s * 0.18, -0.9), (s * 0.5, -0.3), (s * 0.55, 0.3), (s * 0.35, 0.88)], steps=8)
-              for s in (-1, 1)] + [_smooth([(s * 0.42, -0.8), (s * 0.74, -0.2), (s * 0.72, 0.4), (s * 0.5, 0.8)], steps=8)
-                                   for s in (-1, 1)]
+    # A coconut, the owner's picture: nearly round, its three eyes right at the top drawn like the
+    # border, and short hair-like fibres all over it, light.
+    nut = [(0.96 * math.cos(a), math.sin(a)) for a in (2 * math.pi * k / 120 for k in range(120))]
+    eyes = [_ring(x, y, 0.1, 0.08, 20) for x, y in ((-0.2, -0.8), (0.2, -0.8), (0.0, -0.6))]
+    fibres = []
+    for row in range(-3, 5):
+        y = row * 0.2
+        across = 0.96 * math.sqrt(max(0.0, 1 - (y / 0.98) ** 2))
+        n = max(1, int(across / 0.17))
+        for i in range(n):
+            x = -across + (2 * across) * (i + 0.5 + 0.3 * ((row + i) % 2)) / (n + 0.3)
+            if y < -0.45 and abs(x) < 0.35:
+                continue                        # leave the eyes clear
+            lean = x * 0.12                     # following the coconut's round
+            fibres.append([(x - lean * 0.5, y - 0.06), (x, y), (x + lean * 0.5, y + 0.06)])
     out["coconut"] = (nut, fibres, eyes)
+
+    # Half a coconut (the owner, 2026-10-09; the first "doesn't read like a cut coconut"): a round bowl
+    # below, the flat cut face above seen as an oval -- its near edge drawn like the border --, the white
+    # flesh a ring inside the shell's edge and the hollow in its middle, light; a few fibres on the bowl.
+    face_ry = 0.36
+    top = [(-math.cos(a), -face_ry * math.sin(a)) for a in (math.pi * k / 60 for k in range(61))]
+    bowl = [(math.cos(a), 0.95 * math.sin(a)) for a in (math.pi * k / 60 for k in range(1, 60))]
+    shell = top + bowl
+    near = [[(math.cos(a), face_ry * math.sin(a)) for a in (math.pi * k / 60 for k in range(61))]]
+    flesh = _ring(0, 0, 0.88, face_ry * 0.86, 72)
+    hollow = _ring(0, 0, 0.62, face_ry * 0.58, 64)
+    hairs = [[(x, y), (x + 0.04 * (1 if x > 0 else -1), y + 0.08)] for x, y in
+             ((-0.8, 0.45), (-0.6, 0.66), (-0.35, 0.8), (-0.05, 0.86), (0.25, 0.83), (0.5, 0.7), (0.72, 0.5))]
+    out["open_coconut"] = (shell, [flesh, hollow] + hairs, near)
 
     # A bunch of three bananas, traced from the owner's picture: the stem at the upper left, the
     # bananas curving out to the right; the lines between them and along their ridges, light.
     bunch = _smooth([(25, 100), (80, 88), (130, 78), (140, 95), (118, 112), (150, 150), (250, 165), (400, 148),
-                     (520, 138), (548, 142), (560, 156), (548, 172), (530, 205), (558, 222), (576, 236),
-                     (562, 252), (535, 300), (545, 330), (540, 352), (515, 372), (470, 402), (380, 436),
+                     (520, 138), (548, 142), (560, 156), (548, 172), (498, 204), (558, 222), (576, 236),
+                     (562, 252), (500, 304), (545, 330), (540, 352), (515, 372), (470, 402), (380, 436),
                      (250, 446), (140, 420), (82, 360), (60, 280), (64, 200), (80, 150), (95, 128),
                      (32, 132)], closed=True, steps=6)
     splits = [_smooth(line, steps=8) for line in (
@@ -2688,6 +2711,7 @@ def _more_shapes() -> dict:
         [(98, 168), (150, 250), (280, 296), (420, 310), (526, 318)],
         [(100, 232), (180, 330), (300, 372), (470, 378)],
         [(165, 262), (300, 278), (480, 268)])]
+    # The example's own proportions (the owner, 2026-10-09: squeezed, they no longer looked like it).
     out["bananas"] = ([(x / 600, y / 600) for x, y in bunch], [[(x / 600, y / 600) for x, y in l] for l in splits])
     return out
 
@@ -2719,7 +2743,55 @@ def _spokes(kind: str) -> list[list[tuple[float, float]]]:
 
 # The shapes that carry detail lines (the owner, 2026-10-09: "you can add detailing to the other
 # shapes too", its colour, opacity and weight the player's: Edits.detail_*).
-SPOKE_SHAPES = ("star", "plump_star", "star4", "star6", "slim_star6", "flower", "butterfly", "leaf")
+SPOKE_SHAPES = ("star", "plump_star", "star4", "star6", "slim_star6", "flower", "leaf")
+
+
+@functools.lru_cache(maxsize=1)
+def _butterfly_lines() -> tuple[list, list]:
+    """The butterfly's lines (the owner, 2026-10-09: "should have curly antennae and lines for each
+    part of its wings"), on the parts _drawn_outlines makes it of: (light lines -- the body, where
+    each upper wing meets the lower, three veins in each wing --, the curly antennae, drawn like the
+    border), in its 1 x 1 box."""
+    wings = [(-0.36, -0.18, 0.4, 0.32, -20), (0.36, -0.18, 0.4, 0.32, 20),
+             (-0.26, 0.28, 0.28, 0.24, 25), (0.26, 0.28, 0.28, 0.24, -25)]
+    body = (0, 0.02, 0.2, 0.36, 0)
+
+    def edge(part, t):
+        cx, cy, rx, ry, turn_deg = part
+        c, s = math.cos(math.radians(turn_deg)), math.sin(math.radians(turn_deg))
+        u, v = rx * math.cos(t), ry * math.sin(t)
+        return (cx + u * c - v * s, cy + u * s + v * c)
+
+    def within(part, x, y):
+        cx, cy, rx, ry, turn_deg = part
+        c, s = math.cos(math.radians(turn_deg)), math.sin(math.radians(turn_deg))
+        return (((x - cx) * c + (y - cy) * s) / rx) ** 2 + ((-(x - cx) * s + (y - cy) * c) / ry) ** 2 <= 1
+    rim = [edge(part, 2 * math.pi * k / 180) for part in wings + [body] for k in range(180)]
+    x0, x1 = min(p[0] for p in rim), max(p[0] for p in rim)
+    y0, y1 = min(p[1] for p in rim), max(p[1] for p in rim)
+    unit = lambda p: ((p[0] - x0) / (x1 - x0), (p[1] - y0) / (y1 - y0))
+    light = [[unit(p) for p in _ring(0, 0.02, 0.06, 0.34, 40)]]                  # the body
+    for upper, lower in ((wings[0], wings[2]), (wings[1], wings[3])):            # upper meets lower
+        seam = [edge(upper, 2 * math.pi * k / 240) for k in range(240)]
+        seam = [p for p in seam if within(lower, *p) and abs(p[0]) > 0.06]
+        seam.sort(key=lambda p: p[0])
+        if seam:
+            light.append([unit(p) for p in seam])
+    for part in wings:                                                       # three veins in each
+        cx, cy = part[0], part[1]
+        root = (0.06 if cx > 0 else -0.06, cy * 0.4)
+        for k in (-1, 0, 1):
+            far = (cx + (cx - root[0]) * 0.55 + k * 0.12 * (1 if cy < 0 else -1), cy + (cy - root[1]) * 0.55 + k * 0.12)
+            if within(part, *far):
+                light.append([unit(root), unit(far)])
+    curls = []
+    for side in (-1, 1):                                                     # curly antennae
+        stalk = [(side * 0.02 + side * 0.22 * u ** 1.3, -0.3 - 0.42 * u) for u in (k / 20 for k in range(21))]
+        ex, ey = stalk[-1]
+        curl = [(ex + side * 0.06 * (1 - math.cos(a)) * (1 - a / 9), ey - 0.06 * math.sin(a) * (1 - a / 9))
+                for a in (k * 0.25 for k in range(1, 26))]
+        curls.append([unit(p) for p in stalk + curl])
+    return light, curls
 
 
 @functools.lru_cache(maxsize=None)
@@ -2729,12 +2801,16 @@ def details(kind: str) -> tuple:
         return tuple(tuple(line) for line in SHELLS[kind][1])
     if kind in SPOKE_SHAPES:
         return tuple(tuple(line) for line in _spokes(kind))
+    if kind == "butterfly":
+        return tuple(tuple(line) for line in _butterfly_lines()[0])
     return ()
 
 
 def decor(kind: str) -> tuple:
     """Lines drawn like a shape's border, beside its outline: the leafy oval's leaves, the hibiscus's
     stamen and pollen."""
+    if kind == "butterfly":
+        return tuple(tuple(line) for line in _butterfly_lines()[1])
     return tuple(tuple(line) for line in SHELLS[kind][3]) if kind in SHELLS else ()
 
 
