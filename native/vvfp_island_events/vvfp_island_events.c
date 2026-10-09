@@ -211,6 +211,37 @@ static int present_now(const unsigned char *record, unsigned char **now, int cou
     return 0;
 }
 
+/* A record slot the event freed and filled with someone else (an event that
+   takes one villager away and brings another can put the newcomer at the
+   freed address): the name differs AND so does at least one of head, body
+   or sex.  A name alone changing is a rename -- The Secret City's Return of
+   Biggles, confronted, names its subject "?" -- one villager, "Name: <old> ->
+   ?" (Codex, #577). */
+static int reused(const unsigned char *old, const unsigned char *live) {
+    int k, name_differs = 0, other_differs = 0;
+    for (k = 0; k < g_layout->field_count; ++k) {
+        const struct field *f = &g_layout->fields[k];
+        if (strcmp(f->label, "Name") == 0) {
+            name_differs = !field_same(f, old, live);
+        } else if (strcmp(f->label, "Sex") == 0) {
+            other_differs |= !field_same(f, old, live);
+        }
+    }
+    other_differs |= *(const int *)(old + g_layout->head) != *(const int *)(live + g_layout->head)
+                     || *(const int *)(old + g_layout->body) != *(const int *)(live + g_layout->body);
+    return name_differs && other_differs;
+}
+
+static int copy_of(const struct snapshot *s, const unsigned char *live) {
+    int k;
+    for (k = 0; k < s->count; ++k) {
+        if (s->where[k] == live) {
+            return k;
+        }
+    }
+    return -1;
+}
+
 /* Compare and write: one record per villager the event changed. */
 static void compare(struct snapshot *s) {
     unsigned char *now[MAX_VILLAGERS];
@@ -240,12 +271,11 @@ static void compare(struct snapshot *s) {
             continue;
         }
         changes[0] = '\0';
-        /* The record's slot decides who is who, never its name: an event may
-           rename the villager it is about (The Secret City's Return of
-           Biggles, confronted, names them "?"), and that is one villager with
-           "Name: <old> -> ?", not one gone and one new (Codex, #577). */
-        if (!present_now(live, now, count)) {
-            /* Gone (died without a body, disappeared, left): named from the copy. */
+        /* The record's slot decides who is who, unless it was reused for
+           someone else (reused): a rename alone is one villager. */
+        if (!present_now(live, now, count) || reused(old, live)) {
+            /* Gone (died without a body, disappeared, left), or its record
+               reused for someone else: named from the copy. */
             used += (size_t)_snprintf(changes + used, sizeof changes - used, "  Gone: yes\n");
             g_write(g_game, KIND_ISLAND_EVENT, old, 0, before, changes, 0);
             continue;
@@ -288,10 +318,9 @@ static void compare(struct snapshot *s) {
     /* Villagers the event brought (a barrel, a canoe, a copy, a newcomer): each
        is named with its looks, likes and skills, as the logs print a villager. */
     for (i = 0; i < count; ++i) {
-        int k2, was = 0;
-        for (k2 = 0; k2 < s->count && !was; ++k2) {
-            was = s->where[k2] == now[i];     /* present before, in the same slot */
-        }
+        /* present before, in the same slot, and not reused for someone else */
+        int k2 = copy_of(s, now[i]);
+        int was = k2 >= 0 && !reused(s->copy + (size_t)k2 * g_layout->copy_size, now[i]);
         if (!was) {
             g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, "  New villager: yes\n", 2);
         }

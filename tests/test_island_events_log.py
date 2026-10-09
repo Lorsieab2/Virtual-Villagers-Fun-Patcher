@@ -24,7 +24,7 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-CHECKS = 5 * 6   # six checks in each of the five games
+CHECKS = 5 * 7   # seven checks in each of the five games
 
 
 def body(source: str, head: str) -> str:
@@ -38,12 +38,17 @@ def table(source: str, head: str) -> str:
 
 
 class IslandEventsSource(unittest.TestCase):
-    def test_who_is_who_is_decided_by_the_slot_never_the_name(self):
+    def test_who_is_who_is_decided_by_the_slot_and_a_rename_alone_is_not_a_new_villager(self):
         source = (NATIVE / "vvfp_island_events.c").read_text(encoding="utf-8")
         compare = body(source, "static void compare(struct snapshot *s)")
-        self.assertIn("if (!present_now(live, now, count)) {", compare)
-        self.assertNotIn("g_layout->name", compare.split("Villagers the event brought")[1])
-        self.assertNotIn("memcmp(live + g_layout->name", compare)
+        self.assertIn("if (!present_now(live, now, count) || reused(old, live)) {", compare)
+        self.assertIn("!reused(s->copy + (size_t)k2 * g_layout->copy_size, now[i])", compare)
+        self.assertNotIn("g_layout->name", compare)
+        # A slot counts as reused only when the name AND head, body or sex differ.
+        reused = body(source, "static int reused(")
+        self.assertIn("return name_differs && other_differs;", reused)
+        for label in ('"Name"', '"Sex"', "g_layout->head", "g_layout->body"):
+            self.assertIn(label, reused)
 
     def test_every_game_but_a_new_home_compares_the_expected_father(self):
         source = (NATIVE / "island_event_games.inc").read_text(encoding="utf-8")

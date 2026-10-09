@@ -23,6 +23,9 @@
         Children only the Pregnant flag: the owner's own VV2 log disproved
         its father offsets on the mother, and its babies offset is unconfirmed.
      4. Bytes after a name's terminator are not a change.
+     5. A record slot the event freed and filled with someone else (the name
+        AND the head or body differ) is the one before "Gone" and the one now
+        "New villager", not a rename.
 
    Exit code 0 when every check passes. */
 #include "vvfp_island_events.c"
@@ -232,6 +235,19 @@ int main(void) {
         slot(2)[layout.name + 10] = 'x';
         compare(&g_snaps[0]);
         CHECK(g_outs == 0, "bytes after a name's terminator are no change");
+
+        /* 5. A slot reused by someone else in one event: name and looks changed. */
+        begin();
+        memset(slot(0) + layout.name, 0, 8);
+        put_name(slot(0), layout.name, "Bran");
+        *(int *)(slot(0) + layout.head) += 4;
+        *(int *)(slot(0) + layout.body) += 5;
+        compare(&g_snaps[0]);
+        CHECK(g_outs == 2 && g_out[0].live == 0 && strstr(g_out[0].changes, "  Gone: yes\n") != NULL
+              && strcmp((const char *)g_out[0].record + layout.name, "?") == 0
+              && g_out[1].record == slot(0) && strstr(g_out[1].changes, "  New villager: yes\n") != NULL
+              && !any_contains("Name:"),
+              "name, head and body changed in one slot: the one before Gone, the one now New (never a rename)");
 
         memset(g_array, 0, (size_t)SLOTS * ARRAYS[g_harness_game].stride);
         VirtualFree(g_array, 0, MEM_RELEASE);
