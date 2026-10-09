@@ -1,30 +1,46 @@
-"""The names of the folders and files the patcher keeps in a save folder, and the move from the names
-older builds used (the owner, 2026-10-09: "rename the patcher-created folders and files to accurately
-explain what they contain. and sort things in separate folders, appropriately named too" -- the save
-folders only; Tribe History and Tribe Population keep their names).
+"""The names of the folders and files the patcher keeps in a save folder, and the names older builds
+used (the owner, 2026-10-09: "rename the patcher-created folders and files to accurately explain what
+they contain. and sort things in separate folders, appropriately named too" -- the save folders only;
+Tribe History and Tribe Population keep their names -- and then: "from now on use the new renaming,
+but it also recognizes the old renaming").
 
-    Logs\\Deaths                       -> Logs\\Deaths and Disappearances
-    Logs\\Repairs                      -> Logs\\Repairs Made
-    Logs\\Genealogy                    -> Family Trees\\Reports
-    Data\\Genealogy\\... Genealogy Edits -> Data\\Family Tree Edits\\... Family Tree Edits
-    Data\\Unaccounted Villagers\\Virtual Villagers G Village Roster
-                                      -> ...\\Virtual Villagers G Villagers at Last Save
-    Data\\Village Statistics\\Village Roster -> ...\\Villagers Counted
-    Data\\Log Words                    -> Data\\Like and Dislike Words
-    Data\\Cross-Check                  -> Data\\Log Checks
-    Data\\Parentage Records            -> Data\\Parents (A New Home)
-    every "<file>.before-..." copy a repair kept beside a log or data file
-                                      -> Data\\Copies Made Before Repairs\\<the same place>
+    new name                                      older builds' name
+    Logs\\Deaths and Disappearances               Logs\\Deaths
+    Logs\\Repairs Made                            Logs\\Repairs
+    Family Trees\\Reports                         Logs\\Genealogy
+    Data\\Family Tree Edits\\... Family Tree Edits Data\\Genealogy\\... Genealogy Edits
+    Data\\Unaccounted Villagers\\Virtual Villagers G Villagers at Last Save
+                                                  ...\\Virtual Villagers G Village Roster
+    Data\\Village Statistics\\Villagers Counted     ...\\Village Roster
+    Data\\Like and Dislike Words                  Data\\Log Words
+    Data\\Log Checks                              Data\\Cross-Check
+    Data\\Parents (A New Home)                    Data\\Parentage Records
+    Data\\Copies Made Before Repairs\\<the place>  (new copies only; older ones stay beside their
+                                                  files, and nothing reads them)
 
-In the game, each companion moves what it is about to use just before it uses it
-(native/shared/save_layout.h).  Here the whole folder is moved only by Repair Saves & Logs, last,
-after its repairs and with the game closed (`migrate`); everything else (Check Saves & Logs, last
-names, numbering, the Family Tree Maker) finds a file under either name with `find`.  Nothing is
-ever overwritten: a file whose new place is taken stays where it is.  The Backups folder is never
-touched."""
+NOTHING IS EVER MOVED OR RENAMED, here or in the game.  A v1.35.64 preview's Repair Saves & Logs moved
+the files to their new names while A New Home was still patched by v1.35.63, whose companion then
+found "Parentage Records" empty and offered to "fill in" 69 villagers' parents.  So every file stays
+where it is, and every reader and writer (here and native/shared/save_layout.h) picks, at the point
+of use:
+
+  - only the new name exists: the new one;
+  - only the old name exists: the old one, for reading AND writing;
+  - neither: the new name;
+  - both (an older and a newer build both played the village):
+      a whole file (the parents, the rosters, the Family Tree Edits, a marker): the one written last
+        (`find`), read and written from then on; the other is never touched;
+      a folder (the Deaths, Repairs and Genealogy logs): written in the new one (`find`, `writable`);
+        the Deaths logs are read from both, a record kept in both counted once
+        (scripts/vvfp_consistency_check.py deaths_records);
+      the Like and Dislike Words: read from both, the smaller boundary of each log file taken
+        (`places`; scripts/vvfp_consistency_check.py word_boundaries), new boundaries written to the
+        new one (`writable`);
+      a Repair Saves & Logs approval: the game acts on neither (native/shared/crosscheck_bridge.h).
+
+Nothing here creates a folder.  The Backups folder is never touched."""
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 
@@ -41,7 +57,7 @@ LOG_WORDS = "Like and Dislike Words"
 LOG_CHECKS = "Log Checks"
 PARENTS_VV1 = "Parents (A New Home)"
 
-# (old folder, new folder), relative to the save folder: each file moved with its place inside.
+# (old folder, new folder), relative to the save folder.
 FOLDERS = (
     (f"{LOGS}\\Deaths", f"{LOGS}\\{DEATHS_LOGS}"),
     (f"{LOGS}\\Repairs", f"{LOGS}\\{REPAIRS_LOGS}"),
@@ -50,86 +66,15 @@ FOLDERS = (
     (f"{DATA}\\Cross-Check", f"{DATA}\\{LOG_CHECKS}"),
     (f"{DATA}\\Parentage Records", f"{DATA}\\{PARENTS_VV1}"),
 )
-# (folder, old name pattern, new name): files renamed (the folder is the new one when it moved).
+# (old folder, new folder, the new name read back, the old name): files renamed.
 FILES = (
-    (f"{DATA}\\Genealogy", re.compile(r"^(Virtual Villagers \d) Genealogy Edits( - Save \d+\.json)$"),
-     f"{DATA}\\{TREE_EDITS}", r"\1 Family Tree Edits\2"),
-    (f"{DATA}\\Unaccounted Villagers", re.compile(r"^(Virtual Villagers \d) Village Roster( - Save \d+\.dat.*)$"),
-     f"{DATA}\\Unaccounted Villagers", r"\1 Villagers at Last Save\2"),
-    (f"{DATA}\\Village Statistics", re.compile(r"^Village Roster( - Save \d+\.dat.*)$"),
-     f"{DATA}\\Village Statistics", r"Villagers Counted\1"),
+    (f"{DATA}\\Genealogy", f"{DATA}\\{TREE_EDITS}",
+     re.compile(r"^(Virtual Villagers \d) Family Tree Edits( - Save \d+\.json)$"), r"\1 Genealogy Edits\2"),
+    (f"{DATA}\\Unaccounted Villagers", f"{DATA}\\Unaccounted Villagers",
+     re.compile(r"^(Virtual Villagers \d) Villagers at Last Save( - Save \d+\.dat.*)$"), r"\1 Village Roster\2"),
+    (f"{DATA}\\Village Statistics", f"{DATA}\\Village Statistics",
+     re.compile(r"^Villagers Counted( - Save \d+\.dat.*)$"), r"Village Roster\1"),
 )
-BEFORE_COPY = re.compile(r"\.before-[^\\/]*$")
-
-
-def _move(source: Path, target: Path) -> bool:
-    """`source` to `target` unless `target` is taken; True when it moved."""
-    if target.exists():
-        return False
-    try:
-        target.parent.mkdir(parents=True, exist_ok=True)
-        os.replace(source, target)
-        return True
-    except OSError:
-        return False
-
-
-def _remove_if_empty(folder: Path) -> None:
-    try:
-        folder.rmdir()
-    except OSError:
-        pass
-
-
-def migrate(folder: Path) -> list[tuple[Path, Path]]:
-    """Move one save folder's patcher files to the names above.  Returns each (from, to) moved.  The
-    game must be closed (the callers refuse to write while it runs)."""
-    folder = Path(folder)
-    moved: list[tuple[Path, Path]] = []
-    for old, new in FOLDERS:
-        source = folder / old
-        if not source.is_dir():
-            continue
-        for path in sorted(source.rglob("*"), key=lambda p: len(p.parts), reverse=False):
-            if path.is_file():
-                target = folder / new / path.relative_to(source)
-                if _move(path, target):
-                    moved.append((path, target))
-        for sub in sorted((p for p in source.rglob("*") if p.is_dir()), key=lambda p: len(p.parts), reverse=True):
-            _remove_if_empty(sub)
-        _remove_if_empty(source)
-    for old, pattern, new, replacement in FILES:
-        source = folder / old
-        if not source.is_dir():
-            continue
-        for path in sorted(source.iterdir()):
-            if path.is_file() and pattern.match(path.name):
-                target = folder / new / pattern.sub(replacement, path.name)
-                if _move(path, target):
-                    moved.append((path, target))
-        _remove_if_empty(source)
-    copies = folder / DATA / COPIES
-    for top in (LOGS, DATA):
-        root = folder / top
-        if not root.is_dir():
-            continue
-        for path in sorted(root.rglob("*")):
-            if not path.is_file() or not BEFORE_COPY.search(path.name) or copies in path.parents:
-                continue
-            target = copies / path.relative_to(folder)
-            n = 2
-            while target.exists():                      # never over an earlier copy of the same name
-                target = copies / path.relative_to(folder).with_name(f"{path.name} ({n})")
-                n += 1
-            if _move(path, target):
-                moved.append((path, target))
-    return moved
-
-
-def existing(folder: Path, new: str, old: str) -> Path:
-    """The file or folder at `new` (relative to the save folder), or at `old` while it has not moved."""
-    folder = Path(folder)
-    return folder / new if (folder / new).exists() or not (folder / old).exists() else folder / old
 
 
 def old_name(relative: str) -> str | None:
@@ -140,31 +85,51 @@ def old_name(relative: str) -> str | None:
         if rel.lower() == new.lower() or rel.lower().startswith(new.lower() + "\\"):
             rel = old + rel[len(new):]
             break
-    for old_folder, pattern, new_folder, replacement in FILES:
+    for old_folder, new_folder, back, old_file in FILES:
         head, _, name = rel.rpartition("\\")
-        if head.lower() == new_folder.lower():
-            back = _FILES_BACK.get(replacement)
-            m = back.match(name) if back else None
-            if m:
-                return f"{old_folder}\\{back.sub(_OLD_NAMES[replacement], name)}"
+        if head.lower() == new_folder.lower() and back.match(name):
+            return f"{old_folder}\\{back.sub(old_file, name)}"
     return rel if rel != relative.replace("/", "\\") else None
 
 
-# The new file names back to the old ones (FILES, read the other way).
-_FILES_BACK = {
-    r"\1 Family Tree Edits\2": re.compile(r"^(Virtual Villagers \d) Family Tree Edits( - Save \d+\.json)$"),
-    r"\1 Villagers at Last Save\2": re.compile(r"^(Virtual Villagers \d) Villagers at Last Save( - Save \d+\.dat.*)$"),
-    r"Villagers Counted\1": re.compile(r"^Villagers Counted( - Save \d+\.dat.*)$"),
-}
-_OLD_NAMES = {
-    r"\1 Family Tree Edits\2": r"\1 Genealogy Edits\2",
-    r"\1 Villagers at Last Save\2": r"\1 Village Roster\2",
-    r"Villagers Counted\1": r"Village Roster\1",
-}
+def places(folder: Path, relative: str) -> list[Path]:
+    """Every place `relative` (its new name) is in the save folder: the older build's first, then
+    the new one -- both when both exist, none when neither does."""
+    folder = Path(folder)
+    old = old_name(relative)
+    found = [folder / old] if old and (folder / old).exists() else []
+    return found + ([folder / relative] if (folder / relative).exists() else [])
+
+
+def _written(path: Path) -> int:
+    try:
+        return path.stat().st_mtime_ns
+    except OSError:
+        return -1
 
 
 def find(folder: Path, relative: str) -> Path:
-    """`relative` (its new name) in the save folder, or where an older build kept it while it has not
-    moved: for what only reads, and for what writes with the game running."""
-    old = old_name(relative)
-    return existing(folder, relative, old) if old else Path(folder) / relative
+    """The one place to read and write `relative` (its new name): the new one, an older build's while
+    only it exists, the new one when neither does; under both names a file is the one written last
+    (a tie: the new one) and a folder the new one."""
+    folder = Path(folder)
+    new = folder / relative
+    old_rel = old_name(relative)
+    if not old_rel or not (folder / old_rel).exists():
+        return new
+    old = folder / old_rel
+    if not new.exists():
+        return old
+    if old.is_file() and new.is_file() and _written(old) > _written(new):
+        return old
+    return new
+
+
+def writable(folder: Path, relative: str) -> Path:
+    """Where to append to `relative` (its new name), a file or a folder read from both places when
+    both exist: an older build's while only it exists, else the new one."""
+    folder = Path(folder)
+    old_rel = old_name(relative)
+    if old_rel and (folder / old_rel).exists() and not (folder / relative).exists():
+        return folder / old_rel
+    return folder / relative

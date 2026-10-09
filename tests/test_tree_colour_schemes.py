@@ -374,17 +374,28 @@ class TabTests(unittest.TestCase):
     SOURCE = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
 
     def test_the_options_sit_on_their_own_tabs_in_order(self):
-        for name in ("Portrait Shapes", "Faces & Text", "Tree Layout", "Special Marks"):
+        for name in ("Shapes", "Faces & Text", "Layout", "Marks"):
             self.assertIn(f'"{name}"', self.SOURCE)
         self.assertNotIn('"Whole Tree"', self.SOURCE)
         self.assertNotIn('"Marks & Key"', self.SOURCE)
-        order = ("Selected Villagers", "Portrait Shapes", "Faces & Text", "Fonts", "Tree Layout", "Special Marks",
-                 "Page Background", "Add Pictures & Text Boxes")
+        # Short enough that all eight show whole (the owner, 2026-10-09: the names were cut off).
+        order = ("Selected", "Shapes", "Faces & Text", "Fonts", "Layout", "Marks", "Background", "Pictures")
         start = self.SOURCE.index("    TAB_ORDER = (")
         listed = self.SOURCE[start:self.SOURCE.index(")", start)]
         self.assertEqual([n for n in order if f'"{n}"' in listed], list(order))
-        self.assertLess(listed.index('"Portrait Shapes"'), listed.index('"Faces & Text"'))
+        self.assertLess(listed.index('"Shapes"'), listed.index('"Faces & Text"'))
         self.assertIn("self._order_tabs()", self.SOURCE)
+
+    def test_settings_have_reset_buttons_and_sizes_can_be_equalized(self):
+        # The owner, 2026-10-09: "reset buttons beside anything you can change", and "equalize" face and text
+        # sizes across the tree or by group.
+        for fields in ('"picture_size"', '"text_size"', '"text_wrap"', '"portrait_gap"', '"row_gap"', '"text_room"',
+                       '"page_generations"', '"fit_width"', '"detail_opacity"', '"detail_width"'):
+            self.assertTrue(f"_reset_button(row, {fields})" in self.SOURCE or f"_reset_button(box, {fields})" in self.SOURCE
+                            or f"_reset_button(row2, {fields})" in self.SOURCE, fields)
+        self.assertIn('text="Same face and text size for:"', self.SOURCE)
+        self.assertIn("def _equalize(self, group: str | None)", self.SOURCE)
+        self.assertIn("Everyone back to their group's size", self.SOURCE)
 
     def test_portraits_flip_and_turn_by_group(self):
         # The owner, 2026-10-09: "batch rotate/transform portraits by group".

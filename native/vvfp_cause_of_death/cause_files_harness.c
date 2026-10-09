@@ -638,10 +638,12 @@ int main(int argc, char **argv) {
         CHECK(grave_of(8, &cause, &epitaph) && cause == 3, "and the grave still shows its cause (Work accident)");
         before = unaccounted();
         saved(1);
-        CHECK(GetFileAttributesA(rloose) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) != INVALID_FILE_ATTRIBUTES,
-              "the save moved the roster into Unaccounted Villagers\\");
+        CHECK(GetFileAttributesA(rloose) != INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES,
+              "the save used the roster where an older build left it (loose, by its older name), never moving it");
         CHECK(unaccounted() == before, "and reconciled against it: nobody unaccounted");
         unload();
+
+        DeleteFileA(rloose);
 
         /* Both: the folder's copy is read, the loose one never touched. */
         memcpy(other, graves, sizeof other);
@@ -664,7 +666,7 @@ int main(int argc, char **argv) {
               "Start Over deletes the roster in Unaccounted Villagers\\ and the loose one");
 
         /* The roster's older name in its folder, "... Village Roster - Save S.dat" (the owner, 2026-10-09:
-           "Villagers at Last Save"; native/shared/save_layout.h): renamed before it is used. */
+           "Villagers at Last Save"; native/shared/save_layout.h): used under that name, never renamed. */
         {
             char rold[MAX_PATH];
             old_roster_of(1, rold);
@@ -673,8 +675,9 @@ int main(int argc, char **argv) {
             tick(1);
             before = unaccounted();
             saved(1);
-            CHECK(GetFileAttributesA(rold) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) != INVALID_FILE_ATTRIBUTES,
-                  "the save renamed it Villagers at Last Save");
+            CHECK(GetFileAttributesA(rold) != INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES
+                  && unaccounted() == before,
+                  "the save read and wrote it under its older name, never renaming it: nobody unaccounted");
             unload();
             CHECK(write_file(rold, roster, roster_n), "set up: a roster under its older name beside the new one");
             vv_reset_slot_state(1, 1, NULL);

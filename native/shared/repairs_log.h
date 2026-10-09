@@ -3,7 +3,8 @@
    (v1.35.58; native/shared/crosscheck_bridge.h).
 
    THE LOG.  "<save folder>\Virtual Villagers Fun Patcher Logs\Repairs Made\
-   Virtual Villagers N Repairs Log <n>.txt" -- the same files, numbering and
+   Virtual Villagers N Repairs Log <n>.txt" ("Repairs" while only an older
+   build's folder of that name exists; save_layout.h) -- the same files, numbering and
    shape A New Home's parentage repair writes (vv1_crosscheck.inc): the
    village's own header line ("Village: <name> (Save S)") whenever the last
    one in the file is another village's, then one numbered record per
@@ -99,11 +100,11 @@ static int vv_repairs_note(int game, const char *header, const char *checked, co
     if (game < 1 || game > 5 || header == NULL || checked == NULL || body == NULL) {
         return 0;
     }
-    if (vv_save_folder(folder, 64)) {
-        vv_layout_move_dir_a(folder, VV_REPAIRS_OLD, VV_REPAIRS_DIR);    /* "Repairs" -> "Repairs Made" */
-    }
-    if (!vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Logs\\Repairs Made",
-                           (int)sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
+    /* "Repairs Made", or an older build's "Repairs" while only it exists: written where it is,
+       never moved (save_layout.h). */
+    if (!vv_save_folder(folder, 64)
+        || !vv_save_subfolder(folder, vv_layout_dir_rel_a(folder, VV_REPAIRS_OLD_A, VV_REPAIRS_DIR_A),
+                              (int)sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
         return 0;
     }
     for (;;) {

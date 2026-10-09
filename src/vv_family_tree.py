@@ -407,6 +407,10 @@ class Edits:
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
     stickers: list[dict] = field(default_factory=list)
+    # One group's portraits set apart from the rest (the owner, 2026-10-09: "as many options as
+    # realistically and logically possible should be by group with options to equalize"): GROUPS ->
+    # {GROUP_FIELDS name -> value}, each over the tree's own setting for that group only (opt()).
+    group_opts: dict[str, dict] = field(default_factory=dict)
 
     @staticmethod
     def path(folder: Path, game: int, slot: int) -> Path:
@@ -632,6 +636,7 @@ class Edits:
             sticker = clean_sticker(raw)
             if sticker is not None:
                 out.stickers.append(sticker)
+        out.group_opts = clean_group_opts(data.get("group_opts"))
         return out
 
     def save(self, path: Path) -> None:
@@ -662,7 +667,75 @@ class Edits:
                 "label_line_reach": self.label_line_reach,
                 "line_moves": self.line_moves,
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
-                "font": self.font, "styles": self.styles, "stickers": self.stickers}
+                "font": self.font, "styles": self.styles, "stickers": self.stickers,
+                "group_opts": self.group_opts}
+
+
+# The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
+# one portrait.  Each is checked as the tree's own is (_group_value).
+GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_words", "turn_words",
+                "text_inside", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
+                "show_twins", "show_founder", "detail_lines", "detail_colour", "detail_opacity",
+                "detail_width", "portrait_fill")
+
+
+def _group_value(name: str, value) -> tuple[bool, object]:
+    """(whether `value` is a good value of the setting `name`, the value as kept): numbers held within
+    the tree's own limits, as the tree's own are; anything else not of the setting's kind is bad."""
+    choices = {"text_align": TEXT_ALIGNS, "text_valign": TEXT_VALIGNS, "text_room": TEXT_ROOMS}
+    numbers = {"picture_size": (PICTURE_SCALE_MIN, PICTURE_SCALE_MAX), "text_size": (TEXT_SCALE_MIN, TEXT_SCALE_MAX),
+               "text_wrap": (WRAP_MIN, WRAP_MAX), "detail_opacity": (0, 100), "detail_width": LINE_WIDTHS}
+    if name in choices:
+        return value in choices[name], value
+    if name in numbers:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            return False, value
+        kept = _number(value, *numbers[name], 0.0)
+        return True, int(kept) if name == "text_wrap" else float(kept)
+    if name == "detail_colour":
+        return isinstance(value, str) and (value == "" or re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None), value
+    if name == "portrait_fill":
+        return is_colour(value), value
+    if name in GROUP_FIELDS:                    # the rest are on or off
+        return isinstance(value, bool), value
+    return False, value
+
+
+def clean_group_opts(raw) -> dict[str, dict]:
+    """Edits.group_opts as saved, every group and setting checked (_group_value); a bad one is dropped,
+    so that group shows the tree's own.  "centre_heads" always follows "text_valign"."""
+    out: dict[str, dict] = {}
+    if not isinstance(raw, dict):
+        return out
+    for group, values in raw.items():
+        if group not in GROUPS or not isinstance(values, dict):
+            continue
+        kept = {}
+        for name, value in values.items():
+            good, value = _group_value(name, value) if name != "centre_heads" else (False, value)
+            if good:
+                kept[name] = value
+        if "text_valign" in kept:
+            kept["centre_heads"] = kept["text_valign"] == "middle"
+        if kept:
+            out[group] = {name: kept[name] for name in GROUP_FIELDS if name in kept}
+    return out
+
+
+def opt(edits: "Edits", p: gen.Person, name: str):
+    """The setting `name` for this villager's portrait: their group's own (Edits.group_opts), else the
+    tree's."""
+    own = edits.group_opts.get(group_of(p))
+    if own and name in own:
+        return own[name]
+    return getattr(edits, name)
+
+
+def group_view(edits: "Edits", group: str | None) -> "Edits":
+    """`edits` as one group's portraits see them (their own settings over the tree's); the tree's own
+    for None."""
+    own = edits.group_opts.get(group) if group else None
+    return replace(edits, **own) if own else edits
 
 
 
@@ -961,7 +1034,7 @@ STYLE_KEYS = (
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
-    "label_line_reach", "marks",
+    "label_line_reach", "marks", "group_opts",
 )
 
 
@@ -1143,6 +1216,10 @@ class Layout:
 
     def entry(self, p: gen.Person) -> dict:
         return self.edits.entries.get(entry_key(self.village, p), {})
+
+    def opt(self, p: gen.Person, name: str):
+        """A setting for this villager's portrait: their group's own, else the tree's (opt())."""
+        return opt(self.edits, p, name)
 
     def shape(self, p: gen.Person) -> str:
         """The portrait's shape, as drawn: mirrored when the player flipped it ("heart~h")."""
@@ -3467,15 +3544,15 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
     if p.upcoming:
         size = sum(1 for q in lay.village.people.values() if p.litter is not None and q.litter == p.litter)
         return ["Upcoming child"] + ([{2: "(twins)", 3: "(triplets)"}[size]] if size in (2, 3) else [])
-    e = lay.edits
-    ages = (["age unknown"] if p.age is None and (e.show_units or e.show_years) else
+    units, years = lay.opt(p, "show_units"), lay.opt(p, "show_years")     # the villager's group's
+    ages = (["age unknown"] if p.age is None and (units or years) else
             [] if p.age is None else
-            ([f"{p.age} game units"] if e.show_units else []) + ([f"{p.years} years old"] if e.show_years else []))
+            ([f"{p.age} game units"] if units else []) + ([f"{p.years} years old"] if years else []))
     if p.alive:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    founder = ["Founder"] if e.show_founder and p.generation == 1 else []     # the owner, 2026-10-09
+    founder = ["Founder"] if lay.opt(p, "show_founder") and p.generation == 1 else []     # the owner, 2026-10-09
     return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + founder + born_with(lay, p) + ([extra] if extra else [])
 
 
@@ -3483,7 +3560,7 @@ def born_with(lay: Layout, p: gen.Person) -> list[str]:
     """With "Twins and triplets" on (Edits.show_twins), the line after the age naming who the
     villager was born with (the owner, 2026-10-09: "X's twin/triplet"): "Kalea's twin", "Kalea and
     Hana's triplet".  Nothing for a villager born alone, or with the setting off."""
-    if not lay.edits.show_twins or p.litter is None or p.upcoming:
+    if not lay.opt(p, "show_twins") or p.litter is None or p.upcoming:
         return []
     others = sorted((q for q in lay.village.people.values()
                      if q.litter == p.litter and q.id != p.id and not q.upcoming), key=lambda q: (q.number or 0, q.id))
@@ -3495,10 +3572,10 @@ def born_with(lay: Layout, p: gen.Person) -> list[str]:
 
 def inner_sizes(lay: Layout, p: gen.Person) -> tuple[float, float]:
     """(the face's size, the words' size) inside this villager's portrait, as factors: every portrait's
-    setting times their own."""
+    setting (their group's, else the tree's) times their own."""
     entry = lay.entry(p)
-    return (lay.edits.picture_size / 100 * entry.get("picture_scale", 100.0) / 100,
-            lay.edits.text_size / 100 * entry.get("text_scale", 100.0) / 100)
+    return (lay.opt(p, "picture_size") / 100 * entry.get("picture_scale", 100.0) / 100,
+            lay.opt(p, "text_size") / 100 * entry.get("text_scale", 100.0) / 100)
 
 
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:
@@ -3510,7 +3587,7 @@ def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, flo
     pic, words = inner_sizes(lay, p)
     face = (y1 - y0) * HEAD_SCALE * pic
     lh = LINE_H * words                     # the lines spaced as the words are sized
-    valign = lay.edits.text_valign
+    valign = lay.opt(p, "text_valign")
     face_top = 10.0 if valign == "top" else 6.0
     lines = shown_text(lay, p, int(max(LINE_H, NODE_H - face_top - face - 8 - 6) // lh))
     block = face + 8 + len(lines) * lh
@@ -3658,7 +3735,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
     its runs when the player formatted it (else None): every line wrapped to fit across, and as many
     as fit below the head -- the last of them ending in ... when some did not.  Formatted words wrap
     by how wide their fonts make them (run_width), so they never run past the portrait."""
-    n = lay.edits.text_wrap
+    n = lay.opt(p, "text_wrap")
     runs = node_runs(lay, p)
     if runs is None:
         lines = node_text(lay, p)
@@ -4226,24 +4303,58 @@ def _more_shapes() -> dict:
     out["coconut"] = (nut, fibres, eyes)
 
 
-    # A bunch of bananas, traced from the owner's photo (2026-10-09: "The banana portrait should look like actual
-    # bananas"; 1188 pixels across): the bunch with its stem; the dark nub at each banana's tip and the stem's
-    # dark cut end, outlined (the owner: "the dark spots on the banana's edges and stem ... as details (outlined
-    # not filled in)"), and the shading where one banana lies over the next, light.
-    bunch = _smooth([(325, 71), (345, 73), (373, 77), (399, 85), (417, 100), (424, 124), (428, 150), (437, 178), (448, 205), (460, 232), (473, 258), (489, 281), (511, 299), (536, 315), (558, 333), (579, 352), (600, 372), (622, 391), (644, 410), (666, 428), (689, 445), (712, 463), (736, 480), (760, 497), (784, 514), (808, 530), (832, 546), (857, 562), (882, 577), (908, 591), (934, 606), (960, 621), (986, 634), (1012, 648), (1038, 661), (1064, 675), (1088, 691), (1111, 709), (1131, 730), (1151, 752), (1168, 776), (1176, 801), (1167, 824), (1144, 839), (1118, 850), (1100, 866), (1093, 888), (1082, 911), (1061, 928), (1034, 939), (1006, 949), (984, 962), (972, 982), (964, 1007), (948, 1028), (924, 1044), (897, 1056), (870, 1065), (842, 1070), (814, 1074), (786, 1076), (759, 1081), (731, 1089), (703, 1097), (675, 1103), (647, 1105), (619, 1104), (591, 1100), (563, 1095), (535, 1087), (507, 1079), (479, 1070), (454, 1065), (434, 1073), (414, 1089), (389, 1101), (361, 1108), (333, 1112), (305, 1111), (277, 1106), (250, 1096), (225, 1081), (201, 1064), (179, 1046), (158, 1026), (139, 1004), (121, 982), (104, 958), (89, 933), (75, 907), (62, 881), (50, 854), (40, 827), (31, 799), (24, 771), (18, 743), (13, 715), (9, 687), (6, 659), (4, 631), (3, 603), (3, 575), (4, 547), (6, 519), (10, 491), (15, 463), (23, 435), (34, 408), (48, 382), (65, 359), (87, 339), (111, 322), (135, 305), (156, 284), (174, 260), (189, 235), (201, 208), (211, 180), (220, 152), (231, 126), (247, 103), (270, 87), (295, 77), (313, 72)], closed=True, steps=3)
-    nubs = [[(369, 78), (376, 82), (376, 89), (368, 97), (356, 104), (342, 108), (328, 113), (315, 118), (303, 125), (295, 135), (291, 147), (288, 159), (280, 169), (270, 179), (259, 189), (248, 197), (238, 206), (230, 216), (225, 221), (222, 217), (222, 205), (224, 192), (229, 179), (235, 167), (241, 155), (247, 141), (252, 129), (259, 118), (269, 111), (282, 107), (296, 104), (310, 99), (323, 95), (335, 90), (347, 85), (359, 80)],
-            [(1158, 771), (1167, 775), (1175, 783), (1180, 794), (1180, 806), (1175, 818), (1166, 827), (1155, 832), (1144, 831), (1133, 825), (1127, 814), (1127, 802), (1132, 789), (1140, 779), (1150, 772)],
-            [(1082, 853), (1088, 861), (1092, 872), (1093, 886), (1090, 899), (1084, 911), (1074, 919), (1064, 919), (1054, 913), (1047, 902), (1043, 889), (1045, 877), (1052, 866), (1063, 857), (1073, 852)],
-            [(961, 947), (967, 952), (970, 963), (972, 976), (971, 990), (968, 1002), (962, 1010), (953, 1009), (944, 1001), (937, 990), (935, 977), (938, 965), (945, 955), (953, 948)],
-            [(804, 1000), (810, 1006), (814, 1016), (814, 1029), (811, 1041), (805, 1052), (796, 1059), (788, 1061), (783, 1054), (781, 1042), (781, 1028), (785, 1016), (791, 1005), (798, 1000)],
-            [(403, 1036), (413, 1040), (424, 1047), (432, 1056), (433, 1067), (428, 1078), (419, 1086), (408, 1087), (398, 1081), (390, 1071), (388, 1058), (390, 1046), (395, 1038)]]
-    shading = [[(399, 179), (400, 200), (403, 222), (406, 244), (412, 265), (417, 287), (420, 308), (425, 330), (433, 351), (446, 370), (461, 389), (474, 408), (487, 427), (500, 446), (512, 465), (525, 483), (538, 502), (552, 520), (567, 537), (583, 554), (600, 571), (617, 587), (636, 602), (656, 616), (677, 630), (698, 643), (719, 656), (740, 669), (762, 680), (784, 692), (807, 703), (831, 713), (855, 722), (879, 731), (903, 740), (927, 748), (950, 757), (972, 767), (991, 779), (1009, 792), (1026, 806), (1042, 821)],
-               [(358, 187), (356, 210), (355, 232), (354, 254), (354, 277), (355, 299), (356, 321), (357, 343), (359, 365), (360, 387), (362, 409), (367, 432), (375, 454), (384, 476), (392, 498), (401, 520), (409, 541), (418, 563), (428, 584), (440, 605), (452, 625), (465, 646), (480, 665), (496, 685), (514, 704), (533, 722), (553, 739), (575, 755), (599, 771), (623, 786), (648, 800), (675, 813), (702, 825), (731, 836), (759, 846), (788, 856), (815, 866), (841, 876), (865, 887), (887, 899), (907, 912), (925, 923)],
-               [(307, 193), (300, 217), (293, 239), (287, 261), (284, 284), (283, 308), (280, 331), (277, 354)],
-               [(261, 329), (257, 351), (253, 373), (252, 397), (254, 421), (260, 447), (265, 472), (270, 496), (275, 521), (280, 544), (285, 568), (292, 592), (301, 616), (311, 639), (323, 663), (337, 686), (354, 709), (373, 731), (394, 754), (418, 775), (445, 795), (472, 814), (499, 832), (528, 848), (559, 864), (587, 878), (611, 889)],
-               [(170, 855), (192, 882), (216, 910), (245, 937), (276, 964), (311, 989), (347, 1012), (378, 1030)]]
-    out["bananas"] = ([(x / 1000, y / 1000) for x, y in bunch],
-                      [[(x / 1000, y / 1000) for x, y in line] for line in [n + n[:1] for n in nubs] + shading])
+    # A bunch of three bananas (the owner, 2026-10-09: the traced one "doesnt look natural"): three
+    # curved bananas from one stem at the upper left, each tapering to a blunt tip at the right, the
+    # lower ones longer and lower; the outline is all of them together, and the edges where one lies
+    # over the next and their ridges are light.
+    def banana(c1, end, width):
+        sx, sy = 0.0, 0.0
+        centre = [((1 - u) ** 2 * sx + 2 * (1 - u) * u * c1[0] + u * u * end[0],
+                   (1 - u) ** 2 * sy + 2 * (1 - u) * u * c1[1] + u * u * end[1]) for u in (k / 40 for k in range(41))]
+        upper, lower = [], []
+        for k, (x, y) in enumerate(centre):
+            a, b = centre[max(0, k - 1)], centre[min(40, k + 1)]
+            tx, ty = b[0] - a[0], b[1] - a[1]
+            n = math.hypot(tx, ty) or 1.0
+            nx, ny = ty / n, -tx / n                                   # to the banana's upper side
+            u = k / 40
+            w = width * (min(1.0, u / 0.25) ** 0.7) * (1 - 0.55 * max(0.0, (u - 0.75) / 0.25) ** 2)
+            w = max(w, 0.018)
+            upper.append((x + nx * w, y + ny * w))
+            lower.append((x - nx * w, y - ny * w))
+        return upper + lower[::-1], upper, centre
+    stalk = [(-0.07, -0.02), (-0.11, -0.1), (-0.04, -0.13), (0.03, -0.04)]
+    b1 = banana((0.18, 0.42), (0.98, 0.12), 0.095)
+    b2 = banana((0.14, 0.66), (1.02, 0.36), 0.105)
+    b3 = banana((0.1, 0.9), (0.96, 0.62), 0.115)
+    outline_b = _envelope([stalk, b1[0], b2[0], b3[0]], (0.35, 0.42), rays=480)
+    seams = [b2[1][6:39], b3[1][6:39]]                                  # where one lies over the next
+    ridges = [b1[2][8:38], b2[2][8:38], b3[2][8:38]]
+    def nub(centre_line: list, k: int, length: float, width: float) -> list:
+        """The dark nub at a banana's end (the owner, 2026-10-09: "the dark spots on the banana's edges and
+        stem ... as details (outlined not filled in)"): a small rounded spot reaching just past the tip,
+        a little uneven, as the dried flower end is."""
+        (cx, cy), (ax, ay) = centre_line[40], centre_line[k]
+        tx, ty = cx - ax, cy - ay
+        m = math.hypot(tx, ty) or 1.0
+        tx, ty = tx / m, ty / m
+        nx, ny = -ty, tx
+        mx, my = cx - tx * length * 0.25, cy - ty * length * 0.25
+        out_pts = []
+        for s in range(24):
+            a = 2 * math.pi * s / 24
+            r = 1 + 0.12 * math.sin(3 * a + 0.7)
+            out_pts.append((mx + tx * length * 0.5 * r * math.cos(a) + nx * width * r * math.sin(a),
+                            my + ty * length * 0.5 * r * math.cos(a) + ny * width * r * math.sin(a)))
+        return out_pts + out_pts[:1]
+    spots = [nub(b[2], 36, 0.07, 0.03) for b in (b1, b2, b3)]
+    # The stem's dark cut end: a ragged spot over the top of the stalk.
+    top = [(-0.112, -0.098), (-0.09, -0.118), (-0.06, -0.13), (-0.035, -0.128), (-0.03, -0.108), (-0.05, -0.092),
+           (-0.075, -0.083), (-0.1, -0.084)]
+    spots.append(_smooth(top, closed=True, steps=4) + [top[0]])
+    # The owner, 2026-10-09, of this drawn bunch with its outlined nubs over the one traced from a photo:
+    # "I like these bananas better".
+    out["bananas"] = (outline_b, seams + ridges + spots)
 
     # An anchor, traced from the owner's picture (550 pixels across): the ring on top, the stock with its
     # round ends, the shank, the curved arms with their barbs; the ring's hole and the shank's middle
@@ -5593,7 +5704,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         _add(item)
     rank_t, rank_j = _rank(lay, p.id)
     inside_colour = (lay.entry(p).get("fill") or scheme_colour(lay.edits, "insides", rank_t, rank_j)
-                     or lay.edits.portrait_fill)           # their own, else the scheme's, else the tree's
+                     or lay.opt(p, "portrait_fill"))       # their own, else the scheme's, else their group's or the tree's
     border_scheme = border not in SPECIAL_BORDERS and lay.edits.schemes.get("borders", "own") != "own"
     dash = border if border in ("dotted", "dashed", "dashdot") else ""
     add(Shape(kind, fx, fy, fw, fh, colour, width=0 if border_scheme else BORDER_WIDTHS[border],
@@ -5627,12 +5738,14 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     for i, line in enumerate(decor(kind)):      # drawn like the border (a stamen, an antenna, the wave)
         if i not in replaced:                   # unless the special border is on it
             add(Line(placed(line), colour, max(1.6, BORDER_WIDTHS[border] * 0.8)))
-    if e.detail_lines and e.detail_opacity > 0:   # light, under the face and the words
+    detail_opacity = lay.opt(p, "detail_opacity")     # the villager's group's, else the tree's
+    if lay.opt(p, "detail_lines") and detail_opacity > 0:   # light, under the face and the words
         lines_inside = details(kind)
+        detail_colour, detail_width = lay.opt(p, "detail_colour"), lay.opt(p, "detail_width")
         for i, line in enumerate(lines_inside):
             add(Line(placed(line), lay.entry(p).get("detail")
-                     or scheme_colour(e, "details", i / max(1, len(lines_inside)), i) or e.detail_colour or colour,
-                     e.detail_width, opacity=e.detail_opacity / 100))
+                     or scheme_colour(e, "details", i / max(1, len(lines_inside)), i) or detail_colour or colour,
+                     detail_width, opacity=detail_opacity / 100))
     # The face and words grow or shrink with a frame the player resized, about its middle, and
     # never turn (the owner: "shrink/grow with the frame, stay upright").
     # Measured against the shape's own natural size, never the group's: a villager sized on their own
@@ -5645,6 +5758,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
+    flip_words, turn_words = lay.opt(p, "flip_words"), lay.opt(p, "turn_words")
 
     def put(item) -> None:
         if scale != 1.0:
@@ -5657,13 +5771,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             else:
                 item.w, item.h = item.w * scale, item.h * scale
         words = isinstance(item, Text) and item.role in ("names", "portraits")
-        if words and lay.edits.flip_words and (flip_h or flip_v):
+        if words and flip_words and (flip_h or flip_v):
             # Mirrored with the flipped portrait, about its middle (the owner, 2026-10-09).
             if flip_h:
                 item.x, item.mirror_h = 2 * middle[0] - item.x, True
             if flip_v:
                 item.y, item.mirror_v = 2 * middle[1] - item.y + item.size * 0.7, True
-        if angle and lay.edits.turn_words and words:
+        if angle and turn_words and words:
             # The words turn with the portrait, about its middle (the owner, 2026-10-09); the face does not.
             dx, dy = turn(item.x - middle[0], item.y - middle[1], angle)
             item.x, item.y, item.angle = middle[0] + dx, middle[1] + dy, angle
@@ -5692,7 +5806,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # much as possible"): each line is measured against the shape's own width where it is drawn -- a
     # circle or a heart is narrower towards its edges -- and this portrait's words made only as much
     # smaller as the tightest line needs.  Then the player's own text size for this villager.
-    points = text_room_points(lay.edits.text_room, kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
+    points = text_room_points(lay.opt(p, "text_room"), kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
+    text_inside = lay.opt(p, "text_inside")
     fit = 1.0
     for k, (text, bold, _r) in enumerate(lines):
         if not text:
@@ -5702,13 +5817,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         # The narrowest the shape is across the whole line, from the tops of its letters to below them.
         chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
         # Half the frame at least, unless the player keeps the words inside the shape (a cross's arm).
-        room = max(chord - 8, 12.0) if lay.edits.text_inside else max(chord, fw * 0.5) - 8
+        room = max(chord - 8, 12.0) if text_inside else max(chord, fw * 0.5) - 8
         needed = len(text) * size * (0.58 if bold else 0.55)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
     # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
     # so no line leaves a round or pointed portrait (Edits.text_align).
-    align = lay.edits.text_align
+    align = lay.opt(p, "text_align")
     half = fw / scale / 2 - 8           # the frame's own width (Codex, #577: not the standard portrait's)
     if align != "centre":
         for k, (text, bold, _r) in enumerate(lines):
@@ -5716,7 +5831,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
                 size = (11.5 if bold else 10) * scale
                 baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
                 chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
-                wide = max(chord - 4, 16.0) if lay.edits.text_inside else max(chord, fw * 0.5)
+                wide = max(chord - 4, 16.0) if text_inside else max(chord, fw * 0.5)
                 half = min(half, (wide - 12) / 2 / scale)
     at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):

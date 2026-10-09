@@ -585,7 +585,7 @@ class CanvasTools:
 
     # ---- the Pictures & Text tab ------------------------------------------------------
     def _stickers_tab(self) -> None:
-        tab = ScrollingTab(self.notebook, "Add Pictures & Text Boxes")
+        tab = ScrollingTab(self.notebook, "Pictures")
         self.stickers_tab = tab
         ttk.Label(tab, text="Put pictures, logos and text boxes on the tree.  Click one to select it, then "
                             "drag it to move it, drag a square to resize it, or drag the circle to rotate it.",

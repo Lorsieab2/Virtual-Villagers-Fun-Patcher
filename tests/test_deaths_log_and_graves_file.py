@@ -60,9 +60,11 @@ class DeathsLogSource(unittest.TestCase):
     def test_deaths_have_their_own_folder_stem_and_marker(self):
         source = PARENTAGE.read_text(encoding="utf-8")
         # "Deaths and Disappearances" (the owner, 2026-10-09), named in native/shared/save_layout.h with
-        # the folder's older name, which an older build's log is moved from first.
-        self.assertIn("#define DEATHS_FOLDER VV_DEATHS_LOGS_DIR", source)
-        self.assertIn("vv_layout_move_dir(folder, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR);", source)
+        # the folder's older name: an older build's "Deaths" is written where it is while only it
+        # exists, and nothing is ever moved.
+        self.assertIn("vv_layout_dir_rel_w(root, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR)", source)
+        self.assertIn("return family == LOG_DEATHS ? deaths_folder()", source)
+        self.assertNotIn("vv_layout_move", source)
         layout = (ROOT / "native" / "shared" / "save_layout.h").read_text(encoding="utf-8")
         self.assertIn('#define VV_DEATHS_LOGS_DIR VV_LOGS_DIR L"\\\\Deaths and Disappearances"', layout)
         self.assertIn('#define VV_DEATHS_LOGS_OLD VV_LOGS_DIR L"\\\\Deaths"', layout)
@@ -117,9 +119,13 @@ class Harnesses(unittest.TestCase):
         result = run("build_cause_files_harness.ps1")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASSED: 0 failure(s)", result.stdout)
-        # 58, and 4 for the roster's older name in its folder (native/shared/save_layout.h)
+        # 58, and 4 for the roster's older name in its folder (native/shared/save_layout.h): used under
+        # that name, loose or in its folder, never moved or renamed
         self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62, result.stdout)
-        self.assertIn("  ok   the save renamed it Villagers at Last Save", result.stdout)
+        self.assertIn("  ok   the save read and wrote it under its older name, never renaming it: nobody unaccounted",
+                      result.stdout)
+        self.assertIn("  ok   the save used the roster where an older build left it (loose, by its older name), never moving it",
+                      result.stdout)
 
 
 if __name__ == "__main__":

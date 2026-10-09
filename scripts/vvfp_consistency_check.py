@@ -1479,7 +1479,14 @@ def check_coverage_files(game_dir: Path, slot: int, game: int, rep: Report) -> N
 
 def check_approval(game_dir: Path, slot: int, game: int, rep: Report) -> None:
     """Repair Saves & Logs' approval for the slot (src/vv_log_tools.py), not yet used by the game."""
-    path = layout.find(game_dir, f"{DATA}\\{layout.LOG_CHECKS}\\Virtual Villagers {game} Repair Approved - Save {slot}.dat")
+    relative = f"{DATA}\\{layout.LOG_CHECKS}\\Virtual Villagers {game} Repair Approved - Save {slot}.dat"
+    both = layout.places(game_dir, relative)
+    if len(both) == 2:
+        rep.add(str(both[1].parent.relative_to(game_dir)), "NOTE",
+                "a Repair Saves & Logs approval is under both \"Log Checks\" and an older build's \"Cross-Check\": "
+                "the game acts on neither (run Repair Saves & Logs again to approve)")
+        return
+    path = layout.find(game_dir, relative)
     if not path.is_file():
         return
     label = str(path.parent.relative_to(game_dir))
@@ -1543,15 +1550,15 @@ def word_key(name: str) -> str:
 
 
 def DEATHS_FOLDER(game_dir: Path) -> str:
-    """The Deaths logs' folder in this save folder: "Deaths and Disappearances", or "Deaths" while an
-    older build's has not moved (src/vv_save_layout.py)."""
-    return layout.find(game_dir, f"{LOGS}\\{layout.DEATHS_LOGS}").name
+    """The Deaths logs' folder new records go to: "Deaths and Disappearances", or an older build's
+    "Deaths" while only it exists (src/vv_save_layout.py: nothing is ever moved)."""
+    return layout.writable(game_dir, f"{LOGS}\\{layout.DEATHS_LOGS}").name
 
 
 def DEATHS_FOLDERS(game_dir: Path) -> list[str]:
-    """Every Deaths logs' folder there is: an older build's "Deaths" first when it has not moved, then
-    "Deaths and Disappearances" -- both when both exist (the companions move the old one only when
-    the new one does not exist yet, native/shared/save_layout.h)."""
+    """Every Deaths logs' folder there is: an older build's "Deaths" first, then "Deaths and
+    Disappearances" -- both when an older and a newer build both played the village (nothing is ever
+    moved, src/vv_save_layout.py and native/shared/save_layout.h)."""
     folders = [name for name in ("Deaths", layout.DEATHS_LOGS) if (Path(game_dir) / LOGS / name).is_dir()]
     return folders or [DEATHS_FOLDER(game_dir)]
 
@@ -1578,21 +1585,27 @@ WORD_LINE = re.compile(rb"^([ \t]*(?:Likes|Dislikes): )([^\r\n]*)", re.M)
 
 
 def word_boundaries(game_dir: Path, game: int) -> dict[str, int]:
-    """Each log file's recorded boundary (its path inside the save folder, lower case): the LAST
-    line naming it counts."""
-    path = layout.find(game_dir, LOG_WORDS.format(game=game))
+    """Each log file's recorded boundary (its path inside the save folder, lower case): in each
+    boundary file the LAST line naming it counts.  The file is "Like and Dislike Words", an older
+    build's "Log Words", or both (src/vv_save_layout.py); from both, the SMALLER boundary of each log
+    file is taken (native/shared/log_words.h: a larger one would turn correct words into wrong
+    ones)."""
     out: dict[str, int] = {}
-    try:
-        text = path.read_bytes().decode("utf-8", "replace")
-    except FileNotFoundError:
-        return out
-    for line in text.splitlines():
-        offset, tab, name = line.partition("\t")
-        if tab and name:
-            try:
-                out[name.lower()] = int(offset)
-            except ValueError:
-                continue
+    for path in layout.places(game_dir, LOG_WORDS.format(game=game)):
+        try:
+            text = path.read_bytes().decode("utf-8", "replace")
+        except FileNotFoundError:
+            continue
+        here: dict[str, int] = {}
+        for line in text.splitlines():
+            offset, tab, name = line.partition("\t")
+            if tab and name:
+                try:
+                    here[name.lower()] = int(offset)
+                except ValueError:
+                    continue
+        for name, offset in here.items():
+            out[name] = min(offset, out.get(name, offset))
     return out
 
 
