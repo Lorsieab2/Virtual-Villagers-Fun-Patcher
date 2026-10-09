@@ -2730,7 +2730,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         on = bool(self.own_flips[flip].get())
         for q in self.selected:
-            self._set_entry(self.village.people[q], **{flip: on})
+            self._flip_as_seen(self.village.people[q], flip, on)     # as seen on the page (the owner)
         self._saved()
 
     def _group_members(self, group: str) -> list:
@@ -2743,8 +2743,19 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         on = not all(self._entry(p).get(flip, False) for p in people)
         for p in people:
-            self._set_entry(p, **{flip: on})
+            self._flip_as_seen(p, flip, on)
         self._saved()
+
+    def _flip_as_seen(self, p, flip: str, on: bool) -> None:
+        """A portrait flipped as it is seen on the page, its present turn taken as straight (the owner,
+        2026-10-09: "treating the current rotation as straight horizontal"): the shape mirrored and its turn
+        reversed -- a fish turned 30 degrees and flipped left-right is the same fish facing the other way,
+        turned -30 degrees.  Nothing changes for one already flipped that way."""
+        entry = self._entry(p)
+        if bool(entry.get(flip, False)) == on:
+            return
+        angle = entry.get("angle", 0.0)
+        self._set_entry(p, **{flip: on, "angle": round((-angle) % 360, 1) or None})
 
     def _group_turn(self, group: str) -> None:
         """Every portrait of a group turned to the angle in its box."""
