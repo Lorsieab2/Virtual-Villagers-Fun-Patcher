@@ -2392,24 +2392,51 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         key = (item.colour, item.colour2, str(item.picture), item.fit, item.soften, int(sc.width), int(sc.height),
                self.z)
         if key != self.backdrop_key:
-            self.backdrop_key = key
-            self.photos.pop("backdrop", None)
-            if (item.colour2 or item.picture is not None) and vv_gdiplus.available():
-                temp = Path(tempfile.gettempdir()) / f"vvfp-tree-backdrop-{os.getpid()}.png"
-                plain = ft.Scene(sc.width, sc.height, item.colour, [item])
+            pending = getattr(self, "_backdrop_job", None)
+            if pending is not None:
+                self.after_cancel(pending)
+                self._backdrop_job = None
+            same_picture = (self.backdrop_key is not None and self.backdrop_key[:5] == key[:5]
+                            and "backdrop" in self.photos)
+            if same_picture:
+                # Only the page's size or the zoom changed (everyone dragged, say): the background as it was
+                # for now, and drawn again a moment later -- a picture background takes a second to draw,
+                # and every move waited for it (the owner: "less lag especially when selecting all").
+                self._backdrop_job = self.after(250, lambda: self._redraw_backdrop(item, sc, key))
+            else:
+                self._make_backdrop(item, sc, key)
+        self._backdrop_iid = None
+        if "backdrop" in self.photos:
+            self._backdrop_iid = self.canvas.create_image(0, 0, image=self.photos["backdrop"], anchor="nw",
+                                                          tags="backdrop")
+        return self._backdrop_iid
+
+    def _make_backdrop(self, item: ft.Backdrop, sc: ft.Scene, key: tuple) -> None:
+        self.backdrop_key = key
+        self.photos.pop("backdrop", None)
+        if (item.colour2 or item.picture is not None) and vv_gdiplus.available():
+            temp = Path(tempfile.gettempdir()) / f"vvfp-tree-backdrop-{os.getpid()}.png"
+            plain = ft.Scene(sc.width, sc.height, item.colour, [item])
+            try:
+                if vv_gdiplus.save_scene(plain, {}, temp, scale=self.z):
+                    self.photos["backdrop"] = tk.PhotoImage(master=self, file=str(temp))
+            except (OSError, tk.TclError):
+                pass
+            finally:
                 try:
-                    if vv_gdiplus.save_scene(plain, {}, temp, scale=self.z):
-                        self.photos["backdrop"] = tk.PhotoImage(master=self, file=str(temp))
+                    temp.unlink()
                 except OSError:
                     pass
-                finally:
-                    try:
-                        temp.unlink()
-                    except OSError:
-                        pass
-        if "backdrop" in self.photos:
-            return self.canvas.create_image(0, 0, image=self.photos["backdrop"], anchor="nw", tags="backdrop")
-        return None
+
+    def _redraw_backdrop(self, item: ft.Backdrop, sc: ft.Scene, key: tuple) -> None:
+        """The background drawn again at the page's new size or zoom, put in place of the old one."""
+        self._backdrop_job = None
+        if self.sc is not sc and (int(self.sc.width), int(self.sc.height)) != key[5:7]:
+            return                              # the page changed again: its own redraw has asked
+        self._make_backdrop(item, sc, key)
+        iid = getattr(self, "_backdrop_iid", None)
+        if "backdrop" in self.photos and iid is not None and self.canvas.type(iid) == "image":
+            self.canvas.itemconfigure(iid, image=self.photos["backdrop"])
 
     def _draw_selection(self) -> None:
         self.canvas.delete("selection")
