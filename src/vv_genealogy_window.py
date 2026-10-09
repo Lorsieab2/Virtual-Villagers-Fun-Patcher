@@ -2497,7 +2497,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         patcher's own text is numbered as the tree changes)."""
         changed = 0
         for p in self.village.known():
-            lines = self._entry(p).get("lines")
+            lines = ft.node_text(self.lay, p) if self._entry(p).get("lines") else None   # as shown
             match = re.match(r"\s*\d+\.\s*", lines[0]) if lines else None
             if match is None or p.number is None:
                 continue
@@ -3473,6 +3473,7 @@ RULE_FIELDS = [
     ("not_expecting", "Not already expecting", "bool"),
     ("different_last_name", "Different last names (numbers ignored: Wanjiko II is a Wanjiko)", "bool"),
     ("one_family_per_partner", "One Family Per Partner (a child with one Wanjiko: no other Wanjiko, the same partner again is fine)", "bool"),
+    ("prefer_previous_partners", "Prioritize previous partners (couples who already have a child together first)", "bool"),
     ("prefer_fresh_blood", "Fresh blood first (villagers with no recorded parents)", "bool"),
 ]
 

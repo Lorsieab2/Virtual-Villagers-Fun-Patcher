@@ -251,7 +251,9 @@ class TheWindows(unittest.TestCase):
                         "the save is edited only when the player says so")
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         checklist = gui[gui.index("    def _repair_checklist("):gui.index("    def _repair_questions(")]
-        self.assertIn("number_var = tk.BooleanVar(value=False)", checklist, "never ticked for the player")
+        # Ticked only when the save's names do not follow the numbering rule (the owner, 2026-10-08:
+        # "update ... the repair logs and save data and everything").
+        self.assertIn("number_var = tk.BooleanVar(value=bool(misnumbered))", checklist)
         repair = gui[gui.index("    def _repair_logs("):gui.index("    def _repair_checklist(")]
         self.assertIn("lambda: vv_number_names.number_names(folder, number, info.slot, numbering)", repair)
         self.assertIn('number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])', checklist)

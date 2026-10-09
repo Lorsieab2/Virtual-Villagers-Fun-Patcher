@@ -3189,11 +3189,20 @@ class App(tk.Tk):
                 speed = vv_save_backup.save_speed(number, vv_last_names.save_path(folder, number, info.slot).read_bytes())
             except OSError:
                 speed = None
+            # Names the numbering rule now gives otherwise (the owner, 2026-10-08: a number only for
+            # the same first AND last name; "Hawa Awanata II" with no other is "Hawa Awanata").
+            try:
+                misnumbered = vv_number_names.numbering(
+                    vv_genealogy.load_village(folder, number, info.slot, full_names=False),
+                    *vv_number_names.evidence(folder, number, info.slot)).renames
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
+                    struct.error):
+                misnumbered = {}
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
-                    cuts, unpaused, speed)
+                    cuts, unpaused, speed, misnumbered)
 
         try:
-            checked, old_words, kinds, (cuts, cut_notes), unpaused, speed = self._run_with_wait(
+            checked, old_words, kinds, (cuts, cut_notes), unpaused, speed, misnumbered = self._run_with_wait(
                 "Checking the logs…\n\nNothing is changed.", survey
             )
             found = (
@@ -3205,7 +3214,7 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed)
+                                        unpaused, speed, misnumbered)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice = picked
@@ -3326,7 +3335,7 @@ class App(tk.Tk):
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
-                          speed: tuple | None = None):
+                          speed: tuple | None = None, misnumbered: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3388,7 +3397,9 @@ class App(tk.Tk):
                                   command=lambda: self._last_names_dialog(window, folder, number, info, names,
                                                                           names_var))
         names_choose.pack(side="left", padx=(8, 0))
-        number_var = tk.BooleanVar(value=False)
+        # Ticked when names do not follow the numbering rule (the owner, 2026-10-08: "update the
+        # repair logs and save data and everything").
+        number_var = tk.BooleanVar(value=bool(misnumbered))
         number_row = ttk.Frame(frame)
         number_row.pack(anchor="w", pady=(4, 0))
         number_tick = ttk.Checkbutton(number_row, variable=number_var,
@@ -3398,6 +3409,12 @@ class App(tk.Tk):
         number_order = ttk.Combobox(number_row, textvariable=number_order_var,
                                     values=list(vv_genealogy.NUMBER_ORDERS.values()), state="readonly", width=22)
         number_order.pack(side="left", padx=(8, 0))
+        if misnumbered:
+            ttk.Label(frame, wraplength=600, justify="left", foreground="#555555",
+                      text=f"{len(misnumbered)} name(s) do not follow the numbering rule (a number only for the "
+                           "same first and last name): " + ", ".join(
+                               f"{old} -> {new}" for (old, _h, _b), new in sorted(misnumbered.items())) + "."
+                      ).pack(anchor="w", padx=(20, 0))
         # While cut names are to be restored, last names and numbering would work from the cut names:
         # they wait for the next Repair Saves & Logs, after the full names are back.
         wait_note = ttk.Label(frame, foreground="#555555",
