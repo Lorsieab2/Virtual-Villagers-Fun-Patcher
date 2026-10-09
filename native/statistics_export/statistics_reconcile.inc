@@ -218,7 +218,42 @@ struct rc_count {
     int game;
     long long graves;             /* Death records with a grave */
     long long twins;              /* Conception records of twins */
+    /* Each Death record with a grave counted so far, by its whole text: the
+       Deaths logs are read from both "Deaths" and "Deaths and
+       Disappearances" when both exist (rc_make_plan), and a record found in
+       both is one burial, not two. */
+    unsigned long long *seen;
+    int seen_count, seen_cap;
 };
+
+static unsigned long long rc_hash_line(unsigned long long h, const char *line) {
+    for (; *line != '\0'; ++line) {
+        h = (h ^ (unsigned char)*line) * 1099511628211ull;      /* FNV-1a */
+    }
+    return (h ^ (unsigned char)'\n') * 1099511628211ull;
+}
+
+/* One grave, unless the very same record was counted already. */
+static void rc_count_grave(struct rc_count *c, unsigned long long record) {
+    int i;
+    for (i = 0; i < c->seen_count; ++i) {
+        if (c->seen[i] == record) {
+            return;
+        }
+    }
+    if (c->seen_count == c->seen_cap) {
+        int cap = c->seen_cap ? c->seen_cap * 2 : 64;
+        unsigned long long *more = (unsigned long long *)realloc(c->seen, (size_t)cap * sizeof *more);
+        if (more == NULL) {
+            ++c->graves;              /* counted, if not remembered */
+            return;
+        }
+        c->seen = more;
+        c->seen_cap = cap;
+    }
+    c->seen[c->seen_count++] = record;
+    ++c->graves;
+}
 
 /* The Deaths log: "Death <n>" records under this village's header whose
    "  Grave:" line names a grave. */
@@ -227,24 +262,35 @@ static void rc_visit_deaths(char *text, void *context) {
     char *cursor = text;
     char *line;
     int ours = 0, open = 0, grave = 0;
+    unsigned long long record = 0;
     while ((line = rc_line(&cursor)) != NULL) {
         if (strncmp(line, "Village:", 8) == 0) {
-            c->graves += open && grave;
+            if (open && grave) {
+                rc_count_grave(c, record);
+            }
             open = grave = 0;
             ours = strcmp(line, c->village) == 0;
             continue;
         }
         if (line[0] != ' ') {
-            c->graves += open && grave;
+            if (open && grave) {
+                rc_count_grave(c, record);
+            }
             open = ours && strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9';
             grave = 0;
+            record = rc_hash_line(14695981039346656037ull, line);
             continue;
+        }
+        if (open) {
+            record = rc_hash_line(record, line);
         }
         if (open && strncmp(line, "  Grave: ", 9) == 0) {
             grave = strncmp(line + 9, "no grave", 8) != 0 && line[9] != '\0';
         }
     }
-    c->graves += open && grave;
+    if (open && grave) {
+        rc_count_grave(c, record);
+    }
 }
 
 /* The Births and Conceptions log: this village's "Conception <n>" records
@@ -505,13 +551,31 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
         c.village = village;
         c.game = game;
         _snwprintf_s(stem, 64, _TRUNCATE, L"Virtual Villagers %d Deaths Log", game);
+        plan->counters_ok = 1;
         {
-            wchar_t root[MAX_PATH];
+            /* An older build's "Deaths" is moved to the new name when the new
+               one does not exist yet (save_layout.h).  When both exist (the
+               move could not be made: an older build wrote "Deaths" again
+               after a newer one had made the new folder), the old one is read
+               too -- only when it is there, never created -- and a record in
+               both counts once (rc_count_grave). */
+            wchar_t root[MAX_PATH], old_path[MAX_PATH];
+            DWORD attributes;
             if (vv_save_folder_w(root, 64)) {
                 vv_layout_move_dir(root, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR);   /* save_layout.h */
+                if (_snwprintf_s(old_path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) >= 0) {
+                    attributes = GetFileAttributesW(old_path);
+                    if (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+                        plan->counters_ok = rc_each_log(VV_DEATHS_LOGS_OLD, stem, rc_visit_deaths, &c);
+                    }
+                }
             }
         }
-        plan->counters_ok = rc_each_log(VV_DEATHS_LOGS_DIR, stem, rc_visit_deaths, &c);
+        if (plan->counters_ok) {
+            plan->counters_ok = rc_each_log(VV_DEATHS_LOGS_DIR, stem, rc_visit_deaths, &c);
+        }
+        free(c.seen);
+        c.seen = NULL;
         _snwprintf_s(stem, 64, _TRUNCATE, L"Virtual Villagers %d Births and Conceptions Log", game);
         if (game == GAME_VV2 && plan->counters_ok) {
             plan->counters_ok = rc_each_log(L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", stem,

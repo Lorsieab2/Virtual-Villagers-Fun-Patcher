@@ -48,6 +48,9 @@
         counts that call: the log's writers call game routines no harness
         maps), changes nothing a second time, and does nothing for a slot the
         last save was not.
+     8. Deaths logs in both "Deaths" (an older build's) and "Deaths and
+        Disappearances": both are read, a record kept in both counts once,
+        and an old folder is never made when there is none.
 
    Usage:  reconcile_harness.exe "<statistics test dll>" "<save reset dll>"
    Exit code 0 when every check passes. */
@@ -634,6 +637,33 @@ int main(int argc, char **argv) {
             CHECK(again == 1 && same && scan(game, 1, prompt, (int)sizeof prompt) == 0 && *rewrites == 1,
                   "...a second Repair changes nothing (no file, no second backup, not the log), and the scan finds"
                   " nothing left");
+        }
+
+        /* 8. Both "Deaths" and "Deaths and Disappearances" (Codex, #577): the
+           old folder cannot be moved over the new one, so both are read, and
+           a record found in both is one burial. */
+        clean();
+        write_files(1, 0, 0);
+        scan(game, 1, prompt, (int)sizeof prompt);
+        CHECK(!exists_rel(LOGS "\\Deaths") && exists_rel(LOGS "\\Deaths and Disappearances"),
+              "one folder: an old \"Deaths\" is moved to the new name, and never made when there is none");
+        {
+            char other[MAX_PATH];
+            _snprintf(other, MAX_PATH, LOGS "\\%s\\Virtual Villagers %d Deaths Log 1.txt",
+                      game % 2 ? "Deaths and Disappearances" : "Deaths", game);
+            clean();
+            write_files(1, 0, 0);
+            /* Mia's record again, word for word (the same record), and a burial only this folder holds. */
+            write_file(other,
+                "Village: Recon Tribe (Save 1)\r\n"
+                "Death 1\r\n  Name: Mia\r\n  Age at death: 1000\r\n  Cause of death: Old age\r\n  Grave: Master Builder\r\n"
+                "  Epitaph: (none)\r\n\r\n"
+                "Death 5\r\n  Name: Kai\r\n  Age at death: 800\r\n  Cause of death: Old age\r\n  Grave: Master Farmer\r\n\r\n");
+            scan(game, 1, prompt, (int)sizeof prompt);
+            CHECK(strstr(prompt, "Villagers Buried is 1, but the Deaths log and the graves show 3 burials.") != NULL
+                  && exists_rel(LOGS "\\Deaths") && exists_rel(LOGS "\\Deaths and Disappearances"),
+                  "both folders: Mia, Rex and Kai are 3 burials -- the old folder's records are read, Mia's twice-kept"
+                  " record counts once");
         }
 
         unplace_game();
