@@ -1389,8 +1389,9 @@ static int move_aside(const wchar_t *path, unsigned long long stamp) {
 static int g_roster_now_count;
 static int g_roster_was_count;        /* rows of g_roster_was read by this save's village_changed */
 
-/* "Villagers Counted - Save N.dat" -- "Village Roster - Save N.dat" in older builds, moved to the
-   new name when only the old one exists (native/shared/save_layout.h). */
+/* "Villagers Counted - Save N.dat" -- "Village Roster - Save N.dat" in older builds, read and
+   written under that name, never renamed; under both names, the one written last
+   (native/shared/save_layout.h).  The temporary file is in the same folder either way. */
 static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
     wchar_t folder[MAX_PATH], old[MAX_PATH];
     if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
@@ -1399,7 +1400,9 @@ static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
         || _snwprintf_s(old, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) <= 0) {
         return 0;
     }
-    vv_layout_move_file(old, roster);
+    if (vv_layout_pick_file_w(old, roster)) {
+        lstrcpyW(roster, old);
+    }
     return 1;
 }
 

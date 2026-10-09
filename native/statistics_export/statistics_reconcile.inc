@@ -553,26 +553,30 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
         _snwprintf_s(stem, 64, _TRUNCATE, L"Virtual Villagers %d Deaths Log", game);
         plan->counters_ok = 1;
         {
-            /* An older build's "Deaths" is moved to the new name when the new
-               one does not exist yet (save_layout.h).  When both exist (the
-               move could not be made: an older build wrote "Deaths" again
-               after a newer one had made the new folder), the old one is read
-               too -- only when it is there, never created -- and a record in
-               both counts once (rc_count_grave). */
-            wchar_t root[MAX_PATH], old_path[MAX_PATH];
-            DWORD attributes;
-            if (vv_save_folder_w(root, 64)) {
-                vv_layout_move_dir(root, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR);   /* save_layout.h */
-                if (_snwprintf_s(old_path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) >= 0) {
-                    attributes = GetFileAttributesW(old_path);
-                    if (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
-                        plan->counters_ok = rc_each_log(VV_DEATHS_LOGS_OLD, stem, rc_visit_deaths, &c);
-                    }
+            /* The Deaths logs stay where they are (save_layout.h): an older
+               build's "Deaths", the new "Deaths and Disappearances", or both
+               when an older and a newer build both played the village.  Each
+               one there is read -- neither is ever made just to look in it --
+               and a record in both counts once (rc_count_grave).  A folder
+               that cannot be examined decides nothing. */
+            static const wchar_t *const folders[2] = {VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR};
+            wchar_t root[MAX_PATH], path[MAX_PATH];
+            int f, kind;
+            if (!vv_save_folder_w(root, 64)) {
+                plan->counters_ok = 0;
+            }
+            for (f = 0; f < 2 && plan->counters_ok; ++f) {
+                if (_snwprintf_s(path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, folders[f]) < 0) {
+                    plan->counters_ok = 0;
+                    break;
+                }
+                kind = vv_layout_probe_w(path, NULL);
+                if (kind == VV_LAYOUT_UNKNOWN) {
+                    plan->counters_ok = 0;
+                } else if (kind == VV_LAYOUT_DIR) {
+                    plan->counters_ok = rc_each_log(folders[f], stem, rc_visit_deaths, &c);
                 }
             }
-        }
-        if (plan->counters_ok) {
-            plan->counters_ok = rc_each_log(VV_DEATHS_LOGS_DIR, stem, rc_visit_deaths, &c);
         }
         free(c.seen);
         c.seen = NULL;

@@ -1,6 +1,7 @@
 """Family Tree Maker options of 2026-10-09 (the owner): spacing between generations, "Founder", text
 alignment, keeping words inside the shape, and the new portrait shapes; and where the tree keeps its
 files after the save folders' new names (src/vv_save_layout.py)."""
+import os
 import sys
 import tempfile
 import unittest
@@ -85,25 +86,22 @@ class SaveLayoutTests(unittest.TestCase):
                          f"{d}\\Village Statistics\\Village Roster - Save 1.dat")
         self.assertIsNone(layout.old_name(f"{d}\\Village Elders\\Village Elders - Save 1.dat"))
 
-    def test_the_tree_finds_its_edits_under_either_name_and_the_move_keeps_every_file(self):
+    def test_the_tree_finds_its_edits_under_either_name_and_nothing_moves_them(self):
+        # Nothing is ever moved (the owner, 2026-10-09; src/vv_save_layout.py): an older build's edits
+        # are read and written where they are; under both names, the file written last.
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
             old = folder / layout.DATA / "Genealogy" / "Virtual Villagers 1 Genealogy Edits - Save 1.json"
-            old.parent.mkdir(parents=True)
-            old.write_text("{}")
-            deaths = folder / layout.LOGS / "Deaths" / "Virtual Villagers 1 Deaths Log 1.txt"
-            deaths.parent.mkdir(parents=True)
-            deaths.write_text("Death 1")
-            (deaths.parent / (deaths.name + ".before-v1.35.61-repair")).write_text("copy")
-            self.assertEqual(ft.Edits.path(folder, 1, 1), old)
-            layout.migrate(folder)
             new = folder / layout.DATA / "Family Tree Edits" / "Virtual Villagers 1 Family Tree Edits - Save 1.json"
             self.assertEqual(ft.Edits.path(folder, 1, 1), new)
-            self.assertTrue(new.is_file() and not old.exists())
-            self.assertTrue((folder / layout.LOGS / "Deaths and Disappearances" / deaths.name).is_file())
-            self.assertTrue((folder / layout.DATA / layout.COPIES / layout.LOGS / "Deaths and Disappearances"
-                             / (deaths.name + ".before-v1.35.61-repair")).is_file())
-            self.assertEqual(layout.migrate(folder), [])          # once only
+            old.parent.mkdir(parents=True)
+            old.write_text("{}")
+            self.assertEqual(ft.Edits.path(folder, 1, 1), old)
+            new.parent.mkdir(parents=True)
+            new.write_text("{}")
+            os.utime(old, ns=(1_700_000_000 * 10**9,) * 2)
+            self.assertEqual(ft.Edits.path(folder, 1, 1), new)
+            self.assertTrue(old.is_file() and new.is_file())
 
 
 class SpecialBorderAndTextRoomTests(unittest.TestCase):

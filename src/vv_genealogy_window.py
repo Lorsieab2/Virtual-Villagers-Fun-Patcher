@@ -445,7 +445,8 @@ def open_family_tree(app, build) -> None:
         "mark and edit it.  Nothing in the save or the logs is changed unless you ask Number duplicate "
         "names to number them there too (it asks first, and backs the save folder up): your marks and edits are kept "
         "in the save folder's Virtual Villagers Fun Patcher Data\\Family Tree Edits, and the tree, its picture "
-        "and the genealogy report are written to Virtual Villagers Fun Patcher Family Trees\\Reports.",
+        "and the genealogy report are written to Virtual Villagers Fun Patcher Family Trees\\Reports.  A save "
+        "that already keeps them under the older names, Genealogy or Logs\\Genealogy, goes on using those.",
         "Open Family Tree Maker", lambda dialog, folder, game, info, title, images:
         _open_editor(app, dialog, folder, game, info, title, images),
         ask_game_folder=True)

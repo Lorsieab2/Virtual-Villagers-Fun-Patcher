@@ -295,8 +295,8 @@ static void write_files(int buried, int twins, int chiefs) {
         "Death 2\r\n  Name: Lua\r\n  Age at death: 300\r\n  Cause of death: Disease\r\n"
         "  Grave: no grave (never buried: the game removed the body)\r\n\r\n"
         "Death 3\r\n  Name: Rex\r\n  Age at death: 900\r\n  Cause of death: Old age\r\n  Grave: Untrained\r\n\r\n");
-    /* In the odd games the logs are where an older build kept them, "Deaths": the reconcile moves the
-       folder to "Deaths and Disappearances" (native/shared/save_layout.h) and reads them the same. */
+    /* In the odd games the logs are where an older build kept them, "Deaths": the reconcile reads them
+       there and never moves them (native/shared/save_layout.h). */
     _snprintf(line, sizeof line, LOGS "\\%s\\Virtual Villagers %d Deaths Log 1.txt", DEATHS_DIR, game);
     write_file(line, h);
     _snprintf(h, sizeof h,
@@ -645,8 +645,9 @@ int main(int argc, char **argv) {
         clean();
         write_files(1, 0, 0);
         scan(game, 1, prompt, (int)sizeof prompt);
-        CHECK(!exists_rel(LOGS "\\Deaths") && exists_rel(LOGS "\\Deaths and Disappearances"),
-              "one folder: an old \"Deaths\" is moved to the new name, and never made when there is none");
+        CHECK(game % 2 ? exists_rel(LOGS "\\Deaths") && !exists_rel(LOGS "\\Deaths and Disappearances")
+                       : !exists_rel(LOGS "\\Deaths") && exists_rel(LOGS "\\Deaths and Disappearances"),
+              "one folder: an older build's \"Deaths\" is read where it is, never moved, and no other folder is made");
         {
             char other[MAX_PATH];
             _snprintf(other, MAX_PATH, LOGS "\\%s\\Virtual Villagers %d Deaths Log 1.txt",

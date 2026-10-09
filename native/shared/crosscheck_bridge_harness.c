@@ -757,40 +757,53 @@ int main(void) {
     check(g_boxes == 0 && g_mask_repairs == 2 && !approval_there(5, 1),
           "... one that failed at load is completed after the quit save, then the approval is used up");
 
-    /* ---- An older build's "Cross-Check" folder (native/shared/save_layout.h): moved to "Log Checks"
-       before the approval is looked for, so an approval written there is still the player's. ---- */
+    /* ---- An older build's "Cross-Check" folder (native/shared/save_layout.h): never moved.  An
+       approval there is the player's, used where it is; an approval under BOTH names is acted on
+       under neither, and neither file is touched. ---- */
     reset();
     {
-        wchar_t sub[MAX_PATH], old_sub[MAX_PATH], old_file[MAX_PATH], path[MAX_PATH];
+        wchar_t sub[MAX_PATH], old_sub[MAX_PATH], old_file[MAX_PATH], new_file[MAX_PATH], path[MAX_PATH];
         unsigned int body[4] = { 0x31415256u, 1u, 2u, 1u };
         HANDLE f;
         DWORD put = 0;
         wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks", g_folder);
         wsprintfW(old_sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check", g_folder);
         wsprintfW(old_file, L"%ls\\Virtual Villagers 2 Repair Approved - Save 1.dat", old_sub);
+        wsprintfW(new_file, L"%ls\\Virtual Villagers 2 Repair Approved - Save 1.dat", sub);
         RemoveDirectoryW(sub);
         CreateDirectoryW(old_sub, NULL);
         f = CreateFileW(old_file, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
         WriteFile(f, body, sizeof(body), &put, NULL);
         CloseHandle(f);
-        check(vvfp_xc_approval_path(2, 1, path) && approval_there(2, 1)
-              && GetFileAttributesW(old_sub) == INVALID_FILE_ATTRIBUTES,
-              "an older build's Cross-Check folder is moved to Log Checks, the approval in it");
+        check(vvfp_xc_approval_path(2, 1, path) && lstrcmpW(path, old_file) == 0 && vvfp_xc_approved(2, 1)
+              && GetFileAttributesW(sub) == INVALID_FILE_ATTRIBUTES,
+              "an older build's Cross-Check approval is used where it is, never moved");
         g_auto = 0;
         g_graves = 1;
         play(2, 1, 8000, 16);
         vvfp_crosscheck_quit(2, 1);
-        check(g_boxes == 0 && g_later_graves == 1 && g_now_graves == 1 && !approval_there(2, 1),
+        check(g_boxes == 0 && g_later_graves == 1 && g_now_graves == 1
+              && GetFileAttributesW(old_file) == INVALID_FILE_ATTRIBUTES,
               "... and that approval is used, like any other");
-        /* Both there: neither is touched. */
-        CreateDirectoryW(old_sub, NULL);
+        /* Both there: neither is acted on, neither is touched. */
+        reset();
         f = CreateFileW(old_file, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
         WriteFile(f, body, sizeof(body), &put, NULL);
         CloseHandle(f);
-        check(vvfp_xc_approval_path(2, 1, path) && GetFileAttributesW(old_file) != INVALID_FILE_ATTRIBUTES
-              && !approval_there(2, 1),
-              "... but never over a Log Checks folder already there: the old one is left as it is");
+        CreateDirectoryW(sub, NULL);
+        f = CreateFileW(new_file, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        WriteFile(f, body, sizeof(body), &put, NULL);
+        CloseHandle(f);
+        g_auto = 0;
+        g_graves = 1;
+        play(2, 1, 8000, 16);
+        vvfp_crosscheck_quit(2, 1);
+        check(!vvfp_xc_approved(2, 1) && g_now_graves == 0
+              && GetFileAttributesW(old_file) != INVALID_FILE_ATTRIBUTES
+              && GetFileAttributesW(new_file) != INVALID_FILE_ATTRIBUTES,
+              "an approval under both Log Checks and Cross-Check is acted on under neither, and both are kept");
         DeleteFileW(old_file);
+        DeleteFileW(new_file);
         RemoveDirectoryW(old_sub);
     }
 

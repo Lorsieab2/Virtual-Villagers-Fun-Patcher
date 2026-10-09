@@ -13,8 +13,11 @@
    before which its text was written with the old list.  One text file per
    game in the save folder:
 
-       Virtual Villagers Fun Patcher Data\Log Words\
+       Virtual Villagers Fun Patcher Data\Like and Dislike Words\
            Virtual Villagers N Log Words.dat
+
+   ("Log Words" in older builds' save folders: kept and used where it is, and when both exist
+   both are read, the smaller boundary of each file taken; save_layout.h)
 
    one line per entry, "<offset>\t<log file name>\r\n", appended, never
    rewritten; the LAST line naming a file is the one that counts.
@@ -41,8 +44,6 @@
 #include <string.h>
 #include "save_folder.h"
 #include "save_layout.h"
-
-#define VV_LOG_WORDS_FOLDER "Virtual Villagers Fun Patcher Data\\Like and Dislike Words"   /* save_layout.h */
 
 /* The words the old lists printed, by index, and the game's own. */
 static const char *const VV_LOG_WORDS_VV1_OLD[47] = {
@@ -89,23 +90,36 @@ static int vv_log_words_tracked(int game) {
     return game == 1 || game == 3;
 }
 
-/* The game's boundary file, created with its folder. */
-static int vv_log_words_path(int game, char *out, size_t size) {
+/* The game's boundary file under each name (save_layout.h): "Like and Dislike Words", and an
+   older build's "Log Words".  Neither folder is made here. */
+static int vv_log_words_paths(int game, char *new_dat, char *old_dat, size_t size) {
     char folder[MAX_PATH];
-    if (vv_save_folder(folder, 96)) {
-        vv_layout_move_dir_a(folder, VV_LOG_WORDS_OLD, VV_LOG_WORDS_DIR);   /* "Log Words" before */
-    }
-    if (!vv_save_subfolder(folder, VV_LOG_WORDS_FOLDER,
-                           (int)sizeof("\\Virtual Villagers 1 Log Words.dat"))) {
-        return 0;
-    }
-    return _snprintf_s(out, size, _TRUNCATE, "%s\\Virtual Villagers %d Log Words.dat", folder,
-                       game) > 0;
+    return vv_save_folder(folder, 96)
+           && _snprintf_s(new_dat, size, _TRUNCATE, "%s\\" VV_LOG_WORDS_DIR_A "\\Virtual Villagers %d Log Words.dat",
+                          folder, game) > 0
+           && _snprintf_s(old_dat, size, _TRUNCATE, "%s\\" VV_LOG_WORDS_OLD_A "\\Virtual Villagers %d Log Words.dat",
+                          folder, game) > 0;
 }
 
-/* The last recorded boundary of the file called `name`: 1 and *offset, or 0
+/* The boundary file to append to: the new one, or an older build's while only it exists -- it is
+   written where it is, never moved.  When both exist the new one is written; the boundaries are
+   read from both (vv_log_words_recorded).  Its folder is created only here, to write. */
+static int vv_log_words_path(int game, char *out, size_t size) {
+    char folder[MAX_PATH], old_dat[MAX_PATH];
+    const char *sub;
+    if (!vv_log_words_paths(game, out, old_dat, size) || !vv_save_folder(folder, 96)) {
+        return 0;
+    }
+    sub = vv_layout_dir_rel_a(folder, VV_LOG_WORDS_OLD_A, VV_LOG_WORDS_DIR_A);
+    if (!vv_save_subfolder(folder, sub, (int)sizeof("\\Virtual Villagers 1 Log Words.dat"))) {
+        return 0;
+    }
+    return _snprintf_s(out, size, _TRUNCATE, "%s\\Virtual Villagers %d Log Words.dat", folder, game) > 0;
+}
+
+/* The last recorded boundary of the file called `name` in one boundary file: 1 and *offset, or 0
    when none is recorded (or the boundary file cannot be read). */
-static int vv_log_words_recorded(const char *dat, const char *name, LONGLONG *offset) {
+static int vv_log_words_recorded_in(const char *dat, const char *name, LONGLONG *offset) {
     HANDLE file;
     DWORD size, got = 0;
     char *text, *p;
@@ -150,6 +164,26 @@ static int vv_log_words_recorded(const char *dat, const char *name, LONGLONG *of
     }
     HeapFree(GetProcessHeap(), 0, text);
     return found;
+}
+
+/* The boundary of the file called `name` from both boundary files: when both record it, the
+   SMALLER (the owner's folder, 2026-10-09: an older build recorded 1763792 for a Village History
+   whose words the newer one had already put right and recorded 0 -- the larger would turn correct
+   words into wrong ones).  1 and *offset, or 0 when neither records it. */
+static int vv_log_words_recorded(int game, const char *name, LONGLONG *offset) {
+    char new_dat[MAX_PATH], old_dat[MAX_PATH];
+    LONGLONG from_new = 0, from_old = 0;
+    int in_new, in_old;
+    if (!vv_log_words_paths(game, new_dat, old_dat, sizeof new_dat)) {
+        return 0;
+    }
+    in_new = vv_log_words_recorded_in(new_dat, name, &from_new);
+    in_old = vv_log_words_recorded_in(old_dat, name, &from_old);
+    if (!in_new && !in_old) {
+        return 0;
+    }
+    *offset = !in_old ? from_new : !in_new ? from_old : (from_new < from_old ? from_new : from_old);
+    return 1;
 }
 
 static void vv_log_words_note(const char *dat, LONGLONG offset, const char *name) {
@@ -205,13 +239,12 @@ static int vv_log_words_name(const wchar_t *path, char *name, int size) {
    game's list was always right), the recorded boundary, or the whole file
    when nothing is recorded. */
 static LONGLONG vv_log_words_boundary(int game, const wchar_t *path) {
-    char dat[MAX_PATH], name[MAX_PATH];
+    char name[MAX_PATH];
     LONGLONG recorded;
-    if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)
-        || !vv_log_words_path(game, dat, sizeof dat)) {
+    if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)) {
         return 0;
     }
-    return vv_log_words_recorded(dat, name, &recorded) ? recorded : 0x7FFFFFFFFFFFFFFFLL;
+    return vv_log_words_recorded(game, name, &recorded) ? recorded : 0x7FFFFFFFFFFFFFFFLL;
 }
 
 /* Before this build first appends to `path`: everything already in it was
@@ -222,7 +255,7 @@ static void vv_log_words_appending(int game, const wchar_t *path) {
     WIN32_FILE_ATTRIBUTE_DATA info;
     LONGLONG size = 0;
     if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)
-        || !vv_log_words_path(game, dat, sizeof dat) || vv_log_words_recorded(dat, name, &recorded)) {
+        || vv_log_words_recorded(game, name, &recorded) || !vv_log_words_path(game, dat, sizeof dat)) {
         return;
     }
     if (GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
@@ -237,11 +270,11 @@ static void vv_log_words_appending(int game, const wchar_t *path) {
 static void vv_log_words_rewritten(int game, const wchar_t *path) {
     char dat[MAX_PATH], name[MAX_PATH];
     LONGLONG recorded = -1;
-    if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)
-        || !vv_log_words_path(game, dat, sizeof dat)) {
+    if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)) {
         return;
     }
-    if (!vv_log_words_recorded(dat, name, &recorded) || recorded != 0) {
+    if ((!vv_log_words_recorded(game, name, &recorded) || recorded != 0)
+        && vv_log_words_path(game, dat, sizeof dat)) {
         vv_log_words_note(dat, 0, name);
     }
 }
