@@ -327,6 +327,7 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
         alpha = int(255 * max(0.0, min(1.0, item.opacity))) << 24
         if item.width > 0:
             g.GdipCreatePen1(_argb(item.stroke, _alpha(item)), f(item.width), 0, ctypes.byref(pen))
+            g.GdipSetPenLineJoin(pen, 2)                    # round: no spike at a heart's dip or a star's point
             if item.dash:
                 g.GdipSetPenDashStyle(pen, ft.GDI_DASHES[item.dash])
         if item.fill:

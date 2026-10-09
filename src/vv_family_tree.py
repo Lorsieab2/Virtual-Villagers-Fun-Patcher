@@ -2949,7 +2949,9 @@ def _more_shapes() -> dict:
     outline_b = _envelope([stalk, b1[0], b2[0], b3[0]], (0.35, 0.42), rays=480)
     seams = [b2[1][6:39], b3[1][6:39]]                                  # where one lies over the next
     ridges = [b1[2][8:38], b2[2][8:38], b3[2][8:38]]
-    out["bananas"] = (outline_b, seams + ridges)
+    # Little circles on the stem's cut end and each banana's tip (the owner, 2026-10-09), light.
+    nubs = [_ring(-0.075, -0.085, 0.026, 0.026, 16)] + [_ring(*b[2][38], 0.022, 0.022, 16) for b in (b1, b2, b3)]
+    out["bananas"] = (outline_b, seams + ridges + nubs)
 
     # An anchor, traced from the owner's picture (550 pixels across): the ring on top, the stock with its
     # round ends, the shank, the curved arms with their barbs; the ring's hole and the shank's middle
@@ -3226,7 +3228,10 @@ OUTLINES = _Outlines(_unit_outlines())
 
 
 SVG_DASHES = {"dotted": "1.5 4", "dashed": "8 5", "dashdot": "8 4 1.5 4"}
-TK_DASHES = {"dotted": (2, 4), "dashed": (8, 5), "dashdot": (8, 4, 2, 4)}
+# Tk on Windows draws only its own patterns faithfully: a number pattern for "dashed" came out as dots, so the
+# editor showed dotted, dashed and dotted-and-dashed borders alike (the owner, 2026-10-09: "i want the dots and
+# dashes to alternate, not overlap").
+TK_DASHES = {"dotted": ".", "dashed": "-", "dashdot": "-."}
 GDI_DASHES = {"dotted": 2, "dashed": 1, "dashdot": 3}       # GDI+'s dash styles
 
 
