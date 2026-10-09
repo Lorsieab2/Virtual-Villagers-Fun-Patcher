@@ -64,6 +64,14 @@ STAMEN = "#f2c230"
 # How deep the rainbow is (the owner, 2026-10-09, choosing "15% deeper" for the rope and the flowers alike,
 # and as the default): (words, how much of the pure colour is kept).
 RAINBOW_STRENGTHS = {"bright": ("Bright", 1.0), "medium": ("Medium", 0.85), "deep": ("Deep", 0.75)}
+# Colour schemes for the tree's other parts (the owner, 2026-10-09: rainbow and alternating colours "for
+# special marks, plain portrait borders, portrait insides, family lines, detail lines"): as set, a rainbow
+# (at the Rainbow strength), or the special borders' 2-7 colours by turns.  Borders and marks run round
+# each outline; insides across the tree, villager by villager; family lines family by family; detail
+# lines line by line.
+COLOUR_SCHEMES = {"own": "As set", "rainbow": "Rainbow", "alternate": "Alternating colours"}
+SCHEME_PARTS = {"borders": "Portrait borders", "marks": "Special marks", "insides": "Portrait insides",
+                "details": "Detail lines", "lines": "Family lines"}
 # Natural hibiscus colours (the owner, 2026-10-09): each its petals and its darker "eye" in the middle,
 # as the flowers grow; or all of them taking turns, or blending from one to the next, round the border
 # (in HIBISCUS_ORDER).
@@ -285,6 +293,7 @@ class Edits:
     hibiscus: str = "red"               # natural flowers' colour (HIBISCUS_CHOICES)
     special_opacity: float = 100.0      # the special borders' opacity, percent (the owner, 2026-10-09)
     rainbow_strength: str = "medium"    # RAINBOW_STRENGTHS
+    schemes: dict = field(default_factory=dict)   # SCHEME_PARTS -> COLOUR_SCHEMES ("own" when absent)
     # The light lines inside a shape (details(): a scallop's ribs, a snail's whorls, a star's points),
     # the owner, 2026-10-09: "with the ability to edit the detailing's color, opacity, line weight".
     detail_lines: bool = True
@@ -406,6 +415,9 @@ class Edits:
         out.special_opacity = float(_number(data.get("special_opacity"), 0, 100, 100.0))
         strength = data.get("rainbow_strength")
         out.rainbow_strength = strength if strength in RAINBOW_STRENGTHS else "medium"
+        schemes = data.get("schemes")
+        out.schemes = ({k: v for k, v in schemes.items() if k in SCHEME_PARTS and v in COLOUR_SCHEMES and v != "own"}
+                       if isinstance(schemes, dict) else {})
         room = data.get("text_room")
         out.text_room = room if room in TEXT_ROOMS else "auto"
         out.detail_lines = data.get("detail_lines", True) is not False
@@ -574,7 +586,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -886,7 +898,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -3469,8 +3481,10 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         add(Text(lay.others_left, 72, words(lay, "others_note"), 13, ink, role="others", move="others_note",
                  edit="word:others_note"))
     fams = {f.id: f for f in lay.families}
+    turn_of = {f.id: k for k, f in enumerate(lay.families)}
     for colour, points, fid, piece in lines(lay):
         key = family_key(v, fams[fid])
+        colour = scheme_colour(lay.edits, "lines", turn_of[fid] / max(1, len(turn_of)), turn_of[fid]) or colour
         if f"line:{key}|{piece}" not in lay.edits.hidden:
             style = lay.edits.family_lines.get(key, {})
             add(Line(points, colour, style.get("width", lay.edits.line_width), target=("family", key),
@@ -3969,6 +3983,49 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     return items + _sticking_out(border, kind, frame, outline_points, size, colour_of, flower_look)
 
 
+def scheme_colour(e: "Edits", part: str, t: float, j: int) -> str | None:
+    """The colour `part` (SCHEME_PARTS) takes at `t` (0-1 of the way round or across) or by turn `j`, or
+    None when the player keeps it as set."""
+    mode = e.schemes.get(part, "own")
+    if mode == "rainbow":
+        return _shade(_blend_round(list(RAINBOW), t), RAINBOW_STRENGTHS[e.rainbow_strength][1])
+    if mode == "alternate":
+        palette = list(e.special_palette[:e.special_count]) or ["#000000"]
+        return palette[j % len(palette)]
+    return None
+
+
+def scheme_outline(e: "Edits", part: str, kind: str, frame: tuple, radius: float, width: float,
+                   opacity: float = 1.0, dash: str = "", target: tuple | None = None, pieces: int = 48) -> list:
+    """An outline drawn in `part`'s colour scheme, piece by piece round it: a rainbow, or the colours by
+    turns in even arcs."""
+    x, y, w, h, angle = frame
+    walk = _resample(shape_points(kind, x, y, w, h, radius, angle), max(1.0, (w + h) / (pieces * 2)))
+    n = len(walk)
+    if n < 2:
+        return []
+    count = max(1, e.special_count)
+    arcs = 2 * count if count > 2 else 6
+    out = []
+    for i in range(pieces):
+        a, b = i * n // pieces, (i + 1) * n // pieces
+        pts = [walk[k % n][:2] for k in range(a, b + 1)]
+        colour = scheme_colour(e, part, i / pieces, i * arcs // pieces) or "#000000"
+        out.append(Line(pts, colour, width, target=target, opacity=opacity, dash=dash))
+    return out
+
+
+def _rank(lay: Layout, pid: int) -> tuple[float, int]:
+    """Where a villager comes across the tree, in number order: (0-1, their turn)."""
+    ranks = lay.__dict__.get("_ranks")
+    if ranks is None:
+        people = lay.village.people
+        order = sorted(lay.x, key=lambda q: (people[q].number or 0, q))
+        ranks = {q: (k / max(1, len(order)), k) for k, q in enumerate(order)}
+        lay.__dict__["_ranks"] = ranks
+    return ranks.get(pid, (0.0, 0))
+
+
 def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     x, y = lay.x[p.id], lay.y[p.id]
     colour = lay.birth_colour.get(p.id, GREY)
@@ -3979,7 +4036,21 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     fx, fy, fw, fh, angle = lay.frame(p.id)
     see = lay.edits.mark_opacity / 100
     target = ("mark", lay.entry(p).get("mark"))
-    if mark and lay.edits.mark_style == "glow":
+    marks_scheme = mark and lay.edits.schemes.get("marks", "own") != "own"
+    if mark and lay.edits.mark_style == "glow" and marks_scheme:      # a rainbow or alternating glow
+        reach = lay.edits.mark_glow
+        for k in range(GLOW_RINGS, 0, -1):
+            m = reach * (k - 0.5) / GLOW_RINGS
+            for line in scheme_outline(lay.edits, "marks", kind, (fx - m, fy - m, fw + 2 * m, fh + 2 * m, angle),
+                                       corner_radius(kind) + m, 2 * reach / GLOW_RINGS + 0.6,
+                                       opacity=see * (1 - (k - 1) / GLOW_RINGS), target=target, pieces=32):
+                add(line)
+    elif mark and marks_scheme:
+        m = MARK_GAP
+        for line in scheme_outline(lay.edits, "marks", kind, (fx - m, fy - m, fw + 2 * m, fh + 2 * m, angle),
+                                   corner_radius(kind) + m, 4, opacity=see, target=target):
+            add(line)
+    elif mark and lay.edits.mark_style == "glow":
         reach = lay.edits.mark_glow
         for k in range(GLOW_RINGS, 0, -1):     # outermost (faintest) first
             m = reach * (k - 0.5) / GLOW_RINGS
@@ -3993,9 +4064,18 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         m = MARK_GAP
         add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=4, fill=None,
                   radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle, opacity=see))
-    add(Shape(kind, fx, fy, fw, fh, colour, width=BORDER_WIDTHS[border], radius=corner_radius(kind),
-              dash=border if border in ("dotted", "dashed", "dashdot") else "", pid=p.id,
-              target=("person", p.id), fill=lay.entry(p).get("fill") or lay.edits.portrait_fill, angle=angle))
+    rank_t, rank_j = _rank(lay, p.id)
+    inside_colour = (lay.entry(p).get("fill") or scheme_colour(lay.edits, "insides", rank_t, rank_j)
+                     or lay.edits.portrait_fill)           # their own, else the scheme's, else the tree's
+    border_scheme = border not in SPECIAL_BORDERS and lay.edits.schemes.get("borders", "own") != "own"
+    dash = border if border in ("dotted", "dashed", "dashdot") else ""
+    add(Shape(kind, fx, fy, fw, fh, colour, width=0 if border_scheme else BORDER_WIDTHS[border],
+              radius=corner_radius(kind), dash=dash, pid=p.id, target=("person", p.id), fill=inside_colour,
+              angle=angle))
+    if border_scheme:                           # a rainbow or alternating colours round the outline
+        for line in scheme_outline(lay.edits, "borders", kind, (fx, fy, fw, fh, angle), corner_radius(kind),
+                                   BORDER_WIDTHS[border], dash=dash, target=("person", p.id)):
+            add(line)
     e = lay.edits
     mx, my = fx + fw / 2, fy + fh / 2
 
@@ -4016,13 +4096,17 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if i not in replaced:                   # unless the special border is on it
             add(Line(placed(line), colour, max(1.6, BORDER_WIDTHS[border] * 0.8)))
     if e.detail_lines and e.detail_opacity > 0:   # light, under the face and the words
-        for line in details(kind):
-            add(Line(placed(line), lay.entry(p).get("detail") or e.detail_colour or colour, e.detail_width,
-                     opacity=e.detail_opacity / 100))
+        lines_inside = details(kind)
+        for i, line in enumerate(lines_inside):
+            add(Line(placed(line), lay.entry(p).get("detail")
+                     or scheme_colour(e, "details", i / max(1, len(lines_inside)), i) or e.detail_colour or colour,
+                     e.detail_width, opacity=e.detail_opacity / 100))
     # The face and words grow or shrink with a frame the player resized, about its middle, and
     # never turn (the owner: "shrink/grow with the frame, stay upright").
-    w0, h0 = frame_size(lay.edits, lay.village, p, own=False, unscaled=True)
-    scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (fw, fh) != (w0, h0) else 1.0
+    # Measured against the shape's own natural size, never the group's: a villager sized on their own
+    # kept a giant face when their group was made tiny (the owner, 2026-10-09: 8-pixel males, faces 4x).
+    w0, h0 = natural_width(base_kind(kind)), NODE_H
+    scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
