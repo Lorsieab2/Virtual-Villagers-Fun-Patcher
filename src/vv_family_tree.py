@@ -2076,11 +2076,33 @@ FOOTER = ("Each unrelated villager has a colour of their own and full brothers a
           "Fun Patcher's Family Tree Maker from the save and the patcher's logs.")
 
 
+# Plurals English does not make by adding "s" (the owner, 2026-10-09: "monstera leafs; ... butterflys.
+# ahem. grammar.").
+IRREGULAR_PLURALS = {"leaf": "leaves", "fish": "fish", "starfish": "starfish", "hibiscus": "hibiscus flowers",
+                     "bunch": "bunches", "x": "Xs"}
+
+
+def plural(shape: str) -> str:
+    """A portrait shape's name for many of them, as the Key says it: the noun before any "(...)", "in ..."
+    or "of ..." made plural ("ovals (horizontal)", "ocean waves in a circle", "bunches of bananas")."""
+    name = PORTRAIT_SHAPES.get(shape, shape)
+    name = name if name.startswith("Monstera") else name.lower()
+    head, rest = re.match(r"(.+?)((?: \(| in | of ).*)?$", name).groups()
+    words = head.split(" ")
+    last = words[-1]
+    if last in IRREGULAR_PLURALS:
+        last = IRREGULAR_PLURALS[last]
+    elif last.endswith("y") and last[-2:-1] not in ("a", "e", "i", "o", "u"):
+        last = last[:-1] + "ies"
+    elif last.endswith(("s", "x", "ch", "sh")):
+        last += "es"
+    else:
+        last += "s"
+    return " ".join(words[:-1] + [last]) + (rest or "").replace("(on its side)", "(on their sides)")
+
+
 def footer(lay: Layout) -> str:
     """The Key: which portrait shape each group is drawn in (as the player set them), then FOOTER."""
-    def plural(shape: str) -> str:
-        name = PORTRAIT_SHAPES[shape].lower()
-        return name + ("es" if name.endswith(("s", "x")) else "s")
     groups = "; ".join(f"{label}: {plural(lay.edits.shapes[group])}" for group, label in GROUPS.items())
     return f"{groups}.  {FOOTER}"
 

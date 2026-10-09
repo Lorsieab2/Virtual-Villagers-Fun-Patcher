@@ -102,6 +102,21 @@ class SchemeSceneTests(unittest.TestCase):
         self.assertGreater(len({i.colour for i in details}), 2)
 
 
+class KeyPluralTests(unittest.TestCase):
+    """The owner, 2026-10-09: "monstera leafs; Babies on the way: butterflys.  ahem. grammar." """
+
+    def test_every_shape_in_the_key_is_good_english(self):
+        cases = {"monstera": "Monstera leaves", "butterfly": "butterflies", "leaf": "leaves", "starfish": "starfish",
+                 "fish_left": "fish (facing left)", "bananas": "bunches of bananas", "oval_wide": "ovals (horizontal)",
+                 "wave_circle": "ocean waves in a circle", "turtle_h": "turtle shells (on their sides)",
+                 "ship_wheel": "ship's wheels", "cross": "crosses", "x": "Xs", "arch": "arches",
+                 "hibiscus": "hibiscus flowers", "circle": "circles"}
+        for shape, words in cases.items():
+            self.assertEqual(ft.plural(shape), words)
+        for shape in ft.PORTRAIT_SHAPES:
+            self.assertNotRegex(ft.plural(shape), r"(leafs|ys|fishs|\)s)\b", shape)
+
+
 class TabTests(unittest.TestCase):
     SOURCE = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
 
