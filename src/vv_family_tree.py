@@ -340,6 +340,9 @@ class Edits:
     others_columns: int = 1            # the Other Members across (1: each generation's in a row, as before)
     others_side: str = "right"         # OTHERS_SIDES: where the Other Members go
     packing: int = PACKING             # the Packed layouts: how tightly packed, 0 (tidy) to 100 (densest)
+    # Family lines straight and behind the portraits (the owner, 2026-10-09: "a toggle for lines run
+    # behind portraits"); None until the player says: behind only in a Packed layout packed 98 or more.
+    lines_behind: bool | None = None
     picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
     text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
@@ -480,6 +483,7 @@ class Edits:
         out.others_columns = int(_number(data.get("others_columns"), 1, OTHERS_COLUMNS_MAX, 1))
         out.others_side = data.get("others_side") if data.get("others_side") in OTHERS_SIDES else "right"
         out.packing = int(_number(data.get("packing"), 0, 100, PACKING))
+        out.lines_behind = data.get("lines_behind") if isinstance(data.get("lines_behind"), bool) else None
         out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
@@ -639,7 +643,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -951,7 +955,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -1805,9 +1809,18 @@ def brick(edits: Edits) -> float:
     return 0.0 if edits.positioning not in PACKED else edits.packing / 100
 
 
+def behind(edits: Edits) -> bool:
+    """Whether the family lines go straight, behind the portraits (Edits.lines_behind): as the player
+    ticked it, in any layout; until they do, only in a Packed layout packed so tightly (BEHIND) there is
+    no room to go round."""
+    if edits.lines_behind is not None:
+        return edits.lines_behind
+    return edits.positioning in PACKED and edits.packing >= BEHIND
+
+
 def lines_behind(lay: "Layout") -> bool:
-    """Packed tightest, there is no room to go round portraits: the lines go straight, behind them."""
-    return lay.edits.positioning in PACKED and lay.edits.packing >= BEHIND
+    """The family lines go straight, behind the portraits (behind())."""
+    return behind(lay.edits)
 
 
 _PROFILES: dict = {}
@@ -2864,7 +2877,8 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
         return entry_key(lay.village, people[pid])
 
     clusters = lay.edits.positioning in ("packed_families", "packed_generations")
-    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0
+    # (Lines behind the portraits take the straight way, never the ways kept round them.)
+    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0 and not lines_behind(lay)
     rects = None
     for fam in lay.families:
         kids = [c for c in fam.children if c in lay.x and c not in fam.away]
