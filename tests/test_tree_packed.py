@@ -480,3 +480,13 @@ class OtherLayoutsUnchangedTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PageIndexTests(unittest.TestCase):
+    def test_a_packed_layout_keeps_the_page_a_whole_number(self):
+        # The window indexes its page list by Layout.page; packed generations once overwrote it with a width.
+        for positioning in ('packed_families', 'packed_generations'):
+            for packing in (0, 60, 100):
+                lay = ft.layout(big_village(), ft.Edits(positioning=positioning, packing=packing))
+                self.assertIsInstance(lay.page, int, (positioning, packing))
+                self.assertEqual(lay.page, 0)

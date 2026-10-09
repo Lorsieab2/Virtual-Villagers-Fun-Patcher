@@ -1385,8 +1385,9 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             # Edits.packing: how many in a family's row, how wide a band may grow before its families
             # step down into its further rows (none at 0; a 16:9 page at 100) and how soon they step down.
             packing = edits.packing / 100
-            page = math.sqrt(len(in_tree) * step * (NODE_H + subgap) * 1.6 * 16 / 9)
-            cap = page * (1 + 2 * (1 - packing)) if packing else math.inf
+            # (page_room, never page: that is the page of the tree shown, and the window indexes by it)
+            page_room = math.sqrt(len(in_tree) * step * (NODE_H + subgap) * 1.6 * 16 / 9)
+            cap = page_room * (1 + 2 * (1 - packing)) if packing else math.inf
             best = None
             # The family row width (within what the packing allows) that makes the smallest tree near a
             # pleasing page shape -- unless the player set their own.
