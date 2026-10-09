@@ -122,14 +122,15 @@ PORTRAITS
                                   side to stretch it, the curved arrow on top to turn it (Shift:
                                   steps of 15 degrees)
   Selected Villagers tab, "Their  shape, border, and the size of every selected villager (Keep
-  portrait..."                    aspect ratio ticked: the other side follows); Reset size and turn;
-                                  their inside and detail colours; flip and turn; their own text
-                                  and picture size
-  Portraits tab                   each group's shape, border and size (Keep aspect ratio as above;
+  portrait shape..."              aspect ratio ticked: the other side follows); Reset size and turn;
+                                  their inside and detail colours; flip and turn
+  Selected Villagers tab, "Their  their own face size and text size, and their words
+  face and words"
+  Portrait Shapes tab             each group's shape, border and size (Keep aspect ratio as above;
                                   a group's size resizes everyone in it); the inside colour;
                                   rainbow or alternating colours for borders, insides, detail lines,
                                   family lines and marks; detail lines; rope and vine colours
-  Text tab                        text left / centre / right, the face and text at the top /
+  Faces & Text tab                text left / centre / right, the face and text at the top /
                                   middle / bottom; the text area; picture and text size; ages in
                                   units / years; twins and triplets; "Founder"; the text colour;
                                   numbered names
@@ -156,9 +157,9 @@ PAGES (Tree Layout tab)
 
 NUMBERS
   Tree Layout tab                 Roman numerals or numbers for the generations
-  Text tab                        Renumber edited portraits
+  Faces & Text tab                Renumber edited portraits
   Number duplicate names          namesakes numbered, in order of appearance (Soda I, Soda II...); it offers
-  (Text tab, Tools menu)          to number them in the game's save and logs too
+  (Faces & Text tab, Tools menu)  to number them in the game's save and logs too
 
 PICTURES AND TEXT BOXES (Add Pictures & Text Boxes tab)
   Drag its middle                 move it                 Arrow keys      nudge it (Shift: by 10)
@@ -173,7 +174,7 @@ PICTURES AND TEXT BOXES (Add Pictures & Text Boxes tab)
   Right-click any words           bold, italic, underline, strikethrough, superscript, subscript
                                   (every word of that kind: every name, every label...)
   Selected Villagers tab, "Their  select some words (a line, a word, part of a word), then the
-  portrait words"                 B I U S x² x₂ Colour buttons, a right click on them, or Ctrl+B /
+  face and words"                 B I U S x² x₂ Colour buttons, a right click on them, or Ctrl+B /
                                   Ctrl+I / Ctrl+U format just those words (Plain takes it off);
                                   Save text puts them on the tree, Reset text the patcher's own
   Right-click it                  cut, copy, duplicate, delete, bring forward / to the front, send
@@ -637,8 +638,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.sel_label = tk.StringVar()
         ttk.Label(tab, textvariable=self.sel_label, wraplength=320, justify="left").pack(anchor="w")
 
-        box = ttk.LabelFrame(tab, text="Their portrait words", padding=6)
+        box = ttk.LabelFrame(tab, text="Their face and words", padding=6)
         box.pack(fill="x", pady=(8, 0))
+        # The owner, 2026-10-09: "differentiate editing Portrait SHAPES vs villager faces and text within the
+        # portraits" -- the face's and the words' own sizes here, the shape's below.
+        sizes = ttk.Frame(box)
+        sizes.pack(fill="x", pady=(0, 4))
         # Select words, then format them (the owner: "please allow text formatting in the family tree
         # portrait text section"): these buttons, the right-click menu or Ctrl+B / Ctrl+I / Ctrl+U.
         tools = ttk.Frame(box)
@@ -679,7 +684,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.family_field = ColourField(box, "", self._own_colour)
         self.family_field.pack(anchor="w", pady=(2, 0))
 
-        box = ttk.LabelFrame(tab, text="Their portrait: shape, border, size and colours", padding=6)
+        box = ttk.LabelFrame(tab, text="Their portrait shape: border, size, turn and colours", padding=6)
         box.pack(fill="x", pady=(8, 0))
         self.own_vars: dict[str, tk.StringVar] = {}
         for row_no, (attr, label, choices) in enumerate((("shape", "Shape:", ft.PORTRAIT_SHAPES),
@@ -693,8 +698,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 a, next(k for k, n in c.items() if n == v.get())))
             ttk.Button(box, text="Reset to default", command=lambda a=attr: self._own_style(a, "")).grid(
                 row=row_no, column=2, sticky="w", padx=(6, 0), pady=1)
-        ttk.Label(box, text="Click one villager, then drag the circles round their portrait to resize it or the "
-                            "arrow above it to turn it.", wraplength=300, justify="left").grid(
+        ttk.Label(box, text="Click one villager, then drag the circles round their portrait to resize the shape or "
+                            "the arrow above it to turn it.  The face and words have their own sizes, above.",
+                  wraplength=300, justify="left").grid(
             row=2, column=0, columnspan=3, sticky="w", pady=(4, 2))
         ttk.Button(box, text="Reset size and turn", command=self._reset_frames).grid(row=3, column=0, columnspan=2,
                                                                                     sticky="w")
@@ -708,19 +714,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 ttk.Label(row, text=label).pack(side="left", padx=(4, 0))
             self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6),
                        lambda a=axis: self._own_size(a)).pack(side="left", padx=(2, 0))
-        # The words' own size, apart from the frame (the owner, 2026-10-08: "Should be able to resize text
-        # independently of the portrait shape it's in too"); 100% is the size that fits the shape.
-        ttk.Label(row, text="text size %").pack(side="left", padx=(8, 0))
-        self.own_text = tk.StringVar()
-        self._live(ttk.Spinbox(row, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
-                               increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
-        ttk.Label(row, text="picture size %").pack(side="left", padx=(8, 0))     # the owner, 2026-10-09
+        # The face's and the words' own sizes, apart from the frame (the owner, 2026-10-08: "Should be able to
+        # resize text independently of the portrait shape it's in too"), in "Their face and words" above;
+        # 100% is the size that fits the shape.
+        ttk.Label(sizes, text="Face size %").pack(side="left")             # the owner, 2026-10-09
         self.own_picture = tk.StringVar()
-        self._live(ttk.Spinbox(row, textvariable=self.own_picture, from_=ft.PICTURE_SCALE_MIN,
+        self._live(ttk.Spinbox(sizes, textvariable=self.own_picture, from_=ft.PICTURE_SCALE_MIN,
                                to=ft.PICTURE_SCALE_MAX, increment=10, width=5),
                    self._own_picture_size).pack(side="left", padx=(2, 0))
+        ttk.Label(sizes, text="Text size %").pack(side="left", padx=(10, 0))
+        self.own_text = tk.StringVar()
+        self._live(ttk.Spinbox(sizes, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
+                               increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
         # The owner, 2026-10-09: "an option to recolor the inside of the portraits" -- each selected
-        # villager's own; Automatic is the whole tree's (the Portraits tab).
+        # villager's own; Automatic is the whole tree's (the Portrait Shapes tab).
         row = ttk.Frame(box)
         row.grid(row=7, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Inside colour:").pack(side="left")
@@ -840,8 +847,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
         # The owner, 2026-10-09: "organize the tree options better. Portrait editing in one place, text in
         # another. Why not have tabs?" -- the one long Whole Tree tab, split by what each option changes.
-        portraits_tab = ScrollingTab(self.notebook, "Portraits")
-        text_tab = ScrollingTab(self.notebook, "Text")
+        portraits_tab = ScrollingTab(self.notebook, "Portrait Shapes")
+        text_tab = ScrollingTab(self.notebook, "Faces & Text")
         layout_tab = ScrollingTab(self.notebook, "Tree Layout")
         # The owner, 2026-10-09: "organize everything where it makes sense.  and name things in a natural way
         # that describes what the feature does succinctly" -- each tab's sections made first, in the order they
@@ -918,7 +925,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             row_valign=next(k for k, v in ft.ROW_VALIGNS.items() if v == self.row_valign_var.get())))
         tab = t_words
         # The owner, 2026-10-09: the portrait's face and words options together, "Portrait pictures/text".
-        words = ttk.LabelFrame(tab, text="Portrait text and pictures", padding=6)
+        words = ttk.LabelFrame(tab, text="Faces and words in every portrait", padding=6)
         words.pack(fill="x", pady=(10, 0))
         # The owner, 2026-10-09: "justify text (left right center + top middle bottom)".
         row = ttk.Frame(words)
@@ -961,7 +968,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # shape" -- every portrait's here, each villager's own on the Selected Villagers tab.
         row = ttk.Frame(words)
         row.pack(anchor="w", pady=(4, 0))
-        ttk.Label(row, text="Picture size (%):").pack(side="left")
+        ttk.Label(row, text="Face size (%):").pack(side="left")
         self.picture_size_var = tk.StringVar(value=f"{e.picture_size:g}")
         self._live(ttk.Spinbox(row, textvariable=self.picture_size_var, from_=ft.PICTURE_SCALE_MIN,
                                to=ft.PICTURE_SCALE_MAX, increment=10, width=5),
@@ -2735,7 +2742,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if n is not None and int(n) != self.edits.special_count:
             self._change(special_count=int(n))
 
-    TAB_ORDER = ("Selected Villagers", "Portraits", "Text", "Fonts", "Tree Layout", "Special Marks",
+    TAB_ORDER = ("Selected Villagers", "Portrait Shapes", "Faces & Text", "Fonts", "Tree Layout", "Special Marks",
                  "Page Background", "Add Pictures & Text Boxes")
 
     def _order_tabs(self) -> None:

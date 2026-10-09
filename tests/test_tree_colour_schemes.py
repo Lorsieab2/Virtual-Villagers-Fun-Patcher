@@ -332,16 +332,16 @@ class TabTests(unittest.TestCase):
     SOURCE = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
 
     def test_the_options_sit_on_their_own_tabs_in_order(self):
-        for name in ("Portraits", "Text", "Tree Layout", "Special Marks"):
+        for name in ("Portrait Shapes", "Faces & Text", "Tree Layout", "Special Marks"):
             self.assertIn(f'"{name}"', self.SOURCE)
         self.assertNotIn('"Whole Tree"', self.SOURCE)
         self.assertNotIn('"Marks & Key"', self.SOURCE)
-        order = ("Selected Villagers", "Portraits", "Text", "Fonts", "Tree Layout", "Special Marks",
+        order = ("Selected Villagers", "Portrait Shapes", "Faces & Text", "Fonts", "Tree Layout", "Special Marks",
                  "Page Background", "Add Pictures & Text Boxes")
         start = self.SOURCE.index("    TAB_ORDER = (")
         listed = self.SOURCE[start:self.SOURCE.index(")", start)]
         self.assertEqual([n for n in order if f'"{n}"' in listed], list(order))
-        self.assertLess(listed.index('"Portraits"'), listed.index('"Text"'))
+        self.assertLess(listed.index('"Portrait Shapes"'), listed.index('"Faces & Text"'))
         self.assertIn("self._order_tabs()", self.SOURCE)
 
     def test_every_part_has_a_scheme_box(self):
