@@ -2189,12 +2189,24 @@ def _shown_name_in(lay: Layout, p: gen.Person, lines: list, runs) -> tuple[list,
     if not p.alive:
         status = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
         lines, runs = _rename_in_lines(lines, runs, STATUS_WORDS, status)
+    else:
+        # Alive again -- reanimated in New Believers -- after their words were saved while they were gone
+        # (Codex, #577): the old status goes, and a line that held only it with it.
+        before = list(lines)
+        lines, runs = _rename_in_lines(lines, runs, STATUS_GONE, "")
+        keep = [i for i, (was, now) in enumerate(zip(before, lines))
+                if not (isinstance(now, str) and not now.strip() and isinstance(was, str) and was.strip())]
+        if len(keep) < len(lines):
+            if isinstance(runs, list) and len(runs) == len(lines):
+                runs = [runs[i] for i in keep]
+            lines = [lines[i] for i in keep]
     return lines, runs
 
 
 AGE_YEARS = re.compile(r"(?<![\w.])\d+ years old(?!\w)")
 AGE_UNITS = re.compile(r"(?<![\w.])\d+ game units(?!\w)")
 STATUS_WORDS = re.compile(r"\((?:deceased|disappeared|left the village)\)")
+STATUS_GONE = re.compile(r" ?\((?:deceased|disappeared|left the village)\)")
 
 
 def default_text(lay: Layout, p: gen.Person) -> list[str]:
@@ -3389,6 +3401,7 @@ class Line:
     piece: str = ""                     # a family line's piece: "<family key>|<piece>", draggable
     opacity: float = 1.0
     dash: str = ""                      # LINE_TYPES
+    pid: int | None = None              # the villager whose portrait it is part of (a border, a vine)
 
 
 @dataclass
@@ -3400,6 +3413,8 @@ class Poly:
     stroke: str = ""
     width: float = 0.0
     opacity: float = 1.0
+    pid: int | None = None              # the villager whose portrait it is part of
+    target: tuple | None = None
 
 
 @dataclass
@@ -4209,6 +4224,15 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         m = MARK_GAP
         add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=4, fill=None,
                   radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle, opacity=see))
+    def add(item, _add=add):
+        """Whatever is drawn for this portrait is theirs (Codex, #577: a leaf or a rope beyond the shape
+        could not be clicked or dragged)."""
+        if isinstance(item, (Line, Poly)):
+            if item.pid is None:
+                item.pid = p.id
+            if item.target is None:
+                item.target = ("person", p.id)
+        _add(item)
     rank_t, rank_j = _rank(lay, p.id)
     inside_colour = (lay.entry(p).get("fill") or scheme_colour(lay.edits, "insides", rank_t, rank_j)
                      or lay.edits.portrait_fill)           # their own, else the scheme's, else the tree's
@@ -4327,7 +4351,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
     # so no line leaves a round or pointed portrait (Edits.text_align).
     align = lay.edits.text_align
-    half = NODE_W / 2 - 8
+    half = fw / scale / 2 - 8           # the frame's own width (Codex, #577: not the standard portrait's)
     if align != "centre":
         for k, (text, bold, _r) in enumerate(lines):
             if text:

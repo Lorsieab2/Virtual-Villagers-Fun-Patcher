@@ -75,7 +75,9 @@ class SchemeSceneTests(unittest.TestCase):
             e.borders[group] = "rope"
         items = drawn(e)
         self.assertTrue([i for i in items if isinstance(i, ft.Poly)], "the rope is drawn")
-        self.assertFalse([i for i in items if isinstance(i, ft.Line) and i.target and i.target[0] == "person"])
+        rainbow = {ft.scheme_colour(e, "borders", k / 48, k) for k in range(48)}
+        self.assertFalse([i for i in items if isinstance(i, ft.Line) and i.colour in rainbow],
+                         "no rainbow outline drawn over the rope")
 
     def test_insides_villager_by_villager_and_their_own_colour_wins(self):
         e = ft.Edits(schemes={"insides": "alternate"}, special_count=2)
@@ -98,7 +100,7 @@ class SchemeSceneTests(unittest.TestCase):
         e = ft.Edits(schemes={"details": "rainbow"}, detail_lines=True)
         for group in ft.GROUPS:
             e.shapes[group] = "scallop"
-        details = [i for i in drawn(e) if isinstance(i, ft.Line) and i.target is None and i.opacity < 1]
+        details = [i for i in drawn(e) if isinstance(i, ft.Line) and i.pid is not None and i.opacity < 1]
         self.assertGreater(len({i.colour for i in details}), 2)
 
 
@@ -273,6 +275,42 @@ class PawPrintTests(unittest.TestCase):
         self.assertLess(abs(middle - (fy + fh / 2)), 0.15 * fh, "the face and words in the middle of the whole box")
         fills = [i for i in sc.items if isinstance(i, ft.Poly) and i.fill == e.portrait_fill]
         self.assertGreaterEqual(len(fills), 4, "the toes are filled like the pad")
+
+
+class CodexRoundTwoTests(unittest.TestCase):
+    """Codex, #577, the second round."""
+
+    def test_every_piece_of_a_special_border_is_its_villagers(self):
+        v = village()
+        e = ft.Edits()
+        for group in ft.GROUPS:
+            e.borders[group] = "vine_both"
+        lay = ft.layout(v, e)
+        sc = ft.scene(lay, GAME, {})
+        pieces = [i for i in sc.items if isinstance(i, ft.Poly)]
+        self.assertTrue(pieces)
+        self.assertTrue(all(i.pid in lay.x for i in pieces), "every leaf, flower and vine says whose it is")
+
+    def test_right_aligned_words_reach_a_wide_portraits_right_edge(self):
+        v = village()
+        e = ft.Edits(text_align="right")
+        lay = ft.layout(v, e)
+        q = next(q for q in lay.x if not v.people[q].upcoming)
+        e.entries[ft.entry_key(v, v.people[q])] = {"w": 400.0, "h": ft.NODE_H}
+        lay = ft.layout(v, e)
+        fx, _fy, fw, _fh, _a = lay.frame(q)
+        name = next(i for i in ft.scene(lay, GAME, {}).items if isinstance(i, ft.Text) and i.pid == q and i.role == "names")
+        self.assertGreater(name.x, fx + fw * 0.8, "the words end near the stretched frame's right side")
+
+    def test_a_reanimated_villager_loses_the_old_status(self):
+        v = village()
+        p = next(q for q in v.people.values() if q.alive and not q.upcoming and q.name)
+        lay = ft.layout(v, ft.Edits())
+        lines, _runs = ft._shown_name_in(lay, p, [p.name, "40 years old (deceased)", "(deceased)", "Loved"], None)
+        self.assertEqual(lines, [p.name, "40 years old", "Loved"] if p.age is None else lines)
+        self.assertFalse(any("(deceased)" in line for line in lines))
+        self.assertIn("Loved", lines)
+        self.assertNotIn("", lines, "a line that held only the status goes with it")
 
 
 class KeyPluralTests(unittest.TestCase):
