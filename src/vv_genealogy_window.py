@@ -93,7 +93,7 @@ COLOURS
   Right-click one of several      the colour of every selected villager at once
   selected villagers
 
-GENERATIONS AND ORDER (Villagers tab)
+GENERATIONS AND ORDER (Selected Villagers tab)
   Move to generation              the selected villagers into the generation you choose
   Reset                           back to the generation the records give
   Move left / Move right          one place along their generation (the numbers follow)
@@ -113,18 +113,20 @@ LINES
                                   portraits it touches); across itself only, unless Allow diagonal
                                   lines is ticked
   Right-click it                  Reset this line, or Delete this line
-  Layout tab, Family lines        every line's weight and type (solid, dotted, dashed)
-  Villagers tab                   the selected villagers' family's lines: weight and type
+  Whole Tree tab, Family lines    every line's weight and type (solid, dotted, dashed)
+  Selected Villagers tab          the selected villagers' family's lines: weight and type
 
 PORTRAITS
-  Click one villager              circles round the portrait: drag a corner to resize it (Shift:
-                                  stretch freely), a side to stretch it, the curved arrow on top to
-                                  turn it (Shift: steps of 15 degrees)
-  Villagers tab, Portrait         shape, border, and the size of every selected villager (width or
-                                  height alone keeps the other); Reset size and turn
-  Layout tab                      each group's shape, border and default size; the inside colour;
-                                  opacity of words, boxes, portraits and lines; ages in units / years
-  Special Marks tab               every mark as a border or a glow, its size and opacity
+  Click one villager              circles round the portrait: drag a corner to resize it (Keep
+                                  aspect ratio ticked: keeps its shape; Shift: the other way), a
+                                  side to stretch it, the curved arrow on top to turn it (Shift:
+                                  steps of 15 degrees)
+  Selected Villagers tab,         shape, border, and the size of every selected villager (Keep
+  Portrait                        aspect ratio ticked: the other side follows); Reset size and turn
+  Whole Tree tab                  each group's shape, border and default size (Keep aspect ratio
+                                  as above); the inside colour; opacity of words, boxes, portraits
+                                  and lines; ages in units / years; twins and triplets
+  Marks & Key tab                 every mark as a border or a glow, its size and opacity
   The size and weight boxes       change the tree as you type or click the arrows
 
 ADDING AND DELETING
@@ -132,9 +134,9 @@ ADDING AND DELETING
   Right-click anything            Delete it: a villager, a line, the title, a generation label or
                                   one line of it (the number, the name, the totals...) here or from
                                   every generation
-  Layout tab, Deleted items       Restore what was deleted
+  Whole Tree tab, Deleted items   Restore what was deleted
 
-PAGES (Layout tab)
+PAGES (Whole Tree tab)
   A new page starts at generation split a long family onto pages; a page ends with the generation
                                   the next one starts at, which that page shows again at its top, as
                                   its first villagers (no lines up to their parents).  Pick the page
@@ -142,14 +144,14 @@ PAGES (Layout tab)
                                   Saving a picture saves every page.
 
 NUMBERS
-  Layout tab                      Roman numerals or numbers for the generations; Renumber
+  Whole Tree tab                  Roman numerals or numbers for the generations; Renumber
                                   villagers whose text I edited
   Number duplicate names          namesakes numbered, in order of appearance (Soda I, Soda II...); it offers
-  (Layout tab, Tools menu)        to number them in the game's save and logs too
+  (Whole Tree tab, Tools menu)    to number them in the game's save and logs too
 
-PICTURES AND TEXT BOXES (Pictures & Text tab)
+PICTURES AND TEXT BOXES (Add Pictures & Text Boxes tab)
   Drag its middle                 move it                 Arrow keys      nudge it (Shift: by 10)
-  Drag a corner circle            resize (Lock proportions ticked: keeps its shape; Shift: the other way)
+  Drag a corner circle            resize (Keep aspect ratio ticked: keeps its shape; Shift: the other way)
   Drag a side circle              stretch one side
   Drag the curved arrow           rotate it (Shift: in steps of 15 degrees)
   Double-click a text box, or F2  type in it
@@ -159,8 +161,8 @@ PICTURES AND TEXT BOXES (Pictures & Text tab)
   Ctrl+B / Ctrl+I / Ctrl+U        bold / italic / underline the selected text box
   Right-click any words           bold, italic, underline, strikethrough, superscript, subscript
                                   (every word of that kind: every name, every label...)
-  Villagers tab, Portrait text    select some words (a line, a word, part of a word), then the
-                                  B I U S x² x₂ Colour buttons, a right click on them, or Ctrl+B /
+  Selected Villagers tab,         select some words (a line, a word, part of a word), then the
+  Portrait text                   B I U S x² x₂ Colour buttons, a right click on them, or Ctrl+B /
                                   Ctrl+I / Ctrl+U format just those words (Plain takes it off);
                                   Save text puts them on the tree, Reset text the patcher's own
   Right-click it                  cut, copy, duplicate, delete, bring forward / to the front, send
@@ -469,6 +471,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.z = 1.0
         self.title(f"Family Tree Maker - {village.tribe or ''} (Save {slot}) - {game_title}")
         self.window = dict(getattr(app, "tree_window", {}) or {})
+        # One Keep aspect ratio for every size the player changes -- dragging a corner and the width and
+        # height boxes alike (the owner, 2026-10-09: "especially for the arrows that change portrait
+        # height and width, but for everything else too"); remembered with the window.
+        self.lock_shape = tk.BooleanVar(value=self.window.get("keep_aspect", True) is not False)
         self.geometry(self.window.get("geometry", "1400x860"))
         self._build()
         self._follow_looks()
@@ -614,7 +620,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _selected_tab(self) -> None:
         # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
-        tab = ScrollingTab(self.notebook, "Villagers")
+        tab = ScrollingTab(self.notebook, "Selected Villagers")
         self.sel_label = tk.StringVar()
         ttk.Label(tab, textvariable=self.sel_label, wraplength=320, justify="left").pack(anchor="w")
 
@@ -677,17 +683,18 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Label(box, text="Click one villager, then drag the circles round their portrait to resize it or the "
                             "arrow above it to turn it.", wraplength=300, justify="left").grid(
             row=2, column=0, columnspan=3, sticky="w", pady=(4, 2))
-        ttk.Button(box, text="Reset size and turn", command=self._reset_frames).grid(row=3, column=0, columnspan=3,
+        ttk.Button(box, text="Reset size and turn", command=self._reset_frames).grid(row=3, column=0, columnspan=2,
                                                                                     sticky="w")
+        ttk.Checkbutton(box, text="Keep aspect ratio", variable=self.lock_shape).grid(row=3, column=2, sticky="w")
         row = ttk.Frame(box)
         row.grid(row=4, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Size of every selected:  width").pack(side="left")
         self.own_w, self.own_h = tk.StringVar(), tk.StringVar()
-        for var, label in ((self.own_w, None), (self.own_h, "height")):
+        for var, label, axis in ((self.own_w, None, 0), (self.own_h, "height", 1)):
             if label:
                 ttk.Label(row, text=label).pack(side="left", padx=(4, 0))
-            self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6), self._own_size).pack(
-                side="left", padx=(2, 0))
+            self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6),
+                       lambda a=axis: self._own_size(a)).pack(side="left", padx=(2, 0))
         # The words' own size, apart from the frame (the owner, 2026-10-08: "Should be able to resize text
         # independently of the portrait shape it's in too"); 100% is the size that fits the shape.
         ttk.Label(row, text="text %").pack(side="left", padx=(8, 0))
@@ -732,7 +739,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _marks_tab(self) -> None:
         # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
-        tab = ScrollingTab(self.notebook, "Special Marks")
+        tab = ScrollingTab(self.notebook, "Marks & Key")
         ttk.Label(tab, text="A special mark is a coloured border or glow around a villager, named in the Key "
                             "under the title.", wraplength=320, justify="left").pack(anchor="w")
         box = ttk.LabelFrame(tab, text="How every mark looks", padding=6)
@@ -792,7 +799,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _tree_tab(self) -> None:
         # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
-        tab = ScrollingTab(self.notebook, "Layout")
+        tab = ScrollingTab(self.notebook, "Whole Tree")
         e = self.edits
         self.title_var = tk.StringVar(value=e.title)
         self.subtitle_var = tk.StringVar(value=e.subtitle)
@@ -869,13 +876,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.years_var = tk.BooleanVar(value=e.show_years)
         ttk.Checkbutton(tab, text="Game age in years", variable=self.years_var,
                         command=lambda: self._change(show_years=bool(self.years_var.get()))).pack(anchor="w")
+        # The owner, 2026-10-09: "X's twin/triplet" after the age.
+        self.twins_var = tk.BooleanVar(value=e.show_twins)
+        ttk.Checkbutton(tab, text="Twins and triplets (\"Kalea's twin\" after the age)", variable=self.twins_var,
+                        command=lambda: self._change(show_twins=bool(self.twins_var.get()))).pack(anchor="w")
         ttk.Label(tab, text="Text colour:").pack(anchor="w", pady=(10, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
         self.ink_field.pack(anchor="w")
         ttk.Label(tab, text="Inside the portraits:").pack(anchor="w", pady=(10, 1))
         self.fill_field = ColourField(tab, e.portrait_fill, lambda c: self._change(portrait_fill=c or "#ffffff"))
         self.fill_field.pack(anchor="w")
-        box = ttk.LabelFrame(tab, text="Opacity (pictures and text boxes: Pictures & Text tab)", padding=6)
+        box = ttk.LabelFrame(tab, text="Opacity (pictures and text boxes: Add Pictures & Text Boxes tab)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.opacity_vars: dict[str, ttk.Scale] = {}
         for row_no, (part, (label, default)) in enumerate(ft.OPACITY.items()):
@@ -913,11 +924,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             pair = (tk.StringVar(), tk.StringVar())
             for col, var in enumerate(pair, 1):
                 self._live(ttk.Spinbox(box, textvariable=var, values=ft.SIZE_STEPS, width=6),
-                           lambda g=group: self._group_size(g)).grid(row=row_no, column=col, sticky="w", padx=(4, 0))
+                           lambda g=group, a=col - 1: self._group_size(g, axis=a)).grid(
+                    row=row_no, column=col, sticky="w", padx=(4, 0))
             ttk.Button(box, text="Shape's own", command=lambda g=group: self._group_size(g, reset=True)).grid(
                 row=row_no, column=3, sticky="w", padx=(6, 0))
             self.group_sizes[group] = pair
         ttk.Label(box, text="width and height").grid(row=3, column=1, columnspan=2, sticky="w")
+        ttk.Checkbutton(box, text="Keep aspect ratio", variable=self.lock_shape).grid(row=3, column=3, sticky="w",
+                                                                                     padx=(6, 0))
         self._show_group_sizes()
         box = ttk.LabelFrame(tab, text="The line beside each generation's label", padding=6)
         box.pack(fill="x", pady=(12, 0))
@@ -994,7 +1008,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.after_idle(self._show_generation)
 
     def _background_tab(self) -> None:
-        tab = ScrollingTab(self.notebook, "Background")
+        tab = ScrollingTab(self.notebook, "Page Background")
         e = self.edits
         ttk.Label(tab, text="Click a background:").pack(anchor="w")
         self.presets = ft.presets_available(self.images, self.library)
@@ -2409,20 +2423,29 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             w_var.set(f"{w:g}" if w != "" else "")
             h_var.set(f"{h:g}" if h != "" else "")
 
-    def _group_size(self, group: str, reset: bool = False) -> None:
-        """Every male's, female's or upcoming baby's frame this size (not one resized on their own)."""
+    def _group_size(self, group: str, reset: bool = False, axis: int | None = None) -> None:
+        """Every male's, female's or upcoming baby's frame this size (not one resized on their own).
+        With Keep aspect ratio, the box changed (`axis`) sets that side and the other follows."""
         if reset:
             if self.edits.sizes.pop(group, None) is not None:
                 self._saved()
             self._show_group_sizes()
             return
         w_var, h_var = self.group_sizes[group]
-        natural = None
-        if not w_var.get().strip() or not h_var.get().strip():      # one typed: the other as the shape has it
-            p = next((p for p in self.village.people.values() if ft.group_of(p) == group), None)
-            natural = ft.frame_size(self.edits, self.village, p, own=False, unscaled=True) if p is not None else (ft.NODE_W, ft.NODE_H)
-        w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
-        h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
+        p = next((p for p in self.village.people.values() if ft.group_of(p) == group), None)
+        now = (ft.frame_size(self.edits, self.village, p, own=False, unscaled=True) if p is not None
+               else tuple(self.edits.sizes.get(group) or (ft.NODE_W, ft.NODE_H)))
+        if axis is not None and self.lock_shape.get():
+            value = self._number((w_var if axis == 0 else h_var).get(), ft.FRAME_MIN, ft.FRAME_MAX)
+            if value is None:
+                return
+            w, h = ft.keep_aspect(now, axis, value)
+        else:
+            natural = None
+            if not w_var.get().strip() or not h_var.get().strip():      # one typed: the other as the shape has it
+                natural = now
+            w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
+            h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
         if w is None or h is None or self.edits.sizes.get(group) == [w, h]:
             return
         self.edits.sizes[group] = [w, h]
@@ -2443,20 +2466,30 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if changed:
             self._saved()
 
-    def _own_size(self) -> None:
-        """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes")."""
+    def _own_size(self, axis: int | None = None) -> None:
+        """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes").
+        With Keep aspect ratio, the box changed (`axis`: 0 width, 1 height) sets that side and each
+        frame's other side follows its own shape."""
         w = self._number(self.own_w.get(), ft.FRAME_MIN, ft.FRAME_MAX)
         h = self._number(self.own_h.get(), ft.FRAME_MIN, ft.FRAME_MAX)
         if not self.selected or w is None and h is None:
             return
-        changed = False
+        keep = axis is not None and bool(self.lock_shape.get())
+        changed, others = False, set()
         for q in self.selected:                 # a width alone leaves each one's height as it is
             p = self.village.people[q]
             now = ft.frame_size(self.edits, self.village, p, unscaled=True)
-            size = (w if w is not None else now[0], h if h is not None else now[1])
+            if keep and (w if axis == 0 else h) is not None:
+                size = ft.keep_aspect(now, axis, w if axis == 0 else h)
+            else:
+                size = (w if w is not None else now[0], h if h is not None else now[1])
+            others.add(size[1 - axis] if keep else None)
             if size != now:
                 self._set_entry(p, w=size[0], h=size[1])
                 changed = True
+        if keep:                                # the other box shows the side that followed, when it is one
+            other = self.own_h if axis == 0 else self.own_w
+            other.set(f"{others.pop():g}" if len(others) == 1 else "")
         if changed:
             self._saved()
 
@@ -2644,6 +2677,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
+        self.twins_var.set(e.show_twins)
         self.number_names_var.set(e.number_names)
         self.number_order_var.set(gen.NUMBER_ORDERS[e.number_order])
         self.diagonal_var.set(e.diagonal_lines)
@@ -2959,7 +2993,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._saved()
         self._refresh_hidden()
         self.status.set(f"{len(targets)} villager(s) deleted from the tree.  Ctrl+Z, or Deleted items on the "
-                        "Layout tab, brings them back.")
+                        "Whole Tree tab, brings them back.")
 
     def _hidden_items(self) -> list[tuple[str, str]]:
         """(what it is, its words) for everything deleted from the tree."""
@@ -3421,7 +3455,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.window["sash"] = self.body.sashpos(0)
         self.window["panel_hidden"] = not shown
         self.window.update(smart=bool(self.smart_var.get()), snap=bool(self.snap_var.get()),
-                           grid=int(self.grid_size.get()), show_grid=bool(self.show_grid.get()))
+                           grid=int(self.grid_size.get()), show_grid=bool(self.show_grid.get()),
+                           keep_aspect=bool(self.lock_shape.get()))
         if not self.attributes("-fullscreen"):
             self.window["geometry"] = self.geometry()
         if hasattr(self.app, "_save_settings"):

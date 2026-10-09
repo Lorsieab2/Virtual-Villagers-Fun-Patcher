@@ -585,7 +585,7 @@ class CanvasTools:
 
     # ---- the Pictures & Text tab ------------------------------------------------------
     def _stickers_tab(self) -> None:
-        tab = ScrollingTab(self.notebook, "Pictures & Text")
+        tab = ScrollingTab(self.notebook, "Add Pictures & Text Boxes")
         self.stickers_tab = tab
         ttk.Label(tab, text="Put pictures, logos and text boxes on the tree.  Click one to select it, then "
                             "drag it to move it, drag a square to resize it, or drag the circle to rotate it.",
@@ -621,9 +621,8 @@ class CanvasTools:
         ttk.Label(f, textvariable=self.obj_label, wraplength=300).grid(row=0, column=0, columnspan=4, sticky="w")
         ttk.Label(f, text="Drag the circles to resize, the arrow to rotate.  Right-click for more.",
                   wraplength=300, justify="left").grid(row=1, column=0, columnspan=4, sticky="w", pady=(2, 4))
-        self.lock_shape = tk.BooleanVar(value=True)
-        ttk.Checkbutton(f, text="Lock proportions", variable=self.lock_shape).grid(row=2, column=0, columnspan=4,
-                                                                                  sticky="w")
+        ttk.Checkbutton(f, text="Keep aspect ratio", variable=self.lock_shape).grid(row=2, column=0, columnspan=4,
+                                                                                   sticky="w")
         self.flip_vars = {name: tk.BooleanVar() for name in ("flip_h", "flip_v")}
         for k, (name, words) in enumerate((("flip_h", "Flip horizontally"), ("flip_v", "Flip vertically"))):
             ttk.Checkbutton(f, text=words, variable=self.flip_vars[name],

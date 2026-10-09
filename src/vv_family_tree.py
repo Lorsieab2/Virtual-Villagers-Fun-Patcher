@@ -219,6 +219,7 @@ class Edits:
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
+    show_twins: bool = False            # "<name>'s twin" / "<name> and <name>'s triplet" after the age
     number_names: bool = False          # villagers who share a name numbered: "Soda I", "Soda II"...
     number_order: str = "appearance"    # vv_genealogy.NUMBER_ORDERS: who is "I" (the owner's default)
     sort: str = "appearance"            # vv_genealogy.SORTS
@@ -312,6 +313,7 @@ class Edits:
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
+        out.show_twins = data.get("show_twins", False) is True
         out.number_names = data.get("number_names") is True
         if data.get("number_order") in gen.NUMBER_ORDERS:
             out.number_order = data["number_order"]
@@ -451,7 +453,7 @@ class Edits:
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
-                "show_units": self.show_units, "show_years": self.show_years, "number_names": self.number_names,
+                "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
@@ -736,7 +738,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_wrap", "portrait_gap", "fit_width", "page_generations", "diagonal_lines",
-    "show_units", "show_years", "number_names", "number_order", "sort", "positioning", "numbering",
+    "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
@@ -1006,6 +1008,18 @@ def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = Tr
     entry = edits.entries.get(entry_key(village, p), {}) if own else {}
     s = 1.0 if unscaled else shrink
     return entry.get("w", gw) * s, entry.get("h", gh) * s
+
+
+def keep_aspect(now: tuple[float, float], axis: int, value: float) -> tuple[float, float]:
+    """`now` (width, height) with side `axis` (0 width, 1 height) made `value` and the other side
+    following, so the shape keeps its proportions (Keep aspect ratio); the other side within
+    FRAME_MIN..FRAME_MAX, rounded to a tenth."""
+    w, h = now
+    if w <= 0 or h <= 0:
+        return (value, h) if axis == 0 else (w, value)
+    other = (h * value / w) if axis == 0 else (w * value / h)
+    other = round(max(FRAME_MIN, min(FRAME_MAX, other)), 1)
+    return (value, other) if axis == 0 else (other, value)
 
 
 def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
@@ -1952,7 +1966,21 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + ([extra] if extra else [])
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + born_with(lay, p) + ([extra] if extra else [])
+
+
+def born_with(lay: Layout, p: gen.Person) -> list[str]:
+    """With "Twins and triplets" on (Edits.show_twins), the line after the age naming who the
+    villager was born with (the owner, 2026-10-09: "X's twin/triplet"): "Kalea's twin", "Kalea and
+    Hana's triplet".  Nothing for a villager born alone, or with the setting off."""
+    if not lay.edits.show_twins or p.litter is None or p.upcoming:
+        return []
+    others = sorted((q for q in lay.village.people.values()
+                     if q.litter == p.litter and q.id != p.id and not q.upcoming), key=lambda q: (q.number or 0, q.id))
+    if not others or len(others) > 2:
+        return []
+    names = [lay.names.get(q.id, q.name) or "(unnamed)" for q in others]
+    return [f"{' and '.join(names)}'s {'twin' if len(others) == 1 else 'triplet'}"]
 
 
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:
