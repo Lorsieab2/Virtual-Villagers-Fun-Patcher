@@ -210,9 +210,13 @@ static int exists_rel(const char *rel) {
 #define LOGS "Virtual Villagers Fun Patcher Logs"
 #define ELDERS DATA "\\Village Elders\\Village Elders - Save 1.dat"
 #define COUNTERS DATA "\\Village Statistics\\Village Statistics - Save 1.dat"
-#define ROSTER DATA "\\Village Statistics\\Village Roster - Save 1.dat"
-#define REPAIRS_DIR LOGS "\\Repairs"
+#define ROSTER DATA "\\Village Statistics\\Villagers Counted - Save 1.dat"   /* "Village Roster" before */
+#define REPAIRS_DIR LOGS "\\Repairs Made"
 #define SUFFIX ".before-v1.35.58-repair"
+/* A repair's copies: "Data\Copies Made Before Repairs", at the file's own place (native/shared/save_layout.h). */
+#define ELDERS_COPY DATA "\\Copies Made Before Repairs\\" ELDERS
+#define COUNTERS_COPY DATA "\\Copies Made Before Repairs\\" COUNTERS
+#define DEATHS_DIR (game % 2 ? "Deaths" : "Deaths and Disappearances")
 
 static void write_save_file(void) {
     static const DWORD HEADER[5] = { 12u, 12u, 12u, 24u, 24u };
@@ -288,12 +292,14 @@ static void write_files(int buried, int twins, int chiefs) {
         "Death 2\r\n  Name: Lua\r\n  Age at death: 300\r\n  Cause of death: Disease\r\n"
         "  Grave: no grave (never buried: the game removed the body)\r\n\r\n"
         "Death 3\r\n  Name: Rex\r\n  Age at death: 900\r\n  Cause of death: Old age\r\n  Grave: Untrained\r\n\r\n");
-    _snprintf(line, sizeof line, LOGS "\\Deaths\\Virtual Villagers %d Deaths Log 1.txt", game);
+    /* In the odd games the logs are where an older build kept them, "Deaths": the reconcile moves the
+       folder to "Deaths and Disappearances" (native/shared/save_layout.h) and reads them the same. */
+    _snprintf(line, sizeof line, LOGS "\\%s\\Virtual Villagers %d Deaths Log 1.txt", DEATHS_DIR, game);
     write_file(line, h);
     _snprintf(h, sizeof h,
         "Village: Other Tribe (Save 1)\r\n"
         "Death 4\r\n  Name: Zed\r\n  Age at death: 1000\r\n  Cause of death: Old age\r\n  Grave: Master Farmer\r\n\r\n");
-    _snprintf(line, sizeof line, LOGS "\\Deaths\\Virtual Villagers %d Deaths Log 2.txt", game);
+    _snprintf(line, sizeof line, LOGS "\\%s\\Virtual Villagers %d Deaths Log 2.txt", DEATHS_DIR, game);
     write_file(line, h);
     if (game == 2) {
         _snprintf(h, sizeof h,
@@ -349,7 +355,7 @@ static int unchanged(void) {
     read_rel(ELDERS);
     same = strcmp(before_elders, text) == 0;
     read_rel(COUNTERS);
-    return same && strcmp(before_counters, text) == 0 && !exists_rel(ELDERS SUFFIX) && !exists_rel(COUNTERS SUFFIX)
+    return same && strcmp(before_counters, text) == 0 && !exists_rel(ELDERS_COPY SUFFIX) && !exists_rel(COUNTERS_COPY SUFFIX)
         && !exists_rel(REPAIRS_DIR);
 }
 
@@ -501,7 +507,7 @@ int main(int argc, char **argv) {
             no_lines = strstr(text, "\tGhost\t") == NULL && strstr(text, "\tEdge\t") == NULL;
             read_rel(COUNTERS);
             CHECK(no_lines && strcmp(before_counters, text) == 0
-                  && !exists_rel(ELDERS SUFFIX) && !exists_rel(COUNTERS SUFFIX) && !exists_rel(REPAIRS_DIR),
+                  && !exists_rel(ELDERS_COPY SUFFIX) && !exists_rel(COUNTERS_COPY SUFFIX) && !exists_rel(REPAIRS_DIR),
                   "a save with no answer makes none of the reconcile's changes");
         }
         snapshot();
@@ -516,7 +522,7 @@ int main(int argc, char **argv) {
         CHECK(counter("villagers_buried") == 2, "Villagers Buried raised to exactly 2");
         if (game == 2) CHECK(counter("twins_birthed") == 2, "Twins Birthed raised to exactly 2");
         if (game == 3) CHECK(counter("chiefs_robed") == 1, "Chiefs Robed raised to exactly 1");
-        read_rel(COUNTERS SUFFIX);
+        read_rel(COUNTERS_COPY SUFFIX);
         CHECK(strcmp(text, before_counters) == 0, "the counters file was backed up first, byte for byte");
         read_rel(ELDERS);
         if (elders_expected) {
@@ -534,9 +540,9 @@ int main(int argc, char **argv) {
                 while ((p = strstr(p, "\tGhost\t")) != NULL) { ++ghosts; ++p; }
                 CHECK(ghosts == 1, "Ghost, in two snapshots, gets one line");
             }
-            CHECK(exists_rel(ELDERS SUFFIX), "the elders file was backed up first");
+            CHECK(exists_rel(ELDERS_COPY SUFFIX), "the elders file was backed up first");
         } else {
-            CHECK(!exists_rel(ELDERS SUFFIX), "the elders file is not touched (nothing to add)");
+            CHECK(!exists_rel(ELDERS_COPY SUFFIX), "the elders file is not touched (nothing to add)");
         }
         {
             char repairs[MAX_PATH];
@@ -561,8 +567,8 @@ int main(int argc, char **argv) {
         {
             int same = strcmp(before_elders, text) == 0;
             read_rel(COUNTERS);
-            CHECK(same && strcmp(before_counters, text) == 0 && !exists_rel(COUNTERS SUFFIX "-2")
-                  && !exists_rel(ELDERS SUFFIX "-2"), "another save changes nothing and makes no second backup");
+            CHECK(same && strcmp(before_counters, text) == 0 && !exists_rel(COUNTERS_COPY SUFFIX "-2")
+                  && !exists_rel(ELDERS_COPY SUFFIX "-2"), "another save changes nothing and makes no second backup");
         }
 
         /* 5. Never lowers. */
@@ -592,7 +598,7 @@ int main(int argc, char **argv) {
         repair(game, 1, 0);
         save(game, 1, manager);                       /* the quit save: no answer yet */
         snapshot();
-        CHECK(counter("villagers_buried") == 1 && !exists_rel(COUNTERS SUFFIX),
+        CHECK(counter("villagers_buried") == 1 && !exists_rel(COUNTERS_COPY SUFFIX),
               "the quit save, with no answer yet, changes nothing");
         CHECK(now(game, 2) == 0 && unchanged(), "Repair at the quit does nothing for a slot the last save was not");
         CHECK(now(game, 1) == 1, "Repair right after the quit save: done there and then");
@@ -602,9 +608,9 @@ int main(int argc, char **argv) {
         read_rel(ELDERS);
         if (elders_expected) {
             CHECK(strstr(text, "\tGhost\t") != NULL && strstr(text, "E\t-1\tEdge\t\t\t0\t0\r\n") != NULL
-                  && exists_rel(ELDERS SUFFIX), "...the elders file gains Ghost and Edge, backed up first");
+                  && exists_rel(ELDERS_COPY SUFFIX), "...the elders file gains Ghost and Edge, backed up first");
         } else {
-            CHECK(!exists_rel(ELDERS SUFFIX), "...the elders file is not touched (nothing to add)");
+            CHECK(!exists_rel(ELDERS_COPY SUFFIX), "...the elders file is not touched (nothing to add)");
         }
         {
             char repairs[MAX_PATH];
@@ -612,7 +618,7 @@ int main(int argc, char **argv) {
             _snprintf(repairs, MAX_PATH, REPAIRS_DIR "\\Virtual Villagers %d Repairs Log 1.txt", game);
             read_rel(repairs);
             listed = strstr(text, "  Villagers Buried raised: 1 -> 2 (the Deaths log and the graves)\r\n") != NULL;
-            read_rel(COUNTERS SUFFIX);
+            read_rel(COUNTERS_COPY SUFFIX);
             backed = strstr(text, "villagers_buried=1") != NULL;
             CHECK(listed && backed, "...listed in the Repairs log, the counters file backed up first");
         }
@@ -623,8 +629,8 @@ int main(int argc, char **argv) {
             read_rel(ELDERS);
             same = strcmp(before_elders, text) == 0;
             read_rel(COUNTERS);
-            same = same && strcmp(before_counters, text) == 0 && !exists_rel(COUNTERS SUFFIX "-2")
-                   && !exists_rel(ELDERS SUFFIX "-2");
+            same = same && strcmp(before_counters, text) == 0 && !exists_rel(COUNTERS_COPY SUFFIX "-2")
+                   && !exists_rel(ELDERS_COPY SUFFIX "-2");
             CHECK(again == 1 && same && scan(game, 1, prompt, (int)sizeof prompt) == 0 && *rewrites == 1,
                   "...a second Repair changes nothing (no file, no second backup, not the log), and the scan finds"
                   " nothing left");

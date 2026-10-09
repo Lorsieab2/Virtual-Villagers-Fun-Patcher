@@ -83,7 +83,10 @@ static int writer_path(char *out, int slot) { return vv3_mask_sidecar_path(out, 
 /* The Tree of Life declares its one shell32 import itself, dllimport and
    all; with the redirect that declaration names this harness's function,
    so the storage class is dropped for the length of the include (an
-   exported function in a console program needs none). */
+   exported function in a console program needs none).  <wchar.h> (which
+   native/shared/save_layout.h includes) is read first, so its own
+   __declspec(selectany) keeps its storage class. */
+#include <wchar.h>
 #define __declspec(x)
 #include "../vv4_origins_icons/vv4_origins_icons.c"
 #undef __declspec
@@ -120,7 +123,7 @@ static int writer_path(char *out, int slot) { return vv1_parents_path(out, MAX_P
 static int writer_path(char *out, int slot) { g_game = 2; return cod_build_path(slot, out); }
 #else
 #define KIND VV_DATA_SUB_UNACCOUNTED
-#define NAME_FMT "Virtual Villagers 4 Village Roster - Save %d.dat"
+#define NAME_FMT "Virtual Villagers 4 Villagers at Last Save - Save %d.dat"   /* "Village Roster" before */
 static int writer_path(char *out, int slot) { g_game = 4; return roster_build_path(slot, out); }
 #endif
 #else

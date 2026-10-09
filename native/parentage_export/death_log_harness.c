@@ -170,10 +170,11 @@ static void empty_folder(const char *folder) {
 }
 
 static void wipe(int remove_dirs) {
-    static const char *const FOLDERS[3] = { "Deaths", "Unaccounted Villagers", "Births and Conceptions" };
+    static const char *const FOLDERS[4] = { "Deaths and Disappearances", "Unaccounted Villagers", "Births and Conceptions",
+                                             "Deaths" /* the folder's older name (save_layout.h) */ };
     char sub[MAX_PATH], parent[MAX_PATH], *cut;
     int k;
-    for (k = 0; k < 3; ++k) {
+    for (k = 0; k < 4; ++k) {
         _snprintf(sub, MAX_PATH, "%s\\%s", logs, FOLDERS[k]);
         empty_folder(sub);
         if (remove_dirs) RemoveDirectoryA(sub);
@@ -221,7 +222,7 @@ static int read_log(const char *folder, const char *stem, int game, int number) 
     fclose(f);
     return 1;
 }
-static int read_deaths(int game, int number) { return read_log("Deaths", "Deaths Log", game, number); }
+static int read_deaths(int game, int number) { return read_log("Deaths and Disappearances", "Deaths Log", game, number); }
 static int read_unaccounted(int game, int number) {
     return read_log("Unaccounted Villagers", "Unaccounted Villagers Log", game, number);
 }

@@ -620,7 +620,7 @@ static void quit_cases(void) {
            the village at Start Over. */
         char approval[MAX_PATH];
         _snprintf(approval, MAX_PATH,
-                  "%s\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save 1.dat",
+                  "%s\\Virtual Villagers Fun Patcher Data\\Log Checks\\Virtual Villagers %d Repair Approved - Save 1.dat",
                   root, game);
         write_text(approval, "VRA1");
         CHECK(file_exists(approval), "quit: (an approval for the slot is there)");

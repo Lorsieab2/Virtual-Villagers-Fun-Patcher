@@ -140,6 +140,9 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "Repair Saves & Logs approval: the masks are removed at load, without asking",
             "... and nothing is left at the quit: the approval is used up",
             "... one that failed at load is completed after the quit save, then the approval is used up",
+            "an older build's Cross-Check folder is moved to Log Checks, the approval in it",
+            "... and that approval is used, like any other",
+            "... but never over a Log Checks folder already there: the old one is left as it is",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

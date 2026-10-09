@@ -320,7 +320,7 @@ static long read_into(const char *path) {
 }
 
 static void deaths_path(int number, char *out) {
-    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Deaths\\Virtual Villagers %d Deaths Log %d.txt",
+    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Deaths and Disappearances\\Virtual Villagers %d Deaths Log %d.txt",
               root, game, number);
 }
 

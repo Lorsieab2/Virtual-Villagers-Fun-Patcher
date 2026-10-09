@@ -8,8 +8,8 @@ and now each has a folder of its own (native/shared/data_subfolder.h):
 
     Village Masks          the Origins mask tables (all five games)
     Graves                 Cause of Death's graves (A New Home, The Lost Children)
-    Parentage Records      A New Home's parent records
-    Unaccounted Villagers  Cause of Death's village roster (all five games)
+    Parents (A New Home)   A New Home's parent records ("Parentage Records" before 2026-10-09)
+    Unaccounted Villagers  Cause of Death's villagers at the last save (all five games)
 
 The rules -- a loose copy is MOVED in, never over an existing file; when both
 exist the folder's copy is used and the loose one is left alone; when the move
@@ -60,11 +60,13 @@ WRITERS = {
 FOLDER_NAMES = {
     "VV_DATA_SUB_MASKS": "Village Masks",
     "VV_DATA_SUB_GRAVES": "Graves",
-    "VV_DATA_SUB_PARENTAGE": "Parentage Records",
+    # "Parentage Records" in older builds (native/shared/save_layout.h; the owner, 2026-10-09)
+    "VV_DATA_SUB_PARENTAGE": "Parents (A New Home)",
     "VV_DATA_SUB_UNACCOUNTED": "Unaccounted Villagers",
 }
 
-# (game, folder macro, file stem) for every per-save file of these kinds.
+# (game, folder macro, file stem) for every per-save file of these kinds -- Start Over also names the
+# place an older build kept it (native/shared/save_layout.h), while it has not moved.
 KINDS = [
     (1, "VV_DATA_SUB_MASKS", "Virtual Villagers 1 Village Masks"),
     (2, "VV_DATA_SUB_MASKS", "Virtual Villagers 2 Village Masks"),
@@ -72,9 +74,11 @@ KINDS = [
     (4, "VV_DATA_SUB_MASKS", "Village Masks"),
     (5, "VV_DATA_SUB_MASKS", "Village Masks"),
     (1, "VV_DATA_SUB_PARENTAGE", "Virtual Villagers 1 Parentage Records"),
+    (1, "VV_DATA_SUB_PARENTAGE_OLD", "Virtual Villagers 1 Parentage Records"),
     (1, "VV_DATA_SUB_GRAVES", "Virtual Villagers 1 Graves"),
     (2, "VV_DATA_SUB_GRAVES", "Virtual Villagers 2 Graves"),
-] + [(n, "VV_DATA_SUB_UNACCOUNTED", f"Virtual Villagers {n} Village Roster") for n in range(1, 6)]
+] + [(n, "VV_DATA_SUB_UNACCOUNTED", f"Virtual Villagers {n} Villagers at Last Save") for n in range(1, 6)] \
+  + [(n, "VV_DATA_SUB_UNACCOUNTED", f"Virtual Villagers {n} Village Roster") for n in range(1, 6)]
 
 
 def function(source: str, name: str) -> str:
@@ -99,6 +103,7 @@ class DatFilesInSubfolders(unittest.TestCase):
         for macro, name in FOLDER_NAMES.items():
             with self.subTest(macro=macro):
                 self.assertRegex(header, r"#define " + macro + r'\s+"' + re.escape(name) + '"')
+        self.assertRegex(header, r'#define VV_DATA_SUB_PARENTAGE_OLD\s+"Parentage Records"')
 
     def test_a_loose_file_is_never_moved_over_another(self) -> None:
         header = HEADER.read_text(encoding="utf-8")

@@ -115,7 +115,7 @@ class Game:
         p.api_handlers["VirtualFree"] = lambda proc: (1, 12)
         for name in ("SHGetSpecialFolderPathA", "CreateDirectoryA", "CreateFileA", "ReadFile", "WriteFile",
                      "FlushFileBuffers", "CloseHandle", "MoveFileExA", "DeleteFileA", "GetLastError",
-                     "GetFileAttributesA",
+                     "GetFileAttributesA", "MultiByteToWideChar", "GetFileAttributesW", "MoveFileW",
                      "GetLocalTime", "SystemTimeToFileTime", "FileTimeToSystemTime"):
             p.api_handlers[name] = getattr(self, "_" + name)
         p.stub(WRITE_RECORD, self._write_record)
@@ -161,6 +161,30 @@ class Game:
             return 0x10, 4                      # FILE_ATTRIBUTE_DIRECTORY
         self.last_error = 2                     # ERROR_FILE_NOT_FOUND
         return 0xFFFFFFFF, 4
+
+    # native/shared/save_layout.h renames a file an older build named otherwise (the roster's
+    # "... Village Roster - Save S.dat") by its wide path, when only the old name exists.
+    def _MultiByteToWideChar(self, proc):
+        text = proc.cstring(proc.arg(2)) + "\0"
+        if proc.arg(5):
+            proc.write(proc.arg(4), text.encode("utf-16-le"))
+        return len(text), 24
+
+    def _GetFileAttributesW(self, proc):
+        path = proc.wstring(proc.arg(0))
+        if path in self.files:
+            return 0x80, 4
+        if path.lower() in self.dirs:
+            return 0x10, 4
+        self.last_error = 2
+        return 0xFFFFFFFF, 4
+
+    def _MoveFileW(self, proc):
+        old, new = proc.wstring(proc.arg(0)), proc.wstring(proc.arg(1))
+        if old not in self.files or new in self.files:
+            return 0, 8
+        self.files[new] = self.files.pop(old)
+        return 1, 8
 
     def _CreateFileA(self, proc):
         path, disposition = proc.cstring(proc.arg(0)), proc.arg(4)
@@ -217,7 +241,8 @@ class Game:
         return 1, 8
 
     def roster(self, slot: int) -> bytes | None:
-        name = f"C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual Villagers {self.no} Village Roster - Save {slot}.dat"
+        name = (f"C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\"
+                f"Virtual Villagers {self.no} Villagers at Last Save - Save {slot}.dat")
         data = self.files.get(name)
         return bytes(data) if data is not None else None
 

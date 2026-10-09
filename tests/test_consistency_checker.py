@@ -222,8 +222,8 @@ class Vv1Fixture(unittest.TestCase):
     def vcr1(self, game: Path, data: bytes) -> list:
         folder = game / DATA / "Unaccounted Villagers"
         folder.mkdir(exist_ok=True)
-        (folder / "Virtual Villagers 1 Village Roster - Save 1.dat").write_bytes(data)
-        return self.verdicts(game, "Village Roster - Save 1.dat")
+        (folder / "Virtual Villagers 1 Villagers at Last Save - Save 1.dat").write_bytes(data)
+        return self.verdicts(game, "Villagers at Last Save - Save 1.dat")
 
     def test_a_roster_the_game_would_reject_is_not_ok(self):
         game = self.build(drifted=False)

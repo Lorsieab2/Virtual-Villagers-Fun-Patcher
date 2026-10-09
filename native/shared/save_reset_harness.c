@@ -275,21 +275,30 @@ int main(void) {
        by hand, a set-aside unreadable copy) is not the patcher's live file
        and is never touched. */
     {
-        struct kind { int game; const char *sub; const char *stem; };
+        /* `loose` is the name an older build gave the file loose in the Data folder; the folder and
+           file names an older build used in the folder (native/shared/save_layout.h: "Parentage
+           Records", "... Village Roster") are rows of their own, until they have been moved. */
+        struct kind { int game; const char *sub; const char *stem; const char *loose; };
         static const struct kind KINDS[] = {
-            { 1, "Village Masks", "Virtual Villagers 1 Village Masks" },
-            { 2, "Village Masks", "Virtual Villagers 2 Village Masks" },
-            { 3, "Village Masks", "Village Masks" },
-            { 4, "Village Masks", "Village Masks" },
-            { 5, "Village Masks", "Village Masks" },
-            { 1, "Parentage Records", "Virtual Villagers 1 Parentage Records" },
-            { 1, "Graves", "Virtual Villagers 1 Graves" },
-            { 2, "Graves", "Virtual Villagers 2 Graves" },
-            { 1, "Unaccounted Villagers", "Virtual Villagers 1 Village Roster" },
-            { 2, "Unaccounted Villagers", "Virtual Villagers 2 Village Roster" },
-            { 3, "Unaccounted Villagers", "Virtual Villagers 3 Village Roster" },
-            { 4, "Unaccounted Villagers", "Virtual Villagers 4 Village Roster" },
-            { 5, "Unaccounted Villagers", "Virtual Villagers 5 Village Roster" },
+            { 1, "Village Masks", "Virtual Villagers 1 Village Masks", "Virtual Villagers 1 Village Masks" },
+            { 2, "Village Masks", "Virtual Villagers 2 Village Masks", "Virtual Villagers 2 Village Masks" },
+            { 3, "Village Masks", "Village Masks", "Village Masks" },
+            { 4, "Village Masks", "Village Masks", "Village Masks" },
+            { 5, "Village Masks", "Village Masks", "Village Masks" },
+            { 1, "Parents (A New Home)", "Virtual Villagers 1 Parentage Records", "Virtual Villagers 1 Parentage Records" },
+            { 1, "Parentage Records", "Virtual Villagers 1 Parentage Records", "Virtual Villagers 1 Parentage Records" },
+            { 1, "Graves", "Virtual Villagers 1 Graves", "Virtual Villagers 1 Graves" },
+            { 2, "Graves", "Virtual Villagers 2 Graves", "Virtual Villagers 2 Graves" },
+            { 1, "Unaccounted Villagers", "Virtual Villagers 1 Villagers at Last Save", "Virtual Villagers 1 Village Roster" },
+            { 2, "Unaccounted Villagers", "Virtual Villagers 2 Villagers at Last Save", "Virtual Villagers 2 Village Roster" },
+            { 3, "Unaccounted Villagers", "Virtual Villagers 3 Villagers at Last Save", "Virtual Villagers 3 Village Roster" },
+            { 4, "Unaccounted Villagers", "Virtual Villagers 4 Villagers at Last Save", "Virtual Villagers 4 Village Roster" },
+            { 5, "Unaccounted Villagers", "Virtual Villagers 5 Villagers at Last Save", "Virtual Villagers 5 Village Roster" },
+            { 1, "Unaccounted Villagers", "Virtual Villagers 1 Village Roster", "Virtual Villagers 1 Village Roster" },
+            { 2, "Unaccounted Villagers", "Virtual Villagers 2 Village Roster", "Virtual Villagers 2 Village Roster" },
+            { 3, "Unaccounted Villagers", "Virtual Villagers 3 Village Roster", "Virtual Villagers 3 Village Roster" },
+            { 4, "Unaccounted Villagers", "Virtual Villagers 4 Village Roster", "Virtual Villagers 4 Village Roster" },
+            { 5, "Unaccounted Villagers", "Virtual Villagers 5 Village Roster", "Virtual Villagers 5 Village Roster" },
         };
         char data_dir[MAX_PATH], sub_dir[MAX_PATH];
         char new1[MAX_PATH], new2[MAX_PATH], old1[MAX_PATH], old2[MAX_PATH];
@@ -306,9 +315,9 @@ int main(void) {
             CreateDirectoryA(sub_dir, NULL);
             wsprintfA(new1, "%s\\%s - Save 1.dat", sub_dir, KINDS[k].stem);
             wsprintfA(new2, "%s\\%s - Save 2.dat", sub_dir, KINDS[k].stem);
-            wsprintfA(old1, "%s\\%s - Save 1.dat", data_dir, KINDS[k].stem);
-            wsprintfA(old2, "%s\\%s - Save 2.dat", data_dir, KINDS[k].stem);
-            wsprintfA(backup1, "%s\\%s - Save 1.dat.before-repair", data_dir, KINDS[k].stem);
+            wsprintfA(old1, "%s\\%s - Save 1.dat", data_dir, KINDS[k].loose);
+            wsprintfA(old2, "%s\\%s - Save 2.dat", data_dir, KINDS[k].loose);
+            wsprintfA(backup1, "%s\\%s - Save 1.dat.before-repair", data_dir, KINDS[k].loose);
             wsprintfA(aside1, "%s\\%s - Save 1.dat.unreadable-1-0", sub_dir, KINDS[k].stem);
             touch(new1); touch(new2); touch(old1); touch(old2); touch(backup1); touch(aside1);
             wsprintfA(what, "game %d %s: both places, both slots, exist before the reset (nonzero denominator)",

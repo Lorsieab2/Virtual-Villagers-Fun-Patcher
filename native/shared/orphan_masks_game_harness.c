@@ -518,11 +518,28 @@ int main(void) {
           "it is in the Village Masks folder (the #519 resolver)");
     {
         char folder[MAX_PATH];
-        CHECK(vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Logs\\Repairs", 64), "the Repairs folder");
+        CHECK(vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Logs\\Repairs Made", 64), "the Repairs folder");
         _snprintf_s(g_log, sizeof g_log, _TRUNCATE, "%s\\Virtual Villagers %d Repairs Log 1.txt", folder, game);
     }
-    _snprintf_s(g_backup1, sizeof g_backup1, _TRUNCATE, "%s.before-v1.35.59-repair", g_path);
-    _snprintf_s(g_backup2, sizeof g_backup2, _TRUNCATE, "%s.before-v1.35.59-repair-2", g_path);
+    {
+        /* The backups' place: "Data\Copies Made Before Repairs", at the file's own place
+           (native/shared/save_layout.h) -- beside the file when that is too long to name. */
+        wchar_t wide[MAX_PATH], copy[MAX_PATH];
+        MultiByteToWideChar(CP_ACP, 0, g_path, -1, wide, MAX_PATH);
+        if (vv_layout_copy_path(wide, VV_OM_BACKUP_SUFFIX, copy, MAX_PATH)) {
+            _snprintf_s(g_backup1, sizeof g_backup1, _TRUNCATE, "%ls", copy);
+            CHECK(strstr(g_backup1, "\\Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs\\"
+                                    "Virtual Villagers Fun Patcher Data\\Village Masks\\") != NULL,
+                  "the backup goes in Copies Made Before Repairs: %s", g_backup1);
+        } else {
+            _snprintf_s(g_backup1, sizeof g_backup1, _TRUNCATE, "%s.before-v1.35.59-repair", g_path);
+        }
+        if (vv_layout_copy_path(wide, VV_OM_BACKUP_SUFFIX L"-2", copy, MAX_PATH)) {
+            _snprintf_s(g_backup2, sizeof g_backup2, _TRUNCATE, "%ls", copy);
+        } else {
+            _snprintf_s(g_backup2, sizeof g_backup2, _TRUNCATE, "%s.before-v1.35.59-repair-2", g_path);
+        }
+    }
 
     printf("== the load ==\n");
     scenario_file();
