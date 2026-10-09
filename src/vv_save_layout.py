@@ -16,12 +16,12 @@ folders only; Tribe History and Tribe Population keep their names).
     every "<file>.before-..." copy a repair kept beside a log or data file
                                       -> Data\\Copies Made Before Repairs\\<the same place>
 
-The game does the same move when it opens (native/shared/save_layout.h, from "VVFP Startup.dll"),
-so a village a player plays is moved before anything is written under the new names.  Here it is
-done only by what writes (Repair Saves & Logs, last names, numbering) and only with the game closed;
-what only reads (Check Saves & Logs, the Family Tree Maker) finds a file under either name with
-`existing`.  Nothing is ever overwritten: a file whose new place is taken stays where it is.  The
-Backups folder is never touched."""
+In the game, each companion moves what it is about to use just before it uses it
+(native/shared/save_layout.h).  Here the whole folder is moved only by Repair Saves & Logs, last,
+after its repairs and with the game closed (`migrate`); everything else (Check Saves & Logs, last
+names, numbering, the Family Tree Maker) finds a file under either name with `find`.  Nothing is
+ever overwritten: a file whose new place is taken stays where it is.  The Backups folder is never
+touched."""
 from __future__ import annotations
 
 import os
