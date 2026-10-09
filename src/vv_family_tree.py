@@ -340,6 +340,9 @@ class Edits:
     others_columns: int = 1            # the Other Members across (1: each generation's in a row, as before)
     others_side: str = "right"         # OTHERS_SIDES: where the Other Members go
     packing: int = PACKING             # the Packed layouts: how tightly packed, 0 (tidy) to 100 (densest)
+    # Family lines straight and behind the portraits (the owner, 2026-10-09: "a toggle for lines run
+    # behind portraits"); None until the player says: behind only in a Packed layout packed 98 or more.
+    lines_behind: bool | None = None
     picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
     text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
@@ -484,6 +487,7 @@ class Edits:
         out.others_columns = int(_number(data.get("others_columns"), 1, OTHERS_COLUMNS_MAX, 1))
         out.others_side = data.get("others_side") if data.get("others_side") in OTHERS_SIDES else "right"
         out.packing = int(_number(data.get("packing"), 0, 100, PACKING))
+        out.lines_behind = data.get("lines_behind") if isinstance(data.get("lines_behind"), bool) else None
         out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
@@ -644,7 +648,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -789,7 +793,8 @@ PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle"
                    "mermaid_tail_h": "Mermaid tail (on its side)",
                    "fish_right": "Fish (facing right)", "fish_left": "Fish (facing left)",
                    "wave_circle": "Ocean wave in a circle", "conch": "Conch shell", "starfish": "Starfish", "monstera": "Monstera leaf",
-                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "anchor": "Anchor", "bananas": "Bunch of bananas", "paw": "Paw print",
+                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "anchor": "Anchor", "bananas": "Bunch of bananas", "paw": "Paw print", "feather": "Feather", "coral": "Coral",
+                   "beetle": "Beetle",
                    "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
@@ -1024,7 +1029,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -1882,9 +1887,18 @@ def brick(edits: Edits) -> float:
     return 0.0 if edits.positioning not in PACKED else edits.packing / 100
 
 
+def behind(edits: Edits) -> bool:
+    """Whether the family lines go straight, behind the portraits (Edits.lines_behind): as the player
+    ticked it, in any layout; until they do, only in a Packed layout packed so tightly (BEHIND) there is
+    no room to go round."""
+    if edits.lines_behind is not None:
+        return edits.lines_behind
+    return edits.positioning in PACKED and edits.packing >= BEHIND
+
+
 def lines_behind(lay: "Layout") -> bool:
-    """Packed tightest, there is no room to go round portraits: the lines go straight, behind them."""
-    return lay.edits.positioning in PACKED and lay.edits.packing >= BEHIND
+    """The family lines go straight, behind the portraits (behind())."""
+    return behind(lay.edits)
 
 
 _PROFILES: dict = {}
@@ -2941,7 +2955,8 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
         return entry_key(lay.village, people[pid])
 
     clusters = lay.edits.positioning in ("packed_families", "packed_generations")
-    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0
+    # (Lines behind the portraits take the straight way, never the ways kept round them.)
+    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0 and not lines_behind(lay)
     rects = None
     for fam in lay.families:
         kids = [c for c in fam.children if c in lay.x and c not in fam.away]
@@ -3877,6 +3892,45 @@ def _traced(inside_at, centre: tuple[float, float], rays: int = 240) -> list[tup
     return out
 
 
+def _outlined(pieces: list, reach: float = 1.25, n: int = 280) -> list[tuple[float, float]]:
+    """The edge of a shape made of overlapping `pieces` -- each a test of whether a point is in it and
+    the box (x0, y0, x1, y1) it lies in -- walked round on a fine grid (Moore neighbours), so branching
+    shapes, a coral, keep every gap between their branches; then smoothed. The shape must be one piece
+    inside the square of half-width `reach`. Each piece fills only its own box's cells, so it is quick."""
+    step = 2 * reach / n
+    grid = [[False] * n for _ in range(n)]
+    cell = lambda v: min(n - 1, max(0, int((v + reach) / step)))
+    for inside_at, (x0, y0, x1, y1) in pieces:
+        for j in range(cell(y0), cell(y1) + 1):
+            row, y = grid[j], -reach + (j + 0.5) * step
+            for i in range(cell(x0), cell(x1) + 1):
+                if not row[i] and inside_at(-reach + (i + 0.5) * step, y):
+                    row[i] = True
+    filled = lambda x, y: 0 <= x < n and 0 <= y < n and grid[y][x]
+    start = next((x, y) for y in range(n) for x in range(n) if grid[y][x])
+    ways = [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)]
+    cells, here, back = [start], start, 4              # entered from the west, which is outside
+    for _ in range(8 * n * n):
+        for k in range(1, 9):
+            d = (back + k) % 8
+            nxt = (here[0] + ways[d][0], here[1] + ways[d][1])
+            if filled(*nxt):
+                before = (here[0] + ways[(d - 1) % 8][0], here[1] + ways[(d - 1) % 8][1])
+                back = ways.index((before[0] - nxt[0], before[1] - nxt[1]))
+                here = nxt
+                break
+        else:
+            break                                      # a single cell
+        if here == start:
+            break
+        cells.append(here)
+    pts = [(-reach + (x + 0.5) * step, -reach + (y + 0.5) * step) for x, y in cells]
+    m = len(pts)
+    soft = [(sum(pts[(i + k) % m][0] for k in range(-3, 4)) / 7, sum(pts[(i + k) % m][1] for k in range(-3, 4)) / 7)
+            for i in range(m)]
+    return soft[::2]
+
+
 @functools.lru_cache(maxsize=1)
 def _drawn_outlines() -> dict[str, list[tuple[float, float]]]:
     """The owner's shapes of 2026-10-08 -- a flower, a butterfly, a leaf and the playing-card suits'
@@ -4053,7 +4107,8 @@ def _inside_poly(poly, x, y) -> bool:
 
 
 # Shapes whose box takes in their border-drawn parts too: a paw print's toes stand apart from its pad.
-FIT_EVERYTHING = ("paw",)
+FIT_EVERYTHING = ("paw", "feather", "beetle")
+FILLED_DECOR = ("paw",)
 
 
 def _more_shapes() -> dict:
@@ -4326,6 +4381,66 @@ def _more_shapes() -> dict:
         return [(cx + x * math.cos(a) - y * math.sin(a), cy + x * math.sin(a) + y * math.cos(a))
                 for x, y in _ring(0, 0, 0.16, 0.22, 36)]
     out["paw"] = (pad, [], [toe(-0.64, -0.2, -28), toe(-0.23, -0.47, -8), toe(0.23, -0.47, 8), toe(0.64, -0.2, 28)])
+
+    # The owner, 2026-10-09: "New portrait shapes: Feather, Coral, Beetle".
+    # A feather, upright and gently curved: a rounded tip, the vane wider on one side of the shaft than the
+    # other, a split in each edge, and the bare quill below drawn like the border; the shaft and barbs light.
+    def bow(y: float) -> float:
+        return 0.08 * (1 - ((y - 0.0) / 1.05) ** 2)       # the shaft's gentle curve
+    def half(s: float, wide: float, split: float) -> float:   # s: 0 at the vane's foot, 1 at its tip
+        w = wide * min(1.0, s / 0.2) ** 0.6 * (1 - s) ** 0.42
+        return w * (1 - 0.32 * max(0.0, 1 - abs(s - split) / 0.035))
+    foot, tip = 0.6, -1.0
+    ys = [foot + (tip - foot) * k / 60 for k in range(61)]
+    s_of = lambda y: (foot - y) / (foot - tip)
+    right = [(bow(y) + half(s_of(y), 0.25, 0.42), y) for y in ys]
+    left = [(bow(y) - half(s_of(y), 0.35, 0.6), y) for y in reversed(ys)]
+    vane = right + left[1:-1]
+    shaft = [(bow(y), y) for y in ys[:-4]]
+    barbs = []
+    for k in range(1, 12):
+        s = k * 0.075
+        y = foot + (tip - foot) * s
+        for wide, split, side in ((0.25, 0.42, 1), (0.35, 0.6, -1)):
+            y2 = foot + (tip - foot) * min(0.97, s + 0.07)
+            barbs.append([(bow(y), y), (bow(y2) + side * 0.88 * half(s_of(y2), wide, split), y2)])
+    quill = _smooth([(bow(foot), foot), (bow(0.8) - 0.01, 0.8), (bow(1.0) - 0.05, 1.0)], steps=6)
+    out["feather"] = (vane, [shaft] + barbs, [quill])
+
+    # A branching staghorn coral: a short trunk on a little base, its branches forking twice with rounded
+    # ends; each branch's middle line light.
+    def capsule(ax, ay, bx, by, r):
+        def inside(x, y):
+            dx, dy = bx - ax, by - ay
+            u = max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)))
+            return (x - ax - u * dx) ** 2 + (y - ay - u * dy) ** 2 <= r * r
+        return inside, (min(ax, bx) - r, min(ay, by) - r, max(ax, bx) + r, max(ay, by) + r)
+    branches = [((0.0, 0.95), (0.0, 0.4), 0.2), ((0.0, 0.4), (-0.36, 0.0), 0.18), ((0.0, 0.4), (0.34, -0.04), 0.18),
+                ((-0.36, 0.0), (-0.62, -0.42), 0.14), ((-0.36, 0.0), (-0.16, -0.5), 0.14),
+                ((0.34, -0.04), (0.12, -0.55), 0.14), ((0.34, -0.04), (0.62, -0.38), 0.14),
+                ((-0.62, -0.42), (-0.7, -0.78), 0.11), ((-0.16, -0.5), (-0.22, -0.88), 0.11),
+                ((0.12, -0.55), (0.18, -0.92), 0.11), ((0.62, -0.38), (0.72, -0.74), 0.11)]
+    parts = [capsule(*a, *b, r) for a, b, r in branches] + [capsule(-0.32, 1.0, 0.32, 1.0, 0.08)]
+    reef = _outlined(parts)
+    out["coral"] = (reef, [[a, b] for a, b, _r in branches])
+
+    # A beetle seen from above, head up: the round head, the shield behind it and the two wing cases meeting
+    # down the middle, a few spots on them -- light; six legs and two antennae drawn like the border.
+    def oval(cy, rx, ry):
+        return (lambda x, y: (x / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1), (-rx, cy - ry, rx, cy + ry)
+    shell = _outlined([oval(0.2, 0.48, 0.7), oval(-0.52, 0.36, 0.2), oval(-0.74, 0.22, 0.14)])
+    seam = [(0.0, -0.36), (0.0, 0.88)]
+    shield = _smooth([(-0.4, -0.38), (0.0, -0.32), (0.4, -0.38)], steps=6)
+    spots = [_ring(x, y, 0.07, 0.08, 16) for x, y in ((-0.2, -0.05), (0.2, -0.05), (-0.24, 0.3), (0.24, 0.3),
+                                                      (-0.17, 0.6), (0.17, 0.6))]
+    legs = []
+    for side in (1, -1):
+        for (sx, sy), (kx, ky), (fx, fy) in (((0.38, -0.3), (0.62, -0.42), (0.74, -0.6)),
+                                             ((0.46, 0.08), (0.74, 0.08), (0.86, -0.04)),
+                                             ((0.42, 0.45), (0.68, 0.62), (0.76, 0.86))):
+            legs.append([(side * sx, sy), (side * kx, ky), (side * fx, fy)])
+    antennae = [_smooth([(side * 0.08, -0.86), (side * 0.2, -1.02), (side * 0.36, -1.1)], steps=4) for side in (1, -1)]
+    out["beetle"] = (shell, [seam, shield] + spots, legs + antennae)
 
     # A monstera leaf, traced from the owner's picture (1920 pixels square): four slits cut in from the
     # right and lower edges and two from the left, four holes (drawn like the border); the midrib and the
@@ -5607,7 +5722,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if angle:
             pts = [(mx + dx, my + dy) for dx, dy in (turn(px - mx, py - my, angle) for px, py in pts)]
         return pts
-    if base_kind(kind) in FIT_EVERYTHING and is_colour(inside_colour) and inside_colour != TRANSPARENT:
+    if base_kind(kind) in FILLED_DECOR and is_colour(inside_colour) and inside_colour != TRANSPARENT:
         # A paw print's toes filled like its pad (the owner, 2026-10-09: "include the extra toes for the
         # portrait background"), under their borders.
         for line in decor(kind):

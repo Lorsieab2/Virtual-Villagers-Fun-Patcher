@@ -262,6 +262,69 @@ class TouchingTests(unittest.TestCase):
             self.assertLess(last_line, first_portrait, "every family line is drawn before (under) the portraits")
 
 
+class LinesBehindTests(unittest.TestCase):
+    """The owner, 2026-10-09: "there should be a toggle for lines run behind portraits"."""
+
+    def pieces(self, lay) -> list:
+        return ft.lines(lay)
+
+    def test_the_toggle_switches_the_routing_in_every_layout(self):
+        for positioning in LAYOUTS:
+            for packing in (60, 100):
+                for make in (village, big_village):
+                    off = ft.layout(make(), ft.Edits(positioning=positioning, packing=packing, lines_behind=False))
+                    on = ft.layout(make(), ft.Edits(positioning=positioning, packing=packing, lines_behind=True))
+                    self.assertFalse(ft.lines_behind(off))
+                    self.assertTrue(ft.lines_behind(on))
+                    for lay in (off, on):
+                        drawn = self.pieces(lay)
+                        assert_connected(self, lay, drawn)
+                        frames = boxes(lay)
+                        for fam in lay.families:  # every parent and child reached by their family's line
+                            ends = [pt for _c, pts, fid, _p in drawn if fid == fam.id for pt in pts]
+                            for q in [c for c in fam.children if c in lay.x] + [r for r in (fam.father, fam.mother)
+                                                                                 if r in lay.x]:
+                                x0, y0, x1, y1 = frames[q]
+                                self.assertTrue(any(x0 - 1 <= px <= x1 + 1 and y0 - 1 <= py <= y1 + 1 for px, py in ends),
+                                                (positioning, packing, fam.id, q))
+                    # Behind: no step aside anywhere -- every upright piece runs from one line or portrait
+                    # to the next with no jog round a frame.
+                    jogs_on = sum(1 for _c, _pts, _f, piece in self.pieces(on) if piece.split(" ")[-1].isdigit()
+                                  and int(piece.split(" ")[-1]) > 0)
+                    self.assertEqual(jogs_on, 0, (positioning, packing))
+
+    def test_unticked_goes_round_portraits_even_at_100(self):
+        def jogs(lay) -> int:
+            return sum(1 for _c, _pts, _f, piece in ft.lines(lay) if piece.split(" ")[-1].isdigit()
+                       and int(piece.split(" ")[-1]) > 0)
+        # Short rows make the lines step round the portraits of the row above -- unless they go behind.
+        plain = ft.layout(big_village(), ft.Edits(positioning="dynamic", row_limit=2))
+        ticked = ft.layout(big_village(), ft.Edits(positioning="dynamic", row_limit=2, lines_behind=True))
+        self.assertGreater(jogs(plain), 0)
+        self.assertEqual(jogs(ticked), 0)
+        for positioning in ("packed_families", "packed_generations"):
+            off = ft.layout(big_village(), ft.Edits(positioning=positioning, packing=100, lines_behind=False))
+            self.assertFalse(ft.lines_behind(off))
+            assert_connected(self, off, ft.lines(off))
+
+    def test_until_set_it_follows_the_packing(self):
+        self.assertFalse(ft.behind(ft.Edits(positioning="packed_families", packing=97)))
+        self.assertTrue(ft.behind(ft.Edits(positioning="packed_families", packing=98)))
+        self.assertFalse(ft.behind(ft.Edits(positioning="dynamic", packing=100)))
+        self.assertTrue(ft.behind(ft.Edits(positioning="dynamic", lines_behind=True)))
+        self.assertFalse(ft.behind(ft.Edits(positioning="packed_generations", packing=100, lines_behind=False)))
+
+    def test_saved_and_remembered(self):
+        for value in (True, False, None):
+            back = ft.Edits._from_data(ft.Edits(lines_behind=value).to_data())
+            self.assertIs(back.lines_behind, value)
+        self.assertIsNone(ft.Edits._from_data({"lines_behind": "yes"}).lines_behind)
+        self.assertIn("lines_behind", ft.STYLE_KEYS)
+        source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
+        for text in ("Lines run behind portraits", "lines_behind=None", "lines_behind_var.set(ft.behind(e))"):
+            self.assertIn(text, source)
+
+
 class PackedGenerationsTests(unittest.TestCase):
     def test_each_label_stands_beside_its_own_band(self):
         v = big_village()

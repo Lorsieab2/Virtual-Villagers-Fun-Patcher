@@ -74,6 +74,24 @@ class NewShapeTests(unittest.TestCase):
             sc = ft.scene(ft.layout(village(), e), "A New Home", {})
             self.assertIn("<polygon", ft.to_svg(sc, {}))
 
+class FeatherCoralBeetleTests(unittest.TestCase):
+    """The owner, 2026-10-09: "New portrait shapes: Feather, Coral, Beetle"."""
+
+    def test_each_is_offered_fills_its_box_and_has_room_in_the_middle(self) -> None:
+        for kind, words in {"feather": "Feather", "coral": "Coral", "beetle": "Beetle"}.items():
+            self.assertEqual(ft.PORTRAIT_SHAPES[kind], words)
+            self.assertTrue(ft.inside(ft.outline(kind, 0, 0, 100, 100), 50, 52), kind)
+            every = [q for q in ft.OUTLINES[kind]] + [q for line in ft.decor(kind) for q in line]
+            xs, ys = zip(*every)
+            self.assertGreaterEqual(min(xs + ys), -1e-9, kind)        # the quill, legs and feelers stay in the box
+            self.assertLessEqual(max(xs + ys), 1 + 1e-9, kind)
+
+    def test_the_corals_branches_keep_the_gaps_between_them(self) -> None:
+        coral = ft.outline("coral", 0, 0, 100, 100)
+        self.assertFalse(ft.inside(coral, 50, 12))                   # between its two middle branches
+        self.assertTrue(ft.inside(coral, 50, 90))                    # its trunk
+        self.assertFalse(ft.inside(coral, 15, 90))                   # beside the trunk
+
 
 class JoiningTests(unittest.TestCase):
     def test_lines_join_only_once_the_width_is_widened(self) -> None:

@@ -975,6 +975,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._reset_button(others_row, "others_columns", "others_side").pack(side="left", padx=(6, 0))
         side.bind("<<ComboboxSelected>>", lambda _e: self._change(
             others_side=next(k for k, v in ft.OTHERS_SIDES.items() if v == self.others_side_var.get())))
+        # The owner, 2026-10-09: "there should be a toggle for lines run behind portraits".  Reset: the
+        # tree's own choice again (behind only when a Packed layout is packed 98 or more).
+        behind_row = ttk.Frame(tab)
+        behind_row.pack(anchor="w", pady=(6, 0))
+        self.lines_behind_var = tk.BooleanVar(value=ft.behind(e))
+        ttk.Checkbutton(behind_row, text="Lines run behind portraits", variable=self.lines_behind_var,
+                        command=lambda: self._change(lines_behind=bool(self.lines_behind_var.get()))).pack(side="left")
+        ttk.Button(behind_row, text="Reset", width=6,
+                   command=lambda: (self._change(lines_behind=None), self._show_packing())).pack(side="left", padx=(8, 0))
         tab = t_words
         # The owner, 2026-10-09: the portrait's face and words options together, "Portrait pictures/text".
         words = ttk.LabelFrame(tab, text="Faces and words in every portrait", padding=6)
@@ -2944,6 +2953,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _show_packing(self) -> None:
         """How tightly packed: shown under the Layout list while a Packed layout is chosen."""
         self.packing_var.set(f"How tightly packed: {self.edits.packing}  (0 tidy, 100 tightest)")
+        if hasattr(self, "lines_behind_var"):   # the tree's own choice follows the layout and the packing
+            self.lines_behind_var.set(ft.behind(self.edits))
         if self.edits.positioning in ("packed_families", "packed_generations"):
             self.packing_row.pack(fill="x", pady=(6, 0), after=self.positions_box)
         else:
@@ -2970,6 +2981,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.after_cancel(self._packing_job)
             self._packing_job = None
         self._saved()
+        self._show_packing()
 
     def _others_columns(self) -> None:
         """How many Other Members side by side (1: each generation's in a row)."""
@@ -3455,6 +3467,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.others_side_var.set(ft.OTHERS_SIDES[e.others_side])
         self.packing_scale.set(e.packing)
         self._show_packing()
+        self.lines_behind_var.set(ft.behind(e))
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
