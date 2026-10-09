@@ -2191,11 +2191,9 @@ def _shown_name_in(lay: Layout, p: gen.Person, lines: list, runs) -> tuple[list,
         lines, runs = _rename_in_lines(lines, runs, STATUS_WORDS, status)
     else:
         # Alive again -- reanimated in New Believers -- after their words were saved while they were gone
-        # (Codex, #577): the old status goes, and a line that held only it with it.
-        before = list(lines)
-        lines, runs = _rename_in_lines(lines, runs, STATUS_GONE, "")
-        keep = [i for i, (was, now) in enumerate(zip(before, lines))
-                if not (isinstance(now, str) and not now.strip() and isinstance(was, str) and was.strip())]
+        # (Codex, #577): the line the tree wrote for the status goes.  Only a line that is the status alone,
+        # as default_text writes it: words the player typed ("Son of Ago (deceased)") stay.
+        keep = [i for i, line in enumerate(lines) if not (isinstance(line, str) and STATUS_WORDS.fullmatch(line.strip()))]
         if len(keep) < len(lines):
             if isinstance(runs, list) and len(runs) == len(lines):
                 runs = [runs[i] for i in keep]
@@ -2206,7 +2204,6 @@ def _shown_name_in(lay: Layout, p: gen.Person, lines: list, runs) -> tuple[list,
 AGE_YEARS = re.compile(r"(?<![\w.])\d+ years old(?!\w)")
 AGE_UNITS = re.compile(r"(?<![\w.])\d+ game units(?!\w)")
 STATUS_WORDS = re.compile(r"\((?:deceased|disappeared|left the village)\)")
-STATUS_GONE = re.compile(r" ?\((?:deceased|disappeared|left the village)\)")
 
 
 def default_text(lay: Layout, p: gen.Person) -> list[str]:
@@ -4078,7 +4075,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     jitter = 0.32 if len(pattern) > 1 else 0.24
     # Only where the outline is not in a notch (the owner: none there), and spread evenly over those
     # stretches, so a star or an anchor is as full as a circle (the owner: "more on the sparser shapes").
-    open_places = list(_open_places(kind, round(w, 1), round(h, 1), round(radius, 2), round(angle, 1), size))
+    open_places = list(_open_places(kind, round(w, 1), round(h, 1), round(radius, 2), round(angle, 1), round(size, 2)))
     count = max(3, len(open_places) // spacing) if open_places else 0
     if open_places and len(open_places) < 0.75 * n:
         count += 4                                    # a sparse shape: just a few more (the owner, 2026-10-09)
@@ -4171,7 +4168,10 @@ def scheme_outline(e: "Edits", part: str, kind: str, frame: tuple, radius: float
         a, b = i * n // pieces, (i + 1) * n // pieces
         pts = [walk[k % n][:2] for k in range(a, b + 1)]
         colour = scheme_colour(e, part, i / pieces, i * arcs // pieces) or "#000000"
-        out.append(Line(pts, colour, width, target=target, opacity=opacity, dash=dash))
+        if out and out[-1].colour == colour:
+            out[-1].points += pts[1:]          # the same colour runs on: one line (fewer to draw; the owner: no lag)
+        else:
+            out.append(Line(pts, colour, width, target=target, opacity=opacity, dash=dash))
     return out
 
 
