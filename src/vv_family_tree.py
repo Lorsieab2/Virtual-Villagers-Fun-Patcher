@@ -3623,32 +3623,54 @@ def _resample(points: list[tuple[float, float]], step: float) -> list[tuple[floa
     return out
 
 
-def _hull(points: list[tuple[float, float]]) -> list[tuple[float, float]]:
-    pts = sorted(set(points))
-    if len(pts) < 3:
-        return pts
-    def cross(o, a, b):
-        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
-    lower, upper = [], []
-    for q in pts:
-        while len(lower) >= 2 and cross(lower[-2], lower[-1], q) <= 0:
-            lower.pop()
-        lower.append(q)
-    for q in reversed(pts):
-        while len(upper) >= 2 and cross(upper[-2], upper[-1], q) <= 0:
-            upper.pop()
-        upper.append(q)
-    return lower[:-1] + upper[:-1]
+@functools.lru_cache(maxsize=512)
+def _open_places(kind: str, w: float, h: float, radius: float, angle: float) -> tuple:
+    """The places along a vine border's outline (its _resample steps) where leaves and flowers may go:
+    not in a narrow notch -- a gap of the outside too narrow for them on both its sides, a Monstera's
+    slit, a heart's dip, a star's inner corner -- but in a wide one, the anchor's (the owner,
+    2026-10-09: "move some of the bottom leaves/flowers to those giant notches").  The same for a
+    portrait of the same shape and size wherever it is, so worked out once."""
+    outline_points = shape_points(kind, 0.0, 0.0, w, h, radius, angle)
+    size = max(6.0, 0.1 * min(w, h))
+    walk = _resample(outline_points, size / 8)
+    n = len(walk)
+    pts = [(x, y) for x, y, _nx, _ny in walk]
+    apart = 24                                    # three leaves' lengths along the outline
+    near = size * 2.6                            # room for leaves and flowers on both sides of the gap
+    out = []
+    for k in range(n):
+        x, y = pts[k]
+        narrow = False
+        for j in range(0, n, 2):
+            if min(abs(j - k), n - abs(j - k)) <= apart:
+                continue
+            qx, qy = pts[j]
+            if (qx - x) ** 2 + (qy - y) ** 2 < near * near and not inside(outline_points, (x + qx) / 2, (y + qy) / 2):
+                narrow = True                     # across a gap of the outside, close by: a narrow notch
+                break
+        if not narrow or _room_straight_out(outline_points, walk, k, size):
+            out.append(k)
+    return tuple(out)
 
 
-def _to_edge(hull: list[tuple[float, float]], x: float, y: float) -> float:
-    """How far (x, y) is from the hull's edge."""
-    best = float("inf")
-    for (ax, ay), (bx, by) in zip(hull, hull[1:] + hull[:1]):
-        ex, ey = bx - ax, by - ay
-        f = max(0.0, min(1.0, ((x - ax) * ex + (y - ay) * ey) / ((ex * ex + ey * ey) or 1)))
-        best = min(best, math.hypot(x - ax - ex * f, y - ay - ey * f))
-    return best
+def _room_straight_out(outline_points: list, walk: list, k: int, size: float) -> bool:
+    """Clear room straight out from step k, and a little either side of straight: the heart's dip, which
+    opens wide (the owner, 2026-10-09: a flower there), not a Monstera's slit."""
+    n = len(walk)
+    nx = sum(walk[(k + d) % n][2] for d in range(-3, 4))
+    ny = sum(walk[(k + d) % n][3] for d in range(-3, 4))
+    m = math.hypot(nx, ny)
+    if m == 0:
+        return False
+    nx, ny = nx / m, ny / m
+    x, y = walk[k][0], walk[k][1]
+    for turn_deg in (-30, 0, 30):
+        c, s = math.cos(math.radians(turn_deg)), math.sin(math.radians(turn_deg))
+        dx, dy = nx * c - ny * s, nx * s + ny * c
+        for f in (0.5, 1.0, 1.6, 2.2):
+            if inside(outline_points, x + dx * size * f, y + dy * size * f):
+                return False
+    return True
 
 
 def _band(path: list[tuple[float, float]], normals: list, half: float, colours: list) -> list:
@@ -3722,25 +3744,50 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     normals = [(nx, ny) for _x, _y, nx, ny in walk]
     stem = colour_of("vine", 0.0, 0)
     items = _band(path, normals, max(0.9, size * 0.07), [stem] * n)
-    hull = _hull(outline_points)
     leaves, flowers = border in ("vine_leaves", "vine_both"), border in ("vine_flowers", "vine_both")
     pattern = ["leaf", "leaf", "flower"] if leaves and flowers else ["leaf"] if leaves else ["flower"]
-    spacing = 8 if pattern == ["leaf"] else 10
+    # Leaves alone or flowers alone sparser than the mix, like it (the owner, 2026-10-09: "similar but
+    # different, not too many clustered").
+    spacing = {("leaf",): 12, ("flower",): 16}.get(tuple(pattern), 10)
+    jitter = 0.32 if len(pattern) > 1 else 0.24
     # Only where the outline is not in a notch (the owner: none there), and spread evenly over those
     # stretches, so a star or an anchor is as full as a circle (the owner: "more on the sparser shapes").
-    open_places = [k for k in range(n) if _to_edge(hull, walk[k][0], walk[k][1]) <= size * 0.5]
+    open_places = list(_open_places(kind, round(w, 1), round(h, 1), round(radius, 2), round(angle, 1)))
     count = max(3, len(open_places) // spacing) if open_places else 0
     if open_places and len(open_places) < 0.75 * n:
         count += 4                                    # a sparse shape: just a few more (the owner, 2026-10-09)
+    def wobble(j: int, salt: float) -> float:
+        """-1 to 1, the same for the same leaf or flower every time it is drawn."""
+        v = math.sin((j + 1) * 12.9898 + salt * 78.233) * 43758.5453
+        return (v - math.floor(v)) * 2 - 1
+    placed_at = []
     for j in range(count):
-        k = open_places[int(j * len(open_places) / count)]
+        # Irregularly even (the owner, 2026-10-09): each a little off its even place, a little bigger or
+        # smaller, leaning a little more or less.
+        spot = (j + 0.5 + jitter * wobble(j, 1.0)) * len(open_places) / count
+        k = open_places[min(len(open_places) - 1, max(0, int(spot)))]
+        if len(pattern) == 1 and placed_at and min(abs(k - placed_at[-1]), n - abs(k - placed_at[-1])) < 0.6 * n / count:
+            continue                                  # never two bunched together
+        placed_at.append(k)
+        own = size * (1 + 0.12 * wobble(j, 2.0))
         x, y = path[k]
-        nx, ny = normals[k]
+        # Outward as the outline runs a few steps either side: at a sharp corner -- the heart's dip --
+        # one step's own direction can point inside (the owner, 2026-10-09: the dip's flower above it).
+        nx = sum(normals[(k + d) % n][0] for d in range(-3, 4))
+        ny = sum(normals[(k + d) % n][1] for d in range(-3, 4))
+        m = math.hypot(nx, ny)
+        if m == 0:
+            continue
+        nx, ny = nx / m, ny / m
+        if inside(outline_points, x + nx * size * 0.7, y + ny * size * 0.7):
+            nx, ny = -nx, -ny
+            if inside(outline_points, x + nx * size * 0.7, y + ny * size * 0.7):
+                continue                              # no outside here at all
         tx, ty = -ny, nx
         what = pattern[j % len(pattern)]
         tpos = j / count
         if what == "leaf":
-            lean = 0.6 if j % 2 == 0 else -0.6        # outward, leaning one way then the other
+            lean = (0.6 if j % 2 == 0 else -0.6) * (1 + 0.3 * wobble(j, 3.0))        # outward, leaning one way then the other
             dx, dy = nx * 0.8 + tx * lean, ny * 0.8 + ty * lean
             m = math.hypot(dx, dy)
             if m == 0:
@@ -3749,15 +3796,15 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
             px, py = -dy, dx
             base = colour_of("leaf", tpos, j)
             def half(side):
-                return [(x + dx * size * u + px * size * 0.32 * math.sin(math.pi * u) * side,
-                         y + dy * size * u + py * size * 0.32 * math.sin(math.pi * u) * side) for u in (k2 / 10 for k2 in range(11))]
+                return [(x + dx * own * u + px * own * 0.32 * math.sin(math.pi * u) * side,
+                         y + dy * own * u + py * own * 0.32 * math.sin(math.pi * u) * side) for u in (k2 / 10 for k2 in range(11))]
             a, b = half(1), half(-1)
             items.append(Poly(a + b[::-1][1:-1], base))                         # the leaf
             items.append(Poly(b + [(x + dx * size, y + dy * size)], _shade(base, 0.8)))   # its shaded half
             items.append(Poly(a + b[::-1][1:-1], None, _shade(base, 0.5), 0.9))  # its outline
-            items.append(Line([(x, y), (x + dx * size * 0.9, y + dy * size * 0.9)], _shade(base, 0.5), 0.7))
+            items.append(Line([(x, y), (x + dx * own * 0.9, y + dy * own * 0.9)], _shade(base, 0.5), 0.7))
         else:
-            r = size * 0.55
+            r = own * 0.55
             cx, cy = x + nx * r * 0.95, y + ny * r * 0.95                         # just outside the vine
             base = colour_of("flower", tpos, j)
             petals = [(cx + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.cos(a),
