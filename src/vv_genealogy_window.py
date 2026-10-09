@@ -125,7 +125,10 @@ PORTRAITS
   Portrait                        aspect ratio ticked: the other side follows); Reset size and turn
   Whole Tree tab                  each group's shape, border and default size (Keep aspect ratio
                                   as above); the inside colour; opacity of words, boxes, portraits
-                                  and lines; ages in units / years; twins and triplets
+                                  and lines; ages in units / years; twins and triplets; "Founder";
+                                  portrait text left / centre / right and top / middle / bottom;
+                                  keep text inside the shape; spacing side by side and between
+                                  generations
   Marks & Key tab                 every mark as a border or a glow, its size and opacity
   The size and weight boxes       change the tree as you type or click the arrows
 
@@ -423,8 +426,8 @@ def open_family_tree(app, build) -> None:
         "Draws the chosen village's family tree from its save and the patcher's logs, and lets you "
         "mark and edit it.  Nothing in the save or the logs is changed unless you ask Number duplicate "
         "names to number them there too (it asks first, and backs the save folder up): your marks and edits are kept "
-        "in the save folder's Virtual Villagers Fun Patcher Data\\Genealogy, and the tree, its picture "
-        "and the genealogy report are written to Virtual Villagers Fun Patcher Logs\\Genealogy.",
+        "in the save folder's Virtual Villagers Fun Patcher Data\\Family Tree Edits, and the tree, its picture "
+        "and the genealogy report are written to Virtual Villagers Fun Patcher Family Trees\\Reports.",
         "Open Family Tree Maker", lambda dialog, folder, game, info, title, images:
         _open_editor(app, dialog, folder, game, info, title, images),
         ask_game_folder=True)
@@ -836,9 +839,27 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         positions.pack(fill="x")
         positions.bind("<<ComboboxSelected>>", lambda _e: self._change(
             positioning=next(k for k, v in ft.POSITIONING.items() if v == self.position_var.get())))
-        self.centre_var = tk.BooleanVar(value=e.centre_heads)
-        ttk.Checkbutton(tab, text="Centre faces and text in portraits", variable=self.centre_var,
-                        command=lambda: self._change(centre_heads=bool(self.centre_var.get()))).pack(anchor="w", pady=(10, 0))
+        # The owner, 2026-10-09: "justify text (left right center + top middle bottom)".
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(10, 0))
+        ttk.Label(row, text="Portrait text:").pack(side="left")
+        self.align_var = tk.StringVar(value=ft.TEXT_ALIGNS[e.text_align])
+        across = ttk.Combobox(row, textvariable=self.align_var, values=list(ft.TEXT_ALIGNS.values()),
+                              state="readonly", width=7)
+        across.pack(side="left", padx=(6, 0))
+        across.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            text_align=next(k for k, v in ft.TEXT_ALIGNS.items() if v == self.align_var.get())))
+        ttk.Label(row, text="face and text:").pack(side="left", padx=(8, 0))
+        self.inside_var = tk.BooleanVar(value=e.text_inside)
+        ttk.Checkbutton(tab, text="Keep portrait text inside the shape (crosses, X's, stars...)",
+                        variable=self.inside_var,
+                        command=lambda: self._change(text_inside=bool(self.inside_var.get()))).pack(anchor="w")
+        self.valign_var = tk.StringVar(value=ft.TEXT_VALIGNS[e.text_valign])
+        down = ttk.Combobox(row, textvariable=self.valign_var, values=list(ft.TEXT_VALIGNS.values()),
+                            state="readonly", width=7)
+        down.pack(side="left", padx=(6, 0))
+        down.bind("<<ComboboxSelected>>", lambda _e: self._valign(
+            next(k for k, v in ft.TEXT_VALIGNS.items() if v == self.valign_var.get())))
         # The owner, 2026-10-08: the words in a portrait spread wider, adjustable.
         row = ttk.Frame(tab)
         row.pack(anchor="w", pady=(4, 0))
@@ -852,12 +873,18 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         wrap_spin.pack(side="left", padx=(6, 0))
         # The owner, 2026-10-08: the spacing between portraits batch-editable, and portraits and their
         # words shrinking by themselves to fit many to a page.
-        row = ttk.Frame(tab)
-        row.pack(anchor="w", pady=(4, 0))
-        ttk.Label(row, text="Gap between portraits (pixels):").pack(side="left")
+        # The owner, 2026-10-09: "controls for horizontal/vertical portrait clustering and amount in
+        # pixels" -- how close portraits sit side by side, and how close the generations stack.
+        box = ttk.LabelFrame(tab, text="Spacing (how closely portraits cluster)", padding=6)
+        box.pack(fill="x", pady=(4, 0))
+        ttk.Label(box, text="Side by side (horizontal), pixels:").grid(row=0, column=0, sticky="w")
         self.gap_var = tk.StringVar(value=f"{e.portrait_gap:g}")
-        self._live(ttk.Spinbox(row, textvariable=self.gap_var, from_=ft.GAP_MIN, to=ft.GAP_MAX, increment=2, width=5),
-                   self._portrait_gap).pack(side="left", padx=(6, 0))
+        self._live(ttk.Spinbox(box, textvariable=self.gap_var, from_=ft.GAP_MIN, to=ft.GAP_MAX, increment=2, width=5),
+                   self._portrait_gap).grid(row=0, column=1, sticky="w", padx=(6, 0))
+        ttk.Label(box, text="Between generations (vertical), pixels:").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.row_gap_var = tk.StringVar(value=f"{e.row_gap:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.row_gap_var, from_=ft.ROW_GAP_MIN, to=ft.ROW_GAP_MAX, increment=2,
+                               width=5), self._row_gap).grid(row=1, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
         row = ttk.Frame(tab)
         row.pack(anchor="w", pady=(4, 0))
         ttk.Label(row, text=f"Most generations on one page ({ft.PAGE_GENS_MIN}-{ft.PAGE_GENS_MAX}):").pack(side="left")
@@ -880,6 +907,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.twins_var = tk.BooleanVar(value=e.show_twins)
         ttk.Checkbutton(tab, text="Twins and triplets (\"Kalea's twin\" after the age)", variable=self.twins_var,
                         command=lambda: self._change(show_twins=bool(self.twins_var.get()))).pack(anchor="w")
+        self.founder_var = tk.BooleanVar(value=e.show_founder)          # the owner, 2026-10-09
+        ttk.Checkbutton(tab, text="\"Founder\" in the first generation's portraits", variable=self.founder_var,
+                        command=lambda: self._change(show_founder=bool(self.founder_var.get()))).pack(anchor="w")
         ttk.Label(tab, text="Text colour:").pack(anchor="w", pady=(10, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
         self.ink_field.pack(anchor="w")
@@ -1227,7 +1257,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 font = (item.font or vv_gdiplus.FONT, -max(1, int(round(item.size * z))), *style)
                 iid = c.create_text(item.x, item.y + item.size * 0.24, text=item.text,
                                     fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
-                                    font=font, anchor="s" if item.centre else "sw")
+                                    font=font, anchor="s" if item.centre else "se" if item.end else "sw")
             if iid is not None:
                 self._tag(iid, item)
         c.scale("all", 0, 0, z, z)
@@ -1249,7 +1279,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                     "bold" if look["bold"] else "normal", *(["italic"] if look["italic"] else []),
                     *(["underline"] if look["underline"] else []), *(["overstrike"] if look["strike"] else []))
             pieces.append((text, look, font, self._measure(font, text) / z))
-        x = item.x - sum(p[3] for p in pieces) / 2 if item.centre else item.x
+        total = sum(p[3] for p in pieces)
+        x = item.x - total / 2 if item.centre else item.x - total if item.end else item.x
         out = []
         for text, look, font, width in pieces:
             out.append(c.create_text(x, item.y + look["dy"] + look["size"] * 0.24, text=text, font=font,
@@ -2353,6 +2384,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if gap is not None and gap != self.edits.portrait_gap:
             self._change(portrait_gap=gap)
 
+    def _valign(self, valign: str) -> None:
+        """The face and words at the top, middle or bottom of every portrait (Centre faces, before)."""
+        self._change(text_valign=valign, centre_heads=valign == "middle")
+
+    def _row_gap(self) -> None:
+        """The pixels under each generation's row before the lines down to its children, for every row."""
+        gap = self._number(self.row_gap_var.get(), ft.ROW_GAP_MIN, ft.ROW_GAP_MAX)
+        if gap is not None and gap != self.edits.row_gap:
+            self._change(row_gap=gap)
+
     def _page_generations(self) -> None:
         """The most generations on one page; a longer tree goes on over more pages (the owner: 6, up to 10)."""
         n = self._number(self.page_gens_var.get(), ft.PAGE_GENS_MIN, ft.PAGE_GENS_MAX)
@@ -2670,14 +2711,18 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_style_var.set(ft.MARK_STYLES[e.mark_style])
         self.glow_var.set(f"{e.mark_glow:g}")
         self.mark_opacity_scale.set(e.mark_opacity)
-        self.centre_var.set(e.centre_heads)
+        self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
+        self.inside_var.set(e.text_inside)
+        self.valign_var.set(ft.TEXT_VALIGNS[e.text_valign])
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")
+        self.row_gap_var.set(f"{e.row_gap:g}")
         self.portrait_fit_var.set(str(e.fit_width))
         self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
         self.twins_var.set(e.show_twins)
+        self.founder_var.set(e.show_founder)
         self.number_names_var.set(e.number_names)
         self.number_order_var.set(gen.NUMBER_ORDERS[e.number_order])
         self.diagonal_var.set(e.diagonal_lines)
@@ -3227,7 +3272,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     # ---- output ---------------------------------------------------------------
     def _write_outputs(self) -> None:
-        """The tree's page, picture and report in the save folder's Logs\\Genealogy (as Family Tree
+        """The tree's page, picture and report in the save folder's Family Trees\\Reports (as Family Tree
         always writes them), with the edits as they are now."""
         try:
             self.written = ft.write(self.folder, self.game, self.slot, self.images, self.game_title,
@@ -3541,7 +3586,7 @@ def open_pair_suggestions(app, build) -> None:
         app, build, "Village Matchmaker",
         "Suggests who to pair, by the rules you tick -- every one is yours to switch on or off.  It "
         "only reads the save and the patcher's logs; the suggestions are also saved to the save folder's "
-        "Virtual Villagers Fun Patcher Logs\\Genealogy.",
+        "Virtual Villagers Fun Patcher Family Trees folder.",
         "Choose Rules...", lambda dialog, folder, game, info, title, images:
         _pair_rules(app, dialog, folder, game, info, title),
         ask_game_folder=False)

@@ -23,7 +23,7 @@ diamond portrait that says Upcoming child".
   type something in a portrait"): every entry's lines, the title and the generation labels may be
   replaced, and any villager may carry a mark of the player's own -- a label and a colour -- drawn
   as a second border, every mark listed in the Key.  They are kept in the save folder's
-  Virtual Villagers Fun Patcher Data\\Genealogy, by villager (name, head and body), so a new tree
+  Virtual Villagers Fun Patcher Data\\Family Tree Edits, by villager (name, head and body), so a new tree
   keeps them.
 
 The page is HTML with the tree in SVG; the picture (PNG or JPG) is drawn with Windows' own GDI+
@@ -51,6 +51,9 @@ TRANSPARENT = "transparent"             # a colour that shows nothing (the owner
 LINE_WIDTH = 2.2                        # a family line's weight unless the player says
 GAP_X = 22
 GAP_MIN, GAP_MAX = 0.0, 400.0           # the player's gap between portraits
+TEXT_ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
+TEXT_VALIGNS = {"top": "Top", "middle": "Middle", "bottom": "Bottom"}
+ROW_GAP_MIN, ROW_GAP_MAX = 0.0, 400.0   # the player's room under each generation's row (Edits.row_gap)
 FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
 SHRINK_MIN = 0.2                        # never smaller than a fifth
 PAGE_GENS, PAGE_GENS_MIN, PAGE_GENS_MAX = 6, 2, 10   # generations on one page: the owner's default and limit
@@ -211,9 +214,18 @@ class Edits:
     """The player's marks and edits for one village's tree.  Blank means the patcher's own."""
     title: str = ""
     subtitle: str = ""
-    centre_heads: bool = True           # the head and its lines in the middle of the frame
+    centre_heads: bool = True           # the head and its lines in the middle of the frame (text_valign "middle")
+    # The owner, 2026-10-09: "justify text (left right center + top middle bottom)": the portrait's words
+    # across (TEXT_ALIGNS) and the face and words together up and down (TEXT_VALIGNS).
+    text_align: str = "centre"
+    # The owner, 2026-10-09: "a toggle for the text to fit within the portrait shape's space (in things
+    # like crosses and x's it runs off)": the words only as wide as the shape is where each line is.
+    text_inside: bool = False
+    text_valign: str = "middle"
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
     portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
+    row_gap: float = 30.0               # pixels under a generation's row before its children's lines (LANE_TOP)
+    show_founder: bool = False          # "Founder" in each generation I portrait (the owner, 2026-10-09)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
     page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
@@ -275,9 +287,11 @@ class Edits:
 
     @staticmethod
     def path(folder: Path, game: int, slot: int) -> Path:
-        import vv_log_tools as tools
-        return (Path(folder) / tools.DATA / "Genealogy"
-                / f"Virtual Villagers {game} Genealogy Edits - Save {slot}.json")
+        # "Data\Family Tree Edits\... Family Tree Edits - Save N.json"; "Genealogy" / "Genealogy Edits"
+        # in older builds, used there until the save folder's files take their new names.
+        import vv_save_layout as save_layout
+        return save_layout.find(folder, f"{save_layout.DATA}\\{save_layout.TREE_EDITS}\\"
+                                        f"Virtual Villagers {game} Family Tree Edits - Save {slot}.json")
 
     @classmethod
     def load(cls, path: Path) -> "Edits":
@@ -305,9 +319,17 @@ class Edits:
     def _from_data(cls, data: dict) -> "Edits":
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
+        out.text_inside = data.get("text_inside") is True
+        align = data.get("text_align")
+        out.text_align = align if align in TEXT_ALIGNS else "centre"
+        valign = data.get("text_valign")
+        out.text_valign = valign if valign in TEXT_VALIGNS else ("middle" if out.centre_heads else "top")
+        out.centre_heads = out.text_valign == "middle"     # what an older build reads
         out.diagonal_lines = data.get("diagonal_lines") is True
         out.text_wrap = int(_number(data.get("text_wrap"), WRAP_MIN, WRAP_MAX, WRAP))
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
+        out.row_gap = float(_number(data.get("row_gap"), ROW_GAP_MIN, ROW_GAP_MAX, LANE_TOP))
+        out.show_founder = data.get("show_founder", False) is True
         out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
         fit = data.get("fit_width")
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
@@ -452,7 +474,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.centre_heads, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -511,7 +533,9 @@ ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
 PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle", "rect": "Square",
                    "rounded": "Rounded square", "circle": "Circle", "ellipse": "Oval",
                    "heart": "Heart", "triangle": "Triangle", "diamond": "Diamond", "cross": "Cross", "x": "X",
-                   "plus": "Plus", "star": "Star", "hexagon": "Hexagon", "octagon": "Octagon",
+                   "plus": "Plus", "star": "Star", "hexagon": "Hexagon", "octagon": "Octagon", "trapezoid": "Trapezoid", "pentagon": "Pentagon",
+                   "star4": "4-pointed star", "plump_star": "Plump star", "star6": "6-pointed star",
+                   "slim_star6": "Slim 6-pointed star", "arrow_h": "Arrow (horizontal)", "arrow_v": "Arrow (vertical)",
                    "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
@@ -737,7 +761,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # reopen (portrait shape/any other changes)").  Never a village's own things: its title, moved
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
-    "centre_heads", "text_wrap", "portrait_gap", "fit_width", "page_generations", "diagonal_lines",
+    "centre_heads", "text_align", "text_inside", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -1155,7 +1179,8 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     for k, g in enumerate(gens):
         if k:
             couples = lanes.couple_count.get(g, 0)
-            top += (bands[gens[k - 1]] + LANE_TOP + couples * LANE + (BAND_GAP if couples else 0)
+            # The room under the row above is the player's (Edits.row_gap: "vertical portrait clustering").
+            top += (bands[gens[k - 1]] + edits.row_gap + couples * LANE + (BAND_GAP if couples else 0)
                     + max(1, lanes.count.get(g, 0)) * LANE + LANE_BOTTOM)
         tops[g] = top
     for fam in families:
@@ -1966,7 +1991,8 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + born_with(lay, p) + ([extra] if extra else [])
+    founder = ["Founder"] if e.show_founder and p.generation == 1 else []     # the owner, 2026-10-09
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + founder + born_with(lay, p) + ([extra] if extra else [])
 
 
 def born_with(lay: Layout, p: gen.Person) -> list[str]:
@@ -1990,10 +2016,14 @@ def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, flo
     top when the player turns centring off ("in case players type a lot of stuff")."""
     x0, y0, x1, y1 = box or DEFAULT_BOX
     face = (y1 - y0) * HEAD_SCALE
-    face_top = 6.0 if lay.edits.centre_heads else 10.0
+    valign = lay.edits.text_valign
+    face_top = 10.0 if valign == "top" else 6.0
     lines = shown_text(lay, p, int((NODE_H - face_top - face - 8 - 6) // LINE_H))
-    if lay.edits.centre_heads:
-        face_top = max(face_top, (NODE_H - (face + 8 + len(lines) * LINE_H)) / 2)
+    block = face + 8 + len(lines) * LINE_H
+    if valign == "middle":
+        face_top = max(face_top, (NODE_H - block) / 2)
+    elif valign == "bottom":                # the last line just above the frame's foot
+        face_top = max(face_top, NODE_H - block - 6)
     left = NODE_W / 2 - (x0 + x1) / 2 * HEAD_SCALE
     return left, face_top - y0 * HEAD_SCALE, face_top + face + 8 + LINE_H - 3, lines
 
@@ -2233,6 +2263,14 @@ def _unit_outlines() -> dict[str, list[tuple[float, float]]]:
                (px - 0.5) * math.sin(math.pi / 4) + (py - 0.5) * math.cos(math.pi / 4)) for px, py in plus]
     star = [(math.sin(k * math.pi / 5) * (0.5 if k % 2 == 0 else 0.2),
              -math.cos(k * math.pi / 5) * (0.5 if k % 2 == 0 else 0.2)) for k in range(10)]
+    # The owner, 2026-10-09: 4- and 6-pointed stars too (the 6-pointed one two crossed triangles' outline).
+    star6 = [(math.sin(k * math.pi / 6) * (0.5 if k % 2 == 0 else 0.5 / math.sqrt(3)),
+              -math.cos(k * math.pi / 6) * (0.5 if k % 2 == 0 else 0.5 / math.sqrt(3))) for k in range(12)]
+    # The owner's pictures (2026-10-09): a plumper 5-pointed star, and a 6-pointed one with long thin points.
+    plump = [(math.sin(k * math.pi / 5) * (0.5 if k % 2 == 0 else 0.26),
+              -math.cos(k * math.pi / 5) * (0.5 if k % 2 == 0 else 0.26)) for k in range(10)]
+    slim6 = [(math.sin(k * math.pi / 6) * (0.5 if k % 2 == 0 else 0.19),
+              -math.cos(k * math.pi / 6) * (0.5 if k % 2 == 0 else 0.19)) for k in range(12)]
     heart = [(16 * math.sin(t) ** 3, -(13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)))
              for t in (k * 2 * math.pi / 72 for k in range(72))]
     return {
@@ -2243,8 +2281,19 @@ def _unit_outlines() -> dict[str, list[tuple[float, float]]]:
                   (0.35, 0.5), (0, 0.5), (0, 0.25), (0.35, 0.25)],
         "x": fit(turned),
         "star": fit(star),
+        # The owner's picture (2026-10-09): taller than wide, a narrow waist.
+        "star4": [(0.5, 0), (0.636, 0.385), (1, 0.5), (0.636, 0.615), (0.5, 1), (0.364, 0.615), (0, 0.5),
+                  (0.364, 0.385)],
+        "star6": fit(star6),
+        "plump_star": fit(plump),
+        "slim_star6": fit(slim6),
+        # The owner, 2026-10-09: horizontal and vertical arrows (a portrait turns to point any other way).
+        "arrow_h": [(0, 0.3), (0.6, 0.3), (0.6, 0), (1, 0.5), (0.6, 1), (0.6, 0.7), (0, 0.7)],
+        "arrow_v": [(0.5, 0), (1, 0.4), (0.7, 0.4), (0.7, 1), (0.3, 1), (0.3, 0.4), (0, 0.4)],
         "hexagon": [(0.5, 0), (1, 0.25), (1, 0.75), (0.5, 1), (0, 0.75), (0, 0.25)],
         "octagon": [(0.3, 0), (0.7, 0), (1, 0.3), (1, 0.7), (0.7, 1), (0.3, 1), (0, 0.7), (0, 0.3)],
+        "trapezoid": [(0.2, 0), (0.8, 0), (1, 1), (0, 1)],           # the owner, 2026-10-09
+        "pentagon": [(0.5, 0), (1, 0.382), (0.809, 1), (0.191, 1), (0, 0.382)],     # regular; the owner, 2026-10-09
         "heart": fit(heart),
     }
 
@@ -2394,7 +2443,8 @@ GDI_DASHES = {"dotted": 2, "dashed": 1, "dashdot": 3}       # GDI+'s dash styles
 # height until the player resizes it.  The heart's and the star's are their outlines' own; a
 # diamond is a playing card's.  A rectangle, a rounded rectangle and an oval fill the portrait.
 ASPECTS = {"rect": 1.0, "rounded": 1.0, "circle": 1.0, "heart": 1.107, "star": 1.051, "triangle": 1.155, "diamond": 0.7, "cross": 0.75, "x": 1.0,
-           "plus": 1.0, "hexagon": 0.866, "octagon": 1.0}
+           "plus": 1.0, "hexagon": 0.866, "octagon": 1.0, "trapezoid": 1.2, "pentagon": 1.051, "star4": 0.863, "star6": 0.866, "plump_star": 1.051, "slim_star6": 0.866,
+                "arrow_h": 1.6, "arrow_v": 0.625}
 # The owner's shapes of 2026-10-08 take their own drawn proportions.
 ASPECTS.update({"flower": FLOWER_ASPECT, "butterfly": BUTTERFLY_ASPECT, "clover": CLOVER_ASPECT, "spade": SPADE_ASPECT,
                 "leaf": LEAF_ASPECT})      # _raw_aspect's, fixed (tests/test_tree_new_shapes.py checks them)
@@ -2535,6 +2585,7 @@ class Text:
     colour: str
     bold: bool = False
     centre: bool = False                # x is the middle (else the start)
+    end: bool = False                   # x is the end: right-aligned words (Edits.text_align)
     pid: int | None = None
     role: str = ""                      # ROLES: whose style the player may change
     font: str = ""
@@ -2758,7 +2809,7 @@ def _extent(item) -> tuple[float, float, float, float] | None:
         return min(xs), min(ys), max(xs), max(ys)
     if isinstance(item, Text):
         width = len(item.text) * item.size * 0.55
-        left = item.x - width / 2 if item.centre else item.x
+        left = item.x - width / 2 if item.centre else item.x - width if item.end else item.x
         return left, item.y - item.size, left + width, item.y + item.size * 0.3
     if isinstance(item, Sticker):
         return item.bounds()
@@ -2959,15 +3010,29 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         baseline = middle[1] + (y + text_top + k * LINE_H - middle[1]) * scale
         # The narrowest the shape is across the whole line, from the tops of its letters to below them.
         chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
-        room = max(chord, fw * 0.5) - 8
+        # Half the frame at least, unless the player keeps the words inside the shape (a cross's arm).
+        room = max(chord - 8, 12.0) if lay.edits.text_inside else max(chord, fw * 0.5) - 8
         needed = len(text) * size * (0.58 if bold else 0.55)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
     own = lay.entry(p).get("text_scale", 100) / 100
+    # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
+    # so no line leaves a round or pointed portrait (Edits.text_align).
+    align = lay.edits.text_align
+    half = NODE_W / 2 - 8
+    if align != "centre":
+        for k, (text, bold, _r) in enumerate(lines):
+            if text:
+                size = (11.5 if bold else 10) * scale
+                baseline = middle[1] + (y + text_top + k * LINE_H - middle[1]) * scale
+                chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
+                wide = max(chord - 4, 16.0) if lay.edits.text_inside else max(chord, fw * 0.5)
+                half = min(half, (wide - 12) / 2 / scale)
+    at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):
-        put(Text(x + NODE_W / 2, y + text_top + k * LINE_H, text, (11.5 if bold else 10) * fit * own, ink,
-                 bold=bold, centre=True, pid=p.id, role="names" if bold else "portraits", edit=f"person:{p.id}",
-                 runs=runs))
+        put(Text(at, y + text_top + k * LINE_H, text, (11.5 if bold else 10) * fit * own, ink,
+                 bold=bold, centre=align == "centre", end=align == "right", pid=p.id,
+                 role="names" if bold else "portraits", edit=f"person:{p.id}", runs=runs))
 
 
 def _chord(points: list[tuple[float, float]], y: float) -> float:
@@ -3144,7 +3209,7 @@ def to_svg(sc: Scene, present: dict, describe=None) -> str:
             lines = " ".join(d for d, on in (("underline", item.underline), ("line-through", item.strike)) if on)
             weight += f' text-decoration="{lines}"' if lines else ""
             weight += f' font-family="{e(item.font)}, Segoe UI, Arial, sans-serif"' if item.font else ""
-            anchor = ' text-anchor="middle"' if item.centre else ""
+            anchor = ' text-anchor="middle"' if item.centre else ' text-anchor="end"' if item.end else ""
             words = _svg_runs(item) if item.runs else e(item.text)
             keep = ' xml:space="preserve"' if item.runs else ""     # the spaces between runs
             out.append(f'<text x="{item.x:.1f}" y="{item.y:.1f}" font-size="{item.size}"{weight}{anchor} '
@@ -3199,7 +3264,7 @@ def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tup
 def write(folder: Path, game: int, slot: int, images: Path | None, game_title: str,
           out: Path | None = None, edits: Edits | None = None, library: dict | None = None) -> Written:
     """The genealogy report, the tree's page and (on Windows) its picture, in the save folder's
-    Virtual Villagers Fun Patcher Logs\\Genealogy (or `out`) -- each run replaces the slot's last
+    Virtual Villagers Fun Patcher Family Trees\\Reports (or `out`) -- each run replaces the slot's last
     ones.  Nothing else is written."""
     import vv_log_tools as tools
     import vv_gdiplus
@@ -3211,7 +3276,8 @@ def write(folder: Path, game: int, slot: int, images: Path | None, game_title: s
     title = title_lines(replace(lay, pages=1), game_title)[0]
     arrange(village, Edits(sort=edits.sort))         # the report: the records' generations
     text = gen.report(village, game_title)
-    out = Path(out) if out is not None else folder / tools.LOGS / "Genealogy"
+    import vv_save_layout as save_layout             # "Family Trees\Reports"; "Logs\Genealogy" in older builds
+    out = Path(out) if out is not None else save_layout.find(folder, f"{TREES}\\{save_layout.TREE_REPORTS}")
     out.mkdir(parents=True, exist_ok=True)
     stem = f"Virtual Villagers {game} Genealogy - Save {slot}"
     report_path = out / f"{stem}.txt"

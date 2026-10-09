@@ -350,6 +350,9 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
         if item.centre:
             g.GdipSetStringFormatAlign(fmt, 1)
             rect = RectF(item.x - 2000, top, 4000, item.size * 2)
+        elif item.end:                          # right-aligned: the words end at x
+            g.GdipSetStringFormatAlign(fmt, 2)
+            rect = RectF(item.x - 20000, top, 20000, item.size * 2)
         else:
             g.GdipSetStringFormatAlign(fmt, 0)
             rect = RectF(item.x, top, 20000, item.size * 2)
@@ -382,7 +385,8 @@ def _draw_runs(gdi: _Gdi, graphics, fmt, item, ft) -> None:
                                 ctypes.byref(RectF(0, 0, 20000, look["size"] * 2)), own, ctypes.byref(box),
                                 None, None)
             pieces.append((text, look, font, ascent, box.Width))
-        x = item.x - sum(p[4] for p in pieces) / 2 if item.centre else item.x
+        total = sum(p[4] for p in pieces)
+        x = item.x - total / 2 if item.centre else item.x - total if item.end else item.x
         for text, look, font, ascent, width in pieces:
             brush = ctypes.c_void_p()
             g.GdipCreateSolidFill(_argb(look["colour"], _alpha(item)), ctypes.byref(brush))
