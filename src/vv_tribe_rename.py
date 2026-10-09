@@ -498,7 +498,8 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
         for sub in (
             "Births and Conceptions",
             "Tribe Parental Records",
-            "Deaths",
+            "Deaths and Disappearances",
+            "Deaths",                   # the same logs, in a folder an older build has not moved yet
             "Unaccounted Villagers",
             "Island Events",
         ):

@@ -82,6 +82,7 @@
 #include "grave_backfill.h"
 #include "arrival_backfill.h"
 #include "data_subfolder.h"   /* each kind of data file in its own folder */
+#include "save_layout.h"      /* the save folder's names, and the move from older builds' (cod_roster.inc) */
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"

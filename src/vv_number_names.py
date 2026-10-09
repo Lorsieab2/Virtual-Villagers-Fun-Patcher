@@ -29,6 +29,7 @@ from pathlib import Path
 import vv_genealogy as gen
 import vv_last_names as ln
 import vv_save_backup
+import vv_save_layout as layout
 
 BACKUP_LABEL = "(before numbering names)"
 
@@ -98,7 +99,8 @@ def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[
                 if b.identity[0] and (b.identity[1] is None or b.identity[2] is None)}
     taken = set()
     data_dir = Path(folder) / ln.tools.DATA
-    for path, columns in ((data_dir / "Village Statistics" / f"Village Roster - Save {slot}.dat", (1,)),
+    for path, columns in ((layout.find(folder, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat"),
+                           (1,)),
                           (data_dir / "Village Elders" / f"Village Elders - Save {slot}.dat", (2, 3, 4))):
         try:
             lines = path.read_bytes().decode("latin-1").split("\n")

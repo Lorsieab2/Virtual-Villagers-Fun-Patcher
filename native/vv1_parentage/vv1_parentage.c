@@ -151,6 +151,7 @@
 #include <string.h>
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
+#include "../shared/save_layout.h"    /* the save folder's names, and the move from older ones */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -804,7 +805,11 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
        will not move, the loose file is the one read and written, so nothing
        is shadowed. */
     {
-        char name[64];
+        char name[64], root[MAX_PATH];
+        /* "Parents (A New Home)" -- "Parentage Records" in older builds, moved first
+           (native/shared/save_layout.h). */
+        wsprintfA(root, "%s\\LDW\\%s", docs, base);
+        vv_layout_move_dir_a(root, VV_PARENTS_VV1_OLD, VV_PARENTS_VV1_DIR);
         wsprintfA(name, "Virtual Villagers 1 Parentage Records - Save %u.dat", (unsigned int)slot);
         if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE, name, VV_DATA_RESERVE)) {
             return 0;

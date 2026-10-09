@@ -191,7 +191,26 @@ static int roster_build_path(int slot, char *out) {
                                        "\\Virtual Villagers 1 Village Roster - Save 0.dat"))) {
         return 0;
     }
-    wsprintfA(name, "Virtual Villagers %d Village Roster - Save %d.dat", g_game, slot);
+    /* "... Villagers at Last Save - Save S.dat": "... Village Roster - Save S.dat" in older builds,
+       in its folder or loose, renamed first when the new name is free (native/shared/save_layout.h). */
+    {
+        wchar_t data_w[MAX_PATH], old_w[MAX_PATH], new_w[MAX_PATH];
+        if (MultiByteToWideChar(CP_ACP, 0, out, -1, data_w, MAX_PATH) > 0) {
+            _snwprintf_s(old_w, MAX_PATH, _TRUNCATE,
+                         L"%ls\\Unaccounted Villagers\\Virtual Villagers %d Village Roster - Save %d.dat",
+                         data_w, g_game, slot);
+            _snwprintf_s(new_w, MAX_PATH, _TRUNCATE,
+                         L"%ls\\Unaccounted Villagers\\Virtual Villagers %d Villagers at Last Save - Save %d.dat",
+                         data_w, g_game, slot);
+            vv_layout_move_file(old_w, new_w);
+            _snwprintf_s(old_w, MAX_PATH, _TRUNCATE, L"%ls\\Virtual Villagers %d Village Roster - Save %d.dat",
+                         data_w, g_game, slot);
+            _snwprintf_s(new_w, MAX_PATH, _TRUNCATE,
+                         L"%ls\\Virtual Villagers %d Villagers at Last Save - Save %d.dat", data_w, g_game, slot);
+            vv_layout_move_file(old_w, new_w);
+        }
+    }
+    wsprintfA(name, "Virtual Villagers %d Villagers at Last Save - Save %d.dat", g_game, slot);
     return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_UNACCOUNTED, name, VV_DATA_RESERVE) != 0;
 }
 
