@@ -2,7 +2,7 @@
    cross-check that a companion other than A New Home's parentage repairs
    (v1.35.58; native/shared/crosscheck_bridge.h).
 
-   THE LOG.  "<save folder>\Virtual Villagers Fun Patcher Logs\Repairs\
+   THE LOG.  "<save folder>\Virtual Villagers Fun Patcher Logs\Repairs Made\
    Virtual Villagers N Repairs Log <n>.txt" -- the same files, numbering and
    shape A New Home's parentage repair writes (vv1_crosscheck.inc): the
    village's own header line ("Village: <name> (Save S)") whenever the last
@@ -19,9 +19,10 @@
    A file holds 256 records or 4 MiB; the next number is used after that.
    Written with Windows line endings, appended, never rewritten.
 
-   THE BACKUP.  "<file>.before-v1.35.58-repair" beside the file (then "-2",
-   "-3", ...), copied before the first change and never replacing anything:
-   CopyFile with bFailIfExists.
+   THE BACKUP.  "<file>.before-v1.35.58-repair" (then "-2", "-3", ...) in
+   "Virtual Villagers Fun Patcher Data\Copies Made Before Repairs", at the
+   file's own place (save_layout.h), copied before the first change and never
+   replacing anything: CopyFile with bFailIfExists.
 
    Header-only and file-static: included once per companion. */
 #ifndef VVFP_REPAIRS_LOG_H
@@ -31,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "save_folder.h"
+#include "save_layout.h"
 
 #define VV_REPAIR_BACKUP_SUFFIX L".before-v1.35.58-repair"
 #define VV_REPAIRS_PER_FILE 256
@@ -51,8 +53,17 @@ static int vv_repair_backup(const wchar_t *path, wchar_t *backup, size_t n, int 
         return 0;
     }
     for (k = 1; k < 1000; ++k) {
-        int w = k == 1 ? _snwprintf_s(backup, n, _TRUNCATE, L"%ls" VV_REPAIR_BACKUP_SUFFIX, path)
-                       : _snwprintf_s(backup, n, _TRUNCATE, L"%ls" VV_REPAIR_BACKUP_SUFFIX L"-%d", path, k);
+        /* Kept in "Data\Copies Made Before Repairs", at the file's own place (save_layout.h); beside
+           the file only when it is outside the save folder's Logs and Data folders. */
+        wchar_t suffix[48];
+        int w = k == 1 ? _snwprintf_s(suffix, 48, _TRUNCATE, VV_REPAIR_BACKUP_SUFFIX)
+                       : _snwprintf_s(suffix, 48, _TRUNCATE, VV_REPAIR_BACKUP_SUFFIX L"-%d", k);
+        if (w < 0) {
+            break;
+        }
+        if (!vv_layout_copy_path(path, suffix, backup, n)) {
+            w = _snwprintf_s(backup, n, _TRUNCATE, L"%ls%ls", path, suffix);
+        }
         if (w < 0) {
             break;
         }
@@ -85,9 +96,14 @@ static int vv_repairs_note(int game, const char *header, const char *checked, co
     HANDLE file;
     DWORD size, got = 0, wrote = 0;
     BOOL ok;
-    if (game < 1 || game > 5 || header == NULL || checked == NULL || body == NULL
-        || !vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Logs\\Repairs",
-                              (int)sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
+    if (game < 1 || game > 5 || header == NULL || checked == NULL || body == NULL) {
+        return 0;
+    }
+    if (vv_save_folder(folder, 64)) {
+        vv_layout_move_dir_a(folder, VV_REPAIRS_OLD, VV_REPAIRS_DIR);    /* "Repairs" -> "Repairs Made" */
+    }
+    if (!vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Logs\\Repairs Made",
+                           (int)sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
         return 0;
     }
     for (;;) {
