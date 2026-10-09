@@ -231,7 +231,7 @@ class PawPrintTests(unittest.TestCase):
         pollen = ft.special_border("vine_flowers", "hibiscus", (0.0, 0.0, 160.0, 156.0, 0.0), 0.0, e)
         self.assertTrue(pollen, "the hibiscus's small pollen circles still take one flower each")
 
-    def test_the_face_and_words_sit_in_the_pad(self):
+    def test_the_face_and_words_are_centred_in_the_box_round_toes_and_pad(self):
         v = village()
         e = ft.Edits()
         for group in ft.GROUPS:
@@ -239,10 +239,13 @@ class PawPrintTests(unittest.TestCase):
         lay = ft.layout(v, e)
         sc = ft.scene(lay, GAME, {})
         q = next(q for q in lay.x if not v.people[q].upcoming)
-        pad_top = min(py for _px, py in lay.frame_points(q))
-        names = [i for i in sc.items if isinstance(i, ft.Text) and i.pid == q and i.role == "names"]
-        self.assertTrue(names)
-        self.assertGreater(names[0].y, pad_top, "the name is in the pad, below the toes")
+        # The owner, 2026-10-09: centred "within the invisible outline made if you ... rectangle-box them".
+        fx, fy, fw, fh, _a = lay.frame(q)
+        face = next(i for i in sc.items if isinstance(i, ft.Shape) and i.pid == q and i.kind == "ellipse" and i.w < 80)
+        words = [i.y for i in sc.items if isinstance(i, ft.Text) and i.pid == q and i.role in ("names", "portraits")]
+        self.assertTrue(words)
+        middle = (face.y + max(words)) / 2
+        self.assertLess(abs(middle - (fy + fh / 2)), 0.15 * fh, "the face and words in the middle of the whole box")
         fills = [i for i in sc.items if isinstance(i, ft.Poly) and i.fill == e.portrait_fill]
         self.assertGreaterEqual(len(fills), 4, "the toes are filled like the pad")
 

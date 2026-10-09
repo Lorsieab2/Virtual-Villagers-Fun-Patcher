@@ -4257,11 +4257,6 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     w0, h0 = natural_width(base_kind(kind)), NODE_H
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
     middle = (x + NODE_W / 2, y + NODE_H / 2)
-    if base_kind(kind) in FIT_EVERYTHING:       # the face and words in a paw print's pad, not among its toes
-        xs, ys = zip(*lay.frame_points(p.id))
-        x += (min(xs) + max(xs)) / 2 - (fx + fw / 2)
-        y += (min(ys) + max(ys)) / 2 - (fy + fh / 2)
-        middle = (x + NODE_W / 2, y + NODE_H / 2)
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
 
