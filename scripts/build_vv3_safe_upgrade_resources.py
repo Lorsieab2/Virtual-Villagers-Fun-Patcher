@@ -83,8 +83,11 @@ FOUNDATION_OUTPUT = (
 # Recertified when every Origins companion gained VvfpMaskOf (native/shared/
 # story_bridge.h): the log exporters' "Mask:" line asks the companion for the
 # mask it keeps on a villager.  One new export, nothing else in the build.
-SOURCE_SHA256 = "EAA3880B119FDDD1AD9317501A35C41A6C879D6C6A65856419D7CE6B064DB791"
-SOURCE_SIZE = 1961472
+# Recertified for the save folder's new names (native/shared/save_layout.h, the
+# owner, 2026-10-09): the Log Checks and Repairs Made folders, moved from their
+# old names first, and a repair's copy kept in Data\Copies Made Before Repairs.
+SOURCE_SHA256 = "0CD5F7F4E7AFDB6015A537092EC05A2C5445015AABB035D36E9D52DD823A59DC"
+SOURCE_SIZE = 1963520
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
