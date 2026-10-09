@@ -470,8 +470,14 @@ static int install(int game) {
         if (!VirtualProtect(at, sites[i].length, PAGE_EXECUTE_READWRITE, &old)) {
             continue;
         }
+        /* The jump is relative to where it will sit, the routine's entry -- not
+           to this buffer it is assembled in. */
         memset(bytes, 0x90, sizeof bytes);
-        put_jmp(bytes, g_code + i * (STUB_SIZE + TRAMPOLINE_SIZE));
+        bytes[0] = 0xE9;
+        {
+            int rel = (int)(g_code + i * (STUB_SIZE + TRAMPOLINE_SIZE) - (at + 5));
+            memcpy(bytes + 1, &rel, 4);
+        }
         memcpy(at, bytes, sites[i].length);
         VirtualProtect(at, sites[i].length, old, &old);
         FlushInstructionCache(GetCurrentProcess(), at, sites[i].length);
