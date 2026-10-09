@@ -275,6 +275,17 @@ def _backdrop(gdi: _Gdi, graphics, item, ft, width: float, height: float) -> Non
 def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)) -> None:
     g = gdi.g
     f = ctypes.c_float
+    if isinstance(item, ft.Text) and getattr(item, "angle", 0.0):
+        # Words turned with their portrait (Edits.turn_words): drawn upright, the page turned about them.
+        import dataclasses
+        state = ctypes.c_uint()
+        g.GdipSaveGraphics(graphics, ctypes.byref(state))
+        g.GdipTranslateWorldTransform(graphics, f(item.x), f(item.y), 0)
+        g.GdipRotateWorldTransform(graphics, f(item.angle), 0)
+        g.GdipTranslateWorldTransform(graphics, f(-item.x), f(-item.y), 0)
+        _draw(gdi, graphics, fmt, images, dataclasses.replace(item, angle=0.0), ft, size)
+        g.GdipRestoreGraphics(graphics, state)
+        return
     if isinstance(item, ft.Backdrop):
         _backdrop(gdi, graphics, item, ft, *size)
     elif isinstance(item, ft.Line):

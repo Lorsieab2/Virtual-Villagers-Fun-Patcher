@@ -704,6 +704,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_text = tk.StringVar()
         self._live(ttk.Spinbox(row, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
                                increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
+        # The owner, 2026-10-09: flip the portrait's shape either way, and turn it to an exact angle.
+        row = ttk.Frame(box)
+        row.grid(row=6, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self.own_flips = {flip: tk.BooleanVar() for flip in ("flip_h", "flip_v")}
+        for flip, words in (("flip_h", "Flip horizontally"), ("flip_v", "Flip vertically")):
+            ttk.Checkbutton(row, text=words, variable=self.own_flips[flip],
+                            command=lambda f=flip: self._own_flip(f)).pack(side="left", padx=(0, 8))
+        ttk.Label(row, text="Turn (degrees)").pack(side="left")
+        self.own_turn = tk.StringVar()
+        self._live(ttk.Spinbox(row, textvariable=self.own_turn, from_=0, to=345, increment=15, width=5, wrap=True),
+                   self._own_turn).pack(side="left", padx=(4, 0))
         row = ttk.Frame(box)
         row.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Their family's lines:  weight").pack(side="left")
@@ -859,6 +870,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         room.pack(side="left", padx=(6, 0))
         room.bind("<<ComboboxSelected>>", lambda _e: self._change(
             text_room=next(k for k, v in ft.TEXT_ROOMS.items() if v == self.room_var.get())))
+        self.turn_words_var = tk.BooleanVar(value=e.turn_words)          # the owner, 2026-10-09
+        ttk.Checkbutton(tab, text="Turn the words with a turned portrait (the face stays upright)",
+                        variable=self.turn_words_var,
+                        command=lambda: self._change(turn_words=bool(self.turn_words_var.get()))).pack(anchor="w")
         self.inside_var = tk.BooleanVar(value=e.text_inside)
         ttk.Checkbutton(tab, text="Keep portrait text inside the shape (crosses, X's, stars...)",
                         variable=self.inside_var,
@@ -1318,9 +1333,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 style = ["bold" if item.bold else "normal"] + (["italic"] if item.italic else []) \
                     + (["underline"] if item.underline else []) + (["overstrike"] if item.strike else [])
                 font = (item.font or vv_gdiplus.FONT, -max(1, int(round(item.size * z))), *style)
-                iid = c.create_text(item.x, item.y + item.size * 0.24, text=item.text,
+                ox, oy = ft.turn(0.0, item.size * 0.24, item.angle) if item.angle else (0.0, item.size * 0.24)
+                iid = c.create_text(item.x + ox, item.y + oy, text=item.text,
                                     fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
-                                    font=font, anchor="s" if item.centre else "se" if item.end else "sw")
+                                    font=font, anchor="s" if item.centre else "se" if item.end else "sw",
+                                    angle=-item.angle)          # the canvas turns the other way round
             if iid is not None:
                 self._tag(iid, item)
         c.scale("all", 0, 0, z, z)
@@ -1346,7 +1363,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         x = item.x - total / 2 if item.centre else item.x - total if item.end else item.x
         out = []
         for text, look, font, width in pieces:
-            out.append(c.create_text(x, item.y + look["dy"] + look["size"] * 0.24, text=text, font=font,
+            # Along the line, turned about where it starts when the words turn with the portrait.
+            dx, dy = ft.turn(x - item.x, look["dy"] + look["size"] * 0.24, item.angle)
+            out.append(c.create_text(item.x + dx, item.y + dy, text=text, font=font, angle=-item.angle,
                                      fill=tk_colour(faded(look["colour"], item.opacity, background)), anchor="sw"))
             x += width
         return out
@@ -2414,7 +2433,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.family_field.set_quietly(colours.pop() if len(colours) == 1 else "")
         for attr, choices in (("shape", ft.PORTRAIT_SHAPES), ("border", ft.BORDERS)):
             if hasattr(self, "lay"):
-                now = {getattr(self.lay, attr)(p) for p in people}
+                now = {ft.base_kind(getattr(self.lay, attr)(p)) if attr == "shape" else getattr(self.lay, attr)(p)
+                       for p in people}
                 self.own_vars[attr].set(choices[now.pop()] if len(now) == 1 else "")
         sizes = [ft.frame_size(self.edits, self.village, p, unscaled=True) for p in people]
         styles = [self.edits.family_lines.get(self._family(p) or "", {}) for p in people]
@@ -2425,6 +2445,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_line_dash.set(ft.LINE_TYPES[dashes.pop()] if len(dashes) == 1 else "")
         texts = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) for p in people}
         self.own_text.set(f"{texts.pop():g}" if len(texts) == 1 else "")
+        for flip, var in self.own_flips.items():         # ticked when every one selected is flipped
+            var.set(bool(people) and all(self._entry(q).get(flip, False) for q in people))
+        turns = {round(self._entry(q).get("angle", 0.0), 1) for q in people}
+        self.own_turn.set(f"{turns.pop():g}" if len(turns) == 1 else "")
 
     # ---- changing -----------------------------------------------------------
     def _group_style(self, attr: str, group: str, value: str) -> None:
@@ -2451,6 +2475,30 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         value = self._number(var.get(), low, high)
         if value is not None and value != getattr(self.edits, attr):
             self._change(**{attr: value})
+
+    def _own_flip(self, flip: str) -> None:
+        """Every selected villager's portrait shape flipped (or not), its words never mirrored."""
+        if not self.selected:
+            return
+        on = bool(self.own_flips[flip].get())
+        for q in self.selected:
+            self._set_entry(self.village.people[q], **{flip: on})
+        self._saved()
+
+    def _own_turn(self) -> None:
+        """Every selected villager's portrait turned to this many degrees (as the curved arrow turns it)."""
+        angle = self._number(self.own_turn.get(), -3600, 3600)
+        if not self.selected or angle is None:
+            return
+        angle %= 360
+        changed = False
+        for q in self.selected:
+            p = self.village.people[q]
+            if round(self._entry(p).get("angle", 0.0), 1) != round(angle, 1):
+                self._set_entry(p, angle=round(angle, 1))
+                changed = True
+        if changed:
+            self._saved()
 
     def _special_pick(self, part: str, colour: str) -> None:
         if colour:
@@ -2796,6 +2844,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_opacity_scale.set(e.mark_opacity)
         self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
         self.inside_var.set(e.text_inside)
+        self.turn_words_var.set(e.turn_words)
         self.room_var.set(ft.TEXT_ROOMS[e.text_room])
         self.special_mode_var.set(ft.SPECIAL_COLOUR_MODES[e.special_mode])
         for part, fieldw in self.special_pick_fields.items():
