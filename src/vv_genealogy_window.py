@@ -3537,13 +3537,17 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
                 return
         app.pair_rules = data
         app._save_settings()
+
+        def work():
+            # The save and the logs read afresh each time: Refresh Pairings rescans them.
+            return app._run_with_wait("Working out the family and the pairs...\n\nNothing is changed.",
+                                      lambda: ft.write_pairs(folder, game, info.slot, rules_from(data), title))
         try:
-            path, text = app._run_with_wait("Working out the family and the pairs...\n\nNothing is changed.",
-                                            lambda: ft.write_pairs(folder, game, info.slot, rules_from(data), title))
+            path, text = work()
         except (gen.GenealogyError, OSError, ValueError) as exc:
             messagebox.showerror("Village Matchmaker", str(exc), parent=window)
             return
-        _show_text(window, f"Village Matchmaker - {info.name} (Save {info.slot})", text, path)
+        _show_text(window, f"Village Matchmaker - {info.name} (Save {info.slot})", text, path, refresh=work)
 
     def reset() -> None:
         defaults = gen.Rules()
@@ -3569,19 +3573,24 @@ MATCHMAKER_STYLE = [
 ]
 
 
-def _show_text(parent, title: str, text: str, path: Path) -> None:
+def _show_text(parent, title: str, text: str, path: Path, refresh=None) -> None:
+    """The report, styled.  `refresh` (the owner, 2026-10-08: "a "refresh pairings" button in the
+    matchmaker to rescan the current save"): called with no arguments, it reads the save and the
+    logs again and returns (path, text), shown here in place of the old."""
     window = tk.Toplevel(parent)
     window.title(title)
     window.geometry("900x640")
     frame = ttk.Frame(window, padding=8)
     frame.pack(fill="both", expand=True)
-    ttk.Label(frame, text=f"Also saved as {path}", wraplength=860).pack(anchor="w")
+    top = ttk.Frame(frame)
+    top.pack(fill="x")
+    saved = ttk.Label(top, text=f"Also saved as {path}", wraplength=700)
+    saved.pack(side="left", anchor="w")
     box = tk.Text(frame, wrap="word")
     scroll = ttk.Scrollbar(frame, command=box.yview)
     box.configure(yscrollcommand=scroll.set)
     scroll.pack(side="right", fill="y")
     box.pack(fill="both", expand=True)
-    box.insert("1.0", text)
     # Every villager's number, name and age in bold, men blue and women pink (the owner).
     bold = tkfont.nametofont(box.cget("font")).copy()
     bold.configure(weight="bold")
@@ -3589,8 +3598,26 @@ def _show_text(parent, title: str, text: str, path: Path) -> None:
     box.tag_configure("man", font=bold, foreground=MAN_BLUE)
     box.tag_configure("woman", font=bold, foreground=WOMAN_PINK)
     box.tag_configure("age", font=bold)
-    for pattern, styles in MATCHMAKER_STYLE:
-        for match in pattern.finditer(text):
-            for group, style in enumerate(styles, 1):
-                box.tag_add(style, f"1.0 + {match.start(group)} chars", f"1.0 + {match.end(group)} chars")
-    box.configure(state="disabled")
+
+    def show(new_text: str) -> None:
+        box.configure(state="normal")
+        box.delete("1.0", "end")
+        box.insert("1.0", new_text)
+        for pattern, styles in MATCHMAKER_STYLE:
+            for match in pattern.finditer(new_text):
+                for group, style in enumerate(styles, 1):
+                    box.tag_add(style, f"1.0 + {match.start(group)} chars", f"1.0 + {match.end(group)} chars")
+        box.configure(state="disabled")
+
+    def again() -> None:
+        try:
+            new_path, new_text = refresh()
+        except (gen.GenealogyError, OSError, ValueError) as exc:
+            messagebox.showerror(title, str(exc), parent=window)
+            return
+        saved.configure(text=f"Also saved as {new_path}")
+        show(new_text)
+
+    if refresh is not None:
+        ttk.Button(top, text="Refresh Pairings", command=again).pack(side="right")
+    show(text)
