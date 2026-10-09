@@ -3683,7 +3683,8 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
             return pick.get(part, NATURAL[part])
         decorated = part == "flower" or (part == "leaf" and border == "vine_leaves") or part == "rope"
         if mode == "rainbow" and decorated:
-            return _blend_round(list(RAINBOW), t)
+            colour = _blend_round(list(RAINBOW), t)
+            return _shade(colour, 0.85) if part == "flower" else colour     # the flowers a little deeper (the owner)
         if mode == "alternate" and decorated:
             return palette[j % len(palette)]
         if mode == "gradient" and decorated:
@@ -3725,13 +3726,16 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     leaves, flowers = border in ("vine_leaves", "vine_both"), border in ("vine_flowers", "vine_both")
     pattern = ["leaf", "leaf", "flower"] if leaves and flowers else ["leaf"] if leaves else ["flower"]
     spacing = 8 if pattern == ["leaf"] else 10
-    count = max(3, n // spacing)
+    # Only where the outline is not in a notch (the owner: none there), and spread evenly over those
+    # stretches, so a star or an anchor is as full as a circle (the owner: "more on the sparser shapes").
+    open_places = [k for k in range(n) if _to_edge(hull, walk[k][0], walk[k][1]) <= size * 0.5]
+    count = max(3, len(open_places) // spacing) if open_places else 0
+    if open_places and len(open_places) < 0.75 * n:
+        count += 4                                    # a sparse shape: just a few more (the owner, 2026-10-09)
     for j in range(count):
-        k = int(j * n / count)
+        k = open_places[int(j * len(open_places) / count)]
         x, y = path[k]
         nx, ny = normals[k]
-        if _to_edge(hull, walk[k][0], walk[k][1]) > size * 0.35:
-            continue                                  # in a notch: the vine alone there (the owner)
         tx, ty = -ny, nx
         what = pattern[j % len(pattern)]
         tpos = j / count
