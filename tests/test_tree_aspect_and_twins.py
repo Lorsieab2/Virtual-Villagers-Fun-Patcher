@@ -37,7 +37,8 @@ def person(pid, name, number, litter=None, upcoming=False):
 
 class TwinsTests(unittest.TestCase):
     def lay(self, people, on=True):
-        return SimpleNamespace(edits=SimpleNamespace(show_twins=on), names={},
+        edits = SimpleNamespace(show_twins=on)
+        return SimpleNamespace(edits=edits, names={}, opt=lambda _p, name: getattr(edits, name),
                                village=SimpleNamespace(people={p.id: p for p in people}))
 
     def test_twins_name_each_other(self):

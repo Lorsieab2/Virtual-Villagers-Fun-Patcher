@@ -376,6 +376,10 @@ class Edits:
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
     stickers: list[dict] = field(default_factory=list)
+    # One group's portraits set apart from the rest (the owner, 2026-10-09: "as many options as
+    # realistically and logically possible should be by group with options to equalize"): GROUPS ->
+    # {GROUP_FIELDS name -> value}, each over the tree's own setting for that group only (opt()).
+    group_opts: dict[str, dict] = field(default_factory=dict)
 
     @staticmethod
     def path(folder: Path, game: int, slot: int) -> Path:
@@ -595,6 +599,7 @@ class Edits:
             sticker = clean_sticker(raw)
             if sticker is not None:
                 out.stickers.append(sticker)
+        out.group_opts = clean_group_opts(data.get("group_opts"))
         return out
 
     def save(self, path: Path) -> None:
@@ -625,7 +630,75 @@ class Edits:
                 "label_line_reach": self.label_line_reach,
                 "line_moves": self.line_moves,
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
-                "font": self.font, "styles": self.styles, "stickers": self.stickers}
+                "font": self.font, "styles": self.styles, "stickers": self.stickers,
+                "group_opts": self.group_opts}
+
+
+# The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
+# one portrait.  Each is checked as the tree's own is (_group_value).
+GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_words", "turn_words",
+                "text_inside", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
+                "show_twins", "show_founder", "detail_lines", "detail_colour", "detail_opacity",
+                "detail_width", "portrait_fill")
+
+
+def _group_value(name: str, value) -> tuple[bool, object]:
+    """(whether `value` is a good value of the setting `name`, the value as kept): numbers held within
+    the tree's own limits, as the tree's own are; anything else not of the setting's kind is bad."""
+    choices = {"text_align": TEXT_ALIGNS, "text_valign": TEXT_VALIGNS, "text_room": TEXT_ROOMS}
+    numbers = {"picture_size": (PICTURE_SCALE_MIN, PICTURE_SCALE_MAX), "text_size": (TEXT_SCALE_MIN, TEXT_SCALE_MAX),
+               "text_wrap": (WRAP_MIN, WRAP_MAX), "detail_opacity": (0, 100), "detail_width": LINE_WIDTHS}
+    if name in choices:
+        return value in choices[name], value
+    if name in numbers:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            return False, value
+        kept = _number(value, *numbers[name], 0.0)
+        return True, int(kept) if name == "text_wrap" else float(kept)
+    if name == "detail_colour":
+        return isinstance(value, str) and (value == "" or re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None), value
+    if name == "portrait_fill":
+        return is_colour(value), value
+    if name in GROUP_FIELDS:                    # the rest are on or off
+        return isinstance(value, bool), value
+    return False, value
+
+
+def clean_group_opts(raw) -> dict[str, dict]:
+    """Edits.group_opts as saved, every group and setting checked (_group_value); a bad one is dropped,
+    so that group shows the tree's own.  "centre_heads" always follows "text_valign"."""
+    out: dict[str, dict] = {}
+    if not isinstance(raw, dict):
+        return out
+    for group, values in raw.items():
+        if group not in GROUPS or not isinstance(values, dict):
+            continue
+        kept = {}
+        for name, value in values.items():
+            good, value = _group_value(name, value) if name != "centre_heads" else (False, value)
+            if good:
+                kept[name] = value
+        if "text_valign" in kept:
+            kept["centre_heads"] = kept["text_valign"] == "middle"
+        if kept:
+            out[group] = {name: kept[name] for name in GROUP_FIELDS if name in kept}
+    return out
+
+
+def opt(edits: "Edits", p: gen.Person, name: str):
+    """The setting `name` for this villager's portrait: their group's own (Edits.group_opts), else the
+    tree's."""
+    own = edits.group_opts.get(group_of(p))
+    if own and name in own:
+        return own[name]
+    return getattr(edits, name)
+
+
+def group_view(edits: "Edits", group: str | None) -> "Edits":
+    """`edits` as one group's portraits see them (their own settings over the tree's); the tree's own
+    for None."""
+    own = edits.group_opts.get(group) if group else None
+    return replace(edits, **own) if own else edits
 
 
 
@@ -923,7 +996,7 @@ STYLE_KEYS = (
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
-    "label_line_reach", "marks",
+    "label_line_reach", "marks", "group_opts",
 )
 
 
@@ -1103,6 +1176,10 @@ class Layout:
 
     def entry(self, p: gen.Person) -> dict:
         return self.edits.entries.get(entry_key(self.village, p), {})
+
+    def opt(self, p: gen.Person, name: str):
+        """A setting for this villager's portrait: their group's own, else the tree's (opt())."""
+        return opt(self.edits, p, name)
 
     def shape(self, p: gen.Person) -> str:
         """The portrait's shape, as drawn: mirrored when the player flipped it ("heart~h")."""
@@ -2212,15 +2289,15 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
     if p.upcoming:
         size = sum(1 for q in lay.village.people.values() if p.litter is not None and q.litter == p.litter)
         return ["Upcoming child"] + ([{2: "(twins)", 3: "(triplets)"}[size]] if size in (2, 3) else [])
-    e = lay.edits
-    ages = (["age unknown"] if p.age is None and (e.show_units or e.show_years) else
+    units, years = lay.opt(p, "show_units"), lay.opt(p, "show_years")     # the villager's group's
+    ages = (["age unknown"] if p.age is None and (units or years) else
             [] if p.age is None else
-            ([f"{p.age} game units"] if e.show_units else []) + ([f"{p.years} years old"] if e.show_years else []))
+            ([f"{p.age} game units"] if units else []) + ([f"{p.years} years old"] if years else []))
     if p.alive:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    founder = ["Founder"] if e.show_founder and p.generation == 1 else []     # the owner, 2026-10-09
+    founder = ["Founder"] if lay.opt(p, "show_founder") and p.generation == 1 else []     # the owner, 2026-10-09
     return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + founder + born_with(lay, p) + ([extra] if extra else [])
 
 
@@ -2228,7 +2305,7 @@ def born_with(lay: Layout, p: gen.Person) -> list[str]:
     """With "Twins and triplets" on (Edits.show_twins), the line after the age naming who the
     villager was born with (the owner, 2026-10-09: "X's twin/triplet"): "Kalea's twin", "Kalea and
     Hana's triplet".  Nothing for a villager born alone, or with the setting off."""
-    if not lay.edits.show_twins or p.litter is None or p.upcoming:
+    if not lay.opt(p, "show_twins") or p.litter is None or p.upcoming:
         return []
     others = sorted((q for q in lay.village.people.values()
                      if q.litter == p.litter and q.id != p.id and not q.upcoming), key=lambda q: (q.number or 0, q.id))
@@ -2240,10 +2317,10 @@ def born_with(lay: Layout, p: gen.Person) -> list[str]:
 
 def inner_sizes(lay: Layout, p: gen.Person) -> tuple[float, float]:
     """(the face's size, the words' size) inside this villager's portrait, as factors: every portrait's
-    setting times their own."""
+    setting (their group's, else the tree's) times their own."""
     entry = lay.entry(p)
-    return (lay.edits.picture_size / 100 * entry.get("picture_scale", 100.0) / 100,
-            lay.edits.text_size / 100 * entry.get("text_scale", 100.0) / 100)
+    return (lay.opt(p, "picture_size") / 100 * entry.get("picture_scale", 100.0) / 100,
+            lay.opt(p, "text_size") / 100 * entry.get("text_scale", 100.0) / 100)
 
 
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:
@@ -2255,7 +2332,7 @@ def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, flo
     pic, words = inner_sizes(lay, p)
     face = (y1 - y0) * HEAD_SCALE * pic
     lh = LINE_H * words                     # the lines spaced as the words are sized
-    valign = lay.edits.text_valign
+    valign = lay.opt(p, "text_valign")
     face_top = 10.0 if valign == "top" else 6.0
     lines = shown_text(lay, p, int(max(LINE_H, NODE_H - face_top - face - 8 - 6) // lh))
     block = face + 8 + len(lines) * lh
@@ -2403,7 +2480,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
     its runs when the player formatted it (else None): every line wrapped to fit across, and as many
     as fit below the head -- the last of them ending in ... when some did not.  Formatted words wrap
     by how wide their fonts make them (run_width), so they never run past the portrait."""
-    n = lay.edits.text_wrap
+    n = lay.opt(p, "text_wrap")
     runs = node_runs(lay, p)
     if runs is None:
         lines = node_text(lay, p)
@@ -4269,7 +4346,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         _add(item)
     rank_t, rank_j = _rank(lay, p.id)
     inside_colour = (lay.entry(p).get("fill") or scheme_colour(lay.edits, "insides", rank_t, rank_j)
-                     or lay.edits.portrait_fill)           # their own, else the scheme's, else the tree's
+                     or lay.opt(p, "portrait_fill"))       # their own, else the scheme's, else their group's or the tree's
     border_scheme = border not in SPECIAL_BORDERS and lay.edits.schemes.get("borders", "own") != "own"
     dash = border if border in ("dotted", "dashed", "dashdot") else ""
     add(Shape(kind, fx, fy, fw, fh, colour, width=0 if border_scheme else BORDER_WIDTHS[border],
@@ -4303,12 +4380,14 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     for i, line in enumerate(decor(kind)):      # drawn like the border (a stamen, an antenna, the wave)
         if i not in replaced:                   # unless the special border is on it
             add(Line(placed(line), colour, max(1.6, BORDER_WIDTHS[border] * 0.8)))
-    if e.detail_lines and e.detail_opacity > 0:   # light, under the face and the words
+    detail_opacity = lay.opt(p, "detail_opacity")     # the villager's group's, else the tree's
+    if lay.opt(p, "detail_lines") and detail_opacity > 0:   # light, under the face and the words
         lines_inside = details(kind)
+        detail_colour, detail_width = lay.opt(p, "detail_colour"), lay.opt(p, "detail_width")
         for i, line in enumerate(lines_inside):
             add(Line(placed(line), lay.entry(p).get("detail")
-                     or scheme_colour(e, "details", i / max(1, len(lines_inside)), i) or e.detail_colour or colour,
-                     e.detail_width, opacity=e.detail_opacity / 100))
+                     or scheme_colour(e, "details", i / max(1, len(lines_inside)), i) or detail_colour or colour,
+                     detail_width, opacity=detail_opacity / 100))
     # The face and words grow or shrink with a frame the player resized, about its middle, and
     # never turn (the owner: "shrink/grow with the frame, stay upright").
     # Measured against the shape's own natural size, never the group's: a villager sized on their own
@@ -4321,6 +4400,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
+    flip_words, turn_words = lay.opt(p, "flip_words"), lay.opt(p, "turn_words")
 
     def put(item) -> None:
         if scale != 1.0:
@@ -4333,13 +4413,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             else:
                 item.w, item.h = item.w * scale, item.h * scale
         words = isinstance(item, Text) and item.role in ("names", "portraits")
-        if words and lay.edits.flip_words and (flip_h or flip_v):
+        if words and flip_words and (flip_h or flip_v):
             # Mirrored with the flipped portrait, about its middle (the owner, 2026-10-09).
             if flip_h:
                 item.x, item.mirror_h = 2 * middle[0] - item.x, True
             if flip_v:
                 item.y, item.mirror_v = 2 * middle[1] - item.y + item.size * 0.7, True
-        if angle and lay.edits.turn_words and words:
+        if angle and turn_words and words:
             # The words turn with the portrait, about its middle (the owner, 2026-10-09); the face does not.
             dx, dy = turn(item.x - middle[0], item.y - middle[1], angle)
             item.x, item.y, item.angle = middle[0] + dx, middle[1] + dy, angle
@@ -4368,7 +4448,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # much as possible"): each line is measured against the shape's own width where it is drawn -- a
     # circle or a heart is narrower towards its edges -- and this portrait's words made only as much
     # smaller as the tightest line needs.  Then the player's own text size for this villager.
-    points = text_room_points(lay.edits.text_room, kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
+    points = text_room_points(lay.opt(p, "text_room"), kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
+    text_inside = lay.opt(p, "text_inside")
     fit = 1.0
     for k, (text, bold, _r) in enumerate(lines):
         if not text:
@@ -4378,13 +4459,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         # The narrowest the shape is across the whole line, from the tops of its letters to below them.
         chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
         # Half the frame at least, unless the player keeps the words inside the shape (a cross's arm).
-        room = max(chord - 8, 12.0) if lay.edits.text_inside else max(chord, fw * 0.5) - 8
+        room = max(chord - 8, 12.0) if text_inside else max(chord, fw * 0.5) - 8
         needed = len(text) * size * (0.58 if bold else 0.55)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
     # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
     # so no line leaves a round or pointed portrait (Edits.text_align).
-    align = lay.edits.text_align
+    align = lay.opt(p, "text_align")
     half = fw / scale / 2 - 8           # the frame's own width (Codex, #577: not the standard portrait's)
     if align != "centre":
         for k, (text, bold, _r) in enumerate(lines):
@@ -4392,7 +4473,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
                 size = (11.5 if bold else 10) * scale
                 baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
                 chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
-                wide = max(chord - 4, 16.0) if lay.edits.text_inside else max(chord, fw * 0.5)
+                wide = max(chord - 4, 16.0) if text_inside else max(chord, fw * 0.5)
                 half = min(half, (wide - 12) / 2 / scale)
     at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):

@@ -63,6 +63,7 @@ SNAP_REACH = 7                          # screen pixels: how near a guide pulls
 ALT = 0x20000                           # Alt held: place freely
 # Ready-made special marks (the owner asked for marks "eg Tribal Chief"); any other can be typed.
 CUSTOM_MARK = "Custom (type here...)"
+EVERYONE = "Everyone"                   # the "Settings for:" pickers: every portrait, else one group's
 # The editable tree file Save to Save Folder writes (the owner: "an editable file to be worked on later").
 TREE_SUFFIX = ft.TREE_SUFFIX
 TREE_FORMAT = ft.TREE_FORMAT
@@ -136,7 +137,10 @@ PORTRAITS
                                   middle / bottom; the text area; picture and text size; ages in
                                   units / years; twins and triplets; "Founder"; the text colour;
                                   numbered names
-  Layout tab                 the title; the order and layout, rows to the left / centre /
+  "Settings for:"                 Everyone, or one group (Males, Females, Babies on the way) to give
+                                  its own faces, words, detail lines and inside colour; "Same as
+                                  everyone" / "Make every group the same" clear them (Ctrl+Z undoes)
+  Layout tab                the title; the order and layout, rows to the left / centre /
                                   right, portraits lined up by their tops / middles / bottoms;
                                   spacing; family lines; generation labels; opacity; page size;
                                   pages; deleted items
@@ -931,6 +935,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # The owner, 2026-10-09: the portrait's face and words options together, "Portrait pictures/text".
         words = ttk.LabelFrame(tab, text="Faces and words in every portrait", padding=6)
         words.pack(fill="x", pady=(10, 0))
+        # The owner, 2026-10-09: "make all these options by group" -- everyone's, or one group's own.
+        self.scope_var = tk.StringVar(value=EVERYONE)
+        self.scope_note = tk.StringVar(value="")
+        self._scope_picker(words).pack(anchor="w", fill="x", pady=(0, 6))
         # The owner, 2026-10-09: "justify text (left right center + top middle bottom)".
         row = ttk.Frame(words)
         row.pack(anchor="w")
@@ -1003,7 +1011,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                                            width=4), self._text_wrap)
         wrap_spin.bind("<KeyRelease>", lambda _e: self._text_wrap())      # in real time, as typed (the owner)
         wrap_spin.bind("<MouseWheel>", lambda e: (self.wrap_var.set(str(max(ft.WRAP_MIN, min(
-            ft.WRAP_MAX, self.edits.text_wrap + (1 if e.delta > 0 else -1))))), self._text_wrap(), "break")[-1])
+            ft.WRAP_MAX, self._view().text_wrap + (1 if e.delta > 0 else -1))))), self._text_wrap(), "break")[-1])
         wrap_spin.pack(side="left", padx=(6, 0))
         self._reset_button(row, "text_wrap").pack(side="left", padx=(6, 0))
         tab = l_spacing
@@ -1056,6 +1064,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
         self.ink_field.pack(anchor="w")
         tab = p_colour
+        self._scope_picker(tab).pack(anchor="w", fill="x", pady=(0, 6))
         ttk.Label(tab, text="Inside every portrait:").pack(anchor="w", pady=(0, 1))
         self.fill_field = ColourField(tab, e.portrait_fill, lambda c: self._change(portrait_fill=c or "#ffffff"))
         self.fill_field.pack(anchor="w")
@@ -1114,6 +1123,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         tab = p_details
         box = ttk.LabelFrame(tab, text="Detail lines (shells, stars, flowers...)", padding=6)
         box.pack(fill="x", pady=(12, 0))
+        self._scope_picker(box).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 6))
+        box = ttk.Frame(box)                    # the settings, under the picker
+        box.grid(row=1, column=0, columnspan=3, sticky="w")
         self.detail_var = tk.BooleanVar(value=e.detail_lines)
         ttk.Checkbutton(box, text="Show detail lines", variable=self.detail_var,
                         command=lambda: self._change(detail_lines=bool(self.detail_var.get()))).grid(
@@ -1780,7 +1792,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return (words, e.styles.get(role, {}).get("colour", self.lay.ink),
                     lambda c: self._set_role_colour(role, c))
         if kind == "person_fill":
-            return "the inside of every portrait", e.portrait_fill, lambda c: self._change(portrait_fill=c or "#ffffff")
+            return ("the inside of every portrait", e.portrait_fill,
+                    lambda c: (self._change(everyone=True, portrait_fill=c or "#ffffff"), self._refresh_panels()))
         if kind == "plate":
             return ("the boxes behind the words", e.plate_colour or self.lay.background,
                     lambda c: self._change(plate_colour=c))
@@ -2716,7 +2729,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             n = max(ft.WRAP_MIN, min(ft.WRAP_MAX, int(float(self.wrap_var.get()))))
         except ValueError:
             return
-        if n != self.edits.text_wrap:
+        if n != self._view().text_wrap:
             self._change(text_wrap=n)
 
     def _portrait_gap(self) -> None:
@@ -2727,7 +2740,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _detail_number(self, attr: str, var: tk.StringVar, low: float, high: float) -> None:
         value = self._number(var.get(), low, high)
-        if value is not None and value != getattr(self.edits, attr):
+        if value is not None and value != getattr(self._view(), attr):    # the picked group's (Settings for:)
             self._change(**{attr: value})
 
     def _own_fill(self, colour: str) -> None:
@@ -2757,15 +2770,88 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _reset_button(self, parent, *fields: str) -> ttk.Button:
         """A small Reset putting these settings back as a new tree has them (the owner, 2026-10-09: "please
-        add reset buttons beside anything you can change")."""
+        add reset buttons beside anything you can change"); with a group picked ("Settings for:"), that
+        group's own settings cleared, so it is the same as everyone's again."""
         import copy
 
         def reset() -> None:
+            group = self._scope()
+            if group and all(name in ft.GROUP_FIELDS for name in fields):
+                self._clear_group(group, fields)
+                return
             fresh = ft.Edits()
             values = {name: copy.deepcopy(getattr(fresh, name)) for name in fields}
             if any(values[name] != getattr(self.edits, name) for name in fields):
-                self._change(**values)
+                self._change(everyone=True, **values)
+                self._refresh_panels()
         return ttk.Button(parent, text="Reset", width=6, command=reset)
+
+    # ---- settings by group ("Settings for:") -----------------------------------
+    def _scope_picker(self, parent) -> ttk.Frame:
+        """"Settings for:" Everyone or one group (one choice, shown in every place it is), with "Same as
+        everyone" (the picked group's own settings cleared) and "Make every group the same" (every
+        group's), and a note when the picked group's settings differ from everyone's."""
+        frame = ttk.Frame(parent)
+        row = ttk.Frame(frame)
+        row.pack(anchor="w")
+        ttk.Label(row, text="Settings for:").pack(side="left")
+        combo = ttk.Combobox(row, textvariable=self.scope_var, values=[EVERYONE] + list(ft.GROUPS.values()),
+                             state="readonly", width=17)
+        combo.pack(side="left", padx=(6, 0))
+        combo.bind("<<ComboboxSelected>>", lambda _e: self._refresh_panels())
+        ttk.Button(row, text="Same as everyone", command=lambda: self._clear_group(self._scope())).pack(
+            side="left", padx=(6, 0))
+        ttk.Button(row, text="Make every group the same", command=self._all_groups_same).pack(side="left", padx=(4, 0))
+        ttk.Label(frame, textvariable=self.scope_note, foreground="#8a4b00").pack(anchor="w")
+        return frame
+
+    def _scope(self) -> str | None:
+        """The group picked in "Settings for:" (ft.GROUPS), or None for everyone."""
+        label = self.scope_var.get() if hasattr(self, "scope_var") else EVERYONE
+        return next((g for g, name in ft.GROUPS.items() if name == label), None)
+
+    def _view(self) -> ft.Edits:
+        """The settings as the picked group's portraits have them (everyone's when none is picked)."""
+        return ft.group_view(self.edits, self._scope())
+
+    def _show_scope_note(self) -> None:
+        group = self._scope()
+        if not hasattr(self, "scope_note"):
+            return
+        if group is None:
+            own = [ft.GROUPS[g] for g in ft.GROUPS if self.edits.group_opts.get(g)]
+            self.scope_note.set(f"{' and '.join(own)} have settings of their own." if own else "")
+        else:
+            differ = [n for n, v in self.edits.group_opts.get(group, {}).items()
+                      if n != "centre_heads" and v != getattr(self.edits, n)]
+            self.scope_note.set(f"{ft.GROUPS[group]}: {len(differ)} setting{'' if len(differ) == 1 else 's'} "
+                                "differ from everyone's." if differ else f"{ft.GROUPS[group]}: the same as everyone.")
+
+    def _clear_group(self, group: str | None, fields=None) -> None:
+        """A group's own settings (all, or `fields`) cleared: everyone's again.  One step to undo."""
+        if group is None:
+            return
+        own = dict(self.edits.group_opts.get(group, {}))
+        names = [n for n in own if fields is None or n in fields]
+        if not names:
+            return
+        for name in names:
+            own.pop(name)
+        if "text_valign" not in own:
+            own.pop("centre_heads", None)
+        groups = {g: v for g, v in self.edits.group_opts.items() if g != group}
+        if own:
+            groups[group] = own
+        self.edits.group_opts = groups
+        self._saved()
+        self._refresh_panels()
+
+    def _all_groups_same(self) -> None:
+        """Every group's own settings cleared: every portrait as everyone's.  One step to undo."""
+        if self.edits.group_opts:
+            self.edits.group_opts = {}
+            self._saved()
+            self._refresh_panels()
 
     def _equalize(self, group: str | None) -> None:
         """Every villager's face and text at the tree's own sizes -- everyone's, or one group's: each one's own
@@ -3258,8 +3344,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_obj_panel()
 
     def _refresh_panels(self) -> None:
-        """Every control showing the edits as they now are (after undo or redo)."""
-        e = self.edits
+        """Every control showing the edits as they now are (after undo or redo); the portraits' own
+        settings as the group picked in "Settings for:" has them."""
+        e = self._view()
+        self._show_scope_note()
         self.title_var.set(e.title)
         self.subtitle_var.set(e.subtitle)
         self.sort_var.set(gen.SORTS[e.sort])
@@ -3329,10 +3417,31 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._show_role()
         self._show_generation()
 
-    def _change(self, **values) -> None:
-        for name, value in values.items():
-            setattr(self.edits, name, value)
+    def _change(self, everyone: bool = False, **values) -> None:
+        """Settings changed, one step to undo.  With a group picked in "Settings for:" (and not
+        `everyone`), settings a group may have of its own (ft.GROUP_FIELDS) are that group's: a value
+        the same as everyone's is no setting of its own."""
+        group = None if everyone else self._scope()
+        if group and values and all(name in ft.GROUP_FIELDS for name in values):
+            own = dict(self.edits.group_opts.get(group, {}))
+            for name, value in values.items():
+                if value == getattr(self.edits, name):
+                    own.pop(name, None)
+                else:
+                    own[name] = value
+            if "text_valign" in own:
+                own["centre_heads"] = own["text_valign"] == "middle"
+            else:
+                own.pop("centre_heads", None)
+            groups = {g: v for g, v in self.edits.group_opts.items() if g != group}
+            if own:
+                groups[group] = own
+            self.edits.group_opts = groups
+        else:
+            for name, value in values.items():
+                setattr(self.edits, name, value)
         self._saved()
+        self._show_scope_note()
 
     def _apply_text(self) -> None:
         if len(self.selected) != 1:
