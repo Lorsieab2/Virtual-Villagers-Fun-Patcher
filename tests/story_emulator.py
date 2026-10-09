@@ -262,6 +262,11 @@ class Process:
     def _api_GetFileAttributesW(self):
         return 0xFFFFFFFF, 4             # INVALID_FILE_ATTRIBUTES: not there
 
+    # native/shared/save_layout.h asks which of a file's two names is there (and when each was
+    # written); by default neither is.
+    def _api_GetFileAttributesExW(self):
+        return 0, 12                     # FALSE, and GetLastError says ERROR_FILE_NOT_FOUND
+
     def _api_GetLastError(self):
         return 2, 0                     # ERROR_FILE_NOT_FOUND
 

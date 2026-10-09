@@ -376,6 +376,16 @@ def approve_repair(
                 f"The approval could not be written ({exc}). The game will not repair "
                 f"anything; the backup is in {backup.backup_folder}."
             ) from exc
+        # The game acts on an approval kept under both names under neither (src/vv_save_layout.py,
+        # native/shared/crosscheck_bridge.h): this same approval left under the other name by an
+        # earlier Repair is cleared, as the game clears one it has used.
+        for other in layout.places(folder, APPROVAL.format(game=game, slot=slot)):
+            if other != approval:
+                try:
+                    if other.read_bytes() == approval_bytes(game, slot):
+                        other.unlink()
+                except OSError:
+                    pass
     try:
         village = load_checker().births_log(folder, game, slot)[0].village
     except Exception:                           # the header is only the Repairs log's label
@@ -391,10 +401,8 @@ def approve_repair(
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id])
-    # Last, with the game still closed: an older build's folders and files take their new names (the
-    # owner, 2026-10-09; src/vv_save_layout.py) -- after the repairs, which used the paths the player's
-    # plan was made with.  The game does the same when it opens the village; nothing is overwritten.
-    layout.migrate(folder)
+    # Nothing is moved or renamed: an older build's folders and files keep their names, and every
+    # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, backup, words,
                           added.get("sex", []), added)
@@ -442,7 +450,9 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
     checker = load_checker()
     folder = Path(folder)
     done: list[WordFix] = []
-    dat = layout.find(folder, checker.LOG_WORDS.format(game=game))
+    # Appended to the new file, or an older build's "Log Words" while only it exists; the boundaries
+    # are read from both (scripts/vvfp_consistency_check.py word_boundaries).
+    dat = layout.writable(folder, checker.LOG_WORDS.format(game=game))
     for f in checker.old_words(folder, game):
         data = f.path.read_bytes()
         out, at = [], 0

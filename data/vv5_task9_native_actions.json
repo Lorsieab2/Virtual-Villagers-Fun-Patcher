@@ -14,7 +14,7 @@
     {
       "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "B45CAAFC2434041FC5CE20668029B61EE97D98BDF725BC82E2DB53A4CC168165",
+      "sha256": "42DDF8EACE08B191B1C95A7E637C88BC4C2209091BC4364177AB9940D84D31CF",
       "size": 1840128
     },
     {
@@ -26,7 +26,7 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "F24897C6A7DC5732E9351A742F20A7E0E6E3358ED607708868CAED4B30DE4595",
+      "sha256": "DBD22452C6F98C3508DC74B45F20A27584CCD8FA38E3F0318E5AFA4A1CD7111A",
       "size": 143360
     }
   ],
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "E1FB0F0580DB9663A33893FE1C7121CB7BBD0C0CACB1EF67BE803596B3AE7C15",
-  "base_file_sha256": "E1FB0F0580DB9663A33893FE1C7121CB7BBD0C0CACB1EF67BE803596B3AE7C15",
+  "base_source_text_sha256": "141EAF0C6938A7A190ABCD1EC31A2EAB5B3AA0D0ACAE2A2CA0B56CCE0B944DEE",
+  "base_file_sha256": "141EAF0C6938A7A190ABCD1EC31A2EAB5B3AA0D0ACAE2A2CA0B56CCE0B944DEE",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "26242352DC3CE42D074C1FEAC6F844A45B1EE4D352D897042371C01B3505EB29"
+      "source_text_sha256": "D3EF5A48BEBC9A5D06C733877BB10B94F6138B02EA04FEFF0E86E2F53A01D878"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "E1FB0F0580DB9663A33893FE1C7121CB7BBD0C0CACB1EF67BE803596B3AE7C15"
+      "source_text_sha256": "141EAF0C6938A7A190ABCD1EC31A2EAB5B3AA0D0ACAE2A2CA0B56CCE0B944DEE"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "6CCDE28F1C9ECB4CA7E08FED5A5C7319144F33FB969A038E66E525AB18BCAD8B"
+  "task9_map_canonical_sha256": "92D36E48A6168EBCF27AF2BE3A8D844EE26DDC09B23701E977E9F6F38AB15B83"
 }

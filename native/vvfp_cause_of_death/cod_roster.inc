@@ -192,26 +192,29 @@ static int roster_build_path(int slot, char *out) {
         return 0;
     }
     /* "... Villagers at Last Save - Save S.dat": "... Village Roster - Save S.dat" in older builds,
-       in its folder or loose, renamed first when the new name is free (native/shared/save_layout.h). */
+       in its folder or loose.  Nothing is renamed (native/shared/save_layout.h): an older build's
+       file is read and written under its own name, and when the roster is there under both names
+       the one written last is used -- it is the roster of the save the game will load. */
     {
-        wchar_t data_w[MAX_PATH], old_w[MAX_PATH], new_w[MAX_PATH];
-        if (MultiByteToWideChar(CP_ACP, 0, out, -1, data_w, MAX_PATH) > 0) {
-            _snwprintf_s(old_w, MAX_PATH, _TRUNCATE,
-                         L"%ls\\Unaccounted Villagers\\Virtual Villagers %d Village Roster - Save %d.dat",
-                         data_w, g_game, slot);
-            _snwprintf_s(new_w, MAX_PATH, _TRUNCATE,
-                         L"%ls\\Unaccounted Villagers\\Virtual Villagers %d Villagers at Last Save - Save %d.dat",
-                         data_w, g_game, slot);
-            vv_layout_move_file(old_w, new_w);
-            _snwprintf_s(old_w, MAX_PATH, _TRUNCATE, L"%ls\\Virtual Villagers %d Village Roster - Save %d.dat",
-                         data_w, g_game, slot);
-            _snwprintf_s(new_w, MAX_PATH, _TRUNCATE,
-                         L"%ls\\Virtual Villagers %d Villagers at Last Save - Save %d.dat", data_w, g_game, slot);
-            vv_layout_move_file(old_w, new_w);
+        char data[MAX_PATH], old_name[MAX_PATH];
+        int i;
+        lstrcpyA(data, out);
+        wsprintfA(name, "Virtual Villagers %d Villagers at Last Save - Save %d.dat", g_game, slot);
+        if (!vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_UNACCOUNTED, name, VV_DATA_RESERVE)) {
+            return 0;
         }
+        for (i = 0; i < 2; ++i) {
+            if (_snprintf_s(old_name, MAX_PATH, _TRUNCATE,
+                            i == 0 ? "%s\\" VV_DATA_SUB_UNACCOUNTED "\\Virtual Villagers %d Village Roster - Save %d.dat"
+                                   : "%s\\Virtual Villagers %d Village Roster - Save %d.dat",
+                            data, g_game, slot) > 0
+                && lstrlenA(old_name) + VV_DATA_RESERVE <= MAX_PATH
+                && vv_layout_pick_file_a(old_name, out)) {
+                lstrcpyA(out, old_name);
+            }
+        }
+        return 1;
     }
-    wsprintfA(name, "Virtual Villagers %d Villagers at Last Save - Save %d.dat", g_game, slot);
-    return vv_data_file_path(out, MAX_PATH, VV_DATA_SUB_UNACCOUNTED, name, VV_DATA_RESERVE) != 0;
 }
 
 static void roster_when(char *out, const unsigned char *filetime) {

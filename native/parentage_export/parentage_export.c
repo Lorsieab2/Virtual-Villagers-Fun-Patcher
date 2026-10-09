@@ -1251,7 +1251,6 @@ enum {
     KIND_ISLAND_EVENT = 8
 };
 
-#define DEATHS_FOLDER VV_DEATHS_LOGS_DIR       /* native/shared/save_layout.h */
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
 #define BIRTHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions"
 #define EVENTS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Island Events"
@@ -1307,8 +1306,17 @@ static const char *family_marker(int family) {
         : family == LOG_EVENTS ? "Island event " : "Conception ";
 }
 
+/* The Deaths logs' folder: "Deaths and Disappearances", or an older build's "Deaths" while only it
+   exists -- its logs are written where they are, never moved (native/shared/save_layout.h).  When
+   both exist, new records go to the new one, and the readers read both. */
+static const wchar_t *deaths_folder(void) {
+    wchar_t root[MAX_PATH];
+    return vv_save_folder_w(root, 64) ? vv_layout_dir_rel_w(root, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR)
+                                      : VV_DEATHS_LOGS_DIR;
+}
+
 static const wchar_t *family_folder(int family) {
-    return family == LOG_DEATHS ? DEATHS_FOLDER
+    return family == LOG_DEATHS ? deaths_folder()
         : family == LOG_UNACCOUNTED ? UNACCOUNTED_FOLDER
         : family == LOG_EVENTS ? EVENTS_FOLDER : BIRTHS_FOLDER;
 }
@@ -1356,10 +1364,6 @@ static int build_family_log_path(
         return build_log_path(g, file_number, destination);
     }
     stem = family_stem(g, family);
-    if (family == LOG_DEATHS && vv_save_folder_w(folder, 64)) {
-        /* An older build's "Deaths" folder takes its new name first (save_layout.h). */
-        vv_layout_move_dir(folder, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR);
-    }
     if (stem == NULL || !vv_save_subfolder_w(folder, family_folder(family), 64)) {
         return 0;
     }

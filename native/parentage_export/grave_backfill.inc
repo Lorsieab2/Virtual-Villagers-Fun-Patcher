@@ -212,37 +212,41 @@ static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder
    log could not be read, so nothing is decided on half a log. */
 static int read_village_deaths(const struct game_layout *g, int game_id, const char *village) {
     wchar_t folder[MAX_PATH];
-    wchar_t path[MAX_LOG_PATH];
     char line[512];
     struct death_reader reader;
     int i;
 
     death_key_count = 0;
-    /* build_family_log_path moves an older build's "Deaths" to "Deaths and
-       Disappearances" when the new one does not exist yet (save_layout.h). */
-    if (!build_family_log_path(g, LOG_DEATHS, 1, path)
-        || !vv_save_subfolder_w(folder, family_folder(LOG_DEATHS), 64)) {
-        return 0;
-    }
-    /* When both exist (the move could not be made), the old one is read too
-       -- only when it is there, never made -- so a grave already logged there
-       is never recorded again; a record kept word for word in both is one
-       record (Codex, #577). */
+    /* The Deaths logs stay where they are (native/shared/save_layout.h): an
+       older build's "Deaths", the new "Deaths and Disappearances", or both
+       when an older and a newer build both played the village.  Each one
+       there is read -- neither is ever made just to look in it -- so a grave
+       already logged in either is never recorded again; a record kept word
+       for word in both is one record (Codex, #577).  A folder that cannot be
+       examined decides nothing. */
     {
         wchar_t root[MAX_PATH], old_path[MAX_PATH];
-        DWORD attributes;
-        if (vv_save_folder_w(root, 64)
-            && _snwprintf_s(old_path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) >= 0) {
-            attributes = GetFileAttributesW(old_path);
-            if (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0
-                && !read_deaths_folder(g, old_path, village, 1)) {
-                return 0;
-            }
+        int state;
+        if (!vv_save_folder_w(root, 64)
+            || _snwprintf_s(old_path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) < 0
+            || _snwprintf_s(folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_DIR) < 0) {
+            return 0;
+        }
+        state = vv_layout_probe_w(old_path, NULL);
+        if (state == VV_LAYOUT_UNKNOWN || (state == VV_LAYOUT_DIR && !read_deaths_folder(g, old_path, village, 1))) {
+            return 0;
+        }
+        state = vv_layout_probe_w(folder, NULL);
+        if (state == VV_LAYOUT_UNKNOWN) {
+            return 0;
+        }
+        if (state != VV_LAYOUT_DIR) {
+            folder[0] = L'\0';
         }
     }
     {
         int first_new = death_key_count, kept, j;
-        if (!read_deaths_folder(g, folder, village, 0)) {
+        if (folder[0] != L'\0' && !read_deaths_folder(g, folder, village, 0)) {
             return 0;
         }
         /* Drop each new-folder record whose very text an old-folder record

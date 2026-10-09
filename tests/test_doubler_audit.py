@@ -381,7 +381,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # (native/shared/startup_companions.h, v8).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "0CC016164A101CFFCC709FA11C5E4A184845D323592E7DB79957F4E632D13759",
+            "AB8D86D461559DEE2ADCA2C538E8D1F17BDC6FE742AAA64A170F5D12A0A14DA0",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

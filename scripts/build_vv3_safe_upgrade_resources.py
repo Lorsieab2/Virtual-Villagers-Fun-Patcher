@@ -86,8 +86,11 @@ FOUNDATION_OUTPUT = (
 # Recertified for the save folder's new names (native/shared/save_layout.h, the
 # owner, 2026-10-09): the Log Checks and Repairs Made folders, moved from their
 # old names first, and a repair's copy kept in Data\Copies Made Before Repairs.
-SOURCE_SHA256 = "0CD5F7F4E7AFDB6015A537092EC05A2C5445015AABB035D36E9D52DD823A59DC"
-SOURCE_SIZE = 1963520
+# Recertified when nothing moved any more (the owner, 2026-10-09: "use the new renaming, but it
+# also recognizes the old renaming"): an older build's Log Checks and Repairs folders are used
+# where they are, and an approval kept under both names is acted on under neither.
+SOURCE_SHA256 = "E56FCEA8356F26FC3E0216614EB03646878948FFBFB45F3246082F18F945E35D"
+SOURCE_SIZE = 1964032
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

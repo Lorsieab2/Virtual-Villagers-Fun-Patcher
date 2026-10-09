@@ -1404,7 +1404,7 @@ def build_game(
         "something is wrong); nothing is ever asked while the village is played. Each file is backed "
         "up first (a copy '<file>.before-v1.35.58-repair' in 'Virtual Villagers Fun Patcher "
         "Data\\Copies Made Before Repairs', at the file's own place), every "
-        "change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Repairs Made'), and a "
+        "change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Repairs Made', or 'Repairs' in a save an older version made: nothing is moved), and a "
         "count is only ever raised and an elder never removed. "
         "The original save result is preserved, and text-export failure does not turn a "
         "successful game save into a failure."
