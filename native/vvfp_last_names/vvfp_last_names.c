@@ -133,6 +133,7 @@
    villagers as it always has.  Repeated calls do nothing more. */
 #define _CRT_SECURE_NO_WARNINGS
 #include <windows.h>
+#include <shlobj.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -282,12 +283,9 @@ static int is_numeral(const char *word, size_t n) {
 /* "<My Documents>\LDW\<exe name>": the game's save folder, as every companion
    finds it.  0 when it cannot be named. */
 static int save_folder(char *out, size_t size) {
-    typedef BOOL (WINAPI *folder_t)(HWND, LPSTR, int, BOOL);
     char docs[MAX_PATH], exe[MAX_PATH];
     char *base, *dot;
-    HMODULE shell = LoadLibraryA("shell32.dll");
-    folder_t get = shell ? (folder_t)GetProcAddress(shell, "SHGetSpecialFolderPathA") : NULL;
-    if (get == NULL || !get(NULL, docs, 0x0005 /* CSIDL_PERSONAL */, FALSE)
+    if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)
         || GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
         return 0;
     }

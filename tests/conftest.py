@@ -259,6 +259,72 @@ def pytest_runtest_makereport(item, call):
     )
 
 
+# --- Release-only tests ----------------------------------------------------
+#
+# The owner, 2026-10-08: "make the potentially slow full suite tests for
+# release-only".  Each test below took 15 s or more in the full run of that day
+# (pytest --durations); together about half of a 50-minute run.  An ordinary
+# run skips them; the run before a release includes them: `pytest --release`,
+# or VVFP_RELEASE=1.  The skip says why, so a run never hides that it left them
+# out.
+
+RELEASE_ONLY = (
+    "tests/test_startup_loader.py::EveryCompanionArmsBeforeWinMain::test_every_build_and_selection",
+    "tests/test_startup_loader.py::AMissingCompanionNeverStopsTheGame::test_each_companion_missing_in_turn",
+    "tests/test_patcher.py::StockIntegrationTests::test_public_feature_matrix_keeps_safety_and_selection_complete",
+    "tests/test_origins_dispatch_emulated.py::OriginsDispatchExecutesOnlyLiveCode::"
+    "test_every_executed_instruction_and_branch_is_one_the_analysis_allows",
+    "tests/test_manual_drop_breeding.py::ManualDropRenderTests::test_with_every_other_patch_of_its_game",
+    "tests/test_startup_loader.py::TheExecutableNeverSearchesForACompanion::test_every_build",
+    "tests/test_main_menu_start_over_reset.py::RemovalTests::test_removal_round_trips",
+    "tests/test_startup_loader.py::AUnicodeGameFolder::test_every_build_starts_every_companion",
+    "tests/test_golden_mushroom_art.py::RollTests::test_every_raw_value_of_each_draw",
+    "tests/test_raw_pinned_files_are_eol_pinned.py::RawPinnedFilesAreEolPinnedTests::"
+    "test_worktree_bytes_actually_satisfy_their_pins",
+    "tests/test_story_custom_island_event.py::BehaviourTests::"
+    "test_every_offered_action_stops_first_then_starts_the_games_own_routine",
+    "tests/test_vv5_population_256.py::DifferentialTests::test_same_slots_and_top_slots",
+    "tests/test_main_menu_start_over_reset.py::RenderedMatrixTests::test_the_crash_guard_is_still_applied_in_vv1_to_vv3",
+    "tests/test_vv4_population_256.py::DifferentialTests::test_same_slots_and_top_slots",
+    "tests/test_start_over_reset_without_origins.py::RemovalKeepsTheRuleTests::test_removal_round_trips",
+    "tests/test_population_notices_follow_caps.py::NoticesFollowTheCap::"
+    "test_max_population_notice_fires_at_the_effective_cap_and_not_before",
+    "tests/test_origins_dead_code_removed.py::OriginsCarriesNoUnreachableCode::test_every_origins_cave_byte_is_reached",
+    "tests/test_raw_pinned_files_are_eol_pinned.py::RawPinnedFilesAreEolPinnedTests::"
+    "test_registered_artifacts_match_their_own_recorded_digest",
+    "tests/test_parentage_removal_round_trips.py::ParentageRemovalRoundTripTests::"
+    "test_every_parentage_feature_removes_to_the_image_without_it",
+    "tests/test_harnesses_leave_ldw_as_found.py::HarnessesLeaveLdwAsFound::test_the_header_keeps_everything_that_was_there",
+    "tests/test_last_names.py::NewVillagersGetTheirFamilysLastName::test_every_family_gives_its_own_last_name",
+    "tests/test_vv5_population_256.py::CompositionTests::test_every_public_patch",
+    "tests/test_manual_drop_breeding.py::AutonomousPairingTests::test_the_patch_changes_nothing_about_autonomous_pairing",
+    "tests/test_vv3_population_256.py::CompositionTests::test_every_public_patch",
+    "tests/test_committed_dlls_match_their_source.py::CommittedDllsMatchTheirSourceTests::"
+    "test_each_build_script_reproduces_its_committed_dlls",
+    "tests/test_gui_first_untick_sticks.py::FirstUntickTests::test_the_first_untick_of_each_prerequisite_sticks",
+)
+RELEASE_SKIP_REASON = "release-only (slow): run with --release or VVFP_RELEASE=1"
+
+
+def pytest_addoption(parser):
+    parser.addoption("--release", action="store_true", default=False,
+                     help="also run the slow release-only tests (tests/conftest.py RELEASE_ONLY)")
+
+
+def release_run(config) -> bool:
+    return bool(config.getoption("--release")) or os.environ.get("VVFP_RELEASE") == "1"
+
+
+def pytest_collection_modifyitems(config, items):
+    if release_run(config):
+        return
+    slow = set(RELEASE_ONLY)
+    skip = pytest.mark.skip(reason=RELEASE_SKIP_REASON)
+    for item in items:
+        if item.nodeid.replace("\\", "/") in slow:
+            item.add_marker(skip)
+
+
 # --- The whole-run guard -------------------------------------------------
 #
 # A test that skips for a missing fixture is correct behaviour; a *run* in

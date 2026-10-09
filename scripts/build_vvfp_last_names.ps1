@@ -32,7 +32,8 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP Last Names.dll")) `
     /RELEASE `
-    kernel32.lib
+    kernel32.lib `
+    shell32.lib
 if ($LASTEXITCODE -ne 0) {
     throw "Native last-names DLL compilation failed."
 }
