@@ -906,8 +906,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         positions = ttk.Combobox(tab, textvariable=self.position_var, values=ft.alphabetical(ft.POSITIONING.values()),
                                  state="readonly")
         positions.pack(fill="x")
-        positions.bind("<<ComboboxSelected>>", lambda _e: self._change(
-            positioning=next(k for k, v in ft.POSITIONING.items() if v == self.position_var.get())))
+        positions.bind("<<ComboboxSelected>>", lambda _e: (self._change(
+            positioning=next(k for k, v in ft.POSITIONING.items() if v == self.position_var.get())),
+            self._show_packing()))
+        # The owner, 2026-10-09: "an adjustable degree of packing" -- the Packed layouts only, the tree
+        # following the slider as it moves.
+        self.positions_box = positions
+        self.packing_row = ttk.Frame(tab)
+        self.packing_var = tk.StringVar()
+        ttk.Label(self.packing_row, textvariable=self.packing_var).pack(anchor="w")
+        self.packing_scale = ttk.Scale(self.packing_row, from_=0, to=100, orient="horizontal",
+                                       command=self._packing_moved)
+        self.packing_scale.set(e.packing)
+        self.packing_scale.pack(fill="x")
+        self.packing_scale.bind("<ButtonRelease-1>", self._packing_done)
+        self.packing_scale.bind("<KeyRelease>", self._packing_done)
+        self._show_packing()
         # The owner, 2026-10-09: "justify portraits" -- each row across the tree, and the portraits of
         # different sizes in a row lined up by their tops, middles or bottoms.
         row = ttk.Frame(tab)
@@ -2140,7 +2154,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         drawn afresh (Ctrl+Z puts them back as they were)."""
         lay, v = self.lay, self.village
         rows: dict[int, list[int]] = {}
-        if self.edits.positioning == "clusters":
+        if self.edits.positioning == "packed_families":
             # No generation rows to put them back into: every portrait goes back under its parents, in
             # its own generation and order.
             for q in lay.x:
@@ -2175,7 +2189,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         lay, people = self.lay, self.village.people
         rows: dict[int, list[int]] = {}
         for q in lay.x:
-            if q not in lay.others and self.edits.positioning != "clusters":    # (no generation rows there)
+            if q not in lay.others and self.edits.positioning != "packed_families":    # (no generation rows there)
                 rows.setdefault(people[q].generation, []).append(q)
         gens = sorted(rows)
         top = {q: lay.frame(q)[1] for q in lay.x}                # each frame's top, as it will be
@@ -2773,6 +2787,36 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if value is not None and int(value) != self.edits.row_limit:
             self._change(row_limit=int(value))
 
+    def _show_packing(self) -> None:
+        """How tightly packed: shown under the Layout list while a Packed layout is chosen."""
+        self.packing_var.set(f"How tightly packed: {self.edits.packing}  (0 tidy, 100 tightest)")
+        if self.edits.positioning in ("packed_families", "packed_generations"):
+            self.packing_row.pack(fill="x", pady=(6, 0), after=self.positions_box)
+        else:
+            self.packing_row.pack_forget()
+
+    def _packing_moved(self, value) -> None:
+        """The tree follows the slider as it moves (a moment after each step, so dragging stays smooth);
+        it becomes one step to undo when the slider is let go."""
+        value = int(round(float(value)))
+        if value == self.edits.packing:
+            return
+        self.edits.packing = value
+        self.packing_var.set(f"How tightly packed: {value}  (0 tidy, 100 tightest)")
+        if getattr(self, "_packing_job", None):
+            self.after_cancel(self._packing_job)
+        self._packing_job = self.after(40, self._packing_draw)
+
+    def _packing_draw(self) -> None:
+        self._packing_job = None
+        self.redraw()
+
+    def _packing_done(self, _e=None) -> None:
+        if getattr(self, "_packing_job", None):
+            self.after_cancel(self._packing_job)
+            self._packing_job = None
+        self._saved()
+
     def _others_columns(self) -> None:
         """How many Other Members side by side (1: each generation's in a row)."""
         value = self._number(self.others_columns_var.get(), 1, ft.OTHERS_COLUMNS_MAX)
@@ -3242,6 +3286,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.keep_families_var.set(e.keep_families)
         self.others_columns_var.set(str(e.others_columns))
         self.others_side_var.set(ft.OTHERS_SIDES[e.others_side])
+        self.packing_scale.set(e.packing)
+        self._show_packing()
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))

@@ -1,7 +1,9 @@
-"""The Family Tree Maker's cluster layouts (the owner, 2026-10-09, showing two hand-made trees: "cluster
-portraits like this"): Compact family clusters -- each family's children in a small cluster under their
-own parents, partners side by side, families wrapped into short rows -- and Family clusters in generation
-rows; and the Other Members as a grid on either side, in every layout."""
+"""The Family Tree Maker's Packed layouts (the owner, 2026-10-09, showing two hand-made trees: "cluster
+portraits like this", "I want tightly-packed portraits", "an adjustable degree of packing"): Packed
+families -- each family's children a small block of short rows nestled under their own parents,
+partners side by side -- and Packed generations, the generations' bands kept with the families packed
+like bricks inside them; how tightly (Edits.packing); and the Other Members as a grid on either side,
+in every layout."""
 import hashlib
 import json
 import random
@@ -18,7 +20,7 @@ import vv_genealogy as gen  # noqa: E402
 from test_genealogy import FIRST, LATER, Y, assert_apart, assert_connected, village  # noqa: E402
 
 GAME = "Virtual Villagers - A New Home"
-LAYOUTS = ("dynamic", "rows", "clusters", "bands")
+LAYOUTS = ("dynamic", "rows", "packed_families", "packed_generations")
 
 
 def big_village() -> gen.Village:
@@ -71,51 +73,66 @@ def centre(lay, q) -> float:
     return lay.x[q] + ft.NODE_W / 2
 
 
-class ClusterShapeTests(unittest.TestCase):
+def step_of(lay) -> float:
+    return lay.edits.portrait_gap + max(ft.NODE_W, max(ft.frame_size(lay.edits, lay.village, p, own=False)[0]
+                                                       for p in lay.village.people.values()))
+
+
+class PackedFamiliesTests(unittest.TestCase):
     def lay(self, **edits):
-        return ft.layout(big_village(), ft.Edits(positioning="clusters", **edits))
+        return ft.layout(big_village(), ft.Edits(positioning="packed_families", **edits))
 
     def test_children_hang_under_their_parents_middle(self):
-        lay = self.lay()
+        # Packing 0, a tidy tree: the children in one row, its middle under their parents'.
+        lay = self.lay(packing=0)
         kids = [9, 10, 11, 12]
-        self.assertEqual(len({lay.y[q] for q in kids}), 1, "one row without a limit")
+        self.assertEqual(len({lay.y[q] for q in kids}), 1, "one row at packing 0")
         # 11 stands with her husband 16 beside her, so the row's middle takes him in too.
         row = kids + [16]
         middle = (min(centre(lay, q) for q in row) + max(centre(lay, q) for q in row)) / 2
         self.assertAlmostEqual(middle, (centre(lay, 3) + centre(lay, 8)) / 2, delta=1)
         self.assertGreater(lay.y[9], lay.y[3])
+        # Packed (the default): the first row of short rows, with room free under the parents, there too.
+        lay = self.lay()
+        first = [q for q in row if lay.y[q] == min(lay.y[r] for r in row)]
+        middle = (min(centre(lay, q) for q in first) + max(centre(lay, q) for q in first)) / 2
+        self.assertLess(abs(middle - (centre(lay, 3) + centre(lay, 8)) / 2), step_of(lay))
+        self.assertGreater(min(lay.y[q] for q in row), lay.y[3])
 
     def test_partners_stand_side_by_side(self):
-        lay = self.lay()
-        step = ft.Edits().portrait_gap + max(ft.NODE_W, max(ft.frame_size(lay.edits, lay.village, p, own=False)[0]
-                                                             for p in lay.village.people.values()))
-        for a, b in ((1, 2), (3, 8), (4, 13), (11, 16), (5, 14)):
-            self.assertEqual(lay.y[a], lay.y[b], (a, b))
-            self.assertAlmostEqual(abs(lay.x[a] - lay.x[b]), step, delta=0.5, msg=(a, b))
-        v = village()                   # two couples whose four parents are all in the tree
-        lay = ft.layout(v, ft.Edits(positioning="clusters"))
-        for a, b in ((5, 8), (7, 6)):
-            self.assertEqual(lay.y[a], lay.y[b])
-            self.assertLess(abs(lay.x[a] - lay.x[b]), ft.NODE_W * 2.2)
+        for packing in (0, 60, 100):
+            lay = self.lay(packing=packing)
+            for a, b in ((1, 2), (3, 8), (4, 13), (11, 16), (5, 14)):
+                self.assertEqual(lay.y[a], lay.y[b], (packing, a, b))
+                self.assertAlmostEqual(abs(lay.x[a] - lay.x[b]), step_of(lay), delta=0.5, msg=(packing, a, b))
+            v = village()               # two couples whose four parents are all in the tree
+            lay = ft.layout(v, ft.Edits(positioning="packed_families", packing=packing))
+            for a, b in ((5, 8), (7, 6)):
+                self.assertEqual(lay.y[a], lay.y[b])
+                self.assertLess(abs(lay.x[a] - lay.x[b]), ft.NODE_W * 2.2)
 
     def test_a_couple_from_two_depths_hangs_under_the_lower(self):
-        lay = self.lay()
-        self.assertEqual(lay.y[5], lay.y[14], "5 stands with his wife, under her parents")
-        self.assertGreater(lay.y[5], lay.y[3], "lower than his brothers and sisters")
-        self.assertGreater(lay.y[15], lay.y[14])
-        fam = next(f for f in lay.families if 5 in f.children)
-        self.assertIn(5, fam.away)
-        self.assertLess(abs(centre(lay, 15) - (centre(lay, 5) + centre(lay, 14)) / 2), 1)
+        for packing in (0, 60):
+            lay = self.lay(packing=packing)
+            self.assertEqual(lay.y[5], lay.y[14], "5 stands with his wife, under her parents")
+            self.assertGreater(lay.y[5], lay.y[3], "lower than his brothers and sisters")
+            self.assertGreater(lay.y[15], lay.y[14])
+            fam = next(f for f in lay.families if 5 in f.children)
+            self.assertIn(5, fam.away)
+            self.assertLess(abs(centre(lay, 15) - (centre(lay, 5) + centre(lay, 14)) / 2), step_of(lay))
 
     def test_the_couples_line_drops_from_between_them(self):
-        lay = self.lay()
-        fam = next(f for f in lay.families if 9 in f.children)
-        stem = next(pts for _c, pts, fid, piece in ft.lines(lay) if fid == fam.id and piece == "stem")
-        self.assertTrue(centre(lay, 3) < stem[0][0] < centre(lay, 8) or centre(lay, 8) < stem[0][0] < centre(lay, 3))
-        couple = next(pts for _c, pts, fid, piece in ft.lines(lay) if fid == fam.id and piece == "couple")
-        self.assertLessEqual(abs(couple[1][0] - couple[0][0]), abs(centre(lay, 3) - centre(lay, 8)) + 1, "short")
+        for packing in (0, 60):
+            lay = self.lay(packing=packing)
+            fam = next(f for f in lay.families if 9 in f.children)
+            drawn = ft.lines(lay)
+            stem = next(pts for _c, pts, fid, piece in drawn if fid == fam.id and piece == "stem")
+            self.assertTrue(min(centre(lay, 3), centre(lay, 8)) < stem[0][0] < max(centre(lay, 3), centre(lay, 8)))
+            couple = next(pts for _c, pts, fid, piece in drawn if fid == fam.id and piece == "couple")
+            self.assertLessEqual(abs(couple[1][0] - couple[0][0]), abs(centre(lay, 3) - centre(lay, 8)) + 1, "short")
+            self.assertLess(couple[0][1], min(lay.y[q] for q in fam.children if q in lay.x), "above the children")
 
-    def test_a_family_wraps_inside_its_own_cluster(self):
+    def test_a_family_wraps_into_short_rows_near_its_parents(self):
         lay = self.lay(row_limit=2)
         kids = [9, 10, 12]              # 11 stands with her husband, 9, 10 and 12 have no families
         rows = {}
@@ -124,25 +141,49 @@ class ClusterShapeTests(unittest.TestCase):
         self.assertGreater(len(rows), 1)
         for row in rows.values():
             self.assertLessEqual(len(row), 2)
-        lo, hi = min(centre(lay, q) for q in (3, 8)), max(centre(lay, q) for q in (3, 8))
+        middle = (centre(lay, 3) + centre(lay, 8)) / 2
         for q in kids:                  # near their parents, not out at the tree's edge
-            self.assertLess(abs(centre(lay, q) - (lo + hi) / 2), 4 * ft.NODE_W)
-        self.assertLess(lay.width, self.lay().width + 1)
+            self.assertLess(abs(centre(lay, q) - middle), 4 * step_of(lay))
+        # Packing on its own wraps them: no wrap at 0, short rows at the default.
+        self.assertEqual(ft.packed_limit(ft.Edits(packing=0)), 0)
+        self.assertEqual(ft.packed_limit(ft.Edits()), 4)
+        self.assertEqual(ft.packed_limit(ft.Edits(packing=100)), 2)
+        self.assertEqual(ft.packed_limit(ft.Edits(packing=100, row_limit=5)), 5, "the player's own wins")
 
-    def test_the_generation_labels_go_down_the_page(self):
-        sc = ft.scene(self.lay(), GAME, {})
-        tops = {}
-        for item in sc.items:
+    def test_tighter_packing_is_narrower_and_staggered(self):
+        tidy = ft.layout(big_village(), ft.Edits(positioning="packed_families", packing=0))
+        packed = ft.layout(big_village(), ft.Edits(positioning="packed_families", packing=100))
+        self.assertLess(packed.width, tidy.width)
+        self.assertGreater(len({round(y) for y in packed.y.values()}), len({round(y) for y in tidy.y.values()}))
+
+    def test_no_generation_labels(self):
+        # A generation's portraits stand at many heights among others': any label would mislabel them.
+        for packing in (0, 60):
+            sc = ft.scene(self.lay(packing=packing), GAME, {})
+            self.assertFalse([i for i in sc.items if isinstance(i, ft.Text) and i.role == "labels"])
+
+
+class PackedGenerationsTests(unittest.TestCase):
+    def test_each_label_stands_beside_its_own_band(self):
+        v = big_village()
+        lay = ft.layout(v, ft.Edits(positioning="packed_generations", row_limit=2))
+        bands = {}
+        for q in lay.x:
+            if q not in lay.others:
+                bands.setdefault(v.people[q].generation, []).append(lay.y[q])
+        for item in ft.scene(lay, GAME, {}).items:
             if isinstance(item, ft.Text) and item.role == "labels" and item.part.endswith("|number"):
-                tops[int(item.part.split("|")[0])] = item.y
-        gens = sorted(tops)
-        self.assertEqual([tops[g] for g in gens], sorted(tops[g] for g in gens))
+                g = int(item.part.split("|")[0])
+                self.assertTrue(min(bands[g]) <= item.y <= max(bands[g]) + ft.NODE_H, g)
 
+    def test_tighter_packing_is_narrower(self):
+        loose = ft.layout(big_village(), ft.Edits(positioning="packed_generations", packing=0))
+        tight = ft.layout(big_village(), ft.Edits(positioning="packed_generations", packing=100))
+        self.assertLess(tight.width, loose.width)
 
-class BandTests(unittest.TestCase):
     def test_families_wrap_and_stay_in_their_generation(self):
         v = big_village()
-        lay = ft.layout(v, ft.Edits(positioning="bands", row_limit=2))
+        lay = ft.layout(v, ft.Edits(positioning="packed_generations", row_limit=2))
         kids = [9, 10, 11, 12, 16]      # 16 married 11 and stands beside her, in her family's block
         rows = {}
         for q in kids:
@@ -157,7 +198,7 @@ class BandTests(unittest.TestCase):
                 self.assertFalse(min(rows) <= lay.y[q] <= max(rows), q)
 
     def test_a_block_sits_under_its_parents(self):
-        lay = ft.layout(big_village(), ft.Edits(positioning="bands", row_limit=2))
+        lay = ft.layout(big_village(), ft.Edits(positioning="packed_generations", row_limit=2))
         kids = [9, 10, 11, 12]
         middle = (min(centre(lay, q) for q in kids) + max(centre(lay, q) for q in kids)) / 2
         self.assertLess(abs(middle - (centre(lay, 3) + centre(lay, 8)) / 2), 2 * ft.NODE_W)
@@ -201,7 +242,7 @@ class EveryLayoutTests(unittest.TestCase):
 
     def test_lines_stay_joined_when_dragged_and_hidden(self):
         pick = random.Random(11)
-        for positioning in ("clusters", "bands"):
+        for positioning in ("packed_families", "packed_generations"):
             for diagonal in (False, True):
                 v = big_village()
                 lay = ft.layout(v, ft.Edits(positioning=positioning, row_limit=2, diagonal_lines=diagonal))
@@ -217,17 +258,17 @@ class EveryLayoutTests(unittest.TestCase):
 
     def test_a_dragged_portrait_takes_its_lines_along(self):
         v = big_village()
-        e = ft.Edits(positioning="clusters")
+        e = ft.Edits(positioning="packed_families")
         e.entries[ft.entry_key(v, v.people[10])] = {"dx": 40.0, "dy": 60.0}
         lay = ft.layout(v, e)
-        plain = ft.layout(big_village(), ft.Edits(positioning="clusters"))
+        plain = ft.layout(big_village(), ft.Edits(positioning="packed_families"))
         self.assertAlmostEqual(lay.x[10], plain.x[10] + 40.0)
         self.assertAlmostEqual(lay.y[10], plain.y[10] + 60.0)
         assert_connected(self, lay, ft.lines(lay))
 
     def test_pages_shrink_and_alignment_still_apply(self):
         v = big_village()
-        for positioning in ("clusters", "bands"):
+        for positioning in ("packed_families", "packed_generations"):
             lay = ft.layout(v, ft.Edits(positioning=positioning, pages=[2]))
             self.assertEqual(lay.pages, 2)
             assert_connected(self, lay, ft.lines(lay))
@@ -262,6 +303,9 @@ class OthersGridTests(unittest.TestCase):
                 tree = [q for q in lay.x if q not in lay.others]
                 if side == "left":
                     self.assertLess(max(lay.x[q] for q in lay.others) + ft.NODE_W, min(lay.x[q] for q in tree))
+                    if positioning == "packed_families":     # no labels there: the tree right after the grid
+                        self.assertEqual(lay.label_left, 0)
+                        continue
                     self.assertGreater(lay.label_left, 0)
                     labels = [i for i in ft.scene(lay, GAME, {}).items if isinstance(i, ft.Text) and i.role == "labels"]
                     self.assertGreater(min(i.x for i in labels), max(lay.x[q] for q in lay.others) + ft.NODE_W)
@@ -283,23 +327,29 @@ class OthersGridTests(unittest.TestCase):
 
 class SettingsTests(unittest.TestCase):
     def test_saved_clamped_and_remembered(self):
-        back = ft.Edits._from_data(ft.Edits(positioning="clusters", others_columns=3, others_side="left").to_data())
-        self.assertEqual((back.positioning, back.others_columns, back.others_side), ("clusters", 3, "left"))
-        self.assertEqual(ft.Edits._from_data({"positioning": "bands"}).positioning, "bands")
+        back = ft.Edits._from_data(ft.Edits(positioning="packed_families", others_columns=3, others_side="left").to_data())
+        self.assertEqual((back.positioning, back.others_columns, back.others_side), ("packed_families", 3, "left"))
+        self.assertEqual(ft.Edits._from_data({"positioning": "packed_generations"}).positioning, "packed_generations")
         self.assertEqual(ft.Edits._from_data({"others_columns": 40}).others_columns, ft.OTHERS_COLUMNS_MAX)
         self.assertEqual(ft.Edits._from_data({"others_columns": -2}).others_columns, 1)
         self.assertEqual(ft.Edits._from_data({"others_side": "up"}).others_side, "right")
         self.assertEqual((ft.Edits().others_columns, ft.Edits().others_side), (1, "right"))
-        for key in ("others_columns", "others_side", "positioning"):
+        for key in ("others_columns", "others_side", "positioning", "packing"):
             self.assertIn(key, ft.STYLE_KEYS)
+        self.assertEqual(ft.Edits._from_data(ft.Edits(packing=35).to_data()).packing, 35)
+        self.assertEqual(ft.Edits._from_data({"packing": 250}).packing, 100)
+        self.assertEqual(ft.Edits._from_data({"packing": -5}).packing, 0)
+        self.assertEqual(ft.Edits._from_data({}).packing, ft.PACKING)
+        self.assertEqual(ft.Edits().packing, 60, "about 60 until the player says")
         self.assertEqual(ft.styled(ft.style_of(back)).others_side, "left")
 
     def test_the_window_offers_them(self):
         source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
-        for text in ("Other Members: columns", "others_columns_var.set(", "others_side_var.set(", "ft.OTHERS_SIDES"):
+        for text in ("Other Members: columns", "others_columns_var.set(", "others_side_var.set(", "ft.OTHERS_SIDES",
+                     "How tightly packed", "packing_scale.set(e.packing)", "_show_packing()"):
             self.assertIn(text, source)
-        self.assertIn("Compact family clusters", ft.POSITIONING.values())
-        self.assertIn("Family clusters in generation rows", ft.POSITIONING.values())
+        self.assertIn("Packed families", ft.POSITIONING.values())
+        self.assertIn("Packed generations", ft.POSITIONING.values())
 
 
 class OtherLayoutsUnchangedTests(unittest.TestCase):
