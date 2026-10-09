@@ -158,18 +158,24 @@ class ReleasesLinkTests(unittest.TestCase):
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names"}
+               "vv_number_names", "vv_cut_names", "vv_save_layout"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
+        # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
+        # out stops it the moment that feature is opened (vv_save_layout, the v1.35.64 previews).
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        for module in sorted(own):
+            with self.subTest(ships=module):
+                self.assertIn(f'"src/{module}.py"', release)
         for module, may_import in (
             ("vv_save_backup", set()),
             ("vv_tribe_rename", {"vv_save_backup"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
-                              "vv_cut_names"}),
+                              "vv_cut_names", "vv_save_layout"}),
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy"}),
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
-                               "vv_tribe_rename", "vv_genealogy"}),
+                               "vv_tribe_rename", "vv_genealogy", "vv_save_layout"}),
             ("patcher_files", set()),
             ("vv_how_to_use", set()),
             # The Family Tree Maker and the Village Matchmaker.
@@ -178,14 +184,17 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_cut_names"}),
             # Restoring cut names renames through Last Names.
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions"}),
-            ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus"}),
+            ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_genealogy", "vv_save_backup",
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
                                      "vv_number_names"}),
             # Number Duplicate Names renames through Last Names.
-            ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions"}),
+            ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions",
+                                 "vv_save_layout"}),
             ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus"}),
+            # The save folder's folder and file names, old and new (the owner, 2026-10-09).
+            ("vv_save_layout", set()),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
             imported = set()

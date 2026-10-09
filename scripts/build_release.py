@@ -219,6 +219,9 @@ FILES = [
     "src/vv_last_names.py",
     "src/vv_number_names.py",
     "src/vv_cut_names.py",
+    # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and
+    # writes its reports through it, and Repair Saves & Logs moves older builds' folders with it.
+    "src/vv_save_layout.py",
     # The "?" guides beside every feature; the GUI imports the module, and
     # the module reads the data file.
     "src/vv_how_to_use.py",
