@@ -39,6 +39,7 @@
 #define KIND_APPEARANCE 7
 #define MAX_VILLAGERS 256
 #define TITLE_MAX 96
+#define TEXT_MAX 96                       /* the item the popup names (item_of) */
 
 /* ---- What is compared ---------------------------------------------------- */
 
@@ -97,6 +98,7 @@ struct snapshot {
     unsigned char *where[MAX_VILLAGERS];  /* each villager's live record */
     unsigned char *copy;                  /* count * copy_size bytes */
     char title[TITLE_MAX];
+    char text[TEXT_MAX];                  /* says which kind: "an oily red vial", "a large crate" */
 };
 
 /* The outermost watched call's copy (see before_call). */
@@ -209,14 +211,22 @@ static int present_now(const unsigned char *record, unsigned char **now, int cou
 static void compare(struct snapshot *s) {
     unsigned char *now[MAX_VILLAGERS];
     int count, i, k;
-    char before[2 * TITLE_MAX + 32];
+    char before[2 * TITLE_MAX + TEXT_MAX + 64];
     char changes[2048];
+    size_t at;
     if (writer() == NULL || s->count == 0) {
         return;
     }
     count = g_layout->enumerate(now, MAX_VILLAGERS);
-    _snprintf(before, sizeof before, g_choice[0] ? "  Event: %s\n  Choice: %s\n" : "  Event: %s\n",
-              s->title[0] ? s->title : "(an island event)", g_choice);
+    /* The owner (2026-10-09): name the kind of vial, crate and so on -- the
+       item as the popup words it ("a watery red vial", "a large weathered crate"). */
+    at = (size_t)_snprintf(before, sizeof before, "  Event: %s\n", s->title[0] ? s->title : "(an island event)");
+    if (s->text[0] && at < sizeof before) {
+        at += (size_t)_snprintf(before + at, sizeof before - at, "  Item: %s\n", s->text);
+    }
+    if (g_choice[0] && at < sizeof before) {
+        _snprintf(before + at, sizeof before - at, "  Choice: %s\n", g_choice);
+    }
     before[sizeof before - 1] = '\0';
     for (i = 0; i < s->count; ++i) {
         const unsigned char *old = s->copy + (size_t)i * g_layout->copy_size;
@@ -296,6 +306,8 @@ struct snapshot_text {
     char *title;
     char *choice;
     size_t size;
+    char *text;                           /* the item it names (item_of) */
+    size_t text_size;
 };
 struct site {
     unsigned int entry;
@@ -327,6 +339,82 @@ static void first_line(const char *text, size_t cap, char *out, size_t size) {
     out[n] = '\0';
 }
 
+/* The item an event's wording names, when the game words it more than one
+   way: A New Home's and The Lost Children's vials ("what appears to be | ~
+   liquid": "a watery," / "an oily," and the colour), crates ("It was | ~
+   crate": "a small" / "a large" and the kind) and sacks.  The phrase from its
+   article to the noun, commas dropped, a vial's liquid called a vial: "an
+   oily red vial", "a large weathered crate".  The later games word each event
+   one way: nothing is found and nothing written. */
+static void item_of(const char *body, char *out, size_t size) {
+    static const char *const nouns[] = { " liquid", " crate", " sack" };
+    const char *best = NULL, *start, *p;
+    const char *noun = NULL;
+    size_t i, n = 0;
+    out[0] = '\0';
+    for (i = 0; i < sizeof nouns / sizeof nouns[0]; ++i) {
+        for (p = strstr(body, nouns[i]); p != NULL; p = strstr(p + 1, nouns[i])) {
+            const char *after = p + strlen(nouns[i]);
+            if (*after == '.' || *after == ' ' || *after == '\0' || *after == ',' || *after == '!') {
+                if (best == NULL || p > best) {
+                    best = p;
+                    noun = nouns[i];
+                }
+            }
+        }
+    }
+    if (best == NULL) {
+        return;
+    }
+    /* back to the nearest " a " / " an " at most five words before the noun */
+    for (start = best, i = 0; start > body && i < 6; --start) {
+        if (start[-1] == ' ') {
+            ++i;
+            if ((strncmp(start, "a ", 2) == 0 || strncmp(start, "an ", 3) == 0)) {
+                break;
+            }
+        }
+    }
+    if (!(strncmp(start, "a ", 2) == 0 || strncmp(start, "an ", 3) == 0)) {
+        return;
+    }
+    for (p = start; p < best && n + 1 < size; ++p) {
+        if (*p != ',') {
+            out[n++] = *p;
+        }
+    }
+    _snprintf(out + n, size - n, "%s", strcmp(noun, " liquid") == 0 ? " vial" : noun);
+    out[size - 1] = '\0';
+}
+
+/* An event's popup: its title is the first line; the wording after it, joined
+   onto one line, names the item (item_of). */
+static void event_text(const char *text, size_t cap, struct snapshot_text *out) {
+    char body[1024];
+    size_t i = 0, n = 0;
+    first_line(text, cap, out->title, out->size);
+    out->text[0] = '\0';
+    if (text == NULL) {
+        return;
+    }
+    while (i < cap && readable(text + i, 1) && (text[i] == ' ' || text[i] == '\n' || text[i] == '\r'
+                                              || text[i] == '\t')) {
+        ++i;
+    }
+    while (i < cap && readable(text + i, 1) && text[i] != '\0' && text[i] != '\n' && text[i] != '\r') {
+        ++i;                              /* past the title */
+    }
+    for (; i < cap && readable(text + i, 1) && text[i] != '\0' && n + 1 < sizeof body; ++i) {
+        char c = text[i] == '\n' || text[i] == '\r' || text[i] == '\t' ? ' ' : text[i];
+        if (c == ' ' && (n == 0 || body[n - 1] == ' ')) {
+            continue;
+        }
+        body[n++] = c;
+    }
+    body[n] = '\0';
+    item_of(body, out->text, out->text_size);
+}
+
 #include "island_event_games.inc"         /* the five games' layouts and sites */
 
 #define MAX_SITES 16
@@ -342,6 +430,8 @@ static void fill_text(struct snapshot_text *text) {
     text->title = g_snaps[0].title;
     text->choice = g_choice;
     text->size = sizeof g_snaps[0].title;
+    text->text = g_snaps[0].text;
+    text->text_size = sizeof g_snaps[0].text;
 }
 
 /* Called by the thunk before the routine.  Only the outermost watched call
@@ -357,6 +447,7 @@ static void __cdecl before_call(const unsigned int *frame, int index) {
         g_watching = site->watch == NULL || site->watch(frame);
         if (g_watching) {
             g_snaps[0].title[0] = '\0';
+            g_snaps[0].text[0] = '\0';
             g_choice[0] = '\0';
             if (site->before != NULL) {
                 site->before(frame, &text);

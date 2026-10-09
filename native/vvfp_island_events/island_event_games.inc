@@ -193,13 +193,13 @@ static void answer_label(const unsigned int *frame, unsigned int first_label, st
    (and a Custom Island Event, which writes its text into the same buffer);
    the title is the first line of the text it wrote, +0x277F. */
 static void title_at_277f(unsigned int self, struct snapshot_text *out) {
-    first_line((const char *)(uintptr_t)(self + 0x277F), 0x270F, out->title, out->size);
+    event_text((const char *)(uintptr_t)(self + 0x277F), 0x270F, out);
 }
 
 /* A New Home's encounters (0x41A3D0) and crates (0x42D050): the question,
    +0x74, opens with the title; the answers' labels at +0x4E92 / +0x4F92. */
 static void vv1_question(const unsigned int *frame, struct snapshot_text *out) {
-    first_line((const char *)(uintptr_t)(frame[6] + 0x74), 0x200, out->title, out->size);
+    event_text((const char *)(uintptr_t)(frame[6] + 0x74), 0x200, out);
     answer_label(frame, 0x4E92, out);
 }
 
@@ -218,7 +218,7 @@ static const struct site VV1_SITES[] = {
    (sacks and vials): the resolve 0x438160, question at +0x74, the choice at
    +0x509C (1 the first answer).  The Gong of Wonder: 0x44E8A0. */
 static void title_at_7c(unsigned int self, struct snapshot_text *out) {
-    first_line((const char *)(uintptr_t)(self + 0x7C), 0x200, out->title, out->size);
+    event_text((const char *)(uintptr_t)(self + 0x7C), 0x200, out);
 }
 
 static void vv2_family_a_click(const unsigned int *frame, struct snapshot_text *out) {
@@ -228,7 +228,7 @@ static void vv2_family_a_click(const unsigned int *frame, struct snapshot_text *
 
 static void vv2_family_b(const unsigned int *frame, struct snapshot_text *out) {
     const unsigned char *self = (const unsigned char *)(uintptr_t)frame[6];
-    first_line((const char *)(self + 0x74), 0x200, out->title, out->size);
+    event_text((const char *)(self + 0x74), 0x200, out);
     if (readable(self + 0x509C, 4) && *(const int *)(self + 0x509C) >= 1 && *(const int *)(self + 0x509C) <= 2) {
         first_line((const char *)(self + 0x4E92 + (*(const int *)(self + 0x509C) - 1) * 0x100), 0x100,
                    out->choice, out->size);
@@ -268,7 +268,7 @@ static int vv5_click(const unsigned int *frame) {
 static void title_pointer_54(const unsigned int *frame, struct snapshot_text *out) {
     const unsigned char *self = (const unsigned char *)(uintptr_t)frame[6];
     if (readable(self + 0x54, 4)) {
-        first_line(*(const char *const *)(self + 0x54), 0x200, out->title, out->size);
+        event_text(*(const char *const *)(self + 0x54), 0x200, out);
     }
 }
 
@@ -297,7 +297,7 @@ static const struct site VV5_SITES[] = {
    Origins Barrel).  The title: the dialog constructor 0x417790 sets +0x54. */
 static void title_pointer_54_after(unsigned int self, struct snapshot_text *out) {
     if (readable((const void *)(uintptr_t)(self + 0x54), 4)) {
-        first_line(*(const char *const *)(uintptr_t)(self + 0x54), 0x200, out->title, out->size);
+        event_text(*(const char *const *)(uintptr_t)(self + 0x54), 0x200, out);
     }
 }
 
