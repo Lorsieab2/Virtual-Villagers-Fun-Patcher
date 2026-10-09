@@ -1000,9 +1000,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.special_mode_var = tk.StringVar(value=ft.SPECIAL_COLOUR_MODES[e.special_mode])
         mode = ttk.Combobox(box, textvariable=self.special_mode_var, values=list(ft.SPECIAL_COLOUR_MODES.values()),
                             state="readonly", width=20)
-        mode.grid(row=0, column=0, columnspan=4, sticky="w")
+        mode.grid(row=0, column=0, columnspan=2, sticky="w")
         mode.bind("<<ComboboxSelected>>", lambda _e: self._change(
             special_mode=next(k for k, v in ft.SPECIAL_COLOUR_MODES.items() if v == self.special_mode_var.get())))
+        # The owner, 2026-10-09: the natural flowers' colour.
+        ttk.Label(box, text="Natural hibiscus:").grid(row=0, column=2, sticky="e", padx=(8, 4))
+        self.hibiscus_var = tk.StringVar(value=ft.HIBISCUS_CHOICES[e.hibiscus])
+        flower = ttk.Combobox(box, textvariable=self.hibiscus_var, values=list(ft.HIBISCUS_CHOICES.values()),
+                              state="readonly", width=20)
+        flower.grid(row=0, column=3, sticky="w")
+        flower.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            hibiscus=next(k for k, v in ft.HIBISCUS_CHOICES.items() if v == self.hibiscus_var.get())))
         ttk.Label(box, text="Pick colours:").grid(row=1, column=0, columnspan=4, sticky="w", pady=(6, 0))
         self.special_pick_fields = {}
         for k, (part, words) in enumerate(ft.SPECIAL_PARTS.items()):
@@ -2878,6 +2886,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.flip_words_var.set(e.flip_words)
         self.room_var.set(ft.TEXT_ROOMS[e.text_room])
         self.special_mode_var.set(ft.SPECIAL_COLOUR_MODES[e.special_mode])
+        self.hibiscus_var.set(ft.HIBISCUS_CHOICES[e.hibiscus])
         for part, fieldw in self.special_pick_fields.items():
             fieldw.set_quietly(e.special_pick.get(part, ft.NATURAL[part]))
         for k, fieldw in enumerate(self.special_palette_fields):

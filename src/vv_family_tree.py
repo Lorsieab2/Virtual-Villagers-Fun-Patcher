@@ -61,6 +61,12 @@ SPECIAL_PARTS = {"rope": "Rope", "vine": "Vine", "leaf": "Leaves", "flower": "Fl
 NATURAL = {"rope": "#c9a06a", "vine": "#5b8a35", "leaf": "#6aa83e", "flower": "#e8335a"}
 RAINBOW = ("#e53935", "#fb8c00", "#fdd835", "#43a047", "#1e88e5", "#3949ab", "#8e24aa", "#ec407a")
 STAMEN = "#f2c230"
+# Natural hibiscus colours (the owner, 2026-10-09): each its petals and its darker "eye" in the middle,
+# as the flowers grow; "random" picks one of them for each flower.
+HIBISCUS = {"red": ("Red", "#e8335a", "#8c1030"), "pink": ("Pink", "#f48fb6", "#b0124f"),
+            "yellow": ("Yellow", "#f7cf3a", "#b3122e"), "orange": ("Orange", "#f5892c", "#a3121f"),
+            "white": ("White", "#f8f4ec", "#c2185b"), "purple": ("Purple", "#a86ad0", "#4a1466")}
+HIBISCUS_CHOICES = {**{k: v[0] for k, v in HIBISCUS.items()}, "random": "Random natural colours"}
 
 
 def _colour_ok(value) -> bool:
@@ -270,6 +276,7 @@ class Edits:
     special_pick: dict = field(default_factory=dict)
     special_palette: list = field(default_factory=lambda: list(RAINBOW[:7]))
     special_count: int = 3
+    hibiscus: str = "red"               # natural flowers' colour (HIBISCUS_CHOICES)
     # The light lines inside a shape (details(): a scallop's ribs, a snail's whorls, a star's points),
     # the owner, 2026-10-09: "with the ability to edit the detailing's color, opacity, line weight".
     detail_lines: bool = True
@@ -386,6 +393,7 @@ class Edits:
         if isinstance(palette, list) and len(palette) == 7 and all(_colour_ok(c) for c in palette):
             out.special_palette = list(palette)
         out.special_count = int(_number(data.get("special_count"), 2, 7, 3))
+        out.hibiscus = data.get("hibiscus") if data.get("hibiscus") in HIBISCUS_CHOICES else "red"
         room = data.get("text_room")
         out.text_room = room if room in TEXT_ROOMS else "auto"
         out.detail_lines = data.get("detail_lines", True) is not False
@@ -550,7 +558,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -854,7 +862,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -3722,7 +3730,7 @@ def _leaf_items(x: float, y: float, dx: float, dy: float, own: float, base: str)
             Line([(x, y), (x + dx * own * 0.9, y + dy * own * 0.9)], _shade(base, 0.5), 0.7)]
 
 
-def _flower_items(cx: float, cy: float, r: float, base: str, turned: float = 0.0) -> list:
+def _flower_items(cx: float, cy: float, r: float, base: str, turned: float = 0.0, eye: str | None = None) -> list:
     """A hibiscus `r` across at (cx, cy), turned `turned` radians (the owner, 2026-10-09: the flowers
     pointing different ways): its petals outlined, its throat shaded, its deep centre, its stamen."""
     petals = [(cx + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3 - turned)))) ** 0.5 * math.cos(a),
@@ -3730,8 +3738,8 @@ def _flower_items(cx: float, cy: float, r: float, base: str, turned: float = 0.0
               for a in (2 * math.pi * k / 60 for k in range(60))]
     sx, sy = cx + r * 0.42 * math.cos(turned - math.pi / 4), cy + r * 0.42 * math.sin(turned - math.pi / 4)
     return [Poly(petals, base, _shade(base, 0.55), 0.9),
-            Poly(_ring(cx, cy, r * 0.42, r * 0.42, 20)[:-1], _shade(base, 0.85)),
-            Poly(_ring(cx, cy, r * 0.2, r * 0.2, 14)[:-1], _shade(base, 0.45)),
+            Poly(_ring(cx, cy, r * 0.42, r * 0.42, 20)[:-1], _mix(base, eye, 0.35) if eye else _shade(base, 0.85)),
+            Poly(_ring(cx, cy, r * 0.2, r * 0.2, 14)[:-1], eye or _shade(base, 0.45)),
             Line([(cx, cy), (sx, sy)], STAMEN, 0.9), Poly(_ring(sx, sy, r * 0.09, r * 0.09, 10)[:-1], STAMEN)]
 
 
@@ -3770,12 +3778,13 @@ def sticking_out(kind: str, frame: tuple, outline_points: list) -> list:
     return out
 
 
-def _sticking_out(border: str, kind: str, frame: tuple, outline_points: list, size: float, colour_of) -> list:
+def _sticking_out(border: str, kind: str, frame: tuple, outline_points: list, size: float, colour_of,
+                 flower_look=None) -> list:
     """The special border on the parts standing outside the shape (the owner, 2026-10-09): the rope or
     the vine along each line, and on each small circle one flower -- a leaf on a vine of leaves only --
     or, for the rope, a rope ring."""
     items = []
-    for _i, pts, closed in sticking_out(kind, frame, outline_points):
+    for n_out, (_i, pts, closed) in enumerate(sticking_out(kind, frame, outline_points)):
         if closed:
             cx = sum(px for px, _py in pts) / len(pts)
             cy = sum(py for _px, py in pts) / len(pts)
@@ -3788,8 +3797,9 @@ def _sticking_out(border: str, kind: str, frame: tuple, outline_points: list, si
                 m = math.hypot(ox, oy) or 1.0
                 items += _leaf_items(cx, cy, ox / m, oy / m, max(r * 2.2, size * 0.7), colour_of("leaf", 0.0, 0))
             else:
-                items += _flower_items(cx, cy, max(r * 1.3, size * 0.3), colour_of("flower", 0.0, 0),
-                                       turned=(cx * 7.31 + cy * 3.17) % (2 * math.pi))
+                petals, eye = flower_look(0.0, n_out, 3.0) if flower_look else (colour_of("flower", 0.0, 0), None)
+                items += _flower_items(cx, cy, max(r * 1.3, size * 0.3), petals,
+                                       turned=(cx * 7.31 + cy * 3.17) % (2 * math.pi), eye=eye)
         else:
             if border == "rope":
                 items += _open_band(pts, size * 0.35, colour_of("rope", 0.0, 0))
@@ -3808,6 +3818,18 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     outline_points = shape_points(kind, x0, y0, w, h, radius, angle)
     mode, pick = e.special_mode, e.special_pick
     palette = list(e.special_palette[:e.special_count])
+
+    def flower_look(t: float, j: int, salt: float = 0.0) -> tuple[str, str | None]:
+        """A flower's petals and eye: in natural colours, the chosen hibiscus (or one at random,
+        the same every drawing); else the mode's colour, its eye shaded from it."""
+        if mode == "natural":
+            name = e.hibiscus
+            if name == "random":
+                v = math.sin((j + 1) * 91.3458 + salt * 47.77) * 43758.5453
+                name = list(HIBISCUS)[int((v - math.floor(v)) * len(HIBISCUS)) % len(HIBISCUS)]
+            _words, petals, eye = HIBISCUS[name]
+            return petals, eye
+        return colour_of("flower", t, j), None
 
     def colour_of(part: str, t: float, j: int) -> str:
         if mode == "pick":
@@ -3840,7 +3862,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
             mx, my = (x0_ + x1_) / 2, (y0_ + y1_) / 2
             items.append(Line([(x0_ - nx0 * r, y0_ - ny0 * r), (mx + (nx0 + nx1) * r * 0.1, my + (ny0 + ny1) * r * 0.1),
                                (x1_ + nx1 * r, y1_ + ny1 * r)], _shade(colours[k], 0.6), 1.0))
-        return items + _sticking_out(border, kind, frame, outline_points, thick, colour_of)
+        return items + _sticking_out(border, kind, frame, outline_points, thick, colour_of, flower_look)
 
     size = max(6.0, 0.1 * min(w, h))                 # a leaf's length: small, outside the portrait
     walk = _resample(outline_points, size / 8)
@@ -3915,8 +3937,9 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
         else:
             r = own * 0.55
             cx, cy = x + nx * r * 0.95, y + ny * r * 0.95                         # just outside the vine
-            items += _flower_items(cx, cy, r, colour_of("flower", tpos, j), turned=math.pi * wobble(j, 4.0))
-    return items + _sticking_out(border, kind, frame, outline_points, size, colour_of)
+            petals, eye = flower_look(tpos, j)
+            items += _flower_items(cx, cy, r, petals, turned=math.pi * wobble(j, 4.0), eye=eye)
+    return items + _sticking_out(border, kind, frame, outline_points, size, colour_of, flower_look)
 
 
 def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
