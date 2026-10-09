@@ -2858,7 +2858,59 @@ def _spokes(kind: str) -> list[list[tuple[float, float]]]:
 
 # The shapes that carry detail lines (the owner, 2026-10-09: "you can add detailing to the other
 # shapes too", its colour, opacity and weight the player's: Edits.detail_*).
-SPOKE_SHAPES = ("star", "plump_star", "star4", "star6", "slim_star6", "flower", "leaf")
+SPOKE_SHAPES = ("star", "plump_star", "star4", "star6", "slim_star6", "flower")
+
+
+def _leaf_veins() -> list[list[tuple[float, float]]]:
+    """The leaf's veins (the owner, 2026-10-09: "more interior detail veins"): the midrib from where the
+    stalk meets the blade to the tip, and side veins from it towards the tip on both sides, each
+    ending a little short of the edge -- in the leaf's 1 x 1 box, measured at its own proportions."""
+    pts = OUTLINES.get("leaf")
+    if not pts:
+        return []
+    wide = ASPECTS.get("leaf", 1.0)
+    real = [(x * wide, y) for x, y in pts]
+    # The tip and the stalk's end: the two corners farthest apart.
+    best = (0.0, 0, 0)
+    for i in range(0, len(real), 2):
+        for j in range(i + 1, len(real), 2):
+            d = (real[i][0] - real[j][0]) ** 2 + (real[i][1] - real[j][1]) ** 2
+            if d > best[0]:
+                best = (d, i, j)
+    a, b = real[best[1]], real[best[2]]
+    tip, stalk = (a, b) if a[1] < b[1] else (b, a)          # the tip is the upper one (it points up to the right)
+    length = math.hypot(tip[0] - stalk[0], tip[1] - stalk[1])
+    ux, uy = (tip[0] - stalk[0]) / length, (tip[1] - stalk[1]) / length
+    nx, ny = -uy, ux
+
+    def at(f, v=0.0):
+        return (stalk[0] + ux * f * length + nx * v, stalk[1] + uy * f * length + ny * v)
+
+    def inside_leaf(x, y):
+        hit = False
+        for (ax, ay), (bx, by) in zip(real, real[1:] + real[:1]):
+            if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
+                hit = not hit
+        return hit
+    base = 0.2                                                  # where the stalk meets the blade
+    while base < 0.5 and not inside_leaf(*at(base, 0.04)):
+        base += 0.01
+    veins = [[at(base), at(0.96)]]
+    for k in range(7):
+        f = base + (0.9 - base) * (k + 0.6) / 7.5
+        for side in (1, -1):
+            sx, sy = at(f)
+            dx, dy = ux * 0.75 + nx * side * 0.66, uy * 0.75 + ny * side * 0.66      # slanting towards the tip
+            n = math.hypot(dx, dy)
+            dx, dy = dx / n, dy / n
+            reach = 0.0
+            while reach < 1.0 and inside_leaf(sx + dx * (reach + 0.01), sy + dy * (reach + 0.01)):
+                reach += 0.01
+            if reach > 0.05:
+                end = reach * 0.85
+                mid = (sx + dx * end * 0.5 - ux * end * 0.06, sy + dy * end * 0.5 - uy * end * 0.06)
+                veins.append([(sx, sy), mid, (sx + dx * end, sy + dy * end)])
+    return [[(x / wide, y) for x, y in line] for line in veins]
 
 
 @functools.lru_cache(maxsize=1)
@@ -2920,6 +2972,8 @@ def details(kind: str) -> tuple:
         return tuple(tuple(line) for line in _spokes(kind)) + (middle,)
     if kind in SPOKE_SHAPES:
         return tuple(tuple(line) for line in _spokes(kind))
+    if kind == "leaf":
+        return tuple(tuple(line) for line in _leaf_veins())
     if kind == "butterfly":
         return tuple(tuple(line) for line in _butterfly_lines()[0])
     return ()
