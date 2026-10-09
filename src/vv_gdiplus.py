@@ -286,6 +286,18 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
         _draw(gdi, graphics, fmt, images, dataclasses.replace(item, angle=0.0), ft, size)
         g.GdipRestoreGraphics(graphics, state)
         return
+    if isinstance(item, ft.Text) and (getattr(item, "mirror_h", False) or getattr(item, "mirror_v", False)):
+        # Mirrored words (Edits.flip_words): drawn as usual, the page mirrored about them.
+        import dataclasses
+        state = ctypes.c_uint()
+        my = item.y - item.size * 0.35
+        g.GdipSaveGraphics(graphics, ctypes.byref(state))
+        g.GdipTranslateWorldTransform(graphics, f(item.x), f(my), 0)
+        g.GdipScaleWorldTransform(graphics, f(-1.0 if item.mirror_h else 1.0), f(-1.0 if item.mirror_v else 1.0), 0)
+        g.GdipTranslateWorldTransform(graphics, f(-item.x), f(-my), 0)
+        _draw(gdi, graphics, fmt, images, dataclasses.replace(item, mirror_h=False, mirror_v=False), ft, size)
+        g.GdipRestoreGraphics(graphics, state)
+        return
     if isinstance(item, ft.Backdrop):
         _backdrop(gdi, graphics, item, ft, *size)
     elif isinstance(item, ft.Line):

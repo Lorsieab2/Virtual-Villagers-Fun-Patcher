@@ -870,6 +870,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         room.pack(side="left", padx=(6, 0))
         room.bind("<<ComboboxSelected>>", lambda _e: self._change(
             text_room=next(k for k, v in ft.TEXT_ROOMS.items() if v == self.room_var.get())))
+        self.flip_words_var = tk.BooleanVar(value=e.flip_words)          # the owner, 2026-10-09
+        ttk.Checkbutton(tab, text="Mirror the words with a flipped portrait", variable=self.flip_words_var,
+                        command=lambda: self._change(flip_words=bool(self.flip_words_var.get()))).pack(anchor="w")
         self.turn_words_var = tk.BooleanVar(value=e.turn_words)          # the owner, 2026-10-09
         ttk.Checkbutton(tab, text="Turn the words with a turned portrait (the face stays upright)",
                         variable=self.turn_words_var,
@@ -1326,6 +1329,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 image = self._head(item.sheet, item.row, item.scale)
                 if image is not None:
                     iid = c.create_image(item.x, item.y, image=image, anchor="nw")
+            elif isinstance(item, ft.Text) and (item.mirror_h or item.mirror_v):
+                iid = self._mirrored_words(item)            # the canvas cannot mirror words: drawn as a picture
             elif isinstance(item, ft.Text) and item.runs:
                 for run in self._draw_runs(item, sc.background):
                     self._tag(run, item)
@@ -1346,6 +1351,31 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._draw_selection()
         if hasattr(self, "preset_labels"):
             self._show_background()
+
+    def _mirrored_words(self, item: ft.Text):
+        """Mirrored words (Edits.flip_words), drawn by Windows into a see-through picture at the zoom and
+        placed where they belong; kept for the next drawing."""
+        if not vv_gdiplus.available():
+            return None
+        import dataclasses
+        span = max(item.size * 2, len(item.text) * item.size * 0.75 + item.size * 2)
+        left, top = item.x - span, item.y - item.size * 2
+        key = (item.text, item.size, item.bold, item.italic, item.font, item.colour, item.opacity, item.centre, item.end,
+               item.angle, item.mirror_h, item.mirror_v, str(item.runs), round(item.x - left, 1), round(self.z, 3))
+        cache = self.__dict__.setdefault("mirror_photos", {})
+        if key not in cache:
+            local = dataclasses.replace(item, x=item.x - left, y=item.y - top)
+            path = self._scratch() / f"words{len(cache)}.png"
+            try:
+                ok = vv_gdiplus.save_scene(ft.Scene(span * 2, item.size * 4, "#ffffff", [local]), {}, path,
+                                           scale=self.z, transparent=True)
+                cache[key] = tk.PhotoImage(master=self, file=str(path)) if ok else None
+            except (OSError, ValueError, tk.TclError):
+                cache[key] = None
+        photo = cache[key]
+        if photo is None:
+            return None
+        return self.canvas.create_image(left, top, image=photo, anchor="nw")
 
     def _draw_runs(self, item: ft.Text, background: str) -> list[int]:
         """A portrait's formatted words: each run in its own font (ft.run_look), measured, the whole
@@ -2845,6 +2875,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
         self.inside_var.set(e.text_inside)
         self.turn_words_var.set(e.turn_words)
+        self.flip_words_var.set(e.flip_words)
         self.room_var.set(ft.TEXT_ROOMS[e.text_room])
         self.special_mode_var.set(ft.SPECIAL_COLOUR_MODES[e.special_mode])
         for part, fieldw in self.special_pick_fields.items():

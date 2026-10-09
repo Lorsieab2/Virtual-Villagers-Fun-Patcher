@@ -257,6 +257,9 @@ class Edits:
     text_inside: bool = False
     # Whether a turned portrait's words turn with it (the owner, 2026-10-09); off, they stay upright.
     turn_words: bool = False
+    # Whether a flipped portrait's words are mirrored with it (the owner, 2026-10-09: "if people want to
+    # mirror their text or anything be my guest"); off, they read as usual.
+    flip_words: bool = False
     # Where a portrait's words are fitted (the owner, 2026-10-09: "for the more abstract shapes, the
     # auto-generated text boxes should just be a rectangle/oval ... Should be player-selected"): TEXT_ROOMS.
     text_room: str = "auto"
@@ -373,6 +376,7 @@ class Edits:
                   data.get("centre_heads", True) is not False)
         out.text_inside = data.get("text_inside") is True
         out.turn_words = data.get("turn_words") is True
+        out.flip_words = data.get("flip_words") is True
         mode = data.get("special_mode")
         out.special_mode = mode if mode in SPECIAL_COLOUR_MODES else "natural"
         pick = data.get("special_pick")
@@ -546,7 +550,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -849,7 +853,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # reopen (portrait shape/any other changes)").  Never a village's own things: its title, moved
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
-    "centre_heads", "text_align", "text_inside", "turn_words", "text_room", "special_mode", "special_pick", "special_palette",
+    "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
     "special_count", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
@@ -3263,6 +3267,8 @@ class Text:
     centre: bool = False                # x is the middle (else the start)
     end: bool = False                   # x is the end: right-aligned words (Edits.text_align)
     angle: float = 0.0                  # turned this many degrees (clockwise) about (x, y): Edits.turn_words
+    mirror_h: bool = False              # mirrored across, about x (Edits.flip_words)
+    mirror_v: bool = False              # mirrored up and down, about the middle of its letters
     pid: int | None = None
     role: str = ""                      # ROLES: whose style the player may change
     font: str = ""
@@ -3965,6 +3971,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (fw, fh) != (w0, h0) else 1.0
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 
+    flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
+
     def put(item) -> None:
         if scale != 1.0:
             item.x = middle[0] + (item.x - middle[0]) * scale
@@ -3975,7 +3983,14 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
                 item.size *= scale
             else:
                 item.w, item.h = item.w * scale, item.h * scale
-        if angle and lay.edits.turn_words and isinstance(item, Text) and item.role in ("names", "portraits"):
+        words = isinstance(item, Text) and item.role in ("names", "portraits")
+        if words and lay.edits.flip_words and (flip_h or flip_v):
+            # Mirrored with the flipped portrait, about its middle (the owner, 2026-10-09).
+            if flip_h:
+                item.x, item.mirror_h = 2 * middle[0] - item.x, True
+            if flip_v:
+                item.y, item.mirror_v = 2 * middle[1] - item.y + item.size * 0.7, True
+        if angle and lay.edits.turn_words and words:
             # The words turn with the portrait, about its middle (the owner, 2026-10-09); the face does not.
             dx, dy = turn(item.x - middle[0], item.y - middle[1], angle)
             item.x, item.y, item.angle = middle[0] + dx, middle[1] + dy, angle
@@ -4240,8 +4255,15 @@ def to_svg(sc: Scene, present: dict, describe=None) -> str:
             weight += f' font-family="{e(item.font)}, Segoe UI, Arial, sans-serif"' if item.font else ""
             anchor = ' text-anchor="middle"' if item.centre else ' text-anchor="end"' if item.end else ""
             words = _svg_runs(item) if item.runs else e(item.text)
+            moves = []
             if item.angle:
-                anchor += f' transform="rotate({item.angle:g} {item.x:.1f} {item.y:.1f})"'
+                moves.append(f"rotate({item.angle:g} {item.x:.1f} {item.y:.1f})")
+            if item.mirror_h or item.mirror_v:
+                my = item.y - item.size * 0.35
+                moves.append(f"translate({item.x:.1f} {my:.1f}) scale({-1 if item.mirror_h else 1} "
+                             f"{-1 if item.mirror_v else 1}) translate({-item.x:.1f} {-my:.1f})")
+            if moves:
+                anchor += f' transform="{" ".join(moves)}"'
             keep = ' xml:space="preserve"' if item.runs else ""     # the spaces between runs
             out.append(f'<text x="{item.x:.1f}" y="{item.y:.1f}" font-size="{item.size}"{weight}{anchor} '
                        f'fill="{item.colour}"{_svg_opacity(item)}{keep}>{words}</text>')
