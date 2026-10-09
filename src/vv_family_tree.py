@@ -793,7 +793,8 @@ PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle"
                    "mermaid_tail_h": "Mermaid tail (on its side)",
                    "fish_right": "Fish (facing right)", "fish_left": "Fish (facing left)",
                    "wave_circle": "Ocean wave in a circle", "conch": "Conch shell", "starfish": "Starfish", "monstera": "Monstera leaf",
-                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "anchor": "Anchor", "bananas": "Bunch of bananas", "paw": "Paw print", "feather": "Feather", "coral": "Coral",
+                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "anchor": "Anchor", "bananas": "Bunch of bananas", "paw": "Paw print", "feather": "Feather", "coral": "Coral", "sea_fan": "Sea fan",
+                   "brain_coral": "Brain coral",
                    "beetle": "Beetle",
                    "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
@@ -4393,36 +4394,87 @@ def _more_shapes() -> dict:
     foot, tip = 0.6, -1.0
     ys = [foot + (tip - foot) * k / 60 for k in range(61)]
     s_of = lambda y: (foot - y) / (foot - tip)
-    right = [(bow(y) + half(s_of(y), 0.25, 0.42), y) for y in ys]
-    left = [(bow(y) - half(s_of(y), 0.35, 0.6), y) for y in reversed(ys)]
+    right = [(bow(y) + half(s_of(y), 0.42, 0.42), y) for y in ys]
+    left = [(bow(y) - half(s_of(y), 0.55, 0.6), y) for y in reversed(ys)]
     vane = right + left[1:-1]
     shaft = [(bow(y), y) for y in ys[:-4]]
     barbs = []
     for k in range(1, 12):
         s = k * 0.075
         y = foot + (tip - foot) * s
-        for wide, split, side in ((0.25, 0.42, 1), (0.35, 0.6, -1)):
+        for wide, split, side in ((0.42, 0.42, 1), (0.55, 0.6, -1)):
             y2 = foot + (tip - foot) * min(0.97, s + 0.07)
             barbs.append([(bow(y), y), (bow(y2) + side * 0.88 * half(s_of(y2), wide, split), y2)])
     quill = _smooth([(bow(foot), foot), (bow(0.8) - 0.01, 0.8), (bow(1.0) - 0.05, 1.0)], steps=6)
     out["feather"] = (vane, [shaft] + barbs, [quill])
 
-    # A branching staghorn coral: a short trunk on a little base, its branches forking twice with rounded
-    # ends; each branch's middle line light.
-    def capsule(ax, ay, bx, by, r):
+    # Three corals (the owner picked all three, 2026-10-09). Each is traced from overlapping pieces: a test
+    # of whether a point is in it, and the box it lies in.
+    def tapered(ax, ay, bx, by, ra, rb):          # a branch thinning from ra to rb, its ends round
         def inside(x, y):
             dx, dy = bx - ax, by - ay
             u = max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)))
+            r = ra + (rb - ra) * u
             return (x - ax - u * dx) ** 2 + (y - ay - u * dy) ** 2 <= r * r
+        r = max(ra, rb)
         return inside, (min(ax, bx) - r, min(ay, by) - r, max(ax, bx) + r, max(ay, by) + r)
-    branches = [((0.0, 0.95), (0.0, 0.4), 0.2), ((0.0, 0.4), (-0.36, 0.0), 0.18), ((0.0, 0.4), (0.34, -0.04), 0.18),
-                ((-0.36, 0.0), (-0.62, -0.42), 0.14), ((-0.36, 0.0), (-0.16, -0.5), 0.14),
-                ((0.34, -0.04), (0.12, -0.55), 0.14), ((0.34, -0.04), (0.62, -0.38), 0.14),
-                ((-0.62, -0.42), (-0.7, -0.78), 0.11), ((-0.16, -0.5), (-0.22, -0.88), 0.11),
-                ((0.12, -0.55), (0.18, -0.92), 0.11), ((0.62, -0.38), (0.72, -0.74), 0.11)]
-    parts = [capsule(*a, *b, r) for a, b, r in branches] + [capsule(-0.32, 1.0, 0.32, 1.0, 0.08)]
-    reef = _outlined(parts)
-    out["coral"] = (reef, [[a, b] for a, b, _r in branches])
+
+    def oval(cx, cy, rx, ry):
+        return (lambda x, y: ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1), (cx - rx, cy - ry, cx + rx, cy + ry)
+
+    # A branching (staghorn) coral on a rounded rock: uneven branches thinning to round tips, forking as they
+    # grow; each branch's middle line light.
+    chains = [([(0.0, 0.82), (-0.04, 0.45), (-0.08, 0.28)], [0.2, 0.18, 0.17]),
+              ([(-0.08, 0.28), (-0.36, 0.04), (-0.5, -0.3), (-0.6, -0.72)], [0.16, 0.13, 0.1, 0.07]),
+              ([(-0.36, 0.04), (-0.18, -0.34), (-0.24, -0.82)], [0.12, 0.09, 0.065]),
+              ([(-0.08, 0.28), (0.24, 0.0), (0.34, -0.42), (0.28, -0.9)], [0.16, 0.13, 0.1, 0.07]),
+              ([(0.24, 0.0), (0.55, -0.18), (0.74, -0.56)], [0.11, 0.085, 0.065]),
+              ([(-0.5, -0.3), (-0.78, -0.42), (-0.86, -0.64)], [0.08, 0.06, 0.05]),
+              ([(0.34, -0.42), (0.08, -0.62)], [0.08, 0.055])]
+    parts = [oval(0.0, 0.86, 0.46, 0.16)]
+    for pts, radii in chains:
+        parts += [tapered(*pts[i], *pts[i + 1], radii[i], radii[i + 1]) for i in range(len(pts) - 1)]
+    out["coral"] = (_outlined(parts), [_smooth(pts, steps=6) for pts, _radii in chains])
+
+    # A sea fan: a wide, gently scalloped fan on a thin stem and a little foot, its branches spreading from
+    # the stem and forking to the rim, crossed by rings of its mesh -- light.
+    def fan(x, y):
+        return (x / 0.9) ** 2 + ((y + 0.18) / 0.72) ** 2 <= 1 - 0.035 * math.sin(11 * math.atan2(y + 0.18, x)) and y < 0.36
+    blade = _outlined([(fan, (-0.9, -0.9, 0.9, 0.36)), tapered(0.0, 0.3, 0.0, 0.84, 0.1, 0.12),
+                       oval(0.0, 0.9, 0.34, 0.11)])
+    veins = [[(0.0, 0.7), (0.0, 0.3)]]
+    def grow(x, y, angle, length, depth):
+        x2, y2 = x + length * math.cos(angle), y + length * math.sin(angle)
+        if (x2 / 0.82) ** 2 + ((y2 + 0.18) / 0.64) ** 2 > 1:
+            return
+        veins.append([(x, y), (x2, y2)])
+        if depth:
+            grow(x2, y2, angle - 0.2, length * 0.85, depth - 1)
+            grow(x2, y2, angle + 0.2, length * 0.85, depth - 1)
+    for spread in (-1.0, -0.5, 0.0, 0.5, 1.0):
+        grow(0.0, 0.3, -math.pi / 2 + spread, 0.34, 3)
+    for k in range(2, 5):
+        veins.append([(0.84 * k / 5 * math.cos(a), -0.18 + 0.66 * k / 5 * math.sin(a))
+                      for a in (math.pi + math.pi * i / 40 for i in range(41))])
+    out["sea_fan"] = (blade, veins)
+
+    # A brain coral: a round dome on a flat foot, its winding grooves -- light.
+    dome = _outlined([(lambda x, y: (x / 0.95) ** 2 + ((y - 0.15) / 0.82) ** 2 <= 1 and y <= 0.7,
+                       (-0.95, -0.7, 0.95, 0.7))])
+    grooves = []
+    for k, y0 in enumerate((-0.5, -0.28, -0.06, 0.16, 0.38, 0.6)):
+        run = []
+        for i in range(81):
+            x = -1 + 2 * i / 80
+            y = y0 + 0.06 * math.sin(x * 8.5 + k * 1.7) + 0.03 * math.sin(x * 19 + k * 2.3)
+            if (x / 0.86) ** 2 + ((y - 0.15) / 0.74) ** 2 < 1 and y < 0.62:
+                run.append((x, y))
+            elif run:
+                grooves.append(run)
+                run = []
+        if len(run) > 1:
+            grooves.append(run)
+    out["brain_coral"] = (dome, [g for g in grooves if len(g) > 1])
 
     # A beetle seen from above, head up: the round head, the shield behind it and the two wing cases meeting
     # down the middle, a few spots on them -- light; six legs and two antennae drawn like the border.

@@ -75,10 +75,12 @@ class NewShapeTests(unittest.TestCase):
             self.assertIn("<polygon", ft.to_svg(sc, {}))
 
 class FeatherCoralBeetleTests(unittest.TestCase):
-    """The owner, 2026-10-09: "New portrait shapes: Feather, Coral, Beetle"."""
+    """The owner, 2026-10-09: "New portrait shapes: Feather, Coral, Beetle" -- and, picking from three
+    drawings, all three corals (branching, sea fan, brain) and the wider feather."""
 
     def test_each_is_offered_fills_its_box_and_has_room_in_the_middle(self) -> None:
-        for kind, words in {"feather": "Feather", "coral": "Coral", "beetle": "Beetle"}.items():
+        for kind, words in {"feather": "Feather", "coral": "Coral", "sea_fan": "Sea fan",
+                            "brain_coral": "Brain coral", "beetle": "Beetle"}.items():
             self.assertEqual(ft.PORTRAIT_SHAPES[kind], words)
             self.assertTrue(ft.inside(ft.outline(kind, 0, 0, 100, 100), 50, 52), kind)
             every = [q for q in ft.OUTLINES[kind]] + [q for line in ft.decor(kind) for q in line]
@@ -91,6 +93,9 @@ class FeatherCoralBeetleTests(unittest.TestCase):
         self.assertFalse(ft.inside(coral, 50, 12))                   # between its two middle branches
         self.assertTrue(ft.inside(coral, 50, 90))                    # its trunk
         self.assertFalse(ft.inside(coral, 15, 90))                   # beside the trunk
+
+    def test_the_feather_is_wide_enough_for_a_face(self) -> None:
+        self.assertGreater(ft.ASPECTS["feather"], 0.4)
 
 
 class JoiningTests(unittest.TestCase):
