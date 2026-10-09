@@ -138,6 +138,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "patcher_files.h"
+#include "save_layout.h"
 
 #define VVFP_XC_PARENTAGE_DLL "VVFP VV1 Parentage.dll"
 #define VVFP_XC_CAUSE_DLL     "VVFP Cause of Death.dll"
@@ -359,7 +360,9 @@ static int vvfp_xc_approval_path(int game, int slot, wchar_t *path) {
     if (lstrlenW(folder) + 120 > MAX_PATH) {
         return 0;
     }
-    wsprintfW(path, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat",
+    /* "Log Checks" -- "Cross-Check" in older builds, moved first (save_layout.h). */
+    vv_layout_move_dir(folder, VV_LOG_CHECKS_OLD, VV_LOG_CHECKS_DIR);
+    wsprintfW(path, L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks\\Virtual Villagers %d Repair Approved - Save %d.dat",
               folder, game, slot);
     return 1;
 }

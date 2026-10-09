@@ -728,7 +728,8 @@ def resolve(kinds: list[Kind], chosen: set[str],
 def apply(folder: Path, kinds: list[Kind], chosen: set[str],
           answers: dict[str, str]) -> dict[str, list[tools.WordFix]]:
     """Add the chosen kinds' lines, every file in one pass (the plan's line numbers are the
-    file's as read).  Each file is copied beside itself first (never replacing a copy) and
+    file's as read).  Each file is copied first, into Data\\Copies Made Before Repairs (never
+    replacing a copy), and
     rewritten through a temporary file.  Returns, per kind, the files it added lines to."""
     folder = Path(folder)
     done: dict[str, list[tools.WordFix]] = {}
@@ -744,7 +745,7 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         text = "\n".join(lines)
         if crlf:
             text = text.replace("\n", "\r\n")
-        backup = tools._word_backup(path)
+        backup = tools._word_backup(folder, path)
         temporary = path.with_name(path.name + ".tmp")
         try:
             with open(path, "rb") as source, open(backup, "xb") as copy:

@@ -51,6 +51,7 @@ from pathlib import Path
 
 import vv_log_tools as tools
 import vv_save_backup
+import vv_save_layout as layout
 
 BACKUP_LABEL = "(before last names)"
 FNV_BASIS, FNV_PRIME = 2166136261, 16777619
@@ -955,7 +956,8 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
         by_scalar.setdefault((v.name, 1 if v.sex == "Male" else 2, v.family), set()).add(
             renames.get(v.identity, v.name))
     dead = _dead_names(folder, 1, slot)
-    for path in (data_dir / "Parentage Records" / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat",
+    for path in (layout.find(data_dir.parent, f"{layout.DATA}\\{layout.PARENTS_VV1}\\"
+                                              f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"),
                  data_dir / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"):
         if not path.is_file():
             continue
@@ -998,9 +1000,10 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
 
 def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, renames: dict[tuple, str],
                       asked: dict[tuple, str]) -> None:
-    name = f"Virtual Villagers {game} Village Roster - Save {slot}.dat"
+    name = f"Virtual Villagers {game} Villagers at Last Save - Save {slot}.dat"
     rec = RECORD[game]
-    for path in (data_dir / "Unaccounted Villagers" / name, data_dir / name):
+    for path in (layout.find(data_dir.parent, f"{layout.DATA}\\Unaccounted Villagers\\{name}"),
+                 data_dir / f"Virtual Villagers {game} Village Roster - Save {slot}.dat"):
         if not path.is_file():
             continue
         original = path.read_bytes()
@@ -1090,7 +1093,7 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
     A name these files hold for more than one new name stays, and is reported (Codex, #557)."""
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
     folder = data_dir / "Village Statistics"
-    roster = folder / f"Village Roster - Save {slot}.dat"
+    roster = layout.find(data_dir.parent, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
     statistics = _first_line(folder / f"Village Statistics - Save {slot}.dat")
     if roster.is_file() and statistics != f"VVFP VILLAGE STATISTICS v1 game={game}":
         result.notes.append(f"{roster.name} may be another game's (its Village Statistics file does not "
@@ -1229,7 +1232,7 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
         if not root.is_dir():
             continue
         for path in sorted(root.rglob("*.txt")):
-            if path.parent.name != "Repairs":
+            if path.parent.name not in ("Repairs", layout.REPAIRS_LOGS):
                 continue
             original = path.read_bytes()
             crlf = b"\r\n" in original

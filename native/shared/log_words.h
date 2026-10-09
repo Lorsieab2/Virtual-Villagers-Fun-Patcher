@@ -40,8 +40,9 @@
 #include <windows.h>
 #include <string.h>
 #include "save_folder.h"
+#include "save_layout.h"
 
-#define VV_LOG_WORDS_FOLDER "Virtual Villagers Fun Patcher Data\\Log Words"
+#define VV_LOG_WORDS_FOLDER "Virtual Villagers Fun Patcher Data\\Like and Dislike Words"   /* save_layout.h */
 
 /* The words the old lists printed, by index, and the game's own. */
 static const char *const VV_LOG_WORDS_VV1_OLD[47] = {
@@ -91,6 +92,9 @@ static int vv_log_words_tracked(int game) {
 /* The game's boundary file, created with its folder. */
 static int vv_log_words_path(int game, char *out, size_t size) {
     char folder[MAX_PATH];
+    if (vv_save_folder(folder, 96)) {
+        vv_layout_move_dir_a(folder, VV_LOG_WORDS_OLD, VV_LOG_WORDS_DIR);   /* "Log Words" before */
+    }
     if (!vv_save_subfolder(folder, VV_LOG_WORDS_FOLDER,
                            (int)sizeof("\\Virtual Villagers 1 Log Words.dat"))) {
         return 0;
@@ -180,6 +184,20 @@ static int vv_log_words_name(const wchar_t *path, char *name, int size) {
         return 0;                     /* not in the save folder: nothing recorded */
     }
     inside = path + length + 1;
+    {
+        /* A file in a folder that was renamed keeps the name it was recorded under: the Deaths
+           log's folder is "Deaths and Disappearances" now (save_layout.h), its records "Deaths". */
+        static const wchar_t renamed[] = VV_DEATHS_LOGS_DIR L"\\";
+        static const wchar_t recorded_as[] = VV_DEATHS_LOGS_OLD L"\\";
+        const size_t n = sizeof renamed / sizeof renamed[0] - 1;
+        if (_wcsnicmp(inside, renamed, n) == 0) {
+            wchar_t keyed[MAX_PATH];
+            if (_snwprintf_s(keyed, MAX_PATH, _TRUNCATE, L"%ls%ls", recorded_as, inside + n) < 0) {
+                return 0;
+            }
+            return WideCharToMultiByte(CP_UTF8, 0, keyed, -1, name, size, NULL, NULL) > 0;
+        }
+    }
     return WideCharToMultiByte(CP_UTF8, 0, inside, -1, name, size, NULL, NULL) > 0;
 }
 

@@ -505,7 +505,13 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
         c.village = village;
         c.game = game;
         _snwprintf_s(stem, 64, _TRUNCATE, L"Virtual Villagers %d Deaths Log", game);
-        plan->counters_ok = rc_each_log(L"Virtual Villagers Fun Patcher Logs\\Deaths", stem, rc_visit_deaths, &c);
+        {
+            wchar_t root[MAX_PATH];
+            if (vv_save_folder_w(root, 64)) {
+                vv_layout_move_dir(root, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR);   /* save_layout.h */
+            }
+        }
+        plan->counters_ok = rc_each_log(VV_DEATHS_LOGS_DIR, stem, rc_visit_deaths, &c);
         _snwprintf_s(stem, 64, _TRUNCATE, L"Virtual Villagers %d Births and Conceptions Log", game);
         if (game == GAME_VV2 && plan->counters_ok) {
             plan->counters_ok = rc_each_log(L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", stem,

@@ -78,6 +78,7 @@
 #include "village_rename.h"
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "save_folder.h"
+#include "save_layout.h"
 #include "log_words.h"
 #include "special_title.h"
 #include "custom_titles.h"
@@ -1250,7 +1251,7 @@ enum {
     KIND_ISLAND_EVENT = 8
 };
 
-#define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Deaths"
+#define DEATHS_FOLDER VV_DEATHS_LOGS_DIR       /* native/shared/save_layout.h */
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
 #define BIRTHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions"
 #define EVENTS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Island Events"
@@ -1355,6 +1356,10 @@ static int build_family_log_path(
         return build_log_path(g, file_number, destination);
     }
     stem = family_stem(g, family);
+    if (family == LOG_DEATHS && vv_save_folder_w(folder, 64)) {
+        /* An older build's "Deaths" folder takes its new name first (save_layout.h). */
+        vv_layout_move_dir(folder, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR);
+    }
     if (stem == NULL || !vv_save_subfolder_w(folder, family_folder(family), 64)) {
         return 0;
     }

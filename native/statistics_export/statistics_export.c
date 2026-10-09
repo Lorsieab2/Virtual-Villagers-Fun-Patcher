@@ -5,6 +5,7 @@
 
 #include "village_identity.h"
 #include "save_folder.h"
+#include "save_layout.h"
 #include "patcher_files.h"
 #include "village_elders.h"
 #include "roster_match.h"
@@ -1388,11 +1389,18 @@ static int move_aside(const wchar_t *path, unsigned long long stamp) {
 static int g_roster_now_count;
 static int g_roster_was_count;        /* rows of g_roster_was read by this save's village_changed */
 
+/* "Villagers Counted - Save N.dat" -- "Village Roster - Save N.dat" in older builds, moved to the
+   new name when only the old one exists (native/shared/save_layout.h). */
 static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
-    wchar_t folder[MAX_PATH];
-    return vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
-        && _snwprintf_s(roster, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) > 0
-        && _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.tmp", folder, save_id) > 0;
+    wchar_t folder[MAX_PATH], old[MAX_PATH];
+    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
+        || _snwprintf_s(roster, MAX_PATH, _TRUNCATE, L"%ls\\Villagers Counted - Save %d.dat", folder, save_id) <= 0
+        || _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Villagers Counted - Save %d.tmp", folder, save_id) <= 0
+        || _snwprintf_s(old, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) <= 0) {
+        return 0;
+    }
+    vv_layout_move_file(old, roster);
+    return 1;
 }
 
 /* BEFORE the save: what does the slot hold? Reads only; changes nothing on

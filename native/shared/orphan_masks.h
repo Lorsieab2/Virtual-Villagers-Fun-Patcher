@@ -228,8 +228,16 @@ static int vv_om_backup(const wchar_t *path, wchar_t *backup, size_t n, int *non
         return 0;
     }
     for (k = 1; k < 1000; ++k) {
-        int w = k == 1 ? _snwprintf_s(backup, n, _TRUNCATE, L"%ls" VV_OM_BACKUP_SUFFIX, path)
-                       : _snwprintf_s(backup, n, _TRUNCATE, L"%ls" VV_OM_BACKUP_SUFFIX L"-%d", path, k);
+        /* In "Data\Copies Made Before Repairs", at the file's own place (save_layout.h). */
+        wchar_t suffix[48];
+        int w = k == 1 ? _snwprintf_s(suffix, 48, _TRUNCATE, VV_OM_BACKUP_SUFFIX)
+                       : _snwprintf_s(suffix, 48, _TRUNCATE, VV_OM_BACKUP_SUFFIX L"-%d", k);
+        if (w < 0) {
+            break;
+        }
+        if (!vv_layout_copy_path(path, suffix, backup, n)) {
+            w = _snwprintf_s(backup, n, _TRUNCATE, L"%ls%ls", path, suffix);
+        }
         if (w < 0) {
             break;
         }
