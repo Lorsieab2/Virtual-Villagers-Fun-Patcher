@@ -23,7 +23,7 @@
     {
       "source": "assets/last_names/VVFP Last Names.dll",
       "destination": "VVFP Last Names.dll",
-      "sha256": "909FD0D19A34C55B2167822BBB5954F2EE1F35C140D14CF475CBAB5E24B4CA2C"
+      "sha256": "6CF2603A648F714B2FEF3EB2C4AFB902655031166E6D8564F8973422C3AB9F96"
     }
   ],
   "runtime_detours": [

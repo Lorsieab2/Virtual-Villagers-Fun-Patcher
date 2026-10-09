@@ -891,6 +891,48 @@ def set_save_speed(game: int, path: Path, speed: int) -> None:
     _write_save(path, data[:offset] + speed.to_bytes(4, "little") + data[offset + 4:], data)
 
 
+# Repair Saves & Logs' Game speed (the owner, 2026-10-08: "options to change the game save speed in
+# Repair Logs. Paused, slow, normal, fast"): the values the games' own Options write -- 3 is Fast
+# ("2x speed"), 6 Normal, 10 Slow ("1/2 speed") -- and Paused is the speed it had, plus 999.
+SPEED_CHOICES = {"paused": "Paused", "slow": "Slow", "normal": "Normal", "fast": "Fast"}
+_SPEED_VALUES = {"slow": 10, "normal": 6, "fast": 3}
+
+
+def speed_words(value: int) -> str:
+    """A save's speed as the player knows it: "Normal", or just "Paused" (the owner, 2026-10-08:
+    the speed under a pause is not shown, to avoid confusion)."""
+    if value >= _PAUSED:
+        return SPEED_CHOICES["paused"]
+    return {v: SPEED_CHOICES[k] for k, v in _SPEED_VALUES.items()}.get(value, str(value))
+
+
+def set_speed_choice(game: int, path: Path, choice: str,
+                     processes: ProcessController | None = None) -> tuple[int, int] | None:
+    """Set one save to Paused, Slow, Normal or Fast, the way the game writes them; the speed it keeps
+    under Paused is the one it had.  Returns (old value, new value), or None when it already is so.
+    A file that is not a save of this game, or whose game is running or cannot be checked (Codex,
+    #576), is refused and left exactly as it is."""
+    exe = game_exe_name(path.parent)
+    try:
+        controller = processes if processes is not None else WindowsProcesses()
+        running = bool(controller.find(exe))
+    except Exception as exc:  # noqa: BLE001 -- any failure to look is a refusal
+        raise BackupError(f"Could not check whether {exe} is running ({exc}); the save was left as it is.")
+    if running:
+        raise BackupError(f"{exe} is running; quit it from its own menu first. The save was left as it is.")
+    data = path.read_bytes()
+    found = save_speed(game, data)
+    if found is None:
+        raise BackupError(f"{path.name} is not a save whose speed can be read; it was left as it is.")
+    old = found[1]
+    base = old - _PAUSED if old >= _PAUSED else old
+    new = base + _PAUSED if choice == "paused" else _SPEED_VALUES[choice]
+    if new == old:
+        return None
+    set_save_speed(game, path, new)
+    return old, new
+
+
 def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
     """A backup's copy of a slot save, set to Paused: the speed it had, or None."""
     return pause_save_file(game, path) if is_slot_save(relative) else None

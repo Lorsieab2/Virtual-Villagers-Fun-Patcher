@@ -77,6 +77,59 @@ class SpeedTests(unittest.TestCase):
             self.assertIsNone(backup.pause_save_bytes(other, good))                          # another game's
 
 
+class NoGames:
+    def find(self, exe_name):
+        return []
+
+
+class SpeedChoiceTests(unittest.TestCase):
+    """Repair Saves & Logs' Game speed (the owner, 2026-10-08: "Paused, slow, normal, fast")."""
+
+    def test_every_choice_from_every_speed_changes_only_the_speed(self) -> None:
+        expected = {"slow": lambda v: 10, "normal": lambda v: 6, "fast": lambda v: 3,
+                    "paused": lambda v: v if v >= 999 else v + 999}
+        with tempfile.TemporaryDirectory() as tmp:
+            for game in TITLES:
+                for start in (3, 6, 10, 1002, 1005, 1009):
+                    for choice, want in expected.items():
+                        path = Path(tmp) / f"g{game}_{start}_{choice}.ldw"
+                        before = save_bytes(game, start)
+                        path.write_bytes(before)
+                        result = backup.set_speed_choice(game, path, choice, NoGames())
+                        after = path.read_bytes()
+                        self.assertEqual(backup.save_speed(game, after)[1], want(start), (game, start, choice))
+                        self.assertEqual(result, None if want(start) == start else (start, want(start)))
+                        at = backup.save_speed(game, before)[0]
+                        self.assertEqual(after[:at] + after[at + 4:], before[:at] + before[at + 4:])
+            junk = Path(tmp) / "junk.ldw"
+            junk.write_bytes(b"not a save")
+            with self.assertRaises(backup.BackupError):
+                backup.set_speed_choice(1, junk, "normal", NoGames())
+            self.assertEqual(junk.read_bytes(), b"not a save")
+
+    def test_a_running_or_uncheckable_game_is_never_written(self) -> None:
+        class Running:
+            def find(self, exe_name):
+                return [1234]
+
+        class Broken:
+            def find(self, exe_name):
+                raise OSError("no process list")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "Virtual Villagers1.ldw"
+            before = save_bytes(1, 1005)
+            path.write_bytes(before)
+            for controller in (Running(), Broken()):
+                with self.assertRaises(backup.BackupError):
+                    backup.set_speed_choice(1, path, "fast", controller)
+                self.assertEqual(path.read_bytes(), before)
+
+    def test_the_words(self) -> None:
+        self.assertEqual([backup.speed_words(v) for v in (3, 6, 10, 1005, 1002)],
+                         ["Fast", "Normal", "Slow", "Paused", "Paused"])
+
+
 class BackupTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()

@@ -158,7 +158,7 @@ class _Registry:
     def get(self, name: str, head: int | None, body: int | None) -> Person:
         key = self.current((name, head, body))
         if key not in self.by_key:
-            pid = len(self.people) + 1
+            pid = max(self.people, default=0) + 1      # never a merged-away villager's id again
             self.people[pid] = Person(pid, *key)    # the look they have now (Codex, #558)
             self.by_key[key] = pid
         return self.people[self.by_key[key]]
@@ -362,6 +362,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
     _log_people(reg, folder, game, slot)
+    _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
     for p in reg.people.values():
@@ -388,6 +389,52 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
         notes.append("The save's tribe name could not be read, so records of every village this "
                      "slot has held were read.")
     return village
+
+
+def _unrecorded_looks(reg: _Registry) -> None:
+    """A record of a villager with looks no living villager has, who is not recorded dead or gone,
+    is the living villager of that name, sex and recorded parents when exactly one fits: their looks changed
+    with no "Appearance changed" record (Cheat Engine, or before the patcher logged it).  The owner,
+    2026-10-08: the tree said Papu Tamikai, born with his twin Paco's head 16 and now head 5, "left
+    the village".  Never two villagers one History snapshot lists together, and never a living one
+    with a Birth record of their own when the record is a Birth."""
+    together: dict[int, set[int]] = {}
+    for ids in reg.snapshots.values():
+        for pid in ids:
+            together.setdefault(pid, set()).update(ids)
+    for p in list(reg.people.values()):
+        if p.alive or p.gone or p.head is None or p.body is None:
+            continue
+        fits = [q for q in reg.people.values()
+                if q.alive and q.name == p.name and q.id != p.id
+                and (p.sex is None or q.sex is None or p.sex == q.sex)
+                # The same parents, named on both (the games' name pools repeat a first name often).
+                and any(a is not None and a == b for a, b in ((p.father, q.father), (p.mother, q.mother)))
+                and all(a is None or b is None or a == b for a, b in ((p.father, q.father), (p.mother, q.mother)))
+                and not (p.birth_record is not None and q.birth_record is not None)
+                and q.id not in together.get(p.id, ())]
+        if len(fits) != 1:
+            continue
+        q = fits[0]
+        for attr in ("father", "mother", "birth_record", "litter", "sex"):
+            if getattr(q, attr) is None:
+                setattr(q, attr, getattr(p, attr))
+        if p.first_seen and (q.first_seen is None or p.first_seen < q.first_seen):
+            q.first_seen = p.first_seen
+        q.arrived = q.arrived or p.arrived
+        q.how = q.how or p.how
+        for r in reg.people.values():
+            if r.father == p.id:
+                r.father = q.id
+            if r.mother == p.id:
+                r.mother = q.id
+        for ids in reg.snapshots.values():
+            if p.id in ids:
+                ids.discard(p.id)
+                ids.add(q.id)
+        del reg.people[p.id]
+        reg.by_key[p.key] = q.id
+        reg.relooked[p.key] = q.key
 
 
 def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> None:
@@ -666,6 +713,7 @@ class Rules:
     not_expecting: bool = True
     different_last_name: bool = True
     one_family_per_partner: bool = True   # no partner from a family they already have a child with
+    prefer_previous_partners: bool = True   # established couples first (the owner, 2026-10-08)
     prefer_fresh_blood: bool = True
 
     def describe(self) -> list[str]:
@@ -691,6 +739,7 @@ class Rules:
                             (self.not_expecting, "Not already expecting"),
                             (self.different_last_name, "Different last names (family)"),
                             (self.one_family_per_partner, "One Family Per Partner"),
+                            (self.prefer_previous_partners, "Previous partners first"),
                             (self.prefer_fresh_blood, "Fresh blood first")):
             if flag:
                 out.append(words)
@@ -814,8 +863,8 @@ def _partner_families(village: Village) -> dict[int, set[tuple[str, int]]]:
 
 def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[Pair]], list[Pair]]:
     """(one-to-one suggested pairs, every allowed partner per woman, the least related pairs when
-    the rules allow none).  Pairs are ranked least related first, then fresh blood (with that rule),
-    then closest in age."""
+    the rules allow none).  Pairs are ranked couples who already have a child together first (with
+    that rule), then least related, then fresh blood (with that rule), then closest in age."""
     kin = Kinship(village)
     men, women = candidates(village, rules)
     allowed: list[Pair] = []
@@ -835,9 +884,16 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     def fresh(p: Person) -> int:
         return 0 if p.father is None and p.mother is None else 1
 
+    # Couples who already have a child together, born or on the way (the owner, 2026-10-08:
+    # "Prioritize previous partners (so that established couples can make more children together)").
+    couples = {(c.father, c.mother) for c in village.people.values()
+               if c.father is not None and c.mother is not None}
+
     def rank(pair: Pair) -> tuple:
         gap = abs((pair.man.age or 0) - (pair.woman.age or 0))
-        return (pair.related, (fresh(pair.man) + fresh(pair.woman)) if rules.prefer_fresh_blood else 0,
+        established = rules.prefer_previous_partners and (pair.man.id, pair.woman.id) in couples
+        return (not established, pair.related,
+                (fresh(pair.man) + fresh(pair.woman)) if rules.prefer_fresh_blood else 0,
                 pair.shared, gap, pair.woman.id, pair.man.id)
 
     allowed.sort(key=rank)

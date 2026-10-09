@@ -737,7 +737,63 @@ def renamed_keys(text: str, renames: dict[tuple, str]) -> str:
         key = json.dumps(new)[1:-1] + f"|{head}|{body}"
         text = re.sub(rf'(?<=["|: ]){re.escape(json.dumps(name)[1:-1])}\|{head}\|{body}(?=["| ])',
                       lambda _found, key=key: key, text)
-    return text
+    return _renamed_lines(text, renames)
+
+
+def _name_pattern(name: str, numbered: bool = False) -> re.Pattern:
+    """`name` as a whole name in a line of words: never inside a longer word, and never the start of
+    a longer numbered name ("Iruwa Bahati I" is not in "Iruwa Bahati II").  `numbered`: with any
+    Roman number after it too."""
+    tail = r"(?: [IVXLCDM]+)?(?!\w)" if numbered else r"(?! [IVXLCDM]+(?!\w))(?!\w)"
+    return re.compile(rf"(?<!\w){re.escape(name)}{tail}")
+
+
+def _rename_in_lines(lines: list, runs, pattern: re.Pattern, new: str) -> tuple[list, object]:
+    """The player's own lines (and their formatted runs) with the name the pattern finds put as `new`.
+    A name the formatting splits across runs is renamed in the lines and the runs dropped for that
+    line, so the words always win (clean_runs)."""
+    out = [pattern.sub(new, line) if isinstance(line, str) else line for line in lines]
+    if isinstance(runs, list) and len(runs) == len(lines):
+        runs = [[[pattern.sub(new, r[0]), r[1]] if isinstance(r, list) and len(r) == 2 and isinstance(r[0], str)
+                 else r for r in line_runs] if isinstance(line_runs, list) else line_runs
+                for line_runs in runs]
+        runs = [line_runs if isinstance(line_runs, list) and isinstance(line, str)
+                and "".join(r[0] for r in line_runs if isinstance(r, list) and r and isinstance(r[0], str)) == line
+                else [[line, {}]] for line, line_runs in zip(out, runs)]
+    return out, runs
+
+
+def _renamed_lines(text: str, renames: dict[tuple, str]) -> str:
+    """The edits (as text) with each renamed villager's name put right in the words the player typed
+    for their portrait (the owner, 2026-10-08: "the family tree still carries the old names").  Only
+    in that villager's own entry: two namesakes can be renamed apart."""
+    try:
+        data = json.loads(text)
+    except ValueError:
+        return text
+    entries = data.get("entries") if isinstance(data.get("entries"), dict) else \
+        (data.get("edits") or {}).get("entries") if isinstance(data.get("edits"), dict) else None
+    if not isinstance(entries, dict):
+        return text
+    changed = False
+    for (name, head, body), new in renames.items():
+        entry = entries.get(f"{new}|{head}|{body}")
+        if not isinstance(entry, dict) or not isinstance(entry.get("lines"), list) or name == new:
+            continue
+        lines, runs = _rename_in_lines(entry["lines"], entry.get("runs"), _name_pattern(name), new)
+        if lines != entry["lines"] or runs != entry.get("runs"):
+            entry["lines"] = lines
+            if "runs" in entry:
+                entry["runs"] = runs
+            changed = True
+    if not changed:
+        return text
+    # Written back as it was written: a .vvtree (indent 1), an edits file (indent 2), or one line.
+    if not text.startswith("{\n"):
+        return json.dumps(data)
+    if text.startswith('{\n "'):
+        return json.dumps(data, indent=1)
+    return json.dumps(data, indent=2, ensure_ascii=False) + ("\n" if text.endswith("\n") else "")
 
 
 def relooked_keys(text: str, relooked: dict[tuple, tuple]) -> str:
@@ -1822,7 +1878,17 @@ def footer(lay: Layout) -> str:
 def node_text(lay: Layout, p: gen.Person) -> list[str]:
     """The entry's lines: the player's own, or the patcher's (default_text)."""
     lines = lay.entry(p).get("lines")
-    return lines if lines else default_text(lay, p)
+    return _shown_name_in(lay, p, lines, None)[0] if lines else default_text(lay, p)
+
+
+def _shown_name_in(lay: Layout, p: gen.Person, lines: list, runs) -> tuple[list, object]:
+    """The player's lines for a villager with their name -- with or without a Roman number -- as the
+    tree shows it now (the owner, 2026-10-08: the tree's numbering is the rule, "Hawa Awanata II" is
+    "Hawa Awanata" when there is no other).  Other words are never touched."""
+    if p.upcoming or not p.name:
+        return lines, runs
+    return _rename_in_lines(lines, runs, _name_pattern(gen.unnumbered(p.name), numbered=True),
+                            lay.names.get(p.id, p.name))
 
 
 def default_text(lay: Layout, p: gen.Person) -> list[str]:
@@ -1888,7 +1954,10 @@ def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None
     """The entry's lines formatted word by word (clean_runs), or None when they are plain."""
     entry = lay.entry(p)
     lines = entry.get("lines")
-    return clean_runs(entry.get("runs"), lines) if lines else None
+    if not lines:
+        return None
+    lines, runs = _shown_name_in(lay, p, lines, entry.get("runs"))
+    return clean_runs(runs, lines)
 
 
 BOLD_WIDTH = 1.1                        # how much wider a bold letter is, near enough

@@ -574,6 +574,10 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
             result = dad or mum
         elif rule == "mother":
             result = mum or dad
+        elif dad and mum and carried(v.name) in (dad, mum):
+            # "random": a child carrying either parent's last name already had its 50:50 -- the
+            # game's own at the birth (VVFP Last Names' VvfpRuleLastName, the owner, 2026-10-08).
+            result = carried(v.name)
         else:                                   # "random": 50:50 for each child (the owner)
             pick = random.Random(zlib.crc32(repr(v.identity).encode("utf-8")))
             result = pick.choice([dad, mum]) if dad and mum else (dad or mum)

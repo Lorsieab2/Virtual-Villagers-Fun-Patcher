@@ -1839,6 +1839,35 @@ static void vv1_golden_last_name(unsigned char *child, const unsigned char *moth
     give(name, VV1_NAME_CAPACITY, family);
 }
 
+typedef int (__stdcall *vv1_rule_last_name_t)(char *name, unsigned int room, const char *father,
+                                               const char *mother, int slot);
+
+/* The last name the player's rule gives (Repair Saves & Logs' "Last names
+   come from"; VVFP Last Names' VvfpRuleLastName), from the parents this
+   birth recorded, before anything is logged or kept under the child's name
+   (the owner, 2026-10-08: babies named for their mother's family number,
+   not by the rule -- "fix it").  The name the frame watch compares against
+   follows it, so the change is no rename. */
+static void vv1_rule_last_name(unsigned char *child, int c, int slot) {
+    static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
+    static vv1_rule_last_name_t rule;
+    char *name = (char *)(child + VV1_NAME_OFFSET);
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
+        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        state = rule ? 1 : -1;
+    }
+    if (state != 1 || memchr(name, '\0', VV1_NAME_CAPACITY) == NULL) {
+        return;
+    }
+    g_entries[c].father_name[VV1_NAME_CAPACITY - 1] = '\0';
+    g_entries[c].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
+    if (rule(name, VV1_NAME_CAPACITY, g_entries[c].father_name, g_entries[c].mother_name, slot)
+        && g_have_prev) {
+        memcpy(g_prev_name[c], name, VV1_NAME_CAPACITY);
+    }
+}
+
 /* From the executable's birth hook, through the Origins companion's Vv1Born:
    the child (named) and the mother.  Records the parents, writes the birth
    to the parentage log at once, then persists.  Returns 1 when recorded. */
@@ -1866,6 +1895,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
            2026-10-08: "THE GOLDEN CHILD SHOULD BE LISTED AS A BIRTH WITH
            THEIR PARENTS"), with the last name the mother's children take. */
         vv1_golden_last_name((unsigned char *)child_pointer, (const unsigned char *)mother_pointer);
+        vv1_rule_last_name((unsigned char *)child_pointer, c, slot);
         /* Its Birth record is written from the tick once the game has made
            it the Golden Child -- 5 years old (100 units) for life, its skills
            and likes set -- not from the bare record the puzzle just created
@@ -1880,6 +1910,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
            3 (0x43BC4E / 0x43BC8C), 0 for a single baby; the delivery clears
            it only after its last child (0x42F0C7). */
         int litter = *(const int *)((const unsigned char *)mother_pointer + VV1_LITTER_OFFSET);
+        vv1_rule_last_name((unsigned char *)child_pointer, c, slot);
         vv1_log_birth(records, &birth, litter == 0 ? 1 : litter == 2 || litter == 3 ? litter : -1);
     }   /* the log first, before anything is flushed */
     vv1_parents_save(slot, records);
