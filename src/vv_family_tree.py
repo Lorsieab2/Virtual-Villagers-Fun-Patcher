@@ -3578,14 +3578,15 @@ def _rope(points: list[tuple[float, float]], thick: float) -> list[list[tuple[fl
 
 
 def _vine(points: list[tuple[float, float]], size: float, leaves: bool, flowers: bool) -> list:
-    """A vine along a closed outline, waving gently across it, with leaves (each with its midrib, turned
-    out and in by turns) and/or small hibiscus flowers along it; `size` is a leaf's length."""
+    """A vine along a closed outline, waving gently outward from it, with small leaves (each with its
+    midrib) and/or small hibiscus flowers along it, all on the outside so they keep out of the portrait
+    (the owner, 2026-10-09); `size` is a leaf's length."""
     walk = _resample(points, size / 8)
     if not walk:
         return []
     n = len(walk)
     wave = size * 0.12
-    vine = [(x + nx * wave * math.sin(2 * math.pi * k / 16), y + ny * wave * math.sin(2 * math.pi * k / 16))
+    vine = [(x + nx * wave * (1 + math.sin(2 * math.pi * k / 16)) / 2, y + ny * wave * (1 + math.sin(2 * math.pi * k / 16)) / 2)
             for k, (x, y, nx, ny) in enumerate(walk)]
     out = [vine + vine[:1]]
     pattern = (["leaf", "leaf", "flower"] if leaves and flowers else ["leaf"] if leaves else ["flower"])
@@ -3598,8 +3599,8 @@ def _vine(points: list[tuple[float, float]], size: float, leaves: bool, flowers:
         tx, ty = -ny, nx                                       # along the outline
         what = pattern[j % len(pattern)]
         if what == "leaf":
-            side = 1 if j % 2 == 0 else -1                     # out, then in
-            dx, dy = nx * side * 0.8 + tx * 0.6, ny * side * 0.8 + ty * 0.6
+            lean = 0.6 if j % 2 == 0 else -0.6                 # outward, leaning one way then the other
+            dx, dy = nx * 0.8 + tx * lean, ny * 0.8 + ty * lean
             m = math.hypot(dx, dy)
             if m == 0:                                     # two corners in one place: no direction here
                 continue
@@ -3612,6 +3613,7 @@ def _vine(points: list[tuple[float, float]], size: float, leaves: bool, flowers:
             out.append([(x, y), (x + dx * size * 0.9, y + dy * size * 0.9)])
         else:
             r = size * 0.55
+            x, y = x + nx * r * 0.95, y + ny * r * 0.95       # just outside the vine
             petals = [(x + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.cos(a),
                        y + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.sin(a))
                       for a in (2 * math.pi * k2 / 60 for k2 in range(61))]
@@ -3628,7 +3630,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float) -> list:
     outline_points = shape_points(kind, x0, y0, w, h, radius, angle)
     if border == "rope":
         return _rope(outline_points, max(5.0, 0.07 * min(w, h)))
-    size = max(8.0, 0.16 * min(w, h))
+    size = max(6.0, 0.1 * min(w, h))         # small, outside the portrait
     return _vine(outline_points, size, border in ("vine_leaves", "vine_both"), border in ("vine_flowers", "vine_both"))
 
 
