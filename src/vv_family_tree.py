@@ -62,11 +62,14 @@ NATURAL = {"rope": "#c9a06a", "vine": "#5b8a35", "leaf": "#6aa83e", "flower": "#
 RAINBOW = ("#e53935", "#fb8c00", "#fdd835", "#43a047", "#1e88e5", "#3949ab", "#8e24aa", "#ec407a")
 STAMEN = "#f2c230"
 # Natural hibiscus colours (the owner, 2026-10-09): each its petals and its darker "eye" in the middle,
-# as the flowers grow; "random" picks one of them for each flower.
+# as the flowers grow; or all of them taking turns, or blending from one to the next, round the border
+# (in HIBISCUS_ORDER).
 HIBISCUS = {"red": ("Red", "#e8335a", "#8c1030"), "pink": ("Pink", "#f48fb6", "#b0124f"),
             "yellow": ("Yellow", "#f7cf3a", "#b3122e"), "orange": ("Orange", "#f5892c", "#a3121f"),
             "white": ("White", "#f8f4ec", "#c2185b"), "purple": ("Purple", "#a86ad0", "#4a1466")}
-HIBISCUS_CHOICES = {**{k: v[0] for k, v in HIBISCUS.items()}, "random": "Random natural colours"}
+HIBISCUS_CHOICES = {**{k: v[0] for k, v in HIBISCUS.items()}, "alternate": "Alternating natural colours",
+                    "gradient": "Gradient natural colours"}
+HIBISCUS_ORDER = ("red", "orange", "yellow", "white", "pink", "purple")
 
 
 def _colour_ok(value) -> bool:
@@ -393,7 +396,8 @@ class Edits:
         if isinstance(palette, list) and len(palette) == 7 and all(_colour_ok(c) for c in palette):
             out.special_palette = list(palette)
         out.special_count = int(_number(data.get("special_count"), 2, 7, 3))
-        out.hibiscus = data.get("hibiscus") if data.get("hibiscus") in HIBISCUS_CHOICES else "red"
+        chosen = "alternate" if data.get("hibiscus") == "random" else data.get("hibiscus")   # "random", before
+        out.hibiscus = chosen if chosen in HIBISCUS_CHOICES else "red"
         room = data.get("text_room")
         out.text_room = room if room in TEXT_ROOMS else "auto"
         out.detail_lines = data.get("detail_lines", True) is not False
@@ -3820,13 +3824,15 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     palette = list(e.special_palette[:e.special_count])
 
     def flower_look(t: float, j: int, salt: float = 0.0) -> tuple[str, str | None]:
-        """A flower's petals and eye: in natural colours, the chosen hibiscus (or one at random,
-        the same every drawing); else the mode's colour, its eye shaded from it."""
+        """A flower's petals and eye: in natural colours, the chosen hibiscus -- or all of them by
+        turns or blending round the border; else the mode's colour, its eye shaded from it."""
         if mode == "natural":
             name = e.hibiscus
-            if name == "random":
-                v = math.sin((j + 1) * 91.3458 + salt * 47.77) * 43758.5453
-                name = list(HIBISCUS)[int((v - math.floor(v)) * len(HIBISCUS)) % len(HIBISCUS)]
+            if name == "alternate":               # by turns round the border
+                name = HIBISCUS_ORDER[j % len(HIBISCUS_ORDER)]
+            elif name == "gradient":              # blending from one to the next round the border
+                return (_blend_round([HIBISCUS[k][1] for k in HIBISCUS_ORDER], t),
+                        _blend_round([HIBISCUS[k][2] for k in HIBISCUS_ORDER], t))
             _words, petals, eye = HIBISCUS[name]
             return petals, eye
         return colour_of("flower", t, j), None
@@ -3892,6 +3898,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
         v = math.sin((j + 1) * 12.9898 + salt * 78.233) * 43758.5453
         return (v - math.floor(v)) * 2 - 1
     placed_at = []
+    flowers_drawn = 0
     # The bunch of bananas' far tip takes a flower among its leaves (the owner, 2026-10-09): the spot
     # nearest the outline's farthest point along the bunch.
     tip_flower = None
@@ -3937,7 +3944,8 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
         else:
             r = own * 0.55
             cx, cy = x + nx * r * 0.95, y + ny * r * 0.95                         # just outside the vine
-            petals, eye = flower_look(tpos, j)
+            petals, eye = flower_look(tpos, flowers_drawn)             # by the flowers alone, not the leaves
+            flowers_drawn += 1
             items += _flower_items(cx, cy, r, petals, turned=math.pi * wobble(j, 4.0), eye=eye)
     return items + _sticking_out(border, kind, frame, outline_points, size, colour_of, flower_look)
 
