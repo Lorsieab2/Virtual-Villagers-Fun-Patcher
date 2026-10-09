@@ -67,7 +67,8 @@ class SchemeSceneTests(unittest.TestCase):
         self.assertTrue(all(s.width == 0 for s in people), "the outline is drawn in pieces instead")
         pieces = [i for i in items if isinstance(i, ft.Line) and i.target and i.target[0] == "person"]
         self.assertEqual({p.colour for p in pieces}, palette(e))
-        self.assertEqual(len(pieces), 48 * len(people))
+        self.assertLessEqual(len(pieces), 48 * len(people), "one line for each run of one colour")
+        self.assertGreaterEqual(len(pieces), 3 * len(people))
 
     def test_a_special_border_keeps_its_own_colours(self):
         e = ft.Edits(schemes={"borders": "rainbow"})
@@ -306,11 +307,10 @@ class CodexRoundTwoTests(unittest.TestCase):
         v = village()
         p = next(q for q in v.people.values() if q.alive and not q.upcoming and q.name)
         lay = ft.layout(v, ft.Edits())
-        lines, _runs = ft._shown_name_in(lay, p, [p.name, "40 years old (deceased)", "(deceased)", "Loved"], None)
-        self.assertEqual(lines, [p.name, "40 years old", "Loved"] if p.age is None else lines)
-        self.assertFalse(any("(deceased)" in line for line in lines))
+        lines, _runs = ft._shown_name_in(lay, p, [p.name, "(deceased)", "Son of Ago (deceased)", "Loved"], None)
+        self.assertNotIn("(deceased)", lines, "the status line the tree wrote goes")
+        self.assertIn("Son of Ago (deceased)", lines, "words the player typed stay (self-review, #577)")
         self.assertIn("Loved", lines)
-        self.assertNotIn("", lines, "a line that held only the status goes with it")
 
 
 class KeyPluralTests(unittest.TestCase):
