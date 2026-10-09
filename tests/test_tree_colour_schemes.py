@@ -206,6 +206,47 @@ class RowLineUpTests(unittest.TestCase):
         self.assertEqual((odd.row_align, odd.row_valign), ("arranged", "middle"))
 
 
+class PawPrintTests(unittest.TestCase):
+    """The owner, 2026-10-09: "add a new shape: paw print!"; its vines "like the other normal shapes"."""
+
+    def test_the_paw_has_a_pad_and_four_toes_inside_its_box(self):
+        self.assertEqual(ft.PORTRAIT_SHAPES["paw"], "Paw print")
+        self.assertEqual(ft.plural("paw"), "paw prints")
+        toes = ft.decor("paw")
+        self.assertEqual(len(toes), 4)
+        for toe in toes:
+            for u, v in toe:
+                self.assertTrue(-0.001 <= u <= 1.001 and -0.001 <= v <= 1.001, "the box takes in the toes")
+
+    def test_each_toe_takes_the_vine_like_a_whole_shape(self):
+        frame = (0.0, 0.0, 173.0, 156.0, 0.0)
+        e = ft.Edits()
+        for border in ("vine_leaves", "vine_flowers", "vine_both"):
+            items = ft.special_border(border, "paw", frame, 0.0, e)
+            flowers_or_leaves = [i for i in items if isinstance(i, ft.Poly)]
+            self.assertGreater(len(flowers_or_leaves), 40, border)
+            # never one flower as big as a toe
+            biggest = max(max(px for px, _ in i.points) - min(px for px, _ in i.points) for i in flowers_or_leaves)
+            self.assertLess(biggest, 30, border)
+        pollen = ft.special_border("vine_flowers", "hibiscus", (0.0, 0.0, 160.0, 156.0, 0.0), 0.0, e)
+        self.assertTrue(pollen, "the hibiscus's small pollen circles still take one flower each")
+
+    def test_the_face_and_words_sit_in_the_pad(self):
+        v = village()
+        e = ft.Edits()
+        for group in ft.GROUPS:
+            e.shapes[group] = "paw"
+        lay = ft.layout(v, e)
+        sc = ft.scene(lay, GAME, {})
+        q = next(q for q in lay.x if not v.people[q].upcoming)
+        pad_top = min(py for _px, py in lay.frame_points(q))
+        names = [i for i in sc.items if isinstance(i, ft.Text) and i.pid == q and i.role == "names"]
+        self.assertTrue(names)
+        self.assertGreater(names[0].y, pad_top, "the name is in the pad, below the toes")
+        fills = [i for i in sc.items if isinstance(i, ft.Poly) and i.fill == e.portrait_fill]
+        self.assertGreaterEqual(len(fills), 4, "the toes are filled like the pad")
+
+
 class KeyPluralTests(unittest.TestCase):
     """The owner, 2026-10-09: "monstera leafs; Babies on the way: butterflys.  ahem. grammar." """
 

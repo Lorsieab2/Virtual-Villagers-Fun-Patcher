@@ -683,7 +683,7 @@ PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle"
                    "mermaid_tail_h": "Mermaid tail (on its side)",
                    "fish_right": "Fish (facing right)", "fish_left": "Fish (facing left)",
                    "wave_circle": "Ocean wave in a circle", "conch": "Conch shell", "starfish": "Starfish", "monstera": "Monstera leaf",
-                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "anchor": "Anchor", "bananas": "Bunch of bananas",
+                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "anchor": "Anchor", "bananas": "Bunch of bananas", "paw": "Paw print",
                    "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
@@ -2663,7 +2663,7 @@ def _shells() -> dict[str, tuple[list, list]]:
     for name, value in out.items():
         edge, lines = value[0], value[1]
         decor = value[2] if len(value) > 2 else []
-        xs, ys = zip(*edge)
+        xs, ys = zip(*(edge + ([q for line in decor for q in line] if name in FIT_EVERYTHING else [])))
         x0, y0, w, h = min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)
         unit = lambda p: ((p[0] - x0) / w, (p[1] - y0) / h)
         fitted[name] = ([unit(p) for p in edge], [[unit(p) for p in line] for line in lines], w / h,
@@ -2724,6 +2724,10 @@ def _inside_poly(poly, x, y) -> bool:
         if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
             hit = not hit
     return hit
+
+
+# Shapes whose box takes in their border-drawn parts too: a paw print's toes stand apart from its pad.
+FIT_EVERYTHING = ("paw",)
 
 
 def _more_shapes() -> dict:
@@ -2958,6 +2962,20 @@ def _more_shapes() -> dict:
     whole = _smooth(whole, closed=True, steps=4)
     out["anchor"] = ([(x / 550, y / 550) for x, y in whole],
                      [[(x / 550, y / 550) for x, y in line] for line in (ring_hole, [(275, 100), (275, 456)])])
+
+    # A paw print (the owner, 2026-10-09: "add a new shape: paw print!"): the big pad, three soft lobes at its
+    # foot, and four oval toes in an arc above it -- the outer two lower and leaning out -- drawn like the
+    # border, each its own circle (one flower each on a vine of flowers).  The portrait's box takes in the
+    # toes (FIT_EVERYTHING).
+    pad = _smooth([(-0.36, 0.0), (0.0, -0.07), (0.36, 0.0), (0.56, 0.22), (0.58, 0.48), (0.44, 0.7),
+                   (0.22, 0.68), (0.0, 0.78), (-0.22, 0.68), (-0.44, 0.7), (-0.58, 0.48), (-0.56, 0.22)],
+                  closed=True, steps=8)
+
+    def toe(cx: float, cy: float, lean: float) -> list:
+        a = math.radians(lean)
+        return [(cx + x * math.cos(a) - y * math.sin(a), cy + x * math.sin(a) + y * math.cos(a))
+                for x, y in _ring(0, 0, 0.16, 0.22, 36)]
+    out["paw"] = (pad, [], [toe(-0.64, -0.2, -28), toe(-0.23, -0.47, -8), toe(0.23, -0.47, 8), toe(0.64, -0.2, 28)])
 
     # A monstera leaf, traced from the owner's picture (1920 pixels square): four slits cut in from the
     # right and lower edges and two from the left, four holes (drawn like the border); the midrib and the
@@ -3781,14 +3799,14 @@ def _resample(points: list[tuple[float, float]], step: float) -> list[tuple[floa
 
 
 @functools.lru_cache(maxsize=512)
-def _open_places(kind: str, w: float, h: float, radius: float, angle: float) -> tuple:
+def _open_places(kind: str, w: float, h: float, radius: float, angle: float, size: float = 0.0) -> tuple:
     """The places along a vine border's outline (its _resample steps) where leaves and flowers may go:
     not in a narrow notch -- a gap of the outside too narrow for them on both its sides, a Monstera's
     slit, a heart's dip, a star's inner corner -- but in a wide one, the anchor's (the owner,
     2026-10-09: "move some of the bottom leaves/flowers to those giant notches").  The same for a
     portrait of the same shape and size wherever it is, so worked out once."""
     outline_points = shape_points(kind, 0.0, 0.0, w, h, radius, angle)
-    size = max(6.0, 0.1 * min(w, h))
+    size = size or max(6.0, 0.1 * min(w, h))      # a toe's: its pad's (special_border)
     walk = _resample(outline_points, size / 8)
     n = len(walk)
     pts = [(x, y) for x, y, _nx, _ny in walk]
@@ -3907,13 +3925,28 @@ def sticking_out(kind: str, frame: tuple, outline_points: list) -> list:
     return out
 
 
+def _is_toe(pts: list, frame: tuple) -> bool:
+    """A closed part standing outside its shape big enough to be a shape of its own -- a paw print's toe --
+    not a small dot like the hibiscus's pollen."""
+    cx = sum(px for px, _py in pts) / len(pts)
+    cy = sum(py for _px, py in pts) / len(pts)
+    return sum(math.hypot(px - cx, py - cy) for px, py in pts) / len(pts) > 0.06 * max(frame[2], frame[3])
+
+
+def _near(polygons: list, x: float, y: float, reach: float) -> bool:
+    """Whether (x, y) is within `reach` of any corner of these outlines (dense ones: a ring, a toe)."""
+    return any(math.hypot(px - x, py - y) < reach for poly in polygons for px, py in poly)
+
+
 def _sticking_out(border: str, kind: str, frame: tuple, outline_points: list, size: float, colour_of,
-                 flower_look=None) -> list:
+                 flower_look=None, edits: "Edits | None" = None) -> list:
     """The special border on the parts standing outside the shape (the owner, 2026-10-09): the rope or
     the vine along each line, and on each small circle one flower -- a leaf on a vine of leaves only --
     or, for the rope, a rope ring."""
     items = []
-    for n_out, (_i, pts, closed) in enumerate(sticking_out(kind, frame, outline_points)):
+    parts = sticking_out(kind, frame, outline_points)
+    toes = [pts for _i, pts, closed in parts if closed and _is_toe(pts, frame)]
+    for n_out, (_i, pts, closed) in enumerate(parts):
         if closed:
             cx = sum(px for px, _py in pts) / len(pts)
             cy = sum(py for _px, py in pts) / len(pts)
@@ -3921,6 +3954,21 @@ def _sticking_out(border: str, kind: str, frame: tuple, outline_points: list, si
             if border == "rope":
                 ring = _ring(cx, cy, max(r, size * 0.6), max(r, size * 0.6), 24)[:-1]
                 items += _open_band(ring + ring[:2], size * 0.3, colour_of("rope", 0.0, 0))
+            elif _is_toe(pts, frame) and edits is not None:
+                # A big circle -- a paw print's toe -- takes the vine as a whole shape does, its leaves and
+                # flowers spread round it the same way and as big as the pad's (the owner, 2026-10-09: "they
+                # should be like the other normal shapes").  The toe as the oval that fits it.
+                sxx = sum((px - cx) ** 2 for px, _py in pts)
+                syy = sum((py - cy) ** 2 for _px, py in pts)
+                sxy = sum((px - cx) * (py - cy) for px, py in pts)
+                lean = 0.5 * math.atan2(2 * sxy, sxx - syy)
+                ux, uy = math.cos(lean), math.sin(lean)
+                a = max(abs((px - cx) * ux + (py - cy) * uy) for px, py in pts)
+                b = max(abs(-(px - cx) * uy + (py - cy) * ux) for px, py in pts)
+                # None in the gaps it shares with the pad or another toe.
+                others = [outline_points] + [toe for toe in toes if toe is not pts]
+                items += special_border(border, "ellipse", (cx - a, cy - b, 2 * a, 2 * b, math.degrees(lean)), 0.0,
+                                        edits, size=size, clear=others)
             elif border == "vine_leaves":
                 ox, oy = cx - (frame[0] + frame[2] / 2), cy - (frame[1] + frame[3] / 2)
                 m = math.hypot(ox, oy) or 1.0
@@ -3937,7 +3985,8 @@ def _sticking_out(border: str, kind: str, frame: tuple, outline_points: list, si
     return items
 
 
-def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "Edits | None" = None) -> list:
+def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "Edits | None" = None,
+                   size: float | None = None, clear: list | None = None) -> list:
     """A special border round a portrait framed (x, y, w, h, angle), along its own outline whatever the
     shape (the owner, 2026-10-09): the braided rope, or a vine -- a real stem -- with leaves, hibiscus
     or both, filled, shaded and outlined in its colours (Edits.special_*), the leaves and flowers small,
@@ -3994,7 +4043,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
                                (x1_ + nx1 * r, y1_ + ny1 * r)], _shade(colours[k], 0.6), 1.0))
         return items + _sticking_out(border, kind, frame, outline_points, thick, colour_of, flower_look)
 
-    size = max(6.0, 0.1 * min(w, h))                 # a leaf's length: small, outside the portrait
+    size = size or max(6.0, 0.1 * min(w, h))         # a leaf's length: small, outside the portrait (a toe: its pad's)
     walk = _resample(outline_points, size / 8)
     if not walk:
         return []
@@ -4013,7 +4062,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     jitter = 0.32 if len(pattern) > 1 else 0.24
     # Only where the outline is not in a notch (the owner: none there), and spread evenly over those
     # stretches, so a star or an anchor is as full as a circle (the owner: "more on the sparser shapes").
-    open_places = list(_open_places(kind, round(w, 1), round(h, 1), round(radius, 2), round(angle, 1)))
+    open_places = list(_open_places(kind, round(w, 1), round(h, 1), round(radius, 2), round(angle, 1), size))
     count = max(3, len(open_places) // spacing) if open_places else 0
     if open_places and len(open_places) < 0.75 * n:
         count += 4                                    # a sparse shape: just a few more (the owner, 2026-10-09)
@@ -4023,6 +4072,8 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
         return (v - math.floor(v)) * 2 - 1
     placed_at = []
     flowers_drawn = 0
+    if clear is None:                               # a paw print's pad: its toes are its neighbours
+        clear = [pts for _i, pts, closed in sticking_out(kind, frame, outline_points) if closed and _is_toe(pts, frame)]
     # The bunch of bananas' far tip takes a flower among its leaves (the owner, 2026-10-09): the spot
     # nearest the outline's farthest point along the bunch.
     tip_flower = None
@@ -4054,6 +4105,8 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
             nx, ny = -nx, -ny
             if inside(outline_points, x + nx * size * 0.7, y + ny * size * 0.7):
                 continue                              # no outside here at all
+        if clear and _near(clear, x + nx * size * 0.6, y + ny * size * 0.6, size * 1.1):
+            continue                                  # in a gap with a neighbouring toe or the pad
         tx, ty = -ny, nx
         what = "flower" if j == tip_flower else pattern[j % len(pattern)]
         tpos = j / count
@@ -4071,7 +4124,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
             petals, eye = flower_look(tpos, flowers_drawn)             # by the flowers alone, not the leaves
             flowers_drawn += 1
             items += _flower_items(cx, cy, r, petals, turned=math.pi * wobble(j, 4.0), eye=eye)
-    return items + _sticking_out(border, kind, frame, outline_points, size, colour_of, flower_look)
+    return items + _sticking_out(border, kind, frame, outline_points, size, colour_of, flower_look, e)
 
 
 def scheme_colour(e: "Edits", part: str, t: float, j: int) -> str | None:
@@ -4175,7 +4228,12 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if angle:
             pts = [(mx + dx, my + dy) for dx, dy in (turn(px - mx, py - my, angle) for px, py in pts)]
         return pts
-    if border in SPECIAL_BORDERS:               # the braided rope or a vine, round any shape, in its own colours
+    if base_kind(kind) in FIT_EVERYTHING and is_colour(inside_colour) and inside_colour != TRANSPARENT:
+        # A paw print's toes filled like its pad (the owner, 2026-10-09: "include the extra toes for the
+        # portrait background"), under their borders.
+        for line in decor(kind):
+            add(Poly(placed(line), inside_colour, opacity=see_through(e, "portraits")))
+    if border in SPECIAL_BORDERS:              # the braided rope or a vine, round any shape, in its own colours
         see = e.special_opacity / 100            # as see-through as the player says
         for item in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e):
             if see < 1:
@@ -4199,6 +4257,11 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     w0, h0 = natural_width(base_kind(kind)), NODE_H
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
     middle = (x + NODE_W / 2, y + NODE_H / 2)
+    if base_kind(kind) in FIT_EVERYTHING:       # the face and words in a paw print's pad, not among its toes
+        xs, ys = zip(*lay.frame_points(p.id))
+        x += (min(xs) + max(xs)) / 2 - (fx + fw / 2)
+        y += (min(ys) + max(ys)) / 2 - (fy + fh / 2)
+        middle = (x + NODE_W / 2, y + NODE_H / 2)
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
 
