@@ -194,6 +194,10 @@ static int field_same(const struct field *f, const unsigned char *a, const unsig
     if (f->type == F_FLAG) {
         return (*(const int *)(a + f->offset) != 0) == (*(const int *)(b + f->offset) != 0);
     }
+    if (f->type == F_TEXT) {
+        /* the text, not what is left after its terminator */
+        return strncmp((const char *)a + f->offset, (const char *)b + f->offset, n) == 0;
+    }
     return memcmp(a + f->offset, b + f->offset, n) == 0;
 }
 
@@ -236,9 +240,12 @@ static void compare(struct snapshot *s) {
             continue;
         }
         changes[0] = '\0';
-        if (!present_now(live, now, count) || memcmp(live + g_layout->name, old + g_layout->name, 4) != 0) {
-            /* Gone (died without a body, disappeared, left), or its record
-               reused for someone else: named from the copy. */
+        /* The record's slot decides who is who, never its name: an event may
+           rename the villager it is about (The Secret City's Return of
+           Biggles, confronted, names them "?"), and that is one villager with
+           "Name: <old> -> ?", not one gone and one new (Codex, #577). */
+        if (!present_now(live, now, count)) {
+            /* Gone (died without a body, disappeared, left): named from the copy. */
             used += (size_t)_snprintf(changes + used, sizeof changes - used, "  Gone: yes\n");
             g_write(g_game, KIND_ISLAND_EVENT, old, 0, before, changes, 0);
             continue;
@@ -283,8 +290,7 @@ static void compare(struct snapshot *s) {
     for (i = 0; i < count; ++i) {
         int k2, was = 0;
         for (k2 = 0; k2 < s->count && !was; ++k2) {
-            was = s->where[k2] == now[i]
-                  && memcmp(now[i] + g_layout->name, s->copy + (size_t)k2 * g_layout->copy_size + g_layout->name, 4) == 0;
+            was = s->where[k2] == now[i];     /* present before, in the same slot */
         }
         if (!was) {
             g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, "  New villager: yes\n", 2);

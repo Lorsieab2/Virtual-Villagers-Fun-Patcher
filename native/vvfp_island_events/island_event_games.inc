@@ -62,7 +62,18 @@ static int vv5_villagers(unsigned char **out, int capacity) {
 
 /* ---- What is compared (whitelists: a record also holds its position, pose
    and current action, which an event's celebration or swim changes for a
-   moment and which are no lasting change) ---------------------------------- */
+   moment and which are no lasting change) ----------------------------------
+
+   An event can start a pregnancy (The Lost Children's Strange Request, hide
+   to catch the poet: the game's own conception routine, 0x44B980), and the
+   conception writes more on the mother than her Pregnant flag: how many
+   babies, and the father's name, head and body copied onto her by value.
+   Those are compared too, at the parentage exporter's offsets
+   (native/parentage_export/parentage_export.c GAME_LAYOUTS: father,
+   father_head_copy, father_body_copy, litter; the father's name 0x18 bytes,
+   the conception's own copy count).  A New Home keeps no trace of the father
+   on the mother (its parentage exporter captures him from the caller), so
+   there only the babies. */
 
 static const struct field VV1_FIELDS[] = {
     { "Health", 0x344, F_INT, 0 },
@@ -70,6 +81,7 @@ static const struct field VV1_FIELDS[] = {
     { "Sex", 0x350, F_SEX12, 0 },
     { "Sick", 0x354, F_FLAG, 0 },
     { "Pregnant", 0x358, F_FLAG, 0 },
+    { "Babies in pregnancy", 0x35C, F_INT, 0 },
     { "Head", 0x360, F_INT, 0 },
     { "Body", 0x364, F_INT, 0 },
     { "Name", 0x370, F_TEXT, 0x1C },
@@ -88,6 +100,10 @@ static const struct field VV2_FIELDS[] = {
     { "Sex", 0x538, F_SEX12, 0 },
     { "Sick", 0x53C, F_FLAG, 0 },
     { "Pregnant", 0x540, F_FLAG, 0 },
+    { "Babies in pregnancy", 0x544, F_INT, 0 },
+    { "Expected father", 0x5C0, F_TEXT, 0x18 },
+    { "Expected father's head", 0x5E0, F_INT, 0 },
+    { "Expected father's body", 0x5DC, F_INT, 0 },
     { "Head", 0x548, F_INT, 0 },
     { "Body", 0x54C, F_INT, 0 },
     { "Name", 0x564, F_TEXT, 0x18 },
@@ -111,6 +127,10 @@ static const struct field VV3_FIELDS[] = {
     { "Tribal Chief", 0xE80, F_BYTE_FLAG, 0 },
     { "Sick", 0xE89, F_BYTE_FLAG, 0 },
     { "Pregnant", 0xE8C, F_FLAG, 0 },
+    { "Babies in pregnancy", 0xE90, F_INT, 0 },
+    { "Expected father", 0xE48, F_TEXT, 0x18 },
+    { "Expected father's head", 0xE68, F_INT, 0 },
+    { "Expected father's body", 0xE64, F_INT, 0 },
     { "Farming", 0xEAC, F_INT, 0 },
     { "Parenting", 0xEB0, F_INT, 0 },
     { "Healing", 0xEB4, F_INT, 0 },
@@ -129,6 +149,10 @@ static const struct field VV5_FIELDS[] = {
     { "Health", 0x1C40, F_INT, 0 },
     { "Sick", 0x1C48, F_BYTE_FLAG, 0 },
     { "Pregnant", 0x1C4C, F_FLAG, 0 },
+    { "Babies in pregnancy", 0x1C50, F_INT, 0 },
+    { "Expected father", 0x1C10, F_TEXT, 0x18 },
+    { "Expected father's head", 0x1C30, F_INT, 0 },
+    { "Expected father's body", 0x1C2C, F_INT, 0 },
     { "Farming", 0x1C5C, F_FLOAT, 0 },
     { "Parenting", 0x1C60, F_FLOAT, 0 },
     { "Healing", 0x1C64, F_FLOAT, 0 },
@@ -150,6 +174,10 @@ static const struct field VV4_FIELDS[] = {
     { "Health", 0x1C40, F_INT, 0 },
     { "Sick", 0x1C48, F_BYTE_FLAG, 0 },
     { "Pregnant", 0x1C4C, F_FLAG, 0 },
+    { "Babies in pregnancy", 0x1C50, F_INT, 0 },
+    { "Expected father", 0x1C10, F_TEXT, 0x18 },
+    { "Expected father's head", 0x1C30, F_INT, 0 },
+    { "Expected father's body", 0x1C2C, F_INT, 0 },
     { "Farming", 0x1C5C, F_FLOAT, 0 },
     { "Parenting", 0x1C60, F_FLOAT, 0 },
     { "Healing", 0x1C64, F_FLOAT, 0 },

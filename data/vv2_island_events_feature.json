@@ -28,7 +28,7 @@
     {
       "source": "assets/island_events/VVFP Island Events.dll",
       "destination": "VVFP Island Events.dll",
-      "sha256": "DD81690747DE0B4B877A3B33E91DC5F943AED1F599E28938FC16BD9D10A90375"
+      "sha256": "94E31635CD88EF7FFBE801A4720C092379EE3BA08D8308B90F26323FF12165C5"
     }
   ],
   "runtime_detours": [
