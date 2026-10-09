@@ -936,6 +936,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.keep_families_var = tk.BooleanVar(value=e.keep_families)
         ttk.Checkbutton(limit_row, text="Keep families together", variable=self.keep_families_var,
                         command=lambda: self._change(keep_families=bool(self.keep_families_var.get()))).pack(side="left")
+        # The owner's hand-made tree, 2026-10-09: the unrelated members "in a compact 2-column grid down
+        # the left edge".
+        others_row = ttk.Frame(tab)
+        others_row.pack(anchor="w", pady=(6, 0))
+        ttk.Label(others_row, text="Other Members: columns").pack(side="left")
+        self.others_columns_var = tk.StringVar(value=str(e.others_columns))
+        self._live(ttk.Spinbox(others_row, textvariable=self.others_columns_var, from_=1, to=ft.OTHERS_COLUMNS_MAX,
+                               width=3), self._others_columns).pack(side="left", padx=(6, 12))
+        self.others_side_var = tk.StringVar(value=ft.OTHERS_SIDES[e.others_side])
+        side = ttk.Combobox(others_row, textvariable=self.others_side_var, values=list(ft.OTHERS_SIDES.values()),
+                            state="readonly", width=12)
+        side.pack(side="left")
+        side.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            others_side=next(k for k, v in ft.OTHERS_SIDES.items() if v == self.others_side_var.get())))
         tab = t_words
         # The owner, 2026-10-09: the portrait's face and words options together, "Portrait pictures/text".
         words = ttk.LabelFrame(tab, text="Faces and words in every portrait", padding=6)
@@ -2126,6 +2140,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         drawn afresh (Ctrl+Z puts them back as they were)."""
         lay, v = self.lay, self.village
         rows: dict[int, list[int]] = {}
+        if self.edits.positioning == "clusters":
+            # No generation rows to put them back into: every portrait goes back under its parents, in
+            # its own generation and order.
+            for q in lay.x:
+                self._set_entry(v.people[q], dx=None, dy=None)
+            self.edits.line_moves.clear()
+            self._saved()
+            self.status.set("Every portrait is back in its family's cluster.  Ctrl+Z undoes it.")
+            return
         for q in lay.x:
             if q in lay.others:
                 self._set_entry(v.people[q], dx=None, dy=None)
@@ -2152,7 +2175,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         lay, people = self.lay, self.village.people
         rows: dict[int, list[int]] = {}
         for q in lay.x:
-            if q not in lay.others:
+            if q not in lay.others and self.edits.positioning != "clusters":    # (no generation rows there)
                 rows.setdefault(people[q].generation, []).append(q)
         gens = sorted(rows)
         top = {q: lay.frame(q)[1] for q in lay.x}                # each frame's top, as it will be
@@ -2750,6 +2773,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if value is not None and int(value) != self.edits.row_limit:
             self._change(row_limit=int(value))
 
+    def _others_columns(self) -> None:
+        """How many Other Members side by side (1: each generation's in a row)."""
+        value = self._number(self.others_columns_var.get(), 1, ft.OTHERS_COLUMNS_MAX)
+        if value is not None and int(value) != self.edits.others_columns:
+            self._change(others_columns=int(value))
+
     def _group_members(self, group: str) -> list:
         return [p for p in self.village.people.values() if ft.group_of(p) == group]
 
@@ -3211,6 +3240,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.row_valign_var.set(ft.ROW_VALIGNS[e.row_valign])
         self.row_limit_var.set(str(e.row_limit))
         self.keep_families_var.set(e.keep_families)
+        self.others_columns_var.set(str(e.others_columns))
+        self.others_side_var.set(ft.OTHERS_SIDES[e.others_side])
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))

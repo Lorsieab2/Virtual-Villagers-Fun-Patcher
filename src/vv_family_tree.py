@@ -1439,18 +1439,25 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         for g, n in grid_rows.items():
             bands[g] = max(bands[g], n * NODE_H + (n - 1) * grid_gap)
     tops: dict[int, float] = {}
+    others_top: dict[int, float] = {}   # Compact family clusters: where each generation's Other Members start
     row_keys: dict[int, tuple] = {}
     if cl is not None:
-        # No generation rows: a generation's top is its highest portrait's (where its label goes), and
-        # each generation's Other Members start there or under the generation before's, whichever is lower.
+        # No generation rows.  A generation's top, where its label and its Other Members go: its highest
+        # portraits that are under the generation before's top -- when it has none there, just under it.
+        # The Other Members also start under the generation before's.
         gap_tops = cl.gap_top
         row_y = {q: cl.y[q] for q in in_tree}
-        end = float(TOP)
+        below, end = None, float(TOP)
         for g in gens:
-            highest = min((row_y[q] for q in in_tree if people[q].generation == g), default=None)
-            base = highest if highest is not None else end
-            tops[g] = max(end, base) if g in grid_rows else base
-            end = max(end, tops[g] + grid_rows.get(g, 0) * (NODE_H + grid_gap))
+            levels = sorted({row_y[q] for q in in_tree if people[q].generation == g})
+            level = next((h for h in levels if below is None or h >= below), None)
+            if level is None:
+                level = float(TOP) if below is None else below + 10
+            tops[g] = level
+            below = level + NODE_H
+            if g in grid_rows:
+                others_top[g] = max(level, end)
+                end = others_top[g] + grid_rows[g] * (NODE_H + grid_gap)
             bands[g] = NODE_H
         for q in in_tree:
             row_keys[q] = ("cluster", round(row_y[q]))
@@ -1466,7 +1473,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         gap_tops = tops
         row_y = {pid: tops[people[pid].generation] + sub.get(pid, 0) * (NODE_H + SUBGAP) for pid in in_tree}
     for q in others:
-        row_y[q] = tops[people[q].generation] + grid_row[q] * (NODE_H + grid_gap)
+        row_y[q] = others_top.get(people[q].generation, tops[people[q].generation]) + grid_row[q] * (NODE_H + grid_gap)
         if columns > 1:
             row_keys[q] = ("others", people[q].generation, grid_row[q])
     for fam in families:
@@ -1603,6 +1610,7 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
         points = [x[q] + NODE_W / 2 for q in qs if q is not None and q in x]
         return sum(points) / len(points) if points else None
 
+    born = {c for f in families for c in f.children}
     for g in gens[1:]:
         members = rows[g]
         groups: list[list] = []
@@ -1610,7 +1618,19 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
         for f in families:
             kids = [c for c in members if c in f.children]
             if kids:
-                groups.append([centre((f.father, f.mother)), kids])
+                if blocks is None:
+                    groups.append([centre((f.father, f.mother)), kids])
+                else:
+                    # In a block, a partner with no recorded parents stands beside the one they married.
+                    atoms = _litters(people, kids)
+                    for atom in atoms:
+                        for c in list(atom):
+                            atom += [r for r in sorted(partners.get(c, ())) if r in members and r not in grouped
+                                     and r not in atom and r not in born and people[r].father is None
+                                     and people[r].mother is None]
+                            grouped.update(atom)
+                    kids = [q for atom in atoms for q in atom]
+                    groups.append([centre((f.father, f.mother)), kids, atoms])
                 grouped.update(kids)
         groups += [[None, [q]] for q in members if q not in grouped]
         taken: list[list[tuple[float, float]]] = []     # each row's places taken, (left, right)
@@ -1623,11 +1643,12 @@ def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
             return min((p for p in places if fits(p)), key=lambda p: (abs(p - ideal), p))
 
         def put(group: list) -> None:
-            wanted, kids = group
+            wanted, kids = group[0], group[1]
             if blocks is None:
                 shape = [kids]
             else:
-                shape = [[q for atom in row for q in atom] for row in _block_rows(_litters(people, kids), blocks[0])]
+                atoms = group[2] if len(group) > 2 else _litters(people, kids)
+                shape = [[q for atom in row for q in atom] for row in _block_rows(atoms, blocks[0])]
             across = max(len(r) for r in shape)
             pad = max(0.0, CORRIDOR - blocks[2]) if blocks is not None else 0.0
             span = across * step
@@ -4149,29 +4170,16 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         add(Shape("rect", kx, 94, 26, 16, colour, width=4, radius=4, target=("mark", label), move="key"))
         add(Text(kx + 34, 107, label, 14, ink, role="key", move="key", edit=f"mark:{label}"))
         kx += 50 + 8 * len(label)
-    below = None                        # Compact family clusters: the label above's bottom
     for g in sorted({v.people[q].generation for q in lay.x}):
         # Beside the generation's portraits as drawn, wherever they are (the owner: "so they're
         # actually accurate"); its rows' place when it has none drawn.
         members = [q for q in lay.x if v.people[q].generation == g and q not in lay.others]
-        top = bottom = None
-        if lay.edits.positioning == "clusters" and members:
+        if lay.edits.positioning == "clusters":
             # Compact family clusters have no generation rows -- a generation's portraits hang at many
-            # heights, among the others' -- so its label stands beside its highest portraits that are
-            # under the label before it; when there are none, just under that label.
-            levels = sorted({lay.y[q] for q in members})
-            level = next((y for y in levels if below is None or y >= below), None)
-            if level is None:
-                top, bottom = below + 10, below + 10 + NODE_H
-                members = []
-            else:
-                members = [q for q in members if level <= lay.y[q] < level + NODE_H / 2]
+            # heights, among the others' -- so its label stands beside those at its top (_layout).
+            members = [q for q in members if lay.tops[g] <= lay.y[q] < lay.tops[g] + NODE_H / 2]
         ys = [py for q in members for _px, py in lay.frame_points(q)]
-        if ys:
-            top, bottom = min(ys), max(ys)
-        elif top is None:
-            top, bottom = lay.tops[g], lay.tops[g] + lay.bands.get(g, NODE_H)
-        below = bottom
+        top, bottom = (min(ys), max(ys)) if ys else (lay.tops[g], lay.tops[g] + lay.bands.get(g, NODE_H))
         y0 = top
         reach = lay.edits.label_line_reach
         lx = lay.label_left
