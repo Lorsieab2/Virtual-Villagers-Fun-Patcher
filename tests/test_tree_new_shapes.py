@@ -234,7 +234,7 @@ class ApplyToEveryOneTests(unittest.TestCase):
         self.assertIn("ft.group_of(p) != group", body)
         self.assertIn('self._set_entry(p, shape="", border="")', body)
         self.assertIn("self._saved()", body)
-        self.assertIn('text="Apply to every one"', source)
+        self.assertIn('text="Apply to all"', source)
 
 
 if __name__ == "__main__":

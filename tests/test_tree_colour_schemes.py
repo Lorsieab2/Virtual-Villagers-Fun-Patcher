@@ -238,7 +238,7 @@ class TabTests(unittest.TestCase):
         self.assertIn("self._order_tabs()", self.SOURCE)
 
     def test_every_part_has_a_scheme_box(self):
-        self.assertIn("Every part's colour scheme", self.SOURCE)
+        self.assertIn("Rainbow and alternating colours", self.SOURCE)
         self.assertIn("for k, (part, words) in enumerate(ft.SCHEME_PARTS.items()):", self.SOURCE)
 
 

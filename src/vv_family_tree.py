@@ -69,7 +69,7 @@ RAINBOW_STRENGTHS = {"bright": ("Bright", 1.0), "medium": ("Medium", 0.85), "dee
 # (at the Rainbow strength), or the special borders' 2-7 colours by turns.  Borders and marks run round
 # each outline; insides across the tree, villager by villager; family lines family by family; detail
 # lines line by line.
-COLOUR_SCHEMES = {"own": "As set", "rainbow": "Rainbow", "alternate": "Alternating colours"}
+COLOUR_SCHEMES = {"own": "Normal", "rainbow": "Rainbow", "alternate": "Alternating colours"}
 SCHEME_PARTS = {"borders": "Portrait borders", "marks": "Special marks", "insides": "Portrait insides",
                 "details": "Detail lines", "lines": "Family lines"}
 # Natural hibiscus colours (the owner, 2026-10-09): each its petals and its darker "eye" in the middle,
