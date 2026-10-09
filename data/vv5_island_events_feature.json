@@ -28,10 +28,16 @@
     {
       "source": "assets/island_events/VVFP Island Events.dll",
       "destination": "VVFP Island Events.dll",
-      "sha256": "D0203F216B3AA36C0C0BACB80D42A8224D70CDCFBCE1F1B2343C98DCC8E42B15"
+      "sha256": "F48EF1E3909EDBFBB58838F975AAD90711F6DEA7E14A3A0176CA5AEF978DE488"
     }
   ],
   "runtime_detours": [
+    {
+      "va": "0x418870",
+      "stock_bytes": "6AFF68DB154900",
+      "routine": "the island event presenter: picks, shows and applies the event (a Custom Island Event too)",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
+    },
     {
       "va": "0x418720",
       "stock_bytes": "837C240408",

@@ -45,6 +45,7 @@ SITES = {
         (0x44E8A0, "53555657", "the Gong of Wonder's outcome"),
     ],
     "vv3": [
+        (0x419B30, "64A100000000", "the island event presenter: picks, shows and applies the event (a Custom Island Event too)"),
         (0x419A00, "837C240408", "the event dialog's button handler (OK applies the event)"),
     ],
     "vv4": [
@@ -53,6 +54,7 @@ SITES = {
         (0x417790, "6AFF68B9654800", "the event dialog's constructor (it names the event)"),
     ],
     "vv5": [
+        (0x418870, "6AFF68DB154900", "the island event presenter: picks, shows and applies the event (a Custom Island Event too)"),
         (0x418720, "837C240408", "the event dialog's button handler (OK, or a custom event's answer, applies it)"),
     ],
 }

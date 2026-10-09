@@ -272,12 +272,19 @@ static void title_pointer_54(const unsigned int *frame, struct snapshot_text *ou
     }
 }
 
+/* The presenters 0x419B30 (The Secret City) and 0x418870 (New Believers) pick the event -- a
+   Custom Island Event makes its changes there, before the dialog (the Story companion's pick-site
+   stubs 0x419BDB, 0x41895B) -- show it and run its OK inside their own modal loop, which runs only
+   the dialog (as The Tree of Life's): one bracket around each, the click handler inside naming the
+   event.  The click handler is watched on its own too, for a dialog shown outside them. */
 static const struct site VV3_SITES[] = {
+    { 0x419B30, { 0x64, 0xA1, 0x00, 0x00, 0x00, 0x00 }, 6, NULL, NULL, NULL },
     { 0x419A00, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv3_ok, title_pointer_54, NULL },
     { 0 },
 };
 
 static const struct site VV5_SITES[] = {
+    { 0x418870, { 0x6A, 0xFF, 0x68, 0xDB, 0x15, 0x49, 0x00 }, 7, NULL, NULL, NULL },
     { 0x418720, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv5_click, title_pointer_54, NULL },
     { 0 },
 };
