@@ -93,6 +93,20 @@ class TreeNamesTests(unittest.TestCase):
         self.assertEqual(any_number.sub("Iruwa Bandele", "35. Iruwa Bandele II / Natural"), "35. Iruwa Bandele / Natural")
 
 
+class TreeAgesTests(unittest.TestCase):
+    """The owner, 2026-10-09: Kalea Salongo, 16 in the game, still "5 years old" on the tree."""
+
+    def test_the_players_age_words_follow_the_records(self) -> None:
+        lines = ["51. Kalea Salongo", "5 years old", "A Mysterious Crate (watertight)", "100 game units"]
+        out, _runs = ft._rename_in_lines(lines, None, ft.AGE_YEARS, "16 years old")
+        out, _runs = ft._rename_in_lines(out, None, ft.AGE_UNITS, "320 game units")
+        self.assertEqual(out, ["51. Kalea Salongo", "16 years old", "A Mysterious Crate (watertight)",
+                               "320 game units"])
+        out, _runs = ft._rename_in_lines(["(left the village)", "Founder"], None, ft.STATUS_WORDS, "(deceased)")
+        self.assertEqual(out, ["(deceased)", "Founder"])
+        self.assertEqual(ft._rename_in_lines(["v1.35 years old"], None, ft.AGE_YEARS, "x")[0], ["v1.35 years old"])
+
+
 def person(pid, name, sex, years, father=None, mother=None, alive=True):
     p = gen.Person(pid, name, pid, pid, sex=sex, age=years * YEARS, alive=alive, father=father, mother=mother)
     p.first_seen = "2026-10-01 00:00"

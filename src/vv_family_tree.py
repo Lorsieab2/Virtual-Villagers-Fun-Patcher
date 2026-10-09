@@ -1919,8 +1919,23 @@ def _shown_name_in(lay: Layout, p: gen.Person, lines: list, runs) -> tuple[list,
     "Hawa Awanata" when there is no other).  Other words are never touched."""
     if p.upcoming or not p.name:
         return lines, runs
-    return _rename_in_lines(lines, runs, _name_pattern(gen.unnumbered(p.name), numbered=True),
-                            lay.names.get(p.id, p.name))
+    lines, runs = _rename_in_lines(lines, runs, _name_pattern(gen.unnumbered(p.name), numbered=True),
+                                   lay.names.get(p.id, p.name))
+    # The facts the records keep changing: the age, in years and in game units, and whether the villager
+    # is still here (the owner, 2026-10-09: Kalea Salongo, 16 in the game, still "5 years old" on the tree
+    # after Update from Logs/Saves).  Only those words, where the player's lines already have them.
+    if p.age is not None:
+        lines, runs = _rename_in_lines(lines, runs, AGE_YEARS, f"{p.years} years old")
+        lines, runs = _rename_in_lines(lines, runs, AGE_UNITS, f"{p.age} game units")
+    if not p.alive:
+        status = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
+        lines, runs = _rename_in_lines(lines, runs, STATUS_WORDS, status)
+    return lines, runs
+
+
+AGE_YEARS = re.compile(r"(?<![\w.])\d+ years old(?!\w)")
+AGE_UNITS = re.compile(r"(?<![\w.])\d+ game units(?!\w)")
+STATUS_WORDS = re.compile(r"\((?:deceased|disappeared|left the village)\)")
 
 
 def default_text(lay: Layout, p: gen.Person) -> list[str]:
