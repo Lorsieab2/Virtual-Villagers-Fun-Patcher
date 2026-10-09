@@ -3529,19 +3529,21 @@ static void rule_last_name(int game_id, unsigned char *rec) {
         state = rule ? 1 : -1;
     }
     g = layout_of(game_id);
-    if (state != 1 || !layout_is_usable(g) || g->parent_father_name == 0u
-        || !vv_village_recall(village, sizeof village)) {
+    if (state != 1 || !layout_is_usable(g) || g->parent_father_name == 0u) {
         return;
     }
-    for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
-        at = scan;
-    }
-    if (at == NULL || at[7] < '1' || at[7] > '9' || at[8] != ')') {
-        return;
+    /* The village is named only once it is saved; a birth in the catch-up as
+       it loads comes first, and the DLL finds the slot from the parents
+       (0 here). */
+    if (vv_village_recall(village, sizeof village)) {
+        for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
+            at = scan;
+        }
     }
     copy_name_field(rec + g->parent_father_name, father, sizeof father, g->name_capacity);
     copy_name_field(rec + g->parent_mother_name, mother, sizeof mother, g->name_capacity);
-    rule((char *)(rec + g->name), g->name_capacity, father, mother, at[7] - '0');
+    rule((char *)(rec + g->name), g->name_capacity, father, mother,
+         at != NULL && at[7] >= '1' && at[7] <= '9' && at[8] == ')' ? at[7] - '0' : 0);
 }
 
 /* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not

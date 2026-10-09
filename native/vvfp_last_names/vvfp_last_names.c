@@ -279,27 +279,16 @@ static int is_numeral(const char *word, size_t n) {
     return 1;
 }
 
-/* The rule ("father", "mother", "random"; "" for anything else) and the file,
-   kept in g_rule_file for the "whole" lines.  0 when there is no rule to use. */
-static int read_rule(int slot, char *rule, size_t rule_size) {
-    char docs[MAX_PATH], exe[MAX_PATH], path[MAX_PATH * 2];
-    char header[48];
-    char *base, *dot, *line;
-    HANDLE h;
-    DWORD got = 0;
-    rule[0] = '\0';
-    if (slot < 1 || slot > 9 || g_game < 1) {
-        return 0;
-    }
-    {
-        typedef BOOL (WINAPI *folder_t)(HWND, LPSTR, int, BOOL);
-        HMODULE shell = LoadLibraryA("shell32.dll");
-        folder_t get = shell ? (folder_t)GetProcAddress(shell, "SHGetSpecialFolderPathA") : NULL;
-        if (get == NULL || !get(NULL, docs, 0x0005 /* CSIDL_PERSONAL */, FALSE)) {
-            return 0;
-        }
-    }
-    if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
+/* "<My Documents>\LDW\<exe name>": the game's save folder, as every companion
+   finds it.  0 when it cannot be named. */
+static int save_folder(char *out, size_t size) {
+    typedef BOOL (WINAPI *folder_t)(HWND, LPSTR, int, BOOL);
+    char docs[MAX_PATH], exe[MAX_PATH];
+    char *base, *dot;
+    HMODULE shell = LoadLibraryA("shell32.dll");
+    folder_t get = shell ? (folder_t)GetProcAddress(shell, "SHGetSpecialFolderPathA") : NULL;
+    if (get == NULL || !get(NULL, docs, 0x0005 /* CSIDL_PERSONAL */, FALSE)
+        || GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
         return 0;
     }
     exe[MAX_PATH - 1] = '\0';
@@ -309,8 +298,27 @@ static int read_rule(int slot, char *rule, size_t rule_size) {
     if (dot != NULL) {
         *dot = '\0';
     }
-    if (_snprintf(path, sizeof path, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Last Names\\"
-                  "Virtual Villagers %d Last Names - Save %d.dat", docs, base, g_game, slot) <= 0) {
+    if (_snprintf(out, size, "%s\\LDW\\%s", docs, base) <= 0) {
+        return 0;
+    }
+    out[size - 1] = '\0';
+    return 1;
+}
+
+/* The rule ("father", "mother", "random"; "" for anything else) and the file,
+   kept in g_rule_file for the "whole" lines.  0 when there is no rule to use. */
+static int read_rule(int slot, char *rule, size_t rule_size) {
+    char folder[MAX_PATH], path[MAX_PATH * 2];
+    char header[48];
+    char *line;
+    HANDLE h;
+    DWORD got = 0;
+    rule[0] = '\0';
+    if (slot < 1 || slot > 9 || g_game < 1 || !save_folder(folder, sizeof folder)) {
+        return 0;
+    }
+    if (_snprintf(path, sizeof path, "%s\\Virtual Villagers Fun Patcher Data\\Last Names\\"
+                  "Virtual Villagers %d Last Names - Save %d.dat", folder, g_game, slot) <= 0) {
         return 0;
     }
     path[sizeof path - 1] = '\0';
@@ -345,6 +353,83 @@ static int read_rule(int slot, char *rule, size_t rule_size) {
         }
     }
     return rule[0] != '\0';
+}
+
+/* Each game's slot saves: "<stem><slot>.ldw" in the save folder (the checker's
+   SAVE_STEMS). */
+static const char *const SAVE_STEMS[GAMES + 1] = {
+    NULL, "Virtual Villagers", "Virtual Villagers - The Lost Children",
+    "Virtual Villagers - The Secret City", "Virtual Villagers - The Tree of Life",
+    "Virtual Villagers - New Believers",
+};
+#define SAVE_MAX (16u * 1024u * 1024u)
+
+/* Whether `data` holds `name` as a whole name field: the bytes, then a NUL,
+   after a NUL or at the start. */
+static int holds_name(const unsigned char *data, DWORD size, const char *name) {
+    size_t n = strlen(name);
+    DWORD i;
+    if (n == 0 || n + 1 > size) {
+        return 0;
+    }
+    for (i = 0; i + n < size; ++i) {
+        if (data[i + n] == 0 && memcmp(data + i, name, n) == 0 && (i == 0 || data[i - 1] == 0)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The village's slot when the caller cannot know it -- a birth in the catch-up
+   as a village loads, before its first save names it (the live test,
+   2026-10-08): the one slot save holding both parents' names, else, when
+   several do, the first of them when they all keep the same rule.  0 when no
+   slot can be told. */
+static int slot_of_parents(const char *father, const char *mother) {
+    char folder[MAX_PATH], path[MAX_PATH * 2], rule[8], first_rule[8];
+    unsigned char *data;
+    int slot, found = 0;
+    if (g_game < 1 || g_game > GAMES || !save_folder(folder, sizeof folder)
+        || ((father == NULL || father[0] == '\0') && (mother == NULL || mother[0] == '\0'))) {
+        return 0;
+    }
+    data = (unsigned char *)VirtualAlloc(NULL, SAVE_MAX, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (data == NULL) {
+        return 0;
+    }
+    first_rule[0] = '\0';
+    for (slot = 1; slot <= 5; ++slot) {
+        HANDLE h;
+        DWORD got = 0;
+        if (_snprintf(path, sizeof path, "%s\\%s%d.ldw", folder, SAVE_STEMS[g_game], slot) <= 0) {
+            continue;
+        }
+        path[sizeof path - 1] = '\0';
+        h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h == INVALID_HANDLE_VALUE) {
+            continue;
+        }
+        if (!ReadFile(h, data, SAVE_MAX, &got, NULL)) {
+            got = 0;
+        }
+        CloseHandle(h);
+        if ((father != NULL && father[0] != '\0' && !holds_name(data, got, father))
+            || (mother != NULL && mother[0] != '\0' && !holds_name(data, got, mother))) {
+            continue;
+        }
+        if (!read_rule(slot, rule, sizeof rule)) {
+            rule[0] = '\0';
+        }
+        if (found == 0) {
+            found = slot;
+            memcpy(first_rule, rule, sizeof rule);
+        } else if (strcmp(rule, first_rule) != 0) {
+            found = -1;                     /* two villages, two rules: no telling */
+        }
+    }
+    VirtualFree(data, 0, MEM_RELEASE);
+    return found > 0 ? found : 0;
 }
 
 /* Whether the record file says `base` (n bytes) is one first name. */
@@ -410,14 +495,20 @@ static void carried_last(const char *name, char *out) {
    written: the child's name (its first name, and the family's last name this
    DLL gave it) made its first name and the last name the player's rule gives
    (above).  `father` / `mother`: the parents' names as the game holds them
-   (NULL or "" unknown).  Returns 1 when the name changed. */
+   (NULL or "" unknown).  `slot`: the village's save slot, or 0 when the caller
+   cannot know it yet (slot_of_parents).  Returns 1 when the name changed. */
 __declspec(dllexport) int __stdcall VvfpRuleLastName(char *name, unsigned int room, const char *father,
                                                      const char *mother, int slot) {
     char rule[8], dad[LONGEST_LAST + 1], mum[LONGEST_LAST + 1], first[LONGEST_LAST + 1];
     const char *last;
     size_t n;
-    if (install_state != 1 || name == NULL || room < 2 || memchr(name, '\0', room) == NULL
-        || !read_rule(slot, rule, sizeof rule)) {
+    if (install_state != 1 || name == NULL || room < 2 || memchr(name, '\0', room) == NULL) {
+        return 0;
+    }
+    if (slot <= 0) {
+        slot = slot_of_parents(father, mother);
+    }
+    if (!read_rule(slot, rule, sizeof rule)) {
         return 0;
     }
     n = strcspn(name, " ");
