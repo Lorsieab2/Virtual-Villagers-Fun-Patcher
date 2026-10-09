@@ -17,10 +17,18 @@ class KeepAspectTests(unittest.TestCase):
     def test_height_sets_the_width_by_the_shape(self):
         self.assertEqual(ft.keep_aspect((100.0, 150.0), 1, 75.0), (50.0, 75.0))
 
-    def test_the_side_that_follows_stays_in_range(self):
+    def test_the_side_that_follows_stays_in_range_and_the_shape_is_kept(self):
         w, h = ft.keep_aspect((10.0, 1000.0), 0, 1000.0)
-        self.assertEqual(w, 1000.0)
-        self.assertLessEqual(h, ft.FRAME_MAX)
+        self.assertEqual(h, ft.FRAME_MAX)
+        self.assertAlmostEqual(h / w, 100.0, delta=1)
+
+    def test_a_first_digit_typed_never_squares_the_shape(self):
+        # The owner typed "800" into a turtle shell's width (195 by 156): the "8" made it 8 by 8 before.
+        w, h = ft.keep_aspect((195.2, 156.0), 0, 8.0)
+        self.assertEqual(h, ft.FRAME_MIN)
+        self.assertAlmostEqual(w / h, 195.2 / 156.0, places=1)
+        w, h = ft.keep_aspect((w, h), 0, 800.0)
+        self.assertAlmostEqual(w / h, 195.2 / 156.0, places=1)
 
 
 def person(pid, name, number, litter=None, upcoming=False):

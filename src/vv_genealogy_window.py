@@ -592,6 +592,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._background_tab()
         self._tools_setup()
         self._order_tabs()
+        self._fit_lists(self)
         c = self.canvas
         c.bind("<Button-1>", self._press)
         c.bind("<B1-Motion>", self._drag)
@@ -709,6 +710,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_text = tk.StringVar()
         self._live(ttk.Spinbox(row, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
                                increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
+        ttk.Label(row, text="picture %").pack(side="left", padx=(8, 0))     # the owner, 2026-10-09
+        self.own_picture = tk.StringVar()
+        self._live(ttk.Spinbox(row, textvariable=self.own_picture, from_=ft.PICTURE_SCALE_MIN,
+                               to=ft.PICTURE_SCALE_MAX, increment=10, width=5),
+                   self._own_picture_size).pack(side="left", padx=(2, 0))
         # The owner, 2026-10-09: "an option to recolor the inside of the portraits" -- each selected
         # villager's own; Automatic is the whole tree's (the Portraits tab).
         row = ttk.Frame(box)
@@ -872,6 +878,24 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         positions.pack(fill="x")
         positions.bind("<<ComboboxSelected>>", lambda _e: self._change(
             positioning=next(k for k, v in ft.POSITIONING.items() if v == self.position_var.get())))
+        # The owner, 2026-10-09: "justify portraits" -- each row across the tree, and the portraits of
+        # different sizes in a row lined up by their tops, middles or bottoms.
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(6, 0))
+        ttk.Label(row, text="Rows across the tree:").pack(side="left")
+        self.row_align_var = tk.StringVar(value=ft.ROW_ALIGNS[e.row_align])
+        across = ttk.Combobox(row, textvariable=self.row_align_var, values=list(ft.ROW_ALIGNS.values()),
+                              state="readonly", width=12)
+        across.pack(side="left", padx=(6, 12))
+        across.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            row_align=next(k for k, v in ft.ROW_ALIGNS.items() if v == self.row_align_var.get())))
+        ttk.Label(row, text="Line up portraits by their:").pack(side="left")
+        self.row_valign_var = tk.StringVar(value=ft.ROW_VALIGNS[e.row_valign])
+        down = ttk.Combobox(row, textvariable=self.row_valign_var, values=list(ft.ROW_VALIGNS.values()),
+                            state="readonly", width=9)
+        down.pack(side="left", padx=(6, 0))
+        down.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            row_valign=next(k for k, v in ft.ROW_VALIGNS.items() if v == self.row_valign_var.get())))
         tab = text_tab
         # The owner, 2026-10-09: the portrait's face and words options together, "Portrait pictures/text".
         words = ttk.LabelFrame(tab, text="Every portrait's pictures and text", padding=6)
@@ -913,6 +937,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         down.pack(side="left", padx=(6, 0))
         down.bind("<<ComboboxSelected>>", lambda _e: self._valign(
             next(k for k, v in ft.TEXT_VALIGNS.items() if v == self.valign_var.get())))
+        # The owner, 2026-10-09: "i want to be able to resize the villager's picture and text within the
+        # shape" -- every portrait's here, each villager's own on the Selected Villagers tab.
+        row = ttk.Frame(words)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Picture size (%):").pack(side="left")
+        self.picture_size_var = tk.StringVar(value=f"{e.picture_size:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.picture_size_var, from_=ft.PICTURE_SCALE_MIN,
+                               to=ft.PICTURE_SCALE_MAX, increment=10, width=5),
+                   lambda: self._detail_number("picture_size", self.picture_size_var, ft.PICTURE_SCALE_MIN,
+                                               ft.PICTURE_SCALE_MAX)).pack(side="left", padx=(6, 12))
+        ttk.Label(row, text="Text size (%):").pack(side="left")
+        self.text_size_var = tk.StringVar(value=f"{e.text_size:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.text_size_var, from_=ft.TEXT_SCALE_MIN,
+                               to=ft.TEXT_SCALE_MAX, increment=10, width=5),
+                   lambda: self._detail_number("text_size", self.text_size_var, ft.TEXT_SCALE_MIN,
+                                               ft.TEXT_SCALE_MAX)).pack(side="left", padx=(6, 0))
         # The owner, 2026-10-08: the words in a portrait spread wider, adjustable.
         row = ttk.Frame(words)
         row.pack(anchor="w", pady=(4, 0))
@@ -2546,6 +2586,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_line_dash.set(ft.LINE_TYPES[dashes.pop()] if len(dashes) == 1 else "")
         texts = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) for p in people}
         self.own_text.set(f"{texts.pop():g}" if len(texts) == 1 else "")
+        pictures = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("picture_scale", 100.0)
+                    for p in people}
+        self.own_picture.set(f"{pictures.pop():g}" if len(pictures) == 1 else "")
         for flip, var in self.own_flips.items():         # ticked when every one selected is flipped
             var.set(bool(people) and all(self._entry(q).get(flip, False) for q in people))
         fills = {self._entry(q).get("fill", "") for q in people}
@@ -2647,6 +2690,40 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.notebook.insert(place, tabs[name])
         self.notebook.select(0)
 
+    LIST_WIDTH_MAX = 30                     # characters: a drop-down box no wider than this in the panel
+
+    def _fit_lists(self, widget) -> None:
+        """Every drop-down's choices readable whole (the owner, 2026-10-09: "I can't read the full labels"):
+        the box as wide as its longest choice (up to LIST_WIDTH_MAX), and its opened list always as wide as
+        the longest -- measured each time it opens, as some lists change."""
+        for child in widget.winfo_children():
+            if isinstance(child, ttk.Combobox):
+                longest = max((len(str(v)) for v in child.cget("values") or ()), default=0)
+                if longest + 1 > int(child.cget("width")):
+                    child.configure(width=min(self.LIST_WIDTH_MAX, longest + 1))
+                child.configure(postcommand=self._widen_popdown(child, child.cget("postcommand")))
+            self._fit_lists(child)
+
+    @staticmethod
+    def _widen_popdown(combo: ttk.Combobox, before):
+        """The opened list sized to its longest choice: ttk always opens it as wide as the box, plus the
+        style's postoffset -- so each box gets a style of its own whose postoffset adds what is missing."""
+        style = f"List{str(combo).replace('.', '_')}.TCombobox"
+
+        def post() -> None:
+            if before:
+                combo.tk.eval(before) if isinstance(before, str) else before()
+            try:
+                font = tkfont.nametofont("TkDefaultFont")
+                need = max((font.measure(str(v)) for v in combo.cget("values") or ()), default=0) + 30
+                extra = max(0, need - combo.winfo_width())
+                ttk.Style(combo).configure(style, postoffset=(0, 0, extra, 0))
+                if combo.cget("style") != style:
+                    combo.configure(style=style)
+            except tk.TclError:
+                pass
+        return post
+
     def _scheme(self, part: str) -> None:
         """One part of the tree (ft.SCHEME_PARTS) as set, a rainbow, or alternating colours."""
         mode = next(k for k, v in ft.COLOUR_SCHEMES.items() if v == self.scheme_vars[part].get())
@@ -2737,10 +2814,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             h_var.set(f"{h:g}" if h != "" else "")
 
     def _group_size(self, group: str, reset: bool = False, axis: int | None = None) -> None:
-        """Every male's, female's or upcoming baby's frame this size (not one resized on their own).
+        """Every male's, female's or upcoming baby's frame this size, those resized on their own too.
         With Keep aspect ratio, the box changed (`axis`) sets that side and the other follows."""
+        # The owner, 2026-10-09, of these boxes: "seems to do nothing even if changed" -- every villager in
+        # the tree had been resized on their own, and their own size wins.  "Every portrait's size" means
+        # every one: their own sizes go (Ctrl+Z brings them back).
+        resized = [p for p in self.village.people.values()
+                   if ft.group_of(p) == group and {"w", "h"} & set(self._entry(p))]
         if reset:
-            if self.edits.sizes.pop(group, None) is not None:
+            if self.edits.sizes.pop(group, None) is not None or resized:
+                for p in resized:
+                    self._set_entry(p, w=None, h=None)
                 self._saved()
             self._show_group_sizes()
             return
@@ -2759,9 +2843,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 natural = now
             w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
             h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
-        if w is None or h is None or self.edits.sizes.get(group) == [w, h]:
+        if w is None or h is None or (self.edits.sizes.get(group) == [w, h] and not resized):
             return
         self.edits.sizes[group] = [w, h]
+        for p in resized:
+            self._set_entry(p, w=None, h=None)
         self._saved()
         self._show_group_sizes()
 
@@ -2775,6 +2861,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             p = self.village.people[q]
             if self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) != percent:
                 self._set_entry(p, text_scale=percent if percent != 100.0 else None)
+                changed = True
+        if changed:
+            self._saved()
+
+    def _own_picture_size(self) -> None:
+        """Every selected villager's face this size, in percent, whatever their frame's size."""
+        percent = self._number(self.own_picture.get(), ft.PICTURE_SCALE_MIN, ft.PICTURE_SCALE_MAX)
+        if not self.selected or percent is None:
+            return
+        changed = False
+        for q in self.selected:
+            p = self.village.people[q]
+            if self._entry(p).get("picture_scale", 100.0) != percent:
+                self._set_entry(p, picture_scale=percent if percent != 100.0 else None)
                 changed = True
         if changed:
             self._saved()
@@ -2972,6 +3072,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.subtitle_var.set(e.subtitle)
         self.sort_var.set(gen.SORTS[e.sort])
         self.position_var.set(ft.POSITIONING[e.positioning])
+        self.row_align_var.set(ft.ROW_ALIGNS[e.row_align])
+        self.row_valign_var.set(ft.ROW_VALIGNS[e.row_valign])
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
@@ -2999,6 +3101,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.rainbow_var.set(ft.RAINBOW_STRENGTHS[e.rainbow_strength][0])
         for part, var in self.scheme_vars.items():
             var.set(ft.COLOUR_SCHEMES[e.schemes.get(part, "own")])
+        self.picture_size_var.set(f"{e.picture_size:g}")
+        self.text_size_var.set(f"{e.text_size:g}")
         self.detail_var.set(e.detail_lines)
         self.detail_field.set_quietly(e.detail_colour)
         self.detail_opacity_var.set(f"{e.detail_opacity:g}")

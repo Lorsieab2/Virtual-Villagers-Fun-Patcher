@@ -112,6 +112,15 @@ FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
 SHRINK_MIN = 0.2                        # never smaller than a fifth
 PAGE_GENS, PAGE_GENS_MIN, PAGE_GENS_MAX = 6, 2, 10   # generations on one page: the owner's default and limit
 TEXT_SCALE_MIN, TEXT_SCALE_MAX = 25.0, 400.0          # one villager's text size, in percent
+# The picture (the face) and the words inside a portrait, apart from the shape (the owner, 2026-10-09: "i
+# want to be able to resize the villager's picture and text within the shape"): in percent, for every
+# portrait (Edits.picture_size, Edits.text_size) and for one villager (entry "picture_scale", "text_scale").
+PICTURE_SCALE_MIN, PICTURE_SCALE_MAX = 25.0, 400.0
+# Each generation's row on the tree (the owner, 2026-10-09: "justify portraits ... top middle bottom ...
+# left right center"; then: "Line up each row"): the row across the tree, and the portraits in it, of
+# different sizes, lined up by their tops, middles or bottoms.
+ROW_ALIGNS = {"arranged": "As arranged", "left": "Left", "centre": "Centre", "right": "Right"}
+ROW_VALIGNS = {"middle": "Middles", "top": "Tops", "bottom": "Bottoms"}
 LEFT = 300                      # the generation labels' column
 TOP = 150
 OTHER_GAP = 110                 # between the tree and the "Other Members" column
@@ -301,6 +310,10 @@ class Edits:
     detail_opacity: float = 45.0        # percent
     detail_width: float = 1.0
     text_valign: str = "middle"
+    row_align: str = "arranged"        # each row across the tree (ROW_ALIGNS)
+    row_valign: str = "middle"         # the portraits in a row lined up by (ROW_VALIGNS)
+    picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
+    text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
     portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
     row_gap: float = 30.0               # pixels under a generation's row before its children's lines (LANE_TOP)
@@ -432,6 +445,10 @@ class Edits:
         out.centre_heads = out.text_valign == "middle"     # what an older build reads
         out.diagonal_lines = data.get("diagonal_lines") is True
         out.text_wrap = int(_number(data.get("text_wrap"), WRAP_MIN, WRAP_MAX, WRAP))
+        out.row_align = data.get("row_align") if data.get("row_align") in ROW_ALIGNS else "arranged"
+        out.row_valign = data.get("row_valign") if data.get("row_valign") in ROW_VALIGNS else "middle"
+        out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
+        out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
         out.row_gap = float(_number(data.get("row_gap"), ROW_GAP_MIN, ROW_GAP_MAX, LANE_TOP))
         out.show_founder = data.get("show_founder", False) is True
@@ -513,6 +530,9 @@ class Edits:
             text_scale = _number(entry.get("text_scale"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
             if text_scale != 100.0:
                 item["text_scale"] = text_scale     # this villager's words, apart from the frame (the owner)
+            picture_scale = _number(entry.get("picture_scale"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
+            if picture_scale != 100.0:
+                item["picture_scale"] = picture_scale   # and their face (the owner, 2026-10-09)
             look = entry.get("look")
             if isinstance(look, list) and len(look) == 2 and all(isinstance(v, int) for v in look):
                 item["look"] = look             # the look the player chose to show
@@ -586,7 +606,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -898,7 +918,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -1098,7 +1118,28 @@ class Layout:
         turned `angle` degrees about its middle."""
         p = self.village.people[q]
         w, h = frame_size(self.edits, self.village, p, shrink=self.shrink)
-        return self.x[q] + NODE_W / 2 - w / 2, self.y[q] + NODE_H / 2 - h / 2, w, h, self.entry(p).get("angle", 0.0)
+        top = self.y[q] + NODE_H / 2 - h / 2
+        if self.edits.row_valign != "middle":   # lined up with the tallest in their row (Edits.row_valign)
+            tallest = self.row_heights().get(q, h)
+            top += (h - tallest) / 2 if self.edits.row_valign == "top" else (tallest - h) / 2
+        return self.x[q] + NODE_W / 2 - w / 2, top, w, h, self.entry(p).get("angle", 0.0)
+
+    def row_heights(self) -> dict[int, float]:
+        """Each portrait's row's tallest frame (worked out once: every frame asks).  A row: one
+        generation of the tree, or of the Other Members."""
+        heights = self.__dict__.get("_row_heights")
+        if heights is None:
+            tallest: dict[tuple, float] = {}
+            rows = {}
+            others = set(self.others)
+            for q in self.x:
+                p = self.village.people[q]
+                rows[q] = (p.generation, q in others)
+                h = frame_size(self.edits, self.village, p, shrink=self.shrink)[1]
+                tallest[rows[q]] = max(tallest.get(rows[q], 0.0), h)
+            heights = {q: tallest[row] for q, row in rows.items()}
+            self.__dict__["_row_heights"] = heights
+        return heights
 
     def spans(self) -> list[tuple[float, float, float]]:
         """Every portrait's frame across (left, right) and its top: what a line keeps clear of
@@ -1180,8 +1221,15 @@ def keep_aspect(now: tuple[float, float], axis: int, value: float) -> tuple[floa
     w, h = now
     if w <= 0 or h <= 0:
         return (value, h) if axis == 0 else (w, value)
-    other = (h * value / w) if axis == 0 else (w * value / h)
-    other = round(max(FRAME_MIN, min(FRAME_MAX, other)), 1)
+    # The proportions always kept: when the side that follows would pass a limit, it stops there and the
+    # typed side gives way (the owner's "800" typed into a turtle shell's box: its "8" made it 8 by 8
+    # before, a square for good).
+    ratio = (h / w) if axis == 0 else (w / h)
+    other = value * ratio
+    if other < FRAME_MIN or other > FRAME_MAX:
+        other = max(FRAME_MIN, min(FRAME_MAX, other))
+        value = max(FRAME_MIN, min(FRAME_MAX, other / ratio))
+    value, other = round(value, 1), round(other, 1)
     return (value, other) if axis == 0 else (other, value)
 
 
@@ -1290,6 +1338,17 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             for i, pid in enumerate(row):
                 x[pid] = LEFT + indent + i * step
         tree_right = LEFT + widest_row * step - gap
+    if edits.row_align != "arranged" and rows:
+        # Each row to the tree's left edge, its middle or its right edge (Edits.row_align); the player's
+        # drags still count from there.
+        left_edge = min(x[q] for row in rows.values() for q in row)
+        right_edge = max(x[q] for row in rows.values() for q in row)
+        for row in rows.values():
+            lo, hi = min(x[q] for q in row), max(x[q] for q in row)
+            shift = (left_edge - lo if edits.row_align == "left" else right_edge - hi if edits.row_align == "right"
+                     else (left_edge + right_edge) / 2 - (lo + hi) / 2)
+            for q in row:
+                x[q] += shift
     others_left = tree_right + OTHER_GAP
     per_row: dict[int, int] = {}
     for pid in others:
@@ -2170,23 +2229,33 @@ def born_with(lay: Layout, p: gen.Person) -> list[str]:
     return [f"{' and '.join(names)}'s {'twin' if len(others) == 1 else 'triplet'}"]
 
 
+def inner_sizes(lay: Layout, p: gen.Person) -> tuple[float, float]:
+    """(the face's size, the words' size) inside this villager's portrait, as factors: every portrait's
+    setting times their own."""
+    entry = lay.entry(p)
+    return (lay.edits.picture_size / 100 * entry.get("picture_scale", 100.0) / 100,
+            lay.edits.text_size / 100 * entry.get("text_scale", 100.0) / 100)
+
+
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:
     """(the head cell's left and top inside the frame, the first line's baseline, the lines as
     drawn): the face (the head's visible pixels, `box`) and the lines centred together (the owner:
     "center the heads within the portrait shapes vertically and horizontally"), or the head at the
     top when the player turns centring off ("in case players type a lot of stuff")."""
     x0, y0, x1, y1 = box or DEFAULT_BOX
-    face = (y1 - y0) * HEAD_SCALE
+    pic, words = inner_sizes(lay, p)
+    face = (y1 - y0) * HEAD_SCALE * pic
+    lh = LINE_H * words                     # the lines spaced as the words are sized
     valign = lay.edits.text_valign
     face_top = 10.0 if valign == "top" else 6.0
-    lines = shown_text(lay, p, int((NODE_H - face_top - face - 8 - 6) // LINE_H))
-    block = face + 8 + len(lines) * LINE_H
+    lines = shown_text(lay, p, int(max(LINE_H, NODE_H - face_top - face - 8 - 6) // lh))
+    block = face + 8 + len(lines) * lh
     if valign == "middle":
         face_top = max(face_top, (NODE_H - block) / 2)
     elif valign == "bottom":                # the last line just above the frame's foot
         face_top = max(face_top, NODE_H - block - 6)
-    left = NODE_W / 2 - (x0 + x1) / 2 * HEAD_SCALE
-    return left, face_top - y0 * HEAD_SCALE, face_top + face + 8 + LINE_H - 3, lines
+    left = NODE_W / 2 - (x0 + x1) / 2 * HEAD_SCALE * pic
+    return left, face_top - y0 * HEAD_SCALE * pic, face_top + face + 8 + lh - 3, lines
 
 
 WRAP = 17                               # characters across a portrait, until the player says
@@ -4138,7 +4207,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             item.x = middle[0] + (item.x - middle[0]) * scale
             item.y = middle[1] + (item.y - middle[1]) * scale
             if isinstance(item, Head):
-                item.scale = scale
+                item.scale *= scale
             elif isinstance(item, Text):
                 item.size *= scale
             else:
@@ -4156,10 +4225,10 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             item.x, item.y, item.angle = middle[0] + dx, middle[1] + dy, angle
         add(item)
 
+    pic, own = inner_sizes(lay, p)          # the face's and the words' sizes inside the shape
     if p.upcoming:
-        own = lay.entry(p).get("text_scale", 100) / 100
         for k, text in enumerate(node_text(lay, p)):
-            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15, text, (12 if k == 0 else 11) * own, ink,
+            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own, text, (12 if k == 0 else 11) * own, ink,
                      bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
                      edit=f"person:{p.id}"))
         return
@@ -4168,12 +4237,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     box = face_box(present, sheet, head)
     head_left, head_top, text_top, lines = placement(lay, p, box)
     if sheet in present and head is not None and head >= 0:
-        put(Head(x + head_left, y + head_top, sheet, head, pid=p.id))
+        put(Head(x + head_left, y + head_top, sheet, head, pid=p.id, scale=pic))
     else:
-        mid = y + head_top + FACE_H * HEAD_SCALE / 2
-        put(Shape("ellipse", x + NODE_W / 2 - 26, mid - 26, 52, 52, colour, width=1, fill=colour, pid=p.id,
+        mid = y + head_top + FACE_H * HEAD_SCALE * pic / 2
+        r = 26 * pic
+        put(Shape("ellipse", x + NODE_W / 2 - r, mid - r, 2 * r, 2 * r, colour, width=1, fill=colour, pid=p.id,
                   target=("person", p.id)))
-        put(Text(x + NODE_W / 2, mid + 10, p.name[:1], 28, "#ffffff", bold=True, centre=True, pid=p.id))
+        put(Text(x + NODE_W / 2, mid + 10 * pic, p.name[:1], 28 * pic, "#ffffff", bold=True, centre=True, pid=p.id))
     # Every line inside its shape (Codex, #575; the owner, 2026-10-08: "text should fit within the shape as
     # much as possible"): each line is measured against the shape's own width where it is drawn -- a
     # circle or a heart is narrower towards its edges -- and this portrait's words made only as much
@@ -4184,7 +4254,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if not text:
             continue
         size = (11.5 if bold else 10) * scale
-        baseline = middle[1] + (y + text_top + k * LINE_H - middle[1]) * scale
+        baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
         # The narrowest the shape is across the whole line, from the tops of its letters to below them.
         chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
         # Half the frame at least, unless the player keeps the words inside the shape (a cross's arm).
@@ -4192,7 +4262,6 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         needed = len(text) * size * (0.58 if bold else 0.55)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
-    own = lay.entry(p).get("text_scale", 100) / 100
     # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
     # so no line leaves a round or pointed portrait (Edits.text_align).
     align = lay.edits.text_align
@@ -4201,13 +4270,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         for k, (text, bold, _r) in enumerate(lines):
             if text:
                 size = (11.5 if bold else 10) * scale
-                baseline = middle[1] + (y + text_top + k * LINE_H - middle[1]) * scale
+                baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
                 chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
                 wide = max(chord - 4, 16.0) if lay.edits.text_inside else max(chord, fw * 0.5)
                 half = min(half, (wide - 12) / 2 / scale)
     at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):
-        put(Text(at, y + text_top + k * LINE_H, text, (11.5 if bold else 10) * fit * own, ink,
+        put(Text(at, y + text_top + k * LINE_H * own, text, (11.5 if bold else 10) * fit * own, ink,
                  bold=bold, centre=align == "centre", end=align == "right", pid=p.id,
                  role="names" if bold else "portraits", edit=f"person:{p.id}", runs=runs))
 
