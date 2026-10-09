@@ -705,6 +705,7 @@ class App(tk.Tk):
             self.check_logs_var = tk.BooleanVar(value=True)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
+            self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -1567,6 +1568,8 @@ class App(tk.Tk):
         self.pair_rules = saved_rules if isinstance(saved_rules, dict) else {}
         saved_window = data.get("tree_window", {})
         self.tree_window = saved_window if isinstance(saved_window, dict) else {}
+        saved_style = data.get("tree_style", {})
+        self.tree_style = saved_style if isinstance(saved_style, dict) else {}
         saved_check_logs = data.get("check_logs_automatically", True)
         self.check_logs_var.set(saved_check_logs is not False)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -1588,6 +1591,7 @@ class App(tk.Tk):
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
+            "tree_style": self.tree_style,
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
                 for build in self.builds

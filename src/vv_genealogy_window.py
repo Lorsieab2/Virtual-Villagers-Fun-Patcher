@@ -437,7 +437,8 @@ def _open_editor(app, parent, folder: Path, game: int, info, title: str, images:
         return
     path = ft.Edits.path(folder, game, info.slot)
     try:
-        edits = ft.Edits.load(path)
+        # A village with no tree of its own yet starts with the look last used (ft.STYLE_KEYS).
+        edits = ft.Edits.load(path) if path.is_file() else ft.styled(getattr(app, "tree_style", None))
     except ValueError as exc:
         if not messagebox.askyesno("Family Tree Maker", f"{exc}\n\nStart with no marks or edits?  (The file is "
                                                   "kept as it is until you change something.)", parent=parent):
@@ -3417,6 +3418,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.window["geometry"] = self.geometry()
         if hasattr(self.app, "_save_settings"):
             self.app.tree_window = dict(self.window)
+            self.app.tree_style = ft.style_of(self.edits)     # the look, for the next new tree
             try:
                 self.app._save_settings()
             except OSError:

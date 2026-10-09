@@ -730,6 +730,38 @@ TREE_SUFFIX = ".vvtree"
 TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 
 
+# The tree's look as a whole, which the Family Tree Maker remembers when it closes and gives a tree
+# that has no edits of its own yet (the owner, 2026-10-08: "Save the player's settings on close and
+# reopen (portrait shape/any other changes)").  Never a village's own things: its title, moved
+# portraits, pages, words, families' colours, villagers' entries or stickers.
+STYLE_KEYS = (
+    "centre_heads", "text_wrap", "portrait_gap", "fit_width", "page_generations", "diagonal_lines",
+    "show_units", "show_years", "number_names", "number_order", "sort", "positioning", "numbering",
+    "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
+    "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
+    "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
+    "label_line_reach", "marks",
+)
+
+
+def style_of(edits: "Edits") -> dict:
+    """The look of `edits` (STYLE_KEYS), as the settings file keeps it."""
+    data = edits.to_data()
+    return {key: data[key] for key in STYLE_KEYS if key in data}
+
+
+def styled(style: dict | None) -> "Edits":
+    """A new tree's edits with a remembered look; the patcher's own where it has none or it does not
+    read (an older or damaged settings file never stops the tree from opening)."""
+    base = Edits().to_data()
+    if isinstance(style, dict):
+        base.update({key: value for key, value in style.items() if key in STYLE_KEYS})
+    try:
+        return Edits.from_data(base)
+    except ValueError:
+        return Edits()
+
+
 def renamed_keys(text: str, renames: dict[tuple, str]) -> str:
     """Saved edits (an edits file or a .vvtree, as text) with each renamed villager's key --
     "<name>|<head>|<body>", in an entry, a family, an order, a line piece -- under their new name."""
