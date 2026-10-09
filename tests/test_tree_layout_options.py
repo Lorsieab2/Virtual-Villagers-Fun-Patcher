@@ -32,7 +32,26 @@ class SettingsTests(unittest.TestCase):
 
 
 class ShapeTests(unittest.TestCase):
-    NEW = ("trapezoid", "pentagon", "star4", "plump_star", "star6", "slim_star6", "arrow_h", "arrow_v")
+    NEW = ("trapezoid", "pentagon", "star4", "plump_star", "star6", "slim_star6", "arrow_h", "arrow_v", "arch",
+           "scallop", "snail", "leafy_oval", "hibiscus", "sand_dollar", "turtle_v", "turtle_h", "mermaid_tail",
+           "fish_right", "fish_left", "wave_circle", "conch", "starfish", "ship_wheel", "coconut", "bananas")
+
+    def test_the_owners_pictures_have_their_detail_lines(self):
+        for kind in ("scallop", "snail", "sand_dollar", "turtle_v", "mermaid_tail", "fish_left", "conch",
+                     "starfish", "star", "flower"):
+            with self.subTest(kind=kind):
+                self.assertTrue(ft.details(kind))
+        self.assertEqual(len(ft.decor("leafy_oval")), 2)          # its two leaves, drawn like the border
+        self.assertEqual(len(ft.decor("wave_circle")), 1)
+        self.assertEqual(ft.details("rect"), ())
+
+    def test_the_detail_settings_are_saved_and_read_back(self):
+        e = ft.Edits()
+        e.detail_lines, e.detail_colour, e.detail_opacity, e.detail_width = False, "#123456", 70.0, 2.0
+        back = ft.Edits._from_data(e.to_data())
+        self.assertEqual((back.detail_lines, back.detail_colour, back.detail_opacity, back.detail_width),
+                         (False, "#123456", 70.0, 2.0))
+        self.assertEqual(ft.Edits._from_data({"detail_colour": "not a colour"}).detail_colour, "")
 
     def test_each_new_shape_is_offered_and_drawn_at_its_own_proportions(self):
         for kind in self.NEW:

@@ -946,6 +946,26 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             # given their own shape or border one by one too.
             ttk.Button(box, text="Apply to every one", command=lambda g=group: self._group_all(g)).grid(
                 row=row_no, column=3, sticky="w", padx=(6, 0), pady=1)
+        # The owner, 2026-10-09: detailing inside the shapes, its colour, opacity and line weight.
+        box = ttk.LabelFrame(tab, text="Detail lines inside shapes (shells, stars, flowers...)", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        self.detail_var = tk.BooleanVar(value=e.detail_lines)
+        ttk.Checkbutton(box, text="Show them", variable=self.detail_var,
+                        command=lambda: self._change(detail_lines=bool(self.detail_var.get()))).grid(
+            row=0, column=0, columnspan=2, sticky="w")
+        ttk.Label(box, text="Colour (empty: the portrait's own):").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.detail_field = ColourField(box, e.detail_colour, lambda c: self._change(detail_colour=c or ""))
+        self.detail_field.grid(row=1, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        ttk.Label(box, text="Opacity (%):").grid(row=2, column=0, sticky="w", pady=(4, 0))
+        self.detail_opacity_var = tk.StringVar(value=f"{e.detail_opacity:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.detail_opacity_var, from_=0, to=100, increment=5, width=5),
+                   lambda: self._detail_number("detail_opacity", self.detail_opacity_var, 0, 100)).grid(
+            row=2, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        ttk.Label(box, text="Line weight:").grid(row=3, column=0, sticky="w", pady=(4, 0))
+        self.detail_width_var = tk.StringVar(value=f"{e.detail_width:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.detail_width_var, values=ft.LINE_STEPS, width=5),
+                   lambda: self._detail_number("detail_width", self.detail_width_var, *ft.LINE_WIDTHS)).grid(
+            row=3, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
         box = ttk.LabelFrame(tab, text="Portrait sizes (each group's default)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_sizes: dict[str, tuple[tk.StringVar, tk.StringVar]] = {}
@@ -2384,6 +2404,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if gap is not None and gap != self.edits.portrait_gap:
             self._change(portrait_gap=gap)
 
+    def _detail_number(self, attr: str, var: tk.StringVar, low: float, high: float) -> None:
+        value = self._number(var.get(), low, high)
+        if value is not None and value != getattr(self.edits, attr):
+            self._change(**{attr: value})
+
     def _valign(self, valign: str) -> None:
         """The face and words at the top, middle or bottom of every portrait (Centre faces, before)."""
         self._change(text_valign=valign, centre_heads=valign == "middle")
@@ -2713,6 +2738,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_opacity_scale.set(e.mark_opacity)
         self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
         self.inside_var.set(e.text_inside)
+        self.detail_var.set(e.detail_lines)
+        self.detail_field.set_quietly(e.detail_colour)
+        self.detail_opacity_var.set(f"{e.detail_opacity:g}")
+        self.detail_width_var.set(f"{e.detail_width:g}")
         self.valign_var.set(ft.TEXT_VALIGNS[e.text_valign])
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")
