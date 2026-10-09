@@ -64,6 +64,10 @@
         from its saved file -- and with a History file it cannot read, it
         decides nothing and says it is not done; a second call writes
         nothing.
+     8. Deaths logs in both an older build's "Deaths" and "Deaths and
+        Disappearances": both are read (an old folder is never made), so
+        graves logged in the old one are not recorded again, and a record
+        kept word for word in both is one record.
 
    And from Codex's review of #524: a record from the grave that is only
    held for the save (the village not yet named) and lost with the session
@@ -927,6 +931,51 @@ int main(int argc, char **argv) {
             int done = repair_now(game, 1);
             read_into(path);
             CHECK(done == 1 && strcmp(first, text) == 0, "...and a second Repair writes nothing");
+        }
+
+        /* 8: Deaths logs in both an older build's "Deaths" and "Deaths and
+           Disappearances" (Codex, #577).  The old folder holds Kito's and
+           Chika's records, and word for word the new log's Ghali and first
+           Dup: Kito and Chika are not recorded again, and the copied Dup is
+           one record, so the second Dup grave is still recorded. */
+        unload();
+        free(buffer);
+        free_game();
+        clean();
+        if (!setup_village(cause_value)) { printf("cannot place the tables\n"); return 2; }
+        load();
+        buffer = save_buffer("Backfill Tribe");
+        {
+            char old_dir[MAX_PATH], old_log[MAX_PATH];
+            static char d[4096];
+            _snprintf(old_dir, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Deaths", root);
+            CHECK(scan_graves(game, 1) == 6 && GetFileAttributesA(old_dir) == INVALID_FILE_ATTRIBUTES,
+                  "with no old \"Deaths\" folder, none is made, and the six graves are missing");
+            _snprintf(d, sizeof d,
+                "Village: Backfill Tribe (Save 1)\n"
+                "Death 1\n  Name: Ghali\n  Age at death: 1434\n  Cause of death: Old age\n  Grave: %s\n"
+                "  Epitaph: Inspired Architect\n  Head: 6\n  Body: 1\n  Likes: caves\n  Dislikes: (none)\n\n"
+                "Death 3\n  Name: Dup\n  Age at death: 900\n  Cause of death: Disease\n  Grave: Untrained\n"
+                "  Epitaph: (none)\n  Head: 4\n  Body: 4\n  Likes: (none)\n  Dislikes: (none)\n\n"
+                "Death 7\n  Name: Kito\n  Age at death: 1410\n  Cause of death: Old age\n  Grave: %s\n"
+                "  Epitaph: Inspired Inventor\n  Head: 0\n  Body: 18\n  Likes: (none)\n  Dislikes: (none)\n\n"
+                "Death 8\n  Name: Chika\n  Age at death: 1428\n  Cause of death: Old age\n  Grave: %s\n"
+                "  Epitaph: Guardian of Health\n  Head: 19\n  Body: 17\n  Likes: playing\n  Dislikes: (none)\n\n",
+                MASTER[game][4], MASTER[game][3], MASTER[game][game >= 3 ? 2 : 5]);
+            _snprintf(old_log, MAX_PATH, "%s\\Virtual Villagers %d Deaths Log 1.txt", old_dir, game);
+            write_text(old_log, d);
+            CHECK(scan_graves(game, 1) == 4,
+                  "both folders: Kito and Chika, logged in the old one, are not missing; the Dup kept in both "
+                  "is one record, so four graves are (got %d)", scan_graves(game, 1));
+            repair_graves(game, 1, 1);
+            save_done(1, buffer);
+            deaths_path(1, path);
+            read_into(path);
+            CHECK(count_of(text, "\r\n  Name: Kito\r\n") == 0 && count_of(text, "\r\n  Name: Chika\r\n") == 0
+                  && count_of(text, "\r\n  Name: Dup\r\n") == 2 && count_of(text, "\r\n  Name: Lonely\r\n") == 2
+                  && count_of(text, "\r\n  Name: Youth\r\n") == 1 && count_of(text, "\r\n  Name: Renny\r\n") == 1
+                  && GetFileAttributesA(old_log) != INVALID_FILE_ATTRIBUTES,
+                  "...Repair records the second Dup, Lonely, Youth and Renny, never Kito or Chika again");
         }
 
         unload();

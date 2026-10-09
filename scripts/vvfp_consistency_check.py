@@ -1354,8 +1354,7 @@ def check_stews(game_dir: Path, slot: int, game: int, rep: Report) -> None:
 
 
 def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
-    deaths, _ = numbered_records(game_dir, DEATHS_FOLDER(game_dir), f"Virtual Villagers {game} Deaths Log", "Death ",
-                                 slot)
+    deaths = deaths_records(game_dir, game, slot)
     unacc, files = numbered_records(game_dir, "Unaccounted Villagers", f"Virtual Villagers {game} Unaccounted Villagers Log",
                                     "Unaccounted ", slot)
     label = f"{LOGS}\\Deaths and Unaccounted Villagers"
@@ -1547,6 +1546,34 @@ def DEATHS_FOLDER(game_dir: Path) -> str:
     """The Deaths logs' folder in this save folder: "Deaths and Disappearances", or "Deaths" while an
     older build's has not moved (src/vv_save_layout.py)."""
     return layout.find(game_dir, f"{LOGS}\\{layout.DEATHS_LOGS}").name
+
+
+def DEATHS_FOLDERS(game_dir: Path) -> list[str]:
+    """Every Deaths logs' folder there is: an older build's "Deaths" first when it has not moved, then
+    "Deaths and Disappearances" -- both when both exist (the companions move the old one only when
+    the new one does not exist yet, native/shared/save_layout.h)."""
+    folders = [name for name in ("Deaths", layout.DEATHS_LOGS) if (Path(game_dir) / LOGS / name).is_dir()]
+    return folders or [DEATHS_FOLDER(game_dir)]
+
+
+def deaths_records(game_dir: Path, game: int, slot: int) -> list[str]:
+    """This slot's Death records from every Deaths folder (Codex, #577): a record kept word for word in
+    both the old and the new folder is one record (each old record matches at most one new one)."""
+    folders = DEATHS_FOLDERS(game_dir)
+    stem = f"Virtual Villagers {game} Deaths Log"
+    records, _ = numbered_records(game_dir, folders[0], stem, "Death ", slot)
+    if len(folders) == 1:
+        return records
+    unmatched = list(records)
+    newer, _ = numbered_records(game_dir, folders[1], stem, "Death ", slot)
+    for record in newer:
+        if record in unmatched:
+            unmatched.remove(record)
+        else:
+            records.append(record)
+    return records
+
+
 WORD_LINE = re.compile(rb"^([ \t]*(?:Likes|Dislikes): )([^\r\n]*)", re.M)
 
 

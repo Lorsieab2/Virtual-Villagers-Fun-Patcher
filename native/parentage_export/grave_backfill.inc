@@ -51,6 +51,8 @@ struct death_key {
     int age;
     char grave[VV_GRAVE_LINE];
     int held;              /* a record still held for the save, not on disk */
+    unsigned long long text;   /* the record's whole text, hashed (FNV-1a) */
+    int old_folder;        /* read from an older build's "Deaths" folder */
 };
 
 static struct death_key *death_keys;
@@ -80,6 +82,13 @@ struct death_reader {
     int have_name, have_age, have_grave;
     struct death_key key;
 };
+
+static unsigned long long death_text_hash(unsigned long long h, const char *line) {
+    for (; *line != '\0'; ++line) {
+        h = (h ^ (unsigned char)*line) * 1099511628211ull;
+    }
+    return (h ^ (unsigned char)'\n') * 1099511628211ull;
+}
 
 static int keep_death_key(const struct death_key *key) {
     if (death_key_count >= death_key_capacity) {
@@ -121,6 +130,7 @@ static int death_reader_line(struct death_reader *r, char *line) {
             return 0;
         }
         r->open = 1;
+        r->key.text = death_text_hash(14695981039346656037ull, line);
         return 1;
     }
     if (line[0] != ' ') {
@@ -129,6 +139,7 @@ static int death_reader_line(struct death_reader *r, char *line) {
     if (!r->open) {
         return 1;
     }
+    r->key.text = death_text_hash(r->key.text, line);
     if ((value = line_value(line, "Name")) != NULL) {
         _snprintf_s(r->key.name, sizeof r->key.name, _TRUNCATE, "%s", value);
         r->have_name = 1;
@@ -142,27 +153,26 @@ static int death_reader_line(struct death_reader *r, char *line) {
     return 1;
 }
 
-/* Every Death record this village's Deaths log holds -- in each of its files,
-   and still held for the next save -- into death_keys.  0 when a file of the
-   log could not be read, so nothing is decided on half a log. */
-static int read_village_deaths(const struct game_layout *g, int game_id, const char *village) {
-    wchar_t folder[MAX_PATH];
+/* Every Death record in one folder's numbered Deaths log files into
+   death_keys, each marked with the folder it came from.  0 when a file could
+   not be read. */
+static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder, const char *village,
+                              int old_folder) {
     wchar_t path[MAX_LOG_PATH];
     char line[512];
     struct death_reader reader;
+    const wchar_t *stem = family_stem(g, LOG_DEATHS);
     int ceiling;
     int number;
-    int i;
+    int first = death_key_count;
 
-    death_key_count = 0;
-    if (!build_family_log_path(g, LOG_DEATHS, 1, path)
-        || !vv_save_subfolder_w(folder, family_folder(LOG_DEATHS), 64)) {
+    if (stem == NULL) {
         return 0;
     }
-    ceiling = highest_log_number(family_stem(g, LOG_DEATHS), folder);
+    ceiling = highest_log_number(stem, folder);
     for (number = 1; number <= ceiling; ++number) {
         FILE *file;
-        if (!build_family_log_path(g, LOG_DEATHS, number, path)) {
+        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folder, stem, number) < 0) {
             return 0;
         }
         if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES
@@ -190,6 +200,66 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
         if (!death_reader_close(&reader, 0)) {
             return 0;
         }
+    }
+    for (; first < death_key_count; ++first) {
+        death_keys[first].old_folder = old_folder;
+    }
+    return 1;
+}
+
+/* Every Death record this village's Deaths log holds -- in each of its files,
+   and still held for the next save -- into death_keys.  0 when a file of the
+   log could not be read, so nothing is decided on half a log. */
+static int read_village_deaths(const struct game_layout *g, int game_id, const char *village) {
+    wchar_t folder[MAX_PATH];
+    wchar_t path[MAX_LOG_PATH];
+    char line[512];
+    struct death_reader reader;
+    int i;
+
+    death_key_count = 0;
+    /* build_family_log_path moves an older build's "Deaths" to "Deaths and
+       Disappearances" when the new one does not exist yet (save_layout.h). */
+    if (!build_family_log_path(g, LOG_DEATHS, 1, path)
+        || !vv_save_subfolder_w(folder, family_folder(LOG_DEATHS), 64)) {
+        return 0;
+    }
+    /* When both exist (the move could not be made), the old one is read too
+       -- only when it is there, never made -- so a grave already logged there
+       is never recorded again; a record kept word for word in both is one
+       record (Codex, #577). */
+    {
+        wchar_t root[MAX_PATH], old_path[MAX_PATH];
+        DWORD attributes;
+        if (vv_save_folder_w(root, 64)
+            && _snwprintf_s(old_path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) >= 0) {
+            attributes = GetFileAttributesW(old_path);
+            if (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0
+                && !read_deaths_folder(g, old_path, village, 1)) {
+                return 0;
+            }
+        }
+    }
+    {
+        int first_new = death_key_count, kept, j;
+        if (!read_deaths_folder(g, folder, village, 0)) {
+            return 0;
+        }
+        /* Drop each new-folder record whose very text an old-folder record
+           has (each old record matches at most one). */
+        for (kept = first_new, i = first_new; i < death_key_count; ++i) {
+            int twin = 0;
+            for (j = 0; j < first_new && !twin; ++j) {
+                if (death_keys[j].old_folder == 1 && death_keys[j].text == death_keys[i].text) {
+                    death_keys[j].old_folder = 2;      /* matched */
+                    twin = 1;
+                }
+            }
+            if (!twin) {
+                death_keys[kept++] = death_keys[i];
+            }
+        }
+        death_key_count = kept;
     }
     /* Held records: written at the next save.  Only those taken from the
        tribe loaded now (or whose tribe was never known) can be this village's

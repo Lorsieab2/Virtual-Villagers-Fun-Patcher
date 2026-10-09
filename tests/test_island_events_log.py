@@ -12,6 +12,7 @@ babies offset has never been confirmed by a real log.
 """
 from __future__ import annotations
 
+import importlib.util
 import re
 import subprocess
 import tempfile
@@ -24,7 +25,7 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-CHECKS = 5 * 7   # seven checks in each of the five games
+CHECKS = 5 * 7 + 4   # seven checks in each of the five games; the look-alikes in the four that have them
 
 
 def body(source: str, head: str) -> str:
@@ -49,6 +50,24 @@ class IslandEventsSource(unittest.TestCase):
         self.assertIn("return name_differs && other_differs;", reused)
         for label in ('"Name"', '"Sex"', "g_layout->head", "g_layout->body"):
             self.assertIn(label, reused)
+
+    def test_the_manifests_list_every_stolen_byte_the_dll_checks(self):
+        source = (NATIVE / "island_event_games.inc").read_text(encoding="utf-8")
+        rows = re.findall(r"\{ (0x[0-9A-F]+), \{ ([^}]*) \}, (\d+),", source)
+        stolen = {int(at, 16): bytes(int(b, 16) for b in data.split(", "))[:int(n)].hex().upper()
+                  for at, data, n in rows}
+        spec = importlib.util.spec_from_file_location(
+            "build_island_events_features", ROOT / "scripts" / "build_island_events_features.py")
+        generator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(generator)
+        listed = {at: data for sites in generator.SITES.values() for at, data, _ in sites}
+        self.assertEqual(listed, stolen)
+
+    def test_the_village_list_skips_look_alikes_as_every_companion_does(self):
+        source = (NATIVE / "island_event_games.inc").read_text(encoding="utf-8")
+        self.assertIn('#include "../shared/villager_lookalike.h"', source)
+        listing = body(source, "static int array_villagers(")
+        self.assertIn("if (record[present] != 0 && !vv_lookalike(stride, record)) {", listing)
 
     def test_every_game_but_a_new_home_compares_the_expected_father(self):
         source = (NATIVE / "island_event_games.inc").read_text(encoding="utf-8")

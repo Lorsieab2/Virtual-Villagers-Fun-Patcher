@@ -13,9 +13,16 @@
 #include "../shared/vv3_villager_table.h"
 #include "../shared/vv4_villager_table.h"
 #include "../shared/vv5_villager_table.h"
+#include "../shared/villager_lookalike.h"
 
 /* ---- Reading villagers --------------------------------------------------- */
 
+/* Every active record but the look-alikes the game does not count as
+   villagers (The Lost Children's Esteemed Elder statues, The Secret City's
+   +0xE94 records, The Tree of Life's ghosts, New Believers' Reanimate in
+   progress: native/shared/villager_lookalike.h, as every other companion
+   lists villagers), so an event that changes everyone never logs one as a
+   changed, Gone or New villager. */
 static int array_villagers(unsigned char *array, unsigned int stride, int slots, unsigned int present,
                            unsigned char **out, int capacity) {
     int i, n = 0;
@@ -24,7 +31,7 @@ static int array_villagers(unsigned char *array, unsigned int stride, int slots,
     }
     for (i = 0; i < slots && n < capacity; ++i) {
         unsigned char *record = array + (size_t)i * stride;
-        if (record[present] != 0) {
+        if (record[present] != 0 && !vv_lookalike(stride, record)) {
             out[n++] = record;
         }
     }

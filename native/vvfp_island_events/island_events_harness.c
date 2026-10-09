@@ -26,6 +26,10 @@
      5. A record slot the event freed and filled with someone else (the name
         AND the head or body differ) is the one before "Gone" and the one now
         "New villager", not a rename.
+     6. The records the games do not count as villagers (The Lost Children's
+        Esteemed Elder statues, The Secret City's +0xE94 records, The Tree of
+        Life's ghosts, New Believers' Reanimate stand-ins) are never logged,
+        though an event changes everyone; the villagers still are.
 
    Exit code 0 when every check passes. */
 #include "vvfp_island_events.c"
@@ -65,6 +69,8 @@ static int __stdcall stub_write(int game, int kind, const void *record, int live
 static const struct { unsigned int stride, present; } ARRAYS[GAMES + 1] = {
     { 0, 0 }, { 0x3D8, 0x28 }, { 0xE48C, 0x30 }, { 0x1F8C, 0xF10 }, { 0x2E3C, 0x1CC4 }, { 0x2F44, 0x1CD4 },
 };
+/* Each game's look-alike byte (native/shared/villager_lookalike.h); A New Home has none. */
+static const unsigned int LOOKALIKE[GAMES + 1] = { 0, 0, 0x558, 0xE94, 0x1CC7, 0x1CE1 };
 static unsigned char *g_array;
 static int g_harness_game;
 
@@ -248,6 +254,36 @@ int main(void) {
               && g_out[1].record == slot(0) && strstr(g_out[1].changes, "  New villager: yes\n") != NULL
               && !any_contains("Name:"),
               "name, head and body changed in one slot: the one before Gone, the one now New (never a rename)");
+
+        /* 6. Look-alikes (villager_lookalike.h): a statue, ghost or stand-in
+           present before and after an event that changes everyone, and one
+           that appears during it, are never logged; the villagers still are. */
+        if (LOOKALIKE[g_harness_game] != 0) {
+            int s, logged_lookalike = 0;
+            slot(4)[present] = 1;
+            slot(4)[LOOKALIKE[g_harness_game]] = 1;
+            put_name(slot(4), layout.name, "Statue");
+            begin();
+            for (s = 0; s < 5; ++s) {
+                if (skills_float) {
+                    *(float *)(slot(s) + research->offset) += 1.0f;
+                } else {
+                    *(int *)(slot(s) + research->offset) += 1;
+                }
+            }
+            slot(5)[present] = 1;
+            slot(5)[LOOKALIKE[g_harness_game]] = 1;
+            put_name(slot(5), layout.name, "Ghost");
+            compare(&g_snaps[0]);
+            for (s = 0; s < g_outs; ++s) {
+                logged_lookalike |= g_out[s].record == slot(4) || g_out[s].record == slot(5)
+                                    || strcmp((const char *)g_out[s].record + layout.name, "Statue") == 0;
+            }
+            CHECK(g_outs == 3 && !logged_lookalike && !any_contains("Gone:") && !any_contains("New villager:")
+                  && g_out[0].record == slot(0) && g_out[1].record == slot(2) && g_out[2].record == slot(3),
+                  "look-alikes (+0x%X) are never logged, before, after or appearing; the three villagers are",
+                  LOOKALIKE[g_harness_game]);
+        }
 
         memset(g_array, 0, (size_t)SLOTS * ARRAYS[g_harness_game].stride);
         VirtualFree(g_array, 0, MEM_RELEASE);

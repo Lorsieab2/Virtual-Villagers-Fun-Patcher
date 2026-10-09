@@ -42,7 +42,7 @@ SITES = {
         (0x422380, "6AFF68B4204700", "the two-choice event's constructor (its setup can bring a villager)"),
         (0x4222F0, "837C240408", "the two-choice event's button handler (an answer applies it)"),
         (0x438160, "B830760000", "the sacks and vials' resolve"),
-        (0x44E8A0, "53555657", "the Gong of Wonder's outcome"),
+        (0x44E8A0, "535556576A64", "the Gong of Wonder's outcome"),
     ],
     "vv3": [
         (0x419B30, "64A100000000", "the island event presenter: picks, shows and applies the event (a Custom Island Event too)"),

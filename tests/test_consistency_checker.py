@@ -556,5 +556,46 @@ class ReconcileFixtures(unittest.TestCase):
             self.assertIn(why, text, name)
 
 
+class TwoDeathsFolders(unittest.TestCase):
+    """An older build's "Deaths" and "Deaths and Disappearances" side by side (Codex, #577): both
+    are read, and a record kept word for word in both is one record."""
+
+    MIA = "Death 1\n  Name: Mia\n  Age at death: 1000\n  Cause of death: Old age\n  Grave: Master Builder\n"
+    REX = "Death 2\n  Name: Rex\n  Age at death: 900\n  Cause of death: Old age\n  Grave: Untrained\n"
+    KAI = "Death 3\n  Name: Kai\n  Age at death: 800\n  Cause of death: Disease\n  Grave: no grave (never buried)\n"
+    ZED = "Death 4\n  Name: Zed\n  Age at death: 700\n  Cause of death: Old age\n  Grave: Master Farmer\n"
+
+    def make(self, old: list[str] | None, new: list[str] | None) -> Path:
+        game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "g"
+        for folder, records in (("Deaths", old), ("Deaths and Disappearances", new)):
+            if records is None:
+                continue
+            path = game / LOGS / folder / "Virtual Villagers 1 Deaths Log 1.txt"
+            path.parent.mkdir(parents=True)
+            path.write_bytes(("Village: Tribe (Save 1)\r\n" + "".join(r.replace("\n", "\r\n") + "\r\n" for r in records))
+                             .encode("latin-1"))
+        return game
+
+    def graves(self, game: Path) -> tuple[int, int]:
+        deaths = checker.check_unaccounted(game, 1, 1, checker.Report())
+        return deaths, checker.LAST_GRAVES
+
+    def test_both_folders_are_read_and_a_record_in_both_counts_once(self):
+        game = self.make([self.MIA, self.REX], [self.MIA, self.KAI, self.ZED])
+        self.assertEqual(checker.DEATHS_FOLDERS(game), ["Deaths", "Deaths and Disappearances"])
+        names = [r.split("\n")[1] for r in checker.deaths_records(game, 1, 1)]
+        self.assertEqual(names, ["  Name: Mia", "  Name: Rex", "  Name: Kai", "  Name: Zed"])
+        self.assertEqual(self.graves(game), (4, 3))      # Mia, Rex, Zed buried; Kai has no grave
+
+    def test_a_record_differing_in_any_word_is_another_record(self):
+        other_mia = self.MIA.replace("Old age", "Disease")
+        game = self.make([self.MIA], [other_mia])
+        self.assertEqual(self.graves(game), (2, 2))
+
+    def test_one_folder_alone_is_read_as_before(self):
+        self.assertEqual(self.graves(self.make([self.MIA, self.REX], None)), (2, 2))
+        self.assertEqual(self.graves(self.make(None, [self.MIA, self.KAI])), (2, 1))
+
+
 if __name__ == "__main__":
     unittest.main()
