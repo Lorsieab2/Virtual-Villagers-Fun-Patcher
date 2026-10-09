@@ -598,6 +598,14 @@ class Edits:
 
 
 
+def alphabetical(names) -> list[str]:
+    """Choices in a list by name, A to Z (the owner, 2026-10-09: "alphabetize the options"); the
+    special borders after the plain ones, themselves A to Z."""
+    names = list(names)
+    plain = sorted((n for n in names if not n.startswith("Special: ")), key=str.casefold)
+    return plain + sorted((n for n in names if n.startswith("Special: ")), key=str.casefold)
+
+
 def is_colour(value) -> bool:
     return isinstance(value, str) and (value == TRANSPARENT or re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None)
 

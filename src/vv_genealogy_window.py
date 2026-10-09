@@ -677,7 +677,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             ttk.Label(box, text=label).grid(row=row_no, column=0, sticky="w", pady=1)
             var = tk.StringVar()
             self.own_vars[attr] = var
-            combo = ttk.Combobox(box, textvariable=var, values=list(choices.values()), state="readonly", width=18)
+            combo = ttk.Combobox(box, textvariable=var, values=ft.alphabetical(choices.values()), state="readonly", width=18)
             combo.grid(row=row_no, column=1, sticky="w", padx=(6, 0), pady=1)
             combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, c=choices, v=var: self._own_style(
                 a, next(k for k, n in c.items() if n == v.get())))
@@ -732,7 +732,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._live(ttk.Spinbox(row, textvariable=self.own_line_w, values=ft.LINE_STEPS, width=5),
                    lambda: self._own_lines(part="width")).pack(side="left", padx=(2, 0))
         self.own_line_dash = tk.StringVar()
-        kind = ttk.Combobox(row, textvariable=self.own_line_dash, values=list(ft.LINE_TYPES.values()),
+        kind = ttk.Combobox(row, textvariable=self.own_line_dash, values=ft.alphabetical(ft.LINE_TYPES.values()),
                             state="readonly", width=16)
         kind.pack(side="left", padx=(4, 0))
         kind.bind("<<ComboboxSelected>>", lambda _e: self._own_lines(part="dash"))
@@ -769,7 +769,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box = ttk.LabelFrame(tab, text="How every mark looks", padding=6)
         box.pack(fill="x", pady=(6, 0))
         self.mark_style_var = tk.StringVar(value=ft.MARK_STYLES[self.edits.mark_style])
-        style = ttk.Combobox(box, textvariable=self.mark_style_var, values=list(ft.MARK_STYLES.values()),
+        style = ttk.Combobox(box, textvariable=self.mark_style_var, values=ft.alphabetical(ft.MARK_STYLES.values()),
                              state="readonly", width=28)
         style.grid(row=0, column=0, columnspan=3, sticky="w")
         style.bind("<<ComboboxSelected>>", lambda _e: self._change(
@@ -801,7 +801,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         row = ttk.Frame(tab)
         row.pack(fill="x", pady=(6, 0))
         self.preset_mark = tk.StringVar(value=next(iter(PRESET_MARKS)))
-        marks = ttk.Combobox(row, textvariable=self.preset_mark, values=list(PRESET_MARKS) + [CUSTOM_MARK], width=22)
+        marks = ttk.Combobox(row, textvariable=self.preset_mark, values=ft.alphabetical(PRESET_MARKS) + [CUSTOM_MARK], width=22)
         marks.pack(side="left")
 
         def custom(_event=None) -> None:
@@ -836,7 +836,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             entry.bind("<FocusOut>", lambda _e: self._titles())
         ttk.Label(tab, text="Order in each generation:").pack(anchor="w", pady=(10, 1))
         self.sort_var = tk.StringVar(value=gen.SORTS[e.sort])
-        sort = ttk.Combobox(tab, textvariable=self.sort_var, values=list(gen.SORTS.values()), state="readonly")
+        sort = ttk.Combobox(tab, textvariable=self.sort_var, values=ft.alphabetical(gen.SORTS.values()), state="readonly")
         sort.pack(fill="x")
         sort.bind("<<ComboboxSelected>>", lambda _e: self._change(sort=next(k for k, v in gen.SORTS.items()
                                                                             if v == self.sort_var.get())))
@@ -848,14 +848,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                         command=lambda: self._change(number_names=bool(self.number_names_var.get()))).pack(anchor="w")
         ttk.Label(tab, text="Who is \"I\":").pack(anchor="w", pady=(2, 1))
         self.number_order_var = tk.StringVar(value=gen.NUMBER_ORDERS[e.number_order])
-        orders = ttk.Combobox(tab, textvariable=self.number_order_var, values=list(gen.NUMBER_ORDERS.values()),
+        orders = ttk.Combobox(tab, textvariable=self.number_order_var, values=ft.alphabetical(gen.NUMBER_ORDERS.values()),
                               state="readonly")
         orders.pack(fill="x")
         orders.bind("<<ComboboxSelected>>", lambda _e: self._change(number_order=next(
             k for k, v in gen.NUMBER_ORDERS.items() if v == self.number_order_var.get())))
         ttk.Label(tab, text="Arrangement:").pack(anchor="w", pady=(10, 1))
         self.position_var = tk.StringVar(value=ft.POSITIONING[e.positioning])
-        positions = ttk.Combobox(tab, textvariable=self.position_var, values=list(ft.POSITIONING.values()),
+        positions = ttk.Combobox(tab, textvariable=self.position_var, values=ft.alphabetical(ft.POSITIONING.values()),
                                  state="readonly")
         positions.pack(fill="x")
         positions.bind("<<ComboboxSelected>>", lambda _e: self._change(
@@ -875,7 +875,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         row2.pack(anchor="w", pady=(4, 0))
         ttk.Label(row2, text="Text room inside the portrait:").pack(side="left")
         self.room_var = tk.StringVar(value=ft.TEXT_ROOMS[e.text_room])
-        room = ttk.Combobox(row2, textvariable=self.room_var, values=list(ft.TEXT_ROOMS.values()), state="readonly",
+        room = ttk.Combobox(row2, textvariable=self.room_var, values=ft.alphabetical(ft.TEXT_ROOMS.values()), state="readonly",
                             width=16)
         room.pack(side="left", padx=(6, 0))
         room.bind("<<ComboboxSelected>>", lambda _e: self._change(
@@ -975,7 +975,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             for col, (attr, choices) in enumerate((("shapes", ft.PORTRAIT_SHAPES), ("borders", ft.BORDERS)), 1):
                 var = tk.StringVar(value=choices[getattr(e, attr)[group]])
                 self.group_vars[(attr, group)] = var
-                combo = ttk.Combobox(box, textvariable=var, values=list(choices.values()), state="readonly", width=16)
+                combo = ttk.Combobox(box, textvariable=var, values=ft.alphabetical(choices.values()), state="readonly", width=16)
                 combo.grid(row=row_no, column=col, sticky="w", padx=(6, 0), pady=1)
                 combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, g=group, c=choices, v=var: self._group_style(
                     a, g, next(k for k, n in c.items() if n == v.get())))
@@ -1008,7 +1008,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box = ttk.LabelFrame(tab, text="Special border colours (rope and vines)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.special_mode_var = tk.StringVar(value=ft.SPECIAL_COLOUR_MODES[e.special_mode])
-        mode = ttk.Combobox(box, textvariable=self.special_mode_var, values=list(ft.SPECIAL_COLOUR_MODES.values()),
+        mode = ttk.Combobox(box, textvariable=self.special_mode_var, values=ft.alphabetical(ft.SPECIAL_COLOUR_MODES.values()),
                             state="readonly", width=20)
         mode.grid(row=0, column=0, columnspan=2, sticky="w")
         mode.bind("<<ComboboxSelected>>", lambda _e: self._change(
@@ -1016,7 +1016,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # The owner, 2026-10-09: the natural flowers' colour.
         ttk.Label(box, text="Natural hibiscus:").grid(row=0, column=2, sticky="e", padx=(8, 4))
         self.hibiscus_var = tk.StringVar(value=ft.HIBISCUS_CHOICES[e.hibiscus])
-        flower = ttk.Combobox(box, textvariable=self.hibiscus_var, values=list(ft.HIBISCUS_CHOICES.values()),
+        flower = ttk.Combobox(box, textvariable=self.hibiscus_var, values=ft.alphabetical(ft.HIBISCUS_CHOICES.values()),
                               state="readonly", width=20)
         flower.grid(row=0, column=3, sticky="w")
         flower.bind("<<ComboboxSelected>>", lambda _e: self._change(
@@ -1091,7 +1091,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._live(ttk.Spinbox(box, textvariable=self.line_w_var, values=ft.LINE_STEPS, width=5),
                    self._line_weight).pack(side="left", padx=(2, 0))
         self.line_dash_var = tk.StringVar(value=ft.LINE_TYPES[e.line_dash])
-        kind = ttk.Combobox(box, textvariable=self.line_dash_var, values=list(ft.LINE_TYPES.values()),
+        kind = ttk.Combobox(box, textvariable=self.line_dash_var, values=ft.alphabetical(ft.LINE_TYPES.values()),
                             state="readonly", width=16)
         kind.pack(side="left", padx=(6, 0))
         kind.bind("<<ComboboxSelected>>", lambda _e: self._change(
@@ -1176,7 +1176,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Remove", command=lambda: self._change(background_image="")).pack(side="left", padx=(4, 0))
         ttk.Label(tab, text="Picture fit:").pack(anchor="w", pady=(10, 1))
         self.fit_var = tk.StringVar(value=ft.FITS[e.background_fit])
-        fit = ttk.Combobox(tab, textvariable=self.fit_var, values=list(ft.FITS.values()), state="readonly")
+        fit = ttk.Combobox(tab, textvariable=self.fit_var, values=ft.alphabetical(ft.FITS.values()), state="readonly")
         fit.pack(fill="x")
         fit.bind("<<ComboboxSelected>>", lambda _e: self._change(
             background_fit=next(k for k, v in ft.FITS.items() if v == self.fit_var.get())))

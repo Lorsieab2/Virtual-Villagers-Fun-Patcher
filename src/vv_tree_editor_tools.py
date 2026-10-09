@@ -675,7 +675,7 @@ class CanvasTools:
             valign=next(k for k, v in ft.VALIGNS.items() if v == self.box_valign.get())))
         ttk.Label(t, text="Shape:").grid(row=8, column=2, sticky="w", pady=(4, 0))
         self.box_shape = tk.StringVar()
-        shape = ttk.Combobox(t, textvariable=self.box_shape, values=list(ft.SHAPES.values()), state="readonly", width=10)
+        shape = ttk.Combobox(t, textvariable=self.box_shape, values=ft.alphabetical(ft.SHAPES.values()), state="readonly", width=10)
         shape.grid(row=8, column=3, sticky="w", pady=(4, 0))
         shape.bind("<<ComboboxSelected>>", lambda _e: self._set_obj(
             shape=next(k for k, v in ft.SHAPES.items() if v == self.box_shape.get())))
@@ -979,7 +979,7 @@ class CanvasTools:
         frame = ttk.LabelFrame(tab, text="Font for one part of the tree", padding=6)
         frame.pack(fill="x", pady=(12, 0))
         self.role_var = tk.StringVar(value=list(ft.ROLES.values())[0])
-        roles = ttk.Combobox(frame, textvariable=self.role_var, values=list(ft.ROLES.values()), state="readonly")
+        roles = ttk.Combobox(frame, textvariable=self.role_var, values=ft.alphabetical(ft.ROLES.values()), state="readonly")
         roles.grid(row=0, column=0, columnspan=2, sticky="ew")
         roles.bind("<<ComboboxSelected>>", lambda _e: self._show_role())
         ttk.Label(frame, text="Font:").grid(row=1, column=0, sticky="w", pady=(6, 0))
