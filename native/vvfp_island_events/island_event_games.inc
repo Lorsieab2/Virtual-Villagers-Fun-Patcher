@@ -64,16 +64,18 @@ static int vv5_villagers(unsigned char **out, int capacity) {
    and current action, which an event's celebration or swim changes for a
    moment and which are no lasting change) ----------------------------------
 
-   An event can start a pregnancy (The Lost Children's Strange Request, hide
-   to catch the poet: the game's own conception routine, 0x44B980), and the
-   conception writes more on the mother than her Pregnant flag: how many
-   babies, and the father's name, head and body copied onto her by value.
+   An event can start a pregnancy (a conception), and the conception writes
+   more on the mother than her Pregnant flag: how many babies, and in the
+   later games the father's name, head and body copied onto her by value.
    Those are compared too, at the parentage exporter's offsets
    (native/parentage_export/parentage_export.c GAME_LAYOUTS: father,
    father_head_copy, father_body_copy, litter; the father's name 0x18 bytes,
    the conception's own copy count).  A New Home keeps no trace of the father
    on the mother (its parentage exporter captures him from the caller), so
-   there only the babies. */
+   there only the babies.  The Lost Children (whose Strange Request can start
+   one) logs only the Pregnant flag: the owner's own VV2 log disproved the
+   father offsets on the mother, and its babies offset has never been
+   confirmed by a real log -- a wrong line is worse than none. */
 
 static const struct field VV1_FIELDS[] = {
     { "Health", 0x344, F_INT, 0 },
@@ -100,10 +102,10 @@ static const struct field VV2_FIELDS[] = {
     { "Sex", 0x538, F_SEX12, 0 },
     { "Sick", 0x53C, F_FLAG, 0 },
     { "Pregnant", 0x540, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x544, F_INT, 0 },
-    { "Expected father", 0x5C0, F_TEXT, 0x18 },
-    { "Expected father's head", 0x5E0, F_INT, 0 },
-    { "Expected father's body", 0x5DC, F_INT, 0 },
+    /* No conception fields here (see above): the owner's own Births and
+       Conceptions log disproved the father copies at 0x5C0 / 0x5E0 / 0x5DC
+       on the mother (the father printed unnamed, head 0, body 0), and no real
+       log has confirmed the babies at 0x544, so they would risk wrong lines. */
     { "Head", 0x548, F_INT, 0 },
     { "Body", 0x54C, F_INT, 0 },
     { "Name", 0x564, F_TEXT, 0x18 },

@@ -16,11 +16,12 @@
         "New villager".  In all five games.
      2. A villager the event removes is still "Gone", named from the copy; one
         it brings is still "New villager".
-     3. An event that starts a pregnancy (The Lost Children's Strange Request,
-        hide to catch the poet) logs the conception's lasting fields on the
+     3. An event that starts a pregnancy logs the conception's lasting fields on the
         mother, not only her Pregnant flag: the babies and the expected
-        father's name, head and body (Codex, #577).  The Lost Children, The
-        Secret City, The Tree of Life and New Believers; A New Home the babies.
+        father's name, head and body (Codex, #577): The Secret City, The
+        Tree of Life and New Believers; A New Home the babies.  The Lost
+        Children only the Pregnant flag: the owner's own VV2 log disproved
+        its father offsets on the mother, and its babies offset is unconfirmed.
      4. Bytes after a name's terminator are not a change.
 
    Exit code 0 when every check passes. */
@@ -133,7 +134,7 @@ int main(void) {
         printf("Virtual Villagers %d (%s)\n", g_harness_game, GAME_NAMES[g_harness_game]);
         g_array = (unsigned char *)VirtualAlloc(NULL, (SIZE_T)SLOTS * ARRAYS[g_harness_game].stride + 0x1000,
                                                 MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-        if (g_array == NULL || research == NULL || pregnant == NULL || babies == NULL) {
+        if (g_array == NULL || research == NULL || pregnant == NULL || (babies == NULL) != (g_harness_game == 2)) {
             printf("  FAIL cannot set the game up\n");
             ++failures;
             continue;
@@ -184,19 +185,39 @@ int main(void) {
         /* 3. A pregnancy the event starts, on Tavi. */
         begin();
         *(int *)(slot(2) + pregnant->offset) = 1;
-        *(int *)(slot(2) + babies->offset) = 2;
+        if (babies != NULL) {
+            *(int *)(slot(2) + babies->offset) = 2;
+        }
         if (father != NULL) {
             put_name(slot(2), father->offset, "Rongo");
             *(int *)(slot(2) + father_head->offset) = 3;
             *(int *)(slot(2) + father_body->offset) = 7;
         }
+        if (g_harness_game == 2) {
+            /* What the disproved father offsets and the unconfirmed babies
+               offset would read changes too, and is not logged. */
+            put_name(slot(2), 0x5C0, "Rongo");
+            *(int *)(slot(2) + 0x5E0) = 3;
+            *(int *)(slot(2) + 0x5DC) = 7;
+            *(int *)(slot(2) + 0x544) = 2;
+        }
         compare(&g_snaps[0]);
-        CHECK(g_outs == 1 && g_out[0].record == slot(2) && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
-              && strstr(g_out[0].changes, "  Babies in pregnancy: 0 -> 2\n") != NULL,
-              "a pregnancy the event starts: Pregnant and the babies");
+        if (g_harness_game == 2) {
+            CHECK(g_outs == 1 && g_out[0].record == slot(2)
+                  && strcmp(g_out[0].changes, "  Pregnant: no -> yes\n") == 0,
+                  "a pregnancy the event starts: only Pregnant (the father and babies offsets are unproven)");
+        } else {
+            CHECK(g_outs == 1 && g_out[0].record == slot(2)
+                  && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
+                  && strstr(g_out[0].changes, "  Babies in pregnancy: 0 -> 2\n") != NULL,
+                  "a pregnancy the event starts: Pregnant and the babies");
+        }
         if (g_harness_game == 1) {
             CHECK(father == NULL && father_head == NULL && father_body == NULL,
                   "A New Home keeps no trace of the father on the mother: none is compared");
+        } else if (g_harness_game == 2) {
+            CHECK(father == NULL && father_head == NULL && father_body == NULL && babies == NULL,
+                  "The Lost Children compares no father and no babies (its own log disproved the offsets)");
         } else {
             _snprintf(want, sizeof want, "  Expected father: %s -> Rongo\n", "");
             CHECK(father != NULL && father_head != NULL && father_body != NULL && g_outs == 1
