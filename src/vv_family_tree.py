@@ -61,6 +61,9 @@ SPECIAL_PARTS = {"rope": "Rope", "vine": "Vine", "leaf": "Leaves", "flower": "Fl
 NATURAL = {"rope": "#c9a06a", "vine": "#5b8a35", "leaf": "#6aa83e", "flower": "#e8335a"}
 RAINBOW = ("#e53935", "#fb8c00", "#fdd835", "#43a047", "#1e88e5", "#3949ab", "#8e24aa", "#ec407a")
 STAMEN = "#f2c230"
+# How deep the rainbow is (the owner, 2026-10-09, choosing "15% deeper" for the rope and the flowers alike,
+# and as the default): (words, how much of the pure colour is kept).
+RAINBOW_STRENGTHS = {"bright": ("Bright", 1.0), "medium": ("Medium", 0.85), "deep": ("Deep", 0.75)}
 # Natural hibiscus colours (the owner, 2026-10-09): each its petals and its darker "eye" in the middle,
 # as the flowers grow; or all of them taking turns, or blending from one to the next, round the border
 # (in HIBISCUS_ORDER).
@@ -280,6 +283,8 @@ class Edits:
     special_palette: list = field(default_factory=lambda: list(RAINBOW[:7]))
     special_count: int = 3
     hibiscus: str = "red"               # natural flowers' colour (HIBISCUS_CHOICES)
+    special_opacity: float = 100.0      # the special borders' opacity, percent (the owner, 2026-10-09)
+    rainbow_strength: str = "medium"    # RAINBOW_STRENGTHS
     # The light lines inside a shape (details(): a scallop's ribs, a snail's whorls, a star's points),
     # the owner, 2026-10-09: "with the ability to edit the detailing's color, opacity, line weight".
     detail_lines: bool = True
@@ -398,6 +403,9 @@ class Edits:
         out.special_count = int(_number(data.get("special_count"), 2, 7, 3))
         chosen = "alternate" if data.get("hibiscus") == "random" else data.get("hibiscus")   # "random", before
         out.hibiscus = chosen if chosen in HIBISCUS_CHOICES else "red"
+        out.special_opacity = float(_number(data.get("special_opacity"), 0, 100, 100.0))
+        strength = data.get("rainbow_strength")
+        out.rainbow_strength = strength if strength in RAINBOW_STRENGTHS else "medium"
         room = data.get("text_room")
         out.text_room = room if room in TEXT_ROOMS else "auto"
         out.detail_lines = data.get("detail_lines", True) is not False
@@ -566,7 +574,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -870,7 +878,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -3846,8 +3854,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
             return pick.get(part, NATURAL[part])
         decorated = part == "flower" or (part == "leaf" and border == "vine_leaves") or part == "rope"
         if mode == "rainbow" and decorated:
-            colour = _blend_round(list(RAINBOW), t)
-            return _shade(colour, 0.85) if part == "flower" else colour     # the flowers a little deeper (the owner)
+            return _shade(_blend_round(list(RAINBOW), t), RAINBOW_STRENGTHS[e.rainbow_strength][1])
         if mode == "alternate" and decorated:
             return palette[j % len(palette)]
         if mode == "gradient" and decorated:
@@ -3990,7 +3997,10 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             pts = [(mx + dx, my + dy) for dx, dy in (turn(px - mx, py - my, angle) for px, py in pts)]
         return pts
     if border in SPECIAL_BORDERS:               # the braided rope or a vine, round any shape, in its own colours
+        see = e.special_opacity / 100            # as see-through as the player says
         for item in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e):
+            if see < 1:
+                item.opacity = item.opacity * see
             add(item)
     replaced = ({i for i, _pts, _closed in sticking_out(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id))}
                 if border in SPECIAL_BORDERS else set())

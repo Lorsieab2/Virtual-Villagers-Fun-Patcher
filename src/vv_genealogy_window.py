@@ -1035,6 +1035,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.special_count_var = tk.StringVar(value=str(e.special_count))
         self._live(ttk.Spinbox(row, textvariable=self.special_count_var, from_=2, to=7, width=3),
                    self._special_count).pack(side="left", padx=(4, 0))
+        row = ttk.Frame(box)
+        row.grid(row=9, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Rainbow:").pack(side="left")              # the owner, 2026-10-09
+        self.rainbow_var = tk.StringVar(value=ft.RAINBOW_STRENGTHS[e.rainbow_strength][0])
+        strength = ttk.Combobox(row, textvariable=self.rainbow_var, state="readonly", width=8,
+                                values=[words for words, _f in ft.RAINBOW_STRENGTHS.values()])
+        strength.pack(side="left", padx=(4, 10))
+        strength.bind("<<ComboboxSelected>>", lambda _e: self._change(rainbow_strength=next(
+            k for k, (words, _f) in ft.RAINBOW_STRENGTHS.items() if words == self.rainbow_var.get())))
+        ttk.Label(row, text="Opacity (%):").pack(side="left")          # the owner, 2026-10-09
+        self.special_opacity_var = tk.StringVar(value=f"{e.special_opacity:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.special_opacity_var, from_=0, to=100, increment=5, width=5),
+                   lambda: self._detail_number("special_opacity", self.special_opacity_var, 0, 100)).pack(
+            side="left", padx=(4, 0))
         self.special_palette_fields = []
         for k in range(7):
             fieldw = ColourField(box, e.special_palette[k], lambda c, k=k: self._special_palette(k, c), allow_default=False)
@@ -1311,7 +1325,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             elif isinstance(item, ft.Poly):
                 flat = [v for point in item.points for v in point]
                 iid = c.create_polygon(*flat, fill=tk_colour(faded(item.fill, item.opacity, sc.background)) if item.fill else "",
-                                       outline=tk_colour(item.stroke) if item.width else "", width=item.width * z,
+                                       outline=tk_colour(faded(item.stroke, item.opacity, sc.background)) if item.width else "",
+                                       width=item.width * z,
                                        joinstyle="round")
             elif isinstance(item, ft.Shape):
                 fill = tk_colour(item.fill or "")
@@ -2922,6 +2937,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for k, fieldw in enumerate(self.special_palette_fields):
             fieldw.set_quietly(e.special_palette[k])
         self.special_count_var.set(str(e.special_count))
+        self.special_opacity_var.set(f"{e.special_opacity:g}")
+        self.rainbow_var.set(ft.RAINBOW_STRENGTHS[e.rainbow_strength][0])
         self.detail_var.set(e.detail_lines)
         self.detail_field.set_quietly(e.detail_colour)
         self.detail_opacity_var.set(f"{e.detail_opacity:g}")

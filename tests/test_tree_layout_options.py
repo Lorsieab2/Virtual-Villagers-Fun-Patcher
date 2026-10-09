@@ -149,6 +149,25 @@ class SpecialBorderColourTests(unittest.TestCase):
         self.assertIn(ft.NATURAL["flower"], fills("vine_flowers", "natural"))
         self.assertGreater(len(fills("vine_flowers", "rainbow")), 6)          # a rainbow of flowers
 
+    def test_rainbow_strength_and_border_opacity(self):
+        def blues(strength):
+            e = ft.Edits()
+            e.special_mode, e.rainbow_strength = "rainbow", strength
+            return {i.fill for i in ft.special_border("rope", "circle", (0, 0, 200, 200, 0.0), 0.0, e)
+                    if isinstance(i, ft.Poly) and i.fill}
+        self.assertEqual(ft.Edits().rainbow_strength, "medium")              # 15% deeper unless chosen
+        self.assertNotEqual(blues("bright"), blues("medium"))
+        self.assertNotEqual(blues("medium"), blues("deep"))
+        back = ft.Edits._from_data({"rainbow_strength": "deep", "special_opacity": 40})
+        self.assertEqual((back.rainbow_strength, back.special_opacity), ("deep", 40.0))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[0]))
+        from test_genealogy import village
+        e = ft.Edits(borders={g: "rope" for g in ft.GROUPS})
+        e.special_opacity = 40.0
+        sc = ft.scene(ft.layout(village(), e), "A New Home", {})
+        polys = [i for i in sc.items if isinstance(i, ft.Poly)]
+        self.assertTrue(polys and all(abs(i.opacity - 0.4) < 1e-9 for i in polys))
+
     def test_every_export_draws_a_special_border(self):
         import types
         sys.path.insert(0, str(Path(__file__).resolve().parents[0]))
