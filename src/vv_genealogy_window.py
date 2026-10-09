@@ -137,7 +137,8 @@ PORTRAITS
                                   units / years; twins and triplets; "Founder"; the text colour;
                                   numbered names
   Tree Layout tab                 the title; the order and layout, rows to the left / centre /
-                                  right, portraits lined up by their tops / middles / bottoms;
+                                  right, portraits lined up by their tops / middles / bottoms; the
+                                  most portraits in a row (a long generation wraps into more rows);
                                   spacing; family lines; generation labels; opacity; page size;
                                   pages; deleted items
   Special Marks tab               every mark as a border or a glow, its size and opacity
@@ -925,6 +926,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         down.pack(side="left", padx=(6, 0))
         down.bind("<<ComboboxSelected>>", lambda _e: self._change(
             row_valign=next(k for k, v in ft.ROW_VALIGNS.items() if v == self.row_valign_var.get())))
+        # The owner, 2026-10-09: "a max # of portraits per row ... to make the tree more compact".
+        limit_row = ttk.Frame(tab)
+        limit_row.pack(anchor="w", pady=(6, 0))
+        ttk.Label(limit_row, text="Most portraits in a row (0 = no limit):").pack(side="left")
+        self.row_limit_var = tk.StringVar(value=str(e.row_limit))
+        self._live(ttk.Spinbox(limit_row, textvariable=self.row_limit_var, from_=0, to=ft.ROW_LIMIT_MAX, width=4),
+                   self._row_limit).pack(side="left", padx=(6, 12))
+        self.keep_families_var = tk.BooleanVar(value=e.keep_families)
+        ttk.Checkbutton(limit_row, text="Keep families together", variable=self.keep_families_var,
+                        command=lambda: self._change(keep_families=bool(self.keep_families_var.get()))).pack(side="left")
         tab = t_words
         # The owner, 2026-10-09: the portrait's face and words options together, "Portrait pictures/text".
         words = ttk.LabelFrame(tab, text="Faces and words in every portrait", padding=6)
@@ -2733,6 +2744,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self._set_entry(self.village.people[q], **{flip: on})
         self._saved()
 
+    def _row_limit(self) -> None:
+        """The most portraits in a row before a generation wraps (0: no limit)."""
+        value = self._number(self.row_limit_var.get(), 0, ft.ROW_LIMIT_MAX)
+        if value is not None and int(value) != self.edits.row_limit:
+            self._change(row_limit=int(value))
+
     def _group_members(self, group: str) -> list:
         return [p for p in self.village.people.values() if ft.group_of(p) == group]
 
@@ -3192,6 +3209,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.position_var.set(ft.POSITIONING[e.positioning])
         self.row_align_var.set(ft.ROW_ALIGNS[e.row_align])
         self.row_valign_var.set(ft.ROW_VALIGNS[e.row_valign])
+        self.row_limit_var.set(str(e.row_limit))
+        self.keep_families_var.set(e.keep_families)
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))

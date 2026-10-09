@@ -313,6 +313,48 @@ class CodexRoundTwoTests(unittest.TestCase):
         self.assertIn("Loved", lines)
 
 
+class RowLimitTests(unittest.TestCase):
+    """The owner, 2026-10-09: "can I define a max # of portraits per row? ... to make the tree more compact"."""
+
+    def rows_of(self, lay):
+        v = lay.village
+        out = {}
+        for q in lay.x:
+            if q in lay.others:
+                continue
+            key = (v.people[q].generation, round(lay.y[q]))
+            out.setdefault(key, []).append(q)
+        return out
+
+    def test_no_row_is_longer_than_the_limit(self):
+        v = village()
+        for positioning in ("dynamic", "rows"):
+            lay = ft.layout(v, ft.Edits(row_limit=2, positioning=positioning))
+            self.assertTrue(all(len(r) <= 2 for r in self.rows_of(lay).values()), positioning)
+            wide = ft.layout(v, ft.Edits(positioning=positioning))
+            self.assertLessEqual(lay.width, wide.width, "never wider than without the limit")
+
+    def test_families_stay_together_when_they_fit(self):
+        v = village()
+        lay = ft.layout(v, ft.Edits(row_limit=3))
+        by_parents = {}
+        for q in lay.x:
+            p = v.people[q]
+            if p.father is not None and p.mother is not None and q not in lay.others:
+                by_parents.setdefault((p.father, p.mother), set()).add(round(lay.y[q]))
+        for parents, ys in by_parents.items():
+            size = sum(1 for q in lay.x if (v.people[q].father, v.people[q].mother) == parents)
+            if size <= 3:
+                self.assertEqual(len(ys), 1, f"family {parents} kept on one row")
+
+    def test_saved_and_remembered(self):
+        back = ft.Edits._from_data(ft.Edits(row_limit=6, keep_families=False).to_data())
+        self.assertEqual((back.row_limit, back.keep_families), (6, False))
+        self.assertIn("row_limit", ft.STYLE_KEYS)
+        self.assertEqual(ft.Edits._from_data({"row_limit": 500}).row_limit, ft.ROW_LIMIT_MAX)
+        self.assertEqual(ft.Edits().row_limit, 0, "no limit unless the player sets one")
+
+
 class KeyPluralTests(unittest.TestCase):
     """The owner, 2026-10-09: "monstera leafs; Babies on the way: butterflys.  ahem. grammar." """
 

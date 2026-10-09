@@ -121,6 +121,10 @@ PICTURE_SCALE_MIN, PICTURE_SCALE_MAX = 25.0, 400.0
 # different sizes, lined up by their tops, middles or bottoms.
 ROW_ALIGNS = {"arranged": "As arranged", "left": "Left", "centre": "Centre", "right": "Right"}
 ROW_VALIGNS = {"middle": "Middles", "top": "Tops", "bottom": "Bottoms"}
+# The most portraits side by side in a generation's row before it wraps into another row (the owner,
+# 2026-10-09: "can I define a max # of portraits per row? ... want to stack portraits to make the tree more
+# compact"); 0 is no limit.
+ROW_LIMIT_MAX = 99
 LEFT = 300                      # the generation labels' column
 TOP = 150
 OTHER_GAP = 110                 # between the tree and the "Other Members" column
@@ -312,6 +316,8 @@ class Edits:
     text_valign: str = "middle"
     row_align: str = "arranged"        # each row across the tree (ROW_ALIGNS)
     row_valign: str = "middle"         # the portraits in a row lined up by (ROW_VALIGNS)
+    row_limit: int = 0                 # the most portraits in a row before it wraps (0: no limit)
+    keep_families: bool = True         # a wrap falls between families, not through one
     picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
     text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
@@ -447,6 +453,8 @@ class Edits:
         out.text_wrap = int(_number(data.get("text_wrap"), WRAP_MIN, WRAP_MAX, WRAP))
         out.row_align = data.get("row_align") if data.get("row_align") in ROW_ALIGNS else "arranged"
         out.row_valign = data.get("row_valign") if data.get("row_valign") in ROW_VALIGNS else "middle"
+        out.row_limit = int(_number(data.get("row_limit"), 0, ROW_LIMIT_MAX, 0))
+        out.keep_families = data.get("keep_families") is not False
         out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
@@ -606,7 +614,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -918,7 +926,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -1338,6 +1346,9 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             for i, pid in enumerate(row):
                 x[pid] = LEFT + indent + i * step
         tree_right = LEFT + widest_row * step - gap
+    if edits.row_limit and rows:
+        x, sub = _wrap_rows(people, rows, x, sub, edits.row_limit, edits.keep_families, step)
+        tree_right = max(x.values()) + NODE_W / 2 + max(NODE_W, step - gap) / 2
     if edits.row_align != "arranged" and rows:
         # Each row to the tree's left edge, its middle or its right edge (Edits.row_align); the player's
         # drags still count from there.
@@ -1420,6 +1431,39 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         for c in fam.children:
             out.birth_colour[c] = fam.colour
     return out
+
+
+def _wrap_rows(people: dict, rows: dict[int, list[int]], x: dict[int, float], sub: dict[int, int], limit: int,
+               keep_families: bool, step: float) -> tuple[dict[int, float], dict[int, int]]:
+    """Every generation at most `limit` portraits side by side (Edits.row_limit), the rest in further rows
+    under it, as they stood left to right; with keep_families, a row ends between two families -- brothers
+    and sisters with the same recorded parents -- unless one family alone is longer than a row.  Each row
+    is centred on the widest a row can be."""
+    x, sub = dict(x), dict(sub)
+    left = min(x.values())
+    for row in rows.values():
+        order = sorted(row, key=lambda q: (sub.get(q, 0), x[q]))
+        groups: list[list[int]] = []
+        for q in order:
+            parents = (people[q].father, people[q].mother)
+            same = (keep_families and groups and None not in parents
+                    and (people[groups[-1][-1]].father, people[groups[-1][-1]].mother) == parents)
+            if same:
+                groups[-1].append(q)
+            else:
+                groups.append([q])
+        lines: list[list[int]] = [[]]
+        for group in groups:
+            pieces = [group[i:i + limit] for i in range(0, len(group), limit)]
+            for piece in pieces:
+                if lines[-1] and len(lines[-1]) + len(piece) > limit:
+                    lines.append([])
+                lines[-1] += piece
+        for k, line in enumerate(lines):
+            indent = (limit - len(line)) * step / 2
+            for i, q in enumerate(line):
+                x[q], sub[q] = left + indent + i * step, k
+    return x, sub
 
 
 def _dynamic(people: dict, rows: dict[int, list[int]], families: list[Family],
