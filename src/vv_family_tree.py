@@ -52,6 +52,7 @@ LINE_WIDTH = 2.2                        # a family line's weight unless the play
 GAP_X = 22
 GAP_MIN, GAP_MAX = 0.0, 400.0           # the player's gap between portraits
 TEXT_ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
+TEXT_ROOMS = {"auto": "Automatic", "shape": "Follow the shape", "rect": "Rectangle", "oval": "Oval"}
 TEXT_VALIGNS = {"top": "Top", "middle": "Middle", "bottom": "Bottom"}
 ROW_GAP_MIN, ROW_GAP_MAX = 0.0, 400.0   # the player's room under each generation's row (Edits.row_gap)
 FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
@@ -221,6 +222,9 @@ class Edits:
     # The owner, 2026-10-09: "a toggle for the text to fit within the portrait shape's space (in things
     # like crosses and x's it runs off)": the words only as wide as the shape is where each line is.
     text_inside: bool = False
+    # Where a portrait's words are fitted (the owner, 2026-10-09: "for the more abstract shapes, the
+    # auto-generated text boxes should just be a rectangle/oval ... Should be player-selected"): TEXT_ROOMS.
+    text_room: str = "auto"
     # The light lines inside a shape (details(): a scallop's ribs, a snail's whorls, a star's points),
     # the owner, 2026-10-09: "with the ability to edit the detailing's color, opacity, line weight".
     detail_lines: bool = True
@@ -326,6 +330,8 @@ class Edits:
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.text_inside = data.get("text_inside") is True
+        room = data.get("text_room")
+        out.text_room = room if room in TEXT_ROOMS else "auto"
         out.detail_lines = data.get("detail_lines", True) is not False
         colour = data.get("detail_colour")
         out.detail_colour = colour if isinstance(colour, str) and (colour == "" or re.fullmatch(r"#[0-9a-fA-F]{6}", colour)) else ""
@@ -485,7 +491,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "text_room": self.text_room, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -549,15 +555,27 @@ PORTRAIT_SHAPES = {"rectangle": "Rectangle", "rounded_rect": "Rounded rectangle"
                    "slim_star6": "Slim 6-pointed star", "arrow_h": "Arrow (horizontal)", "arrow_v": "Arrow (vertical)",
                    "arch": "Arch", "scallop": "Scallop shell", "snail": "Snail shell", "leafy_oval": "Leafy oval",
                    "hibiscus": "Hibiscus", "sand_dollar": "Sand dollar", "turtle_v": "Turtle shell (upright)",
-                   "turtle_h": "Turtle shell (on its side)", "mermaid_tail": "Mermaid tail",
+                   "turtle_h": "Turtle shell (on its side)", "mermaid_tail": "Mermaid tail (upright)",
+                   "mermaid_tail_h": "Mermaid tail (on its side)",
                    "fish_right": "Fish (facing right)", "fish_left": "Fish (facing left)",
-                   "wave_circle": "Ocean wave in a circle", "conch": "Conch shell", "starfish": "Starfish",
-                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "open_coconut": "Open coconut", "bananas": "Bunch of bananas",
+                   "wave_circle": "Ocean wave in a circle", "conch": "Conch shell", "starfish": "Starfish", "monstera": "Monstera leaf",
+                   "ship_wheel": "Ship's wheel", "coconut": "Coconut", "anchor": "Anchor", "bananas": "Bunch of bananas",
                    "flower": "Flower", "butterfly": "Butterfly", "clover": "Clover", "spade": "Spade", "leaf": "Leaf"}
 BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick line", "dotted": "Dotted",
            "dashed": "Dashed",
            "dashdot": "Dotted and dashed"}
 BORDER_WIDTHS = {"thin": 1.5, "thick": 3.0, "extra": 6.0, "dotted": 2.5, "dashed": 2.5, "dashdot": 2.5}
+# Special borders (the owner, 2026-10-09): a braided rope round the portrait's own shape, and stone
+# tablets -- simplified from the owner's picture -- with the portrait's shape the opening in the stone
+# (special_border).
+SPECIAL_BORDERS = {"rope": "Special: Braided rope", "stone_sun": "Special: Stone tablet (sun)",
+                   "stone_vine": "Special: Stone tablet (swirl and vine)", "stone_shell": "Special: Stone ring (shell)",
+                   "stone_flower": "Special: Stone arch (flower)", "stone_hex": "Special: Stone hexagon (sun)",
+                   "stone_star": "Special: Stone tablet (star and wave)",
+                   "stone_hibiscus": "Special: Stone oval (hibiscus)", "stone_palm": "Special: Stone tablet (palm)"}
+BORDERS.update(SPECIAL_BORDERS)
+BORDER_WIDTHS.update({name: 1.5 for name in SPECIAL_BORDERS})
+BORDER_WIDTHS["rope"] = 0.0             # the rope is the edge
 # How see-through each part of the tree is, in percent, until the player says (pictures and text
 # boxes have their own).
 OPACITY = {"words": ("Words", 100), "plates": ("Boxes behind words", 80), "portraits": ("Portraits", 100),
@@ -778,7 +796,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # reopen (portrait shape/any other changes)").  Never a village's own things: its title, moved
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
-    "centre_heads", "text_align", "text_inside", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "centre_heads", "text_align", "text_inside", "text_room", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -2382,7 +2400,11 @@ def _drawn_outlines() -> dict[str, list[tuple[float, float]]]:
             if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
                 hit = not hit
         return hit
-    spade = union(in_heart, disc(0, 0.2, 0.24), stem(0.3, 0.66, 0.06, 0.2))   # the cleft filled, so the stem joins a whole body
+    def flared(x, y):                   # the stem, flaring in a smooth curve to its foot, from inside the body
+        if not 0.0 <= y <= 0.58:
+            return False
+        return abs(x) <= 0.03 + 0.13 * (y / 0.58) ** 2    # a little smaller (the owner, 2026-10-09)
+    spade = union(in_heart, flared)     # the owner, 2026-10-09: no bumps where the stem meets the body
     # A leaf, the owner's picture: a broad blade pointing up to the right, fullest towards its
     # base at the lower left, both ends pointed -- and a stalk from the base "so it's clear".
     leaf_c, leaf_s = math.cos(math.radians(-40)), math.sin(math.radians(-40))
@@ -2476,6 +2498,37 @@ def _ring(cx: float, cy: float, rx: float, ry: float, n: int = 48) -> list[tuple
     return [(cx + rx * math.cos(2 * math.pi * k / n), cy + ry * math.sin(2 * math.pi * k / n)) for k in range(n + 1)]
 
 
+def _envelope(polygons: list, centre: tuple[float, float], rays: int = 360) -> list[tuple[float, float]]:
+    """The outer edge of several overlapping polygons together, seen from `centre` (inside them): along
+    each ray, the farthest place any polygon's edge crosses it."""
+    out = []
+    cx, cy = centre
+    for k in range(rays):
+        a = 2 * math.pi * k / rays
+        dx, dy = math.cos(a), math.sin(a)
+        far = 0.0
+        for poly in polygons:
+            for (ax, ay), (bx, by) in zip(poly, poly[1:] + poly[:1]):
+                ex, ey = bx - ax, by - ay
+                den = dx * ey - dy * ex
+                if abs(den) < 1e-12:
+                    continue
+                s = ((ax - cx) * ey - (ay - cy) * ex) / den        # along the ray
+                u = ((ax - cx) * dy - (ay - cy) * dx) / den        # along the edge
+                if s > 0 and 0 <= u <= 1:
+                    far = max(far, s)
+        out.append((cx + far * dx, cy + far * dy))
+    return out
+
+
+def _inside_poly(poly, x, y) -> bool:
+    hit = False
+    for (ax, ay), (bx, by) in zip(poly, poly[1:] + poly[:1]):
+        if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
+            hit = not hit
+    return hit
+
+
 def _more_shapes() -> dict:
     """The owner's pictures of 2026-10-09: a leafy oval, a hibiscus, a sand dollar, a turtle's shell
     (upright and on its side) and a mermaid's tail -- each (outline, light detail lines, lines drawn
@@ -2498,10 +2551,24 @@ def _more_shapes() -> dict:
             veins.append([at(u, 0), at(u + 0.13, side(u + 0.13) * 0.75)])
             veins.append([at(u, 0), at(u + 0.1, -0.55 * side(u + 0.1) * 0.7)])
         return edge, veins
-    oval = _ring(0, 0, 1, 0.63, 96)
+    oval = _ring(0, 0, 1, 0.63, 180)[:-1]
     leaf1, veins1 = leaf((0.78, -0.45), (0.93, 0.02), 0.2)
     leaf2, veins2 = leaf((-0.78, 0.45), (-0.93, -0.02), 0.2)
-    out["leafy_oval"] = (oval, veins1 + veins2, [leaf1, leaf2])
+    # The outline is the oval and the leaves together, so the oval stops where a leaf begins (the owner,
+    # 2026-10-09: "the oval clips through the leaves"); each leaf's edge inside the oval is drawn too.
+    edge = _envelope([oval, leaf1, leaf2], (0.0, 0.0))
+    inner = []
+    for lf in (leaf1, leaf2):
+        run = []
+        for pt in lf + lf[:1]:
+            if _inside_poly(oval, *pt):
+                run.append(pt)
+            elif run:
+                inner.append(run)
+                run = []
+        if run:
+            inner.append(run)
+    out["leafy_oval"] = (edge, veins1 + veins2, [line for line in inner if len(line) > 1])
 
     # A hibiscus: five broad petals, one straight up; the stamen out to the upper right with its
     # pollen, and light streaks from the middle.
@@ -2588,6 +2655,8 @@ def _more_shapes() -> dict:
             scales(1260, 420, 1030, 4), scales(1410, 440, 1040, 3)]
     out["mermaid_tail"] = ([(x / 1000, y / 1000) for x, y in tail],
                            [[(x / 1000, y / 1000) for x, y in line] for line in fins + rows])
+    # On its side too (the owner, 2026-10-09): the fins to the left, the foot to the right.
+    out["mermaid_tail_h"] = ([(y, x) for x, y in out["mermaid_tail"][0]], [[(y, x) for x, y in line] for line in out["mermaid_tail"][1]])
 
     # A fish, the owner's picture (540 pixels square), facing right: a smooth body to a rounded nose,
     # a forked tail with sharp tips; an eye and a gill, light.  And the same fish facing left.
@@ -2685,34 +2754,79 @@ def _more_shapes() -> dict:
             fibres.append([(x - lean * 0.5, y - 0.06), (x, y), (x + lean * 0.5, y + 0.06)])
     out["coconut"] = (nut, fibres, eyes)
 
-    # Half a coconut (the owner, 2026-10-09; the first "doesn't read like a cut coconut"): a round bowl
-    # below, the flat cut face above seen as an oval -- its near edge drawn like the border --, the white
-    # flesh a ring inside the shell's edge and the hollow in its middle, light; a few fibres on the bowl.
-    face_ry = 0.36
-    top = [(-math.cos(a), -face_ry * math.sin(a)) for a in (math.pi * k / 60 for k in range(61))]
-    bowl = [(math.cos(a), 0.95 * math.sin(a)) for a in (math.pi * k / 60 for k in range(1, 60))]
-    shell = top + bowl
-    near = [[(math.cos(a), face_ry * math.sin(a)) for a in (math.pi * k / 60 for k in range(61))]]
-    flesh = _ring(0, 0, 0.88, face_ry * 0.86, 72)
-    hollow = _ring(0, 0, 0.62, face_ry * 0.58, 64)
-    hairs = [[(x, y), (x + 0.04 * (1 if x > 0 else -1), y + 0.08)] for x, y in
-             ((-0.8, 0.45), (-0.6, 0.66), (-0.35, 0.8), (-0.05, 0.86), (0.25, 0.83), (0.5, 0.7), (0.72, 0.5))]
-    out["open_coconut"] = (shell, [flesh, hollow] + hairs, near)
 
-    # A bunch of three bananas, traced from the owner's picture: the stem at the upper left, the
-    # bananas curving out to the right; the lines between them and along their ridges, light.
-    bunch = _smooth([(25, 100), (80, 88), (130, 78), (140, 95), (118, 112), (150, 150), (250, 165), (400, 148),
-                     (520, 138), (548, 142), (560, 156), (548, 172), (498, 204), (558, 222), (576, 236),
-                     (562, 252), (500, 304), (545, 330), (540, 352), (515, 372), (470, 402), (380, 436),
-                     (250, 446), (140, 420), (82, 360), (60, 280), (64, 200), (80, 150), (95, 128),
-                     (32, 132)], closed=True, steps=6)
-    splits = [_smooth(line, steps=8) for line in (
-        [(108, 118), (150, 200), (260, 216), (420, 218), (528, 212)],
-        [(98, 168), (150, 250), (280, 296), (420, 310), (526, 318)],
-        [(100, 232), (180, 330), (300, 372), (470, 378)],
-        [(165, 262), (300, 278), (480, 268)])]
-    # The example's own proportions (the owner, 2026-10-09: squeezed, they no longer looked like it).
-    out["bananas"] = ([(x / 600, y / 600) for x, y in bunch], [[(x / 600, y / 600) for x, y in l] for l in splits])
+    # A bunch of three bananas (the owner, 2026-10-09: the traced one "doesnt look natural"): three
+    # curved bananas from one stem at the upper left, each tapering to a blunt tip at the right, the
+    # lower ones longer and lower; the outline is all of them together, and the edges where one lies
+    # over the next and their ridges are light.
+    def banana(c1, end, width):
+        sx, sy = 0.0, 0.0
+        centre = [((1 - u) ** 2 * sx + 2 * (1 - u) * u * c1[0] + u * u * end[0],
+                   (1 - u) ** 2 * sy + 2 * (1 - u) * u * c1[1] + u * u * end[1]) for u in (k / 40 for k in range(41))]
+        upper, lower = [], []
+        for k, (x, y) in enumerate(centre):
+            a, b = centre[max(0, k - 1)], centre[min(40, k + 1)]
+            tx, ty = b[0] - a[0], b[1] - a[1]
+            n = math.hypot(tx, ty) or 1.0
+            nx, ny = ty / n, -tx / n                                   # to the banana's upper side
+            u = k / 40
+            w = width * (min(1.0, u / 0.25) ** 0.7) * (1 - 0.55 * max(0.0, (u - 0.75) / 0.25) ** 2)
+            w = max(w, 0.018)
+            upper.append((x + nx * w, y + ny * w))
+            lower.append((x - nx * w, y - ny * w))
+        return upper + lower[::-1], upper, centre
+    stalk = [(-0.07, -0.02), (-0.11, -0.1), (-0.04, -0.13), (0.03, -0.04)]
+    b1 = banana((0.18, 0.42), (0.98, 0.12), 0.095)
+    b2 = banana((0.14, 0.66), (1.02, 0.36), 0.105)
+    b3 = banana((0.1, 0.9), (0.96, 0.62), 0.115)
+    outline_b = _envelope([stalk, b1[0], b2[0], b3[0]], (0.35, 0.42), rays=480)
+    seams = [b2[1][6:39], b3[1][6:39]]                                  # where one lies over the next
+    ridges = [b1[2][8:38], b2[2][8:38], b3[2][8:38]]
+    out["bananas"] = (outline_b, seams + ridges)
+
+    # An anchor, traced from the owner's picture (550 pixels across): the ring on top, the stock with its
+    # round ends, the shank, the curved arms with their barbs; the ring's hole and the shank's middle
+    # line, light.
+    half = [(275, 18), (300, 24), (316, 48), (312, 78), (296, 98), (297, 150), (378, 150), (395, 143), (413, 152),
+            (416, 170), (402, 185), (380, 180), (300, 180), (302, 300), (306, 372), (335, 385), (382, 368),
+            (410, 330), (395, 318), (455, 272), (462, 335), (442, 326), (424, 372), (380, 420), (320, 447), (275, 462)]
+    whole = half + [(550 - x, y) for x, y in reversed(half[1:-1])]
+    ring_hole = _ring(275, 60, 22, 22, 28)
+    whole = _smooth(whole, closed=True, steps=4)
+    out["anchor"] = ([(x / 550, y / 550) for x, y in whole],
+                     [[(x / 550, y / 550) for x, y in line] for line in (ring_hole, [(275, 100), (275, 456)])])
+
+    # A monstera leaf, traced from the owner's picture (1920 pixels square): four slits cut in from the
+    # right and lower edges and two from the left, four holes (drawn like the border); the midrib and the
+    # curved vein marks, light.
+    mon = _smooth([(600, 270), (625, 260), (750, 280), (860, 330), (912, 405), (906, 560), (897, 650), (907, 672),
+                   (945, 620), (970, 520), (970, 420), (960, 340), (1000, 335), (1100, 370), (1182, 445),
+                   (1160, 600), (1120, 750), (1116, 850), (1142, 880), (1200, 820), (1240, 700), (1272, 580),
+                   (1285, 478), (1400, 540), (1500, 650), (1530, 740), (1450, 880), (1350, 1000), (1280, 1100),
+                   (1272, 1165), (1300, 1170), (1400, 1110), (1530, 980), (1612, 842), (1642, 900), (1650, 1050),
+                   (1640, 1200), (1590, 1290), (1500, 1330), (1350, 1370), (1212, 1412), (1170, 1480),
+                   (1120, 1580), (1020, 1650), (870, 1680), (700, 1640), (660, 1598), (760, 1560), (900, 1500),
+                   (945, 1460), (930, 1425), (880, 1410), (820, 1430), (720, 1500), (620, 1535), (500, 1500),
+                   (400, 1400), (330, 1250), (292, 1050), (286, 885), (305, 875), (380, 940), (470, 980),
+                   (560, 970), (640, 905), (672, 862), (600, 850), (480, 830), (395, 790), (370, 730),
+                   (375, 620), (420, 500), (500, 440), (560, 390)], closed=True, steps=5)
+
+    def hole(cx, cy, rx, ry, deg):
+        c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+        return [(cx + rx * math.cos(a) * c - ry * math.sin(a) * s, cy + rx * math.cos(a) * s + ry * math.sin(a) * c)
+                for a in (2 * math.pi * k / 24 for k in range(25))]
+    holes = [hole(540, 695, 65, 45, 22), hole(985, 795, 24, 68, 12), hole(1312, 915, 48, 70, 32),
+             hole(800, 1225, 90, 44, -25)]
+    veins = [[(655, 310), (1190, 1385)]] + [_smooth(v, steps=6) for v in (
+        [(585, 525), (630, 565), (682, 575)], [(822, 388), (842, 470), (828, 565)], [(1125, 500), (1090, 590), (1050, 660)],
+        [(1395, 618), (1385, 690), (1350, 742)], [(665, 762), (740, 786), (820, 786)], [(660, 1010), (750, 1045), (830, 1022)],
+        [(405, 1118), (480, 1165), (568, 1170)], [(1220, 990), (1180, 1080), (1140, 1150)],
+        [(1575, 1110), (1530, 1200), (1435, 1260)], [(950, 1280), (1010, 1305), (1083, 1302)],
+        [(405, 1338), (560, 1390), (715, 1348)], [(960, 1563), (1010, 1560), (1058, 1527)])]
+    scale = lambda line: [(x / 1920, y / 1920) for x, y in line]
+    # The holes are inside the leaf: light, like the veins (the owner: words may cross them, not the edge).
+    out["monstera"] = (scale(mon), [scale(v) for v in veins] + [scale(h) for h in holes])
+
     return out
 
 
@@ -2737,7 +2851,8 @@ def _spokes(kind: str) -> list[list[tuple[float, float]]]:
     out = []
     for i in tips:
         px, py = pts[i]
-        out.append([(cx + (px - cx) * 0.18, cy + (py - cy) * 0.18), (cx + (px - cx) * 0.86, cy + (py - cy) * 0.86)])
+        start = 0.32 if kind == "flower" else 0.18          # the flower's lines begin outside its middle
+        out.append([(cx + (px - cx) * start, cy + (py - cy) * start), (cx + (px - cx) * 0.86, cy + (py - cy) * 0.86)])
     return out
 
 
@@ -2799,6 +2914,10 @@ def details(kind: str) -> tuple:
     """A shape's detail lines in its 1 x 1 box, each a tuple of points; none for most shapes."""
     if kind in SHELLS:
         return tuple(tuple(line) for line in SHELLS[kind][1])
+    if kind == "flower":                # its petals' lines and a little circle in the middle, a daisy's
+        r, wide = 0.12, ASPECTS.get("flower", 1.0)
+        middle = tuple((0.5 + r / wide * math.cos(a), 0.5 + r * math.sin(a)) for a in (2 * math.pi * k / 32 for k in range(33)))
+        return tuple(tuple(line) for line in _spokes(kind)) + (middle,)
     if kind in SPOKE_SHAPES:
         return tuple(tuple(line) for line in _spokes(kind))
     if kind == "butterfly":
@@ -2821,7 +2940,7 @@ def _raw_aspect(kind: str) -> float:
 
 DRAWN_SHAPES = ("flower", "butterfly", "clover", "spade", "leaf")
 # Their widths for their heights as traced (_raw_aspect), fixed so nothing is traced at start-up.
-FLOWER_ASPECT, BUTTERFLY_ASPECT, CLOVER_ASPECT, SPADE_ASPECT, LEAF_ASPECT = 0.897, 1.447, 1.06, 0.822, 1.171
+FLOWER_ASPECT, BUTTERFLY_ASPECT, CLOVER_ASPECT, SPADE_ASPECT, LEAF_ASPECT = 0.897, 1.447, 1.06, 0.872, 1.171
 
 
 class _Outlines(dict):
@@ -3366,6 +3485,196 @@ def new_sticker(picture: str, path: Path, cx: float, cy: float, longest: float =
                           "h": max(STICKER_MIN, ph * scale)})
 
 
+def _resample(points: list[tuple[float, float]], step: float) -> list[tuple[float, float, float, float]]:
+    """A closed outline walked in steps of `step`: (x, y, and the outward normal's dx, dy) at each."""
+    pts = points + points[:1]
+    lengths = [math.hypot(bx - ax, by - ay) for (ax, ay), (bx, by) in zip(pts, pts[1:])]
+    total = sum(lengths)
+    if total <= 0:
+        return []
+    area = sum(ax * by - bx * ay for (ax, ay), (bx, by) in zip(pts, pts[1:]))
+    turn_out = 1 if area > 0 else -1             # which side is outside, whichever way the corners run
+    n = max(12, int(total / step))
+    out, i, walked = [], 0, 0.0
+    for k in range(n):
+        d = total * k / n
+        while i < len(lengths) - 1 and walked + lengths[i] < d:
+            walked += lengths[i]
+            i += 1
+        (ax, ay), (bx, by) = pts[i], pts[i + 1]
+        f = (d - walked) / lengths[i] if lengths[i] else 0.0
+        tx, ty = (bx - ax) / (lengths[i] or 1), (by - ay) / (lengths[i] or 1)
+        out.append((ax + (bx - ax) * f, ay + (by - ay) * f, ty * turn_out, -tx * turn_out))
+    return out
+
+
+def _rope(points: list[tuple[float, float]], thick: float) -> list[list[tuple[float, float]]]:
+    """A braided rope along a closed outline: its two edges and a slanted twist every `thick`."""
+    walk = _resample(points, thick / 3)
+    if not walk:
+        return []
+    r = thick / 2
+    inner = [(x - nx * r, y - ny * r) for x, y, nx, ny in walk]
+    outer = [(x + nx * r, y + ny * r) for x, y, nx, ny in walk]
+    lines = [inner + inner[:1], outer + outer[:1]]
+    for k in range(0, len(walk) - 3, 3):          # a strand crossing from the inner edge to the outer
+        x0, y0, nx0, ny0 = walk[k]
+        x1, y1, nx1, ny1 = walk[k + 3]
+        mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+        lines.append([(x0 - nx0 * r, y0 - ny0 * r), (mx + (nx0 + nx1) * r * 0.1, my + (ny0 + ny1) * r * 0.1),
+                      (x1 + nx1 * r, y1 + ny1 * r)])
+    return lines
+
+
+def _motif(name: str, cx: float, cy: float, s: float) -> list[list[tuple[float, float]]]:
+    """A carved motif `s` across, centred at (cx, cy): a sun, a swirl, a shell, a flower, a star, a
+    palm, a hibiscus, a leaf, a key, a wave or a zigzag."""
+    r = s / 2
+    if name == "sun":
+        out = [_ring(cx, cy, r * 0.5, r * 0.5, 20)]
+        out += [[(cx + r * 0.62 * math.cos(a), cy + r * 0.62 * math.sin(a)), (cx + r * math.cos(a), cy + r * math.sin(a))]
+                for a in (math.pi * k / 4 for k in range(8))]
+        out.append([(cx + r * 0.3 * (1 - a / 12) * math.cos(a), cy + r * 0.3 * (1 - a / 12) * math.sin(a))
+                    for a in (k * 0.3 for k in range(30))])
+        return out
+    if name == "swirl":
+        return [[(cx + r * (1 - a / 14) * math.cos(a), cy + r * (1 - a / 14) * math.sin(a)) for a in (k * 0.3 for k in range(42))]]
+    if name == "shell":
+        rim = [(cx + r * math.cos(a) * (0.9 + 0.1 * abs(math.sin(5 * a))), cy + r * 0.3 - r * math.sin(a) * (0.9 + 0.1 * abs(math.sin(5 * a))))
+               for a in (math.pi * k / 40 for k in range(41))]
+        return [rim + [rim[0]]] + [[(cx, cy + r * 0.3), (cx + r * 0.85 * math.cos(a), cy + r * 0.3 - r * 0.85 * math.sin(a))]
+                                    for a in (math.pi * k / 6 for k in range(1, 6))]
+    if name in ("flower", "hibiscus"):
+        petals = 5
+        out = []
+        for k in range(petals):
+            a = -math.pi / 2 + 2 * math.pi * k / petals
+            wide = 0.42 if name == "flower" else 0.62
+            out.append([(cx + r * u * math.cos(a) - r * wide * math.sin(math.pi * u) * 0.5 * math.sin(a) * side,
+                         cy + r * u * math.sin(a) + r * wide * math.sin(math.pi * u) * 0.5 * math.cos(a) * side)
+                        for side in (1, -1) for u in ((k2 / 10) if side == 1 else (1 - k2 / 10) for k2 in range(11))])
+        out.append(_ring(cx, cy, r * 0.12, r * 0.12, 10))
+        return out
+    if name == "star":
+        pts = [(cx + r * (1 if k % 2 == 0 else 0.42) * math.sin(math.pi * k / 5), cy - r * (1 if k % 2 == 0 else 0.42) * math.cos(math.pi * k / 5))
+               for k in range(10)]
+        return [pts + pts[:1]]
+    if name == "palm":
+        trunk = [(cx - r * 0.05 + r * 0.15 * (u ** 2), cy + r - u * r * 1.2) for u in (k / 10 for k in range(11))]
+        top = trunk[-1]
+        fronds = [[(top[0], top[1]), (top[0] + r * 0.4 * math.cos(a), top[1] + r * 0.25 * math.sin(a) - r * 0.15),
+                   (top[0] + r * 0.8 * math.cos(a), top[1] + r * 0.45 * math.sin(a) + r * 0.1)]
+                  for a in (math.radians(d) for d in (200, 240, 300, 340, 270))]
+        return [trunk] + fronds
+    if name == "leaf":
+        return [[(cx + r * u, cy - r * 0.35 * math.sin(math.pi * (u + 1) / 2)) for u in (k / 10 * 2 - 1 for k in range(11))]
+                + [(cx + r * u, cy + r * 0.35 * math.sin(math.pi * (u + 1) / 2)) for u in (1 - k / 10 * 2 for k in range(11))],
+                [(cx - r, cy), (cx + r, cy)]]
+    if name == "key":                            # a squared spiral
+        pts, x, y, step, d = [(cx - r, cy + r)], cx - r, cy + r, s, 0
+        for k in range(7):
+            dx, dy = ((1, 0), (0, -1), (-1, 0), (0, 1))[d % 4]
+            x, y = x + dx * step, y + dy * step
+            pts.append((x, y))
+            d += 1
+            if k % 2 == 1:
+                step *= 0.62
+        return [pts]
+    return []
+
+
+def special_border(border: str, kind: str, frame: tuple, radius: float) -> tuple[list, list, list]:
+    """A special border round a portrait framed (x, y, w, h, angle): (lines drawn like the border -- the
+    rope, or the tablet's outer stone --, its carved motifs, its light cracks), already turned."""
+    x0, y0, w, h, angle = frame
+    x1, y1, cx, cy = x0 + w, y0 + h, x0 + w / 2, y0 + h / 2
+    m = 0.18 * min(w, h)                          # the stone round the opening
+    if border == "rope":
+        lines, motifs, cracks = _rope(shape_points(kind, x0, y0, w, h, radius), max(5.0, 0.07 * min(w, h))), [], []
+    else:
+        dome = lambda xa, xb, ytop, ypeak, n=24: [(xa + (xb - xa) * k / n, ytop - (ypeak - ytop) * -math.sin(math.pi * k / n))
+                                                  for k in range(n + 1)]
+        motifs, cracks = [], []
+        if border == "stone_sun":
+            stone = [(x0 - m, y1 + m), (x0 - m, y0 + 0.1 * h)] + dome(x0 + 0.05 * w, x1 - 0.05 * w, y0 - 0.4 * m, y0 - 2.0 * m) \
+                + [(x1 + m, y0 + 0.1 * h), (x1 + m, y1 + m)]
+            motifs = _motif("sun", cx, y0 - 1.1 * m, 1.3 * m)
+            zig = [(x0 + 0.1 * w + k * 0.1 * w, y1 + (0.25 if k % 2 == 0 else 0.8) * m) for k in range(9)]
+            motifs.append(zig)
+            for sx in (x0 - 0.5 * m, x1 + 0.5 * m):
+                motifs.append([(sx, cy - 0.35 * m), (sx + 0.3 * m, cy), (sx, cy + 0.35 * m), (sx - 0.3 * m, cy), (sx, cy - 0.35 * m)])
+        elif border == "stone_vine":
+            stone = [(x0 - m, y1 + m), (x0 - m, y0 - m), (cx - 0.22 * w, y0 - m), (cx - 0.22 * w, y0 - 1.9 * m),
+                     (cx + 0.22 * w, y0 - 1.9 * m), (cx + 0.22 * w, y0 - m), (x1 + m, y0 - m), (x1 + m, y1 + m)]
+            motifs = _motif("swirl", cx, y0 - 1.45 * m, 0.8 * m)
+            for k in range(5):
+                motifs += _motif("leaf", x1 + 0.55 * m + (0.18 if k % 2 else -0.18) * m, y0 + k * 0.2 * h, 0.7 * m)
+        elif border == "stone_shell":
+            rr = 0.5 * max(w, h) + m
+            stone = [(cx + rr * math.cos(a), cy + rr * math.sin(a)) for a in (2 * math.pi * k / 72 for k in range(72))]
+            motifs = _motif("shell", cx, cy - rr - 0.1 * m, 1.6 * m)
+            for k in range(1, 8):
+                a = -math.pi / 2 + 2 * math.pi * k / 8
+                tx, ty = cx + (rr - 0.5 * m) * math.cos(a), cy + (rr - 0.5 * m) * math.sin(a)
+                motifs.append([(tx, ty - 0.18 * m), (tx + 0.18 * m, ty + 0.14 * m), (tx - 0.18 * m, ty + 0.14 * m), (tx, ty - 0.18 * m)])
+        elif border == "stone_flower":
+            stone = [(x0 - m, y1 + m), (x0 - m, y0 + 0.25 * h)] + \
+                [(cx + (w / 2 + m) * math.cos(a), y0 + 0.25 * h - (0.25 * h + 1.6 * m) * math.sin(a) ** 0.8)
+                 for a in (math.pi - math.pi * k / 24 for k in range(25))] + [(x1 + m, y0 + 0.25 * h), (x1 + m, y1 + m)]
+            motifs = _motif("flower", cx, y0 - 0.8 * m, 1.2 * m)
+            for sx in (x0 - 0.5 * m, x1 + 0.5 * m):
+                motifs.append([(sx, y1), (sx, y0 + 0.3 * h)])
+                for k in range(4):
+                    yy = y1 - 0.12 * h - k * 0.17 * h
+                    motifs.append([(sx, yy), (sx - 0.35 * m, yy - 0.3 * m)])
+                    motifs.append([(sx, yy), (sx + 0.35 * m, yy - 0.3 * m)])
+            motifs.append([(x0 - m, y1 + 0.3 * m), (x1 + m, y1 + 0.3 * m)])
+        elif border == "stone_hex":
+            stone = [(cx, y0 - 1.8 * m), (x1 + m, y0 + 0.12 * h), (x1 + m, y1 - 0.12 * h), (cx, y1 + 1.8 * m),
+                     (x0 - m, y1 - 0.12 * h), (x0 - m, y0 + 0.12 * h)]
+            motifs = _motif("sun", cx, y0 - 0.75 * m, 1.1 * m)
+            for sx, d in ((x0 - 0.5 * m, 1), (x1 + 0.5 * m, -1)):
+                motifs.append([(sx - d * 0.2 * m, cy - 0.35 * m), (sx + d * 0.2 * m, cy), (sx - d * 0.2 * m, cy + 0.35 * m)])
+        elif border == "stone_star":
+            stone = [(x0 - m, y1 + 1.4 * m), (x0 - m, y0 - m)] + \
+                [(x0 - m + (w + 2 * m) * k / 16, y0 - m - 0.12 * m * math.sin(math.pi * k / 8)) for k in range(17)] + [(x1 + m, y1 + 1.4 * m)]
+            motifs = _motif("star", cx, y0 - 0.5 * m, 0.8 * m)
+            wave = []
+            for k in range(3):
+                bx = x0 + 0.15 * w + k * 0.3 * w
+                wave += [(bx + 0.15 * w * math.cos(a) * (1 - a / 9), y1 + 0.75 * m - 0.4 * m * math.sin(a) * (1 - a / 9))
+                         for a in (j * 0.35 for j in range(18))]
+            motifs.append(wave)
+        elif border == "stone_hibiscus":
+            stone = [(cx + (w / 2 + m) * math.cos(a), cy + (h / 2 + 1.3 * m) * math.sin(a) * (1.06 if math.sin(a) < 0 else 1.0))
+                     for a in (2 * math.pi * k / 72 for k in range(72))]
+            motifs = _motif("hibiscus", cx, y0 - 0.65 * m, 1.3 * m)
+            for sx, lean in ((x0 - 0.45 * m, -1), (x1 + 0.45 * m, 1)):
+                for k in range(2):
+                    motifs += _motif("leaf", sx, cy + (k - 0.3) * 0.3 * h, 0.75 * m)
+        else:                                    # stone_palm
+            tab = 0.75 * m
+            stone = [(x0 - 0.6 * m, y1 + m), (x0 - 0.6 * m, cy + 0.32 * h), (x0 - 0.6 * m - tab, cy + 0.32 * h),
+                     (x0 - 0.6 * m - tab, cy - 0.32 * h), (x0 - 0.6 * m, cy - 0.32 * h), (x0 - 0.6 * m, y0 + 0.08 * h)] + \
+                dome(x0 + 0.02 * w, x1 - 0.02 * w, y0 - 0.3 * m, y0 - 2.0 * m) + \
+                [(x1 + 0.6 * m, y0 + 0.08 * h), (x1 + 0.6 * m, cy - 0.32 * h), (x1 + 0.6 * m + tab, cy - 0.32 * h),
+                 (x1 + 0.6 * m + tab, cy + 0.32 * h), (x1 + 0.6 * m, cy + 0.32 * h), (x1 + 0.6 * m, y1 + m)]
+            motifs = _motif("palm", cx, y0 - 1.05 * m, 1.3 * m)
+            for sx in (x0 - 0.6 * m - tab / 2, x1 + 0.6 * m + tab / 2):
+                for dy in (-0.15 * h, 0.15 * h):
+                    motifs += _motif("key", sx, cy + dy, 0.4 * m)
+        lines = [stone + stone[:1]]
+        # a few light cracks across the stone
+        cracks = [[(x0 - 0.9 * m, cy + 0.3 * h), (x0 - 0.4 * m, cy + 0.36 * h), (x0 + 0.05 * w, cy + 0.33 * h)],
+                  [(x1 - 0.05 * w, y0 + 0.08 * h), (x1 + 0.45 * m, y0 + 0.15 * h), (x1 + 0.9 * m, y0 + 0.12 * h)],
+                  [(cx + 0.2 * w, y1 + 0.1 * m), (cx + 0.25 * w, y1 + 0.95 * m)]]
+    if angle:
+        def turned(line):
+            return [(cx + dx, cy + dy) for dx, dy in (turn(px - cx, py - cy, angle) for px, py in line)]
+        lines, motifs, cracks = [turned(l) for l in lines], [turned(l) for l in motifs], [turned(l) for l in cracks]
+    return lines, motifs, cracks
+
+
 def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     x, y = lay.x[p.id], lay.y[p.id]
     colour = lay.birth_colour.get(p.id, GREY)
@@ -3401,6 +3710,15 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if angle:
             pts = [(mx + dx, my + dy) for dx, dy in (turn(px - mx, py - my, angle) for px, py in pts)]
         return pts
+    if border in SPECIAL_BORDERS:               # a rope, or a stone tablet round the opening
+        edge, carved, cracks = special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind))
+        for line in edge:
+            add(Line(line, colour, 2.4))
+        for line in carved:
+            add(Line(line, colour, 1.6))
+        if e.detail_lines and e.detail_opacity > 0:
+            for line in cracks:
+                add(Line(line, e.detail_colour or colour, e.detail_width, opacity=e.detail_opacity / 100))
     for line in decor(kind):                    # drawn like the border (a leaf, a stamen)
         add(Line(placed(line), colour, max(1.0, BORDER_WIDTHS[border] * 0.8)))
     if e.detail_lines and e.detail_opacity > 0:   # light, under the face and the words
@@ -3446,7 +3764,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # much as possible"): each line is measured against the shape's own width where it is drawn -- a
     # circle or a heart is narrower towards its edges -- and this portrait's words made only as much
     # smaller as the tightest line needs.  Then the player's own text size for this villager.
-    points = lay.frame_points(p.id)
+    points = text_room_points(lay.edits.text_room, kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
     fit = 1.0
     for k, (text, bold, _r) in enumerate(lines):
         if not text:
@@ -3478,6 +3796,28 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         put(Text(at, y + text_top + k * LINE_H, text, (11.5 if bold else 10) * fit * own, ink,
                  bold=bold, centre=align == "centre", end=align == "right", pid=p.id,
                  role="names" if bold else "portraits", edit=f"person:{p.id}", runs=runs))
+
+
+def text_room_points(room: str, kind: str, outline_points: list, frame: tuple) -> list:
+    """The outline a portrait's words are fitted in: the shape's own, or a rectangle or an oval in its
+    middle (Edits.text_room; "auto", for every shape -- the owner, 2026-10-09 --: the oval filling a
+    circle or an oval, else the rectangle filling the frame)."""
+    if room == "auto":
+        room = "oval" if kind in ("circle", "ellipse") else "rect"
+    if room == "shape":
+        return outline_points
+    x, y, w, h, angle = frame
+    cx, cy = x + w / 2, y + h / 2
+    if room == "rect":
+        # The words may pass the drawn outline but stay within the shape's own width and height (the
+        # owner, 2026-10-09): the frame's rectangle, a little in from its sides, or the oval filling it.
+        pts = [(cx - 0.47 * w, cy - 0.47 * h), (cx + 0.47 * w, cy - 0.47 * h), (cx + 0.47 * w, cy + 0.47 * h),
+               (cx - 0.47 * w, cy + 0.47 * h)]
+    else:
+        pts = [(cx + 0.5 * w * math.cos(a), cy + 0.5 * h * math.sin(a)) for a in (2 * math.pi * k / 48 for k in range(48))]
+    if angle:
+        pts = [(cx + dx, cy + dy) for dx, dy in (turn(px - cx, py - cy, angle) for px, py in pts)]
+    return pts
 
 
 def _chord(points: list[tuple[float, float]], y: float) -> float:

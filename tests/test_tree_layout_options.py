@@ -34,7 +34,7 @@ class SettingsTests(unittest.TestCase):
 class ShapeTests(unittest.TestCase):
     NEW = ("trapezoid", "pentagon", "star4", "plump_star", "star6", "slim_star6", "arrow_h", "arrow_v", "arch",
            "scallop", "snail", "leafy_oval", "hibiscus", "sand_dollar", "turtle_v", "turtle_h", "mermaid_tail",
-           "fish_right", "fish_left", "wave_circle", "conch", "starfish", "ship_wheel", "coconut", "open_coconut", "bananas")
+           "fish_right", "fish_left", "wave_circle", "conch", "starfish", "ship_wheel", "coconut", "bananas", "monstera", "anchor", "mermaid_tail_h")
 
     def test_the_owners_pictures_have_their_detail_lines(self):
         for kind in ("scallop", "snail", "sand_dollar", "turtle_v", "mermaid_tail", "fish_left", "conch",
@@ -103,6 +103,34 @@ class SaveLayoutTests(unittest.TestCase):
             self.assertTrue((folder / layout.DATA / layout.COPIES / layout.LOGS / "Deaths and Disappearances"
                              / (deaths.name + ".before-v1.35.61-repair")).is_file())
             self.assertEqual(layout.migrate(folder), [])          # once only
+
+
+class SpecialBorderAndTextRoomTests(unittest.TestCase):
+    def test_every_special_border_is_offered_and_draws_round_the_portrait(self):
+        for border in ft.SPECIAL_BORDERS:
+            with self.subTest(border=border):
+                self.assertIn(border, ft.BORDERS)
+                edge, carved, cracks = ft.special_border(border, "ellipse", (0, 0, 100, 140, 0.0), 0.0)
+                self.assertTrue(edge)
+                xs = [x for line in edge for x, _y in line]
+                ys = [y for line in edge for _x, y in line]
+                self.assertLessEqual(min(xs), 0.5)              # round the opening, not inside it
+                self.assertGreaterEqual(max(xs), 99.5)
+                self.assertLessEqual(min(ys), 0.5)
+                self.assertGreaterEqual(max(ys), 139.5)
+        self.assertEqual(ft.Edits._from_data({"borders": {"Male": "stone_palm"}}).borders.get("Male", "stone_palm"),
+                         "stone_palm")
+
+    def test_text_room_auto_boxes_every_shape(self):
+        frame = (0, 0, 100, 100, 0.0)
+        outline = ft.shape_points("monstera", 0, 0, 100, 100)
+        self.assertEqual(len(ft.text_room_points("auto", "circle", outline, frame)), 48)     # the oval filling it
+        self.assertIs(ft.text_room_points("shape", "circle", outline, frame), outline)
+        boxed = ft.text_room_points("auto", "monstera", outline, frame)
+        self.assertEqual(len(boxed), 4)
+        self.assertEqual(len(ft.text_room_points("oval", "circle", outline, frame)), 48)
+        self.assertEqual(ft.Edits._from_data(ft.Edits(text_room="oval").to_data()).text_room, "oval")
+        self.assertEqual(ft.Edits._from_data({"text_room": "nonsense"}).text_room, "auto")
 
 
 if __name__ == "__main__":

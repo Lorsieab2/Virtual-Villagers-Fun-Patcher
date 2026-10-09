@@ -183,7 +183,7 @@ class ReviewFixTests(unittest.TestCase):
         p = next(q for q in v.known() if not q.upcoming)
         long_line = "A very long title line typed by the player herself"
         for shape in ("circle", "heart", "rect"):
-            e = ft.Edits(text_wrap=60, shapes={g: shape for g in ft.GROUPS})
+            e = ft.Edits(text_wrap=60, shapes={g: shape for g in ft.GROUPS}, text_room="shape")
             e.entries[ft.entry_key(v, p)] = {"lines": ["1. Someone", long_line]}
             ft.arrange(v, e)
             lay = ft.layout(v, e)

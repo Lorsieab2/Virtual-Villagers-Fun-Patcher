@@ -850,6 +850,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         across.bind("<<ComboboxSelected>>", lambda _e: self._change(
             text_align=next(k for k, v in ft.TEXT_ALIGNS.items() if v == self.align_var.get())))
         ttk.Label(row, text="face and text:").pack(side="left", padx=(8, 0))
+        row2 = ttk.Frame(tab)
+        row2.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row2, text="Text room inside the portrait:").pack(side="left")
+        self.room_var = tk.StringVar(value=ft.TEXT_ROOMS[e.text_room])
+        room = ttk.Combobox(row2, textvariable=self.room_var, values=list(ft.TEXT_ROOMS.values()), state="readonly",
+                            width=16)
+        room.pack(side="left", padx=(6, 0))
+        room.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            text_room=next(k for k, v in ft.TEXT_ROOMS.items() if v == self.room_var.get())))
         self.inside_var = tk.BooleanVar(value=e.text_inside)
         ttk.Checkbutton(tab, text="Keep portrait text inside the shape (crosses, X's, stars...)",
                         variable=self.inside_var,
@@ -2738,6 +2747,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_opacity_scale.set(e.mark_opacity)
         self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
         self.inside_var.set(e.text_inside)
+        self.room_var.set(ft.TEXT_ROOMS[e.text_room])
         self.detail_var.set(e.detail_lines)
         self.detail_field.set_quietly(e.detail_colour)
         self.detail_opacity_var.set(f"{e.detail_opacity:g}")
