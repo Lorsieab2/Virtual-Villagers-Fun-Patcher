@@ -170,7 +170,7 @@ static void check(int ok, const char *name) {
 }
 
 static void approval_path(int game, int slot, wchar_t *out) {
-    wsprintfW(out, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat",
+    wsprintfW(out, L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks\\Virtual Villagers %d Repair Approved - Save %d.dat",
               g_folder, game, slot);
 }
 
@@ -287,7 +287,7 @@ int main(void) {
         CreateDirectoryW(g_folder, NULL);
         wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data", g_folder);
         CreateDirectoryW(sub, NULL);
-        wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check", g_folder);
+        wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks", g_folder);
         CreateDirectoryW(sub, NULL);
     }
 
@@ -757,10 +757,60 @@ int main(void) {
     check(g_boxes == 0 && g_mask_repairs == 2 && !approval_there(5, 1),
           "... one that failed at load is completed after the quit save, then the approval is used up");
 
+    /* ---- An older build's "Cross-Check" folder (native/shared/save_layout.h): never moved.  An
+       approval there is the player's, used where it is; an approval under BOTH names is acted on
+       under neither, and neither file is touched. ---- */
+    reset();
+    {
+        wchar_t sub[MAX_PATH], old_sub[MAX_PATH], old_file[MAX_PATH], new_file[MAX_PATH], path[MAX_PATH];
+        unsigned int body[4] = { 0x31415256u, 1u, 2u, 1u };
+        HANDLE f;
+        DWORD put = 0;
+        wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks", g_folder);
+        wsprintfW(old_sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check", g_folder);
+        wsprintfW(old_file, L"%ls\\Virtual Villagers 2 Repair Approved - Save 1.dat", old_sub);
+        wsprintfW(new_file, L"%ls\\Virtual Villagers 2 Repair Approved - Save 1.dat", sub);
+        RemoveDirectoryW(sub);
+        CreateDirectoryW(old_sub, NULL);
+        f = CreateFileW(old_file, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        WriteFile(f, body, sizeof(body), &put, NULL);
+        CloseHandle(f);
+        check(vvfp_xc_approval_path(2, 1, path) && lstrcmpW(path, old_file) == 0 && vvfp_xc_approved(2, 1)
+              && GetFileAttributesW(sub) == INVALID_FILE_ATTRIBUTES,
+              "an older build's Cross-Check approval is used where it is, never moved");
+        g_auto = 0;
+        g_graves = 1;
+        play(2, 1, 8000, 16);
+        vvfp_crosscheck_quit(2, 1);
+        check(g_boxes == 0 && g_later_graves == 1 && g_now_graves == 1
+              && GetFileAttributesW(old_file) == INVALID_FILE_ATTRIBUTES,
+              "... and that approval is used, like any other");
+        /* Both there: neither is acted on, neither is touched. */
+        reset();
+        f = CreateFileW(old_file, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        WriteFile(f, body, sizeof(body), &put, NULL);
+        CloseHandle(f);
+        CreateDirectoryW(sub, NULL);
+        f = CreateFileW(new_file, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        WriteFile(f, body, sizeof(body), &put, NULL);
+        CloseHandle(f);
+        g_auto = 0;
+        g_graves = 1;
+        play(2, 1, 8000, 16);
+        vvfp_crosscheck_quit(2, 1);
+        check(!vvfp_xc_approved(2, 1) && g_now_graves == 0
+              && GetFileAttributesW(old_file) != INVALID_FILE_ATTRIBUTES
+              && GetFileAttributesW(new_file) != INVALID_FILE_ATTRIBUTES,
+              "an approval under both Log Checks and Cross-Check is acted on under neither, and both are kept");
+        DeleteFileW(old_file);
+        DeleteFileW(new_file);
+        RemoveDirectoryW(old_sub);
+    }
+
     clear_approvals();
     {
         wchar_t sub[MAX_PATH];
-        wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check", g_folder);
+        wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks", g_folder);
         RemoveDirectoryW(sub);
         wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data", g_folder);
         RemoveDirectoryW(sub);

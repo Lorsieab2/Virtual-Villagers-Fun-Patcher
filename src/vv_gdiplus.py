@@ -275,6 +275,29 @@ def _backdrop(gdi: _Gdi, graphics, item, ft, width: float, height: float) -> Non
 def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)) -> None:
     g = gdi.g
     f = ctypes.c_float
+    if isinstance(item, ft.Text) and getattr(item, "angle", 0.0):
+        # Words turned with their portrait (Edits.turn_words): drawn upright, the page turned about them.
+        import dataclasses
+        state = ctypes.c_uint()
+        g.GdipSaveGraphics(graphics, ctypes.byref(state))
+        g.GdipTranslateWorldTransform(graphics, f(item.x), f(item.y), 0)
+        g.GdipRotateWorldTransform(graphics, f(item.angle), 0)
+        g.GdipTranslateWorldTransform(graphics, f(-item.x), f(-item.y), 0)
+        _draw(gdi, graphics, fmt, images, dataclasses.replace(item, angle=0.0), ft, size)
+        g.GdipRestoreGraphics(graphics, state)
+        return
+    if isinstance(item, ft.Text) and (getattr(item, "mirror_h", False) or getattr(item, "mirror_v", False)):
+        # Mirrored words (Edits.flip_words): drawn as usual, the page mirrored about them.
+        import dataclasses
+        state = ctypes.c_uint()
+        my = item.y - item.size * 0.35
+        g.GdipSaveGraphics(graphics, ctypes.byref(state))
+        g.GdipTranslateWorldTransform(graphics, f(item.x), f(my), 0)
+        g.GdipScaleWorldTransform(graphics, f(-1.0 if item.mirror_h else 1.0), f(-1.0 if item.mirror_v else 1.0), 0)
+        g.GdipTranslateWorldTransform(graphics, f(-item.x), f(-my), 0)
+        _draw(gdi, graphics, fmt, images, dataclasses.replace(item, mirror_h=False, mirror_v=False), ft, size)
+        g.GdipRestoreGraphics(graphics, state)
+        return
     if isinstance(item, ft.Backdrop):
         _backdrop(gdi, graphics, item, ft, *size)
     elif isinstance(item, ft.Line):
@@ -286,11 +309,25 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
         arr, n = _points(item.points)
         g.GdipDrawLines(graphics, pen, arr, n)
         g.GdipDeletePen(pen)
+    elif isinstance(item, ft.Poly):
+        arr, n = _points(item.points)
+        if item.fill:
+            brush = ctypes.c_void_p()
+            g.GdipCreateSolidFill(_argb(item.fill, _alpha(item)), ctypes.byref(brush))
+            g.GdipFillPolygon(graphics, brush, arr, n, 0)          # alternate: a ring stays a ring
+            g.GdipDeleteBrush(brush)
+        if item.width > 0 and item.stroke:
+            pen = ctypes.c_void_p()
+            g.GdipCreatePen1(_argb(item.stroke, _alpha(item)), f(item.width), 0, ctypes.byref(pen))
+            g.GdipSetPenLineJoin(pen, 2)
+            g.GdipDrawPolygon(graphics, pen, arr, n)
+            g.GdipDeletePen(pen)
     elif isinstance(item, ft.Shape):
         pen, brush = ctypes.c_void_p(), ctypes.c_void_p()
         alpha = int(255 * max(0.0, min(1.0, item.opacity))) << 24
         if item.width > 0:
             g.GdipCreatePen1(_argb(item.stroke, _alpha(item)), f(item.width), 0, ctypes.byref(pen))
+            g.GdipSetPenLineJoin(pen, 2)                    # round: no spike at a heart's dip or a star's point
             if item.dash:
                 g.GdipSetPenDashStyle(pen, ft.GDI_DASHES[item.dash])
         if item.fill:
@@ -350,6 +387,9 @@ def _draw(gdi: _Gdi, graphics, fmt, images: dict, item, ft, size: tuple = (0, 0)
         if item.centre:
             g.GdipSetStringFormatAlign(fmt, 1)
             rect = RectF(item.x - 2000, top, 4000, item.size * 2)
+        elif item.end:                          # right-aligned: the words end at x
+            g.GdipSetStringFormatAlign(fmt, 2)
+            rect = RectF(item.x - 20000, top, 20000, item.size * 2)
         else:
             g.GdipSetStringFormatAlign(fmt, 0)
             rect = RectF(item.x, top, 20000, item.size * 2)
@@ -382,7 +422,8 @@ def _draw_runs(gdi: _Gdi, graphics, fmt, item, ft) -> None:
                                 ctypes.byref(RectF(0, 0, 20000, look["size"] * 2)), own, ctypes.byref(box),
                                 None, None)
             pieces.append((text, look, font, ascent, box.Width))
-        x = item.x - sum(p[4] for p in pieces) / 2 if item.centre else item.x
+        total = sum(p[4] for p in pieces)
+        x = item.x - total / 2 if item.centre else item.x - total if item.end else item.x
         for text, look, font, ascent, width in pieces:
             brush = ctypes.c_void_p()
             g.GdipCreateSolidFill(_argb(look["colour"], _alpha(item)), ctypes.byref(brush))

@@ -2380,6 +2380,20 @@ class DialogResourceTests(unittest.TestCase):
                           "All Purple Heathens", "All Chief Heathens", "All Heathen Mommies"])
         self.assertEqual(_dialogs(self.DLL)[302][0], "Custom Island Event")
 
+    def test_new_villagers_ages_default_to_years(self):
+        # The owner (v1.35.64): the New villagers dialog opens on Years, with its default age in
+        # years and the range label naming years first; Game units stays the other choice.
+        ui = (SOURCE / "story_custom_ui.inc").read_text(encoding="utf-8")
+        init = ui[ui.index("static INT_PTR CALLBACK ui_spawn_dialog("):]
+        init = init[:init.index("if (message == WM_COMMAND")]
+        self.assertIn("CheckRadioButton(window, IDC_SP_UNITS, IDC_SP_YEARS, IDC_SP_YEARS);", init)
+        self.assertNotIn("IDC_SP_YEARS, IDC_SP_UNITS);", init)
+        self.assertIn('"0-%d years / 0-%d units", ce_oldest_age(a) / 20, ce_oldest_age(a)', init)
+        self.assertIn("SetDlgItemInt(window, IDC_SP_AGE, (UINT)((a->adult_age + 80) / 20), FALSE);", init)
+        if HAVE_EMULATOR:
+            controls = _dialogs(self.DLL)[304][1]
+            self.assertEqual((controls[3160][1], controls[3161][1]), ("Game units", "Years"))
+
     def test_the_tech_menu_offers_custom_island_event(self):
         bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
         # The label carries the price the Story DLL charges now (0, or 30,000

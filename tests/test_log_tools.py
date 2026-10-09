@@ -53,13 +53,14 @@ def fixture(name: str) -> bytes:
     return gzip.decompress((FIXTURES / f"{name}.ldw.gz").read_bytes())
 
 
-def markers_of(game: int, slot: int) -> list[str]:
+def markers_of(game: int, slot: int, checks: str = "Log Checks") -> list[str]:
+    """The markers' places (`checks`: "Cross-Check" in older builds, src/vv_save_layout.py)."""
     names = [
         f"{DATA}/Deaths/Virtual Villagers {game} Graves Logged - Save {slot}.dat",
         f"{DATA}/Arrivals/Virtual Villagers {game} Arrivals Recorded - Save {slot}.dat",
     ]
     if game == 1:
-        names.append(f"{DATA}/Cross-Check/Virtual Villagers 1 Cross-Check - Save {slot}.dat")
+        names.append(f"{DATA}/{checks}/Virtual Villagers 1 Cross-Check - Save {slot}.dat")
     else:
         names.append(f"{DATA}/Births/Virtual Villagers {game} Births Recorded - Save {slot}.dat")
     return names
@@ -119,16 +120,16 @@ class FolderTest(unittest.TestCase):
             for other in {number, 2 if number == 1 else 1}:
                 for name in markers_of(other, slot):
                     self.write(folder, name, valid_marker(name, other, slot))
-        self.write(folder, f"{DATA}/Cross-Check/Virtual Villagers 1 Cross-Check - Save 1.dat.unreadable-1", b"x")
+        self.write(folder, f"{DATA}/Log Checks/Virtual Villagers 1 Cross-Check - Save 1.dat.unreadable-1", b"x")
         self.write(folder, f"{DATA}/Deaths/Virtual Villagers {number} Graves Logged - Save 1.dat.tmp", b"t")
         self.write(folder, f"{DATA}/Graves/Virtual Villagers {number} Graves - Save 1.dat", b"VCD1")
         self.write(folder, f"{DATA}/Village Masks/Village Masks - Save 1.dat", b"masks")
         self.write(folder, f"{DATA}/Parentage/Virtual Villagers 1 Parentage Records - Save 1.dat", b"p")
-        self.write(folder, f"{LOGS}/Deaths/Virtual Villagers {number} Deaths Log 1.txt",
+        self.write(folder, f"{LOGS}/Deaths and Disappearances/Virtual Villagers {number} Deaths Log 1.txt",
                    b"Village: Hut (Save 1)\n\n")
         self.write(folder, f"{LOGS}/Births and Conceptions/Virtual Villagers {number} Births and Conceptions Log 1.txt",
                    b"Village: Hut (Save 1)\n\n")
-        self.write(folder, f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt", b"Village: Hut (Save 1)\n")
+        self.write(folder, f"{LOGS}/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt", b"Village: Hut (Save 1)\n")
         self.write(folder, "Backups/Backup 2026-10-01 10-00-00/old.txt", b"old backup")
         return folder
 
@@ -268,7 +269,7 @@ class CheckerRefactorTests(FolderTest):
 
 
 def approval_of(number: int, slot: int) -> str:
-    return f"{DATA}/Cross-Check/Virtual Villagers {number} Repair Approved - Save {slot}.dat"
+    return f"{DATA}/Log Checks/Virtual Villagers {number} Repair Approved - Save {slot}.dat"
 
 
 def approval_pending(folder: Path, number: int, slot: int) -> bool:
@@ -309,6 +310,91 @@ class ApprovalTests(FolderTest):
                     {k: v for k, v in before.items() if k not in expected and v[2] != "dir"},
                 )
 
+    def test_an_older_builds_folders_are_used_where_they_are_and_never_moved(self) -> None:
+        # The owner, 2026-10-09 (src/vv_save_layout.py): "use the new renaming, but it also recognizes
+        # the old renaming" -- a v1.35.64 preview moved the files while the game was still patched by
+        # v1.35.63, which then found no parents.  A village an older build wrote keeps its markers in
+        # "Cross-Check" and its logs in "Deaths" and "Repairs": the markers are cleared where they are,
+        # and nothing is moved or renamed.
+        folder = self.make_folder("huttest", 1, "Modded")
+        for old, new in ((f"{DATA}/Cross-Check", f"{DATA}/Log Checks"),
+                         (f"{LOGS}/Deaths", f"{LOGS}/Deaths and Disappearances"),
+                         (f"{LOGS}/Repairs", f"{LOGS}/Repairs Made")):
+            (folder / new).rename(folder / old)
+        parents = folder / DATA / "Parentage Records" / "Virtual Villagers 1 Parentage Records - Save 1.dat"
+        parents.parent.mkdir(parents=True)
+        parents.write_bytes(b"an older build's parents")
+        before = self.state(folder)
+        result = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual({p.relative_to(folder).as_posix() for p in result.cleared},
+                         set(markers_of(1, 1, checks="Cross-Check")))
+        # The approval is under neither name yet, so it is written under the new one.
+        self.assertEqual(result.approval.relative_to(folder).as_posix(), approval_of(1, 1))
+        self.assertTrue(approval_pending(folder, 1, 1))
+        after = self.state(folder)
+        new_backup = result.backup.backup_folder.relative_to(folder).as_posix()
+        cleared = {p.relative_to(folder).as_posix() for p in result.cleared}
+        untouched = {k: v for k, v in before.items() if v[2] != "dir" and k not in cleared}
+        self.assertEqual({k: v for k, v in after.items() if k in untouched}, untouched)
+        for old in (f"{DATA}/Cross-Check", f"{LOGS}/Deaths", f"{LOGS}/Repairs", f"{DATA}/Parentage Records"):
+            self.assertTrue((folder / old).is_dir(), old)
+        for new in (f"{LOGS}/Deaths and Disappearances", f"{LOGS}/Repairs Made", f"{DATA}/Parents (A New Home)"):
+            self.assertFalse((folder / new).exists(), new)
+        self.assertEqual({k for k in after if k not in before and not k.startswith(new_backup)},
+                         {f"{DATA}/Log Checks", approval_of(1, 1)})
+        import vv_save_layout as layout
+        self.assertEqual(layout.find(folder, f"{DATA}\\Parents (A New Home)\\{parents.name}"), parents)
+        self.assertEqual(layout.find(folder, f"{LOGS}\\Deaths and Disappearances"), folder / LOGS / "Deaths")
+        self.assertEqual(layout.find(folder, f"{LOGS}\\Repairs Made"), folder / LOGS / "Repairs")
+        self.assertIn(folder / DATA / "Cross-Check" / "Virtual Villagers 1 Cross-Check - Save 2.dat",
+                      [path for _marker, path in tools.marker_paths(folder, 1, 2)])
+
+    def test_an_approval_under_both_names_is_replaced_by_one(self) -> None:
+        # The game acts on an approval kept under both "Log Checks" and "Cross-Check" under neither
+        # (native/shared/crosscheck_bridge.h); Check Logs says so, and Repair leaves only its own.
+        folder = self.make_folder("huttest", 1, "Modded")
+        old = folder / DATA / "Cross-Check" / "Virtual Villagers 1 Repair Approved - Save 1.dat"
+        old.parent.mkdir(parents=True, exist_ok=True)
+        old.write_bytes(tools.approval_bytes(1, 1))
+        (folder / approval_of(1, 1)).write_bytes(tools.approval_bytes(1, 1))
+        self.assertIn("the game acts on neither", tools.load_checker().check(folder, 1).render())
+        tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        self.assertEqual(len([p for p in (old, folder / approval_of(1, 1)) if p.exists()]), 1)
+
+    def test_the_owners_save_folder_with_both_names(self) -> None:
+        # The owner's A New Home - Modded folder on 2026-10-09: an empty "Parentage Records" beside
+        # "Parents (A New Home)" holding the real file, an empty "Cross-Check" beside "Log Checks", both
+        # rosters under both names (the older build's written last), the Deaths log under both folders.
+        import os
+        import vv_save_layout as layout
+        folder = self.make_folder("huttest", 1, "Modded")
+        name = "Virtual Villagers 1 Parentage Records - Save 1.dat"
+        (folder / DATA / "Parentage Records").mkdir()
+        (folder / DATA / "Parents (A New Home)").mkdir()
+        (folder / DATA / "Parents (A New Home)" / name).write_bytes(b"the real parents")
+        (folder / DATA / "Cross-Check").mkdir(exist_ok=True)
+        rosters = []
+        for sub, new, old in (("Unaccounted Villagers", "Virtual Villagers 1 Villagers at Last Save - Save 1.dat",
+                               "Virtual Villagers 1 Village Roster - Save 1.dat"),
+                              ("Village Statistics", "Villagers Counted - Save 1.dat", "Village Roster - Save 1.dat")):
+            (folder / DATA / sub).mkdir(exist_ok=True)
+            (folder / DATA / sub / new).write_bytes(b"14:13")
+            (folder / DATA / sub / old).write_bytes(b"15:21")
+            os.utime(folder / DATA / sub / new, ns=(1_700_000_000_000_000_000, 1_700_000_000_000_000_000))
+            rosters.append((f"{DATA}\\{sub}\\{new}", folder / DATA / sub / old))
+        self.assertEqual(layout.find(folder, f"{DATA}\\Parents (A New Home)\\{name}"),
+                         folder / DATA / "Parents (A New Home)" / name)
+        for relative, older_build in rosters:
+            self.assertEqual(layout.find(folder, relative), older_build)      # written last
+        before = self.state(folder)
+        tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
+        after = self.state(folder)
+        for kept in (f"{DATA}/Parentage Records", f"{DATA}/Cross-Check", f"{DATA}/Parents (A New Home)/{name}"):
+            self.assertIn(kept, after)
+            self.assertEqual(after[kept][2], before[kept][2])
+        for _relative, older_build in rosters:
+            self.assertEqual(older_build.read_bytes(), b"15:21")
+
     def test_a_file_that_is_not_a_marker_is_kept(self) -> None:
         # A truncated, corrupt or unrelated file at a marker's path does not
         # stop the game's rescan, so Repair Saves & Logs has no reason to delete it.
@@ -344,7 +430,9 @@ class ApprovalTests(FolderTest):
         self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers " n " Graves Logged - Save %d.dat"', reset)
         self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers " n " Arrivals Recorded - Save %d.dat"', reset)
         xc = (ROOT / "native" / "vv1_parentage" / "vv1_crosscheck.inc").read_text(encoding="utf-8")
-        self.assertIn('"Virtual Villagers Fun Patcher Data", "Cross-Check"', xc)
+        self.assertIn('"Virtual Villagers Fun Patcher Data", "Log Checks"', xc)
+        self.assertIn("vv_layout_pick_file_a(old_marker, new_marker)", xc)      # never moved: either name
+        self.assertNotIn("vv_layout_move", xc)
         self.assertIn(r'"\\Virtual Villagers 1 Cross-Check - Save %d.dat", slot', xc)
         self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Births\\Virtual Villagers " n " Births Recorded - Save %d.dat"', reset)
         self.assertEqual(len(tools.REARM_MARKERS), 4)
@@ -406,7 +494,7 @@ class ApprovalTests(FolderTest):
         folder = self.make_folder("huttest", 4, "Modded")
         tools.approve_repair(folder, 4, 2, FakeProcesses(), NOW)
         tools.approve_repair(folder, 4, 2, FakeProcesses(), NOW)
-        cross = folder / DATA / "Cross-Check"
+        cross = folder / DATA / "Log Checks"
         self.assertEqual(sorted(p.name for p in cross.iterdir() if "Approved" in p.name),
                          ["Virtual Villagers 4 Repair Approved - Save 2.dat"])
 
@@ -415,11 +503,16 @@ class ApprovalTests(FolderTest):
         self.assertIn("#define VVFP_XC_APPROVAL_MAGIC   0x31415256u", bridge)
         self.assertIn("#define VVFP_XC_APPROVAL_VERSION 1u", bridge)
         self.assertEqual(tools.APPROVAL_MAGIC, 0x31415256)
-        self.assertIn(r'L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat"',
+        self.assertIn(r'L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks\\Virtual Villagers %d Repair Approved - Save %d.dat"',
                       bridge)
+        self.assertIn(r'L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat"',
+                      bridge)                                   # an older build's, used where it is
+        self.assertNotIn("vv_layout_move", bridge)
         reset = (ROOT / "native" / "shared" / "save_reset.c").read_text(encoding="utf-8")
-        self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers " n " Repair Approved - Save %d.dat"',
-                      reset)
+        # Start Over deletes it in "Log Checks" and in an older build's "Cross-Check" (never moved).
+        for folder in ("Log Checks", "Cross-Check"):
+            self.assertIn(r'"%s\\Virtual Villagers Fun Patcher Data\\' + folder
+                          + r'\\Virtual Villagers " n " Repair Approved - Save %d.dat"', reset)
         table = reset.split("static const char *const SIDECAR_FORMATS", 1)[1].split("};", 1)[0]
         for number in range(1, 6):
             self.assertIn(f'APPROVAL_FORMAT("{number}")', table)
@@ -496,8 +589,12 @@ class ApprovalTests(FolderTest):
         self.assertIn("temporary.write_bytes(approval_bytes(game, slot))", approval)
         self.assertEqual(approval.count("replace("), 1)
         self.assertIn("os.replace(temporary, approval)", approval)
-        self.assertEqual(approval.count(".unlink("), 2)
+        # ... and this same approval left under the other name by an earlier Repair (the game acts on
+        # one kept under both names under neither; src/vv_save_layout.py).
+        self.assertEqual(approval.count(".unlink("), 3)
         self.assertIn("temporary.unlink()", approval)
+        self.assertIn("if other.read_bytes() == approval_bytes(game, slot):\n                        other.unlink()",
+                      approval)
         # The word repair: a backup opened "xb" (never replacing one), the
         # file through its temporary, the boundary and the Repairs log appended.
         self.assertEqual(word_fix.count(".write_bytes("), 1)
@@ -650,14 +747,21 @@ class GuiTests(unittest.TestCase):
 
     def test_the_checker_needs_no_third_party_package(self) -> None:
         import ast
-        tree = ast.parse((ROOT / "scripts" / "vvfp_consistency_check.py").read_text(encoding="utf-8"))
-        imported = set()
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                imported.update(alias.name.split(".")[0] for alias in node.names)
-            elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-                imported.add(node.module.split(".")[0])
-        self.assertEqual(imported - set(sys.stdlib_module_names), set())
+
+        def imports(path: Path) -> set:
+            imported = set()
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                if isinstance(node, ast.Import):
+                    imported.update(alias.name.split(".")[0] for alias in node.names)
+                elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+                    imported.add(node.module.split(".")[0])
+            return imported - set(sys.stdlib_module_names)
+
+        # Its one own module, the save folder's names (src/vv_save_layout.py), ships beside it and is
+        # itself stdlib-only.
+        self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"), {"vv_save_layout"})
+        self.assertEqual(imports(ROOT / "src" / "vv_save_layout.py"), set())
+        self.assertIn('"src/vv_save_layout.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
 
     def test_the_module_and_checker_ship_in_the_release(self) -> None:
         build = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
@@ -712,9 +816,12 @@ class LogWordsTests(FolderTest):
         # ...and the older snapshot gets the Sex line its newer one shows (Repair Saves & Logs adds it too)
         self.assertEqual(text, self.OLD.replace(b"heights", b"rough wood").replace(b"jokes", b"sleeping")
                          .replace(b"  Name: Ana\r\n", b"  Name: Ana\r\n  Sex: Female\r\n") + self.NEW)
-        backup_copy = path.with_name(path.name + ".before-v1.35.61-repair")
+        # The copy is kept in Data\Copies Made Before Repairs, at the log's own place (the owner,
+        # 2026-10-09), never beside the log.
+        backup_copy = folder / DATA / "Copies Made Before Repairs" / (HISTORY + ".before-v1.35.61-repair")
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
-        repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        self.assertFalse(path.with_name(path.name + ".before-v1.35.61-repair").exists())
+        repairs = (folder / f"{LOGS}/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Corrected: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt -- 2 word(s)",
                       repairs)
         # A second repair finds nothing: the boundary is now 0.
@@ -790,7 +897,7 @@ class SexLinesTests(FolderTest):
         self.write(folder, f"{LOGS}/Tribe History/Village History.txt", self.HISTORY)
         self.write(folder, f"{LOGS}/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 1.txt",
                    self.BIRTHS)
-        self.write(folder, f"{LOGS}/Deaths/Virtual Villagers 1 Deaths Log 1.txt", self.DEATHS)
+        self.write(folder, f"{LOGS}/Deaths and Disappearances/Virtual Villagers 1 Deaths Log 1.txt", self.DEATHS)
         return folder
 
     def test_repair_logs_adds_sex_from_the_name_lists_and_other_records(self):
@@ -808,11 +915,11 @@ class SexLinesTests(FolderTest):
         self.assertIn(b"  Mother: Chika\r\n    Age at conception: 400\r\n    Sex: Female\r\n", births)
         self.assertIn(b"  Father: Kito\r\n    Age at conception: 500\r\n    Sex: Male\r\n", births)
         self.assertIn(b"  Child: Zork\r\n    Head: 7", births, "unknown: left as it was")
-        deaths = (folder / f"{LOGS}/Deaths/Virtual Villagers 1 Deaths Log 1.txt").read_bytes()
+        deaths = (folder / f"{LOGS}/Deaths and Disappearances/Virtual Villagers 1 Deaths Log 1.txt").read_bytes()
         self.assertIn(b"  Name: Custom\r\n  Age at death: 900\r\n  Sex: Female\r\n", deaths)
         self.assertEqual(deaths.count(b"Sex: Female"), 2, "the Arrived record's own line is not doubled")
         self.assertTrue(result.sexes)
-        repairs = (folder / f"{LOGS}/Repairs/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        repairs = (folder / f"{LOGS}/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Sex added: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", repairs)
         # Once is enough: a second repair adds nothing.
         before = self.state(folder / LOGS)

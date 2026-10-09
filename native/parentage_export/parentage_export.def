@@ -12,3 +12,4 @@ EXPORTS
     RecordGravesMissingFromLog=_RecordGravesMissingFromLog@24
     RecordArrivalsMissingFromLog=_RecordArrivalsMissingFromLog@24
     RecordBirthsMissingFromLog=_RecordBirthsMissingFromLog@24
+    VillagePreferenceText=_VillagePreferenceText@20

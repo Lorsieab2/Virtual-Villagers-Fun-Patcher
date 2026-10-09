@@ -63,6 +63,7 @@ SNAP_REACH = 7                          # screen pixels: how near a guide pulls
 ALT = 0x20000                           # Alt held: place freely
 # Ready-made special marks (the owner asked for marks "eg Tribal Chief"); any other can be typed.
 CUSTOM_MARK = "Custom (type here...)"
+EVERYONE = "Everyone"                   # the "Settings for:" pickers: every portrait, else one group's
 # The editable tree file Save to Save Folder writes (the owner: "an editable file to be worked on later").
 TREE_SUFFIX = ft.TREE_SUFFIX
 TREE_FORMAT = ft.TREE_FORMAT
@@ -93,7 +94,7 @@ COLOURS
   Right-click one of several      the colour of every selected villager at once
   selected villagers
 
-GENERATIONS AND ORDER (Villagers tab)
+GENERATIONS AND ORDER (Selected tab)
   Move to generation              the selected villagers into the generation you choose
   Reset                           back to the generation the records give
   Move left / Move right          one place along their generation (the numbers follow)
@@ -113,18 +114,37 @@ LINES
                                   portraits it touches); across itself only, unless Allow diagonal
                                   lines is ticked
   Right-click it                  Reset this line, or Delete this line
-  Layout tab, Family lines        every line's weight and type (solid, dotted, dashed)
-  Villagers tab                   the selected villagers' family's lines: weight and type
+  Layout tab, Family lines   every line's weight and type (solid, dotted, dashed)
+  Selected tab          the selected villagers' family's lines: weight and type
 
 PORTRAITS
-  Click one villager              circles round the portrait: drag a corner to resize it (Shift:
-                                  stretch freely), a side to stretch it, the curved arrow on top to
-                                  turn it (Shift: steps of 15 degrees)
-  Villagers tab, Portrait         shape, border, and the size of every selected villager (width or
-                                  height alone keeps the other); Reset size and turn
-  Layout tab                      each group's shape, border and default size; the inside colour;
-                                  opacity of words, boxes, portraits and lines; ages in units / years
-  Special Marks tab               every mark as a border or a glow, its size and opacity
+  Click one villager              circles round the portrait: drag a corner to resize it (Keep
+                                  aspect ratio ticked: keeps its shape; Shift: the other way), a
+                                  side to stretch it, the curved arrow on top to turn it (Shift:
+                                  steps of 15 degrees)
+  Selected tab, "Their  shape, border, and the size of every selected villager (Keep
+  portrait shape..."              aspect ratio ticked: the other side follows); Reset size and turn;
+                                  their inside and detail colours; flip and turn
+  Selected tab, "Their  their own face size and text size, and their words
+  face and words"
+  Shapes tab, Flip and   every portrait of a group flipped or turned at once (Ctrl+Z undoes;
+  turn (by group)                 Reset puts them back); each villager can still be changed alone
+  Shapes tab             each group's shape, border and size (Keep aspect ratio as above;
+                                  a group's size resizes everyone in it); the inside colour;
+                                  rainbow or alternating colours for borders, insides, detail lines,
+                                  family lines and marks; detail lines; rope and vine colours
+  Faces & Text tab                text left / centre / right, the face and text at the top /
+                                  middle / bottom; the text area; picture and text size; ages in
+                                  units / years; twins and triplets; "Founder"; the text colour;
+                                  numbered names
+  "Settings for:"                 Everyone, or one group (Males, Females, Babies on the way) to give
+                                  its own faces, words, detail lines and inside colour; "Same as
+                                  everyone" / "Make every group the same" clear them (Ctrl+Z undoes)
+  Layout tab                the title; the order and layout, rows to the left / centre /
+                                  right, portraits lined up by their tops / middles / bottoms;
+                                  spacing; family lines; generation labels; opacity; page size;
+                                  pages; deleted items
+  Marks tab               every mark as a border or a glow, its size and opacity
   The size and weight boxes       change the tree as you type or click the arrows
 
 ADDING AND DELETING
@@ -132,7 +152,7 @@ ADDING AND DELETING
   Right-click anything            Delete it: a villager, a line, the title, a generation label or
                                   one line of it (the number, the name, the totals...) here or from
                                   every generation
-  Layout tab, Deleted items       Restore what was deleted
+  Layout tab, Deleted items  Restore what was deleted
 
 PAGES (Layout tab)
   A new page starts at generation split a long family onto pages; a page ends with the generation
@@ -142,14 +162,14 @@ PAGES (Layout tab)
                                   Saving a picture saves every page.
 
 NUMBERS
-  Layout tab                      Roman numerals or numbers for the generations; Renumber
-                                  villagers whose text I edited
+  Layout tab                 Roman numerals or numbers for the generations
+  Faces & Text tab                Renumber edited portraits
   Number duplicate names          namesakes numbered, in order of appearance (Soda I, Soda II...); it offers
-  (Layout tab, Tools menu)        to number them in the game's save and logs too
+  (Faces & Text tab, Tools menu)  to number them in the game's save and logs too
 
-PICTURES AND TEXT BOXES (Pictures & Text tab)
+PICTURES AND TEXT BOXES (Pictures tab)
   Drag its middle                 move it                 Arrow keys      nudge it (Shift: by 10)
-  Drag a corner circle            resize (Lock proportions ticked: keeps its shape; Shift: the other way)
+  Drag a corner circle            resize (Keep aspect ratio ticked: keeps its shape; Shift: the other way)
   Drag a side circle              stretch one side
   Drag the curved arrow           rotate it (Shift: in steps of 15 degrees)
   Double-click a text box, or F2  type in it
@@ -159,8 +179,8 @@ PICTURES AND TEXT BOXES (Pictures & Text tab)
   Ctrl+B / Ctrl+I / Ctrl+U        bold / italic / underline the selected text box
   Right-click any words           bold, italic, underline, strikethrough, superscript, subscript
                                   (every word of that kind: every name, every label...)
-  Villagers tab, Portrait text    select some words (a line, a word, part of a word), then the
-                                  B I U S x² x₂ Colour buttons, a right click on them, or Ctrl+B /
+  Selected tab, "Their  select some words (a line, a word, part of a word), then the
+  face and words"                 B I U S x² x₂ Colour buttons, a right click on them, or Ctrl+B /
                                   Ctrl+I / Ctrl+U format just those words (Plain takes it off);
                                   Save text puts them on the tree, Reset text the patcher's own
   Right-click it                  cut, copy, duplicate, delete, bring forward / to the front, send
@@ -421,8 +441,9 @@ def open_family_tree(app, build) -> None:
         "Draws the chosen village's family tree from its save and the patcher's logs, and lets you "
         "mark and edit it.  Nothing in the save or the logs is changed unless you ask Number duplicate "
         "names to number them there too (it asks first, and backs the save folder up): your marks and edits are kept "
-        "in the save folder's Virtual Villagers Fun Patcher Data\\Genealogy, and the tree, its picture "
-        "and the genealogy report are written to Virtual Villagers Fun Patcher Logs\\Genealogy.",
+        "in the save folder's Virtual Villagers Fun Patcher Data\\Family Tree Edits, and the tree, its picture "
+        "and the genealogy report are written to Virtual Villagers Fun Patcher Family Trees\\Reports.  A save "
+        "that already keeps them under the older names, Genealogy or Logs\\Genealogy, goes on using those.",
         "Open Family Tree Maker", lambda dialog, folder, game, info, title, images:
         _open_editor(app, dialog, folder, game, info, title, images),
         ask_game_folder=True)
@@ -437,7 +458,8 @@ def _open_editor(app, parent, folder: Path, game: int, info, title: str, images:
         return
     path = ft.Edits.path(folder, game, info.slot)
     try:
-        edits = ft.Edits.load(path)
+        # A village with no tree of its own yet starts with the look last used (ft.STYLE_KEYS).
+        edits = ft.Edits.load(path) if path.is_file() else ft.styled(getattr(app, "tree_style", None))
     except ValueError as exc:
         if not messagebox.askyesno("Family Tree Maker", f"{exc}\n\nStart with no marks or edits?  (The file is "
                                                   "kept as it is until you change something.)", parent=parent):
@@ -468,6 +490,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.z = 1.0
         self.title(f"Family Tree Maker - {village.tribe or ''} (Save {slot}) - {game_title}")
         self.window = dict(getattr(app, "tree_window", {}) or {})
+        # One Keep aspect ratio for every size the player changes -- dragging a corner and the width and
+        # height boxes alike (the owner, 2026-10-09: "especially for the arrows that change portrait
+        # height and width, but for everything else too"); remembered with the window.
+        self.lock_shape = tk.BooleanVar(value=self.window.get("keep_aspect", True) is not False)
         self.geometry(self.window.get("geometry", "1400x860"))
         self._build()
         self._follow_looks()
@@ -577,6 +603,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._tree_tab()
         self._background_tab()
         self._tools_setup()
+        self._order_tabs()
+        self._fit_lists(self)
         c = self.canvas
         c.bind("<Button-1>", self._press)
         c.bind("<B1-Motion>", self._drag)
@@ -613,12 +641,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _selected_tab(self) -> None:
         # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
-        tab = ScrollingTab(self.notebook, "Villagers")
+        tab = ScrollingTab(self.notebook, "Selected")
         self.sel_label = tk.StringVar()
         ttk.Label(tab, textvariable=self.sel_label, wraplength=320, justify="left").pack(anchor="w")
 
-        box = ttk.LabelFrame(tab, text="Portrait text", padding=6)
+        box = ttk.LabelFrame(tab, text="Their face and words", padding=6)
         box.pack(fill="x", pady=(8, 0))
+        # The owner, 2026-10-09: "differentiate editing Portrait SHAPES vs villager faces and text within the
+        # portraits" -- the face's and the words' own sizes here, the shape's below.
+        sizes = ttk.Frame(box)
+        sizes.pack(fill="x", pady=(0, 4))
         # Select words, then format them (the owner: "please allow text formatting in the family tree
         # portrait text section"): these buttons, the right-click menu or Ctrl+B / Ctrl+I / Ctrl+U.
         tools = ttk.Frame(box)
@@ -642,7 +674,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Save text", command=self._apply_text).pack(side="left")
         ttk.Button(row, text="Reset text", command=self._restore_text).pack(side="left", padx=(6, 0))
 
-        box = ttk.LabelFrame(tab, text="Special mark", padding=6)
+        box = ttk.LabelFrame(tab, text="Their special mark", padding=6)
         box.pack(fill="x", pady=(8, 0))
         row = ttk.Frame(box)
         row.pack(fill="x")
@@ -652,14 +684,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Give mark", command=self._apply_mark).pack(side="left", padx=(6, 0))
         ttk.Button(row, text="Remove mark", command=lambda: self._apply_mark(clear=True)).pack(side="left", padx=(6, 0))
 
-        box = ttk.LabelFrame(tab, text="Colour", padding=6)
+        box = ttk.LabelFrame(tab, text="Their family colour", padding=6)
         box.pack(fill="x", pady=(8, 0))
         ttk.Label(box, text="Shared with full brothers and sisters, and their family's lines.",
                   wraplength=300).pack(anchor="w")
         self.family_field = ColourField(box, "", self._own_colour)
         self.family_field.pack(anchor="w", pady=(2, 0))
 
-        box = ttk.LabelFrame(tab, text="Portrait", padding=6)
+        box = ttk.LabelFrame(tab, text="Their portrait shape: border, size, turn and colours", padding=6)
         box.pack(fill="x", pady=(8, 0))
         self.own_vars: dict[str, tk.StringVar] = {}
         for row_no, (attr, label, choices) in enumerate((("shape", "Shape:", ft.PORTRAIT_SHAPES),
@@ -667,32 +699,62 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             ttk.Label(box, text=label).grid(row=row_no, column=0, sticky="w", pady=1)
             var = tk.StringVar()
             self.own_vars[attr] = var
-            combo = ttk.Combobox(box, textvariable=var, values=list(choices.values()), state="readonly", width=18)
+            combo = ttk.Combobox(box, textvariable=var, values=ft.alphabetical(choices.values()), state="readonly", width=18)
             combo.grid(row=row_no, column=1, sticky="w", padx=(6, 0), pady=1)
             combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, c=choices, v=var: self._own_style(
                 a, next(k for k, n in c.items() if n == v.get())))
             ttk.Button(box, text="Reset to default", command=lambda a=attr: self._own_style(a, "")).grid(
                 row=row_no, column=2, sticky="w", padx=(6, 0), pady=1)
-        ttk.Label(box, text="Click one villager, then drag the circles round their portrait to resize it or the "
-                            "arrow above it to turn it.", wraplength=300, justify="left").grid(
+        ttk.Label(box, text="Click one villager, then drag the circles round their portrait to resize the shape or "
+                            "the arrow above it to turn it.  The face and words have their own sizes, above.",
+                  wraplength=300, justify="left").grid(
             row=2, column=0, columnspan=3, sticky="w", pady=(4, 2))
-        ttk.Button(box, text="Reset size and turn", command=self._reset_frames).grid(row=3, column=0, columnspan=3,
+        ttk.Button(box, text="Reset size and turn", command=self._reset_frames).grid(row=3, column=0, columnspan=2,
                                                                                     sticky="w")
+        ttk.Checkbutton(box, text="Keep aspect ratio", variable=self.lock_shape).grid(row=3, column=2, sticky="w")
         row = ttk.Frame(box)
         row.grid(row=4, column=0, columnspan=3, sticky="w", pady=(6, 0))
-        ttk.Label(row, text="Size of every selected:  width").pack(side="left")
+        ttk.Label(row, text="Size:  width").pack(side="left")
         self.own_w, self.own_h = tk.StringVar(), tk.StringVar()
-        for var, label in ((self.own_w, None), (self.own_h, "height")):
+        for var, label, axis in ((self.own_w, None, 0), (self.own_h, "height", 1)):
             if label:
                 ttk.Label(row, text=label).pack(side="left", padx=(4, 0))
-            self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6), self._own_size).pack(
-                side="left", padx=(2, 0))
-        # The words' own size, apart from the frame (the owner, 2026-10-08: "Should be able to resize text
-        # independently of the portrait shape it's in too"); 100% is the size that fits the shape.
-        ttk.Label(row, text="text %").pack(side="left", padx=(8, 0))
+            self._live(ttk.Spinbox(row, textvariable=var, values=ft.SIZE_STEPS, width=6),
+                       lambda a=axis: self._own_size(a)).pack(side="left", padx=(2, 0))
+        # The face's and the words' own sizes, apart from the frame (the owner, 2026-10-08: "Should be able to
+        # resize text independently of the portrait shape it's in too"), in "Their face and words" above;
+        # 100% is the size that fits the shape.
+        ttk.Label(sizes, text="Face size %").pack(side="left")             # the owner, 2026-10-09
+        self.own_picture = tk.StringVar()
+        self._live(ttk.Spinbox(sizes, textvariable=self.own_picture, from_=ft.PICTURE_SCALE_MIN,
+                               to=ft.PICTURE_SCALE_MAX, increment=10, width=5),
+                   self._own_picture_size).pack(side="left", padx=(2, 0))
+        ttk.Label(sizes, text="Text size %").pack(side="left", padx=(10, 0))
         self.own_text = tk.StringVar()
-        self._live(ttk.Spinbox(row, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
+        self._live(ttk.Spinbox(sizes, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
                                increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
+        ttk.Button(sizes, text="Reset", width=6, command=self._own_inner_reset).pack(side="left", padx=(6, 0))
+        # The owner, 2026-10-09: "an option to recolor the inside of the portraits" -- each selected
+        # villager's own; Automatic is the whole tree's (the Shapes tab).
+        row = ttk.Frame(box)
+        row.grid(row=7, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Inside colour:").pack(side="left")
+        self.own_fill = ColourField(row, "", self._own_fill)
+        self.own_fill.pack(side="left", padx=(4, 0))
+        ttk.Label(row, text="Detail colour:").pack(side="left", padx=(10, 0))       # the lines inside it
+        self.own_detail = ColourField(row, "", self._own_detail)
+        self.own_detail.pack(side="left", padx=(4, 0))
+        # The owner, 2026-10-09: flip the portrait's shape either way, and turn it to an exact angle.
+        row = ttk.Frame(box)
+        row.grid(row=6, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self.own_flips = {flip: tk.BooleanVar() for flip in ("flip_h", "flip_v")}
+        for flip, words in (("flip_h", "Flip horizontally"), ("flip_v", "Flip vertically")):
+            ttk.Checkbutton(row, text=words, variable=self.own_flips[flip],
+                            command=lambda f=flip: self._own_flip(f)).pack(side="left", padx=(0, 8))
+        ttk.Label(row, text="Turn (degrees)").pack(side="left")
+        self.own_turn = tk.StringVar()
+        self._live(ttk.Spinbox(row, textvariable=self.own_turn, from_=0, to=345, increment=15, width=5, wrap=True),
+                   self._own_turn).pack(side="left", padx=(4, 0))
         row = ttk.Frame(box)
         row.grid(row=5, column=0, columnspan=3, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Their family's lines:  weight").pack(side="left")
@@ -700,7 +762,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._live(ttk.Spinbox(row, textvariable=self.own_line_w, values=ft.LINE_STEPS, width=5),
                    lambda: self._own_lines(part="width")).pack(side="left", padx=(2, 0))
         self.own_line_dash = tk.StringVar()
-        kind = ttk.Combobox(row, textvariable=self.own_line_dash, values=list(ft.LINE_TYPES.values()),
+        kind = ttk.Combobox(row, textvariable=self.own_line_dash, values=ft.alphabetical(ft.LINE_TYPES.values()),
                             state="readonly", width=16)
         kind.pack(side="left", padx=(4, 0))
         kind.bind("<<ComboboxSelected>>", lambda _e: self._own_lines(part="dash"))
@@ -709,7 +771,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
         # The owner: "allow customizability/reordering of villagers within generations.  Perhaps I
         # would like to put Huata in the 4th generation".
-        box = ttk.LabelFrame(tab, text="Generation", padding=6)
+        box = ttk.LabelFrame(tab, text="Their generation and place", padding=6)
         box.pack(fill="x", pady=(8, 0))
         row = ttk.Frame(box)
         row.pack(fill="x")
@@ -731,13 +793,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _marks_tab(self) -> None:
         # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
-        tab = ScrollingTab(self.notebook, "Special Marks")
+        tab = ScrollingTab(self.notebook, "Marks")      # the owner, 2026-10-09
         ttk.Label(tab, text="A special mark is a coloured border or glow around a villager, named in the Key "
                             "under the title.", wraplength=320, justify="left").pack(anchor="w")
         box = ttk.LabelFrame(tab, text="How every mark looks", padding=6)
         box.pack(fill="x", pady=(6, 0))
         self.mark_style_var = tk.StringVar(value=ft.MARK_STYLES[self.edits.mark_style])
-        style = ttk.Combobox(box, textvariable=self.mark_style_var, values=list(ft.MARK_STYLES.values()),
+        style = ttk.Combobox(box, textvariable=self.mark_style_var, values=ft.alphabetical(ft.MARK_STYLES.values()),
                              state="readonly", width=28)
         style.grid(row=0, column=0, columnspan=3, sticky="w")
         style.bind("<<ComboboxSelected>>", lambda _e: self._change(
@@ -769,7 +831,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         row = ttk.Frame(tab)
         row.pack(fill="x", pady=(6, 0))
         self.preset_mark = tk.StringVar(value=next(iter(PRESET_MARKS)))
-        marks = ttk.Combobox(row, textvariable=self.preset_mark, values=list(PRESET_MARKS) + [CUSTOM_MARK], width=22)
+        marks = ttk.Combobox(row, textvariable=self.preset_mark, values=ft.alphabetical(PRESET_MARKS) + [CUSTOM_MARK], width=22)
         marks.pack(side="left")
 
         def custom(_event=None) -> None:
@@ -791,7 +853,28 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _tree_tab(self) -> None:
         # Scrolls when its controls are taller than the window (the owner, 2026-10-08: "please have a
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
-        tab = ScrollingTab(self.notebook, "Layout")
+        # The owner, 2026-10-09: "organize the tree options better. Portrait editing in one place, text in
+        # another. Why not have tabs?" -- the one long Whole Tree tab, split by what each option changes.
+        portraits_tab = ScrollingTab(self.notebook, "Shapes")
+        text_tab = ScrollingTab(self.notebook, "Faces & Text")
+        layout_tab = ScrollingTab(self.notebook, "Layout")
+        # The owner, 2026-10-09: "organize everything where it makes sense.  and name things in a natural way
+        # that describes what the feature does succinctly" -- each tab's sections made first, in the order they
+        # stand; each part below fills its own.
+        def slot(parent, title: str = ""):
+            frame = ttk.LabelFrame(parent, text=title, padding=6) if title else ttk.Frame(parent)
+            frame.pack(fill="x", pady=(10, 0) if title else 0)
+            return frame
+        p_shape, p_size, p_colour, p_schemes, p_details, p_special = (
+            slot(portraits_tab), slot(portraits_tab), slot(portraits_tab, "Colours"), slot(portraits_tab),
+            slot(portraits_tab), slot(portraits_tab))
+        t_words, t_colour, t_numbers = (slot(text_tab), slot(text_tab, "Text colour"),
+                                        slot(text_tab, "Numbered names"))
+        l_title, l_arrange, l_spacing, l_lines, l_labels, l_label_line, l_opacity, l_page_size, l_pages, l_deleted = (
+            slot(layout_tab, "Title"), slot(layout_tab, "Arrangement"), slot(layout_tab), slot(layout_tab),
+            slot(layout_tab, "Generation labels"), slot(layout_tab), slot(layout_tab), slot(layout_tab, "Page size"),
+            slot(layout_tab), slot(layout_tab))
+        tab = l_title
         e = self.edits
         self.title_var = tk.StringVar(value=e.title)
         self.subtitle_var = tk.StringVar(value=e.subtitle)
@@ -802,79 +885,192 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             entry.pack(fill="x")
             entry.bind("<Return>", lambda _e: self._titles())
             entry.bind("<FocusOut>", lambda _e: self._titles())
-        ttk.Label(tab, text="Order in each generation:").pack(anchor="w", pady=(10, 1))
+        tab = l_arrange
+        ttk.Label(tab, text="Order in each generation:").pack(anchor="w", pady=(0, 1))
         self.sort_var = tk.StringVar(value=gen.SORTS[e.sort])
-        sort = ttk.Combobox(tab, textvariable=self.sort_var, values=list(gen.SORTS.values()), state="readonly")
+        sort = ttk.Combobox(tab, textvariable=self.sort_var, values=ft.alphabetical(gen.SORTS.values()), state="readonly")
         sort.pack(fill="x")
         sort.bind("<<ComboboxSelected>>", lambda _e: self._change(sort=next(k for k, v in gen.SORTS.items()
                                                                             if v == self.sort_var.get())))
-        ttk.Button(tab, text="Renumber villagers whose text I edited", command=self._renumber).pack(anchor="w",
-                                                                                                 pady=(4, 0))
+        tab = t_numbers
+        ttk.Button(tab, text="Renumber edited portraits", command=self._renumber).pack(anchor="w")
         ttk.Button(tab, text="Number duplicate names", command=self._number_names).pack(anchor="w", pady=(4, 0))
         self.number_names_var = tk.BooleanVar(value=e.number_names)
         ttk.Checkbutton(tab, text="Show duplicate names numbered (Soda I, Soda II...)", variable=self.number_names_var,
                         command=lambda: self._change(number_names=bool(self.number_names_var.get()))).pack(anchor="w")
-        ttk.Label(tab, text="Who is \"I\":").pack(anchor="w", pady=(2, 1))
+        ttk.Label(tab, text="Number duplicates in this order:").pack(anchor="w", pady=(2, 1))
         self.number_order_var = tk.StringVar(value=gen.NUMBER_ORDERS[e.number_order])
-        orders = ttk.Combobox(tab, textvariable=self.number_order_var, values=list(gen.NUMBER_ORDERS.values()),
+        orders = ttk.Combobox(tab, textvariable=self.number_order_var, values=ft.alphabetical(gen.NUMBER_ORDERS.values()),
                               state="readonly")
         orders.pack(fill="x")
         orders.bind("<<ComboboxSelected>>", lambda _e: self._change(number_order=next(
             k for k, v in gen.NUMBER_ORDERS.items() if v == self.number_order_var.get())))
-        ttk.Label(tab, text="Arrangement:").pack(anchor="w", pady=(10, 1))
+        tab = l_arrange
+        ttk.Label(tab, text="Layout:").pack(anchor="w", pady=(6, 1))
         self.position_var = tk.StringVar(value=ft.POSITIONING[e.positioning])
-        positions = ttk.Combobox(tab, textvariable=self.position_var, values=list(ft.POSITIONING.values()),
+        positions = ttk.Combobox(tab, textvariable=self.position_var, values=ft.alphabetical(ft.POSITIONING.values()),
                                  state="readonly")
         positions.pack(fill="x")
         positions.bind("<<ComboboxSelected>>", lambda _e: self._change(
             positioning=next(k for k, v in ft.POSITIONING.items() if v == self.position_var.get())))
-        self.centre_var = tk.BooleanVar(value=e.centre_heads)
-        ttk.Checkbutton(tab, text="Centre faces and text in portraits", variable=self.centre_var,
-                        command=lambda: self._change(centre_heads=bool(self.centre_var.get()))).pack(anchor="w", pady=(10, 0))
-        # The owner, 2026-10-08: the words in a portrait spread wider, adjustable.
+        # The owner, 2026-10-09: "justify portraits" -- each row across the tree, and the portraits of
+        # different sizes in a row lined up by their tops, middles or bottoms.
         row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(6, 0))
+        ttk.Label(row, text="Rows across the tree:").pack(side="left")
+        self.row_align_var = tk.StringVar(value=ft.ROW_ALIGNS[e.row_align])
+        across = ttk.Combobox(row, textvariable=self.row_align_var, values=list(ft.ROW_ALIGNS.values()),
+                              state="readonly", width=12)
+        across.pack(side="left", padx=(6, 12))
+        across.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            row_align=next(k for k, v in ft.ROW_ALIGNS.items() if v == self.row_align_var.get())))
+        ttk.Label(row, text="Line up portraits by their:").pack(side="left")
+        self.row_valign_var = tk.StringVar(value=ft.ROW_VALIGNS[e.row_valign])
+        down = ttk.Combobox(row, textvariable=self.row_valign_var, values=list(ft.ROW_VALIGNS.values()),
+                            state="readonly", width=9)
+        down.pack(side="left", padx=(6, 0))
+        down.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            row_valign=next(k for k, v in ft.ROW_VALIGNS.items() if v == self.row_valign_var.get())))
+        self._reset_button(row, "row_align", "row_valign").pack(side="left", padx=(6, 0))
+        tab = t_words
+        # The owner, 2026-10-09: the portrait's face and words options together, "Portrait pictures/text".
+        words = ttk.LabelFrame(tab, text="Faces and words in every portrait", padding=6)
+        words.pack(fill="x", pady=(10, 0))
+        # The owner, 2026-10-09: "make all these options by group" -- everyone's, or one group's own.
+        self.scope_var = tk.StringVar(value=EVERYONE)
+        self.scope_note = tk.StringVar(value="")
+        self._scope_picker(words).pack(anchor="w", fill="x", pady=(0, 6))
+        # The owner, 2026-10-09: "justify text (left right center + top middle bottom)".
+        row = ttk.Frame(words)
+        row.pack(anchor="w")
+        ttk.Label(row, text="Align text:").pack(side="left")
+        self.align_var = tk.StringVar(value=ft.TEXT_ALIGNS[e.text_align])
+        across = ttk.Combobox(row, textvariable=self.align_var, values=list(ft.TEXT_ALIGNS.values()),
+                              state="readonly", width=7)
+        across.pack(side="left", padx=(6, 0))
+        across.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            text_align=next(k for k, v in ft.TEXT_ALIGNS.items() if v == self.align_var.get())))
+        ttk.Label(row, text="Face and text sit at the:").pack(side="left", padx=(8, 0))
+        row2 = ttk.Frame(words)
+        row2.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row2, text="Text area:").pack(side="left")
+        self.room_var = tk.StringVar(value=ft.TEXT_ROOMS[e.text_room])
+        room = ttk.Combobox(row2, textvariable=self.room_var, values=ft.alphabetical(ft.TEXT_ROOMS.values()), state="readonly",
+                            width=16)
+        room.pack(side="left", padx=(6, 0))
+        room.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            text_room=next(k for k, v in ft.TEXT_ROOMS.items() if v == self.room_var.get())))
+        self._reset_button(row2, "text_room").pack(side="left", padx=(6, 0))
+        self.flip_words_var = tk.BooleanVar(value=e.flip_words)          # the owner, 2026-10-09
+        ttk.Checkbutton(words, text="Mirror text with a flipped portrait", variable=self.flip_words_var,
+                        command=lambda: self._change(flip_words=bool(self.flip_words_var.get()))).pack(anchor="w")
+        self.turn_words_var = tk.BooleanVar(value=e.turn_words)          # the owner, 2026-10-09
+        ttk.Checkbutton(words, text="Turn text with a turned portrait (the face stays upright)",
+                        variable=self.turn_words_var,
+                        command=lambda: self._change(turn_words=bool(self.turn_words_var.get()))).pack(anchor="w")
+        self.inside_var = tk.BooleanVar(value=e.text_inside)
+        ttk.Checkbutton(words, text="Keep text inside the shape",
+                        variable=self.inside_var,
+                        command=lambda: self._change(text_inside=bool(self.inside_var.get()))).pack(anchor="w")
+        self.valign_var = tk.StringVar(value=ft.TEXT_VALIGNS[e.text_valign])
+        down = ttk.Combobox(row, textvariable=self.valign_var, values=list(ft.TEXT_VALIGNS.values()),
+                            state="readonly", width=7)
+        down.pack(side="left", padx=(6, 0))
+        down.bind("<<ComboboxSelected>>", lambda _e: self._valign(
+            next(k for k, v in ft.TEXT_VALIGNS.items() if v == self.valign_var.get())))
+        self._reset_button(row, "text_align", "text_valign", "centre_heads").pack(side="left", padx=(6, 0))
+        # The owner, 2026-10-09: "i want to be able to resize the villager's picture and text within the
+        # shape" -- every portrait's here, each villager's own on the Selected tab.
+        row = ttk.Frame(words)
         row.pack(anchor="w", pady=(4, 0))
-        ttk.Label(row, text="Characters across a portrait:").pack(side="left")
+        ttk.Label(row, text="Face size (%):").pack(side="left")
+        self.picture_size_var = tk.StringVar(value=f"{e.picture_size:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.picture_size_var, from_=ft.PICTURE_SCALE_MIN,
+                               to=ft.PICTURE_SCALE_MAX, increment=10, width=5),
+                   lambda: self._detail_number("picture_size", self.picture_size_var, ft.PICTURE_SCALE_MIN,
+                                               ft.PICTURE_SCALE_MAX)).pack(side="left", padx=(6, 0))
+        self._reset_button(row, "picture_size").pack(side="left", padx=(4, 12))
+        ttk.Label(row, text="Text size (%):").pack(side="left")
+        self.text_size_var = tk.StringVar(value=f"{e.text_size:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.text_size_var, from_=ft.TEXT_SCALE_MIN,
+                               to=ft.TEXT_SCALE_MAX, increment=10, width=5),
+                   lambda: self._detail_number("text_size", self.text_size_var, ft.TEXT_SCALE_MIN,
+                                               ft.TEXT_SCALE_MAX)).pack(side="left", padx=(6, 0))
+        self._reset_button(row, "text_size").pack(side="left", padx=(4, 0))
+        row = ttk.Frame(words)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Same face and text size for:").pack(side="left")
+        ttk.Button(row, text="Everyone", command=lambda: self._equalize(None)).pack(side="left", padx=(6, 0))
+        for group, label in ft.GROUPS.items():
+            ttk.Button(row, text=label, command=lambda g=group: self._equalize(g)).pack(side="left", padx=(4, 0))
+        # The owner, 2026-10-08: the words in a portrait spread wider, adjustable.
+        row = ttk.Frame(words)
+        row.pack(anchor="w", pady=(4, 0))
+        ttk.Label(row, text="Characters per line:").pack(side="left")
         self.wrap_var = tk.StringVar(value=str(e.text_wrap))
         wrap_spin = self._live(ttk.Spinbox(row, textvariable=self.wrap_var, from_=ft.WRAP_MIN, to=ft.WRAP_MAX,
                                            width=4), self._text_wrap)
         wrap_spin.bind("<KeyRelease>", lambda _e: self._text_wrap())      # in real time, as typed (the owner)
         wrap_spin.bind("<MouseWheel>", lambda e: (self.wrap_var.set(str(max(ft.WRAP_MIN, min(
-            ft.WRAP_MAX, self.edits.text_wrap + (1 if e.delta > 0 else -1))))), self._text_wrap(), "break")[-1])
+            ft.WRAP_MAX, self._view().text_wrap + (1 if e.delta > 0 else -1))))), self._text_wrap(), "break")[-1])
         wrap_spin.pack(side="left", padx=(6, 0))
+        self._reset_button(row, "text_wrap").pack(side="left", padx=(6, 0))
+        tab = l_spacing
         # The owner, 2026-10-08: the spacing between portraits batch-editable, and portraits and their
         # words shrinking by themselves to fit many to a page.
-        row = ttk.Frame(tab)
-        row.pack(anchor="w", pady=(4, 0))
-        ttk.Label(row, text="Gap between portraits (pixels):").pack(side="left")
+        # The owner, 2026-10-09: "controls for horizontal/vertical portrait clustering and amount in
+        # pixels" -- how close portraits sit side by side, and how close the generations stack.
+        box = ttk.LabelFrame(tab, text="Spacing", padding=6)
+        box.pack(fill="x", pady=(10, 0))
+        ttk.Label(box, text="Side by side (pixels):").grid(row=0, column=0, sticky="w")
         self.gap_var = tk.StringVar(value=f"{e.portrait_gap:g}")
-        self._live(ttk.Spinbox(row, textvariable=self.gap_var, from_=ft.GAP_MIN, to=ft.GAP_MAX, increment=2, width=5),
-                   self._portrait_gap).pack(side="left", padx=(6, 0))
+        self._live(ttk.Spinbox(box, textvariable=self.gap_var, from_=ft.GAP_MIN, to=ft.GAP_MAX, increment=2, width=5),
+                   self._portrait_gap).grid(row=0, column=1, sticky="w", padx=(6, 0))
+        self._reset_button(box, "portrait_gap").grid(row=0, column=2, sticky="w", padx=(6, 0))
+        ttk.Label(box, text="Between generations (pixels):").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.row_gap_var = tk.StringVar(value=f"{e.row_gap:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.row_gap_var, from_=ft.ROW_GAP_MIN, to=ft.ROW_GAP_MAX, increment=2,
+                               width=5), self._row_gap).grid(row=1, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        self._reset_button(box, "row_gap").grid(row=1, column=2, sticky="w", padx=(6, 0), pady=(4, 0))
+        tab = l_page_size
         row = ttk.Frame(tab)
-        row.pack(anchor="w", pady=(4, 0))
-        ttk.Label(row, text=f"Most generations on one page ({ft.PAGE_GENS_MIN}-{ft.PAGE_GENS_MAX}):").pack(side="left")
+        row.pack(anchor="w")
+        ttk.Label(row, text=f"Generations per page ({ft.PAGE_GENS_MIN}-{ft.PAGE_GENS_MAX}):").pack(side="left")
         self.page_gens_var = tk.StringVar(value=str(e.page_generations))
         self._live(ttk.Spinbox(row, textvariable=self.page_gens_var, from_=ft.PAGE_GENS_MIN, to=ft.PAGE_GENS_MAX,
                                width=4), self._page_generations).pack(side="left", padx=(6, 0))
+        self._reset_button(row, "page_generations").pack(side="left", padx=(6, 0))
         row = ttk.Frame(tab)
         row.pack(anchor="w", pady=(4, 0))
-        ttk.Label(row, text="Shrink portraits to fit a page width of (pixels, 0 = off):").pack(side="left")
+        ttk.Label(row, text="Shrink portraits to fit a width of (pixels, 0 = off):").pack(side="left")
         self.portrait_fit_var = tk.StringVar(value=str(e.fit_width))      # not fit_var: the background picture's (Codex, #575)
         self._live(ttk.Spinbox(row, textvariable=self.portrait_fit_var, from_=0, to=ft.FIT_MAX, increment=200, width=7),
                    self._fit_width).pack(side="left", padx=(6, 0))
+        self._reset_button(row, "fit_width").pack(side="left", padx=(6, 0))
         self.units_var = tk.BooleanVar(value=e.show_units)
-        ttk.Checkbutton(tab, text="Game age in units", variable=self.units_var,
+        ttk.Checkbutton(words, text="Show age in game units", variable=self.units_var,
                         command=lambda: self._change(show_units=bool(self.units_var.get()))).pack(anchor="w")
         self.years_var = tk.BooleanVar(value=e.show_years)
-        ttk.Checkbutton(tab, text="Game age in years", variable=self.years_var,
+        ttk.Checkbutton(words, text="Show age in years", variable=self.years_var,
                         command=lambda: self._change(show_years=bool(self.years_var.get()))).pack(anchor="w")
-        ttk.Label(tab, text="Text colour:").pack(anchor="w", pady=(10, 1))
+        # The owner, 2026-10-09: "X's twin/triplet" after the age.
+        self.twins_var = tk.BooleanVar(value=e.show_twins)
+        ttk.Checkbutton(words, text="Show twins and triplets (\"Kalea's twin\")", variable=self.twins_var,
+                        command=lambda: self._change(show_twins=bool(self.twins_var.get()))).pack(anchor="w")
+        self.founder_var = tk.BooleanVar(value=e.show_founder)          # the owner, 2026-10-09
+        ttk.Checkbutton(words, text="Show \"Founder\" in the first generation", variable=self.founder_var,
+                        command=lambda: self._change(show_founder=bool(self.founder_var.get()))).pack(anchor="w")
+        tab = t_colour
+        ttk.Label(tab, text="Every word on the tree (a part's own colour: Fonts tab):").pack(anchor="w", pady=(0, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
         self.ink_field.pack(anchor="w")
-        ttk.Label(tab, text="Inside the portraits:").pack(anchor="w", pady=(10, 1))
+        tab = p_colour
+        self._scope_picker(tab).pack(anchor="w", fill="x", pady=(0, 6))
+        ttk.Label(tab, text="Inside every portrait:").pack(anchor="w", pady=(0, 1))
         self.fill_field = ColourField(tab, e.portrait_fill, lambda c: self._change(portrait_fill=c or "#ffffff"))
         self.fill_field.pack(anchor="w")
-        box = ttk.LabelFrame(tab, text="Opacity (pictures and text boxes: Pictures & Text tab)", padding=6)
+        tab = l_opacity                         # how see-through each part of the tree is
+        box = ttk.LabelFrame(tab, text="Opacity", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.opacity_vars: dict[str, ttk.Scale] = {}
         for row_no, (part, (label, default)) in enumerate(ft.OPACITY.items()):
@@ -888,7 +1084,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             scale.bind("<KeyRelease>", lambda _e, part=part, s=scale: self._set_opacity(part, int(s.get())))
             self.opacity_vars[part] = scale
         box.columnconfigure(1, weight=1)
-        box = ttk.LabelFrame(tab, text="Portrait shapes and borders", padding=6)
+        tab = p_shape
+        box = ttk.LabelFrame(tab, text="Shape and border (by group)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_vars: dict[tuple[str, str], tk.StringVar] = {}
         for row_no, (group, label) in enumerate(ft.GROUPS.items()):
@@ -896,15 +1093,131 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             for col, (attr, choices) in enumerate((("shapes", ft.PORTRAIT_SHAPES), ("borders", ft.BORDERS)), 1):
                 var = tk.StringVar(value=choices[getattr(e, attr)[group]])
                 self.group_vars[(attr, group)] = var
-                combo = ttk.Combobox(box, textvariable=var, values=list(choices.values()), state="readonly", width=16)
+                combo = ttk.Combobox(box, textvariable=var, values=ft.alphabetical(choices.values()), state="readonly", width=16)
                 combo.grid(row=row_no, column=col, sticky="w", padx=(6, 0), pady=1)
                 combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, g=group, c=choices, v=var: self._group_style(
                     a, g, next(k for k, n in c.items() if n == v.get())))
             # The owner, 2026-10-08: change ALL male, female or unborn portraits at once -- the ones
             # given their own shape or border one by one too.
-            ttk.Button(box, text="Apply to every one", command=lambda g=group: self._group_all(g)).grid(
+            ttk.Button(box, text="Apply to all", command=lambda g=group: self._group_all(g)).grid(
                 row=row_no, column=3, sticky="w", padx=(6, 0), pady=1)
-        box = ttk.LabelFrame(tab, text="Portrait sizes (each group's default)", padding=6)
+        # The owner, 2026-10-09: "batch rotate/transform portraits by group" -- every portrait of a group
+        # flipped or turned at once (each villager's own flip and turn, so any can still be changed alone).
+        box = ttk.LabelFrame(tab, text="Flip and turn (by group)", padding=6)
+        box.pack(fill="x", pady=(10, 0))
+        self.group_turns: dict[str, tk.StringVar] = {}
+        for row_no, (group, label) in enumerate(ft.GROUPS.items()):
+            ttk.Label(box, text=label + ":").grid(row=row_no, column=0, sticky="w", pady=1)
+            ttk.Button(box, text="Flip ↔", width=7, command=lambda g=group: self._group_flip(g, "flip_h")).grid(
+                row=row_no, column=1, sticky="w", padx=(6, 0), pady=1)
+            ttk.Button(box, text="Flip ↕", width=7, command=lambda g=group: self._group_flip(g, "flip_v")).grid(
+                row=row_no, column=2, sticky="w", padx=(4, 0), pady=1)
+            var = tk.StringVar(value="0")
+            ttk.Spinbox(box, textvariable=var, from_=0, to=345, increment=15, width=5, wrap=True).grid(
+                row=row_no, column=3, sticky="w", padx=(10, 0), pady=1)
+            ttk.Button(box, text="Turn (°)", command=lambda g=group: self._group_turn(g)).grid(
+                row=row_no, column=4, sticky="w", padx=(4, 0), pady=1)
+            ttk.Button(box, text="Reset", command=lambda g=group: self._group_unturn(g)).grid(
+                row=row_no, column=5, sticky="w", padx=(4, 0), pady=1)
+            self.group_turns[group] = var
+        # The owner, 2026-10-09: detailing inside the shapes, its colour, opacity and line weight.
+        tab = p_details
+        box = ttk.LabelFrame(tab, text="Detail lines (shells, stars, flowers...)", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        self._scope_picker(box).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 6))
+        box = ttk.Frame(box)                    # the settings, under the picker
+        box.grid(row=1, column=0, columnspan=3, sticky="w")
+        self.detail_var = tk.BooleanVar(value=e.detail_lines)
+        ttk.Checkbutton(box, text="Show detail lines", variable=self.detail_var,
+                        command=lambda: self._change(detail_lines=bool(self.detail_var.get()))).grid(
+            row=0, column=0, columnspan=2, sticky="w")
+        ttk.Label(box, text="Colour (Automatic: the border's):").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.detail_field = ColourField(box, e.detail_colour, lambda c: self._change(detail_colour=c or ""))
+        self.detail_field.grid(row=1, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        ttk.Label(box, text="Opacity (%):").grid(row=2, column=0, sticky="w", pady=(4, 0))
+        self.detail_opacity_var = tk.StringVar(value=f"{e.detail_opacity:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.detail_opacity_var, from_=0, to=100, increment=5, width=5),
+                   lambda: self._detail_number("detail_opacity", self.detail_opacity_var, 0, 100)).grid(
+            row=2, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        self._reset_button(box, "detail_opacity").grid(row=2, column=2, sticky="w", padx=(6, 0), pady=(4, 0))
+        ttk.Label(box, text="Line weight:").grid(row=3, column=0, sticky="w", pady=(4, 0))
+        self.detail_width_var = tk.StringVar(value=f"{e.detail_width:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.detail_width_var, values=ft.LINE_STEPS, width=5),
+                   lambda: self._detail_number("detail_width", self.detail_width_var, *ft.LINE_WIDTHS)).grid(
+            row=3, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        self._reset_button(box, "detail_width").grid(row=3, column=2, sticky="w", padx=(6, 0), pady=(4, 0))
+        # The owner, 2026-10-09: the special borders' colours -- natural, rainbow flowers, picked for each
+        # part, or 2-7 colours by turns or as a gradient.
+        tab = p_special
+        box = ttk.LabelFrame(tab, text="Rope and vine colours (special borders)", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        self.special_mode_var = tk.StringVar(value=ft.SPECIAL_COLOUR_MODES[e.special_mode])
+        mode = ttk.Combobox(box, textvariable=self.special_mode_var, values=ft.alphabetical(ft.SPECIAL_COLOUR_MODES.values()),
+                            state="readonly", width=20)
+        mode.grid(row=0, column=0, columnspan=2, sticky="w")
+        mode.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            special_mode=next(k for k, v in ft.SPECIAL_COLOUR_MODES.items() if v == self.special_mode_var.get())))
+        # The owner, 2026-10-09: the natural flowers' colour.
+        ttk.Label(box, text="Natural flowers:").grid(row=0, column=2, sticky="e", padx=(8, 4))
+        self.hibiscus_var = tk.StringVar(value=ft.HIBISCUS_CHOICES[e.hibiscus])
+        flower = ttk.Combobox(box, textvariable=self.hibiscus_var, values=ft.alphabetical(ft.HIBISCUS_CHOICES.values()),
+                              state="readonly", width=20)
+        flower.grid(row=0, column=3, sticky="w")
+        flower.bind("<<ComboboxSelected>>", lambda _e: self._change(
+            hibiscus=next(k for k, v in ft.HIBISCUS_CHOICES.items() if v == self.hibiscus_var.get())))
+        ttk.Label(box, text="Pick colours (each part):").grid(row=1, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        self.special_pick_fields = {}
+        for k, (part, words) in enumerate(ft.SPECIAL_PARTS.items()):
+            ttk.Label(box, text=words).grid(row=2 + k // 2, column=(k % 2) * 2, sticky="w")
+            fieldw = ColourField(box, e.special_pick.get(part, ft.NATURAL[part]),
+                                 lambda c, part=part: self._special_pick(part, c), allow_default=False)
+            fieldw.grid(row=2 + k // 2, column=(k % 2) * 2 + 1, sticky="w", padx=(4, 8))
+            self.special_pick_fields[part] = fieldw
+        row = ttk.Frame(box)
+        row.grid(row=4, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Alternating or gradient colours, how many (2-7):").pack(side="left")
+        self.special_count_var = tk.StringVar(value=str(e.special_count))
+        self._live(ttk.Spinbox(row, textvariable=self.special_count_var, from_=2, to=7, width=3),
+                   self._special_count).pack(side="left", padx=(4, 0))
+        row = ttk.Frame(box)
+        row.grid(row=9, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Rainbow strength:").pack(side="left")              # the owner, 2026-10-09
+        self.rainbow_var = tk.StringVar(value=ft.RAINBOW_STRENGTHS[e.rainbow_strength][0])
+        strength = ttk.Combobox(row, textvariable=self.rainbow_var, state="readonly", width=8,
+                                values=[words for words, _f in ft.RAINBOW_STRENGTHS.values()])
+        strength.pack(side="left", padx=(4, 10))
+        strength.bind("<<ComboboxSelected>>", lambda _e: self._change(rainbow_strength=next(
+            k for k, (words, _f) in ft.RAINBOW_STRENGTHS.items() if words == self.rainbow_var.get())))
+        ttk.Label(row, text="Opacity (%):").pack(side="left")          # the owner, 2026-10-09
+        self.special_opacity_var = tk.StringVar(value=f"{e.special_opacity:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.special_opacity_var, from_=0, to=100, increment=5, width=5),
+                   lambda: self._detail_number("special_opacity", self.special_opacity_var, 0, 100)).pack(
+            side="left", padx=(4, 0))
+        self._reset_button(row, "rainbow_strength", "special_opacity").pack(side="left", padx=(6, 0))
+        self.special_palette_fields = []
+        for k in range(7):
+            fieldw = ColourField(box, e.special_palette[k], lambda c, k=k: self._special_palette(k, c), allow_default=False)
+            fieldw.grid(row=5 + k // 2, column=(k % 2) * 2, columnspan=2, sticky="w", pady=1)
+            self.special_palette_fields.append(fieldw)
+        # The owner, 2026-10-09: rainbow and alternating colours for the special marks, plain portrait
+        # borders, portrait insides, family lines and detail lines too.
+        tab = p_schemes
+        box = ttk.LabelFrame(tab, text="Rainbow and alternating colours", padding=6)
+        box.pack(fill="x", pady=(12, 0))
+        self.scheme_vars: dict[str, tk.StringVar] = {}
+        for k, (part, words) in enumerate(ft.SCHEME_PARTS.items()):
+            ttk.Label(box, text=words + ":").grid(row=k // 2, column=(k % 2) * 2, sticky="w", pady=1)
+            var = tk.StringVar(value=ft.COLOUR_SCHEMES[e.schemes.get(part, "own")])
+            pick = ttk.Combobox(box, textvariable=var, values=list(ft.COLOUR_SCHEMES.values()), state="readonly",
+                                width=18)
+            pick.grid(row=k // 2, column=(k % 2) * 2 + 1, sticky="w", padx=(4, 10), pady=1)
+            pick.bind("<<ComboboxSelected>>", lambda _e, part=part: self._scheme(part))
+            self.scheme_vars[part] = var
+        ttk.Label(box, text="The rainbow strength and the alternating colours are set below, under Rope and vine colours.  A "
+                            "villager's own inside or detail colour still wins.",
+                  wraplength=520, foreground="#555555").grid(row=3, column=0, columnspan=4, sticky="w", pady=(4, 0))
+        tab = p_size
+        box = ttk.LabelFrame(tab, text="Size (by group)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_sizes: dict[str, tuple[tk.StringVar, tk.StringVar]] = {}
         for row_no, (group, label) in enumerate(ft.GROUPS.items()):
@@ -912,13 +1225,19 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             pair = (tk.StringVar(), tk.StringVar())
             for col, var in enumerate(pair, 1):
                 self._live(ttk.Spinbox(box, textvariable=var, values=ft.SIZE_STEPS, width=6),
-                           lambda g=group: self._group_size(g)).grid(row=row_no, column=col, sticky="w", padx=(4, 0))
-            ttk.Button(box, text="Shape's own", command=lambda g=group: self._group_size(g, reset=True)).grid(
+                           lambda g=group, a=col - 1: self._group_size(g, axis=a)).grid(
+                    row=row_no, column=col, sticky="w", padx=(4, 0))
+            ttk.Button(box, text="Default size", command=lambda g=group: self._group_size(g, reset=True)).grid(
                 row=row_no, column=3, sticky="w", padx=(6, 0))
             self.group_sizes[group] = pair
         ttk.Label(box, text="width and height").grid(row=3, column=1, columnspan=2, sticky="w")
+        ttk.Checkbutton(box, text="Keep aspect ratio", variable=self.lock_shape).grid(row=3, column=3, sticky="w",
+                                                                                     padx=(6, 0))
+        ttk.Button(box, text="Everyone back to their group's size", command=self._equalize_sizes).grid(
+            row=4, column=0, columnspan=4, sticky="w", pady=(4, 0))
         self._show_group_sizes()
-        box = ttk.LabelFrame(tab, text="The line beside each generation's label", padding=6)
+        tab = l_label_line
+        box = ttk.LabelFrame(tab, text="Line beside generation labels", padding=6)
         box.pack(fill="x", pady=(12, 0))
         ttk.Label(box, text="Weight:").pack(side="left")
         self.label_w_var = tk.StringVar(value=f"{e.label_line_width:g}")
@@ -931,18 +1250,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                    lambda: self._label_line("label_line_reach", self.label_reach_var, 0.0, 1000.0)).pack(
             side="left", padx=(2, 0))
         ttk.Label(box, text="at each end").pack(side="left", padx=(2, 0))
-        box = ttk.LabelFrame(tab, text="Family lines (every one)", padding=6)
+        tab = l_lines
+        box = ttk.LabelFrame(tab, text="Family lines", padding=6)
         box.pack(fill="x", pady=(12, 0))
         ttk.Label(box, text="Weight:").pack(side="left")
         self.line_w_var = tk.StringVar(value=f"{e.line_width:g}")
         self._live(ttk.Spinbox(box, textvariable=self.line_w_var, values=ft.LINE_STEPS, width=5),
                    self._line_weight).pack(side="left", padx=(2, 0))
         self.line_dash_var = tk.StringVar(value=ft.LINE_TYPES[e.line_dash])
-        kind = ttk.Combobox(box, textvariable=self.line_dash_var, values=list(ft.LINE_TYPES.values()),
+        kind = ttk.Combobox(box, textvariable=self.line_dash_var, values=ft.alphabetical(ft.LINE_TYPES.values()),
                             state="readonly", width=16)
         kind.pack(side="left", padx=(6, 0))
         kind.bind("<<ComboboxSelected>>", lambda _e: self._change(
             line_dash=next(k for k, v in ft.LINE_TYPES.items() if v == self.line_dash_var.get())))
+        tab = l_deleted
         box = ttk.LabelFrame(tab, text="Deleted items", padding=6)
         box.pack(fill="x", pady=(12, 0))
         ttk.Label(box, text="Right-click anything on the tree to delete it.  Restore it here:",
@@ -955,7 +1276,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Restore all", command=lambda: self._restore_hidden(every=True)).pack(side="left", padx=(6, 0))
         self.hidden_keys: list[str] = []
         self.after_idle(self._refresh_hidden)
-        box = ttk.LabelFrame(tab, text="Pages (for a very large or long family)", padding=6)
+        tab = l_pages
+        box = ttk.LabelFrame(tab, text="Pages", padding=6)
         box.pack(fill="x", pady=(10, 0))
         self.pages_label = tk.StringVar()
         ttk.Label(box, textvariable=self.pages_label, wraplength=320, justify="left").pack(anchor="w")
@@ -970,14 +1292,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Label(box, text="Each page is its own tree; a child whose parents are on an earlier page starts its "
                             "page.  Saving a picture saves every page.", wraplength=320, justify="left").pack(
             anchor="w", pady=(4, 0))
-        ttk.Label(tab, text="Generation numbers:").pack(anchor="w", pady=(10, 1))
+        tab = l_labels
+        ttk.Label(tab, text="Numbering:").pack(anchor="w", pady=(0, 1))
         self.numbering_var = tk.StringVar(value=ft.NUMBERINGS[e.numbering])
         numbering = ttk.Combobox(tab, textvariable=self.numbering_var, values=list(ft.NUMBERINGS.values()),
                                  state="readonly")
         numbering.pack(fill="x")
         numbering.bind("<<ComboboxSelected>>", lambda _e: self._change(
             numbering=next(k for k, v in ft.NUMBERINGS.items() if v == self.numbering_var.get())))
-        ttk.Label(tab, text="Generation labels (pick one to edit; right-click a line on the tree to delete it):",
+        ttk.Label(tab, text="Edit a label (right-click a line on the tree to delete it):",
                   wraplength=320, justify="left").pack(anchor="w", pady=(10, 1))
         gens = sorted({p.generation for p in self.village.people.values()})
         self.gen_var = tk.StringVar(value=gen.roman(gens[0]) if gens else "I")
@@ -1023,7 +1346,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Remove", command=lambda: self._change(background_image="")).pack(side="left", padx=(4, 0))
         ttk.Label(tab, text="Picture fit:").pack(anchor="w", pady=(10, 1))
         self.fit_var = tk.StringVar(value=ft.FITS[e.background_fit])
-        fit = ttk.Combobox(tab, textvariable=self.fit_var, values=list(ft.FITS.values()), state="readonly")
+        fit = ttk.Combobox(tab, textvariable=self.fit_var, values=ft.alphabetical(ft.FITS.values()), state="readonly")
         fit.pack(fill="x")
         fit.bind("<<ComboboxSelected>>", lambda _e: self._change(
             background_fit=next(k for k, v in ft.FITS.items() if v == self.fit_var.get())))
@@ -1169,6 +1492,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 flat = [v for point in item.points for v in point]
                 iid = c.create_line(*flat, fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
                                     width=item.width * z, joinstyle="round", dash=ft.TK_DASHES.get(item.dash))
+            elif isinstance(item, ft.Poly):
+                flat = [v for point in item.points for v in point]
+                iid = c.create_polygon(*flat, fill=tk_colour(faded(item.fill, item.opacity, sc.background)) if item.fill else "",
+                                       outline=tk_colour(faded(item.stroke, item.opacity, sc.background)) if item.width else "",
+                                       width=item.width * z,
+                                       joinstyle="round")
             elif isinstance(item, ft.Shape):
                 fill = tk_colour(item.fill or "")
                 dash = ft.TK_DASHES.get(item.dash)
@@ -1203,6 +1532,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 image = self._head(item.sheet, item.row, item.scale)
                 if image is not None:
                     iid = c.create_image(item.x, item.y, image=image, anchor="nw")
+            elif isinstance(item, ft.Text) and (item.mirror_h or item.mirror_v):
+                iid = self._mirrored_words(item)            # the canvas cannot mirror words: drawn as a picture
             elif isinstance(item, ft.Text) and item.runs:
                 for run in self._draw_runs(item, sc.background):
                     self._tag(run, item)
@@ -1210,9 +1541,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 style = ["bold" if item.bold else "normal"] + (["italic"] if item.italic else []) \
                     + (["underline"] if item.underline else []) + (["overstrike"] if item.strike else [])
                 font = (item.font or vv_gdiplus.FONT, -max(1, int(round(item.size * z))), *style)
-                iid = c.create_text(item.x, item.y + item.size * 0.24, text=item.text,
+                ox, oy = ft.turn(0.0, item.size * 0.24, item.angle) if item.angle else (0.0, item.size * 0.24)
+                iid = c.create_text(item.x + ox, item.y + oy, text=item.text,
                                     fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
-                                    font=font, anchor="s" if item.centre else "sw")
+                                    font=font, anchor="s" if item.centre else "se" if item.end else "sw",
+                                    angle=-item.angle)          # the canvas turns the other way round
             if iid is not None:
                 self._tag(iid, item)
         c.scale("all", 0, 0, z, z)
@@ -1221,6 +1554,31 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._draw_selection()
         if hasattr(self, "preset_labels"):
             self._show_background()
+
+    def _mirrored_words(self, item: ft.Text):
+        """Mirrored words (Edits.flip_words), drawn by Windows into a see-through picture at the zoom and
+        placed where they belong; kept for the next drawing."""
+        if not vv_gdiplus.available():
+            return None
+        import dataclasses
+        span = max(item.size * 2, len(item.text) * item.size * 0.75 + item.size * 2)
+        left, top = item.x - span, item.y - item.size * 2
+        key = (item.text, item.size, item.bold, item.italic, item.font, item.colour, item.opacity, item.centre, item.end,
+               item.angle, item.mirror_h, item.mirror_v, str(item.runs), round(item.x - left, 1), round(self.z, 3))
+        cache = self.__dict__.setdefault("mirror_photos", {})
+        if key not in cache:
+            local = dataclasses.replace(item, x=item.x - left, y=item.y - top)
+            path = self._scratch() / f"words{len(cache)}.png"
+            try:
+                ok = vv_gdiplus.save_scene(ft.Scene(span * 2, item.size * 4, "#ffffff", [local]), {}, path,
+                                           scale=self.z, transparent=True)
+                cache[key] = tk.PhotoImage(master=self, file=str(path)) if ok else None
+            except (OSError, ValueError, tk.TclError):
+                cache[key] = None
+        photo = cache[key]
+        if photo is None:
+            return None
+        return self.canvas.create_image(left, top, image=photo, anchor="nw")
 
     def _draw_runs(self, item: ft.Text, background: str) -> list[int]:
         """A portrait's formatted words: each run in its own font (ft.run_look), measured, the whole
@@ -1234,10 +1592,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                     "bold" if look["bold"] else "normal", *(["italic"] if look["italic"] else []),
                     *(["underline"] if look["underline"] else []), *(["overstrike"] if look["strike"] else []))
             pieces.append((text, look, font, self._measure(font, text) / z))
-        x = item.x - sum(p[3] for p in pieces) / 2 if item.centre else item.x
+        total = sum(p[3] for p in pieces)
+        x = item.x - total / 2 if item.centre else item.x - total if item.end else item.x
         out = []
         for text, look, font, width in pieces:
-            out.append(c.create_text(x, item.y + look["dy"] + look["size"] * 0.24, text=text, font=font,
+            # Along the line, turned about where it starts when the words turn with the portrait.
+            dx, dy = ft.turn(x - item.x, look["dy"] + look["size"] * 0.24, item.angle)
+            out.append(c.create_text(item.x + dx, item.y + dy, text=text, font=font, angle=-item.angle,
                                      fill=tk_colour(faded(look["colour"], item.opacity, background)), anchor="sw"))
             x += width
         return out
@@ -1432,7 +1793,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return (words, e.styles.get(role, {}).get("colour", self.lay.ink),
                     lambda c: self._set_role_colour(role, c))
         if kind == "person_fill":
-            return "the inside of every portrait", e.portrait_fill, lambda c: self._change(portrait_fill=c or "#ffffff")
+            return ("the inside of every portrait", e.portrait_fill,
+                    lambda c: (self._change(everyone=True, portrait_fill=c or "#ffffff"), self._refresh_panels()))
         if kind == "plate":
             return ("the boxes behind the words", e.plate_colour or self.lay.background,
                     lambda c: self._change(plate_colour=c))
@@ -1673,9 +2035,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         window.protocol("WM_DELETE_WINDOW", done)
         window.grab_set()
 
-    def _update_from_game(self, _event=None) -> None:
+    def _update_from_game(self, _event=None, ask: bool = True) -> None:
         """The save and the patcher's logs read again (the game played on since the tree opened);
-        every edit is kept, and a villager's edits follow them."""
+        every edit is kept, and a villager's edits follow them.  Asked first when the player chose it
+        (the owner, 2026-10-09: "before actually updating when the update button is clicked, please
+        have a confirm prompt")."""
+        if ask and not messagebox.askyesno(
+                "Family Tree Maker",
+                "Update the family tree from the save and the logs now?\n\nThe villagers, their ages and "
+                "everything the game has changed since are read again; your own edits are kept.",
+                parent=self):
+            return
         try:
             village = gen.load_village(self.folder, self.game, self.slot)
         except gen.GenealogyError as exc:
@@ -2115,24 +2485,51 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         key = (item.colour, item.colour2, str(item.picture), item.fit, item.soften, int(sc.width), int(sc.height),
                self.z)
         if key != self.backdrop_key:
-            self.backdrop_key = key
-            self.photos.pop("backdrop", None)
-            if (item.colour2 or item.picture is not None) and vv_gdiplus.available():
-                temp = Path(tempfile.gettempdir()) / f"vvfp-tree-backdrop-{os.getpid()}.png"
-                plain = ft.Scene(sc.width, sc.height, item.colour, [item])
+            pending = getattr(self, "_backdrop_job", None)
+            if pending is not None:
+                self.after_cancel(pending)
+                self._backdrop_job = None
+            same_picture = (self.backdrop_key is not None and self.backdrop_key[:5] == key[:5]
+                            and "backdrop" in self.photos)
+            if same_picture:
+                # Only the page's size or the zoom changed (everyone dragged, say): the background as it was
+                # for now, and drawn again a moment later -- a picture background takes a second to draw,
+                # and every move waited for it (the owner: "less lag especially when selecting all").
+                self._backdrop_job = self.after(250, lambda: self._redraw_backdrop(item, sc, key))
+            else:
+                self._make_backdrop(item, sc, key)
+        self._backdrop_iid = None
+        if "backdrop" in self.photos:
+            self._backdrop_iid = self.canvas.create_image(0, 0, image=self.photos["backdrop"], anchor="nw",
+                                                          tags="backdrop")
+        return self._backdrop_iid
+
+    def _make_backdrop(self, item: ft.Backdrop, sc: ft.Scene, key: tuple) -> None:
+        self.backdrop_key = key
+        self.photos.pop("backdrop", None)
+        if (item.colour2 or item.picture is not None) and vv_gdiplus.available():
+            temp = Path(tempfile.gettempdir()) / f"vvfp-tree-backdrop-{os.getpid()}.png"
+            plain = ft.Scene(sc.width, sc.height, item.colour, [item])
+            try:
+                if vv_gdiplus.save_scene(plain, {}, temp, scale=self.z):
+                    self.photos["backdrop"] = tk.PhotoImage(master=self, file=str(temp))
+            except (OSError, tk.TclError):
+                pass
+            finally:
                 try:
-                    if vv_gdiplus.save_scene(plain, {}, temp, scale=self.z):
-                        self.photos["backdrop"] = tk.PhotoImage(master=self, file=str(temp))
+                    temp.unlink()
                 except OSError:
                     pass
-                finally:
-                    try:
-                        temp.unlink()
-                    except OSError:
-                        pass
-        if "backdrop" in self.photos:
-            return self.canvas.create_image(0, 0, image=self.photos["backdrop"], anchor="nw", tags="backdrop")
-        return None
+
+    def _redraw_backdrop(self, item: ft.Backdrop, sc: ft.Scene, key: tuple) -> None:
+        """The background drawn again at the page's new size or zoom, put in place of the old one."""
+        self._backdrop_job = None
+        if self.sc is not sc and (int(self.sc.width), int(self.sc.height)) != key[5:7]:
+            return                              # the page changed again: its own redraw has asked
+        self._make_backdrop(item, sc, key)
+        iid = getattr(self, "_backdrop_iid", None)
+        if "backdrop" in self.photos and iid is not None and self.canvas.type(iid) == "image":
+            self.canvas.itemconfigure(iid, image=self.photos["backdrop"])
 
     def _draw_selection(self) -> None:
         self.canvas.delete("selection")
@@ -2297,7 +2694,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.family_field.set_quietly(colours.pop() if len(colours) == 1 else "")
         for attr, choices in (("shape", ft.PORTRAIT_SHAPES), ("border", ft.BORDERS)):
             if hasattr(self, "lay"):
-                now = {getattr(self.lay, attr)(p) for p in people}
+                now = {ft.base_kind(getattr(self.lay, attr)(p)) if attr == "shape" else getattr(self.lay, attr)(p)
+                       for p in people}
                 self.own_vars[attr].set(choices[now.pop()] if len(now) == 1 else "")
         sizes = [ft.frame_size(self.edits, self.village, p, unscaled=True) for p in people]
         styles = [self.edits.family_lines.get(self._family(p) or "", {}) for p in people]
@@ -2308,6 +2706,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_line_dash.set(ft.LINE_TYPES[dashes.pop()] if len(dashes) == 1 else "")
         texts = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) for p in people}
         self.own_text.set(f"{texts.pop():g}" if len(texts) == 1 else "")
+        pictures = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("picture_scale", 100.0)
+                    for p in people}
+        self.own_picture.set(f"{pictures.pop():g}" if len(pictures) == 1 else "")
+        for flip, var in self.own_flips.items():         # ticked when every one selected is flipped
+            var.set(bool(people) and all(self._entry(q).get(flip, False) for q in people))
+        fills = {self._entry(q).get("fill", "") for q in people}
+        self.own_fill.set_quietly(fills.pop() if len(fills) == 1 else "")
+        details_ = {self._entry(q).get("detail", "") for q in people}
+        self.own_detail.set_quietly(details_.pop() if len(details_) == 1 else "")
+        turns = {round(self._entry(q).get("angle", 0.0), 1) for q in people}
+        self.own_turn.set(f"{turns.pop():g}" if len(turns) == 1 else "")
 
     # ---- changing -----------------------------------------------------------
     def _group_style(self, attr: str, group: str, value: str) -> None:
@@ -2321,7 +2730,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             n = max(ft.WRAP_MIN, min(ft.WRAP_MAX, int(float(self.wrap_var.get()))))
         except ValueError:
             return
-        if n != self.edits.text_wrap:
+        if n != self._view().text_wrap:
             self._change(text_wrap=n)
 
     def _portrait_gap(self) -> None:
@@ -2329,6 +2738,289 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         gap = self._number(self.gap_var.get(), ft.GAP_MIN, ft.GAP_MAX)
         if gap is not None and gap != self.edits.portrait_gap:
             self._change(portrait_gap=gap)
+
+    def _detail_number(self, attr: str, var: tk.StringVar, low: float, high: float) -> None:
+        value = self._number(var.get(), low, high)
+        if value is not None and value != getattr(self._view(), attr):    # the picked group's (Settings for:)
+            self._change(**{attr: value})
+
+    def _own_fill(self, colour: str) -> None:
+        """Every selected villager's portrait filled with this colour inside ("": the whole tree's)."""
+        if not self.selected:
+            return
+        for q in self.selected:
+            self._set_entry(self.village.people[q], fill=colour or None)
+        self._saved()
+
+    def _own_detail(self, colour: str) -> None:
+        """Every selected villager's detail lines (inside the portrait) this colour ("": the whole tree's)."""
+        if not self.selected:
+            return
+        for q in self.selected:
+            self._set_entry(self.village.people[q], detail=colour or None)
+        self._saved()
+
+    def _own_flip(self, flip: str) -> None:
+        """Every selected villager's portrait shape flipped (or not), its words never mirrored."""
+        if not self.selected:
+            return
+        on = bool(self.own_flips[flip].get())
+        for q in self.selected:
+            self._flip_as_seen(self.village.people[q], flip, on)     # as seen on the page (the owner)
+        self._saved()
+
+    def _reset_button(self, parent, *fields: str) -> ttk.Button:
+        """A small Reset putting these settings back as a new tree has them (the owner, 2026-10-09: "please
+        add reset buttons beside anything you can change"); with a group picked ("Settings for:"), that
+        group's own settings cleared, so it is the same as everyone's again."""
+        import copy
+
+        def reset() -> None:
+            group = self._scope()
+            if group and all(name in ft.GROUP_FIELDS for name in fields):
+                self._clear_group(group, fields)
+                return
+            fresh = ft.Edits()
+            values = {name: copy.deepcopy(getattr(fresh, name)) for name in fields}
+            if any(values[name] != getattr(self.edits, name) for name in fields):
+                self._change(everyone=True, **values)
+                self._refresh_panels()
+        return ttk.Button(parent, text="Reset", width=6, command=reset)
+
+    # ---- settings by group ("Settings for:") -----------------------------------
+    def _scope_picker(self, parent) -> ttk.Frame:
+        """"Settings for:" Everyone or one group (one choice, shown in every place it is), with "Same as
+        everyone" (the picked group's own settings cleared) and "Make every group the same" (every
+        group's), and a note when the picked group's settings differ from everyone's."""
+        frame = ttk.Frame(parent)
+        row = ttk.Frame(frame)
+        row.pack(anchor="w")
+        ttk.Label(row, text="Settings for:").pack(side="left")
+        combo = ttk.Combobox(row, textvariable=self.scope_var, values=[EVERYONE] + list(ft.GROUPS.values()),
+                             state="readonly", width=17)
+        combo.pack(side="left", padx=(6, 0))
+        combo.bind("<<ComboboxSelected>>", lambda _e: self._refresh_panels())
+        ttk.Button(row, text="Same as everyone", command=lambda: self._clear_group(self._scope())).pack(
+            side="left", padx=(6, 0))
+        ttk.Button(row, text="Make every group the same", command=self._all_groups_same).pack(side="left", padx=(4, 0))
+        ttk.Label(frame, textvariable=self.scope_note, foreground="#8a4b00").pack(anchor="w")
+        return frame
+
+    def _scope(self) -> str | None:
+        """The group picked in "Settings for:" (ft.GROUPS), or None for everyone."""
+        label = self.scope_var.get() if hasattr(self, "scope_var") else EVERYONE
+        return next((g for g, name in ft.GROUPS.items() if name == label), None)
+
+    def _view(self) -> ft.Edits:
+        """The settings as the picked group's portraits have them (everyone's when none is picked)."""
+        return ft.group_view(self.edits, self._scope())
+
+    def _show_scope_note(self) -> None:
+        group = self._scope()
+        if not hasattr(self, "scope_note"):
+            return
+        if group is None:
+            own = [ft.GROUPS[g] for g in ft.GROUPS if self.edits.group_opts.get(g)]
+            self.scope_note.set(f"{' and '.join(own)} have settings of their own." if own else "")
+        else:
+            differ = [n for n, v in self.edits.group_opts.get(group, {}).items()
+                      if n != "centre_heads" and v != getattr(self.edits, n)]
+            self.scope_note.set(f"{ft.GROUPS[group]}: {len(differ)} setting{'' if len(differ) == 1 else 's'} "
+                                "differ from everyone's." if differ else f"{ft.GROUPS[group]}: the same as everyone.")
+
+    def _clear_group(self, group: str | None, fields=None) -> None:
+        """A group's own settings (all, or `fields`) cleared: everyone's again.  One step to undo."""
+        if group is None:
+            return
+        own = dict(self.edits.group_opts.get(group, {}))
+        names = [n for n in own if fields is None or n in fields]
+        if not names:
+            return
+        for name in names:
+            own.pop(name)
+        if "text_valign" not in own:
+            own.pop("centre_heads", None)
+        groups = {g: v for g, v in self.edits.group_opts.items() if g != group}
+        if own:
+            groups[group] = own
+        self.edits.group_opts = groups
+        self._saved()
+        self._refresh_panels()
+
+    def _all_groups_same(self) -> None:
+        """Every group's own settings cleared: every portrait as everyone's.  One step to undo."""
+        if self.edits.group_opts:
+            self.edits.group_opts = {}
+            self._saved()
+            self._refresh_panels()
+
+    def _equalize(self, group: str | None) -> None:
+        """Every villager's face and text at the tree's own sizes -- everyone's, or one group's: each one's own
+        face size and text size cleared (the owner, 2026-10-09: "buttons to "equalize" text/face sizes etc
+        across the entire family tree or by group")."""
+        people = [p for p in self.village.people.values() if group is None or ft.group_of(p) == group]
+        changed = [p for p in people if {"picture_scale", "text_scale"} & set(self._entry(p))]
+        for p in changed:
+            self._set_entry(p, picture_scale=None, text_scale=None)
+        if changed:
+            self._saved()
+
+    def _equalize_sizes(self) -> None:
+        """Every villager back to their group's portrait size: each one's own width and height cleared."""
+        changed = [p for p in self.village.people.values() if {"w", "h"} & set(self._entry(p))]
+        for p in changed:
+            self._set_entry(p, w=None, h=None)
+        if changed:
+            self._saved()
+
+    def _own_inner_reset(self) -> None:
+        """The selected villagers' own face and text sizes cleared: the tree's sizes again."""
+        if not self.selected:
+            return
+        for q in self.selected:
+            self._set_entry(self.village.people[q], picture_scale=None, text_scale=None)
+        self.own_picture.set("100")
+        self.own_text.set("100")
+        self._saved()
+
+    def _group_members(self, group: str) -> list:
+        return [p for p in self.village.people.values() if ft.group_of(p) == group]
+
+    def _group_flip(self, group: str, flip: str) -> None:
+        """Every portrait of a group flipped one way -- or, when every one already is, back (Ctrl+Z undoes)."""
+        people = self._group_members(group)
+        if not people:
+            return
+        on = not all(self._entry(p).get(flip, False) for p in people)
+        for p in people:
+            self._flip_as_seen(p, flip, on)
+        self._saved()
+
+    def _flip_as_seen(self, p, flip: str, on: bool) -> None:
+        """A portrait flipped as it is seen on the page, its present turn taken as straight (the owner,
+        2026-10-09: "treating the current rotation as straight horizontal"): the shape mirrored and its turn
+        reversed -- a fish turned 30 degrees and flipped left-right is the same fish facing the other way,
+        turned -30 degrees.  Nothing changes for one already flipped that way."""
+        entry = self._entry(p)
+        if bool(entry.get(flip, False)) == on:
+            return
+        angle = entry.get("angle", 0.0)
+        self._set_entry(p, **{flip: on, "angle": round((-angle) % 360, 1) or None})
+
+    def _group_turn(self, group: str) -> None:
+        """Every portrait of a group turned to the angle in its box."""
+        angle = self._number(self.group_turns[group].get(), -3600, 3600)
+        people = self._group_members(group)
+        if angle is None or not people:
+            return
+        angle = round(angle % 360, 1)
+        for p in people:
+            self._set_entry(p, angle=angle or None)
+        self._saved()
+
+    def _group_unturn(self, group: str) -> None:
+        """Every portrait of a group unflipped and upright again."""
+        people = self._group_members(group)
+        if not people:
+            return
+        for p in people:
+            self._set_entry(p, flip_h=None, flip_v=None, angle=None)
+        self.group_turns[group].set("0")
+        self._saved()
+
+    def _own_turn(self) -> None:
+        """Every selected villager's portrait turned to this many degrees (as the curved arrow turns it)."""
+        angle = self._number(self.own_turn.get(), -3600, 3600)
+        if not self.selected or angle is None:
+            return
+        angle %= 360
+        changed = False
+        for q in self.selected:
+            p = self.village.people[q]
+            if round(self._entry(p).get("angle", 0.0), 1) != round(angle, 1):
+                self._set_entry(p, angle=round(angle, 1))
+                changed = True
+        if changed:
+            self._saved()
+
+    def _special_pick(self, part: str, colour: str) -> None:
+        if colour:
+            self._change(special_pick={**self.edits.special_pick, part: colour})
+
+    def _special_palette(self, k: int, colour: str) -> None:
+        if colour:
+            palette = list(self.edits.special_palette)
+            palette[k] = colour
+            self._change(special_palette=palette)
+
+    def _special_count(self) -> None:
+        n = self._number(self.special_count_var.get(), 2, 7)
+        if n is not None and int(n) != self.edits.special_count:
+            self._change(special_count=int(n))
+
+    # Short enough that all eight show whole in the side panel (the owner, 2026-10-09: the names were cut off).
+    TAB_ORDER = ("Selected", "Shapes", "Faces & Text", "Fonts", "Layout", "Marks", "Background", "Pictures")
+
+    def _order_tabs(self) -> None:
+        """The tabs from the villagers outwards: the selected ones, every portrait, the words, the tree, then
+        the extras (the tools add Fonts and Pictures last)."""
+        tabs = {self.notebook.tab(t, "text"): t for t in self.notebook.tabs()}
+        for place, name in enumerate(n for n in self.TAB_ORDER if n in tabs):
+            self.notebook.insert(place, tabs[name])
+        self.notebook.select(0)
+
+    LIST_WIDTH_MAX = 30                     # characters: a drop-down box no wider than this in the panel
+
+    def _fit_lists(self, widget) -> None:
+        """Every drop-down's choices readable whole (the owner, 2026-10-09: "I can't read the full labels"):
+        the box as wide as its longest choice (up to LIST_WIDTH_MAX), and its opened list always as wide as
+        the longest -- measured each time it opens, as some lists change."""
+        for child in widget.winfo_children():
+            if isinstance(child, ttk.Combobox):
+                longest = max((len(str(v)) for v in child.cget("values") or ()), default=0)
+                if longest + 1 > int(child.cget("width")):
+                    child.configure(width=min(self.LIST_WIDTH_MAX, longest + 1))
+                child.configure(postcommand=self._widen_popdown(child, child.cget("postcommand")))
+            self._fit_lists(child)
+
+    @staticmethod
+    def _widen_popdown(combo: ttk.Combobox, before):
+        """The opened list sized to its longest choice: ttk always opens it as wide as the box, plus the
+        style's postoffset -- so each box gets a style of its own whose postoffset adds what is missing."""
+        style = f"List{str(combo).replace('.', '_')}.TCombobox"
+
+        def post() -> None:
+            if before:
+                combo.tk.eval(before) if isinstance(before, str) else before()
+            try:
+                font = tkfont.nametofont("TkDefaultFont")
+                need = max((font.measure(str(v)) for v in combo.cget("values") or ()), default=0) + 30
+                extra = max(0, need - combo.winfo_width())
+                ttk.Style(combo).configure(style, postoffset=(0, 0, extra, 0))
+                if combo.cget("style") != style:
+                    combo.configure(style=style)
+            except tk.TclError:
+                pass
+        return post
+
+    def _scheme(self, part: str) -> None:
+        """One part of the tree (ft.SCHEME_PARTS) as set, a rainbow, or alternating colours."""
+        mode = next(k for k, v in ft.COLOUR_SCHEMES.items() if v == self.scheme_vars[part].get())
+        schemes = {k: v for k, v in self.edits.schemes.items() if k != part}
+        if mode != "own":
+            schemes[part] = mode
+        if schemes != self.edits.schemes:
+            self._change(schemes=schemes)
+
+    def _valign(self, valign: str) -> None:
+        """The face and words at the top, middle or bottom of every portrait (Centre faces, before)."""
+        self._change(text_valign=valign, centre_heads=valign == "middle")
+
+    def _row_gap(self) -> None:
+        """The pixels under each generation's row before the lines down to its children, for every row."""
+        gap = self._number(self.row_gap_var.get(), ft.ROW_GAP_MIN, ft.ROW_GAP_MAX)
+        if gap is not None and gap != self.edits.row_gap:
+            self._change(row_gap=gap)
 
     def _page_generations(self) -> None:
         """The most generations on one page; a longer tree goes on over more pages (the owner: 6, up to 10)."""
@@ -2372,7 +3064,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         def soon(_event=None) -> None:
             if pending.get("job"):
                 self.after_cancel(pending["job"])
-            pending["job"] = self.after(400, now)
+            pending["job"] = self.after(800, now)       # long enough to type "80" without "8" taking first
 
         def now(_event=None) -> None:
             if pending.get("job"):
@@ -2400,23 +3092,41 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             w_var.set(f"{w:g}" if w != "" else "")
             h_var.set(f"{h:g}" if h != "" else "")
 
-    def _group_size(self, group: str, reset: bool = False) -> None:
-        """Every male's, female's or upcoming baby's frame this size (not one resized on their own)."""
+    def _group_size(self, group: str, reset: bool = False, axis: int | None = None) -> None:
+        """Every male's, female's or upcoming baby's frame this size, those resized on their own too.
+        With Keep aspect ratio, the box changed (`axis`) sets that side and the other follows."""
+        # The owner, 2026-10-09, of these boxes: "seems to do nothing even if changed" -- every villager in
+        # the tree had been resized on their own, and their own size wins.  "Every portrait's size" means
+        # every one: their own sizes go (Ctrl+Z brings them back).
+        resized = [p for p in self.village.people.values()
+                   if ft.group_of(p) == group and {"w", "h"} & set(self._entry(p))]
         if reset:
-            if self.edits.sizes.pop(group, None) is not None:
+            if self.edits.sizes.pop(group, None) is not None or resized:
+                for p in resized:
+                    self._set_entry(p, w=None, h=None)
                 self._saved()
             self._show_group_sizes()
             return
         w_var, h_var = self.group_sizes[group]
-        natural = None
-        if not w_var.get().strip() or not h_var.get().strip():      # one typed: the other as the shape has it
-            p = next((p for p in self.village.people.values() if ft.group_of(p) == group), None)
-            natural = ft.frame_size(self.edits, self.village, p, own=False, unscaled=True) if p is not None else (ft.NODE_W, ft.NODE_H)
-        w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
-        h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
-        if w is None or h is None or self.edits.sizes.get(group) == [w, h]:
+        p = next((p for p in self.village.people.values() if ft.group_of(p) == group), None)
+        now = (ft.frame_size(self.edits, self.village, p, own=False, unscaled=True) if p is not None
+               else tuple(self.edits.sizes.get(group) or (ft.NODE_W, ft.NODE_H)))
+        if axis is not None and self.lock_shape.get():
+            value = self._number((w_var if axis == 0 else h_var).get(), ft.FRAME_MIN, ft.FRAME_MAX)
+            if value is None:
+                return
+            w, h = ft.keep_aspect(now, axis, value)
+        else:
+            natural = None
+            if not w_var.get().strip() or not h_var.get().strip():      # one typed: the other as the shape has it
+                natural = now
+            w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
+            h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
+        if w is None or h is None or (self.edits.sizes.get(group) == [w, h] and not resized):
             return
         self.edits.sizes[group] = [w, h]
+        for p in resized:
+            self._set_entry(p, w=None, h=None)
         self._saved()
         self._show_group_sizes()
 
@@ -2434,20 +3144,44 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if changed:
             self._saved()
 
-    def _own_size(self) -> None:
-        """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes")."""
+    def _own_picture_size(self) -> None:
+        """Every selected villager's face this size, in percent, whatever their frame's size."""
+        percent = self._number(self.own_picture.get(), ft.PICTURE_SCALE_MIN, ft.PICTURE_SCALE_MAX)
+        if not self.selected or percent is None:
+            return
+        changed = False
+        for q in self.selected:
+            p = self.village.people[q]
+            if self._entry(p).get("picture_scale", 100.0) != percent:
+                self._set_entry(p, picture_scale=percent if percent != 100.0 else None)
+                changed = True
+        if changed:
+            self._saved()
+
+    def _own_size(self, axis: int | None = None) -> None:
+        """Every selected villager's frame this size (the owner: "batch-changing portrait shape sizes").
+        With Keep aspect ratio, the box changed (`axis`: 0 width, 1 height) sets that side and each
+        frame's other side follows its own shape."""
         w = self._number(self.own_w.get(), ft.FRAME_MIN, ft.FRAME_MAX)
         h = self._number(self.own_h.get(), ft.FRAME_MIN, ft.FRAME_MAX)
         if not self.selected or w is None and h is None:
             return
-        changed = False
+        keep = axis is not None and bool(self.lock_shape.get())
+        changed, others = False, set()
         for q in self.selected:                 # a width alone leaves each one's height as it is
             p = self.village.people[q]
             now = ft.frame_size(self.edits, self.village, p, unscaled=True)
-            size = (w if w is not None else now[0], h if h is not None else now[1])
+            if keep and (w if axis == 0 else h) is not None:
+                size = ft.keep_aspect(now, axis, w if axis == 0 else h)
+            else:
+                size = (w if w is not None else now[0], h if h is not None else now[1])
+            others.add(size[1 - axis] if keep else None)
             if size != now:
                 self._set_entry(p, w=size[0], h=size[1])
                 changed = True
+        if keep:                                # the other box shows the side that followed, when it is one
+            other = self.own_h if axis == 0 else self.own_w
+            other.set(f"{others.pop():g}" if len(others) == 1 else "")
         if changed:
             self._saved()
 
@@ -2558,7 +3292,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.future.clear()
         self.last_state = self._state()
         self._refresh_panels()
-        self._update_from_game()
+        self._update_from_game(ask=False)       # the player already said yes to the numbering
         self.dirty = False
         messagebox.showinfo("Number Duplicate Names", "\n\n".join(
             [f"{len(result.renamed)} villager(s) numbered in the save and {len(result.files) - 1} other "
@@ -2611,12 +3345,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_obj_panel()
 
     def _refresh_panels(self) -> None:
-        """Every control showing the edits as they now are (after undo or redo)."""
-        e = self.edits
+        """Every control showing the edits as they now are (after undo or redo); the portraits' own
+        settings as the group picked in "Settings for:" has them."""
+        e = self._view()
+        self._show_scope_note()
         self.title_var.set(e.title)
         self.subtitle_var.set(e.subtitle)
         self.sort_var.set(gen.SORTS[e.sort])
         self.position_var.set(ft.POSITIONING[e.positioning])
+        self.row_align_var.set(ft.ROW_ALIGNS[e.row_align])
+        self.row_valign_var.set(ft.ROW_VALIGNS[e.row_valign])
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
@@ -2628,13 +3366,38 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_style_var.set(ft.MARK_STYLES[e.mark_style])
         self.glow_var.set(f"{e.mark_glow:g}")
         self.mark_opacity_scale.set(e.mark_opacity)
-        self.centre_var.set(e.centre_heads)
+        self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
+        self.inside_var.set(e.text_inside)
+        self.turn_words_var.set(e.turn_words)
+        self.flip_words_var.set(e.flip_words)
+        self.room_var.set(ft.TEXT_ROOMS[e.text_room])
+        self.special_mode_var.set(ft.SPECIAL_COLOUR_MODES[e.special_mode])
+        self.hibiscus_var.set(ft.HIBISCUS_CHOICES[e.hibiscus])
+        for part, fieldw in self.special_pick_fields.items():
+            fieldw.set_quietly(e.special_pick.get(part, ft.NATURAL[part]))
+        for k, fieldw in enumerate(self.special_palette_fields):
+            fieldw.set_quietly(e.special_palette[k])
+        self.special_count_var.set(str(e.special_count))
+        self.special_opacity_var.set(f"{e.special_opacity:g}")
+        self.rainbow_var.set(ft.RAINBOW_STRENGTHS[e.rainbow_strength][0])
+        for part, var in self.scheme_vars.items():
+            var.set(ft.COLOUR_SCHEMES[e.schemes.get(part, "own")])
+        self.picture_size_var.set(f"{e.picture_size:g}")
+        self.text_size_var.set(f"{e.text_size:g}")
+        self.detail_var.set(e.detail_lines)
+        self.detail_field.set_quietly(e.detail_colour)
+        self.detail_opacity_var.set(f"{e.detail_opacity:g}")
+        self.detail_width_var.set(f"{e.detail_width:g}")
+        self.valign_var.set(ft.TEXT_VALIGNS[e.text_valign])
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")
+        self.row_gap_var.set(f"{e.row_gap:g}")
         self.portrait_fit_var.set(str(e.fit_width))
         self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
+        self.twins_var.set(e.show_twins)
+        self.founder_var.set(e.show_founder)
         self.number_names_var.set(e.number_names)
         self.number_order_var.set(gen.NUMBER_ORDERS[e.number_order])
         self.diagonal_var.set(e.diagonal_lines)
@@ -2655,10 +3418,31 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._show_role()
         self._show_generation()
 
-    def _change(self, **values) -> None:
-        for name, value in values.items():
-            setattr(self.edits, name, value)
+    def _change(self, everyone: bool = False, **values) -> None:
+        """Settings changed, one step to undo.  With a group picked in "Settings for:" (and not
+        `everyone`), settings a group may have of its own (ft.GROUP_FIELDS) are that group's: a value
+        the same as everyone's is no setting of its own."""
+        group = None if everyone else self._scope()
+        if group and values and all(name in ft.GROUP_FIELDS for name in values):
+            own = dict(self.edits.group_opts.get(group, {}))
+            for name, value in values.items():
+                if value == getattr(self.edits, name):
+                    own.pop(name, None)
+                else:
+                    own[name] = value
+            if "text_valign" in own:
+                own["centre_heads"] = own["text_valign"] == "middle"
+            else:
+                own.pop("centre_heads", None)
+            groups = {g: v for g, v in self.edits.group_opts.items() if g != group}
+            if own:
+                groups[group] = own
+            self.edits.group_opts = groups
+        else:
+            for name, value in values.items():
+                setattr(self.edits, name, value)
         self._saved()
+        self._show_scope_note()
 
     def _apply_text(self) -> None:
         if len(self.selected) != 1:
@@ -3184,7 +3968,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     # ---- output ---------------------------------------------------------------
     def _write_outputs(self) -> None:
-        """The tree's page, picture and report in the save folder's Logs\\Genealogy (as Family Tree
+        """The tree's page, picture and report in the save folder's Family Trees\\Reports (as Family Tree
         always writes them), with the edits as they are now."""
         try:
             self.written = ft.write(self.folder, self.game, self.slot, self.images, self.game_title,
@@ -3412,11 +4196,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.window["sash"] = self.body.sashpos(0)
         self.window["panel_hidden"] = not shown
         self.window.update(smart=bool(self.smart_var.get()), snap=bool(self.snap_var.get()),
-                           grid=int(self.grid_size.get()), show_grid=bool(self.show_grid.get()))
+                           grid=int(self.grid_size.get()), show_grid=bool(self.show_grid.get()),
+                           keep_aspect=bool(self.lock_shape.get()))
         if not self.attributes("-fullscreen"):
             self.window["geometry"] = self.geometry()
         if hasattr(self.app, "_save_settings"):
             self.app.tree_window = dict(self.window)
+            self.app.tree_style = ft.style_of(self.edits)     # the look, for the next new tree
             try:
                 self.app._save_settings()
             except OSError:
@@ -3474,6 +4260,7 @@ RULE_FIELDS = [
     ("different_last_name", "Different last names (numbers ignored: Wanjiko II is a Wanjiko)", "bool"),
     ("one_family_per_partner", "One Family Per Partner (a child with one Wanjiko: no other Wanjiko, the same partner again is fine)", "bool"),
     ("prefer_previous_partners", "Prioritize previous partners (couples who already have a child together first)", "bool"),
+    ("show_age_units", "Show ages in game units too (\"1379 game units (68 years old)\"; off: \"68 years old\")", "bool"),
     ("prefer_fresh_blood", "Fresh blood first (villagers with no recorded parents)", "bool"),
 ]
 
@@ -3495,7 +4282,7 @@ def open_pair_suggestions(app, build) -> None:
         app, build, "Village Matchmaker",
         "Suggests who to pair, by the rules you tick -- every one is yours to switch on or off.  It "
         "only reads the save and the patcher's logs; the suggestions are also saved to the save folder's "
-        "Virtual Villagers Fun Patcher Logs\\Genealogy.",
+        "Virtual Villagers Fun Patcher Family Trees folder.",
         "Choose Rules...", lambda dialog, folder, game, info, title, images:
         _pair_rules(app, dialog, folder, game, info, title),
         ask_game_folder=False)
@@ -3536,13 +4323,17 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
                 return
         app.pair_rules = data
         app._save_settings()
+
+        def work():
+            # The save and the logs read afresh each time: Refresh Pairings rescans them.
+            return app._run_with_wait("Working out the family and the pairs...\n\nNothing is changed.",
+                                      lambda: ft.write_pairs(folder, game, info.slot, rules_from(data), title))
         try:
-            path, text = app._run_with_wait("Working out the family and the pairs...\n\nNothing is changed.",
-                                            lambda: ft.write_pairs(folder, game, info.slot, rules_from(data), title))
+            path, text = work()
         except (gen.GenealogyError, OSError, ValueError) as exc:
             messagebox.showerror("Village Matchmaker", str(exc), parent=window)
             return
-        _show_text(window, f"Village Matchmaker - {info.name} (Save {info.slot})", text, path)
+        _show_text(window, f"Village Matchmaker - {info.name} (Save {info.slot})", text, path, refresh=work)
 
     def reset() -> None:
         defaults = gen.Rules()
@@ -3558,29 +4349,34 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
 # In the Matchmaker's report: "#12 Name", a name before its age, and every age.
 MAN_BLUE, WOMAN_PINK = "#1f5fbf", "#d0237f"
 # Each pattern, and the style of each of its groups: a man's name blue, a woman's pink, an age bold.
-_AGE = r"(?:died at )?(?:\d+ game units|age unknown)"
+_AGE = r"(?:died at )?(?:\d+ game units|\d+ years old|age unknown)"
 MATCHMAKER_STYLE = [
     (re.compile(r"^  \d+\. (#\d+ [^,\n]+), .*?, and (#\d+ [^,\n]+),", re.M), ("man", "woman")),   # a pair
     (re.compile(rf"^  ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("woman",)),          # each woman ...
     (re.compile(rf"^    ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("man",)),          # ... and her partners
     (re.compile(r"^    ([^,\n:]+?) and ([^,\n:]+?):", re.M), ("man", "woman")),     # the least related pairs
-    (re.compile(r"((?:died at )?\d+ game units \(\d+ years old\)|age unknown)"), ("age",)),
+    (re.compile(r"((?:died at )?\d+ game units \(\d+ years old\)|(?:died at )?\d+ years old|age unknown)"), ("age",)),
 ]
 
 
-def _show_text(parent, title: str, text: str, path: Path) -> None:
+def _show_text(parent, title: str, text: str, path: Path, refresh=None) -> None:
+    """The report, styled.  `refresh` (the owner, 2026-10-08: "a "refresh pairings" button in the
+    matchmaker to rescan the current save"): called with no arguments, it reads the save and the
+    logs again and returns (path, text), shown here in place of the old."""
     window = tk.Toplevel(parent)
     window.title(title)
     window.geometry("900x640")
     frame = ttk.Frame(window, padding=8)
     frame.pack(fill="both", expand=True)
-    ttk.Label(frame, text=f"Also saved as {path}", wraplength=860).pack(anchor="w")
+    top = ttk.Frame(frame)
+    top.pack(fill="x")
+    saved = ttk.Label(top, text=f"Also saved as {path}", wraplength=700)
+    saved.pack(side="left", anchor="w")
     box = tk.Text(frame, wrap="word")
     scroll = ttk.Scrollbar(frame, command=box.yview)
     box.configure(yscrollcommand=scroll.set)
     scroll.pack(side="right", fill="y")
     box.pack(fill="both", expand=True)
-    box.insert("1.0", text)
     # Every villager's number, name and age in bold, men blue and women pink (the owner).
     bold = tkfont.nametofont(box.cget("font")).copy()
     bold.configure(weight="bold")
@@ -3588,8 +4384,26 @@ def _show_text(parent, title: str, text: str, path: Path) -> None:
     box.tag_configure("man", font=bold, foreground=MAN_BLUE)
     box.tag_configure("woman", font=bold, foreground=WOMAN_PINK)
     box.tag_configure("age", font=bold)
-    for pattern, styles in MATCHMAKER_STYLE:
-        for match in pattern.finditer(text):
-            for group, style in enumerate(styles, 1):
-                box.tag_add(style, f"1.0 + {match.start(group)} chars", f"1.0 + {match.end(group)} chars")
-    box.configure(state="disabled")
+
+    def show(new_text: str) -> None:
+        box.configure(state="normal")
+        box.delete("1.0", "end")
+        box.insert("1.0", new_text)
+        for pattern, styles in MATCHMAKER_STYLE:
+            for match in pattern.finditer(new_text):
+                for group, style in enumerate(styles, 1):
+                    box.tag_add(style, f"1.0 + {match.start(group)} chars", f"1.0 + {match.end(group)} chars")
+        box.configure(state="disabled")
+
+    def again() -> None:
+        try:
+            new_path, new_text = refresh()
+        except (gen.GenealogyError, OSError, ValueError) as exc:
+            messagebox.showerror(title, str(exc), parent=window)
+            return
+        saved.configure(text=f"Also saved as {new_path}")
+        show(new_text)
+
+    if refresh is not None:
+        ttk.Button(top, text="Refresh Pairings", command=again).pack(side="right")
+    show(text)

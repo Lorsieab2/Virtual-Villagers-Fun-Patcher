@@ -181,6 +181,12 @@ static int vv1_xc_subfolder(char *out, size_t n, const char *a, const char *b, s
     if (!vv1_xc_game_folder(out, n, need)) {
         return 0;
     }
+    /* The Repairs log goes on in an older build's "Repairs" while only that folder exists: it is
+       written where it is, never moved (save_layout.h). */
+    if (lstrcmpA(a, VV_LOGS_DIR_A) == 0 && lstrcmpA(b, "Repairs Made") == 0
+        && lstrcmpA(vv_layout_dir_rel_a(out, VV_REPAIRS_OLD_A, VV_REPAIRS_DIR_A), VV_REPAIRS_OLD_A) == 0) {
+        b = "Repairs";
+    }
     lstrcatA(out, "\\");
     lstrcatA(out, a);
     CreateDirectoryA(out, NULL);
@@ -191,7 +197,23 @@ static int vv1_xc_subfolder(char *out, size_t n, const char *a, const char *b, s
 }
 
 static int vv1_xc_marker_path(char *out, size_t n, int slot) {
-    if (!vv1_xc_subfolder(out, n, "Virtual Villagers Fun Patcher Data", "Cross-Check",
+    /* "Log Checks", or an older build's "Cross-Check": the marker is used where it is, never moved;
+       under both names, the one written last (save_layout.h). */
+    {
+        char old_marker[MAX_PATH], new_marker[MAX_PATH];
+        if (!vv1_xc_game_folder(out, n, sizeof("\\" VV_LOG_CHECKS_OLD_A "\\Virtual Villagers 1 Cross-Check - Save 0.dat.tmp"))
+            || (size_t)lstrlenA(out) + sizeof("\\" VV_LOG_CHECKS_OLD_A "\\Virtual Villagers 1 Cross-Check - Save 0.dat.tmp")
+                   > sizeof old_marker) {
+            return 0;
+        }
+        wsprintfA(old_marker, "%s\\" VV_LOG_CHECKS_OLD_A "\\Virtual Villagers 1 Cross-Check - Save %d.dat", out, slot);
+        wsprintfA(new_marker, "%s\\" VV_LOG_CHECKS_DIR_A "\\Virtual Villagers 1 Cross-Check - Save %d.dat", out, slot);
+        if (vv_layout_pick_file_a(old_marker, new_marker)) {
+            lstrcpyA(out, old_marker);
+            return 1;
+        }
+    }
+    if (!vv1_xc_subfolder(out, n, "Virtual Villagers Fun Patcher Data", "Log Checks",
                           sizeof("\\Virtual Villagers 1 Cross-Check - Save 0.dat.tmp"))) {
         return 0;
     }
@@ -925,7 +947,19 @@ static int vv1_xc_backup(int slot, char *backup, size_t n, int *none) {
         return 0;
     }
     for (k = 1; k < 1000; ++k) {
+        /* In "Data\Copies Made Before Repairs", at the file's own place (save_layout.h); beside the
+           file only if that place cannot be named. */
+        wchar_t wide[MAX_PATH], copy[MAX_PATH], suffix[48];
         if (k == 1) {
+            wsprintfW(suffix, L"%hs", VV1_XC_BACKUP_SUFFIX);
+        } else {
+            wsprintfW(suffix, L"%hs-%d", VV1_XC_BACKUP_SUFFIX, k);
+        }
+        if (MultiByteToWideChar(CP_ACP, 0, path, -1, wide, MAX_PATH) > 0
+            && vv_layout_copy_path(wide, suffix, copy, MAX_PATH)
+            && WideCharToMultiByte(CP_ACP, 0, copy, -1, backup, (int)n, NULL, NULL) > 0) {
+            /* named */
+        } else if (k == 1) {
             wsprintfA(backup, "%s" VV1_XC_BACKUP_SUFFIX, path);
         } else {
             wsprintfA(backup, "%s" VV1_XC_BACKUP_SUFFIX "-%d", path, k);
@@ -980,7 +1014,7 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
     HANDLE file;
     DWORD size, got = 0;
     int ok;
-    if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs", "Repairs",
+    if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs", "Repairs Made",
                           sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
         return 0;
     }

@@ -59,27 +59,41 @@ def run(script: str) -> subprocess.CompletedProcess:
 class DeathsLogSource(unittest.TestCase):
     def test_deaths_have_their_own_folder_stem_and_marker(self):
         source = PARENTAGE.read_text(encoding="utf-8")
-        self.assertIn('#define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\\\Deaths"', source)
+        # "Deaths and Disappearances" (the owner, 2026-10-09), named in native/shared/save_layout.h with
+        # the folder's older name: an older build's "Deaths" is written where it is while only it
+        # exists, and nothing is ever moved.
+        self.assertIn("vv_layout_dir_rel_w(root, VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR)", source)
+        self.assertIn("return family == LOG_DEATHS ? deaths_folder()", source)
+        self.assertNotIn("vv_layout_move", source)
+        layout = (ROOT / "native" / "shared" / "save_layout.h").read_text(encoding="utf-8")
+        self.assertIn('#define VV_DEATHS_LOGS_DIR VV_LOGS_DIR L"\\\\Deaths and Disappearances"', layout)
+        self.assertIn('#define VV_DEATHS_LOGS_OLD VV_LOGS_DIR L"\\\\Deaths"', layout)
         for n in range(1, 6):
             self.assertIn(f'L"Virtual Villagers {n} Deaths Log"', source)
         self.assertIn('return family == LOG_DEATHS ? "Death "', source)
-        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";', source)
+        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted "', source)
+        self.assertIn(': family == LOG_EVENTS ? "Island event " : "Conception ";', source)
         self.assertIn('#define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
         self.assertIn("return emit_record(game_id, kind, check ? records : NULL, text);", source)
 
     def test_start_over_sweeps_the_logs_and_the_companion_files(self):
         source = RESET.read_text(encoding="utf-8")
+        # The Deaths logs' folder by its new name and, while an older build's has not moved, its old one.
+        self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Deaths and Disappearances"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Deaths"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
-        self.assertIn("for (pass = 0; pass < 6; ++pass) {", source)
+        self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Island Events"', source)
+        self.assertIn("for (pass = 0; pass < 8; ++pass) {", source)
         # Each kind in its own folder (native/shared/data_subfolder.h), and
         # the loose name an older build wrote: both are the village's.
         for n in (1, 2):
             self.assertRegex(source, r'DATA_FORMAT\(VV_DATA_SUB_GRAVES, "Virtual Villagers %d Graves"\), '
                                      r'CAUSE_OF_DEATH_FORMAT\("%d"\)' % (n, n))
+        # The roster by its new name, "Villagers at Last Save", and an older build's "Village Roster".
         for n in range(1, 6):
-            self.assertRegex(source, r'DATA_FORMAT\(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers %d Village Roster"\),'
-                                     r'\s+ROSTER_FORMAT\("%d"\)' % (n, n))
+            self.assertRegex(source, r'DATA_FORMAT\(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers %d Villagers at Last Save"\),'
+                                     r'\s+DATA_FORMAT\(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers %d Village Roster"\),'
+                                     r'\s+ROSTER_FORMAT\("%d"\)' % (n, n, n))
         # The grave backfill's file (cod_backfill.inc) goes with the Deaths log.
         for n in range(1, 6):
             self.assertRegex(source, r'ROSTER_FORMAT\("%d"\), GRAVES_LOGGED_FORMAT\("%d"\)' % (n, n))
@@ -105,7 +119,13 @@ class Harnesses(unittest.TestCase):
         result = run("build_cause_files_harness.ps1")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASSED: 0 failure(s)", result.stdout)
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 58, result.stdout)
+        # 58, and 4 for the roster's older name in its folder (native/shared/save_layout.h): used under
+        # that name, loose or in its folder, never moved or renamed
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62, result.stdout)
+        self.assertIn("  ok   the save read and wrote it under its older name, never renaming it: nobody unaccounted",
+                      result.stdout)
+        self.assertIn("  ok   the save used the roster where an older build left it (loose, by its older name), never moving it",
+                      result.stdout)
 
 
 if __name__ == "__main__":

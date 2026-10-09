@@ -377,9 +377,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # with v1.35.58's repair-at-quit and the shared A New Home Time Warp
         # (a body is never aged), and again when the cross-check learned the
         # orphan mask entries (native/shared/orphan_masks.h, v1.35.59), and again
+        # when the startup loader's companion list gained "VVFP Island Events.dll"
+        # (native/shared/startup_companions.h, v8).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "B159BAFD47FC6AAD3E705575950D173776294629371F2306C19694D3914DE497",
+            "AB8D86D461559DEE2ADCA2C538E8D1F17BDC6FE742AAA64A170F5D12A0A14DA0",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

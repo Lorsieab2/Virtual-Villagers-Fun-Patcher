@@ -138,6 +138,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "patcher_files.h"
+#include "save_layout.h"
 
 #define VVFP_XC_PARENTAGE_DLL "VVFP VV1 Parentage.dll"
 #define VVFP_XC_CAUSE_DLL     "VVFP Cause of Death.dll"
@@ -359,8 +360,25 @@ static int vvfp_xc_approval_path(int game, int slot, wchar_t *path) {
     if (lstrlenW(folder) + 120 > MAX_PATH) {
         return 0;
     }
-    wsprintfW(path, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat",
-              folder, game, slot);
+    /* "Log Checks" -- "Cross-Check" in older builds, used where it is, never moved (save_layout.h).
+       An approval under BOTH names is acted on under neither: which one the player meant cannot be
+       told, so nothing is repaired without asking and neither file is touched. */
+    {
+        wchar_t old_path[MAX_PATH];
+        int in_new, in_old;
+        wsprintfW(path, L"%ls\\Virtual Villagers Fun Patcher Data\\Log Checks\\Virtual Villagers %d Repair Approved - Save %d.dat",
+                  folder, game, slot);
+        wsprintfW(old_path, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat",
+                  folder, game, slot);
+        in_new = vv_layout_probe_w(path, NULL) != VV_LAYOUT_ABSENT;
+        in_old = vv_layout_probe_w(old_path, NULL) != VV_LAYOUT_ABSENT;
+        if (in_new && in_old) {
+            return 0;
+        }
+        if (in_old) {
+            lstrcpyW(path, old_path);
+        }
+    }
     return 1;
 }
 

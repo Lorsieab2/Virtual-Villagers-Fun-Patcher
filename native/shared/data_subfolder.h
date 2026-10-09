@@ -74,7 +74,8 @@
 
 #define VV_DATA_SUB_MASKS       "Village Masks"
 #define VV_DATA_SUB_GRAVES      "Graves"
-#define VV_DATA_SUB_PARENTAGE   "Parentage Records"
+#define VV_DATA_SUB_PARENTAGE   "Parents (A New Home)"   /* save_layout.h: renamed from ... */
+#define VV_DATA_SUB_PARENTAGE_OLD "Parentage Records"
 #define VV_DATA_SUB_UNACCOUNTED "Unaccounted Villagers"
 
 /* A unit that only needs the folder names (Start Over) defines

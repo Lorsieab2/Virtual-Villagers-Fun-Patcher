@@ -183,7 +183,7 @@ class ReviewFixTests(unittest.TestCase):
         p = next(q for q in v.known() if not q.upcoming)
         long_line = "A very long title line typed by the player herself"
         for shape in ("circle", "heart", "rect"):
-            e = ft.Edits(text_wrap=60, shapes={g: shape for g in ft.GROUPS})
+            e = ft.Edits(text_wrap=60, shapes={g: shape for g in ft.GROUPS}, text_room="shape")
             e.entries[ft.entry_key(v, p)] = {"lines": ["1. Someone", long_line]}
             ft.arrange(v, e)
             lay = ft.layout(v, e)
@@ -234,7 +234,7 @@ class ApplyToEveryOneTests(unittest.TestCase):
         self.assertIn("ft.group_of(p) != group", body)
         self.assertIn('self._set_entry(p, shape="", border="")', body)
         self.assertIn("self._saved()", body)
-        self.assertIn('text="Apply to every one"', source)
+        self.assertIn('text="Apply to all"', source)
 
 
 if __name__ == "__main__":

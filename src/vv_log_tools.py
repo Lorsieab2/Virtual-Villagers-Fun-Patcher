@@ -49,6 +49,7 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_save_backup
+import vv_save_layout as layout
 
 DATA = "Virtual Villagers Fun Patcher Data"
 LOGS = "Virtual Villagers Fun Patcher Logs"
@@ -198,7 +199,7 @@ REARM_MARKERS: tuple[Marker, ...] = (
     Marker(
         "A New Home's parents checked against the Births and Conceptions log",
         (1,),
-        DATA + r"\Cross-Check\Virtual Villagers {game} Cross-Check - Save {slot}.dat",
+        DATA + r"\Log Checks\Virtual Villagers {game} Cross-Check - Save {slot}.dat",
         "native/vv1_parentage/vv1_crosscheck.inc (vv1_xc_marker_state)",
         "vv1",
     ),
@@ -229,7 +230,7 @@ REARM_MARKERS: tuple[Marker, ...] = (
 # The player's approval for one slot (native/shared/crosscheck_bridge.h reads
 # it, uses it once and deletes it; native/shared/save_reset.c deletes it at
 # Start Over).
-APPROVAL = DATA + r"\Cross-Check\Virtual Villagers {game} Repair Approved - Save {slot}.dat"
+APPROVAL = DATA + r"\Log Checks\Virtual Villagers {game} Repair Approved - Save {slot}.dat"
 APPROVAL_MAGIC = 0x31415256          # 'V' 'R' 'A' '1'
 APPROVAL_VERSION = 1
 
@@ -238,7 +239,7 @@ def approval_path(folder: Path, game: int, slot: int) -> Path:
     """Where the approval for ``game``'s ``slot`` is (present or not)."""
     if game not in (1, 2, 3, 4, 5) or slot not in (1, 2, 3, 4, 5):
         raise LogToolError(f"There is no game {game} save slot {slot}.")
-    return Path(folder) / APPROVAL.format(game=game, slot=slot)
+    return layout.find(folder, APPROVAL.format(game=game, slot=slot))   # "Cross-Check" in older builds
 
 
 def approval_bytes(game: int, slot: int) -> bytes:
@@ -250,7 +251,7 @@ def marker_paths(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]
     if game not in (1, 2, 3, 4, 5) or slot not in (1, 2, 3, 4, 5):
         raise LogToolError(f"There is no game {game} save slot {slot}.")
     return [
-        (marker, Path(folder) / marker.path.format(game=game, slot=slot))
+        (marker, layout.find(folder, marker.path.format(game=game, slot=slot)))
         for marker in REARM_MARKERS
         if game in marker.games
     ]
@@ -375,6 +376,16 @@ def approve_repair(
                 f"The approval could not be written ({exc}). The game will not repair "
                 f"anything; the backup is in {backup.backup_folder}."
             ) from exc
+        # The game acts on an approval kept under both names under neither (src/vv_save_layout.py,
+        # native/shared/crosscheck_bridge.h): this same approval left under the other name by an
+        # earlier Repair is cleared, as the game clears one it has used.
+        for other in layout.places(folder, APPROVAL.format(game=game, slot=slot)):
+            if other != approval:
+                try:
+                    if other.read_bytes() == approval_bytes(game, slot):
+                        other.unlink()
+                except OSError:
+                    pass
     try:
         village = load_checker().births_log(folder, game, slot)[0].village
     except Exception:                           # the header is only the Repairs log's label
@@ -390,6 +401,9 @@ def approve_repair(
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id])
+    # Nothing is moved or renamed: an older build's folders and files keep their names, and every
+    # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
+    approval = approval_path(folder, game, slot)
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, backup, words,
                           added.get("sex", []), added)
 
@@ -408,10 +422,20 @@ class WordFix:
     backup: str          # the backup's file name
 
 
-def _word_backup(path: Path) -> Path:
+def copy_before_repair(folder: Path, path: Path, suffix: str) -> Path:
+    """Where the copy of `path` (in the save folder) kept before a repair goes: "Data\\Copies Made
+    Before Repairs", at the file's own place, "<name><suffix>" (the owner, 2026-10-09: no longer
+    beside the file; native/shared/save_layout.h vv_layout_copy_path)."""
+    relative = Path(path).resolve().relative_to(Path(folder).resolve())
+    target = Path(folder) / layout.DATA / layout.COPIES / relative
+    return target.with_name(target.name + suffix)
+
+
+def _word_backup(folder: Path, path: Path) -> Path:
     for k in range(1, 1000):
-        candidate = path.with_name(path.name + WORD_BACKUP_SUFFIX + ("" if k == 1 else f"-{k}"))
+        candidate = copy_before_repair(folder, path, WORD_BACKUP_SUFFIX + ("" if k == 1 else f"-{k}"))
         if not candidate.exists():
+            candidate.parent.mkdir(parents=True, exist_ok=True)
             return candidate
     raise LogToolError(f"{path.name} has too many backups already; nothing was changed in it.")
 
@@ -420,13 +444,15 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
     """Put the game's own like and dislike words into every log an older patcher wrote with the
     wrong list (scripts/vvfp_consistency_check.py old_words), with the game closed.
 
-    Each file is copied beside itself first (".before-v1.35.61-repair", never replacing one),
-    rewritten through a temporary file, and its boundary recorded as 0 in the game's Log Words
-    file, so the same words are never translated twice."""
+    Each file is copied first (".before-v1.35.61-repair", never replacing one, in Data\\Copies Made
+    Before Repairs), rewritten through a temporary file, and its boundary recorded as 0 in the
+    game's Like and Dislike Words file, so the same words are never translated twice."""
     checker = load_checker()
     folder = Path(folder)
     done: list[WordFix] = []
-    dat = folder / checker.LOG_WORDS.format(game=game)
+    # Appended to the new file, or an older build's "Log Words" while only it exists; the boundaries
+    # are read from both (scripts/vvfp_consistency_check.py word_boundaries).
+    dat = layout.writable(folder, checker.LOG_WORDS.format(game=game))
     for f in checker.old_words(folder, game):
         data = f.path.read_bytes()
         out, at = [], 0
@@ -435,7 +461,7 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
             out.append(new.encode("latin-1"))
             at = end
         out.append(data[at:])
-        backup = _word_backup(f.path)
+        backup = _word_backup(folder, f.path)
         temporary = f.path.with_name(f.path.name + ".tmp")
         try:
             with open(f.path, "rb") as source, open(backup, "xb") as copy:
@@ -465,7 +491,7 @@ def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[W
     """One "Repair <n>" record in the Repairs log (native/shared/repairs_log.h's shape)."""
     if not fixes:
         return
-    logs = Path(folder) / "Virtual Villagers Fun Patcher Logs" / "Repairs"
+    logs = layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")    # "Repairs" in older builds
     logs.mkdir(parents=True, exist_ok=True)
     number = 1
     while (logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt").exists():

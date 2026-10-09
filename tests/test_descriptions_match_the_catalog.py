@@ -132,9 +132,12 @@ class DescriptionsMatchTheCatalogTests(unittest.TestCase):
             source,
         )
         self.assertIn("VV_DATA_SUB_PARENTAGE", source)
+        # The folder the companion writes to since the save folders' new names (save_layout.h).
+        layout = (ROOT / "native" / "shared" / "save_layout.h").read_text(encoding="utf-8")
+        self.assertIn('#define VV_PARENTS_VV1_DIR VV_DATA_DIR L"\\\\Parents (A New Home)"', layout)
         self.assertIn(
             "'Virtual Villagers 1 Parentage Records - Save <slot>.dat' in the "
-            "'Virtual Villagers Fun Patcher Data\\Parentage Records' folder",
+            "'Virtual Villagers Fun Patcher Data\\Parents (A New Home)' folder",
             manifest["description"],
         )
         self.assertNotIn("vv1_parents_", manifest["description"])

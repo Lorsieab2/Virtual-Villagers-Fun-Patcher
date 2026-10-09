@@ -1,0 +1,55 @@
+{
+  "id": "vv1_island_events",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Write Island Events Log to Text File",
+  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers 1 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes and every skill -- and \"Gone\" for a villager the event took away. A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
+  "output_tag": "Island Events",
+  "needs_on": [
+    {
+      "id": "vv1_write_parentage_log",
+      "for": "the Island Events log, which that patch's DLL writes (without it nothing is written)"
+    }
+  ],
+  "behavior_changes": [
+    "When an island event runs, every villager is copied just before the game applies it and compared just after; each difference is one line of the villager's \"Island event <n>\" record.",
+    "A head or body change is also an \"Appearance changed\" record in the Births and Conceptions log, ending \"Changed by: <event> (island event)\".",
+    "A new village gets its Island Events log when it is made, like the other logs."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion detours the routines' first instructions at run time, after verifying them, and installs nothing if any differs.",
+    "The game's own routine runs unchanged, with the same registers and stack; the events, their odds and their effects are the game's own.",
+    "Nothing is written without Write Births and Conceptions Log to Text File."
+  ],
+  "evidence_status": "static exact-build verification of the event routines and the villager records in each executable; live-tested per game before release",
+  "companion_files": [
+    {
+      "source": "assets/island_events/VVFP Island Events.dll",
+      "destination": "VVFP Island Events.dll",
+      "sha256": "F675FDC86308E5F1FA808089AFFC71E199C93EAA99F0B9924DC624704971CD4E"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x4286b0",
+      "stock_bytes": "6AFF689E564500",
+      "routine": "the island event's constructor, whose chooser runs the event (and a Custom Island Event)",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
+    },
+    {
+      "va": "0x41a3d0",
+      "stock_bytes": "837C240408",
+      "routine": "the villager encounters' button handler (an answer applies the encounter)",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
+    },
+    {
+      "va": "0x42d050",
+      "stock_bytes": "837C240408",
+      "routine": "the Mysterious Crate and sea vials' button handler",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
+    }
+  ],
+  "patches": []
+}

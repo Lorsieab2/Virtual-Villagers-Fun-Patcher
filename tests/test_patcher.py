@@ -1168,8 +1168,10 @@ class ManifestTests(unittest.TestCase):
         # Villagers Have Last Names (vv2_last_names), no executable byte -- its
         # companion detours the naming routine at run time; 28 with Full Names on
         # the Details Screen (vv2_details_full_names), the name box's limit,
-        # width string and three copy-back lengths, in place.
-        self.assertEqual(len(feature_ids), 28)
+        # width string and three copy-back lengths, in place; 29 with Write Island
+        # Events Log to Text File (vv2_island_events), no executable byte -- its
+        # companion detours the event routines at run time.
+        self.assertEqual(len(feature_ids), 29)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4044,6 +4046,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_restore_missing_island_events",
                 "vv2_last_names",
                 "vv2_details_full_names",
+                "vv2_island_events",
             },
         )
         for mode in ALL_MODES:

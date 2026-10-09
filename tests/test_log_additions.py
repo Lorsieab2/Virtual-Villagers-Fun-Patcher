@@ -79,8 +79,12 @@ class Planning(unittest.TestCase):
         self.assertIn("  Name: Hoani\r\n  Custom title: Helpful Spirit\r\n  Age: 400", text[second:])
         self.assertEqual([(f.name, f.count) for f in done["custom"]],
                          [(str(history.relative_to(self.folder)), 1)])
-        backups = list(history.parent.glob("*.before-v1.35.61-repair*"))
+        # The copy is kept in Data\Copies Made Before Repairs, at the log's own place (the owner,
+        # 2026-10-09), never beside it.
+        copies = self.folder / tools.DATA / "Copies Made Before Repairs" / history.relative_to(self.folder).parent
+        backups = list(copies.glob("*.before-v1.35.61-repair*"))
         self.assertEqual(len(backups), 1)
+        self.assertEqual(list(history.parent.glob("*.before-*")), [])
         [again] = self.kinds()["custom"].questions.values()
         self.assertEqual(again.options, ["From 2026-10-01 10:00", additions.FROM_NOW],
                          "only the snapshot still without it is offered")
@@ -228,7 +232,7 @@ class Planning(unittest.TestCase):
         self.assertEqual(result.cleared, [])
         self.assertFalse(tools.approval_path(game_folder, 3, 1).exists(), "not re-armed: no approval")
         self.assertIn("Special villager: Esteemed Elder", history.read_bytes().decode())
-        repairs = next((game_folder / LOGS / "Repairs").glob("*.txt")).read_bytes().decode()
+        repairs = next((game_folder / LOGS / "Repairs Made").glob("*.txt")).read_bytes().decode()
         self.assertIn("Special villager added: " + LOGS + "\\Tribe History", repairs)
 
 

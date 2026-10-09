@@ -1132,6 +1132,130 @@ static void round4_cases(void) {
     DeleteFileA(p);
 }
 
+/* The folder `path` is in, and that folder's sibling `name`. */
+static void parent_of(const char *path, char *out) {
+    char *slash;
+    lstrcpyA(out, path);
+    slash = strrchr(out, '\\');
+    if (slash != NULL) *slash = '\0';
+}
+
+static void sibling_of(const char *folder, const char *name, char *out) {
+    parent_of(folder, out);
+    lstrcatA(out, "\\");
+    lstrcatA(out, name);
+}
+
+/* An older build's folder names (the owner, 2026-10-09; native/shared/save_layout.h): "Parentage
+   Records", "Cross-Check" and "Repairs" are never moved.  An older build's file is read and written
+   where it is; under both names a whole file is the one written last, and the Repairs log goes on
+   in the new folder; nothing is made under the new name just to look in it.  The owner's own
+   folder: an empty "Parentage Records" beside "Parents (A New Home)" holding the real file. */
+static void make_older(const char *path, int seconds) {
+    FILETIME ft;
+    ULARGE_INTEGER t;
+    HANDLE h = CreateFileA(path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                           FILE_ATTRIBUTE_NORMAL, NULL);
+    GetSystemTimeAsFileTime(&ft);
+    t.LowPart = ft.dwLowDateTime;
+    t.HighPart = ft.dwHighDateTime;
+    t.QuadPart -= (ULONGLONG)seconds * 10000000ull;
+    ft.dwLowDateTime = t.LowPart;
+    ft.dwHighDateTime = t.HighPart;
+    SetFileTime(h, NULL, NULL, &ft);
+    CloseHandle(h);
+}
+
+/* Every file in dir deleted, then dir itself. */
+static void remove_folder(const char *dir) {
+    char pattern[MAX_PATH], path[MAX_PATH];
+    WIN32_FIND_DATAA found;
+    HANDLE find;
+    wsprintfA(pattern, "%s\\*", dir);
+    find = FindFirstFileA(pattern, &found);
+    if (find != INVALID_HANDLE_VALUE) {
+        do {
+            if ((found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+                wsprintfA(path, "%s\\%s", dir, found.cFileName);
+                DeleteFileA(path);
+            }
+        } while (FindNextFileA(find, &found));
+        FindClose(find);
+    }
+    RemoveDirectoryA(dir);
+}
+
+static void older_names_case(void) {
+    char dir[MAX_PATH], old_dir[MAX_PATH], old_file[MAX_PATH], p[MAX_PATH];
+    const char *name;
+
+    /* Parents (A New Home) */
+    parent_of(sidecar, dir);
+    sibling_of(dir, "Parentage Records", old_dir);
+    name = strrchr(sidecar, '\\') + 1;
+    wsprintfA(old_file, "%s\\%s", old_dir, name);
+    DeleteFileA(sidecar);
+    RemoveDirectoryA(dir);
+    CreateDirectoryA(old_dir, NULL);
+    write_text(old_file, "an older build's records");
+    check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, old_file) == 0 && !exists(dir)
+          && lstrcmpA(slurp(old_file), "an older build's records") == 0,
+          "an older build's Parentage Records file is read and written where it is, never moved");
+    CreateDirectoryA(dir, NULL);
+    write_text(sidecar, "the newer records");
+    make_older(old_file, 3600);
+    check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, sidecar) == 0
+          && lstrcmpA(slurp(old_file), "an older build's records") == 0,
+          "... under both names, the one written last: the new one, the old one left as it is");
+    make_older(sidecar, 7200);
+    check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, old_file) == 0
+          && lstrcmpA(slurp(sidecar), "the newer records") == 0,
+          "... or the old one when an older build wrote it last, the new one left as it is");
+    DeleteFileA(old_file);
+    check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, sidecar) == 0 && exists(old_dir),
+          "the owner's folder: an empty Parentage Records beside the real file -- the real file, nothing removed");
+    DeleteFileA(sidecar);
+    RemoveDirectoryA(old_dir);
+    RemoveDirectoryA(dir);
+    check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, sidecar) == 0 && !exists(old_dir),
+          "neither: the new name, and no older folder made");
+
+    /* Log Checks */
+    parent_of(marker, dir);
+    sibling_of(dir, "Cross-Check", old_dir);
+    name = strrchr(marker, '\\') + 1;
+    wsprintfA(old_file, "%s\\%s", old_dir, name);
+    DeleteFileA(marker);
+    RemoveDirectoryA(dir);
+    CreateDirectoryA(old_dir, NULL);
+    write_text(old_file, "an older build's marker");
+    check(vv1_xc_marker_path(p, sizeof(p), SLOT) && lstrcmpA(p, old_file) == 0 && !exists(dir),
+          "an older build's Cross-Check marker is used where it is, never moved");
+    CreateDirectoryA(dir, NULL);
+    write_text(marker, "a newer marker");
+    make_older(old_file, 3600);
+    check(vv1_xc_marker_path(p, sizeof(p), SLOT) && lstrcmpA(p, marker) == 0
+          && lstrcmpA(slurp(old_file), "an older build's marker") == 0,
+          "... under both names, the one written last");
+    DeleteFileA(old_file);
+    RemoveDirectoryA(old_dir);
+    DeleteFileA(marker);
+
+    /* Repairs Made */
+    parent_of(repairs, dir);
+    sibling_of(dir, "Repairs", old_dir);
+    remove_folder(dir);
+    CreateDirectoryA(old_dir, NULL);
+    check(vv1_xc_subfolder(p, sizeof(p), "Virtual Villagers Fun Patcher Logs", "Repairs Made", 80)
+          && lstrcmpA(p, old_dir) == 0 && !exists(dir),
+          "an older build's Repairs folder goes on being written where it is, never moved");
+    CreateDirectoryA(dir, NULL);
+    check(vv1_xc_subfolder(p, sizeof(p), "Virtual Villagers Fun Patcher Logs", "Repairs Made", 80)
+          && lstrcmpA(p, dir) == 0 && exists(old_dir),
+          "... and with both, new records go to Repairs Made, the older folder kept");
+    RemoveDirectoryA(old_dir);
+}
+
 int main(int argc, char **argv) {
     char game[MAX_PATH];
     if (argc < 2) {
@@ -1142,11 +1266,47 @@ int main(int argc, char **argv) {
     vv1_parents_path(sidecar, sizeof(sidecar), SLOT);
     vv1_xc_marker_path(marker, sizeof(marker), SLOT);
     vv1_xc_subfolder(births_dir, sizeof(births_dir), "Virtual Villagers Fun Patcher Logs", "Births and Conceptions", 80);
-    vv1_xc_subfolder(game, sizeof(game), "Virtual Villagers Fun Patcher Logs", "Repairs", 80);
+    vv1_xc_subfolder(game, sizeof(game), "Virtual Villagers Fun Patcher Logs", "Repairs Made", 80);
     wsprintfA(repairs, "%s\\Virtual Villagers 1 Repairs Log 1.txt", game);
-    wsprintfA(backup1, "%s" VV1_XC_BACKUP_SUFFIX, sidecar);
-    wsprintfA(backup2, "%s" VV1_XC_BACKUP_SUFFIX "-2", sidecar);
+    /* The repair's copies are kept in "Data\Copies Made Before Repairs", at the file's own place
+       (native/shared/save_layout.h) -- beside the file when that place is too long to name, as
+       vv1_xc_backup does. */
+    {
+        wchar_t wide[MAX_PATH], copy[MAX_PATH];
+        MultiByteToWideChar(CP_ACP, 0, sidecar, -1, wide, MAX_PATH);
+        if (vv_layout_copy_path(wide, L"" VV1_XC_BACKUP_SUFFIX, copy, MAX_PATH)) {
+            WideCharToMultiByte(CP_ACP, 0, copy, -1, backup1, MAX_PATH, NULL, NULL);
+        } else {
+            wsprintfA(backup1, "%s" VV1_XC_BACKUP_SUFFIX, sidecar);
+        }
+        if (vv_layout_copy_path(wide, L"" VV1_XC_BACKUP_SUFFIX L"-2", copy, MAX_PATH)) {
+            WideCharToMultiByte(CP_ACP, 0, copy, -1, backup2, MAX_PATH, NULL, NULL);
+        } else {
+            wsprintfA(backup2, "%s" VV1_XC_BACKUP_SUFFIX "-2", sidecar);
+        }
+    }
+    {
+        /* The place itself, for a save folder short enough to name it, on a drive letter nothing is
+           mounted at (the folders vv_layout_copy_path makes cannot be made there). */
+        wchar_t file[MAX_PATH], expected[MAX_PATH], copy[MAX_PATH], longer[MAX_PATH], root[4] = L"Z:\\";
+        int i;
+        while (root[0] > L'D' && GetDriveTypeW(root) != DRIVE_NO_ROOT_DIR) --root[0];
+        wsprintfW(file, L"%lc:\\S\\Virtual Villagers Fun Patcher Data\\Parents (A New Home)\\"
+                        L"Virtual Villagers 1 Parentage Records - Save 1.dat", root[0]);
+        wsprintfW(expected, L"%lc:\\S\\Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs\\"
+                            L"Virtual Villagers Fun Patcher Data\\Parents (A New Home)\\"
+                            L"Virtual Villagers 1 Parentage Records - Save 1.dat" L"" VV1_XC_BACKUP_SUFFIX, root[0]);
+        check(GetDriveTypeW(root) == DRIVE_NO_ROOT_DIR
+              && vv_layout_copy_path(file, L"" VV1_XC_BACKUP_SUFFIX, copy, MAX_PATH) && lstrcmpW(copy, expected) == 0,
+              "the repair's copy is kept in Copies Made Before Repairs, at the file's own place");
+        wsprintfW(longer, L"%lc:\\", root[0]);
+        for (i = 0; i < 9; ++i) lstrcatW(longer, L"long folder\\");
+        lstrcatW(longer, file + 3);
+        check(!vv_layout_copy_path(longer, L"" VV1_XC_BACKUP_SUFFIX, copy, MAX_PATH),
+              "... and a place too long to name is refused, never cut short (the copy goes beside the file)");
+    }
 
+    older_names_case();
     owner_scenario();
     clean_and_no_log_cases();
     ambiguity_cases();

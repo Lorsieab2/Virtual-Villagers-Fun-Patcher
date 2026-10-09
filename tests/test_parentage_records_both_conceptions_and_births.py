@@ -105,10 +105,10 @@ class BothRecordKindsTests(unittest.TestCase):
         # Deaths and Unaccounted Villagers logs, and only conceptions, deaths
         # and unaccounted records are numbered -- a birth never is.
         self.assertIn("return kind == KIND_UNACCOUNTED ? LOG_UNACCOUNTED : LOG_BIRTHS;", self.source)
-        self.assertIn("return kind == KIND_CONCEPTION || kind == KIND_DEATH || kind == KIND_UNACCOUNTED;",
-                      self.source)
+        self.assertIn("return kind == KIND_CONCEPTION || kind == KIND_DEATH || kind == KIND_UNACCOUNTED\n"
+                      "        || kind == KIND_ISLAND_EVENT;", self.source)
         self.assertIn('return family == LOG_DEATHS ? "Death "', self.source)
-        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";', self.source)
+        self.assertIn(': family == LOG_EVENTS ? "Island event " : "Conception ";', self.source)
 
     def test_only_conceptions_are_counted(self):
         """Births must not advance the conception number or the rollover.
@@ -122,7 +122,7 @@ class BothRecordKindsTests(unittest.TestCase):
         self.assertIn("const char *marker = family_marker(family);", counter)
         self.assertIn("strncmp(line, marker, marker_length) == 0", counter)
         self.assertNotIn("Birth", counter)
-        self.assertIn(': family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";', self.source)
+        self.assertIn(': family == LOG_EVENTS ? "Island event " : "Conception ";', self.source)
 
     def test_the_two_kinds_share_one_log_file(self):
         """A birth in its own file could not be read beside its conception.

@@ -433,7 +433,8 @@ class NewHomeParentage(unittest.TestCase):
 
     def test_a_namesake_with_other_looks_keeps_his_name(self):
         with tempfile.TemporaryDirectory() as tmp:
-            data_dir = Path(tmp)
+            folder = Path(tmp)
+            data_dir = folder / ln.tools.DATA
             people = [ln.Living(0, "Ago", "Male", 5, 6, 1, "Akikai"), ln.Living(0, "Ago", "Male", 1, 2, 1, "Akikai")]
             renames = {("Ago", 5, 6): "Ago Akikai"}
             buf = bytearray(b"VP02" + bytes(8 + 256 * 36 + 256 * 92))
@@ -448,11 +449,14 @@ class NewHomeParentage(unittest.TestCase):
             occupant(0, 5, 6)
             occupant(1, 1, 2)
             occupant(2, None, None)
+            # In "Parentage Records", where an older build kept it ("Parents (A New Home)" now,
+            # src/vv_save_layout.py): found there while it has not moved.
             path = data_dir / "Parentage Records" / "Virtual Villagers 1 Parentage Records - Save 1.dat"
-            path.parent.mkdir()
+            path.parent.mkdir(parents=True)
             path.write_bytes(bytes(buf))
             result = ln.Plan(renames)
-            ln._plan_vv1_parentage(result, data_dir, data_dir, 1, people, renames, renames, {})
+            ln._plan_vv1_parentage(result, folder, data_dir, 1, people, renames, renames, {})
+            self.assertEqual(result.changes[0].path, path)
             [change] = result.changes
             names = [ln._cstr(change.updated, 12 + i * 36 + 8, 28) for i in range(3)]
             self.assertEqual(names, ["Ago Akikai", "Ago", "Ago"],

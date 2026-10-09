@@ -198,12 +198,19 @@ static void file_of(int slot, char *out) {
 }
 
 static void roster_of(int slot, char *out) {
+    _snprintf(out, MAX_PATH, "%s\\Unaccounted Villagers\\Virtual Villagers 1 Villagers at Last Save - Save %d.dat",
+              data_dir, slot);
+    out[MAX_PATH - 1] = 0;
+}
+
+/* The roster's name in its folder before 2026-10-09 (native/shared/save_layout.h). */
+static void old_roster_of(int slot, char *out) {
     _snprintf(out, MAX_PATH, "%s\\Unaccounted Villagers\\Virtual Villagers 1 Village Roster - Save %d.dat",
               data_dir, slot);
     out[MAX_PATH - 1] = 0;
 }
 
-/* Where an older build wrote them: loose in the Data folder. */
+/* Where an older build wrote them: loose in the Data folder (the roster by its older name). */
 static void loose_file_of(int slot, char *out) {
     _snprintf(out, MAX_PATH, "%s\\Virtual Villagers 1 Graves - Save %d.dat", data_dir, slot);
     out[MAX_PATH - 1] = 0;
@@ -631,10 +638,12 @@ int main(int argc, char **argv) {
         CHECK(grave_of(8, &cause, &epitaph) && cause == 3, "and the grave still shows its cause (Work accident)");
         before = unaccounted();
         saved(1);
-        CHECK(GetFileAttributesA(rloose) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) != INVALID_FILE_ATTRIBUTES,
-              "the save moved the roster into Unaccounted Villagers\\");
+        CHECK(GetFileAttributesA(rloose) != INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES,
+              "the save used the roster where an older build left it (loose, by its older name), never moving it");
         CHECK(unaccounted() == before, "and reconciled against it: nobody unaccounted");
         unload();
+
+        DeleteFileA(rloose);
 
         /* Both: the folder's copy is read, the loose one never touched. */
         memcpy(other, graves, sizeof other);
@@ -655,6 +664,26 @@ int main(int argc, char **argv) {
               "Start Over deletes the graves file in Graves\\ and the loose one");
         CHECK(GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rloose) == INVALID_FILE_ATTRIBUTES,
               "Start Over deletes the roster in Unaccounted Villagers\\ and the loose one");
+
+        /* The roster's older name in its folder, "... Village Roster - Save S.dat" (the owner, 2026-10-09:
+           "Villagers at Last Save"; native/shared/save_layout.h): used under that name, never renamed. */
+        {
+            char rold[MAX_PATH];
+            old_roster_of(1, rold);
+            CHECK(write_file(rold, roster, roster_n), "set up: a roster under its older name in Unaccounted Villagers\\");
+            load();
+            tick(1);
+            before = unaccounted();
+            saved(1);
+            CHECK(GetFileAttributesA(rold) != INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES
+                  && unaccounted() == before,
+                  "the save read and wrote it under its older name, never renaming it: nobody unaccounted");
+            unload();
+            CHECK(write_file(rold, roster, roster_n), "set up: a roster under its older name beside the new one");
+            vv_reset_slot_state(1, 1, NULL);
+            CHECK(GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rold) == INVALID_FILE_ATTRIBUTES,
+                  "Start Over deletes the roster under both its names");
+        }
     }
 
     wipe();

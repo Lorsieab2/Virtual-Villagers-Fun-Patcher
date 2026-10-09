@@ -152,6 +152,19 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "a parent printed in parentheses is no parent, and the Birth still counts",
             "a damaged record of an earlier village in the slot does not block this one's check",
             "a Repairs log full by size: the note goes to the next file, and the repair is made",
+            # the save folder's new names (the owner, 2026-10-09; native/shared/save_layout.h)
+            "the repair's copy is kept in Copies Made Before Repairs, at the file's own place",
+            "... and a place too long to name is refused, never cut short (the copy goes beside the file)",
+            # nothing is moved; the owner's own folder (2026-10-09)
+            "an older build's Parentage Records file is read and written where it is, never moved",
+            "... under both names, the one written last: the new one, the old one left as it is",
+            "... or the old one when an older build wrote it last, the new one left as it is",
+            "the owner's folder: an empty Parentage Records beside the real file -- the real file, nothing removed",
+            "neither: the new name, and no older folder made",
+            "an older build's Cross-Check marker is used where it is, never moved",
+            "... under both names, the one written last",
+            "an older build's Repairs folder goes on being written where it is, never moved",
+            "... and with both, new records go to Repairs Made, the older folder kept",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

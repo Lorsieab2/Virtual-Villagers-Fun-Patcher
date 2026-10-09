@@ -151,6 +151,7 @@
 #include <string.h>
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
+#include "../shared/save_layout.h"    /* the save folder's names, and the move from older ones */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -804,8 +805,29 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
        will not move, the loose file is the one read and written, so nothing
        is shadowed. */
     {
-        char name[64];
+        char name[64], old_file[MAX_PATH], new_file[MAX_PATH];
+        /* "Parents (A New Home)" -- "Parentage Records" in older builds.  The file is never moved
+           (native/shared/save_layout.h; the owner, 2026-10-09: a v1.35.64 preview moved it while
+           the game was still patched by v1.35.63, whose companion then found no parents at all).
+           An older build's file is read and written where it is; under both names, the one
+           written last.  So a villager is never taken for parentless because the file sits under
+           the other name. */
         wsprintfA(name, "Virtual Villagers 1 Parentage Records - Save %u.dat", (unsigned int)slot);
+        if ((size_t)lstrlenA(out) + sizeof("\\" VV_DATA_SUB_PARENTAGE_OLD "\\") + (size_t)lstrlenA(name)
+                + VV_DATA_RESERVE > sizeof old_file
+            || (size_t)lstrlenA(out) + sizeof("\\" VV_DATA_SUB_PARENTAGE "\\") + (size_t)lstrlenA(name)
+                > sizeof new_file) {
+            return 0;
+        }
+        wsprintfA(old_file, "%s\\" VV_DATA_SUB_PARENTAGE_OLD "\\%s", out, name);
+        wsprintfA(new_file, "%s\\" VV_DATA_SUB_PARENTAGE "\\%s", out, name);
+        if (vv_layout_pick_file_a(old_file, new_file)) {
+            if ((size_t)lstrlenA(old_file) + VV_DATA_RESERVE > n) {
+                return 0;
+            }
+            lstrcpyA(out, old_file);
+            return 1;
+        }
         if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE, name, VV_DATA_RESERVE)) {
             return 0;
         }

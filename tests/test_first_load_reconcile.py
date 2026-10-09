@@ -30,7 +30,9 @@ TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Statistics Export.test.dll"
 STATS = ROOT / "native" / "statistics_export"
 SHARED = ROOT / "native" / "shared"
 # 101 checks across the five games (19 to 22 each).
-CHECKS = 101 + 8 * 5 + 2   # 7: Repair right after the quit save, every game; 0: the memorial at the load (VV1, VV2)
+# 7: Repair right after the quit save, every game; 0: the memorial at the load (VV1, VV2);
+# 8: Deaths logs in both the old and the new folder, every game (2 each).
+CHECKS = 101 + 8 * 5 + 2 + 2 * 5
 
 
 def body(source: str, head: str) -> str:

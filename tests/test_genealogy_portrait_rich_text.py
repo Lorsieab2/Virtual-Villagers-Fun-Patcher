@@ -210,7 +210,7 @@ class WindowWiringTests(unittest.TestCase):
         return self.src[self.src.index(start):self.src.index(end, self.src.index(start))]
 
     def test_the_box_has_format_buttons_a_menu_and_shortcuts(self) -> None:
-        tab = self.part("    def _selected_tab(self)", 'box = ttk.LabelFrame(tab, text="Special mark"')
+        tab = self.part("    def _selected_tab(self)", 'box = ttk.LabelFrame(tab, text="Their special mark"')
         self.assertIn("for what, label, look in TEXT_FORMATS:", tab)
         self.assertIn("command=lambda w=what: self._format_text(w)", tab)
         for binding in ('"<Button-3>", self._format_menu', '"<Control-b>"', '"<Control-i>"', '"<Control-u>"',

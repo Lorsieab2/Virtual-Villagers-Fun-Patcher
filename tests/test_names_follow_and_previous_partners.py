@@ -93,6 +93,20 @@ class TreeNamesTests(unittest.TestCase):
         self.assertEqual(any_number.sub("Iruwa Bandele", "35. Iruwa Bandele II / Natural"), "35. Iruwa Bandele / Natural")
 
 
+class TreeAgesTests(unittest.TestCase):
+    """The owner, 2026-10-09: Kalea Salongo, 16 in the game, still "5 years old" on the tree."""
+
+    def test_the_players_age_words_follow_the_records(self) -> None:
+        lines = ["51. Kalea Salongo", "5 years old", "A Mysterious Crate (watertight)", "100 game units"]
+        out, _runs = ft._rename_in_lines(lines, None, ft.AGE_YEARS, "16 years old")
+        out, _runs = ft._rename_in_lines(out, None, ft.AGE_UNITS, "320 game units")
+        self.assertEqual(out, ["51. Kalea Salongo", "16 years old", "A Mysterious Crate (watertight)",
+                               "320 game units"])
+        out, _runs = ft._rename_in_lines(["(left the village)", "Founder"], None, ft.STATUS_WORDS, "(deceased)")
+        self.assertEqual(out, ["(deceased)", "Founder"])
+        self.assertEqual(ft._rename_in_lines(["v1.35 years old"], None, ft.AGE_YEARS, "x")[0], ["v1.35 years old"])
+
+
 def person(pid, name, sex, years, father=None, mother=None, alive=True):
     p = gen.Person(pid, name, pid, pid, sex=sex, age=years * YEARS, alive=alive, father=father, mother=mother)
     p.first_seen = "2026-10-01 00:00"
@@ -111,6 +125,31 @@ class PreviousPartnersTests(unittest.TestCase):
         self.assertIn("Previous partners first", gen.Rules().describe())
         pairs, _per_woman, _fallback = gen.suggest(self.village(), gen.Rules())
         self.assertEqual([(p.man.name, p.woman.name) for p in pairs], [("Hoani Chuchip", "Kaula Akikai")])
+
+    def test_age_units_can_be_turned_off(self) -> None:
+        """The owner, 2026-10-08: "a toggle to turn Age Units on and off in the village matchmaker"."""
+        self.assertTrue(gen.Rules().show_age_units)
+        on = gen.pair_report(self.village(), gen.Rules(), "A New Home")
+        off = gen.pair_report(self.village(), gen.Rules(show_age_units=False), "A New Home")
+        self.assertIn("600 game units (30 years old)", on)
+        self.assertNotIn("game units", off)
+        self.assertIn("Hoani Chuchip, 30 years old", off)
+        self.assertNotIn("units", " ".join(gen.Rules(show_age_units=False).describe()))
+
+    def test_the_report_says_who_has_had_a_child_together(self) -> None:
+        """The owner, 2026-10-09: "for the Matchmaker, can you mention if the two villagers have previously
+        had a child?"."""
+        report = gen.pair_report(self.village(), gen.Rules(), "A New Home")
+        couple = next(line for line in report.splitlines() if "Hoani Chuchip" in line and "Kaula Akikai" in line)
+        self.assertIn("have had a child together before", couple)
+        stranger = next(line for line in report.splitlines() if line.strip().startswith("Tomi Wanjiko"))
+        self.assertNotIn("together", stranger)
+        v = self.village()
+        v.people[5] = person(5, "Lulu Chuchip II", "Female", 0, father=1, mother=2)
+        v.people[6] = person(6, "", "Female", 0, father=1, mother=2)
+        v.people[6].upcoming = True
+        pair = next(p for p in gen.suggest(v, gen.Rules())[0] if p.man.id == 1)
+        self.assertEqual(pair.together, "have had 2 children together before, and a baby on the way together")
 
     def test_off_the_closer_age_wins(self) -> None:
         pairs, _per_woman, _fallback = gen.suggest(self.village(), gen.Rules(prefer_previous_partners=False))
