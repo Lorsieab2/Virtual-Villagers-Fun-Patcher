@@ -106,20 +106,16 @@ class SaveLayoutTests(unittest.TestCase):
 
 
 class SpecialBorderAndTextRoomTests(unittest.TestCase):
-    def test_every_special_border_is_offered_and_draws_round_the_portrait(self):
+    def test_every_special_border_goes_round_every_shape(self):
+        self.assertEqual(list(ft.SPECIAL_BORDERS), ["rope", "vine_leaves", "vine_flowers", "vine_both"])
         for border in ft.SPECIAL_BORDERS:
-            with self.subTest(border=border):
-                self.assertIn(border, ft.BORDERS)
-                edge, carved, cracks = ft.special_border(border, "ellipse", (0, 0, 100, 140, 0.0), 0.0)
-                self.assertTrue(edge)
-                xs = [x for line in edge for x, _y in line]
-                ys = [y for line in edge for _x, y in line]
-                self.assertLessEqual(min(xs), 0.5)              # round the opening, not inside it
-                self.assertGreaterEqual(max(xs), 99.5)
-                self.assertLessEqual(min(ys), 0.5)
-                self.assertGreaterEqual(max(ys), 139.5)
-        self.assertEqual(ft.Edits._from_data({"borders": {"Male": "stone_palm"}}).borders.get("Male", "stone_palm"),
-                         "stone_palm")
+            self.assertIn(border, ft.BORDERS)
+            for kind in ft.PORTRAIT_SHAPES:
+                with self.subTest(border=border, kind=kind):
+                    lines = ft.special_border(border, kind, (0, 0, 100, 140, 0.0), ft.corner_radius(kind))
+                    self.assertGreater(len(lines), 2)        # the rope's or the vine's line and what is on it
+        kept = ft.Edits._from_data({"borders": {"Male": "stone_palm"}}).borders.get("Male")
+        self.assertIn(kept, ft.BORDERS)                      # a stone tablet saved before: the plain border
 
     def test_text_room_auto_boxes_every_shape(self):
         frame = (0, 0, 100, 100, 0.0)

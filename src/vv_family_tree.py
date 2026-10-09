@@ -565,17 +565,14 @@ BORDERS = {"thin": "Thin line", "thick": "Thick line", "extra": "Extra thick lin
            "dashed": "Dashed",
            "dashdot": "Dotted and dashed"}
 BORDER_WIDTHS = {"thin": 1.5, "thick": 3.0, "extra": 6.0, "dotted": 2.5, "dashed": 2.5, "dashdot": 2.5}
-# Special borders (the owner, 2026-10-09): a braided rope round the portrait's own shape, and stone
-# tablets -- simplified from the owner's picture -- with the portrait's shape the opening in the stone
-# (special_border).
-SPECIAL_BORDERS = {"rope": "Special: Braided rope", "stone_sun": "Special: Stone tablet (sun)",
-                   "stone_vine": "Special: Stone tablet (swirl and vine)", "stone_shell": "Special: Stone ring (shell)",
-                   "stone_flower": "Special: Stone arch (flower)", "stone_hex": "Special: Stone hexagon (sun)",
-                   "stone_star": "Special: Stone tablet (star and wave)",
-                   "stone_hibiscus": "Special: Stone oval (hibiscus)", "stone_palm": "Special: Stone tablet (palm)"}
+# A special border (the owner, 2026-10-09): a braided rope round the portrait's own shape, whatever
+# the shape (special_border).  The stone tablets tried beside it were taken out at the owner's word.
+SPECIAL_BORDERS = {"rope": "Special: Braided rope", "vine_leaves": "Special: Vine with leaves",
+                   "vine_flowers": "Special: Vine with hibiscus",
+                   "vine_both": "Special: Vine with leaves and hibiscus"}
 BORDERS.update(SPECIAL_BORDERS)
 BORDER_WIDTHS.update({name: 1.5 for name in SPECIAL_BORDERS})
-BORDER_WIDTHS["rope"] = 0.0             # the rope is the edge
+BORDER_WIDTHS.update({name: 0.0 for name in SPECIAL_BORDERS})     # the rope or the vine is the edge
 # How see-through each part of the tree is, in percent, until the player says (pictures and text
 # boxes have their own).
 OPACITY = {"words": ("Words", 100), "plates": ("Boxes behind words", 80), "portraits": ("Portraits", 100),
@@ -3580,153 +3577,59 @@ def _rope(points: list[tuple[float, float]], thick: float) -> list[list[tuple[fl
     return lines
 
 
-def _motif(name: str, cx: float, cy: float, s: float) -> list[list[tuple[float, float]]]:
-    """A carved motif `s` across, centred at (cx, cy): a sun, a swirl, a shell, a flower, a star, a
-    palm, a hibiscus, a leaf, a key, a wave or a zigzag."""
-    r = s / 2
-    if name == "sun":
-        out = [_ring(cx, cy, r * 0.5, r * 0.5, 20)]
-        out += [[(cx + r * 0.62 * math.cos(a), cy + r * 0.62 * math.sin(a)), (cx + r * math.cos(a), cy + r * math.sin(a))]
-                for a in (math.pi * k / 4 for k in range(8))]
-        out.append([(cx + r * 0.3 * (1 - a / 12) * math.cos(a), cy + r * 0.3 * (1 - a / 12) * math.sin(a))
-                    for a in (k * 0.3 for k in range(30))])
-        return out
-    if name == "swirl":
-        return [[(cx + r * (1 - a / 14) * math.cos(a), cy + r * (1 - a / 14) * math.sin(a)) for a in (k * 0.3 for k in range(42))]]
-    if name == "shell":
-        rim = [(cx + r * math.cos(a) * (0.9 + 0.1 * abs(math.sin(5 * a))), cy + r * 0.3 - r * math.sin(a) * (0.9 + 0.1 * abs(math.sin(5 * a))))
-               for a in (math.pi * k / 40 for k in range(41))]
-        return [rim + [rim[0]]] + [[(cx, cy + r * 0.3), (cx + r * 0.85 * math.cos(a), cy + r * 0.3 - r * 0.85 * math.sin(a))]
-                                    for a in (math.pi * k / 6 for k in range(1, 6))]
-    if name in ("flower", "hibiscus"):
-        petals = 5
-        out = []
-        for k in range(petals):
-            a = -math.pi / 2 + 2 * math.pi * k / petals
-            wide = 0.42 if name == "flower" else 0.62
-            out.append([(cx + r * u * math.cos(a) - r * wide * math.sin(math.pi * u) * 0.5 * math.sin(a) * side,
-                         cy + r * u * math.sin(a) + r * wide * math.sin(math.pi * u) * 0.5 * math.cos(a) * side)
-                        for side in (1, -1) for u in ((k2 / 10) if side == 1 else (1 - k2 / 10) for k2 in range(11))])
-        out.append(_ring(cx, cy, r * 0.12, r * 0.12, 10))
-        return out
-    if name == "star":
-        pts = [(cx + r * (1 if k % 2 == 0 else 0.42) * math.sin(math.pi * k / 5), cy - r * (1 if k % 2 == 0 else 0.42) * math.cos(math.pi * k / 5))
-               for k in range(10)]
-        return [pts + pts[:1]]
-    if name == "palm":
-        trunk = [(cx - r * 0.05 + r * 0.15 * (u ** 2), cy + r - u * r * 1.2) for u in (k / 10 for k in range(11))]
-        top = trunk[-1]
-        fronds = [[(top[0], top[1]), (top[0] + r * 0.4 * math.cos(a), top[1] + r * 0.25 * math.sin(a) - r * 0.15),
-                   (top[0] + r * 0.8 * math.cos(a), top[1] + r * 0.45 * math.sin(a) + r * 0.1)]
-                  for a in (math.radians(d) for d in (200, 240, 300, 340, 270))]
-        return [trunk] + fronds
-    if name == "leaf":
-        return [[(cx + r * u, cy - r * 0.35 * math.sin(math.pi * (u + 1) / 2)) for u in (k / 10 * 2 - 1 for k in range(11))]
-                + [(cx + r * u, cy + r * 0.35 * math.sin(math.pi * (u + 1) / 2)) for u in (1 - k / 10 * 2 for k in range(11))],
-                [(cx - r, cy), (cx + r, cy)]]
-    if name == "key":                            # a squared spiral
-        pts, x, y, step, d = [(cx - r, cy + r)], cx - r, cy + r, s, 0
-        for k in range(7):
-            dx, dy = ((1, 0), (0, -1), (-1, 0), (0, 1))[d % 4]
-            x, y = x + dx * step, y + dy * step
-            pts.append((x, y))
-            d += 1
-            if k % 2 == 1:
-                step *= 0.62
-        return [pts]
-    return []
+def _vine(points: list[tuple[float, float]], size: float, leaves: bool, flowers: bool) -> list:
+    """A vine along a closed outline, waving gently across it, with leaves (each with its midrib, turned
+    out and in by turns) and/or small hibiscus flowers along it; `size` is a leaf's length."""
+    walk = _resample(points, size / 8)
+    if not walk:
+        return []
+    n = len(walk)
+    wave = size * 0.12
+    vine = [(x + nx * wave * math.sin(2 * math.pi * k / 16), y + ny * wave * math.sin(2 * math.pi * k / 16))
+            for k, (x, y, nx, ny) in enumerate(walk)]
+    out = [vine + vine[:1]]
+    pattern = (["leaf", "leaf", "flower"] if leaves and flowers else ["leaf"] if leaves else ["flower"])
+    spacing = 8 if pattern == ["leaf"] else 10
+    count = max(3, n // spacing)
+    for j in range(count):
+        k = int(j * n / count)
+        x, y = vine[k]
+        _x, _y, nx, ny = walk[k]
+        tx, ty = -ny, nx                                       # along the outline
+        what = pattern[j % len(pattern)]
+        if what == "leaf":
+            side = 1 if j % 2 == 0 else -1                     # out, then in
+            dx, dy = nx * side * 0.8 + tx * 0.6, ny * side * 0.8 + ty * 0.6
+            m = math.hypot(dx, dy)
+            if m == 0:                                     # two corners in one place: no direction here
+                continue
+            dx, dy = dx / m, dy / m
+            px, py = -dy, dx
+            edge = [(x + dx * size * u + px * size * 0.32 * math.sin(math.pi * u) * s,
+                     y + dy * size * u + py * size * 0.32 * math.sin(math.pi * u) * s)
+                    for s in (1, -1) for u in ((k2 / 10) if s == 1 else (1 - k2 / 10) for k2 in range(11))]
+            out.append(edge)
+            out.append([(x, y), (x + dx * size * 0.9, y + dy * size * 0.9)])
+        else:
+            r = size * 0.55
+            petals = [(x + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.cos(a),
+                       y + r * (0.45 + 0.55 * abs(math.cos(2.5 * (a + 0.3)))) ** 0.5 * math.sin(a))
+                      for a in (2 * math.pi * k2 / 60 for k2 in range(61))]
+            out.append(petals)
+            out.append(_ring(x, y, r * 0.16, r * 0.16, 12))
+    return out
 
 
-def special_border(border: str, kind: str, frame: tuple, radius: float) -> tuple[list, list, list]:
-    """A special border round a portrait framed (x, y, w, h, angle): (lines drawn like the border -- the
-    rope, or the tablet's outer stone --, its carved motifs, its light cracks), already turned."""
+def special_border(border: str, kind: str, frame: tuple, radius: float) -> list:
+    """A special border round a portrait framed (x, y, w, h, angle), along its own outline whatever the
+    shape: the braided rope, or a vine with leaves, hibiscus or both (the owner, 2026-10-09) -- lines
+    drawn like the border, already turned."""
     x0, y0, w, h, angle = frame
-    x1, y1, cx, cy = x0 + w, y0 + h, x0 + w / 2, y0 + h / 2
-    m = 0.18 * min(w, h)                          # the stone round the opening
+    outline_points = shape_points(kind, x0, y0, w, h, radius, angle)
     if border == "rope":
-        lines, motifs, cracks = _rope(shape_points(kind, x0, y0, w, h, radius), max(5.0, 0.07 * min(w, h))), [], []
-    else:
-        dome = lambda xa, xb, ytop, ypeak, n=24: [(xa + (xb - xa) * k / n, ytop - (ypeak - ytop) * -math.sin(math.pi * k / n))
-                                                  for k in range(n + 1)]
-        motifs, cracks = [], []
-        if border == "stone_sun":
-            stone = [(x0 - m, y1 + m), (x0 - m, y0 + 0.1 * h)] + dome(x0 + 0.05 * w, x1 - 0.05 * w, y0 - 0.4 * m, y0 - 2.0 * m) \
-                + [(x1 + m, y0 + 0.1 * h), (x1 + m, y1 + m)]
-            motifs = _motif("sun", cx, y0 - 1.1 * m, 1.3 * m)
-            zig = [(x0 + 0.1 * w + k * 0.1 * w, y1 + (0.25 if k % 2 == 0 else 0.8) * m) for k in range(9)]
-            motifs.append(zig)
-            for sx in (x0 - 0.5 * m, x1 + 0.5 * m):
-                motifs.append([(sx, cy - 0.35 * m), (sx + 0.3 * m, cy), (sx, cy + 0.35 * m), (sx - 0.3 * m, cy), (sx, cy - 0.35 * m)])
-        elif border == "stone_vine":
-            stone = [(x0 - m, y1 + m), (x0 - m, y0 - m), (cx - 0.22 * w, y0 - m), (cx - 0.22 * w, y0 - 1.9 * m),
-                     (cx + 0.22 * w, y0 - 1.9 * m), (cx + 0.22 * w, y0 - m), (x1 + m, y0 - m), (x1 + m, y1 + m)]
-            motifs = _motif("swirl", cx, y0 - 1.45 * m, 0.8 * m)
-            for k in range(5):
-                motifs += _motif("leaf", x1 + 0.55 * m + (0.18 if k % 2 else -0.18) * m, y0 + k * 0.2 * h, 0.7 * m)
-        elif border == "stone_shell":
-            rr = 0.5 * max(w, h) + m
-            stone = [(cx + rr * math.cos(a), cy + rr * math.sin(a)) for a in (2 * math.pi * k / 72 for k in range(72))]
-            motifs = _motif("shell", cx, cy - rr - 0.1 * m, 1.6 * m)
-            for k in range(1, 8):
-                a = -math.pi / 2 + 2 * math.pi * k / 8
-                tx, ty = cx + (rr - 0.5 * m) * math.cos(a), cy + (rr - 0.5 * m) * math.sin(a)
-                motifs.append([(tx, ty - 0.18 * m), (tx + 0.18 * m, ty + 0.14 * m), (tx - 0.18 * m, ty + 0.14 * m), (tx, ty - 0.18 * m)])
-        elif border == "stone_flower":
-            stone = [(x0 - m, y1 + m), (x0 - m, y0 + 0.25 * h)] + \
-                [(cx + (w / 2 + m) * math.cos(a), y0 + 0.25 * h - (0.25 * h + 1.6 * m) * math.sin(a) ** 0.8)
-                 for a in (math.pi - math.pi * k / 24 for k in range(25))] + [(x1 + m, y0 + 0.25 * h), (x1 + m, y1 + m)]
-            motifs = _motif("flower", cx, y0 - 0.8 * m, 1.2 * m)
-            for sx in (x0 - 0.5 * m, x1 + 0.5 * m):
-                motifs.append([(sx, y1), (sx, y0 + 0.3 * h)])
-                for k in range(4):
-                    yy = y1 - 0.12 * h - k * 0.17 * h
-                    motifs.append([(sx, yy), (sx - 0.35 * m, yy - 0.3 * m)])
-                    motifs.append([(sx, yy), (sx + 0.35 * m, yy - 0.3 * m)])
-            motifs.append([(x0 - m, y1 + 0.3 * m), (x1 + m, y1 + 0.3 * m)])
-        elif border == "stone_hex":
-            stone = [(cx, y0 - 1.8 * m), (x1 + m, y0 + 0.12 * h), (x1 + m, y1 - 0.12 * h), (cx, y1 + 1.8 * m),
-                     (x0 - m, y1 - 0.12 * h), (x0 - m, y0 + 0.12 * h)]
-            motifs = _motif("sun", cx, y0 - 0.75 * m, 1.1 * m)
-            for sx, d in ((x0 - 0.5 * m, 1), (x1 + 0.5 * m, -1)):
-                motifs.append([(sx - d * 0.2 * m, cy - 0.35 * m), (sx + d * 0.2 * m, cy), (sx - d * 0.2 * m, cy + 0.35 * m)])
-        elif border == "stone_star":
-            stone = [(x0 - m, y1 + 1.4 * m), (x0 - m, y0 - m)] + \
-                [(x0 - m + (w + 2 * m) * k / 16, y0 - m - 0.12 * m * math.sin(math.pi * k / 8)) for k in range(17)] + [(x1 + m, y1 + 1.4 * m)]
-            motifs = _motif("star", cx, y0 - 0.5 * m, 0.8 * m)
-            wave = []
-            for k in range(3):
-                bx = x0 + 0.15 * w + k * 0.3 * w
-                wave += [(bx + 0.15 * w * math.cos(a) * (1 - a / 9), y1 + 0.75 * m - 0.4 * m * math.sin(a) * (1 - a / 9))
-                         for a in (j * 0.35 for j in range(18))]
-            motifs.append(wave)
-        elif border == "stone_hibiscus":
-            stone = [(cx + (w / 2 + m) * math.cos(a), cy + (h / 2 + 1.3 * m) * math.sin(a) * (1.06 if math.sin(a) < 0 else 1.0))
-                     for a in (2 * math.pi * k / 72 for k in range(72))]
-            motifs = _motif("hibiscus", cx, y0 - 0.65 * m, 1.3 * m)
-            for sx, lean in ((x0 - 0.45 * m, -1), (x1 + 0.45 * m, 1)):
-                for k in range(2):
-                    motifs += _motif("leaf", sx, cy + (k - 0.3) * 0.3 * h, 0.75 * m)
-        else:                                    # stone_palm
-            tab = 0.75 * m
-            stone = [(x0 - 0.6 * m, y1 + m), (x0 - 0.6 * m, cy + 0.32 * h), (x0 - 0.6 * m - tab, cy + 0.32 * h),
-                     (x0 - 0.6 * m - tab, cy - 0.32 * h), (x0 - 0.6 * m, cy - 0.32 * h), (x0 - 0.6 * m, y0 + 0.08 * h)] + \
-                dome(x0 + 0.02 * w, x1 - 0.02 * w, y0 - 0.3 * m, y0 - 2.0 * m) + \
-                [(x1 + 0.6 * m, y0 + 0.08 * h), (x1 + 0.6 * m, cy - 0.32 * h), (x1 + 0.6 * m + tab, cy - 0.32 * h),
-                 (x1 + 0.6 * m + tab, cy + 0.32 * h), (x1 + 0.6 * m, cy + 0.32 * h), (x1 + 0.6 * m, y1 + m)]
-            motifs = _motif("palm", cx, y0 - 1.05 * m, 1.3 * m)
-            for sx in (x0 - 0.6 * m - tab / 2, x1 + 0.6 * m + tab / 2):
-                for dy in (-0.15 * h, 0.15 * h):
-                    motifs += _motif("key", sx, cy + dy, 0.4 * m)
-        lines = [stone + stone[:1]]
-        # a few light cracks across the stone
-        cracks = [[(x0 - 0.9 * m, cy + 0.3 * h), (x0 - 0.4 * m, cy + 0.36 * h), (x0 + 0.05 * w, cy + 0.33 * h)],
-                  [(x1 - 0.05 * w, y0 + 0.08 * h), (x1 + 0.45 * m, y0 + 0.15 * h), (x1 + 0.9 * m, y0 + 0.12 * h)],
-                  [(cx + 0.2 * w, y1 + 0.1 * m), (cx + 0.25 * w, y1 + 0.95 * m)]]
-    if angle:
-        def turned(line):
-            return [(cx + dx, cy + dy) for dx, dy in (turn(px - cx, py - cy, angle) for px, py in line)]
-        lines, motifs, cracks = [turned(l) for l in lines], [turned(l) for l in motifs], [turned(l) for l in cracks]
-    return lines, motifs, cracks
+        return _rope(outline_points, max(5.0, 0.07 * min(w, h)))
+    size = max(8.0, 0.16 * min(w, h))
+    return _vine(outline_points, size, border in ("vine_leaves", "vine_both"), border in ("vine_flowers", "vine_both"))
 
 
 def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
@@ -3764,15 +3667,9 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if angle:
             pts = [(mx + dx, my + dy) for dx, dy in (turn(px - mx, py - my, angle) for px, py in pts)]
         return pts
-    if border in SPECIAL_BORDERS:               # a rope, or a stone tablet round the opening
-        edge, carved, cracks = special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind))
-        for line in edge:
-            add(Line(line, colour, 2.4))
-        for line in carved:
-            add(Line(line, colour, 1.6))
-        if e.detail_lines and e.detail_opacity > 0:
-            for line in cracks:
-                add(Line(line, e.detail_colour or colour, e.detail_width, opacity=e.detail_opacity / 100))
+    if border in SPECIAL_BORDERS:               # the braided rope or a vine, round any shape
+        for line in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind)):
+            add(Line(line, colour, 1.8))
     for line in decor(kind):                    # drawn like the border (a leaf, a stamen)
         add(Line(placed(line), colour, max(1.0, BORDER_WIDTHS[border] * 0.8)))
     if e.detail_lines and e.detail_opacity > 0:   # light, under the face and the words
