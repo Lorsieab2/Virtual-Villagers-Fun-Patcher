@@ -112,6 +112,16 @@ class PreviousPartnersTests(unittest.TestCase):
         pairs, _per_woman, _fallback = gen.suggest(self.village(), gen.Rules())
         self.assertEqual([(p.man.name, p.woman.name) for p in pairs], [("Hoani Chuchip", "Kaula Akikai")])
 
+    def test_age_units_can_be_turned_off(self) -> None:
+        """The owner, 2026-10-08: "a toggle to turn Age Units on and off in the village matchmaker"."""
+        self.assertTrue(gen.Rules().show_age_units)
+        on = gen.pair_report(self.village(), gen.Rules(), "A New Home")
+        off = gen.pair_report(self.village(), gen.Rules(show_age_units=False), "A New Home")
+        self.assertIn("600 game units (30 years old)", on)
+        self.assertNotIn("game units", off)
+        self.assertIn("Hoani Chuchip, 30 years old", off)
+        self.assertNotIn("units", " ".join(gen.Rules(show_age_units=False).describe()))
+
     def test_off_the_closer_age_wins(self) -> None:
         pairs, _per_woman, _fallback = gen.suggest(self.village(), gen.Rules(prefer_previous_partners=False))
         self.assertEqual([(p.man.name, p.woman.name) for p in pairs], [("Tomi Wanjiko", "Kaula Akikai")])

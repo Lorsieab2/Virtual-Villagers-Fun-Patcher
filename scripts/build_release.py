@@ -58,6 +58,9 @@ FILES = [
     # Villagers Have Last Names: one companion for all five games, started by
     # VVFP Startup.dll; no executable bytes.
     "assets/last_names/VVFP Last Names.dll",
+    # Write Island Events Log: one companion for all five games, started by
+    # VVFP Startup.dll; no executable bytes.
+    "assets/island_events/VVFP Island Events.dll",
     # Story / Cheat Upgrades: one companion for all five games, loaded by each
     # game's Origins companion; no executable bytes.
     "assets/story_upgrades/VVFP Story Upgrades.dll",
@@ -137,6 +140,11 @@ FILES = [
     "data/vv3_last_names_feature.json",
     "data/vv4_last_names_feature.json",
     "data/vv5_last_names_feature.json",
+    "data/vv1_island_events_feature.json",
+    "data/vv2_island_events_feature.json",
+    "data/vv3_island_events_feature.json",
+    "data/vv4_island_events_feature.json",
+    "data/vv5_island_events_feature.json",
     # 256 Villagers (Experimental): The Secret City, The Tree of Life and
     # New Believers.
     "data/vv3_population_256_feature.json",

@@ -470,7 +470,7 @@ class LogTarget:
 
 _RECORD_LOG = re.compile(
     r"^Virtual Villagers (\d) (?:Births and Conceptions|Parentage|Deaths|"
-    r"Unaccounted Villagers) Log \d+\.txt$",
+    r"Unaccounted Villagers|Island Events) Log \d+\.txt$",
     re.IGNORECASE,
 )
 _POPULATION_PAGE = re.compile(r"^Village Population \d+\.txt$", re.IGNORECASE)
@@ -500,6 +500,7 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
             "Tribe Parental Records",
             "Deaths",
             "Unaccounted Villagers",
+            "Island Events",
         ):
             for path in _files(root / sub):
                 match = _RECORD_LOG.match(path.name)

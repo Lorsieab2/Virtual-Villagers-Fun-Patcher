@@ -1222,7 +1222,7 @@ static int build_log_path(
 
    The records' text is rendered by "VVFP Cause of Death.dll", which sees
    the deaths, burials and departures; this exporter files them. */
-enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2 };
+enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
 
 /* What a held or written record is.
 
@@ -1238,15 +1238,31 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2 };
      APPEARANCE   births family, "Appearance changed", never rolls -- a
                   villager's head and body changed through Origins' Change
                   Appearance (native/shared/appearance_log.h), so the Family
-                  Tree Maker knows the old and the new look are one villager */
+                  Tree Maker knows the old and the new look are one villager
+     ISLAND_EVENT island events family, numbered "Island event <n>" -- what
+                  an island event changed in one villager, each change "old
+                  -> new", under the event's title ("VVFP Island Events.dll";
+                  the owner, 2026-10-08: "all island event changes should be
+                  logged"); held until the next save like APPEARANCE */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
-    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7
+    KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
+    KIND_ISLAND_EVENT = 8
 };
 
 #define DEATHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Deaths"
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
 #define BIRTHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions"
+#define EVENTS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Island Events"
+
+static const wchar_t *const EVENT_LOG_NAME[6] = {
+    NULL,
+    L"Virtual Villagers 1 Island Events Log",
+    L"Virtual Villagers 2 Island Events Log",
+    L"Virtual Villagers 3 Island Events Log",
+    L"Virtual Villagers 4 Island Events Log",
+    L"Virtual Villagers 5 Island Events Log",
+};
 
 static const wchar_t *const DEATH_LOG_NAME[6] = {
     NULL,
@@ -1270,24 +1286,30 @@ static int log_family_of(int kind) {
     if (kind == KIND_DEATH || kind == KIND_DISAPPEARED || kind == KIND_EPITAPH) {
         return LOG_DEATHS;
     }
+    if (kind == KIND_ISLAND_EVENT) {
+        return LOG_EVENTS;
+    }
     return kind == KIND_UNACCOUNTED ? LOG_UNACCOUNTED : LOG_BIRTHS;
 }
 
 /* A record that is numbered and counted toward its file's roll. */
 static int kind_is_numbered(int kind) {
-    return kind == KIND_CONCEPTION || kind == KIND_DEATH || kind == KIND_UNACCOUNTED;
+    return kind == KIND_CONCEPTION || kind == KIND_DEATH || kind == KIND_UNACCOUNTED
+        || kind == KIND_ISLAND_EVENT;
 }
 
 /* The marker each family's numbered records begin with, which is what its
    files are counted by. */
 static const char *family_marker(int family) {
     return family == LOG_DEATHS ? "Death "
-        : family == LOG_UNACCOUNTED ? "Unaccounted " : "Conception ";
+        : family == LOG_UNACCOUNTED ? "Unaccounted "
+        : family == LOG_EVENTS ? "Island event " : "Conception ";
 }
 
 static const wchar_t *family_folder(int family) {
     return family == LOG_DEATHS ? DEATHS_FOLDER
-        : family == LOG_UNACCOUNTED ? UNACCOUNTED_FOLDER : BIRTHS_FOLDER;
+        : family == LOG_UNACCOUNTED ? UNACCOUNTED_FOLDER
+        : family == LOG_EVENTS ? EVENTS_FOLDER : BIRTHS_FOLDER;
 }
 
 /* The game a layout row belongs to.  layout_of hands out a copy of The
@@ -1314,7 +1336,8 @@ static const wchar_t *family_stem(const struct game_layout *g, int family) {
     if (game < GAME_VV1 || game > GAME_VV5) {
         return NULL;
     }
-    return family == LOG_DEATHS ? DEATH_LOG_NAME[game] : UNACCOUNTED_LOG_NAME[game];
+    return family == LOG_DEATHS ? DEATH_LOG_NAME[game]
+        : family == LOG_EVENTS ? EVENT_LOG_NAME[game] : UNACCOUNTED_LOG_NAME[game];
 }
 
 /* "<save folder>\Virtual Villagers Fun Patcher Logs\Deaths\Virtual Villagers N Deaths Log <n>.txt"
@@ -2787,7 +2810,8 @@ static void flush_pending(int game_id, const char *village, int at_save) {
     for (i = 0; i < pending_count; ++i) {
         struct pending_record *entry = &pending[i];
         int release = 0;
-        if (entry->game_id == game_id && !at_save && entry->kind == KIND_APPEARANCE) {
+        if (entry->game_id == game_id && !at_save
+            && (entry->kind == KIND_APPEARANCE || entry->kind == KIND_ISLAND_EVENT)) {
             stopped = 1;
         }
         if (entry->game_id == game_id && !stopped) {
@@ -2869,7 +2893,7 @@ static int emit_record(
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
-    if (kind == KIND_APPEARANCE && village_publisher_present(game_id)) {
+    if ((kind == KIND_APPEARANCE || kind == KIND_ISLAND_EVENT) && village_publisher_present(game_id)) {
         return hold_record(game_id, kind, records, text);   /* written at the next save */
     }
     if (village[0] != '\0' && saved_tribe_still_loaded(game_id)) {
@@ -3724,6 +3748,25 @@ static const char *record_special_title(int game_id, const struct game_layout *g
     return vv_special_title_former(game_id, record, kind);
 }
 
+/* A villager's likes (`dislikes` 0) or dislikes (1) as the logs print them,
+   from a record or a copy of one at the record's own offsets -- for "VVFP
+   Island Events.dll", which shows a change as "old -> new".  0 when the game
+   or the record cannot be read. */
+__declspec(dllexport) int __stdcall VillagePreferenceText(int game_id, const void *record_pointer, int dislikes,
+                                                          char *out, int out_size) {
+    const struct game_layout *g;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record_pointer == NULL || out == NULL || out_size <= 0) {
+        return 0;
+    }
+    g = layout_of(game_id);
+    if (!layout_is_usable(g) || !memory_is_readable(record_pointer, g->stride)) {
+        return 0;
+    }
+    preference_text(g, (const unsigned char *)record_pointer, dislikes ? g->dislikes : g->likes, out,
+                    (size_t)out_size);
+    return 1;
+}
+
 /* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
    Death.dll", which sees the deaths, burials, removals and arrivals and
    decides what each record says.  One format in all five games:
@@ -3773,7 +3816,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_APPEARANCE) {
+        || kind < KIND_DEATH || kind > KIND_ISLAND_EVENT) {
         return 0;
     }
     g = layout_of(game_id);
@@ -3888,6 +3931,19 @@ static int deaths_recorder_present(void) {
         return state == 1;
     }
     state = vvfp_patcher_file_exists("VVFP Cause of Death.dll") ? 1 : -1;
+    return state == 1;
+}
+
+/* Whether this install logs island events ("VVFP Island Events.dll" ships),
+   so a new village gets its Island Events log at creation like the others
+   (the owner: every log is made with the village). */
+static int events_recorder_present(void) {
+    static int state;                 /* 0 unknown, 1 present, -1 absent */
+
+    if (state != 0) {
+        return state == 1;
+    }
+    state = vvfp_patcher_file_exists("VVFP Island Events.dll") ? 1 : -1;
     return state == 1;
 }
 
@@ -4088,6 +4144,9 @@ static int ensure_parentage_log(
     if (deaths_recorder_present()) {
         (void)create_extra_log(g, LOG_DEATHS, village);
         (void)create_extra_log(g, LOG_UNACCOUNTED, village);
+    }
+    if (events_recorder_present()) {
+        (void)create_extra_log(g, LOG_EVENTS, village);
     }
     if (!select_log_file(g, village, path, &existing, 1)) {
         return 0;

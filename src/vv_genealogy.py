@@ -715,6 +715,9 @@ class Rules:
     one_family_per_partner: bool = True   # no partner from a family they already have a child with
     prefer_previous_partners: bool = True   # established couples first (the owner, 2026-10-08)
     prefer_fresh_blood: bool = True
+    # How the report shows ages, not a pairing rule (the owner, 2026-10-08: "a toggle to turn Age
+    # Units on and off"): "1379 game units (68 years old)", or "68 years old" alone.
+    show_age_units: bool = True
 
     def describe(self) -> list[str]:
         out = []
@@ -1080,6 +1083,11 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     tree.  there should be a separate button for pairing suggestions")."""
     people = village.people
     one_to_one, per_woman, fallback = suggest(village, rules)
+
+    def age(p: Person) -> str:
+        if rules.show_age_units or p.age is None:
+            return p.age_text()
+        return f"died at {p.years} years old" if p.gone == "died" else f"{p.years} years old"
     lines = [f"{game_title} -- Village Matchmaker",
              f"Village: {village.tribe} (Save {village.slot})" if village.tribe else f"Save {village.slot}",
              "",
@@ -1092,8 +1100,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     lines.append("== Suggested pairs (each villager once, least related first) ==")
     if one_to_one:
         for n, pair in enumerate(one_to_one, 1):
-            lines.append(f"  {n}. {numbered(pair.man)}, {pair.man.age_text()}, and "
-                         f"{numbered(pair.woman)}, {pair.woman.age_text()}: {pair.relation}, "
+            lines.append(f"  {n}. {numbered(pair.man)}, {age(pair.man)}, and "
+                         f"{numbered(pair.woman)}, {age(pair.woman)}: {pair.relation}, "
                          f"related {pair.percent:g}%")
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
@@ -1102,8 +1110,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")
     for wid, pairs in per_woman.items():
-        lines.append(f"  {people[wid].name}, {people[wid].age_text()}:")
+        lines.append(f"  {people[wid].name}, {age(people[wid])}:")
         for pair in pairs:
-            lines.append(f"    {pair.man.name}, {pair.man.age_text()}: {pair.relation}, related {pair.percent:g}%")
+            lines.append(f"    {pair.man.name}, {age(pair.man)}: {pair.relation}, related {pair.percent:g}%")
     lines.append("")
     return "\n".join(lines)

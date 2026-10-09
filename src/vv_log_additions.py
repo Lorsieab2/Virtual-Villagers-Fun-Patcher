@@ -42,9 +42,12 @@ CHECKED = {
     "mask": "the older Village History snapshots of villagers who wear a mask, from the date the player chose",
     "born_as": "the older Birth records, against the mother's Conception record and the player's answers",
     "golden": "the Golden Child's Arrived records, against the pregnancies with no Birth and the player's answers",
+    "appearance": "the villagers whose look changed with no Appearance changed record, against the save, the "
+                  "logs and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
-         "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added"}
+         "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
+         "appearance": "Appearance changed record added"}
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -633,6 +636,57 @@ def _birth_anchor(b: Block) -> int:
     return b.start + (at if at is not None else len(b.lines) - 1)
 
 
+LOOK_CAUSES = ("An island event", "A Custom Island Event", "The Change Appearance upgrade")
+
+
+def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
+    """A villager whose look changed with no record of it (the tree's reader matched them by name,
+    sex and recorded parents: vv_genealogy._unrecorded_looks): the player says how -- an island
+    event, a Custom Island Event or the Change Appearance upgrade (the owner, 2026-10-08: "ask the
+    player how a villager's appearance might have changed") -- and an "Appearance changed" record
+    saying so is added at the end of the village's Births and Conceptions log, so the change is on
+    record like one made today."""
+    import vv_genealogy as gen
+    kind = Kind("appearance", "Appearance changes with no record (how each happened)")
+    checker = tools.load_checker()
+    villages = current_villages(folder, game, slot)
+    paths = [path for path in checker.numbered(folder / checker.LOGS / "Births and Conceptions",
+                                               f"Virtual Villagers {game} Births and Conceptions Log")]
+    every: list[Block] = []
+    for path in paths:
+        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+    if not every:
+        return kind
+    logged = set()
+    for b in every:
+        if b.heading == "Appearance changed":
+            values = [b.value(label) for label in ("Name", "Old head", "Old body")]
+            if all(values) and values[1].lstrip("-").isdigit() and values[2].lstrip("-").isdigit():
+                logged.add((values[0], int(values[1]), int(values[2])))
+    try:
+        village = gen.load_village(folder, game, slot, full_names=False)
+    except (gen.GenealogyError, OSError, ValueError):
+        return kind
+    last = every[-1]
+    anchor = last.start + len(last.lines) - 1
+    for old, new in sorted(village.relooked.items(), key=lambda item: str(item)):
+        if old in logged or None in old or None in new:
+            continue
+        name, old_head, old_body = old
+        _name, new_head, new_body = new
+        key = f"look|{name}|{old_head}|{old_body}|{new_head}|{new_body}"
+        kind.questions[key] = Question(
+            key, f"{name}'s look changed from head {old_head}, body {old_body} to head {new_head}, body "
+                 f"{new_body}, and nothing recorded it. How did it change?", [*LOOK_CAUSES, DONT_KNOW], DONT_KNOW)
+        record = "\n".join(["", "Appearance changed", f"  Name: {name}", f"  Old head: {old_head}",
+                            f"  Old body: {old_body}", f"  New head: {new_head}", f"  New body: {new_body}"])
+        kind.inserts.append(Insert(last.path, anchor, len(kind.inserts), question=key, by_answer={
+            cause: record + f"\n  Changed by: {cause[0].lower() + cause[1:]}"
+                            "\n  Note: Recorded afterwards (how it happened, as the player said)"
+            for cause in LOOK_CAUSES}))
+    return kind
+
+
 def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only."""
     folder = Path(folder)
@@ -645,6 +699,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_masks(folder, slot, people, current, page),
         plan_born_as(folder, game, slot),
         plan_golden(folder, game, slot),
+        plan_appearance(folder, game, slot),
     ]
     return kinds
 

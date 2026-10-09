@@ -1,0 +1,3 @@
+LIBRARY "VVFP Island Events"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8

@@ -551,14 +551,24 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
            villagers no record accounts for through the parentage exporter,
            into village-headed logs like the births one. They are only
            probed -- a player without that row has neither folder, and a
-           reset must not create one. */
-        static const wchar_t *const FOLDERS[6] = {
+           reset must not create one.  Index 6 is the Island Events log
+           ("VVFP Island Events.dll", through the same exporter), probed the
+           same way. */
+        static const wchar_t *const FOLDERS[7] = {
             L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions",
             L"Virtual Villagers Fun Patcher Logs\\Tribe Parental Records",
             L"VVFP Logs\\Births and Conceptions",
             L"VVFP Logs\\Tribe Parental Records",
             L"Virtual Villagers Fun Patcher Logs\\Deaths",
-            L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
+            L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers",
+            L"Virtual Villagers Fun Patcher Logs\\Island Events"
+        };
+        static const wchar_t *const EVENTS_LOG[5] = {
+            L"Virtual Villagers 1 Island Events Log",
+            L"Virtual Villagers 2 Island Events Log",
+            L"Virtual Villagers 3 Island Events Log",
+            L"Virtual Villagers 4 Island Events Log",
+            L"Virtual Villagers 5 Island Events Log"
         };
         static const wchar_t *const DEATH_LOG[5] = {
             L"Virtual Villagers 1 Deaths Log",
@@ -582,10 +592,11 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             L"Virtual Villagers 5 Parentage Log"
         };
         int pass;
-        for (pass = 0; pass < 6; ++pass) {
+        for (pass = 0; pass < 7; ++pass) {
             /* The old FILE name went with the old FOLDER name, so the
                stem follows the folder rather than the pass number. */
-            const wchar_t *stem = pass == 5 ? UNACCOUNTED_LOG[game - 1]
+            const wchar_t *stem = pass == 6 ? EVENTS_LOG[game - 1]
+                : pass == 5 ? UNACCOUNTED_LOG[game - 1]
                 : pass == 4 ? DEATH_LOG[game - 1]
                 : (pass % 2 == 0) ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
             if (pass == 0) {

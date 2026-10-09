@@ -3474,6 +3474,7 @@ RULE_FIELDS = [
     ("different_last_name", "Different last names (numbers ignored: Wanjiko II is a Wanjiko)", "bool"),
     ("one_family_per_partner", "One Family Per Partner (a child with one Wanjiko: no other Wanjiko, the same partner again is fine)", "bool"),
     ("prefer_previous_partners", "Prioritize previous partners (couples who already have a child together first)", "bool"),
+    ("show_age_units", "Show ages in game units too (\"1379 game units (68 years old)\"; off: \"68 years old\")", "bool"),
     ("prefer_fresh_blood", "Fresh blood first (villagers with no recorded parents)", "bool"),
 ]
 
@@ -3558,13 +3559,13 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
 # In the Matchmaker's report: "#12 Name", a name before its age, and every age.
 MAN_BLUE, WOMAN_PINK = "#1f5fbf", "#d0237f"
 # Each pattern, and the style of each of its groups: a man's name blue, a woman's pink, an age bold.
-_AGE = r"(?:died at )?(?:\d+ game units|age unknown)"
+_AGE = r"(?:died at )?(?:\d+ game units|\d+ years old|age unknown)"
 MATCHMAKER_STYLE = [
     (re.compile(r"^  \d+\. (#\d+ [^,\n]+), .*?, and (#\d+ [^,\n]+),", re.M), ("man", "woman")),   # a pair
     (re.compile(rf"^  ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("woman",)),          # each woman ...
     (re.compile(rf"^    ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("man",)),          # ... and her partners
     (re.compile(r"^    ([^,\n:]+?) and ([^,\n:]+?):", re.M), ("man", "woman")),     # the least related pairs
-    (re.compile(r"((?:died at )?\d+ game units \(\d+ years old\)|age unknown)"), ("age",)),
+    (re.compile(r"((?:died at )?\d+ game units \(\d+ years old\)|(?:died at )?\d+ years old|age unknown)"), ("age",)),
 ]
 
 
