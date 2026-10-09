@@ -1674,9 +1674,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         window.protocol("WM_DELETE_WINDOW", done)
         window.grab_set()
 
-    def _update_from_game(self, _event=None) -> None:
+    def _update_from_game(self, _event=None, ask: bool = True) -> None:
         """The save and the patcher's logs read again (the game played on since the tree opened);
-        every edit is kept, and a villager's edits follow them."""
+        every edit is kept, and a villager's edits follow them.  Asked first when the player chose it
+        (the owner, 2026-10-09: "before actually updating when the update button is clicked, please
+        have a confirm prompt")."""
+        if ask and not messagebox.askyesno(
+                "Family Tree Maker",
+                "Update the family tree from the save and the logs now?\n\nThe villagers, their ages and "
+                "everything the game has changed since are read again; your own edits are kept.",
+                parent=self):
+            return
         try:
             village = gen.load_village(self.folder, self.game, self.slot)
         except gen.GenealogyError as exc:
@@ -2559,7 +2567,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.future.clear()
         self.last_state = self._state()
         self._refresh_panels()
-        self._update_from_game()
+        self._update_from_game(ask=False)       # the player already said yes to the numbering
         self.dirty = False
         messagebox.showinfo("Number Duplicate Names", "\n\n".join(
             [f"{len(result.renamed)} villager(s) numbered in the save and {len(result.files) - 1} other "
