@@ -126,6 +126,8 @@ PORTRAITS
                                   their inside and detail colours; flip and turn
   Selected Villagers tab, "Their  their own face size and text size, and their words
   face and words"
+  Portrait Shapes tab, Flip and   every portrait of a group flipped or turned at once (Ctrl+Z undoes;
+  turn (by group)                 Reset puts them back); each villager can still be changed alone
   Portrait Shapes tab             each group's shape, border and size (Keep aspect ratio as above;
                                   a group's size resizes everyone in it); the inside colour;
                                   rainbow or alternating colours for borders, insides, detail lines,
@@ -1072,6 +1074,25 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             # given their own shape or border one by one too.
             ttk.Button(box, text="Apply to all", command=lambda g=group: self._group_all(g)).grid(
                 row=row_no, column=3, sticky="w", padx=(6, 0), pady=1)
+        # The owner, 2026-10-09: "batch rotate/transform portraits by group" -- every portrait of a group
+        # flipped or turned at once (each villager's own flip and turn, so any can still be changed alone).
+        box = ttk.LabelFrame(tab, text="Flip and turn (by group)", padding=6)
+        box.pack(fill="x", pady=(10, 0))
+        self.group_turns: dict[str, tk.StringVar] = {}
+        for row_no, (group, label) in enumerate(ft.GROUPS.items()):
+            ttk.Label(box, text=label + ":").grid(row=row_no, column=0, sticky="w", pady=1)
+            ttk.Button(box, text="Flip ↔", width=7, command=lambda g=group: self._group_flip(g, "flip_h")).grid(
+                row=row_no, column=1, sticky="w", padx=(6, 0), pady=1)
+            ttk.Button(box, text="Flip ↕", width=7, command=lambda g=group: self._group_flip(g, "flip_v")).grid(
+                row=row_no, column=2, sticky="w", padx=(4, 0), pady=1)
+            var = tk.StringVar(value="0")
+            ttk.Spinbox(box, textvariable=var, from_=0, to=345, increment=15, width=5, wrap=True).grid(
+                row=row_no, column=3, sticky="w", padx=(10, 0), pady=1)
+            ttk.Button(box, text="Turn (°)", command=lambda g=group: self._group_turn(g)).grid(
+                row=row_no, column=4, sticky="w", padx=(4, 0), pady=1)
+            ttk.Button(box, text="Reset", command=lambda g=group: self._group_unturn(g)).grid(
+                row=row_no, column=5, sticky="w", padx=(4, 0), pady=1)
+            self.group_turns[group] = var
         # The owner, 2026-10-09: detailing inside the shapes, its colour, opacity and line weight.
         tab = p_details
         box = ttk.LabelFrame(tab, text="Detail lines (shells, stars, flowers...)", padding=6)
@@ -2710,6 +2731,40 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         on = bool(self.own_flips[flip].get())
         for q in self.selected:
             self._set_entry(self.village.people[q], **{flip: on})
+        self._saved()
+
+    def _group_members(self, group: str) -> list:
+        return [p for p in self.village.people.values() if ft.group_of(p) == group]
+
+    def _group_flip(self, group: str, flip: str) -> None:
+        """Every portrait of a group flipped one way -- or, when every one already is, back (Ctrl+Z undoes)."""
+        people = self._group_members(group)
+        if not people:
+            return
+        on = not all(self._entry(p).get(flip, False) for p in people)
+        for p in people:
+            self._set_entry(p, **{flip: on})
+        self._saved()
+
+    def _group_turn(self, group: str) -> None:
+        """Every portrait of a group turned to the angle in its box."""
+        angle = self._number(self.group_turns[group].get(), -3600, 3600)
+        people = self._group_members(group)
+        if angle is None or not people:
+            return
+        angle = round(angle % 360, 1)
+        for p in people:
+            self._set_entry(p, angle=angle or None)
+        self._saved()
+
+    def _group_unturn(self, group: str) -> None:
+        """Every portrait of a group unflipped and upright again."""
+        people = self._group_members(group)
+        if not people:
+            return
+        for p in people:
+            self._set_entry(p, flip_h=None, flip_v=None, angle=None)
+        self.group_turns[group].set("0")
         self._saved()
 
     def _own_turn(self) -> None:

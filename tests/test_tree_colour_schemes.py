@@ -344,6 +344,16 @@ class TabTests(unittest.TestCase):
         self.assertLess(listed.index('"Portrait Shapes"'), listed.index('"Faces & Text"'))
         self.assertIn("self._order_tabs()", self.SOURCE)
 
+    def test_portraits_flip_and_turn_by_group(self):
+        # The owner, 2026-10-09: "batch rotate/transform portraits by group".
+        self.assertIn('text="Flip and turn (by group)"', self.SOURCE)
+        for method in ("def _group_flip(self, group: str, flip: str)", "def _group_turn(self, group: str)",
+                       "def _group_unturn(self, group: str)"):
+            self.assertIn(method, self.SOURCE)
+        flip = self.SOURCE[self.SOURCE.index("    def _group_flip("):self.SOURCE.index("    def _group_turn(")]
+        self.assertIn("on = not all(", flip, "a second click flips them back")
+        self.assertIn("self._saved()", flip, "one step to undo")
+
     def test_every_part_has_a_scheme_box(self):
         self.assertIn("Rainbow and alternating colours", self.SOURCE)
         self.assertIn("for k, (part, words) in enumerate(ft.SCHEME_PARTS.items()):", self.SOURCE)
