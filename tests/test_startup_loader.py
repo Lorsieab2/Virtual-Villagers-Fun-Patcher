@@ -107,11 +107,20 @@ def public_ids(game: str) -> list[str]:
     return out
 
 
-def closure(feature_id: str, into: list[str] | None = None) -> list[str]:
-    """`feature_id` and everything it requires, prerequisites first."""
+def closure(feature_id: str, into: list[str] | None = None, seen: set | None = None) -> list[str]:
+    """`feature_id` and everything it requires, prerequisites first -- and the
+    rows it needs on to do anything (Island Events installs nothing without
+    the log writer Write Births and Conceptions Log ships; its description
+    says so in bold, and OnlyWhatItNeedsOn below checks it stays quiet)."""
     into = [] if into is None else into
-    for dependency in catalog()[feature_id].raw.get("dependencies") or []:
-        closure(dependency, into)
+    seen = set() if seen is None else seen
+    if feature_id in seen:                 # two rows may each need the other on
+        return into
+    seen.add(feature_id)
+    raw = catalog()[feature_id].raw
+    needs = [n["id"] for n in raw.get("needs_on") or [] if n["id"] in catalog()]
+    for dependency in list(raw.get("dependencies") or []) + needs:
+        closure(dependency, into, seen)
     if feature_id not in into:
         into.append(feature_id)
     return into
@@ -390,6 +399,23 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
                 for name, selection in selections(game).items():
                     with self.subTest(game=game, mode=mode, selection=name):
                         self.check(game, mode, name, selection)
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class OnlyWhatItNeedsOn(unittest.TestCase):
+    """Island Events chosen without Write Births and Conceptions Log, whose DLL
+    writes its records: the game still reaches WinMain, and the island event
+    code is left exactly stock -- nothing is hooked that could write nothing."""
+
+    def test_island_events_alone_leaves_the_game_stock(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                machine, result, features, before, _ = run(game, "stock", [f"{game}_island_events"])
+                self.assertEqual(result["return_address"], vfp.STARTUP_LOADER_WINMAIN_CALL[game][0] + 5)
+                detours = declared_detours(features)
+                self.assertTrue(detours)
+                for va, stock, what in detours:
+                    self.assertEqual(machine.code(va, len(stock)), stock, what)
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
