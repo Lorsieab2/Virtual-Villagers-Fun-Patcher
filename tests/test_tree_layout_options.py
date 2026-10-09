@@ -42,7 +42,8 @@ class ShapeTests(unittest.TestCase):
             with self.subTest(kind=kind):
                 self.assertTrue(ft.details(kind))
         self.assertEqual(len(ft.decor("hibiscus")), 5)            # its stamen and pollen, drawn like the border
-        self.assertEqual(len(ft.decor("wave_circle")), 1)
+        self.assertEqual(len(ft.decor("wave_circle")), 0)            # the wave is a light detail
+        self.assertEqual(len(ft.details("wave_circle")), 1)
         self.assertEqual(ft.details("rect"), ())
 
     def test_the_detail_settings_are_saved_and_read_back(self):

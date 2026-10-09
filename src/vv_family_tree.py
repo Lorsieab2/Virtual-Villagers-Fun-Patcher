@@ -483,6 +483,10 @@ class Edits:
             angle = _number(entry.get("angle"), 0.0, 360.0, 0.0) % 360
             if angle:
                 item["angle"] = angle
+            if is_colour(entry.get("fill")):            # this portrait's own inside colour (the owner, 2026-10-09)
+                item["fill"] = entry["fill"]
+            if is_colour(entry.get("detail")):          # and its own detail lines' colour
+                item["detail"] = entry["detail"]
             for flip in ("flip_h", "flip_v"):            # the portrait's shape mirrored (the owner, 2026-10-09)
                 if entry.get(flip) is True:
                     item[flip] = True
@@ -2710,11 +2714,11 @@ def _more_shapes() -> dict:
     out["fish_left"] = ([(-x / 540, y / 540) for x, y in fish], [[(-x / 540, y / 540) for x, y in l] for l in face])
 
     # An ocean wave in a circle, the owner's picture: the circle the outline, the wave across it,
-    # curling over at the top, drawn like the border.
+    # curling over at the top, a light detail (the owner, 2026-10-09).
     cx, cy, r = 195, 240, 185
     wave = _smooth([(12, 268), (60, 276), (120, 242), (180, 202), (228, 192), (256, 200), (230, 212), (216, 240),
                     (226, 274), (252, 288), (300, 271), (350, 255), (378, 252)], steps=8)
-    out["wave_circle"] = (_ring(0, 0, 1, 1, 96), [], [[((x - cx) / r, (y - cy) / r) for x, y in wave]])
+    out["wave_circle"] = (_ring(0, 0, 1, 1, 96), [[((x - cx) / r, (y - cy) / r) for x, y in wave]])   # the wave light
 
     # A conch (the owner, 2026-10-09: the first was "too fat for a conch shell"): a slim shell, a
     # pointed stepped spire on top, widest at the shoulder, tapering to a point below, its lip flaring a
@@ -3976,7 +3980,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
                   radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle, opacity=see))
     add(Shape(kind, fx, fy, fw, fh, colour, width=BORDER_WIDTHS[border], radius=corner_radius(kind),
               dash=border if border in ("dotted", "dashed", "dashdot") else "", pid=p.id,
-              target=("person", p.id), fill=lay.edits.portrait_fill, angle=angle))
+              target=("person", p.id), fill=lay.entry(p).get("fill") or lay.edits.portrait_fill, angle=angle))
     e = lay.edits
     mx, my = fx + fw / 2, fy + fh / 2
 
@@ -3995,7 +3999,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             add(Line(placed(line), colour, max(1.6, BORDER_WIDTHS[border] * 0.8)))
     if e.detail_lines and e.detail_opacity > 0:   # light, under the face and the words
         for line in details(kind):
-            add(Line(placed(line), e.detail_colour or colour, e.detail_width, opacity=e.detail_opacity / 100))
+            add(Line(placed(line), lay.entry(p).get("detail") or e.detail_colour or colour, e.detail_width,
+                     opacity=e.detail_opacity / 100))
     # The face and words grow or shrink with a frame the player resized, about its middle, and
     # never turn (the owner: "shrink/grow with the frame, stay upright").
     w0, h0 = frame_size(lay.edits, lay.village, p, own=False, unscaled=True)

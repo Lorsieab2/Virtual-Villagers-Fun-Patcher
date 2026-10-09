@@ -704,6 +704,16 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_text = tk.StringVar()
         self._live(ttk.Spinbox(row, textvariable=self.own_text, from_=ft.TEXT_SCALE_MIN, to=ft.TEXT_SCALE_MAX,
                                increment=10, width=5), self._own_text_size).pack(side="left", padx=(2, 0))
+        # The owner, 2026-10-09: "an option to recolor the inside of the portraits" -- each selected
+        # villager's own; Automatic is the whole tree's (the Whole Tree tab).
+        row = ttk.Frame(box)
+        row.grid(row=7, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        ttk.Label(row, text="Inside colour:").pack(side="left")
+        self.own_fill = ColourField(row, "", self._own_fill)
+        self.own_fill.pack(side="left", padx=(4, 0))
+        ttk.Label(row, text="Detail colour:").pack(side="left", padx=(10, 0))       # the lines inside it
+        self.own_detail = ColourField(row, "", self._own_detail)
+        self.own_detail.pack(side="left", padx=(4, 0))
         # The owner, 2026-10-09: flip the portrait's shape either way, and turn it to an exact angle.
         row = ttk.Frame(box)
         row.grid(row=6, column=0, columnspan=3, sticky="w", pady=(6, 0))
@@ -2485,6 +2495,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_text.set(f"{texts.pop():g}" if len(texts) == 1 else "")
         for flip, var in self.own_flips.items():         # ticked when every one selected is flipped
             var.set(bool(people) and all(self._entry(q).get(flip, False) for q in people))
+        fills = {self._entry(q).get("fill", "") for q in people}
+        self.own_fill.set_quietly(fills.pop() if len(fills) == 1 else "")
+        details_ = {self._entry(q).get("detail", "") for q in people}
+        self.own_detail.set_quietly(details_.pop() if len(details_) == 1 else "")
         turns = {round(self._entry(q).get("angle", 0.0), 1) for q in people}
         self.own_turn.set(f"{turns.pop():g}" if len(turns) == 1 else "")
 
@@ -2513,6 +2527,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         value = self._number(var.get(), low, high)
         if value is not None and value != getattr(self.edits, attr):
             self._change(**{attr: value})
+
+    def _own_fill(self, colour: str) -> None:
+        """Every selected villager's portrait filled with this colour inside ("": the whole tree's)."""
+        if not self.selected:
+            return
+        for q in self.selected:
+            self._set_entry(self.village.people[q], fill=colour or None)
+        self._saved()
+
+    def _own_detail(self, colour: str) -> None:
+        """Every selected villager's detail lines (inside the portrait) this colour ("": the whole tree's)."""
+        if not self.selected:
+            return
+        for q in self.selected:
+            self._set_entry(self.village.people[q], detail=colour or None)
+        self._saved()
 
     def _own_flip(self, flip: str) -> None:
         """Every selected villager's portrait shape flipped (or not), its words never mirrored."""
