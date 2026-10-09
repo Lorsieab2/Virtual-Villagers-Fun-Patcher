@@ -180,6 +180,31 @@ class RowLineUpTests(unittest.TestCase):
         middles = {round(f[1] + f[3] / 2, 3) for f in self.frames(v, e, gen1).values()}
         self.assertEqual(len(middles), 1, "every middle level, as before")
 
+    def test_the_face_and_words_go_with_a_lined_up_frame(self):
+        # Codex, #577: the frame moved, its face and words stayed behind.
+        v, e, gen1 = self.sized(row_valign="middle")
+
+        def where(valign):
+            e.row_valign = valign
+            lay = ft.layout(v, e)
+            sc = ft.scene(lay, GAME, {})
+            faces = {i.pid: i.y for i in sc.items if isinstance(i, ft.Shape) and i.pid in gen1 and i.kind == "ellipse"
+                     and i.w < 80}
+            return {q: (lay.frame(q)[1], faces[q]) for q in gen1}
+        middle, top = where("middle"), where("top")
+        moved = [q for q in gen1 if abs(top[q][0] - middle[q][0]) > 1]
+        self.assertTrue(moved, "a shorter frame moved up to the tallest's top")
+        for q in moved:
+            self.assertAlmostEqual(top[q][1] - middle[q][1], top[q][0] - middle[q][0], delta=0.5,
+                                   msg="its face moved as far as its frame")
+
+    def test_turned_words_count_their_turned_box_for_the_page(self):
+        # Codex, #577: the page was sized to the unturned box.
+        flat = ft._extent(ft.Text(100, 100, "A long line of words", 20, "#000000"))
+        turned = ft._extent(ft.Text(100, 100, "A long line of words", 20, "#000000", angle=90))
+        self.assertGreater(turned[3] - turned[1], 150, "a turned line is tall")
+        self.assertLess(turned[2] - turned[0], flat[2] - flat[0])
+
     def test_rows_go_left_centre_or_right_across_the_tree(self):
         v = village()
 

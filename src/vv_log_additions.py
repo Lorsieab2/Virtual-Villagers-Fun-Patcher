@@ -650,8 +650,14 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
     kind = Kind("appearance", "Appearance changes with no record (how each happened)")
     checker = tools.load_checker()
     villages = current_villages(folder, game, slot)
-    paths = [path for path in checker.numbered(folder / checker.LOGS / "Births and Conceptions",
-                                               f"Virtual Villagers {game} Births and Conceptions Log")]
+    current = [path for path in checker.numbered(folder / checker.LOGS / "Births and Conceptions",
+                                                 f"Virtual Villagers {game} Births and Conceptions Log")]
+    # Every Births and Conceptions log the tree reads, older layouts too (Codex, #577: a record kept only in
+    # a retired folder was missed, so Repair could offer it -- and add it -- again); the current ones last,
+    # so a new record goes at the end of the current log.
+    older = [path for path in checker.log_files(folder) if "Births and Conceptions" in path.name
+             and path not in current and f"Virtual Villagers {game} " in path.name]
+    paths = older + current
     every: list[Block] = []
     for path in paths:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]

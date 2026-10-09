@@ -3644,7 +3644,15 @@ def _extent(item) -> tuple[float, float, float, float] | None:
     if isinstance(item, Text):
         width = len(item.text) * item.size * 0.55
         left = item.x - width / 2 if item.centre else item.x - width if item.end else item.x
-        return left, item.y - item.size, left + width, item.y + item.size * 0.3
+        box = (left, item.y - item.size, left + width, item.y + item.size * 0.3)
+        if item.angle:
+            # Turned words, turned about their anchor as they are drawn (Codex, #577: the page was sized to
+            # their unturned box and cut them off).
+            corners = [turn(px - item.x, py - item.y, item.angle) for px in (box[0], box[2]) for py in (box[1], box[3])]
+            xs = [item.x + dx for dx, _dy in corners]
+            ys = [item.y + dy for _dx, dy in corners]
+            return min(xs), min(ys), max(xs), max(ys)
+        return box
     if isinstance(item, Sticker):
         return item.bounds()
     return None
@@ -4249,6 +4257,9 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # kept a giant face when their group was made tiny (the owner, 2026-10-09: 8-pixel males, faces 4x).
     w0, h0 = natural_width(base_kind(kind)), NODE_H
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
+    # The face and words go with the frame when the row lines portraits up by their tops or bottoms
+    # (Edits.row_valign; Codex, #577: a short frame moved and left its face and words behind).
+    y += (fy + fh / 2) - (y + NODE_H / 2)
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)

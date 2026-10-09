@@ -127,6 +127,22 @@ class ChangedLooks(unittest.TestCase):
                          .entries["Ago|7|8"])
 
 
+class RepairReadsEveryBirthsLog(ChangedLooks):
+    """Codex, #577: Repair's appearance check read only the current Births and Conceptions folder, so a record
+    kept in the retired "VVFP Logs" layout -- which the tree does read -- was offered (and added) again."""
+
+    def test_a_record_in_the_retired_folder_is_not_offered_again(self):
+        import vv_log_additions as la
+        old = self.folder / "VVFP Logs" / BIRTHS
+        old.parent.mkdir(parents=True, exist_ok=True)
+        old.write_bytes(("Village: Tribe (Save 1)\n" + self.changed((3, 4), (7, 8))).replace("\n", "\r\n").encode())
+        self.births("Conception 1\n  Mother: Aipi\n    Head: 2\n    Body: 2\n  Father: Ago\n    Head: 7\n"
+                    "    Body: 8\n  Babies in pregnancy: 1\n\n")
+        self.assertEqual(gen.load_village(self.folder, 3, 1).relooked, {("Ago", 3, 4): ("Ago", 7, 8)})
+        kind = la.plan_appearance(self.folder, 3, 1)
+        self.assertEqual(kind.questions, {}, "the record is already there")
+
+
 class TheEditorAsks(unittest.TestCase):
     SOURCE = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
 
