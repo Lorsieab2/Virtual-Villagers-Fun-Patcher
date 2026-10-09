@@ -265,11 +265,14 @@ static void compare(struct snapshot *s) {
             int oh = *(const int *)(old + g_layout->head), ob = *(const int *)(old + g_layout->body);
             int nh = *(const int *)(live + g_layout->head), nb = *(const int *)(live + g_layout->body);
             if (oh != nh || ob != nb) {
-                char look[256];
-                _snprintf(look, sizeof look,
-                          "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n"
-                          "  Changed by: %s (island event)\n",
-                          oh, ob, nh, nb, s->title[0] ? s->title : "an island event");
+                char look[256 + TEXT_MAX];
+                int n = _snprintf(look, sizeof look,
+                                  "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n"
+                                  "  Changed by: %s (island event)\n",
+                                  oh, ob, nh, nb, s->title[0] ? s->title : "an island event");
+                if (s->text[0] && n > 0 && (size_t)n < sizeof look) {
+                    _snprintf(look + n, sizeof look - (size_t)n, "  Item: %s\n", s->text);   /* "a watery red vial" */
+                }
                 look[sizeof look - 1] = '\0';
                 g_write(g_game, KIND_APPEARANCE, live, 1, look, NULL, 0);
             }
