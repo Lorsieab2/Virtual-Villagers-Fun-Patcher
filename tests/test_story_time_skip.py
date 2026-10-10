@@ -188,6 +188,43 @@ class VV1TimeSkipTests(unittest.TestCase):
         self.assertEqual(story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 6, 0), 0)
 
 
+class TimeSkipLabelPriceTests(unittest.TestCase):
+    """The button's label shows the price the purchase charges, which is the Time Warp's 50,000 -- not the
+    Island Event upgrade's 30,000 (the owner's preview 18 showed 30,000 on A New Home's button)."""
+
+    def test_label_price_equals_the_charge_equals_the_time_warps(self):
+        bridge = BRIDGE.read_text(encoding="utf-8")
+        inc = SOURCE.read_text(encoding="utf-8")
+        # the label is built from the Story DLL's own time skip price, not the event price
+        self.assertIn('"VvfpStoryTimeSkipPrice"', bridge)
+        self.assertRegex(bridge, r'vvfp_story_label_priced\(game, "Choose Time Skip Amount", label, sizeof label,\s*'
+                                 r'vvfp_story_time_skip_price\)')
+        self.assertNotRegex(bridge, r'vvfp_story_label\(game, "Choose Time Skip Amount"')
+        # ...the export is the charge: purchase prompt, charge and label share time_skip_price
+        self.assertIn("VvfpStoryTimeSkipPrice(int game) {\n    return time_skip_price(game);", inc)
+        self.assertEqual(inc.count("time_skip_price(game)"), 4)
+        self.assertIn("#define TIME_SKIP_PRICE 50000", inc)
+        for name in ("vvfp_story_upgrades.def", "vvfp_story_upgrades_test.def"):
+            self.assertIn("VvfpStoryTimeSkipPrice=_VvfpStoryTimeSkipPrice@4",
+                          (ROOT / "native" / "vvfp_story_upgrades" / name).read_text(encoding="utf-8"))
+
+    @emulated
+    def test_the_exported_price_is_the_charge_in_every_game(self):
+        for game in ALL_GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story = Story(game)
+                n = story.n
+                # free while the row does not charge (label and charge both 0)
+                self.assertEqual(story.proc.export("VvfpStoryTimeSkipPrice", n), 0)
+                story.proc.export("VvfpStoryProbeCharges", n, 1)
+                price = story.proc.export("VvfpStoryTimeSkipPrice", n)
+                self.assertEqual(price, 50000)                                  # the Time Warp's price
+                self.assertEqual(price, story.proc.export("VvfpStoryProbeTimeSkipPrice", n))   # == the charge
+                self.assertNotEqual(price, story.proc.export("VvfpStoryEventPrice", n))      # not the Island Event's
+
+
 class StaticTimeSkipTests(unittest.TestCase):
     def test_bounds_and_price(self):
         text = SOURCE.read_text(encoding="utf-8")

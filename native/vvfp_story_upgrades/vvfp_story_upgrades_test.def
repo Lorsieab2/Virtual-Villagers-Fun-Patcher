@@ -13,6 +13,7 @@ EXPORTS
     VvfpStoryVillageReset=_VvfpStoryVillageReset@8
     VvfpStoryPickGongOutcome=_VvfpStoryPickGongOutcome@8
     VvfpStoryChooseTimeSkip=_VvfpStoryChooseTimeSkip@8
+    VvfpStoryTimeSkipPrice=_VvfpStoryTimeSkipPrice@4
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
     VvfpStoryProbeQueueCustom=_VvfpStoryProbeQueueCustom@12
     VvfpStoryProbeSetCustom=_VvfpStoryProbeSetCustom@12

@@ -244,6 +244,11 @@ __declspec(dllexport) int __stdcall VvfpStoryChooseTimeSkip(int game, HWND owner
     return 1;
 }
 
+/* What the button's label shows: the same price the purchase charges. */
+__declspec(dllexport) int __stdcall VvfpStoryTimeSkipPrice(int game) {
+    return time_skip_price(game);
+}
+
 #ifdef VVFP_TEST
 /* Starts a skip as the purchase does, past the dialog and the prompts, at
    test tick `tick`.  Returns the first step's answer. */

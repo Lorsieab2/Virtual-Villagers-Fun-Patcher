@@ -81,6 +81,9 @@ static vvfp_story_attach_fn vvfp_story_attach;
 static vvfp_story_charge_fn vvfp_story_charge;
 static vvfp_story_active_fn vvfp_story_installed;
 static vvfp_story_active_fn vvfp_story_event_price;
+/* What Choose Time Skip Amount costs (the Time Warp's price, not the Island Event's): NULL in a Story DLL
+   older than that upgrade, which never offers the button. */
+static vvfp_story_active_fn vvfp_story_time_skip_price;
 
 static int vvfp_story_load(void) {
     HMODULE module;
@@ -102,6 +105,7 @@ static int vvfp_story_load(void) {
     vvfp_story_charge = (vvfp_story_charge_fn)GetProcAddress(module, "VvfpStoryCharge");
     vvfp_story_installed = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryInstalled");
     vvfp_story_event_price = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryEventPrice");
+    vvfp_story_time_skip_price = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryTimeSkipPrice");
     if (vvfp_story_install == NULL || vvfp_story_arm == NULL || vvfp_story_active == NULL || vvfp_story_pick == NULL
         || vvfp_story_custom == NULL || vvfp_story_attach == NULL) {
         return 0;
@@ -159,8 +163,9 @@ static int vvfp_story_offered(int game) {
 
 /* A story button's label: "<what> (<price> tech points)...", the price
    what the Story DLL charges for it now (0, or the Island Event's). */
-static const char *vvfp_story_label(int game, const char *what, char *out, int size) {
-    int price = vvfp_story_event_price != NULL ? vvfp_story_event_price(game) : 0;
+static const char *vvfp_story_label_priced(int game, const char *what, char *out, int size,
+                                           vvfp_story_active_fn price_of) {
+    int price = price_of != NULL ? price_of(game) : 0;
     if (price >= 1000) {
         wsprintfA(out, "%s (%d,%03d tech points)...", what, price / 1000, price % 1000);
     } else {
@@ -168,6 +173,11 @@ static const char *vvfp_story_label(int game, const char *what, char *out, int s
     }
     (void)size;
     return out;
+}
+
+/* ...an island event button's: the Island Event upgrade's price. */
+static const char *vvfp_story_label(int game, const char *what, char *out, int size) {
+    return vvfp_story_label_priced(game, what, out, size, vvfp_story_event_price);
 }
 
 /* A price as this companion shows and charges it: 0 while the row is active. */
@@ -295,7 +305,8 @@ static void vvfp_story_add_time_skip_button(int game, HWND dialog) {
         || GetDlgItem(dialog, VVFP_STORY_TIME_SKIP_ID) != NULL) {
         return;
     }
-    vvfp_story_label(game, "Choose Time Skip Amount", label, sizeof label);
+    /* The Time Warp's price, which is what it charges (story_time_skip.inc time_skip_price). */
+    vvfp_story_label_priced(game, "Choose Time Skip Amount", label, sizeof label, vvfp_story_time_skip_price);
     GetWindowRect(cancel, &rc);
     MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
     MapDialogRect(dialog, &unit);
