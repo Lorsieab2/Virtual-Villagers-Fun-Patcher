@@ -473,9 +473,8 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     {
         wchar_t slot_sub[MAX_PATH];
         if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Village Statistics") && legacy_subfolder_w(sub_w, slot_sub)) {
+            /* The same file the shared folder's sweep removes, no more. */
             wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
-            removed += delete_if_present_w(path_w);
-            wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.tmp", sub_w, slot);
             removed += delete_if_present_w(path_w);
         }
     }
