@@ -229,7 +229,8 @@ class LayoutTests(unittest.TestCase):
         proc = Process(render("vv3", "stock"), TEST_DLL)
         proc.export("VvfpStoryProbeSizes", SCRATCH)
         sizes = struct.unpack("<7i", proc.read(SCRATCH, 28))
-        self.assertEqual(sizes, (Event.SIZE, Event.SPAWN_SIZE, Change.SIZE, RESULT_SIZE, 680, 1800, 1804))
+        self.assertEqual(sizes, (Event.SIZE, Event.SPAWN_SIZE, Change.SIZE, RESULT_SIZE, 680,
+                                 680 + 8 * Event.SPAWN_SIZE, 684 + 8 * Event.SPAWN_SIZE))
 
     def test_the_villager_list_scrolls_sideways_to_its_widest_row(self):
         # A long role label (VV2's "Esteemed Elder, totem: ...") is wider

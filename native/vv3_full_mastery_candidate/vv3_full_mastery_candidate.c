@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
@@ -1685,7 +1686,7 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
    bracket around a likes/dislikes write, because this game's mask
    fingerprint includes both lists. */
 static int __stdcall vv3_story_slot(void) {
-    return vv3_mask_captured_slot();
+    return vv_current_save_slot(3, vv3_mask_captured_slot());
 }
 
 static int __stdcall vv3_story_mask_get(void *record) {

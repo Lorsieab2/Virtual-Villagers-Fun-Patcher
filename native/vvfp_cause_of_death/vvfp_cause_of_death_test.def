@@ -17,6 +17,7 @@ EXPORTS
     VvfpCauseRepairArrivalsNow=_VvfpCauseRepairArrivalsNow@8
     VvfpCauseRepairBirthsNow=_VvfpCauseRepairBirthsNow@8
     VvfpCauseArrivedBy=_VvfpCauseArrivedBy@12
+    VvfpCauseArrivedParents=_VvfpCauseArrivedParents@12
     VvfpCauseVillager=_VvfpCauseVillager@20
     VvfpCauseTestSetup=_VvfpCauseTestSetup@12
     VvfpCauseTestDied=_VvfpCauseTestDied@8

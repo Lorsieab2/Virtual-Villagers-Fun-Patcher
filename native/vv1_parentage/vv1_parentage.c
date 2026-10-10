@@ -153,6 +153,7 @@
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
 #include "../shared/save_layout.h"    /* the save folder's names, and the move from older ones */
 #include "../shared/birth_heading.h"  /* "Birth <n>", or an older log's "Birth" */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -310,9 +311,14 @@ static unsigned char *vv1_records(void) {
     return base ? base + VV1_RECORDS_OFFSET : NULL;
 }
 
+/* The game's own current slot (its save manager, 0x48AEDC + 0xABE4), else
+   the slot the save-path stub last captured: a first village made in a fresh
+   save folder leaves the stub at 5 (the game reads slots 1..5 to list them)
+   until its first save, and this table was written as "Save 5"
+   (native/shared/game_save_slot.h). */
 static int vv1_slot(void) {
     unsigned int slot = VV1_SAVE_SLOT_PTR;
-    return (slot >= 1u && slot <= 5u) ? (int)slot : 0;
+    return vv_current_save_slot(1, (slot >= 1u && slot <= 5u) ? (int)slot : 0);
 }
 
 static unsigned char vv1_plus_one(int value);
@@ -2376,7 +2382,8 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryStash(int index, char *fath
    owner's "alter the parents' attributes" (A New Home keeps them only in
    this sidecar): the parents recorded for the villager in record `index`.
    An empty or NULL name, or an appearance below 0, leaves that value as it
-   is; an appearance is 0..VV1_APPEARANCE_MAX.  The entry is the record's
+   is; an appearance is 0..VV1_APPEARANCE_MAX; a head of -2 makes that
+   parent unknown (the Custom Island Event's "Unknown").  The entry is the record's
    current occupant's (the roster is written with it), and the table is
    persisted like every other change.  Returns 1 when stored and persisted. */
 __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char *father,
@@ -2399,6 +2406,22 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
     }
     e = &g_entries[index];
     before = *e;
+    /* A head of -2: that parent is "Unknown" -- name and looks cleared (a
+       looks byte of 0 is unknown in this table's +1 encoding). */
+    if (father_head == -2) {
+        memset(e->father_name, 0, sizeof e->father_name);
+        e->father_head = 0;
+        e->father_body = 0;
+        father = NULL;
+        father_head = father_body = -1;
+    }
+    if (mother_head == -2) {
+        memset(e->mother_name, 0, sizeof e->mother_name);
+        e->mother_head = 0;
+        e->mother_body = 0;
+        mother = NULL;
+        mother_head = mother_body = -1;
+    }
     if (father != NULL && father[0] != '\0') {
         lstrcpynA(e->father_name, father, VV1_NAME_CAPACITY);
     }
@@ -2413,6 +2436,19 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
         /* Refused: the change must not show, nor reach a later save. */
         *e = before;
         return 0;
+    }
+    /* A villager the Custom Island Event has just made: the frame snapshot
+       takes this slot's occupant now, as vv1_born does for a birth, so the
+       per-frame inference does not see an unknown new occupant on the next
+       frame and clear the parents just given (seen live, 2026-10-10: the
+       entry was empty in the saved sidecar). */
+    if (g_have_prev) {
+        const unsigned char *child = records + (unsigned int)index * VV1_RECORD_STRIDE;
+        g_prev_occupied[index] = child[VV1_OCCUPIED_OFFSET];
+        g_prev_variant[index] = *(const int *)(child + VV1_VARIANT_OFFSET);
+        memcpy(g_prev_name[index], child + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+        g_prev_gender[index] = *(const int *)(child + VV1_GENDER_OFFSET);
+        g_prev_age[index] = *(const int *)(child + VV1_AGE_OFFSET);
     }
     return 1;
 }

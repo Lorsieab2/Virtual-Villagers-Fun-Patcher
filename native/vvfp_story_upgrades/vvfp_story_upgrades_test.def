@@ -25,6 +25,9 @@ EXPORTS
     VvfpStoryProbeRole=_VvfpStoryProbeRole@16
     VvfpStoryProbeMerge=_VvfpStoryProbeMerge@16
     VvfpStoryProbeInitChange=_VvfpStoryProbeInitChange@4
+    VvfpStoryProbeReplace=_VvfpStoryProbeReplace@16
+    VvfpStoryProbeArrivalParents=_VvfpStoryProbeArrivalParents@12
+    VvfpStoryProbeArrivalReset=_VvfpStoryProbeArrivalReset@0
     VvfpStoryProbeTitlesLoaded=_VvfpStoryProbeTitlesLoaded@12
     VvfpStoryProbeTitleSet=_VvfpStoryProbeTitleSet@12
     VvfpStoryProbeTitleOf=_VvfpStoryProbeTitleOf@8
@@ -73,6 +76,7 @@ EXPORTS
     VvfpStoryProbeTimeSkipNotice=_VvfpStoryProbeTimeSkipNotice@4
     VvfpStoryProbeTimeSkipPrice=_VvfpStoryProbeTimeSkipPrice@4
     VvfpStoryProbeCharges=_VvfpStoryProbeCharges@8
+    VvfpStoryProbeIslandEventOpen=_VvfpStoryProbeIslandEventOpen@4
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16

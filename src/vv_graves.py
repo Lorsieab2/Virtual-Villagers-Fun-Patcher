@@ -751,6 +751,7 @@ def _plan_sidecar(folder: Path, game: int, slot: int, by_place: dict, rekey: dic
         # every entry of a renamed or re-aged grave given the new one.
         for place, (fp, values) in by_place.items():
             mine = [e for e in entries if struct.unpack_from("<HHI", e, 0) == (0, place, fp)]
+            fresh = not mine
             if not mine:
                 e = bytearray(44)
                 struct.pack_into("<HHIb", e, 0, 0, place, fp, CAUSE_NONE)
@@ -759,8 +760,11 @@ def _plan_sidecar(folder: Path, game: int, slot: int, by_place: dict, rekey: dic
             e = mine[0]
             if "cause" in values:
                 struct.pack_into("<b", e, 8, next(k for k, v in CAUSE_WORDS.items() if v == values["cause"]))
-            if "epitaph" in values and game == 1:
-                text = values["epitaph"]
+            # A New Home's grave keeps its epitaph only here: an entry made new for its cause alone
+            # carries the epitaph its records give it, never epitaph 0 -- which the companion reads as
+            # no epitaph at all (cod_vv12.inc cod_entry_epitaph), wiping the one the grave had.
+            text = values.get("epitaph", values.get(NEW_ENTRY_EPITAPH) if fresh else None)
+            if text is not None and game == 1:
                 if text in EPITAPHS[1:]:
                     e[9], e[10] = EPITAPHS.index(text), 0
                     e[12:44] = bytes(32)
@@ -817,6 +821,24 @@ def _record_edits(docs: dict, record, key: str, value, epitaph_record=None) -> N
     doc.insert_after(target.start, f"  {line}: {shown}")
 
 
+NEW_ENTRY_EPITAPH = "epitaph if the entry is new"
+
+
+def _recorded_epitaph(g: Grave, work: Survey) -> str | None:
+    """The epitaph A New Home's grave `g` has by its records (the newest Epitaph changed record, else
+    its Death record; "" for none), or None when they name none the grave could keep."""
+    newest = work.epitaph_records.get(g.place)
+    text = newest.value("New epitaph") if newest is not None else (
+        g.record.value("Epitaph") if g.record is not None else None)
+    if text is None:
+        return None
+    text = "" if text == "(none)" else text
+    try:
+        return check_value(1, "epitaph", text)
+    except GraveError:
+        return None
+
+
 def plan(folder: Path, game: int, slot: int, fixes: list[Fix], retro: bool,
          surveyed: Survey | None = None) -> Plan:
     """What setting each grave field in `fixes` changes, file by file.  Reads only.  With `retro`
@@ -853,6 +875,10 @@ def plan(folder: Path, game: int, slot: int, fixes: list[Fix], retro: bool,
         if not in_save and fix.field in ("cause", "epitaph") and game <= 2:
             fp, values = by_place.get(g.place, (g.fingerprint, {}))
             values[fix.field] = value
+            if game == 1 and NEW_ENTRY_EPITAPH not in values:
+                known = _recorded_epitaph(g, work)
+                if known is not None:
+                    values[NEW_ENTRY_EPITAPH] = known
             by_place[g.place] = (fp, values)
         if fix.field in ("name", "age"):
             lay = LAYOUTS[game]
@@ -871,7 +897,8 @@ def plan(folder: Path, game: int, slot: int, fixes: list[Fix], retro: bool,
         elif g.record is not None:
             who = g.record.identity
             decisions.append({"kind": DECISION_KIND, "village": g.record.village, "name": who[0], "head": who[1],
-                              "body": who[2], "verdict": f"{fix.field}={_show(value)}", "edited": False})
+                              "body": who[2], "field": fix.field, "verdict": f"{fix.field}={_show(value)}",
+                              "edited": False})
         done.append(fix)
     if bytes(buf) != original:
         changes.append(ln.Change(save, original, bytes(buf), "the save"))

@@ -1,3 +1,4 @@
 LIBRARY "VVFP Island Events"
 EXPORTS
     VvfpStartup=_VvfpStartup@8
+    VvfpIslandEventOpen=_VvfpIslandEventOpen@0

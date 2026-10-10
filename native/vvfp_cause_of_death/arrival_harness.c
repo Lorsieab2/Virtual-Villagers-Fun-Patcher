@@ -324,6 +324,7 @@ static int_t vv1_births;
 static int_t departed;
 static note_t note_birth;
 static arrived_by_t arrived_by;
+static arrived_by_t arrived_parents;          /* VvfpCauseArrivedParents: the same shape */
 
 static int host_slot_value = 1;
 static int __stdcall host_slot(void) { return host_slot_value; }
@@ -347,8 +348,9 @@ static void load(void) {
     departed = (int_t)GetProcAddress(cause, "VvfpCauseTestDeparted");
     note_birth = (note_t)GetProcAddress(cause, "VvfpCauseNoteArrival");
     arrived_by = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedBy");
+    arrived_parents = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedParents");
     if (!ensure_village || !setup || !save_done || !reset || !scan_arrivals || !repair_arrivals || !created
-        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by
+        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by || !arrived_parents
         || GetProcAddress(parentage, "RecordArrivalsMissingFromLog") == NULL) {
         printf("missing exports\n");
         exit(2);
@@ -1100,6 +1102,10 @@ int main(int argc, char **argv) {
         villager(10, "Cie", 800, 5, 5, 0);
         created(10, 0);
         arrived_by(game, 10, "Custom Island Event");
+        /* ...with the parents it chose (the owner, 2026-10-10): the "Parents:"
+           block every Village History record has, after How. */
+        arrived_parents(game, 10, "  Parents:\n    Father: Joey\n      Head: 2\n      Body: 2\n"
+                                  "    Mother: Ana\n      Head: 0\n      Body: 0\n");
         villager(11, "Babe", 0, 6, 6, 1);
         created(11, MARK[game - 1].birth);   /* a birth path, with no Births log note */
         villager(15, "Canoe", 540, 7, 2, 0);
@@ -1141,8 +1147,10 @@ int main(int argc, char **argv) {
             CHECK(n != NULL && strncmp(n, "  Name: Newcomer\r\n  Age at arrival: 700\r\n  Sex: ", 46) == 0
                   && record_has("Newcomer", "  How: unknown\r\n\r\n"),
                   "an island event's newcomer: the age it arrived at, how unknown");
-            CHECK(c != NULL && record_has("Cie", "  How: Custom Island Event\r\n\r\n"),
-                  "the Custom Island Event's new villager: How: Custom Island Event");
+            CHECK(c != NULL && record_has("Cie", "  How: Custom Island Event\r\n  Parents:\r\n    Father: Joey\r\n"
+                                                 "      Head: 2\r\n      Body: 2\r\n    Mother: Ana\r\n"
+                                                 "      Head: 0\r\n      Body: 0\r\n\r\n"),
+                  "the Custom Island Event's new villager: How: Custom Island Event, then the parents it chose");
             CHECK(gone != NULL && record_has("Gone", "  Age at arrival: 650\r\n"),
                   "one who arrived and was buried before the save has the record too, at the burial");
             CHECK(strstr(text, "  Name: Reborn\r\n") == NULL, "...and whoever has the record now gets none");
