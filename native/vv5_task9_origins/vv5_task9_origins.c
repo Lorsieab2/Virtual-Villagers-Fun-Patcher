@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
@@ -2007,8 +2008,7 @@ static int vv5_story_index(void *record) {
 }
 
 static int __stdcall vv5_story_slot(void) {
-    int slot = *(volatile int *)VV5_SLOT_SCRATCH;
-    return slot >= 1 && slot <= 5 ? slot : 0;
+    return vv_current_save_slot(5, *(volatile int *)VV5_SLOT_SCRATCH);
 }
 
 static int __stdcall vv5_story_mask_get(void *record) {

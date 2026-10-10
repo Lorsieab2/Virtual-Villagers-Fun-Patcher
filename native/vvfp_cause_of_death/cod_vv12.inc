@@ -866,6 +866,27 @@ static void vv12_tick(void) {
     }
 }
 
+/* A save of `slot` (cod_save_done): the tables go to that slot's file now.
+   The causes live only here and in the file until the body is buried, and
+   the tick publishes only to the slot the host reports -- which was none
+   for a whole session after The Lost Children's Change Tribe, so a death
+   seen and recorded then never reached the file and the burial a session
+   later had no cause.  Binding to another slot replays the events the tick
+   has not yet put into a loaded file (the journal), as the tick does. */
+static void vv12_saved(int slot) {
+    unsigned char *records;
+    cod_bind(slot);
+    if (!store.loaded) {
+        return;                       /* blocked: the journal keeps the events for later */
+    }
+    records = cod_records();
+    if (records != NULL) {
+        cod_rehome_bodies(records);
+    }
+    journal_count = 0;
+    cod_publish();
+}
+
 static void vv12_reset(int slot) {
     if (slot == store.slot) {
         cod_forget();

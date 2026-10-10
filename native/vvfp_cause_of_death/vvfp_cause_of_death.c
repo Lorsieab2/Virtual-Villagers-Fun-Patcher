@@ -128,10 +128,15 @@ typedef struct {
 
 static int g_game;
 static const cod_host *g_host;
+/* The slot the village was last saved to (cod_save_done), 0 = none: the
+   slot when the host reports none.  The host's slot was 0 for a whole session
+   in The Lost Children after a Change Tribe (native/shared/game_save_slot.h),
+   and the lying bodies' causes, kept only in memory, never reached a file. */
+static int saved_slot;
 
 static int cod_slot(void) {
     int slot = g_host != NULL && g_host->slot != NULL ? g_host->slot() : 0;
-    return slot >= 1 && slot <= 5 ? slot : 0;
+    return slot >= 1 && slot <= 5 ? slot : saved_slot;
 }
 
 /* ---- Words ------------------------------------------------------------- */
@@ -660,6 +665,9 @@ static int install_state;   /* 0 = not tried, 1 = installed, -1 = refused */
    it. */
 static int save_armed;
 
+/* cod_vv12.inc: the graves file written at each save. */
+static void vv12_saved(int slot);
+
 /* cod_backfill.inc: the graves no hook saw, at each save. */
 static void backfill_at_save(int slot, const void *save_buffer);
 static int backfill_accounts_for(const unsigned char *kept);
@@ -834,6 +842,9 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     }
     if (g_game <= 2) {
         vv12_reset(slot);
+    }
+    if (saved_slot == slot) {
+        saved_slot = 0;
     }
     roster_reset(slot);
     backfill_reset(slot);

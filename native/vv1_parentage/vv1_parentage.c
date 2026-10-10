@@ -153,6 +153,7 @@
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
 #include "../shared/save_layout.h"    /* the save folder's names, and the move from older ones */
 #include "../shared/birth_heading.h"  /* "Birth <n>", or an older log's "Birth" */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -310,9 +311,14 @@ static unsigned char *vv1_records(void) {
     return base ? base + VV1_RECORDS_OFFSET : NULL;
 }
 
+/* The game's own current slot (its save manager, 0x48AEDC + 0xABE4), else
+   the slot the save-path stub last captured: a first village made in a fresh
+   save folder leaves the stub at 5 (the game reads slots 1..5 to list them)
+   until its first save, and this table was written as "Save 5"
+   (native/shared/game_save_slot.h). */
 static int vv1_slot(void) {
     unsigned int slot = VV1_SAVE_SLOT_PTR;
-    return (slot >= 1u && slot <= 5u) ? (int)slot : 0;
+    return vv_current_save_slot(1, (slot >= 1u && slot <= 5u) ? (int)slot : 0);
 }
 
 static unsigned char vv1_plus_one(int value);

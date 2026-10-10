@@ -496,6 +496,13 @@ static void roster_reset(int slot) {
 static void cod_save_done(int slot, const void *save_buffer) {
     cod_publish_village(save_buffer, slot);
     if (install_state == 1) {
+        /* A New Home and The Lost Children: the causes of the bodies this
+           save keeps go to this slot's graves file now, whatever slot the
+           per-frame tick had (cod_vv12.inc). */
+        if (g_game <= 2) {
+            vv12_saved(slot);
+        }
+        saved_slot = slot;
         /* Every grave in the Deaths log first, so the reconciliation knows
            the villagers whose graves were recorded from now. */
         backfill_at_save(slot, save_buffer);
