@@ -12,6 +12,7 @@ EXPORTS
     VvfpStoryAttachHost=_VvfpStoryAttachHost@8
     VvfpStoryVillageReset=_VvfpStoryVillageReset@8
     VvfpStoryPickGongOutcome=_VvfpStoryPickGongOutcome@8
+    VvfpStoryChooseTimeSkip=_VvfpStoryChooseTimeSkip@8
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
     VvfpStoryProbeQueueCustom=_VvfpStoryProbeQueueCustom@12
     VvfpStoryProbeSetCustom=_VvfpStoryProbeSetCustom@12
@@ -66,5 +67,9 @@ EXPORTS
     VvfpStoryProbeChoiceResolve=_VvfpStoryProbeChoiceResolve@16
     VvfpStoryProbeChoiceState=_VvfpStoryProbeChoiceState@8
     VvfpStoryProbeDeliver=_VvfpStoryProbeDeliver@12
+    VvfpStoryProbeTimeSkipStart=_VvfpStoryProbeTimeSkipStart@12
+    VvfpStoryProbeTimeSkipState=_VvfpStoryProbeTimeSkipState@4
+    VvfpStoryProbeTimeSkipPrice=_VvfpStoryProbeTimeSkipPrice@4
+    VvfpStoryProbeCharges=_VvfpStoryProbeCharges@8
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA

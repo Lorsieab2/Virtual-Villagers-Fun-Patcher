@@ -3,7 +3,7 @@
   "enabled": true,
   "game_id": "vv1",
   "name": "Story / Cheat Upgrades cost Tech Points",
-  "description": "**Requires Story / Cheat Upgrades.** With this ticked, the Origins upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued. With too few tech points you are told, and nothing is queued or spent. Untick it to keep every upgrade free. Ticking Story / Cheat Upgrades ticks this too.",
+  "description": "**Requires Story / Cheat Upgrades.** With this ticked, the Origins upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued. With too few tech points you are told, and nothing is queued or spent. Choose Time Skip Amount costs what the Time Warp upgrade costs: 50,000 tech points, paid when the skip starts. Untick it to keep every upgrade free. Ticking Story / Cheat Upgrades ticks this too.",
   "output_tag": "Story Cheat Costs",
   "dependencies": [
     "vv1_story_cheat_upgrades"
