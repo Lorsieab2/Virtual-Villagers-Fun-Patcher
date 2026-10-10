@@ -78,9 +78,11 @@ int vv_reset_refused_paths = 0;
    it belongs to the village being erased, never to the one started after. */
 #define PAID_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Paid Purchases\\Virtual Villagers " n " Paid Purchases - Save %d.dat"
-#define SIDECAR_FORMAT_COUNT 22
+#define STORY_QUEUE_FORMAT(n) \
+    "%s\\Virtual Villagers Fun Patcher Data\\Paid Purchases\\Virtual Villagers " n " Story Purchases - Save %d.dat"
+#define SIDECAR_FORMAT_COUNT 23
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
-    /* VV1 */ { PAID_FORMAT("1"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
+    /* VV1 */ { PAID_FORMAT("1"), STORY_QUEUE_FORMAT("1"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %d.dat",
                DATA_FORMAT(VV_DATA_SUB_PARENTAGE, "Virtual Villagers 1 Parentage Records"),
@@ -92,7 +94,7 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Village Roster"),
                ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT("1"), ARRIVALS_FORMAT("1"), APPROVAL_FORMAT("1") },
-    /* VV2 */ { PAID_FORMAT("2"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 2 Village Masks"),
+    /* VV2 */ { PAID_FORMAT("2"), STORY_QUEUE_FORMAT("2"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 2 Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
                "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_GRAVES, "Virtual Villagers 2 Graves"), CAUSE_OF_DEATH_FORMAT("2"),
@@ -100,21 +102,21 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 2 Village Roster"),
                ROSTER_FORMAT("2"), GRAVES_LOGGED_FORMAT("2"), ARRIVALS_FORMAT("2"), BIRTHS_FORMAT("2"),
                APPROVAL_FORMAT("2"), 0, 0, 0, 0 },
-    /* VV3 */ { PAID_FORMAT("3"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+    /* VV3 */ { PAID_FORMAT("3"), STORY_QUEUE_FORMAT("3"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Village Roster"),
                ROSTER_FORMAT("3"), GRAVES_LOGGED_FORMAT("3"), ARRIVALS_FORMAT("3"), BIRTHS_FORMAT("3"),
                APPROVAL_FORMAT("3"), 0, 0, 0, 0, 0, 0 },
-    /* VV4 */ { PAID_FORMAT("4"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+    /* VV4 */ { PAID_FORMAT("4"), STORY_QUEUE_FORMAT("4"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Village Roster"),
                ROSTER_FORMAT("4"), GRAVES_LOGGED_FORMAT("4"), ARRIVALS_FORMAT("4"), BIRTHS_FORMAT("4"),
                APPROVAL_FORMAT("4"), 0, 0, 0, 0, 0, 0 },
-    /* VV5 */ { PAID_FORMAT("5"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
+    /* VV5 */ { PAID_FORMAT("5"), STORY_QUEUE_FORMAT("5"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Villagers at Last Save"),
