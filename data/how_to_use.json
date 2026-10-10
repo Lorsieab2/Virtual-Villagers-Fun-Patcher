@@ -406,11 +406,11 @@
       ]
     },
     {
-      "ids": ["vv1_storytelling"],
+      "ids": ["vv1_storytelling", "vv2_storytelling"],
       "guide": [
-        "Drag an adult (18 or older) onto a child (under 18): the adult tells the child a story instead of trying to embrace.",
-        "The adult shows \"Telling a story\" and gets one Breeding practice roll per story; the child shows \"Listening to a story\" and waits where it is.",
-        "Only your own drop does this. Every other drop works as before. Nothing to click: tick it, patch, and play."
+        "Drag an adult (18+) onto a child (under 18): the adult tells that child a story.",
+        "The adult gets a Parenting (Breeding) practice roll; the child listens. Parenting 50+ in VV2: teaching.",
+        "Only your own drop does this; other drops are unchanged. Tick it, patch, and play."
       ]
     },
     {

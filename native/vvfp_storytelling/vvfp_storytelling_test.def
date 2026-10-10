@@ -1,0 +1,5 @@
+LIBRARY "VVFP Storytelling.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpStorytellingProbe=_VvfpStorytellingProbe@20
+    VvfpStorytellingStats DATA

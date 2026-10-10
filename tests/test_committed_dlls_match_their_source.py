@@ -33,7 +33,6 @@ SCRIPTS = (
     "build_vv1_number_keys.ps1",
     "build_vv1_parentage_dll.ps1",
     "build_vv1_sort_by_dll.ps1",
-    "build_vv1_storytelling.ps1",
     "build_vv1_watering_builds.ps1",
     "build_vvfp_fix_huts.ps1",
     "build_vvfp_golden_mushroom.ps1",
@@ -42,6 +41,7 @@ SCRIPTS = (
     "build_vvfp_pathfinding.ps1",
     "build_vvfp_startup.ps1",
     "build_vvfp_story_upgrades.ps1",
+    "build_vvfp_storytelling.ps1",
     "build_vvfp_work_first.ps1",
 )
 
