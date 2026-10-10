@@ -1477,6 +1477,21 @@
       ]
     },
     {
+      "id": "vv1_easier_healing_mastery",
+      "game_id": "vv1",
+      "name": "Easier Healing Mastery",
+      "description": "Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). Without this patch only a villager you dropped on the cactus does that. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.**",
+      "output_tag": "Easier Healing",
+      "patches": [
+        {
+          "offset": "0x478E7",
+          "before": "8BC569C0D803000083BC30B8030000097508558BCEE86FB9FFFF",
+          "after": "558BCEE881B9FFFF5F5D5BB0015EC20800909090909090909090",
+          "purpose": "at the Healing case's no-patient exit, start the stock Medical Cactus study (0x443270) for any villager, not only one in plant-study state 9, and report it started; no record field is written"
+        }
+      ]
+    },
+    {
       "id": "vv1_school_lessons_grant_skill",
       "game_id": "vv1",
       "name": "School Lessons Grant Skill",

@@ -35,10 +35,12 @@
    nothing, the displaced instructions run and the stock selection continues.
 
    CATCH-UP.  The scheduler is never run for time that passed while the game
-   was closed, or for Time Warp.  A New Home's catch-up already continues a
-   healer's plant study through its dispatcher's Healing case; The Lost
-   Children's never does, so it gets a second site in its catch-up worker
-   (see "VV2 catch-up" below).
+   was closed, or for Time Warp.  Neither game's catch-up continues a
+   studying villager's plant study the way the scheduler does: The Lost
+   Children's never does, and A New Home's only when catch-up happens to
+   pick the Healing job for that villager and nobody is sick (its
+   dispatcher's Healing case, 0x4478EF).  So each gets a second site in its
+   catch-up worker (see "VV1 catch-up" and "VV2 catch-up" below).
 
    Installed at run time by VvfpHealersStudyInstall(game) from the Origins
    companion, which runs every frame; the stock bytes at each site are
@@ -170,6 +172,74 @@ static __declspec(naked) void vv1_stub(void) {
     }
 }
 
+/* ---- VV1 catch-up ---------------------------------------------------------- */
+/* A New Home's catch-up worker (0x42E790) has no task-state step: it takes
+   the stock picker's job and, unless it is research (job 2, its own research
+   step), dispatches it at 0x42E817:
+       mov ecx, [edi+4]; push eax; push esi; call 0x4472C0     (10 bytes)
+   and then runs the queue processor (0x42E821).  The dispatcher's Healing
+   case continues a studying villager's plant study only when the pick is
+   Healing and nobody is sick, so a villager dropped on the medical cactus
+   stops studying in catch-up whenever catch-up picks anything else -- the
+   same gap The Lost Children has, and this patch's job to fill.
+   The site is that dispatch, which Builders and Healers Work First's own
+   catch-up site (0x42E7E0) also falls through to for a non-research pick.
+   A villager in plant-study state 9, on the decision's roll, gets the
+   scheduler's own continuation 0x447CD0(index, 60) (any food level: the
+   stock catch-up never makes the call); if it starts a job the worker's
+   queue processor runs (0x42E821).  Otherwise the pick is dispatched exactly
+   as the stock call would, with the stock return address 0x42E821 pushed,
+   so a dispatcher hook that recognises the worker's call (Builders and
+   Healers Work First) still does.
+   edi = the worker, [edi+4] = village, esi = index, eax = the pick. */
+#define VV1_CU_SITE      0x42E817u
+#define VV1_CU_DONE      0x42E821u
+#define VV1_DISPATCHER   0x4472C0u
+static const unsigned char VV1_CU_STOCK[10] = { 0x8B, 0x4F, 0x04, 0x50, 0x56, 0xE8, 0x9F, 0x8A, 0x01, 0x00 };
+
+static int __cdecl vv1_catch_up_studying(const unsigned char *village, unsigned int index) {
+    if (*(const int *)(village + index * 0x3D8u + 0x3B8u) != 9) {
+        return 0;
+    }
+    if (!decision_roll()) {
+        return 0;                                  /* the stock pick this decision */
+    }
+    HEALERS_COUNT_CHECK;
+    return 1;
+}
+
+static const unsigned int vv1_cu_done = VV1_CU_DONE, vv1_dispatcher = VV1_DISPATCHER;
+static __declspec(naked) void vv1_cu_stub(void) {
+    __asm {
+        pushad
+        push esi
+        push dword ptr [edi + 4]
+        call vv1_catch_up_studying
+        add esp, 8
+        test eax, eax
+        popad
+        jz pick
+        push eax                                   /* the pick */
+        push 0x3C
+        push esi
+        mov ecx, dword ptr [edi + 4]
+        call dword ptr [vv1_continue]
+        test eax, eax
+        pop eax
+        jz pick
+#ifdef VVFP_TEST
+        inc dword ptr [VvfpHealersStudyStats + 4]
+#endif
+        jmp dword ptr [vv1_cu_done]
+    pick:
+        mov ecx, dword ptr [edi + 4]
+        push eax
+        push esi
+        push dword ptr [vv1_cu_done]
+        jmp dword ptr [vv1_dispatcher]
+    }
+}
+
 /* ---- VV2 --------------------------------------------------------------- */
 /* esi = village, edi = the villager's index, ebp = the villager's record;
    state = [esi+0xE574D4], food [state+0x2EAA4]. */
@@ -234,8 +304,7 @@ static __declspec(naked) void vv2_stub(void) {
    the pick (0x43B583), whose Healing case does nothing when no one is sick.
    So a healer's plant study never continues in catch-up.  The owner: Lost
    Children healers continue plant study during catch-up, as this patch's
-   catch-up behaviour (A New Home's catch-up already continues it through its
-   dispatcher's Healing case, 0x4478EF).
+   catch-up behaviour (A New Home gets the same site: "VV1 catch-up" above).
 
    The site is the worker's pick dispatch, `push ebp; push edi; call
    0x45FBF0` (0x43B581, seven bytes), which both the state-0 path and a failed
@@ -310,10 +379,10 @@ static const struct site SITES[3] = {
     { VV2_SITE, VV2_STOCK, sizeof VV2_STOCK, vv2_stub },
 };
 static int install_state[3];
-/* The catch-up sites (The Lost Children only). */
+/* The catch-up sites. */
 static const struct site CU_SITES[3] = {
     { 0 },
-    { 0 },
+    { VV1_CU_SITE, VV1_CU_STOCK, sizeof VV1_CU_STOCK, vv1_cu_stub },
     { VV2_CU_SITE, VV2_CU_STOCK, sizeof VV2_CU_STOCK, vv2_cu_stub },
 };
 static int cu_install_state[3];
@@ -360,7 +429,7 @@ static int install_site(const struct site *s) {
 }
 
 /* Called by a companion that runs every frame in the game.  Idempotent: the
-   scheduler site and (The Lost Children) the catch-up site, each tried once
+   scheduler site and the catch-up site, each tried once
    and independently.  Returns whether the scheduler site is installed. */
 __declspec(dllexport) int __stdcall VvfpHealersStudyInstall(int game_id) {
     if (game_id < 1 || game_id > 2) {

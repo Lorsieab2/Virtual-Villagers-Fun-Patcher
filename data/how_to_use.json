@@ -37,6 +37,14 @@
       ]
     },
     {
+      "ids": ["vv1_easier_healing_mastery"],
+      "guide": [
+        "Healers, and villagers who like Healing, study the Medical Cactus whenever nobody is sick.",
+        "Nothing to click: they train Healing on their own, also while the game catches up on time away.",
+        "Without it, only a villager you drop on the cactus studies it."
+      ]
+    },
+    {
       "ids": ["vv2_easier_healing_mastery"],
       "guide": [
         "Healers, and villagers who like Healing, study plants whenever nobody is sick.",

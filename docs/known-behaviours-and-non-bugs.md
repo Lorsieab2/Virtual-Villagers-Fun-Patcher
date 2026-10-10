@@ -696,12 +696,17 @@ was given.
   otherwise the Healing job does nothing.
 - **Game(s) / subsystem:** VV1. Healing job.
 - **Conditions:** Nobody in the village is sick.
-- **Decision source:** Found 2026-10-10. A fix is pending the owner's decision.
-- **Evidence:** Static analysis only, 2026-10-10. See
-  `docs/hidden-gates-all-five-games.md`, VV1 section 4, item 52 (`0x447894`
-  to `0x4478E5`; `cmp [rec+3B8h],9`).
-- **Exceptions:** Not applicable.
-- **Status:** open defect.
+- **Decision source:** Found 2026-10-10. The owner (2026-10-10): the fix
+  belongs in Easier Healing Mastery, as in The Lost Children.
+- **Evidence:** See `docs/hidden-gates-all-five-games.md`, VV1 section 4,
+  item 52 (`0x447894` to `0x4478E5`; `cmp [rec+3B8h],9`). Emulated from the
+  catch-up worker's entry in `tests/test_easier_healing_mastery.py`.
+- **Exceptions:** With Easier Healing Mastery (`vv1_easier_healing_mastery`,
+  v1.35.66), every villager given healing work with no one sick studies the
+  cactus, in play and in catch-up. Healers Study Plants Regardless of Food
+  also keeps a dropped villager studying during catch-up.
+- **Status:** stock behaviour; fixed by the optional Easier Healing Mastery
+  patch.
 
 ### G8. VV3 to VV5 healers with nobody sick study only after a stock gate
 
