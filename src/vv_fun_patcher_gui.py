@@ -317,6 +317,27 @@ def last_name_rows(people: list, parents: dict) -> list[str]:
                     rows[k] += f" -- {n} of {len(same)}"
     return rows
 
+# A villager whose last name the window's current choice will assign or change reads in red bold (the
+# owner, 2026-10-10); the rest keep the normal font and colour.  A red that reads on a light and on a dark
+# window.  The pale yellow behind a row the prompt asked about stays (only its text turns red).
+LAST_NAME_CHANGED_COLOUR = "#d62828"
+LAST_NAME_ASKED_BACKGROUND = "#fff2a8"
+
+
+def last_names_changing(now: dict, shown: dict) -> set:
+    """The villagers whose last name the window's boxes (`shown`: identity -> the last name in the box,
+    "" none) would change from the one they have now (`now`)."""
+    return {key for key, last in shown.items() if last != now.get(key, "")}
+
+
+def last_name_row_style(changed: bool, asked: bool) -> dict:
+    """How a villager's row reads: red bold when its last name will change, else the normal font and
+    colour; `asked` rows (the prompt's) keep their pale background, black text unless changed."""
+    return {"bold": changed,
+            "foreground": LAST_NAME_CHANGED_COLOUR if changed else ("#000000" if asked else None),
+            "background": LAST_NAME_ASKED_BACKGROUND if asked else None}
+
+
 @dataclass
 class _SlotLike:
     """The tribe a last-names window is for, when no slot list was read (the missing-last-names prompt)."""
@@ -3904,7 +3925,9 @@ class App(tk.Tk):
                        "allows is marked and cannot be given. A villager's descendants inherit the name you give them by "
                        "the rule above. A villager who arrived through an event has no last name unless you give "
                        "one (or the box below gives arrivals their own). Highlighted: no last name yet. A last name the rule does not give is marked; Fix wrong last names "
-                       "puts them right. The game must stay closed.").pack(anchor="w")
+                       "puts them right. Random last names gives villagers random ones from the game's list (see them here "
+                       "first). A villager whose last name will change is shown in red bold. The game must stay closed."
+                  ).pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
@@ -3949,11 +3972,16 @@ class App(tk.Tk):
         filling = [False]                       # the window itself is filling the rows in
         # The villagers with no last name the prompt is about (the owner, v1.35.66): highlighted.
         highlight = set(names.get("highlight", ()))
+        normal_font = tkfont.nametofont("TkDefaultFont")
+        bold_font = normal_font.copy()
+        bold_font.configure(weight="bold")
+        labels: dict = {}                       # identity -> (the row's label, whether the prompt asked about it)
         for row, (v, who) in enumerate(zip(people, last_name_rows(people, parents))):
-            if v.identity in highlight:
-                tk.Label(inner, text=who, background="#fff2a8", foreground="#000000").grid(row=row, column=0, sticky="w")
-            else:
-                ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
+            asked = v.identity in highlight
+            label = (tk.Label(inner, text=who, background=LAST_NAME_ASKED_BACKGROUND, foreground="#000000")
+                     if asked else ttk.Label(inner, text=who))
+            label.grid(row=row, column=0, sticky="w")
+            labels[v.identity] = (label, asked)
             start_value = names["chosen"].get(v.identity, now[v.identity])
             value = tk.StringVar(value=start_value or none)
             first = list(dict.fromkeys(n for n in (by_father.get(v.identity), by_mother.get(v.identity)) if n))
@@ -4058,13 +4086,29 @@ class App(tk.Tk):
                 alerts.append(f"{len(shared)} villager(s) share a last name with a family they are not related "
                               f"to: {'; '.join(firsts)}{' and more' if len(shared) > 4 else ''}.")
             wrong_var.set("\n".join(alerts))
+            restyle()
             window.after_idle(fit_width)        # as wide as the longest mark, so nothing is cut off
+
+        def restyle() -> None:
+            """Red bold for each villager whose last name the boxes would change (the owner, 2026-10-10)."""
+            changing = last_names_changing(now, {v.identity: last_in(value) for v, value, _m in rows})
+            for key, (label, asked) in labels.items():
+                style = last_name_row_style(key in changing, asked)
+                font = bold_font if style["bold"] else normal_font
+                if asked:
+                    label.configure(font=font, foreground=style["foreground"], background=style["background"])
+                else:
+                    label.configure(font=font, foreground=style["foreground"] or "")
+
+        # Rows Random last names left as they are: the rule does not re-derive them (until Fix wrong last names).
+        held: set = set()
+        random_state = {"who": "missing", "families": False, "seed": vv_last_names.random_seed()}
 
         def fill(choice) -> None:
             filling[0] = True
             try:
                 for v, value, _m in rows:
-                    if v.identity not in mine:
+                    if v.identity not in mine and v.identity not in held:
                         value.set(choice(v) or none)
             finally:
                 filling[0] = False
@@ -4082,8 +4126,166 @@ class App(tk.Tk):
 
         def none_for_all() -> None:
             mine.clear()
+            held.clear()
             fill(lambda v: "")
             mine.update(v.identity for v, _value, _m in rows)
+
+        def fix_wrong() -> None:
+            held.clear()
+            by_rule()
+
+        def random_dialog() -> None:
+            """Random last names (the owner, 2026-10-10): from the game's own list, for villagers with none
+            or for everyone, each villager's own or one a family shares.  The boxes show the names at once
+            (red bold: they will change), Reroll draws others, any box can still be edited; nothing is
+            written until OK here and the repair runs."""
+            try:
+                skip = vv_last_names.heathen_identities(folder, number, info.slot)
+                earlier = vv_last_names.random_conflicts(folder, number, info.slot, people, known)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
+                messagebox.showerror("Last names", f"The logs could not be read ({exc}).", parent=window)
+                return
+            snapshot = {v.identity: value.get() for v, value, _m in rows}
+            snapshot_mine, snapshot_held = set(mine), set(held)
+            shown_before = {key: ("" if text.strip() in (none, custom) else text.strip())
+                            for key, text in snapshot.items()}
+            state = random_state
+            sub = tk.Toplevel(window)
+            sub.title("Random last names")
+            sub.transient(window)
+            who_var = tk.StringVar(value=state["who"])
+            families_var = tk.StringVar(value="family" if state["families"] else "each")
+            seed_var = tk.StringVar(value=str(state["seed"]))
+            summary = tk.StringVar()
+            ttk.Label(sub, padding=(12, 12, 12, 0), wraplength=520, justify="left",
+                      text="Random last names, drawn from this game's own list. The names show in the list "
+                           "behind this window in red bold; change any of them, or press Reroll for others. "
+                           "Nothing is written until you press OK in the last-names window.").pack(anchor="w")
+            who_box = ttk.LabelFrame(sub, text="Who", padding=8)
+            who_box.pack(fill="x", padx=12, pady=(8, 0))
+            ttk.Radiobutton(who_box, text="Only villagers who have no last name", variable=who_var,
+                            value="missing").pack(anchor="w")
+            ttk.Radiobutton(who_box, text="Everyone (replaces the last names they have now)", variable=who_var,
+                            value="everyone").pack(anchor="w")
+            family_box = ttk.LabelFrame(sub, text="Families", padding=8)
+            family_box.pack(fill="x", padx=12, pady=(8, 0))
+            ttk.Radiobutton(family_box, text="Fully random per villager", variable=families_var,
+                            value="each").pack(anchor="w")
+            ttk.Radiobutton(family_box, text="Each family shares one random name (children follow their "
+                            "parents by the village's rule)", variable=families_var, value="family").pack(anchor="w")
+            seed_row = ttk.Frame(sub, padding=(12, 8, 12, 0))
+            seed_row.pack(anchor="w")
+            ttk.Label(seed_row, text="Seed:").pack(side="left")
+            ttk.Entry(seed_row, textvariable=seed_var, width=10).pack(side="left", padx=(6, 0))
+            ttk.Label(sub, textvariable=summary, padding=(12, 8, 12, 0), wraplength=520, justify="left").pack(anchor="w")
+
+            def restore() -> None:
+                filling[0] = True
+                try:
+                    for v, value, _m in rows:
+                        value.set(snapshot[v.identity])
+                finally:
+                    filling[0] = False
+                mine.clear()
+                mine.update(snapshot_mine)
+                held.clear()
+                held.update(snapshot_held)
+
+            def assigned_now() -> tuple | None:
+                try:
+                    seed = int(seed_var.get().strip())
+                except ValueError:
+                    return None
+                effective = rule_key() if rule_key() in ("father", "mother", "random") else "father"
+                return vv_last_names.random_last_names(
+                    number, people, parents, seed, who_var.get(), families_var.get() == "family", effective,
+                    shown_before, known, skip, pool, room)
+
+            def preview(*_args) -> None:
+                restore()
+                found = assigned_now()
+                if found is None:
+                    summary.set("The seed is a whole number.")
+                    marks()
+                    return
+                chosen_now, unfit = found
+                filling[0] = True
+                try:
+                    for v, value, _m in rows:
+                        if v.identity in chosen_now:
+                            value.set(chosen_now[v.identity])
+                finally:
+                    filling[0] = False
+                mine.update(chosen_now)
+                held.update(v.identity for v, _value, _m in rows if v.identity not in mine)
+                text = f"{len(chosen_now)} villager(s) get a new last name."
+                if unfit:
+                    text += f" {len(unfit)} could not be given one that fits the game's name field."
+                summary.set(text)
+                marks()
+
+            def reroll() -> None:
+                seed_var.set(str(vv_last_names.random_seed()))
+
+            def apply_it() -> None:
+                if assigned_now() is None:
+                    return
+                changed_now = [v for v, value, _m in rows if last_in(value) != shown_before[v.identity]]
+                replaced = [v for v in changed_now if shown_before[v.identity]]
+                if who_var.get() == "everyone" and replaced and not messagebox.askokcancel(
+                        "Random last names",
+                        f"This changes the last name of {len(replaced)} villager(s) who have one now, so the "
+                        "whole village's names change: in the save and in every log. A backup of the save folder "
+                        "is made first, and nothing is written until you press OK in the last-names window.\n\n"
+                        "Replace their last names?", icon="warning", parent=sub):
+                    return
+                asked = [v for v in changed_now if v.identity in earlier and not shown_before[v.identity]]
+                if asked:
+                    lines = "\n".join(f"{v.name}: an earlier record calls them {' or '.join(earlier[v.identity])}"
+                                      for v in asked[:12])
+                    answer = messagebox.askyesnocancel(
+                        "Random last names",
+                        f"Earlier records give these villagers a last name:\n\n{lines}"
+                        f"{chr(10) + 'and more' if len(asked) > 12 else ''}\n\n"
+                        "Yes: give them the random names anyway.\nNo: leave them as they are (no change).\n"
+                        "Cancel: go back.", icon="warning", parent=sub)
+                    if answer is None:
+                        return
+                    if not answer:
+                        filling[0] = True
+                        try:
+                            for v, value, _m in rows:
+                                if v in asked:
+                                    value.set(snapshot[v.identity])
+                        finally:
+                            filling[0] = False
+                        mine.difference_update(v.identity for v in asked if v.identity not in snapshot_mine)
+                        held.update(v.identity for v in asked)
+                        marks()
+                state.update(who=who_var.get(), families=families_var.get() == "family")
+                try:
+                    state["seed"] = int(seed_var.get().strip())
+                except ValueError:
+                    pass
+                sub.destroy()
+
+            def cancel() -> None:
+                restore()
+                marks()
+                sub.destroy()
+
+            for variable in (who_var, families_var, seed_var):
+                variable.trace_add("write", preview)
+            buttons_row = ttk.Frame(sub, padding=12)
+            buttons_row.pack(anchor="w")
+            ttk.Button(buttons_row, text="Reroll", command=reroll).pack(side="left")
+            ttk.Button(buttons_row, text="Use these", command=apply_it).pack(side="left", padx=(16, 0))
+            ttk.Button(buttons_row, text="Cancel", command=cancel).pack(side="left", padx=8)
+            sub.protocol("WM_DELETE_WINDOW", cancel)
+            preview()
+            sub.grab_set()
+            window.wait_window(sub)
+            _regrab(window)
 
         rule_var.trace_add("write", by_rule)
         rule_touched = [bool(names.get("rule_touched"))]
@@ -4135,8 +4337,9 @@ class App(tk.Tk):
             names_var.set(bool(chosen) or names["rules_changed"] or names["arrivals_changed"])
             window.destroy()
 
-        ttk.Button(buttons, text="Fix wrong last names", command=by_rule).pack(side="left")
+        ttk.Button(buttons, text="Fix wrong last names", command=fix_wrong).pack(side="left")
         ttk.Button(buttons, text="None for all", command=none_for_all).pack(side="left", padx=(8, 0))
+        ttk.Button(buttons, text="Random last names…", command=random_dialog).pack(side="left", padx=(8, 0))
         ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
         ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
         window.protocol("WM_DELETE_WINDOW", window.destroy)
