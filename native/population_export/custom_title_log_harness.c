@@ -125,6 +125,18 @@ static void villager(int index, const char *name) {
     *(int *)(r + 0xE78) = 100;
 }
 
+/* One folder of logs per save slot (native/shared/log_slot.h): the roster or history of the
+   village "(Save <slot>)" is in "...Logs\Save <slot>\<folder>"; slot 0 (no slot named) is the
+   shared folder. */
+static void log_file(char *out, int slot, const char *folder, const char *name) {
+    if (slot == 0) {
+        wsprintfA(out, "%s\\Virtual Villagers Fun Patcher Logs\\%s\\%s", g_root, folder, name);
+    } else {
+        wsprintfA(out, "%s\\Virtual Villagers Fun Patcher Logs\\Save %d\\%s\\%s", g_root, slot, folder, name);
+    }
+}
+#define ROSTER(slot) log_file(roster, (slot), "Tribe Population", "Village Population 1.txt")
+
 static void write_titles(int slot, const vv_custom_title *entries, int count) {
     char folder[MAX_PATH];
     char path[MAX_PATH];
@@ -166,8 +178,8 @@ int main(void) {
     write_titles(2, entries, 2);
 
     WriteVillagePopulation(3, g_module, "Village: Test (Save 2)\n");
-    wsprintfA(roster, "%s\\Virtual Villagers Fun Patcher Logs\\Tribe Population\\Village Population 1.txt", g_root);
-    wsprintfA(history, "%s\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 1.txt", g_root);
+    ROSTER(2);
+    log_file(history, 2, "Tribe History", "Village History 1.txt");
 
     text = read_all(roster);
     kai = strstr(text, "  Name: Kai\n");
@@ -189,21 +201,29 @@ int main(void) {
           "THE HISTORY PRINTS IT TOO");
 
     WriteVillagePopulation(3, g_module, "Village: Test (Save 4)\n");
+    ROSTER(4);
     text = read_all(roster);
     check(strstr(text, "  Name: Kai\n") != NULL && strstr(text, "Custom title") == NULL,
-          "ANOTHER SLOT'S VILLAGE PRINTS NO TITLES");
+          "ANOTHER SLOT'S VILLAGE PRINTS NO TITLES, IN ITS OWN SLOT'S FOLDER");
+    ROSTER(2);
+    text = read_all(roster);
+    check(strstr(text, "  Name: Kai\n  Custom title: Keeper of Stories\n") != NULL,
+          "SAVE 2'S ROSTER IS UNTOUCHED BY SAVE 4'S SAVE (two slots stay apart)");
     WriteVillagePopulation(3, g_module, "Village: Test\n");
+    ROSTER(0);
     text = read_all(roster);
     check(strstr(text, "Custom title") == NULL, "a header with no slot prints no titles");
 
     /* A village NAMED "Trick (Save 2)" in slot 4: the header's last marker
        is its slot, so slot 2's titles must not leak into it... */
     WriteVillagePopulation(3, g_module, "Village: Trick (Save 2) (Save 4)\n");
+    ROSTER(4);
     text = read_all(roster);
     check(strstr(text, "  Name: Kai\n") != NULL && strstr(text, "Custom title") == NULL,
           "A NAME CONTAINING (Save 2) DOES NOT READ SLOT 2'S TITLES");
     /* ...and the same name in slot 2 still gets them. */
     WriteVillagePopulation(3, g_module, "Village: Trick (Save 4) (Save 2)\n");
+    ROSTER(2);
     text = read_all(roster);
     check(strstr(text, "  Name: Kai\n  Custom title: Keeper of Stories\n") != NULL,
           "THE LAST (Save N) MARKER IS THE SLOT");

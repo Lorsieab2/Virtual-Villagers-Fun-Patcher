@@ -256,26 +256,66 @@ static void write_text(const char *path, const char *text) {
 }
 
 static char text[1 << 17];
-static long read_into(const char *path) {
-    FILE *f = fopen(path, "rb");
-    long n;
-    if (f == NULL) { text[0] = 0; return -1; }
-    n = (long)fread(text, 1, sizeof text - 1, f);
-    text[n] = 0;
-    fclose(f);
-    return n;
-}
 
+/* The SHARED Births and Conceptions file an older build wrote (the harness writes the older logs
+   there), and "...Logs\Save 1\Births and Conceptions\", where this build writes the "(Save 1)"
+   village's records (native/shared/log_slot.h). */
 static void births_path(int number, char *out) {
     _snprintf(out, MAX_PATH,
               "%s\\Virtual Villagers Fun Patcher Logs\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log %d.txt",
               root, game, number);
 }
 
+static void slot_births_path(int number, char *out) {
+    _snprintf(out, MAX_PATH,
+              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log %d.txt",
+              root, game, number);
+}
+
 static void unaccounted_path(char *out) {
     _snprintf(out, MAX_PATH,
-              "%s\\Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
+              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
               root, game);
+}
+
+static long read_one(const char *path, long at) {
+    FILE *f = fopen(path, "rb");
+    long n;
+    if (f == NULL) { return -1; }
+    n = (long)fread(text + at, 1, sizeof text - 1 - at, f);
+    text[at + n] = 0;
+    fclose(f);
+    return n;
+}
+
+/* A file's text.  The shared Births and Conceptions file 1 reads as the "(Save 1)" village's one
+   history: that file, then its slot folder's file 1 (what this build appended).  -1 when neither
+   is there. */
+static long read_into(const char *path) {
+    char shared[MAX_PATH], slot[MAX_PATH];
+    long first, second;
+    text[0] = 0;
+    births_path(1, shared);
+    if (lstrcmpiA(path, shared) != 0) {
+        return read_one(path, 0);
+    }
+    slot_births_path(1, slot);
+    first = read_one(shared, 0);
+    second = read_one(slot, first > 0 ? first : 0);
+    if (second > 0 && first > 0) {
+        /* The slot's file made at a save holds only its "Village:" line (logs are made when a
+           village is first saved in its slot): no record, so nothing added to the history. */
+        const char *added = text + first;
+        const char *end = strchr(added, '\n');
+        if (strncmp(added, "Village: ", 9) == 0 && end != NULL && end[1] == '\0') {
+            text[first] = 0;
+            second = 0;
+        }
+    }
+    if (first < 0 && second < 0) {
+        return -1;
+    }
+    return (first > 0 ? first : 0) + (second > 0 ? second : 0);
 }
 
 static void marker_path(char *out) {
@@ -1411,7 +1451,7 @@ int main(int argc, char **argv) {
         arrival_tick();
         *(int *)(rec(0) + g->age) = 410;
         save_done(1, buffer);                 /* the new village's first save */
-        births_path(3, path);                 /* after the other village's file 2 */
+        slot_births_path(1, path);            /* the slot's own folder: its file 1 went with Start Over */
         CHECK(read_into(path) > 0 && strncmp(text, "Village: Arrival Tribe (Save 1)", 31) == 0
               && record_has("Founda", "  Age at arrival: 400\r\n") && record_has("Founda", "  How: Founder\r\n\r\n")
               && record_has("Foundb", "  How: Founder\r\n\r\n") && strstr(text, "Note:") == NULL

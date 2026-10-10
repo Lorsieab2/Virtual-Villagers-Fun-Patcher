@@ -518,7 +518,9 @@ int main(void) {
           "it is in the Village Masks folder (the #519 resolver)");
     {
         char folder[MAX_PATH];
-        CHECK(vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Logs\\Repairs Made", 64), "the Repairs folder");
+        /* The village is "(Save SLOT)": its repairs are noted in that slot's own folder (log_slot.h). */
+        CHECK(vv_save_subfolder(folder, "Virtual Villagers Fun Patcher Logs\\Save 1\\Repairs Made", 64) && SLOT == 1,
+              "the Repairs folder: Save 1's own");
         _snprintf_s(g_log, sizeof g_log, _TRUNCATE, "%s\\Virtual Villagers %d Repairs Log 1.txt", folder, game);
     }
     {

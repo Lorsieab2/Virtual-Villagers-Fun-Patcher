@@ -137,7 +137,7 @@ static void put_name(unsigned char *rec, unsigned int off, const char *s,
    suppressed there whatever the gate says. */
 enum log_kind { LOG_HISTORY, LOG_ROSTER };
 
-/* Build the path to one of the logs. 0 on failure. */
+/* Build the path to one of the logs: the harness village is "(Save 1)", so its logs are in that slot's own folder (native/shared/log_slot.h). 0 on failure. */
 static int log_path(wchar_t *path, enum log_kind kind) {
     wchar_t folder[MAX_PATH];
     wchar_t exe[MAX_PATH];
@@ -151,11 +151,11 @@ static int log_path(wchar_t *path, enum log_kind kind) {
     { wchar_t *dot = wcsrchr(slash, L'.'); if (dot) { *dot = L'\0'; } }
     if (kind == LOG_HISTORY) {
         _snwprintf(path, MAX_PATH,
-                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 1.txt",
+                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Save 1\\Tribe History\\Village History 1.txt",
                    folder, slash);
     } else {
         _snwprintf(path, MAX_PATH,
-                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Tribe Population\\Village Population 1.txt",
+                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Save 1\\Tribe Population\\Village Population 1.txt",
                    folder, slash);
     }
     path[MAX_PATH - 1] = L'\0';
