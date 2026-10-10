@@ -33,6 +33,7 @@ import vv_family_tree as ft
 import vv_gdiplus
 import vv_genealogy as gen
 import vv_last_names
+import vv_line_colours
 import vv_log_tools
 import vv_number_names
 import vv_save_backup
@@ -1324,6 +1325,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         kind.pack(side="left", padx=(6, 0))
         kind.bind("<<ComboboxSelected>>", lambda _e: self._change(
             line_dash=next(k for k, v in ft.LINE_TYPES.items() if v == self.line_dash_var.get())))
+        # Each family's lines in a colour of their own (the owner, 2026-10-09: "auto-coloring family lines
+        # ... distinct from other line colors and not blend into the background"); lines only, the
+        # children's portraits keep their family's colour.  Right-click a line to change one by hand.
+        row = ttk.Frame(tab)
+        row.pack(fill="x", pady=(4, 0))
+        ttk.Button(row, text="Auto-colour family lines", command=self._auto_line_colours).pack(side="left")
+        ttk.Button(row, text="Reset to family colours", command=self._reset_line_colours).pack(side="left",
+                                                                                              padx=(6, 0))
         tab = l_deleted
         box = ttk.LabelFrame(tab, text="Deleted items", padding=6)
         box.pack(fill="x", pady=(12, 0))
@@ -1843,6 +1852,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             fam = next((f for f in self.lay.families if ft.family_key(self.village, f) == target[1]), None)
             names = " and ".join(self.village.people[q].name for q in (fam.father, fam.mother) if q is not None) \
                 if fam is not None else "this family"
+            own = e.family_lines.get(target[1], {}).get("colour")
+            if own:     # lines of a colour of their own (Auto-colour family lines); Reset colour: the family's
+                return (f"the lines of {names}", own,
+                        lambda c: self._line_colour(target[1], c))
             return (f"the lines and children of {names}", fam.colour if fam is not None else "",
                     lambda c: self._set_colour(e.family_colours, target[1], c))
         if kind == "mark" and target[1] in e.marks:
@@ -3326,6 +3339,51 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self.edits.family_lines.pop(key, None)
         if json.dumps(self.edits.family_lines, sort_keys=True) != before:
             self._saved()
+
+    def _line_colour(self, key: str, colour: str) -> None:
+        """One family's lines in their own colour ("": the family's colour again)."""
+        style = {k: v for k, v in self.edits.family_lines.get(key, {}).items() if k != "colour"}
+        if colour:
+            style["colour"] = colour
+        if style:
+            self.edits.family_lines[key] = style
+        else:
+            self.edits.family_lines.pop(key, None)
+        self._saved()
+
+    def _auto_line_colours(self) -> None:
+        """Auto-colour family lines: every family's lines a colour clearly different from every other
+        family's -- the most different where lines cross or run close -- that stands out at least 3:1
+        against the background under them (vv_line_colours).  One step to undo."""
+        self.status.set("Choosing the family lines' colours...")
+        self.configure(cursor="watch")
+        self.update_idletasks()
+        try:
+            pages = [self._page_scene(k) for k in range(max(1, self.lay.pages))]
+            result = vv_line_colours.auto_colours(pages)
+        finally:
+            self.configure(cursor="")
+        if not result.colours:
+            self.status.set("There are no family lines to colour.")
+            return
+        before = json.dumps(self.edits.family_lines, sort_keys=True)
+        vv_line_colours.apply(self.edits, result.colours)
+        if json.dumps(self.edits.family_lines, sort_keys=True) != before:
+            self._saved()
+        words = (f"{len(result.colours)} families' lines coloured: each at least "
+                 f"{min(result.contrast.values()):.1f}:1 against the background.")
+        if result.short:
+            words += (f"  {len(result.short)} are too see-through (Opacity > Family lines) to reach 3:1 and are "
+                      "as strong as they can be.")
+        self.status.set(words + "  Ctrl+Z undoes it.")
+
+    def _reset_line_colours(self) -> None:
+        """Every family's lines back in their family's colour.  One step to undo."""
+        if vv_line_colours.reset(self.edits):
+            self._saved()
+            self.status.set("The family lines are in their families' colours again.")
+        else:
+            self.status.set("The family lines are already in their families' colours.")
 
     def _set_opacity(self, part: str, percent: int) -> None:
         if self.edits.opacity.get(part, ft.OPACITY[part][1]) != percent:
