@@ -93,7 +93,9 @@ FOUNDATION_OUTPUT = (
 # cross-check's A New Home "Birth records to write afterwards" count;
 # native/shared/startup_companions.h: VVFP Storytelling.dll appended; the quit check's
 # missing last names question).
-SOURCE_SHA256 = "A1007EDA8AD385B5868A7B0776F4E01874014D794019DB54B1D8618D7F22FA54"
+# Recertified for v1.35.67 (native/shared/paid_purchases.h: the Story / Cheat
+# Upgrades queue kept beside the paid Barrel).
+SOURCE_SHA256 = "A9CF8A94CF72A5E4D32E5F68046432F2E965610555199E3C34C74AFFEE02E2FE"
 SOURCE_SIZE = 1974272
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

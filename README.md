@@ -22,7 +22,12 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
-## What's new in v1.35.66
+## What's new in v1.35.67
+
+- **Story / Cheat Upgrades purchases survive a quit (all five games).** A Pick Island Event, Custom Island Event (with its question), The Lost Children's Pick Gong of Wonder Outcome, or the years still to go of a Choose Time Skip Amount, bought and not delivered yet, is now kept in the save folder's Paid Purchases folder and delivered once the village is played again -- the island event the save made due brings it, never a random one instead, and nothing is charged twice. **Limits:** a crash (or anything that keeps the game from saving) loses whatever was bought since the last save, as it loses the rest of that play; and a two-choice question already on screen when you quit is not kept. **Patch every game again** after updating: the Story / Cheat Upgrades, Origins and Save Reset companions changed.
+
+
+## What was new in v1.35.66
 
 - **Births are numbered** ("Birth <n>"), as Conceptions are, in all five games, and a Birth number is never used twice. Repair Saves & Logs can number the Birth records an older patcher wrote as just "Birth".
 - **Babies lost before birth.** When a mother dies or disappears while nursing, her Death or Disappeared record says "Nursing: yes, N babies (never born: lost with their mother)", and the Births and Conceptions log closes her Conception with a **Lost before birth** record (mother, expected father, babies). The babies get no Death record or grave. Repair Saves & Logs adds these records for older cases, and the Family Tree Maker notes them.
@@ -49,7 +54,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **A bought Barrel of Babies survives a quit.** A Barrel of Babies bought from the Origins Tech menu that has not arrived yet when you quit is kept in the save folder's Paid Purchases file and arrives after the next load, in A New Home, The Lost Children, The Secret City and The Tree of Life (New Believers already kept it).
 - **Patch every game again** after updating: the logging companions changed.
 
-**Known issue:** a Pick Island Event, Custom Island Event or Gong of Wonder outcome that is still waiting to happen, or the remaining years of a Choose Time Skip Amount, is lost if you quit before it happens -- the tech points stay spent. Wait for it to happen before quitting. A fix is being built for the next version.
+**Known issue (fixed in v1.35.67):** a Pick Island Event, Custom Island Event or Gong of Wonder outcome that was still waiting to happen, or the remaining years of a Choose Time Skip Amount, was lost at a quit with its tech points spent.
 
 **Not yet seen in a running game** (checked by the test suite's emulation and harnesses, and on copies of the owner's saves and logs, but not yet played live): the numbered Birth records; the Lost before birth records and Nursing lines; the "Nursing" wording; the Island Events log's new lines; A New Home's expected father in the logs, Family Tree Maker and Matchmaker, and its Custom Island Event change; the first-load cross-check's Birth records written afterwards and the removal of backfilled Arrived records of villagers born here; New Believers' Faction line and "Left the tribe: became a Heathen"; The Tree of Life's "Disappears" record and the founders' Arrived records; the Village Statistics changes; each villager's own last-name rule; Choose Time Skip Amount in all five games; the contradiction questions; the missing last names question at the quit; Dropping an Adult on a Child Tells a Story in A New Home and The Lost Children; A New Home's Easier Healing Mastery and its Healers Study catch-up; the default fathers and A New Home's "Unknown" father; the catch-up "Left the tribe" record and its Repair backfill; the Time Skip popup; Fix grave information; and the Custom Island Event's Health, parents and Edit (seen live only in A New Home and The Tree of Life). The Family Tree Maker's "continued on page N" lines have been checked by tests, not yet on the owner's own trees.
 
