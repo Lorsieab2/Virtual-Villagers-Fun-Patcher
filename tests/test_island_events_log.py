@@ -6,9 +6,9 @@ games' field tables (see its header): a renamed villager stays one villager
 (The Secret City's Return of Biggles names its subject "?"), removals and
 arrivals are still told apart, and an event that starts a pregnancy logs the
 expected father's name, head and body and the babies, not only the Pregnant
-flag (Codex, #577) -- except in The Lost Children, which logs only Pregnant:
-the owner's own VV2 log disproved its father offsets on the mother, and its
-babies offset has never been confirmed by a real log.
+flag (Codex, #577), in every game that keeps the father on the mother (all but
+A New Home, which logs the babies) -- printed whole even when the last
+pregnancy left the same father or babies on her.
 """
 from __future__ import annotations
 
@@ -25,7 +25,9 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-CHECKS = 5 * 7 + 4   # seven checks in each of the five games; the look-alikes in the four that have them
+CHECKS = 5 * 11 + 4 + 1 + 3 * 4  # eleven checks in each of the five games; the look-alikes in the four
+                                 # that have them; A New Home's conception with no father recorded;
+                                 # the two-choice answer in the three later games
 
 
 def body(source: str, head: str) -> str:
@@ -74,7 +76,11 @@ class IslandEventsSource(unittest.TestCase):
         tables = {name: table(source, f"static const struct field {name}[] = {{")
                   for name in ("VV1_FIELDS", "VV2_FIELDS", "VV3_FIELDS", "VV4_FIELDS", "VV5_FIELDS")}
         # The parentage exporter's offsets: father, father_head_copy, father_body_copy, litter.
+        # The Lost Children's: the conception 0x44B980 writes the father's name to +0x5C0, his head
+        # to +0x5E0 and body to +0x5DC, and 2 / 3 to +0x544 (0 one baby) -- confirmed in the owner's
+        # own saves and Births and Conceptions log (island_event_games.inc).
         expected = {
+            "VV2_FIELDS": (0x5C0, 0x5E0, 0x5DC, 0x544),
             "VV3_FIELDS": (0xE48, 0xE68, 0xE64, 0xE90),
             "VV4_FIELDS": (0x1C10, 0x1C30, 0x1C2C, 0x1C50),
             "VV5_FIELDS": (0x1C10, 0x1C30, 0x1C2C, 0x1C50),
@@ -82,22 +88,50 @@ class IslandEventsSource(unittest.TestCase):
         for name, (father, head, body_, litter) in expected.items():
             with self.subTest(table=name):
                 text = tables[name]
-                self.assertIn(f'{{ "Expected father", 0x{father:X}, F_TEXT, 0x18 }}', text)
-                self.assertIn(f'{{ "Expected father\'s head", 0x{head:X}, F_INT, 0 }}', text)
-                self.assertIn(f'{{ "Expected father\'s body", 0x{body_:X}, F_INT, 0 }}', text)
-                self.assertIn(f'{{ "Babies in pregnancy", 0x{litter:X}, F_INT, 0 }}', text)
-        self.assertIn('{ "Babies in pregnancy", 0x35C, F_INT, 0 }', tables["VV1_FIELDS"])
+                self.assertIn(f'{{ "Expected father", 0x{father:X}, F_TEXT, 0x18, 1 }}', text)
+                self.assertIn(f'{{ "Expected father\'s head", 0x{head:X}, F_INT, 0, 1 }}', text)
+                self.assertIn(f'{{ "Expected father\'s body", 0x{body_:X}, F_INT, 0, 1 }}', text)
+                if name == "VV2_FIELDS":
+                    # 0 for one baby, as A New Home: printed 1 while she is pregnant (+0x540).
+                    self.assertIn('{ "Babies in pregnancy", 0x544, F_BABIES, 0x540, 1 }', text)
+                    self.assertIn('{ "Pregnant", 0x540, F_FLAG, 0 }', text)
+                else:
+                    self.assertIn(f'{{ "Babies in pregnancy", 0x{litter:X}, F_INT, 0, 1 }}', text)
+        self.assertIn('{ "Babies in pregnancy", 0x35C, F_BABIES, 0x358, 1 }', tables["VV1_FIELDS"])
+        self.assertIn('{ "Pregnant", 0x358, F_FLAG, 0 }', tables["VV1_FIELDS"])
         self.assertNotIn("Expected father", tables["VV1_FIELDS"])
-        # The Lost Children: the owner's own VV2 log disproved the father copies on the mother
-        # (0x5C0 / 0x5E0 / 0x5DC) and no real log has confirmed the babies (0x544): only Pregnant.
-        self.assertIn('{ "Pregnant", 0x540, F_FLAG, 0 }', tables["VV2_FIELDS"])
-        for absent in ('"Expected father', '"Babies in pregnancy"', "0x5C0, F", "0x5E0, F", "0x5DC, F", "0x544, F"):
-            self.assertNotIn(absent, tables["VV2_FIELDS"])
+        # The same four facts in every game but A New Home (which keeps no father on the mother).
+        for name in ("VV2_FIELDS", "VV3_FIELDS", "VV4_FIELDS", "VV5_FIELDS"):
+            labels = re.findall(r'\{ "([^"]+)", 0x[0-9A-F]+, F_\w+, \w+, 1 \}', tables[name])
+            self.assertEqual(labels, ["Babies in pregnancy", "Expected father", "Expected father's head",
+                                      "Expected father's body"], name)
 
     def test_the_offsets_are_the_parentage_exporters(self):
         exporter = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        self.assertIn("FATHER_BY_NAME, 0x5C0, 0, 0x544,\n        0x5E0, 0x5DC,", exporter)
         self.assertIn("FATHER_BY_NAME, 0xE48, 0x18, 0xE90,\n        0xE68, 0xE64,", exporter)
         self.assertEqual(exporter.count("FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,\n        0x1C30, 0x1C2C,"), 2)
+
+    def test_a_conception_prints_its_fields_whole(self):
+        source = (NATIVE / "vvfp_island_events.c").read_text(encoding="utf-8")
+        compare = body(source, "static void compare(struct snapshot *s)")
+        self.assertIn('if (f->type == F_FLAG && strcmp(f->label, "Pregnant") == 0) {', compare)
+        self.assertIn("if (conceived && f->conception) {", compare)
+        text = body(source, "static void field_text(")
+        self.assertIn("value = value == 3 ? 3 : value != 0 ? 2 : 1;", text)
+
+    def test_a_new_home_takes_the_expected_father_from_the_show_parents_record(self):
+        games = (NATIVE / "island_event_games.inc").read_text(encoding="utf-8")
+        self.assertIn("FIELDS(VV1_FIELDS),\n                                              vv1_expected_father };", games)
+        self.assertIn('GetProcAddress(module, "Vv1ParentageQueryExpectedFather")', games)
+        # The Show Parents companion's one expected-father export, (index, out[2], name, capacity).
+        self.assertIn("typedef int (__stdcall *vv1_query_expected_fn)(int index, int *out, char *name, int capacity);",
+                      games)
+        parentage = ROOT / "native" / "vv1_parentage"
+        self.assertIn("Vv1ParentageQueryExpectedFather=_Vv1ParentageQueryExpectedFather@16",
+                      (parentage / "vv1_parentage.def").read_text(encoding="utf-8"))
+        source = (parentage / "vv1_parentage.c").read_text(encoding="utf-8")
+        self.assertIn("int __stdcall Vv1ParentageQueryExpectedFather(int index, int *out, char *name,", source)
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
