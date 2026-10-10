@@ -144,6 +144,10 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
     # The backfilled records plan_born_arrived offers (a duplicate of a real Arrived record of the same
     # name, head and body, when who is alive can be read): asked about there, never twice.
     offered_elsewhere = {(r.path, r.start) for r in additions.plan_born_arrived(folder, game, slot).removes}
+    # ...and one it already asked about, answered "remove" with "Retroactively edit records?" No: the
+    # player's answer is remembered (src/vv_log_decisions.py) and is never asked again here either.
+    import vv_log_decisions
+    settled = vv_log_decisions.decided(folder, game, slot, "born_arrived", "remove", villages)
     by_key: dict[tuple, list] = {}
     for b, kind, key in records:
         by_key.setdefault(now(key), []).append((b, kind))
@@ -170,6 +174,10 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
                 continue        # ...and so it does a backfill of a real Arrived record it offers itself
             kept = [o for o in others if o is not b]
             what = ", ".join(f"{o.heading} ({o.path.name})" for o in kept)
+            if b.identity in settled:
+                out.append(Found("note", f"{key[0]} (head {key[1]}, body {key[2]}) has both {what} and a backfilled "
+                                         f"{b.heading} in {b.path.name} -- left in the past records, as you chose"))
+                continue
             ident = f"born_and_arrived|{b.heading}|{key[0]}|{key[1]}|{key[2]}"
             key_q = f"contradiction|{ident}"
             question = additions.Question(

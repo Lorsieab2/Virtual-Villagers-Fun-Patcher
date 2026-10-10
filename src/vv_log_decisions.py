@@ -80,7 +80,9 @@ def record(folder: Path, game: int, slot: int, entries: list[dict], now: datetim
     when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
 
     def same(a: dict, b: dict) -> bool:
-        return all(a.get(k) == b.get(k) for k in ("kind", "village", "name", "head", "body"))
+        # "field": a grave decision is about one field of the grave (src/vv_graves.py); the other kinds
+        # have none, so they still replace one decision per villager.
+        return all(a.get(k) == b.get(k) for k in ("kind", "village", "name", "head", "body", "field"))
 
     for entry in entries:
         entry = {**entry, "date": when}
