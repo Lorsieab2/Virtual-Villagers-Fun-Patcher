@@ -173,9 +173,11 @@ was given.
   pregnant in live memory; the pregnancies were already under way before the
   hook existed.
 - **Exceptions:** Missing data for a conception that happened *after* the patch
-  was installed is not explained by this entry. The note's own VV3 example
-  (63 "(not captured for this birth)" father fields) is attributed to a real
-  defect in #428 and #436; see "Conflicts" at the end.
+  was installed is not explained by this entry. In particular a Conception
+  record is only ever written by the hook, so "(not captured for this birth)"
+  in one is never an old-tribe effect: it is the VV2/VV3 hook defect of #428
+  and #436 (fixed in v1.35.25 and v1.35.27), or, in a log written after those,
+  a new defect. See "Resolved conflicts", item 1.
 - **Status:** non-bug.
 
 ### L9. A new log file that holds only the village header
@@ -350,18 +352,47 @@ was given.
 - **Game(s) / subsystem:** All five games. Parentage.
 - **Conditions:** Children spawned by an island event or a Barrel of Babies did
   not come from a mother's delivery and have no parents. Some events start a
-  pregnancy with no father: VV2's Gong of Wonder writes the game's own `"?"`
-  placeholder with head 0 and body 0.
-- **Decision source:** Owner decision (project memory note
-  "fallback-father-for-fatherless-births"); #436 rule 8 (2026-09-26);
+  pregnancy with the GAME's own default father, which every log, the Family
+  Tree and the Matchmaker show exactly as the game wrote it:
+  - VV2 (The Lost Children): the Gong of Wonder's `"?"`, head 0, body 0.
+  - VV4 (The Tree of Life) and VV5 (New Believers): an island event's babies
+    (the owner: the abandoned-infants event) have `"Joey"`, head 2, body 2 --
+    `"Joey Joerson"` once Villagers Have Last Names has given him one.
+  - VV1 and VV3 have no default father.
+  A genuine birth whose game wrote no father at all gets the patcher's
+  fallback father `"Unknown"`, head 0, body 0. Only A New Home can produce one:
+  it keeps no father anywhere, so a delivery whose conception the hook did not
+  capture (for example one already under way when the patch was installed)
+  gets it -- and only while Write Births and Conceptions Log is on, because
+  with it off the manifest promises "only the mother is recorded".
+  In a Conception record a default father's age, sex, likes and dislikes read
+  "(none: game's default father)": no villager stands behind him, and nothing
+  failed to capture them. No default father is ever a villager: the tree draws
+  him as the father, but neither the tree's relationships nor the Matchmaker
+  counts him as kin, so two of the Gong's children by different mothers are
+  not half siblings, and a living villager who happens to be called Joey is
+  never looked up in his place.
+- **Decision source:** Owner decisions 2026-09-21 (fallback father "Unknown"
+  0/0 for a genuine birth; no parents for a spawn) and 2026-10-10 ("Joey" is a
+  default father the games generate; the game's own value wins); #436 rule 8
+  (2026-09-26, "never invent a father": a default father is the game's own, and
+  "Unknown" is a stated placeholder, never a made-up villager);
   `docs/game-data-conventions.md` ("A villager can be born without a father on
   purpose").
-- **Evidence:** VV2's Gong passes the `"?"` string at `0x476290`, which is not
-  inside any villager record (static analysis, `docs/game-data-conventions.md`).
-- **Exceptions:** VV1 has no event that forces nursing, so a fatherless VV1
-  birth would be unexpected. How a fatherless birth is labelled is not settled
-  in one place; see "Conflicts" at the end.
-- **Status:** non-bug.
+- **Evidence:** Static analysis of the stock executables: VV2 pushes `"?"`
+  (`0x476290`) with head 0 and body 0 at `0x44EB1D`..`0x44EB3E`; VV4 pushes
+  `"Joey"` (`0x4AB360`) with 2 and 2 at `0x467C00`..`0x467C15`, VV5 `"Joey"`
+  (`0x4B8E1C`) at `0x471B58`..`0x471B6D`, each from a single island-event
+  action. No game passes `"Unknown"` as a father (its one reference in each
+  executable is a data table). The owner's logs: 10 Birth records with
+  `Father: ?` 0/0 (VV2) and 6 Conceptions with `Father: Joey` 2/2 (VV4,
+  2026-10-05). Tests: `tests/test_default_fathers.py`, the parentage export
+  harness and the VV1 parentage harness.
+- **Exceptions:** A fatherless VV1 birth while the conception capture is on
+  points at a conception the hook did not see; it is labelled, not hidden.
+  "(not captured for this birth)" for a father who is neither a default nor
+  "Unknown" is a defect (see L8).
+- **Status:** approved behaviour.
 
 ### P6. A New Home does not store parents
 
@@ -782,23 +813,65 @@ was given.
 
 ---
 
-## Conflicts between sources
+## Resolved conflicts between sources
 
-These were found while writing the register. They are listed, not resolved.
+These were found while writing the register and resolved on 2026-10-10 (the
+owner: "Fix all those issues!!!"), each against the current code on
+`release/v1.35.66` and the owner's own logs.
 
-1. **Old-tribe explanation versus #428 and #436.** The memory note
-   "preexisting-tribes-predate-the-patches" explains VV3's 63 "(not captured for
-   this birth)" father fields as an old tribe that predates the hook (L8).
-   #428 (closed) and #436 attribute "(not captured for this birth)" in VV2 and
-   VV3 to a real defect: their conception hooks passed no father pointer and
-   fell back to a by-name scan.
-2. **Father's age at conception.** #345 (closed, 2026-09) says the father's age
-   is deliberately not recorded, by the owner's instruction to record only the
-   mother's age, and that no game copies it. The memory note
-   "only-the-mothers-age-matters-at-conception" says the owner later reversed
-   that and wants the father's age captured from his own record at conception.
-3. **How a fatherless birth is labelled.** The memory note
-   "fallback-father-for-fatherless-births" gives a fatherless birth a fallback
-   father named "Unknown" with head 0 and body 0. #436 rule 8 (open) says
-   "never invent a father", and `docs/game-data-conventions.md` says VV2's Gong
-   uses the game's own `"?"` and the log must not invent one.
+1. **"(not captured for this birth)" fathers: old tribes versus a hook
+   defect.** Both statements are true, of different records.
+   - A Conception record is written only by the conception hook, at the moment
+     of conception, so its fields cannot be explained by a tribe that predates
+     the hook. "(not captured for this birth)" on a VV2 or VV3 father was the
+     defect of #428 and #436: their hooks passed no father record and fell back
+     to a by-name scan. Fixed for VV2's records base in v1.35.23 (#427), for
+     every VV2 and VV3 caller in v1.35.25 (#437), and for VV3's second caller
+     in v1.35.27 (#439, 2026-09-25).
+   - The old-tribe explanation (L8) is right for what it actually covers: a
+     village whose pregnancies were already under way, or over, before the hook
+     existed has no Conception records for them at all -- an empty or short log,
+     or a Birth with no Conception.
+   - Evidence: every VV3 Births and Conceptions log among the owner's log copies
+     (25 files, written 2026-10-02 to 2026-10-08, all after v1.35.27) holds 447
+     conceptions, every one with the father's age at conception, sex, likes and
+     dislikes, and none "(not captured)". The log with the 63 "(not captured)"
+     fields the memory note cites is no longer in the owner's VV3 save folder,
+     so its records cannot be dated individually; its wording matches only the
+     pre-v1.35.27 hooks. Across the same copies for all five games (17,923
+     conceptions) the only "(not captured)" fathers left were six VV4 "Joey"
+     conceptions -- the game's own default father (item 3), which now reads
+     "(none: game's default father)". No post-fix birth lacks its father, so
+     there is no live defect.
+2. **The father's age at conception.** The owner reversed the mother-only
+   instruction #345 cites ("capture the father's ages too upon conception",
+   2026-09-21). It is implemented in all five games and has shipped since
+   v1.35.16 (#400): `WriteParentageRecordWithFather`
+   (`native/parentage_export/parentage_export.c`) prints "Age at conception"
+   for the father from his OWN record, the pointer each game's conception hook
+   captures at that moment (VV1 from the caller's frame by return address; VV2
+   the name argument minus `0x564`; VV3 the caller's saved ESI or EDI; VV4 and
+   VV5 the name argument minus `0x1B9C`), and never from a by-name scan.
+   #345's "no game copies it" is still true -- no game copies it onto the
+   mother -- which is why it is read from his record at conception instead.
+   Evidence: the owner's logs give a numeric father's age on 16,686 VV1, 742
+   VV2, 447 VV3, 63 VV4 and 92 VV5 conceptions; the parentage export harness
+   checks it in all five games.
+3. **How a fatherless birth is labelled.** The owner's two rulings and #436
+   rule 8 agree once each is read for the case it covers (P5):
+   - Where the game writes its own default father, that is what is shown:
+     VV2's Gong `"?"` 0/0; VV4's and VV5's island-event `"Joey"` 2/2 (`"Joey
+     Joerson"` with last names). These are the game's values, not invented
+     ones, so rule 8 is kept.
+   - Where the game provides nothing -- only A New Home, which stores no father
+     -- a genuine birth gets the stated placeholder `"Unknown"` 0/0. The memory
+     note's "VV2 and VV3 use exactly this" was wrong: no game writes
+     "Unknown"; VV2 writes `"?"` and VV3 has no fatherless conception.
+   - A spawned child (island event, Barrel of Babies) has no parents at all.
+   - None of them is ever a made-up villager: the Family Tree and the
+     Matchmaker show the default father as written but never count him as kin.
+   Changed for this: A New Home's companion now gives an uncaptured delivery
+   the "Unknown" 0/0 father (it had left the father blank, contrary to its own
+   comment); the export no longer scans for a villager named after a default
+   father and prints "(none: game's default father)" for his age, sex, likes
+   and dislikes; `vv_genealogy` marks default fathers as placeholders.

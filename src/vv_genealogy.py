@@ -62,6 +62,20 @@ class GenealogyError(Exception):
 
 
 Key = tuple  # (name, head, body)
+
+# The fathers that stand in when there is no man to name -- each shown as the logs write it, in
+# every game that has the mechanism, and never a villager:
+#   the games' OWN defaults, string literals in the executables, written onto the mother at
+#   conception by an event: The Lost Children's Gong of Wonder "?" (head 0, body 0); The Tree of
+#   Life's and New Believers' island-event babies "Joey" (2, 2), "Joey Joerson" with last names;
+#   and the patcher's fallback for a birth whose game wrote no father at all (A New Home, whose
+#   game keeps none): "Unknown" (0, 0) (the owner, 2026-09-21).
+GAME_DEFAULT_FATHERS: dict[int, frozenset] = {
+    2: frozenset({("?", 0, 0)}),
+    4: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
+    5: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
+}
+FALLBACK_FATHER: Key = ("Unknown", 0, 0)
 RUNNING = 38   # the like id of "running" in all five games' preference lists (grant_running.RUNNING)
 
 
@@ -90,6 +104,7 @@ class Person:
     generation: int = 1
     number: int | None = None           # its place in the whole tree, oldest first (number_people)
     old_looks: list[tuple[int, int]] = field(default_factory=list)   # (head, body) before Change Appearance
+    placeholder: bool = False           # a default father, not a villager (is_placeholder_father)
 
     @property
     def key(self) -> Key:
@@ -444,6 +459,8 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     for old, now in village.relooked.items():
         if now in reg.by_key:
             reg.people[reg.by_key[now]].old_looks.append((old[1], old[2]))
+    for p in reg.people.values():
+        p.placeholder = is_placeholder_father(game, p)
     _generations(village, reg.snapshots)
     number_people(village)
     if additions.current_villages(folder, game, slot) is None:
@@ -756,10 +773,26 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
 # Relatedness
 # ---------------------------------------------------------------------------
 
+def is_placeholder_father(game: int, p: Person) -> bool:
+    """A default father (GAME_DEFAULT_FATHERS, FALLBACK_FATHER) rather than a villager: one of those
+    names and looks, and nothing that only a real villager has -- alive in the save, parents of his
+    own, an Arrived, Death or Disappeared record."""
+    if p.key not in GAME_DEFAULT_FATHERS.get(game, frozenset()) and p.key != FALLBACK_FATHER:
+        return False
+    return not (p.alive or p.gone or p.arrived or p.father is not None or p.mother is not None)
+
+
+def real_parents(people: dict[int, Person], p: Person) -> list[int]:
+    """The parents a villager shares blood with: a default father stands for "no man named", so two
+    children of the Gong's "?" or of "Unknown" are not brothers through him."""
+    return [q for q in (p.father, p.mother) if q is not None and not people[q].placeholder]
+
+
 class Kinship:
     """Coefficients of kinship over the recorded family (Wright): two villagers' chance of
     sharing a gene by descent.  Twice it is how related they are: 1/2 a parent, child or full
-    sibling, 1/4 a half sibling, grandparent, aunt or uncle, 1/8 a first cousin."""
+    sibling, 1/4 a half sibling, grandparent, aunt or uncle, 1/8 a first cousin.  A default father
+    (is_placeholder_father) is nobody's kin."""
 
     def __init__(self, village: Village) -> None:
         self.people = village.people
@@ -774,7 +807,8 @@ class Kinship:
     def phi(self, a: int, b: int) -> Fraction:
         if a == b:
             p = self.people[a]
-            inbred = self.phi(p.father, p.mother) if p.father and p.mother else Fraction(0)
+            parents = real_parents(self.people, p)
+            inbred = self.phi(*parents) if len(parents) == 2 else Fraction(0)
             return (1 + inbred) / 2
         if self._order(a) < self._order(b):
             a, b = b, a
@@ -782,9 +816,8 @@ class Kinship:
         if key not in self.memo:
             p = self.people[a]
             total = Fraction(0)
-            for parent in (p.father, p.mother):
-                if parent is not None:
-                    total += self.phi(parent, b)
+            for parent in real_parents(self.people, p):
+                total += self.phi(parent, b)
             self.memo[key] = total / 2
         return self.memo[key]
 
@@ -800,8 +833,8 @@ def ancestors(village: Village, pid: int) -> dict[int, int]:
         nxt = []
         for q, depth in frontier:
             p = village.people[q]
-            for parent in (p.father, p.mother):
-                if parent is not None and (parent not in out or out[parent] > depth + 1):
+            for parent in real_parents(village.people, p):
+                if parent not in out or out[parent] > depth + 1:
                     out[parent] = depth + 1
                     nxt.append((parent, depth + 1))
         frontier = nxt
@@ -820,9 +853,10 @@ def relationship(village: Village, a: int, b: int) -> str:
         older, younger, depth = (b, a, up_a[b]) if b in up_a else (a, b, up_b[a])
         names = {1: "parent and child", 2: "grandparent and grandchild"}
         return names.get(depth, f"{'great-' * (depth - 2)}grandparent and grandchild")
-    shared_parents = {pa.father, pa.mother} & {pb.father, pb.mother} - {None}
+    real_a, real_b = set(real_parents(village.people, pa)), set(real_parents(village.people, pb))
+    shared_parents = real_a & real_b
     if shared_parents:
-        both = pa.father and pa.mother and {pa.father, pa.mother} == {pb.father, pb.mother}
+        both = len(real_a) == 2 and real_a == real_b
         if both and pa.litter is not None and pa.litter == pb.litter:
             return "twins" if sum(1 for p in village.people.values() if p.litter == pa.litter) == 2 \
                 else "triplets"
@@ -1057,8 +1091,8 @@ def _partner_families(village: Village) -> dict[int, set[tuple[str, int]]]:
     way, with."""
     out: dict[int, set[tuple[str, int]]] = {}
     for child in village.people.values():
-        if child.father is None or child.mother is None:
-            continue
+        if child.father is None or child.mother is None or village.people[child.father].placeholder:
+            continue            # a default father ("?", "Joey", "Unknown") is no family
         for one, other in ((child.father, child.mother), (child.mother, child.father)):
             name = _last_name(village.people[other].name).casefold()
             if name:

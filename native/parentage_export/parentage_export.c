@@ -3055,6 +3055,36 @@ static struct {
     int head, body;
 } g_father_set;
 
+/* The father's age, sex, likes and dislikes when the game's own default
+   father stands in for one (is_game_default_father): there is no villager to
+   read them from. */
+#define DEFAULT_FATHER_NONE "(none: game's default father)"
+
+/* 1 when `name`, the father name the game wrote onto the mother at
+   conception, is the game's OWN default father rather than a villager's:
+   the literal the conception caller passes from the executable's .rdata,
+   never a pointer into a record (verified in the stock executables):
+     The Lost Children  "?"     0x476290, the Gong of Wonder (caller 0x44EB3E,
+                                head 0 and body 0 pushed beside it);
+     The Tree of Life   "Joey"  0x4AB360, sub_467B00's island-event babies
+                                (0x467C04, head 2 and body 2);
+     New Believers      "Joey"  0x4B8E1C, the same event (0x471B5C, 2 and 2).
+   A New Home writes no father at all and The Secret City's two conception
+   callers always pass a villager.  "Joey Joerson" is how Joey reads once
+   Villagers Have Last Names has given him one (the owner, 2026-10-10). */
+static int is_game_default_father(int game_id, const char *name) {
+    if (name == NULL) {
+        return 0;
+    }
+    if (game_id == GAME_VV2) {
+        return strcmp(name, "?") == 0;
+    }
+    if (game_id == GAME_VV4 || game_id == GAME_VV5) {
+        return strcmp(name, "Joey") == 0 || strcmp(name, "Joey Joerson") == 0;
+    }
+    return 0;
+}
+
 __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     int game_id,
     const void *records_pointer,
@@ -3068,6 +3098,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         (const unsigned char *)father_pointer;
     const unsigned char *father_from_caller = NULL;
     int babies;
+    int default_father = 0;           /* the game's own "?" / "Joey" (is_game_default_father) */
     const unsigned char *father;
     /* The rendered record, written now or held until the village is known. */
     char text[RECORD_TEXT_MAX];
@@ -3200,7 +3231,13 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         copy_name_field(mother + g->father, father_name, sizeof(father_name),
                         father_key_width(g));
         father = father_from_caller;
-        if (father == NULL) {
+        /* The game's OWN default father -- The Lost Children's Gong of Wonder
+           "?" 0/0, The Tree of Life's and New Believers' "Joey" 2/2 -- is a
+           string in the executable, not a villager, so no record is captured
+           and none may be looked for: a living villager who happens to be
+           called Joey is not the father of an event's babies. */
+        default_father = father == NULL && is_game_default_father(game_id, father_name);
+        if (father == NULL && !default_father) {
             father = find_record_by_name(g, records, father_name);
         }
     } else {
@@ -3285,6 +3322,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_age[sizeof(father_age) - 1] = '\0';
     } else if (g->father_kind == FATHER_NOT_RECORDED) {
         memcpy(father_age, "not recorded by this game", 26);
+    } else if (default_father) {
+        /* No villager stands behind the game's default father, so he has no
+           age, sex, likes or dislikes -- and nothing failed to capture them. */
+        memcpy(father_age, DEFAULT_FATHER_NONE, sizeof DEFAULT_FATHER_NONE);
     } else {
         memcpy(father_age, "(not captured for this birth)", 30);
     }

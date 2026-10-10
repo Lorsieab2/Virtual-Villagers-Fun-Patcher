@@ -21,7 +21,7 @@
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "5dc66c42280f97b2efd70479d5a5190871fac46a8332ef526e1201472c4d05d4",
+          "sha256": "6a4845e027f35643cd602547a972524671494faa2fc984624a9f38d3fda02424",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         },
         {
