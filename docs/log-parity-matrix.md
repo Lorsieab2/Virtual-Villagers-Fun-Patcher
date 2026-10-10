@@ -130,6 +130,14 @@ holds it; VV3-VV5 keep it on the record and in the Roster of the Dead.
    parentage repair and the patcher's own repairs already continued after the older folder. Test:
    native/statistics_export/reconcile_harness.c case 7b.
 
+### Per game (the owner's rule: a bug found in one game is checked and fixed in all five)
+
+| Fix | VV1 | VV2 | VV3 | VV4 | VV5 |
+|---|---|---|---|---|---|
+| 1. Parents on Unaccounted / Arrived records | affected, fixed (arrival_harness parents_cases) | not affected (record), test added | not affected, test added | not affected, test added | not affected, test added |
+| 2. Deaths numbering beside "Deaths" | affected, fixed (death_log_harness 9b runs in VV3's geometry; the code is shared) | affected, fixed | affected, fixed | affected, fixed | affected, fixed |
+| 3. Repairs numbering beside "Repairs" | affected (statistics and mask repairs), fixed (reconcile_harness 7b) | affected, fixed (7b) | affected, fixed (7b) | affected, fixed (7b) | affected, fixed (7b) |
+
 ## Left for the owner
 
 - **Data file names differ between games**: "Virtual Villagers 1 Village Masks - Save S.dat" (VV1,
