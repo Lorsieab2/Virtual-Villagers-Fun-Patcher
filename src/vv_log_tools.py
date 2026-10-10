@@ -409,6 +409,12 @@ def approve_repair(
     if kinds is None:
         kinds = additions.plan(folder, game, slot)
     added = additions.apply(folder, kinds, chosen, answers or {})
+    # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
+    # readers (src/vv_log_decisions.py).
+    kept = additions.resolve_decisions(kinds, chosen, answers or {})
+    if kept:
+        import vv_log_decisions
+        vv_log_decisions.record(folder, game, slot, kept, now)
     for kind in kinds:
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
