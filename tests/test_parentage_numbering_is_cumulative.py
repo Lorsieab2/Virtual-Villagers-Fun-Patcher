@@ -87,9 +87,11 @@ class ParentageNumberingIsCumulativeTests(unittest.TestCase):
             "at each rollover",
         )
         # Both exits must report the total: the one that finds a file with room
-        # and the one that finds no file at all.
+        # and the one that finds no file at all -- with one folder of logs per
+        # save slot (native/shared/log_slot.h), continued after every other
+        # folder of the game by family_number_floor.
         self.assertEqual(
-            len(re.findall(r"\*existing_records\s*=\s*total\s*;", body)),
+            len(re.findall(r"\*existing_records\s*=\s*family_number_floor\(g, family, slot, total\)\s*;", body)),
             2,
             "both returns must report the running total -- the gap exit as "
             "well as the not-full exit",
