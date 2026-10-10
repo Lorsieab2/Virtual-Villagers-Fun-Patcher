@@ -1,3 +1,0 @@
-LIBRARY "VVFP Work First"
-EXPORTS
-    VvfpWorkFirstInstall=_VvfpWorkFirstInstall@4
