@@ -406,6 +406,19 @@ def is_birth_heading(text: str) -> bool:
     return BIRTH_HEADING.fullmatch(text.strip()) is not None
 
 
+def repeated_birth_numbers(game_dir: Path, game: int) -> dict[int, list[str]]:
+    """Every "Birth <n>" number written more than once in the game's Births and Conceptions files
+    (Log 1..n, every village): number -> "<file> line <k>" for each.  A Birth number is never repeated
+    (the owner, 2026-10-09), so anything here is a fault."""
+    seen: dict[int, list[str]] = {}
+    for path in numbered(game_dir / LOGS / "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log"):
+        for k, line in enumerate(path.read_bytes().decode("latin-1").splitlines(), 1):
+            m = BIRTH_HEADING.fullmatch(line.strip())
+            if m and line.strip() != "Birth":
+                seen.setdefault(int(line.split()[1]), []).append(f"{path.name} line {k}")
+    return {n: where for n, where in seen.items() if len(where) > 1}
+
+
 def numbered(folder: Path, stem: str) -> list[Path]:
     files = []
     if folder.is_dir():
@@ -2109,6 +2122,17 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
     rep.add(f"{LOGS}\\Births and Conceptions", "OK" if files else "NOTE",
             f"{sum(r.kind == 'birth' for r in births)} Birth and {sum(r.kind == 'conception' for r in births)} "
             f"Conception records for this village in {len(files)} file(s)")
+    try:
+        repeated = repeated_birth_numbers(game_dir, game)
+    except OSError as exc:
+        repeated = None
+        rep.add(f"{LOGS}\\Births and Conceptions (Birth numbers)", "UNCHECKED", f"cannot be read ({exc})")
+    if repeated:
+        rep.add(f"{LOGS}\\Births and Conceptions (Birth numbers)", "WRONG",
+                "a Birth number is used more than once: " + "; ".join(
+                    f"Birth {n} in {', '.join(where)}" for n, where in sorted(repeated.items())))
+    elif repeated is not None and files:
+        rep.add(f"{LOGS}\\Births and Conceptions (Birth numbers)", "OK", "no Birth number is used twice")
     if game == 1:
         vv1_parentage(game_dir, slot, roster, births, rep)
     else:

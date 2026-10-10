@@ -116,7 +116,60 @@ class Repair(unittest.TestCase):
 
     def number(self, game=2, slot=1):
         kind = {k.id: k for k in additions.plan(self.folder, game, slot)}["birth_numbers"]
-        return kind, additions.apply(self.folder, [kind], {"birth_numbers"}, {})
+        done = additions.apply(self.folder, [kind], {"birth_numbers"}, {})
+        self.assertEqual(tools.load_checker().repeated_birth_numbers(self.folder, game), {},
+                         "a Birth number is never repeated")
+        return kind, done
+
+    def golden_log(self, before: str, after: str) -> Path:
+        arrived = ("Arrived 1\n  Name: Lulu\n  Special villager: Golden Child\n  Age: 100\n  Sex: Female\n"
+                   "  Head: 5\n  Body: 5\n  Likes: (none)\n  Dislikes: (none)\n\n")
+        return write(self.folder, BIRTHS.format(game=1, n=1),
+                     "Village: Tribe (Save 1)\n" + before + conception(1) + arrived + after)
+
+    def add_golden(self, chosen: set[str]) -> None:
+        kinds = {k.id: k for k in additions.plan(self.folder, 1, 1)}
+        [question] = kinds["golden"].questions.values()
+        additions.apply(self.folder, list(kinds.values()), chosen, {question.key: question.options[0]})
+        self.assertEqual(tools.load_checker().repeated_birth_numbers(self.folder, 1), {})
+
+    def test_a_golden_childs_birth_added_to_a_numbered_log_takes_the_next_unused_number(self):
+        log = self.golden_log(birth("A", "Birth 1"), birth("B", "Birth 2") + birth("C", "Birth 3"))
+        self.add_golden({"golden"})
+        self.assertEqual(headings(log), ["Birth 1", "Birth 4", "Birth 2", "Birth 3"],
+                         "added after Birth 1 but numbered above the highest; nothing renumbered")
+        self.assertIn("Birth 4\r\n  Child: Lulu\r\n", log.read_bytes().decode("latin-1"))
+
+    def test_the_same_when_numbering_is_chosen_with_it(self):
+        log = self.golden_log(birth("A", "Birth 1"), birth("B", "Birth 2"))
+        self.add_golden({"golden", "birth_numbers"})
+        self.assertEqual(headings(log), ["Birth 1", "Birth 3", "Birth 2"])
+
+    def test_a_golden_childs_birth_added_to_an_unnumbered_log_stays_like_its_neighbours(self):
+        log = self.golden_log(birth("A"), birth("B"))
+        self.add_golden({"golden"})
+        self.assertEqual(headings(log), ["Birth", "Birth", "Birth"])
+        self.number(game=1)
+        self.assertEqual(headings(log), ["Birth 1", "Birth 2", "Birth 3"], "numbered in order later")
+
+    def test_a_log_with_gaps_never_gets_a_used_number(self):
+        log = write(self.folder, BIRTHS.format(game=3, n=1),
+                    "Village: Tribe (Save 1)\n" + birth("A", "Birth 1") + birth("B") + birth("C", "Birth 2")
+                    + birth("D", "Birth 7") + birth("E") + birth("F", "Birth 4") + birth("G"))
+        self.number(game=3)
+        # B would be 2 (taken: next unused 8); E follows 7 as 8 -- taken now, so 9; G follows 4 as 5.
+        self.assertEqual(headings(log), ["Birth 1", "Birth 8", "Birth 2", "Birth 7", "Birth 9", "Birth 4",
+                                         "Birth 5"])
+
+    def test_repeated_birth_numbers_are_found_across_the_numbered_files(self):
+        write(self.folder, BIRTHS.format(game=5, n=1), "Village: Tribe (Save 1)\n" + birth("A", "Birth 1")
+              + birth("B", "Birth 2"))
+        write(self.folder, BIRTHS.format(game=5, n=2), "Village: Tribe (Save 1)\n" + birth("C", "Birth 2")
+              + birth("D") + birth("E", "Birth 3"))
+        repeated = tools.load_checker().repeated_birth_numbers(self.folder, 5)
+        self.assertEqual(list(repeated), [2])
+        self.assertEqual(repeated[2], ["Virtual Villagers 5 Births and Conceptions Log 1.txt line 16",
+                                       "Virtual Villagers 5 Births and Conceptions Log 2.txt line 2"])
 
     def test_unnumbered_births_are_numbered_in_order(self):
         log = write(self.folder, BIRTHS.format(game=2, n=1),

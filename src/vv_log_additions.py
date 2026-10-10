@@ -545,6 +545,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     it ended is a Conception with no Birth after it; the player picks which (the logs alone
     cannot tell), and a Birth record is added after the Arrived one, which is kept."""
     kind = Kind("golden", "The Golden Child as a Birth, with its parents")
+    kind.context = {"game": game, "slot": slot}     # its Birth's number (_number_births)
     if game != 1:
         return kind
     checker = tools.load_checker()
@@ -836,18 +837,48 @@ class _Numbered(str):
 
 
 def _number_births(folder: Path, game: int, slot: int, docs: dict[Path, _Doc],
-                   apply: bool = False) -> list[tuple[Path, int, int]]:
+                   apply: bool = False, added_only: bool = False) -> list[tuple[Path, int, int]]:
     """Every unnumbered Birth heading of this slot's village, with the number it gets: (file, line,
     number).  Counted as the exporter counts (every Birth line in the game's files, in order, any
     village); a numbered one sets the count.  With `apply`, the numbers are written into `docs`
-    (their lines replaced, added records' headings numbered)."""
+    (their lines replaced, added records' headings numbered).
+
+    A BIRTH NUMBER IS NEVER REPEATED (the owner, 2026-10-09).  Every number already in the game's
+    files is known first; a number the count would give that is already taken -- a record added
+    earlier in an already-numbered log (a Golden Child's Birth), a log with gaps or numbers out of
+    order -- becomes the next unused one instead, one more than the highest, wherever the record
+    sits.  Numbered records are never renumbered.
+
+    `added_only`: number only the Birth records being added (Repair adding a Golden Child's Birth
+    without "Numbers on older Birth records" ticked): into a log that has numbered Births, the next
+    unused number; into one that has none, it stays "Birth" like the records around it."""
     villages = current_villages(folder, game, slot)
     found = []
     count = 0
-    for path in births_files(folder, game):
-        doc = docs.get(path)
-        if doc is None:
-            doc = docs[path] = _Doc(path)
+    paths = births_files(folder, game)
+    for path in paths:
+        if path not in docs:
+            docs[path] = _Doc(path)
+    used: set[int] = set()
+    for path in paths:
+        doc = docs[path]
+        texts = [line for i, line in enumerate(doc.lines) if i not in doc.replaced]
+        texts += [text for items in doc.inserts.values() for _rank, item, _kind in items
+                  for text in item.split("\n")]
+        texts += [text for text, _kind in doc.replaced.values()]
+        for text in texts:
+            m = BIRTH_HEAD.match(text)
+            if m and m.group(1) is not None:
+                used.add(int(m.group(1)))
+
+    def take(candidate: int) -> int:
+        if candidate in used or candidate <= 0:
+            candidate = max(used) + 1
+        used.add(candidate)
+        return candidate
+
+    for path in paths:
+        doc = docs[path]
         owner: dict[int, Block] = {}
         for b in blocks(path, doc.lines):
             for i in range(b.start, b.start + len(b.lines)):
@@ -858,12 +889,13 @@ def _number_births(folder: Path, game: int, slot: int, docs: dict[Path, _Doc],
             if m:
                 if m.group(1) is not None:
                     count = int(m.group(1))
-                else:
+                elif added_only or not ours:
                     count += 1
-                    if ours:
-                        found.append((path, i, count))
-                        if apply:
-                            doc.replaced[i] = (f"Birth {count}", "birth_numbers")
+                else:
+                    count = take(count + 1)
+                    found.append((path, i, count))
+                    if apply:
+                        doc.replaced[i] = (f"Birth {count}", "birth_numbers")
             for item in sorted(doc.inserts.get(i, []), key=lambda it: it[0]):
                 sub = item[1].split("\n")
                 given = 0
@@ -873,9 +905,11 @@ def _number_births(folder: Path, game: int, slot: int, docs: dict[Path, _Doc],
                         continue
                     if m.group(1) is not None:
                         count = int(m.group(1))
-                    else:
+                    elif not ours or (added_only and not used):
                         count += 1
-                        if ours and apply:
+                    else:
+                        count = take(max(used) + 1 if added_only else count + 1)
+                        if apply:
                             sub[k] = f"Birth {count}"
                             given += 1
                 if given:
@@ -907,9 +941,16 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         doc = docs.setdefault(path, _Doc(path))
         for after, rank, line, kind_id in sorted(set(adds), key=lambda a: (a[0], a[1])):
             doc.inserts.setdefault(after, []).append([rank, line, kind_id])
-    for kind in kinds:
-        if kind.id == "birth_numbers" and kind.id in chosen and kind.context:
-            _number_births(folder, kind.context["game"], kind.context["slot"], docs, apply=True)
+    # Birth numbers: every older record when chosen; otherwise only the Births being added (a Golden
+    # Child's), which take the next unused number in a log that has numbered Births -- a Birth number
+    # is never repeated.
+    numbering = [k for k in kinds if k.id == "birth_numbers" and k.id in chosen and k.context]
+    adding = [k for k in kinds if k.id == "golden" and k.id in chosen and k.context and k.inserts]
+    if numbering:
+        _number_births(folder, numbering[0].context["game"], numbering[0].context["slot"], docs, apply=True)
+    elif adding:
+        _number_births(folder, adding[0].context["game"], adding[0].context["slot"], docs, apply=True,
+                       added_only=True)
     written = 0
     for path, doc in docs.items():
         if not doc.changed:

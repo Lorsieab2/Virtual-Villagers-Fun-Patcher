@@ -2675,7 +2675,14 @@ static int saved_tribe_still_loaded(int game_id) {
    "Birth <n>" continues the running count.  A Birth is counted whether an
    older build wrote it as plain "Birth" or this one numbered it
    (birth_heading.h), so the first numbered Birth after an older log's 79
-   follows them as "Birth 80".  -1 when a file cannot be read. */
+   follows them as "Birth 80".
+
+   A BIRTH NUMBER IS NEVER REPEATED (the owner, 2026-10-09).  For Births the
+   result is the larger of the count and the HIGHEST number already written:
+   a log with gaps, numbers out of order (a record Repair inserted earlier in
+   the file with the next unused number), or a hand-edited number goes on
+   above every number in it, so the next is always unused.  -1 when a file
+   cannot be read. */
 static int count_running_records(const struct game_layout *g, int births) {
     wchar_t folder[MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
@@ -2683,6 +2690,7 @@ static int count_running_records(const struct game_layout *g, int births) {
     int ceiling;
     int number;
     int total = 0;
+    long highest = 0;
     if (!vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
         return -1;
     }
@@ -2703,6 +2711,12 @@ static int count_running_records(const struct game_layout *g, int births) {
             if (births ? vv_is_birth_heading(line)
                        : strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
                 ++total;
+                if (births && line[5] == ' ') {
+                    long n = strtol(line + 6, NULL, 10);
+                    if (n > highest) {
+                        highest = n < 0x7FFFFFFEL ? n : 0x7FFFFFFEL;
+                    }
+                }
             }
         }
         if (ferror(file)) {
@@ -2711,7 +2725,7 @@ static int count_running_records(const struct game_layout *g, int births) {
         }
         fclose(file);
     }
-    return total;
+    return highest > total ? (int)highest : total;
 }
 
 /* What append_record reports. A record that fails with its file restored is
