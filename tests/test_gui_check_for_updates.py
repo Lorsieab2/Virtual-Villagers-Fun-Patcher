@@ -203,7 +203,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
                                      "vv_number_names", "vv_villager_info"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
-            ("vv_villager_info", {"vv_family_tree", "vv_genealogy"}),
+            ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
+                                 "vv_save_layout", "vv_log_additions"}),
             # Number Duplicate Names renames through Last Names.
             ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions",
                                  "vv_save_layout"}),
