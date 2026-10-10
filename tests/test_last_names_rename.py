@@ -169,8 +169,9 @@ def _fnv(h: int, data: bytes) -> int:
 
 def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3), dislikes=(4, 5, 6),
           father: tuple = ("", 0, 0), mother: tuple = ("", 0, 0), expecting: tuple = ("", 0, 0),
-          health: int = 90) -> bytes:
-    """One saved villager of The Secret City (name at entry +0x14)."""
+          health: int = 90, pregnant: int | None = None) -> bytes:
+    """One saved villager of The Secret City (name at entry +0x14).  `pregnant` is her pregnancy
+    field (her age at conception; 0 = not expecting): by default set when an expected father is named."""
     e = bytearray(STRIDE)
     struct.pack_into("<I", e, 0, 1)
     n = 0x14
@@ -185,6 +186,7 @@ def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3
         struct.pack_into("<ii", e, n + looks, phead, pbody)
     e[n + 0x74:n + 0x74 + len(expecting[0])] = expecting[0].encode()
     struct.pack_into("<ii", e, n + 0x90, expecting[2], expecting[1])
+    struct.pack_into("<i", e, n + 0xB8, (580 if expecting[0] else 0) if pregnant is None else pregnant)
     struct.pack_into("<3i", e, n + 0xF0, *likes)
     struct.pack_into("<3i", e, n + 0xFC, *dislikes)
     struct.pack_into("<i", e, n + 0xA4, health)          # record +0xE78; 0 or less is a body

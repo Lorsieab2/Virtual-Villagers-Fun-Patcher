@@ -106,6 +106,20 @@ FIELDS = {
               (0x58, 0x5C, 0x60, 0x64, 0x94, 0x90)),
 }
 
+# The pregnancy field, relative to the name in a saved entry: her age at conception, which the game
+# zeroes at the delivery (native/population_export GAME_LAYOUTS age_at_conception: +0x358, +0x540,
+# +0xE8C, +0x1C4C, +0x1C4C against the names at +0x370, +0x564, +0xDD4, +0x1B9C, +0x1B9C; in the
+# later games' saves it sits in the window that also holds the litter, one dword before it).  It is
+# THE test for "expecting": the expected father's name is copied onto her at conception and never
+# cleared at the birth, so a mother who has delivered still holds it (live, v1.35.66: The Secret
+# City's Lolla Salongo and The Tree of Life's Tautai Sakura).
+PREGNANCY = {1: 0x358 - 0x370, 2: 0x540 - 0x564, 3: 0xB8, 4: 0xB0, 5: 0xB0}
+
+
+def carrying(game: int, data: bytes | bytearray, at: int) -> bool:
+    """Whether the villager whose name is at `at` is expecting now (the Population log's "Nursing")."""
+    return _i32(data, at + PREGNANCY[game]) != 0
+
 # Each game's graves in the save file (the owner, 2026-10-07: renames "should be retroactive too! (in
 # logs, saves, graves, etc)"): (file offset, slots, stride, name field bytes, age-at-death offset,
 # (head, body) offsets or None).  The game copies a villager's name there at burial; The Secret City,
@@ -675,7 +689,8 @@ def _expected_fathers(folder: Path, game: int, slot: int) -> set[str]:
             f = FIELDS[game]
             data = save_path(folder, game, slot).read_bytes()
             for at in _entries(game, data):
-                out.add(_cstr(data, at + f.expecting, 0x18))
+                if carrying(game, data, at):        # a delivered mother keeps the name: not expecting
+                    out.add(_cstr(data, at + f.expecting, 0x18))
     except (OSError, LastNamesError, struct.error, ValueError, IndexError):
         pass
     return out - {""}
