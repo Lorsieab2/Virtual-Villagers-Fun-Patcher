@@ -480,6 +480,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         tk.Toplevel.__init__(self, app)
         self.app, self.folder, self.game, self.slot = app, Path(folder), game, slot
         self.game_title, self.images, self.village, self.edits = game_title, images, village, edits
+        # The edits the window opened with, and whether they came from a saved file: "No" on closing a
+        # tree never saved goes back to them (it went to the factory look, and made that the look
+        # remembered for every new tree).
+        self.opened_edits = json.dumps(edits.to_data())
+        self.opened_from_file = ft.Edits.path(self.folder, game, slot).is_file()
         self.present = ft.sheets_present(game, images)
         self.library = game_libraries(app)
         self.selected: list[int] = []
@@ -2023,7 +2028,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             except OSError as exc:
                 messagebox.showerror("Family Tree Maker", f"{path.name} could not be deleted: {exc}", parent=self)
                 return
-        self.edits = ft.Edits()
+        # As a tree with no edits file opens: in the look last used (it was the factory look, which
+        # closing then made the look remembered for every new tree).
+        self.edits = ft.styled(getattr(self.app, "tree_style", None))
         self.obj = None
         self.selected = []
         self.page = 0
@@ -2286,12 +2293,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         return messagebox.askyesno("Family Tree Maker", question + "  (Undo brings it back.)", parent=self)
 
     def _reset_shapes(self) -> None:
-        """Every portrait's shape and border as the patcher draws them, not resized or turned."""
+        """Every portrait's shape and border as the patcher draws them, not resized (on their own or by
+        their group), turned or flipped -- as the question says (the groups' sizes and the flips stayed)."""
         if not self._sure("Put every portrait's shape and border back, and undo every resize and turn?"):
             return
         self.edits.shapes, self.edits.borders = dict(ft.DEFAULT_SHAPES), dict(ft.DEFAULT_BORDERS)
+        self.edits.sizes.clear()
         for p in self.village.people.values():
-            self._set_entry(p, shape=None, border=None, w=None, h=None, angle=None)
+            self._set_entry(p, shape=None, border=None, w=None, h=None, angle=None, flip_h=None, flip_v=None)
         self._saved()
         self._refresh_panels()
         self.status.set("Every portrait has its own shape and border again.  Ctrl+Z undoes it.")
@@ -2740,8 +2749,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._draw_handles()
         self._refresh_obj_panel()
 
+    def _flush_live(self) -> None:
+        """What was typed in a size box and not yet applied (_live waits 800 ms), applied now -- to
+        those it was typed for.  Clicking another villager within the wait showed their sizes in the
+        boxes first, and the value typed was lost."""
+        waiting = self.__dict__.get("live_waiting", {})
+        while waiting:
+            waiting.popitem()[1]()
+
     def _select(self, pids: list[int], keep_anchor: bool = False) -> None:
-        self.selected = [q for q in pids if q in self.sc.boxes]
+        self._flush_live()
+        self.selected =[q for q in pids if q in self.sc.boxes]
         if not keep_anchor and len(self.selected) == 1:
             self.anchor = self.selected[0]
         self._draw_selection()
@@ -2917,6 +2935,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         for name in names:
             own.pop(name)
+        if {"picture_size", "text_size"} & set(names):
+            self._end_equal(group)
         if "text_valign" not in own:
             own.pop("centre_heads", None)
         groups = {g: v for g, v in self.edits.group_opts.items() if g != group}
@@ -2929,6 +2949,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _all_groups_same(self) -> None:
         """Every group's own settings cleared: every portrait as everyone's.  One step to undo."""
         if self.edits.group_opts:
+            for group, own in self.edits.group_opts.items():
+                if {"picture_size", "text_size"} & set(own):
+                    self._end_equal(group)
             self.edits.group_opts = {}
             self._saved()
             self._refresh_panels()
@@ -2936,13 +2959,56 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _equalize(self, group: str | None) -> None:
         """Every villager's face and text at the tree's own sizes -- everyone's, or one group's: each one's own
         face size and text size cleared (the owner, 2026-10-09: "buttons to "equalize" text/face sizes etc
-        across the entire family tree or by group")."""
-        people = [p for p in self.village.people.values() if group is None or ft.group_of(p) == group]
-        changed = [p for p in people if {"picture_scale", "text_scale"} & set(self._entry(p))]
-        for p in changed:
-            self._set_entry(p, picture_scale=None, text_scale=None)
-        if changed:
-            self._saved()
+        across the entire family tree or by group").  Exactly the same (the owner, 2026-10-10: "should
+        have the exact same font size and icon dimensions regardless of other settings"): faces and words
+        keep one size, the scope's own face and text sizes are cleared, and the scope keeps one face size
+        and one font size, the largest that fits every one of its portraits (Edits.equal_sizes), whatever
+        is resized or added later -- until a face or text size is changed again.  One undo step."""
+        e = self.edits
+        groups = list(ft.GROUPS) if group is None else [group]
+        for p in self.village.people.values():
+            if ft.group_of(p) in groups and {"picture_scale", "text_scale"} & set(self._entry(p)):
+                self._set_entry(p, picture_scale=None, text_scale=None)
+        opts = {g: dict(v) for g, v in e.group_opts.items()}
+        for g in groups:
+            own = opts.get(g, {})
+            for name in ("picture_size", "text_size", "fixed_face_size"):
+                own.pop(name, None)
+            if group is not None and not e.fixed_face_size:
+                own["fixed_face_size"] = True
+            opts[g] = own
+        e.group_opts = {g: v for g, v in opts.items() if v}
+        if group is None:
+            e.fixed_face_size = True
+            e.equal_sizes = {}
+        sizes = {"face": float(e.picture_size), "text": float(e.text_size)}
+        e.equal_sizes = dict(e.equal_sizes, **{group or "all": sizes})
+        self._saved()
+        self._refresh_panels()
+        self.status.set(f"{'Everyone' if group is None else ft.GROUPS[group]}: every face and every name the same "
+                        "size.  Changing a face or text size again ends it.  Ctrl+Z undoes it.")
+
+    def _end_own_equal(self) -> None:
+        """The selected villagers' own face or text size changed: their groups no longer kept the same."""
+        for group in {ft.group_of(self.village.people[q]) for q in self.selected}:
+            self._end_equal(group)
+
+    def _end_equal(self, group: str | None) -> None:
+        """A face or text size changed for everyone (None) or one group: those portraits are no longer
+        kept the same ("Same face and text size for:"); the other groups made the same with everyone stay so."""
+        sizes = self.edits.equal_sizes
+        if not sizes:
+            return
+        if group is None:
+            self.edits.equal_sizes = {}
+            return
+        sizes = dict(sizes)
+        everyone = sizes.pop("all", None)
+        if everyone is not None:
+            for g in ft.GROUPS:
+                sizes.setdefault(g, dict(everyone))
+        sizes.pop(group, None)
+        self.edits.equal_sizes = sizes
 
     def _equalize_sizes(self) -> None:
         """Every villager back to their group's portrait size: each one's own width and height cleared."""
@@ -2958,6 +3024,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         for q in self.selected:
             self._set_entry(self.village.people[q], picture_scale=None, text_scale=None)
+        self._end_own_equal()
         self.own_picture.set("100")
         self.own_text.set("100")
         self._saved()
@@ -3184,16 +3251,19 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """A size box that changes the tree as it is used (the owner: "should have a live preview"):
         at once for the arrows, Enter and leaving it; a moment after typing stops."""
         pending = {}
+        waiting = self.__dict__.setdefault("live_waiting", {})     # every box with typing not yet applied
 
         def soon(_event=None) -> None:
             if pending.get("job"):
                 self.after_cancel(pending["job"])
             pending["job"] = self.after(800, now)       # long enough to type "80" without "8" taking first
+            waiting[id(now)] = now
 
         def now(_event=None) -> None:
             if pending.get("job"):
                 self.after_cancel(pending["job"])
             pending["job"] = None
+            waiting.pop(id(now), None)
             apply()
 
         spin.configure(command=now)
@@ -3246,7 +3316,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 natural = now
             w = self._number(w_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[0] if natural else None)
             h = self._number(h_var.get(), ft.FRAME_MIN, ft.FRAME_MAX) or (natural[1] if natural else None)
-        if w is None or h is None or (self.edits.sizes.get(group) == [w, h] and not resized):
+        # Only a real change of the group's size: leaving or pressing Enter in a box left as it was
+        # wiped every own size and added an undo step.
+        if (w is None or h is None or self.edits.sizes.get(group) == [w, h]
+                or (round(w, 3), round(h, 3)) == (round(now[0], 3), round(now[1], 3))):
             return
         self.edits.sizes[group] = [w, h]
         for p in resized:
@@ -3266,6 +3339,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self._set_entry(p, text_scale=percent if percent != 100.0 else None)
                 changed = True
         if changed:
+            self._end_own_equal()
             self._saved()
 
     def _own_picture_size(self) -> None:
@@ -3280,6 +3354,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self._set_entry(p, picture_scale=percent if percent != 100.0 else None)
                 changed = True
         if changed:
+            self._end_own_equal()
             self._saved()
 
     def _own_size(self, axis: int | None = None) -> None:
@@ -3599,6 +3674,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         `everyone`), settings a group may have of its own (ft.GROUP_FIELDS) are that group's: a value
         the same as everyone's is no setting of its own."""
         group = None if everyone else self._scope()
+        if {"picture_size", "text_size"} & set(values):    # a face or text size changed: no longer kept the same
+            self._end_equal(group if group and all(name in ft.GROUP_FIELDS for name in values) else None)
         if group and values and all(name in ft.GROUP_FIELDS for name in values):
             own = dict(self.edits.group_opts.get(group, {}))
             for name, value in values.items():
@@ -4365,8 +4442,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _toggle_full(self) -> None:
         self.attributes("-fullscreen", not self.attributes("-fullscreen"))
 
-    def _remember_window(self) -> None:
-        """The window's size and place, the panel's width and whether it shows, for next time."""
+    def _remember_window(self, keep_look: bool = False) -> None:
+        """The window's size and place, the panel's width and whether it shows, for next time -- and the
+        tree's look for the next new tree, unless `keep_look`."""
         shown = str(self.panel) in self.body.panes()
         if shown:
             self.window["sash"] = self.body.sashpos(0)
@@ -4378,7 +4456,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.window["geometry"] = self.geometry()
         if hasattr(self.app, "_save_settings"):
             self.app.tree_window = dict(self.window)
-            self.app.tree_style = ft.style_of(self.edits)     # the look, for the next new tree
+            if not keep_look:
+                self.app.tree_style = ft.style_of(self.edits)     # the look, for the next new tree
             try:
                 self.app._save_settings()
             except OSError:
@@ -4396,17 +4475,25 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _close(self) -> None:
         """Closing: "Save changes to the tree before exiting?" when there are any (the owner)."""
+        keep_look = False
         if self.dirty:
             answer = messagebox.askyesnocancel("Family Tree Maker", "Save changes to the tree before exiting?",
                                                parent=self)
             if answer is None or answer and not self._save_tree():
                 return
             if not answer:                      # the tree as last saved
+                path = ft.Edits.path(self.folder, self.game, self.slot)
+                keep_look = True                # nothing saved: the remembered look stays as it was
                 try:
-                    self.edits = ft.Edits.load(ft.Edits.path(self.folder, self.game, self.slot))
+                    if path.is_file():
+                        self.edits, keep_look = ft.Edits.load(path), False
+                    elif self.opened_from_file:     # deleted (Delete This Tree): as a new tree opens
+                        self.edits = ft.styled(getattr(self.app, "tree_style", None))
+                    else:                           # never saved: as it opened
+                        self.edits = ft.Edits.from_data(json.loads(self.opened_edits))
                 except ValueError:
-                    self.edits = ft.Edits()
-        self._remember_window()
+                    self.edits = ft.Edits.from_data(json.loads(self.opened_edits))
+        self._remember_window(keep_look=keep_look)
         self._write_outputs()
         self._tools_close()
         self.destroy()
