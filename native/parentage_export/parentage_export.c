@@ -3814,6 +3814,47 @@ __declspec(dllexport) int __stdcall VillagePreferenceText(int game_id, const voi
     return 1;
 }
 
+/* Every like (`dislikes` 0) or dislike (1) a villager has, in the words the
+   logs print them (the first filled slot is what the Births log's "Likes:"
+   shows; this names each filled slot in order, ", " between them), or
+   "(none)" -- for "VVFP Island Events.dll", whose "Likes: old -> new" line
+   must show a change in any slot, not only the first.  0 when the game or
+   the record cannot be read. */
+__declspec(dllexport) int __stdcall VillagePreferenceListText(int game_id, const void *record_pointer, int dislikes,
+                                                              char *out, int out_size) {
+    const struct game_layout *g;
+    const unsigned char *record = (const unsigned char *)record_pointer;
+    unsigned int base, slot;
+    size_t used = 0;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL || out == NULL || out_size <= 0) {
+        return 0;
+    }
+    g = layout_of(game_id);
+    if (!layout_is_usable(g) || !memory_is_readable(record, g->stride)) {
+        return 0;
+    }
+    out[0] = '\0';
+    base = dislikes ? g->dislikes : g->likes;
+    if (base != 0u && g->preference_list != NULL) {
+        for (slot = 0; slot < g->preference_slots; ++slot) {
+            char word[64];
+            int value = *(const int *)(record + base + slot * 4u);
+            if (value < 0 || !preference_name(g->preference_list, value, word, sizeof word)) {
+                continue;
+            }
+            if (used + strlen(word) + 3 >= (size_t)out_size) {
+                break;
+            }
+            used += (size_t)_snprintf(out + used, (size_t)out_size - used, "%s%s", used ? ", " : "", word);
+        }
+    }
+    if (used == 0) {
+        _snprintf(out, (size_t)out_size, "(none)");
+    }
+    out[out_size - 1] = '\0';
+    return 1;
+}
+
 /* A living villager's custom title as the villager logs print it (the
    "  Custom title:" line's value), for "VVFP Island Events.dll", which shows
    a Custom Island Event's title change as "old -> new".  `out` gets the

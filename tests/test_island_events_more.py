@@ -24,9 +24,9 @@ CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
 # Per game: nothing changed, the newcomer, the parents, the title set and removed, the Special
-# villager title, the village, the weather (or none), a food store = 9; New Believers' Heathen
+# villager title, the whole likes list, no same-reading line, the village, the weather (or\n# none), a food store = 11; New Believers' Heathen
 # mask and The Lost Children's totem one more each.
-CHECKS = 5 * 9 + 2
+CHECKS = 5 * 11 + 2
 
 
 def table(source: str, head: str) -> str:

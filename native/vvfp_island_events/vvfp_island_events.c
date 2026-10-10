@@ -161,8 +161,9 @@ static void take(struct snapshot *s) {
 
 typedef int (__stdcall *preference_text_fn)(int, const void *, int, char *, int);
 
+static preference_text_fn g_preferences;  /* resolved once (a harness sets its own) */
+
 static void field_text(const struct field *f, const unsigned char *record, char *out, size_t size) {
-    static preference_text_fn preferences;
     static int looked;
     int value = *(const int *)(record + f->offset);
     out[0] = '\0';
@@ -205,12 +206,18 @@ static void field_text(const struct field *f, const unsigned char *record, char 
         break;
     case F_LIKES:
     case F_DISLIKES:
-        if (!looked) {
+        if (!looked && g_preferences == NULL) {
             HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
             looked = 1;
-            preferences = module != NULL ? (preference_text_fn)GetProcAddress(module, "VillagePreferenceText") : NULL;
+            /* Every like or dislike the villager has, not only the first the
+               Details panel shows: a change in a later slot is otherwise
+               "Likes: parrots -> parrots" (seen live in The Secret City). */
+            g_preferences = module != NULL ? (preference_text_fn)GetProcAddress(module, "VillagePreferenceListText") : NULL;
+            if (g_preferences == NULL && module != NULL) {
+                g_preferences = (preference_text_fn)GetProcAddress(module, "VillagePreferenceText");
+            }
         }
-        if (preferences == NULL || !preferences(g_game, record, f->type == F_DISLIKES, out, (int)size)) {
+        if (g_preferences == NULL || !g_preferences(g_game, record, f->type == F_DISLIKES, out, (int)size)) {
             _snprintf(out, size, "(changed)");
         }
         break;
@@ -336,7 +343,7 @@ static void compare(struct snapshot *s) {
         }
         for (k = 0; k < g_layout->field_count; ++k) {
             const struct field *f = &g_layout->fields[k];
-            char a[64], b[64];
+            char a[512], b[512];
             if (conceived && f->conception) {
                 char name[64];
                 int head, body;
@@ -370,6 +377,9 @@ static void compare(struct snapshot *s) {
             }
             field_text(f, old, a, sizeof a);
             field_text(f, live, b, sizeof b);
+            if (strcmp(a, b) == 0) {
+                continue;                 /* never a line whose old and new read the same */
+            }
             if (used < sizeof changes) {
                 int n = _snprintf(changes + used, sizeof changes - used, "  %s: %s -> %s\n", f->label, a, b);
                 used = n < 0 ? sizeof changes : used + (size_t)n;

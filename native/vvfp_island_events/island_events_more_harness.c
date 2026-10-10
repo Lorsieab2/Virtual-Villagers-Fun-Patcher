@@ -130,6 +130,30 @@ static int __stdcall stub_vv1_names(int index, char *father, char *mother, int c
     return 1;
 }
 
+/* Every filled preference slot, "w<index>", ", " between: the shape of
+   VillagePreferenceListText (the words come from the game's list there). */
+static int __stdcall stub_preferences(int game, const void *record, int dislikes, char *out, int size) {
+    const struct field *f = NULL;
+    int k, used = 0;
+    (void)game;
+    for (k = 0; k < g_layout->field_count; ++k) {
+        if (g_layout->fields[k].type == (dislikes ? F_DISLIKES : F_LIKES)) {
+            f = &g_layout->fields[k];
+        }
+    }
+    out[0] = '\0';
+    for (k = 0; f != NULL && k < (int)f->size; ++k) {
+        int v = *(const int *)((const unsigned char *)record + f->offset + 4 * k);
+        if (v > 0) {
+            used += _snprintf(out + used, (size_t)(size - used), "%sw%d", used ? ", " : "", v);
+        }
+    }
+    if (used == 0) {
+        lstrcpynA(out, "(none)", size);
+    }
+    return 1;
+}
+
 static const struct field *field_named(const struct game_layout *layout, const char *label) {
     int k;
     for (k = 0; k < layout->field_count; ++k) {
@@ -217,6 +241,7 @@ int main(void) {
     g_more_title = stub_title;
     g_vv1_query = stub_vv1_query;
     g_vv1_names = stub_vv1_names;
+    g_preferences = stub_preferences;
     g_more_address = harness_address;
     g_more_vv1_records = harness_records;
     g_more_vv2_records = harness_records;
@@ -363,8 +388,36 @@ int main(void) {
                   "an Esteemed Elder's totem changed is \"Totem: green figure -> red headdress\" (the statue is no villager)");
         }
 
-        /* 6. The village. */
-        food = village_at("Food", &type, &extra);
+        /* 8. A like added in a later slot: the whole lists, never "w3 -> w3";
+           and a change that reads the same (a skill within its rounding) is no line. */
+        {
+            const struct field *likes = field_named(&layout, "Likes");
+            const struct field *farming = field_named(&layout, "Farming");
+            begin();
+            *(int *)(slot(0) + likes->offset) = 3;
+            compare(&g_snaps[0]);
+            begin();
+            *(int *)(slot(0) + likes->offset + 4) = 7;
+            compare(&g_snaps[0]);
+            CHECK(record_of(slot(0)) != NULL && strcmp(record_of(slot(0))->changes, "  Likes: w3 -> w3, w7\n") == 0,
+                  "a like added in a later slot prints the whole lists: \"Likes: w3 -> w3, w7\"");
+            begin();
+            if (farming->type == F_FLOAT) {
+                *(float *)(slot(0) + farming->offset) = 20.2f;
+                compare(&g_snaps[0]);
+                begin();
+                *(float *)(slot(0) + farming->offset) = 20.4f;
+            } else {
+                *(int *)(slot(0) + likes->offset + 4) = -1;   /* emptied: -1 and 0 both read empty here */
+                compare(&g_snaps[0]);
+                begin();
+                *(int *)(slot(0) + likes->offset + 4) = 0;
+            }
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 0, "a change whose old and new read the same is no line (and no record)");
+        }
+
+        /* 6. The village. */        food = village_at("Food", &type, &extra);
         tech = village_at("Tech points", &type, &extra);
         weather = village_at("Weather", &type, &extra);
         puzzle = first_puzzle();
