@@ -31,8 +31,10 @@ STATS = ROOT / "native" / "statistics_export"
 SHARED = ROOT / "native" / "shared"
 # 106 checks across the five games (19 to 25 each; New Believers' elders since the History's Faction line).
 # 7: Repair right after the quit save, every game; 0: the memorial at the load (VV1, VV2);
-# 8: Deaths logs in both the old and the new folder, every game (2 each).
-CHECKS = 106 + 8 * 5 + 2 + 2 * 5
+# 8: Deaths logs in both the old and the new folder, every game (2 each);
+# 7c: one folder of logs per save slot -- the repair in Save 1's own folder after the shared file's
+# numbers, the shared file untouched (2 each).
+CHECKS = 106 + 8 * 5 + 2 + 2 * 5 + 2 * 5
 # + 1 per game: an older build's "Repairs" beside "Repairs Made" -- numbered after it (native/shared/repairs_log.h)
 CHECKS += 5
 

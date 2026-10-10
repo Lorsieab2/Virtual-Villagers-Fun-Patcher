@@ -636,6 +636,65 @@ int main(void) {
               && exists(blog1), "A BACKUP SURVIVES START OVER (every copied file)");
     }
 
+    /* ONE FOLDER OF LOGS PER SAVE SLOT (native/shared/log_slot.h): Start Over removes, in the
+       slot's own folder, exactly what it always removed in the shared one -- the erased village's
+       Births and Conceptions, Deaths and Disappearances, Unaccounted Villagers and Island Events
+       files (matched by header), its Population pages (by header) and the slot's Village
+       Statistics -- and nothing more: never the Village History, never the Repairs log, never
+       another village's file, never another slot's. */
+    {
+        static const char *const SUBS[8] = {
+            "Births and Conceptions", "Deaths and Disappearances", "Unaccounted Villagers", "Island Events",
+            "Tribe Population", "Village Statistics", "Tribe History", "Repairs Made"
+        };
+        static const char *const NAMES[8] = {
+            "Virtual Villagers 1 Births and Conceptions Log 1.txt", "Virtual Villagers 1 Deaths Log 1.txt",
+            "Virtual Villagers 1 Unaccounted Villagers Log 1.txt", "Virtual Villagers 1 Island Events Log 1.txt",
+            "Village Population 1.txt", "Village Statistics v2 - Save 1.txt", "Village History 1.txt",
+            "Virtual Villagers 1 Repairs Log 1.txt"
+        };
+        char dir[MAX_PATH], rel[MAX_PATH], file[8][MAX_PATH], other[MAX_PATH], slot2[MAX_PATH], dir2[MAX_PATH];
+        int k, gone = 1;
+        for (k = 0; k < 8; ++k) {
+            wsprintfA(rel, "Virtual Villagers Fun Patcher Logs\\Save 1\\%s", SUBS[k]);
+            vv_save_subfolder(dir, rel, 96);
+            wsprintfA(file[k], "%s\\%s", dir, NAMES[k]);
+            if (k == 4) {
+                write_text(file[k], "Virtual Villagers: A New Home Village Population\nVillage: Kalahuna (Save 1)\n\n");
+            } else if (k == 6) {
+                write_text(file[k], "=== Virtual Villagers 1 -- 2026-10-10 10:00:00 ===\nVillage: Kalahuna (Save 1)\n\n");
+            } else {
+                write_text(file[k], VILLAGE);
+            }
+        }
+        /* Another village in the same slot (a tribe made over it with Change Tribe). */
+        vv_save_subfolder(dir, "Virtual Villagers Fun Patcher Logs\\Save 1\\Births and Conceptions", 96);
+        wsprintfA(other, "%s\\Virtual Villagers 1 Births and Conceptions Log 2.txt", dir);
+        write_text(other, "Village: Someone Else (Save 1)\n");
+        vv_save_subfolder(dir2, "Virtual Villagers Fun Patcher Logs\\Save 2\\Births and Conceptions", 96);
+        wsprintfA(slot2, "%s\\Virtual Villagers 1 Births and Conceptions Log 1.txt", dir2);
+        write_text(slot2, VILLAGE2);
+        for (k = 0; k < 8; ++k) {
+            gone = gone && exists(file[k]);
+        }
+        check(gone && exists(other) && exists(slot2), "slot-folder fixtures created (nonzero denominator)");
+
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(!exists(file[0]) && !exists(file[1]) && !exists(file[2]) && !exists(file[3]),
+              "START OVER REMOVES THE SLOT FOLDER'S BIRTHS, DEATHS, UNACCOUNTED AND ISLAND EVENTS LOGS OF THE VILLAGE");
+        check(!exists(file[4]) && !exists(file[5]),
+              "...and its Population page and the slot's Village Statistics, as in the shared folder");
+        check(exists(file[6]), "THE SLOT FOLDER'S VILLAGE HISTORY IS NEVER DELETED");
+        check(exists(file[7]), "...nor its Repairs log (never deleted by Start Over)");
+        check(exists(other), "another village's log in the same slot's folder is kept");
+        check(exists(slot2), "another slot's folder is untouched");
+        for (k = 0; k < 8; ++k) {
+            DeleteFileA(file[k]);
+        }
+        DeleteFileA(other);
+        DeleteFileA(slot2);
+    }
+
     /* Clean up what the harness made. */
     DeleteFileA(mask2); DeleteFileA(save1); DeleteFileA(other_game);
     DeleteFileA(stats2); DeleteFileA(pop2); DeleteFileA(log_other);

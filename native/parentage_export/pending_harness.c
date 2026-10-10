@@ -105,7 +105,8 @@ static void conceive(int mother, int father) {
     *(int *)(rec(mother) + BODY_COPY) = *(int *)(rec(father) + BODY);
 }
 
-static char folder[MAX_PATH];
+static char folder[MAX_PATH];       /* the Births and Conceptions folder being looked at */
+static char logs_root[MAX_PATH];    /* "...\Virtual Villagers Fun Patcher Logs" */
 static char marker[MAX_PATH];
 /* "<this exe's folder>\Virtual Villagers Fun Patcher Files": where the
    companions are looked for, as in a patched game
@@ -125,26 +126,54 @@ static int locate(void) {
     ++base;
     dot = strrchr(base, '.');
     if (dot) *dot = 0;
-    _snprintf(folder, MAX_PATH,
-              "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Logs\\Births and Conceptions",
-              docs, base);
+    _snprintf(logs_root, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Logs", docs, base);
+    logs_root[MAX_PATH - 1] = '\0';
+    _snprintf(folder, MAX_PATH, "%s\\Save 1\\Births and Conceptions", logs_root);
     folder[MAX_PATH - 1] = '\0';
     return 1;
 }
 
+/* One folder of logs per save slot (native/shared/log_slot.h): the village "(Save <slot>)" is
+   logged in "...Logs\Save <slot>\Births and Conceptions".  Points `folder` there. */
+static void use_slot(int slot) {
+    _snprintf(folder, MAX_PATH, "%s\\Save %d\\Births and Conceptions", logs_root, slot);
+    folder[MAX_PATH - 1] = '\0';
+}
+
+/* The shared folder (k 0) and each slot's (k 1..5). */
+static void place(int k, char *out) {
+    if (k == 0) {
+        _snprintf(out, MAX_PATH, "%s\\Births and Conceptions", logs_root);
+    } else {
+        _snprintf(out, MAX_PATH, "%s\\Save %d\\Births and Conceptions", logs_root, k);
+    }
+    out[MAX_PATH - 1] = '\0';
+}
+
 static void remove_logs(void) {
-    char pattern[MAX_PATH], path[MAX_PATH];
+    char pattern[MAX_PATH], path[MAX_PATH], dir[MAX_PATH];
     WIN32_FIND_DATAA f;
     HANDLE h;
-    _snprintf(pattern, MAX_PATH, "%s\\*.txt", folder);
-    h = FindFirstFileA(pattern, &f);
-    if (h != INVALID_HANDLE_VALUE) {
-        do { _snprintf(path, MAX_PATH, "%s\\%s", folder, f.cFileName); DeleteFileA(path); }
-        while (FindNextFileA(h, &f));
-        FindClose(h);
+    int k;
+    for (k = 0; k <= 5; ++k) {
+        place(k, dir);
+        _snprintf(pattern, MAX_PATH, "%s\\*.txt", dir);
+        h = FindFirstFileA(pattern, &f);
+        if (h != INVALID_HANDLE_VALUE) {
+            do { _snprintf(path, MAX_PATH, "%s\\%s", dir, f.cFileName); DeleteFileA(path); }
+            while (FindNextFileA(h, &f));
+            FindClose(h);
+        }
+        RemoveDirectoryA(dir);
+        if (k > 0) {
+            char *cut = strrchr(dir, '\\');
+            if (cut != NULL) {
+                *cut = 0;
+                RemoveDirectoryA(dir);   /* "Save <k>", only when empty */
+            }
+        }
     }
-    RemoveDirectoryA(folder);
-    /* And the two folders above it that the DLL created for this harness --
+    /* And the two folders above them that the DLL created for this harness --
        "Virtual Villagers Fun Patcher Logs" and Documents\LDW\<harness name>.
        Left behind, they piled up in the owner's real LDW save folder after
        every run. RemoveDirectory only removes an EMPTY folder, so nothing
@@ -152,27 +181,30 @@ static void remove_logs(void) {
     {
         char parent[MAX_PATH];
         char *cut;
-        int level;
-        lstrcpynA(parent, folder, MAX_PATH);
-        for (level = 0; level < 2; ++level) {
-            cut = strrchr(parent, '\\');
-            if (cut == NULL) break;
+        lstrcpynA(parent, logs_root, MAX_PATH);
+        RemoveDirectoryA(parent);
+        cut = strrchr(parent, '\\');
+        if (cut != NULL) {
             *cut = 0;
             RemoveDirectoryA(parent);
         }
     }
 }
 
+/* Log files anywhere: the shared folder and every slot's. */
 static int log_files(void) {
-    char pattern[MAX_PATH];
+    char pattern[MAX_PATH], dir[MAX_PATH];
     WIN32_FIND_DATAA f;
     HANDLE h;
-    int n = 0;
-    _snprintf(pattern, MAX_PATH, "%s\\*.txt", folder);
-    h = FindFirstFileA(pattern, &f);
-    if (h != INVALID_HANDLE_VALUE) {
-        do { ++n; } while (FindNextFileA(h, &f));
-        FindClose(h);
+    int n = 0, k;
+    for (k = 0; k <= 5; ++k) {
+        place(k, dir);
+        _snprintf(pattern, MAX_PATH, "%s\\*.txt", dir);
+        h = FindFirstFileA(pattern, &f);
+        if (h != INVALID_HANDLE_VALUE) {
+            do { ++n; } while (FindNextFileA(h, &f));
+            FindClose(h);
+        }
     }
     return n;
 }
@@ -471,8 +503,11 @@ int main(int argc, char **argv) {
     CHECK(save(VILLAGE2) == 1, "the new tribe's first save");
     CHECK(read_log() && count("Conception ") == 10 && strstr(logtext, "Vaea") == NULL,
           "the old tribe's log is untouched");
-    CHECK(read_log_n(2) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
-          "the new tribe gets its own headed log");
+    use_slot(2);
+    CHECK(read_log_n(1) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
+          "the new tribe gets its own headed log, in its own slot's folder");
+    CHECK(strstr(logtext, "Conception 11\r\n") != NULL,
+          "its numbering continues the game's, after Save 1's Conception 10");
     CHECK(strstr(logtext, "  Mother: Vaea\r\n") != NULL, "its conception is filed there");
     CHECK(strstr(logtext, "  Mother: Moana\r\n") != NULL
           && strstr(logtext, "  Mother: Moana\r\n") < strstr(logtext, "  Mother: Vaea\r\n"),
@@ -545,6 +580,7 @@ int main(int argc, char **argv) {
             *(int *)(GREC(1) + G[k].head) = 5;  *(int *)(GREC(1) + G[k].body) = 6;
             *(int *)(GREC(3) + G[k].head) = 1;  *(int *)(GREC(3) + G[k].body) = 8;
             _snprintf(village, sizeof village, "Village: Game %d Tribe (Save 3)\n", G[k].game);
+            use_slot(3);
             vv_village_publish(village);
             if (ensure_village != NULL) {
                 (void)ensure_village(G[k].game, village, t);
@@ -605,6 +641,7 @@ int main(int argc, char **argv) {
             *(int *)(GREC(1) + G[k].head) = 13; *(int *)(GREC(1) + G[k].body) = 14;
             *(int *)(GREC(2) + G[k].head) = 15; *(int *)(GREC(2) + G[k].body) = 16;
             _snprintf(village, sizeof village, "Village: Game %d Founders (Save 4)\n", G[k].game);
+            use_slot(4);
             vv_village_publish(village);
             if (ensure_village != NULL) {
                 (void)ensure_village(G[k].game, village, t);

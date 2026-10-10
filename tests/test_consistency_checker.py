@@ -592,7 +592,9 @@ class TwoDeathsFolders(unittest.TestCase):
 
     def test_both_folders_are_read_and_a_record_in_both_counts_once(self):
         game = self.make([self.MIA, self.REX], [self.MIA, self.KAI, self.ZED])
-        self.assertEqual(checker.DEATHS_FOLDERS(game), ["Deaths", "Deaths and Disappearances"])
+        self.assertEqual([p.parent.name for p in checker.game_logs(game, "Deaths and Disappearances",
+                                                                   "Virtual Villagers 1 Deaths Log", 1)],
+                         ["Deaths", "Deaths and Disappearances"])
         names = [r.split("\n")[1] for r in checker.deaths_records(game, 1, 1)]
         self.assertEqual(names, ["  Name: Mia", "  Name: Rex", "  Name: Kai", "  Name: Zed"])
         self.assertEqual(self.graves(game), (4, 3))      # Mia, Rex, Zed buried; Kai has no grave

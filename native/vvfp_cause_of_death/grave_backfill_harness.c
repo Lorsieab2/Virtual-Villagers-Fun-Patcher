@@ -313,19 +313,67 @@ static void write_text(const char *path, const char *text) {
 }
 
 static char text[1 << 17];
-static long read_into(const char *path) {
+
+/* The SHARED Deaths and Disappearances file an older build wrote (the harness writes the older logs
+   there), and "...Logs\Save 1\Deaths and Disappearances\", where this build writes the "(Save 1)"
+   village's records (native/shared/log_slot.h). */
+static void deaths_path(int number, char *out) {
+    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Deaths and Disappearances\\Virtual Villagers %d Deaths Log %d.txt",
+              root, game, number);
+}
+
+static void slot_deaths_path(int number, char *out) {
+    _snprintf(out, MAX_PATH,
+              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Deaths and Disappearances\\Virtual Villagers %d Deaths Log %d.txt",
+              root, game, number);
+}
+
+static long read_one(const char *path, long at) {
     FILE *f = fopen(path, "rb");
     long n;
-    if (f == NULL) { text[0] = 0; return -1; }
-    n = (long)fread(text, 1, sizeof text - 1, f);
-    text[n] = 0;
+    if (f == NULL) { return -1; }
+    n = (long)fread(text + at, 1, sizeof text - 1 - at, f);
+    text[at + n] = 0;
     fclose(f);
     return n;
 }
 
-static void deaths_path(int number, char *out) {
-    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Deaths and Disappearances\\Virtual Villagers %d Deaths Log %d.txt",
-              root, game, number);
+/* A file's text.  The shared Deaths file 1 reads as the "(Save 1)" village's one history: that
+   file, then its slot folder's file 1 (what this build wrote) -- a slot file holding only its
+   "Village:" line (made at a save) adds no record.  -1 when neither is there. */
+static long read_into(const char *path) {
+    char shared[MAX_PATH], slot[MAX_PATH];
+    long first, second, at;
+    text[0] = 0;
+    deaths_path(1, shared);
+    if (lstrcmpiA(path, shared) != 0) {
+        return read_one(path, 0);
+    }
+    slot_deaths_path(1, slot);
+    first = read_one(shared, 0);
+    at = first > 0 ? first : 0;
+    second = read_one(slot, at);
+    if (second > 0) {
+        const char *added = text + at;
+        const char *end = strchr(added, '\n');
+        if (first > 0 && strncmp(added, "Village: ", 9) == 0 && end != NULL && end[1] == '\0') {
+            text[at] = 0;
+            second = 0;
+        }
+    }
+    if (first < 0 && second < 0) {
+        return -1;
+    }
+    return at + (second > 0 ? second : 0);
+}
+
+/* The village's Deaths log deleted: the shared file and its slot folder's. */
+static void delete_village_deaths(void) {
+    char path[MAX_PATH];
+    deaths_path(1, path);
+    DeleteFileA(path);
+    slot_deaths_path(1, path);
+    DeleteFileA(path);
 }
 
 static void logged_path(char *out) {
@@ -512,12 +560,15 @@ static void write_old_logs(void) {
     write_text(path, d);
     /* A file of this village whose only record was cut short by an
        interrupted append: Chika's name and age at death, no grave line, no
-       ending blank line.  It is no grave's record (Codex, #524).  Removed
+       ending blank line.  It is no grave's record (Codex, #524).  Its number is the one the
+       interrupted append was writing; Death numbers are the game's (native/shared/log_slot.h), so
+       the shared folder's seven records -- this village's, the cut-short one and the other
+       village's -- put the next at Death 8.  Removed
        after the first Repair save (a fourth file would move the new log
        the Deaths-log-deleted case expects to be file 3). */
     deaths_path(4, path);
     write_text(path, "Village: Backfill Tribe (Save 1)\n"
-                     "Death 99\n  Name: Chika\n  Age at death: 1428\n  Cause of death: Old age\n");
+                     "Death 6\n  Name: Chika\n  Age at death: 1428\n  Cause of death: Old age\n");
 }
 
 /* A New Home's and The Lost Children's graves file: Kito's cause (and in A
@@ -691,17 +742,17 @@ int main(int argc, char **argv) {
         read_into(path);
         CHECK(count_of(text, "\r\n  Name: Ghali\r\n") == 1 && count_of(text, "\r\n  Name: Onawa\r\n") == 1,
               "Ghali and Onawa are not recorded again");
-        CHECK(death(6, "Kito") && death(7, "Chika") && death(8, "Dup") && death(9, "Lonely")
-              && death(10, "Youth") && death(11, "Renny") && !strstr(text, "Death 12"),
+        CHECK(death(8, "Kito") && death(9, "Chika") && death(10, "Dup") && death(11, "Lonely")
+              && death(12, "Youth") && death(13, "Renny") && !strstr(text, "Death 14"),
               "Kito, Chika, the second Dup, Lonely, Youth and Renny are recorded, in burial order");
         {
-            const char *r = death(11, "Renny");
+            const char *r = death(13, "Renny");
             CHECK(r != NULL && strstr(r, "  Head: 6\r\n  Body: 6\r\n  Likes: honey\r\n  Dislikes: (none)\r\n") != NULL
                   && strstr(r, "2026-09-20 10:00:00 (age 700 then)") != NULL,
                   "a villager listed only before a rename, in the unnumbered older history, is identified");
         }
         {
-            const char *y = death(10, "Youth");
+            const char *y = death(12, "Youth");
             CHECK(y != NULL && strstr(y, "  Head: 7\r\n  Body: 7\r\n  Likes: stars\r\n") != NULL
                   && strstr(y, "(age 300 then)") != NULL,
                   "a villager made young again is still found: listed older once, then younger");
@@ -710,12 +761,12 @@ int main(int argc, char **argv) {
               "the record appended by hand in the owner's shape counts for Tupa's grave (name, age at death)");
         CHECK(count_of(text, "\r\n  Name: Dup\r\n") == 2, "two Dup graves, two Dup records");
         {
-            const char *k = death(6, "Kito");
-            const char *c = death(7, "Chika");
-            const char *l = death(9, "Lonely");
+            const char *k = death(8, "Kito");
+            const char *c = death(9, "Chika");
+            const char *l = death(11, "Lonely");
             char want[1024];
             _snprintf(want, sizeof want,
-                "Death 6\r\n  Name: Kito\r\n  Age at death: 1410\r\n  Cause of death: Old age\r\n"
+                "Death 8\r\n  Name: Kito\r\n  Age at death: 1410\r\n  Cause of death: Old age\r\n"
                 "  Grave: %s\r\n  Epitaph: %s\r\n  Sex: Male\r\n  Head: 0\r\n  Body: 18\r\n  Likes: exploring\r\n"
                 "  Dislikes: resting\r\n  Recorded from the grave: this death was not seen when it happened"
                 " (it came before\r\n    this log was kept, or while the game was catching up on time away)\r\n"
@@ -776,14 +827,14 @@ int main(int argc, char **argv) {
         save_done(1, buffer);
         read_into(path);
         CHECK(strcmp(first, text) == 0, "a new session's save writes nothing");
-        DeleteFileA(path);
+        delete_village_deaths();
         save_done(1, buffer);
         {
-            /* The village's new log is file 3, after the other village's. */
+            /* The village's new log is its slot folder's file 1 (log_slot.h). */
             char third[MAX_PATH];
-            deaths_path(3, third);
+            slot_deaths_path(1, third);
             CHECK(read_into(third) > 0 && strstr(text, "Death") == NULL
-                  && read_into(path) < 0,
+                  && read_one(path, 0) < 0,
                   "with the Deaths log deleted, the graves file still says every grave is covered");
             DeleteFileA(third);
         }
@@ -873,7 +924,7 @@ int main(int argc, char **argv) {
         CHECK(count_of(text, "\r\n  Name: Bolo\r\n") == 1 && count_of(text, "\r\n  Name: Rua\r\n") == 1,
               "Bolo's and Rua's graves are recorded from");
         _snprintf(line, sizeof line,
-                  "%s\\Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
+                  "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
                   root, game);
         read_into(line);
         CHECK(strstr(text, "Bolo") == NULL, "...Bolo, whose History looks are his, is not Unaccounted");
@@ -918,8 +969,8 @@ int main(int argc, char **argv) {
         {
             int done = repair_now(game, 1);
             read_into(path);
-            CHECK(done == 1 && death(6, "Kito") && death(7, "Chika") && death(8, "Dup") && death(9, "Lonely")
-                  && death(10, "Youth") && death(11, "Renny") && !strstr(text, "Death 12")
+            CHECK(done == 1 && death(8, "Kito") && death(9, "Chika") && death(10, "Dup") && death(11, "Lonely")
+                  && death(12, "Youth") && death(13, "Renny") && !strstr(text, "Death 14")
                   && count_of(text, "\r\n  Name: Ghali\r\n") == 1 && strstr(text, "Village: Backfill Tribe (Save 1)") != NULL,
                   "Repair right after the quit save records the six graves there and then, in the village's own log");
         }

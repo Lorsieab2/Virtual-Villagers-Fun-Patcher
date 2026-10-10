@@ -417,12 +417,41 @@ def repeated_birth_numbers(game_dir: Path, game: int) -> dict[int, list[str]]:
     (Log 1..n, every village): number -> "<file> line <k>" for each.  A Birth number is never repeated
     (the owner, 2026-10-09), so anything here is a fault."""
     seen: dict[int, list[str]] = {}
-    for path in numbered(game_dir / LOGS / "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log"):
+    # Numbered per GAME (src/vv_save_layout.py): the shared folder and every slot's, one sequence.
+    for path in game_logs(game_dir, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log"):
         for k, line in enumerate(path.read_bytes().decode("latin-1").splitlines(), 1):
             m = BIRTH_HEADING.fullmatch(line.strip())
             if m and line.strip() != "Birth":
-                seen.setdefault(int(line.split()[1]), []).append(f"{path.name} line {k}")
+                seen.setdefault(int(line.split()[1]), []).append(f"{log_label(path)} line {k}")
     return {n: where for n, where in seen.items() if len(where) > 1}
+
+
+def game_logs(game_dir: Path, sub: str, stem: str, slot: int | None = None) -> list[Path]:
+    """Every "<stem> <n>.txt" of the Logs folder's `sub` logs, as ONE history (src/vv_save_layout.py
+    numbered_logs): the shared folder older builds wrote (an older build's name for it first), then
+    the slot's own "...Logs\\Save <slot>\\<sub>" -- every slot's when `slot` is None (a game-wide
+    count).  A reader keeps each record under its own slot's "Village:" header, wherever it is."""
+    return layout.numbered_logs(Path(game_dir), sub, stem, slot)
+
+
+def births_layout_files(game_dir: Path, game: int) -> list[Path]:
+    """Every Births and Conceptions file under every layout it has had (native/shared/save_reset.c:
+    an upgrade keeps the older ones where they were): the shared "Births and Conceptions", an older
+    build's "Tribe Parental Records", the retired "VVFP Logs" -- then every save slot's own folder."""
+    game_dir = Path(game_dir)
+    shared = [path for root in (LOGS, "VVFP Logs")
+              for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
+                                 ("Tribe Parental Records", "Parentage Log"))
+              for path in numbered(game_dir / root / sub, f"Virtual Villagers {game} {words}")]
+    return shared + [path for path in game_logs(game_dir, "Births and Conceptions",
+                                                f"Virtual Villagers {game} Births and Conceptions Log")
+                     if layout.is_slot_folder(path)]
+
+
+def log_label(path: Path) -> str:
+    """A log file's name in a report: "Save <S>\\<name>" for a slot folder's file, else its name."""
+    slot = layout.is_slot_folder(path)
+    return f"Save {slot}\\{path.name}" if slot else path.name
 
 
 def numbered(folder: Path, stem: str) -> list[Path]:
@@ -471,7 +500,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
     whose header is all its file holds so far is not the previous village).  `headers`, when
     given, keeps the records under any of those headers instead -- "every" for all of the slot's
     (the Family Tree Maker: a renamed village's records before its rename, Codex, #555)."""
-    files = numbered(game_dir / LOGS / "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log")
+    files = game_logs(game_dir, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log", slot)
     records: list[LogRecord] = []
     latest = None
     damaged_in: set[str] = set()
@@ -557,10 +586,30 @@ def read_log_text(path: Path) -> str:
 
 
 def numbered_records(game_dir: Path, folder: str, stem: str, marker: str, slot: int) -> tuple[list[str], list[Path]]:
-    """The blocks of a numbered log that begin with `marker` and belong to this slot."""
-    files = numbered(game_dir / LOGS / folder, stem)
-    found: list[tuple[str, str]] = []
+    """The blocks of a numbered log that begin with `marker` and belong to this slot: from the shared
+    folder `folder` (and an older build's name for it), then the slot's own folder."""
+    files = game_logs(game_dir, folder, stem, slot)
+    found = slot_blocks(files, marker, slot)
+    latest = slot_latest_header(files, slot)
+    # Only the slot's latest village (Codex, #522): an earlier village in the same slot is not this one.
+    return [b for h, b, _p in found if h == latest], files
+
+
+def slot_latest_header(files: list[Path], slot: int) -> str | None:
+    """The slot's LATEST "Village:" header in `files` (read in order), whether or not a record
+    follows it yet."""
     latest = None
+    for path in files:
+        for line in read_log_text(path).split("\n"):
+            if line.startswith("Village:") and line.rstrip().endswith(f"(Save {slot})"):
+                latest = line.rstrip()
+    return latest
+
+
+def slot_blocks(files: list[Path], marker: str, slot: int) -> list[tuple[str, str, Path]]:
+    """(header, block, file) of every block of `files` that begins with `marker` under a header of
+    this slot, in order."""
+    found: list[tuple[str, str, Path]] = []
     for path in files:
         text = read_log_text(path)
         header = None
@@ -570,12 +619,9 @@ def numbered_records(game_dir: Path, folder: str, stem: str, marker: str, slot: 
             if heads:
                 header = heads[-1].rstrip()
                 lines = [l for l in lines if not l.startswith("Village:")]
-                if header.endswith(f"(Save {slot})"):
-                    latest = header
             if header and header.endswith(f"(Save {slot})") and lines and lines[0].startswith(marker):
-                found.append((header, "\n".join(lines)))
-    # Only the slot's latest village (Codex, #522): an earlier village in the same slot is not this one.
-    return [b for h, b in found if h == latest], files
+                found.append((header, "\n".join(lines), path))
+    return found
 
 
 def snapshot_villagers(text: str) -> list[dict]:
@@ -603,9 +649,15 @@ def snapshot_villagers(text: str) -> list[dict]:
     return out
 
 
+def population_files(game_dir: Path, slot: int) -> list[Path]:
+    """The Village Population pages to read for the slot: its own folder's ("...Logs\\Save <slot>\\Tribe
+    Population"), or, only while it has none, the shared folder's an older build rewrote for whichever
+    village saved last (src/vv_save_layout.py slot_first_logs)."""
+    return layout.slot_first_logs(Path(game_dir), "Tribe Population", "Village Population", slot)
+
+
 def population_for_slot(game_dir: Path, slot: int) -> list[dict] | None:
-    folder = game_dir / LOGS / "Tribe Population"
-    for path in numbered(folder, "Village Population"):
+    for path in population_files(game_dir, slot):
         text = path.read_text(encoding="latin-1").replace("\r\n", "\n")
         m = re.search(r"^Village: .*\(Save (\d)\)\s*$", text, re.M)
         if m and int(m.group(1)) == slot:
@@ -613,10 +665,15 @@ def population_for_slot(game_dir: Path, slot: int) -> list[dict] | None:
     return None
 
 
+def history_files(game_dir: Path, slot: int | None = None) -> list[Path]:
+    """The Village History files, as one history: the shared folder's, then the slot's own (every
+    slot's when `slot` is None)."""
+    return game_logs(game_dir, "Tribe History", "Village History", slot)
+
+
 def history_last(game_dir: Path, slot: int) -> tuple[str, list[dict]] | None:
-    folder = game_dir / LOGS / "Tribe History"
     last = None
-    for path in numbered(folder, "Village History"):
+    for path in history_files(game_dir, slot):
         text = path.read_text(encoding="latin-1").replace("\r\n", "\n")
         for snap in re.split(r"\n(?==== )", "\n" + text):
             m = re.search(r"^Village: .*\(Save (\d)\)\s*$", snap, re.M)
@@ -1081,9 +1138,10 @@ def check_elders(game_dir: Path, slot: int, game: int, roster: list[Villager], r
 
 
 def history_snapshots(game_dir: Path, header: str) -> list[list[dict]]:
-    """Every snapshot of the village whose "Village:" line is `header`, in every numbered file."""
+    """Every snapshot of the village whose "Village:" line is `header`, in every numbered file (the
+    shared folder's, then the slot's own: the slot the header names)."""
     out = []
-    for path in numbered(game_dir / LOGS / "Tribe History", "Village History"):
+    for path in history_files(game_dir, layout.header_slot(header)):
         text = read_log_text(path)
         for snap in re.split(r"\n(?==== )", "\n" + text):
             m = re.search(r"^(Village: .*)$", snap, re.M)
@@ -1099,7 +1157,7 @@ def history_elders(game_dir: Path, slot: int, game: int, roster: list[Villager],
     header = births.village
     if header is None:
         # No Births log: the slot's latest History header names the village.
-        for path in numbered(game_dir / LOGS / "Tribe History", "Village History"):
+        for path in history_files(game_dir, slot):
             for m in re.finditer(r"^(Village: .*\(Save %d\))\s*$" % slot, read_log_text(path), re.M):
                 header = m.group(1)
     if header is None:
@@ -1119,10 +1177,19 @@ def history_elders(game_dir: Path, slot: int, game: int, roster: list[Villager],
     return found
 
 
+def stats_file(game_dir: Path, slot: int) -> Path | None:
+    """The slot's Village Statistics log: the slot folder's ("...Logs\\Save <slot>\\Village Statistics"),
+    or, only while it has none, the shared folder's an older build wrote."""
+    for place in (layout.slot_log_folder(game_dir, "Village Statistics", slot), game_dir / LOGS / "Village Statistics"):
+        for name in (f"Village Statistics v2 - Save {slot}.txt", f"Village Statistics - Save {slot}.txt"):
+            if (place / name).is_file():
+                return place / name
+    return None
+
+
 def read_stats_text(game_dir: Path, slot: int) -> dict[str, str] | None:
-    folder = game_dir / LOGS / "Village Statistics"
-    for name in (f"Village Statistics v2 - Save {slot}.txt", f"Village Statistics - Save {slot}.txt"):
-        p = folder / name
+    p = stats_file(game_dir, slot)
+    if p is not None:
         if p.is_file():
             rows = {}
             for line in p.read_text(encoding="latin-1").splitlines():
@@ -1750,35 +1817,29 @@ def word_key(name: str) -> str:
     return name
 
 
-def DEATHS_FOLDER(game_dir: Path) -> str:
-    """The Deaths logs' folder new records go to: "Deaths and Disappearances", or an older build's
-    "Deaths" while only it exists (src/vv_save_layout.py: nothing is ever moved)."""
-    return layout.writable(game_dir, f"{LOGS}\\{layout.DEATHS_LOGS}").name
-
-
-def DEATHS_FOLDERS(game_dir: Path) -> list[str]:
-    """Every Deaths logs' folder there is: an older build's "Deaths" first, then "Deaths and
-    Disappearances" -- both when an older and a newer build both played the village (nothing is ever
-    moved, src/vv_save_layout.py and native/shared/save_layout.h)."""
-    folders = [name for name in ("Deaths", layout.DEATHS_LOGS) if (Path(game_dir) / LOGS / name).is_dir()]
-    return folders or [DEATHS_FOLDER(game_dir)]
-
-
 def deaths_records(game_dir: Path, game: int, slot: int) -> list[str]:
     """This slot's Death records from every Deaths folder (Codex, #577): a record kept word for word in
-    both the old and the new folder is one record (each old record matches at most one new one)."""
-    folders = DEATHS_FOLDERS(game_dir)
+    both the old and the new folder is one record (each old record matches at most one new one).  The
+    slot's own "...Logs\\Save <slot>\\Deaths and Disappearances" follows the shared folders, as one
+    history (src/vv_save_layout.py)."""
     stem = f"Virtual Villagers {game} Deaths Log"
-    records, _ = numbered_records(game_dir, folders[0], stem, "Death ", slot)
-    if len(folders) == 1:
-        return records
+    files = game_logs(game_dir, layout.DEATHS_LOGS, stem, slot)
+    old_dir = Path(game_dir) / LOGS / "Deaths"
+    found = slot_blocks(files, "Death ", slot)
+    olds = [path for path in files if path.parent == old_dir]
+    news = [path for path in files if path.parent != old_dir]
+    # Each folder name's own latest village, as each was read on its own before (Codex, #522)...
+    latest_old = slot_latest_header(olds, slot)
+    latest_new = slot_latest_header(news, slot)
+    records = [b for h, b, p in found if p.parent == old_dir and h == latest_old]
     unmatched = list(records)
-    newer, _ = numbered_records(game_dir, folders[1], stem, "Death ", slot)
-    for record in newer:
-        if record in unmatched:
-            unmatched.remove(record)
+    for h, b, p in found:
+        if p.parent == old_dir or h != latest_new:
+            continue
+        if b in unmatched:
+            unmatched.remove(b)
         else:
-            records.append(record)
+            records.append(b)
     return records
 
 
@@ -2142,12 +2203,16 @@ def _blocks(text: str) -> list[tuple[int, int]]:
 
 
 def log_files(game_dir: Path) -> list[Path]:
-    out = []
+    """Every log file, as one history: the shared folders older builds wrote first, then each save
+    slot's own "...Logs\\Save <S>\\" folder, Save 1 to Save 5 (src/vv_save_layout.py)."""
+    shared, slots = [], []
     for top in LOG_FOLDERS:
         root = game_dir / top
         if root.is_dir():
-            out += [p for p in sorted(root.rglob("*.txt")) if not not_a_log(game_dir, p)]
-    return out
+            for p in sorted(root.rglob("*.txt")):
+                if not not_a_log(game_dir, p):
+                    (slots if layout.is_slot_folder(p) else shared).append(p)
+    return shared + sorted(slots, key=lambda p: (layout.is_slot_folder(p), str(p)))
 
 
 def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:

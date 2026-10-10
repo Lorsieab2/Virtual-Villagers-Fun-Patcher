@@ -67,11 +67,7 @@ class Found:
 
 
 def _births_paths(folder: Path, game: int) -> list[Path]:
-    checker = tools.load_checker()
-    return [path for root in (checker.LOGS, "VVFP Logs")
-            for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
-                               ("Tribe Parental Records", "Parentage Log"))
-            for path in checker.numbered(folder / root / sub, f"Virtual Villagers {game} {words}")]
+    return tools.load_checker().births_layout_files(folder, game)
 
 
 def _int(v: str | None) -> int | None:
@@ -198,21 +194,25 @@ def _death_numbers(folder: Path, game: int, slot: int) -> list[Found]:
     import vv_log_additions as additions
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
-    seen_text: dict[str, int] = {}
+    seen_text: dict[tuple, int] = {}
     numbered: list[tuple[int, object, str]] = []
-    for name in checker.DEATHS_FOLDERS(folder):
-        for path in checker.numbered(folder / checker.LOGS / name, f"Virtual Villagers {game} Deaths Log"):
-            for b in additions.blocks(path):
-                m = re.fullmatch(r"Death (\d+)", b.heading)
-                if not m or not b.of(slot, game, villages):
-                    continue
-                body = "\n".join(b.lines[1:])
-                if name == layout.DEATHS_LOGS and seen_text.get(body):
-                    seen_text[body] -= 1               # the same record kept in both folders: one
-                    continue
-                if name != layout.DEATHS_LOGS:
-                    seen_text[body] = seen_text.get(body, 0) + 1
-                numbered.append((int(m.group(1)), b, body))
+    # "Death <n>" is numbered per GAME (src/vv_save_layout.py): every folder of the game is one
+    # sequence -- an older build's "Deaths", the shared "Deaths and Disappearances" and every save
+    # slot's own -- so a number is used twice wherever its two records are.
+    old_dir = folder / checker.LOGS / "Deaths"
+    for path in checker.game_logs(folder, layout.DEATHS_LOGS, f"Virtual Villagers {game} Deaths Log"):
+        older = path.parent == old_dir
+        for b in additions.blocks(path):
+            m = re.fullmatch(r"Death (\d+)", b.heading)
+            if not m or (b.game is not None and b.game != game):
+                continue
+            body = (b.village, "\n".join(b.lines[1:]))
+            if not older and seen_text.get(body):
+                seen_text[body] -= 1               # the same record kept in both folders: one
+                continue
+            if older:
+                seen_text[body] = seen_text.get(body, 0) + 1
+            numbered.append((int(m.group(1)), b, body))
     if not numbered:
         return []
     highest = max(n for n, _b, _t in numbered)
@@ -222,10 +222,12 @@ def _death_numbers(folder: Path, game: int, slot: int) -> list[Found]:
         if n not in used:
             used.add(n)
             continue
+        if not b.of(slot, game, villages):
+            continue        # another village's record: put right when its own slot is checked
         highest += 1
         out.append(Found("death_number",
                          f"\"Death {n}\" is used again for {b.value('Name') or 'a villager'} in "
-                         f"{b.path.parent.name}\\{b.path.name} (line {b.start + 1}) (repairable: Repair Saves & Logs "
+                         f"{_where(b.path)} (line {b.start + 1}) (repairable: Repair Saves & Logs "
                          f"numbers it Death {highest})",
                          [("replace", b.path, b.start, f"Death {highest}")],
                          ident=f"death_number|{n}|{b.value('Name')}|{b.value('Age at death')}"))
@@ -237,13 +239,19 @@ def _repair_numbers(folder: Path, game: int) -> list[Found]:
     checker = tools.load_checker()
     old_dir = folder / checker.LOGS / "Repairs"
     new_dir = folder / checker.LOGS / layout.REPAIRS_LOGS
+    stem = f"Virtual Villagers {game} Repairs Log"
     out = []
-    for new in checker.numbered(new_dir, f"Virtual Villagers {game} Repairs Log"):
-        old = old_dir / new.name
-        if not old.is_file():
+    # Every "Repair <n>" of the game as it will read once the shared folders' collisions below are put
+    # right: what a save slot's own record is checked against (numbered per GAME, repairs_log.h).
+    numbers: list[tuple[int, Path, int]] = []         # (number, file, line index), in reading order
+    for path in checker.game_logs(folder, layout.REPAIRS_LOGS, stem):
+        if layout.is_slot_folder(path):
             continue
-        before = sum(1 for line in additions.read_lines(old) if re.match(r"^Repair \d+\s*$", line))
-        lines = additions.read_lines(new)
+        old = old_dir / path.name
+        before = 0
+        if path.parent == new_dir and old.is_file():
+            before = sum(1 for line in additions.read_lines(old) if re.match(r"^Repair \d+\s*$", line))
+        lines = additions.read_lines(path)
         k = 0
         for i, line in enumerate(lines):
             m = re.match(r"^Repair (\d+)\s*$", line)
@@ -251,13 +259,42 @@ def _repair_numbers(folder: Path, game: int) -> list[Found]:
                 continue
             k += 1
             want = before + k
-            if int(m.group(1)) <= before:
+            if before and int(m.group(1)) <= before:
                 out.append(Found("repair_number",
-                                 f"\"Repair {m.group(1)}\" in {layout.REPAIRS_LOGS}\\{new.name} repeats a number of "
+                                 f"\"Repair {m.group(1)}\" in {layout.REPAIRS_LOGS}\\{path.name} repeats a number of "
                                  f"Repairs\\{old.name} (repairable: Repair Saves & Logs numbers it Repair {want})",
-                                 [("replace", new, i, f"Repair {want}")],
-                                 ident=f"repair_number|{new.name}|{i}"))
+                                 [("replace", path, i, f"Repair {want}")],
+                                 ident=f"repair_number|{path.name}|{i}"))
+                numbers.append((want, path, i))
+            else:
+                numbers.append((int(m.group(1)), path, i))
+    slots = [path for path in checker.game_logs(folder, layout.REPAIRS_LOGS, stem) if layout.is_slot_folder(path)]
+    for path in slots:
+        for i, line in enumerate(additions.read_lines(path)):
+            m = re.match(r"^Repair (\d+)\s*$", line)
+            if m:
+                numbers.append((int(m.group(1)), path, i))
+    highest = max((n for n, _p, _i in numbers), default=0)
+    used: set[int] = set()
+    for n, path, i in numbers:
+        if n not in used:
+            used.add(n)
+            continue
+        if not layout.is_slot_folder(path):
+            continue                    # the shared folders' own collisions: above
+        highest += 1
+        out.append(Found("repair_number",
+                         f"\"Repair {n}\" in {_where(path)} (line {i + 1}) repeats a number used before it "
+                         f"(repairable: Repair Saves & Logs numbers it Repair {highest})",
+                         [("replace", path, i, f"Repair {highest}")],
+                         ident=f"repair_number|{_where(path)}|{i}"))
     return out
+
+
+def _where(path: Path) -> str:
+    """A log file in a report: "<folder>\\<name>", "Save <S>\\<folder>\\<name>" for a slot's own."""
+    slot = layout.is_slot_folder(path)
+    return (f"Save {slot}\\" if slot else "") + f"{path.parent.name}\\{path.name}"
 
 
 def _notes(folder: Path, game: int, slot: int) -> list[Found]:

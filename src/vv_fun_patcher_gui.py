@@ -2120,9 +2120,11 @@ class App(tk.Tk):
                 # folder the game itself saves into -- so pointing at
                 # modded_folder sent a player to a directory where these files
                 # are never created. Found in review.
+                # One folder of logs per save slot: "...Logs\Save N\<the log's folder>"
+                # (src/vv_save_layout.py); the shared folders older builds wrote stay as they are.
                 save_folder = (
                     _documents_folder() / "LDW" / output_exe.stem
-                    / "Virtual Villagers Fun Patcher Logs"
+                    / "Virtual Villagers Fun Patcher Logs" / "Save N"
                 )
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(

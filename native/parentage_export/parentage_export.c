@@ -79,6 +79,7 @@
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "save_folder.h"
 #include "save_layout.h"
+#include "log_slot.h"             /* one folder of logs per save slot */
 #include "log_words.h"
 #include "birth_heading.h"        /* "Birth <n>", or an older log's "Birth" */
 #include "special_title.h"
@@ -1013,12 +1014,19 @@ static const unsigned char *find_record_by_id(
    games, and this is a per-launch concern rather than a per-game one. */
 static int legacy_logs_migrated;
 
+#define BIRTHS_SUB L"Births and Conceptions"
+
+/* `slot` (1..5) is the save slot of the village the record belongs to: the log is
+   "...Logs\Save <slot>\Births and Conceptions\" (native/shared/log_slot.h).  0 (no village
+   named) writes the shared folder older builds wrote. */
 static int build_log_path(
     const struct game_layout *g,
+    int slot,
     int file_number,
     wchar_t *destination
 ) {
     wchar_t folder[MAX_PATH];
+    wchar_t sub[MAX_PATH];
 
     /* THE LOG BELONGS WITH THE SAVE, NOT WITH THE EXECUTABLE.
 
@@ -1034,10 +1042,13 @@ static int build_log_path(
        name, a space, the number and the NUL. */
     /* The owner's layout: <save folder>\Virtual Villagers Fun Patcher Logs\Births and Conceptions\.
        The reserve still covers the longest tail appended below. */
-    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
+    if (!vv_log_rel_w(sub, MAX_PATH, slot, BIRTHS_SUB) || !vv_save_subfolder_w(folder, sub, 64)) {
         return 0;
     }
     /* MOVE ANY LOGS AN OLDER BUILD LEFT IN THE RETIRED FOLDER.
+
+       Into the SHARED folder, where those builds' logs belong (the slot folders hold only what this
+       build writes); `shared` below.
 
        The folder was renamed from "VVFP Logs" when the owner asked for the
        name to be spelled out. Without this, a village with existing logs
@@ -1091,6 +1102,8 @@ static int build_log_path(
            per-game table that could drift out of step with the first. */
         static const int OLD_STEM[3] = { 0, 1, 1 };
         int pass;
+        wchar_t shared[MAX_PATH];
+        shared[0] = L'\0';
         legacy_logs_migrated = 1;
         if (vv_save_folder_w(root, 96)) {
             for (pass = 0; pass < 3; ++pass) {
@@ -1134,6 +1147,11 @@ static int build_log_path(
                 if (GetFileAttributesW(legacy_dir) == INVALID_FILE_ATTRIBUTES) {
                     continue;   /* nothing of that vintage to migrate */
                 }
+                if (shared[0] == L'\0'
+                    && !vv_save_subfolder_w(shared, VV_LOGS_DIR L"\\" BIRTHS_SUB, 64)) {
+                    legacy_logs_migrated = 0;   /* retry next time */
+                    return 0;
+                }
                 /* THE WALK MUST BE RESUMABLE, so neither an absent source
                    nor a failed move ends it.
 
@@ -1160,7 +1178,7 @@ static int build_log_path(
                         continue;   /* already migrated, or never existed */
                     }
                     _snwprintf_s(to, MAX_LOG_PATH, _TRUNCATE,
-                                 L"%ls\\%ls %d.txt", folder, g->log_name, moved);
+                                 L"%ls\\%ls %d.txt", shared, g->log_name, moved);
                     if (GetFileAttributesW(to) != INVALID_FILE_ATTRIBUTES) {
                         continue;   /* already migrated: never overwrite */
                     }
@@ -1325,10 +1343,85 @@ static const wchar_t *deaths_folder(void) {
                                       : VV_DEATHS_LOGS_DIR;
 }
 
+/* The SHARED folder older builds wrote each family's logs in (relative to the save folder). */
 static const wchar_t *family_folder(int family) {
     return family == LOG_DEATHS ? deaths_folder()
         : family == LOG_UNACCOUNTED ? UNACCOUNTED_FOLDER
         : family == LOG_EVENTS ? EVENTS_FOLDER : BIRTHS_FOLDER;
+}
+
+/* The family's own folder name inside "...Logs\" or "...Logs\Save <S>\". */
+static const wchar_t *family_sub(int family) {
+    return family == LOG_DEATHS ? L"Deaths and Disappearances"
+        : family == LOG_UNACCOUNTED ? L"Unaccounted Villagers"
+        : family == LOG_EVENTS ? L"Island Events" : BIRTHS_SUB;
+}
+
+/* The folder (relative) the family's records are WRITTEN in for `slot`: the slot's own
+   "...Logs\Save <slot>\<family's folder>" (native/shared/log_slot.h), or, slot 0 (no village
+   named), the shared folder as before.  `buffer` holds MAX_PATH. */
+static const wchar_t *family_folder_in(int family, int slot, wchar_t *buffer) {
+    if (slot >= 1 && slot <= VV_LOG_SLOTS && vv_log_rel_w(buffer, MAX_PATH, slot, family_sub(family))) {
+        return buffer;
+    }
+    return family_folder(family);
+}
+
+#define READ_FOLDERS (2 + VV_LOG_SLOTS)
+
+/* Every folder a village's logs of `sub` are READ from, oldest first, as one history: the shared
+   folder older builds wrote (and `old_sub`, an older build's name for it), then the slot folder of
+   the village `village` names -- every slot's when it names none.  Each file is still matched to the
+   village by its own header.  Nothing is created.  The count written to `out`. */
+static int log_read_folders(const wchar_t *sub, const wchar_t *old_sub, const char *village,
+                            wchar_t (*out)[MAX_PATH]) {
+    wchar_t root[MAX_PATH];
+    if (!vv_save_folder_w(root, 96)) {
+        return 0;
+    }
+    return vv_log_read_folders_w(root, sub, old_sub, vv_log_header_slot(village), out, READ_FOLDERS);
+}
+
+static int family_read_folders(int family, const char *village, wchar_t (*out)[MAX_PATH]) {
+    return log_read_folders(family_sub(family), family == LOG_DEATHS ? L"Deaths" : NULL, village, out);
+}
+
+static int highest_log_number(const wchar_t *stem, const wchar_t *folder);
+
+/* Every existing "<folder>\<stem> <n>.txt" of a village's `sub` logs, in reading order (folder by
+   folder as log_read_folders gives them, then by number), into a list the caller frees with free().
+   The count, or -1 when the list cannot be made. */
+static int village_log_files(const wchar_t *sub, const char *village, const wchar_t *stem,
+                             wchar_t (**out)[MAX_LOG_PATH]) {
+    wchar_t folders[READ_FOLDERS][MAX_PATH];
+    wchar_t (*list)[MAX_LOG_PATH] = NULL;
+    int capacity = 0, count = 0;
+    int f, n = log_read_folders(sub, NULL, village, folders);
+    *out = NULL;
+    for (f = 0; f < n; ++f) {
+        int ceiling = highest_log_number(stem, folders[f]);
+        int number;
+        for (number = 1; number <= ceiling && number <= 100000; ++number) {
+            wchar_t path[MAX_LOG_PATH];
+            if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folders[f], stem, number) < 0
+                || GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+                continue;
+            }
+            if (count == capacity) {
+                int grown = capacity == 0 ? 16 : capacity * 2;
+                wchar_t (*bigger)[MAX_LOG_PATH] = (wchar_t (*)[MAX_LOG_PATH])realloc(list, (size_t)grown * sizeof *list);
+                if (bigger == NULL) {
+                    free(list);
+                    return -1;
+                }
+                list = bigger;
+                capacity = grown;
+            }
+            lstrcpynW(list[count++], path, MAX_LOG_PATH);
+        }
+    }
+    *out = list;
+    return count;
 }
 
 /* The game a layout row belongs to.  layout_of hands out a copy of The
@@ -1365,16 +1458,18 @@ static const wchar_t *family_stem(const struct game_layout *g, int family) {
 static int build_family_log_path(
     const struct game_layout *g,
     int family,
+    int slot,
     int file_number,
     wchar_t *destination
 ) {
     wchar_t folder[MAX_PATH];
+    wchar_t sub[MAX_PATH];
     const wchar_t *stem;
     if (family == LOG_BIRTHS) {
-        return build_log_path(g, file_number, destination);
+        return build_log_path(g, slot, file_number, destination);
     }
     stem = family_stem(g, family);
-    if (stem == NULL || !vv_save_subfolder_w(folder, family_folder(family), 64)) {
+    if (stem == NULL || !vv_save_subfolder_w(folder, family_folder_in(family, slot, sub), 64)) {
         return 0;
     }
     return _snwprintf_s(destination, MAX_LOG_PATH, _TRUNCATE,
@@ -1657,16 +1752,16 @@ static int highest_log_number(const wchar_t *stem,
     return best;
 }
 
-/* The Death records an older build's "Deaths" folder holds while new records go to "Deaths and
-   Disappearances" (both folders there: native/shared/save_layout.h), so a new record's number
-   continues after the highest in EITHER folder rather than restarting at "Death 1" beside the
-   older folder's own (the owner, 2026-10-09: "recognize old and new paths/folders/files alike").
-   0 when only one folder is used.  The older folder is only read, never made or moved. */
-/* The highest "Death <n>" number printed in one folder's Deaths logs (0 when none). */
-static int deaths_highest_number(const wchar_t *folder, const wchar_t *stem) {
+/* How many of a family's numbered records one folder's logs hold, and the highest number printed
+   after the family's marker ("Death 7", "Conception 12"): 0 and 0 for an absent folder. */
+static void folder_numbers(const wchar_t *folder, const wchar_t *stem, int family, int *count, int *highest) {
     wchar_t path[MAX_LOG_PATH];
     char line[512];
-    int ceiling, number, highest = 0;
+    const char *marker = family_marker(family);
+    size_t marker_length = strlen(marker);
+    int ceiling, number;
+    *count = 0;
+    *highest = 0;
     ceiling = highest_log_number(stem, folder);
     for (number = 1; number <= ceiling && number <= 4096; ++number) {
         FILE *file;
@@ -1678,60 +1773,68 @@ static int deaths_highest_number(const wchar_t *folder, const wchar_t *stem) {
             continue;
         }
         while (fgets(line, (int)sizeof(line), file) != NULL) {
-            if (strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9') {
-                long n = strtol(line + 6, NULL, 10);
-                if (n > highest && n < 0x7FFFFFFEL) {
-                    highest = (int)n;
+            if (strncmp(line, marker, marker_length) == 0) {
+                ++*count;
+                if (line[marker_length] >= '0' && line[marker_length] <= '9') {
+                    long n = strtol(line + marker_length, NULL, 10);
+                    if (n > *highest && n < 0x7FFFFFFEL) {
+                        *highest = (int)n;
+                    }
                 }
             }
         }
         fclose(file);
     }
-    return highest;
 }
 
-/* What the next Death record's number must follow.  The record COUNT alone is not enough when an
-   older build's "Deaths" folder sits beside "Deaths and Disappearances": counting the new folder's
-   records and taking the larger of that and the older folder's count gave every record after the
-   first the same number (the owner's A New Home, v1.35.66: four records all "Death 15" after the
-   older folder's Death 1-14).  So with both folders there the HIGHEST NUMBER PRINTED in either
-   folder counts too: Death 1-5 in the old and 1-3 in the new still gives Death 6, and old 1-14 with
-   new 15 gives Death 16.  With one folder the count alone decides, as it always has (a record an
-   interrupted append cut short must not move the numbering). */
-static int older_deaths_total(const struct game_layout *g) {
-    wchar_t root[MAX_PATH], folder[MAX_PATH], path[MAX_LOG_PATH];
-    const wchar_t *stem = family_stem(g, LOG_DEATHS);
-    int ceiling, number, total = 0, highest;
-    if (stem == NULL || !vv_save_folder_w(root, 64)
-        || lstrcmpiW(deaths_folder(), VV_DEATHS_LOGS_DIR) != 0) {
-        return 0;               /* writing into the older folder: its records are the ones counted */
+/* What the next numbered record of `family` must follow -- "Conception <n>", "Death <n>",
+   "Unaccounted <n>", "Island event <n>" are numbered per GAME, a running count across every
+   village's files (native/shared/log_slot.h), so with one folder per save slot the number continues
+   after every folder of the game: the shared folder older builds wrote (and an older build's
+   "Deaths" beside "Deaths and Disappearances"), and every slot's folder.
+
+   `walked` is the count select_family_log_file walked in the folder written into.  Each OTHER
+   folder counts with the larger of its record count and the highest number printed in it -- never
+   summed across folders: an older and a newer build both kept the same deaths in "Deaths" and
+   "Deaths and Disappearances" (Death 1-5 in the old and 1-3 in the new still gives Death 6; old
+   1-14 with new 15 gives Death 16; the owner's A New Home, v1.35.66: four records all "Death 15").
+   The folder written into adds its own highest number whenever another folder holds records, or it
+   is a slot folder (whose every number this build printed); a lone shared folder is numbered by its
+   count alone, as it always was. */
+static int family_number_floor(const struct game_layout *g, int family, int slot, int walked) {
+    wchar_t root[MAX_PATH];
+    wchar_t folders[2 + VV_LOG_SLOTS][MAX_PATH];
+    wchar_t written[MAX_PATH];
+    wchar_t sub[MAX_PATH];
+    const wchar_t *stem = family_stem(g, family);
+    int n, i, floor = walked, others = 0, written_highest = 0;
+    if (stem == NULL || !vv_save_folder_w(root, 96)
+        || _snwprintf_s(written, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, family_folder_in(family, slot, sub)) < 0) {
+        return walked;
     }
-    if (_snwprintf_s(folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) < 0
-        || vv_layout_probe_w(folder, NULL) != VV_LAYOUT_DIR) {
-        return 0;               /* one folder: the caller's count, as always */
-    }
-    /* Both folders: the highest number printed in the folder written into counts too. */
-    {
-        wchar_t written[MAX_PATH];
-        if (_snwprintf_s(written, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_DIR) < 0) {
-            return 0;
-        }
-        highest = deaths_highest_number(written, stem);
-    }
-    ceiling = highest_log_number(stem, folder);
-    for (number = 1; number <= ceiling && number <= 4096; ++number) {
-        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folder, stem, number) < 0) {
+    n = vv_log_read_folders_w(root, family_sub(family), family == LOG_DEATHS ? L"Deaths" : NULL, 0,
+                              folders, 2 + VV_LOG_SLOTS);
+    for (i = 0; i < n; ++i) {
+        int count, highest;
+        folder_numbers(folders[i], stem, family, &count, &highest);
+        if (lstrcmpiW(folders[i], written) == 0) {
+            written_highest = highest;
             continue;
         }
-        if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
-            total += count_family_records(path, LOG_DEATHS);
+        if (count > 0) {
+            others = 1;
+        }
+        if (count > floor) {
+            floor = count;
+        }
+        if (highest > floor) {
+            floor = highest;
         }
     }
-    if (total > highest) {
-        highest = total;
+    if ((others || (slot >= 1 && slot <= VV_LOG_SLOTS)) && written_highest > floor) {
+        floor = written_highest;
     }
-    number = deaths_highest_number(folder, stem);
-    return number > highest ? number : highest;
+    return floor;
 }
 
 /* Choose the file to append to: the highest-numbered existing file that is not
@@ -1794,6 +1897,11 @@ static int select_family_log_file(
        NOTHING at all, so a fresh installation still gets file 1. */
     int first_free = 0;
     wchar_t folder[MAX_PATH];
+    wchar_t sub[MAX_PATH];
+    /* ONE FOLDER PER SAVE SLOT (native/shared/log_slot.h): the record goes into the folder of the
+       slot its village header names, never a slot read at another moment.  No village named (no
+       publisher installed): the shared folder, as before. */
+    int slot = vv_log_header_slot(village);
 
     *existing_records = 0;
     /* MIGRATE BEFORE MEASURING.
@@ -1809,16 +1917,16 @@ static int select_family_log_file(
 
        One throwaway call does the migration, so the enumeration below
        sees the folder as it will actually be. */
-    if (!build_family_log_path(g, family, 1, destination)) {
+    if (!build_family_log_path(g, family, slot, 1, destination)) {
         return 0;
     }
-    if (!vv_save_subfolder_w(folder, family_folder(family), 64)) {
+    if (!vv_save_subfolder_w(folder, family_folder_in(family, slot, sub), 64)) {
         return 0;
     }
     ceiling = highest_log_number(family_stem(g, family), folder);
     for (number = 1; number <= ceiling + 1 && number <= 4096; ++number) {
         int records;
-        if (!build_family_log_path(g, family, number, destination)) {
+        if (!build_family_log_path(g, family, slot, number, destination)) {
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
@@ -1884,7 +1992,7 @@ static int select_family_log_file(
                `total` already includes this file's own records, so it is the
                number of conceptions logged so far and the next one is
                total + 1. */
-            *existing_records = total;
+            *existing_records = family_number_floor(g, family, slot, total);
             return 1;
         }
     }
@@ -1894,7 +2002,7 @@ static int select_family_log_file(
        A birth belongs in this village's newest file wherever that is, even
        when later numbers belong to other villages. */
     if (for_birth && last_match != 0) {
-        if (!build_family_log_path(g, family, last_match, destination)) {
+        if (!build_family_log_path(g, family, slot, last_match, destination)) {
             return 0;
         }
         *existing_records = last_total;
@@ -1910,10 +2018,10 @@ static int select_family_log_file(
        monotonic; the cost is that a reset's holes are not reused, which is
        only a gap in file NAMES and costs nothing. */
     if (highest != 0 && highest < 4096) {
-        if (!build_family_log_path(g, family, highest + 1, destination)) {
+        if (!build_family_log_path(g, family, slot, highest + 1, destination)) {
             return 0;
         }
-        *existing_records = total;
+        *existing_records = family_number_floor(g, family, slot, total);
         return 1;
     }
     /* NOTHING EXISTS AT ALL: a fresh installation, or the folder after
@@ -1921,10 +2029,10 @@ static int select_family_log_file(
        failure here meant it could never be created -- the feature simply
        did not work for a new player. Found in review. */
     if (first_free != 0) {
-        if (!build_family_log_path(g, family, first_free, destination)) {
+        if (!build_family_log_path(g, family, slot, first_free, destination)) {
             return 0;
         }
-        *existing_records = 0;
+        *existing_records = family_number_floor(g, family, slot, 0);
         return 1;
     }
     return 0;
@@ -2739,49 +2847,67 @@ static int saved_tribe_still_loaded(int game_id) {
    the file with the next unused number), or a hand-edited number goes on
    above every number in it, so the next is always unused.  -1 when a file
    cannot be read. */
+/* ONE FOLDER PER SAVE SLOT (native/shared/log_slot.h): the count is still the GAME's, so every
+   folder is read -- the shared one older builds wrote and every slot's -- and each counts with the
+   larger of its records and its highest number (folders are never summed: their numbers continue
+   one another, so the highest is what the next follows).  Arrived records are counted as before:
+   their count in each folder, and the highest "Arrived <n>" printed. */
 static int count_running_records(const struct game_layout *g, int births) {
-    wchar_t folder[MAX_PATH];
+    wchar_t root[MAX_PATH];
+    wchar_t folders[2 + VV_LOG_SLOTS][MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
+    const wchar_t *stem = family_stem(g, LOG_BIRTHS);
     char line[512];
     int ceiling;
     int number;
-    int total = 0;
-    long highest = 0;
-    if (!vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
+    int best = 0;
+    int f, n;
+    if (stem == NULL || !vv_save_folder_w(root, 96)) {
         return -1;
     }
-    ceiling = highest_log_number(family_stem(g, LOG_BIRTHS), folder);
-    for (number = 1; number <= ceiling; ++number) {
-        FILE *file;
-        if (!build_family_log_path(g, LOG_BIRTHS, number, path)) {
-            return -1;
-        }
-        if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
-            continue;
-        }
-        file = _wfopen(path, L"rb");
-        if (file == NULL) {
-            return -1;
-        }
-        while (fgets(line, (int)sizeof line, file) != NULL) {
-            if (births ? vv_is_birth_heading(line)
-                       : strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
-                ++total;
-                if (births && line[5] == ' ') {
-                    long n = strtol(line + 6, NULL, 10);
-                    if (n > highest) {
-                        highest = n < 0x7FFFFFFEL ? n : 0x7FFFFFFEL;
+    n = vv_log_read_folders_w(root, BIRTHS_SUB, NULL, 0, folders, 2 + VV_LOG_SLOTS);
+    for (f = 0; f < n; ++f) {
+        int total = 0;
+        long highest = 0;
+        ceiling = highest_log_number(stem, folders[f]);
+        for (number = 1; number <= ceiling; ++number) {
+            FILE *file;
+            if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folders[f], stem, number) < 0) {
+                return -1;
+            }
+            if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+                continue;
+            }
+            file = _wfopen(path, L"rb");
+            if (file == NULL) {
+                return -1;
+            }
+            while (fgets(line, (int)sizeof line, file) != NULL) {
+                if (births ? vv_is_birth_heading(line)
+                           : strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
+                    ++total;
+                    if (births ? line[5] == ' ' : 1) {
+                        long value = strtol(line + (births ? 6 : 8), NULL, 10);
+                        if (value > highest) {
+                            highest = value < 0x7FFFFFFEL ? value : 0x7FFFFFFEL;
+                        }
                     }
                 }
             }
-        }
-        if (ferror(file)) {
+            if (ferror(file)) {
+                fclose(file);
+                return -1;
+            }
             fclose(file);
-            return -1;
         }
-        fclose(file);
+        if (total > best) {
+            best = total;
+        }
+        if (highest > best) {
+            best = (int)highest;
+        }
     }
-    return highest > total ? (int)highest : total;
+    return best;
 }
 
 /* What append_record reports. A record that fails with its file restored is
@@ -2812,16 +2938,9 @@ static int append_record(
                                 &existing_records, !kind_is_numbered(kind))) {
         return 0;
     }
-    if (kind == KIND_DEATH) {
-        /* With an older build's "Deaths" beside "Deaths and Disappearances", the number follows
-           the highest in EITHER folder (Death 1-5 in the old and 1-3 in the new: Death 6; old
-           1-14 and new 15: Death 16), never only the count of the folder written into; the
-           record is still written where select_family_log_file chose. */
-        int older = older_deaths_total(g);
-        if (older > existing_records) {
-            existing_records = older;
-        }
-    }
+    /* A numbered record's number already follows every folder of the game -- an older build's
+       "Deaths" beside "Deaths and Disappearances", the shared folders and every slot's
+       (family_number_floor) -- and the record is written where select_family_log_file chose. */
     if (kind == KIND_ARRIVED || (kind == KIND_BIRTH && strncmp(text, "Birth\n", 6) == 0)) {
         /* Its number: the Arrived (or Birth) records already written, in
            every file. A file that cannot be read leaves the record held for
@@ -4649,5 +4768,11 @@ const struct game_layout *vv_parentage_layout(int game) {
 int vv_parentage_log_folder(wchar_t *out) {
     return vv_save_subfolder_w(
         out, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64);
+}
+
+/* "...Logs\Save <slot>\Births and Conceptions" (native/shared/log_slot.h), made. */
+int vv_parentage_slot_log_folder(int slot, wchar_t *out) {
+    wchar_t sub[MAX_PATH];
+    return vv_log_rel_w(sub, MAX_PATH, slot, BIRTHS_SUB) && vv_save_subfolder_w(out, sub, 64);
 }
 #endif

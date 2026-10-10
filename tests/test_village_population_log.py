@@ -806,7 +806,7 @@ class VillagePopulationBehaviourTests(unittest.TestCase):
             "an empty village still replaces the previous snapshot",
         )
         self.assertIn(
-            "if (!build_log_paths(file_index, temporary, destination)) {",
+            "if (!build_log_paths(vv_log_header_slot(village), file_index, temporary, destination)) {",
             before_loop,
             "the pre-loop open must build its paths unconditionally",
         )

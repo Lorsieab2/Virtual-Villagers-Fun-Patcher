@@ -4,6 +4,7 @@
 #define VV_DATA_SUBFOLDER_NAMES_ONLY   /* the folder names; nothing is moved here */
 #include "data_subfolder.h"
 #include "village_rename.h"
+#include "log_slot.h"       /* one folder of logs per save slot */
 
 #include <windows.h>
 
@@ -465,12 +466,22 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
 
        Both are addressed by SLOT, never by walking every number: a reset
        of slot 1 must not touch slots 2..5. */
-    if (vv_save_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Village Statistics", 64)) {
+    /* ONE FOLDER OF LOGS PER SAVE SLOT (log_slot.h): the shared folder older builds wrote, and the
+       slot's own "...Logs\Save <slot>\Village Statistics" -- each probed, never created. */
+    if (legacy_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Village Statistics")) {
         wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", sub_w, slot);
         removed += delete_if_present_w(path_w);
         /* The current log, which replaced the file above. */
         wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
         removed += delete_if_present_w(path_w);
+    }
+    {
+        wchar_t slot_sub[MAX_PATH];
+        if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Village Statistics") && legacy_subfolder_w(sub_w, slot_sub)) {
+            /* The same file the shared folder's sweep removes, no more. */
+            wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
+            removed += delete_if_present_w(path_w);
+        }
     }
     /* THE STATISTICS COMPANION'S PER-SLOT DATA. Village Statistics holds the
        patch's own lifetime counters, Stew Discoveries the unique stews (The
@@ -527,8 +538,15 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        Without a village string nothing is deleted, as for parentage.
        vv_save_subfolder_w creates the folder if absent, which is harmless
        here -- an empty folder is not a stale roster. */
-    if (vv_save_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Tribe Population", 64)) {
+    if (legacy_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Tribe Population")) {
         removed += delete_village_population_pages(sub_w, village);
+    }
+    {
+        /* The slot's own roster folder (log_slot.h), matched by header like the shared one. */
+        wchar_t slot_sub[MAX_PATH];
+        if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Tribe Population") && legacy_subfolder_w(sub_w, slot_sub)) {
+            removed += delete_village_population_pages(sub_w, village);
+        }
     }
     if (legacy_subfolder_w(sub_w, L"VVFP Logs\\Tribe Population")) {
         removed += delete_village_population_pages(sub_w, village);
@@ -572,6 +590,11 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
            reset must not create one.  Index 6 is the Island Events log
            ("VVFP Island Events.dll", through the same exporter), probed the
            same way. */
+        /* Indexes 8 to 11 are the same four logs in the slot's own folder, "...Logs\Save <slot>\"
+           (log_slot.h), where this build writes them; matched by header like every other. */
+        static const wchar_t *const SLOT_SUBS[4] = {
+            L"Births and Conceptions", L"Deaths and Disappearances", L"Unaccounted Villagers", L"Island Events"
+        };
         static const wchar_t *const FOLDERS[8] = {
             L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions",
             L"Virtual Villagers Fun Patcher Logs\\Tribe Parental Records",
@@ -613,16 +636,20 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             L"Virtual Villagers 5 Parentage Log"
         };
         int pass;
-        for (pass = 0; pass < 8; ++pass) {
+        for (pass = 0; pass < 12; ++pass) {
             /* The old FILE name went with the old FOLDER name, so the
                stem follows the folder rather than the pass number. */
-            const wchar_t *stem = pass == 6 ? EVENTS_LOG[game - 1]
+            const wchar_t *stem = pass >= 8
+                ? (pass == 8 ? PARENTAGE_LOG[game - 1] : pass == 9 ? DEATH_LOG[game - 1]
+                   : pass == 10 ? UNACCOUNTED_LOG[game - 1] : EVENTS_LOG[game - 1])
+                : pass == 6 ? EVENTS_LOG[game - 1]
                 : pass == 5 ? UNACCOUNTED_LOG[game - 1]
                 : pass == 4 || pass == 7 ? DEATH_LOG[game - 1]
                 : (pass % 2 == 0) ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
-            if (pass == 0) {
-                /* The current folder, which the exporter writes to anyway. */
-                if (!vv_save_subfolder_w(sub_w, FOLDERS[pass], 64)) {
+            if (pass >= 8) {
+                wchar_t slot_sub[MAX_PATH];
+                if (!vv_log_rel_w(slot_sub, MAX_PATH, slot, SLOT_SUBS[pass - 8])
+                    || !legacy_subfolder_w(sub_w, slot_sub)) {
                     continue;
                 }
             } else if (!legacy_subfolder_w(sub_w, FOLDERS[pass])) {

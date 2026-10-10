@@ -35,8 +35,13 @@ POPULATION_HARNESS = ROOT / "native/population_export/population_export_harness.
 
 
 def subfolders(source: str) -> set[str]:
-    r"""Every `Virtual Villagers Fun Patcher Logs\<kind>` literal a file names, narrow or wide."""
-    return set(re.findall(r'Virtual Villagers Fun Patcher Logs\\\\([A-Za-z ]+)', source))
+    r"""Every log folder a file names: a `Virtual Villagers Fun Patcher Logs\<kind>` literal, narrow
+    or wide, or -- with one folder of logs per save slot (native/shared/log_slot.h) -- the `<kind>`
+    an exporter hands vv_log_rel_w, and a harness's `...Logs\Save <S>\<kind>`."""
+    found = set(re.findall(r'Virtual Villagers Fun Patcher Logs\\\\(?:Save \d\\\\)?([A-Za-z ]+)', source))
+    found |= set(re.findall(r'vv_log_rel_w\([^;]*?L"([A-Za-z ]+)"\)', source))
+    found |= {"Births and Conceptions"} if '#define BIRTHS_SUB L"Births and Conceptions"' in source else set()
+    return found - {"Save "}
 
 
 class HarnessesFollowTheirExportersTests(unittest.TestCase):

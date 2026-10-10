@@ -74,7 +74,7 @@ def row(game: str, sha: str) -> dict:
     n = NUMBER[game]
     description = (
         "Every change an island event makes to a villager is written to a new log, the Island Events log "
-        f"(\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers {n} Island Events Log 1.txt\"): "
+        f"(\"Virtual Villagers Fun Patcher Logs\\Save <slot>\\Island Events\\Virtual Villagers {n} Island Events Log 1.txt\"): "
         "one numbered record per villager it changed, with the event's title as the game shows it, the answer "
         "you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, "
         "body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title"

@@ -552,26 +552,44 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
    number order, keeping this slot's records.  1: read (records may be none);
    0: there is no Births log for this village at all; -1: a file is there and
    could not be read whole -- the caller changes nothing. */
+/* ONE FOLDER OF LOGS PER SAVE SLOT (native/shared/log_slot.h): the shared "Births and Conceptions"
+   older builds wrote first, then "...Logs\Save <slot>\Births and Conceptions" -- one history, every
+   record kept only under its own slot's header (vv1_xc_parse).  Neither folder is made to look in. */
 static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
     char folder[MAX_PATH];
     char pattern[MAX_PATH];
     char path[MAX_PATH];
     static int numbers[VV1_XC_MAX_LOG_FILES];
-    int count = 0, i, j;
+    int count = 0, i, j, place;
     WIN32_FIND_DATAA found;
     HANDLE find;
     memset(log, 0, sizeof(*log));
     log->village_header = -1;
-    if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs",
-                          "Births and Conceptions",
-                          sizeof("\\Virtual Villagers 1 Births and Conceptions Log 4294967295.txt"))) {
+    for (place = 0; place < 2; ++place) {
+    if (place == 1 && (slot < 1 || slot > 5)) {
+        break;
+    }
+    if (!vv1_xc_game_folder(folder, sizeof(folder),
+                            sizeof("\\" VV_LOGS_DIR_A "\\Save 5\\Births and Conceptions")
+                            + sizeof("\\Virtual Villagers 1 Births and Conceptions Log 4294967295.txt"))) {
+        vv1_xc_free(log);
         return -1;
     }
+    if (place == 0) {
+        lstrcatA(folder, "\\" VV_LOGS_DIR_A "\\Births and Conceptions");
+    } else {
+        wsprintfA(folder + lstrlenA(folder), "\\" VV_LOGS_DIR_A "\\Save %d\\Births and Conceptions", slot);
+    }
+    count = 0;
     wsprintfA(pattern, "%s\\Virtual Villagers 1 Births and Conceptions Log *.txt", folder);
     find = FindFirstFileA(pattern, &found);
     if (find == INVALID_HANDLE_VALUE) {
         DWORD error = GetLastError();
-        return (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND || error == ERROR_NO_MORE_FILES) ? 0 : -1;
+        if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND || error == ERROR_NO_MORE_FILES) {
+            continue;
+        }
+        vv1_xc_free(log);
+        return -1;
     }
     do {
         const char *tail = found.cFileName + sizeof("Virtual Villagers 1 Births and Conceptions Log ") - 1;
@@ -627,6 +645,7 @@ static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
             vv1_xc_free(log);
             return -1;
         }
+    }
     }
     if (log->overflow
         || (log->village_header >= 0 && (log->damaged & (1ull << log->village_header)) != 0)) {
@@ -1097,6 +1116,47 @@ static int vv1_xc_append(const char *path, const char *text) {
     return ok ? 1 : 0;
 }
 
+/* The highest "Repair <n>" printed in any of A New Home's Repairs files -- an older build's
+   "Repairs", the shared "Repairs Made" and every slot's (native/shared/log_slot.h) -- so a number
+   is never used twice.  0 none; -1 a file there that cannot be read. */
+static long vv1_xc_repairs_highest(void) {
+    char root[MAX_PATH];
+    char folders[2 + VV_LOG_SLOTS][MAX_PATH];
+    char pattern[MAX_PATH], path[MAX_PATH];
+    long highest = 0;
+    int n, f;
+    if (!vv1_xc_game_folder(root, sizeof(root), 64)) {
+        return -1;
+    }
+    n = vv_log_read_folders_a(root, "Repairs Made", "Repairs", 0, folders, 2 + VV_LOG_SLOTS);
+    for (f = 0; f < n; ++f) {
+        WIN32_FIND_DATAA found;
+        HANDLE find;
+        if ((size_t)lstrlenA(folders[f]) + sizeof("\\Virtual Villagers 1 Repairs Log 4294967295.txt") > MAX_PATH) {
+            return -1;
+        }
+        wsprintfA(pattern, "%s\\Virtual Villagers 1 Repairs Log *.txt", folders[f]);
+        find = FindFirstFileA(pattern, &found);
+        if (find == INVALID_HANDLE_VALUE) {
+            continue;
+        }
+        do {
+            int count = 0;
+            if ((found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0
+                || (size_t)lstrlenA(folders[f]) + (size_t)lstrlenA(found.cFileName) + 2 > MAX_PATH) {
+                continue;
+            }
+            wsprintfA(path, "%s\\%s", folders[f], found.cFileName);
+            if (vv_log_marker_numbers_a(path, "Repair ", &count, &highest) < 0) {
+                FindClose(find);
+                return -1;
+            }
+        } while (FindNextFileA(find, &found));
+        FindClose(find);
+    }
+    return highest;
+}
+
 static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const unsigned char *records,
                        const char *backup, char *path_out) {
     char folder[MAX_PATH];
@@ -1110,8 +1170,25 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
     HANDLE file;
     DWORD size, got = 0;
     int ok;
-    if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs", "Repairs Made",
-                          sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
+    long highest = vv1_xc_repairs_highest();
+    int slot = vv_log_header_slot(header);
+    if (highest < 0) {
+        return 0;                         /* a Repairs file there and unreadable: never numbered blind */
+    }
+    if (slot != 0) {
+        /* The village's own slot folder, "...Logs\Save <slot>\Repairs Made" (log_slot.h). */
+        if (!vv1_xc_game_folder(folder, sizeof(folder), sizeof("\\" VV_LOGS_DIR_A "\\Save 5\\Repairs Made")
+                                + sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
+            return 0;
+        }
+        lstrcatA(folder, "\\" VV_LOGS_DIR_A);
+        CreateDirectoryA(folder, NULL);
+        wsprintfA(folder + lstrlenA(folder), "\\Save %d", slot);
+        CreateDirectoryA(folder, NULL);
+        lstrcatA(folder, "\\Repairs Made");
+        CreateDirectoryA(folder, NULL);
+    } else if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs", "Repairs Made",
+                                 sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
         return 0;
     }
     /* The highest numbered file that is there; a new one past it when full. */
@@ -1190,7 +1267,8 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
               "  Date: %04u-%02u-%02u %02u:%02u:%02u\r\n"
               "  Checked: the parents recorded for each living villager, against the Births and Conceptions log\r\n",
               /* after an older build's "Repairs" folder's own records (save_layout.h) */
-              repairs + 1 + vv_layout_older_repairs(folder, 1, file_number),
+              (int)((long)(repairs + vv_layout_older_repairs(folder, 1, file_number)) > highest
+                    ? (long)(repairs + vv_layout_older_repairs(folder, 1, file_number)) : highest) + 1,
               now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond);
     for (i = 0; i < plan->count; ++i) {
         const vv1_xc_change *c = &plan->changes[i];

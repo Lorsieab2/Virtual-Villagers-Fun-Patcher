@@ -316,7 +316,7 @@ class EveryGameFindsAndFixesDifferences(unittest.TestCase):
                 copies = list((v.folder / DATA / "Copies Made Before Repairs").rglob("*.before-grave-repair"))
                 self.assertTrue(any(c.read_bytes() == before for c in copies), "a copy of the save before")
                 self.assertTrue(result.backup.backup_folder.is_dir())
-                repairs = list((v.folder / LOGS / "Repairs Made").glob("*.txt"))
+                repairs = list((v.folder / LOGS / "Save 1" / "Repairs Made").glob("*.txt"))   # the slot's own folder
                 self.assertTrue(repairs)
                 self.assertIn("Village: Tribe (Save 1)", repairs[0].read_bytes().decode("latin-1"))
                 self.assertIn("Grave information corrected", repairs[0].read_bytes().decode("latin-1"))

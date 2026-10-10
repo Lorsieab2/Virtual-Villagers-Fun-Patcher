@@ -145,7 +145,7 @@ class RestoreTests(unittest.TestCase):
         self.assertTrue(any("Cleo Bahati" in c for c in result.plan.conflicts))
         self.assertEqual(result.copy.read_bytes()[:4], restore.MAGIC)
         self.assertIn("Copies Made Before Repairs", str(result.copy))
-        note = (self.folder / "Virtual Villagers Fun Patcher Logs" / "Repairs Made"
+        note = (self.folder / "Virtual Villagers Fun Patcher Logs" / "Save 1" / "Repairs Made"
                 / "Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Village: Test Tribe (Save 1)", note)
         self.assertIn("Parents restored: Alba Bahati: father Bram Bahati, mother Cora Bahati", note)

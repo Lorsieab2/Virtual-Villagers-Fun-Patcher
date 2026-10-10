@@ -6,6 +6,7 @@
 #include "village_identity.h"
 #include "save_folder.h"
 #include "save_layout.h"
+#include "log_slot.h"             /* one folder of logs per save slot */
 #include "patcher_files.h"
 #include "village_elders.h"
 #include "roster_match.h"
@@ -224,7 +225,11 @@ static int build_output_paths(
        folder next to the .ldw files. vv_save_subfolder_w creates every
        missing component and leaves `reserve` bytes for the caller's own
        append, which here is the longer of the two tails below. */
-    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Village Statistics", 64)) {
+    /* In the slot's own folder, "...Logs\Save <S>\Village Statistics" (native/shared/log_slot.h);
+       the file an older build wrote in the shared folder is left as it is and never written again. */
+    wchar_t sub[MAX_PATH];
+    if (!vv_log_rel_w(sub, MAX_PATH, save_id >= 1 && save_id <= VV_LOG_SLOTS ? save_id : 0, L"Village Statistics")
+        || !vv_save_subfolder_w(module_path, sub, 64)) {
         return 0;
     }
     if (_snwprintf_s(
