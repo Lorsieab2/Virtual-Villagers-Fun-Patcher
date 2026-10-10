@@ -126,8 +126,9 @@ class Harnesses(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASSED: 0 failure(s)", result.stdout)
         # 58, and 4 for the roster's older name in its folder (native/shared/save_layout.h): used under
-        # that name, loose or in its folder, never moved or renamed
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62, result.stdout)
+        # that name, loose or in its folder, never moved or renamed; and 11 for section 11, the Custom
+        # Island Event's "Dies" (v1.35.68: "Died in a custom island event")
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11, result.stdout)
         self.assertIn("  ok   the save read and wrote it under its older name, never renaming it: nobody unaccounted",
                       result.stdout)
         self.assertIn("  ok   the save used the roster where an older build left it (loose, by its older name), never moving it",

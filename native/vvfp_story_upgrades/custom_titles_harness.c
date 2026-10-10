@@ -98,6 +98,8 @@ int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve) {
     return 1;
 }
 
+#include "identity_in_place.h"
+
 /* ---- the game: a slot and a village of named records -------------------- */
 
 #define RECORDS 8
@@ -136,16 +138,33 @@ static int story_record_present(int game, const unsigned char *record) {
     return record[0] != 0;
 }
 
+/* The identity: the name, and byte [44] standing for the likes and dislikes
+   (vv_title_identity hashes those too; 0 in every villager() unless a case
+   changes them -- as an island event does). */
 static unsigned int story_title_identity(int game, const unsigned char *record) {
+    unsigned int h = vv_title_fingerprint(record + 1, NAME_BYTES);
     (void)game;
-    return vv_title_fingerprint(record + 1, NAME_BYTES);
+    h = (h ^ record[44]) * 16777619u;
+    return h ? h : 1u;
 }
 
-/* What a rename leaves alone: byte [40] stands for the sex, likes and
-   dislikes (0 in every villager() unless a case sets it). */
+/* What a rename leaves alone: byte [40] stands for the sex, and [44] the
+   likes and dislikes (0 in every villager() unless a case sets it). */
 static unsigned int story_title_stable(int game, const unsigned char *record) {
     (void)game;
-    return 1u + record[40];
+    return 1u + record[40] + 256u * record[44];
+}
+
+/* What a likes / dislikes change leaves alone: the name and the sex
+   (dword [48]); and the age (int [52]). */
+static unsigned int story_title_keep(int game, const unsigned char *record) {
+    (void)game;
+    return vv_identity_keep(record, 1u, NAME_BYTES, 48u);
+}
+
+static int story_title_age(int game, const unsigned char *record) {
+    (void)game;
+    return *(const int *)(record + 52);
 }
 
 static void villager(int index, const char *name) {
@@ -231,6 +250,7 @@ int main(void) {
           "A NEW SESSION READS THE TITLE BACK FROM THE .DAT");
     check(titles_lookup(3, g_records[0]) == NULL, "another villager has no title");
     villager(1, "Kalani");                       /* a birth reused record 1 */
+    g_records[1][40] = 5;                        /* ...a newborn with likes of her own */
     check(titles_lookup(3, g_records[1]) == NULL, "A REUSED RECORD NEVER INHERITS THE TITLE");
     villager(1, "Kai");
 
@@ -511,6 +531,91 @@ int main(void) {
     memset(g_records, 0, sizeof g_records);
     villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");
 
+    /* -- v1.35.68: likes / dislikes changed by an island event ------------
+       The Tree of Life's "Faces in the Night" gave Alapai new dislikes and
+       the Island Events log said "Custom title: Moon Mother -> none": the
+       identity hashes the likes and dislikes, so the title was swept away.
+       Every game. */
+    for (game = 1; game <= 5; ++game) {
+        char what[128];
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Alapai"); villager(2, "Moku"); villager(3, "Kai");
+        *(int *)(g_records[1] + 52) = 300;
+        g_records[1][48] = 1;                                         /* female */
+        titles_tick(game);
+        check(titles_set(game, 1, "Moon Mother") == 1 && titles_set(game, 3, "Sea Watcher") == 1,
+              "setup: Alapai [1] and Kai [3] have titles");
+        titles_tick(game);
+        g_records[1][44] = 7;                                         /* the event's new dislikes */
+        seen = titles_lookup(game, g_records[1]);                     /* the Island Events log asks at once */
+        wsprintfA(what, "THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME (game %d)", game);
+        check(seen != NULL && lstrcmpA(seen, "Moon Mother") == 0, what);
+        titles_tick(game);
+        *(int *)(g_records[1] + 52) = 301;                            /* a year passes... */
+        titles_tick(game);
+        seen = titles_lookup(game, g_records[1]);
+        wsprintfA(what, "... and every tick after it (game %d)", game);
+        check(seen != NULL && lstrcmpA(seen, "Moon Mother") == 0, what);
+        new_session();
+        seen = titles_lookup(game, g_records[1]);
+        wsprintfA(what, "... and the file has it under the new identity (game %d)", game);
+        check(seen != NULL && lstrcmpA(seen, "Moon Mother") == 0, what);
+        /* An event that changes everyone's likes at once: both titles stay. */
+        titles_tick(game);
+        g_records[1][44] = 8;
+        g_records[3][44] = 9;
+        g_records[0][44] = 3;
+        titles_tick(game);
+        titles_tick(game);
+        wsprintfA(what, "an event changing everyone's likes keeps every title (game %d)", game);
+        check(titles_lookup(game, g_records[1]) != NULL && titles_lookup(game, g_records[3]) != NULL
+              && titles.count == 2, what);
+        /* A newborn namesake of the same sex in the record: not her (age 0). */
+        g_records[1][44] = 5;
+        *(int *)(g_records[1] + 52) = 0;
+        titles_tick(game);
+        titles_tick(game);
+        wsprintfA(what, "a newborn namesake in the freed record does not get the title (game %d)", game);
+        check(titles_lookup(game, g_records[1]) == NULL && titles.count == 1, what);
+        /* A reload that packs a same-name, same-sex, same-age twin into her
+           dead sister's record is not a likes change: the title is not
+           given to the twin. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Pua"); villager(1, "Pua"); villager(2, "Moku");
+        g_records[0][44] = 1;
+        g_records[1][44] = 2;
+        titles_tick(game);
+        check(titles_set(game, 0, "Elder Twin") == 1, "setup: twin Pua [0] has a title");
+        titles_tick(game);
+        memcpy(g_records[0], g_records[1], sizeof g_records[0]);     /* [0] died; the reload packs */
+        memcpy(g_records[1], g_records[2], sizeof g_records[1]);
+        memset(g_records[2], 0, sizeof g_records[2]);
+        titles_tick(game);
+        titles_tick(game);
+        wsprintfA(what, "A PACKED RELOAD NEVER GIVES THE DEAD TWIN'S TITLE TO HER NAMESAKE (game %d)", game);
+        check(titles_lookup(game, g_records[0]) == NULL, what);
+        /* A village of one whose likes change shares no identity with the
+           last look: still play, not the title screen's other array. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Alapai");
+        titles_tick(game);
+        check(titles_set(game, 0, "Moon Mother") == 1, "setup: a village of one, titled");
+        titles_tick(game);
+        g_records[0][44] = 4;
+        titles_tick(game);
+        titles_tick(game);
+        wsprintfA(what, "A VILLAGE OF ONE KEEPS THE TITLE THROUGH A LIKES CHANGE (game %d)", game);
+        check(titles_lookup(game, g_records[0]) != NULL && titles.swapped == 0, what);
+    }
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");
     /* -- the title screen: another array with the slot unchanged ---------
        A quit to the menu leaves the startup slot list's seeded founders in
        the records while the game's slot field still says 1 (the owner's

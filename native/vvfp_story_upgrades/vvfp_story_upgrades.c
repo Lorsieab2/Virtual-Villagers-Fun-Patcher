@@ -63,6 +63,7 @@
 
 #include "story_tables.h"
 #include "../shared/custom_titles.h"
+#include "../shared/identity_in_place.h"   /* a likes / dislikes change keeps the title */
 #include "../shared/sidecar_io.h"
 #include "../shared/save_folder.h"
 #include "../shared/patcher_files.h"
@@ -541,6 +542,8 @@ static int story_record_index(int game, const unsigned char *record);
 static int story_record_present(int game, const unsigned char *record);
 static unsigned int story_title_identity(int game, const unsigned char *record);
 static unsigned int story_title_stable(int game, const unsigned char *record);
+static unsigned int story_title_keep(int game, const unsigned char *record);
+static int story_title_age(int game, const unsigned char *record);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
 static int titles_rebind(int game, int index, unsigned int before);
@@ -616,6 +619,19 @@ static unsigned int story_title_stable(int game, const unsigned char *record) {
     h = vv_title_identity(record, a->off_name, 0u, a->off_likes, a->off_dislikes, (unsigned int)a->pref_slots);
     h = (h ^ (unsigned int)*(const int *)(record + a->off_sex)) * 16777619u;
     return h ? h : 1u;
+}
+
+/* What a likes / dislikes change leaves of the title identity -- the name
+   and the sex -- and the age (story_titles.inc tells such a change from a
+   new occupant by them, native/shared/identity_in_place.h).  Never 0. */
+static unsigned int story_title_keep(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL ? vv_identity_keep(record, a->off_name, (unsigned int)a->name_bytes, a->off_sex) : 0;
+}
+
+static int story_title_age(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL ? *(const int *)(record + a->off_age) : 0;
 }
 
 #include "story_titles.inc"

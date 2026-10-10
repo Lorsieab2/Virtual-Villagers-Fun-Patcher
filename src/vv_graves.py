@@ -69,8 +69,18 @@ DECISION_KIND = "grave"
 # New Believers' words (the owner, 2026-10-03: causes and epitaphs use VV5's spelling); the
 # patcher's Cause of Death companion writes these (native/vvfp_cause_of_death).
 CAUSE_WORDS = {-1: "Unknown causes", 0: "Disease", 1: "Starvation", 2: "Old age", 3: "Work accident",
-               4: "Act of Nature"}
+               4: "Act of Nature", 5: "Died in a custom island event"}
 CAUSE_NONE = 0x7F
+# The Custom Island Event's "Dies": the companion's own cause, never a game's.  A New Home's and The
+# Lost Children's Graves file keeps it (VCD1 version 2); the later three games' graves keep the game's
+# own -1 ("Unknown causes", how their grave dialog words it) and only the Death record says this.
+CAUSE_CUSTOM_EVENT = 5
+CUSTOM_EVENT_WORDS = CAUSE_WORDS[CAUSE_CUSTOM_EVENT]
+
+
+def cause_words(game: int) -> list[str]:
+    """The causes a grave of `game` can be given: the later three games keep only their own."""
+    return [w for k, w in CAUSE_WORDS.items() if game <= 2 or k != CAUSE_CUSTOM_EVENT]
 NOT_RECORDED = "(not recorded"
 EPITAPHS = (None, "Respected Citizen", "Child of the Earth", "Nature's Friend", "Parent, Teacher, Friend",
             "Dedicated to Children", "Guardian of Health", "Dedicated to Others", "Dedicated Student",
@@ -249,23 +259,31 @@ def graves_file(folder: Path, game: int, slot: int) -> Path | None:
 
 
 def _vcd1_entries(data: bytes, game: int) -> list[bytearray] | None:
-    if len(data) < 16 or data[:4] != b"VCD1" or _i32(data, 4) != 1 or _i32(data, 8) != game:
+    """The entries of a Graves file: version 1, or version 2 (cause 5, the Custom Island Event's
+    "Dies", allowed), as cod_vv12.inc reads them."""
+    if len(data) < 16 or data[:4] != b"VCD1" or _i32(data, 4) not in (1, 2) or _i32(data, 8) != game:
         return None
     count = struct.unpack_from("<I", data, 12)[0]
     if len(data) != 16 + 44 * count:
         return None
-    return [bytearray(data[16 + 44 * k:16 + 44 * (k + 1)]) for k in range(count)]
+    entries = [bytearray(data[16 + 44 * k:16 + 44 * (k + 1)]) for k in range(count)]
+    if _i32(data, 4) == 1 and any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries):
+        return None                         # the companion sets such a file aside
+    return entries
 
 
 def _vcd1_bytes(game: int, entries: list[bytearray]) -> bytes:
+    """Version 2 only when an entry holds cause 5, as the companion writes it: a file without one stays
+    readable by every build."""
     entries = sorted(entries, key=lambda e: (struct.unpack_from("<H", e, 0)[0], struct.unpack_from("<H", e, 2)[0]))
-    return struct.pack("<4sIII", b"VCD1", 1, game, len(entries)) + b"".join(bytes(e) for e in entries)
+    version = 2 if any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries) else 1
+    return struct.pack("<4sIII", b"VCD1", version, game, len(entries)) + b"".join(bytes(e) for e in entries)
 
 
 def _sidecar_values(game: int, entry: bytes) -> dict:
     out = {}
     cause = struct.unpack_from("<b", entry, 8)[0]
-    if -1 <= cause <= 4:
+    if -1 <= cause <= CAUSE_CUSTOM_EVENT:
         out["cause"] = CAUSE_WORDS[cause]
     if game == 1:
         if entry[10]:
@@ -515,6 +533,8 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
                 continue
             elif key == "cause" and isinstance(r, str) and r.startswith(NOT_RECORDED):
                 continue                        # the record says the death was not seen: nothing to choose
+            elif key == "cause" and game >= 3 and gv == CAUSE_WORDS[-1] and r == CUSTOM_EVENT_WORDS:
+                continue                        # the event's death: the game's own grave words it -1
             elif key == "epitaph" and newest is not None:
                 options = {"the grave": gv, "the newest Epitaph changed record": r}
             elif key in g.sidecar and key not in g.values:
@@ -597,8 +617,10 @@ def check_value(game: int, key: str, value, survey_: Survey | None = None, seen:
             raise GraveError(f"An epitaph must be at most {EPITAPH_ROOM[game]} printable characters.")
         return value
     if key == "cause":
-        if value not in CAUSE_WORDS.values():
-            raise GraveError("The cause of death must be one of: " + ", ".join(CAUSE_WORDS.values()) + ".")
+        # The later three games' grave keeps only their own causes (nothing unusual is ever written
+        # into a save): the Custom Island Event's words are the Death record's alone there.
+        if value not in cause_words(game):
+            raise GraveError("The cause of death must be one of: " + ", ".join(cause_words(game)) + ".")
         return value
     if key == "sex":
         if value not in ("Male", "Female"):

@@ -730,6 +730,14 @@ Fun Patcher Data", one file per save slot:
         Virtual Villagers 1 Graves - Save <slot>.dat     A New Home
         Virtual Villagers 2 Graves - Save <slot>.dat     The Lost Children
 
+    Custom Island Event Deaths\                    (Cause of Death: the bodies a
+        Virtual Villagers <N> Custom Island Event   Custom Island Event's "Dies"
+          Deaths - Save <slot>.dat                  left lying, until their Death
+                                                    record says "Died in a custom
+                                                    island event"; The Secret
+                                                    City, The Tree of Life, New
+                                                    Believers)
+
     Unaccounted Villagers\                         (Cause of Death: the village
         Virtual Villagers <N> Village Roster - Save <slot>.dat  as it was at
                                                     each save, all five games)
