@@ -420,6 +420,11 @@ def approve_repair(
     if kinds is None:
         kinds = additions.plan(folder, game, slot)
     added = additions.apply(folder, kinds, chosen, answers or {})
+    # A contradiction the player chose to leave in the past records (or said is none) is remembered,
+    # so it is not asked about again (src/vv_log_contradictions.py remember).
+    if "contradictions" in chosen:
+        import vv_log_contradictions
+        vv_log_contradictions.remember(folder, game, slot, kinds, answers or {})
     for kind in kinds:
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,

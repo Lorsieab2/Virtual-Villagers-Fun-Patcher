@@ -44,6 +44,13 @@ import vv_save_layout as layout
 BACKFILL_NOTE = "Recorded afterwards (arrived before this log existed)"
 TAKE_OUT = "Take out the backfilled record (the villager's other record stays)"
 KEEP = "Keep both (they are two different villagers)"
+RENUMBER = "Give it the next free number"
+LEAVE = "Don't know / leave it (changes nothing)"
+RETRO_YES = "Yes: correct the older records to match"
+RETRO_NO = "No: leave every past record as it is (not asked again)"
+# The contradictions the player chose to leave in the past records (Retroactively edit records? No):
+# remembered per slot, so they are not asked about again until something new contradicts.
+KEPT = layout.DATA + r"\Log Checks\Virtual Villagers {game} Contradictions Left - Save {slot}.txt"
 
 
 @dataclass
@@ -52,6 +59,7 @@ class Found:
     text: str                          # Check Saves & Logs' words
     edits: list = field(default_factory=list)   # vv_log_additions.Edit
     question: object | None = None     # vv_log_additions.Question, for a record taken out
+    ident: str = ""                    # the same contradiction, told apart from every other one
 
     @property
     def wrong(self) -> bool:
@@ -157,7 +165,8 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
                 continue        # vv_log_additions.plan_born_arrived and the checker take this one
             kept = [o for o in others if o is not b]
             what = ", ".join(f"{o.heading} ({o.path.name})" for o in kept)
-            key_q = f"contradiction|{b.path.name}|{b.start}"
+            ident = f"born_and_arrived|{b.heading}|{key[0]}|{key[1]}|{key[2]}"
+            key_q = f"contradiction|{ident}"
             question = additions.Question(
                 key_q, f"{key[0]} (head {key[1]}, body {key[2]}) has {len(recs)} Birth / Arrived records "
                        f"({what}, and {b.heading}) but {max(1, owners)} villager(s) to own them. "
@@ -168,7 +177,7 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
                              f"{key[0]} (head {key[1]}, body {key[2]}) has both {what} and a backfilled "
                              f"{b.heading} in {b.path.name} (line {b.start + 1}): one villager recorded twice "
                              "(repairable: Repair Saves & Logs takes the backfilled record out)",
-                             [edit], question))
+                             [edit], question, ident))
     return out
 
 
@@ -205,7 +214,8 @@ def _death_numbers(folder: Path, game: int, slot: int) -> list[Found]:
                          f"\"Death {n}\" is used again for {b.value('Name') or 'a villager'} in "
                          f"{b.path.parent.name}\\{b.path.name} (line {b.start + 1}) (repairable: Repair Saves & Logs "
                          f"numbers it Death {highest})",
-                         [("replace", b.path, b.start, f"Death {highest}")]))
+                         [("replace", b.path, b.start, f"Death {highest}")],
+                         ident=f"death_number|{n}|{b.value('Name')}|{b.value('Age at death')}"))
     return out
 
 
@@ -232,7 +242,8 @@ def _repair_numbers(folder: Path, game: int) -> list[Found]:
                 out.append(Found("repair_number",
                                  f"\"Repair {m.group(1)}\" in {layout.REPAIRS_LOGS}\\{new.name} repeats a number of "
                                  f"Repairs\\{old.name} (repairable: Repair Saves & Logs numbers it Repair {want})",
-                                 [("replace", new, i, f"Repair {want}")]))
+                                 [("replace", new, i, f"Repair {want}")],
+                                 ident=f"repair_number|{new.name}|{i}"))
     return out
 
 
@@ -274,26 +285,89 @@ def _notes(folder: Path, game: int, slot: int) -> list[Found]:
     return out
 
 
+def left_alone(folder: Path, game: int, slot: int) -> set[str]:
+    """The contradictions the player chose to leave in the past records (KEPT)."""
+    path = layout.find(Path(folder), KEPT.format(game=game, slot=slot))
+    try:
+        return {line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()}
+    except OSError:
+        return set()
+
+
 def find(folder: Path, game: int, slot: int) -> list[Found]:
-    """Every contradiction above in this slot's village's logs.  Reads only."""
+    """Every contradiction above in this slot's village's logs.  Reads only.  One the player chose
+    to leave in the past records ("Retroactively edit records?" No) is a note, never asked again."""
     folder = Path(folder)
-    return (_born_and_arrived(folder, game, slot) + _death_numbers(folder, game, slot)
-            + _repair_numbers(folder, game) + _notes(folder, game, slot))
+    found = (_born_and_arrived(folder, game, slot) + _death_numbers(folder, game, slot)
+             + _repair_numbers(folder, game) + _notes(folder, game, slot))
+    kept = left_alone(folder, game, slot)
+    for f in found:
+        if f.wrong and f.ident in kept:
+            f.kind = "note"
+            f.text += " -- left in the past records, as you chose"
+            f.text = f.text.replace(" (repairable: ", " (was repairable: ")
+    return found
+
+
+def retro_key(found: Found) -> str:
+    return f"retro|{found.ident}"
 
 
 def plan(folder: Path, game: int, slot: int):
-    """Repair Saves & Logs' kind: the records taken out (asked) and renumbered (decided)."""
+    """Repair Saves & Logs' kind (the owner, 2026-10-10: "ASK THE PLAYER WITH A PROMPT IF YOU SEE ANY
+    CONTRADICTIONS IN THE RECORDS", and "Retroactively edit records? yes/no"): for each contradiction
+    two questions -- what to do (the sensible resolution, or "Don't know / leave it", which changes
+    nothing), and whether to correct the older records.  A record is taken out or renumbered only
+    when the player chose the resolution AND answered Yes; No leaves every past record as it is and
+    is remembered (remember), so it is not asked again."""
     import vv_log_additions as additions
     kind = additions.Kind("contradictions", "Records that contradict each other")
     for found in find(folder, game, slot):
         if not found.wrong:
             kind.notes.append(found.text)
             continue
+        question = found.question
+        if question is None:                       # a number used twice
+            question = additions.Question(
+                f"contradiction|{found.ident}", f"{found.text.split(' (repairable')[0]}. What should be done?",
+                [RENUMBER, LEAVE], RENUMBER)
+        else:
+            question.options = [o for o in question.options if o != additions.DONT_KNOW] + [LEAVE]
+        resolution = question.options[0]
+        retro = additions.Question(
+            retro_key(found), f"{found.text.split(' (repairable')[0]}: retroactively edit records?",
+            [RETRO_YES, RETRO_NO], RETRO_YES)
+        kind.questions[question.key] = question
+        kind.questions[retro.key] = retro
         for edit in found.edits:
             if edit[0] == "remove":
-                kind.removes.append(additions.Remove(edit[1], edit[2], edit[3], found.question.key, TAKE_OUT))
+                kind.removes.append(additions.Remove(edit[1], edit[2], edit[3], question.key, resolution,
+                                                     also=[(retro.key, RETRO_YES)]))
             else:
-                kind.replaces.append((edit[1], edit[2], edit[3]))
-        if found.question is not None:
-            kind.questions[found.question.key] = found.question
+                kind.replaces.append((edit[1], edit[2], edit[3], [(question.key, resolution),
+                                                                  (retro.key, RETRO_YES)]))
     return kind
+
+
+def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str, str]) -> list[str]:
+    """Every contradiction the player answered "Retroactively edit records?" No to, added to KEPT
+    (appended; the file is the patcher's own, kept beside the Log Checks markers).  Returns them."""
+    idents = []
+    for kind in kinds:
+        if kind.id != "contradictions":
+            continue
+        for key, _question in kind.questions.items():
+            if key.startswith("retro|") and answers.get(key) == RETRO_NO:
+                idents.append(key[len("retro|"):])
+            elif key.startswith("contradiction|") and answers.get(key) == KEEP:   # not a contradiction
+                idents.append(key[len("contradiction|"):])
+    if not idents:
+        return []
+    path = layout.writable(Path(folder), KEPT.format(game=game, slot=slot))
+    known = left_alone(folder, game, slot)
+    new = [i for i in idents if i not in known]
+    if new:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a", encoding="utf-8") as kept:
+            kept.write("".join(i + "\n" for i in new))
+    return new

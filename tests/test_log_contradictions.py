@@ -154,6 +154,65 @@ class BornAndArrivedTests(unittest.TestCase):
         self.assertEqual([x.kind for x in found], ["born_and_arrived"])
 
 
+class PromptTests(unittest.TestCase):
+    """The owner (2026-10-10): every contradiction is asked about -- a resolution or "Don't know /
+    leave it" -- and "Retroactively edit records? yes/no"."""
+
+    def make(self) -> tuple[Folder, Path, Path]:
+        f = Folder(1)
+        births = f.births(birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15, how="Founder"))
+        deaths = f.write(f"{LOGS}\\Deaths and Disappearances\\Virtual Villagers 1 Deaths Log 1.txt",
+                         VILLAGE + "\n" + death(15, "Hawa", 17, 5) + death(15, "Silko", 4, 14))
+        return f, births, deaths
+
+    def answers(self, f: Folder, resolution: str | None, retro: str) -> dict:
+        kind = contra.plan(f.path, 1, 1)
+        out = {}
+        for key, q in kind.questions.items():
+            out[key] = retro if key.startswith("retro|") else (resolution or q.options[0])
+        return out
+
+    def test_every_contradiction_has_both_questions_and_a_leave_it_answer(self):
+        f, _b, _d = self.make()
+        kind = contra.plan(f.path, 1, 1)
+        resolutions = [q for k, q in kind.questions.items() if k.startswith("contradiction|")]
+        retros = [q for k, q in kind.questions.items() if k.startswith("retro|")]
+        self.assertEqual(len(resolutions), 2)
+        self.assertEqual(len(retros), 2)
+        for q in resolutions:
+            self.assertIn(contra.LEAVE, q.options)
+        for q in retros:
+            self.assertEqual(q.options, [contra.RETRO_YES, contra.RETRO_NO])
+        self.assertEqual(kind.decided, 0, "nothing is decided without the player")
+
+    def test_yes_corrects_the_older_records(self):
+        f, births, deaths = self.make()
+        f.repair(self.answers(f, None, contra.RETRO_YES))
+        self.assertNotIn("Arrived 11", f.read(births))
+        self.assertIn("Death 16", f.read(deaths))
+
+    def test_no_leaves_every_past_record_and_is_not_asked_again(self):
+        f, births, deaths = self.make()
+        before = (births.read_bytes(), deaths.read_bytes())
+        answers = self.answers(f, None, contra.RETRO_NO)
+        kinds = [contra.plan(f.path, 1, 1)]
+        additions.apply(f.path, kinds, {"contradictions"}, answers)
+        self.assertEqual((births.read_bytes(), deaths.read_bytes()), before)
+        self.assertEqual(len(contra.remember(f.path, 1, 1, kinds, answers)), 2)
+        self.assertEqual([x for x in contra.find(f.path, 1, 1) if x.wrong], [], "remembered: no longer WRONG")
+        self.assertEqual(contra.plan(f.path, 1, 1).questions, {}, "...and not asked again")
+
+    def test_leave_it_changes_nothing_and_asks_again(self):
+        f, births, deaths = self.make()
+        before = (births.read_bytes(), deaths.read_bytes())
+        answers = self.answers(f, contra.LEAVE, contra.RETRO_YES)
+        kinds = [contra.plan(f.path, 1, 1)]
+        additions.apply(f.path, kinds, {"contradictions"}, answers)
+        contra.remember(f.path, 1, 1, kinds, answers)
+        self.assertEqual((births.read_bytes(), deaths.read_bytes()), before)
+        self.assertEqual(len([x for x in contra.find(f.path, 1, 1) if x.wrong]), 2)
+
+
 class NumberTests(unittest.TestCase):
     def test_a_death_number_used_again_is_numbered_after_the_highest(self):
         f = Folder(1)

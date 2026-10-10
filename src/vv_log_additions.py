@@ -89,6 +89,7 @@ class Remove:
     count: int                              # its lines, the blank line after it included
     question: str
     when: str | tuple
+    also: list = field(default_factory=list)     # (question, answer): further answers it needs
 
 
 @dataclass
@@ -104,7 +105,7 @@ class Kind:
 
     @property
     def decided(self) -> int:
-        return sum(1 for i in self.inserts if i.line) + len(self.replaces)
+        return sum(1 for i in self.inserts if i.line) + sum(1 for r in self.replaces if len(r) == 3)
 
     @property
     def asked(self) -> int:
@@ -811,7 +812,7 @@ def resolve_removes(kinds: list[Kind], chosen: set[str],
             continue
         for rem in kind.removes:
             whens = rem.when if isinstance(rem.when, tuple) else (rem.when,)
-            if answers.get(rem.question, "") in whens:
+            if answers.get(rem.question, "") in whens and all(answers.get(q, "") == a for q, a in rem.also):
                 out.setdefault(rem.path, []).append((rem.start, rem.count, kind.id))
     return out
 
@@ -855,8 +856,10 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
     replaces_by_file: dict[Path, dict[int, tuple[str, str]]] = {}
     for kind in kinds:
         if kind.id in chosen:
-            for rpath, index, new_text in getattr(kind, "replaces", ()):
-                replaces_by_file.setdefault(rpath, {})[index] = (new_text, kind.id)
+            for rpath, index, new_text, *needs in getattr(kind, "replaces", ()):
+                # Decided, or only on the answers it names (a contradiction's resolution and "Yes").
+                if all(answers.get(q, "") == a for q, a in (needs[0] if needs else ())):
+                    replaces_by_file.setdefault(rpath, {})[index] = (new_text, kind.id)
     files = list(adds_by_file) + [p for p in removes_by_file if p not in adds_by_file]
     files += [p for p in replaces_by_file if p not in files]
     renumber: list[Path] = []
