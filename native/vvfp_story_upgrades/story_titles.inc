@@ -18,6 +18,7 @@
    forgotten rather than written back. */
 
 #include "../shared/mask_follow.h"
+#include "../shared/identity_in_place.h"
 #include "../shared/foreign_sidecar.h"   /* vv_roster_shares: another array is not play */
 
 #define TITLES_CHECK_MS 2000u
@@ -40,17 +41,26 @@ static struct {
        two villages -- means the next look is a village arriving. */
     unsigned int roster[TITLES_ROSTER];
     unsigned int roster_stable[TITLES_ROSTER];
+    /* ...and what a likes / dislikes change leaves of it, and the age, for
+       telling such a change apart (identity_in_place.h). */
+    unsigned int roster_keep[TITLES_ROSTER];
+    int roster_age[TITLES_ROSTER];
     int roster_anyone;                  /* anybody was present at that look */
     int swapped;                        /* the last look saw another array: the next village is a load */
 } titles;
 
 static unsigned char titles_buffer[VV_TITLES_FILE_MAX];
 
+static int titles_unpublished;
+
 static void titles_forget(void) {
+    titles_unpublished = 0;
     titles.count = 0;
     memset(titles.seen, 0, sizeof titles.seen);
     memset(titles.roster, 0, sizeof titles.roster);
     memset(titles.roster_stable, 0, sizeof titles.roster_stable);
+    memset(titles.roster_keep, 0, sizeof titles.roster_keep);
+    memset(titles.roster_age, 0, sizeof titles.roster_age);
     titles.roster_anyone = 0;
 }
 
@@ -154,6 +164,7 @@ static void titles_remove_at(int i) {
 
 static int titles_live_count(int game, unsigned int identity, int *where);
 static void titles_pass(int game, int sweep);
+static void titles_relook(int game);
 
 /* The custom title of the villager in `record`, or NULL. */
 static const char *titles_lookup(int game, const unsigned char *record) {
@@ -180,6 +191,16 @@ static const char *titles_lookup(int game, const unsigned char *record) {
         }
     }
     i = titles_find((unsigned int)index);
+    if (i >= 0 && titles.entries[i].fingerprint != story_title_identity(game, record)) {
+        /* The villager's likes or dislikes may have changed since the last
+           tick -- "VVFP Island Events.dll" asks right after the event that
+           changed them, in the same frame (Alapai, "Faces in the Night":
+           "Custom title: Moon Mother -> none").  One more look carries the
+           title to the new identity when that is what happened -- in
+           memory only; the next tick writes it (titles_relook). */
+        titles_relook(game);
+        i = titles_find((unsigned int)index);
+    }
     if (i < 0 || titles.entries[i].fingerprint != story_title_identity(game, record)) {
         return NULL;
     }
@@ -371,20 +392,62 @@ static int titles_follow(int game, int moved) {
 
 /* Who is present in each record now: identity and the part of it a rename
    leaves alone, 0 for a record nobody is in.  Returns how many are present. */
-static int titles_take_roster(int game, unsigned int *ids, unsigned int *stable) {
+static int titles_take_roster(int game, unsigned int *ids, unsigned int *stable, unsigned int *keep,
+                              int *age) {
     int count = story_record_count(game);
     int r, n = 0;
     memset(ids, 0, TITLES_ROSTER * sizeof(unsigned int));
     memset(stable, 0, TITLES_ROSTER * sizeof(unsigned int));
+    memset(keep, 0, TITLES_ROSTER * sizeof(unsigned int));
+    memset(age, 0, TITLES_ROSTER * sizeof(int));
     for (r = 0; r < count && r < TITLES_ROSTER; ++r) {
         const unsigned char *record = story_record(game, r);
         if (record != NULL && story_record_present(game, record)) {
             ids[r] = story_title_identity(game, record);
             stable[r] = story_title_stable(game, record);
+            keep[r] = story_title_keep(game, record);
+            age[r] = story_title_age(game, record);
             ++n;
         }
     }
     return n;
+}
+
+/* titles_unpublished: a change carried by titles_relook and not yet in the
+   file; the next tick publishes it. */
+
+/* The lookup's look between two ticks: only a likes / dislikes change in
+   place (identity_in_place.h) is carried, in memory, and the roster taken
+   as the last look; anything else is left for the tick to judge, with no
+   file touched here.  (The lookup runs inside the game's own drawing and
+   island-event code.) */
+static void titles_relook(int game) {
+    static unsigned int now[TITLES_ROSTER];
+    static unsigned int now_stable[TITLES_ROSTER];
+    static unsigned int now_keep[TITLES_ROSTER];
+    static int now_age[TITLES_ROSTER];
+    static unsigned char in_place[TITLES_ROSTER];
+    int i, present;
+    if (!titles.loaded || !titles.roster_anyone || titles.swapped) {
+        return;
+    }
+    present = titles_take_roster(game, now, now_stable, now_keep, now_age);
+    if (present == 0
+        || vv_roster_changed_in_place(TITLES_ROSTER, titles.roster, titles.roster_keep, titles.roster_age, now,
+                                      now_keep, now_age, in_place) <= 0) {
+        return;
+    }
+    for (i = 0; i < titles.count; ++i) {
+        unsigned int r = titles.entries[i].index;
+        if (r < TITLES_ROSTER && in_place[r] && titles.entries[i].fingerprint == titles.roster[r]) {
+            titles.entries[i].fingerprint = now[r];
+            titles_unpublished = 1;
+        }
+    }
+    memcpy(titles.roster, now, sizeof now);
+    memcpy(titles.roster_stable, now_stable, sizeof now_stable);
+    memcpy(titles.roster_keep, now_keep, sizeof now_keep);
+    memcpy(titles.roster_age, now_age, sizeof now_age);
 }
 
 /* Once per frame (from the Origins companion's tick): bind to the slot,
@@ -393,20 +456,39 @@ static int titles_take_roster(int game, unsigned int *ids, unsigned int *stable)
 static void titles_pass(int game, int sweep) {
     static unsigned int now[TITLES_ROSTER];
     static unsigned int now_stable[TITLES_ROSTER];
+    static unsigned int now_keep[TITLES_ROSTER];
+    static int now_age[TITLES_ROSTER];
+    static unsigned char in_place[TITLES_ROSTER];
     int i;
     int changed = 0;
     int present;
     int moved;
     int renamed;
+    int in_place_count;
     titles_sync(game);
     if (!titles.loaded) {
         return;
     }
     /* Every tick, titled or not, so the last look is never stale when a
        title is set. */
-    present = titles_take_roster(game, now, now_stable);
+    present = titles_take_roster(game, now, now_stable, now_keep, now_age);
     renamed = vv_roster_renamed(TITLES_ROSTER, titles.roster, titles.roster_stable, now, now_stable);
-    if (renamed < 0 && titles.roster_anyone && present > 0 && vv_roster_shares(TITLES_ROSTER, titles.roster, now) == 0) {
+    /* LIKES OR DISLIKES CHANGED (v1.35.68): an island event, the Custom
+       Island Event, a vial, the Crystal of Reflections or an upgrade gave a
+       villager new likes or dislikes, so the identity the title is kept by
+       changed -- and the title was swept away as if the villager had gone
+       (The Tree of Life, "Faces in the Night": "Custom title: Moon Mother ->
+       none").  The same villager stayed in the same record, with the same
+       name, sex and age, and nobody moved (identity_in_place.h): the title
+       takes the new identity below.  Like a rename, it is play, never
+       another array (a village of one whose likes changed shares no
+       identity with the last look). */
+    in_place_count = renamed < 0 && titles.roster_anyone
+        ? vv_roster_changed_in_place(TITLES_ROSTER, titles.roster, titles.roster_keep, titles.roster_age,
+                                     now, now_keep, now_age, in_place)
+        : 0;
+    if (renamed < 0 && in_place_count == 0 && titles.roster_anyone && present > 0
+        && vv_roster_shares(TITLES_ROSTER, titles.roster, now) == 0) {
         /* A WHOLE OTHER ARRAY IS NOT PLAY (native/shared/foreign_sidecar.h).
            Nobody of the last look is on screen: the game has put another
            village in the records with the slot unchanged -- the title screen
@@ -417,10 +499,20 @@ static void titles_pass(int game, int sweep) {
            -- and every look is a load until the table's villagers are back. */
         memset(titles.seen, 0, sizeof titles.seen);
         titles.swapped = 1;
-    } else if (renamed >= 0 || vv_roster_shares(TITLES_ROSTER, titles.roster, now) != 0) {
+    } else if (renamed >= 0 || in_place_count > 0 || vv_roster_shares(TITLES_ROSTER, titles.roster, now) != 0) {
         titles.swapped = 0;
     }
     moved = !titles.roster_anyone || titles.swapped || vv_roster_moved(TITLES_ROSTER, titles.roster, now);
+    if (in_place_count > 0 && !titles.swapped) {
+        moved = 0;                            /* the same villagers, in the same records */
+        for (i = 0; i < titles.count; ++i) {
+            unsigned int r = titles.entries[i].index;
+            if (r < TITLES_ROSTER && in_place[r] && titles.entries[i].fingerprint == titles.roster[r]) {
+                titles.entries[i].fingerprint = now[r];
+                changed = 1;
+            }
+        }
+    }
     /* A RENAME (Codex, #516): the identity hashes the name, so the title of
        a villager the player renamed no longer matched their record and the
        sweep threw it away.  One record changed, the rest of the identity
@@ -437,6 +529,8 @@ static void titles_pass(int game, int sweep) {
     }
     memcpy(titles.roster, now, sizeof now);
     memcpy(titles.roster_stable, now_stable, sizeof now_stable);
+    memcpy(titles.roster_keep, now_keep, sizeof now_keep);
+    memcpy(titles.roster_age, now_age, sizeof now_age);
     titles.roster_anyone = present > 0;
     if (titles.count == 0) {
         return;
@@ -459,7 +553,8 @@ static void titles_pass(int game, int sweep) {
             changed = 1;
         }
     }
-    if (changed) {
+    if (changed || titles_unpublished) {
+        titles_unpublished = 0;
         titles_publish();
     }
 }

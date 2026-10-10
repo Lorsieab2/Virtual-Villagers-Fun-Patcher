@@ -78,6 +78,7 @@
 #include "../shared/harness_ldw_tree.h"
 #include "patcher_files.h"
 #include "arrival_backfill.h"
+#include "custom_titles.h"          /* vv_title_identity: the Former Heathens file's key */
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -1294,6 +1295,20 @@ int main(int argc, char **argv) {
                     CHECK(got == 24 && memcmp(blob, "VFH1", 4) == 0 && *(unsigned int *)(blob + 12) == 1
                           && *(unsigned int *)(blob + 20) == 3,
                           "the Former Heathens file holds one entry, the purple mask (a Master)");
+                    /* v1.35.68: an island event gives Hea new likes (the entry
+                       is kept by name, likes and dislikes): the entry follows
+                       her to the new identity, so she is still a Former
+                       Heathen Master. */
+                    arrival_tick();
+                    *(int *)(rec(6) + g->likes) = 7;
+                    arrival_tick();
+                    got = 0;
+                    h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                    if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }
+                    CHECK(got == 24 && *(unsigned int *)(blob + 16)
+                                           == vv_title_identity(rec(6), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u)
+                          && *(unsigned int *)(blob + 20) == 3,
+                          "A FORMER HEATHEN WHOSE LIKES AN ISLAND EVENT CHANGED KEEPS HER ENTRY (new identity)");
                 }
             }
         }

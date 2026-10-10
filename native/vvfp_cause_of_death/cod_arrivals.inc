@@ -315,6 +315,7 @@ static void arrival_tick(void) {
         memset(faction_seen, -1, sizeof faction_seen);
         faction_ready = 1;
     }
+    former_follow(records);           /* a former Heathen whose likes changed stays one */
     for (i = 0; i < RECORDS_MAX && (unsigned int)i < REC[g_game].slots; ++i) {
         const unsigned char *record = records + (size_t)i * REC[g_game].stride;
         int heathen;

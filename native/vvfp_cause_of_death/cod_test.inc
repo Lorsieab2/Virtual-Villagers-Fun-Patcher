@@ -32,6 +32,8 @@ __declspec(dllexport) void __stdcall VvfpCauseTestDecayed(int index) {
     unsigned char *record = cod_record(index);
     if (record != NULL && g_game <= 2) {
         cod_decayed(record);
+    } else if (record != NULL) {
+        v345_decayed_record(record);   /* the later three: what the removal's hook does */
     }
 }
 

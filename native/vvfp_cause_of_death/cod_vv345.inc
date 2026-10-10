@@ -132,7 +132,7 @@ static void v345_buried(int site, const unsigned int *regs) {
     }
     written_record = NULL;
     if (entry == NULL) {
-        cod_log_death(record, *(const int *)(record + V345[g_game].cause),
+        cod_log_death(record, cie_taken(record, *(const int *)(record + V345[g_game].cause)),
                       "no grave (the Roster of the Dead was full)", NULL);
         return;
     }
@@ -146,8 +146,10 @@ static void v345_buried(int site, const unsigned int *regs) {
     } else {
         lstrcpyA(epitaph, "(none: only the first 50 graves get a gravestone)");
     }
-    /* The cause the entry keeps: the record's own, copied by the writer. */
-    cod_log_death(record, *(const int *)(entry + V345[g_game].e_cause), title, epitaph);
+    /* The cause the entry keeps: the record's own, copied by the writer --
+       or, for a body the Custom Island Event's "Dies" left, that event's
+       words (cod_cie.inc; the entry keeps the game's own -1). */
+    cod_log_death(record, cie_taken(record, *(const int *)(entry + V345[g_game].e_cause)), title, epitaph);
 }
 
 static void v345_decayed_record(const unsigned char *record) {
@@ -157,7 +159,8 @@ static void v345_decayed_record(const unsigned char *record) {
         return;
     }
     roster_departed(index, record);
-    cod_log_death(record, *(const int *)(record + V345[g_game].cause), NO_GRAVE_NEVER_BURIED, NULL);
+    cod_log_death(record, cie_taken(record, *(const int *)(record + V345[g_game].cause)),
+                  NO_GRAVE_NEVER_BURIED, NULL);
 }
 
 /* VV3 0x45F437 `div dword [ecx+0x12f20]`: edx:eax / the divisor >= 0xF0. */

@@ -80,6 +80,11 @@ int vv_reset_refused_paths = 0;
     "%s\\Virtual Villagers Fun Patcher Data\\Paid Purchases\\Virtual Villagers " n " Paid Purchases - Save %d.dat"
 #define STORY_QUEUE_FORMAT(n) \
     "%s\\Virtual Villagers Fun Patcher Data\\Paid Purchases\\Virtual Villagers " n " Story Purchases - Save %d.dat"
+/* ...and the bodies the Custom Island Event's "Dies" left lying in The Secret
+   City, The Tree of Life and New Believers (native/vvfp_cause_of_death/
+   cod_cie.inc): they belong to the village being erased. */
+#define CIE_DEATHS_FORMAT(n) \
+    "%s\\Virtual Villagers Fun Patcher Data\\Custom Island Event Deaths\\Virtual Villagers " n " Custom Island Event Deaths - Save %d.dat"
 #define SIDECAR_FORMAT_COUNT 23
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { PAID_FORMAT("1"), STORY_QUEUE_FORMAT("1"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
@@ -108,21 +113,21 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Village Roster"),
                ROSTER_FORMAT("3"), GRAVES_LOGGED_FORMAT("3"), ARRIVALS_FORMAT("3"), BIRTHS_FORMAT("3"),
-               APPROVAL_FORMAT("3"), 0, 0, 0, 0, 0, 0 },
+               APPROVAL_FORMAT("3"), CIE_DEATHS_FORMAT("3"), 0, 0, 0, 0, 0 },
     /* VV4 */ { PAID_FORMAT("4"), STORY_QUEUE_FORMAT("4"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 4 Village Roster"),
                ROSTER_FORMAT("4"), GRAVES_LOGGED_FORMAT("4"), ARRIVALS_FORMAT("4"), BIRTHS_FORMAT("4"),
-               APPROVAL_FORMAT("4"), 0, 0, 0, 0, 0, 0 },
+               APPROVAL_FORMAT("4"), CIE_DEATHS_FORMAT("4"), 0, 0, 0, 0, 0 },
     /* VV5 */ { PAID_FORMAT("5"), STORY_QUEUE_FORMAT("5"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 5 Village Roster"),
                ROSTER_FORMAT("5"), GRAVES_LOGGED_FORMAT("5"), ARRIVALS_FORMAT("5"), BIRTHS_FORMAT("5"),
-               APPROVAL_FORMAT("5"), FORMER_HEATHENS_FORMAT, 0, 0, 0, 0, 0 },
+               APPROVAL_FORMAT("5"), FORMER_HEATHENS_FORMAT, CIE_DEATHS_FORMAT("5"), 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are

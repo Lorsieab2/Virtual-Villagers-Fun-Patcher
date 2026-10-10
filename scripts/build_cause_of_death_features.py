@@ -270,7 +270,7 @@ def description(game: str) -> str:
             "Done keeps it), and the cause under the age, in those games' own words ("
             f"{CAUSE_WORDS}). The cause is the one that killed them -- old age, sickness, hunger "
             "or an empty food bin, an injury at work -- and \"Unknown causes\" for an island event "
-            "and anything else, which is how those games word an island-event death. The epitaph "
+            "and anything else, which is how those games word an island-event death; a Custom Island Event's \"dies\" is \"Died in a custom island event\". The epitaph "
             "is chosen by the rule those games use at a burial: a child's is \"Curious and "
             "Playful\" or \"Loving and Special\"; an adult's comes from the skill the grave shows "
             "(for example \"Strong Arms, Big Heart\" or \"Inspired Architect\" for a builder); a "
@@ -289,7 +289,7 @@ def description(game: str) -> str:
             f"age, in those games' own words ({CAUSE_WORDS}). The cause is the one that killed "
             "them -- old age, sickness, hunger or an empty food bin, an injury at work -- and "
             "\"Unknown causes\" for an island event and anything else, which is how those games "
-            "word an island-event death. The Lost Children keeps no cause, so it is kept for each "
+            "word an island-event death; a Custom Island Event's \"dies\" is \"Died in a custom island event\". The Lost Children keeps no cause, so it is kept for each "
             "save slot in a file beside the saves ('Virtual Villagers Fun Patcher Data\\Graves\\"
             "Virtual Villagers 2 Graves - Save <n>.dat'); Start Over deletes it. The game's own epitaphs "
             f"are unchanged. {APPRENTICE} **Graves dug before this patch was installed, and bodies that were "
@@ -307,7 +307,7 @@ def manifest(game: str, sha: str) -> dict:
     if game in ("vv1", "vv2"):
         changes += [
             "At each site that can kill (the aging step's old-age store and its sickness, hunger and no-food drains; every work injury), a check made before the site's own instructions records the cause when that change takes a living villager's health to 0 or below; the site's instructions then run unchanged.",
-            "Every frame, a villager seen alive on an earlier frame who is now a body, with no site having reported the death, is recorded with \"Unknown causes\" (island events, the Gong of Wonder, the Custom Island Event's \"dies\", an edited save).",
+            "Every frame, a villager seen alive on an earlier frame who is now a body, with no site having reported the death, is recorded with \"Unknown causes\" (island events, the Gong of Wonder, an edited save); the Custom Island Event's \"dies\" is reported by the Story / Cheat Upgrades companion and recorded as \"Died in a custom island event\".",
             "After the burial's grave loop, the cause recorded for that body is carried to the grave it was given" + (" with an epitaph chosen by the later games' rule" if game == "vv1" else "") + ", and the Death record is written.",
             "The grave popup draws the cause at the later games' height (+0xD7)" + ("; its constructor adds the game's own editable text box for the epitaph (as The Lost Children's panel and the Villager Detail name box are made), drawn between quotes, and Done keeps an edited epitaph in the .dat file." if game == "vv1" else "."),
             "A child's grave (the age at death the grave keeps under 280 age units, 14 years) whose best skill is 20 or more shows \"Apprentice <job>\": right after the popup prints the rank into its skill line, the game's own \"Apprentice \" string ("

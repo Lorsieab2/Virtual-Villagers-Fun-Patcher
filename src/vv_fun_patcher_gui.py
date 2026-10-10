@@ -23,6 +23,7 @@ import vv_move_old_names
 import vv_last_names
 import vv_cut_names
 import vv_graves
+import vv_lost_titles
 import vv1_parents_restore
 import vv_number_names
 import vv_save_backup
@@ -3420,12 +3421,19 @@ class App(tk.Tk):
                 graves = vv_graves.survey(folder, number, info.slot)
             except (vv_graves.GraveError, vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
                 graves = f"The graves were not checked: a file could not be read ({exc})."
+            # Custom titles (and New Believers' former-Heathen marks) a change of likes or dislikes took
+            # away before v1.35.68 (src/vv_lost_titles.py), from the Island Events log.
+            try:
+                lost = vv_lost_titles.survey(folder, number, info.slot)
+            except (vv_lost_titles.LostTitlesError, vv_last_names.LastNamesError, ValueError, OSError,
+                    struct.error) as exc:
+                lost = vv_lost_titles.Survey([], [], [f"Lost titles were not checked: a file could not be read ({exc})."])
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
-                    cuts, unpaused, speed, misnumbered, graves)
+                    cuts, unpaused, speed, misnumbered, graves, lost)
 
         try:
             (checked, old_words, kinds, (cuts, cut_notes), unpaused, speed, misnumbered,
-             graves) = self._run_with_wait("Checking the logs…\n\nNothing is changed.", survey)
+             graves, lost) = self._run_with_wait("Checking the logs…\n\nNothing is changed.", survey)
             found = (
                 f"The read-only check finds {checked.wrong} confirmed wrong ({checked.summary})"
                 if checked.wrong
@@ -3454,6 +3462,8 @@ class App(tk.Tk):
         # The graves the player put right, first of the save edits: the renames below then find each grave
         # under the name its records give it.
         grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
+        # Lost custom titles next, before any rename: a rename then carries the restored title along.
+        grave_lines += self._restore_lost_titles(parent, folder, number, info, lost)
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -4644,7 +4654,7 @@ class App(tk.Tk):
             ttk.Label(frame, text=vv_graves.FIELDS[key] + ":").grid(row=row, column=0, sticky="w", pady=2)
             var = tk.StringVar(value=now)
             if key == "cause":
-                ttk.Combobox(frame, textvariable=var, values=list(vv_graves.CAUSE_WORDS.values()),
+                ttk.Combobox(frame, textvariable=var, values=vv_graves.cause_words(number),
                              state="readonly", width=40).grid(row=row, column=1, sticky="w")
             elif key == "sex":
                 ttk.Combobox(frame, textvariable=var, values=["Male", "Female"], state="readonly",
@@ -4711,6 +4721,46 @@ class App(tk.Tk):
         return [f"Grave information fixed: {len(result.fixes)} field(s), in {len(result.files)} file(s)"
                 + (" (the old records were left as they were)" if not retro else "")
                 + f". Backup: {result.backup.backup_folder}"]
+
+    def _restore_lost_titles(self, parent, folder: Path, number: int, info, lost) -> list[str]:
+        """Repair Saves & Logs: the custom titles (and former-Heathen marks) a change of likes or
+        dislikes took away (src/vv_lost_titles.py).  The certain ones are listed and restored when the
+        player agrees; each one the records leave in doubt is asked about on its own, never guessed.
+        Returns the lines for Repair's summary."""
+        lines: list[str] = []
+        notes = list(lost.notes)
+        if not lost.found:
+            return ["Lost titles: " + " ".join(notes[:5])] if notes else []
+        chosen: set[str] = set()
+        if lost.certain and messagebox.askyesno(
+                "Repair Saves & Logs",
+                "A change of likes or dislikes took these away (the Island Events log says so):\n\n"
+                + "\n".join(f"• {r.describe()}" for r in lost.certain[:20])
+                + (f"\n... and {len(lost.certain) - 20} more" if len(lost.certain) > 20 else "")
+                + "\n\nGive them back? The save folder is backed up first.", parent=parent):
+            chosen.update(r.key for r in lost.certain)
+        answered: set[str] = set()
+        for question in lost.questions:
+            if question.loss in answered:
+                continue                    # the player already said who it was
+            if messagebox.askyesno("Repair Saves & Logs", question.question, parent=parent):
+                chosen.add(question.key)
+                answered.add(question.loss)
+        if not chosen:
+            return ["Lost titles: left as they were."]
+        try:
+            result = self._run_with_wait(
+                "Restoring the lost titles…\n\nThe save folder is backed up first.",
+                lambda: vv_lost_titles.restore(folder, number, info.slot, chosen))
+        except (vv_lost_titles.LostTitlesError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
+                vv_save_backup.BackupError, OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"The lost titles were not restored. {exc}", parent=parent)
+            return []
+        lines.append(f"Lost titles restored: {'; '.join(r.describe() for r in result.restored)}. "
+                     f"Backup: {result.backup.backup_folder}")
+        if notes:
+            lines.append("Lost titles not restored: " + " ".join(notes[:5]))
+        return lines
 
     def _close(self) -> None:
         self._save_settings()

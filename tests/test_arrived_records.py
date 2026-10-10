@@ -63,6 +63,9 @@ CHECKS += 7 * 5
 # New Believers, 9 in A New Home (a village started long ago is a load), 2 in The Lost Children and
 # The Secret City (never asked).
 CHECKS += 8 * 2 + 9 + 2 * 2
+# + 1 in New Believers (v1.35.68): a former Heathen whose likes an island event changed keeps her
+# Former Heathens entry, carried to her new identity (cod_former.inc former_follow).
+CHECKS += 1
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

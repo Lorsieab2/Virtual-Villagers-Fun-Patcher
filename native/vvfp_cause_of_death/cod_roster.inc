@@ -501,6 +501,11 @@ static void cod_save_done(int slot, const void *save_buffer) {
            per-frame tick had (cod_vv12.inc). */
         if (g_game <= 2) {
             vv12_saved(slot);
+        } else {
+            /* The later three: the bodies the Custom Island Event's "Dies"
+               left, which this save keeps, go to this slot's file now
+               (cod_cie.inc). */
+            cie_saved(slot);
         }
         saved_slot = slot;
         /* Every grave in the Deaths log first, so the reconciliation knows

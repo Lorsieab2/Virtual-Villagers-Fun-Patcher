@@ -1778,6 +1778,240 @@ class CustomIslandEventDisappearsEveryGame(unittest.TestCase):
         self.assertLess(body.index("TC2(0x46AF00u, r + 0x1C34, 0, -1);"), body.index("r[0x1CC4] = 0;"))
 
 
+CIE_DIED = "Died in a custom island event"
+SAVE_SITE = {"vv3": 0x427D71, "vv4": 0x41F13F, "vv5": 0x4245FF}
+
+
+@unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+class CustomIslandEventDiesEveryGame(unittest.TestCase):
+    """The Custom Island Event's "Dies" (and health 0) is "Cause of death:
+    Died in a custom island event" in all five games -- it was "Unknown
+    causes", the stock island events' words, which it still is for them.  The
+    Story / Cheat Upgrades companion tells the Cause of Death companion right
+    after its kill (VvfpCauseKilled), with the record in the state its own
+    kill leaves it (story_c<N>.inc c<N>_kill): health 0, and in the later
+    three cause -1, which stays in the game (their grave dialog keeps the
+    game's words).  The record follows the body through the burial, the
+    removal of an unburied body, and a save and reload before either; a
+    revive forgets it."""
+
+    # ---- A New Home, The Lost Children ----------------------------------------
+
+    def early(self, game: str, mode: str, slot: int = 0):
+        g = Game(game, rendered(game, mode, True), slot)
+        w = NewHome(g) if game == "vv1" else LostChildren(g)
+        self.assertEqual(g.install(), 1)
+        return g, w
+
+    def kill12(self, g: Game, w, i: int, name: str, age: int, told: bool = True) -> None:
+        """c1_kill / c2_kill: health 0, after the tick saw the villager alive."""
+        w.villager(i, name, age, 70)
+        g.tick()
+        g.p.put32(w.record(i) + (V1 if g.game == "vv1" else V2)["health"], 0)
+        if told:
+            g.p.export("VvfpCauseKilled", g.no, i)
+        g.tick()
+        g.tick()
+
+    def test_a_new_home_and_the_lost_children_bury_and_remove_with_the_events_words(self):
+        for game in ("vv1", "vv2"):
+            if not STOCK[game].is_file():
+                continue
+            for mode in MODES:
+                g, w = self.early(game, mode)
+                self.kill12(g, w, 3, "Killed", 640)
+                self.kill12(g, w, 4, "Event", 650, told=False)     # a stock island event's store
+                self.kill12(g, w, 5, "Lying", 660)
+                g.p.export("VvfpCauseKilled", g.no % 5 + 1, 4)       # another game: nothing
+                k = w.bury(3)
+                w.bury(4)
+                w.decay(5)
+                self.assertEqual([(e["record"], e["Cause of death"]) for e in g.of_kind(DEATH)],
+                                 [(w.record(3), CIE_DIED), (w.record(4), "Unknown causes"),
+                                  (w.record(5), CIE_DIED)], (game, mode))
+                self.assertEqual(g.of_kind(DEATH)[2]["Grave"], NO_GRAVE, (game, mode))
+                # The cause line the companion draws on the game's own grave.
+                lines_ = w.popup(k) if game == "vv1" else w.panel(k)
+                self.assertIn((CIE_DIED, 0xD7), [(t, y) for t, _, y in lines_], (game, mode))
+
+    def test_a_living_villager_is_never_killed_by_the_report(self):
+        for game in ("vv1", "vv2"):
+            if not STOCK[game].is_file():
+                continue
+            g, w = self.early(game, "stock")
+            w.villager(3, "Alive", 640, 70)
+            g.tick()
+            g.p.export("VvfpCauseKilled", g.no, 3)              # still alive: nothing
+            g.p.put32(w.record(3) + (V1 if game == "vv1" else V2)["health"], 0)
+            g.tick()
+            g.tick()
+            w.bury(3)
+            self.assertEqual(g.of_kind(DEATH)[0]["Cause of death"], "Unknown causes", game)
+
+    def test_a_revived_body_is_no_longer_the_events(self):
+        for game in ("vv1", "vv2"):
+            if not STOCK[game].is_file():
+                continue
+            g, w = self.early(game, "stock")
+            health = (V1 if game == "vv1" else V2)["health"]
+            self.kill12(g, w, 3, "Twice", 640)
+            g.p.put32(w.record(3) + health, 50)                 # Story / Cheat Upgrades' revive
+            g.tick()
+            g.tick()
+            g.p.put32(w.record(3) + health, 0)                  # then a stock island event
+            g.tick()
+            g.tick()
+            w.bury(3)
+            self.assertEqual(g.of_kind(DEATH)[0]["Cause of death"], "Unknown causes", game)
+
+    def test_a_save_and_reload_before_the_burial_keeps_the_events_words(self):
+        for game in ("vv1", "vv2"):
+            if not STOCK[game].is_file():
+                continue
+            g, w = self.early(game, "stock", slot=2)
+            g.tick()
+            self.kill12(g, w, 3, "Killed", 640)
+            g.tick()
+            name = next(n for n in g.files if n.endswith(f"Graves\\Virtual Villagers {g.no} Graves - Save 2.dat"))
+            data = bytes(g.files[name])
+            # Version 2: the file holds cause 5, which only this build reads.
+            self.assertEqual(struct.unpack_from("<4sIII", data), (b"VCD1", 2, g.no, 1), game)
+            self.assertEqual(struct.unpack_from("<HHIb", data, 16)[3], 5, game)
+            # The game quits and the village is loaded again: a new process, the same files.
+            g2, w2 = self.early(game, "stock", slot=2)
+            g2.files = {n: bytearray(v) for n, v in g.files.items()}
+            g2.dirs = set(g.dirs)
+            w2.villager(3, "Killed", 640, 0)
+            g2.tick()
+            w2.bury(3)
+            self.assertEqual(g2.of_kind(DEATH)[0]["Cause of death"], CIE_DIED, game)
+
+    def test_an_ordinary_graves_file_stays_version_1(self):
+        g, w = self.early("vv1", "stock", slot=2)
+        g.tick()
+        w.villager(3, "Olda", 1500, 40)
+        w.old_age(3)
+        g.tick()
+        name = next(n for n in g.files if n.endswith("Graves - Save 2.dat"))
+        self.assertEqual(struct.unpack_from("<4sII", bytes(g.files[name]))[1], 1)
+
+    # ---- The Secret City, The Tree of Life, New Believers ---------------------
+
+    def kill345(self, g: Game, w: Later, i: int, name: str, age: int, told: bool = True) -> int:
+        """c3_kill / c4_kill / c5_kill: the game's health setter with 0 and cause -1."""
+        r = w.villager(i, name, age, 0, -1)
+        if told:
+            g.p.export("VvfpCauseKilled", g.no, i)
+        return r
+
+    def test_the_later_games_bury_and_remove_with_the_events_words(self):
+        for game in ("vv3", "vv4", "vv5"):
+            if not STOCK[game].is_file():
+                continue
+            for mode in MODES:
+                g, w = later(game, mode)
+                self.kill345(g, w, 3, "Killed", 640)
+                self.kill345(g, w, 4, "Event", 650, told=False)     # a stock island event's death
+                self.kill345(g, w, 5, "Lying", 660)
+                w.villager(6, "Alive", 670, 50)
+                g.p.export("VvfpCauseKilled", g.no, 6)              # alive: nothing
+                g.p.export("VvfpCauseKilled", g.no % 5 + 1, 4)      # another game: nothing
+                g.tick()
+                w.bury(3)
+                w.bury(4)
+                w.decay(5)
+                self.assertEqual([(e["record"], e["Cause of death"]) for e in g.of_kind(DEATH)],
+                                 [(w.record(3), CIE_DIED), (w.record(4), "Unknown causes"),
+                                  (w.record(5), CIE_DIED)], (game, mode))
+                # The game's own cause is never touched: its grave keeps -1.
+                cause_at = {"vv3": 0x2C, "vv4": 0x34, "vv5": 0x34}[game]
+                self.assertEqual(struct.unpack("<i", g.p.read(w.entry(0) + cause_at, 4))[0], -1, (game, mode))
+                self.assertEqual(struct.unpack("<i", g.p.read(w.record(3) + LATER[game]["cause"], 4))[0], -1)
+
+    def test_the_later_games_forget_a_revived_body(self):
+        for game in ("vv3", "vv4", "vv5"):
+            if not STOCK[game].is_file():
+                continue
+            g, w = later(game)
+            r = self.kill345(g, w, 3, "Twice", 640)
+            g.tick()
+            g.p.put32(r + LATER[game]["health"], 50)            # Story / Cheat Upgrades' revive
+            g.tick()
+            g.p.put32(r + LATER[game]["health"], 0)             # then a stock island event (-1)
+            w.bury(3)
+            self.assertEqual(g.of_kind(DEATH)[0]["Cause of death"], "Unknown causes", game)
+
+    def test_the_later_games_keep_the_body_through_a_save_and_reload(self):
+        for game in ("vv3", "vv4", "vv5"):
+            if not STOCK[game].is_file():
+                continue
+            for mode in MODES:
+                g, w = later(game, mode)
+                self.kill345(g, w, 3, "Killed", 640)
+                self.kill345(g, w, 7, "Lying", 700)
+                w.villager(4, "Alive", 650, 50)
+                g.saved_epilogue(SAVE_SITE[game], 1, 1)
+                name = next(n for n in g.files
+                            if n.endswith(f"Custom Island Event Deaths\\Virtual Villagers {g.no} "
+                                          "Custom Island Event Deaths - Save 1.dat"))
+                data = bytes(g.files[name])
+                self.assertEqual(struct.unpack_from("<4sIII", data), (b"VCE1", 1, g.no, 2), (game, mode))
+                self.assertEqual([struct.unpack_from("<H", data, 16 + 8 * k)[0] for k in range(2)], [3, 7])
+                # Quit and load again: a new process, the same files; the load packs the records,
+                # so the body of record 7 is in record 6 now.
+                g2 = Game(game, rendered(game, mode, True), slot=1)
+                w2 = Later(g2)
+                self.assertEqual(g2.install(), 1)
+                g2.files = {n: bytearray(v) for n, v in g.files.items()}
+                g2.dirs = set(g.dirs)
+                w2.villager(3, "Killed", 640, 0, -1)
+                w2.villager(4, "Alive", 650, 50)
+                w2.villager(6, "Lying", 700, 0, -1)
+                g2.tick()
+                w2.bury(3)
+                w2.decay(6)
+                self.assertEqual([(e["record"], e["Cause of death"]) for e in g2.of_kind(DEATH)],
+                                 [(w2.record(3), CIE_DIED), (w2.record(6), CIE_DIED)], (game, mode))
+                # Both used up: the next save writes an empty file.
+                g2.saved_epilogue(SAVE_SITE[game], 1, 1)
+                self.assertEqual(struct.unpack_from("<4sIII", bytes(g2.files[name]))[3], 0, (game, mode))
+
+    def test_a_save_drops_a_body_no_longer_in_the_village(self):
+        for game in ("vv3", "vv4", "vv5"):
+            if not STOCK[game].is_file():
+                continue
+            g, w = later(game)
+            self.kill345(g, w, 3, "Gone", 640)
+            w.villager(3, "Newcomer", 0, 100)                   # the record reused
+            g.saved_epilogue(SAVE_SITE[game], 1, 1)
+            name = next(n for n in g.files if n.endswith("Custom Island Event Deaths - Save 1.dat"))
+            self.assertEqual(struct.unpack_from("<4sIII", bytes(g.files[name]))[3], 0, game)
+            w.villager(3, "Gone", 640, 0, -1)
+            w.bury(3)
+            self.assertEqual(g.of_kind(DEATH)[0]["Cause of death"], "Unknown causes", game)
+
+    # ---- The Story / Cheat Upgrades companion tells it -------------------------
+
+    def test_every_kill_of_the_custom_island_event_is_told(self):
+        story = (ROOT / "native/vvfp_story_upgrades/story_custom.inc").read_text(encoding="utf-8")
+        self.assertIn('GetProcAddress(module, "VvfpCauseKilled")', story)
+        apply = story[story.index("static void ce_apply("):]
+        apply = apply[:apply.index("\n}\n")]
+        kills = [n for n in range(len(apply)) if apply.startswith("a->kill(", n)]
+        self.assertEqual(len(kills), 2)
+        for n in kills:
+            branch = apply[n:apply.index("}", n)]
+            self.assertIn("ce_tell_killed(e->game, ", branch)
+        for name in ("vvfp_cause_of_death.def", "vvfp_cause_of_death_test.def"):
+            text = (ROOT / "native/vvfp_cause_of_death" / name).read_text(encoding="utf-8")
+            self.assertIn("VvfpCauseKilled=_VvfpCauseKilled@8", text)
+        reset = (ROOT / "native/shared/save_reset.c").read_text(encoding="utf-8")
+        for n in (3, 4, 5):
+            self.assertIn(f'CIE_DEATHS_FORMAT("{n}")', reset)
+        self.assertIn('"%s\\\\Virtual Villagers Fun Patcher Data\\\\Custom Island Event Deaths\\\\Virtual Villagers " n '
+                      '" Custom Island Event Deaths - Save %d.dat"', reset)
+
+
 @unittest.skipUnless(STOCK["vv5"].is_file(), STOCK_ABSENT)
 @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
 class NewBelieversLeaveForTheHeathens(unittest.TestCase):
