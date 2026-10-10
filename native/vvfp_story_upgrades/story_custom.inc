@@ -312,6 +312,84 @@ static int ce_plain_pending(int game) {
     return ce_pending(game) && !ce_armed_is_choice;
 }
 
+/* 1 while the armed plain event is Choose Time Skip Amount's closing notice
+   (story_time_skip.inc), not a player's own Custom Island Event. */
+static int ce_armed_is_notice;
+
+/* Each game's Island Events Seen counter (its own eNumCrisis, the Village
+   Statistics row) goes up by one in the island-event trigger just before it
+   builds the event an armed custom event is delivered into -- every caller
+   of the event builder does it:
+
+     A New Home        0x42392F / 0x423965 / 0x4239F2  ++world+0x9E40      -> 0x4286B0
+     The Lost Children 0x42F03F / 0x42F078 / 0x42F0E3  ++world+0x2E51C     -> 0x4348E0
+     The Secret City   0x468862                        ++[0x5824C4]        -> 0x419B30
+     The Tree of Life  0x43FBD6                        add [0x4D6E04], 1   -> 0x418000
+     New Believers     0x442849                        add [0x51D37C], 1   -> 0x418870
+
+   The time skip's notice is not an island event, so its delivery takes that
+   one back (ce_uncount_notice): the row keeps counting island events only.
+   The sites are checked byte for byte first; a build where any differs is
+   left as it is. */
+typedef struct {
+    int game;
+    unsigned int site;
+    unsigned char bytes[14];
+    int length;
+} ce_count_site;
+
+static const ce_count_site CE_COUNT_SITES[] = {
+    { 1, 0x42392Fu, { 0x8B, 0x88, 0x40, 0x9E, 0x00, 0x00, 0x41, 0x57, 0x89, 0x88, 0x40, 0x9E, 0x00, 0x00 }, 14 },
+    { 1, 0x423965u, { 0x8B, 0x88, 0x40, 0x9E, 0x00, 0x00, 0x41, 0x57, 0x89, 0x88, 0x40, 0x9E, 0x00, 0x00 }, 14 },
+    { 1, 0x4239F2u, { 0x8B, 0x88, 0x40, 0x9E, 0x00, 0x00, 0x41, 0x57, 0x89, 0x88, 0x40, 0x9E, 0x00, 0x00 }, 14 },
+    { 2, 0x42F03Fu, { 0x8B, 0x88, 0x1C, 0xE5, 0x02, 0x00, 0x41, 0x57, 0x89, 0x88, 0x1C, 0xE5, 0x02, 0x00 }, 14 },
+    { 2, 0x42F078u, { 0x8B, 0x88, 0x1C, 0xE5, 0x02, 0x00, 0x41, 0x57, 0x89, 0x88, 0x1C, 0xE5, 0x02, 0x00 }, 14 },
+    { 2, 0x42F0E3u, { 0x8B, 0x88, 0x1C, 0xE5, 0x02, 0x00, 0x41, 0x57, 0x89, 0x88, 0x1C, 0xE5, 0x02, 0x00 }, 14 },
+    { 3, 0x468862u, { 0x8B, 0x0D, 0xC4, 0x24, 0x58, 0x00, 0x41, 0x56, 0x89, 0x0D, 0xC4, 0x24, 0x58, 0x00 }, 14 },
+    { 4, 0x43FBD6u, { 0x83, 0x05, 0x04, 0x6E, 0x4D, 0x00, 0x01 }, 7 },
+    { 5, 0x442849u, { 0x83, 0x05, 0x7C, 0xD3, 0x51, 0x00, 0x01 }, 7 },
+};
+
+/* The counter of `game`, or NULL (no village, or a build whose trigger is
+   not the stock one). */
+static int *ce_event_counter(int game) {
+    int i, found = 0;
+    unsigned char *world;
+    for (i = 0; i < (int)(sizeof CE_COUNT_SITES / sizeof CE_COUNT_SITES[0]); ++i) {
+        const ce_count_site *s = &CE_COUNT_SITES[i];
+        if (s->game != game) {
+            continue;
+        }
+        if (!mem_matches(s->site, s->bytes, s->length)) {
+            return NULL;
+        }
+        ++found;
+    }
+    if (found == 0) {
+        return NULL;
+    }
+    switch (game) {
+    case 1:
+        world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
+        return world != NULL ? (int *)(world + VV1_EVENT_COUNT_FIELD) : NULL;
+    case 2:
+        world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
+        return world != NULL ? (int *)(world + VV2_EVENT_COUNT_FIELD) : NULL;
+    case 3: return (int *)(uintptr_t)0x5824C4u;
+    case 4: return (int *)(uintptr_t)0x4D6E04u;
+    case 5: return (int *)(uintptr_t)0x51D37Cu;
+    default: return NULL;
+    }
+}
+
+/* The notice was delivered: the trigger's count of it is taken back. */
+static void ce_uncount_notice(int game) {
+    int *counter = ce_event_counter(game);
+    if (counter != NULL && *counter > 0) {
+        --*counter;
+    }
+}
+
 /* ---- Record helpers ------------------------------------------------------ */
 
 /* The name alone: what a custom title is bound to (story_titles.inc). */
@@ -1347,15 +1425,21 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
    event asks a question: that one is delivered by ce_choice_begin. */
 static int ce_deliver(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
+    int notice;
     if (a == NULL || !ce_plain_pending(game)) {
         return 0;
     }
+    notice = ce_armed_is_notice;
     ce_armed = 0;
+    ce_armed_is_notice = 0;
     ce_apply(a, &ce_armed_event, &ce_last_result);
     if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
         /* The outcome lines do not fit: the title and description were
            checked when the event was queued, so show those alone. */
         ce_compose(a, &ce_armed_event, NULL, text, size);
+    }
+    if (notice) {
+        ce_uncount_notice(game);   /* the time skip's notice is not an island event */
     }
     STORY_COUNT(delivered);
     return 1;

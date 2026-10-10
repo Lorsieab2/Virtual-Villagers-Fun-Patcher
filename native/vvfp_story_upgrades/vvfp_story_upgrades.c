@@ -1167,6 +1167,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_e
     ce_armed_event = *event;
     ce_armed_event.game = game;
     ce_armed_is_choice = 0;
+    ce_armed_is_notice = 0;
     ce_armed = 1;
     (void)tick;                       /* a custom event never lapses with time */
     ce_armed_village = story_village_now(game);
