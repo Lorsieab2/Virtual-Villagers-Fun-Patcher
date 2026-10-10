@@ -34,17 +34,23 @@ class TimeSkipHost:
     one Time Warp buys now (-1 = paused); `settled` what the villager tick
     answers."""
 
-    def __init__(self, story: Story, step_years: int = 6):
+    def __init__(self, story: Story, step_years: int = 6, *, running_entry: bool = True):
         proc = story.proc
         self.step_years = step_years
         self.settled = False
         self.steps: list[int] = []
         self.slot = 1                  # the save slot the companion reports
         code = proc.alloc(0x100)
-        proc.write(code, b"\xC3" * 0x60)
+        proc.write(code, b"\xC3" * 0x80)
         table = proc.alloc(0x40)
-        proc.write(table, struct.pack("<7I", 28, code, code + 0x10, code + 0x20, 0,
-                                      code + 0x40, code + 0x50))
+        if running_entry:              # this release's host: step, settled and running
+            proc.write(table, struct.pack("<8I", 32, code, code + 0x10, code + 0x20, 0,
+                                          code + 0x40, code + 0x50, code + 0x60))
+            # The game's clock runs unless the step says "paused".
+            proc.stub(code + 0x60, lambda p: (0 if self.step_years < 0 else 1, 0))
+        else:                          # a host built before the running entry
+            proc.write(table, struct.pack("<7I", 28, code, code + 0x10, code + 0x20, 0,
+                                          code + 0x40, code + 0x50))
         proc.stub(code, lambda p: (self.slot, 0))
         proc.stub(code + 0x10, lambda p: (0, 4))
         proc.stub(code + 0x20, lambda p: (1, 8))
@@ -114,12 +120,75 @@ class VV1TimeSkipTests(unittest.TestCase):
         self.assertEqual(host.steps, [12, 12, 6])   # the last step is what is left
         self.assertEqual(state(story)["active"], 0)
 
-    def test_a_tick_never_seen_lapses_after_twenty_seconds(self):
+    def test_a_tick_never_seen_lapses_after_twenty_seconds_of_running_frames(self):
         story, host = self.make(step_years=3)
         story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 6, 0)
-        tick(story, 19999)
+        for at in range(100, 20000, 100):     # frames every 100 ms, the clock running
+            tick(story, at)
         self.assertEqual(host.steps, [3])
         tick(story, 20000)
+        self.assertEqual(host.steps, [3, 3])
+
+    def test_time_with_no_frames_never_counts_toward_the_lapse(self):
+        """The old lapse was wall-clock: a game that ran no frames for 20
+        seconds -- a modal box, a minimised window -- had its next step made
+        on the first frame back, before its villager tick had replayed the
+        last one: two Time Warps in one catch-up.  Only time between frames
+        that run counts."""
+        story, host = self.make(step_years=3)
+        story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 9, 0)
+        tick(story, 25000)                    # the first frame after 25 s with none
+        tick(story, 25100)
+        self.assertEqual(host.steps, [3], "no step before the game has replayed the last one")
+        for at in range(25200, 45000, 100):
+            tick(story, at)
+        self.assertEqual(host.steps, [3])
+        tick(story, 45100)                    # 20 s of frames since 25000
+        self.assertEqual(host.steps, [3, 3], "the lapse after 20 s of running frames")
+
+    def test_a_paused_game_never_counts_toward_the_lapse(self):
+        story, host = self.make(step_years=3)
+        story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 9, 0)
+        host.step_years = -1                  # paused: frames run, the clock does not
+        for at in range(100, 60000, 100):
+            tick(story, at)
+        self.assertEqual(host.steps, [3], "paused a minute: still waiting for the replay")
+        host.step_years = 3
+        for at in range(60000, 79900, 100):
+            tick(story, at)
+        self.assertEqual(host.steps, [3])
+        tick(story, 80000)
+        self.assertEqual(host.steps, [3, 3])
+
+    def test_the_started_box_holds_the_skip(self):
+        """The purchase's "has started" box is open after the first step:
+        the game's villager tick does not run, so nothing moves and nothing
+        counts, even if frames are delivered meanwhile."""
+        story, host = self.make(step_years=3)
+        story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 9, 0)
+        story.proc.export("VvfpStoryProbeTimeSkipBox", 1)
+        host.settled = True
+        for at in range(100, 40000, 100):
+            tick(story, at)
+        self.assertEqual(host.steps, [3], "held while the box is open, even when settled")
+        story.proc.export("VvfpStoryProbeTimeSkipBox", 0)
+        host.settled = False
+        tick(story, 40000)
+        tick(story, 40100)
+        self.assertEqual(host.steps, [3], "the box's time did not count")
+        host.settled = True
+        tick(story, 40200)
+        self.assertEqual(host.steps, [3, 3])
+
+    def test_a_host_without_the_running_entry_counts_running_frames(self):
+        story = Story("vv1")
+        story.village.put(0, sex="f", years=20, name="Ama")
+        host = TimeSkipHost(story, 3, running_entry=False)
+        story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 6, 0)
+        tick(story, 30000)                    # no frames for 30 s
+        self.assertEqual(host.steps, [3])
+        for at in range(30100, 50100, 100):
+            tick(story, at)
         self.assertEqual(host.steps, [3, 3])
 
     def test_one_step_skip_finishes_at_once(self):
@@ -179,8 +248,12 @@ class VV1TimeSkipTests(unittest.TestCase):
         story.proc.export("VvfpStoryProbeIslandEventOpen", 0)
         tick(story, 30100)
         self.assertEqual(host.steps, [6])     # still waiting for the replay
-        tick(story, 50000)
+        for at in range(30200, 50100, 100):   # running frames after the close
+            tick(story, at)
+            if len(host.steps) > 1:
+                break
         self.assertEqual(host.steps, [6, 6])  # the lapse, counted from the close
+        self.assertGreaterEqual(at, 50000)
 
     def test_the_closing_popup_waits_while_an_island_event_is_open(self):
         story, host = self.make(step_years=6)

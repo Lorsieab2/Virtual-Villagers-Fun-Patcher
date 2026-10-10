@@ -790,12 +790,19 @@ static int write_vv1_expected_father(FILE *file, int index) {
         || !vv1_expected_father(index, looks, father, (int)sizeof(father))) {
         return 1;
     }
-    if (father[0] == '\0' || looks[0] < 0 || looks[1] < 0) {
+    if (father[0] == '\0') {
         return 1;
     }
+    /* A father whose name is known but a look not (a stash an earlier build
+       wrote): the block is still written, the look "(unknown)" -- the name
+       is never dropped for want of a look (0 is a real look, -1 is none). */
     if (fprintf(file, "  Father: %s\n", father) < 0) return 0;
-    if (fprintf(file, "    Head: %d\n", looks[0]) < 0) return 0;
-    if (fprintf(file, "    Body: %d\n", looks[1]) < 0) return 0;
+    if ((looks[0] >= 0 ? fprintf(file, "    Head: %d\n", looks[0]) : fprintf(file, "    Head: (unknown)\n")) < 0) {
+        return 0;
+    }
+    if ((looks[1] >= 0 ? fprintf(file, "    Body: %d\n", looks[1]) : fprintf(file, "    Body: (unknown)\n")) < 0) {
+        return 0;
+    }
     return 1;
 }
 

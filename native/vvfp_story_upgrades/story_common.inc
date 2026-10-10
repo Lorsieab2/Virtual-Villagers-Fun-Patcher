@@ -59,28 +59,43 @@ typedef struct {
        older than that upgrade (its size stops before them). */
     int (__stdcall *time_skip_step)(int years);
     int (__stdcall *time_skip_settled)(void);
+    /* Whether the game's clock runs (not paused): absent from a host that
+       predates it (its size stops before it). */
+    int (__stdcall *time_skip_running)(void);
 } story_host;
 
-/* The size of a host without the time skip's two entries. */
+/* The size of a host without the time skip's entries. */
 #define STORY_HOST_BASE_SIZE ((int)offsetof(story_host, time_skip_step))
+/* ...and of one with the step and settled entries but not running. */
+#define STORY_HOST_SKIP_SIZE ((int)offsetof(story_host, time_skip_running))
 
 static const story_host *story_hosts[6];
 
 /* The time skip's entries of `game`'s host, or NULL when it has none. */
 static const story_host *story_time_skip_host(int game) {
     const story_host *host = game >= 1 && game <= 5 ? story_hosts[game] : NULL;
-    if (host == NULL || host->size < (int)sizeof(story_host) || host->time_skip_step == NULL
+    if (host == NULL || host->size < STORY_HOST_SKIP_SIZE || host->time_skip_step == NULL
         || host->time_skip_settled == NULL) {
         return NULL;
     }
     return host;
 }
 
+/* Whether `host`'s game clock runs now; a host that cannot say counts as
+   running (only time between frames that run is counted at all). */
+static int story_host_running(const story_host *host) {
+    if (host->size < (int)sizeof(story_host) || host->time_skip_running == NULL) {
+        return 1;
+    }
+    return host->time_skip_running() != 0;
+}
+
 /* Called once by each game's Origins companion (native/shared/story_bridge.h)
    with its slot and mask store.  Returns 1 when accepted. */
 __declspec(dllexport) int __stdcall VvfpStoryAttachHost(int game, const story_host *host) {
     if (game < 1 || game > 5 || host == NULL
-        || (host->size != STORY_HOST_BASE_SIZE && host->size != (int)sizeof(story_host))
+        || (host->size != STORY_HOST_BASE_SIZE && host->size != STORY_HOST_SKIP_SIZE
+            && host->size != (int)sizeof(story_host))
         || host->slot == NULL || host->mask_get == NULL || host->mask_set == NULL) {
         return 0;
     }

@@ -75,6 +75,7 @@ EXPORTS
     VvfpStoryProbeTimeSkipState=_VvfpStoryProbeTimeSkipState@4
     VvfpStoryProbeTimeSkipNotice=_VvfpStoryProbeTimeSkipNotice@4
     VvfpStoryProbeTimeSkipPrice=_VvfpStoryProbeTimeSkipPrice@4
+    VvfpStoryProbeTimeSkipBox=_VvfpStoryProbeTimeSkipBox@4
     VvfpStoryProbeCharges=_VvfpStoryProbeCharges@8
     VvfpStoryProbeIslandEventOpen=_VvfpStoryProbeIslandEventOpen@4
     VvfpStoryStats DATA

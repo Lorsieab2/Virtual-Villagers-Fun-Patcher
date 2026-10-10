@@ -46,9 +46,13 @@ typedef struct {
        returns the years advanced; 0 when there is no village to advance,
        -1 when the game is paused or its speed unknown (nothing changed).
        time_skip_settled() is 1 once the game's own villager tick has run
-       since the last step (so its catch-up has replayed that step). */
+       since the last step (so its catch-up has replayed that step).
+       time_skip_running() is 1 while the game's clock runs (not paused, a
+       speed this companion knows): only that time counts toward the
+       replay wait's lapse. */
     int (__stdcall *time_skip_step)(int years);
     int (__stdcall *time_skip_settled)(void);
+    int (__stdcall *time_skip_running)(void);
 } vvfp_story_host;
 static const vvfp_story_host *vvfp_story_host_table(void);
 

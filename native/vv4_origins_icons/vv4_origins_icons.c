@@ -1157,11 +1157,12 @@ static int __stdcall vv4_story_mask_set(void *record, int mask) {
 /* Choose Time Skip Amount: defined with the Time Warp below. */
 static int __stdcall vv4_story_time_skip_step(int years);
 static int __stdcall vv4_story_time_skip_settled(void);
+static int __stdcall vv4_story_time_skip_running(void);
 
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL,
-        vv4_story_time_skip_step, vv4_story_time_skip_settled
+        vv4_story_time_skip_step, vv4_story_time_skip_settled, vv4_story_time_skip_running
     };
     return &host;
 }
@@ -2991,6 +2992,14 @@ static int __stdcall vv4_story_time_skip_settled(void) {
     rec = vv_record(vv4_skip_watch);
     return rec[VV_ACTIVE_OFFSET] == 0 || !vv_eligible(rec)
         || *(int *)(rec + VV4_TW_LAST_SEEN_OFFSET) != vv4_skip_mark;
+}
+
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv4_story_time_skip_running(void) {
+    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    return world != 0 && vv4_time_warp_years(*(int *)(world + VV4_TW_SPEED_OFFSET)) > 0;
 }
 
 /* Group a cost with thousands separators, matching every other purchase box in
