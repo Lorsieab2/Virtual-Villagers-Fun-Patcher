@@ -1024,6 +1024,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Checkbutton(words, text="Keep text inside the shape",
                         variable=self.inside_var,
                         command=lambda: self._change(text_inside=bool(self.inside_var.get()))).pack(anchor="w")
+        # The owner, 2026-10-09: the males' turtle shells drew faces and words a quarter smaller than the
+        # females' leaves -- one size for everyone, whatever the shape and size.
+        fixed_row = ttk.Frame(words)
+        fixed_row.pack(anchor="w")
+        self.fixed_face_var = tk.BooleanVar(value=e.fixed_face_size)
+        ttk.Checkbutton(fixed_row, text="Faces and words keep one size, whatever the portrait's shape and size",
+                        variable=self.fixed_face_var,
+                        command=lambda: self._change(fixed_face_size=bool(self.fixed_face_var.get()))).pack(side="left")
+        self._reset_button(fixed_row, "fixed_face_size").pack(side="left", padx=(6, 0))
         self.valign_var = tk.StringVar(value=ft.TEXT_VALIGNS[e.text_valign])
         down = ttk.Combobox(row, textvariable=self.valign_var, values=list(ft.TEXT_VALIGNS.values()),
                             state="readonly", width=7)
@@ -3477,6 +3486,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_opacity_scale.set(e.mark_opacity)
         self.align_var.set(ft.TEXT_ALIGNS[e.text_align])
         self.inside_var.set(e.text_inside)
+        self.fixed_face_var.set(e.fixed_face_size)
         self.turn_words_var.set(e.turn_words)
         self.flip_words_var.set(e.flip_words)
         self.room_var.set(ft.TEXT_ROOMS[e.text_room])

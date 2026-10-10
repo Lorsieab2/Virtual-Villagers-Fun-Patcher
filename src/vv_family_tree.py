@@ -307,6 +307,9 @@ class Edits:
     # The owner, 2026-10-09: "a toggle for the text to fit within the portrait shape's space (in things
     # like crosses and x's it runs off)": the words only as wide as the shape is where each line is.
     text_inside: bool = False
+    # Faces and words at one size whatever the portrait's shape and size (the owner, 2026-10-09: the
+    # males' turtle shells drew their faces and words a quarter smaller than the females' leaves).
+    fixed_face_size: bool = False
     # Whether a turned portrait's words turn with it (the owner, 2026-10-09); off, they stay upright.
     turn_words: bool = False
     # Whether a flipped portrait's words are mirrored with it (the owner, 2026-10-09: "if people want to
@@ -447,6 +450,7 @@ class Edits:
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.text_inside = data.get("text_inside") is True
+        out.fixed_face_size = data.get("fixed_face_size") is True
         out.turn_words = data.get("turn_words") is True
         out.flip_words = data.get("flip_words") is True
         mode = data.get("special_mode")
@@ -648,7 +652,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -674,7 +678,7 @@ class Edits:
 # The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
 # one portrait.  Each is checked as the tree's own is (_group_value).
 GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_words", "turn_words",
-                "text_inside", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
+                "text_inside", "fixed_face_size", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
                 "show_twins", "show_founder", "detail_lines", "detail_colour", "detail_opacity",
                 "detail_width", "portrait_fill")
 
@@ -1029,7 +1033,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # reopen (portrait shape/any other changes)").  Never a village's own things: its title, moved
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
-    "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
+    "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
     "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
@@ -1488,7 +1492,16 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         entry = edits.entries.get(entry_key(village, p), {})
         kind = flipped_kind(shape_of(edits, village, p), entry.get("flip_h", False), entry.get("flip_v", False))
         w, h = frame_size(edits, village, p, shrink=shrink_now)
-        return _profile(kind, w, h, entry.get("angle", 0.0), frame_pad(edits, entry, group_of(p), w, h))
+        words = None
+        if opt(edits, p, "fixed_face_size") and not p.upcoming:
+            # Faces and words at one size: they may reach past a short frame -- counted as drawn.
+            top, bottom = fixed_words_reach(probe, p, w, h)
+            words = (-w / 2, w / 2, top, bottom)
+        return _profile(kind, w, h, entry.get("angle", 0.0), frame_pad(edits, entry, group_of(p), w, h), words)
+
+    # (A layout with no places yet, for measuring portraits' words as they will be drawn.)
+    probe = Layout(village, rows, {}, {}, [], [], 0.0, 0.0, 0.0, edits=edits, shrink=shrink_now,
+                   names=gen.duplicate_names(village, edits.number_order) if edits.number_names else {})
 
     # The Packed layouts' family blocks: short rows, plain or each second row set along into the dips
     # of the one above, whichever takes less room; rows as close as the frames' outlines let them.
@@ -2008,17 +2021,23 @@ def drawn_reach(edits: Edits, village, p, profile: tuple) -> tuple[float, float,
     return max(left, NODE_W / 2), max(right, NODE_W / 2), min(top, 0.0), max(bottom, float(NODE_H))
 
 
-def _profile(kind: str, w: float, h: float, angle: float, pad: float = 0.0) -> tuple[int, list, list]:
+def _profile(kind: str, w: float, h: float, angle: float, pad: float = 0.0,
+             words: tuple | None = None) -> tuple[int, list, list]:
     """A frame as drawn, column by column across it: (half its width in whole columns, each column's top,
     each column's bottom), centred on 0 across and with a portrait's top at 0 down.  Everything the shape
     draws counts, not only its outline: the parts drawn like its border beside it (decor: a paw print's
     toes, a beetle's legs, a butterfly's feelers) -- and `pad` round it all, for its border's stroke and
-    anything else drawn outside it (a special border's leaves, a mark)."""
-    key = (kind, round(w, 1), round(h, 1), round(angle, 1), round(pad, 1))
+    anything else drawn outside it (a special border's leaves, a mark).  `words`: (left, right, top,
+    bottom) of a face and words drawn past the frame (fixed_face_size), counted as part of it."""
+    key = (kind, round(w, 1), round(h, 1), round(angle, 1), round(pad, 1),
+           tuple(round(v, 1) for v in words) if words else None)
     if key not in _PROFILES:
         x0, y0 = -w / 2, (NODE_H - h) / 2
         outline_pts = shape_points(kind, x0, y0, w, h, corner_radius(kind), angle)
         paths = [outline_pts + outline_pts[:1]]
+        if words:
+            wl, wr, wt, wb = words
+            paths.append([(wl, wt), (wr, wt), (wr, wb), (wl, wb), (wl, wt)])
         for line in decor(kind):                 # in the frame's box, turned with it
             pts = [(x0 + u * w, y0 + v * h) for u, v in line]
             if angle:
@@ -3760,6 +3779,63 @@ def inner_sizes(lay: Layout, p: gen.Person) -> tuple[float, float]:
     entry = lay.entry(p)
     return (lay.opt(p, "picture_size") / 100 * entry.get("picture_scale", 100.0) / 100,
             lay.opt(p, "text_size") / 100 * entry.get("text_scale", 100.0) / 100)
+
+
+FACE_ROOM = 8                           # a face at one size keeps this far inside its frame (fixed_face_size)
+
+
+def fixed_scale(lay: Layout, p: gen.Person, fw: float, fh: float) -> float:
+    """Faces and words at one size (Edits.fixed_face_size, the owner, 2026-10-09: the males' faces and
+    words looked a quarter smaller than the females'): 1 for every portrait, whatever its shape and size --
+    unless the frame is too small for the face, which then shrinks just enough to stay inside it (the
+    face never leaves its portrait), and the words with it."""
+    pic, words = inner_sizes(lay, p)
+    face = FACE_H * HEAD_SCALE * pic
+    room = min(fw, fh) - 2 * FACE_ROOM
+    scale = 1.0 if p.upcoming or face <= room else max(0.2, room / face)
+    if lay.opt(p, "text_inside") and not p.upcoming:
+        # Words kept inside the shape: the face and words together as large as the frame's height holds
+        # them (else the words, run on below a short frame, would be made all but unreadably small).
+        _left, _top, _text, lines = placement(lay, p)
+        block = face + 8 + len(lines) * LINE_H * words
+        scale = min(scale, max(0.2, (fh - 2 * FACE_ROOM) / block))
+    return scale
+
+
+def face_inside(lay: Layout, p: gen.Person, present: dict, y: float, fy: float, fh: float, scale: float) -> float:
+    """How far down (or up) a portrait's face and words move so the face, at one size, is inside its
+    frame -- a frame shorter than a portrait (a turtle shell on its side, a butterfly) would otherwise
+    have the face standing out over its top.  The words keep their place under the face; where the
+    frame is too short for them they run on below it, or, kept inside the shape (Edits.text_inside),
+    are made smaller by the usual fitting."""
+    sheet = sheet_name(lay.village.game, p)
+    box = face_box(present, sheet, look_of(lay.edits, lay.village, p)[0])
+    _left, head_top, _text_top, _lines = placement(lay, p, box)
+    pic, _words = inner_sizes(lay, p)
+    middle = y + NODE_H / 2
+    top = middle + (y + head_top + box[1] * HEAD_SCALE * pic - middle) * scale
+    bottom = top + (box[3] - box[1]) * HEAD_SCALE * pic * scale
+    if top < fy + FACE_ROOM:
+        return min(fy + FACE_ROOM - top, max(0.0, fy + fh - FACE_ROOM - bottom))
+    if bottom > fy + fh - FACE_ROOM:
+        return -min(bottom - (fy + fh - FACE_ROOM), max(0.0, top - fy - FACE_ROOM))
+    return 0.0
+
+
+def fixed_words_reach(lay: Layout, p: gen.Person, fw: float, fh: float, present: dict | None = None) -> tuple[float, float]:
+    """For a portrait whose face and words keep one size (fixed_face_size): how high its face and how low
+    its words reach from its place's top -- past a frame shorter than the face and words, where the words
+    run on below it.  As _node draws them."""
+    scale = fixed_scale(lay, p, fw, fh)
+    pic, words = inner_sizes(lay, p)
+    sheet = sheet_name(lay.village.game, p)
+    box = face_box(present or {}, sheet, look_of(lay.edits, lay.village, p)[0])
+    _left, head_top, text_top, lines = placement(lay, p, box)
+    shift = face_inside(lay, p, present or {}, 0.0, (NODE_H - fh) / 2, fh, scale)
+    mid = NODE_H / 2
+    top = mid + (head_top + box[1] * HEAD_SCALE * pic - mid) * scale + shift
+    bottom = mid + (text_top + max(0, len(lines) - 1) * LINE_H * words + 4 * words - mid) * scale + shift
+    return top, bottom
 
 
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:
@@ -5987,9 +6063,14 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # kept a giant face when their group was made tiny (the owner, 2026-10-09: 8-pixel males, faces 4x).
     w0, h0 = natural_width(base_kind(kind)), NODE_H
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
+    fixed = lay.opt(p, "fixed_face_size")
+    if fixed:
+        scale = fixed_scale(lay, p, fw, fh)
     # The face and words go with the frame when the row lines portraits up by their tops or bottoms
     # (Edits.row_valign; Codex, #577: a short frame moved and left its face and words behind).
     y += (fy + fh / 2) - (y + NODE_H / 2)
+    if fixed and not p.upcoming:
+        y += face_inside(lay, p, present, y, fy, fh, scale)
     middle = (x + NODE_W / 2, y + NODE_H / 2)
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
@@ -6052,7 +6133,9 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         # The narrowest the shape is across the whole line, from the tops of its letters to below them.
         chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
         # Half the frame at least, unless the player keeps the words inside the shape (a cross's arm).
-        room = max(chord - 8, 12.0) if text_inside else max(chord, fw * 0.5) - 8
+        # (Faces and words at one size: as wide as the frame, not half of it, so a narrow shape's words keep
+        # their size too -- unless they are kept inside the shape.)
+        room = max(chord - 8, 12.0) if text_inside else max(chord, fw if fixed else fw * 0.5) - 8
         needed = len(text) * size * (0.58 if bold else 0.55)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
@@ -6066,7 +6149,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
                 size = (11.5 if bold else 10) * scale
                 baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
                 chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
-                wide = max(chord - 4, 16.0) if text_inside else max(chord, fw * 0.5)
+                wide = max(chord - 4, 16.0) if text_inside else max(chord, fw if fixed else fw * 0.5)
                 half = min(half, (wide - 12) / 2 / scale)
     at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):
