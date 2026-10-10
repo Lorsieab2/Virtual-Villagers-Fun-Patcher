@@ -248,7 +248,9 @@ static void roster_log(const unsigned char *record, int live, int index, const c
     extra[0] = '\0';
     if (pregnant) {
         int litter = *(const int *)(record + REC[g_game].litter);
-        wsprintfA(extra, "  Pregnant: yes, %d %s\n", litter > 1 ? litter : 1,
+        /* The games' own word for the state: every villager screen shows "Nursing"
+           (cod_lost.inc); an older build wrote "Pregnant", which the readers still take. */
+        wsprintfA(extra, "  Nursing: yes, %d %s\n", litter > 1 ? litter : 1,
                   litter > 1 ? "babies" : "baby");
     }
     if (REC[g_game].heathen != 0u) {
