@@ -152,6 +152,7 @@
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
 #include "../shared/save_layout.h"    /* the save folder's names, and the move from older ones */
+#include "../shared/log_slot.h"       /* one folder of logs per save slot */
 #include "../shared/birth_heading.h"  /* "Birth <n>", or an older log's "Birth" */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 

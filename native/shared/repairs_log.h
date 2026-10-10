@@ -20,6 +20,12 @@
    A file holds 256 records or 4 MiB; the next number is used after that.
    Written with Windows line endings, appended, never rewritten.
 
+   ONE FOLDER PER SAVE SLOT (log_slot.h): a repair of the village "<name> (Save S)" is written in
+   "...Logs\Save S\Repairs Made\"; the shared "Repairs Made" (and an older build's "Repairs") is
+   never written again, moved or split.  "Repair <n>" is numbered per GAME: after the highest
+   number printed in any of the game's Repairs files -- the shared folders and every slot's -- so
+   no number is ever used twice.
+
    THE BACKUP.  "<file>.before-v1.35.58-repair" (then "-2", "-3", ...) in
    "Virtual Villagers Fun Patcher Data\Copies Made Before Repairs", at the
    file's own place (save_layout.h), copied before the first change and never
@@ -34,6 +40,7 @@
 #include <string.h>
 #include "save_folder.h"
 #include "save_layout.h"
+#include "log_slot.h"
 
 #define VV_REPAIR_BACKUP_SUFFIX L".before-v1.35.58-repair"
 #define VV_REPAIRS_PER_FILE 256
@@ -83,6 +90,46 @@ static int vv_repairs_starts(const char *line, const char *word) {
     return strncmp(line, word, strlen(word)) == 0;
 }
 
+/* The highest "Repair <n>" printed in any of game `game`'s Repairs files: an older build's
+   "Repairs", the shared "Repairs Made" and every slot's (log_slot.h).  0 when none; -1 when a file
+   that is there cannot be read (nothing is then numbered blind). */
+static long vv_repairs_highest(int game) {
+    char root[MAX_PATH];
+    char folders[2 + VV_LOG_SLOTS][MAX_PATH];
+    char pattern[MAX_PATH], path[MAX_PATH];
+    long highest = 0;
+    int n, f;
+    if (!vv_save_folder(root, 64)) {
+        return -1;
+    }
+    n = vv_log_read_folders_a(root, "Repairs Made", "Repairs", 0, folders, 2 + VV_LOG_SLOTS);
+    for (f = 0; f < n; ++f) {
+        WIN32_FIND_DATAA found;
+        HANDLE find;
+        if (_snprintf_s(pattern, sizeof pattern, _TRUNCATE, "%s\\Virtual Villagers %d Repairs Log *.txt",
+                        folders[f], game) < 0) {
+            return -1;
+        }
+        find = FindFirstFileA(pattern, &found);
+        if (find == INVALID_HANDLE_VALUE) {
+            continue;
+        }
+        do {
+            int count = 0;
+            if ((found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0
+                || _snprintf_s(path, sizeof path, _TRUNCATE, "%s\\%s", folders[f], found.cFileName) < 0) {
+                continue;
+            }
+            if (vv_log_marker_numbers_a(path, "Repair ", &count, &highest) < 0) {
+                FindClose(find);
+                return -1;
+            }
+        } while (FindNextFileA(find, &found));
+        FindClose(find);
+    }
+    return highest;
+}
+
 /* Append one "Repair <n>" record: `checked` (one line, no line end) and
    `body` (whole lines, "\r\n" ended, may be empty) under `header` (the
    village's "Village: ..." line, no line end).  1 when it is on disk. */
@@ -92,6 +139,8 @@ static int vv_repairs_note(int game, const char *header, const char *checked, co
     char *text;
     char *existing = NULL;
     int number = 1, repairs = 0, need_header = 1;
+    int slot = vv_log_header_slot(header);
+    long highest;
     size_t cap;
     SYSTEMTIME now;
     HANDLE file;
@@ -102,10 +151,21 @@ static int vv_repairs_note(int game, const char *header, const char *checked, co
     }
     /* "Repairs Made", or an older build's "Repairs" while only it exists: written where it is,
        never moved (save_layout.h). */
-    if (!vv_save_folder(folder, 64)
+    if (slot != 0) {
+        /* The village's own slot folder: "...Logs\Save <slot>\Repairs Made" (log_slot.h). */
+        char sub[MAX_PATH];
+        if (!vv_log_rel_a(sub, sizeof sub, slot, "Repairs Made")
+            || !vv_save_subfolder(folder, sub, (int)sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
+            return 0;
+        }
+    } else if (!vv_save_folder(folder, 64)
         || !vv_save_subfolder(folder, vv_layout_dir_rel_a(folder, VV_REPAIRS_OLD_A, VV_REPAIRS_DIR_A),
                               (int)sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
         return 0;
+    }
+    highest = vv_repairs_highest(game);
+    if (highest < 0) {
+        return 0;                     /* a Repairs file there and unreadable: never numbered blind */
     }
     for (;;) {
         _snprintf_s(path, sizeof path, _TRUNCATE, "%s\\Virtual Villagers %d Repairs Log %d.txt", folder, game, number + 1);
@@ -177,7 +237,9 @@ static int vv_repairs_note(int game, const char *header, const char *checked, co
                 /* after an older build's "Repairs" folder's own file of the same number, as A New
                    Home's parentage repair numbers it (vv1_crosscheck.inc; save_layout.h): never a
                    second "Repair 1" beside the older folder's */
-                repairs + 1 + vv_layout_older_repairs(folder, game, number), now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond,
+                (int)((long)(repairs + vv_layout_older_repairs(folder, game, number)) > highest
+                      ? (long)(repairs + vv_layout_older_repairs(folder, game, number)) : highest) + 1,
+                now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond,
                 checked, body);
     file = CreateFileA(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {

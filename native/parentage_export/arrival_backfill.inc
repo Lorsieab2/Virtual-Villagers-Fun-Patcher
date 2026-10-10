@@ -246,25 +246,27 @@ static int arrival_names_related(int game_id, const char *record, const char *li
    could not be read, so nothing is decided on half a log. */
 static int read_village_arrivals(const struct game_layout *g, int game_id, const char *village,
                                  int *files) {
-    wchar_t folder[MAX_PATH];
+    wchar_t folders[READ_FOLDERS][MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
     char line[512];
     struct arrival_reader reader;
+    const wchar_t *stem = family_stem(g, LOG_BIRTHS);
     int ceiling;
     int number;
-    int i;
+    int i, f, folder_count;
 
     arrival_key_count = 0;
     arrival_look_count = 0;
     *files = 0;
-    if (!build_family_log_path(g, LOG_BIRTHS, 1, path)
-        || !vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
+    /* The shared folder older builds wrote, then this village's slot folder (log_slot.h). */
+    folder_count = family_read_folders(LOG_BIRTHS, village, folders);
+    if (stem == NULL || folder_count == 0) {
         return 0;
     }
-    ceiling = highest_log_number(family_stem(g, LOG_BIRTHS), folder);
-    for (number = 1; number <= ceiling; ++number) {
+    for (f = 0; f < folder_count; ++f)
+    for (ceiling = highest_log_number(stem, folders[f]), number = 1; number <= ceiling; ++number) {
         FILE *file;
-        if (!build_family_log_path(g, LOG_BIRTHS, number, path)) {
+        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folders[f], stem, number) < 0) {
             return 0;
         }
         if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES
@@ -357,7 +359,7 @@ static struct arrival_key *founders;
 static int founder_count;
 
 static void read_first_snapshot(const char *village) {
-    wchar_t folder[MAX_LOG_PATH];
+    wchar_t (*history)[MAX_LOG_PATH] = NULL;
     wchar_t path[MAX_LOG_PATH];
     char line[512];
     char current[256];
@@ -378,17 +380,16 @@ static void read_first_snapshot(const char *village) {
     }
     _snprintf_s(current, sizeof current, _TRUNCATE, "%s", village);
     trim_line(current);
-    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
+    /* The shared Tribe History older builds wrote, then this village's slot folder (log_slot.h). */
+    ceiling = village_log_files(L"Tribe History", village, L"Village History", &history);
+    if (ceiling <= 0) {
+        free(history);
         return;
     }
-    ceiling = highest_log_number(L"Village History", folder);
     /* The rename notes first: every file, wherever the note was appended. */
-    for (number = 1; number <= ceiling; ++number) {
+    for (number = 0; number < ceiling; ++number) {
         FILE *file;
-        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
-                         folder, number) < 0) {
-            return;
-        }
+        lstrcpynW(path, history[number], MAX_LOG_PATH);
         file = _wfopen(path, L"rb");
         if (file == NULL) {
             continue;
@@ -402,17 +403,14 @@ static void read_first_snapshot(const char *village) {
         fclose(file);
     }
     alias_count = history_aliases(current, notes, note_count, aliases);
-    for (number = 1; number <= ceiling && !done; ++number) {
+    for (number = 0; number < ceiling && !done; ++number) {
         FILE *file;
         int ours = 0;
         int expect_village = 0;
         int open = 0;
         struct arrival_key v;
         int have_head = 0, have_body = 0, have_name = 0;
-        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\Village History %d.txt",
-                         folder, number) < 0) {
-            return;
-        }
+        lstrcpynW(path, history[number], MAX_LOG_PATH);
         file = _wfopen(path, L"rb");
         if (file == NULL) {
             continue;
@@ -469,6 +467,7 @@ static void read_first_snapshot(const char *village) {
         }
         fclose(file);
     }
+    free(history);
 }
 
 /* Whether villager `i` of the ones being recorded is a founder. */
