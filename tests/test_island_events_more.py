@@ -26,7 +26,7 @@ SDK_VERSION = "10.0.26100.0"
 # Per game: nothing changed, the newcomer, the parents, the title set and removed, the Special
 # villager title, the whole likes list, no same-reading line, the village, the weather (or\n# none), a food store = 11; New Believers' Heathen
 # mask and The Lost Children's totem one more each.
-CHECKS = 5 * 11 + 2
+CHECKS = 5 * 14 + 2
 
 
 def table(source: str, head: str) -> str:
@@ -93,7 +93,8 @@ class IslandEventsMoreSource(unittest.TestCase):
         flags1 = re.findall(r"\{ (0x[0-9A-F]+), (?:0x[0-9A-F]+|0), \d+, \d+, 0x[0-9A-F]+, [^}]*\}",
                             table(c1, "static const c1_puzzle C1_PUZZLES[] = {"))
         mine1 = re.findall(r"W1, (0x[0-9A-F]+), VF_SOLVED_BYTE", self.more)
-        self.assertEqual([int(f, 16) for f in flags1], [int(f, 16) for f in mine1])
+        # The second and third small huts are not logged: the game has no name for them.
+        self.assertEqual([int(f, 16) for f in flags1][:15], [int(f, 16) for f in mine1])
         flags2 = re.findall(r"\{ (0x[0-9A-F]+), (?:0x[0-9A-F]+|0), \d+, 0x[0-9A-F]+, 0x[0-9A-F]+, [^}]*\}",
                             table(c2, "static const c2_puzzle C2_PUZZLES[] = {"))
         mine2 = re.findall(r"W2, (0x[0-9A-F]+), VF_SOLVED_BYTE", self.more)
@@ -109,34 +110,32 @@ class IslandEventsMoreSource(unittest.TestCase):
         self.assertIn("0x51DF30u + 4u * (unsigned int)(id)", c5)
         ids5 = [int(i) for i in re.findall(r"\{ (\d+), [^}]*\}", table(c5, "static const c5_puzzle C5_PUZZLES[] = {"))]
         mine5 = [int(i) for i in re.findall(r"P5\((\d+)\) \}", self.more)]
-        self.assertEqual(ids5, mine5)
+        # Huts 1-3 (19-21) and the nursery school building (24): the game has no name for them.
+        self.assertEqual([i for i in ids5 if i not in (19, 20, 21, 24)], mine5)
 
-    def test_the_weather_is_the_weather_objects_type(self):
-        import pefile
-        import capstone
+    def test_every_village_label_is_the_games_own_words(self):
+        # The owner: every printed word comes from the game's exe or save data.  A label is one of
+        # the executable's own strings, or two of them joined (The Secret City's "Tree 1" object
+        # and its "Fruit on tree" / "Fruit Tree" words); the tree kinds print "Banana", "Mango",
+        # "Papaya" as the exe spells them.  Nothing the game has no word for is logged (no weather).
         stock = ROOT / "research" / "stock-executables"
         if not stock.is_dir():
             self.skipTest("the stock executables are not here")
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        md.detail = False
-
-        def lines(exe: str, at: int, count: int) -> list[str]:
-            pe = pefile.PE(str(stock / exe))
-            image = pe.get_memory_mapped_image()
-            code = image[at - 0x400000: at - 0x400000 + count * 8]
-            return [f"{i.mnemonic} {i.op_str}" for i in md.disasm(code, at)][:count]
-
-        # The Secret City: [0x4B86C4] 2 or 3 is rain (the work gate 0x45C1D1).
-        self.assertEqual(lines("Virtual Villagers - The Secret City.exe", 0x45C1D1, 2),
-                         ["mov eax, dword ptr [0x4b86c4]", "cmp eax, 2"])
-        # The Tree of Life: the weather setter 0x46BC30 writes the type first ([esi], esi = 0x6C461C).
-        self.assertIn("mov dword ptr [esi], eax", lines("Virtual Villagers - The Tree of Life.exe", 0x46BC30, 14))
-        # New Believers: 0x477040 reads the type at [ecx].
-        self.assertEqual(lines("Virtual Villagers - New Believers.exe", 0x477040, 1)[0], "mov eax, dword ptr [ecx]")
-        self.assertIn('{ "Weather", 0, 0x4B86C4u, VF_WEATHER, 0 }', self.more)
-        self.assertIn('{ "Weather", 0, 0x6C461Cu, VF_WEATHER, 4 }', self.more)
-        self.assertIn('{ "Weather", 0, 0x718EA0u, VF_WEATHER, 4 }', self.more)
-
+        names = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
+                 5: "New Believers"}
+        self.assertNotIn("VF_WEATHER", self.more)
+        for game, title in names.items():
+            data = (stock / f"Virtual Villagers - {title}.exe").read_bytes().lower()
+            labels = re.findall(r'\{ "([^"]+)"', table(self.more, f"static const struct village_field VV{game}_VILLAGE[] = {{"))
+            self.assertTrue(labels, game)
+            for label in labels:
+                with self.subTest(game=game, label=label):
+                    parts = label.split(", ")
+                    for part in parts:
+                        self.assertIn(part.lower().encode(), data)
+        data3 = (stock / "Virtual Villagers - The Secret City.exe").read_bytes()
+        for word in (b"Banana\x00", b"Mango\x00", b"Papaya\x00"):
+            self.assertIn(word, data3)
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
 class IslandEventsMoreHarness(unittest.TestCase):

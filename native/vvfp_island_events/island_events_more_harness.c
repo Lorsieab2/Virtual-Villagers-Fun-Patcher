@@ -170,6 +170,9 @@ static void begin(void) {
     g_snaps[0].title[0] = '\0';
     g_snaps[0].text[0] = '\0';
     g_choice[0] = '\0';
+    g_answering = 0;
+    g_answer_self = 0;
+    g_more_entry = 0;
     lstrcpynA(g_snaps[0].title, "A Test Event", sizeof g_snaps[0].title);
     take(&g_snaps[0]);
     lstrcpynA(g_snaps[0].title, "A Test Event", sizeof g_snaps[0].title);
@@ -290,7 +293,9 @@ int main(void) {
         /* 7. Nothing changed: nothing written. */
         begin();
         compare(&g_snaps[0]);
-        CHECK(g_outs == 0 && g_village_outs == 0, "an event that changes nothing writes nothing");
+        CHECK(g_outs == 0 && g_village_outs == 1
+              && strcmp(g_village_out[0], "  Event: A Test Event\n  Changes: none\n") == 0,
+              "an event that changes nothing is one record: \"Event: A Test Event\", \"Changes: none\"");
 
         /* 1. A newcomer's sex and age. */
         begin();
@@ -303,6 +308,19 @@ int main(void) {
               && strcmp(record_of(slot(3))->changes,
                         "  New villager: yes\n  Sex: Female\n  Age: 340 (17 years old)\n") == 0,
               "a new villager's record says \"Sex: Female\" and \"Age: 340 (17 years old)\"");
+        /* 0 is a valid head, body and age (the owner): a newborn-aged newcomer
+           with head 0 and body 0 is named with them, never as unknown. */
+        begin();
+        slot(6)[present] = 1;
+        put_text(slot(6) + layout.name, "Zero");
+        *(int *)(slot(6) + layout.head) = 0;
+        *(int *)(slot(6) + layout.body) = 0;
+        put_int(sex, slot(6), female);
+        put_int(age, slot(6), 0);
+        compare(&g_snaps[0]);
+        CHECK(record_of(slot(6)) != NULL
+              && strcmp(record_of(slot(6))->changes, "  New villager: yes\n  Sex: Female\n  Age: 0 (0 years old)\n") == 0,
+              "a newcomer of age 0, head 0, body 0: \"Age: 0 (0 years old)\", recorded like any other");
 
         /* 2. Parents. */
         begin();
@@ -321,6 +339,16 @@ int main(void) {
               && strstr(record_of(slot(2))->changes, g_harness_game == 1 ? "  Mother's head: (unknown) -> 4\n"
                                                                          : "  Mother's head: 0 -> 4\n"),
               "parents a Custom Island Event changes are lines: \"Father: (none) -> Rongo\", the mother, her head");
+        /* ...and a parent's head set to 0 is a value, not "unknown". */
+        begin();
+        if (g_harness_game == 1) {
+            g_vv1_looks[2] = 0;
+        } else {
+            put_int(mother_head, slot(2), 0);
+        }
+        compare(&g_snaps[0]);
+        CHECK(record_of(slot(2)) != NULL && strcmp(record_of(slot(2))->changes, "  Mother's head: 4 -> 0\n") == 0,
+              "a mother's head changed to 0 is \"Mother's head: 4 -> 0\"");
 
         /* 3. A custom title set, then removed. */
         begin();
@@ -419,7 +447,7 @@ int main(void) {
 
         /* 6. The village. */        food = village_at("Food", &type, &extra);
         tech = village_at("Tech points", &type, &extra);
-        weather = village_at("Weather", &type, &extra);
+        weather = village_at("Weather", &type, &extra);   /* none: no game has a word for its kinds */
         puzzle = first_puzzle();
         if (puzzle != NULL && puzzle->type == VF_SOLVED_TABLE) {
             *(int *)harness_address(puzzle->extra) = 5;    /* the threshold the game fills */
@@ -427,9 +455,6 @@ int main(void) {
         begin();
         *(int *)food = 120;
         *(int *)tech = 75;
-        if (weather != NULL) {
-            *(int *)weather = 2;
-        }
         if (puzzle != NULL) {
             unsigned char *at = puzzle->global != 0 ? g_world + puzzle->at : harness_address(puzzle->at);
             if (puzzle->type == VF_SOLVED_BYTE) {
@@ -450,14 +475,33 @@ int main(void) {
                   "the village is one record: \"Village:\", \"Food: 0 -> 120\", \"Tech points: 0 -> 75\", \"%s: unsolved -> solved\"",
                   puzzle != NULL ? puzzle->label : "?");
         }
-        if (g_harness_game >= 3) {
-            CHECK(g_village_outs == 1 && strstr(g_village_out[0], "    Weather: clear -> rain\n") != NULL,
-                  "...and the weather, \"Weather: clear -> rain\"");
+        /* Exactly one record per event shown: a routine that is no whole event,
+           an answer whose OK follows, an event with no title -- no "Changes: none". */
+        CHECK(weather == NULL && strstr(g_village_out[0], "Weather") == NULL, "no weather line (the games have no word for its kinds)");
+        begin();
+        if (g_harness_game == 1) {
+            g_snaps[0].title[0] = '\0';
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 0 && g_village_outs == 0, "an event with no title: no \"Changes: none\"");
+        } else if (g_harness_game == 2 || g_harness_game == 4) {
+            g_more_entry = g_harness_game == 2 ? 0x422380u : 0x417790u;
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 0 && g_village_outs == 0,
+                  "the routine that only asks or builds the dialog (0x%X) writes no \"Changes: none\"", g_more_entry);
         } else {
-            CHECK(weather == NULL, "%s keeps no weather the events change: none is compared",
-                  GAME_NAMES[g_harness_game]);
-        }
-        {
+            int answer_records, ok_records;
+            g_answering = 1;
+            g_answer_self = 0x1234;
+            *(int *)(slot(0) + layout.head) += 1;
+            compare(&g_snaps[0]);
+            answer_records = g_outs + g_village_outs;
+            begin();
+            g_answer_self = 0x1234;
+            compare(&g_snaps[0]);
+            ok_records = g_outs + g_village_outs;
+            CHECK(answer_records == 2 && ok_records == 0,
+                  "an answer logged with changes, then its OK with none: one event, no \"Changes: none\"");
+        }        {
             static const char *const STORE[GAMES + 1] = {
                 "", "Berries remaining", "Fish", "Honey", "Blackberries", "Noni remaining",
             };

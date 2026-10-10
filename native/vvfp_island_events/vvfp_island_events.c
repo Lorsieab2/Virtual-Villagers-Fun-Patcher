@@ -126,6 +126,7 @@ static void more_take(const struct snapshot *s);
 static size_t more_villager_changes(int i, const unsigned char *live, char *changes, size_t used, size_t size);
 static void more_arrival(const unsigned char *record, char *out, size_t size);
 static void more_village(const char *before);
+static int g_more_wrote;                  /* island_event_more.inc: the records this comparison wrote */
 
 static int readable(const void *at, size_t size) {
     MEMORY_BASIC_INFORMATION info;
@@ -325,6 +326,7 @@ static void compare(struct snapshot *s) {
                reused for someone else: named from the copy. */
             used += (size_t)_snprintf(changes + used, sizeof changes - used, "  Gone: yes\n");
             g_write(g_game, KIND_ISLAND_EVENT, old, 0, before, changes, 0);
+            ++g_more_wrote;
             continue;
         }
         /* A conception the event started (Pregnant no -> yes): what it wrote
@@ -391,6 +393,7 @@ static void compare(struct snapshot *s) {
         }
         changes[sizeof changes - 1] = '\0';
         g_write(g_game, KIND_ISLAND_EVENT, live, 1, before, changes, 0);
+        ++g_more_wrote;
         {
             int oh = *(const int *)(old + g_layout->head), ob = *(const int *)(old + g_layout->body);
             int nh = *(const int *)(live + g_layout->head), nb = *(const int *)(live + g_layout->body);
@@ -418,6 +421,7 @@ static void compare(struct snapshot *s) {
             char arrival[128];
             more_arrival(now[i], arrival, sizeof arrival);
             g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, arrival, 2);
+            ++g_more_wrote;
         }
     }
     more_village(before);
@@ -636,6 +640,7 @@ static unsigned int __cdecl after_call(void) {
         g_called[g_depth]->after(g_selves[g_depth], &text);
     }
     if (g_depth == 0 && g_watching) {
+        g_more_entry = g_called[0]->entry;   /* island_event_more.inc: which routine this is */
         compare(&g_snaps[0]);
         g_watching = 0;
         if (!g_answering) {

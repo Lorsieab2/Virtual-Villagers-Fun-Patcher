@@ -22,21 +22,28 @@
         record, as every other change is.
      3. What an event changes in the village as a whole -- food, tech points,
         the food stores (the Custom Island Event's "food sources" and Refill),
-        the puzzles (solved or not) and the weather -- in one record of its
-        own, "Island event <n>" with the event's title and a "Village:" block
-        of "<Label>: <old> -> <new>" lines, written only when something
-        changed ("VVFP Parentage Export.dll" WriteVillageEventRecord).
+        and the puzzles (solved or not) -- in one record of its own, "Island
+        event <n>" with the event's title and a "Village:" block of "<Label>:
+        <old> -> <new>" lines, written only when something changed ("VVFP
+        Parentage Export.dll" WriteVillageEventRecord).  Every label is the
+        game's own words (the owner: every printed word from the exe or the
+        save); a store or puzzle the game has no word for is not logged.
+     4. An event that changes nothing still gets its record, "Changes: none"
+        (the owner, 2026-10-09), exactly one per event shown (more_village).
 
    Every address is the Story / Cheat Upgrades' Custom Island Event's own
    (native/vvfp_story_upgrades/story_c1.inc .. story_c5.inc: the food and
    tech stores, the food sources, the puzzle tables), each traced in the
-   stock executable there; the weather is the weather object's type, the
-   dword the game's weather setter writes first (The Tree of Life 0x46BC56
-   on 0x6C461C, New Believers 0x477040 reading 0x718EA0, The Secret City
-   0x45C1D1 reading 0x4B86C4). */
+   stock executable there. */
 
 #include "../shared/mask_line.h"
 #include "../shared/special_title.h"
+
+/* The outermost watched routine (after_call sets it) and the records this
+   comparison wrote (g_more_wrote, counted by compare), for "Changes: none". */
+static unsigned int g_more_entry;
+static unsigned int g_more_logged_answer;   /* the dialog whose answer was logged with changes */
+
 
 /* ---- 1. A new villager's sex and age --------------------------------------- */
 
@@ -293,8 +300,7 @@ enum {
     VF_SOLVED_BYTE,                       /* a puzzle's solved byte */
     VF_SOLVED_AT,                         /* a puzzle's progress at least `extra` */
     VF_SOLVED_TABLE,                      /* a puzzle's progress at least the dword at `extra` (filled by the game) */
-    VF_TREE_KIND,                         /* The Secret City's fruit tree: 0 Banana, 1 Mango, 2 Papaya (the exe's words) */
-    VF_WEATHER                            /* the weather's type */
+    VF_TREE_KIND                          /* The Secret City's fruit tree: 0 Banana, 1 Mango, 2 Papaya (the exe's words) */
 };
 struct village_field {
     const char *label;
@@ -326,8 +332,6 @@ static const struct village_field VV1_VILLAGE[] = {
     { "The Butterflies", W1, 0xA088, VF_SOLVED_BYTE, 0 },
     { "The Treasure", W1, 0x9FC8, VF_SOLVED_BYTE, 0 },
     { "The Cave", W1, 0x9FA8, VF_SOLVED_BYTE, 0 },
-    { "Small hut 2", W1, 0x9FF0, VF_SOLVED_BYTE, 0 },
-    { "Small hut 3", W1, 0x9FF8, VF_SOLVED_BYTE, 0 },
     { NULL, 0, 0, 0, 0 },
 };
 
@@ -338,7 +342,6 @@ static const struct village_field VV2_VILLAGE[] = {
     { "Tech points", W2, 0x2EADC, VF_INT, 0 },
     { "Coconut trees", W2, 0x2EACC, VF_INT, 0 },
     { "Fish", W2, 0x2EAD0, VF_INT, 0 },
-    { "Field protection from birds", W2, 0x2EAD4, VF_INT, 0 },
     { "Crops", W2, 0x2EAD8, VF_INT, 0 },
     { "The Lovely Hut", W2, 0x2E760, VF_SOLVED_BYTE, 0 },
     { "Fire", W2, 0x2E768, VF_SOLVED_BYTE, 0 },
@@ -366,14 +369,13 @@ static const struct village_field VV2_VILLAGE[] = {
 static const struct village_field VV3_VILLAGE[] = {
     { "Food", 0, 0x582490u, VF_INT, 0 },
     { "Tech points", 0, 0x582644u, VF_INT, 0 },
-    { "Fruit on tree 1", 0, 0x594810u, VF_INT, 0 },
-    { "Fruit on tree 2", 0, 0x594828u, VF_INT, 0 },
-    { "Fruit on tree 3", 0, 0x594840u, VF_INT, 0 },
-    { "Tree 1 kind", 0, 0x59480Cu, VF_TREE_KIND, 0 },
-    { "Tree 2 kind", 0, 0x594824u, VF_TREE_KIND, 0 },
-    { "Tree 3 kind", 0, 0x59483Cu, VF_TREE_KIND, 0 },
+    { "Tree 1, Fruit on tree", 0, 0x594810u, VF_INT, 0 },
+    { "Tree 2, Fruit on tree", 0, 0x594828u, VF_INT, 0 },
+    { "Tree 3, Fruit on tree", 0, 0x594840u, VF_INT, 0 },
+    { "Tree 1, Fruit Tree", 0, 0x59480Cu, VF_TREE_KIND, 0 },
+    { "Tree 2, Fruit Tree", 0, 0x594824u, VF_TREE_KIND, 0 },
+    { "Tree 3, Fruit Tree", 0, 0x59483Cu, VF_TREE_KIND, 0 },
     { "Honey", 0, 0x5945E0u, VF_INT, 0 },
-    { "Weather", 0, 0x4B86C4u, VF_WEATHER, 0 },
     { "The First Chief", 0, P3(0), VF_SOLVED_AT, 1 },
     { "The Bee Hive", 0, P3(1), VF_SOLVED_AT, 1 },
     { "The Alchemy Lab", 0, P3(2), VF_SOLVED_AT, 5 },
@@ -402,7 +404,6 @@ static const struct village_field VV4_VILLAGE[] = {
     { "Blackberries", 0x4CB51Cu, 0x170F8, VF_INT, 0 },
     { "Cutting tools", 0, 0x4D8618u, VF_INT, 0 },
     { "Bars of soap", 0, 0x4D8D98u, VF_INT, 0 },
-    { "Weather", 0, 0x6C461Cu, VF_WEATHER, 4 },
     { "The Cutting Tool", 0, P4(0) },
     { "The Stream", 0, P4(1) },
     { "Boiling Water", 0, P4(2) },
@@ -430,7 +431,6 @@ static const struct village_field VV5_VILLAGE[] = {
     { "Tech points", 0, 0x51D5F8u, VF_INT, 0 },
     { "Noni remaining", 0x4DACE0u, 0x17D58, VF_INT, 0 },
     { "Crops", 0x4DACE0u, 0x17D5C, VF_INT, 0 },
-    { "Weather", 0, 0x718EA0u, VF_WEATHER, 4 },
     { "The Nursery School", 0, P5(0) },
     { "The Prison Break", 0, P5(2) },
     { "The Hungry Totem", 0, P5(3) },
@@ -443,12 +443,8 @@ static const struct village_field VV5_VILLAGE[] = {
     { "The Rainbow Totem", 0, P5(12) },
     { "The Tribute Statue", 0, P5(14) },
     { "The Blind Totem", 0, P5(15) },
-    { "Small hut 1", 0, P5(19) },
-    { "Small hut 2", 0, P5(20) },
-    { "Small hut 3", 0, P5(21) },
-    { "The clothing hut", 0, P5(22) },
+    { "The Clothing Hut", 0, P5(22) },
     { "The love shack", 0, P5(23) },
-    { "The nursery school building", 0, P5(24) },
     { NULL, 0, 0, 0, 0 },
 };
 
@@ -514,23 +510,6 @@ static void village_text(const struct village_field *f, char *out, size_t size) 
     case VF_TREE_KIND:
         _snprintf(out, size, "%s", value == 0 ? "Banana" : value == 1 ? "Mango" : value == 2 ? "Papaya" : "(unknown)");
         break;
-    case VF_WEATHER:
-        /* 0 the clear weather the games return to, 2 the rain (The Rainy
-           Season, the Custom Island Event's "Rain begins"); the others by
-           their number. */
-        if (value == 0) {
-            _snprintf(out, size, "clear");
-        } else if (value == 2) {
-            _snprintf(out, size, "rain");
-        } else if (value == 4 && f->extra == 4) {
-            /* The Tree of Life's and New Believers' type 4, the fog (its own
-               periodic check, 0x46BE10 / 0x477348; The Mysterious Footprints
-               sets it, seen live in New Believers). */
-            _snprintf(out, size, "fog");
-        } else {
-            _snprintf(out, size, "type %d", value);
-        }
-        break;
     default:
         _snprintf(out, size, "%d", value);
         break;
@@ -560,6 +539,7 @@ static write_village_event_fn village_writer(void) {
 static void more_take(const struct snapshot *s) {
     const struct village_field *fields = VILLAGE_FIELDS[g_game];
     int i;
+    g_more_wrote = 0;
     for (i = 0; i < s->count && i < MAX_VILLAGERS; ++i) {
         more_read(s->where[i], &g_more_before[i], g_more_special[i], MORE_TEXT);
     }
@@ -573,7 +553,21 @@ static void more_take(const struct snapshot *s) {
     }
 }
 
-/* After the villagers: one village record when the village changed. */
+/* The routines that are never a whole event by themselves: The Lost
+   Children's two-choice constructor only asks (its answer click applies the
+   event and is logged), The Tree of Life's event dialog constructor runs
+   inside its presenter (alone it is no event shown). */
+static int more_never_alone(unsigned int entry) {
+    return (g_game == 2 && entry == 0x422380u) || (g_game == 4 && entry == 0x417790u);
+}
+
+/* After the villagers: one village record when the village changed; and,
+   when the event changed nothing at all, its one "Changes: none" record (the
+   owner, 2026-10-09: every event shown is logged).  Exactly one per event:
+   never for a routine that is no whole event (more_never_alone); never for
+   an answer click in the later games, whose OK follows and is the event's
+   record (g_answering); never for that OK when its answer was already
+   logged with changes; never without the event's title. */
 static void more_village(const char *before) {
     const struct village_field *fields = VILLAGE_FIELDS[g_game];
     char text[2048];
@@ -599,8 +593,26 @@ static void more_village(const char *before) {
             used = n < 0 ? sizeof text : used + (size_t)n;
         }
     }
-    if (used == head || used >= sizeof text) {
-        return;                           /* nothing changed (or too much to say whole) */
+    if (used != head && used < sizeof text) {
+        g_write_village(g_game, text);
+        ++g_more_wrote;
     }
-    g_write_village(g_game, text);
+    if (g_more_wrote > 0) {
+        if (g_answering) {
+            g_more_logged_answer = g_answer_self;
+        }
+        return;
+    }
+    if (g_answering) {
+        return;
+    }
+    i = g_answer_self != 0 && g_answer_self == g_more_logged_answer;   /* its answer already logged */
+    g_more_logged_answer = 0;
+    if (i || g_snaps[0].title[0] == '\0' || more_never_alone(g_more_entry)) {
+        return;
+    }
+    if (_snprintf(text, sizeof text, "%s  Changes: none\n", before) > 0) {
+        text[sizeof text - 1] = '\0';
+        g_write_village(g_game, text);
+    }
 }
