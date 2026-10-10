@@ -305,6 +305,10 @@ class Family:
     away: list = field(default_factory=list)
     far: list = field(default_factory=list)
     way: list = field(default_factory=list)     # Packed families: the way kept for the line from the parents
+    # Children all on a later page (_page_members): who they are and that page's number; the family's lines
+    # end at a "continued on page N" mark, lane_y where its line down ends.
+    onward: list = field(default_factory=list)
+    onward_page: int = 0
 
 
 # How the family lines may be coloured (vv_line_colours): the Lines tab's "Line colours" and "Order colours by".
@@ -465,6 +469,9 @@ class Edits:
     # turns, flips and sizes are still as they were before, and settle_shapes moves them on.
     monstera_v2: bool = True
     feather_v2: bool = True
+    # Saved since settle_shapes leaves a portrait with no turn or flip of its own drawn as the shape now is
+    # (2026-10-10); False: portraits the earlier moving-on turned back to the old look are put right (settle_shapes).
+    bakes_v3: bool = True
 
     @staticmethod
     def path(folder: Path, game: int, slot: int) -> Path:
@@ -503,6 +510,7 @@ class Edits:
         out.text_inside = data.get("text_inside") is True
         out.monstera_v2 = data.get("monstera_v2") is True       # saved before: moved on (settle_shapes)
         out.feather_v2 = data.get("feather_v2") is True
+        out.bakes_v3 = data.get("bakes_v3") is True
         out.fixed_face_size = data.get("fixed_face_size") is True
         out.turn_words = data.get("turn_words") is True
         out.flip_words = data.get("flip_words") is True
@@ -746,7 +754,7 @@ class Edits:
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
                 "group_opts": self.group_opts, "equal_sizes": self.equal_sizes, "monstera_v2": self.monstera_v2,
-                "feather_v2": self.feather_v2}
+                "feather_v2": self.feather_v2, "bakes_v3": self.bakes_v3}
 
 
 # The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
@@ -1462,6 +1470,31 @@ def settle_shapes(edits: Edits, village: gen.Village) -> None:
         if not getattr(edits, f"{name}_v2"):
             _settle_shape(edits, village, name)
             setattr(edits, f"{name}_v2", True)
+    if not edits.bakes_v3:
+        _unturn_new_portraits(edits, village)
+        edits.bakes_v3 = True
+
+
+def _unturn_new_portraits(edits: Edits, village: gen.Village) -> None:
+    """Moved on before 2026-10-10, a portrait of a shape drawn turned (SHAPE_BAKES) that had no turn or flip of
+    its own -- a villager born or arrived since the player turned the others, never the look the player chose --
+    was given the turn that drew the old look (the owner: "Newly generated ones are still in the wrong
+    orientation"): that turn taken off again, so it is drawn as the shape now is, straight up."""
+    edits.entries = dict(edits.entries)
+    for p in village.people.values():
+        key = entry_key(village, p)
+        entry = edits.entries.get(key)
+        name = (entry or {}).get("shape") or edits.shapes.get(group_of(p))
+        if not entry or name not in SHAPE_BAKES:
+            continue
+        old = (round(entry.get("angle", 0.0), 6) % 360, entry.get("flip_h", False), entry.get("flip_v", False))
+        angle, flip_h = _baked_turn(name, 0.0, False, False)
+        if old == (round(angle, 6) % 360, flip_h, False):
+            entry = {k: v for k, v in entry.items() if k not in ("angle", "flip_h", "flip_v")}
+            if entry:
+                edits.entries[key] = entry
+            else:
+                edits.entries.pop(key, None)
 
 
 def _settle_shape(edits: Edits, village: gen.Village, name: str) -> None:
@@ -1487,7 +1520,10 @@ def _settle_shape(edits: Edits, village: gen.Village, name: str) -> None:
             b = BAKED[name]                     # the side not their own: the group's, else the shape's as it was
             w, h = group_size or (NODE_H * round(b["old_w"] / b["old_h"], 3), NODE_H)
             entry["w"], entry["h"] = _baked_size(name, (entry.get("w", w), entry.get("h", h)))
-        if this:
+        if this and any(entry.get(flip) for flip in ("angle", "flip_h", "flip_v")):
+            # Only a turn or flip of the portrait's own (the look the player chose) is kept as it looked: one
+            # with none is drawn as the shape now is (the owner: newly generated ones in the old orientation
+            # were "the wrong orientation").
             angle, flip_h = _baked_turn(name, entry.get("angle", 0.0), entry.get("flip_h", False),
                                         entry.get("flip_v", False))
             for flip in ("angle", "flip_h", "flip_v"):
@@ -1573,12 +1609,14 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     return lay
 
 
-def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
-            shrink: float | None = None) -> Layout:
+def _page_members(village: gen.Village, edits: Edits, page: int) -> tuple:
+    """Who is on a page of the tree and its families: (page, spans, off, families, in_tree, others, onward).
+    `onward`: the families whose parents are on this page and whose children are all on a later page (the
+    page's last generation is the next page's founders) -- drawn here as far as the page allows."""
     people = village.people
     gone = {pid for pid, p in people.items()
-            if (edits or Edits()).entries.get(entry_key(village, p), {}).get("hidden")}
-    spans = page_spans(edits or Edits(), village)
+            if edits.entries.get(entry_key(village, p), {}).get("hidden")}
+    spans = page_spans(edits, village)
     page = max(0, min(page, len(spans) - 1))
     first, last = spans[page]
     off = {pid for pid, p in people.items() if not first <= p.generation <= last}     # on another page
@@ -1598,11 +1636,41 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     in_tree -= gone
     others = sorted((pid for pid in people if pid not in in_tree and pid not in gone and pid not in off),
                     key=lambda q: (people[q].generation, _place(people[q])))
+    onward: list[Family] = []
     if off:                             # one page of a longer tree: its own generations, not joined to others
         in_tree -= off
         for fam in families:
-            fam.children = [c for c in fam.children if c not in off]
+            kids = [c for c in fam.children if c not in off]
+            later = [c for c in fam.children if c in off and people[c].generation > last]
+            here = [q for q in (fam.father, fam.mother) if q in in_tree]
+            if later and not kids and here:
+                # Its children are on a later page: the page that shows both a parent and the children.
+                to = next((k for k, (lo, hi) in enumerate(spans) if k > page
+                           and any(lo <= people[q].generation <= hi for q in here)
+                           and all(lo <= people[c].generation <= hi for c in later)), None)
+                if to is not None:
+                    onward.append(Family(fam.id, fam.father, fam.mother, [], onward=later, onward_page=to + 1))
+            fam.children = kids
         families = [f for f in families if f.children and any(q in in_tree for q in (f.father, f.mother))]
+    return page, spans, off, families, in_tree, others, onward
+
+
+def _page_colours(village: gen.Village, edits: Edits, page: int) -> dict[str, str]:
+    """Each family's colour on a page, by its family_key, worked out as _layout does (without laying it out)."""
+    people = village.people
+    _page, _spans, off, families, in_tree, others, _onward = _page_members(village, edits, page)
+    shown = in_tree | set(others)
+    alone = [q for q in shown if all(r is None or r in off for r in (people[q].father, people[q].mother))]
+    pool = iter(distinct_colours(len(alone) + len(families), edits.background or BACKGROUND))
+    for _q in alone:
+        next(pool)
+    return {family_key(village, f): edits.family_colours.get(family_key(village, f), next(pool)) for f in families}
+
+
+def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
+            shrink: float | None = None) -> Layout:
+    people = village.people
+    page, spans, off, families, in_tree, others, onward = _page_members(village, edits or Edits(), page)
     # Each row in age order, oldest on the left (the owner: "oldest on the left, youngest on the
     # right"), numbered so (vv_genealogy.number_people).
     rows: dict[int, list[int]] = {}
@@ -1897,8 +1965,11 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             mine = [q for q in (fam.father, fam.mother, *fam.children) if q in shifts]
             if fam.id in cl.ways and not any(shifts[q].get("dx") or shifts[q].get("dy") for q in mine):
                 fam.way = [(px + move, py) for px, py in cl.ways[fam.id]]
+    onward = _place_onward(people, onward, x, y, in_tree, families, edits)
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
-    height = max([height] + [y[q] + NODE_H + 190 for q in y] + [y[q] + reach[q][3] + FOOTER_ROOM + PAGE_MARGIN for q in y])
+    height = max([height] + [y[q] + NODE_H + 190 for q in y] + [y[q] + reach[q][3] + FOOTER_ROOM + PAGE_MARGIN for q in y]
+                 + [f.lane_y + ONWARD_TEXT + FOOTER_ROOM + PAGE_MARGIN for f in onward])
+    families = families + onward
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands, shrink=shrink_now,
                  edits=edits, page=page, pages=len(spans), label_left=label_left, row_keys=row_keys,
                  subs={q: sub.get(q, 0) for q in in_tree},
@@ -1908,14 +1979,86 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     e = out.edits
     alone = sorted((q for q in x if all(r is None or r in off for r in (people[q].father, people[q].mother))),
                    key=lambda q: (people[q].generation, _place(people[q])))   # a later page's founders too
-    pool = iter(distinct_colours(len(alone) + len(families), out.background))
+    own = [f for f in families if not f.onward]
+    pool = iter(distinct_colours(len(alone) + len(own), out.background))
     for q in alone:
         out.birth_colour[q] = e.person_colours.get(entry_key(village, people[q]), next(pool))
-    for fam in families:
+    for fam in own:
         fam.colour = e.family_colours.get(family_key(village, fam), next(pool))
         for c in fam.children:
             out.birth_colour[c] = fam.colour
+    later: dict[int, dict] = {}
+    for fam in onward:                  # the colour the family has on the page its children are on
+        if fam.onward_page not in later:
+            later[fam.onward_page] = _page_colours(village, e, fam.onward_page - 1)
+        fam.colour = later[fam.onward_page].get(family_key(village, fam), GREY)
     return out
+
+
+ONWARD_SIZE = 12                # the "continued on page N" words' size
+ONWARD_ROW = 18                 # between two rows of those words, where they would run into each other
+ONWARD_TEXT = 30                # the room under a family's line for its words
+ONWARD_PAD = 5                  # from the end of a family's line to its words
+
+
+def onward_words(fam: Family) -> str:
+    return f"continued on page {fam.onward_page}"
+
+
+def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree: set, families: list[Family],
+                  edits: Edits) -> list[Family]:
+    """Where the lines go for the families whose children are on a later page (_page_members), nothing else
+    moved: each parent's line leaves at a point of its own along their frame's bottom (past the points their
+    other families' lines take), each couple has a level of its own under the lowest row at or below the
+    parents, and from the couple's middle (a lone parent: from them) one line goes down to the words saying
+    which page the children are on, the words in rows so no two run into each other."""
+    fams = [f for f in onward if any(q is not None and q in x and q in in_tree for q in (f.father, f.mother))]
+    if not fams:
+        return []
+    taken: dict[int, list[float]] = {}
+    for f in families:
+        for q, at in f.drops.items():
+            taken.setdefault(q, []).append(at)
+
+    def here(f: Family) -> list[int]:
+        return [q for q in (f.father, f.mother) if q is not None and q in x and q in in_tree]
+    fams.sort(key=lambda f: (sum(x[q] for q in here(f)) / len(here(f)), f.id))
+    for f in fams:
+        for q in here(f):
+            mine = taken.setdefault(q, [])
+            centre = x[q] + NODE_W / 2
+            at = centre if not mine else max(mine) + 16
+            if at > centre + NODE_W / 2 - 16:
+                at = min(mine) - 16
+            mine.append(at)
+            f.drops[q] = at
+    couples = [f for f in fams if len(here(f)) == 2]
+    couples.sort(key=lambda f: (min(f.drops.values()), f.id))
+    lowest: dict[int, float] = {}
+    for f in fams:
+        g = max(people[q].generation for q in here(f))
+        if g not in lowest:
+            lowest[g] = max(y[q] + NODE_H for q in in_tree if q in y and people[q].generation >= g)
+    base = {f.id: lowest[max(people[q].generation for q in here(f))] for f in fams}
+    for k, f in enumerate(couples):
+        f.couple_y = base[f.id] + LANE_TOP + k * LANE
+    start = max(base.values()) + LANE_TOP + len(couples) * LANE + LANE
+    # The words start just right of their line's end.  Placed right to left: a line down then never passes
+    # words above it (those all start right of it); each in the highest row where they run into no other
+    # words and no line down to words further down passes them.
+    words: list[tuple[float, float, int]] = []     # (left, right, row) of the words placed
+    downs: list[tuple[float, int]] = []            # (x, row) of the lines down to them
+    for f in sorted(fams, key=lambda f: (-sum(f.drops.values()) / len(f.drops), -f.id)):
+        mid = sum(f.drops.values()) / len(f.drops)
+        lo, hi = mid - 3, mid + ONWARD_PAD + text_width(onward_words(f), ONWARD_SIZE) + 6
+        row = 0
+        while (any(r == row and lo < b and a < hi for a, b, r in words)
+               or any(r > row and lo - 3 < d < hi + 3 for d, r in downs)):
+            row += 1
+        words.append((lo, hi, row))
+        downs.append((mid, row))
+        f.lane_y = start + row * ONWARD_ROW
+    return fams
 
 
 def _wrap_rows(people: dict, rows: dict[int, list[int]], x: dict[int, float], sub: dict[int, int], limit: int,
@@ -3336,7 +3479,8 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
     for fam in lay.families:
         kids = [c for c in fam.children if c in lay.x and c not in fam.away]
         away = [c for c in fam.away if c in lay.x]
-        if not kids and not away:
+        onward = bool(fam.onward) and not kids and not away
+        if not kids and not away and not onward:
             continue
         lane = fam.lane_y
         row = min(lay.y[c] for c in kids) if kids else lane + LANE_BOTTOM
@@ -3422,6 +3566,21 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
                     {1: names[k + 1] if k < len(legs) - 1 else target})
             return legs[-1][-1][0]
 
+        if onward:
+            # The children are on a later page: the couple joined as any couple is, and from the couple's
+            # middle (a lone parent: from them) one line down to where the words say which page.
+            if len(parents) == 2:
+                couple = fam.couple_y
+                ends = [leave(q, couple) for q in parents]
+                add([(min(ends), couple), (max(ends), couple)], "couple")
+                legs = _route(lay, sum(ends) / 2, couple, lane, jogs)
+                names = ["stem"] + [f"stem {k}" for k in range(1, len(legs))]
+                for k, leg in enumerate(legs):
+                    add(leg, names[k], up={0: names[k - 1] if k else "couple", **({1: names[k + 1]} if k < len(legs) - 1 else {})})
+            elif parents:
+                target = "onward"
+                leave(parents[0], lane)
+            continue
         if len(parents) == 2:
             couple = fam.couple_y
             ends = [leave(q, couple) for q in parents]
@@ -5920,35 +6079,6 @@ def presets_available(images: Path | None, library: dict | None = None) -> list[
     return [p for p in PRESETS if not p[3] or picture_path(p[3], images, library) is not None]
 
 
-def continued_on(lay: Layout) -> dict[int, list[int]]:
-    """Each portrait on this page whose children are drawn on another page -> those pages' numbers (1-based).
-    A page ends with the generation the next page starts at, so a parent in that last row has no children
-    here: without a mark their family looked as if it had none (the owner: "these guys have children but
-    no button will make a proper family tree for them with lines!").  The family's lines are on the page
-    that shows both the parent and the child (page_spans)."""
-    v = lay.village
-    spans = page_spans(lay.edits, v)
-    if len(spans) < 2:
-        return {}
-    this = max(0, min(lay.page, len(spans) - 1))
-    out: dict[int, list[int]] = {}
-    for c in v.people.values():
-        if c.id in lay.others or lay.edits.entries.get(entry_key(v, c), {}).get("hidden"):
-            continue
-        for q in {c.father, c.mother} - {None}:
-            parent = v.people.get(q)
-            if parent is None or q not in lay.x or q in lay.others or c.id in lay.x:
-                continue
-            if lay.edits.entries.get(entry_key(v, parent), {}).get("hidden"):
-                continue
-            for k, (lo, hi) in enumerate(spans):
-                if k != this and lo <= parent.generation <= hi and lo <= c.generation <= hi:
-                    if k + 1 not in out.setdefault(q, []):
-                        out[q].append(k + 1)
-                    break
-    return {q: sorted(n) for q, n in out.items()}
-
-
 def scene(lay: Layout, game_title: str, present: dict, images: Path | None = None,
           library: dict | None = None) -> Scene:
     """The whole tree as shapes, lines, text and heads.  `present` names the head sheets found;
@@ -6007,7 +6137,8 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
                  edit="word:others_note"))
     fams = {f.id: f for f in lay.families}
     turn_of = {f.id: k for k, f in enumerate(lay.families)}
-    for colour, points, fid, piece in lines(lay):
+    drawn_lines = lines(lay)
+    for colour, points, fid, piece in drawn_lines:
         key = family_key(v, fams[fid])
         style = lay.edits.family_lines.get(key, {})
         colour = (style.get("colour") or scheme_colour(lay.edits, "lines", turn_of[fid] / max(1, len(turn_of)), turn_of[fid])
@@ -6015,13 +6146,14 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         if f"line:{key}|{piece}" not in lay.edits.hidden:
             add(Line(points, colour, style.get("width", lay.edits.line_width), target=("family", key),
                      piece=f"{key}|{piece}", dash=style.get("dash", lay.edits.line_dash)))
-    for pid, to_pages in continued_on(lay).items():
-        # A parent whose children are on another page (the page's last generation is the next one's founders):
-        # a short line down from the portrait and the page where the family goes on (the owner, 2026-10-10).
-        _xs, _ys = zip(*lay.frame_points(pid))
-        mid, foot = lay.x[pid] + NODE_W / 2, max(max(_ys), lay.y[pid] + NODE_H)
-        add(Line([(mid, foot), (mid, foot + 18)], ink, lay.edits.line_width, dash="dotted"))
-        add(Text(mid, foot + 32, "to page " + ", ".join(str(n) for n in to_pages), 12, ink, centre=True))
+    for fam in lay.families:
+        # A family whose children are on a later page (the page's last generation is the next one's founders):
+        # beside the end of its line, which page (the owner, 2026-10-10: "these guys have children but no
+        # button will make a proper family tree for them with lines!").
+        ends = [pt for s in drawn_lines if s[2] == fam.id for pt in s[1]] if fam.onward else []
+        if ends:
+            ex, ey = max(ends, key=lambda pt: (pt[1], pt[0]))
+            add(Text(ex + ONWARD_PAD, ey + ONWARD_SIZE * 0.35, onward_words(fam), ONWARD_SIZE, ink, role="footer"))
     for pid in lay.x:
         _node(lay, v.people[pid], present, add)
         xs, ys = zip(*lay.frame_points(pid))
