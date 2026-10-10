@@ -1688,6 +1688,68 @@ class DeathRecords256(unittest.TestCase):
                         self.assertEqual(self.accepted(game, ordinary, LATER[game]["table"], slot), slot < 150)
 
 
+@unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+class CustomIslandEventDisappearsEveryGame(unittest.TestCase):
+    """The Custom Island Event's "Disappears" is a "Disappeared in a custom
+    island event" record in all five games, each in the state its own
+    "Disappears" (native/vvfp_story_upgrades/story_c<N>.inc) leaves the
+    record: presence cleared, and in The Tree of Life health 0 as well
+    (The Sealed Box's own disappearance, which c4_vanish copies).  Before
+    the fix The Tree of Life's asked for health above 0 and wrote nothing,
+    so the villager surfaced later as Unaccounted."""
+
+    def vanish(self, game: str, mode: str) -> None:
+        if game == "vv1":
+            g, w = vv1(mode)
+            present = V1["present"]
+            r = w.villager(3, "Vanisher", 640, 70)
+        elif game == "vv2":
+            g, w = vv2(mode)
+            present = V2["present"]
+            r = w.villager(3, "Vanisher", 640, 70)
+        else:
+            g, w = later(game, mode)
+            present = LATER[game]["present"]
+            r = w.villager(3, "Vanisher", 640, 70)
+        no = int(game[-1])
+        g.p.export("VvfpCauseVanished", no, 3)               # still here: nothing
+        self.assertEqual(g.of_kind(DISAPPEARED), [], (game, mode))
+        if game == "vv4":
+            g.p.put32(r + LATER["vv4"]["health"], 0)          # c4_vanish: 0x46AF00(0, -1) first
+        g.p.write(r + present, b"\x00")
+        g.p.export("VvfpCauseVanished", no, 3)
+        g.p.export("VvfpCauseVanished", no % 5 + 1, 3)       # another game: nothing
+        gone = g.of_kind(DISAPPEARED)
+        self.assertEqual([(e["record"], e["Age"], e["What happened"]) for e in gone],
+                         [(r, "640", "Disappeared in a custom island event")], (game, mode))
+        self.assertEqual(g.stats()["departed"], 1, (game, mode))
+
+    def test_every_game_writes_the_disappeared_record(self):
+        for game in NAMES:
+            if not STOCK[game].is_file():
+                continue
+            for mode in MODES:
+                self.vanish(game, mode)
+
+    def test_a_dead_body_is_never_a_disappearance_where_the_vanish_keeps_health(self):
+        for game in ("vv3", "vv5"):
+            if not STOCK[game].is_file():
+                continue
+            g, w = later(game)
+            r = w.villager(2, "Body", 700, 0, 2)
+            g.p.write(r + LATER[game]["present"], b"\x00")
+            g.p.export("VvfpCauseVanished", int(game[-1]), 2)
+            self.assertEqual(g.of_kind(DISAPPEARED), [], game)
+
+    def test_the_tree_of_life_vanish_writes_health_then_presence(self):
+        """The record state the test above gives The Tree of Life is the one
+        c4_vanish leaves (source pin: 0x46AF00 with 0, then +0x1CC4 = 0)."""
+        source = (ROOT / "native" / "vvfp_story_upgrades" / "story_c4.inc").read_text(encoding="utf-8")
+        body = source[source.index("static int c4_vanish(int index)"):]
+        body = body[:body.index("\n}\n")]
+        self.assertLess(body.index("TC2(0x46AF00u, r + 0x1C34, 0, -1);"), body.index("r[0x1CC4] = 0;"))
+
+
 class ManifestsAndShipping(unittest.TestCase):
     def test_rows_are_public_default_on_and_pin_the_dll(self):
         import hashlib
