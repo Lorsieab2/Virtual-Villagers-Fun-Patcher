@@ -61,10 +61,18 @@
 #define TIME_SKIP_MIN_YEARS 1
 #define TIME_SKIP_MAX_YEARS 72
 #define TIME_SKIP_PRICE 50000          /* the Time Warp upgrade, all five games */
-/* A step the villager tick has not visibly replayed after this long is taken
-   as replayed: the tick runs every two seconds of the game's clock, so only
-   a game that is not running at all waits this long. */
+/* A step the villager tick has not visibly replayed after this much RUNNING
+   time is taken as replayed: the tick runs every two seconds of the game's
+   clock, so only a host whose replay sign failed waits this long.  Running
+   time is counted only between two frames that both ran this tick, at most
+   TIME_SKIP_FRAME_GAP_MS apart, with the game's clock running (the host's
+   time_skip_running), no island event popup open and no time skip box open:
+   a modal box, a pause, a minimised game or a popup stops the game's
+   villager tick too, so none of that time counts, and a step is never made
+   before the game has replayed the one before it -- two Time Warps never
+   stack into one catch-up. */
 #define TIME_SKIP_SETTLE_MS 20000u
+#define TIME_SKIP_FRAME_GAP_MS 250u
 
 enum {
     IDD_TIME_SKIP = 311,
@@ -77,7 +85,9 @@ static struct {
     int game;
     int remaining;                     /* years still to advance */
     int waiting;                       /* a step is made, its replay not seen yet */
-    DWORD step_tick;
+    DWORD settle_ms;                   /* running time since the step (TIME_SKIP_SETTLE_MS) */
+    DWORD last_frame;                  /* the tick of the last frame seen */
+    int box_open;                      /* a time skip message box is open */
     story_village village;
     int done;                          /* years advanced so far */
     int finishing;                     /* the last step is made, its replay not seen yet */
@@ -131,7 +141,8 @@ static int time_skip_step(const story_host *host) {
         time_skip.remaining -= years;
         time_skip.done += years;
         time_skip.waiting = 1;
-        time_skip.step_tick = STORY_TICK();
+        time_skip.settle_ms = 0;
+        time_skip.last_frame = STORY_TICK();
         if (time_skip.remaining <= 0) {
             time_skip.active = 0;
             time_skip.finishing = 1;   /* the popup follows this step's replay */
@@ -172,8 +183,15 @@ static int time_skip_event_open(void) {
 static void time_skip_tick(int game) {
     const story_host *host;
     int years;
+    DWORD now, gap;
     if (time_skip.game != game || (!time_skip.active && !time_skip.finishing && time_skip.notice == 0)) {
         return;
+    }
+    now = STORY_TICK();
+    gap = now - time_skip.last_frame;
+    time_skip.last_frame = now;
+    if (time_skip.box_open) {
+        return;                        /* the purchase's own box: nothing moves, nothing counts */
     }
     host = story_time_skip_host(game);
     if (host == NULL || !story_village_is(game, &time_skip.village)) {
@@ -187,16 +205,16 @@ static void time_skip_tick(int game) {
     if (time_skip_event_open()) {
         /* An island event's popup is open: nothing moves until it closes.
            The game's villager tick does not run in its modal loop either, so
-           the replay wait starts again once it has closed -- never two steps
+           none of this time counts toward the replay wait -- never two steps
            in one catch-up because the popup outlasted the lapse. */
-        if (time_skip.waiting) {
-            time_skip.step_tick = STORY_TICK();
-        }
         return;
     }
     if (time_skip.active || time_skip.finishing) {
         if (time_skip.waiting) {
-            if (!host->time_skip_settled() && STORY_TICK() - time_skip.step_tick < TIME_SKIP_SETTLE_MS) {
+            if (gap <= TIME_SKIP_FRAME_GAP_MS && story_host_running(host)) {
+                time_skip.settle_ms += gap;
+            }
+            if (!host->time_skip_settled() && time_skip.settle_ms < TIME_SKIP_SETTLE_MS) {
                 return;
             }
             time_skip.waiting = 0;
@@ -354,7 +372,12 @@ __declspec(dllexport) int __stdcall VvfpStoryChooseTimeSkip(int game, HWND owner
     /* What is happening now; the island's own popup says when it is done. */
     wsprintfA(message, "The time skip of %d year%s has started. Keep the game running: "
               "an island message will say when it is done.", years, years == 1 ? "" : "s");
+    /* The first step is made: while this box is open the game's villager
+       tick does not run, so nothing moves and none of it counts toward the
+       replay wait (time_skip_tick). */
+    time_skip.box_open = 1;
     MessageBoxA(owner, message, TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    time_skip.box_open = 0;
     return 1;
 }
 
@@ -403,6 +426,11 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeTimeSkipNotice(int *out) {
    Events.dll" would answer (time_skip_event_open). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeIslandEventOpen(int open) {
     test_island_event_open = open;
+}
+
+/* The purchase's "has started" box open (1) or closed (0). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeTimeSkipBox(int open) {
+    time_skip.box_open = open;
 }
 
 /* What the upgrade costs in `game` now. */

@@ -832,6 +832,12 @@ static int vvfp_xc_ln_numeral(const char *word, size_t n) {
     return 1;
 }
 
+/* White space as Python's str.isspace() reads a Latin-1 name. */
+static int vvfp_xc_ln_space(char ch) {
+    unsigned char c = (unsigned char)ch;
+    return c == ' ' || (c >= 0x09 && c <= 0x0D) || (c >= 0x1C && c <= 0x1F) || c == 0x85 || c == 0xA0;
+}
+
 /* Whether `name` carries no last name (split_name): one word, perhaps with a
    numeral after it, or words the record says are one first name. */
 static int vvfp_xc_ln_missing(const char *name) {
@@ -841,15 +847,27 @@ static int vvfp_xc_ln_missing(const char *name) {
     const char *p = name;
     const char *line;
     size_t base;
+    /* The words as Python's str.split() makes them: runs of white space
+       separate words and an empty word is never one, so a leading, trailing
+       or doubled space is never taken for a last name ("Kele " has none). */
     while (count < 16) {
-        size_t n = strcspn(p, " ");
+        size_t n = 0;
+        while (*p != '\0' && vvfp_xc_ln_space(*p)) {
+            ++p;
+        }
+        if (*p == '\0') {
+            break;
+        }
+        while (p[n] != '\0' && !vvfp_xc_ln_space(p[n])) {
+            ++n;
+        }
         starts[count] = p;
         lens[count] = n;
         ++count;
-        if (p[n] == '\0') {
-            break;
-        }
-        p += n + 1;
+        p += n;
+    }
+    if (count == 0) {
+        return 1;
     }
     k = count - 1;
     while (k > 0 && vvfp_xc_ln_numeral(starts[k], lens[k])) {

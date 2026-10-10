@@ -12,6 +12,7 @@
      record 3  NOT carrying, yet answered "Papago" too -- the exporter's own
                pregnancy gate must keep him out of her block
      record 4  carrying, with no recorded father: an empty name
+     record 6  carrying: expected father Keoni, head and body not recorded (-1)
 
    Usage: compiled /LD with vv1_parentage_stub.def. */
 #include <windows.h>
@@ -52,6 +53,9 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryExpectedFather(int index, i
         lstrcpynA(name, "Papago", capacity);
         out[0] = 7;
         out[1] = 0;
+    }
+    if (index == 6) {
+        lstrcpynA(name, "Keoni", capacity);
     }
     return 1;
 }

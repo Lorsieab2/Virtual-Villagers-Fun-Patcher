@@ -537,9 +537,10 @@ static void run_vv1(write_population_t write) {
     vv1_villager(array, 4, "Lea", 650, 2, 3, 3, 610);      /* carrying, father not recorded */
     vv1_villager(array, 5, "Skeleton", 800, 1, 2, 2, 0);   /* a body awaiting burial: */
     put_int(array + 5u * VV1_STRIDE, 0x344u, 0);           /* the slot live, health 0 */
+    vv1_villager(array, 6, "Mahina", 640, 2, 6, 6, 620);   /* carrying, father named, looks not recorded */
 
     remove_log();
-    CHECK(write(1, image, "Village: Harness (Save 1)\n") == 5, "the export writes all five villagers and no body");
+    CHECK(write(1, image, "Village: Harness (Save 1)\n") == 6, "the export writes all six villagers and no body");
 
     log = read_log(LOG_ROSTER);
     if (log == NULL) {
@@ -569,6 +570,11 @@ static void run_vv1(write_population_t write) {
     CHECK(block_has(block, length, "Name: Lea"), "roster: the carrying villager with no recorded father is present");
     CHECK(block_has(block, length, "  Nursing: yes"), "roster: ...and marked pregnant");
     CHECK(!block_has(block, length, "Father:"), "roster: ...with no Father block, as the later games print none for an unknown father");
+    block = villager_block(log, 6, &length);
+    CHECK(block_has(block, length, "Name: Mahina"), "roster: the carrying villager whose father's looks were not recorded is present");
+    CHECK(block_has(block, length, "  Father: Keoni\r\n    Head: (unknown)\r\n    Body: (unknown)\r\n")
+          || block_has(block, length, "  Father: Keoni\n    Head: (unknown)\n    Body: (unknown)\n"),
+          "roster: ...her expected father is still named, his looks \"(unknown)\" (the name is never dropped)");
     CHECK(strstr(log, "Skeleton") == NULL, "roster: a health-0 body is not listed as living");
     free(log);
 

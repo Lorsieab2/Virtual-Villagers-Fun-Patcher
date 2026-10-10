@@ -2268,10 +2268,17 @@ static int __stdcall vv2_story_time_skip_settled(void) {
         || *(int *)(record + VV2_TW_LAST_SEEN_OFFSET) != vv2_skip_mark;
 }
 
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv2_story_time_skip_running(void) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)VV2_TS_WORLD_GLOBAL;
+    return world != NULL && vv2_time_warp_years(*(int *)(world + VV2_TW_SPEED_OFFSET)) > 0;
+}
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL,
-        vv2_story_time_skip_step, vv2_story_time_skip_settled
+        vv2_story_time_skip_step, vv2_story_time_skip_settled, vv2_story_time_skip_running
     };
     return &host;
 }

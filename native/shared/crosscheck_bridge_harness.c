@@ -893,6 +893,25 @@ int main(void) {
         RemoveDirectoryW(old_sub);
     }
 
+    /* ---- Missing last names: words split as Python's str.split() splits them -- a trailing, leading or
+       doubled space is never a last name, while a second real word still is. ---- */
+    {
+        static const char *const spaced[] = { "Kele ", "Iko  Ana", "Lani II ", " Pua", "Mano Kai " };
+        reset();
+        ln_clear();
+        ln_write(3, 1, 0, "VVFP LAST NAMES v1 game=3\nrule\tfather\n");
+        villagers(spaced, 5);
+        g_answer = IDNO;
+        play(3, 1, 8000, 16);
+        vvfp_crosscheck_quit(3, 1);
+        check(g_boxes == 1 && strstr(g_text, "3 villagers have no last name") != NULL
+              && strstr(g_text, "Kele ") != NULL && strstr(g_text, "Lani II ") != NULL
+              && strstr(g_text, " Pua") != NULL && strstr(g_text, "Iko") == NULL && strstr(g_text, "Mano") == NULL,
+              "missing last names: \"Kele \", \"Lani II \" and \" Pua\" have none (an empty word is no last "
+              "name); \"Iko  Ana\" and \"Mano Kai \" have one");
+        ln_clear();
+    }
+
     /* ---- Missing last names (v1.35.66): asked about after the quit save, with the setting on, only in a
        village that uses last names; the answer is queued for the patcher, "Not now" is remembered. ---- */
     {

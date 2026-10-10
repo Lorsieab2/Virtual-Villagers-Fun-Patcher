@@ -2090,10 +2090,18 @@ static int __stdcall vv5_story_time_skip_settled(void) {
     return !vv5_skip_living(rec) || *(int *)(rec + VV5_TW_LAST_SEEN_OFFSET) != vv5_skip_mark;
 }
 
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv5_story_time_skip_running(void) {
+    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    return world != 0 && vv5_time_warp_years(*(int *)(world + VV5_TW_SPEED_OFFSET)) > 0;
+}
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL,
-        vv5_story_time_skip_step, vv5_story_time_skip_settled
+        vv5_story_time_skip_step, vv5_story_time_skip_settled, vv5_story_time_skip_running
     };
     return &host;
 }

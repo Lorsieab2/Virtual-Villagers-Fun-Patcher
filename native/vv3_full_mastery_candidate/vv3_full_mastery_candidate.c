@@ -1706,11 +1706,12 @@ static int __stdcall vv3_story_mask_set(void *record, int mask) {
 /* Choose Time Skip Amount: defined with the Time Warp below. */
 static int __stdcall vv3_story_time_skip_step(int years);
 static int __stdcall vv3_story_time_skip_settled(void);
+static int __stdcall vv3_story_time_skip_running(void);
 
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv3_story_slot, vv3_story_mask_get, vv3_story_mask_set,
-        VV3RunningMaskBoundary, vv3_story_time_skip_step, vv3_story_time_skip_settled
+        VV3RunningMaskBoundary, vv3_story_time_skip_step, vv3_story_time_skip_settled, vv3_story_time_skip_running
     };
     return &host;
 }
@@ -3096,6 +3097,13 @@ static int __stdcall vv3_story_time_skip_settled(void) {
     }
     rec = (unsigned char *)(UINT_PTR)VV3_RECORD_BASE + (unsigned int)vv3_skip_watch * VV3_RECORD_STRIDE;
     return !vv3_skip_living(rec) || *(int *)(rec + VV3_TW_LAST_SEEN_OFFSET) != vv3_skip_mark;
+}
+
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv3_story_time_skip_running(void) {
+    int *speed_field = vv3_speed_field();
+    return speed_field != 0 && vv3_time_warp_years(*speed_field) > 0;
 }
 
 /* Tech-menu row 0.  Owns its own confirmation, afford check, charge and
