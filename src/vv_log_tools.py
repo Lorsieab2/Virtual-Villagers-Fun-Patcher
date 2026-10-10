@@ -50,6 +50,7 @@ from pathlib import Path
 
 import vv_save_backup
 import vv_save_layout as layout
+from transparency import PATCHER_VERSION
 
 DATA = "Virtual Villagers Fun Patcher Data"
 LOGS = "Virtual Villagers Fun Patcher Logs"
@@ -455,7 +456,9 @@ def approve_repair(
 # Repair Saves & Logs: the old like / dislike words (v1.35.61)
 # ---------------------------------------------------------------------------
 
-WORD_BACKUP_SUFFIX = ".before-v1.35.61-repair"
+# Named for the patcher that made the copy (live, v1.35.66: the copies were still labelled
+# with v1.35.61, the build that introduced this repair, on every later build).
+WORD_BACKUP_SUFFIX = f".before-{PATCHER_VERSION}-repair"
 
 
 @dataclass
@@ -512,7 +515,7 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
     """Put the game's own like and dislike words into every log an older patcher wrote with the
     wrong list (scripts/vvfp_consistency_check.py old_words), with the game closed.
 
-    Each file is copied first (".before-v1.35.61-repair", never replacing one, in Data\\Copies Made
+    Each file is copied first (WORD_BACKUP_SUFFIX: ".before-<this patcher's version>-repair", never replacing one, in Data\\Copies Made
     Before Repairs), rewritten through a temporary file, and its boundary recorded as 0 in the
     game's Like and Dislike Words file, so the same words are never translated twice."""
     checker = load_checker()

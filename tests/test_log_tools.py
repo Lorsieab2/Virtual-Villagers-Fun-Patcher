@@ -819,9 +819,9 @@ class LogWordsTests(FolderTest):
                          .replace(b"  Name: Ana\r\n", b"  Name: Ana\r\n  Sex: Female\r\n") + self.NEW)
         # The copy is kept in Data\Copies Made Before Repairs, at the log's own place (the owner,
         # 2026-10-09), never beside the log.
-        backup_copy = folder / DATA / "Copies Made Before Repairs" / (HISTORY + ".before-v1.35.61-repair")
+        backup_copy = folder / DATA / "Copies Made Before Repairs" / (HISTORY + tools.WORD_BACKUP_SUFFIX)
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
-        self.assertFalse(path.with_name(path.name + ".before-v1.35.61-repair").exists())
+        self.assertFalse(path.with_name(path.name + tools.WORD_BACKUP_SUFFIX).exists())
         repairs = (folder / f"{LOGS}/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Corrected: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt -- 2 word(s)",
                       repairs)
@@ -1005,6 +1005,17 @@ class SexLinesTests(FolderTest):
                 self.assertEqual(checker.name_list_sex(game, f"{male[3]} {last[0]}"), "Male")
                 self.assertEqual(checker.name_list_sex(game, f"{female[3]} {last[49]}"), "Female")
                 self.assertIsNone(checker.name_list_sex(game, f"{male[3]} Smith"))
+
+
+class RepairCopyLabel(unittest.TestCase):
+    """Live, v1.35.66: the copies Repair Logs keeps were labelled ".before-v1.35.61-repair" on a
+    v1.35.66 build.  They carry the running patcher's own version."""
+
+    def test_the_copy_is_named_for_the_running_patcher(self):
+        from transparency import PATCHER_VERSION
+        self.assertEqual(tools.WORD_BACKUP_SUFFIX, f".before-{PATCHER_VERSION}-repair")
+        source = (Path(__file__).resolve().parents[1] / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
+        self.assertNotRegex(source, r'"\.before-v\d+\.\d+\.\d+-repair"', "no build number is written in by hand")
 
 
 if __name__ == "__main__":

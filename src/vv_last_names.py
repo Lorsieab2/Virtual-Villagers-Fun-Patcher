@@ -192,11 +192,15 @@ def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: d
     return done
 
 
-def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list) -> None:
+def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
+                      bodies: dict[int, int] | None = None) -> None:
     """The cause-of-death files that know a grave by its name-and-age fingerprint: the Graves file
     (A New Home, The Lost Children: cause and epitaph) and Graves Logged (every game: which graves
-    have their Death record), so nothing drifts or is filed twice."""
-    if not renamed:
+    have their Death record), so nothing drifts or is filed twice.  `bodies` maps an unburied body's
+    old fingerprint to its new one: the Graves file keeps the cause of a body still lying in the
+    village (kind 1) by the name and age of its record, so a renamed body would lose its cause."""
+    bodies = bodies or {}
+    if not renamed and not bodies:
         return
     cap = GRAVE_PRINT_CAP[game]
     moved = {(place, grave_fingerprint(old, cap, age)): grave_fingerprint(new, cap, age)
@@ -220,6 +224,11 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list)
             e = header + size * k
             if place_kind:                      # VCD1: u16 kind (0 grave), u16 index, u32 fingerprint
                 kind, place, fp = struct.unpack_from("<HHI", data, e)
+                if kind == 1:                   # a body still lying in the village, by its record
+                    new = bodies.get(fp)
+                    if new is not None:
+                        struct.pack_into("<I", data, e + 4, new)
+                    continue
                 if kind != 0:
                     continue
             else:                               # VCG1: u16 place, u16 0, u32 fingerprint
@@ -229,6 +238,23 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list)
                 struct.pack_into("<I", data, e + 4, new)
         if bytes(data) != original:
             result.changes.append(Change(path, original, bytes(data), "the graves' cause-of-death files"))
+
+
+def _renamed_bodies(game: int, people: list, original: bytes, after: bytes | bytearray,
+                    name_cap: int) -> dict[int, int]:
+    """Old fingerprint -> new for each record whose name the rename changes, as the cause-of-death
+    companion prints a lying body (cod_record_fingerprint: the record's name and age).  A print
+    two records share that would not move to one new print is left alone: the companion could no
+    longer tell which body the cause was for, and the cause is never given to the wrong one."""
+    cap = GRAVE_PRINT_CAP[game]
+    moves: dict[int, set] = {}
+    for v in people:
+        if v.age is None:
+            continue
+        old = grave_fingerprint(bytes(original[v.at:v.at + name_cap]), cap, v.age)
+        new = grave_fingerprint(bytes(after[v.at:v.at + name_cap]), cap, v.age)
+        moves.setdefault(old, set()).add(new)
+    return {old: next(iter(new)) for old, new in moves.items() if len(new) == 1 and old not in new}
 
 
 def _death_ages(folder: Path, game: int, slot: int) -> dict[tuple, int]:
@@ -1109,7 +1135,8 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     # The graves of the dead renamed (Number Duplicate Names, last names for the gone).
     graves = _rename_graves(after, game, renames, _death_ages(folder, game, slot), result) if dead else []
     result.changes.append(Change(path, original, bytes(after), "the save"))
-    _plan_grave_files(result, folder, game, slot, graves)
+    _plan_grave_files(result, folder, game, slot, graves, _renamed_bodies(game, people, original, after, f.name_cap)
+                      if dead else None)
 
     data_dir = folder / tools.DATA
     _plan_masks(result, game, slot, data_dir, mask_map, conflicts)

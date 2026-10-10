@@ -82,7 +82,7 @@ class Planning(unittest.TestCase):
         # The copy is kept in Data\Copies Made Before Repairs, at the log's own place (the owner,
         # 2026-10-09), never beside it.
         copies = self.folder / tools.DATA / "Copies Made Before Repairs" / history.relative_to(self.folder).parent
-        backups = list(copies.glob("*.before-v1.35.61-repair*"))
+        backups = list(copies.glob("*" + tools.WORD_BACKUP_SUFFIX + "*"))
         self.assertEqual(len(backups), 1)
         self.assertEqual(list(history.parent.glob("*.before-*")), [])
         [again] = self.kinds()["custom"].questions.values()
