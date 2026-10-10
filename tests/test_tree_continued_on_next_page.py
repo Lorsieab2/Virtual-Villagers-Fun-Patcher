@@ -97,8 +97,19 @@ class ContinuedOnNextPageTests(unittest.TestCase):
         for i, a in enumerate(boxes):       # no two run into each other
             for b in boxes[:i]:
                 self.assertFalse(a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3], (a, b))
+        for box in boxes:                   # nor into a portrait, nor any line
+            for q in lay.x:
+                xs, ys = zip(*lay.frame_points(q))
+                self.assertFalse(box[0] < max(xs) and min(xs) < box[2] and box[1] < max(ys) and min(ys) < box[3], q)
+            for _c, pts, _fid, _k in drawn:
+                for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+                    lo_x, hi_x, lo_y, hi_y = min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1)
+                    self.assertFalse(lo_x < box[2] and box[0] < hi_x and lo_y < box[3] - 2 and box[1] + 2 < hi_y
+                                     if lo_x != hi_x or lo_y != hi_y else False, (box, pts))
         for f in onward_families(lay):
             pieces = {piece for _c, _p, fid, piece in drawn if fid == f.id}
+            self.assertTrue(all(p.startswith(ft.ONWARD_PIECE) for p in pieces))    # named apart (per page)
+            pieces = {p[len(ft.ONWARD_PIECE):] for p in pieces}
             parents = [q for q in (f.father, f.mother) if q is not None and q in lay.x]
             for q in parents:               # a line from every parent on the page
                 self.assertTrue(any(p.startswith(f"from {ft.entry_key(v, v.people[q])}") for p in pieces), (f, pieces))
@@ -110,10 +121,12 @@ class ContinuedOnNextPageTests(unittest.TestCase):
             same = next(g for g in there.families if (g.father, g.mother) == (f.father, f.mother))
             self.assertEqual(f.colour, same.colour)
             self.assertTrue(set(f.onward) <= set(there.x))
-            # Its words beside the lowest end of its line, below every portrait.
+            # Its words centred under the lowest end of its own line, below every portrait.
             ends = [pt for _c, pts, fid, _k in drawn if fid == f.id for pt in pts]
             ex, ey = max(ends, key=lambda pt: (pt[1], pt[0]))
-            self.assertTrue(any(abs(w.x - ex - ft.ONWARD_PAD) < 1e-6 for w in words))
+            mine = [w for w in words if w.move == ft.onward_key(v, f)]
+            self.assertEqual(len(mine), 1)
+            self.assertTrue(mine[0].centre and abs(mine[0].x - ex) < 1e-6 and ft._extent(mine[0])[1] > ey - 1)
             self.assertGreater(ey, max(lay.y[q] + ft.NODE_H for q in parents))
             self.assertLess(ey + 20, lay.height - ft.FOOTER_ROOM + 30)
 
@@ -168,6 +181,150 @@ class ContinuedOnNextPageTests(unittest.TestCase):
             e.entries[ft.entry_key(v, v.people[pid])] = {"hidden": True}
         lay = ft.layout(v, e, 0)
         self.assertFalse(any(13 in (f.father, f.mother) or 15 in (f.father, f.mother) for f in onward_families(lay)))
+
+
+def first_onward(v, e):
+    lay = ft.layout(v, e, 0)
+    fam = next(f for f in onward_families(lay) if f.father is not None and f.mother is not None)
+    return lay, fam
+
+
+def onward_texts(sc) -> list:
+    return [i for i in sc.items if isinstance(i, ft.Text) and i.role == "onward"]
+
+
+class OnwardWordsAreEditableTests(unittest.TestCase):
+    """The owner, 2026-10-10: the "continued on page N" words editable in every way the tree's other words are."""
+
+    def setUp(self):
+        self.v = deep_village(1)
+        self.e = ft.Edits(page_generations=2)
+
+    def scene(self):
+        return ft.scene(ft.layout(self.v, self.e, 0), GAMES[1], {})
+
+    def test_their_role_style_and_opacity(self):
+        self.assertIn("onward", ft.ROLES)
+        self.assertIn("onward", ft.OPACITY)
+        self.e.styles["onward"] = ft.clean_style({"font": "Georgia", "scale": 150, "bold": True, "italic": True,
+                                                  "underline": True, "colour": "#123456"})
+        self.e.opacity["onward"] = 40
+        for t in onward_texts(self.scene()):
+            self.assertEqual((t.font, t.bold, t.italic, t.underline, t.colour), ("Georgia", True, True, True, "#123456"))
+            self.assertAlmostEqual(t.size, ft.ONWARD_SIZE * 1.5)
+            self.assertAlmostEqual(t.opacity, 0.4)
+
+    def test_their_words_one_family_or_every_family_with_the_page_filled_in(self):
+        lay, fam = first_onward(self.v, self.e)
+        key = ft.onward_key(self.v, fam)
+        self.e.words["onward"] = "to page {page}"
+        texts = {t.move: t.text for t in onward_texts(self.scene())}
+        self.assertTrue(texts and all(t == f"to page {f.onward_page}" for f in onward_families(lay)
+                                      for k, t in texts.items() if k == ft.onward_key(self.v, f)))
+        self.e.words[key] = "kids: page {page}"
+        texts = {t.move: t.text for t in onward_texts(self.scene())}
+        self.assertEqual(texts[key], f"kids: page {fam.onward_page}")
+        self.assertTrue(all(t.startswith("to page") for k, t in texts.items() if k != key))
+
+    def test_retyping_keeps_the_page_number_the_pages(self):
+        import types
+        import vv_genealogy_window as win
+        lay, fam = first_onward(self.v, self.e)
+        key = ft.onward_key(self.v, fam)
+        saved = []
+        me = types.SimpleNamespace(edits=self.e, lay=lay, village=self.v, _saved=lambda: saved.append(1))
+        me._onward_family = lambda name: win.TreeEditor._onward_family(me, name)
+        now, own, commit = win.TreeEditor._onward_words_of(me, key)
+        self.assertEqual((now, own), (f"continued on page {fam.onward_page}",) * 2)
+        commit(f"to page {fam.onward_page}")
+        self.assertEqual(self.e.words[key], "to page {page}")
+        commit(own)                                  # the default again: nothing kept
+        self.assertNotIn(key, self.e.words)
+        _now, _own, every = win.TreeEditor._onward_words_of(me, key, every=True)
+        every(f"see page {fam.onward_page}")
+        self.assertEqual(self.e.words["onward"], "see page {page}")
+
+    def test_hidden_moved_saved_and_old_edits_unchanged(self):
+        lay, fam = first_onward(self.v, self.e)
+        key = ft.onward_key(self.v, fam)
+        before = {t.move: (t.x, t.y) for t in onward_texts(self.scene())}
+        self.e.moved[key] = [30.0, 12.0]
+        after = {t.move: (t.x, t.y) for t in onward_texts(self.scene())}
+        self.assertEqual(after[key], (before[key][0] + 30.0, before[key][1] + 12.0))
+        self.assertEqual({k: p for k, p in after.items() if k != key}, {k: p for k, p in before.items() if k != key})
+        self.e.hidden.append(f"word:{key}")
+        self.assertNotIn(key, {t.move for t in onward_texts(self.scene())})
+        self.e.words[key] = "x {page}"
+        self.e.styles["onward"] = {"bold": True}
+        back = ft.Edits.from_data(self.e.to_data())
+        self.assertEqual((back.words, back.moved, back.hidden, back.styles),
+                         (self.e.words, self.e.moved, self.e.hidden, self.e.styles))
+        self.e.hidden.append("word:onward")
+        self.assertEqual(onward_texts(self.scene()), [])
+        old = ft.Edits(page_generations=2).to_data()      # saved before these words were editable
+        for name in ("words", "styles", "opacity", "moved", "hidden"):
+            self.assertFalse(old[name])
+        self.assertEqual(ft.Edits.from_data(old).to_data(), old)
+
+    def test_their_line_recoloured_like_any_family_line(self):
+        lay, fam = first_onward(self.v, self.e)
+        fkey = ft.family_key(self.v, fam)
+        self.e.family_lines[fkey] = {"colour": "#ff00aa"}
+        sc = self.scene()
+        mine = [i for i in sc.items if isinstance(i, ft.Line) and i.piece.startswith(fkey + "|" + ft.ONWARD_PIECE)]
+        self.assertTrue(mine and all(i.colour == "#ff00aa" and i.target == ("family", fkey) for i in mine))
+
+
+class LineMovesPerPageTests(unittest.TestCase):
+    def test_a_piece_dragged_on_one_page_stays_put_on_the_other(self):
+        v = deep_village(1)
+        e = ft.Edits(page_generations=2)
+        lay1, fam = first_onward(v, e)
+        fkey = ft.family_key(v, fam)
+        page2 = ft.layout(v, e, fam.onward_page - 1)
+        here = {k: p for _c, p, fid, k in ft.lines(lay1) if fid == fam.id}
+        there_fam = next(f for f in page2.families if (f.father, f.mother) == (fam.father, fam.mother))
+        there = {k: p for _c, p, fid, k in ft.lines(page2) if fid == there_fam.id}
+        self.assertIn("couple", there)
+        e.line_moves[f"{fkey}|couple"] = 9.0                         # dragged on the children's page (as saved before)
+        self.assertEqual({k: p for _c, p, fid, k in ft.lines(ft.layout(v, e, 0)) if fid == fam.id}, here)
+        moved = {k: p for _c, p, fid, k in ft.lines(ft.layout(v, e, fam.onward_page - 1)) if fid == there_fam.id}
+        self.assertNotEqual(moved["couple"], there["couple"])
+        e.line_moves = {f"{fkey}|{ft.ONWARD_PIECE}couple": 9.0}      # dragged above the page break
+        self.assertNotEqual({k: p for _c, p, fid, k in ft.lines(ft.layout(v, e, 0)) if fid == fam.id}[
+            f"{ft.ONWARD_PIECE}couple"], here[f"{ft.ONWARD_PIECE}couple"])
+        self.assertEqual({k: p for _c, p, fid, k in ft.lines(ft.layout(v, e, fam.onward_page - 1))
+                          if fid == there_fam.id}, there)
+
+
+class NoClusterTests(unittest.TestCase):
+    def test_partners_far_apart_get_their_words_side_by_side_under_their_own_lines(self):
+        """Many couples whose partners stand far apart, all with children on the next page: one row of
+        words, each under its own line (never stacked at the middle)."""
+        people: dict[int, gen.Person] = {}
+
+        def add(pid, sex, years, father=None, mother=None, **extra):
+            people[pid] = gen.Person(pid, f"P{pid}", pid % 8, pid % 8, sex=sex, age=years * Y, alive=True,
+                                     father=father, mother=mother, first_seen=FIRST, **extra)
+        add(1, "Male", 90, arrived=True, how="Founder")
+        add(2, "Female", 89, arrived=True, how="Founder")
+        for k in range(8):
+            add(10 + k, "Male" if k < 4 else "Female", 60 - k, 1, 2)
+        for k in range(4):                       # each man with a woman at the far end of the row
+            add(30 + k, "Female", 10, 10 + k, 17 - k)
+        v = gen.Village(1, 1, "Far Tribe", people)
+        gen._generations(v, {FIRST: set(people)})
+        for pid, g in {1: 1, 2: 1, **{10 + k: 2 for k in range(8)}, **{30 + k: 3 for k in range(4)}}.items():
+            people[pid].generation = g
+            v.base_generation[pid] = g
+        gen.number_people(v)
+        e = ft.Edits(page_generations=2, positioning="rows")
+        lay = ft.layout(v, e, 0)
+        fams = onward_families(lay)
+        self.assertEqual(len(fams), 4)
+        self.assertEqual(len({f.lane_y for f in fams}), 1)         # one row
+        self.assertEqual(len({round(f.stem_x) for f in fams}), 4)
+        ContinuedOnNextPageTests.check_page(self, v, e, 0, GAMES[1])
 
 
 if __name__ == "__main__":
