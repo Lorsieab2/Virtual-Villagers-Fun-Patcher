@@ -71,7 +71,13 @@ class RosterMatchHarnessTests(unittest.TestCase):
                      "a new village sharing one founder's name at a recorded rank is still a new village",
                      "a fingerprint match is found even when a same-name row could be taken first",
                      "two villagers with nothing to fingerprint are not the same by fingerprint",
-                     "another village whose villager has nothing to fingerprint is still another village"):
+                     "another village whose villager has nothing to fingerprint is still another village",
+                     # The owner's VV2 V7Test (2026-10-08): a reload moved everyone down a record.
+                     "villagers moved down a record by a reload and renamed are still the same village",
+                     "one fingerprint found at a lower record is not enough for a new village to keep the old files",
+                     "a villager never moves UP a record: fingerprints at higher records do not count",
+                     "the only recorded villager found moved down is the same village",
+                     "villagers with nothing to fingerprint never match as moved down"):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
 

@@ -653,6 +653,79 @@ static void games_without_a_counter(void) {
     check(vvs_stew_identity(1, 0x30, 0x30, 0x30, 0) == -1, "VV1 has no stew identities");
 }
 
+/* The owner's The Lost Children village (V8Test): Special Stews Found 1 (the
+   game's own flag for recipe 5 is set) and Total Stews Found 0, because the
+   village was cooked in before the stew hook existed. */
+static void vv2_recipe_flags_are_a_floor(void) {
+    restart();
+    remove_files(2);
+    check(vvs_vv2_recipe(0x30, 0x30, 0x30) == 0xB && vvs_vv2_recipe(0x31, 0x31, 0x31) == 0x12
+          && vvs_vv2_recipe(0x33, 0x31, 0x33) == 5 && vvs_vv2_recipe(0x31, 0x32, 0x33) == 4
+          && vvs_vv2_recipe(0x32, 0x32, 0x32) == 1 && vvs_vv2_recipe(0x35, 0x35, 0x35) == 6
+          && vvs_vv2_recipe(0x2F, 0x30, 0x30) == -1,
+          "VV2 recipes are the cook routine's own decision");
+    {
+        int seen[0x13] = { 0 };
+        int a, b, c, all = 1;
+        for (a = 0x30; a <= 0x35; ++a)
+            for (b = a; b <= 0x35; ++b)
+                for (c = b; c <= 0x35; ++c) {
+                    int r = vvs_vv2_recipe(a, b, c);
+                    all = all && r >= 1 && r <= 0x12
+                        && r == vvs_vv2_recipe(c, a, b) && r == vvs_vv2_recipe(b, c, a);
+                    if (r >= 1 && r <= 0x12) seen[r] = 1;
+                }
+        for (a = 1; a <= 0x12; ++a) all = all && seen[a];
+        check(all, "every VV2 combination is one of the 18 recipes, in any order, and every recipe is reachable");
+    }
+    g_manager[0x2EAACu + 5] = 1;                        /* the game discovered recipe 5 */
+    check(stews(2) == 1, "a recipe the game discovered before the hook counts as one stew");
+    hook_records(2, 0x33, 0x33, 0x31, 0);               /* recipe 5 again, now seen by the hook */
+    check(stews(2) == 1, "a discovered recipe whose combination the hook saw is not counted twice");
+    hook_records(2, 0x31, 0x33, 0x34, 0);               /* recipe 4: no flag, a new stew */
+    check(stews(2) == 2, "a combination the hook saw counts whether or not the game flagged it");
+    g_manager[0x2EAACu + 0x12] = 1;
+    g_manager[0x2EAACu + 0xB] = 1;
+    check(stews(2) == 4, "each discovered recipe the .dat has no combination of adds exactly one");
+    check(flush(2) & 2, "the flush writes the stews file");
+    {
+        char text[4096];
+        read_text(g_stews, text, sizeof text);
+        check(count_lines_with(text, "stew=") == 2, "the game's flags are never written into the .dat as invented combinations");
+    }
+    check(stews(2) == 4, "the floor holds after the flush");
+    restart();
+    check(stews(2) == 2, "a new village's cleared flags add nothing");
+    remove_files(2);
+}
+
+/* The Secret City's recipe book proves exact combinations: the owner's save
+   holds five discovered recipes the .dat never saw. */
+static void vv3_recipe_book_is_counted(void) {
+    unsigned char *book;
+    restart();
+    remove_files(3);
+    book = g_module + 0x19454Cu;
+    put_dword(book, 0x978u, 80);                         /* 77 stock + 3 run-time entries */
+    put_dword(book, 9u * 0x18u + 0x20u, 0x23); put_dword(book, 9u * 0x18u + 0x24u, 0x23);
+    put_dword(book, 9u * 0x18u + 0x28u, 0x1F); book[9u * 0x18u + 0x2Cu] = 1;
+    put_dword(book, 42u * 0x18u + 0x20u, 0x21); put_dword(book, 42u * 0x18u + 0x24u, 0x22);
+    put_dword(book, 42u * 0x18u + 0x28u, 0x20); book[42u * 0x18u + 0x2Cu] = 1;
+    put_dword(book, 43u * 0x18u + 0x20u, 0x21); put_dword(book, 43u * 0x18u + 0x24u, 0x21);
+    put_dword(book, 43u * 0x18u + 0x28u, 0x21);         /* registered, never made */
+    put_dword(book, 78u * 0x18u + 0x20u, 0x20); put_dword(book, 78u * 0x18u + 0x24u, 0x24);
+    put_dword(book, 78u * 0x18u + 0x28u, 0x25); book[78u * 0x18u + 0x2Cu] = 1;
+    check(stews(3) == 2, "each stock recipe the book marks discovered is one stew, an undiscovered one none");
+    hook_records(3, 0x1F, 0x23, 0x23, 0);               /* the same combination as entry 9 */
+    check(stews(3) == 2, "a combination in both the book and the .dat counts once");
+    hook_records(3, 0x25, 0x25, 0x25, 0);
+    check(stews(3) == 3, "the hook's own combinations still count");
+    put_dword(book, 0x978u, 500);
+    check(stews(3) == 2, "a book whose count is out of range is not read");
+    remove_files(3);
+    restart();
+}
+
 int main(void) {
     wchar_t temp[MAX_PATH];
     int i;
@@ -679,6 +752,8 @@ int main(void) {
     chiefs_baseline();
     burial_uses_memorial_only_as_a_floor();
     games_without_a_counter();
+    vv2_recipe_flags_are_a_floor();
+    vv3_recipe_book_is_counted();
 
     for (i = 1; i <= 5; ++i) {
         remove_files(i);
