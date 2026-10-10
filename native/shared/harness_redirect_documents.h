@@ -136,12 +136,79 @@ static int harness_patch_import(HMODULE module, const char *name, void *replacem
     return patched;
 }
 
+static int harness_docs_make(void);
+
 /* Make the throwaway "Documents" and point `dll`'s shell32 imports at it.
    Returns 0 when the companion could not be redirected (then the harness
    must not run: it would write into the real Documents). */
 static int harness_redirect_documents(HMODULE dll) {
-    char temp[MAX_PATH];
     int found = 0;
+    if (!harness_docs_make()) {
+        return 0;
+    }
+    found += harness_patch_import(dll, "SHGetFolderPathA", (void *)harness_folder_a, (void **)&harness_real_folder_a);
+    found += harness_patch_import(dll, "SHGetFolderPathW", (void *)harness_folder_w, (void **)&harness_real_folder_w);
+    found += harness_patch_import(dll, "SHGetSpecialFolderPathA", (void *)harness_special_a,
+                                  (void **)&harness_real_special_a);
+    found += harness_patch_import(dll, "SHGetSpecialFolderPathW", (void *)harness_special_w,
+                                  (void **)&harness_real_special_w);
+    return found;
+}
+
+/* THE WHOLE PROCESS (the owner, 2026-10-10: no test or harness may ever write
+   under the real Documents\LDW, not even a folder of its own).  shell32's own
+   SHGetFolderPathA/W and SHGetSpecialFolderPathA/W are hot-patched in place,
+   so every module of this process -- the harness itself, the companion it
+   loads, and every DLL that companion loads in turn -- gets the throwaway
+   folder for CSIDL_PERSONAL.  32-bit Windows system functions start with the
+   two-byte "mov edi, edi" hot-patch point after five bytes of padding: the
+   padding becomes "jmp handler" and the two bytes "jmp $-5"; the original
+   function is entered past them.  Anything else at the entry is refused, and
+   then the harness must not run.  1 when all four are redirected. */
+static int harness_hotpatch(const char *name, void *handler, void **original) {
+    HMODULE shell = LoadLibraryA("shell32.dll");
+    unsigned char *f = shell != NULL ? (unsigned char *)GetProcAddress(shell, name) : NULL;
+    DWORD old;
+    int k;
+    if (f == NULL) {
+        return 0;
+    }
+    if (f[0] == 0xEB && f[1] == 0xF9 && f[-5] == 0xE9) {
+        *original = f + 2;                      /* this process patched it already */
+        return 1;
+    }
+    if (f[0] != 0x8B || f[1] != 0xFF) {
+        return 0;
+    }
+    for (k = 1; k <= 5; ++k) {
+        if (f[-k] != 0xCC && f[-k] != 0x90) {
+            return 0;
+        }
+    }
+    if (!VirtualProtect(f - 5, 7, PAGE_EXECUTE_READWRITE, &old)) {
+        return 0;
+    }
+    *original = f + 2;
+    f[-5] = 0xE9;
+    *(DWORD *)(f - 4) = (DWORD)((unsigned char *)handler - f);
+    *(volatile WORD *)f = 0xF9EB;
+    VirtualProtect(f - 5, 7, old, &old);
+    FlushInstructionCache(GetCurrentProcess(), f - 5, 7);
+    return 1;
+}
+
+static int harness_redirect_documents_process(void) {
+    if (!harness_docs_make()) {
+        return 0;
+    }
+    return harness_hotpatch("SHGetFolderPathA", (void *)harness_folder_a, (void **)&harness_real_folder_a)
+        && harness_hotpatch("SHGetFolderPathW", (void *)harness_folder_w, (void **)&harness_real_folder_w)
+        && harness_hotpatch("SHGetSpecialFolderPathA", (void *)harness_special_a, (void **)&harness_real_special_a)
+        && harness_hotpatch("SHGetSpecialFolderPathW", (void *)harness_special_w, (void **)&harness_real_special_w);
+}
+
+static int harness_docs_make(void) {
+    char temp[MAX_PATH];
     if (!harness_docs_made) {
         if (GetTempPathA(MAX_PATH, temp) == 0) return 0;
         _snprintf(harness_docs_a, MAX_PATH, "%svvfp_harness_docs_%lu_%lu", temp, GetCurrentProcessId(),
@@ -152,13 +219,7 @@ static int harness_redirect_documents(HMODULE dll) {
         harness_docs_made = 1;
         atexit(harness_docs_cleanup);
     }
-    found += harness_patch_import(dll, "SHGetFolderPathA", (void *)harness_folder_a, (void **)&harness_real_folder_a);
-    found += harness_patch_import(dll, "SHGetFolderPathW", (void *)harness_folder_w, (void **)&harness_real_folder_w);
-    found += harness_patch_import(dll, "SHGetSpecialFolderPathA", (void *)harness_special_a,
-                                  (void **)&harness_real_special_a);
-    found += harness_patch_import(dll, "SHGetSpecialFolderPathW", (void *)harness_special_w,
-                                  (void **)&harness_real_special_w);
-    return found;
+    return 1;
 }
 
 #endif /* VVFP_HARNESS_REDIRECT_DOCUMENTS_H */

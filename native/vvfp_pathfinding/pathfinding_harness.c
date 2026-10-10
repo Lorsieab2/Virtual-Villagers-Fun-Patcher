@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../shared/harness_redirect_documents.h"   /* never the real Documents */
 
 static int failures;
 #define CHECK(cond, ...) do { \
@@ -112,6 +113,12 @@ static int vv2_walk(int x, int y, int gx, int gy, int *steps, int allow_goal_blo
 }
 
 int main(int argc, char **argv) {
+    /* The whole process's Documents is a throwaway %TEMP% folder: no harness ever
+       writes under the real Documents\LDW (the owner's rule, 2026-10-10). */
+    if (!harness_redirect_documents_process()) {
+        fprintf(stderr, "cannot redirect Documents to a throwaway folder; not running\n");
+        return 2;
+    }
     HMODULE dll;
     probe_site_t site;
     if (argc < 2) { fprintf(stderr, "usage: pathfinding_harness.exe <dll>\n"); return 2; }

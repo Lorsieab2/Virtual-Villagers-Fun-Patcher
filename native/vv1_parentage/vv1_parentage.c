@@ -1341,6 +1341,19 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             return 0;
         }
         g_blocked_wait = 0;
+        /* NOBODY ON SCREEN IS NO VILLAGE (seen live, 2026-10-10, on a test copy
+           of the owner's village: the owner's v1.35.67 loss).  Since v1.35.66
+           the slot is the game's own field, which says 1 from the first instant
+           of a launch, while the villager array exists EMPTY for seconds as the
+           save is read.  The file was taken as matching that empty array (an
+           empty array "shares" nothing to contradict), the frame snapshot was
+           taken of it, and on the next frame every villager of the village --
+           all 119 -- was a "new arrival": parents wiped, the file written so.
+           The stub's slot, the old source, was still 0 at that moment.  Nothing
+           is concluded until somebody is there. */
+        if (!vv1_anyone_living(records)) {
+            return 0;
+        }
         result = vv1_parents_load(slot, records);
         if (result == VV1_LOAD_MATCHED) {
             g_loaded_slot = slot;   /* the file is this village's: it is loaded */
@@ -1611,7 +1624,10 @@ static int vv1_tick_over(const unsigned char *records) {
                 ++stayed;
             }
         }
-        if (had > 0 && stayed == 0) {
+        /* ...and a snapshot of NOBODY is no frame of play either: a village
+           cannot be born into an empty array (every birth needs its mother
+           there), so villagers appearing in one are a load. */
+        if (stayed == 0) {
             memset(g_idle, 0, sizeof(g_idle));
             vv1_take_baseline(records);
             return 0;

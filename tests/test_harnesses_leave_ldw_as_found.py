@@ -187,50 +187,67 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
             self.assertIn(f"== {scenario}:", result.stdout)
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
-    def test_death_log_harness_never_empties_a_folder_it_did_not_make(self) -> None:
-        """The death-log harness starts by deleting every .txt in its log
-        folders. Pre-seed one there, in the real Documents\\LDW the harness
-        itself writes to, and run the real harness: it must refuse to start
-        and leave the file alone. The seed is this test's own file, in the
-        harness's own folder; if that folder already exists the test does not
-        touch it."""
-        import ctypes
+    def test_the_ldw_harnesses_leave_the_real_ldw_listing_as_it_was(self) -> None:
+        """The owner, 2026-10-10: no test or harness may ever write under the real Documents\\LDW, not even
+        a folder of its own.  Runs two harnesses that drive shipped companions (the Deaths log's, which
+        empties its log folders first, and New Believers' mask sidecar) and checks the real LDW listing,
+        read only, is exactly what it was -- and that each throwaway Documents is gone afterwards."""
+        import os
         import tempfile
-
-        buffer = ctypes.create_unicode_buffer(1024)
-        if ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buffer) != 0:
-            self.skipTest("Documents cannot be resolved")
-        folder = Path(buffer.value) / "LDW" / "death_log_harness"
-        if folder.exists():
-            self.skipTest(f"{folder} already exists; not touching it")
-        with tempfile.TemporaryDirectory() as out:
-            built = subprocess.run(
-                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
-                 str(ROOT / "scripts" / "build_death_log_harness.ps1"), "-OutDir", out],
-                capture_output=True, text=True, timeout=300,
-            )
-            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
-            self.assertFalse(folder.exists(), "a normal run left its folder behind")
-            deaths = folder / "Virtual Villagers Fun Patcher Logs" / "Deaths"
-            deaths.mkdir(parents=True)
-            seed = deaths / "Virtual Villagers 1 Deaths Log 1.txt"
-            seed.write_text("not the harness's\n", encoding="utf-8")
-            try:
-                run = subprocess.run(
-                    [str(Path(out) / "death_log_harness.exe"),
-                     str(ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll")],
-                    capture_output=True, text=True, timeout=120,
+        docs = Path(os.path.expanduser("~")) / "OneDrive" / "Documents" / "LDW"
+        if not docs.is_dir():
+            docs = Path(os.path.expanduser("~")) / "Documents" / "LDW"
+        before = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None   # read-only
+        tmp_before = set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*"))
+        for script in ("build_death_log_harness.ps1", "build_vv5_mask_identity_harness.ps1"):
+            with self.subTest(script=script):
+                result = subprocess.run(
+                    ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                     str(ROOT / "scripts" / script)],
+                    capture_output=True, text=True, timeout=600,
                 )
-                self.assertEqual(run.returncode, 2, run.stdout + run.stderr)
-                self.assertIn("already exists", run.stderr)
-                self.assertEqual(seed.read_text(encoding="utf-8"), "not the harness's\n")
-            finally:
-                seed.unlink(missing_ok=True)
-                for empty in (deaths, deaths.parent, folder):
-                    try:
-                        empty.rmdir()
-                    except OSError:
-                        pass
+                self.assertEqual(result.returncode, 0, result.stdout[-2000:] + result.stderr[-1000:])
+        after = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None
+        self.assertEqual(before, after)
+        self.assertEqual(set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*")) - tmp_before, set(),
+                         "the throwaway Documents is removed at exit")
+
+    def test_every_harness_that_can_reach_documents_is_redirected(self) -> None:
+        """Every harness that loads a companion, resolves Documents or calls the save-folder helpers is
+        pointed at a throwaway %TEMP% Documents before it does: through harness_ldw_tree.h (whose begin()
+        redirects the whole process first), by calling harness_redirect_documents_process() as main()'s
+        first statement, or by compiling the code under test with its folder lookup replaced."""
+        reaches = re.compile(
+            r"LoadLibrary|CSIDL_PERSONAL|\bvv_save_folder(?:_w)?\s*\(|\bvv_parentage_log_folder\s*\(|harness_ldw_tree\.h")
+        compiled_in = re.compile(r"#define\s+(?:SHGetFolderPathA|SHGetFolderPathW|vv_save_folder_w)\s|^int vv_save_folder\(",
+                                 re.M)
+        for path in _harnesses():
+            source = path.read_text(encoding="utf-8")
+            if not reaches.search(source) or path.name == "harness_ldw_tree_harness.c":
+                continue
+            with self.subTest(harness=path.name):
+                main = re.search(r"^int w?main\([^)]*\) \{\n(.*)$", source, re.M | re.S)
+                body = main.group(1) if main else ""
+                begin = body.find("harness_ldw_tree_begin();")
+                load = body.find("LoadLibrary")
+                via_tree = ("harness_ldw_tree.h" in source and 0 <= begin < 400
+                            and (load < 0 or begin < load))
+                via_process = "harness_redirect_documents_process()" in (main.group(1)[:600] if main else "")
+                self.assertTrue(via_tree or via_process or compiled_in.search(source),
+                                f"{path.name} can reach the real Documents unredirected")
+
+    def test_the_tree_header_redirects_the_whole_process_first(self) -> None:
+        text = HEADER.read_text(encoding="utf-8")
+        begin = text[text.index("static void harness_ldw_tree_begin(void)"):]
+        self.assertIn('#include "harness_redirect_documents.h"', text)
+        redirect = begin.index("harness_redirect_documents_process()")
+        self.assertLess(redirect, begin.index("HARNESS_LDW_DOCUMENTS(docs)"))
+        self.assertIn("harness_ldw_refuse(", begin[redirect:redirect + 200], "an unredirected process must not run")
+        redirect_header = (ROOT / "native" / "shared" / "harness_redirect_documents.h").read_text(encoding="utf-8")
+        process = redirect_header[redirect_header.index("static int harness_redirect_documents_process(void)"):]
+        for name in ("SHGetFolderPathA", "SHGetFolderPathW", "SHGetSpecialFolderPathA", "SHGetSpecialFolderPathW"):
+            self.assertIn(f'harness_hotpatch("{name}"', process)
+
 
 if __name__ == "__main__":
     unittest.main()
