@@ -307,7 +307,9 @@ class RepairWiring(unittest.TestCase):
         self.assertIn("cuts_var = tk.BooleanVar(value=bool(cuts))", checklist)
         self.assertIn('text=f"Restore {len(cuts)} name(s) the Villager Details screen cut short "', checklist)
         self.assertIn("after the cut names are restored: Repair, then", checklist)
-        self.assertIn("names if names_var.get() and (names[\"chosen\"] or names.get(\"rules_changed\"))\n                                 and not restore else None", checklist)
+        self.assertIn("names if names_var.get() and (names[\"chosen\"] or names.get(\"rules_changed\")\n"
+                      "                                                               or names.get(\"arrivals_changed\"))\n"
+                      "                                 and not restore else None", checklist)
         self.assertIn("if number_var.get() and not restore else None", checklist)
         for widget in ("names_tick", "names_choose", "number_tick"):
             self.assertIn(widget, checklist.split("def cut_first", 1)[1])

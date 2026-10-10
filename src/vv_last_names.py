@@ -1714,12 +1714,15 @@ class Missing:
     suggested: str = ""
     why: str = ""                   # where the suggestion comes from
     auto: bool = False              # an arrival the arrivals toggle names, without asking
+    conflict: list = field(default_factory=list)   # last names an earlier record of them gives
 
     def describe(self) -> str:
         v = self.villager
-        if v.arrived:
-            return f"{v.name} arrived ({self.how or 'an event'}) with no last name"
-        return f"{v.name} has no last name"
+        text = (f"{v.name} arrived ({self.how or 'an event'}) with no last name" if v.arrived
+                else f"{v.name} has no last name")
+        if self.conflict:
+            text += f", but an earlier record calls them {' or '.join(self.conflict)}"
+        return text
 
 
 def missing_path(folder: Path, game: int, slot: int) -> Path:
@@ -1812,9 +1815,26 @@ def missing_last_names(folder: Path, game: int, slot: int) -> list[Missing]:
     dead = {carried(v.name) for v in people if not v.alive} - {""}
     unique = read_arrivals(folder, game, slot)
     out = []
+    # A contradiction is asked about, never overwritten (the owner, v1.35.66): an earlier record of the
+    # same villager -- the same first name, head and body, on a record of nobody living, dead or gone
+    # (the dead are someone else: looks and names repeat) -- that gives them a last name.
+    recorded: dict[tuple, set[str]] = {}
+    for p in village.known():
+        if p.alive or p.gone:
+            continue
+        first, last, _suffix = split_name(game, p.name, known)
+        if last and p.head is not None and p.body is not None:
+            recorded.setdefault((first, p.head, p.body), set()).add(last)
     for v in found:
         record = by_key.get(v.identity)
         how = record.how if record is not None and v.arrived else ""
+        earlier = sorted(recorded.get((split_name(game, v.name, known)[0], v.head, v.body), ()))
+        if earlier:
+            last = earlier[0] if len(earlier) == 1 and len(with_last(game, v.name, earlier[0], known)) <= ROOM[game] \
+                else ""
+            out.append(Missing(v, how, last, "an earlier record of this villager gives them "
+                               + " or ".join(earlier) + ": the records disagree, so you are asked", conflict=earlier))
+            continue
         if v.arrived and unique:            # their own new last name (the arrivals toggle)
             last = unique_last_name(game, v, taken, dead, known)
             if last:
@@ -1872,6 +1892,15 @@ def give_missing(folder: Path, game: int, slot: int, missing: list[Missing],
     if left is not None and not left:
         clear_missing(folder, game, slot)
     return result
+
+
+def _register_question() -> None:
+    """The game's reminders are one of the questions the patcher asks when it opens."""
+    import vv_startup_questions as questions
+    questions.register(questions.Source("missing last names", requests, "_ask_missing_last_names_for"))
+
+
+_register_question()
 
 
 def missing_note(game: int, missing: list[Missing], limit: int = 12) -> str:
