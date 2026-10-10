@@ -101,7 +101,7 @@ VV2_GONG_NOTE = (
 # Time Skip Amount (costs same as the normal upgrade). Choose a number of years
 # to skip from 1-72."  Offered where the game's Origins companion hands the
 # Story companion its Time Warp (story_bridge.h, time_skip_step).
-TIME_SKIP_GAMES = ("vv1",)
+TIME_SKIP_GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
 TIME_WARP_PRICE = 50000              # the Origins Time Warp upgrade, all five games
 TIME_SKIP_NOTE = (
     " Also adds Choose Time Skip Amount (0 Tech Points, the same as Time Warp): the player types "

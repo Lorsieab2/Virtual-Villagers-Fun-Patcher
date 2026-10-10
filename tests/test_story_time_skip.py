@@ -213,5 +213,81 @@ class StaticTimeSkipTests(unittest.TestCase):
         self.assertTrue(re.search(r"#define VVFP_STORY_TIME_SKIP_ID 4093", text))
 
 
+ALL_GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
+COMPANIONS = {
+    "vv1": (VV1, "vv1_story_time_skip_step", "vv1_time_warp_apply(speed, step)"),
+    "vv2": (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c",
+            "vv2_story_time_skip_step", "vv2_time_warp_apply(base, speed, step)"),
+    "vv3": (ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c",
+            "vv3_story_time_skip_step", "vv3_time_warp_apply(speed, step)"),
+    "vv4": (ROOT / "native" / "vv4_origins_icons" / "vv4_origins_icons.c",
+            "vv4_story_time_skip_step", "vv4_time_warp_apply(speed, step)"),
+    "vv5": (ROOT / "native" / "vv5_task9_origins" / "vv5_task9_origins.c",
+            "vv5_story_time_skip_step", "vv5_time_warp_apply(speed, step)"),
+}
+
+
+@emulated
+class EveryGameTimeSkipTests(unittest.TestCase):
+    """The scheduler is game-independent: every game's Story companion runs 72
+    years as 1-year-exact steps of whatever its Time Warp buys."""
+
+    def test_seventy_two_years_in_every_game(self):
+        for game in ALL_GAMES:
+            if not have_stock(game):
+                continue
+            for per_step, expected in ((3, 24), (6, 12), (12, 6)):
+                with self.subTest(game=game, per_step=per_step):
+                    story = Story(game)
+                    host = TimeSkipHost(story, per_step)
+                    self.assertEqual(
+                        story.proc.export("VvfpStoryProbeTimeSkipStart", story.n, 72, 0), per_step)
+                    at = 0
+                    for _ in range(100):
+                        host.settled = True
+                        at += 100
+                        tick(story, at)
+                        if not state(story)["active"]:
+                            break
+                    self.assertEqual(host.steps, [per_step] * expected)
+                    self.assertEqual(sum(host.steps), 72)
+
+    def test_bounds_in_every_game(self):
+        for game in ALL_GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story = Story(game)
+                host = TimeSkipHost(story, 6)
+                for years in (0, 73):
+                    self.assertEqual(
+                        story.proc.export("VvfpStoryProbeTimeSkipStart", story.n, years, 0), 0)
+                self.assertEqual(host.steps, [])
+                self.assertEqual(story.proc.export("VvfpStoryProbeTimeSkipPrice", story.n), 0)
+
+
+class StaticEveryGameTests(unittest.TestCase):
+    def test_every_companion_steps_with_its_own_time_warp(self):
+        for game, (path, name, apply_call) in COMPANIONS.items():
+            with self.subTest(game=game):
+                text = path.read_text(encoding="utf-8")
+                start = text.index(f"static int __stdcall {name}(int years) {{")
+                body = text[start:text.index("\n}\n", start)]
+                self.assertIn(apply_call, body)
+                self.assertIn("return -1;", body)            # paused: nothing changed
+                self.assertIn("if (step > years)", body)     # never more than asked
+                self.assertIn(f"{name}, ", text[text.index("vvfp_story_host_table(void) {"):])
+                self.assertIn("command == VVFP_STORY_TIME_SKIP_ID", text)
+                self.assertRegex(text, r"#define VV\d_TW_UNITS_PER_YEAR\s+20")
+
+    def test_every_game_offers_it_in_the_catalog(self):
+        for game in ALL_GAMES:
+            with self.subTest(game=game):
+                data = (ROOT / "data" / f"{game}_story_cheat_upgrades_feature.json").read_text(
+                    encoding="utf-8")
+                self.assertIn("Choose Time Skip Amount", data)
+                self.assertIn("1 to 72", data)
+                self.assertIn("**Keep the game running", data)
+
 if __name__ == "__main__":
     unittest.main()

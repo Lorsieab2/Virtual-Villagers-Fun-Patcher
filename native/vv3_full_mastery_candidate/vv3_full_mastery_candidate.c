@@ -777,9 +777,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             int island = vv3_row_block_reason(0, VV3_PENDING_ROW_ISLAND);
             if (vvfp_story_pick_clicked(
                     3, window, (int)command,
@@ -1698,10 +1699,14 @@ static int __stdcall vv3_story_mask_set(void *record, int mask) {
     return VV3_SetMaskForRecord(record, mask);
 }
 
+/* Choose Time Skip Amount: defined with the Time Warp below. */
+static int __stdcall vv3_story_time_skip_step(int years);
+static int __stdcall vv3_story_time_skip_settled(void);
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv3_story_slot, vv3_story_mask_get, vv3_story_mask_set,
-        VV3RunningMaskBoundary
+        VV3RunningMaskBoundary, vv3_story_time_skip_step, vv3_story_time_skip_settled
     };
     return &host;
 }
@@ -3032,6 +3037,61 @@ static int vv3_time_warp_apply(int speed, int years) {
         add_age(rec + VV3_TW_AGE_OFFSET, 0, units);
     }
     return occupied;
+}
+
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp above, at most the years one Time Warp buys at the current speed.
+   The villager tick (whose catch-up replays the new age units) rewrites
+   every living record's marker (+0xE70) each time it runs, so a marker that
+   moved off the value the step left is the sign it has replayed the step. */
+static int vv3_skip_watch = -1;
+static int vv3_skip_mark;
+
+static int vv3_skip_living(const unsigned char *rec) {
+    return *(const volatile int *)(rec + VV3_OFF_ACTIVE) != 0
+        && *(const unsigned char *)(rec + VV3_TW_TICK_GATE_OFFSET) == 0
+        && *(const int *)(rec + VV3_TW_HEALTH_OFFSET) > 0;
+}
+
+static int __stdcall vv3_story_time_skip_step(int years) {
+    int *speed_field = vv3_speed_field();
+    unsigned int bound = *(volatile unsigned int *)(UINT_PTR)VV3_SLOT_BOUND_PTR;
+    unsigned char *base = (unsigned char *)(UINT_PTR)VV3_RECORD_BASE;
+    int speed, step;
+    unsigned int i;
+    if (speed_field == 0 || years <= 0) {
+        return 0;
+    }
+    speed = *speed_field;
+    step = vv3_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv3_time_warp_apply(speed, step) <= 0) {
+        return 0;
+    }
+    vv3_skip_watch = -1;
+    for (i = 0; i < bound; ++i) {      /* bound is 1-256: the apply refused any other */
+        unsigned char *rec = base + i * VV3_RECORD_STRIDE;
+        if (vv3_skip_living(rec)) {
+            vv3_skip_watch = (int)i;
+            vv3_skip_mark = *(int *)(rec + VV3_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv3_story_time_skip_settled(void) {
+    unsigned char *rec;
+    if (vv3_skip_watch < 0) {
+        return 1;
+    }
+    rec = (unsigned char *)(UINT_PTR)VV3_RECORD_BASE + (unsigned int)vv3_skip_watch * VV3_RECORD_STRIDE;
+    return !vv3_skip_living(rec) || *(int *)(rec + VV3_TW_LAST_SEEN_OFFSET) != vv3_skip_mark;
 }
 
 /* Tech-menu row 0.  Owns its own confirmation, afford check, charge and

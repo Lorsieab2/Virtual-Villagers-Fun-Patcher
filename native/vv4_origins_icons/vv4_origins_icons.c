@@ -1153,9 +1153,14 @@ static int __stdcall vv4_story_mask_set(void *record, int mask) {
     return 1;
 }
 
+/* Choose Time Skip Amount: defined with the Time Warp below. */
+static int __stdcall vv4_story_time_skip_step(int years);
+static int __stdcall vv4_story_time_skip_settled(void);
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
-        sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL
+        sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL,
+        vv4_story_time_skip_step, vv4_story_time_skip_settled
     };
     return &host;
 }
@@ -1726,9 +1731,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             if (vvfp_story_pick_clicked(
                     4, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
@@ -2935,6 +2941,55 @@ static int vv4_time_warp_apply(int speed, int years) {
         *(int *)(rec + VV4_TW_AGE_OFFSET) += units;
     }
     return occupied;
+}
+
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp above, at most the years one Time Warp buys at the current speed.
+   The villager tick (whose catch-up replays the new age units) rewrites
+   every living record's marker (+0x1C38) each time it runs, so a marker that
+   moved off the value the step left is the sign it has replayed the step. */
+static int vv4_skip_watch = -1;
+static int vv4_skip_mark;
+
+static int __stdcall vv4_story_time_skip_step(int years) {
+    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    int speed, step, i, total;
+    if (world == 0 || years <= 0) {
+        return 0;
+    }
+    speed = *(int *)(world + VV4_TW_SPEED_OFFSET);
+    step = vv4_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv4_time_warp_apply(speed, step) <= 0) {
+        return 0;
+    }
+    vv4_skip_watch = -1;
+    total = vv_record_total();
+    for (i = 0; i < total; ++i) {
+        unsigned char *rec = vv_record(i);
+        if (rec[VV_ACTIVE_OFFSET] != 0 && vv_eligible(rec)) {
+            vv4_skip_watch = i;
+            vv4_skip_mark = *(int *)(rec + VV4_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv4_story_time_skip_settled(void) {
+    unsigned char *rec;
+    if (vv4_skip_watch < 0 || vv4_skip_watch >= vv_record_total()) {
+        return 1;
+    }
+    rec = vv_record(vv4_skip_watch);
+    return rec[VV_ACTIVE_OFFSET] == 0 || !vv_eligible(rec)
+        || *(int *)(rec + VV4_TW_LAST_SEEN_OFFSET) != vv4_skip_mark;
 }
 
 /* Group a cost with thousands separators, matching every other purchase box in

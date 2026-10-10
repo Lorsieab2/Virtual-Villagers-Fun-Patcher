@@ -232,9 +232,10 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
             }
             return TRUE;
         }
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             if (vvfp_story_pick_clicked(
                     2, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
@@ -2203,9 +2204,67 @@ static int __stdcall vv2_story_mask_set(void *record, int mask) {
     return 1;
 }
 
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp above, at most the years one Time Warp buys at the current speed.
+   The game's villager tick (the catch-up loop that replays the new age
+   units) rewrites every living record's marker (+0x528) each time it runs,
+   so a marker that moved off the value the step left is the sign that it
+   has replayed the step.  The world is [0x4997BC], the context the Time
+   Warp is handed (its pool at +0x305A4, its speed at +0x2EB08). */
+#define VV2_TS_WORLD_GLOBAL 0x004997BCu
+static int vv2_skip_watch = -1;
+static int vv2_skip_mark;
+
+static unsigned char *vv2_skip_record(int i) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)VV2_TS_WORLD_GLOBAL;
+    unsigned char *base = world != NULL ? *(unsigned char **)(world + VV2_TW_RECORD_POOL_OFFSET) : NULL;
+    return base != NULL ? base + (size_t)i * VV2_RECORD_STRIDE : NULL;
+}
+
+static int __stdcall vv2_story_time_skip_step(int years) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)VV2_TS_WORLD_GLOBAL;
+    unsigned char *base;
+    int speed, step, i;
+    if (world == NULL || years <= 0) {
+        return 0;
+    }
+    base = *(unsigned char **)(world + VV2_TW_RECORD_POOL_OFFSET);
+    speed = *(int *)(world + VV2_TW_SPEED_OFFSET);
+    step = vv2_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv2_time_warp_apply(base, speed, step) <= 0) {
+        return 0;
+    }
+    vv2_skip_watch = -1;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        unsigned char *record = base + (size_t)i * VV2_RECORD_STRIDE;
+        if (record[VV2_ACTIVE_OFFSET] != 0 && vv2_record_eligible(record)) {
+            vv2_skip_watch = i;
+            vv2_skip_mark = *(int *)(record + VV2_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv2_story_time_skip_settled(void) {
+    unsigned char *record = vv2_skip_watch >= 0 ? vv2_skip_record(vv2_skip_watch) : NULL;
+    if (record == NULL) {
+        return 1;
+    }
+    return record[VV2_ACTIVE_OFFSET] == 0 || !vv2_record_eligible(record)
+        || *(int *)(record + VV2_TW_LAST_SEEN_OFFSET) != vv2_skip_mark;
+}
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
-        sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL
+        sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL,
+        vv2_story_time_skip_step, vv2_story_time_skip_settled
     };
     return &host;
 }
