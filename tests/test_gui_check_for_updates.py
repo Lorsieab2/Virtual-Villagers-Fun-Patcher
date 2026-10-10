@@ -158,7 +158,7 @@ class ReleasesLinkTests(unittest.TestCase):
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names", "vv_save_layout"}
+               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves

@@ -18,9 +18,11 @@ but it also recognizes the old renaming").
     Data\\Copies Made Before Repairs\\<the place>  (new copies only; older ones stay beside their
                                                   files, and nothing reads them)
 
-NOTHING IS EVER MOVED OR RENAMED, here or in the game.  A v1.35.64 preview's Repair Saves & Logs moved
-the files to their new names while A New Home was still patched by v1.35.63, whose companion then
-found "Parentage Records" empty and offered to "fill in" 69 villagers' parents.  So every file stays
+NOTHING IS MOVED OR RENAMED AUTOMATICALLY, here or in the game.  A v1.35.64 preview's Repair Saves &
+Logs moved the files to their new names while A New Home was still patched by v1.35.63, whose
+companion then found "Parentage Records" empty and offered to "fill in" 69 villagers' parents.  Only
+the player's own "Move Old Files to New Names..." in Repair Saves & Logs (src/vv_move_old_names.py)
+moves them, once every game that plays the save reads the new names.  Otherwise every file stays
 where it is, and every reader and writer (here and native/shared/save_layout.h) picks, at the point
 of use:
 
@@ -75,6 +77,23 @@ FILES = (
     (f"{DATA}\\Village Statistics", f"{DATA}\\Village Statistics",
      re.compile(r"^Villagers Counted( - Save \d+\.dat.*)$"), r"Village Roster\1"),
 )
+# The same renames read forwards, one for each line of FILES: (an older build's name, its new name).
+FILES_FORWARD = (
+    (re.compile(r"^(Virtual Villagers \d) Genealogy Edits( - Save \d+\.json)$"), r"\1 Family Tree Edits\2"),
+    (re.compile(r"^(Virtual Villagers \d) Village Roster( - Save \d+\.dat.*)$"), r"\1 Villagers at Last Save\2"),
+    (re.compile(r"^Village Roster( - Save \d+\.dat.*)$"), r"Villagers Counted\1"),
+)
+
+
+def new_file_name(index: int, name: str) -> str | None:
+    """The new name of a file named `name` in FILES[index]'s older folder, or None when it is not
+    one of that line's files (old_name of the result gives `name` back)."""
+    forward, template = FILES_FORWARD[index]
+    if not forward.match(name):
+        return None
+    new = forward.sub(template, name)
+    _old_folder, _new_folder, back, old_file = FILES[index]
+    return new if back.match(new) and back.sub(old_file, new) == name else None
 
 
 def old_name(relative: str) -> str | None:

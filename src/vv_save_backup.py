@@ -693,6 +693,9 @@ _SAVE_N = re.compile(r" - Save ([1-5])\.(?:dat|txt)(?:\.tmp|\.unreadable-[^\\/]*
 _PATCHER_FOLDERS = (
     "virtual villagers fun patcher logs",
     "virtual villagers fun patcher data",
+    # "Family Trees\Reports": "Logs\Genealogy" in older builds (src/vv_save_layout.py), restored by
+    # slot under either name alike.
+    "virtual villagers fun patcher family trees",
     "vvfp logs",
 )
 _LOG_FOLDERS = ("virtual villagers fun patcher logs", "vvfp logs")

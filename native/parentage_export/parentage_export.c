@@ -1647,6 +1647,35 @@ static int highest_log_number(const wchar_t *stem,
     return best;
 }
 
+/* The Death records an older build's "Deaths" folder holds while new records go to "Deaths and
+   Disappearances" (both folders there: native/shared/save_layout.h), so a new record's number
+   continues after the highest in EITHER folder rather than restarting at "Death 1" beside the
+   older folder's own (the owner, 2026-10-09: "recognize old and new paths/folders/files alike").
+   0 when only one folder is used.  The older folder is only read, never made or moved. */
+static int older_deaths_total(const struct game_layout *g) {
+    wchar_t root[MAX_PATH], folder[MAX_PATH], path[MAX_LOG_PATH];
+    const wchar_t *stem = family_stem(g, LOG_DEATHS);
+    int ceiling, number, total = 0;
+    if (stem == NULL || !vv_save_folder_w(root, 64)
+        || lstrcmpiW(deaths_folder(), VV_DEATHS_LOGS_DIR) != 0) {
+        return 0;               /* writing into the older folder: its records are the ones counted */
+    }
+    if (_snwprintf_s(folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) < 0
+        || vv_layout_probe_w(folder, NULL) != VV_LAYOUT_DIR) {
+        return 0;
+    }
+    ceiling = highest_log_number(stem, folder);
+    for (number = 1; number <= ceiling && number <= 4096; ++number) {
+        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folder, stem, number) < 0) {
+            continue;
+        }
+        if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+            total += count_family_records(path, LOG_DEATHS);
+        }
+    }
+    return total;
+}
+
 /* Choose the file to append to: the highest-numbered existing file that is not
    yet full, else the next one. Starts at 1 so the first log reads "... 1.txt".
 
@@ -2706,6 +2735,15 @@ static int append_record(
     if (!select_family_log_file(g, log_family_of(kind), village, path,
                                 &existing_records, !kind_is_numbered(kind))) {
         return 0;
+    }
+    if (kind == KIND_DEATH) {
+        /* With an older build's "Deaths" beside "Deaths and Disappearances", the number follows
+           the highest in EITHER folder (Death 1-5 in the old and 1-3 in the new: Death 6); the
+           record is still written where select_family_log_file chose. */
+        int older = older_deaths_total(g);
+        if (older > existing_records) {
+            existing_records = older;
+        }
     }
     if (kind == KIND_ARRIVED) {
         /* Its number: the Arrived records already written, in every file.

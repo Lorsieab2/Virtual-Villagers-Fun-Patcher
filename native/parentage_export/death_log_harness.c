@@ -517,6 +517,47 @@ int main(int argc, char **argv) {
               "Virtual Villagers %d writes the same record as Virtual Villagers 1", game);
     }
 
+    /* 9: an older build's "Deaths" beside "Deaths and Disappearances" (both played the village;
+       native/shared/save_layout.h): the new record is written in the new folder, numbered after
+       the highest in EITHER -- Death 1-5 in the old, 1-3 in the new: Death 6. */
+    printf("both Deaths folders\n");
+    {
+        char folder[MAX_PATH], path[MAX_PATH], body[2048], old_before[2048];
+        const char *const names[2] = { "Deaths", "Deaths and Disappearances" };
+        const int counts[2] = { 5, 3 };
+        int which, k, n;
+        FILE *f;
+        g = &LAYOUTS[2];
+        records = alloc_table(3);
+        villager(0, "Ana", 600, 3, 4);
+        load();
+        vv_village_publish(VILLAGE);
+        ensure_village(3, VILLAGE, records);
+        for (which = 0; which < 2; ++which) {
+            _snprintf(folder, MAX_PATH, "%s\\%s", logs, names[which]);
+            CreateDirectoryA(folder, NULL);
+            n = _snprintf(body, sizeof body, "Village: Harness Tribe (Save 1)\r\n");
+            for (k = 1; k <= counts[which]; ++k) {
+                n += _snprintf(body + n, sizeof body - n, "Death %d\r\n  Name: %s%d\r\n\r\n", k,
+                               which == 0 ? "Old" : "New", k);
+            }
+            _snprintf(path, MAX_PATH, "%s\\Virtual Villagers 3 Deaths Log 1.txt", folder);
+            f = fopen(path, "wb");
+            if (f != NULL) { fwrite(body, 1, strlen(body), f); fclose(f); }
+            if (which == 0) lstrcpyA(old_before, body);
+        }
+        CHECK(write_record(3, DEATH, rec(0), 1, UNBURIED, NULL, 1) == 1, "a death with both folders there");
+        CHECK(read_deaths(3, 1) && strstr(text, "Death 6\r\n  Name: Ana\r\n") != NULL
+              && strstr(text, "Death 4\r\n") == NULL,
+              "written in Deaths and Disappearances as Death 6, after the older folder's Death 5");
+        CHECK(read_log("Deaths", "Deaths Log", 3, 1) && strcmp(text, old_before) == 0,
+              "the older folder's log is untouched");
+        CHECK(!read_log("Deaths", "Deaths Log", 3, 2), "...and nothing new is made there");
+        FreeLibrary(dll);
+        free_table(3);
+        wipe(0);
+    }
+
     /* 8: no cause-of-death companion, no Deaths or Unaccounted log. */
     printf("without VVFP Cause of Death.dll\n");
     stand_in("VVFP Cause of Death.dll", 0);

@@ -119,6 +119,72 @@ class EveryPlaceTests(unittest.TestCase):
                          self.folder / LOGS / "Deaths and Disappearances")
 
 
+class AlikeUnderEitherNameTests(unittest.TestCase):
+    """The owner, 2026-10-09: "the patcher should recognize old and new paths/folders/files alike"."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.folder = Path(self._tmp.name)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def test_each_renamed_file_read_forwards_and_back(self) -> None:
+        for index, (old_folder, new_folder, back, old_file) in enumerate(layout.FILES):
+            for new, _old, _whole in PLACES:
+                head, _, name = new.rpartition("\\")
+                if head == new_folder and back.match(name):
+                    old = layout.old_name(new).rpartition("\\")[2]
+                    with self.subTest(file=name):
+                        self.assertEqual(layout.new_file_name(index, old), name)
+            self.assertIsNone(layout.new_file_name(index, "something else.dat"))
+        self.assertEqual(layout.new_file_name(1, "Virtual Villagers 3 Village Roster - Save 2.dat.unreadable-7"),
+                         "Virtual Villagers 3 Villagers at Last Save - Save 2.dat.unreadable-7")
+
+    def test_a_marker_under_both_names_is_cleared_under_both(self) -> None:
+        # The game reads the A New Home check marker written last; Repair Saves & Logs cleared only
+        # that one, and the other then kept the check switched off.
+        import struct
+        from datetime import datetime
+        folder = self.folder / "Virtual Villagers - A New Home - Modded"
+        marker = struct.pack("<12I", 0x31435856, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0)
+        new = folder / DATA / "Log Checks" / "Virtual Villagers 1 Cross-Check - Save 1.dat"
+        old = folder / DATA / "Cross-Check" / "Virtual Villagers 1 Cross-Check - Save 1.dat"
+        for path, when in ((new, NEW_TIME), (old, OLD_TIME)):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(marker)
+            os.utime(path, ns=(when, when))
+        (folder / "VirtualVillagers1.ldw").write_bytes(b"save")
+        self.assertEqual({p for _m, p in tools.present_markers(folder, 1, 1)}, {new, old})
+
+        class Closed:
+            def find(self, exe):
+                return []
+
+        result = tools.approve_repair(folder, 1, 1, Closed(), datetime(2026, 10, 9, 21, 0, 0), chosen=set())
+        self.assertEqual(set(result.cleared), {new, old})
+        self.assertFalse(new.exists() or old.exists())
+
+    def test_family_tree_reports_belong_to_their_save_under_either_name(self) -> None:
+        import vv_save_backup as backup
+        for top in (f"{TREES}/Reports", f"{LOGS}/Genealogy"):
+            with self.subTest(place=top):
+                relative = Path(top) / "Virtual Villagers 1 Genealogy - Save 3.txt"
+                write(self.folder / relative, "report")
+                self.assertEqual(backup.file_slot(relative, self.folder), 3)
+
+    def test_an_older_builds_tree_reports_are_not_logs(self) -> None:
+        # "Family Trees\Reports" is outside the Logs; the same reports in an older build's
+        # "Logs\Genealogy" are no more a log than they are there.
+        checker = tools.load_checker()
+        write(self.folder / LOGS / "Genealogy" / "Virtual Villagers 1 Genealogy - Save 1.txt", "  Likes: heights\n")
+        write(self.folder / TREES / "Reports" / "Virtual Villagers 1 Genealogy - Save 1.txt", "  Likes: heights\n")
+        log = self.folder / LOGS / "Births and Conceptions" / "Virtual Villagers 1 Births and Conceptions Log 1.txt"
+        write(log, "  Likes: heights\n")
+        self.assertEqual(checker.log_files(self.folder), [log])
+        self.assertEqual([f.path for f in checker.old_words(self.folder, 1)], [log])
+
+
 class OwnersFolderTests(unittest.TestCase):
     """The owner's A New Home - Modded folder on 2026-10-09, from its inventory."""
 

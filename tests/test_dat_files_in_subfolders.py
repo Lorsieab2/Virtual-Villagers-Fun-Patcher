@@ -160,6 +160,11 @@ class DatFilesInSubfolders(unittest.TestCase):
         self.assertEqual(result.stdout.count("all checks passed"), 8)
         for macro, name in FOLDER_NAMES.items():
             self.assertIn(f"<Data>\\{name}\\<name>", result.stdout)
+        # A New Home's parents in a file older still (loose, or vv1_parents_S.dat) go into "Parentage
+        # Records", which a game still patched by v1.35.63 reads too -- never into the new name (the
+        # owner, 2026-10-09: "recognize old and new paths/folders/files alike").
+        self.assertIn("b. a loose copy: the folder's path (Parentage Records)", result.stdout)
+        self.assertEqual(result.stdout.count("b. a loose copy: the folder's path (Parentage Records)"), 2)
 
 
 if __name__ == "__main__":

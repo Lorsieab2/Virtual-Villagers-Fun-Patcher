@@ -1540,6 +1540,20 @@ LOG_FOLDERS = (LOGS, "VVFP Logs")
 REPAIRS_FOLDERS = ("Repairs", layout.REPAIRS_LOGS)     # "Repairs Made"; "Repairs" in older builds
 
 
+def not_a_log(game_dir: Path, path: Path) -> bool:
+    """A file under the Logs folders that no log reader or repair touches: the Repairs logs, and the
+    Family Tree's reports an older build kept in "Logs\\Genealogy" -- the same reports are now in
+    "Family Trees\\Reports", outside the Logs, so under either name they are treated alike
+    (src/vv_save_layout.py)."""
+    if path.parent.name in REPAIRS_FOLDERS:
+        return True
+    try:
+        parts = Path(path).relative_to(game_dir).parts
+    except ValueError:
+        return False
+    return len(parts) > 2 and parts[0] in LOG_FOLDERS and parts[1].lower() == "genealogy"
+
+
 def word_key(name: str) -> str:
     """A log file's name as the Like and Dislike Words file records it: a Deaths log keeps the
     folder it was first recorded under, "Deaths" (native/shared/log_words.h vv_log_words_name)."""
@@ -1630,7 +1644,7 @@ def old_words(game_dir: Path, game: int) -> list[OldWords]:
         if not root.is_dir():
             continue
         for path in sorted(root.rglob("*.txt")):
-            if path.parent.name in REPAIRS_FOLDERS:
+            if not_a_log(game_dir, path):
                 continue
             name = word_key(str(path.relative_to(game_dir)))
             data = path.read_bytes()
@@ -1944,7 +1958,7 @@ def log_files(game_dir: Path) -> list[Path]:
     for top in LOG_FOLDERS:
         root = game_dir / top
         if root.is_dir():
-            out += [p for p in sorted(root.rglob("*.txt")) if p.parent.name not in REPAIRS_FOLDERS]
+            out += [p for p in sorted(root.rglob("*.txt")) if not not_a_log(game_dir, p)]
     return out
 
 
