@@ -90,7 +90,7 @@ static int harness_villagers(unsigned char **out, int capacity) {
 }
 
 /* A New Home's expected father: the harness's array in place of the game's,
-   and a stand-in for the Show Parents companion's Vv1ParentageQueryExpected
+   and a stand-in for the Show Parents companion's Vv1ParentageQueryExpectedFather
    that knows a conception by Rongo (head 3, body 7) for record
    g_vv1_stash_index only, and remembers the record it was asked about. */
 static int g_vv1_stash_index = 2;
@@ -100,15 +100,16 @@ static unsigned char *harness_array(void) {
     return g_array;
 }
 
-static int __stdcall stub_query_expected(int index, char *name, int capacity, int *head, int *body) {
+static int __stdcall stub_query_expected(int index, int *out, char *name, int capacity) {
     g_vv1_queried = index;
-    if (index != g_vv1_stash_index) {
-        return 0;
+    out[0] = out[1] = -1;
+    name[0] = '\0';
+    if (index == g_vv1_stash_index) {
+        lstrcpynA(name, "Rongo", capacity);
+        out[0] = 3;
+        out[1] = 7;
     }
-    lstrcpynA(name, "Rongo", capacity);
-    *head = 3;
-    *body = 7;
-    return 1;
+    return 1;                             /* as the companion: 1 for a known village, the father empty when none */
 }
 
 static unsigned char *slot(int i) {
@@ -371,8 +372,8 @@ int main(void) {
               && strstr(g_out[0].changes, "  Expected father's body: 7\n") != NULL,
               "a second conception by the same father, one baby: \"Babies in pregnancy: 1\" and the father again");
         if (g_harness_game == 1) {
-            /* 3d. A New Home with no conception recorded this session (the
-               companion answers 0): no father line, never a stale one. */
+            /* 3d. A New Home with no father recorded for her (the companion
+               answers an empty name and -1 / -1): no father line, never a stale one. */
             g_vv1_stash_index = -1;
             *(int *)(slot(2) + pregnant->offset) = 0;
             *(int *)(slot(2) + babies->offset) = 0;

@@ -224,10 +224,11 @@ static const struct field VV4_FIELDS[] = {
    record index in the Show Parents companion's Parentage Records sidecar
    (native/vv1_parentage, vv1_stash) before the event returns -- the same
    record his Births and Conceptions entry and the child's parents come from.
-   Vv1ParentageQueryExpected tells only a stash this session's conception
-   set, never one a former pregnancy left.  Without that companion (Show
-   Parents not installed) there is no record of him and no line is printed. */
-typedef int (__stdcall *vv1_query_expected_fn)(int, char *, int, int *, int *);
+   Vv1ParentageQueryExpectedFather tells the father the birth will record
+   (vv1_expected_father there), and nothing for a woman who is not carrying.
+   Without that companion (Show Parents not installed) there is no record of
+   him and no line is printed. */
+typedef int (__stdcall *vv1_query_expected_fn)(int index, int *out, char *name, int capacity);
 static vv1_query_expected_fn g_vv1_query_expected;
 static int g_vv1_query_looked;
 
@@ -239,11 +240,12 @@ static unsigned char *(*g_vv1_array)(void) = vv1_live_array;
 static int vv1_expected_father(const unsigned char *record, char *name, size_t size, int *head, int *body) {
     unsigned char *array = g_vv1_array();
     size_t span;
+    int out[2];
     if (!g_vv1_query_looked) {
         HMODULE module = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
         g_vv1_query_looked = 1;
         if (module != NULL) {
-            g_vv1_query_expected = (vv1_query_expected_fn)GetProcAddress(module, "Vv1ParentageQueryExpected");
+            g_vv1_query_expected = (vv1_query_expected_fn)GetProcAddress(module, "Vv1ParentageQueryExpectedFather");
         }
     }
     if (g_vv1_query_expected == NULL || array == NULL || record < array) {
@@ -254,11 +256,14 @@ static int vv1_expected_father(const unsigned char *record, char *name, size_t s
         return 0;
     }
     name[0] = '\0';
-    if (!g_vv1_query_expected((int)(span / 0x3D8), name, (int)size, head, body)) {
+    out[0] = out[1] = -1;
+    if (!g_vv1_query_expected((int)(span / 0x3D8), out, name, (int)size)) {
         return 0;
     }
     name[size - 1] = '\0';
-    return 1;
+    *head = out[0];
+    *body = out[1];
+    return name[0] != '\0' || out[0] >= 0 || out[1] >= 0;   /* empty and -1: no father known */
 }
 
 #define FIELDS(a) a, (int)(sizeof a / sizeof a[0])

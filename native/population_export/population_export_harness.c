@@ -22,9 +22,10 @@
      a villager with no recorded parents gets NO Parents block, rather than
        one naming "" or a pair of zeros.
 
-   VV1 is not covered here and cannot be: it stores no parents on the record
-   at all, and its block comes from a sidecar bound to a live village. That is
-   the whole reason its row is zeros. Its own tests cover that path.
+   VV1 stores no parents on the record at all; its blocks come from the
+   parentage companion's sidecar, bound to a live village.  run_vv1 below
+   covers the exporter's side of that through a stand-in companion
+   (vv1_parentage_stub.c); the companion's own harness covers the rest.
 
    It reads the HISTORY rather than the roster. Both are written by the same
    write_villager, so either proves the block; the history is the one that
@@ -408,6 +409,90 @@ static void run_game(const struct game *g, write_population_t write) {
     VirtualFree(image, 0, MEM_RELEASE);
 }
 
+/* A NEW HOME, through a stand-in parentage companion.
+
+   VV1 keeps no father on the mother's record; the roster's "Father:" block
+   comes from the parentage companion's record of the conception
+   (Vv1ParentageQueryExpectedFather).  The build script puts a stand-in
+   companion (vv1_parentage_stub.c) where the exporter looks for the real
+   one, so this reads the very text the exporter writes from what the
+   companion answers -- and that the pregnancy gate, not the companion,
+   decides whether a woman's block shows a father, exactly as in VV2-VV5. */
+#define VV1_RVA 0x8B614u
+#define VV1_STRIDE 0x3D8u
+#define VV1_SLOTS 256u
+static void vv1_villager(unsigned char *array, int i, const char *name, int age, int sex,
+                         int head, int body, int due) {
+    unsigned char *rec = array + (unsigned int)i * VV1_STRIDE;
+    rec[0x28] = 1;
+    put_name(rec, 0x370u, name, 0x1Cu);
+    put_int(rec, 0x348u, age);
+    put_int(rec, 0x350u, sex);
+    put_int(rec, 0x360u, head);
+    put_int(rec, 0x364u, body);
+    put_int(rec, 0x358u, due);
+}
+
+static void run_vv1(write_population_t write) {
+    unsigned char *image;
+    unsigned char *array;
+    char *log;
+    const char *block;
+    size_t length;
+
+    printf("== Virtual Villagers 1 (stand-in parentage companion) ==\n");
+    image = (unsigned char *)VirtualAlloc(NULL, VV1_RVA + 8 + VV1_STRIDE * VV1_SLOTS,
+                                          MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (image == NULL) { CHECK(0, "allocate a fake module"); return; }
+    array = image + VV1_RVA + 8;
+    *(unsigned char **)(image + VV1_RVA) = array;
+
+    vv1_villager(array, 0, "Bomani", 900, 1, 1, 1, 0);     /* founder */
+    vv1_villager(array, 1, "Kai", 240, 1, 13, 17, 0);      /* a child of Goro and Aisha */
+    vv1_villager(array, 2, "Nina", 688, 2, 17, 10, 600);   /* carrying, father Papago */
+    vv1_villager(array, 3, "Zea", 700, 2, 4, 5, 0);        /* not carrying */
+    vv1_villager(array, 4, "Lea", 650, 2, 3, 3, 610);      /* carrying, father not recorded */
+
+    remove_log();
+    CHECK(write(1, image, "Village: Harness (Save 1)\n") == 5, "the export writes all five villagers");
+
+    log = read_log(LOG_ROSTER);
+    if (log == NULL) {
+        CHECK(0, "the population roster was written");
+        VirtualFree(image, 0, MEM_RELEASE);
+        return;
+    }
+    block = villager_block(log, 2, &length);
+    CHECK(block_has(block, length, "Name: Kai"), "roster: the child is present");
+    CHECK(block_has(block, length, "    Father: Goro") && block_has(block, length, "    Mother: Aisha"),
+          "roster: the child's OWN parents are printed");
+    CHECK(!block_has(block, length, "  Father: Papago"), "roster: the child expects nobody");
+
+    block = villager_block(log, 3, &length);
+    CHECK(block_has(block, length, "Name: Nina"), "roster: the carrying villager is present");
+    CHECK(block_has(block, length, "  Pregnant: yes"), "roster: the carrying villager is marked pregnant");
+    CHECK(block_has(block, length, "  Father: Papago\r\n    Head: 7\r\n    Body: 0\r\n")
+          || block_has(block, length, "  Father: Papago\n    Head: 7\n    Body: 0\n"),
+          "roster: her expected father, head and body, in the later games' shape");
+
+    block = villager_block(log, 4, &length);
+    CHECK(block_has(block, length, "Name: Zea"), "roster: the non-carrying villager is present");
+    CHECK(!block_has(block, length, "Pregnant: yes"), "roster: the non-carrying villager is NOT marked pregnant");
+    CHECK(!block_has(block, length, "Father: Papago"), "roster: no father is printed for a woman not carrying");
+
+    block = villager_block(log, 5, &length);
+    CHECK(block_has(block, length, "Name: Lea"), "roster: the carrying villager with no recorded father is present");
+    CHECK(block_has(block, length, "  Pregnant: yes"), "roster: ...and marked pregnant");
+    CHECK(!block_has(block, length, "Father:"), "roster: ...with no Father block, as the later games print none for an unknown father");
+    free(log);
+
+    log = read_log(LOG_HISTORY);
+    CHECK(log != NULL && strstr(log, "Papago") == NULL, "the history never names an expected father");
+    free(log);
+    remove_log();
+    VirtualFree(image, 0, MEM_RELEASE);
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll;
@@ -430,6 +515,7 @@ int main(int argc, char **argv) {
     for (i = 0; i < sizeof GAMES / sizeof GAMES[0]; ++i) {
         run_game(&GAMES[i], write);
     }
+    run_vv1(write);
     printf("\n%d failure(s)\n", g_failures);
     return g_failures ? 1 : 0;
 }

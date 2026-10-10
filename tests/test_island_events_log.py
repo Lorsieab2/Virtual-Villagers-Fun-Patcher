@@ -123,15 +123,15 @@ class IslandEventsSource(unittest.TestCase):
     def test_a_new_home_takes_the_expected_father_from_the_show_parents_record(self):
         games = (NATIVE / "island_event_games.inc").read_text(encoding="utf-8")
         self.assertIn("FIELDS(VV1_FIELDS),\n                                              vv1_expected_father };", games)
-        self.assertIn('GetProcAddress(module, "Vv1ParentageQueryExpected")', games)
+        self.assertIn('GetProcAddress(module, "Vv1ParentageQueryExpectedFather")', games)
+        # The Show Parents companion's one expected-father export, (index, out[2], name, capacity).
+        self.assertIn("typedef int (__stdcall *vv1_query_expected_fn)(int index, int *out, char *name, int capacity);",
+                      games)
         parentage = ROOT / "native" / "vv1_parentage"
+        self.assertIn("Vv1ParentageQueryExpectedFather=_Vv1ParentageQueryExpectedFather@16",
+                      (parentage / "vv1_parentage.def").read_text(encoding="utf-8"))
         source = (parentage / "vv1_parentage.c").read_text(encoding="utf-8")
-        query = body(source, "__declspec(dllexport) int __stdcall Vv1ParentageQueryExpected(")
-        # Only a stash this session's conception set: never a former pregnancy's father.
-        self.assertIn("if (!g_session_stash[index] ||", query)
-        for name in ("vv1_parentage.def", "vv1_parentage_test.def"):
-            self.assertIn("Vv1ParentageQueryExpected=_Vv1ParentageQueryExpected@20",
-                          (parentage / name).read_text(encoding="utf-8"))
+        self.assertIn("int __stdcall Vv1ParentageQueryExpectedFather(int index, int *out, char *name,", source)
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

@@ -317,8 +317,12 @@ static void vv1_xc_prepare_fathers(int slot, const unsigned char *records);
 /* Fill child c's father from mother m's pregnancy stash, or -- when she has
    none, a fatherless delivery -- from the "Unknown" 0/0 fallback.  Never
    called for a spawn, which has no delivering mother. */
-static void vv1_set_father(int c, int m, const unsigned char *mother) {
-    vv1_parent_entry confirmed;
+/* The father of the child mother m is carrying, into out's stash fields:
+   1 when one is known, 0 when not.  The one rule both the birth
+   (vv1_set_father) and the Village Population log's expected father
+   (Vv1ParentageQueryExpectedFather) follow, so the log names exactly the man
+   the child will be born to. */
+static int vv1_expected_father(int m, const unsigned char *mother, vv1_parent_entry *out) {
     /* A stash that came from before the first-load cross-check ran may have
        drifted onto this mother from another villager.  While that check has
        not run, a pregnancy she brought into this session takes its father
@@ -326,21 +330,54 @@ static void vv1_set_father(int c, int m, const unsigned char *mother) {
        copied from -- whenever the log confirms one (vv1_crosscheck.inc); a
        birth is never logged with a drifted father.  A conception made THIS
        session set the stash itself, and is always right. */
-    if (!g_session_stash[m] && mother != NULL && vv1_xc_confirmed_father(mother, &confirmed)) {
-        g_entries[c].father_head = confirmed.stash_head;
-        g_entries[c].father_body = confirmed.stash_body;
-        memcpy(g_entries[c].father_name, confirmed.stash_name, VV1_NAME_CAPACITY);
-        return;
+    if (!g_session_stash[m] && mother != NULL && vv1_xc_confirmed_father(mother, out)) {
+        return 1;
     }
     /* The father is the one stashed against the mother at conception.  When
        she has no stash (a delivery with no captured father) the father is
        simply left blank: only the mother is recorded, as the manifest
        promises when Write Parentage Log is off. */
     if (g_entries[m].stash_head || g_entries[m].stash_body || g_entries[m].stash_name[0]) {
-        g_entries[c].father_head = g_entries[m].stash_head;
-        g_entries[c].father_body = g_entries[m].stash_body;
-        memcpy(g_entries[c].father_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
+        out->stash_head = g_entries[m].stash_head;
+        out->stash_body = g_entries[m].stash_body;
+        memcpy(out->stash_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
+        return 1;
     }
+    return 0;
+}
+
+static void vv1_set_father(int c, int m, const unsigned char *mother) {
+    vv1_parent_entry father;
+    if (vv1_expected_father(m, mother, &father)) {
+        g_entries[c].father_head = father.stash_head;
+        g_entries[c].father_body = father.stash_body;
+        memcpy(g_entries[c].father_name, father.stash_name, VV1_NAME_CAPACITY);
+    }
+}
+
+/* The expected father of the pregnancy in record `index` of `records`, for
+   the Village Population log: out[0] head and out[1] body (each -1 when not
+   known) and his name (empty when not known).  Nothing is known for a record
+   that is empty or not carrying -- the pregnancy is the gate, as in the later
+   games, where the copy on the mother outlives the birth. */
+static void vv1_expected_out(const unsigned char *records, int index, int *out,
+                             char *name, int capacity) {
+    vv1_parent_entry father;
+    const unsigned char *mother = records + (unsigned int)index * VV1_RECORD_STRIDE;
+    out[0] = -1;
+    out[1] = -1;
+    name[0] = '\0';
+    if (!mother[VV1_OCCUPIED_OFFSET] || *(const int *)(mother + VV1_DUE_OFFSET) == 0) {
+        return;
+    }
+    memset(&father, 0, sizeof(father));
+    if (!vv1_expected_father(index, mother, &father)) {
+        return;
+    }
+    out[0] = father.stash_head ? (int)father.stash_head - 1 : -1;
+    out[1] = father.stash_body ? (int)father.stash_body - 1 : -1;
+    father.stash_name[VV1_NAME_CAPACITY - 1] = '\0';
+    lstrcpynA(name, father.stash_name, capacity);
 }
 
 static unsigned char vv1_plus_one(int value) {
@@ -2140,29 +2177,22 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryNames(int index, char *fath
     return 1;
 }
 
-/* The expected father of the pregnancy the woman in record `index` carries,
-   as the conception stashed him against her THIS SESSION (Vv1ParentageConceived:
-   the father's record the conception's caller held) -- for the Island Events
-   log, which A New Home's own records cannot give it: the game keeps no trace
-   of the father on the mother.  His name into `name` (`capacity` bytes), his
-   head and body (each -1 when not recorded).  Returns 1 when such a stash is
-   there; 0 when none (no village, an index out of range, or no conception
-   this session -- a stash an earlier session left is not told, so a stale
-   one can never be printed as this pregnancy's father). */
-__declspec(dllexport) int __stdcall Vv1ParentageQueryExpected(int index, char *name, int capacity,
-                                                              int *head, int *body) {
-    const vv1_parent_entry *e;
-    if (name == NULL || capacity < 1 || head == NULL || body == NULL
+/* The expected father of the child the villager in record `index` is
+   carrying -- what VV2 to VV5 copy onto the mother at conception and A New
+   Home keeps only in this sidecar's pregnancy stash -- for the Village
+   Population log: out[0] head, out[1] body (-1 when unknown), and his name
+   into a caller buffer of `capacity` bytes (empty when unknown, and for a
+   villager who is not carrying).  The same father the birth will record
+   (vv1_expected_father).  Returns 1 when a village is identified and index
+   is in range. */
+__declspec(dllexport) int __stdcall Vv1ParentageQueryExpectedFather(int index, int *out, char *name,
+                                                                    int capacity) {
+    const unsigned char *records = vv1_records();
+    if (out == NULL || name == NULL || capacity < 1 || records == NULL
         || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync()) {
         return 0;
     }
-    e = &g_entries[index];
-    if (!g_session_stash[index] || !(e->stash_head || e->stash_body || e->stash_name[0])) {
-        return 0;
-    }
-    lstrcpynA(name, e->stash_name, capacity);
-    *head = vv1_decode(e->stash_head);
-    *body = vv1_decode(e->stash_body);
+    vv1_expected_out(records, index, out, name, capacity);
     return 1;
 }
 
@@ -2286,6 +2316,18 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeNames(int index, char *fath
     }
     lstrcpynA(father, g_entries[index].father_name, capacity);
     lstrcpynA(mother, g_entries[index].mother_name, capacity);
+    return 1;
+}
+
+/* The expected father over a caller-supplied records array, without the
+   game's globals or the file. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeExpected(const void *records, int index, int *out,
+                                                              char *name, int capacity) {
+    if (records == NULL || out == NULL || name == NULL || capacity < 1
+        || index < 0 || index >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    vv1_expected_out((const unsigned char *)records, index, out, name, capacity);
     return 1;
 }
 
