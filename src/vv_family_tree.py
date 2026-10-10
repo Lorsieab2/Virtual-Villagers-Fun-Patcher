@@ -389,7 +389,7 @@ class Edits:
     sizes: dict[str, list] = field(default_factory=dict)               # GROUPS -> [width, height] of the frame
     line_width: float = LINE_WIDTH      # every family line's weight
     line_dash: str = ""                 # LINE_TYPES: every family line's type
-    family_lines: dict[str, dict] = field(default_factory=dict)        # family key -> {"width", "dash"}
+    family_lines: dict[str, dict] = field(default_factory=dict)        # family key -> {"width", "dash", "colour"}
     mark_style: str = "border"          # MARK_STYLES
     mark_glow: float = 14.0             # how far a glow reaches
     mark_opacity: int = 100             # percent
@@ -602,6 +602,10 @@ class Edits:
                 item["width"] = _number(style["width"], *LINE_WIDTHS, LINE_WIDTH)
             if isinstance(style, dict) and style.get("dash") in LINE_TYPES:
                 item["dash"] = style["dash"]
+            # The family's lines in a colour of their own, the children's portraits keeping the family's
+            # (the owner, 2026-10-09: the Auto-colour family lines button; "lines only").
+            if isinstance(style, dict) and _colour_ok(style.get("colour")):
+                item["colour"] = style["colour"].lower()
             if item:
                 out.family_lines[str(key)] = item
         if data.get("mark_style") in MARK_STYLES:
@@ -5378,9 +5382,10 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     turn_of = {f.id: k for k, f in enumerate(lay.families)}
     for colour, points, fid, piece in lines(lay):
         key = family_key(v, fams[fid])
-        colour = scheme_colour(lay.edits, "lines", turn_of[fid] / max(1, len(turn_of)), turn_of[fid]) or colour
+        style = lay.edits.family_lines.get(key, {})
+        colour = (style.get("colour") or scheme_colour(lay.edits, "lines", turn_of[fid] / max(1, len(turn_of)), turn_of[fid])
+                  or colour)
         if f"line:{key}|{piece}" not in lay.edits.hidden:
-            style = lay.edits.family_lines.get(key, {})
             add(Line(points, colour, style.get("width", lay.edits.line_width), target=("family", key),
                      piece=f"{key}|{piece}", dash=style.get("dash", lay.edits.line_dash)))
     for pid in lay.x:

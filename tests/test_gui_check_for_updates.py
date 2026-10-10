@@ -157,7 +157,7 @@ class ReleasesLinkTests(unittest.TestCase):
         # imports only the standard library.
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
-               "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_genealogy_window", "vv_tree_editor_tools",
+               "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
@@ -186,7 +186,8 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout"}),
             ("vv_gdiplus", {"vv_family_tree"}),
-            ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_genealogy", "vv_save_backup",
+            ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),
+            ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy", "vv_save_backup",
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
                                      "vv_number_names"}),
             # Number Duplicate Names renames through Last Names.
