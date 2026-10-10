@@ -25,6 +25,9 @@
 #define VVFP_STORY_PICK_ID 4090
 /* The Custom Island Event button, beside it. */
 #define VVFP_STORY_CUSTOM_ID 4091
+/* The Choose Time Skip Amount button (4092 is The Lost Children's Pick Gong
+   of Wonder Outcome). */
+#define VVFP_STORY_TIME_SKIP_ID 4093
 
 /* What the story companion asks of the Origins companion that hosts it: the
    save slot this companion keys its own sidecars by, and its own mask store
@@ -37,6 +40,15 @@ typedef struct {
     int (__stdcall *mask_get)(void *record);           /* 0 = none, 1..5 */
     int (__stdcall *mask_set)(void *record, int mask); /* stored and persisted: 1 */
     void (__stdcall *preferences_changing)(int after); /* NULL, or bracket a likes/dislikes write */
+    /* Choose Time Skip Amount: NULL in a companion that does not offer it.
+       time_skip_step(years) runs this companion's own Time Warp advance for
+       min(years, the years one Time Warp buys at the current speed) and
+       returns the years advanced; 0 when there is no village to advance,
+       -1 when the game is paused or its speed unknown (nothing changed).
+       time_skip_settled() is 1 once the game's own villager tick has run
+       since the last step (so its catch-up has replayed that step). */
+    int (__stdcall *time_skip_step)(int years);
+    int (__stdcall *time_skip_settled)(void);
 } vvfp_story_host;
 static const vvfp_story_host *vvfp_story_host_table(void);
 
@@ -61,6 +73,8 @@ static vvfp_story_install_fn vvfp_story_arm;
 static vvfp_story_active_fn vvfp_story_active;
 static vvfp_story_pick_fn vvfp_story_pick;
 static vvfp_story_pick_fn vvfp_story_custom;
+/* Choose Time Skip Amount: NULL in a Story DLL older than that upgrade. */
+static vvfp_story_pick_fn vvfp_story_time_skip;
 static vvfp_story_attach_fn vvfp_story_attach;
 /* "Story / Cheat Upgrades cost Tech Points": NULL in a Story DLL older
    than that row (it then never charges). */
@@ -83,6 +97,7 @@ static int vvfp_story_load(void) {
     vvfp_story_active = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryActive");
     vvfp_story_pick = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryPickIslandEvent");
     vvfp_story_custom = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryCustomIslandEvent");
+    vvfp_story_time_skip = (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryChooseTimeSkip");
     vvfp_story_attach = (vvfp_story_attach_fn)GetProcAddress(module, "VvfpStoryAttachHost");
     vvfp_story_charge = (vvfp_story_charge_fn)GetProcAddress(module, "VvfpStoryCharge");
     vvfp_story_installed = (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryInstalled");
@@ -241,7 +256,77 @@ static HWND vvfp_story_button(HWND dialog, const char *text, int id, int x, int 
     return button;
 }
 
+/* Whether Choose Time Skip Amount is offered: the row is in place, the
+   Story DLL has the upgrade and this companion can advance its clock. */
+static int vvfp_story_time_skip_offered(int game) {
+    const vvfp_story_host *host = vvfp_story_host_table();
+    return vvfp_story_offered(game) && vvfp_story_time_skip != NULL && host->time_skip_step != NULL
+        && host->time_skip_settled != NULL;
+}
+
+/* Whether a story button already covers the rectangle `want`. */
+static int vvfp_story_button_overlaps(HWND dialog, const RECT *want) {
+    static const int ids[] = { VVFP_STORY_PICK_ID, VVFP_STORY_CUSTOM_ID, 4092 };
+    int i;
+    for (i = 0; i < (int)(sizeof ids / sizeof ids[0]); ++i) {
+        HWND button = GetDlgItem(dialog, ids[i]);
+        RECT rc, overlap;
+        if (button == NULL) {
+            continue;
+        }
+        GetWindowRect(button, &rc);
+        MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
+        if (IntersectRect(&overlap, &rc, want)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The Choose Time Skip Amount button: right of Cancel when that is free and
+   inside the dialog, otherwise above the Custom Island Event button. */
+static void vvfp_story_add_time_skip_button(int game, HWND dialog) {
+    HWND cancel = GetDlgItem(dialog, IDCANCEL);
+    HWND custom = GetDlgItem(dialog, VVFP_STORY_CUSTOM_ID);
+    RECT rc, unit = { 0, 0, 120, 4 }, client, want;
+    int width, gap, height;
+    char label[96];
+    if (!vvfp_story_time_skip_offered(game) || cancel == NULL
+        || GetDlgItem(dialog, VVFP_STORY_TIME_SKIP_ID) != NULL) {
+        return;
+    }
+    vvfp_story_label(game, "Choose Time Skip Amount", label, sizeof label);
+    GetWindowRect(cancel, &rc);
+    MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
+    MapDialogRect(dialog, &unit);
+    GetClientRect(dialog, &client);
+    width = unit.right;
+    gap = unit.bottom * 2;
+    height = rc.bottom - rc.top;
+    SetRect(&want, rc.right + gap, rc.top, rc.right + gap + width, rc.bottom);
+    if (want.right <= client.right - unit.bottom && !vvfp_story_button_overlaps(dialog, &want)) {
+        vvfp_story_button(dialog, label, VVFP_STORY_TIME_SKIP_ID, want.left, want.top, width, height);
+        return;
+    }
+    if (custom != NULL) {
+        GetWindowRect(custom, &rc);
+        MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
+    }
+    SetRect(&want, rc.left, rc.top - height - unit.bottom, rc.left + width, rc.top - unit.bottom);
+    while (want.top >= 0 && vvfp_story_button_overlaps(dialog, &want)) {
+        OffsetRect(&want, 0, -(height + unit.bottom));
+    }
+    vvfp_story_button(dialog, label, VVFP_STORY_TIME_SKIP_ID, want.left, want.top, width, height);
+}
+
+static void vvfp_story_add_event_buttons(int game, HWND dialog);
+
 static void vvfp_story_add_pick_button(int game, HWND dialog) {
+    vvfp_story_add_event_buttons(game, dialog);
+    vvfp_story_add_time_skip_button(game, dialog);
+}
+
+static void vvfp_story_add_event_buttons(int game, HWND dialog) {
     HWND cancel = GetDlgItem(dialog, IDCANCEL);
     RECT rc;
     RECT unit = { 0, 0, 120, 4 };
@@ -284,13 +369,23 @@ static void vvfp_story_add_pick_button(int game, HWND dialog) {
                       x, rc.top - height - unit.bottom, width, height);
 }
 
-/* The Pick Island Event or Custom Island Event button (`command`) was
-   clicked.  `blocked_reason` is the text the Island Event row would show for
+/* Whether `command` is one of the story buttons vvfp_story_pick_clicked
+   handles. */
+#define VVFP_STORY_COMMAND(command) \
+    ((command) == VVFP_STORY_PICK_ID || (command) == VVFP_STORY_CUSTOM_ID \
+     || (command) == VVFP_STORY_TIME_SKIP_ID)
+
+/* The Pick Island Event, Custom Island Event or Choose Time Skip Amount
+   button (`command`) was clicked.  `blocked_reason` is the text the Island Event row would show for
    its own lock, or NULL when it is not locked: both share that lock.
    Returns 1 when an event is now on its way (the caller closes the menu). */
 static int vvfp_story_pick_clicked(int game, HWND dialog, int command, const char *blocked_reason) {
     if (!vvfp_story_offered(game)) {
         return 0;
+    }
+    if (command == VVFP_STORY_TIME_SKIP_ID) {
+        /* Not an island event: the Island Event row's lock does not apply. */
+        return vvfp_story_time_skip_offered(game) && vvfp_story_time_skip(game, dialog) == 1;
     }
     if (blocked_reason != NULL) {
         MessageBoxA(dialog, blocked_reason, "Not right now", MB_OK | MB_ICONINFORMATION);

@@ -365,3 +365,16 @@ BEGIN
     DEFPUSHBUTTON "OK", 1, 296, 274, 64, 15
     PUSHBUTTON  "Cancel", 2, 368, 274, 64, 15
 END
+
+311 DIALOGEX 0, 0, 260, 108
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Choose Time Skip Amount"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "How many years to skip? (1-72)", -1, 8, 10, 120, 10
+    EDITTEXT    3301, 132, 8, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "years", -1, 176, 10, 40, 10
+    LTEXT       "", 3302, 8, 28, 244, 50
+    DEFPUSHBUTTON "OK", 1, 120, 86, 64, 15
+    PUSHBUTTON  "Cancel", 2, 188, 86, 64, 15
+END
