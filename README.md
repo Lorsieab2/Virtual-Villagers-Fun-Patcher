@@ -30,6 +30,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **Other Members** (villagers with no family in the tree) sit in a grid of 1-6 columns, on the left or the right.
 - **5 new portrait shapes: Feather, Coral, Sea fan, Brain coral and Beetle** (54 in all).
 - **Repair Saves & Logs: Move Old Files to New Names...** moves a save folder's files from the names an older patcher used to the new ones, when you ask and only once every game playing that save is patched with v1.35.64 or newer; old and new names are otherwise read alike everywhere (an A New Home parents file older still now goes into Parentage Records, which every version reads).
+- **Deaths log numbers:** when a save has both the older Deaths folder and Deaths and Disappearances, a new death's number follows the highest in either, so two deaths never share a number. **Patch every game again** after updating: the shared logs patch and A New Home's parents patch changed.
 
 
 ## What was new in v1.35.64
