@@ -82,3 +82,10 @@ EXPORTS
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
+    VvfpStoryProbeQueueFile=_VvfpStoryProbeQueueFile@8
+    VvfpStoryProbeQueueSession=_VvfpStoryProbeQueueSession@16
+    VvfpStoryProbeQueueSaved=_VvfpStoryProbeQueueSaved@0
+    VvfpStoryProbeQueueState=_VvfpStoryProbeQueueState@4
+    VvfpStoryProbeQueueLazy=_VvfpStoryProbeQueueLazy@4
+    VvfpStoryProbeQueueLayout=_VvfpStoryProbeQueueLayout@4
+    VvfpStoryProbeQueueRestored=_VvfpStoryProbeQueueRestored@0

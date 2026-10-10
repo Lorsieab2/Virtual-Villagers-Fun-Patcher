@@ -289,7 +289,10 @@ static int ce_last_outcome = -1;
    lapses with time (the owner, 2026-10-06): it waits until the game runs
    an island event, however long that takes.  Returns 1 when one was
    dropped. */
+static void sq_lazy(void);
+
 static int ce_drop_lapsed(void) {
+    sq_lazy();                      /* a queued purchase kept across a quit (story_queue.inc) */
     if (ce_armed && !story_village_is(ce_armed_event.game, &ce_armed_village)) {
         /* Another village: the event was for the one the player left. */
         ce_armed = 0;

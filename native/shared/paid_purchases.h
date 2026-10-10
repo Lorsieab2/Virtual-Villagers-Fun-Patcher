@@ -113,10 +113,14 @@ static int vv_paid_save_folder(char *out) {
 }
 #endif
 
-/* The slot's file; `make` creates the folders on the way. */
-static int vv_paid_path(int game, int slot, char *out, int make) {
+/* "<save folder>\Virtual Villagers Fun Patcher Data\Paid Purchases\
+   Virtual Villagers <game> <what> - Save <slot>.dat"; `make` creates the
+   folders on the way.  <what> is "Paid Purchases" (the Origins barrel) or
+   "Story Purchases" (the Story / Cheat Upgrades' queued purchases). */
+static int vv_paid_named_path(int game, int slot, const char *what, char *out, int make) {
     char folder[MAX_PATH];
-    if (game < 1 || game > 5 || slot < 1 || slot > 5 || !VV_PAID_SAVE_FOLDER(folder)) {
+    if (game < 1 || game > 5 || slot < 1 || slot > 5 || what == NULL || !VV_PAID_SAVE_FOLDER(folder)
+        || lstrlenA(folder) + lstrlenA(what) + 140 >= MAX_PATH) {
         return 0;
     }
     if (make) {
@@ -130,25 +134,65 @@ static int vv_paid_path(int game, int slot, char *out, int make) {
     if (make) {
         CreateDirectoryA(out, NULL);
     }
-    wsprintfA(out, "%s\\" VV_PAID_FOLDER "\\" VV_PAID_SUB "\\Virtual Villagers %d Paid Purchases - Save %d.dat",
-              folder, game, slot);
+    wsprintfA(out, "%s\\" VV_PAID_FOLDER "\\" VV_PAID_SUB "\\Virtual Villagers %d %s - Save %d.dat",
+              folder, game, what, slot);
     return 1;
 }
 
-/* When the slot's save was last written; 0 when it cannot be told. */
-static int vv_paid_save_time(const vv_paid_game *g, int slot, FILETIME *out) {
+/* When "<stem><slot>.ldw" in the save folder was last written; 0 when it
+   cannot be told. */
+static int vv_paid_stem_time(const char *stem, int slot, FILETIME *out) {
     char folder[MAX_PATH];
     char path[MAX_PATH];
     WIN32_FILE_ATTRIBUTE_DATA data;
-    if (!VV_PAID_SAVE_FOLDER(folder) || lstrlenA(folder) + lstrlenA(g->save_stem) + 16 >= MAX_PATH) {
+    if (!VV_PAID_SAVE_FOLDER(folder) || lstrlenA(folder) + lstrlenA(stem) + 16 >= MAX_PATH) {
         return 0;
     }
-    wsprintfA(path, "%s\\%s%d.ldw", folder, g->save_stem, slot);
+    wsprintfA(path, "%s\\%s%d.ldw", folder, stem, slot);
     if (!GetFileAttributesExA(path, GetFileExInfoStandard, &data)) {
         return 0;
     }
     *out = data.ftLastWriteTime;
     return 1;
+}
+
+/* `count` parts written to `path` through "<path>.tmp", flushed and moved
+   over it: the published file is never left half written.  1 on success. */
+static int vv_paid_write_parts(const char *path, const void *const *parts, const DWORD *sizes, int count) {
+    char tmp[MAX_PATH + 8];
+    HANDLE h;
+    DWORD wrote;
+    BOOL ok = TRUE;
+    int i;
+    if (lstrlenA(path) + 5 >= MAX_PATH + 8) {
+        return 0;
+    }
+    wsprintfA(tmp, "%s.tmp", path);
+    h = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    for (i = 0; ok && i < count; ++i) {
+        wrote = 0;
+        ok = WriteFile(h, parts[i], sizes[i], &wrote, NULL) && wrote == sizes[i];
+    }
+    ok = ok && FlushFileBuffers(h);
+    CloseHandle(h);
+    if (!ok || !MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);
+        return 0;
+    }
+    return 1;
+}
+
+/* The slot's file; `make` creates the folders on the way. */
+static int vv_paid_path(int game, int slot, char *out, int make) {
+    return vv_paid_named_path(game, slot, "Paid Purchases", out, make);
+}
+
+/* When the slot's save was last written; 0 when it cannot be told. */
+static int vv_paid_save_time(const vv_paid_game *g, int slot, FILETIME *out) {
+    return vv_paid_stem_time(g->save_stem, slot, out);
 }
 
 /* 1 read and well formed for game/slot, 0 absent or malformed, -1 present but

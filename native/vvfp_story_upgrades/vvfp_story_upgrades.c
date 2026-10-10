@@ -243,7 +243,14 @@ static int can_fire_with_retries(void *object) {
    the next chooser says so.  Returns 1 when a pick was dropped. */
 static int last_failed_lapsed;
 
+/* A queued purchase kept across a quit is put back first (story_queue.inc). */
+static void sq_lazy(void);
+static int sq_game;
+static void sq_village_reset(int game, int slot);
+static void sq_tick(int game);
+
 static int drop_lapsed_pick(void) {
+    sq_lazy();
     if (pick_slot >= 0 && !story_village_is(pick_game, &pick_village)) {
         /* Another village: the pick was for the one the player left. */
         pick_slot = -1;
@@ -796,6 +803,7 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     if (!VvfpStoryArm(game)) {
         return 0;
     }
+    sq_game = game;             /* the game the selectors' restore is for, from the first call (story_queue.inc) */
     /* Choose Time Skip Amount: its next step, once the last is replayed. */
     time_skip_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
@@ -803,6 +811,7 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     now = GetTickCount();
     if (now - last_tick >= TICK_MS) {
         last_tick = now;
+        sq_tick(game);              /* queued purchases kept across a quit (story_queue.inc) */
         titles_tick(game);
     }
     return 1;
@@ -907,9 +916,8 @@ static int arm_pick(int game, const story_event *event) {
    deletes a tribe or starts over: the village a queued event was for is
    gone (or replaced in the same slot), so every queued event is discarded. */
 __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
-    (void)game;
-    (void)slot;
     ++story_village_generation;
+    sq_village_reset(game, slot);   /* its queue's file goes with it */
 }
 
 /* The Pick Island Event upgrade, called by the Origins companion when its
@@ -1014,6 +1022,7 @@ __declspec(dllexport) int __stdcall VvfpStoryPickPending(int game) {
 
 #include "story_custom_ui.inc"
 #include "story_time_skip.inc"
+#include "story_queue.inc"      /* queued purchases kept across a quit */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
