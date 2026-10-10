@@ -371,26 +371,24 @@ def _dated_inserts(kind: Kind, rank_name: str, label: str, value: str, key: str,
                                    question=key, by_answer=answers))
 
 
-AMBIGUOUS = object()
-
-
 def _persons(current: dict) -> dict:
-    """Each current villager by name, likes and dislikes; AMBIGUOUS when two share them."""
-    out: dict = {}
-    for identity, now in current.items():
-        key = now.person
-        if key is not None:
-            out[key] = AMBIGUOUS if key in out else identity
-    return out
+    """Each current villager's (name, likes, dislikes), by identity."""
+    return {identity: now.person for identity, now in current.items() if now.person is not None}
 
 
 def _now_of(b: Block, current: dict, persons: dict) -> tuple | None:
     """The current villager (an identity of `current`) a record is of: by identity, else by
-    name, likes and dislikes when exactly one current villager has them."""
+    name, likes and dislikes when exactly one current villager has them.  Likes and dislikes agree
+    as vv_log_tools.preferences_agree says: an older snapshot's one word (the first filled slot) is
+    the first of the full list a v1.35.68 page prints."""
     if b.identity in current:
         return b.identity
-    found = persons.get(b.person) if b.person is not None else None
-    return found if found is not None and found is not AMBIGUOUS else None
+    if b.person is None:
+        return None
+    name, likes, dislikes = b.person
+    found = [identity for identity, (n, l, d) in persons.items()
+             if n == name and tools.preferences_agree(likes, l) and tools.preferences_agree(dislikes, d)]
+    return found[0] if len(found) == 1 else None
 
 
 def plan_custom_titles(folder: Path, slot: int, people: list[Block], current: dict) -> Kind:

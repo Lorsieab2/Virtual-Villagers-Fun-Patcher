@@ -454,6 +454,36 @@ def approve_repair(
 
 
 # ---------------------------------------------------------------------------
+# A "Likes:" / "Dislikes:" line's value, old and new (v1.35.68)
+# ---------------------------------------------------------------------------
+# Since v1.35.68 the Village History and Village Population list EVERY filled slot, in slot order,
+# ", " between them ("herbs, crowds"), as the game's own Details panel does and the Island Events log
+# already did.  Older snapshots, and the Births, Arrived and Deaths records, print one word: the
+# first filled slot.  So a one-word value is what a full list's FIRST word would have printed, and
+# the two agree.  No word of any game's list holds a comma.
+
+def preference_words(value: str | None) -> tuple[str, ...]:
+    """The words of a Likes / Dislikes value, in order; () for none ("(none)", "", missing)."""
+    if value is None:
+        return ()
+    value = value.strip()
+    if value in ("", "(none)", "(unknown)"):
+        return ()
+    return tuple(w.strip() for w in value.split(",") if w.strip())
+
+
+def preferences_agree(a: str | None, b: str | None) -> bool:
+    """Two Likes (or two Dislikes) values are of the same villager: the same words, or one of them a
+    single word (an older one-word line, the first filled slot) that is the other's first."""
+    wa, wb = preference_words(a), preference_words(b)
+    if wa == wb:
+        return True
+    if len(wa) == 1 and wb and wb[0] == wa[0]:
+        return True
+    return len(wb) == 1 and bool(wa) and wa[0] == wb[0]
+
+
+# ---------------------------------------------------------------------------
 # Repair Saves & Logs: the old like / dislike words (v1.35.61)
 # ---------------------------------------------------------------------------
 

@@ -33,7 +33,7 @@ pregnancy lines (owner rule: the History is descent only).
 | Faction | n/a (feature: Heathens are VV5 only) | n/a | n/a | n/a | yes |
 | Nursing / Babies nursing (Population only) | yes | yes | yes | yes | yes |
 | Father of the child she carries, head, body (Population only) | yes (Show Parents sidecar) | yes (record) | yes | yes | yes |
-| Likes, Dislikes (first filled; the game's own list) | yes (47) | yes (62) | yes (79, alchemy/potions) | yes (79) | yes (79) |
+| Likes, Dislikes (every filled slot, ", " between, as the Details panel lists them; the game's own list) | yes (47; 4 slots) | yes (62; 62 slots) | yes (79, alchemy/potions; 3 slots) | yes (79; 3 slots) | yes (79; 3 slots) |
 | Parents: Father/Mother with head and body | yes (Show Parents sidecar) | yes (record) | yes | yes | yes |
 | Skills (the game's own names and order) | yes (5) | yes (5) | yes (5) | yes (5) | yes (6, Devotion) |
 

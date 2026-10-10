@@ -184,12 +184,15 @@ static int preference_name(
     return 1;
 }
 
-/* The first filled entry of a preference array, or 0 when every slot is empty.
+/* Every filled entry of a preference array, in slot order, ", " between them
+   -- the game's own Details panel lists them all ("green, crowds"), and so
+   does the Island Events log (VillagePreferenceListText, the same words and
+   the same separator).  0 when every slot is empty.
 
    Empty is -1 OR an index past the end of the list; both appear in real
-   villages. Scanning for the first filled slot rather than reading slot 0 is
-   what matches the game's own Details panel. */
-static int first_preference(
+   villages, and an empty slot between two filled ones is skipped, not
+   printed.  A list that would not fit `out` stops at the last whole word. */
+static int preference_list_text(
     const unsigned char *record,
     unsigned int base,
     unsigned int slots,
@@ -198,19 +201,33 @@ static int first_preference(
     size_t out_size
 ) {
     unsigned int slot;
+    size_t used = 0;
+    if (out_size == 0) {
+        return 0;
+    }
+    out[0] = '\0';
     if (base == 0u || list == NULL) {
         return 0;
     }
     for (slot = 0; slot < slots; ++slot) {
+        char word[64];
+        size_t length;
         int value = *(const int *)(record + base + slot * 4u);
-        if (value < 0) {
+        if (value < 0 || !preference_name(list, value, word, sizeof word)) {
             continue;
         }
-        if (preference_name(list, value, out, out_size)) {
-            return 1;
+        length = strlen(word);
+        if (used + (used ? 2u : 0u) + length + 1u > out_size) {
+            break;
         }
+        if (used) {
+            out[used++] = ',';
+            out[used++] = ' ';
+        }
+        memcpy(out + used, word, length + 1u);
+        used += length;
     }
-    return 0;
+    return used != 0;
 }
 
 /* Per-game record geometry.
@@ -307,11 +324,13 @@ struct game_layout {
        reads -1 or a value at or past the end of the list; both markers occur
        in real villages and mean the same thing.
 
-       The game's Details panel shows the FIRST FILLED entry of each array, so
-       that is what this reports. Two villagers made that structure visible:
-       one whose first dislike slot was empty and whose second held the value
-       the panel displayed, and one whose three dislike slots were all empty
-       and whose panel line was blank.
+       The game's Details panel lists EVERY filled entry of each array, in
+       slot order, so that is what this reports (seen live on v1.35.68: The
+       Tree of Life's Mahi Chuchip and New Believers' Dado, "herbs, crowds",
+       which the old first-entry-only line printed as "herbs").  An empty slot
+       is skipped wherever it sits: one villager's first dislike slot was
+       empty and the panel showed the second's; one with all three empty had
+       a blank panel line.
 
        Zero when the offsets are not established for a game. */
     /* Pregnancy, where the field is measured. Both are 0 for a game whose
@@ -1157,16 +1176,18 @@ static int write_villager(
        Printed only when a preference is actually present. A villager with no
        like recorded gets no Likes line at all, rather than a line saying
        "none" -- the game's own panel leaves it blank, and an empty line in a
-       roster reads as a value rather than an absence. */
+       roster reads as a value rather than an absence.  Every filled slot is
+       listed, as the panel lists them (logs older than v1.35.68 printed only
+       the first; every reader takes both). */
     if (g->likes != 0u) {
         const char *list = g->preference_list;
-        char preference[64];
-        if (first_preference(record, g->likes, g->preference_slots, list,
-                             preference, sizeof(preference))) {
+        char preference[1024];
+        if (preference_list_text(record, g->likes, g->preference_slots, list,
+                                 preference, sizeof(preference))) {
             if (fprintf(file, "  Likes: %s\n", preference) < 0) return 0;
         }
-        if (first_preference(record, g->dislikes, g->preference_slots, list,
-                             preference, sizeof(preference))) {
+        if (preference_list_text(record, g->dislikes, g->preference_slots, list,
+                                 preference, sizeof(preference))) {
             if (fprintf(file, "  Dislikes: %s\n", preference) < 0) return 0;
         }
     }
