@@ -1648,7 +1648,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         spans = ft.page_spans(self.edits, self.village)
         names = [f"{k + 1} of {len(spans)}: generation {gen.roman(lo)}" + (f" to {gen.roman(hi)}" if hi != lo else "")
                  for k, (lo, hi) in enumerate(spans)]
-        self.page_box.configure(values=names)
+        # As wide as the longest name: at 22 letters "2 of 2: generation VI to VII" was cut to
+        # "... VI to VI" (the owner, 2026-10-10).
+        self.page_box.configure(values=names, width=max(22, max(len(n) for n in names) + 2))
         self.page_var.set(names[self.page])
         if hasattr(self, "pages_label"):
             self.pages_label.set("Pages: " + ";  ".join(names))

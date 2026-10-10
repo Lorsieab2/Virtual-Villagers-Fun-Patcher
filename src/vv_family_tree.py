@@ -1841,6 +1841,19 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             label_left += nudge
         move += nudge
     width = max([width] + [x[q] + NODE_W / 2 + reach[q][1] + PAGE_MARGIN for q in x])
+    # The generation labels' column as wide as its widest label (label_box: a long line, a large font):
+    # the tree -- and the Other Members on its right -- moved right by as much as a plate is wider than
+    # the usual 228, so no label runs into a portrait.  (Packed families draws no labels.)
+    labels = label_boxes(village, edits, x) if cl is None else {}
+    wider = max([0.0] + [b.width - LABEL_PLATE_W for b in labels.values()])
+    if wider:
+        on_left = set(others) if edits.others_side == "left" else set()
+        for q in x:
+            if q not in on_left:
+                x[q] += wider
+        if others and edits.others_side != "left":
+            others_left += wider
+        width += wider
     # One lane per family (the owner: "spread the lines connecting parents to children a bit more
     # vertically"): every family whose children are in a row has a line of its own between that
     # row and the one above, shared only with families whose lines do not overlap it; the gap
@@ -1876,6 +1889,13 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     if columns > 1:                     # a generation's band is as tall as its Other Members' grid
         for g, n in grid_rows.items():
             bands[g] = max(bands[g], n * NODE_H + (n - 1) * grid_gap)
+    # A generation's band at least as tall as its label (label_box), from where the label starts -- the
+    # top of its tallest frame, which stands in the middle of its place -- so a label of many lines or a
+    # large font never reaches the next generation's label or portraits.
+    for g, box in labels.items():
+        tallest = max([frame_size(edits, village, people[q], shrink=shrink_now)[1]
+                       for q in in_tree if people[q].generation == g], default=NODE_H)
+        bands[g] = max(bands[g], max(0.0, (NODE_H - tallest) / 2) + box.bottom)
     tops: dict[int, float] = {}
     others_top: dict[int, float] = {}   # Packed families: where each generation's Other Members start
     row_keys: dict[int, tuple] = {}
@@ -4255,11 +4275,70 @@ def default_label_parts(lay: Layout, g: int) -> dict[str, str]:
     alive = sum(p.alive for p in people)
     # Every row is "Generation <n>", the first too (the owner: "Just use Generation 1.  Players can type
     # FOUNDERS if they want to").
+    # One of each is said so ("1 male", not "1 males"; the owner, 2026-10-10).
     out = {"number": f"{generation_number(lay, g)}.", "name": f"Generation {g}",
-           "total": f"{len(people)} total: {women} females, {men} males", "living": f"{alive} living"}
+           "total": f"{len(people)} total: {women} female{'' if women == 1 else 's'}, "
+                    f"{men} male{'' if men == 1 else 's'}",
+           "living": f"{alive} living"}
     if upcoming:
         out["upcoming"] = f"{upcoming} upcoming"
     return out
+
+
+LABEL_PLATE_W = 228                     # a generation label's plate as wide as it always was, at least
+LABEL_PLATE_TOP = 6                     # the plate's top under the generation's top
+LABEL_TEXT_X = 24                       # the words' left, past the label column's left (12 inside the plate)
+LABEL_PAD = 10                          # under the label's last line, inside its plate
+
+
+@dataclass
+class LabelBox:
+    """Where a generation label's lines go and how big its plate is, from the generation's top and the
+    label column's left: each line's baseline (before a superscript or subscript moves it) and its size
+    as the tree first draws it (the player's font size is put on after, by _apply_styles), the plate's
+    width and how far down its bottom reaches."""
+    baselines: list[float]
+    sizes: list[float]
+    width: float
+    bottom: float
+
+    @property
+    def line_x(self) -> float:
+        """The label's upright line, just past its plate (250 for a plate of the usual width)."""
+        return 12 + self.width + 10
+
+
+def label_box(edits: Edits, lines: list[str]) -> LabelBox:
+    """A generation label's place, as big as every line it shows (the owner, 2026-10-10: the "2 upcoming"
+    line was drawn below its box): its lines as far apart as their font size makes them, its plate as
+    tall as the last line's bottom and as wide as the widest line -- at the player's font, size, bold,
+    italic and superscript or subscript ("labels" in Edits.styles).  The usual label at the usual size
+    is where it always was: baselines 40, 62, 84 ... under the top, a 228-wide plate."""
+    style = edits.styles.get("labels", {})
+    scale = style.get("scale", 100) / 100
+    shrink, shift = SCRIPTS.get(style.get("script"), (1.0, 0.0))
+    font = style.get("font") or edits.font
+    italic = bool(style.get("italic", False))
+    sizes = [18.0 if k == 0 else 14.0 for k in range(len(lines))]
+    first = 22 + 18 * scale
+    baselines = [first + 22 * scale * k for k in range(len(lines))]
+    bottom = 0.0
+    widest = 0.0
+    for k, (text, size, base) in enumerate(zip(lines, sizes, baselines)):
+        drawn = size * scale * shrink
+        bottom = max(bottom, base + size * scale * shift + drawn * 0.3)
+        widest = max(widest, text_width(text, drawn, bool(style.get("bold", k == 0)), font, italic))
+    return LabelBox(baselines, sizes, max(float(LABEL_PLATE_W), widest + 2 * 12),
+                    bottom + LABEL_PAD if lines else 0.0)
+
+
+def label_boxes(village: gen.Village, edits: Edits, shown) -> dict[int, LabelBox]:
+    """Every generation label a page draws (`shown`: the villagers on the page), as label_box sizes it --
+    for the layout to keep room for (a generation whose label the player deleted keeps none)."""
+    probe = Layout(village, {}, dict.fromkeys(shown, 0.0), {}, [], [], 0.0, 0.0, 0.0, edits=edits)
+    gens = sorted({village.people[q].generation for q in shown})
+    return {g: label_box(edits, generation_label(probe, g)) for g in gens
+            if f"word:label{g}" not in edits.hidden}
 
 
 def title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
@@ -6162,23 +6241,30 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         kx += 50 + 8 * len(label)
     # Packed families has no generation rows -- a generation's portraits stand at many heights, among
     # other generations' -- so a label beside any of them would name the others too: no labels there.
+    # Every plate on the page as wide as the widest label needs (one column, its lines in one line).
+    column = max([float(LABEL_PLATE_W)] + [b.width for b in label_boxes(v, lay.edits, lay.x).values()])
     for g in sorted({v.people[q].generation for q in lay.x}) if lay.edits.positioning != "packed_families" else []:
         # Beside the generation's portraits as drawn, wherever they are (the owner: "so they're
         # actually accurate"); its rows' place when it has none drawn.
         members = [q for q in lay.x if v.people[q].generation == g and q not in lay.others]
         ys = [py for q in members for _px, py in lay.frame_points(q)]
         top, bottom = (min(ys), max(ys)) if ys else (lay.tops[g], lay.tops[g] + lay.bands.get(g, NODE_H))
-        y0 = top
         reach = lay.edits.label_line_reach
         lx = lay.label_left
+        parts = label_lines(lay, g)
+        box = replace(label_box(lay.edits, [text for _part, text in parts]), width=column)
+        # The plate and its line as tall as the portraits beside it, and taller when the label's lines
+        # need it (the layout keeps the room for that: label_boxes).
+        plate_bottom = max(bottom - LABEL_PLATE_TOP, top + box.bottom)
         if plate:
-            add(Shape("rect", lx + 12, top + 6, 228, bottom - top - 12, plate_colour, width=0,
-                      fill=plate_colour, move=f"label{g}", radius=12, target=("plate",)))
-        for k, (part, text) in enumerate(label_lines(lay, g)):
-            add(Text(lx + 24, y0 + 40 + k * 22, text, 18 if k == 0 else 14, ink, bold=k == 0, role="labels",
+            add(Shape("rect", lx + 12, top + LABEL_PLATE_TOP, box.width, plate_bottom - top - LABEL_PLATE_TOP,
+                      plate_colour, width=0, fill=plate_colour, move=f"label{g}", radius=12, target=("plate",)))
+        for k, (part, text) in enumerate(parts):
+            add(Text(lx + LABEL_TEXT_X, top + box.baselines[k], text, box.sizes[k], ink, bold=k == 0, role="labels",
                      move=f"label{g}", part=f"{g}|{part}", edit=f"label:{g}"))
-        add(Line([(lx + 250, top - reach), (lx + 250, bottom + reach)], ink, lay.edits.label_line_width,
-                 target=("ink",), move=f"label{g}"))
+        line_bottom = max(bottom, plate_bottom + LABEL_PLATE_TOP)
+        add(Line([(lx + box.line_x, top - reach), (lx + box.line_x, line_bottom + reach)], ink,
+                 lay.edits.label_line_width, target=("ink",), move=f"label{g}"))
     if lay.others:
         # Off to the right, level with the tree's heading (the owner).
         add(Text(lay.others_left, 48, words(lay, "others"), 24, ink, bold=True, role="others", move="others",
