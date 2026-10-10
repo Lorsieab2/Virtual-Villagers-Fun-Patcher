@@ -212,6 +212,28 @@ static void arrival_write(int index) {
     cod_write(LOG_ARRIVED, record, 1, before, after, 2);
 }
 
+/* New Believers: a believer the tick saw become a Heathen -- The Mask's
+   "...and is a believer no more" (string 0xA41B8), the Custom Island Event's
+   "Becomes a Heathen", any path -- leaves the tribe (the owner: a Heathen is
+   never a villager), the mirror of "Converted from the Heathens": a
+   "Disappeared" record in the Deaths and Disappearances log, "Left the
+   tribe: became a Heathen".  The record is still theirs and still in the
+   Village Roster (Heathens are kept there too), so no departure is reported
+   to the reconciliation -- which would make the next save call them an
+   unaccounted arrival -- and they are never Unaccounted.  An Arrived record
+   not yet written is written first, so the two read in order.  Converted
+   back, the tick writes their Arrived record as for any Heathen. */
+static void arrival_left_for_the_heathens(int index, const unsigned char *record) {
+    char before[256];
+    if (arrivals[index].state != ARRIVAL_NONE) {
+        arrival_departed(index);
+    }
+    wsprintfA(before, "  Age: %d\n  Sex: %s\n  What happened: Left the tribe: became a Heathen\n",
+              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
+    COD_COUNT(left_tribe);
+    cod_write(LOG_DISAPPEARED, record, 1, before, NULL, 1);
+}
+
 /* Every frame: decide what was made, and see New Believers' conversions. */
 static void arrival_tick(void) {
     unsigned char *records = cod_records();
@@ -236,6 +258,9 @@ static void arrival_tick(void) {
         }
         heathen = arrival_heathen(record);
         former_tick(i, record, heathen, faction_seen[i]);
+        if (faction_seen[i] == 0 && heathen) {
+            arrival_left_for_the_heathens(i, record);
+        }
         if (faction_seen[i] == 1 && !heathen && arrivals[i].state == ARRIVAL_NONE) {
             arrivals[i].tag = report_tag();
             arrivals[i].state = ARRIVAL_PENDING;

@@ -56,7 +56,9 @@ SLOT_FN = 0x0C200100
 DEATH, DISAPPEARED, EPITAPH, UNACCOUNTED = 2, 3, 4, 5
 NO_GRAVE = "no grave (never buried: the game removed the body)"
 STAT_NAMES = ("deaths", "unhooked", "burials", "graves_set", "draws", "logged", "published",
-              "departed", "arrived", "unaccounted")
+              "departed", "arrived", "unaccounted", "armed", "backfilled", "arrivals", "arrivals_backfilled",
+              "births_backfilled", "left_tribe")
+ARRIVED = 6
 
 
 def manifest(game: str) -> dict:
@@ -1748,6 +1750,78 @@ class CustomIslandEventDisappearsEveryGame(unittest.TestCase):
         body = source[source.index("static int c4_vanish(int index)"):]
         body = body[:body.index("\n}\n")]
         self.assertLess(body.index("TC2(0x46AF00u, r + 0x1C34, 0, -1);"), body.index("r[0x1CC4] = 0;"))
+
+
+@unittest.skipUnless(STOCK["vv5"].is_file(), STOCK_ABSENT)
+@unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+class NewBelieversLeaveForTheHeathens(unittest.TestCase):
+    """The owner: a believer who goes over to the Heathens (The Mask's
+    "...and is a believer no more", the Custom Island Event's "Becomes a
+    Heathen") leaves the tribe -- a Disappeared record, "Left the tribe:
+    became a Heathen", mirroring the Arrived "Converted from the Heathens".
+    Never Unaccounted, never logged twice, and converting back still writes
+    the Arrived record."""
+
+    SAVE = 0x4245FF
+    FACTION = 0x1CEC
+
+    def test_a_believer_who_becomes_a_heathen_leaves_the_tribe_once(self):
+        for mode in MODES:
+            g = Game("vv5", rendered("vv5", mode, True), 1)
+            w = Later(g)
+            self.assertEqual(g.install(), 1)
+            leaver = w.villager(4, "Leaver", 900, 80)
+            w.villager(5, "Stay", 800, 80)
+            heathen = w.villager(6, "Pagan", 700, 80)
+            g.p.write(heathen + self.FACTION, b"\x01")         # a Heathen from the first sight: nothing
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)                  # the roster the next save reconciles against
+            g.p.write(leaver + self.FACTION, b"\x01")          # The Mask, result A / "Becomes a Heathen"
+            g.tick()
+            g.tick()
+            gone = g.of_kind(DISAPPEARED)
+            self.assertEqual([(e["record"], e["Age"], e["Sex"], e["What happened"]) for e in gone],
+                             [(leaver, "900", "Male", "Left the tribe: became a Heathen")], mode)
+            self.assertEqual(gone[0]["check"], 1, mode)
+            self.assertEqual(g.stats()["left_tribe"], 1, mode)
+            self.assertEqual(g.stats()["departed"], 0, mode)   # still a record of the roster
+            g.saved_epilogue(self.SAVE, 1, 1)
+            g.tick()
+            self.assertEqual(g.of_kind(UNACCOUNTED), [], mode)
+            self.assertEqual(len(g.of_kind(DISAPPEARED)), 1, mode)
+            # Converted back: the Arrived record, as for any Heathen.
+            g.p.write(leaver + self.FACTION, b"\x00")
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)
+            arrived = g.of_kind(ARRIVED)
+            self.assertEqual([(e["record"], e["How"]) for e in arrived],
+                             [(leaver, "Converted from the Heathens")], mode)
+            self.assertEqual(g.of_kind(UNACCOUNTED), [], mode)
+            self.assertEqual(len(g.of_kind(DISAPPEARED)), 1, mode)
+
+    def test_an_arrival_not_yet_written_is_written_before_the_leaving(self):
+        g = Game("vv5", rendered("vv5", "stock", True), 1)
+        w = Later(g)
+        self.assertEqual(g.install(), 1)
+        g.tick()
+        g.saved_epilogue(self.SAVE, 1, 1)
+        r = w.villager(7, "Newcomer", 500, 90)
+        g.run(0x468411, 0x46841A, esi=r, ebx=0)                # the creator: an arrival
+        g.tick()
+        g.p.write(r + self.FACTION, b"\x01")
+        g.tick()
+        kinds = [(e["kind"], e["record"]) for e in g.logged if e["kind"] in (ARRIVED, DISAPPEARED)]
+        self.assertEqual(kinds, [(ARRIVED, r), (DISAPPEARED, r)])
+        g.saved_epilogue(self.SAVE, 1, 1)
+        self.assertEqual(len(g.of_kind(ARRIVED)), 1)
+        self.assertEqual(g.of_kind(UNACCOUNTED), [])
+
+    def test_no_other_game_has_a_faction_to_leave_by(self):
+        source = (ROOT / "native" / "vvfp_cause_of_death" / "cod_arrivals.inc").read_text(encoding="utf-8")
+        tick = source[source.index("static void arrival_tick(void) {"):]
+        tick = tick[:tick.index("\n}\n")]
+        self.assertIn("if (REC[g_game].heathen == 0u || records == NULL) {", tick)
+        self.assertLess(tick.index("REC[g_game].heathen == 0u"), tick.index("arrival_left_for_the_heathens(i, record);"))
 
 
 class ManifestsAndShipping(unittest.TestCase):

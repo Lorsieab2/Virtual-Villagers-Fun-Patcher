@@ -106,6 +106,7 @@ struct vvfp_cause_stats {
     int arrivals;        /* Arrived records written for an arrival seen live */
     int arrivals_backfilled;  /* Arrived records written by the backfill */
     int births_backfilled;    /* Birth records written by the backfill (VV2-VV5) */
+    int left_tribe;           /* New Believers: believers who became Heathens */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
