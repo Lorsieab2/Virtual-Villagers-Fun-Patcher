@@ -142,6 +142,7 @@ class _Registry:
         self.expected: dict[int, Key] = {}             # mother -> the expected father (the save's)
         self.due: dict[int, int] = {}                  # mother -> babies she carries (the save's)
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
+        self.lost: list[tuple[Key, int]] = []          # (mother, babies): "Lost before birth" records
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
 
@@ -297,6 +298,12 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             mother = reg.current((rec.mother.name, rec.mother.head, rec.mother.body))
             father = rec.father and reg.current((rec.father.name, rec.father.head, rec.father.body))
             reg.conceptions[mother] = (father if father and father[0] else None, rec.babies or 1)
+        if rec.kind == "lost" and rec.mother is not None and rec.mother.name:
+            # Her babies were lost with her (she died or disappeared carrying or nursing them): the
+            # Conception is closed, and no baby of it is ever on the way (the owner, 2026-10-09).
+            mother = reg.current((rec.mother.name, rec.mother.head, rec.mother.body))
+            reg.conceptions.pop(mother, None)
+            reg.lost.append((mother, rec.babies or 1))
         if rec.kind != "birth" or rec.child is None or not rec.child.name:
             last = None
             continue
@@ -377,6 +384,10 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     except (OSError, KeyError, ValueError):
         pass
     _upcoming(reg)
+    for (name, _head, _body), babies in reg.lost:
+        notes.append(f"{name} lost {'a baby' if babies == 1 else f'{babies} babies'} before birth: she died or "
+                     "disappeared while carrying or nursing, and "
+                     f"{'it was' if babies == 1 else 'they were'} never born.")
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
     village.relooked = {old: reg.current(old) for old in reg.relooked if reg.current(old) != old}
     village.full_names = {cut: full[0] for cut, full in reg.full.items()}

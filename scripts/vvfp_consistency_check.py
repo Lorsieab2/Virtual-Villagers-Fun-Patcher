@@ -388,7 +388,8 @@ class Person:
 
 @dataclass
 class LogRecord:
-    kind: str                  # "birth" | "conception" | "arrived"
+    kind: str                  # "birth" | "conception" | "arrived" | "lost" (Lost before birth: the
+                               # mother's babies, never born, closing her Conception)
     village: str               # the full "Village: ..." line
     child: Person | None = None
     mother: Person | None = None
@@ -501,6 +502,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 rec.kind = "birth"
             elif kind.startswith("Conception") and rec.mother:
                 rec.kind = "conception"
+            elif kind == "Lost before birth" and rec.mother and rec.mother.name:
+                rec.kind = "lost"
             else:
                 continue
             records.append(rec)
