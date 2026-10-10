@@ -6,6 +6,7 @@ like bricks inside them; how tightly (Edits.packing); and the Other Members as a
 in every layout."""
 import hashlib
 import json
+import math
 import random
 import sys
 import unittest
@@ -199,7 +200,9 @@ class TouchingTests(unittest.TestCase):
             lay = ft.layout(big_village(), same_shape(100, positioning))
             gaps = row_gaps(lay)
             self.assertTrue(gaps, positioning)
-            self.assertTrue(all(-0.5 <= g <= 1.0 for g in gaps), (positioning, gaps))
+            # Their outlines a border's stroke apart: the strokes, drawn on the outlines, meet.
+            stroke = ft.BORDER_WIDTHS[lay.edits.borders["Male"]]
+            self.assertTrue(all(stroke - 0.5 <= g <= stroke + 1.0 for g in gaps), (positioning, gaps))
             for p in lay.x:
                 for q in lay.x:
                     if p < q:
@@ -378,6 +381,117 @@ class ReviewFixTests(unittest.TestCase):
         self.assertFalse(any(f.way for f in unset.families), "until set, packed 98 or more: behind")
         for lay in (off, on):
             assert_connected(self, lay, ft.lines(lay))
+
+
+def owner_like_village() -> gen.Village:
+    """A village shaped like the owner's A New Home tree: three founding couples; their children marrying
+    each other's; one man from outside with five partners; cousins marrying; twins; babies on the way;
+    loners; five generations."""
+    pick = random.Random(578)
+    people: dict[int, gen.Person] = {}
+
+    def add(pid, sex, years, father=None, mother=None, **extra):
+        people[pid] = gen.Person(pid, f"V{pid}", pid % 40, pid % 30, sex=sex, age=years * Y, alive=True,
+                                 father=father, mother=mother, first_seen=FIRST, **extra)
+    for pid, sex in ((1, "Male"), (2, "Female"), (3, "Male"), (4, "Female"), (5, "Male"), (6, "Female")):
+        add(pid, sex, 80, arrived=True, how="Founder")
+    nxt = 7
+    generations = {1: [1, 2, 3, 4, 5, 6]}
+    couples = [(1, 2), (3, 4), (5, 6)]
+    for g in range(2, 6):
+        born = []
+        for father, mother in couples:
+            for _k in range(pick.randint(2, 5)):
+                twins = pick.random() < 0.15
+                litter = nxt if twins else None
+                for _t in range(2 if twins else 1):
+                    add(nxt, "Male" if nxt % 2 else "Female", 80 - 15 * g, father, mother,
+                        **({"litter": litter} if litter else {}))
+                    born.append(nxt)
+                    nxt += 1
+        generations[g] = born
+        men = [q for q in born if people[q].sex == "Male"]
+        women = [q for q in born if people[q].sex == "Female"]
+        women = women[len(women) // 2:] + women[:len(women) // 2]     # cousins from other families
+        couples = [(m, w) for m, w in zip(men, women) if people[m].father != people[w].father][:5]
+        if g == 3 and women:                # a man from outside with five partners
+            add(nxt, "Male", 40, arrived=True, how="Custom Island Event")
+            generations[g].append(nxt)
+            couples += [(nxt, w) for w in women[-5:]]
+            nxt += 1
+    generations[3] += list(range(nxt, nxt + 3))
+    for _k in range(3):                     # loners
+        add(nxt, "Female", 30, arrived=True, how="Custom Island Event")
+        nxt += 1
+    v = gen.Village(1, 1, "Owner-like Tribe", people)
+    gen._generations(v, {FIRST: set(people)})
+    for g, qs in generations.items():
+        for q in qs:
+            people[q].generation = g
+            v.base_generation[q] = g
+    gen.number_people(v)
+    return v
+
+
+MIXED_SHAPES = ({"Male": "beetle", "Female": "paw", "Upcoming": "bananas"},
+                {"Male": "feather", "Female": "bananas", "Upcoming": "coral"},
+                {"Male": "rect", "Female": "circle", "Upcoming": "butterfly"})
+
+
+def rect_overlaps(lay) -> list:
+    """Pairs whose frame rectangles (Layout.frame) overlap by more than half a pixel both ways."""
+    boxes = [(q, *lay.frame(q)[:4]) for q in lay.x]
+    out = []
+    for i, a in enumerate(boxes):
+        for b in boxes[i + 1:]:
+            dx = min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1])
+            dy = min(a[2] + a[4], b[2] + b[4]) - max(a[2], b[2])
+            if dx > 0.5 and dy > 0.5:
+                out.append((a[0], b[0]))
+    return out
+
+
+class NoOverlapTests(unittest.TestCase):
+    """The owner's v1.35.65 trees: portraits overlapped in the Packed layouts where a shape draws more than
+    its outline (a paw print's toes, a beetle's legs) or is wider than the rest.  Frames may touch at 100,
+    never overlap; below the packing where rows nestle (NEST) not even their rectangles overlap."""
+
+    def test_no_frame_overlaps_anywhere(self):
+        for make in (village, big_village, owner_like_village):
+            for shapes in MIXED_SHAPES:
+                for positioning in LAYOUTS:
+                    for packing in (0, 60, 80, 98, 100):
+                        for lines_behind in ((False, True) if positioning == "packed_families" else (None,)):
+                            e = ft.Edits(positioning=positioning, packing=packing, lines_behind=lines_behind,
+                                         shapes=dict(ft.DEFAULT_SHAPES, **shapes))
+                            lay = ft.layout(make(), e)
+                            case = (make.__name__, shapes["Male"], positioning, packing, lines_behind)
+                            rects = rect_overlaps(lay)
+                            if packing < ft.NEST or positioning in ("dynamic", "rows"):
+                                self.assertEqual(rects, [], case)
+                            for a, b in rects:
+                                self.assertFalse(ft.frames_overlap(lay, a, b), (case, a, b))
+
+    def test_still_touching_at_100(self):
+        for shapes in MIXED_SHAPES:
+            e = ft.Edits(positioning="packed_families", packing=100, shapes=dict(ft.DEFAULT_SHAPES, **shapes))
+            lay = ft.layout(owner_like_village(), e)
+            near = 0
+            for a in lay.x:
+                for b in lay.x:
+                    if a < b and abs(lay.y[a] - lay.y[b]) < 1:
+                        fa, fb = lay.frame(a), lay.frame(b)
+                        gap = max(fb[0] - (fa[0] + fa[2]), fa[0] - (fb[0] + fb[2]))
+                        near += gap < 12
+            self.assertGreater(near, 5, shapes)
+
+    def test_a_shapes_decorations_count_as_part_of_it(self):
+        bare = ft._profile("paw", 173.0, 156.0, 0.0)
+        half, tops, _bottoms = bare
+        pts = ft.shape_points("paw", -86.5, 0, 173.0, 156.0)
+        self.assertLess(min(t for t in tops if t < math.inf), min(py for _px, py in pts) - 10, "the toes stand above the pad")
+        padded = ft._profile("paw", 173.0, 156.0, 0.0, 3.0)
+        self.assertLess(min(t for t in padded[1] if t < math.inf), min(t for t in tops if t < math.inf) - 2.5)
 
 
 class PackedGenerationsTests(unittest.TestCase):
