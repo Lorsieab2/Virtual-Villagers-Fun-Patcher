@@ -3928,6 +3928,7 @@ def head_boxes(path: Path) -> dict[int, tuple[int, int, int, int]]:
                 row_alpha = alpha[r * HEAD_H + y][left:left + HEAD_W]
                 xs = [x for x, value in enumerate(row_alpha) if value > 24]
                 if xs:
+                    _SPANS.setdefault((key, r), []).append((y, xs[0], xs[-1] + 1))
                     if box is None:
                         box = [xs[0], y, xs[-1] + 1, y + 1]
                     else:
@@ -3944,6 +3945,33 @@ def face_box(present: dict, sheet: str | None, row: int | None) -> tuple[int, in
     if sheet in present and row is not None:
         return head_boxes(present[sheet]).get(row, DEFAULT_BOX)
     return DEFAULT_BOX
+
+
+_SPANS: dict = {}                       # (head sheet, row) -> each visible pixel row's (y, left, right)
+FACE_BANDS = 12                         # a face's outline, as this many bands across it, top to bottom
+
+
+def face_bands(present: dict, sheet: str | None, row: int | None) -> list[tuple[int, int, int, int]]:
+    """A face's visible pixels as bands (x0, y0, x1, y1 inside its cell), top to bottom: how wide the
+    head is at each height -- what is kept inside a portrait's shape (face_anchor), not its box's empty
+    corners."""
+    box = face_box(present, sheet, row)
+    spans = _SPANS.get((str(present[sheet]), row)) if sheet in present and row is not None else None
+    if not spans:                       # no picture: the round stand-in _node draws (26 across, scaled), as bands
+        x0, y0, x1, y1 = box
+        r, mx, my = 26 / HEAD_SCALE, (x0 + x1) / 2, (y0 + y1) / 2
+        out = []
+        for k in range(FACE_BANDS):
+            a, b = -1 + 2 * k / FACE_BANDS, -1 + 2 * (k + 1) / FACE_BANDS
+            half = math.sqrt(max(0.0, 1 - min(a * a, b * b))) * r
+            out.append((mx - half, my + a * r, mx + half, my + b * r))
+        return out
+    out = []
+    step = max(1, -(-len(spans) // FACE_BANDS))
+    for k in range(0, len(spans), step):
+        part = spans[k:k + step]
+        out.append((min(s[1] for s in part), part[0][0], max(s[2] for s in part), part[-1][0] + 1))
+    return out
 
 
 def _png_size(path: Path) -> tuple[int, int]:
@@ -4351,6 +4379,42 @@ def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None
 
 
 BOLD_WIDTH = 1.1                        # how much wider a bold letter is, near enough
+
+# Segoe UI's own letter widths, in thousandths of its size (Windows' font, measured): space to "~", then
+# no-break space to "ÿ".  A portrait's words are fitted by these, the same in the editor and in every
+# saved picture -- a fixed width a letter (0.55 of the size) let a bold "75. Mamba Chuchip" run 11 pixels
+# past its frame.
+_WIDTH_CHARS = "".join(map(chr, range(32, 127))) + "".join(map(chr, range(160, 256)))
+_WIDTHS = {False: dict(zip(_WIDTH_CHARS, map(int, (
+    "274 284 392 591 539 818 800 230 302 302 417 684 217 400 217 390 539 539 539 539 539 539 539 539 539 539 "
+    "217 217 684 684 684 448 955 645 573 619 701 506 488 686 710 266 357 580 471 898 748 754 560 754 598 531 "
+    "524 687 621 934 590 553 570 302 379 302 684 415 268 509 588 462 589 523 313 589 566 242 242 497 242 861 "
+    "566 586 588 589 348 424 339 566 479 723 459 484 452 302 239 302 684 274 284 539 539 556 539 239 448 414 "
+    "890 392 506 684 400 890 415 377 684 366 366 282 577 458 217 205 351 431 506 906 931 952 448 645 645 645 "
+    "645 645 645 860 619 506 506 506 506 266 266 266 266 701 748 754 754 754 754 754 684 754 687 687 687 687 "
+    "553 560 544 509 509 509 509 509 509 832 462 523 523 523 523 242 242 242 242 559 566 586 586 586 586 586 "
+    "684 586 566 566 566 566 484 588 484").split()))),
+    True: dict(zip(_WIDTH_CHARS, map(int, (
+    "276 327 493 592 575 867 850 293 369 369 455 707 271 404 271 443 575 575 575 575 575 575 575 575 575 575 "
+    "271 271 707 707 707 438 954 703 641 624 737 532 520 711 766 317 445 649 511 957 790 758 614 758 653 561 "
+    "586 723 667 1005 655 607 607 369 436 369 707 415 314 538 620 480 619 541 383 619 602 284 284 559 284 916 "
+    "605 611 620 619 398 440 389 605 542 797 552 538 479 369 326 369 707 276 327 575 575 556 575 326 485 462 "
+    "874 410 581 707 404 874 415 380 707 404 404 303 613 509 271 215 394 456 581 952 965 979 438 703 703 703 "
+    "703 703 703 935 624 532 532 532 532 317 317 317 317 737 790 758 758 758 758 758 707 758 723 723 723 723 "
+    "607 614 628 538 538 538 538 538 538 828 480 541 541 541 541 284 284 284 284 593 605 611 611 611 611 611 "
+    "707 611 605 605 605 605 538 620 538").split())))}
+WIDTH_SPARE = 1.04                      # small sizes are drawn a little wider than the font's own widths
+OTHER_FONT_SPARE = 1.15                 # a font of the player's own, measured as Segoe UI and a little more
+ITALIC_SPARE = 1.05                     # italic letters about as wide, leaning past their ends (measured)
+
+
+def text_width(text: str, size: float, bold: bool = False, font: str | None = None, italic: bool = False) -> float:
+    """How wide a line of words is drawn, in pixels, at `size` (Segoe UI's letter widths; a letter beyond
+    them -- a symbol, another alphabet -- as wide as the font's size, or the widest of them)."""
+    widths = _WIDTHS[bool(bold)]
+    em = sum(widths.get(ch, 1000 if ord(ch) >= 0x2E80 else 760) for ch in text) / 1000
+    spare = WIDTH_SPARE * (1.0 if not font or font.lower() == "segoe ui" else OTHER_FONT_SPARE)
+    return em * size * spare * (ITALIC_SPARE if italic else 1.0)
 
 
 def run_width(style: dict, base: dict) -> float:
@@ -6725,39 +6789,84 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     if fixed and not p.upcoming:
         y += face_inside(lay, p, present, y, fy, fh, scale)
     middle = (x + NODE_W / 2, y + NODE_H / 2)
+    # The face and words moved (and, where no place in the shape holds them, made smaller) about the
+    # face's middle, so the face is inside its shape (face_anchor): set below, once the face is known.
+    pivot, shift, shrink = middle, (0.0, 0.0), 1.0
+    frame_xs = [px for px, _py in lay.frame_points(p.id)]
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
     flip_words, turn_words = lay.opt(p, "flip_words"), lay.opt(p, "turn_words")
 
+    def moved(px: float, py: float) -> tuple[float, float]:
+        """A point of the face and words as drawn: grown or shrunk with the frame, then to its anchor."""
+        px, py = middle[0] + (px - middle[0]) * scale, middle[1] + (py - middle[1]) * scale
+        return pivot[0] + (px - pivot[0]) * shrink + shift[0], pivot[1] + (py - pivot[1]) * shrink + shift[1]
+
     def put(item) -> None:
-        if scale != 1.0:
-            item.x = middle[0] + (item.x - middle[0]) * scale
-            item.y = middle[1] + (item.y - middle[1]) * scale
+        if scale * shrink != 1.0 or shift != (0.0, 0.0):
+            item.x, item.y = moved(item.x, item.y)
             if isinstance(item, Head):
-                item.scale *= scale
+                item.scale *= scale * shrink
             elif isinstance(item, Text):
-                item.size *= scale
+                item.size *= scale * shrink
             else:
-                item.w, item.h = item.w * scale, item.h * scale
+                item.w, item.h = item.w * scale * shrink, item.h * scale * shrink
+        centre = moved(*middle)
         words = isinstance(item, Text) and item.role in ("names", "portraits")
         if words and flip_words and (flip_h or flip_v):
             # Mirrored with the flipped portrait, about its middle (the owner, 2026-10-09).
             if flip_h:
-                item.x, item.mirror_h = 2 * middle[0] - item.x, True
+                item.x, item.mirror_h = 2 * centre[0] - item.x, True
             if flip_v:
-                item.y, item.mirror_v = 2 * middle[1] - item.y + item.size * 0.7, True
+                item.y, item.mirror_v = 2 * centre[1] - item.y + item.size * 0.7, True
         if angle and turn_words and words:
             # The words turn with the portrait, about its middle (the owner, 2026-10-09); the face does not.
-            dx, dy = turn(item.x - middle[0], item.y - middle[1], angle)
-            item.x, item.y, item.angle = middle[0] + dx, middle[1] + dy, angle
+            dx, dy = turn(item.x - centre[0], item.y - centre[1], angle)
+            item.x, item.y, item.angle = centre[0] + dx, centre[1] + dy, angle
         add(item)
+
+    def drawn_width(text: str, size: float, bold: bool, runs) -> float:
+        """How wide a portrait's line is drawn: in its role's font, size, boldness and slant (Edits.styles),
+        a formatted line run by run, each in its own (a bold and italic "X's twin" wider)."""
+        style = e.styles.get("names" if bold else "portraits", {})
+        size, font = size * style.get("scale", 100) / 100, style.get("font") or e.font
+        bold, italic = style.get("bold", bold), style.get("italic", False)
+        pieces = [(t, look) for t, look in runs or [] if isinstance(look, dict)] or [(text, {})]
+        return sum(text_width(t, size * SCRIPTS.get(look.get("script"), (1.0, 0))[0], look.get("bold", bold),
+                              font, look.get("italic", italic)) for t, look in pieces)
+
+    def within_frame(at_x: float, room: float) -> float:
+        """No wider than the frame from where the line is centred (words never leave the portrait's frame)."""
+        return min(room, 2 * min(at_x - min(frame_xs), max(frame_xs) - at_x) - 4)
 
     pic, own = inner_sizes(lay, p)          # the face's and the words' sizes inside the shape
     if p.upcoming:
+        texts = node_text(lay, p)
         # Made the same as others' (Edits.equal_sizes): their names' and lines' font sizes too.
         sizes = (11.5, 10) if equal_scope(lay.edits, p) else (12, 11)
-        for k, text in enumerate(node_text(lay, p)):
-            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own, text, sizes[k > 0] * own, ink,
+        points = text_room_points(lay.opt(p, "text_room"), kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
+        fit = 1.0
+        if lay.opt(p, "text_inside") and texts:
+            # Kept inside the shape: the words where the outline holds them (face_anchor, the words as the
+            # face), a little in from it -- a paw's middle is the gap between its toes and its pad.
+            wide = min(fw * 0.9, max(drawn_width(t, sizes[k > 0] * own * scale, k == 0, None)
+                                     for k, t in enumerate(texts)))
+            top_y = moved(0, y + NODE_H / 2 + 4 - 12 * own)[1]
+            foot_y = moved(0, y + NODE_H / 2 + 4 + (len(texts) - 1) * 15 * own + 4 * own)[1]
+            block = (middle[0] - wide / 2 - TEXT_MARGIN, top_y - 2, middle[0] + wide / 2 + TEXT_MARGIN, foot_y + 2)
+            dx, dy, shrink = face_anchor(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id), [block], block, keep=False)
+            pivot, shift = ((block[0] + block[2]) / 2, (block[1] + block[3]) / 2), (dx, dy)
+        for k, text in enumerate(texts):
+            size = sizes[k > 0] * own * scale * shrink
+            at_x, baseline = moved(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own)
+            chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
+            room = within_frame(at_x, max(chord, fw * 0.5) - 8)
+            needed = drawn_width(text, size, k == 0, None)
+            if text and room > 0 and needed > room:
+                fit = min(fit, room / needed)
+        lay.__dict__.setdefault("_word_fits", {})[p.id] = fit     # (made the same for a scope: _equal_words)
+        for k, text in enumerate(texts):
+            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own, text, sizes[k > 0] * own * fit, ink,
                      bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
                      edit=f"person:{p.id}"))
         return
@@ -6765,6 +6874,24 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     head = look_of(lay.edits, lay.village, p)[0]
     box = face_box(present, sheet, head)
     head_left, head_top, text_top, lines = placement(lay, p, box)
+    k0 = HEAD_SCALE * pic
+    fa = moved(x + head_left + box[0] * k0, y + head_top + box[1] * k0)
+    fb = moved(x + head_left + box[2] * k0, y + head_top + box[3] * k0)
+    texts = [(t, b, r) for t, b, r in lines if t]
+    if texts:
+        wide = min(fw * 0.9, max(drawn_width(t, (11.5 if b else 10) * own * scale, b, r) for t, b, r in texts))
+        top_y = moved(0, y + text_top - 11 * own)[1]
+        foot_y = moved(0, y + text_top + (len(lines) - 1) * LINE_H * own + 3 * own)[1]
+        words_box = (middle[0] - wide / 2, top_y, middle[0] + wide / 2, foot_y)
+    else:
+        words_box = (*fa, *fb)
+    bands = [(*moved(x + head_left + b[0] * k0, y + head_top + b[1] * k0), *moved(x + head_left + b[2] * k0, y + head_top + b[3] * k0))
+             for b in face_bands(present, sheet, head)]
+    # Words kept inside the shape: the face and words where the words are (nearly) all inside it, made a
+    # little smaller if they must be, rather than the face alone inside and the words crushed into a point.
+    dx, dy, shrink = face_anchor(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id), bands, words_box,
+                                 WORDS_NEED if lay.opt(p, "text_inside") else 0.0)
+    pivot, shift = ((fa[0] + fb[0]) / 2, (fa[1] + fb[1]) / 2), (dx, dy)
     if sheet in present and head is not None and head >= 0:
         put(Head(x + head_left, y + head_top, sheet, head, pid=p.id, scale=pic))
     else:
@@ -6780,38 +6907,62 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     points = text_room_points(lay.opt(p, "text_room"), kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
     text_inside = lay.opt(p, "text_inside")
     fit = 1.0
-    for k, (text, bold, line_runs) in enumerate(lines):
+    spans: dict = {}
+    own_fit: dict = {}                      # a line kept inside the shape made smaller on its own
+    slide = (text_inside and lay.opt(p, "text_align") == "centre" and not (angle and turn_words)
+             and not (flip_words and (flip_h or flip_v)))
+    for k, (text, bold, runs) in enumerate(lines):
         if not text:
             continue
-        size = (11.5 if bold else 10) * scale
-        baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
+        size = (11.5 if bold else 10) * scale * shrink
+        at_x, baseline = moved(x + NODE_W / 2, y + text_top + k * LINE_H * own)
         # The narrowest the shape is across the whole line, from the tops of its letters to below them.
         chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
         # Half the frame at least, unless the player keeps the words inside the shape (a cross's arm).
         # (Faces and words at one size: as wide as the frame, not half of it, so a narrow shape's words keep
         # their size too -- unless they are kept inside the shape.)
         room = max(chord - 8, 12.0) if text_inside else max(chord, fw if fixed else fw * 0.5) - 8
-        # A formatted line measured run by run: its bold words -- the extra lines', by default -- wider.
-        needed = (size * sum(len(t) * (0.58 if s.get("bold", bold) else 0.55) for t, s in line_runs)
-                  if line_runs else len(text) * size * (0.58 if bold else 0.55))
+        room = within_frame(at_x, room)
+        # Measured by the font's own letter widths (text_width), in the role's own font and size, at the
+        # group's (or the tree's) text size; a villager's own text size is theirs, on top.
+        needed = drawn_width(text, size * lay.opt(p, "text_size") / 100, bold, runs)
+        if slide:
+            # Kept inside the shape: no wider than the outline across the line, a little in from it, and slid
+            # sideways to stay inside it (below) -- a leaf is not as wide on one side of its middle.
+            span = _line_span(lay.frame_points(p.id), baseline - size * 0.75, baseline + size * 0.2, at_x, needed)
+            if span:
+                # Each line on its own: one line where the shape narrows (a leaf's tip) made smaller, not all.
+                inner = max(12.0, span[1] - span[0] - 2 * TEXT_MARGIN)
+                if needed > inner:
+                    own_fit[k] = inner / needed
+                spans[k] = (span, needed, at_x)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
     lay.__dict__.setdefault("_word_fits", {})[p.id] = fit     # (made the same for a scope: _equal_words)
+    nudge = {}                              # how far each line kept inside the shape slides sideways
+    for k, (span, needed, at_x) in spans.items():
+        w = needed * min(fit, own_fit.get(k, 1.0)) * own / (lay.opt(p, "text_size") / 100)
+        lo, hi = span[0] + TEXT_MARGIN, span[1] - TEXT_MARGIN - w
+        left = at_x - w / 2
+        nudge[k] = ((span[0] + span[1]) / 2 - at_x if hi < lo else lo - left if left < lo else hi - left if left > hi
+                    else 0.0) / (scale * shrink)
     # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
     # so no line leaves a round or pointed portrait (Edits.text_align).
     align = lay.opt(p, "text_align")
-    half = fw / scale / 2 - 8           # the frame's own width (Codex, #577: not the standard portrait's)
+    total = scale * shrink
+    half = fw / total / 2 - 8           # the frame's own width (Codex, #577: not the standard portrait's)
     if align != "centre":
         for k, (text, bold, _r) in enumerate(lines):
             if text:
-                size = (11.5 if bold else 10) * scale
-                baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
+                size = (11.5 if bold else 10) * total
+                at_x, baseline = moved(x + NODE_W / 2, y + text_top + k * LINE_H * own)
                 chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
                 wide = max(chord - 4, 16.0) if text_inside else max(chord, fw if fixed else fw * 0.5)
-                half = min(half, (wide - 12) / 2 / scale)
+                half = min(half, (within_frame(at_x, wide) - 12) / 2 / total)
     at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):
-        put(Text(at, y + text_top + k * LINE_H * own, text, (11.5 if bold else 10) * fit * own, ink,
+        put(Text(at + nudge.get(k, 0.0), y + text_top + k * LINE_H * own, text,
+                 (11.5 if bold else 10) * min(fit, own_fit.get(k, 1.0)) * own, ink,
                  bold=bold, centre=align == "centre", end=align == "right", pid=p.id,
                  role="names" if bold else "portraits", edit=f"person:{p.id}", runs=runs))
 
@@ -6852,6 +7003,174 @@ def _chord(points: list[tuple[float, float]], y: float) -> float:
         if (ay > y) != (by > y):
             xs.append(ax + (y - ay) * (bx - ax) / (by - ay))
     return max(xs) - min(xs) if len(xs) >= 2 else 0.0
+
+
+# Where a shape's face and words go when its middle is not inside it (the owner, 2026-10-09: a paw's face
+# sat in the gap between its toes and its pad, a mermaid's tail's on its top edge, a coral's beside its
+# branches): a hint, in the frame's own 0-1 box, the face and words are kept nearest to -- the paw's pad,
+# the coral's trunk and fork, the fluke's body.  A shape not listed keeps the frame's middle as its hint.
+FACE_HINTS = {"paw": (0.5, 0.62), "coral": (0.5, 0.62), "mermaid_tail_h": (0.4, 0.5)}
+# Shapes whose faces stay just where they always were, the owner's own tree's (2026-10-09: keep them).
+FACE_KEPT = {"turtle_h", "monstera", "butterfly"}
+_ANCHORS: dict = {}
+_GRIDS: dict = {}
+WORDS_NEED = 0.9                        # words kept inside a shape: this much of their box inside, where a face moves
+WORDS_INSIDE = 20.0                     # pixels further a face moves for its words all inside, not none
+
+
+def _inside_grid(points: list, cell: float) -> tuple:
+    """The shape these corners outline as cells `cell` across: (its left, its top, the columns, the rows,
+    the running count of cells inside -- sums[r][c] the cells inside above row r and left of column c)."""
+    xs, ys = [px for px, _ in points], [py for _, py in points]
+    left, top = min(xs), min(ys)
+    cols, rows = max(1, int(math.ceil((max(xs) - left) / cell))), max(1, int(math.ceil((max(ys) - top) / cell)))
+    edges = list(zip(points, points[1:] + points[:1]))
+    sums = [[0] * (cols + 1)]
+    for r in range(rows):
+        row = [1] * cols
+        # A cell is inside when its top, middle and bottom all are (no cell half over a gap counts).
+        for y in (top + (r + 0.02) * cell, top + (r + 0.5) * cell, top + (r + 0.98) * cell):
+            cross = sorted(ax + (y - ay) * (bx - ax) / (by - ay) for (ax, ay), (bx, by) in edges if (ay > y) != (by > y))
+            here = [0] * cols
+            for a, b in zip(cross[::2], cross[1::2]):
+                c0, c1 = int(math.ceil((a - left) / cell)), int(math.floor((b - left) / cell))
+                for c in range(max(0, c0), min(cols, c1)):
+                    here[c] = 1
+            row = [u & v for u, v in zip(row, here)]
+        above, run, line = sums[-1], 0, [0]
+        for c in range(cols):
+            run += row[c]
+            line.append(above[c + 1] + run)
+        sums.append(line)
+    return left, top, cols, rows, sums, cell
+
+
+def _cells_inside(grid: tuple, x0: float, y0: float, x1: float, y1: float) -> tuple[int, int]:
+    """(how many of the cells a box touches are inside the shape, how many it touches)."""
+    left, top, cols, rows, sums, cell = grid
+    c0, c1 = int(math.floor((x0 - left) / cell)), int(math.ceil((x1 - left) / cell))
+    r0, r1 = int(math.floor((y0 - top) / cell)), int(math.ceil((y1 - top) / cell))
+    total = max(0, c1 - c0) * max(0, r1 - r0)
+    c0, c1, r0, r1 = max(0, c0), min(cols, c1), max(0, r0), min(rows, r1)
+    if c1 <= c0 or r1 <= r0:
+        return 0, total
+    return sums[r1][c1] - sums[r0][c1] - sums[r1][c0] + sums[r0][c0], total
+
+
+def face_anchor(kind: str, frame: tuple, points: list, bands: list, words: tuple,
+                words_need: float = 0.0, keep: bool = True) -> tuple[float, float, float]:
+    """How far (dx, dy) a portrait's face and words move, and how much smaller (a factor) they are made, so
+    the face is inside its shape's outline and the words as much inside as can be: (0, 0, 1) when the face
+    already is -- a shape whose middle holds it never moves.  `bands` are the face's visible pixels as boxes
+    (face_bands) and `words` the words' box (left, top, right, bottom), as drawn; `points` the outline
+    (turned and flipped as drawn).  `words_need`: the share of the words' box that must be inside too
+    (words kept inside the shape); `keep`: a FACE_KEPT shape's face left where it is.  Worked out once for
+    each shape, size and turn."""
+    x, y, w, h, angle = frame
+    cx, cy = x + w / 2, y + h / 2
+    bands = [(b[0] - cx, b[1] - cy, b[2] - cx, b[3] - cy) for b in bands]
+    wx0, wy0, wx1, wy1 = (words[0] - cx, words[1] - cy, words[2] - cx, words[3] - cy)
+    key = (kind, round(w, 1), round(h, 1), round(angle, 1), words_need, keep, tuple(round(v, 1) for b in bands for v in b),
+           round(wx0, 1), round(wy0, 1), round(wx1, 1), round(wy1, 1))
+    if key in _ANCHORS:
+        return _ANCHORS[key]
+    rel = [(px - cx, py - cy) for px, py in points]
+    fx0, fy0 = min(b[0] for b in bands), min(b[1] for b in bands)
+    fx1, fy1 = max(b[2] for b in bands), max(b[3] for b in bands)
+
+    def held(b) -> bool:
+        """A band inside the outline: its corners and middles are, and no corner of the outline pokes into it."""
+        x0, y0, x1, y1 = b
+        return (all(inside(rel, px, py) for px in (x0 + 0.5, (x0 + x1) / 2, x1 - 0.5) for py in (y0 + 0.25, y1 - 0.25))
+                and not any(x0 + 0.5 < px < x1 - 0.5 and y0 + 0.25 < py < y1 - 0.25 for px, py in rel))
+    if keep and base_kind(kind) in FACE_KEPT or all(held(b) for b in bands):
+        out = (0.0, 0.0, 1.0)
+    else:
+        cell = max(0.75, min(w, h) / 90)
+        gkey = (kind, round(w, 1), round(h, 1), round(angle, 1))
+        grid = _GRIDS.get(gkey)
+        if grid is None:
+            if len(_GRIDS) > 512:
+                _GRIDS.clear()
+            grid = _GRIDS[gkey] = _inside_grid(rel, cell)
+        if base_kind(kind) in FACE_HINTS:
+            hu, hv = FACE_HINTS[base_kind(kind)]
+            _b, flip_h, flip_v = _unflipped(kind)
+            hint = turn(((1 - hu) if flip_h else hu) * w - w / 2, ((1 - hv) if flip_v else hv) * h - h / 2, angle)
+        else:                                   # else as near where the face was as can be
+            hint = ((fx0 + fx1) / 2, (fy0 + fy1) / 2)
+        mx, my = (fx0 + fx1) / 2, (fy0 + fy1) / 2
+        top, foot = min(py for _px, py in rel), max(py for _px, py in rel)
+        out = fallback = None
+        k = 1.0
+        while out is None and k > 0.3:
+            # The face and words made smaller about the face's middle, when no place in the shape holds them.
+            def small(b, m=0.0):
+                return (mx + (b[0] - mx) * k - m, my + (b[1] - my) * k - m, mx + (b[2] - mx) * k + m, my + (b[3] - my) * k + m)
+            wd = small((wx0, wy0, wx1, wy1))
+            f = small((fx0, fy0, fx1, fy1))
+            for margin in (3.0, 1.0, 0.0):
+                bs = [small(b, margin) for b in bands]
+                best = None
+                # Moves by every other cell, from none (a symmetrical shape keeps its face in its middle):
+                # near enough, and four times as fast.
+                r0, r1 = math.floor((grid[1] - f[1]) / cell / 2), math.ceil((grid[1] + grid[3] * cell - f[3]) / cell / 2)
+                c0, c1 = math.floor((grid[0] - f[0]) / cell / 2), math.ceil((grid[0] + grid[2] * cell - f[2]) / cell / 2)
+                for r in range(r0, r1 + 1):
+                    dy = 2 * r * cell
+                    for c in range(c0, c1 + 1):
+                        dx = 2 * c * cell
+                        for b in bs:
+                            n, total = _cells_inside(grid, b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy)
+                            if n < total or not total:
+                                break
+                        else:
+                            wn, wt = _cells_inside(grid, wd[0] + dx, wd[1] + dy, wd[2] + dx, wd[3] + dy)
+                            # The words never below or above the frame (else smaller), then nearest the hint,
+                            # the words a little more inside the outline worth moving a little further.
+                            framed = wd[1] + dy >= top + 1 and wd[3] + dy <= foot - 1
+                            share = wn / wt if wt else 1.0
+                            here = (framed and share >= words_need, framed,
+                                    WORDS_INSIDE * share - math.hypot(dx + mx - hint[0], dy + my - hint[1]))
+                            if best is None or here > best[0]:
+                                best = (here, dx, dy)
+                if best and best[0][0]:
+                    out = (best[1], best[2], k)
+                    break
+                if best and best[0][1] and fallback is None:
+                    fallback = (best[1], best[2], k)
+            if out is None:
+                k *= 0.9
+        out = out or fallback or (0.0, 0.0, 1.0)
+    if len(_ANCHORS) > 4096:
+        _ANCHORS.clear()
+    _ANCHORS[key] = out
+    return out
+
+
+TEXT_MARGIN = 4.0                       # words kept inside a shape stay this far in from its outline
+
+
+def _stretches(points: list[tuple[float, float]], y: float) -> list[tuple[float, float]]:
+    """Each stretch of the shape these corners outline at height `y`, left to right."""
+    xs = sorted(ax + (y - ay) * (bx - ax) / (by - ay)
+                for (ax, ay), (bx, by) in zip(points, points[1:] + points[:1]) if (ay > y) != (by > y))
+    return list(zip(xs[::2], xs[1::2]))
+
+
+def _line_span(points: list, top: float, foot: float, x: float, wide: float) -> tuple[float, float] | None:
+    """The stretch of a shape a line of words `wide` across, centred at `x`, is kept in, from its letters'
+    tops to below them: of the stretches inside the shape all the way down (a leaf's slit or a paw's gap
+    between them), the one that holds the most of the line, nearest `x` -- None when there is none."""
+    best = None
+    for a0, b0 in _stretches(points, top):
+        for a1, b1 in _stretches(points, foot):
+            a, b = max(a0, a1), min(b0, b1)
+            if b > a:
+                here = (min(b - a, wide + 2 * TEXT_MARGIN), -max(0.0, a - x, x - b))
+                if best is None or here > best[0]:
+                    best = (here, (a, b))
+    return best[1] if best else None
 
 
 def _svg_opacity(item) -> str:

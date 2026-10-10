@@ -61,7 +61,12 @@ class FixedFaceSizeTests(unittest.TestCase):
 
     def test_kept_inside_the_shape_the_words_still_fit(self):
         got, lay = sizes(ft.Edits(fixed_face_size=True, text_inside=True, **OWNER_GROUPS))
-        self.assertEqual(got[FEMALE], sizes(ft.Edits(fixed_face_size=True, **OWNER_GROUPS))[0][FEMALE])
+        loose = sizes(ft.Edits(fixed_face_size=True, **OWNER_GROUPS))[0][FEMALE]
+        self.assertEqual(got[FEMALE][0], loose[0], "the leaf's face as without")
+        # The words kept a little inside the leaf's own outline (TEXT_MARGIN), where it narrows to its tip --
+        # not only inside the frame's rectangle -- so smaller, but readable.
+        self.assertLessEqual(got[FEMALE][1], loose[1])
+        self.assertGreater(got[FEMALE][1], 5.0)
         self.assertLess(got[MALE][0], got[FEMALE][0], "a short shell holds a smaller face and words")
         self.assertGreater(got[MALE][1], 6.0, "but never all but unreadably small")
 

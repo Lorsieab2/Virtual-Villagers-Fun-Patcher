@@ -73,13 +73,15 @@ class ModelTests(unittest.TestCase):
         words = lambda e, q: [(round(t.x, 2), round(t.y, 2), t.text, round(t.size, 2), t.centre, t.end, t.mirror_h,
                                t.angle) for t in texts(e, q)]
         cases = {
-            "text_align": "left", "text_valign": "top", "text_room": "shape",
+            "text_align": "left", "text_valign": "top",
             "picture_size": 50.0, "text_size": 150.0, "text_wrap": 8, "show_units": False, "show_years": False,
             "show_twins": True,
         }
         for name, value in cases.items():
             with self.subTest(name=name):
                 self.assertOnlyMalesChange(name, value, words)
+        # The words' room: a line long enough to need it (words are measured by their letters, text_width).
+        self.assertOnlyMalesChange("text_room", "shape", words, {"text_wrap": 40})
         # Kept inside the shape: only where the words would leave it (left-aligned words in a star's outline).
         self.assertOnlyMalesChange("text_inside", True, words, {"text_align": "left", "text_room": "shape"})
         detail = lambda e, q: [(l.colour, l.width, round(l.opacity, 3)) for l in detail_lines(e, q)]
