@@ -623,8 +623,8 @@ Conceptions Log to Text File unticked only the mother is recorded). At the birth
 creation routine hands the named child and its mother to the companion --
 so births that happen while the game catches up on time you were away are
 recorded just the same -- both parents are written to the child's entry,
-the birth is appended to the parentage log at once as a "Birth" record,
-and then the entry is saved to "Virtual Villagers 1 Parentage Records -
+the birth is appended to the parentage log at once as a numbered
+"Birth <n>" record, and then the entry is saved to "Virtual Villagers 1 Parentage Records -
 Save <slot>.dat" in the "Virtual Villagers Fun Patcher Data\Parentage
 Records" folder beside the saves.
 Nothing is written into a villager record or the save.

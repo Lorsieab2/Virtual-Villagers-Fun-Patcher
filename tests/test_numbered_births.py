@@ -75,6 +75,29 @@ class Readers(unittest.TestCase):
         people = self.checker._block_people(birth("Kid", "Birth 5").rstrip("\n").split("\n"))
         self.assertEqual([p["name"] for p in people], ["Kid"], "only the child of a Birth record")
 
+    def test_head_0_body_0_and_age_0_are_real_values(self):
+        # The owner: "for all 5 games, 0 is a valid value for head, body and age".
+        zero = ("Birth {n}\n  Child: Zed\n    Sex: Male\n    Head: 0\n    Body: 0\n    Likes: (none)\n"
+                "    Dislikes: (none)\n  Mother: Nil\n    Head: 0\n    Body: 0\n  Father: Pa\n    Head: 0\n"
+                "    Body: 0\n\n")
+        conceived = ("Conception 1\n  Mother: Nil\n    Age at conception: 0\n    Head: 0\n    Body: 0\n"
+                     "  Father: Pa\n    Age at conception: 0\n    Head: 0\n    Body: 0\n  Babies in pregnancy: 2\n\n")
+        log = write(self.folder, BIRTHS.format(game=4, n=1), "Village: Tribe (Save 1)\n" + conceived
+                    + zero.replace("Birth {n}", "Birth") + zero.replace("Birth {n}", "Birth 2"))
+        records, _files = self.checker.births_log(self.folder, 4, 1)
+        self.assertFalse(records.damaged, "head 0 / body 0 is a whole record, not a cut-off one")
+        self.assertEqual([(r.kind, (r.child or r.mother).head, (r.child or r.mother).body) for r in records],
+                         [("conception", 0, 0), ("birth", 0, 0), ("birth", 0, 0)])
+        self.assertEqual([(r.mother.head, r.mother.body, r.father.head, r.father.body) for r in records[1:]],
+                         [(0, 0, 0, 0)] * 2)
+        kinds = {k.id: k for k in additions.plan(self.folder, 4, 1)}
+        self.assertEqual(kinds["born_as"].decided, 2, "the mother of head 0 / body 0 is known: twins")
+        self.assertEqual(kinds["birth_numbers"].decided, 1)
+        additions.apply(self.folder, list(kinds.values()), {"born_as", "birth_numbers"}, {})
+        self.assertEqual(headings(log), ["Birth 1", "Birth 2"])
+        self.assertEqual(log.read_bytes().count(b"    Head: 0\r\n    Body: 0\r\n"), 8, "every 0 kept as written")
+        self.assertEqual(log.read_bytes().count(b"Age at conception: 0\r\n"), 2)
+
     def test_born_as_reads_numbered_births(self):
         write(self.folder, BIRTHS.format(game=3, n=1),
               "Village: Tribe (Save 1)\n" + conception(1).replace("pregnancy: 1", "pregnancy: 2")
