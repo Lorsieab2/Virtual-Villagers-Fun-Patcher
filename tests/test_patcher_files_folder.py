@@ -148,6 +148,7 @@ SHIPPING_SOURCES = (
 # the patcher writes in ASCII, is used -- never the folder's path).
 SAVE_FOLDER_BASENAME_FUNCTIONS = {
     "native/shared/save_folder.c": 1,
+    "native/shared/paid_purchases.h": 1,   # the save folder for a bought, undelivered barrel
     "native/vv1_origins_icons/vv1_origins_icons.c": 2,
     "native/vv1_parentage/vv1_crosscheck.inc": 1,
     "native/vv1_parentage/vv1_parentage.c": 1,

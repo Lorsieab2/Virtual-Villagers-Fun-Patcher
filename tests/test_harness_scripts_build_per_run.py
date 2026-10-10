@@ -50,8 +50,9 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # build_lost_birth_harness.ps1 (the babies lost with their mother; it
         # follows the same rules) and build_cause_save_slot_harness.ps1 (a death
         # in a village made in that session keeps its cause through the save
-        # and a reload).
-        self.assertEqual(len(SCRIPTS), 26, [path.name for path in SCRIPTS])
+        # and a reload) and build_paid_purchases_harness.ps1 (a bought Barrel
+        # not delivered yet survives a quit).
+        self.assertEqual(len(SCRIPTS), 27, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:
@@ -77,7 +78,8 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         takes_out_dir = [path for path in SCRIPTS if "[string]$OutDir" in path.read_text(encoding="utf-8")]
         # 10, build_arrival_harness.ps1 (the Arrived records) and
         # build_reconcile_harness.ps1 (the Elders and Statistics reconcile) and\n        # build_lost_birth_harness.ps1 (the babies lost with their mother).
-        self.assertEqual(len(takes_out_dir), 13)
+        # + build_paid_purchases_harness.ps1 (a bought Barrel survives a quit).
+        self.assertEqual(len(takes_out_dir), 14)
         for path in takes_out_dir:
             text = path.read_text(encoding="utf-8")
             with self.subTest(script=path.name):
