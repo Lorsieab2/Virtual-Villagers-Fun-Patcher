@@ -14,13 +14,13 @@ import vv_genealogy_window as gw  # noqa: E402
 BI = {"bold": True, "italic": True}
 
 
-def person(pid, name, number, litter=None, generation=1, alive=True, sex="Male"):
+def person(pid, name, number, litter=None, generation=1, alive=True, sex="Male", runner=False):
     return SimpleNamespace(id=pid, name=name, number=number, litter=litter, upcoming=False, age=1400,
-                           years=70, alive=alive, gone="died", heathen=False, generation=generation, sex=sex)
+                           years=70, alive=alive, gone="died", heathen=False, generation=generation, sex=sex, runner=runner)
 
 
-def lay(people, entries=None):
-    opts = {"show_units": False, "show_years": True, "show_founder": True, "show_twins": True,
+def lay(people, entries=None, runner=True):
+    opts = {"show_units": False, "show_years": True, "show_founder": True, "show_twins": True, "show_runner": runner,
             "text_wrap": ft.WRAP}
     edits = SimpleNamespace(styles={})
     entries = entries or {}
@@ -35,6 +35,22 @@ class DefaultStyleTests(unittest.TestCase):
         runs = ft.node_runs(lay([a, b]), a)
         self.assertEqual(runs, [[("1. Ghali", {})], [("70 years old", {})], [("Founder", BI)],
                                 [("Huata's twin", BI)], [("(deceased)", BI)]])
+
+    def test_runner_is_an_extra_line_for_those_who_like_running(self):
+        yes, no = person(1, "Papu", 9, generation=3, runner=True), person(2, "Kalea", 10, generation=3)
+        self.assertEqual(ft.node_runs(lay([yes, no]), yes), [[("9. Papu", {})], [("70 years old", {})],
+                                                              [("Runner", BI)]])
+        self.assertIsNone(ft.node_runs(lay([yes, no]), no))                       # no like: no line
+        self.assertIsNone(ft.node_runs(lay([yes, no], runner=False), yes))        # toggled off: hidden
+        dead = person(3, "Ghali", 1, alive=False, runner=True)                    # living or dead alike
+        self.assertIn(("Runner", BI), [r for line in ft.node_runs(lay([dead]), dead) for r in line])
+
+    def test_the_toggle_is_saved_and_old_edits_load_with_it_off(self):
+        self.assertFalse(ft.Edits().show_runner)
+        self.assertFalse(ft.Edits._from_data({}).show_runner)
+        e = ft.Edits(show_runner=True)
+        self.assertTrue(ft.Edits._from_data(e.to_data()).show_runner)
+        self.assertIn("show_runner", ft.GROUP_FIELDS)
 
     def test_the_name_and_age_alone_stay_plain(self):
         p = person(1, "Papu", 9, generation=3)

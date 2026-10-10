@@ -51,6 +51,7 @@ class GenealogyError(Exception):
 
 
 Key = tuple  # (name, head, body)
+RUNNING = 38   # the like id of "running" in all five games' preference lists (grant_running.RUNNING)
 
 
 @dataclass
@@ -69,6 +70,7 @@ class Person:
     family: int | None = None           # the save's family number (the last name's), living only
     expecting: bool = False             # a living mother-to-be
     heathen: bool = False               # New Believers: a current Heathen
+    runner: bool = False                # likes running: the living by their save, the dead by their logs
     arrived: bool = False               # an Arrived record names them
     how: str = ""                       # the Arrived record's "How" ("Founder", an event's title...)
     first_seen: str | None = None       # the earliest History snapshot (or Arrived record) naming them
@@ -144,6 +146,7 @@ class _Registry:
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
+        self.ran: set[int] = set()                     # who a log says likes running
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -182,6 +185,8 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.sex = "Male" if _i32(data, at + f.sex) == f.male else "Female"
         p.age = _i32(data, at + age_at)
         p.family = _i32(data, at + f.family)
+        if len(data) >= at + f.likes + 4 * f.slots:
+            p.runner = RUNNING in [_i32(data, at + f.likes + 4 * k) for k in range(f.slots)]
         if game == 1:
             p.expecting = _i32(data, at - 0x370 + 0x358) != 0       # the delivery the game counts down
         elif f.expecting is not None:
@@ -270,6 +275,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             reg.snapshots.setdefault(b.date, set()).add(p.id)
             if p.first_seen is None or b.date < p.first_seen:
                 p.first_seen = b.date
+        if "running" in [w.strip().lower() for w in (b.value("Likes") or "").split(",")]:
+            reg.ran.add(p.id)
         age = b.value("Age")
         if age and age.lstrip("-").isdigit() and not p.alive and p.gone != "died":
             p.age = max(p.age or 0, int(age))
@@ -362,6 +369,9 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
     _log_people(reg, folder, game, slot)
+    for pid in reg.ran:                 # the dead and gone: as their logs say (the living: their save)
+        if not reg.people[pid].alive:
+            reg.people[pid].runner = True
     _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)

@@ -29,7 +29,8 @@ GAME = "Virtual Villagers - A New Home"
 # The closest two families' OKLab distance (x100; about 2 is just noticeable) the button must reach on a white
 # page, by how many families there are.  Measured 2026-10-10 (any colour, a casing where one blends): 21.8, 10.6
 # and 7.6 (the closest crossing or nearby pair 38.6, 17.0 and 12.5).
-NEAREST = {10: 19.0, 50: 9.4, 112: 6.4}
+# Vivid colours first (2026-10-10, Preview 20: "very colorful and distinct across the entire RGB range"): 14.9, 5.4, 4.5.
+NEAREST = {10: 14.0, 50: 5.0, 112: 4.0}
 
 
 # ---- independent checks (not the module's own arithmetic) ------------------------------------------
@@ -482,6 +483,8 @@ class _Editor:
     _auto_line_colours = gw.TreeEditor._auto_line_colours
     _reset_line_colours = gw.TreeEditor._reset_line_colours
     _line_colour = gw.TreeEditor._line_colour
+    _colour_lines = gw.TreeEditor._colour_lines
+    _show_line_options = lambda self: None
     _state = tools.CanvasTools._state
     _record = tools.CanvasTools._record
     _undo = tools.CanvasTools._undo
@@ -494,6 +497,7 @@ class _Editor:
         self.lay = ft.layout(self.village, self.edits)
         self.history, self.future = [], []
         self.status = _Var()
+        self.line_mode_var = _Var()
         self.last_state = self._state()
 
     def _page_scene(self, page):
