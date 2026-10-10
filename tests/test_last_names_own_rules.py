@@ -202,6 +202,13 @@ class SavingTheRules(unittest.TestCase):
         self.assertEqual(kept, {("Dead Dad", 2, 2, "Male"): "mother"})
         self.assertEqual(ln.read_own(self.folder, 3, 1), kept)
 
+    def test_a_delivered_mothers_stale_expected_father_keeps_nothing(self):
+        # The game leaves the expected father's name on her after the birth; her pregnancy field
+        # (0 once delivered) decides, as the Population log's "Nursing" does (v1.35.66 live).
+        save(self.folder, [entry("Aipi Wanjiko", 1, 50, 7, 8, expecting=("Dead Dad", 2, 2), pregnant=0)])
+        ln.write_record(self.folder, 3, 1, "father", {}, own={("Dead Dad", 2, 2, "Male"): "mother"})
+        self.assertEqual(ln.save_own_rules(self.folder, 3, 1, "mother", {}, NoGame()), {})
+
 
 class RenamesCarryTheRule(unittest.TestCase):
     """Give last names, Number Duplicate Names and restoring cut names all rename through plan_renames;

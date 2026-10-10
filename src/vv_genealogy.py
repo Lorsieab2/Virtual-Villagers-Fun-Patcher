@@ -217,14 +217,16 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         if len(data) >= at + f.likes + 4 * f.slots:
             p.runner = RUNNING in [_i32(data, at + f.likes + 4 * k) for k in range(f.slots)]
         if game == 1:
-            p.expecting = _i32(data, at - 0x370 + 0x358) != 0       # the delivery the game counts down
+            p.expecting = ln.carrying(game, data, at)       # the delivery the game counts down
             # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
             reg.vv1_living.append((p.id, _cstr(data, at, f.name_cap)[:VV1_SIDECAR_NAME - 1],
                                    1 if _i32(data, at + f.sex) == f.male else 2, _i32(data, at + f.family),
                                    _i32(data, at + f.head), _i32(data, at + f.body)))
         elif f.expecting is not None:
-            p.expecting = p.sex == "Female" and data[at + f.expecting] != 0
-            if p.expecting:
+            # Her pregnancy field, as the Population log's "Nursing" -- never the expected father's
+            # name alone, which the game leaves on her after the delivery (ln.PREGNANCY).
+            p.expecting = p.sex == "Female" and ln.carrying(game, data, at)
+            if p.expecting and data[at + f.expecting] != 0:
                 _fh, _fb, _mh, _mb, eh, eb = f.looks
                 reg.expected[p.id] = (_cstr(data, at + f.expecting, f.parent_cap),
                                       _i32(data, at + eh), _i32(data, at + eb))
