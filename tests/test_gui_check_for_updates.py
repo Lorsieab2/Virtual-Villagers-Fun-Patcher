@@ -198,8 +198,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # ...and A New Home's parents file under either folder name (vv_save_layout).
             ("vv_genealogy", {"vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions"}),
-            # Restoring cut names renames through Last Names.
-            ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions"}),
+            # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
+            ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.
             ("vv_graves", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_log_additions",
                            "vv_log_decisions"}),

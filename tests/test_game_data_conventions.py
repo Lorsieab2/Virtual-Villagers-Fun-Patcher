@@ -77,12 +77,15 @@ class GameDataConventionsTests(unittest.TestCase):
             "past the end of the list", empty,
             "doc must name a past-the-end index as an empty marker")
 
-    def test_the_doc_matches_the_first_filled_behaviour(self) -> None:
-        """The panel shows the first FILLED slot; the code must agree."""
-        self.assertRegex(self.doc, r"(?i)\*\*first filled\*\* entry")
-        body = self.source[self.source.index("static int first_preference("):]
+    def test_the_doc_matches_the_every_filled_behaviour(self) -> None:
+        """The panel lists EVERY filled slot, skipping the empty ones; the code must agree
+        (v1.35.68: "Dislikes: green" printed for a panel showing "green, crowds")."""
+        self.assertRegex(self.doc, r"(?i)\*\*every filled\*\* entry")
+        self.assertNotIn("static int first_preference(", self.source)
+        body = self.source[self.source.index("static int preference_list_text("):]
         body = body[:body.index("\n}")]
         self.assertIn("continue;", body)
+        self.assertNotIn("return 1;", body, "the list must not stop at the first filled slot")
 
     # No line-ending assertion here. The committed blob is LF, but nothing
     # pins this doc's bytes, and the repository leaves docs/*.md unspecified

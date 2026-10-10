@@ -248,7 +248,7 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
                                  int *files) {
     wchar_t folders[READ_FOLDERS][MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     struct arrival_reader reader;
     const wchar_t *stem = family_stem(g, LOG_BIRTHS);
     int ceiling;
@@ -361,7 +361,7 @@ static int founder_count;
 static void read_first_snapshot(const char *village) {
     wchar_t (*history)[MAX_LOG_PATH] = NULL;
     wchar_t path[MAX_LOG_PATH];
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     char current[256];
     int ceiling;
     int number;

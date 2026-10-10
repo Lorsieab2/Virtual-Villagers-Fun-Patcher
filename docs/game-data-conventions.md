@@ -38,12 +38,17 @@ mean the same thing. Code that treats an out-of-range index as a sign it
 is reading the wrong offset will reject the correct offset; that has
 happened.
 
-The game's Details panel displays the **first filled** entry of each
-array, not slot 0. Two real villagers show why the distinction matters:
-one whose first dislike slot is empty while the second holds the value the
-panel displays, and one whose slots are all empty and whose panel line is
-consequently blank. Reading slot 0 reports the first as having no dislike
-and the second as disliking whatever `-1` decodes to.
+The game's Details panel displays **every filled** entry of each array,
+in slot order, separated by ", " ("herbs, crowds"), and skips the empty
+ones wherever they sit. Every patcher log (Village History, Village
+Population, Births, Arrived, Deaths and Island Events records) prints the
+same list (since v1.35.68; older builds printed only the first
+filled entry, and every reader still accepts that one-word form). Two real
+villagers show why skipping matters: one whose first dislike slot is empty
+while the second holds the value the panel displays, and one whose slots
+are all empty and whose panel line is consequently blank. Reading slot 0
+reports the first as having no dislike and the second as disliking
+whatever `-1` decodes to.
 
 The list itself grew across the series — 47 entries in VV1, 62 in VV2, 79
 in VV3, VV4 and VV5 — so each game must index its own list. The lists

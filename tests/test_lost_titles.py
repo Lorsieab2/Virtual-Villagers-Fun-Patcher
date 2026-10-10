@@ -178,7 +178,7 @@ class TheWordLists(unittest.TestCase):
     def test_list_text_is_every_filled_slot(self):
         self.assertEqual(lt.list_text(5, [1, -1, 9]), "crowds, the dark")
         self.assertEqual(lt.list_text(5, [-1, -1, 500]), "(none)")
-        self.assertEqual(lt.first_word(5, [-1, 9, 1]), "the dark")
+        self.assertEqual(lt.list_text(5, [-1, 9, 1]), "the dark, crowds")
 
     def test_undo_a_change(self):
         self.assertEqual(lt.undo(5, [8, 9, -1], "bees", "bees, the dark"), [(8, -1, -1)])

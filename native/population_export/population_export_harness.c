@@ -128,6 +128,110 @@ static void put_name(unsigned char *rec, unsigned int off, const char *s,
     }
 }
 
+/* LIKES AND DISLIKES, all five games: every filled slot, in slot order,
+   ", " between them, as the game's own Details panel lists them (v1.35.68:
+   "Dislikes: green" was printed for a villager whose panel said "green,
+   crowds").  The arrays, per game, are the exporter's own (likes, dislikes,
+   slot count); an empty slot is -1 or an index past the game's list. */
+struct prefs { unsigned int likes, dislikes, slots; };
+
+static const char *villager_block(const char *log, int number, size_t *length);
+static int block_has(const char *block, size_t length, const char *needle);
+
+static struct prefs prefs_of(int id) {
+    struct prefs p = { 0u, 0u, 0u };
+    switch (id) {
+    case 1: p.likes = 0x398u;  p.dislikes = 0x3A8u;  p.slots = 4u;  break;
+    case 2: p.likes = 0x5F0u;  p.dislikes = 0x6E8u;  p.slots = 62u; break;
+    case 3: p.likes = 0xFB4u;  p.dislikes = 0xFC0u;  p.slots = 3u;  break;
+    case 4: p.likes = 0x1E60u; p.dislikes = 0x1E6Cu; p.slots = 3u;  break;
+    case 5: p.likes = 0x1F5Cu; p.dislikes = 0x1F68u; p.slots = 3u;  break;
+    }
+    return p;
+}
+
+/* Every slot empty (-1), then `count` (slot, index) pairs filled. */
+static void put_prefs(unsigned char *rec, unsigned int off, unsigned int slots,
+                      const int *pairs, int count) {
+    unsigned int s;
+    int k;
+    for (s = 0; s < slots; ++s) {
+        put_int(rec, off + s * 4u, -1);
+    }
+    for (k = 0; k < count; ++k) {
+        put_int(rec, off + (unsigned int)pairs[2 * k] * 4u, pairs[2 * k + 1]);
+    }
+}
+
+/* The four villagers' preferences, planted in records 0..3 of a game:
+     0  likes "herbs, crowds" (slot 0 and the LAST slot, an empty slot between),
+        dislikes "green, crowds" (slots 0 and 1);
+     1  likes "berries" alone, in the last slot; dislikes none at all (one slot
+        -1, the rest an index past the end of every game's list);
+     2  likes none; dislikes "ants" alone (index 0 is a word, not an empty slot);
+     3  likes "herbs, crowds, green" where the game has room for three (slots
+        0, 1 and the last), dislikes "the ocean" alone in a middle slot. */
+static void plant_prefs(unsigned char *array, unsigned int base, unsigned int stride, int id) {
+    struct prefs p = prefs_of(id);
+    unsigned int last = p.slots - 1u;
+    unsigned char *rec;
+    int a[6], b[6];
+    unsigned int s;
+
+    rec = array + base;
+    a[0] = 0; a[1] = 11; a[2] = (int)last; a[3] = 1;
+    put_prefs(rec, p.likes, p.slots, a, 2);
+    b[0] = 0; b[1] = 21; b[2] = 1; b[3] = 1;
+    put_prefs(rec, p.dislikes, p.slots, b, 2);
+
+    rec = array + base + stride;
+    a[0] = (int)last; a[1] = 12;
+    put_prefs(rec, p.likes, p.slots, a, 1);
+    put_prefs(rec, p.dislikes, p.slots, a, 0);
+    for (s = 1; s < p.slots; ++s) {
+        put_int(rec, p.dislikes + s * 4u, 999);
+    }
+
+    rec = array + base + stride * 2u;
+    put_prefs(rec, p.likes, p.slots, a, 0);
+    b[0] = (int)last; b[1] = 0;
+    put_prefs(rec, p.dislikes, p.slots, b, 1);
+
+    rec = array + base + stride * 3u;
+    a[0] = 0; a[1] = 11; a[2] = 1; a[3] = 1; a[4] = (int)last; a[5] = 21;
+    put_prefs(rec, p.likes, p.slots, a, 3);
+    b[0] = (int)(p.slots / 2u); b[1] = 17;
+    put_prefs(rec, p.dislikes, p.slots, b, 1);
+}
+
+/* The lines plant_prefs makes each record print, checked in `log`'s blocks
+   1..4 (the Villager numbers of records 0..3). */
+static void check_prefs(const char *log, int first_villager, const char *which) {
+    static const char *const likes[4] = {
+        "  Likes: herbs, crowds\r\n", "  Likes: berries\r\n", NULL, "  Likes: herbs, crowds, green\r\n" };
+    static const char *const dislikes[4] = {
+        "  Dislikes: green, crowds\r\n", NULL, "  Dislikes: ants\r\n", "  Dislikes: the ocean\r\n" };
+    int k;
+    for (k = 0; k < 4; ++k) {
+        size_t length = 0;
+        const char *block = log != NULL ? villager_block(log, first_villager + k, &length) : NULL;
+        if (likes[k] != NULL) {
+            CHECK(block_has(block, length, likes[k]), "%s: villager %d's every like (%.*s)", which,
+                  first_villager + k, (int)strlen(likes[k]) - 4, likes[k] + 2);
+        } else {
+            CHECK(block != NULL && !block_has(block, length, "Likes:"),
+                  "%s: villager %d, with no like, has no Likes line", which, first_villager + k);
+        }
+        if (dislikes[k] != NULL) {
+            CHECK(block_has(block, length, dislikes[k]), "%s: villager %d's every dislike (%.*s)", which,
+                  first_villager + k, (int)strlen(dislikes[k]) - 4, dislikes[k] + 2);
+        } else {
+            CHECK(block != NULL && !block_has(block, length, "Dislikes:"),
+                  "%s: villager %d, with no dislike, has no Dislikes line", which, first_villager + k);
+        }
+    }
+}
+
 /* Which of the two logs to act on.
 
    They are governed by different rules -- the history prints no
@@ -356,6 +460,7 @@ static void run_game(const struct game *g, write_population_t write) {
         put_int(rec, g->health, 0);
         put_name(rec, g->name, "Standin", g->name_cap);
     }
+    plant_prefs(array, g->base, g->stride, g->id);
 
     remove_log();
     CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == 4,
@@ -366,6 +471,7 @@ static void run_game(const struct game *g, write_population_t write) {
         for (k = 0; k < 2; ++k) {
             const char *which = kinds[k] == LOG_HISTORY ? "history" : "roster";
             log = read_log(kinds[k]);
+            check_prefs(log, 1, which);
             CHECK(log != NULL && strstr(log, "Skeleton") == NULL,
                   "%s: a health-0 body is not listed as living", which);
             CHECK(log != NULL && strstr(log, "Starved") == NULL,
@@ -538,16 +644,21 @@ static void run_vv1(write_population_t write) {
     vv1_villager(array, 5, "Skeleton", 800, 1, 2, 2, 0);   /* a body awaiting burial: */
     put_int(array + 5u * VV1_STRIDE, 0x344u, 0);           /* the slot live, health 0 */
     vv1_villager(array, 6, "Mahina", 640, 2, 6, 6, 620);   /* carrying, father named, looks not recorded */
+    plant_prefs(array, 0u, VV1_STRIDE, 1);
 
     remove_log();
     CHECK(write(1, image, "Village: Harness (Save 1)\n") == 6, "the export writes all six villagers and no body");
 
+    log = read_log(LOG_HISTORY);
+    check_prefs(log, 1, "history");
+    free(log);
     log = read_log(LOG_ROSTER);
     if (log == NULL) {
         CHECK(0, "the population roster was written");
         VirtualFree(image, 0, MEM_RELEASE);
         return;
     }
+    check_prefs(log, 1, "roster");
     block = villager_block(log, 2, &length);
     CHECK(block_has(block, length, "Name: Kai"), "roster: the child is present");
     CHECK(block_has(block, length, "    Father: Goro") && block_has(block, length, "    Mother: Aisha"),

@@ -159,7 +159,7 @@ static int death_reader_line(struct death_reader *r, char *line) {
 static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder, const char *village,
                               int old_folder) {
     wchar_t path[MAX_LOG_PATH];
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     struct death_reader reader;
     const wchar_t *stem = family_stem(g, LOG_DEATHS);
     int ceiling;
@@ -213,7 +213,7 @@ static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder
 static int read_village_deaths(const struct game_layout *g, int game_id, const char *village) {
     wchar_t folder[MAX_PATH];
     wchar_t slot_folder[MAX_PATH];
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     struct death_reader reader;
     int i;
 
@@ -350,6 +350,10 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
    age it shows are printed with them, so a reader can see the gap. */
 
 #define IDENTITIES_PER_GRAVE 8
+/* A snapshot's "  Likes:" / "  Dislikes:" value: every filled slot since v1.35.68
+   ("herbs, crowds"), up to The Lost Children's 62 words; one word before. */
+#define HISTORY_PREFS_MAX 1024
+#define HISTORY_LINE_MAX (HISTORY_PREFS_MAX + 64)
 
 struct identity {
     int head, body;
@@ -358,8 +362,8 @@ struct identity {
     int outlived;          /* listed older than the grave's age */
     int alive;             /* in the village now */
     char sex[16];          /* "Male" / "Female", or empty from a log that has no Sex line */
-    char likes[64];
-    char dislikes[64];
+    char likes[HISTORY_PREFS_MAX];
+    char dislikes[HISTORY_PREFS_MAX];
     char when[32];
 };
 
@@ -379,8 +383,8 @@ struct history_villager {
     int age, head, body;
     int have_age, have_head, have_body;
     char sex[16];
-    char likes[64];
-    char dislikes[64];
+    char likes[HISTORY_PREFS_MAX];
+    char dislikes[HISTORY_PREFS_MAX];
 };
 
 static void history_villager_done(struct history_villager *v, struct backfill_target *targets,
@@ -541,7 +545,7 @@ static int read_history(int game_id, const char *village, struct backfill_target
     wchar_t folders[READ_FOLDERS][MAX_PATH];
     int folder_count, f;
     wchar_t path[MAX_LOG_PATH];
-    char line[512];
+    char line[HISTORY_LINE_MAX];
     char current[256];
     char heading[32];
     char when[32];
@@ -770,8 +774,8 @@ static const char BACKFILL_NOTE[] =
     "    this log was kept, or while the game was catching up on time away)\n";
 
 static int write_backfill(int game_id, const struct backfill_target *target) {
-    char text[RECORD_TEXT_MAX];
-    char looks[512];
+    char text[RECORD_TEXT_MAX + 2 * HISTORY_PREFS_MAX];
+    char looks[512 + 2 * HISTORY_PREFS_MAX];
     char source[256];
     const vv_grave_fact *f = target->fact;
     int written;

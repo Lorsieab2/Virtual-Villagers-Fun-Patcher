@@ -258,11 +258,20 @@ static int preference_name(
     return 1;
 }
 
-/* The first filled entry of a preference array, or 0 when every slot is
-   empty.  Empty is -1 OR an index past the end of the list; both appear in
-   real villages.  The first FILLED slot is what the game's own Details panel
-   shows, so it is what the log records. */
-static int first_preference(
+/* Room for one villager's likes (or dislikes) as the logs print them: every
+   filled slot, ", " between -- up to The Lost Children's 62 words. */
+#define PREFERENCE_TEXT_MAX 1024
+
+/* Every filled entry of a preference array, in slot order, ", " between
+   them, or 0 when every slot is empty.  Empty is -1 OR an index past the end
+   of the list; both appear in real villages, and an empty slot is skipped
+   wherever it sits.  The game's own Details panel lists every filled slot
+   (all five exes: VV1 0x43BA20, VV2 0x44B7E0, VV3 0x455350, VV4 0x45D770,
+   VV5 0x464FB0 build the line, skipping -1, a "," after each word), so the
+   logs print the same list (v1.35.68; older builds printed only the first,
+   and every reader takes both).  A list that would not fit `out` stops at
+   the last whole word. */
+static int preference_list_text(
     const unsigned char *record,
     unsigned int base,
     unsigned int slots,
@@ -271,19 +280,33 @@ static int first_preference(
     size_t out_size
 ) {
     unsigned int slot;
+    size_t used = 0;
+    if (out_size == 0) {
+        return 0;
+    }
+    out[0] = '\0';
     if (base == 0u || list == NULL) {
         return 0;
     }
     for (slot = 0; slot < slots; ++slot) {
+        char word[64];
+        size_t length;
         int value = *(const int *)(record + base + slot * 4u);
-        if (value < 0) {
+        if (value < 0 || !preference_name(list, value, word, sizeof word)) {
             continue;
         }
-        if (preference_name(list, value, out, out_size)) {
-            return 1;
+        length = strlen(word);
+        if (used + (used ? 2u : 0u) + length + 1u > out_size) {
+            break;
         }
+        if (used) {
+            out[used++] = ',';
+            out[used++] = ' ';
+        }
+        memcpy(out + used, word, length + 1u);
+        used += length;
     }
-    return 0;
+    return used != 0;
 }
 
 struct game_layout {
@@ -417,7 +440,7 @@ struct game_layout {
        two parents who share a name can be told apart -- the owner's identity
        fields.  Each is an ARRAY of i32 indices into the game's preference
        list ("in general likes and dislikes are arrays for all 5 games"); the
-       game's Details panel shows the first filled entry, and so does the log.
+       game's Details panel lists every filled entry, and so does the log.
 
        These are the population exporter's measured offsets and lists
        (native/population_export/population_export.c), restated here because
@@ -1549,7 +1572,7 @@ static int roll_back_append(const wchar_t *path, LONGLONG size) {
 static int count_family_records(const wchar_t *path, int family) {
     FILE *file = _wfopen(path, L"rb");
     int count = 0;
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     const char *marker = family_marker(family);
     size_t marker_length = strlen(marker);
 
@@ -1756,7 +1779,7 @@ static int highest_log_number(const wchar_t *stem,
    after the family's marker ("Death 7", "Conception 12"): 0 and 0 for an absent folder. */
 static void folder_numbers(const wchar_t *folder, const wchar_t *stem, int family, int *count, int *highest) {
     wchar_t path[MAX_LOG_PATH];
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     const char *marker = family_marker(family);
     size_t marker_length = strlen(marker);
     int ceiling, number;
@@ -2083,9 +2106,10 @@ VV_PARENTAGE_STATIC int select_log_file(
 
    Every field is checked against the stride with its own width, so a four-byte
    read at stride-2 is rejected rather than straddling the record boundary. */
-/* The word the conception record prints for one parent's preference array:
-   the first filled entry, or "(none)" when every slot is empty.  Printed
-   rather than omitted so every record has the same shape. */
+/* What a record prints for one preference array: every filled entry, ", "
+   between them (preference_list_text), or "(none)" when every slot is empty.
+   Printed rather than omitted so every record has the same shape.
+   `out_size` is at least 7. */
 static void preference_text(
     const struct game_layout *g,
     const unsigned char *record,
@@ -2094,8 +2118,8 @@ static void preference_text(
     size_t out_size
 ) {
     if (record == NULL || g->likes == 0u
-        || !first_preference(record, base, g->preference_slots,
-                             g->preference_list, out, out_size)) {
+        || !preference_list_text(record, base, g->preference_slots,
+                                 g->preference_list, out, out_size)) {
         memcpy(out, "(none)", 7);
     }
 }
@@ -2436,8 +2460,9 @@ static int is_record_slot(
    and reports that its hooks were refused, in which case it will never name
    a village and records are written at once, as with no publisher. */
 
-/* One rendered record: 13 short lines plus a skills block of at most 512. */
-#define RECORD_TEXT_MAX 2048
+/* One rendered record: 13 short lines, a skills block of at most 512, and up to four
+   likes / dislikes lists of PREFERENCE_TEXT_MAX each (a Conception names both parents'). */
+#define RECORD_TEXT_MAX (2048 + 4 * PREFERENCE_TEXT_MAX)
 
 struct pending_record {
     int game_id;
@@ -2857,7 +2882,7 @@ static int count_running_records(const struct game_layout *g, int births) {
     wchar_t folders[2 + VV_LOG_SLOTS][MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
     const wchar_t *stem = family_stem(g, LOG_BIRTHS);
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     int ceiling;
     int number;
     int best = 0;
@@ -3279,10 +3304,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     char father_body[32];
     char father_age[32];
     /* Sized for the longest preference word plus the unavailable wording. */
-    char mother_likes[64];
-    char mother_dislikes[64];
-    char father_likes[64];
-    char father_dislikes[64];
+    char mother_likes[PREFERENCE_TEXT_MAX];
+    char mother_dislikes[PREFERENCE_TEXT_MAX];
+    char father_likes[PREFERENCE_TEXT_MAX];
+    char father_dislikes[PREFERENCE_TEXT_MAX];
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
@@ -3500,7 +3525,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
 
     /* Both parents' likes and dislikes -- the owner's identity fields, so
        two villagers who share a name can be told apart in the log.  Each is
-       what the Details panel shows: the first filled entry of the array, named
+       what the Details panel shows: every filled entry of the array, named
        from this game's own list.  The mother's come from her record, live at
        the hook.  The father's come from the CAPTURED record only, exactly as
        his age does: no game copies them onto the mother, and a by-name scan
@@ -3720,7 +3745,7 @@ static int compose_birth(
     char mother[MAX_NAME_BYTES];
     char father[MAX_NAME_BYTES];
     char mh[32], mb[32], fh[32], fb[32];
-    char child_likes[64], child_dislikes[64];
+    char child_likes[PREFERENCE_TEXT_MAX], child_dislikes[PREFERENCE_TEXT_MAX];
     char skills[512];
     const unsigned char *rec = (const unsigned char *)child_record;
     int written;
@@ -4161,37 +4186,15 @@ static const char *record_special_title(int game_id, const struct game_layout *g
     return vv_special_title_former(game_id, record, kind);
 }
 
-/* A villager's likes (`dislikes` 0) or dislikes (1) as the logs print them,
-   from a record or a copy of one at the record's own offsets -- for "VVFP
-   Island Events.dll", which shows a change as "old -> new".  0 when the game
-   or the record cannot be read. */
-__declspec(dllexport) int __stdcall VillagePreferenceText(int game_id, const void *record_pointer, int dislikes,
-                                                          char *out, int out_size) {
-    const struct game_layout *g;
-    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record_pointer == NULL || out == NULL || out_size <= 0) {
-        return 0;
-    }
-    g = layout_of(game_id);
-    if (!layout_is_usable(g) || !memory_is_readable(record_pointer, g->stride)) {
-        return 0;
-    }
-    preference_text(g, (const unsigned char *)record_pointer, dislikes ? g->dislikes : g->likes, out,
-                    (size_t)out_size);
-    return 1;
-}
-
-/* Every like (`dislikes` 0) or dislike (1) a villager has, in the words the
-   logs print them (the first filled slot is what the Births log's "Likes:"
-   shows; this names each filled slot in order, ", " between them), or
-   "(none)" -- for "VVFP Island Events.dll", whose "Likes: old -> new" line
-   must show a change in any slot, not only the first.  0 when the game or
-   the record cannot be read. */
+/* Every like (`dislikes` 0) or dislike (1) a villager has, as the logs print
+   them: each filled slot in order, ", " between them, or "(none)" -- from a
+   record or a copy of one at the record's own offsets, for "VVFP Island
+   Events.dll", whose "Likes: old -> new" line must show a change in any
+   slot.  0 when the game or the record cannot be read. */
 __declspec(dllexport) int __stdcall VillagePreferenceListText(int game_id, const void *record_pointer, int dislikes,
                                                               char *out, int out_size) {
     const struct game_layout *g;
     const unsigned char *record = (const unsigned char *)record_pointer;
-    unsigned int base, slot;
-    size_t used = 0;
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL || out == NULL || out_size <= 0) {
         return 0;
     }
@@ -4199,25 +4202,11 @@ __declspec(dllexport) int __stdcall VillagePreferenceListText(int game_id, const
     if (!layout_is_usable(g) || !memory_is_readable(record, g->stride)) {
         return 0;
     }
-    out[0] = '\0';
-    base = dislikes ? g->dislikes : g->likes;
-    if (base != 0u && g->preference_list != NULL) {
-        for (slot = 0; slot < g->preference_slots; ++slot) {
-            char word[64];
-            int value = *(const int *)(record + base + slot * 4u);
-            if (value < 0 || !preference_name(g->preference_list, value, word, sizeof word)) {
-                continue;
-            }
-            if (used + strlen(word) + 3 >= (size_t)out_size) {
-                break;
-            }
-            used += (size_t)_snprintf(out + used, (size_t)out_size - used, "%s%s", used ? ", " : "", word);
-        }
-    }
-    if (used == 0) {
+    if (!preference_list_text(record, dislikes ? g->dislikes : g->likes, g->preference_slots,
+                              g->preference_list, out, (size_t)out_size)) {
         _snprintf(out, (size_t)out_size, "(none)");
+        out[out_size - 1] = '\0';
     }
-    out[out_size - 1] = '\0';
     return 1;
 }
 
@@ -4326,7 +4315,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     const unsigned char *records;
     const char *heading = "";
     char name[MAX_NAME_BYTES];
-    char likes[64], dislikes[64];
+    char likes[PREFERENCE_TEXT_MAX], dislikes[PREFERENCE_TEXT_MAX];
     char skills[512];
     char parents[256];
     char special[128];

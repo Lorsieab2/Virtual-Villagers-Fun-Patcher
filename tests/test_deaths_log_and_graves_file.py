@@ -119,8 +119,9 @@ class Harnesses(unittest.TestCase):
         # "Lost before birth" (4 in each game); and 2 for two deaths in a row with both folders there (the
         # owner's A New Home: four records all "Death 15"); and 12 for one folder of logs per save slot
         # (native/shared/log_slot.h: Save 2's own folder in each game, numbering on across folders, the
-        # shared folders untouched, Death 8 from the slot folder's own highest).
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 250, result.stdout)
+        # shared folders untouched, Death 8 from the slot folder's own highest); and 20 for every like and
+        # dislike in the Death, Arrived and Birth records (4 in each game; v1.35.68).
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 270, result.stdout)
         self.assertIn("  ok   another village gets its own Deaths log, in its own slot's folder", result.stdout)
         self.assertIn("  ok   ...numbered on from the game's highest Death in any folder", result.stdout)
         self.assertIn("  ok   numbered Death 6 and Death 7 after the older folder's Death 5, never Death 6 twice", result.stdout)
